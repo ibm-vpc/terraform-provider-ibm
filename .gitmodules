@@ -1,0 +1,3 @@
+[submodule "common/github.com/IBM/vpc-go-sdk"]
+	path = common/github.com/IBM/vpc-go-sdk
+	url = https://github.com/IBM/vpc-go-sdk
