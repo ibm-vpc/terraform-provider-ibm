@@ -97,6 +97,27 @@ func resourceIBMISInstanceTemplate() *schema.Resource {
 				Description:      "SSH key Ids for the instance template",
 			},
 
+			isPlacementTargetDedicatedHost: {
+				Type:          schema.TypeString,
+				Optional:      true,
+				ConflictsWith: []string{isPlacementTargetDedicatedHostGroup, isPlacementTargetPlacementGroup},
+				Description:   "Unique Identifier of the Dedicated Host where the instance will be placed",
+			},
+
+			isPlacementTargetDedicatedHostGroup: {
+				Type:          schema.TypeString,
+				Optional:      true,
+				ConflictsWith: []string{isPlacementTargetDedicatedHost, isPlacementTargetPlacementGroup},
+				Description:   "Unique Identifier of the Dedicated Host Group where the instance will be placed",
+			},
+
+			isPlacementTargetPlacementGroup: {
+				Type:          schema.TypeString,
+				Optional:      true,
+				ConflictsWith: []string{isPlacementTargetDedicatedHost, isPlacementTargetDedicatedHostGroup},
+				Description:   "Unique Identifier of the Placement Group for restricting the placement of the instance",
+			},
+
 			isInstanceTemplateVolumeAttachments: {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -243,53 +264,37 @@ func resourceIBMISInstanceTemplate() *schema.Resource {
 				},
 			},
 
-			isPlacementTargetDedicatedHost: {
-				Type:          schema.TypeString,
-				Optional:      true,
-				ForceNew:      true,
-				ConflictsWith: []string{isPlacementTargetDedicatedHostGroup},
-				Description:   "Unique Identifier of the Dedicated Host where the instance will be placed",
-			},
-
-			isPlacementTargetDedicatedHostGroup: {
-				Type:          schema.TypeString,
-				Optional:      true,
-				ForceNew:      true,
-				ConflictsWith: []string{isPlacementTargetDedicatedHost},
-				Description:   "Unique Identifier of the Dedicated Host Group where the instance will be placed",
-			},
-
-			isInstanceTemplatePlacementTarget: {
-				Type:        schema.TypeList,
-				Computed:    true,
-				Description: "The placement restrictions to use for the virtual server instance.",
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"id": {
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: "The unique identifier for this dedicated host.",
-						},
-						"crn": {
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: "The CRN for this dedicated host.",
-						},
-						"href": {
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: "The URL for this dedicated host.",
-						},
-					},
-				},
-			},
-
 			isInstanceTemplateResourceGroup: {
 				Type:        schema.TypeString,
 				ForceNew:    true,
 				Optional:    true,
 				Computed:    true,
 				Description: "Instance template resource group",
+			},
+
+			isInstanceTemplatePlacementTarget: &schema.Schema{
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "The placement restrictions for the virtual server instance. For the target tobe changed, the instance `status` must be `stopping` or `stopped`.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"id": &schema.Schema{
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "The unique identifier for this dedicated host.",
+						},
+						"crn": &schema.Schema{
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "The CRN for this dedicated host.",
+						},
+						"href": &schema.Schema{
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "The URL for this dedicated host.",
+						},
+					},
+				},
 			},
 		},
 	}
@@ -385,6 +390,14 @@ func instanceTemplateCreate(d *schema.ResourceData, meta interface{}, profile, n
 		instanceproto.PlacementTarget = dHostGrpPlaementTarget
 	}
 
+	if placementGroupInf, ok := d.GetOk(isPlacementTargetPlacementGroup); ok {
+		placementGrpStr := placementGroupInf.(string)
+		placementGrp := &vpcv1.InstancePlacementTargetPrototypePlacementGroupIdentity{
+			ID: &placementGrpStr,
+		}
+		instanceproto.PlacementTarget = placementGrp
+	}
+
 	// BOOT VOLUME ATTACHMENT for instance template
 	if boot, ok := d.GetOk(isInstanceTemplateBootVolume); ok {
 		bootvol := boot.([]interface{})[0].(map[string]interface{})
@@ -426,10 +439,10 @@ func instanceTemplateCreate(d *schema.ResourceData, meta interface{}, profile, n
 	// Handle volume attachments
 	if volsintf, ok := d.GetOk(isInstanceTemplateVolumeAttachments); ok {
 		vols := volsintf.([]interface{})
-		var intfs []vpcv1.VolumeAttachmentPrototypeInstanceContext
+		var intfs []vpcv1.VolumeAttachmentPrototype
 		for _, resource := range vols {
 			vol := resource.(map[string]interface{})
-			volInterface := &vpcv1.VolumeAttachmentPrototypeInstanceContext{}
+			volInterface := &vpcv1.VolumeAttachmentPrototype{}
 			deleteVol, _ := vol[isInstanceTemplateVolumeDeleteOnInstanceDelete]
 			deleteVolBool := deleteVol.(bool)
 			volInterface.DeleteVolumeOnInstanceDelete = &deleteVolBool
@@ -438,7 +451,7 @@ func instanceTemplateCreate(d *schema.ResourceData, meta interface{}, profile, n
 			volInterface.Name = &namestr
 			volintf, _ := vol["volume"]
 			volintfstr := volintf.(string)
-			volInterface.Volume = &vpcv1.VolumeAttachmentVolumePrototypeInstanceContext{
+			volInterface.Volume = &vpcv1.VolumeAttachmentPrototypeVolume{
 				ID: &volintfstr,
 			}
 			intfs = append(intfs, *volInterface)
@@ -486,7 +499,9 @@ func instanceTemplateCreate(d *schema.ResourceData, meta interface{}, profile, n
 
 		if IPAddress, ok := primnic[isInstanceTemplateNicPrimaryIpv4Address]; ok {
 			if PrimaryIpv4Address := IPAddress.(string); PrimaryIpv4Address != "" {
-				primnicobj.PrimaryIpv4Address = &PrimaryIpv4Address
+				primnicobj.PrimaryIP = &vpcv1.NetworkInterfaceIPPrototype{
+					Address: &PrimaryIpv4Address,
+				}
 			}
 		}
 	}
@@ -530,7 +545,9 @@ func instanceTemplateCreate(d *schema.ResourceData, meta interface{}, profile, n
 			}
 			if IPAddress, ok := nic[isInstanceTemplateNicPrimaryIpv4Address]; ok {
 				if PrimaryIpv4Address := IPAddress.(string); PrimaryIpv4Address != "" {
-					nwInterface.PrimaryIpv4Address = &PrimaryIpv4Address
+					nwInterface.PrimaryIP = &vpcv1.NetworkInterfaceIPPrototype{
+						Address: &PrimaryIpv4Address,
+					}
 				}
 			}
 			intfs = append(intfs, *nwInterface)
@@ -611,8 +628,10 @@ func instanceTemplateGet(d *schema.ResourceData, meta interface{}, ID string) er
 		primaryNicList := make([]map[string]interface{}, 0)
 		currentPrimNic := map[string]interface{}{}
 		currentPrimNic[isInstanceTemplateNicName] = *instance.PrimaryNetworkInterface.Name
-		if instance.PrimaryNetworkInterface.PrimaryIpv4Address != nil {
-			currentPrimNic[isInstanceTemplateNicPrimaryIpv4Address] = *instance.PrimaryNetworkInterface.PrimaryIpv4Address
+		if instance.PrimaryNetworkInterface.PrimaryIP != nil {
+			ipIntf := instance.PrimaryNetworkInterface.PrimaryIP
+			ipAdd := ipIntf.(*vpcv1.NetworkInterfaceIPPrototype)
+			currentPrimNic[isInstanceTemplateNicPrimaryIpv4Address] = *ipAdd.Address
 		}
 		subInf := instance.PrimaryNetworkInterface.Subnet
 		subnetIdentity := subInf.(*vpcv1.SubnetIdentity)
@@ -638,8 +657,10 @@ func instanceTemplateGet(d *schema.ResourceData, meta interface{}, ID string) er
 		for _, intfc := range instance.NetworkInterfaces {
 			currentNic := map[string]interface{}{}
 			currentNic[isInstanceTemplateNicName] = *intfc.Name
-			if intfc.PrimaryIpv4Address != nil {
-				currentNic[isInstanceTemplateNicPrimaryIpv4Address] = *intfc.PrimaryIpv4Address
+			if intfc.PrimaryIP != nil {
+				ipIntf := intfc.PrimaryIP
+				ipAdd := ipIntf.(*vpcv1.NetworkInterfaceIPPrototype)
+				currentNic[isInstanceTemplateNicPrimaryIpv4Address] = *ipAdd.Address
 			}
 			if intfc.AllowIPSpoofing != nil {
 				currentNic[isInstanceTemplateNicAllowIPSpoofing] = *intfc.AllowIPSpoofing
@@ -681,7 +702,7 @@ func instanceTemplateGet(d *schema.ResourceData, meta interface{}, ID string) er
 			volumeAttach[isInstanceTemplateDeleteVolume] = *volume.DeleteVolumeOnInstanceDelete
 			volumeID := map[string]interface{}{}
 			volumeIntf := volume.Volume
-			volumeInst := volumeIntf.(*vpcv1.VolumeAttachmentVolumePrototypeInstanceContext)
+			volumeInst := volumeIntf.(*vpcv1.VolumeAttachmentPrototypeVolume)
 			if volumeInst.Name != nil {
 				volumeID["name"] = *volumeInst.Name
 			}
@@ -795,4 +816,14 @@ func instanceTemplateExists(d *schema.ResourceData, meta interface{}, ID string)
 		return false, fmt.Errorf("Error Getting InstanceTemplate: %s\n%s", err, response)
 	}
 	return true, nil
+}
+
+func resourceIbmIsInstanceTemplateInstancePlacementTargetPatchToMap(instancePlacementTargetPatch vpcv1.InstancePlacementTargetPatch) map[string]interface{} {
+	instancePlacementTargetPatchMap := map[string]interface{}{}
+
+	instancePlacementTargetPatchMap["id"] = instancePlacementTargetPatch.ID
+	instancePlacementTargetPatchMap["crn"] = instancePlacementTargetPatch.CRN
+	instancePlacementTargetPatchMap["href"] = instancePlacementTargetPatch.Href
+
+	return instancePlacementTargetPatchMap
 }

@@ -394,4 +394,15 @@ resource "ibm_is_dedicated_host_disk_management" "disks" {
     id = data.ibm_is_dedicated_host.dhost.disks.1.id
   
   }
+resource "ibm_is_placement_group" "is_placement_group" {
+  strategy = "%s"
+  name = "%s"
+  resource_group = data.ibm_resource_group.default.id
+}
+
+data "ibm_is_placement_group" "is_placement_group" {
+  id = ibm_is_placement_group.is_placement_group.id
+}
+
+data "ibm_is_placement_groups" "is_placement_groups" {
 }
