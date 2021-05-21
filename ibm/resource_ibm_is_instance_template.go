@@ -44,12 +44,9 @@ const (
 	isInstanceTemplateDedicatedHostGroup           = "dedicated_host_group"
 	isInstanceTemplateResourceType                 = "resource_type"
 	isInstanceTemplateVolumeDeleteOnInstanceDelete = "delete_volume_on_instance_delete"
-	isInstanceTemplateBootVolumeId                 = "volume"
-	isInstanceTemplateVolumes                      = "volumes"
-	isInstanceTemplateBootVolumeSnapshot           = "source_snapshot"
-	isInstanceTemplateBootVolType                  = "boot_volume_type"
-	isInstanceTemplateBootVolTemplate              = "source_template"
-	isInstanceTemplateVolAttSnapshot               = "snapshots"
+	isInstanceTemplateInstanceType                 = "instance_type"
+	isInstanceTemplateSourceTemplate               = "source_template"
+	isInstanceTemplateVolumeSnapshot               = "snapshot"
 )
 
 func resourceIBMISInstanceTemplate() *schema.Resource {
@@ -90,29 +87,13 @@ func resourceIBMISInstanceTemplate() *schema.Resource {
 				Description: "VPC id",
 			},
 
-			isInstanceTemplateBootVolType: {
-				Type:     schema.TypeString,
-				Optional: true,
-			},
-
-			isInstanceVolAttSnapshot: {
-				Type:        schema.TypeSet,
+			isInstanceTemplateInstanceType: {
+				Type:        schema.TypeString,
 				Optional:    true,
-				Elem:        &schema.Schema{Type: schema.TypeString},
-				Set:         schema.HashString,
-				Description: "List of volume snapshots",
+				Description: "Boot volume type of the instance template, default is image",
 			},
 
-			isInstanceTemplateVolumes: {
-				Type:        schema.TypeSet,
-				Optional:    true,
-				Computed:    true,
-				Elem:        &schema.Schema{Type: schema.TypeString},
-				Set:         schema.HashString,
-				Description: "List of volumes",
-			},
-
-			isInstanceBootVolTemplate: {
+			isInstanceTemplateSourceTemplate: {
 				Type:        schema.TypeString,
 				ForceNew:    true,
 				Optional:    true,
@@ -195,6 +176,12 @@ func resourceIBMISInstanceTemplate() *schema.Resource {
 										Optional:    true,
 										ForceNew:    true,
 										Description: "The CRN of the [Key Protect Root Key](https://cloud.ibm.com/docs/key-protect?topic=key-protect-getting-started-tutorial) or [Hyper Protect Crypto Service Root Key](https://cloud.ibm.com/docs/hs-crypto?topic=hs-crypto-get-started) for this resource.",
+									},
+									isInstanceTemplateVolumeSnapshot: {
+										Type:        schema.TypeString,
+										Optional:    true,
+										ForceNew:    true,
+										Description: "The snapshot of the volume to be attached",
 									},
 								},
 							},
@@ -286,13 +273,13 @@ func resourceIBMISInstanceTemplate() *schema.Resource {
 			},
 
 			isInstanceTemplateImage: {
-				Type:         schema.TypeString,
-				ForceNew:     true,
-				Computed:     true,
-				Optional:     true,
-				ExactlyOneOf: []string{isInstanceTemplateImage, isInstanceTemplateBootVolTemplate},
-				RequiredWith: []string{isInstanceTemplateZone, isInstanceTemplatePrimaryNetworkInterface},
-				Description:  "image name",
+				Type:          schema.TypeString,
+				ForceNew:      true,
+				Computed:      true,
+				Optional:      true,
+				ConflictsWith: []string{"boot_volume.0.volume_prototype.0.snapshot"},
+				RequiredWith:  []string{isInstanceTemplateZone, isInstanceTemplatePrimaryNetworkInterface},
+				Description:   "image name",
 			},
 
 			isInstanceTemplateBootVolume: {
@@ -314,27 +301,32 @@ func resourceIBMISInstanceTemplate() *schema.Resource {
 							Computed: true,
 						},
 						isInstanceTemplateBootSize: {
-							Type:     schema.TypeInt,
-							Computed: true,
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Required:    true,
+							ForceNew:    true,
+							Description: "The capacity of the volume in gigabytes. The specified minimum and maximum capacity values for creating or updating volumes may expand in the future.",
 						},
 						isInstanceTemplateBootProfile: {
 							Type:     schema.TypeString,
+							Optional: true,
 							Computed: true,
+						},
+						isInstanceTemplateVolAttVolIops: {
+							Type:        schema.TypeInt,
+							Optional:    true,
+							ForceNew:    true,
+							Description: "The maximum I/O operations per second (IOPS) for the volume.",
 						},
 						isInstanceTemplateVolumeDeleteOnInstanceDelete: {
 							Type:     schema.TypeBool,
 							Optional: true,
 							Computed: true,
 						},
-						isInstanceTemplateBootVolumeSnapshot: {
+						isInstanceTemplateVolumeSnapshot: {
 							Type:          schema.TypeString,
-							RequiredWith:  []string{"boot_volume.0.name", isInstanceTemplateZone, isInstanceTemplatePrimaryNetworkInterface},
-							ConflictsWith: []string{isInstanceTemplateImage, "boot_volume.0.volume"},
-							Optional:      true,
-						},
-						isInstanceTemplateBootVolumeId: {
-							Type:          schema.TypeString,
-							ConflictsWith: []string{isInstanceTemplateImage, "boot_volume.0.source_snapshot"},
+							RequiredWith:  []string{isInstanceTemplateZone, isInstanceTemplatePrimaryNetworkInterface},
+							ConflictsWith: []string{isInstanceTemplateImage},
 							Optional:      true,
 						},
 					},
@@ -398,18 +390,19 @@ func resourceIBMisInstanceTemplateCreate(d *schema.ResourceData, meta interface{
 	name := d.Get(isInstanceTemplateName).(string)
 	vpcID := d.Get(isInstanceTemplateVPC).(string)
 
-	bootType, _ := d.Get(isInstanceTemplateImage).(string)
+	instanceType, _ := d.Get(isInstanceTemplateInstanceType).(string)
 
-	if bootType == "volume" {
+	if instanceType == "volume" {
 		zone := d.Get(isInstanceTemplateZone).(string)
 		err := instanceTemplateCreateByVolume(d, meta, profile, name, vpcID, zone)
 		if err != nil {
 			return err
 		}
-	} else if bootType == "template" {
+	} else if instanceType == "template" {
 		zone := d.Get(isInstanceTemplateZone).(string)
-		template := d.Get(isInstanceTemplateBootVolTemplate).(string)
-		err := instanceTemplateCreateByTemplate(d, meta, profile, name, vpcID, zone, template)
+		image := d.Get(isInstanceTemplateImage).(string)
+		template := d.Get(isInstanceTemplateSourceTemplate).(string)
+		err := instanceTemplateCreateByTemplate(d, meta, profile, name, vpcID, zone, image, template)
 		if err != nil {
 			return err
 		}
@@ -509,13 +502,21 @@ func instanceTemplateCreateByImage(d *schema.ResourceData, meta interface{}, pro
 		if ok {
 			volTemplate.Name = &namestr
 		}
-
-		volcap := 100
-		volcapint64 := int64(volcap)
-		volprof := "general-purpose"
-		volTemplate.Capacity = &volcapint64
-		volTemplate.Profile = &vpcv1.VolumeProfileIdentity{
-			Name: &volprof,
+		volcap, ok := bootvol[isInstanceTemplateBootSize]
+		volcapint64 := volcap.(int64)
+		if ok {
+			volTemplate.Capacity = &volcapint64
+		}
+		volprof, ok := bootvol[isInstanceTemplateBootProfile]
+		volprofStr := volprof.(string)
+		if ok {
+			volTemplate.Profile = &vpcv1.VolumeProfileIdentity{
+				Name: &volprofStr,
+			}
+		}
+		iops := int64(bootvol[isInstanceTemplateVolAttVolIops].(int))
+		if iops != 0 {
+			volTemplate.Iops = &iops
 		}
 
 		if encryption, ok := bootvol[isInstanceTemplateBootEncryption]; ok {
@@ -763,15 +764,29 @@ func instanceTemplateCreateByVolume(d *schema.ResourceData, meta interface{}, pr
 		if ok {
 			volTemplate.Name = &namestr
 		}
-
-		volcap := 100
-		volcapint64 := int64(volcap)
-		volprof := "general-purpose"
-		volTemplate.Capacity = &volcapint64
-		volTemplate.Profile = &vpcv1.VolumeProfileIdentity{
-			Name: &volprof,
+		volcap, ok := bootvol[isInstanceTemplateBootSize]
+		volcapint64 := volcap.(int64)
+		if ok {
+			volTemplate.Capacity = &volcapint64
 		}
-
+		volprof, ok := bootvol[isInstanceTemplateBootProfile]
+		volprofStr := volprof.(string)
+		if ok {
+			volTemplate.Profile = &vpcv1.VolumeProfileIdentity{
+				Name: &volprofStr,
+			}
+		}
+		iops := int64(bootvol[isInstanceTemplateVolAttVolIops].(int))
+		if iops != 0 {
+			volTemplate.Iops = &iops
+		}
+		snapshot, ok := bootvol[isInstanceTemplateVolumeSnapshot]
+		snapshotStr := snapshot.(string)
+		if ok {
+			volTemplate.SourceSnapshot = &vpcv1.SnapshotIdentity{
+				ID: &snapshotStr,
+			}
+		}
 		if encryption, ok := bootvol[isInstanceTemplateBootEncryption]; ok {
 			bootEncryption := encryption.(string)
 			if bootEncryption != "" {
@@ -799,17 +814,43 @@ func instanceTemplateCreateByVolume(d *schema.ResourceData, meta interface{}, pr
 		for _, resource := range vols {
 			vol := resource.(map[string]interface{})
 			volInterface := &vpcv1.VolumeAttachmentPrototypeInstanceContext{}
-			deleteVol, _ := vol[isInstanceTemplateVolumeDeleteOnInstanceDelete]
-			deleteVolBool := deleteVol.(bool)
+			deleteVolBool := vol[isInstanceTemplateVolumeDeleteOnInstanceDelete].(bool)
 			volInterface.DeleteVolumeOnInstanceDelete = &deleteVolBool
-			name, _ := vol["name"]
-			namestr := name.(string)
-			volInterface.Name = &namestr
-			volintf, _ := vol["volume"]
-			volintfstr := volintf.(string)
-			volInterface.Volume = &vpcv1.VolumeAttachmentVolumePrototypeInstanceContext{
-				ID: &volintfstr,
+			attachmentnamestr := vol[isInstanceTemplateVolAttachmentName].(string)
+			volInterface.Name = &attachmentnamestr
+			volIdStr := vol[isInstanceTemplateVolAttVol].(string)
+
+			if volIdStr != "" {
+				volInterface.Volume = &vpcv1.VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentity{
+					ID: &volIdStr,
+				}
+			} else {
+				newvolintf := vol[isInstanceTemplateVolAttVolPrototype].([]interface{})[0]
+				newvol := newvolintf.(map[string]interface{})
+				profileName := newvol[isInstanceTemplateVolAttVolProfile].(string)
+				capacity := int64(newvol[isInstanceTemplateVolAttVolCapacity].(int))
+
+				volPrototype := &vpcv1.VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContext{
+					Profile: &vpcv1.VolumeProfileIdentity{
+						Name: &profileName,
+					},
+					Capacity: &capacity,
+				}
+				iops := int64(newvol[isInstanceTemplateVolAttVolIops].(int))
+				encryptionKey := newvol[isInstanceTemplateVolAttVolEncryptionKey].(string)
+
+				if iops != 0 {
+					volPrototype.Iops = &iops
+				}
+
+				if encryptionKey != "" {
+					volPrototype.EncryptionKey = &vpcv1.EncryptionKeyIdentity{
+						CRN: &encryptionKey,
+					}
+				}
+				volInterface.Volume = volPrototype
 			}
+
 			intfs = append(intfs, *volInterface)
 		}
 		instanceproto.VolumeAttachments = intfs
@@ -948,7 +989,7 @@ func instanceTemplateCreateByVolume(d *schema.ResourceData, meta interface{}, pr
 	return nil
 }
 
-func instanceTemplateCreateByTemplate(d *schema.ResourceData, meta interface{}, profile, name, vpcID, zone, template string) error {
+func instanceTemplateCreateByTemplate(d *schema.ResourceData, meta interface{}, profile, name, vpcID, zone, image, template string) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
 		return err
@@ -965,9 +1006,16 @@ func instanceTemplateCreateByTemplate(d *schema.ResourceData, meta interface{}, 
 			ID: &vpcID,
 		},
 	}
+
 	if zone != "" {
 		instanceproto.Zone = &vpcv1.ZoneIdentity{
 			Name: &zone,
+		}
+	}
+
+	if image != "" {
+		instanceproto.Image = &vpcv1.ImageIdentity{
+			ID: &image,
 		}
 	}
 
@@ -997,12 +1045,21 @@ func instanceTemplateCreateByTemplate(d *schema.ResourceData, meta interface{}, 
 			volTemplate.Name = &namestr
 		}
 
-		volcap := 100
-		volcapint64 := int64(volcap)
-		volprof := "general-purpose"
-		volTemplate.Capacity = &volcapint64
-		volTemplate.Profile = &vpcv1.VolumeProfileIdentity{
-			Name: &volprof,
+		volcap, ok := bootvol[isInstanceTemplateBootSize]
+		volcapint64 := volcap.(int64)
+		if ok {
+			volTemplate.Capacity = &volcapint64
+		}
+		volprof, ok := bootvol[isInstanceTemplateBootProfile]
+		volprofStr := volprof.(string)
+		if ok {
+			volTemplate.Profile = &vpcv1.VolumeProfileIdentity{
+				Name: &volprofStr,
+			}
+		}
+		iops := int64(bootvol[isInstanceTemplateVolAttVolIops].(int))
+		if iops != 0 {
+			volTemplate.Iops = &iops
 		}
 
 		if encryption, ok := bootvol[isInstanceTemplateBootEncryption]; ok {
@@ -1032,17 +1089,43 @@ func instanceTemplateCreateByTemplate(d *schema.ResourceData, meta interface{}, 
 		for _, resource := range vols {
 			vol := resource.(map[string]interface{})
 			volInterface := &vpcv1.VolumeAttachmentPrototypeInstanceContext{}
-			deleteVol, _ := vol[isInstanceTemplateVolumeDeleteOnInstanceDelete]
-			deleteVolBool := deleteVol.(bool)
+			deleteVolBool := vol[isInstanceTemplateVolumeDeleteOnInstanceDelete].(bool)
 			volInterface.DeleteVolumeOnInstanceDelete = &deleteVolBool
-			name, _ := vol["name"]
-			namestr := name.(string)
-			volInterface.Name = &namestr
-			volintf, _ := vol["volume"]
-			volintfstr := volintf.(string)
-			volInterface.Volume = &vpcv1.VolumeAttachmentVolumePrototypeInstanceContext{
-				ID: &volintfstr,
+			attachmentnamestr := vol[isInstanceTemplateVolAttachmentName].(string)
+			volInterface.Name = &attachmentnamestr
+			volIdStr := vol[isInstanceTemplateVolAttVol].(string)
+
+			if volIdStr != "" {
+				volInterface.Volume = &vpcv1.VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentity{
+					ID: &volIdStr,
+				}
+			} else {
+				newvolintf := vol[isInstanceTemplateVolAttVolPrototype].([]interface{})[0]
+				newvol := newvolintf.(map[string]interface{})
+				profileName := newvol[isInstanceTemplateVolAttVolProfile].(string)
+				capacity := int64(newvol[isInstanceTemplateVolAttVolCapacity].(int))
+
+				volPrototype := &vpcv1.VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContext{
+					Profile: &vpcv1.VolumeProfileIdentity{
+						Name: &profileName,
+					},
+					Capacity: &capacity,
+				}
+				iops := int64(newvol[isInstanceTemplateVolAttVolIops].(int))
+				encryptionKey := newvol[isInstanceTemplateVolAttVolEncryptionKey].(string)
+
+				if iops != 0 {
+					volPrototype.Iops = &iops
+				}
+
+				if encryptionKey != "" {
+					volPrototype.EncryptionKey = &vpcv1.EncryptionKeyIdentity{
+						CRN: &encryptionKey,
+					}
+				}
+				volInterface.Volume = volPrototype
 			}
+
 			intfs = append(intfs, *volInterface)
 		}
 		instanceproto.VolumeAttachments = intfs
