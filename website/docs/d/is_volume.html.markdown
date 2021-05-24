@@ -42,6 +42,7 @@ In addition to all arguments above, the following attributes are exported:
 * `encryption_key` - The key to use for encrypting this volume.
 * `resource_group` - The resource group ID for this volume.
 * `tags` - Tags associated with the volume.
+* `source_snapshot` - ID of the snapshot, if volume was created from it.
 * `status` - The status of the volume. One of [ available, failed, pending, unusable, pending_deletion ].
 * `status_reasons` - Array of reasons for the current status
   * `code` - A snake case string succinctly identifying the status reason

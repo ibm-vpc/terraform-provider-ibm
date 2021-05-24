@@ -465,7 +465,9 @@ func volGet(d *schema.ResourceData, meta interface{}, id string) error {
 	d.Set(isVolumeIops, *vol.Iops)
 	d.Set(isVolumeCapacity, *vol.Capacity)
 	d.Set(isVolumeCrn, *vol.CRN)
-	d.Set(isVolumeSourceSnapshot, *vol.SourceSnapshot.ID)
+	if vol.SourceSnapshot != nil {
+		d.Set(isVolumeSourceSnapshot, *vol.SourceSnapshot.ID)
+	}
 	d.Set(isVolumeStatus, *vol.Status)
 	//set the status reasons
 	if vol.StatusReasons != nil {

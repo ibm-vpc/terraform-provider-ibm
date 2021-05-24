@@ -276,7 +276,9 @@ func volumeGet(d *schema.ResourceData, meta interface{}, name string) error {
 		if vol.EncryptionKey != nil {
 			d.Set(isVolumeEncryptionKey, vol.EncryptionKey.CRN)
 		}
-		d.Set(isVolumeSourceSnapshot, *vol.SourceSnapshot.ID)
+		if vol.SourceSnapshot != nil {
+			d.Set(isVolumeSourceSnapshot, *vol.SourceSnapshot.ID)
+		}
 		d.Set(isVolumeIops, *vol.Iops)
 		d.Set(isVolumeCapacity, *vol.Capacity)
 		d.Set(isVolumeCrn, *vol.CRN)
