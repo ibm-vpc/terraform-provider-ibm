@@ -1963,15 +1963,23 @@ func resourceVolumeAttachmentValidate(diff *schema.ResourceDiff) error {
 
 	if volsintf, ok := diff.GetOk("volume_attachments"); ok {
 		vols := volsintf.([]interface{})
-		for _, resource := range vols {
-			vol := resource.(map[string]interface{})
-			volIdStr := vol[isInstanceTemplateVolAttVol].(string)
-			newvolintfArr := vol[isInstanceTemplateVolAttVolProfile].([]interface{})
-			if volIdStr == "" && len(newvolintfArr) == 0 {
-				return fmt.Errorf("InstanceTemplate - volume_attachments: Volume details missing. Provide either 'volume' or 'volume_prototype'.")
+		for volAttIdx := range vols {
+			volumeid := "volume_attachments." + strconv.Itoa(volAttIdx) + "." + isInstanceTemplateVolAttVol
+			volumePrototype := "volume_attachments." + strconv.Itoa(volAttIdx) + "." + isInstanceTemplateVolAttVolPrototype
+			var volIdnterpolated = false
+			var volumeIdFound = false
+			if _, volumeIdFound = diff.GetOk(volumeid); !volumeIdFound {
+				if !diff.NewValueKnown(volumeid) {
+					volIdnterpolated = true
+				}
 			}
-			if volIdStr != "" && len(newvolintfArr) > 0 {
-				return fmt.Errorf("InstanceTemplate - volume_attachments: Cannot provide both 'volume' and 'volume_prototype' together.")
+			_, volPrototypeFound := diff.GetOk(volumePrototype)
+
+			if volPrototypeFound && (volumeIdFound || volIdnterpolated) {
+				return fmt.Errorf("InstanceTemplate - volume_attachments[%d]: Cannot provide both 'volume' and 'volume_prototype' together.", volAttIdx)
+			}
+			if !volPrototypeFound && !volumeIdFound && !volIdnterpolated {
+				return fmt.Errorf("InstanceTemplate - volume_attachments[%d]: Volume details missing. Provide either 'volume' or 'volume_prototype'.", volAttIdx)
 			}
 		}
 	}

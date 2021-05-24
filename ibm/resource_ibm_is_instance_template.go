@@ -1387,7 +1387,9 @@ func instanceTemplateGet(d *schema.ResourceData, meta interface{}, ID string) er
 				encryptionKey := volumeInst.EncryptionKey.(*vpcv1.EncryptionKeyIdentity)
 				newVolume[isInstanceTemplateVolAttVolEncryptionKey] = *encryptionKey.CRN
 			}
-			newVolumeArr = append(newVolumeArr, newVolume)
+			if len(newVolume) > 0 {
+				newVolumeArr = append(newVolumeArr, newVolume)
+			}
 			volumeAttach[isInstanceTemplateVolAttVolPrototype] = newVolumeArr
 			interfacesList = append(interfacesList, volumeAttach)
 		}

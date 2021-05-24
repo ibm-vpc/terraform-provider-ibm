@@ -220,7 +220,7 @@ In addition to all arguments above, the following attributes are exported:
   * `name` - (Required, string) Name of the volume attachment.
   * `volume` - (Optional, string, ForceNew) Storage volume ID created under VPC.
   * `delete_volume_on_instance_delete` - (Required, bool) Configured to delete the storage volume to be deleted upon instance deletion.
-  * `volume_prototype` - (Optional, list, ForceNew)
+  * `volume_prototype` - (Optional, list, ForceNew) A nested block describing prototype for the volume
     * `iops` - (Optional, int) The maximum I/O operations per second (IOPS) for the volume.
     * `profile` - (Optional, string) The  globally unique name for the volume profile to use for this volume.
     * `capacity` - (Optional, int) The capacity of the volume in gigabytes. The specified minimum and maximum capacity values for creating or updating volumes may expand in the future.

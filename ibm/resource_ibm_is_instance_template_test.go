@@ -156,12 +156,9 @@ func testAccCheckIBMISInstanceTemplateWithVolume(vpcName, subnetName, sshKeyName
 	  public_key = "%s"
 	}
 
-	data "ibm_is_images" "is_images" {
-	}
-
 	resource "ibm_is_instance_template" "instancetemplate1" {
 	   name    = "%s"
-	   image   = data.ibm_is_images.is_images.images.0.id
+	   image   = "%s"
 	   profile = "bx2-8x32"
 	
 	   primary_network_interface {
@@ -182,6 +179,6 @@ func testAccCheckIBMISInstanceTemplateWithVolume(vpcName, subnetName, sshKeyName
 	 }
 		
 	
-	`, vpcName, subnetName, sshKeyName, publicKey, templateName, volAttachName)
+	`, vpcName, subnetName, sshKeyName, publicKey, templateName, isImage, volAttachName)
 
 }
