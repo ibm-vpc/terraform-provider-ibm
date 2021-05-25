@@ -44,7 +44,7 @@ const (
 	isInstanceTemplateDedicatedHostGroup           = "dedicated_host_group"
 	isInstanceTemplateResourceType                 = "resource_type"
 	isInstanceTemplateVolumeDeleteOnInstanceDelete = "delete_volume_on_instance_delete"
-	isInstanceTemplateInstanceType                 = "instance_type"
+	isInstanceTemplateInstanceType                 = "template_type"
 	isInstanceTemplateSourceTemplate               = "source_template"
 	isInstanceTemplateVolumeSnapshot               = "snapshot"
 )
