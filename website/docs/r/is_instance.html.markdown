@@ -226,18 +226,37 @@ ibm_is_instance provides the following [Timeouts](https://www.terraform.io/docs/
 The following arguments are supported:
 
 * `name` - (Optional, string) The instance name.
+* `source_template` - (Optional, string) ID of the source template.  
 * `vpc` - (Required, Forces new resource, string) The vpc id.
-* `zone` - (Required, Forces new resource, string) Name of the zone.
+* `zone` - (Optional, Forces new resource, string) Name of the zone.
+* `instance_type` - (Optional, string) Type of instance source [volume, template, image].
+  * * image is the default type
 * `profile` - (Required, string) The profile name.
-  * * Updating profile requires instance to be in stopped status, running instance will be stopped on update profile action.  * `image` - (Required, string) ID of the image.
+  * * Updating profile requires instance to be in stopped status, running instance will be stopped on update profile action.
+* `image` - (Optional, string) ID of the image.
+  * * image id conflicts with snapshot id in boot volume (boot_volume.0.snapshot), only one can be provided
 * `dedicated_host` - (Optional, string, ForceNew) The placement restrictions to use for the virtual server instance. Unique Identifier of the Dedicated Host where the instance will be placed
 * `dedicated_host_group` - (Optional, string, ForceNew) The placement restrictions to use for the virtual server instance. Unique Identifier of the Dedicated Host Group where the instance will be placed
 * `boot_volume` - (Optional, list) A block describing the boot volume of this instance.
 `boot_volume` block have the following structure:
   * `name` - (Optional, string) The name of the boot volume.
+  * `size` - (Optional, int) Capacity of the volume in GB.
+  * `iops` - (Optional, int) Input/Output Operations Per Second for the volume.
+  * `profile` - (Optional, string) The profile of the volume.
+  * `snapshot` - (Optional, string) The snapshot id of the volume to be used for creating boot volume attachment
+    * * snapshot id conflicts with image id, only one can be provided
   * `encryption` -(Optional, string) 	The CRN of the root key to use to wrap the data encryption key for the volume. If this property is not provided but the image is encrypted, the image's encryption_key will be used. Otherwise, the encryption type for the volume will be `provider_managed`.
+* `volume_prototype` - (Optional, list) A block describing the volume prototype of volumes to be attached to this instance.
+  * * only volume creation/deletion is supported, any change will result in new volume creation and old volumes will be removed.
+  `volume_prototype` block have the following structure:
+  * `name` - (Required, string) The name of the volume.
+  * `iops` - (Optional, int) The maximum I/O operations per second (IOPS) for the volume.
+  * `profile` - (Optional, string) The  globally unique name for the volume profile to use for this volume.
+  * `capacity` - (Optional, int) The capacity of the volume in gigabytes. The specified minimum and maximum capacity values for creating or updating volumes may expand in the future.
+  * `snapshot` - (Optional, string) The snapshot id of the volume to be used for creating volume attachment
+  * `encryption` -(Optional, string) 	The CRN of the root key to use to wrap the data encryption key for the volume. If this property is not provided but the image is encrypted, the image's encryption_key will be used. Otherwise, the encryption type for the volume will be `provider_managed`.  
 * `keys` - (Required, list) Comma separated IDs of ssh keys.
-* `primary_network_interface` - (Required, list) A nested block describing the primary network interface of this instance. We can have only one primary network interface.
+* `primary_network_interface` - (Optional, list) A nested block describing the primary network interface of this instance. We can have only one primary network interface.
 Nested `primary_network_interface` block have the following structure:
   * `name` - (Optional, string) The name of the network interface.
   * `port_speed` - (Deprecated, int) Speed of the network interface.
