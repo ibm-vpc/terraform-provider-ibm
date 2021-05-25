@@ -277,7 +277,7 @@ func resourceIBMISInstanceTemplate() *schema.Resource {
 				ForceNew:      true,
 				Computed:      true,
 				Optional:      true,
-				ConflictsWith: []string{"boot_volume.0.volume_prototype.0.snapshot"},
+				ConflictsWith: []string{"boot_volume.0.snapshot"},
 				RequiredWith:  []string{isInstanceTemplateZone, isInstanceTemplatePrimaryNetworkInterface},
 				Description:   "image name",
 			},
@@ -303,7 +303,7 @@ func resourceIBMISInstanceTemplate() *schema.Resource {
 						isInstanceTemplateBootSize: {
 							Type:        schema.TypeInt,
 							Computed:    true,
-							Required:    true,
+							Optional:    true,
 							ForceNew:    true,
 							Description: "The capacity of the volume in gigabytes. The specified minimum and maximum capacity values for creating or updating volumes may expand in the future.",
 						},

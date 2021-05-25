@@ -153,37 +153,31 @@ func resourceIBMISInstance() *schema.Resource {
 						isInstanceVolAttVolName: {
 							Type:        schema.TypeString,
 							Required:    true,
-							ForceNew:    true,
 							Description: "The  globally unique name for the volume profile to use for this volume.",
 						},
 						isInstanceVolAttVolIops: {
 							Type:        schema.TypeInt,
 							Optional:    true,
-							ForceNew:    true,
 							Description: "The maximum I/O operations per second (IOPS) for the volume.",
 						},
 						isInstanceVolAttVolProfile: {
 							Type:        schema.TypeString,
-							Required:    true,
-							ForceNew:    true,
+							Optional:    true,
 							Description: "The  globally unique name for the volume profile to use for this volume.",
 						},
 						isInstanceVolAttVolCapacity: {
 							Type:        schema.TypeInt,
-							Required:    true,
-							ForceNew:    true,
+							Optional:    true,
 							Description: "The capacity of the volume in gigabytes. The specified minimum and maximum capacity values for creating or updating volumes may expand in the future.",
 						},
 						isInstanceVolAttVolEncryptionKey: {
 							Type:        schema.TypeString,
 							Optional:    true,
-							ForceNew:    true,
 							Description: "The CRN of the [Key Protect Root Key](https://cloud.ibm.com/docs/key-protect?topic=key-protect-getting-started-tutorial) or [Hyper Protect Crypto Service Root Key](https://cloud.ibm.com/docs/hs-crypto?topic=hs-crypto-get-started) for this resource.",
 						},
 						isInstanceVolumeSnapshot: {
 							Type:        schema.TypeString,
 							Optional:    true,
-							ForceNew:    true,
 							Description: "The snapshot of the volume to be attached",
 						},
 					},
@@ -1248,15 +1242,20 @@ func instanceCreateByVolume(d *schema.ResourceData, meta interface{}, profile, n
 			}
 		}
 		volcap, ok := bootvol[isInstanceBootSize]
-		volcapint64 := volcap.(int64)
-		if ok {
+		volcapint64 := int64(volcap.(int))
+		if ok && volcapint64 != 0 {
 			volTemplate.Capacity = &volcapint64
 		}
 		volprof, ok := bootvol[isInstanceBootProfile]
 		volprofStr := volprof.(string)
-		if ok {
+		profStr := "general-purpose"
+		if ok && volprofStr != "" {
 			volTemplate.Profile = &vpcv1.VolumeProfileIdentity{
 				Name: &volprofStr,
+			}
+		} else {
+			volTemplate.Profile = &vpcv1.VolumeProfileIdentity{
+				Name: &profStr,
 			}
 		}
 		iops := int64(bootvol[isInstanceVolAttVolIops].(int))
@@ -1272,10 +1271,8 @@ func instanceCreateByVolume(d *schema.ResourceData, meta interface{}, profile, n
 		}
 		// }
 		deletebool := true
-		volNameBoot := fmt.Sprintf(namestr, "-boot")
 		instanceproto.BootVolumeAttachment = &vpcv1.VolumeAttachmentPrototypeInstanceByVolumeContext{
 			DeleteVolumeOnInstanceDelete: &deletebool,
-			Name:                         &volNameBoot,
 			Volume:                       volTemplate,
 		}
 
@@ -1895,7 +1892,7 @@ func instanceGet(d *schema.ResourceData, meta interface{}, id string) error {
 	d.Set(isInstanceVPC, *instance.VPC.ID)
 	d.Set(isInstanceZone, *instance.Zone.Name)
 
-	var volumes []string
+	/*var volumes []string
 	volumes = make([]string, 0)
 	if instance.VolumeAttachments != nil {
 		for _, volume := range instance.VolumeAttachments {
@@ -1913,7 +1910,7 @@ func instanceGet(d *schema.ResourceData, meta interface{}, id string) error {
 			}
 		}
 	}
-	d.Set(isInstanceVolumes, newStringSet(schema.HashString, volumes))
+	d.Set(isInstanceVolumes, newStringSet(schema.HashString, volumes))*/
 	if instance.VolumeAttachments != nil {
 		volList := make([]map[string]interface{}, 0)
 		for _, volume := range instance.VolumeAttachments {
@@ -2295,7 +2292,7 @@ func instanceUpdate(d *schema.ResourceData, meta interface{}) error {
 			newPack := nA.(map[string]interface{})
 			for _, oA := range os.List() {
 				oldPack := oA.(map[string]interface{})
-				if (strings.Compare(newPack[isInstanceVolAttVolName].(string), oldPack[isInstanceVolAttVolName].(string)) == 0) && (strings.Compare(newPack[isInstanceVolAttVolCapacity].(string), oldPack[isInstanceVolAttVolCapacity].(string)) != 0) && (newPack[isInstanceVolAttVolCapacity].(string) != "") {
+				if (strings.Compare(newPack[isInstanceVolAttVolName].(string), oldPack[isInstanceVolAttVolName].(string)) == 0) && newPack[isInstanceVolAttVolCapacity].(int) != oldPack[isInstanceVolAttVolCapacity].(int) {
 					ns.Remove(nA)
 					os.Remove(oA)
 				}
@@ -2308,6 +2305,8 @@ func instanceUpdate(d *schema.ResourceData, meta interface{}) error {
 			volautoDelete = volumeautodeleteIntf.(bool)
 		}
 		if len(add) > 0 {
+			log.Println("INSIPS::::::3")
+			log.Printf("%+v\n", add)
 			for _, addVol := range add {
 				newAddVol := addVol.(map[string]interface{})
 				createvolattoptions := &vpcv1.CreateInstanceVolumeAttachmentOptions{
@@ -2336,15 +2335,15 @@ func instanceUpdate(d *schema.ResourceData, meta interface{}) error {
 				if volName != "" {
 					volume.Name = &volName
 				}
-				volCapacity := newAddVol[isInstanceVolAttVolCapacity].(int64)
+				volCapacity := int64(newAddVol[isInstanceVolAttVolCapacity].(int))
 				if volCapacity != 0 {
 					volume.Capacity = &volCapacity
 				}
-				volIops := newAddVol[isInstanceVolAttVolIops].(int64)
+				volIops := int64(newAddVol[isInstanceVolAttVolIops].(int))
 				if volIops != 0 {
 					volume.Iops = &volIops
 				}
-
+				createvolattoptions.Volume = volume
 				vol, _, err := instanceC.CreateInstanceVolumeAttachment(createvolattoptions)
 				if err != nil {
 					return fmt.Errorf("Error while attaching volume %q for instance %s: %q", volName, d.Id(), err)
@@ -2356,6 +2355,8 @@ func instanceUpdate(d *schema.ResourceData, meta interface{}) error {
 			}
 		}
 		if len(remove) > 0 {
+			log.Println("INSIPS::::::4")
+			log.Printf("%+v\n", remove)
 			for _, remVol := range remove {
 				newRemVol := remVol.(map[string]interface{})
 				listvolattoptions := &vpcv1.ListInstanceVolumeAttachmentsOptions{
@@ -2366,7 +2367,9 @@ func instanceUpdate(d *schema.ResourceData, meta interface{}) error {
 					return err
 				}
 				for _, vol := range vols.VolumeAttachments {
-					if *vol.Volume.Name == newRemVol[isInstanceVolAttVolName] {
+					toRemove := newRemVol[isInstanceVolAttVolName].(string)
+					log.Printf("%s vol, %s to remove", *vol.Volume.Name, toRemove)
+					if *vol.Volume.Name == toRemove {
 						delvolattoptions := &vpcv1.DeleteInstanceVolumeAttachmentOptions{
 							InstanceID: &id,
 							ID:         vol.ID,
@@ -2378,6 +2381,13 @@ func instanceUpdate(d *schema.ResourceData, meta interface{}) error {
 						_, err = isWaitForInstanceVolumeDetached(instanceC, d, d.Id(), *vol.ID)
 						if err != nil {
 							return err
+						}
+						deleteVolumeOptions := &vpcv1.DeleteVolumeOptions{
+							ID: vol.Volume.ID,
+						}
+						_, err = instanceC.DeleteVolume(deleteVolumeOptions)
+						if err != nil {
+							log.Printf("[Error] Volume %s deletion failed after detachment from instance %s", *vol.Volume.ID, id)
 						}
 						break
 					}
