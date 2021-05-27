@@ -41,36 +41,36 @@ const (
 	isInstanceVPC                     = "vpc"
 	isInstanceZone                    = "zone"
 	isInstanceBootVolume              = "boot_volume"
-	// isInstanceBootVolumeId            = "volume"
-	isInstanceVolumeSnapshot         = "snapshot"
-	isInstanceInstanceType           = "instance_type"
-	isInstanceSourceTemplate         = "source_template"
-	isInstanceVolAttPrototype        = "volume_prototype"
-	isInstanceVolAttName             = "name"
-	isInstanceVolAttVolume           = "volume"
-	isInstanceVolAttVolAutoDelete    = "auto_delete_volume"
-	isInstanceVolAttVolCapacity      = "capacity"
-	isInstanceVolAttVolIops          = "iops"
-	isInstanceVolAttVolName          = "name"
-	isInstanceVolAttVolBillingTerm   = "billing_term"
-	isInstanceVolAttVolEncryptionKey = "encryption_key"
-	isInstanceVolAttVolType          = "type"
-	isInstanceVolAttVolProfile       = "profile"
-	isInstanceImage                  = "image"
-	isInstanceCPU                    = "vcpu"
-	isInstanceCPUArch                = "architecture"
-	isInstanceCPUCores               = "cores"
-	isInstanceCPUCount               = "count"
-	isInstanceGpu                    = "gpu"
-	isInstanceGpuCores               = "cores"
-	isInstanceGpuCount               = "count"
-	isInstanceGpuManufacturer        = "manufacturer"
-	isInstanceGpuMemory              = "memory"
-	isInstanceGpuModel               = "model"
-	isInstanceMemory                 = "memory"
-	isInstanceDisks                  = "disks"
-	isInstanceDedicatedHost          = "dedicated_host"
-	isInstanceStatus                 = "status"
+	isInstanceVolumeId                = "volume_id"
+	isInstanceVolumeSnapshot          = "snapshot"
+	isInstanceInstanceType            = "instance_type"
+	isInstanceSourceTemplate          = "source_template"
+	isInstanceVolAttPrototype         = "volume_prototype"
+	isInstanceVolAttName              = "name"
+	isInstanceVolAttVolume            = "volume"
+	isInstanceVolAttVolAutoDelete     = "auto_delete_volume"
+	isInstanceVolAttVolCapacity       = "capacity"
+	isInstanceVolAttVolIops           = "iops"
+	isInstanceVolAttVolName           = "name"
+	isInstanceVolAttVolBillingTerm    = "billing_term"
+	isInstanceVolAttVolEncryptionKey  = "encryption_key"
+	isInstanceVolAttVolType           = "type"
+	isInstanceVolAttVolProfile        = "profile"
+	isInstanceImage                   = "image"
+	isInstanceCPU                     = "vcpu"
+	isInstanceCPUArch                 = "architecture"
+	isInstanceCPUCores                = "cores"
+	isInstanceCPUCount                = "count"
+	isInstanceGpu                     = "gpu"
+	isInstanceGpuCores                = "cores"
+	isInstanceGpuCount                = "count"
+	isInstanceGpuManufacturer         = "manufacturer"
+	isInstanceGpuMemory               = "memory"
+	isInstanceGpuModel                = "model"
+	isInstanceMemory                  = "memory"
+	isInstanceDisks                   = "disks"
+	isInstanceDedicatedHost           = "dedicated_host"
+	isInstanceStatus                  = "status"
 
 	isEnableCleanDelete        = "wait_before_delete"
 	isInstanceProvisioning     = "provisioning"
@@ -146,10 +146,16 @@ func resourceIBMISInstance() *schema.Resource {
 			isInstanceVolAttPrototype: {
 				Type:        schema.TypeSet,
 				Optional:    true,
+				Computed:    true,
 				Description: "List of volume attachment prototype",
 				Set:         resourceIBMIsInstanceVolumePrototypeHash,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						isInstanceVolumeId: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The  globally unique id for the volume.",
+						},
 						isInstanceVolAttVolName: {
 							Type:        schema.TypeString,
 							Required:    true,
@@ -158,26 +164,31 @@ func resourceIBMISInstance() *schema.Resource {
 						isInstanceVolAttVolIops: {
 							Type:        schema.TypeInt,
 							Optional:    true,
+							Computed:    true,
 							Description: "The maximum I/O operations per second (IOPS) for the volume.",
 						},
 						isInstanceVolAttVolProfile: {
 							Type:        schema.TypeString,
 							Optional:    true,
+							Computed:    true,
 							Description: "The  globally unique name for the volume profile to use for this volume.",
 						},
 						isInstanceVolAttVolCapacity: {
 							Type:        schema.TypeInt,
 							Optional:    true,
+							Computed:    true,
 							Description: "The capacity of the volume in gigabytes. The specified minimum and maximum capacity values for creating or updating volumes may expand in the future.",
 						},
 						isInstanceVolAttVolEncryptionKey: {
 							Type:        schema.TypeString,
 							Optional:    true,
+							Computed:    true,
 							Description: "The CRN of the [Key Protect Root Key](https://cloud.ibm.com/docs/key-protect?topic=key-protect-getting-started-tutorial) or [Hyper Protect Crypto Service Root Key](https://cloud.ibm.com/docs/hs-crypto?topic=hs-crypto-get-started) for this resource.",
 						},
 						isInstanceVolumeSnapshot: {
 							Type:        schema.TypeString,
 							Optional:    true,
+							Computed:    true,
 							Description: "The snapshot of the volume to be attached",
 						},
 					},
@@ -415,9 +426,10 @@ func resourceIBMISInstance() *schema.Resource {
 			},
 
 			isInstanceVolumes: {
-				Type:        schema.TypeSet,
-				Optional:    true,
-				Computed:    true,
+				Type:     schema.TypeSet,
+				Optional: true,
+				// ConfigMode: schema.SchemaConfigModeAttr,
+				// Computed:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Set:         schema.HashString,
 				Description: "List of volumes",
@@ -1892,25 +1904,16 @@ func instanceGet(d *schema.ResourceData, meta interface{}, id string) error {
 	d.Set(isInstanceVPC, *instance.VPC.ID)
 	d.Set(isInstanceZone, *instance.Zone.Name)
 
-	/*var volumes []string
+	var volumes []string
 	volumes = make([]string, 0)
-	if instance.VolumeAttachments != nil {
+	/*if instance.VolumeAttachments != nil {
 		for _, volume := range instance.VolumeAttachments {
 			if volume.Volume != nil && *volume.Volume.ID != *instance.BootVolumeAttachment.Volume.ID {
-				getvolOptions := &vpcv1.GetVolumeOptions{
-					ID: volume.Volume.ID,
-				}
-				vol, response, err := instanceC.GetVolume(getvolOptions)
-				if err != nil {
-					return fmt.Errorf("Error getting volumes attached to the instance %s\n%s", err, response)
-				}
-				if vol.SourceSnapshot == nil {
-					volumes = append(volumes, *volume.Volume.ID)
-				}
+				volumes = append(volumes, *volume.Volume.ID)
 			}
 		}
-	}
-	d.Set(isInstanceVolumes, newStringSet(schema.HashString, volumes))*/
+	}*/
+	// d.Set(isInstanceVolumes, newStringSet(schema.HashString, volumes))
 	if instance.VolumeAttachments != nil {
 		volList := make([]map[string]interface{}, 0)
 		for _, volume := range instance.VolumeAttachments {
@@ -1925,6 +1928,71 @@ func instanceGet(d *schema.ResourceData, meta interface{}, id string) error {
 			}
 		}
 		d.Set(isInstanceVolumeAttachments, volList)
+	}
+
+	if datas, ok := d.GetOk(isInstanceVolAttPrototype); ok {
+		log.Printf("INSIV 1 instanceGet volumePrototype isnt null ")
+		log.Printf("INSIV 2 instanceGet volumePrototype isnt null %v", d.Get(isInstanceVolAttPrototype))
+		volList := make([]map[string]interface{}, 0)
+		data := datas.(*schema.Set).List()
+		var found bool
+		for _, volume := range instance.VolumeAttachments {
+			found = false
+			vol := map[string]interface{}{}
+			if *volume.Volume.ID != *instance.BootVolumeAttachment.Volume.ID {
+				for _, resource := range data {
+					datavol := resource.(map[string]interface{})
+					name, _ := datavol[isInstanceVolAttName]
+					datavolName := name.(string)
+					log.Printf("INSIV  3 instanceGet volume isnt null %v", *volume.Name)
+					if volume.Volume != nil && *volume.Volume.Name == datavolName {
+						found = true
+						log.Printf("INSIV 4 instanceGet volume is equal  %s", datavolName)
+						volId := *volume.Volume.ID
+						getVolOptions := &vpcv1.GetVolumeOptions{
+							ID: &volId,
+						}
+						volumeDetail, _, err := instanceC.GetVolume(getVolOptions)
+						if err != nil {
+							return fmt.Errorf("Error while getting volume details %s in the instance %s", volId, *instance.ID)
+						}
+						log.Printf("INSIV 5 instanceGet volume is details  %v", *volumeDetail)
+						log.Printf("INSIV 5.1 instanceGet volume is details  %v", &vol)
+						vol[isInstanceVolumeId] = *volumeDetail.ID
+						vol[isInstanceVolAttVolName] = *volumeDetail.Name
+						vol[isInstanceVolAttVolCapacity] = *volumeDetail.Capacity
+						vol[isInstanceVolAttVolIops] = *volumeDetail.Iops
+						vol[isInstanceVolAttVolProfile] = *volumeDetail.Profile.Name
+						if volumeDetail.EncryptionKey != nil {
+							vol[isInstanceVolAttVolEncryptionKey] = *volumeDetail.EncryptionKey.CRN
+						}
+						if volumeDetail.SourceSnapshot != nil {
+							vol[isInstanceVolumeSnapshot] = *volumeDetail.SourceSnapshot.ID
+						}
+						log.Printf("INSIV 5.2 instanceGet volume is details  %v", &vol)
+						volList = append(volList, vol)
+						log.Printf("INSIV 5.3 instanceGet volume is details  %v", &volList)
+					}
+				}
+				if !found && volume.Volume != nil {
+					volumes = append(volumes, *volume.Volume.ID)
+				}
+			}
+		}
+		log.Printf("INSIV 5.5 instanceGet volumes is  in d is details  %v", &volumes)
+		d.Set(isInstanceVolumes, newStringSet(schema.HashString, volumes))
+		log.Printf("INSIV 6 instanceGet volumes is  in d is details  %v", &volList)
+		d.Set(isInstanceVolAttPrototype, volList)
+	} else {
+		if instance.VolumeAttachments != nil {
+			for _, volume := range instance.VolumeAttachments {
+				if volume.Volume != nil && *volume.Volume.ID != *instance.BootVolumeAttachment.Volume.ID {
+					volumes = append(volumes, *volume.Volume.ID)
+				}
+			}
+			log.Printf("INSIV 7 instanceGet else blovk is  in d is details  %v", volumes)
+		}
+		d.Set(isInstanceVolumes, newStringSet(schema.HashString, volumes))
 	}
 	if instance.BootVolumeAttachment != nil {
 		bootVolList := make([]map[string]interface{}, 0)
@@ -2214,6 +2282,7 @@ func instanceUpdate(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return err
 	}
+	log.Printf("INSIV 8 instanceUpdate current in d is details  %v", d.Get(isInstanceVolumes))
 	id := d.Id()
 	if d.HasChange(isInstanceVolumes) {
 		ovs, nvs := d.GetChange(isInstanceVolumes)
@@ -2222,7 +2291,8 @@ func instanceUpdate(d *schema.ResourceData, meta interface{}) error {
 
 		remove := expandStringList(ov.Difference(nv).List())
 		add := expandStringList(nv.Difference(ov).List())
-
+		log.Printf("INSIV 9 instanceUpdate add in d is details  %v", add)
+		log.Printf("INSIV 10 instanceUpdate dele in d is details  %v", remove)
 		var volautoDelete bool
 		if volumeautodeleteIntf, ok := d.GetOk(isInstanceVolAttVolAutoDelete); ok && volumeautodeleteIntf != nil {
 			volautoDelete = volumeautodeleteIntf.(bool)
@@ -2237,6 +2307,7 @@ func instanceUpdate(d *schema.ResourceData, meta interface{}) error {
 					},
 					DeleteVolumeOnInstanceDelete: &volautoDelete,
 				}
+				log.Printf("INSIV 11 instanceUpdate attaching attachment  %v", createvolattoptions)
 				vol, _, err := instanceC.CreateInstanceVolumeAttachment(createvolattoptions)
 				if err != nil {
 					return fmt.Errorf("Error while attaching volume %q for instance %s: %q", add[i], d.Id(), err)
@@ -2263,6 +2334,7 @@ func instanceUpdate(d *schema.ResourceData, meta interface{}) error {
 							InstanceID: &id,
 							ID:         vol.ID,
 						}
+						log.Printf("INSIV 12 instanceUpdate removing attachment  %v", delvolattoptions)
 						_, err := instanceC.DeleteInstanceVolumeAttachment(delvolattoptions)
 						if err != nil {
 							return fmt.Errorf("Error while removing volume %q for instance %s: %q", remove[i], d.Id(), err)
@@ -2299,10 +2371,59 @@ func instanceUpdate(d *schema.ResourceData, meta interface{}) error {
 			}
 		}
 		remove := os.Difference(ns).List()
+		log.Printf("INSIV 13 instanceUpdate to remove list  %v", remove)
 		add := ns.Difference(os).List()
+		log.Printf("INSIV 14 instanceUpdate to add listt  %v", add)
 		var volautoDelete bool
 		if volumeautodeleteIntf, ok := d.GetOk(isInstanceVolAttVolAutoDelete); ok && volumeautodeleteIntf != nil {
 			volautoDelete = volumeautodeleteIntf.(bool)
+		}
+		if len(remove) > 0 {
+			log.Println("INSIPS::::::4")
+			log.Printf("%+v\n", remove)
+			for _, remVol := range remove {
+				newRemVol := remVol.(map[string]interface{})
+				listvolattoptions := &vpcv1.ListInstanceVolumeAttachmentsOptions{
+					InstanceID: &id,
+				}
+				vols, _, err := instanceC.ListInstanceVolumeAttachments(listvolattoptions)
+				if err != nil {
+					return err
+				}
+				for _, vol := range vols.VolumeAttachments {
+					toRemove := newRemVol[isInstanceVolAttVolName].(string)
+					log.Printf("%s vol, %s to remove", *vol.Volume.Name, toRemove)
+					if *vol.Volume.Name == toRemove {
+						delvolattoptions := &vpcv1.DeleteInstanceVolumeAttachmentOptions{
+							InstanceID: &id,
+							ID:         vol.ID,
+						}
+						log.Printf("INSIV 17 instanceUpdate to deattach listt  %v", delvolattoptions)
+						_, err := instanceC.DeleteInstanceVolumeAttachment(delvolattoptions)
+						if err != nil {
+							return fmt.Errorf("Error while removing volume %q for instance %s: %q", newRemVol[isInstanceVolAttVolName], d.Id(), err)
+						}
+						att, err := isWaitForInstanceVolumeDetached(instanceC, d, d.Id(), *vol.ID)
+						if err != nil {
+							return err
+						}
+						log.Printf("INSIV 18 instanceUpdate to wait detasch listt  %v", att)
+						deleteVolumeOptions := &vpcv1.DeleteVolumeOptions{
+							ID: vol.Volume.ID,
+						}
+						_, err = instanceC.DeleteVolume(deleteVolumeOptions)
+						if err != nil {
+							log.Printf("[Error] Volume %s deletion failed after detachment from instance %s", *vol.Volume.ID, id)
+						}
+						_, err = isWaitForVolumeDeleted(instanceC, *vol.Volume.ID, d.Timeout(schema.TimeoutDelete))
+						if err != nil {
+							return err
+						}
+						log.Printf("INSIV 19 instanceUpdate volume deleted")
+						break
+					}
+				}
+			}
 		}
 		if len(add) > 0 {
 			log.Println("INSIPS::::::3")
@@ -2345,55 +2466,18 @@ func instanceUpdate(d *schema.ResourceData, meta interface{}) error {
 				}
 				createvolattoptions.Volume = volume
 				vol, _, err := instanceC.CreateInstanceVolumeAttachment(createvolattoptions)
+				log.Printf("INSIV 15 instanceUpdate to adding attach listt  %v", createvolattoptions)
 				if err != nil {
 					return fmt.Errorf("Error while attaching volume %q for instance %s: %q", volName, d.Id(), err)
 				}
-				_, err = isWaitForInstanceVolumeAttached(instanceC, d, id, *vol.ID)
+				att, err := isWaitForInstanceVolumeAttached(instanceC, d, id, *vol.ID)
+				log.Printf("INSIV 16 instanceUpdate to wait attach listt  %v", att)
 				if err != nil {
 					return err
 				}
 			}
 		}
-		if len(remove) > 0 {
-			log.Println("INSIPS::::::4")
-			log.Printf("%+v\n", remove)
-			for _, remVol := range remove {
-				newRemVol := remVol.(map[string]interface{})
-				listvolattoptions := &vpcv1.ListInstanceVolumeAttachmentsOptions{
-					InstanceID: &id,
-				}
-				vols, _, err := instanceC.ListInstanceVolumeAttachments(listvolattoptions)
-				if err != nil {
-					return err
-				}
-				for _, vol := range vols.VolumeAttachments {
-					toRemove := newRemVol[isInstanceVolAttVolName].(string)
-					log.Printf("%s vol, %s to remove", *vol.Volume.Name, toRemove)
-					if *vol.Volume.Name == toRemove {
-						delvolattoptions := &vpcv1.DeleteInstanceVolumeAttachmentOptions{
-							InstanceID: &id,
-							ID:         vol.ID,
-						}
-						_, err := instanceC.DeleteInstanceVolumeAttachment(delvolattoptions)
-						if err != nil {
-							return fmt.Errorf("Error while removing volume %q for instance %s: %q", newRemVol[isInstanceVolAttVolName], d.Id(), err)
-						}
-						_, err = isWaitForInstanceVolumeDetached(instanceC, d, d.Id(), *vol.ID)
-						if err != nil {
-							return err
-						}
-						deleteVolumeOptions := &vpcv1.DeleteVolumeOptions{
-							ID: vol.Volume.ID,
-						}
-						_, err = instanceC.DeleteVolume(deleteVolumeOptions)
-						if err != nil {
-							log.Printf("[Error] Volume %s deletion failed after detachment from instance %s", *vol.Volume.ID, id)
-						}
-						break
-					}
-				}
-			}
-		}
+
 	}
 	if d.HasChange("primary_network_interface.0.security_groups") && !d.IsNewResource() {
 		ovs, nvs := d.GetChange("primary_network_interface.0.security_groups")
