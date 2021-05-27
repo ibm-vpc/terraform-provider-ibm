@@ -229,7 +229,7 @@ The following arguments are supported:
 * `source_template` - (Optional, string) ID of the source template.  
 * `vpc` - (Required, Forces new resource, string) The vpc id.
 * `zone` - (Optional, Forces new resource, string) Name of the zone.
-* `instance_type` - (Optional, string) Type of instance source [volume, template, image].
+* `boot_type` - (Optional, string) Type of instance boot source [snapshot, image].
   * * image is the default type
 * `profile` - (Required, string) The profile name.
   * * Updating profile requires instance to be in stopped status, running instance will be stopped on update profile action.

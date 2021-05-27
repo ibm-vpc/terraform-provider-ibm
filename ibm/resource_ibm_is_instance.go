@@ -43,7 +43,7 @@ const (
 	isInstanceBootVolume              = "boot_volume"
 	isInstanceVolumeId                = "volume_id"
 	isInstanceVolumeSnapshot          = "snapshot"
-	isInstanceInstanceType            = "instance_type"
+	isInstanceBootType                = "boot_type"
 	isInstanceSourceTemplate          = "source_template"
 	isInstanceVolAttPrototype         = "volume_prototype"
 	isInstanceVolAttName              = "name"
@@ -132,7 +132,7 @@ func resourceIBMISInstance() *schema.Resource {
 				ValidateFunc: InvokeValidator("ibm_is_instance", isInstanceName),
 				Description:  "Instance name",
 			},
-			isInstanceInstanceType: {
+			isInstanceBootType: {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
@@ -1441,7 +1441,7 @@ func resourceIBMisInstanceCreate(d *schema.ResourceData, meta interface{}) error
 	vpcID := d.Get(isInstanceVPC).(string)
 	zone := d.Get(isInstanceZone).(string)
 	image := d.Get(isInstanceImage).(string)
-	instanceType := d.Get(isInstanceInstanceType).(string)
+	instanceType := d.Get(isInstanceBootType).(string)
 	template := d.Get(isInstanceSourceTemplate).(string)
 
 	if userDetails.generation == 1 {
@@ -1455,7 +1455,7 @@ func resourceIBMisInstanceCreate(d *schema.ResourceData, meta interface{}) error
 			if err != nil {
 				return err
 			}
-		} else if instanceType == "template" {
+		} else if template != "" {
 			err := instanceCreateByTemplate(d, meta, profile, name, vpcID, zone, image, template)
 			if err != nil {
 				return err
@@ -1797,6 +1797,7 @@ func instanceGet(d *schema.ResourceData, meta interface{}, id string) error {
 	if err != nil {
 		return err
 	}
+	instanceType := "image"
 	getinsOptions := &vpcv1.GetInstanceOptions{
 		ID: &id,
 	}
@@ -2013,6 +2014,9 @@ func instanceGet(d *schema.ResourceData, meta interface{}, id string) error {
 				if vol.EncryptionKey != nil {
 					bootVol[isInstanceBootEncryption] = *vol.EncryptionKey.CRN
 				}
+				if vol.SourceSnapshot != nil {
+					instanceType = "volume"
+				}
 			}
 		}
 		bootVolList = append(bootVolList, bootVol)
@@ -2029,6 +2033,7 @@ func instanceGet(d *schema.ResourceData, meta interface{}, id string) error {
 	if err != nil {
 		return err
 	}
+	d.Set(isInstanceBootType, instanceType)
 	d.Set(ResourceControllerURL, controller+"/vpc-ext/compute/vs")
 	d.Set(ResourceName, *instance.Name)
 	d.Set(ResourceCRN, *instance.CRN)
