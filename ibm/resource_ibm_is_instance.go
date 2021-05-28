@@ -135,6 +135,7 @@ func resourceIBMISInstance() *schema.Resource {
 			isInstanceBootType: {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 			isInstanceVPC: {
 				Type:        schema.TypeString,
@@ -1595,6 +1596,7 @@ func isRestartStartAction(instanceC *vpcv1.VpcV1, id string, d *schema.ResourceD
 }
 func resourceIBMisInstanceRead(d *schema.ResourceData, meta interface{}) error {
 	userDetails, err := meta.(ClientSession).BluemixUserDetails()
+	log.Printf("INSIV read1: inside read")
 	if err != nil {
 		return err
 	}
@@ -1793,14 +1795,15 @@ func classicInstanceGet(d *schema.ResourceData, meta interface{}, id string) err
 }
 
 func instanceGet(d *schema.ResourceData, meta interface{}, id string) error {
+	log.Printf("INSIV read2: inside instance get")
 	instanceC, err := vpcClient(meta)
 	if err != nil {
 		return err
 	}
-	log.Printf("ISIV 1.1 %v", d)
-	log.Printf("ISIV 1.2 %v", d.Get(isInstanceVolumes))
-	log.Printf("ISIV 1.3 %v", d.Get(isInstanceVolAttPrototype))
-	log.Printf("ISIV 1.4 %v", d.Get(isInstanceName))
+	log.Printf("ISIV read3 checking the resource data :: %v", d)
+	log.Printf("ISIV read4 checking the isInstanceVolumes %v", d.Get(isInstanceVolumes))
+	log.Printf("ISIV read5 checking the  isInstanceVolAttPrototype %v", d.Get(isInstanceVolAttPrototype))
+	log.Printf("ISIV read6 checking the  isInstanceName %v", d.Get(isInstanceName))
 
 	instanceType := "image"
 	getinsOptions := &vpcv1.GetInstanceOptions{
@@ -1937,8 +1940,8 @@ func instanceGet(d *schema.ResourceData, meta interface{}, id string) error {
 	}
 
 	if datas, ok := d.GetOk(isInstanceVolAttPrototype); ok {
-		log.Printf("INSIV 1 instanceGet volumePrototype isnt null ")
-		log.Printf("INSIV 2 instanceGet volumePrototype isnt null %v", d.Get(isInstanceVolAttPrototype))
+		log.Printf("INSIV  read7  volumePrototype isnt null ")
+		log.Printf("INSIV  read8  volumePrototype isnt null %v", d.Get(isInstanceVolAttPrototype))
 		volList := make([]map[string]interface{}, 0)
 		data := datas.(*schema.Set).List()
 		var found bool
@@ -1950,10 +1953,10 @@ func instanceGet(d *schema.ResourceData, meta interface{}, id string) error {
 					datavol := resource.(map[string]interface{})
 					name, _ := datavol[isInstanceVolAttName]
 					datavolName := name.(string)
-					log.Printf("INSIV  3 instanceGet volume isnt null %v", *volume.Name)
+					log.Printf("INSIV  read9 instanceGet volume isnt null %v", *volume.Name)
 					if volume.Volume != nil && *volume.Volume.Name == datavolName {
 						found = true
-						log.Printf("INSIV 4 instanceGet volume is equal  %s", datavolName)
+						log.Printf("INSIV  read10 instanceGet volume is equal  %s", datavolName)
 						volId := *volume.Volume.ID
 						getVolOptions := &vpcv1.GetVolumeOptions{
 							ID: &volId,
@@ -1962,8 +1965,8 @@ func instanceGet(d *schema.ResourceData, meta interface{}, id string) error {
 						if err != nil {
 							return fmt.Errorf("Error while getting volume details %s in the instance %s", volId, *instance.ID)
 						}
-						log.Printf("INSIV 5 instanceGet volume is details  %v", *volumeDetail)
-						log.Printf("INSIV 5.1 instanceGet volume is details  %v", &vol)
+						log.Printf("INSIV  read11 instanceGet volume is details  %v", *volumeDetail)
+						log.Printf("INSIV  read12 instanceGet volume is details  %v", &vol)
 						vol[isInstanceVolumeId] = *volumeDetail.ID
 						vol[isInstanceVolAttVolName] = *volumeDetail.Name
 						vol[isInstanceVolAttVolCapacity] = *volumeDetail.Capacity
@@ -1975,9 +1978,9 @@ func instanceGet(d *schema.ResourceData, meta interface{}, id string) error {
 						if volumeDetail.SourceSnapshot != nil {
 							vol[isInstanceVolumeSnapshot] = *volumeDetail.SourceSnapshot.ID
 						}
-						log.Printf("INSIV 5.2 instanceGet volume is details  %v", &vol)
+						log.Printf("INSIV  read13 instanceGet volume is details  %v", &vol)
 						volList = append(volList, vol)
-						log.Printf("INSIV 5.3 instanceGet volume is details  %v", &volList)
+						log.Printf("INSIV  read14 instanceGet volume list is details  %v", &volList)
 					}
 				}
 				if !found && volume.Volume != nil {
@@ -1985,9 +1988,9 @@ func instanceGet(d *schema.ResourceData, meta interface{}, id string) error {
 				}
 			}
 		}
-		log.Printf("INSIV 5.5 instanceGet volumes is  in d is details  %v", &volumes)
+		log.Printf("INSIV  read15 instanceGet volumes is  in d is details  %v", &volumes)
 		d.Set(isInstanceVolumes, newStringSet(schema.HashString, volumes))
-		log.Printf("INSIV 6 instanceGet volumes is  in d is details  %v", &volList)
+		log.Printf("INSIV  read16 instanceGet volumes is  in d is details  %v", &volList)
 		d.Set(isInstanceVolAttPrototype, volList)
 	} else {
 		if instance.VolumeAttachments != nil {
@@ -1996,7 +1999,7 @@ func instanceGet(d *schema.ResourceData, meta interface{}, id string) error {
 					volumes = append(volumes, *volume.Volume.ID)
 				}
 			}
-			log.Printf("INSIV 7 instanceGet else blovk is  in d is details  %v", volumes)
+			log.Printf("INSIV  read17 instanceGet else bloke  is  in d is details  %v", volumes)
 		}
 		d.Set(isInstanceVolumes, newStringSet(schema.HashString, volumes))
 	}
@@ -2292,11 +2295,11 @@ func instanceUpdate(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return err
 	}
-	log.Printf("INSIV 8 instanceUpdate current in d is details  %v", d.Get(isInstanceVolumes))
+	log.Printf("INSIV update1 instanceUpdate current in d is details  %v", d.Get(isInstanceVolumes))
 	id := d.Id()
 
 	if d.HasChange(isInstanceVolAttPrototype) {
-		log.Printf("INSIV 18.1 instanceUpdate current in isInstanceVolAttPrototype  %v", d.Get(isInstanceVolAttPrototype))
+		log.Printf("INSIV update2 instanceUpdate current in isInstanceVolAttPrototype  %v", d.Get(isInstanceVolAttPrototype))
 		oldList, newList := d.GetChange(isInstanceVolAttPrototype)
 		if oldList == nil {
 			oldList = new(schema.Set)
@@ -2307,8 +2310,8 @@ func instanceUpdate(d *schema.ResourceData, meta interface{}) error {
 
 		os := oldList.(*schema.Set)
 		ns := newList.(*schema.Set)
-		log.Printf("INSIV 18.2 instanceUpdate current in isInstanceVolAttPrototype new list %v", os)
-		log.Printf("INSIV 18.3 instanceUpdate current in isInstanceVolAttPrototype  old list %v", ns)
+		log.Printf("INSIV update3 instanceUpdate current in isInstanceVolAttPrototype old list %v", os)
+		log.Printf("INSIV update4 instanceUpdate current in isInstanceVolAttPrototype  new list %v", ns)
 
 		for _, nA := range ns.List() {
 			newPack := nA.(map[string]interface{})
@@ -2321,16 +2324,16 @@ func instanceUpdate(d *schema.ResourceData, meta interface{}) error {
 			}
 		}
 		remove := os.Difference(ns).List()
-		log.Printf("INSIV 13 instanceUpdate to remove list  %v", remove)
+		log.Printf("INSIV update5 instanceUpdate to remove list  %v", remove)
 		add := ns.Difference(os).List()
-		log.Printf("INSIV 14 instanceUpdate to add listt  %v", add)
+		log.Printf("INSIV update6 instanceUpdate to add listt  %v", add)
 		var volautoDelete bool
 		if volumeautodeleteIntf, ok := d.GetOk(isInstanceVolAttVolAutoDelete); ok && volumeautodeleteIntf != nil {
 			volautoDelete = volumeautodeleteIntf.(bool)
 		}
 		if len(remove) > 0 {
-			log.Println("INSIV::::::4")
-			log.Printf("INSIV 18.4 %+v\n", remove)
+			log.Println("INSIV ::::::4")
+			log.Printf("INSIV update7 %+v\n", remove)
 			for _, remVol := range remove {
 				newRemVol := remVol.(map[string]interface{})
 				listvolattoptions := &vpcv1.ListInstanceVolumeAttachmentsOptions{
@@ -2342,13 +2345,13 @@ func instanceUpdate(d *schema.ResourceData, meta interface{}) error {
 				}
 				for _, vol := range vols.VolumeAttachments {
 					toRemove := newRemVol[isInstanceVolAttVolName].(string)
-					log.Printf("INSIV 18.5 %s vol, %s to remove", *vol.Volume.Name, toRemove)
+					log.Printf("INSIV update8 %s vol, %s to remove", *vol.Volume.Name, toRemove)
 					if *vol.Volume.Name == toRemove {
 						delvolattoptions := &vpcv1.DeleteInstanceVolumeAttachmentOptions{
 							InstanceID: &id,
 							ID:         vol.ID,
 						}
-						log.Printf("INSIV 17 instanceUpdate to deattach listt  %v", delvolattoptions)
+						log.Printf("INSIV update9 instanceUpdate to deattach listt  %v", delvolattoptions)
 						_, err := instanceC.DeleteInstanceVolumeAttachment(delvolattoptions)
 						if err != nil {
 							return fmt.Errorf("Error while removing volume %q for instance %s: %q", newRemVol[isInstanceVolAttVolName], d.Id(), err)
@@ -2357,7 +2360,7 @@ func instanceUpdate(d *schema.ResourceData, meta interface{}) error {
 						if err != nil {
 							return err
 						}
-						log.Printf("INSIV 18.6 instanceUpdate to wait detasch listt  %v", att)
+						log.Printf("INSIV update10 instanceUpdate to wait detasch listt  %v", att)
 						deleteVolumeOptions := &vpcv1.DeleteVolumeOptions{
 							ID: vol.Volume.ID,
 						}
@@ -2369,7 +2372,7 @@ func instanceUpdate(d *schema.ResourceData, meta interface{}) error {
 						if err != nil {
 							return err
 						}
-						log.Printf("INSIV 19 instanceUpdate volume deleted")
+						log.Printf("INSIV update11 instanceUpdate volume deleted")
 						break
 					}
 				}
@@ -2377,7 +2380,7 @@ func instanceUpdate(d *schema.ResourceData, meta interface{}) error {
 		}
 		if len(add) > 0 {
 			log.Println("INSIV 18.7.1 ::::::3")
-			log.Printf("INSIV 18.7 %+v\n", add)
+			log.Printf("INSIV update12 %+v\n", add)
 			for _, addVol := range add {
 				newAddVol := addVol.(map[string]interface{})
 				createvolattoptions := &vpcv1.CreateInstanceVolumeAttachmentOptions{
@@ -2416,12 +2419,12 @@ func instanceUpdate(d *schema.ResourceData, meta interface{}) error {
 				}
 				createvolattoptions.Volume = volume
 				vol, _, err := instanceC.CreateInstanceVolumeAttachment(createvolattoptions)
-				log.Printf("INSIV 15 instanceUpdate to adding attach listt  %v", createvolattoptions)
+				log.Printf("INSIV update13 instanceUpdate to adding attach listt  %v", createvolattoptions)
 				if err != nil {
 					return fmt.Errorf("Error while attaching volume %q for instance %s: %q", volName, d.Id(), err)
 				}
 				att, err := isWaitForInstanceVolumeAttached(instanceC, d, id, *vol.ID)
-				log.Printf("INSIV 16 instanceUpdate to wait attach listt  %v", att)
+				log.Printf("INSIV update14 instanceUpdate to wait attach listt  %v", att)
 				if err != nil {
 					return err
 				}
@@ -2436,8 +2439,8 @@ func instanceUpdate(d *schema.ResourceData, meta interface{}) error {
 
 		remove := expandStringList(ov.Difference(nv).List())
 		add := expandStringList(nv.Difference(ov).List())
-		log.Printf("INSIV 9 instanceUpdate add in d is details  %v", add)
-		log.Printf("INSIV 10 instanceUpdate dele in d is details  %v", remove)
+		log.Printf("INSIV update15 instanceUpdate add in d is details  %v", add)
+		log.Printf("INSIV update16 instanceUpdate dele in d is details  %v", remove)
 		var volautoDelete bool
 		if volumeautodeleteIntf, ok := d.GetOk(isInstanceVolAttVolAutoDelete); ok && volumeautodeleteIntf != nil {
 			volautoDelete = volumeautodeleteIntf.(bool)
@@ -2452,7 +2455,7 @@ func instanceUpdate(d *schema.ResourceData, meta interface{}) error {
 					},
 					DeleteVolumeOnInstanceDelete: &volautoDelete,
 				}
-				log.Printf("INSIV 11 instanceUpdate attaching attachment  %v", createvolattoptions)
+				log.Printf("INSIV update17 instanceUpdate attaching attachment  %v", createvolattoptions)
 				vol, _, err := instanceC.CreateInstanceVolumeAttachment(createvolattoptions)
 				if err != nil {
 					return fmt.Errorf("Error while attaching volume %q for instance %s: %q", add[i], d.Id(), err)
@@ -2479,7 +2482,7 @@ func instanceUpdate(d *schema.ResourceData, meta interface{}) error {
 							InstanceID: &id,
 							ID:         vol.ID,
 						}
-						log.Printf("INSIV 12 instanceUpdate removing attachment  %v", delvolattoptions)
+						log.Printf("INSIV update18 instanceUpdate removing attachment  %v", delvolattoptions)
 						_, err := instanceC.DeleteInstanceVolumeAttachment(delvolattoptions)
 						if err != nil {
 							return fmt.Errorf("Error while removing volume %q for instance %s: %q", remove[i], d.Id(), err)
