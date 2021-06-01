@@ -430,7 +430,7 @@ func resourceIBMISInstance() *schema.Resource {
 				Type:     schema.TypeSet,
 				Optional: true,
 				// ConfigMode: schema.SchemaConfigModeAttr,
-				// Computed:    true,
+				Computed:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Set:         schema.HashString,
 				Description: "List of volumes",
@@ -1800,11 +1800,27 @@ func instanceGet(d *schema.ResourceData, meta interface{}, id string) error {
 	if err != nil {
 		return err
 	}
-	log.Printf("ISIV read3 checking the resource data :: %v", d)
-	log.Printf("ISIV read4 checking the isInstanceVolumes %v", d.Get(isInstanceVolumes))
-	log.Printf("ISIV read5 checking the  isInstanceVolAttPrototype %v", d.Get(isInstanceVolAttPrototype))
-	log.Printf("ISIV read6 checking the  isInstanceName %v", d.Get(isInstanceName))
+	/* log.Printf("INSIV read3.1.1 checking the resource data :: %+v", d)
+	log.Printf("INSIV read3.1.2 checking the resource data :: %v", d)
+	log.Printf("INSIV read3.1.3 checking the resource data :: %#v", d)
+	log.Printf("INSIV read3.1.4 checking the meta data :: %#v", meta)
+	log.Printf("INSIV read4 checking the isInstanceVolumes %#v", d.Get(isInstanceVolumes))
+	log.Printf("INSIV read5 checking the  isInstanceVolAttPrototype %#v", d.Get(isInstanceVolAttPrototype))
+	log.Printf("INSIV read6 checking the  isInstanceName %#v", d.Get(isInstanceName))
 
+	oldList, newList := d.GetChange(isInstanceVolAttPrototype)
+	if oldList == nil {
+		oldList = new(schema.Set)
+	}
+	if newList == nil {
+		newList = new(schema.Set)
+	}
+
+	os := oldList.(*schema.Set)
+	ns := newList.(*schema.Set)
+	log.Printf("INSIV read3.2 instanceUpdate current in isInstanceVolAttPrototype old list %v", os)
+	log.Printf("INSIV read3.3 instanceUpdate current in isInstanceVolAttPrototype  new list %v", ns)
+	*/
 	instanceType := "image"
 	getinsOptions := &vpcv1.GetInstanceOptions{
 		ID: &id,
@@ -1939,7 +1955,7 @@ func instanceGet(d *schema.ResourceData, meta interface{}, id string) error {
 		d.Set(isInstanceVolumeAttachments, volList)
 	}
 
-	if datas, ok := d.GetOk(isInstanceVolAttPrototype); ok {
+	/* if datas, ok := d.GetOk(isInstanceVolAttPrototype); ok {
 		log.Printf("INSIV  read7  volumePrototype isnt null ")
 		log.Printf("INSIV  read8  volumePrototype isnt null %v", d.Get(isInstanceVolAttPrototype))
 		volList := make([]map[string]interface{}, 0)
@@ -2002,7 +2018,40 @@ func instanceGet(d *schema.ResourceData, meta interface{}, id string) error {
 			log.Printf("INSIV  read17 instanceGet else bloke  is  in d is details  %v", volumes)
 		}
 		d.Set(isInstanceVolumes, newStringSet(schema.HashString, volumes))
+	} */
+	volList := make([]map[string]interface{}, 0)
+	if instance.VolumeAttachments != nil {
+		for _, volume := range instance.VolumeAttachments {
+			if volume.Volume != nil && *volume.Volume.ID != *instance.BootVolumeAttachment.Volume.ID {
+				volumes = append(volumes, *volume.Volume.ID)
+				vol := map[string]interface{}{}
+				volId := *volume.Volume.ID
+				getVolOptions := &vpcv1.GetVolumeOptions{
+					ID: &volId,
+				}
+				volumeDetail, _, err := instanceC.GetVolume(getVolOptions)
+				if err != nil {
+					return fmt.Errorf("Error while getting volume details %s in the instance %s", volId, *instance.ID)
+				}
+				vol[isInstanceVolumeId] = *volumeDetail.ID
+				vol[isInstanceVolAttVolName] = *volumeDetail.Name
+				vol[isInstanceVolAttVolCapacity] = *volumeDetail.Capacity
+				vol[isInstanceVolAttVolIops] = *volumeDetail.Iops
+				vol[isInstanceVolAttVolProfile] = *volumeDetail.Profile.Name
+				if volumeDetail.EncryptionKey != nil {
+					vol[isInstanceVolAttVolEncryptionKey] = *volumeDetail.EncryptionKey.CRN
+				}
+				if volumeDetail.SourceSnapshot != nil {
+					vol[isInstanceVolumeSnapshot] = *volumeDetail.SourceSnapshot.ID
+				}
+				volList = append(volList, vol)
+			}
+		}
+		log.Printf("INSIV  read17 instanceGet else bloke  is  in d is details  %v", volumes)
 	}
+	d.Set(isInstanceVolAttPrototype, volList)
+	d.Set(isInstanceVolumes, newStringSet(schema.HashString, volumes))
+
 	if instance.BootVolumeAttachment != nil {
 		bootVolList := make([]map[string]interface{}, 0)
 		bootVol := map[string]interface{}{}
@@ -2295,8 +2344,10 @@ func instanceUpdate(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return err
 	}
+
 	log.Printf("INSIV update1 instanceUpdate current in d is details  %v", d.Get(isInstanceVolumes))
 	id := d.Id()
+	log.Printf("INSIV update1.2 instanceUpdate current in isInstanceVolAttPrototype  %v", d.Get(isInstanceVolAttPrototype))
 
 	if d.HasChange(isInstanceVolAttPrototype) {
 		log.Printf("INSIV update2 instanceUpdate current in isInstanceVolAttPrototype  %v", d.Get(isInstanceVolAttPrototype))
@@ -2315,6 +2366,22 @@ func instanceUpdate(d *schema.ResourceData, meta interface{}) error {
 
 		for _, nA := range ns.List() {
 			newPack := nA.(map[string]interface{})
+			log.Printf("INSIV update4.1 instanceUpdate current in getting ins list")
+
+			getinsVolOptions := &vpcv1.GetInstanceOptions{
+				ID: &id,
+			}
+			log.Printf("INSIV update4.1.1 instanceUpdate current in getting ins list %v", getinsVolOptions)
+
+			instanceVolAtts, _, _ := instanceC.GetInstance(getinsVolOptions)
+			for _, volAtt := range instanceVolAtts.VolumeAttachments {
+
+				if compareVolumeAndVolumePrototype(instanceC, newPack, *volAtt.Volume.ID) {
+					ns.Remove(nA)
+					log.Printf("INSIV update4.1.5 instanceUpdate removed from new list %s", *volAtt.Volume.Name)
+				}
+			}
+
 			for _, oA := range os.List() {
 				oldPack := oA.(map[string]interface{})
 				if (strings.Compare(newPack[isInstanceVolAttVolName].(string), oldPack[isInstanceVolAttVolName].(string)) == 0) && newPack[isInstanceVolAttVolCapacity].(int) != oldPack[isInstanceVolAttVolCapacity].(int) && newPack[isInstanceVolAttVolIops].(int) != oldPack[isInstanceVolAttVolIops].(int) {
@@ -3326,4 +3393,34 @@ func resourceIBMIsInstanceVolumePrototypeHash(v interface{}) int {
 	buf.WriteString(fmt.Sprintf("%s-", a[isInstanceVolAttVolName].(string)))
 	buf.WriteString(fmt.Sprintf("%s-", a[isInstanceVolAttVolProfile].(string)))
 	return hashcode.String(buf.String())
+}
+
+func compareVolumeAndVolumePrototype(instanceC *vpcv1.VpcV1, prot map[string]interface{}, volId string) bool {
+	flag := true
+	getVolOptions := &vpcv1.GetVolumeOptions{
+		ID: &volId,
+	}
+	volumeDetail, _, _ := instanceC.GetVolume(getVolOptions)
+	if strings.Compare(prot[isInstanceVolAttVolName].(string), *volumeDetail.Name) == 0 {
+		log.Printf("INSIV update4k.1 compareVolumeAndVolumePrototype Name config is %s and getApi is %s", prot[isInstanceVolAttVolName].(string), *volumeDetail.Name)
+		if (int64(prot[isInstanceVolAttVolIops].(int)) == *volumeDetail.Iops) || (int64(prot[isInstanceVolAttVolIops].(int)) == 0 && *volumeDetail.Iops == 3000) {
+			log.Printf("INSIV update4k.2 compareVolumeAndVolumePrototype IOPS config is %d and getApi is %d", prot[isInstanceVolAttVolIops], *volumeDetail.Iops)
+			if int64(prot[isInstanceVolAttVolCapacity].(int)) == *volumeDetail.Capacity {
+				log.Printf("INSIV update4k.4 compareVolumeAndVolumePrototype Capacity config is %d and getApi is %d", prot[isInstanceVolAttVolCapacity].(int), *volumeDetail.Capacity)
+			} else {
+				flag = false
+				log.Printf("INSIV update4k.4NOT compareVolumeAndVolumePrototype Capacity config is %d and getApi is %d", prot[isInstanceVolAttVolCapacity].(int), *volumeDetail.Capacity)
+			}
+		} else {
+			flag = false
+			log.Printf("INSIV update4k.2NOT compareVolumeAndVolumePrototype IOPS config is %d and getApi is %d", prot[isInstanceVolAttVolIops], *volumeDetail.Iops)
+		}
+	} else {
+		flag = false
+		log.Printf("INSIV update4k.1NOT compareVolumeAndVolumePrototype Name config is %s and getApi is %s", prot[isInstanceVolAttVolName].(string), *volumeDetail.Name)
+	}
+	// if prot[isInstanceVolAttVolIops].(string)!= "" && volumeDetail.EncryptionKey.
+	// log.Printf("INSIV update4k.3 compareVolumeAndVolumePrototype Encryption config is %s and getApi is %s",prot[isInstanceVolAttVolEncryptionKey], *volumeDetail.Name)
+
+	return flag
 }
