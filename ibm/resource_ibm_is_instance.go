@@ -430,7 +430,7 @@ func resourceIBMISInstance() *schema.Resource {
 				Type:     schema.TypeSet,
 				Optional: true,
 				// ConfigMode: schema.SchemaConfigModeAttr,
-				Computed:    true,
+				// Computed:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Set:         schema.HashString,
 				Description: "List of volumes",
@@ -2326,17 +2326,17 @@ func instanceUpdate(d *schema.ResourceData, meta interface{}) error {
 		for _, nA := range ns.List() {
 			newPack := nA.(map[string]interface{})
 
-			getinsVolOptions := &vpcv1.GetInstanceOptions{
-				ID: &id,
-			}
+			// getinsVolOptions := &vpcv1.GetInstanceOptions{
+			// 	ID: &id,
+			// }
 
-			instanceVolAtts, _, _ := instanceC.GetInstance(getinsVolOptions)
-			for _, volAtt := range instanceVolAtts.VolumeAttachments {
+			// instanceVolAtts, _, _ := instanceC.GetInstance(getinsVolOptions)
+			// for _, volAtt := range instanceVolAtts.VolumeAttachments {
 
-				if compareVolumeAndVolumePrototype(instanceC, newPack, *volAtt.Volume.ID) {
-					ns.Remove(nA)
-				}
-			}
+			// 	if compareVolumeAndVolumePrototype(instanceC, newPack, *volAtt.Volume.ID) {
+			// 		ns.Remove(nA)
+			// 	}
+			// }
 
 			for _, oA := range os.List() {
 				oldPack := oA.(map[string]interface{})
