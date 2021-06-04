@@ -379,6 +379,10 @@ func Provider() *schema.Provider {
 			"ibm_satellite_location":           dataSourceIBMSatelliteLocation(),
 			"ibm_satellite_attach_host_script": dataSourceIBMSatelliteAttachHostScript(),
 
+			//Added for Snapshot
+			"ibm_is_snapshot":  dataSourceSnapshot(),
+			"ibm_is_snapshots": dataSourceSnapshots(),
+
 			// Catalog related resources
 			"ibm_cm_catalog":           dataSourceIBMCmCatalog(),
 			"ibm_cm_offering":          dataSourceIBMCmOffering(),
@@ -613,6 +617,9 @@ func Provider() *schema.Provider {
 			"ibm_satellite_location": resourceIBMSatelliteLocation(),
 			"ibm_satellite_host":     resourceIBMSatelliteHost(),
 
+			//snapshot resources
+			"ibm_is_snapshot": resourceIBMSnapshot(),
+
 			//Resource Tag
 			"ibm_resource_tag": resourceIBMResourceTag(),
 		},
@@ -707,6 +714,7 @@ func Validator() ValidatorDict {
 				"ibm_container_cluster":                 resourceIBMContainerClusterValidator(),
 				"ibm_resource_tag":                      resourceIBMResourceTagValidator(),
 				"ibm_satellite_location":                resourceIBMSatelliteLocationValidator(),
+				"ibm_is_snapshot":                       resourceIBMISSnapshotValidator(),
 			},
 			DataSourceValidatorDictionary: map[string]*ResourceValidator{
 				"ibm_is_subnet":               dataSourceIBMISSubnetValidator(),
@@ -716,6 +724,7 @@ func Validator() ValidatorDict {
 				"ibm_is_volume":               dataSourceIBMISVolumeValidator(),
 				"ibm_secrets_manager_secret":  datasourceIBMSecretsManagerSecretValidator(),
 				"ibm_secrets_manager_secrets": datasourceIBMSecretsManagerSecretsValidator(),
+				"ibm_is_snapshot":             dataSourceIBMISSnapshotValidator(),
 			},
 		}
 	})

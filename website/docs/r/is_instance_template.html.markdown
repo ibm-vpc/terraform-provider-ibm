@@ -168,7 +168,9 @@ resource "ibm_is_instance_template" "instancetemplate2" {
 The following arguments are supported:
 
 * `name` - (Required, string) The name of the instance template.
-* `image` - (Required, string) The ID of the image to used to create the template.
+* `template_type` - (Optional, string) Type of template source [volume, template, image].
+* `source_template` - (Optional, string) ID of the source template. 
+* `image` - (Optional, string) The ID of the image to used to create the template.
 * `profile` - (Required, string) The number of instances to be created under the instance group.
 * `dedicated_host` - (Optional, string, ForceNew) The placement restrictions to use for the virtual server instance. Unique Identifier of the Dedicated Host where the instance will be placed
 * `dedicated_host_group` - (Optional, string, ForceNew) The placement restrictions to use for the virtual server instance. Unique Identifier of the Dedicated Host Group where the instance will be placed
@@ -192,6 +194,11 @@ The following arguments are supported:
   * `encryption` - (Optional, string) encryption key CRN to encrypt the boot volume attached. 
   * `name` - (Optional, string) Name of the boot volume.
   * `delete_volume_on_instance_delete` - (Optional, bool) Configured to delete the boot volume to be deleted upon instance deletion.
+  * `size` - (Optional, int) Capacity of the volume in GB.
+  * `iops` - (Optional, int) Input/Output Operations Per Second for the volume.
+  * `profile` - (Optional, string) The profile of the volume.
+  * `snapshot` - (Optional, string) The snapshot id of the volume to be used for creating boot volume attachment
+    * * snapshot id conflicts with image id, only one can be provided  
 * `volume_attachments` - (Optional, list) A nested block describing the storage volume configuration for the template. Nested volume_attachments blocks have the following structure: 
   * `name` - (Required, string) Name of the volume attachment.
   * `volume` - (Optional, string, ForceNew) Storage volume ID created under VPC.
@@ -200,6 +207,7 @@ The following arguments are supported:
     * `iops` - (Optional, int) The maximum I/O operations per second (IOPS) for the volume.
     * `profile` - (Optional, string) The  globally unique name for the volume profile to use for this volume.
     * `capacity` - (Optional, int) The capacity of the volume in gigabytes. The specified minimum and maximum capacity values for creating or updating volumes may expand in the future.
+    * `snapshot` - (Optional, string) The snapshot id of the volume to be used for creating volume attachment    
     * `encryption_key` - (Optional, string) The CRN of the [Key Protect Root Key](https://cloud.ibm.com/docs/key-protect?topic=key-protect-getting-started-tutorial) or [Hyper Protect Crypto Service Root Key](https://cloud.ibm.com/docs/hs-crypto?topic=hs-crypto-get-started) for this resource.
 * `user_data` - (Optional, string) User data provided for the instance.
 
@@ -234,7 +242,7 @@ In addition to all arguments above, the following attributes are exported:
 * `boot_volume` - (Optional, block) A nested block describing the boot volume configuration for the template. Nested  boot_volume blocks have the following structure:
   * `encryption` - (Optional, string) encryption key CRN to encrypt the boot volume attached. 
   * `name` - (Optional, string) Name of the boot volume.
-  * `delete_volume_on_instance_delete` - (Optional, bool) Configured to delete the boot volume to be deleted upon instance deletion.
+  * `delete_volume_on_instance_delete` - (Optional, bool) Configured to delete the boot volume to be deleted upon instance deletion. 
 * `resource_group` - (Optional, Forces new resource, string) Resource group ID.
 
 ## Import

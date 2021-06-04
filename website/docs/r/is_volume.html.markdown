@@ -58,6 +58,7 @@ The following arguments are supported:
 * `encryption_key` - (Optional, Forces new resource, string) The CRN of the root key to use to wrap the data encryption key for the volume. If this property is not provided, the encryption type for the volume will be `provider_managed`.
 * `resource_group` - (Optional, Forces new resource, string) The resource group ID for this volume.
 * `tags` - (Optional, array of strings) Tags associated with the volume.
+* `delete_all_snapshots` - (Optional, boolean) Deletes all snapshots created from this source volume.
 
 ## Attribute Reference
 
@@ -67,6 +68,7 @@ In addition to all arguments above, the following attributes are exported:
 * `status` - The status of volume.
 * `crn` - The CRN for the volume.
 * `status` - The status of the volume. One of [ available, failed, pending, unusable, pending_deletion ].
+* `source_snapshot` - ID of the snapshot, if volume was created from it.
 * `status_reasons` - Array of reasons for the current status
   * `code` - A snake case string succinctly identifying the status reason
   * `message` - An explanation of the status reason
