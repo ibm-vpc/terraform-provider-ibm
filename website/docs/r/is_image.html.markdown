@@ -34,13 +34,17 @@ The following arguments are supported:
 
 * `name` - (Required, string) The descriptive name used to identify an image.
 * `href` - (Optional, string) The path(SQL URL of COS Bucket Object) of an image to be uploaded.
+  * one of `href` or `source_volume` is required
 * `operating_system` - (Optional, string) Description of underlying OS of an image.
+  * `operating_system` is required with `href`
 * `resource_group` - (Optional, Forces new resource, string) The resource group ID for this image.
 * `encrypted_data_key` - (Optional, Forces new resource, string) A base64-encoded, encrypted representation of the key that was used to encrypt the data for this image.
 * `encryption_key` - (Optional, Forces new resource, string) The CRN of the Key Protect Root Key or Hyper Protect Crypto Service Root Key for this resource.
 * `tags` - (Optional, array of strings) Tags associated with the image.
 * `source_volume` - (Optional, string) The volume id of the image.
   * Creating image from volume requires instance to which volume is attached to be in stopped status, running instance will be stopped on using this option.
+   * one of `source_volume` or `href` is required
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
