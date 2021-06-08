@@ -19,6 +19,7 @@ func dataSourceSnapshot() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ExactlyOneOf: []string{isSnapshotName, "identifier"},
+				Description:  "Snapshot identifier",
 				ValidateFunc: InvokeDataSourceValidator("ibm_is_snapshot", "identifier"),
 			},
 
@@ -39,7 +40,7 @@ func dataSourceSnapshot() *schema.Resource {
 			isSnapshotSourceVolume: {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: "Snapshot source volume",
+				Description: "Snapshot source volume id",
 			},
 			isSnapshotBootable: {
 				Type:        schema.TypeBool,
@@ -127,40 +128,65 @@ func snapshotGetByNameOrID(d *schema.ResourceData, meta interface{}, name, id st
 	if err != nil {
 		return err
 	}
-	start := ""
-	allrecs := []vpcv1.Snapshot{}
-	for {
-		listSnapshotOptions := &vpcv1.ListSnapshotsOptions{}
-		if start != "" {
-			listSnapshotOptions.Start = &start
+	if name != "" {
+		start := ""
+		allrecs := []vpcv1.Snapshot{}
+		for {
+			listSnapshotOptions := &vpcv1.ListSnapshotsOptions{}
+			if start != "" {
+				listSnapshotOptions.Start = &start
+			}
+			snapshots, response, err := sess.ListSnapshots(listSnapshotOptions)
+			if err != nil {
+				return fmt.Errorf("Error Fetching snapshots %s\n%s", err, response)
+			}
+			start = GetNext(snapshots.Next)
+			allrecs = append(allrecs, snapshots.Snapshots...)
+			if start == "" {
+				break
+			}
 		}
-		snapshots, response, err := sess.ListSnapshots(listSnapshotOptions)
+		for _, snapshot := range allrecs {
+			if *snapshot.Name == name || *snapshot.ID == id {
+				d.SetId(*snapshot.ID)
+				d.Set(isSnapshotName, *snapshot.Name)
+				d.Set(isSnapshotDeletable, *snapshot.Deletable)
+				d.Set(isSnapshotHref, *snapshot.Href)
+				d.Set(isSnapshotCRN, *snapshot.CRN)
+				d.Set(isSnapshotMinCapacity, *snapshot.MinimumCapacity)
+				d.Set(isSnapshotSize, *snapshot.Size)
+				d.Set(isSnapshotEncryption, *snapshot.Encryption)
+				d.Set(isSnapshotLCState, *snapshot.LifecycleState)
+				d.Set(isSnapshotResourceType, *snapshot.ResourceType)
+				d.Set(isSnapshotBootable, *snapshot.Bootable)
+				d.Set(isSnapshotResourceGroup, *snapshot.ResourceGroup.ID)
+				d.Set(isSnapshotSourceVolume, *snapshot.SourceVolume.ID)
+				return nil
+			}
+		}
+	} else {
+		getSnapshotOptions := &vpcv1.GetSnapshotOptions{
+			ID: &id,
+		}
+		snapshot, response, err := sess.GetSnapshot(getSnapshotOptions)
 		if err != nil {
-			return fmt.Errorf("Error Fetching snapshots %s\n%s", err, response)
+			return fmt.Errorf("Error Fetching snapshot %s\n%s", err, response)
 		}
-		start = GetNext(snapshots.Next)
-		allrecs = append(allrecs, snapshots.Snapshots...)
-		if start == "" {
-			break
-		}
+		d.SetId(*snapshot.ID)
+		d.Set(isSnapshotName, *snapshot.Name)
+		d.Set(isSnapshotDeletable, *snapshot.Deletable)
+		d.Set(isSnapshotHref, *snapshot.Href)
+		d.Set(isSnapshotCRN, *snapshot.CRN)
+		d.Set(isSnapshotMinCapacity, *snapshot.MinimumCapacity)
+		d.Set(isSnapshotSize, *snapshot.Size)
+		d.Set(isSnapshotEncryption, *snapshot.Encryption)
+		d.Set(isSnapshotLCState, *snapshot.LifecycleState)
+		d.Set(isSnapshotResourceType, *snapshot.ResourceType)
+		d.Set(isSnapshotBootable, *snapshot.Bootable)
+		d.Set(isSnapshotResourceGroup, *snapshot.ResourceGroup.ID)
+		d.Set(isSnapshotSourceVolume, *snapshot.SourceVolume.ID)
+		return nil
 	}
-	for _, snapshot := range allrecs {
-		if *snapshot.Name == name || *snapshot.ID == id {
-			d.SetId(*snapshot.ID)
-			d.Set(isSnapshotName, *snapshot.Name)
-			d.Set(isSnapshotDeletable, *snapshot.Deletable)
-			d.Set(isSnapshotHref, *snapshot.Href)
-			d.Set(isSnapshotCRN, *snapshot.CRN)
-			d.Set(isSnapshotMinCapacity, *snapshot.MinimumCapacity)
-			d.Set(isSnapshotSize, *snapshot.Size)
-			d.Set(isSnapshotEncryption, *snapshot.Encryption)
-			d.Set(isSnapshotLCState, *snapshot.LifecycleState)
-			d.Set(isSnapshotResourceType, *snapshot.ResourceType)
-			d.Set(isSnapshotBootable, *snapshot.Bootable)
-			d.Set(isSnapshotResourceGroup, *snapshot.ResourceGroup.ID)
-			d.Set(isSnapshotSourceVolume, *snapshot.SourceVolume.ID)
-			return nil
-		}
-	}
-	return fmt.Errorf("No Snapshot found with name %s", name)
+
+	return fmt.Errorf("No Snapshot found with id %s", id)
 }
