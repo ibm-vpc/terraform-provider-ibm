@@ -16,26 +16,30 @@ import (
 )
 
 const (
-	isSnapshotName          = "name"
-	isSnapshotResourceGroup = "resource_group"
-	isSnapshotSourceVolume  = "source_volume"
-	isSnapshotCRN           = "crn"
-	isSnapshotDeletable     = "delatable"
-	isSnapshotHref          = "href"
-	isSnapshotEncryption    = "encryption"
-	isSnapshotLCState       = "lifecycle_state"
-	isSnapshotMinCapacity   = "minimum_capacity"
-	isSnapshotResourceType  = "resource_type"
-	isSnapshotSize          = "size"
-	isSnapshotBootable      = "bootable"
-	isSnapshotDeleting      = "deleting"
-	isSnapshotDeleted       = "deleted"
-	isSnapshotAvailable     = "stable"
-	isSnapshotFailed        = "failed"
-	isSnapshotPending       = "pending"
-	isSnapshotSuspended     = "suspended"
-	isSnapshotUpdating      = "updating"
-	isSnapshotWaiting       = "waiting"
+	isSnapshotName            = "name"
+	isSnapshotResourceGroup   = "resource_group"
+	isSnapshotSourceVolume    = "source_volume_id"
+	isSnapshotSourceImage     = "source_image"
+	isSnapshotUserTags        = "user_tags"
+	isSnapshotCRN             = "crn"
+	isSnapshotDeletable       = "delatable"
+	isSnapshotHref            = "href"
+	isSnapshotEncryption      = "encryption"
+	isSnapshotEncryptionKey   = "encryption_key"
+	isSnapshotOperatingSystem = "operating_system"
+	isSnapshotLCState         = "lifecycle_state"
+	isSnapshotMinCapacity     = "minimum_capacity"
+	isSnapshotResourceType    = "resource_type"
+	isSnapshotSize            = "size"
+	isSnapshotBootable        = "bootable"
+	isSnapshotDeleting        = "deleting"
+	isSnapshotDeleted         = "deleted"
+	isSnapshotAvailable       = "stable"
+	isSnapshotFailed          = "failed"
+	isSnapshotPending         = "pending"
+	isSnapshotSuspended       = "suspended"
+	isSnapshotUpdating        = "updating"
+	isSnapshotWaiting         = "waiting"
 )
 
 func resourceIBMSnapshot() *schema.Resource {
@@ -103,6 +107,12 @@ func resourceIBMSnapshot() *schema.Resource {
 				Computed:    true,
 				Description: "Encryption type of the snapshot",
 			},
+			isSnapshotEncryptionKey: {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "A reference to the root key used to wrap the data encryption key for the source volume.",
+			},
+
 			isSnapshotHref: {
 				Type:        schema.TypeString,
 				Computed:    true,

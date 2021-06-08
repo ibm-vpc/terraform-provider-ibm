@@ -420,8 +420,35 @@ data "ibm_is_snapshot" "ds_snapshot" {
 }
 
 data "ibm_is_snapshots" "ds_snapshots" {
-
 }
+
+resource "ibm_is_instance" "instance4" {
+  name    = "instance4"
+  image   = var.image
+  profile = var.profile
+  instance_type = "volume"
+  boot_volume {
+    name = "vol-restore"
+    snapshot = ibm_is_snapshot.r_snapshot.id
+  }
+  auto_delete_volume = true
+  # volumes = [ibm_is_volume.vol2.id]
+
+  volume_prototype {
+    name = "my-vol-ins-1"
+    profile = "general-purpose"
+    capacity = 35
+  }
+
+  primary_network_interface {
+    subnet = ibm_is_subnet.subnet2.id
+  }
+  vpc  = ibm_is_vpc.vpc2.id
+  zone = "us-south-2"
+  keys = [ibm_is_ssh_key.sshkey.id]
+# source_template = ibm_is_instance_template.instancetemplate2.id
+}
+
 
 resource "ibm_is_instance_disk_management" "disks"{
   instance = ibm_is_instance.instance1.id 
