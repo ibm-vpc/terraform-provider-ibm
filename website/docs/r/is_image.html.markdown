@@ -34,7 +34,7 @@ The following arguments are supported:
 
 * `name` - (Required, string) The descriptive name used to identify an image.
 * `href` - (Optional, string) The path(SQL URL of COS Bucket Object) of an image to be uploaded.
-  * one of `href` or `source_volume` is required
+  * either `href` or `source_volume` is required
 * `operating_system` - (Optional, string) Description of underlying OS of an image.
   * `operating_system` is required with `href`
 * `resource_group` - (Optional, Forces new resource, string) The resource group ID for this image.
@@ -43,7 +43,7 @@ The following arguments are supported:
 * `tags` - (Optional, array of strings) Tags associated with the image.
 * `source_volume` - (Optional, string) The volume id of the image.
   * Creating image from volume requires instance to which volume is attached to be in stopped status, running instance will be stopped on using this option.
-   * one of `source_volume` or `href` is required
+   * either `source_volume` or `href` is required
 
 ## Attribute Reference
 
