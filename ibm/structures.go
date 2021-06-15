@@ -24,6 +24,7 @@ import (
 	"github.com/IBM/platform-services-go-sdk/globaltaggingv1"
 	"github.com/IBM/platform-services-go-sdk/iampolicymanagementv1"
 	"github.com/apache/openwhisk-client-go/whisk"
+	"github.com/go-openapi/strfmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/softlayer/softlayer-go/datatypes"
 	"github.com/softlayer/softlayer-go/sl"
@@ -744,7 +745,7 @@ func expireRuleGet(in []*s3.LifecycleRule) []interface{} {
 
 func retentionRuleGet(in *s3.ProtectionConfiguration) []interface{} {
 	rules := make([]interface{}, 0, 1)
-	if in != nil && in.Status != nil && *in.Status == "Retention" {
+	if in != nil && in.Status != nil && *in.Status == "COMPLIANCE" {
 		protectConfig := make(map[string]interface{})
 		if in.DefaultRetention != nil {
 			protectConfig["default"] = int(*(in.DefaultRetention).Days)
@@ -764,22 +765,19 @@ func retentionRuleGet(in *s3.ProtectionConfiguration) []interface{} {
 }
 
 func flattenCosObejctVersioning(in *s3.GetBucketVersioningOutput) []interface{} {
-	out, err := json.Marshal(in)
-	if err != nil {
-		fmt.Println(err)
-	}
-	fmt.Println(string(out))
-	att := make(map[string]interface{})
+	versioning := make([]interface{}, 0, 1)
 	if in != nil {
 		if in.Status != nil {
+			att := make(map[string]interface{})
 			if *in.Status == "Enabled" {
 				att["enable"] = true
 			} else {
 				att["enable"] = false
 			}
+			versioning = append(versioning, att)
 		}
 	}
-	return []interface{}{att}
+	return versioning
 }
 
 func flattenLimits(in *whisk.Limits) []interface{} {
@@ -887,6 +885,20 @@ func intValue(i64 *int64) (i int) {
 func float64Value(f32 *float32) (f float64) {
 	if f32 != nil {
 		f = float64(*f32)
+	}
+	return
+}
+
+func dateToString(d *strfmt.Date) (s string) {
+	if d != nil {
+		s = d.String()
+	}
+	return
+}
+
+func dateTimeToString(dt *strfmt.DateTime) (s string) {
+	if dt != nil {
+		s = dt.String()
 	}
 	return
 }

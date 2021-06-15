@@ -8,8 +8,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/internal/mutexkv"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
+	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/internal/mutexkv"
 )
 
 // This is a global MutexKV for use within this plugin.
@@ -293,6 +294,8 @@ func Provider() *schema.Provider {
 			"ibm_is_vpc_routing_table_routes":        dataSourceIBMISVPCRoutingTableRoutes(),
 			"ibm_is_zone":                            dataSourceIBMISZone(),
 			"ibm_is_zones":                           dataSourceIBMISZones(),
+			"ibm_is_operating_system":                dataSourceIBMISOperatingSystem(),
+			"ibm_is_operating_systems":               dataSourceIBMISOperatingSystems(),
 			"ibm_lbaas":                              dataSourceIBMLbaas(),
 			"ibm_network_vlan":                       dataSourceIBMNetworkVlan(),
 			"ibm_org":                                dataSourceIBMOrg(),
@@ -619,6 +622,9 @@ func Provider() *schema.Provider {
 			"ibm_satellite_host":                resourceIBMSatelliteHost(),
 			"ibm_satellite_cluster":             resourceIBMSatelliteCluster(),
 			"ibm_satellite_cluster_worker_pool": resourceIBMSatelliteClusterWorkerPool(),
+
+			//Added for Resource Tag
+			"ibm_resource_tag": resourceIBMResourceTag(),
 		},
 
 		ConfigureFunc: providerConfigure,
