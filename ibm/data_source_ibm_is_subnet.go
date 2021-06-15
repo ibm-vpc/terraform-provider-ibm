@@ -61,6 +61,14 @@ func dataSourceIBMISSubnet() *schema.Resource {
 				Description: "List of tags",
 			},
 
+			isSubnetAccessTags: {
+				Type:        schema.TypeSet,
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         resourceIBMVPCHash,
+				Description: "List of access tags",
+			},
+
 			isSubnetCRN: {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -295,6 +303,12 @@ func subnetGetByNameOrID(d *schema.ResourceData, meta interface{}) error {
 			"An error occured during reading of subnet (%s) tags : %s", d.Id(), err)
 	}
 	d.Set(isSubnetTags, tags)
+	accesstags, err := GetGlobalTagsUsingCRN(meta, *subnet.CRN, "", "access")
+	if err != nil {
+		log.Printf(
+			"Error on get of resource subnet (%s) access tags: %s", d.Id(), err)
+	}
+	d.Set(isSubnetAccessTags, accesstags)
 	d.Set(isSubnetCRN, *subnet.CRN)
 	d.Set(ResourceControllerURL, controller+"/vpc-ext/network/subnets")
 	d.Set(ResourceName, *subnet.Name)

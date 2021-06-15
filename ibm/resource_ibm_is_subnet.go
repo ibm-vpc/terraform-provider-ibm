@@ -40,6 +40,7 @@ const (
 	isSubnetDeleting         = "deleting"
 	isSubnetDeleted          = "done"
 	isSubnetRoutingTableID   = "routing_table"
+	isSubnetAccessTags       = "access_tags"
 )
 
 func resourceIBMISSubnet() *schema.Resource {
@@ -117,6 +118,15 @@ func resourceIBMISSubnet() *schema.Resource {
 				Elem:        &schema.Schema{Type: schema.TypeString, ValidateFunc: InvokeValidator("ibm_is_subnet", "tag")},
 				Set:         resourceIBMVPCHash,
 				Description: "List of tags",
+			},
+
+			isSubnetAccessTags: {
+				Type:        schema.TypeSet,
+				Optional:    true,
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString, ValidateFunc: InvokeValidator("ibm_is_subnet", "accesstag")},
+				Set:         resourceIBMVPCHash,
+				Description: "List of access management tags",
 			},
 
 			isSubnetCRN: {
@@ -362,6 +372,7 @@ func classicSubnetCreate(d *schema.ResourceData, meta interface{}, name, vpc, zo
 }
 
 func subnetCreate(d *schema.ResourceData, meta interface{}, name, vpc, zone, ipv4cidr, acl, gw, rtID string, ipv4addrcount64 int64) error {
+	var rType string
 	sess, err := vpcClient(meta)
 	if err != nil {
 		return err
@@ -421,14 +432,30 @@ func subnetCreate(d *schema.ResourceData, meta interface{}, name, vpc, zone, ipv
 		return err
 	}
 	v := os.Getenv("IC_ENV_TAGS")
+	log.Println("[DEBUG] ******************************************************* IC_ENV_TAGS]:- ", v)
 	if _, ok := d.GetOk(isSubnetTags); ok || v != "" {
 		oldList, newList := d.GetChange(isSubnetTags)
+		log.Printf("[DEBUG] ******************************************************* Old List - %v\nNew List :- %v", oldList, newList)
 		err = UpdateTagsUsingCRN(oldList, newList, meta, *subnet.CRN)
 		if err != nil {
 			log.Printf(
 				"Error on create of resource subnet (%s) tags: %s", d.Id(), err)
 		}
 	}
+
+	accesstags := os.Getenv("IC_ENV_TAGS")
+	if v, ok := d.GetOk("resource_type"); ok && v != nil {
+		rType = v.(string)
+	}
+	if _, ok := d.GetOk(isSubnetAccessTags); ok || accesstags != "" {
+		oldList, newList := d.GetChange(isSubnetAccessTags)
+		err = UpdateGlobalTagsUsingCRN(oldList, newList, meta, *subnet.CRN, rType, "access")
+		if err != nil {
+			log.Printf(
+				"Error while creating Security Group tags : %s\n%s", *subnet.ID, err)
+		}
+	}
+
 	return nil
 }
 
@@ -616,7 +643,17 @@ func subnetGet(d *schema.ResourceData, meta interface{}, id string) error {
 		log.Printf(
 			"Error on get of resource subnet (%s) tags: %s", d.Id(), err)
 	}
+
+	accesstags, err := GetGlobalTagsUsingCRN(meta, *subnet.CRN, "", "access")
+	if err != nil {
+		log.Printf(
+			"Error on get of resource subnet (%s) access tags: %s", d.Id(), err)
+	}
+
+	log.Printf("[DEBUG] **************************** Access Tags %v ", accesstags)
 	d.Set(isSubnetTags, tags)
+	d.Set(isSubnetAccessTags, accesstags)
+	log.Println("[DEBUG] *********************** CRN is ", *subnet.CRN)
 	d.Set(isSubnetCRN, *subnet.CRN)
 	d.Set(ResourceControllerURL, controller+"/vpc-ext/network/subnets")
 	d.Set(ResourceName, *subnet.Name)
