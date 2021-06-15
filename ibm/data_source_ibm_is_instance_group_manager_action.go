@@ -220,7 +220,7 @@ func dataSourceIBMISInstanceGroupManagerActionRead(d *schema.ResourceData, meta 
 			}
 			instanceGroupManagerScheduledActionManagerManagerInt := instanceGroupManagerAction.Manager
 			if instanceGroupManagerScheduledActionManagerManagerInt != nil {
-				instanceGroupManagerScheduledActionManagerManager := instanceGroupManagerScheduledActionManagerManagerInt.(*vpcv1.InstanceGroupManagerScheduledActionManager)
+				instanceGroupManagerScheduledActionManagerManager := instanceGroupManagerScheduledActionManagerManagerInt.(*vpcv1.InstanceGroupManagerScheduledActionManagerManager)
 				if instanceGroupManagerScheduledActionManagerManager != nil && instanceGroupManagerScheduledActionManagerManager.ID != nil {
 
 					if instanceGroupManagerScheduledActionManagerManager.MaxMembershipCount != nil {

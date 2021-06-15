@@ -245,7 +245,7 @@ func resourceIBMISInstanceGroupManagerActionCreate(d *schema.ResourceData, meta 
 		instanceGroupManagerActionPrototype.Group = &instanceGroupManagerScheduledActionGroupPrototype
 	}
 
-	instanceGroupManagerScheduledActionByManagerManager := vpcv1.InstanceGroupManagerScheduledActionManagerPrototype{}
+	instanceGroupManagerScheduledActionByManagerManager := vpcv1.InstanceGroupManagerScheduledActionByManagerManager{}
 	if v, ok := d.GetOk("min_membership_count"); ok {
 		minmembershipCount := int64(v.(int))
 		instanceGroupManagerScheduledActionByManagerManager.MinMembershipCount = &minmembershipCount
@@ -314,13 +314,13 @@ func resourceIBMISInstanceGroupManagerActionUpdate(d *schema.ResourceData, meta 
 
 	if d.HasChange("membership_count") {
 		membershipCount := int64(d.Get("membership_count").(int))
-		instanceGroupManagerScheduledActionGroupPatch := vpcv1.InstanceGroupManagerActionGroupPatch{}
+		instanceGroupManagerScheduledActionGroupPatch := vpcv1.InstanceGroupManagerScheduledActionGroupPatch{}
 		instanceGroupManagerScheduledActionGroupPatch.MembershipCount = &membershipCount
 		instanceGroupManagerActionPatchModel.Group = &instanceGroupManagerScheduledActionGroupPatch
 		changed = true
 	}
 
-	instanceGroupManagerScheduledActionByManagerPatchManager := vpcv1.InstanceGroupManagerActionManagerPatch{}
+	instanceGroupManagerScheduledActionByManagerPatchManager := vpcv1.InstanceGroupManagerScheduledActionByManagerPatchManager{}
 
 	if d.HasChange("min_membership_count") {
 		minmembershipCount := int64(d.Get("min_membership_count").(int))
@@ -453,7 +453,7 @@ func resourceIBMISInstanceGroupManagerActionRead(d *schema.ResourceData, meta in
 	}
 	instanceGroupManagerScheduledActionManagerManagerInt := instanceGroupManagerAction.Manager
 	if instanceGroupManagerScheduledActionManagerManagerInt != nil {
-		instanceGroupManagerScheduledActionManagerManager := instanceGroupManagerScheduledActionManagerManagerInt.(*vpcv1.InstanceGroupManagerScheduledActionManager)
+		instanceGroupManagerScheduledActionManagerManager := instanceGroupManagerScheduledActionManagerManagerInt.(*vpcv1.InstanceGroupManagerScheduledActionManagerManager)
 		if instanceGroupManagerScheduledActionManagerManager != nil && instanceGroupManagerScheduledActionManagerManager.ID != nil {
 
 			if instanceGroupManagerScheduledActionManagerManager.MaxMembershipCount != nil {
