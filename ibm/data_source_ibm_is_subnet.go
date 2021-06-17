@@ -247,7 +247,7 @@ func subnetGetByNameOrID(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 	var subnet *vpcv1.Subnet
-
+	var rType string
 	if v, ok := d.GetOk("identifier"); ok {
 		id := v.(string)
 		getSubnetOptions := &vpcv1.GetSubnetOptions{
@@ -297,17 +297,24 @@ func subnetGetByNameOrID(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return err
 	}
-	tags, err := GetTagsUsingCRN(meta, *subnet.CRN)
+
+	if v, ok := d.GetOk("resource_type"); ok && v != nil {
+		rType = v.(string)
+	}
+
+	tags, err := GetGlobalTagsUsingCRN(meta, *subnet.CRN, rType, isUserTagType)
 	if err != nil {
 		log.Printf(
 			"An error occured during reading of subnet (%s) tags : %s", d.Id(), err)
 	}
-	d.Set(isSubnetTags, tags)
-	accesstags, err := GetGlobalTagsUsingCRN(meta, *subnet.CRN, "", "access")
+
+	accesstags, err := GetGlobalTagsUsingCRN(meta, *subnet.CRN, rType, isAccessTagType)
 	if err != nil {
 		log.Printf(
 			"Error on get of resource subnet (%s) access tags: %s", d.Id(), err)
 	}
+
+	d.Set(isSubnetTags, tags)
 	d.Set(isSubnetAccessTags, accesstags)
 	d.Set(isSubnetCRN, *subnet.CRN)
 	d.Set(ResourceControllerURL, controller+"/vpc-ext/network/subnets")
