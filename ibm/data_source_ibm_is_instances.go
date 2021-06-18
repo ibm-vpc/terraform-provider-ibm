@@ -248,6 +248,55 @@ func dataSourceIBMISInstances() *schema.Resource {
 							Computed:    true,
 							Description: "Instance Image",
 						},
+
+						isInstanceGpu: {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "Instance GPU",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									isInstanceGpuCount: {
+										Type:        schema.TypeInt,
+										Computed:    true,
+										Description: "Instance GPU Count",
+									},
+									isInstanceGpuMemory: {
+										Type:        schema.TypeInt,
+										Computed:    true,
+										Description: "Instance GPU Memory",
+									},
+									isInstanceGpuManufacturer: {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "Instance GPU Manufacturer",
+									},
+									isInstanceGpuModel: {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "Instance GPU Model",
+									},
+								},
+							},
+						},
+
+						isInstanceTotalVolumeBandwidth: {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: "The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes",
+						},
+
+						isInstanceBandwidth: {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: "The total bandwidth (in megabits per second) shared across the instance's network interfaces and storage volumes",
+						},
+
+						isInstanceTotalNetworkBandwidth: {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: "The amount of bandwidth (in megabits per second) allocated exclusively to instance network interfaces.",
+						},
+
 						isInstanceDisks: &schema.Schema{
 							Type:        schema.TypeList,
 							Computed:    true,
@@ -613,6 +662,29 @@ func instancesList(d *schema.ResourceData, meta interface{}) error {
 			cpuList = append(cpuList, currentCPU)
 		}
 		l["vcpu"] = cpuList
+
+		gpuList := make([]map[string]interface{}, 0)
+		if instance.Gpu != nil {
+			currentGpu := map[string]interface{}{}
+			currentGpu[isInstanceGpuManufacturer] = instance.Gpu.Manufacturer
+			currentGpu[isInstanceGpuModel] = instance.Gpu.Model
+			currentGpu[isInstanceGpuCount] = instance.Gpu.Count
+			currentGpu[isInstanceGpuMemory] = instance.Gpu.Memory
+			gpuList = append(gpuList, currentGpu)
+			l[isInstanceGpu] = gpuList
+		}
+
+		if instance.Bandwidth != nil {
+			l[isInstanceBandwidth] = int(*instance.Bandwidth)
+		}
+
+		if instance.TotalNetworkBandwidth != nil {
+			l[isInstanceTotalNetworkBandwidth] = int(*instance.TotalNetworkBandwidth)
+		}
+
+		if instance.TotalVolumeBandwidth != nil {
+			l[isInstanceTotalVolumeBandwidth] = int(*instance.TotalVolumeBandwidth)
+		}
 
 		l["zone"] = *instance.Zone.Name
 		if instance.Image != nil {

@@ -43,6 +43,36 @@ In addition to all arguments above, the following attributes are exported:
   * `min` - The minimum value for this profile field.
   * `step` - The increment step value for this profile field.
   * `values` - The permitted values for this profile field.
+* `total_volume_bandwidth`  Nested `bandwidth` blocks have the following structure:
+  * `type` - The type for this profile field.
+  * `value` - The value for this profile field.
+  * `default` - The default value for this profile field.
+  * `max` - The maximum value for this profile field.
+  * `min` - The minimum value for this profile field.
+  * `step` - The increment step value for this profile field.
+  * `values` - The permitted values for this profile field.
+* `gpu_count`  Nested `gpu_count` blocks have the following structure:
+  * `type` - The type for this profile field.
+  * `value` - The value for this profile field.
+  * `default` - The default value for this profile field.
+  * `max` - The maximum value for this profile field.
+  * `min` - The minimum value for this profile field.
+  * `step` - The increment step value for this profile field.
+  * `values` - The permitted values for this profile field.
+* `gpu_memory`  Nested `gpu_memory` blocks have the following structure:
+  * `type` - The type for this profile field.
+  * `value` - The value for this profile field.
+  * `default` - The default value for this profile field.
+  * `max` - The maximum value for this profile field.
+  * `min` - The minimum value for this profile field.
+  * `step` - The increment step value for this profile field.
+  * `values` - The permitted values for this profile field.
+* `gpu_manufacturer`  Nested `gpu_manufacturer` blocks have the following structure:
+  * `type` - The type for this profile field.
+  * `values` - The permitted values for this profile field.
+* `gpu_model`  Nested `gpu_model` blocks have the following structure:
+  * `type` - The type for this profile field.
+  * `values` - The permitted values for this profile field.
 * `disks` - Collection of the instance profile's disks. Nested `disks` blocks have the following structure:
   * `quantity`  Nested `quantity` blocks have the following structure:
     * `type` - The type for this profile field.

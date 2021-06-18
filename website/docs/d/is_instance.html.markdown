@@ -88,9 +88,11 @@ The following attributes can be exported:
 Nested `vcpu` blocks have the following structure:
   * `architecture` - The architecture of the instance.
   * `count` - The number of VCPUs assigned to the instance.
+* `bandwidth` - The total bandwidth (in megabits per second) shared across the instance's network interfaces and storage volumes
+* `total_volume_bandwidth` - The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes
+* `total_network_bandwidth` - The amount of bandwidth (in megabits per second) allocated exclusively to instance network interfaces.
 * `gpu` - A nested block describing the gpu of this instance.
 Nested `gpu` blocks have the following structure:
-  * `cores` - The cores of the gpu.
   * `count` - Count of the gpu.
   * `manufacture` - Manufacture of the gpu.
   * `memory` - Memory of the gpu.

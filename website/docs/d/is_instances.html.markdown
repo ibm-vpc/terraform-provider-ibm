@@ -43,6 +43,15 @@ In addition to all arguments above, the following attributes are exported:
   * `memory` - Memory of the instance.
   * `status` - Status of the instance.
   * `image` - Image used in the instance.
+  * `bandwidth` - The total bandwidth (in megabits per second) shared across the instance's network interfaces and storage volumes
+  * `total_volume_bandwidth` - The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes
+  * `total_network_bandwidth` - The amount of bandwidth (in megabits per second) allocated exclusively to instance network interfaces.
+  * `gpu` - A nested block describing the gpu of this instance.
+  Nested `gpu` blocks have the following structure:
+    * `count` - Count of the gpu.
+    * `manufacture` - Manufacture of the gpu.
+    * `memory` - Memory of the gpu.
+    * `model` - Model of the gpu.
   * `disks` - Collection of the instance's disks. Nested `disks` blocks have the following structure:
 	  * `created_at` - The date and time that the disk was created.
 	  * `href` - The URL for this instance disk.

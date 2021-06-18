@@ -232,6 +232,7 @@ The following arguments are supported:
   * * Updating profile requires instance to be in stopped status, running instance will be stopped on update profile action.  * `image` - (Required, string) ID of the image.
 * `dedicated_host` - (Optional, string, ForceNew) The placement restrictions to use for the virtual server instance. Unique Identifier of the Dedicated Host where the instance will be placed
 * `dedicated_host_group` - (Optional, string, ForceNew) The placement restrictions to use for the virtual server instance. Unique Identifier of the Dedicated Host Group where the instance will be placed
+* `total_volume_bandwidth` - (Optional, int) The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes
 * `boot_volume` - (Optional, list) A block describing the boot volume of this instance.
 `boot_volume` block have the following structure:
   * `name` - (Optional, string) The name of the boot volume.
@@ -271,9 +272,11 @@ In addition to all arguments above, the following attributes are exported:
 Nested `vcpu` blocks have the following structure:
   * `architecture` - The architecture of the instance.
   * `count` - The number of VCPUs assigned to the instance.
+* `bandwidth` - The total bandwidth (in megabits per second) shared across the instance's network interfaces and storage volumes
+* `total_volume_bandwidth` - The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes
+* `total_network_bandwidth` - The amount of bandwidth (in megabits per second) allocated exclusively to instance network interfaces.
 * `gpu` - A nested block describing the gpu of this instance.
 Nested `gpu` blocks have the following structure:
-  * `cores` - The cores of the gpu.
   * `count` - Count of the gpu.
   * `manufacture` - Manufacture of the gpu.
   * `memory` - Memory of the gpu.

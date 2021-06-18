@@ -147,6 +147,24 @@ func dataSourceIBMISInstance() *schema.Resource {
 				},
 			},
 
+			isInstanceTotalVolumeBandwidth: {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: "The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes",
+			},
+
+			isInstanceBandwidth: {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: "The total bandwidth (in megabits per second) shared across the instance's network interfaces and storage volumes",
+			},
+
+			isInstanceTotalNetworkBandwidth: {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: "The amount of bandwidth (in megabits per second) allocated exclusively to instance network interfaces.",
+			},
+
 			isInstanceVolumeAttachments: {
 				Type:        schema.TypeList,
 				Computed:    true,
@@ -304,15 +322,9 @@ func dataSourceIBMISInstance() *schema.Resource {
 			isInstanceGpu: {
 				Type:        schema.TypeList,
 				Computed:    true,
-				Deprecated:  "This field is deprecated",
 				Description: "Instance GPU",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						isInstanceGpuCores: {
-							Type:        schema.TypeInt,
-							Computed:    true,
-							Description: "Instance GPU Cores",
-						},
 						isInstanceGpuCount: {
 							Type:        schema.TypeInt,
 							Computed:    true,
@@ -766,8 +778,29 @@ func instanceGetByName(d *schema.ResourceData, meta interface{}, name string) er
 			d.Set(isInstanceCPU, cpuList)
 
 			d.Set(isInstanceMemory, *instance.Memory)
+
 			gpuList := make([]map[string]interface{}, 0)
-			d.Set(isInstanceGpu, gpuList)
+			if instance.Gpu != nil {
+				currentGpu := map[string]interface{}{}
+				currentGpu[isInstanceGpuManufacturer] = instance.Gpu.Manufacturer
+				currentGpu[isInstanceGpuModel] = instance.Gpu.Model
+				currentGpu[isInstanceGpuCount] = instance.Gpu.Count
+				currentGpu[isInstanceGpuMemory] = instance.Gpu.Memory
+				gpuList = append(gpuList, currentGpu)
+				d.Set(isInstanceGpu, gpuList)
+			}
+
+			if instance.Bandwidth != nil {
+				d.Set(isInstanceBandwidth, int(*instance.Bandwidth))
+			}
+
+			if instance.TotalNetworkBandwidth != nil {
+				d.Set(isInstanceTotalNetworkBandwidth, int(*instance.TotalNetworkBandwidth))
+			}
+
+			if instance.TotalVolumeBandwidth != nil {
+				d.Set(isInstanceTotalVolumeBandwidth, int(*instance.TotalVolumeBandwidth))
+			}
 
 			if instance.Disks != nil {
 				err = d.Set(isInstanceDisks, dataSourceInstanceFlattenDisks(instance.Disks))
@@ -781,7 +814,9 @@ func instanceGetByName(d *schema.ResourceData, meta interface{}, name string) er
 				currentPrimNic := map[string]interface{}{}
 				currentPrimNic["id"] = *instance.PrimaryNetworkInterface.ID
 				currentPrimNic[isInstanceNicName] = *instance.PrimaryNetworkInterface.Name
-				currentPrimNic[isInstanceNicPrimaryIpv4Address] = *instance.PrimaryNetworkInterface.PrimaryIpv4Address
+				if instance.PrimaryNetworkInterface.PrimaryIpv4Address != nil {
+					currentPrimNic[isInstanceNicPrimaryIpv4Address] = *instance.PrimaryNetworkInterface.PrimaryIpv4Address
+				}
 				getnicoptions := &vpcv1.GetInstanceNetworkInterfaceOptions{
 					InstanceID: &id,
 					ID:         instance.PrimaryNetworkInterface.ID,
@@ -810,7 +845,9 @@ func instanceGetByName(d *schema.ResourceData, meta interface{}, name string) er
 						currentNic := map[string]interface{}{}
 						currentNic["id"] = *intfc.ID
 						currentNic[isInstanceNicName] = *intfc.Name
-						currentNic[isInstanceNicPrimaryIpv4Address] = *intfc.PrimaryIpv4Address
+						if intfc.PrimaryIpv4Address != nil {
+							currentNic[isInstanceNicPrimaryIpv4Address] = *intfc.PrimaryIpv4Address
+						}
 						getnicoptions := &vpcv1.GetInstanceNetworkInterfaceOptions{
 							InstanceID: &id,
 							ID:         intfc.ID,

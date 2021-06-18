@@ -98,6 +98,13 @@ func resourceIBMISInstanceTemplate() *schema.Resource {
 				Description: "Profile info",
 			},
 
+			isInstanceTotalVolumeBandwidth: {
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Computed:    true,
+				Description: "The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes",
+			},
+
 			isInstanceTemplateKeys: {
 				Type:             schema.TypeSet,
 				Required:         true,
@@ -434,6 +441,11 @@ func instanceTemplateCreate(d *schema.ResourceData, meta interface{}, profile, n
 		instanceproto.PlacementTarget = dHostGrpPlaementTarget
 	}
 
+	if totalVolBandwidthIntf, ok := d.GetOk(isInstanceTotalVolumeBandwidth); ok {
+		totalVolBandwidthStr := totalVolBandwidthIntf.(int64)
+		instanceproto.TotalVolumeBandwidth = &totalVolBandwidthStr
+	}
+
 	// BOOT VOLUME ATTACHMENT for instance template
 	if boot, ok := d.GetOk(isInstanceTemplateBootVolume); ok {
 		bootvol := boot.([]interface{})[0].(map[string]interface{})
@@ -706,6 +718,10 @@ func instanceTemplateGet(d *schema.ResourceData, meta interface{}, ID string) er
 		}
 		primaryNicList = append(primaryNicList, currentPrimNic)
 		d.Set(isInstanceTemplatePrimaryNetworkInterface, primaryNicList)
+	}
+
+	if instance.TotalVolumeBandwidth != nil {
+		d.Set(isInstanceTotalVolumeBandwidth, int(*instance.TotalVolumeBandwidth))
 	}
 
 	if instance.NetworkInterfaces != nil {

@@ -31,6 +31,7 @@ In addition to all arguments above, the following attributes are exported:
   * `zone` - Name of the zone
   * `keys` - List of ssh-key ids used to allow login user to the instances.
   * `resource_group` - Resource group ID.
+  * `total_volume_bandwidth` - The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes
   * `primary_network_interfaces` - A nested block describing the primary network interface for the template
     * `subnet` - The VPC subnet to assign to the interface. 
     * `name` - Name of the interface.
