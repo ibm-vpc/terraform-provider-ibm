@@ -12,8 +12,6 @@ import (
 	"github.com/IBM/platform-services-go-sdk/iampolicymanagementv1"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-
-	"github.com/IBM-Cloud/bluemix-go/bmxerror"
 )
 
 func resourceIBMIAMServicePolicy() *schema.Resource {
@@ -215,17 +213,9 @@ func resourceIBMIAMServicePolicyCreate(d *schema.ResourceData, meta interface{})
 		[]iampolicymanagementv1.PolicyResource{policyResources},
 	)
 
-	servicePolicy, _, err := iamPolicyManagementClient.CreatePolicy(createPolicyOptions)
-
+	servicePolicy, res, err := iamPolicyManagementClient.CreatePolicy(createPolicyOptions)
 	if err != nil {
-		return fmt.Errorf("Error creating servicePolicy: %s", err)
-	}
-	if v, ok := d.GetOk("iam_service_id"); ok && v != nil {
-		serviceIDUUID := v.(string)
-		d.SetId(fmt.Sprintf("%s/%s", serviceIDUUID, *servicePolicy.ID))
-	} else if v, ok := d.GetOk("iam_id"); ok && v != nil {
-		iamID := v.(string)
-		d.SetId(fmt.Sprintf("%s/%s", iamID, *servicePolicy.ID))
+		return fmt.Errorf("Error creating servicePolicy: %s %s", err, res)
 	}
 
 	getPolicyOptions := iamPolicyManagementClient.NewGetPolicyOptions(
@@ -234,24 +224,36 @@ func resourceIBMIAMServicePolicyCreate(d *schema.ResourceData, meta interface{})
 
 	err = resource.Retry(5*time.Minute, func() *resource.RetryError {
 		var err error
-		_, _, err = iamPolicyManagementClient.GetPolicy(getPolicyOptions)
+		policy, res, err := iamPolicyManagementClient.GetPolicy(getPolicyOptions)
 
-		if err != nil {
-			if apiErr, ok := err.(bmxerror.RequestFailure); ok {
-				if apiErr.StatusCode() == 404 {
-					return resource.RetryableError(err)
-				}
-				return resource.NonRetryableError(err)
+		if err != nil || policy == nil {
+			if res != nil && res.StatusCode == 404 {
+				return resource.RetryableError(err)
 			}
+			return resource.NonRetryableError(err)
 		}
 		return nil
 	})
 
 	if isResourceTimeoutError(err) {
-		_, _, err = iamPolicyManagementClient.GetPolicy(getPolicyOptions)
+		_, res, err = iamPolicyManagementClient.GetPolicy(getPolicyOptions)
 	}
 	if err != nil {
-		return fmt.Errorf("error fetching service  policy: %w", err)
+		if v, ok := d.GetOk("iam_service_id"); ok && v != nil {
+			serviceIDUUID := v.(string)
+			d.SetId(fmt.Sprintf("%s/%s", serviceIDUUID, *servicePolicy.ID))
+		} else if v, ok := d.GetOk("iam_id"); ok && v != nil {
+			iamID := v.(string)
+			d.SetId(fmt.Sprintf("%s/%s", iamID, *servicePolicy.ID))
+		}
+		return fmt.Errorf("error fetching service  policy: %s %s", err, res)
+	}
+	if v, ok := d.GetOk("iam_service_id"); ok && v != nil {
+		serviceIDUUID := v.(string)
+		d.SetId(fmt.Sprintf("%s/%s", serviceIDUUID, *servicePolicy.ID))
+	} else if v, ok := d.GetOk("iam_id"); ok && v != nil {
+		iamID := v.(string)
+		d.SetId(fmt.Sprintf("%s/%s", iamID, *servicePolicy.ID))
 	}
 
 	return resourceIBMIAMServicePolicyRead(d, meta)
@@ -270,13 +272,29 @@ func resourceIBMIAMServicePolicyRead(d *schema.ResourceData, meta interface{}) e
 	}
 	serviceIDUUID := parts[0]
 	servicePolicyID := parts[1]
-
+	servicePolicy := &iampolicymanagementv1.Policy{}
+	res := &core.DetailedResponse{}
 	getPolicyOptions := iamPolicyManagementClient.NewGetPolicyOptions(
 		servicePolicyID,
 	)
-	servicePolicy, _, err := iamPolicyManagementClient.GetPolicy(getPolicyOptions)
-	if err != nil {
-		return fmt.Errorf("Error retrieving servicePolicy: %s", err)
+	err = resource.Retry(5*time.Minute, func() *resource.RetryError {
+		var err error
+		servicePolicy, res, err = iamPolicyManagementClient.GetPolicy(getPolicyOptions)
+
+		if err != nil || servicePolicy == nil {
+			if res != nil && res.StatusCode == 404 {
+				return resource.RetryableError(err)
+			}
+			return resource.NonRetryableError(err)
+		}
+		return nil
+	})
+
+	if isResourceTimeoutError(err) {
+		servicePolicy, res, err = iamPolicyManagementClient.GetPolicy(getPolicyOptions)
+	}
+	if err != nil || servicePolicy == nil {
+		return fmt.Errorf("Error retrieving servicePolicy: %s %s", err, res)
 	}
 	if strings.HasPrefix(serviceIDUUID, "iam-") {
 		d.Set("iam_id", serviceIDUUID)
@@ -436,6 +454,9 @@ func resourceIBMIAMServicePolicyExists(d *schema.ResourceData, meta interface{})
 	if err != nil {
 		return false, err
 	}
+	if len(parts) < 2 {
+		return false, fmt.Errorf("Incorrect ID %s: Id should be a combination of serviceID(OR)iamID/PolicyID", d.Id())
+	}
 	serviceIDUUID := parts[0]
 	servicePolicyID := parts[1]
 
@@ -443,14 +464,16 @@ func resourceIBMIAMServicePolicyExists(d *schema.ResourceData, meta interface{})
 		servicePolicyID,
 	)
 
-	servicePolicy, _, err := iamPolicyManagementClient.GetPolicy(getPolicyOptions)
-	if err != nil {
-		if apiErr, ok := err.(bmxerror.RequestFailure); ok {
-			if apiErr.StatusCode() == 404 {
-				return false, nil
-			}
+	servicePolicy, resp, err := iamPolicyManagementClient.GetPolicy(getPolicyOptions)
+	if err != nil || servicePolicy == nil {
+		if resp != nil && resp.StatusCode == 404 {
+			return false, nil
 		}
-		return false, fmt.Errorf("Error communicating with the API: %s", err)
+		return false, fmt.Errorf("Error communicating with the API: %s\n%s", err, resp)
+	}
+
+	if servicePolicy != nil && servicePolicy.State != nil && *servicePolicy.State == "deleted" {
+		return false, nil
 	}
 
 	tempID := fmt.Sprintf("%s/%s", serviceIDUUID, *servicePolicy.ID)

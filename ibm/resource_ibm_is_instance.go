@@ -97,12 +97,43 @@ const (
 
 func resourceIBMISInstance() *schema.Resource {
 	return &schema.Resource{
-		Create:   resourceIBMisInstanceCreate,
-		Read:     resourceIBMisInstanceRead,
-		Update:   resourceIBMisInstanceUpdate,
-		Delete:   resourceIBMisInstanceDelete,
-		Exists:   resourceIBMisInstanceExists,
-		Importer: &schema.ResourceImporter{},
+		Create: resourceIBMisInstanceCreate,
+		Read:   resourceIBMisInstanceRead,
+		Update: resourceIBMisInstanceUpdate,
+		Delete: resourceIBMisInstanceDelete,
+		Exists: resourceIBMisInstanceExists,
+		Importer: &schema.ResourceImporter{
+			State: func(d *schema.ResourceData, meta interface{}) (result []*schema.ResourceData, err error) {
+				log.Printf("[INFO] Instance (%s) importing", d.Id())
+				id := d.Id()
+				instanceC, err := vpcClient(meta)
+				if err != nil {
+					return nil, err
+				}
+				getinsOptions := &vpcv1.GetInstanceOptions{
+					ID: &id,
+				}
+				instance, response, err := instanceC.GetInstance(getinsOptions)
+				if err != nil {
+					if response != nil && response.StatusCode == 404 {
+						d.SetId("")
+						return nil, nil
+					}
+					return nil, fmt.Errorf("Error Getting Instance: %s\n%s", err, response)
+				}
+				var volumes []string
+				volumes = make([]string, 0)
+				if instance.VolumeAttachments != nil {
+					for _, volume := range instance.VolumeAttachments {
+						if volume.Volume != nil && *volume.Volume.ID != *instance.BootVolumeAttachment.Volume.ID {
+							volumes = append(volumes, *volume.Volume.ID)
+						}
+					}
+				}
+				d.Set(isInstanceVolumes, newStringSet(schema.HashString, volumes))
+				return []*schema.ResourceData{d}, nil
+			},
+		},
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(30 * time.Minute),
@@ -1000,6 +1031,7 @@ func isWaitForInstanceAvailable(instanceC *vpcv1.VpcV1, id string, timeout time.
 		forceTimeout := v.(int)
 		go isRestartStartAction(instanceC, id, d, forceTimeout, communicator)
 	}
+
 	return stateConf.WaitForState()
 }
 
@@ -1044,6 +1076,10 @@ func isInstanceRefreshFunc(instanceC *vpcv1.VpcV1, id string, d *schema.Resource
 		if *instance.Status == "available" || *instance.Status == "failed" || *instance.Status == "running" {
 			// let know the isRestartStartAction() to stop
 			close(communicator)
+			// taint the instance if status is failed
+			if *instance.Status == "failed" {
+				return instance, *instance.Status, fmt.Errorf("Instance (%s) went into failed state during the operation \n [WARNING] Running terraform apply again will remove the tainted instance and attempt to create the instance again replacing the previous configuration", *instance.ID)
+			}
 			return instance, *instance.Status, nil
 
 		}
@@ -1400,16 +1436,6 @@ func instanceGet(d *schema.ResourceData, meta interface{}, id string) error {
 	d.Set(isInstanceVPC, *instance.VPC.ID)
 	d.Set(isInstanceZone, *instance.Zone.Name)
 
-	var volumes []string
-	volumes = make([]string, 0)
-	if instance.VolumeAttachments != nil {
-		for _, volume := range instance.VolumeAttachments {
-			if volume.Volume != nil && *volume.Volume.ID != *instance.BootVolumeAttachment.Volume.ID {
-				volumes = append(volumes, *volume.Volume.ID)
-			}
-		}
-	}
-	d.Set(isInstanceVolumes, newStringSet(schema.HashString, volumes))
 	if instance.VolumeAttachments != nil {
 		volList := make([]map[string]interface{}, 0)
 		for _, volume := range instance.VolumeAttachments {

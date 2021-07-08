@@ -125,6 +125,12 @@ yum-config-manager --enable '*'
 yum repolist all
 yum install container-selinux -y
 				`)
+			} else if strings.ToLower(hostProvider) == "google" {
+				lines[i] = fmt.Sprintf(`yum update --disablerepo=* --enablerepo="*" -y
+yum repolist all
+yum install container-selinux -y
+yum install subscription-manager -y
+`)
 			} else {
 				lines[i] = "subscription-manager refresh\nyum update -y\n"
 			}
