@@ -9,7 +9,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/IBM/go-sdk-core/v5/core"
-	"github.com/IBM/platform-services-go-sdk/iamidentityv1"
 	"github.com/IBM/platform-services-go-sdk/iampolicymanagementv1"
 )
 
@@ -103,18 +102,15 @@ func dataSourceIBMIAMServicePolicyRead(d *schema.ResourceData, meta interface{})
 	if v, ok := d.GetOk("iam_service_id"); ok && v != nil {
 
 		serviceIDUUID := v.(string)
-		iamClient, err := meta.(ClientSession).IAMIdentityV1API()
+		iamClient, err := meta.(ClientSession).IAMAPI()
 		if err != nil {
 			return err
 		}
-		getServiceIDOptions := iamidentityv1.GetServiceIDOptions{
-			ID: &serviceIDUUID,
-		}
-		serviceID, resp, err := iamClient.GetServiceID(&getServiceIDOptions)
+		serviceID, err := iamClient.ServiceIds().Get(serviceIDUUID)
 		if err != nil {
-			return fmt.Errorf("[ERROR] Error] Error Getting Service Id %s %s", err, resp)
+			return err
 		}
-		iamID = *serviceID.IamID
+		iamID = serviceID.IAMID
 	}
 	if v, ok := d.GetOk("iam_id"); ok && v != nil {
 		iamID = v.(string)

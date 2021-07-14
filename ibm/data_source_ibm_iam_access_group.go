@@ -8,8 +8,8 @@ import (
 
 	"log"
 
+	"github.com/IBM-Cloud/bluemix-go/crn"
 	"github.com/IBM-Cloud/bluemix-go/models"
-	"github.com/IBM/platform-services-go-sdk/iamidentityv1"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -130,41 +130,27 @@ func dataIBMIAMAccessGroupRead(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	iamClient, err := meta.(ClientSession).IAMIdentityV1API()
+	iamClient, err := meta.(ClientSession).IAMAPI()
 	if err != nil {
 		return err
 	}
 
-	start := ""
-	allrecs := []iamidentityv1.ServiceID{}
-	var pg int64 = 100
-	for {
-		listServiceIDOptions := iamidentityv1.ListServiceIdsOptions{
-			AccountID: &userDetails.userAccount,
-			Pagesize:  &pg,
-		}
-		if start != "" {
-			listServiceIDOptions.Pagetoken = &start
-		}
+	boundTo := crn.New(userDetails.cloudName, userDetails.cloudType)
+	boundTo.ScopeType = crn.ScopeAccount
+	boundTo.Scope = userDetails.userAccount
 
-		serviceIDs, resp, err := iamClient.ListServiceIds(&listServiceIDOptions)
-		if err != nil {
-			return fmt.Errorf("[ERROR] Error listing Service Ids %s %s", err, resp)
-		}
-		start = GetNextIAM(serviceIDs.Next)
-		allrecs = append(allrecs, serviceIDs.Serviceids...)
-		if start == "" {
-			break
-		}
+	serviceIDs, err := iamClient.ServiceIds().List(boundTo.String())
+	if err != nil {
+		return err
 	}
 
 	retreivedGroups, err := iamuumClient.AccessGroup().List(accountID)
 	if err != nil {
-		return fmt.Errorf("[ERROR] Error retrieving access groups: %s", err)
+		return fmt.Errorf("Error retrieving access groups: %s", err)
 	}
 
 	if len(retreivedGroups) == 0 {
-		return fmt.Errorf("[ERROR] No access group in account")
+		return fmt.Errorf("No access group in account")
 	}
 	var agName string
 	var matchGroups []models.AccessGroupV2
@@ -179,7 +165,7 @@ func dataIBMIAMAccessGroupRead(d *schema.ResourceData, meta interface{}) error {
 		matchGroups = retreivedGroups
 	}
 	if len(matchGroups) == 0 {
-		return fmt.Errorf("[ERROR] No Access Groups with name %s in Account", agName)
+		return fmt.Errorf("No Access Groups with name %s in Account", agName)
 	}
 
 	grpMap := make([]map[string]interface{}, 0, len(matchGroups))
@@ -193,7 +179,7 @@ func dataIBMIAMAccessGroupRead(d *schema.ResourceData, meta interface{}) error {
 		if err != nil {
 			log.Println("Error retrieving access group rules: ", err)
 		}
-		ibmID, serviceID := flattenMembersData(members, res, allrecs)
+		ibmID, serviceID := flattenMembersData(members, res, serviceIDs)
 
 		grpInstance := map[string]interface{}{
 			"id":              grp.ID,
