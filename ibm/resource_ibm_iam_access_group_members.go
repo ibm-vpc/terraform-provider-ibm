@@ -4,25 +4,23 @@
 package ibm
 
 import (
-	"context"
 	"fmt"
 	"time"
 
 	"github.com/IBM-Cloud/bluemix-go/api/iamuum/iamuumv2"
+	"github.com/IBM-Cloud/bluemix-go/crn"
 	"github.com/IBM-Cloud/bluemix-go/models"
-	"github.com/IBM/platform-services-go-sdk/iamidentityv1"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceIBMIAMAccessGroupMembers() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceIBMIAMAccessGroupMembersCreate,
-		ReadContext:   resourceIBMIAMAccessGroupMembersRead,
-		UpdateContext: resourceIBMIAMAccessGroupMembersUpdate,
-		DeleteContext: resourceIBMIAMAccessGroupMembersDelete,
-		Importer:      &schema.ResourceImporter{},
+		Create:   resourceIBMIAMAccessGroupMembersCreate,
+		Read:     resourceIBMIAMAccessGroupMembersRead,
+		Update:   resourceIBMIAMAccessGroupMembersUpdate,
+		Delete:   resourceIBMIAMAccessGroupMembersDelete,
+		Importer: &schema.ResourceImporter{},
 
 		Schema: map[string]*schema.Schema{
 			"access_group_id": {
@@ -63,17 +61,17 @@ func resourceIBMIAMAccessGroupMembers() *schema.Resource {
 	}
 }
 
-func resourceIBMIAMAccessGroupMembersCreate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceIBMIAMAccessGroupMembersCreate(d *schema.ResourceData, meta interface{}) error {
 	iamuumClient, err := meta.(ClientSession).IAMUUMAPIV2()
 	if err != nil {
-		return diag.FromErr(err)
+		return err
 	}
 
 	grpID := d.Get("access_group_id").(string)
 
 	userDetails, err := meta.(ClientSession).BluemixUserDetails()
 	if err != nil {
-		return diag.FromErr(err)
+		return err
 	}
 
 	accountID := userDetails.userAccount
@@ -84,119 +82,105 @@ func resourceIBMIAMAccessGroupMembersCreate(context context.Context, d *schema.R
 	services := expandStringList(d.Get("iam_service_ids").(*schema.Set).List())
 
 	if len(users) == 0 && len(services) == 0 {
-		return diag.FromErr(fmt.Errorf("ERROR] Provide either `ibm_ids` or `iam_service_ids`"))
+		return fmt.Errorf("Provide either `ibm_ids` or `iam_service_ids`")
 
 	}
 
 	userids, err = flattenUserIds(accountID, users, meta)
 	if err != nil {
-		return diag.FromErr(err)
+		return err
 	}
 
 	serviceids, err = flattenServiceIds(services, meta)
 	if err != nil {
-		return diag.FromErr(err)
+		return err
 	}
 
 	request := prepareMemberAddRequest(userids, serviceids)
 
 	_, err = iamuumClient.AccessGroupMember().Add(grpID, request)
 	if err != nil {
-		return diag.FromErr(err)
+		return err
 	}
 
 	d.SetId(fmt.Sprintf("%s/%s", grpID, time.Now().UTC().String()))
 
-	return resourceIBMIAMAccessGroupMembersRead(context, d, meta)
+	return resourceIBMIAMAccessGroupMembersRead(d, meta)
 }
 
-func resourceIBMIAMAccessGroupMembersRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceIBMIAMAccessGroupMembersRead(d *schema.ResourceData, meta interface{}) error {
 	iamuumClient, err := meta.(ClientSession).IAMUUMAPIV2()
 	if err != nil {
-		return diag.FromErr(err)
+		return err
 	}
 
 	parts, err := idParts(d.Id())
 	if err != nil {
-		return diag.FromErr(err)
+		return err
 	}
 
 	grpID := parts[0]
 
 	members, err := iamuumClient.AccessGroupMember().List(grpID)
 	if err != nil {
-		return diag.FromErr(fmt.Errorf("[ERROR] Error retrieving access group members: %s", err))
+		return fmt.Errorf("Error retrieving access group members: %s", err)
 	}
 
 	d.Set("access_group_id", grpID)
 
 	userDetails, err := meta.(ClientSession).BluemixUserDetails()
 	if err != nil {
-		return diag.FromErr(err)
+		return err
 	}
 
 	accountID := userDetails.userAccount
 
 	userManagement, err := meta.(ClientSession).UserManagementAPI()
 	if err != nil {
-		return diag.FromErr(err)
+		return err
 	}
 	client := userManagement.UserInvite()
 	res, err := client.ListUsers(accountID)
 	if err != nil {
-		return diag.FromErr(err)
+		return err
 	}
 
-	iamClient, err := meta.(ClientSession).IAMIdentityV1API()
+	iamClient, err := meta.(ClientSession).IAMAPI()
 	if err != nil {
-		return diag.FromErr(err)
+		return err
 	}
 
-	start := ""
-	allrecs := []iamidentityv1.ServiceID{}
-	var pg int64 = 100
-	for {
-		listServiceIDOptions := iamidentityv1.ListServiceIdsOptions{
-			AccountID: &userDetails.userAccount,
-			Pagesize:  &pg,
-		}
-		if start != "" {
-			listServiceIDOptions.Pagetoken = &start
-		}
+	boundTo := crn.New(userDetails.cloudName, userDetails.cloudType)
+	boundTo.ScopeType = crn.ScopeAccount
+	boundTo.Scope = userDetails.userAccount
 
-		serviceIDs, resp, err := iamClient.ListServiceIds(&listServiceIDOptions)
-		if err != nil {
-			return diag.FromErr(fmt.Errorf("[ERROR] Error listing Service Ids %s %s", err, resp))
-		}
-		start = GetNextIAM(serviceIDs.Next)
-		allrecs = append(allrecs, serviceIDs.Serviceids...)
-		if start == "" {
-			break
-		}
+	serviceIDs, err := iamClient.ServiceIds().List(boundTo.String())
+	if err != nil {
+		return err
 	}
 
-	d.Set("members", flattenAccessGroupMembers(members, res, allrecs))
+	d.Set("members", flattenAccessGroupMembers(members, res, serviceIDs))
 
 	return nil
 }
 
-func resourceIBMIAMAccessGroupMembersUpdate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceIBMIAMAccessGroupMembersUpdate(d *schema.ResourceData, meta interface{}) error {
 
 	iamuumClient, err := meta.(ClientSession).IAMUUMAPIV2()
 	if err != nil {
-		return diag.FromErr(err)
+		return err
 	}
 
 	parts, err := idParts(d.Id())
 	if err != nil {
-		return diag.FromErr(err)
+		return err
 	}
 
 	grpID := parts[0]
 
 	userDetails, err := meta.(ClientSession).BluemixUserDetails()
 	if err != nil {
-		return diag.FromErr(err)
+		return err
 	}
 
 	accountID := userDetails.userAccount
@@ -220,74 +204,71 @@ func resourceIBMIAMAccessGroupMembersUpdate(context context.Context, d *schema.R
 		var userids, serviceids []string
 		userids, err = flattenUserIds(accountID, addUsers, meta)
 		if err != nil {
-			return diag.FromErr(err)
+			return err
 		}
 
 		serviceids, err = flattenServiceIds(addServiceids, meta)
 		if err != nil {
-			return diag.FromErr(err)
+			return err
 		}
 		request := prepareMemberAddRequest(userids, serviceids)
 
 		_, err = iamuumClient.AccessGroupMember().Add(grpID, request)
 		if err != nil {
-			return diag.FromErr(err)
+			return err
 		}
 
 	}
 	if len(removeUsers) > 0 || len(removeServiceids) > 0 && !d.IsNewResource() {
-		iamClient, err := meta.(ClientSession).IAMIdentityV1API()
+		iamClient, err := meta.(ClientSession).IAMAPI()
 		if err != nil {
-			return diag.FromErr(err)
+			return err
 		}
 		for _, u := range removeUsers {
 			ibmUniqueId, err := getIBMUniqueId(accountID, u, meta)
 			if err != nil {
-				return diag.FromErr(err)
+				return err
 			}
 			err = iamuumClient.AccessGroupMember().Remove(grpID, ibmUniqueId)
 			if err != nil {
-				return diag.FromErr(err)
+				return err
 			}
 
 		}
 
 		for _, s := range removeServiceids {
-			getServiceIDOptions := iamidentityv1.GetServiceIDOptions{
-				ID: &s,
-			}
-			serviceID, resp, err := iamClient.GetServiceID(&getServiceIDOptions)
+			serviceID, err := iamClient.ServiceIds().Get(s)
 			if err != nil {
-				return diag.FromErr(fmt.Errorf("ERROR] Error Getting Service Ids %s %s", err, resp))
+				return err
 			}
-			err = iamuumClient.AccessGroupMember().Remove(grpID, *serviceID.IamID)
+			err = iamuumClient.AccessGroupMember().Remove(grpID, serviceID.IAMID)
 			if err != nil {
-				return diag.FromErr(err)
+				return err
 			}
 
 		}
 	}
 
-	return resourceIBMIAMAccessGroupMembersRead(context, d, meta)
+	return resourceIBMIAMAccessGroupMembersRead(d, meta)
 
 }
 
-func resourceIBMIAMAccessGroupMembersDelete(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceIBMIAMAccessGroupMembersDelete(d *schema.ResourceData, meta interface{}) error {
 	iamuumClient, err := meta.(ClientSession).IAMUUMAPIV2()
 	if err != nil {
-		return diag.FromErr(err)
+		return err
 	}
 
 	parts, err := idParts(d.Id())
 	if err != nil {
-		return diag.FromErr(err)
+		return err
 	}
 
 	grpID := parts[0]
 
 	userDetails, err := meta.(ClientSession).BluemixUserDetails()
 	if err != nil {
-		return diag.FromErr(err)
+		return err
 	}
 
 	users := expandStringList(d.Get("ibm_ids").(*schema.Set).List())
@@ -296,11 +277,11 @@ func resourceIBMIAMAccessGroupMembersDelete(context context.Context, d *schema.R
 
 		ibmUniqueID, err := getIBMUniqueId(userDetails.userAccount, name, meta)
 		if err != nil {
-			return diag.FromErr(err)
+			return err
 		}
 		err = iamuumClient.AccessGroupMember().Remove(grpID, ibmUniqueID)
 		if err != nil {
-			return diag.FromErr(err)
+			return err
 		}
 
 	}
@@ -310,11 +291,11 @@ func resourceIBMIAMAccessGroupMembersDelete(context context.Context, d *schema.R
 	for _, id := range services {
 		serviceID, err := getServiceID(id, meta)
 		if err != nil {
-			return diag.FromErr(err)
+			return err
 		}
-		err = iamuumClient.AccessGroupMember().Remove(grpID, *serviceID.IamID)
+		err = iamuumClient.AccessGroupMember().Remove(grpID, serviceID.IAMID)
 		if err != nil {
-			return diag.FromErr(err)
+			return err
 		}
 	}
 
@@ -344,18 +325,16 @@ func prepareMemberAddRequest(userIds, serviceIds []string) (req iamuumv2.AddGrou
 	return
 }
 
-func getServiceID(id string, meta interface{}) (iamidentityv1.ServiceID, error) {
-	serviceids := iamidentityv1.ServiceID{}
-	iamClient, err := meta.(ClientSession).IAMIdentityV1API()
+func getServiceID(id string, meta interface{}) (models.ServiceID, error) {
+
+	iamClient, err := meta.(ClientSession).IAMAPI()
 	if err != nil {
-		return serviceids, err
+		return models.ServiceID{}, err
 	}
-	getServiceIDOptions := iamidentityv1.GetServiceIDOptions{
-		ID: &id,
-	}
-	serviceID, resp, err := iamClient.GetServiceID(&getServiceIDOptions)
+	serviceID, err := iamClient.ServiceIds().Get(id)
 	if err != nil {
-		return serviceids, fmt.Errorf("ERROR] Error Getting Service Ids %s %s", err, resp)
+		return models.ServiceID{}, err
 	}
-	return *serviceID, nil
+
+	return serviceID, nil
 }

@@ -40,7 +40,6 @@ import (
 	"github.com/IBM-Cloud/bluemix-go/api/schematics"
 	"github.com/IBM-Cloud/bluemix-go/api/usermanagement/usermanagementv2"
 	"github.com/IBM-Cloud/bluemix-go/models"
-	"github.com/IBM/platform-services-go-sdk/iamidentityv1"
 )
 
 const (
@@ -1308,7 +1307,7 @@ func flattenMembersData(list []models.AccessGroupMemberV2, users []usermanagemen
 	return ibmid, serviceid
 }
 
-func flattenAccessGroupMembers(list []models.AccessGroupMemberV2, users []usermanagementv2.UserInfo, serviceids []iamidentityv1.ServiceID) []map[string]interface{} {
+func flattenAccessGroupMembers(list []models.AccessGroupMemberV2, users []usermanagementv2.UserInfo, serviceids []models.ServiceID) []map[string]interface{} {
 	result := make([]map[string]interface{}, 0, len(list))
 	for _, m := range list {
 		var value, vtype string
@@ -1324,8 +1323,8 @@ func flattenAccessGroupMembers(list []models.AccessGroupMemberV2, users []userma
 
 			vtype = iamuumv1.AccessGroupMemberService
 			for _, srid := range serviceids {
-				if *srid.IamID == m.ID {
-					value = *srid.ID
+				if srid.IAMID == m.ID {
+					value = srid.UUID
 					break
 				}
 			}
@@ -1359,7 +1358,7 @@ func flattenServiceIds(services []string, meta interface{}) ([]string, error) {
 		if err != nil {
 			return nil, err
 		}
-		serviceids[i] = *serviceID.IamID
+		serviceids[i] = serviceID.IAMID
 	}
 	return serviceids, nil
 }
@@ -2088,20 +2087,6 @@ func GetNext(next interface{}) string {
 
 	q := u.Query()
 	return q.Get("start")
-}
-
-// GetNextIAM ...
-func GetNextIAM(next interface{}) string {
-	if reflect.ValueOf(next).IsNil() {
-		return ""
-	}
-
-	u, err := url.Parse(reflect.ValueOf(next).Elem().String())
-	if err != nil {
-		return ""
-	}
-	q := u.Query()
-	return q.Get("pagetoken")
 }
 
 /* Return the default resource group */
