@@ -41,12 +41,34 @@ const (
 
 func resourceIBMISImage() *schema.Resource {
 	return &schema.Resource{
-		Create:   resourceIBMISImageCreate,
-		Read:     resourceIBMISImageRead,
-		Update:   resourceIBMISImageUpdate,
-		Delete:   resourceIBMISImageDelete,
-		Exists:   resourceIBMISImageExists,
-		Importer: &schema.ResourceImporter{},
+		Create: resourceIBMISImageCreate,
+		Read:   resourceIBMISImageRead,
+		Update: resourceIBMISImageUpdate,
+		Delete: resourceIBMISImageDelete,
+		Exists: resourceIBMISImageExists,
+		Importer: &schema.ResourceImporter{
+			State: func(d *schema.ResourceData, meta interface{}) (result []*schema.ResourceData, err error) {
+				log.Printf("[INFO] Instance (%s) importing", d.Id())
+				id := d.Id()
+				imageC, err := vpcClient(meta)
+				if err != nil {
+					return nil, err
+				}
+				getimgOptions := &vpcv1.GetImageOptions{
+					ID: &id,
+				}
+				image, response, err := imageC.GetImage(getimgOptions)
+				if err != nil {
+					if response != nil && response.StatusCode == 404 {
+						d.SetId("")
+						return nil, nil
+					}
+					return nil, fmt.Errorf("Error getting Image: %s\n%s", err, response)
+				}
+				d.Set(isImageHref, *image.Href)
+				return []*schema.ResourceData{d}, nil
+			},
+		},
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(10 * time.Minute),
@@ -522,7 +544,6 @@ func imgGet(d *schema.ResourceData, meta interface{}, id string) error {
 		d.Set(isImageVolume, *image.SourceVolume.ID)
 	}
 
-	d.Set(isImageHref, *image.Href)
 	d.Set(isImageStatus, *image.Status)
 	d.Set(isImageVisibility, *image.Visibility)
 	if image.Encryption != nil {
