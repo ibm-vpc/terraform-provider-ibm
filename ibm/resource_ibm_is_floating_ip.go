@@ -201,9 +201,9 @@ func fipCreate(d *schema.ResourceData, meta interface{}, name string) error {
 
 	if tgt, ok := d.GetOk(isFloatingIPTarget); ok {
 		target = tgt.(string)
-		floatingIPPrototype.Target = &vpcv1.FloatingIPByTargetNetworkInterfaceIdentity{
-			ID: &target,
-		}
+		// floatingIPPrototype.Target = &vpcv1.FloatingIPByTargetNetworkInterfaceIdentity{
+		// 	ID: &target,
+		// }
 	}
 
 	if zone == "" && target == "" {
@@ -345,10 +345,10 @@ func fipUpdate(d *schema.ResourceData, meta interface{}, id string) error {
 	}
 
 	if d.HasChange(isFloatingIPTarget) {
-		target := d.Get(isFloatingIPTarget).(string)
-		floatingIPPatchModel.Target = &vpcv1.FloatingIPPatchTargetNetworkInterfaceIdentity{
-			ID: &target,
-		}
+		// target := d.Get(isFloatingIPTarget).(string)
+		// floatingIPPatchModel.Target = &vpcv1.FloatingIPPatchTargetNetworkInterfaceIdentity{
+		// 	ID: &target,
+		// }
 		hasChanged = true
 		floatingIPPatch, err := floatingIPPatchModel.AsPatch()
 		if err != nil {

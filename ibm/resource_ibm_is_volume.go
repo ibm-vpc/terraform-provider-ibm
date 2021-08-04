@@ -266,12 +266,12 @@ func volCreate(d *schema.ResourceData, meta interface{}, volName, profile, zone 
 		}
 	}
 
-	if rgrp, ok := d.GetOk(isVolumeResourceGroup); ok {
-		rg := rgrp.(string)
-		volTemplate.ResourceGroup = &vpcv1.ResourceGroupIdentity{
-			ID: &rg,
-		}
-	}
+	// if rgrp, ok := d.GetOk(isVolumeResourceGroup); ok {
+	// 	rg := rgrp.(string)
+	// 	volTemplate.ResourceGroup = &vpcv1.ResourceGroupIdentity{
+	// 		ID: &rg,
+	// 	}
+	// }
 
 	if i, ok := d.GetOk(isVolumeIops); ok {
 		iops := int64(i.(int))

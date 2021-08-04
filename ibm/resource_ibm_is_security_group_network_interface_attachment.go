@@ -200,7 +200,7 @@ func resourceIBMISSecurityGroupNetworkInterfaceAttachmentRead(d *schema.Resource
 	d.Set(isSGNICAInstanceNwInterfaceID, *instanceNic.ID)
 	d.Set(isSGNICAName, *instanceNic.Name)
 	d.Set(isSGNICAPortSpeed, *instanceNic.PortSpeed)
-	d.Set(isSGNICAPrimaryIPV4Address, *instanceNic.PrimaryIpv4Address)
+	// d.Set(isSGNICAPrimaryIPV4Address, *instanceNic.PrimaryIpv4Address)
 	d.Set(isSGNICAStatus, *instanceNic.Status)
 	d.Set(isSGNICAType, *instanceNic.Type)
 	if instanceNic.Subnet != nil {
@@ -216,15 +216,15 @@ func resourceIBMISSecurityGroupNetworkInterfaceAttachmentRead(d *schema.Resource
 	}
 	d.Set(isSGNICASecurityGroups, sgs)
 
-	fps := make([]map[string]interface{}, len(instanceNic.FloatingIps))
-	for i, fpObj := range instanceNic.FloatingIps {
-		fp := make(map[string]interface{})
-		fp[isSGNICAFloatingIpCRN] = fpObj.CRN
-		fp[isSGNICAFloatingIpID] = *fpObj.ID
-		fp[isSGNICAFloatingIpName] = *fpObj.Name
-		fps[i] = fp
-	}
-	d.Set(isSGNICAFloatingIps, fps)
+	// fps := make([]map[string]interface{}, len(instanceNic.FloatingIps))
+	// for i, fpObj := range instanceNic.FloatingIps {
+	// 	fp := make(map[string]interface{})
+	// 	fp[isSGNICAFloatingIpCRN] = fpObj.CRN
+	// 	fp[isSGNICAFloatingIpID] = *fpObj.ID
+	// 	fp[isSGNICAFloatingIpName] = *fpObj.Name
+	// 	fps[i] = fp
+	// }
+	// d.Set(isSGNICAFloatingIps, fps)
 
 	// d.Set(isSGNICASecondaryAddresses, *instanceNic.SecondaryAddresses)
 	getSecurityGroupOptions := &vpcv1.GetSecurityGroupOptions{

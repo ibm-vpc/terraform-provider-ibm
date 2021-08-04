@@ -305,14 +305,14 @@ func vpngwconCreate(d *schema.ResourceData, meta interface{}, name, gatewayID, p
 		VPNGatewayConnectionPrototype: vpnGatewayConnectionPrototypeModel,
 	}
 
-	if _, ok := d.GetOk(isVPNGatewayConnectionLocalCIDRS); ok {
-		localCidrs := expandStringList((d.Get(isVPNGatewayConnectionLocalCIDRS).(*schema.Set)).List())
-		vpnGatewayConnectionPrototypeModel.LocalCIDRs = localCidrs
-	}
-	if _, ok := d.GetOk(isVPNGatewayConnectionPeerCIDRS); ok {
-		peerCidrs := expandStringList((d.Get(isVPNGatewayConnectionPeerCIDRS).(*schema.Set)).List())
-		vpnGatewayConnectionPrototypeModel.PeerCIDRs = peerCidrs
-	}
+	// if _, ok := d.GetOk(isVPNGatewayConnectionLocalCIDRS); ok {
+	// 	localCidrs := expandStringList((d.Get(isVPNGatewayConnectionLocalCIDRS).(*schema.Set)).List())
+	// 	vpnGatewayConnectionPrototypeModel.LocalCIDRs = localCidrs
+	// }
+	// if _, ok := d.GetOk(isVPNGatewayConnectionPeerCIDRS); ok {
+	// 	peerCidrs := expandStringList((d.Get(isVPNGatewayConnectionPeerCIDRS).(*schema.Set)).List())
+	// 	vpnGatewayConnectionPrototypeModel.PeerCIDRs = peerCidrs
+	// }
 
 	var ikePolicyIdentity, ipsecPolicyIdentity string
 
@@ -385,12 +385,12 @@ func vpngwconGet(d *schema.ResourceData, meta interface{}, gID, gConnID string) 
 	d.Set(isVPNGatewayConnectionPeerAddress, *vpnGatewayConnection.PeerAddress)
 	d.Set(isVPNGatewayConnectionPreSharedKey, *vpnGatewayConnection.Psk)
 
-	if vpnGatewayConnection.LocalCIDRs != nil {
-		d.Set(isVPNGatewayConnectionLocalCIDRS, flattenStringList(vpnGatewayConnection.LocalCIDRs))
-	}
-	if vpnGatewayConnection.PeerCIDRs != nil {
-		d.Set(isVPNGatewayConnectionPeerCIDRS, flattenStringList(vpnGatewayConnection.PeerCIDRs))
-	}
+	// if vpnGatewayConnection.LocalCIDRs != nil {
+	// 	d.Set(isVPNGatewayConnectionLocalCIDRS, flattenStringList(vpnGatewayConnection.LocalCIDRs))
+	// }
+	// if vpnGatewayConnection.PeerCIDRs != nil {
+	// 	d.Set(isVPNGatewayConnectionPeerCIDRS, flattenStringList(vpnGatewayConnection.PeerCIDRs))
+	// }
 	if vpnGatewayConnection.IkePolicy != nil {
 		d.Set(isVPNGatewayConnectionIKEPolicy, *vpnGatewayConnection.IkePolicy.ID)
 	}

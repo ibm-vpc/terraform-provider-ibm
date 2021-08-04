@@ -183,12 +183,12 @@ func dataSourceIBMVPNGatewayConnectionsRead(d *schema.ResourceData, meta interfa
 		if data.IpsecPolicy != nil {
 			gatewayconnection[isVPNGatewayConnectionIPSECPolicy] = *data.IpsecPolicy.ID
 		}
-		if data.LocalCIDRs != nil {
-			gatewayconnection[isVPNGatewayConnectionLocalCIDRS] = flattenStringList(data.LocalCIDRs)
-		}
-		if data.PeerCIDRs != nil {
-			gatewayconnection[isVPNGatewayConnectionPeerCIDRS] = flattenStringList(data.PeerCIDRs)
-		}
+		// if data.LocalCIDRs != nil {
+		// 	gatewayconnection[isVPNGatewayConnectionLocalCIDRS] = flattenStringList(data.LocalCIDRs)
+		// }
+		// if data.PeerCIDRs != nil {
+		// 	gatewayconnection[isVPNGatewayConnectionPeerCIDRS] = flattenStringList(data.PeerCIDRs)
+		// }
 		gatewayconnection[isVPNGatewayConnectionMode] = *data.Mode
 		gatewayconnection[isVPNGatewayConnectionName] = *data.Name
 		gatewayconnection[isVPNGatewayConnectionPeerAddress] = *data.PeerAddress

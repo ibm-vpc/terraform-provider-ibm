@@ -337,56 +337,56 @@ func dataSourceIBMISInstanceTemplatesRead(d *schema.ResourceData, meta interface
 			template["placement_target"] = placementTargetList
 		}
 
-		if instance.PrimaryNetworkInterface != nil {
-			interfaceList := make([]map[string]interface{}, 0)
-			currentPrimNic := map[string]interface{}{}
-			currentPrimNic[isInstanceTemplateNicName] = *instance.PrimaryNetworkInterface.Name
-			if instance.PrimaryNetworkInterface.PrimaryIpv4Address != nil {
-				currentPrimNic[isInstanceTemplateNicPrimaryIpv4Address] = *instance.PrimaryNetworkInterface.PrimaryIpv4Address
-			}
-			subInf := instance.PrimaryNetworkInterface.Subnet
-			subnetIdentity := subInf.(*vpcv1.SubnetIdentity)
-			currentPrimNic[isInstanceTemplateNicSubnet] = *subnetIdentity.ID
+		// if instance.PrimaryNetworkInterface != nil {
+		// 	interfaceList := make([]map[string]interface{}, 0)
+		// 	currentPrimNic := map[string]interface{}{}
+		// 	currentPrimNic[isInstanceTemplateNicName] = *instance.PrimaryNetworkInterface.Name
+		// 	if instance.PrimaryNetworkInterface.PrimaryIpv4Address != nil {
+		// 		currentPrimNic[isInstanceTemplateNicPrimaryIpv4Address] = *instance.PrimaryNetworkInterface.PrimaryIpv4Address
+		// 	}
+		// 	subInf := instance.PrimaryNetworkInterface.Subnet
+		// 	subnetIdentity := subInf.(*vpcv1.SubnetIdentity)
+		// 	currentPrimNic[isInstanceTemplateNicSubnet] = *subnetIdentity.ID
 
-			if len(instance.PrimaryNetworkInterface.SecurityGroups) != 0 {
-				secgrpList := []string{}
-				for i := 0; i < len(instance.PrimaryNetworkInterface.SecurityGroups); i++ {
-					secGrpInf := instance.PrimaryNetworkInterface.SecurityGroups[i]
-					secGrpIdentity := secGrpInf.(*vpcv1.SecurityGroupIdentity)
-					secgrpList = append(secgrpList, string(*secGrpIdentity.ID))
-				}
-				currentPrimNic[isInstanceTemplateNicSecurityGroups] = newStringSet(schema.HashString, secgrpList)
-			}
-			interfaceList = append(interfaceList, currentPrimNic)
-			template[isInstanceTemplatePrimaryNetworkInterface] = interfaceList
-		}
+		// 	if len(instance.PrimaryNetworkInterface.SecurityGroups) != 0 {
+		// 		secgrpList := []string{}
+		// 		for i := 0; i < len(instance.PrimaryNetworkInterface.SecurityGroups); i++ {
+		// 			secGrpInf := instance.PrimaryNetworkInterface.SecurityGroups[i]
+		// 			secGrpIdentity := secGrpInf.(*vpcv1.SecurityGroupIdentity)
+		// 			secgrpList = append(secgrpList, string(*secGrpIdentity.ID))
+		// 		}
+		// 		currentPrimNic[isInstanceTemplateNicSecurityGroups] = newStringSet(schema.HashString, secgrpList)
+		// 	}
+		// 	interfaceList = append(interfaceList, currentPrimNic)
+		// 	template[isInstanceTemplatePrimaryNetworkInterface] = interfaceList
+		// }
 
-		if instance.NetworkInterfaces != nil {
-			interfacesList := make([]map[string]interface{}, 0)
-			for _, intfc := range instance.NetworkInterfaces {
-				currentNic := map[string]interface{}{}
-				currentNic[isInstanceTemplateNicName] = *intfc.Name
-				if intfc.PrimaryIpv4Address != nil {
-					currentNic[isInstanceTemplateNicPrimaryIpv4Address] = *intfc.PrimaryIpv4Address
-				}
-				//currentNic[isInstanceTemplateNicAllowIpSpoofing] = intfc.AllowIpSpoofing
-				subInf := intfc.Subnet
-				subnetIdentity := subInf.(*vpcv1.SubnetIdentity)
-				currentNic[isInstanceTemplateNicSubnet] = *subnetIdentity.ID
-				if len(intfc.SecurityGroups) != 0 {
-					secgrpList := []string{}
-					for i := 0; i < len(intfc.SecurityGroups); i++ {
-						secGrpInf := intfc.SecurityGroups[i]
-						secGrpIdentity := secGrpInf.(*vpcv1.SecurityGroupIdentity)
-						secgrpList = append(secgrpList, string(*secGrpIdentity.ID))
-					}
-					currentNic[isInstanceTemplateNicSecurityGroups] = newStringSet(schema.HashString, secgrpList)
-				}
+		// if instance.NetworkInterfaces != nil {
+		// 	interfacesList := make([]map[string]interface{}, 0)
+		// 	for _, intfc := range instance.NetworkInterfaces {
+		// 		currentNic := map[string]interface{}{}
+		// 		currentNic[isInstanceTemplateNicName] = *intfc.Name
+		// 		if intfc.PrimaryIpv4Address != nil {
+		// 			currentNic[isInstanceTemplateNicPrimaryIpv4Address] = *intfc.PrimaryIpv4Address
+		// 		}
+		// 		//currentNic[isInstanceTemplateNicAllowIpSpoofing] = intfc.AllowIpSpoofing
+		// 		subInf := intfc.Subnet
+		// 		subnetIdentity := subInf.(*vpcv1.SubnetIdentity)
+		// 		currentNic[isInstanceTemplateNicSubnet] = *subnetIdentity.ID
+		// 		if len(intfc.SecurityGroups) != 0 {
+		// 			secgrpList := []string{}
+		// 			for i := 0; i < len(intfc.SecurityGroups); i++ {
+		// 				secGrpInf := intfc.SecurityGroups[i]
+		// 				secGrpIdentity := secGrpInf.(*vpcv1.SecurityGroupIdentity)
+		// 				secgrpList = append(secgrpList, string(*secGrpIdentity.ID))
+		// 			}
+		// 			currentNic[isInstanceTemplateNicSecurityGroups] = newStringSet(schema.HashString, secgrpList)
+		// 		}
 
-				interfacesList = append(interfacesList, currentNic)
-			}
-			template[isInstanceTemplateNetworkInterfaces] = interfacesList
-		}
+		// 		interfacesList = append(interfacesList, currentNic)
+		// 	}
+		// 	template[isInstanceTemplateNetworkInterfaces] = interfacesList
+		// }
 
 		if instance.Image != nil {
 			imageInf := instance.Image
@@ -406,43 +406,43 @@ func dataSourceIBMISInstanceTemplatesRead(d *schema.ResourceData, meta interface
 			template[isInstanceTemplateZone] = zone.Name
 		}
 
-		interfacesList := make([]map[string]interface{}, 0)
-		if instance.VolumeAttachments != nil {
-			for _, volume := range instance.VolumeAttachments {
-				volumeAttach := map[string]interface{}{}
-				volumeAttach[isInstanceTemplateVolAttName] = *volume.Name
-				volumeAttach[isInstanceTemplateDeleteVolume] = *volume.DeleteVolumeOnInstanceDelete
-				volumeIntf := volume.Volume
-				volumeInst := volumeIntf.(*vpcv1.VolumeAttachmentVolumePrototypeInstanceContext)
-				newVolumeArr := []map[string]interface{}{}
-				newVolume := map[string]interface{}{}
+		// interfacesList := make([]map[string]interface{}, 0)
+		// if instance.VolumeAttachments != nil {
+		// 	for _, volume := range instance.VolumeAttachments {
+		// 		volumeAttach := map[string]interface{}{}
+		// 		volumeAttach[isInstanceTemplateVolAttName] = *volume.Name
+		// 		volumeAttach[isInstanceTemplateDeleteVolume] = *volume.DeleteVolumeOnInstanceDelete
+		// 		volumeIntf := volume.Volume
+		// 		volumeInst := volumeIntf.(*vpcv1.VolumeAttachmentVolumePrototypeInstanceContext)
+		// 		newVolumeArr := []map[string]interface{}{}
+		// 		newVolume := map[string]interface{}{}
 
-				if volumeInst.ID != nil {
-					volumeAttach[isInstanceTemplateVolAttVolume] = *volumeInst.ID
-				}
+		// 		if volumeInst.ID != nil {
+		// 			volumeAttach[isInstanceTemplateVolAttVolume] = *volumeInst.ID
+		// 		}
 
-				if volumeInst.Capacity != nil {
-					newVolume[isInstanceTemplateVolAttVolCapacity] = *volumeInst.Capacity
-				}
-				if volumeInst.Profile != nil {
-					profile := volumeInst.Profile.(*vpcv1.VolumeProfileIdentity)
-					newVolume[isInstanceTemplateVolAttVolProfile] = profile.Name
-				}
+		// 		if volumeInst.Capacity != nil {
+		// 			newVolume[isInstanceTemplateVolAttVolCapacity] = *volumeInst.Capacity
+		// 		}
+		// 		if volumeInst.Profile != nil {
+		// 			profile := volumeInst.Profile.(*vpcv1.VolumeProfileIdentity)
+		// 			newVolume[isInstanceTemplateVolAttVolProfile] = profile.Name
+		// 		}
 
-				if volumeInst.Iops != nil {
-					newVolume[isInstanceTemplateVolAttVolIops] = *volumeInst.Iops
-				}
-				if volumeInst.EncryptionKey != nil {
-					encryptionKey := volumeInst.EncryptionKey.(*vpcv1.EncryptionKeyIdentity)
-					newVolume[isInstanceTemplateVolAttVolEncryptionKey] = *encryptionKey.CRN
-				}
-				newVolumeArr = append(newVolumeArr, newVolume)
-				volumeAttach[isInstanceTemplateVolAttVolPrototype] = newVolumeArr
+		// 		if volumeInst.Iops != nil {
+		// 			newVolume[isInstanceTemplateVolAttVolIops] = *volumeInst.Iops
+		// 		}
+		// 		if volumeInst.EncryptionKey != nil {
+		// 			encryptionKey := volumeInst.EncryptionKey.(*vpcv1.EncryptionKeyIdentity)
+		// 			newVolume[isInstanceTemplateVolAttVolEncryptionKey] = *encryptionKey.CRN
+		// 		}
+		// 		newVolumeArr = append(newVolumeArr, newVolume)
+		// 		volumeAttach[isInstanceTemplateVolAttVolPrototype] = newVolumeArr
 
-				interfacesList = append(interfacesList, volumeAttach)
-			}
-			template[isInstanceTemplateVolumeAttachments] = interfacesList
-		}
+		// 		interfacesList = append(interfacesList, volumeAttach)
+		// 	}
+		// 	template[isInstanceTemplateVolumeAttachments] = interfacesList
+		// }
 
 		if instance.BootVolumeAttachment != nil {
 			bootVolList := make([]map[string]interface{}, 0)
