@@ -37,7 +37,7 @@ import (
 // VpcV1 : The IBM Cloud Virtual Private Cloud (VPC) API can be used to programmatically provision and manage
 // infrastructure resources, including virtual server instances, subnets, volumes, and load balancers.
 //
-// Version: scoped
+// Version: 2021-08-17
 type VpcV1 struct {
 	Service *core.BaseService
 
@@ -48,8 +48,6 @@ type VpcV1 struct {
 	// The infrastructure generation for the request. For the API behavior documented here, use
 	// `2`.
 	generation *int64
-
-	maturity *string
 }
 
 // DefaultServiceURL is the default URL to make service requests to.
@@ -66,8 +64,7 @@ type VpcV1Options struct {
 
 	// Requests the version of the API as of a date in the format `YYYY-MM-DD`. Any date up to the current date may be
 	// provided. Specify the current date to request the latest version.
-	Version  *string
-	maturity *string
+	Version *string
 }
 
 // NewVpcV1UsingExternalConfig : constructs an instance of VpcV1 with passed in options and external configuration.
@@ -122,19 +119,13 @@ func NewVpcV1(options *VpcV1Options) (service *VpcV1, err error) {
 			return
 		}
 	}
-
 	if options.Version == nil {
-		options.Version = core.StringPtr("2021-07-27")
+		options.Version = core.StringPtr("2021-08-06")
 	}
-	if options.maturity == nil {
-		options.maturity = core.StringPtr("beta")
-	}
-
 	service = &VpcV1{
 		Service:    baseService,
 		Version:    options.Version,
 		generation: core.Int64Ptr(2),
-		maturity:   options.maturity,
 	}
 
 	return
@@ -226,8 +217,6 @@ func (vpc *VpcV1) ListVpcsWithContext(ctx context.Context, listVpcsOptions *List
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
-	builder.AddQuery("maturity", fmt.Sprint("beta"))
-
 	if listVpcsOptions.Start != nil {
 		builder.AddQuery("start", fmt.Sprint(*listVpcsOptions.Start))
 	}
@@ -1525,9 +1514,6 @@ func (vpc *VpcV1) CreateVPCRoutingTableWithContext(ctx context.Context, createVP
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 
 	body := make(map[string]interface{})
-	if createVPCRoutingTableOptions.AcceptRoutesFrom != nil {
-		body["accept_routes_from"] = createVPCRoutingTableOptions.AcceptRoutesFrom
-	}
 	if createVPCRoutingTableOptions.Name != nil {
 		body["name"] = createVPCRoutingTableOptions.Name
 	}
@@ -1607,9 +1593,6 @@ func (vpc *VpcV1) DeleteVPCRoutingTableWithContext(ctx context.Context, deleteVP
 	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteVPCRoutingTable")
 	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
-	}
-	if deleteVPCRoutingTableOptions.IfMatch != nil {
-		builder.AddHeader("If-Match", fmt.Sprint(*deleteVPCRoutingTableOptions.IfMatch))
 	}
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
@@ -1730,9 +1713,6 @@ func (vpc *VpcV1) UpdateVPCRoutingTableWithContext(ctx context.Context, updateVP
 	}
 	builder.AddHeader("Accept", "application/json")
 	builder.AddHeader("Content-Type", "application/merge-patch+json")
-	if updateVPCRoutingTableOptions.IfMatch != nil {
-		builder.AddHeader("If-Match", fmt.Sprint(*updateVPCRoutingTableOptions.IfMatch))
-	}
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
@@ -2892,8 +2872,7 @@ func (vpc *VpcV1) ReplaceSubnetRoutingTableWithContext(ctx context.Context, repl
 }
 
 // ListSubnetReservedIps : List all reserved IPs in a subnet
-// This request lists all reserved IPs in a subnet. A reserved IP resource will exist for every address in the subnet
-// which is not available for use.
+// This request lists reserved IPs in a subnet that are unbound or bound to an endpoint gateway.
 func (vpc *VpcV1) ListSubnetReservedIps(listSubnetReservedIpsOptions *ListSubnetReservedIpsOptions) (result *ReservedIPCollection, response *core.DetailedResponse, err error) {
 	return vpc.ListSubnetReservedIpsWithContext(context.Background(), listSubnetReservedIpsOptions)
 }
@@ -2965,8 +2944,7 @@ func (vpc *VpcV1) ListSubnetReservedIpsWithContext(ctx context.Context, listSubn
 }
 
 // CreateSubnetReservedIP : Reserve an IP in a subnet
-// This request reserves an IP address in a subnet. If the provided prototype object includes an `address`, the address
-// must not already be reserved.
+// This request reserves a system-selected IP address in a subnet.
 func (vpc *VpcV1) CreateSubnetReservedIP(createSubnetReservedIPOptions *CreateSubnetReservedIPOptions) (result *ReservedIP, response *core.DetailedResponse, err error) {
 	return vpc.CreateSubnetReservedIPWithContext(context.Background(), createSubnetReservedIPOptions)
 }
@@ -3009,9 +2987,6 @@ func (vpc *VpcV1) CreateSubnetReservedIPWithContext(ctx context.Context, createS
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 
 	body := make(map[string]interface{})
-	if createSubnetReservedIPOptions.Address != nil {
-		body["address"] = createSubnetReservedIPOptions.Address
-	}
 	if createSubnetReservedIPOptions.AutoDelete != nil {
 		body["auto_delete"] = createSubnetReservedIPOptions.AutoDelete
 	}
@@ -3236,10 +3211,7 @@ func (vpc *VpcV1) UpdateSubnetReservedIPWithContext(ctx context.Context, updateS
 
 // ListImages : List all images
 // This request lists all provisionable images available in the region. An image provides source data for a volume.
-// Images are either system-provided, or created from another source, such as importing from object storage. For
-// backward compatibility, if the
-// `version` query parameter has a value earlier than `__TBD_PRODUCTION_DATE__`, non-provisionable images will also be
-// included in the list.
+// Images are either system-provided, or created from another source, such as importing from object storage.
 //
 // The images will be sorted by their `created_at` property values, with the newest first. Images with identical
 // `created_at` values will be secondarily sorted by ascending `id` property values.
@@ -3285,12 +3257,6 @@ func (vpc *VpcV1) ListImagesWithContext(ctx context.Context, listImagesOptions *
 	}
 	if listImagesOptions.Name != nil {
 		builder.AddQuery("name", fmt.Sprint(*listImagesOptions.Name))
-	}
-	if listImagesOptions.Provisionable != nil {
-		err = builder.AddQuerySlice("provisionable", listImagesOptions.Provisionable)
-		if err != nil {
-			return
-		}
 	}
 	if listImagesOptions.Visibility != nil {
 		builder.AddQuery("visibility", fmt.Sprint(*listImagesOptions.Visibility))
@@ -3387,9 +3353,8 @@ func (vpc *VpcV1) CreateImageWithContext(ctx context.Context, createImageOptions
 
 // DeleteImage : Delete an image
 // This request deletes an image. This operation cannot be reversed. A system-provided image is not allowed to be
-// deleted. Additionally, an image cannot be deleted if it:
-// - has a `status` of `tentative` or `deleting`
-// - has a `status` of `pending` with a `status_reasons` code of `image_request_in_progress`.
+// deleted. Additionally, an image cannot be deleted if it has a
+// `status` of `pending`, `tentative`, or `deleting`.
 func (vpc *VpcV1) DeleteImage(deleteImageOptions *DeleteImageOptions) (response *core.DetailedResponse, err error) {
 	return vpc.DeleteImageWithContext(context.Background(), deleteImageOptions)
 }
@@ -4026,8 +3991,8 @@ func (vpc *VpcV1) UpdateKeyWithContext(ctx context.Context, updateKeyOptions *Up
 }
 
 // ListInstanceProfiles : List all instance profiles
-// This request lists instance profiles in the region. By default, only provisionable profiles will be returned. An
-// instance profile specifies the performance characteristics and pricing model for an instance.
+// This request lists provisionable instance profiles in the region. An instance profile specifies the performance
+// characteristics and pricing model for an instance.
 func (vpc *VpcV1) ListInstanceProfiles(listInstanceProfilesOptions *ListInstanceProfilesOptions) (result *InstanceProfileCollection, response *core.DetailedResponse, err error) {
 	return vpc.ListInstanceProfilesWithContext(context.Background(), listInstanceProfilesOptions)
 }
@@ -4059,12 +4024,6 @@ func (vpc *VpcV1) ListInstanceProfilesWithContext(ctx context.Context, listInsta
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
-	if listInstanceProfilesOptions.Start != nil {
-		builder.AddQuery("start", fmt.Sprint(*listInstanceProfilesOptions.Start))
-	}
-	if listInstanceProfilesOptions.Limit != nil {
-		builder.AddQuery("limit", fmt.Sprint(*listInstanceProfilesOptions.Limit))
-	}
 
 	request, err := builder.Build()
 	if err != nil {
@@ -4206,7 +4165,11 @@ func (vpc *VpcV1) ListInstanceTemplatesWithContext(ctx context.Context, listInst
 }
 
 // CreateInstanceTemplate : Create an instance template
-// This request creates a new instance template.
+// This request creates a new instance template. The prototype object is structured in the same way as a retrieved
+// instance template, and contains the information necessary to provision a new instance from the template.
+//
+// If a `source_template` is specified in the prototype object, its contents are copied into the new template prior to
+// copying any other properties provided in the prototype object.
 func (vpc *VpcV1) CreateInstanceTemplate(createInstanceTemplateOptions *CreateInstanceTemplateOptions) (result InstanceTemplateIntf, response *core.DetailedResponse, err error) {
 	return vpc.CreateInstanceTemplateWithContext(context.Background(), createInstanceTemplateOptions)
 }
@@ -4508,15 +4471,6 @@ func (vpc *VpcV1) ListInstancesWithContext(ctx context.Context, listInstancesOpt
 	}
 	if listInstancesOptions.VPCName != nil {
 		builder.AddQuery("vpc.name", fmt.Sprint(*listInstancesOptions.VPCName))
-	}
-	if listInstancesOptions.NetworkInterfacesSubnetID != nil {
-		builder.AddQuery("network_interfaces.subnet.id", fmt.Sprint(*listInstancesOptions.NetworkInterfacesSubnetID))
-	}
-	if listInstancesOptions.NetworkInterfacesSubnetCRN != nil {
-		builder.AddQuery("network_interfaces.subnet.crn", fmt.Sprint(*listInstancesOptions.NetworkInterfacesSubnetCRN))
-	}
-	if listInstancesOptions.NetworkInterfacesSubnetName != nil {
-		builder.AddQuery("network_interfaces.subnet.name", fmt.Sprint(*listInstancesOptions.NetworkInterfacesSubnetName))
 	}
 	if listInstancesOptions.DedicatedHostID != nil {
 		builder.AddQuery("dedicated_host.id", fmt.Sprint(*listInstancesOptions.DedicatedHostID))
@@ -5352,8 +5306,8 @@ func (vpc *VpcV1) CreateInstanceNetworkInterfaceWithContext(ctx context.Context,
 	if createInstanceNetworkInterfaceOptions.Name != nil {
 		body["name"] = createInstanceNetworkInterfaceOptions.Name
 	}
-	if createInstanceNetworkInterfaceOptions.PrimaryIP != nil {
-		body["primary_ip"] = createInstanceNetworkInterfaceOptions.PrimaryIP
+	if createInstanceNetworkInterfaceOptions.PrimaryIpv4Address != nil {
+		body["primary_ipv4_address"] = createInstanceNetworkInterfaceOptions.PrimaryIpv4Address
 	}
 	if createInstanceNetworkInterfaceOptions.SecurityGroups != nil {
 		body["security_groups"] = createInstanceNetworkInterfaceOptions.SecurityGroups
@@ -5815,142 +5769,6 @@ func (vpc *VpcV1) AddInstanceNetworkInterfaceFloatingIPWithContext(ctx context.C
 	}
 	if rawResponse != nil {
 		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalFloatingIP)
-		if err != nil {
-			return
-		}
-		response.Result = result
-	}
-
-	return
-}
-
-// ListInstanceNetworkInterfaceIps : List all reserved IPs bound to a network interface
-// This request lists all reserved IPs bound to a network interface.
-func (vpc *VpcV1) ListInstanceNetworkInterfaceIps(listInstanceNetworkInterfaceIpsOptions *ListInstanceNetworkInterfaceIpsOptions) (result *ReservedIPCollectionNetworkInterfaceContext, response *core.DetailedResponse, err error) {
-	return vpc.ListInstanceNetworkInterfaceIpsWithContext(context.Background(), listInstanceNetworkInterfaceIpsOptions)
-}
-
-// ListInstanceNetworkInterfaceIpsWithContext is an alternate form of the ListInstanceNetworkInterfaceIps method which supports a Context parameter
-func (vpc *VpcV1) ListInstanceNetworkInterfaceIpsWithContext(ctx context.Context, listInstanceNetworkInterfaceIpsOptions *ListInstanceNetworkInterfaceIpsOptions) (result *ReservedIPCollectionNetworkInterfaceContext, response *core.DetailedResponse, err error) {
-	err = core.ValidateNotNil(listInstanceNetworkInterfaceIpsOptions, "listInstanceNetworkInterfaceIpsOptions cannot be nil")
-	if err != nil {
-		return
-	}
-	err = core.ValidateStruct(listInstanceNetworkInterfaceIpsOptions, "listInstanceNetworkInterfaceIpsOptions")
-	if err != nil {
-		return
-	}
-
-	pathParamsMap := map[string]string{
-		"instance_id":          *listInstanceNetworkInterfaceIpsOptions.InstanceID,
-		"network_interface_id": *listInstanceNetworkInterfaceIpsOptions.NetworkInterfaceID,
-	}
-
-	builder := core.NewRequestBuilder(core.GET)
-	builder = builder.WithContext(ctx)
-	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
-	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/instances/{instance_id}/network_interfaces/{network_interface_id}/ips`, pathParamsMap)
-	if err != nil {
-		return
-	}
-
-	for headerName, headerValue := range listInstanceNetworkInterfaceIpsOptions.Headers {
-		builder.AddHeader(headerName, headerValue)
-	}
-
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListInstanceNetworkInterfaceIps")
-	for headerName, headerValue := range sdkHeaders {
-		builder.AddHeader(headerName, headerValue)
-	}
-	builder.AddHeader("Accept", "application/json")
-
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
-	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
-	if listInstanceNetworkInterfaceIpsOptions.Start != nil {
-		builder.AddQuery("start", fmt.Sprint(*listInstanceNetworkInterfaceIpsOptions.Start))
-	}
-	if listInstanceNetworkInterfaceIpsOptions.Limit != nil {
-		builder.AddQuery("limit", fmt.Sprint(*listInstanceNetworkInterfaceIpsOptions.Limit))
-	}
-
-	request, err := builder.Build()
-	if err != nil {
-		return
-	}
-
-	var rawResponse map[string]json.RawMessage
-	response, err = vpc.Service.Request(request, &rawResponse)
-	if err != nil {
-		return
-	}
-	if rawResponse != nil {
-		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalReservedIPCollectionNetworkInterfaceContext)
-		if err != nil {
-			return
-		}
-		response.Result = result
-	}
-
-	return
-}
-
-// GetInstanceNetworkInterfaceIP : Retrieve bound reserved IP
-// This request a retrieves the specified reserved IP address if it is bound to the network interface and instance
-// specified in the URL.
-func (vpc *VpcV1) GetInstanceNetworkInterfaceIP(getInstanceNetworkInterfaceIPOptions *GetInstanceNetworkInterfaceIPOptions) (result *ReservedIP, response *core.DetailedResponse, err error) {
-	return vpc.GetInstanceNetworkInterfaceIPWithContext(context.Background(), getInstanceNetworkInterfaceIPOptions)
-}
-
-// GetInstanceNetworkInterfaceIPWithContext is an alternate form of the GetInstanceNetworkInterfaceIP method which supports a Context parameter
-func (vpc *VpcV1) GetInstanceNetworkInterfaceIPWithContext(ctx context.Context, getInstanceNetworkInterfaceIPOptions *GetInstanceNetworkInterfaceIPOptions) (result *ReservedIP, response *core.DetailedResponse, err error) {
-	err = core.ValidateNotNil(getInstanceNetworkInterfaceIPOptions, "getInstanceNetworkInterfaceIPOptions cannot be nil")
-	if err != nil {
-		return
-	}
-	err = core.ValidateStruct(getInstanceNetworkInterfaceIPOptions, "getInstanceNetworkInterfaceIPOptions")
-	if err != nil {
-		return
-	}
-
-	pathParamsMap := map[string]string{
-		"instance_id":          *getInstanceNetworkInterfaceIPOptions.InstanceID,
-		"network_interface_id": *getInstanceNetworkInterfaceIPOptions.NetworkInterfaceID,
-		"id":                   *getInstanceNetworkInterfaceIPOptions.ID,
-	}
-
-	builder := core.NewRequestBuilder(core.GET)
-	builder = builder.WithContext(ctx)
-	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
-	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/instances/{instance_id}/network_interfaces/{network_interface_id}/ips/{id}`, pathParamsMap)
-	if err != nil {
-		return
-	}
-
-	for headerName, headerValue := range getInstanceNetworkInterfaceIPOptions.Headers {
-		builder.AddHeader(headerName, headerValue)
-	}
-
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetInstanceNetworkInterfaceIP")
-	for headerName, headerValue := range sdkHeaders {
-		builder.AddHeader(headerName, headerValue)
-	}
-	builder.AddHeader("Accept", "application/json")
-
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
-	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
-
-	request, err := builder.Build()
-	if err != nil {
-		return
-	}
-
-	var rawResponse map[string]json.RawMessage
-	response, err = vpc.Service.Request(request, &rawResponse)
-	if err != nil {
-		return
-	}
-	if rawResponse != nil {
-		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalReservedIP)
 		if err != nil {
 			return
 		}
@@ -8945,557 +8763,6 @@ func (vpc *VpcV1) UpdateDedicatedHostWithContext(ctx context.Context, updateDedi
 	return
 }
 
-// ListBackupPolicies : List all backup policies
-// This request lists all backup policies in the region. Backup policies control which resources are selected for backup
-// and include a set of backup policy plans that provide the backup schedules and deletion triggers.
-func (vpc *VpcV1) ListBackupPolicies(listBackupPoliciesOptions *ListBackupPoliciesOptions) (result *BackupPolicyCollection, response *core.DetailedResponse, err error) {
-	return vpc.ListBackupPoliciesWithContext(context.Background(), listBackupPoliciesOptions)
-}
-
-// ListBackupPoliciesWithContext is an alternate form of the ListBackupPolicies method which supports a Context parameter
-func (vpc *VpcV1) ListBackupPoliciesWithContext(ctx context.Context, listBackupPoliciesOptions *ListBackupPoliciesOptions) (result *BackupPolicyCollection, response *core.DetailedResponse, err error) {
-	err = core.ValidateStruct(listBackupPoliciesOptions, "listBackupPoliciesOptions")
-	if err != nil {
-		return
-	}
-
-	builder := core.NewRequestBuilder(core.GET)
-	builder = builder.WithContext(ctx)
-	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
-	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/backup_policies`, nil)
-	if err != nil {
-		return
-	}
-
-	for headerName, headerValue := range listBackupPoliciesOptions.Headers {
-		builder.AddHeader(headerName, headerValue)
-	}
-
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListBackupPolicies")
-	for headerName, headerValue := range sdkHeaders {
-		builder.AddHeader(headerName, headerValue)
-	}
-	builder.AddHeader("Accept", "application/json")
-
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
-	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
-	if listBackupPoliciesOptions.Start != nil {
-		builder.AddQuery("start", fmt.Sprint(*listBackupPoliciesOptions.Start))
-	}
-	if listBackupPoliciesOptions.Limit != nil {
-		builder.AddQuery("limit", fmt.Sprint(*listBackupPoliciesOptions.Limit))
-	}
-	if listBackupPoliciesOptions.ResourceGroupID != nil {
-		builder.AddQuery("resource_group.id", fmt.Sprint(*listBackupPoliciesOptions.ResourceGroupID))
-	}
-	if listBackupPoliciesOptions.Name != nil {
-		builder.AddQuery("name", fmt.Sprint(*listBackupPoliciesOptions.Name))
-	}
-	if listBackupPoliciesOptions.Tag != nil {
-		builder.AddQuery("tag", fmt.Sprint(*listBackupPoliciesOptions.Tag))
-	}
-
-	request, err := builder.Build()
-	if err != nil {
-		return
-	}
-
-	var rawResponse map[string]json.RawMessage
-	response, err = vpc.Service.Request(request, &rawResponse)
-	if err != nil {
-		return
-	}
-	if rawResponse != nil {
-		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalBackupPolicyCollection)
-		if err != nil {
-			return
-		}
-		response.Result = result
-	}
-
-	return
-}
-
-// CreateBackupPolicy : Create a backup policy
-// This request creates a new backup policy from a backup policy prototype object. The prototype object is structured in
-// the same way as a retrieved backup policy, and contains the information necessary to create the new backup policy.
-func (vpc *VpcV1) CreateBackupPolicy(createBackupPolicyOptions *CreateBackupPolicyOptions) (result *BackupPolicy, response *core.DetailedResponse, err error) {
-	return vpc.CreateBackupPolicyWithContext(context.Background(), createBackupPolicyOptions)
-}
-
-// CreateBackupPolicyWithContext is an alternate form of the CreateBackupPolicy method which supports a Context parameter
-func (vpc *VpcV1) CreateBackupPolicyWithContext(ctx context.Context, createBackupPolicyOptions *CreateBackupPolicyOptions) (result *BackupPolicy, response *core.DetailedResponse, err error) {
-	err = core.ValidateStruct(createBackupPolicyOptions, "createBackupPolicyOptions")
-	if err != nil {
-		return
-	}
-
-	builder := core.NewRequestBuilder(core.POST)
-	builder = builder.WithContext(ctx)
-	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
-	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/backup_policies`, nil)
-	if err != nil {
-		return
-	}
-
-	for headerName, headerValue := range createBackupPolicyOptions.Headers {
-		builder.AddHeader(headerName, headerValue)
-	}
-
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateBackupPolicy")
-	for headerName, headerValue := range sdkHeaders {
-		builder.AddHeader(headerName, headerValue)
-	}
-	builder.AddHeader("Accept", "application/json")
-	builder.AddHeader("Content-Type", "application/json")
-
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
-	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
-
-	body := make(map[string]interface{})
-	if createBackupPolicyOptions.MatchResourceTypes != nil {
-		body["match_resource_types"] = createBackupPolicyOptions.MatchResourceTypes
-	}
-	if createBackupPolicyOptions.MatchUserTags != nil {
-		body["match_user_tags"] = createBackupPolicyOptions.MatchUserTags
-	}
-	if createBackupPolicyOptions.Name != nil {
-		body["name"] = createBackupPolicyOptions.Name
-	}
-	if createBackupPolicyOptions.Plans != nil {
-		body["plans"] = createBackupPolicyOptions.Plans
-	}
-	if createBackupPolicyOptions.ResourceGroup != nil {
-		body["resource_group"] = createBackupPolicyOptions.ResourceGroup
-	}
-	_, err = builder.SetBodyContentJSON(body)
-	if err != nil {
-		return
-	}
-
-	request, err := builder.Build()
-	if err != nil {
-		return
-	}
-
-	var rawResponse map[string]json.RawMessage
-	response, err = vpc.Service.Request(request, &rawResponse)
-	if err != nil {
-		return
-	}
-	if rawResponse != nil {
-		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalBackupPolicy)
-		if err != nil {
-			return
-		}
-		response.Result = result
-	}
-
-	return
-}
-
-// ListBackupPolicyPlans : List all plans for a backup policy
-// This request retrieves all plans for a backup policy. Backup plans provide the backup schedule and deletion triggers.
-func (vpc *VpcV1) ListBackupPolicyPlans(listBackupPolicyPlansOptions *ListBackupPolicyPlansOptions) (result *BackupPolicyPlanCollection, response *core.DetailedResponse, err error) {
-	return vpc.ListBackupPolicyPlansWithContext(context.Background(), listBackupPolicyPlansOptions)
-}
-
-// ListBackupPolicyPlansWithContext is an alternate form of the ListBackupPolicyPlans method which supports a Context parameter
-func (vpc *VpcV1) ListBackupPolicyPlansWithContext(ctx context.Context, listBackupPolicyPlansOptions *ListBackupPolicyPlansOptions) (result *BackupPolicyPlanCollection, response *core.DetailedResponse, err error) {
-	err = core.ValidateNotNil(listBackupPolicyPlansOptions, "listBackupPolicyPlansOptions cannot be nil")
-	if err != nil {
-		return
-	}
-	err = core.ValidateStruct(listBackupPolicyPlansOptions, "listBackupPolicyPlansOptions")
-	if err != nil {
-		return
-	}
-
-	pathParamsMap := map[string]string{
-		"backup_policy_id": *listBackupPolicyPlansOptions.BackupPolicyID,
-	}
-
-	builder := core.NewRequestBuilder(core.GET)
-	builder = builder.WithContext(ctx)
-	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
-	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/backup_policies/{backup_policy_id}/plans`, pathParamsMap)
-	if err != nil {
-		return
-	}
-
-	for headerName, headerValue := range listBackupPolicyPlansOptions.Headers {
-		builder.AddHeader(headerName, headerValue)
-	}
-
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListBackupPolicyPlans")
-	for headerName, headerValue := range sdkHeaders {
-		builder.AddHeader(headerName, headerValue)
-	}
-	builder.AddHeader("Accept", "application/json")
-
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
-	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
-	if listBackupPolicyPlansOptions.Name != nil {
-		builder.AddQuery("name", fmt.Sprint(*listBackupPolicyPlansOptions.Name))
-	}
-
-	request, err := builder.Build()
-	if err != nil {
-		return
-	}
-
-	var rawResponse map[string]json.RawMessage
-	response, err = vpc.Service.Request(request, &rawResponse)
-	if err != nil {
-		return
-	}
-	if rawResponse != nil {
-		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalBackupPolicyPlanCollection)
-		if err != nil {
-			return
-		}
-		response.Result = result
-	}
-
-	return
-}
-
-// GetBackupPolicyPlan : Retrieve a backup policy plan
-// This request retrieves a single backup policy plan specified by the identifier in the URL.
-func (vpc *VpcV1) GetBackupPolicyPlan(getBackupPolicyPlanOptions *GetBackupPolicyPlanOptions) (result *BackupPolicyPlan, response *core.DetailedResponse, err error) {
-	return vpc.GetBackupPolicyPlanWithContext(context.Background(), getBackupPolicyPlanOptions)
-}
-
-// GetBackupPolicyPlanWithContext is an alternate form of the GetBackupPolicyPlan method which supports a Context parameter
-func (vpc *VpcV1) GetBackupPolicyPlanWithContext(ctx context.Context, getBackupPolicyPlanOptions *GetBackupPolicyPlanOptions) (result *BackupPolicyPlan, response *core.DetailedResponse, err error) {
-	err = core.ValidateNotNil(getBackupPolicyPlanOptions, "getBackupPolicyPlanOptions cannot be nil")
-	if err != nil {
-		return
-	}
-	err = core.ValidateStruct(getBackupPolicyPlanOptions, "getBackupPolicyPlanOptions")
-	if err != nil {
-		return
-	}
-
-	pathParamsMap := map[string]string{
-		"backup_policy_id": *getBackupPolicyPlanOptions.BackupPolicyID,
-		"id":               *getBackupPolicyPlanOptions.ID,
-	}
-
-	builder := core.NewRequestBuilder(core.GET)
-	builder = builder.WithContext(ctx)
-	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
-	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/backup_policies/{backup_policy_id}/plans/{id}`, pathParamsMap)
-	if err != nil {
-		return
-	}
-
-	for headerName, headerValue := range getBackupPolicyPlanOptions.Headers {
-		builder.AddHeader(headerName, headerValue)
-	}
-
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetBackupPolicyPlan")
-	for headerName, headerValue := range sdkHeaders {
-		builder.AddHeader(headerName, headerValue)
-	}
-	builder.AddHeader("Accept", "application/json")
-
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
-	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
-
-	request, err := builder.Build()
-	if err != nil {
-		return
-	}
-
-	var rawResponse map[string]json.RawMessage
-	response, err = vpc.Service.Request(request, &rawResponse)
-	if err != nil {
-		return
-	}
-	if rawResponse != nil {
-		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalBackupPolicyPlan)
-		if err != nil {
-			return
-		}
-		response.Result = result
-	}
-
-	return
-}
-
-// UpdateBackupPolicyPlan : Update a backup policy plan
-// This request updates a backup policy plan with the information in a provided plan patch.
-//
-// The plan patch object is structured in the same way as a retrieved backup policy plan and can contain an updated
-// name.
-func (vpc *VpcV1) UpdateBackupPolicyPlan(updateBackupPolicyPlanOptions *UpdateBackupPolicyPlanOptions) (result *BackupPolicyPlan, response *core.DetailedResponse, err error) {
-	return vpc.UpdateBackupPolicyPlanWithContext(context.Background(), updateBackupPolicyPlanOptions)
-}
-
-// UpdateBackupPolicyPlanWithContext is an alternate form of the UpdateBackupPolicyPlan method which supports a Context parameter
-func (vpc *VpcV1) UpdateBackupPolicyPlanWithContext(ctx context.Context, updateBackupPolicyPlanOptions *UpdateBackupPolicyPlanOptions) (result *BackupPolicyPlan, response *core.DetailedResponse, err error) {
-	err = core.ValidateNotNil(updateBackupPolicyPlanOptions, "updateBackupPolicyPlanOptions cannot be nil")
-	if err != nil {
-		return
-	}
-	err = core.ValidateStruct(updateBackupPolicyPlanOptions, "updateBackupPolicyPlanOptions")
-	if err != nil {
-		return
-	}
-
-	pathParamsMap := map[string]string{
-		"backup_policy_id": *updateBackupPolicyPlanOptions.BackupPolicyID,
-		"id":               *updateBackupPolicyPlanOptions.ID,
-	}
-
-	builder := core.NewRequestBuilder(core.PATCH)
-	builder = builder.WithContext(ctx)
-	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
-	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/backup_policies/{backup_policy_id}/plans/{id}`, pathParamsMap)
-	if err != nil {
-		return
-	}
-
-	for headerName, headerValue := range updateBackupPolicyPlanOptions.Headers {
-		builder.AddHeader(headerName, headerValue)
-	}
-
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateBackupPolicyPlan")
-	for headerName, headerValue := range sdkHeaders {
-		builder.AddHeader(headerName, headerValue)
-	}
-	builder.AddHeader("Accept", "application/json")
-	builder.AddHeader("Content-Type", "application/merge-patch+json")
-
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
-	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
-
-	_, err = builder.SetBodyContentJSON(updateBackupPolicyPlanOptions.BackupPolicyPlanPatch)
-	if err != nil {
-		return
-	}
-
-	request, err := builder.Build()
-	if err != nil {
-		return
-	}
-
-	var rawResponse map[string]json.RawMessage
-	response, err = vpc.Service.Request(request, &rawResponse)
-	if err != nil {
-		return
-	}
-	if rawResponse != nil {
-		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalBackupPolicyPlan)
-		if err != nil {
-			return
-		}
-		response.Result = result
-	}
-
-	return
-}
-
-// DeleteBackupPolicy : Delete a backup policy
-// This request deletes a backup policy. This operation cannot be reversed.
-//
-// If the request is accepted, the backup policy `status` will be set to `deleting`. Once deletion processing completes,
-// the backup policy will no longer be retrievable.
-func (vpc *VpcV1) DeleteBackupPolicy(deleteBackupPolicyOptions *DeleteBackupPolicyOptions) (result *BackupPolicy, response *core.DetailedResponse, err error) {
-	return vpc.DeleteBackupPolicyWithContext(context.Background(), deleteBackupPolicyOptions)
-}
-
-// DeleteBackupPolicyWithContext is an alternate form of the DeleteBackupPolicy method which supports a Context parameter
-func (vpc *VpcV1) DeleteBackupPolicyWithContext(ctx context.Context, deleteBackupPolicyOptions *DeleteBackupPolicyOptions) (result *BackupPolicy, response *core.DetailedResponse, err error) {
-	err = core.ValidateNotNil(deleteBackupPolicyOptions, "deleteBackupPolicyOptions cannot be nil")
-	if err != nil {
-		return
-	}
-	err = core.ValidateStruct(deleteBackupPolicyOptions, "deleteBackupPolicyOptions")
-	if err != nil {
-		return
-	}
-
-	pathParamsMap := map[string]string{
-		"id": *deleteBackupPolicyOptions.ID,
-	}
-
-	builder := core.NewRequestBuilder(core.DELETE)
-	builder = builder.WithContext(ctx)
-	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
-	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/backup_policies/{id}`, pathParamsMap)
-	if err != nil {
-		return
-	}
-
-	for headerName, headerValue := range deleteBackupPolicyOptions.Headers {
-		builder.AddHeader(headerName, headerValue)
-	}
-
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteBackupPolicy")
-	for headerName, headerValue := range sdkHeaders {
-		builder.AddHeader(headerName, headerValue)
-	}
-	builder.AddHeader("Accept", "application/json")
-
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
-	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
-
-	request, err := builder.Build()
-	if err != nil {
-		return
-	}
-
-	var rawResponse map[string]json.RawMessage
-	response, err = vpc.Service.Request(request, &rawResponse)
-	if err != nil {
-		return
-	}
-	if rawResponse != nil {
-		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalBackupPolicy)
-		if err != nil {
-			return
-		}
-		response.Result = result
-	}
-
-	return
-}
-
-// GetBackupPolicy : Retrieve a backup policy
-// This request retrieves a single backup policy specified by the identifier in the URL.
-func (vpc *VpcV1) GetBackupPolicy(getBackupPolicyOptions *GetBackupPolicyOptions) (result *BackupPolicy, response *core.DetailedResponse, err error) {
-	return vpc.GetBackupPolicyWithContext(context.Background(), getBackupPolicyOptions)
-}
-
-// GetBackupPolicyWithContext is an alternate form of the GetBackupPolicy method which supports a Context parameter
-func (vpc *VpcV1) GetBackupPolicyWithContext(ctx context.Context, getBackupPolicyOptions *GetBackupPolicyOptions) (result *BackupPolicy, response *core.DetailedResponse, err error) {
-	err = core.ValidateNotNil(getBackupPolicyOptions, "getBackupPolicyOptions cannot be nil")
-	if err != nil {
-		return
-	}
-	err = core.ValidateStruct(getBackupPolicyOptions, "getBackupPolicyOptions")
-	if err != nil {
-		return
-	}
-
-	pathParamsMap := map[string]string{
-		"id": *getBackupPolicyOptions.ID,
-	}
-
-	builder := core.NewRequestBuilder(core.GET)
-	builder = builder.WithContext(ctx)
-	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
-	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/backup_policies/{id}`, pathParamsMap)
-	if err != nil {
-		return
-	}
-
-	for headerName, headerValue := range getBackupPolicyOptions.Headers {
-		builder.AddHeader(headerName, headerValue)
-	}
-
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetBackupPolicy")
-	for headerName, headerValue := range sdkHeaders {
-		builder.AddHeader(headerName, headerValue)
-	}
-	builder.AddHeader("Accept", "application/json")
-
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
-	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
-
-	request, err := builder.Build()
-	if err != nil {
-		return
-	}
-
-	var rawResponse map[string]json.RawMessage
-	response, err = vpc.Service.Request(request, &rawResponse)
-	if err != nil {
-		return
-	}
-	if rawResponse != nil {
-		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalBackupPolicy)
-		if err != nil {
-			return
-		}
-		response.Result = result
-	}
-
-	return
-}
-
-// UpdateBackupPolicy : Update a backup policy
-// This request updates a backup policy with the information in a provided backup policy patch. The backup policy patch
-// object is structured in the same way as a retrieved backup policy and contains only the information to be updated.
-func (vpc *VpcV1) UpdateBackupPolicy(updateBackupPolicyOptions *UpdateBackupPolicyOptions) (result *BackupPolicy, response *core.DetailedResponse, err error) {
-	return vpc.UpdateBackupPolicyWithContext(context.Background(), updateBackupPolicyOptions)
-}
-
-// UpdateBackupPolicyWithContext is an alternate form of the UpdateBackupPolicy method which supports a Context parameter
-func (vpc *VpcV1) UpdateBackupPolicyWithContext(ctx context.Context, updateBackupPolicyOptions *UpdateBackupPolicyOptions) (result *BackupPolicy, response *core.DetailedResponse, err error) {
-	err = core.ValidateNotNil(updateBackupPolicyOptions, "updateBackupPolicyOptions cannot be nil")
-	if err != nil {
-		return
-	}
-	err = core.ValidateStruct(updateBackupPolicyOptions, "updateBackupPolicyOptions")
-	if err != nil {
-		return
-	}
-
-	pathParamsMap := map[string]string{
-		"id": *updateBackupPolicyOptions.ID,
-	}
-
-	builder := core.NewRequestBuilder(core.PATCH)
-	builder = builder.WithContext(ctx)
-	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
-	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/backup_policies/{id}`, pathParamsMap)
-	if err != nil {
-		return
-	}
-
-	for headerName, headerValue := range updateBackupPolicyOptions.Headers {
-		builder.AddHeader(headerName, headerValue)
-	}
-
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateBackupPolicy")
-	for headerName, headerValue := range sdkHeaders {
-		builder.AddHeader(headerName, headerValue)
-	}
-	builder.AddHeader("Accept", "application/json")
-	builder.AddHeader("Content-Type", "application/merge-patch+json")
-
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
-	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
-
-	_, err = builder.SetBodyContentJSON(updateBackupPolicyOptions.BackupPolicyPatch)
-	if err != nil {
-		return
-	}
-
-	request, err := builder.Build()
-	if err != nil {
-		return
-	}
-
-	var rawResponse map[string]json.RawMessage
-	response, err = vpc.Service.Request(request, &rawResponse)
-	if err != nil {
-		return
-	}
-	if rawResponse != nil {
-		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalBackupPolicy)
-		if err != nil {
-			return
-		}
-		response.Result = result
-	}
-
-	return
-}
-
 // ListPlacementGroups : List all placement groups
 // This request lists all placement groups in the region.
 func (vpc *VpcV1) ListPlacementGroups(listPlacementGroupsOptions *ListPlacementGroupsOptions) (result *PlacementGroupCollection, response *core.DetailedResponse, err error) {
@@ -9813,1592 +9080,6 @@ func (vpc *VpcV1) UpdatePlacementGroupWithContext(ctx context.Context, updatePla
 		}
 		response.Result = result
 	}
-
-	return
-}
-
-// ListBareMetalServerProfiles : List all bare metal server profiles
-// This request lists all bare metal server profiles available in the region. A bare metal server profile specifies the
-// performance characteristics and pricing model for a bare metal server.
-func (vpc *VpcV1) ListBareMetalServerProfiles(listBareMetalServerProfilesOptions *ListBareMetalServerProfilesOptions) (result *BareMetalServerProfileCollection, response *core.DetailedResponse, err error) {
-	return vpc.ListBareMetalServerProfilesWithContext(context.Background(), listBareMetalServerProfilesOptions)
-}
-
-// ListBareMetalServerProfilesWithContext is an alternate form of the ListBareMetalServerProfiles method which supports a Context parameter
-func (vpc *VpcV1) ListBareMetalServerProfilesWithContext(ctx context.Context, listBareMetalServerProfilesOptions *ListBareMetalServerProfilesOptions) (result *BareMetalServerProfileCollection, response *core.DetailedResponse, err error) {
-	err = core.ValidateStruct(listBareMetalServerProfilesOptions, "listBareMetalServerProfilesOptions")
-	if err != nil {
-		return
-	}
-
-	builder := core.NewRequestBuilder(core.GET)
-	builder = builder.WithContext(ctx)
-	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
-	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/bare_metal_server/profiles`, nil)
-	if err != nil {
-		return
-	}
-
-	for headerName, headerValue := range listBareMetalServerProfilesOptions.Headers {
-		builder.AddHeader(headerName, headerValue)
-	}
-
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListBareMetalServerProfiles")
-	for headerName, headerValue := range sdkHeaders {
-		builder.AddHeader(headerName, headerValue)
-	}
-	builder.AddHeader("Accept", "application/json")
-
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
-	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
-	if listBareMetalServerProfilesOptions.Start != nil {
-		builder.AddQuery("start", fmt.Sprint(*listBareMetalServerProfilesOptions.Start))
-	}
-	if listBareMetalServerProfilesOptions.Limit != nil {
-		builder.AddQuery("limit", fmt.Sprint(*listBareMetalServerProfilesOptions.Limit))
-	}
-
-	request, err := builder.Build()
-	if err != nil {
-		return
-	}
-
-	var rawResponse map[string]json.RawMessage
-	response, err = vpc.Service.Request(request, &rawResponse)
-	if err != nil {
-		return
-	}
-	if rawResponse != nil {
-		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalBareMetalServerProfileCollection)
-		if err != nil {
-			return
-		}
-		response.Result = result
-	}
-
-	return
-}
-
-// GetBareMetalServerProfile : Retrieve a bare metal server profile
-// This request retrieves a single bare metal server profile specified by the name in the URL.
-func (vpc *VpcV1) GetBareMetalServerProfile(getBareMetalServerProfileOptions *GetBareMetalServerProfileOptions) (result *BareMetalServerProfile, response *core.DetailedResponse, err error) {
-	return vpc.GetBareMetalServerProfileWithContext(context.Background(), getBareMetalServerProfileOptions)
-}
-
-// GetBareMetalServerProfileWithContext is an alternate form of the GetBareMetalServerProfile method which supports a Context parameter
-func (vpc *VpcV1) GetBareMetalServerProfileWithContext(ctx context.Context, getBareMetalServerProfileOptions *GetBareMetalServerProfileOptions) (result *BareMetalServerProfile, response *core.DetailedResponse, err error) {
-	err = core.ValidateNotNil(getBareMetalServerProfileOptions, "getBareMetalServerProfileOptions cannot be nil")
-	if err != nil {
-		return
-	}
-	err = core.ValidateStruct(getBareMetalServerProfileOptions, "getBareMetalServerProfileOptions")
-	if err != nil {
-		return
-	}
-
-	pathParamsMap := map[string]string{
-		"name": *getBareMetalServerProfileOptions.Name,
-	}
-
-	builder := core.NewRequestBuilder(core.GET)
-	builder = builder.WithContext(ctx)
-	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
-	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/bare_metal_server/profiles/{name}`, pathParamsMap)
-	if err != nil {
-		return
-	}
-
-	for headerName, headerValue := range getBareMetalServerProfileOptions.Headers {
-		builder.AddHeader(headerName, headerValue)
-	}
-
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetBareMetalServerProfile")
-	for headerName, headerValue := range sdkHeaders {
-		builder.AddHeader(headerName, headerValue)
-	}
-	builder.AddHeader("Accept", "application/json")
-
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
-	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
-
-	request, err := builder.Build()
-	if err != nil {
-		return
-	}
-
-	var rawResponse map[string]json.RawMessage
-	response, err = vpc.Service.Request(request, &rawResponse)
-	if err != nil {
-		return
-	}
-	if rawResponse != nil {
-		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalBareMetalServerProfile)
-		if err != nil {
-			return
-		}
-		response.Result = result
-	}
-
-	return
-}
-
-// ListBareMetalServers : List all bare metal servers
-// This request lists all bare metal servers in the region.
-func (vpc *VpcV1) ListBareMetalServers(listBareMetalServersOptions *ListBareMetalServersOptions) (result *BareMetalServerCollection, response *core.DetailedResponse, err error) {
-	return vpc.ListBareMetalServersWithContext(context.Background(), listBareMetalServersOptions)
-}
-
-// ListBareMetalServersWithContext is an alternate form of the ListBareMetalServers method which supports a Context parameter
-func (vpc *VpcV1) ListBareMetalServersWithContext(ctx context.Context, listBareMetalServersOptions *ListBareMetalServersOptions) (result *BareMetalServerCollection, response *core.DetailedResponse, err error) {
-	err = core.ValidateStruct(listBareMetalServersOptions, "listBareMetalServersOptions")
-	if err != nil {
-		return
-	}
-
-	builder := core.NewRequestBuilder(core.GET)
-	builder = builder.WithContext(ctx)
-	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
-	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/bare_metal_servers`, nil)
-	if err != nil {
-		return
-	}
-
-	for headerName, headerValue := range listBareMetalServersOptions.Headers {
-		builder.AddHeader(headerName, headerValue)
-	}
-
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListBareMetalServers")
-	for headerName, headerValue := range sdkHeaders {
-		builder.AddHeader(headerName, headerValue)
-	}
-	builder.AddHeader("Accept", "application/json")
-
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
-	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
-	if listBareMetalServersOptions.Start != nil {
-		builder.AddQuery("start", fmt.Sprint(*listBareMetalServersOptions.Start))
-	}
-	if listBareMetalServersOptions.Limit != nil {
-		builder.AddQuery("limit", fmt.Sprint(*listBareMetalServersOptions.Limit))
-	}
-	if listBareMetalServersOptions.ResourceGroupID != nil {
-		builder.AddQuery("resource_group.id", fmt.Sprint(*listBareMetalServersOptions.ResourceGroupID))
-	}
-	if listBareMetalServersOptions.Name != nil {
-		builder.AddQuery("name", fmt.Sprint(*listBareMetalServersOptions.Name))
-	}
-	if listBareMetalServersOptions.VPCID != nil {
-		builder.AddQuery("vpc.id", fmt.Sprint(*listBareMetalServersOptions.VPCID))
-	}
-	if listBareMetalServersOptions.VPCCRN != nil {
-		builder.AddQuery("vpc.crn", fmt.Sprint(*listBareMetalServersOptions.VPCCRN))
-	}
-	if listBareMetalServersOptions.VPCName != nil {
-		builder.AddQuery("vpc.name", fmt.Sprint(*listBareMetalServersOptions.VPCName))
-	}
-	if listBareMetalServersOptions.NetworkInterfacesSubnetID != nil {
-		builder.AddQuery("network_interfaces.subnet.id", fmt.Sprint(*listBareMetalServersOptions.NetworkInterfacesSubnetID))
-	}
-	if listBareMetalServersOptions.NetworkInterfacesSubnetCRN != nil {
-		builder.AddQuery("network_interfaces.subnet.crn", fmt.Sprint(*listBareMetalServersOptions.NetworkInterfacesSubnetCRN))
-	}
-	if listBareMetalServersOptions.NetworkInterfacesSubnetName != nil {
-		builder.AddQuery("network_interfaces.subnet.name", fmt.Sprint(*listBareMetalServersOptions.NetworkInterfacesSubnetName))
-	}
-	if listBareMetalServersOptions.Sort != nil {
-		builder.AddQuery("sort", fmt.Sprint(*listBareMetalServersOptions.Sort))
-	}
-
-	request, err := builder.Build()
-	if err != nil {
-		return
-	}
-
-	var rawResponse map[string]json.RawMessage
-	response, err = vpc.Service.Request(request, &rawResponse)
-	if err != nil {
-		return
-	}
-	if rawResponse != nil {
-		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalBareMetalServerCollection)
-		if err != nil {
-			return
-		}
-		response.Result = result
-	}
-
-	return
-}
-
-// CreateBareMetalServer : Create a bare metal server
-// This request provisions a new bare metal server from a prototype object. The prototype object is structured in the
-// same way as a retrieved bare metal server, and contains the information necessary to provision the new bare metal
-// server. The bare metal server is automatically started.
-func (vpc *VpcV1) CreateBareMetalServer(createBareMetalServerOptions *CreateBareMetalServerOptions) (result *BareMetalServer, response *core.DetailedResponse, err error) {
-	return vpc.CreateBareMetalServerWithContext(context.Background(), createBareMetalServerOptions)
-}
-
-// CreateBareMetalServerWithContext is an alternate form of the CreateBareMetalServer method which supports a Context parameter
-func (vpc *VpcV1) CreateBareMetalServerWithContext(ctx context.Context, createBareMetalServerOptions *CreateBareMetalServerOptions) (result *BareMetalServer, response *core.DetailedResponse, err error) {
-	err = core.ValidateNotNil(createBareMetalServerOptions, "createBareMetalServerOptions cannot be nil")
-	if err != nil {
-		return
-	}
-	err = core.ValidateStruct(createBareMetalServerOptions, "createBareMetalServerOptions")
-	if err != nil {
-		return
-	}
-
-	builder := core.NewRequestBuilder(core.POST)
-	builder = builder.WithContext(ctx)
-	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
-	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/bare_metal_servers`, nil)
-	if err != nil {
-		return
-	}
-
-	for headerName, headerValue := range createBareMetalServerOptions.Headers {
-		builder.AddHeader(headerName, headerValue)
-	}
-
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateBareMetalServer")
-	for headerName, headerValue := range sdkHeaders {
-		builder.AddHeader(headerName, headerValue)
-	}
-	builder.AddHeader("Accept", "application/json")
-	builder.AddHeader("Content-Type", "application/json")
-
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
-	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
-
-	body := make(map[string]interface{})
-	if createBareMetalServerOptions.Initialization != nil {
-		body["initialization"] = createBareMetalServerOptions.Initialization
-	}
-	if createBareMetalServerOptions.PrimaryNetworkInterface != nil {
-		body["primary_network_interface"] = createBareMetalServerOptions.PrimaryNetworkInterface
-	}
-	if createBareMetalServerOptions.Profile != nil {
-		body["profile"] = createBareMetalServerOptions.Profile
-	}
-	if createBareMetalServerOptions.Zone != nil {
-		body["zone"] = createBareMetalServerOptions.Zone
-	}
-	if createBareMetalServerOptions.EnableSecureBoot != nil {
-		body["enable_secure_boot"] = createBareMetalServerOptions.EnableSecureBoot
-	}
-	if createBareMetalServerOptions.Name != nil {
-		body["name"] = createBareMetalServerOptions.Name
-	}
-	if createBareMetalServerOptions.NetworkInterfaces != nil {
-		body["network_interfaces"] = createBareMetalServerOptions.NetworkInterfaces
-	}
-	if createBareMetalServerOptions.ResourceGroup != nil {
-		body["resource_group"] = createBareMetalServerOptions.ResourceGroup
-	}
-	if createBareMetalServerOptions.TrustedPlatformModule != nil {
-		body["trusted_platform_module"] = createBareMetalServerOptions.TrustedPlatformModule
-	}
-	if createBareMetalServerOptions.VPC != nil {
-		body["vpc"] = createBareMetalServerOptions.VPC
-	}
-	_, err = builder.SetBodyContentJSON(body)
-	if err != nil {
-		return
-	}
-
-	request, err := builder.Build()
-	if err != nil {
-		return
-	}
-
-	var rawResponse map[string]json.RawMessage
-	response, err = vpc.Service.Request(request, &rawResponse)
-	if err != nil {
-		return
-	}
-	if rawResponse != nil {
-		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalBareMetalServer)
-		if err != nil {
-			return
-		}
-		response.Result = result
-	}
-
-	return
-}
-
-// CreateBareMetalServerConsoleAccessToken : Create a console access token for a bare metal server
-// This request creates a new single-use console access token for a bare metal server. All console configuration is
-// provided at token create time, and the token is subsequently used in the `access_token` query parameter for the
-// WebSocket request.  The access token is only valid for a short period of time, and a maximum of one token is valid
-// for a given bare metal server at a time.
-func (vpc *VpcV1) CreateBareMetalServerConsoleAccessToken(createBareMetalServerConsoleAccessTokenOptions *CreateBareMetalServerConsoleAccessTokenOptions) (result *BareMetalServerConsoleAccessToken, response *core.DetailedResponse, err error) {
-	return vpc.CreateBareMetalServerConsoleAccessTokenWithContext(context.Background(), createBareMetalServerConsoleAccessTokenOptions)
-}
-
-// CreateBareMetalServerConsoleAccessTokenWithContext is an alternate form of the CreateBareMetalServerConsoleAccessToken method which supports a Context parameter
-func (vpc *VpcV1) CreateBareMetalServerConsoleAccessTokenWithContext(ctx context.Context, createBareMetalServerConsoleAccessTokenOptions *CreateBareMetalServerConsoleAccessTokenOptions) (result *BareMetalServerConsoleAccessToken, response *core.DetailedResponse, err error) {
-	err = core.ValidateNotNil(createBareMetalServerConsoleAccessTokenOptions, "createBareMetalServerConsoleAccessTokenOptions cannot be nil")
-	if err != nil {
-		return
-	}
-	err = core.ValidateStruct(createBareMetalServerConsoleAccessTokenOptions, "createBareMetalServerConsoleAccessTokenOptions")
-	if err != nil {
-		return
-	}
-
-	pathParamsMap := map[string]string{
-		"bare_metal_server_id": *createBareMetalServerConsoleAccessTokenOptions.BareMetalServerID,
-	}
-
-	builder := core.NewRequestBuilder(core.POST)
-	builder = builder.WithContext(ctx)
-	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
-	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/bare_metal_servers/{bare_metal_server_id}/console_access_token`, pathParamsMap)
-	if err != nil {
-		return
-	}
-
-	for headerName, headerValue := range createBareMetalServerConsoleAccessTokenOptions.Headers {
-		builder.AddHeader(headerName, headerValue)
-	}
-
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateBareMetalServerConsoleAccessToken")
-	for headerName, headerValue := range sdkHeaders {
-		builder.AddHeader(headerName, headerValue)
-	}
-	builder.AddHeader("Accept", "application/json")
-	builder.AddHeader("Content-Type", "application/json")
-
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
-	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
-
-	body := make(map[string]interface{})
-	if createBareMetalServerConsoleAccessTokenOptions.ConsoleType != nil {
-		body["console_type"] = createBareMetalServerConsoleAccessTokenOptions.ConsoleType
-	}
-	if createBareMetalServerConsoleAccessTokenOptions.Force != nil {
-		body["force"] = createBareMetalServerConsoleAccessTokenOptions.Force
-	}
-	_, err = builder.SetBodyContentJSON(body)
-	if err != nil {
-		return
-	}
-
-	request, err := builder.Build()
-	if err != nil {
-		return
-	}
-
-	var rawResponse map[string]json.RawMessage
-	response, err = vpc.Service.Request(request, &rawResponse)
-	if err != nil {
-		return
-	}
-	if rawResponse != nil {
-		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalBareMetalServerConsoleAccessToken)
-		if err != nil {
-			return
-		}
-		response.Result = result
-	}
-
-	return
-}
-
-// ListBareMetalServerDisks : List all disks on a bare metal server
-// This request lists all disks on a bare metal server.  A disk is a block device that is locally attached to the
-// physical server.  By default, the listed disks are sorted by their `created_at` property values, with the newest disk
-// first.
-func (vpc *VpcV1) ListBareMetalServerDisks(listBareMetalServerDisksOptions *ListBareMetalServerDisksOptions) (result *BareMetalServerDiskCollection, response *core.DetailedResponse, err error) {
-	return vpc.ListBareMetalServerDisksWithContext(context.Background(), listBareMetalServerDisksOptions)
-}
-
-// ListBareMetalServerDisksWithContext is an alternate form of the ListBareMetalServerDisks method which supports a Context parameter
-func (vpc *VpcV1) ListBareMetalServerDisksWithContext(ctx context.Context, listBareMetalServerDisksOptions *ListBareMetalServerDisksOptions) (result *BareMetalServerDiskCollection, response *core.DetailedResponse, err error) {
-	err = core.ValidateNotNil(listBareMetalServerDisksOptions, "listBareMetalServerDisksOptions cannot be nil")
-	if err != nil {
-		return
-	}
-	err = core.ValidateStruct(listBareMetalServerDisksOptions, "listBareMetalServerDisksOptions")
-	if err != nil {
-		return
-	}
-
-	pathParamsMap := map[string]string{
-		"bare_metal_server_id": *listBareMetalServerDisksOptions.BareMetalServerID,
-	}
-
-	builder := core.NewRequestBuilder(core.GET)
-	builder = builder.WithContext(ctx)
-	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
-	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/bare_metal_servers/{bare_metal_server_id}/disks`, pathParamsMap)
-	if err != nil {
-		return
-	}
-
-	for headerName, headerValue := range listBareMetalServerDisksOptions.Headers {
-		builder.AddHeader(headerName, headerValue)
-	}
-
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListBareMetalServerDisks")
-	for headerName, headerValue := range sdkHeaders {
-		builder.AddHeader(headerName, headerValue)
-	}
-	builder.AddHeader("Accept", "application/json")
-
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
-	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
-
-	request, err := builder.Build()
-	if err != nil {
-		return
-	}
-
-	var rawResponse map[string]json.RawMessage
-	response, err = vpc.Service.Request(request, &rawResponse)
-	if err != nil {
-		return
-	}
-	if rawResponse != nil {
-		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalBareMetalServerDiskCollection)
-		if err != nil {
-			return
-		}
-		response.Result = result
-	}
-
-	return
-}
-
-// GetBareMetalServerDisk : Retrieve a bare metal server disk
-// This request retrieves a single disk specified by the identifier in the URL.
-func (vpc *VpcV1) GetBareMetalServerDisk(getBareMetalServerDiskOptions *GetBareMetalServerDiskOptions) (result *BareMetalServerDisk, response *core.DetailedResponse, err error) {
-	return vpc.GetBareMetalServerDiskWithContext(context.Background(), getBareMetalServerDiskOptions)
-}
-
-// GetBareMetalServerDiskWithContext is an alternate form of the GetBareMetalServerDisk method which supports a Context parameter
-func (vpc *VpcV1) GetBareMetalServerDiskWithContext(ctx context.Context, getBareMetalServerDiskOptions *GetBareMetalServerDiskOptions) (result *BareMetalServerDisk, response *core.DetailedResponse, err error) {
-	err = core.ValidateNotNil(getBareMetalServerDiskOptions, "getBareMetalServerDiskOptions cannot be nil")
-	if err != nil {
-		return
-	}
-	err = core.ValidateStruct(getBareMetalServerDiskOptions, "getBareMetalServerDiskOptions")
-	if err != nil {
-		return
-	}
-
-	pathParamsMap := map[string]string{
-		"bare_metal_server_id": *getBareMetalServerDiskOptions.BareMetalServerID,
-		"id":                   *getBareMetalServerDiskOptions.ID,
-	}
-
-	builder := core.NewRequestBuilder(core.GET)
-	builder = builder.WithContext(ctx)
-	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
-	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/bare_metal_servers/{bare_metal_server_id}/disks/{id}`, pathParamsMap)
-	if err != nil {
-		return
-	}
-
-	for headerName, headerValue := range getBareMetalServerDiskOptions.Headers {
-		builder.AddHeader(headerName, headerValue)
-	}
-
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetBareMetalServerDisk")
-	for headerName, headerValue := range sdkHeaders {
-		builder.AddHeader(headerName, headerValue)
-	}
-	builder.AddHeader("Accept", "application/json")
-
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
-	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
-
-	request, err := builder.Build()
-	if err != nil {
-		return
-	}
-
-	var rawResponse map[string]json.RawMessage
-	response, err = vpc.Service.Request(request, &rawResponse)
-	if err != nil {
-		return
-	}
-	if rawResponse != nil {
-		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalBareMetalServerDisk)
-		if err != nil {
-			return
-		}
-		response.Result = result
-	}
-
-	return
-}
-
-// UpdateBareMetalServerDisk : Update a bare metal server disk
-// This request updates the bare metal server disk with the information in a provided patch.
-func (vpc *VpcV1) UpdateBareMetalServerDisk(updateBareMetalServerDiskOptions *UpdateBareMetalServerDiskOptions) (result *BareMetalServerDisk, response *core.DetailedResponse, err error) {
-	return vpc.UpdateBareMetalServerDiskWithContext(context.Background(), updateBareMetalServerDiskOptions)
-}
-
-// UpdateBareMetalServerDiskWithContext is an alternate form of the UpdateBareMetalServerDisk method which supports a Context parameter
-func (vpc *VpcV1) UpdateBareMetalServerDiskWithContext(ctx context.Context, updateBareMetalServerDiskOptions *UpdateBareMetalServerDiskOptions) (result *BareMetalServerDisk, response *core.DetailedResponse, err error) {
-	err = core.ValidateNotNil(updateBareMetalServerDiskOptions, "updateBareMetalServerDiskOptions cannot be nil")
-	if err != nil {
-		return
-	}
-	err = core.ValidateStruct(updateBareMetalServerDiskOptions, "updateBareMetalServerDiskOptions")
-	if err != nil {
-		return
-	}
-
-	pathParamsMap := map[string]string{
-		"bare_metal_server_id": *updateBareMetalServerDiskOptions.BareMetalServerID,
-		"id":                   *updateBareMetalServerDiskOptions.ID,
-	}
-
-	builder := core.NewRequestBuilder(core.PATCH)
-	builder = builder.WithContext(ctx)
-	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
-	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/bare_metal_servers/{bare_metal_server_id}/disks/{id}`, pathParamsMap)
-	if err != nil {
-		return
-	}
-
-	for headerName, headerValue := range updateBareMetalServerDiskOptions.Headers {
-		builder.AddHeader(headerName, headerValue)
-	}
-
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateBareMetalServerDisk")
-	for headerName, headerValue := range sdkHeaders {
-		builder.AddHeader(headerName, headerValue)
-	}
-	builder.AddHeader("Accept", "application/json")
-	builder.AddHeader("Content-Type", "application/merge-patch+json")
-
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
-	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
-
-	_, err = builder.SetBodyContentJSON(updateBareMetalServerDiskOptions.BareMetalServerDiskPatch)
-	if err != nil {
-		return
-	}
-
-	request, err := builder.Build()
-	if err != nil {
-		return
-	}
-
-	var rawResponse map[string]json.RawMessage
-	response, err = vpc.Service.Request(request, &rawResponse)
-	if err != nil {
-		return
-	}
-	if rawResponse != nil {
-		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalBareMetalServerDisk)
-		if err != nil {
-			return
-		}
-		response.Result = result
-	}
-
-	return
-}
-
-// ListBareMetalServerNetworkInterfaces : List all network interfaces on a bare metal server
-// This request lists all network interfaces on a bare metal server. A network interface is an abstract representation
-// of a network interface card and connects a bare metal server to a subnet. While each network interface can attach to
-// only one subnet, multiple network interfaces can be created to attach to multiple subnets. Multiple interfaces may
-// also attach to the same subnet.
-func (vpc *VpcV1) ListBareMetalServerNetworkInterfaces(listBareMetalServerNetworkInterfacesOptions *ListBareMetalServerNetworkInterfacesOptions) (result *BareMetalServerNetworkInterfaceCollection, response *core.DetailedResponse, err error) {
-	return vpc.ListBareMetalServerNetworkInterfacesWithContext(context.Background(), listBareMetalServerNetworkInterfacesOptions)
-}
-
-// ListBareMetalServerNetworkInterfacesWithContext is an alternate form of the ListBareMetalServerNetworkInterfaces method which supports a Context parameter
-func (vpc *VpcV1) ListBareMetalServerNetworkInterfacesWithContext(ctx context.Context, listBareMetalServerNetworkInterfacesOptions *ListBareMetalServerNetworkInterfacesOptions) (result *BareMetalServerNetworkInterfaceCollection, response *core.DetailedResponse, err error) {
-	err = core.ValidateNotNil(listBareMetalServerNetworkInterfacesOptions, "listBareMetalServerNetworkInterfacesOptions cannot be nil")
-	if err != nil {
-		return
-	}
-	err = core.ValidateStruct(listBareMetalServerNetworkInterfacesOptions, "listBareMetalServerNetworkInterfacesOptions")
-	if err != nil {
-		return
-	}
-
-	pathParamsMap := map[string]string{
-		"bare_metal_server_id": *listBareMetalServerNetworkInterfacesOptions.BareMetalServerID,
-	}
-
-	builder := core.NewRequestBuilder(core.GET)
-	builder = builder.WithContext(ctx)
-	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
-	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/bare_metal_servers/{bare_metal_server_id}/network_interfaces`, pathParamsMap)
-	if err != nil {
-		return
-	}
-
-	for headerName, headerValue := range listBareMetalServerNetworkInterfacesOptions.Headers {
-		builder.AddHeader(headerName, headerValue)
-	}
-
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListBareMetalServerNetworkInterfaces")
-	for headerName, headerValue := range sdkHeaders {
-		builder.AddHeader(headerName, headerValue)
-	}
-	builder.AddHeader("Accept", "application/json")
-
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
-	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
-	if listBareMetalServerNetworkInterfacesOptions.Start != nil {
-		builder.AddQuery("start", fmt.Sprint(*listBareMetalServerNetworkInterfacesOptions.Start))
-	}
-	if listBareMetalServerNetworkInterfacesOptions.Limit != nil {
-		builder.AddQuery("limit", fmt.Sprint(*listBareMetalServerNetworkInterfacesOptions.Limit))
-	}
-
-	request, err := builder.Build()
-	if err != nil {
-		return
-	}
-
-	var rawResponse map[string]json.RawMessage
-	response, err = vpc.Service.Request(request, &rawResponse)
-	if err != nil {
-		return
-	}
-	if rawResponse != nil {
-		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalBareMetalServerNetworkInterfaceCollection)
-		if err != nil {
-			return
-		}
-		response.Result = result
-	}
-
-	return
-}
-
-// CreateBareMetalServerNetworkInterface : Create a network interface on a bare metal server
-// This request creates a new network interface from a network interface prototype object. The prototype object is
-// structured in the same way as a retrieved network interface, and contains the information necessary to create the new
-// network interface. Any subnet in the bare metal server's VPC may be specified, even if it is already attached to
-// another network interface. Addresses on the network interface must be within the specified subnet's CIDR blocks.
-func (vpc *VpcV1) CreateBareMetalServerNetworkInterface(createBareMetalServerNetworkInterfaceOptions *CreateBareMetalServerNetworkInterfaceOptions) (result BareMetalServerNetworkInterfaceIntf, response *core.DetailedResponse, err error) {
-	return vpc.CreateBareMetalServerNetworkInterfaceWithContext(context.Background(), createBareMetalServerNetworkInterfaceOptions)
-}
-
-// CreateBareMetalServerNetworkInterfaceWithContext is an alternate form of the CreateBareMetalServerNetworkInterface method which supports a Context parameter
-func (vpc *VpcV1) CreateBareMetalServerNetworkInterfaceWithContext(ctx context.Context, createBareMetalServerNetworkInterfaceOptions *CreateBareMetalServerNetworkInterfaceOptions) (result BareMetalServerNetworkInterfaceIntf, response *core.DetailedResponse, err error) {
-	err = core.ValidateNotNil(createBareMetalServerNetworkInterfaceOptions, "createBareMetalServerNetworkInterfaceOptions cannot be nil")
-	if err != nil {
-		return
-	}
-	err = core.ValidateStruct(createBareMetalServerNetworkInterfaceOptions, "createBareMetalServerNetworkInterfaceOptions")
-	if err != nil {
-		return
-	}
-
-	pathParamsMap := map[string]string{
-		"bare_metal_server_id": *createBareMetalServerNetworkInterfaceOptions.BareMetalServerID,
-	}
-
-	builder := core.NewRequestBuilder(core.POST)
-	builder = builder.WithContext(ctx)
-	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
-	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/bare_metal_servers/{bare_metal_server_id}/network_interfaces`, pathParamsMap)
-	if err != nil {
-		return
-	}
-
-	for headerName, headerValue := range createBareMetalServerNetworkInterfaceOptions.Headers {
-		builder.AddHeader(headerName, headerValue)
-	}
-
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateBareMetalServerNetworkInterface")
-	for headerName, headerValue := range sdkHeaders {
-		builder.AddHeader(headerName, headerValue)
-	}
-	builder.AddHeader("Accept", "application/json")
-	builder.AddHeader("Content-Type", "application/json")
-
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
-	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
-
-	_, err = builder.SetBodyContentJSON(createBareMetalServerNetworkInterfaceOptions.BareMetalServerNetworkInterfacePrototype)
-	if err != nil {
-		return
-	}
-
-	request, err := builder.Build()
-	if err != nil {
-		return
-	}
-
-	var rawResponse map[string]json.RawMessage
-	response, err = vpc.Service.Request(request, &rawResponse)
-	if err != nil {
-		return
-	}
-	if rawResponse != nil {
-		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalBareMetalServerNetworkInterface)
-		if err != nil {
-			return
-		}
-		response.Result = result
-	}
-
-	return
-}
-
-// DeleteBareMetalServerNetworkInterface : Delete a network interface
-// This request deletes a network interface. This operation cannot be reversed. Any floating IPs associated with the
-// network interface are implicitly disassociated.  The primary network interface is not allowed to be deleted.
-func (vpc *VpcV1) DeleteBareMetalServerNetworkInterface(deleteBareMetalServerNetworkInterfaceOptions *DeleteBareMetalServerNetworkInterfaceOptions) (response *core.DetailedResponse, err error) {
-	return vpc.DeleteBareMetalServerNetworkInterfaceWithContext(context.Background(), deleteBareMetalServerNetworkInterfaceOptions)
-}
-
-// DeleteBareMetalServerNetworkInterfaceWithContext is an alternate form of the DeleteBareMetalServerNetworkInterface method which supports a Context parameter
-func (vpc *VpcV1) DeleteBareMetalServerNetworkInterfaceWithContext(ctx context.Context, deleteBareMetalServerNetworkInterfaceOptions *DeleteBareMetalServerNetworkInterfaceOptions) (response *core.DetailedResponse, err error) {
-	err = core.ValidateNotNil(deleteBareMetalServerNetworkInterfaceOptions, "deleteBareMetalServerNetworkInterfaceOptions cannot be nil")
-	if err != nil {
-		return
-	}
-	err = core.ValidateStruct(deleteBareMetalServerNetworkInterfaceOptions, "deleteBareMetalServerNetworkInterfaceOptions")
-	if err != nil {
-		return
-	}
-
-	pathParamsMap := map[string]string{
-		"bare_metal_server_id": *deleteBareMetalServerNetworkInterfaceOptions.BareMetalServerID,
-		"id":                   *deleteBareMetalServerNetworkInterfaceOptions.ID,
-	}
-
-	builder := core.NewRequestBuilder(core.DELETE)
-	builder = builder.WithContext(ctx)
-	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
-	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/bare_metal_servers/{bare_metal_server_id}/network_interfaces/{id}`, pathParamsMap)
-	if err != nil {
-		return
-	}
-
-	for headerName, headerValue := range deleteBareMetalServerNetworkInterfaceOptions.Headers {
-		builder.AddHeader(headerName, headerValue)
-	}
-
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteBareMetalServerNetworkInterface")
-	for headerName, headerValue := range sdkHeaders {
-		builder.AddHeader(headerName, headerValue)
-	}
-
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
-	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
-
-	request, err := builder.Build()
-	if err != nil {
-		return
-	}
-
-	response, err = vpc.Service.Request(request, nil)
-
-	return
-}
-
-// GetBareMetalServerNetworkInterface : Retrieve a network interface
-// This request retrieves a single network interface specified by the identifier in the URL.
-func (vpc *VpcV1) GetBareMetalServerNetworkInterface(getBareMetalServerNetworkInterfaceOptions *GetBareMetalServerNetworkInterfaceOptions) (result BareMetalServerNetworkInterfaceIntf, response *core.DetailedResponse, err error) {
-	return vpc.GetBareMetalServerNetworkInterfaceWithContext(context.Background(), getBareMetalServerNetworkInterfaceOptions)
-}
-
-// GetBareMetalServerNetworkInterfaceWithContext is an alternate form of the GetBareMetalServerNetworkInterface method which supports a Context parameter
-func (vpc *VpcV1) GetBareMetalServerNetworkInterfaceWithContext(ctx context.Context, getBareMetalServerNetworkInterfaceOptions *GetBareMetalServerNetworkInterfaceOptions) (result BareMetalServerNetworkInterfaceIntf, response *core.DetailedResponse, err error) {
-	err = core.ValidateNotNil(getBareMetalServerNetworkInterfaceOptions, "getBareMetalServerNetworkInterfaceOptions cannot be nil")
-	if err != nil {
-		return
-	}
-	err = core.ValidateStruct(getBareMetalServerNetworkInterfaceOptions, "getBareMetalServerNetworkInterfaceOptions")
-	if err != nil {
-		return
-	}
-
-	pathParamsMap := map[string]string{
-		"bare_metal_server_id": *getBareMetalServerNetworkInterfaceOptions.BareMetalServerID,
-		"id":                   *getBareMetalServerNetworkInterfaceOptions.ID,
-	}
-
-	builder := core.NewRequestBuilder(core.GET)
-	builder = builder.WithContext(ctx)
-	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
-	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/bare_metal_servers/{bare_metal_server_id}/network_interfaces/{id}`, pathParamsMap)
-	if err != nil {
-		return
-	}
-
-	for headerName, headerValue := range getBareMetalServerNetworkInterfaceOptions.Headers {
-		builder.AddHeader(headerName, headerValue)
-	}
-
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetBareMetalServerNetworkInterface")
-	for headerName, headerValue := range sdkHeaders {
-		builder.AddHeader(headerName, headerValue)
-	}
-	builder.AddHeader("Accept", "application/json")
-
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
-	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
-
-	request, err := builder.Build()
-	if err != nil {
-		return
-	}
-
-	var rawResponse map[string]json.RawMessage
-	response, err = vpc.Service.Request(request, &rawResponse)
-	if err != nil {
-		return
-	}
-	if rawResponse != nil {
-		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalBareMetalServerNetworkInterface)
-		if err != nil {
-			return
-		}
-		response.Result = result
-	}
-
-	return
-}
-
-// UpdateBareMetalServerNetworkInterface : Update a network interface
-// This request updates a network interface with the information provided in a network interface patch object. The
-// network interface patch object is structured in the same way as a retrieved network interface and needs to contain
-// only the information to be updated.
-func (vpc *VpcV1) UpdateBareMetalServerNetworkInterface(updateBareMetalServerNetworkInterfaceOptions *UpdateBareMetalServerNetworkInterfaceOptions) (result BareMetalServerNetworkInterfaceIntf, response *core.DetailedResponse, err error) {
-	return vpc.UpdateBareMetalServerNetworkInterfaceWithContext(context.Background(), updateBareMetalServerNetworkInterfaceOptions)
-}
-
-// UpdateBareMetalServerNetworkInterfaceWithContext is an alternate form of the UpdateBareMetalServerNetworkInterface method which supports a Context parameter
-func (vpc *VpcV1) UpdateBareMetalServerNetworkInterfaceWithContext(ctx context.Context, updateBareMetalServerNetworkInterfaceOptions *UpdateBareMetalServerNetworkInterfaceOptions) (result BareMetalServerNetworkInterfaceIntf, response *core.DetailedResponse, err error) {
-	err = core.ValidateNotNil(updateBareMetalServerNetworkInterfaceOptions, "updateBareMetalServerNetworkInterfaceOptions cannot be nil")
-	if err != nil {
-		return
-	}
-	err = core.ValidateStruct(updateBareMetalServerNetworkInterfaceOptions, "updateBareMetalServerNetworkInterfaceOptions")
-	if err != nil {
-		return
-	}
-
-	pathParamsMap := map[string]string{
-		"bare_metal_server_id": *updateBareMetalServerNetworkInterfaceOptions.BareMetalServerID,
-		"id":                   *updateBareMetalServerNetworkInterfaceOptions.ID,
-	}
-
-	builder := core.NewRequestBuilder(core.PATCH)
-	builder = builder.WithContext(ctx)
-	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
-	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/bare_metal_servers/{bare_metal_server_id}/network_interfaces/{id}`, pathParamsMap)
-	if err != nil {
-		return
-	}
-
-	for headerName, headerValue := range updateBareMetalServerNetworkInterfaceOptions.Headers {
-		builder.AddHeader(headerName, headerValue)
-	}
-
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateBareMetalServerNetworkInterface")
-	for headerName, headerValue := range sdkHeaders {
-		builder.AddHeader(headerName, headerValue)
-	}
-	builder.AddHeader("Accept", "application/json")
-	builder.AddHeader("Content-Type", "application/merge-patch+json")
-
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
-	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
-
-	_, err = builder.SetBodyContentJSON(updateBareMetalServerNetworkInterfaceOptions.BareMetalServerNetworkInterfacePatch)
-	if err != nil {
-		return
-	}
-
-	request, err := builder.Build()
-	if err != nil {
-		return
-	}
-
-	var rawResponse map[string]json.RawMessage
-	response, err = vpc.Service.Request(request, &rawResponse)
-	if err != nil {
-		return
-	}
-	if rawResponse != nil {
-		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalBareMetalServerNetworkInterface)
-		if err != nil {
-			return
-		}
-		response.Result = result
-	}
-
-	return
-}
-
-// ListBareMetalServerNetworkInterfaceFloatingIps : List all floating IPs associated with a network interface
-// This request lists all floating IPs associated with a network interface.
-func (vpc *VpcV1) ListBareMetalServerNetworkInterfaceFloatingIps(listBareMetalServerNetworkInterfaceFloatingIpsOptions *ListBareMetalServerNetworkInterfaceFloatingIpsOptions) (result *FloatingIPUnpaginatedCollection, response *core.DetailedResponse, err error) {
-	return vpc.ListBareMetalServerNetworkInterfaceFloatingIpsWithContext(context.Background(), listBareMetalServerNetworkInterfaceFloatingIpsOptions)
-}
-
-// ListBareMetalServerNetworkInterfaceFloatingIpsWithContext is an alternate form of the ListBareMetalServerNetworkInterfaceFloatingIps method which supports a Context parameter
-func (vpc *VpcV1) ListBareMetalServerNetworkInterfaceFloatingIpsWithContext(ctx context.Context, listBareMetalServerNetworkInterfaceFloatingIpsOptions *ListBareMetalServerNetworkInterfaceFloatingIpsOptions) (result *FloatingIPUnpaginatedCollection, response *core.DetailedResponse, err error) {
-	err = core.ValidateNotNil(listBareMetalServerNetworkInterfaceFloatingIpsOptions, "listBareMetalServerNetworkInterfaceFloatingIpsOptions cannot be nil")
-	if err != nil {
-		return
-	}
-	err = core.ValidateStruct(listBareMetalServerNetworkInterfaceFloatingIpsOptions, "listBareMetalServerNetworkInterfaceFloatingIpsOptions")
-	if err != nil {
-		return
-	}
-
-	pathParamsMap := map[string]string{
-		"bare_metal_server_id": *listBareMetalServerNetworkInterfaceFloatingIpsOptions.BareMetalServerID,
-		"network_interface_id": *listBareMetalServerNetworkInterfaceFloatingIpsOptions.NetworkInterfaceID,
-	}
-
-	builder := core.NewRequestBuilder(core.GET)
-	builder = builder.WithContext(ctx)
-	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
-	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/bare_metal_servers/{bare_metal_server_id}/network_interfaces/{network_interface_id}/floating_ips`, pathParamsMap)
-	if err != nil {
-		return
-	}
-
-	for headerName, headerValue := range listBareMetalServerNetworkInterfaceFloatingIpsOptions.Headers {
-		builder.AddHeader(headerName, headerValue)
-	}
-
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListBareMetalServerNetworkInterfaceFloatingIps")
-	for headerName, headerValue := range sdkHeaders {
-		builder.AddHeader(headerName, headerValue)
-	}
-	builder.AddHeader("Accept", "application/json")
-
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
-	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
-
-	request, err := builder.Build()
-	if err != nil {
-		return
-	}
-
-	var rawResponse map[string]json.RawMessage
-	response, err = vpc.Service.Request(request, &rawResponse)
-	if err != nil {
-		return
-	}
-	if rawResponse != nil {
-		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalFloatingIPUnpaginatedCollection)
-		if err != nil {
-			return
-		}
-		response.Result = result
-	}
-
-	return
-}
-
-// RemoveBareMetalServerNetworkInterfaceFloatingIP : Disassociate a floating IP from a network interface
-// This request disassociates the specified floating IP from the specified network interface.
-func (vpc *VpcV1) RemoveBareMetalServerNetworkInterfaceFloatingIP(removeBareMetalServerNetworkInterfaceFloatingIPOptions *RemoveBareMetalServerNetworkInterfaceFloatingIPOptions) (response *core.DetailedResponse, err error) {
-	return vpc.RemoveBareMetalServerNetworkInterfaceFloatingIPWithContext(context.Background(), removeBareMetalServerNetworkInterfaceFloatingIPOptions)
-}
-
-// RemoveBareMetalServerNetworkInterfaceFloatingIPWithContext is an alternate form of the RemoveBareMetalServerNetworkInterfaceFloatingIP method which supports a Context parameter
-func (vpc *VpcV1) RemoveBareMetalServerNetworkInterfaceFloatingIPWithContext(ctx context.Context, removeBareMetalServerNetworkInterfaceFloatingIPOptions *RemoveBareMetalServerNetworkInterfaceFloatingIPOptions) (response *core.DetailedResponse, err error) {
-	err = core.ValidateNotNil(removeBareMetalServerNetworkInterfaceFloatingIPOptions, "removeBareMetalServerNetworkInterfaceFloatingIPOptions cannot be nil")
-	if err != nil {
-		return
-	}
-	err = core.ValidateStruct(removeBareMetalServerNetworkInterfaceFloatingIPOptions, "removeBareMetalServerNetworkInterfaceFloatingIPOptions")
-	if err != nil {
-		return
-	}
-
-	pathParamsMap := map[string]string{
-		"bare_metal_server_id": *removeBareMetalServerNetworkInterfaceFloatingIPOptions.BareMetalServerID,
-		"network_interface_id": *removeBareMetalServerNetworkInterfaceFloatingIPOptions.NetworkInterfaceID,
-		"id":                   *removeBareMetalServerNetworkInterfaceFloatingIPOptions.ID,
-	}
-
-	builder := core.NewRequestBuilder(core.DELETE)
-	builder = builder.WithContext(ctx)
-	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
-	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/bare_metal_servers/{bare_metal_server_id}/network_interfaces/{network_interface_id}/floating_ips/{id}`, pathParamsMap)
-	if err != nil {
-		return
-	}
-
-	for headerName, headerValue := range removeBareMetalServerNetworkInterfaceFloatingIPOptions.Headers {
-		builder.AddHeader(headerName, headerValue)
-	}
-
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "RemoveBareMetalServerNetworkInterfaceFloatingIP")
-	for headerName, headerValue := range sdkHeaders {
-		builder.AddHeader(headerName, headerValue)
-	}
-
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
-	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
-
-	request, err := builder.Build()
-	if err != nil {
-		return
-	}
-
-	response, err = vpc.Service.Request(request, nil)
-
-	return
-}
-
-// GetBareMetalServerNetworkInterfaceFloatingIP : Retrieve associated floating IP
-// This request a retrieves a specified floating IP address if it is associated with the network interface and bare
-// metal server specified in the URL.
-func (vpc *VpcV1) GetBareMetalServerNetworkInterfaceFloatingIP(getBareMetalServerNetworkInterfaceFloatingIPOptions *GetBareMetalServerNetworkInterfaceFloatingIPOptions) (result *FloatingIP, response *core.DetailedResponse, err error) {
-	return vpc.GetBareMetalServerNetworkInterfaceFloatingIPWithContext(context.Background(), getBareMetalServerNetworkInterfaceFloatingIPOptions)
-}
-
-// GetBareMetalServerNetworkInterfaceFloatingIPWithContext is an alternate form of the GetBareMetalServerNetworkInterfaceFloatingIP method which supports a Context parameter
-func (vpc *VpcV1) GetBareMetalServerNetworkInterfaceFloatingIPWithContext(ctx context.Context, getBareMetalServerNetworkInterfaceFloatingIPOptions *GetBareMetalServerNetworkInterfaceFloatingIPOptions) (result *FloatingIP, response *core.DetailedResponse, err error) {
-	err = core.ValidateNotNil(getBareMetalServerNetworkInterfaceFloatingIPOptions, "getBareMetalServerNetworkInterfaceFloatingIPOptions cannot be nil")
-	if err != nil {
-		return
-	}
-	err = core.ValidateStruct(getBareMetalServerNetworkInterfaceFloatingIPOptions, "getBareMetalServerNetworkInterfaceFloatingIPOptions")
-	if err != nil {
-		return
-	}
-
-	pathParamsMap := map[string]string{
-		"bare_metal_server_id": *getBareMetalServerNetworkInterfaceFloatingIPOptions.BareMetalServerID,
-		"network_interface_id": *getBareMetalServerNetworkInterfaceFloatingIPOptions.NetworkInterfaceID,
-		"id":                   *getBareMetalServerNetworkInterfaceFloatingIPOptions.ID,
-	}
-
-	builder := core.NewRequestBuilder(core.GET)
-	builder = builder.WithContext(ctx)
-	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
-	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/bare_metal_servers/{bare_metal_server_id}/network_interfaces/{network_interface_id}/floating_ips/{id}`, pathParamsMap)
-	if err != nil {
-		return
-	}
-
-	for headerName, headerValue := range getBareMetalServerNetworkInterfaceFloatingIPOptions.Headers {
-		builder.AddHeader(headerName, headerValue)
-	}
-
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetBareMetalServerNetworkInterfaceFloatingIP")
-	for headerName, headerValue := range sdkHeaders {
-		builder.AddHeader(headerName, headerValue)
-	}
-	builder.AddHeader("Accept", "application/json")
-
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
-	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
-
-	request, err := builder.Build()
-	if err != nil {
-		return
-	}
-
-	var rawResponse map[string]json.RawMessage
-	response, err = vpc.Service.Request(request, &rawResponse)
-	if err != nil {
-		return
-	}
-	if rawResponse != nil {
-		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalFloatingIP)
-		if err != nil {
-			return
-		}
-		response.Result = result
-	}
-
-	return
-}
-
-// AddBareMetalServerNetworkInterfaceFloatingIP : Associate a floating IP with a network interface
-// This request associates the specified floating IP with the specified network interface, replacing any existing
-// association. For this request to succeed, the existing floating IP must not be required by another resource, such as
-// a public gateway. A request body is not required, and if supplied, is ignored.
-func (vpc *VpcV1) AddBareMetalServerNetworkInterfaceFloatingIP(addBareMetalServerNetworkInterfaceFloatingIPOptions *AddBareMetalServerNetworkInterfaceFloatingIPOptions) (result *FloatingIP, response *core.DetailedResponse, err error) {
-	return vpc.AddBareMetalServerNetworkInterfaceFloatingIPWithContext(context.Background(), addBareMetalServerNetworkInterfaceFloatingIPOptions)
-}
-
-// AddBareMetalServerNetworkInterfaceFloatingIPWithContext is an alternate form of the AddBareMetalServerNetworkInterfaceFloatingIP method which supports a Context parameter
-func (vpc *VpcV1) AddBareMetalServerNetworkInterfaceFloatingIPWithContext(ctx context.Context, addBareMetalServerNetworkInterfaceFloatingIPOptions *AddBareMetalServerNetworkInterfaceFloatingIPOptions) (result *FloatingIP, response *core.DetailedResponse, err error) {
-	err = core.ValidateNotNil(addBareMetalServerNetworkInterfaceFloatingIPOptions, "addBareMetalServerNetworkInterfaceFloatingIPOptions cannot be nil")
-	if err != nil {
-		return
-	}
-	err = core.ValidateStruct(addBareMetalServerNetworkInterfaceFloatingIPOptions, "addBareMetalServerNetworkInterfaceFloatingIPOptions")
-	if err != nil {
-		return
-	}
-
-	pathParamsMap := map[string]string{
-		"bare_metal_server_id": *addBareMetalServerNetworkInterfaceFloatingIPOptions.BareMetalServerID,
-		"network_interface_id": *addBareMetalServerNetworkInterfaceFloatingIPOptions.NetworkInterfaceID,
-		"id":                   *addBareMetalServerNetworkInterfaceFloatingIPOptions.ID,
-	}
-
-	builder := core.NewRequestBuilder(core.PUT)
-	builder = builder.WithContext(ctx)
-	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
-	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/bare_metal_servers/{bare_metal_server_id}/network_interfaces/{network_interface_id}/floating_ips/{id}`, pathParamsMap)
-	if err != nil {
-		return
-	}
-
-	for headerName, headerValue := range addBareMetalServerNetworkInterfaceFloatingIPOptions.Headers {
-		builder.AddHeader(headerName, headerValue)
-	}
-
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "AddBareMetalServerNetworkInterfaceFloatingIP")
-	for headerName, headerValue := range sdkHeaders {
-		builder.AddHeader(headerName, headerValue)
-	}
-	builder.AddHeader("Accept", "application/json")
-
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
-	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
-
-	request, err := builder.Build()
-	if err != nil {
-		return
-	}
-
-	var rawResponse map[string]json.RawMessage
-	response, err = vpc.Service.Request(request, &rawResponse)
-	if err != nil {
-		return
-	}
-	if rawResponse != nil {
-		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalFloatingIP)
-		if err != nil {
-			return
-		}
-		response.Result = result
-	}
-
-	return
-}
-
-// DeleteBareMetalServer : Delete a bare metal server
-// This request deletes a bare metal server. This operation cannot be reversed. Any floating IPs associated with the
-// bare metal server's network interfaces are implicitly disassociated.
-func (vpc *VpcV1) DeleteBareMetalServer(deleteBareMetalServerOptions *DeleteBareMetalServerOptions) (response *core.DetailedResponse, err error) {
-	return vpc.DeleteBareMetalServerWithContext(context.Background(), deleteBareMetalServerOptions)
-}
-
-// DeleteBareMetalServerWithContext is an alternate form of the DeleteBareMetalServer method which supports a Context parameter
-func (vpc *VpcV1) DeleteBareMetalServerWithContext(ctx context.Context, deleteBareMetalServerOptions *DeleteBareMetalServerOptions) (response *core.DetailedResponse, err error) {
-	err = core.ValidateNotNil(deleteBareMetalServerOptions, "deleteBareMetalServerOptions cannot be nil")
-	if err != nil {
-		return
-	}
-	err = core.ValidateStruct(deleteBareMetalServerOptions, "deleteBareMetalServerOptions")
-	if err != nil {
-		return
-	}
-
-	pathParamsMap := map[string]string{
-		"id": *deleteBareMetalServerOptions.ID,
-	}
-
-	builder := core.NewRequestBuilder(core.DELETE)
-	builder = builder.WithContext(ctx)
-	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
-	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/bare_metal_servers/{id}`, pathParamsMap)
-	if err != nil {
-		return
-	}
-
-	for headerName, headerValue := range deleteBareMetalServerOptions.Headers {
-		builder.AddHeader(headerName, headerValue)
-	}
-
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteBareMetalServer")
-	for headerName, headerValue := range sdkHeaders {
-		builder.AddHeader(headerName, headerValue)
-	}
-
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
-	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
-
-	request, err := builder.Build()
-	if err != nil {
-		return
-	}
-
-	response, err = vpc.Service.Request(request, nil)
-
-	return
-}
-
-// GetBareMetalServer : Retrieve a bare metal server
-// This request retrieves a single bare metal server specified by the identifier in the URL.
-func (vpc *VpcV1) GetBareMetalServer(getBareMetalServerOptions *GetBareMetalServerOptions) (result *BareMetalServer, response *core.DetailedResponse, err error) {
-	return vpc.GetBareMetalServerWithContext(context.Background(), getBareMetalServerOptions)
-}
-
-// GetBareMetalServerWithContext is an alternate form of the GetBareMetalServer method which supports a Context parameter
-func (vpc *VpcV1) GetBareMetalServerWithContext(ctx context.Context, getBareMetalServerOptions *GetBareMetalServerOptions) (result *BareMetalServer, response *core.DetailedResponse, err error) {
-	err = core.ValidateNotNil(getBareMetalServerOptions, "getBareMetalServerOptions cannot be nil")
-	if err != nil {
-		return
-	}
-	err = core.ValidateStruct(getBareMetalServerOptions, "getBareMetalServerOptions")
-	if err != nil {
-		return
-	}
-
-	pathParamsMap := map[string]string{
-		"id": *getBareMetalServerOptions.ID,
-	}
-
-	builder := core.NewRequestBuilder(core.GET)
-	builder = builder.WithContext(ctx)
-	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
-	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/bare_metal_servers/{id}`, pathParamsMap)
-	if err != nil {
-		return
-	}
-
-	for headerName, headerValue := range getBareMetalServerOptions.Headers {
-		builder.AddHeader(headerName, headerValue)
-	}
-
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetBareMetalServer")
-	for headerName, headerValue := range sdkHeaders {
-		builder.AddHeader(headerName, headerValue)
-	}
-	builder.AddHeader("Accept", "application/json")
-
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
-	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
-
-	request, err := builder.Build()
-	if err != nil {
-		return
-	}
-
-	var rawResponse map[string]json.RawMessage
-	response, err = vpc.Service.Request(request, &rawResponse)
-	if err != nil {
-		return
-	}
-	if rawResponse != nil {
-		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalBareMetalServer)
-		if err != nil {
-			return
-		}
-		response.Result = result
-	}
-
-	return
-}
-
-// UpdateBareMetalServer : Update a bare metal server
-// This request updates a bare metal server with the information in a provided patch. The bare metal server patch object
-// is structured in the same way as a retrieved bare metal server and contains only the information to be updated.
-func (vpc *VpcV1) UpdateBareMetalServer(updateBareMetalServerOptions *UpdateBareMetalServerOptions) (result *BareMetalServer, response *core.DetailedResponse, err error) {
-	return vpc.UpdateBareMetalServerWithContext(context.Background(), updateBareMetalServerOptions)
-}
-
-// UpdateBareMetalServerWithContext is an alternate form of the UpdateBareMetalServer method which supports a Context parameter
-func (vpc *VpcV1) UpdateBareMetalServerWithContext(ctx context.Context, updateBareMetalServerOptions *UpdateBareMetalServerOptions) (result *BareMetalServer, response *core.DetailedResponse, err error) {
-	err = core.ValidateNotNil(updateBareMetalServerOptions, "updateBareMetalServerOptions cannot be nil")
-	if err != nil {
-		return
-	}
-	err = core.ValidateStruct(updateBareMetalServerOptions, "updateBareMetalServerOptions")
-	if err != nil {
-		return
-	}
-
-	pathParamsMap := map[string]string{
-		"id": *updateBareMetalServerOptions.ID,
-	}
-
-	builder := core.NewRequestBuilder(core.PATCH)
-	builder = builder.WithContext(ctx)
-	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
-	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/bare_metal_servers/{id}`, pathParamsMap)
-	if err != nil {
-		return
-	}
-
-	for headerName, headerValue := range updateBareMetalServerOptions.Headers {
-		builder.AddHeader(headerName, headerValue)
-	}
-
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateBareMetalServer")
-	for headerName, headerValue := range sdkHeaders {
-		builder.AddHeader(headerName, headerValue)
-	}
-	builder.AddHeader("Accept", "application/json")
-	builder.AddHeader("Content-Type", "application/merge-patch+json")
-
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
-	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
-
-	_, err = builder.SetBodyContentJSON(updateBareMetalServerOptions.BareMetalServerPatch)
-	if err != nil {
-		return
-	}
-
-	request, err := builder.Build()
-	if err != nil {
-		return
-	}
-
-	var rawResponse map[string]json.RawMessage
-	response, err = vpc.Service.Request(request, &rawResponse)
-	if err != nil {
-		return
-	}
-	if rawResponse != nil {
-		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalBareMetalServer)
-		if err != nil {
-			return
-		}
-		response.Result = result
-	}
-
-	return
-}
-
-// GetBareMetalServerInitialization : Retrieve initialization configuration for a bare metal server
-// This request retrieves configuration variables used to initialize the bare metal server, such as the image used, SSH
-// keys, and any configured usernames and passwords.  These attributes can subsequently be changed manually by the user
-// and so are not guaranteed to be current.
-func (vpc *VpcV1) GetBareMetalServerInitialization(getBareMetalServerInitializationOptions *GetBareMetalServerInitializationOptions) (result *BareMetalServerInitialization, response *core.DetailedResponse, err error) {
-	return vpc.GetBareMetalServerInitializationWithContext(context.Background(), getBareMetalServerInitializationOptions)
-}
-
-// GetBareMetalServerInitializationWithContext is an alternate form of the GetBareMetalServerInitialization method which supports a Context parameter
-func (vpc *VpcV1) GetBareMetalServerInitializationWithContext(ctx context.Context, getBareMetalServerInitializationOptions *GetBareMetalServerInitializationOptions) (result *BareMetalServerInitialization, response *core.DetailedResponse, err error) {
-	err = core.ValidateNotNil(getBareMetalServerInitializationOptions, "getBareMetalServerInitializationOptions cannot be nil")
-	if err != nil {
-		return
-	}
-	err = core.ValidateStruct(getBareMetalServerInitializationOptions, "getBareMetalServerInitializationOptions")
-	if err != nil {
-		return
-	}
-
-	pathParamsMap := map[string]string{
-		"id": *getBareMetalServerInitializationOptions.ID,
-	}
-
-	builder := core.NewRequestBuilder(core.GET)
-	builder = builder.WithContext(ctx)
-	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
-	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/bare_metal_servers/{id}/initialization`, pathParamsMap)
-	if err != nil {
-		return
-	}
-
-	for headerName, headerValue := range getBareMetalServerInitializationOptions.Headers {
-		builder.AddHeader(headerName, headerValue)
-	}
-
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetBareMetalServerInitialization")
-	for headerName, headerValue := range sdkHeaders {
-		builder.AddHeader(headerName, headerValue)
-	}
-	builder.AddHeader("Accept", "application/json")
-
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
-	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
-
-	request, err := builder.Build()
-	if err != nil {
-		return
-	}
-
-	var rawResponse map[string]json.RawMessage
-	response, err = vpc.Service.Request(request, &rawResponse)
-	if err != nil {
-		return
-	}
-	if rawResponse != nil {
-		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalBareMetalServerInitialization)
-		if err != nil {
-			return
-		}
-		response.Result = result
-	}
-
-	return
-}
-
-// CreateBareMetalServerRestart : Restart a bare metal server
-// This request restarts a bare metal server.  It will run immediately regardless of the state of the server.
-func (vpc *VpcV1) CreateBareMetalServerRestart(createBareMetalServerRestartOptions *CreateBareMetalServerRestartOptions) (response *core.DetailedResponse, err error) {
-	return vpc.CreateBareMetalServerRestartWithContext(context.Background(), createBareMetalServerRestartOptions)
-}
-
-// CreateBareMetalServerRestartWithContext is an alternate form of the CreateBareMetalServerRestart method which supports a Context parameter
-func (vpc *VpcV1) CreateBareMetalServerRestartWithContext(ctx context.Context, createBareMetalServerRestartOptions *CreateBareMetalServerRestartOptions) (response *core.DetailedResponse, err error) {
-	err = core.ValidateNotNil(createBareMetalServerRestartOptions, "createBareMetalServerRestartOptions cannot be nil")
-	if err != nil {
-		return
-	}
-	err = core.ValidateStruct(createBareMetalServerRestartOptions, "createBareMetalServerRestartOptions")
-	if err != nil {
-		return
-	}
-
-	pathParamsMap := map[string]string{
-		"id": *createBareMetalServerRestartOptions.ID,
-	}
-
-	builder := core.NewRequestBuilder(core.POST)
-	builder = builder.WithContext(ctx)
-	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
-	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/bare_metal_servers/{id}/restart`, pathParamsMap)
-	if err != nil {
-		return
-	}
-
-	for headerName, headerValue := range createBareMetalServerRestartOptions.Headers {
-		builder.AddHeader(headerName, headerValue)
-	}
-
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateBareMetalServerRestart")
-	for headerName, headerValue := range sdkHeaders {
-		builder.AddHeader(headerName, headerValue)
-	}
-
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
-	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
-
-	request, err := builder.Build()
-	if err != nil {
-		return
-	}
-
-	response, err = vpc.Service.Request(request, nil)
-
-	return
-}
-
-// CreateBareMetalServerStart : Start a bare metal server
-// This request starts a bare metal server.  It will run immediately provided the server is stopped.
-func (vpc *VpcV1) CreateBareMetalServerStart(createBareMetalServerStartOptions *CreateBareMetalServerStartOptions) (response *core.DetailedResponse, err error) {
-	return vpc.CreateBareMetalServerStartWithContext(context.Background(), createBareMetalServerStartOptions)
-}
-
-// CreateBareMetalServerStartWithContext is an alternate form of the CreateBareMetalServerStart method which supports a Context parameter
-func (vpc *VpcV1) CreateBareMetalServerStartWithContext(ctx context.Context, createBareMetalServerStartOptions *CreateBareMetalServerStartOptions) (response *core.DetailedResponse, err error) {
-	err = core.ValidateNotNil(createBareMetalServerStartOptions, "createBareMetalServerStartOptions cannot be nil")
-	if err != nil {
-		return
-	}
-	err = core.ValidateStruct(createBareMetalServerStartOptions, "createBareMetalServerStartOptions")
-	if err != nil {
-		return
-	}
-
-	pathParamsMap := map[string]string{
-		"id": *createBareMetalServerStartOptions.ID,
-	}
-
-	builder := core.NewRequestBuilder(core.POST)
-	builder = builder.WithContext(ctx)
-	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
-	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/bare_metal_servers/{id}/start`, pathParamsMap)
-	if err != nil {
-		return
-	}
-
-	for headerName, headerValue := range createBareMetalServerStartOptions.Headers {
-		builder.AddHeader(headerName, headerValue)
-	}
-
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateBareMetalServerStart")
-	for headerName, headerValue := range sdkHeaders {
-		builder.AddHeader(headerName, headerValue)
-	}
-
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
-	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
-
-	request, err := builder.Build()
-	if err != nil {
-		return
-	}
-
-	response, err = vpc.Service.Request(request, nil)
-
-	return
-}
-
-// CreateBareMetalServerStop : Stop a bare metal server
-// This request stops a bare metal server. It will run immediately provided the server is running. Note: A soft stop may
-// not complete as it relies on the operating system to perform the operation.
-func (vpc *VpcV1) CreateBareMetalServerStop(createBareMetalServerStopOptions *CreateBareMetalServerStopOptions) (response *core.DetailedResponse, err error) {
-	return vpc.CreateBareMetalServerStopWithContext(context.Background(), createBareMetalServerStopOptions)
-}
-
-// CreateBareMetalServerStopWithContext is an alternate form of the CreateBareMetalServerStop method which supports a Context parameter
-func (vpc *VpcV1) CreateBareMetalServerStopWithContext(ctx context.Context, createBareMetalServerStopOptions *CreateBareMetalServerStopOptions) (response *core.DetailedResponse, err error) {
-	err = core.ValidateNotNil(createBareMetalServerStopOptions, "createBareMetalServerStopOptions cannot be nil")
-	if err != nil {
-		return
-	}
-	err = core.ValidateStruct(createBareMetalServerStopOptions, "createBareMetalServerStopOptions")
-	if err != nil {
-		return
-	}
-
-	pathParamsMap := map[string]string{
-		"id": *createBareMetalServerStopOptions.ID,
-	}
-
-	builder := core.NewRequestBuilder(core.POST)
-	builder = builder.WithContext(ctx)
-	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
-	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/bare_metal_servers/{id}/stop`, pathParamsMap)
-	if err != nil {
-		return
-	}
-
-	for headerName, headerValue := range createBareMetalServerStopOptions.Headers {
-		builder.AddHeader(headerName, headerValue)
-	}
-
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateBareMetalServerStop")
-	for headerName, headerValue := range sdkHeaders {
-		builder.AddHeader(headerName, headerValue)
-	}
-	builder.AddHeader("Content-Type", "application/json")
-
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
-	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
-
-	body := make(map[string]interface{})
-	if createBareMetalServerStopOptions.Type != nil {
-		body["type"] = createBareMetalServerStopOptions.Type
-	}
-	_, err = builder.SetBodyContentJSON(body)
-	if err != nil {
-		return
-	}
-
-	request, err := builder.Build()
-	if err != nil {
-		return
-	}
-
-	response, err = vpc.Service.Request(request, nil)
 
 	return
 }
@@ -12028,9 +9709,6 @@ func (vpc *VpcV1) CreateSnapshotWithContext(ctx context.Context, createSnapshotO
 	if createSnapshotOptions.ResourceGroup != nil {
 		body["resource_group"] = createSnapshotOptions.ResourceGroup
 	}
-	if createSnapshotOptions.UserTags != nil {
-		body["user_tags"] = createSnapshotOptions.UserTags
-	}
 	_, err = builder.SetBodyContentJSON(body)
 	if err != nil {
 		return
@@ -12231,852 +9909,6 @@ func (vpc *VpcV1) UpdateSnapshotWithContext(ctx context.Context, updateSnapshotO
 	}
 	if rawResponse != nil {
 		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalSnapshot)
-		if err != nil {
-			return
-		}
-		response.Result = result
-	}
-
-	return
-}
-
-// ListShareProfiles : List all file share profiles
-// This request lists all file share profiles available in the region. A file share profile specifies the performance
-// characteristics and pricing model for a file share.
-func (vpc *VpcV1) ListShareProfiles(listShareProfilesOptions *ListShareProfilesOptions) (result *ShareProfileCollection, response *core.DetailedResponse, err error) {
-	return vpc.ListShareProfilesWithContext(context.Background(), listShareProfilesOptions)
-}
-
-// ListShareProfilesWithContext is an alternate form of the ListShareProfiles method which supports a Context parameter
-func (vpc *VpcV1) ListShareProfilesWithContext(ctx context.Context, listShareProfilesOptions *ListShareProfilesOptions) (result *ShareProfileCollection, response *core.DetailedResponse, err error) {
-	err = core.ValidateStruct(listShareProfilesOptions, "listShareProfilesOptions")
-	if err != nil {
-		return
-	}
-
-	builder := core.NewRequestBuilder(core.GET)
-	builder = builder.WithContext(ctx)
-	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
-	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/share/profiles`, nil)
-	if err != nil {
-		return
-	}
-
-	for headerName, headerValue := range listShareProfilesOptions.Headers {
-		builder.AddHeader(headerName, headerValue)
-	}
-
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListShareProfiles")
-	for headerName, headerValue := range sdkHeaders {
-		builder.AddHeader(headerName, headerValue)
-	}
-	builder.AddHeader("Accept", "application/json")
-
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
-	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
-	if listShareProfilesOptions.Start != nil {
-		builder.AddQuery("start", fmt.Sprint(*listShareProfilesOptions.Start))
-	}
-	if listShareProfilesOptions.Limit != nil {
-		builder.AddQuery("limit", fmt.Sprint(*listShareProfilesOptions.Limit))
-	}
-	if listShareProfilesOptions.Sort != nil {
-		builder.AddQuery("sort", fmt.Sprint(*listShareProfilesOptions.Sort))
-	}
-
-	request, err := builder.Build()
-	if err != nil {
-		return
-	}
-
-	var rawResponse map[string]json.RawMessage
-	response, err = vpc.Service.Request(request, &rawResponse)
-	if err != nil {
-		return
-	}
-	if rawResponse != nil {
-		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalShareProfileCollection)
-		if err != nil {
-			return
-		}
-		response.Result = result
-	}
-
-	return
-}
-
-// GetShareProfile : Retrieve a file share profile
-// This request retrieves a single file share profile specified by the name in the URL.
-func (vpc *VpcV1) GetShareProfile(getShareProfileOptions *GetShareProfileOptions) (result *ShareProfile, response *core.DetailedResponse, err error) {
-	return vpc.GetShareProfileWithContext(context.Background(), getShareProfileOptions)
-}
-
-// GetShareProfileWithContext is an alternate form of the GetShareProfile method which supports a Context parameter
-func (vpc *VpcV1) GetShareProfileWithContext(ctx context.Context, getShareProfileOptions *GetShareProfileOptions) (result *ShareProfile, response *core.DetailedResponse, err error) {
-	err = core.ValidateNotNil(getShareProfileOptions, "getShareProfileOptions cannot be nil")
-	if err != nil {
-		return
-	}
-	err = core.ValidateStruct(getShareProfileOptions, "getShareProfileOptions")
-	if err != nil {
-		return
-	}
-
-	pathParamsMap := map[string]string{
-		"name": *getShareProfileOptions.Name,
-	}
-
-	builder := core.NewRequestBuilder(core.GET)
-	builder = builder.WithContext(ctx)
-	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
-	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/share/profiles/{name}`, pathParamsMap)
-	if err != nil {
-		return
-	}
-
-	for headerName, headerValue := range getShareProfileOptions.Headers {
-		builder.AddHeader(headerName, headerValue)
-	}
-
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetShareProfile")
-	for headerName, headerValue := range sdkHeaders {
-		builder.AddHeader(headerName, headerValue)
-	}
-	builder.AddHeader("Accept", "application/json")
-
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
-	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
-
-	request, err := builder.Build()
-	if err != nil {
-		return
-	}
-
-	var rawResponse map[string]json.RawMessage
-	response, err = vpc.Service.Request(request, &rawResponse)
-	if err != nil {
-		return
-	}
-	if rawResponse != nil {
-		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalShareProfile)
-		if err != nil {
-			return
-		}
-		response.Result = result
-	}
-
-	return
-}
-
-// ListShares : List all file shares
-// This request lists all file shares in the region.
-func (vpc *VpcV1) ListShares(listSharesOptions *ListSharesOptions) (result *ShareCollection, response *core.DetailedResponse, err error) {
-	return vpc.ListSharesWithContext(context.Background(), listSharesOptions)
-}
-
-// ListSharesWithContext is an alternate form of the ListShares method which supports a Context parameter
-func (vpc *VpcV1) ListSharesWithContext(ctx context.Context, listSharesOptions *ListSharesOptions) (result *ShareCollection, response *core.DetailedResponse, err error) {
-	err = core.ValidateStruct(listSharesOptions, "listSharesOptions")
-	if err != nil {
-		return
-	}
-
-	builder := core.NewRequestBuilder(core.GET)
-	builder = builder.WithContext(ctx)
-	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
-	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/shares`, nil)
-	if err != nil {
-		return
-	}
-
-	for headerName, headerValue := range listSharesOptions.Headers {
-		builder.AddHeader(headerName, headerValue)
-	}
-
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListShares")
-	for headerName, headerValue := range sdkHeaders {
-		builder.AddHeader(headerName, headerValue)
-	}
-	builder.AddHeader("Accept", "application/json")
-
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
-	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
-	if listSharesOptions.Start != nil {
-		builder.AddQuery("start", fmt.Sprint(*listSharesOptions.Start))
-	}
-	if listSharesOptions.Limit != nil {
-		builder.AddQuery("limit", fmt.Sprint(*listSharesOptions.Limit))
-	}
-	if listSharesOptions.ResourceGroupID != nil {
-		builder.AddQuery("resource_group.id", fmt.Sprint(*listSharesOptions.ResourceGroupID))
-	}
-	if listSharesOptions.Name != nil {
-		builder.AddQuery("name", fmt.Sprint(*listSharesOptions.Name))
-	}
-	if listSharesOptions.Sort != nil {
-		builder.AddQuery("sort", fmt.Sprint(*listSharesOptions.Sort))
-	}
-
-	request, err := builder.Build()
-	if err != nil {
-		return
-	}
-
-	var rawResponse map[string]json.RawMessage
-	response, err = vpc.Service.Request(request, &rawResponse)
-	if err != nil {
-		return
-	}
-	if rawResponse != nil {
-		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalShareCollection)
-		if err != nil {
-			return
-		}
-		response.Result = result
-	}
-
-	return
-}
-
-// CreateShare : Create a file share
-// This request provisions a new file share from a share prototype object.
-//
-// The prototype object is structured in the same way as a retrieved share, and contains the information necessary to
-// provision the new file share.
-func (vpc *VpcV1) CreateShare(createShareOptions *CreateShareOptions) (result *Share, response *core.DetailedResponse, err error) {
-	return vpc.CreateShareWithContext(context.Background(), createShareOptions)
-}
-
-// CreateShareWithContext is an alternate form of the CreateShare method which supports a Context parameter
-func (vpc *VpcV1) CreateShareWithContext(ctx context.Context, createShareOptions *CreateShareOptions) (result *Share, response *core.DetailedResponse, err error) {
-	err = core.ValidateStruct(createShareOptions, "createShareOptions")
-	if err != nil {
-		return
-	}
-
-	builder := core.NewRequestBuilder(core.POST)
-	builder = builder.WithContext(ctx)
-	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
-	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/shares`, nil)
-	if err != nil {
-		return
-	}
-
-	for headerName, headerValue := range createShareOptions.Headers {
-		builder.AddHeader(headerName, headerValue)
-	}
-
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateShare")
-	for headerName, headerValue := range sdkHeaders {
-		builder.AddHeader(headerName, headerValue)
-	}
-	builder.AddHeader("Accept", "application/json")
-	builder.AddHeader("Content-Type", "application/json")
-
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
-	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
-
-	body := make(map[string]interface{})
-	if createShareOptions.EncryptionKey != nil {
-		body["encryption_key"] = createShareOptions.EncryptionKey
-	}
-	if createShareOptions.InitialOwner != nil {
-		body["initial_owner"] = createShareOptions.InitialOwner
-	}
-	if createShareOptions.Iops != nil {
-		body["iops"] = createShareOptions.Iops
-	}
-	if createShareOptions.Name != nil {
-		body["name"] = createShareOptions.Name
-	}
-	if createShareOptions.Profile != nil {
-		body["profile"] = createShareOptions.Profile
-	}
-	if createShareOptions.ResourceGroup != nil {
-		body["resource_group"] = createShareOptions.ResourceGroup
-	}
-	if createShareOptions.Size != nil {
-		body["size"] = createShareOptions.Size
-	}
-	if createShareOptions.Targets != nil {
-		body["targets"] = createShareOptions.Targets
-	}
-	if createShareOptions.Zone != nil {
-		body["zone"] = createShareOptions.Zone
-	}
-	_, err = builder.SetBodyContentJSON(body)
-	if err != nil {
-		return
-	}
-
-	request, err := builder.Build()
-	if err != nil {
-		return
-	}
-
-	var rawResponse map[string]json.RawMessage
-	response, err = vpc.Service.Request(request, &rawResponse)
-	if err != nil {
-		return
-	}
-	if rawResponse != nil {
-		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalShare)
-		if err != nil {
-			return
-		}
-		response.Result = result
-	}
-
-	return
-}
-
-// DeleteShare : Delete a file share
-// This request deletes a share. This operation cannot be reversed.  For this request to succeed, the share must not
-// contain any share targets.
-//
-// If the request is accepted, the share `status` will be set to `deleting`. Otherwise, once deletion processing
-// completes, the share will no longer be retrievable.
-func (vpc *VpcV1) DeleteShare(deleteShareOptions *DeleteShareOptions) (result *Share, response *core.DetailedResponse, err error) {
-	return vpc.DeleteShareWithContext(context.Background(), deleteShareOptions)
-}
-
-// DeleteShareWithContext is an alternate form of the DeleteShare method which supports a Context parameter
-func (vpc *VpcV1) DeleteShareWithContext(ctx context.Context, deleteShareOptions *DeleteShareOptions) (result *Share, response *core.DetailedResponse, err error) {
-	err = core.ValidateNotNil(deleteShareOptions, "deleteShareOptions cannot be nil")
-	if err != nil {
-		return
-	}
-	err = core.ValidateStruct(deleteShareOptions, "deleteShareOptions")
-	if err != nil {
-		return
-	}
-
-	pathParamsMap := map[string]string{
-		"id": *deleteShareOptions.ID,
-	}
-
-	builder := core.NewRequestBuilder(core.DELETE)
-	builder = builder.WithContext(ctx)
-	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
-	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/shares/{id}`, pathParamsMap)
-	if err != nil {
-		return
-	}
-
-	for headerName, headerValue := range deleteShareOptions.Headers {
-		builder.AddHeader(headerName, headerValue)
-	}
-
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteShare")
-	for headerName, headerValue := range sdkHeaders {
-		builder.AddHeader(headerName, headerValue)
-	}
-	builder.AddHeader("Accept", "application/json")
-
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
-	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
-
-	request, err := builder.Build()
-	if err != nil {
-		return
-	}
-
-	var rawResponse map[string]json.RawMessage
-	response, err = vpc.Service.Request(request, &rawResponse)
-	if err != nil {
-		return
-	}
-	if rawResponse != nil {
-		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalShare)
-		if err != nil {
-			return
-		}
-		response.Result = result
-	}
-
-	return
-}
-
-// GetShare : Retrieve a file share
-// This request retrieves a single file share specified by the identifier in the URL.
-func (vpc *VpcV1) GetShare(getShareOptions *GetShareOptions) (result *Share, response *core.DetailedResponse, err error) {
-	return vpc.GetShareWithContext(context.Background(), getShareOptions)
-}
-
-// GetShareWithContext is an alternate form of the GetShare method which supports a Context parameter
-func (vpc *VpcV1) GetShareWithContext(ctx context.Context, getShareOptions *GetShareOptions) (result *Share, response *core.DetailedResponse, err error) {
-	err = core.ValidateNotNil(getShareOptions, "getShareOptions cannot be nil")
-	if err != nil {
-		return
-	}
-	err = core.ValidateStruct(getShareOptions, "getShareOptions")
-	if err != nil {
-		return
-	}
-
-	pathParamsMap := map[string]string{
-		"id": *getShareOptions.ID,
-	}
-
-	builder := core.NewRequestBuilder(core.GET)
-	builder = builder.WithContext(ctx)
-	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
-	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/shares/{id}`, pathParamsMap)
-	if err != nil {
-		return
-	}
-
-	for headerName, headerValue := range getShareOptions.Headers {
-		builder.AddHeader(headerName, headerValue)
-	}
-
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetShare")
-	for headerName, headerValue := range sdkHeaders {
-		builder.AddHeader(headerName, headerValue)
-	}
-	builder.AddHeader("Accept", "application/json")
-
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
-	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
-
-	request, err := builder.Build()
-	if err != nil {
-		return
-	}
-
-	var rawResponse map[string]json.RawMessage
-	response, err = vpc.Service.Request(request, &rawResponse)
-	if err != nil {
-		return
-	}
-	if rawResponse != nil {
-		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalShare)
-		if err != nil {
-			return
-		}
-		response.Result = result
-	}
-
-	return
-}
-
-// UpdateShare : Update a file share
-// This request updates a file share's name.
-func (vpc *VpcV1) UpdateShare(updateShareOptions *UpdateShareOptions) (result *Share, response *core.DetailedResponse, err error) {
-	return vpc.UpdateShareWithContext(context.Background(), updateShareOptions)
-}
-
-// UpdateShareWithContext is an alternate form of the UpdateShare method which supports a Context parameter
-func (vpc *VpcV1) UpdateShareWithContext(ctx context.Context, updateShareOptions *UpdateShareOptions) (result *Share, response *core.DetailedResponse, err error) {
-	err = core.ValidateNotNil(updateShareOptions, "updateShareOptions cannot be nil")
-	if err != nil {
-		return
-	}
-	err = core.ValidateStruct(updateShareOptions, "updateShareOptions")
-	if err != nil {
-		return
-	}
-
-	pathParamsMap := map[string]string{
-		"id": *updateShareOptions.ID,
-	}
-
-	builder := core.NewRequestBuilder(core.PATCH)
-	builder = builder.WithContext(ctx)
-	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
-	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/shares/{id}`, pathParamsMap)
-	if err != nil {
-		return
-	}
-
-	for headerName, headerValue := range updateShareOptions.Headers {
-		builder.AddHeader(headerName, headerValue)
-	}
-
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateShare")
-	for headerName, headerValue := range sdkHeaders {
-		builder.AddHeader(headerName, headerValue)
-	}
-	builder.AddHeader("Accept", "application/json")
-	builder.AddHeader("Content-Type", "application/merge-patch+json")
-
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
-	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
-
-	_, err = builder.SetBodyContentJSON(updateShareOptions.SharePatch)
-	if err != nil {
-		return
-	}
-
-	request, err := builder.Build()
-	if err != nil {
-		return
-	}
-
-	var rawResponse map[string]json.RawMessage
-	response, err = vpc.Service.Request(request, &rawResponse)
-	if err != nil {
-		return
-	}
-	if rawResponse != nil {
-		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalShare)
-		if err != nil {
-			return
-		}
-		response.Result = result
-	}
-
-	return
-}
-
-// ListShareTargets : List all targets for a file share
-// This request retrieves all share targets for a file share.
-//
-// A share target is a network endpoint at which a file share may be mounted.
-//
-// It exists within the same zone where the file share resides in.
-//
-// The file share can be mounted by instances in the same VPC and zone after creating share targets.
-func (vpc *VpcV1) ListShareTargets(listShareTargetsOptions *ListShareTargetsOptions) (result *ShareTargetCollection, response *core.DetailedResponse, err error) {
-	return vpc.ListShareTargetsWithContext(context.Background(), listShareTargetsOptions)
-}
-
-// ListShareTargetsWithContext is an alternate form of the ListShareTargets method which supports a Context parameter
-func (vpc *VpcV1) ListShareTargetsWithContext(ctx context.Context, listShareTargetsOptions *ListShareTargetsOptions) (result *ShareTargetCollection, response *core.DetailedResponse, err error) {
-	err = core.ValidateNotNil(listShareTargetsOptions, "listShareTargetsOptions cannot be nil")
-	if err != nil {
-		return
-	}
-	err = core.ValidateStruct(listShareTargetsOptions, "listShareTargetsOptions")
-	if err != nil {
-		return
-	}
-
-	pathParamsMap := map[string]string{
-		"share_id": *listShareTargetsOptions.ShareID,
-	}
-
-	builder := core.NewRequestBuilder(core.GET)
-	builder = builder.WithContext(ctx)
-	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
-	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/shares/{share_id}/targets`, pathParamsMap)
-	if err != nil {
-		return
-	}
-
-	for headerName, headerValue := range listShareTargetsOptions.Headers {
-		builder.AddHeader(headerName, headerValue)
-	}
-
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListShareTargets")
-	for headerName, headerValue := range sdkHeaders {
-		builder.AddHeader(headerName, headerValue)
-	}
-	builder.AddHeader("Accept", "application/json")
-
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
-	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
-	if listShareTargetsOptions.Name != nil {
-		builder.AddQuery("name", fmt.Sprint(*listShareTargetsOptions.Name))
-	}
-
-	request, err := builder.Build()
-	if err != nil {
-		return
-	}
-
-	var rawResponse map[string]json.RawMessage
-	response, err = vpc.Service.Request(request, &rawResponse)
-	if err != nil {
-		return
-	}
-	if rawResponse != nil {
-		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalShareTargetCollection)
-		if err != nil {
-			return
-		}
-		response.Result = result
-	}
-
-	return
-}
-
-// CreateShareTarget : Create a target for a file share
-// This request creates a new share target from a share target prototype object.
-//
-// The prototype object is structured in the same way as a retrieved share target, and contains the information
-// necessary to provision the new file share target.
-func (vpc *VpcV1) CreateShareTarget(createShareTargetOptions *CreateShareTargetOptions) (result *ShareTarget, response *core.DetailedResponse, err error) {
-	return vpc.CreateShareTargetWithContext(context.Background(), createShareTargetOptions)
-}
-
-// CreateShareTargetWithContext is an alternate form of the CreateShareTarget method which supports a Context parameter
-func (vpc *VpcV1) CreateShareTargetWithContext(ctx context.Context, createShareTargetOptions *CreateShareTargetOptions) (result *ShareTarget, response *core.DetailedResponse, err error) {
-	err = core.ValidateNotNil(createShareTargetOptions, "createShareTargetOptions cannot be nil")
-	if err != nil {
-		return
-	}
-	err = core.ValidateStruct(createShareTargetOptions, "createShareTargetOptions")
-	if err != nil {
-		return
-	}
-
-	pathParamsMap := map[string]string{
-		"share_id": *createShareTargetOptions.ShareID,
-	}
-
-	builder := core.NewRequestBuilder(core.POST)
-	builder = builder.WithContext(ctx)
-	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
-	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/shares/{share_id}/targets`, pathParamsMap)
-	if err != nil {
-		return
-	}
-
-	for headerName, headerValue := range createShareTargetOptions.Headers {
-		builder.AddHeader(headerName, headerValue)
-	}
-
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateShareTarget")
-	for headerName, headerValue := range sdkHeaders {
-		builder.AddHeader(headerName, headerValue)
-	}
-	builder.AddHeader("Accept", "application/json")
-	builder.AddHeader("Content-Type", "application/json")
-
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
-	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
-
-	body := make(map[string]interface{})
-	if createShareTargetOptions.VPC != nil {
-		body["vpc"] = createShareTargetOptions.VPC
-	}
-	if createShareTargetOptions.Name != nil {
-		body["name"] = createShareTargetOptions.Name
-	}
-	if createShareTargetOptions.Subnet != nil {
-		body["subnet"] = createShareTargetOptions.Subnet
-	}
-	_, err = builder.SetBodyContentJSON(body)
-	if err != nil {
-		return
-	}
-
-	request, err := builder.Build()
-	if err != nil {
-		return
-	}
-
-	var rawResponse map[string]json.RawMessage
-	response, err = vpc.Service.Request(request, &rawResponse)
-	if err != nil {
-		return
-	}
-	if rawResponse != nil {
-		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalShareTarget)
-		if err != nil {
-			return
-		}
-		response.Result = result
-	}
-
-	return
-}
-
-// DeleteShareTarget : Delete a share target
-// This request deletes a share target. This operation cannot be reversed.
-//
-// If the request is accepted, the share target `status` will be set to `deleting`. Otherwise, once deletion processing
-// completes, the share target will no longer be retrievable.
-func (vpc *VpcV1) DeleteShareTarget(deleteShareTargetOptions *DeleteShareTargetOptions) (result *ShareTarget, response *core.DetailedResponse, err error) {
-	return vpc.DeleteShareTargetWithContext(context.Background(), deleteShareTargetOptions)
-}
-
-// DeleteShareTargetWithContext is an alternate form of the DeleteShareTarget method which supports a Context parameter
-func (vpc *VpcV1) DeleteShareTargetWithContext(ctx context.Context, deleteShareTargetOptions *DeleteShareTargetOptions) (result *ShareTarget, response *core.DetailedResponse, err error) {
-	err = core.ValidateNotNil(deleteShareTargetOptions, "deleteShareTargetOptions cannot be nil")
-	if err != nil {
-		return
-	}
-	err = core.ValidateStruct(deleteShareTargetOptions, "deleteShareTargetOptions")
-	if err != nil {
-		return
-	}
-
-	pathParamsMap := map[string]string{
-		"share_id": *deleteShareTargetOptions.ShareID,
-		"id":       *deleteShareTargetOptions.ID,
-	}
-
-	builder := core.NewRequestBuilder(core.DELETE)
-	builder = builder.WithContext(ctx)
-	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
-	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/shares/{share_id}/targets/{id}`, pathParamsMap)
-	if err != nil {
-		return
-	}
-
-	for headerName, headerValue := range deleteShareTargetOptions.Headers {
-		builder.AddHeader(headerName, headerValue)
-	}
-
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteShareTarget")
-	for headerName, headerValue := range sdkHeaders {
-		builder.AddHeader(headerName, headerValue)
-	}
-	builder.AddHeader("Accept", "application/json")
-
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
-	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
-
-	request, err := builder.Build()
-	if err != nil {
-		return
-	}
-
-	var rawResponse map[string]json.RawMessage
-	response, err = vpc.Service.Request(request, &rawResponse)
-	if err != nil {
-		return
-	}
-	if rawResponse != nil {
-		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalShareTarget)
-		if err != nil {
-			return
-		}
-		response.Result = result
-	}
-
-	return
-}
-
-// GetShareTarget : Retrieve a share target
-// This request retrieves a single share target specified by the identifier in the URL.
-func (vpc *VpcV1) GetShareTarget(getShareTargetOptions *GetShareTargetOptions) (result *ShareTarget, response *core.DetailedResponse, err error) {
-	return vpc.GetShareTargetWithContext(context.Background(), getShareTargetOptions)
-}
-
-// GetShareTargetWithContext is an alternate form of the GetShareTarget method which supports a Context parameter
-func (vpc *VpcV1) GetShareTargetWithContext(ctx context.Context, getShareTargetOptions *GetShareTargetOptions) (result *ShareTarget, response *core.DetailedResponse, err error) {
-	err = core.ValidateNotNil(getShareTargetOptions, "getShareTargetOptions cannot be nil")
-	if err != nil {
-		return
-	}
-	err = core.ValidateStruct(getShareTargetOptions, "getShareTargetOptions")
-	if err != nil {
-		return
-	}
-
-	pathParamsMap := map[string]string{
-		"share_id": *getShareTargetOptions.ShareID,
-		"id":       *getShareTargetOptions.ID,
-	}
-
-	builder := core.NewRequestBuilder(core.GET)
-	builder = builder.WithContext(ctx)
-	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
-	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/shares/{share_id}/targets/{id}`, pathParamsMap)
-	if err != nil {
-		return
-	}
-
-	for headerName, headerValue := range getShareTargetOptions.Headers {
-		builder.AddHeader(headerName, headerValue)
-	}
-
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetShareTarget")
-	for headerName, headerValue := range sdkHeaders {
-		builder.AddHeader(headerName, headerValue)
-	}
-	builder.AddHeader("Accept", "application/json")
-
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
-	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
-
-	request, err := builder.Build()
-	if err != nil {
-		return
-	}
-
-	var rawResponse map[string]json.RawMessage
-	response, err = vpc.Service.Request(request, &rawResponse)
-	if err != nil {
-		return
-	}
-	if rawResponse != nil {
-		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalShareTarget)
-		if err != nil {
-			return
-		}
-		response.Result = result
-	}
-
-	return
-}
-
-// UpdateShareTarget : Update a share target
-// This request updates a share target with the information provided in a share target patch object. The share target
-// patch object is structured in the same way as a retrieved share target and needs to contain only the information to
-// be updated.
-func (vpc *VpcV1) UpdateShareTarget(updateShareTargetOptions *UpdateShareTargetOptions) (result *ShareTarget, response *core.DetailedResponse, err error) {
-	return vpc.UpdateShareTargetWithContext(context.Background(), updateShareTargetOptions)
-}
-
-// UpdateShareTargetWithContext is an alternate form of the UpdateShareTarget method which supports a Context parameter
-func (vpc *VpcV1) UpdateShareTargetWithContext(ctx context.Context, updateShareTargetOptions *UpdateShareTargetOptions) (result *ShareTarget, response *core.DetailedResponse, err error) {
-	err = core.ValidateNotNil(updateShareTargetOptions, "updateShareTargetOptions cannot be nil")
-	if err != nil {
-		return
-	}
-	err = core.ValidateStruct(updateShareTargetOptions, "updateShareTargetOptions")
-	if err != nil {
-		return
-	}
-
-	pathParamsMap := map[string]string{
-		"share_id": *updateShareTargetOptions.ShareID,
-		"id":       *updateShareTargetOptions.ID,
-	}
-
-	builder := core.NewRequestBuilder(core.PATCH)
-	builder = builder.WithContext(ctx)
-	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
-	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/shares/{share_id}/targets/{id}`, pathParamsMap)
-	if err != nil {
-		return
-	}
-
-	for headerName, headerValue := range updateShareTargetOptions.Headers {
-		builder.AddHeader(headerName, headerValue)
-	}
-
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateShareTarget")
-	for headerName, headerValue := range sdkHeaders {
-		builder.AddHeader(headerName, headerValue)
-	}
-	builder.AddHeader("Accept", "application/json")
-	builder.AddHeader("Content-Type", "application/merge-patch+json")
-
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
-	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
-
-	_, err = builder.SetBodyContentJSON(updateShareTargetOptions.ShareTargetPatch)
-	if err != nil {
-		return
-	}
-
-	request, err := builder.Build()
-	if err != nil {
-		return
-	}
-
-	var rawResponse map[string]json.RawMessage
-	response, err = vpc.Service.Request(request, &rawResponse)
-	if err != nil {
-		return
-	}
-	if rawResponse != nil {
-		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalShareTarget)
 		if err != nil {
 			return
 		}
@@ -14790,8 +11622,9 @@ func (vpc *VpcV1) CreateSecurityGroupWithContext(ctx context.Context, createSecu
 }
 
 // DeleteSecurityGroup : Delete a security group
-// This request deletes a security group. A security group cannot be deleted if it is referenced by any security group
-// targets or rules. Additionally, a VPC's default security group cannot be deleted. This operation cannot be reversed.
+// This request deletes a security group. A security group cannot be deleted if it is referenced by any network
+// interfaces or other security group rules. Additionally, a VPC's default security group cannot be deleted. This
+// operation cannot be reversed.
 func (vpc *VpcV1) DeleteSecurityGroup(deleteSecurityGroupOptions *DeleteSecurityGroupOptions) (response *core.DetailedResponse, err error) {
 	return vpc.DeleteSecurityGroupWithContext(context.Background(), deleteSecurityGroupOptions)
 }
@@ -15635,7 +12468,6 @@ func (vpc *VpcV1) ListSecurityGroupTargetsWithContext(ctx context.Context, listS
 //
 // - A network interface identifier
 // - An application load balancer identifier
-// - An endpoint gateway identifier
 //
 // Security groups are stateful, so any changes to a target's security groups are applied to new connections. Existing
 // connections are not affected.
@@ -15759,7 +12591,6 @@ func (vpc *VpcV1) GetSecurityGroupTargetWithContext(ctx context.Context, getSecu
 //
 // - A network interface identifier
 // - An application load balancer identifier
-// - An endpoint gateway identifier
 //
 // When a target is added to a security group, the security group rules are applied to the target. A request body is not
 // required, and if supplied, is ignored.
@@ -16652,9 +13483,6 @@ func (vpc *VpcV1) ListVPNGatewaysWithContext(ctx context.Context, listVPNGateway
 	if listVPNGatewaysOptions.ResourceGroupID != nil {
 		builder.AddQuery("resource_group.id", fmt.Sprint(*listVPNGatewaysOptions.ResourceGroupID))
 	}
-	if listVPNGatewaysOptions.Sort != nil {
-		builder.AddQuery("sort", fmt.Sprint(*listVPNGatewaysOptions.Sort))
-	}
 	if listVPNGatewaysOptions.Mode != nil {
 		builder.AddQuery("mode", fmt.Sprint(*listVPNGatewaysOptions.Mode))
 	}
@@ -16929,230 +13757,6 @@ func (vpc *VpcV1) UpdateVPNGatewayWithContext(ctx context.Context, updateVPNGate
 	return
 }
 
-// ListVPNGatewayAdvertisedCIDRs : List all advertised CIDRs for a VPN gateway
-// This request lists all advertised CIDRs for a VPN gateway.
-func (vpc *VpcV1) ListVPNGatewayAdvertisedCIDRs(listVPNGatewayAdvertisedCIDRsOptions *ListVPNGatewayAdvertisedCIDRsOptions) (result *VPNGatewayAdvertisedCidRs, response *core.DetailedResponse, err error) {
-	return vpc.ListVPNGatewayAdvertisedCIDRsWithContext(context.Background(), listVPNGatewayAdvertisedCIDRsOptions)
-}
-
-// ListVPNGatewayAdvertisedCIDRsWithContext is an alternate form of the ListVPNGatewayAdvertisedCIDRs method which supports a Context parameter
-func (vpc *VpcV1) ListVPNGatewayAdvertisedCIDRsWithContext(ctx context.Context, listVPNGatewayAdvertisedCIDRsOptions *ListVPNGatewayAdvertisedCIDRsOptions) (result *VPNGatewayAdvertisedCidRs, response *core.DetailedResponse, err error) {
-	err = core.ValidateNotNil(listVPNGatewayAdvertisedCIDRsOptions, "listVPNGatewayAdvertisedCIDRsOptions cannot be nil")
-	if err != nil {
-		return
-	}
-	err = core.ValidateStruct(listVPNGatewayAdvertisedCIDRsOptions, "listVPNGatewayAdvertisedCIDRsOptions")
-	if err != nil {
-		return
-	}
-
-	pathParamsMap := map[string]string{
-		"vpn_gateway_id": *listVPNGatewayAdvertisedCIDRsOptions.VPNGatewayID,
-	}
-
-	builder := core.NewRequestBuilder(core.GET)
-	builder = builder.WithContext(ctx)
-	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
-	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/vpn_gateways/{vpn_gateway_id}/advertised_cidrs`, pathParamsMap)
-	if err != nil {
-		return
-	}
-
-	for headerName, headerValue := range listVPNGatewayAdvertisedCIDRsOptions.Headers {
-		builder.AddHeader(headerName, headerValue)
-	}
-
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVPNGatewayAdvertisedCIDRs")
-	for headerName, headerValue := range sdkHeaders {
-		builder.AddHeader(headerName, headerValue)
-	}
-	builder.AddHeader("Accept", "application/json")
-
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
-	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
-
-	request, err := builder.Build()
-	if err != nil {
-		return
-	}
-
-	var rawResponse map[string]json.RawMessage
-	response, err = vpc.Service.Request(request, &rawResponse)
-	if err != nil {
-		return
-	}
-	if rawResponse != nil {
-		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalVPNGatewayAdvertisedCidRs)
-		if err != nil {
-			return
-		}
-		response.Result = result
-	}
-
-	return
-}
-
-// RemoveVPNGatewayAdvertisedCIDR : Remove an advertised CIDR from a VPN gateway
-// This request removes a CIDR from a VPN gateway advertised CIDRs.
-func (vpc *VpcV1) RemoveVPNGatewayAdvertisedCIDR(removeVPNGatewayAdvertisedCIDROptions *RemoveVPNGatewayAdvertisedCIDROptions) (response *core.DetailedResponse, err error) {
-	return vpc.RemoveVPNGatewayAdvertisedCIDRWithContext(context.Background(), removeVPNGatewayAdvertisedCIDROptions)
-}
-
-// RemoveVPNGatewayAdvertisedCIDRWithContext is an alternate form of the RemoveVPNGatewayAdvertisedCIDR method which supports a Context parameter
-func (vpc *VpcV1) RemoveVPNGatewayAdvertisedCIDRWithContext(ctx context.Context, removeVPNGatewayAdvertisedCIDROptions *RemoveVPNGatewayAdvertisedCIDROptions) (response *core.DetailedResponse, err error) {
-	err = core.ValidateNotNil(removeVPNGatewayAdvertisedCIDROptions, "removeVPNGatewayAdvertisedCIDROptions cannot be nil")
-	if err != nil {
-		return
-	}
-	err = core.ValidateStruct(removeVPNGatewayAdvertisedCIDROptions, "removeVPNGatewayAdvertisedCIDROptions")
-	if err != nil {
-		return
-	}
-
-	pathParamsMap := map[string]string{
-		"vpn_gateway_id": *removeVPNGatewayAdvertisedCIDROptions.VPNGatewayID,
-		"cidr_prefix":    *removeVPNGatewayAdvertisedCIDROptions.CIDRPrefix,
-		"prefix_length":  *removeVPNGatewayAdvertisedCIDROptions.PrefixLength,
-	}
-
-	builder := core.NewRequestBuilder(core.DELETE)
-	builder = builder.WithContext(ctx)
-	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
-	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/vpn_gateways/{vpn_gateway_id}/advertised_cidrs/{cidr_prefix}/{prefix_length}`, pathParamsMap)
-	if err != nil {
-		return
-	}
-
-	for headerName, headerValue := range removeVPNGatewayAdvertisedCIDROptions.Headers {
-		builder.AddHeader(headerName, headerValue)
-	}
-
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "RemoveVPNGatewayAdvertisedCIDR")
-	for headerName, headerValue := range sdkHeaders {
-		builder.AddHeader(headerName, headerValue)
-	}
-
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
-	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
-
-	request, err := builder.Build()
-	if err != nil {
-		return
-	}
-
-	response, err = vpc.Service.Request(request, nil)
-
-	return
-}
-
-// CheckVPNGatewayAdvertisedCIDR : Check if the specified advertised CIDR exists on a VPN gateway
-// This request succeeds if an advertised CIDR exists on the specified VPN gateway and fails otherwise.
-func (vpc *VpcV1) CheckVPNGatewayAdvertisedCIDR(checkVPNGatewayAdvertisedCIDROptions *CheckVPNGatewayAdvertisedCIDROptions) (response *core.DetailedResponse, err error) {
-	return vpc.CheckVPNGatewayAdvertisedCIDRWithContext(context.Background(), checkVPNGatewayAdvertisedCIDROptions)
-}
-
-// CheckVPNGatewayAdvertisedCIDRWithContext is an alternate form of the CheckVPNGatewayAdvertisedCIDR method which supports a Context parameter
-func (vpc *VpcV1) CheckVPNGatewayAdvertisedCIDRWithContext(ctx context.Context, checkVPNGatewayAdvertisedCIDROptions *CheckVPNGatewayAdvertisedCIDROptions) (response *core.DetailedResponse, err error) {
-	err = core.ValidateNotNil(checkVPNGatewayAdvertisedCIDROptions, "checkVPNGatewayAdvertisedCIDROptions cannot be nil")
-	if err != nil {
-		return
-	}
-	err = core.ValidateStruct(checkVPNGatewayAdvertisedCIDROptions, "checkVPNGatewayAdvertisedCIDROptions")
-	if err != nil {
-		return
-	}
-
-	pathParamsMap := map[string]string{
-		"vpn_gateway_id": *checkVPNGatewayAdvertisedCIDROptions.VPNGatewayID,
-		"cidr_prefix":    *checkVPNGatewayAdvertisedCIDROptions.CIDRPrefix,
-		"prefix_length":  *checkVPNGatewayAdvertisedCIDROptions.PrefixLength,
-	}
-
-	builder := core.NewRequestBuilder(core.GET)
-	builder = builder.WithContext(ctx)
-	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
-	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/vpn_gateways/{vpn_gateway_id}/advertised_cidrs/{cidr_prefix}/{prefix_length}`, pathParamsMap)
-	if err != nil {
-		return
-	}
-
-	for headerName, headerValue := range checkVPNGatewayAdvertisedCIDROptions.Headers {
-		builder.AddHeader(headerName, headerValue)
-	}
-
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CheckVPNGatewayAdvertisedCIDR")
-	for headerName, headerValue := range sdkHeaders {
-		builder.AddHeader(headerName, headerValue)
-	}
-
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
-	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
-
-	request, err := builder.Build()
-	if err != nil {
-		return
-	}
-
-	response, err = vpc.Service.Request(request, nil)
-
-	return
-}
-
-// AddVPNGatewayAdvertisedCIDR : Set an advertised CIDR on a VPN gateway
-// This request adds the specified CIDR to the specified VPN gateway advertised CIDRs. A request body is not required,
-// and if supplied, is ignored. This request succeeds if the CIDR already exists on the specified VPN gateway advertised
-// CIDRs.
-func (vpc *VpcV1) AddVPNGatewayAdvertisedCIDR(addVPNGatewayAdvertisedCIDROptions *AddVPNGatewayAdvertisedCIDROptions) (response *core.DetailedResponse, err error) {
-	return vpc.AddVPNGatewayAdvertisedCIDRWithContext(context.Background(), addVPNGatewayAdvertisedCIDROptions)
-}
-
-// AddVPNGatewayAdvertisedCIDRWithContext is an alternate form of the AddVPNGatewayAdvertisedCIDR method which supports a Context parameter
-func (vpc *VpcV1) AddVPNGatewayAdvertisedCIDRWithContext(ctx context.Context, addVPNGatewayAdvertisedCIDROptions *AddVPNGatewayAdvertisedCIDROptions) (response *core.DetailedResponse, err error) {
-	err = core.ValidateNotNil(addVPNGatewayAdvertisedCIDROptions, "addVPNGatewayAdvertisedCIDROptions cannot be nil")
-	if err != nil {
-		return
-	}
-	err = core.ValidateStruct(addVPNGatewayAdvertisedCIDROptions, "addVPNGatewayAdvertisedCIDROptions")
-	if err != nil {
-		return
-	}
-
-	pathParamsMap := map[string]string{
-		"vpn_gateway_id": *addVPNGatewayAdvertisedCIDROptions.VPNGatewayID,
-		"cidr_prefix":    *addVPNGatewayAdvertisedCIDROptions.CIDRPrefix,
-		"prefix_length":  *addVPNGatewayAdvertisedCIDROptions.PrefixLength,
-	}
-
-	builder := core.NewRequestBuilder(core.PUT)
-	builder = builder.WithContext(ctx)
-	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
-	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/vpn_gateways/{vpn_gateway_id}/advertised_cidrs/{cidr_prefix}/{prefix_length}`, pathParamsMap)
-	if err != nil {
-		return
-	}
-
-	for headerName, headerValue := range addVPNGatewayAdvertisedCIDROptions.Headers {
-		builder.AddHeader(headerName, headerValue)
-	}
-
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "AddVPNGatewayAdvertisedCIDR")
-	for headerName, headerValue := range sdkHeaders {
-		builder.AddHeader(headerName, headerValue)
-	}
-
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
-	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
-
-	request, err := builder.Build()
-	if err != nil {
-		return
-	}
-
-	response, err = vpc.Service.Request(request, nil)
-
-	return
-}
-
 // ListVPNGatewayConnections : List all connections of a VPN gateway
 // This request lists all connections of a VPN gateway.
 func (vpc *VpcV1) ListVPNGatewayConnections(listVPNGatewayConnectionsOptions *ListVPNGatewayConnectionsOptions) (result *VPNGatewayConnectionCollection, response *core.DetailedResponse, err error) {
@@ -17326,9 +13930,6 @@ func (vpc *VpcV1) DeleteVPNGatewayConnectionWithContext(ctx context.Context, del
 	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
-	if deleteVPNGatewayConnectionOptions.IfMatch != nil {
-		builder.AddHeader("If-Match", fmt.Sprint(*deleteVPNGatewayConnectionOptions.IfMatch))
-	}
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
@@ -17447,9 +14048,6 @@ func (vpc *VpcV1) UpdateVPNGatewayConnectionWithContext(ctx context.Context, upd
 	}
 	builder.AddHeader("Accept", "application/json")
 	builder.AddHeader("Content-Type", "application/merge-patch+json")
-	if updateVPNGatewayConnectionOptions.IfMatch != nil {
-		builder.AddHeader("If-Match", fmt.Sprint(*updateVPNGatewayConnectionOptions.IfMatch))
-	}
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
@@ -17480,26 +14078,26 @@ func (vpc *VpcV1) UpdateVPNGatewayConnectionWithContext(ctx context.Context, upd
 	return
 }
 
-// ListVPNGatewayConnectionLocalCIDRs : List all local CIDRs for a VPN gateway connection
+// ListVPNGatewayConnectionLocalCidrs : List all local CIDRs for a VPN gateway connection
 // This request lists all local CIDRs for a VPN gateway connection.
-func (vpc *VpcV1) ListVPNGatewayConnectionLocalCIDRs(ListVPNGatewayConnectionLocalCIDRsOptions *ListVPNGatewayConnectionLocalCIDRsOptions) (result *VPNGatewayConnectionLocalCidRs, response *core.DetailedResponse, err error) {
-	return vpc.ListVPNGatewayConnectionLocalCIDRsWithContext(context.Background(), ListVPNGatewayConnectionLocalCIDRsOptions)
+func (vpc *VpcV1) ListVPNGatewayConnectionLocalCidrs(listVPNGatewayConnectionLocalCidrsOptions *ListVPNGatewayConnectionLocalCidrsOptions) (result *VPNGatewayConnectionLocalCidRs, response *core.DetailedResponse, err error) {
+	return vpc.ListVPNGatewayConnectionLocalCidrsWithContext(context.Background(), listVPNGatewayConnectionLocalCidrsOptions)
 }
 
-// ListVPNGatewayConnectionLocalCIDRsWithContext is an alternate form of the ListVPNGatewayConnectionLocalCIDRs method which supports a Context parameter
-func (vpc *VpcV1) ListVPNGatewayConnectionLocalCIDRsWithContext(ctx context.Context, ListVPNGatewayConnectionLocalCIDRsOptions *ListVPNGatewayConnectionLocalCIDRsOptions) (result *VPNGatewayConnectionLocalCidRs, response *core.DetailedResponse, err error) {
-	err = core.ValidateNotNil(ListVPNGatewayConnectionLocalCIDRsOptions, "ListVPNGatewayConnectionLocalCIDRsOptions cannot be nil")
+// ListVPNGatewayConnectionLocalCidrsWithContext is an alternate form of the ListVPNGatewayConnectionLocalCidrs method which supports a Context parameter
+func (vpc *VpcV1) ListVPNGatewayConnectionLocalCidrsWithContext(ctx context.Context, listVPNGatewayConnectionLocalCidrsOptions *ListVPNGatewayConnectionLocalCidrsOptions) (result *VPNGatewayConnectionLocalCidRs, response *core.DetailedResponse, err error) {
+	err = core.ValidateNotNil(listVPNGatewayConnectionLocalCidrsOptions, "listVPNGatewayConnectionLocalCidrsOptions cannot be nil")
 	if err != nil {
 		return
 	}
-	err = core.ValidateStruct(ListVPNGatewayConnectionLocalCIDRsOptions, "ListVPNGatewayConnectionLocalCIDRsOptions")
+	err = core.ValidateStruct(listVPNGatewayConnectionLocalCidrsOptions, "listVPNGatewayConnectionLocalCidrsOptions")
 	if err != nil {
 		return
 	}
 
 	pathParamsMap := map[string]string{
-		"vpn_gateway_id": *ListVPNGatewayConnectionLocalCIDRsOptions.VPNGatewayID,
-		"id":             *ListVPNGatewayConnectionLocalCIDRsOptions.ID,
+		"vpn_gateway_id": *listVPNGatewayConnectionLocalCidrsOptions.VPNGatewayID,
+		"id":             *listVPNGatewayConnectionLocalCidrsOptions.ID,
 	}
 
 	builder := core.NewRequestBuilder(core.GET)
@@ -17510,11 +14108,11 @@ func (vpc *VpcV1) ListVPNGatewayConnectionLocalCIDRsWithContext(ctx context.Cont
 		return
 	}
 
-	for headerName, headerValue := range ListVPNGatewayConnectionLocalCIDRsOptions.Headers {
+	for headerName, headerValue := range listVPNGatewayConnectionLocalCidrsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVPNGatewayConnectionLocalCIDRs")
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVPNGatewayConnectionLocalCidrs")
 	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
@@ -17934,1008 +14532,6 @@ func (vpc *VpcV1) AddVPNGatewayConnectionPeerCIDRWithContext(ctx context.Context
 	return
 }
 
-// ListVPNServers : List all VPN servers
-// This request lists all VPN servers.
-func (vpc *VpcV1) ListVPNServers(listVPNServersOptions *ListVPNServersOptions) (result *VPNServerCollection, response *core.DetailedResponse, err error) {
-	return vpc.ListVPNServersWithContext(context.Background(), listVPNServersOptions)
-}
-
-// ListVPNServersWithContext is an alternate form of the ListVPNServers method which supports a Context parameter
-func (vpc *VpcV1) ListVPNServersWithContext(ctx context.Context, listVPNServersOptions *ListVPNServersOptions) (result *VPNServerCollection, response *core.DetailedResponse, err error) {
-	err = core.ValidateStruct(listVPNServersOptions, "listVPNServersOptions")
-	if err != nil {
-		return
-	}
-
-	builder := core.NewRequestBuilder(core.GET)
-	builder = builder.WithContext(ctx)
-	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
-	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/vpn_servers?maturity=beta`, nil)
-	if err != nil {
-		return
-	}
-
-	for headerName, headerValue := range listVPNServersOptions.Headers {
-		builder.AddHeader(headerName, headerValue)
-	}
-
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVPNServers")
-	for headerName, headerValue := range sdkHeaders {
-		builder.AddHeader(headerName, headerValue)
-	}
-	builder.AddHeader("Accept", "application/json")
-
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
-	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
-	if listVPNServersOptions.Name != nil {
-		builder.AddQuery("name", fmt.Sprint(*listVPNServersOptions.Name))
-	}
-	if listVPNServersOptions.Start != nil {
-		builder.AddQuery("start", fmt.Sprint(*listVPNServersOptions.Start))
-	}
-	if listVPNServersOptions.Limit != nil {
-		builder.AddQuery("limit", fmt.Sprint(*listVPNServersOptions.Limit))
-	}
-	if listVPNServersOptions.ResourceGroupID != nil {
-		builder.AddQuery("resource_group.id", fmt.Sprint(*listVPNServersOptions.ResourceGroupID))
-	}
-	if listVPNServersOptions.Sort != nil {
-		builder.AddQuery("sort", fmt.Sprint(*listVPNServersOptions.Sort))
-	}
-
-	request, err := builder.Build()
-	if err != nil {
-		return
-	}
-
-	var rawResponse map[string]json.RawMessage
-	response, err = vpc.Service.Request(request, &rawResponse)
-	if err != nil {
-		return
-	}
-	if rawResponse != nil {
-		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalVPNServerCollection)
-		if err != nil {
-			return
-		}
-		response.Result = result
-	}
-
-	return
-}
-
-// CreateVPNServer : Create a VPN server
-// This request creates a new VPN server.
-func (vpc *VpcV1) CreateVPNServer(createVPNServerOptions *CreateVPNServerOptions) (result *VPNServer, response *core.DetailedResponse, err error) {
-	return vpc.CreateVPNServerWithContext(context.Background(), createVPNServerOptions)
-}
-
-// CreateVPNServerWithContext is an alternate form of the CreateVPNServer method which supports a Context parameter
-func (vpc *VpcV1) CreateVPNServerWithContext(ctx context.Context, createVPNServerOptions *CreateVPNServerOptions) (result *VPNServer, response *core.DetailedResponse, err error) {
-	err = core.ValidateNotNil(createVPNServerOptions, "createVPNServerOptions cannot be nil")
-	if err != nil {
-		return
-	}
-	err = core.ValidateStruct(createVPNServerOptions, "createVPNServerOptions")
-	if err != nil {
-		return
-	}
-
-	builder := core.NewRequestBuilder(core.POST)
-	builder = builder.WithContext(ctx)
-	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
-	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/vpn_servers/?maturity=beta`, nil)
-	if err != nil {
-		return
-	}
-	for headerName, headerValue := range createVPNServerOptions.Headers {
-		builder.AddHeader(headerName, headerValue)
-	}
-
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateVPNServer")
-	for headerName, headerValue := range sdkHeaders {
-		builder.AddHeader(headerName, headerValue)
-	}
-	builder.AddHeader("Accept", "application/json")
-	builder.AddHeader("Content-Type", "application/json")
-
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
-	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
-
-	body := make(map[string]interface{})
-	if createVPNServerOptions.Certificate != nil {
-		body["certificate"] = createVPNServerOptions.Certificate
-	}
-	if createVPNServerOptions.ClientAuthentication != nil {
-		body["client_authentication"] = createVPNServerOptions.ClientAuthentication
-	}
-	if createVPNServerOptions.ClientIPPool != nil {
-		body["client_ip_pool"] = createVPNServerOptions.ClientIPPool
-	}
-	if createVPNServerOptions.Subnets != nil {
-		body["subnets"] = createVPNServerOptions.Subnets
-	}
-	if createVPNServerOptions.ClientDnsServerIps != nil {
-		body["client_dns_server_ips"] = createVPNServerOptions.ClientDnsServerIps
-	}
-	if createVPNServerOptions.ClientIdleTimeout != nil {
-		body["client_idle_timeout"] = createVPNServerOptions.ClientIdleTimeout
-	}
-	if createVPNServerOptions.EnableSplitTunneling != nil {
-		body["enable_split_tunneling"] = createVPNServerOptions.EnableSplitTunneling
-	}
-	if createVPNServerOptions.Name != nil {
-		body["name"] = createVPNServerOptions.Name
-	}
-	if createVPNServerOptions.Port != nil {
-		body["port"] = createVPNServerOptions.Port
-	}
-	if createVPNServerOptions.Protocol != nil {
-		body["protocol"] = createVPNServerOptions.Protocol
-	}
-	if createVPNServerOptions.ResourceGroup != nil {
-		body["resource_group"] = createVPNServerOptions.ResourceGroup
-	}
-	if createVPNServerOptions.SecurityGroups != nil {
-		body["security_groups"] = createVPNServerOptions.SecurityGroups
-	}
-	_, err = builder.SetBodyContentJSON(body)
-	if err != nil {
-		return
-	}
-
-	request, err := builder.Build()
-	if err != nil {
-		return
-	}
-
-	var rawResponse map[string]json.RawMessage
-	response, err = vpc.Service.Request(request, &rawResponse)
-	if err != nil {
-		return
-	}
-	if rawResponse != nil {
-		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalVPNServer)
-		if err != nil {
-			return
-		}
-		response.Result = result
-	}
-
-	return
-}
-
-// DeleteVPNServer : Delete a VPN server
-// This request deletes a VPN server. This operation cannot be reversed.
-func (vpc *VpcV1) DeleteVPNServer(deleteVPNServerOptions *DeleteVPNServerOptions) (response *core.DetailedResponse, err error) {
-	return vpc.DeleteVPNServerWithContext(context.Background(), deleteVPNServerOptions)
-}
-
-// DeleteVPNServerWithContext is an alternate form of the DeleteVPNServer method which supports a Context parameter
-func (vpc *VpcV1) DeleteVPNServerWithContext(ctx context.Context, deleteVPNServerOptions *DeleteVPNServerOptions) (response *core.DetailedResponse, err error) {
-	err = core.ValidateNotNil(deleteVPNServerOptions, "deleteVPNServerOptions cannot be nil")
-	if err != nil {
-		return
-	}
-	err = core.ValidateStruct(deleteVPNServerOptions, "deleteVPNServerOptions")
-	if err != nil {
-		return
-	}
-
-	pathParamsMap := map[string]string{
-		"id": *deleteVPNServerOptions.ID,
-	}
-
-	builder := core.NewRequestBuilder(core.DELETE)
-	builder = builder.WithContext(ctx)
-	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
-	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/vpn_servers/{id}?maturity=beta`, pathParamsMap)
-	if err != nil {
-		return
-	}
-
-	for headerName, headerValue := range deleteVPNServerOptions.Headers {
-		builder.AddHeader(headerName, headerValue)
-	}
-
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteVPNServer")
-	for headerName, headerValue := range sdkHeaders {
-		builder.AddHeader(headerName, headerValue)
-	}
-	if deleteVPNServerOptions.IfMatch != nil {
-		builder.AddHeader("If-Match", fmt.Sprint(*deleteVPNServerOptions.IfMatch))
-	}
-
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
-	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
-
-	request, err := builder.Build()
-	if err != nil {
-		return
-	}
-
-	response, err = vpc.Service.Request(request, nil)
-
-	return
-}
-
-// GetVPNServer : Retrieve a VPN server
-// This request retrieves a single VPN server specified by the identifier in the URL.
-func (vpc *VpcV1) GetVPNServer(getVPNServerOptions *GetVPNServerOptions) (result *VPNServer, response *core.DetailedResponse, err error) {
-	return vpc.GetVPNServerWithContext(context.Background(), getVPNServerOptions)
-}
-
-// GetVPNServerWithContext is an alternate form of the GetVPNServer method which supports a Context parameter
-func (vpc *VpcV1) GetVPNServerWithContext(ctx context.Context, getVPNServerOptions *GetVPNServerOptions) (result *VPNServer, response *core.DetailedResponse, err error) {
-	err = core.ValidateNotNil(getVPNServerOptions, "getVPNServerOptions cannot be nil")
-	if err != nil {
-		return
-	}
-	err = core.ValidateStruct(getVPNServerOptions, "getVPNServerOptions")
-	if err != nil {
-		return
-	}
-
-	pathParamsMap := map[string]string{
-		"id": *getVPNServerOptions.ID,
-	}
-
-	builder := core.NewRequestBuilder(core.GET)
-	builder = builder.WithContext(ctx)
-	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
-	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/vpn_servers/{id}?maturity=beta`, pathParamsMap)
-	if err != nil {
-		return
-	}
-
-	for headerName, headerValue := range getVPNServerOptions.Headers {
-		builder.AddHeader(headerName, headerValue)
-	}
-
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVPNServer")
-	for headerName, headerValue := range sdkHeaders {
-		builder.AddHeader(headerName, headerValue)
-	}
-	builder.AddHeader("Accept", "application/json")
-
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
-	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
-
-	request, err := builder.Build()
-	if err != nil {
-		return
-	}
-
-	var rawResponse map[string]json.RawMessage
-	response, err = vpc.Service.Request(request, &rawResponse)
-	if err != nil {
-		return
-	}
-	if rawResponse != nil {
-		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalVPNServer)
-		if err != nil {
-			return
-		}
-		response.Result = result
-	}
-
-	return
-}
-
-// UpdateVPNServer : Update a VPN server
-// This request updates the properties of an existing VPN server. Any property changes will cause all connected VPN
-// clients are disconnected from this VPN server except for the name change.
-func (vpc *VpcV1) UpdateVPNServer(updateVPNServerOptions *UpdateVPNServerOptions) (result *VPNServer, response *core.DetailedResponse, err error) {
-	return vpc.UpdateVPNServerWithContext(context.Background(), updateVPNServerOptions)
-}
-
-// UpdateVPNServerWithContext is an alternate form of the UpdateVPNServer method which supports a Context parameter
-func (vpc *VpcV1) UpdateVPNServerWithContext(ctx context.Context, updateVPNServerOptions *UpdateVPNServerOptions) (result *VPNServer, response *core.DetailedResponse, err error) {
-	err = core.ValidateNotNil(updateVPNServerOptions, "updateVPNServerOptions cannot be nil")
-	if err != nil {
-		return
-	}
-	err = core.ValidateStruct(updateVPNServerOptions, "updateVPNServerOptions")
-	if err != nil {
-		return
-	}
-
-	pathParamsMap := map[string]string{
-		"id": *updateVPNServerOptions.ID,
-	}
-
-	builder := core.NewRequestBuilder(core.PATCH)
-	builder = builder.WithContext(ctx)
-	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
-	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/vpn_servers/{id}?maturity=beta`, pathParamsMap)
-	if err != nil {
-		return
-	}
-
-	for headerName, headerValue := range updateVPNServerOptions.Headers {
-		builder.AddHeader(headerName, headerValue)
-	}
-
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateVPNServer")
-	for headerName, headerValue := range sdkHeaders {
-		builder.AddHeader(headerName, headerValue)
-	}
-	builder.AddHeader("Accept", "application/json")
-	builder.AddHeader("Content-Type", "application/merge-patch+json")
-	if updateVPNServerOptions.IfMatch != nil {
-		builder.AddHeader("If-Match", fmt.Sprint(*updateVPNServerOptions.IfMatch))
-	}
-
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
-	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
-
-	_, err = builder.SetBodyContentJSON(updateVPNServerOptions.VPNServerPatch)
-	if err != nil {
-		return
-	}
-
-	request, err := builder.Build()
-	if err != nil {
-		return
-	}
-
-	var rawResponse map[string]json.RawMessage
-	response, err = vpc.Service.Request(request, &rawResponse)
-	if err != nil {
-		return
-	}
-	if rawResponse != nil {
-		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalVPNServer)
-		if err != nil {
-			return
-		}
-		response.Result = result
-	}
-
-	return
-}
-
-// GetVPNServerClientConfiguration : Retrieve client configuration
-// This request retrieves OpenVPN client configuration on a single VPN server specified by the identifier in the URL.
-// This configuration includes directives compatible with OpenVPN releases 2.4 and 2.5.
-func (vpc *VpcV1) GetVPNServerClientConfiguration(getVPNServerClientConfigurationOptions *GetVPNServerClientConfigurationOptions) (result *string, response *core.DetailedResponse, err error) {
-	return vpc.GetVPNServerClientConfigurationWithContext(context.Background(), getVPNServerClientConfigurationOptions)
-}
-
-// GetVPNServerClientConfigurationWithContext is an alternate form of the GetVPNServerClientConfiguration method which supports a Context parameter
-func (vpc *VpcV1) GetVPNServerClientConfigurationWithContext(ctx context.Context, getVPNServerClientConfigurationOptions *GetVPNServerClientConfigurationOptions) (result *string, response *core.DetailedResponse, err error) {
-	err = core.ValidateNotNil(getVPNServerClientConfigurationOptions, "getVPNServerClientConfigurationOptions cannot be nil")
-	if err != nil {
-		return
-	}
-	err = core.ValidateStruct(getVPNServerClientConfigurationOptions, "getVPNServerClientConfigurationOptions")
-	if err != nil {
-		return
-	}
-
-	pathParamsMap := map[string]string{
-		"id": *getVPNServerClientConfigurationOptions.ID,
-	}
-
-	builder := core.NewRequestBuilder(core.GET)
-	builder = builder.WithContext(ctx)
-	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
-	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/vpn_servers/{id}/client_configuration?maturity=beta`, pathParamsMap)
-	if err != nil {
-		return
-	}
-
-	for headerName, headerValue := range getVPNServerClientConfigurationOptions.Headers {
-		builder.AddHeader(headerName, headerValue)
-	}
-
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVPNServerClientConfiguration")
-	for headerName, headerValue := range sdkHeaders {
-		builder.AddHeader(headerName, headerValue)
-	}
-	builder.AddHeader("Accept", "text/plain")
-
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
-	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
-
-	request, err := builder.Build()
-	if err != nil {
-		return
-	}
-
-	response, err = vpc.Service.Request(request, &result)
-
-	return
-}
-
-// ListVPNServerClients : List all VPN clients for a VPN server
-// This request retrieves all connected VPN clients, and any disconnected VPN clients that the VPN server has not yet
-// deleted based on its auto-deletion policy.
-func (vpc *VpcV1) ListVPNServerClients(listVPNServerClientsOptions *ListVPNServerClientsOptions) (result *VPNServerClientCollection, response *core.DetailedResponse, err error) {
-	return vpc.ListVPNServerClientsWithContext(context.Background(), listVPNServerClientsOptions)
-}
-
-// ListVPNServerClientsWithContext is an alternate form of the ListVPNServerClients method which supports a Context parameter
-func (vpc *VpcV1) ListVPNServerClientsWithContext(ctx context.Context, listVPNServerClientsOptions *ListVPNServerClientsOptions) (result *VPNServerClientCollection, response *core.DetailedResponse, err error) {
-	err = core.ValidateNotNil(listVPNServerClientsOptions, "listVPNServerClientsOptions cannot be nil")
-	if err != nil {
-		return
-	}
-	err = core.ValidateStruct(listVPNServerClientsOptions, "listVPNServerClientsOptions")
-	if err != nil {
-		return
-	}
-
-	pathParamsMap := map[string]string{
-		"vpn_server_id": *listVPNServerClientsOptions.VPNServerID,
-	}
-
-	builder := core.NewRequestBuilder(core.GET)
-	builder = builder.WithContext(ctx)
-	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
-	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/vpn_servers/{vpn_server_id}/clients?maturity=beta`, pathParamsMap)
-	if err != nil {
-		return
-	}
-
-	for headerName, headerValue := range listVPNServerClientsOptions.Headers {
-		builder.AddHeader(headerName, headerValue)
-	}
-
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVPNServerClients")
-	for headerName, headerValue := range sdkHeaders {
-		builder.AddHeader(headerName, headerValue)
-	}
-	builder.AddHeader("Accept", "application/json")
-
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
-	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
-	if listVPNServerClientsOptions.Start != nil {
-		builder.AddQuery("start", fmt.Sprint(*listVPNServerClientsOptions.Start))
-	}
-	if listVPNServerClientsOptions.Limit != nil {
-		builder.AddQuery("limit", fmt.Sprint(*listVPNServerClientsOptions.Limit))
-	}
-	if listVPNServerClientsOptions.Sort != nil {
-		builder.AddQuery("sort", fmt.Sprint(*listVPNServerClientsOptions.Sort))
-	}
-
-	request, err := builder.Build()
-	if err != nil {
-		return
-	}
-
-	var rawResponse map[string]json.RawMessage
-	response, err = vpc.Service.Request(request, &rawResponse)
-	if err != nil {
-		return
-	}
-	if rawResponse != nil {
-		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalVPNServerClientCollection)
-		if err != nil {
-			return
-		}
-		response.Result = result
-	}
-
-	return
-}
-
-// DeleteVPNServerClient : Delete a VPN client
-// This request disconnects and deletes the VPN client from the VPN server. The VPN client may reconnect unless its
-// authentication permissions for the configured authentication methods (such as its client certificate) have been
-// revoked.
-func (vpc *VpcV1) DeleteVPNServerClient(deleteVPNServerClientOptions *DeleteVPNServerClientOptions) (response *core.DetailedResponse, err error) {
-	return vpc.DeleteVPNServerClientWithContext(context.Background(), deleteVPNServerClientOptions)
-}
-
-// DeleteVPNServerClientWithContext is an alternate form of the DeleteVPNServerClient method which supports a Context parameter
-func (vpc *VpcV1) DeleteVPNServerClientWithContext(ctx context.Context, deleteVPNServerClientOptions *DeleteVPNServerClientOptions) (response *core.DetailedResponse, err error) {
-	err = core.ValidateNotNil(deleteVPNServerClientOptions, "deleteVPNServerClientOptions cannot be nil")
-	if err != nil {
-		return
-	}
-	err = core.ValidateStruct(deleteVPNServerClientOptions, "deleteVPNServerClientOptions")
-	if err != nil {
-		return
-	}
-
-	pathParamsMap := map[string]string{
-		"vpn_server_id": *deleteVPNServerClientOptions.VPNServerID,
-		"id":            *deleteVPNServerClientOptions.ID,
-	}
-
-	builder := core.NewRequestBuilder(core.DELETE)
-	builder = builder.WithContext(ctx)
-	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
-	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/vpn_servers/{vpn_server_id}/clients/{id}?maturity=beta`, pathParamsMap)
-	if err != nil {
-		return
-	}
-
-	for headerName, headerValue := range deleteVPNServerClientOptions.Headers {
-		builder.AddHeader(headerName, headerValue)
-	}
-
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteVPNServerClient")
-	for headerName, headerValue := range sdkHeaders {
-		builder.AddHeader(headerName, headerValue)
-	}
-
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
-	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
-
-	request, err := builder.Build()
-	if err != nil {
-		return
-	}
-
-	response, err = vpc.Service.Request(request, nil)
-
-	return
-}
-
-// GetVPNServerClient : Retrieve a VPN client
-// This request retrieves a single VPN client specified by the identifier in the URL.
-func (vpc *VpcV1) GetVPNServerClient(getVPNServerClientOptions *GetVPNServerClientOptions) (result *VPNServerClient, response *core.DetailedResponse, err error) {
-	return vpc.GetVPNServerClientWithContext(context.Background(), getVPNServerClientOptions)
-}
-
-// GetVPNServerClientWithContext is an alternate form of the GetVPNServerClient method which supports a Context parameter
-func (vpc *VpcV1) GetVPNServerClientWithContext(ctx context.Context, getVPNServerClientOptions *GetVPNServerClientOptions) (result *VPNServerClient, response *core.DetailedResponse, err error) {
-	err = core.ValidateNotNil(getVPNServerClientOptions, "getVPNServerClientOptions cannot be nil")
-	if err != nil {
-		return
-	}
-	err = core.ValidateStruct(getVPNServerClientOptions, "getVPNServerClientOptions")
-	if err != nil {
-		return
-	}
-
-	pathParamsMap := map[string]string{
-		"vpn_server_id": *getVPNServerClientOptions.VPNServerID,
-		"id":            *getVPNServerClientOptions.ID,
-	}
-
-	builder := core.NewRequestBuilder(core.GET)
-	builder = builder.WithContext(ctx)
-	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
-	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/vpn_servers/{vpn_server_id}/clients/{id}?maturity=beta`, pathParamsMap)
-	if err != nil {
-		return
-	}
-
-	for headerName, headerValue := range getVPNServerClientOptions.Headers {
-		builder.AddHeader(headerName, headerValue)
-	}
-
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVPNServerClient")
-	for headerName, headerValue := range sdkHeaders {
-		builder.AddHeader(headerName, headerValue)
-	}
-	builder.AddHeader("Accept", "application/json")
-
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
-	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
-
-	request, err := builder.Build()
-	if err != nil {
-		return
-	}
-
-	var rawResponse map[string]json.RawMessage
-	response, err = vpc.Service.Request(request, &rawResponse)
-	if err != nil {
-		return
-	}
-	if rawResponse != nil {
-		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalVPNServerClient)
-		if err != nil {
-			return
-		}
-		response.Result = result
-	}
-
-	return
-}
-
-// DisconnectVPNClient : Disconnect a VPN client
-// This request disconnects the specified VPN client, and deletes the client according to the VPN server's auto-deletion
-// policy. The VPN client may reconnect unless its authentication permissions for the configured authentication methods
-// (such as its client certificate) have been revoked.
-func (vpc *VpcV1) DisconnectVPNClient(disconnectVPNClientOptions *DisconnectVPNClientOptions) (response *core.DetailedResponse, err error) {
-	return vpc.DisconnectVPNClientWithContext(context.Background(), disconnectVPNClientOptions)
-}
-
-// DisconnectVPNClientWithContext is an alternate form of the DisconnectVPNClient method which supports a Context parameter
-func (vpc *VpcV1) DisconnectVPNClientWithContext(ctx context.Context, disconnectVPNClientOptions *DisconnectVPNClientOptions) (response *core.DetailedResponse, err error) {
-	err = core.ValidateNotNil(disconnectVPNClientOptions, "disconnectVPNClientOptions cannot be nil")
-	if err != nil {
-		return
-	}
-	err = core.ValidateStruct(disconnectVPNClientOptions, "disconnectVPNClientOptions")
-	if err != nil {
-		return
-	}
-
-	pathParamsMap := map[string]string{
-		"vpn_server_id": *disconnectVPNClientOptions.VPNServerID,
-		"id":            *disconnectVPNClientOptions.ID,
-	}
-
-	builder := core.NewRequestBuilder(core.POST)
-	builder = builder.WithContext(ctx)
-	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
-	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/vpn_servers/{vpn_server_id}/clients/{id}/disconnect?maturity=beta`, pathParamsMap)
-	if err != nil {
-		return
-	}
-
-	for headerName, headerValue := range disconnectVPNClientOptions.Headers {
-		builder.AddHeader(headerName, headerValue)
-	}
-
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DisconnectVPNClient")
-	for headerName, headerValue := range sdkHeaders {
-		builder.AddHeader(headerName, headerValue)
-	}
-
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
-	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
-
-	request, err := builder.Build()
-	if err != nil {
-		return
-	}
-
-	response, err = vpc.Service.Request(request, nil)
-
-	return
-}
-
-// ListVPNServerRoutes : List all VPN routes for a VPN server
-// This request lists all VPN routes in a VPN server. All VPN routes are provided to the VPN client when the connection
-// is established.  Packets received from the VPN client will be dropped by the VPN server if there is no VPN route
-// matching their specified destinations. All VPN routes must be unique within the VPN server.
-func (vpc *VpcV1) ListVPNServerRoutes(listVPNServerRoutesOptions *ListVPNServerRoutesOptions) (result *VPNServerRouteCollection, response *core.DetailedResponse, err error) {
-	return vpc.ListVPNServerRoutesWithContext(context.Background(), listVPNServerRoutesOptions)
-}
-
-// ListVPNServerRoutesWithContext is an alternate form of the ListVPNServerRoutes method which supports a Context parameter
-func (vpc *VpcV1) ListVPNServerRoutesWithContext(ctx context.Context, listVPNServerRoutesOptions *ListVPNServerRoutesOptions) (result *VPNServerRouteCollection, response *core.DetailedResponse, err error) {
-	err = core.ValidateNotNil(listVPNServerRoutesOptions, "listVPNServerRoutesOptions cannot be nil")
-	if err != nil {
-		return
-	}
-	err = core.ValidateStruct(listVPNServerRoutesOptions, "listVPNServerRoutesOptions")
-	if err != nil {
-		return
-	}
-
-	pathParamsMap := map[string]string{
-		"vpn_server_id": *listVPNServerRoutesOptions.VPNServerID,
-	}
-
-	builder := core.NewRequestBuilder(core.GET)
-	builder = builder.WithContext(ctx)
-	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
-	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/vpn_servers/{vpn_server_id}/routes?maturity=beta`, pathParamsMap)
-	if err != nil {
-		return
-	}
-
-	for headerName, headerValue := range listVPNServerRoutesOptions.Headers {
-		builder.AddHeader(headerName, headerValue)
-	}
-
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVPNServerRoutes")
-	for headerName, headerValue := range sdkHeaders {
-		builder.AddHeader(headerName, headerValue)
-	}
-	builder.AddHeader("Accept", "application/json")
-
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
-	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
-	if listVPNServerRoutesOptions.Start != nil {
-		builder.AddQuery("start", fmt.Sprint(*listVPNServerRoutesOptions.Start))
-	}
-	if listVPNServerRoutesOptions.Limit != nil {
-		builder.AddQuery("limit", fmt.Sprint(*listVPNServerRoutesOptions.Limit))
-	}
-	if listVPNServerRoutesOptions.Sort != nil {
-		builder.AddQuery("sort", fmt.Sprint(*listVPNServerRoutesOptions.Sort))
-	}
-
-	request, err := builder.Build()
-	if err != nil {
-		return
-	}
-
-	var rawResponse map[string]json.RawMessage
-	response, err = vpc.Service.Request(request, &rawResponse)
-	if err != nil {
-		return
-	}
-	if rawResponse != nil {
-		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalVPNServerRouteCollection)
-		if err != nil {
-			return
-		}
-		response.Result = result
-	}
-
-	return
-}
-
-// CreateVPNServerRoute : Create a VPN route for a VPN server
-// This request creates a new VPN route in the VPN server. All VPN routes are provided to the VPN client when the
-// connection is established. Packets received from the VPN client will be dropped by the VPN server if there is no VPN
-// route matching their specified destinations. All VPN routes must be unique within the VPN server. destination of the
-// packet.
-func (vpc *VpcV1) CreateVPNServerRoute(createVPNServerRouteOptions *CreateVPNServerRouteOptions) (result *VPNServerRoute, response *core.DetailedResponse, err error) {
-	return vpc.CreateVPNServerRouteWithContext(context.Background(), createVPNServerRouteOptions)
-}
-
-// CreateVPNServerRouteWithContext is an alternate form of the CreateVPNServerRoute method which supports a Context parameter
-func (vpc *VpcV1) CreateVPNServerRouteWithContext(ctx context.Context, createVPNServerRouteOptions *CreateVPNServerRouteOptions) (result *VPNServerRoute, response *core.DetailedResponse, err error) {
-	err = core.ValidateNotNil(createVPNServerRouteOptions, "createVPNServerRouteOptions cannot be nil")
-	if err != nil {
-		return
-	}
-	err = core.ValidateStruct(createVPNServerRouteOptions, "createVPNServerRouteOptions")
-	if err != nil {
-		return
-	}
-
-	pathParamsMap := map[string]string{
-		"vpn_server_id": *createVPNServerRouteOptions.VPNServerID,
-	}
-
-	builder := core.NewRequestBuilder(core.POST)
-	builder = builder.WithContext(ctx)
-	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
-	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/vpn_servers/{vpn_server_id}/routes?maturity=beta`, pathParamsMap)
-	if err != nil {
-		return
-	}
-
-	for headerName, headerValue := range createVPNServerRouteOptions.Headers {
-		builder.AddHeader(headerName, headerValue)
-	}
-
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateVPNServerRoute")
-	for headerName, headerValue := range sdkHeaders {
-		builder.AddHeader(headerName, headerValue)
-	}
-	builder.AddHeader("Accept", "application/json")
-	builder.AddHeader("Content-Type", "application/json")
-
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
-	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
-
-	body := make(map[string]interface{})
-	if createVPNServerRouteOptions.Destination != nil {
-		body["destination"] = createVPNServerRouteOptions.Destination
-	}
-	if createVPNServerRouteOptions.Action != nil {
-		body["action"] = createVPNServerRouteOptions.Action
-	}
-	if createVPNServerRouteOptions.Name != nil {
-		body["name"] = createVPNServerRouteOptions.Name
-	}
-	_, err = builder.SetBodyContentJSON(body)
-	if err != nil {
-		return
-	}
-
-	request, err := builder.Build()
-	if err != nil {
-		return
-	}
-
-	var rawResponse map[string]json.RawMessage
-	response, err = vpc.Service.Request(request, &rawResponse)
-	if err != nil {
-		return
-	}
-	if rawResponse != nil {
-		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalVPNServerRoute)
-		if err != nil {
-			return
-		}
-		response.Result = result
-	}
-
-	return
-}
-
-// DeleteVPNServerRoute : Delete a VPN route
-// This request deletes a VPN route. This operation cannot be reversed.
-func (vpc *VpcV1) DeleteVPNServerRoute(deleteVPNServerRouteOptions *DeleteVPNServerRouteOptions) (response *core.DetailedResponse, err error) {
-	return vpc.DeleteVPNServerRouteWithContext(context.Background(), deleteVPNServerRouteOptions)
-}
-
-// DeleteVPNServerRouteWithContext is an alternate form of the DeleteVPNServerRoute method which supports a Context parameter
-func (vpc *VpcV1) DeleteVPNServerRouteWithContext(ctx context.Context, deleteVPNServerRouteOptions *DeleteVPNServerRouteOptions) (response *core.DetailedResponse, err error) {
-	err = core.ValidateNotNil(deleteVPNServerRouteOptions, "deleteVPNServerRouteOptions cannot be nil")
-	if err != nil {
-		return
-	}
-	err = core.ValidateStruct(deleteVPNServerRouteOptions, "deleteVPNServerRouteOptions")
-	if err != nil {
-		return
-	}
-
-	pathParamsMap := map[string]string{
-		"vpn_server_id": *deleteVPNServerRouteOptions.VPNServerID,
-		"id":            *deleteVPNServerRouteOptions.ID,
-	}
-
-	builder := core.NewRequestBuilder(core.DELETE)
-	builder = builder.WithContext(ctx)
-	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
-	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/vpn_servers/{vpn_server_id}/routes/{id}?maturity=beta`, pathParamsMap)
-	if err != nil {
-		return
-	}
-
-	for headerName, headerValue := range deleteVPNServerRouteOptions.Headers {
-		builder.AddHeader(headerName, headerValue)
-	}
-
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteVPNServerRoute")
-	for headerName, headerValue := range sdkHeaders {
-		builder.AddHeader(headerName, headerValue)
-	}
-
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
-	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
-
-	request, err := builder.Build()
-	if err != nil {
-		return
-	}
-
-	response, err = vpc.Service.Request(request, nil)
-
-	return
-}
-
-// GetVPNServerRoute : Retrieve a VPN route
-// This request retrieves a single VPN route specified by the identifier in the URL.
-func (vpc *VpcV1) GetVPNServerRoute(getVPNServerRouteOptions *GetVPNServerRouteOptions) (result *VPNServerRoute, response *core.DetailedResponse, err error) {
-	return vpc.GetVPNServerRouteWithContext(context.Background(), getVPNServerRouteOptions)
-}
-
-// GetVPNServerRouteWithContext is an alternate form of the GetVPNServerRoute method which supports a Context parameter
-func (vpc *VpcV1) GetVPNServerRouteWithContext(ctx context.Context, getVPNServerRouteOptions *GetVPNServerRouteOptions) (result *VPNServerRoute, response *core.DetailedResponse, err error) {
-	err = core.ValidateNotNil(getVPNServerRouteOptions, "getVPNServerRouteOptions cannot be nil")
-	if err != nil {
-		return
-	}
-	err = core.ValidateStruct(getVPNServerRouteOptions, "getVPNServerRouteOptions")
-	if err != nil {
-		return
-	}
-
-	pathParamsMap := map[string]string{
-		"vpn_server_id": *getVPNServerRouteOptions.VPNServerID,
-		"id":            *getVPNServerRouteOptions.ID,
-	}
-
-	builder := core.NewRequestBuilder(core.GET)
-	builder = builder.WithContext(ctx)
-	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
-	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/vpn_servers/{vpn_server_id}/routes/{id}?maturity=beta`, pathParamsMap)
-	if err != nil {
-		return
-	}
-
-	for headerName, headerValue := range getVPNServerRouteOptions.Headers {
-		builder.AddHeader(headerName, headerValue)
-	}
-
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVPNServerRoute")
-	for headerName, headerValue := range sdkHeaders {
-		builder.AddHeader(headerName, headerValue)
-	}
-	builder.AddHeader("Accept", "application/json")
-
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
-	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
-
-	request, err := builder.Build()
-	if err != nil {
-		return
-	}
-
-	var rawResponse map[string]json.RawMessage
-	response, err = vpc.Service.Request(request, &rawResponse)
-	if err != nil {
-		return
-	}
-	if rawResponse != nil {
-		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalVPNServerRoute)
-		if err != nil {
-			return
-		}
-		response.Result = result
-	}
-
-	return
-}
-
-// UpdateVPNServerRoute : Update a VPN route
-// This request updates a VPN route with the information in a provided VPN route patch. The VPN route patch object is
-// structured in the same way as a retrieved VPN route and contains only the information to be updated.
-func (vpc *VpcV1) UpdateVPNServerRoute(updateVPNServerRouteOptions *UpdateVPNServerRouteOptions) (result *VPNServerRoute, response *core.DetailedResponse, err error) {
-	return vpc.UpdateVPNServerRouteWithContext(context.Background(), updateVPNServerRouteOptions)
-}
-
-// UpdateVPNServerRouteWithContext is an alternate form of the UpdateVPNServerRoute method which supports a Context parameter
-func (vpc *VpcV1) UpdateVPNServerRouteWithContext(ctx context.Context, updateVPNServerRouteOptions *UpdateVPNServerRouteOptions) (result *VPNServerRoute, response *core.DetailedResponse, err error) {
-	err = core.ValidateNotNil(updateVPNServerRouteOptions, "updateVPNServerRouteOptions cannot be nil")
-	if err != nil {
-		return
-	}
-	err = core.ValidateStruct(updateVPNServerRouteOptions, "updateVPNServerRouteOptions")
-	if err != nil {
-		return
-	}
-
-	pathParamsMap := map[string]string{
-		"vpn_server_id": *updateVPNServerRouteOptions.VPNServerID,
-		"id":            *updateVPNServerRouteOptions.ID,
-	}
-
-	builder := core.NewRequestBuilder(core.PATCH)
-	builder = builder.WithContext(ctx)
-	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
-	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/vpn_servers/{vpn_server_id}/routes/{id}?maturity=beta`, pathParamsMap)
-	if err != nil {
-		return
-	}
-
-	for headerName, headerValue := range updateVPNServerRouteOptions.Headers {
-		builder.AddHeader(headerName, headerValue)
-	}
-
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateVPNServerRoute")
-	for headerName, headerValue := range sdkHeaders {
-		builder.AddHeader(headerName, headerValue)
-	}
-	builder.AddHeader("Accept", "application/json")
-	builder.AddHeader("Content-Type", "application/merge-patch+json")
-
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
-	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
-
-	_, err = builder.SetBodyContentJSON(updateVPNServerRouteOptions.VPNServerRoutePatch)
-	if err != nil {
-		return
-	}
-
-	request, err := builder.Build()
-	if err != nil {
-		return
-	}
-
-	var rawResponse map[string]json.RawMessage
-	response, err = vpc.Service.Request(request, &rawResponse)
-	if err != nil {
-		return
-	}
-	if rawResponse != nil {
-		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalVPNServerRoute)
-		if err != nil {
-			return
-		}
-		response.Result = result
-	}
-
-	return
-}
-
 // ListLoadBalancerProfiles : List all load balancer profiles
 // This request lists all load balancer profiles available in the region. A load balancer profile specifies the
 // performance characteristics and pricing model for a load balancer.
@@ -19099,9 +14695,6 @@ func (vpc *VpcV1) ListLoadBalancersWithContext(ctx context.Context, listLoadBala
 	}
 	if listLoadBalancersOptions.Limit != nil {
 		builder.AddQuery("limit", fmt.Sprint(*listLoadBalancersOptions.Limit))
-	}
-	if listLoadBalancersOptions.ResourceGroupID != nil {
-		builder.AddQuery("resource_group.id", fmt.Sprint(*listLoadBalancersOptions.ResourceGroupID))
 	}
 
 	request, err := builder.Build()
@@ -19589,9 +15182,6 @@ func (vpc *VpcV1) CreateLoadBalancerListenerWithContext(ctx context.Context, cre
 	if createLoadBalancerListenerOptions.DefaultPool != nil {
 		body["default_pool"] = createLoadBalancerListenerOptions.DefaultPool
 	}
-	if createLoadBalancerListenerOptions.HTTPSRedirect != nil {
-		body["https_redirect"] = createLoadBalancerListenerOptions.HTTPSRedirect
-	}
 	if createLoadBalancerListenerOptions.Policies != nil {
 		body["policies"] = createLoadBalancerListenerOptions.Policies
 	}
@@ -19622,8 +15212,7 @@ func (vpc *VpcV1) CreateLoadBalancerListenerWithContext(ctx context.Context, cre
 }
 
 // DeleteLoadBalancerListener : Delete a load balancer listener
-// This request deletes a load balancer listener. This operation cannot be reversed. For this operation to succeed, the
-// listener must not be the target of another load balancer listener.
+// This request deletes a load balancer listener. This operation cannot be reversed.
 func (vpc *VpcV1) DeleteLoadBalancerListener(deleteLoadBalancerListenerOptions *DeleteLoadBalancerListenerOptions) (response *core.DetailedResponse, err error) {
 	return vpc.DeleteLoadBalancerListenerWithContext(context.Background(), deleteLoadBalancerListenerOptions)
 }
@@ -21361,9 +16950,6 @@ func (vpc *VpcV1) CreateEndpointGatewayWithContext(ctx context.Context, createEn
 	if createEndpointGatewayOptions.ResourceGroup != nil {
 		body["resource_group"] = createEndpointGatewayOptions.ResourceGroup
 	}
-	if createEndpointGatewayOptions.SecurityGroups != nil {
-		body["security_groups"] = createEndpointGatewayOptions.SecurityGroups
-	}
 	_, err = builder.SetBodyContentJSON(body)
 	if err != nil {
 		return
@@ -22185,54 +17771,6 @@ func (vpc *VpcV1) UpdateFlowLogCollectorWithContext(ctx context.Context, updateF
 	return
 }
 
-// AddBareMetalServerNetworkInterfaceFloatingIPOptions : The AddBareMetalServerNetworkInterfaceFloatingIP options.
-type AddBareMetalServerNetworkInterfaceFloatingIPOptions struct {
-	// The bare metal server identifier.
-	BareMetalServerID *string `validate:"required,ne="`
-
-	// The network interface identifier.
-	NetworkInterfaceID *string `validate:"required,ne="`
-
-	// The floating IP identifier.
-	ID *string `validate:"required,ne="`
-
-	// Allows users to set headers on API requests
-	Headers map[string]string
-}
-
-// NewAddBareMetalServerNetworkInterfaceFloatingIPOptions : Instantiate AddBareMetalServerNetworkInterfaceFloatingIPOptions
-func (*VpcV1) NewAddBareMetalServerNetworkInterfaceFloatingIPOptions(bareMetalServerID string, networkInterfaceID string, id string) *AddBareMetalServerNetworkInterfaceFloatingIPOptions {
-	return &AddBareMetalServerNetworkInterfaceFloatingIPOptions{
-		BareMetalServerID:  core.StringPtr(bareMetalServerID),
-		NetworkInterfaceID: core.StringPtr(networkInterfaceID),
-		ID:                 core.StringPtr(id),
-	}
-}
-
-// SetBareMetalServerID : Allow user to set BareMetalServerID
-func (options *AddBareMetalServerNetworkInterfaceFloatingIPOptions) SetBareMetalServerID(bareMetalServerID string) *AddBareMetalServerNetworkInterfaceFloatingIPOptions {
-	options.BareMetalServerID = core.StringPtr(bareMetalServerID)
-	return options
-}
-
-// SetNetworkInterfaceID : Allow user to set NetworkInterfaceID
-func (options *AddBareMetalServerNetworkInterfaceFloatingIPOptions) SetNetworkInterfaceID(networkInterfaceID string) *AddBareMetalServerNetworkInterfaceFloatingIPOptions {
-	options.NetworkInterfaceID = core.StringPtr(networkInterfaceID)
-	return options
-}
-
-// SetID : Allow user to set ID
-func (options *AddBareMetalServerNetworkInterfaceFloatingIPOptions) SetID(id string) *AddBareMetalServerNetworkInterfaceFloatingIPOptions {
-	options.ID = core.StringPtr(id)
-	return options
-}
-
-// SetHeaders : Allow user to set Headers
-func (options *AddBareMetalServerNetworkInterfaceFloatingIPOptions) SetHeaders(param map[string]string) *AddBareMetalServerNetworkInterfaceFloatingIPOptions {
-	options.Headers = param
-	return options
-}
-
 // AddEndpointGatewayIPOptions : The AddEndpointGatewayIP options.
 type AddEndpointGatewayIPOptions struct {
 	// The endpoint gateway identifier.
@@ -22353,54 +17891,6 @@ func (options *AddSecurityGroupNetworkInterfaceOptions) SetID(id string) *AddSec
 
 // SetHeaders : Allow user to set Headers
 func (options *AddSecurityGroupNetworkInterfaceOptions) SetHeaders(param map[string]string) *AddSecurityGroupNetworkInterfaceOptions {
-	options.Headers = param
-	return options
-}
-
-// AddVPNGatewayAdvertisedCIDROptions : The AddVPNGatewayAdvertisedCIDR options.
-type AddVPNGatewayAdvertisedCIDROptions struct {
-	// The VPN gateway identifier.
-	VPNGatewayID *string `validate:"required,ne="`
-
-	// The address prefix part of the CIDR.
-	CIDRPrefix *string `validate:"required,ne="`
-
-	// The prefix length part of the CIDR.
-	PrefixLength *string `validate:"required,ne="`
-
-	// Allows users to set headers on API requests
-	Headers map[string]string
-}
-
-// NewAddVPNGatewayAdvertisedCIDROptions : Instantiate AddVPNGatewayAdvertisedCIDROptions
-func (*VpcV1) NewAddVPNGatewayAdvertisedCIDROptions(vpnGatewayID string, cidrPrefix string, prefixLength string) *AddVPNGatewayAdvertisedCIDROptions {
-	return &AddVPNGatewayAdvertisedCIDROptions{
-		VPNGatewayID: core.StringPtr(vpnGatewayID),
-		CIDRPrefix:   core.StringPtr(cidrPrefix),
-		PrefixLength: core.StringPtr(prefixLength),
-	}
-}
-
-// SetVPNGatewayID : Allow user to set VPNGatewayID
-func (options *AddVPNGatewayAdvertisedCIDROptions) SetVPNGatewayID(vpnGatewayID string) *AddVPNGatewayAdvertisedCIDROptions {
-	options.VPNGatewayID = core.StringPtr(vpnGatewayID)
-	return options
-}
-
-// SetCIDRPrefix : Allow user to set CIDRPrefix
-func (options *AddVPNGatewayAdvertisedCIDROptions) SetCIDRPrefix(cidrPrefix string) *AddVPNGatewayAdvertisedCIDROptions {
-	options.CIDRPrefix = core.StringPtr(cidrPrefix)
-	return options
-}
-
-// SetPrefixLength : Allow user to set PrefixLength
-func (options *AddVPNGatewayAdvertisedCIDROptions) SetPrefixLength(prefixLength string) *AddVPNGatewayAdvertisedCIDROptions {
-	options.PrefixLength = core.StringPtr(prefixLength)
-	return options
-}
-
-// SetHeaders : Allow user to set Headers
-func (options *AddVPNGatewayAdvertisedCIDROptions) SetHeaders(param map[string]string) *AddVPNGatewayAdvertisedCIDROptions {
 	options.Headers = param
 	return options
 }
@@ -22705,2886 +18195,6 @@ func (addressPrefixPatch *AddressPrefixPatch) AsPatch() (patch map[string]interf
 	return
 }
 
-// BackupPolicy : BackupPolicy struct
-type BackupPolicy struct {
-	// The date and time that the backup policy was created.
-	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
-
-	// The CRN for this backup policy.
-	CRN *string `json:"crn" validate:"required"`
-
-	// The URL for this backup policy.
-	Href *string `json:"href" validate:"required"`
-
-	// The unique identifier for this backup policy.
-	ID *string `json:"id" validate:"required"`
-
-	// The lifecycle state of the backup policy.
-	LifecycleState *string `json:"lifecycle_state" validate:"required"`
-
-	// A resource type this backup policy applies to. Resources that have both a matching type and a matching user tag will
-	// be subject to the backup policy.
-	MatchResourceTypes []string `json:"match_resource_types" validate:"required"`
-
-	// The user tags this backup policy applies to. Resources that have both a matching user tag and a matching type will
-	// be subject to the backup policy.
-	MatchUserTags []string `json:"match_user_tags" validate:"required"`
-
-	// The unique user-defined name for this backup policy.
-	Name *string `json:"name" validate:"required"`
-
-	// The plans for the backup policy.
-	Plans []BackupPolicyPlanReference `json:"plans" validate:"required"`
-
-	// The resource group for this backup policy.
-	ResourceGroup *ResourceGroupReference `json:"resource_group" validate:"required"`
-
-	// The type of resource referenced.
-	ResourceType *string `json:"resource_type" validate:"required"`
-}
-
-// Constants associated with the BackupPolicy.LifecycleState property.
-// The lifecycle state of the backup policy.
-const (
-	BackupPolicyLifecycleStateDeletingConst  = "deleting"
-	BackupPolicyLifecycleStateFailedConst    = "failed"
-	BackupPolicyLifecycleStatePendingConst   = "pending"
-	BackupPolicyLifecycleStateStableConst    = "stable"
-	BackupPolicyLifecycleStateSuspendedConst = "suspended"
-	BackupPolicyLifecycleStateUpdatingConst  = "updating"
-	BackupPolicyLifecycleStateWaitingConst   = "waiting"
-)
-
-// Constants associated with the BackupPolicy.MatchResourceTypes property.
-// The resource type.
-const (
-	BackupPolicyMatchResourceTypesVolumeConst = "volume"
-)
-
-// Constants associated with the BackupPolicy.ResourceType property.
-// The type of resource referenced.
-const (
-	BackupPolicyResourceTypeBackupPolicyConst = "backup_policy"
-)
-
-// UnmarshalBackupPolicy unmarshals an instance of BackupPolicy from the specified map of raw messages.
-func UnmarshalBackupPolicy(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(BackupPolicy)
-	err = core.UnmarshalPrimitive(m, "created_at", &obj.CreatedAt)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "lifecycle_state", &obj.LifecycleState)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "match_resource_types", &obj.MatchResourceTypes)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "match_user_tags", &obj.MatchUserTags)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "plans", &obj.Plans, UnmarshalBackupPolicyPlanReference)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "resource_group", &obj.ResourceGroup, UnmarshalResourceGroupReference)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// BackupPolicyCollection : BackupPolicyCollection struct
-type BackupPolicyCollection struct {
-	// Collection of backup policies.
-	BackupPolicies []BackupPolicy `json:"backup_policies" validate:"required"`
-
-	// A link to the first page of resources.
-	First *BackupPolicyCollectionFirst `json:"first" validate:"required"`
-
-	// The maximum number of resources that can be returned by the request.
-	Limit *int64 `json:"limit" validate:"required"`
-
-	// A link to the next page of resources. This property is present for all pages
-	// except the last page.
-	Next *BackupPolicyCollectionNext `json:"next,omitempty"`
-
-	// The total number of resources across all pages.
-	TotalCount *int64 `json:"total_count" validate:"required"`
-}
-
-// UnmarshalBackupPolicyCollection unmarshals an instance of BackupPolicyCollection from the specified map of raw messages.
-func UnmarshalBackupPolicyCollection(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(BackupPolicyCollection)
-	err = core.UnmarshalModel(m, "backup_policies", &obj.BackupPolicies, UnmarshalBackupPolicy)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "first", &obj.First, UnmarshalBackupPolicyCollectionFirst)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "limit", &obj.Limit)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "next", &obj.Next, UnmarshalBackupPolicyCollectionNext)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "total_count", &obj.TotalCount)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// BackupPolicyCollectionFirst : A link to the first page of resources.
-type BackupPolicyCollectionFirst struct {
-	// The URL for a page of resources.
-	Href *string `json:"href" validate:"required"`
-}
-
-// UnmarshalBackupPolicyCollectionFirst unmarshals an instance of BackupPolicyCollectionFirst from the specified map of raw messages.
-func UnmarshalBackupPolicyCollectionFirst(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(BackupPolicyCollectionFirst)
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// BackupPolicyCollectionNext : A link to the next page of resources. This property is present for all pages except the last page.
-type BackupPolicyCollectionNext struct {
-	// The URL for a page of resources.
-	Href *string `json:"href" validate:"required"`
-}
-
-// UnmarshalBackupPolicyCollectionNext unmarshals an instance of BackupPolicyCollectionNext from the specified map of raw messages.
-func UnmarshalBackupPolicyCollectionNext(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(BackupPolicyCollectionNext)
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// BackupPolicyPatch : BackupPolicyPatch struct
-type BackupPolicyPatch struct {
-	// The user-defined name for this backup policy. Names must be unique within the region this backup policy resides in.
-	Name *string `json:"name,omitempty"`
-}
-
-// UnmarshalBackupPolicyPatch unmarshals an instance of BackupPolicyPatch from the specified map of raw messages.
-func UnmarshalBackupPolicyPatch(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(BackupPolicyPatch)
-	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// AsPatch returns a generic map representation of the BackupPolicyPatch
-func (backupPolicyPatch *BackupPolicyPatch) AsPatch() (patch map[string]interface{}, err error) {
-	var jsonData []byte
-	jsonData, err = json.Marshal(backupPolicyPatch)
-	if err == nil {
-		err = json.Unmarshal(jsonData, &patch)
-	}
-	return
-}
-
-// BackupPolicyPlan : BackupPolicyPlan struct
-type BackupPolicyPlan struct {
-	// Indicates whether the plan is active.
-	Active *bool `json:"active" validate:"required"`
-
-	// User tags to attach to each resource created by this plan.
-	AttachUserTags []string `json:"attach_user_tags" validate:"required"`
-
-	// Indicates whether to copy the source's user tags to the created resource.
-	CopyUserTags *bool `json:"copy_user_tags" validate:"required"`
-
-	// The date and time that the backup policy plan was created.
-	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
-
-	// The cron specification for the backup schedule.
-	CronSpec *string `json:"cron_spec" validate:"required"`
-
-	DeletionTrigger *BackupPolicyPlanDeletionTrigger `json:"deletion_trigger" validate:"required"`
-
-	// The URL for this backup policy plan.
-	Href *string `json:"href" validate:"required"`
-
-	// The unique identifier for this backup policy plan.
-	ID *string `json:"id" validate:"required"`
-
-	// The lifecycle state of this backup policy plan.
-	LifecycleState *string `json:"lifecycle_state" validate:"required"`
-
-	// The unique user-defined name for this backup policy plan.
-	Name *string `json:"name" validate:"required"`
-
-	// The type of resource referenced.
-	ResourceType *string `json:"resource_type" validate:"required"`
-}
-
-// Constants associated with the BackupPolicyPlan.LifecycleState property.
-// The lifecycle state of this backup policy plan.
-const (
-	BackupPolicyPlanLifecycleStateDeletingConst  = "deleting"
-	BackupPolicyPlanLifecycleStateFailedConst    = "failed"
-	BackupPolicyPlanLifecycleStatePendingConst   = "pending"
-	BackupPolicyPlanLifecycleStateStableConst    = "stable"
-	BackupPolicyPlanLifecycleStateSuspendedConst = "suspended"
-	BackupPolicyPlanLifecycleStateUpdatingConst  = "updating"
-	BackupPolicyPlanLifecycleStateWaitingConst   = "waiting"
-)
-
-// Constants associated with the BackupPolicyPlan.ResourceType property.
-// The type of resource referenced.
-const (
-	BackupPolicyPlanResourceTypeBackupPolicyPlanConst = "backup_policy_plan"
-)
-
-// UnmarshalBackupPolicyPlan unmarshals an instance of BackupPolicyPlan from the specified map of raw messages.
-func UnmarshalBackupPolicyPlan(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(BackupPolicyPlan)
-	err = core.UnmarshalPrimitive(m, "active", &obj.Active)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "attach_user_tags", &obj.AttachUserTags)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "copy_user_tags", &obj.CopyUserTags)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "created_at", &obj.CreatedAt)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "cron_spec", &obj.CronSpec)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "deletion_trigger", &obj.DeletionTrigger, UnmarshalBackupPolicyPlanDeletionTrigger)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "lifecycle_state", &obj.LifecycleState)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// BackupPolicyPlanCollection : BackupPolicyPlanCollection struct
-type BackupPolicyPlanCollection struct {
-	// Collection of backup policy plans.
-	Plans []BackupPolicyPlan `json:"plans" validate:"required"`
-}
-
-// UnmarshalBackupPolicyPlanCollection unmarshals an instance of BackupPolicyPlanCollection from the specified map of raw messages.
-func UnmarshalBackupPolicyPlanCollection(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(BackupPolicyPlanCollection)
-	err = core.UnmarshalModel(m, "plans", &obj.Plans, UnmarshalBackupPolicyPlan)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// BackupPolicyPlanDeletionTrigger : BackupPolicyPlanDeletionTrigger struct
-type BackupPolicyPlanDeletionTrigger struct {
-	// The number of days to keep the backup.
-	DeleteAfter *int64 `json:"delete_after,omitempty"`
-}
-
-// UnmarshalBackupPolicyPlanDeletionTrigger unmarshals an instance of BackupPolicyPlanDeletionTrigger from the specified map of raw messages.
-func UnmarshalBackupPolicyPlanDeletionTrigger(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(BackupPolicyPlanDeletionTrigger)
-	err = core.UnmarshalPrimitive(m, "delete_after", &obj.DeleteAfter)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// BackupPolicyPlanDeletionTriggerPrototype : BackupPolicyPlanDeletionTriggerPrototype struct
-type BackupPolicyPlanDeletionTriggerPrototype struct {
-	// The number of days to keep the backup.
-	DeleteAfter *int64 `json:"delete_after,omitempty"`
-}
-
-// UnmarshalBackupPolicyPlanDeletionTriggerPrototype unmarshals an instance of BackupPolicyPlanDeletionTriggerPrototype from the specified map of raw messages.
-func UnmarshalBackupPolicyPlanDeletionTriggerPrototype(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(BackupPolicyPlanDeletionTriggerPrototype)
-	err = core.UnmarshalPrimitive(m, "delete_after", &obj.DeleteAfter)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// BackupPolicyPlanPatch : BackupPolicyPlanPatch struct
-type BackupPolicyPlanPatch struct {
-	// The user-defined name for this backup policy plan. Names must be unique within the backup policy this plan resides
-	// in.
-	Name *string `json:"name,omitempty"`
-}
-
-// UnmarshalBackupPolicyPlanPatch unmarshals an instance of BackupPolicyPlanPatch from the specified map of raw messages.
-func UnmarshalBackupPolicyPlanPatch(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(BackupPolicyPlanPatch)
-	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// AsPatch returns a generic map representation of the BackupPolicyPlanPatch
-func (backupPolicyPlanPatch *BackupPolicyPlanPatch) AsPatch() (patch map[string]interface{}, err error) {
-	var jsonData []byte
-	jsonData, err = json.Marshal(backupPolicyPlanPatch)
-	if err == nil {
-		err = json.Unmarshal(jsonData, &patch)
-	}
-	return
-}
-
-// BackupPolicyPlanPrototype : BackupPolicyPlanPrototype struct
-type BackupPolicyPlanPrototype struct {
-	// User tags to attach to each resource created by this plan. If unspecified, no user tags will be attached.
-	AttachUserTags []string `json:"attach_user_tags,omitempty"`
-
-	// Indicates whether to copy the source's user tags to the created resource.
-	CopyUserTags *bool `json:"copy_user_tags,omitempty"`
-
-	// The cron specification for the backup schedule.
-	CronSpec *string `json:"cron_spec" validate:"required"`
-
-	DeletionTrigger *BackupPolicyPlanDeletionTriggerPrototype `json:"deletion_trigger,omitempty"`
-
-	// The user-defined name for this backup policy plan. Names must be unique within the backup policy this plan resides
-	// in. If unspecified, the name will be a hyphenated list of randomly-selected words.
-	Name *string `json:"name,omitempty"`
-}
-
-// NewBackupPolicyPlanPrototype : Instantiate BackupPolicyPlanPrototype (Generic Model Constructor)
-func (*VpcV1) NewBackupPolicyPlanPrototype(cronSpec string) (model *BackupPolicyPlanPrototype, err error) {
-	model = &BackupPolicyPlanPrototype{
-		CronSpec: core.StringPtr(cronSpec),
-	}
-	err = core.ValidateStruct(model, "required parameters")
-	return
-}
-
-// UnmarshalBackupPolicyPlanPrototype unmarshals an instance of BackupPolicyPlanPrototype from the specified map of raw messages.
-func UnmarshalBackupPolicyPlanPrototype(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(BackupPolicyPlanPrototype)
-	err = core.UnmarshalPrimitive(m, "attach_user_tags", &obj.AttachUserTags)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "copy_user_tags", &obj.CopyUserTags)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "cron_spec", &obj.CronSpec)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "deletion_trigger", &obj.DeletionTrigger, UnmarshalBackupPolicyPlanDeletionTriggerPrototype)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// BackupPolicyPlanReference : BackupPolicyPlanReference struct
-type BackupPolicyPlanReference struct {
-	// If present, this property indicates the referenced resource has been deleted and provides
-	// some supplementary information.
-	Deleted *BackupPolicyPlanReferenceDeleted `json:"deleted,omitempty"`
-
-	// The URL for this backup policy plan.
-	Href *string `json:"href" validate:"required"`
-
-	// The unique identifier for this backup policy plan.
-	ID *string `json:"id" validate:"required"`
-
-	// The unique user-defined name for this backup policy plan.
-	Name *string `json:"name" validate:"required"`
-
-	// The type of resource referenced.
-	ResourceType *string `json:"resource_type" validate:"required"`
-}
-
-// Constants associated with the BackupPolicyPlanReference.ResourceType property.
-// The type of resource referenced.
-const (
-	BackupPolicyPlanReferenceResourceTypeBackupPolicyPlanConst = "backup_policy_plan"
-)
-
-// UnmarshalBackupPolicyPlanReference unmarshals an instance of BackupPolicyPlanReference from the specified map of raw messages.
-func UnmarshalBackupPolicyPlanReference(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(BackupPolicyPlanReference)
-	err = core.UnmarshalModel(m, "deleted", &obj.Deleted, UnmarshalBackupPolicyPlanReferenceDeleted)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// BackupPolicyPlanReferenceDeleted : If present, this property indicates the referenced resource has been deleted and provides some supplementary
-// information.
-type BackupPolicyPlanReferenceDeleted struct {
-	// Link to documentation about deleted resources.
-	MoreInfo *string `json:"more_info" validate:"required"`
-}
-
-// UnmarshalBackupPolicyPlanReferenceDeleted unmarshals an instance of BackupPolicyPlanReferenceDeleted from the specified map of raw messages.
-func UnmarshalBackupPolicyPlanReferenceDeleted(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(BackupPolicyPlanReferenceDeleted)
-	err = core.UnmarshalPrimitive(m, "more_info", &obj.MoreInfo)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// BareMetalServer : BareMetalServer struct
-type BareMetalServer struct {
-	// The total bandwidth (in megabits per second) shared across the bare metal server's network interfaces.
-	Bandwidth *int64 `json:"bandwidth" validate:"required"`
-
-	// The possible resource types for this property are expected to expand in the future.
-	BootTarget BareMetalServerBootTargetIntf `json:"boot_target" validate:"required"`
-
-	// The bare metal server CPU configuration.
-	Cpu *BareMetalServerCpu `json:"cpu" validate:"required"`
-
-	// The date and time that the bare metal server was created.
-	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
-
-	// The CRN for this bare metal server.
-	CRN *string `json:"crn" validate:"required"`
-
-	// The disks for this bare metal server, including any disks that are associated with the
-	// `boot_target`.
-	Disks []BareMetalServerDisk `json:"disks" validate:"required"`
-
-	// Indicates whether secure boot is enabled. If enabled, the image must support secure boot or the server will fail to
-	// boot.
-	EnableSecureBoot *bool `json:"enable_secure_boot" validate:"required"`
-
-	// The URL for this bare metal server.
-	Href *string `json:"href" validate:"required"`
-
-	// The unique identifier for this bare metal server.
-	ID *string `json:"id" validate:"required"`
-
-	// The amount of memory, truncated to whole gibibytes.
-	Memory *int64 `json:"memory" validate:"required"`
-
-	// The user-defined name for this bare metal server (and default system hostname).
-	Name *string `json:"name" validate:"required"`
-
-	// The network interfaces for this bare metal server, including the primary network interface.
-	NetworkInterfaces []NetworkInterfaceBareMetalServerContextReference `json:"network_interfaces" validate:"required"`
-
-	// Primary network interface.
-	PrimaryNetworkInterface *NetworkInterfaceBareMetalServerContextReference `json:"primary_network_interface" validate:"required"`
-
-	// The profile this bare metal server uses.
-	Profile *BareMetalServerProfileReference `json:"profile" validate:"required"`
-
-	// The resource group for this bare metal server.
-	ResourceGroup *ResourceGroupReference `json:"resource_group" validate:"required"`
-
-	// The type of resource referenced.
-	ResourceType *string `json:"resource_type" validate:"required"`
-
-	// The status of the bare metal server.
-	Status *string `json:"status" validate:"required"`
-
-	// The reasons for the current status (if any).
-	//
-	// The enumerated reason code values for this property will expand in the future. When processing this property, check
-	// for and log unknown values. Optionally halt processing and surface the error, or bypass the resource on which the
-	// unexpected reason code was encountered.
-	StatusReasons []BareMetalServerStatusReason `json:"status_reasons" validate:"required"`
-
-	TrustedPlatformModule *BareMetalServerTrustedPlatformModule `json:"trusted_platform_module" validate:"required"`
-
-	// The VPC this bare metal server resides in.
-	VPC *VPCReference `json:"vpc" validate:"required"`
-
-	// The zone this bare metal server resides in.
-	Zone *ZoneReference `json:"zone" validate:"required"`
-}
-
-// Constants associated with the BareMetalServer.ResourceType property.
-// The type of resource referenced.
-const (
-	BareMetalServerResourceTypeBareMetalServerConst = "bare_metal_server"
-)
-
-// Constants associated with the BareMetalServer.Status property.
-// The status of the bare metal server.
-const (
-	BareMetalServerStatusFailedConst      = "failed"
-	BareMetalServerStatusMaintenanceConst = "maintenance"
-	BareMetalServerStatusPendingConst     = "pending"
-	BareMetalServerStatusRestartingConst  = "restarting"
-	BareMetalServerStatusRunningConst     = "running"
-	BareMetalServerStatusStartingConst    = "starting"
-	BareMetalServerStatusStoppedConst     = "stopped"
-	BareMetalServerStatusStoppingConst    = "stopping"
-)
-
-// UnmarshalBareMetalServer unmarshals an instance of BareMetalServer from the specified map of raw messages.
-func UnmarshalBareMetalServer(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(BareMetalServer)
-	err = core.UnmarshalPrimitive(m, "bandwidth", &obj.Bandwidth)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "boot_target", &obj.BootTarget, UnmarshalBareMetalServerBootTarget)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "cpu", &obj.Cpu, UnmarshalBareMetalServerCpu)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "created_at", &obj.CreatedAt)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "disks", &obj.Disks, UnmarshalBareMetalServerDisk)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "enable_secure_boot", &obj.EnableSecureBoot)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "memory", &obj.Memory)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "network_interfaces", &obj.NetworkInterfaces, UnmarshalNetworkInterfaceBareMetalServerContextReference)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "primary_network_interface", &obj.PrimaryNetworkInterface, UnmarshalNetworkInterfaceBareMetalServerContextReference)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "profile", &obj.Profile, UnmarshalBareMetalServerProfileReference)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "resource_group", &obj.ResourceGroup, UnmarshalResourceGroupReference)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "status", &obj.Status)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "status_reasons", &obj.StatusReasons, UnmarshalBareMetalServerStatusReason)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "trusted_platform_module", &obj.TrustedPlatformModule, UnmarshalBareMetalServerTrustedPlatformModule)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "vpc", &obj.VPC, UnmarshalVPCReference)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "zone", &obj.Zone, UnmarshalZoneReference)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// BareMetalServerBootTarget : The possible resource types for this property are expected to expand in the future.
-// Models which "extend" this model:
-// - BareMetalServerBootTargetBareMetalServerDiskReference
-type BareMetalServerBootTarget struct {
-	// If present, this property indicates the referenced resource has been deleted and provides
-	// some supplementary information.
-	Deleted *BareMetalServerDiskReferenceDeleted `json:"deleted,omitempty"`
-
-	// The URL for this bare metal server disk.
-	Href *string `json:"href,omitempty"`
-
-	// The unique identifier for this bare metal server disk.
-	ID *string `json:"id,omitempty"`
-
-	// The user-defined name for this disk.
-	Name *string `json:"name,omitempty"`
-
-	// The resource type.
-	ResourceType *string `json:"resource_type,omitempty"`
-}
-
-// Constants associated with the BareMetalServerBootTarget.ResourceType property.
-// The resource type.
-const (
-	BareMetalServerBootTargetResourceTypeBareMetalServerDiskConst = "bare_metal_server_disk"
-)
-
-func (*BareMetalServerBootTarget) isaBareMetalServerBootTarget() bool {
-	return true
-}
-
-type BareMetalServerBootTargetIntf interface {
-	isaBareMetalServerBootTarget() bool
-}
-
-// UnmarshalBareMetalServerBootTarget unmarshals an instance of BareMetalServerBootTarget from the specified map of raw messages.
-func UnmarshalBareMetalServerBootTarget(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(BareMetalServerBootTarget)
-	err = core.UnmarshalModel(m, "deleted", &obj.Deleted, UnmarshalBareMetalServerDiskReferenceDeleted)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// BareMetalServerCpu : The bare metal server CPU configuration.
-type BareMetalServerCpu struct {
-	// The CPU architecture.
-	Architecture *string `json:"architecture" validate:"required"`
-
-	// The total number of cores.
-	CoreCount *int64 `json:"core_count" validate:"required"`
-
-	// The total number of CPU sockets.
-	SocketCount *int64 `json:"socket_count" validate:"required"`
-
-	// The total number of hardware threads per core.
-	ThreadsPerCore *int64 `json:"threads_per_core" validate:"required"`
-}
-
-// UnmarshalBareMetalServerCpu unmarshals an instance of BareMetalServerCpu from the specified map of raw messages.
-func UnmarshalBareMetalServerCpu(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(BareMetalServerCpu)
-	err = core.UnmarshalPrimitive(m, "architecture", &obj.Architecture)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "core_count", &obj.CoreCount)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "socket_count", &obj.SocketCount)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "threads_per_core", &obj.ThreadsPerCore)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// BareMetalServerCollection : BareMetalServerCollection struct
-type BareMetalServerCollection struct {
-	// Collection of bare metal servers.
-	BareMetalServers []BareMetalServer `json:"bare_metal_servers" validate:"required"`
-
-	// A link to the first page of resources.
-	First *BareMetalServerCollectionFirst `json:"first" validate:"required"`
-
-	// The maximum number of resources that can be returned by the request.
-	Limit *int64 `json:"limit" validate:"required"`
-
-	// A link to the next page of resources. This property is present for all pages
-	// except the last page.
-	Next *BareMetalServerCollectionNext `json:"next,omitempty"`
-
-	// The total number of resources across all pages.
-	TotalCount *int64 `json:"total_count" validate:"required"`
-}
-
-// UnmarshalBareMetalServerCollection unmarshals an instance of BareMetalServerCollection from the specified map of raw messages.
-func UnmarshalBareMetalServerCollection(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(BareMetalServerCollection)
-	err = core.UnmarshalModel(m, "bare_metal_servers", &obj.BareMetalServers, UnmarshalBareMetalServer)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "first", &obj.First, UnmarshalBareMetalServerCollectionFirst)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "limit", &obj.Limit)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "next", &obj.Next, UnmarshalBareMetalServerCollectionNext)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "total_count", &obj.TotalCount)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// BareMetalServerCollectionFirst : A link to the first page of resources.
-type BareMetalServerCollectionFirst struct {
-	// The URL for a page of resources.
-	Href *string `json:"href" validate:"required"`
-}
-
-// UnmarshalBareMetalServerCollectionFirst unmarshals an instance of BareMetalServerCollectionFirst from the specified map of raw messages.
-func UnmarshalBareMetalServerCollectionFirst(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(BareMetalServerCollectionFirst)
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// BareMetalServerCollectionNext : A link to the next page of resources. This property is present for all pages except the last page.
-type BareMetalServerCollectionNext struct {
-	// The URL for a page of resources.
-	Href *string `json:"href" validate:"required"`
-}
-
-// UnmarshalBareMetalServerCollectionNext unmarshals an instance of BareMetalServerCollectionNext from the specified map of raw messages.
-func UnmarshalBareMetalServerCollectionNext(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(BareMetalServerCollectionNext)
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// BareMetalServerConsoleAccessToken : The bare metal server console access token information.
-type BareMetalServerConsoleAccessToken struct {
-	// A URL safe single-use token used to access the console WebSocket.
-	AccessToken *string `json:"access_token" validate:"required"`
-
-	// The bare metal server console type for which this token may be used.
-	ConsoleType *string `json:"console_type" validate:"required"`
-
-	// The date and time that the access token was created.
-	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
-
-	// The date and time that the access token will expire.
-	ExpiresAt *strfmt.DateTime `json:"expires_at" validate:"required"`
-
-	// Indicates whether to disconnect an existing serial console session as the serial console cannot be shared.  This has
-	// no effect on VNC consoles.
-	Force *bool `json:"force" validate:"required"`
-
-	// The URL to access this bare metal server console.
-	Href *string `json:"href" validate:"required"`
-}
-
-// Constants associated with the BareMetalServerConsoleAccessToken.ConsoleType property.
-// The bare metal server console type for which this token may be used.
-const (
-	BareMetalServerConsoleAccessTokenConsoleTypeSerialConst = "serial"
-	BareMetalServerConsoleAccessTokenConsoleTypeVncConst    = "vnc"
-)
-
-// UnmarshalBareMetalServerConsoleAccessToken unmarshals an instance of BareMetalServerConsoleAccessToken from the specified map of raw messages.
-func UnmarshalBareMetalServerConsoleAccessToken(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(BareMetalServerConsoleAccessToken)
-	err = core.UnmarshalPrimitive(m, "access_token", &obj.AccessToken)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "console_type", &obj.ConsoleType)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "created_at", &obj.CreatedAt)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "expires_at", &obj.ExpiresAt)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "force", &obj.Force)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// BareMetalServerDisk : BareMetalServerDisk struct
-type BareMetalServerDisk struct {
-	// The date and time that the disk was created.
-	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
-
-	// The URL for this bare metal server disk.
-	Href *string `json:"href" validate:"required"`
-
-	// The unique identifier for this bare metal server disk.
-	ID *string `json:"id" validate:"required"`
-
-	// The disk interface used for attaching the disk.
-	//
-	// The enumerated values for this property are expected to expand in the future. When processing this property, check
-	// for and log unknown values. Optionally halt processing and surface the error, or bypass the resource on which the
-	// unexpected property value was encountered.
-	InterfaceType *string `json:"interface_type" validate:"required"`
-
-	// The user-defined name for this disk.
-	Name *string `json:"name" validate:"required"`
-
-	// The resource type.
-	ResourceType *string `json:"resource_type" validate:"required"`
-
-	// The size of the disk in GB (gigabytes).
-	Size *int64 `json:"size" validate:"required"`
-}
-
-// Constants associated with the BareMetalServerDisk.InterfaceType property.
-// The disk interface used for attaching the disk.
-//
-// The enumerated values for this property are expected to expand in the future. When processing this property, check
-// for and log unknown values. Optionally halt processing and surface the error, or bypass the resource on which the
-// unexpected property value was encountered.
-const (
-	BareMetalServerDiskInterfaceTypeNvmeConst = "nvme"
-	BareMetalServerDiskInterfaceTypeSataConst = "sata"
-)
-
-// Constants associated with the BareMetalServerDisk.ResourceType property.
-// The resource type.
-const (
-	BareMetalServerDiskResourceTypeBareMetalServerDiskConst = "bare_metal_server_disk"
-)
-
-// UnmarshalBareMetalServerDisk unmarshals an instance of BareMetalServerDisk from the specified map of raw messages.
-func UnmarshalBareMetalServerDisk(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(BareMetalServerDisk)
-	err = core.UnmarshalPrimitive(m, "created_at", &obj.CreatedAt)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "interface_type", &obj.InterfaceType)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "size", &obj.Size)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// BareMetalServerDiskCollection : BareMetalServerDiskCollection struct
-type BareMetalServerDiskCollection struct {
-	// Collection of the bare metal server's disks.
-	Disks []BareMetalServerDisk `json:"disks" validate:"required"`
-}
-
-// UnmarshalBareMetalServerDiskCollection unmarshals an instance of BareMetalServerDiskCollection from the specified map of raw messages.
-func UnmarshalBareMetalServerDiskCollection(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(BareMetalServerDiskCollection)
-	err = core.UnmarshalModel(m, "disks", &obj.Disks, UnmarshalBareMetalServerDisk)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// BareMetalServerDiskPatch : BareMetalServerDiskPatch struct
-type BareMetalServerDiskPatch struct {
-	// The user-defined name for this disk.
-	Name *string `json:"name,omitempty"`
-}
-
-// UnmarshalBareMetalServerDiskPatch unmarshals an instance of BareMetalServerDiskPatch from the specified map of raw messages.
-func UnmarshalBareMetalServerDiskPatch(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(BareMetalServerDiskPatch)
-	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// AsPatch returns a generic map representation of the BareMetalServerDiskPatch
-func (bareMetalServerDiskPatch *BareMetalServerDiskPatch) AsPatch() (patch map[string]interface{}, err error) {
-	var jsonData []byte
-	jsonData, err = json.Marshal(bareMetalServerDiskPatch)
-	if err == nil {
-		err = json.Unmarshal(jsonData, &patch)
-	}
-	return
-}
-
-// BareMetalServerDiskReferenceDeleted : If present, this property indicates the referenced resource has been deleted and provides some supplementary
-// information.
-type BareMetalServerDiskReferenceDeleted struct {
-	// Link to documentation about deleted resources.
-	MoreInfo *string `json:"more_info" validate:"required"`
-}
-
-// UnmarshalBareMetalServerDiskReferenceDeleted unmarshals an instance of BareMetalServerDiskReferenceDeleted from the specified map of raw messages.
-func UnmarshalBareMetalServerDiskReferenceDeleted(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(BareMetalServerDiskReferenceDeleted)
-	err = core.UnmarshalPrimitive(m, "more_info", &obj.MoreInfo)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// BareMetalServerInitialization : BareMetalServerInitialization struct
-type BareMetalServerInitialization struct {
-	// The image the bare metal server was provisioned from.
-	Image *ImageReference `json:"image" validate:"required"`
-
-	// The public SSH keys used at initialization.
-	Keys []KeyReference `json:"keys" validate:"required"`
-
-	// The user accounts that are created at initialization. There can be multiple account types distinguished by the
-	// `resource_type` property.
-	UserAccounts []BareMetalServerInitializationUserAccountIntf `json:"user_accounts" validate:"required"`
-}
-
-// UnmarshalBareMetalServerInitialization unmarshals an instance of BareMetalServerInitialization from the specified map of raw messages.
-func UnmarshalBareMetalServerInitialization(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(BareMetalServerInitialization)
-	err = core.UnmarshalModel(m, "image", &obj.Image, UnmarshalImageReference)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "keys", &obj.Keys, UnmarshalKeyReference)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "user_accounts", &obj.UserAccounts, UnmarshalBareMetalServerInitializationUserAccount)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// BareMetalServerInitializationPrototype : BareMetalServerInitializationPrototype struct
-type BareMetalServerInitializationPrototype struct {
-	// The image to be used when provisioning the bare metal server.
-	Image ImageIdentityIntf `json:"image" validate:"required"`
-
-	// The public SSH keys to install on the bare metal server. Up to 10 keys may be provided; if no keys are provided the
-	// operating system will be inaccessible unless the image used provides a means of access. For images requiring a
-	// password, Windows, one of the keys will be used to encrypt the administrator password.
-	//
-	// Keys will be made available to the bare metal server as cloud-init vendor data. For cloud-init enabled images, these
-	// keys will also be added as SSH authorized keys for the administrative user.
-	Keys []KeyIdentityIntf `json:"keys" validate:"required"`
-
-	// User data to be made available when initializing the bare metal server.
-	UserData *string `json:"user_data,omitempty"`
-}
-
-// NewBareMetalServerInitializationPrototype : Instantiate BareMetalServerInitializationPrototype (Generic Model Constructor)
-func (*VpcV1) NewBareMetalServerInitializationPrototype(image ImageIdentityIntf, keys []KeyIdentityIntf) (model *BareMetalServerInitializationPrototype, err error) {
-	model = &BareMetalServerInitializationPrototype{
-		Image: image,
-		Keys:  keys,
-	}
-	err = core.ValidateStruct(model, "required parameters")
-	return
-}
-
-// UnmarshalBareMetalServerInitializationPrototype unmarshals an instance of BareMetalServerInitializationPrototype from the specified map of raw messages.
-func UnmarshalBareMetalServerInitializationPrototype(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(BareMetalServerInitializationPrototype)
-	err = core.UnmarshalModel(m, "image", &obj.Image, UnmarshalImageIdentity)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "keys", &obj.Keys, UnmarshalKeyIdentity)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "user_data", &obj.UserData)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// BareMetalServerInitializationUserAccount : BareMetalServerInitializationUserAccount struct
-// Models which "extend" this model:
-// - BareMetalServerInitializationUserAccountBareMetalServerInitializationHostUserAccount
-type BareMetalServerInitializationUserAccount struct {
-	// The password at initialization, encrypted using `encryption_key`, and returned base64-encoded.
-	EncryptedPassword *[]byte `json:"encrypted_password,omitempty"`
-
-	// The public SSH key used to encrypt the password.
-	EncryptionKey *KeyReference `json:"encryption_key,omitempty"`
-
-	// The type of resource referenced.
-	ResourceType *string `json:"resource_type,omitempty"`
-
-	// The username for the account created at initialization.
-	Username *string `json:"username,omitempty"`
-}
-
-// Constants associated with the BareMetalServerInitializationUserAccount.ResourceType property.
-// The type of resource referenced.
-const (
-	BareMetalServerInitializationUserAccountResourceTypeHostUserAccountConst = "host_user_account"
-)
-
-func (*BareMetalServerInitializationUserAccount) isaBareMetalServerInitializationUserAccount() bool {
-	return true
-}
-
-type BareMetalServerInitializationUserAccountIntf interface {
-	isaBareMetalServerInitializationUserAccount() bool
-}
-
-// UnmarshalBareMetalServerInitializationUserAccount unmarshals an instance of BareMetalServerInitializationUserAccount from the specified map of raw messages.
-func UnmarshalBareMetalServerInitializationUserAccount(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(BareMetalServerInitializationUserAccount)
-	err = core.UnmarshalPrimitive(m, "encrypted_password", &obj.EncryptedPassword)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "encryption_key", &obj.EncryptionKey, UnmarshalKeyReference)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "username", &obj.Username)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// BareMetalServerNetworkInterface : BareMetalServerNetworkInterface struct
-// Models which "extend" this model:
-// - BareMetalServerNetworkInterfaceByPci
-// - BareMetalServerNetworkInterfaceByVlan
-type BareMetalServerNetworkInterface struct {
-	// Indicates whether source IP spoofing is allowed on this interface. If false, source IP spoofing is prevented on this
-	// interface. If true, source IP spoofing is allowed on this interface.
-	AllowIPSpoofing *bool `json:"allow_ip_spoofing" validate:"required"`
-
-	// The date and time that the network interface was created.
-	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
-
-	// If true, the VPC infrastructure performs any needed NAT operations. If false, the packet is passed unmodified
-	// to/from the network interface, allowing the workload to perform any needed NAT operations.
-	EnableInfrastructureNat *bool `json:"enable_infrastructure_nat" validate:"required"`
-
-	// The floating IPs associated with this network interface.
-	FloatingIps []FloatingIPReference `json:"floating_ips,omitempty"`
-
-	// The URL for this network interface.
-	Href *string `json:"href" validate:"required"`
-
-	// The unique identifier for this network interface.
-	ID *string `json:"id" validate:"required"`
-
-	// The network interface type:
-	// - `pci`: a physical PCI device which can only be created or deleted when the bare metal
-	//   server is stopped
-	//   - Has an `allowed_vlans` property which controls the VLANs that will be permitted
-	//     to use the pci interface
-	//   - Cannot directly use an IEEE 802.1q VLAN tag.
-	// - `vlan`: a virtual device, used through a `pci` device that has the `vlan` in its array
-	//    of `allowed_vlans`.
-	//   - Must use an IEEE 802.1q tag.
-	//   - Has its own security groups and does not inherit those of the PCI device through
-	//     which traffic flows.
-	InterfaceType *string `json:"interface_type" validate:"required"`
-
-	// The MAC address of the interface.  If absent, the value is not known.
-	MacAddress *string `json:"mac_address" validate:"required"`
-
-	// The user-defined name for this network interface.
-	Name *string `json:"name" validate:"required"`
-
-	// The network interface port speed in Mbps.
-	PortSpeed *int64 `json:"port_speed" validate:"required"`
-
-	PrimaryIP *ReservedIPReference `json:"primary_ip" validate:"required"`
-
-	// The resource type.
-	ResourceType *string `json:"resource_type" validate:"required"`
-
-	// Collection of security groups.
-	SecurityGroups []SecurityGroupReference `json:"security_groups" validate:"required"`
-
-	// The status of the network interface.
-	Status *string `json:"status" validate:"required"`
-
-	// The associated subnet.
-	Subnet *SubnetReference `json:"subnet" validate:"required"`
-
-	// The type of this bare metal server network interface.
-	Type *string `json:"type" validate:"required"`
-
-	// Indicates what VLAN IDs (for VLAN type only) can use this physical (PCI type) interface. A given VLAN can only be in
-	// the `allowed_vlans` array for one PCI type adapter per bare metal server.
-	AllowedVlans []int64 `json:"allowed_vlans,omitempty"`
-
-	// Indicates if the interface can float to any other server within the same
-	// `resource_group`. The interface will float automatically if the network detects a GARP or RARP on another bare metal
-	// server in the resource group.  Applies only to `vlan` type interfaces.
-	AllowInterfaceToFloat *bool `json:"allow_interface_to_float,omitempty"`
-
-	// Indicates the 802.1Q VLAN ID tag that must be used for all traffic on this interface.
-	Vlan *int64 `json:"vlan,omitempty"`
-}
-
-// Constants associated with the BareMetalServerNetworkInterface.InterfaceType property.
-// The network interface type:
-// - `pci`: a physical PCI device which can only be created or deleted when the bare metal
-//   server is stopped
-//   - Has an `allowed_vlans` property which controls the VLANs that will be permitted
-//     to use the pci interface
-//   - Cannot directly use an IEEE 802.1q VLAN tag.
-// - `vlan`: a virtual device, used through a `pci` device that has the `vlan` in its array
-//    of `allowed_vlans`.
-//   - Must use an IEEE 802.1q tag.
-//   - Has its own security groups and does not inherit those of the PCI device through
-//     which traffic flows.
-const (
-	BareMetalServerNetworkInterfaceInterfaceTypePciConst  = "pci"
-	BareMetalServerNetworkInterfaceInterfaceTypeVlanConst = "vlan"
-)
-
-// Constants associated with the BareMetalServerNetworkInterface.ResourceType property.
-// The resource type.
-const (
-	BareMetalServerNetworkInterfaceResourceTypeNetworkInterfaceConst = "network_interface"
-)
-
-// Constants associated with the BareMetalServerNetworkInterface.Status property.
-// The status of the network interface.
-const (
-	BareMetalServerNetworkInterfaceStatusAvailableConst = "available"
-	BareMetalServerNetworkInterfaceStatusDeletingConst  = "deleting"
-	BareMetalServerNetworkInterfaceStatusFailedConst    = "failed"
-	BareMetalServerNetworkInterfaceStatusPendingConst   = "pending"
-)
-
-// Constants associated with the BareMetalServerNetworkInterface.Type property.
-// The type of this bare metal server network interface.
-const (
-	BareMetalServerNetworkInterfaceTypePrimaryConst   = "primary"
-	BareMetalServerNetworkInterfaceTypeSecondaryConst = "secondary"
-)
-
-func (*BareMetalServerNetworkInterface) isaBareMetalServerNetworkInterface() bool {
-	return true
-}
-
-type BareMetalServerNetworkInterfaceIntf interface {
-	isaBareMetalServerNetworkInterface() bool
-}
-
-// UnmarshalBareMetalServerNetworkInterface unmarshals an instance of BareMetalServerNetworkInterface from the specified map of raw messages.
-func UnmarshalBareMetalServerNetworkInterface(m map[string]json.RawMessage, result interface{}) (err error) {
-	// Retrieve discriminator value to determine correct "subclass".
-	var discValue string
-	err = core.UnmarshalPrimitive(m, "interface_type", &discValue)
-	if err != nil {
-		err = fmt.Errorf("error unmarshalling discriminator property 'interface_type': %s", err.Error())
-		return
-	}
-	if discValue == "" {
-		err = fmt.Errorf("required discriminator property 'interface_type' not found in JSON object")
-		return
-	}
-	if discValue == "pci" {
-		err = core.UnmarshalModel(m, "", result, UnmarshalBareMetalServerNetworkInterfaceByPci)
-	} else if discValue == "vlan" {
-		err = core.UnmarshalModel(m, "", result, UnmarshalBareMetalServerNetworkInterfaceByVlan)
-	} else {
-		err = fmt.Errorf("unrecognized value for discriminator property 'interface_type': %s", discValue)
-	}
-	return
-}
-
-// BareMetalServerNetworkInterfaceCollection : BareMetalServerNetworkInterfaceCollection struct
-type BareMetalServerNetworkInterfaceCollection struct {
-	// A link to the first page of resources.
-	First *BareMetalServerNetworkInterfaceCollectionFirst `json:"first" validate:"required"`
-
-	// The maximum number of resources that can be returned by the request.
-	Limit *int64 `json:"limit" validate:"required"`
-
-	// Collection of network interfaces.
-	NetworkInterfaces []BareMetalServerNetworkInterfaceIntf `json:"network_interfaces" validate:"required"`
-
-	// A link to the next page of resources. This property is present for all pages
-	// except the last page.
-	Next *BareMetalServerNetworkInterfaceCollectionNext `json:"next,omitempty"`
-
-	// The total number of resources across all pages.
-	TotalCount *int64 `json:"total_count" validate:"required"`
-}
-
-// UnmarshalBareMetalServerNetworkInterfaceCollection unmarshals an instance of BareMetalServerNetworkInterfaceCollection from the specified map of raw messages.
-func UnmarshalBareMetalServerNetworkInterfaceCollection(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(BareMetalServerNetworkInterfaceCollection)
-	err = core.UnmarshalModel(m, "first", &obj.First, UnmarshalBareMetalServerNetworkInterfaceCollectionFirst)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "limit", &obj.Limit)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "network_interfaces", &obj.NetworkInterfaces, UnmarshalBareMetalServerNetworkInterface)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "next", &obj.Next, UnmarshalBareMetalServerNetworkInterfaceCollectionNext)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "total_count", &obj.TotalCount)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// BareMetalServerNetworkInterfaceCollectionFirst : A link to the first page of resources.
-type BareMetalServerNetworkInterfaceCollectionFirst struct {
-	// The URL for a page of resources.
-	Href *string `json:"href" validate:"required"`
-}
-
-// UnmarshalBareMetalServerNetworkInterfaceCollectionFirst unmarshals an instance of BareMetalServerNetworkInterfaceCollectionFirst from the specified map of raw messages.
-func UnmarshalBareMetalServerNetworkInterfaceCollectionFirst(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(BareMetalServerNetworkInterfaceCollectionFirst)
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// BareMetalServerNetworkInterfaceCollectionNext : A link to the next page of resources. This property is present for all pages except the last page.
-type BareMetalServerNetworkInterfaceCollectionNext struct {
-	// The URL for a page of resources.
-	Href *string `json:"href" validate:"required"`
-}
-
-// UnmarshalBareMetalServerNetworkInterfaceCollectionNext unmarshals an instance of BareMetalServerNetworkInterfaceCollectionNext from the specified map of raw messages.
-func UnmarshalBareMetalServerNetworkInterfaceCollectionNext(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(BareMetalServerNetworkInterfaceCollectionNext)
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// BareMetalServerNetworkInterfacePatch : BareMetalServerNetworkInterfacePatch struct
-type BareMetalServerNetworkInterfacePatch struct {
-	// Indicates whether source IP spoofing is allowed on this interface. If false, source IP spoofing is prevented on this
-	// interface. If true, source IP spoofing is allowed on this interface.
-	AllowIPSpoofing *bool `json:"allow_ip_spoofing,omitempty"`
-
-	// Indicates what VLAN IDs (for VLAN type only) can use this physical (PCI type) interface. A given VLAN can only be in
-	// the `allowed_vlans` array for one PCI type adapter per bare metal server.
-	AllowedVlans []int64 `json:"allowed_vlans,omitempty"`
-
-	// If true, the VPC infrastructure performs any needed NAT operations. If false, the packet is passed unmodified
-	// to/from the network interface, allowing the workload to perform any needed NAT operations.
-	EnableInfrastructureNat *bool `json:"enable_infrastructure_nat,omitempty"`
-
-	// The user-defined name for this network interface.
-	Name *string `json:"name,omitempty"`
-}
-
-// UnmarshalBareMetalServerNetworkInterfacePatch unmarshals an instance of BareMetalServerNetworkInterfacePatch from the specified map of raw messages.
-func UnmarshalBareMetalServerNetworkInterfacePatch(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(BareMetalServerNetworkInterfacePatch)
-	err = core.UnmarshalPrimitive(m, "allow_ip_spoofing", &obj.AllowIPSpoofing)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "allowed_vlans", &obj.AllowedVlans)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "enable_infrastructure_nat", &obj.EnableInfrastructureNat)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// AsPatch returns a generic map representation of the BareMetalServerNetworkInterfacePatch
-func (bareMetalServerNetworkInterfacePatch *BareMetalServerNetworkInterfacePatch) AsPatch() (patch map[string]interface{}, err error) {
-	var jsonData []byte
-	jsonData, err = json.Marshal(bareMetalServerNetworkInterfacePatch)
-	if err == nil {
-		err = json.Unmarshal(jsonData, &patch)
-	}
-	return
-}
-
-// BareMetalServerNetworkInterfacePrototype : BareMetalServerNetworkInterfacePrototype struct
-// Models which "extend" this model:
-// - BareMetalServerNetworkInterfacePrototypeBareMetalServerNetworkInterfaceByPciPrototype
-// - BareMetalServerNetworkInterfacePrototypeBareMetalServerNetworkInterfaceByVlanPrototype
-type BareMetalServerNetworkInterfacePrototype struct {
-	// Indicates whether source IP spoofing is allowed on this interface. If false, source IP spoofing is prevented on this
-	// interface. If true, source IP spoofing is allowed on this interface.
-	AllowIPSpoofing *bool `json:"allow_ip_spoofing,omitempty"`
-
-	// If true, the VPC infrastructure performs any needed NAT operations. If false, the packet is passed unmodified
-	// to/from the network interface, allowing the workload to perform any needed NAT operations.
-	EnableInfrastructureNat *bool `json:"enable_infrastructure_nat,omitempty"`
-
-	// The network interface type:
-	// - `pci`: a physical PCI device which can only be created or deleted when the bare metal
-	//   server is stopped
-	//   - Has an `allowed_vlans` property which controls the VLANs that will be permitted
-	//     to use the pci interface
-	//   - Cannot directly use an IEEE 802.1q VLAN tag.
-	// - `vlan`: a virtual device, used through a `pci` device that has the `vlan` in its array
-	//    of `allowed_vlans`.
-	//   - Must use an IEEE 802.1q tag.
-	//   - Has its own security groups and does not inherit those of the PCI device through
-	//     which traffic flows.
-	InterfaceType *string `json:"interface_type" validate:"required"`
-
-	// The user-defined name for this network interface. If unspecified, the name will be a hyphenated list of
-	// randomly-selected words.
-	Name *string `json:"name,omitempty"`
-
-	// The primary IP address to bind to the network interface. This can be specified using
-	// an existing reserved IP, or a prototype object for a new reserved IP.
-	//
-	// If an existing reserved IP or a prototype object with an address is specified, it must
-	// be available on the network interface's subnet. Otherwise, an available address on the
-	// subnet will be automatically selected and reserved.
-	PrimaryIP NetworkInterfaceIPPrototypeIntf `json:"primary_ip,omitempty"`
-
-	// Collection of security groups.
-	SecurityGroups []SecurityGroupIdentityIntf `json:"security_groups,omitempty"`
-
-	// The associated subnet.
-	Subnet SubnetIdentityIntf `json:"subnet" validate:"required"`
-
-	// Indicates what VLAN IDs (for VLAN type only) can use this physical (PCI type) interface. A given VLAN can only be in
-	// the `allowed_vlans` array for one PCI type adapter per bare metal server.
-	AllowedVlans []int64 `json:"allowed_vlans,omitempty"`
-
-	// Indicates if the interface can float to any other server within the same
-	// `resource_group`. The interface will float automatically if the network detects a GARP or RARP on another bare metal
-	// server in the resource group.  Applies only to `vlan` type interfaces.
-	AllowInterfaceToFloat *bool `json:"allow_interface_to_float,omitempty"`
-
-	// Indicates the 802.1Q VLAN ID tag that must be used for all traffic on this interface.
-	Vlan *int64 `json:"vlan,omitempty"`
-}
-
-// Constants associated with the BareMetalServerNetworkInterfacePrototype.InterfaceType property.
-// The network interface type:
-// - `pci`: a physical PCI device which can only be created or deleted when the bare metal
-//   server is stopped
-//   - Has an `allowed_vlans` property which controls the VLANs that will be permitted
-//     to use the pci interface
-//   - Cannot directly use an IEEE 802.1q VLAN tag.
-// - `vlan`: a virtual device, used through a `pci` device that has the `vlan` in its array
-//    of `allowed_vlans`.
-//   - Must use an IEEE 802.1q tag.
-//   - Has its own security groups and does not inherit those of the PCI device through
-//     which traffic flows.
-const (
-	BareMetalServerNetworkInterfacePrototypeInterfaceTypePciConst  = "pci"
-	BareMetalServerNetworkInterfacePrototypeInterfaceTypeVlanConst = "vlan"
-)
-
-func (*BareMetalServerNetworkInterfacePrototype) isaBareMetalServerNetworkInterfacePrototype() bool {
-	return true
-}
-
-type BareMetalServerNetworkInterfacePrototypeIntf interface {
-	isaBareMetalServerNetworkInterfacePrototype() bool
-}
-
-// UnmarshalBareMetalServerNetworkInterfacePrototype unmarshals an instance of BareMetalServerNetworkInterfacePrototype from the specified map of raw messages.
-func UnmarshalBareMetalServerNetworkInterfacePrototype(m map[string]json.RawMessage, result interface{}) (err error) {
-	// Retrieve discriminator value to determine correct "subclass".
-	var discValue string
-	err = core.UnmarshalPrimitive(m, "interface_type", &discValue)
-	if err != nil {
-		err = fmt.Errorf("error unmarshalling discriminator property 'interface_type': %s", err.Error())
-		return
-	}
-	if discValue == "" {
-		err = fmt.Errorf("required discriminator property 'interface_type' not found in JSON object")
-		return
-	}
-	if discValue == "pci" {
-		err = core.UnmarshalModel(m, "", result, UnmarshalBareMetalServerNetworkInterfacePrototypeBareMetalServerNetworkInterfaceByPciPrototype)
-	} else if discValue == "vlan" {
-		err = core.UnmarshalModel(m, "", result, UnmarshalBareMetalServerNetworkInterfacePrototypeBareMetalServerNetworkInterfaceByVlanPrototype)
-	} else {
-		err = fmt.Errorf("unrecognized value for discriminator property 'interface_type': %s", discValue)
-	}
-	return
-}
-
-// BareMetalServerPatch : BareMetalServerPatch struct
-type BareMetalServerPatch struct {
-	// Indicates whether secure boot is enabled. If enabled, the image must support secure boot or the bare metal server
-	// will fail to boot.
-	//
-	// For `enable_secure_boot` to be changed, the bare metal server `status` must be
-	// `stopped`.
-	EnableSecureBoot *bool `json:"enable_secure_boot,omitempty"`
-
-	// The user-defined name for this bare metal server (and default system hostname).
-	Name *string `json:"name,omitempty"`
-
-	// For the trusted platform module configuration to be changed, the bare metal server
-	// `status` must be `stopped`.
-	TrustedPlatformModule *BareMetalServerTrustedPlatformModulePatch `json:"trusted_platform_module,omitempty"`
-}
-
-// UnmarshalBareMetalServerPatch unmarshals an instance of BareMetalServerPatch from the specified map of raw messages.
-func UnmarshalBareMetalServerPatch(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(BareMetalServerPatch)
-	err = core.UnmarshalPrimitive(m, "enable_secure_boot", &obj.EnableSecureBoot)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "trusted_platform_module", &obj.TrustedPlatformModule, UnmarshalBareMetalServerTrustedPlatformModulePatch)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// AsPatch returns a generic map representation of the BareMetalServerPatch
-func (bareMetalServerPatch *BareMetalServerPatch) AsPatch() (patch map[string]interface{}, err error) {
-	var jsonData []byte
-	jsonData, err = json.Marshal(bareMetalServerPatch)
-	if err == nil {
-		err = json.Unmarshal(jsonData, &patch)
-	}
-	return
-}
-
-// BareMetalServerPrimaryNetworkInterfacePrototype : BareMetalServerPrimaryNetworkInterfacePrototype struct
-type BareMetalServerPrimaryNetworkInterfacePrototype struct {
-	// Indicates whether source IP spoofing is allowed on this interface. If false, source IP spoofing is prevented on this
-	// interface. If true, source IP spoofing is allowed on this interface.
-	AllowIPSpoofing *bool `json:"allow_ip_spoofing,omitempty"`
-
-	// Indicates what VLAN IDs (for VLAN type only) can use this physical (PCI type) interface. A given VLAN can only be in
-	// the `allowed_vlans` array for one PCI type adapter per bare metal server.
-	AllowedVlans []int64 `json:"allowed_vlans,omitempty"`
-
-	// If true, the VPC infrastructure performs any needed NAT operations. If false, the packet is passed unmodified
-	// to/from the network interface, allowing the workload to perform any needed NAT operations.
-	EnableInfrastructureNat *bool `json:"enable_infrastructure_nat,omitempty"`
-
-	// The network interface type:
-	// - `pci`: a physical PCI device which can only be created or deleted when the bare metal
-	//   server is stopped
-	//   - Has an `allowed_vlans` property which controls the VLANs that will be permitted
-	//     to use the pci interface
-	//   - Cannot directly use an IEEE 802.1q VLAN tag.
-	InterfaceType *string `json:"interface_type,omitempty"`
-
-	// The user-defined name for this network interface. If unspecified, the name will be a hyphenated list of
-	// randomly-selected words.
-	Name *string `json:"name,omitempty"`
-
-	// The primary IP address to bind to the network interface. This can be specified using
-	// an existing reserved IP, or a prototype object for a new reserved IP.
-	//
-	// If an existing reserved IP or a prototype object with an address is specified, it must
-	// be available on the network interface's subnet. Otherwise, an available address on the
-	// subnet will be automatically selected and reserved.
-	PrimaryIP NetworkInterfaceIPPrototypeIntf `json:"primary_ip,omitempty"`
-
-	// Collection of security groups.
-	SecurityGroups []SecurityGroupIdentityIntf `json:"security_groups,omitempty"`
-
-	// The associated subnet.
-	Subnet SubnetIdentityIntf `json:"subnet" validate:"required"`
-}
-
-// Constants associated with the BareMetalServerPrimaryNetworkInterfacePrototype.InterfaceType property.
-// The network interface type:
-// - `pci`: a physical PCI device which can only be created or deleted when the bare metal
-//   server is stopped
-//   - Has an `allowed_vlans` property which controls the VLANs that will be permitted
-//     to use the pci interface
-//   - Cannot directly use an IEEE 802.1q VLAN tag.
-const (
-	BareMetalServerPrimaryNetworkInterfacePrototypeInterfaceTypePciConst = "pci"
-)
-
-// NewBareMetalServerPrimaryNetworkInterfacePrototype : Instantiate BareMetalServerPrimaryNetworkInterfacePrototype (Generic Model Constructor)
-func (*VpcV1) NewBareMetalServerPrimaryNetworkInterfacePrototype(subnet SubnetIdentityIntf) (model *BareMetalServerPrimaryNetworkInterfacePrototype, err error) {
-	model = &BareMetalServerPrimaryNetworkInterfacePrototype{
-		Subnet: subnet,
-	}
-	err = core.ValidateStruct(model, "required parameters")
-	return
-}
-
-// UnmarshalBareMetalServerPrimaryNetworkInterfacePrototype unmarshals an instance of BareMetalServerPrimaryNetworkInterfacePrototype from the specified map of raw messages.
-func UnmarshalBareMetalServerPrimaryNetworkInterfacePrototype(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(BareMetalServerPrimaryNetworkInterfacePrototype)
-	err = core.UnmarshalPrimitive(m, "allow_ip_spoofing", &obj.AllowIPSpoofing)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "allowed_vlans", &obj.AllowedVlans)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "enable_infrastructure_nat", &obj.EnableInfrastructureNat)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "interface_type", &obj.InterfaceType)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "primary_ip", &obj.PrimaryIP, UnmarshalNetworkInterfaceIPPrototype)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "security_groups", &obj.SecurityGroups, UnmarshalSecurityGroupIdentity)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "subnet", &obj.Subnet, UnmarshalSubnetIdentity)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// BareMetalServerProfile : BareMetalServerProfile struct
-type BareMetalServerProfile struct {
-	Bandwidth BareMetalServerProfileBandwidthIntf `json:"bandwidth" validate:"required"`
-
-	CpuArchitecture *BareMetalServerProfileCpuArchitecture `json:"cpu_architecture" validate:"required"`
-
-	CpuCoreCount BareMetalServerProfileCpuCoreCountIntf `json:"cpu_core_count" validate:"required"`
-
-	CpuSocketCount BareMetalServerProfileCpuSocketCountIntf `json:"cpu_socket_count" validate:"required"`
-
-	// Collection of the bare metal server profile's disks.
-	Disks []BareMetalServerProfileDisk `json:"disks" validate:"required"`
-
-	// The product family this bare metal server profile belongs to.
-	Family *string `json:"family" validate:"required"`
-
-	// The URL for this bare metal server profile.
-	Href *string `json:"href" validate:"required"`
-
-	Memory BareMetalServerProfileMemoryIntf `json:"memory" validate:"required"`
-
-	// The name for this bare metal server profile.
-	Name *string `json:"name" validate:"required"`
-
-	OsArchitecture *BareMetalServerProfileOsArchitecture `json:"os_architecture" validate:"required"`
-
-	// The resource type.
-	ResourceType *string `json:"resource_type" validate:"required"`
-
-	// An image may only be applicable to certain bare metal server profiles. For the image to be applicable, all of its
-	// `required_image_flags` values must also appear in the profile's `supported_image_flags` array.
-	SupportedImageFlags []string `json:"supported_image_flags" validate:"required"`
-
-	// The supported trusted platform module (TPM) modes for this bare metal server profile.
-	SupportedTrustedPlatformModuleModes *BareMetalServerProfileSupportedTrustedPlatformModuleModes `json:"supported_trusted_platform_module_modes" validate:"required"`
-}
-
-// Constants associated with the BareMetalServerProfile.ResourceType property.
-// The resource type.
-const (
-	BareMetalServerProfileResourceTypeBareMetalServerProfileConst = "bare_metal_server_profile"
-)
-
-// UnmarshalBareMetalServerProfile unmarshals an instance of BareMetalServerProfile from the specified map of raw messages.
-func UnmarshalBareMetalServerProfile(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(BareMetalServerProfile)
-	err = core.UnmarshalModel(m, "bandwidth", &obj.Bandwidth, UnmarshalBareMetalServerProfileBandwidth)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "cpu_architecture", &obj.CpuArchitecture, UnmarshalBareMetalServerProfileCpuArchitecture)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "cpu_core_count", &obj.CpuCoreCount, UnmarshalBareMetalServerProfileCpuCoreCount)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "cpu_socket_count", &obj.CpuSocketCount, UnmarshalBareMetalServerProfileCpuSocketCount)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "disks", &obj.Disks, UnmarshalBareMetalServerProfileDisk)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "family", &obj.Family)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "memory", &obj.Memory, UnmarshalBareMetalServerProfileMemory)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "os_architecture", &obj.OsArchitecture, UnmarshalBareMetalServerProfileOsArchitecture)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "supported_image_flags", &obj.SupportedImageFlags)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "supported_trusted_platform_module_modes", &obj.SupportedTrustedPlatformModuleModes, UnmarshalBareMetalServerProfileSupportedTrustedPlatformModuleModes)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// BareMetalServerProfileBandwidth : BareMetalServerProfileBandwidth struct
-// Models which "extend" this model:
-// - BareMetalServerProfileBandwidthFixed
-// - BareMetalServerProfileBandwidthRange
-// - BareMetalServerProfileBandwidthEnum
-// - BareMetalServerProfileBandwidthDependent
-type BareMetalServerProfileBandwidth struct {
-	// The type for this profile field.
-	Type *string `json:"type,omitempty"`
-
-	// The value for this profile field.
-	Value *int64 `json:"value,omitempty"`
-
-	// The default value for this profile field.
-	Default *int64 `json:"default,omitempty"`
-
-	// The maximum value for this profile field.
-	Max *int64 `json:"max,omitempty"`
-
-	// The minimum value for this profile field.
-	Min *int64 `json:"min,omitempty"`
-
-	// The increment step value for this profile field.
-	Step *int64 `json:"step,omitempty"`
-
-	// The permitted values for this profile field.
-	Values []int64 `json:"values,omitempty"`
-}
-
-// Constants associated with the BareMetalServerProfileBandwidth.Type property.
-// The type for this profile field.
-const (
-	BareMetalServerProfileBandwidthTypeFixedConst = "fixed"
-)
-
-func (*BareMetalServerProfileBandwidth) isaBareMetalServerProfileBandwidth() bool {
-	return true
-}
-
-type BareMetalServerProfileBandwidthIntf interface {
-	isaBareMetalServerProfileBandwidth() bool
-}
-
-// UnmarshalBareMetalServerProfileBandwidth unmarshals an instance of BareMetalServerProfileBandwidth from the specified map of raw messages.
-func UnmarshalBareMetalServerProfileBandwidth(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(BareMetalServerProfileBandwidth)
-	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "value", &obj.Value)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "default", &obj.Default)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "max", &obj.Max)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "min", &obj.Min)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "step", &obj.Step)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "values", &obj.Values)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// BareMetalServerProfileCpuArchitecture : BareMetalServerProfileCpuArchitecture struct
-type BareMetalServerProfileCpuArchitecture struct {
-	// The default CPU architecture for a bare metal server with this profile.
-	Default *string `json:"default,omitempty"`
-
-	// The type for this profile field.
-	Type *string `json:"type" validate:"required"`
-
-	// The CPU architecture for a bare metal server with this profile.
-	Value *string `json:"value" validate:"required"`
-}
-
-// Constants associated with the BareMetalServerProfileCpuArchitecture.Type property.
-// The type for this profile field.
-const (
-	BareMetalServerProfileCpuArchitectureTypeFixedConst = "fixed"
-)
-
-// UnmarshalBareMetalServerProfileCpuArchitecture unmarshals an instance of BareMetalServerProfileCpuArchitecture from the specified map of raw messages.
-func UnmarshalBareMetalServerProfileCpuArchitecture(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(BareMetalServerProfileCpuArchitecture)
-	err = core.UnmarshalPrimitive(m, "default", &obj.Default)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "value", &obj.Value)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// BareMetalServerProfileCpuCoreCount : BareMetalServerProfileCpuCoreCount struct
-// Models which "extend" this model:
-// - BareMetalServerProfileCpuCoreCountFixed
-// - BareMetalServerProfileCpuCoreCountRange
-// - BareMetalServerProfileCpuCoreCountEnum
-// - BareMetalServerProfileCpuCoreCountDependent
-type BareMetalServerProfileCpuCoreCount struct {
-	// The type for this profile field.
-	Type *string `json:"type,omitempty"`
-
-	// The value for this profile field.
-	Value *int64 `json:"value,omitempty"`
-
-	// The default value for this profile field.
-	Default *int64 `json:"default,omitempty"`
-
-	// The maximum value for this profile field.
-	Max *int64 `json:"max,omitempty"`
-
-	// The minimum value for this profile field.
-	Min *int64 `json:"min,omitempty"`
-
-	// The increment step value for this profile field.
-	Step *int64 `json:"step,omitempty"`
-
-	// The permitted values for this profile field.
-	Values []int64 `json:"values,omitempty"`
-}
-
-// Constants associated with the BareMetalServerProfileCpuCoreCount.Type property.
-// The type for this profile field.
-const (
-	BareMetalServerProfileCpuCoreCountTypeFixedConst = "fixed"
-)
-
-func (*BareMetalServerProfileCpuCoreCount) isaBareMetalServerProfileCpuCoreCount() bool {
-	return true
-}
-
-type BareMetalServerProfileCpuCoreCountIntf interface {
-	isaBareMetalServerProfileCpuCoreCount() bool
-}
-
-// UnmarshalBareMetalServerProfileCpuCoreCount unmarshals an instance of BareMetalServerProfileCpuCoreCount from the specified map of raw messages.
-func UnmarshalBareMetalServerProfileCpuCoreCount(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(BareMetalServerProfileCpuCoreCount)
-	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "value", &obj.Value)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "default", &obj.Default)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "max", &obj.Max)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "min", &obj.Min)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "step", &obj.Step)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "values", &obj.Values)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// BareMetalServerProfileCpuSocketCount : BareMetalServerProfileCpuSocketCount struct
-// Models which "extend" this model:
-// - BareMetalServerProfileCpuSocketCountFixed
-// - BareMetalServerProfileCpuSocketCountRange
-// - BareMetalServerProfileCpuSocketCountEnum
-// - BareMetalServerProfileCpuSocketCountDependent
-type BareMetalServerProfileCpuSocketCount struct {
-	// The type for this profile field.
-	Type *string `json:"type,omitempty"`
-
-	// The value for this profile field.
-	Value *int64 `json:"value,omitempty"`
-
-	// The default value for this profile field.
-	Default *int64 `json:"default,omitempty"`
-
-	// The maximum value for this profile field.
-	Max *int64 `json:"max,omitempty"`
-
-	// The minimum value for this profile field.
-	Min *int64 `json:"min,omitempty"`
-
-	// The increment step value for this profile field.
-	Step *int64 `json:"step,omitempty"`
-
-	// The permitted values for this profile field.
-	Values []int64 `json:"values,omitempty"`
-}
-
-// Constants associated with the BareMetalServerProfileCpuSocketCount.Type property.
-// The type for this profile field.
-const (
-	BareMetalServerProfileCpuSocketCountTypeFixedConst = "fixed"
-)
-
-func (*BareMetalServerProfileCpuSocketCount) isaBareMetalServerProfileCpuSocketCount() bool {
-	return true
-}
-
-type BareMetalServerProfileCpuSocketCountIntf interface {
-	isaBareMetalServerProfileCpuSocketCount() bool
-}
-
-// UnmarshalBareMetalServerProfileCpuSocketCount unmarshals an instance of BareMetalServerProfileCpuSocketCount from the specified map of raw messages.
-func UnmarshalBareMetalServerProfileCpuSocketCount(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(BareMetalServerProfileCpuSocketCount)
-	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "value", &obj.Value)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "default", &obj.Default)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "max", &obj.Max)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "min", &obj.Min)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "step", &obj.Step)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "values", &obj.Values)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// BareMetalServerProfileCollection : BareMetalServerProfileCollection struct
-type BareMetalServerProfileCollection struct {
-	// A link to the first page of resources.
-	First *BareMetalServerProfileCollectionFirst `json:"first" validate:"required"`
-
-	// The maximum number of resources that can be returned by the request.
-	Limit *int64 `json:"limit" validate:"required"`
-
-	// A link to the next page of resources. This property is present for all pages
-	// except the last page.
-	Next *BareMetalServerProfileCollectionNext `json:"next,omitempty"`
-
-	// Collection of bare metal server profiles.
-	Profiles []BareMetalServerProfile `json:"profiles" validate:"required"`
-
-	// The total number of resources across all pages.
-	TotalCount *int64 `json:"total_count" validate:"required"`
-}
-
-// UnmarshalBareMetalServerProfileCollection unmarshals an instance of BareMetalServerProfileCollection from the specified map of raw messages.
-func UnmarshalBareMetalServerProfileCollection(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(BareMetalServerProfileCollection)
-	err = core.UnmarshalModel(m, "first", &obj.First, UnmarshalBareMetalServerProfileCollectionFirst)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "limit", &obj.Limit)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "next", &obj.Next, UnmarshalBareMetalServerProfileCollectionNext)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "profiles", &obj.Profiles, UnmarshalBareMetalServerProfile)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "total_count", &obj.TotalCount)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// BareMetalServerProfileCollectionFirst : A link to the first page of resources.
-type BareMetalServerProfileCollectionFirst struct {
-	// The URL for a page of resources.
-	Href *string `json:"href" validate:"required"`
-}
-
-// UnmarshalBareMetalServerProfileCollectionFirst unmarshals an instance of BareMetalServerProfileCollectionFirst from the specified map of raw messages.
-func UnmarshalBareMetalServerProfileCollectionFirst(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(BareMetalServerProfileCollectionFirst)
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// BareMetalServerProfileCollectionNext : A link to the next page of resources. This property is present for all pages except the last page.
-type BareMetalServerProfileCollectionNext struct {
-	// The URL for a page of resources.
-	Href *string `json:"href" validate:"required"`
-}
-
-// UnmarshalBareMetalServerProfileCollectionNext unmarshals an instance of BareMetalServerProfileCollectionNext from the specified map of raw messages.
-func UnmarshalBareMetalServerProfileCollectionNext(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(BareMetalServerProfileCollectionNext)
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// BareMetalServerProfileDisk : Disks provided by this profile.
-type BareMetalServerProfileDisk struct {
-	Quantity BareMetalServerProfileDiskQuantityIntf `json:"quantity" validate:"required"`
-
-	Size BareMetalServerProfileDiskSizeIntf `json:"size" validate:"required"`
-
-	SupportedInterfaceTypes *BareMetalServerProfileDiskSupportedInterfaces `json:"supported_interface_types" validate:"required"`
-}
-
-// UnmarshalBareMetalServerProfileDisk unmarshals an instance of BareMetalServerProfileDisk from the specified map of raw messages.
-func UnmarshalBareMetalServerProfileDisk(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(BareMetalServerProfileDisk)
-	err = core.UnmarshalModel(m, "quantity", &obj.Quantity, UnmarshalBareMetalServerProfileDiskQuantity)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "size", &obj.Size, UnmarshalBareMetalServerProfileDiskSize)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "supported_interface_types", &obj.SupportedInterfaceTypes, UnmarshalBareMetalServerProfileDiskSupportedInterfaces)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// BareMetalServerProfileDiskQuantity : BareMetalServerProfileDiskQuantity struct
-// Models which "extend" this model:
-// - BareMetalServerProfileDiskQuantityFixed
-// - BareMetalServerProfileDiskQuantityRange
-// - BareMetalServerProfileDiskQuantityEnum
-// - BareMetalServerProfileDiskQuantityDependent
-type BareMetalServerProfileDiskQuantity struct {
-	// The type for this profile field.
-	Type *string `json:"type,omitempty"`
-
-	// The value for this profile field.
-	Value *int64 `json:"value,omitempty"`
-
-	// The default value for this profile field.
-	Default *int64 `json:"default,omitempty"`
-
-	// The maximum value for this profile field.
-	Max *int64 `json:"max,omitempty"`
-
-	// The minimum value for this profile field.
-	Min *int64 `json:"min,omitempty"`
-
-	// The increment step value for this profile field.
-	Step *int64 `json:"step,omitempty"`
-
-	// The permitted values for this profile field.
-	Values []int64 `json:"values,omitempty"`
-}
-
-// Constants associated with the BareMetalServerProfileDiskQuantity.Type property.
-// The type for this profile field.
-const (
-	BareMetalServerProfileDiskQuantityTypeFixedConst = "fixed"
-)
-
-func (*BareMetalServerProfileDiskQuantity) isaBareMetalServerProfileDiskQuantity() bool {
-	return true
-}
-
-type BareMetalServerProfileDiskQuantityIntf interface {
-	isaBareMetalServerProfileDiskQuantity() bool
-}
-
-// UnmarshalBareMetalServerProfileDiskQuantity unmarshals an instance of BareMetalServerProfileDiskQuantity from the specified map of raw messages.
-func UnmarshalBareMetalServerProfileDiskQuantity(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(BareMetalServerProfileDiskQuantity)
-	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "value", &obj.Value)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "default", &obj.Default)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "max", &obj.Max)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "min", &obj.Min)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "step", &obj.Step)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "values", &obj.Values)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// BareMetalServerProfileDiskSize : BareMetalServerProfileDiskSize struct
-// Models which "extend" this model:
-// - BareMetalServerProfileDiskSizeFixed
-// - BareMetalServerProfileDiskSizeRange
-// - BareMetalServerProfileDiskSizeEnum
-// - BareMetalServerProfileDiskSizeDependent
-type BareMetalServerProfileDiskSize struct {
-	// The type for this profile field.
-	Type *string `json:"type,omitempty"`
-
-	// The value for this profile field.
-	Value *int64 `json:"value,omitempty"`
-
-	// The default value for this profile field.
-	Default *int64 `json:"default,omitempty"`
-
-	// The maximum value for this profile field.
-	Max *int64 `json:"max,omitempty"`
-
-	// The minimum value for this profile field.
-	Min *int64 `json:"min,omitempty"`
-
-	// The increment step value for this profile field.
-	Step *int64 `json:"step,omitempty"`
-
-	// The permitted values for this profile field.
-	Values []int64 `json:"values,omitempty"`
-}
-
-// Constants associated with the BareMetalServerProfileDiskSize.Type property.
-// The type for this profile field.
-const (
-	BareMetalServerProfileDiskSizeTypeFixedConst = "fixed"
-)
-
-func (*BareMetalServerProfileDiskSize) isaBareMetalServerProfileDiskSize() bool {
-	return true
-}
-
-type BareMetalServerProfileDiskSizeIntf interface {
-	isaBareMetalServerProfileDiskSize() bool
-}
-
-// UnmarshalBareMetalServerProfileDiskSize unmarshals an instance of BareMetalServerProfileDiskSize from the specified map of raw messages.
-func UnmarshalBareMetalServerProfileDiskSize(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(BareMetalServerProfileDiskSize)
-	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "value", &obj.Value)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "default", &obj.Default)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "max", &obj.Max)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "min", &obj.Min)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "step", &obj.Step)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "values", &obj.Values)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// BareMetalServerProfileDiskSupportedInterfaces : BareMetalServerProfileDiskSupportedInterfaces struct
-type BareMetalServerProfileDiskSupportedInterfaces struct {
-	// The disk interface used for attaching the disk.
-	//
-	// The enumerated values for this property are expected to expand in the future. When processing this property, check
-	// for and log unknown values. Optionally halt processing and surface the error, or bypass the resource on which the
-	// unexpected property value was encountered.
-	Default *string `json:"default" validate:"required"`
-
-	// The type for this profile field.
-	Type *string `json:"type" validate:"required"`
-
-	// The supported disk interfaces used for attaching the disk.
-	Values []string `json:"values" validate:"required"`
-}
-
-// Constants associated with the BareMetalServerProfileDiskSupportedInterfaces.Default property.
-// The disk interface used for attaching the disk.
-//
-// The enumerated values for this property are expected to expand in the future. When processing this property, check
-// for and log unknown values. Optionally halt processing and surface the error, or bypass the resource on which the
-// unexpected property value was encountered.
-const (
-	BareMetalServerProfileDiskSupportedInterfacesDefaultNvmeConst = "nvme"
-	BareMetalServerProfileDiskSupportedInterfacesDefaultSataConst = "sata"
-)
-
-// Constants associated with the BareMetalServerProfileDiskSupportedInterfaces.Type property.
-// The type for this profile field.
-const (
-	BareMetalServerProfileDiskSupportedInterfacesTypeEnumConst = "enum"
-)
-
-// Constants associated with the BareMetalServerProfileDiskSupportedInterfaces.Values property.
-// The disk interface used for attaching the disk.
-//
-// The enumerated values for this property are expected to expand in the future. When processing this property, check
-// for and log unknown values. Optionally halt processing and surface the error, or bypass the resource on which the
-// unexpected property value was encountered.
-const (
-	BareMetalServerProfileDiskSupportedInterfacesValuesNvmeConst = "nvme"
-	BareMetalServerProfileDiskSupportedInterfacesValuesSataConst = "sata"
-)
-
-// UnmarshalBareMetalServerProfileDiskSupportedInterfaces unmarshals an instance of BareMetalServerProfileDiskSupportedInterfaces from the specified map of raw messages.
-func UnmarshalBareMetalServerProfileDiskSupportedInterfaces(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(BareMetalServerProfileDiskSupportedInterfaces)
-	err = core.UnmarshalPrimitive(m, "default", &obj.Default)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "values", &obj.Values)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// BareMetalServerProfileIdentity : Identifies a bare metal server profile by a unique property.
-// Models which "extend" this model:
-// - BareMetalServerProfileIdentityByName
-// - BareMetalServerProfileIdentityByHref
-type BareMetalServerProfileIdentity struct {
-	// The name for this bare metal server profile.
-	Name *string `json:"name,omitempty"`
-
-	// The URL for this bare metal server profile.
-	Href *string `json:"href,omitempty"`
-}
-
-func (*BareMetalServerProfileIdentity) isaBareMetalServerProfileIdentity() bool {
-	return true
-}
-
-type BareMetalServerProfileIdentityIntf interface {
-	isaBareMetalServerProfileIdentity() bool
-}
-
-// UnmarshalBareMetalServerProfileIdentity unmarshals an instance of BareMetalServerProfileIdentity from the specified map of raw messages.
-func UnmarshalBareMetalServerProfileIdentity(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(BareMetalServerProfileIdentity)
-	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// BareMetalServerProfileMemory : BareMetalServerProfileMemory struct
-// Models which "extend" this model:
-// - BareMetalServerProfileMemoryFixed
-// - BareMetalServerProfileMemoryRange
-// - BareMetalServerProfileMemoryEnum
-// - BareMetalServerProfileMemoryDependent
-type BareMetalServerProfileMemory struct {
-	// The type for this profile field.
-	Type *string `json:"type,omitempty"`
-
-	// The value for this profile field.
-	Value *int64 `json:"value,omitempty"`
-
-	// The default value for this profile field.
-	Default *int64 `json:"default,omitempty"`
-
-	// The maximum value for this profile field.
-	Max *int64 `json:"max,omitempty"`
-
-	// The minimum value for this profile field.
-	Min *int64 `json:"min,omitempty"`
-
-	// The increment step value for this profile field.
-	Step *int64 `json:"step,omitempty"`
-
-	// The permitted values for this profile field.
-	Values []int64 `json:"values,omitempty"`
-}
-
-// Constants associated with the BareMetalServerProfileMemory.Type property.
-// The type for this profile field.
-const (
-	BareMetalServerProfileMemoryTypeFixedConst = "fixed"
-)
-
-func (*BareMetalServerProfileMemory) isaBareMetalServerProfileMemory() bool {
-	return true
-}
-
-type BareMetalServerProfileMemoryIntf interface {
-	isaBareMetalServerProfileMemory() bool
-}
-
-// UnmarshalBareMetalServerProfileMemory unmarshals an instance of BareMetalServerProfileMemory from the specified map of raw messages.
-func UnmarshalBareMetalServerProfileMemory(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(BareMetalServerProfileMemory)
-	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "value", &obj.Value)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "default", &obj.Default)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "max", &obj.Max)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "min", &obj.Min)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "step", &obj.Step)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "values", &obj.Values)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// BareMetalServerProfileOsArchitecture : BareMetalServerProfileOsArchitecture struct
-type BareMetalServerProfileOsArchitecture struct {
-	// The default OS architecture for a bare metal server with this profile.
-	Default *string `json:"default" validate:"required"`
-
-	// The type for this profile field.
-	Type *string `json:"type" validate:"required"`
-
-	// The supported OS architecture(s) for a bare metal server with this profile.
-	Values []string `json:"values" validate:"required"`
-}
-
-// Constants associated with the BareMetalServerProfileOsArchitecture.Type property.
-// The type for this profile field.
-const (
-	BareMetalServerProfileOsArchitectureTypeEnumConst = "enum"
-)
-
-// UnmarshalBareMetalServerProfileOsArchitecture unmarshals an instance of BareMetalServerProfileOsArchitecture from the specified map of raw messages.
-func UnmarshalBareMetalServerProfileOsArchitecture(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(BareMetalServerProfileOsArchitecture)
-	err = core.UnmarshalPrimitive(m, "default", &obj.Default)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "values", &obj.Values)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// BareMetalServerProfileReference : BareMetalServerProfileReference struct
-type BareMetalServerProfileReference struct {
-	// The URL for this bare metal server profile.
-	Href *string `json:"href" validate:"required"`
-
-	// The name for this bare metal server profile.
-	Name *string `json:"name" validate:"required"`
-
-	// The resource type.
-	ResourceType *string `json:"resource_type" validate:"required"`
-}
-
-// Constants associated with the BareMetalServerProfileReference.ResourceType property.
-// The resource type.
-const (
-	BareMetalServerProfileReferenceResourceTypeBareMetalServerProfileConst = "bare_metal_server_profile"
-)
-
-// UnmarshalBareMetalServerProfileReference unmarshals an instance of BareMetalServerProfileReference from the specified map of raw messages.
-func UnmarshalBareMetalServerProfileReference(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(BareMetalServerProfileReference)
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// BareMetalServerProfileSupportedTrustedPlatformModuleModes : The supported trusted platform module (TPM) modes for this bare metal server profile.
-type BareMetalServerProfileSupportedTrustedPlatformModuleModes struct {
-	// The type for this profile field.
-	Type *string `json:"type" validate:"required"`
-
-	// The supported trusted platform module (TPM) modes.
-	Values []string `json:"values" validate:"required"`
-}
-
-// Constants associated with the BareMetalServerProfileSupportedTrustedPlatformModuleModes.Type property.
-// The type for this profile field.
-const (
-	BareMetalServerProfileSupportedTrustedPlatformModuleModesTypeEnumConst = "enum"
-)
-
-// Constants associated with the BareMetalServerProfileSupportedTrustedPlatformModuleModes.Values property.
-// The mode for the trusted platform module (TPM):
-// - `tpm_2`: Standard TPM 2 capabilities
-// - `tpm_2_with_txt`: Standard TPM 2 with Intel Trusted Execution Technology (TXT)
-//
-// The enumerated values for this property are expected to expand in the future. When processing this property, check
-// for and log unknown values. Optionally halt processing and surface the error, or bypass the resource on which the
-// unexpected property value was encountered.
-const (
-	BareMetalServerProfileSupportedTrustedPlatformModuleModesValuesTpm2Const        = "tpm_2"
-	BareMetalServerProfileSupportedTrustedPlatformModuleModesValuesTpm2WithTxtConst = "tpm_2_with_txt"
-)
-
-// UnmarshalBareMetalServerProfileSupportedTrustedPlatformModuleModes unmarshals an instance of BareMetalServerProfileSupportedTrustedPlatformModuleModes from the specified map of raw messages.
-func UnmarshalBareMetalServerProfileSupportedTrustedPlatformModuleModes(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(BareMetalServerProfileSupportedTrustedPlatformModuleModes)
-	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "values", &obj.Values)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// BareMetalServerReferenceDeleted : If present, this property indicates the referenced resource has been deleted and provides some supplementary
-// information.
-type BareMetalServerReferenceDeleted struct {
-	// Link to documentation about deleted resources.
-	MoreInfo *string `json:"more_info" validate:"required"`
-}
-
-// UnmarshalBareMetalServerReferenceDeleted unmarshals an instance of BareMetalServerReferenceDeleted from the specified map of raw messages.
-func UnmarshalBareMetalServerReferenceDeleted(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(BareMetalServerReferenceDeleted)
-	err = core.UnmarshalPrimitive(m, "more_info", &obj.MoreInfo)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// BareMetalServerStatusReason : BareMetalServerStatusReason struct
-type BareMetalServerStatusReason struct {
-	// The status reason code:
-	// - `cannot_start`: Failed to start due to an internal error
-	// - `cannot_start_capacity`: Insufficient capacity within the selected zone
-	// - `cannot_start_compute`: An error occurred while allocating compute resources
-	// - `cannot_start_ip_address`: An error occurred while allocating an IP address
-	// - `cannot_start_network`: An error occurred while allocating network resources.
-	Code *string `json:"code" validate:"required"`
-
-	// An explanation of the status reason.
-	Message *string `json:"message" validate:"required"`
-
-	// Link to documentation about this status reason.
-	MoreInfo *string `json:"more_info,omitempty"`
-}
-
-// Constants associated with the BareMetalServerStatusReason.Code property.
-// The status reason code:
-// - `cannot_start`: Failed to start due to an internal error
-// - `cannot_start_capacity`: Insufficient capacity within the selected zone
-// - `cannot_start_compute`: An error occurred while allocating compute resources
-// - `cannot_start_ip_address`: An error occurred while allocating an IP address
-// - `cannot_start_network`: An error occurred while allocating network resources.
-const (
-	BareMetalServerStatusReasonCodeCannotStartConst          = "cannot_start"
-	BareMetalServerStatusReasonCodeCannotStartCapacityConst  = "cannot_start_capacity"
-	BareMetalServerStatusReasonCodeCannotStartComputeConst   = "cannot_start_compute"
-	BareMetalServerStatusReasonCodeCannotStartIPAddressConst = "cannot_start_ip_address"
-	BareMetalServerStatusReasonCodeCannotStartNetworkConst   = "cannot_start_network"
-)
-
-// UnmarshalBareMetalServerStatusReason unmarshals an instance of BareMetalServerStatusReason from the specified map of raw messages.
-func UnmarshalBareMetalServerStatusReason(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(BareMetalServerStatusReason)
-	err = core.UnmarshalPrimitive(m, "code", &obj.Code)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "message", &obj.Message)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "more_info", &obj.MoreInfo)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// BareMetalServerTrustedPlatformModule : BareMetalServerTrustedPlatformModule struct
-type BareMetalServerTrustedPlatformModule struct {
-	// Indicates whether the trusted platform module (TPM) is enabled. If enabled, `mode` will also be set.
-	Enabled *bool `json:"enabled" validate:"required"`
-
-	// The mode for the trusted platform module (TPM):
-	// - `tpm_2`: Standard TPM 2 capabilities
-	// - `tpm_2_with_txt`: Standard TPM 2 with Intel Trusted Execution Technology (TXT)
-	//
-	// The enumerated values for this property are expected to expand in the future. When processing this property, check
-	// for and log unknown values. Optionally halt processing and surface the error, or bypass the resource on which the
-	// unexpected property value was encountered.
-	Mode *string `json:"mode,omitempty"`
-}
-
-// Constants associated with the BareMetalServerTrustedPlatformModule.Mode property.
-// The mode for the trusted platform module (TPM):
-// - `tpm_2`: Standard TPM 2 capabilities
-// - `tpm_2_with_txt`: Standard TPM 2 with Intel Trusted Execution Technology (TXT)
-//
-// The enumerated values for this property are expected to expand in the future. When processing this property, check
-// for and log unknown values. Optionally halt processing and surface the error, or bypass the resource on which the
-// unexpected property value was encountered.
-const (
-	BareMetalServerTrustedPlatformModuleModeTpm2Const        = "tpm_2"
-	BareMetalServerTrustedPlatformModuleModeTpm2WithTxtConst = "tpm_2_with_txt"
-)
-
-// UnmarshalBareMetalServerTrustedPlatformModule unmarshals an instance of BareMetalServerTrustedPlatformModule from the specified map of raw messages.
-func UnmarshalBareMetalServerTrustedPlatformModule(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(BareMetalServerTrustedPlatformModule)
-	err = core.UnmarshalPrimitive(m, "enabled", &obj.Enabled)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "mode", &obj.Mode)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// BareMetalServerTrustedPlatformModulePatch : For the trusted platform module configuration to be changed, the bare metal server
-// `status` must be `stopped`.
-type BareMetalServerTrustedPlatformModulePatch struct {
-	// Indicates whether the trusted platform module (TPM) is enabled. If enabled, `mode` will also be set.
-	Enabled *bool `json:"enabled,omitempty"`
-
-	// The mode for the trusted platform module (TPM):
-	// - `tpm_2`: Standard TPM 2 capabilities
-	// - `tpm_2_with_txt`: Standard TPM 2 with Intel Trusted Execution Technology (TXT)
-	//
-	// The enumerated values for this property are expected to expand in the future. When processing this property, check
-	// for and log unknown values. Optionally halt processing and surface the error, or bypass the resource on which the
-	// unexpected property value was encountered.
-	Mode *string `json:"mode,omitempty"`
-}
-
-// Constants associated with the BareMetalServerTrustedPlatformModulePatch.Mode property.
-// The mode for the trusted platform module (TPM):
-// - `tpm_2`: Standard TPM 2 capabilities
-// - `tpm_2_with_txt`: Standard TPM 2 with Intel Trusted Execution Technology (TXT)
-//
-// The enumerated values for this property are expected to expand in the future. When processing this property, check
-// for and log unknown values. Optionally halt processing and surface the error, or bypass the resource on which the
-// unexpected property value was encountered.
-const (
-	BareMetalServerTrustedPlatformModulePatchModeTpm2Const        = "tpm_2"
-	BareMetalServerTrustedPlatformModulePatchModeTpm2WithTxtConst = "tpm_2_with_txt"
-)
-
-// UnmarshalBareMetalServerTrustedPlatformModulePatch unmarshals an instance of BareMetalServerTrustedPlatformModulePatch from the specified map of raw messages.
-func UnmarshalBareMetalServerTrustedPlatformModulePatch(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(BareMetalServerTrustedPlatformModulePatch)
-	err = core.UnmarshalPrimitive(m, "enabled", &obj.Enabled)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "mode", &obj.Mode)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// BareMetalServerTrustedPlatformModulePrototype : BareMetalServerTrustedPlatformModulePrototype struct
-type BareMetalServerTrustedPlatformModulePrototype struct {
-	// Indicates whether the trusted platform module (TPM) is enabled. If enabled, `mode` will also be set.
-	Enabled *bool `json:"enabled,omitempty"`
-
-	// The mode for the trusted platform module (TPM):
-	// - `tpm_2`: Standard TPM 2 capabilities
-	// - `tpm_2_with_txt`: Standard TPM 2 with Intel Trusted Execution Technology (TXT)
-	//
-	// The enumerated values for this property are expected to expand in the future. When processing this property, check
-	// for and log unknown values. Optionally halt processing and surface the error, or bypass the resource on which the
-	// unexpected property value was encountered.
-	Mode *string `json:"mode,omitempty"`
-}
-
-// Constants associated with the BareMetalServerTrustedPlatformModulePrototype.Mode property.
-// The mode for the trusted platform module (TPM):
-// - `tpm_2`: Standard TPM 2 capabilities
-// - `tpm_2_with_txt`: Standard TPM 2 with Intel Trusted Execution Technology (TXT)
-//
-// The enumerated values for this property are expected to expand in the future. When processing this property, check
-// for and log unknown values. Optionally halt processing and surface the error, or bypass the resource on which the
-// unexpected property value was encountered.
-const (
-	BareMetalServerTrustedPlatformModulePrototypeModeTpm2Const        = "tpm_2"
-	BareMetalServerTrustedPlatformModulePrototypeModeTpm2WithTxtConst = "tpm_2_with_txt"
-)
-
-// UnmarshalBareMetalServerTrustedPlatformModulePrototype unmarshals an instance of BareMetalServerTrustedPlatformModulePrototype from the specified map of raw messages.
-func UnmarshalBareMetalServerTrustedPlatformModulePrototype(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(BareMetalServerTrustedPlatformModulePrototype)
-	err = core.UnmarshalPrimitive(m, "enabled", &obj.Enabled)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "mode", &obj.Mode)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
 // CertificateInstanceIdentity : Identifies a certificate instance by a unique property.
 // Models which "extend" this model:
 // - CertificateInstanceIdentityByCRN
@@ -25627,54 +18237,6 @@ func UnmarshalCertificateInstanceReference(m map[string]json.RawMessage, result 
 	}
 	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
 	return
-}
-
-// CheckVPNGatewayAdvertisedCIDROptions : The CheckVPNGatewayAdvertisedCIDR options.
-type CheckVPNGatewayAdvertisedCIDROptions struct {
-	// The VPN gateway identifier.
-	VPNGatewayID *string `validate:"required,ne="`
-
-	// The address prefix part of the CIDR.
-	CIDRPrefix *string `validate:"required,ne="`
-
-	// The prefix length part of the CIDR.
-	PrefixLength *string `validate:"required,ne="`
-
-	// Allows users to set headers on API requests
-	Headers map[string]string
-}
-
-// NewCheckVPNGatewayAdvertisedCIDROptions : Instantiate CheckVPNGatewayAdvertisedCIDROptions
-func (*VpcV1) NewCheckVPNGatewayAdvertisedCIDROptions(vpnGatewayID string, cidrPrefix string, prefixLength string) *CheckVPNGatewayAdvertisedCIDROptions {
-	return &CheckVPNGatewayAdvertisedCIDROptions{
-		VPNGatewayID: core.StringPtr(vpnGatewayID),
-		CIDRPrefix:   core.StringPtr(cidrPrefix),
-		PrefixLength: core.StringPtr(prefixLength),
-	}
-}
-
-// SetVPNGatewayID : Allow user to set VPNGatewayID
-func (options *CheckVPNGatewayAdvertisedCIDROptions) SetVPNGatewayID(vpnGatewayID string) *CheckVPNGatewayAdvertisedCIDROptions {
-	options.VPNGatewayID = core.StringPtr(vpnGatewayID)
-	return options
-}
-
-// SetCIDRPrefix : Allow user to set CIDRPrefix
-func (options *CheckVPNGatewayAdvertisedCIDROptions) SetCIDRPrefix(cidrPrefix string) *CheckVPNGatewayAdvertisedCIDROptions {
-	options.CIDRPrefix = core.StringPtr(cidrPrefix)
-	return options
-}
-
-// SetPrefixLength : Allow user to set PrefixLength
-func (options *CheckVPNGatewayAdvertisedCIDROptions) SetPrefixLength(prefixLength string) *CheckVPNGatewayAdvertisedCIDROptions {
-	options.PrefixLength = core.StringPtr(prefixLength)
-	return options
-}
-
-// SetHeaders : Allow user to set Headers
-func (options *CheckVPNGatewayAdvertisedCIDROptions) SetHeaders(param map[string]string) *CheckVPNGatewayAdvertisedCIDROptions {
-	options.Headers = param
-	return options
 }
 
 // CheckVPNGatewayConnectionLocalCIDROptions : The CheckVPNGatewayConnectionLocalCIDR options.
@@ -25837,389 +18399,6 @@ func UnmarshalCloudObjectStorageBucketReference(m map[string]json.RawMessage, re
 	return
 }
 
-// CreateBackupPolicyOptions : The CreateBackupPolicy options.
-type CreateBackupPolicyOptions struct {
-	// A resource type this backup policy applies to. Resources that have both a matching type and a matching user tag will
-	// be subject to the backup policy.
-	MatchResourceTypes []string
-
-	// The user tags this backup policy applies to. Resources that have both a matching user tag and a matching type will
-	// be subject to the backup policy.
-	MatchUserTags []string
-
-	// The user-defined name for this backup policy. Names must be unique within the region this backup policy resides in.
-	// If unspecified, the name will be a hyphenated list of randomly-selected words.
-	Name *string
-
-	// The prototype objects for backup plans to be created for this backup policy.
-	Plans []BackupPolicyPlanPrototype
-
-	// The resource group to use. If unspecified, the account's [default resource
-	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) is used.
-	ResourceGroup ResourceGroupIdentityIntf
-
-	// Allows users to set headers on API requests
-	Headers map[string]string
-}
-
-// Constants associated with the CreateBackupPolicyOptions.MatchResourceTypes property.
-// The resource type.
-const (
-	CreateBackupPolicyOptionsMatchResourceTypesVolumeConst = "volume"
-)
-
-// NewCreateBackupPolicyOptions : Instantiate CreateBackupPolicyOptions
-func (*VpcV1) NewCreateBackupPolicyOptions() *CreateBackupPolicyOptions {
-	return &CreateBackupPolicyOptions{}
-}
-
-// SetMatchResourceTypes : Allow user to set MatchResourceTypes
-func (options *CreateBackupPolicyOptions) SetMatchResourceTypes(matchResourceTypes []string) *CreateBackupPolicyOptions {
-	options.MatchResourceTypes = matchResourceTypes
-	return options
-}
-
-// SetMatchUserTags : Allow user to set MatchUserTags
-func (options *CreateBackupPolicyOptions) SetMatchUserTags(matchUserTags []string) *CreateBackupPolicyOptions {
-	options.MatchUserTags = matchUserTags
-	return options
-}
-
-// SetName : Allow user to set Name
-func (options *CreateBackupPolicyOptions) SetName(name string) *CreateBackupPolicyOptions {
-	options.Name = core.StringPtr(name)
-	return options
-}
-
-// SetPlans : Allow user to set Plans
-func (options *CreateBackupPolicyOptions) SetPlans(plans []BackupPolicyPlanPrototype) *CreateBackupPolicyOptions {
-	options.Plans = plans
-	return options
-}
-
-// SetResourceGroup : Allow user to set ResourceGroup
-func (options *CreateBackupPolicyOptions) SetResourceGroup(resourceGroup ResourceGroupIdentityIntf) *CreateBackupPolicyOptions {
-	options.ResourceGroup = resourceGroup
-	return options
-}
-
-// SetHeaders : Allow user to set Headers
-func (options *CreateBackupPolicyOptions) SetHeaders(param map[string]string) *CreateBackupPolicyOptions {
-	options.Headers = param
-	return options
-}
-
-// CreateBareMetalServerConsoleAccessTokenOptions : The CreateBareMetalServerConsoleAccessToken options.
-type CreateBareMetalServerConsoleAccessTokenOptions struct {
-	// The bare metal server identifier.
-	BareMetalServerID *string `validate:"required,ne="`
-
-	// The bare metal server console type for which this token may be used.
-	ConsoleType *string `validate:"required"`
-
-	// Indicates whether to disconnect an existing serial console session as the serial console cannot be shared.  This has
-	// no effect on VNC consoles.
-	Force *bool
-
-	// Allows users to set headers on API requests
-	Headers map[string]string
-}
-
-// Constants associated with the CreateBareMetalServerConsoleAccessTokenOptions.ConsoleType property.
-// The bare metal server console type for which this token may be used.
-const (
-	CreateBareMetalServerConsoleAccessTokenOptionsConsoleTypeSerialConst = "serial"
-	CreateBareMetalServerConsoleAccessTokenOptionsConsoleTypeVncConst    = "vnc"
-)
-
-// NewCreateBareMetalServerConsoleAccessTokenOptions : Instantiate CreateBareMetalServerConsoleAccessTokenOptions
-func (*VpcV1) NewCreateBareMetalServerConsoleAccessTokenOptions(bareMetalServerID string, consoleType string) *CreateBareMetalServerConsoleAccessTokenOptions {
-	return &CreateBareMetalServerConsoleAccessTokenOptions{
-		BareMetalServerID: core.StringPtr(bareMetalServerID),
-		ConsoleType:       core.StringPtr(consoleType),
-	}
-}
-
-// SetBareMetalServerID : Allow user to set BareMetalServerID
-func (options *CreateBareMetalServerConsoleAccessTokenOptions) SetBareMetalServerID(bareMetalServerID string) *CreateBareMetalServerConsoleAccessTokenOptions {
-	options.BareMetalServerID = core.StringPtr(bareMetalServerID)
-	return options
-}
-
-// SetConsoleType : Allow user to set ConsoleType
-func (options *CreateBareMetalServerConsoleAccessTokenOptions) SetConsoleType(consoleType string) *CreateBareMetalServerConsoleAccessTokenOptions {
-	options.ConsoleType = core.StringPtr(consoleType)
-	return options
-}
-
-// SetForce : Allow user to set Force
-func (options *CreateBareMetalServerConsoleAccessTokenOptions) SetForce(force bool) *CreateBareMetalServerConsoleAccessTokenOptions {
-	options.Force = core.BoolPtr(force)
-	return options
-}
-
-// SetHeaders : Allow user to set Headers
-func (options *CreateBareMetalServerConsoleAccessTokenOptions) SetHeaders(param map[string]string) *CreateBareMetalServerConsoleAccessTokenOptions {
-	options.Headers = param
-	return options
-}
-
-// CreateBareMetalServerNetworkInterfaceOptions : The CreateBareMetalServerNetworkInterface options.
-type CreateBareMetalServerNetworkInterfaceOptions struct {
-	// The bare metal server identifier.
-	BareMetalServerID *string `validate:"required,ne="`
-
-	// The network interface prototype object.
-	BareMetalServerNetworkInterfacePrototype BareMetalServerNetworkInterfacePrototypeIntf `validate:"required"`
-
-	// Allows users to set headers on API requests
-	Headers map[string]string
-}
-
-// NewCreateBareMetalServerNetworkInterfaceOptions : Instantiate CreateBareMetalServerNetworkInterfaceOptions
-func (*VpcV1) NewCreateBareMetalServerNetworkInterfaceOptions(bareMetalServerID string, bareMetalServerNetworkInterfacePrototype BareMetalServerNetworkInterfacePrototypeIntf) *CreateBareMetalServerNetworkInterfaceOptions {
-	return &CreateBareMetalServerNetworkInterfaceOptions{
-		BareMetalServerID:                        core.StringPtr(bareMetalServerID),
-		BareMetalServerNetworkInterfacePrototype: bareMetalServerNetworkInterfacePrototype,
-	}
-}
-
-// SetBareMetalServerID : Allow user to set BareMetalServerID
-func (options *CreateBareMetalServerNetworkInterfaceOptions) SetBareMetalServerID(bareMetalServerID string) *CreateBareMetalServerNetworkInterfaceOptions {
-	options.BareMetalServerID = core.StringPtr(bareMetalServerID)
-	return options
-}
-
-// SetBareMetalServerNetworkInterfacePrototype : Allow user to set BareMetalServerNetworkInterfacePrototype
-func (options *CreateBareMetalServerNetworkInterfaceOptions) SetBareMetalServerNetworkInterfacePrototype(bareMetalServerNetworkInterfacePrototype BareMetalServerNetworkInterfacePrototypeIntf) *CreateBareMetalServerNetworkInterfaceOptions {
-	options.BareMetalServerNetworkInterfacePrototype = bareMetalServerNetworkInterfacePrototype
-	return options
-}
-
-// SetHeaders : Allow user to set Headers
-func (options *CreateBareMetalServerNetworkInterfaceOptions) SetHeaders(param map[string]string) *CreateBareMetalServerNetworkInterfaceOptions {
-	options.Headers = param
-	return options
-}
-
-// CreateBareMetalServerOptions : The CreateBareMetalServer options.
-type CreateBareMetalServerOptions struct {
-	Initialization *BareMetalServerInitializationPrototype `validate:"required"`
-
-	// Primary network interface for the bare metal server.
-	PrimaryNetworkInterface *BareMetalServerPrimaryNetworkInterfacePrototype `validate:"required"`
-
-	// The profile to use for this bare metal server.
-	Profile BareMetalServerProfileIdentityIntf `validate:"required"`
-
-	// The zone this bare metal server will reside in.
-	Zone ZoneIdentityIntf `validate:"required"`
-
-	// Indicates whether secure boot is enabled. If enabled, the image must support secure boot or the server will fail to
-	// boot.
-	EnableSecureBoot *bool
-
-	// The user-defined name for this bare metal server (and default system hostname).
-	Name *string
-
-	// The additional network interfaces to create for the bare metal server.
-	NetworkInterfaces []BareMetalServerNetworkInterfacePrototypeIntf
-
-	// The resource group to use. If unspecified, the account's [default resource
-	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) is used.
-	ResourceGroup ResourceGroupIdentityIntf
-
-	TrustedPlatformModule *BareMetalServerTrustedPlatformModulePrototype
-
-	// The VPC the bare metal server is to be a part of. If provided, must match the
-	// VPC tied to the subnets of the server's network interfaces.
-	VPC VPCIdentityIntf
-
-	// Allows users to set headers on API requests
-	Headers map[string]string
-}
-
-// NewCreateBareMetalServerOptions : Instantiate CreateBareMetalServerOptions
-func (*VpcV1) NewCreateBareMetalServerOptions(initialization *BareMetalServerInitializationPrototype, primaryNetworkInterface *BareMetalServerPrimaryNetworkInterfacePrototype, profile BareMetalServerProfileIdentityIntf, zone ZoneIdentityIntf) *CreateBareMetalServerOptions {
-	return &CreateBareMetalServerOptions{
-		Initialization:          initialization,
-		PrimaryNetworkInterface: primaryNetworkInterface,
-		Profile:                 profile,
-		Zone:                    zone,
-	}
-}
-
-// SetInitialization : Allow user to set Initialization
-func (options *CreateBareMetalServerOptions) SetInitialization(initialization *BareMetalServerInitializationPrototype) *CreateBareMetalServerOptions {
-	options.Initialization = initialization
-	return options
-}
-
-// SetPrimaryNetworkInterface : Allow user to set PrimaryNetworkInterface
-func (options *CreateBareMetalServerOptions) SetPrimaryNetworkInterface(primaryNetworkInterface *BareMetalServerPrimaryNetworkInterfacePrototype) *CreateBareMetalServerOptions {
-	options.PrimaryNetworkInterface = primaryNetworkInterface
-	return options
-}
-
-// SetProfile : Allow user to set Profile
-func (options *CreateBareMetalServerOptions) SetProfile(profile BareMetalServerProfileIdentityIntf) *CreateBareMetalServerOptions {
-	options.Profile = profile
-	return options
-}
-
-// SetZone : Allow user to set Zone
-func (options *CreateBareMetalServerOptions) SetZone(zone ZoneIdentityIntf) *CreateBareMetalServerOptions {
-	options.Zone = zone
-	return options
-}
-
-// SetEnableSecureBoot : Allow user to set EnableSecureBoot
-func (options *CreateBareMetalServerOptions) SetEnableSecureBoot(enableSecureBoot bool) *CreateBareMetalServerOptions {
-	options.EnableSecureBoot = core.BoolPtr(enableSecureBoot)
-	return options
-}
-
-// SetName : Allow user to set Name
-func (options *CreateBareMetalServerOptions) SetName(name string) *CreateBareMetalServerOptions {
-	options.Name = core.StringPtr(name)
-	return options
-}
-
-// SetNetworkInterfaces : Allow user to set NetworkInterfaces
-func (options *CreateBareMetalServerOptions) SetNetworkInterfaces(networkInterfaces []BareMetalServerNetworkInterfacePrototypeIntf) *CreateBareMetalServerOptions {
-	options.NetworkInterfaces = networkInterfaces
-	return options
-}
-
-// SetResourceGroup : Allow user to set ResourceGroup
-func (options *CreateBareMetalServerOptions) SetResourceGroup(resourceGroup ResourceGroupIdentityIntf) *CreateBareMetalServerOptions {
-	options.ResourceGroup = resourceGroup
-	return options
-}
-
-// SetTrustedPlatformModule : Allow user to set TrustedPlatformModule
-func (options *CreateBareMetalServerOptions) SetTrustedPlatformModule(trustedPlatformModule *BareMetalServerTrustedPlatformModulePrototype) *CreateBareMetalServerOptions {
-	options.TrustedPlatformModule = trustedPlatformModule
-	return options
-}
-
-// SetVPC : Allow user to set VPC
-func (options *CreateBareMetalServerOptions) SetVPC(vpc VPCIdentityIntf) *CreateBareMetalServerOptions {
-	options.VPC = vpc
-	return options
-}
-
-// SetHeaders : Allow user to set Headers
-func (options *CreateBareMetalServerOptions) SetHeaders(param map[string]string) *CreateBareMetalServerOptions {
-	options.Headers = param
-	return options
-}
-
-// CreateBareMetalServerRestartOptions : The CreateBareMetalServerRestart options.
-type CreateBareMetalServerRestartOptions struct {
-	// The bare metal server identifier.
-	ID *string `validate:"required,ne="`
-
-	// Allows users to set headers on API requests
-	Headers map[string]string
-}
-
-// NewCreateBareMetalServerRestartOptions : Instantiate CreateBareMetalServerRestartOptions
-func (*VpcV1) NewCreateBareMetalServerRestartOptions(id string) *CreateBareMetalServerRestartOptions {
-	return &CreateBareMetalServerRestartOptions{
-		ID: core.StringPtr(id),
-	}
-}
-
-// SetID : Allow user to set ID
-func (options *CreateBareMetalServerRestartOptions) SetID(id string) *CreateBareMetalServerRestartOptions {
-	options.ID = core.StringPtr(id)
-	return options
-}
-
-// SetHeaders : Allow user to set Headers
-func (options *CreateBareMetalServerRestartOptions) SetHeaders(param map[string]string) *CreateBareMetalServerRestartOptions {
-	options.Headers = param
-	return options
-}
-
-// CreateBareMetalServerStartOptions : The CreateBareMetalServerStart options.
-type CreateBareMetalServerStartOptions struct {
-	// The bare metal server identifier.
-	ID *string `validate:"required,ne="`
-
-	// Allows users to set headers on API requests
-	Headers map[string]string
-}
-
-// NewCreateBareMetalServerStartOptions : Instantiate CreateBareMetalServerStartOptions
-func (*VpcV1) NewCreateBareMetalServerStartOptions(id string) *CreateBareMetalServerStartOptions {
-	return &CreateBareMetalServerStartOptions{
-		ID: core.StringPtr(id),
-	}
-}
-
-// SetID : Allow user to set ID
-func (options *CreateBareMetalServerStartOptions) SetID(id string) *CreateBareMetalServerStartOptions {
-	options.ID = core.StringPtr(id)
-	return options
-}
-
-// SetHeaders : Allow user to set Headers
-func (options *CreateBareMetalServerStartOptions) SetHeaders(param map[string]string) *CreateBareMetalServerStartOptions {
-	options.Headers = param
-	return options
-}
-
-// CreateBareMetalServerStopOptions : The CreateBareMetalServerStop options.
-type CreateBareMetalServerStopOptions struct {
-	// The bare metal server identifier.
-	ID *string `validate:"required,ne="`
-
-	// The type of stop operation:
-	// - `soft`: signal running operating system to quiesce and shutdown cleanly
-	// - `hard`: immediately stop the server.
-	Type *string `validate:"required"`
-
-	// Allows users to set headers on API requests
-	Headers map[string]string
-}
-
-// Constants associated with the CreateBareMetalServerStopOptions.Type property.
-// The type of stop operation:
-// - `soft`: signal running operating system to quiesce and shutdown cleanly
-// - `hard`: immediately stop the server.
-const (
-	CreateBareMetalServerStopOptionsTypeHardConst = "hard"
-	CreateBareMetalServerStopOptionsTypeSoftConst = "soft"
-)
-
-// NewCreateBareMetalServerStopOptions : Instantiate CreateBareMetalServerStopOptions
-func (*VpcV1) NewCreateBareMetalServerStopOptions(id string, typeVar string) *CreateBareMetalServerStopOptions {
-	return &CreateBareMetalServerStopOptions{
-		ID:   core.StringPtr(id),
-		Type: core.StringPtr(typeVar),
-	}
-}
-
-// SetID : Allow user to set ID
-func (options *CreateBareMetalServerStopOptions) SetID(id string) *CreateBareMetalServerStopOptions {
-	options.ID = core.StringPtr(id)
-	return options
-}
-
-// SetType : Allow user to set Type
-func (options *CreateBareMetalServerStopOptions) SetType(typeVar string) *CreateBareMetalServerStopOptions {
-	options.Type = core.StringPtr(typeVar)
-	return options
-}
-
-// SetHeaders : Allow user to set Headers
-func (options *CreateBareMetalServerStopOptions) SetHeaders(param map[string]string) *CreateBareMetalServerStopOptions {
-	options.Headers = param
-	return options
-}
-
 // CreateDedicatedHostGroupOptions : The CreateDedicatedHostGroup options.
 type CreateDedicatedHostGroupOptions struct {
 	// The dedicated host profile class for hosts in this group.
@@ -26339,9 +18518,6 @@ type CreateEndpointGatewayOptions struct {
 	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) is used.
 	ResourceGroup ResourceGroupIdentityIntf
 
-	// The security groups to use for this endpoint gateway. If not specified, the VPC's default security group is used.
-	SecurityGroups []SecurityGroupIdentityIntf
-
 	// Allows users to set headers on API requests
 	Headers map[string]string
 }
@@ -26381,12 +18557,6 @@ func (options *CreateEndpointGatewayOptions) SetName(name string) *CreateEndpoin
 // SetResourceGroup : Allow user to set ResourceGroup
 func (options *CreateEndpointGatewayOptions) SetResourceGroup(resourceGroup ResourceGroupIdentityIntf) *CreateEndpointGatewayOptions {
 	options.ResourceGroup = resourceGroup
-	return options
-}
-
-// SetSecurityGroups : Allow user to set SecurityGroups
-func (options *CreateEndpointGatewayOptions) SetSecurityGroups(securityGroups []SecurityGroupIdentityIntf) *CreateEndpointGatewayOptions {
-	options.SecurityGroups = securityGroups
 	return options
 }
 
@@ -26433,9 +18603,8 @@ type CreateFlowLogCollectorOptions struct {
 	StorageBucket CloudObjectStorageBucketIdentityIntf `validate:"required"`
 
 	// The target this collector will collect flow logs for. If the target is an instance,
-	// bare metal server, subnet, or VPC, flow logs will not be collected for any network
-	// interfaces within the target that are themselves the target of a more specific flow
-	// log collector.
+	// subnet, or VPC, flow logs will not be collected for any network interfaces within the
+	// target that are themselves the target of a more specific flow log collector.
 	Target FlowLogCollectorTargetPrototypeIntf `validate:"required"`
 
 	// Indicates whether this collector will be active upon creation.
@@ -26986,13 +19155,9 @@ type CreateInstanceNetworkInterfaceOptions struct {
 	// randomly-selected words.
 	Name *string
 
-	// The primary IP address to bind to the network interface. This can be specified using
-	// an existing reserved IP, or a prototype object for a new reserved IP.
-	//
-	// If an existing reserved IP or a prototype object with an address is specified, it must
-	// be available on the network interface's subnet. Otherwise, an available address on the
-	// subnet will be automatically selected and reserved.
-	PrimaryIP NetworkInterfaceIPPrototypeIntf
+	// The primary IPv4 address. If specified, it must be an available address on the network interface's subnet. If
+	// unspecified, an available address on the subnet will be automatically selected.
+	PrimaryIpv4Address *string
 
 	// Collection of security groups.
 	SecurityGroups []SecurityGroupIdentityIntf
@@ -27033,9 +19198,9 @@ func (options *CreateInstanceNetworkInterfaceOptions) SetName(name string) *Crea
 	return options
 }
 
-// SetPrimaryIP : Allow user to set PrimaryIP
-func (options *CreateInstanceNetworkInterfaceOptions) SetPrimaryIP(primaryIP NetworkInterfaceIPPrototypeIntf) *CreateInstanceNetworkInterfaceOptions {
-	options.PrimaryIP = primaryIP
+// SetPrimaryIpv4Address : Allow user to set PrimaryIpv4Address
+func (options *CreateInstanceNetworkInterfaceOptions) SetPrimaryIpv4Address(primaryIpv4Address string) *CreateInstanceNetworkInterfaceOptions {
+	options.PrimaryIpv4Address = core.StringPtr(primaryIpv4Address)
 	return options
 }
 
@@ -27340,19 +19505,13 @@ type CreateLoadBalancerListenerOptions struct {
 	// `port` and `protocol` combination.
 	Port *int64 `validate:"required"`
 
-	// The listener protocol. Each listener in the load balancer must have a unique `port` and `protocol` combination.
-	// Additional restrictions:
-	// - If this load balancer is in the `network` family, the protocol must be `tcp`.
-	// - If this listener has `https_redirect` specified, the protocol must be `http`.
-	// - If this listener is a listener's `https_redirect` target, the protocol must be `https`.
+	// The listener protocol. Load balancers in the `network` family support `tcp`. Load balancers in the `application`
+	// family support `tcp`, `http`, and `https`. Each listener in the load balancer must have a unique `port` and
+	// `protocol` combination.
 	Protocol *string `validate:"required"`
 
 	// If set to `true`, this listener will accept and forward PROXY protocol information. Supported by load balancers in
-	// the `application` family (otherwise always `false`). Additional restrictions:
-	// - If this listener has `https_redirect` specified, its `accept_proxy_protocol` value must
-	//   match the `accept_proxy_protocol` value of the `https_redirect` listener.
-	// - If this listener is the target of another listener's `https_redirect`, its
-	//   `accept_proxy_protocol` value must match that listener's `accept_proxy_protocol` value.
+	// the `application` family (otherwise always `false`).
 	AcceptProxyProtocol *bool
 
 	// The certificate instance used for SSL termination. It is applicable only to `https`
@@ -27369,10 +19528,6 @@ type CreateLoadBalancerListenerOptions struct {
 	// - Not already be the default pool for another listener.
 	DefaultPool LoadBalancerPoolIdentityIntf
 
-	// The target listener that requests will be redirected to. This listener must have a
-	// `protocol` of `https`, and the target listener must have a `protocol` of `http`.
-	HTTPSRedirect *LoadBalancerListenerHTTPSRedirectPrototype
-
 	// The policy prototype objects for this listener.
 	Policies []LoadBalancerListenerPolicyPrototype
 
@@ -27381,11 +19536,9 @@ type CreateLoadBalancerListenerOptions struct {
 }
 
 // Constants associated with the CreateLoadBalancerListenerOptions.Protocol property.
-// The listener protocol. Each listener in the load balancer must have a unique `port` and `protocol` combination.
-// Additional restrictions:
-// - If this load balancer is in the `network` family, the protocol must be `tcp`.
-// - If this listener has `https_redirect` specified, the protocol must be `http`.
-// - If this listener is a listener's `https_redirect` target, the protocol must be `https`.
+// The listener protocol. Load balancers in the `network` family support `tcp`. Load balancers in the `application`
+// family support `tcp`, `http`, and `https`. Each listener in the load balancer must have a unique `port` and
+// `protocol` combination.
 const (
 	CreateLoadBalancerListenerOptionsProtocolHTTPConst  = "http"
 	CreateLoadBalancerListenerOptionsProtocolHTTPSConst = "https"
@@ -27443,12 +19596,6 @@ func (options *CreateLoadBalancerListenerOptions) SetDefaultPool(defaultPool Loa
 	return options
 }
 
-// SetHTTPSRedirect : Allow user to set HTTPSRedirect
-func (options *CreateLoadBalancerListenerOptions) SetHTTPSRedirect(httpsRedirect *LoadBalancerListenerHTTPSRedirectPrototype) *CreateLoadBalancerListenerOptions {
-	options.HTTPSRedirect = httpsRedirect
-	return options
-}
-
 // SetPolicies : Allow user to set Policies
 func (options *CreateLoadBalancerListenerOptions) SetPolicies(policies []LoadBalancerListenerPolicyPrototype) *CreateLoadBalancerListenerOptions {
 	options.Policies = policies
@@ -27487,8 +19634,6 @@ type CreateLoadBalancerListenerPolicyOptions struct {
 
 	// - If `action` is `forward`, specify a `LoadBalancerPoolIdentity`.
 	// - If `action` is `redirect`, specify a `LoadBalancerListenerPolicyRedirectURLPrototype`.
-	// - If `action` is `https_redirect`, specify a
-	//   `LoadBalancerListenerPolicyHttpsRedirectPrototype`.
 	Target LoadBalancerListenerPolicyTargetPrototypeIntf
 
 	// Allows users to set headers on API requests
@@ -27502,10 +19647,9 @@ type CreateLoadBalancerListenerPolicyOptions struct {
 // for and log unknown values. Optionally halt processing and surface the error, or bypass the policy on which the
 // unexpected property value was encountered.
 const (
-	CreateLoadBalancerListenerPolicyOptionsActionForwardConst       = "forward"
-	CreateLoadBalancerListenerPolicyOptionsActionHTTPSRedirectConst = "https_redirect"
-	CreateLoadBalancerListenerPolicyOptionsActionRedirectConst      = "redirect"
-	CreateLoadBalancerListenerPolicyOptionsActionRejectConst        = "reject"
+	CreateLoadBalancerListenerPolicyOptionsActionForwardConst  = "forward"
+	CreateLoadBalancerListenerPolicyOptionsActionRedirectConst = "redirect"
+	CreateLoadBalancerListenerPolicyOptionsActionRejectConst   = "reject"
 )
 
 // NewCreateLoadBalancerListenerPolicyOptions : Instantiate CreateLoadBalancerListenerPolicyOptions
@@ -28328,180 +20472,6 @@ func (options *CreateSecurityGroupTargetBindingOptions) SetHeaders(param map[str
 	return options
 }
 
-// CreateShareOptions : The CreateShare options.
-type CreateShareOptions struct {
-	// The key to use for encrypting this file share.
-	//
-	// If no encryption key is provided, the share will not be encrypted.
-	EncryptionKey EncryptionKeyIdentityIntf
-
-	// The owner assigned to the file share at creation. Subsequent changes to the owner
-	// must be performed by a virtual server instance that has mounted the file share.
-	InitialOwner *ShareInitialOwner
-
-	// The maximum input/output operations per second (IOPS) for the file share. This depends on the selected share profile
-	// and size of the share. In addition, each host accessing the share will be restricted to 50000 IOPS.
-	//
-	// The maximum IOPS for a share may increase in the future.
-	Iops *int64
-
-	// The unique user-defined name for this file share. If unspecified, the name will be a hyphenated list of
-	// randomly-selected words.
-	Name *string
-
-	// Identifies a share profile by a unique property.
-	Profile SharePrototypeProfileIntf
-
-	// The resource group to use. If unspecified, the account's [default resource
-	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) is used.
-	ResourceGroup ResourceGroupIdentityIntf
-
-	// The size of the file share rounded up to the next gigabyte.
-	//
-	// The maximum size for a share may increase in the future.
-	Size *int64
-
-	// Share targets for the file share.
-	Targets []ShareTargetPrototype
-
-	// The zone this file share will reside in.
-	Zone ZoneIdentityIntf
-
-	// Allows users to set headers on API requests
-	Headers map[string]string
-}
-
-// NewCreateShareOptions : Instantiate CreateShareOptions
-func (*VpcV1) NewCreateShareOptions() *CreateShareOptions {
-	return &CreateShareOptions{}
-}
-
-// SetEncryptionKey : Allow user to set EncryptionKey
-func (options *CreateShareOptions) SetEncryptionKey(encryptionKey EncryptionKeyIdentityIntf) *CreateShareOptions {
-	options.EncryptionKey = encryptionKey
-	return options
-}
-
-// SetInitialOwner : Allow user to set InitialOwner
-func (options *CreateShareOptions) SetInitialOwner(initialOwner *ShareInitialOwner) *CreateShareOptions {
-	options.InitialOwner = initialOwner
-	return options
-}
-
-// SetIops : Allow user to set Iops
-func (options *CreateShareOptions) SetIops(iops int64) *CreateShareOptions {
-	options.Iops = core.Int64Ptr(iops)
-	return options
-}
-
-// SetName : Allow user to set Name
-func (options *CreateShareOptions) SetName(name string) *CreateShareOptions {
-	options.Name = core.StringPtr(name)
-	return options
-}
-
-// SetProfile : Allow user to set Profile
-func (options *CreateShareOptions) SetProfile(profile SharePrototypeProfileIntf) *CreateShareOptions {
-	options.Profile = profile
-	return options
-}
-
-// SetResourceGroup : Allow user to set ResourceGroup
-func (options *CreateShareOptions) SetResourceGroup(resourceGroup ResourceGroupIdentityIntf) *CreateShareOptions {
-	options.ResourceGroup = resourceGroup
-	return options
-}
-
-// SetSize : Allow user to set Size
-func (options *CreateShareOptions) SetSize(size int64) *CreateShareOptions {
-	options.Size = core.Int64Ptr(size)
-	return options
-}
-
-// SetTargets : Allow user to set Targets
-func (options *CreateShareOptions) SetTargets(targets []ShareTargetPrototype) *CreateShareOptions {
-	options.Targets = targets
-	return options
-}
-
-// SetZone : Allow user to set Zone
-func (options *CreateShareOptions) SetZone(zone ZoneIdentityIntf) *CreateShareOptions {
-	options.Zone = zone
-	return options
-}
-
-// SetHeaders : Allow user to set Headers
-func (options *CreateShareOptions) SetHeaders(param map[string]string) *CreateShareOptions {
-	options.Headers = param
-	return options
-}
-
-// CreateShareTargetOptions : The CreateShareTarget options.
-type CreateShareTargetOptions struct {
-	// The file share identifier.
-	ShareID *string `validate:"required,ne="`
-
-	// The VPC in which instances can mount the file share using this share target.
-	//
-	// This property will be removed in a future release.
-	// The `subnet` property should be used instead.
-	VPC ShareTargetPrototypeVPCIntf `validate:"required"`
-
-	// The user-defined name for this share target. Names must be unique within the share the share target resides in. If
-	// unspecified, the name will be a hyphenated list of randomly-selected words.
-	Name *string
-
-	// The subnet associated with this file share target.
-	//
-	// Only virtual server instances in the same VPC as this subnet
-	// will be allowed to mount the file share.
-	//
-	// In the future, this property may be required and used to assign
-	// an IP address for the file share target.
-	Subnet SubnetIdentityIntf
-
-	// Allows users to set headers on API requests
-	Headers map[string]string
-}
-
-// NewCreateShareTargetOptions : Instantiate CreateShareTargetOptions
-func (*VpcV1) NewCreateShareTargetOptions(shareID string, vpc ShareTargetPrototypeVPCIntf) *CreateShareTargetOptions {
-	return &CreateShareTargetOptions{
-		ShareID: core.StringPtr(shareID),
-		VPC:     vpc,
-	}
-}
-
-// SetShareID : Allow user to set ShareID
-func (options *CreateShareTargetOptions) SetShareID(shareID string) *CreateShareTargetOptions {
-	options.ShareID = core.StringPtr(shareID)
-	return options
-}
-
-// SetVPC : Allow user to set VPC
-func (options *CreateShareTargetOptions) SetVPC(vpc ShareTargetPrototypeVPCIntf) *CreateShareTargetOptions {
-	options.VPC = vpc
-	return options
-}
-
-// SetName : Allow user to set Name
-func (options *CreateShareTargetOptions) SetName(name string) *CreateShareTargetOptions {
-	options.Name = core.StringPtr(name)
-	return options
-}
-
-// SetSubnet : Allow user to set Subnet
-func (options *CreateShareTargetOptions) SetSubnet(subnet SubnetIdentityIntf) *CreateShareTargetOptions {
-	options.Subnet = subnet
-	return options
-}
-
-// SetHeaders : Allow user to set Headers
-func (options *CreateShareTargetOptions) SetHeaders(param map[string]string) *CreateShareTargetOptions {
-	options.Headers = param
-	return options
-}
-
 // CreateSnapshotOptions : The CreateSnapshot options.
 type CreateSnapshotOptions struct {
 	// The volume to snapshot.
@@ -28514,9 +20484,6 @@ type CreateSnapshotOptions struct {
 	// The resource group to use. If unspecified, the account's [default resource
 	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) is used.
 	ResourceGroup ResourceGroupIdentityIntf
-
-	// The user tags associated with this snapshot.
-	UserTags []string
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -28544,12 +20511,6 @@ func (options *CreateSnapshotOptions) SetName(name string) *CreateSnapshotOption
 // SetResourceGroup : Allow user to set ResourceGroup
 func (options *CreateSnapshotOptions) SetResourceGroup(resourceGroup ResourceGroupIdentityIntf) *CreateSnapshotOptions {
 	options.ResourceGroup = resourceGroup
-	return options
-}
-
-// SetUserTags : Allow user to set UserTags
-func (options *CreateSnapshotOptions) SetUserTags(userTags []string) *CreateSnapshotOptions {
-	options.UserTags = userTags
 	return options
 }
 
@@ -28592,11 +20553,6 @@ type CreateSubnetReservedIPOptions struct {
 	// The subnet identifier.
 	SubnetID *string `validate:"required,ne="`
 
-	// The IP address to reserve, which must not already be reserved on the subnet.
-	//
-	// If not specified, an available address on the subnet will automatically be selected.
-	Address *string
-
 	// If set to `true`, this reserved IP will be automatically deleted when the target is deleted or when the reserved IP
 	// is unbound. The value cannot be set to `true` if the reserved IP is unbound.
 	AutoDelete *bool
@@ -28623,12 +20579,6 @@ func (*VpcV1) NewCreateSubnetReservedIPOptions(subnetID string) *CreateSubnetRes
 // SetSubnetID : Allow user to set SubnetID
 func (options *CreateSubnetReservedIPOptions) SetSubnetID(subnetID string) *CreateSubnetReservedIPOptions {
 	options.SubnetID = core.StringPtr(subnetID)
-	return options
-}
-
-// SetAddress : Allow user to set Address
-func (options *CreateSubnetReservedIPOptions) SetAddress(address string) *CreateSubnetReservedIPOptions {
-	options.Address = core.StringPtr(address)
 	return options
 }
 
@@ -28930,12 +20880,6 @@ type CreateVPCRoutingTableOptions struct {
 	// The VPC identifier.
 	VPCID *string `validate:"required,ne="`
 
-	// The filters specifying the resources that may create routes in this routing table.
-	//
-	// At present, only the `resource_type` filter is permitted, and only the `vpn_gateway` and `vpn_server` values are
-	// supported, but filter support is expected to expand in the future.
-	AcceptRoutesFrom []ResourceFilter
-
 	// The user-defined name for this routing table. Names must be unique within the VPC the routing table resides in. If
 	// unspecified, the name will be a hyphenated list of randomly-selected words.
 	Name *string
@@ -28991,12 +20935,6 @@ func (*VpcV1) NewCreateVPCRoutingTableOptions(vpcID string) *CreateVPCRoutingTab
 // SetVPCID : Allow user to set VPCID
 func (options *CreateVPCRoutingTableOptions) SetVPCID(vpcID string) *CreateVPCRoutingTableOptions {
 	options.VPCID = core.StringPtr(vpcID)
-	return options
-}
-
-// SetAcceptRoutesFrom : Allow user to set AcceptRoutesFrom
-func (options *CreateVPCRoutingTableOptions) SetAcceptRoutesFrom(acceptRoutesFrom []ResourceFilter) *CreateVPCRoutingTableOptions {
-	options.AcceptRoutesFrom = acceptRoutesFrom
 	return options
 }
 
@@ -29211,239 +21149,6 @@ func (options *CreateVPNGatewayOptions) SetHeaders(param map[string]string) *Cre
 	return options
 }
 
-// CreateVPNServerOptions : The CreateVPNServer options.
-type CreateVPNServerOptions struct {
-	// The certificate instance for this VPN server.
-	Certificate CertificateInstanceIdentityIntf `validate:"required"`
-
-	// The methods used to authenticate VPN clients to this VPN server. VPN clients must authenticate against all provided
-	// methods.
-	ClientAuthentication []VPNServerAuthenticationPrototypeIntf `validate:"required"`
-
-	// The VPN client IPv4 address pool, expressed in CIDR format. The request must not overlap with any existing address
-	// prefixes in the VPC or any of the following reserved address ranges:
-	//   - `127.0.0.0/8` (IPv4 loopback addresses)
-	//   - `161.26.0.0/16` (IBM services)
-	//   - `166.8.0.0/14` (Cloud Service Endpoints)
-	//   - `169.254.0.0/16` (IPv4 link-local addresses)
-	//   - `224.0.0.0/4` (IPv4 multicast addresses)
-	//
-	// The prefix length of the client IP address pool's CIDR must be between
-	// `/9` (8,388,608 addresses) and `/22` (1024 addresses). A CIDR block that contains twice the number of IP addresses
-	// that are required to enable the maximum number of concurrent connections is recommended.
-	ClientIPPool *string `validate:"required"`
-
-	// The subnets to provision this VPN server in.  Use subnets in different zones for high availability.
-	Subnets []SubnetIdentityIntf `validate:"required"`
-
-	// The DNS server addresses that will be provided to VPN clients connected to this VPN server.
-	ClientDnsServerIps []IP
-
-	// The seconds a VPN client can be idle before this VPN server will disconnect it.   Specify `0` to prevent the server
-	// from disconnecting idle clients.
-	ClientIdleTimeout *int64
-
-	// Indicates whether the split tunneling is enabled on this VPN server.
-	EnableSplitTunneling *bool
-
-	// The user-defined name for this VPN server. If unspecified, the name will be a hyphenated list of randomly-selected
-	// words. Names must be unique within the VPC this VPN server is serving.
-	Name *string
-
-	// The port number to use for this VPN server.
-	Port *int64
-
-	// The transport protocol to use for this VPN server.
-	Protocol *string
-
-	// The resource group to use. If unspecified, the account's [default resource
-	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) is used.
-	ResourceGroup ResourceGroupIdentityIntf
-
-	// The security groups to use for this VPN server. If unspecified, the VPC's default security group is used.
-	SecurityGroups []SecurityGroupIdentityIntf
-
-	// Allows users to set headers on API requests
-	Headers map[string]string
-}
-
-// Constants associated with the CreateVPNServerOptions.Protocol property.
-// The transport protocol to use for this VPN server.
-const (
-	CreateVPNServerOptionsProtocolTCPConst = "tcp"
-	CreateVPNServerOptionsProtocolUDPConst = "udp"
-)
-
-// NewCreateVPNServerOptions : Instantiate CreateVPNServerOptions
-func (*VpcV1) NewCreateVPNServerOptions(certificate CertificateInstanceIdentityIntf, clientAuthentication []VPNServerAuthenticationPrototypeIntf, clientIPPool string, subnets []SubnetIdentityIntf) *CreateVPNServerOptions {
-	return &CreateVPNServerOptions{
-		Certificate:          certificate,
-		ClientAuthentication: clientAuthentication,
-		ClientIPPool:         core.StringPtr(clientIPPool),
-		Subnets:              subnets,
-	}
-}
-
-// SetCertificate : Allow user to set Certificate
-func (options *CreateVPNServerOptions) SetCertificate(certificate CertificateInstanceIdentityIntf) *CreateVPNServerOptions {
-	options.Certificate = certificate
-	return options
-}
-
-// SetClientAuthentication : Allow user to set ClientAuthentication
-func (options *CreateVPNServerOptions) SetClientAuthentication(clientAuthentication []VPNServerAuthenticationPrototypeIntf) *CreateVPNServerOptions {
-	options.ClientAuthentication = clientAuthentication
-	return options
-}
-
-// SetClientIPPool : Allow user to set ClientIPPool
-func (options *CreateVPNServerOptions) SetClientIPPool(clientIPPool string) *CreateVPNServerOptions {
-	options.ClientIPPool = core.StringPtr(clientIPPool)
-	return options
-}
-
-// SetSubnets : Allow user to set Subnets
-func (options *CreateVPNServerOptions) SetSubnets(subnets []SubnetIdentityIntf) *CreateVPNServerOptions {
-	options.Subnets = subnets
-	return options
-}
-
-// SetClientDnsServerIps : Allow user to set ClientDnsServerIps
-func (options *CreateVPNServerOptions) SetClientDnsServerIps(clientDnsServerIps []IP) *CreateVPNServerOptions {
-	options.ClientDnsServerIps = clientDnsServerIps
-	return options
-}
-
-// SetClientIdleTimeout : Allow user to set ClientIdleTimeout
-func (options *CreateVPNServerOptions) SetClientIdleTimeout(clientIdleTimeout int64) *CreateVPNServerOptions {
-	options.ClientIdleTimeout = core.Int64Ptr(clientIdleTimeout)
-	return options
-}
-
-// SetEnableSplitTunneling : Allow user to set EnableSplitTunneling
-func (options *CreateVPNServerOptions) SetEnableSplitTunneling(enableSplitTunneling bool) *CreateVPNServerOptions {
-	options.EnableSplitTunneling = core.BoolPtr(enableSplitTunneling)
-	return options
-}
-
-// SetName : Allow user to set Name
-func (options *CreateVPNServerOptions) SetName(name string) *CreateVPNServerOptions {
-	options.Name = core.StringPtr(name)
-	return options
-}
-
-// SetPort : Allow user to set Port
-func (options *CreateVPNServerOptions) SetPort(port int64) *CreateVPNServerOptions {
-	options.Port = core.Int64Ptr(port)
-	return options
-}
-
-// SetProtocol : Allow user to set Protocol
-func (options *CreateVPNServerOptions) SetProtocol(protocol string) *CreateVPNServerOptions {
-	options.Protocol = core.StringPtr(protocol)
-	return options
-}
-
-// SetResourceGroup : Allow user to set ResourceGroup
-func (options *CreateVPNServerOptions) SetResourceGroup(resourceGroup ResourceGroupIdentityIntf) *CreateVPNServerOptions {
-	options.ResourceGroup = resourceGroup
-	return options
-}
-
-// SetSecurityGroups : Allow user to set SecurityGroups
-func (options *CreateVPNServerOptions) SetSecurityGroups(securityGroups []SecurityGroupIdentityIntf) *CreateVPNServerOptions {
-	options.SecurityGroups = securityGroups
-	return options
-}
-
-// SetHeaders : Allow user to set Headers
-func (options *CreateVPNServerOptions) SetHeaders(param map[string]string) *CreateVPNServerOptions {
-	options.Headers = param
-	return options
-}
-
-// CreateVPNServerRouteOptions : The CreateVPNServerRoute options.
-type CreateVPNServerRouteOptions struct {
-	// The VPN server identifier.
-	VPNServerID *string `validate:"required,ne="`
-
-	// The destination to use for this VPN route in the VPN server. Must be unique within the VPN server. If an incoming
-	// packet does not match any destination, it will be dropped.
-	Destination *string `validate:"required"`
-
-	// The action to perform with a packet matching the VPN route:
-	// - `translate`: translate the source IP address to one of the private IP addresses of the VPN server, then deliver
-	// the packet to target.
-	// - `deliver`: deliver the packet to the target.
-	// - `drop`: drop the packet
-	//
-	// The enumerated values for this property are expected to expand in the future. When processing this property, check
-	// for and log unknown values. Optionally halt processing and surface the error, or bypass the VPN route on which the
-	// unexpected property value was encountered.
-	Action *string
-
-	// The user-defined name for this VPN route. If unspecified, the name will be a hyphenated list of randomly-selected
-	// words. Names must be unique within the VPN server the VPN route resides in.
-	Name *string
-
-	// Allows users to set headers on API requests
-	Headers map[string]string
-}
-
-// Constants associated with the CreateVPNServerRouteOptions.Action property.
-// The action to perform with a packet matching the VPN route:
-// - `translate`: translate the source IP address to one of the private IP addresses of the VPN server, then deliver the
-// packet to target.
-// - `deliver`: deliver the packet to the target.
-// - `drop`: drop the packet
-//
-// The enumerated values for this property are expected to expand in the future. When processing this property, check
-// for and log unknown values. Optionally halt processing and surface the error, or bypass the VPN route on which the
-// unexpected property value was encountered.
-const (
-	CreateVPNServerRouteOptionsActionDeliverConst   = "deliver"
-	CreateVPNServerRouteOptionsActionDropConst      = "drop"
-	CreateVPNServerRouteOptionsActionTranslateConst = "translate"
-)
-
-// NewCreateVPNServerRouteOptions : Instantiate CreateVPNServerRouteOptions
-func (*VpcV1) NewCreateVPNServerRouteOptions(vpnServerID string, destination string) *CreateVPNServerRouteOptions {
-	return &CreateVPNServerRouteOptions{
-		VPNServerID: core.StringPtr(vpnServerID),
-		Destination: core.StringPtr(destination),
-	}
-}
-
-// SetVPNServerID : Allow user to set VPNServerID
-func (options *CreateVPNServerRouteOptions) SetVPNServerID(vpnServerID string) *CreateVPNServerRouteOptions {
-	options.VPNServerID = core.StringPtr(vpnServerID)
-	return options
-}
-
-// SetDestination : Allow user to set Destination
-func (options *CreateVPNServerRouteOptions) SetDestination(destination string) *CreateVPNServerRouteOptions {
-	options.Destination = core.StringPtr(destination)
-	return options
-}
-
-// SetAction : Allow user to set Action
-func (options *CreateVPNServerRouteOptions) SetAction(action string) *CreateVPNServerRouteOptions {
-	options.Action = core.StringPtr(action)
-	return options
-}
-
-// SetName : Allow user to set Name
-func (options *CreateVPNServerRouteOptions) SetName(name string) *CreateVPNServerRouteOptions {
-	options.Name = core.StringPtr(name)
-	return options
-}
-
-// SetHeaders : Allow user to set Headers
-func (options *CreateVPNServerRouteOptions) SetHeaders(param map[string]string) *CreateVPNServerRouteOptions {
-	options.Headers = param
-	return options
-}
-
 // DedicatedHost : DedicatedHost struct
 type DedicatedHost struct {
 	// The amount of memory in gibibytes that is currently available for instances.
@@ -29476,7 +21181,7 @@ type DedicatedHost struct {
 	// The instances that are allocated to this dedicated host.
 	Instances []InstanceReference `json:"instances" validate:"required"`
 
-	// The lifecycle state of the dedicated host resource.
+	// The lifecycle state of the dedicated host.
 	LifecycleState *string `json:"lifecycle_state" validate:"required"`
 
 	// The total amount of memory in gibibytes for this host.
@@ -29519,7 +21224,7 @@ type DedicatedHost struct {
 }
 
 // Constants associated with the DedicatedHost.LifecycleState property.
-// The lifecycle state of the dedicated host resource.
+// The lifecycle state of the dedicated host.
 const (
 	DedicatedHostLifecycleStateDeletingConst  = "deleting"
 	DedicatedHostLifecycleStateFailedConst    = "failed"
@@ -31200,12 +22905,6 @@ func UnmarshalDefaultNetworkACL(m map[string]json.RawMessage, result interface{}
 
 // DefaultRoutingTable : DefaultRoutingTable struct
 type DefaultRoutingTable struct {
-	// The filters specifying the resources that may create routes in this routing table.
-	//
-	// At present, only the `resource_type` filter is permitted, and only the `vpn_gateway` and `vpn_server` values are
-	// supported, but filter support is expected to expand in the future.
-	AcceptRoutesFrom []ResourceFilter `json:"accept_routes_from" validate:"required"`
-
 	// The date and time that this routing table was created.
 	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
 
@@ -31284,10 +22983,6 @@ const (
 // UnmarshalDefaultRoutingTable unmarshals an instance of DefaultRoutingTable from the specified map of raw messages.
 func UnmarshalDefaultRoutingTable(m map[string]json.RawMessage, result interface{}) (err error) {
 	obj := new(DefaultRoutingTable)
-	err = core.UnmarshalModel(m, "accept_routes_from", &obj.AcceptRoutesFrom, UnmarshalResourceFilter)
-	if err != nil {
-		return
-	}
 	err = core.UnmarshalPrimitive(m, "created_at", &obj.CreatedAt)
 	if err != nil {
 		return
@@ -31358,9 +23053,6 @@ type DefaultSecurityGroup struct {
 	// words at creation, but may be user-specified with a subsequent request.
 	Name *string `json:"name" validate:"required"`
 
-	// The network interfaces for this security group.
-	NetworkInterfaces []NetworkInterfaceReference `json:"network_interfaces" validate:"required"`
-
 	// The resource group for this security group.
 	ResourceGroup *ResourceGroupReference `json:"resource_group" validate:"required"`
 
@@ -31368,9 +23060,6 @@ type DefaultSecurityGroup struct {
 	// inbound traffic from other interfaces in the VPC's default security group. Rules in the default security group may
 	// be changed, added or removed.
 	Rules []SecurityGroupRuleIntf `json:"rules" validate:"required"`
-
-	// The targets for this security group.
-	Targets []SecurityGroupTargetReferenceIntf `json:"targets" validate:"required"`
 
 	// The VPC this security group is a part of.
 	VPC *VPCReference `json:"vpc" validate:"required"`
@@ -31399,19 +23088,11 @@ func UnmarshalDefaultSecurityGroup(m map[string]json.RawMessage, result interfac
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalModel(m, "network_interfaces", &obj.NetworkInterfaces, UnmarshalNetworkInterfaceReference)
-	if err != nil {
-		return
-	}
 	err = core.UnmarshalModel(m, "resource_group", &obj.ResourceGroup, UnmarshalResourceGroupReference)
 	if err != nil {
 		return
 	}
 	err = core.UnmarshalModel(m, "rules", &obj.Rules, UnmarshalSecurityGroupRule)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "targets", &obj.Targets, UnmarshalSecurityGroupTargetReference)
 	if err != nil {
 		return
 	}
@@ -31421,100 +23102,6 @@ func UnmarshalDefaultSecurityGroup(m map[string]json.RawMessage, result interfac
 	}
 	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
 	return
-}
-
-// DeleteBackupPolicyOptions : The DeleteBackupPolicy options.
-type DeleteBackupPolicyOptions struct {
-	// The backup policy identifier.
-	ID *string `validate:"required,ne="`
-
-	// Allows users to set headers on API requests
-	Headers map[string]string
-}
-
-// NewDeleteBackupPolicyOptions : Instantiate DeleteBackupPolicyOptions
-func (*VpcV1) NewDeleteBackupPolicyOptions(id string) *DeleteBackupPolicyOptions {
-	return &DeleteBackupPolicyOptions{
-		ID: core.StringPtr(id),
-	}
-}
-
-// SetID : Allow user to set ID
-func (options *DeleteBackupPolicyOptions) SetID(id string) *DeleteBackupPolicyOptions {
-	options.ID = core.StringPtr(id)
-	return options
-}
-
-// SetHeaders : Allow user to set Headers
-func (options *DeleteBackupPolicyOptions) SetHeaders(param map[string]string) *DeleteBackupPolicyOptions {
-	options.Headers = param
-	return options
-}
-
-// DeleteBareMetalServerNetworkInterfaceOptions : The DeleteBareMetalServerNetworkInterface options.
-type DeleteBareMetalServerNetworkInterfaceOptions struct {
-	// The bare metal server identifier.
-	BareMetalServerID *string `validate:"required,ne="`
-
-	// The network interface identifier.
-	ID *string `validate:"required,ne="`
-
-	// Allows users to set headers on API requests
-	Headers map[string]string
-}
-
-// NewDeleteBareMetalServerNetworkInterfaceOptions : Instantiate DeleteBareMetalServerNetworkInterfaceOptions
-func (*VpcV1) NewDeleteBareMetalServerNetworkInterfaceOptions(bareMetalServerID string, id string) *DeleteBareMetalServerNetworkInterfaceOptions {
-	return &DeleteBareMetalServerNetworkInterfaceOptions{
-		BareMetalServerID: core.StringPtr(bareMetalServerID),
-		ID:                core.StringPtr(id),
-	}
-}
-
-// SetBareMetalServerID : Allow user to set BareMetalServerID
-func (options *DeleteBareMetalServerNetworkInterfaceOptions) SetBareMetalServerID(bareMetalServerID string) *DeleteBareMetalServerNetworkInterfaceOptions {
-	options.BareMetalServerID = core.StringPtr(bareMetalServerID)
-	return options
-}
-
-// SetID : Allow user to set ID
-func (options *DeleteBareMetalServerNetworkInterfaceOptions) SetID(id string) *DeleteBareMetalServerNetworkInterfaceOptions {
-	options.ID = core.StringPtr(id)
-	return options
-}
-
-// SetHeaders : Allow user to set Headers
-func (options *DeleteBareMetalServerNetworkInterfaceOptions) SetHeaders(param map[string]string) *DeleteBareMetalServerNetworkInterfaceOptions {
-	options.Headers = param
-	return options
-}
-
-// DeleteBareMetalServerOptions : The DeleteBareMetalServer options.
-type DeleteBareMetalServerOptions struct {
-	// The bare metal server identifier.
-	ID *string `validate:"required,ne="`
-
-	// Allows users to set headers on API requests
-	Headers map[string]string
-}
-
-// NewDeleteBareMetalServerOptions : Instantiate DeleteBareMetalServerOptions
-func (*VpcV1) NewDeleteBareMetalServerOptions(id string) *DeleteBareMetalServerOptions {
-	return &DeleteBareMetalServerOptions{
-		ID: core.StringPtr(id),
-	}
-}
-
-// SetID : Allow user to set ID
-func (options *DeleteBareMetalServerOptions) SetID(id string) *DeleteBareMetalServerOptions {
-	options.ID = core.StringPtr(id)
-	return options
-}
-
-// SetHeaders : Allow user to set Headers
-func (options *DeleteBareMetalServerOptions) SetHeaders(param map[string]string) *DeleteBareMetalServerOptions {
-	options.Headers = param
-	return options
 }
 
 // DeleteDedicatedHostGroupOptions : The DeleteDedicatedHostGroup options.
@@ -32641,72 +24228,6 @@ func (options *DeleteSecurityGroupTargetBindingOptions) SetHeaders(param map[str
 	return options
 }
 
-// DeleteShareOptions : The DeleteShare options.
-type DeleteShareOptions struct {
-	// The file share identifier.
-	ID *string `validate:"required,ne="`
-
-	// Allows users to set headers on API requests
-	Headers map[string]string
-}
-
-// NewDeleteShareOptions : Instantiate DeleteShareOptions
-func (*VpcV1) NewDeleteShareOptions(id string) *DeleteShareOptions {
-	return &DeleteShareOptions{
-		ID: core.StringPtr(id),
-	}
-}
-
-// SetID : Allow user to set ID
-func (options *DeleteShareOptions) SetID(id string) *DeleteShareOptions {
-	options.ID = core.StringPtr(id)
-	return options
-}
-
-// SetHeaders : Allow user to set Headers
-func (options *DeleteShareOptions) SetHeaders(param map[string]string) *DeleteShareOptions {
-	options.Headers = param
-	return options
-}
-
-// DeleteShareTargetOptions : The DeleteShareTarget options.
-type DeleteShareTargetOptions struct {
-	// The file share identifier.
-	ShareID *string `validate:"required,ne="`
-
-	// The share target identifier.
-	ID *string `validate:"required,ne="`
-
-	// Allows users to set headers on API requests
-	Headers map[string]string
-}
-
-// NewDeleteShareTargetOptions : Instantiate DeleteShareTargetOptions
-func (*VpcV1) NewDeleteShareTargetOptions(shareID string, id string) *DeleteShareTargetOptions {
-	return &DeleteShareTargetOptions{
-		ShareID: core.StringPtr(shareID),
-		ID:      core.StringPtr(id),
-	}
-}
-
-// SetShareID : Allow user to set ShareID
-func (options *DeleteShareTargetOptions) SetShareID(shareID string) *DeleteShareTargetOptions {
-	options.ShareID = core.StringPtr(shareID)
-	return options
-}
-
-// SetID : Allow user to set ID
-func (options *DeleteShareTargetOptions) SetID(id string) *DeleteShareTargetOptions {
-	options.ID = core.StringPtr(id)
-	return options
-}
-
-// SetHeaders : Allow user to set Headers
-func (options *DeleteShareTargetOptions) SetHeaders(param map[string]string) *DeleteShareTargetOptions {
-	options.Headers = param
-	return options
-}
-
 // DeleteSnapshotOptions : The DeleteSnapshot options.
 type DeleteSnapshotOptions struct {
 	// The snapshot identifier.
@@ -32969,10 +24490,6 @@ type DeleteVPCRoutingTableOptions struct {
 	// The routing table identifier.
 	ID *string `validate:"required,ne="`
 
-	// If present, the request will fail if the provided ETag value does not match the resource's current ETag value. This
-	// header is required if an array is present in the `PATCH` request body.
-	IfMatch *string
-
 	// Allows users to set headers on API requests
 	Headers map[string]string
 }
@@ -32994,12 +24511,6 @@ func (options *DeleteVPCRoutingTableOptions) SetVPCID(vpcID string) *DeleteVPCRo
 // SetID : Allow user to set ID
 func (options *DeleteVPCRoutingTableOptions) SetID(id string) *DeleteVPCRoutingTableOptions {
 	options.ID = core.StringPtr(id)
-	return options
-}
-
-// SetIfMatch : Allow user to set IfMatch
-func (options *DeleteVPCRoutingTableOptions) SetIfMatch(ifMatch string) *DeleteVPCRoutingTableOptions {
-	options.IfMatch = core.StringPtr(ifMatch)
 	return options
 }
 
@@ -33065,10 +24576,6 @@ type DeleteVPNGatewayConnectionOptions struct {
 	// The VPN gateway connection identifier.
 	ID *string `validate:"required,ne="`
 
-	// If present, the request will fail if the provided ETag value does not match the resource's current ETag value. This
-	// header is required if an array is present in the `PATCH` request body.
-	IfMatch *string
-
 	// Allows users to set headers on API requests
 	Headers map[string]string
 }
@@ -33090,12 +24597,6 @@ func (options *DeleteVPNGatewayConnectionOptions) SetVPNGatewayID(vpnGatewayID s
 // SetID : Allow user to set ID
 func (options *DeleteVPNGatewayConnectionOptions) SetID(id string) *DeleteVPNGatewayConnectionOptions {
 	options.ID = core.StringPtr(id)
-	return options
-}
-
-// SetIfMatch : Allow user to set IfMatch
-func (options *DeleteVPNGatewayConnectionOptions) SetIfMatch(ifMatch string) *DeleteVPNGatewayConnectionOptions {
-	options.IfMatch = core.StringPtr(ifMatch)
 	return options
 }
 
@@ -33129,158 +24630,6 @@ func (options *DeleteVPNGatewayOptions) SetID(id string) *DeleteVPNGatewayOption
 
 // SetHeaders : Allow user to set Headers
 func (options *DeleteVPNGatewayOptions) SetHeaders(param map[string]string) *DeleteVPNGatewayOptions {
-	options.Headers = param
-	return options
-}
-
-// DeleteVPNServerClientOptions : The DeleteVPNServerClient options.
-type DeleteVPNServerClientOptions struct {
-	// The VPN server identifier.
-	VPNServerID *string `validate:"required,ne="`
-
-	// The VPN client identifier.
-	ID *string `validate:"required,ne="`
-
-	// Allows users to set headers on API requests
-	Headers map[string]string
-}
-
-// NewDeleteVPNServerClientOptions : Instantiate DeleteVPNServerClientOptions
-func (*VpcV1) NewDeleteVPNServerClientOptions(vpnServerID string, id string) *DeleteVPNServerClientOptions {
-	return &DeleteVPNServerClientOptions{
-		VPNServerID: core.StringPtr(vpnServerID),
-		ID:          core.StringPtr(id),
-	}
-}
-
-// SetVPNServerID : Allow user to set VPNServerID
-func (options *DeleteVPNServerClientOptions) SetVPNServerID(vpnServerID string) *DeleteVPNServerClientOptions {
-	options.VPNServerID = core.StringPtr(vpnServerID)
-	return options
-}
-
-// SetID : Allow user to set ID
-func (options *DeleteVPNServerClientOptions) SetID(id string) *DeleteVPNServerClientOptions {
-	options.ID = core.StringPtr(id)
-	return options
-}
-
-// SetHeaders : Allow user to set Headers
-func (options *DeleteVPNServerClientOptions) SetHeaders(param map[string]string) *DeleteVPNServerClientOptions {
-	options.Headers = param
-	return options
-}
-
-// DeleteVPNServerOptions : The DeleteVPNServer options.
-type DeleteVPNServerOptions struct {
-	// The VPN server identifier.
-	ID *string `validate:"required,ne="`
-
-	// If present, the request will fail if the provided ETag value does not match the resource's current ETag value. This
-	// header is required if an array is present in the `PATCH` request body.
-	IfMatch *string
-
-	// Allows users to set headers on API requests
-	Headers map[string]string
-}
-
-// NewDeleteVPNServerOptions : Instantiate DeleteVPNServerOptions
-func (*VpcV1) NewDeleteVPNServerOptions(id string) *DeleteVPNServerOptions {
-	return &DeleteVPNServerOptions{
-		ID: core.StringPtr(id),
-	}
-}
-
-// SetID : Allow user to set ID
-func (options *DeleteVPNServerOptions) SetID(id string) *DeleteVPNServerOptions {
-	options.ID = core.StringPtr(id)
-	return options
-}
-
-// SetIfMatch : Allow user to set IfMatch
-func (options *DeleteVPNServerOptions) SetIfMatch(ifMatch string) *DeleteVPNServerOptions {
-	options.IfMatch = core.StringPtr(ifMatch)
-	return options
-}
-
-// SetHeaders : Allow user to set Headers
-func (options *DeleteVPNServerOptions) SetHeaders(param map[string]string) *DeleteVPNServerOptions {
-	options.Headers = param
-	return options
-}
-
-// DeleteVPNServerRouteOptions : The DeleteVPNServerRoute options.
-type DeleteVPNServerRouteOptions struct {
-	// The VPN server identifier.
-	VPNServerID *string `validate:"required,ne="`
-
-	// The VPN route identifier.
-	ID *string `validate:"required,ne="`
-
-	// Allows users to set headers on API requests
-	Headers map[string]string
-}
-
-// NewDeleteVPNServerRouteOptions : Instantiate DeleteVPNServerRouteOptions
-func (*VpcV1) NewDeleteVPNServerRouteOptions(vpnServerID string, id string) *DeleteVPNServerRouteOptions {
-	return &DeleteVPNServerRouteOptions{
-		VPNServerID: core.StringPtr(vpnServerID),
-		ID:          core.StringPtr(id),
-	}
-}
-
-// SetVPNServerID : Allow user to set VPNServerID
-func (options *DeleteVPNServerRouteOptions) SetVPNServerID(vpnServerID string) *DeleteVPNServerRouteOptions {
-	options.VPNServerID = core.StringPtr(vpnServerID)
-	return options
-}
-
-// SetID : Allow user to set ID
-func (options *DeleteVPNServerRouteOptions) SetID(id string) *DeleteVPNServerRouteOptions {
-	options.ID = core.StringPtr(id)
-	return options
-}
-
-// SetHeaders : Allow user to set Headers
-func (options *DeleteVPNServerRouteOptions) SetHeaders(param map[string]string) *DeleteVPNServerRouteOptions {
-	options.Headers = param
-	return options
-}
-
-// DisconnectVPNClientOptions : The DisconnectVPNClient options.
-type DisconnectVPNClientOptions struct {
-	// The VPN server identifier.
-	VPNServerID *string `validate:"required,ne="`
-
-	// The VPN client identifier.
-	ID *string `validate:"required,ne="`
-
-	// Allows users to set headers on API requests
-	Headers map[string]string
-}
-
-// NewDisconnectVPNClientOptions : Instantiate DisconnectVPNClientOptions
-func (*VpcV1) NewDisconnectVPNClientOptions(vpnServerID string, id string) *DisconnectVPNClientOptions {
-	return &DisconnectVPNClientOptions{
-		VPNServerID: core.StringPtr(vpnServerID),
-		ID:          core.StringPtr(id),
-	}
-}
-
-// SetVPNServerID : Allow user to set VPNServerID
-func (options *DisconnectVPNClientOptions) SetVPNServerID(vpnServerID string) *DisconnectVPNClientOptions {
-	options.VPNServerID = core.StringPtr(vpnServerID)
-	return options
-}
-
-// SetID : Allow user to set ID
-func (options *DisconnectVPNClientOptions) SetID(id string) *DisconnectVPNClientOptions {
-	options.ID = core.StringPtr(id)
-	return options
-}
-
-// SetHeaders : Allow user to set Headers
-func (options *DisconnectVPNClientOptions) SetHeaders(param map[string]string) *DisconnectVPNClientOptions {
 	options.Headers = param
 	return options
 }
@@ -33371,9 +24720,6 @@ type EndpointGateway struct {
 	// The type of resource referenced.
 	ResourceType *string `json:"resource_type" validate:"required"`
 
-	// The security groups targeting this endpoint gateway.
-	SecurityGroups []SecurityGroupReference `json:"security_groups" validate:"required"`
-
 	// The fully qualified domain name for the target service.
 	ServiceEndpoint *string `json:"service_endpoint,omitempty"`
 
@@ -33460,10 +24806,6 @@ func UnmarshalEndpointGateway(m map[string]json.RawMessage, result interface{}) 
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "security_groups", &obj.SecurityGroups, UnmarshalSecurityGroupReference)
 	if err != nil {
 		return
 	}
@@ -33626,11 +24968,6 @@ type EndpointGatewayReservedIP struct {
 	// The URL for this reserved IP.
 	Href *string `json:"href,omitempty"`
 
-	// The IP address to reserve, which must not already be reserved on the subnet.
-	//
-	// If not specified, an available address on the subnet will automatically be selected.
-	Address *string `json:"address,omitempty"`
-
 	// If set to `true`, this reserved IP will be automatically deleted when the target is deleted or when the reserved IP
 	// is unbound.
 	AutoDelete *bool `json:"auto_delete,omitempty"`
@@ -33660,10 +24997,6 @@ func UnmarshalEndpointGatewayReservedIP(m map[string]json.RawMessage, result int
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "address", &obj.Address)
 	if err != nil {
 		return
 	}
@@ -34202,7 +25535,8 @@ type FloatingIPTarget struct {
 	// The user-defined name for this network interface.
 	Name *string `json:"name,omitempty"`
 
-	PrimaryIP *ReservedIPReference `json:"primary_ip,omitempty"`
+	// The primary IPv4 address.
+	PrimaryIpv4Address *string `json:"primary_ipv4_address,omitempty"`
 
 	// The resource type.
 	ResourceType *string `json:"resource_type,omitempty"`
@@ -34244,7 +25578,7 @@ func UnmarshalFloatingIPTarget(m map[string]json.RawMessage, result interface{})
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalModel(m, "primary_ip", &obj.PrimaryIP, UnmarshalReservedIPReference)
+	err = core.UnmarshalPrimitive(m, "primary_ipv4_address", &obj.PrimaryIpv4Address)
 	if err != nil {
 		return
 	}
@@ -34310,9 +25644,8 @@ type FlowLogCollector struct {
 	StorageBucket *CloudObjectStorageBucketReference `json:"storage_bucket" validate:"required"`
 
 	// The target this collector is collecting flow logs for. If the target is an instance,
-	// bare metal server, subnet, or VPC, flow logs will not be collected for any network
-	// interfaces within the target that are themselves the target of a more specific flow
-	// log collector.
+	// subnet, or VPC, flow logs will not be collected for any network interfaces within the
+	// target that are themselves the target of a more specific flow log collector.
 	Target FlowLogCollectorTargetIntf `json:"target" validate:"required"`
 
 	// The VPC this flow log collector is associated with.
@@ -34501,13 +25834,12 @@ func (flowLogCollectorPatch *FlowLogCollectorPatch) AsPatch() (patch map[string]
 	return
 }
 
-// FlowLogCollectorTarget : The target this collector is collecting flow logs for. If the target is an instance, bare metal server, subnet, or
-// VPC, flow logs will not be collected for any network interfaces within the target that are themselves the target of a
-// more specific flow log collector.
+// FlowLogCollectorTarget : The target this collector is collecting flow logs for. If the target is an instance, subnet, or VPC, flow logs will
+// not be collected for any network interfaces within the target that are themselves the target of a more specific flow
+// log collector.
 // Models which "extend" this model:
 // - FlowLogCollectorTargetNetworkInterfaceReferenceTargetContext
 // - FlowLogCollectorTargetInstanceReference
-// - FlowLogCollectorTargetBareMetalServerReference
 // - FlowLogCollectorTargetSubnetReference
 // - FlowLogCollectorTargetVPCReference
 type FlowLogCollectorTarget struct {
@@ -34576,13 +25908,12 @@ func UnmarshalFlowLogCollectorTarget(m map[string]json.RawMessage, result interf
 	return
 }
 
-// FlowLogCollectorTargetPrototype : The target this collector will collect flow logs for. If the target is an instance, bare metal server, subnet, or
-// VPC, flow logs will not be collected for any network interfaces within the target that are themselves the target of a
-// more specific flow log collector.
+// FlowLogCollectorTargetPrototype : The target this collector will collect flow logs for. If the target is an instance, subnet, or VPC, flow logs will
+// not be collected for any network interfaces within the target that are themselves the target of a more specific flow
+// log collector.
 // Models which "extend" this model:
 // - FlowLogCollectorTargetPrototypeNetworkInterfaceIdentity
 // - FlowLogCollectorTargetPrototypeInstanceIdentity
-// - FlowLogCollectorTargetPrototypeBareMetalServerIdentity
 // - FlowLogCollectorTargetPrototypeSubnetIdentity
 // - FlowLogCollectorTargetPrototypeVPCIdentity
 type FlowLogCollectorTargetPrototype struct {
@@ -34621,298 +25952,6 @@ func UnmarshalFlowLogCollectorTargetPrototype(m map[string]json.RawMessage, resu
 	}
 	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
 	return
-}
-
-// GenericResourceReferenceDeleted : If present, this property indicates the referenced resource has been deleted and provides some supplementary
-// information.
-type GenericResourceReferenceDeleted struct {
-	// Link to documentation about deleted resources.
-	MoreInfo *string `json:"more_info" validate:"required"`
-}
-
-// UnmarshalGenericResourceReferenceDeleted unmarshals an instance of GenericResourceReferenceDeleted from the specified map of raw messages.
-func UnmarshalGenericResourceReferenceDeleted(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(GenericResourceReferenceDeleted)
-	err = core.UnmarshalPrimitive(m, "more_info", &obj.MoreInfo)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// GetBackupPolicyOptions : The GetBackupPolicy options.
-type GetBackupPolicyOptions struct {
-	// The backup policy identifier.
-	ID *string `validate:"required,ne="`
-
-	// Allows users to set headers on API requests
-	Headers map[string]string
-}
-
-// NewGetBackupPolicyOptions : Instantiate GetBackupPolicyOptions
-func (*VpcV1) NewGetBackupPolicyOptions(id string) *GetBackupPolicyOptions {
-	return &GetBackupPolicyOptions{
-		ID: core.StringPtr(id),
-	}
-}
-
-// SetID : Allow user to set ID
-func (options *GetBackupPolicyOptions) SetID(id string) *GetBackupPolicyOptions {
-	options.ID = core.StringPtr(id)
-	return options
-}
-
-// SetHeaders : Allow user to set Headers
-func (options *GetBackupPolicyOptions) SetHeaders(param map[string]string) *GetBackupPolicyOptions {
-	options.Headers = param
-	return options
-}
-
-// GetBackupPolicyPlanOptions : The GetBackupPolicyPlan options.
-type GetBackupPolicyPlanOptions struct {
-	// The backup policy identifier.
-	BackupPolicyID *string `validate:"required,ne="`
-
-	// The backup policy plan identifier.
-	ID *string `validate:"required,ne="`
-
-	// Allows users to set headers on API requests
-	Headers map[string]string
-}
-
-// NewGetBackupPolicyPlanOptions : Instantiate GetBackupPolicyPlanOptions
-func (*VpcV1) NewGetBackupPolicyPlanOptions(backupPolicyID string, id string) *GetBackupPolicyPlanOptions {
-	return &GetBackupPolicyPlanOptions{
-		BackupPolicyID: core.StringPtr(backupPolicyID),
-		ID:             core.StringPtr(id),
-	}
-}
-
-// SetBackupPolicyID : Allow user to set BackupPolicyID
-func (options *GetBackupPolicyPlanOptions) SetBackupPolicyID(backupPolicyID string) *GetBackupPolicyPlanOptions {
-	options.BackupPolicyID = core.StringPtr(backupPolicyID)
-	return options
-}
-
-// SetID : Allow user to set ID
-func (options *GetBackupPolicyPlanOptions) SetID(id string) *GetBackupPolicyPlanOptions {
-	options.ID = core.StringPtr(id)
-	return options
-}
-
-// SetHeaders : Allow user to set Headers
-func (options *GetBackupPolicyPlanOptions) SetHeaders(param map[string]string) *GetBackupPolicyPlanOptions {
-	options.Headers = param
-	return options
-}
-
-// GetBareMetalServerDiskOptions : The GetBareMetalServerDisk options.
-type GetBareMetalServerDiskOptions struct {
-	// The bare metal server identifier.
-	BareMetalServerID *string `validate:"required,ne="`
-
-	// The bare metal server disk identifier.
-	ID *string `validate:"required,ne="`
-
-	// Allows users to set headers on API requests
-	Headers map[string]string
-}
-
-// NewGetBareMetalServerDiskOptions : Instantiate GetBareMetalServerDiskOptions
-func (*VpcV1) NewGetBareMetalServerDiskOptions(bareMetalServerID string, id string) *GetBareMetalServerDiskOptions {
-	return &GetBareMetalServerDiskOptions{
-		BareMetalServerID: core.StringPtr(bareMetalServerID),
-		ID:                core.StringPtr(id),
-	}
-}
-
-// SetBareMetalServerID : Allow user to set BareMetalServerID
-func (options *GetBareMetalServerDiskOptions) SetBareMetalServerID(bareMetalServerID string) *GetBareMetalServerDiskOptions {
-	options.BareMetalServerID = core.StringPtr(bareMetalServerID)
-	return options
-}
-
-// SetID : Allow user to set ID
-func (options *GetBareMetalServerDiskOptions) SetID(id string) *GetBareMetalServerDiskOptions {
-	options.ID = core.StringPtr(id)
-	return options
-}
-
-// SetHeaders : Allow user to set Headers
-func (options *GetBareMetalServerDiskOptions) SetHeaders(param map[string]string) *GetBareMetalServerDiskOptions {
-	options.Headers = param
-	return options
-}
-
-// GetBareMetalServerInitializationOptions : The GetBareMetalServerInitialization options.
-type GetBareMetalServerInitializationOptions struct {
-	// The bare metal server identifier.
-	ID *string `validate:"required,ne="`
-
-	// Allows users to set headers on API requests
-	Headers map[string]string
-}
-
-// NewGetBareMetalServerInitializationOptions : Instantiate GetBareMetalServerInitializationOptions
-func (*VpcV1) NewGetBareMetalServerInitializationOptions(id string) *GetBareMetalServerInitializationOptions {
-	return &GetBareMetalServerInitializationOptions{
-		ID: core.StringPtr(id),
-	}
-}
-
-// SetID : Allow user to set ID
-func (options *GetBareMetalServerInitializationOptions) SetID(id string) *GetBareMetalServerInitializationOptions {
-	options.ID = core.StringPtr(id)
-	return options
-}
-
-// SetHeaders : Allow user to set Headers
-func (options *GetBareMetalServerInitializationOptions) SetHeaders(param map[string]string) *GetBareMetalServerInitializationOptions {
-	options.Headers = param
-	return options
-}
-
-// GetBareMetalServerNetworkInterfaceFloatingIPOptions : The GetBareMetalServerNetworkInterfaceFloatingIP options.
-type GetBareMetalServerNetworkInterfaceFloatingIPOptions struct {
-	// The bare metal server identifier.
-	BareMetalServerID *string `validate:"required,ne="`
-
-	// The network interface identifier.
-	NetworkInterfaceID *string `validate:"required,ne="`
-
-	// The floating IP identifier.
-	ID *string `validate:"required,ne="`
-
-	// Allows users to set headers on API requests
-	Headers map[string]string
-}
-
-// NewGetBareMetalServerNetworkInterfaceFloatingIPOptions : Instantiate GetBareMetalServerNetworkInterfaceFloatingIPOptions
-func (*VpcV1) NewGetBareMetalServerNetworkInterfaceFloatingIPOptions(bareMetalServerID string, networkInterfaceID string, id string) *GetBareMetalServerNetworkInterfaceFloatingIPOptions {
-	return &GetBareMetalServerNetworkInterfaceFloatingIPOptions{
-		BareMetalServerID:  core.StringPtr(bareMetalServerID),
-		NetworkInterfaceID: core.StringPtr(networkInterfaceID),
-		ID:                 core.StringPtr(id),
-	}
-}
-
-// SetBareMetalServerID : Allow user to set BareMetalServerID
-func (options *GetBareMetalServerNetworkInterfaceFloatingIPOptions) SetBareMetalServerID(bareMetalServerID string) *GetBareMetalServerNetworkInterfaceFloatingIPOptions {
-	options.BareMetalServerID = core.StringPtr(bareMetalServerID)
-	return options
-}
-
-// SetNetworkInterfaceID : Allow user to set NetworkInterfaceID
-func (options *GetBareMetalServerNetworkInterfaceFloatingIPOptions) SetNetworkInterfaceID(networkInterfaceID string) *GetBareMetalServerNetworkInterfaceFloatingIPOptions {
-	options.NetworkInterfaceID = core.StringPtr(networkInterfaceID)
-	return options
-}
-
-// SetID : Allow user to set ID
-func (options *GetBareMetalServerNetworkInterfaceFloatingIPOptions) SetID(id string) *GetBareMetalServerNetworkInterfaceFloatingIPOptions {
-	options.ID = core.StringPtr(id)
-	return options
-}
-
-// SetHeaders : Allow user to set Headers
-func (options *GetBareMetalServerNetworkInterfaceFloatingIPOptions) SetHeaders(param map[string]string) *GetBareMetalServerNetworkInterfaceFloatingIPOptions {
-	options.Headers = param
-	return options
-}
-
-// GetBareMetalServerNetworkInterfaceOptions : The GetBareMetalServerNetworkInterface options.
-type GetBareMetalServerNetworkInterfaceOptions struct {
-	// The bare metal server identifier.
-	BareMetalServerID *string `validate:"required,ne="`
-
-	// The network interface identifier.
-	ID *string `validate:"required,ne="`
-
-	// Allows users to set headers on API requests
-	Headers map[string]string
-}
-
-// NewGetBareMetalServerNetworkInterfaceOptions : Instantiate GetBareMetalServerNetworkInterfaceOptions
-func (*VpcV1) NewGetBareMetalServerNetworkInterfaceOptions(bareMetalServerID string, id string) *GetBareMetalServerNetworkInterfaceOptions {
-	return &GetBareMetalServerNetworkInterfaceOptions{
-		BareMetalServerID: core.StringPtr(bareMetalServerID),
-		ID:                core.StringPtr(id),
-	}
-}
-
-// SetBareMetalServerID : Allow user to set BareMetalServerID
-func (options *GetBareMetalServerNetworkInterfaceOptions) SetBareMetalServerID(bareMetalServerID string) *GetBareMetalServerNetworkInterfaceOptions {
-	options.BareMetalServerID = core.StringPtr(bareMetalServerID)
-	return options
-}
-
-// SetID : Allow user to set ID
-func (options *GetBareMetalServerNetworkInterfaceOptions) SetID(id string) *GetBareMetalServerNetworkInterfaceOptions {
-	options.ID = core.StringPtr(id)
-	return options
-}
-
-// SetHeaders : Allow user to set Headers
-func (options *GetBareMetalServerNetworkInterfaceOptions) SetHeaders(param map[string]string) *GetBareMetalServerNetworkInterfaceOptions {
-	options.Headers = param
-	return options
-}
-
-// GetBareMetalServerOptions : The GetBareMetalServer options.
-type GetBareMetalServerOptions struct {
-	// The bare metal server identifier.
-	ID *string `validate:"required,ne="`
-
-	// Allows users to set headers on API requests
-	Headers map[string]string
-}
-
-// NewGetBareMetalServerOptions : Instantiate GetBareMetalServerOptions
-func (*VpcV1) NewGetBareMetalServerOptions(id string) *GetBareMetalServerOptions {
-	return &GetBareMetalServerOptions{
-		ID: core.StringPtr(id),
-	}
-}
-
-// SetID : Allow user to set ID
-func (options *GetBareMetalServerOptions) SetID(id string) *GetBareMetalServerOptions {
-	options.ID = core.StringPtr(id)
-	return options
-}
-
-// SetHeaders : Allow user to set Headers
-func (options *GetBareMetalServerOptions) SetHeaders(param map[string]string) *GetBareMetalServerOptions {
-	options.Headers = param
-	return options
-}
-
-// GetBareMetalServerProfileOptions : The GetBareMetalServerProfile options.
-type GetBareMetalServerProfileOptions struct {
-	// The bare metal server profile name.
-	Name *string `validate:"required,ne="`
-
-	// Allows users to set headers on API requests
-	Headers map[string]string
-}
-
-// NewGetBareMetalServerProfileOptions : Instantiate GetBareMetalServerProfileOptions
-func (*VpcV1) NewGetBareMetalServerProfileOptions(name string) *GetBareMetalServerProfileOptions {
-	return &GetBareMetalServerProfileOptions{
-		Name: core.StringPtr(name),
-	}
-}
-
-// SetName : Allow user to set Name
-func (options *GetBareMetalServerProfileOptions) SetName(name string) *GetBareMetalServerProfileOptions {
-	options.Name = core.StringPtr(name)
-	return options
-}
-
-// SetHeaders : Allow user to set Headers
-func (options *GetBareMetalServerProfileOptions) SetHeaders(param map[string]string) *GetBareMetalServerProfileOptions {
-	options.Headers = param
-	return options
 }
 
 // GetDedicatedHostDiskOptions : The GetDedicatedHostDisk options.
@@ -35525,54 +26564,6 @@ func (options *GetInstanceNetworkInterfaceFloatingIPOptions) SetID(id string) *G
 
 // SetHeaders : Allow user to set Headers
 func (options *GetInstanceNetworkInterfaceFloatingIPOptions) SetHeaders(param map[string]string) *GetInstanceNetworkInterfaceFloatingIPOptions {
-	options.Headers = param
-	return options
-}
-
-// GetInstanceNetworkInterfaceIPOptions : The GetInstanceNetworkInterfaceIP options.
-type GetInstanceNetworkInterfaceIPOptions struct {
-	// The instance identifier.
-	InstanceID *string `validate:"required,ne="`
-
-	// The network interface identifier.
-	NetworkInterfaceID *string `validate:"required,ne="`
-
-	// The reserved IP identifier.
-	ID *string `validate:"required,ne="`
-
-	// Allows users to set headers on API requests
-	Headers map[string]string
-}
-
-// NewGetInstanceNetworkInterfaceIPOptions : Instantiate GetInstanceNetworkInterfaceIPOptions
-func (*VpcV1) NewGetInstanceNetworkInterfaceIPOptions(instanceID string, networkInterfaceID string, id string) *GetInstanceNetworkInterfaceIPOptions {
-	return &GetInstanceNetworkInterfaceIPOptions{
-		InstanceID:         core.StringPtr(instanceID),
-		NetworkInterfaceID: core.StringPtr(networkInterfaceID),
-		ID:                 core.StringPtr(id),
-	}
-}
-
-// SetInstanceID : Allow user to set InstanceID
-func (options *GetInstanceNetworkInterfaceIPOptions) SetInstanceID(instanceID string) *GetInstanceNetworkInterfaceIPOptions {
-	options.InstanceID = core.StringPtr(instanceID)
-	return options
-}
-
-// SetNetworkInterfaceID : Allow user to set NetworkInterfaceID
-func (options *GetInstanceNetworkInterfaceIPOptions) SetNetworkInterfaceID(networkInterfaceID string) *GetInstanceNetworkInterfaceIPOptions {
-	options.NetworkInterfaceID = core.StringPtr(networkInterfaceID)
-	return options
-}
-
-// SetID : Allow user to set ID
-func (options *GetInstanceNetworkInterfaceIPOptions) SetID(id string) *GetInstanceNetworkInterfaceIPOptions {
-	options.ID = core.StringPtr(id)
-	return options
-}
-
-// SetHeaders : Allow user to set Headers
-func (options *GetInstanceNetworkInterfaceIPOptions) SetHeaders(param map[string]string) *GetInstanceNetworkInterfaceIPOptions {
 	options.Headers = param
 	return options
 }
@@ -36465,100 +27456,6 @@ func (options *GetSecurityGroupTargetOptions) SetHeaders(param map[string]string
 	return options
 }
 
-// GetShareOptions : The GetShare options.
-type GetShareOptions struct {
-	// The file share identifier.
-	ID *string `validate:"required,ne="`
-
-	// Allows users to set headers on API requests
-	Headers map[string]string
-}
-
-// NewGetShareOptions : Instantiate GetShareOptions
-func (*VpcV1) NewGetShareOptions(id string) *GetShareOptions {
-	return &GetShareOptions{
-		ID: core.StringPtr(id),
-	}
-}
-
-// SetID : Allow user to set ID
-func (options *GetShareOptions) SetID(id string) *GetShareOptions {
-	options.ID = core.StringPtr(id)
-	return options
-}
-
-// SetHeaders : Allow user to set Headers
-func (options *GetShareOptions) SetHeaders(param map[string]string) *GetShareOptions {
-	options.Headers = param
-	return options
-}
-
-// GetShareProfileOptions : The GetShareProfile options.
-type GetShareProfileOptions struct {
-	// The file share profile name.
-	Name *string `validate:"required,ne="`
-
-	// Allows users to set headers on API requests
-	Headers map[string]string
-}
-
-// NewGetShareProfileOptions : Instantiate GetShareProfileOptions
-func (*VpcV1) NewGetShareProfileOptions(name string) *GetShareProfileOptions {
-	return &GetShareProfileOptions{
-		Name: core.StringPtr(name),
-	}
-}
-
-// SetName : Allow user to set Name
-func (options *GetShareProfileOptions) SetName(name string) *GetShareProfileOptions {
-	options.Name = core.StringPtr(name)
-	return options
-}
-
-// SetHeaders : Allow user to set Headers
-func (options *GetShareProfileOptions) SetHeaders(param map[string]string) *GetShareProfileOptions {
-	options.Headers = param
-	return options
-}
-
-// GetShareTargetOptions : The GetShareTarget options.
-type GetShareTargetOptions struct {
-	// The file share identifier.
-	ShareID *string `validate:"required,ne="`
-
-	// The share target identifier.
-	ID *string `validate:"required,ne="`
-
-	// Allows users to set headers on API requests
-	Headers map[string]string
-}
-
-// NewGetShareTargetOptions : Instantiate GetShareTargetOptions
-func (*VpcV1) NewGetShareTargetOptions(shareID string, id string) *GetShareTargetOptions {
-	return &GetShareTargetOptions{
-		ShareID: core.StringPtr(shareID),
-		ID:      core.StringPtr(id),
-	}
-}
-
-// SetShareID : Allow user to set ShareID
-func (options *GetShareTargetOptions) SetShareID(shareID string) *GetShareTargetOptions {
-	options.ShareID = core.StringPtr(shareID)
-	return options
-}
-
-// SetID : Allow user to set ID
-func (options *GetShareTargetOptions) SetID(id string) *GetShareTargetOptions {
-	options.ID = core.StringPtr(id)
-	return options
-}
-
-// SetHeaders : Allow user to set Headers
-func (options *GetShareTargetOptions) SetHeaders(param map[string]string) *GetShareTargetOptions {
-	options.Headers = param
-	return options
-}
-
 // GetSnapshotOptions : The GetSnapshot options.
 type GetSnapshotOptions struct {
 	// The snapshot identifier.
@@ -37133,138 +28030,6 @@ func (options *GetVPNGatewayOptions) SetHeaders(param map[string]string) *GetVPN
 	return options
 }
 
-// GetVPNServerClientConfigurationOptions : The GetVPNServerClientConfiguration options.
-type GetVPNServerClientConfigurationOptions struct {
-	// The VPN server identifier.
-	ID *string `validate:"required,ne="`
-
-	// Allows users to set headers on API requests
-	Headers map[string]string
-}
-
-// NewGetVPNServerClientConfigurationOptions : Instantiate GetVPNServerClientConfigurationOptions
-func (*VpcV1) NewGetVPNServerClientConfigurationOptions(id string) *GetVPNServerClientConfigurationOptions {
-	return &GetVPNServerClientConfigurationOptions{
-		ID: core.StringPtr(id),
-	}
-}
-
-// SetID : Allow user to set ID
-func (options *GetVPNServerClientConfigurationOptions) SetID(id string) *GetVPNServerClientConfigurationOptions {
-	options.ID = core.StringPtr(id)
-	return options
-}
-
-// SetHeaders : Allow user to set Headers
-func (options *GetVPNServerClientConfigurationOptions) SetHeaders(param map[string]string) *GetVPNServerClientConfigurationOptions {
-	options.Headers = param
-	return options
-}
-
-// GetVPNServerClientOptions : The GetVPNServerClient options.
-type GetVPNServerClientOptions struct {
-	// The VPN server identifier.
-	VPNServerID *string `validate:"required,ne="`
-
-	// The VPN client identifier.
-	ID *string `validate:"required,ne="`
-
-	// Allows users to set headers on API requests
-	Headers map[string]string
-}
-
-// NewGetVPNServerClientOptions : Instantiate GetVPNServerClientOptions
-func (*VpcV1) NewGetVPNServerClientOptions(vpnServerID string, id string) *GetVPNServerClientOptions {
-	return &GetVPNServerClientOptions{
-		VPNServerID: core.StringPtr(vpnServerID),
-		ID:          core.StringPtr(id),
-	}
-}
-
-// SetVPNServerID : Allow user to set VPNServerID
-func (options *GetVPNServerClientOptions) SetVPNServerID(vpnServerID string) *GetVPNServerClientOptions {
-	options.VPNServerID = core.StringPtr(vpnServerID)
-	return options
-}
-
-// SetID : Allow user to set ID
-func (options *GetVPNServerClientOptions) SetID(id string) *GetVPNServerClientOptions {
-	options.ID = core.StringPtr(id)
-	return options
-}
-
-// SetHeaders : Allow user to set Headers
-func (options *GetVPNServerClientOptions) SetHeaders(param map[string]string) *GetVPNServerClientOptions {
-	options.Headers = param
-	return options
-}
-
-// GetVPNServerOptions : The GetVPNServer options.
-type GetVPNServerOptions struct {
-	// The VPN server identifier.
-	ID *string `validate:"required,ne="`
-
-	// Allows users to set headers on API requests
-	Headers map[string]string
-}
-
-// NewGetVPNServerOptions : Instantiate GetVPNServerOptions
-func (*VpcV1) NewGetVPNServerOptions(id string) *GetVPNServerOptions {
-	return &GetVPNServerOptions{
-		ID: core.StringPtr(id),
-	}
-}
-
-// SetID : Allow user to set ID
-func (options *GetVPNServerOptions) SetID(id string) *GetVPNServerOptions {
-	options.ID = core.StringPtr(id)
-	return options
-}
-
-// SetHeaders : Allow user to set Headers
-func (options *GetVPNServerOptions) SetHeaders(param map[string]string) *GetVPNServerOptions {
-	options.Headers = param
-	return options
-}
-
-// GetVPNServerRouteOptions : The GetVPNServerRoute options.
-type GetVPNServerRouteOptions struct {
-	// The VPN server identifier.
-	VPNServerID *string `validate:"required,ne="`
-
-	// The VPN route identifier.
-	ID *string `validate:"required,ne="`
-
-	// Allows users to set headers on API requests
-	Headers map[string]string
-}
-
-// NewGetVPNServerRouteOptions : Instantiate GetVPNServerRouteOptions
-func (*VpcV1) NewGetVPNServerRouteOptions(vpnServerID string, id string) *GetVPNServerRouteOptions {
-	return &GetVPNServerRouteOptions{
-		VPNServerID: core.StringPtr(vpnServerID),
-		ID:          core.StringPtr(id),
-	}
-}
-
-// SetVPNServerID : Allow user to set VPNServerID
-func (options *GetVPNServerRouteOptions) SetVPNServerID(vpnServerID string) *GetVPNServerRouteOptions {
-	options.VPNServerID = core.StringPtr(vpnServerID)
-	return options
-}
-
-// SetID : Allow user to set ID
-func (options *GetVPNServerRouteOptions) SetID(id string) *GetVPNServerRouteOptions {
-	options.ID = core.StringPtr(id)
-	return options
-}
-
-// SetHeaders : Allow user to set Headers
-func (options *GetVPNServerRouteOptions) SetHeaders(param map[string]string) *GetVPNServerRouteOptions {
-	options.Headers = param
-	return options
-}
-
 // IkePolicy : IkePolicy struct
 type IkePolicy struct {
 	// The authentication algorithm.
@@ -37613,15 +28378,6 @@ type IP struct {
 	// property, verify that the address is in an expected format. If it is not, log an error. Optionally halt processing
 	// and surface the error, or bypass the resource on which the unexpected IP address format was encountered.
 	Address *string `json:"address" validate:"required"`
-}
-
-// NewIP : Instantiate IP (Generic Model Constructor)
-func (*VpcV1) NewIP(address string) (model *IP, err error) {
-	model = &IP{
-		Address: core.StringPtr(address),
-	}
-	err = core.ValidateStruct(model, "required parameters")
-	return
 }
 
 // UnmarshalIP unmarshals an instance of IP from the specified map of raw messages.
@@ -38108,10 +28864,6 @@ type Image struct {
 	// The CRN for this image.
 	CRN *string `json:"crn" validate:"required"`
 
-	// The date and time that the image was deprecated. Typically, IBM-provided images will be `deprecated` for at least 60
-	// days before becoming `obsolete`.
-	DeprecatedAt *strfmt.DateTime `json:"deprecated_at,omitempty"`
-
 	// The type of encryption used on the image.
 	Encryption *string `json:"encryption" validate:"required"`
 
@@ -38141,13 +28893,6 @@ type Image struct {
 
 	// The operating system included in this image.
 	OperatingSystem *OperatingSystem `json:"operating_system,omitempty"`
-
-	// Indicates whether this image can be used to provision a virtual server instance, based on its `status` value.
-	Provisionable *bool `json:"provisionable" validate:"required"`
-
-	// An image may be only applicable to certain instance or bare metal server profiles. For the image to be applicable,
-	// all of its `required_image_flags` values must also appear in the profile's `supported_image_flags` array.
-	RequiredImageFlags []string `json:"required_image_flags,omitempty"`
 
 	// The resource group for this image.
 	ResourceGroup *ResourceGroupReference `json:"resource_group" validate:"required"`
@@ -38211,7 +28956,6 @@ const (
 	ImageStatusDeletingConst   = "deleting"
 	ImageStatusDeprecatedConst = "deprecated"
 	ImageStatusFailedConst     = "failed"
-	ImageStatusObsoleteConst   = "obsolete"
 	ImageStatusPendingConst    = "pending"
 	ImageStatusTentativeConst  = "tentative"
 	ImageStatusUnusableConst   = "unusable"
@@ -38232,10 +28976,6 @@ func UnmarshalImage(m map[string]json.RawMessage, result interface{}) (err error
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "deprecated_at", &obj.DeprecatedAt)
 	if err != nil {
 		return
 	}
@@ -38268,14 +29008,6 @@ func UnmarshalImage(m map[string]json.RawMessage, result interface{}) (err error
 		return
 	}
 	err = core.UnmarshalModel(m, "operating_system", &obj.OperatingSystem, UnmarshalOperatingSystem)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "provisionable", &obj.Provisionable)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "required_image_flags", &obj.RequiredImageFlags)
 	if err != nil {
 		return
 	}
@@ -38528,10 +29260,6 @@ type ImagePrototype struct {
 	// will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
-	// An image may be only applicable to certain instance or bare metal server profiles. For the image to be applicable,
-	// all of its `required_image_flags` values must also appear in the profile's `supported_image_flags` array.
-	RequiredImageFlags []string `json:"required_image_flags,omitempty"`
-
 	// The resource group to use. If unspecified, the account's [default resource
 	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) is used.
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
@@ -38582,10 +29310,6 @@ type ImagePrototypeIntf interface {
 func UnmarshalImagePrototype(m map[string]json.RawMessage, result interface{}) (err error) {
 	obj := new(ImagePrototype)
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "required_image_flags", &obj.RequiredImageFlags)
 	if err != nil {
 		return
 	}
@@ -38726,8 +29450,7 @@ type Instance struct {
 	// The availability policy for this virtual server instance.
 	AvailabilityPolicy *InstanceAvailabilityPolicy `json:"availability_policy" validate:"required"`
 
-	// The total bandwidth (in megabits per second) shared across the virtual server instance's network interfaces and
-	// storage volumes.
+	// The total bandwidth (in megabits per second) shared across the virtual server instance's network interfaces.
 	Bandwidth *int64 `json:"bandwidth" validate:"required"`
 
 	// Boot volume attachment.
@@ -38738,8 +29461,6 @@ type Instance struct {
 
 	// The CRN for this virtual server instance.
 	CRN *string `json:"crn" validate:"required"`
-
-	DedicatedHost *DedicatedHostReference `json:"dedicated_host,omitempty"`
 
 	// The instance disks for this virtual server instance.
 	Disks []InstanceDisk `json:"disks" validate:"required"`
@@ -38759,9 +29480,6 @@ type Instance struct {
 	// The amount of memory, truncated to whole gibibytes.
 	Memory *int64 `json:"memory" validate:"required"`
 
-	// The metadata service configuration.
-	MetadataService *InstanceMetadataService `json:"metadata_service" validate:"required"`
-
 	// The user-defined name for this virtual server instance (and default system hostname).
 	Name *string `json:"name" validate:"required"`
 
@@ -38780,9 +29498,6 @@ type Instance struct {
 	// The resource group for this instance.
 	ResourceGroup *ResourceGroupReference `json:"resource_group" validate:"required"`
 
-	// The resource type.
-	ResourceType *string `json:"resource_type" validate:"required"`
-
 	// Indicates whether the state of the virtual server instance permits a start request.
 	Startable *bool `json:"startable" validate:"required"`
 
@@ -38796,14 +29511,6 @@ type Instance struct {
 	// unexpected reason code was encountered.
 	StatusReasons []InstanceStatusReason `json:"status_reasons" validate:"required"`
 
-	// The amount of bandwidth (in megabits per second) allocated exclusively to instance network interfaces.
-	TotalNetworkBandwidth *int64 `json:"total_network_bandwidth" validate:"required"`
-
-	// The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes. An increase in
-	// this value will result in a corresponding decrease to
-	// `total_network_bandwidth`.
-	TotalVolumeBandwidth *int64 `json:"total_volume_bandwidth" validate:"required"`
-
 	// The virtual server instance VCPU configuration.
 	Vcpu *InstanceVcpu `json:"vcpu" validate:"required"`
 
@@ -38816,12 +29523,6 @@ type Instance struct {
 	// The zone this virtual server instance resides in.
 	Zone *ZoneReference `json:"zone" validate:"required"`
 }
-
-// Constants associated with the Instance.ResourceType property.
-// The resource type.
-const (
-	InstanceResourceTypeInstanceConst = "instance"
-)
 
 // Constants associated with the Instance.Status property.
 // The status of the virtual server instance.
@@ -38862,10 +29563,6 @@ func UnmarshalInstance(m map[string]json.RawMessage, result interface{}) (err er
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalModel(m, "dedicated_host", &obj.DedicatedHost, UnmarshalDedicatedHostReference)
-	if err != nil {
-		return
-	}
 	err = core.UnmarshalModel(m, "disks", &obj.Disks, UnmarshalInstanceDisk)
 	if err != nil {
 		return
@@ -38887,10 +29584,6 @@ func UnmarshalInstance(m map[string]json.RawMessage, result interface{}) (err er
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "memory", &obj.Memory)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "metadata_service", &obj.MetadataService, UnmarshalInstanceMetadataService)
 	if err != nil {
 		return
 	}
@@ -38918,10 +29611,6 @@ func UnmarshalInstance(m map[string]json.RawMessage, result interface{}) (err er
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
-	if err != nil {
-		return
-	}
 	err = core.UnmarshalPrimitive(m, "startable", &obj.Startable)
 	if err != nil {
 		return
@@ -38931,14 +29620,6 @@ func UnmarshalInstance(m map[string]json.RawMessage, result interface{}) (err er
 		return
 	}
 	err = core.UnmarshalModel(m, "status_reasons", &obj.StatusReasons, UnmarshalInstanceStatusReason)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "total_network_bandwidth", &obj.TotalNetworkBandwidth)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "total_volume_bandwidth", &obj.TotalVolumeBandwidth)
 	if err != nil {
 		return
 	}
@@ -39055,6 +29736,20 @@ type InstanceAvailabilityPolicy struct {
 	// for and log unknown values. Optionally halt processing and surface the error, or bypass the instance on which the
 	// unexpected property value was encountered.
 	HostFailure *string `json:"host_failure" validate:"required"`
+
+	// The action to perform if the compute host requires maintenance.
+	// - `live_migrate`: Live migrate to another host prior to host maintenance
+	// - `restart`: Automatically restart the virtual server instance after host maintenance
+	// - `stop`: Leave the virtual server instance stopped after host maintenance
+	//
+	// - __TBD__: behavior if the instance is already stopped (still set
+	//   `stopped_for_maintenance`?)
+	// - Related __TBD__: behavior if user tries to start the instance during host maintenance
+	//
+	// The enumerated values for this property are expected to expand in the future. When processing this property, check
+	// for and log unknown values. Optionally halt processing and surface the error, or bypass the instance on which the
+	// unexpected property value was encountered.
+	HostMaintenance *string `json:"host_maintenance" validate:"required"`
 }
 
 // Constants associated with the InstanceAvailabilityPolicy.HostFailure property.
@@ -39070,10 +29765,33 @@ const (
 	InstanceAvailabilityPolicyHostFailureStopConst    = "stop"
 )
 
+// Constants associated with the InstanceAvailabilityPolicy.HostMaintenance property.
+// The action to perform if the compute host requires maintenance.
+// - `live_migrate`: Live migrate to another host prior to host maintenance
+// - `restart`: Automatically restart the virtual server instance after host maintenance
+// - `stop`: Leave the virtual server instance stopped after host maintenance
+//
+// - __TBD__: behavior if the instance is already stopped (still set
+//   `stopped_for_maintenance`?)
+// - Related __TBD__: behavior if user tries to start the instance during host maintenance
+//
+// The enumerated values for this property are expected to expand in the future. When processing this property, check
+// for and log unknown values. Optionally halt processing and surface the error, or bypass the instance on which the
+// unexpected property value was encountered.
+const (
+	InstanceAvailabilityPolicyHostMaintenanceLiveMigrateConst = "live_migrate"
+	InstanceAvailabilityPolicyHostMaintenanceRestartConst     = "restart"
+	InstanceAvailabilityPolicyHostMaintenanceStopConst        = "stop"
+)
+
 // UnmarshalInstanceAvailabilityPolicy unmarshals an instance of InstanceAvailabilityPolicy from the specified map of raw messages.
 func UnmarshalInstanceAvailabilityPolicy(m map[string]json.RawMessage, result interface{}) (err error) {
 	obj := new(InstanceAvailabilityPolicy)
 	err = core.UnmarshalPrimitive(m, "host_failure", &obj.HostFailure)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "host_maintenance", &obj.HostMaintenance)
 	if err != nil {
 		return
 	}
@@ -39091,6 +29809,20 @@ type InstanceAvailabilityPolicyPatch struct {
 	// for and log unknown values. Optionally halt processing and surface the error, or bypass the instance on which the
 	// unexpected property value was encountered.
 	HostFailure *string `json:"host_failure,omitempty"`
+
+	// The action to perform if the compute host requires maintenance.
+	// - `live_migrate`: Live migrate to another host prior to host maintenance
+	// - `restart`: Automatically restart the virtual server instance after host maintenance
+	// - `stop`: Leave the virtual server instance stopped after host maintenance
+	//
+	// - __TBD__: behavior if the instance is already stopped (still set
+	//   `stopped_for_maintenance`?)
+	// - Related __TBD__: behavior if user tries to start the instance during host maintenance
+	//
+	// The enumerated values for this property are expected to expand in the future. When processing this property, check
+	// for and log unknown values. Optionally halt processing and surface the error, or bypass the instance on which the
+	// unexpected property value was encountered.
+	HostMaintenance *string `json:"host_maintenance,omitempty"`
 }
 
 // Constants associated with the InstanceAvailabilityPolicyPatch.HostFailure property.
@@ -39106,10 +29838,33 @@ const (
 	InstanceAvailabilityPolicyPatchHostFailureStopConst    = "stop"
 )
 
+// Constants associated with the InstanceAvailabilityPolicyPatch.HostMaintenance property.
+// The action to perform if the compute host requires maintenance.
+// - `live_migrate`: Live migrate to another host prior to host maintenance
+// - `restart`: Automatically restart the virtual server instance after host maintenance
+// - `stop`: Leave the virtual server instance stopped after host maintenance
+//
+// - __TBD__: behavior if the instance is already stopped (still set
+//   `stopped_for_maintenance`?)
+// - Related __TBD__: behavior if user tries to start the instance during host maintenance
+//
+// The enumerated values for this property are expected to expand in the future. When processing this property, check
+// for and log unknown values. Optionally halt processing and surface the error, or bypass the instance on which the
+// unexpected property value was encountered.
+const (
+	InstanceAvailabilityPolicyPatchHostMaintenanceLiveMigrateConst = "live_migrate"
+	InstanceAvailabilityPolicyPatchHostMaintenanceRestartConst     = "restart"
+	InstanceAvailabilityPolicyPatchHostMaintenanceStopConst        = "stop"
+)
+
 // UnmarshalInstanceAvailabilityPolicyPatch unmarshals an instance of InstanceAvailabilityPolicyPatch from the specified map of raw messages.
 func UnmarshalInstanceAvailabilityPolicyPatch(m map[string]json.RawMessage, result interface{}) (err error) {
 	obj := new(InstanceAvailabilityPolicyPatch)
 	err = core.UnmarshalPrimitive(m, "host_failure", &obj.HostFailure)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "host_maintenance", &obj.HostMaintenance)
 	if err != nil {
 		return
 	}
@@ -39127,6 +29882,20 @@ type InstanceAvailabilityPrototype struct {
 	// for and log unknown values. Optionally halt processing and surface the error, or bypass the instance on which the
 	// unexpected property value was encountered.
 	HostFailure *string `json:"host_failure,omitempty"`
+
+	// The action to perform if the compute host requires maintenance.
+	// - `live_migrate`: Live migrate to another host prior to host maintenance
+	// - `restart`: Automatically restart the virtual server instance after host maintenance
+	// - `stop`: Leave the virtual server instance stopped after host maintenance
+	//
+	// - __TBD__: behavior if the instance is already stopped (still set
+	//   `stopped_for_maintenance`?)
+	// - Related __TBD__: behavior if user tries to start the instance during host maintenance
+	//
+	// The enumerated values for this property are expected to expand in the future. When processing this property, check
+	// for and log unknown values. Optionally halt processing and surface the error, or bypass the instance on which the
+	// unexpected property value was encountered.
+	HostMaintenance *string `json:"host_maintenance,omitempty"`
 }
 
 // Constants associated with the InstanceAvailabilityPrototype.HostFailure property.
@@ -39142,10 +29911,33 @@ const (
 	InstanceAvailabilityPrototypeHostFailureStopConst    = "stop"
 )
 
+// Constants associated with the InstanceAvailabilityPrototype.HostMaintenance property.
+// The action to perform if the compute host requires maintenance.
+// - `live_migrate`: Live migrate to another host prior to host maintenance
+// - `restart`: Automatically restart the virtual server instance after host maintenance
+// - `stop`: Leave the virtual server instance stopped after host maintenance
+//
+// - __TBD__: behavior if the instance is already stopped (still set
+//   `stopped_for_maintenance`?)
+// - Related __TBD__: behavior if user tries to start the instance during host maintenance
+//
+// The enumerated values for this property are expected to expand in the future. When processing this property, check
+// for and log unknown values. Optionally halt processing and surface the error, or bypass the instance on which the
+// unexpected property value was encountered.
+const (
+	InstanceAvailabilityPrototypeHostMaintenanceLiveMigrateConst = "live_migrate"
+	InstanceAvailabilityPrototypeHostMaintenanceRestartConst     = "restart"
+	InstanceAvailabilityPrototypeHostMaintenanceStopConst        = "stop"
+)
+
 // UnmarshalInstanceAvailabilityPrototype unmarshals an instance of InstanceAvailabilityPrototype from the specified map of raw messages.
 func UnmarshalInstanceAvailabilityPrototype(m map[string]json.RawMessage, result interface{}) (err error) {
 	obj := new(InstanceAvailabilityPrototype)
 	err = core.UnmarshalPrimitive(m, "host_failure", &obj.HostFailure)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "host_maintenance", &obj.HostMaintenance)
 	if err != nil {
 		return
 	}
@@ -41484,71 +32276,13 @@ func UnmarshalInstanceInitializationPassword(m map[string]json.RawMessage, resul
 	return
 }
 
-// InstanceMetadataService : InstanceMetadataService struct
-type InstanceMetadataService struct {
-	// Indicates whether the metadata service endpoint is available to the virtual server instance.
-	Enabled *bool `json:"enabled" validate:"required"`
-}
-
-// UnmarshalInstanceMetadataService unmarshals an instance of InstanceMetadataService from the specified map of raw messages.
-func UnmarshalInstanceMetadataService(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(InstanceMetadataService)
-	err = core.UnmarshalPrimitive(m, "enabled", &obj.Enabled)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// InstanceMetadataServicePatch : InstanceMetadataServicePatch struct
-type InstanceMetadataServicePatch struct {
-	// Indicates whether the metadata service endpoint is available to the virtual server instance.
-	Enabled *bool `json:"enabled,omitempty"`
-}
-
-// UnmarshalInstanceMetadataServicePatch unmarshals an instance of InstanceMetadataServicePatch from the specified map of raw messages.
-func UnmarshalInstanceMetadataServicePatch(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(InstanceMetadataServicePatch)
-	err = core.UnmarshalPrimitive(m, "enabled", &obj.Enabled)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// InstanceMetadataServicePrototype : InstanceMetadataServicePrototype struct
-type InstanceMetadataServicePrototype struct {
-	// Indicates whether the metadata service endpoint is available to the virtual server instance.
-	Enabled *bool `json:"enabled,omitempty"`
-}
-
-// UnmarshalInstanceMetadataServicePrototype unmarshals an instance of InstanceMetadataServicePrototype from the specified map of raw messages.
-func UnmarshalInstanceMetadataServicePrototype(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(InstanceMetadataServicePrototype)
-	err = core.UnmarshalPrimitive(m, "enabled", &obj.Enabled)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
 // InstancePatch : InstancePatch struct
 type InstancePatch struct {
 	// The availability policy for this virtual server instance.
 	AvailabilityPolicy *InstanceAvailabilityPolicyPatch `json:"availability_policy,omitempty"`
 
-	// The metadata service configuration.
-	MetadataService *InstanceMetadataServicePatch `json:"metadata_service,omitempty"`
-
 	// The user-defined name for this virtual server instance (and default system hostname).
 	Name *string `json:"name,omitempty"`
-
-	// The placement restrictions to use for the virtual server instance. For the placement
-	// restrictions to be changed, the instance `status` must be `stopping` or `stopped`.
-	PlacementTarget InstancePlacementTargetPatchIntf `json:"placement_target,omitempty"`
 
 	// The profile to use for this virtual server instance. For the profile to be changed,
 	// the instance `status` must be `stopping` or `stopped`. In addition, the requested
@@ -41560,11 +32294,6 @@ type InstancePatch struct {
 	//   instance is placed on a dedicated host, the requested profile `family` must be
 	//   the same as the dedicated host `family`.
 	Profile InstancePatchProfileIntf `json:"profile,omitempty"`
-
-	// The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes. An increase in
-	// this value will result in a corresponding decrease to
-	// `total_network_bandwidth`.
-	TotalVolumeBandwidth *int64 `json:"total_volume_bandwidth,omitempty"`
 }
 
 // UnmarshalInstancePatch unmarshals an instance of InstancePatch from the specified map of raw messages.
@@ -41574,23 +32303,11 @@ func UnmarshalInstancePatch(m map[string]json.RawMessage, result interface{}) (e
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalModel(m, "metadata_service", &obj.MetadataService, UnmarshalInstanceMetadataServicePatch)
-	if err != nil {
-		return
-	}
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalModel(m, "placement_target", &obj.PlacementTarget, UnmarshalInstancePlacementTargetPatch)
-	if err != nil {
-		return
-	}
 	err = core.UnmarshalModel(m, "profile", &obj.Profile, UnmarshalInstancePatchProfile)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "total_volume_bandwidth", &obj.TotalVolumeBandwidth)
 	if err != nil {
 		return
 	}
@@ -41722,48 +32439,6 @@ func UnmarshalInstancePlacementTarget(m map[string]json.RawMessage, result inter
 	return
 }
 
-// InstancePlacementTargetPatch : InstancePlacementTargetPatch struct
-// Models which "extend" this model:
-// - InstancePlacementTargetPatchDedicatedHostIdentity
-// - InstancePlacementTargetPatchDedicatedHostGroupIdentity
-type InstancePlacementTargetPatch struct {
-	// The unique identifier for this dedicated host.
-	ID *string `json:"id,omitempty"`
-
-	// The CRN for this dedicated host.
-	CRN *string `json:"crn,omitempty"`
-
-	// The URL for this dedicated host.
-	Href *string `json:"href,omitempty"`
-}
-
-func (*InstancePlacementTargetPatch) isaInstancePlacementTargetPatch() bool {
-	return true
-}
-
-type InstancePlacementTargetPatchIntf interface {
-	isaInstancePlacementTargetPatch() bool
-}
-
-// UnmarshalInstancePlacementTargetPatch unmarshals an instance of InstancePlacementTargetPatch from the specified map of raw messages.
-func UnmarshalInstancePlacementTargetPatch(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(InstancePlacementTargetPatch)
-	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
 // InstancePlacementTargetPrototype : InstancePlacementTargetPrototype struct
 // Models which "extend" this model:
 // - InstancePlacementTargetPrototypeDedicatedHostIdentity
@@ -41817,14 +32492,6 @@ type InstanceProfile struct {
 	// The product family this virtual server instance profile belongs to.
 	Family *string `json:"family,omitempty"`
 
-	GpuCount InstanceProfileGpuIntf `json:"gpu_count,omitempty"`
-
-	GpuManufacturer *InstanceProfileGpuManufacturer `json:"gpu_manufacturer,omitempty"`
-
-	GpuMemory InstanceProfileGpuMemoryIntf `json:"gpu_memory,omitempty"`
-
-	GpuModel *InstanceProfileGpuModel `json:"gpu_model,omitempty"`
-
 	// The URL for this virtual server instance profile.
 	Href *string `json:"href" validate:"required"`
 
@@ -41836,8 +32503,6 @@ type InstanceProfile struct {
 	OsArchitecture *InstanceProfileOsArchitecture `json:"os_architecture" validate:"required"`
 
 	PortSpeed InstanceProfilePortSpeedIntf `json:"port_speed" validate:"required"`
-
-	TotalVolumeBandwidth InstanceProfileVolumeBandwidthIntf `json:"total_volume_bandwidth" validate:"required"`
 
 	VcpuArchitecture *InstanceProfileVcpuArchitecture `json:"vcpu_architecture" validate:"required"`
 
@@ -41859,22 +32524,6 @@ func UnmarshalInstanceProfile(m map[string]json.RawMessage, result interface{}) 
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalModel(m, "gpu_count", &obj.GpuCount, UnmarshalInstanceProfileGpu)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "gpu_manufacturer", &obj.GpuManufacturer, UnmarshalInstanceProfileGpuManufacturer)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "gpu_memory", &obj.GpuMemory, UnmarshalInstanceProfileGpuMemory)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "gpu_model", &obj.GpuModel, UnmarshalInstanceProfileGpuModel)
-	if err != nil {
-		return
-	}
 	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
 	if err != nil {
 		return
@@ -41892,10 +32541,6 @@ func UnmarshalInstanceProfile(m map[string]json.RawMessage, result interface{}) 
 		return
 	}
 	err = core.UnmarshalModel(m, "port_speed", &obj.PortSpeed, UnmarshalInstanceProfilePortSpeed)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "total_volume_bandwidth", &obj.TotalVolumeBandwidth, UnmarshalInstanceProfileVolumeBandwidth)
 	if err != nil {
 		return
 	}
@@ -41991,77 +32636,14 @@ func UnmarshalInstanceProfileBandwidth(m map[string]json.RawMessage, result inte
 
 // InstanceProfileCollection : InstanceProfileCollection struct
 type InstanceProfileCollection struct {
-	// A link to the first page of resources.
-	First *InstanceProfileCollectionFirst `json:"first" validate:"required"`
-
-	// The maximum number of resources that can be returned by the request.
-	Limit *int64 `json:"limit" validate:"required"`
-
-	// A link to the next page of resources. This property is present for all pages
-	// except the last page.
-	Next *InstanceProfileCollectionNext `json:"next,omitempty"`
-
 	// Collection of virtual server instance profiles.
 	Profiles []InstanceProfile `json:"profiles" validate:"required"`
-
-	// The total number of resources across all pages.
-	TotalCount *int64 `json:"total_count" validate:"required"`
 }
 
 // UnmarshalInstanceProfileCollection unmarshals an instance of InstanceProfileCollection from the specified map of raw messages.
 func UnmarshalInstanceProfileCollection(m map[string]json.RawMessage, result interface{}) (err error) {
 	obj := new(InstanceProfileCollection)
-	err = core.UnmarshalModel(m, "first", &obj.First, UnmarshalInstanceProfileCollectionFirst)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "limit", &obj.Limit)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "next", &obj.Next, UnmarshalInstanceProfileCollectionNext)
-	if err != nil {
-		return
-	}
 	err = core.UnmarshalModel(m, "profiles", &obj.Profiles, UnmarshalInstanceProfile)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "total_count", &obj.TotalCount)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// InstanceProfileCollectionFirst : A link to the first page of resources.
-type InstanceProfileCollectionFirst struct {
-	// The URL for a page of resources.
-	Href *string `json:"href" validate:"required"`
-}
-
-// UnmarshalInstanceProfileCollectionFirst unmarshals an instance of InstanceProfileCollectionFirst from the specified map of raw messages.
-func UnmarshalInstanceProfileCollectionFirst(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(InstanceProfileCollectionFirst)
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// InstanceProfileCollectionNext : A link to the next page of resources. This property is present for all pages except the last page.
-type InstanceProfileCollectionNext struct {
-	// The URL for a page of resources.
-	Href *string `json:"href" validate:"required"`
-}
-
-// UnmarshalInstanceProfileCollectionNext unmarshals an instance of InstanceProfileCollectionNext from the specified map of raw messages.
-func UnmarshalInstanceProfileCollectionNext(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(InstanceProfileCollectionNext)
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
 	if err != nil {
 		return
 	}
@@ -42304,222 +32886,6 @@ func UnmarshalInstanceProfileDiskSupportedInterfaces(m map[string]json.RawMessag
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "values", &obj.Values)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// InstanceProfileGpu : InstanceProfileGpu struct
-// Models which "extend" this model:
-// - InstanceProfileGpuFixed
-// - InstanceProfileGpuRange
-// - InstanceProfileGpuEnum
-// - InstanceProfileGpuDependent
-type InstanceProfileGpu struct {
-	// The type for this profile field.
-	Type *string `json:"type,omitempty"`
-
-	// The value for this profile field.
-	Value *int64 `json:"value,omitempty"`
-
-	// The default value for this profile field.
-	Default *int64 `json:"default,omitempty"`
-
-	// The maximum value for this profile field.
-	Max *int64 `json:"max,omitempty"`
-
-	// The minimum value for this profile field.
-	Min *int64 `json:"min,omitempty"`
-
-	// The increment step value for this profile field.
-	Step *int64 `json:"step,omitempty"`
-
-	// The permitted values for this profile field.
-	Values []int64 `json:"values,omitempty"`
-}
-
-// Constants associated with the InstanceProfileGpu.Type property.
-// The type for this profile field.
-const (
-	InstanceProfileGpuTypeFixedConst = "fixed"
-)
-
-func (*InstanceProfileGpu) isaInstanceProfileGpu() bool {
-	return true
-}
-
-type InstanceProfileGpuIntf interface {
-	isaInstanceProfileGpu() bool
-}
-
-// UnmarshalInstanceProfileGpu unmarshals an instance of InstanceProfileGpu from the specified map of raw messages.
-func UnmarshalInstanceProfileGpu(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(InstanceProfileGpu)
-	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "value", &obj.Value)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "default", &obj.Default)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "max", &obj.Max)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "min", &obj.Min)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "step", &obj.Step)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "values", &obj.Values)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// InstanceProfileGpuManufacturer : InstanceProfileGpuManufacturer struct
-type InstanceProfileGpuManufacturer struct {
-	// The type for this profile field.
-	Type *string `json:"type" validate:"required"`
-
-	// The possible GPU manufacturer(s) for an instance with this profile.
-	Values []string `json:"values" validate:"required"`
-}
-
-// Constants associated with the InstanceProfileGpuManufacturer.Type property.
-// The type for this profile field.
-const (
-	InstanceProfileGpuManufacturerTypeEnumConst = "enum"
-)
-
-// UnmarshalInstanceProfileGpuManufacturer unmarshals an instance of InstanceProfileGpuManufacturer from the specified map of raw messages.
-func UnmarshalInstanceProfileGpuManufacturer(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(InstanceProfileGpuManufacturer)
-	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "values", &obj.Values)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// InstanceProfileGpuMemory : InstanceProfileGpuMemory struct
-// Models which "extend" this model:
-// - InstanceProfileGpuMemoryFixed
-// - InstanceProfileGpuMemoryRange
-// - InstanceProfileGpuMemoryEnum
-// - InstanceProfileGpuMemoryDependent
-type InstanceProfileGpuMemory struct {
-	// The type for this profile field.
-	Type *string `json:"type,omitempty"`
-
-	// The value for this profile field.
-	Value *int64 `json:"value,omitempty"`
-
-	// The default value for this profile field.
-	Default *int64 `json:"default,omitempty"`
-
-	// The maximum value for this profile field.
-	Max *int64 `json:"max,omitempty"`
-
-	// The minimum value for this profile field.
-	Min *int64 `json:"min,omitempty"`
-
-	// The increment step value for this profile field.
-	Step *int64 `json:"step,omitempty"`
-
-	// The permitted values for this profile field.
-	Values []int64 `json:"values,omitempty"`
-}
-
-// Constants associated with the InstanceProfileGpuMemory.Type property.
-// The type for this profile field.
-const (
-	InstanceProfileGpuMemoryTypeFixedConst = "fixed"
-)
-
-func (*InstanceProfileGpuMemory) isaInstanceProfileGpuMemory() bool {
-	return true
-}
-
-type InstanceProfileGpuMemoryIntf interface {
-	isaInstanceProfileGpuMemory() bool
-}
-
-// UnmarshalInstanceProfileGpuMemory unmarshals an instance of InstanceProfileGpuMemory from the specified map of raw messages.
-func UnmarshalInstanceProfileGpuMemory(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(InstanceProfileGpuMemory)
-	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "value", &obj.Value)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "default", &obj.Default)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "max", &obj.Max)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "min", &obj.Min)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "step", &obj.Step)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "values", &obj.Values)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// InstanceProfileGpuModel : InstanceProfileGpuModel struct
-type InstanceProfileGpuModel struct {
-	// The type for this profile field.
-	Type *string `json:"type" validate:"required"`
-
-	// The possible GPU model(s) for an instance with this profile.
-	Values []string `json:"values" validate:"required"`
-}
-
-// Constants associated with the InstanceProfileGpuModel.Type property.
-// The type for this profile field.
-const (
-	InstanceProfileGpuModelTypeEnumConst = "enum"
-)
-
-// UnmarshalInstanceProfileGpuModel unmarshals an instance of InstanceProfileGpuModel from the specified map of raw messages.
-func UnmarshalInstanceProfileGpuModel(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(InstanceProfileGpuModel)
 	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
 	if err != nil {
 		return
@@ -42862,84 +33228,6 @@ func UnmarshalInstanceProfileVcpuArchitecture(m map[string]json.RawMessage, resu
 	return
 }
 
-// InstanceProfileVolumeBandwidth : InstanceProfileVolumeBandwidth struct
-// Models which "extend" this model:
-// - InstanceProfileVolumeBandwidthFixed
-// - InstanceProfileVolumeBandwidthRange
-// - InstanceProfileVolumeBandwidthEnum
-// - InstanceProfileVolumeBandwidthDependent
-type InstanceProfileVolumeBandwidth struct {
-	// The type for this profile field.
-	Type *string `json:"type,omitempty"`
-
-	// The value for this profile field.
-	Value *int64 `json:"value,omitempty"`
-
-	// The default value for this profile field.
-	Default *int64 `json:"default,omitempty"`
-
-	// The maximum value for this profile field.
-	Max *int64 `json:"max,omitempty"`
-
-	// The minimum value for this profile field.
-	Min *int64 `json:"min,omitempty"`
-
-	// The increment step value for this profile field.
-	Step *int64 `json:"step,omitempty"`
-
-	// The permitted values for this profile field.
-	Values []int64 `json:"values,omitempty"`
-}
-
-// Constants associated with the InstanceProfileVolumeBandwidth.Type property.
-// The type for this profile field.
-const (
-	InstanceProfileVolumeBandwidthTypeFixedConst = "fixed"
-)
-
-func (*InstanceProfileVolumeBandwidth) isaInstanceProfileVolumeBandwidth() bool {
-	return true
-}
-
-type InstanceProfileVolumeBandwidthIntf interface {
-	isaInstanceProfileVolumeBandwidth() bool
-}
-
-// UnmarshalInstanceProfileVolumeBandwidth unmarshals an instance of InstanceProfileVolumeBandwidth from the specified map of raw messages.
-func UnmarshalInstanceProfileVolumeBandwidth(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(InstanceProfileVolumeBandwidth)
-	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "value", &obj.Value)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "default", &obj.Default)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "max", &obj.Max)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "min", &obj.Min)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "step", &obj.Step)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "values", &obj.Values)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
 // InstancePrototype : InstancePrototype struct
 // Models which "extend" this model:
 // - InstancePrototypeInstanceByImage
@@ -42949,16 +33237,15 @@ type InstancePrototype struct {
 	// The availability policy to use for this virtual server instance.
 	AvailabilityPolicy *InstanceAvailabilityPrototype `json:"availability_policy,omitempty"`
 
-	// The public SSH keys for the administrative user of the virtual server instance. Up to 10 keys may be provided; if no
-	// keys are provided the instance will be inaccessible unless the image used provides another means of access. For
-	// Windows instances, one of the keys will be used to encrypt the administrator password.
+	// The public SSH keys for the administrative user of the virtual server instance. Keys will be made available to the
+	// virtual server instance as cloud-init vendor data. For cloud-init enabled images, these keys will also be added as
+	// SSH authorized keys for the administrative user.
 	//
-	// Keys will be made available to the virtual server instance as cloud-init vendor data. For cloud-init enabled images,
-	// these keys will also be added as SSH authorized keys for the administrative user.
+	// For Windows images, at least one key must be specified, and one will be chosen to encrypt [the administrator
+	// password](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization). Keys are optional for other images, but if
+	// no keys are specified, the instance will be inaccessible unless the specified image provides another means of
+	// access.
 	Keys []KeyIdentityIntf `json:"keys,omitempty"`
-
-	// Configuration options for the instance metadata service.
-	MetadataService *InstanceMetadataServicePrototype `json:"metadata_service,omitempty"`
 
 	// The unique user-defined name for this virtual server instance (and default system hostname). If unspecified, the
 	// name will be a hyphenated list of randomly-selected words.
@@ -42977,16 +33264,11 @@ type InstancePrototype struct {
 	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) is used.
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
 
-	// The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes. An increase in
-	// this value will result in a corresponding decrease to
-	// `total_network_bandwidth`.
-	TotalVolumeBandwidth *int64 `json:"total_volume_bandwidth,omitempty"`
-
 	// User data to be made available when setting up the virtual server instance.
 	UserData *string `json:"user_data,omitempty"`
 
 	// The volume attachments for this virtual server instance.
-	VolumeAttachments []VolumeAttachmentPrototype `json:"volume_attachments,omitempty"`
+	VolumeAttachments []VolumeAttachmentPrototypeInstanceContext `json:"volume_attachments,omitempty"`
 
 	// The VPC the virtual server instance is to be a part of. If provided, must match the
 	// VPC tied to the subnets of the instance's network interfaces.
@@ -43004,7 +33286,7 @@ type InstancePrototype struct {
 	// The zone this virtual server instance will reside in.
 	Zone ZoneIdentityIntf `json:"zone,omitempty"`
 
-	// Identifies an instance template by a unique property.
+	// The template to create this virtual server instance from.
 	SourceTemplate InstanceTemplateIdentityIntf `json:"source_template,omitempty"`
 }
 
@@ -43024,10 +33306,6 @@ func UnmarshalInstancePrototype(m map[string]json.RawMessage, result interface{}
 		return
 	}
 	err = core.UnmarshalModel(m, "keys", &obj.Keys, UnmarshalKeyIdentity)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "metadata_service", &obj.MetadataService, UnmarshalInstanceMetadataServicePrototype)
 	if err != nil {
 		return
 	}
@@ -43051,15 +33329,11 @@ func UnmarshalInstancePrototype(m map[string]json.RawMessage, result interface{}
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalPrimitive(m, "total_volume_bandwidth", &obj.TotalVolumeBandwidth)
-	if err != nil {
-		return
-	}
 	err = core.UnmarshalPrimitive(m, "user_data", &obj.UserData)
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalModel(m, "volume_attachments", &obj.VolumeAttachments, UnmarshalVolumeAttachmentPrototype)
+	err = core.UnmarshalModel(m, "volume_attachments", &obj.VolumeAttachments, UnmarshalVolumeAttachmentPrototypeInstanceContext)
 	if err != nil {
 		return
 	}
@@ -43108,16 +33382,7 @@ type InstanceReference struct {
 
 	// The user-defined name for this virtual server instance (and default system hostname).
 	Name *string `json:"name" validate:"required"`
-
-	// The resource type.
-	ResourceType *string `json:"resource_type" validate:"required"`
 }
-
-// Constants associated with the InstanceReference.ResourceType property.
-// The resource type.
-const (
-	InstanceReferenceResourceTypeInstanceConst = "instance"
-)
 
 // UnmarshalInstanceReference unmarshals an instance of InstanceReference from the specified map of raw messages.
 func UnmarshalInstanceReference(m map[string]json.RawMessage, result interface{}) (err error) {
@@ -43139,10 +33404,6 @@ func UnmarshalInstanceReference(m map[string]json.RawMessage, result interface{}
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
 	if err != nil {
 		return
 	}
@@ -43183,18 +33444,14 @@ type InstanceStatusReason struct {
 // Constants associated with the InstanceStatusReason.Code property.
 // A snake case string succinctly identifying the status reason.
 const (
-	InstanceStatusReasonCodeCannotStartConst               = "cannot_start"
-	InstanceStatusReasonCodeCannotStartCapacityConst       = "cannot_start_capacity"
-	InstanceStatusReasonCodeCannotStartComputeConst        = "cannot_start_compute"
-	InstanceStatusReasonCodeCannotStartIPAddressConst      = "cannot_start_ip_address"
-	InstanceStatusReasonCodeCannotStartNetworkConst        = "cannot_start_network"
-	InstanceStatusReasonCodeCannotStartPlacementGroupConst = "cannot_start_placement_group"
-	InstanceStatusReasonCodeCannotStartStorageConst        = "cannot_start_storage"
-	InstanceStatusReasonCodeEncryptionKeyDeletedConst      = "encryption_key_deleted"
-	InstanceStatusReasonCodeStoppedByHostFailureConst      = "stopped_by_host_failure"
-	InstanceStatusReasonCodeStoppedByProviderConst         = "stopped_by_provider"
-	InstanceStatusReasonCodeStoppedByUserConst             = "stopped_by_user"
-	InstanceStatusReasonCodeStoppedForImageCreationConst   = "stopped_for_image_creation"
+	InstanceStatusReasonCodeCannotStartConst             = "cannot_start"
+	InstanceStatusReasonCodeCannotStartCapacityConst     = "cannot_start_capacity"
+	InstanceStatusReasonCodeCannotStartComputeConst      = "cannot_start_compute"
+	InstanceStatusReasonCodeCannotStartIPAddressConst    = "cannot_start_ip_address"
+	InstanceStatusReasonCodeCannotStartNetworkConst      = "cannot_start_network"
+	InstanceStatusReasonCodeCannotStartStorageConst      = "cannot_start_storage"
+	InstanceStatusReasonCodeEncryptionKeyDeletedConst    = "encryption_key_deleted"
+	InstanceStatusReasonCodeStoppedForImageCreationConst = "stopped_for_image_creation"
 )
 
 // UnmarshalInstanceStatusReason unmarshals an instance of InstanceStatusReason from the specified map of raw messages.
@@ -43220,7 +33477,6 @@ func UnmarshalInstanceStatusReason(m map[string]json.RawMessage, result interfac
 // Models which "extend" this model:
 // - InstanceTemplateInstanceByImage
 // - InstanceTemplateInstanceByVolume
-// - InstanceTemplateInstanceBySourceTemplate
 type InstanceTemplate struct {
 	// The availability policy to use for this virtual server instance.
 	AvailabilityPolicy *InstanceAvailabilityPrototype `json:"availability_policy,omitempty"`
@@ -43237,16 +33493,15 @@ type InstanceTemplate struct {
 	// The unique identifier for this instance template.
 	ID *string `json:"id" validate:"required"`
 
-	// The public SSH keys for the administrative user of the virtual server instance. Up to 10 keys may be provided; if no
-	// keys are provided the instance will be inaccessible unless the image used provides another means of access. For
-	// Windows instances, one of the keys will be used to encrypt the administrator password.
+	// The public SSH keys for the administrative user of the virtual server instance. Keys will be made available to the
+	// virtual server instance as cloud-init vendor data. For cloud-init enabled images, these keys will also be added as
+	// SSH authorized keys for the administrative user.
 	//
-	// Keys will be made available to the virtual server instance as cloud-init vendor data. For cloud-init enabled images,
-	// these keys will also be added as SSH authorized keys for the administrative user.
+	// For Windows images, at least one key must be specified, and one will be chosen to encrypt [the administrator
+	// password](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization). Keys are optional for other images, but if
+	// no keys are specified, the instance will be inaccessible unless the specified image provides another means of
+	// access.
 	Keys []KeyIdentityIntf `json:"keys,omitempty"`
-
-	// Configuration options for the instance metadata service.
-	MetadataService *InstanceMetadataServicePrototype `json:"metadata_service,omitempty"`
 
 	// The unique user-defined name for this instance template.
 	Name *string `json:"name" validate:"required"`
@@ -43263,16 +33518,11 @@ type InstanceTemplate struct {
 	// The resource group for this instance template.
 	ResourceGroup *ResourceGroupReference `json:"resource_group" validate:"required"`
 
-	// The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes. An increase in
-	// this value will result in a corresponding decrease to
-	// `total_network_bandwidth`.
-	TotalVolumeBandwidth *int64 `json:"total_volume_bandwidth,omitempty"`
-
 	// User data to be made available when setting up the virtual server instance.
 	UserData *string `json:"user_data,omitempty"`
 
 	// The volume attachments for this virtual server instance.
-	VolumeAttachments []VolumeAttachmentPrototype `json:"volume_attachments,omitempty"`
+	VolumeAttachments []VolumeAttachmentPrototypeInstanceContext `json:"volume_attachments,omitempty"`
 
 	// The VPC the virtual server instance is to be a part of. If provided, must match the
 	// VPC tied to the subnets of the instance's network interfaces.
@@ -43289,9 +33539,6 @@ type InstanceTemplate struct {
 
 	// The zone this virtual server instance will reside in.
 	Zone ZoneIdentityIntf `json:"zone,omitempty"`
-
-	// Identifies an instance template by a unique property.
-	SourceTemplate InstanceTemplateIdentityIntf `json:"source_template,omitempty"`
 }
 
 func (*InstanceTemplate) isaInstanceTemplate() bool {
@@ -43329,10 +33576,6 @@ func UnmarshalInstanceTemplate(m map[string]json.RawMessage, result interface{})
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalModel(m, "metadata_service", &obj.MetadataService, UnmarshalInstanceMetadataServicePrototype)
-	if err != nil {
-		return
-	}
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
 	if err != nil {
 		return
@@ -43353,15 +33596,11 @@ func UnmarshalInstanceTemplate(m map[string]json.RawMessage, result interface{})
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalPrimitive(m, "total_volume_bandwidth", &obj.TotalVolumeBandwidth)
-	if err != nil {
-		return
-	}
 	err = core.UnmarshalPrimitive(m, "user_data", &obj.UserData)
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalModel(m, "volume_attachments", &obj.VolumeAttachments, UnmarshalVolumeAttachmentPrototype)
+	err = core.UnmarshalModel(m, "volume_attachments", &obj.VolumeAttachments, UnmarshalVolumeAttachmentPrototypeInstanceContext)
 	if err != nil {
 		return
 	}
@@ -43382,10 +33621,6 @@ func UnmarshalInstanceTemplate(m map[string]json.RawMessage, result interface{})
 		return
 	}
 	err = core.UnmarshalModel(m, "zone", &obj.Zone, UnmarshalZoneIdentity)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "source_template", &obj.SourceTemplate, UnmarshalInstanceTemplateIdentity)
 	if err != nil {
 		return
 	}
@@ -43552,16 +33787,15 @@ type InstanceTemplatePrototype struct {
 	// The availability policy to use for this virtual server instance.
 	AvailabilityPolicy *InstanceAvailabilityPrototype `json:"availability_policy,omitempty"`
 
-	// The public SSH keys for the administrative user of the virtual server instance. Up to 10 keys may be provided; if no
-	// keys are provided the instance will be inaccessible unless the image used provides another means of access. For
-	// Windows instances, one of the keys will be used to encrypt the administrator password.
+	// The public SSH keys for the administrative user of the virtual server instance. Keys will be made available to the
+	// virtual server instance as cloud-init vendor data. For cloud-init enabled images, these keys will also be added as
+	// SSH authorized keys for the administrative user.
 	//
-	// Keys will be made available to the virtual server instance as cloud-init vendor data. For cloud-init enabled images,
-	// these keys will also be added as SSH authorized keys for the administrative user.
+	// For Windows images, at least one key must be specified, and one will be chosen to encrypt [the administrator
+	// password](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization). Keys are optional for other images, but if
+	// no keys are specified, the instance will be inaccessible unless the specified image provides another means of
+	// access.
 	Keys []KeyIdentityIntf `json:"keys,omitempty"`
-
-	// Configuration options for the instance metadata service.
-	MetadataService *InstanceMetadataServicePrototype `json:"metadata_service,omitempty"`
 
 	// The unique user-defined name for this virtual server instance (and default system hostname). If unspecified, the
 	// name will be a hyphenated list of randomly-selected words.
@@ -43580,16 +33814,11 @@ type InstanceTemplatePrototype struct {
 	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) is used.
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
 
-	// The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes. An increase in
-	// this value will result in a corresponding decrease to
-	// `total_network_bandwidth`.
-	TotalVolumeBandwidth *int64 `json:"total_volume_bandwidth,omitempty"`
-
 	// User data to be made available when setting up the virtual server instance.
 	UserData *string `json:"user_data,omitempty"`
 
 	// The volume attachments for this virtual server instance.
-	VolumeAttachments []VolumeAttachmentPrototype `json:"volume_attachments,omitempty"`
+	VolumeAttachments []VolumeAttachmentPrototypeInstanceContext `json:"volume_attachments,omitempty"`
 
 	// The VPC the virtual server instance is to be a part of. If provided, must match the
 	// VPC tied to the subnets of the instance's network interfaces.
@@ -43607,7 +33836,7 @@ type InstanceTemplatePrototype struct {
 	// The zone this virtual server instance will reside in.
 	Zone ZoneIdentityIntf `json:"zone,omitempty"`
 
-	// Identifies an instance template by a unique property.
+	// The template to create this virtual server instance from.
 	SourceTemplate InstanceTemplateIdentityIntf `json:"source_template,omitempty"`
 }
 
@@ -43627,10 +33856,6 @@ func UnmarshalInstanceTemplatePrototype(m map[string]json.RawMessage, result int
 		return
 	}
 	err = core.UnmarshalModel(m, "keys", &obj.Keys, UnmarshalKeyIdentity)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "metadata_service", &obj.MetadataService, UnmarshalInstanceMetadataServicePrototype)
 	if err != nil {
 		return
 	}
@@ -43654,15 +33879,11 @@ func UnmarshalInstanceTemplatePrototype(m map[string]json.RawMessage, result int
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalPrimitive(m, "total_volume_bandwidth", &obj.TotalVolumeBandwidth)
-	if err != nil {
-		return
-	}
 	err = core.UnmarshalPrimitive(m, "user_data", &obj.UserData)
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalModel(m, "volume_attachments", &obj.VolumeAttachments, UnmarshalVolumeAttachmentPrototype)
+	err = core.UnmarshalModel(m, "volume_attachments", &obj.VolumeAttachments, UnmarshalVolumeAttachmentPrototypeInstanceContext)
 	if err != nil {
 		return
 	}
@@ -43873,7 +34094,7 @@ func UnmarshalKey(m map[string]json.RawMessage, result interface{}) (err error) 
 // KeyCollection : KeyCollection struct
 type KeyCollection struct {
 	// A link to the first page of resources.
-	First *PageLink `json:"first" validate:"required"`
+	First *KeyCollectionFirst `json:"first" validate:"required"`
 
 	// Collection of keys.
 	Keys []Key `json:"keys" validate:"required"`
@@ -43892,7 +34113,7 @@ type KeyCollection struct {
 // UnmarshalKeyCollection unmarshals an instance of KeyCollection from the specified map of raw messages.
 func UnmarshalKeyCollection(m map[string]json.RawMessage, result interface{}) (err error) {
 	obj := new(KeyCollection)
-	err = core.UnmarshalModel(m, "first", &obj.First, UnmarshalPageLink)
+	err = core.UnmarshalModel(m, "first", &obj.First, UnmarshalKeyCollectionFirst)
 	if err != nil {
 		return
 	}
@@ -43909,6 +34130,23 @@ func UnmarshalKeyCollection(m map[string]json.RawMessage, result interface{}) (e
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "total_count", &obj.TotalCount)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// KeyCollectionFirst : A link to the first page of resources.
+type KeyCollectionFirst struct {
+	// The URL for a page of resources.
+	Href *string `json:"href" validate:"required"`
+}
+
+// UnmarshalKeyCollectionFirst unmarshals an instance of KeyCollectionFirst from the specified map of raw messages.
+func UnmarshalKeyCollectionFirst(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(KeyCollectionFirst)
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
 	if err != nil {
 		return
 	}
@@ -44012,60 +34250,6 @@ func (keyPatch *KeyPatch) AsPatch() (patch map[string]interface{}, err error) {
 	return
 }
 
-// KeyReference : KeyReference struct
-type KeyReference struct {
-	// The CRN for this key.
-	CRN *string `json:"crn" validate:"required"`
-
-	// If present, this property indicates the referenced resource has been deleted and provides
-	// some supplementary information.
-	Deleted *KeyReferenceDeleted `json:"deleted,omitempty"`
-
-	// The fingerprint for this key.  The value is returned base64-encoded and prefixed with the hash algorithm (always
-	// `SHA256`).
-	Fingerprint *string `json:"fingerprint" validate:"required"`
-
-	// The URL for this key.
-	Href *string `json:"href" validate:"required"`
-
-	// The unique identifier for this key.
-	ID *string `json:"id" validate:"required"`
-
-	// The user-defined name for this key.
-	Name *string `json:"name" validate:"required"`
-}
-
-// UnmarshalKeyReference unmarshals an instance of KeyReference from the specified map of raw messages.
-func UnmarshalKeyReference(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(KeyReference)
-	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "deleted", &obj.Deleted, UnmarshalKeyReferenceDeleted)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "fingerprint", &obj.Fingerprint)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
 // KeyReferenceDeleted : If present, this property indicates the referenced resource has been deleted and provides some supplementary
 // information.
 type KeyReferenceDeleted struct {
@@ -44147,381 +34331,6 @@ func UnmarshalKeyReferenceInstanceInitializationContext(m map[string]json.RawMes
 	}
 	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
 	return
-}
-
-// ListBackupPoliciesOptions : The ListBackupPolicies options.
-type ListBackupPoliciesOptions struct {
-	// A server-supplied token determining what resource to start the page on.
-	Start *string
-
-	// The number of resources to return on a page.
-	Limit *int64
-
-	// Filters the collection to resources within one of the resource groups identified in a comma-separated list of
-	// resource group identifiers.
-	ResourceGroupID *string
-
-	// Filters the collection to resources with the exact specified name.
-	Name *string
-
-	// Filters the collection to resources with the exact tag value.
-	Tag *string
-
-	// Allows users to set headers on API requests
-	Headers map[string]string
-}
-
-// NewListBackupPoliciesOptions : Instantiate ListBackupPoliciesOptions
-func (*VpcV1) NewListBackupPoliciesOptions() *ListBackupPoliciesOptions {
-	return &ListBackupPoliciesOptions{}
-}
-
-// SetStart : Allow user to set Start
-func (options *ListBackupPoliciesOptions) SetStart(start string) *ListBackupPoliciesOptions {
-	options.Start = core.StringPtr(start)
-	return options
-}
-
-// SetLimit : Allow user to set Limit
-func (options *ListBackupPoliciesOptions) SetLimit(limit int64) *ListBackupPoliciesOptions {
-	options.Limit = core.Int64Ptr(limit)
-	return options
-}
-
-// SetResourceGroupID : Allow user to set ResourceGroupID
-func (options *ListBackupPoliciesOptions) SetResourceGroupID(resourceGroupID string) *ListBackupPoliciesOptions {
-	options.ResourceGroupID = core.StringPtr(resourceGroupID)
-	return options
-}
-
-// SetName : Allow user to set Name
-func (options *ListBackupPoliciesOptions) SetName(name string) *ListBackupPoliciesOptions {
-	options.Name = core.StringPtr(name)
-	return options
-}
-
-// SetTag : Allow user to set Tag
-func (options *ListBackupPoliciesOptions) SetTag(tag string) *ListBackupPoliciesOptions {
-	options.Tag = core.StringPtr(tag)
-	return options
-}
-
-// SetHeaders : Allow user to set Headers
-func (options *ListBackupPoliciesOptions) SetHeaders(param map[string]string) *ListBackupPoliciesOptions {
-	options.Headers = param
-	return options
-}
-
-// ListBackupPolicyPlansOptions : The ListBackupPolicyPlans options.
-type ListBackupPolicyPlansOptions struct {
-	// The backup policy identifier.
-	BackupPolicyID *string `validate:"required,ne="`
-
-	// Filters the collection to resources with the exact specified name.
-	Name *string
-
-	// Allows users to set headers on API requests
-	Headers map[string]string
-}
-
-// NewListBackupPolicyPlansOptions : Instantiate ListBackupPolicyPlansOptions
-func (*VpcV1) NewListBackupPolicyPlansOptions(backupPolicyID string) *ListBackupPolicyPlansOptions {
-	return &ListBackupPolicyPlansOptions{
-		BackupPolicyID: core.StringPtr(backupPolicyID),
-	}
-}
-
-// SetBackupPolicyID : Allow user to set BackupPolicyID
-func (options *ListBackupPolicyPlansOptions) SetBackupPolicyID(backupPolicyID string) *ListBackupPolicyPlansOptions {
-	options.BackupPolicyID = core.StringPtr(backupPolicyID)
-	return options
-}
-
-// SetName : Allow user to set Name
-func (options *ListBackupPolicyPlansOptions) SetName(name string) *ListBackupPolicyPlansOptions {
-	options.Name = core.StringPtr(name)
-	return options
-}
-
-// SetHeaders : Allow user to set Headers
-func (options *ListBackupPolicyPlansOptions) SetHeaders(param map[string]string) *ListBackupPolicyPlansOptions {
-	options.Headers = param
-	return options
-}
-
-// ListBareMetalServerDisksOptions : The ListBareMetalServerDisks options.
-type ListBareMetalServerDisksOptions struct {
-	// The bare metal server identifier.
-	BareMetalServerID *string `validate:"required,ne="`
-
-	// Allows users to set headers on API requests
-	Headers map[string]string
-}
-
-// NewListBareMetalServerDisksOptions : Instantiate ListBareMetalServerDisksOptions
-func (*VpcV1) NewListBareMetalServerDisksOptions(bareMetalServerID string) *ListBareMetalServerDisksOptions {
-	return &ListBareMetalServerDisksOptions{
-		BareMetalServerID: core.StringPtr(bareMetalServerID),
-	}
-}
-
-// SetBareMetalServerID : Allow user to set BareMetalServerID
-func (options *ListBareMetalServerDisksOptions) SetBareMetalServerID(bareMetalServerID string) *ListBareMetalServerDisksOptions {
-	options.BareMetalServerID = core.StringPtr(bareMetalServerID)
-	return options
-}
-
-// SetHeaders : Allow user to set Headers
-func (options *ListBareMetalServerDisksOptions) SetHeaders(param map[string]string) *ListBareMetalServerDisksOptions {
-	options.Headers = param
-	return options
-}
-
-// ListBareMetalServerNetworkInterfaceFloatingIpsOptions : The ListBareMetalServerNetworkInterfaceFloatingIps options.
-type ListBareMetalServerNetworkInterfaceFloatingIpsOptions struct {
-	// The bare metal server identifier.
-	BareMetalServerID *string `validate:"required,ne="`
-
-	// The network interface identifier.
-	NetworkInterfaceID *string `validate:"required,ne="`
-
-	// Allows users to set headers on API requests
-	Headers map[string]string
-}
-
-// NewListBareMetalServerNetworkInterfaceFloatingIpsOptions : Instantiate ListBareMetalServerNetworkInterfaceFloatingIpsOptions
-func (*VpcV1) NewListBareMetalServerNetworkInterfaceFloatingIpsOptions(bareMetalServerID string, networkInterfaceID string) *ListBareMetalServerNetworkInterfaceFloatingIpsOptions {
-	return &ListBareMetalServerNetworkInterfaceFloatingIpsOptions{
-		BareMetalServerID:  core.StringPtr(bareMetalServerID),
-		NetworkInterfaceID: core.StringPtr(networkInterfaceID),
-	}
-}
-
-// SetBareMetalServerID : Allow user to set BareMetalServerID
-func (options *ListBareMetalServerNetworkInterfaceFloatingIpsOptions) SetBareMetalServerID(bareMetalServerID string) *ListBareMetalServerNetworkInterfaceFloatingIpsOptions {
-	options.BareMetalServerID = core.StringPtr(bareMetalServerID)
-	return options
-}
-
-// SetNetworkInterfaceID : Allow user to set NetworkInterfaceID
-func (options *ListBareMetalServerNetworkInterfaceFloatingIpsOptions) SetNetworkInterfaceID(networkInterfaceID string) *ListBareMetalServerNetworkInterfaceFloatingIpsOptions {
-	options.NetworkInterfaceID = core.StringPtr(networkInterfaceID)
-	return options
-}
-
-// SetHeaders : Allow user to set Headers
-func (options *ListBareMetalServerNetworkInterfaceFloatingIpsOptions) SetHeaders(param map[string]string) *ListBareMetalServerNetworkInterfaceFloatingIpsOptions {
-	options.Headers = param
-	return options
-}
-
-// ListBareMetalServerNetworkInterfacesOptions : The ListBareMetalServerNetworkInterfaces options.
-type ListBareMetalServerNetworkInterfacesOptions struct {
-	// The bare metal server identifier.
-	BareMetalServerID *string `validate:"required,ne="`
-
-	// A server-supplied token determining what resource to start the page on.
-	Start *string
-
-	// The number of resources to return on a page.
-	Limit *int64
-
-	// Allows users to set headers on API requests
-	Headers map[string]string
-}
-
-// NewListBareMetalServerNetworkInterfacesOptions : Instantiate ListBareMetalServerNetworkInterfacesOptions
-func (*VpcV1) NewListBareMetalServerNetworkInterfacesOptions(bareMetalServerID string) *ListBareMetalServerNetworkInterfacesOptions {
-	return &ListBareMetalServerNetworkInterfacesOptions{
-		BareMetalServerID: core.StringPtr(bareMetalServerID),
-	}
-}
-
-// SetBareMetalServerID : Allow user to set BareMetalServerID
-func (options *ListBareMetalServerNetworkInterfacesOptions) SetBareMetalServerID(bareMetalServerID string) *ListBareMetalServerNetworkInterfacesOptions {
-	options.BareMetalServerID = core.StringPtr(bareMetalServerID)
-	return options
-}
-
-// SetStart : Allow user to set Start
-func (options *ListBareMetalServerNetworkInterfacesOptions) SetStart(start string) *ListBareMetalServerNetworkInterfacesOptions {
-	options.Start = core.StringPtr(start)
-	return options
-}
-
-// SetLimit : Allow user to set Limit
-func (options *ListBareMetalServerNetworkInterfacesOptions) SetLimit(limit int64) *ListBareMetalServerNetworkInterfacesOptions {
-	options.Limit = core.Int64Ptr(limit)
-	return options
-}
-
-// SetHeaders : Allow user to set Headers
-func (options *ListBareMetalServerNetworkInterfacesOptions) SetHeaders(param map[string]string) *ListBareMetalServerNetworkInterfacesOptions {
-	options.Headers = param
-	return options
-}
-
-// ListBareMetalServerProfilesOptions : The ListBareMetalServerProfiles options.
-type ListBareMetalServerProfilesOptions struct {
-	// A server-supplied token determining what resource to start the page on.
-	Start *string
-
-	// The number of resources to return on a page.
-	Limit *int64
-
-	// Allows users to set headers on API requests
-	Headers map[string]string
-}
-
-// NewListBareMetalServerProfilesOptions : Instantiate ListBareMetalServerProfilesOptions
-func (*VpcV1) NewListBareMetalServerProfilesOptions() *ListBareMetalServerProfilesOptions {
-	return &ListBareMetalServerProfilesOptions{}
-}
-
-// SetStart : Allow user to set Start
-func (options *ListBareMetalServerProfilesOptions) SetStart(start string) *ListBareMetalServerProfilesOptions {
-	options.Start = core.StringPtr(start)
-	return options
-}
-
-// SetLimit : Allow user to set Limit
-func (options *ListBareMetalServerProfilesOptions) SetLimit(limit int64) *ListBareMetalServerProfilesOptions {
-	options.Limit = core.Int64Ptr(limit)
-	return options
-}
-
-// SetHeaders : Allow user to set Headers
-func (options *ListBareMetalServerProfilesOptions) SetHeaders(param map[string]string) *ListBareMetalServerProfilesOptions {
-	options.Headers = param
-	return options
-}
-
-// ListBareMetalServersOptions : The ListBareMetalServers options.
-type ListBareMetalServersOptions struct {
-	// A server-supplied token determining what resource to start the page on.
-	Start *string
-
-	// The number of resources to return on a page.
-	Limit *int64
-
-	// Filters the collection to resources within one of the resource groups identified in a comma-separated list of
-	// resource group identifiers.
-	ResourceGroupID *string
-
-	// Filters the collection to resources with the exact specified name.
-	Name *string
-
-	// Filters the collection to resources in the VPC with the specified identifier.
-	VPCID *string
-
-	// Filters the collection to resources in the VPC with the specified CRN.
-	VPCCRN *string
-
-	// Filters the collection to resources in the VPC with the exact specified name.
-	VPCName *string
-
-	// Filters the collection to bare metal servers on the subnet with the specified identifier.
-	NetworkInterfacesSubnetID *string
-
-	// Filters the collection to bare metal servers on the subnet with the specified CRN.
-	NetworkInterfacesSubnetCRN *string
-
-	// Filters the collection to bare metal servers on the subnet with the specified name.
-	NetworkInterfacesSubnetName *string
-
-	// Sorts the returned collection by the specified property name in ascending order. A `-` may be prepended to the name
-	// to sort in descending order. For example, the value `-created_at` sorts the collection by the `created_at` property
-	// in descending order, and the value `name` sorts it by the `name` property in ascending order.
-	Sort *string
-
-	// Allows users to set headers on API requests
-	Headers map[string]string
-}
-
-// Constants associated with the ListBareMetalServersOptions.Sort property.
-// Sorts the returned collection by the specified property name in ascending order. A `-` may be prepended to the name
-// to sort in descending order. For example, the value `-created_at` sorts the collection by the `created_at` property
-// in descending order, and the value `name` sorts it by the `name` property in ascending order.
-const (
-	ListBareMetalServersOptionsSortCreatedAtConst = "created_at"
-	ListBareMetalServersOptionsSortNameConst      = "name"
-)
-
-// NewListBareMetalServersOptions : Instantiate ListBareMetalServersOptions
-func (*VpcV1) NewListBareMetalServersOptions() *ListBareMetalServersOptions {
-	return &ListBareMetalServersOptions{}
-}
-
-// SetStart : Allow user to set Start
-func (options *ListBareMetalServersOptions) SetStart(start string) *ListBareMetalServersOptions {
-	options.Start = core.StringPtr(start)
-	return options
-}
-
-// SetLimit : Allow user to set Limit
-func (options *ListBareMetalServersOptions) SetLimit(limit int64) *ListBareMetalServersOptions {
-	options.Limit = core.Int64Ptr(limit)
-	return options
-}
-
-// SetResourceGroupID : Allow user to set ResourceGroupID
-func (options *ListBareMetalServersOptions) SetResourceGroupID(resourceGroupID string) *ListBareMetalServersOptions {
-	options.ResourceGroupID = core.StringPtr(resourceGroupID)
-	return options
-}
-
-// SetName : Allow user to set Name
-func (options *ListBareMetalServersOptions) SetName(name string) *ListBareMetalServersOptions {
-	options.Name = core.StringPtr(name)
-	return options
-}
-
-// SetVPCID : Allow user to set VPCID
-func (options *ListBareMetalServersOptions) SetVPCID(vpcID string) *ListBareMetalServersOptions {
-	options.VPCID = core.StringPtr(vpcID)
-	return options
-}
-
-// SetVPCCRN : Allow user to set VPCCRN
-func (options *ListBareMetalServersOptions) SetVPCCRN(vpcCRN string) *ListBareMetalServersOptions {
-	options.VPCCRN = core.StringPtr(vpcCRN)
-	return options
-}
-
-// SetVPCName : Allow user to set VPCName
-func (options *ListBareMetalServersOptions) SetVPCName(vpcName string) *ListBareMetalServersOptions {
-	options.VPCName = core.StringPtr(vpcName)
-	return options
-}
-
-// SetNetworkInterfacesSubnetID : Allow user to set NetworkInterfacesSubnetID
-func (options *ListBareMetalServersOptions) SetNetworkInterfacesSubnetID(networkInterfacesSubnetID string) *ListBareMetalServersOptions {
-	options.NetworkInterfacesSubnetID = core.StringPtr(networkInterfacesSubnetID)
-	return options
-}
-
-// SetNetworkInterfacesSubnetCRN : Allow user to set NetworkInterfacesSubnetCRN
-func (options *ListBareMetalServersOptions) SetNetworkInterfacesSubnetCRN(networkInterfacesSubnetCRN string) *ListBareMetalServersOptions {
-	options.NetworkInterfacesSubnetCRN = core.StringPtr(networkInterfacesSubnetCRN)
-	return options
-}
-
-// SetNetworkInterfacesSubnetName : Allow user to set NetworkInterfacesSubnetName
-func (options *ListBareMetalServersOptions) SetNetworkInterfacesSubnetName(networkInterfacesSubnetName string) *ListBareMetalServersOptions {
-	options.NetworkInterfacesSubnetName = core.StringPtr(networkInterfacesSubnetName)
-	return options
-}
-
-// SetSort : Allow user to set Sort
-func (options *ListBareMetalServersOptions) SetSort(sort string) *ListBareMetalServersOptions {
-	options.Sort = core.StringPtr(sort)
-	return options
-}
-
-// SetHeaders : Allow user to set Headers
-func (options *ListBareMetalServersOptions) SetHeaders(param map[string]string) *ListBareMetalServersOptions {
-	options.Headers = param
-	return options
 }
 
 // ListDedicatedHostDisksOptions : The ListDedicatedHostDisks options.
@@ -45056,9 +34865,6 @@ type ListImagesOptions struct {
 	// Filters the collection to resources with the exact specified name.
 	Name *string
 
-	// Filters the collection to images with the comma-separated list of `provisionable` values.
-	Provisionable []bool
-
 	// Filters the collection to images with the specified `visibility`.
 	Visibility *string
 
@@ -45099,12 +34905,6 @@ func (options *ListImagesOptions) SetResourceGroupID(resourceGroupID string) *Li
 // SetName : Allow user to set Name
 func (options *ListImagesOptions) SetName(name string) *ListImagesOptions {
 	options.Name = core.StringPtr(name)
-	return options
-}
-
-// SetProvisionable : Allow user to set Provisionable
-func (options *ListImagesOptions) SetProvisionable(provisionable []bool) *ListImagesOptions {
-	options.Provisionable = provisionable
 	return options
 }
 
@@ -45425,62 +35225,6 @@ func (options *ListInstanceNetworkInterfaceFloatingIpsOptions) SetHeaders(param 
 	return options
 }
 
-// ListInstanceNetworkInterfaceIpsOptions : The ListInstanceNetworkInterfaceIps options.
-type ListInstanceNetworkInterfaceIpsOptions struct {
-	// The instance identifier.
-	InstanceID *string `validate:"required,ne="`
-
-	// The network interface identifier.
-	NetworkInterfaceID *string `validate:"required,ne="`
-
-	// A server-supplied token determining what resource to start the page on.
-	Start *string
-
-	// The number of resources to return on a page.
-	Limit *int64
-
-	// Allows users to set headers on API requests
-	Headers map[string]string
-}
-
-// NewListInstanceNetworkInterfaceIpsOptions : Instantiate ListInstanceNetworkInterfaceIpsOptions
-func (*VpcV1) NewListInstanceNetworkInterfaceIpsOptions(instanceID string, networkInterfaceID string) *ListInstanceNetworkInterfaceIpsOptions {
-	return &ListInstanceNetworkInterfaceIpsOptions{
-		InstanceID:         core.StringPtr(instanceID),
-		NetworkInterfaceID: core.StringPtr(networkInterfaceID),
-	}
-}
-
-// SetInstanceID : Allow user to set InstanceID
-func (options *ListInstanceNetworkInterfaceIpsOptions) SetInstanceID(instanceID string) *ListInstanceNetworkInterfaceIpsOptions {
-	options.InstanceID = core.StringPtr(instanceID)
-	return options
-}
-
-// SetNetworkInterfaceID : Allow user to set NetworkInterfaceID
-func (options *ListInstanceNetworkInterfaceIpsOptions) SetNetworkInterfaceID(networkInterfaceID string) *ListInstanceNetworkInterfaceIpsOptions {
-	options.NetworkInterfaceID = core.StringPtr(networkInterfaceID)
-	return options
-}
-
-// SetStart : Allow user to set Start
-func (options *ListInstanceNetworkInterfaceIpsOptions) SetStart(start string) *ListInstanceNetworkInterfaceIpsOptions {
-	options.Start = core.StringPtr(start)
-	return options
-}
-
-// SetLimit : Allow user to set Limit
-func (options *ListInstanceNetworkInterfaceIpsOptions) SetLimit(limit int64) *ListInstanceNetworkInterfaceIpsOptions {
-	options.Limit = core.Int64Ptr(limit)
-	return options
-}
-
-// SetHeaders : Allow user to set Headers
-func (options *ListInstanceNetworkInterfaceIpsOptions) SetHeaders(param map[string]string) *ListInstanceNetworkInterfaceIpsOptions {
-	options.Headers = param
-	return options
-}
-
 // ListInstanceNetworkInterfacesOptions : The ListInstanceNetworkInterfaces options.
 type ListInstanceNetworkInterfacesOptions struct {
 	// The instance identifier.
@@ -45511,11 +35255,6 @@ func (options *ListInstanceNetworkInterfacesOptions) SetHeaders(param map[string
 
 // ListInstanceProfilesOptions : The ListInstanceProfiles options.
 type ListInstanceProfilesOptions struct {
-	// A server-supplied token determining what resource to start the page on.
-	Start *string
-
-	// The number of resources to return on a page.
-	Limit *int64
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -45524,18 +35263,6 @@ type ListInstanceProfilesOptions struct {
 // NewListInstanceProfilesOptions : Instantiate ListInstanceProfilesOptions
 func (*VpcV1) NewListInstanceProfilesOptions() *ListInstanceProfilesOptions {
 	return &ListInstanceProfilesOptions{}
-}
-
-// SetStart : Allow user to set Start
-func (options *ListInstanceProfilesOptions) SetStart(start string) *ListInstanceProfilesOptions {
-	options.Start = core.StringPtr(start)
-	return options
-}
-
-// SetLimit : Allow user to set Limit
-func (options *ListInstanceProfilesOptions) SetLimit(limit int64) *ListInstanceProfilesOptions {
-	options.Limit = core.Int64Ptr(limit)
-	return options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -45614,15 +35341,6 @@ type ListInstancesOptions struct {
 	// Filters the collection to resources in the VPC with the exact specified name.
 	VPCName *string
 
-	// Filters the collection to instances on the subnet with the specified identifier.
-	NetworkInterfacesSubnetID *string
-
-	// Filters the collection to instances on the subnet with the specified CRN.
-	NetworkInterfacesSubnetCRN *string
-
-	// Filters the collection to instances on the subnet with the specified name.
-	NetworkInterfacesSubnetName *string
-
 	// Filters the collection to instances on the dedicated host with the specified identifier.
 	DedicatedHostID *string
 
@@ -45689,24 +35407,6 @@ func (options *ListInstancesOptions) SetVPCCRN(vpcCRN string) *ListInstancesOpti
 // SetVPCName : Allow user to set VPCName
 func (options *ListInstancesOptions) SetVPCName(vpcName string) *ListInstancesOptions {
 	options.VPCName = core.StringPtr(vpcName)
-	return options
-}
-
-// SetNetworkInterfacesSubnetID : Allow user to set NetworkInterfacesSubnetID
-func (options *ListInstancesOptions) SetNetworkInterfacesSubnetID(networkInterfacesSubnetID string) *ListInstancesOptions {
-	options.NetworkInterfacesSubnetID = core.StringPtr(networkInterfacesSubnetID)
-	return options
-}
-
-// SetNetworkInterfacesSubnetCRN : Allow user to set NetworkInterfacesSubnetCRN
-func (options *ListInstancesOptions) SetNetworkInterfacesSubnetCRN(networkInterfacesSubnetCRN string) *ListInstancesOptions {
-	options.NetworkInterfacesSubnetCRN = core.StringPtr(networkInterfacesSubnetCRN)
-	return options
-}
-
-// SetNetworkInterfacesSubnetName : Allow user to set NetworkInterfacesSubnetName
-func (options *ListInstancesOptions) SetNetworkInterfacesSubnetName(networkInterfacesSubnetName string) *ListInstancesOptions {
-	options.NetworkInterfacesSubnetName = core.StringPtr(networkInterfacesSubnetName)
 	return options
 }
 
@@ -46083,10 +35783,6 @@ type ListLoadBalancersOptions struct {
 	// The number of resources to return on a page.
 	Limit *int64
 
-	// Filters the collection to resources within one of the resource groups identified in a comma-separated list of
-	// resource group identifiers.
-	ResourceGroupID *string
-
 	// Allows users to set headers on API requests
 	Headers map[string]string
 }
@@ -46105,12 +35801,6 @@ func (options *ListLoadBalancersOptions) SetStart(start string) *ListLoadBalance
 // SetLimit : Allow user to set Limit
 func (options *ListLoadBalancersOptions) SetLimit(limit int64) *ListLoadBalancersOptions {
 	options.Limit = core.Int64Ptr(limit)
-	return options
-}
-
-// SetResourceGroupID : Allow user to set ResourceGroupID
-func (options *ListLoadBalancersOptions) SetResourceGroupID(resourceGroupID string) *ListLoadBalancersOptions {
-	options.ResourceGroupID = core.StringPtr(resourceGroupID)
 	return options
 }
 
@@ -46576,172 +36266,6 @@ func (options *ListSecurityGroupsOptions) SetVPCName(vpcName string) *ListSecuri
 
 // SetHeaders : Allow user to set Headers
 func (options *ListSecurityGroupsOptions) SetHeaders(param map[string]string) *ListSecurityGroupsOptions {
-	options.Headers = param
-	return options
-}
-
-// ListShareProfilesOptions : The ListShareProfiles options.
-type ListShareProfilesOptions struct {
-	// A server-supplied token determining what resource to start the page on.
-	Start *string
-
-	// The number of resources to return on a page.
-	Limit *int64
-
-	// Sorts the returned collection by the specified property name in ascending order. A `-` may be prepended to the name
-	// to sort in descending order. For example, the value `-created_at` sorts the collection by the `created_at` property
-	// in descending order, and the value `name` sorts it by the `name` property in ascending order.
-	Sort *string
-
-	// Allows users to set headers on API requests
-	Headers map[string]string
-}
-
-// Constants associated with the ListShareProfilesOptions.Sort property.
-// Sorts the returned collection by the specified property name in ascending order. A `-` may be prepended to the name
-// to sort in descending order. For example, the value `-created_at` sorts the collection by the `created_at` property
-// in descending order, and the value `name` sorts it by the `name` property in ascending order.
-const (
-	ListShareProfilesOptionsSortCreatedAtConst = "created_at"
-	ListShareProfilesOptionsSortNameConst      = "name"
-)
-
-// NewListShareProfilesOptions : Instantiate ListShareProfilesOptions
-func (*VpcV1) NewListShareProfilesOptions() *ListShareProfilesOptions {
-	return &ListShareProfilesOptions{}
-}
-
-// SetStart : Allow user to set Start
-func (options *ListShareProfilesOptions) SetStart(start string) *ListShareProfilesOptions {
-	options.Start = core.StringPtr(start)
-	return options
-}
-
-// SetLimit : Allow user to set Limit
-func (options *ListShareProfilesOptions) SetLimit(limit int64) *ListShareProfilesOptions {
-	options.Limit = core.Int64Ptr(limit)
-	return options
-}
-
-// SetSort : Allow user to set Sort
-func (options *ListShareProfilesOptions) SetSort(sort string) *ListShareProfilesOptions {
-	options.Sort = core.StringPtr(sort)
-	return options
-}
-
-// SetHeaders : Allow user to set Headers
-func (options *ListShareProfilesOptions) SetHeaders(param map[string]string) *ListShareProfilesOptions {
-	options.Headers = param
-	return options
-}
-
-// ListShareTargetsOptions : The ListShareTargets options.
-type ListShareTargetsOptions struct {
-	// The file share identifier.
-	ShareID *string `validate:"required,ne="`
-
-	// Filters the collection to resources with the exact specified name.
-	Name *string
-
-	// Allows users to set headers on API requests
-	Headers map[string]string
-}
-
-// NewListShareTargetsOptions : Instantiate ListShareTargetsOptions
-func (*VpcV1) NewListShareTargetsOptions(shareID string) *ListShareTargetsOptions {
-	return &ListShareTargetsOptions{
-		ShareID: core.StringPtr(shareID),
-	}
-}
-
-// SetShareID : Allow user to set ShareID
-func (options *ListShareTargetsOptions) SetShareID(shareID string) *ListShareTargetsOptions {
-	options.ShareID = core.StringPtr(shareID)
-	return options
-}
-
-// SetName : Allow user to set Name
-func (options *ListShareTargetsOptions) SetName(name string) *ListShareTargetsOptions {
-	options.Name = core.StringPtr(name)
-	return options
-}
-
-// SetHeaders : Allow user to set Headers
-func (options *ListShareTargetsOptions) SetHeaders(param map[string]string) *ListShareTargetsOptions {
-	options.Headers = param
-	return options
-}
-
-// ListSharesOptions : The ListShares options.
-type ListSharesOptions struct {
-	// A server-supplied token determining what resource to start the page on.
-	Start *string
-
-	// The number of resources to return on a page.
-	Limit *int64
-
-	// Filters the collection to resources within one of the resource groups identified in a comma-separated list of
-	// resource group identifiers.
-	ResourceGroupID *string
-
-	// Filters the collection to resources with the exact specified name.
-	Name *string
-
-	// Sorts the returned collection by the specified property name in ascending order. A `-` may be prepended to the name
-	// to sort in descending order. For example, the value `-created_at` sorts the collection by the `created_at` property
-	// in descending order, and the value `name` sorts it by the `name` property in ascending order.
-	Sort *string
-
-	// Allows users to set headers on API requests
-	Headers map[string]string
-}
-
-// Constants associated with the ListSharesOptions.Sort property.
-// Sorts the returned collection by the specified property name in ascending order. A `-` may be prepended to the name
-// to sort in descending order. For example, the value `-created_at` sorts the collection by the `created_at` property
-// in descending order, and the value `name` sorts it by the `name` property in ascending order.
-const (
-	ListSharesOptionsSortCreatedAtConst = "created_at"
-	ListSharesOptionsSortNameConst      = "name"
-)
-
-// NewListSharesOptions : Instantiate ListSharesOptions
-func (*VpcV1) NewListSharesOptions() *ListSharesOptions {
-	return &ListSharesOptions{}
-}
-
-// SetStart : Allow user to set Start
-func (options *ListSharesOptions) SetStart(start string) *ListSharesOptions {
-	options.Start = core.StringPtr(start)
-	return options
-}
-
-// SetLimit : Allow user to set Limit
-func (options *ListSharesOptions) SetLimit(limit int64) *ListSharesOptions {
-	options.Limit = core.Int64Ptr(limit)
-	return options
-}
-
-// SetResourceGroupID : Allow user to set ResourceGroupID
-func (options *ListSharesOptions) SetResourceGroupID(resourceGroupID string) *ListSharesOptions {
-	options.ResourceGroupID = core.StringPtr(resourceGroupID)
-	return options
-}
-
-// SetName : Allow user to set Name
-func (options *ListSharesOptions) SetName(name string) *ListSharesOptions {
-	options.Name = core.StringPtr(name)
-	return options
-}
-
-// SetSort : Allow user to set Sort
-func (options *ListSharesOptions) SetSort(sort string) *ListSharesOptions {
-	options.Sort = core.StringPtr(sort)
-	return options
-}
-
-// SetHeaders : Allow user to set Headers
-func (options *ListSharesOptions) SetHeaders(param map[string]string) *ListSharesOptions {
 	options.Headers = param
 	return options
 }
@@ -47347,36 +36871,8 @@ func (options *ListVpcsOptions) SetHeaders(param map[string]string) *ListVpcsOpt
 	return options
 }
 
-// ListVPNGatewayAdvertisedCIDRsOptions : The ListVPNGatewayAdvertisedCIDRs options.
-type ListVPNGatewayAdvertisedCIDRsOptions struct {
-	// The VPN gateway identifier.
-	VPNGatewayID *string `validate:"required,ne="`
-
-	// Allows users to set headers on API requests
-	Headers map[string]string
-}
-
-// NewListVPNGatewayAdvertisedCIDRsOptions : Instantiate ListVPNGatewayAdvertisedCIDRsOptions
-func (*VpcV1) NewListVPNGatewayAdvertisedCIDRsOptions(vpnGatewayID string) *ListVPNGatewayAdvertisedCIDRsOptions {
-	return &ListVPNGatewayAdvertisedCIDRsOptions{
-		VPNGatewayID: core.StringPtr(vpnGatewayID),
-	}
-}
-
-// SetVPNGatewayID : Allow user to set VPNGatewayID
-func (options *ListVPNGatewayAdvertisedCIDRsOptions) SetVPNGatewayID(vpnGatewayID string) *ListVPNGatewayAdvertisedCIDRsOptions {
-	options.VPNGatewayID = core.StringPtr(vpnGatewayID)
-	return options
-}
-
-// SetHeaders : Allow user to set Headers
-func (options *ListVPNGatewayAdvertisedCIDRsOptions) SetHeaders(param map[string]string) *ListVPNGatewayAdvertisedCIDRsOptions {
-	options.Headers = param
-	return options
-}
-
-// ListVPNGatewayConnectionLocalCIDRsOptions : The ListVPNGatewayConnectionLocalCIDRs options.
-type ListVPNGatewayConnectionLocalCIDRsOptions struct {
+// ListVPNGatewayConnectionLocalCidrsOptions : The ListVPNGatewayConnectionLocalCidrs options.
+type ListVPNGatewayConnectionLocalCidrsOptions struct {
 	// The VPN gateway identifier.
 	VPNGatewayID *string `validate:"required,ne="`
 
@@ -47387,28 +36883,28 @@ type ListVPNGatewayConnectionLocalCIDRsOptions struct {
 	Headers map[string]string
 }
 
-// NewListVPNGatewayConnectionLocalCIDRsOptions : Instantiate ListVPNGatewayConnectionLocalCIDRsOptions
-func (*VpcV1) NewListVPNGatewayConnectionLocalCIDRsOptions(vpnGatewayID string, id string) *ListVPNGatewayConnectionLocalCIDRsOptions {
-	return &ListVPNGatewayConnectionLocalCIDRsOptions{
+// NewListVPNGatewayConnectionLocalCidrsOptions : Instantiate ListVPNGatewayConnectionLocalCidrsOptions
+func (*VpcV1) NewListVPNGatewayConnectionLocalCidrsOptions(vpnGatewayID string, id string) *ListVPNGatewayConnectionLocalCidrsOptions {
+	return &ListVPNGatewayConnectionLocalCidrsOptions{
 		VPNGatewayID: core.StringPtr(vpnGatewayID),
 		ID:           core.StringPtr(id),
 	}
 }
 
 // SetVPNGatewayID : Allow user to set VPNGatewayID
-func (options *ListVPNGatewayConnectionLocalCIDRsOptions) SetVPNGatewayID(vpnGatewayID string) *ListVPNGatewayConnectionLocalCIDRsOptions {
+func (options *ListVPNGatewayConnectionLocalCidrsOptions) SetVPNGatewayID(vpnGatewayID string) *ListVPNGatewayConnectionLocalCidrsOptions {
 	options.VPNGatewayID = core.StringPtr(vpnGatewayID)
 	return options
 }
 
 // SetID : Allow user to set ID
-func (options *ListVPNGatewayConnectionLocalCIDRsOptions) SetID(id string) *ListVPNGatewayConnectionLocalCIDRsOptions {
+func (options *ListVPNGatewayConnectionLocalCidrsOptions) SetID(id string) *ListVPNGatewayConnectionLocalCidrsOptions {
 	options.ID = core.StringPtr(id)
 	return options
 }
 
 // SetHeaders : Allow user to set Headers
-func (options *ListVPNGatewayConnectionLocalCIDRsOptions) SetHeaders(param map[string]string) *ListVPNGatewayConnectionLocalCIDRsOptions {
+func (options *ListVPNGatewayConnectionLocalCidrsOptions) SetHeaders(param map[string]string) *ListVPNGatewayConnectionLocalCidrsOptions {
 	options.Headers = param
 	return options
 }
@@ -47500,26 +36996,12 @@ type ListVPNGatewaysOptions struct {
 	// resource group identifiers.
 	ResourceGroupID *string
 
-	// Sorts the returned collection by the specified property name in ascending order. A `-` may be prepended to the name
-	// to sort in descending order. For example, the value `-created_at` sorts the collection by the `created_at` property
-	// in descending order, and the value `name` sorts it by the `name` property in ascending order.
-	Sort *string
-
 	// Filters the collection to VPN gateways with the specified mode.
 	Mode *string
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
 }
-
-// Constants associated with the ListVPNGatewaysOptions.Sort property.
-// Sorts the returned collection by the specified property name in ascending order. A `-` may be prepended to the name
-// to sort in descending order. For example, the value `-created_at` sorts the collection by the `created_at` property
-// in descending order, and the value `name` sorts it by the `name` property in ascending order.
-const (
-	ListVPNGatewaysOptionsSortCreatedAtConst = "created_at"
-	ListVPNGatewaysOptionsSortNameConst      = "name"
-)
 
 // Constants associated with the ListVPNGatewaysOptions.Mode property.
 // Filters the collection to VPN gateways with the specified mode.
@@ -47551,12 +37033,6 @@ func (options *ListVPNGatewaysOptions) SetResourceGroupID(resourceGroupID string
 	return options
 }
 
-// SetSort : Allow user to set Sort
-func (options *ListVPNGatewaysOptions) SetSort(sort string) *ListVPNGatewaysOptions {
-	options.Sort = core.StringPtr(sort)
-	return options
-}
-
 // SetMode : Allow user to set Mode
 func (options *ListVPNGatewaysOptions) SetMode(mode string) *ListVPNGatewaysOptions {
 	options.Mode = core.StringPtr(mode)
@@ -47565,211 +37041,6 @@ func (options *ListVPNGatewaysOptions) SetMode(mode string) *ListVPNGatewaysOpti
 
 // SetHeaders : Allow user to set Headers
 func (options *ListVPNGatewaysOptions) SetHeaders(param map[string]string) *ListVPNGatewaysOptions {
-	options.Headers = param
-	return options
-}
-
-// ListVPNServerClientsOptions : The ListVPNServerClients options.
-type ListVPNServerClientsOptions struct {
-	// The VPN server identifier.
-	VPNServerID *string `validate:"required,ne="`
-
-	// A server-supplied token determining what resource to start the page on.
-	Start *string
-
-	// The number of resources to return on a page.
-	Limit *int64
-
-	// Sorts the returned collection by the specified property name in ascending order. A `-` may be prepended to the name
-	// to sort in descending order. For example, the value `-created_at` sorts the collection by the `created_at` property
-	// in descending order.
-	Sort *string
-
-	// Allows users to set headers on API requests
-	Headers map[string]string
-}
-
-// Constants associated with the ListVPNServerClientsOptions.Sort property.
-// Sorts the returned collection by the specified property name in ascending order. A `-` may be prepended to the name
-// to sort in descending order. For example, the value `-created_at` sorts the collection by the `created_at` property
-// in descending order.
-const (
-	ListVPNServerClientsOptionsSortCreatedAtConst = "created_at"
-)
-
-// NewListVPNServerClientsOptions : Instantiate ListVPNServerClientsOptions
-func (*VpcV1) NewListVPNServerClientsOptions(vpnServerID string) *ListVPNServerClientsOptions {
-	return &ListVPNServerClientsOptions{
-		VPNServerID: core.StringPtr(vpnServerID),
-	}
-}
-
-// SetVPNServerID : Allow user to set VPNServerID
-func (options *ListVPNServerClientsOptions) SetVPNServerID(vpnServerID string) *ListVPNServerClientsOptions {
-	options.VPNServerID = core.StringPtr(vpnServerID)
-	return options
-}
-
-// SetStart : Allow user to set Start
-func (options *ListVPNServerClientsOptions) SetStart(start string) *ListVPNServerClientsOptions {
-	options.Start = core.StringPtr(start)
-	return options
-}
-
-// SetLimit : Allow user to set Limit
-func (options *ListVPNServerClientsOptions) SetLimit(limit int64) *ListVPNServerClientsOptions {
-	options.Limit = core.Int64Ptr(limit)
-	return options
-}
-
-// SetSort : Allow user to set Sort
-func (options *ListVPNServerClientsOptions) SetSort(sort string) *ListVPNServerClientsOptions {
-	options.Sort = core.StringPtr(sort)
-	return options
-}
-
-// SetHeaders : Allow user to set Headers
-func (options *ListVPNServerClientsOptions) SetHeaders(param map[string]string) *ListVPNServerClientsOptions {
-	options.Headers = param
-	return options
-}
-
-// ListVPNServerRoutesOptions : The ListVPNServerRoutes options.
-type ListVPNServerRoutesOptions struct {
-	// The VPN server identifier.
-	VPNServerID *string `validate:"required,ne="`
-
-	// A server-supplied token determining what resource to start the page on.
-	Start *string
-
-	// The number of resources to return on a page.
-	Limit *int64
-
-	// Sorts the returned collection by the specified property name in ascending order. A `-` may be prepended to the name
-	// to sort in descending order. For example, the value `-created_at` sorts the collection by the `created_at` property
-	// in descending order, and the value `name` sorts it by the `name` property in ascending order.
-	Sort *string
-
-	// Allows users to set headers on API requests
-	Headers map[string]string
-}
-
-// Constants associated with the ListVPNServerRoutesOptions.Sort property.
-// Sorts the returned collection by the specified property name in ascending order. A `-` may be prepended to the name
-// to sort in descending order. For example, the value `-created_at` sorts the collection by the `created_at` property
-// in descending order, and the value `name` sorts it by the `name` property in ascending order.
-const (
-	ListVPNServerRoutesOptionsSortCreatedAtConst = "created_at"
-	ListVPNServerRoutesOptionsSortNameConst      = "name"
-)
-
-// NewListVPNServerRoutesOptions : Instantiate ListVPNServerRoutesOptions
-func (*VpcV1) NewListVPNServerRoutesOptions(vpnServerID string) *ListVPNServerRoutesOptions {
-	return &ListVPNServerRoutesOptions{
-		VPNServerID: core.StringPtr(vpnServerID),
-	}
-}
-
-// SetVPNServerID : Allow user to set VPNServerID
-func (options *ListVPNServerRoutesOptions) SetVPNServerID(vpnServerID string) *ListVPNServerRoutesOptions {
-	options.VPNServerID = core.StringPtr(vpnServerID)
-	return options
-}
-
-// SetStart : Allow user to set Start
-func (options *ListVPNServerRoutesOptions) SetStart(start string) *ListVPNServerRoutesOptions {
-	options.Start = core.StringPtr(start)
-	return options
-}
-
-// SetLimit : Allow user to set Limit
-func (options *ListVPNServerRoutesOptions) SetLimit(limit int64) *ListVPNServerRoutesOptions {
-	options.Limit = core.Int64Ptr(limit)
-	return options
-}
-
-// SetSort : Allow user to set Sort
-func (options *ListVPNServerRoutesOptions) SetSort(sort string) *ListVPNServerRoutesOptions {
-	options.Sort = core.StringPtr(sort)
-	return options
-}
-
-// SetHeaders : Allow user to set Headers
-func (options *ListVPNServerRoutesOptions) SetHeaders(param map[string]string) *ListVPNServerRoutesOptions {
-	options.Headers = param
-	return options
-}
-
-// ListVPNServersOptions : The ListVPNServers options.
-type ListVPNServersOptions struct {
-	// Filters the collection to resources with the exact specified name.
-	Name *string
-
-	// A server-supplied token determining what resource to start the page on.
-	Start *string
-
-	// The number of resources to return on a page.
-	Limit *int64
-
-	// Filters the collection to resources within one of the resource groups identified in a comma-separated list of
-	// resource group identifiers.
-	ResourceGroupID *string
-
-	// Sorts the returned collection by the specified property name in ascending order. A `-` may be prepended to the name
-	// to sort in descending order. For example, the value `-created_at` sorts the collection by the `created_at` property
-	// in descending order, and the value `name` sorts it by the `name` property in ascending order.
-	Sort *string
-
-	// Allows users to set headers on API requests
-	Headers map[string]string
-}
-
-// Constants associated with the ListVPNServersOptions.Sort property.
-// Sorts the returned collection by the specified property name in ascending order. A `-` may be prepended to the name
-// to sort in descending order. For example, the value `-created_at` sorts the collection by the `created_at` property
-// in descending order, and the value `name` sorts it by the `name` property in ascending order.
-const (
-	ListVPNServersOptionsSortCreatedAtConst = "created_at"
-	ListVPNServersOptionsSortNameConst      = "name"
-)
-
-// NewListVPNServersOptions : Instantiate ListVPNServersOptions
-func (*VpcV1) NewListVPNServersOptions() *ListVPNServersOptions {
-	return &ListVPNServersOptions{}
-}
-
-// SetName : Allow user to set Name
-func (options *ListVPNServersOptions) SetName(name string) *ListVPNServersOptions {
-	options.Name = core.StringPtr(name)
-	return options
-}
-
-// SetStart : Allow user to set Start
-func (options *ListVPNServersOptions) SetStart(start string) *ListVPNServersOptions {
-	options.Start = core.StringPtr(start)
-	return options
-}
-
-// SetLimit : Allow user to set Limit
-func (options *ListVPNServersOptions) SetLimit(limit int64) *ListVPNServersOptions {
-	options.Limit = core.Int64Ptr(limit)
-	return options
-}
-
-// SetResourceGroupID : Allow user to set ResourceGroupID
-func (options *ListVPNServersOptions) SetResourceGroupID(resourceGroupID string) *ListVPNServersOptions {
-	options.ResourceGroupID = core.StringPtr(resourceGroupID)
-	return options
-}
-
-// SetSort : Allow user to set Sort
-func (options *ListVPNServersOptions) SetSort(sort string) *ListVPNServersOptions {
-	options.Sort = core.StringPtr(sort)
-	return options
-}
-
-// SetHeaders : Allow user to set Headers
-func (options *ListVPNServersOptions) SetHeaders(param map[string]string) *ListVPNServersOptions {
 	options.Headers = param
 	return options
 }
@@ -47810,7 +37081,7 @@ type LoadBalancer struct {
 	Pools []LoadBalancerPoolReference `json:"pools" validate:"required"`
 
 	// The private IP addresses assigned to this load balancer.
-	PrivateIps []LoadBalancerPrivateIpsItem `json:"private_ips" validate:"required"`
+	PrivateIps []IP `json:"private_ips" validate:"required"`
 
 	// The profile to use for this load balancer.
 	Profile *LoadBalancerProfileReference `json:"profile" validate:"required"`
@@ -47825,9 +37096,6 @@ type LoadBalancer struct {
 
 	// The resource group for this load balancer.
 	ResourceGroup *ResourceGroupReference `json:"resource_group" validate:"required"`
-
-	// The resource type.
-	ResourceType *string `json:"resource_type" validate:"required"`
 
 	// The security groups targeting this load balancer.
 	//
@@ -47857,12 +37125,6 @@ const (
 	LoadBalancerProvisioningStatusFailedConst             = "failed"
 	LoadBalancerProvisioningStatusMaintenancePendingConst = "maintenance_pending"
 	LoadBalancerProvisioningStatusUpdatePendingConst      = "update_pending"
-)
-
-// Constants associated with the LoadBalancer.ResourceType property.
-// The resource type.
-const (
-	LoadBalancerResourceTypeLoadBalancerConst = "load_balancer"
 )
 
 // UnmarshalLoadBalancer unmarshals an instance of LoadBalancer from the specified map of raw messages.
@@ -47912,7 +37174,7 @@ func UnmarshalLoadBalancer(m map[string]json.RawMessage, result interface{}) (er
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalModel(m, "private_ips", &obj.PrivateIps, UnmarshalLoadBalancerPrivateIpsItem)
+	err = core.UnmarshalModel(m, "private_ips", &obj.PrivateIps, UnmarshalIP)
 	if err != nil {
 		return
 	}
@@ -47929,10 +37191,6 @@ func UnmarshalLoadBalancer(m map[string]json.RawMessage, result interface{}) (er
 		return
 	}
 	err = core.UnmarshalModel(m, "resource_group", &obj.ResourceGroup, UnmarshalResourceGroupReference)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
 	if err != nil {
 		return
 	}
@@ -48078,11 +37336,7 @@ func UnmarshalLoadBalancerIdentity(m map[string]json.RawMessage, result interfac
 // LoadBalancerListener : LoadBalancerListener struct
 type LoadBalancerListener struct {
 	// If set to `true`, this listener will accept and forward PROXY protocol information. Supported by load balancers in
-	// the `application` family (otherwise always `false`). Additional restrictions:
-	// - If this listener has `https_redirect` specified, its `accept_proxy_protocol` value must
-	//   match the `accept_proxy_protocol` value of the `https_redirect` listener.
-	// - If this listener is the target of another listener's `https_redirect`, its
-	//   `accept_proxy_protocol` value must match that listener's `accept_proxy_protocol` value.
+	// the `application` family (otherwise always `false`).
 	AcceptProxyProtocol *bool `json:"accept_proxy_protocol" validate:"required"`
 
 	// The certificate instance used for SSL termination. It is applicable only to `https`
@@ -48100,9 +37354,6 @@ type LoadBalancerListener struct {
 
 	// The listener's canonical URL.
 	Href *string `json:"href" validate:"required"`
-
-	// If provided, the target listener that requests are redirected to.
-	HTTPSRedirect *LoadBalancerListenerHTTPSRedirect `json:"https_redirect,omitempty"`
 
 	// The unique identifier for this load balancer listener.
 	ID *string `json:"id" validate:"required"`
@@ -48171,10 +37422,6 @@ func UnmarshalLoadBalancerListener(m map[string]json.RawMessage, result interfac
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalModel(m, "https_redirect", &obj.HTTPSRedirect, UnmarshalLoadBalancerListenerHTTPSRedirect)
-	if err != nil {
-		return
-	}
 	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
 	if err != nil {
 		return
@@ -48216,151 +37463,10 @@ func UnmarshalLoadBalancerListenerCollection(m map[string]json.RawMessage, resul
 	return
 }
 
-// LoadBalancerListenerHTTPSRedirect : LoadBalancerListenerHTTPSRedirect struct
-type LoadBalancerListenerHTTPSRedirect struct {
-	// The HTTP status code for this redirect.
-	HTTPStatusCode *int64 `json:"http_status_code" validate:"required"`
-
-	Listener *LoadBalancerListenerReference `json:"listener" validate:"required"`
-
-	// The redirect relative target URI.
-	URI *string `json:"uri,omitempty"`
-}
-
-// UnmarshalLoadBalancerListenerHTTPSRedirect unmarshals an instance of LoadBalancerListenerHTTPSRedirect from the specified map of raw messages.
-func UnmarshalLoadBalancerListenerHTTPSRedirect(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(LoadBalancerListenerHTTPSRedirect)
-	err = core.UnmarshalPrimitive(m, "http_status_code", &obj.HTTPStatusCode)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "listener", &obj.Listener, UnmarshalLoadBalancerListenerReference)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "uri", &obj.URI)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// LoadBalancerListenerHTTPSRedirectPatch : LoadBalancerListenerHTTPSRedirectPatch struct
-type LoadBalancerListenerHTTPSRedirectPatch struct {
-	// The HTTP status code for this redirect.
-	HTTPStatusCode *int64 `json:"http_status_code,omitempty"`
-
-	// Identifies a load balancer listener by a unique property.
-	Listener LoadBalancerListenerIdentityIntf `json:"listener,omitempty"`
-
-	// The redirect relative target URI.
-	URI *string `json:"uri,omitempty"`
-}
-
-// UnmarshalLoadBalancerListenerHTTPSRedirectPatch unmarshals an instance of LoadBalancerListenerHTTPSRedirectPatch from the specified map of raw messages.
-func UnmarshalLoadBalancerListenerHTTPSRedirectPatch(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(LoadBalancerListenerHTTPSRedirectPatch)
-	err = core.UnmarshalPrimitive(m, "http_status_code", &obj.HTTPStatusCode)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "listener", &obj.Listener, UnmarshalLoadBalancerListenerIdentity)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "uri", &obj.URI)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// LoadBalancerListenerHTTPSRedirectPrototype : LoadBalancerListenerHTTPSRedirectPrototype struct
-type LoadBalancerListenerHTTPSRedirectPrototype struct {
-	// The HTTP status code for this redirect.
-	HTTPStatusCode *int64 `json:"http_status_code" validate:"required"`
-
-	// Identifies a load balancer listener by a unique property.
-	Listener LoadBalancerListenerIdentityIntf `json:"listener" validate:"required"`
-
-	// The redirect relative target URI.
-	URI *string `json:"uri,omitempty"`
-}
-
-// NewLoadBalancerListenerHTTPSRedirectPrototype : Instantiate LoadBalancerListenerHTTPSRedirectPrototype (Generic Model Constructor)
-func (*VpcV1) NewLoadBalancerListenerHTTPSRedirectPrototype(httpStatusCode int64, listener LoadBalancerListenerIdentityIntf) (model *LoadBalancerListenerHTTPSRedirectPrototype, err error) {
-	model = &LoadBalancerListenerHTTPSRedirectPrototype{
-		HTTPStatusCode: core.Int64Ptr(httpStatusCode),
-		Listener:       listener,
-	}
-	err = core.ValidateStruct(model, "required parameters")
-	return
-}
-
-// UnmarshalLoadBalancerListenerHTTPSRedirectPrototype unmarshals an instance of LoadBalancerListenerHTTPSRedirectPrototype from the specified map of raw messages.
-func UnmarshalLoadBalancerListenerHTTPSRedirectPrototype(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(LoadBalancerListenerHTTPSRedirectPrototype)
-	err = core.UnmarshalPrimitive(m, "http_status_code", &obj.HTTPStatusCode)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "listener", &obj.Listener, UnmarshalLoadBalancerListenerIdentity)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "uri", &obj.URI)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// LoadBalancerListenerIdentity : Identifies a load balancer listener by a unique property.
-// Models which "extend" this model:
-// - LoadBalancerListenerIdentityByID
-// - LoadBalancerListenerIdentityByHref
-type LoadBalancerListenerIdentity struct {
-	// The unique identifier for this load balancer listener.
-	ID *string `json:"id,omitempty"`
-
-	// The listener's canonical URL.
-	Href *string `json:"href,omitempty"`
-}
-
-func (*LoadBalancerListenerIdentity) isaLoadBalancerListenerIdentity() bool {
-	return true
-}
-
-type LoadBalancerListenerIdentityIntf interface {
-	isaLoadBalancerListenerIdentity() bool
-}
-
-// UnmarshalLoadBalancerListenerIdentity unmarshals an instance of LoadBalancerListenerIdentity from the specified map of raw messages.
-func UnmarshalLoadBalancerListenerIdentity(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(LoadBalancerListenerIdentity)
-	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
 // LoadBalancerListenerPatch : LoadBalancerListenerPatch struct
 type LoadBalancerListenerPatch struct {
 	// If set to `true`, this listener will accept and forward PROXY protocol information. Supported by load balancers in
-	// the `application` family (otherwise always `false`). Additional restrictions:
-	// - If this listener has `https_redirect` specified, its `accept_proxy_protocol` value must
-	//   match the `accept_proxy_protocol` value of the `https_redirect` listener.
-	// - If this listener is the target of another listener's `https_redirect`, its
-	//   `accept_proxy_protocol` value must match that listener's `accept_proxy_protocol` value.
+	// the `application` family (otherwise always `false`).
 	AcceptProxyProtocol *bool `json:"accept_proxy_protocol,omitempty"`
 
 	// The certificate instance used for SSL termination. It is applicable only to `https`
@@ -48377,29 +37483,20 @@ type LoadBalancerListenerPatch struct {
 	// - Not already be the default pool for another listener.
 	DefaultPool LoadBalancerPoolIdentityIntf `json:"default_pool,omitempty"`
 
-	// The target listener that requests will be redirected to. This listener must have a
-	// `protocol` of `https`, and the target listener must have a `protocol` of `http`.
-	// Specify `null` to remove any existing https redirect.
-	HTTPSRedirect *LoadBalancerListenerHTTPSRedirectPatch `json:"https_redirect,omitempty"`
-
 	// The listener port number. Each listener in the load balancer must have a unique
 	// `port` and `protocol` combination.
 	Port *int64 `json:"port,omitempty"`
 
-	// The listener protocol. Each listener in the load balancer must have a unique `port` and `protocol` combination.
-	// Additional restrictions:
-	// - If this load balancer is in the `network` family, the protocol must be `tcp`.
-	// - If this listener has `https_redirect` specified, the protocol must be `http`.
-	// - If this listener is a listener's `https_redirect` target, the protocol must be `https`.
+	// The listener protocol. Load balancers in the `network` family support `tcp`. Load balancers in the `application`
+	// family support `tcp`, `http`, and `https`. Each listener in the load balancer must have a unique `port` and
+	// `protocol` combination.
 	Protocol *string `json:"protocol,omitempty"`
 }
 
 // Constants associated with the LoadBalancerListenerPatch.Protocol property.
-// The listener protocol. Each listener in the load balancer must have a unique `port` and `protocol` combination.
-// Additional restrictions:
-// - If this load balancer is in the `network` family, the protocol must be `tcp`.
-// - If this listener has `https_redirect` specified, the protocol must be `http`.
-// - If this listener is a listener's `https_redirect` target, the protocol must be `https`.
+// The listener protocol. Load balancers in the `network` family support `tcp`. Load balancers in the `application`
+// family support `tcp`, `http`, and `https`. Each listener in the load balancer must have a unique `port` and
+// `protocol` combination.
 const (
 	LoadBalancerListenerPatchProtocolHTTPConst  = "http"
 	LoadBalancerListenerPatchProtocolHTTPSConst = "https"
@@ -48422,10 +37519,6 @@ func UnmarshalLoadBalancerListenerPatch(m map[string]json.RawMessage, result int
 		return
 	}
 	err = core.UnmarshalModel(m, "default_pool", &obj.DefaultPool, UnmarshalLoadBalancerPoolIdentity)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "https_redirect", &obj.HTTPSRedirect, UnmarshalLoadBalancerListenerHTTPSRedirectPatch)
 	if err != nil {
 		return
 	}
@@ -48482,8 +37575,7 @@ type LoadBalancerListenerPolicy struct {
 	Rules []LoadBalancerListenerPolicyRuleReference `json:"rules" validate:"required"`
 
 	// - If `action` is `forward`, the response is a `LoadBalancerPoolReference`
-	// - If `action` is `redirect`, the response is a `LoadBalancerListenerPolicyRedirectURL`
-	// - If `action` is `https_redirect`, the response is a `LoadBalancerListenerHttpsRedirect`.
+	// - If `action` is `redirect`, the response is a `LoadBalancerListenerPolicyRedirectURL`.
 	Target LoadBalancerListenerPolicyTargetIntf `json:"target,omitempty"`
 }
 
@@ -48494,10 +37586,9 @@ type LoadBalancerListenerPolicy struct {
 // for and log unknown values. Optionally halt processing and surface the error, or bypass the policy on which the
 // unexpected property value was encountered.
 const (
-	LoadBalancerListenerPolicyActionForwardConst       = "forward"
-	LoadBalancerListenerPolicyActionHTTPSRedirectConst = "https_redirect"
-	LoadBalancerListenerPolicyActionRedirectConst      = "redirect"
-	LoadBalancerListenerPolicyActionRejectConst        = "reject"
+	LoadBalancerListenerPolicyActionForwardConst  = "forward"
+	LoadBalancerListenerPolicyActionRedirectConst = "redirect"
+	LoadBalancerListenerPolicyActionRejectConst   = "reject"
 )
 
 // Constants associated with the LoadBalancerListenerPolicy.ProvisioningStatus property.
@@ -48581,8 +37672,6 @@ type LoadBalancerListenerPolicyPatch struct {
 
 	// - If `action` is `forward`, specify a `LoadBalancerPoolIdentity`.
 	// - If `action` is `redirect`, specify a `LoadBalancerListenerPolicyRedirectURLPatch`.
-	// - If `action` is `https_redirect`, specify a
-	//   `LoadBalancerListenerPolicyHttpsRedirectPatch`.
 	Target LoadBalancerListenerPolicyTargetPatchIntf `json:"target,omitempty"`
 }
 
@@ -48635,8 +37724,6 @@ type LoadBalancerListenerPolicyPrototype struct {
 
 	// - If `action` is `forward`, specify a `LoadBalancerPoolIdentity`.
 	// - If `action` is `redirect`, specify a `LoadBalancerListenerPolicyRedirectURLPrototype`.
-	// - If `action` is `https_redirect`, specify a
-	//   `LoadBalancerListenerPolicyHttpsRedirectPrototype`.
 	Target LoadBalancerListenerPolicyTargetPrototypeIntf `json:"target,omitempty"`
 }
 
@@ -48647,10 +37734,9 @@ type LoadBalancerListenerPolicyPrototype struct {
 // for and log unknown values. Optionally halt processing and surface the error, or bypass the policy on which the
 // unexpected property value was encountered.
 const (
-	LoadBalancerListenerPolicyPrototypeActionForwardConst       = "forward"
-	LoadBalancerListenerPolicyPrototypeActionHTTPSRedirectConst = "https_redirect"
-	LoadBalancerListenerPolicyPrototypeActionRedirectConst      = "redirect"
-	LoadBalancerListenerPolicyPrototypeActionRejectConst        = "reject"
+	LoadBalancerListenerPolicyPrototypeActionForwardConst  = "forward"
+	LoadBalancerListenerPolicyPrototypeActionRedirectConst = "redirect"
+	LoadBalancerListenerPolicyPrototypeActionRejectConst   = "reject"
 )
 
 // NewLoadBalancerListenerPolicyPrototype : Instantiate LoadBalancerListenerPolicyPrototype (Generic Model Constructor)
@@ -49075,12 +38161,10 @@ func UnmarshalLoadBalancerListenerPolicyRuleReferenceDeleted(m map[string]json.R
 }
 
 // LoadBalancerListenerPolicyTarget : - If `action` is `forward`, the response is a `LoadBalancerPoolReference`
-// - If `action` is `redirect`, the response is a `LoadBalancerListenerPolicyRedirectURL`
-// - If `action` is `https_redirect`, the response is a `LoadBalancerListenerHttpsRedirect`.
+// - If `action` is `redirect`, the response is a `LoadBalancerListenerPolicyRedirectURL`.
 // Models which "extend" this model:
 // - LoadBalancerListenerPolicyTargetLoadBalancerPoolReference
 // - LoadBalancerListenerPolicyTargetLoadBalancerListenerPolicyRedirectURL
-// - LoadBalancerListenerPolicyTargetLoadBalancerListenerHTTPSRedirect
 type LoadBalancerListenerPolicyTarget struct {
 	// If present, this property indicates the referenced resource has been deleted and provides
 	// some supplementary information.
@@ -49100,11 +38184,6 @@ type LoadBalancerListenerPolicyTarget struct {
 
 	// The redirect target URL.
 	URL *string `json:"url,omitempty"`
-
-	Listener *LoadBalancerListenerReference `json:"listener,omitempty"`
-
-	// The redirect relative target URI.
-	URI *string `json:"uri,omitempty"`
 }
 
 func (*LoadBalancerListenerPolicyTarget) isaLoadBalancerListenerPolicyTarget() bool {
@@ -49142,26 +38221,15 @@ func UnmarshalLoadBalancerListenerPolicyTarget(m map[string]json.RawMessage, res
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalModel(m, "listener", &obj.Listener, UnmarshalLoadBalancerListenerReference)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "uri", &obj.URI)
-	if err != nil {
-		return
-	}
 	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
 	return
 }
 
 // LoadBalancerListenerPolicyTargetPatch : - If `action` is `forward`, specify a `LoadBalancerPoolIdentity`.
 // - If `action` is `redirect`, specify a `LoadBalancerListenerPolicyRedirectURLPatch`.
-// - If `action` is `https_redirect`, specify a
-//   `LoadBalancerListenerPolicyHttpsRedirectPatch`.
 // Models which "extend" this model:
 // - LoadBalancerListenerPolicyTargetPatchLoadBalancerPoolIdentity
 // - LoadBalancerListenerPolicyTargetPatchLoadBalancerListenerPolicyRedirectURLPatch
-// - LoadBalancerListenerPolicyTargetPatchLoadBalancerListenerHTTPSRedirectPatch
 type LoadBalancerListenerPolicyTargetPatch struct {
 	// The unique identifier for this load balancer pool.
 	ID *string `json:"id,omitempty"`
@@ -49174,12 +38242,6 @@ type LoadBalancerListenerPolicyTargetPatch struct {
 
 	// The redirect target URL.
 	URL *string `json:"url,omitempty"`
-
-	// Identifies a load balancer listener by a unique property.
-	Listener LoadBalancerListenerIdentityIntf `json:"listener,omitempty"`
-
-	// The redirect relative target URI.
-	URI *string `json:"uri,omitempty"`
 }
 
 func (*LoadBalancerListenerPolicyTargetPatch) isaLoadBalancerListenerPolicyTargetPatch() bool {
@@ -49209,26 +38271,15 @@ func UnmarshalLoadBalancerListenerPolicyTargetPatch(m map[string]json.RawMessage
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalModel(m, "listener", &obj.Listener, UnmarshalLoadBalancerListenerIdentity)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "uri", &obj.URI)
-	if err != nil {
-		return
-	}
 	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
 	return
 }
 
 // LoadBalancerListenerPolicyTargetPrototype : - If `action` is `forward`, specify a `LoadBalancerPoolIdentity`.
 // - If `action` is `redirect`, specify a `LoadBalancerListenerPolicyRedirectURLPrototype`.
-// - If `action` is `https_redirect`, specify a
-//   `LoadBalancerListenerPolicyHttpsRedirectPrototype`.
 // Models which "extend" this model:
 // - LoadBalancerListenerPolicyTargetPrototypeLoadBalancerPoolIdentity
 // - LoadBalancerListenerPolicyTargetPrototypeLoadBalancerListenerPolicyRedirectURLPrototype
-// - LoadBalancerListenerPolicyTargetPrototypeLoadBalancerListenerHTTPSRedirectPrototype
 type LoadBalancerListenerPolicyTargetPrototype struct {
 	// The unique identifier for this load balancer pool.
 	ID *string `json:"id,omitempty"`
@@ -49241,12 +38292,6 @@ type LoadBalancerListenerPolicyTargetPrototype struct {
 
 	// The redirect target URL.
 	URL *string `json:"url,omitempty"`
-
-	// Identifies a load balancer listener by a unique property.
-	Listener LoadBalancerListenerIdentityIntf `json:"listener,omitempty"`
-
-	// The redirect relative target URI.
-	URI *string `json:"uri,omitempty"`
 }
 
 func (*LoadBalancerListenerPolicyTargetPrototype) isaLoadBalancerListenerPolicyTargetPrototype() bool {
@@ -49276,14 +38321,6 @@ func UnmarshalLoadBalancerListenerPolicyTargetPrototype(m map[string]json.RawMes
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalModel(m, "listener", &obj.Listener, UnmarshalLoadBalancerListenerIdentity)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "uri", &obj.URI)
-	if err != nil {
-		return
-	}
 	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
 	return
 }
@@ -49291,11 +38328,7 @@ func UnmarshalLoadBalancerListenerPolicyTargetPrototype(m map[string]json.RawMes
 // LoadBalancerListenerPrototypeLoadBalancerContext : LoadBalancerListenerPrototypeLoadBalancerContext struct
 type LoadBalancerListenerPrototypeLoadBalancerContext struct {
 	// If set to `true`, this listener will accept and forward PROXY protocol information. Supported by load balancers in
-	// the `application` family (otherwise always `false`). Additional restrictions:
-	// - If this listener has `https_redirect` specified, its `accept_proxy_protocol` value must
-	//   match the `accept_proxy_protocol` value of the `https_redirect` listener.
-	// - If this listener is the target of another listener's `https_redirect`, its
-	//   `accept_proxy_protocol` value must match that listener's `accept_proxy_protocol` value.
+	// the `application` family (otherwise always `false`).
 	AcceptProxyProtocol *bool `json:"accept_proxy_protocol,omitempty"`
 
 	// The connection limit of the listener.
@@ -50183,7 +39216,6 @@ func UnmarshalLoadBalancerPoolMemberReferenceDeleted(m map[string]json.RawMessag
 // the `application` family support IP addresses.
 // Models which "extend" this model:
 // - LoadBalancerPoolMemberTargetInstanceReference
-// - LoadBalancerPoolMemberTargetBareMetalServerReference
 // - LoadBalancerPoolMemberTargetIP
 type LoadBalancerPoolMemberTarget struct {
 	// The CRN for this virtual server instance.
@@ -50202,20 +39234,11 @@ type LoadBalancerPoolMemberTarget struct {
 	// The user-defined name for this virtual server instance (and default system hostname).
 	Name *string `json:"name,omitempty"`
 
-	// The resource type.
-	ResourceType *string `json:"resource_type,omitempty"`
-
 	// The IP address. This property may add support for IPv6 addresses in the future. When processing a value in this
 	// property, verify that the address is in an expected format. If it is not, log an error. Optionally halt processing
 	// and surface the error, or bypass the resource on which the unexpected IP address format was encountered.
 	Address *string `json:"address,omitempty"`
 }
-
-// Constants associated with the LoadBalancerPoolMemberTarget.ResourceType property.
-// The resource type.
-const (
-	LoadBalancerPoolMemberTargetResourceTypeInstanceConst = "instance"
-)
 
 func (*LoadBalancerPoolMemberTarget) isaLoadBalancerPoolMemberTarget() bool {
 	return true
@@ -50245,10 +39268,6 @@ func UnmarshalLoadBalancerPoolMemberTarget(m map[string]json.RawMessage, result 
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
 	if err != nil {
 		return
 	}
@@ -50690,67 +39709,6 @@ func UnmarshalLoadBalancerPoolSessionPersistencePrototype(m map[string]json.RawM
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// LoadBalancerPrivateIpsItem : LoadBalancerPrivateIpsItem struct
-type LoadBalancerPrivateIpsItem struct {
-	// The IP address. This property may add support for IPv6 addresses in the future. When processing a value in this
-	// property, verify that the address is in an expected format. If it is not, log an error. Optionally halt processing
-	// and surface the error, or bypass the resource on which the unexpected IP address format was encountered.
-	Address *string `json:"address" validate:"required"`
-
-	// If present, this property indicates the referenced resource has been deleted and provides
-	// some supplementary information.
-	Deleted *ReservedIPReferenceDeleted `json:"deleted,omitempty"`
-
-	// The URL for this reserved IP.
-	Href *string `json:"href" validate:"required"`
-
-	// The unique identifier for this reserved IP.
-	ID *string `json:"id" validate:"required"`
-
-	// The user-defined or system-provided name for this reserved IP.
-	Name *string `json:"name" validate:"required"`
-
-	// The resource type.
-	ResourceType *string `json:"resource_type" validate:"required"`
-}
-
-// Constants associated with the LoadBalancerPrivateIpsItem.ResourceType property.
-// The resource type.
-const (
-	LoadBalancerPrivateIpsItemResourceTypeSubnetReservedIPConst = "subnet_reserved_ip"
-)
-
-// UnmarshalLoadBalancerPrivateIpsItem unmarshals an instance of LoadBalancerPrivateIpsItem from the specified map of raw messages.
-func UnmarshalLoadBalancerPrivateIpsItem(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(LoadBalancerPrivateIpsItem)
-	err = core.UnmarshalPrimitive(m, "address", &obj.Address)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "deleted", &obj.Deleted, UnmarshalReservedIPReferenceDeleted)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
 	if err != nil {
 		return
 	}
@@ -52196,7 +41154,8 @@ type NetworkInterface struct {
 	// The network interface port speed in Mbps.
 	PortSpeed *int64 `json:"port_speed" validate:"required"`
 
-	PrimaryIP *ReservedIPReference `json:"primary_ip" validate:"required"`
+	// The primary IPv4 address.
+	PrimaryIpv4Address *string `json:"primary_ipv4_address" validate:"required"`
 
 	// The resource type.
 	ResourceType *string `json:"resource_type" validate:"required"`
@@ -52267,7 +41226,7 @@ func UnmarshalNetworkInterface(m map[string]json.RawMessage, result interface{})
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalModel(m, "primary_ip", &obj.PrimaryIP, UnmarshalReservedIPReference)
+	err = core.UnmarshalPrimitive(m, "primary_ipv4_address", &obj.PrimaryIpv4Address)
 	if err != nil {
 		return
 	}
@@ -52288,89 +41247,6 @@ func UnmarshalNetworkInterface(m map[string]json.RawMessage, result interface{})
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// NetworkInterfaceBareMetalServerContextReference : NetworkInterfaceBareMetalServerContextReference struct
-type NetworkInterfaceBareMetalServerContextReference struct {
-	// If present, this property indicates the referenced resource has been deleted and provides
-	// some supplementary information.
-	Deleted *NetworkInterfaceBareMetalServerContextReferenceDeleted `json:"deleted,omitempty"`
-
-	// The URL for this network interface.
-	Href *string `json:"href" validate:"required"`
-
-	// The unique identifier for this network interface.
-	ID *string `json:"id" validate:"required"`
-
-	// The user-defined name for this network interface.
-	Name *string `json:"name" validate:"required"`
-
-	PrimaryIP *ReservedIPReference `json:"primary_ip" validate:"required"`
-
-	// The resource type.
-	ResourceType *string `json:"resource_type" validate:"required"`
-
-	// The associated subnet.
-	Subnet *SubnetReference `json:"subnet" validate:"required"`
-}
-
-// Constants associated with the NetworkInterfaceBareMetalServerContextReference.ResourceType property.
-// The resource type.
-const (
-	NetworkInterfaceBareMetalServerContextReferenceResourceTypeNetworkInterfaceConst = "network_interface"
-)
-
-// UnmarshalNetworkInterfaceBareMetalServerContextReference unmarshals an instance of NetworkInterfaceBareMetalServerContextReference from the specified map of raw messages.
-func UnmarshalNetworkInterfaceBareMetalServerContextReference(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(NetworkInterfaceBareMetalServerContextReference)
-	err = core.UnmarshalModel(m, "deleted", &obj.Deleted, UnmarshalNetworkInterfaceBareMetalServerContextReferenceDeleted)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "primary_ip", &obj.PrimaryIP, UnmarshalReservedIPReference)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "subnet", &obj.Subnet, UnmarshalSubnetReference)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// NetworkInterfaceBareMetalServerContextReferenceDeleted : If present, this property indicates the referenced resource has been deleted and provides some supplementary
-// information.
-type NetworkInterfaceBareMetalServerContextReferenceDeleted struct {
-	// Link to documentation about deleted resources.
-	MoreInfo *string `json:"more_info" validate:"required"`
-}
-
-// UnmarshalNetworkInterfaceBareMetalServerContextReferenceDeleted unmarshals an instance of NetworkInterfaceBareMetalServerContextReferenceDeleted from the specified map of raw messages.
-func UnmarshalNetworkInterfaceBareMetalServerContextReferenceDeleted(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(NetworkInterfaceBareMetalServerContextReferenceDeleted)
-	err = core.UnmarshalPrimitive(m, "more_info", &obj.MoreInfo)
 	if err != nil {
 		return
 	}
@@ -52458,67 +41334,6 @@ func UnmarshalNetworkInterfaceCollectionNext(m map[string]json.RawMessage, resul
 	return
 }
 
-// NetworkInterfaceIPPrototype : NetworkInterfaceIPPrototype struct
-// Models which "extend" this model:
-// - NetworkInterfaceIPPrototypeReservedIPIdentity
-// - NetworkInterfaceIPPrototypeReservedIPPrototypeNetworkInterfaceContext
-type NetworkInterfaceIPPrototype struct {
-	// The unique identifier for this reserved IP.
-	ID *string `json:"id,omitempty"`
-
-	// The URL for this reserved IP.
-	Href *string `json:"href,omitempty"`
-
-	// The IP address to reserve, which must not already be reserved on the subnet.
-	//
-	// If not specified, an available address on the subnet will automatically be selected.
-	Address *string `json:"address,omitempty"`
-
-	// If set to `true`, this reserved IP will be automatically deleted when the target is deleted or when the reserved IP
-	// is unbound.
-	AutoDelete *bool `json:"auto_delete,omitempty"`
-
-	// The user-defined name for this reserved IP. If not specified, the name will be a hyphenated list of
-	// randomly-selected words. Names must be unique within the subnet the reserved IP resides in. Names beginning with
-	// `ibm-` are reserved for provider-owned resources.
-	Name *string `json:"name,omitempty"`
-}
-
-func (*NetworkInterfaceIPPrototype) isaNetworkInterfaceIPPrototype() bool {
-	return true
-}
-
-type NetworkInterfaceIPPrototypeIntf interface {
-	isaNetworkInterfaceIPPrototype() bool
-}
-
-// UnmarshalNetworkInterfaceIPPrototype unmarshals an instance of NetworkInterfaceIPPrototype from the specified map of raw messages.
-func UnmarshalNetworkInterfaceIPPrototype(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(NetworkInterfaceIPPrototype)
-	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "address", &obj.Address)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "auto_delete", &obj.AutoDelete)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
 // NetworkInterfaceInstanceContextReference : NetworkInterfaceInstanceContextReference struct
 type NetworkInterfaceInstanceContextReference struct {
 	// If present, this property indicates the referenced resource has been deleted and provides
@@ -52534,7 +41349,8 @@ type NetworkInterfaceInstanceContextReference struct {
 	// The user-defined name for this network interface.
 	Name *string `json:"name" validate:"required"`
 
-	PrimaryIP *ReservedIPReference `json:"primary_ip" validate:"required"`
+	// The primary IPv4 address.
+	PrimaryIpv4Address *string `json:"primary_ipv4_address" validate:"required"`
 
 	// The resource type.
 	ResourceType *string `json:"resource_type" validate:"required"`
@@ -52568,7 +41384,7 @@ func UnmarshalNetworkInterfaceInstanceContextReference(m map[string]json.RawMess
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalModel(m, "primary_ip", &obj.PrimaryIP, UnmarshalReservedIPReference)
+	err = core.UnmarshalPrimitive(m, "primary_ipv4_address", &obj.PrimaryIpv4Address)
 	if err != nil {
 		return
 	}
@@ -52647,13 +41463,9 @@ type NetworkInterfacePrototype struct {
 	// randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
-	// The primary IP address to bind to the network interface. This can be specified using
-	// an existing reserved IP, or a prototype object for a new reserved IP.
-	//
-	// If an existing reserved IP or a prototype object with an address is specified, it must
-	// be available on the network interface's subnet. Otherwise, an available address on the
-	// subnet will be automatically selected and reserved.
-	PrimaryIP NetworkInterfaceIPPrototypeIntf `json:"primary_ip,omitempty"`
+	// The primary IPv4 address. If specified, it must be an available address on the network interface's subnet. If
+	// unspecified, an available address on the subnet will be automatically selected.
+	PrimaryIpv4Address *string `json:"primary_ipv4_address,omitempty"`
 
 	// Collection of security groups.
 	SecurityGroups []SecurityGroupIdentityIntf `json:"security_groups,omitempty"`
@@ -52682,7 +41494,7 @@ func UnmarshalNetworkInterfacePrototype(m map[string]json.RawMessage, result int
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalModel(m, "primary_ip", &obj.PrimaryIP, UnmarshalNetworkInterfaceIPPrototype)
+	err = core.UnmarshalPrimitive(m, "primary_ipv4_address", &obj.PrimaryIpv4Address)
 	if err != nil {
 		return
 	}
@@ -52713,7 +41525,8 @@ type NetworkInterfaceReference struct {
 	// The user-defined name for this network interface.
 	Name *string `json:"name" validate:"required"`
 
-	PrimaryIP *ReservedIPReference `json:"primary_ip" validate:"required"`
+	// The primary IPv4 address.
+	PrimaryIpv4Address *string `json:"primary_ipv4_address" validate:"required"`
 
 	// The resource type.
 	ResourceType *string `json:"resource_type" validate:"required"`
@@ -52744,7 +41557,7 @@ func UnmarshalNetworkInterfaceReference(m map[string]json.RawMessage, result int
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalModel(m, "primary_ip", &obj.PrimaryIP, UnmarshalReservedIPReference)
+	err = core.UnmarshalPrimitive(m, "primary_ipv4_address", &obj.PrimaryIpv4Address)
 	if err != nil {
 		return
 	}
@@ -52823,9 +41636,6 @@ type OperatingSystem struct {
 	// The name of the software family this operating system belongs to.
 	Family *string `json:"family" validate:"required"`
 
-	// The supported GPU manufacturer(s) for this operating system.
-	GpuSupported []string `json:"gpu_supported,omitempty"`
-
 	// The URL for this operating system.
 	Href *string `json:"href" validate:"required"`
 
@@ -52855,10 +41665,6 @@ func UnmarshalOperatingSystem(m map[string]json.RawMessage, result interface{}) 
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "family", &obj.Family)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "gpu_supported", &obj.GpuSupported)
 	if err != nil {
 		return
 	}
@@ -53007,23 +41813,6 @@ func UnmarshalOperatingSystemReference(m map[string]json.RawMessage, result inte
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// PageLink : PageLink struct
-type PageLink struct {
-	// The URL for a page of resources.
-	Href *string `json:"href" validate:"required"`
-}
-
-// UnmarshalPageLink unmarshals an instance of PageLink from the specified map of raw messages.
-func UnmarshalPageLink(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(PageLink)
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
 	if err != nil {
 		return
 	}
@@ -53799,54 +42588,6 @@ func UnmarshalRegionReference(m map[string]json.RawMessage, result interface{}) 
 	return
 }
 
-// RemoveBareMetalServerNetworkInterfaceFloatingIPOptions : The RemoveBareMetalServerNetworkInterfaceFloatingIP options.
-type RemoveBareMetalServerNetworkInterfaceFloatingIPOptions struct {
-	// The bare metal server identifier.
-	BareMetalServerID *string `validate:"required,ne="`
-
-	// The network interface identifier.
-	NetworkInterfaceID *string `validate:"required,ne="`
-
-	// The floating IP identifier.
-	ID *string `validate:"required,ne="`
-
-	// Allows users to set headers on API requests
-	Headers map[string]string
-}
-
-// NewRemoveBareMetalServerNetworkInterfaceFloatingIPOptions : Instantiate RemoveBareMetalServerNetworkInterfaceFloatingIPOptions
-func (*VpcV1) NewRemoveBareMetalServerNetworkInterfaceFloatingIPOptions(bareMetalServerID string, networkInterfaceID string, id string) *RemoveBareMetalServerNetworkInterfaceFloatingIPOptions {
-	return &RemoveBareMetalServerNetworkInterfaceFloatingIPOptions{
-		BareMetalServerID:  core.StringPtr(bareMetalServerID),
-		NetworkInterfaceID: core.StringPtr(networkInterfaceID),
-		ID:                 core.StringPtr(id),
-	}
-}
-
-// SetBareMetalServerID : Allow user to set BareMetalServerID
-func (options *RemoveBareMetalServerNetworkInterfaceFloatingIPOptions) SetBareMetalServerID(bareMetalServerID string) *RemoveBareMetalServerNetworkInterfaceFloatingIPOptions {
-	options.BareMetalServerID = core.StringPtr(bareMetalServerID)
-	return options
-}
-
-// SetNetworkInterfaceID : Allow user to set NetworkInterfaceID
-func (options *RemoveBareMetalServerNetworkInterfaceFloatingIPOptions) SetNetworkInterfaceID(networkInterfaceID string) *RemoveBareMetalServerNetworkInterfaceFloatingIPOptions {
-	options.NetworkInterfaceID = core.StringPtr(networkInterfaceID)
-	return options
-}
-
-// SetID : Allow user to set ID
-func (options *RemoveBareMetalServerNetworkInterfaceFloatingIPOptions) SetID(id string) *RemoveBareMetalServerNetworkInterfaceFloatingIPOptions {
-	options.ID = core.StringPtr(id)
-	return options
-}
-
-// SetHeaders : Allow user to set Headers
-func (options *RemoveBareMetalServerNetworkInterfaceFloatingIPOptions) SetHeaders(param map[string]string) *RemoveBareMetalServerNetworkInterfaceFloatingIPOptions {
-	options.Headers = param
-	return options
-}
-
 // RemoveEndpointGatewayIPOptions : The RemoveEndpointGatewayIP options.
 type RemoveEndpointGatewayIPOptions struct {
 	// The endpoint gateway identifier.
@@ -53967,54 +42708,6 @@ func (options *RemoveSecurityGroupNetworkInterfaceOptions) SetID(id string) *Rem
 
 // SetHeaders : Allow user to set Headers
 func (options *RemoveSecurityGroupNetworkInterfaceOptions) SetHeaders(param map[string]string) *RemoveSecurityGroupNetworkInterfaceOptions {
-	options.Headers = param
-	return options
-}
-
-// RemoveVPNGatewayAdvertisedCIDROptions : The RemoveVPNGatewayAdvertisedCIDR options.
-type RemoveVPNGatewayAdvertisedCIDROptions struct {
-	// The VPN gateway identifier.
-	VPNGatewayID *string `validate:"required,ne="`
-
-	// The address prefix part of the CIDR.
-	CIDRPrefix *string `validate:"required,ne="`
-
-	// The prefix length part of the CIDR.
-	PrefixLength *string `validate:"required,ne="`
-
-	// Allows users to set headers on API requests
-	Headers map[string]string
-}
-
-// NewRemoveVPNGatewayAdvertisedCIDROptions : Instantiate RemoveVPNGatewayAdvertisedCIDROptions
-func (*VpcV1) NewRemoveVPNGatewayAdvertisedCIDROptions(vpnGatewayID string, cidrPrefix string, prefixLength string) *RemoveVPNGatewayAdvertisedCIDROptions {
-	return &RemoveVPNGatewayAdvertisedCIDROptions{
-		VPNGatewayID: core.StringPtr(vpnGatewayID),
-		CIDRPrefix:   core.StringPtr(cidrPrefix),
-		PrefixLength: core.StringPtr(prefixLength),
-	}
-}
-
-// SetVPNGatewayID : Allow user to set VPNGatewayID
-func (options *RemoveVPNGatewayAdvertisedCIDROptions) SetVPNGatewayID(vpnGatewayID string) *RemoveVPNGatewayAdvertisedCIDROptions {
-	options.VPNGatewayID = core.StringPtr(vpnGatewayID)
-	return options
-}
-
-// SetCIDRPrefix : Allow user to set CIDRPrefix
-func (options *RemoveVPNGatewayAdvertisedCIDROptions) SetCIDRPrefix(cidrPrefix string) *RemoveVPNGatewayAdvertisedCIDROptions {
-	options.CIDRPrefix = core.StringPtr(cidrPrefix)
-	return options
-}
-
-// SetPrefixLength : Allow user to set PrefixLength
-func (options *RemoveVPNGatewayAdvertisedCIDROptions) SetPrefixLength(prefixLength string) *RemoveVPNGatewayAdvertisedCIDROptions {
-	options.PrefixLength = core.StringPtr(prefixLength)
-	return options
-}
-
-// SetHeaders : Allow user to set Headers
-func (options *RemoveVPNGatewayAdvertisedCIDROptions) SetHeaders(param map[string]string) *RemoveVPNGatewayAdvertisedCIDROptions {
 	options.Headers = param
 	return options
 }
@@ -54279,9 +42972,6 @@ type ReservedIP struct {
 	// The unique identifier for this reserved IP.
 	ID *string `json:"id" validate:"required"`
 
-	// The lifecycle state of the reserved IP.
-	LifecycleState *string `json:"lifecycle_state" validate:"required"`
-
 	// The user-defined or system-provided name for this reserved IP.
 	Name *string `json:"name" validate:"required"`
 
@@ -54294,18 +42984,6 @@ type ReservedIP struct {
 	// The target of this reserved IP.
 	Target ReservedIPTargetIntf `json:"target,omitempty"`
 }
-
-// Constants associated with the ReservedIP.LifecycleState property.
-// The lifecycle state of the reserved IP.
-const (
-	ReservedIPLifecycleStateDeletingConst  = "deleting"
-	ReservedIPLifecycleStateFailedConst    = "failed"
-	ReservedIPLifecycleStatePendingConst   = "pending"
-	ReservedIPLifecycleStateStableConst    = "stable"
-	ReservedIPLifecycleStateSuspendedConst = "suspended"
-	ReservedIPLifecycleStateUpdatingConst  = "updating"
-	ReservedIPLifecycleStateWaitingConst   = "waiting"
-)
 
 // Constants associated with the ReservedIP.Owner property.
 // The owner of a reserved IP, defining whether it is managed by the user or the provider.
@@ -54340,10 +43018,6 @@ func UnmarshalReservedIP(m map[string]json.RawMessage, result interface{}) (err 
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "lifecycle_state", &obj.LifecycleState)
 	if err != nil {
 		return
 	}
@@ -54510,86 +43184,6 @@ func UnmarshalReservedIPCollectionFirst(m map[string]json.RawMessage, result int
 	return
 }
 
-// ReservedIPCollectionNetworkInterfaceContext : ReservedIPCollectionNetworkInterfaceContext struct
-type ReservedIPCollectionNetworkInterfaceContext struct {
-	// A link to the first page of resources.
-	First *ReservedIPCollectionNetworkInterfaceContextFirst `json:"first" validate:"required"`
-
-	// Collection of reserved IPs bound to a network interface.
-	Ips []ReservedIP `json:"ips" validate:"required"`
-
-	// The maximum number of resources that can be returned by the request.
-	Limit *int64 `json:"limit" validate:"required"`
-
-	// A link to the next page of resources. This property is present for all pages
-	// except the last page.
-	Next *ReservedIPCollectionNetworkInterfaceContextNext `json:"next,omitempty"`
-
-	// The total number of resources across all pages.
-	TotalCount *int64 `json:"total_count" validate:"required"`
-}
-
-// UnmarshalReservedIPCollectionNetworkInterfaceContext unmarshals an instance of ReservedIPCollectionNetworkInterfaceContext from the specified map of raw messages.
-func UnmarshalReservedIPCollectionNetworkInterfaceContext(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(ReservedIPCollectionNetworkInterfaceContext)
-	err = core.UnmarshalModel(m, "first", &obj.First, UnmarshalReservedIPCollectionNetworkInterfaceContextFirst)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "ips", &obj.Ips, UnmarshalReservedIP)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "limit", &obj.Limit)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "next", &obj.Next, UnmarshalReservedIPCollectionNetworkInterfaceContextNext)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "total_count", &obj.TotalCount)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// ReservedIPCollectionNetworkInterfaceContextFirst : A link to the first page of resources.
-type ReservedIPCollectionNetworkInterfaceContextFirst struct {
-	// The URL for a page of resources.
-	Href *string `json:"href" validate:"required"`
-}
-
-// UnmarshalReservedIPCollectionNetworkInterfaceContextFirst unmarshals an instance of ReservedIPCollectionNetworkInterfaceContextFirst from the specified map of raw messages.
-func UnmarshalReservedIPCollectionNetworkInterfaceContextFirst(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(ReservedIPCollectionNetworkInterfaceContextFirst)
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// ReservedIPCollectionNetworkInterfaceContextNext : A link to the next page of resources. This property is present for all pages except the last page.
-type ReservedIPCollectionNetworkInterfaceContextNext struct {
-	// The URL for a page of resources.
-	Href *string `json:"href" validate:"required"`
-}
-
-// UnmarshalReservedIPCollectionNetworkInterfaceContextNext unmarshals an instance of ReservedIPCollectionNetworkInterfaceContextNext from the specified map of raw messages.
-func UnmarshalReservedIPCollectionNetworkInterfaceContextNext(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(ReservedIPCollectionNetworkInterfaceContextNext)
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
 // ReservedIPCollectionNext : A link to the next page of resources. This property is present for all pages except the last page.
 type ReservedIPCollectionNext struct {
 	// The URL for a page of resources.
@@ -54725,10 +43319,6 @@ func UnmarshalReservedIPReferenceDeleted(m map[string]json.RawMessage, result in
 // ReservedIPTarget : The target of this reserved IP.
 // Models which "extend" this model:
 // - ReservedIPTargetEndpointGatewayReference
-// - ReservedIPTargetNetworkInterfaceReferenceTargetContext
-// - ReservedIPTargetLoadBalancerReference
-// - ReservedIPTargetVPNGatewayReference
-// - ReservedIPTargetGenericResourceReference
 type ReservedIPTarget struct {
 	// The CRN for this endpoint gateway.
 	CRN *string `json:"crn,omitempty"`
@@ -54836,23 +43426,6 @@ func UnmarshalReservedIPTargetPrototype(m map[string]json.RawMessage, result int
 	return
 }
 
-// ResourceFilter : Identifies one or more resources according to the provided filter property.
-type ResourceFilter struct {
-	// The resource type.
-	ResourceType *string `json:"resource_type,omitempty"`
-}
-
-// UnmarshalResourceFilter unmarshals an instance of ResourceFilter from the specified map of raw messages.
-func UnmarshalResourceFilter(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(ResourceFilter)
-	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
 // ResourceGroupIdentity : The resource group to use. If unspecified, the account's [default resource
 // group](https://cloud.ibm.com/apidocs/resource-manager#introduction) is used.
 // Models which "extend" this model:
@@ -54925,11 +43498,6 @@ type Route struct {
 	// The date and time that the route was created.
 	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
 
-	// If present, the resource that created the route. Routes with this property present cannot be
-	// directly deleted. All routes with an `origin` of `learned` or `service` will have this
-	// property set, and future `origin` values may also have this property set.
-	Creator RouteCreatorIntf `json:"creator,omitempty"`
-
 	// The destination of the route.
 	Destination *string `json:"destination" validate:"required"`
 
@@ -54948,16 +43516,6 @@ type Route struct {
 	// If `action` is `deliver`, the next hop that packets will be delivered to.  For
 	// other `action` values, its `address` will be `0.0.0.0`.
 	NextHop RouteNextHopIntf `json:"next_hop" validate:"required"`
-
-	// The origin of this route:
-	// - `learned`: route was learned via a dynamic routing protocol
-	// - `service`: route was directly created by a service
-	// - `user`: route was directly created by a user
-	//
-	// The enumerated values for this property are expected to expand in the future. When processing this property, check
-	// for and log unknown values. Optionally halt processing and surface the error, or bypass the route on which the
-	// unexpected property value was encountered.
-	Origin *string `json:"origin" validate:"required"`
 
 	// The zone the route applies to. (Traffic from subnets in this zone will be
 	// subject to this route.).
@@ -54990,21 +43548,6 @@ const (
 	RouteLifecycleStateWaitingConst   = "waiting"
 )
 
-// Constants associated with the Route.Origin property.
-// The origin of this route:
-// - `learned`: route was learned via a dynamic routing protocol
-// - `service`: route was directly created by a service
-// - `user`: route was directly created by a user
-//
-// The enumerated values for this property are expected to expand in the future. When processing this property, check
-// for and log unknown values. Optionally halt processing and surface the error, or bypass the route on which the
-// unexpected property value was encountered.
-const (
-	RouteOriginLearnedConst = "learned"
-	RouteOriginServiceConst = "service"
-	RouteOriginUserConst    = "user"
-)
-
 // UnmarshalRoute unmarshals an instance of Route from the specified map of raw messages.
 func UnmarshalRoute(m map[string]json.RawMessage, result interface{}) (err error) {
 	obj := new(Route)
@@ -55013,10 +43556,6 @@ func UnmarshalRoute(m map[string]json.RawMessage, result interface{}) (err error
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "created_at", &obj.CreatedAt)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "creator", &obj.Creator, UnmarshalRouteCreator)
 	if err != nil {
 		return
 	}
@@ -55041,10 +43580,6 @@ func UnmarshalRoute(m map[string]json.RawMessage, result interface{}) (err error
 		return
 	}
 	err = core.UnmarshalModel(m, "next_hop", &obj.NextHop, UnmarshalRouteNextHop)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "origin", &obj.Origin)
 	if err != nil {
 		return
 	}
@@ -55129,78 +43664,6 @@ type RouteCollectionNext struct {
 func UnmarshalRouteCollectionNext(m map[string]json.RawMessage, result interface{}) (err error) {
 	obj := new(RouteCollectionNext)
 	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// RouteCreator : If present, the resource that created the route. Routes with this property present cannot be directly deleted. All
-// routes with an `origin` of `learned` or `service` will have this property set, and future `origin` values may also
-// have this property set.
-// Models which "extend" this model:
-// - RouteCreatorVPNGatewayReference
-// - RouteCreatorVPNServerReference
-type RouteCreator struct {
-	// The VPN gateway's CRN.
-	CRN *string `json:"crn,omitempty"`
-
-	// If present, this property indicates the referenced resource has been deleted and provides
-	// some supplementary information.
-	Deleted *VPNGatewayReferenceDeleted `json:"deleted,omitempty"`
-
-	// The VPN gateway's canonical URL.
-	Href *string `json:"href,omitempty"`
-
-	// The unique identifier for this VPN gateway.
-	ID *string `json:"id,omitempty"`
-
-	// The user-defined name for this VPN gateway.
-	Name *string `json:"name,omitempty"`
-
-	// The resource type.
-	ResourceType *string `json:"resource_type,omitempty"`
-}
-
-// Constants associated with the RouteCreator.ResourceType property.
-// The resource type.
-const (
-	RouteCreatorResourceTypeVPNGatewayConst = "vpn_gateway"
-)
-
-func (*RouteCreator) isaRouteCreator() bool {
-	return true
-}
-
-type RouteCreatorIntf interface {
-	isaRouteCreator() bool
-}
-
-// UnmarshalRouteCreator unmarshals an instance of RouteCreator from the specified map of raw messages.
-func UnmarshalRouteCreator(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(RouteCreator)
-	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "deleted", &obj.Deleted, UnmarshalVPNGatewayReferenceDeleted)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
 	if err != nil {
 		return
 	}
@@ -55489,12 +43952,6 @@ func UnmarshalRouteReferenceDeleted(m map[string]json.RawMessage, result interfa
 
 // RoutingTable : RoutingTable struct
 type RoutingTable struct {
-	// The filters specifying the resources that may create routes in this routing table.
-	//
-	// At present, only the `resource_type` filter is permitted, and only the `vpn_gateway` and `vpn_server` values are
-	// supported, but filter support is expected to expand in the future.
-	AcceptRoutesFrom []ResourceFilter `json:"accept_routes_from" validate:"required"`
-
 	// The date and time that this routing table was created.
 	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
 
@@ -55571,10 +44028,6 @@ const (
 // UnmarshalRoutingTable unmarshals an instance of RoutingTable from the specified map of raw messages.
 func UnmarshalRoutingTable(m map[string]json.RawMessage, result interface{}) (err error) {
 	obj := new(RoutingTable)
-	err = core.UnmarshalModel(m, "accept_routes_from", &obj.AcceptRoutesFrom, UnmarshalResourceFilter)
-	if err != nil {
-		return
-	}
 	err = core.UnmarshalPrimitive(m, "created_at", &obj.CreatedAt)
 	if err != nil {
 		return
@@ -55744,15 +44197,6 @@ func UnmarshalRoutingTableIdentity(m map[string]json.RawMessage, result interfac
 
 // RoutingTablePatch : RoutingTablePatch struct
 type RoutingTablePatch struct {
-	// The filters specifying the resources that may create routes in this routing table
-	// (replacing any existing filters). All routes learned from resources that match a given filter will be removed when
-	// an existing filter is removed. Therefore, if an empty array is provided, all filters will be removed, resulting in
-	// all learned routes being removed.
-	//
-	// At present, only the `resource_type` filter is permitted, and only the `vpn_gateway` and `vpn_server` values are
-	// supported, but filter support is expected to expand in the future.
-	AcceptRoutesFrom []ResourceFilter `json:"accept_routes_from,omitempty"`
-
 	// The user-defined name for this routing table. Names must be unique within the VPC the routing table resides in.
 	Name *string `json:"name,omitempty"`
 
@@ -55797,10 +44241,6 @@ type RoutingTablePatch struct {
 // UnmarshalRoutingTablePatch unmarshals an instance of RoutingTablePatch from the specified map of raw messages.
 func UnmarshalRoutingTablePatch(m map[string]json.RawMessage, result interface{}) (err error) {
 	obj := new(RoutingTablePatch)
-	err = core.UnmarshalModel(m, "accept_routes_from", &obj.AcceptRoutesFrom, UnmarshalResourceFilter)
-	if err != nil {
-		return
-	}
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
 	if err != nil {
 		return
@@ -56771,7 +45211,6 @@ func UnmarshalSecurityGroupTargetCollectionNext(m map[string]json.RawMessage, re
 // Models which "extend" this model:
 // - SecurityGroupTargetReferenceNetworkInterfaceReferenceTargetContext
 // - SecurityGroupTargetReferenceLoadBalancerReference
-// - SecurityGroupTargetReferenceEndpointGatewayReference
 type SecurityGroupTargetReference struct {
 	// If present, this property indicates the referenced resource has been deleted and provides
 	// some supplementary information.
@@ -56876,790 +45315,6 @@ func (options *SetSubnetPublicGatewayOptions) SetHeaders(param map[string]string
 	return options
 }
 
-// Share : Share struct
-type Share struct {
-	// The date and time that the file share is created.
-	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
-
-	// The CRN for this share.
-	CRN *string `json:"crn" validate:"required"`
-
-	// The type of encryption used for this file share.
-	Encryption *string `json:"encryption" validate:"required"`
-
-	// The key used to encrypt this file share.
-	EncryptionKey *EncryptionKeyReference `json:"encryption_key,omitempty"`
-
-	// The URL for this share.
-	Href *string `json:"href" validate:"required"`
-
-	// The unique identifier for this file share.
-	ID *string `json:"id" validate:"required"`
-
-	// The maximum input/output operations per second (IOPS) for the file share. This depends on the selected share profile
-	// and size of the share. In addition, each host accessing the share will be restricted to 50000 IOPS.
-	//
-	// The maximum IOPS for a share may increase in the future.
-	Iops *int64 `json:"iops" validate:"required"`
-
-	// The lifecycle state of the file share.
-	LifecycleState *string `json:"lifecycle_state" validate:"required"`
-
-	// The unique user-defined name for this file share. If unspecified, the name will be a hyphenated list of
-	// randomly-selected words.
-	Name *string `json:"name" validate:"required"`
-
-	// The profile this file share uses.
-	Profile *ShareProfileReference `json:"profile" validate:"required"`
-
-	// The resource group for this file share.
-	ResourceGroup *ResourceGroupReference `json:"resource_group" validate:"required"`
-
-	// The type of resource referenced.
-	ResourceType *string `json:"resource_type" validate:"required"`
-
-	// The size of the file share rounded up to the next gigabyte.
-	//
-	// The maximum size for a share may increase in the future.
-	Size *int64 `json:"size" validate:"required"`
-
-	// Mount targets for the file share.
-	Targets []ShareTargetReference `json:"targets" validate:"required"`
-
-	// The zone this file share will reside in.
-	Zone *ZoneReference `json:"zone" validate:"required"`
-}
-
-// Constants associated with the Share.Encryption property.
-// The type of encryption used for this file share.
-const (
-	ShareEncryptionProviderManagedConst = "provider_managed"
-	ShareEncryptionUserManagedConst     = "user_managed"
-)
-
-// Constants associated with the Share.LifecycleState property.
-// The lifecycle state of the file share.
-const (
-	ShareLifecycleStateDeletingConst  = "deleting"
-	ShareLifecycleStateFailedConst    = "failed"
-	ShareLifecycleStatePendingConst   = "pending"
-	ShareLifecycleStateStableConst    = "stable"
-	ShareLifecycleStateSuspendedConst = "suspended"
-	ShareLifecycleStateUpdatingConst  = "updating"
-	ShareLifecycleStateWaitingConst   = "waiting"
-)
-
-// Constants associated with the Share.ResourceType property.
-// The type of resource referenced.
-const (
-	ShareResourceTypeShareConst = "share"
-)
-
-// UnmarshalShare unmarshals an instance of Share from the specified map of raw messages.
-func UnmarshalShare(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(Share)
-	err = core.UnmarshalPrimitive(m, "created_at", &obj.CreatedAt)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "encryption", &obj.Encryption)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "encryption_key", &obj.EncryptionKey, UnmarshalEncryptionKeyReference)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "iops", &obj.Iops)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "lifecycle_state", &obj.LifecycleState)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "profile", &obj.Profile, UnmarshalShareProfileReference)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "resource_group", &obj.ResourceGroup, UnmarshalResourceGroupReference)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "size", &obj.Size)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "targets", &obj.Targets, UnmarshalShareTargetReference)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "zone", &obj.Zone, UnmarshalZoneReference)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// ShareCollection : ShareCollection struct
-type ShareCollection struct {
-	// A link to the first page of resources.
-	First *ShareCollectionFirst `json:"first" validate:"required"`
-
-	// The maximum number of resources that can be returned by the request.
-	Limit *int64 `json:"limit" validate:"required"`
-
-	// A link to the next page of resources. This property is present for all pages
-	// except the last page.
-	Next *ShareCollectionNext `json:"next,omitempty"`
-
-	// Collection of file shares.
-	Shares []Share `json:"shares" validate:"required"`
-
-	// The total number of resources across all pages.
-	TotalCount *int64 `json:"total_count" validate:"required"`
-}
-
-// UnmarshalShareCollection unmarshals an instance of ShareCollection from the specified map of raw messages.
-func UnmarshalShareCollection(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(ShareCollection)
-	err = core.UnmarshalModel(m, "first", &obj.First, UnmarshalShareCollectionFirst)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "limit", &obj.Limit)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "next", &obj.Next, UnmarshalShareCollectionNext)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "shares", &obj.Shares, UnmarshalShare)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "total_count", &obj.TotalCount)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// ShareCollectionFirst : A link to the first page of resources.
-type ShareCollectionFirst struct {
-	// The URL for a page of resources.
-	Href *string `json:"href" validate:"required"`
-}
-
-// UnmarshalShareCollectionFirst unmarshals an instance of ShareCollectionFirst from the specified map of raw messages.
-func UnmarshalShareCollectionFirst(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(ShareCollectionFirst)
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// ShareCollectionNext : A link to the next page of resources. This property is present for all pages except the last page.
-type ShareCollectionNext struct {
-	// The URL for a page of resources.
-	Href *string `json:"href" validate:"required"`
-}
-
-// UnmarshalShareCollectionNext unmarshals an instance of ShareCollectionNext from the specified map of raw messages.
-func UnmarshalShareCollectionNext(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(ShareCollectionNext)
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// ShareInitialOwner : ShareInitialOwner struct
-type ShareInitialOwner struct {
-	// The initial group identifier for the file share.
-	Gid *int64 `json:"gid,omitempty"`
-
-	// The initial user identifier for the file share.
-	Uid *int64 `json:"uid,omitempty"`
-}
-
-// UnmarshalShareInitialOwner unmarshals an instance of ShareInitialOwner from the specified map of raw messages.
-func UnmarshalShareInitialOwner(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(ShareInitialOwner)
-	err = core.UnmarshalPrimitive(m, "gid", &obj.Gid)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "uid", &obj.Uid)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// SharePatch : SharePatch struct
-type SharePatch struct {
-	// The unique user-defined name for this file share. If unspecified, the name will be a hyphenated list of
-	// randomly-selected words.
-	Name *string `json:"name,omitempty"`
-
-	// The size of the file share rounded up to the next gigabyte. Must not be less than the current share size.
-	Size *int64 `json:"size,omitempty"`
-}
-
-// UnmarshalSharePatch unmarshals an instance of SharePatch from the specified map of raw messages.
-func UnmarshalSharePatch(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(SharePatch)
-	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "size", &obj.Size)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// AsPatch returns a generic map representation of the SharePatch
-func (sharePatch *SharePatch) AsPatch() (patch map[string]interface{}, err error) {
-	var jsonData []byte
-	jsonData, err = json.Marshal(sharePatch)
-	if err == nil {
-		err = json.Unmarshal(jsonData, &patch)
-	}
-	return
-}
-
-// ShareProfile : ShareProfile struct
-type ShareProfile struct {
-	// The product family this share profile belongs to.
-	Family *string `json:"family" validate:"required"`
-
-	// The URL for this share profile.
-	Href *string `json:"href" validate:"required"`
-
-	// The globally unique name for this share profile.
-	Name *string `json:"name" validate:"required"`
-
-	// The resource type.
-	ResourceType *string `json:"resource_type" validate:"required"`
-}
-
-// Constants associated with the ShareProfile.ResourceType property.
-// The resource type.
-const (
-	ShareProfileResourceTypeShareProfileConst = "share_profile"
-)
-
-// UnmarshalShareProfile unmarshals an instance of ShareProfile from the specified map of raw messages.
-func UnmarshalShareProfile(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(ShareProfile)
-	err = core.UnmarshalPrimitive(m, "family", &obj.Family)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// ShareProfileCollection : ShareProfileCollection struct
-type ShareProfileCollection struct {
-	// A link to the first page of resources.
-	First *ShareProfileCollectionFirst `json:"first" validate:"required"`
-
-	// The maximum number of resources that can be returned by the request.
-	Limit *int64 `json:"limit" validate:"required"`
-
-	// A link to the next page of resources. This property is present for all pages
-	// except the last page.
-	Next *ShareProfileCollectionNext `json:"next,omitempty"`
-
-	// Collection of share profiles.
-	Profiles []ShareProfile `json:"profiles" validate:"required"`
-
-	// The total number of resources across all pages.
-	TotalCount *int64 `json:"total_count" validate:"required"`
-}
-
-// UnmarshalShareProfileCollection unmarshals an instance of ShareProfileCollection from the specified map of raw messages.
-func UnmarshalShareProfileCollection(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(ShareProfileCollection)
-	err = core.UnmarshalModel(m, "first", &obj.First, UnmarshalShareProfileCollectionFirst)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "limit", &obj.Limit)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "next", &obj.Next, UnmarshalShareProfileCollectionNext)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "profiles", &obj.Profiles, UnmarshalShareProfile)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "total_count", &obj.TotalCount)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// ShareProfileCollectionFirst : A link to the first page of resources.
-type ShareProfileCollectionFirst struct {
-	// The URL for a page of resources.
-	Href *string `json:"href" validate:"required"`
-}
-
-// UnmarshalShareProfileCollectionFirst unmarshals an instance of ShareProfileCollectionFirst from the specified map of raw messages.
-func UnmarshalShareProfileCollectionFirst(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(ShareProfileCollectionFirst)
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// ShareProfileCollectionNext : A link to the next page of resources. This property is present for all pages except the last page.
-type ShareProfileCollectionNext struct {
-	// The URL for a page of resources.
-	Href *string `json:"href" validate:"required"`
-}
-
-// UnmarshalShareProfileCollectionNext unmarshals an instance of ShareProfileCollectionNext from the specified map of raw messages.
-func UnmarshalShareProfileCollectionNext(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(ShareProfileCollectionNext)
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// ShareProfileReference : ShareProfileReference struct
-type ShareProfileReference struct {
-	// The URL for this share profile.
-	Href *string `json:"href" validate:"required"`
-
-	// The globally unique name for this share profile.
-	Name *string `json:"name" validate:"required"`
-
-	// The resource type.
-	ResourceType *string `json:"resource_type" validate:"required"`
-}
-
-// Constants associated with the ShareProfileReference.ResourceType property.
-// The resource type.
-const (
-	ShareProfileReferenceResourceTypeShareProfileConst = "share_profile"
-)
-
-// UnmarshalShareProfileReference unmarshals an instance of ShareProfileReference from the specified map of raw messages.
-func UnmarshalShareProfileReference(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(ShareProfileReference)
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// SharePrototypeProfile : Identifies a share profile by a unique property.
-// Models which "extend" this model:
-// - SharePrototypeProfileShareProfileIdentityByName
-// - SharePrototypeProfileShareProfileIdentityByHref
-type SharePrototypeProfile struct {
-	// The globally unique name for this share profile.
-	Name *string `json:"name,omitempty"`
-
-	// The URL for this share profile.
-	Href *string `json:"href,omitempty"`
-}
-
-func (*SharePrototypeProfile) isaSharePrototypeProfile() bool {
-	return true
-}
-
-type SharePrototypeProfileIntf interface {
-	isaSharePrototypeProfile() bool
-}
-
-// UnmarshalSharePrototypeProfile unmarshals an instance of SharePrototypeProfile from the specified map of raw messages.
-func UnmarshalSharePrototypeProfile(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(SharePrototypeProfile)
-	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// ShareTarget : ShareTarget struct
-type ShareTarget struct {
-	// The date and time that the share target was created.
-	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
-
-	// The URL for this share target.
-	Href *string `json:"href" validate:"required"`
-
-	// The unique identifier for this share target.
-	ID *string `json:"id" validate:"required"`
-
-	// The lifecycle state of the mount target.
-	LifecycleState *string `json:"lifecycle_state" validate:"required"`
-
-	// The mount path for the share.
-	//
-	// The IP addresses used in the mount path are currently within the IBM services IP range, but are expected to change
-	// to be within one of the VPC's subnets in the future.
-	MountPath *string `json:"mount_path" validate:"required"`
-
-	// The user-defined name for this share target.
-	Name *string `json:"name" validate:"required"`
-
-	// The type of resource referenced.
-	ResourceType *string `json:"resource_type" validate:"required"`
-
-	// The subnet associated with this file share target.
-	Subnet *SubnetReference `json:"subnet,omitempty"`
-
-	// The VPC to which this share target is allowing to mount the file share.
-	VPC *VPCReference `json:"vpc" validate:"required"`
-}
-
-// Constants associated with the ShareTarget.LifecycleState property.
-// The lifecycle state of the mount target.
-const (
-	ShareTargetLifecycleStateDeletingConst  = "deleting"
-	ShareTargetLifecycleStateFailedConst    = "failed"
-	ShareTargetLifecycleStatePendingConst   = "pending"
-	ShareTargetLifecycleStateStableConst    = "stable"
-	ShareTargetLifecycleStateSuspendedConst = "suspended"
-	ShareTargetLifecycleStateUpdatingConst  = "updating"
-	ShareTargetLifecycleStateWaitingConst   = "waiting"
-)
-
-// Constants associated with the ShareTarget.ResourceType property.
-// The type of resource referenced.
-const (
-	ShareTargetResourceTypeShareTargetConst = "share_target"
-)
-
-// UnmarshalShareTarget unmarshals an instance of ShareTarget from the specified map of raw messages.
-func UnmarshalShareTarget(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(ShareTarget)
-	err = core.UnmarshalPrimitive(m, "created_at", &obj.CreatedAt)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "lifecycle_state", &obj.LifecycleState)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "mount_path", &obj.MountPath)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "subnet", &obj.Subnet, UnmarshalSubnetReference)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "vpc", &obj.VPC, UnmarshalVPCReference)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// ShareTargetCollection : ShareTargetCollection struct
-type ShareTargetCollection struct {
-	// Collection of share targets.
-	Targets []ShareTarget `json:"targets" validate:"required"`
-}
-
-// UnmarshalShareTargetCollection unmarshals an instance of ShareTargetCollection from the specified map of raw messages.
-func UnmarshalShareTargetCollection(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(ShareTargetCollection)
-	err = core.UnmarshalModel(m, "targets", &obj.Targets, UnmarshalShareTarget)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// ShareTargetPatch : ShareTargetPatch struct
-type ShareTargetPatch struct {
-	// The user-defined name for this share target.
-	Name *string `json:"name,omitempty"`
-}
-
-// UnmarshalShareTargetPatch unmarshals an instance of ShareTargetPatch from the specified map of raw messages.
-func UnmarshalShareTargetPatch(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(ShareTargetPatch)
-	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// AsPatch returns a generic map representation of the ShareTargetPatch
-func (shareTargetPatch *ShareTargetPatch) AsPatch() (patch map[string]interface{}, err error) {
-	var jsonData []byte
-	jsonData, err = json.Marshal(shareTargetPatch)
-	if err == nil {
-		err = json.Unmarshal(jsonData, &patch)
-	}
-	return
-}
-
-// ShareTargetPrototype : ShareTargetPrototype struct
-type ShareTargetPrototype struct {
-	// The user-defined name for this share target. Names must be unique within the share the share target resides in. If
-	// unspecified, the name will be a hyphenated list of randomly-selected words.
-	Name *string `json:"name,omitempty"`
-
-	// The subnet associated with this file share target.
-	//
-	// Only virtual server instances in the same VPC as this subnet
-	// will be allowed to mount the file share.
-	//
-	// In the future, this property may be required and used to assign
-	// an IP address for the file share target.
-	Subnet SubnetIdentityIntf `json:"subnet,omitempty"`
-
-	// The VPC in which instances can mount the file share using this share target.
-	//
-	// This property will be removed in a future release.
-	// The `subnet` property should be used instead.
-	VPC ShareTargetPrototypeVPCIntf `json:"vpc" validate:"required"`
-}
-
-// NewShareTargetPrototype : Instantiate ShareTargetPrototype (Generic Model Constructor)
-func (*VpcV1) NewShareTargetPrototype(vpc ShareTargetPrototypeVPCIntf) (model *ShareTargetPrototype, err error) {
-	model = &ShareTargetPrototype{
-		VPC: vpc,
-	}
-	err = core.ValidateStruct(model, "required parameters")
-	return
-}
-
-// UnmarshalShareTargetPrototype unmarshals an instance of ShareTargetPrototype from the specified map of raw messages.
-func UnmarshalShareTargetPrototype(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(ShareTargetPrototype)
-	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "subnet", &obj.Subnet, UnmarshalSubnetIdentity)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "vpc", &obj.VPC, UnmarshalShareTargetPrototypeVPC)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// ShareTargetPrototypeVPC : The VPC in which instances can mount the file share using this share target.
-//
-// This property will be removed in a future release. The `subnet` property should be used instead.
-// Models which "extend" this model:
-// - ShareTargetPrototypeVPCVPCIdentityByID
-// - ShareTargetPrototypeVPCVPCIdentityByCRN
-// - ShareTargetPrototypeVPCVPCIdentityByHref
-type ShareTargetPrototypeVPC struct {
-	// The unique identifier for this VPC.
-	ID *string `json:"id,omitempty"`
-
-	// The CRN for this VPC.
-	CRN *string `json:"crn,omitempty"`
-
-	// The URL for this VPC.
-	Href *string `json:"href,omitempty"`
-}
-
-func (*ShareTargetPrototypeVPC) isaShareTargetPrototypeVPC() bool {
-	return true
-}
-
-type ShareTargetPrototypeVPCIntf interface {
-	isaShareTargetPrototypeVPC() bool
-}
-
-// UnmarshalShareTargetPrototypeVPC unmarshals an instance of ShareTargetPrototypeVPC from the specified map of raw messages.
-func UnmarshalShareTargetPrototypeVPC(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(ShareTargetPrototypeVPC)
-	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// ShareTargetReference : ShareTargetReference struct
-type ShareTargetReference struct {
-	// If present, this property indicates the referenced resource has been deleted and provides
-	// some supplementary information.
-	Deleted *ShareTargetReferenceDeleted `json:"deleted,omitempty"`
-
-	// The URL for this share target.
-	Href *string `json:"href" validate:"required"`
-
-	// The unique identifier for this share target.
-	ID *string `json:"id" validate:"required"`
-
-	// The user-defined name for this share target.
-	Name *string `json:"name" validate:"required"`
-
-	// The type of resource referenced.
-	ResourceType *string `json:"resource_type" validate:"required"`
-}
-
-// Constants associated with the ShareTargetReference.ResourceType property.
-// The type of resource referenced.
-const (
-	ShareTargetReferenceResourceTypeShareTargetConst = "share_target"
-)
-
-// UnmarshalShareTargetReference unmarshals an instance of ShareTargetReference from the specified map of raw messages.
-func UnmarshalShareTargetReference(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(ShareTargetReference)
-	err = core.UnmarshalModel(m, "deleted", &obj.Deleted, UnmarshalShareTargetReferenceDeleted)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// ShareTargetReferenceDeleted : If present, this property indicates the referenced resource has been deleted and provides some supplementary
-// information.
-type ShareTargetReferenceDeleted struct {
-	// Link to documentation about deleted resources.
-	MoreInfo *string `json:"more_info" validate:"required"`
-}
-
-// UnmarshalShareTargetReferenceDeleted unmarshals an instance of ShareTargetReferenceDeleted from the specified map of raw messages.
-func UnmarshalShareTargetReferenceDeleted(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(ShareTargetReferenceDeleted)
-	err = core.UnmarshalPrimitive(m, "more_info", &obj.MoreInfo)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
 // Snapshot : Snapshot struct
 type Snapshot struct {
 	// Indicates if a boot volume attachment can be created with a volume created from this snapshot.
@@ -57708,9 +45363,6 @@ type Snapshot struct {
 	// The resource type.
 	ResourceType *string `json:"resource_type" validate:"required"`
 
-	// The service tags prefixed with `is.snapshot:` associated with this snapshot.
-	ServiceTags []string `json:"service_tags" validate:"required"`
-
 	// The size of this snapshot rounded up to the next gigabyte.
 	Size *int64 `json:"size" validate:"required"`
 
@@ -57721,9 +45373,6 @@ type Snapshot struct {
 	// The source volume this snapshot was created from (may be
 	// [deleted](https://cloud.ibm.com/apidocs/vpc#deleted-resources)).
 	SourceVolume *VolumeReference `json:"source_volume" validate:"required"`
-
-	// The user tags associated with this snapshot.
-	UserTags []string `json:"user_tags" validate:"required"`
 }
 
 // Constants associated with the Snapshot.Encryption property.
@@ -57810,10 +45459,6 @@ func UnmarshalSnapshot(m map[string]json.RawMessage, result interface{}) (err er
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalPrimitive(m, "service_tags", &obj.ServiceTags)
-	if err != nil {
-		return
-	}
 	err = core.UnmarshalPrimitive(m, "size", &obj.Size)
 	if err != nil {
 		return
@@ -57823,10 +45468,6 @@ func UnmarshalSnapshot(m map[string]json.RawMessage, result interface{}) (err er
 		return
 	}
 	err = core.UnmarshalModel(m, "source_volume", &obj.SourceVolume, UnmarshalVolumeReference)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "user_tags", &obj.UserTags)
 	if err != nil {
 		return
 	}
@@ -58097,9 +45738,6 @@ type Subnet struct {
 	// The resource group for this subnet.
 	ResourceGroup *ResourceGroupReference `json:"resource_group" validate:"required"`
 
-	// The resource type.
-	ResourceType *string `json:"resource_type" validate:"required"`
-
 	// The routing table for this subnet.
 	RoutingTable *RoutingTableReference `json:"routing_table" validate:"required"`
 
@@ -58123,12 +45761,6 @@ type Subnet struct {
 // The IP version(s) supported by this subnet.
 const (
 	SubnetIPVersionIpv4Const = "ipv4"
-)
-
-// Constants associated with the Subnet.ResourceType property.
-// The resource type.
-const (
-	SubnetResourceTypeSubnetConst = "subnet"
 )
 
 // Constants associated with the Subnet.Status property.
@@ -58184,10 +45816,6 @@ func UnmarshalSubnet(m map[string]json.RawMessage, result interface{}) (err erro
 		return
 	}
 	err = core.UnmarshalModel(m, "resource_group", &obj.ResourceGroup, UnmarshalResourceGroupReference)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
 	if err != nil {
 		return
 	}
@@ -58510,16 +46138,7 @@ type SubnetReference struct {
 
 	// The user-defined name for this subnet.
 	Name *string `json:"name" validate:"required"`
-
-	// The resource type.
-	ResourceType *string `json:"resource_type" validate:"required"`
 }
-
-// Constants associated with the SubnetReference.ResourceType property.
-// The resource type.
-const (
-	SubnetReferenceResourceTypeSubnetConst = "subnet"
-)
 
 // UnmarshalSubnetReference unmarshals an instance of SubnetReference from the specified map of raw messages.
 func UnmarshalSubnetReference(m map[string]json.RawMessage, result interface{}) (err error) {
@@ -58541,10 +46160,6 @@ func UnmarshalSubnetReference(m map[string]json.RawMessage, result interface{}) 
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
 	if err != nil {
 		return
 	}
@@ -58594,226 +46209,6 @@ func (options *UnsetSubnetPublicGatewayOptions) SetID(id string) *UnsetSubnetPub
 
 // SetHeaders : Allow user to set Headers
 func (options *UnsetSubnetPublicGatewayOptions) SetHeaders(param map[string]string) *UnsetSubnetPublicGatewayOptions {
-	options.Headers = param
-	return options
-}
-
-// UpdateBackupPolicyOptions : The UpdateBackupPolicy options.
-type UpdateBackupPolicyOptions struct {
-	// The backup policy identifier.
-	ID *string `validate:"required,ne="`
-
-	// The backup policy patch.
-	BackupPolicyPatch map[string]interface{} `validate:"required"`
-
-	// Allows users to set headers on API requests
-	Headers map[string]string
-}
-
-// NewUpdateBackupPolicyOptions : Instantiate UpdateBackupPolicyOptions
-func (*VpcV1) NewUpdateBackupPolicyOptions(id string, backupPolicyPatch map[string]interface{}) *UpdateBackupPolicyOptions {
-	return &UpdateBackupPolicyOptions{
-		ID:                core.StringPtr(id),
-		BackupPolicyPatch: backupPolicyPatch,
-	}
-}
-
-// SetID : Allow user to set ID
-func (options *UpdateBackupPolicyOptions) SetID(id string) *UpdateBackupPolicyOptions {
-	options.ID = core.StringPtr(id)
-	return options
-}
-
-// SetBackupPolicyPatch : Allow user to set BackupPolicyPatch
-func (options *UpdateBackupPolicyOptions) SetBackupPolicyPatch(backupPolicyPatch map[string]interface{}) *UpdateBackupPolicyOptions {
-	options.BackupPolicyPatch = backupPolicyPatch
-	return options
-}
-
-// SetHeaders : Allow user to set Headers
-func (options *UpdateBackupPolicyOptions) SetHeaders(param map[string]string) *UpdateBackupPolicyOptions {
-	options.Headers = param
-	return options
-}
-
-// UpdateBackupPolicyPlanOptions : The UpdateBackupPolicyPlan options.
-type UpdateBackupPolicyPlanOptions struct {
-	// The backup policy identifier.
-	BackupPolicyID *string `validate:"required,ne="`
-
-	// The backup policy plan identifier.
-	ID *string `validate:"required,ne="`
-
-	// The backup policy plan patch.
-	BackupPolicyPlanPatch map[string]interface{} `validate:"required"`
-
-	// Allows users to set headers on API requests
-	Headers map[string]string
-}
-
-// NewUpdateBackupPolicyPlanOptions : Instantiate UpdateBackupPolicyPlanOptions
-func (*VpcV1) NewUpdateBackupPolicyPlanOptions(backupPolicyID string, id string, backupPolicyPlanPatch map[string]interface{}) *UpdateBackupPolicyPlanOptions {
-	return &UpdateBackupPolicyPlanOptions{
-		BackupPolicyID:        core.StringPtr(backupPolicyID),
-		ID:                    core.StringPtr(id),
-		BackupPolicyPlanPatch: backupPolicyPlanPatch,
-	}
-}
-
-// SetBackupPolicyID : Allow user to set BackupPolicyID
-func (options *UpdateBackupPolicyPlanOptions) SetBackupPolicyID(backupPolicyID string) *UpdateBackupPolicyPlanOptions {
-	options.BackupPolicyID = core.StringPtr(backupPolicyID)
-	return options
-}
-
-// SetID : Allow user to set ID
-func (options *UpdateBackupPolicyPlanOptions) SetID(id string) *UpdateBackupPolicyPlanOptions {
-	options.ID = core.StringPtr(id)
-	return options
-}
-
-// SetBackupPolicyPlanPatch : Allow user to set BackupPolicyPlanPatch
-func (options *UpdateBackupPolicyPlanOptions) SetBackupPolicyPlanPatch(backupPolicyPlanPatch map[string]interface{}) *UpdateBackupPolicyPlanOptions {
-	options.BackupPolicyPlanPatch = backupPolicyPlanPatch
-	return options
-}
-
-// SetHeaders : Allow user to set Headers
-func (options *UpdateBackupPolicyPlanOptions) SetHeaders(param map[string]string) *UpdateBackupPolicyPlanOptions {
-	options.Headers = param
-	return options
-}
-
-// UpdateBareMetalServerDiskOptions : The UpdateBareMetalServerDisk options.
-type UpdateBareMetalServerDiskOptions struct {
-	// The bare metal server identifier.
-	BareMetalServerID *string `validate:"required,ne="`
-
-	// The bare metal server disk identifier.
-	ID *string `validate:"required,ne="`
-
-	// The bare metal server disk patch.
-	BareMetalServerDiskPatch map[string]interface{} `validate:"required"`
-
-	// Allows users to set headers on API requests
-	Headers map[string]string
-}
-
-// NewUpdateBareMetalServerDiskOptions : Instantiate UpdateBareMetalServerDiskOptions
-func (*VpcV1) NewUpdateBareMetalServerDiskOptions(bareMetalServerID string, id string, bareMetalServerDiskPatch map[string]interface{}) *UpdateBareMetalServerDiskOptions {
-	return &UpdateBareMetalServerDiskOptions{
-		BareMetalServerID:        core.StringPtr(bareMetalServerID),
-		ID:                       core.StringPtr(id),
-		BareMetalServerDiskPatch: bareMetalServerDiskPatch,
-	}
-}
-
-// SetBareMetalServerID : Allow user to set BareMetalServerID
-func (options *UpdateBareMetalServerDiskOptions) SetBareMetalServerID(bareMetalServerID string) *UpdateBareMetalServerDiskOptions {
-	options.BareMetalServerID = core.StringPtr(bareMetalServerID)
-	return options
-}
-
-// SetID : Allow user to set ID
-func (options *UpdateBareMetalServerDiskOptions) SetID(id string) *UpdateBareMetalServerDiskOptions {
-	options.ID = core.StringPtr(id)
-	return options
-}
-
-// SetBareMetalServerDiskPatch : Allow user to set BareMetalServerDiskPatch
-func (options *UpdateBareMetalServerDiskOptions) SetBareMetalServerDiskPatch(bareMetalServerDiskPatch map[string]interface{}) *UpdateBareMetalServerDiskOptions {
-	options.BareMetalServerDiskPatch = bareMetalServerDiskPatch
-	return options
-}
-
-// SetHeaders : Allow user to set Headers
-func (options *UpdateBareMetalServerDiskOptions) SetHeaders(param map[string]string) *UpdateBareMetalServerDiskOptions {
-	options.Headers = param
-	return options
-}
-
-// UpdateBareMetalServerNetworkInterfaceOptions : The UpdateBareMetalServerNetworkInterface options.
-type UpdateBareMetalServerNetworkInterfaceOptions struct {
-	// The bare metal server identifier.
-	BareMetalServerID *string `validate:"required,ne="`
-
-	// The network interface identifier.
-	ID *string `validate:"required,ne="`
-
-	// The network interface patch.
-	BareMetalServerNetworkInterfacePatch map[string]interface{} `validate:"required"`
-
-	// Allows users to set headers on API requests
-	Headers map[string]string
-}
-
-// NewUpdateBareMetalServerNetworkInterfaceOptions : Instantiate UpdateBareMetalServerNetworkInterfaceOptions
-func (*VpcV1) NewUpdateBareMetalServerNetworkInterfaceOptions(bareMetalServerID string, id string, bareMetalServerNetworkInterfacePatch map[string]interface{}) *UpdateBareMetalServerNetworkInterfaceOptions {
-	return &UpdateBareMetalServerNetworkInterfaceOptions{
-		BareMetalServerID:                    core.StringPtr(bareMetalServerID),
-		ID:                                   core.StringPtr(id),
-		BareMetalServerNetworkInterfacePatch: bareMetalServerNetworkInterfacePatch,
-	}
-}
-
-// SetBareMetalServerID : Allow user to set BareMetalServerID
-func (options *UpdateBareMetalServerNetworkInterfaceOptions) SetBareMetalServerID(bareMetalServerID string) *UpdateBareMetalServerNetworkInterfaceOptions {
-	options.BareMetalServerID = core.StringPtr(bareMetalServerID)
-	return options
-}
-
-// SetID : Allow user to set ID
-func (options *UpdateBareMetalServerNetworkInterfaceOptions) SetID(id string) *UpdateBareMetalServerNetworkInterfaceOptions {
-	options.ID = core.StringPtr(id)
-	return options
-}
-
-// SetBareMetalServerNetworkInterfacePatch : Allow user to set BareMetalServerNetworkInterfacePatch
-func (options *UpdateBareMetalServerNetworkInterfaceOptions) SetBareMetalServerNetworkInterfacePatch(bareMetalServerNetworkInterfacePatch map[string]interface{}) *UpdateBareMetalServerNetworkInterfaceOptions {
-	options.BareMetalServerNetworkInterfacePatch = bareMetalServerNetworkInterfacePatch
-	return options
-}
-
-// SetHeaders : Allow user to set Headers
-func (options *UpdateBareMetalServerNetworkInterfaceOptions) SetHeaders(param map[string]string) *UpdateBareMetalServerNetworkInterfaceOptions {
-	options.Headers = param
-	return options
-}
-
-// UpdateBareMetalServerOptions : The UpdateBareMetalServer options.
-type UpdateBareMetalServerOptions struct {
-	// The bare metal server identifier.
-	ID *string `validate:"required,ne="`
-
-	// The bare metal server patch.
-	BareMetalServerPatch map[string]interface{} `validate:"required"`
-
-	// Allows users to set headers on API requests
-	Headers map[string]string
-}
-
-// NewUpdateBareMetalServerOptions : Instantiate UpdateBareMetalServerOptions
-func (*VpcV1) NewUpdateBareMetalServerOptions(id string, bareMetalServerPatch map[string]interface{}) *UpdateBareMetalServerOptions {
-	return &UpdateBareMetalServerOptions{
-		ID:                   core.StringPtr(id),
-		BareMetalServerPatch: bareMetalServerPatch,
-	}
-}
-
-// SetID : Allow user to set ID
-func (options *UpdateBareMetalServerOptions) SetID(id string) *UpdateBareMetalServerOptions {
-	options.ID = core.StringPtr(id)
-	return options
-}
-
-// SetBareMetalServerPatch : Allow user to set BareMetalServerPatch
-func (options *UpdateBareMetalServerOptions) SetBareMetalServerPatch(bareMetalServerPatch map[string]interface{}) *UpdateBareMetalServerOptions {
-	options.BareMetalServerPatch = bareMetalServerPatch
-	return options
-}
-
-// SetHeaders : Allow user to set Headers
-func (options *UpdateBareMetalServerOptions) SetHeaders(param map[string]string) *UpdateBareMetalServerOptions {
 	options.Headers = param
 	return options
 }
@@ -60244,92 +47639,6 @@ func (options *UpdateSecurityGroupRuleOptions) SetHeaders(param map[string]strin
 	return options
 }
 
-// UpdateShareOptions : The UpdateShare options.
-type UpdateShareOptions struct {
-	// The file share identifier.
-	ID *string `validate:"required,ne="`
-
-	// The file share patch.
-	SharePatch map[string]interface{} `validate:"required"`
-
-	// Allows users to set headers on API requests
-	Headers map[string]string
-}
-
-// NewUpdateShareOptions : Instantiate UpdateShareOptions
-func (*VpcV1) NewUpdateShareOptions(id string, sharePatch map[string]interface{}) *UpdateShareOptions {
-	return &UpdateShareOptions{
-		ID:         core.StringPtr(id),
-		SharePatch: sharePatch,
-	}
-}
-
-// SetID : Allow user to set ID
-func (options *UpdateShareOptions) SetID(id string) *UpdateShareOptions {
-	options.ID = core.StringPtr(id)
-	return options
-}
-
-// SetSharePatch : Allow user to set SharePatch
-func (options *UpdateShareOptions) SetSharePatch(sharePatch map[string]interface{}) *UpdateShareOptions {
-	options.SharePatch = sharePatch
-	return options
-}
-
-// SetHeaders : Allow user to set Headers
-func (options *UpdateShareOptions) SetHeaders(param map[string]string) *UpdateShareOptions {
-	options.Headers = param
-	return options
-}
-
-// UpdateShareTargetOptions : The UpdateShareTarget options.
-type UpdateShareTargetOptions struct {
-	// The file share identifier.
-	ShareID *string `validate:"required,ne="`
-
-	// The share target identifier.
-	ID *string `validate:"required,ne="`
-
-	// The share target patch.
-	ShareTargetPatch map[string]interface{} `validate:"required"`
-
-	// Allows users to set headers on API requests
-	Headers map[string]string
-}
-
-// NewUpdateShareTargetOptions : Instantiate UpdateShareTargetOptions
-func (*VpcV1) NewUpdateShareTargetOptions(shareID string, id string, shareTargetPatch map[string]interface{}) *UpdateShareTargetOptions {
-	return &UpdateShareTargetOptions{
-		ShareID:          core.StringPtr(shareID),
-		ID:               core.StringPtr(id),
-		ShareTargetPatch: shareTargetPatch,
-	}
-}
-
-// SetShareID : Allow user to set ShareID
-func (options *UpdateShareTargetOptions) SetShareID(shareID string) *UpdateShareTargetOptions {
-	options.ShareID = core.StringPtr(shareID)
-	return options
-}
-
-// SetID : Allow user to set ID
-func (options *UpdateShareTargetOptions) SetID(id string) *UpdateShareTargetOptions {
-	options.ID = core.StringPtr(id)
-	return options
-}
-
-// SetShareTargetPatch : Allow user to set ShareTargetPatch
-func (options *UpdateShareTargetOptions) SetShareTargetPatch(shareTargetPatch map[string]interface{}) *UpdateShareTargetOptions {
-	options.ShareTargetPatch = shareTargetPatch
-	return options
-}
-
-// SetHeaders : Allow user to set Headers
-func (options *UpdateShareTargetOptions) SetHeaders(param map[string]string) *UpdateShareTargetOptions {
-	options.Headers = param
-	return options
-}
-
 // UpdateSnapshotOptions : The UpdateSnapshot options.
 type UpdateSnapshotOptions struct {
 	// The snapshot identifier.
@@ -60637,10 +47946,6 @@ type UpdateVPCRoutingTableOptions struct {
 	// The routing table patch.
 	RoutingTablePatch map[string]interface{} `validate:"required"`
 
-	// If present, the request will fail if the provided ETag value does not match the resource's current ETag value. This
-	// header is required if an array is present in the `PATCH` request body.
-	IfMatch *string
-
 	// Allows users to set headers on API requests
 	Headers map[string]string
 }
@@ -60669,12 +47974,6 @@ func (options *UpdateVPCRoutingTableOptions) SetID(id string) *UpdateVPCRoutingT
 // SetRoutingTablePatch : Allow user to set RoutingTablePatch
 func (options *UpdateVPCRoutingTableOptions) SetRoutingTablePatch(routingTablePatch map[string]interface{}) *UpdateVPCRoutingTableOptions {
 	options.RoutingTablePatch = routingTablePatch
-	return options
-}
-
-// SetIfMatch : Allow user to set IfMatch
-func (options *UpdateVPCRoutingTableOptions) SetIfMatch(ifMatch string) *UpdateVPCRoutingTableOptions {
-	options.IfMatch = core.StringPtr(ifMatch)
 	return options
 }
 
@@ -60753,10 +48052,6 @@ type UpdateVPNGatewayConnectionOptions struct {
 	// The VPN gateway connection patch.
 	VPNGatewayConnectionPatch map[string]interface{} `validate:"required"`
 
-	// If present, the request will fail if the provided ETag value does not match the resource's current ETag value. This
-	// header is required if an array is present in the `PATCH` request body.
-	IfMatch *string
-
 	// Allows users to set headers on API requests
 	Headers map[string]string
 }
@@ -60785,12 +48080,6 @@ func (options *UpdateVPNGatewayConnectionOptions) SetID(id string) *UpdateVPNGat
 // SetVPNGatewayConnectionPatch : Allow user to set VPNGatewayConnectionPatch
 func (options *UpdateVPNGatewayConnectionOptions) SetVPNGatewayConnectionPatch(vpnGatewayConnectionPatch map[string]interface{}) *UpdateVPNGatewayConnectionOptions {
 	options.VPNGatewayConnectionPatch = vpnGatewayConnectionPatch
-	return options
-}
-
-// SetIfMatch : Allow user to set IfMatch
-func (options *UpdateVPNGatewayConnectionOptions) SetIfMatch(ifMatch string) *UpdateVPNGatewayConnectionOptions {
-	options.IfMatch = core.StringPtr(ifMatch)
 	return options
 }
 
@@ -60834,102 +48123,6 @@ func (options *UpdateVPNGatewayOptions) SetVPNGatewayPatch(vpnGatewayPatch map[s
 
 // SetHeaders : Allow user to set Headers
 func (options *UpdateVPNGatewayOptions) SetHeaders(param map[string]string) *UpdateVPNGatewayOptions {
-	options.Headers = param
-	return options
-}
-
-// UpdateVPNServerOptions : The UpdateVPNServer options.
-type UpdateVPNServerOptions struct {
-	// The VPN server identifier.
-	ID *string `validate:"required,ne="`
-
-	// The VPN server patch.
-	VPNServerPatch map[string]interface{} `validate:"required"`
-
-	// If present, the request will fail if the provided ETag value does not match the resource's current ETag value. This
-	// header is required if an array is present in the `PATCH` request body.
-	IfMatch *string
-
-	// Allows users to set headers on API requests
-	Headers map[string]string
-}
-
-// NewUpdateVPNServerOptions : Instantiate UpdateVPNServerOptions
-func (*VpcV1) NewUpdateVPNServerOptions(id string, vpnServerPatch map[string]interface{}) *UpdateVPNServerOptions {
-	return &UpdateVPNServerOptions{
-		ID:             core.StringPtr(id),
-		VPNServerPatch: vpnServerPatch,
-	}
-}
-
-// SetID : Allow user to set ID
-func (options *UpdateVPNServerOptions) SetID(id string) *UpdateVPNServerOptions {
-	options.ID = core.StringPtr(id)
-	return options
-}
-
-// SetVPNServerPatch : Allow user to set VPNServerPatch
-func (options *UpdateVPNServerOptions) SetVPNServerPatch(vpnServerPatch map[string]interface{}) *UpdateVPNServerOptions {
-	options.VPNServerPatch = vpnServerPatch
-	return options
-}
-
-// SetIfMatch : Allow user to set IfMatch
-func (options *UpdateVPNServerOptions) SetIfMatch(ifMatch string) *UpdateVPNServerOptions {
-	options.IfMatch = core.StringPtr(ifMatch)
-	return options
-}
-
-// SetHeaders : Allow user to set Headers
-func (options *UpdateVPNServerOptions) SetHeaders(param map[string]string) *UpdateVPNServerOptions {
-	options.Headers = param
-	return options
-}
-
-// UpdateVPNServerRouteOptions : The UpdateVPNServerRoute options.
-type UpdateVPNServerRouteOptions struct {
-	// The VPN server identifier.
-	VPNServerID *string `validate:"required,ne="`
-
-	// The VPN route identifier.
-	ID *string `validate:"required,ne="`
-
-	// The VPN route patch.
-	VPNServerRoutePatch map[string]interface{} `validate:"required"`
-
-	// Allows users to set headers on API requests
-	Headers map[string]string
-}
-
-// NewUpdateVPNServerRouteOptions : Instantiate UpdateVPNServerRouteOptions
-func (*VpcV1) NewUpdateVPNServerRouteOptions(vpnServerID string, id string, vpnServerRoutePatch map[string]interface{}) *UpdateVPNServerRouteOptions {
-	return &UpdateVPNServerRouteOptions{
-		VPNServerID:         core.StringPtr(vpnServerID),
-		ID:                  core.StringPtr(id),
-		VPNServerRoutePatch: vpnServerRoutePatch,
-	}
-}
-
-// SetVPNServerID : Allow user to set VPNServerID
-func (options *UpdateVPNServerRouteOptions) SetVPNServerID(vpnServerID string) *UpdateVPNServerRouteOptions {
-	options.VPNServerID = core.StringPtr(vpnServerID)
-	return options
-}
-
-// SetID : Allow user to set ID
-func (options *UpdateVPNServerRouteOptions) SetID(id string) *UpdateVPNServerRouteOptions {
-	options.ID = core.StringPtr(id)
-	return options
-}
-
-// SetVPNServerRoutePatch : Allow user to set VPNServerRoutePatch
-func (options *UpdateVPNServerRouteOptions) SetVPNServerRoutePatch(vpnServerRoutePatch map[string]interface{}) *UpdateVPNServerRouteOptions {
-	options.VPNServerRoutePatch = vpnServerRoutePatch
-	return options
-}
-
-// SetHeaders : Allow user to set Headers
-func (options *UpdateVPNServerRouteOptions) SetHeaders(param map[string]string) *UpdateVPNServerRouteOptions {
 	options.Headers = param
 	return options
 }
@@ -60996,18 +48189,9 @@ type VPC struct {
 	// The resource group for this VPC.
 	ResourceGroup *ResourceGroupReference `json:"resource_group" validate:"required"`
 
-	// The resource type.
-	ResourceType *string `json:"resource_type" validate:"required"`
-
 	// The status of this VPC.
 	Status *string `json:"status" validate:"required"`
 }
-
-// Constants associated with the VPC.ResourceType property.
-// The resource type.
-const (
-	VPCResourceTypeVPCConst = "vpc"
-)
 
 // Constants associated with the VPC.Status property.
 // The status of this VPC.
@@ -61062,10 +48246,6 @@ func UnmarshalVPC(m map[string]json.RawMessage, result interface{}) (err error) 
 		return
 	}
 	err = core.UnmarshalModel(m, "resource_group", &obj.ResourceGroup, UnmarshalResourceGroupReference)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
 	if err != nil {
 		return
 	}
@@ -61268,16 +48448,7 @@ type VPCReference struct {
 
 	// The unique user-defined name for this VPC.
 	Name *string `json:"name" validate:"required"`
-
-	// The resource type.
-	ResourceType *string `json:"resource_type" validate:"required"`
 }
-
-// Constants associated with the VPCReference.ResourceType property.
-// The resource type.
-const (
-	VPCReferenceResourceTypeVPCConst = "vpc"
-)
 
 // UnmarshalVPCReference unmarshals an instance of VPCReference from the specified map of raw messages.
 func UnmarshalVPCReference(m map[string]json.RawMessage, result interface{}) (err error) {
@@ -61299,10 +48470,6 @@ func UnmarshalVPCReference(m map[string]json.RawMessage, result interface{}) (er
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
 	if err != nil {
 		return
 	}
@@ -61364,10 +48531,6 @@ type VPNGateway struct {
 	Status *string `json:"status" validate:"required"`
 
 	Subnet *SubnetReference `json:"subnet" validate:"required"`
-
-	// The additional CIDRs advertised through any enabled routing protocol (for example, BGP). The routing protocol will
-	// advertise routes with these CIDRs and VPC prefixes as route destinations.
-	AdvertisedCIDRs []string `json:"advertised_cidrs,omitempty"`
 
 	// Route mode VPN gateway.
 	Mode *string `json:"mode,omitempty"`
@@ -61449,29 +48612,7 @@ func UnmarshalVPNGateway(m map[string]json.RawMessage, result interface{}) (err 
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalPrimitive(m, "advertised_cidrs", &obj.AdvertisedCIDRs)
-	if err != nil {
-		return
-	}
 	err = core.UnmarshalPrimitive(m, "mode", &obj.Mode)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// VPNGatewayAdvertisedCidRs : VPNGatewayAdvertisedCidRs struct
-type VPNGatewayAdvertisedCidRs struct {
-	// The additional CIDRs advertised through any enabled routing protocol (for example, BGP). The routing protocol will
-	// advertise routes with these CIDRs and VPC prefixes as route destinations.
-	AdvertisedCIDRs []string `json:"advertised_cidrs,omitempty"`
-}
-
-// UnmarshalVPNGatewayAdvertisedCidRs unmarshals an instance of VPNGatewayAdvertisedCidRs from the specified map of raw messages.
-func UnmarshalVPNGatewayAdvertisedCidRs(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(VPNGatewayAdvertisedCidRs)
-	err = core.UnmarshalPrimitive(m, "advertised_cidrs", &obj.AdvertisedCIDRs)
 	if err != nil {
 		return
 	}
@@ -61562,7 +48703,6 @@ func UnmarshalVPNGatewayCollectionNext(m map[string]json.RawMessage, result inte
 // VPNGatewayConnection : VPNGatewayConnection struct
 // Models which "extend" this model:
 // - VPNGatewayConnectionStaticRouteMode
-// - VPNGatewayConnectionDynamicRouteMode
 // - VPNGatewayConnectionPolicyMode
 type VPNGatewayConnection struct {
 	// If set to false, the VPN gateway connection is shut down.
@@ -61613,9 +48753,6 @@ type VPNGatewayConnection struct {
 
 	// The VPN tunnel configuration for this VPN gateway connection (in static route mode).
 	Tunnels []VPNGatewayConnectionStaticRouteModeTunnel `json:"tunnels,omitempty"`
-
-	// The peer autonomous system number (ASN) for this VPN gateway connection.
-	PeerAsn *int64 `json:"peer_asn,omitempty"`
 
 	// The local CIDRs for this resource.
 	LocalCIDRs []string `json:"local_cidrs,omitempty"`
@@ -61731,10 +48868,6 @@ func UnmarshalVPNGatewayConnection(m map[string]json.RawMessage, result interfac
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalPrimitive(m, "peer_asn", &obj.PeerAsn)
-	if err != nil {
-		return
-	}
 	err = core.UnmarshalPrimitive(m, "local_cidrs", &obj.LocalCIDRs)
 	if err != nil {
 		return
@@ -61844,57 +48977,6 @@ func UnmarshalVPNGatewayConnectionDpdPrototype(m map[string]json.RawMessage, res
 	return
 }
 
-// VPNGatewayConnectionDynamicRouteModeTunnel : VPNGatewayConnectionDynamicRouteModeTunnel struct
-type VPNGatewayConnectionDynamicRouteModeTunnel struct {
-	// The IP address of the neighbor on the virtual tunnel interface.
-	NeighborIP *IP `json:"neighbor_ip" validate:"required"`
-
-	ProtocolState interface{} `json:"protocol_state" validate:"required"`
-
-	// The IP address of the VPN gateway member in which the tunnel resides.
-	PublicIP *IP `json:"public_ip" validate:"required"`
-
-	// The status of the VPN Tunnel.
-	Status *string `json:"status" validate:"required"`
-
-	// The IP address of the virtual tunnel interface.
-	TunnelInterfaceIP *IP `json:"tunnel_interface_ip" validate:"required"`
-}
-
-// Constants associated with the VPNGatewayConnectionDynamicRouteModeTunnel.Status property.
-// The status of the VPN Tunnel.
-const (
-	VPNGatewayConnectionDynamicRouteModeTunnelStatusDownConst = "down"
-	VPNGatewayConnectionDynamicRouteModeTunnelStatusUpConst   = "up"
-)
-
-// UnmarshalVPNGatewayConnectionDynamicRouteModeTunnel unmarshals an instance of VPNGatewayConnectionDynamicRouteModeTunnel from the specified map of raw messages.
-func UnmarshalVPNGatewayConnectionDynamicRouteModeTunnel(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(VPNGatewayConnectionDynamicRouteModeTunnel)
-	err = core.UnmarshalModel(m, "neighbor_ip", &obj.NeighborIP, UnmarshalIP)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "protocol_state", &obj.ProtocolState)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "public_ip", &obj.PublicIP, UnmarshalIP)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "status", &obj.Status)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "tunnel_interface_ip", &obj.TunnelInterfaceIP, UnmarshalIP)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
 // VPNGatewayConnectionLocalCidRs : VPNGatewayConnectionLocalCidRs struct
 type VPNGatewayConnectionLocalCidRs struct {
 	// The local CIDRs for this resource.
@@ -61915,7 +48997,6 @@ func UnmarshalVPNGatewayConnectionLocalCidRs(m map[string]json.RawMessage, resul
 // VPNGatewayConnectionPatch : VPNGatewayConnectionPatch struct
 // Models which "extend" this model:
 // - VPNGatewayConnectionPatchVPNGatewayConnectionStaticRouteModePatch
-// - VPNGatewayConnectionPatchVPNGatewayConnectionDynamicRouteModePatch
 type VPNGatewayConnectionPatch struct {
 	// If set to false, the VPN gateway connection is shut down.
 	AdminStateUp *bool `json:"admin_state_up,omitempty"`
@@ -61941,10 +49022,6 @@ type VPNGatewayConnectionPatch struct {
 
 	// Routing protocols are disabled for this VPN gateway connection.
 	RoutingProtocol *string `json:"routing_protocol,omitempty"`
-
-	// The VPN tunnel configuration to use for this VPN gateway connection
-	// (in dynamic route mode).
-	Tunnels []VPNGatewayConnectionTunnel `json:"tunnels,omitempty"`
 }
 
 // Constants associated with the VPNGatewayConnectionPatch.RoutingProtocol property.
@@ -61996,10 +49073,6 @@ func UnmarshalVPNGatewayConnectionPatch(m map[string]json.RawMessage, result int
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalModel(m, "tunnels", &obj.Tunnels, UnmarshalVPNGatewayConnectionTunnel)
-	if err != nil {
-		return
-	}
 	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
 	return
 }
@@ -62034,7 +49107,6 @@ func UnmarshalVPNGatewayConnectionPeerCidRs(m map[string]json.RawMessage, result
 // VPNGatewayConnectionPrototype : VPNGatewayConnectionPrototype struct
 // Models which "extend" this model:
 // - VPNGatewayConnectionPrototypeVPNGatewayConnectionStaticRouteModePrototype
-// - VPNGatewayConnectionPrototypeVPNGatewayConnectionDynamicRouteModePrototype
 // - VPNGatewayConnectionPrototypeVPNGatewayConnectionPolicyModePrototype
 type VPNGatewayConnectionPrototype struct {
 	// If set to false, the VPN gateway connection is shut down.
@@ -62061,10 +49133,6 @@ type VPNGatewayConnectionPrototype struct {
 
 	// Routing protocols are disabled for this VPN gateway connection.
 	RoutingProtocol *string `json:"routing_protocol,omitempty"`
-
-	// The VPN tunnel configuration to use for this VPN gateway connection
-	// (in dynamic route mode).
-	Tunnels []VPNGatewayConnectionTunnelPrototype `json:"tunnels,omitempty"`
 
 	// The local CIDRs for this resource.
 	LocalCIDRs []string `json:"local_cidrs,omitempty"`
@@ -62119,10 +49187,6 @@ func UnmarshalVPNGatewayConnectionPrototype(m map[string]json.RawMessage, result
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "routing_protocol", &obj.RoutingProtocol)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "tunnels", &obj.Tunnels, UnmarshalVPNGatewayConnectionTunnelPrototype)
 	if err != nil {
 		return
 	}
@@ -62239,70 +49303,12 @@ func UnmarshalVPNGatewayConnectionStaticRouteModeTunnel(m map[string]json.RawMes
 	return
 }
 
-// VPNGatewayConnectionTunnel : VPNGatewayConnectionTunnel struct
-type VPNGatewayConnectionTunnel struct {
-	// The IP address of the neighbor on the virtual tunnel interface.
-	NeighborIP *IP `json:"neighbor_ip,omitempty"`
-
-	// The IP address of the virtual tunnel interface.
-	TunnelInterfaceIP *IP `json:"tunnel_interface_ip,omitempty"`
-}
-
-// UnmarshalVPNGatewayConnectionTunnel unmarshals an instance of VPNGatewayConnectionTunnel from the specified map of raw messages.
-func UnmarshalVPNGatewayConnectionTunnel(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(VPNGatewayConnectionTunnel)
-	err = core.UnmarshalModel(m, "neighbor_ip", &obj.NeighborIP, UnmarshalIP)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "tunnel_interface_ip", &obj.TunnelInterfaceIP, UnmarshalIP)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// VPNGatewayConnectionTunnelPrototype : VPNGatewayConnectionTunnelPrototype struct
-type VPNGatewayConnectionTunnelPrototype struct {
-	// The IP address of the neighbor on the virtual tunnel interface.
-	NeighborIP *IP `json:"neighbor_ip" validate:"required"`
-
-	// The IP address of the virtual tunnel interface.
-	TunnelInterfaceIP *IP `json:"tunnel_interface_ip" validate:"required"`
-}
-
-// NewVPNGatewayConnectionTunnelPrototype : Instantiate VPNGatewayConnectionTunnelPrototype (Generic Model Constructor)
-func (*VpcV1) NewVPNGatewayConnectionTunnelPrototype(neighborIP *IP, tunnelInterfaceIP *IP) (model *VPNGatewayConnectionTunnelPrototype, err error) {
-	model = &VPNGatewayConnectionTunnelPrototype{
-		NeighborIP:        neighborIP,
-		TunnelInterfaceIP: tunnelInterfaceIP,
-	}
-	err = core.ValidateStruct(model, "required parameters")
-	return
-}
-
-// UnmarshalVPNGatewayConnectionTunnelPrototype unmarshals an instance of VPNGatewayConnectionTunnelPrototype from the specified map of raw messages.
-func UnmarshalVPNGatewayConnectionTunnelPrototype(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(VPNGatewayConnectionTunnelPrototype)
-	err = core.UnmarshalModel(m, "neighbor_ip", &obj.NeighborIP, UnmarshalIP)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "tunnel_interface_ip", &obj.TunnelInterfaceIP, UnmarshalIP)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
 // VPNGatewayMember : VPNGatewayMember struct
 type VPNGatewayMember struct {
-	// The reserved IP address assigned to the VPN gateway member. This
+	// The private IP address assigned to the VPN gateway member. This
 	// property will be present only when the VPN gateway status is
 	// `available`.
-	PrivateIP *VPNGatewayMemberPrivateIP `json:"private_ip" validate:"required"`
+	PrivateIP *IP `json:"private_ip,omitempty"`
 
 	// The public IP address assigned to the VPN gateway member.
 	PublicIP *IP `json:"public_ip" validate:"required"`
@@ -62333,7 +49339,7 @@ const (
 // UnmarshalVPNGatewayMember unmarshals an instance of VPNGatewayMember from the specified map of raw messages.
 func UnmarshalVPNGatewayMember(m map[string]json.RawMessage, result interface{}) (err error) {
 	obj := new(VPNGatewayMember)
-	err = core.UnmarshalModel(m, "private_ip", &obj.PrivateIP, UnmarshalVPNGatewayMemberPrivateIP)
+	err = core.UnmarshalModel(m, "private_ip", &obj.PrivateIP, UnmarshalIP)
 	if err != nil {
 		return
 	}
@@ -62346,69 +49352,6 @@ func UnmarshalVPNGatewayMember(m map[string]json.RawMessage, result interface{})
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "status", &obj.Status)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// VPNGatewayMemberPrivateIP : The reserved IP address assigned to the VPN gateway member. This property will be present only when the VPN gateway
-// status is
-// `available`.
-type VPNGatewayMemberPrivateIP struct {
-	// The IP address. This property may add support for IPv6 addresses in the future. When processing a value in this
-	// property, verify that the address is in an expected format. If it is not, log an error. Optionally halt processing
-	// and surface the error, or bypass the resource on which the unexpected IP address format was encountered.
-	Address *string `json:"address" validate:"required"`
-
-	// If present, this property indicates the referenced resource has been deleted and provides
-	// some supplementary information.
-	Deleted *ReservedIPReferenceDeleted `json:"deleted,omitempty"`
-
-	// The URL for this reserved IP.
-	Href *string `json:"href" validate:"required"`
-
-	// The unique identifier for this reserved IP.
-	ID *string `json:"id" validate:"required"`
-
-	// The user-defined or system-provided name for this reserved IP.
-	Name *string `json:"name" validate:"required"`
-
-	// The resource type.
-	ResourceType *string `json:"resource_type" validate:"required"`
-}
-
-// Constants associated with the VPNGatewayMemberPrivateIP.ResourceType property.
-// The resource type.
-const (
-	VPNGatewayMemberPrivateIPResourceTypeSubnetReservedIPConst = "subnet_reserved_ip"
-)
-
-// UnmarshalVPNGatewayMemberPrivateIP unmarshals an instance of VPNGatewayMemberPrivateIP from the specified map of raw messages.
-func UnmarshalVPNGatewayMemberPrivateIP(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(VPNGatewayMemberPrivateIP)
-	err = core.UnmarshalPrimitive(m, "address", &obj.Address)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "deleted", &obj.Deleted, UnmarshalReservedIPReferenceDeleted)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
 	if err != nil {
 		return
 	}
@@ -62458,13 +49401,6 @@ type VPNGatewayPrototype struct {
 	// Identifies a subnet by a unique property.
 	Subnet SubnetIdentityIntf `json:"subnet" validate:"required"`
 
-	// The additional CIDRs advertised through any enabled routing protocol (for example, BGP). The routing protocol will
-	// advertise routes with these CIDRs and VPC prefixes as route destinations.
-	AdvertisedCIDRs []string `json:"advertised_cidrs,omitempty"`
-
-	// The local autonomous system number (ASN) for this VPN gateway and its connections.
-	LocalAsn *int64 `json:"local_asn,omitempty"`
-
 	// Route mode VPN gateway.
 	Mode *string `json:"mode,omitempty"`
 }
@@ -62498,14 +49434,6 @@ func UnmarshalVPNGatewayPrototype(m map[string]json.RawMessage, result interface
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalPrimitive(m, "advertised_cidrs", &obj.AdvertisedCIDRs)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "local_asn", &obj.LocalAsn)
-	if err != nil {
-		return
-	}
 	err = core.UnmarshalPrimitive(m, "mode", &obj.Mode)
 	if err != nil {
 		return
@@ -62514,1018 +49442,10 @@ func UnmarshalVPNGatewayPrototype(m map[string]json.RawMessage, result interface
 	return
 }
 
-// VPNGatewayReferenceDeleted : If present, this property indicates the referenced resource has been deleted and provides some supplementary
-// information.
-type VPNGatewayReferenceDeleted struct {
-	// Link to documentation about deleted resources.
-	MoreInfo *string `json:"more_info" validate:"required"`
-}
-
-// UnmarshalVPNGatewayReferenceDeleted unmarshals an instance of VPNGatewayReferenceDeleted from the specified map of raw messages.
-func UnmarshalVPNGatewayReferenceDeleted(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(VPNGatewayReferenceDeleted)
-	err = core.UnmarshalPrimitive(m, "more_info", &obj.MoreInfo)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// VPNServer : VPNServer struct
-type VPNServer struct {
-	// The certificate instance for this VPN server.
-	Certificate *CertificateInstanceReference `json:"certificate" validate:"required"`
-
-	// The methods used to authenticate VPN clients to this VPN server. VPN clients must authenticate against all provided
-	// methods.
-	ClientAuthentication []VPNServerAuthenticationIntf `json:"client_authentication" validate:"required"`
-
-	// If set to `true`, disconnected VPN clients will be automatically deleted after the `client_auto_delete_timeout` time
-	// has passed.
-	ClientAutoDelete *bool `json:"client_auto_delete" validate:"required"`
-
-	// Hours after which disconnected VPN clients will be automatically deleted. If `0`, disconnected VPN clients will be
-	// deleted immediately.
-	ClientAutoDeleteTimeout *int64 `json:"client_auto_delete_timeout" validate:"required"`
-
-	// The DNS server addresses that will be provided to VPN clients that are connected to this VPN server.
-	ClientDnsServerIps []IP `json:"client_dns_server_ips" validate:"required"`
-
-	// The seconds a VPN client can be idle before this VPN server will disconnect it.  If `0`, the server will not
-	// disconnect idle clients.
-	ClientIdleTimeout *int64 `json:"client_idle_timeout" validate:"required"`
-
-	// The VPN client IPv4 address pool, expressed in CIDR format.
-	ClientIPPool *string `json:"client_ip_pool" validate:"required"`
-
-	// The date and time that the VPN server was created.
-	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
-
-	// The CRN for this VPN server.
-	CRN *string `json:"crn" validate:"required"`
-
-	// Indicates whether the split tunneling is enabled on this VPN server.
-	EnableSplitTunneling *bool `json:"enable_split_tunneling" validate:"required"`
-
-	// The health of this resource.
-	// - `ok`: Healthy
-	// - `degraded`: Suffering from compromised performance, capacity, or connectivity
-	// - `faulted`: Completely unreachable, inoperative, or otherwise entirely incapacitated
-	// - `inapplicable`: The health state does not apply because of the current lifecycle state. A resource with a
-	// lifecycle state of `failed` or `deleting` will have a health state of `inapplicable`. A `pending` resource may also
-	// have this state.
-	HealthState *string `json:"health_state" validate:"required"`
-
-	// Fully qualified domain name assigned to this VPN server.
-	Hostname *string `json:"hostname" validate:"required"`
-
-	// The URL for this VPN server.
-	Href *string `json:"href" validate:"required"`
-
-	// The unique identifier for this VPN server.
-	ID *string `json:"id" validate:"required"`
-
-	// The lifecycle state of the VPN server.
-	LifecycleState *string `json:"lifecycle_state" validate:"required"`
-
-	// The unique user-defined name for this VPN server.
-	Name *string `json:"name" validate:"required"`
-
-	// The port number used by this VPN server.
-	Port *int64 `json:"port" validate:"required"`
-
-	// The reserved IPs bound to this VPN server.
-	PrivateIps []ReservedIPReference `json:"private_ips" validate:"required"`
-
-	// The transport protocol used by this VPN server.
-	Protocol *string `json:"protocol" validate:"required"`
-
-	// The resource group for this VPN server.
-	ResourceGroup *ResourceGroupReference `json:"resource_group" validate:"required"`
-
-	// The type of resource referenced.
-	ResourceType *string `json:"resource_type" validate:"required"`
-
-	// The security groups targeting this VPN server.
-	SecurityGroups []SecurityGroupReference `json:"security_groups" validate:"required"`
-
-	// The subnets this VPN server is part of.
-	Subnets []SubnetReference `json:"subnets" validate:"required"`
-}
-
-// Constants associated with the VPNServer.HealthState property.
-// The health of this resource.
-// - `ok`: Healthy
-// - `degraded`: Suffering from compromised performance, capacity, or connectivity
-// - `faulted`: Completely unreachable, inoperative, or otherwise entirely incapacitated
-// - `inapplicable`: The health state does not apply because of the current lifecycle state. A resource with a lifecycle
-// state of `failed` or `deleting` will have a health state of `inapplicable`. A `pending` resource may also have this
-// state.
-const (
-	VPNServerHealthStateDegradedConst     = "degraded"
-	VPNServerHealthStateFaultedConst      = "faulted"
-	VPNServerHealthStateInapplicableConst = "inapplicable"
-	VPNServerHealthStateOkConst           = "ok"
-)
-
-// Constants associated with the VPNServer.LifecycleState property.
-// The lifecycle state of the VPN server.
-const (
-	VPNServerLifecycleStateDeletingConst  = "deleting"
-	VPNServerLifecycleStateFailedConst    = "failed"
-	VPNServerLifecycleStatePendingConst   = "pending"
-	VPNServerLifecycleStateStableConst    = "stable"
-	VPNServerLifecycleStateSuspendedConst = "suspended"
-	VPNServerLifecycleStateUpdatingConst  = "updating"
-	VPNServerLifecycleStateWaitingConst   = "waiting"
-)
-
-// Constants associated with the VPNServer.Protocol property.
-// The transport protocol used by this VPN server.
-const (
-	VPNServerProtocolTCPConst = "tcp"
-	VPNServerProtocolUDPConst = "udp"
-)
-
-// Constants associated with the VPNServer.ResourceType property.
-// The type of resource referenced.
-const (
-	VPNServerResourceTypeVPNServerConst = "vpn_server"
-)
-
-// UnmarshalVPNServer unmarshals an instance of VPNServer from the specified map of raw messages.
-func UnmarshalVPNServer(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(VPNServer)
-	err = core.UnmarshalModel(m, "certificate", &obj.Certificate, UnmarshalCertificateInstanceReference)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "client_authentication", &obj.ClientAuthentication, UnmarshalVPNServerAuthentication)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "client_auto_delete", &obj.ClientAutoDelete)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "client_auto_delete_timeout", &obj.ClientAutoDeleteTimeout)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "client_dns_server_ips", &obj.ClientDnsServerIps, UnmarshalIP)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "client_idle_timeout", &obj.ClientIdleTimeout)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "client_ip_pool", &obj.ClientIPPool)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "created_at", &obj.CreatedAt)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "enable_split_tunneling", &obj.EnableSplitTunneling)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "health_state", &obj.HealthState)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "hostname", &obj.Hostname)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "lifecycle_state", &obj.LifecycleState)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "port", &obj.Port)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "private_ips", &obj.PrivateIps, UnmarshalReservedIPReference)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "protocol", &obj.Protocol)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "resource_group", &obj.ResourceGroup, UnmarshalResourceGroupReference)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "security_groups", &obj.SecurityGroups, UnmarshalSecurityGroupReference)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "subnets", &obj.Subnets, UnmarshalSubnetReference)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// VPNServerAuthentication : An authentication method for this VPN server.
-// Models which "extend" this model:
-// - VPNServerAuthenticationByUsername
-// - VPNServerAuthenticationByCertificate
-type VPNServerAuthentication struct {
-	// The type of authentication.
-	Method *string `json:"method" validate:"required"`
-
-	// The type of identity provider to be used by VPN client.
-	IdentityProvider VPNServerAuthenticationByUsernameIDProviderIntf `json:"identity_provider,omitempty"`
-
-	// The certificate instance used for the VPN client certificate authority (CA).
-	ClientCa *CertificateInstanceReference `json:"client_ca,omitempty"`
-
-	// The certificate revocation list contents, encoded in PEM format.
-	Crl *string `json:"crl,omitempty"`
-}
-
-// Constants associated with the VPNServerAuthentication.Method property.
-// The type of authentication.
-const (
-	VPNServerAuthenticationMethodCertificateConst = "certificate"
-	VPNServerAuthenticationMethodUsernameConst    = "username"
-)
-
-func (*VPNServerAuthentication) isaVPNServerAuthentication() bool {
-	return true
-}
-
-type VPNServerAuthenticationIntf interface {
-	isaVPNServerAuthentication() bool
-}
-
-// UnmarshalVPNServerAuthentication unmarshals an instance of VPNServerAuthentication from the specified map of raw messages.
-func UnmarshalVPNServerAuthentication(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(VPNServerAuthentication)
-	err = core.UnmarshalPrimitive(m, "method", &obj.Method)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "identity_provider", &obj.IdentityProvider, UnmarshalVPNServerAuthenticationByUsernameIDProvider)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "client_ca", &obj.ClientCa, UnmarshalCertificateInstanceReference)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "crl", &obj.Crl)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// VPNServerAuthenticationByUsernameIDProvider : The type of identity provider to be used by VPN client.
-// Models which "extend" this model:
-// - VPNServerAuthenticationByUsernameIDProviderByIam
-type VPNServerAuthenticationByUsernameIDProvider struct {
-	// The type of identity provider to be used by the VPN client.
-	// - `iam`: IBM identity and access management
-	//
-	// The enumerated values for this property are expected to expand in the future. When processing this property, check
-	// for and log unknown values. Optionally halt processing and surface the error, or bypass the route on which the
-	// unexpected property value was encountered.
-	ProviderType *string `json:"provider_type,omitempty"`
-}
-
-// Constants associated with the VPNServerAuthenticationByUsernameIDProvider.ProviderType property.
-// The type of identity provider to be used by the VPN client.
-// - `iam`: IBM identity and access management
-//
-// The enumerated values for this property are expected to expand in the future. When processing this property, check
-// for and log unknown values. Optionally halt processing and surface the error, or bypass the route on which the
-// unexpected property value was encountered.
-const (
-	VPNServerAuthenticationByUsernameIDProviderProviderTypeIamConst = "iam"
-)
-
-func (*VPNServerAuthenticationByUsernameIDProvider) isaVPNServerAuthenticationByUsernameIDProvider() bool {
-	return true
-}
-
-type VPNServerAuthenticationByUsernameIDProviderIntf interface {
-	isaVPNServerAuthenticationByUsernameIDProvider() bool
-}
-
-// UnmarshalVPNServerAuthenticationByUsernameIDProvider unmarshals an instance of VPNServerAuthenticationByUsernameIDProvider from the specified map of raw messages.
-func UnmarshalVPNServerAuthenticationByUsernameIDProvider(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(VPNServerAuthenticationByUsernameIDProvider)
-	err = core.UnmarshalPrimitive(m, "provider_type", &obj.ProviderType)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// VPNServerAuthenticationPrototype : An authentication method for this VPN server.
-// Models which "extend" this model:
-// - VPNServerAuthenticationPrototypeVPNServerAuthenticationByUsernamePrototype
-// - VPNServerAuthenticationPrototypeVPNServerAuthenticationByCertificatePrototype
-type VPNServerAuthenticationPrototype struct {
-	// The type of authentication.
-	Method *string `json:"method" validate:"required"`
-
-	// The type of identity provider to be used by VPN client.
-	IdentityProvider VPNServerAuthenticationByUsernameIDProviderIntf `json:"identity_provider,omitempty"`
-
-	// The certificate instance to use for the VPN client certificate authority (CA).
-	ClientCa CertificateInstanceIdentityIntf `json:"client_ca,omitempty"`
-
-	// The certificate revocation list contents, encoded in PEM format.
-	Crl *string `json:"crl,omitempty"`
-}
-
-// Constants associated with the VPNServerAuthenticationPrototype.Method property.
-// The type of authentication.
-const (
-	VPNServerAuthenticationPrototypeMethodCertificateConst = "certificate"
-	VPNServerAuthenticationPrototypeMethodUsernameConst    = "username"
-)
-
-func (*VPNServerAuthenticationPrototype) isaVPNServerAuthenticationPrototype() bool {
-	return true
-}
-
-type VPNServerAuthenticationPrototypeIntf interface {
-	isaVPNServerAuthenticationPrototype() bool
-}
-
-// UnmarshalVPNServerAuthenticationPrototype unmarshals an instance of VPNServerAuthenticationPrototype from the specified map of raw messages.
-func UnmarshalVPNServerAuthenticationPrototype(m map[string]json.RawMessage, result interface{}) (err error) {
-	// Retrieve discriminator value to determine correct "subclass".
-	var discValue string
-	err = core.UnmarshalPrimitive(m, "method", &discValue)
-	if err != nil {
-		err = fmt.Errorf("error unmarshalling discriminator property 'method': %s", err.Error())
-		return
-	}
-	if discValue == "" {
-		err = fmt.Errorf("required discriminator property 'method' not found in JSON object")
-		return
-	}
-	if discValue == "certificate" {
-		err = core.UnmarshalModel(m, "", result, UnmarshalVPNServerAuthenticationPrototypeVPNServerAuthenticationByUsernamePrototype)
-	} else if discValue == "username" {
-		err = core.UnmarshalModel(m, "", result, UnmarshalVPNServerAuthenticationPrototypeVPNServerAuthenticationByCertificatePrototype)
-	} else {
-		err = fmt.Errorf("unrecognized value for discriminator property 'method': %s", discValue)
-	}
-	return
-}
-
-// VPNServerClient : VPNServerClient struct
-type VPNServerClient struct {
-	// The IP address assigned to this VPN client from `client_ip_pool`.
-	ClientIP *IP `json:"client_ip" validate:"required"`
-
-	// The common name of client certificate that the VPN client provided when connecting to the server.
-	//
-	// This property will be present only when the `certificate` client authentication method is enabled on the VPN server.
-	CommonName *string `json:"common_name,omitempty"`
-
-	// The date and time that the VPN client was created.
-	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
-
-	// The date and time that the VPN client was disconnected.
-	DisconnectedAt *strfmt.DateTime `json:"disconnected_at,omitempty"`
-
-	// The URL for this VPN client.
-	Href *string `json:"href" validate:"required"`
-
-	// The unique identifier for this VPN client.
-	ID *string `json:"id" validate:"required"`
-
-	// The remote IP address of this VPN client.
-	RemoteIP *IP `json:"remote_ip" validate:"required"`
-
-	// The remote port of this VPN client.
-	RemotePort *int64 `json:"remote_port" validate:"required"`
-
-	// The resource type.
-	ResourceType *string `json:"resource_type" validate:"required"`
-
-	// The status of the VPN client:
-	// - `connected`: the VPN client is `connected` to this VPN server.
-	// - `disconnected`: the VPN client is `disconnected` from this VPN server.
-	//
-	// The enumerated values for this property are expected to expand in the future. When processing this property, check
-	// for and log unknown values. Optionally halt processing and surface the error, or bypass the VPN client on which the
-	// unexpected property value was encountered.
-	Status *string `json:"status" validate:"required"`
-
-	// The username that this VPN client provided when connecting to the VPN server.
-	//
-	// This property will be present only when  the`username` client authentication method is enabled on the VPN server.
-	Username *string `json:"username,omitempty"`
-}
-
-// Constants associated with the VPNServerClient.ResourceType property.
-// The resource type.
-const (
-	VPNServerClientResourceTypeVPNServerClientConst = "vpn_server_client"
-)
-
-// Constants associated with the VPNServerClient.Status property.
-// The status of the VPN client:
-// - `connected`: the VPN client is `connected` to this VPN server.
-// - `disconnected`: the VPN client is `disconnected` from this VPN server.
-//
-// The enumerated values for this property are expected to expand in the future. When processing this property, check
-// for and log unknown values. Optionally halt processing and surface the error, or bypass the VPN client on which the
-// unexpected property value was encountered.
-const (
-	VPNServerClientStatusConnectedConst    = "connected"
-	VPNServerClientStatusDisconnectedConst = "disconnected"
-)
-
-// UnmarshalVPNServerClient unmarshals an instance of VPNServerClient from the specified map of raw messages.
-func UnmarshalVPNServerClient(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(VPNServerClient)
-	err = core.UnmarshalModel(m, "client_ip", &obj.ClientIP, UnmarshalIP)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "common_name", &obj.CommonName)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "created_at", &obj.CreatedAt)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "disconnected_at", &obj.DisconnectedAt)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "remote_ip", &obj.RemoteIP, UnmarshalIP)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "remote_port", &obj.RemotePort)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "status", &obj.Status)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "username", &obj.Username)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// VPNServerClientCollection : VPNServerClientCollection struct
-type VPNServerClientCollection struct {
-	// Collection of VPN clients.
-	Clients []VPNServerClient `json:"clients" validate:"required"`
-
-	// A link to the first page of resources.
-	First *VPNServerClientCollectionFirst `json:"first" validate:"required"`
-
-	// The maximum number of resources that can be returned by the request.
-	Limit *int64 `json:"limit" validate:"required"`
-
-	// A link to the next page of resources. This property is present for all pages
-	// except the last page.
-	Next *VPNServerClientCollectionNext `json:"next,omitempty"`
-
-	// The total number of resources across all pages.
-	TotalCount *int64 `json:"total_count" validate:"required"`
-}
-
-// UnmarshalVPNServerClientCollection unmarshals an instance of VPNServerClientCollection from the specified map of raw messages.
-func UnmarshalVPNServerClientCollection(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(VPNServerClientCollection)
-	err = core.UnmarshalModel(m, "clients", &obj.Clients, UnmarshalVPNServerClient)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "first", &obj.First, UnmarshalVPNServerClientCollectionFirst)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "limit", &obj.Limit)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "next", &obj.Next, UnmarshalVPNServerClientCollectionNext)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "total_count", &obj.TotalCount)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// VPNServerClientCollectionFirst : A link to the first page of resources.
-type VPNServerClientCollectionFirst struct {
-	// The URL for a page of resources.
-	Href *string `json:"href" validate:"required"`
-}
-
-// UnmarshalVPNServerClientCollectionFirst unmarshals an instance of VPNServerClientCollectionFirst from the specified map of raw messages.
-func UnmarshalVPNServerClientCollectionFirst(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(VPNServerClientCollectionFirst)
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// VPNServerClientCollectionNext : A link to the next page of resources. This property is present for all pages except the last page.
-type VPNServerClientCollectionNext struct {
-	// The URL for a page of resources.
-	Href *string `json:"href" validate:"required"`
-}
-
-// UnmarshalVPNServerClientCollectionNext unmarshals an instance of VPNServerClientCollectionNext from the specified map of raw messages.
-func UnmarshalVPNServerClientCollectionNext(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(VPNServerClientCollectionNext)
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// VPNServerCollection : VPNServerCollection struct
-type VPNServerCollection struct {
-	// A link to the first page of resources.
-	First *VPNServerCollectionFirst `json:"first" validate:"required"`
-
-	// The maximum number of resources that can be returned by the request.
-	Limit *int64 `json:"limit" validate:"required"`
-
-	// A link to the next page of resources. This property is present for all pages
-	// except the last page.
-	Next *VPNServerCollectionNext `json:"next,omitempty"`
-
-	// The total number of resources across all pages.
-	TotalCount *int64 `json:"total_count" validate:"required"`
-
-	// Collection of VPN servers.
-	VPNServers []VPNServer `json:"vpn_servers" validate:"required"`
-}
-
-// UnmarshalVPNServerCollection unmarshals an instance of VPNServerCollection from the specified map of raw messages.
-func UnmarshalVPNServerCollection(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(VPNServerCollection)
-	err = core.UnmarshalModel(m, "first", &obj.First, UnmarshalVPNServerCollectionFirst)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "limit", &obj.Limit)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "next", &obj.Next, UnmarshalVPNServerCollectionNext)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "total_count", &obj.TotalCount)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "vpn_servers", &obj.VPNServers, UnmarshalVPNServer)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// VPNServerCollectionFirst : A link to the first page of resources.
-type VPNServerCollectionFirst struct {
-	// The URL for a page of resources.
-	Href *string `json:"href" validate:"required"`
-}
-
-// UnmarshalVPNServerCollectionFirst unmarshals an instance of VPNServerCollectionFirst from the specified map of raw messages.
-func UnmarshalVPNServerCollectionFirst(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(VPNServerCollectionFirst)
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// VPNServerCollectionNext : A link to the next page of resources. This property is present for all pages except the last page.
-type VPNServerCollectionNext struct {
-	// The URL for a page of resources.
-	Href *string `json:"href" validate:"required"`
-}
-
-// UnmarshalVPNServerCollectionNext unmarshals an instance of VPNServerCollectionNext from the specified map of raw messages.
-func UnmarshalVPNServerCollectionNext(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(VPNServerCollectionNext)
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// VPNServerPatch : VPNServerPatch struct
-type VPNServerPatch struct {
-	// The certificate instance for this VPN server.
-	Certificate CertificateInstanceIdentityIntf `json:"certificate,omitempty"`
-
-	// The authentication methods to use to authenticate VPN client on this VPN server
-	// (replacing any existing methods).
-	ClientAuthentication []VPNServerAuthenticationPrototypeIntf `json:"client_authentication,omitempty"`
-
-	// The DNS server addresses that will be provided to VPN clients connected to this VPN server (replacing any existing
-	// addresses).
-	ClientDnsServerIps []IP `json:"client_dns_server_ips,omitempty"`
-
-	// The seconds a VPN client can be idle before this VPN server will disconnect it.  If `0`, the server will not
-	// disconnect idle clients.
-	ClientIdleTimeout *int64 `json:"client_idle_timeout,omitempty"`
-
-	// The VPN client IPv4 address pool, expressed in CIDR format. The request must not overlap with any existing address
-	// prefixes in the VPC or any of the following reserved address ranges:
-	//   - `127.0.0.0/8` (IPv4 loopback addresses)
-	//   - `161.26.0.0/16` (IBM services)
-	//   - `166.8.0.0/14` (Cloud Service Endpoints)
-	//   - `169.254.0.0/16` (IPv4 link-local addresses)
-	//   - `224.0.0.0/4` (IPv4 multicast addresses)
-	//
-	// The prefix length of the client IP address pool's CIDR must be between
-	// `/9` (8,388,608 addresses) and `/22` (1024 addresses). A CIDR block that contains twice the number of IP addresses
-	// that are required to enable the maximum number of concurrent connections is recommended.
-	ClientIPPool *string `json:"client_ip_pool,omitempty"`
-
-	// Indicates whether the split tunneling is enabled on this VPN server.
-	EnableSplitTunneling *bool `json:"enable_split_tunneling,omitempty"`
-
-	// The user-defined name for this VPN server. Names must be unique within the VPC this VPN server is serving.
-	Name *string `json:"name,omitempty"`
-
-	// The port number used by this VPN server.
-	Port *int64 `json:"port,omitempty"`
-
-	// The transport protocol used by this VPN server.
-	Protocol *string `json:"protocol,omitempty"`
-}
-
-// Constants associated with the VPNServerPatch.Protocol property.
-// The transport protocol used by this VPN server.
-const (
-	VPNServerPatchProtocolTCPConst = "tcp"
-	VPNServerPatchProtocolUDPConst = "udp"
-)
-
-// UnmarshalVPNServerPatch unmarshals an instance of VPNServerPatch from the specified map of raw messages.
-func UnmarshalVPNServerPatch(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(VPNServerPatch)
-	err = core.UnmarshalModel(m, "certificate", &obj.Certificate, UnmarshalCertificateInstanceIdentity)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "client_authentication", &obj.ClientAuthentication, UnmarshalVPNServerAuthenticationPrototype)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "client_dns_server_ips", &obj.ClientDnsServerIps, UnmarshalIP)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "client_idle_timeout", &obj.ClientIdleTimeout)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "client_ip_pool", &obj.ClientIPPool)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "enable_split_tunneling", &obj.EnableSplitTunneling)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "port", &obj.Port)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "protocol", &obj.Protocol)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// AsPatch returns a generic map representation of the VPNServerPatch
-func (vpnServerPatch *VPNServerPatch) AsPatch() (patch map[string]interface{}, err error) {
-	var jsonData []byte
-	jsonData, err = json.Marshal(vpnServerPatch)
-	if err == nil {
-		err = json.Unmarshal(jsonData, &patch)
-	}
-	return
-}
-
-// VPNServerReferenceDeleted : If present, this property indicates the referenced resource has been deleted and provides some supplementary
-// information.
-type VPNServerReferenceDeleted struct {
-	// Link to documentation about deleted resources.
-	MoreInfo *string `json:"more_info" validate:"required"`
-}
-
-// UnmarshalVPNServerReferenceDeleted unmarshals an instance of VPNServerReferenceDeleted from the specified map of raw messages.
-func UnmarshalVPNServerReferenceDeleted(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(VPNServerReferenceDeleted)
-	err = core.UnmarshalPrimitive(m, "more_info", &obj.MoreInfo)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// VPNServerRoute : VPNServerRoute struct
-type VPNServerRoute struct {
-	// The action to perform with a packet matching the VPN route:
-	// - `translate`: translate the source IP address to one of the private IP addresses of the VPN server.
-	// - `deliver`: deliver the packet into the VPC.
-	// - `drop`: drop the packet
-	//
-	// The enumerated values for this property are expected to expand in the future. When processing this property, check
-	// for and log unknown values. Optionally halt processing and surface the error, or bypass the VPN route on which the
-	// unexpected property value was encountered.
-	Action *string `json:"action" validate:"required"`
-
-	// The date and time that the VPN route was created.
-	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
-
-	// The destination for this VPN route in the VPN server. If an incoming packet does not match any destination, it will
-	// be dropped.
-	Destination *string `json:"destination" validate:"required"`
-
-	// The URL for this VPN route.
-	Href *string `json:"href" validate:"required"`
-
-	// The unique identifier for this VPN route.
-	ID *string `json:"id" validate:"required"`
-
-	// The lifecycle state of the VPN route.
-	LifecycleState *string `json:"lifecycle_state" validate:"required"`
-
-	// The user-defined name for this VPN route.
-	Name *string `json:"name" validate:"required"`
-
-	// The resource type.
-	ResourceType *string `json:"resource_type" validate:"required"`
-}
-
-// Constants associated with the VPNServerRoute.Action property.
-// The action to perform with a packet matching the VPN route:
-// - `translate`: translate the source IP address to one of the private IP addresses of the VPN server.
-// - `deliver`: deliver the packet into the VPC.
-// - `drop`: drop the packet
-//
-// The enumerated values for this property are expected to expand in the future. When processing this property, check
-// for and log unknown values. Optionally halt processing and surface the error, or bypass the VPN route on which the
-// unexpected property value was encountered.
-const (
-	VPNServerRouteActionDeliverConst   = "deliver"
-	VPNServerRouteActionDropConst      = "drop"
-	VPNServerRouteActionTranslateConst = "translate"
-)
-
-// Constants associated with the VPNServerRoute.LifecycleState property.
-// The lifecycle state of the VPN route.
-const (
-	VPNServerRouteLifecycleStateDeletingConst  = "deleting"
-	VPNServerRouteLifecycleStateFailedConst    = "failed"
-	VPNServerRouteLifecycleStatePendingConst   = "pending"
-	VPNServerRouteLifecycleStateStableConst    = "stable"
-	VPNServerRouteLifecycleStateSuspendedConst = "suspended"
-	VPNServerRouteLifecycleStateUpdatingConst  = "updating"
-	VPNServerRouteLifecycleStateWaitingConst   = "waiting"
-)
-
-// Constants associated with the VPNServerRoute.ResourceType property.
-// The resource type.
-const (
-	VPNServerRouteResourceTypeVPNServerRouteConst = "vpn_server_route"
-)
-
-// UnmarshalVPNServerRoute unmarshals an instance of VPNServerRoute from the specified map of raw messages.
-func UnmarshalVPNServerRoute(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(VPNServerRoute)
-	err = core.UnmarshalPrimitive(m, "action", &obj.Action)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "created_at", &obj.CreatedAt)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "destination", &obj.Destination)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "lifecycle_state", &obj.LifecycleState)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// VPNServerRouteCollection : VPNServerRouteCollection struct
-type VPNServerRouteCollection struct {
-	// A link to the first page of resources.
-	First *VPNServerRouteCollectionFirst `json:"first" validate:"required"`
-
-	// The maximum number of resources that can be returned by the request.
-	Limit *int64 `json:"limit" validate:"required"`
-
-	// A link to the next page of resources. This property is present for all pages
-	// except the last page.
-	Next *VPNServerRouteCollectionNext `json:"next,omitempty"`
-
-	// Collection of VPN routes.
-	Routes []VPNServerRoute `json:"routes" validate:"required"`
-
-	// The total number of resources across all pages.
-	TotalCount *int64 `json:"total_count" validate:"required"`
-}
-
-// UnmarshalVPNServerRouteCollection unmarshals an instance of VPNServerRouteCollection from the specified map of raw messages.
-func UnmarshalVPNServerRouteCollection(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(VPNServerRouteCollection)
-	err = core.UnmarshalModel(m, "first", &obj.First, UnmarshalVPNServerRouteCollectionFirst)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "limit", &obj.Limit)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "next", &obj.Next, UnmarshalVPNServerRouteCollectionNext)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "routes", &obj.Routes, UnmarshalVPNServerRoute)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "total_count", &obj.TotalCount)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// VPNServerRouteCollectionFirst : A link to the first page of resources.
-type VPNServerRouteCollectionFirst struct {
-	// The URL for a page of resources.
-	Href *string `json:"href" validate:"required"`
-}
-
-// UnmarshalVPNServerRouteCollectionFirst unmarshals an instance of VPNServerRouteCollectionFirst from the specified map of raw messages.
-func UnmarshalVPNServerRouteCollectionFirst(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(VPNServerRouteCollectionFirst)
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// VPNServerRouteCollectionNext : A link to the next page of resources. This property is present for all pages except the last page.
-type VPNServerRouteCollectionNext struct {
-	// The URL for a page of resources.
-	Href *string `json:"href" validate:"required"`
-}
-
-// UnmarshalVPNServerRouteCollectionNext unmarshals an instance of VPNServerRouteCollectionNext from the specified map of raw messages.
-func UnmarshalVPNServerRouteCollectionNext(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(VPNServerRouteCollectionNext)
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// VPNServerRoutePatch : VPNServerRoutePatch struct
-type VPNServerRoutePatch struct {
-	// The user-defined name for this VPN route. Names must be unique within the VPN server the VPN route resides in.
-	Name *string `json:"name,omitempty"`
-}
-
-// UnmarshalVPNServerRoutePatch unmarshals an instance of VPNServerRoutePatch from the specified map of raw messages.
-func UnmarshalVPNServerRoutePatch(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(VPNServerRoutePatch)
-	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// AsPatch returns a generic map representation of the VPNServerRoutePatch
-func (vpnServerRoutePatch *VPNServerRoutePatch) AsPatch() (patch map[string]interface{}, err error) {
-	var jsonData []byte
-	jsonData, err = json.Marshal(vpnServerRoutePatch)
-	if err == nil {
-		err = json.Unmarshal(jsonData, &patch)
-	}
-	return
-}
-
 // Volume : Volume struct
 type Volume struct {
 	// Indicates whether a running virtual server instance has an attachment to this volume.
 	Active *bool `json:"active" validate:"required"`
-
-	// The maximum bandwidth (in megabits per second) for the volume.
-	Bandwidth *int64 `json:"bandwidth" validate:"required"`
 
 	// Indicates whether this volume is performing an operation that must be serialized. If an operation specifies that it
 	// requires serialization, the operation will fail unless this property is `false`.
@@ -63556,7 +49476,7 @@ type Volume struct {
 	// The unique identifier for this volume.
 	ID *string `json:"id" validate:"required"`
 
-	// The maximum I/O operations per second (IOPS) for the volume.
+	// The bandwidth for the volume.
 	Iops *int64 `json:"iops" validate:"required"`
 
 	// The unique user-defined name for this volume.
@@ -63594,9 +49514,6 @@ type Volume struct {
 	// unexpected reason code was encountered.
 	StatusReasons []VolumeStatusReason `json:"status_reasons" validate:"required"`
 
-	// Tags for this resource.
-	UserTags []string `json:"user_tags" validate:"required"`
-
 	// The volume attachments for this volume.
 	VolumeAttachments []VolumeAttachmentReferenceVolumeContext `json:"volume_attachments" validate:"required"`
 
@@ -63623,17 +49540,12 @@ const (
 	VolumeStatusPendingConst         = "pending"
 	VolumeStatusPendingDeletionConst = "pending_deletion"
 	VolumeStatusUnusableConst        = "unusable"
-	VolumeStatusUpdatingConst        = "updating"
 )
 
 // UnmarshalVolume unmarshals an instance of Volume from the specified map of raw messages.
 func UnmarshalVolume(m map[string]json.RawMessage, result interface{}) (err error) {
 	obj := new(Volume)
 	err = core.UnmarshalPrimitive(m, "active", &obj.Active)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "bandwidth", &obj.Bandwidth)
 	if err != nil {
 		return
 	}
@@ -63705,10 +49617,6 @@ func UnmarshalVolume(m map[string]json.RawMessage, result interface{}) (err erro
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalPrimitive(m, "user_tags", &obj.UserTags)
-	if err != nil {
-		return
-	}
 	err = core.UnmarshalModel(m, "volume_attachments", &obj.VolumeAttachments, UnmarshalVolumeAttachmentReferenceVolumeContext)
 	if err != nil {
 		return
@@ -63723,10 +49631,6 @@ func UnmarshalVolume(m map[string]json.RawMessage, result interface{}) (err erro
 
 // VolumeAttachment : VolumeAttachment struct
 type VolumeAttachment struct {
-	// The maximum bandwidth (in megabits per second) for the volume when attached to this instance. This may be lower than
-	// the volume bandwidth depending on the configuration of the instance.
-	Bandwidth *int64 `json:"bandwidth" validate:"required"`
-
 	// The date and time that the volume was attached.
 	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
 
@@ -63776,10 +49680,6 @@ const (
 // UnmarshalVolumeAttachment unmarshals an instance of VolumeAttachment from the specified map of raw messages.
 func UnmarshalVolumeAttachment(m map[string]json.RawMessage, result interface{}) (err error) {
 	obj := new(VolumeAttachment)
-	err = core.UnmarshalPrimitive(m, "bandwidth", &obj.Bandwidth)
-	if err != nil {
-		return
-	}
 	err = core.UnmarshalPrimitive(m, "created_at", &obj.CreatedAt)
 	if err != nil {
 		return
@@ -63888,47 +49788,6 @@ func (volumeAttachmentPatch *VolumeAttachmentPatch) AsPatch() (patch map[string]
 	return
 }
 
-// VolumeAttachmentPrototype : VolumeAttachmentPrototype struct
-type VolumeAttachmentPrototype struct {
-	// If set to true, when deleting the instance the volume will also be deleted.
-	DeleteVolumeOnInstanceDelete *bool `json:"delete_volume_on_instance_delete,omitempty"`
-
-	// The user-defined name for this volume attachment. If unspecified, the name will be a hyphenated list of
-	// randomly-selected words.
-	Name *string `json:"name,omitempty"`
-
-	// An existing volume to attach to the instance, or a prototype object for a new volume.
-	Volume VolumeAttachmentPrototypeVolumeIntf `json:"volume" validate:"required"`
-}
-
-// NewVolumeAttachmentPrototype : Instantiate VolumeAttachmentPrototype (Generic Model Constructor)
-func (*VpcV1) NewVolumeAttachmentPrototype(volume VolumeAttachmentPrototypeVolumeIntf) (model *VolumeAttachmentPrototype, err error) {
-	model = &VolumeAttachmentPrototype{
-		Volume: volume,
-	}
-	err = core.ValidateStruct(model, "required parameters")
-	return
-}
-
-// UnmarshalVolumeAttachmentPrototype unmarshals an instance of VolumeAttachmentPrototype from the specified map of raw messages.
-func UnmarshalVolumeAttachmentPrototype(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(VolumeAttachmentPrototype)
-	err = core.UnmarshalPrimitive(m, "delete_volume_on_instance_delete", &obj.DeleteVolumeOnInstanceDelete)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "volume", &obj.Volume, UnmarshalVolumeAttachmentPrototypeVolume)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
 // VolumeAttachmentPrototypeInstanceByImageContext : VolumeAttachmentPrototypeInstanceByImageContext struct
 type VolumeAttachmentPrototypeInstanceByImageContext struct {
 	// If set to true, when deleting the instance the volume will also be deleted.
@@ -64009,6 +49868,46 @@ func UnmarshalVolumeAttachmentPrototypeInstanceByVolumeContext(m map[string]json
 	return
 }
 
+// VolumeAttachmentPrototypeInstanceContext : VolumeAttachmentPrototypeInstanceContext struct
+type VolumeAttachmentPrototypeInstanceContext struct {
+	// If set to true, when deleting the instance the volume will also be deleted.
+	DeleteVolumeOnInstanceDelete *bool `json:"delete_volume_on_instance_delete,omitempty"`
+
+	// The user-defined name for this volume attachment.
+	Name *string `json:"name,omitempty"`
+
+	// An existing volume to attach to the instance, or a prototype object for a new volume.
+	Volume VolumeAttachmentVolumePrototypeInstanceContextIntf `json:"volume" validate:"required"`
+}
+
+// NewVolumeAttachmentPrototypeInstanceContext : Instantiate VolumeAttachmentPrototypeInstanceContext (Generic Model Constructor)
+func (*VpcV1) NewVolumeAttachmentPrototypeInstanceContext(volume VolumeAttachmentVolumePrototypeInstanceContextIntf) (model *VolumeAttachmentPrototypeInstanceContext, err error) {
+	model = &VolumeAttachmentPrototypeInstanceContext{
+		Volume: volume,
+	}
+	err = core.ValidateStruct(model, "required parameters")
+	return
+}
+
+// UnmarshalVolumeAttachmentPrototypeInstanceContext unmarshals an instance of VolumeAttachmentPrototypeInstanceContext from the specified map of raw messages.
+func UnmarshalVolumeAttachmentPrototypeInstanceContext(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(VolumeAttachmentPrototypeInstanceContext)
+	err = core.UnmarshalPrimitive(m, "delete_volume_on_instance_delete", &obj.DeleteVolumeOnInstanceDelete)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "volume", &obj.Volume, UnmarshalVolumeAttachmentVolumePrototypeInstanceContext)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
 // VolumeAttachmentPrototypeVolume : An existing volume to attach to the instance, or a prototype object for a new volume.
 // Models which "extend" this model:
 // - VolumeAttachmentPrototypeVolumeVolumeIdentity
@@ -64023,7 +49922,7 @@ type VolumeAttachmentPrototypeVolume struct {
 	// The URL for this volume.
 	Href *string `json:"href,omitempty"`
 
-	// The maximum I/O operations per second (IOPS) for the volume.
+	// The bandwidth for the volume.
 	Iops *int64 `json:"iops,omitempty"`
 
 	// The unique user-defined name for this volume.
@@ -64031,10 +49930,6 @@ type VolumeAttachmentPrototypeVolume struct {
 
 	// The profile to use for this volume.
 	Profile VolumeProfileIdentityIntf `json:"profile,omitempty"`
-
-	// The resource group to use for this volume. If unspecified, the instance's resource group
-	// will be used.
-	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
 
 	// The capacity to use for the volume (in gigabytes). The specified minimum and maximum capacity values for creating or
 	// updating volumes may expand in the future.
@@ -64082,10 +49977,6 @@ func UnmarshalVolumeAttachmentPrototypeVolume(m map[string]json.RawMessage, resu
 		return
 	}
 	err = core.UnmarshalModel(m, "profile", &obj.Profile, UnmarshalVolumeProfileIdentity)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "resource_group", &obj.ResourceGroup, UnmarshalResourceGroupIdentity)
 	if err != nil {
 		return
 	}
@@ -64274,18 +50165,8 @@ func UnmarshalVolumeAttachmentReferenceVolumeContextDeleted(m map[string]json.Ra
 
 // VolumeAttachmentVolumePrototypeInstanceByVolumeContext : An existing volume to attach to the instance, or a prototype object for a new volume.
 // Models which "extend" this model:
-// - VolumeAttachmentVolumePrototypeInstanceByVolumeContextVolumeIdentity
 // - VolumeAttachmentVolumePrototypeInstanceByVolumeContextVolumePrototypeInstanceByVolumeContext
 type VolumeAttachmentVolumePrototypeInstanceByVolumeContext struct {
-	// The unique identifier for this volume.
-	ID *string `json:"id,omitempty"`
-
-	// The CRN for this volume.
-	CRN *string `json:"crn,omitempty"`
-
-	// The URL for this volume.
-	Href *string `json:"href,omitempty"`
-
 	// The capacity to use for the volume (in gigabytes). The only allowed value is the source snapshot's
 	// `minimum_capacity`, but the allowed values are expected to expand in the future.
 	//
@@ -64297,7 +50178,7 @@ type VolumeAttachmentVolumePrototypeInstanceByVolumeContext struct {
 	// If this property is not provided, the snapshot's `encryption_key` will be used.
 	EncryptionKey EncryptionKeyIdentityIntf `json:"encryption_key,omitempty"`
 
-	// The maximum I/O operations per second (IOPS) for the volume.
+	// The bandwidth for the volume.
 	Iops *int64 `json:"iops,omitempty"`
 
 	// The unique user-defined name for this volume.
@@ -64305,10 +50186,6 @@ type VolumeAttachmentVolumePrototypeInstanceByVolumeContext struct {
 
 	// The profile to use for this volume.
 	Profile VolumeProfileIdentityIntf `json:"profile,omitempty"`
-
-	// The resource group to use for this volume. If unspecified, the instance's resource group
-	// will be used.
-	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
 
 	// The snapshot from which to clone the volume.
 	SourceSnapshot SnapshotIdentityIntf `json:"source_snapshot,omitempty"`
@@ -64325,18 +50202,6 @@ type VolumeAttachmentVolumePrototypeInstanceByVolumeContextIntf interface {
 // UnmarshalVolumeAttachmentVolumePrototypeInstanceByVolumeContext unmarshals an instance of VolumeAttachmentVolumePrototypeInstanceByVolumeContext from the specified map of raw messages.
 func UnmarshalVolumeAttachmentVolumePrototypeInstanceByVolumeContext(m map[string]json.RawMessage, result interface{}) (err error) {
 	obj := new(VolumeAttachmentVolumePrototypeInstanceByVolumeContext)
-	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
 	err = core.UnmarshalPrimitive(m, "capacity", &obj.Capacity)
 	if err != nil {
 		return
@@ -64357,7 +50222,91 @@ func UnmarshalVolumeAttachmentVolumePrototypeInstanceByVolumeContext(m map[strin
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalModel(m, "resource_group", &obj.ResourceGroup, UnmarshalResourceGroupIdentity)
+	err = core.UnmarshalModel(m, "source_snapshot", &obj.SourceSnapshot, UnmarshalSnapshotIdentity)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// VolumeAttachmentVolumePrototypeInstanceContext : An existing volume to attach to the instance, or a prototype object for a new volume.
+// Models which "extend" this model:
+// - VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentity
+// - VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContext
+type VolumeAttachmentVolumePrototypeInstanceContext struct {
+	// The unique identifier for this volume.
+	ID *string `json:"id,omitempty"`
+
+	// The CRN for this volume.
+	CRN *string `json:"crn,omitempty"`
+
+	// The URL for this volume.
+	Href *string `json:"href,omitempty"`
+
+	// The bandwidth for the volume.
+	Iops *int64 `json:"iops,omitempty"`
+
+	// The unique user-defined name for this volume.
+	Name *string `json:"name,omitempty"`
+
+	// The profile to use for this volume.
+	Profile VolumeProfileIdentityIntf `json:"profile,omitempty"`
+
+	// The capacity to use for the volume (in gigabytes). The specified minimum and maximum capacity values for creating or
+	// updating volumes may expand in the future.
+	Capacity *int64 `json:"capacity,omitempty"`
+
+	// The root key to use to wrap the data encryption key for the volume.
+	//
+	// If this property is not provided, the `encryption` type for the volume will be
+	// `provider_managed`.
+	EncryptionKey EncryptionKeyIdentityIntf `json:"encryption_key,omitempty"`
+
+	// The snapshot from which to clone the volume.
+	SourceSnapshot SnapshotIdentityIntf `json:"source_snapshot,omitempty"`
+}
+
+func (*VolumeAttachmentVolumePrototypeInstanceContext) isaVolumeAttachmentVolumePrototypeInstanceContext() bool {
+	return true
+}
+
+type VolumeAttachmentVolumePrototypeInstanceContextIntf interface {
+	isaVolumeAttachmentVolumePrototypeInstanceContext() bool
+}
+
+// UnmarshalVolumeAttachmentVolumePrototypeInstanceContext unmarshals an instance of VolumeAttachmentVolumePrototypeInstanceContext from the specified map of raw messages.
+func UnmarshalVolumeAttachmentVolumePrototypeInstanceContext(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(VolumeAttachmentVolumePrototypeInstanceContext)
+	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "iops", &obj.Iops)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "profile", &obj.Profile, UnmarshalVolumeProfileIdentity)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "capacity", &obj.Capacity)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "encryption_key", &obj.EncryptionKey, UnmarshalEncryptionKeyIdentity)
 	if err != nil {
 		return
 	}
@@ -64487,12 +50436,6 @@ func UnmarshalVolumeIdentity(m map[string]json.RawMessage, result interface{}) (
 
 // VolumePatch : VolumePatch struct
 type VolumePatch struct {
-	// The capacity to use for the volume (in gigabytes). The volume must be attached as a data volume to a virtual server
-	// instance, and the specified value must not be less than the current capacity.
-	//
-	// The minimum and maximum capacity limits for creating or updating volumes may expand in the future.
-	Capacity *int64 `json:"capacity,omitempty"`
-
 	// The unique user-defined name for this volume.
 	Name *string `json:"name,omitempty"`
 }
@@ -64500,10 +50443,6 @@ type VolumePatch struct {
 // UnmarshalVolumePatch unmarshals an instance of VolumePatch from the specified map of raw messages.
 func UnmarshalVolumePatch(m map[string]json.RawMessage, result interface{}) (err error) {
 	obj := new(VolumePatch)
-	err = core.UnmarshalPrimitive(m, "capacity", &obj.Capacity)
-	if err != nil {
-		return
-	}
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
 	if err != nil {
 		return
@@ -64696,7 +50635,7 @@ func UnmarshalVolumeProfileReference(m map[string]json.RawMessage, result interf
 // Models which "extend" this model:
 // - VolumePrototypeVolumeByCapacity
 type VolumePrototype struct {
-	// The maximum I/O operations per second (IOPS) for the volume.
+	// The bandwidth for the volume.
 	Iops *int64 `json:"iops,omitempty"`
 
 	// The unique user-defined name for this volume.
@@ -64707,10 +50646,7 @@ type VolumePrototype struct {
 
 	// The resource group to use. If unspecified, the account's [default resource
 	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) is used.
-	ResourceGroup VolumePrototypeResourceGroupIntf `json:"resource_group,omitempty"`
-
-	// Tags for this resource.
-	UserTags []string `json:"user_tags,omitempty"`
+	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
 
 	// The zone this volume will reside in.
 	Zone ZoneIdentityIntf `json:"zone" validate:"required"`
@@ -64749,11 +50685,7 @@ func UnmarshalVolumePrototype(m map[string]json.RawMessage, result interface{}) 
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalModel(m, "resource_group", &obj.ResourceGroup, UnmarshalVolumePrototypeResourceGroup)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "user_tags", &obj.UserTags)
+	err = core.UnmarshalModel(m, "resource_group", &obj.ResourceGroup, UnmarshalResourceGroupIdentity)
 	if err != nil {
 		return
 	}
@@ -64788,7 +50720,7 @@ type VolumePrototypeInstanceByImageContext struct {
 	// volume will be `provider_managed`.
 	EncryptionKey EncryptionKeyIdentityIntf `json:"encryption_key,omitempty"`
 
-	// The maximum I/O operations per second (IOPS) for the volume.
+	// The bandwidth for the volume.
 	Iops *int64 `json:"iops,omitempty"`
 
 	// The unique user-defined name for this volume.
@@ -64796,10 +50728,6 @@ type VolumePrototypeInstanceByImageContext struct {
 
 	// The profile to use for this volume.
 	Profile VolumeProfileIdentityIntf `json:"profile" validate:"required"`
-
-	// The resource group to use for this volume. If unspecified, the instance's resource group
-	// will be used.
-	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
 }
 
 // NewVolumePrototypeInstanceByImageContext : Instantiate VolumePrototypeInstanceByImageContext (Generic Model Constructor)
@@ -64831,38 +50759,6 @@ func UnmarshalVolumePrototypeInstanceByImageContext(m map[string]json.RawMessage
 		return
 	}
 	err = core.UnmarshalModel(m, "profile", &obj.Profile, UnmarshalVolumeProfileIdentity)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "resource_group", &obj.ResourceGroup, UnmarshalResourceGroupIdentity)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// VolumePrototypeResourceGroup : The resource group to use. If unspecified, the account's [default resource
-// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) is used.
-// Models which "extend" this model:
-// - VolumePrototypeResourceGroupResourceGroupIdentityByID
-type VolumePrototypeResourceGroup struct {
-	// The unique identifier for this resource group.
-	ID *string `json:"id,omitempty"`
-}
-
-func (*VolumePrototypeResourceGroup) isaVolumePrototypeResourceGroup() bool {
-	return true
-}
-
-type VolumePrototypeResourceGroupIntf interface {
-	isaVolumePrototypeResourceGroup() bool
-}
-
-// UnmarshalVolumePrototypeResourceGroup unmarshals an instance of VolumePrototypeResourceGroup from the specified map of raw messages.
-func UnmarshalVolumePrototypeResourceGroup(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(VolumePrototypeResourceGroup)
-	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
 	if err != nil {
 		return
 	}
@@ -65086,1756 +50982,6 @@ func UnmarshalZoneReference(m map[string]json.RawMessage, result interface{}) (e
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// BareMetalServerBootTargetBareMetalServerDiskReference : BareMetalServerBootTargetBareMetalServerDiskReference struct
-// This model "extends" BareMetalServerBootTarget
-type BareMetalServerBootTargetBareMetalServerDiskReference struct {
-	// If present, this property indicates the referenced resource has been deleted and provides
-	// some supplementary information.
-	Deleted *BareMetalServerDiskReferenceDeleted `json:"deleted,omitempty"`
-
-	// The URL for this bare metal server disk.
-	Href *string `json:"href" validate:"required"`
-
-	// The unique identifier for this bare metal server disk.
-	ID *string `json:"id" validate:"required"`
-
-	// The user-defined name for this disk.
-	Name *string `json:"name" validate:"required"`
-
-	// The resource type.
-	ResourceType *string `json:"resource_type" validate:"required"`
-}
-
-// Constants associated with the BareMetalServerBootTargetBareMetalServerDiskReference.ResourceType property.
-// The resource type.
-const (
-	BareMetalServerBootTargetBareMetalServerDiskReferenceResourceTypeBareMetalServerDiskConst = "bare_metal_server_disk"
-)
-
-func (*BareMetalServerBootTargetBareMetalServerDiskReference) isaBareMetalServerBootTarget() bool {
-	return true
-}
-
-// UnmarshalBareMetalServerBootTargetBareMetalServerDiskReference unmarshals an instance of BareMetalServerBootTargetBareMetalServerDiskReference from the specified map of raw messages.
-func UnmarshalBareMetalServerBootTargetBareMetalServerDiskReference(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(BareMetalServerBootTargetBareMetalServerDiskReference)
-	err = core.UnmarshalModel(m, "deleted", &obj.Deleted, UnmarshalBareMetalServerDiskReferenceDeleted)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// BareMetalServerInitializationUserAccountBareMetalServerInitializationHostUserAccount : BareMetalServerInitializationUserAccountBareMetalServerInitializationHostUserAccount struct
-// This model "extends" BareMetalServerInitializationUserAccount
-type BareMetalServerInitializationUserAccountBareMetalServerInitializationHostUserAccount struct {
-	// The password at initialization, encrypted using `encryption_key`, and returned base64-encoded.
-	EncryptedPassword *[]byte `json:"encrypted_password" validate:"required"`
-
-	// The public SSH key used to encrypt the password.
-	EncryptionKey *KeyReference `json:"encryption_key" validate:"required"`
-
-	// The type of resource referenced.
-	ResourceType *string `json:"resource_type" validate:"required"`
-
-	// The username for the account created at initialization.
-	Username *string `json:"username" validate:"required"`
-}
-
-// Constants associated with the BareMetalServerInitializationUserAccountBareMetalServerInitializationHostUserAccount.ResourceType property.
-// The type of resource referenced.
-const (
-	BareMetalServerInitializationUserAccountBareMetalServerInitializationHostUserAccountResourceTypeHostUserAccountConst = "host_user_account"
-)
-
-func (*BareMetalServerInitializationUserAccountBareMetalServerInitializationHostUserAccount) isaBareMetalServerInitializationUserAccount() bool {
-	return true
-}
-
-// UnmarshalBareMetalServerInitializationUserAccountBareMetalServerInitializationHostUserAccount unmarshals an instance of BareMetalServerInitializationUserAccountBareMetalServerInitializationHostUserAccount from the specified map of raw messages.
-func UnmarshalBareMetalServerInitializationUserAccountBareMetalServerInitializationHostUserAccount(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(BareMetalServerInitializationUserAccountBareMetalServerInitializationHostUserAccount)
-	err = core.UnmarshalPrimitive(m, "encrypted_password", &obj.EncryptedPassword)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "encryption_key", &obj.EncryptionKey, UnmarshalKeyReference)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "username", &obj.Username)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// BareMetalServerNetworkInterfaceByPci : BareMetalServerNetworkInterfaceByPci struct
-// This model "extends" BareMetalServerNetworkInterface
-type BareMetalServerNetworkInterfaceByPci struct {
-	// Indicates whether source IP spoofing is allowed on this interface. If false, source IP spoofing is prevented on this
-	// interface. If true, source IP spoofing is allowed on this interface.
-	AllowIPSpoofing *bool `json:"allow_ip_spoofing" validate:"required"`
-
-	// The date and time that the network interface was created.
-	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
-
-	// If true, the VPC infrastructure performs any needed NAT operations. If false, the packet is passed unmodified
-	// to/from the network interface, allowing the workload to perform any needed NAT operations.
-	EnableInfrastructureNat *bool `json:"enable_infrastructure_nat" validate:"required"`
-
-	// The floating IPs associated with this network interface.
-	FloatingIps []FloatingIPReference `json:"floating_ips,omitempty"`
-
-	// The URL for this network interface.
-	Href *string `json:"href" validate:"required"`
-
-	// The unique identifier for this network interface.
-	ID *string `json:"id" validate:"required"`
-
-	// The network interface type:
-	// - `pci`: a physical PCI device which can only be created or deleted when the bare metal
-	//   server is stopped
-	//   - Has an `allowed_vlans` property which controls the VLANs that will be permitted
-	//     to use the pci interface
-	//   - Cannot directly use an IEEE 802.1q VLAN tag.
-	// - `vlan`: a virtual device, used through a `pci` device that has the `vlan` in its array
-	//    of `allowed_vlans`.
-	//   - Must use an IEEE 802.1q tag.
-	//   - Has its own security groups and does not inherit those of the PCI device through
-	//     which traffic flows.
-	InterfaceType *string `json:"interface_type" validate:"required"`
-
-	// The MAC address of the interface.  If absent, the value is not known.
-	MacAddress *string `json:"mac_address" validate:"required"`
-
-	// The user-defined name for this network interface.
-	Name *string `json:"name" validate:"required"`
-
-	// The network interface port speed in Mbps.
-	PortSpeed *int64 `json:"port_speed" validate:"required"`
-
-	PrimaryIP *ReservedIPReference `json:"primary_ip" validate:"required"`
-
-	// The resource type.
-	ResourceType *string `json:"resource_type" validate:"required"`
-
-	// Collection of security groups.
-	SecurityGroups []SecurityGroupReference `json:"security_groups" validate:"required"`
-
-	// The status of the network interface.
-	Status *string `json:"status" validate:"required"`
-
-	// The associated subnet.
-	Subnet *SubnetReference `json:"subnet" validate:"required"`
-
-	// The type of this bare metal server network interface.
-	Type *string `json:"type" validate:"required"`
-
-	// Indicates what VLAN IDs (for VLAN type only) can use this physical (PCI type) interface. A given VLAN can only be in
-	// the `allowed_vlans` array for one PCI type adapter per bare metal server.
-	AllowedVlans []int64 `json:"allowed_vlans" validate:"required"`
-}
-
-// Constants associated with the BareMetalServerNetworkInterfaceByPci.InterfaceType property.
-// The network interface type:
-// - `pci`: a physical PCI device which can only be created or deleted when the bare metal
-//   server is stopped
-//   - Has an `allowed_vlans` property which controls the VLANs that will be permitted
-//     to use the pci interface
-//   - Cannot directly use an IEEE 802.1q VLAN tag.
-// - `vlan`: a virtual device, used through a `pci` device that has the `vlan` in its array
-//    of `allowed_vlans`.
-//   - Must use an IEEE 802.1q tag.
-//   - Has its own security groups and does not inherit those of the PCI device through
-//     which traffic flows.
-const (
-	BareMetalServerNetworkInterfaceByPciInterfaceTypePciConst  = "pci"
-	BareMetalServerNetworkInterfaceByPciInterfaceTypeVlanConst = "vlan"
-)
-
-// Constants associated with the BareMetalServerNetworkInterfaceByPci.ResourceType property.
-// The resource type.
-const (
-	BareMetalServerNetworkInterfaceByPciResourceTypeNetworkInterfaceConst = "network_interface"
-)
-
-// Constants associated with the BareMetalServerNetworkInterfaceByPci.Status property.
-// The status of the network interface.
-const (
-	BareMetalServerNetworkInterfaceByPciStatusAvailableConst = "available"
-	BareMetalServerNetworkInterfaceByPciStatusDeletingConst  = "deleting"
-	BareMetalServerNetworkInterfaceByPciStatusFailedConst    = "failed"
-	BareMetalServerNetworkInterfaceByPciStatusPendingConst   = "pending"
-)
-
-// Constants associated with the BareMetalServerNetworkInterfaceByPci.Type property.
-// The type of this bare metal server network interface.
-const (
-	BareMetalServerNetworkInterfaceByPciTypePrimaryConst   = "primary"
-	BareMetalServerNetworkInterfaceByPciTypeSecondaryConst = "secondary"
-)
-
-func (*BareMetalServerNetworkInterfaceByPci) isaBareMetalServerNetworkInterface() bool {
-	return true
-}
-
-// UnmarshalBareMetalServerNetworkInterfaceByPci unmarshals an instance of BareMetalServerNetworkInterfaceByPci from the specified map of raw messages.
-func UnmarshalBareMetalServerNetworkInterfaceByPci(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(BareMetalServerNetworkInterfaceByPci)
-	err = core.UnmarshalPrimitive(m, "allow_ip_spoofing", &obj.AllowIPSpoofing)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "created_at", &obj.CreatedAt)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "enable_infrastructure_nat", &obj.EnableInfrastructureNat)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "floating_ips", &obj.FloatingIps, UnmarshalFloatingIPReference)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "interface_type", &obj.InterfaceType)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "mac_address", &obj.MacAddress)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "port_speed", &obj.PortSpeed)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "primary_ip", &obj.PrimaryIP, UnmarshalReservedIPReference)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "security_groups", &obj.SecurityGroups, UnmarshalSecurityGroupReference)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "status", &obj.Status)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "subnet", &obj.Subnet, UnmarshalSubnetReference)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "allowed_vlans", &obj.AllowedVlans)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// BareMetalServerNetworkInterfaceByVlan : BareMetalServerNetworkInterfaceByVlan struct
-// This model "extends" BareMetalServerNetworkInterface
-type BareMetalServerNetworkInterfaceByVlan struct {
-	// Indicates whether source IP spoofing is allowed on this interface. If false, source IP spoofing is prevented on this
-	// interface. If true, source IP spoofing is allowed on this interface.
-	AllowIPSpoofing *bool `json:"allow_ip_spoofing" validate:"required"`
-
-	// The date and time that the network interface was created.
-	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
-
-	// If true, the VPC infrastructure performs any needed NAT operations. If false, the packet is passed unmodified
-	// to/from the network interface, allowing the workload to perform any needed NAT operations.
-	EnableInfrastructureNat *bool `json:"enable_infrastructure_nat" validate:"required"`
-
-	// The floating IPs associated with this network interface.
-	FloatingIps []FloatingIPReference `json:"floating_ips,omitempty"`
-
-	// The URL for this network interface.
-	Href *string `json:"href" validate:"required"`
-
-	// The unique identifier for this network interface.
-	ID *string `json:"id" validate:"required"`
-
-	// The network interface type:
-	// - `pci`: a physical PCI device which can only be created or deleted when the bare metal
-	//   server is stopped
-	//   - Has an `allowed_vlans` property which controls the VLANs that will be permitted
-	//     to use the pci interface
-	//   - Cannot directly use an IEEE 802.1q VLAN tag.
-	// - `vlan`: a virtual device, used through a `pci` device that has the `vlan` in its array
-	//    of `allowed_vlans`.
-	//   - Must use an IEEE 802.1q tag.
-	//   - Has its own security groups and does not inherit those of the PCI device through
-	//     which traffic flows.
-	InterfaceType *string `json:"interface_type" validate:"required"`
-
-	// The MAC address of the interface.  If absent, the value is not known.
-	MacAddress *string `json:"mac_address" validate:"required"`
-
-	// The user-defined name for this network interface.
-	Name *string `json:"name" validate:"required"`
-
-	// The network interface port speed in Mbps.
-	PortSpeed *int64 `json:"port_speed" validate:"required"`
-
-	PrimaryIP *ReservedIPReference `json:"primary_ip" validate:"required"`
-
-	// The resource type.
-	ResourceType *string `json:"resource_type" validate:"required"`
-
-	// Collection of security groups.
-	SecurityGroups []SecurityGroupReference `json:"security_groups" validate:"required"`
-
-	// The status of the network interface.
-	Status *string `json:"status" validate:"required"`
-
-	// The associated subnet.
-	Subnet *SubnetReference `json:"subnet" validate:"required"`
-
-	// The type of this bare metal server network interface.
-	Type *string `json:"type" validate:"required"`
-
-	// Indicates if the interface can float to any other server within the same
-	// `resource_group`. The interface will float automatically if the network detects a GARP or RARP on another bare metal
-	// server in the resource group.  Applies only to `vlan` type interfaces.
-	AllowInterfaceToFloat *bool `json:"allow_interface_to_float" validate:"required"`
-
-	// Indicates the 802.1Q VLAN ID tag that must be used for all traffic on this interface.
-	Vlan *int64 `json:"vlan" validate:"required"`
-}
-
-// Constants associated with the BareMetalServerNetworkInterfaceByVlan.InterfaceType property.
-// The network interface type:
-// - `pci`: a physical PCI device which can only be created or deleted when the bare metal
-//   server is stopped
-//   - Has an `allowed_vlans` property which controls the VLANs that will be permitted
-//     to use the pci interface
-//   - Cannot directly use an IEEE 802.1q VLAN tag.
-// - `vlan`: a virtual device, used through a `pci` device that has the `vlan` in its array
-//    of `allowed_vlans`.
-//   - Must use an IEEE 802.1q tag.
-//   - Has its own security groups and does not inherit those of the PCI device through
-//     which traffic flows.
-const (
-	BareMetalServerNetworkInterfaceByVlanInterfaceTypePciConst  = "pci"
-	BareMetalServerNetworkInterfaceByVlanInterfaceTypeVlanConst = "vlan"
-)
-
-// Constants associated with the BareMetalServerNetworkInterfaceByVlan.ResourceType property.
-// The resource type.
-const (
-	BareMetalServerNetworkInterfaceByVlanResourceTypeNetworkInterfaceConst = "network_interface"
-)
-
-// Constants associated with the BareMetalServerNetworkInterfaceByVlan.Status property.
-// The status of the network interface.
-const (
-	BareMetalServerNetworkInterfaceByVlanStatusAvailableConst = "available"
-	BareMetalServerNetworkInterfaceByVlanStatusDeletingConst  = "deleting"
-	BareMetalServerNetworkInterfaceByVlanStatusFailedConst    = "failed"
-	BareMetalServerNetworkInterfaceByVlanStatusPendingConst   = "pending"
-)
-
-// Constants associated with the BareMetalServerNetworkInterfaceByVlan.Type property.
-// The type of this bare metal server network interface.
-const (
-	BareMetalServerNetworkInterfaceByVlanTypePrimaryConst   = "primary"
-	BareMetalServerNetworkInterfaceByVlanTypeSecondaryConst = "secondary"
-)
-
-func (*BareMetalServerNetworkInterfaceByVlan) isaBareMetalServerNetworkInterface() bool {
-	return true
-}
-
-// UnmarshalBareMetalServerNetworkInterfaceByVlan unmarshals an instance of BareMetalServerNetworkInterfaceByVlan from the specified map of raw messages.
-func UnmarshalBareMetalServerNetworkInterfaceByVlan(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(BareMetalServerNetworkInterfaceByVlan)
-	err = core.UnmarshalPrimitive(m, "allow_ip_spoofing", &obj.AllowIPSpoofing)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "created_at", &obj.CreatedAt)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "enable_infrastructure_nat", &obj.EnableInfrastructureNat)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "floating_ips", &obj.FloatingIps, UnmarshalFloatingIPReference)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "interface_type", &obj.InterfaceType)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "mac_address", &obj.MacAddress)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "port_speed", &obj.PortSpeed)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "primary_ip", &obj.PrimaryIP, UnmarshalReservedIPReference)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "security_groups", &obj.SecurityGroups, UnmarshalSecurityGroupReference)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "status", &obj.Status)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "subnet", &obj.Subnet, UnmarshalSubnetReference)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "allow_interface_to_float", &obj.AllowInterfaceToFloat)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "vlan", &obj.Vlan)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// BareMetalServerNetworkInterfacePrototypeBareMetalServerNetworkInterfaceByPciPrototype : BareMetalServerNetworkInterfacePrototypeBareMetalServerNetworkInterfaceByPciPrototype struct
-// This model "extends" BareMetalServerNetworkInterfacePrototype
-type BareMetalServerNetworkInterfacePrototypeBareMetalServerNetworkInterfaceByPciPrototype struct {
-	// Indicates whether source IP spoofing is allowed on this interface. If false, source IP spoofing is prevented on this
-	// interface. If true, source IP spoofing is allowed on this interface.
-	AllowIPSpoofing *bool `json:"allow_ip_spoofing,omitempty"`
-
-	// If true, the VPC infrastructure performs any needed NAT operations. If false, the packet is passed unmodified
-	// to/from the network interface, allowing the workload to perform any needed NAT operations.
-	EnableInfrastructureNat *bool `json:"enable_infrastructure_nat,omitempty"`
-
-	// The network interface type:
-	// - `pci`: a physical PCI device which can only be created or deleted when the bare metal
-	//   server is stopped
-	//   - Has an `allowed_vlans` property which controls the VLANs that will be permitted
-	//     to use the pci interface
-	//   - Cannot directly use an IEEE 802.1q VLAN tag.
-	// - `vlan`: a virtual device, used through a `pci` device that has the `vlan` in its array
-	//    of `allowed_vlans`.
-	//   - Must use an IEEE 802.1q tag.
-	//   - Has its own security groups and does not inherit those of the PCI device through
-	//     which traffic flows.
-	InterfaceType *string `json:"interface_type" validate:"required"`
-
-	// The user-defined name for this network interface. If unspecified, the name will be a hyphenated list of
-	// randomly-selected words.
-	Name *string `json:"name,omitempty"`
-
-	// The primary IP address to bind to the network interface. This can be specified using an existing reserved IP, or a
-	// prototype object for a new reserved IP.
-	//
-	// If an existing reserved IP or a prototype object with an address is specified, it must be available on the network
-	// interface's subnet. Otherwise, an available address on the subnet will be automatically selected and reserved.
-	PrimaryIP NetworkInterfaceIPPrototypeIntf `json:"primary_ip,omitempty"`
-
-	// Collection of security groups.
-	SecurityGroups []SecurityGroupIdentityIntf `json:"security_groups,omitempty"`
-
-	// The associated subnet.
-	Subnet SubnetIdentityIntf `json:"subnet" validate:"required"`
-
-	// Indicates what VLAN IDs (for VLAN type only) can use this physical (PCI type) interface. A given VLAN can only be in
-	// the `allowed_vlans` array for one PCI type adapter per bare metal server.
-	AllowedVlans []int64 `json:"allowed_vlans,omitempty"`
-}
-
-// Constants associated with the BareMetalServerNetworkInterfacePrototypeBareMetalServerNetworkInterfaceByPciPrototype.InterfaceType property.
-// The network interface type:
-// - `pci`: a physical PCI device which can only be created or deleted when the bare metal
-//   server is stopped
-//   - Has an `allowed_vlans` property which controls the VLANs that will be permitted
-//     to use the pci interface
-//   - Cannot directly use an IEEE 802.1q VLAN tag.
-// - `vlan`: a virtual device, used through a `pci` device that has the `vlan` in its array
-//    of `allowed_vlans`.
-//   - Must use an IEEE 802.1q tag.
-//   - Has its own security groups and does not inherit those of the PCI device through
-//     which traffic flows.
-const (
-	BareMetalServerNetworkInterfacePrototypeBareMetalServerNetworkInterfaceByPciPrototypeInterfaceTypePciConst  = "pci"
-	BareMetalServerNetworkInterfacePrototypeBareMetalServerNetworkInterfaceByPciPrototypeInterfaceTypeVlanConst = "vlan"
-)
-
-func (*BareMetalServerNetworkInterfacePrototypeBareMetalServerNetworkInterfaceByPciPrototype) isaBareMetalServerNetworkInterfacePrototype() bool {
-	return true
-}
-
-// UnmarshalBareMetalServerNetworkInterfacePrototypeBareMetalServerNetworkInterfaceByPciPrototype unmarshals an instance of BareMetalServerNetworkInterfacePrototypeBareMetalServerNetworkInterfaceByPciPrototype from the specified map of raw messages.
-func UnmarshalBareMetalServerNetworkInterfacePrototypeBareMetalServerNetworkInterfaceByPciPrototype(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(BareMetalServerNetworkInterfacePrototypeBareMetalServerNetworkInterfaceByPciPrototype)
-	err = core.UnmarshalPrimitive(m, "allow_ip_spoofing", &obj.AllowIPSpoofing)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "enable_infrastructure_nat", &obj.EnableInfrastructureNat)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "interface_type", &obj.InterfaceType)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "primary_ip", &obj.PrimaryIP, UnmarshalNetworkInterfaceIPPrototype)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "security_groups", &obj.SecurityGroups, UnmarshalSecurityGroupIdentity)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "subnet", &obj.Subnet, UnmarshalSubnetIdentity)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "allowed_vlans", &obj.AllowedVlans)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// BareMetalServerNetworkInterfacePrototypeBareMetalServerNetworkInterfaceByVlanPrototype : BareMetalServerNetworkInterfacePrototypeBareMetalServerNetworkInterfaceByVlanPrototype struct
-// This model "extends" BareMetalServerNetworkInterfacePrototype
-type BareMetalServerNetworkInterfacePrototypeBareMetalServerNetworkInterfaceByVlanPrototype struct {
-	// Indicates whether source IP spoofing is allowed on this interface. If false, source IP spoofing is prevented on this
-	// interface. If true, source IP spoofing is allowed on this interface.
-	AllowIPSpoofing *bool `json:"allow_ip_spoofing,omitempty"`
-
-	// If true, the VPC infrastructure performs any needed NAT operations. If false, the packet is passed unmodified
-	// to/from the network interface, allowing the workload to perform any needed NAT operations.
-	EnableInfrastructureNat *bool `json:"enable_infrastructure_nat,omitempty"`
-
-	// The network interface type:
-	// - `pci`: a physical PCI device which can only be created or deleted when the bare metal
-	//   server is stopped
-	//   - Has an `allowed_vlans` property which controls the VLANs that will be permitted
-	//     to use the pci interface
-	//   - Cannot directly use an IEEE 802.1q VLAN tag.
-	// - `vlan`: a virtual device, used through a `pci` device that has the `vlan` in its array
-	//    of `allowed_vlans`.
-	//   - Must use an IEEE 802.1q tag.
-	//   - Has its own security groups and does not inherit those of the PCI device through
-	//     which traffic flows.
-	InterfaceType *string `json:"interface_type" validate:"required"`
-
-	// The user-defined name for this network interface. If unspecified, the name will be a hyphenated list of
-	// randomly-selected words.
-	Name *string `json:"name,omitempty"`
-
-	// The primary IP address to bind to the network interface. This can be specified using an existing reserved IP, or a
-	// prototype object for a new reserved IP.
-	//
-	// If an existing reserved IP or a prototype object with an address is specified, it must be available on the network
-	// interface's subnet. Otherwise, an available address on the subnet will be automatically selected and reserved.
-	PrimaryIP NetworkInterfaceIPPrototypeIntf `json:"primary_ip,omitempty"`
-
-	// Collection of security groups.
-	SecurityGroups []SecurityGroupIdentityIntf `json:"security_groups,omitempty"`
-
-	// The associated subnet.
-	Subnet SubnetIdentityIntf `json:"subnet" validate:"required"`
-
-	// Indicates if the interface can float to any other server within the same
-	// `resource_group`. The interface will float automatically if the network detects a GARP or RARP on another bare metal
-	// server in the resource group.  Applies only to `vlan` type interfaces.
-	AllowInterfaceToFloat *bool `json:"allow_interface_to_float,omitempty"`
-
-	// Indicates the 802.1Q VLAN ID tag that must be used for all traffic on this interface.
-	Vlan *int64 `json:"vlan" validate:"required"`
-}
-
-// Constants associated with the BareMetalServerNetworkInterfacePrototypeBareMetalServerNetworkInterfaceByVlanPrototype.InterfaceType property.
-// The network interface type:
-// - `pci`: a physical PCI device which can only be created or deleted when the bare metal
-//   server is stopped
-//   - Has an `allowed_vlans` property which controls the VLANs that will be permitted
-//     to use the pci interface
-//   - Cannot directly use an IEEE 802.1q VLAN tag.
-// - `vlan`: a virtual device, used through a `pci` device that has the `vlan` in its array
-//    of `allowed_vlans`.
-//   - Must use an IEEE 802.1q tag.
-//   - Has its own security groups and does not inherit those of the PCI device through
-//     which traffic flows.
-const (
-	BareMetalServerNetworkInterfacePrototypeBareMetalServerNetworkInterfaceByVlanPrototypeInterfaceTypePciConst  = "pci"
-	BareMetalServerNetworkInterfacePrototypeBareMetalServerNetworkInterfaceByVlanPrototypeInterfaceTypeVlanConst = "vlan"
-)
-
-// NewBareMetalServerNetworkInterfacePrototypeBareMetalServerNetworkInterfaceByVlanPrototype : Instantiate BareMetalServerNetworkInterfacePrototypeBareMetalServerNetworkInterfaceByVlanPrototype (Generic Model Constructor)
-func (*VpcV1) NewBareMetalServerNetworkInterfacePrototypeBareMetalServerNetworkInterfaceByVlanPrototype(interfaceType string, subnet SubnetIdentityIntf, vlan int64) (model *BareMetalServerNetworkInterfacePrototypeBareMetalServerNetworkInterfaceByVlanPrototype, err error) {
-	model = &BareMetalServerNetworkInterfacePrototypeBareMetalServerNetworkInterfaceByVlanPrototype{
-		InterfaceType: core.StringPtr(interfaceType),
-		Subnet:        subnet,
-		Vlan:          core.Int64Ptr(vlan),
-	}
-	err = core.ValidateStruct(model, "required parameters")
-	return
-}
-
-func (*BareMetalServerNetworkInterfacePrototypeBareMetalServerNetworkInterfaceByVlanPrototype) isaBareMetalServerNetworkInterfacePrototype() bool {
-	return true
-}
-
-// UnmarshalBareMetalServerNetworkInterfacePrototypeBareMetalServerNetworkInterfaceByVlanPrototype unmarshals an instance of BareMetalServerNetworkInterfacePrototypeBareMetalServerNetworkInterfaceByVlanPrototype from the specified map of raw messages.
-func UnmarshalBareMetalServerNetworkInterfacePrototypeBareMetalServerNetworkInterfaceByVlanPrototype(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(BareMetalServerNetworkInterfacePrototypeBareMetalServerNetworkInterfaceByVlanPrototype)
-	err = core.UnmarshalPrimitive(m, "allow_ip_spoofing", &obj.AllowIPSpoofing)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "enable_infrastructure_nat", &obj.EnableInfrastructureNat)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "interface_type", &obj.InterfaceType)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "primary_ip", &obj.PrimaryIP, UnmarshalNetworkInterfaceIPPrototype)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "security_groups", &obj.SecurityGroups, UnmarshalSecurityGroupIdentity)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "subnet", &obj.Subnet, UnmarshalSubnetIdentity)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "allow_interface_to_float", &obj.AllowInterfaceToFloat)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "vlan", &obj.Vlan)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// BareMetalServerProfileBandwidthDependent : The total bandwidth shared across the network interfaces of a bare metal server with this profile depends on its
-// configuration.
-// This model "extends" BareMetalServerProfileBandwidth
-type BareMetalServerProfileBandwidthDependent struct {
-	// The type for this profile field.
-	Type *string `json:"type" validate:"required"`
-}
-
-// Constants associated with the BareMetalServerProfileBandwidthDependent.Type property.
-// The type for this profile field.
-const (
-	BareMetalServerProfileBandwidthDependentTypeDependentConst = "dependent"
-)
-
-func (*BareMetalServerProfileBandwidthDependent) isaBareMetalServerProfileBandwidth() bool {
-	return true
-}
-
-// UnmarshalBareMetalServerProfileBandwidthDependent unmarshals an instance of BareMetalServerProfileBandwidthDependent from the specified map of raw messages.
-func UnmarshalBareMetalServerProfileBandwidthDependent(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(BareMetalServerProfileBandwidthDependent)
-	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// BareMetalServerProfileBandwidthEnum : The permitted total bandwidth values (in megabits per second) shared across the network interfaces of a bare metal
-// server with this profile.
-// This model "extends" BareMetalServerProfileBandwidth
-type BareMetalServerProfileBandwidthEnum struct {
-	// The default value for this profile field.
-	Default *int64 `json:"default" validate:"required"`
-
-	// The type for this profile field.
-	Type *string `json:"type" validate:"required"`
-
-	// The permitted values for this profile field.
-	Values []int64 `json:"values" validate:"required"`
-}
-
-// Constants associated with the BareMetalServerProfileBandwidthEnum.Type property.
-// The type for this profile field.
-const (
-	BareMetalServerProfileBandwidthEnumTypeEnumConst = "enum"
-)
-
-func (*BareMetalServerProfileBandwidthEnum) isaBareMetalServerProfileBandwidth() bool {
-	return true
-}
-
-// UnmarshalBareMetalServerProfileBandwidthEnum unmarshals an instance of BareMetalServerProfileBandwidthEnum from the specified map of raw messages.
-func UnmarshalBareMetalServerProfileBandwidthEnum(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(BareMetalServerProfileBandwidthEnum)
-	err = core.UnmarshalPrimitive(m, "default", &obj.Default)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "values", &obj.Values)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// BareMetalServerProfileBandwidthFixed : The total bandwidth (in megabits per second) shared across the network interfaces of a bare metal server with this
-// profile.
-// This model "extends" BareMetalServerProfileBandwidth
-type BareMetalServerProfileBandwidthFixed struct {
-	// The type for this profile field.
-	Type *string `json:"type" validate:"required"`
-
-	// The value for this profile field.
-	Value *int64 `json:"value" validate:"required"`
-}
-
-// Constants associated with the BareMetalServerProfileBandwidthFixed.Type property.
-// The type for this profile field.
-const (
-	BareMetalServerProfileBandwidthFixedTypeFixedConst = "fixed"
-)
-
-func (*BareMetalServerProfileBandwidthFixed) isaBareMetalServerProfileBandwidth() bool {
-	return true
-}
-
-// UnmarshalBareMetalServerProfileBandwidthFixed unmarshals an instance of BareMetalServerProfileBandwidthFixed from the specified map of raw messages.
-func UnmarshalBareMetalServerProfileBandwidthFixed(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(BareMetalServerProfileBandwidthFixed)
-	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "value", &obj.Value)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// BareMetalServerProfileBandwidthRange : The permitted total bandwidth range (in megabits per second) shared across the network interfaces of a bare metal
-// server with this profile.
-// This model "extends" BareMetalServerProfileBandwidth
-type BareMetalServerProfileBandwidthRange struct {
-	// The default value for this profile field.
-	Default *int64 `json:"default" validate:"required"`
-
-	// The maximum value for this profile field.
-	Max *int64 `json:"max" validate:"required"`
-
-	// The minimum value for this profile field.
-	Min *int64 `json:"min" validate:"required"`
-
-	// The increment step value for this profile field.
-	Step *int64 `json:"step" validate:"required"`
-
-	// The type for this profile field.
-	Type *string `json:"type" validate:"required"`
-}
-
-// Constants associated with the BareMetalServerProfileBandwidthRange.Type property.
-// The type for this profile field.
-const (
-	BareMetalServerProfileBandwidthRangeTypeRangeConst = "range"
-)
-
-func (*BareMetalServerProfileBandwidthRange) isaBareMetalServerProfileBandwidth() bool {
-	return true
-}
-
-// UnmarshalBareMetalServerProfileBandwidthRange unmarshals an instance of BareMetalServerProfileBandwidthRange from the specified map of raw messages.
-func UnmarshalBareMetalServerProfileBandwidthRange(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(BareMetalServerProfileBandwidthRange)
-	err = core.UnmarshalPrimitive(m, "default", &obj.Default)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "max", &obj.Max)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "min", &obj.Min)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "step", &obj.Step)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// BareMetalServerProfileCpuCoreCountDependent : The CPU core count for a bare metal server with this profile depends on its configuration.
-// This model "extends" BareMetalServerProfileCpuCoreCount
-type BareMetalServerProfileCpuCoreCountDependent struct {
-	// The type for this profile field.
-	Type *string `json:"type" validate:"required"`
-}
-
-// Constants associated with the BareMetalServerProfileCpuCoreCountDependent.Type property.
-// The type for this profile field.
-const (
-	BareMetalServerProfileCpuCoreCountDependentTypeDependentConst = "dependent"
-)
-
-func (*BareMetalServerProfileCpuCoreCountDependent) isaBareMetalServerProfileCpuCoreCount() bool {
-	return true
-}
-
-// UnmarshalBareMetalServerProfileCpuCoreCountDependent unmarshals an instance of BareMetalServerProfileCpuCoreCountDependent from the specified map of raw messages.
-func UnmarshalBareMetalServerProfileCpuCoreCountDependent(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(BareMetalServerProfileCpuCoreCountDependent)
-	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// BareMetalServerProfileCpuCoreCountEnum : The permitted values for CPU cores for a bare metal server with this profile.
-// This model "extends" BareMetalServerProfileCpuCoreCount
-type BareMetalServerProfileCpuCoreCountEnum struct {
-	// The default value for this profile field.
-	Default *int64 `json:"default" validate:"required"`
-
-	// The type for this profile field.
-	Type *string `json:"type" validate:"required"`
-
-	// The permitted values for this profile field.
-	Values []int64 `json:"values" validate:"required"`
-}
-
-// Constants associated with the BareMetalServerProfileCpuCoreCountEnum.Type property.
-// The type for this profile field.
-const (
-	BareMetalServerProfileCpuCoreCountEnumTypeEnumConst = "enum"
-)
-
-func (*BareMetalServerProfileCpuCoreCountEnum) isaBareMetalServerProfileCpuCoreCount() bool {
-	return true
-}
-
-// UnmarshalBareMetalServerProfileCpuCoreCountEnum unmarshals an instance of BareMetalServerProfileCpuCoreCountEnum from the specified map of raw messages.
-func UnmarshalBareMetalServerProfileCpuCoreCountEnum(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(BareMetalServerProfileCpuCoreCountEnum)
-	err = core.UnmarshalPrimitive(m, "default", &obj.Default)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "values", &obj.Values)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// BareMetalServerProfileCpuCoreCountFixed : The CPU core count for a bare metal server with this profile.
-// This model "extends" BareMetalServerProfileCpuCoreCount
-type BareMetalServerProfileCpuCoreCountFixed struct {
-	// The type for this profile field.
-	Type *string `json:"type" validate:"required"`
-
-	// The value for this profile field.
-	Value *int64 `json:"value" validate:"required"`
-}
-
-// Constants associated with the BareMetalServerProfileCpuCoreCountFixed.Type property.
-// The type for this profile field.
-const (
-	BareMetalServerProfileCpuCoreCountFixedTypeFixedConst = "fixed"
-)
-
-func (*BareMetalServerProfileCpuCoreCountFixed) isaBareMetalServerProfileCpuCoreCount() bool {
-	return true
-}
-
-// UnmarshalBareMetalServerProfileCpuCoreCountFixed unmarshals an instance of BareMetalServerProfileCpuCoreCountFixed from the specified map of raw messages.
-func UnmarshalBareMetalServerProfileCpuCoreCountFixed(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(BareMetalServerProfileCpuCoreCountFixed)
-	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "value", &obj.Value)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// BareMetalServerProfileCpuCoreCountRange : The permitted range for the number of CPU cores for a bare metal server with this profile.
-// This model "extends" BareMetalServerProfileCpuCoreCount
-type BareMetalServerProfileCpuCoreCountRange struct {
-	// The default value for this profile field.
-	Default *int64 `json:"default" validate:"required"`
-
-	// The maximum value for this profile field.
-	Max *int64 `json:"max" validate:"required"`
-
-	// The minimum value for this profile field.
-	Min *int64 `json:"min" validate:"required"`
-
-	// The increment step value for this profile field.
-	Step *int64 `json:"step" validate:"required"`
-
-	// The type for this profile field.
-	Type *string `json:"type" validate:"required"`
-}
-
-// Constants associated with the BareMetalServerProfileCpuCoreCountRange.Type property.
-// The type for this profile field.
-const (
-	BareMetalServerProfileCpuCoreCountRangeTypeRangeConst = "range"
-)
-
-func (*BareMetalServerProfileCpuCoreCountRange) isaBareMetalServerProfileCpuCoreCount() bool {
-	return true
-}
-
-// UnmarshalBareMetalServerProfileCpuCoreCountRange unmarshals an instance of BareMetalServerProfileCpuCoreCountRange from the specified map of raw messages.
-func UnmarshalBareMetalServerProfileCpuCoreCountRange(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(BareMetalServerProfileCpuCoreCountRange)
-	err = core.UnmarshalPrimitive(m, "default", &obj.Default)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "max", &obj.Max)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "min", &obj.Min)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "step", &obj.Step)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// BareMetalServerProfileCpuSocketCountDependent : The CPU socket count for a bare metal server with this profile depends on its configuration.
-// This model "extends" BareMetalServerProfileCpuSocketCount
-type BareMetalServerProfileCpuSocketCountDependent struct {
-	// The type for this profile field.
-	Type *string `json:"type" validate:"required"`
-}
-
-// Constants associated with the BareMetalServerProfileCpuSocketCountDependent.Type property.
-// The type for this profile field.
-const (
-	BareMetalServerProfileCpuSocketCountDependentTypeDependentConst = "dependent"
-)
-
-func (*BareMetalServerProfileCpuSocketCountDependent) isaBareMetalServerProfileCpuSocketCount() bool {
-	return true
-}
-
-// UnmarshalBareMetalServerProfileCpuSocketCountDependent unmarshals an instance of BareMetalServerProfileCpuSocketCountDependent from the specified map of raw messages.
-func UnmarshalBareMetalServerProfileCpuSocketCountDependent(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(BareMetalServerProfileCpuSocketCountDependent)
-	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// BareMetalServerProfileCpuSocketCountEnum : The permitted values for CPU sockets for a bare metal server with this profile.
-// This model "extends" BareMetalServerProfileCpuSocketCount
-type BareMetalServerProfileCpuSocketCountEnum struct {
-	// The default value for this profile field.
-	Default *int64 `json:"default" validate:"required"`
-
-	// The type for this profile field.
-	Type *string `json:"type" validate:"required"`
-
-	// The permitted values for this profile field.
-	Values []int64 `json:"values" validate:"required"`
-}
-
-// Constants associated with the BareMetalServerProfileCpuSocketCountEnum.Type property.
-// The type for this profile field.
-const (
-	BareMetalServerProfileCpuSocketCountEnumTypeEnumConst = "enum"
-)
-
-func (*BareMetalServerProfileCpuSocketCountEnum) isaBareMetalServerProfileCpuSocketCount() bool {
-	return true
-}
-
-// UnmarshalBareMetalServerProfileCpuSocketCountEnum unmarshals an instance of BareMetalServerProfileCpuSocketCountEnum from the specified map of raw messages.
-func UnmarshalBareMetalServerProfileCpuSocketCountEnum(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(BareMetalServerProfileCpuSocketCountEnum)
-	err = core.UnmarshalPrimitive(m, "default", &obj.Default)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "values", &obj.Values)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// BareMetalServerProfileCpuSocketCountFixed : The number of CPU sockets for a bare metal server with this profile.
-// This model "extends" BareMetalServerProfileCpuSocketCount
-type BareMetalServerProfileCpuSocketCountFixed struct {
-	// The type for this profile field.
-	Type *string `json:"type" validate:"required"`
-
-	// The value for this profile field.
-	Value *int64 `json:"value" validate:"required"`
-}
-
-// Constants associated with the BareMetalServerProfileCpuSocketCountFixed.Type property.
-// The type for this profile field.
-const (
-	BareMetalServerProfileCpuSocketCountFixedTypeFixedConst = "fixed"
-)
-
-func (*BareMetalServerProfileCpuSocketCountFixed) isaBareMetalServerProfileCpuSocketCount() bool {
-	return true
-}
-
-// UnmarshalBareMetalServerProfileCpuSocketCountFixed unmarshals an instance of BareMetalServerProfileCpuSocketCountFixed from the specified map of raw messages.
-func UnmarshalBareMetalServerProfileCpuSocketCountFixed(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(BareMetalServerProfileCpuSocketCountFixed)
-	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "value", &obj.Value)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// BareMetalServerProfileCpuSocketCountRange : The permitted range for the number of CPU sockets for a bare metal server with this profile.
-// This model "extends" BareMetalServerProfileCpuSocketCount
-type BareMetalServerProfileCpuSocketCountRange struct {
-	// The default value for this profile field.
-	Default *int64 `json:"default" validate:"required"`
-
-	// The maximum value for this profile field.
-	Max *int64 `json:"max" validate:"required"`
-
-	// The minimum value for this profile field.
-	Min *int64 `json:"min" validate:"required"`
-
-	// The increment step value for this profile field.
-	Step *int64 `json:"step" validate:"required"`
-
-	// The type for this profile field.
-	Type *string `json:"type" validate:"required"`
-}
-
-// Constants associated with the BareMetalServerProfileCpuSocketCountRange.Type property.
-// The type for this profile field.
-const (
-	BareMetalServerProfileCpuSocketCountRangeTypeRangeConst = "range"
-)
-
-func (*BareMetalServerProfileCpuSocketCountRange) isaBareMetalServerProfileCpuSocketCount() bool {
-	return true
-}
-
-// UnmarshalBareMetalServerProfileCpuSocketCountRange unmarshals an instance of BareMetalServerProfileCpuSocketCountRange from the specified map of raw messages.
-func UnmarshalBareMetalServerProfileCpuSocketCountRange(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(BareMetalServerProfileCpuSocketCountRange)
-	err = core.UnmarshalPrimitive(m, "default", &obj.Default)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "max", &obj.Max)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "min", &obj.Min)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "step", &obj.Step)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// BareMetalServerProfileDiskQuantityDependent : The number of disks of this configuration for a bare metal server with this profile depends on its bare metal server
-// configuration.
-// This model "extends" BareMetalServerProfileDiskQuantity
-type BareMetalServerProfileDiskQuantityDependent struct {
-	// The type for this profile field.
-	Type *string `json:"type" validate:"required"`
-}
-
-// Constants associated with the BareMetalServerProfileDiskQuantityDependent.Type property.
-// The type for this profile field.
-const (
-	BareMetalServerProfileDiskQuantityDependentTypeDependentConst = "dependent"
-)
-
-func (*BareMetalServerProfileDiskQuantityDependent) isaBareMetalServerProfileDiskQuantity() bool {
-	return true
-}
-
-// UnmarshalBareMetalServerProfileDiskQuantityDependent unmarshals an instance of BareMetalServerProfileDiskQuantityDependent from the specified map of raw messages.
-func UnmarshalBareMetalServerProfileDiskQuantityDependent(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(BareMetalServerProfileDiskQuantityDependent)
-	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// BareMetalServerProfileDiskQuantityEnum : The permitted the number of disks of this configuration for a bare metal server with this profile.
-// This model "extends" BareMetalServerProfileDiskQuantity
-type BareMetalServerProfileDiskQuantityEnum struct {
-	// The default value for this profile field.
-	Default *int64 `json:"default" validate:"required"`
-
-	// The type for this profile field.
-	Type *string `json:"type" validate:"required"`
-
-	// The permitted values for this profile field.
-	Values []int64 `json:"values" validate:"required"`
-}
-
-// Constants associated with the BareMetalServerProfileDiskQuantityEnum.Type property.
-// The type for this profile field.
-const (
-	BareMetalServerProfileDiskQuantityEnumTypeEnumConst = "enum"
-)
-
-func (*BareMetalServerProfileDiskQuantityEnum) isaBareMetalServerProfileDiskQuantity() bool {
-	return true
-}
-
-// UnmarshalBareMetalServerProfileDiskQuantityEnum unmarshals an instance of BareMetalServerProfileDiskQuantityEnum from the specified map of raw messages.
-func UnmarshalBareMetalServerProfileDiskQuantityEnum(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(BareMetalServerProfileDiskQuantityEnum)
-	err = core.UnmarshalPrimitive(m, "default", &obj.Default)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "values", &obj.Values)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// BareMetalServerProfileDiskQuantityFixed : The number of disks of this configuration for a bare metal server with this profile.
-// This model "extends" BareMetalServerProfileDiskQuantity
-type BareMetalServerProfileDiskQuantityFixed struct {
-	// The type for this profile field.
-	Type *string `json:"type" validate:"required"`
-
-	// The value for this profile field.
-	Value *int64 `json:"value" validate:"required"`
-}
-
-// Constants associated with the BareMetalServerProfileDiskQuantityFixed.Type property.
-// The type for this profile field.
-const (
-	BareMetalServerProfileDiskQuantityFixedTypeFixedConst = "fixed"
-)
-
-func (*BareMetalServerProfileDiskQuantityFixed) isaBareMetalServerProfileDiskQuantity() bool {
-	return true
-}
-
-// UnmarshalBareMetalServerProfileDiskQuantityFixed unmarshals an instance of BareMetalServerProfileDiskQuantityFixed from the specified map of raw messages.
-func UnmarshalBareMetalServerProfileDiskQuantityFixed(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(BareMetalServerProfileDiskQuantityFixed)
-	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "value", &obj.Value)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// BareMetalServerProfileDiskQuantityRange : The permitted range for the number of disks of this configuration for a bare metal server with this profile.
-// This model "extends" BareMetalServerProfileDiskQuantity
-type BareMetalServerProfileDiskQuantityRange struct {
-	// The default value for this profile field.
-	Default *int64 `json:"default" validate:"required"`
-
-	// The maximum value for this profile field.
-	Max *int64 `json:"max" validate:"required"`
-
-	// The minimum value for this profile field.
-	Min *int64 `json:"min" validate:"required"`
-
-	// The increment step value for this profile field.
-	Step *int64 `json:"step" validate:"required"`
-
-	// The type for this profile field.
-	Type *string `json:"type" validate:"required"`
-}
-
-// Constants associated with the BareMetalServerProfileDiskQuantityRange.Type property.
-// The type for this profile field.
-const (
-	BareMetalServerProfileDiskQuantityRangeTypeRangeConst = "range"
-)
-
-func (*BareMetalServerProfileDiskQuantityRange) isaBareMetalServerProfileDiskQuantity() bool {
-	return true
-}
-
-// UnmarshalBareMetalServerProfileDiskQuantityRange unmarshals an instance of BareMetalServerProfileDiskQuantityRange from the specified map of raw messages.
-func UnmarshalBareMetalServerProfileDiskQuantityRange(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(BareMetalServerProfileDiskQuantityRange)
-	err = core.UnmarshalPrimitive(m, "default", &obj.Default)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "max", &obj.Max)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "min", &obj.Min)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "step", &obj.Step)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// BareMetalServerProfileDiskSizeDependent : The disk size in GB (gigabytes) of this configuration for a bare metal server with this profile depends on its bare
-// metal server configuration.
-// This model "extends" BareMetalServerProfileDiskSize
-type BareMetalServerProfileDiskSizeDependent struct {
-	// The type for this profile field.
-	Type *string `json:"type" validate:"required"`
-}
-
-// Constants associated with the BareMetalServerProfileDiskSizeDependent.Type property.
-// The type for this profile field.
-const (
-	BareMetalServerProfileDiskSizeDependentTypeDependentConst = "dependent"
-)
-
-func (*BareMetalServerProfileDiskSizeDependent) isaBareMetalServerProfileDiskSize() bool {
-	return true
-}
-
-// UnmarshalBareMetalServerProfileDiskSizeDependent unmarshals an instance of BareMetalServerProfileDiskSizeDependent from the specified map of raw messages.
-func UnmarshalBareMetalServerProfileDiskSizeDependent(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(BareMetalServerProfileDiskSizeDependent)
-	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// BareMetalServerProfileDiskSizeEnum : The permitted disk size in GB (gigabytes) of this configuration for a bare metal server with this profile.
-// This model "extends" BareMetalServerProfileDiskSize
-type BareMetalServerProfileDiskSizeEnum struct {
-	// The default value for this profile field.
-	Default *int64 `json:"default" validate:"required"`
-
-	// The type for this profile field.
-	Type *string `json:"type" validate:"required"`
-
-	// The permitted values for this profile field.
-	Values []int64 `json:"values" validate:"required"`
-}
-
-// Constants associated with the BareMetalServerProfileDiskSizeEnum.Type property.
-// The type for this profile field.
-const (
-	BareMetalServerProfileDiskSizeEnumTypeEnumConst = "enum"
-)
-
-func (*BareMetalServerProfileDiskSizeEnum) isaBareMetalServerProfileDiskSize() bool {
-	return true
-}
-
-// UnmarshalBareMetalServerProfileDiskSizeEnum unmarshals an instance of BareMetalServerProfileDiskSizeEnum from the specified map of raw messages.
-func UnmarshalBareMetalServerProfileDiskSizeEnum(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(BareMetalServerProfileDiskSizeEnum)
-	err = core.UnmarshalPrimitive(m, "default", &obj.Default)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "values", &obj.Values)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// BareMetalServerProfileDiskSizeFixed : The size of the disk in GB (gigabytes).
-// This model "extends" BareMetalServerProfileDiskSize
-type BareMetalServerProfileDiskSizeFixed struct {
-	// The type for this profile field.
-	Type *string `json:"type" validate:"required"`
-
-	// The value for this profile field.
-	Value *int64 `json:"value" validate:"required"`
-}
-
-// Constants associated with the BareMetalServerProfileDiskSizeFixed.Type property.
-// The type for this profile field.
-const (
-	BareMetalServerProfileDiskSizeFixedTypeFixedConst = "fixed"
-)
-
-func (*BareMetalServerProfileDiskSizeFixed) isaBareMetalServerProfileDiskSize() bool {
-	return true
-}
-
-// UnmarshalBareMetalServerProfileDiskSizeFixed unmarshals an instance of BareMetalServerProfileDiskSizeFixed from the specified map of raw messages.
-func UnmarshalBareMetalServerProfileDiskSizeFixed(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(BareMetalServerProfileDiskSizeFixed)
-	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "value", &obj.Value)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// BareMetalServerProfileDiskSizeRange : The permitted range for the disk size of this configuration in GB (gigabytes) for a bare metal server with this
-// profile.
-// This model "extends" BareMetalServerProfileDiskSize
-type BareMetalServerProfileDiskSizeRange struct {
-	// The default value for this profile field.
-	Default *int64 `json:"default" validate:"required"`
-
-	// The maximum value for this profile field.
-	Max *int64 `json:"max" validate:"required"`
-
-	// The minimum value for this profile field.
-	Min *int64 `json:"min" validate:"required"`
-
-	// The increment step value for this profile field.
-	Step *int64 `json:"step" validate:"required"`
-
-	// The type for this profile field.
-	Type *string `json:"type" validate:"required"`
-}
-
-// Constants associated with the BareMetalServerProfileDiskSizeRange.Type property.
-// The type for this profile field.
-const (
-	BareMetalServerProfileDiskSizeRangeTypeRangeConst = "range"
-)
-
-func (*BareMetalServerProfileDiskSizeRange) isaBareMetalServerProfileDiskSize() bool {
-	return true
-}
-
-// UnmarshalBareMetalServerProfileDiskSizeRange unmarshals an instance of BareMetalServerProfileDiskSizeRange from the specified map of raw messages.
-func UnmarshalBareMetalServerProfileDiskSizeRange(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(BareMetalServerProfileDiskSizeRange)
-	err = core.UnmarshalPrimitive(m, "default", &obj.Default)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "max", &obj.Max)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "min", &obj.Min)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "step", &obj.Step)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// BareMetalServerProfileIdentityByHref : BareMetalServerProfileIdentityByHref struct
-// This model "extends" BareMetalServerProfileIdentity
-type BareMetalServerProfileIdentityByHref struct {
-	// The URL for this bare metal server profile.
-	Href *string `json:"href" validate:"required"`
-}
-
-// NewBareMetalServerProfileIdentityByHref : Instantiate BareMetalServerProfileIdentityByHref (Generic Model Constructor)
-func (*VpcV1) NewBareMetalServerProfileIdentityByHref(href string) (model *BareMetalServerProfileIdentityByHref, err error) {
-	model = &BareMetalServerProfileIdentityByHref{
-		Href: core.StringPtr(href),
-	}
-	err = core.ValidateStruct(model, "required parameters")
-	return
-}
-
-func (*BareMetalServerProfileIdentityByHref) isaBareMetalServerProfileIdentity() bool {
-	return true
-}
-
-// UnmarshalBareMetalServerProfileIdentityByHref unmarshals an instance of BareMetalServerProfileIdentityByHref from the specified map of raw messages.
-func UnmarshalBareMetalServerProfileIdentityByHref(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(BareMetalServerProfileIdentityByHref)
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// BareMetalServerProfileIdentityByName : BareMetalServerProfileIdentityByName struct
-// This model "extends" BareMetalServerProfileIdentity
-type BareMetalServerProfileIdentityByName struct {
-	// The name for this bare metal server profile.
-	Name *string `json:"name" validate:"required"`
-}
-
-// NewBareMetalServerProfileIdentityByName : Instantiate BareMetalServerProfileIdentityByName (Generic Model Constructor)
-func (*VpcV1) NewBareMetalServerProfileIdentityByName(name string) (model *BareMetalServerProfileIdentityByName, err error) {
-	model = &BareMetalServerProfileIdentityByName{
-		Name: core.StringPtr(name),
-	}
-	err = core.ValidateStruct(model, "required parameters")
-	return
-}
-
-func (*BareMetalServerProfileIdentityByName) isaBareMetalServerProfileIdentity() bool {
-	return true
-}
-
-// UnmarshalBareMetalServerProfileIdentityByName unmarshals an instance of BareMetalServerProfileIdentityByName from the specified map of raw messages.
-func UnmarshalBareMetalServerProfileIdentityByName(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(BareMetalServerProfileIdentityByName)
-	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// BareMetalServerProfileMemoryDependent : The memory value for a bare metal server with this profile depends on its configuration.
-// This model "extends" BareMetalServerProfileMemory
-type BareMetalServerProfileMemoryDependent struct {
-	// The type for this profile field.
-	Type *string `json:"type" validate:"required"`
-}
-
-// Constants associated with the BareMetalServerProfileMemoryDependent.Type property.
-// The type for this profile field.
-const (
-	BareMetalServerProfileMemoryDependentTypeDependentConst = "dependent"
-)
-
-func (*BareMetalServerProfileMemoryDependent) isaBareMetalServerProfileMemory() bool {
-	return true
-}
-
-// UnmarshalBareMetalServerProfileMemoryDependent unmarshals an instance of BareMetalServerProfileMemoryDependent from the specified map of raw messages.
-func UnmarshalBareMetalServerProfileMemoryDependent(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(BareMetalServerProfileMemoryDependent)
-	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// BareMetalServerProfileMemoryEnum : The permitted memory values (in gibibytes) for a bare metal server with this profile.
-// This model "extends" BareMetalServerProfileMemory
-type BareMetalServerProfileMemoryEnum struct {
-	// The default value for this profile field.
-	Default *int64 `json:"default" validate:"required"`
-
-	// The type for this profile field.
-	Type *string `json:"type" validate:"required"`
-
-	// The permitted values for this profile field.
-	Values []int64 `json:"values" validate:"required"`
-}
-
-// Constants associated with the BareMetalServerProfileMemoryEnum.Type property.
-// The type for this profile field.
-const (
-	BareMetalServerProfileMemoryEnumTypeEnumConst = "enum"
-)
-
-func (*BareMetalServerProfileMemoryEnum) isaBareMetalServerProfileMemory() bool {
-	return true
-}
-
-// UnmarshalBareMetalServerProfileMemoryEnum unmarshals an instance of BareMetalServerProfileMemoryEnum from the specified map of raw messages.
-func UnmarshalBareMetalServerProfileMemoryEnum(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(BareMetalServerProfileMemoryEnum)
-	err = core.UnmarshalPrimitive(m, "default", &obj.Default)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "values", &obj.Values)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// BareMetalServerProfileMemoryFixed : The memory (in gibibytes) for a bare metal server with this profile.
-// This model "extends" BareMetalServerProfileMemory
-type BareMetalServerProfileMemoryFixed struct {
-	// The type for this profile field.
-	Type *string `json:"type" validate:"required"`
-
-	// The value for this profile field.
-	Value *int64 `json:"value" validate:"required"`
-}
-
-// Constants associated with the BareMetalServerProfileMemoryFixed.Type property.
-// The type for this profile field.
-const (
-	BareMetalServerProfileMemoryFixedTypeFixedConst = "fixed"
-)
-
-func (*BareMetalServerProfileMemoryFixed) isaBareMetalServerProfileMemory() bool {
-	return true
-}
-
-// UnmarshalBareMetalServerProfileMemoryFixed unmarshals an instance of BareMetalServerProfileMemoryFixed from the specified map of raw messages.
-func UnmarshalBareMetalServerProfileMemoryFixed(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(BareMetalServerProfileMemoryFixed)
-	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "value", &obj.Value)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// BareMetalServerProfileMemoryRange : The permitted memory range (in gibibytes) for a bare metal server with this profile.
-// This model "extends" BareMetalServerProfileMemory
-type BareMetalServerProfileMemoryRange struct {
-	// The default value for this profile field.
-	Default *int64 `json:"default" validate:"required"`
-
-	// The maximum value for this profile field.
-	Max *int64 `json:"max" validate:"required"`
-
-	// The minimum value for this profile field.
-	Min *int64 `json:"min" validate:"required"`
-
-	// The increment step value for this profile field.
-	Step *int64 `json:"step" validate:"required"`
-
-	// The type for this profile field.
-	Type *string `json:"type" validate:"required"`
-}
-
-// Constants associated with the BareMetalServerProfileMemoryRange.Type property.
-// The type for this profile field.
-const (
-	BareMetalServerProfileMemoryRangeTypeRangeConst = "range"
-)
-
-func (*BareMetalServerProfileMemoryRange) isaBareMetalServerProfileMemory() bool {
-	return true
-}
-
-// UnmarshalBareMetalServerProfileMemoryRange unmarshals an instance of BareMetalServerProfileMemoryRange from the specified map of raw messages.
-func UnmarshalBareMetalServerProfileMemoryRange(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(BareMetalServerProfileMemoryRange)
-	err = core.UnmarshalPrimitive(m, "default", &obj.Default)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "max", &obj.Max)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "min", &obj.Min)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "step", &obj.Step)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
 	if err != nil {
 		return
 	}
@@ -67746,11 +51892,6 @@ func UnmarshalEndpointGatewayReservedIPReservedIPIdentity(m map[string]json.RawM
 // EndpointGatewayReservedIPReservedIPPrototypeTargetContext : EndpointGatewayReservedIPReservedIPPrototypeTargetContext struct
 // This model "extends" EndpointGatewayReservedIP
 type EndpointGatewayReservedIPReservedIPPrototypeTargetContext struct {
-	// The IP address to reserve, which must not already be reserved on the subnet.
-	//
-	// If not specified, an available address on the subnet will automatically be selected.
-	Address *string `json:"address,omitempty"`
-
 	// If set to `true`, this reserved IP will be automatically deleted when the target is deleted or when the reserved IP
 	// is unbound.
 	AutoDelete *bool `json:"auto_delete,omitempty"`
@@ -67780,10 +51921,6 @@ func (*EndpointGatewayReservedIPReservedIPPrototypeTargetContext) isaEndpointGat
 // UnmarshalEndpointGatewayReservedIPReservedIPPrototypeTargetContext unmarshals an instance of EndpointGatewayReservedIPReservedIPPrototypeTargetContext from the specified map of raw messages.
 func UnmarshalEndpointGatewayReservedIPReservedIPPrototypeTargetContext(m map[string]json.RawMessage, result interface{}) (err error) {
 	obj := new(EndpointGatewayReservedIPReservedIPPrototypeTargetContext)
-	err = core.UnmarshalPrimitive(m, "address", &obj.Address)
-	if err != nil {
-		return
-	}
 	err = core.UnmarshalPrimitive(m, "auto_delete", &obj.AutoDelete)
 	if err != nil {
 		return
@@ -68196,7 +52333,8 @@ type FloatingIPTargetNetworkInterfaceReference struct {
 	// The user-defined name for this network interface.
 	Name *string `json:"name" validate:"required"`
 
-	PrimaryIP *ReservedIPReference `json:"primary_ip" validate:"required"`
+	// The primary IPv4 address.
+	PrimaryIpv4Address *string `json:"primary_ipv4_address" validate:"required"`
 
 	// The resource type.
 	ResourceType *string `json:"resource_type" validate:"required"`
@@ -68231,7 +52369,7 @@ func UnmarshalFloatingIPTargetNetworkInterfaceReference(m map[string]json.RawMes
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalModel(m, "primary_ip", &obj.PrimaryIP, UnmarshalReservedIPReference)
+	err = core.UnmarshalPrimitive(m, "primary_ipv4_address", &obj.PrimaryIpv4Address)
 	if err != nil {
 		return
 	}
@@ -68300,55 +52438,6 @@ func UnmarshalFloatingIPTargetPublicGatewayReference(m map[string]json.RawMessag
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// FlowLogCollectorTargetPrototypeBareMetalServerIdentity : Identifies a bare metal server by a unique property.
-// Models which "extend" this model:
-// - FlowLogCollectorTargetPrototypeBareMetalServerIdentityBareMetalServerIdentityByID
-// - FlowLogCollectorTargetPrototypeBareMetalServerIdentityBareMetalServerIdentityByCRN
-// - FlowLogCollectorTargetPrototypeBareMetalServerIdentityBareMetalServerIdentityByHref
-// This model "extends" FlowLogCollectorTargetPrototype
-type FlowLogCollectorTargetPrototypeBareMetalServerIdentity struct {
-	// The unique identifier for this bare metal server.
-	ID *string `json:"id,omitempty"`
-
-	// The CRN for this bare metal server.
-	CRN *string `json:"crn,omitempty"`
-
-	// The URL for this bare metal server.
-	Href *string `json:"href,omitempty"`
-}
-
-func (*FlowLogCollectorTargetPrototypeBareMetalServerIdentity) isaFlowLogCollectorTargetPrototypeBareMetalServerIdentity() bool {
-	return true
-}
-
-type FlowLogCollectorTargetPrototypeBareMetalServerIdentityIntf interface {
-	FlowLogCollectorTargetPrototypeIntf
-	isaFlowLogCollectorTargetPrototypeBareMetalServerIdentity() bool
-}
-
-func (*FlowLogCollectorTargetPrototypeBareMetalServerIdentity) isaFlowLogCollectorTargetPrototype() bool {
-	return true
-}
-
-// UnmarshalFlowLogCollectorTargetPrototypeBareMetalServerIdentity unmarshals an instance of FlowLogCollectorTargetPrototypeBareMetalServerIdentity from the specified map of raw messages.
-func UnmarshalFlowLogCollectorTargetPrototypeBareMetalServerIdentity(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(FlowLogCollectorTargetPrototypeBareMetalServerIdentity)
-	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
 	if err != nil {
 		return
 	}
@@ -68544,70 +52633,6 @@ func UnmarshalFlowLogCollectorTargetPrototypeVPCIdentity(m map[string]json.RawMe
 	return
 }
 
-// FlowLogCollectorTargetBareMetalServerReference : FlowLogCollectorTargetBareMetalServerReference struct
-// This model "extends" FlowLogCollectorTarget
-type FlowLogCollectorTargetBareMetalServerReference struct {
-	// The CRN for this bare metal server.
-	CRN *string `json:"crn" validate:"required"`
-
-	// If present, this property indicates the referenced resource has been deleted and provides
-	// some supplementary information.
-	Deleted *BareMetalServerReferenceDeleted `json:"deleted,omitempty"`
-
-	// The URL for this bare metal server.
-	Href *string `json:"href" validate:"required"`
-
-	// The unique identifier for this bare metal server.
-	ID *string `json:"id" validate:"required"`
-
-	// The user-defined name for this bare metal server (and default system hostname).
-	Name *string `json:"name" validate:"required"`
-
-	// The type of resource referenced.
-	ResourceType *string `json:"resource_type" validate:"required"`
-}
-
-// Constants associated with the FlowLogCollectorTargetBareMetalServerReference.ResourceType property.
-// The type of resource referenced.
-const (
-	FlowLogCollectorTargetBareMetalServerReferenceResourceTypeBareMetalServerConst = "bare_metal_server"
-)
-
-func (*FlowLogCollectorTargetBareMetalServerReference) isaFlowLogCollectorTarget() bool {
-	return true
-}
-
-// UnmarshalFlowLogCollectorTargetBareMetalServerReference unmarshals an instance of FlowLogCollectorTargetBareMetalServerReference from the specified map of raw messages.
-func UnmarshalFlowLogCollectorTargetBareMetalServerReference(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(FlowLogCollectorTargetBareMetalServerReference)
-	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "deleted", &obj.Deleted, UnmarshalBareMetalServerReferenceDeleted)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
 // FlowLogCollectorTargetInstanceReference : FlowLogCollectorTargetInstanceReference struct
 // This model "extends" FlowLogCollectorTarget
 type FlowLogCollectorTargetInstanceReference struct {
@@ -68626,16 +52651,7 @@ type FlowLogCollectorTargetInstanceReference struct {
 
 	// The user-defined name for this virtual server instance (and default system hostname).
 	Name *string `json:"name" validate:"required"`
-
-	// The resource type.
-	ResourceType *string `json:"resource_type" validate:"required"`
 }
-
-// Constants associated with the FlowLogCollectorTargetInstanceReference.ResourceType property.
-// The resource type.
-const (
-	FlowLogCollectorTargetInstanceReferenceResourceTypeInstanceConst = "instance"
-)
 
 func (*FlowLogCollectorTargetInstanceReference) isaFlowLogCollectorTarget() bool {
 	return true
@@ -68661,10 +52677,6 @@ func UnmarshalFlowLogCollectorTargetInstanceReference(m map[string]json.RawMessa
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
 	if err != nil {
 		return
 	}
@@ -68747,16 +52759,7 @@ type FlowLogCollectorTargetSubnetReference struct {
 
 	// The user-defined name for this subnet.
 	Name *string `json:"name" validate:"required"`
-
-	// The resource type.
-	ResourceType *string `json:"resource_type" validate:"required"`
 }
-
-// Constants associated with the FlowLogCollectorTargetSubnetReference.ResourceType property.
-// The resource type.
-const (
-	FlowLogCollectorTargetSubnetReferenceResourceTypeSubnetConst = "subnet"
-)
 
 func (*FlowLogCollectorTargetSubnetReference) isaFlowLogCollectorTarget() bool {
 	return true
@@ -68785,10 +52788,6 @@ func UnmarshalFlowLogCollectorTargetSubnetReference(m map[string]json.RawMessage
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
-	if err != nil {
-		return
-	}
 	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
 	return
 }
@@ -68811,16 +52810,7 @@ type FlowLogCollectorTargetVPCReference struct {
 
 	// The unique user-defined name for this VPC.
 	Name *string `json:"name" validate:"required"`
-
-	// The resource type.
-	ResourceType *string `json:"resource_type" validate:"required"`
 }
-
-// Constants associated with the FlowLogCollectorTargetVPCReference.ResourceType property.
-// The resource type.
-const (
-	FlowLogCollectorTargetVPCReferenceResourceTypeVPCConst = "vpc"
-)
 
 func (*FlowLogCollectorTargetVPCReference) isaFlowLogCollectorTarget() bool {
 	return true
@@ -68846,10 +52836,6 @@ func UnmarshalFlowLogCollectorTargetVPCReference(m map[string]json.RawMessage, r
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
 	if err != nil {
 		return
 	}
@@ -69081,10 +53067,6 @@ type ImagePrototypeImageByFile struct {
 	// will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
-	// An image may be only applicable to certain instance or bare metal server profiles. For the image to be applicable,
-	// all of its `required_image_flags` values must also appear in the profile's `supported_image_flags` array.
-	RequiredImageFlags []string `json:"required_image_flags,omitempty"`
-
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
 
 	// A base64-encoded, encrypted representation of the key that was used to encrypt the data for this image.
@@ -69134,10 +53116,6 @@ func UnmarshalImagePrototypeImageByFile(m map[string]json.RawMessage, result int
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalPrimitive(m, "required_image_flags", &obj.RequiredImageFlags)
-	if err != nil {
-		return
-	}
 	err = core.UnmarshalModel(m, "resource_group", &obj.ResourceGroup, UnmarshalResourceGroupIdentity)
 	if err != nil {
 		return
@@ -69168,10 +53146,6 @@ type ImagePrototypeImageBySourceVolume struct {
 	// The unique user-defined name for this image. Names starting with `ibm-` are not allowed. If unspecified, the name
 	// will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
-
-	// An image may be only applicable to certain instance or bare metal server profiles. For the image to be applicable,
-	// all of its `required_image_flags` values must also appear in the profile's `supported_image_flags` array.
-	RequiredImageFlags []string `json:"required_image_flags,omitempty"`
 
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
 
@@ -69206,10 +53180,6 @@ func (*ImagePrototypeImageBySourceVolume) isaImagePrototype() bool {
 func UnmarshalImagePrototypeImageBySourceVolume(m map[string]json.RawMessage, result interface{}) (err error) {
 	obj := new(ImagePrototypeImageBySourceVolume)
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "required_image_flags", &obj.RequiredImageFlags)
 	if err != nil {
 		return
 	}
@@ -70105,104 +54075,6 @@ func UnmarshalInstancePatchProfileInstanceProfileIdentityByName(m map[string]jso
 	return
 }
 
-// InstancePlacementTargetPatchDedicatedHostGroupIdentity : Identifies a dedicated host group by a unique property.
-// Models which "extend" this model:
-// - InstancePlacementTargetPatchDedicatedHostGroupIdentityDedicatedHostGroupIdentityByID
-// - InstancePlacementTargetPatchDedicatedHostGroupIdentityDedicatedHostGroupIdentityByCRN
-// - InstancePlacementTargetPatchDedicatedHostGroupIdentityDedicatedHostGroupIdentityByHref
-// This model "extends" InstancePlacementTargetPatch
-type InstancePlacementTargetPatchDedicatedHostGroupIdentity struct {
-	// The unique identifier for this dedicated host group.
-	ID *string `json:"id,omitempty"`
-
-	// The CRN for this dedicated host group.
-	CRN *string `json:"crn,omitempty"`
-
-	// The URL for this dedicated host group.
-	Href *string `json:"href,omitempty"`
-}
-
-func (*InstancePlacementTargetPatchDedicatedHostGroupIdentity) isaInstancePlacementTargetPatchDedicatedHostGroupIdentity() bool {
-	return true
-}
-
-type InstancePlacementTargetPatchDedicatedHostGroupIdentityIntf interface {
-	InstancePlacementTargetPatchIntf
-	isaInstancePlacementTargetPatchDedicatedHostGroupIdentity() bool
-}
-
-func (*InstancePlacementTargetPatchDedicatedHostGroupIdentity) isaInstancePlacementTargetPatch() bool {
-	return true
-}
-
-// UnmarshalInstancePlacementTargetPatchDedicatedHostGroupIdentity unmarshals an instance of InstancePlacementTargetPatchDedicatedHostGroupIdentity from the specified map of raw messages.
-func UnmarshalInstancePlacementTargetPatchDedicatedHostGroupIdentity(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(InstancePlacementTargetPatchDedicatedHostGroupIdentity)
-	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// InstancePlacementTargetPatchDedicatedHostIdentity : Identifies a dedicated host by a unique property.
-// Models which "extend" this model:
-// - InstancePlacementTargetPatchDedicatedHostIdentityDedicatedHostIdentityByID
-// - InstancePlacementTargetPatchDedicatedHostIdentityDedicatedHostIdentityByCRN
-// - InstancePlacementTargetPatchDedicatedHostIdentityDedicatedHostIdentityByHref
-// This model "extends" InstancePlacementTargetPatch
-type InstancePlacementTargetPatchDedicatedHostIdentity struct {
-	// The unique identifier for this dedicated host.
-	ID *string `json:"id,omitempty"`
-
-	// The CRN for this dedicated host.
-	CRN *string `json:"crn,omitempty"`
-
-	// The URL for this dedicated host.
-	Href *string `json:"href,omitempty"`
-}
-
-func (*InstancePlacementTargetPatchDedicatedHostIdentity) isaInstancePlacementTargetPatchDedicatedHostIdentity() bool {
-	return true
-}
-
-type InstancePlacementTargetPatchDedicatedHostIdentityIntf interface {
-	InstancePlacementTargetPatchIntf
-	isaInstancePlacementTargetPatchDedicatedHostIdentity() bool
-}
-
-func (*InstancePlacementTargetPatchDedicatedHostIdentity) isaInstancePlacementTargetPatch() bool {
-	return true
-}
-
-// UnmarshalInstancePlacementTargetPatchDedicatedHostIdentity unmarshals an instance of InstancePlacementTargetPatchDedicatedHostIdentity from the specified map of raw messages.
-func UnmarshalInstancePlacementTargetPatchDedicatedHostIdentity(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(InstancePlacementTargetPatchDedicatedHostIdentity)
-	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
 // InstancePlacementTargetPrototypeDedicatedHostGroupIdentity : Identifies a dedicated host group by a unique property.
 // Models which "extend" this model:
 // - InstancePlacementTargetPrototypeDedicatedHostGroupIdentityDedicatedHostGroupIdentityByID
@@ -70573,8 +54445,8 @@ func UnmarshalInstanceProfileBandwidthDependent(m map[string]json.RawMessage, re
 	return
 }
 
-// InstanceProfileBandwidthEnum : The permitted total bandwidth values (in megabits per second) shared across the network interfaces and storage
-// volumes of an instance with this profile.
+// InstanceProfileBandwidthEnum : The permitted total bandwidth values (in megabits per second) shared across the network interfaces of an instance
+// with this profile.
 // This model "extends" InstanceProfileBandwidth
 type InstanceProfileBandwidthEnum struct {
 	// The default value for this profile field.
@@ -71008,328 +54880,6 @@ func (*InstanceProfileDiskSizeRange) isaInstanceProfileDiskSize() bool {
 // UnmarshalInstanceProfileDiskSizeRange unmarshals an instance of InstanceProfileDiskSizeRange from the specified map of raw messages.
 func UnmarshalInstanceProfileDiskSizeRange(m map[string]json.RawMessage, result interface{}) (err error) {
 	obj := new(InstanceProfileDiskSizeRange)
-	err = core.UnmarshalPrimitive(m, "default", &obj.Default)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "max", &obj.Max)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "min", &obj.Min)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "step", &obj.Step)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// InstanceProfileGpuDependent : The GPU count for an instance with this profile depends on its configuration.
-// This model "extends" InstanceProfileGpu
-type InstanceProfileGpuDependent struct {
-	// The type for this profile field.
-	Type *string `json:"type" validate:"required"`
-}
-
-// Constants associated with the InstanceProfileGpuDependent.Type property.
-// The type for this profile field.
-const (
-	InstanceProfileGpuDependentTypeDependentConst = "dependent"
-)
-
-func (*InstanceProfileGpuDependent) isaInstanceProfileGpu() bool {
-	return true
-}
-
-// UnmarshalInstanceProfileGpuDependent unmarshals an instance of InstanceProfileGpuDependent from the specified map of raw messages.
-func UnmarshalInstanceProfileGpuDependent(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(InstanceProfileGpuDependent)
-	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// InstanceProfileGpuEnum : The permitted GPU count values for an instance with this profile.
-// This model "extends" InstanceProfileGpu
-type InstanceProfileGpuEnum struct {
-	// The default value for this profile field.
-	Default *int64 `json:"default" validate:"required"`
-
-	// The type for this profile field.
-	Type *string `json:"type" validate:"required"`
-
-	// The permitted values for this profile field.
-	Values []int64 `json:"values" validate:"required"`
-}
-
-// Constants associated with the InstanceProfileGpuEnum.Type property.
-// The type for this profile field.
-const (
-	InstanceProfileGpuEnumTypeEnumConst = "enum"
-)
-
-func (*InstanceProfileGpuEnum) isaInstanceProfileGpu() bool {
-	return true
-}
-
-// UnmarshalInstanceProfileGpuEnum unmarshals an instance of InstanceProfileGpuEnum from the specified map of raw messages.
-func UnmarshalInstanceProfileGpuEnum(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(InstanceProfileGpuEnum)
-	err = core.UnmarshalPrimitive(m, "default", &obj.Default)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "values", &obj.Values)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// InstanceProfileGpuFixed : The GPU count for an instance with this profile.
-// This model "extends" InstanceProfileGpu
-type InstanceProfileGpuFixed struct {
-	// The type for this profile field.
-	Type *string `json:"type" validate:"required"`
-
-	// The value for this profile field.
-	Value *int64 `json:"value" validate:"required"`
-}
-
-// Constants associated with the InstanceProfileGpuFixed.Type property.
-// The type for this profile field.
-const (
-	InstanceProfileGpuFixedTypeFixedConst = "fixed"
-)
-
-func (*InstanceProfileGpuFixed) isaInstanceProfileGpu() bool {
-	return true
-}
-
-// UnmarshalInstanceProfileGpuFixed unmarshals an instance of InstanceProfileGpuFixed from the specified map of raw messages.
-func UnmarshalInstanceProfileGpuFixed(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(InstanceProfileGpuFixed)
-	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "value", &obj.Value)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// InstanceProfileGpuMemoryDependent : The overall GPU memory value for an instance with this profile depends on its configuration.
-// This model "extends" InstanceProfileGpuMemory
-type InstanceProfileGpuMemoryDependent struct {
-	// The type for this profile field.
-	Type *string `json:"type" validate:"required"`
-}
-
-// Constants associated with the InstanceProfileGpuMemoryDependent.Type property.
-// The type for this profile field.
-const (
-	InstanceProfileGpuMemoryDependentTypeDependentConst = "dependent"
-)
-
-func (*InstanceProfileGpuMemoryDependent) isaInstanceProfileGpuMemory() bool {
-	return true
-}
-
-// UnmarshalInstanceProfileGpuMemoryDependent unmarshals an instance of InstanceProfileGpuMemoryDependent from the specified map of raw messages.
-func UnmarshalInstanceProfileGpuMemoryDependent(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(InstanceProfileGpuMemoryDependent)
-	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// InstanceProfileGpuMemoryEnum : The permitted overall GPU memory values in GiB (gibibytes) for an instance with this profile.
-// This model "extends" InstanceProfileGpuMemory
-type InstanceProfileGpuMemoryEnum struct {
-	// The default value for this profile field.
-	Default *int64 `json:"default" validate:"required"`
-
-	// The type for this profile field.
-	Type *string `json:"type" validate:"required"`
-
-	// The permitted values for this profile field.
-	Values []int64 `json:"values" validate:"required"`
-}
-
-// Constants associated with the InstanceProfileGpuMemoryEnum.Type property.
-// The type for this profile field.
-const (
-	InstanceProfileGpuMemoryEnumTypeEnumConst = "enum"
-)
-
-func (*InstanceProfileGpuMemoryEnum) isaInstanceProfileGpuMemory() bool {
-	return true
-}
-
-// UnmarshalInstanceProfileGpuMemoryEnum unmarshals an instance of InstanceProfileGpuMemoryEnum from the specified map of raw messages.
-func UnmarshalInstanceProfileGpuMemoryEnum(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(InstanceProfileGpuMemoryEnum)
-	err = core.UnmarshalPrimitive(m, "default", &obj.Default)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "values", &obj.Values)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// InstanceProfileGpuMemoryFixed : The overall GPU memory in GiB (gibibytes) for an instance with this profile.
-// This model "extends" InstanceProfileGpuMemory
-type InstanceProfileGpuMemoryFixed struct {
-	// The type for this profile field.
-	Type *string `json:"type" validate:"required"`
-
-	// The value for this profile field.
-	Value *int64 `json:"value" validate:"required"`
-}
-
-// Constants associated with the InstanceProfileGpuMemoryFixed.Type property.
-// The type for this profile field.
-const (
-	InstanceProfileGpuMemoryFixedTypeFixedConst = "fixed"
-)
-
-func (*InstanceProfileGpuMemoryFixed) isaInstanceProfileGpuMemory() bool {
-	return true
-}
-
-// UnmarshalInstanceProfileGpuMemoryFixed unmarshals an instance of InstanceProfileGpuMemoryFixed from the specified map of raw messages.
-func UnmarshalInstanceProfileGpuMemoryFixed(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(InstanceProfileGpuMemoryFixed)
-	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "value", &obj.Value)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// InstanceProfileGpuMemoryRange : The permitted overall GPU memory range in GiB (gibibytes) for an instance with this profile.
-// This model "extends" InstanceProfileGpuMemory
-type InstanceProfileGpuMemoryRange struct {
-	// The default value for this profile field.
-	Default *int64 `json:"default" validate:"required"`
-
-	// The maximum value for this profile field.
-	Max *int64 `json:"max" validate:"required"`
-
-	// The minimum value for this profile field.
-	Min *int64 `json:"min" validate:"required"`
-
-	// The increment step value for this profile field.
-	Step *int64 `json:"step" validate:"required"`
-
-	// The type for this profile field.
-	Type *string `json:"type" validate:"required"`
-}
-
-// Constants associated with the InstanceProfileGpuMemoryRange.Type property.
-// The type for this profile field.
-const (
-	InstanceProfileGpuMemoryRangeTypeRangeConst = "range"
-)
-
-func (*InstanceProfileGpuMemoryRange) isaInstanceProfileGpuMemory() bool {
-	return true
-}
-
-// UnmarshalInstanceProfileGpuMemoryRange unmarshals an instance of InstanceProfileGpuMemoryRange from the specified map of raw messages.
-func UnmarshalInstanceProfileGpuMemoryRange(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(InstanceProfileGpuMemoryRange)
-	err = core.UnmarshalPrimitive(m, "default", &obj.Default)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "max", &obj.Max)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "min", &obj.Min)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "step", &obj.Step)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// InstanceProfileGpuRange : The permitted GPU count range for an instance with this profile.
-// This model "extends" InstanceProfileGpu
-type InstanceProfileGpuRange struct {
-	// The default value for this profile field.
-	Default *int64 `json:"default" validate:"required"`
-
-	// The maximum value for this profile field.
-	Max *int64 `json:"max" validate:"required"`
-
-	// The minimum value for this profile field.
-	Min *int64 `json:"min" validate:"required"`
-
-	// The increment step value for this profile field.
-	Step *int64 `json:"step" validate:"required"`
-
-	// The type for this profile field.
-	Type *string `json:"type" validate:"required"`
-}
-
-// Constants associated with the InstanceProfileGpuRange.Type property.
-// The type for this profile field.
-const (
-	InstanceProfileGpuRangeTypeRangeConst = "range"
-)
-
-func (*InstanceProfileGpuRange) isaInstanceProfileGpu() bool {
-	return true
-}
-
-// UnmarshalInstanceProfileGpuRange unmarshals an instance of InstanceProfileGpuRange from the specified map of raw messages.
-func UnmarshalInstanceProfileGpuRange(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(InstanceProfileGpuRange)
 	err = core.UnmarshalPrimitive(m, "default", &obj.Default)
 	if err != nil {
 		return
@@ -71801,186 +55351,21 @@ func UnmarshalInstanceProfileVcpuRange(m map[string]json.RawMessage, result inte
 	return
 }
 
-// InstanceProfileVolumeBandwidthDependent : The storage bandwidth shared across the storage volumes of an instance with this profile depends on its
-// configuration.
-// This model "extends" InstanceProfileVolumeBandwidth
-type InstanceProfileVolumeBandwidthDependent struct {
-	// The type for this profile field.
-	Type *string `json:"type" validate:"required"`
-}
-
-// Constants associated with the InstanceProfileVolumeBandwidthDependent.Type property.
-// The type for this profile field.
-const (
-	InstanceProfileVolumeBandwidthDependentTypeDependentConst = "dependent"
-)
-
-func (*InstanceProfileVolumeBandwidthDependent) isaInstanceProfileVolumeBandwidth() bool {
-	return true
-}
-
-// UnmarshalInstanceProfileVolumeBandwidthDependent unmarshals an instance of InstanceProfileVolumeBandwidthDependent from the specified map of raw messages.
-func UnmarshalInstanceProfileVolumeBandwidthDependent(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(InstanceProfileVolumeBandwidthDependent)
-	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// InstanceProfileVolumeBandwidthEnum : The permitted storage bandwidth values (in megabits per second) shared across the storage volumes of an instance with
-// this profile.
-// This model "extends" InstanceProfileVolumeBandwidth
-type InstanceProfileVolumeBandwidthEnum struct {
-	// The default value for this profile field.
-	Default *int64 `json:"default" validate:"required"`
-
-	// The type for this profile field.
-	Type *string `json:"type" validate:"required"`
-
-	// The permitted values for this profile field.
-	Values []int64 `json:"values" validate:"required"`
-}
-
-// Constants associated with the InstanceProfileVolumeBandwidthEnum.Type property.
-// The type for this profile field.
-const (
-	InstanceProfileVolumeBandwidthEnumTypeEnumConst = "enum"
-)
-
-func (*InstanceProfileVolumeBandwidthEnum) isaInstanceProfileVolumeBandwidth() bool {
-	return true
-}
-
-// UnmarshalInstanceProfileVolumeBandwidthEnum unmarshals an instance of InstanceProfileVolumeBandwidthEnum from the specified map of raw messages.
-func UnmarshalInstanceProfileVolumeBandwidthEnum(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(InstanceProfileVolumeBandwidthEnum)
-	err = core.UnmarshalPrimitive(m, "default", &obj.Default)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "values", &obj.Values)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// InstanceProfileVolumeBandwidthFixed : The storage bandwidth (in megabits per second) shared across the storage volumes of an instance with this profile.
-// This model "extends" InstanceProfileVolumeBandwidth
-type InstanceProfileVolumeBandwidthFixed struct {
-	// The type for this profile field.
-	Type *string `json:"type" validate:"required"`
-
-	// The value for this profile field.
-	Value *int64 `json:"value" validate:"required"`
-}
-
-// Constants associated with the InstanceProfileVolumeBandwidthFixed.Type property.
-// The type for this profile field.
-const (
-	InstanceProfileVolumeBandwidthFixedTypeFixedConst = "fixed"
-)
-
-func (*InstanceProfileVolumeBandwidthFixed) isaInstanceProfileVolumeBandwidth() bool {
-	return true
-}
-
-// UnmarshalInstanceProfileVolumeBandwidthFixed unmarshals an instance of InstanceProfileVolumeBandwidthFixed from the specified map of raw messages.
-func UnmarshalInstanceProfileVolumeBandwidthFixed(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(InstanceProfileVolumeBandwidthFixed)
-	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "value", &obj.Value)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// InstanceProfileVolumeBandwidthRange : The permitted storage bandwidth range (in megabits per second) shared across the storage volumes of an instance with
-// this profile.
-// This model "extends" InstanceProfileVolumeBandwidth
-type InstanceProfileVolumeBandwidthRange struct {
-	// The default value for this profile field.
-	Default *int64 `json:"default" validate:"required"`
-
-	// The maximum value for this profile field.
-	Max *int64 `json:"max" validate:"required"`
-
-	// The minimum value for this profile field.
-	Min *int64 `json:"min" validate:"required"`
-
-	// The increment step value for this profile field.
-	Step *int64 `json:"step" validate:"required"`
-
-	// The type for this profile field.
-	Type *string `json:"type" validate:"required"`
-}
-
-// Constants associated with the InstanceProfileVolumeBandwidthRange.Type property.
-// The type for this profile field.
-const (
-	InstanceProfileVolumeBandwidthRangeTypeRangeConst = "range"
-)
-
-func (*InstanceProfileVolumeBandwidthRange) isaInstanceProfileVolumeBandwidth() bool {
-	return true
-}
-
-// UnmarshalInstanceProfileVolumeBandwidthRange unmarshals an instance of InstanceProfileVolumeBandwidthRange from the specified map of raw messages.
-func UnmarshalInstanceProfileVolumeBandwidthRange(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(InstanceProfileVolumeBandwidthRange)
-	err = core.UnmarshalPrimitive(m, "default", &obj.Default)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "max", &obj.Max)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "min", &obj.Min)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "step", &obj.Step)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
 // InstancePrototypeInstanceByImage : InstancePrototypeInstanceByImage struct
 // This model "extends" InstancePrototype
 type InstancePrototypeInstanceByImage struct {
 	// The availability policy to use for this virtual server instance.
 	AvailabilityPolicy *InstanceAvailabilityPrototype `json:"availability_policy,omitempty"`
 
-	// The public SSH keys for the administrative user of the virtual server instance. Up to 10 keys may be provided; if no
-	// keys are provided the instance will be inaccessible unless the image used provides another means of access. For
-	// Windows instances, one of the keys will be used to encrypt the administrator password.
+	// The public SSH keys for the administrative user of the virtual server instance. Keys will be made available to the
+	// virtual server instance as cloud-init vendor data. For cloud-init enabled images, these keys will also be added as
+	// SSH authorized keys for the administrative user.
 	//
-	// Keys will be made available to the virtual server instance as cloud-init vendor data. For cloud-init enabled images,
-	// these keys will also be added as SSH authorized keys for the administrative user.
+	// For Windows images, at least one key must be specified, and one will be chosen to encrypt [the administrator
+	// password](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization). Keys are optional for other images, but if
+	// no keys are specified, the instance will be inaccessible unless the specified image provides another means of
+	// access.
 	Keys []KeyIdentityIntf `json:"keys,omitempty"`
-
-	// Configuration options for the instance metadata service.
-	MetadataService *InstanceMetadataServicePrototype `json:"metadata_service,omitempty"`
 
 	// The unique user-defined name for this virtual server instance (and default system hostname). If unspecified, the
 	// name will be a hyphenated list of randomly-selected words.
@@ -71997,16 +55382,11 @@ type InstancePrototypeInstanceByImage struct {
 
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
 
-	// The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes. An increase in
-	// this value will result in a corresponding decrease to
-	// `total_network_bandwidth`.
-	TotalVolumeBandwidth *int64 `json:"total_volume_bandwidth,omitempty"`
-
 	// User data to be made available when setting up the virtual server instance.
 	UserData *string `json:"user_data,omitempty"`
 
 	// The volume attachments for this virtual server instance.
-	VolumeAttachments []VolumeAttachmentPrototype `json:"volume_attachments,omitempty"`
+	VolumeAttachments []VolumeAttachmentPrototypeInstanceContext `json:"volume_attachments,omitempty"`
 
 	// The VPC the virtual server instance is to be a part of. If provided, must match the VPC tied to the subnets of the
 	// instance's network interfaces.
@@ -72051,10 +55431,6 @@ func UnmarshalInstancePrototypeInstanceByImage(m map[string]json.RawMessage, res
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalModel(m, "metadata_service", &obj.MetadataService, UnmarshalInstanceMetadataServicePrototype)
-	if err != nil {
-		return
-	}
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
 	if err != nil {
 		return
@@ -72075,15 +55451,11 @@ func UnmarshalInstancePrototypeInstanceByImage(m map[string]json.RawMessage, res
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalPrimitive(m, "total_volume_bandwidth", &obj.TotalVolumeBandwidth)
-	if err != nil {
-		return
-	}
 	err = core.UnmarshalPrimitive(m, "user_data", &obj.UserData)
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalModel(m, "volume_attachments", &obj.VolumeAttachments, UnmarshalVolumeAttachmentPrototype)
+	err = core.UnmarshalModel(m, "volume_attachments", &obj.VolumeAttachments, UnmarshalVolumeAttachmentPrototypeInstanceContext)
 	if err != nil {
 		return
 	}
@@ -72117,16 +55489,15 @@ type InstancePrototypeInstanceBySourceTemplate struct {
 	// The availability policy to use for this virtual server instance.
 	AvailabilityPolicy *InstanceAvailabilityPrototype `json:"availability_policy,omitempty"`
 
-	// The public SSH keys for the administrative user of the virtual server instance. Up to 10 keys may be provided; if no
-	// keys are provided the instance will be inaccessible unless the image used provides another means of access. For
-	// Windows instances, one of the keys will be used to encrypt the administrator password.
+	// The public SSH keys for the administrative user of the virtual server instance. Keys will be made available to the
+	// virtual server instance as cloud-init vendor data. For cloud-init enabled images, these keys will also be added as
+	// SSH authorized keys for the administrative user.
 	//
-	// Keys will be made available to the virtual server instance as cloud-init vendor data. For cloud-init enabled images,
-	// these keys will also be added as SSH authorized keys for the administrative user.
+	// For Windows images, at least one key must be specified, and one will be chosen to encrypt [the administrator
+	// password](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization). Keys are optional for other images, but if
+	// no keys are specified, the instance will be inaccessible unless the specified image provides another means of
+	// access.
 	Keys []KeyIdentityIntf `json:"keys,omitempty"`
-
-	// Configuration options for the instance metadata service.
-	MetadataService *InstanceMetadataServicePrototype `json:"metadata_service,omitempty"`
 
 	// The unique user-defined name for this virtual server instance (and default system hostname). If unspecified, the
 	// name will be a hyphenated list of randomly-selected words.
@@ -72143,16 +55514,11 @@ type InstancePrototypeInstanceBySourceTemplate struct {
 
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
 
-	// The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes. An increase in
-	// this value will result in a corresponding decrease to
-	// `total_network_bandwidth`.
-	TotalVolumeBandwidth *int64 `json:"total_volume_bandwidth,omitempty"`
-
 	// User data to be made available when setting up the virtual server instance.
 	UserData *string `json:"user_data,omitempty"`
 
 	// The volume attachments for this virtual server instance.
-	VolumeAttachments []VolumeAttachmentPrototype `json:"volume_attachments,omitempty"`
+	VolumeAttachments []VolumeAttachmentPrototypeInstanceContext `json:"volume_attachments,omitempty"`
 
 	// The VPC the virtual server instance is to be a part of. If provided, must match the VPC tied to the subnets of the
 	// instance's network interfaces.
@@ -72167,7 +55533,7 @@ type InstancePrototypeInstanceBySourceTemplate struct {
 	// Primary network interface.
 	PrimaryNetworkInterface *NetworkInterfacePrototype `json:"primary_network_interface,omitempty"`
 
-	// Identifies an instance template by a unique property.
+	// The template to create this virtual server instance from.
 	SourceTemplate InstanceTemplateIdentityIntf `json:"source_template" validate:"required"`
 
 	// The zone this virtual server instance will reside in.
@@ -72198,10 +55564,6 @@ func UnmarshalInstancePrototypeInstanceBySourceTemplate(m map[string]json.RawMes
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalModel(m, "metadata_service", &obj.MetadataService, UnmarshalInstanceMetadataServicePrototype)
-	if err != nil {
-		return
-	}
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
 	if err != nil {
 		return
@@ -72222,15 +55584,11 @@ func UnmarshalInstancePrototypeInstanceBySourceTemplate(m map[string]json.RawMes
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalPrimitive(m, "total_volume_bandwidth", &obj.TotalVolumeBandwidth)
-	if err != nil {
-		return
-	}
 	err = core.UnmarshalPrimitive(m, "user_data", &obj.UserData)
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalModel(m, "volume_attachments", &obj.VolumeAttachments, UnmarshalVolumeAttachmentPrototype)
+	err = core.UnmarshalModel(m, "volume_attachments", &obj.VolumeAttachments, UnmarshalVolumeAttachmentPrototypeInstanceContext)
 	if err != nil {
 		return
 	}
@@ -72268,16 +55626,15 @@ type InstancePrototypeInstanceByVolume struct {
 	// The availability policy to use for this virtual server instance.
 	AvailabilityPolicy *InstanceAvailabilityPrototype `json:"availability_policy,omitempty"`
 
-	// The public SSH keys for the administrative user of the virtual server instance. Up to 10 keys may be provided; if no
-	// keys are provided the instance will be inaccessible unless the image used provides another means of access. For
-	// Windows instances, one of the keys will be used to encrypt the administrator password.
+	// The public SSH keys for the administrative user of the virtual server instance. Keys will be made available to the
+	// virtual server instance as cloud-init vendor data. For cloud-init enabled images, these keys will also be added as
+	// SSH authorized keys for the administrative user.
 	//
-	// Keys will be made available to the virtual server instance as cloud-init vendor data. For cloud-init enabled images,
-	// these keys will also be added as SSH authorized keys for the administrative user.
+	// For Windows images, at least one key must be specified, and one will be chosen to encrypt [the administrator
+	// password](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization). Keys are optional for other images, but if
+	// no keys are specified, the instance will be inaccessible unless the specified image provides another means of
+	// access.
 	Keys []KeyIdentityIntf `json:"keys,omitempty"`
-
-	// Configuration options for the instance metadata service.
-	MetadataService *InstanceMetadataServicePrototype `json:"metadata_service,omitempty"`
 
 	// The unique user-defined name for this virtual server instance (and default system hostname). If unspecified, the
 	// name will be a hyphenated list of randomly-selected words.
@@ -72294,16 +55651,11 @@ type InstancePrototypeInstanceByVolume struct {
 
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
 
-	// The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes. An increase in
-	// this value will result in a corresponding decrease to
-	// `total_network_bandwidth`.
-	TotalVolumeBandwidth *int64 `json:"total_volume_bandwidth,omitempty"`
-
 	// User data to be made available when setting up the virtual server instance.
 	UserData *string `json:"user_data,omitempty"`
 
 	// The volume attachments for this virtual server instance.
-	VolumeAttachments []VolumeAttachmentPrototype `json:"volume_attachments,omitempty"`
+	VolumeAttachments []VolumeAttachmentPrototypeInstanceContext `json:"volume_attachments,omitempty"`
 
 	// The VPC the virtual server instance is to be a part of. If provided, must match the VPC tied to the subnets of the
 	// instance's network interfaces.
@@ -72345,10 +55697,6 @@ func UnmarshalInstancePrototypeInstanceByVolume(m map[string]json.RawMessage, re
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalModel(m, "metadata_service", &obj.MetadataService, UnmarshalInstanceMetadataServicePrototype)
-	if err != nil {
-		return
-	}
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
 	if err != nil {
 		return
@@ -72369,15 +55717,11 @@ func UnmarshalInstancePrototypeInstanceByVolume(m map[string]json.RawMessage, re
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalPrimitive(m, "total_volume_bandwidth", &obj.TotalVolumeBandwidth)
-	if err != nil {
-		return
-	}
 	err = core.UnmarshalPrimitive(m, "user_data", &obj.UserData)
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalModel(m, "volume_attachments", &obj.VolumeAttachments, UnmarshalVolumeAttachmentPrototype)
+	err = core.UnmarshalModel(m, "volume_attachments", &obj.VolumeAttachments, UnmarshalVolumeAttachmentPrototypeInstanceContext)
 	if err != nil {
 		return
 	}
@@ -72500,16 +55844,15 @@ type InstanceTemplatePrototypeInstanceByImage struct {
 	// The availability policy to use for this virtual server instance.
 	AvailabilityPolicy *InstanceAvailabilityPrototype `json:"availability_policy,omitempty"`
 
-	// The public SSH keys for the administrative user of the virtual server instance. Up to 10 keys may be provided; if no
-	// keys are provided the instance will be inaccessible unless the image used provides another means of access. For
-	// Windows instances, one of the keys will be used to encrypt the administrator password.
+	// The public SSH keys for the administrative user of the virtual server instance. Keys will be made available to the
+	// virtual server instance as cloud-init vendor data. For cloud-init enabled images, these keys will also be added as
+	// SSH authorized keys for the administrative user.
 	//
-	// Keys will be made available to the virtual server instance as cloud-init vendor data. For cloud-init enabled images,
-	// these keys will also be added as SSH authorized keys for the administrative user.
+	// For Windows images, at least one key must be specified, and one will be chosen to encrypt [the administrator
+	// password](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization). Keys are optional for other images, but if
+	// no keys are specified, the instance will be inaccessible unless the specified image provides another means of
+	// access.
 	Keys []KeyIdentityIntf `json:"keys,omitempty"`
-
-	// Configuration options for the instance metadata service.
-	MetadataService *InstanceMetadataServicePrototype `json:"metadata_service,omitempty"`
 
 	// The unique user-defined name for this virtual server instance (and default system hostname). If unspecified, the
 	// name will be a hyphenated list of randomly-selected words.
@@ -72526,16 +55869,11 @@ type InstanceTemplatePrototypeInstanceByImage struct {
 
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
 
-	// The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes. An increase in
-	// this value will result in a corresponding decrease to
-	// `total_network_bandwidth`.
-	TotalVolumeBandwidth *int64 `json:"total_volume_bandwidth,omitempty"`
-
 	// User data to be made available when setting up the virtual server instance.
 	UserData *string `json:"user_data,omitempty"`
 
 	// The volume attachments for this virtual server instance.
-	VolumeAttachments []VolumeAttachmentPrototype `json:"volume_attachments,omitempty"`
+	VolumeAttachments []VolumeAttachmentPrototypeInstanceContext `json:"volume_attachments,omitempty"`
 
 	// The VPC the virtual server instance is to be a part of. If provided, must match the VPC tied to the subnets of the
 	// instance's network interfaces.
@@ -72580,10 +55918,6 @@ func UnmarshalInstanceTemplatePrototypeInstanceByImage(m map[string]json.RawMess
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalModel(m, "metadata_service", &obj.MetadataService, UnmarshalInstanceMetadataServicePrototype)
-	if err != nil {
-		return
-	}
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
 	if err != nil {
 		return
@@ -72604,15 +55938,11 @@ func UnmarshalInstanceTemplatePrototypeInstanceByImage(m map[string]json.RawMess
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalPrimitive(m, "total_volume_bandwidth", &obj.TotalVolumeBandwidth)
-	if err != nil {
-		return
-	}
 	err = core.UnmarshalPrimitive(m, "user_data", &obj.UserData)
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalModel(m, "volume_attachments", &obj.VolumeAttachments, UnmarshalVolumeAttachmentPrototype)
+	err = core.UnmarshalModel(m, "volume_attachments", &obj.VolumeAttachments, UnmarshalVolumeAttachmentPrototypeInstanceContext)
 	if err != nil {
 		return
 	}
@@ -72646,16 +55976,15 @@ type InstanceTemplatePrototypeInstanceBySourceTemplate struct {
 	// The availability policy to use for this virtual server instance.
 	AvailabilityPolicy *InstanceAvailabilityPrototype `json:"availability_policy,omitempty"`
 
-	// The public SSH keys for the administrative user of the virtual server instance. Up to 10 keys may be provided; if no
-	// keys are provided the instance will be inaccessible unless the image used provides another means of access. For
-	// Windows instances, one of the keys will be used to encrypt the administrator password.
+	// The public SSH keys for the administrative user of the virtual server instance. Keys will be made available to the
+	// virtual server instance as cloud-init vendor data. For cloud-init enabled images, these keys will also be added as
+	// SSH authorized keys for the administrative user.
 	//
-	// Keys will be made available to the virtual server instance as cloud-init vendor data. For cloud-init enabled images,
-	// these keys will also be added as SSH authorized keys for the administrative user.
+	// For Windows images, at least one key must be specified, and one will be chosen to encrypt [the administrator
+	// password](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization). Keys are optional for other images, but if
+	// no keys are specified, the instance will be inaccessible unless the specified image provides another means of
+	// access.
 	Keys []KeyIdentityIntf `json:"keys,omitempty"`
-
-	// Configuration options for the instance metadata service.
-	MetadataService *InstanceMetadataServicePrototype `json:"metadata_service,omitempty"`
 
 	// The unique user-defined name for this virtual server instance (and default system hostname). If unspecified, the
 	// name will be a hyphenated list of randomly-selected words.
@@ -72672,16 +56001,11 @@ type InstanceTemplatePrototypeInstanceBySourceTemplate struct {
 
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
 
-	// The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes. An increase in
-	// this value will result in a corresponding decrease to
-	// `total_network_bandwidth`.
-	TotalVolumeBandwidth *int64 `json:"total_volume_bandwidth,omitempty"`
-
 	// User data to be made available when setting up the virtual server instance.
 	UserData *string `json:"user_data,omitempty"`
 
 	// The volume attachments for this virtual server instance.
-	VolumeAttachments []VolumeAttachmentPrototype `json:"volume_attachments,omitempty"`
+	VolumeAttachments []VolumeAttachmentPrototypeInstanceContext `json:"volume_attachments,omitempty"`
 
 	// The VPC the virtual server instance is to be a part of. If provided, must match the VPC tied to the subnets of the
 	// instance's network interfaces.
@@ -72696,7 +56020,7 @@ type InstanceTemplatePrototypeInstanceBySourceTemplate struct {
 	// Primary network interface.
 	PrimaryNetworkInterface *NetworkInterfacePrototype `json:"primary_network_interface,omitempty"`
 
-	// Identifies an instance template by a unique property.
+	// The template to create this virtual server instance from.
 	SourceTemplate InstanceTemplateIdentityIntf `json:"source_template" validate:"required"`
 
 	// The zone this virtual server instance will reside in.
@@ -72727,10 +56051,6 @@ func UnmarshalInstanceTemplatePrototypeInstanceBySourceTemplate(m map[string]jso
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalModel(m, "metadata_service", &obj.MetadataService, UnmarshalInstanceMetadataServicePrototype)
-	if err != nil {
-		return
-	}
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
 	if err != nil {
 		return
@@ -72751,15 +56071,11 @@ func UnmarshalInstanceTemplatePrototypeInstanceBySourceTemplate(m map[string]jso
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalPrimitive(m, "total_volume_bandwidth", &obj.TotalVolumeBandwidth)
-	if err != nil {
-		return
-	}
 	err = core.UnmarshalPrimitive(m, "user_data", &obj.UserData)
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalModel(m, "volume_attachments", &obj.VolumeAttachments, UnmarshalVolumeAttachmentPrototype)
+	err = core.UnmarshalModel(m, "volume_attachments", &obj.VolumeAttachments, UnmarshalVolumeAttachmentPrototypeInstanceContext)
 	if err != nil {
 		return
 	}
@@ -72797,16 +56113,15 @@ type InstanceTemplatePrototypeInstanceByVolume struct {
 	// The availability policy to use for this virtual server instance.
 	AvailabilityPolicy *InstanceAvailabilityPrototype `json:"availability_policy,omitempty"`
 
-	// The public SSH keys for the administrative user of the virtual server instance. Up to 10 keys may be provided; if no
-	// keys are provided the instance will be inaccessible unless the image used provides another means of access. For
-	// Windows instances, one of the keys will be used to encrypt the administrator password.
+	// The public SSH keys for the administrative user of the virtual server instance. Keys will be made available to the
+	// virtual server instance as cloud-init vendor data. For cloud-init enabled images, these keys will also be added as
+	// SSH authorized keys for the administrative user.
 	//
-	// Keys will be made available to the virtual server instance as cloud-init vendor data. For cloud-init enabled images,
-	// these keys will also be added as SSH authorized keys for the administrative user.
+	// For Windows images, at least one key must be specified, and one will be chosen to encrypt [the administrator
+	// password](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization). Keys are optional for other images, but if
+	// no keys are specified, the instance will be inaccessible unless the specified image provides another means of
+	// access.
 	Keys []KeyIdentityIntf `json:"keys,omitempty"`
-
-	// Configuration options for the instance metadata service.
-	MetadataService *InstanceMetadataServicePrototype `json:"metadata_service,omitempty"`
 
 	// The unique user-defined name for this virtual server instance (and default system hostname). If unspecified, the
 	// name will be a hyphenated list of randomly-selected words.
@@ -72823,16 +56138,11 @@ type InstanceTemplatePrototypeInstanceByVolume struct {
 
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
 
-	// The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes. An increase in
-	// this value will result in a corresponding decrease to
-	// `total_network_bandwidth`.
-	TotalVolumeBandwidth *int64 `json:"total_volume_bandwidth,omitempty"`
-
 	// User data to be made available when setting up the virtual server instance.
 	UserData *string `json:"user_data,omitempty"`
 
 	// The volume attachments for this virtual server instance.
-	VolumeAttachments []VolumeAttachmentPrototype `json:"volume_attachments,omitempty"`
+	VolumeAttachments []VolumeAttachmentPrototypeInstanceContext `json:"volume_attachments,omitempty"`
 
 	// The VPC the virtual server instance is to be a part of. If provided, must match the VPC tied to the subnets of the
 	// instance's network interfaces.
@@ -72874,10 +56184,6 @@ func UnmarshalInstanceTemplatePrototypeInstanceByVolume(m map[string]json.RawMes
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalModel(m, "metadata_service", &obj.MetadataService, UnmarshalInstanceMetadataServicePrototype)
-	if err != nil {
-		return
-	}
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
 	if err != nil {
 		return
@@ -72898,15 +56204,11 @@ func UnmarshalInstanceTemplatePrototypeInstanceByVolume(m map[string]json.RawMes
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalPrimitive(m, "total_volume_bandwidth", &obj.TotalVolumeBandwidth)
-	if err != nil {
-		return
-	}
 	err = core.UnmarshalPrimitive(m, "user_data", &obj.UserData)
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalModel(m, "volume_attachments", &obj.VolumeAttachments, UnmarshalVolumeAttachmentPrototype)
+	err = core.UnmarshalModel(m, "volume_attachments", &obj.VolumeAttachments, UnmarshalVolumeAttachmentPrototypeInstanceContext)
 	if err != nil {
 		return
 	}
@@ -72948,16 +56250,15 @@ type InstanceTemplateInstanceByImage struct {
 	// The unique identifier for this instance template.
 	ID *string `json:"id" validate:"required"`
 
-	// The public SSH keys for the administrative user of the virtual server instance. Up to 10 keys may be provided; if no
-	// keys are provided the instance will be inaccessible unless the image used provides another means of access. For
-	// Windows instances, one of the keys will be used to encrypt the administrator password.
+	// The public SSH keys for the administrative user of the virtual server instance. Keys will be made available to the
+	// virtual server instance as cloud-init vendor data. For cloud-init enabled images, these keys will also be added as
+	// SSH authorized keys for the administrative user.
 	//
-	// Keys will be made available to the virtual server instance as cloud-init vendor data. For cloud-init enabled images,
-	// these keys will also be added as SSH authorized keys for the administrative user.
+	// For Windows images, at least one key must be specified, and one will be chosen to encrypt [the administrator
+	// password](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization). Keys are optional for other images, but if
+	// no keys are specified, the instance will be inaccessible unless the specified image provides another means of
+	// access.
 	Keys []KeyIdentityIntf `json:"keys,omitempty"`
-
-	// Configuration options for the instance metadata service.
-	MetadataService *InstanceMetadataServicePrototype `json:"metadata_service,omitempty"`
 
 	// The unique user-defined name for this instance template.
 	Name *string `json:"name" validate:"required"`
@@ -72974,16 +56275,11 @@ type InstanceTemplateInstanceByImage struct {
 	// The resource group for this instance template.
 	ResourceGroup *ResourceGroupReference `json:"resource_group" validate:"required"`
 
-	// The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes. An increase in
-	// this value will result in a corresponding decrease to
-	// `total_network_bandwidth`.
-	TotalVolumeBandwidth *int64 `json:"total_volume_bandwidth,omitempty"`
-
 	// User data to be made available when setting up the virtual server instance.
 	UserData *string `json:"user_data,omitempty"`
 
 	// The volume attachments for this virtual server instance.
-	VolumeAttachments []VolumeAttachmentPrototype `json:"volume_attachments,omitempty"`
+	VolumeAttachments []VolumeAttachmentPrototypeInstanceContext `json:"volume_attachments,omitempty"`
 
 	// The VPC the virtual server instance is to be a part of. If provided, must match the VPC tied to the subnets of the
 	// instance's network interfaces.
@@ -73033,10 +56329,6 @@ func UnmarshalInstanceTemplateInstanceByImage(m map[string]json.RawMessage, resu
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalModel(m, "metadata_service", &obj.MetadataService, UnmarshalInstanceMetadataServicePrototype)
-	if err != nil {
-		return
-	}
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
 	if err != nil {
 		return
@@ -73057,15 +56349,11 @@ func UnmarshalInstanceTemplateInstanceByImage(m map[string]json.RawMessage, resu
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalPrimitive(m, "total_volume_bandwidth", &obj.TotalVolumeBandwidth)
-	if err != nil {
-		return
-	}
 	err = core.UnmarshalPrimitive(m, "user_data", &obj.UserData)
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalModel(m, "volume_attachments", &obj.VolumeAttachments, UnmarshalVolumeAttachmentPrototype)
+	err = core.UnmarshalModel(m, "volume_attachments", &obj.VolumeAttachments, UnmarshalVolumeAttachmentPrototypeInstanceContext)
 	if err != nil {
 		return
 	}
@@ -73082,176 +56370,6 @@ func UnmarshalInstanceTemplateInstanceByImage(m map[string]json.RawMessage, resu
 		return
 	}
 	err = core.UnmarshalModel(m, "primary_network_interface", &obj.PrimaryNetworkInterface, UnmarshalNetworkInterfacePrototype)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "zone", &obj.Zone, UnmarshalZoneIdentity)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// InstanceTemplateInstanceBySourceTemplate : InstanceTemplateInstanceBySourceTemplate struct
-// This model "extends" InstanceTemplate
-type InstanceTemplateInstanceBySourceTemplate struct {
-	// The availability policy to use for this virtual server instance.
-	AvailabilityPolicy *InstanceAvailabilityPrototype `json:"availability_policy,omitempty"`
-
-	// The date and time that the instance template was created.
-	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
-
-	// The CRN for this instance template.
-	CRN *string `json:"crn" validate:"required"`
-
-	// The URL for this instance template.
-	Href *string `json:"href" validate:"required"`
-
-	// The unique identifier for this instance template.
-	ID *string `json:"id" validate:"required"`
-
-	// The public SSH keys for the administrative user of the virtual server instance. Up to 10 keys may be provided; if no
-	// keys are provided the instance will be inaccessible unless the image used provides another means of access. For
-	// Windows instances, one of the keys will be used to encrypt the administrator password.
-	//
-	// Keys will be made available to the virtual server instance as cloud-init vendor data. For cloud-init enabled images,
-	// these keys will also be added as SSH authorized keys for the administrative user.
-	Keys []KeyIdentityIntf `json:"keys,omitempty"`
-
-	// Configuration options for the instance metadata service.
-	MetadataService *InstanceMetadataServicePrototype `json:"metadata_service,omitempty"`
-
-	// The unique user-defined name for this instance template.
-	Name *string `json:"name" validate:"required"`
-
-	// The additional network interfaces to create for the virtual server instance.
-	NetworkInterfaces []NetworkInterfacePrototype `json:"network_interfaces,omitempty"`
-
-	// The placement restrictions to use for the virtual server instance.
-	PlacementTarget InstancePlacementTargetPrototypeIntf `json:"placement_target,omitempty"`
-
-	// The profile to use for this virtual server instance.
-	Profile InstanceProfileIdentityIntf `json:"profile,omitempty"`
-
-	// The resource group for this instance template.
-	ResourceGroup *ResourceGroupReference `json:"resource_group" validate:"required"`
-
-	// The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes. An increase in
-	// this value will result in a corresponding decrease to
-	// `total_network_bandwidth`.
-	TotalVolumeBandwidth *int64 `json:"total_volume_bandwidth,omitempty"`
-
-	// User data to be made available when setting up the virtual server instance.
-	UserData *string `json:"user_data,omitempty"`
-
-	// The volume attachments for this virtual server instance.
-	VolumeAttachments []VolumeAttachmentPrototype `json:"volume_attachments,omitempty"`
-
-	// The VPC the virtual server instance is to be a part of. If provided, must match the VPC tied to the subnets of the
-	// instance's network interfaces.
-	VPC VPCIdentityIntf `json:"vpc,omitempty"`
-
-	// The boot volume attachment for the virtual server instance.
-	BootVolumeAttachment *VolumeAttachmentPrototypeInstanceByImageContext `json:"boot_volume_attachment,omitempty"`
-
-	// The image to use when provisioning the virtual server instance.
-	Image ImageIdentityIntf `json:"image,omitempty"`
-
-	// Primary network interface.
-	PrimaryNetworkInterface *NetworkInterfacePrototype `json:"primary_network_interface,omitempty"`
-
-	// Identifies an instance template by a unique property.
-	SourceTemplate InstanceTemplateIdentityIntf `json:"source_template" validate:"required"`
-
-	// The zone this virtual server instance will reside in.
-	Zone ZoneIdentityIntf `json:"zone,omitempty"`
-}
-
-func (*InstanceTemplateInstanceBySourceTemplate) isaInstanceTemplate() bool {
-	return true
-}
-
-// UnmarshalInstanceTemplateInstanceBySourceTemplate unmarshals an instance of InstanceTemplateInstanceBySourceTemplate from the specified map of raw messages.
-func UnmarshalInstanceTemplateInstanceBySourceTemplate(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(InstanceTemplateInstanceBySourceTemplate)
-	err = core.UnmarshalModel(m, "availability_policy", &obj.AvailabilityPolicy, UnmarshalInstanceAvailabilityPrototype)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "created_at", &obj.CreatedAt)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "keys", &obj.Keys, UnmarshalKeyIdentity)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "metadata_service", &obj.MetadataService, UnmarshalInstanceMetadataServicePrototype)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "network_interfaces", &obj.NetworkInterfaces, UnmarshalNetworkInterfacePrototype)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "placement_target", &obj.PlacementTarget, UnmarshalInstancePlacementTargetPrototype)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "profile", &obj.Profile, UnmarshalInstanceProfileIdentity)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "resource_group", &obj.ResourceGroup, UnmarshalResourceGroupReference)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "total_volume_bandwidth", &obj.TotalVolumeBandwidth)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "user_data", &obj.UserData)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "volume_attachments", &obj.VolumeAttachments, UnmarshalVolumeAttachmentPrototype)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "vpc", &obj.VPC, UnmarshalVPCIdentity)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "boot_volume_attachment", &obj.BootVolumeAttachment, UnmarshalVolumeAttachmentPrototypeInstanceByImageContext)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "image", &obj.Image, UnmarshalImageIdentity)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "primary_network_interface", &obj.PrimaryNetworkInterface, UnmarshalNetworkInterfacePrototype)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "source_template", &obj.SourceTemplate, UnmarshalInstanceTemplateIdentity)
 	if err != nil {
 		return
 	}
@@ -73281,16 +56399,15 @@ type InstanceTemplateInstanceByVolume struct {
 	// The unique identifier for this instance template.
 	ID *string `json:"id" validate:"required"`
 
-	// The public SSH keys for the administrative user of the virtual server instance. Up to 10 keys may be provided; if no
-	// keys are provided the instance will be inaccessible unless the image used provides another means of access. For
-	// Windows instances, one of the keys will be used to encrypt the administrator password.
+	// The public SSH keys for the administrative user of the virtual server instance. Keys will be made available to the
+	// virtual server instance as cloud-init vendor data. For cloud-init enabled images, these keys will also be added as
+	// SSH authorized keys for the administrative user.
 	//
-	// Keys will be made available to the virtual server instance as cloud-init vendor data. For cloud-init enabled images,
-	// these keys will also be added as SSH authorized keys for the administrative user.
+	// For Windows images, at least one key must be specified, and one will be chosen to encrypt [the administrator
+	// password](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization). Keys are optional for other images, but if
+	// no keys are specified, the instance will be inaccessible unless the specified image provides another means of
+	// access.
 	Keys []KeyIdentityIntf `json:"keys,omitempty"`
-
-	// Configuration options for the instance metadata service.
-	MetadataService *InstanceMetadataServicePrototype `json:"metadata_service,omitempty"`
 
 	// The unique user-defined name for this instance template.
 	Name *string `json:"name" validate:"required"`
@@ -73307,16 +56424,11 @@ type InstanceTemplateInstanceByVolume struct {
 	// The resource group for this instance template.
 	ResourceGroup *ResourceGroupReference `json:"resource_group" validate:"required"`
 
-	// The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes. An increase in
-	// this value will result in a corresponding decrease to
-	// `total_network_bandwidth`.
-	TotalVolumeBandwidth *int64 `json:"total_volume_bandwidth,omitempty"`
-
 	// User data to be made available when setting up the virtual server instance.
 	UserData *string `json:"user_data,omitempty"`
 
 	// The volume attachments for this virtual server instance.
-	VolumeAttachments []VolumeAttachmentPrototype `json:"volume_attachments,omitempty"`
+	VolumeAttachments []VolumeAttachmentPrototypeInstanceContext `json:"volume_attachments,omitempty"`
 
 	// The VPC the virtual server instance is to be a part of. If provided, must match the VPC tied to the subnets of the
 	// instance's network interfaces.
@@ -73363,10 +56475,6 @@ func UnmarshalInstanceTemplateInstanceByVolume(m map[string]json.RawMessage, res
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalModel(m, "metadata_service", &obj.MetadataService, UnmarshalInstanceMetadataServicePrototype)
-	if err != nil {
-		return
-	}
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
 	if err != nil {
 		return
@@ -73387,15 +56495,11 @@ func UnmarshalInstanceTemplateInstanceByVolume(m map[string]json.RawMessage, res
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalPrimitive(m, "total_volume_bandwidth", &obj.TotalVolumeBandwidth)
-	if err != nil {
-		return
-	}
 	err = core.UnmarshalPrimitive(m, "user_data", &obj.UserData)
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalModel(m, "volume_attachments", &obj.VolumeAttachments, UnmarshalVolumeAttachmentPrototype)
+	err = core.UnmarshalModel(m, "volume_attachments", &obj.VolumeAttachments, UnmarshalVolumeAttachmentPrototypeInstanceContext)
 	if err != nil {
 		return
 	}
@@ -73719,104 +56823,6 @@ func UnmarshalLoadBalancerIdentityByID(m map[string]json.RawMessage, result inte
 	return
 }
 
-// LoadBalancerListenerIdentityByHref : LoadBalancerListenerIdentityByHref struct
-// This model "extends" LoadBalancerListenerIdentity
-type LoadBalancerListenerIdentityByHref struct {
-	// The listener's canonical URL.
-	Href *string `json:"href" validate:"required"`
-}
-
-// NewLoadBalancerListenerIdentityByHref : Instantiate LoadBalancerListenerIdentityByHref (Generic Model Constructor)
-func (*VpcV1) NewLoadBalancerListenerIdentityByHref(href string) (model *LoadBalancerListenerIdentityByHref, err error) {
-	model = &LoadBalancerListenerIdentityByHref{
-		Href: core.StringPtr(href),
-	}
-	err = core.ValidateStruct(model, "required parameters")
-	return
-}
-
-func (*LoadBalancerListenerIdentityByHref) isaLoadBalancerListenerIdentity() bool {
-	return true
-}
-
-// UnmarshalLoadBalancerListenerIdentityByHref unmarshals an instance of LoadBalancerListenerIdentityByHref from the specified map of raw messages.
-func UnmarshalLoadBalancerListenerIdentityByHref(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(LoadBalancerListenerIdentityByHref)
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// LoadBalancerListenerIdentityByID : LoadBalancerListenerIdentityByID struct
-// This model "extends" LoadBalancerListenerIdentity
-type LoadBalancerListenerIdentityByID struct {
-	// The unique identifier for this load balancer listener.
-	ID *string `json:"id" validate:"required"`
-}
-
-// NewLoadBalancerListenerIdentityByID : Instantiate LoadBalancerListenerIdentityByID (Generic Model Constructor)
-func (*VpcV1) NewLoadBalancerListenerIdentityByID(id string) (model *LoadBalancerListenerIdentityByID, err error) {
-	model = &LoadBalancerListenerIdentityByID{
-		ID: core.StringPtr(id),
-	}
-	err = core.ValidateStruct(model, "required parameters")
-	return
-}
-
-func (*LoadBalancerListenerIdentityByID) isaLoadBalancerListenerIdentity() bool {
-	return true
-}
-
-// UnmarshalLoadBalancerListenerIdentityByID unmarshals an instance of LoadBalancerListenerIdentityByID from the specified map of raw messages.
-func UnmarshalLoadBalancerListenerIdentityByID(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(LoadBalancerListenerIdentityByID)
-	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// LoadBalancerListenerPolicyTargetPatchLoadBalancerListenerHTTPSRedirectPatch : LoadBalancerListenerPolicyTargetPatchLoadBalancerListenerHTTPSRedirectPatch struct
-// This model "extends" LoadBalancerListenerPolicyTargetPatch
-type LoadBalancerListenerPolicyTargetPatchLoadBalancerListenerHTTPSRedirectPatch struct {
-	// The HTTP status code for this redirect.
-	HTTPStatusCode *int64 `json:"http_status_code,omitempty"`
-
-	// Identifies a load balancer listener by a unique property.
-	Listener LoadBalancerListenerIdentityIntf `json:"listener,omitempty"`
-
-	// The redirect relative target URI.
-	URI *string `json:"uri,omitempty"`
-}
-
-func (*LoadBalancerListenerPolicyTargetPatchLoadBalancerListenerHTTPSRedirectPatch) isaLoadBalancerListenerPolicyTargetPatch() bool {
-	return true
-}
-
-// UnmarshalLoadBalancerListenerPolicyTargetPatchLoadBalancerListenerHTTPSRedirectPatch unmarshals an instance of LoadBalancerListenerPolicyTargetPatchLoadBalancerListenerHTTPSRedirectPatch from the specified map of raw messages.
-func UnmarshalLoadBalancerListenerPolicyTargetPatchLoadBalancerListenerHTTPSRedirectPatch(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(LoadBalancerListenerPolicyTargetPatchLoadBalancerListenerHTTPSRedirectPatch)
-	err = core.UnmarshalPrimitive(m, "http_status_code", &obj.HTTPStatusCode)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "listener", &obj.Listener, UnmarshalLoadBalancerListenerIdentity)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "uri", &obj.URI)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
 // LoadBalancerListenerPolicyTargetPatchLoadBalancerListenerPolicyRedirectURLPatch : LoadBalancerListenerPolicyTargetPatchLoadBalancerListenerPolicyRedirectURLPatch struct
 // This model "extends" LoadBalancerListenerPolicyTargetPatch
 type LoadBalancerListenerPolicyTargetPatchLoadBalancerListenerPolicyRedirectURLPatch struct {
@@ -73880,52 +56886,6 @@ func UnmarshalLoadBalancerListenerPolicyTargetPatchLoadBalancerPoolIdentity(m ma
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// LoadBalancerListenerPolicyTargetPrototypeLoadBalancerListenerHTTPSRedirectPrototype : LoadBalancerListenerPolicyTargetPrototypeLoadBalancerListenerHTTPSRedirectPrototype struct
-// This model "extends" LoadBalancerListenerPolicyTargetPrototype
-type LoadBalancerListenerPolicyTargetPrototypeLoadBalancerListenerHTTPSRedirectPrototype struct {
-	// The HTTP status code for this redirect.
-	HTTPStatusCode *int64 `json:"http_status_code" validate:"required"`
-
-	// Identifies a load balancer listener by a unique property.
-	Listener LoadBalancerListenerIdentityIntf `json:"listener" validate:"required"`
-
-	// The redirect relative target URI.
-	URI *string `json:"uri,omitempty"`
-}
-
-// NewLoadBalancerListenerPolicyTargetPrototypeLoadBalancerListenerHTTPSRedirectPrototype : Instantiate LoadBalancerListenerPolicyTargetPrototypeLoadBalancerListenerHTTPSRedirectPrototype (Generic Model Constructor)
-func (*VpcV1) NewLoadBalancerListenerPolicyTargetPrototypeLoadBalancerListenerHTTPSRedirectPrototype(httpStatusCode int64, listener LoadBalancerListenerIdentityIntf) (model *LoadBalancerListenerPolicyTargetPrototypeLoadBalancerListenerHTTPSRedirectPrototype, err error) {
-	model = &LoadBalancerListenerPolicyTargetPrototypeLoadBalancerListenerHTTPSRedirectPrototype{
-		HTTPStatusCode: core.Int64Ptr(httpStatusCode),
-		Listener:       listener,
-	}
-	err = core.ValidateStruct(model, "required parameters")
-	return
-}
-
-func (*LoadBalancerListenerPolicyTargetPrototypeLoadBalancerListenerHTTPSRedirectPrototype) isaLoadBalancerListenerPolicyTargetPrototype() bool {
-	return true
-}
-
-// UnmarshalLoadBalancerListenerPolicyTargetPrototypeLoadBalancerListenerHTTPSRedirectPrototype unmarshals an instance of LoadBalancerListenerPolicyTargetPrototypeLoadBalancerListenerHTTPSRedirectPrototype from the specified map of raw messages.
-func UnmarshalLoadBalancerListenerPolicyTargetPrototypeLoadBalancerListenerHTTPSRedirectPrototype(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(LoadBalancerListenerPolicyTargetPrototypeLoadBalancerListenerHTTPSRedirectPrototype)
-	err = core.UnmarshalPrimitive(m, "http_status_code", &obj.HTTPStatusCode)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "listener", &obj.Listener, UnmarshalLoadBalancerListenerIdentity)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "uri", &obj.URI)
 	if err != nil {
 		return
 	}
@@ -74006,41 +56966,6 @@ func UnmarshalLoadBalancerListenerPolicyTargetPrototypeLoadBalancerPoolIdentity(
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// LoadBalancerListenerPolicyTargetLoadBalancerListenerHTTPSRedirect : LoadBalancerListenerPolicyTargetLoadBalancerListenerHTTPSRedirect struct
-// This model "extends" LoadBalancerListenerPolicyTarget
-type LoadBalancerListenerPolicyTargetLoadBalancerListenerHTTPSRedirect struct {
-	// The HTTP status code for this redirect.
-	HTTPStatusCode *int64 `json:"http_status_code" validate:"required"`
-
-	Listener *LoadBalancerListenerReference `json:"listener" validate:"required"`
-
-	// The redirect relative target URI.
-	URI *string `json:"uri,omitempty"`
-}
-
-func (*LoadBalancerListenerPolicyTargetLoadBalancerListenerHTTPSRedirect) isaLoadBalancerListenerPolicyTarget() bool {
-	return true
-}
-
-// UnmarshalLoadBalancerListenerPolicyTargetLoadBalancerListenerHTTPSRedirect unmarshals an instance of LoadBalancerListenerPolicyTargetLoadBalancerListenerHTTPSRedirect from the specified map of raw messages.
-func UnmarshalLoadBalancerListenerPolicyTargetLoadBalancerListenerHTTPSRedirect(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(LoadBalancerListenerPolicyTargetLoadBalancerListenerHTTPSRedirect)
-	err = core.UnmarshalPrimitive(m, "http_status_code", &obj.HTTPStatusCode)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "listener", &obj.Listener, UnmarshalLoadBalancerListenerReference)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "uri", &obj.URI)
 	if err != nil {
 		return
 	}
@@ -74265,70 +57190,6 @@ func UnmarshalLoadBalancerPoolMemberTargetPrototypeInstanceIdentity(m map[string
 	return
 }
 
-// LoadBalancerPoolMemberTargetBareMetalServerReference : LoadBalancerPoolMemberTargetBareMetalServerReference struct
-// This model "extends" LoadBalancerPoolMemberTarget
-type LoadBalancerPoolMemberTargetBareMetalServerReference struct {
-	// The CRN for this bare metal server.
-	CRN *string `json:"crn" validate:"required"`
-
-	// If present, this property indicates the referenced resource has been deleted and provides
-	// some supplementary information.
-	Deleted *BareMetalServerReferenceDeleted `json:"deleted,omitempty"`
-
-	// The URL for this bare metal server.
-	Href *string `json:"href" validate:"required"`
-
-	// The unique identifier for this bare metal server.
-	ID *string `json:"id" validate:"required"`
-
-	// The user-defined name for this bare metal server (and default system hostname).
-	Name *string `json:"name" validate:"required"`
-
-	// The type of resource referenced.
-	ResourceType *string `json:"resource_type" validate:"required"`
-}
-
-// Constants associated with the LoadBalancerPoolMemberTargetBareMetalServerReference.ResourceType property.
-// The type of resource referenced.
-const (
-	LoadBalancerPoolMemberTargetBareMetalServerReferenceResourceTypeBareMetalServerConst = "bare_metal_server"
-)
-
-func (*LoadBalancerPoolMemberTargetBareMetalServerReference) isaLoadBalancerPoolMemberTarget() bool {
-	return true
-}
-
-// UnmarshalLoadBalancerPoolMemberTargetBareMetalServerReference unmarshals an instance of LoadBalancerPoolMemberTargetBareMetalServerReference from the specified map of raw messages.
-func UnmarshalLoadBalancerPoolMemberTargetBareMetalServerReference(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(LoadBalancerPoolMemberTargetBareMetalServerReference)
-	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "deleted", &obj.Deleted, UnmarshalBareMetalServerReferenceDeleted)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
 // LoadBalancerPoolMemberTargetIP : LoadBalancerPoolMemberTargetIP struct
 // This model "extends" LoadBalancerPoolMemberTarget
 type LoadBalancerPoolMemberTargetIP struct {
@@ -74371,16 +57232,7 @@ type LoadBalancerPoolMemberTargetInstanceReference struct {
 
 	// The user-defined name for this virtual server instance (and default system hostname).
 	Name *string `json:"name" validate:"required"`
-
-	// The resource type.
-	ResourceType *string `json:"resource_type" validate:"required"`
 }
-
-// Constants associated with the LoadBalancerPoolMemberTargetInstanceReference.ResourceType property.
-// The resource type.
-const (
-	LoadBalancerPoolMemberTargetInstanceReferenceResourceTypeInstanceConst = "instance"
-)
 
 func (*LoadBalancerPoolMemberTargetInstanceReference) isaLoadBalancerPoolMemberTarget() bool {
 	return true
@@ -74406,10 +57258,6 @@ func UnmarshalLoadBalancerPoolMemberTargetInstanceReference(m map[string]json.Ra
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
 	if err != nil {
 		return
 	}
@@ -76319,88 +59167,6 @@ func UnmarshalNetworkACLRuleNetworkACLRuleProtocolTcpudp(m map[string]json.RawMe
 	return
 }
 
-// NetworkInterfaceIPPrototypeReservedIPIdentity : Identifies a reserved IP by a unique property.
-// Models which "extend" this model:
-// - NetworkInterfaceIPPrototypeReservedIPIdentityReservedIPIdentityByID
-// - NetworkInterfaceIPPrototypeReservedIPIdentityReservedIPIdentityByHref
-// This model "extends" NetworkInterfaceIPPrototype
-type NetworkInterfaceIPPrototypeReservedIPIdentity struct {
-	// The unique identifier for this reserved IP.
-	ID *string `json:"id,omitempty"`
-
-	// The URL for this reserved IP.
-	Href *string `json:"href,omitempty"`
-}
-
-func (*NetworkInterfaceIPPrototypeReservedIPIdentity) isaNetworkInterfaceIPPrototypeReservedIPIdentity() bool {
-	return true
-}
-
-type NetworkInterfaceIPPrototypeReservedIPIdentityIntf interface {
-	NetworkInterfaceIPPrototypeIntf
-	isaNetworkInterfaceIPPrototypeReservedIPIdentity() bool
-}
-
-func (*NetworkInterfaceIPPrototypeReservedIPIdentity) isaNetworkInterfaceIPPrototype() bool {
-	return true
-}
-
-// UnmarshalNetworkInterfaceIPPrototypeReservedIPIdentity unmarshals an instance of NetworkInterfaceIPPrototypeReservedIPIdentity from the specified map of raw messages.
-func UnmarshalNetworkInterfaceIPPrototypeReservedIPIdentity(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(NetworkInterfaceIPPrototypeReservedIPIdentity)
-	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// NetworkInterfaceIPPrototypeReservedIPPrototypeNetworkInterfaceContext : NetworkInterfaceIPPrototypeReservedIPPrototypeNetworkInterfaceContext struct
-// This model "extends" NetworkInterfaceIPPrototype
-type NetworkInterfaceIPPrototypeReservedIPPrototypeNetworkInterfaceContext struct {
-	// The IP address to reserve, which must not already be reserved on the subnet.
-	//
-	// If not specified, an available address on the subnet will automatically be selected.
-	Address *string `json:"address,omitempty"`
-
-	// If set to `true`, this reserved IP will be automatically deleted when the target is deleted or when the reserved IP
-	// is unbound.
-	AutoDelete *bool `json:"auto_delete,omitempty"`
-
-	// The user-defined name for this reserved IP. If not specified, the name will be a hyphenated list of
-	// randomly-selected words. Names must be unique within the subnet the reserved IP resides in. Names beginning with
-	// `ibm-` are reserved for provider-owned resources.
-	Name *string `json:"name,omitempty"`
-}
-
-func (*NetworkInterfaceIPPrototypeReservedIPPrototypeNetworkInterfaceContext) isaNetworkInterfaceIPPrototype() bool {
-	return true
-}
-
-// UnmarshalNetworkInterfaceIPPrototypeReservedIPPrototypeNetworkInterfaceContext unmarshals an instance of NetworkInterfaceIPPrototypeReservedIPPrototypeNetworkInterfaceContext from the specified map of raw messages.
-func UnmarshalNetworkInterfaceIPPrototypeReservedIPPrototypeNetworkInterfaceContext(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(NetworkInterfaceIPPrototypeReservedIPPrototypeNetworkInterfaceContext)
-	err = core.UnmarshalPrimitive(m, "address", &obj.Address)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "auto_delete", &obj.AutoDelete)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
 // OperatingSystemIdentityByHref : OperatingSystemIdentityByHref struct
 // This model "extends" OperatingSystemIdentity
 type OperatingSystemIdentityByHref struct {
@@ -76757,234 +59523,6 @@ func UnmarshalReservedIPTargetEndpointGatewayReference(m map[string]json.RawMess
 	return
 }
 
-// ReservedIPTargetGenericResourceReference : Identifying information for a resource that is not native to the VPC API.
-// This model "extends" ReservedIPTarget
-type ReservedIPTargetGenericResourceReference struct {
-	// The CRN for the resource.
-	CRN *string `json:"crn" validate:"required"`
-
-	// If present, this property indicates the referenced resource has been deleted and provides
-	// some supplementary information.
-	Deleted *GenericResourceReferenceDeleted `json:"deleted,omitempty"`
-
-	// The resource type.
-	ResourceType *string `json:"resource_type" validate:"required"`
-}
-
-// Constants associated with the ReservedIPTargetGenericResourceReference.ResourceType property.
-// The resource type.
-const (
-	ReservedIPTargetGenericResourceReferenceResourceTypeCloudResourceConst = "cloud_resource"
-)
-
-func (*ReservedIPTargetGenericResourceReference) isaReservedIPTarget() bool {
-	return true
-}
-
-// UnmarshalReservedIPTargetGenericResourceReference unmarshals an instance of ReservedIPTargetGenericResourceReference from the specified map of raw messages.
-func UnmarshalReservedIPTargetGenericResourceReference(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(ReservedIPTargetGenericResourceReference)
-	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "deleted", &obj.Deleted, UnmarshalGenericResourceReferenceDeleted)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// ReservedIPTargetLoadBalancerReference : ReservedIPTargetLoadBalancerReference struct
-// This model "extends" ReservedIPTarget
-type ReservedIPTargetLoadBalancerReference struct {
-	// The load balancer's CRN.
-	CRN *string `json:"crn" validate:"required"`
-
-	// If present, this property indicates the referenced resource has been deleted and provides
-	// some supplementary information.
-	Deleted *LoadBalancerReferenceDeleted `json:"deleted,omitempty"`
-
-	// The load balancer's canonical URL.
-	Href *string `json:"href" validate:"required"`
-
-	// The unique identifier for this load balancer.
-	ID *string `json:"id" validate:"required"`
-
-	// The unique user-defined name for this load balancer.
-	Name *string `json:"name" validate:"required"`
-
-	// The resource type.
-	ResourceType *string `json:"resource_type" validate:"required"`
-}
-
-// Constants associated with the ReservedIPTargetLoadBalancerReference.ResourceType property.
-// The resource type.
-const (
-	ReservedIPTargetLoadBalancerReferenceResourceTypeLoadBalancerConst = "load_balancer"
-)
-
-func (*ReservedIPTargetLoadBalancerReference) isaReservedIPTarget() bool {
-	return true
-}
-
-// UnmarshalReservedIPTargetLoadBalancerReference unmarshals an instance of ReservedIPTargetLoadBalancerReference from the specified map of raw messages.
-func UnmarshalReservedIPTargetLoadBalancerReference(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(ReservedIPTargetLoadBalancerReference)
-	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "deleted", &obj.Deleted, UnmarshalLoadBalancerReferenceDeleted)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// ReservedIPTargetNetworkInterfaceReferenceTargetContext : ReservedIPTargetNetworkInterfaceReferenceTargetContext struct
-// This model "extends" ReservedIPTarget
-type ReservedIPTargetNetworkInterfaceReferenceTargetContext struct {
-	// If present, this property indicates the referenced resource has been deleted and provides
-	// some supplementary information.
-	Deleted *NetworkInterfaceReferenceTargetContextDeleted `json:"deleted,omitempty"`
-
-	// The URL for this network interface.
-	Href *string `json:"href" validate:"required"`
-
-	// The unique identifier for this network interface.
-	ID *string `json:"id" validate:"required"`
-
-	// The user-defined name for this network interface.
-	Name *string `json:"name" validate:"required"`
-
-	// The resource type.
-	ResourceType *string `json:"resource_type" validate:"required"`
-}
-
-// Constants associated with the ReservedIPTargetNetworkInterfaceReferenceTargetContext.ResourceType property.
-// The resource type.
-const (
-	ReservedIPTargetNetworkInterfaceReferenceTargetContextResourceTypeNetworkInterfaceConst = "network_interface"
-)
-
-func (*ReservedIPTargetNetworkInterfaceReferenceTargetContext) isaReservedIPTarget() bool {
-	return true
-}
-
-// UnmarshalReservedIPTargetNetworkInterfaceReferenceTargetContext unmarshals an instance of ReservedIPTargetNetworkInterfaceReferenceTargetContext from the specified map of raw messages.
-func UnmarshalReservedIPTargetNetworkInterfaceReferenceTargetContext(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(ReservedIPTargetNetworkInterfaceReferenceTargetContext)
-	err = core.UnmarshalModel(m, "deleted", &obj.Deleted, UnmarshalNetworkInterfaceReferenceTargetContextDeleted)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// ReservedIPTargetVPNGatewayReference : ReservedIPTargetVPNGatewayReference struct
-// This model "extends" ReservedIPTarget
-type ReservedIPTargetVPNGatewayReference struct {
-	// The VPN gateway's CRN.
-	CRN *string `json:"crn" validate:"required"`
-
-	// If present, this property indicates the referenced resource has been deleted and provides
-	// some supplementary information.
-	Deleted *VPNGatewayReferenceDeleted `json:"deleted,omitempty"`
-
-	// The VPN gateway's canonical URL.
-	Href *string `json:"href" validate:"required"`
-
-	// The unique identifier for this VPN gateway.
-	ID *string `json:"id" validate:"required"`
-
-	// The user-defined name for this VPN gateway.
-	Name *string `json:"name" validate:"required"`
-
-	// The resource type.
-	ResourceType *string `json:"resource_type" validate:"required"`
-}
-
-// Constants associated with the ReservedIPTargetVPNGatewayReference.ResourceType property.
-// The resource type.
-const (
-	ReservedIPTargetVPNGatewayReferenceResourceTypeVPNGatewayConst = "vpn_gateway"
-)
-
-func (*ReservedIPTargetVPNGatewayReference) isaReservedIPTarget() bool {
-	return true
-}
-
-// UnmarshalReservedIPTargetVPNGatewayReference unmarshals an instance of ReservedIPTargetVPNGatewayReference from the specified map of raw messages.
-func UnmarshalReservedIPTargetVPNGatewayReference(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(ReservedIPTargetVPNGatewayReference)
-	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "deleted", &obj.Deleted, UnmarshalVPNGatewayReferenceDeleted)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
 // ResourceGroupIdentityByID : ResourceGroupIdentityByID struct
 // This model "extends" ResourceGroupIdentity
 type ResourceGroupIdentityByID struct {
@@ -77009,134 +59547,6 @@ func (*ResourceGroupIdentityByID) isaResourceGroupIdentity() bool {
 func UnmarshalResourceGroupIdentityByID(m map[string]json.RawMessage, result interface{}) (err error) {
 	obj := new(ResourceGroupIdentityByID)
 	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// RouteCreatorVPNGatewayReference : RouteCreatorVPNGatewayReference struct
-// This model "extends" RouteCreator
-type RouteCreatorVPNGatewayReference struct {
-	// The VPN gateway's CRN.
-	CRN *string `json:"crn" validate:"required"`
-
-	// If present, this property indicates the referenced resource has been deleted and provides
-	// some supplementary information.
-	Deleted *VPNGatewayReferenceDeleted `json:"deleted,omitempty"`
-
-	// The VPN gateway's canonical URL.
-	Href *string `json:"href" validate:"required"`
-
-	// The unique identifier for this VPN gateway.
-	ID *string `json:"id" validate:"required"`
-
-	// The user-defined name for this VPN gateway.
-	Name *string `json:"name" validate:"required"`
-
-	// The resource type.
-	ResourceType *string `json:"resource_type" validate:"required"`
-}
-
-// Constants associated with the RouteCreatorVPNGatewayReference.ResourceType property.
-// The resource type.
-const (
-	RouteCreatorVPNGatewayReferenceResourceTypeVPNGatewayConst = "vpn_gateway"
-)
-
-func (*RouteCreatorVPNGatewayReference) isaRouteCreator() bool {
-	return true
-}
-
-// UnmarshalRouteCreatorVPNGatewayReference unmarshals an instance of RouteCreatorVPNGatewayReference from the specified map of raw messages.
-func UnmarshalRouteCreatorVPNGatewayReference(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(RouteCreatorVPNGatewayReference)
-	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "deleted", &obj.Deleted, UnmarshalVPNGatewayReferenceDeleted)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// RouteCreatorVPNServerReference : RouteCreatorVPNServerReference struct
-// This model "extends" RouteCreator
-type RouteCreatorVPNServerReference struct {
-	// The CRN for this VPN server.
-	CRN *string `json:"crn" validate:"required"`
-
-	// If present, this property indicates the referenced resource has been deleted and provides
-	// some supplementary information.
-	Deleted *VPNServerReferenceDeleted `json:"deleted,omitempty"`
-
-	// The URL for this VPN server.
-	Href *string `json:"href" validate:"required"`
-
-	// The unique identifier for this VPN server.
-	ID *string `json:"id" validate:"required"`
-
-	// The unique user-defined name for this VPN server.
-	Name *string `json:"name" validate:"required"`
-
-	// The type of resource referenced.
-	ResourceType *string `json:"resource_type" validate:"required"`
-}
-
-// Constants associated with the RouteCreatorVPNServerReference.ResourceType property.
-// The type of resource referenced.
-const (
-	RouteCreatorVPNServerReferenceResourceTypeVPNServerConst = "vpn_server"
-)
-
-func (*RouteCreatorVPNServerReference) isaRouteCreator() bool {
-	return true
-}
-
-// UnmarshalRouteCreatorVPNServerReference unmarshals an instance of RouteCreatorVPNServerReference from the specified map of raw messages.
-func UnmarshalRouteCreatorVPNServerReference(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(RouteCreatorVPNServerReference)
-	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "deleted", &obj.Deleted, UnmarshalVPNServerReferenceDeleted)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
 	if err != nil {
 		return
 	}
@@ -78325,70 +60735,6 @@ func UnmarshalSecurityGroupRuleSecurityGroupRuleProtocolTcpudp(m map[string]json
 	return
 }
 
-// SecurityGroupTargetReferenceEndpointGatewayReference : SecurityGroupTargetReferenceEndpointGatewayReference struct
-// This model "extends" SecurityGroupTargetReference
-type SecurityGroupTargetReferenceEndpointGatewayReference struct {
-	// The CRN for this endpoint gateway.
-	CRN *string `json:"crn" validate:"required"`
-
-	// If present, this property indicates the referenced resource has been deleted and provides
-	// some supplementary information.
-	Deleted *EndpointGatewayReferenceDeleted `json:"deleted,omitempty"`
-
-	// The URL for this endpoint gateway.
-	Href *string `json:"href" validate:"required"`
-
-	// The unique identifier for this endpoint gateway.
-	ID *string `json:"id" validate:"required"`
-
-	// The unique user-defined name for this endpoint gateway.
-	Name *string `json:"name" validate:"required"`
-
-	// The type of resource referenced.
-	ResourceType *string `json:"resource_type" validate:"required"`
-}
-
-// Constants associated with the SecurityGroupTargetReferenceEndpointGatewayReference.ResourceType property.
-// The type of resource referenced.
-const (
-	SecurityGroupTargetReferenceEndpointGatewayReferenceResourceTypeEndpointGatewayConst = "endpoint_gateway"
-)
-
-func (*SecurityGroupTargetReferenceEndpointGatewayReference) isaSecurityGroupTargetReference() bool {
-	return true
-}
-
-// UnmarshalSecurityGroupTargetReferenceEndpointGatewayReference unmarshals an instance of SecurityGroupTargetReferenceEndpointGatewayReference from the specified map of raw messages.
-func UnmarshalSecurityGroupTargetReferenceEndpointGatewayReference(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(SecurityGroupTargetReferenceEndpointGatewayReference)
-	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "deleted", &obj.Deleted, UnmarshalEndpointGatewayReferenceDeleted)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
 // SecurityGroupTargetReferenceLoadBalancerReference : SecurityGroupTargetReferenceLoadBalancerReference struct
 // This model "extends" SecurityGroupTargetReference
 type SecurityGroupTargetReferenceLoadBalancerReference struct {
@@ -78407,16 +60753,7 @@ type SecurityGroupTargetReferenceLoadBalancerReference struct {
 
 	// The unique user-defined name for this load balancer.
 	Name *string `json:"name" validate:"required"`
-
-	// The resource type.
-	ResourceType *string `json:"resource_type" validate:"required"`
 }
-
-// Constants associated with the SecurityGroupTargetReferenceLoadBalancerReference.ResourceType property.
-// The resource type.
-const (
-	SecurityGroupTargetReferenceLoadBalancerReferenceResourceTypeLoadBalancerConst = "load_balancer"
-)
 
 func (*SecurityGroupTargetReferenceLoadBalancerReference) isaSecurityGroupTargetReference() bool {
 	return true
@@ -78442,10 +60779,6 @@ func UnmarshalSecurityGroupTargetReferenceLoadBalancerReference(m map[string]jso
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
 	if err != nil {
 		return
 	}
@@ -78503,161 +60836,6 @@ func UnmarshalSecurityGroupTargetReferenceNetworkInterfaceReferenceTargetContext
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// SharePrototypeProfileShareProfileIdentityByHref : SharePrototypeProfileShareProfileIdentityByHref struct
-// This model "extends" SharePrototypeProfile
-type SharePrototypeProfileShareProfileIdentityByHref struct {
-	// The URL for this share profile.
-	Href *string `json:"href" validate:"required"`
-}
-
-// NewSharePrototypeProfileShareProfileIdentityByHref : Instantiate SharePrototypeProfileShareProfileIdentityByHref (Generic Model Constructor)
-func (*VpcV1) NewSharePrototypeProfileShareProfileIdentityByHref(href string) (model *SharePrototypeProfileShareProfileIdentityByHref, err error) {
-	model = &SharePrototypeProfileShareProfileIdentityByHref{
-		Href: core.StringPtr(href),
-	}
-	err = core.ValidateStruct(model, "required parameters")
-	return
-}
-
-func (*SharePrototypeProfileShareProfileIdentityByHref) isaSharePrototypeProfile() bool {
-	return true
-}
-
-// UnmarshalSharePrototypeProfileShareProfileIdentityByHref unmarshals an instance of SharePrototypeProfileShareProfileIdentityByHref from the specified map of raw messages.
-func UnmarshalSharePrototypeProfileShareProfileIdentityByHref(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(SharePrototypeProfileShareProfileIdentityByHref)
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// SharePrototypeProfileShareProfileIdentityByName : SharePrototypeProfileShareProfileIdentityByName struct
-// This model "extends" SharePrototypeProfile
-type SharePrototypeProfileShareProfileIdentityByName struct {
-	// The globally unique name for this share profile.
-	Name *string `json:"name" validate:"required"`
-}
-
-// NewSharePrototypeProfileShareProfileIdentityByName : Instantiate SharePrototypeProfileShareProfileIdentityByName (Generic Model Constructor)
-func (*VpcV1) NewSharePrototypeProfileShareProfileIdentityByName(name string) (model *SharePrototypeProfileShareProfileIdentityByName, err error) {
-	model = &SharePrototypeProfileShareProfileIdentityByName{
-		Name: core.StringPtr(name),
-	}
-	err = core.ValidateStruct(model, "required parameters")
-	return
-}
-
-func (*SharePrototypeProfileShareProfileIdentityByName) isaSharePrototypeProfile() bool {
-	return true
-}
-
-// UnmarshalSharePrototypeProfileShareProfileIdentityByName unmarshals an instance of SharePrototypeProfileShareProfileIdentityByName from the specified map of raw messages.
-func UnmarshalSharePrototypeProfileShareProfileIdentityByName(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(SharePrototypeProfileShareProfileIdentityByName)
-	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// ShareTargetPrototypeVPCVPCIdentityByCRN : ShareTargetPrototypeVPCVPCIdentityByCRN struct
-// This model "extends" ShareTargetPrototypeVPC
-type ShareTargetPrototypeVPCVPCIdentityByCRN struct {
-	// The CRN for this VPC.
-	CRN *string `json:"crn" validate:"required"`
-}
-
-// NewShareTargetPrototypeVPCVPCIdentityByCRN : Instantiate ShareTargetPrototypeVPCVPCIdentityByCRN (Generic Model Constructor)
-func (*VpcV1) NewShareTargetPrototypeVPCVPCIdentityByCRN(crn string) (model *ShareTargetPrototypeVPCVPCIdentityByCRN, err error) {
-	model = &ShareTargetPrototypeVPCVPCIdentityByCRN{
-		CRN: core.StringPtr(crn),
-	}
-	err = core.ValidateStruct(model, "required parameters")
-	return
-}
-
-func (*ShareTargetPrototypeVPCVPCIdentityByCRN) isaShareTargetPrototypeVPC() bool {
-	return true
-}
-
-// UnmarshalShareTargetPrototypeVPCVPCIdentityByCRN unmarshals an instance of ShareTargetPrototypeVPCVPCIdentityByCRN from the specified map of raw messages.
-func UnmarshalShareTargetPrototypeVPCVPCIdentityByCRN(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(ShareTargetPrototypeVPCVPCIdentityByCRN)
-	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// ShareTargetPrototypeVPCVPCIdentityByHref : ShareTargetPrototypeVPCVPCIdentityByHref struct
-// This model "extends" ShareTargetPrototypeVPC
-type ShareTargetPrototypeVPCVPCIdentityByHref struct {
-	// The URL for this VPC.
-	Href *string `json:"href" validate:"required"`
-}
-
-// NewShareTargetPrototypeVPCVPCIdentityByHref : Instantiate ShareTargetPrototypeVPCVPCIdentityByHref (Generic Model Constructor)
-func (*VpcV1) NewShareTargetPrototypeVPCVPCIdentityByHref(href string) (model *ShareTargetPrototypeVPCVPCIdentityByHref, err error) {
-	model = &ShareTargetPrototypeVPCVPCIdentityByHref{
-		Href: core.StringPtr(href),
-	}
-	err = core.ValidateStruct(model, "required parameters")
-	return
-}
-
-func (*ShareTargetPrototypeVPCVPCIdentityByHref) isaShareTargetPrototypeVPC() bool {
-	return true
-}
-
-// UnmarshalShareTargetPrototypeVPCVPCIdentityByHref unmarshals an instance of ShareTargetPrototypeVPCVPCIdentityByHref from the specified map of raw messages.
-func UnmarshalShareTargetPrototypeVPCVPCIdentityByHref(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(ShareTargetPrototypeVPCVPCIdentityByHref)
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// ShareTargetPrototypeVPCVPCIdentityByID : ShareTargetPrototypeVPCVPCIdentityByID struct
-// This model "extends" ShareTargetPrototypeVPC
-type ShareTargetPrototypeVPCVPCIdentityByID struct {
-	// The unique identifier for this VPC.
-	ID *string `json:"id" validate:"required"`
-}
-
-// NewShareTargetPrototypeVPCVPCIdentityByID : Instantiate ShareTargetPrototypeVPCVPCIdentityByID (Generic Model Constructor)
-func (*VpcV1) NewShareTargetPrototypeVPCVPCIdentityByID(id string) (model *ShareTargetPrototypeVPCVPCIdentityByID, err error) {
-	model = &ShareTargetPrototypeVPCVPCIdentityByID{
-		ID: core.StringPtr(id),
-	}
-	err = core.ValidateStruct(model, "required parameters")
-	return
-}
-
-func (*ShareTargetPrototypeVPCVPCIdentityByID) isaShareTargetPrototypeVPC() bool {
-	return true
-}
-
-// UnmarshalShareTargetPrototypeVPCVPCIdentityByID unmarshals an instance of ShareTargetPrototypeVPCVPCIdentityByID from the specified map of raw messages.
-func UnmarshalShareTargetPrototypeVPCVPCIdentityByID(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(ShareTargetPrototypeVPCVPCIdentityByID)
-	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
 	if err != nil {
 		return
 	}
@@ -79141,255 +61319,6 @@ func UnmarshalVPCIdentityByID(m map[string]json.RawMessage, result interface{}) 
 	return
 }
 
-// VPNGatewayConnectionDynamicRouteMode : VPNGatewayConnectionDynamicRouteMode struct
-// This model "extends" VPNGatewayConnection
-type VPNGatewayConnectionDynamicRouteMode struct {
-	// If set to false, the VPN gateway connection is shut down.
-	AdminStateUp *bool `json:"admin_state_up" validate:"required"`
-
-	// The authentication mode. Only `psk` is currently supported.
-	AuthenticationMode *string `json:"authentication_mode" validate:"required"`
-
-	// The date and time that this VPN gateway connection was created.
-	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
-
-	DeadPeerDetection *VPNGatewayConnectionDpd `json:"dead_peer_detection" validate:"required"`
-
-	// The VPN connection's canonical URL.
-	Href *string `json:"href" validate:"required"`
-
-	// The unique identifier for this VPN gateway connection.
-	ID *string `json:"id" validate:"required"`
-
-	// Optional IKE policy configuration. The absence of a policy indicates autonegotiation.
-	IkePolicy *IkePolicyReference `json:"ike_policy,omitempty"`
-
-	// Optional IPsec policy configuration. The absence of a policy indicates autonegotiation.
-	IpsecPolicy *IPsecPolicyReference `json:"ipsec_policy,omitempty"`
-
-	// The mode of the VPN gateway.
-	Mode *string `json:"mode" validate:"required"`
-
-	// The user-defined name for this VPN gateway connection.
-	Name *string `json:"name" validate:"required"`
-
-	// The IP address of the peer VPN gateway.
-	PeerAddress *string `json:"peer_address" validate:"required"`
-
-	// The preshared key.
-	Psk *string `json:"psk" validate:"required"`
-
-	// The resource type.
-	ResourceType *string `json:"resource_type" validate:"required"`
-
-	// The status of a VPN gateway connection.
-	Status *string `json:"status" validate:"required"`
-
-	// The peer autonomous system number (ASN) for this VPN gateway connection.
-	PeerAsn *int64 `json:"peer_asn" validate:"required"`
-
-	// The enabled routing protocol for this VPN gateway connection.
-	RoutingProtocol *string `json:"routing_protocol" validate:"required"`
-
-	// The VPN tunnel configuration for this VPN gateway connection (in dynamic route mode).
-	Tunnels []VPNGatewayConnectionDynamicRouteModeTunnel `json:"tunnels" validate:"required"`
-}
-
-// Constants associated with the VPNGatewayConnectionDynamicRouteMode.AuthenticationMode property.
-// The authentication mode. Only `psk` is currently supported.
-const (
-	VPNGatewayConnectionDynamicRouteModeAuthenticationModePskConst = "psk"
-)
-
-// Constants associated with the VPNGatewayConnectionDynamicRouteMode.Mode property.
-// The mode of the VPN gateway.
-const (
-	VPNGatewayConnectionDynamicRouteModeModePolicyConst = "policy"
-	VPNGatewayConnectionDynamicRouteModeModeRouteConst  = "route"
-)
-
-// Constants associated with the VPNGatewayConnectionDynamicRouteMode.ResourceType property.
-// The resource type.
-const (
-	VPNGatewayConnectionDynamicRouteModeResourceTypeVPNGatewayConnectionConst = "vpn_gateway_connection"
-)
-
-// Constants associated with the VPNGatewayConnectionDynamicRouteMode.Status property.
-// The status of a VPN gateway connection.
-const (
-	VPNGatewayConnectionDynamicRouteModeStatusDownConst = "down"
-	VPNGatewayConnectionDynamicRouteModeStatusUpConst   = "up"
-)
-
-// Constants associated with the VPNGatewayConnectionDynamicRouteMode.RoutingProtocol property.
-// The enabled routing protocol for this VPN gateway connection.
-const (
-	VPNGatewayConnectionDynamicRouteModeRoutingProtocolBgpConst = "bgp"
-)
-
-func (*VPNGatewayConnectionDynamicRouteMode) isaVPNGatewayConnection() bool {
-	return true
-}
-
-// UnmarshalVPNGatewayConnectionDynamicRouteMode unmarshals an instance of VPNGatewayConnectionDynamicRouteMode from the specified map of raw messages.
-func UnmarshalVPNGatewayConnectionDynamicRouteMode(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(VPNGatewayConnectionDynamicRouteMode)
-	err = core.UnmarshalPrimitive(m, "admin_state_up", &obj.AdminStateUp)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "authentication_mode", &obj.AuthenticationMode)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "created_at", &obj.CreatedAt)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "dead_peer_detection", &obj.DeadPeerDetection, UnmarshalVPNGatewayConnectionDpd)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "ike_policy", &obj.IkePolicy, UnmarshalIkePolicyReference)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "ipsec_policy", &obj.IpsecPolicy, UnmarshalIPsecPolicyReference)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "mode", &obj.Mode)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "peer_address", &obj.PeerAddress)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "psk", &obj.Psk)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "status", &obj.Status)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "peer_asn", &obj.PeerAsn)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "routing_protocol", &obj.RoutingProtocol)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "tunnels", &obj.Tunnels, UnmarshalVPNGatewayConnectionDynamicRouteModeTunnel)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// VPNGatewayConnectionPatchVPNGatewayConnectionDynamicRouteModePatch : VPNGatewayConnectionPatchVPNGatewayConnectionDynamicRouteModePatch struct
-// This model "extends" VPNGatewayConnectionPatch
-type VPNGatewayConnectionPatchVPNGatewayConnectionDynamicRouteModePatch struct {
-	// If set to false, the VPN gateway connection is shut down.
-	AdminStateUp *bool `json:"admin_state_up,omitempty"`
-
-	DeadPeerDetection *VPNGatewayConnectionDpdPrototype `json:"dead_peer_detection,omitempty"`
-
-	// Optional IKE policy configuration. The absence of a policy indicates autonegotiation.
-	IkePolicy IkePolicyIdentityIntf `json:"ike_policy,omitempty"`
-
-	// Optional IPsec policy configuration. The absence of a policy indicates autonegotiation.
-	IpsecPolicy IPsecPolicyIdentityIntf `json:"ipsec_policy,omitempty"`
-
-	// The user-defined name for this VPN gateway connection.
-	Name *string `json:"name,omitempty"`
-
-	// The IP address of the peer VPN gateway.
-	PeerAddress *string `json:"peer_address,omitempty"`
-
-	// The preshared key.
-	Psk *string `json:"psk,omitempty"`
-
-	// The enabled routing protocol for this VPN gateway connection.
-	RoutingProtocol *string `json:"routing_protocol,omitempty"`
-
-	// The VPN tunnel configuration to use for this VPN gateway connection
-	// (in dynamic route mode).
-	Tunnels []VPNGatewayConnectionTunnel `json:"tunnels,omitempty"`
-}
-
-// Constants associated with the VPNGatewayConnectionPatchVPNGatewayConnectionDynamicRouteModePatch.RoutingProtocol property.
-// The enabled routing protocol for this VPN gateway connection.
-const (
-	VPNGatewayConnectionPatchVPNGatewayConnectionDynamicRouteModePatchRoutingProtocolBgpConst = "bgp"
-)
-
-func (*VPNGatewayConnectionPatchVPNGatewayConnectionDynamicRouteModePatch) isaVPNGatewayConnectionPatch() bool {
-	return true
-}
-
-// UnmarshalVPNGatewayConnectionPatchVPNGatewayConnectionDynamicRouteModePatch unmarshals an instance of VPNGatewayConnectionPatchVPNGatewayConnectionDynamicRouteModePatch from the specified map of raw messages.
-func UnmarshalVPNGatewayConnectionPatchVPNGatewayConnectionDynamicRouteModePatch(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(VPNGatewayConnectionPatchVPNGatewayConnectionDynamicRouteModePatch)
-	err = core.UnmarshalPrimitive(m, "admin_state_up", &obj.AdminStateUp)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "dead_peer_detection", &obj.DeadPeerDetection, UnmarshalVPNGatewayConnectionDpdPrototype)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "ike_policy", &obj.IkePolicy, UnmarshalIkePolicyIdentity)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "ipsec_policy", &obj.IpsecPolicy, UnmarshalIPsecPolicyIdentity)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "peer_address", &obj.PeerAddress)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "psk", &obj.Psk)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "routing_protocol", &obj.RoutingProtocol)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "tunnels", &obj.Tunnels, UnmarshalVPNGatewayConnectionTunnel)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
 // VPNGatewayConnectionPatchVPNGatewayConnectionStaticRouteModePatch : VPNGatewayConnectionPatchVPNGatewayConnectionStaticRouteModePatch struct
 // This model "extends" VPNGatewayConnectionPatch
 type VPNGatewayConnectionPatchVPNGatewayConnectionStaticRouteModePatch struct {
@@ -79611,102 +61540,6 @@ func UnmarshalVPNGatewayConnectionPolicyMode(m map[string]json.RawMessage, resul
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "peer_cidrs", &obj.PeerCIDRs)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// VPNGatewayConnectionPrototypeVPNGatewayConnectionDynamicRouteModePrototype : VPNGatewayConnectionPrototypeVPNGatewayConnectionDynamicRouteModePrototype struct
-// This model "extends" VPNGatewayConnectionPrototype
-type VPNGatewayConnectionPrototypeVPNGatewayConnectionDynamicRouteModePrototype struct {
-	// If set to false, the VPN gateway connection is shut down.
-	AdminStateUp *bool `json:"admin_state_up,omitempty"`
-
-	DeadPeerDetection *VPNGatewayConnectionDpdPrototype `json:"dead_peer_detection,omitempty"`
-
-	// Optional IKE policy configuration. The absence of a policy indicates autonegotiation.
-	IkePolicy IkePolicyIdentityIntf `json:"ike_policy,omitempty"`
-
-	// Optional IPsec policy configuration. The absence of a policy indicates autonegotiation.
-	IpsecPolicy IPsecPolicyIdentityIntf `json:"ipsec_policy,omitempty"`
-
-	// The user-defined name for this VPN gateway connection.
-	Name *string `json:"name,omitempty"`
-
-	// The IP address of the peer VPN gateway.
-	PeerAddress *string `json:"peer_address" validate:"required"`
-
-	// The preshared key.
-	Psk *string `json:"psk" validate:"required"`
-
-	// The enabled routing protocol for this VPN gateway connection.
-	RoutingProtocol *string `json:"routing_protocol" validate:"required"`
-
-	// The VPN tunnel configuration to use for this VPN gateway connection
-	// (in dynamic route mode).
-	Tunnels []VPNGatewayConnectionTunnelPrototype `json:"tunnels" validate:"required"`
-}
-
-// Constants associated with the VPNGatewayConnectionPrototypeVPNGatewayConnectionDynamicRouteModePrototype.RoutingProtocol property.
-// The enabled routing protocol for this VPN gateway connection.
-const (
-	VPNGatewayConnectionPrototypeVPNGatewayConnectionDynamicRouteModePrototypeRoutingProtocolBgpConst = "bgp"
-)
-
-// NewVPNGatewayConnectionPrototypeVPNGatewayConnectionDynamicRouteModePrototype : Instantiate VPNGatewayConnectionPrototypeVPNGatewayConnectionDynamicRouteModePrototype (Generic Model Constructor)
-func (*VpcV1) NewVPNGatewayConnectionPrototypeVPNGatewayConnectionDynamicRouteModePrototype(peerAddress string, psk string, routingProtocol string, tunnels []VPNGatewayConnectionTunnelPrototype) (model *VPNGatewayConnectionPrototypeVPNGatewayConnectionDynamicRouteModePrototype, err error) {
-	model = &VPNGatewayConnectionPrototypeVPNGatewayConnectionDynamicRouteModePrototype{
-		PeerAddress:     core.StringPtr(peerAddress),
-		Psk:             core.StringPtr(psk),
-		RoutingProtocol: core.StringPtr(routingProtocol),
-		Tunnels:         tunnels,
-	}
-	err = core.ValidateStruct(model, "required parameters")
-	return
-}
-
-func (*VPNGatewayConnectionPrototypeVPNGatewayConnectionDynamicRouteModePrototype) isaVPNGatewayConnectionPrototype() bool {
-	return true
-}
-
-// UnmarshalVPNGatewayConnectionPrototypeVPNGatewayConnectionDynamicRouteModePrototype unmarshals an instance of VPNGatewayConnectionPrototypeVPNGatewayConnectionDynamicRouteModePrototype from the specified map of raw messages.
-func UnmarshalVPNGatewayConnectionPrototypeVPNGatewayConnectionDynamicRouteModePrototype(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(VPNGatewayConnectionPrototypeVPNGatewayConnectionDynamicRouteModePrototype)
-	err = core.UnmarshalPrimitive(m, "admin_state_up", &obj.AdminStateUp)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "dead_peer_detection", &obj.DeadPeerDetection, UnmarshalVPNGatewayConnectionDpdPrototype)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "ike_policy", &obj.IkePolicy, UnmarshalIkePolicyIdentity)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "ipsec_policy", &obj.IpsecPolicy, UnmarshalIPsecPolicyIdentity)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "peer_address", &obj.PeerAddress)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "psk", &obj.Psk)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "routing_protocol", &obj.RoutingProtocol)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "tunnels", &obj.Tunnels, UnmarshalVPNGatewayConnectionTunnelPrototype)
 	if err != nil {
 		return
 	}
@@ -80213,13 +62046,6 @@ type VPNGatewayPrototypeVPNGatewayRouteModePrototype struct {
 
 	Subnet SubnetIdentityIntf `json:"subnet" validate:"required"`
 
-	// The additional CIDRs advertised through any enabled routing protocol (for example, BGP). The routing protocol will
-	// advertise routes with these CIDRs and VPC prefixes as route destinations.
-	AdvertisedCIDRs []string `json:"advertised_cidrs,omitempty"`
-
-	// The local autonomous system number (ASN) for this VPN gateway and its connections.
-	LocalAsn *int64 `json:"local_asn,omitempty"`
-
 	// Route mode VPN gateway.
 	Mode *string `json:"mode,omitempty"`
 }
@@ -80246,14 +62072,6 @@ func UnmarshalVPNGatewayPrototypeVPNGatewayRouteModePrototype(m map[string]json.
 		return
 	}
 	err = core.UnmarshalModel(m, "subnet", &obj.Subnet, UnmarshalSubnetIdentity)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "advertised_cidrs", &obj.AdvertisedCIDRs)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "local_asn", &obj.LocalAsn)
 	if err != nil {
 		return
 	}
@@ -80299,10 +62117,6 @@ type VPNGatewayRouteMode struct {
 	Status *string `json:"status" validate:"required"`
 
 	Subnet *SubnetReference `json:"subnet" validate:"required"`
-
-	// The additional CIDRs advertised through any enabled routing protocol (for example, BGP). The routing protocol will
-	// advertise routes with these CIDRs and VPC prefixes as route destinations.
-	AdvertisedCIDRs []string `json:"advertised_cidrs" validate:"required"`
 
 	// Route mode VPN gateway.
 	Mode *string `json:"mode" validate:"required"`
@@ -80380,236 +62194,7 @@ func UnmarshalVPNGatewayRouteMode(m map[string]json.RawMessage, result interface
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalPrimitive(m, "advertised_cidrs", &obj.AdvertisedCIDRs)
-	if err != nil {
-		return
-	}
 	err = core.UnmarshalPrimitive(m, "mode", &obj.Mode)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// VPNServerAuthenticationByCertificate : VPNServerAuthenticationByCertificate struct
-// This model "extends" VPNServerAuthentication
-type VPNServerAuthenticationByCertificate struct {
-	// The type of authentication.
-	Method *string `json:"method" validate:"required"`
-
-	// The certificate instance used for the VPN client certificate authority (CA).
-	ClientCa *CertificateInstanceReference `json:"client_ca" validate:"required"`
-
-	// The certificate revocation list contents, encoded in PEM format.
-	Crl *string `json:"crl,omitempty"`
-}
-
-// Constants associated with the VPNServerAuthenticationByCertificate.Method property.
-// The type of authentication.
-const (
-	VPNServerAuthenticationByCertificateMethodCertificateConst = "certificate"
-	VPNServerAuthenticationByCertificateMethodUsernameConst    = "username"
-)
-
-func (*VPNServerAuthenticationByCertificate) isaVPNServerAuthentication() bool {
-	return true
-}
-
-// UnmarshalVPNServerAuthenticationByCertificate unmarshals an instance of VPNServerAuthenticationByCertificate from the specified map of raw messages.
-func UnmarshalVPNServerAuthenticationByCertificate(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(VPNServerAuthenticationByCertificate)
-	err = core.UnmarshalPrimitive(m, "method", &obj.Method)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "client_ca", &obj.ClientCa, UnmarshalCertificateInstanceReference)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "crl", &obj.Crl)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// VPNServerAuthenticationByUsername : VPNServerAuthenticationByUsername struct
-// This model "extends" VPNServerAuthentication
-type VPNServerAuthenticationByUsername struct {
-	// The type of authentication.
-	Method *string `json:"method" validate:"required"`
-
-	// The type of identity provider to be used by VPN client.
-	IdentityProvider VPNServerAuthenticationByUsernameIDProviderIntf `json:"identity_provider" validate:"required"`
-}
-
-// Constants associated with the VPNServerAuthenticationByUsername.Method property.
-// The type of authentication.
-const (
-	VPNServerAuthenticationByUsernameMethodCertificateConst = "certificate"
-	VPNServerAuthenticationByUsernameMethodUsernameConst    = "username"
-)
-
-func (*VPNServerAuthenticationByUsername) isaVPNServerAuthentication() bool {
-	return true
-}
-
-// UnmarshalVPNServerAuthenticationByUsername unmarshals an instance of VPNServerAuthenticationByUsername from the specified map of raw messages.
-func UnmarshalVPNServerAuthenticationByUsername(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(VPNServerAuthenticationByUsername)
-	err = core.UnmarshalPrimitive(m, "method", &obj.Method)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "identity_provider", &obj.IdentityProvider, UnmarshalVPNServerAuthenticationByUsernameIDProvider)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// VPNServerAuthenticationByUsernameIDProviderByIam : VPNServerAuthenticationByUsernameIDProviderByIam struct
-// This model "extends" VPNServerAuthenticationByUsernameIDProvider
-type VPNServerAuthenticationByUsernameIDProviderByIam struct {
-	// The type of identity provider to be used by the VPN client.
-	// - `iam`: IBM identity and access management
-	//
-	// The enumerated values for this property are expected to expand in the future. When processing this property, check
-	// for and log unknown values. Optionally halt processing and surface the error, or bypass the route on which the
-	// unexpected property value was encountered.
-	ProviderType *string `json:"provider_type" validate:"required"`
-}
-
-// Constants associated with the VPNServerAuthenticationByUsernameIDProviderByIam.ProviderType property.
-// The type of identity provider to be used by the VPN client.
-// - `iam`: IBM identity and access management
-//
-// The enumerated values for this property are expected to expand in the future. When processing this property, check
-// for and log unknown values. Optionally halt processing and surface the error, or bypass the route on which the
-// unexpected property value was encountered.
-const (
-	VPNServerAuthenticationByUsernameIDProviderByIamProviderTypeIamConst = "iam"
-)
-
-// NewVPNServerAuthenticationByUsernameIDProviderByIam : Instantiate VPNServerAuthenticationByUsernameIDProviderByIam (Generic Model Constructor)
-func (*VpcV1) NewVPNServerAuthenticationByUsernameIDProviderByIam(providerType string) (model *VPNServerAuthenticationByUsernameIDProviderByIam, err error) {
-	model = &VPNServerAuthenticationByUsernameIDProviderByIam{
-		ProviderType: core.StringPtr(providerType),
-	}
-	err = core.ValidateStruct(model, "required parameters")
-	return
-}
-
-func (*VPNServerAuthenticationByUsernameIDProviderByIam) isaVPNServerAuthenticationByUsernameIDProvider() bool {
-	return true
-}
-
-// UnmarshalVPNServerAuthenticationByUsernameIDProviderByIam unmarshals an instance of VPNServerAuthenticationByUsernameIDProviderByIam from the specified map of raw messages.
-func UnmarshalVPNServerAuthenticationByUsernameIDProviderByIam(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(VPNServerAuthenticationByUsernameIDProviderByIam)
-	err = core.UnmarshalPrimitive(m, "provider_type", &obj.ProviderType)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// VPNServerAuthenticationPrototypeVPNServerAuthenticationByCertificatePrototype : VPNServerAuthenticationPrototypeVPNServerAuthenticationByCertificatePrototype struct
-// This model "extends" VPNServerAuthenticationPrototype
-type VPNServerAuthenticationPrototypeVPNServerAuthenticationByCertificatePrototype struct {
-	// The type of authentication.
-	Method *string `json:"method" validate:"required"`
-
-	// The certificate instance to use for the VPN client certificate authority (CA).
-	ClientCa CertificateInstanceIdentityIntf `json:"client_ca" validate:"required"`
-
-	// The certificate revocation list contents, encoded in PEM format.
-	Crl *string `json:"crl,omitempty"`
-}
-
-// Constants associated with the VPNServerAuthenticationPrototypeVPNServerAuthenticationByCertificatePrototype.Method property.
-// The type of authentication.
-const (
-	VPNServerAuthenticationPrototypeVPNServerAuthenticationByCertificatePrototypeMethodCertificateConst = "certificate"
-	VPNServerAuthenticationPrototypeVPNServerAuthenticationByCertificatePrototypeMethodUsernameConst    = "username"
-)
-
-// NewVPNServerAuthenticationPrototypeVPNServerAuthenticationByCertificatePrototype : Instantiate VPNServerAuthenticationPrototypeVPNServerAuthenticationByCertificatePrototype (Generic Model Constructor)
-func (*VpcV1) NewVPNServerAuthenticationPrototypeVPNServerAuthenticationByCertificatePrototype(method string, clientCa CertificateInstanceIdentityIntf) (model *VPNServerAuthenticationPrototypeVPNServerAuthenticationByCertificatePrototype, err error) {
-	model = &VPNServerAuthenticationPrototypeVPNServerAuthenticationByCertificatePrototype{
-		Method:   core.StringPtr(method),
-		ClientCa: clientCa,
-	}
-	err = core.ValidateStruct(model, "required parameters")
-	return
-}
-
-func (*VPNServerAuthenticationPrototypeVPNServerAuthenticationByCertificatePrototype) isaVPNServerAuthenticationPrototype() bool {
-	return true
-}
-
-// UnmarshalVPNServerAuthenticationPrototypeVPNServerAuthenticationByCertificatePrototype unmarshals an instance of VPNServerAuthenticationPrototypeVPNServerAuthenticationByCertificatePrototype from the specified map of raw messages.
-func UnmarshalVPNServerAuthenticationPrototypeVPNServerAuthenticationByCertificatePrototype(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(VPNServerAuthenticationPrototypeVPNServerAuthenticationByCertificatePrototype)
-	err = core.UnmarshalPrimitive(m, "method", &obj.Method)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "client_ca", &obj.ClientCa, UnmarshalCertificateInstanceIdentity)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "crl", &obj.Crl)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// VPNServerAuthenticationPrototypeVPNServerAuthenticationByUsernamePrototype : VPNServerAuthenticationPrototypeVPNServerAuthenticationByUsernamePrototype struct
-// This model "extends" VPNServerAuthenticationPrototype
-type VPNServerAuthenticationPrototypeVPNServerAuthenticationByUsernamePrototype struct {
-	// The type of authentication.
-	Method *string `json:"method" validate:"required"`
-
-	// The type of identity provider to be used by VPN client.
-	IdentityProvider VPNServerAuthenticationByUsernameIDProviderIntf `json:"identity_provider" validate:"required"`
-}
-
-// Constants associated with the VPNServerAuthenticationPrototypeVPNServerAuthenticationByUsernamePrototype.Method property.
-// The type of authentication.
-const (
-	VPNServerAuthenticationPrototypeVPNServerAuthenticationByUsernamePrototypeMethodCertificateConst = "certificate"
-	VPNServerAuthenticationPrototypeVPNServerAuthenticationByUsernamePrototypeMethodUsernameConst    = "username"
-)
-
-// NewVPNServerAuthenticationPrototypeVPNServerAuthenticationByUsernamePrototype : Instantiate VPNServerAuthenticationPrototypeVPNServerAuthenticationByUsernamePrototype (Generic Model Constructor)
-func (*VpcV1) NewVPNServerAuthenticationPrototypeVPNServerAuthenticationByUsernamePrototype(method string, identityProvider VPNServerAuthenticationByUsernameIDProviderIntf) (model *VPNServerAuthenticationPrototypeVPNServerAuthenticationByUsernamePrototype, err error) {
-	model = &VPNServerAuthenticationPrototypeVPNServerAuthenticationByUsernamePrototype{
-		Method:           core.StringPtr(method),
-		IdentityProvider: identityProvider,
-	}
-	err = core.ValidateStruct(model, "required parameters")
-	return
-}
-
-func (*VPNServerAuthenticationPrototypeVPNServerAuthenticationByUsernamePrototype) isaVPNServerAuthenticationPrototype() bool {
-	return true
-}
-
-// UnmarshalVPNServerAuthenticationPrototypeVPNServerAuthenticationByUsernamePrototype unmarshals an instance of VPNServerAuthenticationPrototypeVPNServerAuthenticationByUsernamePrototype from the specified map of raw messages.
-func UnmarshalVPNServerAuthenticationPrototypeVPNServerAuthenticationByUsernamePrototype(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(VPNServerAuthenticationPrototypeVPNServerAuthenticationByUsernamePrototype)
-	err = core.UnmarshalPrimitive(m, "method", &obj.Method)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "identity_provider", &obj.IdentityProvider, UnmarshalVPNServerAuthenticationByUsernameIDProvider)
 	if err != nil {
 		return
 	}
@@ -80672,7 +62257,7 @@ func UnmarshalVolumeAttachmentPrototypeVolumeVolumeIdentity(m map[string]json.Ra
 // - VolumeAttachmentPrototypeVolumeVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeBySourceSnapshot
 // This model "extends" VolumeAttachmentPrototypeVolume
 type VolumeAttachmentPrototypeVolumeVolumePrototypeInstanceContext struct {
-	// The maximum I/O operations per second (IOPS) for the volume.
+	// The bandwidth for the volume.
 	Iops *int64 `json:"iops,omitempty"`
 
 	// The unique user-defined name for this volume.
@@ -80680,10 +62265,6 @@ type VolumeAttachmentPrototypeVolumeVolumePrototypeInstanceContext struct {
 
 	// The profile to use for this volume.
 	Profile VolumeProfileIdentityIntf `json:"profile" validate:"required"`
-
-	// The resource group to use for this volume. If unspecified, the instance's resource group
-	// will be used.
-	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
 
 	// The capacity to use for the volume (in gigabytes). The specified minimum and maximum capacity values for creating or
 	// updating volumes may expand in the future.
@@ -80727,10 +62308,6 @@ func UnmarshalVolumeAttachmentPrototypeVolumeVolumePrototypeInstanceContext(m ma
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalModel(m, "resource_group", &obj.ResourceGroup, UnmarshalResourceGroupIdentity)
-	if err != nil {
-		return
-	}
 	err = core.UnmarshalPrimitive(m, "capacity", &obj.Capacity)
 	if err != nil {
 		return
@@ -80740,55 +62317,6 @@ func UnmarshalVolumeAttachmentPrototypeVolumeVolumePrototypeInstanceContext(m ma
 		return
 	}
 	err = core.UnmarshalModel(m, "source_snapshot", &obj.SourceSnapshot, UnmarshalSnapshotIdentity)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// VolumeAttachmentVolumePrototypeInstanceByVolumeContextVolumeIdentity : Identifies a volume by a unique property.
-// Models which "extend" this model:
-// - VolumeAttachmentVolumePrototypeInstanceByVolumeContextVolumeIdentityVolumeIdentityByID
-// - VolumeAttachmentVolumePrototypeInstanceByVolumeContextVolumeIdentityVolumeIdentityByCRN
-// - VolumeAttachmentVolumePrototypeInstanceByVolumeContextVolumeIdentityVolumeIdentityByHref
-// This model "extends" VolumeAttachmentVolumePrototypeInstanceByVolumeContext
-type VolumeAttachmentVolumePrototypeInstanceByVolumeContextVolumeIdentity struct {
-	// The unique identifier for this volume.
-	ID *string `json:"id,omitempty"`
-
-	// The CRN for this volume.
-	CRN *string `json:"crn,omitempty"`
-
-	// The URL for this volume.
-	Href *string `json:"href,omitempty"`
-}
-
-func (*VolumeAttachmentVolumePrototypeInstanceByVolumeContextVolumeIdentity) isaVolumeAttachmentVolumePrototypeInstanceByVolumeContextVolumeIdentity() bool {
-	return true
-}
-
-type VolumeAttachmentVolumePrototypeInstanceByVolumeContextVolumeIdentityIntf interface {
-	VolumeAttachmentVolumePrototypeInstanceByVolumeContextIntf
-	isaVolumeAttachmentVolumePrototypeInstanceByVolumeContextVolumeIdentity() bool
-}
-
-func (*VolumeAttachmentVolumePrototypeInstanceByVolumeContextVolumeIdentity) isaVolumeAttachmentVolumePrototypeInstanceByVolumeContext() bool {
-	return true
-}
-
-// UnmarshalVolumeAttachmentVolumePrototypeInstanceByVolumeContextVolumeIdentity unmarshals an instance of VolumeAttachmentVolumePrototypeInstanceByVolumeContextVolumeIdentity from the specified map of raw messages.
-func UnmarshalVolumeAttachmentVolumePrototypeInstanceByVolumeContextVolumeIdentity(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(VolumeAttachmentVolumePrototypeInstanceByVolumeContextVolumeIdentity)
-	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
 	if err != nil {
 		return
 	}
@@ -80810,7 +62338,7 @@ type VolumeAttachmentVolumePrototypeInstanceByVolumeContextVolumePrototypeInstan
 	// If this property is not provided, the snapshot's `encryption_key` will be used.
 	EncryptionKey EncryptionKeyIdentityIntf `json:"encryption_key,omitempty"`
 
-	// The maximum I/O operations per second (IOPS) for the volume.
+	// The bandwidth for the volume.
 	Iops *int64 `json:"iops,omitempty"`
 
 	// The unique user-defined name for this volume.
@@ -80818,10 +62346,6 @@ type VolumeAttachmentVolumePrototypeInstanceByVolumeContextVolumePrototypeInstan
 
 	// The profile to use for this volume.
 	Profile VolumeProfileIdentityIntf `json:"profile" validate:"required"`
-
-	// The resource group to use for this volume. If unspecified, the instance's resource group
-	// will be used.
-	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
 
 	// The snapshot from which to clone the volume.
 	SourceSnapshot SnapshotIdentityIntf `json:"source_snapshot" validate:"required"`
@@ -80864,7 +62388,125 @@ func UnmarshalVolumeAttachmentVolumePrototypeInstanceByVolumeContextVolumeProtot
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalModel(m, "resource_group", &obj.ResourceGroup, UnmarshalResourceGroupIdentity)
+	err = core.UnmarshalModel(m, "source_snapshot", &obj.SourceSnapshot, UnmarshalSnapshotIdentity)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentity : Identifies a volume by a unique property.
+// Models which "extend" this model:
+// - VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByID
+// - VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByCRN
+// - VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByHref
+// This model "extends" VolumeAttachmentVolumePrototypeInstanceContext
+type VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentity struct {
+	// The unique identifier for this volume.
+	ID *string `json:"id,omitempty"`
+
+	// The CRN for this volume.
+	CRN *string `json:"crn,omitempty"`
+
+	// The URL for this volume.
+	Href *string `json:"href,omitempty"`
+}
+
+func (*VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentity) isaVolumeAttachmentVolumePrototypeInstanceContextVolumeIdentity() bool {
+	return true
+}
+
+type VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityIntf interface {
+	VolumeAttachmentVolumePrototypeInstanceContextIntf
+	isaVolumeAttachmentVolumePrototypeInstanceContextVolumeIdentity() bool
+}
+
+func (*VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentity) isaVolumeAttachmentVolumePrototypeInstanceContext() bool {
+	return true
+}
+
+// UnmarshalVolumeAttachmentVolumePrototypeInstanceContextVolumeIdentity unmarshals an instance of VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentity from the specified map of raw messages.
+func UnmarshalVolumeAttachmentVolumePrototypeInstanceContextVolumeIdentity(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentity)
+	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContext : VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContext struct
+// Models which "extend" this model:
+// - VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeByCapacity
+// - VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeBySourceSnapshot
+// This model "extends" VolumeAttachmentVolumePrototypeInstanceContext
+type VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContext struct {
+	// The bandwidth for the volume.
+	Iops *int64 `json:"iops,omitempty"`
+
+	// The unique user-defined name for this volume.
+	Name *string `json:"name,omitempty"`
+
+	// The profile to use for this volume.
+	Profile VolumeProfileIdentityIntf `json:"profile" validate:"required"`
+
+	// The capacity to use for the volume (in gigabytes). The specified minimum and maximum capacity values for creating or
+	// updating volumes may expand in the future.
+	Capacity *int64 `json:"capacity,omitempty"`
+
+	// The root key to use to wrap the data encryption key for the volume.
+	//
+	// If this property is not provided, the `encryption` type for the volume will be
+	// `provider_managed`.
+	EncryptionKey EncryptionKeyIdentityIntf `json:"encryption_key,omitempty"`
+
+	// The snapshot from which to clone the volume.
+	SourceSnapshot SnapshotIdentityIntf `json:"source_snapshot,omitempty"`
+}
+
+func (*VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContext) isaVolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContext() bool {
+	return true
+}
+
+type VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContextIntf interface {
+	VolumeAttachmentVolumePrototypeInstanceContextIntf
+	isaVolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContext() bool
+}
+
+func (*VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContext) isaVolumeAttachmentVolumePrototypeInstanceContext() bool {
+	return true
+}
+
+// UnmarshalVolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContext unmarshals an instance of VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContext from the specified map of raw messages.
+func UnmarshalVolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContext(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContext)
+	err = core.UnmarshalPrimitive(m, "iops", &obj.Iops)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "profile", &obj.Profile, UnmarshalVolumeProfileIdentity)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "capacity", &obj.Capacity)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "encryption_key", &obj.EncryptionKey, UnmarshalEncryptionKeyIdentity)
 	if err != nil {
 		return
 	}
@@ -81031,41 +62673,10 @@ func UnmarshalVolumeProfileIdentityByName(m map[string]json.RawMessage, result i
 	return
 }
 
-// VolumePrototypeResourceGroupResourceGroupIdentityByID : VolumePrototypeResourceGroupResourceGroupIdentityByID struct
-// This model "extends" VolumePrototypeResourceGroup
-type VolumePrototypeResourceGroupResourceGroupIdentityByID struct {
-	// The unique identifier for this resource group.
-	ID *string `json:"id" validate:"required"`
-}
-
-// NewVolumePrototypeResourceGroupResourceGroupIdentityByID : Instantiate VolumePrototypeResourceGroupResourceGroupIdentityByID (Generic Model Constructor)
-func (*VpcV1) NewVolumePrototypeResourceGroupResourceGroupIdentityByID(id string) (model *VolumePrototypeResourceGroupResourceGroupIdentityByID, err error) {
-	model = &VolumePrototypeResourceGroupResourceGroupIdentityByID{
-		ID: core.StringPtr(id),
-	}
-	err = core.ValidateStruct(model, "required parameters")
-	return
-}
-
-func (*VolumePrototypeResourceGroupResourceGroupIdentityByID) isaVolumePrototypeResourceGroup() bool {
-	return true
-}
-
-// UnmarshalVolumePrototypeResourceGroupResourceGroupIdentityByID unmarshals an instance of VolumePrototypeResourceGroupResourceGroupIdentityByID from the specified map of raw messages.
-func UnmarshalVolumePrototypeResourceGroupResourceGroupIdentityByID(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(VolumePrototypeResourceGroupResourceGroupIdentityByID)
-	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
 // VolumePrototypeVolumeByCapacity : VolumePrototypeVolumeByCapacity struct
 // This model "extends" VolumePrototype
 type VolumePrototypeVolumeByCapacity struct {
-	// The maximum I/O operations per second (IOPS) for the volume.
+	// The bandwidth for the volume.
 	Iops *int64 `json:"iops,omitempty"`
 
 	// The unique user-defined name for this volume.
@@ -81074,10 +62685,7 @@ type VolumePrototypeVolumeByCapacity struct {
 	// The profile to use for this volume.
 	Profile VolumeProfileIdentityIntf `json:"profile" validate:"required"`
 
-	ResourceGroup VolumePrototypeResourceGroupIntf `json:"resource_group,omitempty"`
-
-	// Tags for this resource.
-	UserTags []string `json:"user_tags,omitempty"`
+	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
 
 	// The zone this volume will reside in.
 	Zone ZoneIdentityIntf `json:"zone" validate:"required"`
@@ -81123,11 +62731,7 @@ func UnmarshalVolumePrototypeVolumeByCapacity(m map[string]json.RawMessage, resu
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalModel(m, "resource_group", &obj.ResourceGroup, UnmarshalVolumePrototypeResourceGroup)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "user_tags", &obj.UserTags)
+	err = core.UnmarshalModel(m, "resource_group", &obj.ResourceGroup, UnmarshalResourceGroupIdentity)
 	if err != nil {
 		return
 	}
@@ -81373,111 +62977,6 @@ func UnmarshalEndpointGatewayTargetPrototypeProviderInfrastructureServiceIdentit
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// FlowLogCollectorTargetPrototypeBareMetalServerIdentityBareMetalServerIdentityByCRN : FlowLogCollectorTargetPrototypeBareMetalServerIdentityBareMetalServerIdentityByCRN struct
-// This model "extends" FlowLogCollectorTargetPrototypeBareMetalServerIdentity
-type FlowLogCollectorTargetPrototypeBareMetalServerIdentityBareMetalServerIdentityByCRN struct {
-	// The CRN for this bare metal server.
-	CRN *string `json:"crn" validate:"required"`
-}
-
-// NewFlowLogCollectorTargetPrototypeBareMetalServerIdentityBareMetalServerIdentityByCRN : Instantiate FlowLogCollectorTargetPrototypeBareMetalServerIdentityBareMetalServerIdentityByCRN (Generic Model Constructor)
-func (*VpcV1) NewFlowLogCollectorTargetPrototypeBareMetalServerIdentityBareMetalServerIdentityByCRN(crn string) (model *FlowLogCollectorTargetPrototypeBareMetalServerIdentityBareMetalServerIdentityByCRN, err error) {
-	model = &FlowLogCollectorTargetPrototypeBareMetalServerIdentityBareMetalServerIdentityByCRN{
-		CRN: core.StringPtr(crn),
-	}
-	err = core.ValidateStruct(model, "required parameters")
-	return
-}
-
-func (*FlowLogCollectorTargetPrototypeBareMetalServerIdentityBareMetalServerIdentityByCRN) isaFlowLogCollectorTargetPrototypeBareMetalServerIdentity() bool {
-	return true
-}
-
-func (*FlowLogCollectorTargetPrototypeBareMetalServerIdentityBareMetalServerIdentityByCRN) isaFlowLogCollectorTargetPrototype() bool {
-	return true
-}
-
-// UnmarshalFlowLogCollectorTargetPrototypeBareMetalServerIdentityBareMetalServerIdentityByCRN unmarshals an instance of FlowLogCollectorTargetPrototypeBareMetalServerIdentityBareMetalServerIdentityByCRN from the specified map of raw messages.
-func UnmarshalFlowLogCollectorTargetPrototypeBareMetalServerIdentityBareMetalServerIdentityByCRN(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(FlowLogCollectorTargetPrototypeBareMetalServerIdentityBareMetalServerIdentityByCRN)
-	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// FlowLogCollectorTargetPrototypeBareMetalServerIdentityBareMetalServerIdentityByHref : FlowLogCollectorTargetPrototypeBareMetalServerIdentityBareMetalServerIdentityByHref struct
-// This model "extends" FlowLogCollectorTargetPrototypeBareMetalServerIdentity
-type FlowLogCollectorTargetPrototypeBareMetalServerIdentityBareMetalServerIdentityByHref struct {
-	// The URL for this bare metal server.
-	Href *string `json:"href" validate:"required"`
-}
-
-// NewFlowLogCollectorTargetPrototypeBareMetalServerIdentityBareMetalServerIdentityByHref : Instantiate FlowLogCollectorTargetPrototypeBareMetalServerIdentityBareMetalServerIdentityByHref (Generic Model Constructor)
-func (*VpcV1) NewFlowLogCollectorTargetPrototypeBareMetalServerIdentityBareMetalServerIdentityByHref(href string) (model *FlowLogCollectorTargetPrototypeBareMetalServerIdentityBareMetalServerIdentityByHref, err error) {
-	model = &FlowLogCollectorTargetPrototypeBareMetalServerIdentityBareMetalServerIdentityByHref{
-		Href: core.StringPtr(href),
-	}
-	err = core.ValidateStruct(model, "required parameters")
-	return
-}
-
-func (*FlowLogCollectorTargetPrototypeBareMetalServerIdentityBareMetalServerIdentityByHref) isaFlowLogCollectorTargetPrototypeBareMetalServerIdentity() bool {
-	return true
-}
-
-func (*FlowLogCollectorTargetPrototypeBareMetalServerIdentityBareMetalServerIdentityByHref) isaFlowLogCollectorTargetPrototype() bool {
-	return true
-}
-
-// UnmarshalFlowLogCollectorTargetPrototypeBareMetalServerIdentityBareMetalServerIdentityByHref unmarshals an instance of FlowLogCollectorTargetPrototypeBareMetalServerIdentityBareMetalServerIdentityByHref from the specified map of raw messages.
-func UnmarshalFlowLogCollectorTargetPrototypeBareMetalServerIdentityBareMetalServerIdentityByHref(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(FlowLogCollectorTargetPrototypeBareMetalServerIdentityBareMetalServerIdentityByHref)
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// FlowLogCollectorTargetPrototypeBareMetalServerIdentityBareMetalServerIdentityByID : FlowLogCollectorTargetPrototypeBareMetalServerIdentityBareMetalServerIdentityByID struct
-// This model "extends" FlowLogCollectorTargetPrototypeBareMetalServerIdentity
-type FlowLogCollectorTargetPrototypeBareMetalServerIdentityBareMetalServerIdentityByID struct {
-	// The unique identifier for this bare metal server.
-	ID *string `json:"id" validate:"required"`
-}
-
-// NewFlowLogCollectorTargetPrototypeBareMetalServerIdentityBareMetalServerIdentityByID : Instantiate FlowLogCollectorTargetPrototypeBareMetalServerIdentityBareMetalServerIdentityByID (Generic Model Constructor)
-func (*VpcV1) NewFlowLogCollectorTargetPrototypeBareMetalServerIdentityBareMetalServerIdentityByID(id string) (model *FlowLogCollectorTargetPrototypeBareMetalServerIdentityBareMetalServerIdentityByID, err error) {
-	model = &FlowLogCollectorTargetPrototypeBareMetalServerIdentityBareMetalServerIdentityByID{
-		ID: core.StringPtr(id),
-	}
-	err = core.ValidateStruct(model, "required parameters")
-	return
-}
-
-func (*FlowLogCollectorTargetPrototypeBareMetalServerIdentityBareMetalServerIdentityByID) isaFlowLogCollectorTargetPrototypeBareMetalServerIdentity() bool {
-	return true
-}
-
-func (*FlowLogCollectorTargetPrototypeBareMetalServerIdentityBareMetalServerIdentityByID) isaFlowLogCollectorTargetPrototype() bool {
-	return true
-}
-
-// UnmarshalFlowLogCollectorTargetPrototypeBareMetalServerIdentityBareMetalServerIdentityByID unmarshals an instance of FlowLogCollectorTargetPrototypeBareMetalServerIdentityBareMetalServerIdentityByID from the specified map of raw messages.
-func UnmarshalFlowLogCollectorTargetPrototypeBareMetalServerIdentityBareMetalServerIdentityByID(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(FlowLogCollectorTargetPrototypeBareMetalServerIdentityBareMetalServerIdentityByID)
-	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
 	if err != nil {
 		return
 	}
@@ -82391,216 +63890,6 @@ func UnmarshalInstanceGroupManagerScheduledActionManagerPrototypeAutoScaleProtot
 	return
 }
 
-// InstancePlacementTargetPatchDedicatedHostGroupIdentityDedicatedHostGroupIdentityByCRN : InstancePlacementTargetPatchDedicatedHostGroupIdentityDedicatedHostGroupIdentityByCRN struct
-// This model "extends" InstancePlacementTargetPatchDedicatedHostGroupIdentity
-type InstancePlacementTargetPatchDedicatedHostGroupIdentityDedicatedHostGroupIdentityByCRN struct {
-	// The CRN for this dedicated host group.
-	CRN *string `json:"crn" validate:"required"`
-}
-
-// NewInstancePlacementTargetPatchDedicatedHostGroupIdentityDedicatedHostGroupIdentityByCRN : Instantiate InstancePlacementTargetPatchDedicatedHostGroupIdentityDedicatedHostGroupIdentityByCRN (Generic Model Constructor)
-func (*VpcV1) NewInstancePlacementTargetPatchDedicatedHostGroupIdentityDedicatedHostGroupIdentityByCRN(crn string) (model *InstancePlacementTargetPatchDedicatedHostGroupIdentityDedicatedHostGroupIdentityByCRN, err error) {
-	model = &InstancePlacementTargetPatchDedicatedHostGroupIdentityDedicatedHostGroupIdentityByCRN{
-		CRN: core.StringPtr(crn),
-	}
-	err = core.ValidateStruct(model, "required parameters")
-	return
-}
-
-func (*InstancePlacementTargetPatchDedicatedHostGroupIdentityDedicatedHostGroupIdentityByCRN) isaInstancePlacementTargetPatchDedicatedHostGroupIdentity() bool {
-	return true
-}
-
-func (*InstancePlacementTargetPatchDedicatedHostGroupIdentityDedicatedHostGroupIdentityByCRN) isaInstancePlacementTargetPatch() bool {
-	return true
-}
-
-// UnmarshalInstancePlacementTargetPatchDedicatedHostGroupIdentityDedicatedHostGroupIdentityByCRN unmarshals an instance of InstancePlacementTargetPatchDedicatedHostGroupIdentityDedicatedHostGroupIdentityByCRN from the specified map of raw messages.
-func UnmarshalInstancePlacementTargetPatchDedicatedHostGroupIdentityDedicatedHostGroupIdentityByCRN(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(InstancePlacementTargetPatchDedicatedHostGroupIdentityDedicatedHostGroupIdentityByCRN)
-	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// InstancePlacementTargetPatchDedicatedHostGroupIdentityDedicatedHostGroupIdentityByHref : InstancePlacementTargetPatchDedicatedHostGroupIdentityDedicatedHostGroupIdentityByHref struct
-// This model "extends" InstancePlacementTargetPatchDedicatedHostGroupIdentity
-type InstancePlacementTargetPatchDedicatedHostGroupIdentityDedicatedHostGroupIdentityByHref struct {
-	// The URL for this dedicated host group.
-	Href *string `json:"href" validate:"required"`
-}
-
-// NewInstancePlacementTargetPatchDedicatedHostGroupIdentityDedicatedHostGroupIdentityByHref : Instantiate InstancePlacementTargetPatchDedicatedHostGroupIdentityDedicatedHostGroupIdentityByHref (Generic Model Constructor)
-func (*VpcV1) NewInstancePlacementTargetPatchDedicatedHostGroupIdentityDedicatedHostGroupIdentityByHref(href string) (model *InstancePlacementTargetPatchDedicatedHostGroupIdentityDedicatedHostGroupIdentityByHref, err error) {
-	model = &InstancePlacementTargetPatchDedicatedHostGroupIdentityDedicatedHostGroupIdentityByHref{
-		Href: core.StringPtr(href),
-	}
-	err = core.ValidateStruct(model, "required parameters")
-	return
-}
-
-func (*InstancePlacementTargetPatchDedicatedHostGroupIdentityDedicatedHostGroupIdentityByHref) isaInstancePlacementTargetPatchDedicatedHostGroupIdentity() bool {
-	return true
-}
-
-func (*InstancePlacementTargetPatchDedicatedHostGroupIdentityDedicatedHostGroupIdentityByHref) isaInstancePlacementTargetPatch() bool {
-	return true
-}
-
-// UnmarshalInstancePlacementTargetPatchDedicatedHostGroupIdentityDedicatedHostGroupIdentityByHref unmarshals an instance of InstancePlacementTargetPatchDedicatedHostGroupIdentityDedicatedHostGroupIdentityByHref from the specified map of raw messages.
-func UnmarshalInstancePlacementTargetPatchDedicatedHostGroupIdentityDedicatedHostGroupIdentityByHref(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(InstancePlacementTargetPatchDedicatedHostGroupIdentityDedicatedHostGroupIdentityByHref)
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// InstancePlacementTargetPatchDedicatedHostGroupIdentityDedicatedHostGroupIdentityByID : InstancePlacementTargetPatchDedicatedHostGroupIdentityDedicatedHostGroupIdentityByID struct
-// This model "extends" InstancePlacementTargetPatchDedicatedHostGroupIdentity
-type InstancePlacementTargetPatchDedicatedHostGroupIdentityDedicatedHostGroupIdentityByID struct {
-	// The unique identifier for this dedicated host group.
-	ID *string `json:"id" validate:"required"`
-}
-
-// NewInstancePlacementTargetPatchDedicatedHostGroupIdentityDedicatedHostGroupIdentityByID : Instantiate InstancePlacementTargetPatchDedicatedHostGroupIdentityDedicatedHostGroupIdentityByID (Generic Model Constructor)
-func (*VpcV1) NewInstancePlacementTargetPatchDedicatedHostGroupIdentityDedicatedHostGroupIdentityByID(id string) (model *InstancePlacementTargetPatchDedicatedHostGroupIdentityDedicatedHostGroupIdentityByID, err error) {
-	model = &InstancePlacementTargetPatchDedicatedHostGroupIdentityDedicatedHostGroupIdentityByID{
-		ID: core.StringPtr(id),
-	}
-	err = core.ValidateStruct(model, "required parameters")
-	return
-}
-
-func (*InstancePlacementTargetPatchDedicatedHostGroupIdentityDedicatedHostGroupIdentityByID) isaInstancePlacementTargetPatchDedicatedHostGroupIdentity() bool {
-	return true
-}
-
-func (*InstancePlacementTargetPatchDedicatedHostGroupIdentityDedicatedHostGroupIdentityByID) isaInstancePlacementTargetPatch() bool {
-	return true
-}
-
-// UnmarshalInstancePlacementTargetPatchDedicatedHostGroupIdentityDedicatedHostGroupIdentityByID unmarshals an instance of InstancePlacementTargetPatchDedicatedHostGroupIdentityDedicatedHostGroupIdentityByID from the specified map of raw messages.
-func UnmarshalInstancePlacementTargetPatchDedicatedHostGroupIdentityDedicatedHostGroupIdentityByID(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(InstancePlacementTargetPatchDedicatedHostGroupIdentityDedicatedHostGroupIdentityByID)
-	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// InstancePlacementTargetPatchDedicatedHostIdentityDedicatedHostIdentityByCRN : InstancePlacementTargetPatchDedicatedHostIdentityDedicatedHostIdentityByCRN struct
-// This model "extends" InstancePlacementTargetPatchDedicatedHostIdentity
-type InstancePlacementTargetPatchDedicatedHostIdentityDedicatedHostIdentityByCRN struct {
-	// The CRN for this dedicated host.
-	CRN *string `json:"crn" validate:"required"`
-}
-
-// NewInstancePlacementTargetPatchDedicatedHostIdentityDedicatedHostIdentityByCRN : Instantiate InstancePlacementTargetPatchDedicatedHostIdentityDedicatedHostIdentityByCRN (Generic Model Constructor)
-func (*VpcV1) NewInstancePlacementTargetPatchDedicatedHostIdentityDedicatedHostIdentityByCRN(crn string) (model *InstancePlacementTargetPatchDedicatedHostIdentityDedicatedHostIdentityByCRN, err error) {
-	model = &InstancePlacementTargetPatchDedicatedHostIdentityDedicatedHostIdentityByCRN{
-		CRN: core.StringPtr(crn),
-	}
-	err = core.ValidateStruct(model, "required parameters")
-	return
-}
-
-func (*InstancePlacementTargetPatchDedicatedHostIdentityDedicatedHostIdentityByCRN) isaInstancePlacementTargetPatchDedicatedHostIdentity() bool {
-	return true
-}
-
-func (*InstancePlacementTargetPatchDedicatedHostIdentityDedicatedHostIdentityByCRN) isaInstancePlacementTargetPatch() bool {
-	return true
-}
-
-// UnmarshalInstancePlacementTargetPatchDedicatedHostIdentityDedicatedHostIdentityByCRN unmarshals an instance of InstancePlacementTargetPatchDedicatedHostIdentityDedicatedHostIdentityByCRN from the specified map of raw messages.
-func UnmarshalInstancePlacementTargetPatchDedicatedHostIdentityDedicatedHostIdentityByCRN(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(InstancePlacementTargetPatchDedicatedHostIdentityDedicatedHostIdentityByCRN)
-	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// InstancePlacementTargetPatchDedicatedHostIdentityDedicatedHostIdentityByHref : InstancePlacementTargetPatchDedicatedHostIdentityDedicatedHostIdentityByHref struct
-// This model "extends" InstancePlacementTargetPatchDedicatedHostIdentity
-type InstancePlacementTargetPatchDedicatedHostIdentityDedicatedHostIdentityByHref struct {
-	// The URL for this dedicated host.
-	Href *string `json:"href" validate:"required"`
-}
-
-// NewInstancePlacementTargetPatchDedicatedHostIdentityDedicatedHostIdentityByHref : Instantiate InstancePlacementTargetPatchDedicatedHostIdentityDedicatedHostIdentityByHref (Generic Model Constructor)
-func (*VpcV1) NewInstancePlacementTargetPatchDedicatedHostIdentityDedicatedHostIdentityByHref(href string) (model *InstancePlacementTargetPatchDedicatedHostIdentityDedicatedHostIdentityByHref, err error) {
-	model = &InstancePlacementTargetPatchDedicatedHostIdentityDedicatedHostIdentityByHref{
-		Href: core.StringPtr(href),
-	}
-	err = core.ValidateStruct(model, "required parameters")
-	return
-}
-
-func (*InstancePlacementTargetPatchDedicatedHostIdentityDedicatedHostIdentityByHref) isaInstancePlacementTargetPatchDedicatedHostIdentity() bool {
-	return true
-}
-
-func (*InstancePlacementTargetPatchDedicatedHostIdentityDedicatedHostIdentityByHref) isaInstancePlacementTargetPatch() bool {
-	return true
-}
-
-// UnmarshalInstancePlacementTargetPatchDedicatedHostIdentityDedicatedHostIdentityByHref unmarshals an instance of InstancePlacementTargetPatchDedicatedHostIdentityDedicatedHostIdentityByHref from the specified map of raw messages.
-func UnmarshalInstancePlacementTargetPatchDedicatedHostIdentityDedicatedHostIdentityByHref(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(InstancePlacementTargetPatchDedicatedHostIdentityDedicatedHostIdentityByHref)
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// InstancePlacementTargetPatchDedicatedHostIdentityDedicatedHostIdentityByID : InstancePlacementTargetPatchDedicatedHostIdentityDedicatedHostIdentityByID struct
-// This model "extends" InstancePlacementTargetPatchDedicatedHostIdentity
-type InstancePlacementTargetPatchDedicatedHostIdentityDedicatedHostIdentityByID struct {
-	// The unique identifier for this dedicated host.
-	ID *string `json:"id" validate:"required"`
-}
-
-// NewInstancePlacementTargetPatchDedicatedHostIdentityDedicatedHostIdentityByID : Instantiate InstancePlacementTargetPatchDedicatedHostIdentityDedicatedHostIdentityByID (Generic Model Constructor)
-func (*VpcV1) NewInstancePlacementTargetPatchDedicatedHostIdentityDedicatedHostIdentityByID(id string) (model *InstancePlacementTargetPatchDedicatedHostIdentityDedicatedHostIdentityByID, err error) {
-	model = &InstancePlacementTargetPatchDedicatedHostIdentityDedicatedHostIdentityByID{
-		ID: core.StringPtr(id),
-	}
-	err = core.ValidateStruct(model, "required parameters")
-	return
-}
-
-func (*InstancePlacementTargetPatchDedicatedHostIdentityDedicatedHostIdentityByID) isaInstancePlacementTargetPatchDedicatedHostIdentity() bool {
-	return true
-}
-
-func (*InstancePlacementTargetPatchDedicatedHostIdentityDedicatedHostIdentityByID) isaInstancePlacementTargetPatch() bool {
-	return true
-}
-
-// UnmarshalInstancePlacementTargetPatchDedicatedHostIdentityDedicatedHostIdentityByID unmarshals an instance of InstancePlacementTargetPatchDedicatedHostIdentityDedicatedHostIdentityByID from the specified map of raw messages.
-func UnmarshalInstancePlacementTargetPatchDedicatedHostIdentityDedicatedHostIdentityByID(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(InstancePlacementTargetPatchDedicatedHostIdentityDedicatedHostIdentityByID)
-	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
 // InstancePlacementTargetPrototypeDedicatedHostGroupIdentityDedicatedHostGroupIdentityByCRN : InstancePlacementTargetPrototypeDedicatedHostGroupIdentityDedicatedHostGroupIdentityByCRN struct
 // This model "extends" InstancePlacementTargetPrototypeDedicatedHostGroupIdentity
 type InstancePlacementTargetPrototypeDedicatedHostGroupIdentityDedicatedHostGroupIdentityByCRN struct {
@@ -83153,76 +64442,6 @@ func (*LoadBalancerPoolMemberTargetPrototypeInstanceIdentityInstanceIdentityByID
 // UnmarshalLoadBalancerPoolMemberTargetPrototypeInstanceIdentityInstanceIdentityByID unmarshals an instance of LoadBalancerPoolMemberTargetPrototypeInstanceIdentityInstanceIdentityByID from the specified map of raw messages.
 func UnmarshalLoadBalancerPoolMemberTargetPrototypeInstanceIdentityInstanceIdentityByID(m map[string]json.RawMessage, result interface{}) (err error) {
 	obj := new(LoadBalancerPoolMemberTargetPrototypeInstanceIdentityInstanceIdentityByID)
-	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// NetworkInterfaceIPPrototypeReservedIPIdentityReservedIPIdentityByHref : NetworkInterfaceIPPrototypeReservedIPIdentityReservedIPIdentityByHref struct
-// This model "extends" NetworkInterfaceIPPrototypeReservedIPIdentity
-type NetworkInterfaceIPPrototypeReservedIPIdentityReservedIPIdentityByHref struct {
-	// The URL for this reserved IP.
-	Href *string `json:"href" validate:"required"`
-}
-
-// NewNetworkInterfaceIPPrototypeReservedIPIdentityReservedIPIdentityByHref : Instantiate NetworkInterfaceIPPrototypeReservedIPIdentityReservedIPIdentityByHref (Generic Model Constructor)
-func (*VpcV1) NewNetworkInterfaceIPPrototypeReservedIPIdentityReservedIPIdentityByHref(href string) (model *NetworkInterfaceIPPrototypeReservedIPIdentityReservedIPIdentityByHref, err error) {
-	model = &NetworkInterfaceIPPrototypeReservedIPIdentityReservedIPIdentityByHref{
-		Href: core.StringPtr(href),
-	}
-	err = core.ValidateStruct(model, "required parameters")
-	return
-}
-
-func (*NetworkInterfaceIPPrototypeReservedIPIdentityReservedIPIdentityByHref) isaNetworkInterfaceIPPrototypeReservedIPIdentity() bool {
-	return true
-}
-
-func (*NetworkInterfaceIPPrototypeReservedIPIdentityReservedIPIdentityByHref) isaNetworkInterfaceIPPrototype() bool {
-	return true
-}
-
-// UnmarshalNetworkInterfaceIPPrototypeReservedIPIdentityReservedIPIdentityByHref unmarshals an instance of NetworkInterfaceIPPrototypeReservedIPIdentityReservedIPIdentityByHref from the specified map of raw messages.
-func UnmarshalNetworkInterfaceIPPrototypeReservedIPIdentityReservedIPIdentityByHref(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(NetworkInterfaceIPPrototypeReservedIPIdentityReservedIPIdentityByHref)
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// NetworkInterfaceIPPrototypeReservedIPIdentityReservedIPIdentityByID : NetworkInterfaceIPPrototypeReservedIPIdentityReservedIPIdentityByID struct
-// This model "extends" NetworkInterfaceIPPrototypeReservedIPIdentity
-type NetworkInterfaceIPPrototypeReservedIPIdentityReservedIPIdentityByID struct {
-	// The unique identifier for this reserved IP.
-	ID *string `json:"id" validate:"required"`
-}
-
-// NewNetworkInterfaceIPPrototypeReservedIPIdentityReservedIPIdentityByID : Instantiate NetworkInterfaceIPPrototypeReservedIPIdentityReservedIPIdentityByID (Generic Model Constructor)
-func (*VpcV1) NewNetworkInterfaceIPPrototypeReservedIPIdentityReservedIPIdentityByID(id string) (model *NetworkInterfaceIPPrototypeReservedIPIdentityReservedIPIdentityByID, err error) {
-	model = &NetworkInterfaceIPPrototypeReservedIPIdentityReservedIPIdentityByID{
-		ID: core.StringPtr(id),
-	}
-	err = core.ValidateStruct(model, "required parameters")
-	return
-}
-
-func (*NetworkInterfaceIPPrototypeReservedIPIdentityReservedIPIdentityByID) isaNetworkInterfaceIPPrototypeReservedIPIdentity() bool {
-	return true
-}
-
-func (*NetworkInterfaceIPPrototypeReservedIPIdentityReservedIPIdentityByID) isaNetworkInterfaceIPPrototype() bool {
-	return true
-}
-
-// UnmarshalNetworkInterfaceIPPrototypeReservedIPIdentityReservedIPIdentityByID unmarshals an instance of NetworkInterfaceIPPrototypeReservedIPIdentityReservedIPIdentityByID from the specified map of raw messages.
-func UnmarshalNetworkInterfaceIPPrototypeReservedIPIdentityReservedIPIdentityByID(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(NetworkInterfaceIPPrototypeReservedIPIdentityReservedIPIdentityByID)
 	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
 	if err != nil {
 		return
@@ -83864,7 +65083,7 @@ func UnmarshalVolumeAttachmentPrototypeVolumeVolumeIdentityVolumeIdentityByID(m 
 // VolumeAttachmentPrototypeVolumeVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeByCapacity : VolumeAttachmentPrototypeVolumeVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeByCapacity struct
 // This model "extends" VolumeAttachmentPrototypeVolumeVolumePrototypeInstanceContext
 type VolumeAttachmentPrototypeVolumeVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeByCapacity struct {
-	// The maximum I/O operations per second (IOPS) for the volume.
+	// The bandwidth for the volume.
 	Iops *int64 `json:"iops,omitempty"`
 
 	// The unique user-defined name for this volume.
@@ -83872,9 +65091,6 @@ type VolumeAttachmentPrototypeVolumeVolumePrototypeInstanceContextVolumePrototyp
 
 	// The profile to use for this volume.
 	Profile VolumeProfileIdentityIntf `json:"profile" validate:"required"`
-
-	// The resource group to use for this volume. If unspecified, the instance's resource group will be used.
-	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
 
 	// The capacity to use for the volume (in gigabytes). The specified minimum and maximum capacity values for creating or
 	// updating volumes may expand in the future.
@@ -83920,10 +65136,6 @@ func UnmarshalVolumeAttachmentPrototypeVolumeVolumePrototypeInstanceContextVolum
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalModel(m, "resource_group", &obj.ResourceGroup, UnmarshalResourceGroupIdentity)
-	if err != nil {
-		return
-	}
 	err = core.UnmarshalPrimitive(m, "capacity", &obj.Capacity)
 	if err != nil {
 		return
@@ -83939,7 +65151,7 @@ func UnmarshalVolumeAttachmentPrototypeVolumeVolumePrototypeInstanceContextVolum
 // VolumeAttachmentPrototypeVolumeVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeBySourceSnapshot : VolumeAttachmentPrototypeVolumeVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeBySourceSnapshot struct
 // This model "extends" VolumeAttachmentPrototypeVolumeVolumePrototypeInstanceContext
 type VolumeAttachmentPrototypeVolumeVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeBySourceSnapshot struct {
-	// The maximum I/O operations per second (IOPS) for the volume.
+	// The bandwidth for the volume.
 	Iops *int64 `json:"iops,omitempty"`
 
 	// The unique user-defined name for this volume.
@@ -83947,9 +65159,6 @@ type VolumeAttachmentPrototypeVolumeVolumePrototypeInstanceContextVolumePrototyp
 
 	// The profile to use for this volume.
 	Profile VolumeProfileIdentityIntf `json:"profile" validate:"required"`
-
-	// The resource group to use for this volume. If unspecified, the instance's resource group will be used.
-	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
 
 	// The capacity to use for the volume (in gigabytes). The allowed values are expected to expand in the future.
 	//
@@ -83998,10 +65207,6 @@ func UnmarshalVolumeAttachmentPrototypeVolumeVolumePrototypeInstanceContextVolum
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalModel(m, "resource_group", &obj.ResourceGroup, UnmarshalResourceGroupIdentity)
-	if err != nil {
-		return
-	}
 	err = core.UnmarshalPrimitive(m, "capacity", &obj.Capacity)
 	if err != nil {
 		return
@@ -84018,33 +65223,33 @@ func UnmarshalVolumeAttachmentPrototypeVolumeVolumePrototypeInstanceContextVolum
 	return
 }
 
-// VolumeAttachmentVolumePrototypeInstanceByVolumeContextVolumeIdentityVolumeIdentityByCRN : VolumeAttachmentVolumePrototypeInstanceByVolumeContextVolumeIdentityVolumeIdentityByCRN struct
-// This model "extends" VolumeAttachmentVolumePrototypeInstanceByVolumeContextVolumeIdentity
-type VolumeAttachmentVolumePrototypeInstanceByVolumeContextVolumeIdentityVolumeIdentityByCRN struct {
+// VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByCRN : VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByCRN struct
+// This model "extends" VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentity
+type VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByCRN struct {
 	// The CRN for this volume.
 	CRN *string `json:"crn" validate:"required"`
 }
 
-// NewVolumeAttachmentVolumePrototypeInstanceByVolumeContextVolumeIdentityVolumeIdentityByCRN : Instantiate VolumeAttachmentVolumePrototypeInstanceByVolumeContextVolumeIdentityVolumeIdentityByCRN (Generic Model Constructor)
-func (*VpcV1) NewVolumeAttachmentVolumePrototypeInstanceByVolumeContextVolumeIdentityVolumeIdentityByCRN(crn string) (model *VolumeAttachmentVolumePrototypeInstanceByVolumeContextVolumeIdentityVolumeIdentityByCRN, err error) {
-	model = &VolumeAttachmentVolumePrototypeInstanceByVolumeContextVolumeIdentityVolumeIdentityByCRN{
+// NewVolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByCRN : Instantiate VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByCRN (Generic Model Constructor)
+func (*VpcV1) NewVolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByCRN(crn string) (model *VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByCRN, err error) {
+	model = &VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByCRN{
 		CRN: core.StringPtr(crn),
 	}
 	err = core.ValidateStruct(model, "required parameters")
 	return
 }
 
-func (*VolumeAttachmentVolumePrototypeInstanceByVolumeContextVolumeIdentityVolumeIdentityByCRN) isaVolumeAttachmentVolumePrototypeInstanceByVolumeContextVolumeIdentity() bool {
+func (*VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByCRN) isaVolumeAttachmentVolumePrototypeInstanceContextVolumeIdentity() bool {
 	return true
 }
 
-func (*VolumeAttachmentVolumePrototypeInstanceByVolumeContextVolumeIdentityVolumeIdentityByCRN) isaVolumeAttachmentVolumePrototypeInstanceByVolumeContext() bool {
+func (*VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByCRN) isaVolumeAttachmentVolumePrototypeInstanceContext() bool {
 	return true
 }
 
-// UnmarshalVolumeAttachmentVolumePrototypeInstanceByVolumeContextVolumeIdentityVolumeIdentityByCRN unmarshals an instance of VolumeAttachmentVolumePrototypeInstanceByVolumeContextVolumeIdentityVolumeIdentityByCRN from the specified map of raw messages.
-func UnmarshalVolumeAttachmentVolumePrototypeInstanceByVolumeContextVolumeIdentityVolumeIdentityByCRN(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(VolumeAttachmentVolumePrototypeInstanceByVolumeContextVolumeIdentityVolumeIdentityByCRN)
+// UnmarshalVolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByCRN unmarshals an instance of VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByCRN from the specified map of raw messages.
+func UnmarshalVolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByCRN(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByCRN)
 	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
 	if err != nil {
 		return
@@ -84053,33 +65258,33 @@ func UnmarshalVolumeAttachmentVolumePrototypeInstanceByVolumeContextVolumeIdenti
 	return
 }
 
-// VolumeAttachmentVolumePrototypeInstanceByVolumeContextVolumeIdentityVolumeIdentityByHref : VolumeAttachmentVolumePrototypeInstanceByVolumeContextVolumeIdentityVolumeIdentityByHref struct
-// This model "extends" VolumeAttachmentVolumePrototypeInstanceByVolumeContextVolumeIdentity
-type VolumeAttachmentVolumePrototypeInstanceByVolumeContextVolumeIdentityVolumeIdentityByHref struct {
+// VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByHref : VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByHref struct
+// This model "extends" VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentity
+type VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByHref struct {
 	// The URL for this volume.
 	Href *string `json:"href" validate:"required"`
 }
 
-// NewVolumeAttachmentVolumePrototypeInstanceByVolumeContextVolumeIdentityVolumeIdentityByHref : Instantiate VolumeAttachmentVolumePrototypeInstanceByVolumeContextVolumeIdentityVolumeIdentityByHref (Generic Model Constructor)
-func (*VpcV1) NewVolumeAttachmentVolumePrototypeInstanceByVolumeContextVolumeIdentityVolumeIdentityByHref(href string) (model *VolumeAttachmentVolumePrototypeInstanceByVolumeContextVolumeIdentityVolumeIdentityByHref, err error) {
-	model = &VolumeAttachmentVolumePrototypeInstanceByVolumeContextVolumeIdentityVolumeIdentityByHref{
+// NewVolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByHref : Instantiate VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByHref (Generic Model Constructor)
+func (*VpcV1) NewVolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByHref(href string) (model *VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByHref, err error) {
+	model = &VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByHref{
 		Href: core.StringPtr(href),
 	}
 	err = core.ValidateStruct(model, "required parameters")
 	return
 }
 
-func (*VolumeAttachmentVolumePrototypeInstanceByVolumeContextVolumeIdentityVolumeIdentityByHref) isaVolumeAttachmentVolumePrototypeInstanceByVolumeContextVolumeIdentity() bool {
+func (*VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByHref) isaVolumeAttachmentVolumePrototypeInstanceContextVolumeIdentity() bool {
 	return true
 }
 
-func (*VolumeAttachmentVolumePrototypeInstanceByVolumeContextVolumeIdentityVolumeIdentityByHref) isaVolumeAttachmentVolumePrototypeInstanceByVolumeContext() bool {
+func (*VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByHref) isaVolumeAttachmentVolumePrototypeInstanceContext() bool {
 	return true
 }
 
-// UnmarshalVolumeAttachmentVolumePrototypeInstanceByVolumeContextVolumeIdentityVolumeIdentityByHref unmarshals an instance of VolumeAttachmentVolumePrototypeInstanceByVolumeContextVolumeIdentityVolumeIdentityByHref from the specified map of raw messages.
-func UnmarshalVolumeAttachmentVolumePrototypeInstanceByVolumeContextVolumeIdentityVolumeIdentityByHref(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(VolumeAttachmentVolumePrototypeInstanceByVolumeContextVolumeIdentityVolumeIdentityByHref)
+// UnmarshalVolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByHref unmarshals an instance of VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByHref from the specified map of raw messages.
+func UnmarshalVolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByHref(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByHref)
 	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
 	if err != nil {
 		return
@@ -84088,34 +65293,177 @@ func UnmarshalVolumeAttachmentVolumePrototypeInstanceByVolumeContextVolumeIdenti
 	return
 }
 
-// VolumeAttachmentVolumePrototypeInstanceByVolumeContextVolumeIdentityVolumeIdentityByID : VolumeAttachmentVolumePrototypeInstanceByVolumeContextVolumeIdentityVolumeIdentityByID struct
-// This model "extends" VolumeAttachmentVolumePrototypeInstanceByVolumeContextVolumeIdentity
-type VolumeAttachmentVolumePrototypeInstanceByVolumeContextVolumeIdentityVolumeIdentityByID struct {
+// VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByID : VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByID struct
+// This model "extends" VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentity
+type VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByID struct {
 	// The unique identifier for this volume.
 	ID *string `json:"id" validate:"required"`
 }
 
-// NewVolumeAttachmentVolumePrototypeInstanceByVolumeContextVolumeIdentityVolumeIdentityByID : Instantiate VolumeAttachmentVolumePrototypeInstanceByVolumeContextVolumeIdentityVolumeIdentityByID (Generic Model Constructor)
-func (*VpcV1) NewVolumeAttachmentVolumePrototypeInstanceByVolumeContextVolumeIdentityVolumeIdentityByID(id string) (model *VolumeAttachmentVolumePrototypeInstanceByVolumeContextVolumeIdentityVolumeIdentityByID, err error) {
-	model = &VolumeAttachmentVolumePrototypeInstanceByVolumeContextVolumeIdentityVolumeIdentityByID{
+// NewVolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByID : Instantiate VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByID (Generic Model Constructor)
+func (*VpcV1) NewVolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByID(id string) (model *VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByID, err error) {
+	model = &VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByID{
 		ID: core.StringPtr(id),
 	}
 	err = core.ValidateStruct(model, "required parameters")
 	return
 }
 
-func (*VolumeAttachmentVolumePrototypeInstanceByVolumeContextVolumeIdentityVolumeIdentityByID) isaVolumeAttachmentVolumePrototypeInstanceByVolumeContextVolumeIdentity() bool {
+func (*VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByID) isaVolumeAttachmentVolumePrototypeInstanceContextVolumeIdentity() bool {
 	return true
 }
 
-func (*VolumeAttachmentVolumePrototypeInstanceByVolumeContextVolumeIdentityVolumeIdentityByID) isaVolumeAttachmentVolumePrototypeInstanceByVolumeContext() bool {
+func (*VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByID) isaVolumeAttachmentVolumePrototypeInstanceContext() bool {
 	return true
 }
 
-// UnmarshalVolumeAttachmentVolumePrototypeInstanceByVolumeContextVolumeIdentityVolumeIdentityByID unmarshals an instance of VolumeAttachmentVolumePrototypeInstanceByVolumeContextVolumeIdentityVolumeIdentityByID from the specified map of raw messages.
-func UnmarshalVolumeAttachmentVolumePrototypeInstanceByVolumeContextVolumeIdentityVolumeIdentityByID(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(VolumeAttachmentVolumePrototypeInstanceByVolumeContextVolumeIdentityVolumeIdentityByID)
+// UnmarshalVolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByID unmarshals an instance of VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByID from the specified map of raw messages.
+func UnmarshalVolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByID(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByID)
 	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeByCapacity : VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeByCapacity struct
+// This model "extends" VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContext
+type VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeByCapacity struct {
+	// The bandwidth for the volume.
+	Iops *int64 `json:"iops,omitempty"`
+
+	// The unique user-defined name for this volume.
+	Name *string `json:"name,omitempty"`
+
+	// The profile to use for this volume.
+	Profile VolumeProfileIdentityIntf `json:"profile" validate:"required"`
+
+	// The capacity to use for the volume (in gigabytes). The specified minimum and maximum capacity values for creating or
+	// updating volumes may expand in the future.
+	Capacity *int64 `json:"capacity" validate:"required"`
+
+	// The root key to use to wrap the data encryption key for the volume.
+	//
+	// If this property is not provided, the `encryption` type for the volume will be
+	// `provider_managed`.
+	EncryptionKey EncryptionKeyIdentityIntf `json:"encryption_key,omitempty"`
+}
+
+// NewVolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeByCapacity : Instantiate VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeByCapacity (Generic Model Constructor)
+func (*VpcV1) NewVolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeByCapacity(profile VolumeProfileIdentityIntf, capacity int64) (model *VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeByCapacity, err error) {
+	model = &VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeByCapacity{
+		Profile:  profile,
+		Capacity: core.Int64Ptr(capacity),
+	}
+	err = core.ValidateStruct(model, "required parameters")
+	return
+}
+
+func (*VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeByCapacity) isaVolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContext() bool {
+	return true
+}
+
+func (*VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeByCapacity) isaVolumeAttachmentVolumePrototypeInstanceContext() bool {
+	return true
+}
+
+// UnmarshalVolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeByCapacity unmarshals an instance of VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeByCapacity from the specified map of raw messages.
+func UnmarshalVolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeByCapacity(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeByCapacity)
+	err = core.UnmarshalPrimitive(m, "iops", &obj.Iops)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "profile", &obj.Profile, UnmarshalVolumeProfileIdentity)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "capacity", &obj.Capacity)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "encryption_key", &obj.EncryptionKey, UnmarshalEncryptionKeyIdentity)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeBySourceSnapshot : VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeBySourceSnapshot struct
+// This model "extends" VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContext
+type VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeBySourceSnapshot struct {
+	// The bandwidth for the volume.
+	Iops *int64 `json:"iops,omitempty"`
+
+	// The unique user-defined name for this volume.
+	Name *string `json:"name,omitempty"`
+
+	// The profile to use for this volume.
+	Profile VolumeProfileIdentityIntf `json:"profile" validate:"required"`
+
+	// The capacity to use for the volume (in gigabytes). The allowed values are expected to expand in the future.
+	//
+	// If unspecified, the capacity will be the source snapshot's `minimum_capacity`.
+	Capacity *int64 `json:"capacity,omitempty"`
+
+	// The root key to use to wrap the data encryption key for the volume.
+	//
+	// If this property is not provided, the snapshot's `encryption_key` will be used.
+	EncryptionKey EncryptionKeyIdentityIntf `json:"encryption_key,omitempty"`
+
+	// The snapshot from which to clone the volume.
+	SourceSnapshot SnapshotIdentityIntf `json:"source_snapshot" validate:"required"`
+}
+
+// NewVolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeBySourceSnapshot : Instantiate VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeBySourceSnapshot (Generic Model Constructor)
+func (*VpcV1) NewVolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeBySourceSnapshot(profile VolumeProfileIdentityIntf, sourceSnapshot SnapshotIdentityIntf) (model *VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeBySourceSnapshot, err error) {
+	model = &VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeBySourceSnapshot{
+		Profile:        profile,
+		SourceSnapshot: sourceSnapshot,
+	}
+	err = core.ValidateStruct(model, "required parameters")
+	return
+}
+
+func (*VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeBySourceSnapshot) isaVolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContext() bool {
+	return true
+}
+
+func (*VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeBySourceSnapshot) isaVolumeAttachmentVolumePrototypeInstanceContext() bool {
+	return true
+}
+
+// UnmarshalVolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeBySourceSnapshot unmarshals an instance of VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeBySourceSnapshot from the specified map of raw messages.
+func UnmarshalVolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeBySourceSnapshot(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeBySourceSnapshot)
+	err = core.UnmarshalPrimitive(m, "iops", &obj.Iops)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "profile", &obj.Profile, UnmarshalVolumeProfileIdentity)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "capacity", &obj.Capacity)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "encryption_key", &obj.EncryptionKey, UnmarshalEncryptionKeyIdentity)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "source_snapshot", &obj.SourceSnapshot, UnmarshalSnapshotIdentity)
 	if err != nil {
 		return
 	}

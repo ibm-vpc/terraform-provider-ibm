@@ -48,3 +48,4 @@ require (
 )
 
 replace github.com/softlayer/softlayer-go v1.0.3 => github.com/IBM-Cloud/softlayer-go v1.0.3-tf
+replace github.com/IBM/vpc-go-sdk v0.8.0 => ./common/github.com/IBM/vpc-go-sdk
