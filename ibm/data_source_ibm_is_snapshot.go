@@ -97,6 +97,13 @@ func dataSourceSnapshot() *schema.Resource {
 				Computed:    true,
 				Description: "The size of the snapshot",
 			},
+			isSnapshotClones: {
+				Type:        schema.TypeSet,
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
+				Description: "Zones for creating the snapshot clone",
+			},
 		},
 	}
 }
@@ -213,6 +220,17 @@ func snapshotGetByNameOrID(d *schema.ResourceData, meta interface{}, name, id st
 		if snapshot.OperatingSystem != nil && snapshot.OperatingSystem.Name != nil {
 			d.Set(isSnapshotOperatingSystem, *snapshot.OperatingSystem.Name)
 		}
+		var clones []string
+		clones = make([]string, 0)
+		if snapshot.Clones != nil {
+			for _, clone := range snapshot.Clones {
+				if clone.Zone != nil {
+					clones = append(clones, *clone.Zone.Name)
+				}
+			}
+		}
+		d.Set(isSnapshotClones, newStringSet(schema.HashString, clones))
+
 		return nil
 	}
 }

@@ -48,7 +48,8 @@ resource "ibm_is_instance" "testacc_instance" {
 resource "ibm_is_snapshot" "testacc_snapshot" {
   name            = "testsnapshot"
   source_volume   = ibm_is_instance.testacc_instance.volume_attachments[0].volume_id
-
+  clones          = ["us-south-1", "us-south-2"]
+  
   //User can configure timeouts
   timeouts {
     create = "15m"
@@ -68,6 +69,7 @@ The `ibm_is_snapshot` resource provides the following [Timeouts](https://www.ter
 ## Argument reference
 Review the argument references that you can specify for your resource. 
 
+- `clones` - (Optional, List) The list of zones to create a clone of this snapshot.
 - `name` - (Optional, String) The name of the snapshot.
 - `resource_group` - (Optional, Forces new resource, String) The resource group ID where the snapshot is to be created
 - `source_volume` - (Required, Forces new resource, String) The unique identifier for the volume for which snapshot is to be created. 

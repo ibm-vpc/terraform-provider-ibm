@@ -147,6 +147,15 @@ func resourceIBMSnapshot() *schema.Resource {
 				Computed:    true,
 				Description: "The size of the snapshot",
 			},
+
+			isSnapshotClones: {
+				Type:             schema.TypeSet,
+				Optional:         true,
+				Elem:             &schema.Schema{Type: schema.TypeString},
+				Set:              schema.HashString,
+				DiffSuppressFunc: applyOnce,
+				Description:      "Zones for creating the snapshot clone",
+			},
 		},
 	}
 }
@@ -187,6 +196,21 @@ func resourceIBMISSnapshotCreate(d *schema.ResourceData, meta interface{}) error
 		rg := grp.(string)
 		options.ResourceGroup = &vpcv1.ResourceGroupIdentity{
 			ID: &rg,
+		}
+	}
+	if clones, ok := d.GetOk(isSnapshotClones); ok {
+		cloneSet := clones.(*schema.Set)
+		if cloneSet.Len() != 0 {
+			cloneobjs := make([]vpcv1.SnapshotClonePrototype, cloneSet.Len())
+			for i, clone := range cloneSet.List() {
+				clonestr := clone.(string)
+				cloneobjs[i] = vpcv1.SnapshotClonePrototype{
+					Zone: &vpcv1.ZoneIdentity{
+						Name: &clonestr,
+					},
+				}
+			}
+			options.Clones = cloneobjs
 		}
 	}
 
@@ -294,6 +318,17 @@ func snapshotGet(d *schema.ResourceData, meta interface{}, id string) error {
 	if snapshot.OperatingSystem != nil && snapshot.OperatingSystem.Name != nil {
 		d.Set(isSnapshotOperatingSystem, *snapshot.OperatingSystem.Name)
 	}
+	var clones []string
+	clones = make([]string, 0)
+	if snapshot.Clones != nil {
+		for _, clone := range snapshot.Clones {
+			if clone.Zone != nil {
+				clones = append(clones, *clone.Zone.Name)
+			}
+		}
+	}
+	d.Set(isSnapshotClones, newStringSet(schema.HashString, clones))
+
 	return nil
 }
 
@@ -339,6 +374,49 @@ func snapshotUpdate(d *schema.ResourceData, meta interface{}, id, name string, h
 		if err != nil {
 			return err
 		}
+
+		if d.HasChange(isSnapshotClones) {
+			ovs, nvs := d.GetChange(isSnapshotClones)
+			ov := ovs.(*schema.Set)
+			nv := nvs.(*schema.Set)
+
+			remove := expandStringList(ov.Difference(nv).List())
+			add := expandStringList(nv.Difference(ov).List())
+
+			if len(add) > 0 {
+				for i := range add {
+					createCloneOptions := &vpcv1.CreateSnapshotCloneOptions{
+						ID:       &id,
+						ZoneName: &add[i],
+					}
+					_, _, err := sess.CreateSnapshotClone(createCloneOptions)
+					if err != nil {
+						return fmt.Errorf("Error while creating snapshot (%s) clone(%s) : %q", d.Id(), add[i], err)
+					}
+					_, err = isWaitForCloneAvailable(sess, d, id, add[i])
+					if err != nil {
+						return err
+					}
+				}
+
+			}
+			if len(remove) > 0 {
+				for i := range remove {
+					delCloneOptions := &vpcv1.DeleteSnapshotCloneOptions{
+						ID:       &id,
+						ZoneName: &remove[i],
+					}
+					_, err := sess.DeleteSnapshotClone(delCloneOptions)
+					if err != nil {
+						return fmt.Errorf("Error while removing Snapshot (%s) clone (%s) : %q", d.Id(), remove[i], err)
+					}
+					_, err = isWaitForCloneDeleted(sess, d, d.Id(), remove[i])
+					if err != nil {
+						return err
+					}
+				}
+			}
+		}
 	}
 	return nil
 }
@@ -375,6 +453,54 @@ func isSnapshotUpdateRefreshFunc(sess *vpcv1.VpcV1, id string) resource.StateRef
 
 		return snapshot, isSnapshotUpdating, nil
 	}
+}
+func isWaitForCloneAvailable(sess *vpcv1.VpcV1, d *schema.ResourceData, id, zoneName string) (interface{}, error) {
+	log.Printf("Waiting for Snapshot (%s) clone (%s) to be available.", id, zoneName)
+
+	stateConf := &resource.StateChangeConf{
+		Pending:    []string{"false"},
+		Target:     []string{"true"},
+		Refresh:    isSnapshotCloneRefreshFunc(sess, id, zoneName),
+		Timeout:    d.Timeout(schema.TimeoutUpdate),
+		Delay:      10 * time.Second,
+		MinTimeout: 10 * time.Second,
+	}
+	return stateConf.WaitForState()
+}
+
+func isSnapshotCloneRefreshFunc(sess *vpcv1.VpcV1, id, zoneName string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		getSnapshotCloneOptions := &vpcv1.GetSnapshotCloneOptions{
+			ID:       &id,
+			ZoneName: &zoneName,
+		}
+		clone, response, err := sess.GetSnapshotClone(getSnapshotCloneOptions)
+		if err != nil {
+			return nil, "failure", fmt.Errorf("Error getting Snapshot clone : %s\n%s", err, response)
+		}
+		if response.StatusCode == 404 {
+			return nil, "deleted", nil
+		}
+
+		if *clone.Available == true {
+			return clone, "true", nil
+		}
+
+		return clone, "false", nil
+	}
+}
+func isWaitForCloneDeleted(sess *vpcv1.VpcV1, d *schema.ResourceData, id, zoneName string) (interface{}, error) {
+	log.Printf("Waiting for Snapshot (%s) clone (%s) to be deleted.", id, zoneName)
+
+	stateConf := &resource.StateChangeConf{
+		Pending:    []string{"true", "false"},
+		Target:     []string{"deleted"},
+		Refresh:    isSnapshotCloneRefreshFunc(sess, id, zoneName),
+		Timeout:    d.Timeout(schema.TimeoutUpdate),
+		Delay:      10 * time.Second,
+		MinTimeout: 10 * time.Second,
+	}
+	return stateConf.WaitForState()
 }
 
 func resourceIBMISSnapshotDelete(d *schema.ResourceData, meta interface{}) error {

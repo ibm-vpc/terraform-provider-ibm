@@ -27,6 +27,7 @@ In addition to all argument reference list, you can access the following attribu
   Nested scheme for `snapshots`:
   - `id` - (String) The unique identifier for this snapshot.
   - `bootable` - (Bool) Indicates if a boot volume attachment can be created with a volume created from this snapshot.
+  - `clones` - (List) The list of zones where clones of this snapshot exist.
   - `crn` - (String) The CRN for this snapshot.
   - `encryption` - (String) The type of encryption used on the source volume. Supported values are **provider_managed**, **user_managed** ]).
   - `href` - (String) The URL for this snapshot.
