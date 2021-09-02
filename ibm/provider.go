@@ -298,6 +298,7 @@ func Provider() *schema.Provider {
 			"ibm_is_security_group":                  dataSourceIBMISSecurityGroup(),
 			"ibm_is_security_group_target":           dataSourceIBMISSecurityGroupTarget(),
 			"ibm_is_security_group_targets":          dataSourceIBMISSecurityGroupTargets(),
+			"ibm_is_snapshot_clone":                  dataSourceSnapshotClone(),
 			"ibm_is_snapshot_clones":                 dataSourceSnapshotClones(),
 			"ibm_is_snapshot":                        dataSourceSnapshot(),
 			"ibm_is_snapshots":                       dataSourceSnapshots(),

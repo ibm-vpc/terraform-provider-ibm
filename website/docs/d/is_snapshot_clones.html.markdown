@@ -32,7 +32,7 @@ In addition to all argument reference list, you can access the following attribu
 - `clones` - (List) List of snapshots in the IBM Cloud Infrastructure.
   
   Nested scheme for `clones`:
-  - `available` - (Bool) Indicates whether this snapshot clone is available for use..
-  - `created_at` - (String) The date and time that this snapshot clone was created..
-  - `zone` - (String) The zone this snapshot clone resides in..
+  - `available` - (Bool) Indicates whether this snapshot clone is available for use.
+  - `created_at` - (String) The date and time that this snapshot clone was created.
+  - `zone` - (String) The zone this snapshot clone resides in.
 
