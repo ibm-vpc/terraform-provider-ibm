@@ -45,7 +45,7 @@ Review the argument references that you can specify for your resource.
 
 - `logging`- (Optional, Bool) Enable or disable datapath logging for the load balancer. This is applicable only for application load balancer. Supported values are **true** or **false**. Default value is **false**.
 - `name` - (Required, String) The name of the VPC load balancer.
-- `profile` - (Required, Forces new resource, String) The profile to use for this load balancer. Supported value is `network-fixed`.
+- `profile` - (Optional, Forces new resource, String) For a Network Load Balancer, this attribute is required and should be set to `network-fixed`. For Application Load Balancer, profile is not a required attribute.
 - `resource_group` - (Optional, Forces new resource, String) The resource group where the load balancer to be created.
 - `security_groups`  (Optional, List) A list of security groups to use for this load balancer. This option is supported only for application load balancers.
 - `subnets` - (Required, List) List of the subnets IDs to connect to the load balancer.
@@ -60,6 +60,8 @@ In addition to all argument reference list, you can access the following attribu
 - `operating_status` - (String) The operating status of this load balancer.
 - `public_ips` - (String) The public IP addresses assigned to this load balancer.
 - `private_ips` - (String) The private IP addresses assigned to this load balancer.
+- `resource_controller_url` - (String) The URL of the IBM Cloud dashboard that can be used to explore and view details about this instance.
+- `resource_group_name` - (String) The name of the resource group where the load balancer is created.
 - `status` - (String) The status of the load balancer.
 - `security_groups_supported`- (Bool) Indicates if this load balancer supports security groups.
 
