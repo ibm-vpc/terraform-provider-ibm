@@ -706,3 +706,24 @@ data "ibm_is_placement_groups" "is_placement_groups" {
 ## List regions 
 data "ibm_is_regions" "regions" {
 }
+
+data "ibm_is_ike_policies" "example" {
+}
+data "ibm_is_ipsec_policies" "example" {
+}
+
+data "ibm_is_ike_policy" "example" {
+  ike_policy = ibm_is_ike_policy.example.id
+}
+
+data "ibm_is_ipsec_policy" "example1" {
+  ipsec_policy = ibm_is_ipsec_policy.example.id
+}
+
+data "ibm_is_ike_policy" "example2" {
+  name = "my-ike-policy"
+}
+
+data "ibm_is_ipsec_policy" "example3" {
+  name = "my-ipsec-policy"
+}
