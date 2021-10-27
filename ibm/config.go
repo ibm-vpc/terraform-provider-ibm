@@ -2511,6 +2511,11 @@ func (c *Config) ClientSession() (interface{}, error) {
 	} else {
 		session.postureManagementClientErr = fmt.Errorf("Error occurred while configuring Posture Management service: %q", err)
 	}
+	if os.Getenv("TF_LOG") != "" {
+		logDestination := log.Writer()
+		goLogger := log.New(logDestination, "", log.LstdFlags)
+		core.SetLogger(core.NewLogger(core.LevelDebug, goLogger, goLogger))
+	}
 	return session, nil
 }
 
