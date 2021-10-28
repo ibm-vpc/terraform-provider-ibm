@@ -83,3 +83,4 @@ In addition to all argument reference list, you can access the following attribu
 - `resource_type` - (String) The resource type.
 - `size` - (Integer) The size of this snapshot rounded up to the next gigabyte.
 - `source_image` - (String) If present, the unique identifier for the image from which the data on this volume was most directly provisioned.
+- `tags`- (Array of Strings) A list of tags associated with the snapshot. Tags can help you find the snapshot easily.

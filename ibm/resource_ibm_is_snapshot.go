@@ -7,6 +7,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
 	"time"
 
 	"github.com/IBM/vpc-go-sdk/vpcv1"
@@ -39,6 +40,7 @@ const (
 	isSnapshotSuspended       = "suspended"
 	isSnapshotUpdating        = "updating"
 	isSnapshotWaiting         = "waiting"
+	isSnapshotTags            = "tags"
 )
 
 func resourceIBMSnapshot() *schema.Resource {
@@ -77,6 +79,15 @@ func resourceIBMSnapshot() *schema.Resource {
 				Computed:    true,
 				ForceNew:    true,
 				Description: "Resource group info",
+			},
+
+			isSnapshotTags: {
+				Type:        schema.TypeSet,
+				Optional:    true,
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString, ValidateFunc: InvokeValidator("ibm_is_snapshot", "tag")},
+				Set:         resourceIBMVPCHash,
+				Description: "List of tags",
 			},
 
 			isSnapshotSourceVolume: {
@@ -163,6 +174,16 @@ func resourceIBMISSnapshotValidator() *ResourceValidator {
 			Regexp:                     `^([a-z]|[a-z][-a-z0-9]*[a-z0-9])$`,
 			MinValueLength:             1,
 			MaxValueLength:             63})
+
+	validateSchema = append(validateSchema,
+		ValidateSchema{
+			Identifier:                 "tag",
+			ValidateFunctionIdentifier: ValidateRegexpLen,
+			Type:                       TypeString,
+			Optional:                   true,
+			Regexp:                     `^[A-Za-z0-9:_ .-]+$`,
+			MinValueLength:             1,
+			MaxValueLength:             128})
 	ibmISSnapshotResourceValidator := ResourceValidator{ResourceName: "ibm_is_snapshot", Schema: validateSchema}
 	return &ibmISSnapshotResourceValidator
 }
@@ -204,6 +225,16 @@ func resourceIBMISSnapshotCreate(d *schema.ResourceData, meta interface{}) error
 
 	if err != nil {
 		return err
+	}
+
+	v := os.Getenv("IC_ENV_TAGS")
+	if _, ok := d.GetOk(isSnapshotTags); ok || v != "" {
+		oldList, newList := d.GetChange(isSnapshotTags)
+		err = UpdateGlobalTagsUsingCRN(oldList, newList, meta, *snapshot.CRN, "", isUserTagType)
+		if err != nil {
+			log.Printf(
+				"Error on create of resource snapshot (%s) tags: %s", d.Id(), err)
+		}
 	}
 
 	return resourceIBMISSnapshotRead(d, meta)
@@ -294,6 +325,12 @@ func snapshotGet(d *schema.ResourceData, meta interface{}, id string) error {
 	if snapshot.OperatingSystem != nil && snapshot.OperatingSystem.Name != nil {
 		d.Set(isSnapshotOperatingSystem, *snapshot.OperatingSystem.Name)
 	}
+	tags, err := GetGlobalTagsUsingCRN(meta, *snapshot.CRN, "", isUserTagType)
+	if err != nil {
+		log.Printf(
+			"Error on get of resource snapshot (%s) tags: %s", d.Id(), err)
+	}
+	d.Set(isSnapshotTags, tags)
 	return nil
 }
 
@@ -340,6 +377,16 @@ func snapshotUpdate(d *schema.ResourceData, meta interface{}, id, name string, h
 			return err
 		}
 	}
+
+	if d.HasChange(isSnapshotTags) {
+		oldList, newList := d.GetChange(isSnapshotTags)
+		err := UpdateGlobalTagsUsingCRN(oldList, newList, meta, d.Get(isSnapshotCRN).(string), "", isUserTagType)
+		if err != nil {
+			log.Printf(
+				"Error on update of resource snapshot (%s) tags: %s", d.Id(), err)
+		}
+	}
+
 	return nil
 }
 

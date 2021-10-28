@@ -5,6 +5,7 @@ package ibm
 
 import (
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/IBM/vpc-go-sdk/vpcv1"
@@ -50,6 +51,15 @@ func dataSourceSnapshots() *schema.Resource {
 							Computed:    true,
 							Description: "Snapshot source volume",
 						},
+
+						isSnapshotTags: {
+							Type:        schema.TypeSet,
+							Computed:    true,
+							Elem:        &schema.Schema{Type: schema.TypeString},
+							Set:         resourceIBMVPCHash,
+							Description: "List of tags",
+						},
+
 						isSnapshotSourceImage: {
 							Type:        schema.TypeString,
 							Computed:    true,
@@ -169,6 +179,12 @@ func getSnapshots(d *schema.ResourceData, meta interface{}) error {
 		if snapshot.OperatingSystem != nil && snapshot.OperatingSystem.Name != nil {
 			l[isSnapshotOperatingSystem] = *snapshot.OperatingSystem.Name
 		}
+		tags, err := GetGlobalTagsUsingCRN(meta, *snapshot.CRN, "", isUserTagType)
+		if err != nil {
+			log.Printf(
+				"An error occured during reading of snapshot (%s) tags : %s", d.Id(), err)
+		}
+		l[isSnapshotTags] = tags
 		snapshotsInfo = append(snapshotsInfo, l)
 	}
 	d.SetId(dataSourceIBMISSnapshotsID(d))

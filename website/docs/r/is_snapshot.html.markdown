@@ -71,6 +71,7 @@ Review the argument references that you can specify for your resource.
 - `name` - (Optional, String) The name of the snapshot.
 - `resource_group` - (Optional, Forces new resource, String) The resource group ID where the snapshot is to be created
 - `source_volume` - (Required, Forces new resource, String) The unique identifier for the volume for which snapshot is to be created. 
+- `tags`- (Optional, Array of Strings) A list of tags that you want to add to the snapshot. Tags can help you find the snapshot easily later.
 
 ## Attribute reference
 In addition to all argument reference list, you can access the following attribute reference after your resource is created.

@@ -5,6 +5,7 @@ package ibm
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/IBM/vpc-go-sdk/vpcv1"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -35,6 +36,14 @@ func dataSourceSnapshot() *schema.Resource {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "Resource group info",
+			},
+
+			isSnapshotTags: {
+				Type:        schema.TypeSet,
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         resourceIBMVPCHash,
+				Description: "List of tags",
 			},
 
 			isSnapshotSourceVolume: {
@@ -176,6 +185,12 @@ func snapshotGetByNameOrID(d *schema.ResourceData, meta interface{}, name, id st
 				if snapshot.OperatingSystem != nil && snapshot.OperatingSystem.Name != nil {
 					d.Set(isSnapshotOperatingSystem, *snapshot.OperatingSystem.Name)
 				}
+				tags, err := GetGlobalTagsUsingCRN(meta, *snapshot.CRN, "", isUserTagType)
+				if err != nil {
+					log.Printf(
+						"An error occured during reading of snapshot (%s) tags : %s", d.Id(), err)
+				}
+				d.Set(isSnapshotTags, tags)
 				return nil
 			}
 		}
@@ -213,6 +228,12 @@ func snapshotGetByNameOrID(d *schema.ResourceData, meta interface{}, name, id st
 		if snapshot.OperatingSystem != nil && snapshot.OperatingSystem.Name != nil {
 			d.Set(isSnapshotOperatingSystem, *snapshot.OperatingSystem.Name)
 		}
+		tags, err := GetGlobalTagsUsingCRN(meta, *snapshot.CRN, "", isUserTagType)
+		if err != nil {
+			log.Printf(
+				"An error occured during reading of snapshot (%s) tags : %s", d.Id(), err)
+		}
+		d.Set(isSnapshotTags, tags)
 		return nil
 	}
 }
