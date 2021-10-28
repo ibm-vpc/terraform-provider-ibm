@@ -40,7 +40,6 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCKVmnMOlHKcZK8tpt3MP1lqOLAcqcJzhsvJcjscgVE
 			{
 				Config: testDSCheckIBMISSnapshotsConfig(),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttrSet(snpName, "snapshots.0.delatable"),
 					resource.TestCheckResourceAttrSet(snpName, "snapshots.0.href"),
 					resource.TestCheckResourceAttrSet(snpName, "snapshots.0.crn"),
 					resource.TestCheckResourceAttrSet(snpName, "snapshots.0.lifecycle_state"),
