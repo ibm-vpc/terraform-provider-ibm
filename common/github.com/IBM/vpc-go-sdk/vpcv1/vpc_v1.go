@@ -9155,8 +9155,8 @@ func (vpc *VpcV1) ListBackupPolicyJobsWithContext(ctx context.Context, listBacku
 	}
 	builder.AddHeader("Accept", "application/json")
 
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
-	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+	builder.AddQuery("version", "2021-07-22")
+	builder.AddQuery("generation", "2")
 
 	request, err := builder.Build()
 	if err != nil {

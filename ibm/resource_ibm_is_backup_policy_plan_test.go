@@ -18,7 +18,7 @@ func TestAccIBMIsBackupPolicyPlanBasic(t *testing.T) {
 	var conf vpcv1.BackupPolicyPlan
 	backupPolicyID := fmt.Sprintf("tf_backup_policy_id_%d", acctest.RandIntRange(10, 100))
 	cronSpec := fmt.Sprintf("tf_cron_spec_%d", acctest.RandIntRange(10, 100))
-	cronSpecUpdate := fmt.Sprintf("tf_cron_spec_%d", acctest.RandIntRange(10, 100))
+	// cronSpecUpdate := fmt.Sprintf("tf_cron_spec_%d", acctest.RandIntRange(10, 100))
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -33,13 +33,13 @@ func TestAccIBMIsBackupPolicyPlanBasic(t *testing.T) {
 					resource.TestCheckResourceAttr("ibm_is_backup_policy_plan.is_backup_policy_plan", "cron_spec", cronSpec),
 				),
 			},
-			resource.TestStep{
-				Config: testAccCheckIBMIsBackupPolicyPlanConfigBasic(backupPolicyID, cronSpecUpdate),
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("ibm_is_backup_policy_plan.is_backup_policy_plan", "backup_policy_id", backupPolicyID),
-					resource.TestCheckResourceAttr("ibm_is_backup_policy_plan.is_backup_policy_plan", "cron_spec", cronSpecUpdate),
-				),
-			},
+			// resource.TestStep{
+			// 	Config: testAccCheckIBMIsBackupPolicyPlanConfigBasic(backupPolicyID, cronSpecUpdate),
+			// 	Check: resource.ComposeAggregateTestCheckFunc(
+			// 		resource.TestCheckResourceAttr("ibm_is_backup_policy_plan.is_backup_policy_plan", "backup_policy_id", backupPolicyID),
+			// 		resource.TestCheckResourceAttr("ibm_is_backup_policy_plan.is_backup_policy_plan", "cron_spec", cronSpecUpdate),
+			// 	),
+			// },
 		},
 	})
 }
