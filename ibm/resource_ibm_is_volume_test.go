@@ -132,6 +132,48 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCKVmnMOlHKcZK8tpt3MP1lqOLAcqcJzhsvJcjscgVE
 	})
 }
 
+func TestAccIBMISVolumeUsertag_basic(t *testing.T) {
+	var vol string
+	name := fmt.Sprintf("tf-vol-%d", acctest.RandIntRange(10, 100))
+	// name1 := fmt.Sprintf("tf-vol-upd-%d", acctest.RandIntRange(10, 100))
+	tagname := fmt.Sprintf("tfusertag%d", acctest.RandIntRange(10, 100))
+	tagnameupdate := fmt.Sprintf("tfusertagupd%d", acctest.RandIntRange(10, 100))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckIBMISVolumeDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccCheckIBMISVolumeUsertagConfig(name, tagname),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckIBMISVolumeExists("ibm_is_volume.storage", vol),
+					resource.TestCheckResourceAttr(
+						"ibm_is_volume.storage", "name", name),
+					resource.TestCheckResourceAttrSet(
+						"ibm_is_volume.storage", "tags.#"),
+					resource.TestCheckResourceAttrSet(
+						"ibm_is_volume.storage", "tags.0"),
+					resource.TestCheckResourceAttr(
+						"ibm_is_volume.storage", "tags.0", tagname),
+				),
+			},
+
+			resource.TestStep{
+				Config: testAccCheckIBMISVolumeUsertagConfig(name, tagnameupdate),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckIBMISVolumeExists("ibm_is_volume.storage", vol),
+					resource.TestCheckResourceAttrSet(
+						"ibm_is_volume.storage", "tags.#"),
+					resource.TestCheckResourceAttrSet(
+						"ibm_is_volume.storage", "tags.0"),
+					resource.TestCheckResourceAttr(
+						"ibm_is_volume.storage", "tags.0", tagnameupdate),
+				),
+			},
+		},
+	})
+}
 func TestAccIBMISVolumeUpdateCapacity_basic(t *testing.T) {
 	var vol string
 	vpcname := fmt.Sprintf("tf-vpc-%d", acctest.RandIntRange(10, 100))
@@ -276,6 +318,20 @@ func testAccCheckIBMISVolumeConfig(name string) string {
 		# capacity= 200
 	}
 `, name)
+
+}
+
+func testAccCheckIBMISVolumeUsertagConfig(name, usertag string) string {
+	return fmt.Sprintf(
+		`
+    resource "ibm_is_volume" "storage"{
+        name = "%s"
+        profile = "10iops-tier"
+        zone = "us-south-1"
+        # capacity= 200
+        tags = ["%s"]
+    }
+`, name, usertag)
 
 }
 
