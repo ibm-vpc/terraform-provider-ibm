@@ -1181,7 +1181,7 @@ var _ = Describe(`VpcV1 Examples Tests`, func() {
 			// begin-create_key
 
 			createKeyOptions := vpcService.NewCreateKeyOptions(
-				"AAAAB3NzaC1yc2EAAAADAQABAAABAQDDGe50Bxa5T5NDddrrtbx2Y4/VGbiCgXqnBsYToIUKoFSHTQl5IX3PasGnneKanhcLwWz5M5MoCRvhxTp66NKzIfAz7r+FX9rxgR+ZgcM253YAqOVeIpOU408simDZKriTlN8kYsXL7P34tsWuAJf4MgZtJAQxous/2byetpdCv8ddnT4X3ltOg9w+LqSCPYfNivqH00Eh7S1Ldz7I8aw5WOp5a+sQFP/RbwfpwHp+ny7DfeIOokcuI42tJkoBn7UsLTVpCSmXr2EDRlSWe/1M/iHNRBzaT3CK0+SwZWd2AEjePxSnWKNGIEUJDlUYp7hKhiQcgT5ZAnWU121oc5En",
+				"ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDDGe50Bxa5T5NDddrrtbx2Y4/VGbiCgXqnBsYToIUKoFSHTQl5IX3PasGnneKanhcLwWz5M5MoCRvhxTp66NKzIfAz7r+FX9rxgR+ZgcM253YAqOVeIpOU408simDZKriTlN8kYsXL7P34tsWuAJf4MgZtJAQxous/2byetpdCv8ddnT4X3ltOg9w+LqSCPYfNivqH00Eh7S1Ldz7I8aw5WOp5a+sQFP/RbwfpwHp+ny7DfeIOokcuI42tJkoBn7UsLTVpCSmXr2EDRlSWe/1M/iHNRBzaT3CK0+SwZWd2AEjePxSnWKNGIEUJDlUYp7hKhiQcgT5ZAnWU121oc5En",
 			)
 
 			key, response, err := vpcService.CreateKey(createKeyOptions)
@@ -4052,8 +4052,8 @@ var _ = Describe(`VpcV1 Examples Tests`, func() {
 
 			createIkePolicyOptions := vpcService.NewCreateIkePolicyOptions(
 				"md5",
-				int64(2),
-				"triple_des",
+				int64(14),
+				"aes128",
 				int64(1),
 			)
 
@@ -4164,7 +4164,7 @@ var _ = Describe(`VpcV1 Examples Tests`, func() {
 
 			createIpsecPolicyOptions := vpcService.NewCreateIpsecPolicyOptions(
 				"md5",
-				"triple_des",
+				"aes128",
 				"disabled",
 			)
 
@@ -4776,7 +4776,6 @@ var _ = Describe(`VpcV1 Examples Tests`, func() {
 
 			createLoadBalancerListenerOptions := vpcService.NewCreateLoadBalancerListenerOptions(
 				"testString",
-				int64(443),
 				"http",
 			)
 
@@ -4979,7 +4978,7 @@ var _ = Describe(`VpcV1 Examples Tests`, func() {
 				"testString",
 				"testString",
 				"contains",
-				"header",
+				"body",
 				"testString",
 			)
 

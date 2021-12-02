@@ -154,6 +154,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(201))
 			Expect(vpc).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			//
 		})
 	})
 
@@ -173,6 +179,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(vpc).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -199,6 +211,13 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(vpc).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			// 404
+			//
 		})
 	})
 
@@ -218,6 +237,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(defaultNetworkACL).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -237,6 +262,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(defaultRoutingTable).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -256,6 +287,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(defaultSecurityGroup).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -289,6 +326,13 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 				if listVPCAddressPrefixesOptions.Start == nil {
 					break
 				}
+
+				//
+				// The following status codes aren't covered by tests.
+				// Please provide integration tests for these too.
+				//
+				// 404
+				//
 			}
 		})
 	})
@@ -317,6 +361,14 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(201))
 			Expect(addressPrefix).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			// 404
+			// 409
+			//
 		})
 	})
 
@@ -337,6 +389,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(addressPrefix).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -365,6 +423,14 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(addressPrefix).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			// 404
+			// 409
+			//
 		})
 	})
 
@@ -399,6 +465,13 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 				if listVPCRoutesOptions.Start == nil {
 					break
 				}
+
+				//
+				// The following status codes aren't covered by tests.
+				// Please provide integration tests for these too.
+				//
+				// 404
+				//
 			}
 		})
 	})
@@ -432,6 +505,14 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(201))
 			Expect(route).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			// 404
+			// 409
+			//
 		})
 	})
 
@@ -452,6 +533,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(route).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -479,6 +566,14 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(route).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			// 404
+			// 409
+			//
 		})
 	})
 
@@ -513,6 +608,13 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 				if listVPCRoutingTablesOptions.Start == nil {
 					break
 				}
+
+				//
+				// The following status codes aren't covered by tests.
+				// Please provide integration tests for these too.
+				//
+				// 404
+				//
 			}
 		})
 	})
@@ -554,6 +656,13 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(201))
 			Expect(routingTable).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			// 404
+			//
 		})
 	})
 
@@ -574,6 +683,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(routingTable).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -604,6 +719,14 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(routingTable).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			// 404
+			// 409
+			//
 		})
 	})
 
@@ -638,6 +761,13 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 				if listVPCRoutingTableRoutesOptions.Start == nil {
 					break
 				}
+
+				//
+				// The following status codes aren't covered by tests.
+				// Please provide integration tests for these too.
+				//
+				// 404
+				//
 			}
 		})
 	})
@@ -672,6 +802,13 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(201))
 			Expect(route).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			// 404
+			//
 		})
 	})
 
@@ -693,6 +830,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(route).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -721,6 +864,14 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(route).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			// 404
+			// 409
+			//
 		})
 	})
 
@@ -812,6 +963,13 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(201))
 			Expect(subnet).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			// 409
+			//
 		})
 	})
 
@@ -831,6 +989,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(subnet).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -872,6 +1036,13 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(subnet).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			// 404
+			//
 		})
 	})
 
@@ -891,6 +1062,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(networkACL).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -915,6 +1092,13 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(201))
 			Expect(networkACL).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			// 404
+			//
 		})
 	})
 
@@ -934,6 +1118,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(publicGateway).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -958,6 +1148,13 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(201))
 			Expect(publicGateway).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			// 404
+			//
 		})
 	})
 
@@ -977,6 +1174,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(routingTable).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -1001,6 +1204,13 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(201))
 			Expect(routingTable).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			// 404
+			//
 		})
 	})
 
@@ -1062,6 +1272,13 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(201))
 			Expect(reservedIP).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			// 409
+			//
 		})
 	})
 
@@ -1082,6 +1299,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(reservedIP).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -1110,6 +1333,15 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(reservedIP).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			// 403
+			// 404
+			// 409
+			//
 		})
 	})
 
@@ -1190,6 +1422,13 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(201))
 			Expect(image).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			// 409
+			//
 		})
 	})
 
@@ -1209,6 +1448,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(image).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -1235,6 +1480,15 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(image).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			// 403
+			// 404
+			// 409
+			//
 		})
 	})
 
@@ -1287,6 +1541,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(operatingSystem).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -1298,9 +1558,8 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			var result vpcv1.KeyCollection
 
 			listKeysOptions := &vpcv1.ListKeysOptions{
-				Start:           core.StringPtr("testString"),
-				Limit:           core.Int64Ptr(int64(1)),
-				ResourceGroupID: core.StringPtr("testString"),
+				Start: core.StringPtr("testString"),
+				Limit: core.Int64Ptr(int64(1)),
 			}
 
 			listKeysOptions.Start = nil
@@ -1335,7 +1594,7 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			}
 
 			createKeyOptions := &vpcv1.CreateKeyOptions{
-				PublicKey:     core.StringPtr("AAAAB3NzaC1yc2EAAAADAQABAAABAQDDGe50Bxa5T5NDddrrtbx2Y4/VGbiCgXqnBsYToIUKoFSHTQl5IX3PasGnneKanhcLwWz5M5MoCRvhxTp66NKzIfAz7r+FX9rxgR+ZgcM253YAqOVeIpOU408simDZKriTlN8kYsXL7P34tsWuAJf4MgZtJAQxous/2byetpdCv8ddnT4X3ltOg9w+LqSCPYfNivqH00Eh7S1Ldz7I8aw5WOp5a+sQFP/RbwfpwHp+ny7DfeIOokcuI42tJkoBn7UsLTVpCSmXr2EDRlSWe/1M/iHNRBzaT3CK0+SwZWd2AEjePxSnWKNGIEUJDlUYp7hKhiQcgT5ZAnWU121oc5En"),
+				PublicKey:     core.StringPtr("ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDDGe50Bxa5T5NDddrrtbx2Y4/VGbiCgXqnBsYToIUKoFSHTQl5IX3PasGnneKanhcLwWz5M5MoCRvhxTp66NKzIfAz7r+FX9rxgR+ZgcM253YAqOVeIpOU408simDZKriTlN8kYsXL7P34tsWuAJf4MgZtJAQxous/2byetpdCv8ddnT4X3ltOg9w+LqSCPYfNivqH00Eh7S1Ldz7I8aw5WOp5a+sQFP/RbwfpwHp+ny7DfeIOokcuI42tJkoBn7UsLTVpCSmXr2EDRlSWe/1M/iHNRBzaT3CK0+SwZWd2AEjePxSnWKNGIEUJDlUYp7hKhiQcgT5ZAnWU121oc5En"),
 				Name:          core.StringPtr("my-key"),
 				ResourceGroup: resourceGroupIdentityModel,
 				Type:          core.StringPtr("rsa"),
@@ -1347,6 +1606,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(201))
 			Expect(key).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			//
 		})
 	})
 
@@ -1366,6 +1631,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(key).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -1392,6 +1663,13 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(key).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			// 404
+			//
 		})
 	})
 
@@ -1428,6 +1706,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(instanceProfile).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -1537,6 +1821,7 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 				PlacementTarget:         instancePlacementTargetPrototypeModel,
 				Profile:                 instanceProfileIdentityModel,
 				ResourceGroup:           resourceGroupIdentityModel,
+				TotalVolumeBandwidth:    core.Int64Ptr(int64(500)),
 				UserData:                core.StringPtr("testString"),
 				VolumeAttachments:       []vpcv1.VolumeAttachmentPrototypeInstanceContext{*volumeAttachmentPrototypeInstanceContextModel},
 				VPC:                     vpcIdentityModel,
@@ -1556,6 +1841,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(201))
 			Expect(instanceTemplate).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			//
 		})
 	})
 
@@ -1575,6 +1866,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(instanceTemplate).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -1601,6 +1898,13 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(instanceTemplate).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			// 404
+			//
 		})
 	})
 
@@ -1741,6 +2045,7 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 				PlacementTarget:         instancePlacementTargetPrototypeModel,
 				Profile:                 instanceProfileIdentityModel,
 				ResourceGroup:           resourceGroupIdentityModel,
+				TotalVolumeBandwidth:    core.Int64Ptr(int64(500)),
 				UserData:                core.StringPtr("testString"),
 				VolumeAttachments:       []vpcv1.VolumeAttachmentPrototypeInstanceContext{*volumeAttachmentPrototypeInstanceContextModel},
 				VPC:                     vpcIdentityModel,
@@ -1760,6 +2065,13 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(201))
 			Expect(instance).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			// 409
+			//
 		})
 	})
 
@@ -1779,6 +2091,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(instance).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -1793,8 +2111,9 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			}
 
 			instancePatchModel := &vpcv1.InstancePatch{
-				Name:    core.StringPtr("my-instance"),
-				Profile: instancePatchProfileModel,
+				Name:                 core.StringPtr("my-instance"),
+				Profile:              instancePatchProfileModel,
+				TotalVolumeBandwidth: core.Int64Ptr(int64(500)),
 			}
 			instancePatchModelAsPatch, asPatchErr := instancePatchModel.AsPatch()
 			Expect(asPatchErr).To(BeNil())
@@ -1810,6 +2129,14 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(instance).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			// 404
+			// 409
+			//
 		})
 	})
 
@@ -1829,6 +2156,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(instanceInitialization).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -1850,6 +2183,13 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(201))
 			Expect(instanceAction).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			// 404
+			//
 		})
 	})
 
@@ -1871,6 +2211,13 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(instanceConsoleAccessToken).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			// 404
+			//
 		})
 	})
 
@@ -1890,6 +2237,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(instanceDiskCollection).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -1910,6 +2263,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(instanceDisk).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -1937,6 +2296,13 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(instanceDisk).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			// 404
+			//
 		})
 	})
 
@@ -1956,6 +2322,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(networkInterfaceUnpaginatedCollection).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -1988,6 +2360,13 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(201))
 			Expect(networkInterface).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			// 404
+			//
 		})
 	})
 
@@ -2008,6 +2387,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(networkInterface).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -2036,6 +2421,13 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(networkInterface).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			// 404
+			//
 		})
 	})
 
@@ -2056,6 +2448,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(floatingIPUnpaginatedCollection).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -2077,6 +2475,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(floatingIP).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -2098,6 +2502,13 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(201))
 			Expect(floatingIP).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			// 404
+			//
 		})
 	})
 
@@ -2117,6 +2528,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(volumeAttachmentCollection).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -2143,6 +2560,13 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(201))
 			Expect(volumeAttachment).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			// 404
+			//
 		})
 	})
 
@@ -2163,6 +2587,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(volumeAttachment).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -2191,6 +2621,13 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(volumeAttachment).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			// 404
+			//
 		})
 	})
 
@@ -2270,6 +2707,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(201))
 			Expect(instanceGroup).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			//
 		})
 	})
 
@@ -2289,6 +2732,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(instanceGroup).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -2337,6 +2786,14 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(instanceGroup).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			// 404
+			// 409
+			//
 		})
 	})
 
@@ -2370,6 +2827,13 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 				if listInstanceGroupManagersOptions.Start == nil {
 					break
 				}
+
+				//
+				// The following status codes aren't covered by tests.
+				// Please provide integration tests for these too.
+				//
+				// 404
+				//
 			}
 		})
 	})
@@ -2401,6 +2865,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(201))
 			Expect(instanceGroupManager).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			//
 		})
 	})
 
@@ -2421,6 +2891,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(instanceGroupManager).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -2453,6 +2929,13 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(instanceGroupManager).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			// 404
+			//
 		})
 	})
 
@@ -2487,6 +2970,13 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 				if listInstanceGroupManagerActionsOptions.Start == nil {
 					break
 				}
+
+				//
+				// The following status codes aren't covered by tests.
+				// Please provide integration tests for these too.
+				//
+				// 404
+				//
 			}
 		})
 	})
@@ -2519,6 +3009,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(201))
 			Expect(instanceGroupManagerAction).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			//
 		})
 	})
 
@@ -2540,6 +3036,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(instanceGroupManagerAction).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -2581,6 +3083,13 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(instanceGroupManagerAction).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			// 404
+			//
 		})
 	})
 
@@ -2615,6 +3124,13 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 				if listInstanceGroupManagerPoliciesOptions.Start == nil {
 					break
 				}
+
+				//
+				// The following status codes aren't covered by tests.
+				// Please provide integration tests for these too.
+				//
+				// 404
+				//
 			}
 		})
 	})
@@ -2644,6 +3160,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(201))
 			Expect(instanceGroupManagerPolicy).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			//
 		})
 	})
 
@@ -2665,6 +3187,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(instanceGroupManagerPolicy).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -2695,6 +3223,13 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(instanceGroupManagerPolicy).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			// 404
+			//
 		})
 	})
 
@@ -2728,6 +3263,13 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 				if listInstanceGroupMembershipsOptions.Start == nil {
 					break
 				}
+
+				//
+				// The following status codes aren't covered by tests.
+				// Please provide integration tests for these too.
+				//
+				// 404
+				//
 			}
 		})
 	})
@@ -2749,6 +3291,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(instanceGroupMembership).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -2776,6 +3324,13 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(instanceGroupMembership).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			// 404
+			//
 		})
 	})
 
@@ -2791,6 +3346,7 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 				Limit:           core.Int64Ptr(int64(1)),
 				ResourceGroupID: core.StringPtr("testString"),
 				ZoneName:        core.StringPtr("testString"),
+				Name:            core.StringPtr("testString"),
 			}
 
 			listDedicatedHostGroupsOptions.Start = nil
@@ -2842,6 +3398,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(201))
 			Expect(dedicatedHostGroup).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			//
 		})
 	})
 
@@ -2861,6 +3423,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(dedicatedHostGroup).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -2887,6 +3455,14 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(dedicatedHostGroup).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			// 404
+			// 409
+			//
 		})
 	})
 
@@ -2939,6 +3515,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(dedicatedHostProfile).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -2955,6 +3537,7 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 				Limit:                core.Int64Ptr(int64(1)),
 				ResourceGroupID:      core.StringPtr("testString"),
 				ZoneName:             core.StringPtr("testString"),
+				Name:                 core.StringPtr("testString"),
 			}
 
 			listDedicatedHostsOptions.Start = nil
@@ -3014,6 +3597,13 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(201))
 			Expect(dedicatedHost).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			// 409
+			//
 		})
 	})
 
@@ -3033,6 +3623,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(dedicatedHostDiskCollection).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -3053,6 +3649,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(dedicatedHostDisk).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -3080,6 +3682,13 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(dedicatedHostDisk).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			// 404
+			//
 		})
 	})
 
@@ -3099,6 +3708,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(dedicatedHost).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -3126,6 +3741,13 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(dedicatedHost).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			// 404
+			//
 		})
 	})
 
@@ -3184,6 +3806,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(201))
 			Expect(placementGroup).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			//
 		})
 	})
 
@@ -3203,6 +3831,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(placementGroup).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -3229,6 +3863,13 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(placementGroup).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			// 404
+			//
 		})
 	})
 
@@ -3281,6 +3922,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(volumeProfile).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -3361,6 +4008,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(201))
 			Expect(volume).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			//
 		})
 	})
 
@@ -3380,6 +4033,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(volume).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -3389,8 +4048,15 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 		})
 		It(`UpdateVolume(updateVolumeOptions *UpdateVolumeOptions)`, func() {
 
+			volumeProfileIdentityModel := &vpcv1.VolumeProfileIdentityByName{
+				Name: core.StringPtr("general-purpose"),
+			}
+
 			volumePatchModel := &vpcv1.VolumePatch{
-				Name: core.StringPtr("my-volume"),
+				Capacity: core.Int64Ptr(int64(100)),
+				Iops:     core.Int64Ptr(int64(10000)),
+				Name:     core.StringPtr("my-volume"),
+				Profile:  volumeProfileIdentityModel,
 			}
 			volumePatchModelAsPatch, asPatchErr := volumePatchModel.AsPatch()
 			Expect(asPatchErr).To(BeNil())
@@ -3406,6 +4072,13 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(volume).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			// 404
+			//
 		})
 	})
 
@@ -3484,6 +4157,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(201))
 			Expect(snapshot).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			//
 		})
 	})
 
@@ -3503,6 +4182,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(snapshot).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -3529,10 +4214,17 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(snapshot).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			// 404
+			//
 		})
 	})
 
-	Describe(`ListSnapshotClones - List all zonal snapshot clones`, func() {
+	Describe(`ListSnapshotClones - List all clones for a snapshot`, func() {
 		BeforeEach(func() {
 			shouldSkipTest()
 		})
@@ -3548,10 +4240,16 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(snapshotCloneCollection).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
-	Describe(`GetSnapshotClone - Retrieve a zonal snapshot clone`, func() {
+	Describe(`GetSnapshotClone - Retrieve a snapshot clone`, func() {
 		BeforeEach(func() {
 			shouldSkipTest()
 		})
@@ -3568,10 +4266,16 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(snapshotClone).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
-	Describe(`CreateSnapshotClone - Create a zonal snapshot clone`, func() {
+	Describe(`CreateSnapshotClone - Create a clone for a snapshot`, func() {
 		BeforeEach(func() {
 			shouldSkipTest()
 		})
@@ -3588,6 +4292,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(snapshotClone).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -3624,6 +4334,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(region).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -3643,6 +4359,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(zoneCollection).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -3663,6 +4385,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(zone).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -3736,6 +4464,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(201))
 			Expect(publicGateway).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			//
 		})
 	})
 
@@ -3755,6 +4489,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(publicGateway).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -3781,6 +4521,13 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(publicGateway).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			// 404
+			//
 		})
 	})
 
@@ -3848,6 +4595,13 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(201))
 			Expect(floatingIP).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			// 409
+			//
 		})
 	})
 
@@ -3867,6 +4621,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(floatingIP).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -3898,6 +4658,14 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(floatingIP).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			// 404
+			// 409
+			//
 		})
 	})
 
@@ -3977,6 +4745,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(201))
 			Expect(networkACL).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			//
 		})
 	})
 
@@ -3996,6 +4770,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(networkACL).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -4022,6 +4802,13 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(networkACL).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			// 404
+			//
 		})
 	})
 
@@ -4056,6 +4843,13 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 				if listNetworkACLRulesOptions.Start == nil {
 					break
 				}
+
+				//
+				// The following status codes aren't covered by tests.
+				// Please provide integration tests for these too.
+				//
+				// 404
+				//
 			}
 		})
 	})
@@ -4091,6 +4885,13 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(201))
 			Expect(networkACLRule).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			// 404
+			//
 		})
 	})
 
@@ -4111,6 +4912,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(networkACLRule).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -4153,6 +4960,13 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(networkACLRule).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			// 404
+			//
 		})
 	})
 
@@ -4233,6 +5047,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(201))
 			Expect(securityGroup).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			//
 		})
 	})
 
@@ -4252,6 +5072,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(securityGroup).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -4278,6 +5104,13 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(securityGroup).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			// 404
+			//
 		})
 	})
 
@@ -4311,6 +5144,13 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 				if listSecurityGroupNetworkInterfacesOptions.Start == nil {
 					break
 				}
+
+				//
+				// The following status codes aren't covered by tests.
+				// Please provide integration tests for these too.
+				//
+				// 404
+				//
 			}
 		})
 	})
@@ -4332,6 +5172,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(networkInterface).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -4352,6 +5198,13 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(201))
 			Expect(networkInterface).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			// 404
+			//
 		})
 	})
 
@@ -4371,6 +5224,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(securityGroupRuleCollection).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -4404,6 +5263,13 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(201))
 			Expect(securityGroupRule).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			// 404
+			//
 		})
 	})
 
@@ -4424,6 +5290,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(securityGroupRule).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -4461,6 +5333,13 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(securityGroupRule).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			// 404
+			//
 		})
 	})
 
@@ -4494,6 +5373,13 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 				if listSecurityGroupTargetsOptions.Start == nil {
 					break
 				}
+
+				//
+				// The following status codes aren't covered by tests.
+				// Please provide integration tests for these too.
+				//
+				// 404
+				//
 			}
 		})
 	})
@@ -4515,6 +5401,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(securityGroupTargetReference).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -4535,6 +5427,14 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(201))
 			Expect(securityGroupTargetReference).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			// 404
+			// 409
+			//
 		})
 	})
 
@@ -4583,8 +5483,8 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 
 			createIkePolicyOptions := &vpcv1.CreateIkePolicyOptions{
 				AuthenticationAlgorithm: core.StringPtr("md5"),
-				DhGroup:                 core.Int64Ptr(int64(2)),
-				EncryptionAlgorithm:     core.StringPtr("triple_des"),
+				DhGroup:                 core.Int64Ptr(int64(14)),
+				EncryptionAlgorithm:     core.StringPtr("aes128"),
 				IkeVersion:              core.Int64Ptr(int64(1)),
 				KeyLifetime:             core.Int64Ptr(int64(28800)),
 				Name:                    core.StringPtr("my-ike-policy"),
@@ -4597,6 +5497,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(201))
 			Expect(ikePolicy).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			//
 		})
 	})
 
@@ -4616,6 +5522,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(ikePolicy).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -4636,6 +5548,13 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(ikePolicy).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			// 404
+			//
 		})
 	})
 
@@ -4655,6 +5574,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(vpnGatewayConnectionCollection).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -4703,7 +5628,7 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 
 			createIpsecPolicyOptions := &vpcv1.CreateIpsecPolicyOptions{
 				AuthenticationAlgorithm: core.StringPtr("md5"),
-				EncryptionAlgorithm:     core.StringPtr("triple_des"),
+				EncryptionAlgorithm:     core.StringPtr("aes128"),
 				Pfs:                     core.StringPtr("disabled"),
 				KeyLifetime:             core.Int64Ptr(int64(3600)),
 				Name:                    core.StringPtr("my-ipsec-policy"),
@@ -4716,6 +5641,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(201))
 			Expect(iPsecPolicy).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			//
 		})
 	})
 
@@ -4735,6 +5666,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(iPsecPolicy).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -4746,7 +5683,7 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 
 			iPsecPolicyPatchModel := &vpcv1.IPsecPolicyPatch{
 				AuthenticationAlgorithm: core.StringPtr("md5"),
-				EncryptionAlgorithm:     core.StringPtr("triple_des"),
+				EncryptionAlgorithm:     core.StringPtr("aes128"),
 				KeyLifetime:             core.Int64Ptr(int64(3600)),
 				Name:                    core.StringPtr("my-ipsec-policy"),
 				Pfs:                     core.StringPtr("disabled"),
@@ -4765,6 +5702,13 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(iPsecPolicy).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			// 404
+			//
 		})
 	})
 
@@ -4784,6 +5728,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(vpnGatewayConnectionCollection).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -4853,6 +5803,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(201))
 			Expect(vpnGateway).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			//
 		})
 	})
 
@@ -4872,6 +5828,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(vpnGateway).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -4898,6 +5860,13 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(vpnGateway).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			// 404
+			//
 		})
 	})
 
@@ -4918,6 +5887,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(vpnGatewayConnectionCollection).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -4933,19 +5908,19 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 				Timeout:  core.Int64Ptr(int64(120)),
 			}
 
-			ikePolicyIdentityModel := &vpcv1.IkePolicyIdentityByID{
+			vpnGatewayConnectionIkePolicyPrototypeModel := &vpcv1.VPNGatewayConnectionIkePolicyPrototypeIkePolicyIdentityByID{
 				ID: core.StringPtr("ddf51bec-3424-11e8-b467-0ed5f89f718b"),
 			}
 
-			iPsecPolicyIdentityModel := &vpcv1.IPsecPolicyIdentityByID{
+			vpnGatewayConnectionIPsecPolicyPrototypeModel := &vpcv1.VPNGatewayConnectionIPsecPolicyPrototypeIPsecPolicyIdentityByID{
 				ID: core.StringPtr("ddf51bec-3424-11e8-b467-0ed5f89f718b"),
 			}
 
 			vpnGatewayConnectionPrototypeModel := &vpcv1.VPNGatewayConnectionPrototypeVPNGatewayConnectionStaticRouteModePrototype{
 				AdminStateUp:      core.BoolPtr(true),
 				DeadPeerDetection: vpnGatewayConnectionDpdPrototypeModel,
-				IkePolicy:         ikePolicyIdentityModel,
-				IpsecPolicy:       iPsecPolicyIdentityModel,
+				IkePolicy:         vpnGatewayConnectionIkePolicyPrototypeModel,
+				IpsecPolicy:       vpnGatewayConnectionIPsecPolicyPrototypeModel,
 				Name:              core.StringPtr("my-vpn-connection"),
 				PeerAddress:       core.StringPtr("169.21.50.5"),
 				Psk:               core.StringPtr("lkj14b1oi0alcniejkso"),
@@ -4963,6 +5938,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(201))
 			Expect(vpnGatewayConnection).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			//
 		})
 	})
 
@@ -4983,6 +5964,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(vpnGatewayConnection).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -4992,25 +5979,25 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 		})
 		It(`UpdateVPNGatewayConnection(updateVPNGatewayConnectionOptions *UpdateVPNGatewayConnectionOptions)`, func() {
 
-			vpnGatewayConnectionDpdPrototypeModel := &vpcv1.VPNGatewayConnectionDpdPrototype{
+			vpnGatewayConnectionDpdPatchModel := &vpcv1.VPNGatewayConnectionDpdPatch{
 				Action:   core.StringPtr("restart"),
 				Interval: core.Int64Ptr(int64(30)),
 				Timeout:  core.Int64Ptr(int64(120)),
 			}
 
-			ikePolicyIdentityModel := &vpcv1.IkePolicyIdentityByID{
+			vpnGatewayConnectionIkePolicyPatchModel := &vpcv1.VPNGatewayConnectionIkePolicyPatchIkePolicyIdentityByID{
 				ID: core.StringPtr("ddf51bec-3424-11e8-b467-0ed5f89f718b"),
 			}
 
-			iPsecPolicyIdentityModel := &vpcv1.IPsecPolicyIdentityByID{
+			vpnGatewayConnectionIPsecPolicyPatchModel := &vpcv1.VPNGatewayConnectionIPsecPolicyPatchIPsecPolicyIdentityByID{
 				ID: core.StringPtr("ddf51bec-3424-11e8-b467-0ed5f89f718b"),
 			}
 
 			vpnGatewayConnectionPatchModel := &vpcv1.VPNGatewayConnectionPatchVPNGatewayConnectionStaticRouteModePatch{
 				AdminStateUp:      core.BoolPtr(true),
-				DeadPeerDetection: vpnGatewayConnectionDpdPrototypeModel,
-				IkePolicy:         ikePolicyIdentityModel,
-				IpsecPolicy:       iPsecPolicyIdentityModel,
+				DeadPeerDetection: vpnGatewayConnectionDpdPatchModel,
+				IkePolicy:         vpnGatewayConnectionIkePolicyPatchModel,
+				IpsecPolicy:       vpnGatewayConnectionIPsecPolicyPatchModel,
 				Name:              core.StringPtr("my-vpn-connection"),
 				PeerAddress:       core.StringPtr("169.21.50.5"),
 				Psk:               core.StringPtr("lkj14b1oi0alcniejkso"),
@@ -5031,6 +6018,13 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(vpnGatewayConnection).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			// 404
+			//
 		})
 	})
 
@@ -5051,6 +6045,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(vpnGatewayConnectionLocalCIDRs).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -5072,6 +6072,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(err).To(BeNil())
 			Expect(response.StatusCode).To(Equal(204))
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -5093,6 +6099,13 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(err).To(BeNil())
 			Expect(response.StatusCode).To(Equal(204))
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			// 404
+			//
 		})
 	})
 
@@ -5113,6 +6126,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(vpnGatewayConnectionPeerCIDRs).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -5134,6 +6153,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(err).To(BeNil())
 			Expect(response.StatusCode).To(Equal(204))
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -5155,6 +6180,13 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(err).To(BeNil())
 			Expect(response.StatusCode).To(Equal(204))
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			// 404
+			//
 		})
 	})
 
@@ -5207,6 +6239,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(loadBalancerProfile).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -5262,6 +6300,8 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 				ConnectionLimit:     core.Int64Ptr(int64(2000)),
 				DefaultPool:         loadBalancerPoolIdentityByNameModel,
 				Port:                core.Int64Ptr(int64(443)),
+				PortMax:             core.Int64Ptr(int64(499)),
+				PortMin:             core.Int64Ptr(int64(443)),
 				Protocol:            core.StringPtr("http"),
 			}
 
@@ -5294,7 +6334,7 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 
 			loadBalancerPoolSessionPersistencePrototypeModel := &vpcv1.LoadBalancerPoolSessionPersistencePrototype{
 				CookieName: core.StringPtr("my-cookie-name"),
-				Type:       core.StringPtr("source_ip"),
+				Type:       core.StringPtr("app_cookie"),
 			}
 
 			loadBalancerPoolPrototypeModel := &vpcv1.LoadBalancerPoolPrototype{
@@ -5328,6 +6368,7 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 				Pools:          []vpcv1.LoadBalancerPoolPrototype{*loadBalancerPoolPrototypeModel},
 				Profile:        loadBalancerProfileIdentityModel,
 				ResourceGroup:  resourceGroupIdentityModel,
+				RouteMode:      core.BoolPtr(true),
 				SecurityGroups: []vpcv1.SecurityGroupIdentityIntf{securityGroupIdentityModel},
 			}
 
@@ -5337,6 +6378,13 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(201))
 			Expect(loadBalancer).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			// 409
+			//
 		})
 	})
 
@@ -5356,6 +6404,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(loadBalancer).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -5391,6 +6445,13 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(loadBalancer).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			// 404
+			//
 		})
 	})
 
@@ -5410,6 +6471,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(loadBalancerStatistics).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -5459,7 +6526,7 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			loadBalancerListenerPolicyRulePrototypeModel := &vpcv1.LoadBalancerListenerPolicyRulePrototype{
 				Condition: core.StringPtr("contains"),
 				Field:     core.StringPtr("MY-APP-HEADER"),
-				Type:      core.StringPtr("header"),
+				Type:      core.StringPtr("body"),
 				Value:     core.StringPtr("testString"),
 			}
 
@@ -5477,7 +6544,6 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 
 			createLoadBalancerListenerOptions := &vpcv1.CreateLoadBalancerListenerOptions{
 				LoadBalancerID:      core.StringPtr("testString"),
-				Port:                core.Int64Ptr(int64(443)),
 				Protocol:            core.StringPtr("http"),
 				AcceptProxyProtocol: core.BoolPtr(true),
 				CertificateInstance: certificateInstanceIdentityModel,
@@ -5485,6 +6551,9 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 				DefaultPool:         loadBalancerPoolIdentityModel,
 				HTTPSRedirect:       loadBalancerListenerHTTPSRedirectPrototypeModel,
 				Policies:            []vpcv1.LoadBalancerListenerPolicyPrototype{*loadBalancerListenerPolicyPrototypeModel},
+				Port:                core.Int64Ptr(int64(443)),
+				PortMax:             core.Int64Ptr(int64(499)),
+				PortMin:             core.Int64Ptr(int64(443)),
 			}
 
 			loadBalancerListener, response, err := vpcService.CreateLoadBalancerListener(createLoadBalancerListenerOptions)
@@ -5493,6 +6562,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(201))
 			Expect(loadBalancerListener).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			//
 		})
 	})
 
@@ -5513,6 +6588,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(loadBalancerListener).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -5547,6 +6628,8 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 				DefaultPool:         loadBalancerPoolIdentityModel,
 				HTTPSRedirect:       loadBalancerListenerHTTPSRedirectPatchModel,
 				Port:                core.Int64Ptr(int64(443)),
+				PortMax:             core.Int64Ptr(int64(499)),
+				PortMin:             core.Int64Ptr(int64(443)),
 				Protocol:            core.StringPtr("http"),
 			}
 			loadBalancerListenerPatchModelAsPatch, asPatchErr := loadBalancerListenerPatchModel.AsPatch()
@@ -5564,6 +6647,13 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(loadBalancerListener).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			// 404
+			//
 		})
 	})
 
@@ -5596,7 +6686,7 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			loadBalancerListenerPolicyRulePrototypeModel := &vpcv1.LoadBalancerListenerPolicyRulePrototype{
 				Condition: core.StringPtr("contains"),
 				Field:     core.StringPtr("MY-APP-HEADER"),
-				Type:      core.StringPtr("header"),
+				Type:      core.StringPtr("body"),
 				Value:     core.StringPtr("testString"),
 			}
 
@@ -5620,6 +6710,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(201))
 			Expect(loadBalancerListenerPolicy).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			//
 		})
 	})
 
@@ -5641,6 +6737,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(loadBalancerListenerPolicy).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -5675,6 +6777,13 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(loadBalancerListenerPolicy).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			// 404
+			//
 		})
 	})
 
@@ -5710,7 +6819,7 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 				ListenerID:     core.StringPtr("testString"),
 				PolicyID:       core.StringPtr("testString"),
 				Condition:      core.StringPtr("contains"),
-				Type:           core.StringPtr("header"),
+				Type:           core.StringPtr("body"),
 				Value:          core.StringPtr("testString"),
 				Field:          core.StringPtr("MY-APP-HEADER"),
 			}
@@ -5721,6 +6830,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(201))
 			Expect(loadBalancerListenerPolicyRule).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			//
 		})
 	})
 
@@ -5743,6 +6858,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(loadBalancerListenerPolicyRule).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -5755,7 +6876,7 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			loadBalancerListenerPolicyRulePatchModel := &vpcv1.LoadBalancerListenerPolicyRulePatch{
 				Condition: core.StringPtr("contains"),
 				Field:     core.StringPtr("MY-APP-HEADER"),
-				Type:      core.StringPtr("header"),
+				Type:      core.StringPtr("body"),
 				Value:     core.StringPtr("testString"),
 			}
 			loadBalancerListenerPolicyRulePatchModelAsPatch, asPatchErr := loadBalancerListenerPolicyRulePatchModel.AsPatch()
@@ -5775,6 +6896,13 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(loadBalancerListenerPolicyRule).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			// 404
+			//
 		})
 	})
 
@@ -5824,7 +6952,7 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 
 			loadBalancerPoolSessionPersistencePrototypeModel := &vpcv1.LoadBalancerPoolSessionPersistencePrototype{
 				CookieName: core.StringPtr("my-cookie-name"),
-				Type:       core.StringPtr("source_ip"),
+				Type:       core.StringPtr("app_cookie"),
 			}
 
 			createLoadBalancerPoolOptions := &vpcv1.CreateLoadBalancerPoolOptions{
@@ -5844,6 +6972,14 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(201))
 			Expect(loadBalancerPool).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			// 404
+			// 409
+			//
 		})
 	})
 
@@ -5864,6 +7000,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(loadBalancerPool).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -5884,7 +7026,7 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 
 			loadBalancerPoolSessionPersistencePatchModel := &vpcv1.LoadBalancerPoolSessionPersistencePatch{
 				CookieName: core.StringPtr("my-cookie-name"),
-				Type:       core.StringPtr("source_ip"),
+				Type:       core.StringPtr("app_cookie"),
 			}
 
 			loadBalancerPoolPatchModel := &vpcv1.LoadBalancerPoolPatch{
@@ -5910,6 +7052,13 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(loadBalancerPool).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			// 404
+			//
 		})
 	})
 
@@ -5957,6 +7106,14 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(201))
 			Expect(loadBalancerPoolMember).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			// 404
+			// 409
+			//
 		})
 	})
 
@@ -5988,6 +7145,14 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(202))
 			Expect(loadBalancerPoolMemberCollection).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			// 404
+			// 409
+			//
 		})
 	})
 
@@ -6009,6 +7174,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(loadBalancerPoolMember).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -6043,6 +7214,14 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(loadBalancerPoolMember).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			// 404
+			// 409
+			//
 		})
 	})
 
@@ -6118,6 +7297,13 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(201))
 			Expect(endpointGateway).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			// 409
+			//
 		})
 	})
 
@@ -6152,6 +7338,13 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 				if listEndpointGatewayIpsOptions.Start == nil {
 					break
 				}
+
+				//
+				// The following status codes aren't covered by tests.
+				// Please provide integration tests for these too.
+				//
+				// 404
+				//
 			}
 		})
 	})
@@ -6173,6 +7366,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(reservedIP).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -6193,6 +7392,13 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(201))
 			Expect(reservedIP).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			// 404
+			//
 		})
 	})
 
@@ -6212,6 +7418,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(endpointGateway).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -6238,6 +7450,13 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(endpointGateway).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			// 404
+			//
 		})
 	})
 
@@ -6257,7 +7476,7 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 				VPCCRN:             core.StringPtr("testString"),
 				VPCName:            core.StringPtr("testString"),
 				TargetID:           core.StringPtr("testString"),
-				TargetResourceType: core.StringPtr("vpc"),
+				TargetResourceType: core.StringPtr("instance"),
 			}
 
 			listFlowLogCollectorsOptions.Start = nil
@@ -6313,6 +7532,13 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(201))
 			Expect(flowLogCollector).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			// 409
+			//
 		})
 	})
 
@@ -6332,6 +7558,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(flowLogCollector).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -6359,6 +7591,13 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(response.StatusCode).To(Equal(200))
 			Expect(flowLogCollector).ToNot(BeNil())
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			// 404
+			//
 		})
 	})
 
@@ -6377,6 +7616,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(err).To(BeNil())
 			Expect(response.StatusCode).To(Equal(204))
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -6398,6 +7643,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(err).To(BeNil())
 			Expect(response.StatusCode).To(Equal(204))
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -6419,6 +7670,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(err).To(BeNil())
 			Expect(response.StatusCode).To(Equal(204))
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -6438,6 +7695,13 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(err).To(BeNil())
 			Expect(response.StatusCode).To(Equal(204))
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			// 409
+			//
 		})
 	})
 
@@ -6458,6 +7722,13 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(err).To(BeNil())
 			Expect(response.StatusCode).To(Equal(204))
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			// 404
+			//
 		})
 	})
 
@@ -6477,6 +7748,13 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(err).To(BeNil())
 			Expect(response.StatusCode).To(Equal(204))
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			// 404
+			//
 		})
 	})
 
@@ -6495,6 +7773,13 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(err).To(BeNil())
 			Expect(response.StatusCode).To(Equal(204))
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			// 409
+			//
 		})
 	})
 
@@ -6514,6 +7799,13 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(err).To(BeNil())
 			Expect(response.StatusCode).To(Equal(202))
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			// 409
+			//
 		})
 	})
 
@@ -6532,6 +7824,13 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(err).To(BeNil())
 			Expect(response.StatusCode).To(Equal(202))
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			// 409
+			//
 		})
 	})
 
@@ -6552,6 +7851,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(err).To(BeNil())
 			Expect(response.StatusCode).To(Equal(204))
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -6571,6 +7876,14 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(err).To(BeNil())
 			Expect(response.StatusCode).To(Equal(204))
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 403
+			// 404
+			// 409
+			//
 		})
 	})
 
@@ -6590,6 +7903,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(err).To(BeNil())
 			Expect(response.StatusCode).To(Equal(204))
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -6609,6 +7928,13 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(err).To(BeNil())
 			Expect(response.StatusCode).To(Equal(204))
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			// 409
+			//
 		})
 	})
 
@@ -6627,6 +7953,14 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(err).To(BeNil())
 			Expect(response.StatusCode).To(Equal(204))
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			// 404
+			// 409
+			//
 		})
 	})
 
@@ -6646,6 +7980,14 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(err).To(BeNil())
 			Expect(response.StatusCode).To(Equal(204))
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 403
+			// 404
+			// 409
+			//
 		})
 	})
 
@@ -6664,6 +8006,13 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(err).To(BeNil())
 			Expect(response.StatusCode).To(Equal(204))
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			// 409
+			//
 		})
 	})
 
@@ -6682,10 +8031,16 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(err).To(BeNil())
 			Expect(response.StatusCode).To(Equal(204))
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 400
+			//
 		})
 	})
 
-	Describe(`DeleteSnapshotClone - Delete a zonal snapshot clone`, func() {
+	Describe(`DeleteSnapshotClone - Delete a snapshot clone`, func() {
 		BeforeEach(func() {
 			shouldSkipTest()
 		})
@@ -6701,6 +8056,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(err).To(BeNil())
 			Expect(response.StatusCode).To(Equal(202))
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -6719,6 +8080,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(err).To(BeNil())
 			Expect(response.StatusCode).To(Equal(204))
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -6738,6 +8105,13 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(err).To(BeNil())
 			Expect(response.StatusCode).To(Equal(204))
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			// 409
+			//
 		})
 	})
 
@@ -6757,6 +8131,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(err).To(BeNil())
 			Expect(response.StatusCode).To(Equal(204))
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -6775,6 +8155,14 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(err).To(BeNil())
 			Expect(response.StatusCode).To(Equal(204))
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 403
+			// 404
+			// 409
+			//
 		})
 	})
 
@@ -6793,6 +8181,13 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(err).To(BeNil())
 			Expect(response.StatusCode).To(Equal(204))
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			// 409
+			//
 		})
 	})
 
@@ -6811,6 +8206,13 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(err).To(BeNil())
 			Expect(response.StatusCode).To(Equal(202))
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			// 409
+			//
 		})
 	})
 
@@ -6830,6 +8232,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(err).To(BeNil())
 			Expect(response.StatusCode).To(Equal(204))
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -6848,6 +8256,14 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(err).To(BeNil())
 			Expect(response.StatusCode).To(Equal(204))
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 403
+			// 404
+			// 409
+			//
 		})
 	})
 
@@ -6868,6 +8284,13 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(err).To(BeNil())
 			Expect(response.StatusCode).To(Equal(204))
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			// 409
+			//
 		})
 	})
 
@@ -6887,6 +8310,13 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(err).To(BeNil())
 			Expect(response.StatusCode).To(Equal(204))
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			// 409
+			//
 		})
 	})
 
@@ -6908,6 +8338,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(err).To(BeNil())
 			Expect(response.StatusCode).To(Equal(204))
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -6928,6 +8364,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(err).To(BeNil())
 			Expect(response.StatusCode).To(Equal(204))
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -6947,6 +8389,13 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(err).To(BeNil())
 			Expect(response.StatusCode).To(Equal(204))
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			// 409
+			//
 		})
 	})
 
@@ -6965,6 +8414,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(err).To(BeNil())
 			Expect(response.StatusCode).To(Equal(204))
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -6983,6 +8438,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(err).To(BeNil())
 			Expect(response.StatusCode).To(Equal(204))
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -7001,6 +8462,13 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(err).To(BeNil())
 			Expect(response.StatusCode).To(Equal(204))
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			// 409
+			//
 		})
 	})
 
@@ -7020,6 +8488,13 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(err).To(BeNil())
 			Expect(response.StatusCode).To(Equal(204))
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 403
+			// 404
+			//
 		})
 	})
 
@@ -7038,6 +8513,13 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(err).To(BeNil())
 			Expect(response.StatusCode).To(Equal(204))
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			// 409
+			//
 		})
 	})
 
@@ -7057,6 +8539,13 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(err).To(BeNil())
 			Expect(response.StatusCode).To(Equal(204))
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 403
+			// 404
+			//
 		})
 	})
 
@@ -7075,6 +8564,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(err).To(BeNil())
 			Expect(response.StatusCode).To(Equal(204))
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -7094,6 +8589,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(err).To(BeNil())
 			Expect(response.StatusCode).To(Equal(204))
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -7114,6 +8615,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(err).To(BeNil())
 			Expect(response.StatusCode).To(Equal(204))
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -7134,6 +8641,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(err).To(BeNil())
 			Expect(response.StatusCode).To(Equal(204))
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -7153,6 +8666,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(err).To(BeNil())
 			Expect(response.StatusCode).To(Equal(204))
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -7171,6 +8690,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(err).To(BeNil())
 			Expect(response.StatusCode).To(Equal(204))
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -7189,6 +8714,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(err).To(BeNil())
 			Expect(response.StatusCode).To(Equal(204))
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -7207,6 +8738,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(err).To(BeNil())
 			Expect(response.StatusCode).To(Equal(204))
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -7225,6 +8762,14 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(err).To(BeNil())
 			Expect(response.StatusCode).To(Equal(202))
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 403
+			// 404
+			// 409
+			//
 		})
 	})
 
@@ -7243,6 +8788,13 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(err).To(BeNil())
 			Expect(response.StatusCode).To(Equal(204))
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			// 409
+			//
 		})
 	})
 
@@ -7261,6 +8813,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(err).To(BeNil())
 			Expect(response.StatusCode).To(Equal(204))
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -7279,6 +8837,13 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(err).To(BeNil())
 			Expect(response.StatusCode).To(Equal(204))
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			// 409
+			//
 		})
 	})
 
@@ -7297,6 +8862,13 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(err).To(BeNil())
 			Expect(response.StatusCode).To(Equal(204))
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			// 409
+			//
 		})
 	})
 
@@ -7315,6 +8887,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(err).To(BeNil())
 			Expect(response.StatusCode).To(Equal(204))
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 
@@ -7333,6 +8911,12 @@ var _ = Describe(`VpcV1 Integration Tests`, func() {
 			Expect(err).To(BeNil())
 			Expect(response.StatusCode).To(Equal(204))
 
+			//
+			// The following status codes aren't covered by tests.
+			// Please provide integration tests for these too.
+			//
+			// 404
+			//
 		})
 	})
 })
