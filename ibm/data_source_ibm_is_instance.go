@@ -98,6 +98,24 @@ func dataSourceIBMISInstance() *schema.Resource {
 				Description: "Profile info",
 			},
 
+			isInstanceTotalVolumeBandwidth: {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: "The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes",
+			},
+
+			isInstanceBandwidth: {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: "The total bandwidth (in megabits per second) shared across the instance's network interfaces and storage volumes",
+			},
+
+			isInstanceTotalNetworkBandwidth: {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: "The amount of bandwidth (in megabits per second) allocated exclusively to instance network interfaces.",
+			},
+
 			isInstanceTags: {
 				Type:        schema.TypeSet,
 				Computed:    true,
@@ -302,15 +320,9 @@ func dataSourceIBMISInstance() *schema.Resource {
 			isInstanceGpu: {
 				Type:        schema.TypeList,
 				Computed:    true,
-				Deprecated:  "This field is deprecated",
 				Description: "Instance GPU",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						isInstanceGpuCores: {
-							Type:        schema.TypeInt,
-							Computed:    true,
-							Description: "Instance GPU Cores",
-						},
 						isInstanceGpuCount: {
 							Type:        schema.TypeInt,
 							Computed:    true,
@@ -386,6 +398,12 @@ func dataSourceIBMISInstance() *schema.Resource {
 				Description: "The crn of the resource",
 			},
 
+			IsInstanceCRN: {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The crn of the resource",
+			},
+
 			ResourceStatus: {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -437,6 +455,54 @@ func dataSourceIBMISInstance() *schema.Resource {
 							Type:        schema.TypeInt,
 							Computed:    true,
 							Description: "The size of the disk in GB (gigabytes).",
+						},
+					},
+				},
+			},
+			"placement_target": &schema.Schema{
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "The placement restrictions for the virtual server instance.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"crn": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The CRN for this dedicated host group.",
+						},
+						"deleted": &schema.Schema{
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "If present, this property indicates the referenced resource has been deleted and providessome supplementary information.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"more_info": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "Link to documentation about deleted resources.",
+									},
+								},
+							},
+						},
+						"href": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The URL for this dedicated host group.",
+						},
+						"id": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The unique identifier for this dedicated host group.",
+						},
+						"name": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The unique user-defined name for this dedicated host group. If unspecified, the name will be a hyphenated list of randomly-selected words.",
+						},
+						"resource_type": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The type of resource referenced.",
 						},
 					},
 				},
@@ -495,15 +561,38 @@ func instanceGetByName(d *schema.ResourceData, meta interface{}, name string) er
 			}
 			d.Set(isInstanceCPU, cpuList)
 
+			if instance.PlacementTarget != nil {
+				placementTargetMap := resourceIbmIsInstanceInstancePlacementToMap(*instance.PlacementTarget.(*vpcv1.InstancePlacementTarget))
+				d.Set("placement_target", []map[string]interface{}{placementTargetMap})
+			}
+
 			d.Set(isInstanceMemory, *instance.Memory)
+
 			gpuList := make([]map[string]interface{}, 0)
-			d.Set(isInstanceGpu, gpuList)
+			if instance.Gpu != nil {
+				currentGpu := map[string]interface{}{}
+				currentGpu[isInstanceGpuManufacturer] = instance.Gpu.Manufacturer
+				currentGpu[isInstanceGpuModel] = instance.Gpu.Model
+				currentGpu[isInstanceGpuCount] = instance.Gpu.Count
+				currentGpu[isInstanceGpuMemory] = instance.Gpu.Memory
+				gpuList = append(gpuList, currentGpu)
+				d.Set(isInstanceGpu, gpuList)
+			}
+
+			if instance.Bandwidth != nil {
+				d.Set(isInstanceBandwidth, int(*instance.Bandwidth))
+			}
+
+			if instance.TotalNetworkBandwidth != nil {
+				d.Set(isInstanceTotalNetworkBandwidth, int(*instance.TotalNetworkBandwidth))
+			}
+
+			if instance.TotalVolumeBandwidth != nil {
+				d.Set(isInstanceTotalVolumeBandwidth, int(*instance.TotalVolumeBandwidth))
+			}
 
 			if instance.Disks != nil {
-				err = d.Set(isInstanceDisks, dataSourceInstanceFlattenDisks(instance.Disks))
-				if err != nil {
-					return fmt.Errorf("Error setting disks %s", err)
-				}
+				d.Set(isInstanceDisks, dataSourceInstanceFlattenDisks(instance.Disks))
 			}
 
 			if instance.PrimaryNetworkInterface != nil {
@@ -633,7 +722,6 @@ func instanceGetByName(d *schema.ResourceData, meta interface{}, name string) er
 			if initParms.Keys != nil {
 				initKeyList := make([]map[string]interface{}, 0)
 				for _, key := range initParms.Keys {
-					key := key.(*vpcv1.KeyReferenceInstanceInitializationContext)
 					initKey := map[string]interface{}{}
 					id := ""
 					if key.ID != nil {
@@ -737,6 +825,7 @@ func instanceGetByName(d *schema.ResourceData, meta interface{}, name string) er
 			d.Set(ResourceControllerURL, controller+"/vpc-ext/compute/vs")
 			d.Set(ResourceName, instance.Name)
 			d.Set(ResourceCRN, instance.CRN)
+			d.Set(IsInstanceCRN, instance.CRN)
 			d.Set(ResourceStatus, instance.Status)
 			if instance.ResourceGroup != nil {
 				d.Set(isInstanceResourceGroup, instance.ResourceGroup.ID)

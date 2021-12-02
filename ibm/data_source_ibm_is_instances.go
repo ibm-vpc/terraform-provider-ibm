@@ -60,6 +60,34 @@ func dataSourceIBMISInstances() *schema.Resource {
 				Description: "Instance resource group",
 			},
 
+			"dedicated_host_name": {
+				Type:          schema.TypeString,
+				Optional:      true,
+				ConflictsWith: []string{"dedicated_host"},
+				Description:   "Name of the dedicated host to filter the instances attached to it",
+			},
+
+			"dedicated_host": {
+				Type:          schema.TypeString,
+				Optional:      true,
+				ConflictsWith: []string{"dedicated_host_name"},
+				Description:   "ID of the dedicated host to filter the instances attached to it",
+			},
+
+			"placement_group_name": {
+				Type:          schema.TypeString,
+				Optional:      true,
+				ConflictsWith: []string{"placement_group"},
+				Description:   "Name of the placement group to filter the instances attached to it",
+			},
+
+			"placement_group": {
+				Type:          schema.TypeString,
+				Optional:      true,
+				ConflictsWith: []string{"placement_group_name"},
+				Description:   "ID of the placement group to filter the instances attached to it",
+			},
+
 			isInstances: {
 				Type:        schema.TypeList,
 				Description: "List of instances",
@@ -75,6 +103,11 @@ func dataSourceIBMISInstances() *schema.Resource {
 							Type:        schema.TypeString,
 							Computed:    true,
 							Description: "Instance name",
+						},
+						"crn": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The crn for this Instance",
 						},
 						"memory": {
 							Type:        schema.TypeInt,
@@ -224,6 +257,54 @@ func dataSourceIBMISInstances() *schema.Resource {
 								},
 							},
 						},
+						"placement_target": &schema.Schema{
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "The placement restrictions for the virtual server instance.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"crn": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The CRN for this placement target resource.",
+									},
+									"deleted": &schema.Schema{
+										Type:        schema.TypeList,
+										Computed:    true,
+										Description: "If present, this property indicates the referenced resource has been deleted and providessome supplementary information.",
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"more_info": &schema.Schema{
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "Link to documentation about deleted resources.",
+												},
+											},
+										},
+									},
+									"href": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The URL for this placement target resource.",
+									},
+									"id": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The unique identifier for this placement target resource.",
+									},
+									"name": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The unique user-defined name for this placement target resource. If unspecified, the name will be a hyphenated list of randomly-selected words.",
+									},
+									"resource_type": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The type of resource referenced.",
+									},
+								},
+							},
+						},
 						"network_interfaces": {
 							Type:        schema.TypeList,
 							Computed:    true,
@@ -265,6 +346,23 @@ func dataSourceIBMISInstances() *schema.Resource {
 							Computed:    true,
 							Description: "Instance Profile",
 						},
+						isInstanceTotalVolumeBandwidth: {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: "The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes",
+						},
+
+						isInstanceBandwidth: {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: "The total bandwidth (in megabits per second) shared across the instance's network interfaces and storage volumes",
+						},
+
+						isInstanceTotalNetworkBandwidth: {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: "The amount of bandwidth (in megabits per second) allocated exclusively to instance network interfaces.",
+						},
 						"vcpu": {
 							Type:        schema.TypeList,
 							Computed:    true,
@@ -295,6 +393,37 @@ func dataSourceIBMISInstances() *schema.Resource {
 							Computed:    true,
 							Description: "Instance Image",
 						},
+
+						isInstanceGpu: {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "Instance GPU",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									isInstanceGpuCount: {
+										Type:        schema.TypeInt,
+										Computed:    true,
+										Description: "Instance GPU Count",
+									},
+									isInstanceGpuMemory: {
+										Type:        schema.TypeInt,
+										Computed:    true,
+										Description: "Instance GPU Memory",
+									},
+									isInstanceGpuManufacturer: {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "Instance GPU Manufacturer",
+									},
+									isInstanceGpuModel: {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "Instance GPU Model",
+									},
+								},
+							},
+						},
+
 						isInstanceDisks: &schema.Schema{
 							Type:        schema.TypeList,
 							Computed:    true,
@@ -361,7 +490,7 @@ func instancesList(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	var vpcName, vpcID, vpcCrn, resourceGroup, insGrp string
+	var vpcName, vpcID, vpcCrn, resourceGroup, insGrp, dHostNameStr, dHostIdStr, placementGrpNameStr, placementGrpIdStr string
 
 	if vpc, ok := d.GetOk("vpc_name"); ok {
 		vpcName = vpc.(string)
@@ -377,6 +506,22 @@ func instancesList(d *schema.ResourceData, meta interface{}) error {
 
 	if rg, ok := d.GetOk("resource_group"); ok {
 		resourceGroup = rg.(string)
+	}
+
+	if dHostNameIntf, ok := d.GetOk("dedicated_host_name"); ok {
+		dHostNameStr = dHostNameIntf.(string)
+	}
+
+	if dHostIdIntf, ok := d.GetOk("dedicated_host"); ok {
+		dHostIdStr = dHostIdIntf.(string)
+	}
+
+	if placementGrpNameIntf, ok := d.GetOk("placement_group_name"); ok {
+		placementGrpNameStr = placementGrpNameIntf.(string)
+	}
+
+	if placementGrpIdIntf, ok := d.GetOk("placement_group"); ok {
+		placementGrpIdStr = placementGrpIdIntf.(string)
 	}
 
 	if insGrpInf, ok := d.GetOk(isInstanceGroup); ok {
@@ -424,6 +569,22 @@ func instancesList(d *schema.ResourceData, meta interface{}) error {
 	}
 	if vpcCrn != "" {
 		listInstancesOptions.VPCCRN = &vpcCrn
+	}
+
+	if dHostNameStr != "" {
+		listInstancesOptions.DedicatedHostName = &dHostNameStr
+	}
+
+	if dHostIdStr != "" {
+		listInstancesOptions.DedicatedHostID = &dHostIdStr
+	}
+
+	if placementGrpNameStr != "" {
+		listInstancesOptions.PlacementGroupName = &placementGrpNameStr
+	}
+
+	if placementGrpIdStr != "" {
+		listInstancesOptions.PlacementGroupID = &placementGrpIdStr
 	}
 
 	start := ""
@@ -487,11 +648,28 @@ func instancesList(d *schema.ResourceData, meta interface{}) error {
 		id := *instance.ID
 		l := map[string]interface{}{}
 		l["id"] = id
+		l["crn"] = *instance.CRN
 		l["name"] = *instance.Name
 		l["memory"] = *instance.Memory
 		l["status"] = *instance.Status
 		l["resource_group"] = *instance.ResourceGroup.ID
 		l["vpc"] = *instance.VPC.ID
+
+		if instance.PlacementTarget != nil {
+			placementTargetMap := resourceIbmIsInstanceInstancePlacementToMap(*instance.PlacementTarget.(*vpcv1.InstancePlacementTarget))
+			l["placement_target"] = []map[string]interface{}{placementTargetMap}
+		}
+		if instance.Bandwidth != nil {
+			l[isInstanceBandwidth] = int(*instance.Bandwidth)
+		}
+
+		if instance.TotalNetworkBandwidth != nil {
+			l[isInstanceTotalNetworkBandwidth] = int(*instance.TotalNetworkBandwidth)
+		}
+
+		if instance.TotalVolumeBandwidth != nil {
+			l[isInstanceTotalVolumeBandwidth] = int(*instance.TotalVolumeBandwidth)
+		}
 
 		if instance.BootVolumeAttachment != nil {
 			bootVolList := make([]map[string]interface{}, 0)
@@ -605,6 +783,17 @@ func instancesList(d *schema.ResourceData, meta interface{}) error {
 			cpuList = append(cpuList, currentCPU)
 		}
 		l["vcpu"] = cpuList
+
+		gpuList := make([]map[string]interface{}, 0)
+		if instance.Gpu != nil {
+			currentGpu := map[string]interface{}{}
+			currentGpu[isInstanceGpuManufacturer] = instance.Gpu.Manufacturer
+			currentGpu[isInstanceGpuModel] = instance.Gpu.Model
+			currentGpu[isInstanceGpuCount] = instance.Gpu.Count
+			currentGpu[isInstanceGpuMemory] = instance.Gpu.Memory
+			gpuList = append(gpuList, currentGpu)
+			l[isInstanceGpu] = gpuList
+		}
 
 		l["zone"] = *instance.Zone.Name
 		if instance.Image != nil {

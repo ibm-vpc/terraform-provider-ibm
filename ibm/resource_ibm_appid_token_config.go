@@ -7,15 +7,11 @@ import (
 	"context"
 	"github.com/IBM-Cloud/bluemix-go/helpers"
 	appid "github.com/IBM/appid-management-go-sdk/appidmanagementv4"
+	"github.com/IBM/go-sdk-core/v5/core"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"log"
 )
-
-func int64Ptr(v int64) *int64 {
-	return &v
-}
 
 func resourceIBMAppIDTokenConfig() *schema.Resource {
 	return &schema.Resource{
@@ -81,7 +77,7 @@ func resourceIBMAppIDTokenConfig() *schema.Resource {
 						"destination_claim": {
 							Description: "Optional: Defines the custom attribute that can override the current claim in token.",
 							Type:        schema.TypeString,
-							Required:    true,
+							Optional:    true,
 						},
 					},
 				},
@@ -123,10 +119,10 @@ func resourceIBMAppIDTokenConfigCreate(ctx context.Context, d *schema.ResourceDa
 
 	input := expandTokenConfig(d)
 
-	_, _, err = appidClient.PutTokensConfigWithContext(ctx, input)
+	_, resp, err := appidClient.PutTokensConfigWithContext(ctx, input)
 
 	if err != nil {
-		return diag.Errorf("Error updating AppID token configuration: %s", err)
+		return diag.Errorf("Error updating AppID token configuration: %s\n%s", err, resp)
 	}
 
 	d.SetId(tenantID)
@@ -155,10 +151,8 @@ func resourceIBMAppIDTokenConfigRead(ctx context.Context, d *schema.ResourceData
 			return nil
 		}
 
-		return diag.Errorf("Error reading AppID token configuration: %s", err)
+		return diag.Errorf("Error reading AppID token configuration: %s\n%s", err, response)
 	}
-
-	log.Printf("[DEBUG] Received AppID token config: %v", tokenConfig)
 
 	if tokenConfig.Access != nil {
 		d.Set("access_token_expires_in", *tokenConfig.Access.ExpiresIn)
@@ -237,19 +231,19 @@ func expandTokenConfig(d *schema.ResourceData) *appid.PutTokensConfigOptions {
 
 	if accessExpiresIn, ok := d.GetOk("access_token_expires_in"); ok {
 		config.Access = &appid.AccessTokenConfigParams{
-			ExpiresIn: int64Ptr(int64(accessExpiresIn.(int))),
+			ExpiresIn: core.Int64Ptr(int64(accessExpiresIn.(int))),
 		}
 	}
 
 	if anonymousExpiresIn, ok := d.GetOk("anonymous_token_expires_in"); ok {
 		config.AnonymousAccess = &appid.TokenConfigParams{
-			ExpiresIn: int64Ptr(int64(anonymousExpiresIn.(int))),
+			ExpiresIn: core.Int64Ptr(int64(anonymousExpiresIn.(int))),
 		}
 	}
 
 	if refreshExpiresIn, ok := d.GetOk("refresh_token_expires_in"); ok {
 		config.Refresh = &appid.TokenConfigParams{
-			ExpiresIn: int64Ptr(int64(refreshExpiresIn.(int))),
+			ExpiresIn: core.Int64Ptr(int64(refreshExpiresIn.(int))),
 		}
 	}
 
@@ -293,15 +287,15 @@ func tokenConfigDefaults(tenantID string) *appid.PutTokensConfigOptions {
 	return &appid.PutTokensConfigOptions{
 		TenantID: helpers.String(tenantID),
 		Access: &appid.AccessTokenConfigParams{
-			ExpiresIn: int64Ptr(3600),
+			ExpiresIn: core.Int64Ptr(3600),
 		},
 		Refresh: &appid.TokenConfigParams{
 			Enabled:   helpers.Bool(false),
-			ExpiresIn: int64Ptr(2592000),
+			ExpiresIn: core.Int64Ptr(2592000),
 		},
 		AnonymousAccess: &appid.TokenConfigParams{
 			Enabled:   helpers.Bool(true),
-			ExpiresIn: int64Ptr(2592000),
+			ExpiresIn: core.Int64Ptr(2592000),
 		},
 	}
 }
@@ -316,10 +310,10 @@ func resourceIBMAppIDTokenConfigDelete(ctx context.Context, d *schema.ResourceDa
 	tenantID := d.Get("tenant_id").(string)
 
 	config := tokenConfigDefaults(tenantID)
-	_, _, err = appidClient.PutTokensConfigWithContext(ctx, config)
+	_, resp, err := appidClient.PutTokensConfigWithContext(ctx, config)
 
 	if err != nil {
-		return diag.Errorf("Error resetting AppID token configuration: %s", err)
+		return diag.Errorf("Error resetting AppID token configuration: %s\n%s", err, resp)
 	}
 
 	d.SetId("")

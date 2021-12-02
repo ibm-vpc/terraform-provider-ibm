@@ -16,6 +16,7 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/IBM-Cloud/container-services-go-sdk/kubernetesserviceapiv1"
 	"github.com/IBM/go-sdk-core/v5/core"
@@ -33,13 +34,11 @@ import (
 
 	"github.com/IBM-Cloud/bluemix-go/api/container/containerv1"
 	"github.com/IBM-Cloud/bluemix-go/api/container/containerv2"
-	"github.com/IBM-Cloud/bluemix-go/api/iamuum/iamuumv1"
-	"github.com/IBM-Cloud/bluemix-go/api/iamuum/iamuumv2"
 	"github.com/IBM-Cloud/bluemix-go/api/icd/icdv4"
 	"github.com/IBM-Cloud/bluemix-go/api/mccp/mccpv2"
 	"github.com/IBM-Cloud/bluemix-go/api/schematics"
 	"github.com/IBM-Cloud/bluemix-go/api/usermanagement/usermanagementv2"
-	"github.com/IBM-Cloud/bluemix-go/models"
+	"github.com/IBM/platform-services-go-sdk/iamaccessgroupsv2"
 	"github.com/IBM/platform-services-go-sdk/iamidentityv1"
 )
 
@@ -376,21 +375,21 @@ func flattenVpcZones(list []containerv2.ZoneResp) []map[string]interface{} {
 	}
 	return zones
 }
-func flattenConditions(list []iamuumv2.Condition) []map[string]interface{} {
+func flattenConditions(list []iamaccessgroupsv2.RuleConditions) []map[string]interface{} {
 	conditions := make([]map[string]interface{}, len(list))
 	for i, cond := range list {
 		l := map[string]interface{}{
 			"claim":    cond.Claim,
 			"operator": cond.Operator,
-			"value":    strings.ReplaceAll(cond.Value, "\"", ""),
+			"value":    strings.ReplaceAll(*cond.Value, "\"", ""),
 		}
 		conditions[i] = l
 	}
 	return conditions
 }
-func flattenAccessGroupRules(list []iamuumv2.CreateRuleResponse) []map[string]interface{} {
-	rules := make([]map[string]interface{}, len(list))
-	for i, item := range list {
+func flattenAccessGroupRules(list *iamaccessgroupsv2.RulesList) []map[string]interface{} {
+	rules := make([]map[string]interface{}, len(list.Rules))
+	for i, item := range list.Rules {
 		l := map[string]interface{}{
 			"name":              item.Name,
 			"expiration":        item.Expiration,
@@ -681,8 +680,8 @@ func flattenMetricsMonitor(in *resourceconfigurationv1.MetricsMonitoring) []inte
 func archiveRuleGet(in []*s3.LifecycleRule) []interface{} {
 	rules := make([]interface{}, 0, len(in))
 	for _, r := range in {
-		// Checking this is not an expire_rule.  LifeCycle rules are either archive or expire
-		if r.Expiration == nil {
+		// Checking this is not an expire_rule.  LifeCycle rules are either archive or expire or non current version or abort incomplete multipart upload
+		if r.Expiration == nil && r.NoncurrentVersionExpiration == nil && r.AbortIncompleteMultipartUpload == nil {
 			rule := make(map[string]interface{})
 
 			if r.Status != nil {
@@ -716,7 +715,7 @@ func archiveRuleGet(in []*s3.LifecycleRule) []interface{} {
 func expireRuleGet(in []*s3.LifecycleRule) []interface{} {
 	rules := make([]interface{}, 0, len(in))
 	for _, r := range in {
-		if r.Expiration != nil {
+		if r.Expiration != nil && r.Transitions == nil {
 			rule := make(map[string]interface{})
 
 			if r.Status != nil {
@@ -732,12 +731,86 @@ func expireRuleGet(in []*s3.LifecycleRule) []interface{} {
 			}
 
 			if r.Expiration != nil {
-				rule["days"] = int(*(r.Expiration).Days)
+				if r.Expiration.Days != nil {
+					days := int(*(r.Expiration).Days)
+					if days > 0 {
+						rule["days"] = days
+					}
+				}
+				if r.Expiration.Date != nil {
+					expirationTime := *(r.Expiration).Date
+					d := strings.Split(expirationTime.Format(time.RFC3339), "T")
+					rule["date"] = d[0]
+				}
+
+				if r.Expiration.ExpiredObjectDeleteMarker != nil {
+					rule["expired_object_delete_marker"] = *(r.Expiration).ExpiredObjectDeleteMarker
+				}
 			}
 			if r.Filter != nil && r.Filter.Prefix != nil {
 				rule["prefix"] = *(r.Filter).Prefix
 			}
 
+			rules = append(rules, rule)
+		}
+	}
+
+	return rules
+
+}
+
+func nc_exp_RuleGet(in []*s3.LifecycleRule) []interface{} {
+	rules := make([]interface{}, 0, len(in))
+	for _, r := range in {
+		if r.Expiration == nil && r.AbortIncompleteMultipartUpload == nil && r.Transitions == nil {
+			rule := make(map[string]interface{})
+			if r.Status != nil {
+				if *r.Status == "Enabled" {
+					rule["enable"] = true
+
+				} else {
+					rule["enable"] = false
+				}
+
+			}
+			if r.ID != nil {
+				rule["rule_id"] = *r.ID
+			}
+			if r.NoncurrentVersionExpiration != nil {
+				rule["noncurrent_days"] = int(*(r.NoncurrentVersionExpiration).NoncurrentDays)
+			}
+			if r.Filter != nil && r.Filter.Prefix != nil {
+				rule["prefix"] = *(r.Filter).Prefix
+			}
+			rules = append(rules, rule)
+		}
+	}
+	return rules
+}
+
+func abort_mpu_RuleGet(in []*s3.LifecycleRule) []interface{} {
+	rules := make([]interface{}, 0, len(in))
+	for _, r := range in {
+		if r.Expiration == nil && r.NoncurrentVersionExpiration == nil && r.Transitions == nil {
+			rule := make(map[string]interface{})
+			if r.Status != nil {
+				if *r.Status == "Enabled" {
+					rule["enable"] = true
+
+				} else {
+					rule["enable"] = false
+				}
+
+			}
+			if r.ID != nil {
+				rule["rule_id"] = *r.ID
+			}
+			if r.AbortIncompleteMultipartUpload != nil {
+				rule["days_after_initiation"] = int(*(r.AbortIncompleteMultipartUpload).DaysAfterInitiation)
+			}
+			if r.Filter != nil && r.Filter.Prefix != nil {
+				rule["prefix"] = *(r.Filter).Prefix
+			}
 			rules = append(rules, rule)
 		}
 	}
@@ -1215,6 +1288,7 @@ func flattenPolicyResource(list []iampolicymanagementv1.PolicyResource) []map[st
 			"resource_type":        getResourceAttribute("resourceType", i),
 			"resource":             getResourceAttribute("resource", i),
 			"resource_group_id":    getResourceAttribute("resourceGroupId", i),
+			"service_type":         getResourceAttribute("serviceType", i),
 		}
 		customAttributes := getCustomAttributes(i)
 		if len(customAttributes) > 0 {
@@ -1281,14 +1355,22 @@ func contains(s []int, e int) bool {
 	}
 	return false
 }
+func StringContains(s []string, str string) bool {
+	for _, a := range s {
+		if a == str {
+			return true
+		}
+	}
+	return false
+}
 
-func flattenMembersData(list []models.AccessGroupMemberV2, users []usermanagementv2.UserInfo, serviceids []iamidentityv1.ServiceID) ([]string, []string) {
+func flattenMembersData(list []iamaccessgroupsv2.ListGroupMembersResponseMember, users []usermanagementv2.UserInfo, serviceids []iamidentityv1.ServiceID) ([]string, []string) {
 	var ibmid []string
 	var serviceid []string
 	for _, m := range list {
-		if m.Type == iamuumv2.AccessGroupMemberUser {
+		if *m.Type == "user" {
 			for _, user := range users {
-				if user.IamID == m.ID {
+				if user.IamID == *m.IamID {
 					ibmid = append(ibmid, user.Email)
 					break
 				}
@@ -1296,7 +1378,7 @@ func flattenMembersData(list []models.AccessGroupMemberV2, users []usermanagemen
 		} else {
 
 			for _, srid := range serviceids {
-				if *srid.IamID == m.ID {
+				if *srid.IamID == *m.IamID {
 					serviceid = append(serviceid, *srid.ID)
 					break
 				}
@@ -1308,23 +1390,21 @@ func flattenMembersData(list []models.AccessGroupMemberV2, users []usermanagemen
 	return ibmid, serviceid
 }
 
-func flattenAccessGroupMembers(list []models.AccessGroupMemberV2, users []usermanagementv2.UserInfo, serviceids []iamidentityv1.ServiceID) []map[string]interface{} {
+func flattenAccessGroupMembers(list []iamaccessgroupsv2.ListGroupMembersResponseMember, users []usermanagementv2.UserInfo, serviceids []iamidentityv1.ServiceID) []map[string]interface{} {
 	result := make([]map[string]interface{}, 0, len(list))
 	for _, m := range list {
 		var value, vtype string
-		if m.Type == iamuumv2.AccessGroupMemberUser {
-			vtype = iamuumv2.AccessGroupMemberUser
+		vtype = *m.Type
+		if *m.Type == "user" {
 			for _, user := range users {
-				if user.IamID == m.ID {
+				if user.IamID == *m.IamID {
 					value = user.Email
 					break
 				}
 			}
 		} else {
-
-			vtype = iamuumv1.AccessGroupMemberService
 			for _, srid := range serviceids {
-				if *srid.IamID == m.ID {
+				if *srid.IamID == *m.IamID {
 					value = *srid.ID
 					break
 				}
@@ -1390,6 +1470,8 @@ func flattenConnectionStrings(cs []CsEntry) []map[string]interface{} {
 			"scheme":       csEntry.Scheme,
 			"path":         csEntry.Path,
 			"database":     csEntry.Database,
+			"bundlename":   csEntry.BundleName,
+			"bundlebase64": csEntry.BundleBase64,
 		}
 		hosts := csEntry.Hosts
 		hostsList := make([]map[string]interface{}, len(hosts), len(hosts))
@@ -1998,6 +2080,43 @@ func resourceTagsCustomizeDiff(diff *schema.ResourceDiff) error {
 	return nil
 }
 
+func resourceLBListenerPolicyCustomizeDiff(diff *schema.ResourceDiff) error {
+	policyActionIntf, _ := diff.GetOk(isLBListenerPolicyAction)
+	policyAction := policyActionIntf.(string)
+
+	if policyAction == "forward" {
+		_, policyTargetIDSet := diff.GetOk(isLBListenerPolicyTargetID)
+
+		if !policyTargetIDSet && diff.NewValueKnown(isLBListenerPolicyTargetID) {
+			return fmt.Errorf("Load balancer listener policy: When action is forward please specify target_id")
+		}
+	} else if policyAction == "redirect" {
+		_, httpsStatusCodeSet := diff.GetOk(isLBListenerPolicyHTTPSRedirectStatusCode)
+		_, targetURLSet := diff.GetOk(isLBListenerPolicyTargetURL)
+
+		if !httpsStatusCodeSet && diff.NewValueKnown(isLBListenerPolicyHTTPSRedirectStatusCode) {
+			return fmt.Errorf("Load balancer listener policy: When action is redirect please specify target_http_status_code")
+		}
+
+		if !targetURLSet && diff.NewValueKnown(isLBListenerPolicyTargetURL) {
+			return fmt.Errorf("Load balancer listener policy: When action is redirect please specify target_url")
+		}
+	} else if policyAction == "https_redirect" {
+		_, listenerSet := diff.GetOk(isLBListenerPolicyHTTPSRedirectListener)
+		_, httpsStatusSet := diff.GetOk(isLBListenerPolicyHTTPSRedirectStatusCode)
+
+		if !listenerSet && diff.NewValueKnown(isLBListenerPolicyHTTPSRedirectListener) {
+			return fmt.Errorf("Load balancer listener policy: When action is https_redirect please specify target_https_redirect_listener")
+		}
+
+		if !httpsStatusSet && diff.NewValueKnown(isLBListenerPolicyHTTPSRedirectStatusCode) {
+			return fmt.Errorf("When action is https_redirect please specify target_https_redirect_status_code")
+		}
+	}
+
+	return nil
+}
+
 func resourceIBMISLBPoolCookieValidate(diff *schema.ResourceDiff) error {
 	_, sessionPersistenceTypeIntf := diff.GetChange(isLBPoolSessPersistenceType)
 	_, sessionPersistenceCookieNameIntf := diff.GetChange(isLBPoolSessPersistenceAppCookieName)
@@ -2041,6 +2160,151 @@ func resourceVolumeAttachmentValidate(diff *schema.ResourceDiff) error {
 			if !volPrototypeFound && !volumeIdFound && !volIdnterpolated {
 				return fmt.Errorf("InstanceTemplate - volume_attachments[%d]: Volume details missing. Provide either 'volume' or 'volume_prototype'.", volAttIdx)
 			}
+		}
+	}
+
+	return nil
+}
+
+func resourceVolumeValidate(diff *schema.ResourceDiff) error {
+
+	if diff.Id() != "" && diff.HasChange(isVolumeCapacity) {
+		o, n := diff.GetChange(isVolumeCapacity)
+		old := int64(o.(int))
+		new := int64(n.(int))
+		if new < old {
+			return fmt.Errorf("'%s' attribute has a constraint, it supports only expansion and can't be changed from %d to %d.", isVolumeCapacity, old, new)
+		}
+	}
+
+	profile := ""
+	var capacity, iops int64
+	if profileOk, ok := diff.GetOk(isVolumeProfileName); ok {
+		profile = profileOk.(string)
+	}
+	if capacityOk, ok := diff.GetOk(isVolumeCapacity); ok {
+		capacity = int64(capacityOk.(int))
+	}
+
+	if capacity == int64(0) {
+		capacity = int64(100)
+	}
+	if profile == "5iops-tier" && capacity > 9600 {
+		return fmt.Errorf("'%s' storage block supports capacity up to %d.", profile, 9600)
+	} else if profile == "10iops-tier" && capacity > 4800 {
+		return fmt.Errorf("'%s' storage block supports capacity up to %d.", profile, 4800)
+	}
+
+	if iopsOk, ok := diff.GetOk(isVolumeIops); ok {
+		iops = int64(iopsOk.(int))
+	}
+
+	if diff.HasChange(isVolumeProfileName) {
+		oldProfile, newProfile := diff.GetChange(isVolumeProfileName)
+		if oldProfile.(string) == "custom" || newProfile.(string) == "custom" {
+			diff.ForceNew(isVolumeProfileName)
+		}
+	}
+
+	if profile != "custom" {
+		if iops != 0 && diff.NewValueKnown(isVolumeIops) && diff.HasChange(isVolumeIops) {
+			return fmt.Errorf("VolumeError : iops is applicable for only custom volume profiles")
+		}
+	} else {
+		if capacity == 0 {
+			capacity = int64(100)
+		}
+		if capacity >= 10 && capacity <= 39 {
+			min := int64(100)
+			max := int64(1000)
+			if !(iops >= min && iops <= max) {
+				return fmt.Errorf("VolumeError : allowed iops value for capacity(%d) is [%d-%d] ", capacity, min, max)
+			}
+		}
+		if capacity >= 40 && capacity <= 79 {
+			min := int64(100)
+			max := int64(2000)
+			if !(iops >= min && iops <= max) {
+				return fmt.Errorf("VolumeError : allowed iops value for capacity(%d) is [%d-%d] ", capacity, min, max)
+			}
+		}
+		if capacity >= 80 && capacity <= 99 {
+			min := int64(100)
+			max := int64(4000)
+			if !(iops >= min && iops <= max) {
+				return fmt.Errorf("VolumeError : allowed iops value for capacity(%d) is [%d-%d] ", capacity, min, max)
+			}
+		}
+		if capacity >= 100 && capacity <= 499 {
+			min := int64(100)
+			max := int64(6000)
+			if !(iops >= min && iops <= max) {
+				return fmt.Errorf("VolumeError : allowed iops value for capacity(%d) is [%d-%d] ", capacity, min, max)
+			}
+		}
+		if capacity >= 500 && capacity <= 999 {
+			min := int64(100)
+			max := int64(10000)
+			if !(iops >= min && iops <= max) {
+				return fmt.Errorf("VolumeError : allowed iops value for capacity(%d) is [%d-%d] ", capacity, min, max)
+			}
+		}
+		if capacity >= 1000 && capacity <= 1999 {
+			min := int64(100)
+			max := int64(20000)
+			if !(iops >= min && iops <= max) {
+				return fmt.Errorf("VolumeError : allowed iops value for capacity(%d) is [%d-%d] ", capacity, min, max)
+			}
+		}
+		if capacity >= 2000 && capacity <= 3999 {
+			min := int64(200)
+			max := int64(40000)
+			if !(iops >= min && iops <= max) {
+				return fmt.Errorf("VolumeError : allowed iops value for capacity(%d) is [%d-%d] ", capacity, min, max)
+			}
+		}
+		if capacity >= 4000 && capacity <= 7999 {
+			min := int64(300)
+			max := int64(40000)
+			if !(iops >= min && iops <= max) {
+				return fmt.Errorf("VolumeError : allowed iops value for capacity(%d) is [%d-%d] ", capacity, min, max)
+			}
+		}
+		if capacity >= 8000 && capacity <= 9999 {
+			min := int64(500)
+			max := int64(48000)
+			if !(iops >= min && iops <= max) {
+				return fmt.Errorf("VolumeError : allowed iops value for capacity(%d) is [%d-%d] ", capacity, min, max)
+			}
+		}
+		if capacity >= 10000 && capacity <= 16000 {
+			min := int64(1000)
+			max := int64(48000)
+			if !(iops >= min && iops <= max) {
+				return fmt.Errorf("VolumeError : allowed iops value for capacity(%d) is [%d-%d] ", capacity, min, max)
+			}
+		}
+	}
+	return nil
+}
+
+func resourceRouteModeValidate(diff *schema.ResourceDiff) error {
+
+	var lbtype, lbprofile string
+	if typeOk, ok := diff.GetOk(isLBType); ok {
+		lbtype = typeOk.(string)
+	}
+	if profileOk, ok := diff.GetOk(isLBProfile); ok {
+		lbprofile = profileOk.(string)
+	}
+	if rmOk, ok := diff.GetOk(isLBRouteMode); ok {
+		routeMode := rmOk.(bool)
+
+		if routeMode && lbtype != "private" {
+			return fmt.Errorf("'type' must be 'private', at present public load balancers are not supported with route mode enabled.")
+		}
+		if routeMode && lbprofile != "network-fixed" {
+			return fmt.Errorf("'profile' must be 'network-fixed', route mode is supported by private network load balancer.")
 		}
 	}
 
@@ -2219,9 +2483,10 @@ func IgnoreSystemLabels(labels map[string]string) map[string]string {
 	result := make(map[string]string)
 
 	for k, v := range labels {
-		if strings.HasPrefix(k, SystemIBMLabelPrefix) ||
+		if (strings.HasPrefix(k, SystemIBMLabelPrefix) ||
 			strings.HasPrefix(k, KubernetesLabelPrefix) ||
-			strings.HasPrefix(k, K8sLabelPrefix) {
+			strings.HasPrefix(k, K8sLabelPrefix)) &&
+			!strings.Contains(k, "node-local-dns-enabled") {
 			continue
 		}
 
@@ -2463,6 +2728,18 @@ func generatePolicyOptions(d *schema.ResourceData, meta interface{}) (iampolicym
 				}
 			}
 
+			if r, ok := r["service_type"]; ok && r != nil {
+				serviceName = r.(string)
+				if r.(string) != "" {
+					resourceAttr := iampolicymanagementv1.ResourceAttribute{
+						Name:     core.StringPtr("serviceType"),
+						Value:    core.StringPtr(r.(string)),
+						Operator: core.StringPtr("stringEquals"),
+					}
+					resourceAttributes = append(resourceAttributes, resourceAttr)
+				}
+			}
+
 			if r, ok := r["attributes"]; ok {
 				for k, v := range r.(map[string]interface{}) {
 					resourceAttributes = setResourceAttribute(core.StringPtr(k), core.StringPtr(v.(string)), resourceAttributes)
@@ -2625,6 +2902,24 @@ func flattenSatelliteWorkerPools(list []kubernetesserviceapiv1.GetWorkerPoolResp
 	}
 
 	return workerPools
+}
+
+func flattenSatelliteHosts(hostList []kubernetesserviceapiv1.MultishiftQueueNode) []map[string]interface{} {
+	hosts := make([]map[string]interface{}, len(hostList))
+	for i, host := range hostList {
+		l := map[string]interface{}{
+			"host_id":      *host.ID,
+			"host_name":    *host.Name,
+			"status":       *host.Health.Status,
+			"ip_address":   *host.Assignment.IpAddress,
+			"cluster_name": *host.Assignment.ClusterName,
+			"zone":         *host.Assignment.Zone,
+			"host_labels":  *&host.Labels,
+		}
+		hosts[i] = l
+	}
+
+	return hosts
 }
 
 func flattenWorkerPoolHostLabels(hostLabels map[string]string) *schema.Set {

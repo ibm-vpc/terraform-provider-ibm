@@ -89,6 +89,12 @@ func resourceIBMIAMUserPolicy() *schema.Resource {
 							Description: "ID of the resource group.",
 						},
 
+						"service_type": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "Service type of the policy definition",
+						},
+
 						"attributes": {
 							Type:        schema.TypeMap,
 							Optional:    true,
@@ -138,6 +144,12 @@ func resourceIBMIAMUserPolicy() *schema.Resource {
 				Optional: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Set:      schema.HashString,
+			},
+
+			"description": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "Description of the Policy",
 			},
 		},
 	}
@@ -195,6 +207,11 @@ func resourceIBMIAMUserPolicyCreate(d *schema.ResourceData, meta interface{}) er
 		policyOptions.Roles,
 		[]iampolicymanagementv1.PolicyResource{policyResources},
 	)
+
+	if description, ok := d.GetOk("description"); ok {
+		des := description.(string)
+		createPolicyOptions.Description = &des
+	}
 
 	userPolicy, _, err := iamPolicyManagementClient.CreatePolicy(createPolicyOptions)
 
@@ -294,6 +311,9 @@ func resourceIBMIAMUserPolicyRead(d *schema.ResourceData, meta interface{}) erro
 			d.Set("account_management", true)
 		}
 	}
+	if userPolicy.Description != nil {
+		d.Set("description", *userPolicy.Description)
+	}
 	return nil
 }
 
@@ -302,7 +322,7 @@ func resourceIBMIAMUserPolicyUpdate(d *schema.ResourceData, meta interface{}) er
 	if err != nil {
 		return err
 	}
-	if d.HasChange("roles") || d.HasChange("resources") || d.HasChange("resource_attributes") || d.HasChange("account_management") {
+	if d.HasChange("roles") || d.HasChange("resources") || d.HasChange("resource_attributes") || d.HasChange("account_management") || d.HasChange("description") {
 		parts, err := idParts(d.Id())
 		if err != nil {
 			return err
@@ -365,6 +385,11 @@ func resourceIBMIAMUserPolicyUpdate(d *schema.ResourceData, meta interface{}) er
 			createPolicyOptions.Roles,
 			[]iampolicymanagementv1.PolicyResource{policyResources},
 		)
+
+		if description, ok := d.GetOk("description"); ok {
+			des := description.(string)
+			updatePolicyOptions.Description = &des
+		}
 
 		policy, _, err = iamPolicyManagementClient.UpdatePolicy(updatePolicyOptions)
 		if err != nil {

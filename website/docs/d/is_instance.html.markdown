@@ -65,6 +65,7 @@ Review the argument references that you can specify for your data source.
 ## Attribute reference
 In addition to all argument reference list, you can access the following attribute references after your data source is created. 
 
+- `bandwidth` - (Integer) The total bandwidth (in megabits per second) shared across the instance's network interfaces and storage volumes
 - `boot_volume` - (List of Objects) A list of boot volumes that were created for the instance.
 
   Nested scheme for `boot_volume`:
@@ -73,6 +74,7 @@ In addition to all argument reference list, you can access the following attribu
   - `device` - (String) The name of the device that is associated with the boot volume.
   - `volume_id` - (String) The ID of the volume that is associated with the boot volume attachment.
   - `volume_crn` - (String) The CRN of the volume that is associated with the boot volume attachment.
+- `crn` - (String) The CRN of the instance.
 - `disks` - (List) Collection of the instance's disks. Nested `disks` blocks has the following structure:
 
   Nested scheme for `disks`:
@@ -86,7 +88,6 @@ In addition to all argument reference list, you can access the following attribu
 - `gpu`- (List) A list of graphics processing units that are allocated to the instance.
 
   Nested scheme for `gpu`:
-  - `cores`- (Integer) The number of cores that are assigned to the GPU.
   - `count`- (Integer) The number of GPUs that are allocated to the instance.
   - `manufacture` - (String) The manufacturer of the GPU.
   - `memory`- (Integer) The amount of memory that was allocated to the GPU.
@@ -108,6 +109,16 @@ In addition to all argument reference list, you can access the following attribu
   - `subnet` - (String) The ID of the subnet that is used in the more network interface.
   - `security_groups` (List)A list of security groups that were created for the interface.
 - `password` - (String) The password that you can use to access your instance.
+- `placement_target`- (List) The placement restrictions for the virtual server instance.
+
+  Nested scheme for `placement_target`: 
+  - `crn` - (String) The CRN for this placement target resource.
+  - `deleted` - (String) If present, this property indicates the referenced resource has been deleted and providessome supplementary information.
+    - `more_info` -  (String) Link to documentation about deleted resources. 
+  - `href` - (String) The URL for this placement target resource.
+  - `id` - (String) The unique identifier for this placement target resource.
+  - `name` - (String) The unique user-defined name for this placement target resource. If unspecified, the name will be a hyphenated list of randomly-selected words.
+  - `resource_type` - (String) The type of resource referenced.
 - `primary_network_interface`- (List) A list of primary network interfaces that were created for the instance. 
 
   Nested scheme for `primary_network_interface`:
@@ -124,6 +135,8 @@ In addition to all argument reference list, you can access the following attribu
   Nested scheme for `status_reasons`:
   - `code` - (String)  A snake case string identifying the status reason.
   - `message` - (String)  An explanation of the status reason
+- `total_volume_bandwidth` - (Integer) The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes
+- `total_network_bandwidth` - (Integer) The amount of bandwidth (in megabits per second) allocated exclusively to instance network interfaces.
 - `vpc` - (String) The ID of the VPC that the instance belongs to.
 - `vcpu`- (List) A list of virtual CPUs that were allocated to the instance.
 

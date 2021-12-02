@@ -42,6 +42,7 @@ Review the argument references that you can specify for your data source.
 ## Attribute reference
 In addition to all argument reference list, you can access the following attribute references after your data source is created. 
 
+- `crn` - (String) The CRN for this load balancer.
 - `hostname` - (String) Fully qualified domain name assigned to this load balancer.
 - `id` - (String) The ID of the load balancer.
 - `listeners` - (String) The ID of the listeners attached to this load balancer.
@@ -84,6 +85,7 @@ In addition to all argument reference list, you can access the following attribu
 - `public_ips` - (String) The public IP addresses assigned to this load balancer.
 - `private_ips` - (String) The private IP addresses assigned to this load balancer.
 - `resource_group` - (String) The resource group where the load balancer is created.
+- `route_mode` - (Bool) Indicates whether route mode is enabled for this load balancer.
 - `security_groups`- (String) A list of security groups that are used with this load balancer. This option is supported only for application load balancers.
 - `security_groups_supported`- (Bool) Indicates if this load balancer supports security groups.
 - `subnets` - (String) The ID of the subnets to provision this load balancer.

@@ -78,8 +78,18 @@ func dataSourceIBMIAMUserPolicy() *schema.Resource {
 										Computed:    true,
 										Description: "ID of the resource group.",
 									},
+									"service_type": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: "Service type of the policy definition",
+									},
 								},
 							},
+						},
+						"description": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "Description of the Policy",
 						},
 					},
 				},
@@ -139,6 +149,9 @@ func dataSourceIBMIAMUserPolicyRead(d *schema.ResourceData, meta interface{}) er
 			"id":        fmt.Sprintf("%s/%s", userEmail, *policy.ID),
 			"roles":     roles,
 			"resources": resources,
+		}
+		if policy.Description != nil {
+			p["description"] = policy.Description
 		}
 		userPolicies = append(userPolicies, p)
 	}

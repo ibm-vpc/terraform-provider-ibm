@@ -24,13 +24,6 @@ func dataSourceIBMPIImages() *schema.Resource {
 		Read: dataSourceIBMPIImagesAllRead,
 		Schema: map[string]*schema.Schema{
 
-			helpers.PIImageName: {
-				Type:         schema.TypeString,
-				Optional:     true,
-				Description:  "Imagename Name to be used for pvminstances",
-				ValidateFunc: validation.NoZeroValues,
-				Deprecated:   "This field is deprectaed.",
-			},
 			helpers.PICloudInstanceId: {
 				Type:         schema.TypeString,
 				Required:     true,
@@ -61,6 +54,14 @@ func dataSourceIBMPIImages() *schema.Resource {
 							Computed: true,
 						},
 						"storage_type": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"storage_pool": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"image_type": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
@@ -107,6 +108,8 @@ func flattenStockImages(list []*models.ImageReference) []map[string]interface{} 
 			"href":         *i.Href,
 			"name":         *i.Name,
 			"storage_type": *i.StorageType,
+			"storage_pool": *i.StoragePool,
+			"image_type":   i.Specifications.ImageType,
 		}
 
 		result = append(result, l)

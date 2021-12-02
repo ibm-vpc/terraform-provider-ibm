@@ -3,7 +3,7 @@ layout: "ibm"
 page_title: "IBM : ibm_atracker_route"
 description: |-
   Manages Activity Tracker Route.
-subcategory: "Activity Tracker API"
+subcategory: "Activity Tracker"
 ---
 
 # ibm_atracker_route
@@ -16,7 +16,9 @@ Provides a resource for Activity Tracker Route. This allows Activity Tracker Rou
 resource "ibm_atracker_route" "atracker_route" {
   name = "my-route"
   receive_global_events = false
-  target_ids = [ ibm_atracker_target.atracker_target.id ]
+  rules {
+    target_ids = [ ibm_atracker_target.atracker_target.id ]
+  }
 }
 ```
 

@@ -31,6 +31,12 @@ func dataSourceIBMISVolume() *schema.Resource {
 				Description: "Zone name",
 			},
 
+			isVolumeBandwidth: {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: "The maximum bandwidth (in megabits per second) for the volume",
+			},
+
 			isVolumeResourceGroup: {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -47,6 +53,12 @@ func dataSourceIBMISVolume() *schema.Resource {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "Volume encryption key info",
+			},
+
+			isVolumeEncryptionType: {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Volume encryption type info",
 			},
 
 			isVolumeCapacity: {
@@ -195,11 +207,15 @@ func volumeGet(d *schema.ResourceData, meta interface{}, name string) error {
 	}
 	for _, vol := range allrecs {
 		d.SetId(*vol.ID)
+		d.Set(isVolumeBandwidth, int(*vol.Bandwidth))
 		d.Set(isVolumeName, *vol.Name)
 		d.Set(isVolumeProfileName, *vol.Profile.Name)
 		d.Set(isVolumeZone, *vol.Zone.Name)
 		if vol.EncryptionKey != nil {
 			d.Set(isVolumeEncryptionKey, vol.EncryptionKey.CRN)
+		}
+		if vol.Encryption != nil {
+			d.Set(isVolumeEncryptionType, vol.Encryption)
 		}
 		if vol.SourceSnapshot != nil {
 			d.Set(isVolumeSourceSnapshot, *vol.SourceSnapshot.ID)
@@ -235,7 +251,7 @@ func volumeGet(d *schema.ResourceData, meta interface{}, name string) error {
 		d.Set(ResourceCRN, *vol.CRN)
 		d.Set(ResourceStatus, *vol.Status)
 		if vol.ResourceGroup != nil {
-			d.Set(ResourceGroupName, *vol.ResourceGroup.Name)
+			d.Set(ResourceGroupName, vol.ResourceGroup.Name)
 			d.Set(isVolumeResourceGroup, *vol.ResourceGroup.ID)
 		}
 		return nil

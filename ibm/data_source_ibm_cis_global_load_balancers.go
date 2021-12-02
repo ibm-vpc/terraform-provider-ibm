@@ -7,7 +7,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/IBM/go-sdk-core/v4/core"
+	"github.com/IBM/go-sdk-core/v5/core"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -70,6 +70,11 @@ func dataSourceIBMCISGlbs() *schema.Resource {
 							Type:        schema.TypeInt,
 							Computed:    true,
 							Description: "TTL value",
+						},
+						cisGLBSteeringPolicy: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "Steering policy info",
 						},
 						cisGLBProxied: {
 							Type:        schema.TypeBool,
@@ -178,6 +183,7 @@ func dataSourceCISGlbsRead(d *schema.ResourceData, meta interface{}) error {
 		glbOutput[cisGLBDesc] = *glbObj.Description
 		glbOutput[cisGLBFallbackPoolID] = convertCisToTfTwoVar(*glbObj.FallbackPool, crn)
 		glbOutput[cisGLBTTL] = *glbObj.TTL
+		glbOutput[cisGLBSteeringPolicy] = *glbObj.SteeringPolicy
 		glbOutput[cisGLBProxied] = *glbObj.Proxied
 		glbOutput[cisGLBEnabled] = *glbObj.Enabled
 		glbOutput[cisGLBSessionAffinity] = *glbObj.SessionAffinity

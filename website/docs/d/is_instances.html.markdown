@@ -36,6 +36,10 @@ The input parameters that you need to specify for the data source.
 - `vpc_name` - (Optional, String) The name of the VPC to filter the instances attached.
 - `instance_group` - (Optional, String) Instance group ID to filter the instances attached to it.
 - `instance_group_name` - (Optional, String) Instance group name to filter the instances attached to it.
+- `dedicated_host_name` - (Optional, String) Dedicated host name to filter the instances attached to it.
+- `dedicated_host` - (Optional, String) Dedicated host ID to filter the instances attached to it.
+- `placement_group_name` - (Optional, String) Placement group name to filter the instances attached to it.
+- `placement_group` - (Optional, String) Placement group ID to filter the instances attached to it.
 
 ## Attribute reference
 In addition to all argument reference list, you can access the following attribute references after your data source is created.
@@ -43,6 +47,7 @@ In addition to all argument reference list, you can access the following attribu
 - `instances`- (List of Object) A list of Virtual Servers for VPC instances that exist in your account.
    
    Nested scheme for `instances`:
+    - `bandwidth` - (Integer) The total bandwidth (in megabits per second) shared across the instance's network interfaces and storage volumes
 	- `boot_volume`- (List) A list of boot volumes that were created for the instance.
 
 	  Nested scheme for `boot_volume`:
@@ -51,6 +56,7 @@ In addition to all argument reference list, you can access the following attribu
 		- `name` - (String) The name of the boot volume.
 		- `volume_id` - (String) The ID of the volume that is associated with the boot volume attachment.
 		- `volume_crn` - (String) The CRN of the volume that is associated with the boot volume attachment.
+	- `crn` - (String) The CRN of the instance.
 	- `disks` - (List) Collection of the instance's disks. Nested `disks` blocks has the following structure:
 
 	  Nested scheme for `disks`:
@@ -61,6 +67,12 @@ In addition to all argument reference list, you can access the following attribu
 	  	- `name` - (String) The user-defined name for this disk.
 	  	- `resource_type` - (String) The resource type.
 	  	- `size` - (String) The size of the disk in GB (gigabytes).
+	- `gpu` - A nested block describing the gpu of this instance.
+      Nested `gpu` blocks have the following structure:
+        - `count` - Count of the gpu.
+        - `manufacture` - Manufacture of the gpu.
+        - `memory` - Memory of the gpu.
+        - `model` - Model of the gpu.
 	- `id` - (String) The ID that was assigned to the Virtual Servers for VPC instance.
 	- `image` - (String) The ID of the virtual server image that is used in the instance.
 	- `memory`- (Integer) The amount of memory that was allocated to the instance.
@@ -72,6 +84,16 @@ In addition to all argument reference list, you can access the following attribu
 		- `primary_ipv4_address` - (String) The IPv4 address range that the subnet uses.
 		- `subnet` - (String) The ID of the subnet that is used in the more network interface.
 		- `security_groups` (List)A list of security groups that were created for the interface.
+	- `placement_target`- (List) The placement restrictions for the virtual server instance.
+
+	  Nested scheme for `placement_target`: 
+		- `crn` - (String) The CRN for this placement target resource.
+		- `deleted` - (String) If present, this property indicates the referenced resource has been deleted and providessome supplementary information.
+			- `more_info` -  (String) Link to documentation about deleted resources. 
+		- `href` - (String) The URL for this placement target resource.
+		- `id` - (String) The unique identifier for this placement target resource.
+		- `name` - (String) The unique user-defined name for this placement target resource. If unspecified, the name will be a hyphenated list of randomly-selected words.
+		- `resource_type` - (String) The type of resource referenced.
 	- `primary_network_interface`- (List) A list of primary network interfaces that were created for the instance. 
 
 	  Nested scheme for `primary_network_interface`:
@@ -86,6 +108,8 @@ In addition to all argument reference list, you can access the following attribu
 		Nested scheme for `status_reasons`:
 		- `code` - (String)  A snake case string identifying the status reason.
 		- `message` - (String)  An explanation of the status reason
+	- `total_volume_bandwidth` - (Integer) The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes
+    - `total_network_bandwidth` - (Integer) The amount of bandwidth (in megabits per second) allocated exclusively to instance network interfaces.
 	- `volume_attachments`- (List) A list of volume attachments that were created for the instance.
 
 	  Nested scheme for `volume_attachments`: 

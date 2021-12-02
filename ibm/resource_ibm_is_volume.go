@@ -21,6 +21,7 @@ const (
 	isVolumeProfileName          = "profile"
 	isVolumeZone                 = "zone"
 	isVolumeEncryptionKey        = "encryption_key"
+	isVolumeEncryptionType       = "encryption_type"
 	isVolumeCapacity             = "capacity"
 	isVolumeIops                 = "iops"
 	isVolumeCrn                  = "crn"
@@ -36,6 +37,7 @@ const (
 	isVolumeResourceGroup        = "resource_group"
 	isVolumeSourceSnapshot       = "source_snapshot"
 	isVolumeDeleteAllSnapshots   = "delete_all_snapshots"
+	isVolumeBandwidth            = "bandwidth"
 )
 
 func resourceIBMISVolume() *schema.Resource {
@@ -52,10 +54,16 @@ func resourceIBMISVolume() *schema.Resource {
 			Delete: schema.DefaultTimeout(10 * time.Minute),
 		},
 
-		CustomizeDiff: customdiff.Sequence(
-			func(_ context.Context, diff *schema.ResourceDiff, v interface{}) error {
-				return resourceTagsCustomizeDiff(diff)
-			},
+		CustomizeDiff: customdiff.All(
+			customdiff.Sequence(
+				func(_ context.Context, diff *schema.ResourceDiff, v interface{}) error {
+					return resourceTagsCustomizeDiff(diff)
+				},
+			),
+			customdiff.Sequence(
+				func(_ context.Context, diff *schema.ResourceDiff, v interface{}) error {
+					return resourceVolumeValidate(diff)
+				}),
 		),
 
 		Schema: map[string]*schema.Schema{
@@ -68,10 +76,10 @@ func resourceIBMISVolume() *schema.Resource {
 			},
 
 			isVolumeProfileName: {
-				Type:        schema.TypeString,
-				Required:    true,
-				ForceNew:    true,
-				Description: "Volume profile name",
+				Type:         schema.TypeString,
+				Required:     true,
+				ValidateFunc: InvokeValidator("ibm_is_volume", isVolumeProfileName),
+				Description:  "Volume profile name",
 			},
 
 			isVolumeZone: {
@@ -84,17 +92,23 @@ func resourceIBMISVolume() *schema.Resource {
 			isVolumeEncryptionKey: {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Computed:    true,
 				ForceNew:    true,
 				Description: "Volume encryption key info",
 			},
 
+			isVolumeEncryptionType: {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Volume encryption type info",
+			},
+
 			isVolumeCapacity: {
-				Type:        schema.TypeInt,
-				Optional:    true,
-				Default:     100,
-				ForceNew:    true,
-				Description: "Vloume capacity value",
+				Type:         schema.TypeInt,
+				Optional:     true,
+				Default:      100,
+				ForceNew:     false,
+				ValidateFunc: InvokeValidator("ibm_is_volume", isVolumeCapacity),
+				Description:  "Volume capacity value",
 			},
 			isVolumeResourceGroup: {
 				Type:        schema.TypeString,
@@ -104,11 +118,11 @@ func resourceIBMISVolume() *schema.Resource {
 				Description: "Resource group name",
 			},
 			isVolumeIops: {
-				Type:        schema.TypeInt,
-				Optional:    true,
-				Computed:    true,
-				ForceNew:    true,
-				Description: "IOPS value for the Volume",
+				Type:         schema.TypeInt,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: InvokeValidator("ibm_is_volume", isVolumeIops),
+				Description:  "IOPS value for the Volume",
 			},
 			isVolumeCrn: {
 				Type:        schema.TypeString,
@@ -189,6 +203,12 @@ func resourceIBMISVolume() *schema.Resource {
 				Computed:    true,
 				Description: "The resource group name in which resource is provisioned",
 			},
+
+			isVolumeBandwidth: {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: "The maximum bandwidth (in megabits per second) for the volume",
+			},
 		},
 	}
 }
@@ -215,6 +235,28 @@ func resourceIBMISVolumeValidator() *ResourceValidator {
 			Regexp:                     `^[A-Za-z0-9:_ .-]+$`,
 			MinValueLength:             1,
 			MaxValueLength:             128})
+	validateSchema = append(validateSchema,
+		ValidateSchema{
+			Identifier:                 isVolumeProfileName,
+			ValidateFunctionIdentifier: ValidateAllowedStringValue,
+			Type:                       TypeString,
+			Optional:                   true,
+			AllowedValues:              "general-purpose, 5iops-tier, 10iops-tier, custom",
+		})
+	validateSchema = append(validateSchema,
+		ValidateSchema{
+			Identifier:                 isVolumeCapacity,
+			ValidateFunctionIdentifier: IntBetween,
+			Type:                       TypeInt,
+			MinValue:                   "10",
+			MaxValue:                   "16000"})
+	validateSchema = append(validateSchema,
+		ValidateSchema{
+			Identifier:                 isVolumeIops,
+			ValidateFunctionIdentifier: IntBetween,
+			Type:                       TypeInt,
+			MinValue:                   "100",
+			MaxValue:                   "48000"})
 
 	ibmISVolumeResourceValidator := ResourceValidator{ResourceName: "ibm_is_volume", Schema: validateSchema}
 	return &ibmISVolumeResourceValidator
@@ -333,6 +375,9 @@ func volGet(d *schema.ResourceData, meta interface{}, id string) error {
 	if vol.EncryptionKey != nil {
 		d.Set(isVolumeEncryptionKey, vol.EncryptionKey.CRN)
 	}
+	if vol.Encryption != nil {
+		d.Set(isVolumeEncryptionType, vol.Encryption)
+	}
 	d.Set(isVolumeIops, *vol.Iops)
 	d.Set(isVolumeCapacity, *vol.Capacity)
 	d.Set(isVolumeCrn, *vol.CRN)
@@ -340,6 +385,7 @@ func volGet(d *schema.ResourceData, meta interface{}, id string) error {
 		d.Set(isVolumeSourceSnapshot, *vol.SourceSnapshot.ID)
 	}
 	d.Set(isVolumeStatus, *vol.Status)
+	d.Set(isVolumeBandwidth, int(*vol.Bandwidth))
 	//set the status reasons
 	if vol.StatusReasons != nil {
 		statusReasonsList := make([]map[string]interface{}, 0)
@@ -368,7 +414,7 @@ func volGet(d *schema.ResourceData, meta interface{}, id string) error {
 	d.Set(ResourceCRN, *vol.CRN)
 	d.Set(ResourceStatus, *vol.Status)
 	if vol.ResourceGroup != nil {
-		d.Set(ResourceGroupName, *vol.ResourceGroup.Name)
+		d.Set(ResourceGroupName, vol.ResourceGroup.Name)
 		d.Set(isVolumeResourceGroup, *vol.ResourceGroup.ID)
 	}
 	return nil
@@ -378,7 +424,7 @@ func resourceIBMISVolumeUpdate(d *schema.ResourceData, meta interface{}) error {
 
 	id := d.Id()
 	name := ""
-	hasChanged := false
+	hasNameChanged := false
 	delete := false
 
 	if delete_all_snapshots, ok := d.GetOk(isVolumeDeleteAllSnapshots); ok && delete_all_snapshots.(bool) {
@@ -387,25 +433,27 @@ func resourceIBMISVolumeUpdate(d *schema.ResourceData, meta interface{}) error {
 
 	if d.HasChange(isVolumeName) {
 		name = d.Get(isVolumeName).(string)
-		hasChanged = true
+		hasNameChanged = true
 	}
 
-	err := volUpdate(d, meta, id, name, hasChanged, delete)
+	err := volUpdate(d, meta, id, name, hasNameChanged, delete)
 	if err != nil {
 		return err
 	}
 	return resourceIBMISVolumeRead(d, meta)
 }
 
-func volUpdate(d *schema.ResourceData, meta interface{}, id, name string, hasChanged, delete bool) error {
+func volUpdate(d *schema.ResourceData, meta interface{}, id, name string, hasNameChanged, delete bool) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
 		return err
 	}
+	var capacity int64
 	if delete {
 		deleteAllSnapshots(sess, id)
 	}
 
+	// tags update
 	if d.HasChange(isVolumeTags) {
 		options := &vpcv1.GetVolumeOptions{
 			ID: &id,
@@ -421,23 +469,150 @@ func volUpdate(d *schema.ResourceData, meta interface{}, id, name string, hasCha
 				"Error on update of resource vpc volume (%s) tags: %s", id, err)
 		}
 	}
-	if hasChanged {
-		options := &vpcv1.UpdateVolumeOptions{
+
+	options := &vpcv1.UpdateVolumeOptions{
+		ID: &id,
+	}
+
+	//name update
+	volumeNamePatchModel := &vpcv1.VolumePatch{}
+	if hasNameChanged {
+		volumeNamePatchModel.Name = &name
+		volumeNamePatch, err := volumeNamePatchModel.AsPatch()
+		if err != nil {
+			return fmt.Errorf("Error calling asPatch for volumeNamePatch: %s", err)
+		}
+		options.VolumePatch = volumeNamePatch
+		_, _, err = sess.UpdateVolume(options)
+		_, err = isWaitForVolumeAvailable(sess, d.Id(), d.Timeout(schema.TimeoutCreate))
+		if err != nil {
+			return err
+		}
+	}
+
+	// profile/ iops update
+	if d.HasChange(isVolumeProfileName) || d.HasChange(isVolumeIops) {
+		volumeProfilePatchModel := &vpcv1.VolumePatch{}
+		volId := d.Id()
+		getvoloptions := &vpcv1.GetVolumeOptions{
+			ID: &volId,
+		}
+		vol, response, err := sess.GetVolume(getvoloptions)
+		if err != nil || vol == nil {
+			return fmt.Errorf("Error retrieving Volume (%s) details: %s\n%s", volId, err, response)
+		}
+		if vol.VolumeAttachments == nil || len(vol.VolumeAttachments) < 1 {
+			return fmt.Errorf("Error updating Volume profile/iops because the specified volume %s is not attached to a virtual server instance ", volId)
+		}
+		volAtt := &vol.VolumeAttachments[0]
+		insId := *volAtt.Instance.ID
+		getinsOptions := &vpcv1.GetInstanceOptions{
+			ID: &insId,
+		}
+		instance, response, err := sess.GetInstance(getinsOptions)
+		if err != nil || instance == nil {
+			return fmt.Errorf("Error retrieving Instance (%s) to which the volume (%s) is attached : %s\n%s", insId, volId, err, response)
+		}
+		if instance != nil && *instance.Status != "running" {
+			actiontype := "start"
+			createinsactoptions := &vpcv1.CreateInstanceActionOptions{
+				InstanceID: &insId,
+				Type:       &actiontype,
+			}
+			_, response, err = sess.CreateInstanceAction(createinsactoptions)
+			if err != nil {
+				return fmt.Errorf("Error starting Instance (%s) to which the volume (%s) is attached  : %s\n%s", insId, volId, err, response)
+			}
+			_, err = isWaitForInstanceAvailable(sess, insId, d.Timeout(schema.TimeoutCreate), d)
+			if err != nil {
+				return err
+			}
+		}
+		if d.HasChange(isVolumeProfileName) {
+			profile := d.Get(isVolumeProfileName).(string)
+			volumeProfilePatchModel.Profile = &vpcv1.VolumeProfileIdentity{
+				Name: &profile,
+			}
+		} else if d.HasChange(isVolumeIops) {
+			profile := d.Get(isVolumeProfileName).(string)
+			volumeProfilePatchModel.Profile = &vpcv1.VolumeProfileIdentity{
+				Name: &profile,
+			}
+			iops := int64(d.Get(isVolumeIops).(int))
+			volumeProfilePatchModel.Iops = &iops
+		}
+
+		volumeProfilePatch, err := volumeProfilePatchModel.AsPatch()
+		if err != nil {
+			return fmt.Errorf("Error calling asPatch for VolumeProfilePatch: %s", err)
+		}
+		options.VolumePatch = volumeProfilePatch
+		_, response, err = sess.UpdateVolume(options)
+		_, err = isWaitForVolumeAvailable(sess, d.Id(), d.Timeout(schema.TimeoutCreate))
+		if err != nil {
+			return err
+		}
+	}
+
+	// capacity update
+	if d.HasChange(isVolumeCapacity) {
+		id := d.Id()
+		getvolumeoptions := &vpcv1.GetVolumeOptions{
 			ID: &id,
 		}
-		volumePatchModel := &vpcv1.VolumePatch{
-			Name: &name,
-		}
-		volumePatch, err := volumePatchModel.AsPatch()
+		vol, response, err := sess.GetVolume(getvolumeoptions)
 		if err != nil {
-			return fmt.Errorf("Error calling asPatch for VolumePatch: %s", err)
+			if response != nil && response.StatusCode == 404 {
+				d.SetId("")
+				return nil
+			}
+			return fmt.Errorf("Error Getting Volume (%s): %s\n%s", id, err, response)
 		}
-		options.VolumePatch = volumePatch
-		_, response, err := sess.UpdateVolume(options)
+		if vol.VolumeAttachments == nil || len(vol.VolumeAttachments) == 0 || *vol.VolumeAttachments[0].ID == "" {
+			return fmt.Errorf("Error volume capacity can't be updated since volume %s is not attached to any instance for VolumePatch", id)
+		}
+		insId := vol.VolumeAttachments[0].Instance.ID
+		getinsOptions := &vpcv1.GetInstanceOptions{
+			ID: insId,
+		}
+		instance, response, err := sess.GetInstance(getinsOptions)
+		if err != nil || instance == nil {
+			return fmt.Errorf("Error retrieving Instance (%s) : %s\n%s", *insId, err, response)
+		}
+		if instance != nil && *instance.Status != "running" {
+			actiontype := "start"
+			createinsactoptions := &vpcv1.CreateInstanceActionOptions{
+				InstanceID: insId,
+				Type:       &actiontype,
+			}
+			_, response, err = sess.CreateInstanceAction(createinsactoptions)
+			if err != nil {
+				return fmt.Errorf("Error starting Instance (%s) : %s\n%s", *insId, err, response)
+			}
+			_, err = isWaitForInstanceAvailable(sess, *insId, d.Timeout(schema.TimeoutCreate), d)
+			if err != nil {
+				return err
+			}
+		}
+		capacity = int64(d.Get(isVolumeCapacity).(int))
+		volumeCapacityPatchModel := &vpcv1.VolumePatch{}
+		volumeCapacityPatchModel.Capacity = &capacity
+
+		volumeCapacityPatch, err := volumeCapacityPatchModel.AsPatch()
+		if err != nil {
+			return fmt.Errorf("Error calling asPatch for volumeCapacityPatch: %s", err)
+		}
+		options.VolumePatch = volumeCapacityPatch
+		_, response, err = sess.UpdateVolume(options)
 		if err != nil {
 			return fmt.Errorf("Error updating vpc volume: %s\n%s", err, response)
 		}
+		_, err = isWaitForVolumeAvailable(sess, d.Id(), d.Timeout(schema.TimeoutCreate))
+		if err != nil {
+			return err
+		}
 	}
+
 	return nil
 }
 

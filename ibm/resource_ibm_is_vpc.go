@@ -27,7 +27,9 @@ const (
 	isVPCDefaultRoutingTable        = "default_routing_table"
 	isVPCName                       = "name"
 	isVPCDefaultNetworkACLName      = "default_network_acl_name"
+	isVPCDefaultNetworkACLCRN       = "default_network_acl_crn"
 	isVPCDefaultSecurityGroupName   = "default_security_group_name"
+	isVPCDefaultSecurityGroupCRN    = "default_security_group_crn"
 	isVPCDefaultRoutingTableName    = "default_routing_table_name"
 	isVPCResourceGroup              = "resource_group"
 	isVPCStatus                     = "status"
@@ -84,7 +86,8 @@ func resourceIBMISVPC() *schema.Resource {
 				Type:             schema.TypeString,
 				Optional:         true,
 				Default:          "auto",
-				DiffSuppressFunc: applyOnce,
+				DiffSuppressFunc: suppressNullAddPrefix,
+				ForceNew:         true,
 				ValidateFunc:     InvokeValidator("ibm_is_vpc", isVPCAddressPrefixManagement),
 				Description:      "Address Prefix management value",
 			},
@@ -134,6 +137,18 @@ func resourceIBMISVPC() *schema.Resource {
 				Computed:     true,
 				ValidateFunc: InvokeValidator("ibm_is_vpc", isVPCDefaultSecurityGroupName),
 				Description:  "Default security group name",
+			},
+
+			isVPCDefaultSecurityGroupCRN: {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Default security group CRN",
+			},
+
+			isVPCDefaultNetworkACLCRN: {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Default Network ACL CRN",
 			},
 
 			isVPCDefaultRoutingTableName: {
@@ -561,6 +576,7 @@ func vpcGet(d *schema.ResourceData, meta interface{}, id string) error {
 		log.Printf("[DEBUG] vpc default network acl is not null :%s", *vpc.DefaultNetworkACL.ID)
 		d.Set(isVPCDefaultNetworkACL, *vpc.DefaultNetworkACL.ID)
 		d.Set(isVPCDefaultNetworkACLName, *vpc.DefaultNetworkACL.Name)
+		d.Set(isVPCDefaultNetworkACLCRN, vpc.DefaultNetworkACL.CRN)
 	} else {
 		log.Printf("[DEBUG] vpc default network acl is  null")
 		d.Set(isVPCDefaultNetworkACL, nil)
@@ -568,6 +584,7 @@ func vpcGet(d *schema.ResourceData, meta interface{}, id string) error {
 	if vpc.DefaultSecurityGroup != nil {
 		d.Set(isVPCDefaultSecurityGroup, *vpc.DefaultSecurityGroup.ID)
 		d.Set(isVPCDefaultSecurityGroupName, *vpc.DefaultSecurityGroup.Name)
+		d.Set(isVPCDefaultSecurityGroupCRN, vpc.DefaultSecurityGroup.CRN)
 	} else {
 		d.Set(isVPCDefaultSecurityGroup, nil)
 	}
@@ -897,7 +914,7 @@ func isWaitForVPCDeleted(vpc *vpcv1.VpcV1, id string, timeout time.Duration) (in
 
 func isVPCDeleteRefreshFunc(vpc *vpcv1.VpcV1, id string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		log.Printf("[DEBUG] delete function here")
+		log.Printf("[DEBUG] is vpc delete function here")
 		getvpcOptions := &vpcv1.GetVPCOptions{
 			ID: &id,
 		}
@@ -998,4 +1015,12 @@ func rtNameUpdate(sess *vpcv1.VpcV1, vpcID, id, name string) error {
 		return fmt.Errorf("Error Updating Routing table name %s\n%s", err, response)
 	}
 	return nil
+}
+
+func suppressNullAddPrefix(k, old, new string, d *schema.ResourceData) bool {
+	// During import
+	if old == "" && d.Id() != "" {
+		return true
+	}
+	return false
 }

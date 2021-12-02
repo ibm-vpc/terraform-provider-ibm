@@ -3,7 +3,7 @@ layout: "ibm"
 page_title: "IBM : ibm_atracker_target"
 description: |-
   Manages Activity Tracker Target.
-subcategory: "Activity Tracker API"
+subcategory: "Activity Tracker"
 ---
 
 # ibm_atracker_target
@@ -14,7 +14,12 @@ Provides a resource for Activity Tracker Target. This allows Activity Tracker Ta
 
 ```hcl
 resource "ibm_atracker_target" "atracker_target" {
-  cos_endpoint = { "endpoint" : "endpoint", "target_crn" : "target_crn", "bucket" : "bucket", "api_key" : "api_key" }
+  cos_endpoint { 
+     endpoint = "endpoint" 
+     target_crn = "target_crn" 
+     bucket = "bucket" 
+     api_key = "api_key" 
+  }
   name = "my-cos-target"
   target_type = "cloud_object_storage"
 }

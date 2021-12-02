@@ -27,6 +27,7 @@ func TestAccIBMIAMUserPolicy_Basic(t *testing.T) {
 					testAccCheckIBMIAMUserPolicyExists("ibm_iam_user_policy.policy", conf),
 					resource.TestCheckResourceAttr("ibm_iam_user_policy.policy", "tags.#", "1"),
 					resource.TestCheckResourceAttr("ibm_iam_user_policy.policy", "roles.#", "1"),
+					resource.TestCheckResourceAttr("ibm_iam_user_policy.policy", "description", "IAM User Policy Creation for test scenario"),
 				),
 			},
 			resource.TestStep{
@@ -34,6 +35,7 @@ func TestAccIBMIAMUserPolicy_Basic(t *testing.T) {
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("ibm_iam_user_policy.policy", "tags.#", "2"),
 					resource.TestCheckResourceAttr("ibm_iam_user_policy.policy", "roles.#", "2"),
+					resource.TestCheckResourceAttr("ibm_iam_user_policy.policy", "description", "IAM User Policy Update for test scenario"),
 				),
 			},
 		},
@@ -62,6 +64,26 @@ func TestAccIBMIAMUserPolicy_With_Service(t *testing.T) {
 					resource.TestCheckResourceAttr("ibm_iam_user_policy.policy", "resources.0.service", "cloudantnosqldb"),
 					resource.TestCheckResourceAttr("ibm_iam_user_policy.policy", "resources.0.region", "us-south"),
 					resource.TestCheckResourceAttr("ibm_iam_user_policy.policy", "roles.#", "2"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccIBMIAMUserPolicy_With_ServiceType(t *testing.T) {
+	var conf iampolicymanagementv1.Policy
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckIBMIAMUserPolicyDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccCheckIBMIAMUserPolicyServiceType(),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					testAccCheckIBMIAMUserPolicyExists("ibm_iam_user_policy.policy", conf),
+					resource.TestCheckResourceAttr("ibm_iam_user_policy.policy", "resources.0.service_type", "service"),
+					resource.TestCheckResourceAttr("ibm_iam_user_policy.policy", "roles.#", "1"),
 				),
 			},
 		},
@@ -312,6 +334,7 @@ func testAccCheckIBMIAMUserPolicyBasic() string {
 			ibm_id = "%s"
 			roles  = ["Viewer"]
 			tags   = ["tag1"]
+			description = "IAM User Policy Creation for test scenario"
 	  	}
 
 	`, IAMUser)
@@ -324,6 +347,7 @@ func testAccCheckIBMIAMUserPolicyUpdateRole() string {
 			ibm_id = "%s"
 			roles  = ["Viewer", "Manager"]
 			tags   = ["tag1", "tag2"]
+			description = "IAM User Policy Update for test scenario"
 	  	}
 	`, IAMUser)
 }
@@ -338,6 +362,23 @@ func testAccCheckIBMIAMUserPolicyService() string {
 	  
 			resources {
 		 		 service = "cloudantnosqldb"
+			}
+	  	}
+
+	`, IAMUser)
+}
+
+func testAccCheckIBMIAMUserPolicyServiceType() string {
+	return fmt.Sprintf(`
+
+		
+		resource "ibm_iam_user_policy" "policy" {
+			ibm_id = "%s"
+			roles  = ["Viewer"]
+	  
+			resources {
+				service_type = "service"
+				region = "us-south"
 			}
 	  	}
 

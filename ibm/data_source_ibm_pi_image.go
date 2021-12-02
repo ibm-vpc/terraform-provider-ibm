@@ -54,6 +54,14 @@ func dataSourceIBMPIImage() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"storage_pool": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"image_type": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -82,6 +90,8 @@ func dataSourceIBMPIImagesRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("hypervisor", imagedata.Specifications.HypervisorType)
 	d.Set("operatingsystem", imagedata.Specifications.OperatingSystem)
 	d.Set("storage_type", imagedata.StorageType)
+	d.Set("storage_pool", imagedata.StoragePool)
+	d.Set("image_type", imagedata.Specifications.ImageType)
 
 	return nil
 

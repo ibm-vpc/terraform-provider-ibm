@@ -78,6 +78,26 @@ func dataSourceIBMDLGateway() *schema.Resource {
 				Computed:    true,
 				Description: "BGP MD5 authentication key",
 			},
+			dlBfdInterval: {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: "BFD Interval",
+			},
+			dlBfdMultiplier: {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: "BFD Multiplier",
+			},
+			dlBfdStatus: {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "BFD Status",
+			},
+			dlBfdStatusUpdatedAt: {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "BFD Status",
+			},
 			dlBgpAsn: {
 				Type:        schema.TypeInt,
 				Computed:    true,
@@ -186,6 +206,11 @@ func dataSourceIBMDLGateway() *schema.Resource {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "Reason for completion notice rejection",
+			},
+			dlConnectionMode: {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Type of services this Gateway is attached to. Mode transit means this Gateway will be attached to Transit Gateway Service and direct means this Gateway will be attached to vpc or classic connection",
 			},
 			dlCreatedAt: {
 				Type:        schema.TypeString,
@@ -400,6 +425,25 @@ func dataSourceIBMDLGatewayRead(d *schema.ResourceData, meta interface{}) error 
 			if instance.CreatedAt != nil {
 				d.Set(dlCreatedAt, instance.CreatedAt.String())
 			}
+
+			//Show the BFD Config parameters if set
+			if instance.BfdConfig != nil {
+				if instance.BfdConfig.Interval != nil {
+					d.Set(dlBfdInterval, *instance.BfdConfig.Interval)
+				}
+
+				if instance.BfdConfig.Multiplier != nil {
+					d.Set(dlBfdMultiplier, *instance.BfdConfig.Multiplier)
+				}
+
+				if instance.BfdConfig.BfdStatus != nil {
+					d.Set(dlBfdStatus, *instance.BfdConfig.BfdStatus)
+				}
+
+				if instance.BfdConfig.BfdStatusUpdatedAt != nil {
+					d.Set(dlBfdStatusUpdatedAt, instance.BfdConfig.BfdStatusUpdatedAt.String())
+				}
+			}
 			dtype := *instance.Type
 			if dtype == "dedicated" {
 				if instance.MacsecConfig != nil {
@@ -463,6 +507,10 @@ func dataSourceIBMDLGatewayRead(d *schema.ResourceData, meta interface{}) error 
 
 			if instance.AuthenticationKey != nil {
 				d.Set(dlAuthenticationKey, *instance.AuthenticationKey.Crn)
+			}
+
+			if instance.ConnectionMode != nil {
+				d.Set(dlConnectionMode, *instance.ConnectionMode)
 			}
 
 		}

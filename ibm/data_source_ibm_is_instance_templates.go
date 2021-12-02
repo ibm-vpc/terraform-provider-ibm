@@ -124,6 +124,11 @@ func dataSourceIBMISInstanceTemplates() *schema.Resource {
 							Computed: true,
 							Elem:     &schema.Schema{Type: schema.TypeString},
 						},
+						isInstanceTotalVolumeBandwidth: {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: "The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes",
+						},
 						isInstanceTemplateVolumeAttachments: {
 							Type:     schema.TypeList,
 							Computed: true,
@@ -172,6 +177,32 @@ func dataSourceIBMISInstanceTemplates() *schema.Resource {
 								},
 							},
 						},
+
+						"placement_target": &schema.Schema{
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "The placement restrictions for the virtual server instance. For the target tobe changed, the instance `status` must be `stopping` or `stopped`.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"id": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The unique identifier for this dedicated host.",
+									},
+									"crn": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The CRN for this dedicated host.",
+									},
+									"href": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The URL for this dedicated host.",
+									},
+								},
+							},
+						},
+
 						isInstanceTemplatePrimaryNetworkInterface: {
 							Type:     schema.TypeList,
 							Computed: true,
@@ -265,30 +296,6 @@ func dataSourceIBMISInstanceTemplates() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"placement_target": {
-							Type:        schema.TypeList,
-							Computed:    true,
-							Description: "The placement restrictions to use for the virtual server instance.",
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"id": {
-										Type:        schema.TypeString,
-										Computed:    true,
-										Description: "The unique identifier for this dedicated host.",
-									},
-									"crn": {
-										Type:        schema.TypeString,
-										Computed:    true,
-										Description: "The CRN for this dedicated host.",
-									},
-									"href": {
-										Type:        schema.TypeString,
-										Computed:    true,
-										Description: "The URL for this dedicated host.",
-									},
-								},
-							},
-						},
 					},
 				},
 			},
@@ -316,6 +323,11 @@ func dataSourceIBMISInstanceTemplatesRead(d *schema.ResourceData, meta interface
 		template[isInstanceTemplateName] = instance.Name
 		template[isInstanceTemplateUserData] = instance.UserData
 
+		if instance.PlacementTarget != nil {
+			placementTargetMap := resourceIbmIsInstanceTemplateInstancePlacementTargetPrototypeToMap(*instance.PlacementTarget.(*vpcv1.InstancePlacementTargetPrototype))
+			template["placement_target"] = []map[string]interface{}{placementTargetMap}
+		}
+
 		if instance.Keys != nil {
 			keys := []string{}
 			for _, intfc := range instance.Keys {
@@ -335,6 +347,10 @@ func dataSourceIBMISInstanceTemplatesRead(d *schema.ResourceData, meta interface
 			placementTargetMap := dataSourceInstanceTemplateCollectionTemplatesPlacementTargetToMap(*instance.PlacementTarget.(*vpcv1.InstancePlacementTargetPrototype))
 			placementTargetList = append(placementTargetList, placementTargetMap)
 			template["placement_target"] = placementTargetList
+		}
+
+		if instance.TotalVolumeBandwidth != nil {
+			template[isInstanceTotalVolumeBandwidth] = int(*instance.TotalVolumeBandwidth)
 		}
 
 		if instance.PrimaryNetworkInterface != nil {

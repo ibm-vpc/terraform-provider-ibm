@@ -45,8 +45,10 @@ Review the argument references that you can specify for your resource.
 
 - `logging`- (Optional, Bool) Enable or disable datapath logging for the load balancer. This is applicable only for application load balancer. Supported values are **true** or **false**. Default value is **false**.
 - `name` - (Required, String) The name of the VPC load balancer.
-- `profile` - (Required, Forces new resource, String) The profile to use for this load balancer. Supported value is `network-fixed`.
+- `profile` - (Optional, Forces new resource, String) For a Network Load Balancer, this attribute is required and should be set to `network-fixed`. For Application Load Balancer, profile is not a required attribute.
 - `resource_group` - (Optional, Forces new resource, String) The resource group where the load balancer to be created.
+- `route_mode` - (Optional, Forces new resource, Bool) Indicates whether route mode is enabled for this load balancer.
+  **NOTE** Currently, public load balancers are not supported with `route_mode` enabled.
 - `security_groups`  (Optional, List) A list of security groups to use for this load balancer. This option is supported only for application load balancers.
 - `subnets` - (Required, List) List of the subnets IDs to connect to the load balancer.
 - `tags` (Optional, Array of Strings) A list of tags that you want to add to your load balancer. Tags can help you find the load balancer more easily later.
@@ -55,6 +57,7 @@ Review the argument references that you can specify for your resource.
 ## Attribute reference
 In addition to all argument reference list, you can access the following attribute reference after your resource is created.
 
+- `crn` - (String) The CRN for this load balancer.
 - `hostname` - (String) The fully qualified domain name assigned to this load balancer.
 - `id` - (String) The unique identifier of the load balancer.
 - `operating_status` - (String) The operating status of this load balancer.
