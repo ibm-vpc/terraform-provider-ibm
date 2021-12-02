@@ -149,12 +149,11 @@ func resourceIBMSnapshot() *schema.Resource {
 			},
 
 			isSnapshotClones: {
-				Type:             schema.TypeSet,
-				Optional:         true,
-				Elem:             &schema.Schema{Type: schema.TypeString},
-				Set:              schema.HashString,
-				DiffSuppressFunc: applyOnce,
-				Description:      "Zones for creating the snapshot clone",
+				Type:        schema.TypeSet,
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
+				Description: "Zones for creating the snapshot clone",
 			},
 		},
 	}
@@ -375,45 +374,45 @@ func snapshotUpdate(d *schema.ResourceData, meta interface{}, id, name string, h
 			return err
 		}
 
-		if d.HasChange(isSnapshotClones) {
-			ovs, nvs := d.GetChange(isSnapshotClones)
-			ov := ovs.(*schema.Set)
-			nv := nvs.(*schema.Set)
+	}
+	if d.HasChange(isSnapshotClones) {
+		ovs, nvs := d.GetChange(isSnapshotClones)
+		ov := ovs.(*schema.Set)
+		nv := nvs.(*schema.Set)
 
-			remove := expandStringList(ov.Difference(nv).List())
-			add := expandStringList(nv.Difference(ov).List())
+		remove := expandStringList(ov.Difference(nv).List())
+		add := expandStringList(nv.Difference(ov).List())
 
-			if len(add) > 0 {
-				for i := range add {
-					createCloneOptions := &vpcv1.CreateSnapshotCloneOptions{
-						ID:       &id,
-						ZoneName: &add[i],
-					}
-					_, _, err := sess.CreateSnapshotClone(createCloneOptions)
-					if err != nil {
-						return fmt.Errorf("Error while creating snapshot (%s) clone(%s) : %q", d.Id(), add[i], err)
-					}
-					_, err = isWaitForCloneAvailable(sess, d, id, add[i])
-					if err != nil {
-						return err
-					}
+		if len(add) > 0 {
+			for i := range add {
+				createCloneOptions := &vpcv1.CreateSnapshotCloneOptions{
+					ID:       &id,
+					ZoneName: &add[i],
 				}
-
+				_, _, err := sess.CreateSnapshotClone(createCloneOptions)
+				if err != nil {
+					return fmt.Errorf("Error while creating snapshot (%s) clone(%s) : %q", d.Id(), add[i], err)
+				}
+				_, err = isWaitForCloneAvailable(sess, d, id, add[i])
+				if err != nil {
+					return err
+				}
 			}
-			if len(remove) > 0 {
-				for i := range remove {
-					delCloneOptions := &vpcv1.DeleteSnapshotCloneOptions{
-						ID:       &id,
-						ZoneName: &remove[i],
-					}
-					_, err := sess.DeleteSnapshotClone(delCloneOptions)
-					if err != nil {
-						return fmt.Errorf("Error while removing Snapshot (%s) clone (%s) : %q", d.Id(), remove[i], err)
-					}
-					_, err = isWaitForCloneDeleted(sess, d, d.Id(), remove[i])
-					if err != nil {
-						return err
-					}
+
+		}
+		if len(remove) > 0 {
+			for i := range remove {
+				delCloneOptions := &vpcv1.DeleteSnapshotCloneOptions{
+					ID:       &id,
+					ZoneName: &remove[i],
+				}
+				_, err := sess.DeleteSnapshotClone(delCloneOptions)
+				if err != nil {
+					return fmt.Errorf("Error while removing Snapshot (%s) clone (%s) : %q", d.Id(), remove[i], err)
+				}
+				_, err = isWaitForCloneDeleted(sess, d, d.Id(), remove[i])
+				if err != nil {
+					return err
 				}
 			}
 		}
@@ -459,7 +458,7 @@ func isWaitForCloneAvailable(sess *vpcv1.VpcV1, d *schema.ResourceData, id, zone
 
 	stateConf := &resource.StateChangeConf{
 		Pending:    []string{"false"},
-		Target:     []string{"true"},
+		Target:     []string{"true", "deleted"},
 		Refresh:    isSnapshotCloneRefreshFunc(sess, id, zoneName),
 		Timeout:    d.Timeout(schema.TimeoutUpdate),
 		Delay:      10 * time.Second,
@@ -476,10 +475,10 @@ func isSnapshotCloneRefreshFunc(sess *vpcv1.VpcV1, id, zoneName string) resource
 		}
 		clone, response, err := sess.GetSnapshotClone(getSnapshotCloneOptions)
 		if err != nil {
-			return nil, "failure", fmt.Errorf("Error getting Snapshot clone : %s\n%s", err, response)
-		}
-		if response.StatusCode == 404 {
-			return nil, "deleted", nil
+			if response.StatusCode == 404 {
+				return nil, "deleted", nil
+			}
+			return nil, "deleted", fmt.Errorf("Error getting Snapshot clone : %s\n%s", err, response)
 		}
 
 		if *clone.Available == true {
@@ -489,13 +488,32 @@ func isSnapshotCloneRefreshFunc(sess *vpcv1.VpcV1, id, zoneName string) resource
 		return clone, "false", nil
 	}
 }
+
+func isSnapshotCloneDeleteRefreshFunc(sess *vpcv1.VpcV1, id, zoneName string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		getSnapshotCloneOptions := &vpcv1.GetSnapshotCloneOptions{
+			ID:       &id,
+			ZoneName: &zoneName,
+		}
+		clone, response, err := sess.GetSnapshotClone(getSnapshotCloneOptions)
+		if err != nil {
+			if response.StatusCode == 404 {
+				return clone, "deleted", nil
+			}
+			return clone, "false", fmt.Errorf("Error getting Snapshot clone : %s\n%s", err, response)
+		}
+
+		return clone, "true", nil
+	}
+}
+
 func isWaitForCloneDeleted(sess *vpcv1.VpcV1, d *schema.ResourceData, id, zoneName string) (interface{}, error) {
 	log.Printf("Waiting for Snapshot (%s) clone (%s) to be deleted.", id, zoneName)
 
 	stateConf := &resource.StateChangeConf{
-		Pending:    []string{"true", "false"},
-		Target:     []string{"deleted"},
-		Refresh:    isSnapshotCloneRefreshFunc(sess, id, zoneName),
+		Pending:    []string{"true"},
+		Target:     []string{"false", "deleted"},
+		Refresh:    isSnapshotCloneDeleteRefreshFunc(sess, id, zoneName),
 		Timeout:    d.Timeout(schema.TimeoutUpdate),
 		Delay:      10 * time.Second,
 		MinTimeout: 10 * time.Second,

@@ -90,7 +90,9 @@ func getSnapshotClones(context context.Context, d *schema.ResourceData, meta int
 	for _, clone := range clones {
 		l := map[string]interface{}{
 			isSnapshotCloneAvailable: *clone.Available,
-			isSnapshotCloneCreatedAt: *clone.CreatedAt,
+		}
+		if clone.CreatedAt != nil {
+			l[isSnapshotCloneCreatedAt] = dateTimeToString(clone.CreatedAt)
 		}
 		if clone.Zone != nil {
 			l[isSnapshotCloneZone] = *clone.Zone.Name

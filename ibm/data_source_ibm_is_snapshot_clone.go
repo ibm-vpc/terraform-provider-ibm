@@ -14,7 +14,7 @@ import (
 
 func dataSourceSnapshotClone() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceIBMISSnapshotClonesRead,
+		ReadContext: dataSourceIBMISSnapshotCloneRead,
 
 		Schema: map[string]*schema.Schema{
 			isSnapshot: {
@@ -73,7 +73,11 @@ func getSnapshotClone(context context.Context, d *schema.ResourceData, meta inte
 		d.SetId(*clone.Zone.Name)
 		d.Set(isSnapshotCloneZone, *clone.Zone.Name)
 		d.Set(isSnapshotCloneAvailable, *clone.Available)
-		d.Set(isSnapshotCloneCreatedAt, *clone.CreatedAt)
+		if clone.CreatedAt != nil {
+			d.Set(isSnapshotCloneCreatedAt, dateTimeToString(clone.CreatedAt))
+		}
+	} else {
+		return fmt.Errorf("No snapshot(%s) clone(%s) found", id, zone)
 	}
 	return nil
 }
