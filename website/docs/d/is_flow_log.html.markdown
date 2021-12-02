@@ -41,26 +41,26 @@ In addition to all argument references listed, you can access the following attr
 - `resource_group` - (List) The resource group for this flow log collector.
 
 	Nested scheme for `resource_group`:
-    	- `href` - (Required, String) The URL for this resource group.
-    	- `id` - (Required, String) The unique identifier for this resource group.
-    	- `name` - (Required, String) The user-defined name for this resource group.
+	- `href` - (Required, String) The URL for this resource group.
+	- `id` - (Required, String) The unique identifier for this resource group.
+	- `name` - (Required, String) The user-defined name for this resource group.
 
 - `storage_bucket` - (Required, List) The Cloud Object Storage bucket where the collected flows are logged.
   
 	Nested scheme for `storage_bucket`:
-    	- `name` - (Required, String) The globally unique name of this COS bucket.
+	- `name` - (Required, String) The globally unique name of this COS bucket.
 
 - `target` - (List) The target this collector is collecting flow logs for. If the target is an instance,subnet, or VPC, flow logs will not be collected for any network interfaces within the target that are themselves the target of a more specific flow log collector.
 
 	Nested scheme for `target`:
-    	- `crn` - (String) The CRN for this virtual server instance.
-    	- `deleted` - (List) If present, this property indicates the referenced resource has been deleted and provides some supplementary information.
-			Nested scheme for `deleted`:
-      		- `more_info` - (String) Link to documentation about deleted resources.
-    	- `href` - (String) The URL for this network interface.
-    	- `id` - (String) The unique identifier for this network interface.
-    	- `name` - (String) The user-defined name for this network interface.
-    	- `resource_type` - (String) The resource type. Allowable values are: `network_interface`.
+	- `crn` - (String) The CRN for this virtual server instance.
+	- `deleted` - (List) If present, this property indicates the referenced resource has been deleted and provides some supplementary information.
+		Nested scheme for `deleted`:
+		- `more_info` - (String) Link to documentation about deleted resources.
+	- `href` - (String) The URL for this network interface.
+	- `id` - (String) The unique identifier for this network interface.
+	- `name` - (String) The user-defined name for this network interface.
+	- `resource_type` - (String) The resource type. Allowable values are: `network_interface`.
 
 - `vpc` - (List) The VPC this flow log collector is associated with.
 	
@@ -68,7 +68,7 @@ In addition to all argument references listed, you can access the following attr
 	- `crn` - (String) The CRN for this VPC.
 	- `deleted` - (List) If present, this property indicates the referenced resource has been deleted and providessome supplementary information.
 		Nested scheme for `deleted`:
-  			-`more_info` - (String) Link to documentation about deleted resources.
+		- `more_info` - (String) Link to documentation about deleted resources.
 	- `href` - (String) The URL for this VPC.
 	- `id` - (String) The unique identifier for this VPC.
 	- `name` - (String) The unique user-defined name for this VPC.

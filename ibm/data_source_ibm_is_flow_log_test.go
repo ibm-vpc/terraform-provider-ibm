@@ -112,6 +112,6 @@ func testAccCheckIBMISFlowLogDataSourceConfig(vpcname, name, flowlogname, sshnam
 		identifier = ibm_is_flow_log.test_flow_log.id
 	}
 	  
-	  `, vpcname, subnetname, ISZoneName, ISCIDR, sshname, publicKey, name, "r006-13938c0a-89e4-4370-b59b-55cd1402562d", instanceProfileName, ISZoneName, serviceName, bucketName, bucketRegion, bucketClass, flowlogname, isActive)
+	  `, vpcname, subnetname, ISZoneName, ISCIDR, sshname, publicKey, name, isImage, instanceProfileName, ISZoneName, serviceName, bucketName, bucketRegion, bucketClass, flowlogname, isActive)
 
 }
