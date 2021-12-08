@@ -366,13 +366,13 @@ func getLbs(d *schema.ResourceData, meta interface{}) error {
 	for {
 		listLoadBalancersOptions := &vpcv1.ListLoadBalancersOptions{}
 		if start != "" {
-			listLoadBalancersOptions.Start = &start
+			// listLoadBalancersOptions.Start = &start
 		}
 		lbs, response, err := sess.ListLoadBalancers(listLoadBalancersOptions)
 		if err != nil {
 			return fmt.Errorf("Error Fetching Load Balancers %s\n%s", err, response)
 		}
-		start = GetNext(lbs.Next)
+		// start = GetNext(lbs.Next)
 		allrecs = append(allrecs, lbs.LoadBalancers...)
 		if start == "" {
 			break

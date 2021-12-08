@@ -305,6 +305,18 @@ resource "ibm_is_volume" "vol1" {
   name    = "vol1"
   profile = "10iops-tier"
   zone    = var.zone1
+  user_tags = ["barbq"]
+}
+
+resource "ibm_is_backup_policy" "is_backup_policy" {
+  match_user_tags = ["barbq"]
+  name = "backuppolicy"
+  plans {
+    name = "backuppolicyplan"
+    cron_spec = "*/5 1,2,3 * * *"
+    delete_after = 40
+    copy_user_tags = true
+  }
 }
 
 resource "ibm_is_volume" "vol2" {
@@ -495,4 +507,23 @@ data "ibm_is_operating_system" "os"{
 }
 
 data "ibm_is_operating_systems" "oslist"{
+}
+
+data "ibm_is_backup_policy" "is_backup_policy" {
+  identifier = ibm_is_backup_policy.is_backup_policy.id
+}
+
+data "ibm_is_backup_policy" "is_backup_policy" {
+  name = "backuppolicy"
+}
+
+data "ibm_is_backup_policies" "is_backup_policies" {
+}
+
+data "ibm_is_backup_policy_plan" "is_backup_policy_plan" {
+  name = "backuppolicyplan"
+}
+
+data "ibm_is_backup_policy_plans" "is_backup_policy_plans" {
+  backup_policy_id = ibm_is_backup_policy.is_backup_policy.id
 }

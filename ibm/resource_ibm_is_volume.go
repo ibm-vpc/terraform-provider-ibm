@@ -140,6 +140,15 @@ func resourceIBMISVolume() *schema.Resource {
 				},
 			},
 
+			"user_tags": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				// Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString, ValidateFunc: InvokeValidator("ibm_is_volume", "tag")},
+				Set:         schema.HashString,
+				Description: "User Tags for the volume instance",
+			},
+
 			isVolumeTags: {
 				Type:        schema.TypeSet,
 				Optional:    true,
@@ -336,6 +345,19 @@ func volCreate(d *schema.ResourceData, meta interface{}, volName, profile, zone 
 		volTemplate.Iops = &iops
 	}
 
+	var userTags *schema.Set
+	if v, ok := d.GetOk("user_tags"); ok {
+		userTags = v.(*schema.Set)
+		if userTags != nil && userTags.Len() != 0 {
+			userTagsArray := make([]string, userTags.Len())
+			for i, userTag := range userTags.List() {
+				userTagStr := userTag.(string)
+				userTagsArray[i] = userTagStr
+			}
+			volTemplate.UserTags = userTagsArray
+		}
+	}
+
 	vol, response, err := sess.CreateVolume(options)
 	if err != nil {
 		return fmt.Errorf("[DEBUG] Create volume err %s\n%s", err, response)
@@ -467,6 +489,7 @@ func volGet(d *schema.ResourceData, meta interface{}, id string) error {
 		}
 		d.Set(isVolumeStatusReasons, statusReasonsList)
 	}
+	d.Set("user_tags", vol.UserTags)
 	tags, err := GetTagsUsingCRN(meta, *vol.CRN)
 	if err != nil {
 		log.Printf(
