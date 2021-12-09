@@ -690,6 +690,50 @@ data "ibm_is_operating_system" "os"{
 data "ibm_is_operating_systems" "oslist"{
 }
 
+resource "ibm_is_vpn_server" "is_vpn_server" {
+  certificate_crn = "crn:v1:staging:public:cloudcerts:us-south:a/efe5afc483594adaa8325e2b4d1290df:86f62739-f3a8-42ac-abea-f23255965983:certificate:00406b5615f95dba9bf7c2ab52bb3083"
+  client_authentication {
+    method    = "certificate"
+    client_ca = "crn:v1:staging:public:cloudcerts:us-south:a/efe5afc483594adaa8325e2b4d1290df:86f62739-f3a8-42ac-abea-f23255965983:certificate:6a85a87d01dd5a4268a8bca16cb998eb"
+  }
+  client_ip_pool         = "10.5.0.0/21"
+  subnets                = [ibm_is_subnet.subnet1.id]
+  client_dns_server_ips  = ["192.168.3.4"]
+  client_idle_timeout    = 2800
+  enable_split_tunneling = false
+  name                   = "my_vpn_server"
+  port                   = 443
+  protocol               = "udp"
+}
+
+resource "ibm_is_vpn_server_route" "is_vpn_server_route" {
+  vpn_server_id = ibm_is_vpn_server.is_vpn_server.vpn_server
+  destination   = "172.16.0.0/16"
+  action        = "translate"
+  name          = "my_vpn_server_route"
+}
+
+data "ibm_is_vpn_server" "is_vpn_server" {
+	identifier = ibm_is_vpn_server.is_vpn_server.vpn_server
+}
+data "ibm_is_vpn_servers" "is_vpn_servers" {
+}
+
+data "ibm_is_vpn_server_routes" "is_vpn_server_routes" {
+	vpn_server_id = ibm_is_vpn_server.is_vpn_server.vpn_server
+}
+
+data "ibm_is_vpn_server_route" "is_vpn_server_route" {
+	vpn_server_id = ibm_is_vpn_server.is_vpn_server.vpn_server
+	identifier = ibm_is_vpn_server_route.is_vpn_server_route.vpn_route
+}
+data "ibm_is_vpn_server_clients" "is_vpn_server_clients" {
+	vpn_server_id = ibm_is_vpn_server.is_vpn_server.vpn_server
+}
+data "ibm_is_vpn_server_client" "is_vpn_server_client" {
+	vpn_server_id = ibm_is_vpn_server.is_vpn_server.vpn_server
+	identifier = "0726-61b2f53f-1e95-42a7-94ab-55de8f8cbdd5"
+}
 resource "ibm_is_placement_group" "is_placement_group" {
   strategy = "%s"
   name = "%s"

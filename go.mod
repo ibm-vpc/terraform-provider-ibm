@@ -13,6 +13,7 @@ require (
 	github.com/IBM/container-registry-go-sdk v0.0.15
 	github.com/IBM/event-notifications-go-admin-sdk v0.0.2
 	github.com/IBM/eventstreams-go-sdk v1.2.0
+	github.com/IBM/go-sdk-core/v4 v4.10.0 // indirect
 	github.com/IBM/go-sdk-core/v5 v5.8.2
 	github.com/IBM/ibm-cos-sdk-go v1.8.0
 	github.com/IBM/ibm-cos-sdk-go-config v1.2.0
@@ -58,3 +59,5 @@ require (
 replace github.com/softlayer/softlayer-go v1.0.3 => github.com/IBM-Cloud/softlayer-go v1.0.5-tf
 
 replace github.com/dgrijalva/jwt-go v3.2.0+incompatible => github.com/golang-jwt/jwt v3.2.1+incompatible
+
+replace github.com/IBM/vpc-go-sdk v0.14.0 => ./common/github.com/IBM/vpc-go-sdk

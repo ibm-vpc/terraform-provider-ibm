@@ -1,0 +1,52 @@
+# (C) Copyright IBM Corp. 2021.
+
+client
+dev tun
+proto udp
+port 443
+remote b04f5b2a2452.us-south-stage01.vpn-server.test.appdomain.cloud
+resolv-retry infinite
+# remote-random-hostname
+remote-cert-tls server
+nobind
+
+auth SHA256
+cipher AES-256-GCM
+verb 3
+
+<ca>
+-----BEGIN CERTIFICATE-----
+MIIDKzCCAhOgAwIBAgIJAKRkB9WmOJbOMA0GCSqGSIb3DQEBCwUAMBMxETAPBgNV
+BAMMCGx1a2UwNjA3MB4XDTIxMDYwNzA2MTQ1NFoXDTMxMDYwNTA2MTQ1NFowEzER
+MA8GA1UEAwwIbHVrZTA2MDcwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIB
+AQDNRS80F17Ekp9fmV4YzcjgaLlT4+laEstGvIbK5fyB6y7456R9ZG5H66GLNdMG
+QKT+PTyM1MW2yNX8tE+QlyEM5K31hc1GXDrAPYAQx+5uCGA+CUN/VUw3nNcNerXq
+jOd5Lw8eYhG0XaWsuFdjw7f57DXQX9mrmJzTcdk7aEzmoJwCAgfB5KZsdmWQ0Cqu
+UQlrxT3S+uqldRDcEfufuLV/jFAazC9/3Dw+YDP6OP9IcElyPxpLmuiZ7RoYTR0C
+hITDxzLWVY63EYdZNzlMXg3f8rHeoKjbCgUPWgE+WPN/hk7B3ESkF1Fg9p/JUcXc
+JLf8duB4HutF1Q+QF0nZkncnAgMBAAGjgYEwfzAdBgNVHQ4EFgQULNaUsPchBXbZ
+dRgRC8VPWBx+T+wwQwYDVR0jBDwwOoAULNaUsPchBXbZdRgRC8VPWBx+T+yhF6QV
+MBMxETAPBgNVBAMMCGx1a2UwNjA3ggkApGQH1aY4ls4wDAYDVR0TBAUwAwEB/zAL
+BgNVHQ8EBAMCAQYwDQYJKoZIhvcNAQELBQADggEBAMgsmoT9h7Th6O13qJOAsBSG
+wdyJ0/0iozWrexhLiKUJK3Rz+93iVY56AW0tl+VHJQSJwkHAV50F4hd9FhmDeMgc
+EKqP8zGn/LLjtqo49LhgRuWrG3sPY7AgdKuERa9efxIbkz9CXfECIWZLHX3Qvten
+arUJVao861Q871awPwVVW5CoESo+d3tKrJzEAI/P6pN3bcQhIWEBIir8nNvzb2Hs
+i6yaDzVXy/Y1RwE/4Zz5cWixDCCS7T+dUtaH1FOdy/C6sP26ehK+VpBpukhgv7B/
+rPqm5Dw0b9DT7NO51ZscE/6r4aM5GaWkiQMpszdCZGUxwEzIH8x7dvd+FKRxBKo=
+-----END CERTIFICATE-----
+
+</ca>
+
+<cert>
+-----BEGIN CERTIFICATE-----
+place your VPN client certificate
+-----END CERTIFICATE-----
+</cert>
+<key>
+-----BEGIN PRIVATE KEY-----
+place your VPN client private key
+-----END PRIVATE KEY-----
+</key>
+
+
+reneg-sec 0
