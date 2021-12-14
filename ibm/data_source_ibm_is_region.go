@@ -27,7 +27,7 @@ func dataSourceIBMISRegion() *schema.Resource {
 
 			isRegionName: {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
 			},
 
 			isRegionStatus: {
@@ -41,6 +41,14 @@ func dataSourceIBMISRegion() *schema.Resource {
 func dataSourceIBMISRegionRead(d *schema.ResourceData, meta interface{}) error {
 	name := d.Get("name").(string)
 
+	bmxSess, err := meta.(ClientSession).BluemixSession()
+	if err != nil {
+		return err
+	}
+	region := bmxSess.Config.Region
+	if name == "" {
+		name = region
+	}
 	return regionGet(d, meta, name)
 }
 

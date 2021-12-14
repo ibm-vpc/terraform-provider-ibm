@@ -20,6 +20,7 @@ func TestAccIBMISRegionDataSource_basic(t *testing.T) {
 				Config: testAccCheckIBMISRegionDataSourceConfig(),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("data.ibm_is_region.testacc_ds_region", "name", regionName),
+					resource.TestCheckResourceAttr("data.ibm_is_region.testacc_default_region", "name", regionName),
 				),
 			},
 		},
@@ -31,6 +32,9 @@ func testAccCheckIBMISRegionDataSourceConfig() string {
 
 data "ibm_is_region" "testacc_ds_region" {
 	name = "%s"
-}`, regionName)
+}
+data "ibm_is_region" "testacc_default_region" {
+}
+`, regionName)
 
 }
