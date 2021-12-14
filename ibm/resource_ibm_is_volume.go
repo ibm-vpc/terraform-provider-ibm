@@ -385,7 +385,9 @@ func volGet(d *schema.ResourceData, meta interface{}, id string) error {
 		d.Set(isVolumeSourceSnapshot, *vol.SourceSnapshot.ID)
 	}
 	d.Set(isVolumeStatus, *vol.Status)
-	d.Set(isVolumeBandwidth, int(*vol.Bandwidth))
+	if vol.Bandwidth != nil {
+		d.Set(isVolumeBandwidth, int(*vol.Bandwidth))
+	}
 	//set the status reasons
 	if vol.StatusReasons != nil {
 		statusReasonsList := make([]map[string]interface{}, 0)
