@@ -44,6 +44,9 @@ const (
 	isInstanceTemplateDedicatedHostGroup           = "dedicated_host_group"
 	isInstanceTemplateResourceType                 = "resource_type"
 	isInstanceTemplateVolumeDeleteOnInstanceDelete = "delete_volume_on_instance_delete"
+	isInstanceTemplateAvailablePolicy              = "availability_policy"
+	isInstanceTemplateHostFailure                  = "host_failure"
+	// isInstanceTemplateHostMaintenance              = "host_maintenance"
 )
 
 func resourceIBMISInstanceTemplate() *schema.Resource {
@@ -75,6 +78,34 @@ func resourceIBMISInstanceTemplate() *schema.Resource {
 				ForceNew:     false,
 				ValidateFunc: validateISName,
 				Description:  "Instance Template name",
+			},
+
+			isInstanceTemplateAvailablePolicy: {
+				Type:        schema.TypeList,
+				Optional:    true,
+				MinItems:    1,
+				MaxItems:    1,
+				Description: "The availability policy to use for this virtual server instance",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						isInstanceTemplateHostFailure: {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ForceNew:     true,
+							Default:      "restart",
+							ValidateFunc: validateAllowedStringValue([]string{"restart", "stop"}),
+							Description:  "The action to perform if the compute host experiences a failure.",
+						},
+						// isInstanceTemplateHostMaintenance: {
+						// 	Type:         schema.TypeString,
+						// 	Optional:     true,
+						// 	ForceNew:     true,
+						// 	Default:      "live_migrate",
+						// 	ValidateFunc: validateAllowedStringValue([]string{"live_migrate", "restart", "stop"}),
+						// 	Description:  "The action to perform if the compute host requires maintenance.",
+						// },
+					},
+				},
 			},
 
 			isInstanceTemplateVPC: {
@@ -417,6 +448,13 @@ func instanceTemplateCreate(d *schema.ResourceData, meta interface{}, profile, n
 			ID: &vpcID,
 		},
 	}
+	if v, ok := d.GetOk(isInstanceTemplateAvailablePolicy); ok {
+		availablePolicyItem := v.([]interface{})[0].(map[string]interface{})
+		hostFailure := availablePolicyItem[isInstanceTemplateHostFailure].(string)
+		instanceproto.AvailabilityPolicy.HostFailure = &hostFailure
+		// hostMaintenance := availablePolicyItem[isInstanceTemplateHostMaintenance].(string)
+		// instanceproto.AvailabilityPolicy.HostMaintenance = &hostMaintenance
+	}
 
 	if dHostIdInf, ok := d.GetOk(isPlacementTargetDedicatedHost); ok {
 		dHostIdStr := dHostIdInf.(string)
@@ -668,6 +706,16 @@ func instanceTemplateGet(d *schema.ResourceData, meta interface{}, ID string) er
 	}
 	instance := instanceIntf.(*vpcv1.InstanceTemplate)
 	d.Set(isInstanceTemplateName, *instance.Name)
+
+	if instance.AvailabilityPolicy != nil {
+		availabilityPolicyList := make([]map[string]interface{}, 0)
+		availabilityPolicy := map[string]interface{}{}
+		availabilityPolicy[isInstanceTemplateHostFailure] = *instance.AvailabilityPolicy.HostFailure
+		// availabilityPolicy[isInstanceTemplateHostMaintenance] = *instance.AvailabilityPolicy.HostMaintenance
+		availabilityPolicyList = append(availabilityPolicyList, availabilityPolicy)
+		d.Set(isInstanceTemplateAvailablePolicy, availabilityPolicyList)
+	}
+
 	if instance.Profile != nil {
 		instanceProfileIntf := instance.Profile
 		identity := instanceProfileIntf.(*vpcv1.InstanceProfileIdentity)

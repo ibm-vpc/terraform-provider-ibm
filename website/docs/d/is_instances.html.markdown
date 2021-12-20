@@ -43,6 +43,16 @@ In addition to all argument reference list, you can access the following attribu
 - `instances`- (List of Object) A list of Virtual Servers for VPC instances that exist in your account.
    
    Nested scheme for `instances`:
+    - availability_policy - (List) The availability policy for this virtual server instance
+  
+  	  Nested scheme for `availability_policy`:
+        - `host_failure`- (String) The action to perform if the compute host experiences a failure. 
+          - `restart` - Automatically restart the virtual server instance after host failure
+          - `stop` -  Leave the virtual server instance stopped after host failure
+        - `host_maintenance`  (String) The action to perform if the compute host requires maintenance.
+          - `live_migrate` - Live migrate to another host prior to host maintenance
+          - `restart` - Automatically restart the virtual server instance after host maintenance
+          - `stop` - Leave the virtual server instance stopped after host maintenance
 	- `boot_volume`- (List) A list of boot volumes that were created for the instance.
 
 	  Nested scheme for `boot_volume`:
@@ -51,7 +61,7 @@ In addition to all argument reference list, you can access the following attribu
 		- `name` - (String) The name of the boot volume.
 		- `volume_id` - (String) The ID of the volume that is associated with the boot volume attachment.
 		- `volume_crn` - (String) The CRN of the volume that is associated with the boot volume attachment.
-	- `disks` - (List) Collection of the instance's disks. Nested `disks` blocks has the following structure:
+    	- `disks` - (List) Collection of the instance's disks. Nested `disks` blocks has the following structure:
 
 	  Nested scheme for `disks`:
 		- `created_at` - (Timestamp) The date and time that the disk was created.

@@ -96,6 +96,27 @@ func dataSourceIBMISInstanceTemplate() *schema.Resource {
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
+			isInstanceTemplateAvailablePolicy: {
+				Type:        schema.TypeList,
+				Computed:    true,
+				MinItems:    1,
+				MaxItems:    1,
+				Description: "The availability policy to use for this virtual server instance",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						isInstanceTemplateHostFailure: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The action to perform if the compute host experiences a failure.",
+						},
+						// isInstanceTemplateHostMaintenance: {
+						// 	Type:        schema.TypeString,
+						// 	Computed:    true,
+						// 	Description: "The action to perform if the compute host requires maintenance.",
+						// },
+					},
+				},
+			},
 			isInstanceTemplateVolumeAttachments: {
 				Type:     schema.TypeList,
 				Computed: true,
@@ -285,6 +306,15 @@ func dataSourceIBMISInstanceTemplateRead(context context.Context, d *schema.Reso
 		d.Set(isInstanceTemplateCrn, instance.CRN)
 		d.Set(isInstanceTemplateName, instance.Name)
 		d.Set(isInstanceTemplateUserData, instance.UserData)
+
+		if instance.AvailabilityPolicy != nil {
+			availabilityPolicyList := make([]map[string]interface{}, 0)
+			availabilityPolicy := map[string]interface{}{}
+			availabilityPolicy[isInstanceTemplateHostFailure] = *instance.AvailabilityPolicy.HostFailure
+			// availabilityPolicy[isInstanceTemplateHostMaintenance] = *instance.AvailabilityPolicy.HostMaintenance
+			availabilityPolicyList = append(availabilityPolicyList, availabilityPolicy)
+			d.Set(isInstanceTemplateAvailablePolicy, availabilityPolicyList)
+		}
 
 		if instance.Keys != nil {
 			keys := []string{}

@@ -15,7 +15,7 @@
  */
 
 /*
- * IBM OpenAPI SDK Code Generator Version: 3.32.0-4c6a3129-20210514-210323
+ * IBM OpenAPI SDK Code Generator Version: 3.38.0-07189efd-20210827-205025
  */
 
 // Package vpcv1 : Operations and models for the VpcV1 service
@@ -34,15 +34,15 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// VpcV1 : The IBM Cloud Virtual Private Cloud (VPC) API can be used to programmatically provision and manage
-// infrastructure resources, including virtual server instances, subnets, volumes, and load balancers.
+// VpcV1 : The IBM Cloud Virtual Private Cloud (VPC) API can be used to programmatically provision and manage virtual
+// server instances, along with subnets, volumes, load balancers, and more.
 //
-// Version: 2021-08-17
+// API Version: today
 type VpcV1 struct {
 	Service *core.BaseService
 
-	// Requests the version of the API as of a date in the format `YYYY-MM-DD`. Any date up to the current date may be
-	// provided. Specify the current date to request the latest version.
+	// Requests the API version as of a date, in format `YYYY-MM-DD`. Any date between `2019-01-01` and the current date
+	// may be specified. Specify the current date to request the latest version.
 	Version *string
 
 	// The infrastructure generation for the request. For the API behavior documented here, use
@@ -62,8 +62,8 @@ type VpcV1Options struct {
 	URL           string
 	Authenticator core.Authenticator
 
-	// Requests the version of the API as of a date in the format `YYYY-MM-DD`. Any date up to the current date may be
-	// provided. Specify the current date to request the latest version.
+	// Requests the API version as of a date, in format `YYYY-MM-DD`. Any date between `2019-01-01` and the current date
+	// may be specified. Specify the current date to request the latest version.
 	Version *string
 }
 
@@ -120,7 +120,7 @@ func NewVpcV1(options *VpcV1Options) (service *VpcV1, err error) {
 		}
 	}
 	if options.Version == nil {
-		options.Version = core.StringPtr("2021-08-06")
+		options.Version = core.StringPtr("2021-12-01")
 	}
 	service = &VpcV1{
 		Service:    baseService,
@@ -642,8 +642,9 @@ func (vpc *VpcV1) GetVPCDefaultRoutingTableWithContext(ctx context.Context, getV
 }
 
 // GetVPCDefaultSecurityGroup : Retrieve a VPC's default security group
-// This request retrieves the default security group for the VPC specified by the identifier in the URL. The default
-// security group is applied to any new network interfaces in the VPC that do not specify a security group.
+// This request retrieves the default security group for the VPC specified by the identifier in the URL. Resources that
+// optionally allow a security group to be specified upon creation will be attached to this security group if a security
+// group is not specified.
 func (vpc *VpcV1) GetVPCDefaultSecurityGroup(getVPCDefaultSecurityGroupOptions *GetVPCDefaultSecurityGroupOptions) (result *DefaultSecurityGroup, response *core.DetailedResponse, err error) {
 	return vpc.GetVPCDefaultSecurityGroupWithContext(context.Background(), getVPCDefaultSecurityGroupOptions)
 }
@@ -1396,8 +1397,8 @@ func (vpc *VpcV1) UpdateVPCRouteWithContext(ctx context.Context, updateVPCRouteO
 // ListVPCRoutingTables : List all routing tables for a VPC
 // This request lists all user-defined routing tables for a VPC.  Each subnet in a VPC is associated with a routing
 // table, which controls delivery of packets sent on that subnet according to the action of the most specific matching
-// route in the table.  If multiple equally-specific routes exist, traffic will be distributed across them.  If no
-// routes match, delivery will be controlled by the system's built-in routes.
+// route in the table.  If multiple equally-specific routes exist, traffic will be distributed across them. If no routes
+// match, delivery will be controlled by the system's built-in routes.
 func (vpc *VpcV1) ListVPCRoutingTables(listVPCRoutingTablesOptions *ListVPCRoutingTablesOptions) (result *RoutingTableCollection, response *core.DetailedResponse, err error) {
 	return vpc.ListVPCRoutingTablesWithContext(context.Background(), listVPCRoutingTablesOptions)
 }
@@ -3701,9 +3702,6 @@ func (vpc *VpcV1) ListKeysWithContext(ctx context.Context, listKeysOptions *List
 	}
 	if listKeysOptions.Limit != nil {
 		builder.AddQuery("limit", fmt.Sprint(*listKeysOptions.Limit))
-	}
-	if listKeysOptions.ResourceGroupID != nil {
-		builder.AddQuery("resource_group.id", fmt.Sprint(*listKeysOptions.ResourceGroupID))
 	}
 
 	request, err := builder.Build()
@@ -7835,6 +7833,9 @@ func (vpc *VpcV1) ListDedicatedHostGroupsWithContext(ctx context.Context, listDe
 	if listDedicatedHostGroupsOptions.ZoneName != nil {
 		builder.AddQuery("zone.name", fmt.Sprint(*listDedicatedHostGroupsOptions.ZoneName))
 	}
+	if listDedicatedHostGroupsOptions.Name != nil {
+		builder.AddQuery("name", fmt.Sprint(*listDedicatedHostGroupsOptions.Name))
+	}
 
 	request, err := builder.Build()
 	if err != nil {
@@ -8291,6 +8292,9 @@ func (vpc *VpcV1) ListDedicatedHostsWithContext(ctx context.Context, listDedicat
 	}
 	if listDedicatedHostsOptions.ZoneName != nil {
 		builder.AddQuery("zone.name", fmt.Sprint(*listDedicatedHostsOptions.ZoneName))
+	}
+	if listDedicatedHostsOptions.Name != nil {
+		builder.AddQuery("name", fmt.Sprint(*listDedicatedHostsOptions.Name))
 	}
 
 	request, err := builder.Build()
@@ -12805,7 +12809,8 @@ func (vpc *VpcV1) CreateIkePolicyWithContext(ctx context.Context, createIkePolic
 }
 
 // DeleteIkePolicy : Delete an IKE policy
-// This request deletes an IKE policy. This operation cannot be reversed.
+// This request deletes an IKE policy. This operation cannot be reversed. For this request to succeed, there must not be
+// any VPN gateway connections using this policy.
 func (vpc *VpcV1) DeleteIkePolicy(deleteIkePolicyOptions *DeleteIkePolicyOptions) (response *core.DetailedResponse, err error) {
 	return vpc.DeleteIkePolicyWithContext(context.Background(), deleteIkePolicyOptions)
 }
@@ -13196,7 +13201,8 @@ func (vpc *VpcV1) CreateIpsecPolicyWithContext(ctx context.Context, createIpsecP
 }
 
 // DeleteIpsecPolicy : Delete an IPsec policy
-// This request deletes an IPsec policy. This operation cannot be reversed.
+// This request deletes an IPsec policy. This operation cannot be reversed. For this request to succeed, there must not
+// be any VPN gateway connections using this policy.
 func (vpc *VpcV1) DeleteIpsecPolicy(deleteIpsecPolicyOptions *DeleteIpsecPolicyOptions) (response *core.DetailedResponse, err error) {
 	return vpc.DeleteIpsecPolicyWithContext(context.Background(), deleteIpsecPolicyOptions)
 }
@@ -13574,8 +13580,9 @@ func (vpc *VpcV1) CreateVPNGatewayWithContext(ctx context.Context, createVPNGate
 }
 
 // DeleteVPNGateway : Delete a VPN gateway
-// This request deletes a VPN gateway. A VPN gateway with a `status` of `pending` cannot be deleted. This operation
-// deletes all VPN gateway connections associated with this VPN gateway.  This operation cannot be reversed.
+// This request deletes a VPN gateway. This operation cannot be reversed. For this request to succeed, the VPN gateway
+// must not have a `status` of `pending`, and there must not be any VPC routes using the VPN gateway's connections as a
+// next hop.
 func (vpc *VpcV1) DeleteVPNGateway(deleteVPNGatewayOptions *DeleteVPNGatewayOptions) (response *core.DetailedResponse, err error) {
 	return vpc.DeleteVPNGatewayWithContext(context.Background(), deleteVPNGatewayOptions)
 }
@@ -13893,7 +13900,8 @@ func (vpc *VpcV1) CreateVPNGatewayConnectionWithContext(ctx context.Context, cre
 }
 
 // DeleteVPNGatewayConnection : Delete a VPN gateway connection
-// This request deletes a VPN gateway connection. This operation cannot be reversed.
+// This request deletes a VPN gateway connection. This operation cannot be reversed. For this request to succeed, there
+// must not be VPC routes using this VPN connection as a next hop.
 func (vpc *VpcV1) DeleteVPNGatewayConnection(deleteVPNGatewayConnectionOptions *DeleteVPNGatewayConnectionOptions) (response *core.DetailedResponse, err error) {
 	return vpc.DeleteVPNGatewayConnectionWithContext(context.Background(), deleteVPNGatewayConnectionOptions)
 }
@@ -14078,26 +14086,26 @@ func (vpc *VpcV1) UpdateVPNGatewayConnectionWithContext(ctx context.Context, upd
 	return
 }
 
-// ListVPNGatewayConnectionLocalCidrs : List all local CIDRs for a VPN gateway connection
+// ListVPNGatewayConnectionLocalCIDRs : List all local CIDRs for a VPN gateway connection
 // This request lists all local CIDRs for a VPN gateway connection.
-func (vpc *VpcV1) ListVPNGatewayConnectionLocalCidrs(listVPNGatewayConnectionLocalCidrsOptions *ListVPNGatewayConnectionLocalCidrsOptions) (result *VPNGatewayConnectionLocalCidRs, response *core.DetailedResponse, err error) {
-	return vpc.ListVPNGatewayConnectionLocalCidrsWithContext(context.Background(), listVPNGatewayConnectionLocalCidrsOptions)
+func (vpc *VpcV1) ListVPNGatewayConnectionLocalCIDRs(listVPNGatewayConnectionLocalCIDRsOptions *ListVPNGatewayConnectionLocalCIDRsOptions) (result *VPNGatewayConnectionLocalCIDRs, response *core.DetailedResponse, err error) {
+	return vpc.ListVPNGatewayConnectionLocalCIDRsWithContext(context.Background(), listVPNGatewayConnectionLocalCIDRsOptions)
 }
 
-// ListVPNGatewayConnectionLocalCidrsWithContext is an alternate form of the ListVPNGatewayConnectionLocalCidrs method which supports a Context parameter
-func (vpc *VpcV1) ListVPNGatewayConnectionLocalCidrsWithContext(ctx context.Context, listVPNGatewayConnectionLocalCidrsOptions *ListVPNGatewayConnectionLocalCidrsOptions) (result *VPNGatewayConnectionLocalCidRs, response *core.DetailedResponse, err error) {
-	err = core.ValidateNotNil(listVPNGatewayConnectionLocalCidrsOptions, "listVPNGatewayConnectionLocalCidrsOptions cannot be nil")
+// ListVPNGatewayConnectionLocalCIDRsWithContext is an alternate form of the ListVPNGatewayConnectionLocalCIDRs method which supports a Context parameter
+func (vpc *VpcV1) ListVPNGatewayConnectionLocalCIDRsWithContext(ctx context.Context, listVPNGatewayConnectionLocalCIDRsOptions *ListVPNGatewayConnectionLocalCIDRsOptions) (result *VPNGatewayConnectionLocalCIDRs, response *core.DetailedResponse, err error) {
+	err = core.ValidateNotNil(listVPNGatewayConnectionLocalCIDRsOptions, "listVPNGatewayConnectionLocalCIDRsOptions cannot be nil")
 	if err != nil {
 		return
 	}
-	err = core.ValidateStruct(listVPNGatewayConnectionLocalCidrsOptions, "listVPNGatewayConnectionLocalCidrsOptions")
+	err = core.ValidateStruct(listVPNGatewayConnectionLocalCIDRsOptions, "listVPNGatewayConnectionLocalCIDRsOptions")
 	if err != nil {
 		return
 	}
 
 	pathParamsMap := map[string]string{
-		"vpn_gateway_id": *listVPNGatewayConnectionLocalCidrsOptions.VPNGatewayID,
-		"id":             *listVPNGatewayConnectionLocalCidrsOptions.ID,
+		"vpn_gateway_id": *listVPNGatewayConnectionLocalCIDRsOptions.VPNGatewayID,
+		"id":             *listVPNGatewayConnectionLocalCIDRsOptions.ID,
 	}
 
 	builder := core.NewRequestBuilder(core.GET)
@@ -14108,11 +14116,11 @@ func (vpc *VpcV1) ListVPNGatewayConnectionLocalCidrsWithContext(ctx context.Cont
 		return
 	}
 
-	for headerName, headerValue := range listVPNGatewayConnectionLocalCidrsOptions.Headers {
+	for headerName, headerValue := range listVPNGatewayConnectionLocalCIDRsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVPNGatewayConnectionLocalCidrs")
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVPNGatewayConnectionLocalCIDRs")
 	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
@@ -14132,7 +14140,7 @@ func (vpc *VpcV1) ListVPNGatewayConnectionLocalCidrsWithContext(ctx context.Cont
 		return
 	}
 	if rawResponse != nil {
-		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalVPNGatewayConnectionLocalCidRs)
+		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalVPNGatewayConnectionLocalCIDRs)
 		if err != nil {
 			return
 		}
@@ -14305,26 +14313,26 @@ func (vpc *VpcV1) AddVPNGatewayConnectionLocalCIDRWithContext(ctx context.Contex
 	return
 }
 
-// ListVPNGatewayConnectionPeerCidrs : List all peer CIDRs for a VPN gateway connection
+// ListVPNGatewayConnectionPeerCIDRs : List all peer CIDRs for a VPN gateway connection
 // This request lists all peer CIDRs for a VPN gateway connection.
-func (vpc *VpcV1) ListVPNGatewayConnectionPeerCidrs(listVPNGatewayConnectionPeerCidrsOptions *ListVPNGatewayConnectionPeerCidrsOptions) (result *VPNGatewayConnectionPeerCidRs, response *core.DetailedResponse, err error) {
-	return vpc.ListVPNGatewayConnectionPeerCidrsWithContext(context.Background(), listVPNGatewayConnectionPeerCidrsOptions)
+func (vpc *VpcV1) ListVPNGatewayConnectionPeerCIDRs(listVPNGatewayConnectionPeerCIDRsOptions *ListVPNGatewayConnectionPeerCIDRsOptions) (result *VPNGatewayConnectionPeerCIDRs, response *core.DetailedResponse, err error) {
+	return vpc.ListVPNGatewayConnectionPeerCIDRsWithContext(context.Background(), listVPNGatewayConnectionPeerCIDRsOptions)
 }
 
-// ListVPNGatewayConnectionPeerCidrsWithContext is an alternate form of the ListVPNGatewayConnectionPeerCidrs method which supports a Context parameter
-func (vpc *VpcV1) ListVPNGatewayConnectionPeerCidrsWithContext(ctx context.Context, listVPNGatewayConnectionPeerCidrsOptions *ListVPNGatewayConnectionPeerCidrsOptions) (result *VPNGatewayConnectionPeerCidRs, response *core.DetailedResponse, err error) {
-	err = core.ValidateNotNil(listVPNGatewayConnectionPeerCidrsOptions, "listVPNGatewayConnectionPeerCidrsOptions cannot be nil")
+// ListVPNGatewayConnectionPeerCIDRsWithContext is an alternate form of the ListVPNGatewayConnectionPeerCIDRs method which supports a Context parameter
+func (vpc *VpcV1) ListVPNGatewayConnectionPeerCIDRsWithContext(ctx context.Context, listVPNGatewayConnectionPeerCIDRsOptions *ListVPNGatewayConnectionPeerCIDRsOptions) (result *VPNGatewayConnectionPeerCIDRs, response *core.DetailedResponse, err error) {
+	err = core.ValidateNotNil(listVPNGatewayConnectionPeerCIDRsOptions, "listVPNGatewayConnectionPeerCIDRsOptions cannot be nil")
 	if err != nil {
 		return
 	}
-	err = core.ValidateStruct(listVPNGatewayConnectionPeerCidrsOptions, "listVPNGatewayConnectionPeerCidrsOptions")
+	err = core.ValidateStruct(listVPNGatewayConnectionPeerCIDRsOptions, "listVPNGatewayConnectionPeerCIDRsOptions")
 	if err != nil {
 		return
 	}
 
 	pathParamsMap := map[string]string{
-		"vpn_gateway_id": *listVPNGatewayConnectionPeerCidrsOptions.VPNGatewayID,
-		"id":             *listVPNGatewayConnectionPeerCidrsOptions.ID,
+		"vpn_gateway_id": *listVPNGatewayConnectionPeerCIDRsOptions.VPNGatewayID,
+		"id":             *listVPNGatewayConnectionPeerCIDRsOptions.ID,
 	}
 
 	builder := core.NewRequestBuilder(core.GET)
@@ -14335,11 +14343,11 @@ func (vpc *VpcV1) ListVPNGatewayConnectionPeerCidrsWithContext(ctx context.Conte
 		return
 	}
 
-	for headerName, headerValue := range listVPNGatewayConnectionPeerCidrsOptions.Headers {
+	for headerName, headerValue := range listVPNGatewayConnectionPeerCIDRsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVPNGatewayConnectionPeerCidrs")
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVPNGatewayConnectionPeerCIDRs")
 	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
@@ -14359,7 +14367,7 @@ func (vpc *VpcV1) ListVPNGatewayConnectionPeerCidrsWithContext(ctx context.Conte
 		return
 	}
 	if rawResponse != nil {
-		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalVPNGatewayConnectionPeerCidRs)
+		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalVPNGatewayConnectionPeerCIDRs)
 		if err != nil {
 			return
 		}
@@ -14782,6 +14790,9 @@ func (vpc *VpcV1) CreateLoadBalancerWithContext(ctx context.Context, createLoadB
 	if createLoadBalancerOptions.ResourceGroup != nil {
 		body["resource_group"] = createLoadBalancerOptions.ResourceGroup
 	}
+	if createLoadBalancerOptions.RouteMode != nil {
+		body["route_mode"] = createLoadBalancerOptions.RouteMode
+	}
 	if createLoadBalancerOptions.SecurityGroups != nil {
 		body["security_groups"] = createLoadBalancerOptions.SecurityGroups
 	}
@@ -15164,9 +15175,6 @@ func (vpc *VpcV1) CreateLoadBalancerListenerWithContext(ctx context.Context, cre
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 
 	body := make(map[string]interface{})
-	if createLoadBalancerListenerOptions.Port != nil {
-		body["port"] = createLoadBalancerListenerOptions.Port
-	}
 	if createLoadBalancerListenerOptions.Protocol != nil {
 		body["protocol"] = createLoadBalancerListenerOptions.Protocol
 	}
@@ -15182,8 +15190,20 @@ func (vpc *VpcV1) CreateLoadBalancerListenerWithContext(ctx context.Context, cre
 	if createLoadBalancerListenerOptions.DefaultPool != nil {
 		body["default_pool"] = createLoadBalancerListenerOptions.DefaultPool
 	}
+	if createLoadBalancerListenerOptions.HTTPSRedirect != nil {
+		body["https_redirect"] = createLoadBalancerListenerOptions.HTTPSRedirect
+	}
 	if createLoadBalancerListenerOptions.Policies != nil {
 		body["policies"] = createLoadBalancerListenerOptions.Policies
+	}
+	if createLoadBalancerListenerOptions.Port != nil {
+		body["port"] = createLoadBalancerListenerOptions.Port
+	}
+	if createLoadBalancerListenerOptions.PortMax != nil {
+		body["port_max"] = createLoadBalancerListenerOptions.PortMax
+	}
+	if createLoadBalancerListenerOptions.PortMin != nil {
+		body["port_min"] = createLoadBalancerListenerOptions.PortMin
 	}
 	_, err = builder.SetBodyContentJSON(body)
 	if err != nil {
@@ -15212,7 +15232,8 @@ func (vpc *VpcV1) CreateLoadBalancerListenerWithContext(ctx context.Context, cre
 }
 
 // DeleteLoadBalancerListener : Delete a load balancer listener
-// This request deletes a load balancer listener. This operation cannot be reversed.
+// This request deletes a load balancer listener. This operation cannot be reversed. For this operation to succeed, the
+// listener must not be the target of another load balancer listener.
 func (vpc *VpcV1) DeleteLoadBalancerListener(deleteLoadBalancerListenerOptions *DeleteLoadBalancerListenerOptions) (response *core.DetailedResponse, err error) {
 	return vpc.DeleteLoadBalancerListenerWithContext(context.Background(), deleteLoadBalancerListenerOptions)
 }
@@ -17586,8 +17607,9 @@ func (vpc *VpcV1) CreateFlowLogCollectorWithContext(ctx context.Context, createF
 }
 
 // DeleteFlowLogCollector : Delete a flow log collector
-// This request stops and deletes a flow log collector. Collected flow logs remain available within the flow log
-// collector's bucket.
+// This request stops and deletes a flow log collector. This operation cannot be reversed.
+//
+// Collected flow logs remain available within the flow log collector's Cloud Object Storage bucket.
 func (vpc *VpcV1) DeleteFlowLogCollector(deleteFlowLogCollectorOptions *DeleteFlowLogCollectorOptions) (response *core.DetailedResponse, err error) {
 	return vpc.DeleteFlowLogCollectorWithContext(context.Background(), deleteFlowLogCollectorOptions)
 }
@@ -17774,10 +17796,10 @@ func (vpc *VpcV1) UpdateFlowLogCollectorWithContext(ctx context.Context, updateF
 // AddEndpointGatewayIPOptions : The AddEndpointGatewayIP options.
 type AddEndpointGatewayIPOptions struct {
 	// The endpoint gateway identifier.
-	EndpointGatewayID *string `validate:"required,ne="`
+	EndpointGatewayID *string `json:"-" validate:"required,ne="`
 
 	// The reserved IP identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -17792,15 +17814,15 @@ func (*VpcV1) NewAddEndpointGatewayIPOptions(endpointGatewayID string, id string
 }
 
 // SetEndpointGatewayID : Allow user to set EndpointGatewayID
-func (options *AddEndpointGatewayIPOptions) SetEndpointGatewayID(endpointGatewayID string) *AddEndpointGatewayIPOptions {
-	options.EndpointGatewayID = core.StringPtr(endpointGatewayID)
-	return options
+func (_options *AddEndpointGatewayIPOptions) SetEndpointGatewayID(endpointGatewayID string) *AddEndpointGatewayIPOptions {
+	_options.EndpointGatewayID = core.StringPtr(endpointGatewayID)
+	return _options
 }
 
 // SetID : Allow user to set ID
-func (options *AddEndpointGatewayIPOptions) SetID(id string) *AddEndpointGatewayIPOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *AddEndpointGatewayIPOptions) SetID(id string) *AddEndpointGatewayIPOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -17812,13 +17834,13 @@ func (options *AddEndpointGatewayIPOptions) SetHeaders(param map[string]string) 
 // AddInstanceNetworkInterfaceFloatingIPOptions : The AddInstanceNetworkInterfaceFloatingIP options.
 type AddInstanceNetworkInterfaceFloatingIPOptions struct {
 	// The instance identifier.
-	InstanceID *string `validate:"required,ne="`
+	InstanceID *string `json:"-" validate:"required,ne="`
 
 	// The network interface identifier.
-	NetworkInterfaceID *string `validate:"required,ne="`
+	NetworkInterfaceID *string `json:"-" validate:"required,ne="`
 
 	// The floating IP identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -17834,21 +17856,21 @@ func (*VpcV1) NewAddInstanceNetworkInterfaceFloatingIPOptions(instanceID string,
 }
 
 // SetInstanceID : Allow user to set InstanceID
-func (options *AddInstanceNetworkInterfaceFloatingIPOptions) SetInstanceID(instanceID string) *AddInstanceNetworkInterfaceFloatingIPOptions {
-	options.InstanceID = core.StringPtr(instanceID)
-	return options
+func (_options *AddInstanceNetworkInterfaceFloatingIPOptions) SetInstanceID(instanceID string) *AddInstanceNetworkInterfaceFloatingIPOptions {
+	_options.InstanceID = core.StringPtr(instanceID)
+	return _options
 }
 
 // SetNetworkInterfaceID : Allow user to set NetworkInterfaceID
-func (options *AddInstanceNetworkInterfaceFloatingIPOptions) SetNetworkInterfaceID(networkInterfaceID string) *AddInstanceNetworkInterfaceFloatingIPOptions {
-	options.NetworkInterfaceID = core.StringPtr(networkInterfaceID)
-	return options
+func (_options *AddInstanceNetworkInterfaceFloatingIPOptions) SetNetworkInterfaceID(networkInterfaceID string) *AddInstanceNetworkInterfaceFloatingIPOptions {
+	_options.NetworkInterfaceID = core.StringPtr(networkInterfaceID)
+	return _options
 }
 
 // SetID : Allow user to set ID
-func (options *AddInstanceNetworkInterfaceFloatingIPOptions) SetID(id string) *AddInstanceNetworkInterfaceFloatingIPOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *AddInstanceNetworkInterfaceFloatingIPOptions) SetID(id string) *AddInstanceNetworkInterfaceFloatingIPOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -17860,10 +17882,10 @@ func (options *AddInstanceNetworkInterfaceFloatingIPOptions) SetHeaders(param ma
 // AddSecurityGroupNetworkInterfaceOptions : The AddSecurityGroupNetworkInterface options.
 type AddSecurityGroupNetworkInterfaceOptions struct {
 	// The security group identifier.
-	SecurityGroupID *string `validate:"required,ne="`
+	SecurityGroupID *string `json:"-" validate:"required,ne="`
 
 	// The network interface identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -17878,15 +17900,15 @@ func (*VpcV1) NewAddSecurityGroupNetworkInterfaceOptions(securityGroupID string,
 }
 
 // SetSecurityGroupID : Allow user to set SecurityGroupID
-func (options *AddSecurityGroupNetworkInterfaceOptions) SetSecurityGroupID(securityGroupID string) *AddSecurityGroupNetworkInterfaceOptions {
-	options.SecurityGroupID = core.StringPtr(securityGroupID)
-	return options
+func (_options *AddSecurityGroupNetworkInterfaceOptions) SetSecurityGroupID(securityGroupID string) *AddSecurityGroupNetworkInterfaceOptions {
+	_options.SecurityGroupID = core.StringPtr(securityGroupID)
+	return _options
 }
 
 // SetID : Allow user to set ID
-func (options *AddSecurityGroupNetworkInterfaceOptions) SetID(id string) *AddSecurityGroupNetworkInterfaceOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *AddSecurityGroupNetworkInterfaceOptions) SetID(id string) *AddSecurityGroupNetworkInterfaceOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -17898,16 +17920,16 @@ func (options *AddSecurityGroupNetworkInterfaceOptions) SetHeaders(param map[str
 // AddVPNGatewayConnectionLocalCIDROptions : The AddVPNGatewayConnectionLocalCIDR options.
 type AddVPNGatewayConnectionLocalCIDROptions struct {
 	// The VPN gateway identifier.
-	VPNGatewayID *string `validate:"required,ne="`
+	VPNGatewayID *string `json:"-" validate:"required,ne="`
 
 	// The VPN gateway connection identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// The address prefix part of the CIDR.
-	CIDRPrefix *string `validate:"required,ne="`
+	CIDRPrefix *string `json:"-" validate:"required,ne="`
 
 	// The prefix length part of the CIDR.
-	PrefixLength *string `validate:"required,ne="`
+	PrefixLength *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -17924,27 +17946,27 @@ func (*VpcV1) NewAddVPNGatewayConnectionLocalCIDROptions(vpnGatewayID string, id
 }
 
 // SetVPNGatewayID : Allow user to set VPNGatewayID
-func (options *AddVPNGatewayConnectionLocalCIDROptions) SetVPNGatewayID(vpnGatewayID string) *AddVPNGatewayConnectionLocalCIDROptions {
-	options.VPNGatewayID = core.StringPtr(vpnGatewayID)
-	return options
+func (_options *AddVPNGatewayConnectionLocalCIDROptions) SetVPNGatewayID(vpnGatewayID string) *AddVPNGatewayConnectionLocalCIDROptions {
+	_options.VPNGatewayID = core.StringPtr(vpnGatewayID)
+	return _options
 }
 
 // SetID : Allow user to set ID
-func (options *AddVPNGatewayConnectionLocalCIDROptions) SetID(id string) *AddVPNGatewayConnectionLocalCIDROptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *AddVPNGatewayConnectionLocalCIDROptions) SetID(id string) *AddVPNGatewayConnectionLocalCIDROptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetCIDRPrefix : Allow user to set CIDRPrefix
-func (options *AddVPNGatewayConnectionLocalCIDROptions) SetCIDRPrefix(cidrPrefix string) *AddVPNGatewayConnectionLocalCIDROptions {
-	options.CIDRPrefix = core.StringPtr(cidrPrefix)
-	return options
+func (_options *AddVPNGatewayConnectionLocalCIDROptions) SetCIDRPrefix(cidrPrefix string) *AddVPNGatewayConnectionLocalCIDROptions {
+	_options.CIDRPrefix = core.StringPtr(cidrPrefix)
+	return _options
 }
 
 // SetPrefixLength : Allow user to set PrefixLength
-func (options *AddVPNGatewayConnectionLocalCIDROptions) SetPrefixLength(prefixLength string) *AddVPNGatewayConnectionLocalCIDROptions {
-	options.PrefixLength = core.StringPtr(prefixLength)
-	return options
+func (_options *AddVPNGatewayConnectionLocalCIDROptions) SetPrefixLength(prefixLength string) *AddVPNGatewayConnectionLocalCIDROptions {
+	_options.PrefixLength = core.StringPtr(prefixLength)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -17956,16 +17978,16 @@ func (options *AddVPNGatewayConnectionLocalCIDROptions) SetHeaders(param map[str
 // AddVPNGatewayConnectionPeerCIDROptions : The AddVPNGatewayConnectionPeerCIDR options.
 type AddVPNGatewayConnectionPeerCIDROptions struct {
 	// The VPN gateway identifier.
-	VPNGatewayID *string `validate:"required,ne="`
+	VPNGatewayID *string `json:"-" validate:"required,ne="`
 
 	// The VPN gateway connection identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// The address prefix part of the CIDR.
-	CIDRPrefix *string `validate:"required,ne="`
+	CIDRPrefix *string `json:"-" validate:"required,ne="`
 
 	// The prefix length part of the CIDR.
-	PrefixLength *string `validate:"required,ne="`
+	PrefixLength *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -17982,27 +18004,27 @@ func (*VpcV1) NewAddVPNGatewayConnectionPeerCIDROptions(vpnGatewayID string, id 
 }
 
 // SetVPNGatewayID : Allow user to set VPNGatewayID
-func (options *AddVPNGatewayConnectionPeerCIDROptions) SetVPNGatewayID(vpnGatewayID string) *AddVPNGatewayConnectionPeerCIDROptions {
-	options.VPNGatewayID = core.StringPtr(vpnGatewayID)
-	return options
+func (_options *AddVPNGatewayConnectionPeerCIDROptions) SetVPNGatewayID(vpnGatewayID string) *AddVPNGatewayConnectionPeerCIDROptions {
+	_options.VPNGatewayID = core.StringPtr(vpnGatewayID)
+	return _options
 }
 
 // SetID : Allow user to set ID
-func (options *AddVPNGatewayConnectionPeerCIDROptions) SetID(id string) *AddVPNGatewayConnectionPeerCIDROptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *AddVPNGatewayConnectionPeerCIDROptions) SetID(id string) *AddVPNGatewayConnectionPeerCIDROptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetCIDRPrefix : Allow user to set CIDRPrefix
-func (options *AddVPNGatewayConnectionPeerCIDROptions) SetCIDRPrefix(cidrPrefix string) *AddVPNGatewayConnectionPeerCIDROptions {
-	options.CIDRPrefix = core.StringPtr(cidrPrefix)
-	return options
+func (_options *AddVPNGatewayConnectionPeerCIDROptions) SetCIDRPrefix(cidrPrefix string) *AddVPNGatewayConnectionPeerCIDROptions {
+	_options.CIDRPrefix = core.StringPtr(cidrPrefix)
+	return _options
 }
 
 // SetPrefixLength : Allow user to set PrefixLength
-func (options *AddVPNGatewayConnectionPeerCIDROptions) SetPrefixLength(prefixLength string) *AddVPNGatewayConnectionPeerCIDROptions {
-	options.PrefixLength = core.StringPtr(prefixLength)
-	return options
+func (_options *AddVPNGatewayConnectionPeerCIDROptions) SetPrefixLength(prefixLength string) *AddVPNGatewayConnectionPeerCIDROptions {
+	_options.PrefixLength = core.StringPtr(prefixLength)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -18125,6 +18147,18 @@ func UnmarshalAddressPrefixCollection(m map[string]json.RawMessage, result inter
 	return
 }
 
+// Retrieve the value to be passed to a request to access the next page of results
+func (resp *AddressPrefixCollection) GetNextStart() (*string, error) {
+	if core.IsNil(resp.Next) {
+		return nil, nil
+	}
+	start, err := core.GetQueryParam(resp.Next.Href, "start")
+	if err != nil || start == nil {
+		return nil, err
+	}
+	return start, nil
+}
+
 // AddressPrefixCollectionFirst : A link to the first page of resources.
 type AddressPrefixCollectionFirst struct {
 	// The URL for a page of resources.
@@ -18186,11 +18220,11 @@ func UnmarshalAddressPrefixPatch(m map[string]json.RawMessage, result interface{
 }
 
 // AsPatch returns a generic map representation of the AddressPrefixPatch
-func (addressPrefixPatch *AddressPrefixPatch) AsPatch() (patch map[string]interface{}, err error) {
+func (addressPrefixPatch *AddressPrefixPatch) AsPatch() (_patch map[string]interface{}, err error) {
 	var jsonData []byte
 	jsonData, err = json.Marshal(addressPrefixPatch)
 	if err == nil {
-		err = json.Unmarshal(jsonData, &patch)
+		err = json.Unmarshal(jsonData, &_patch)
 	}
 	return
 }
@@ -18242,16 +18276,16 @@ func UnmarshalCertificateInstanceReference(m map[string]json.RawMessage, result 
 // CheckVPNGatewayConnectionLocalCIDROptions : The CheckVPNGatewayConnectionLocalCIDR options.
 type CheckVPNGatewayConnectionLocalCIDROptions struct {
 	// The VPN gateway identifier.
-	VPNGatewayID *string `validate:"required,ne="`
+	VPNGatewayID *string `json:"-" validate:"required,ne="`
 
 	// The VPN gateway connection identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// The address prefix part of the CIDR.
-	CIDRPrefix *string `validate:"required,ne="`
+	CIDRPrefix *string `json:"-" validate:"required,ne="`
 
 	// The prefix length part of the CIDR.
-	PrefixLength *string `validate:"required,ne="`
+	PrefixLength *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -18268,27 +18302,27 @@ func (*VpcV1) NewCheckVPNGatewayConnectionLocalCIDROptions(vpnGatewayID string, 
 }
 
 // SetVPNGatewayID : Allow user to set VPNGatewayID
-func (options *CheckVPNGatewayConnectionLocalCIDROptions) SetVPNGatewayID(vpnGatewayID string) *CheckVPNGatewayConnectionLocalCIDROptions {
-	options.VPNGatewayID = core.StringPtr(vpnGatewayID)
-	return options
+func (_options *CheckVPNGatewayConnectionLocalCIDROptions) SetVPNGatewayID(vpnGatewayID string) *CheckVPNGatewayConnectionLocalCIDROptions {
+	_options.VPNGatewayID = core.StringPtr(vpnGatewayID)
+	return _options
 }
 
 // SetID : Allow user to set ID
-func (options *CheckVPNGatewayConnectionLocalCIDROptions) SetID(id string) *CheckVPNGatewayConnectionLocalCIDROptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *CheckVPNGatewayConnectionLocalCIDROptions) SetID(id string) *CheckVPNGatewayConnectionLocalCIDROptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetCIDRPrefix : Allow user to set CIDRPrefix
-func (options *CheckVPNGatewayConnectionLocalCIDROptions) SetCIDRPrefix(cidrPrefix string) *CheckVPNGatewayConnectionLocalCIDROptions {
-	options.CIDRPrefix = core.StringPtr(cidrPrefix)
-	return options
+func (_options *CheckVPNGatewayConnectionLocalCIDROptions) SetCIDRPrefix(cidrPrefix string) *CheckVPNGatewayConnectionLocalCIDROptions {
+	_options.CIDRPrefix = core.StringPtr(cidrPrefix)
+	return _options
 }
 
 // SetPrefixLength : Allow user to set PrefixLength
-func (options *CheckVPNGatewayConnectionLocalCIDROptions) SetPrefixLength(prefixLength string) *CheckVPNGatewayConnectionLocalCIDROptions {
-	options.PrefixLength = core.StringPtr(prefixLength)
-	return options
+func (_options *CheckVPNGatewayConnectionLocalCIDROptions) SetPrefixLength(prefixLength string) *CheckVPNGatewayConnectionLocalCIDROptions {
+	_options.PrefixLength = core.StringPtr(prefixLength)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -18300,16 +18334,16 @@ func (options *CheckVPNGatewayConnectionLocalCIDROptions) SetHeaders(param map[s
 // CheckVPNGatewayConnectionPeerCIDROptions : The CheckVPNGatewayConnectionPeerCIDR options.
 type CheckVPNGatewayConnectionPeerCIDROptions struct {
 	// The VPN gateway identifier.
-	VPNGatewayID *string `validate:"required,ne="`
+	VPNGatewayID *string `json:"-" validate:"required,ne="`
 
 	// The VPN gateway connection identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// The address prefix part of the CIDR.
-	CIDRPrefix *string `validate:"required,ne="`
+	CIDRPrefix *string `json:"-" validate:"required,ne="`
 
 	// The prefix length part of the CIDR.
-	PrefixLength *string `validate:"required,ne="`
+	PrefixLength *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -18326,27 +18360,27 @@ func (*VpcV1) NewCheckVPNGatewayConnectionPeerCIDROptions(vpnGatewayID string, i
 }
 
 // SetVPNGatewayID : Allow user to set VPNGatewayID
-func (options *CheckVPNGatewayConnectionPeerCIDROptions) SetVPNGatewayID(vpnGatewayID string) *CheckVPNGatewayConnectionPeerCIDROptions {
-	options.VPNGatewayID = core.StringPtr(vpnGatewayID)
-	return options
+func (_options *CheckVPNGatewayConnectionPeerCIDROptions) SetVPNGatewayID(vpnGatewayID string) *CheckVPNGatewayConnectionPeerCIDROptions {
+	_options.VPNGatewayID = core.StringPtr(vpnGatewayID)
+	return _options
 }
 
 // SetID : Allow user to set ID
-func (options *CheckVPNGatewayConnectionPeerCIDROptions) SetID(id string) *CheckVPNGatewayConnectionPeerCIDROptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *CheckVPNGatewayConnectionPeerCIDROptions) SetID(id string) *CheckVPNGatewayConnectionPeerCIDROptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetCIDRPrefix : Allow user to set CIDRPrefix
-func (options *CheckVPNGatewayConnectionPeerCIDROptions) SetCIDRPrefix(cidrPrefix string) *CheckVPNGatewayConnectionPeerCIDROptions {
-	options.CIDRPrefix = core.StringPtr(cidrPrefix)
-	return options
+func (_options *CheckVPNGatewayConnectionPeerCIDROptions) SetCIDRPrefix(cidrPrefix string) *CheckVPNGatewayConnectionPeerCIDROptions {
+	_options.CIDRPrefix = core.StringPtr(cidrPrefix)
+	return _options
 }
 
 // SetPrefixLength : Allow user to set PrefixLength
-func (options *CheckVPNGatewayConnectionPeerCIDROptions) SetPrefixLength(prefixLength string) *CheckVPNGatewayConnectionPeerCIDROptions {
-	options.PrefixLength = core.StringPtr(prefixLength)
-	return options
+func (_options *CheckVPNGatewayConnectionPeerCIDROptions) SetPrefixLength(prefixLength string) *CheckVPNGatewayConnectionPeerCIDROptions {
+	_options.PrefixLength = core.StringPtr(prefixLength)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -18402,21 +18436,21 @@ func UnmarshalCloudObjectStorageBucketReference(m map[string]json.RawMessage, re
 // CreateDedicatedHostGroupOptions : The CreateDedicatedHostGroup options.
 type CreateDedicatedHostGroupOptions struct {
 	// The dedicated host profile class for hosts in this group.
-	Class *string
+	Class *string `json:"class,omitempty"`
 
 	// The dedicated host profile family for hosts in this group.
-	Family *string
+	Family *string `json:"family,omitempty"`
 
 	// The unique user-defined name for this dedicated host group. If unspecified, the name will be a hyphenated list of
 	// randomly-selected words.
-	Name *string
+	Name *string `json:"name,omitempty"`
 
 	// The resource group to use. If unspecified, the account's [default resource
 	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) is used.
-	ResourceGroup ResourceGroupIdentityIntf
+	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
 
 	// The zone this dedicated host group will reside in.
-	Zone ZoneIdentityIntf
+	Zone ZoneIdentityIntf `json:"zone,omitempty"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -18436,33 +18470,33 @@ func (*VpcV1) NewCreateDedicatedHostGroupOptions() *CreateDedicatedHostGroupOpti
 }
 
 // SetClass : Allow user to set Class
-func (options *CreateDedicatedHostGroupOptions) SetClass(class string) *CreateDedicatedHostGroupOptions {
-	options.Class = core.StringPtr(class)
-	return options
+func (_options *CreateDedicatedHostGroupOptions) SetClass(class string) *CreateDedicatedHostGroupOptions {
+	_options.Class = core.StringPtr(class)
+	return _options
 }
 
 // SetFamily : Allow user to set Family
-func (options *CreateDedicatedHostGroupOptions) SetFamily(family string) *CreateDedicatedHostGroupOptions {
-	options.Family = core.StringPtr(family)
-	return options
+func (_options *CreateDedicatedHostGroupOptions) SetFamily(family string) *CreateDedicatedHostGroupOptions {
+	_options.Family = core.StringPtr(family)
+	return _options
 }
 
 // SetName : Allow user to set Name
-func (options *CreateDedicatedHostGroupOptions) SetName(name string) *CreateDedicatedHostGroupOptions {
-	options.Name = core.StringPtr(name)
-	return options
+func (_options *CreateDedicatedHostGroupOptions) SetName(name string) *CreateDedicatedHostGroupOptions {
+	_options.Name = core.StringPtr(name)
+	return _options
 }
 
 // SetResourceGroup : Allow user to set ResourceGroup
-func (options *CreateDedicatedHostGroupOptions) SetResourceGroup(resourceGroup ResourceGroupIdentityIntf) *CreateDedicatedHostGroupOptions {
-	options.ResourceGroup = resourceGroup
-	return options
+func (_options *CreateDedicatedHostGroupOptions) SetResourceGroup(resourceGroup ResourceGroupIdentityIntf) *CreateDedicatedHostGroupOptions {
+	_options.ResourceGroup = resourceGroup
+	return _options
 }
 
 // SetZone : Allow user to set Zone
-func (options *CreateDedicatedHostGroupOptions) SetZone(zone ZoneIdentityIntf) *CreateDedicatedHostGroupOptions {
-	options.Zone = zone
-	return options
+func (_options *CreateDedicatedHostGroupOptions) SetZone(zone ZoneIdentityIntf) *CreateDedicatedHostGroupOptions {
+	_options.Zone = zone
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -18474,7 +18508,7 @@ func (options *CreateDedicatedHostGroupOptions) SetHeaders(param map[string]stri
 // CreateDedicatedHostOptions : The CreateDedicatedHost options.
 type CreateDedicatedHostOptions struct {
 	// The dedicated host prototype object.
-	DedicatedHostPrototype DedicatedHostPrototypeIntf `validate:"required"`
+	DedicatedHostPrototype DedicatedHostPrototypeIntf `json:"DedicatedHostPrototype" validate:"required"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -18488,9 +18522,9 @@ func (*VpcV1) NewCreateDedicatedHostOptions(dedicatedHostPrototype DedicatedHost
 }
 
 // SetDedicatedHostPrototype : Allow user to set DedicatedHostPrototype
-func (options *CreateDedicatedHostOptions) SetDedicatedHostPrototype(dedicatedHostPrototype DedicatedHostPrototypeIntf) *CreateDedicatedHostOptions {
-	options.DedicatedHostPrototype = dedicatedHostPrototype
-	return options
+func (_options *CreateDedicatedHostOptions) SetDedicatedHostPrototype(dedicatedHostPrototype DedicatedHostPrototypeIntf) *CreateDedicatedHostOptions {
+	_options.DedicatedHostPrototype = dedicatedHostPrototype
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -18502,21 +18536,21 @@ func (options *CreateDedicatedHostOptions) SetHeaders(param map[string]string) *
 // CreateEndpointGatewayOptions : The CreateEndpointGateway options.
 type CreateEndpointGatewayOptions struct {
 	// The target for this endpoint gateway.
-	Target EndpointGatewayTargetPrototypeIntf `validate:"required"`
+	Target EndpointGatewayTargetPrototypeIntf `json:"target" validate:"required"`
 
 	// The VPC this endpoint gateway will serve.
-	VPC VPCIdentityIntf `validate:"required"`
+	VPC VPCIdentityIntf `json:"vpc" validate:"required"`
 
 	// The reserved IPs to bind to this endpoint gateway. At most one reserved IP per zone is allowed.
-	Ips []EndpointGatewayReservedIPIntf
+	Ips []EndpointGatewayReservedIPIntf `json:"ips,omitempty"`
 
 	// The user-defined name for this endpoint gateway. If unspecified, the name will be a hyphenated list of
 	// randomly-selected words. Names must be unique within the VPC this endpoint gateway is serving.
-	Name *string
+	Name *string `json:"name,omitempty"`
 
 	// The resource group to use. If unspecified, the account's [default resource
 	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) is used.
-	ResourceGroup ResourceGroupIdentityIntf
+	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -18531,33 +18565,33 @@ func (*VpcV1) NewCreateEndpointGatewayOptions(target EndpointGatewayTargetProtot
 }
 
 // SetTarget : Allow user to set Target
-func (options *CreateEndpointGatewayOptions) SetTarget(target EndpointGatewayTargetPrototypeIntf) *CreateEndpointGatewayOptions {
-	options.Target = target
-	return options
+func (_options *CreateEndpointGatewayOptions) SetTarget(target EndpointGatewayTargetPrototypeIntf) *CreateEndpointGatewayOptions {
+	_options.Target = target
+	return _options
 }
 
 // SetVPC : Allow user to set VPC
-func (options *CreateEndpointGatewayOptions) SetVPC(vpc VPCIdentityIntf) *CreateEndpointGatewayOptions {
-	options.VPC = vpc
-	return options
+func (_options *CreateEndpointGatewayOptions) SetVPC(vpc VPCIdentityIntf) *CreateEndpointGatewayOptions {
+	_options.VPC = vpc
+	return _options
 }
 
 // SetIps : Allow user to set Ips
-func (options *CreateEndpointGatewayOptions) SetIps(ips []EndpointGatewayReservedIPIntf) *CreateEndpointGatewayOptions {
-	options.Ips = ips
-	return options
+func (_options *CreateEndpointGatewayOptions) SetIps(ips []EndpointGatewayReservedIPIntf) *CreateEndpointGatewayOptions {
+	_options.Ips = ips
+	return _options
 }
 
 // SetName : Allow user to set Name
-func (options *CreateEndpointGatewayOptions) SetName(name string) *CreateEndpointGatewayOptions {
-	options.Name = core.StringPtr(name)
-	return options
+func (_options *CreateEndpointGatewayOptions) SetName(name string) *CreateEndpointGatewayOptions {
+	_options.Name = core.StringPtr(name)
+	return _options
 }
 
 // SetResourceGroup : Allow user to set ResourceGroup
-func (options *CreateEndpointGatewayOptions) SetResourceGroup(resourceGroup ResourceGroupIdentityIntf) *CreateEndpointGatewayOptions {
-	options.ResourceGroup = resourceGroup
-	return options
+func (_options *CreateEndpointGatewayOptions) SetResourceGroup(resourceGroup ResourceGroupIdentityIntf) *CreateEndpointGatewayOptions {
+	_options.ResourceGroup = resourceGroup
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -18569,7 +18603,7 @@ func (options *CreateEndpointGatewayOptions) SetHeaders(param map[string]string)
 // CreateFloatingIPOptions : The CreateFloatingIP options.
 type CreateFloatingIPOptions struct {
 	// The floating IP prototype object.
-	FloatingIPPrototype FloatingIPPrototypeIntf `validate:"required"`
+	FloatingIPPrototype FloatingIPPrototypeIntf `json:"FloatingIPPrototype" validate:"required"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -18583,9 +18617,9 @@ func (*VpcV1) NewCreateFloatingIPOptions(floatingIPPrototype FloatingIPPrototype
 }
 
 // SetFloatingIPPrototype : Allow user to set FloatingIPPrototype
-func (options *CreateFloatingIPOptions) SetFloatingIPPrototype(floatingIPPrototype FloatingIPPrototypeIntf) *CreateFloatingIPOptions {
-	options.FloatingIPPrototype = floatingIPPrototype
-	return options
+func (_options *CreateFloatingIPOptions) SetFloatingIPPrototype(floatingIPPrototype FloatingIPPrototypeIntf) *CreateFloatingIPOptions {
+	_options.FloatingIPPrototype = floatingIPPrototype
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -18600,23 +18634,23 @@ type CreateFlowLogCollectorOptions struct {
 	// The bucket must exist and an IAM service authorization must grant
 	// `IBM Cloud Flow Logs` resources of `VPC Infrastructure Services` writer
 	// access to the bucket.
-	StorageBucket CloudObjectStorageBucketIdentityIntf `validate:"required"`
+	StorageBucket CloudObjectStorageBucketIdentityIntf `json:"storage_bucket" validate:"required"`
 
 	// The target this collector will collect flow logs for. If the target is an instance,
 	// subnet, or VPC, flow logs will not be collected for any network interfaces within the
 	// target that are themselves the target of a more specific flow log collector.
-	Target FlowLogCollectorTargetPrototypeIntf `validate:"required"`
+	Target FlowLogCollectorTargetPrototypeIntf `json:"target" validate:"required"`
 
 	// Indicates whether this collector will be active upon creation.
-	Active *bool
+	Active *bool `json:"active,omitempty"`
 
 	// The unique user-defined name for this flow log collector. If unspecified, the name will be a hyphenated list of
 	// randomly-selected words.
-	Name *string
+	Name *string `json:"name,omitempty"`
 
 	// The resource group to use. If unspecified, the account's [default resource
 	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) is used.
-	ResourceGroup ResourceGroupIdentityIntf
+	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -18631,33 +18665,33 @@ func (*VpcV1) NewCreateFlowLogCollectorOptions(storageBucket CloudObjectStorageB
 }
 
 // SetStorageBucket : Allow user to set StorageBucket
-func (options *CreateFlowLogCollectorOptions) SetStorageBucket(storageBucket CloudObjectStorageBucketIdentityIntf) *CreateFlowLogCollectorOptions {
-	options.StorageBucket = storageBucket
-	return options
+func (_options *CreateFlowLogCollectorOptions) SetStorageBucket(storageBucket CloudObjectStorageBucketIdentityIntf) *CreateFlowLogCollectorOptions {
+	_options.StorageBucket = storageBucket
+	return _options
 }
 
 // SetTarget : Allow user to set Target
-func (options *CreateFlowLogCollectorOptions) SetTarget(target FlowLogCollectorTargetPrototypeIntf) *CreateFlowLogCollectorOptions {
-	options.Target = target
-	return options
+func (_options *CreateFlowLogCollectorOptions) SetTarget(target FlowLogCollectorTargetPrototypeIntf) *CreateFlowLogCollectorOptions {
+	_options.Target = target
+	return _options
 }
 
 // SetActive : Allow user to set Active
-func (options *CreateFlowLogCollectorOptions) SetActive(active bool) *CreateFlowLogCollectorOptions {
-	options.Active = core.BoolPtr(active)
-	return options
+func (_options *CreateFlowLogCollectorOptions) SetActive(active bool) *CreateFlowLogCollectorOptions {
+	_options.Active = core.BoolPtr(active)
+	return _options
 }
 
 // SetName : Allow user to set Name
-func (options *CreateFlowLogCollectorOptions) SetName(name string) *CreateFlowLogCollectorOptions {
-	options.Name = core.StringPtr(name)
-	return options
+func (_options *CreateFlowLogCollectorOptions) SetName(name string) *CreateFlowLogCollectorOptions {
+	_options.Name = core.StringPtr(name)
+	return _options
 }
 
 // SetResourceGroup : Allow user to set ResourceGroup
-func (options *CreateFlowLogCollectorOptions) SetResourceGroup(resourceGroup ResourceGroupIdentityIntf) *CreateFlowLogCollectorOptions {
-	options.ResourceGroup = resourceGroup
-	return options
+func (_options *CreateFlowLogCollectorOptions) SetResourceGroup(resourceGroup ResourceGroupIdentityIntf) *CreateFlowLogCollectorOptions {
+	_options.ResourceGroup = resourceGroup
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -18669,26 +18703,26 @@ func (options *CreateFlowLogCollectorOptions) SetHeaders(param map[string]string
 // CreateIkePolicyOptions : The CreateIkePolicy options.
 type CreateIkePolicyOptions struct {
 	// The authentication algorithm.
-	AuthenticationAlgorithm *string `validate:"required"`
+	AuthenticationAlgorithm *string `json:"authentication_algorithm" validate:"required"`
 
 	// The Diffie-Hellman group.
-	DhGroup *int64 `validate:"required"`
+	DhGroup *int64 `json:"dh_group" validate:"required"`
 
 	// The encryption algorithm.
-	EncryptionAlgorithm *string `validate:"required"`
+	EncryptionAlgorithm *string `json:"encryption_algorithm" validate:"required"`
 
 	// The IKE protocol version.
-	IkeVersion *int64 `validate:"required"`
+	IkeVersion *int64 `json:"ike_version" validate:"required"`
 
 	// The key lifetime in seconds.
-	KeyLifetime *int64
+	KeyLifetime *int64 `json:"key_lifetime,omitempty"`
 
 	// The user-defined name for this IKE policy.
-	Name *string
+	Name *string `json:"name,omitempty"`
 
 	// The resource group to use. If unspecified, the account's [default resource
 	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) is used.
-	ResourceGroup ResourceGroupIdentityIntf
+	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -18722,45 +18756,45 @@ func (*VpcV1) NewCreateIkePolicyOptions(authenticationAlgorithm string, dhGroup 
 }
 
 // SetAuthenticationAlgorithm : Allow user to set AuthenticationAlgorithm
-func (options *CreateIkePolicyOptions) SetAuthenticationAlgorithm(authenticationAlgorithm string) *CreateIkePolicyOptions {
-	options.AuthenticationAlgorithm = core.StringPtr(authenticationAlgorithm)
-	return options
+func (_options *CreateIkePolicyOptions) SetAuthenticationAlgorithm(authenticationAlgorithm string) *CreateIkePolicyOptions {
+	_options.AuthenticationAlgorithm = core.StringPtr(authenticationAlgorithm)
+	return _options
 }
 
 // SetDhGroup : Allow user to set DhGroup
-func (options *CreateIkePolicyOptions) SetDhGroup(dhGroup int64) *CreateIkePolicyOptions {
-	options.DhGroup = core.Int64Ptr(dhGroup)
-	return options
+func (_options *CreateIkePolicyOptions) SetDhGroup(dhGroup int64) *CreateIkePolicyOptions {
+	_options.DhGroup = core.Int64Ptr(dhGroup)
+	return _options
 }
 
 // SetEncryptionAlgorithm : Allow user to set EncryptionAlgorithm
-func (options *CreateIkePolicyOptions) SetEncryptionAlgorithm(encryptionAlgorithm string) *CreateIkePolicyOptions {
-	options.EncryptionAlgorithm = core.StringPtr(encryptionAlgorithm)
-	return options
+func (_options *CreateIkePolicyOptions) SetEncryptionAlgorithm(encryptionAlgorithm string) *CreateIkePolicyOptions {
+	_options.EncryptionAlgorithm = core.StringPtr(encryptionAlgorithm)
+	return _options
 }
 
 // SetIkeVersion : Allow user to set IkeVersion
-func (options *CreateIkePolicyOptions) SetIkeVersion(ikeVersion int64) *CreateIkePolicyOptions {
-	options.IkeVersion = core.Int64Ptr(ikeVersion)
-	return options
+func (_options *CreateIkePolicyOptions) SetIkeVersion(ikeVersion int64) *CreateIkePolicyOptions {
+	_options.IkeVersion = core.Int64Ptr(ikeVersion)
+	return _options
 }
 
 // SetKeyLifetime : Allow user to set KeyLifetime
-func (options *CreateIkePolicyOptions) SetKeyLifetime(keyLifetime int64) *CreateIkePolicyOptions {
-	options.KeyLifetime = core.Int64Ptr(keyLifetime)
-	return options
+func (_options *CreateIkePolicyOptions) SetKeyLifetime(keyLifetime int64) *CreateIkePolicyOptions {
+	_options.KeyLifetime = core.Int64Ptr(keyLifetime)
+	return _options
 }
 
 // SetName : Allow user to set Name
-func (options *CreateIkePolicyOptions) SetName(name string) *CreateIkePolicyOptions {
-	options.Name = core.StringPtr(name)
-	return options
+func (_options *CreateIkePolicyOptions) SetName(name string) *CreateIkePolicyOptions {
+	_options.Name = core.StringPtr(name)
+	return _options
 }
 
 // SetResourceGroup : Allow user to set ResourceGroup
-func (options *CreateIkePolicyOptions) SetResourceGroup(resourceGroup ResourceGroupIdentityIntf) *CreateIkePolicyOptions {
-	options.ResourceGroup = resourceGroup
-	return options
+func (_options *CreateIkePolicyOptions) SetResourceGroup(resourceGroup ResourceGroupIdentityIntf) *CreateIkePolicyOptions {
+	_options.ResourceGroup = resourceGroup
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -18772,7 +18806,7 @@ func (options *CreateIkePolicyOptions) SetHeaders(param map[string]string) *Crea
 // CreateImageOptions : The CreateImage options.
 type CreateImageOptions struct {
 	// The image prototype object.
-	ImagePrototype ImagePrototypeIntf `validate:"required"`
+	ImagePrototype ImagePrototypeIntf `json:"ImagePrototype" validate:"required"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -18786,9 +18820,9 @@ func (*VpcV1) NewCreateImageOptions(imagePrototype ImagePrototypeIntf) *CreateIm
 }
 
 // SetImagePrototype : Allow user to set ImagePrototype
-func (options *CreateImageOptions) SetImagePrototype(imagePrototype ImagePrototypeIntf) *CreateImageOptions {
-	options.ImagePrototype = imagePrototype
-	return options
+func (_options *CreateImageOptions) SetImagePrototype(imagePrototype ImagePrototypeIntf) *CreateImageOptions {
+	_options.ImagePrototype = imagePrototype
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -18800,13 +18834,13 @@ func (options *CreateImageOptions) SetHeaders(param map[string]string) *CreateIm
 // CreateInstanceActionOptions : The CreateInstanceAction options.
 type CreateInstanceActionOptions struct {
 	// The instance identifier.
-	InstanceID *string `validate:"required,ne="`
+	InstanceID *string `json:"-" validate:"required,ne="`
 
 	// The type of action.
-	Type *string `validate:"required"`
+	Type *string `json:"type" validate:"required"`
 
 	// If set to true, the action will be forced immediately, and all queued actions deleted. Ignored for the start action.
-	Force *bool
+	Force *bool `json:"force,omitempty"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -18829,21 +18863,21 @@ func (*VpcV1) NewCreateInstanceActionOptions(instanceID string, typeVar string) 
 }
 
 // SetInstanceID : Allow user to set InstanceID
-func (options *CreateInstanceActionOptions) SetInstanceID(instanceID string) *CreateInstanceActionOptions {
-	options.InstanceID = core.StringPtr(instanceID)
-	return options
+func (_options *CreateInstanceActionOptions) SetInstanceID(instanceID string) *CreateInstanceActionOptions {
+	_options.InstanceID = core.StringPtr(instanceID)
+	return _options
 }
 
 // SetType : Allow user to set Type
-func (options *CreateInstanceActionOptions) SetType(typeVar string) *CreateInstanceActionOptions {
-	options.Type = core.StringPtr(typeVar)
-	return options
+func (_options *CreateInstanceActionOptions) SetType(typeVar string) *CreateInstanceActionOptions {
+	_options.Type = core.StringPtr(typeVar)
+	return _options
 }
 
 // SetForce : Allow user to set Force
-func (options *CreateInstanceActionOptions) SetForce(force bool) *CreateInstanceActionOptions {
-	options.Force = core.BoolPtr(force)
-	return options
+func (_options *CreateInstanceActionOptions) SetForce(force bool) *CreateInstanceActionOptions {
+	_options.Force = core.BoolPtr(force)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -18855,14 +18889,14 @@ func (options *CreateInstanceActionOptions) SetHeaders(param map[string]string) 
 // CreateInstanceConsoleAccessTokenOptions : The CreateInstanceConsoleAccessToken options.
 type CreateInstanceConsoleAccessTokenOptions struct {
 	// The instance identifier.
-	InstanceID *string `validate:"required,ne="`
+	InstanceID *string `json:"-" validate:"required,ne="`
 
 	// The instance console type for which this token may be used.
-	ConsoleType *string `validate:"required"`
+	ConsoleType *string `json:"console_type" validate:"required"`
 
 	// Indicates whether to disconnect an existing serial console session as the serial console cannot be shared.  This has
 	// no effect on VNC consoles.
-	Force *bool
+	Force *bool `json:"force,omitempty"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -18884,21 +18918,21 @@ func (*VpcV1) NewCreateInstanceConsoleAccessTokenOptions(instanceID string, cons
 }
 
 // SetInstanceID : Allow user to set InstanceID
-func (options *CreateInstanceConsoleAccessTokenOptions) SetInstanceID(instanceID string) *CreateInstanceConsoleAccessTokenOptions {
-	options.InstanceID = core.StringPtr(instanceID)
-	return options
+func (_options *CreateInstanceConsoleAccessTokenOptions) SetInstanceID(instanceID string) *CreateInstanceConsoleAccessTokenOptions {
+	_options.InstanceID = core.StringPtr(instanceID)
+	return _options
 }
 
 // SetConsoleType : Allow user to set ConsoleType
-func (options *CreateInstanceConsoleAccessTokenOptions) SetConsoleType(consoleType string) *CreateInstanceConsoleAccessTokenOptions {
-	options.ConsoleType = core.StringPtr(consoleType)
-	return options
+func (_options *CreateInstanceConsoleAccessTokenOptions) SetConsoleType(consoleType string) *CreateInstanceConsoleAccessTokenOptions {
+	_options.ConsoleType = core.StringPtr(consoleType)
+	return _options
 }
 
 // SetForce : Allow user to set Force
-func (options *CreateInstanceConsoleAccessTokenOptions) SetForce(force bool) *CreateInstanceConsoleAccessTokenOptions {
-	options.Force = core.BoolPtr(force)
-	return options
+func (_options *CreateInstanceConsoleAccessTokenOptions) SetForce(force bool) *CreateInstanceConsoleAccessTokenOptions {
+	_options.Force = core.BoolPtr(force)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -18910,13 +18944,13 @@ func (options *CreateInstanceConsoleAccessTokenOptions) SetHeaders(param map[str
 // CreateInstanceGroupManagerActionOptions : The CreateInstanceGroupManagerAction options.
 type CreateInstanceGroupManagerActionOptions struct {
 	// The instance group identifier.
-	InstanceGroupID *string `validate:"required,ne="`
+	InstanceGroupID *string `json:"-" validate:"required,ne="`
 
 	// The instance group manager identifier.
-	InstanceGroupManagerID *string `validate:"required,ne="`
+	InstanceGroupManagerID *string `json:"-" validate:"required,ne="`
 
 	// The instance group manager action prototype object.
-	InstanceGroupManagerActionPrototype InstanceGroupManagerActionPrototypeIntf `validate:"required"`
+	InstanceGroupManagerActionPrototype InstanceGroupManagerActionPrototypeIntf `json:"InstanceGroupManagerActionPrototype" validate:"required"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -18932,21 +18966,21 @@ func (*VpcV1) NewCreateInstanceGroupManagerActionOptions(instanceGroupID string,
 }
 
 // SetInstanceGroupID : Allow user to set InstanceGroupID
-func (options *CreateInstanceGroupManagerActionOptions) SetInstanceGroupID(instanceGroupID string) *CreateInstanceGroupManagerActionOptions {
-	options.InstanceGroupID = core.StringPtr(instanceGroupID)
-	return options
+func (_options *CreateInstanceGroupManagerActionOptions) SetInstanceGroupID(instanceGroupID string) *CreateInstanceGroupManagerActionOptions {
+	_options.InstanceGroupID = core.StringPtr(instanceGroupID)
+	return _options
 }
 
 // SetInstanceGroupManagerID : Allow user to set InstanceGroupManagerID
-func (options *CreateInstanceGroupManagerActionOptions) SetInstanceGroupManagerID(instanceGroupManagerID string) *CreateInstanceGroupManagerActionOptions {
-	options.InstanceGroupManagerID = core.StringPtr(instanceGroupManagerID)
-	return options
+func (_options *CreateInstanceGroupManagerActionOptions) SetInstanceGroupManagerID(instanceGroupManagerID string) *CreateInstanceGroupManagerActionOptions {
+	_options.InstanceGroupManagerID = core.StringPtr(instanceGroupManagerID)
+	return _options
 }
 
 // SetInstanceGroupManagerActionPrototype : Allow user to set InstanceGroupManagerActionPrototype
-func (options *CreateInstanceGroupManagerActionOptions) SetInstanceGroupManagerActionPrototype(instanceGroupManagerActionPrototype InstanceGroupManagerActionPrototypeIntf) *CreateInstanceGroupManagerActionOptions {
-	options.InstanceGroupManagerActionPrototype = instanceGroupManagerActionPrototype
-	return options
+func (_options *CreateInstanceGroupManagerActionOptions) SetInstanceGroupManagerActionPrototype(instanceGroupManagerActionPrototype InstanceGroupManagerActionPrototypeIntf) *CreateInstanceGroupManagerActionOptions {
+	_options.InstanceGroupManagerActionPrototype = instanceGroupManagerActionPrototype
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -18958,10 +18992,10 @@ func (options *CreateInstanceGroupManagerActionOptions) SetHeaders(param map[str
 // CreateInstanceGroupManagerOptions : The CreateInstanceGroupManager options.
 type CreateInstanceGroupManagerOptions struct {
 	// The instance group identifier.
-	InstanceGroupID *string `validate:"required,ne="`
+	InstanceGroupID *string `json:"-" validate:"required,ne="`
 
 	// The instance group manager prototype object.
-	InstanceGroupManagerPrototype InstanceGroupManagerPrototypeIntf `validate:"required"`
+	InstanceGroupManagerPrototype InstanceGroupManagerPrototypeIntf `json:"InstanceGroupManagerPrototype" validate:"required"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -18976,15 +19010,15 @@ func (*VpcV1) NewCreateInstanceGroupManagerOptions(instanceGroupID string, insta
 }
 
 // SetInstanceGroupID : Allow user to set InstanceGroupID
-func (options *CreateInstanceGroupManagerOptions) SetInstanceGroupID(instanceGroupID string) *CreateInstanceGroupManagerOptions {
-	options.InstanceGroupID = core.StringPtr(instanceGroupID)
-	return options
+func (_options *CreateInstanceGroupManagerOptions) SetInstanceGroupID(instanceGroupID string) *CreateInstanceGroupManagerOptions {
+	_options.InstanceGroupID = core.StringPtr(instanceGroupID)
+	return _options
 }
 
 // SetInstanceGroupManagerPrototype : Allow user to set InstanceGroupManagerPrototype
-func (options *CreateInstanceGroupManagerOptions) SetInstanceGroupManagerPrototype(instanceGroupManagerPrototype InstanceGroupManagerPrototypeIntf) *CreateInstanceGroupManagerOptions {
-	options.InstanceGroupManagerPrototype = instanceGroupManagerPrototype
-	return options
+func (_options *CreateInstanceGroupManagerOptions) SetInstanceGroupManagerPrototype(instanceGroupManagerPrototype InstanceGroupManagerPrototypeIntf) *CreateInstanceGroupManagerOptions {
+	_options.InstanceGroupManagerPrototype = instanceGroupManagerPrototype
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -18996,13 +19030,13 @@ func (options *CreateInstanceGroupManagerOptions) SetHeaders(param map[string]st
 // CreateInstanceGroupManagerPolicyOptions : The CreateInstanceGroupManagerPolicy options.
 type CreateInstanceGroupManagerPolicyOptions struct {
 	// The instance group identifier.
-	InstanceGroupID *string `validate:"required,ne="`
+	InstanceGroupID *string `json:"-" validate:"required,ne="`
 
 	// The instance group manager identifier.
-	InstanceGroupManagerID *string `validate:"required,ne="`
+	InstanceGroupManagerID *string `json:"-" validate:"required,ne="`
 
 	// The instance group manager policy prototype object.
-	InstanceGroupManagerPolicyPrototype InstanceGroupManagerPolicyPrototypeIntf `validate:"required"`
+	InstanceGroupManagerPolicyPrototype InstanceGroupManagerPolicyPrototypeIntf `json:"InstanceGroupManagerPolicyPrototype" validate:"required"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -19018,21 +19052,21 @@ func (*VpcV1) NewCreateInstanceGroupManagerPolicyOptions(instanceGroupID string,
 }
 
 // SetInstanceGroupID : Allow user to set InstanceGroupID
-func (options *CreateInstanceGroupManagerPolicyOptions) SetInstanceGroupID(instanceGroupID string) *CreateInstanceGroupManagerPolicyOptions {
-	options.InstanceGroupID = core.StringPtr(instanceGroupID)
-	return options
+func (_options *CreateInstanceGroupManagerPolicyOptions) SetInstanceGroupID(instanceGroupID string) *CreateInstanceGroupManagerPolicyOptions {
+	_options.InstanceGroupID = core.StringPtr(instanceGroupID)
+	return _options
 }
 
 // SetInstanceGroupManagerID : Allow user to set InstanceGroupManagerID
-func (options *CreateInstanceGroupManagerPolicyOptions) SetInstanceGroupManagerID(instanceGroupManagerID string) *CreateInstanceGroupManagerPolicyOptions {
-	options.InstanceGroupManagerID = core.StringPtr(instanceGroupManagerID)
-	return options
+func (_options *CreateInstanceGroupManagerPolicyOptions) SetInstanceGroupManagerID(instanceGroupManagerID string) *CreateInstanceGroupManagerPolicyOptions {
+	_options.InstanceGroupManagerID = core.StringPtr(instanceGroupManagerID)
+	return _options
 }
 
 // SetInstanceGroupManagerPolicyPrototype : Allow user to set InstanceGroupManagerPolicyPrototype
-func (options *CreateInstanceGroupManagerPolicyOptions) SetInstanceGroupManagerPolicyPrototype(instanceGroupManagerPolicyPrototype InstanceGroupManagerPolicyPrototypeIntf) *CreateInstanceGroupManagerPolicyOptions {
-	options.InstanceGroupManagerPolicyPrototype = instanceGroupManagerPolicyPrototype
-	return options
+func (_options *CreateInstanceGroupManagerPolicyOptions) SetInstanceGroupManagerPolicyPrototype(instanceGroupManagerPolicyPrototype InstanceGroupManagerPolicyPrototypeIntf) *CreateInstanceGroupManagerPolicyOptions {
+	_options.InstanceGroupManagerPolicyPrototype = instanceGroupManagerPolicyPrototype
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -19043,35 +19077,35 @@ func (options *CreateInstanceGroupManagerPolicyOptions) SetHeaders(param map[str
 
 // CreateInstanceGroupOptions : The CreateInstanceGroup options.
 type CreateInstanceGroupOptions struct {
-	// Instance template to use when creating new instances.
-	InstanceTemplate InstanceTemplateIdentityIntf `validate:"required"`
+	// Identifies an instance template by a unique property.
+	InstanceTemplate InstanceTemplateIdentityIntf `json:"instance_template" validate:"required"`
 
 	// The subnets to use when creating new instances.
-	Subnets []SubnetIdentityIntf `validate:"required"`
+	Subnets []SubnetIdentityIntf `json:"subnets" validate:"required"`
 
 	// Required if specifying a load balancer pool only. Used by the instance group when scaling up instances to supply the
 	// port for the load balancer pool member.
-	ApplicationPort *int64
+	ApplicationPort *int64 `json:"application_port,omitempty"`
 
 	// The load balancer that the load balancer pool used by this group
 	// is in. Must be supplied when using a load balancer pool.
-	LoadBalancer LoadBalancerIdentityIntf
+	LoadBalancer LoadBalancerIdentityIntf `json:"load_balancer,omitempty"`
 
 	// When specified, the load balancer pool will be managed by this
 	// group. Instances created by this group will have a new load
 	// balancer pool member in that pool created. Must be used with
 	// `application_port`.
-	LoadBalancerPool LoadBalancerPoolIdentityIntf
+	LoadBalancerPool LoadBalancerPoolIdentityIntf `json:"load_balancer_pool,omitempty"`
 
 	// The number of instances in the instance group.
-	MembershipCount *int64
+	MembershipCount *int64 `json:"membership_count,omitempty"`
 
 	// The user-defined name for this instance group.
-	Name *string
+	Name *string `json:"name,omitempty"`
 
 	// The resource group to use. If unspecified, the account's [default resource
 	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) is used.
-	ResourceGroup ResourceGroupIdentityIntf
+	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -19086,51 +19120,51 @@ func (*VpcV1) NewCreateInstanceGroupOptions(instanceTemplate InstanceTemplateIde
 }
 
 // SetInstanceTemplate : Allow user to set InstanceTemplate
-func (options *CreateInstanceGroupOptions) SetInstanceTemplate(instanceTemplate InstanceTemplateIdentityIntf) *CreateInstanceGroupOptions {
-	options.InstanceTemplate = instanceTemplate
-	return options
+func (_options *CreateInstanceGroupOptions) SetInstanceTemplate(instanceTemplate InstanceTemplateIdentityIntf) *CreateInstanceGroupOptions {
+	_options.InstanceTemplate = instanceTemplate
+	return _options
 }
 
 // SetSubnets : Allow user to set Subnets
-func (options *CreateInstanceGroupOptions) SetSubnets(subnets []SubnetIdentityIntf) *CreateInstanceGroupOptions {
-	options.Subnets = subnets
-	return options
+func (_options *CreateInstanceGroupOptions) SetSubnets(subnets []SubnetIdentityIntf) *CreateInstanceGroupOptions {
+	_options.Subnets = subnets
+	return _options
 }
 
 // SetApplicationPort : Allow user to set ApplicationPort
-func (options *CreateInstanceGroupOptions) SetApplicationPort(applicationPort int64) *CreateInstanceGroupOptions {
-	options.ApplicationPort = core.Int64Ptr(applicationPort)
-	return options
+func (_options *CreateInstanceGroupOptions) SetApplicationPort(applicationPort int64) *CreateInstanceGroupOptions {
+	_options.ApplicationPort = core.Int64Ptr(applicationPort)
+	return _options
 }
 
 // SetLoadBalancer : Allow user to set LoadBalancer
-func (options *CreateInstanceGroupOptions) SetLoadBalancer(loadBalancer LoadBalancerIdentityIntf) *CreateInstanceGroupOptions {
-	options.LoadBalancer = loadBalancer
-	return options
+func (_options *CreateInstanceGroupOptions) SetLoadBalancer(loadBalancer LoadBalancerIdentityIntf) *CreateInstanceGroupOptions {
+	_options.LoadBalancer = loadBalancer
+	return _options
 }
 
 // SetLoadBalancerPool : Allow user to set LoadBalancerPool
-func (options *CreateInstanceGroupOptions) SetLoadBalancerPool(loadBalancerPool LoadBalancerPoolIdentityIntf) *CreateInstanceGroupOptions {
-	options.LoadBalancerPool = loadBalancerPool
-	return options
+func (_options *CreateInstanceGroupOptions) SetLoadBalancerPool(loadBalancerPool LoadBalancerPoolIdentityIntf) *CreateInstanceGroupOptions {
+	_options.LoadBalancerPool = loadBalancerPool
+	return _options
 }
 
 // SetMembershipCount : Allow user to set MembershipCount
-func (options *CreateInstanceGroupOptions) SetMembershipCount(membershipCount int64) *CreateInstanceGroupOptions {
-	options.MembershipCount = core.Int64Ptr(membershipCount)
-	return options
+func (_options *CreateInstanceGroupOptions) SetMembershipCount(membershipCount int64) *CreateInstanceGroupOptions {
+	_options.MembershipCount = core.Int64Ptr(membershipCount)
+	return _options
 }
 
 // SetName : Allow user to set Name
-func (options *CreateInstanceGroupOptions) SetName(name string) *CreateInstanceGroupOptions {
-	options.Name = core.StringPtr(name)
-	return options
+func (_options *CreateInstanceGroupOptions) SetName(name string) *CreateInstanceGroupOptions {
+	_options.Name = core.StringPtr(name)
+	return _options
 }
 
 // SetResourceGroup : Allow user to set ResourceGroup
-func (options *CreateInstanceGroupOptions) SetResourceGroup(resourceGroup ResourceGroupIdentityIntf) *CreateInstanceGroupOptions {
-	options.ResourceGroup = resourceGroup
-	return options
+func (_options *CreateInstanceGroupOptions) SetResourceGroup(resourceGroup ResourceGroupIdentityIntf) *CreateInstanceGroupOptions {
+	_options.ResourceGroup = resourceGroup
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -19142,25 +19176,25 @@ func (options *CreateInstanceGroupOptions) SetHeaders(param map[string]string) *
 // CreateInstanceNetworkInterfaceOptions : The CreateInstanceNetworkInterface options.
 type CreateInstanceNetworkInterfaceOptions struct {
 	// The instance identifier.
-	InstanceID *string `validate:"required,ne="`
+	InstanceID *string `json:"-" validate:"required,ne="`
 
 	// The associated subnet.
-	Subnet SubnetIdentityIntf `validate:"required"`
+	Subnet SubnetIdentityIntf `json:"subnet" validate:"required"`
 
 	// Indicates whether source IP spoofing is allowed on this interface. If false, source IP spoofing is prevented on this
 	// interface. If true, source IP spoofing is allowed on this interface.
-	AllowIPSpoofing *bool
+	AllowIPSpoofing *bool `json:"allow_ip_spoofing,omitempty"`
 
-	// The user-defined name for this network interface. If unspecified, the name will be a hyphenated list of
-	// randomly-selected words.
-	Name *string
+	// The user-defined name for network interface. Names must be unique within the instance the network interface resides
+	// in. If unspecified, the name will be a hyphenated list of randomly-selected words.
+	Name *string `json:"name,omitempty"`
 
 	// The primary IPv4 address. If specified, it must be an available address on the network interface's subnet. If
 	// unspecified, an available address on the subnet will be automatically selected.
-	PrimaryIpv4Address *string
+	PrimaryIpv4Address *string `json:"primary_ipv4_address,omitempty"`
 
 	// Collection of security groups.
-	SecurityGroups []SecurityGroupIdentityIntf
+	SecurityGroups []SecurityGroupIdentityIntf `json:"security_groups,omitempty"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -19175,39 +19209,39 @@ func (*VpcV1) NewCreateInstanceNetworkInterfaceOptions(instanceID string, subnet
 }
 
 // SetInstanceID : Allow user to set InstanceID
-func (options *CreateInstanceNetworkInterfaceOptions) SetInstanceID(instanceID string) *CreateInstanceNetworkInterfaceOptions {
-	options.InstanceID = core.StringPtr(instanceID)
-	return options
+func (_options *CreateInstanceNetworkInterfaceOptions) SetInstanceID(instanceID string) *CreateInstanceNetworkInterfaceOptions {
+	_options.InstanceID = core.StringPtr(instanceID)
+	return _options
 }
 
 // SetSubnet : Allow user to set Subnet
-func (options *CreateInstanceNetworkInterfaceOptions) SetSubnet(subnet SubnetIdentityIntf) *CreateInstanceNetworkInterfaceOptions {
-	options.Subnet = subnet
-	return options
+func (_options *CreateInstanceNetworkInterfaceOptions) SetSubnet(subnet SubnetIdentityIntf) *CreateInstanceNetworkInterfaceOptions {
+	_options.Subnet = subnet
+	return _options
 }
 
 // SetAllowIPSpoofing : Allow user to set AllowIPSpoofing
-func (options *CreateInstanceNetworkInterfaceOptions) SetAllowIPSpoofing(allowIPSpoofing bool) *CreateInstanceNetworkInterfaceOptions {
-	options.AllowIPSpoofing = core.BoolPtr(allowIPSpoofing)
-	return options
+func (_options *CreateInstanceNetworkInterfaceOptions) SetAllowIPSpoofing(allowIPSpoofing bool) *CreateInstanceNetworkInterfaceOptions {
+	_options.AllowIPSpoofing = core.BoolPtr(allowIPSpoofing)
+	return _options
 }
 
 // SetName : Allow user to set Name
-func (options *CreateInstanceNetworkInterfaceOptions) SetName(name string) *CreateInstanceNetworkInterfaceOptions {
-	options.Name = core.StringPtr(name)
-	return options
+func (_options *CreateInstanceNetworkInterfaceOptions) SetName(name string) *CreateInstanceNetworkInterfaceOptions {
+	_options.Name = core.StringPtr(name)
+	return _options
 }
 
 // SetPrimaryIpv4Address : Allow user to set PrimaryIpv4Address
-func (options *CreateInstanceNetworkInterfaceOptions) SetPrimaryIpv4Address(primaryIpv4Address string) *CreateInstanceNetworkInterfaceOptions {
-	options.PrimaryIpv4Address = core.StringPtr(primaryIpv4Address)
-	return options
+func (_options *CreateInstanceNetworkInterfaceOptions) SetPrimaryIpv4Address(primaryIpv4Address string) *CreateInstanceNetworkInterfaceOptions {
+	_options.PrimaryIpv4Address = core.StringPtr(primaryIpv4Address)
+	return _options
 }
 
 // SetSecurityGroups : Allow user to set SecurityGroups
-func (options *CreateInstanceNetworkInterfaceOptions) SetSecurityGroups(securityGroups []SecurityGroupIdentityIntf) *CreateInstanceNetworkInterfaceOptions {
-	options.SecurityGroups = securityGroups
-	return options
+func (_options *CreateInstanceNetworkInterfaceOptions) SetSecurityGroups(securityGroups []SecurityGroupIdentityIntf) *CreateInstanceNetworkInterfaceOptions {
+	_options.SecurityGroups = securityGroups
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -19219,7 +19253,7 @@ func (options *CreateInstanceNetworkInterfaceOptions) SetHeaders(param map[strin
 // CreateInstanceOptions : The CreateInstance options.
 type CreateInstanceOptions struct {
 	// The instance prototype object.
-	InstancePrototype InstancePrototypeIntf `validate:"required"`
+	InstancePrototype InstancePrototypeIntf `json:"InstancePrototype" validate:"required"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -19233,9 +19267,9 @@ func (*VpcV1) NewCreateInstanceOptions(instancePrototype InstancePrototypeIntf) 
 }
 
 // SetInstancePrototype : Allow user to set InstancePrototype
-func (options *CreateInstanceOptions) SetInstancePrototype(instancePrototype InstancePrototypeIntf) *CreateInstanceOptions {
-	options.InstancePrototype = instancePrototype
-	return options
+func (_options *CreateInstanceOptions) SetInstancePrototype(instancePrototype InstancePrototypeIntf) *CreateInstanceOptions {
+	_options.InstancePrototype = instancePrototype
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -19247,7 +19281,7 @@ func (options *CreateInstanceOptions) SetHeaders(param map[string]string) *Creat
 // CreateInstanceTemplateOptions : The CreateInstanceTemplate options.
 type CreateInstanceTemplateOptions struct {
 	// The instance template prototype object.
-	InstanceTemplatePrototype InstanceTemplatePrototypeIntf `validate:"required"`
+	InstanceTemplatePrototype InstanceTemplatePrototypeIntf `json:"InstanceTemplatePrototype" validate:"required"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -19261,9 +19295,9 @@ func (*VpcV1) NewCreateInstanceTemplateOptions(instanceTemplatePrototype Instanc
 }
 
 // SetInstanceTemplatePrototype : Allow user to set InstanceTemplatePrototype
-func (options *CreateInstanceTemplateOptions) SetInstanceTemplatePrototype(instanceTemplatePrototype InstanceTemplatePrototypeIntf) *CreateInstanceTemplateOptions {
-	options.InstanceTemplatePrototype = instanceTemplatePrototype
-	return options
+func (_options *CreateInstanceTemplateOptions) SetInstanceTemplatePrototype(instanceTemplatePrototype InstanceTemplatePrototypeIntf) *CreateInstanceTemplateOptions {
+	_options.InstanceTemplatePrototype = instanceTemplatePrototype
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -19275,17 +19309,17 @@ func (options *CreateInstanceTemplateOptions) SetHeaders(param map[string]string
 // CreateInstanceVolumeAttachmentOptions : The CreateInstanceVolumeAttachment options.
 type CreateInstanceVolumeAttachmentOptions struct {
 	// The instance identifier.
-	InstanceID *string `validate:"required,ne="`
+	InstanceID *string `json:"-" validate:"required,ne="`
 
 	// An existing volume to attach to the instance, or a prototype object for a new volume.
-	Volume VolumeAttachmentPrototypeVolumeIntf `validate:"required"`
+	Volume VolumeAttachmentPrototypeVolumeIntf `json:"volume" validate:"required"`
 
 	// If set to true, when deleting the instance the volume will also be deleted.
-	DeleteVolumeOnInstanceDelete *bool
+	DeleteVolumeOnInstanceDelete *bool `json:"delete_volume_on_instance_delete,omitempty"`
 
-	// The user-defined name for this volume attachment. If unspecified, the name will be a hyphenated list of
-	// randomly-selected words.
-	Name *string
+	// The user-defined name for this volume attachment. Names must be unique within the instance the volume attachment
+	// resides in. If unspecified, the name will be a hyphenated list of randomly-selected words.
+	Name *string `json:"name,omitempty"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -19300,27 +19334,27 @@ func (*VpcV1) NewCreateInstanceVolumeAttachmentOptions(instanceID string, volume
 }
 
 // SetInstanceID : Allow user to set InstanceID
-func (options *CreateInstanceVolumeAttachmentOptions) SetInstanceID(instanceID string) *CreateInstanceVolumeAttachmentOptions {
-	options.InstanceID = core.StringPtr(instanceID)
-	return options
+func (_options *CreateInstanceVolumeAttachmentOptions) SetInstanceID(instanceID string) *CreateInstanceVolumeAttachmentOptions {
+	_options.InstanceID = core.StringPtr(instanceID)
+	return _options
 }
 
 // SetVolume : Allow user to set Volume
-func (options *CreateInstanceVolumeAttachmentOptions) SetVolume(volume VolumeAttachmentPrototypeVolumeIntf) *CreateInstanceVolumeAttachmentOptions {
-	options.Volume = volume
-	return options
+func (_options *CreateInstanceVolumeAttachmentOptions) SetVolume(volume VolumeAttachmentPrototypeVolumeIntf) *CreateInstanceVolumeAttachmentOptions {
+	_options.Volume = volume
+	return _options
 }
 
 // SetDeleteVolumeOnInstanceDelete : Allow user to set DeleteVolumeOnInstanceDelete
-func (options *CreateInstanceVolumeAttachmentOptions) SetDeleteVolumeOnInstanceDelete(deleteVolumeOnInstanceDelete bool) *CreateInstanceVolumeAttachmentOptions {
-	options.DeleteVolumeOnInstanceDelete = core.BoolPtr(deleteVolumeOnInstanceDelete)
-	return options
+func (_options *CreateInstanceVolumeAttachmentOptions) SetDeleteVolumeOnInstanceDelete(deleteVolumeOnInstanceDelete bool) *CreateInstanceVolumeAttachmentOptions {
+	_options.DeleteVolumeOnInstanceDelete = core.BoolPtr(deleteVolumeOnInstanceDelete)
+	return _options
 }
 
 // SetName : Allow user to set Name
-func (options *CreateInstanceVolumeAttachmentOptions) SetName(name string) *CreateInstanceVolumeAttachmentOptions {
-	options.Name = core.StringPtr(name)
-	return options
+func (_options *CreateInstanceVolumeAttachmentOptions) SetName(name string) *CreateInstanceVolumeAttachmentOptions {
+	_options.Name = core.StringPtr(name)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -19332,23 +19366,23 @@ func (options *CreateInstanceVolumeAttachmentOptions) SetHeaders(param map[strin
 // CreateIpsecPolicyOptions : The CreateIpsecPolicy options.
 type CreateIpsecPolicyOptions struct {
 	// The authentication algorithm.
-	AuthenticationAlgorithm *string `validate:"required"`
+	AuthenticationAlgorithm *string `json:"authentication_algorithm" validate:"required"`
 
 	// The encryption algorithm.
-	EncryptionAlgorithm *string `validate:"required"`
+	EncryptionAlgorithm *string `json:"encryption_algorithm" validate:"required"`
 
 	// Perfect Forward Secrecy.
-	Pfs *string `validate:"required"`
+	Pfs *string `json:"pfs" validate:"required"`
 
 	// The key lifetime in seconds.
-	KeyLifetime *int64
+	KeyLifetime *int64 `json:"key_lifetime,omitempty"`
 
 	// The user-defined name for this IPsec policy.
-	Name *string
+	Name *string `json:"name,omitempty"`
 
 	// The resource group to use. If unspecified, the account's [default resource
 	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) is used.
-	ResourceGroup ResourceGroupIdentityIntf
+	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -19391,39 +19425,39 @@ func (*VpcV1) NewCreateIpsecPolicyOptions(authenticationAlgorithm string, encryp
 }
 
 // SetAuthenticationAlgorithm : Allow user to set AuthenticationAlgorithm
-func (options *CreateIpsecPolicyOptions) SetAuthenticationAlgorithm(authenticationAlgorithm string) *CreateIpsecPolicyOptions {
-	options.AuthenticationAlgorithm = core.StringPtr(authenticationAlgorithm)
-	return options
+func (_options *CreateIpsecPolicyOptions) SetAuthenticationAlgorithm(authenticationAlgorithm string) *CreateIpsecPolicyOptions {
+	_options.AuthenticationAlgorithm = core.StringPtr(authenticationAlgorithm)
+	return _options
 }
 
 // SetEncryptionAlgorithm : Allow user to set EncryptionAlgorithm
-func (options *CreateIpsecPolicyOptions) SetEncryptionAlgorithm(encryptionAlgorithm string) *CreateIpsecPolicyOptions {
-	options.EncryptionAlgorithm = core.StringPtr(encryptionAlgorithm)
-	return options
+func (_options *CreateIpsecPolicyOptions) SetEncryptionAlgorithm(encryptionAlgorithm string) *CreateIpsecPolicyOptions {
+	_options.EncryptionAlgorithm = core.StringPtr(encryptionAlgorithm)
+	return _options
 }
 
 // SetPfs : Allow user to set Pfs
-func (options *CreateIpsecPolicyOptions) SetPfs(pfs string) *CreateIpsecPolicyOptions {
-	options.Pfs = core.StringPtr(pfs)
-	return options
+func (_options *CreateIpsecPolicyOptions) SetPfs(pfs string) *CreateIpsecPolicyOptions {
+	_options.Pfs = core.StringPtr(pfs)
+	return _options
 }
 
 // SetKeyLifetime : Allow user to set KeyLifetime
-func (options *CreateIpsecPolicyOptions) SetKeyLifetime(keyLifetime int64) *CreateIpsecPolicyOptions {
-	options.KeyLifetime = core.Int64Ptr(keyLifetime)
-	return options
+func (_options *CreateIpsecPolicyOptions) SetKeyLifetime(keyLifetime int64) *CreateIpsecPolicyOptions {
+	_options.KeyLifetime = core.Int64Ptr(keyLifetime)
+	return _options
 }
 
 // SetName : Allow user to set Name
-func (options *CreateIpsecPolicyOptions) SetName(name string) *CreateIpsecPolicyOptions {
-	options.Name = core.StringPtr(name)
-	return options
+func (_options *CreateIpsecPolicyOptions) SetName(name string) *CreateIpsecPolicyOptions {
+	_options.Name = core.StringPtr(name)
+	return _options
 }
 
 // SetResourceGroup : Allow user to set ResourceGroup
-func (options *CreateIpsecPolicyOptions) SetResourceGroup(resourceGroup ResourceGroupIdentityIntf) *CreateIpsecPolicyOptions {
-	options.ResourceGroup = resourceGroup
-	return options
+func (_options *CreateIpsecPolicyOptions) SetResourceGroup(resourceGroup ResourceGroupIdentityIntf) *CreateIpsecPolicyOptions {
+	_options.ResourceGroup = resourceGroup
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -19434,20 +19468,21 @@ func (options *CreateIpsecPolicyOptions) SetHeaders(param map[string]string) *Cr
 
 // CreateKeyOptions : The CreateKey options.
 type CreateKeyOptions struct {
-	// A unique public SSH key to import, encoded in PEM format. The key (prior to encoding) must be either 2048 or 4096
-	// bits long.
-	PublicKey *string `validate:"required"`
+	// A unique public SSH key to import, in OpenSSH format (consisting of three space-separated fields: the algorithm
+	// name, base64-encoded key, and a comment). The algorithm and comment fields may be omitted, as only the key field is
+	// imported.
+	PublicKey *string `json:"public_key" validate:"required"`
 
 	// The unique user-defined name for this key. If unspecified, the name will be a hyphenated list of randomly-selected
 	// words.
-	Name *string
+	Name *string `json:"name,omitempty"`
 
 	// The resource group to use. If unspecified, the account's [default resource
 	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) is used.
-	ResourceGroup ResourceGroupIdentityIntf
+	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
 
 	// The crypto-system used by this key.
-	Type *string
+	Type *string `json:"type,omitempty"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -19467,27 +19502,27 @@ func (*VpcV1) NewCreateKeyOptions(publicKey string) *CreateKeyOptions {
 }
 
 // SetPublicKey : Allow user to set PublicKey
-func (options *CreateKeyOptions) SetPublicKey(publicKey string) *CreateKeyOptions {
-	options.PublicKey = core.StringPtr(publicKey)
-	return options
+func (_options *CreateKeyOptions) SetPublicKey(publicKey string) *CreateKeyOptions {
+	_options.PublicKey = core.StringPtr(publicKey)
+	return _options
 }
 
 // SetName : Allow user to set Name
-func (options *CreateKeyOptions) SetName(name string) *CreateKeyOptions {
-	options.Name = core.StringPtr(name)
-	return options
+func (_options *CreateKeyOptions) SetName(name string) *CreateKeyOptions {
+	_options.Name = core.StringPtr(name)
+	return _options
 }
 
 // SetResourceGroup : Allow user to set ResourceGroup
-func (options *CreateKeyOptions) SetResourceGroup(resourceGroup ResourceGroupIdentityIntf) *CreateKeyOptions {
-	options.ResourceGroup = resourceGroup
-	return options
+func (_options *CreateKeyOptions) SetResourceGroup(resourceGroup ResourceGroupIdentityIntf) *CreateKeyOptions {
+	_options.ResourceGroup = resourceGroup
+	return _options
 }
 
 // SetType : Allow user to set Type
-func (options *CreateKeyOptions) SetType(typeVar string) *CreateKeyOptions {
-	options.Type = core.StringPtr(typeVar)
-	return options
+func (_options *CreateKeyOptions) SetType(typeVar string) *CreateKeyOptions {
+	_options.Type = core.StringPtr(typeVar)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -19499,46 +19534,74 @@ func (options *CreateKeyOptions) SetHeaders(param map[string]string) *CreateKeyO
 // CreateLoadBalancerListenerOptions : The CreateLoadBalancerListener options.
 type CreateLoadBalancerListenerOptions struct {
 	// The load balancer identifier.
-	LoadBalancerID *string `validate:"required,ne="`
+	LoadBalancerID *string `json:"-" validate:"required,ne="`
 
-	// The listener port number. Each listener in the load balancer must have a unique
-	// `port` and `protocol` combination.
-	Port *int64 `validate:"required"`
-
-	// The listener protocol. Load balancers in the `network` family support `tcp`. Load balancers in the `application`
-	// family support `tcp`, `http`, and `https`. Each listener in the load balancer must have a unique `port` and
-	// `protocol` combination.
-	Protocol *string `validate:"required"`
+	// The listener protocol. Each listener in the load balancer must have a unique `port` and `protocol` combination.
+	// Additional restrictions:
+	// - If this load balancer is in the `network` family, the protocol must be `tcp`.
+	// - If this listener has `https_redirect` specified, the protocol must be `http`.
+	// - If this listener is a listener's `https_redirect` target, the protocol must be `https`.
+	Protocol *string `json:"protocol" validate:"required"`
 
 	// If set to `true`, this listener will accept and forward PROXY protocol information. Supported by load balancers in
-	// the `application` family (otherwise always `false`).
-	AcceptProxyProtocol *bool
+	// the `application` family (otherwise always `false`). Additional restrictions:
+	// - If this listener has `https_redirect` specified, its `accept_proxy_protocol` value must
+	//   match the `accept_proxy_protocol` value of the `https_redirect` listener.
+	// - If this listener is the target of another listener's `https_redirect`, its
+	//   `accept_proxy_protocol` value must match that listener's `accept_proxy_protocol` value.
+	AcceptProxyProtocol *bool `json:"accept_proxy_protocol,omitempty"`
 
 	// The certificate instance used for SSL termination. It is applicable only to `https`
 	// protocol.
-	CertificateInstance CertificateInstanceIdentityIntf
+	CertificateInstance CertificateInstanceIdentityIntf `json:"certificate_instance,omitempty"`
 
 	// The connection limit of the listener.
-	ConnectionLimit *int64
+	ConnectionLimit *int64 `json:"connection_limit,omitempty"`
 
 	// The default pool associated with the listener. The specified pool must:
 	//
 	// - Belong to this load balancer
 	// - Have the same `protocol` as this listener
 	// - Not already be the default pool for another listener.
-	DefaultPool LoadBalancerPoolIdentityIntf
+	DefaultPool LoadBalancerPoolIdentityIntf `json:"default_pool,omitempty"`
+
+	// The target listener that requests will be redirected to. This listener must have a
+	// `protocol` of `http`, and the target listener must have a `protocol` of `https`.
+	HTTPSRedirect *LoadBalancerListenerHTTPSRedirectPrototype `json:"https_redirect,omitempty"`
 
 	// The policy prototype objects for this listener.
-	Policies []LoadBalancerListenerPolicyPrototype
+	Policies []LoadBalancerListenerPolicyPrototype `json:"policies,omitempty"`
+
+	// The listener port number, or the inclusive lower bound of the port range. Each listener in the load balancer must
+	// have a unique `port` and `protocol` combination.
+	//
+	// Not supported for load balancers operating with route mode enabled.
+	Port *int64 `json:"port,omitempty"`
+
+	// The inclusive upper bound of the range of ports used by this listener. Must not be less than `port_min`.
+	//
+	// At present, only load balancers operating with route mode enabled support different values for `port_min` and
+	// `port_max`.  When route mode is enabled, only a value of
+	// `65535` is supported for `port_max`.
+	PortMax *int64 `json:"port_max,omitempty"`
+
+	// The inclusive lower bound of the range of ports used by this listener. Must not be greater than `port_max`.
+	//
+	// At present, only load balancers operating with route mode enabled support different values for `port_min` and
+	// `port_max`.  When route mode is enabled, only a value of
+	// `1` is supported for `port_min`.
+	PortMin *int64 `json:"port_min,omitempty"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
 }
 
 // Constants associated with the CreateLoadBalancerListenerOptions.Protocol property.
-// The listener protocol. Load balancers in the `network` family support `tcp`. Load balancers in the `application`
-// family support `tcp`, `http`, and `https`. Each listener in the load balancer must have a unique `port` and
-// `protocol` combination.
+// The listener protocol. Each listener in the load balancer must have a unique `port` and `protocol` combination.
+// Additional restrictions:
+// - If this load balancer is in the `network` family, the protocol must be `tcp`.
+// - If this listener has `https_redirect` specified, the protocol must be `http`.
+// - If this listener is a listener's `https_redirect` target, the protocol must be `https`.
 const (
 	CreateLoadBalancerListenerOptionsProtocolHTTPConst  = "http"
 	CreateLoadBalancerListenerOptionsProtocolHTTPSConst = "https"
@@ -19546,60 +19609,77 @@ const (
 )
 
 // NewCreateLoadBalancerListenerOptions : Instantiate CreateLoadBalancerListenerOptions
-func (*VpcV1) NewCreateLoadBalancerListenerOptions(loadBalancerID string, port int64, protocol string) *CreateLoadBalancerListenerOptions {
+func (*VpcV1) NewCreateLoadBalancerListenerOptions(loadBalancerID string, protocol string) *CreateLoadBalancerListenerOptions {
 	return &CreateLoadBalancerListenerOptions{
 		LoadBalancerID: core.StringPtr(loadBalancerID),
-		Port:           core.Int64Ptr(port),
 		Protocol:       core.StringPtr(protocol),
 	}
 }
 
 // SetLoadBalancerID : Allow user to set LoadBalancerID
-func (options *CreateLoadBalancerListenerOptions) SetLoadBalancerID(loadBalancerID string) *CreateLoadBalancerListenerOptions {
-	options.LoadBalancerID = core.StringPtr(loadBalancerID)
-	return options
-}
-
-// SetPort : Allow user to set Port
-func (options *CreateLoadBalancerListenerOptions) SetPort(port int64) *CreateLoadBalancerListenerOptions {
-	options.Port = core.Int64Ptr(port)
-	return options
+func (_options *CreateLoadBalancerListenerOptions) SetLoadBalancerID(loadBalancerID string) *CreateLoadBalancerListenerOptions {
+	_options.LoadBalancerID = core.StringPtr(loadBalancerID)
+	return _options
 }
 
 // SetProtocol : Allow user to set Protocol
-func (options *CreateLoadBalancerListenerOptions) SetProtocol(protocol string) *CreateLoadBalancerListenerOptions {
-	options.Protocol = core.StringPtr(protocol)
-	return options
+func (_options *CreateLoadBalancerListenerOptions) SetProtocol(protocol string) *CreateLoadBalancerListenerOptions {
+	_options.Protocol = core.StringPtr(protocol)
+	return _options
 }
 
 // SetAcceptProxyProtocol : Allow user to set AcceptProxyProtocol
-func (options *CreateLoadBalancerListenerOptions) SetAcceptProxyProtocol(acceptProxyProtocol bool) *CreateLoadBalancerListenerOptions {
-	options.AcceptProxyProtocol = core.BoolPtr(acceptProxyProtocol)
-	return options
+func (_options *CreateLoadBalancerListenerOptions) SetAcceptProxyProtocol(acceptProxyProtocol bool) *CreateLoadBalancerListenerOptions {
+	_options.AcceptProxyProtocol = core.BoolPtr(acceptProxyProtocol)
+	return _options
 }
 
 // SetCertificateInstance : Allow user to set CertificateInstance
-func (options *CreateLoadBalancerListenerOptions) SetCertificateInstance(certificateInstance CertificateInstanceIdentityIntf) *CreateLoadBalancerListenerOptions {
-	options.CertificateInstance = certificateInstance
-	return options
+func (_options *CreateLoadBalancerListenerOptions) SetCertificateInstance(certificateInstance CertificateInstanceIdentityIntf) *CreateLoadBalancerListenerOptions {
+	_options.CertificateInstance = certificateInstance
+	return _options
 }
 
 // SetConnectionLimit : Allow user to set ConnectionLimit
-func (options *CreateLoadBalancerListenerOptions) SetConnectionLimit(connectionLimit int64) *CreateLoadBalancerListenerOptions {
-	options.ConnectionLimit = core.Int64Ptr(connectionLimit)
-	return options
+func (_options *CreateLoadBalancerListenerOptions) SetConnectionLimit(connectionLimit int64) *CreateLoadBalancerListenerOptions {
+	_options.ConnectionLimit = core.Int64Ptr(connectionLimit)
+	return _options
 }
 
 // SetDefaultPool : Allow user to set DefaultPool
-func (options *CreateLoadBalancerListenerOptions) SetDefaultPool(defaultPool LoadBalancerPoolIdentityIntf) *CreateLoadBalancerListenerOptions {
-	options.DefaultPool = defaultPool
-	return options
+func (_options *CreateLoadBalancerListenerOptions) SetDefaultPool(defaultPool LoadBalancerPoolIdentityIntf) *CreateLoadBalancerListenerOptions {
+	_options.DefaultPool = defaultPool
+	return _options
+}
+
+// SetHTTPSRedirect : Allow user to set HTTPSRedirect
+func (_options *CreateLoadBalancerListenerOptions) SetHTTPSRedirect(httpsRedirect *LoadBalancerListenerHTTPSRedirectPrototype) *CreateLoadBalancerListenerOptions {
+	_options.HTTPSRedirect = httpsRedirect
+	return _options
 }
 
 // SetPolicies : Allow user to set Policies
-func (options *CreateLoadBalancerListenerOptions) SetPolicies(policies []LoadBalancerListenerPolicyPrototype) *CreateLoadBalancerListenerOptions {
-	options.Policies = policies
-	return options
+func (_options *CreateLoadBalancerListenerOptions) SetPolicies(policies []LoadBalancerListenerPolicyPrototype) *CreateLoadBalancerListenerOptions {
+	_options.Policies = policies
+	return _options
+}
+
+// SetPort : Allow user to set Port
+func (_options *CreateLoadBalancerListenerOptions) SetPort(port int64) *CreateLoadBalancerListenerOptions {
+	_options.Port = core.Int64Ptr(port)
+	return _options
+}
+
+// SetPortMax : Allow user to set PortMax
+func (_options *CreateLoadBalancerListenerOptions) SetPortMax(portMax int64) *CreateLoadBalancerListenerOptions {
+	_options.PortMax = core.Int64Ptr(portMax)
+	return _options
+}
+
+// SetPortMin : Allow user to set PortMin
+func (_options *CreateLoadBalancerListenerOptions) SetPortMin(portMin int64) *CreateLoadBalancerListenerOptions {
+	_options.PortMin = core.Int64Ptr(portMin)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -19611,30 +19691,32 @@ func (options *CreateLoadBalancerListenerOptions) SetHeaders(param map[string]st
 // CreateLoadBalancerListenerPolicyOptions : The CreateLoadBalancerListenerPolicy options.
 type CreateLoadBalancerListenerPolicyOptions struct {
 	// The load balancer identifier.
-	LoadBalancerID *string `validate:"required,ne="`
+	LoadBalancerID *string `json:"-" validate:"required,ne="`
 
 	// The listener identifier.
-	ListenerID *string `validate:"required,ne="`
+	ListenerID *string `json:"-" validate:"required,ne="`
 
 	// The policy action.
 	//
 	// The enumerated values for this property are expected to expand in the future. When processing this property, check
 	// for and log unknown values. Optionally halt processing and surface the error, or bypass the policy on which the
 	// unexpected property value was encountered.
-	Action *string `validate:"required"`
+	Action *string `json:"action" validate:"required"`
 
 	// Priority of the policy. Lower value indicates higher priority.
-	Priority *int64 `validate:"required"`
+	Priority *int64 `json:"priority" validate:"required"`
 
 	// The user-defined name for this policy. Names must be unique within the load balancer listener the policy resides in.
-	Name *string
+	Name *string `json:"name,omitempty"`
 
 	// The rule prototype objects for this policy.
-	Rules []LoadBalancerListenerPolicyRulePrototype
+	Rules []LoadBalancerListenerPolicyRulePrototype `json:"rules,omitempty"`
 
 	// - If `action` is `forward`, specify a `LoadBalancerPoolIdentity`.
 	// - If `action` is `redirect`, specify a `LoadBalancerListenerPolicyRedirectURLPrototype`.
-	Target LoadBalancerListenerPolicyTargetPrototypeIntf
+	// - If `action` is `https_redirect`, specify a
+	//   `LoadBalancerListenerPolicyHTTPSRedirectPrototype`.
+	Target LoadBalancerListenerPolicyTargetPrototypeIntf `json:"target,omitempty"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -19647,9 +19729,10 @@ type CreateLoadBalancerListenerPolicyOptions struct {
 // for and log unknown values. Optionally halt processing and surface the error, or bypass the policy on which the
 // unexpected property value was encountered.
 const (
-	CreateLoadBalancerListenerPolicyOptionsActionForwardConst  = "forward"
-	CreateLoadBalancerListenerPolicyOptionsActionRedirectConst = "redirect"
-	CreateLoadBalancerListenerPolicyOptionsActionRejectConst   = "reject"
+	CreateLoadBalancerListenerPolicyOptionsActionForwardConst       = "forward"
+	CreateLoadBalancerListenerPolicyOptionsActionHTTPSRedirectConst = "https_redirect"
+	CreateLoadBalancerListenerPolicyOptionsActionRedirectConst      = "redirect"
+	CreateLoadBalancerListenerPolicyOptionsActionRejectConst        = "reject"
 )
 
 // NewCreateLoadBalancerListenerPolicyOptions : Instantiate CreateLoadBalancerListenerPolicyOptions
@@ -19663,45 +19746,45 @@ func (*VpcV1) NewCreateLoadBalancerListenerPolicyOptions(loadBalancerID string, 
 }
 
 // SetLoadBalancerID : Allow user to set LoadBalancerID
-func (options *CreateLoadBalancerListenerPolicyOptions) SetLoadBalancerID(loadBalancerID string) *CreateLoadBalancerListenerPolicyOptions {
-	options.LoadBalancerID = core.StringPtr(loadBalancerID)
-	return options
+func (_options *CreateLoadBalancerListenerPolicyOptions) SetLoadBalancerID(loadBalancerID string) *CreateLoadBalancerListenerPolicyOptions {
+	_options.LoadBalancerID = core.StringPtr(loadBalancerID)
+	return _options
 }
 
 // SetListenerID : Allow user to set ListenerID
-func (options *CreateLoadBalancerListenerPolicyOptions) SetListenerID(listenerID string) *CreateLoadBalancerListenerPolicyOptions {
-	options.ListenerID = core.StringPtr(listenerID)
-	return options
+func (_options *CreateLoadBalancerListenerPolicyOptions) SetListenerID(listenerID string) *CreateLoadBalancerListenerPolicyOptions {
+	_options.ListenerID = core.StringPtr(listenerID)
+	return _options
 }
 
 // SetAction : Allow user to set Action
-func (options *CreateLoadBalancerListenerPolicyOptions) SetAction(action string) *CreateLoadBalancerListenerPolicyOptions {
-	options.Action = core.StringPtr(action)
-	return options
+func (_options *CreateLoadBalancerListenerPolicyOptions) SetAction(action string) *CreateLoadBalancerListenerPolicyOptions {
+	_options.Action = core.StringPtr(action)
+	return _options
 }
 
 // SetPriority : Allow user to set Priority
-func (options *CreateLoadBalancerListenerPolicyOptions) SetPriority(priority int64) *CreateLoadBalancerListenerPolicyOptions {
-	options.Priority = core.Int64Ptr(priority)
-	return options
+func (_options *CreateLoadBalancerListenerPolicyOptions) SetPriority(priority int64) *CreateLoadBalancerListenerPolicyOptions {
+	_options.Priority = core.Int64Ptr(priority)
+	return _options
 }
 
 // SetName : Allow user to set Name
-func (options *CreateLoadBalancerListenerPolicyOptions) SetName(name string) *CreateLoadBalancerListenerPolicyOptions {
-	options.Name = core.StringPtr(name)
-	return options
+func (_options *CreateLoadBalancerListenerPolicyOptions) SetName(name string) *CreateLoadBalancerListenerPolicyOptions {
+	_options.Name = core.StringPtr(name)
+	return _options
 }
 
 // SetRules : Allow user to set Rules
-func (options *CreateLoadBalancerListenerPolicyOptions) SetRules(rules []LoadBalancerListenerPolicyRulePrototype) *CreateLoadBalancerListenerPolicyOptions {
-	options.Rules = rules
-	return options
+func (_options *CreateLoadBalancerListenerPolicyOptions) SetRules(rules []LoadBalancerListenerPolicyRulePrototype) *CreateLoadBalancerListenerPolicyOptions {
+	_options.Rules = rules
+	return _options
 }
 
 // SetTarget : Allow user to set Target
-func (options *CreateLoadBalancerListenerPolicyOptions) SetTarget(target LoadBalancerListenerPolicyTargetPrototypeIntf) *CreateLoadBalancerListenerPolicyOptions {
-	options.Target = target
-	return options
+func (_options *CreateLoadBalancerListenerPolicyOptions) SetTarget(target LoadBalancerListenerPolicyTargetPrototypeIntf) *CreateLoadBalancerListenerPolicyOptions {
+	_options.Target = target
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -19713,26 +19796,26 @@ func (options *CreateLoadBalancerListenerPolicyOptions) SetHeaders(param map[str
 // CreateLoadBalancerListenerPolicyRuleOptions : The CreateLoadBalancerListenerPolicyRule options.
 type CreateLoadBalancerListenerPolicyRuleOptions struct {
 	// The load balancer identifier.
-	LoadBalancerID *string `validate:"required,ne="`
+	LoadBalancerID *string `json:"-" validate:"required,ne="`
 
 	// The listener identifier.
-	ListenerID *string `validate:"required,ne="`
+	ListenerID *string `json:"-" validate:"required,ne="`
 
 	// The policy identifier.
-	PolicyID *string `validate:"required,ne="`
+	PolicyID *string `json:"-" validate:"required,ne="`
 
 	// The condition of the rule.
-	Condition *string `validate:"required"`
+	Condition *string `json:"condition" validate:"required"`
 
 	// The type of the rule.
 	//
 	// Body rules are applied to form-encoded request bodies using the `UTF-8` character set.
-	Type *string `validate:"required"`
+	Type *string `json:"type" validate:"required"`
 
 	// Value to be matched for rule condition.
 	//
 	// If the rule type is `query` and the rule condition is not `matches_regex`, the value must be percent-encoded.
-	Value *string `validate:"required"`
+	Value *string `json:"value" validate:"required"`
 
 	// The field. This is applicable to `header`, `query`, and `body` rule types.
 	//
@@ -19742,7 +19825,7 @@ type CreateLoadBalancerListenerPolicyRuleOptions struct {
 	// `matches_regex`, the value must be percent-encoded.
 	//
 	// If the rule type is `body`, this is optional.
-	Field *string
+	Field *string `json:"field,omitempty"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -19781,45 +19864,45 @@ func (*VpcV1) NewCreateLoadBalancerListenerPolicyRuleOptions(loadBalancerID stri
 }
 
 // SetLoadBalancerID : Allow user to set LoadBalancerID
-func (options *CreateLoadBalancerListenerPolicyRuleOptions) SetLoadBalancerID(loadBalancerID string) *CreateLoadBalancerListenerPolicyRuleOptions {
-	options.LoadBalancerID = core.StringPtr(loadBalancerID)
-	return options
+func (_options *CreateLoadBalancerListenerPolicyRuleOptions) SetLoadBalancerID(loadBalancerID string) *CreateLoadBalancerListenerPolicyRuleOptions {
+	_options.LoadBalancerID = core.StringPtr(loadBalancerID)
+	return _options
 }
 
 // SetListenerID : Allow user to set ListenerID
-func (options *CreateLoadBalancerListenerPolicyRuleOptions) SetListenerID(listenerID string) *CreateLoadBalancerListenerPolicyRuleOptions {
-	options.ListenerID = core.StringPtr(listenerID)
-	return options
+func (_options *CreateLoadBalancerListenerPolicyRuleOptions) SetListenerID(listenerID string) *CreateLoadBalancerListenerPolicyRuleOptions {
+	_options.ListenerID = core.StringPtr(listenerID)
+	return _options
 }
 
 // SetPolicyID : Allow user to set PolicyID
-func (options *CreateLoadBalancerListenerPolicyRuleOptions) SetPolicyID(policyID string) *CreateLoadBalancerListenerPolicyRuleOptions {
-	options.PolicyID = core.StringPtr(policyID)
-	return options
+func (_options *CreateLoadBalancerListenerPolicyRuleOptions) SetPolicyID(policyID string) *CreateLoadBalancerListenerPolicyRuleOptions {
+	_options.PolicyID = core.StringPtr(policyID)
+	return _options
 }
 
 // SetCondition : Allow user to set Condition
-func (options *CreateLoadBalancerListenerPolicyRuleOptions) SetCondition(condition string) *CreateLoadBalancerListenerPolicyRuleOptions {
-	options.Condition = core.StringPtr(condition)
-	return options
+func (_options *CreateLoadBalancerListenerPolicyRuleOptions) SetCondition(condition string) *CreateLoadBalancerListenerPolicyRuleOptions {
+	_options.Condition = core.StringPtr(condition)
+	return _options
 }
 
 // SetType : Allow user to set Type
-func (options *CreateLoadBalancerListenerPolicyRuleOptions) SetType(typeVar string) *CreateLoadBalancerListenerPolicyRuleOptions {
-	options.Type = core.StringPtr(typeVar)
-	return options
+func (_options *CreateLoadBalancerListenerPolicyRuleOptions) SetType(typeVar string) *CreateLoadBalancerListenerPolicyRuleOptions {
+	_options.Type = core.StringPtr(typeVar)
+	return _options
 }
 
 // SetValue : Allow user to set Value
-func (options *CreateLoadBalancerListenerPolicyRuleOptions) SetValue(value string) *CreateLoadBalancerListenerPolicyRuleOptions {
-	options.Value = core.StringPtr(value)
-	return options
+func (_options *CreateLoadBalancerListenerPolicyRuleOptions) SetValue(value string) *CreateLoadBalancerListenerPolicyRuleOptions {
+	_options.Value = core.StringPtr(value)
+	return _options
 }
 
 // SetField : Allow user to set Field
-func (options *CreateLoadBalancerListenerPolicyRuleOptions) SetField(field string) *CreateLoadBalancerListenerPolicyRuleOptions {
-	options.Field = core.StringPtr(field)
-	return options
+func (_options *CreateLoadBalancerListenerPolicyRuleOptions) SetField(field string) *CreateLoadBalancerListenerPolicyRuleOptions {
+	_options.Field = core.StringPtr(field)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -19831,13 +19914,15 @@ func (options *CreateLoadBalancerListenerPolicyRuleOptions) SetHeaders(param map
 // CreateLoadBalancerOptions : The CreateLoadBalancer options.
 type CreateLoadBalancerOptions struct {
 	// Indicates whether this load balancer is public or private.
-	IsPublic *bool `validate:"required"`
+	//
+	// At present, if route mode is enabled, the load balancer must be private.
+	IsPublic *bool `json:"is_public" validate:"required"`
 
 	// The subnets to provision this load balancer.
-	Subnets []SubnetIdentityIntf `validate:"required"`
+	Subnets []SubnetIdentityIntf `json:"subnets" validate:"required"`
 
 	// The listeners of this load balancer.
-	Listeners []LoadBalancerListenerPrototypeLoadBalancerContext
+	Listeners []LoadBalancerListenerPrototypeLoadBalancerContext `json:"listeners,omitempty"`
 
 	// The logging configuration to use for this load balancer. See [VPC Datapath
 	// Logging](https://cloud.ibm.com/docs/vpc?topic=vpc-datapath-logging)
@@ -19845,26 +19930,31 @@ type CreateLoadBalancerOptions struct {
 	//
 	// To activate logging, the load balancer profile must support the specified logging
 	// type.
-	Logging *LoadBalancerLogging
+	Logging *LoadBalancerLogging `json:"logging,omitempty"`
 
 	// The user-defined name for this load balancer. If unspecified, the name will be a hyphenated list of
 	// randomly-selected words.
-	Name *string
+	Name *string `json:"name,omitempty"`
 
 	// The pools of this load balancer.
-	Pools []LoadBalancerPoolPrototype
+	Pools []LoadBalancerPoolPrototype `json:"pools,omitempty"`
 
 	// The profile to use for this load balancer.
-	Profile LoadBalancerProfileIdentityIntf
+	Profile LoadBalancerProfileIdentityIntf `json:"profile,omitempty"`
 
 	// The resource group to use. If unspecified, the account's [default resource
 	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) is used.
-	ResourceGroup ResourceGroupIdentityIntf
+	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
+
+	// Indicates whether route mode is enabled for this load balancer.
+	//
+	// At present, public load balancers are not supported with route mode enabled.
+	RouteMode *bool `json:"route_mode,omitempty"`
 
 	// The security groups to use for this load balancer.
 	//
 	// The load balancer profile must support security groups.
-	SecurityGroups []SecurityGroupIdentityIntf
+	SecurityGroups []SecurityGroupIdentityIntf `json:"security_groups,omitempty"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -19879,57 +19969,63 @@ func (*VpcV1) NewCreateLoadBalancerOptions(isPublic bool, subnets []SubnetIdenti
 }
 
 // SetIsPublic : Allow user to set IsPublic
-func (options *CreateLoadBalancerOptions) SetIsPublic(isPublic bool) *CreateLoadBalancerOptions {
-	options.IsPublic = core.BoolPtr(isPublic)
-	return options
+func (_options *CreateLoadBalancerOptions) SetIsPublic(isPublic bool) *CreateLoadBalancerOptions {
+	_options.IsPublic = core.BoolPtr(isPublic)
+	return _options
 }
 
 // SetSubnets : Allow user to set Subnets
-func (options *CreateLoadBalancerOptions) SetSubnets(subnets []SubnetIdentityIntf) *CreateLoadBalancerOptions {
-	options.Subnets = subnets
-	return options
+func (_options *CreateLoadBalancerOptions) SetSubnets(subnets []SubnetIdentityIntf) *CreateLoadBalancerOptions {
+	_options.Subnets = subnets
+	return _options
 }
 
 // SetListeners : Allow user to set Listeners
-func (options *CreateLoadBalancerOptions) SetListeners(listeners []LoadBalancerListenerPrototypeLoadBalancerContext) *CreateLoadBalancerOptions {
-	options.Listeners = listeners
-	return options
+func (_options *CreateLoadBalancerOptions) SetListeners(listeners []LoadBalancerListenerPrototypeLoadBalancerContext) *CreateLoadBalancerOptions {
+	_options.Listeners = listeners
+	return _options
 }
 
 // SetLogging : Allow user to set Logging
-func (options *CreateLoadBalancerOptions) SetLogging(logging *LoadBalancerLogging) *CreateLoadBalancerOptions {
-	options.Logging = logging
-	return options
+func (_options *CreateLoadBalancerOptions) SetLogging(logging *LoadBalancerLogging) *CreateLoadBalancerOptions {
+	_options.Logging = logging
+	return _options
 }
 
 // SetName : Allow user to set Name
-func (options *CreateLoadBalancerOptions) SetName(name string) *CreateLoadBalancerOptions {
-	options.Name = core.StringPtr(name)
-	return options
+func (_options *CreateLoadBalancerOptions) SetName(name string) *CreateLoadBalancerOptions {
+	_options.Name = core.StringPtr(name)
+	return _options
 }
 
 // SetPools : Allow user to set Pools
-func (options *CreateLoadBalancerOptions) SetPools(pools []LoadBalancerPoolPrototype) *CreateLoadBalancerOptions {
-	options.Pools = pools
-	return options
+func (_options *CreateLoadBalancerOptions) SetPools(pools []LoadBalancerPoolPrototype) *CreateLoadBalancerOptions {
+	_options.Pools = pools
+	return _options
 }
 
 // SetProfile : Allow user to set Profile
-func (options *CreateLoadBalancerOptions) SetProfile(profile LoadBalancerProfileIdentityIntf) *CreateLoadBalancerOptions {
-	options.Profile = profile
-	return options
+func (_options *CreateLoadBalancerOptions) SetProfile(profile LoadBalancerProfileIdentityIntf) *CreateLoadBalancerOptions {
+	_options.Profile = profile
+	return _options
 }
 
 // SetResourceGroup : Allow user to set ResourceGroup
-func (options *CreateLoadBalancerOptions) SetResourceGroup(resourceGroup ResourceGroupIdentityIntf) *CreateLoadBalancerOptions {
-	options.ResourceGroup = resourceGroup
-	return options
+func (_options *CreateLoadBalancerOptions) SetResourceGroup(resourceGroup ResourceGroupIdentityIntf) *CreateLoadBalancerOptions {
+	_options.ResourceGroup = resourceGroup
+	return _options
+}
+
+// SetRouteMode : Allow user to set RouteMode
+func (_options *CreateLoadBalancerOptions) SetRouteMode(routeMode bool) *CreateLoadBalancerOptions {
+	_options.RouteMode = core.BoolPtr(routeMode)
+	return _options
 }
 
 // SetSecurityGroups : Allow user to set SecurityGroups
-func (options *CreateLoadBalancerOptions) SetSecurityGroups(securityGroups []SecurityGroupIdentityIntf) *CreateLoadBalancerOptions {
-	options.SecurityGroups = securityGroups
-	return options
+func (_options *CreateLoadBalancerOptions) SetSecurityGroups(securityGroups []SecurityGroupIdentityIntf) *CreateLoadBalancerOptions {
+	_options.SecurityGroups = securityGroups
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -19941,21 +20037,21 @@ func (options *CreateLoadBalancerOptions) SetHeaders(param map[string]string) *C
 // CreateLoadBalancerPoolMemberOptions : The CreateLoadBalancerPoolMember options.
 type CreateLoadBalancerPoolMemberOptions struct {
 	// The load balancer identifier.
-	LoadBalancerID *string `validate:"required,ne="`
+	LoadBalancerID *string `json:"-" validate:"required,ne="`
 
 	// The pool identifier.
-	PoolID *string `validate:"required,ne="`
+	PoolID *string `json:"-" validate:"required,ne="`
 
 	// The port number of the application running in the server member.
-	Port *int64 `validate:"required"`
+	Port *int64 `json:"port" validate:"required"`
 
 	// The pool member target. Load balancers in the `network` family support virtual server
 	// instances. Load balancers in the `application` family support IP addresses.
-	Target LoadBalancerPoolMemberTargetPrototypeIntf `validate:"required"`
+	Target LoadBalancerPoolMemberTargetPrototypeIntf `json:"target" validate:"required"`
 
 	// Weight of the server member. Applicable only if the pool algorithm is
 	// `weighted_round_robin`.
-	Weight *int64
+	Weight *int64 `json:"weight,omitempty"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -19972,33 +20068,33 @@ func (*VpcV1) NewCreateLoadBalancerPoolMemberOptions(loadBalancerID string, pool
 }
 
 // SetLoadBalancerID : Allow user to set LoadBalancerID
-func (options *CreateLoadBalancerPoolMemberOptions) SetLoadBalancerID(loadBalancerID string) *CreateLoadBalancerPoolMemberOptions {
-	options.LoadBalancerID = core.StringPtr(loadBalancerID)
-	return options
+func (_options *CreateLoadBalancerPoolMemberOptions) SetLoadBalancerID(loadBalancerID string) *CreateLoadBalancerPoolMemberOptions {
+	_options.LoadBalancerID = core.StringPtr(loadBalancerID)
+	return _options
 }
 
 // SetPoolID : Allow user to set PoolID
-func (options *CreateLoadBalancerPoolMemberOptions) SetPoolID(poolID string) *CreateLoadBalancerPoolMemberOptions {
-	options.PoolID = core.StringPtr(poolID)
-	return options
+func (_options *CreateLoadBalancerPoolMemberOptions) SetPoolID(poolID string) *CreateLoadBalancerPoolMemberOptions {
+	_options.PoolID = core.StringPtr(poolID)
+	return _options
 }
 
 // SetPort : Allow user to set Port
-func (options *CreateLoadBalancerPoolMemberOptions) SetPort(port int64) *CreateLoadBalancerPoolMemberOptions {
-	options.Port = core.Int64Ptr(port)
-	return options
+func (_options *CreateLoadBalancerPoolMemberOptions) SetPort(port int64) *CreateLoadBalancerPoolMemberOptions {
+	_options.Port = core.Int64Ptr(port)
+	return _options
 }
 
 // SetTarget : Allow user to set Target
-func (options *CreateLoadBalancerPoolMemberOptions) SetTarget(target LoadBalancerPoolMemberTargetPrototypeIntf) *CreateLoadBalancerPoolMemberOptions {
-	options.Target = target
-	return options
+func (_options *CreateLoadBalancerPoolMemberOptions) SetTarget(target LoadBalancerPoolMemberTargetPrototypeIntf) *CreateLoadBalancerPoolMemberOptions {
+	_options.Target = target
+	return _options
 }
 
 // SetWeight : Allow user to set Weight
-func (options *CreateLoadBalancerPoolMemberOptions) SetWeight(weight int64) *CreateLoadBalancerPoolMemberOptions {
-	options.Weight = core.Int64Ptr(weight)
-	return options
+func (_options *CreateLoadBalancerPoolMemberOptions) SetWeight(weight int64) *CreateLoadBalancerPoolMemberOptions {
+	_options.Weight = core.Int64Ptr(weight)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -20010,26 +20106,26 @@ func (options *CreateLoadBalancerPoolMemberOptions) SetHeaders(param map[string]
 // CreateLoadBalancerPoolOptions : The CreateLoadBalancerPool options.
 type CreateLoadBalancerPoolOptions struct {
 	// The load balancer identifier.
-	LoadBalancerID *string `validate:"required,ne="`
+	LoadBalancerID *string `json:"-" validate:"required,ne="`
 
 	// The load balancing algorithm.
-	Algorithm *string `validate:"required"`
+	Algorithm *string `json:"algorithm" validate:"required"`
 
 	// The health monitor of this pool.
-	HealthMonitor *LoadBalancerPoolHealthMonitorPrototype `validate:"required"`
+	HealthMonitor *LoadBalancerPoolHealthMonitorPrototype `json:"health_monitor" validate:"required"`
 
 	// The protocol used for this load balancer pool. Load balancers in the `network` family support `tcp`. Load balancers
 	// in the `application` family support `tcp`, `http`, and
 	// `https`.
-	Protocol *string `validate:"required"`
+	Protocol *string `json:"protocol" validate:"required"`
 
 	// The members for this load balancer pool. For load balancers in the `network` family, the same `port` and `target`
 	// tuple cannot be shared by a pool member of any other load balancer in the same VPC.
-	Members []LoadBalancerPoolMemberPrototype
+	Members []LoadBalancerPoolMemberPrototype `json:"members,omitempty"`
 
 	// The user-defined name for this load balancer pool. If unspecified, the name will be a hyphenated list of
 	// randomly-selected words.
-	Name *string
+	Name *string `json:"name,omitempty"`
 
 	// The PROXY protocol setting for this pool:
 	// - `v1`: Enabled with version 1 (human-readable header format)
@@ -20037,10 +20133,10 @@ type CreateLoadBalancerPoolOptions struct {
 	// - `disabled`: Disabled
 	//
 	// Supported by load balancers in the `application` family (otherwise always `disabled`).
-	ProxyProtocol *string
+	ProxyProtocol *string `json:"proxy_protocol,omitempty"`
 
 	// The session persistence of this pool.
-	SessionPersistence *LoadBalancerPoolSessionPersistencePrototype
+	SessionPersistence *LoadBalancerPoolSessionPersistencePrototype `json:"session_persistence,omitempty"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -20088,51 +20184,51 @@ func (*VpcV1) NewCreateLoadBalancerPoolOptions(loadBalancerID string, algorithm 
 }
 
 // SetLoadBalancerID : Allow user to set LoadBalancerID
-func (options *CreateLoadBalancerPoolOptions) SetLoadBalancerID(loadBalancerID string) *CreateLoadBalancerPoolOptions {
-	options.LoadBalancerID = core.StringPtr(loadBalancerID)
-	return options
+func (_options *CreateLoadBalancerPoolOptions) SetLoadBalancerID(loadBalancerID string) *CreateLoadBalancerPoolOptions {
+	_options.LoadBalancerID = core.StringPtr(loadBalancerID)
+	return _options
 }
 
 // SetAlgorithm : Allow user to set Algorithm
-func (options *CreateLoadBalancerPoolOptions) SetAlgorithm(algorithm string) *CreateLoadBalancerPoolOptions {
-	options.Algorithm = core.StringPtr(algorithm)
-	return options
+func (_options *CreateLoadBalancerPoolOptions) SetAlgorithm(algorithm string) *CreateLoadBalancerPoolOptions {
+	_options.Algorithm = core.StringPtr(algorithm)
+	return _options
 }
 
 // SetHealthMonitor : Allow user to set HealthMonitor
-func (options *CreateLoadBalancerPoolOptions) SetHealthMonitor(healthMonitor *LoadBalancerPoolHealthMonitorPrototype) *CreateLoadBalancerPoolOptions {
-	options.HealthMonitor = healthMonitor
-	return options
+func (_options *CreateLoadBalancerPoolOptions) SetHealthMonitor(healthMonitor *LoadBalancerPoolHealthMonitorPrototype) *CreateLoadBalancerPoolOptions {
+	_options.HealthMonitor = healthMonitor
+	return _options
 }
 
 // SetProtocol : Allow user to set Protocol
-func (options *CreateLoadBalancerPoolOptions) SetProtocol(protocol string) *CreateLoadBalancerPoolOptions {
-	options.Protocol = core.StringPtr(protocol)
-	return options
+func (_options *CreateLoadBalancerPoolOptions) SetProtocol(protocol string) *CreateLoadBalancerPoolOptions {
+	_options.Protocol = core.StringPtr(protocol)
+	return _options
 }
 
 // SetMembers : Allow user to set Members
-func (options *CreateLoadBalancerPoolOptions) SetMembers(members []LoadBalancerPoolMemberPrototype) *CreateLoadBalancerPoolOptions {
-	options.Members = members
-	return options
+func (_options *CreateLoadBalancerPoolOptions) SetMembers(members []LoadBalancerPoolMemberPrototype) *CreateLoadBalancerPoolOptions {
+	_options.Members = members
+	return _options
 }
 
 // SetName : Allow user to set Name
-func (options *CreateLoadBalancerPoolOptions) SetName(name string) *CreateLoadBalancerPoolOptions {
-	options.Name = core.StringPtr(name)
-	return options
+func (_options *CreateLoadBalancerPoolOptions) SetName(name string) *CreateLoadBalancerPoolOptions {
+	_options.Name = core.StringPtr(name)
+	return _options
 }
 
 // SetProxyProtocol : Allow user to set ProxyProtocol
-func (options *CreateLoadBalancerPoolOptions) SetProxyProtocol(proxyProtocol string) *CreateLoadBalancerPoolOptions {
-	options.ProxyProtocol = core.StringPtr(proxyProtocol)
-	return options
+func (_options *CreateLoadBalancerPoolOptions) SetProxyProtocol(proxyProtocol string) *CreateLoadBalancerPoolOptions {
+	_options.ProxyProtocol = core.StringPtr(proxyProtocol)
+	return _options
 }
 
 // SetSessionPersistence : Allow user to set SessionPersistence
-func (options *CreateLoadBalancerPoolOptions) SetSessionPersistence(sessionPersistence *LoadBalancerPoolSessionPersistencePrototype) *CreateLoadBalancerPoolOptions {
-	options.SessionPersistence = sessionPersistence
-	return options
+func (_options *CreateLoadBalancerPoolOptions) SetSessionPersistence(sessionPersistence *LoadBalancerPoolSessionPersistencePrototype) *CreateLoadBalancerPoolOptions {
+	_options.SessionPersistence = sessionPersistence
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -20144,7 +20240,7 @@ func (options *CreateLoadBalancerPoolOptions) SetHeaders(param map[string]string
 // CreateNetworkACLOptions : The CreateNetworkACL options.
 type CreateNetworkACLOptions struct {
 	// The network ACL prototype object.
-	NetworkACLPrototype NetworkACLPrototypeIntf
+	NetworkACLPrototype NetworkACLPrototypeIntf `json:"NetworkACLPrototype,omitempty"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -20156,9 +20252,9 @@ func (*VpcV1) NewCreateNetworkACLOptions() *CreateNetworkACLOptions {
 }
 
 // SetNetworkACLPrototype : Allow user to set NetworkACLPrototype
-func (options *CreateNetworkACLOptions) SetNetworkACLPrototype(networkACLPrototype NetworkACLPrototypeIntf) *CreateNetworkACLOptions {
-	options.NetworkACLPrototype = networkACLPrototype
-	return options
+func (_options *CreateNetworkACLOptions) SetNetworkACLPrototype(networkACLPrototype NetworkACLPrototypeIntf) *CreateNetworkACLOptions {
+	_options.NetworkACLPrototype = networkACLPrototype
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -20170,10 +20266,10 @@ func (options *CreateNetworkACLOptions) SetHeaders(param map[string]string) *Cre
 // CreateNetworkACLRuleOptions : The CreateNetworkACLRule options.
 type CreateNetworkACLRuleOptions struct {
 	// The network ACL identifier.
-	NetworkACLID *string `validate:"required,ne="`
+	NetworkACLID *string `json:"-" validate:"required,ne="`
 
 	// The network ACL rule prototype object.
-	NetworkACLRulePrototype NetworkACLRulePrototypeIntf `validate:"required"`
+	NetworkACLRulePrototype NetworkACLRulePrototypeIntf `json:"NetworkACLRulePrototype" validate:"required"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -20188,15 +20284,15 @@ func (*VpcV1) NewCreateNetworkACLRuleOptions(networkACLID string, networkACLRule
 }
 
 // SetNetworkACLID : Allow user to set NetworkACLID
-func (options *CreateNetworkACLRuleOptions) SetNetworkACLID(networkACLID string) *CreateNetworkACLRuleOptions {
-	options.NetworkACLID = core.StringPtr(networkACLID)
-	return options
+func (_options *CreateNetworkACLRuleOptions) SetNetworkACLID(networkACLID string) *CreateNetworkACLRuleOptions {
+	_options.NetworkACLID = core.StringPtr(networkACLID)
+	return _options
 }
 
 // SetNetworkACLRulePrototype : Allow user to set NetworkACLRulePrototype
-func (options *CreateNetworkACLRuleOptions) SetNetworkACLRulePrototype(networkACLRulePrototype NetworkACLRulePrototypeIntf) *CreateNetworkACLRuleOptions {
-	options.NetworkACLRulePrototype = networkACLRulePrototype
-	return options
+func (_options *CreateNetworkACLRuleOptions) SetNetworkACLRulePrototype(networkACLRulePrototype NetworkACLRulePrototypeIntf) *CreateNetworkACLRuleOptions {
+	_options.NetworkACLRulePrototype = networkACLRulePrototype
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -20214,15 +20310,15 @@ type CreatePlacementGroupOptions struct {
 	// The enumerated values for this property may expand in the future. When processing this property, check for and log
 	// unknown values. Optionally halt processing and surface the error, or bypass the placement group on which the
 	// unexpected strategy was encountered.
-	Strategy *string `validate:"required"`
+	Strategy *string `json:"strategy" validate:"required"`
 
 	// The unique user-defined name for this placement group. If unspecified, the name will be a hyphenated list of
 	// randomly-selected words.
-	Name *string
+	Name *string `json:"name,omitempty"`
 
 	// The resource group to use. If unspecified, the account's [default resource
 	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) is used.
-	ResourceGroup ResourceGroupIdentityIntf
+	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -20249,21 +20345,21 @@ func (*VpcV1) NewCreatePlacementGroupOptions(strategy string) *CreatePlacementGr
 }
 
 // SetStrategy : Allow user to set Strategy
-func (options *CreatePlacementGroupOptions) SetStrategy(strategy string) *CreatePlacementGroupOptions {
-	options.Strategy = core.StringPtr(strategy)
-	return options
+func (_options *CreatePlacementGroupOptions) SetStrategy(strategy string) *CreatePlacementGroupOptions {
+	_options.Strategy = core.StringPtr(strategy)
+	return _options
 }
 
 // SetName : Allow user to set Name
-func (options *CreatePlacementGroupOptions) SetName(name string) *CreatePlacementGroupOptions {
-	options.Name = core.StringPtr(name)
-	return options
+func (_options *CreatePlacementGroupOptions) SetName(name string) *CreatePlacementGroupOptions {
+	_options.Name = core.StringPtr(name)
+	return _options
 }
 
 // SetResourceGroup : Allow user to set ResourceGroup
-func (options *CreatePlacementGroupOptions) SetResourceGroup(resourceGroup ResourceGroupIdentityIntf) *CreatePlacementGroupOptions {
-	options.ResourceGroup = resourceGroup
-	return options
+func (_options *CreatePlacementGroupOptions) SetResourceGroup(resourceGroup ResourceGroupIdentityIntf) *CreatePlacementGroupOptions {
+	_options.ResourceGroup = resourceGroup
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -20275,20 +20371,20 @@ func (options *CreatePlacementGroupOptions) SetHeaders(param map[string]string) 
 // CreatePublicGatewayOptions : The CreatePublicGateway options.
 type CreatePublicGatewayOptions struct {
 	// The VPC this public gateway will serve.
-	VPC VPCIdentityIntf `validate:"required"`
+	VPC VPCIdentityIntf `json:"vpc" validate:"required"`
 
 	// The zone this public gateway will reside in.
-	Zone ZoneIdentityIntf `validate:"required"`
+	Zone ZoneIdentityIntf `json:"zone" validate:"required"`
 
-	FloatingIP PublicGatewayFloatingIPPrototypeIntf
+	FloatingIP PublicGatewayFloatingIPPrototypeIntf `json:"floating_ip,omitempty"`
 
 	// The user-defined name for this public gateway. Names must be unique within the VPC the public gateway resides in. If
 	// unspecified, the name will be a hyphenated list of randomly-selected words.
-	Name *string
+	Name *string `json:"name,omitempty"`
 
 	// The resource group to use. If unspecified, the account's [default resource
 	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) is used.
-	ResourceGroup ResourceGroupIdentityIntf
+	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -20303,33 +20399,33 @@ func (*VpcV1) NewCreatePublicGatewayOptions(vpc VPCIdentityIntf, zone ZoneIdenti
 }
 
 // SetVPC : Allow user to set VPC
-func (options *CreatePublicGatewayOptions) SetVPC(vpc VPCIdentityIntf) *CreatePublicGatewayOptions {
-	options.VPC = vpc
-	return options
+func (_options *CreatePublicGatewayOptions) SetVPC(vpc VPCIdentityIntf) *CreatePublicGatewayOptions {
+	_options.VPC = vpc
+	return _options
 }
 
 // SetZone : Allow user to set Zone
-func (options *CreatePublicGatewayOptions) SetZone(zone ZoneIdentityIntf) *CreatePublicGatewayOptions {
-	options.Zone = zone
-	return options
+func (_options *CreatePublicGatewayOptions) SetZone(zone ZoneIdentityIntf) *CreatePublicGatewayOptions {
+	_options.Zone = zone
+	return _options
 }
 
 // SetFloatingIP : Allow user to set FloatingIP
-func (options *CreatePublicGatewayOptions) SetFloatingIP(floatingIP PublicGatewayFloatingIPPrototypeIntf) *CreatePublicGatewayOptions {
-	options.FloatingIP = floatingIP
-	return options
+func (_options *CreatePublicGatewayOptions) SetFloatingIP(floatingIP PublicGatewayFloatingIPPrototypeIntf) *CreatePublicGatewayOptions {
+	_options.FloatingIP = floatingIP
+	return _options
 }
 
 // SetName : Allow user to set Name
-func (options *CreatePublicGatewayOptions) SetName(name string) *CreatePublicGatewayOptions {
-	options.Name = core.StringPtr(name)
-	return options
+func (_options *CreatePublicGatewayOptions) SetName(name string) *CreatePublicGatewayOptions {
+	_options.Name = core.StringPtr(name)
+	return _options
 }
 
 // SetResourceGroup : Allow user to set ResourceGroup
-func (options *CreatePublicGatewayOptions) SetResourceGroup(resourceGroup ResourceGroupIdentityIntf) *CreatePublicGatewayOptions {
-	options.ResourceGroup = resourceGroup
-	return options
+func (_options *CreatePublicGatewayOptions) SetResourceGroup(resourceGroup ResourceGroupIdentityIntf) *CreatePublicGatewayOptions {
+	_options.ResourceGroup = resourceGroup
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -20341,19 +20437,19 @@ func (options *CreatePublicGatewayOptions) SetHeaders(param map[string]string) *
 // CreateSecurityGroupOptions : The CreateSecurityGroup options.
 type CreateSecurityGroupOptions struct {
 	// The VPC this security group is to be a part of.
-	VPC VPCIdentityIntf `validate:"required"`
+	VPC VPCIdentityIntf `json:"vpc" validate:"required"`
 
 	// The user-defined name for this security group. If unspecified, the name will be a hyphenated list of
 	// randomly-selected words. Names must be unique within the VPC the security group resides in.
-	Name *string
+	Name *string `json:"name,omitempty"`
 
 	// The resource group to use. If unspecified, the account's [default resource
 	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) is used.
-	ResourceGroup ResourceGroupIdentityIntf
+	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
 
 	// The prototype objects for rules to be created for this security group. If unspecified, no rules will be created,
 	// resulting in all traffic being denied.
-	Rules []SecurityGroupRulePrototypeIntf
+	Rules []SecurityGroupRulePrototypeIntf `json:"rules,omitempty"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -20367,27 +20463,27 @@ func (*VpcV1) NewCreateSecurityGroupOptions(vpc VPCIdentityIntf) *CreateSecurity
 }
 
 // SetVPC : Allow user to set VPC
-func (options *CreateSecurityGroupOptions) SetVPC(vpc VPCIdentityIntf) *CreateSecurityGroupOptions {
-	options.VPC = vpc
-	return options
+func (_options *CreateSecurityGroupOptions) SetVPC(vpc VPCIdentityIntf) *CreateSecurityGroupOptions {
+	_options.VPC = vpc
+	return _options
 }
 
 // SetName : Allow user to set Name
-func (options *CreateSecurityGroupOptions) SetName(name string) *CreateSecurityGroupOptions {
-	options.Name = core.StringPtr(name)
-	return options
+func (_options *CreateSecurityGroupOptions) SetName(name string) *CreateSecurityGroupOptions {
+	_options.Name = core.StringPtr(name)
+	return _options
 }
 
 // SetResourceGroup : Allow user to set ResourceGroup
-func (options *CreateSecurityGroupOptions) SetResourceGroup(resourceGroup ResourceGroupIdentityIntf) *CreateSecurityGroupOptions {
-	options.ResourceGroup = resourceGroup
-	return options
+func (_options *CreateSecurityGroupOptions) SetResourceGroup(resourceGroup ResourceGroupIdentityIntf) *CreateSecurityGroupOptions {
+	_options.ResourceGroup = resourceGroup
+	return _options
 }
 
 // SetRules : Allow user to set Rules
-func (options *CreateSecurityGroupOptions) SetRules(rules []SecurityGroupRulePrototypeIntf) *CreateSecurityGroupOptions {
-	options.Rules = rules
-	return options
+func (_options *CreateSecurityGroupOptions) SetRules(rules []SecurityGroupRulePrototypeIntf) *CreateSecurityGroupOptions {
+	_options.Rules = rules
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -20399,10 +20495,10 @@ func (options *CreateSecurityGroupOptions) SetHeaders(param map[string]string) *
 // CreateSecurityGroupRuleOptions : The CreateSecurityGroupRule options.
 type CreateSecurityGroupRuleOptions struct {
 	// The security group identifier.
-	SecurityGroupID *string `validate:"required,ne="`
+	SecurityGroupID *string `json:"-" validate:"required,ne="`
 
 	// The properties of the security group rule to be created.
-	SecurityGroupRulePrototype SecurityGroupRulePrototypeIntf `validate:"required"`
+	SecurityGroupRulePrototype SecurityGroupRulePrototypeIntf `json:"SecurityGroupRulePrototype" validate:"required"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -20417,15 +20513,15 @@ func (*VpcV1) NewCreateSecurityGroupRuleOptions(securityGroupID string, security
 }
 
 // SetSecurityGroupID : Allow user to set SecurityGroupID
-func (options *CreateSecurityGroupRuleOptions) SetSecurityGroupID(securityGroupID string) *CreateSecurityGroupRuleOptions {
-	options.SecurityGroupID = core.StringPtr(securityGroupID)
-	return options
+func (_options *CreateSecurityGroupRuleOptions) SetSecurityGroupID(securityGroupID string) *CreateSecurityGroupRuleOptions {
+	_options.SecurityGroupID = core.StringPtr(securityGroupID)
+	return _options
 }
 
 // SetSecurityGroupRulePrototype : Allow user to set SecurityGroupRulePrototype
-func (options *CreateSecurityGroupRuleOptions) SetSecurityGroupRulePrototype(securityGroupRulePrototype SecurityGroupRulePrototypeIntf) *CreateSecurityGroupRuleOptions {
-	options.SecurityGroupRulePrototype = securityGroupRulePrototype
-	return options
+func (_options *CreateSecurityGroupRuleOptions) SetSecurityGroupRulePrototype(securityGroupRulePrototype SecurityGroupRulePrototypeIntf) *CreateSecurityGroupRuleOptions {
+	_options.SecurityGroupRulePrototype = securityGroupRulePrototype
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -20437,10 +20533,10 @@ func (options *CreateSecurityGroupRuleOptions) SetHeaders(param map[string]strin
 // CreateSecurityGroupTargetBindingOptions : The CreateSecurityGroupTargetBinding options.
 type CreateSecurityGroupTargetBindingOptions struct {
 	// The security group identifier.
-	SecurityGroupID *string `validate:"required,ne="`
+	SecurityGroupID *string `json:"-" validate:"required,ne="`
 
 	// The security group target identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -20455,15 +20551,15 @@ func (*VpcV1) NewCreateSecurityGroupTargetBindingOptions(securityGroupID string,
 }
 
 // SetSecurityGroupID : Allow user to set SecurityGroupID
-func (options *CreateSecurityGroupTargetBindingOptions) SetSecurityGroupID(securityGroupID string) *CreateSecurityGroupTargetBindingOptions {
-	options.SecurityGroupID = core.StringPtr(securityGroupID)
-	return options
+func (_options *CreateSecurityGroupTargetBindingOptions) SetSecurityGroupID(securityGroupID string) *CreateSecurityGroupTargetBindingOptions {
+	_options.SecurityGroupID = core.StringPtr(securityGroupID)
+	return _options
 }
 
 // SetID : Allow user to set ID
-func (options *CreateSecurityGroupTargetBindingOptions) SetID(id string) *CreateSecurityGroupTargetBindingOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *CreateSecurityGroupTargetBindingOptions) SetID(id string) *CreateSecurityGroupTargetBindingOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -20475,15 +20571,15 @@ func (options *CreateSecurityGroupTargetBindingOptions) SetHeaders(param map[str
 // CreateSnapshotOptions : The CreateSnapshot options.
 type CreateSnapshotOptions struct {
 	// The volume to snapshot.
-	SourceVolume VolumeIdentityIntf `validate:"required"`
+	SourceVolume VolumeIdentityIntf `json:"source_volume" validate:"required"`
 
 	// The unique user-defined name for this snapshot. If unspecified, the name will be a hyphenated list of
 	// randomly-selected words.
-	Name *string
+	Name *string `json:"name,omitempty"`
 
 	// The resource group to use. If unspecified, the account's [default resource
 	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) is used.
-	ResourceGroup ResourceGroupIdentityIntf
+	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -20497,21 +20593,21 @@ func (*VpcV1) NewCreateSnapshotOptions(sourceVolume VolumeIdentityIntf) *CreateS
 }
 
 // SetSourceVolume : Allow user to set SourceVolume
-func (options *CreateSnapshotOptions) SetSourceVolume(sourceVolume VolumeIdentityIntf) *CreateSnapshotOptions {
-	options.SourceVolume = sourceVolume
-	return options
+func (_options *CreateSnapshotOptions) SetSourceVolume(sourceVolume VolumeIdentityIntf) *CreateSnapshotOptions {
+	_options.SourceVolume = sourceVolume
+	return _options
 }
 
 // SetName : Allow user to set Name
-func (options *CreateSnapshotOptions) SetName(name string) *CreateSnapshotOptions {
-	options.Name = core.StringPtr(name)
-	return options
+func (_options *CreateSnapshotOptions) SetName(name string) *CreateSnapshotOptions {
+	_options.Name = core.StringPtr(name)
+	return _options
 }
 
 // SetResourceGroup : Allow user to set ResourceGroup
-func (options *CreateSnapshotOptions) SetResourceGroup(resourceGroup ResourceGroupIdentityIntf) *CreateSnapshotOptions {
-	options.ResourceGroup = resourceGroup
-	return options
+func (_options *CreateSnapshotOptions) SetResourceGroup(resourceGroup ResourceGroupIdentityIntf) *CreateSnapshotOptions {
+	_options.ResourceGroup = resourceGroup
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -20523,7 +20619,7 @@ func (options *CreateSnapshotOptions) SetHeaders(param map[string]string) *Creat
 // CreateSubnetOptions : The CreateSubnet options.
 type CreateSubnetOptions struct {
 	// The subnet prototype object.
-	SubnetPrototype SubnetPrototypeIntf `validate:"required"`
+	SubnetPrototype SubnetPrototypeIntf `json:"SubnetPrototype" validate:"required"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -20537,9 +20633,9 @@ func (*VpcV1) NewCreateSubnetOptions(subnetPrototype SubnetPrototypeIntf) *Creat
 }
 
 // SetSubnetPrototype : Allow user to set SubnetPrototype
-func (options *CreateSubnetOptions) SetSubnetPrototype(subnetPrototype SubnetPrototypeIntf) *CreateSubnetOptions {
-	options.SubnetPrototype = subnetPrototype
-	return options
+func (_options *CreateSubnetOptions) SetSubnetPrototype(subnetPrototype SubnetPrototypeIntf) *CreateSubnetOptions {
+	_options.SubnetPrototype = subnetPrototype
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -20551,19 +20647,19 @@ func (options *CreateSubnetOptions) SetHeaders(param map[string]string) *CreateS
 // CreateSubnetReservedIPOptions : The CreateSubnetReservedIP options.
 type CreateSubnetReservedIPOptions struct {
 	// The subnet identifier.
-	SubnetID *string `validate:"required,ne="`
+	SubnetID *string `json:"-" validate:"required,ne="`
 
-	// If set to `true`, this reserved IP will be automatically deleted when the target is deleted or when the reserved IP
-	// is unbound. The value cannot be set to `true` if the reserved IP is unbound.
-	AutoDelete *bool
+	// Indicates whether this reserved IP member will be automatically deleted when either
+	// `target` is deleted, or the reserved IP is unbound. Must be `false` if the reserved IP is unbound.
+	AutoDelete *bool `json:"auto_delete,omitempty"`
 
-	// The user-defined name for this reserved IP. If not specified, the name will be a hyphenated list of
-	// randomly-selected words. Names must be unique within the subnet the reserved IP resides in. Names beginning with
-	// `ibm-` are reserved for provider-owned resources.
-	Name *string
+	// The user-defined name for this reserved IP. If unspecified, the name will be a hyphenated list of randomly-selected
+	// words. Names must be unique within the subnet the reserved IP resides in. Names beginning with `ibm-` are reserved
+	// for provider-owned resources.
+	Name *string `json:"name,omitempty"`
 
 	// The target this reserved IP is to be bound to.
-	Target ReservedIPTargetPrototypeIntf
+	Target ReservedIPTargetPrototypeIntf `json:"target,omitempty"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -20577,27 +20673,27 @@ func (*VpcV1) NewCreateSubnetReservedIPOptions(subnetID string) *CreateSubnetRes
 }
 
 // SetSubnetID : Allow user to set SubnetID
-func (options *CreateSubnetReservedIPOptions) SetSubnetID(subnetID string) *CreateSubnetReservedIPOptions {
-	options.SubnetID = core.StringPtr(subnetID)
-	return options
+func (_options *CreateSubnetReservedIPOptions) SetSubnetID(subnetID string) *CreateSubnetReservedIPOptions {
+	_options.SubnetID = core.StringPtr(subnetID)
+	return _options
 }
 
 // SetAutoDelete : Allow user to set AutoDelete
-func (options *CreateSubnetReservedIPOptions) SetAutoDelete(autoDelete bool) *CreateSubnetReservedIPOptions {
-	options.AutoDelete = core.BoolPtr(autoDelete)
-	return options
+func (_options *CreateSubnetReservedIPOptions) SetAutoDelete(autoDelete bool) *CreateSubnetReservedIPOptions {
+	_options.AutoDelete = core.BoolPtr(autoDelete)
+	return _options
 }
 
 // SetName : Allow user to set Name
-func (options *CreateSubnetReservedIPOptions) SetName(name string) *CreateSubnetReservedIPOptions {
-	options.Name = core.StringPtr(name)
-	return options
+func (_options *CreateSubnetReservedIPOptions) SetName(name string) *CreateSubnetReservedIPOptions {
+	_options.Name = core.StringPtr(name)
+	return _options
 }
 
 // SetTarget : Allow user to set Target
-func (options *CreateSubnetReservedIPOptions) SetTarget(target ReservedIPTargetPrototypeIntf) *CreateSubnetReservedIPOptions {
-	options.Target = target
-	return options
+func (_options *CreateSubnetReservedIPOptions) SetTarget(target ReservedIPTargetPrototypeIntf) *CreateSubnetReservedIPOptions {
+	_options.Target = target
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -20609,7 +20705,7 @@ func (options *CreateSubnetReservedIPOptions) SetHeaders(param map[string]string
 // CreateVolumeOptions : The CreateVolume options.
 type CreateVolumeOptions struct {
 	// The volume prototype object.
-	VolumePrototype VolumePrototypeIntf `validate:"required"`
+	VolumePrototype VolumePrototypeIntf `json:"VolumePrototype" validate:"required"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -20623,9 +20719,9 @@ func (*VpcV1) NewCreateVolumeOptions(volumePrototype VolumePrototypeIntf) *Creat
 }
 
 // SetVolumePrototype : Allow user to set VolumePrototype
-func (options *CreateVolumeOptions) SetVolumePrototype(volumePrototype VolumePrototypeIntf) *CreateVolumeOptions {
-	options.VolumePrototype = volumePrototype
-	return options
+func (_options *CreateVolumeOptions) SetVolumePrototype(volumePrototype VolumePrototypeIntf) *CreateVolumeOptions {
+	_options.VolumePrototype = volumePrototype
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -20637,7 +20733,7 @@ func (options *CreateVolumeOptions) SetHeaders(param map[string]string) *CreateV
 // CreateVPCAddressPrefixOptions : The CreateVPCAddressPrefix options.
 type CreateVPCAddressPrefixOptions struct {
 	// The VPC identifier.
-	VPCID *string `validate:"required,ne="`
+	VPCID *string `json:"-" validate:"required,ne="`
 
 	// The IPv4 range of the address prefix, expressed in CIDR format. The request must not overlap with any existing
 	// address prefixes in the VPC or any of the following reserved address ranges:
@@ -20648,18 +20744,18 @@ type CreateVPCAddressPrefixOptions struct {
 	//   - `224.0.0.0/4` (IPv4 multicast addresses)
 	//
 	// The prefix length of the address prefix's CIDR must be between `/9` (8,388,608 addresses) and `/29` (8 addresses).
-	CIDR *string `validate:"required"`
+	CIDR *string `json:"cidr" validate:"required"`
 
 	// The zone this address prefix will reside in.
-	Zone ZoneIdentityIntf `validate:"required"`
+	Zone ZoneIdentityIntf `json:"zone" validate:"required"`
 
-	// Indicates whether this is the default prefix for this zone in this VPC. If true, this prefix will become the default
-	// prefix for this zone in this VPC. This fails if the VPC currently has a default address prefix for this zone.
-	IsDefault *bool
+	// Indicates whether this will be the default address prefix for this zone in this VPC. If `true`, the VPC must not
+	// have a default address prefix for this zone.
+	IsDefault *bool `json:"is_default,omitempty"`
 
 	// The user-defined name for this address prefix. Names must be unique within the VPC the address prefix resides in. If
 	// unspecified, the name will be a hyphenated list of randomly-selected words.
-	Name *string
+	Name *string `json:"name,omitempty"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -20675,33 +20771,33 @@ func (*VpcV1) NewCreateVPCAddressPrefixOptions(vpcID string, cidr string, zone Z
 }
 
 // SetVPCID : Allow user to set VPCID
-func (options *CreateVPCAddressPrefixOptions) SetVPCID(vpcID string) *CreateVPCAddressPrefixOptions {
-	options.VPCID = core.StringPtr(vpcID)
-	return options
+func (_options *CreateVPCAddressPrefixOptions) SetVPCID(vpcID string) *CreateVPCAddressPrefixOptions {
+	_options.VPCID = core.StringPtr(vpcID)
+	return _options
 }
 
 // SetCIDR : Allow user to set CIDR
-func (options *CreateVPCAddressPrefixOptions) SetCIDR(cidr string) *CreateVPCAddressPrefixOptions {
-	options.CIDR = core.StringPtr(cidr)
-	return options
+func (_options *CreateVPCAddressPrefixOptions) SetCIDR(cidr string) *CreateVPCAddressPrefixOptions {
+	_options.CIDR = core.StringPtr(cidr)
+	return _options
 }
 
 // SetZone : Allow user to set Zone
-func (options *CreateVPCAddressPrefixOptions) SetZone(zone ZoneIdentityIntf) *CreateVPCAddressPrefixOptions {
-	options.Zone = zone
-	return options
+func (_options *CreateVPCAddressPrefixOptions) SetZone(zone ZoneIdentityIntf) *CreateVPCAddressPrefixOptions {
+	_options.Zone = zone
+	return _options
 }
 
 // SetIsDefault : Allow user to set IsDefault
-func (options *CreateVPCAddressPrefixOptions) SetIsDefault(isDefault bool) *CreateVPCAddressPrefixOptions {
-	options.IsDefault = core.BoolPtr(isDefault)
-	return options
+func (_options *CreateVPCAddressPrefixOptions) SetIsDefault(isDefault bool) *CreateVPCAddressPrefixOptions {
+	_options.IsDefault = core.BoolPtr(isDefault)
+	return _options
 }
 
 // SetName : Allow user to set Name
-func (options *CreateVPCAddressPrefixOptions) SetName(name string) *CreateVPCAddressPrefixOptions {
-	options.Name = core.StringPtr(name)
-	return options
+func (_options *CreateVPCAddressPrefixOptions) SetName(name string) *CreateVPCAddressPrefixOptions {
+	_options.Name = core.StringPtr(name)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -20714,20 +20810,23 @@ func (options *CreateVPCAddressPrefixOptions) SetHeaders(param map[string]string
 type CreateVPCOptions struct {
 	// Indicates whether a default address prefix should be automatically created for each zone in this VPC. If `manual`,
 	// this VPC will be created with no default address prefixes.
-	AddressPrefixManagement *string
+	//
+	// This property's value is used only when creating the VPC. Since address prefixes are managed identically regardless
+	// of whether they were automatically created, the value is not preserved as a VPC property.
+	AddressPrefixManagement *string `json:"address_prefix_management,omitempty"`
 
 	// Indicates whether this VPC should be connected to Classic Infrastructure. If true, this VPC's resources will have
 	// private network connectivity to the account's Classic Infrastructure resources. Only one VPC, per region, may be
 	// connected in this way. This value is set at creation and subsequently immutable.
-	ClassicAccess *bool
+	ClassicAccess *bool `json:"classic_access,omitempty"`
 
 	// The unique user-defined name for this VPC. If unspecified, the name will be a hyphenated list of randomly-selected
 	// words.
-	Name *string
+	Name *string `json:"name,omitempty"`
 
 	// The resource group to use. If unspecified, the account's [default resource
 	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) is used.
-	ResourceGroup ResourceGroupIdentityIntf
+	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -20736,6 +20835,9 @@ type CreateVPCOptions struct {
 // Constants associated with the CreateVPCOptions.AddressPrefixManagement property.
 // Indicates whether a default address prefix should be automatically created for each zone in this VPC. If `manual`,
 // this VPC will be created with no default address prefixes.
+//
+// This property's value is used only when creating the VPC. Since address prefixes are managed identically regardless
+// of whether they were automatically created, the value is not preserved as a VPC property.
 const (
 	CreateVPCOptionsAddressPrefixManagementAutoConst   = "auto"
 	CreateVPCOptionsAddressPrefixManagementManualConst = "manual"
@@ -20747,27 +20849,27 @@ func (*VpcV1) NewCreateVPCOptions() *CreateVPCOptions {
 }
 
 // SetAddressPrefixManagement : Allow user to set AddressPrefixManagement
-func (options *CreateVPCOptions) SetAddressPrefixManagement(addressPrefixManagement string) *CreateVPCOptions {
-	options.AddressPrefixManagement = core.StringPtr(addressPrefixManagement)
-	return options
+func (_options *CreateVPCOptions) SetAddressPrefixManagement(addressPrefixManagement string) *CreateVPCOptions {
+	_options.AddressPrefixManagement = core.StringPtr(addressPrefixManagement)
+	return _options
 }
 
 // SetClassicAccess : Allow user to set ClassicAccess
-func (options *CreateVPCOptions) SetClassicAccess(classicAccess bool) *CreateVPCOptions {
-	options.ClassicAccess = core.BoolPtr(classicAccess)
-	return options
+func (_options *CreateVPCOptions) SetClassicAccess(classicAccess bool) *CreateVPCOptions {
+	_options.ClassicAccess = core.BoolPtr(classicAccess)
+	return _options
 }
 
 // SetName : Allow user to set Name
-func (options *CreateVPCOptions) SetName(name string) *CreateVPCOptions {
-	options.Name = core.StringPtr(name)
-	return options
+func (_options *CreateVPCOptions) SetName(name string) *CreateVPCOptions {
+	_options.Name = core.StringPtr(name)
+	return _options
 }
 
 // SetResourceGroup : Allow user to set ResourceGroup
-func (options *CreateVPCOptions) SetResourceGroup(resourceGroup ResourceGroupIdentityIntf) *CreateVPCOptions {
-	options.ResourceGroup = resourceGroup
-	return options
+func (_options *CreateVPCOptions) SetResourceGroup(resourceGroup ResourceGroupIdentityIntf) *CreateVPCOptions {
+	_options.ResourceGroup = resourceGroup
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -20779,16 +20881,16 @@ func (options *CreateVPCOptions) SetHeaders(param map[string]string) *CreateVPCO
 // CreateVPCRouteOptions : The CreateVPCRoute options.
 type CreateVPCRouteOptions struct {
 	// The VPC identifier.
-	VPCID *string `validate:"required,ne="`
+	VPCID *string `json:"-" validate:"required,ne="`
 
 	// The destination of the route. At most two routes per `zone` in a table can have the same destination, and only if
 	// both routes have an `action` of `deliver` and the
 	// `next_hop` is an IP address.
-	Destination *string `validate:"required"`
+	Destination *string `json:"destination" validate:"required"`
 
 	// The zone to apply the route to. (Traffic from subnets in this zone will be
 	// subject to this route.).
-	Zone ZoneIdentityIntf `validate:"required"`
+	Zone ZoneIdentityIntf `json:"zone" validate:"required"`
 
 	// The action to perform with a packet matching the route:
 	// - `delegate`: delegate to the system's built-in routes
@@ -20796,15 +20898,15 @@ type CreateVPCRouteOptions struct {
 	//   routes
 	// - `deliver`: deliver the packet to the specified `next_hop`
 	// - `drop`: drop the packet.
-	Action *string
+	Action *string `json:"action,omitempty"`
 
 	// The user-defined name for this route. If unspecified, the name will be a hyphenated list of randomly-selected words.
 	// Names must be unique within the VPC routing table the route resides in.
-	Name *string
+	Name *string `json:"name,omitempty"`
 
 	// If `action` is `deliver`, the next hop that packets will be delivered to.  For
 	// other `action` values, it must be omitted or specified as `0.0.0.0`.
-	NextHop RouteNextHopPrototypeIntf
+	NextHop RouteNextHopPrototypeIntf `json:"next_hop,omitempty"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -20834,39 +20936,39 @@ func (*VpcV1) NewCreateVPCRouteOptions(vpcID string, destination string, zone Zo
 }
 
 // SetVPCID : Allow user to set VPCID
-func (options *CreateVPCRouteOptions) SetVPCID(vpcID string) *CreateVPCRouteOptions {
-	options.VPCID = core.StringPtr(vpcID)
-	return options
+func (_options *CreateVPCRouteOptions) SetVPCID(vpcID string) *CreateVPCRouteOptions {
+	_options.VPCID = core.StringPtr(vpcID)
+	return _options
 }
 
 // SetDestination : Allow user to set Destination
-func (options *CreateVPCRouteOptions) SetDestination(destination string) *CreateVPCRouteOptions {
-	options.Destination = core.StringPtr(destination)
-	return options
+func (_options *CreateVPCRouteOptions) SetDestination(destination string) *CreateVPCRouteOptions {
+	_options.Destination = core.StringPtr(destination)
+	return _options
 }
 
 // SetZone : Allow user to set Zone
-func (options *CreateVPCRouteOptions) SetZone(zone ZoneIdentityIntf) *CreateVPCRouteOptions {
-	options.Zone = zone
-	return options
+func (_options *CreateVPCRouteOptions) SetZone(zone ZoneIdentityIntf) *CreateVPCRouteOptions {
+	_options.Zone = zone
+	return _options
 }
 
 // SetAction : Allow user to set Action
-func (options *CreateVPCRouteOptions) SetAction(action string) *CreateVPCRouteOptions {
-	options.Action = core.StringPtr(action)
-	return options
+func (_options *CreateVPCRouteOptions) SetAction(action string) *CreateVPCRouteOptions {
+	_options.Action = core.StringPtr(action)
+	return _options
 }
 
 // SetName : Allow user to set Name
-func (options *CreateVPCRouteOptions) SetName(name string) *CreateVPCRouteOptions {
-	options.Name = core.StringPtr(name)
-	return options
+func (_options *CreateVPCRouteOptions) SetName(name string) *CreateVPCRouteOptions {
+	_options.Name = core.StringPtr(name)
+	return _options
 }
 
 // SetNextHop : Allow user to set NextHop
-func (options *CreateVPCRouteOptions) SetNextHop(nextHop RouteNextHopPrototypeIntf) *CreateVPCRouteOptions {
-	options.NextHop = nextHop
-	return options
+func (_options *CreateVPCRouteOptions) SetNextHop(nextHop RouteNextHopPrototypeIntf) *CreateVPCRouteOptions {
+	_options.NextHop = nextHop
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -20878,11 +20980,11 @@ func (options *CreateVPCRouteOptions) SetHeaders(param map[string]string) *Creat
 // CreateVPCRoutingTableOptions : The CreateVPCRoutingTable options.
 type CreateVPCRoutingTableOptions struct {
 	// The VPC identifier.
-	VPCID *string `validate:"required,ne="`
+	VPCID *string `json:"-" validate:"required,ne="`
 
 	// The user-defined name for this routing table. Names must be unique within the VPC the routing table resides in. If
 	// unspecified, the name will be a hyphenated list of randomly-selected words.
-	Name *string
+	Name *string `json:"name,omitempty"`
 
 	// If set to `true`, this routing table will be used to route traffic that originates from [Direct
 	// Link](https://cloud.ibm.com/docs/dl/) to this VPC. For this to succeed, the VPC must not already have a routing
@@ -20892,7 +20994,7 @@ type CreateVPCRoutingTableOptions struct {
 	// `deliver` are treated as `drop` unless the `next_hop` is an IP address within the VPC's address prefix ranges.
 	// Therefore, if an incoming packet matches a route with a `next_hop` of an internet-bound IP address or a VPN gateway
 	// connection, the packet will be dropped.
-	RouteDirectLinkIngress *bool
+	RouteDirectLinkIngress *bool `json:"route_direct_link_ingress,omitempty"`
 
 	// If set to `true`, this routing table will be used to route traffic that originates from [Transit
 	// Gateway](https://cloud.ibm.com/cloud/transit-gateway/) to this VPC. For this to succeed, the VPC must not already
@@ -20906,7 +21008,7 @@ type CreateVPCRoutingTableOptions struct {
 	// If [Classic Access](https://cloud.ibm.com/docs/vpc?topic=vpc-setting-up-access-to-classic-infrastructure) is enabled
 	// for this VPC, and this property is set to `true`, its incoming traffic will also be routed according to this routing
 	// table.
-	RouteTransitGatewayIngress *bool
+	RouteTransitGatewayIngress *bool `json:"route_transit_gateway_ingress,omitempty"`
 
 	// If set to `true`, this routing table will be used to route traffic that originates from subnets in other zones in
 	// this VPC. For this to succeed, the VPC must not already have a routing table with this property set to `true`.
@@ -20915,11 +21017,11 @@ type CreateVPCRoutingTableOptions struct {
 	// `deliver` are treated as `drop` unless the `next_hop` is an IP address within the VPC's address prefix ranges.
 	// Therefore, if an incoming packet matches a route with a `next_hop` of an internet-bound IP address or a VPN gateway
 	// connection, the packet will be dropped.
-	RouteVPCZoneIngress *bool
+	RouteVPCZoneIngress *bool `json:"route_vpc_zone_ingress,omitempty"`
 
 	// The prototype objects for routes to create for this routing table. If unspecified, the routing table will be created
 	// with no routes.
-	Routes []RoutePrototype
+	Routes []RoutePrototype `json:"routes,omitempty"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -20933,39 +21035,39 @@ func (*VpcV1) NewCreateVPCRoutingTableOptions(vpcID string) *CreateVPCRoutingTab
 }
 
 // SetVPCID : Allow user to set VPCID
-func (options *CreateVPCRoutingTableOptions) SetVPCID(vpcID string) *CreateVPCRoutingTableOptions {
-	options.VPCID = core.StringPtr(vpcID)
-	return options
+func (_options *CreateVPCRoutingTableOptions) SetVPCID(vpcID string) *CreateVPCRoutingTableOptions {
+	_options.VPCID = core.StringPtr(vpcID)
+	return _options
 }
 
 // SetName : Allow user to set Name
-func (options *CreateVPCRoutingTableOptions) SetName(name string) *CreateVPCRoutingTableOptions {
-	options.Name = core.StringPtr(name)
-	return options
+func (_options *CreateVPCRoutingTableOptions) SetName(name string) *CreateVPCRoutingTableOptions {
+	_options.Name = core.StringPtr(name)
+	return _options
 }
 
 // SetRouteDirectLinkIngress : Allow user to set RouteDirectLinkIngress
-func (options *CreateVPCRoutingTableOptions) SetRouteDirectLinkIngress(routeDirectLinkIngress bool) *CreateVPCRoutingTableOptions {
-	options.RouteDirectLinkIngress = core.BoolPtr(routeDirectLinkIngress)
-	return options
+func (_options *CreateVPCRoutingTableOptions) SetRouteDirectLinkIngress(routeDirectLinkIngress bool) *CreateVPCRoutingTableOptions {
+	_options.RouteDirectLinkIngress = core.BoolPtr(routeDirectLinkIngress)
+	return _options
 }
 
 // SetRouteTransitGatewayIngress : Allow user to set RouteTransitGatewayIngress
-func (options *CreateVPCRoutingTableOptions) SetRouteTransitGatewayIngress(routeTransitGatewayIngress bool) *CreateVPCRoutingTableOptions {
-	options.RouteTransitGatewayIngress = core.BoolPtr(routeTransitGatewayIngress)
-	return options
+func (_options *CreateVPCRoutingTableOptions) SetRouteTransitGatewayIngress(routeTransitGatewayIngress bool) *CreateVPCRoutingTableOptions {
+	_options.RouteTransitGatewayIngress = core.BoolPtr(routeTransitGatewayIngress)
+	return _options
 }
 
 // SetRouteVPCZoneIngress : Allow user to set RouteVPCZoneIngress
-func (options *CreateVPCRoutingTableOptions) SetRouteVPCZoneIngress(routeVPCZoneIngress bool) *CreateVPCRoutingTableOptions {
-	options.RouteVPCZoneIngress = core.BoolPtr(routeVPCZoneIngress)
-	return options
+func (_options *CreateVPCRoutingTableOptions) SetRouteVPCZoneIngress(routeVPCZoneIngress bool) *CreateVPCRoutingTableOptions {
+	_options.RouteVPCZoneIngress = core.BoolPtr(routeVPCZoneIngress)
+	return _options
 }
 
 // SetRoutes : Allow user to set Routes
-func (options *CreateVPCRoutingTableOptions) SetRoutes(routes []RoutePrototype) *CreateVPCRoutingTableOptions {
-	options.Routes = routes
-	return options
+func (_options *CreateVPCRoutingTableOptions) SetRoutes(routes []RoutePrototype) *CreateVPCRoutingTableOptions {
+	_options.Routes = routes
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -20977,19 +21079,19 @@ func (options *CreateVPCRoutingTableOptions) SetHeaders(param map[string]string)
 // CreateVPCRoutingTableRouteOptions : The CreateVPCRoutingTableRoute options.
 type CreateVPCRoutingTableRouteOptions struct {
 	// The VPC identifier.
-	VPCID *string `validate:"required,ne="`
+	VPCID *string `json:"-" validate:"required,ne="`
 
 	// The routing table identifier.
-	RoutingTableID *string `validate:"required,ne="`
+	RoutingTableID *string `json:"-" validate:"required,ne="`
 
 	// The destination of the route. At most two routes per `zone` in a table can have the same destination, and only if
 	// both routes have an `action` of `deliver` and the
 	// `next_hop` is an IP address.
-	Destination *string `validate:"required"`
+	Destination *string `json:"destination" validate:"required"`
 
 	// The zone to apply the route to. (Traffic from subnets in this zone will be
 	// subject to this route.).
-	Zone ZoneIdentityIntf `validate:"required"`
+	Zone ZoneIdentityIntf `json:"zone" validate:"required"`
 
 	// The action to perform with a packet matching the route:
 	// - `delegate`: delegate to the system's built-in routes
@@ -20997,15 +21099,15 @@ type CreateVPCRoutingTableRouteOptions struct {
 	//   routes
 	// - `deliver`: deliver the packet to the specified `next_hop`
 	// - `drop`: drop the packet.
-	Action *string
+	Action *string `json:"action,omitempty"`
 
 	// The user-defined name for this route. If unspecified, the name will be a hyphenated list of randomly-selected words.
 	// Names must be unique within the VPC routing table the route resides in.
-	Name *string
+	Name *string `json:"name,omitempty"`
 
 	// If `action` is `deliver`, the next hop that packets will be delivered to.  For
 	// other `action` values, it must be omitted or specified as `0.0.0.0`.
-	NextHop RouteNextHopPrototypeIntf
+	NextHop RouteNextHopPrototypeIntf `json:"next_hop,omitempty"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -21036,45 +21138,45 @@ func (*VpcV1) NewCreateVPCRoutingTableRouteOptions(vpcID string, routingTableID 
 }
 
 // SetVPCID : Allow user to set VPCID
-func (options *CreateVPCRoutingTableRouteOptions) SetVPCID(vpcID string) *CreateVPCRoutingTableRouteOptions {
-	options.VPCID = core.StringPtr(vpcID)
-	return options
+func (_options *CreateVPCRoutingTableRouteOptions) SetVPCID(vpcID string) *CreateVPCRoutingTableRouteOptions {
+	_options.VPCID = core.StringPtr(vpcID)
+	return _options
 }
 
 // SetRoutingTableID : Allow user to set RoutingTableID
-func (options *CreateVPCRoutingTableRouteOptions) SetRoutingTableID(routingTableID string) *CreateVPCRoutingTableRouteOptions {
-	options.RoutingTableID = core.StringPtr(routingTableID)
-	return options
+func (_options *CreateVPCRoutingTableRouteOptions) SetRoutingTableID(routingTableID string) *CreateVPCRoutingTableRouteOptions {
+	_options.RoutingTableID = core.StringPtr(routingTableID)
+	return _options
 }
 
 // SetDestination : Allow user to set Destination
-func (options *CreateVPCRoutingTableRouteOptions) SetDestination(destination string) *CreateVPCRoutingTableRouteOptions {
-	options.Destination = core.StringPtr(destination)
-	return options
+func (_options *CreateVPCRoutingTableRouteOptions) SetDestination(destination string) *CreateVPCRoutingTableRouteOptions {
+	_options.Destination = core.StringPtr(destination)
+	return _options
 }
 
 // SetZone : Allow user to set Zone
-func (options *CreateVPCRoutingTableRouteOptions) SetZone(zone ZoneIdentityIntf) *CreateVPCRoutingTableRouteOptions {
-	options.Zone = zone
-	return options
+func (_options *CreateVPCRoutingTableRouteOptions) SetZone(zone ZoneIdentityIntf) *CreateVPCRoutingTableRouteOptions {
+	_options.Zone = zone
+	return _options
 }
 
 // SetAction : Allow user to set Action
-func (options *CreateVPCRoutingTableRouteOptions) SetAction(action string) *CreateVPCRoutingTableRouteOptions {
-	options.Action = core.StringPtr(action)
-	return options
+func (_options *CreateVPCRoutingTableRouteOptions) SetAction(action string) *CreateVPCRoutingTableRouteOptions {
+	_options.Action = core.StringPtr(action)
+	return _options
 }
 
 // SetName : Allow user to set Name
-func (options *CreateVPCRoutingTableRouteOptions) SetName(name string) *CreateVPCRoutingTableRouteOptions {
-	options.Name = core.StringPtr(name)
-	return options
+func (_options *CreateVPCRoutingTableRouteOptions) SetName(name string) *CreateVPCRoutingTableRouteOptions {
+	_options.Name = core.StringPtr(name)
+	return _options
 }
 
 // SetNextHop : Allow user to set NextHop
-func (options *CreateVPCRoutingTableRouteOptions) SetNextHop(nextHop RouteNextHopPrototypeIntf) *CreateVPCRoutingTableRouteOptions {
-	options.NextHop = nextHop
-	return options
+func (_options *CreateVPCRoutingTableRouteOptions) SetNextHop(nextHop RouteNextHopPrototypeIntf) *CreateVPCRoutingTableRouteOptions {
+	_options.NextHop = nextHop
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -21086,10 +21188,10 @@ func (options *CreateVPCRoutingTableRouteOptions) SetHeaders(param map[string]st
 // CreateVPNGatewayConnectionOptions : The CreateVPNGatewayConnection options.
 type CreateVPNGatewayConnectionOptions struct {
 	// The VPN gateway identifier.
-	VPNGatewayID *string `validate:"required,ne="`
+	VPNGatewayID *string `json:"-" validate:"required,ne="`
 
 	// The VPN gateway connection prototype object.
-	VPNGatewayConnectionPrototype VPNGatewayConnectionPrototypeIntf `validate:"required"`
+	VPNGatewayConnectionPrototype VPNGatewayConnectionPrototypeIntf `json:"VPNGatewayConnectionPrototype" validate:"required"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -21104,15 +21206,15 @@ func (*VpcV1) NewCreateVPNGatewayConnectionOptions(vpnGatewayID string, vpnGatew
 }
 
 // SetVPNGatewayID : Allow user to set VPNGatewayID
-func (options *CreateVPNGatewayConnectionOptions) SetVPNGatewayID(vpnGatewayID string) *CreateVPNGatewayConnectionOptions {
-	options.VPNGatewayID = core.StringPtr(vpnGatewayID)
-	return options
+func (_options *CreateVPNGatewayConnectionOptions) SetVPNGatewayID(vpnGatewayID string) *CreateVPNGatewayConnectionOptions {
+	_options.VPNGatewayID = core.StringPtr(vpnGatewayID)
+	return _options
 }
 
 // SetVPNGatewayConnectionPrototype : Allow user to set VPNGatewayConnectionPrototype
-func (options *CreateVPNGatewayConnectionOptions) SetVPNGatewayConnectionPrototype(vpnGatewayConnectionPrototype VPNGatewayConnectionPrototypeIntf) *CreateVPNGatewayConnectionOptions {
-	options.VPNGatewayConnectionPrototype = vpnGatewayConnectionPrototype
-	return options
+func (_options *CreateVPNGatewayConnectionOptions) SetVPNGatewayConnectionPrototype(vpnGatewayConnectionPrototype VPNGatewayConnectionPrototypeIntf) *CreateVPNGatewayConnectionOptions {
+	_options.VPNGatewayConnectionPrototype = vpnGatewayConnectionPrototype
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -21124,7 +21226,7 @@ func (options *CreateVPNGatewayConnectionOptions) SetHeaders(param map[string]st
 // CreateVPNGatewayOptions : The CreateVPNGateway options.
 type CreateVPNGatewayOptions struct {
 	// The VPN gateway prototype object.
-	VPNGatewayPrototype VPNGatewayPrototypeIntf `validate:"required"`
+	VPNGatewayPrototype VPNGatewayPrototypeIntf `json:"VPNGatewayPrototype" validate:"required"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -21138,9 +21240,9 @@ func (*VpcV1) NewCreateVPNGatewayOptions(vpnGatewayPrototype VPNGatewayPrototype
 }
 
 // SetVPNGatewayPrototype : Allow user to set VPNGatewayPrototype
-func (options *CreateVPNGatewayOptions) SetVPNGatewayPrototype(vpnGatewayPrototype VPNGatewayPrototypeIntf) *CreateVPNGatewayOptions {
-	options.VPNGatewayPrototype = vpnGatewayPrototype
-	return options
+func (_options *CreateVPNGatewayOptions) SetVPNGatewayPrototype(vpnGatewayPrototype VPNGatewayPrototypeIntf) *CreateVPNGatewayOptions {
+	_options.VPNGatewayPrototype = vpnGatewayPrototype
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -21187,8 +21289,7 @@ type DedicatedHost struct {
 	// The total amount of memory in gibibytes for this host.
 	Memory *int64 `json:"memory" validate:"required"`
 
-	// The unique user-defined name for this dedicated host. If unspecified, the name will be a hyphenated list of
-	// randomly-selected words.
+	// The unique user-defined name for this dedicated host.
 	Name *string `json:"name" validate:"required"`
 
 	// The profile this dedicated host uses.
@@ -21393,6 +21494,18 @@ func UnmarshalDedicatedHostCollection(m map[string]json.RawMessage, result inter
 	}
 	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
 	return
+}
+
+// Retrieve the value to be passed to a request to access the next page of results
+func (resp *DedicatedHostCollection) GetNextStart() (*string, error) {
+	if core.IsNil(resp.Next) {
+		return nil, nil
+	}
+	start, err := core.GetQueryParam(resp.Next.Href, "start")
+	if err != nil || start == nil {
+		return nil, err
+	}
+	return start, nil
 }
 
 // DedicatedHostCollectionFirst : A link to the first page of resources.
@@ -21601,11 +21714,11 @@ func UnmarshalDedicatedHostDiskPatch(m map[string]json.RawMessage, result interf
 }
 
 // AsPatch returns a generic map representation of the DedicatedHostDiskPatch
-func (dedicatedHostDiskPatch *DedicatedHostDiskPatch) AsPatch() (patch map[string]interface{}, err error) {
+func (dedicatedHostDiskPatch *DedicatedHostDiskPatch) AsPatch() (_patch map[string]interface{}, err error) {
 	var jsonData []byte
 	jsonData, err = json.Marshal(dedicatedHostDiskPatch)
 	if err == nil {
-		err = json.Unmarshal(jsonData, &patch)
+		err = json.Unmarshal(jsonData, &_patch)
 	}
 	return
 }
@@ -21633,8 +21746,7 @@ type DedicatedHostGroup struct {
 	// The unique identifier for this dedicated host group.
 	ID *string `json:"id" validate:"required"`
 
-	// The unique user-defined name for this dedicated host group. If unspecified, the name will be a hyphenated list of
-	// randomly-selected words.
+	// The unique user-defined name for this dedicated host group.
 	Name *string `json:"name" validate:"required"`
 
 	// The resource group for this dedicated host group.
@@ -21765,6 +21877,18 @@ func UnmarshalDedicatedHostGroupCollection(m map[string]json.RawMessage, result 
 	return
 }
 
+// Retrieve the value to be passed to a request to access the next page of results
+func (resp *DedicatedHostGroupCollection) GetNextStart() (*string, error) {
+	if core.IsNil(resp.Next) {
+		return nil, nil
+	}
+	start, err := core.GetQueryParam(resp.Next.Href, "start")
+	if err != nil || start == nil {
+		return nil, err
+	}
+	return start, nil
+}
+
 // DedicatedHostGroupCollectionFirst : A link to the first page of resources.
 type DedicatedHostGroupCollectionFirst struct {
 	// The URL for a page of resources.
@@ -21844,8 +21968,7 @@ func UnmarshalDedicatedHostGroupIdentity(m map[string]json.RawMessage, result in
 
 // DedicatedHostGroupPatch : DedicatedHostGroupPatch struct
 type DedicatedHostGroupPatch struct {
-	// The unique user-defined name for this dedicated host group. If unspecified, the name will be a hyphenated list of
-	// randomly-selected words.
+	// The unique user-defined name for this dedicated host group.
 	Name *string `json:"name,omitempty"`
 }
 
@@ -21861,19 +21984,18 @@ func UnmarshalDedicatedHostGroupPatch(m map[string]json.RawMessage, result inter
 }
 
 // AsPatch returns a generic map representation of the DedicatedHostGroupPatch
-func (dedicatedHostGroupPatch *DedicatedHostGroupPatch) AsPatch() (patch map[string]interface{}, err error) {
+func (dedicatedHostGroupPatch *DedicatedHostGroupPatch) AsPatch() (_patch map[string]interface{}, err error) {
 	var jsonData []byte
 	jsonData, err = json.Marshal(dedicatedHostGroupPatch)
 	if err == nil {
-		err = json.Unmarshal(jsonData, &patch)
+		err = json.Unmarshal(jsonData, &_patch)
 	}
 	return
 }
 
 // DedicatedHostGroupPrototypeDedicatedHostByZoneContext : DedicatedHostGroupPrototypeDedicatedHostByZoneContext struct
 type DedicatedHostGroupPrototypeDedicatedHostByZoneContext struct {
-	// The unique user-defined name for this dedicated host group. If unspecified, the name will be a hyphenated list of
-	// randomly-selected words.
+	// The unique user-defined name for this dedicated host group.
 	Name *string `json:"name,omitempty"`
 
 	// The resource group to use. If unspecified, the host's resource group is used.
@@ -21910,8 +22032,7 @@ type DedicatedHostGroupReference struct {
 	// The unique identifier for this dedicated host group.
 	ID *string `json:"id" validate:"required"`
 
-	// The unique user-defined name for this dedicated host group. If unspecified, the name will be a hyphenated list of
-	// randomly-selected words.
+	// The unique user-defined name for this dedicated host group.
 	Name *string `json:"name" validate:"required"`
 
 	// The type of resource referenced.
@@ -21978,8 +22099,7 @@ type DedicatedHostPatch struct {
 	// If set to true, instances can be placed on this dedicated host.
 	InstancePlacementEnabled *bool `json:"instance_placement_enabled,omitempty"`
 
-	// The unique user-defined name for this dedicated host. If unspecified, the name will be a hyphenated list of
-	// randomly-selected words.
+	// The unique user-defined name for this dedicated host.
 	Name *string `json:"name,omitempty"`
 }
 
@@ -21999,11 +22119,11 @@ func UnmarshalDedicatedHostPatch(m map[string]json.RawMessage, result interface{
 }
 
 // AsPatch returns a generic map representation of the DedicatedHostPatch
-func (dedicatedHostPatch *DedicatedHostPatch) AsPatch() (patch map[string]interface{}, err error) {
+func (dedicatedHostPatch *DedicatedHostPatch) AsPatch() (_patch map[string]interface{}, err error) {
 	var jsonData []byte
 	jsonData, err = json.Marshal(dedicatedHostPatch)
 	if err == nil {
-		err = json.Unmarshal(jsonData, &patch)
+		err = json.Unmarshal(jsonData, &_patch)
 	}
 	return
 }
@@ -22144,6 +22264,18 @@ func UnmarshalDedicatedHostProfileCollection(m map[string]json.RawMessage, resul
 	}
 	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
 	return
+}
+
+// Retrieve the value to be passed to a request to access the next page of results
+func (resp *DedicatedHostProfileCollection) GetNextStart() (*string, error) {
+	if core.IsNil(resp.Next) {
+		return nil, nil
+	}
+	start, err := core.GetQueryParam(resp.Next.Href, "start")
+	if err != nil || start == nil {
+		return nil, err
+	}
+	return start, nil
 }
 
 // DedicatedHostProfileCollectionFirst : A link to the first page of resources.
@@ -22764,8 +22896,7 @@ type DedicatedHostReference struct {
 	// The unique identifier for this dedicated host.
 	ID *string `json:"id" validate:"required"`
 
-	// The unique user-defined name for this dedicated host. If unspecified, the name will be a hyphenated list of
-	// randomly-selected words.
+	// The unique user-defined name for this dedicated host.
 	Name *string `json:"name" validate:"required"`
 
 	// The type of resource referenced.
@@ -22849,8 +22980,8 @@ type DefaultNetworkACL struct {
 	// resource group at creation.
 	ResourceGroup *ResourceGroupReference `json:"resource_group" validate:"required"`
 
-	// The ordered rules for the default network ACL for a VPC.  Defaults to two rules which allow all inbound and outbound
-	// traffic, respectively.  Rules for the default network ACL may be changed, added, or removed.
+	// The ordered rules for the default network ACL for a VPC. Defaults to two rules which allow all inbound and outbound
+	// traffic, respectively. Rules for the default network ACL may be changed, added, or removed.
 	Rules []NetworkACLRuleItemIntf `json:"rules" validate:"required"`
 
 	// The subnets to which this network ACL is attached.
@@ -23057,7 +23188,7 @@ type DefaultSecurityGroup struct {
 	ResourceGroup *ResourceGroupReference `json:"resource_group" validate:"required"`
 
 	// The rules for the default security group for a VPC. Defaults to allowing all outbound traffic, and allowing all
-	// inbound traffic from other interfaces in the VPC's default security group. Rules in the default security group may
+	// inbound traffic from other interfaces in the VPC's default security group. Rules for the default security group may
 	// be changed, added or removed.
 	Rules []SecurityGroupRuleIntf `json:"rules" validate:"required"`
 
@@ -23107,7 +23238,7 @@ func UnmarshalDefaultSecurityGroup(m map[string]json.RawMessage, result interfac
 // DeleteDedicatedHostGroupOptions : The DeleteDedicatedHostGroup options.
 type DeleteDedicatedHostGroupOptions struct {
 	// The dedicated host group identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -23121,9 +23252,9 @@ func (*VpcV1) NewDeleteDedicatedHostGroupOptions(id string) *DeleteDedicatedHost
 }
 
 // SetID : Allow user to set ID
-func (options *DeleteDedicatedHostGroupOptions) SetID(id string) *DeleteDedicatedHostGroupOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *DeleteDedicatedHostGroupOptions) SetID(id string) *DeleteDedicatedHostGroupOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -23135,7 +23266,7 @@ func (options *DeleteDedicatedHostGroupOptions) SetHeaders(param map[string]stri
 // DeleteDedicatedHostOptions : The DeleteDedicatedHost options.
 type DeleteDedicatedHostOptions struct {
 	// The dedicated host identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -23149,9 +23280,9 @@ func (*VpcV1) NewDeleteDedicatedHostOptions(id string) *DeleteDedicatedHostOptio
 }
 
 // SetID : Allow user to set ID
-func (options *DeleteDedicatedHostOptions) SetID(id string) *DeleteDedicatedHostOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *DeleteDedicatedHostOptions) SetID(id string) *DeleteDedicatedHostOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -23163,7 +23294,7 @@ func (options *DeleteDedicatedHostOptions) SetHeaders(param map[string]string) *
 // DeleteEndpointGatewayOptions : The DeleteEndpointGateway options.
 type DeleteEndpointGatewayOptions struct {
 	// The endpoint gateway identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -23177,9 +23308,9 @@ func (*VpcV1) NewDeleteEndpointGatewayOptions(id string) *DeleteEndpointGatewayO
 }
 
 // SetID : Allow user to set ID
-func (options *DeleteEndpointGatewayOptions) SetID(id string) *DeleteEndpointGatewayOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *DeleteEndpointGatewayOptions) SetID(id string) *DeleteEndpointGatewayOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -23191,7 +23322,7 @@ func (options *DeleteEndpointGatewayOptions) SetHeaders(param map[string]string)
 // DeleteFloatingIPOptions : The DeleteFloatingIP options.
 type DeleteFloatingIPOptions struct {
 	// The floating IP identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -23205,9 +23336,9 @@ func (*VpcV1) NewDeleteFloatingIPOptions(id string) *DeleteFloatingIPOptions {
 }
 
 // SetID : Allow user to set ID
-func (options *DeleteFloatingIPOptions) SetID(id string) *DeleteFloatingIPOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *DeleteFloatingIPOptions) SetID(id string) *DeleteFloatingIPOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -23219,7 +23350,7 @@ func (options *DeleteFloatingIPOptions) SetHeaders(param map[string]string) *Del
 // DeleteFlowLogCollectorOptions : The DeleteFlowLogCollector options.
 type DeleteFlowLogCollectorOptions struct {
 	// The flow log collector identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -23233,9 +23364,9 @@ func (*VpcV1) NewDeleteFlowLogCollectorOptions(id string) *DeleteFlowLogCollecto
 }
 
 // SetID : Allow user to set ID
-func (options *DeleteFlowLogCollectorOptions) SetID(id string) *DeleteFlowLogCollectorOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *DeleteFlowLogCollectorOptions) SetID(id string) *DeleteFlowLogCollectorOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -23247,7 +23378,7 @@ func (options *DeleteFlowLogCollectorOptions) SetHeaders(param map[string]string
 // DeleteIkePolicyOptions : The DeleteIkePolicy options.
 type DeleteIkePolicyOptions struct {
 	// The IKE policy identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -23261,9 +23392,9 @@ func (*VpcV1) NewDeleteIkePolicyOptions(id string) *DeleteIkePolicyOptions {
 }
 
 // SetID : Allow user to set ID
-func (options *DeleteIkePolicyOptions) SetID(id string) *DeleteIkePolicyOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *DeleteIkePolicyOptions) SetID(id string) *DeleteIkePolicyOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -23275,7 +23406,7 @@ func (options *DeleteIkePolicyOptions) SetHeaders(param map[string]string) *Dele
 // DeleteImageOptions : The DeleteImage options.
 type DeleteImageOptions struct {
 	// The image identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -23289,9 +23420,9 @@ func (*VpcV1) NewDeleteImageOptions(id string) *DeleteImageOptions {
 }
 
 // SetID : Allow user to set ID
-func (options *DeleteImageOptions) SetID(id string) *DeleteImageOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *DeleteImageOptions) SetID(id string) *DeleteImageOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -23303,7 +23434,7 @@ func (options *DeleteImageOptions) SetHeaders(param map[string]string) *DeleteIm
 // DeleteInstanceGroupLoadBalancerOptions : The DeleteInstanceGroupLoadBalancer options.
 type DeleteInstanceGroupLoadBalancerOptions struct {
 	// The instance group identifier.
-	InstanceGroupID *string `validate:"required,ne="`
+	InstanceGroupID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -23317,9 +23448,9 @@ func (*VpcV1) NewDeleteInstanceGroupLoadBalancerOptions(instanceGroupID string) 
 }
 
 // SetInstanceGroupID : Allow user to set InstanceGroupID
-func (options *DeleteInstanceGroupLoadBalancerOptions) SetInstanceGroupID(instanceGroupID string) *DeleteInstanceGroupLoadBalancerOptions {
-	options.InstanceGroupID = core.StringPtr(instanceGroupID)
-	return options
+func (_options *DeleteInstanceGroupLoadBalancerOptions) SetInstanceGroupID(instanceGroupID string) *DeleteInstanceGroupLoadBalancerOptions {
+	_options.InstanceGroupID = core.StringPtr(instanceGroupID)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -23331,13 +23462,13 @@ func (options *DeleteInstanceGroupLoadBalancerOptions) SetHeaders(param map[stri
 // DeleteInstanceGroupManagerActionOptions : The DeleteInstanceGroupManagerAction options.
 type DeleteInstanceGroupManagerActionOptions struct {
 	// The instance group identifier.
-	InstanceGroupID *string `validate:"required,ne="`
+	InstanceGroupID *string `json:"-" validate:"required,ne="`
 
 	// The instance group manager identifier.
-	InstanceGroupManagerID *string `validate:"required,ne="`
+	InstanceGroupManagerID *string `json:"-" validate:"required,ne="`
 
 	// The instance group manager action identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -23353,21 +23484,21 @@ func (*VpcV1) NewDeleteInstanceGroupManagerActionOptions(instanceGroupID string,
 }
 
 // SetInstanceGroupID : Allow user to set InstanceGroupID
-func (options *DeleteInstanceGroupManagerActionOptions) SetInstanceGroupID(instanceGroupID string) *DeleteInstanceGroupManagerActionOptions {
-	options.InstanceGroupID = core.StringPtr(instanceGroupID)
-	return options
+func (_options *DeleteInstanceGroupManagerActionOptions) SetInstanceGroupID(instanceGroupID string) *DeleteInstanceGroupManagerActionOptions {
+	_options.InstanceGroupID = core.StringPtr(instanceGroupID)
+	return _options
 }
 
 // SetInstanceGroupManagerID : Allow user to set InstanceGroupManagerID
-func (options *DeleteInstanceGroupManagerActionOptions) SetInstanceGroupManagerID(instanceGroupManagerID string) *DeleteInstanceGroupManagerActionOptions {
-	options.InstanceGroupManagerID = core.StringPtr(instanceGroupManagerID)
-	return options
+func (_options *DeleteInstanceGroupManagerActionOptions) SetInstanceGroupManagerID(instanceGroupManagerID string) *DeleteInstanceGroupManagerActionOptions {
+	_options.InstanceGroupManagerID = core.StringPtr(instanceGroupManagerID)
+	return _options
 }
 
 // SetID : Allow user to set ID
-func (options *DeleteInstanceGroupManagerActionOptions) SetID(id string) *DeleteInstanceGroupManagerActionOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *DeleteInstanceGroupManagerActionOptions) SetID(id string) *DeleteInstanceGroupManagerActionOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -23379,10 +23510,10 @@ func (options *DeleteInstanceGroupManagerActionOptions) SetHeaders(param map[str
 // DeleteInstanceGroupManagerOptions : The DeleteInstanceGroupManager options.
 type DeleteInstanceGroupManagerOptions struct {
 	// The instance group identifier.
-	InstanceGroupID *string `validate:"required,ne="`
+	InstanceGroupID *string `json:"-" validate:"required,ne="`
 
 	// The instance group manager identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -23397,15 +23528,15 @@ func (*VpcV1) NewDeleteInstanceGroupManagerOptions(instanceGroupID string, id st
 }
 
 // SetInstanceGroupID : Allow user to set InstanceGroupID
-func (options *DeleteInstanceGroupManagerOptions) SetInstanceGroupID(instanceGroupID string) *DeleteInstanceGroupManagerOptions {
-	options.InstanceGroupID = core.StringPtr(instanceGroupID)
-	return options
+func (_options *DeleteInstanceGroupManagerOptions) SetInstanceGroupID(instanceGroupID string) *DeleteInstanceGroupManagerOptions {
+	_options.InstanceGroupID = core.StringPtr(instanceGroupID)
+	return _options
 }
 
 // SetID : Allow user to set ID
-func (options *DeleteInstanceGroupManagerOptions) SetID(id string) *DeleteInstanceGroupManagerOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *DeleteInstanceGroupManagerOptions) SetID(id string) *DeleteInstanceGroupManagerOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -23417,13 +23548,13 @@ func (options *DeleteInstanceGroupManagerOptions) SetHeaders(param map[string]st
 // DeleteInstanceGroupManagerPolicyOptions : The DeleteInstanceGroupManagerPolicy options.
 type DeleteInstanceGroupManagerPolicyOptions struct {
 	// The instance group identifier.
-	InstanceGroupID *string `validate:"required,ne="`
+	InstanceGroupID *string `json:"-" validate:"required,ne="`
 
 	// The instance group manager identifier.
-	InstanceGroupManagerID *string `validate:"required,ne="`
+	InstanceGroupManagerID *string `json:"-" validate:"required,ne="`
 
 	// The instance group manager policy identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -23439,21 +23570,21 @@ func (*VpcV1) NewDeleteInstanceGroupManagerPolicyOptions(instanceGroupID string,
 }
 
 // SetInstanceGroupID : Allow user to set InstanceGroupID
-func (options *DeleteInstanceGroupManagerPolicyOptions) SetInstanceGroupID(instanceGroupID string) *DeleteInstanceGroupManagerPolicyOptions {
-	options.InstanceGroupID = core.StringPtr(instanceGroupID)
-	return options
+func (_options *DeleteInstanceGroupManagerPolicyOptions) SetInstanceGroupID(instanceGroupID string) *DeleteInstanceGroupManagerPolicyOptions {
+	_options.InstanceGroupID = core.StringPtr(instanceGroupID)
+	return _options
 }
 
 // SetInstanceGroupManagerID : Allow user to set InstanceGroupManagerID
-func (options *DeleteInstanceGroupManagerPolicyOptions) SetInstanceGroupManagerID(instanceGroupManagerID string) *DeleteInstanceGroupManagerPolicyOptions {
-	options.InstanceGroupManagerID = core.StringPtr(instanceGroupManagerID)
-	return options
+func (_options *DeleteInstanceGroupManagerPolicyOptions) SetInstanceGroupManagerID(instanceGroupManagerID string) *DeleteInstanceGroupManagerPolicyOptions {
+	_options.InstanceGroupManagerID = core.StringPtr(instanceGroupManagerID)
+	return _options
 }
 
 // SetID : Allow user to set ID
-func (options *DeleteInstanceGroupManagerPolicyOptions) SetID(id string) *DeleteInstanceGroupManagerPolicyOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *DeleteInstanceGroupManagerPolicyOptions) SetID(id string) *DeleteInstanceGroupManagerPolicyOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -23465,10 +23596,10 @@ func (options *DeleteInstanceGroupManagerPolicyOptions) SetHeaders(param map[str
 // DeleteInstanceGroupMembershipOptions : The DeleteInstanceGroupMembership options.
 type DeleteInstanceGroupMembershipOptions struct {
 	// The instance group identifier.
-	InstanceGroupID *string `validate:"required,ne="`
+	InstanceGroupID *string `json:"-" validate:"required,ne="`
 
 	// The instance group membership identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -23483,15 +23614,15 @@ func (*VpcV1) NewDeleteInstanceGroupMembershipOptions(instanceGroupID string, id
 }
 
 // SetInstanceGroupID : Allow user to set InstanceGroupID
-func (options *DeleteInstanceGroupMembershipOptions) SetInstanceGroupID(instanceGroupID string) *DeleteInstanceGroupMembershipOptions {
-	options.InstanceGroupID = core.StringPtr(instanceGroupID)
-	return options
+func (_options *DeleteInstanceGroupMembershipOptions) SetInstanceGroupID(instanceGroupID string) *DeleteInstanceGroupMembershipOptions {
+	_options.InstanceGroupID = core.StringPtr(instanceGroupID)
+	return _options
 }
 
 // SetID : Allow user to set ID
-func (options *DeleteInstanceGroupMembershipOptions) SetID(id string) *DeleteInstanceGroupMembershipOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *DeleteInstanceGroupMembershipOptions) SetID(id string) *DeleteInstanceGroupMembershipOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -23503,7 +23634,7 @@ func (options *DeleteInstanceGroupMembershipOptions) SetHeaders(param map[string
 // DeleteInstanceGroupMembershipsOptions : The DeleteInstanceGroupMemberships options.
 type DeleteInstanceGroupMembershipsOptions struct {
 	// The instance group identifier.
-	InstanceGroupID *string `validate:"required,ne="`
+	InstanceGroupID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -23517,9 +23648,9 @@ func (*VpcV1) NewDeleteInstanceGroupMembershipsOptions(instanceGroupID string) *
 }
 
 // SetInstanceGroupID : Allow user to set InstanceGroupID
-func (options *DeleteInstanceGroupMembershipsOptions) SetInstanceGroupID(instanceGroupID string) *DeleteInstanceGroupMembershipsOptions {
-	options.InstanceGroupID = core.StringPtr(instanceGroupID)
-	return options
+func (_options *DeleteInstanceGroupMembershipsOptions) SetInstanceGroupID(instanceGroupID string) *DeleteInstanceGroupMembershipsOptions {
+	_options.InstanceGroupID = core.StringPtr(instanceGroupID)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -23531,7 +23662,7 @@ func (options *DeleteInstanceGroupMembershipsOptions) SetHeaders(param map[strin
 // DeleteInstanceGroupOptions : The DeleteInstanceGroup options.
 type DeleteInstanceGroupOptions struct {
 	// The instance group identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -23545,9 +23676,9 @@ func (*VpcV1) NewDeleteInstanceGroupOptions(id string) *DeleteInstanceGroupOptio
 }
 
 // SetID : Allow user to set ID
-func (options *DeleteInstanceGroupOptions) SetID(id string) *DeleteInstanceGroupOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *DeleteInstanceGroupOptions) SetID(id string) *DeleteInstanceGroupOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -23559,10 +23690,10 @@ func (options *DeleteInstanceGroupOptions) SetHeaders(param map[string]string) *
 // DeleteInstanceNetworkInterfaceOptions : The DeleteInstanceNetworkInterface options.
 type DeleteInstanceNetworkInterfaceOptions struct {
 	// The instance identifier.
-	InstanceID *string `validate:"required,ne="`
+	InstanceID *string `json:"-" validate:"required,ne="`
 
 	// The network interface identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -23577,15 +23708,15 @@ func (*VpcV1) NewDeleteInstanceNetworkInterfaceOptions(instanceID string, id str
 }
 
 // SetInstanceID : Allow user to set InstanceID
-func (options *DeleteInstanceNetworkInterfaceOptions) SetInstanceID(instanceID string) *DeleteInstanceNetworkInterfaceOptions {
-	options.InstanceID = core.StringPtr(instanceID)
-	return options
+func (_options *DeleteInstanceNetworkInterfaceOptions) SetInstanceID(instanceID string) *DeleteInstanceNetworkInterfaceOptions {
+	_options.InstanceID = core.StringPtr(instanceID)
+	return _options
 }
 
 // SetID : Allow user to set ID
-func (options *DeleteInstanceNetworkInterfaceOptions) SetID(id string) *DeleteInstanceNetworkInterfaceOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *DeleteInstanceNetworkInterfaceOptions) SetID(id string) *DeleteInstanceNetworkInterfaceOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -23597,7 +23728,7 @@ func (options *DeleteInstanceNetworkInterfaceOptions) SetHeaders(param map[strin
 // DeleteInstanceOptions : The DeleteInstance options.
 type DeleteInstanceOptions struct {
 	// The instance identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -23611,9 +23742,9 @@ func (*VpcV1) NewDeleteInstanceOptions(id string) *DeleteInstanceOptions {
 }
 
 // SetID : Allow user to set ID
-func (options *DeleteInstanceOptions) SetID(id string) *DeleteInstanceOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *DeleteInstanceOptions) SetID(id string) *DeleteInstanceOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -23625,7 +23756,7 @@ func (options *DeleteInstanceOptions) SetHeaders(param map[string]string) *Delet
 // DeleteInstanceTemplateOptions : The DeleteInstanceTemplate options.
 type DeleteInstanceTemplateOptions struct {
 	// The instance template identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -23639,9 +23770,9 @@ func (*VpcV1) NewDeleteInstanceTemplateOptions(id string) *DeleteInstanceTemplat
 }
 
 // SetID : Allow user to set ID
-func (options *DeleteInstanceTemplateOptions) SetID(id string) *DeleteInstanceTemplateOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *DeleteInstanceTemplateOptions) SetID(id string) *DeleteInstanceTemplateOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -23653,10 +23784,10 @@ func (options *DeleteInstanceTemplateOptions) SetHeaders(param map[string]string
 // DeleteInstanceVolumeAttachmentOptions : The DeleteInstanceVolumeAttachment options.
 type DeleteInstanceVolumeAttachmentOptions struct {
 	// The instance identifier.
-	InstanceID *string `validate:"required,ne="`
+	InstanceID *string `json:"-" validate:"required,ne="`
 
 	// The volume attachment identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -23671,15 +23802,15 @@ func (*VpcV1) NewDeleteInstanceVolumeAttachmentOptions(instanceID string, id str
 }
 
 // SetInstanceID : Allow user to set InstanceID
-func (options *DeleteInstanceVolumeAttachmentOptions) SetInstanceID(instanceID string) *DeleteInstanceVolumeAttachmentOptions {
-	options.InstanceID = core.StringPtr(instanceID)
-	return options
+func (_options *DeleteInstanceVolumeAttachmentOptions) SetInstanceID(instanceID string) *DeleteInstanceVolumeAttachmentOptions {
+	_options.InstanceID = core.StringPtr(instanceID)
+	return _options
 }
 
 // SetID : Allow user to set ID
-func (options *DeleteInstanceVolumeAttachmentOptions) SetID(id string) *DeleteInstanceVolumeAttachmentOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *DeleteInstanceVolumeAttachmentOptions) SetID(id string) *DeleteInstanceVolumeAttachmentOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -23691,7 +23822,7 @@ func (options *DeleteInstanceVolumeAttachmentOptions) SetHeaders(param map[strin
 // DeleteIpsecPolicyOptions : The DeleteIpsecPolicy options.
 type DeleteIpsecPolicyOptions struct {
 	// The IPsec policy identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -23705,9 +23836,9 @@ func (*VpcV1) NewDeleteIpsecPolicyOptions(id string) *DeleteIpsecPolicyOptions {
 }
 
 // SetID : Allow user to set ID
-func (options *DeleteIpsecPolicyOptions) SetID(id string) *DeleteIpsecPolicyOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *DeleteIpsecPolicyOptions) SetID(id string) *DeleteIpsecPolicyOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -23719,7 +23850,7 @@ func (options *DeleteIpsecPolicyOptions) SetHeaders(param map[string]string) *De
 // DeleteKeyOptions : The DeleteKey options.
 type DeleteKeyOptions struct {
 	// The key identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -23733,9 +23864,9 @@ func (*VpcV1) NewDeleteKeyOptions(id string) *DeleteKeyOptions {
 }
 
 // SetID : Allow user to set ID
-func (options *DeleteKeyOptions) SetID(id string) *DeleteKeyOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *DeleteKeyOptions) SetID(id string) *DeleteKeyOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -23747,10 +23878,10 @@ func (options *DeleteKeyOptions) SetHeaders(param map[string]string) *DeleteKeyO
 // DeleteLoadBalancerListenerOptions : The DeleteLoadBalancerListener options.
 type DeleteLoadBalancerListenerOptions struct {
 	// The load balancer identifier.
-	LoadBalancerID *string `validate:"required,ne="`
+	LoadBalancerID *string `json:"-" validate:"required,ne="`
 
 	// The listener identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -23765,15 +23896,15 @@ func (*VpcV1) NewDeleteLoadBalancerListenerOptions(loadBalancerID string, id str
 }
 
 // SetLoadBalancerID : Allow user to set LoadBalancerID
-func (options *DeleteLoadBalancerListenerOptions) SetLoadBalancerID(loadBalancerID string) *DeleteLoadBalancerListenerOptions {
-	options.LoadBalancerID = core.StringPtr(loadBalancerID)
-	return options
+func (_options *DeleteLoadBalancerListenerOptions) SetLoadBalancerID(loadBalancerID string) *DeleteLoadBalancerListenerOptions {
+	_options.LoadBalancerID = core.StringPtr(loadBalancerID)
+	return _options
 }
 
 // SetID : Allow user to set ID
-func (options *DeleteLoadBalancerListenerOptions) SetID(id string) *DeleteLoadBalancerListenerOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *DeleteLoadBalancerListenerOptions) SetID(id string) *DeleteLoadBalancerListenerOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -23785,13 +23916,13 @@ func (options *DeleteLoadBalancerListenerOptions) SetHeaders(param map[string]st
 // DeleteLoadBalancerListenerPolicyOptions : The DeleteLoadBalancerListenerPolicy options.
 type DeleteLoadBalancerListenerPolicyOptions struct {
 	// The load balancer identifier.
-	LoadBalancerID *string `validate:"required,ne="`
+	LoadBalancerID *string `json:"-" validate:"required,ne="`
 
 	// The listener identifier.
-	ListenerID *string `validate:"required,ne="`
+	ListenerID *string `json:"-" validate:"required,ne="`
 
 	// The policy identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -23807,21 +23938,21 @@ func (*VpcV1) NewDeleteLoadBalancerListenerPolicyOptions(loadBalancerID string, 
 }
 
 // SetLoadBalancerID : Allow user to set LoadBalancerID
-func (options *DeleteLoadBalancerListenerPolicyOptions) SetLoadBalancerID(loadBalancerID string) *DeleteLoadBalancerListenerPolicyOptions {
-	options.LoadBalancerID = core.StringPtr(loadBalancerID)
-	return options
+func (_options *DeleteLoadBalancerListenerPolicyOptions) SetLoadBalancerID(loadBalancerID string) *DeleteLoadBalancerListenerPolicyOptions {
+	_options.LoadBalancerID = core.StringPtr(loadBalancerID)
+	return _options
 }
 
 // SetListenerID : Allow user to set ListenerID
-func (options *DeleteLoadBalancerListenerPolicyOptions) SetListenerID(listenerID string) *DeleteLoadBalancerListenerPolicyOptions {
-	options.ListenerID = core.StringPtr(listenerID)
-	return options
+func (_options *DeleteLoadBalancerListenerPolicyOptions) SetListenerID(listenerID string) *DeleteLoadBalancerListenerPolicyOptions {
+	_options.ListenerID = core.StringPtr(listenerID)
+	return _options
 }
 
 // SetID : Allow user to set ID
-func (options *DeleteLoadBalancerListenerPolicyOptions) SetID(id string) *DeleteLoadBalancerListenerPolicyOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *DeleteLoadBalancerListenerPolicyOptions) SetID(id string) *DeleteLoadBalancerListenerPolicyOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -23833,16 +23964,16 @@ func (options *DeleteLoadBalancerListenerPolicyOptions) SetHeaders(param map[str
 // DeleteLoadBalancerListenerPolicyRuleOptions : The DeleteLoadBalancerListenerPolicyRule options.
 type DeleteLoadBalancerListenerPolicyRuleOptions struct {
 	// The load balancer identifier.
-	LoadBalancerID *string `validate:"required,ne="`
+	LoadBalancerID *string `json:"-" validate:"required,ne="`
 
 	// The listener identifier.
-	ListenerID *string `validate:"required,ne="`
+	ListenerID *string `json:"-" validate:"required,ne="`
 
 	// The policy identifier.
-	PolicyID *string `validate:"required,ne="`
+	PolicyID *string `json:"-" validate:"required,ne="`
 
 	// The rule identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -23859,27 +23990,27 @@ func (*VpcV1) NewDeleteLoadBalancerListenerPolicyRuleOptions(loadBalancerID stri
 }
 
 // SetLoadBalancerID : Allow user to set LoadBalancerID
-func (options *DeleteLoadBalancerListenerPolicyRuleOptions) SetLoadBalancerID(loadBalancerID string) *DeleteLoadBalancerListenerPolicyRuleOptions {
-	options.LoadBalancerID = core.StringPtr(loadBalancerID)
-	return options
+func (_options *DeleteLoadBalancerListenerPolicyRuleOptions) SetLoadBalancerID(loadBalancerID string) *DeleteLoadBalancerListenerPolicyRuleOptions {
+	_options.LoadBalancerID = core.StringPtr(loadBalancerID)
+	return _options
 }
 
 // SetListenerID : Allow user to set ListenerID
-func (options *DeleteLoadBalancerListenerPolicyRuleOptions) SetListenerID(listenerID string) *DeleteLoadBalancerListenerPolicyRuleOptions {
-	options.ListenerID = core.StringPtr(listenerID)
-	return options
+func (_options *DeleteLoadBalancerListenerPolicyRuleOptions) SetListenerID(listenerID string) *DeleteLoadBalancerListenerPolicyRuleOptions {
+	_options.ListenerID = core.StringPtr(listenerID)
+	return _options
 }
 
 // SetPolicyID : Allow user to set PolicyID
-func (options *DeleteLoadBalancerListenerPolicyRuleOptions) SetPolicyID(policyID string) *DeleteLoadBalancerListenerPolicyRuleOptions {
-	options.PolicyID = core.StringPtr(policyID)
-	return options
+func (_options *DeleteLoadBalancerListenerPolicyRuleOptions) SetPolicyID(policyID string) *DeleteLoadBalancerListenerPolicyRuleOptions {
+	_options.PolicyID = core.StringPtr(policyID)
+	return _options
 }
 
 // SetID : Allow user to set ID
-func (options *DeleteLoadBalancerListenerPolicyRuleOptions) SetID(id string) *DeleteLoadBalancerListenerPolicyRuleOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *DeleteLoadBalancerListenerPolicyRuleOptions) SetID(id string) *DeleteLoadBalancerListenerPolicyRuleOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -23891,7 +24022,7 @@ func (options *DeleteLoadBalancerListenerPolicyRuleOptions) SetHeaders(param map
 // DeleteLoadBalancerOptions : The DeleteLoadBalancer options.
 type DeleteLoadBalancerOptions struct {
 	// The load balancer identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -23905,9 +24036,9 @@ func (*VpcV1) NewDeleteLoadBalancerOptions(id string) *DeleteLoadBalancerOptions
 }
 
 // SetID : Allow user to set ID
-func (options *DeleteLoadBalancerOptions) SetID(id string) *DeleteLoadBalancerOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *DeleteLoadBalancerOptions) SetID(id string) *DeleteLoadBalancerOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -23919,13 +24050,13 @@ func (options *DeleteLoadBalancerOptions) SetHeaders(param map[string]string) *D
 // DeleteLoadBalancerPoolMemberOptions : The DeleteLoadBalancerPoolMember options.
 type DeleteLoadBalancerPoolMemberOptions struct {
 	// The load balancer identifier.
-	LoadBalancerID *string `validate:"required,ne="`
+	LoadBalancerID *string `json:"-" validate:"required,ne="`
 
 	// The pool identifier.
-	PoolID *string `validate:"required,ne="`
+	PoolID *string `json:"-" validate:"required,ne="`
 
 	// The member identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -23941,21 +24072,21 @@ func (*VpcV1) NewDeleteLoadBalancerPoolMemberOptions(loadBalancerID string, pool
 }
 
 // SetLoadBalancerID : Allow user to set LoadBalancerID
-func (options *DeleteLoadBalancerPoolMemberOptions) SetLoadBalancerID(loadBalancerID string) *DeleteLoadBalancerPoolMemberOptions {
-	options.LoadBalancerID = core.StringPtr(loadBalancerID)
-	return options
+func (_options *DeleteLoadBalancerPoolMemberOptions) SetLoadBalancerID(loadBalancerID string) *DeleteLoadBalancerPoolMemberOptions {
+	_options.LoadBalancerID = core.StringPtr(loadBalancerID)
+	return _options
 }
 
 // SetPoolID : Allow user to set PoolID
-func (options *DeleteLoadBalancerPoolMemberOptions) SetPoolID(poolID string) *DeleteLoadBalancerPoolMemberOptions {
-	options.PoolID = core.StringPtr(poolID)
-	return options
+func (_options *DeleteLoadBalancerPoolMemberOptions) SetPoolID(poolID string) *DeleteLoadBalancerPoolMemberOptions {
+	_options.PoolID = core.StringPtr(poolID)
+	return _options
 }
 
 // SetID : Allow user to set ID
-func (options *DeleteLoadBalancerPoolMemberOptions) SetID(id string) *DeleteLoadBalancerPoolMemberOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *DeleteLoadBalancerPoolMemberOptions) SetID(id string) *DeleteLoadBalancerPoolMemberOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -23967,10 +24098,10 @@ func (options *DeleteLoadBalancerPoolMemberOptions) SetHeaders(param map[string]
 // DeleteLoadBalancerPoolOptions : The DeleteLoadBalancerPool options.
 type DeleteLoadBalancerPoolOptions struct {
 	// The load balancer identifier.
-	LoadBalancerID *string `validate:"required,ne="`
+	LoadBalancerID *string `json:"-" validate:"required,ne="`
 
 	// The pool identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -23985,15 +24116,15 @@ func (*VpcV1) NewDeleteLoadBalancerPoolOptions(loadBalancerID string, id string)
 }
 
 // SetLoadBalancerID : Allow user to set LoadBalancerID
-func (options *DeleteLoadBalancerPoolOptions) SetLoadBalancerID(loadBalancerID string) *DeleteLoadBalancerPoolOptions {
-	options.LoadBalancerID = core.StringPtr(loadBalancerID)
-	return options
+func (_options *DeleteLoadBalancerPoolOptions) SetLoadBalancerID(loadBalancerID string) *DeleteLoadBalancerPoolOptions {
+	_options.LoadBalancerID = core.StringPtr(loadBalancerID)
+	return _options
 }
 
 // SetID : Allow user to set ID
-func (options *DeleteLoadBalancerPoolOptions) SetID(id string) *DeleteLoadBalancerPoolOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *DeleteLoadBalancerPoolOptions) SetID(id string) *DeleteLoadBalancerPoolOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -24005,7 +24136,7 @@ func (options *DeleteLoadBalancerPoolOptions) SetHeaders(param map[string]string
 // DeleteNetworkACLOptions : The DeleteNetworkACL options.
 type DeleteNetworkACLOptions struct {
 	// The network ACL identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -24019,9 +24150,9 @@ func (*VpcV1) NewDeleteNetworkACLOptions(id string) *DeleteNetworkACLOptions {
 }
 
 // SetID : Allow user to set ID
-func (options *DeleteNetworkACLOptions) SetID(id string) *DeleteNetworkACLOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *DeleteNetworkACLOptions) SetID(id string) *DeleteNetworkACLOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -24033,10 +24164,10 @@ func (options *DeleteNetworkACLOptions) SetHeaders(param map[string]string) *Del
 // DeleteNetworkACLRuleOptions : The DeleteNetworkACLRule options.
 type DeleteNetworkACLRuleOptions struct {
 	// The network ACL identifier.
-	NetworkACLID *string `validate:"required,ne="`
+	NetworkACLID *string `json:"-" validate:"required,ne="`
 
 	// The rule identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -24051,15 +24182,15 @@ func (*VpcV1) NewDeleteNetworkACLRuleOptions(networkACLID string, id string) *De
 }
 
 // SetNetworkACLID : Allow user to set NetworkACLID
-func (options *DeleteNetworkACLRuleOptions) SetNetworkACLID(networkACLID string) *DeleteNetworkACLRuleOptions {
-	options.NetworkACLID = core.StringPtr(networkACLID)
-	return options
+func (_options *DeleteNetworkACLRuleOptions) SetNetworkACLID(networkACLID string) *DeleteNetworkACLRuleOptions {
+	_options.NetworkACLID = core.StringPtr(networkACLID)
+	return _options
 }
 
 // SetID : Allow user to set ID
-func (options *DeleteNetworkACLRuleOptions) SetID(id string) *DeleteNetworkACLRuleOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *DeleteNetworkACLRuleOptions) SetID(id string) *DeleteNetworkACLRuleOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -24071,7 +24202,7 @@ func (options *DeleteNetworkACLRuleOptions) SetHeaders(param map[string]string) 
 // DeletePlacementGroupOptions : The DeletePlacementGroup options.
 type DeletePlacementGroupOptions struct {
 	// The placement group identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -24085,9 +24216,9 @@ func (*VpcV1) NewDeletePlacementGroupOptions(id string) *DeletePlacementGroupOpt
 }
 
 // SetID : Allow user to set ID
-func (options *DeletePlacementGroupOptions) SetID(id string) *DeletePlacementGroupOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *DeletePlacementGroupOptions) SetID(id string) *DeletePlacementGroupOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -24099,7 +24230,7 @@ func (options *DeletePlacementGroupOptions) SetHeaders(param map[string]string) 
 // DeletePublicGatewayOptions : The DeletePublicGateway options.
 type DeletePublicGatewayOptions struct {
 	// The public gateway identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -24113,9 +24244,9 @@ func (*VpcV1) NewDeletePublicGatewayOptions(id string) *DeletePublicGatewayOptio
 }
 
 // SetID : Allow user to set ID
-func (options *DeletePublicGatewayOptions) SetID(id string) *DeletePublicGatewayOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *DeletePublicGatewayOptions) SetID(id string) *DeletePublicGatewayOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -24127,7 +24258,7 @@ func (options *DeletePublicGatewayOptions) SetHeaders(param map[string]string) *
 // DeleteSecurityGroupOptions : The DeleteSecurityGroup options.
 type DeleteSecurityGroupOptions struct {
 	// The security group identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -24141,9 +24272,9 @@ func (*VpcV1) NewDeleteSecurityGroupOptions(id string) *DeleteSecurityGroupOptio
 }
 
 // SetID : Allow user to set ID
-func (options *DeleteSecurityGroupOptions) SetID(id string) *DeleteSecurityGroupOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *DeleteSecurityGroupOptions) SetID(id string) *DeleteSecurityGroupOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -24155,10 +24286,10 @@ func (options *DeleteSecurityGroupOptions) SetHeaders(param map[string]string) *
 // DeleteSecurityGroupRuleOptions : The DeleteSecurityGroupRule options.
 type DeleteSecurityGroupRuleOptions struct {
 	// The security group identifier.
-	SecurityGroupID *string `validate:"required,ne="`
+	SecurityGroupID *string `json:"-" validate:"required,ne="`
 
 	// The rule identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -24173,15 +24304,15 @@ func (*VpcV1) NewDeleteSecurityGroupRuleOptions(securityGroupID string, id strin
 }
 
 // SetSecurityGroupID : Allow user to set SecurityGroupID
-func (options *DeleteSecurityGroupRuleOptions) SetSecurityGroupID(securityGroupID string) *DeleteSecurityGroupRuleOptions {
-	options.SecurityGroupID = core.StringPtr(securityGroupID)
-	return options
+func (_options *DeleteSecurityGroupRuleOptions) SetSecurityGroupID(securityGroupID string) *DeleteSecurityGroupRuleOptions {
+	_options.SecurityGroupID = core.StringPtr(securityGroupID)
+	return _options
 }
 
 // SetID : Allow user to set ID
-func (options *DeleteSecurityGroupRuleOptions) SetID(id string) *DeleteSecurityGroupRuleOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *DeleteSecurityGroupRuleOptions) SetID(id string) *DeleteSecurityGroupRuleOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -24193,10 +24324,10 @@ func (options *DeleteSecurityGroupRuleOptions) SetHeaders(param map[string]strin
 // DeleteSecurityGroupTargetBindingOptions : The DeleteSecurityGroupTargetBinding options.
 type DeleteSecurityGroupTargetBindingOptions struct {
 	// The security group identifier.
-	SecurityGroupID *string `validate:"required,ne="`
+	SecurityGroupID *string `json:"-" validate:"required,ne="`
 
 	// The security group target identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -24211,15 +24342,15 @@ func (*VpcV1) NewDeleteSecurityGroupTargetBindingOptions(securityGroupID string,
 }
 
 // SetSecurityGroupID : Allow user to set SecurityGroupID
-func (options *DeleteSecurityGroupTargetBindingOptions) SetSecurityGroupID(securityGroupID string) *DeleteSecurityGroupTargetBindingOptions {
-	options.SecurityGroupID = core.StringPtr(securityGroupID)
-	return options
+func (_options *DeleteSecurityGroupTargetBindingOptions) SetSecurityGroupID(securityGroupID string) *DeleteSecurityGroupTargetBindingOptions {
+	_options.SecurityGroupID = core.StringPtr(securityGroupID)
+	return _options
 }
 
 // SetID : Allow user to set ID
-func (options *DeleteSecurityGroupTargetBindingOptions) SetID(id string) *DeleteSecurityGroupTargetBindingOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *DeleteSecurityGroupTargetBindingOptions) SetID(id string) *DeleteSecurityGroupTargetBindingOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -24231,7 +24362,7 @@ func (options *DeleteSecurityGroupTargetBindingOptions) SetHeaders(param map[str
 // DeleteSnapshotOptions : The DeleteSnapshot options.
 type DeleteSnapshotOptions struct {
 	// The snapshot identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -24245,9 +24376,9 @@ func (*VpcV1) NewDeleteSnapshotOptions(id string) *DeleteSnapshotOptions {
 }
 
 // SetID : Allow user to set ID
-func (options *DeleteSnapshotOptions) SetID(id string) *DeleteSnapshotOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *DeleteSnapshotOptions) SetID(id string) *DeleteSnapshotOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -24259,7 +24390,7 @@ func (options *DeleteSnapshotOptions) SetHeaders(param map[string]string) *Delet
 // DeleteSnapshotsOptions : The DeleteSnapshots options.
 type DeleteSnapshotsOptions struct {
 	// Filters the collection to resources with the source volume with the specified identifier.
-	SourceVolumeID *string `validate:"required"`
+	SourceVolumeID *string `json:"-" validate:"required"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -24273,9 +24404,9 @@ func (*VpcV1) NewDeleteSnapshotsOptions(sourceVolumeID string) *DeleteSnapshotsO
 }
 
 // SetSourceVolumeID : Allow user to set SourceVolumeID
-func (options *DeleteSnapshotsOptions) SetSourceVolumeID(sourceVolumeID string) *DeleteSnapshotsOptions {
-	options.SourceVolumeID = core.StringPtr(sourceVolumeID)
-	return options
+func (_options *DeleteSnapshotsOptions) SetSourceVolumeID(sourceVolumeID string) *DeleteSnapshotsOptions {
+	_options.SourceVolumeID = core.StringPtr(sourceVolumeID)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -24287,7 +24418,7 @@ func (options *DeleteSnapshotsOptions) SetHeaders(param map[string]string) *Dele
 // DeleteSubnetOptions : The DeleteSubnet options.
 type DeleteSubnetOptions struct {
 	// The subnet identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -24301,9 +24432,9 @@ func (*VpcV1) NewDeleteSubnetOptions(id string) *DeleteSubnetOptions {
 }
 
 // SetID : Allow user to set ID
-func (options *DeleteSubnetOptions) SetID(id string) *DeleteSubnetOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *DeleteSubnetOptions) SetID(id string) *DeleteSubnetOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -24315,10 +24446,10 @@ func (options *DeleteSubnetOptions) SetHeaders(param map[string]string) *DeleteS
 // DeleteSubnetReservedIPOptions : The DeleteSubnetReservedIP options.
 type DeleteSubnetReservedIPOptions struct {
 	// The subnet identifier.
-	SubnetID *string `validate:"required,ne="`
+	SubnetID *string `json:"-" validate:"required,ne="`
 
 	// The reserved IP identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -24333,15 +24464,15 @@ func (*VpcV1) NewDeleteSubnetReservedIPOptions(subnetID string, id string) *Dele
 }
 
 // SetSubnetID : Allow user to set SubnetID
-func (options *DeleteSubnetReservedIPOptions) SetSubnetID(subnetID string) *DeleteSubnetReservedIPOptions {
-	options.SubnetID = core.StringPtr(subnetID)
-	return options
+func (_options *DeleteSubnetReservedIPOptions) SetSubnetID(subnetID string) *DeleteSubnetReservedIPOptions {
+	_options.SubnetID = core.StringPtr(subnetID)
+	return _options
 }
 
 // SetID : Allow user to set ID
-func (options *DeleteSubnetReservedIPOptions) SetID(id string) *DeleteSubnetReservedIPOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *DeleteSubnetReservedIPOptions) SetID(id string) *DeleteSubnetReservedIPOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -24353,7 +24484,7 @@ func (options *DeleteSubnetReservedIPOptions) SetHeaders(param map[string]string
 // DeleteVolumeOptions : The DeleteVolume options.
 type DeleteVolumeOptions struct {
 	// The volume identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -24367,9 +24498,9 @@ func (*VpcV1) NewDeleteVolumeOptions(id string) *DeleteVolumeOptions {
 }
 
 // SetID : Allow user to set ID
-func (options *DeleteVolumeOptions) SetID(id string) *DeleteVolumeOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *DeleteVolumeOptions) SetID(id string) *DeleteVolumeOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -24381,10 +24512,10 @@ func (options *DeleteVolumeOptions) SetHeaders(param map[string]string) *DeleteV
 // DeleteVPCAddressPrefixOptions : The DeleteVPCAddressPrefix options.
 type DeleteVPCAddressPrefixOptions struct {
 	// The VPC identifier.
-	VPCID *string `validate:"required,ne="`
+	VPCID *string `json:"-" validate:"required,ne="`
 
 	// The prefix identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -24399,15 +24530,15 @@ func (*VpcV1) NewDeleteVPCAddressPrefixOptions(vpcID string, id string) *DeleteV
 }
 
 // SetVPCID : Allow user to set VPCID
-func (options *DeleteVPCAddressPrefixOptions) SetVPCID(vpcID string) *DeleteVPCAddressPrefixOptions {
-	options.VPCID = core.StringPtr(vpcID)
-	return options
+func (_options *DeleteVPCAddressPrefixOptions) SetVPCID(vpcID string) *DeleteVPCAddressPrefixOptions {
+	_options.VPCID = core.StringPtr(vpcID)
+	return _options
 }
 
 // SetID : Allow user to set ID
-func (options *DeleteVPCAddressPrefixOptions) SetID(id string) *DeleteVPCAddressPrefixOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *DeleteVPCAddressPrefixOptions) SetID(id string) *DeleteVPCAddressPrefixOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -24419,7 +24550,7 @@ func (options *DeleteVPCAddressPrefixOptions) SetHeaders(param map[string]string
 // DeleteVPCOptions : The DeleteVPC options.
 type DeleteVPCOptions struct {
 	// The VPC identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -24433,9 +24564,9 @@ func (*VpcV1) NewDeleteVPCOptions(id string) *DeleteVPCOptions {
 }
 
 // SetID : Allow user to set ID
-func (options *DeleteVPCOptions) SetID(id string) *DeleteVPCOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *DeleteVPCOptions) SetID(id string) *DeleteVPCOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -24447,10 +24578,10 @@ func (options *DeleteVPCOptions) SetHeaders(param map[string]string) *DeleteVPCO
 // DeleteVPCRouteOptions : The DeleteVPCRoute options.
 type DeleteVPCRouteOptions struct {
 	// The VPC identifier.
-	VPCID *string `validate:"required,ne="`
+	VPCID *string `json:"-" validate:"required,ne="`
 
 	// The route identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -24465,15 +24596,15 @@ func (*VpcV1) NewDeleteVPCRouteOptions(vpcID string, id string) *DeleteVPCRouteO
 }
 
 // SetVPCID : Allow user to set VPCID
-func (options *DeleteVPCRouteOptions) SetVPCID(vpcID string) *DeleteVPCRouteOptions {
-	options.VPCID = core.StringPtr(vpcID)
-	return options
+func (_options *DeleteVPCRouteOptions) SetVPCID(vpcID string) *DeleteVPCRouteOptions {
+	_options.VPCID = core.StringPtr(vpcID)
+	return _options
 }
 
 // SetID : Allow user to set ID
-func (options *DeleteVPCRouteOptions) SetID(id string) *DeleteVPCRouteOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *DeleteVPCRouteOptions) SetID(id string) *DeleteVPCRouteOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -24485,10 +24616,10 @@ func (options *DeleteVPCRouteOptions) SetHeaders(param map[string]string) *Delet
 // DeleteVPCRoutingTableOptions : The DeleteVPCRoutingTable options.
 type DeleteVPCRoutingTableOptions struct {
 	// The VPC identifier.
-	VPCID *string `validate:"required,ne="`
+	VPCID *string `json:"-" validate:"required,ne="`
 
 	// The routing table identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -24503,15 +24634,15 @@ func (*VpcV1) NewDeleteVPCRoutingTableOptions(vpcID string, id string) *DeleteVP
 }
 
 // SetVPCID : Allow user to set VPCID
-func (options *DeleteVPCRoutingTableOptions) SetVPCID(vpcID string) *DeleteVPCRoutingTableOptions {
-	options.VPCID = core.StringPtr(vpcID)
-	return options
+func (_options *DeleteVPCRoutingTableOptions) SetVPCID(vpcID string) *DeleteVPCRoutingTableOptions {
+	_options.VPCID = core.StringPtr(vpcID)
+	return _options
 }
 
 // SetID : Allow user to set ID
-func (options *DeleteVPCRoutingTableOptions) SetID(id string) *DeleteVPCRoutingTableOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *DeleteVPCRoutingTableOptions) SetID(id string) *DeleteVPCRoutingTableOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -24523,13 +24654,13 @@ func (options *DeleteVPCRoutingTableOptions) SetHeaders(param map[string]string)
 // DeleteVPCRoutingTableRouteOptions : The DeleteVPCRoutingTableRoute options.
 type DeleteVPCRoutingTableRouteOptions struct {
 	// The VPC identifier.
-	VPCID *string `validate:"required,ne="`
+	VPCID *string `json:"-" validate:"required,ne="`
 
 	// The routing table identifier.
-	RoutingTableID *string `validate:"required,ne="`
+	RoutingTableID *string `json:"-" validate:"required,ne="`
 
 	// The VPC routing table route identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -24545,21 +24676,21 @@ func (*VpcV1) NewDeleteVPCRoutingTableRouteOptions(vpcID string, routingTableID 
 }
 
 // SetVPCID : Allow user to set VPCID
-func (options *DeleteVPCRoutingTableRouteOptions) SetVPCID(vpcID string) *DeleteVPCRoutingTableRouteOptions {
-	options.VPCID = core.StringPtr(vpcID)
-	return options
+func (_options *DeleteVPCRoutingTableRouteOptions) SetVPCID(vpcID string) *DeleteVPCRoutingTableRouteOptions {
+	_options.VPCID = core.StringPtr(vpcID)
+	return _options
 }
 
 // SetRoutingTableID : Allow user to set RoutingTableID
-func (options *DeleteVPCRoutingTableRouteOptions) SetRoutingTableID(routingTableID string) *DeleteVPCRoutingTableRouteOptions {
-	options.RoutingTableID = core.StringPtr(routingTableID)
-	return options
+func (_options *DeleteVPCRoutingTableRouteOptions) SetRoutingTableID(routingTableID string) *DeleteVPCRoutingTableRouteOptions {
+	_options.RoutingTableID = core.StringPtr(routingTableID)
+	return _options
 }
 
 // SetID : Allow user to set ID
-func (options *DeleteVPCRoutingTableRouteOptions) SetID(id string) *DeleteVPCRoutingTableRouteOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *DeleteVPCRoutingTableRouteOptions) SetID(id string) *DeleteVPCRoutingTableRouteOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -24571,10 +24702,10 @@ func (options *DeleteVPCRoutingTableRouteOptions) SetHeaders(param map[string]st
 // DeleteVPNGatewayConnectionOptions : The DeleteVPNGatewayConnection options.
 type DeleteVPNGatewayConnectionOptions struct {
 	// The VPN gateway identifier.
-	VPNGatewayID *string `validate:"required,ne="`
+	VPNGatewayID *string `json:"-" validate:"required,ne="`
 
 	// The VPN gateway connection identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -24589,15 +24720,15 @@ func (*VpcV1) NewDeleteVPNGatewayConnectionOptions(vpnGatewayID string, id strin
 }
 
 // SetVPNGatewayID : Allow user to set VPNGatewayID
-func (options *DeleteVPNGatewayConnectionOptions) SetVPNGatewayID(vpnGatewayID string) *DeleteVPNGatewayConnectionOptions {
-	options.VPNGatewayID = core.StringPtr(vpnGatewayID)
-	return options
+func (_options *DeleteVPNGatewayConnectionOptions) SetVPNGatewayID(vpnGatewayID string) *DeleteVPNGatewayConnectionOptions {
+	_options.VPNGatewayID = core.StringPtr(vpnGatewayID)
+	return _options
 }
 
 // SetID : Allow user to set ID
-func (options *DeleteVPNGatewayConnectionOptions) SetID(id string) *DeleteVPNGatewayConnectionOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *DeleteVPNGatewayConnectionOptions) SetID(id string) *DeleteVPNGatewayConnectionOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -24609,7 +24740,7 @@ func (options *DeleteVPNGatewayConnectionOptions) SetHeaders(param map[string]st
 // DeleteVPNGatewayOptions : The DeleteVPNGateway options.
 type DeleteVPNGatewayOptions struct {
 	// The VPN gateway identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -24623,9 +24754,9 @@ func (*VpcV1) NewDeleteVPNGatewayOptions(id string) *DeleteVPNGatewayOptions {
 }
 
 // SetID : Allow user to set ID
-func (options *DeleteVPNGatewayOptions) SetID(id string) *DeleteVPNGatewayOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *DeleteVPNGatewayOptions) SetID(id string) *DeleteVPNGatewayOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -24875,6 +25006,18 @@ func UnmarshalEndpointGatewayCollection(m map[string]json.RawMessage, result int
 	return
 }
 
+// Retrieve the value to be passed to a request to access the next page of results
+func (resp *EndpointGatewayCollection) GetNextStart() (*string, error) {
+	if core.IsNil(resp.Next) {
+		return nil, nil
+	}
+	start, err := core.GetQueryParam(resp.Next.Href, "start")
+	if err != nil || start == nil {
+		return nil, err
+	}
+	return start, nil
+}
+
 // EndpointGatewayCollectionFirst : A link to the first page of resources.
 type EndpointGatewayCollectionFirst struct {
 	// The URL for a page of resources.
@@ -24928,11 +25071,11 @@ func UnmarshalEndpointGatewayPatch(m map[string]json.RawMessage, result interfac
 }
 
 // AsPatch returns a generic map representation of the EndpointGatewayPatch
-func (endpointGatewayPatch *EndpointGatewayPatch) AsPatch() (patch map[string]interface{}, err error) {
+func (endpointGatewayPatch *EndpointGatewayPatch) AsPatch() (_patch map[string]interface{}, err error) {
 	var jsonData []byte
 	jsonData, err = json.Marshal(endpointGatewayPatch)
 	if err == nil {
-		err = json.Unmarshal(jsonData, &patch)
+		err = json.Unmarshal(jsonData, &_patch)
 	}
 	return
 }
@@ -24968,13 +25111,13 @@ type EndpointGatewayReservedIP struct {
 	// The URL for this reserved IP.
 	Href *string `json:"href,omitempty"`
 
-	// If set to `true`, this reserved IP will be automatically deleted when the target is deleted or when the reserved IP
-	// is unbound.
+	// Indicates whether this reserved IP member will be automatically deleted when either
+	// `target` is deleted, or the reserved IP is unbound.
 	AutoDelete *bool `json:"auto_delete,omitempty"`
 
-	// The user-defined name for this reserved IP. If not specified, the name will be a hyphenated list of
-	// randomly-selected words. Names must be unique within the subnet the reserved IP resides in. Names beginning with
-	// `ibm-` are reserved for provider-owned resources.
+	// The user-defined name for this reserved IP. If unspecified, the name will be a hyphenated list of randomly-selected
+	// words. Names must be unique within the subnet the reserved IP resides in. Names beginning with `ibm-` are reserved
+	// for provider-owned resources.
 	Name *string `json:"name,omitempty"`
 
 	// The subnet in which to create this reserved IP.
@@ -25289,6 +25432,18 @@ func UnmarshalFloatingIPCollection(m map[string]json.RawMessage, result interfac
 	return
 }
 
+// Retrieve the value to be passed to a request to access the next page of results
+func (resp *FloatingIPCollection) GetNextStart() (*string, error) {
+	if core.IsNil(resp.Next) {
+		return nil, nil
+	}
+	start, err := core.GetQueryParam(resp.Next.Href, "start")
+	if err != nil || start == nil {
+		return nil, err
+	}
+	return start, nil
+}
+
 // FloatingIPCollectionFirst : A link to the first page of resources.
 type FloatingIPCollectionFirst struct {
 	// The URL for a page of resources.
@@ -25350,11 +25505,11 @@ func UnmarshalFloatingIPPatch(m map[string]json.RawMessage, result interface{}) 
 }
 
 // AsPatch returns a generic map representation of the FloatingIPPatch
-func (floatingIPPatch *FloatingIPPatch) AsPatch() (patch map[string]interface{}, err error) {
+func (floatingIPPatch *FloatingIPPatch) AsPatch() (_patch map[string]interface{}, err error) {
 	var jsonData []byte
 	jsonData, err = json.Marshal(floatingIPPatch)
 	if err == nil {
-		err = json.Unmarshal(jsonData, &patch)
+		err = json.Unmarshal(jsonData, &_patch)
 	}
 	return
 }
@@ -25536,6 +25691,8 @@ type FloatingIPTarget struct {
 	Name *string `json:"name,omitempty"`
 
 	// The primary IPv4 address.
+	//
+	// If the address has not yet been selected, the value will be `0.0.0.0`.
 	PrimaryIpv4Address *string `json:"primary_ipv4_address,omitempty"`
 
 	// The resource type.
@@ -25616,7 +25773,8 @@ type FlowLogCollector struct {
 	// Indicates whether this collector is active.
 	Active *bool `json:"active" validate:"required"`
 
-	// If set to `true`, this flow log collector will be automatically deleted when the target is deleted.
+	// Indicates whether this flow log collector will be automatically deleted when `target` is deleted. At present, this
+	// is always `true`, but may be modifiable in the future.
 	AutoDelete *bool `json:"auto_delete" validate:"required"`
 
 	// The date and time that the flow log collector was created.
@@ -25765,6 +25923,18 @@ func UnmarshalFlowLogCollectorCollection(m map[string]json.RawMessage, result in
 	return
 }
 
+// Retrieve the value to be passed to a request to access the next page of results
+func (resp *FlowLogCollectorCollection) GetNextStart() (*string, error) {
+	if core.IsNil(resp.Next) {
+		return nil, nil
+	}
+	start, err := core.GetQueryParam(resp.Next.Href, "start")
+	if err != nil || start == nil {
+		return nil, err
+	}
+	return start, nil
+}
+
 // FlowLogCollectorCollectionFirst : A link to the first page of resources.
 type FlowLogCollectorCollectionFirst struct {
 	// The URL for a page of resources.
@@ -25825,11 +25995,11 @@ func UnmarshalFlowLogCollectorPatch(m map[string]json.RawMessage, result interfa
 }
 
 // AsPatch returns a generic map representation of the FlowLogCollectorPatch
-func (flowLogCollectorPatch *FlowLogCollectorPatch) AsPatch() (patch map[string]interface{}, err error) {
+func (flowLogCollectorPatch *FlowLogCollectorPatch) AsPatch() (_patch map[string]interface{}, err error) {
 	var jsonData []byte
 	jsonData, err = json.Marshal(flowLogCollectorPatch)
 	if err == nil {
-		err = json.Unmarshal(jsonData, &patch)
+		err = json.Unmarshal(jsonData, &_patch)
 	}
 	return
 }
@@ -25957,10 +26127,10 @@ func UnmarshalFlowLogCollectorTargetPrototype(m map[string]json.RawMessage, resu
 // GetDedicatedHostDiskOptions : The GetDedicatedHostDisk options.
 type GetDedicatedHostDiskOptions struct {
 	// The dedicated host identifier.
-	DedicatedHostID *string `validate:"required,ne="`
+	DedicatedHostID *string `json:"-" validate:"required,ne="`
 
 	// The dedicated host disk identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -25975,15 +26145,15 @@ func (*VpcV1) NewGetDedicatedHostDiskOptions(dedicatedHostID string, id string) 
 }
 
 // SetDedicatedHostID : Allow user to set DedicatedHostID
-func (options *GetDedicatedHostDiskOptions) SetDedicatedHostID(dedicatedHostID string) *GetDedicatedHostDiskOptions {
-	options.DedicatedHostID = core.StringPtr(dedicatedHostID)
-	return options
+func (_options *GetDedicatedHostDiskOptions) SetDedicatedHostID(dedicatedHostID string) *GetDedicatedHostDiskOptions {
+	_options.DedicatedHostID = core.StringPtr(dedicatedHostID)
+	return _options
 }
 
 // SetID : Allow user to set ID
-func (options *GetDedicatedHostDiskOptions) SetID(id string) *GetDedicatedHostDiskOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *GetDedicatedHostDiskOptions) SetID(id string) *GetDedicatedHostDiskOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -25995,7 +26165,7 @@ func (options *GetDedicatedHostDiskOptions) SetHeaders(param map[string]string) 
 // GetDedicatedHostGroupOptions : The GetDedicatedHostGroup options.
 type GetDedicatedHostGroupOptions struct {
 	// The dedicated host group identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -26009,9 +26179,9 @@ func (*VpcV1) NewGetDedicatedHostGroupOptions(id string) *GetDedicatedHostGroupO
 }
 
 // SetID : Allow user to set ID
-func (options *GetDedicatedHostGroupOptions) SetID(id string) *GetDedicatedHostGroupOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *GetDedicatedHostGroupOptions) SetID(id string) *GetDedicatedHostGroupOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -26023,7 +26193,7 @@ func (options *GetDedicatedHostGroupOptions) SetHeaders(param map[string]string)
 // GetDedicatedHostOptions : The GetDedicatedHost options.
 type GetDedicatedHostOptions struct {
 	// The dedicated host identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -26037,9 +26207,9 @@ func (*VpcV1) NewGetDedicatedHostOptions(id string) *GetDedicatedHostOptions {
 }
 
 // SetID : Allow user to set ID
-func (options *GetDedicatedHostOptions) SetID(id string) *GetDedicatedHostOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *GetDedicatedHostOptions) SetID(id string) *GetDedicatedHostOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -26051,7 +26221,7 @@ func (options *GetDedicatedHostOptions) SetHeaders(param map[string]string) *Get
 // GetDedicatedHostProfileOptions : The GetDedicatedHostProfile options.
 type GetDedicatedHostProfileOptions struct {
 	// The dedicated host profile name.
-	Name *string `validate:"required,ne="`
+	Name *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -26065,9 +26235,9 @@ func (*VpcV1) NewGetDedicatedHostProfileOptions(name string) *GetDedicatedHostPr
 }
 
 // SetName : Allow user to set Name
-func (options *GetDedicatedHostProfileOptions) SetName(name string) *GetDedicatedHostProfileOptions {
-	options.Name = core.StringPtr(name)
-	return options
+func (_options *GetDedicatedHostProfileOptions) SetName(name string) *GetDedicatedHostProfileOptions {
+	_options.Name = core.StringPtr(name)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -26079,10 +26249,10 @@ func (options *GetDedicatedHostProfileOptions) SetHeaders(param map[string]strin
 // GetEndpointGatewayIPOptions : The GetEndpointGatewayIP options.
 type GetEndpointGatewayIPOptions struct {
 	// The endpoint gateway identifier.
-	EndpointGatewayID *string `validate:"required,ne="`
+	EndpointGatewayID *string `json:"-" validate:"required,ne="`
 
 	// The reserved IP identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -26097,15 +26267,15 @@ func (*VpcV1) NewGetEndpointGatewayIPOptions(endpointGatewayID string, id string
 }
 
 // SetEndpointGatewayID : Allow user to set EndpointGatewayID
-func (options *GetEndpointGatewayIPOptions) SetEndpointGatewayID(endpointGatewayID string) *GetEndpointGatewayIPOptions {
-	options.EndpointGatewayID = core.StringPtr(endpointGatewayID)
-	return options
+func (_options *GetEndpointGatewayIPOptions) SetEndpointGatewayID(endpointGatewayID string) *GetEndpointGatewayIPOptions {
+	_options.EndpointGatewayID = core.StringPtr(endpointGatewayID)
+	return _options
 }
 
 // SetID : Allow user to set ID
-func (options *GetEndpointGatewayIPOptions) SetID(id string) *GetEndpointGatewayIPOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *GetEndpointGatewayIPOptions) SetID(id string) *GetEndpointGatewayIPOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -26117,7 +26287,7 @@ func (options *GetEndpointGatewayIPOptions) SetHeaders(param map[string]string) 
 // GetEndpointGatewayOptions : The GetEndpointGateway options.
 type GetEndpointGatewayOptions struct {
 	// The endpoint gateway identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -26131,9 +26301,9 @@ func (*VpcV1) NewGetEndpointGatewayOptions(id string) *GetEndpointGatewayOptions
 }
 
 // SetID : Allow user to set ID
-func (options *GetEndpointGatewayOptions) SetID(id string) *GetEndpointGatewayOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *GetEndpointGatewayOptions) SetID(id string) *GetEndpointGatewayOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -26145,7 +26315,7 @@ func (options *GetEndpointGatewayOptions) SetHeaders(param map[string]string) *G
 // GetFloatingIPOptions : The GetFloatingIP options.
 type GetFloatingIPOptions struct {
 	// The floating IP identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -26159,9 +26329,9 @@ func (*VpcV1) NewGetFloatingIPOptions(id string) *GetFloatingIPOptions {
 }
 
 // SetID : Allow user to set ID
-func (options *GetFloatingIPOptions) SetID(id string) *GetFloatingIPOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *GetFloatingIPOptions) SetID(id string) *GetFloatingIPOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -26173,7 +26343,7 @@ func (options *GetFloatingIPOptions) SetHeaders(param map[string]string) *GetFlo
 // GetFlowLogCollectorOptions : The GetFlowLogCollector options.
 type GetFlowLogCollectorOptions struct {
 	// The flow log collector identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -26187,9 +26357,9 @@ func (*VpcV1) NewGetFlowLogCollectorOptions(id string) *GetFlowLogCollectorOptio
 }
 
 // SetID : Allow user to set ID
-func (options *GetFlowLogCollectorOptions) SetID(id string) *GetFlowLogCollectorOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *GetFlowLogCollectorOptions) SetID(id string) *GetFlowLogCollectorOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -26201,7 +26371,7 @@ func (options *GetFlowLogCollectorOptions) SetHeaders(param map[string]string) *
 // GetIkePolicyOptions : The GetIkePolicy options.
 type GetIkePolicyOptions struct {
 	// The IKE policy identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -26215,9 +26385,9 @@ func (*VpcV1) NewGetIkePolicyOptions(id string) *GetIkePolicyOptions {
 }
 
 // SetID : Allow user to set ID
-func (options *GetIkePolicyOptions) SetID(id string) *GetIkePolicyOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *GetIkePolicyOptions) SetID(id string) *GetIkePolicyOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -26229,7 +26399,7 @@ func (options *GetIkePolicyOptions) SetHeaders(param map[string]string) *GetIkeP
 // GetImageOptions : The GetImage options.
 type GetImageOptions struct {
 	// The image identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -26243,9 +26413,9 @@ func (*VpcV1) NewGetImageOptions(id string) *GetImageOptions {
 }
 
 // SetID : Allow user to set ID
-func (options *GetImageOptions) SetID(id string) *GetImageOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *GetImageOptions) SetID(id string) *GetImageOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -26257,10 +26427,10 @@ func (options *GetImageOptions) SetHeaders(param map[string]string) *GetImageOpt
 // GetInstanceDiskOptions : The GetInstanceDisk options.
 type GetInstanceDiskOptions struct {
 	// The instance identifier.
-	InstanceID *string `validate:"required,ne="`
+	InstanceID *string `json:"-" validate:"required,ne="`
 
 	// The instance disk identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -26275,15 +26445,15 @@ func (*VpcV1) NewGetInstanceDiskOptions(instanceID string, id string) *GetInstan
 }
 
 // SetInstanceID : Allow user to set InstanceID
-func (options *GetInstanceDiskOptions) SetInstanceID(instanceID string) *GetInstanceDiskOptions {
-	options.InstanceID = core.StringPtr(instanceID)
-	return options
+func (_options *GetInstanceDiskOptions) SetInstanceID(instanceID string) *GetInstanceDiskOptions {
+	_options.InstanceID = core.StringPtr(instanceID)
+	return _options
 }
 
 // SetID : Allow user to set ID
-func (options *GetInstanceDiskOptions) SetID(id string) *GetInstanceDiskOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *GetInstanceDiskOptions) SetID(id string) *GetInstanceDiskOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -26295,13 +26465,13 @@ func (options *GetInstanceDiskOptions) SetHeaders(param map[string]string) *GetI
 // GetInstanceGroupManagerActionOptions : The GetInstanceGroupManagerAction options.
 type GetInstanceGroupManagerActionOptions struct {
 	// The instance group identifier.
-	InstanceGroupID *string `validate:"required,ne="`
+	InstanceGroupID *string `json:"-" validate:"required,ne="`
 
 	// The instance group manager identifier.
-	InstanceGroupManagerID *string `validate:"required,ne="`
+	InstanceGroupManagerID *string `json:"-" validate:"required,ne="`
 
 	// The instance group manager action identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -26317,21 +26487,21 @@ func (*VpcV1) NewGetInstanceGroupManagerActionOptions(instanceGroupID string, in
 }
 
 // SetInstanceGroupID : Allow user to set InstanceGroupID
-func (options *GetInstanceGroupManagerActionOptions) SetInstanceGroupID(instanceGroupID string) *GetInstanceGroupManagerActionOptions {
-	options.InstanceGroupID = core.StringPtr(instanceGroupID)
-	return options
+func (_options *GetInstanceGroupManagerActionOptions) SetInstanceGroupID(instanceGroupID string) *GetInstanceGroupManagerActionOptions {
+	_options.InstanceGroupID = core.StringPtr(instanceGroupID)
+	return _options
 }
 
 // SetInstanceGroupManagerID : Allow user to set InstanceGroupManagerID
-func (options *GetInstanceGroupManagerActionOptions) SetInstanceGroupManagerID(instanceGroupManagerID string) *GetInstanceGroupManagerActionOptions {
-	options.InstanceGroupManagerID = core.StringPtr(instanceGroupManagerID)
-	return options
+func (_options *GetInstanceGroupManagerActionOptions) SetInstanceGroupManagerID(instanceGroupManagerID string) *GetInstanceGroupManagerActionOptions {
+	_options.InstanceGroupManagerID = core.StringPtr(instanceGroupManagerID)
+	return _options
 }
 
 // SetID : Allow user to set ID
-func (options *GetInstanceGroupManagerActionOptions) SetID(id string) *GetInstanceGroupManagerActionOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *GetInstanceGroupManagerActionOptions) SetID(id string) *GetInstanceGroupManagerActionOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -26343,10 +26513,10 @@ func (options *GetInstanceGroupManagerActionOptions) SetHeaders(param map[string
 // GetInstanceGroupManagerOptions : The GetInstanceGroupManager options.
 type GetInstanceGroupManagerOptions struct {
 	// The instance group identifier.
-	InstanceGroupID *string `validate:"required,ne="`
+	InstanceGroupID *string `json:"-" validate:"required,ne="`
 
 	// The instance group manager identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -26361,15 +26531,15 @@ func (*VpcV1) NewGetInstanceGroupManagerOptions(instanceGroupID string, id strin
 }
 
 // SetInstanceGroupID : Allow user to set InstanceGroupID
-func (options *GetInstanceGroupManagerOptions) SetInstanceGroupID(instanceGroupID string) *GetInstanceGroupManagerOptions {
-	options.InstanceGroupID = core.StringPtr(instanceGroupID)
-	return options
+func (_options *GetInstanceGroupManagerOptions) SetInstanceGroupID(instanceGroupID string) *GetInstanceGroupManagerOptions {
+	_options.InstanceGroupID = core.StringPtr(instanceGroupID)
+	return _options
 }
 
 // SetID : Allow user to set ID
-func (options *GetInstanceGroupManagerOptions) SetID(id string) *GetInstanceGroupManagerOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *GetInstanceGroupManagerOptions) SetID(id string) *GetInstanceGroupManagerOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -26381,13 +26551,13 @@ func (options *GetInstanceGroupManagerOptions) SetHeaders(param map[string]strin
 // GetInstanceGroupManagerPolicyOptions : The GetInstanceGroupManagerPolicy options.
 type GetInstanceGroupManagerPolicyOptions struct {
 	// The instance group identifier.
-	InstanceGroupID *string `validate:"required,ne="`
+	InstanceGroupID *string `json:"-" validate:"required,ne="`
 
 	// The instance group manager identifier.
-	InstanceGroupManagerID *string `validate:"required,ne="`
+	InstanceGroupManagerID *string `json:"-" validate:"required,ne="`
 
 	// The instance group manager policy identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -26403,21 +26573,21 @@ func (*VpcV1) NewGetInstanceGroupManagerPolicyOptions(instanceGroupID string, in
 }
 
 // SetInstanceGroupID : Allow user to set InstanceGroupID
-func (options *GetInstanceGroupManagerPolicyOptions) SetInstanceGroupID(instanceGroupID string) *GetInstanceGroupManagerPolicyOptions {
-	options.InstanceGroupID = core.StringPtr(instanceGroupID)
-	return options
+func (_options *GetInstanceGroupManagerPolicyOptions) SetInstanceGroupID(instanceGroupID string) *GetInstanceGroupManagerPolicyOptions {
+	_options.InstanceGroupID = core.StringPtr(instanceGroupID)
+	return _options
 }
 
 // SetInstanceGroupManagerID : Allow user to set InstanceGroupManagerID
-func (options *GetInstanceGroupManagerPolicyOptions) SetInstanceGroupManagerID(instanceGroupManagerID string) *GetInstanceGroupManagerPolicyOptions {
-	options.InstanceGroupManagerID = core.StringPtr(instanceGroupManagerID)
-	return options
+func (_options *GetInstanceGroupManagerPolicyOptions) SetInstanceGroupManagerID(instanceGroupManagerID string) *GetInstanceGroupManagerPolicyOptions {
+	_options.InstanceGroupManagerID = core.StringPtr(instanceGroupManagerID)
+	return _options
 }
 
 // SetID : Allow user to set ID
-func (options *GetInstanceGroupManagerPolicyOptions) SetID(id string) *GetInstanceGroupManagerPolicyOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *GetInstanceGroupManagerPolicyOptions) SetID(id string) *GetInstanceGroupManagerPolicyOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -26429,10 +26599,10 @@ func (options *GetInstanceGroupManagerPolicyOptions) SetHeaders(param map[string
 // GetInstanceGroupMembershipOptions : The GetInstanceGroupMembership options.
 type GetInstanceGroupMembershipOptions struct {
 	// The instance group identifier.
-	InstanceGroupID *string `validate:"required,ne="`
+	InstanceGroupID *string `json:"-" validate:"required,ne="`
 
 	// The instance group membership identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -26447,15 +26617,15 @@ func (*VpcV1) NewGetInstanceGroupMembershipOptions(instanceGroupID string, id st
 }
 
 // SetInstanceGroupID : Allow user to set InstanceGroupID
-func (options *GetInstanceGroupMembershipOptions) SetInstanceGroupID(instanceGroupID string) *GetInstanceGroupMembershipOptions {
-	options.InstanceGroupID = core.StringPtr(instanceGroupID)
-	return options
+func (_options *GetInstanceGroupMembershipOptions) SetInstanceGroupID(instanceGroupID string) *GetInstanceGroupMembershipOptions {
+	_options.InstanceGroupID = core.StringPtr(instanceGroupID)
+	return _options
 }
 
 // SetID : Allow user to set ID
-func (options *GetInstanceGroupMembershipOptions) SetID(id string) *GetInstanceGroupMembershipOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *GetInstanceGroupMembershipOptions) SetID(id string) *GetInstanceGroupMembershipOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -26467,7 +26637,7 @@ func (options *GetInstanceGroupMembershipOptions) SetHeaders(param map[string]st
 // GetInstanceGroupOptions : The GetInstanceGroup options.
 type GetInstanceGroupOptions struct {
 	// The instance group identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -26481,9 +26651,9 @@ func (*VpcV1) NewGetInstanceGroupOptions(id string) *GetInstanceGroupOptions {
 }
 
 // SetID : Allow user to set ID
-func (options *GetInstanceGroupOptions) SetID(id string) *GetInstanceGroupOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *GetInstanceGroupOptions) SetID(id string) *GetInstanceGroupOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -26495,7 +26665,7 @@ func (options *GetInstanceGroupOptions) SetHeaders(param map[string]string) *Get
 // GetInstanceInitializationOptions : The GetInstanceInitialization options.
 type GetInstanceInitializationOptions struct {
 	// The instance identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -26509,9 +26679,9 @@ func (*VpcV1) NewGetInstanceInitializationOptions(id string) *GetInstanceInitial
 }
 
 // SetID : Allow user to set ID
-func (options *GetInstanceInitializationOptions) SetID(id string) *GetInstanceInitializationOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *GetInstanceInitializationOptions) SetID(id string) *GetInstanceInitializationOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -26523,13 +26693,13 @@ func (options *GetInstanceInitializationOptions) SetHeaders(param map[string]str
 // GetInstanceNetworkInterfaceFloatingIPOptions : The GetInstanceNetworkInterfaceFloatingIP options.
 type GetInstanceNetworkInterfaceFloatingIPOptions struct {
 	// The instance identifier.
-	InstanceID *string `validate:"required,ne="`
+	InstanceID *string `json:"-" validate:"required,ne="`
 
 	// The network interface identifier.
-	NetworkInterfaceID *string `validate:"required,ne="`
+	NetworkInterfaceID *string `json:"-" validate:"required,ne="`
 
 	// The floating IP identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -26545,21 +26715,21 @@ func (*VpcV1) NewGetInstanceNetworkInterfaceFloatingIPOptions(instanceID string,
 }
 
 // SetInstanceID : Allow user to set InstanceID
-func (options *GetInstanceNetworkInterfaceFloatingIPOptions) SetInstanceID(instanceID string) *GetInstanceNetworkInterfaceFloatingIPOptions {
-	options.InstanceID = core.StringPtr(instanceID)
-	return options
+func (_options *GetInstanceNetworkInterfaceFloatingIPOptions) SetInstanceID(instanceID string) *GetInstanceNetworkInterfaceFloatingIPOptions {
+	_options.InstanceID = core.StringPtr(instanceID)
+	return _options
 }
 
 // SetNetworkInterfaceID : Allow user to set NetworkInterfaceID
-func (options *GetInstanceNetworkInterfaceFloatingIPOptions) SetNetworkInterfaceID(networkInterfaceID string) *GetInstanceNetworkInterfaceFloatingIPOptions {
-	options.NetworkInterfaceID = core.StringPtr(networkInterfaceID)
-	return options
+func (_options *GetInstanceNetworkInterfaceFloatingIPOptions) SetNetworkInterfaceID(networkInterfaceID string) *GetInstanceNetworkInterfaceFloatingIPOptions {
+	_options.NetworkInterfaceID = core.StringPtr(networkInterfaceID)
+	return _options
 }
 
 // SetID : Allow user to set ID
-func (options *GetInstanceNetworkInterfaceFloatingIPOptions) SetID(id string) *GetInstanceNetworkInterfaceFloatingIPOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *GetInstanceNetworkInterfaceFloatingIPOptions) SetID(id string) *GetInstanceNetworkInterfaceFloatingIPOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -26571,10 +26741,10 @@ func (options *GetInstanceNetworkInterfaceFloatingIPOptions) SetHeaders(param ma
 // GetInstanceNetworkInterfaceOptions : The GetInstanceNetworkInterface options.
 type GetInstanceNetworkInterfaceOptions struct {
 	// The instance identifier.
-	InstanceID *string `validate:"required,ne="`
+	InstanceID *string `json:"-" validate:"required,ne="`
 
 	// The network interface identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -26589,15 +26759,15 @@ func (*VpcV1) NewGetInstanceNetworkInterfaceOptions(instanceID string, id string
 }
 
 // SetInstanceID : Allow user to set InstanceID
-func (options *GetInstanceNetworkInterfaceOptions) SetInstanceID(instanceID string) *GetInstanceNetworkInterfaceOptions {
-	options.InstanceID = core.StringPtr(instanceID)
-	return options
+func (_options *GetInstanceNetworkInterfaceOptions) SetInstanceID(instanceID string) *GetInstanceNetworkInterfaceOptions {
+	_options.InstanceID = core.StringPtr(instanceID)
+	return _options
 }
 
 // SetID : Allow user to set ID
-func (options *GetInstanceNetworkInterfaceOptions) SetID(id string) *GetInstanceNetworkInterfaceOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *GetInstanceNetworkInterfaceOptions) SetID(id string) *GetInstanceNetworkInterfaceOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -26609,7 +26779,7 @@ func (options *GetInstanceNetworkInterfaceOptions) SetHeaders(param map[string]s
 // GetInstanceOptions : The GetInstance options.
 type GetInstanceOptions struct {
 	// The instance identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -26623,9 +26793,9 @@ func (*VpcV1) NewGetInstanceOptions(id string) *GetInstanceOptions {
 }
 
 // SetID : Allow user to set ID
-func (options *GetInstanceOptions) SetID(id string) *GetInstanceOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *GetInstanceOptions) SetID(id string) *GetInstanceOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -26637,7 +26807,7 @@ func (options *GetInstanceOptions) SetHeaders(param map[string]string) *GetInsta
 // GetInstanceProfileOptions : The GetInstanceProfile options.
 type GetInstanceProfileOptions struct {
 	// The instance profile name.
-	Name *string `validate:"required,ne="`
+	Name *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -26651,9 +26821,9 @@ func (*VpcV1) NewGetInstanceProfileOptions(name string) *GetInstanceProfileOptio
 }
 
 // SetName : Allow user to set Name
-func (options *GetInstanceProfileOptions) SetName(name string) *GetInstanceProfileOptions {
-	options.Name = core.StringPtr(name)
-	return options
+func (_options *GetInstanceProfileOptions) SetName(name string) *GetInstanceProfileOptions {
+	_options.Name = core.StringPtr(name)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -26665,7 +26835,7 @@ func (options *GetInstanceProfileOptions) SetHeaders(param map[string]string) *G
 // GetInstanceTemplateOptions : The GetInstanceTemplate options.
 type GetInstanceTemplateOptions struct {
 	// The instance template identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -26679,9 +26849,9 @@ func (*VpcV1) NewGetInstanceTemplateOptions(id string) *GetInstanceTemplateOptio
 }
 
 // SetID : Allow user to set ID
-func (options *GetInstanceTemplateOptions) SetID(id string) *GetInstanceTemplateOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *GetInstanceTemplateOptions) SetID(id string) *GetInstanceTemplateOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -26693,10 +26863,10 @@ func (options *GetInstanceTemplateOptions) SetHeaders(param map[string]string) *
 // GetInstanceVolumeAttachmentOptions : The GetInstanceVolumeAttachment options.
 type GetInstanceVolumeAttachmentOptions struct {
 	// The instance identifier.
-	InstanceID *string `validate:"required,ne="`
+	InstanceID *string `json:"-" validate:"required,ne="`
 
 	// The volume attachment identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -26711,15 +26881,15 @@ func (*VpcV1) NewGetInstanceVolumeAttachmentOptions(instanceID string, id string
 }
 
 // SetInstanceID : Allow user to set InstanceID
-func (options *GetInstanceVolumeAttachmentOptions) SetInstanceID(instanceID string) *GetInstanceVolumeAttachmentOptions {
-	options.InstanceID = core.StringPtr(instanceID)
-	return options
+func (_options *GetInstanceVolumeAttachmentOptions) SetInstanceID(instanceID string) *GetInstanceVolumeAttachmentOptions {
+	_options.InstanceID = core.StringPtr(instanceID)
+	return _options
 }
 
 // SetID : Allow user to set ID
-func (options *GetInstanceVolumeAttachmentOptions) SetID(id string) *GetInstanceVolumeAttachmentOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *GetInstanceVolumeAttachmentOptions) SetID(id string) *GetInstanceVolumeAttachmentOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -26731,7 +26901,7 @@ func (options *GetInstanceVolumeAttachmentOptions) SetHeaders(param map[string]s
 // GetIpsecPolicyOptions : The GetIpsecPolicy options.
 type GetIpsecPolicyOptions struct {
 	// The IPsec policy identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -26745,9 +26915,9 @@ func (*VpcV1) NewGetIpsecPolicyOptions(id string) *GetIpsecPolicyOptions {
 }
 
 // SetID : Allow user to set ID
-func (options *GetIpsecPolicyOptions) SetID(id string) *GetIpsecPolicyOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *GetIpsecPolicyOptions) SetID(id string) *GetIpsecPolicyOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -26759,7 +26929,7 @@ func (options *GetIpsecPolicyOptions) SetHeaders(param map[string]string) *GetIp
 // GetKeyOptions : The GetKey options.
 type GetKeyOptions struct {
 	// The key identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -26773,9 +26943,9 @@ func (*VpcV1) NewGetKeyOptions(id string) *GetKeyOptions {
 }
 
 // SetID : Allow user to set ID
-func (options *GetKeyOptions) SetID(id string) *GetKeyOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *GetKeyOptions) SetID(id string) *GetKeyOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -26787,10 +26957,10 @@ func (options *GetKeyOptions) SetHeaders(param map[string]string) *GetKeyOptions
 // GetLoadBalancerListenerOptions : The GetLoadBalancerListener options.
 type GetLoadBalancerListenerOptions struct {
 	// The load balancer identifier.
-	LoadBalancerID *string `validate:"required,ne="`
+	LoadBalancerID *string `json:"-" validate:"required,ne="`
 
 	// The listener identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -26805,15 +26975,15 @@ func (*VpcV1) NewGetLoadBalancerListenerOptions(loadBalancerID string, id string
 }
 
 // SetLoadBalancerID : Allow user to set LoadBalancerID
-func (options *GetLoadBalancerListenerOptions) SetLoadBalancerID(loadBalancerID string) *GetLoadBalancerListenerOptions {
-	options.LoadBalancerID = core.StringPtr(loadBalancerID)
-	return options
+func (_options *GetLoadBalancerListenerOptions) SetLoadBalancerID(loadBalancerID string) *GetLoadBalancerListenerOptions {
+	_options.LoadBalancerID = core.StringPtr(loadBalancerID)
+	return _options
 }
 
 // SetID : Allow user to set ID
-func (options *GetLoadBalancerListenerOptions) SetID(id string) *GetLoadBalancerListenerOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *GetLoadBalancerListenerOptions) SetID(id string) *GetLoadBalancerListenerOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -26825,13 +26995,13 @@ func (options *GetLoadBalancerListenerOptions) SetHeaders(param map[string]strin
 // GetLoadBalancerListenerPolicyOptions : The GetLoadBalancerListenerPolicy options.
 type GetLoadBalancerListenerPolicyOptions struct {
 	// The load balancer identifier.
-	LoadBalancerID *string `validate:"required,ne="`
+	LoadBalancerID *string `json:"-" validate:"required,ne="`
 
 	// The listener identifier.
-	ListenerID *string `validate:"required,ne="`
+	ListenerID *string `json:"-" validate:"required,ne="`
 
 	// The policy identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -26847,21 +27017,21 @@ func (*VpcV1) NewGetLoadBalancerListenerPolicyOptions(loadBalancerID string, lis
 }
 
 // SetLoadBalancerID : Allow user to set LoadBalancerID
-func (options *GetLoadBalancerListenerPolicyOptions) SetLoadBalancerID(loadBalancerID string) *GetLoadBalancerListenerPolicyOptions {
-	options.LoadBalancerID = core.StringPtr(loadBalancerID)
-	return options
+func (_options *GetLoadBalancerListenerPolicyOptions) SetLoadBalancerID(loadBalancerID string) *GetLoadBalancerListenerPolicyOptions {
+	_options.LoadBalancerID = core.StringPtr(loadBalancerID)
+	return _options
 }
 
 // SetListenerID : Allow user to set ListenerID
-func (options *GetLoadBalancerListenerPolicyOptions) SetListenerID(listenerID string) *GetLoadBalancerListenerPolicyOptions {
-	options.ListenerID = core.StringPtr(listenerID)
-	return options
+func (_options *GetLoadBalancerListenerPolicyOptions) SetListenerID(listenerID string) *GetLoadBalancerListenerPolicyOptions {
+	_options.ListenerID = core.StringPtr(listenerID)
+	return _options
 }
 
 // SetID : Allow user to set ID
-func (options *GetLoadBalancerListenerPolicyOptions) SetID(id string) *GetLoadBalancerListenerPolicyOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *GetLoadBalancerListenerPolicyOptions) SetID(id string) *GetLoadBalancerListenerPolicyOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -26873,16 +27043,16 @@ func (options *GetLoadBalancerListenerPolicyOptions) SetHeaders(param map[string
 // GetLoadBalancerListenerPolicyRuleOptions : The GetLoadBalancerListenerPolicyRule options.
 type GetLoadBalancerListenerPolicyRuleOptions struct {
 	// The load balancer identifier.
-	LoadBalancerID *string `validate:"required,ne="`
+	LoadBalancerID *string `json:"-" validate:"required,ne="`
 
 	// The listener identifier.
-	ListenerID *string `validate:"required,ne="`
+	ListenerID *string `json:"-" validate:"required,ne="`
 
 	// The policy identifier.
-	PolicyID *string `validate:"required,ne="`
+	PolicyID *string `json:"-" validate:"required,ne="`
 
 	// The rule identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -26899,27 +27069,27 @@ func (*VpcV1) NewGetLoadBalancerListenerPolicyRuleOptions(loadBalancerID string,
 }
 
 // SetLoadBalancerID : Allow user to set LoadBalancerID
-func (options *GetLoadBalancerListenerPolicyRuleOptions) SetLoadBalancerID(loadBalancerID string) *GetLoadBalancerListenerPolicyRuleOptions {
-	options.LoadBalancerID = core.StringPtr(loadBalancerID)
-	return options
+func (_options *GetLoadBalancerListenerPolicyRuleOptions) SetLoadBalancerID(loadBalancerID string) *GetLoadBalancerListenerPolicyRuleOptions {
+	_options.LoadBalancerID = core.StringPtr(loadBalancerID)
+	return _options
 }
 
 // SetListenerID : Allow user to set ListenerID
-func (options *GetLoadBalancerListenerPolicyRuleOptions) SetListenerID(listenerID string) *GetLoadBalancerListenerPolicyRuleOptions {
-	options.ListenerID = core.StringPtr(listenerID)
-	return options
+func (_options *GetLoadBalancerListenerPolicyRuleOptions) SetListenerID(listenerID string) *GetLoadBalancerListenerPolicyRuleOptions {
+	_options.ListenerID = core.StringPtr(listenerID)
+	return _options
 }
 
 // SetPolicyID : Allow user to set PolicyID
-func (options *GetLoadBalancerListenerPolicyRuleOptions) SetPolicyID(policyID string) *GetLoadBalancerListenerPolicyRuleOptions {
-	options.PolicyID = core.StringPtr(policyID)
-	return options
+func (_options *GetLoadBalancerListenerPolicyRuleOptions) SetPolicyID(policyID string) *GetLoadBalancerListenerPolicyRuleOptions {
+	_options.PolicyID = core.StringPtr(policyID)
+	return _options
 }
 
 // SetID : Allow user to set ID
-func (options *GetLoadBalancerListenerPolicyRuleOptions) SetID(id string) *GetLoadBalancerListenerPolicyRuleOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *GetLoadBalancerListenerPolicyRuleOptions) SetID(id string) *GetLoadBalancerListenerPolicyRuleOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -26931,7 +27101,7 @@ func (options *GetLoadBalancerListenerPolicyRuleOptions) SetHeaders(param map[st
 // GetLoadBalancerOptions : The GetLoadBalancer options.
 type GetLoadBalancerOptions struct {
 	// The load balancer identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -26945,9 +27115,9 @@ func (*VpcV1) NewGetLoadBalancerOptions(id string) *GetLoadBalancerOptions {
 }
 
 // SetID : Allow user to set ID
-func (options *GetLoadBalancerOptions) SetID(id string) *GetLoadBalancerOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *GetLoadBalancerOptions) SetID(id string) *GetLoadBalancerOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -26959,13 +27129,13 @@ func (options *GetLoadBalancerOptions) SetHeaders(param map[string]string) *GetL
 // GetLoadBalancerPoolMemberOptions : The GetLoadBalancerPoolMember options.
 type GetLoadBalancerPoolMemberOptions struct {
 	// The load balancer identifier.
-	LoadBalancerID *string `validate:"required,ne="`
+	LoadBalancerID *string `json:"-" validate:"required,ne="`
 
 	// The pool identifier.
-	PoolID *string `validate:"required,ne="`
+	PoolID *string `json:"-" validate:"required,ne="`
 
 	// The member identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -26981,21 +27151,21 @@ func (*VpcV1) NewGetLoadBalancerPoolMemberOptions(loadBalancerID string, poolID 
 }
 
 // SetLoadBalancerID : Allow user to set LoadBalancerID
-func (options *GetLoadBalancerPoolMemberOptions) SetLoadBalancerID(loadBalancerID string) *GetLoadBalancerPoolMemberOptions {
-	options.LoadBalancerID = core.StringPtr(loadBalancerID)
-	return options
+func (_options *GetLoadBalancerPoolMemberOptions) SetLoadBalancerID(loadBalancerID string) *GetLoadBalancerPoolMemberOptions {
+	_options.LoadBalancerID = core.StringPtr(loadBalancerID)
+	return _options
 }
 
 // SetPoolID : Allow user to set PoolID
-func (options *GetLoadBalancerPoolMemberOptions) SetPoolID(poolID string) *GetLoadBalancerPoolMemberOptions {
-	options.PoolID = core.StringPtr(poolID)
-	return options
+func (_options *GetLoadBalancerPoolMemberOptions) SetPoolID(poolID string) *GetLoadBalancerPoolMemberOptions {
+	_options.PoolID = core.StringPtr(poolID)
+	return _options
 }
 
 // SetID : Allow user to set ID
-func (options *GetLoadBalancerPoolMemberOptions) SetID(id string) *GetLoadBalancerPoolMemberOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *GetLoadBalancerPoolMemberOptions) SetID(id string) *GetLoadBalancerPoolMemberOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -27007,10 +27177,10 @@ func (options *GetLoadBalancerPoolMemberOptions) SetHeaders(param map[string]str
 // GetLoadBalancerPoolOptions : The GetLoadBalancerPool options.
 type GetLoadBalancerPoolOptions struct {
 	// The load balancer identifier.
-	LoadBalancerID *string `validate:"required,ne="`
+	LoadBalancerID *string `json:"-" validate:"required,ne="`
 
 	// The pool identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -27025,15 +27195,15 @@ func (*VpcV1) NewGetLoadBalancerPoolOptions(loadBalancerID string, id string) *G
 }
 
 // SetLoadBalancerID : Allow user to set LoadBalancerID
-func (options *GetLoadBalancerPoolOptions) SetLoadBalancerID(loadBalancerID string) *GetLoadBalancerPoolOptions {
-	options.LoadBalancerID = core.StringPtr(loadBalancerID)
-	return options
+func (_options *GetLoadBalancerPoolOptions) SetLoadBalancerID(loadBalancerID string) *GetLoadBalancerPoolOptions {
+	_options.LoadBalancerID = core.StringPtr(loadBalancerID)
+	return _options
 }
 
 // SetID : Allow user to set ID
-func (options *GetLoadBalancerPoolOptions) SetID(id string) *GetLoadBalancerPoolOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *GetLoadBalancerPoolOptions) SetID(id string) *GetLoadBalancerPoolOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -27045,7 +27215,7 @@ func (options *GetLoadBalancerPoolOptions) SetHeaders(param map[string]string) *
 // GetLoadBalancerProfileOptions : The GetLoadBalancerProfile options.
 type GetLoadBalancerProfileOptions struct {
 	// The load balancer profile name.
-	Name *string `validate:"required,ne="`
+	Name *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -27059,9 +27229,9 @@ func (*VpcV1) NewGetLoadBalancerProfileOptions(name string) *GetLoadBalancerProf
 }
 
 // SetName : Allow user to set Name
-func (options *GetLoadBalancerProfileOptions) SetName(name string) *GetLoadBalancerProfileOptions {
-	options.Name = core.StringPtr(name)
-	return options
+func (_options *GetLoadBalancerProfileOptions) SetName(name string) *GetLoadBalancerProfileOptions {
+	_options.Name = core.StringPtr(name)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -27073,7 +27243,7 @@ func (options *GetLoadBalancerProfileOptions) SetHeaders(param map[string]string
 // GetLoadBalancerStatisticsOptions : The GetLoadBalancerStatistics options.
 type GetLoadBalancerStatisticsOptions struct {
 	// The load balancer identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -27087,9 +27257,9 @@ func (*VpcV1) NewGetLoadBalancerStatisticsOptions(id string) *GetLoadBalancerSta
 }
 
 // SetID : Allow user to set ID
-func (options *GetLoadBalancerStatisticsOptions) SetID(id string) *GetLoadBalancerStatisticsOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *GetLoadBalancerStatisticsOptions) SetID(id string) *GetLoadBalancerStatisticsOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -27101,7 +27271,7 @@ func (options *GetLoadBalancerStatisticsOptions) SetHeaders(param map[string]str
 // GetNetworkACLOptions : The GetNetworkACL options.
 type GetNetworkACLOptions struct {
 	// The network ACL identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -27115,9 +27285,9 @@ func (*VpcV1) NewGetNetworkACLOptions(id string) *GetNetworkACLOptions {
 }
 
 // SetID : Allow user to set ID
-func (options *GetNetworkACLOptions) SetID(id string) *GetNetworkACLOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *GetNetworkACLOptions) SetID(id string) *GetNetworkACLOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -27129,10 +27299,10 @@ func (options *GetNetworkACLOptions) SetHeaders(param map[string]string) *GetNet
 // GetNetworkACLRuleOptions : The GetNetworkACLRule options.
 type GetNetworkACLRuleOptions struct {
 	// The network ACL identifier.
-	NetworkACLID *string `validate:"required,ne="`
+	NetworkACLID *string `json:"-" validate:"required,ne="`
 
 	// The rule identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -27147,15 +27317,15 @@ func (*VpcV1) NewGetNetworkACLRuleOptions(networkACLID string, id string) *GetNe
 }
 
 // SetNetworkACLID : Allow user to set NetworkACLID
-func (options *GetNetworkACLRuleOptions) SetNetworkACLID(networkACLID string) *GetNetworkACLRuleOptions {
-	options.NetworkACLID = core.StringPtr(networkACLID)
-	return options
+func (_options *GetNetworkACLRuleOptions) SetNetworkACLID(networkACLID string) *GetNetworkACLRuleOptions {
+	_options.NetworkACLID = core.StringPtr(networkACLID)
+	return _options
 }
 
 // SetID : Allow user to set ID
-func (options *GetNetworkACLRuleOptions) SetID(id string) *GetNetworkACLRuleOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *GetNetworkACLRuleOptions) SetID(id string) *GetNetworkACLRuleOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -27167,7 +27337,7 @@ func (options *GetNetworkACLRuleOptions) SetHeaders(param map[string]string) *Ge
 // GetOperatingSystemOptions : The GetOperatingSystem options.
 type GetOperatingSystemOptions struct {
 	// The operating system name.
-	Name *string `validate:"required,ne="`
+	Name *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -27181,9 +27351,9 @@ func (*VpcV1) NewGetOperatingSystemOptions(name string) *GetOperatingSystemOptio
 }
 
 // SetName : Allow user to set Name
-func (options *GetOperatingSystemOptions) SetName(name string) *GetOperatingSystemOptions {
-	options.Name = core.StringPtr(name)
-	return options
+func (_options *GetOperatingSystemOptions) SetName(name string) *GetOperatingSystemOptions {
+	_options.Name = core.StringPtr(name)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -27195,7 +27365,7 @@ func (options *GetOperatingSystemOptions) SetHeaders(param map[string]string) *G
 // GetPlacementGroupOptions : The GetPlacementGroup options.
 type GetPlacementGroupOptions struct {
 	// The placement group identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -27209,9 +27379,9 @@ func (*VpcV1) NewGetPlacementGroupOptions(id string) *GetPlacementGroupOptions {
 }
 
 // SetID : Allow user to set ID
-func (options *GetPlacementGroupOptions) SetID(id string) *GetPlacementGroupOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *GetPlacementGroupOptions) SetID(id string) *GetPlacementGroupOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -27223,7 +27393,7 @@ func (options *GetPlacementGroupOptions) SetHeaders(param map[string]string) *Ge
 // GetPublicGatewayOptions : The GetPublicGateway options.
 type GetPublicGatewayOptions struct {
 	// The public gateway identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -27237,9 +27407,9 @@ func (*VpcV1) NewGetPublicGatewayOptions(id string) *GetPublicGatewayOptions {
 }
 
 // SetID : Allow user to set ID
-func (options *GetPublicGatewayOptions) SetID(id string) *GetPublicGatewayOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *GetPublicGatewayOptions) SetID(id string) *GetPublicGatewayOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -27251,7 +27421,7 @@ func (options *GetPublicGatewayOptions) SetHeaders(param map[string]string) *Get
 // GetRegionOptions : The GetRegion options.
 type GetRegionOptions struct {
 	// The region name.
-	Name *string `validate:"required,ne="`
+	Name *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -27265,9 +27435,9 @@ func (*VpcV1) NewGetRegionOptions(name string) *GetRegionOptions {
 }
 
 // SetName : Allow user to set Name
-func (options *GetRegionOptions) SetName(name string) *GetRegionOptions {
-	options.Name = core.StringPtr(name)
-	return options
+func (_options *GetRegionOptions) SetName(name string) *GetRegionOptions {
+	_options.Name = core.StringPtr(name)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -27279,10 +27449,10 @@ func (options *GetRegionOptions) SetHeaders(param map[string]string) *GetRegionO
 // GetRegionZoneOptions : The GetRegionZone options.
 type GetRegionZoneOptions struct {
 	// The region name.
-	RegionName *string `validate:"required,ne="`
+	RegionName *string `json:"-" validate:"required,ne="`
 
 	// The zone name.
-	Name *string `validate:"required,ne="`
+	Name *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -27297,15 +27467,15 @@ func (*VpcV1) NewGetRegionZoneOptions(regionName string, name string) *GetRegion
 }
 
 // SetRegionName : Allow user to set RegionName
-func (options *GetRegionZoneOptions) SetRegionName(regionName string) *GetRegionZoneOptions {
-	options.RegionName = core.StringPtr(regionName)
-	return options
+func (_options *GetRegionZoneOptions) SetRegionName(regionName string) *GetRegionZoneOptions {
+	_options.RegionName = core.StringPtr(regionName)
+	return _options
 }
 
 // SetName : Allow user to set Name
-func (options *GetRegionZoneOptions) SetName(name string) *GetRegionZoneOptions {
-	options.Name = core.StringPtr(name)
-	return options
+func (_options *GetRegionZoneOptions) SetName(name string) *GetRegionZoneOptions {
+	_options.Name = core.StringPtr(name)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -27317,10 +27487,10 @@ func (options *GetRegionZoneOptions) SetHeaders(param map[string]string) *GetReg
 // GetSecurityGroupNetworkInterfaceOptions : The GetSecurityGroupNetworkInterface options.
 type GetSecurityGroupNetworkInterfaceOptions struct {
 	// The security group identifier.
-	SecurityGroupID *string `validate:"required,ne="`
+	SecurityGroupID *string `json:"-" validate:"required,ne="`
 
 	// The network interface identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -27335,15 +27505,15 @@ func (*VpcV1) NewGetSecurityGroupNetworkInterfaceOptions(securityGroupID string,
 }
 
 // SetSecurityGroupID : Allow user to set SecurityGroupID
-func (options *GetSecurityGroupNetworkInterfaceOptions) SetSecurityGroupID(securityGroupID string) *GetSecurityGroupNetworkInterfaceOptions {
-	options.SecurityGroupID = core.StringPtr(securityGroupID)
-	return options
+func (_options *GetSecurityGroupNetworkInterfaceOptions) SetSecurityGroupID(securityGroupID string) *GetSecurityGroupNetworkInterfaceOptions {
+	_options.SecurityGroupID = core.StringPtr(securityGroupID)
+	return _options
 }
 
 // SetID : Allow user to set ID
-func (options *GetSecurityGroupNetworkInterfaceOptions) SetID(id string) *GetSecurityGroupNetworkInterfaceOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *GetSecurityGroupNetworkInterfaceOptions) SetID(id string) *GetSecurityGroupNetworkInterfaceOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -27355,7 +27525,7 @@ func (options *GetSecurityGroupNetworkInterfaceOptions) SetHeaders(param map[str
 // GetSecurityGroupOptions : The GetSecurityGroup options.
 type GetSecurityGroupOptions struct {
 	// The security group identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -27369,9 +27539,9 @@ func (*VpcV1) NewGetSecurityGroupOptions(id string) *GetSecurityGroupOptions {
 }
 
 // SetID : Allow user to set ID
-func (options *GetSecurityGroupOptions) SetID(id string) *GetSecurityGroupOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *GetSecurityGroupOptions) SetID(id string) *GetSecurityGroupOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -27383,10 +27553,10 @@ func (options *GetSecurityGroupOptions) SetHeaders(param map[string]string) *Get
 // GetSecurityGroupRuleOptions : The GetSecurityGroupRule options.
 type GetSecurityGroupRuleOptions struct {
 	// The security group identifier.
-	SecurityGroupID *string `validate:"required,ne="`
+	SecurityGroupID *string `json:"-" validate:"required,ne="`
 
 	// The rule identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -27401,15 +27571,15 @@ func (*VpcV1) NewGetSecurityGroupRuleOptions(securityGroupID string, id string) 
 }
 
 // SetSecurityGroupID : Allow user to set SecurityGroupID
-func (options *GetSecurityGroupRuleOptions) SetSecurityGroupID(securityGroupID string) *GetSecurityGroupRuleOptions {
-	options.SecurityGroupID = core.StringPtr(securityGroupID)
-	return options
+func (_options *GetSecurityGroupRuleOptions) SetSecurityGroupID(securityGroupID string) *GetSecurityGroupRuleOptions {
+	_options.SecurityGroupID = core.StringPtr(securityGroupID)
+	return _options
 }
 
 // SetID : Allow user to set ID
-func (options *GetSecurityGroupRuleOptions) SetID(id string) *GetSecurityGroupRuleOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *GetSecurityGroupRuleOptions) SetID(id string) *GetSecurityGroupRuleOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -27421,10 +27591,10 @@ func (options *GetSecurityGroupRuleOptions) SetHeaders(param map[string]string) 
 // GetSecurityGroupTargetOptions : The GetSecurityGroupTarget options.
 type GetSecurityGroupTargetOptions struct {
 	// The security group identifier.
-	SecurityGroupID *string `validate:"required,ne="`
+	SecurityGroupID *string `json:"-" validate:"required,ne="`
 
 	// The security group target identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -27439,15 +27609,15 @@ func (*VpcV1) NewGetSecurityGroupTargetOptions(securityGroupID string, id string
 }
 
 // SetSecurityGroupID : Allow user to set SecurityGroupID
-func (options *GetSecurityGroupTargetOptions) SetSecurityGroupID(securityGroupID string) *GetSecurityGroupTargetOptions {
-	options.SecurityGroupID = core.StringPtr(securityGroupID)
-	return options
+func (_options *GetSecurityGroupTargetOptions) SetSecurityGroupID(securityGroupID string) *GetSecurityGroupTargetOptions {
+	_options.SecurityGroupID = core.StringPtr(securityGroupID)
+	return _options
 }
 
 // SetID : Allow user to set ID
-func (options *GetSecurityGroupTargetOptions) SetID(id string) *GetSecurityGroupTargetOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *GetSecurityGroupTargetOptions) SetID(id string) *GetSecurityGroupTargetOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -27459,7 +27629,7 @@ func (options *GetSecurityGroupTargetOptions) SetHeaders(param map[string]string
 // GetSnapshotOptions : The GetSnapshot options.
 type GetSnapshotOptions struct {
 	// The snapshot identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -27473,9 +27643,9 @@ func (*VpcV1) NewGetSnapshotOptions(id string) *GetSnapshotOptions {
 }
 
 // SetID : Allow user to set ID
-func (options *GetSnapshotOptions) SetID(id string) *GetSnapshotOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *GetSnapshotOptions) SetID(id string) *GetSnapshotOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -27487,7 +27657,7 @@ func (options *GetSnapshotOptions) SetHeaders(param map[string]string) *GetSnaps
 // GetSubnetNetworkACLOptions : The GetSubnetNetworkACL options.
 type GetSubnetNetworkACLOptions struct {
 	// The subnet identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -27501,9 +27671,9 @@ func (*VpcV1) NewGetSubnetNetworkACLOptions(id string) *GetSubnetNetworkACLOptio
 }
 
 // SetID : Allow user to set ID
-func (options *GetSubnetNetworkACLOptions) SetID(id string) *GetSubnetNetworkACLOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *GetSubnetNetworkACLOptions) SetID(id string) *GetSubnetNetworkACLOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -27515,7 +27685,7 @@ func (options *GetSubnetNetworkACLOptions) SetHeaders(param map[string]string) *
 // GetSubnetOptions : The GetSubnet options.
 type GetSubnetOptions struct {
 	// The subnet identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -27529,9 +27699,9 @@ func (*VpcV1) NewGetSubnetOptions(id string) *GetSubnetOptions {
 }
 
 // SetID : Allow user to set ID
-func (options *GetSubnetOptions) SetID(id string) *GetSubnetOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *GetSubnetOptions) SetID(id string) *GetSubnetOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -27543,7 +27713,7 @@ func (options *GetSubnetOptions) SetHeaders(param map[string]string) *GetSubnetO
 // GetSubnetPublicGatewayOptions : The GetSubnetPublicGateway options.
 type GetSubnetPublicGatewayOptions struct {
 	// The subnet identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -27557,9 +27727,9 @@ func (*VpcV1) NewGetSubnetPublicGatewayOptions(id string) *GetSubnetPublicGatewa
 }
 
 // SetID : Allow user to set ID
-func (options *GetSubnetPublicGatewayOptions) SetID(id string) *GetSubnetPublicGatewayOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *GetSubnetPublicGatewayOptions) SetID(id string) *GetSubnetPublicGatewayOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -27571,10 +27741,10 @@ func (options *GetSubnetPublicGatewayOptions) SetHeaders(param map[string]string
 // GetSubnetReservedIPOptions : The GetSubnetReservedIP options.
 type GetSubnetReservedIPOptions struct {
 	// The subnet identifier.
-	SubnetID *string `validate:"required,ne="`
+	SubnetID *string `json:"-" validate:"required,ne="`
 
 	// The reserved IP identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -27589,15 +27759,15 @@ func (*VpcV1) NewGetSubnetReservedIPOptions(subnetID string, id string) *GetSubn
 }
 
 // SetSubnetID : Allow user to set SubnetID
-func (options *GetSubnetReservedIPOptions) SetSubnetID(subnetID string) *GetSubnetReservedIPOptions {
-	options.SubnetID = core.StringPtr(subnetID)
-	return options
+func (_options *GetSubnetReservedIPOptions) SetSubnetID(subnetID string) *GetSubnetReservedIPOptions {
+	_options.SubnetID = core.StringPtr(subnetID)
+	return _options
 }
 
 // SetID : Allow user to set ID
-func (options *GetSubnetReservedIPOptions) SetID(id string) *GetSubnetReservedIPOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *GetSubnetReservedIPOptions) SetID(id string) *GetSubnetReservedIPOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -27609,7 +27779,7 @@ func (options *GetSubnetReservedIPOptions) SetHeaders(param map[string]string) *
 // GetSubnetRoutingTableOptions : The GetSubnetRoutingTable options.
 type GetSubnetRoutingTableOptions struct {
 	// The subnet identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -27623,9 +27793,9 @@ func (*VpcV1) NewGetSubnetRoutingTableOptions(id string) *GetSubnetRoutingTableO
 }
 
 // SetID : Allow user to set ID
-func (options *GetSubnetRoutingTableOptions) SetID(id string) *GetSubnetRoutingTableOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *GetSubnetRoutingTableOptions) SetID(id string) *GetSubnetRoutingTableOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -27637,7 +27807,7 @@ func (options *GetSubnetRoutingTableOptions) SetHeaders(param map[string]string)
 // GetVolumeOptions : The GetVolume options.
 type GetVolumeOptions struct {
 	// The volume identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -27651,9 +27821,9 @@ func (*VpcV1) NewGetVolumeOptions(id string) *GetVolumeOptions {
 }
 
 // SetID : Allow user to set ID
-func (options *GetVolumeOptions) SetID(id string) *GetVolumeOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *GetVolumeOptions) SetID(id string) *GetVolumeOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -27665,7 +27835,7 @@ func (options *GetVolumeOptions) SetHeaders(param map[string]string) *GetVolumeO
 // GetVolumeProfileOptions : The GetVolumeProfile options.
 type GetVolumeProfileOptions struct {
 	// The volume profile name.
-	Name *string `validate:"required,ne="`
+	Name *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -27679,9 +27849,9 @@ func (*VpcV1) NewGetVolumeProfileOptions(name string) *GetVolumeProfileOptions {
 }
 
 // SetName : Allow user to set Name
-func (options *GetVolumeProfileOptions) SetName(name string) *GetVolumeProfileOptions {
-	options.Name = core.StringPtr(name)
-	return options
+func (_options *GetVolumeProfileOptions) SetName(name string) *GetVolumeProfileOptions {
+	_options.Name = core.StringPtr(name)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -27693,10 +27863,10 @@ func (options *GetVolumeProfileOptions) SetHeaders(param map[string]string) *Get
 // GetVPCAddressPrefixOptions : The GetVPCAddressPrefix options.
 type GetVPCAddressPrefixOptions struct {
 	// The VPC identifier.
-	VPCID *string `validate:"required,ne="`
+	VPCID *string `json:"-" validate:"required,ne="`
 
 	// The prefix identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -27711,15 +27881,15 @@ func (*VpcV1) NewGetVPCAddressPrefixOptions(vpcID string, id string) *GetVPCAddr
 }
 
 // SetVPCID : Allow user to set VPCID
-func (options *GetVPCAddressPrefixOptions) SetVPCID(vpcID string) *GetVPCAddressPrefixOptions {
-	options.VPCID = core.StringPtr(vpcID)
-	return options
+func (_options *GetVPCAddressPrefixOptions) SetVPCID(vpcID string) *GetVPCAddressPrefixOptions {
+	_options.VPCID = core.StringPtr(vpcID)
+	return _options
 }
 
 // SetID : Allow user to set ID
-func (options *GetVPCAddressPrefixOptions) SetID(id string) *GetVPCAddressPrefixOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *GetVPCAddressPrefixOptions) SetID(id string) *GetVPCAddressPrefixOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -27731,7 +27901,7 @@ func (options *GetVPCAddressPrefixOptions) SetHeaders(param map[string]string) *
 // GetVPCDefaultNetworkACLOptions : The GetVPCDefaultNetworkACL options.
 type GetVPCDefaultNetworkACLOptions struct {
 	// The VPC identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -27745,9 +27915,9 @@ func (*VpcV1) NewGetVPCDefaultNetworkACLOptions(id string) *GetVPCDefaultNetwork
 }
 
 // SetID : Allow user to set ID
-func (options *GetVPCDefaultNetworkACLOptions) SetID(id string) *GetVPCDefaultNetworkACLOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *GetVPCDefaultNetworkACLOptions) SetID(id string) *GetVPCDefaultNetworkACLOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -27759,7 +27929,7 @@ func (options *GetVPCDefaultNetworkACLOptions) SetHeaders(param map[string]strin
 // GetVPCDefaultRoutingTableOptions : The GetVPCDefaultRoutingTable options.
 type GetVPCDefaultRoutingTableOptions struct {
 	// The VPC identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -27773,9 +27943,9 @@ func (*VpcV1) NewGetVPCDefaultRoutingTableOptions(id string) *GetVPCDefaultRouti
 }
 
 // SetID : Allow user to set ID
-func (options *GetVPCDefaultRoutingTableOptions) SetID(id string) *GetVPCDefaultRoutingTableOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *GetVPCDefaultRoutingTableOptions) SetID(id string) *GetVPCDefaultRoutingTableOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -27787,7 +27957,7 @@ func (options *GetVPCDefaultRoutingTableOptions) SetHeaders(param map[string]str
 // GetVPCDefaultSecurityGroupOptions : The GetVPCDefaultSecurityGroup options.
 type GetVPCDefaultSecurityGroupOptions struct {
 	// The VPC identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -27801,9 +27971,9 @@ func (*VpcV1) NewGetVPCDefaultSecurityGroupOptions(id string) *GetVPCDefaultSecu
 }
 
 // SetID : Allow user to set ID
-func (options *GetVPCDefaultSecurityGroupOptions) SetID(id string) *GetVPCDefaultSecurityGroupOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *GetVPCDefaultSecurityGroupOptions) SetID(id string) *GetVPCDefaultSecurityGroupOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -27815,7 +27985,7 @@ func (options *GetVPCDefaultSecurityGroupOptions) SetHeaders(param map[string]st
 // GetVPCOptions : The GetVPC options.
 type GetVPCOptions struct {
 	// The VPC identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -27829,9 +27999,9 @@ func (*VpcV1) NewGetVPCOptions(id string) *GetVPCOptions {
 }
 
 // SetID : Allow user to set ID
-func (options *GetVPCOptions) SetID(id string) *GetVPCOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *GetVPCOptions) SetID(id string) *GetVPCOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -27843,10 +28013,10 @@ func (options *GetVPCOptions) SetHeaders(param map[string]string) *GetVPCOptions
 // GetVPCRouteOptions : The GetVPCRoute options.
 type GetVPCRouteOptions struct {
 	// The VPC identifier.
-	VPCID *string `validate:"required,ne="`
+	VPCID *string `json:"-" validate:"required,ne="`
 
 	// The route identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -27861,15 +28031,15 @@ func (*VpcV1) NewGetVPCRouteOptions(vpcID string, id string) *GetVPCRouteOptions
 }
 
 // SetVPCID : Allow user to set VPCID
-func (options *GetVPCRouteOptions) SetVPCID(vpcID string) *GetVPCRouteOptions {
-	options.VPCID = core.StringPtr(vpcID)
-	return options
+func (_options *GetVPCRouteOptions) SetVPCID(vpcID string) *GetVPCRouteOptions {
+	_options.VPCID = core.StringPtr(vpcID)
+	return _options
 }
 
 // SetID : Allow user to set ID
-func (options *GetVPCRouteOptions) SetID(id string) *GetVPCRouteOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *GetVPCRouteOptions) SetID(id string) *GetVPCRouteOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -27881,10 +28051,10 @@ func (options *GetVPCRouteOptions) SetHeaders(param map[string]string) *GetVPCRo
 // GetVPCRoutingTableOptions : The GetVPCRoutingTable options.
 type GetVPCRoutingTableOptions struct {
 	// The VPC identifier.
-	VPCID *string `validate:"required,ne="`
+	VPCID *string `json:"-" validate:"required,ne="`
 
 	// The routing table identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -27899,15 +28069,15 @@ func (*VpcV1) NewGetVPCRoutingTableOptions(vpcID string, id string) *GetVPCRouti
 }
 
 // SetVPCID : Allow user to set VPCID
-func (options *GetVPCRoutingTableOptions) SetVPCID(vpcID string) *GetVPCRoutingTableOptions {
-	options.VPCID = core.StringPtr(vpcID)
-	return options
+func (_options *GetVPCRoutingTableOptions) SetVPCID(vpcID string) *GetVPCRoutingTableOptions {
+	_options.VPCID = core.StringPtr(vpcID)
+	return _options
 }
 
 // SetID : Allow user to set ID
-func (options *GetVPCRoutingTableOptions) SetID(id string) *GetVPCRoutingTableOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *GetVPCRoutingTableOptions) SetID(id string) *GetVPCRoutingTableOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -27919,13 +28089,13 @@ func (options *GetVPCRoutingTableOptions) SetHeaders(param map[string]string) *G
 // GetVPCRoutingTableRouteOptions : The GetVPCRoutingTableRoute options.
 type GetVPCRoutingTableRouteOptions struct {
 	// The VPC identifier.
-	VPCID *string `validate:"required,ne="`
+	VPCID *string `json:"-" validate:"required,ne="`
 
 	// The routing table identifier.
-	RoutingTableID *string `validate:"required,ne="`
+	RoutingTableID *string `json:"-" validate:"required,ne="`
 
 	// The VPC routing table route identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -27941,21 +28111,21 @@ func (*VpcV1) NewGetVPCRoutingTableRouteOptions(vpcID string, routingTableID str
 }
 
 // SetVPCID : Allow user to set VPCID
-func (options *GetVPCRoutingTableRouteOptions) SetVPCID(vpcID string) *GetVPCRoutingTableRouteOptions {
-	options.VPCID = core.StringPtr(vpcID)
-	return options
+func (_options *GetVPCRoutingTableRouteOptions) SetVPCID(vpcID string) *GetVPCRoutingTableRouteOptions {
+	_options.VPCID = core.StringPtr(vpcID)
+	return _options
 }
 
 // SetRoutingTableID : Allow user to set RoutingTableID
-func (options *GetVPCRoutingTableRouteOptions) SetRoutingTableID(routingTableID string) *GetVPCRoutingTableRouteOptions {
-	options.RoutingTableID = core.StringPtr(routingTableID)
-	return options
+func (_options *GetVPCRoutingTableRouteOptions) SetRoutingTableID(routingTableID string) *GetVPCRoutingTableRouteOptions {
+	_options.RoutingTableID = core.StringPtr(routingTableID)
+	return _options
 }
 
 // SetID : Allow user to set ID
-func (options *GetVPCRoutingTableRouteOptions) SetID(id string) *GetVPCRoutingTableRouteOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *GetVPCRoutingTableRouteOptions) SetID(id string) *GetVPCRoutingTableRouteOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -27967,10 +28137,10 @@ func (options *GetVPCRoutingTableRouteOptions) SetHeaders(param map[string]strin
 // GetVPNGatewayConnectionOptions : The GetVPNGatewayConnection options.
 type GetVPNGatewayConnectionOptions struct {
 	// The VPN gateway identifier.
-	VPNGatewayID *string `validate:"required,ne="`
+	VPNGatewayID *string `json:"-" validate:"required,ne="`
 
 	// The VPN gateway connection identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -27985,15 +28155,15 @@ func (*VpcV1) NewGetVPNGatewayConnectionOptions(vpnGatewayID string, id string) 
 }
 
 // SetVPNGatewayID : Allow user to set VPNGatewayID
-func (options *GetVPNGatewayConnectionOptions) SetVPNGatewayID(vpnGatewayID string) *GetVPNGatewayConnectionOptions {
-	options.VPNGatewayID = core.StringPtr(vpnGatewayID)
-	return options
+func (_options *GetVPNGatewayConnectionOptions) SetVPNGatewayID(vpnGatewayID string) *GetVPNGatewayConnectionOptions {
+	_options.VPNGatewayID = core.StringPtr(vpnGatewayID)
+	return _options
 }
 
 // SetID : Allow user to set ID
-func (options *GetVPNGatewayConnectionOptions) SetID(id string) *GetVPNGatewayConnectionOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *GetVPNGatewayConnectionOptions) SetID(id string) *GetVPNGatewayConnectionOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -28005,7 +28175,7 @@ func (options *GetVPNGatewayConnectionOptions) SetHeaders(param map[string]strin
 // GetVPNGatewayOptions : The GetVPNGateway options.
 type GetVPNGatewayOptions struct {
 	// The VPN gateway identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -28019,9 +28189,9 @@ func (*VpcV1) NewGetVPNGatewayOptions(id string) *GetVPNGatewayOptions {
 }
 
 // SetID : Allow user to set ID
-func (options *GetVPNGatewayOptions) SetID(id string) *GetVPNGatewayOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *GetVPNGatewayOptions) SetID(id string) *GetVPNGatewayOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -28206,39 +28376,16 @@ func UnmarshalIkePolicyCollection(m map[string]json.RawMessage, result interface
 	return
 }
 
-// IkePolicyIdentity : Identifies an IKE policy by a unique property.
-// Models which "extend" this model:
-// - IkePolicyIdentityByID
-// - IkePolicyIdentityByHref
-type IkePolicyIdentity struct {
-	// The unique identifier for this IKE policy.
-	ID *string `json:"id,omitempty"`
-
-	// The IKE policy's canonical URL.
-	Href *string `json:"href,omitempty"`
-}
-
-func (*IkePolicyIdentity) isaIkePolicyIdentity() bool {
-	return true
-}
-
-type IkePolicyIdentityIntf interface {
-	isaIkePolicyIdentity() bool
-}
-
-// UnmarshalIkePolicyIdentity unmarshals an instance of IkePolicyIdentity from the specified map of raw messages.
-func UnmarshalIkePolicyIdentity(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(IkePolicyIdentity)
-	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
-	if err != nil {
-		return
+// Retrieve the value to be passed to a request to access the next page of results
+func (resp *IkePolicyCollection) GetNextStart() (*string, error) {
+	if core.IsNil(resp.Next) {
+		return nil, nil
 	}
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
+	start, err := core.GetQueryParam(resp.Next.Href, "start")
+	if err != nil || start == nil {
+		return nil, err
 	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
+	return start, nil
 }
 
 // IkePolicyPatch : IkePolicyPatch struct
@@ -28311,11 +28458,11 @@ func UnmarshalIkePolicyPatch(m map[string]json.RawMessage, result interface{}) (
 }
 
 // AsPatch returns a generic map representation of the IkePolicyPatch
-func (ikePolicyPatch *IkePolicyPatch) AsPatch() (patch map[string]interface{}, err error) {
+func (ikePolicyPatch *IkePolicyPatch) AsPatch() (_patch map[string]interface{}, err error) {
 	var jsonData []byte
 	jsonData, err = json.Marshal(ikePolicyPatch)
 	if err == nil {
-		err = json.Unmarshal(jsonData, &patch)
+		err = json.Unmarshal(jsonData, &_patch)
 	}
 	return
 }
@@ -28374,9 +28521,11 @@ func UnmarshalIkePolicyReference(m map[string]json.RawMessage, result interface{
 
 // IP : IP struct
 type IP struct {
-	// The IP address. This property may add support for IPv6 addresses in the future. When processing a value in this
-	// property, verify that the address is in an expected format. If it is not, log an error. Optionally halt processing
-	// and surface the error, or bypass the resource on which the unexpected IP address format was encountered.
+	// The IP address.
+	//
+	// This property may add support for IPv6 addresses in the future. When processing a value in this property, verify
+	// that the address is in an expected format. If it is not, log an error. Optionally halt processing and surface the
+	// error, or bypass the resource on which the unexpected IP address format was encountered.
 	Address *string `json:"address" validate:"required"`
 }
 
@@ -28583,6 +28732,18 @@ func UnmarshalIPsecPolicyCollection(m map[string]json.RawMessage, result interfa
 	return
 }
 
+// Retrieve the value to be passed to a request to access the next page of results
+func (resp *IPsecPolicyCollection) GetNextStart() (*string, error) {
+	if core.IsNil(resp.Next) {
+		return nil, nil
+	}
+	start, err := core.GetQueryParam(resp.Next.Href, "start")
+	if err != nil || start == nil {
+		return nil, err
+	}
+	return start, nil
+}
+
 // IPsecPolicyCollectionFirst : A link to the first page of resources.
 type IPsecPolicyCollectionFirst struct {
 	// The URL for a page of resources.
@@ -28609,41 +28770,6 @@ type IPsecPolicyCollectionNext struct {
 // UnmarshalIPsecPolicyCollectionNext unmarshals an instance of IPsecPolicyCollectionNext from the specified map of raw messages.
 func UnmarshalIPsecPolicyCollectionNext(m map[string]json.RawMessage, result interface{}) (err error) {
 	obj := new(IPsecPolicyCollectionNext)
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// IPsecPolicyIdentity : Identifies an IPsec policy by a unique property.
-// Models which "extend" this model:
-// - IPsecPolicyIdentityByID
-// - IPsecPolicyIdentityByHref
-type IPsecPolicyIdentity struct {
-	// The unique identifier for this IPsec policy.
-	ID *string `json:"id,omitempty"`
-
-	// The IPsec policy's canonical URL.
-	Href *string `json:"href,omitempty"`
-}
-
-func (*IPsecPolicyIdentity) isaIPsecPolicyIdentity() bool {
-	return true
-}
-
-type IPsecPolicyIdentityIntf interface {
-	isaIPsecPolicyIdentity() bool
-}
-
-// UnmarshalIPsecPolicyIdentity unmarshals an instance of IPsecPolicyIdentity from the specified map of raw messages.
-func UnmarshalIPsecPolicyIdentity(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(IPsecPolicyIdentity)
-	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
-	if err != nil {
-		return
-	}
 	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
 	if err != nil {
 		return
@@ -28725,11 +28851,11 @@ func UnmarshalIPsecPolicyPatch(m map[string]json.RawMessage, result interface{})
 }
 
 // AsPatch returns a generic map representation of the IPsecPolicyPatch
-func (iPsecPolicyPatch *IPsecPolicyPatch) AsPatch() (patch map[string]interface{}, err error) {
+func (iPsecPolicyPatch *IPsecPolicyPatch) AsPatch() (_patch map[string]interface{}, err error) {
 	var jsonData []byte
 	jsonData, err = json.Marshal(iPsecPolicyPatch)
 	if err == nil {
-		err = json.Unmarshal(jsonData, &patch)
+		err = json.Unmarshal(jsonData, &_patch)
 	}
 	return
 }
@@ -28868,7 +28994,7 @@ type Image struct {
 	Encryption *string `json:"encryption" validate:"required"`
 
 	// The key that will be used to encrypt volumes created from this image (unless an
-	// alternate `encryption_key` is provided at volume creation).
+	// alternate `encryption_key` is specified at volume creation).
 	//
 	// This property will be present for images with an `encryption` type of `user_managed`.
 	EncryptionKey *EncryptionKeyReference `json:"encryption_key,omitempty"`
@@ -29074,6 +29200,18 @@ func UnmarshalImageCollection(m map[string]json.RawMessage, result interface{}) 
 	return
 }
 
+// Retrieve the value to be passed to a request to access the next page of results
+func (resp *ImageCollection) GetNextStart() (*string, error) {
+	if core.IsNil(resp.Next) {
+		return nil, nil
+	}
+	start, err := core.GetQueryParam(resp.Next.Href, "start")
+	if err != nil || start == nil {
+		return nil, err
+	}
+	return start, nil
+}
+
 // ImageCollectionFirst : A link to the first page of resources.
 type ImageCollectionFirst struct {
 	// The URL for a page of resources.
@@ -29162,11 +29300,11 @@ type ImageFilePrototype struct {
 }
 
 // NewImageFilePrototype : Instantiate ImageFilePrototype (Generic Model Constructor)
-func (*VpcV1) NewImageFilePrototype(href string) (model *ImageFilePrototype, err error) {
-	model = &ImageFilePrototype{
+func (*VpcV1) NewImageFilePrototype(href string) (_model *ImageFilePrototype, err error) {
+	_model = &ImageFilePrototype{
 		Href: core.StringPtr(href),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -29242,11 +29380,11 @@ func UnmarshalImagePatch(m map[string]json.RawMessage, result interface{}) (err 
 }
 
 // AsPatch returns a generic map representation of the ImagePatch
-func (imagePatch *ImagePatch) AsPatch() (patch map[string]interface{}, err error) {
+func (imagePatch *ImagePatch) AsPatch() (_patch map[string]interface{}, err error) {
 	var jsonData []byte
 	jsonData, err = json.Marshal(imagePatch)
 	if err == nil {
-		err = json.Unmarshal(jsonData, &patch)
+		err = json.Unmarshal(jsonData, &_patch)
 	}
 	return
 }
@@ -29267,18 +29405,18 @@ type ImagePrototype struct {
 	// A base64-encoded, encrypted representation of the key that was used to encrypt the data for this image.
 	//
 	// That representation is created by wrapping the key's value with the `encryption_key` root key (which must also be
-	// provided), using either [Key Protect](https://cloud.ibm.com/docs/key-protect?topic=key-protect-wrap-keys) or the
+	// specified), using either [Key Protect](https://cloud.ibm.com/docs/key-protect?topic=key-protect-wrap-keys) or the
 	// [Hyper Protect Crypto Service](https://cloud.ibm.com/docs/services/hs-crypto?topic=hs-crypto-wrap-keys).
 	//
-	// If this property is not provided, the imported image is treated as unencrypted.
+	// If unspecified, the imported image is treated as unencrypted.
 	EncryptedDataKey *string `json:"encrypted_data_key,omitempty"`
 
 	// The root key that was used to wrap the data key (which is ultimately represented as
 	// `encrypted_data_key`). Additionally, the root key will be used to encrypt volumes
-	// created from this image (unless an alternate `encryption_key` is provided at volume
+	// created from this image (unless an alternate `encryption_key` is specified at volume
 	// creation).
 	//
-	// If this property is not provided, the imported image is treated as unencrypted.
+	// If unspecified, the imported image is treated as unencrypted.
 	EncryptionKey EncryptionKeyIdentityIntf `json:"encryption_key,omitempty"`
 
 	// The file from which to create the image.
@@ -29450,7 +29588,8 @@ type Instance struct {
 	// The availability policy for this virtual server instance.
 	AvailabilityPolicy *InstanceAvailabilityPolicy `json:"availability_policy" validate:"required"`
 
-	// The total bandwidth (in megabits per second) shared across the virtual server instance's network interfaces.
+	// The total bandwidth (in megabits per second) shared across the virtual server instance's network interfaces and
+	// storage volumes.
 	Bandwidth *int64 `json:"bandwidth" validate:"required"`
 
 	// Boot volume attachment.
@@ -29461,6 +29600,9 @@ type Instance struct {
 
 	// The CRN for this virtual server instance.
 	CRN *string `json:"crn" validate:"required"`
+
+	// If present, the dedicated host this virtual server instance has been placed on.
+	DedicatedHost *DedicatedHostReference `json:"dedicated_host,omitempty"`
 
 	// The instance disks for this virtual server instance.
 	Disks []InstanceDisk `json:"disks" validate:"required"`
@@ -29511,6 +29653,14 @@ type Instance struct {
 	// unexpected reason code was encountered.
 	StatusReasons []InstanceStatusReason `json:"status_reasons" validate:"required"`
 
+	// The amount of bandwidth (in megabits per second) allocated exclusively to instance network interfaces.
+	TotalNetworkBandwidth *int64 `json:"total_network_bandwidth" validate:"required"`
+
+	// The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes. An increase in
+	// this value will result in a corresponding decrease to
+	// `total_network_bandwidth`.
+	TotalVolumeBandwidth *int64 `json:"total_volume_bandwidth" validate:"required"`
+
 	// The virtual server instance VCPU configuration.
 	Vcpu *InstanceVcpu `json:"vcpu" validate:"required"`
 
@@ -29560,6 +29710,10 @@ func UnmarshalInstance(m map[string]json.RawMessage, result interface{}) (err er
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "dedicated_host", &obj.DedicatedHost, UnmarshalDedicatedHostReference)
 	if err != nil {
 		return
 	}
@@ -29620,6 +29774,14 @@ func UnmarshalInstance(m map[string]json.RawMessage, result interface{}) (err er
 		return
 	}
 	err = core.UnmarshalModel(m, "status_reasons", &obj.StatusReasons, UnmarshalInstanceStatusReason)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "total_network_bandwidth", &obj.TotalNetworkBandwidth)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "total_volume_bandwidth", &obj.TotalVolumeBandwidth)
 	if err != nil {
 		return
 	}
@@ -29736,20 +29898,6 @@ type InstanceAvailabilityPolicy struct {
 	// for and log unknown values. Optionally halt processing and surface the error, or bypass the instance on which the
 	// unexpected property value was encountered.
 	HostFailure *string `json:"host_failure" validate:"required"`
-
-	// The action to perform if the compute host requires maintenance.
-	// - `live_migrate`: Live migrate to another host prior to host maintenance
-	// - `restart`: Automatically restart the virtual server instance after host maintenance
-	// - `stop`: Leave the virtual server instance stopped after host maintenance
-	//
-	// - __TBD__: behavior if the instance is already stopped (still set
-	//   `stopped_for_maintenance`?)
-	// - Related __TBD__: behavior if user tries to start the instance during host maintenance
-	//
-	// The enumerated values for this property are expected to expand in the future. When processing this property, check
-	// for and log unknown values. Optionally halt processing and surface the error, or bypass the instance on which the
-	// unexpected property value was encountered.
-	HostMaintenance *string `json:"host_maintenance" validate:"required"`
 }
 
 // Constants associated with the InstanceAvailabilityPolicy.HostFailure property.
@@ -29765,33 +29913,10 @@ const (
 	InstanceAvailabilityPolicyHostFailureStopConst    = "stop"
 )
 
-// Constants associated with the InstanceAvailabilityPolicy.HostMaintenance property.
-// The action to perform if the compute host requires maintenance.
-// - `live_migrate`: Live migrate to another host prior to host maintenance
-// - `restart`: Automatically restart the virtual server instance after host maintenance
-// - `stop`: Leave the virtual server instance stopped after host maintenance
-//
-// - __TBD__: behavior if the instance is already stopped (still set
-//   `stopped_for_maintenance`?)
-// - Related __TBD__: behavior if user tries to start the instance during host maintenance
-//
-// The enumerated values for this property are expected to expand in the future. When processing this property, check
-// for and log unknown values. Optionally halt processing and surface the error, or bypass the instance on which the
-// unexpected property value was encountered.
-const (
-	InstanceAvailabilityPolicyHostMaintenanceLiveMigrateConst = "live_migrate"
-	InstanceAvailabilityPolicyHostMaintenanceRestartConst     = "restart"
-	InstanceAvailabilityPolicyHostMaintenanceStopConst        = "stop"
-)
-
 // UnmarshalInstanceAvailabilityPolicy unmarshals an instance of InstanceAvailabilityPolicy from the specified map of raw messages.
 func UnmarshalInstanceAvailabilityPolicy(m map[string]json.RawMessage, result interface{}) (err error) {
 	obj := new(InstanceAvailabilityPolicy)
 	err = core.UnmarshalPrimitive(m, "host_failure", &obj.HostFailure)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "host_maintenance", &obj.HostMaintenance)
 	if err != nil {
 		return
 	}
@@ -29809,20 +29934,6 @@ type InstanceAvailabilityPolicyPatch struct {
 	// for and log unknown values. Optionally halt processing and surface the error, or bypass the instance on which the
 	// unexpected property value was encountered.
 	HostFailure *string `json:"host_failure,omitempty"`
-
-	// The action to perform if the compute host requires maintenance.
-	// - `live_migrate`: Live migrate to another host prior to host maintenance
-	// - `restart`: Automatically restart the virtual server instance after host maintenance
-	// - `stop`: Leave the virtual server instance stopped after host maintenance
-	//
-	// - __TBD__: behavior if the instance is already stopped (still set
-	//   `stopped_for_maintenance`?)
-	// - Related __TBD__: behavior if user tries to start the instance during host maintenance
-	//
-	// The enumerated values for this property are expected to expand in the future. When processing this property, check
-	// for and log unknown values. Optionally halt processing and surface the error, or bypass the instance on which the
-	// unexpected property value was encountered.
-	HostMaintenance *string `json:"host_maintenance,omitempty"`
 }
 
 // Constants associated with the InstanceAvailabilityPolicyPatch.HostFailure property.
@@ -29838,33 +29949,10 @@ const (
 	InstanceAvailabilityPolicyPatchHostFailureStopConst    = "stop"
 )
 
-// Constants associated with the InstanceAvailabilityPolicyPatch.HostMaintenance property.
-// The action to perform if the compute host requires maintenance.
-// - `live_migrate`: Live migrate to another host prior to host maintenance
-// - `restart`: Automatically restart the virtual server instance after host maintenance
-// - `stop`: Leave the virtual server instance stopped after host maintenance
-//
-// - __TBD__: behavior if the instance is already stopped (still set
-//   `stopped_for_maintenance`?)
-// - Related __TBD__: behavior if user tries to start the instance during host maintenance
-//
-// The enumerated values for this property are expected to expand in the future. When processing this property, check
-// for and log unknown values. Optionally halt processing and surface the error, or bypass the instance on which the
-// unexpected property value was encountered.
-const (
-	InstanceAvailabilityPolicyPatchHostMaintenanceLiveMigrateConst = "live_migrate"
-	InstanceAvailabilityPolicyPatchHostMaintenanceRestartConst     = "restart"
-	InstanceAvailabilityPolicyPatchHostMaintenanceStopConst        = "stop"
-)
-
 // UnmarshalInstanceAvailabilityPolicyPatch unmarshals an instance of InstanceAvailabilityPolicyPatch from the specified map of raw messages.
 func UnmarshalInstanceAvailabilityPolicyPatch(m map[string]json.RawMessage, result interface{}) (err error) {
 	obj := new(InstanceAvailabilityPolicyPatch)
 	err = core.UnmarshalPrimitive(m, "host_failure", &obj.HostFailure)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "host_maintenance", &obj.HostMaintenance)
 	if err != nil {
 		return
 	}
@@ -29882,20 +29970,6 @@ type InstanceAvailabilityPrototype struct {
 	// for and log unknown values. Optionally halt processing and surface the error, or bypass the instance on which the
 	// unexpected property value was encountered.
 	HostFailure *string `json:"host_failure,omitempty"`
-
-	// The action to perform if the compute host requires maintenance.
-	// - `live_migrate`: Live migrate to another host prior to host maintenance
-	// - `restart`: Automatically restart the virtual server instance after host maintenance
-	// - `stop`: Leave the virtual server instance stopped after host maintenance
-	//
-	// - __TBD__: behavior if the instance is already stopped (still set
-	//   `stopped_for_maintenance`?)
-	// - Related __TBD__: behavior if user tries to start the instance during host maintenance
-	//
-	// The enumerated values for this property are expected to expand in the future. When processing this property, check
-	// for and log unknown values. Optionally halt processing and surface the error, or bypass the instance on which the
-	// unexpected property value was encountered.
-	HostMaintenance *string `json:"host_maintenance,omitempty"`
 }
 
 // Constants associated with the InstanceAvailabilityPrototype.HostFailure property.
@@ -29911,33 +29985,10 @@ const (
 	InstanceAvailabilityPrototypeHostFailureStopConst    = "stop"
 )
 
-// Constants associated with the InstanceAvailabilityPrototype.HostMaintenance property.
-// The action to perform if the compute host requires maintenance.
-// - `live_migrate`: Live migrate to another host prior to host maintenance
-// - `restart`: Automatically restart the virtual server instance after host maintenance
-// - `stop`: Leave the virtual server instance stopped after host maintenance
-//
-// - __TBD__: behavior if the instance is already stopped (still set
-//   `stopped_for_maintenance`?)
-// - Related __TBD__: behavior if user tries to start the instance during host maintenance
-//
-// The enumerated values for this property are expected to expand in the future. When processing this property, check
-// for and log unknown values. Optionally halt processing and surface the error, or bypass the instance on which the
-// unexpected property value was encountered.
-const (
-	InstanceAvailabilityPrototypeHostMaintenanceLiveMigrateConst = "live_migrate"
-	InstanceAvailabilityPrototypeHostMaintenanceRestartConst     = "restart"
-	InstanceAvailabilityPrototypeHostMaintenanceStopConst        = "stop"
-)
-
 // UnmarshalInstanceAvailabilityPrototype unmarshals an instance of InstanceAvailabilityPrototype from the specified map of raw messages.
 func UnmarshalInstanceAvailabilityPrototype(m map[string]json.RawMessage, result interface{}) (err error) {
 	obj := new(InstanceAvailabilityPrototype)
 	err = core.UnmarshalPrimitive(m, "host_failure", &obj.HostFailure)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "host_maintenance", &obj.HostMaintenance)
 	if err != nil {
 		return
 	}
@@ -29989,6 +30040,18 @@ func UnmarshalInstanceCollection(m map[string]json.RawMessage, result interface{
 	}
 	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
 	return
+}
+
+// Retrieve the value to be passed to a request to access the next page of results
+func (resp *InstanceCollection) GetNextStart() (*string, error) {
+	if core.IsNil(resp.Next) {
+		return nil, nil
+	}
+	start, err := core.GetQueryParam(resp.Next.Href, "start")
+	if err != nil || start == nil {
+		return nil, err
+	}
+	return start, nil
 }
 
 // InstanceCollectionFirst : A link to the first page of resources.
@@ -30200,11 +30263,11 @@ func UnmarshalInstanceDiskPatch(m map[string]json.RawMessage, result interface{}
 }
 
 // AsPatch returns a generic map representation of the InstanceDiskPatch
-func (instanceDiskPatch *InstanceDiskPatch) AsPatch() (patch map[string]interface{}, err error) {
+func (instanceDiskPatch *InstanceDiskPatch) AsPatch() (_patch map[string]interface{}, err error) {
 	var jsonData []byte
 	jsonData, err = json.Marshal(instanceDiskPatch)
 	if err == nil {
-		err = json.Unmarshal(jsonData, &patch)
+		err = json.Unmarshal(jsonData, &_patch)
 	}
 	return
 }
@@ -30499,6 +30562,18 @@ func UnmarshalInstanceGroupCollection(m map[string]json.RawMessage, result inter
 	return
 }
 
+// Retrieve the value to be passed to a request to access the next page of results
+func (resp *InstanceGroupCollection) GetNextStart() (*string, error) {
+	if core.IsNil(resp.Next) {
+		return nil, nil
+	}
+	start, err := core.GetQueryParam(resp.Next.Href, "start")
+	if err != nil || start == nil {
+		return nil, err
+	}
+	return start, nil
+}
+
 // InstanceGroupCollectionFirst : A link to the first page of resources.
 type InstanceGroupCollectionFirst struct {
 	// The URL for a page of resources.
@@ -30547,7 +30622,7 @@ type InstanceGroupManager struct {
 	// The unique identifier for this instance group manager.
 	ID *string `json:"id" validate:"required"`
 
-	// If set to `true`, this manager will control the instance group.
+	// Indicates whether this manager will control the instance group.
 	ManagementEnabled *bool `json:"management_enabled" validate:"required"`
 
 	// The user-defined name for this instance group manager. Names must be unique within the instance group.
@@ -30655,12 +30730,14 @@ func UnmarshalInstanceGroupManager(m map[string]json.RawMessage, result interfac
 // Models which "extend" this model:
 // - InstanceGroupManagerActionScheduledAction
 type InstanceGroupManagerAction struct {
-	// If set to `true`, this scheduled action will be automatically deleted after it has finished and the
-	// `auto_delete_timeout` time has passed.
+	// Indicates whether this scheduled action will be automatically deleted after it has completed and
+	// `auto_delete_timeout` hours have passed. At present, this is always
+	// `true`, but may be modifiable in the future.
 	AutoDelete *bool `json:"auto_delete" validate:"required"`
 
-	// Amount of time in hours that are required to pass before the scheduled action will be automatically deleted once it
-	// has finished. If this value is 0, the action will be deleted on completion.
+	// If `auto_delete` is `true`, and this scheduled action has finished, the hours after which it will be automatically
+	// deleted. If the value is `0`, the action will be deleted once it has finished. This value may be modifiable in the
+	// future.
 	AutoDeleteTimeout *int64 `json:"auto_delete_timeout" validate:"required"`
 
 	// The date and time that the instance group manager action was created.
@@ -30697,10 +30774,10 @@ type InstanceGroupManagerAction struct {
 	// period.
 	CronSpec *string `json:"cron_spec,omitempty"`
 
-	// The date and time the scheduled action was last applied. If empty the action has never been applied.
+	// The date and time the scheduled action was last applied. If absent, the action has never been applied.
 	LastAppliedAt *strfmt.DateTime `json:"last_applied_at,omitempty"`
 
-	// The date and time the scheduled action will next run. If empty the system is currently calculating the next run
+	// The date and time the scheduled action will next run. If absent, the system is currently calculating the next run
 	// time.
 	NextRunAt *strfmt.DateTime `json:"next_run_at,omitempty"`
 
@@ -30898,11 +30975,11 @@ func UnmarshalInstanceGroupManagerActionPatch(m map[string]json.RawMessage, resu
 }
 
 // AsPatch returns a generic map representation of the InstanceGroupManagerActionPatch
-func (instanceGroupManagerActionPatch *InstanceGroupManagerActionPatch) AsPatch() (patch map[string]interface{}, err error) {
+func (instanceGroupManagerActionPatch *InstanceGroupManagerActionPatch) AsPatch() (_patch map[string]interface{}, err error) {
 	var jsonData []byte
 	jsonData, err = json.Marshal(instanceGroupManagerActionPatch)
 	if err == nil {
-		err = json.Unmarshal(jsonData, &patch)
+		err = json.Unmarshal(jsonData, &_patch)
 	}
 	return
 }
@@ -31079,6 +31156,18 @@ func UnmarshalInstanceGroupManagerActionsCollection(m map[string]json.RawMessage
 	return
 }
 
+// Retrieve the value to be passed to a request to access the next page of results
+func (resp *InstanceGroupManagerActionsCollection) GetNextStart() (*string, error) {
+	if core.IsNil(resp.Next) {
+		return nil, nil
+	}
+	start, err := core.GetQueryParam(resp.Next.Href, "start")
+	if err != nil || start == nil {
+		return nil, err
+	}
+	return start, nil
+}
+
 // InstanceGroupManagerActionsCollectionFirst : A link to the first page of resources.
 type InstanceGroupManagerActionsCollectionFirst struct {
 	// The URL for a page of resources.
@@ -31159,6 +31248,18 @@ func UnmarshalInstanceGroupManagerCollection(m map[string]json.RawMessage, resul
 	return
 }
 
+// Retrieve the value to be passed to a request to access the next page of results
+func (resp *InstanceGroupManagerCollection) GetNextStart() (*string, error) {
+	if core.IsNil(resp.Next) {
+		return nil, nil
+	}
+	start, err := core.GetQueryParam(resp.Next.Href, "start")
+	if err != nil || start == nil {
+		return nil, err
+	}
+	return start, nil
+}
+
 // InstanceGroupManagerCollectionFirst : A link to the first page of resources.
 type InstanceGroupManagerCollectionFirst struct {
 	// The URL for a page of resources.
@@ -31201,7 +31302,7 @@ type InstanceGroupManagerPatch struct {
 	// The duration of time in seconds to pause further scale actions after scaling has taken place.
 	Cooldown *int64 `json:"cooldown,omitempty"`
 
-	// If set to `true`, this manager will control the instance group.
+	// Indicates whether this manager will control the instance group.
 	ManagementEnabled *bool `json:"management_enabled,omitempty"`
 
 	// The maximum number of members in a managed instance group.
@@ -31246,11 +31347,11 @@ func UnmarshalInstanceGroupManagerPatch(m map[string]json.RawMessage, result int
 }
 
 // AsPatch returns a generic map representation of the InstanceGroupManagerPatch
-func (instanceGroupManagerPatch *InstanceGroupManagerPatch) AsPatch() (patch map[string]interface{}, err error) {
+func (instanceGroupManagerPatch *InstanceGroupManagerPatch) AsPatch() (_patch map[string]interface{}, err error) {
 	var jsonData []byte
 	jsonData, err = json.Marshal(instanceGroupManagerPatch)
 	if err == nil {
-		err = json.Unmarshal(jsonData, &patch)
+		err = json.Unmarshal(jsonData, &_patch)
 	}
 	return
 }
@@ -31393,6 +31494,18 @@ func UnmarshalInstanceGroupManagerPolicyCollection(m map[string]json.RawMessage,
 	return
 }
 
+// Retrieve the value to be passed to a request to access the next page of results
+func (resp *InstanceGroupManagerPolicyCollection) GetNextStart() (*string, error) {
+	if core.IsNil(resp.Next) {
+		return nil, nil
+	}
+	start, err := core.GetQueryParam(resp.Next.Href, "start")
+	if err != nil || start == nil {
+		return nil, err
+	}
+	return start, nil
+}
+
 // InstanceGroupManagerPolicyCollectionFirst : A link to the first page of resources.
 type InstanceGroupManagerPolicyCollectionFirst struct {
 	// The URL for a page of resources.
@@ -31469,11 +31582,11 @@ func UnmarshalInstanceGroupManagerPolicyPatch(m map[string]json.RawMessage, resu
 }
 
 // AsPatch returns a generic map representation of the InstanceGroupManagerPolicyPatch
-func (instanceGroupManagerPolicyPatch *InstanceGroupManagerPolicyPatch) AsPatch() (patch map[string]interface{}, err error) {
+func (instanceGroupManagerPolicyPatch *InstanceGroupManagerPolicyPatch) AsPatch() (_patch map[string]interface{}, err error) {
 	var jsonData []byte
 	jsonData, err = json.Marshal(instanceGroupManagerPolicyPatch)
 	if err == nil {
-		err = json.Unmarshal(jsonData, &patch)
+		err = json.Unmarshal(jsonData, &_patch)
 	}
 	return
 }
@@ -31605,7 +31718,7 @@ func UnmarshalInstanceGroupManagerPolicyReferenceDeleted(m map[string]json.RawMe
 // - InstanceGroupManagerPrototypeInstanceGroupManagerAutoScalePrototype
 // - InstanceGroupManagerPrototypeInstanceGroupManagerScheduledPrototype
 type InstanceGroupManagerPrototype struct {
-	// If set to `true`, this manager will control the instance group.
+	// Indicates whether this manager will control the instance group.
 	ManagementEnabled *bool `json:"management_enabled,omitempty"`
 
 	// The user-defined name for this instance group manager. Names must be unique within the instance group.
@@ -31757,11 +31870,11 @@ type InstanceGroupManagerScheduledActionGroupPrototype struct {
 }
 
 // NewInstanceGroupManagerScheduledActionGroupPrototype : Instantiate InstanceGroupManagerScheduledActionGroupPrototype (Generic Model Constructor)
-func (*VpcV1) NewInstanceGroupManagerScheduledActionGroupPrototype(membershipCount int64) (model *InstanceGroupManagerScheduledActionGroupPrototype, err error) {
-	model = &InstanceGroupManagerScheduledActionGroupPrototype{
+func (*VpcV1) NewInstanceGroupManagerScheduledActionGroupPrototype(membershipCount int64) (_model *InstanceGroupManagerScheduledActionGroupPrototype, err error) {
+	_model = &InstanceGroupManagerScheduledActionGroupPrototype{
 		MembershipCount: core.Int64Ptr(membershipCount),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -32030,6 +32143,18 @@ func UnmarshalInstanceGroupMembershipCollection(m map[string]json.RawMessage, re
 	return
 }
 
+// Retrieve the value to be passed to a request to access the next page of results
+func (resp *InstanceGroupMembershipCollection) GetNextStart() (*string, error) {
+	if core.IsNil(resp.Next) {
+		return nil, nil
+	}
+	start, err := core.GetQueryParam(resp.Next.Href, "start")
+	if err != nil || start == nil {
+		return nil, err
+	}
+	return start, nil
+}
+
 // InstanceGroupMembershipCollectionFirst : A link to the first page of resources.
 type InstanceGroupMembershipCollectionFirst struct {
 	// The URL for a page of resources.
@@ -32082,11 +32207,11 @@ func UnmarshalInstanceGroupMembershipPatch(m map[string]json.RawMessage, result 
 }
 
 // AsPatch returns a generic map representation of the InstanceGroupMembershipPatch
-func (instanceGroupMembershipPatch *InstanceGroupMembershipPatch) AsPatch() (patch map[string]interface{}, err error) {
+func (instanceGroupMembershipPatch *InstanceGroupMembershipPatch) AsPatch() (_patch map[string]interface{}, err error) {
 	var jsonData []byte
 	jsonData, err = json.Marshal(instanceGroupMembershipPatch)
 	if err == nil {
-		err = json.Unmarshal(jsonData, &patch)
+		err = json.Unmarshal(jsonData, &_patch)
 	}
 	return
 }
@@ -32097,7 +32222,7 @@ type InstanceGroupPatch struct {
 	// port for the load balancer pool member.
 	ApplicationPort *int64 `json:"application_port,omitempty"`
 
-	// Instance template to use when creating new instances.
+	// Identifies an instance template by a unique property.
 	InstanceTemplate InstanceTemplateIdentityIntf `json:"instance_template,omitempty"`
 
 	// The load balancer that the load balancer pool used by this group
@@ -32156,11 +32281,11 @@ func UnmarshalInstanceGroupPatch(m map[string]json.RawMessage, result interface{
 }
 
 // AsPatch returns a generic map representation of the InstanceGroupPatch
-func (instanceGroupPatch *InstanceGroupPatch) AsPatch() (patch map[string]interface{}, err error) {
+func (instanceGroupPatch *InstanceGroupPatch) AsPatch() (_patch map[string]interface{}, err error) {
 	var jsonData []byte
 	jsonData, err = json.Marshal(instanceGroupPatch)
 	if err == nil {
-		err = json.Unmarshal(jsonData, &patch)
+		err = json.Unmarshal(jsonData, &_patch)
 	}
 	return
 }
@@ -32232,7 +32357,7 @@ func UnmarshalInstanceGroupReferenceDeleted(m map[string]json.RawMessage, result
 // InstanceInitialization : InstanceInitialization struct
 type InstanceInitialization struct {
 	// The public SSH keys used at instance initialization.
-	Keys []KeyReferenceInstanceInitializationContextIntf `json:"keys" validate:"required"`
+	Keys []KeyReference `json:"keys" validate:"required"`
 
 	Password *InstanceInitializationPassword `json:"password,omitempty"`
 }
@@ -32240,7 +32365,7 @@ type InstanceInitialization struct {
 // UnmarshalInstanceInitialization unmarshals an instance of InstanceInitialization from the specified map of raw messages.
 func UnmarshalInstanceInitialization(m map[string]json.RawMessage, result interface{}) (err error) {
 	obj := new(InstanceInitialization)
-	err = core.UnmarshalModel(m, "keys", &obj.Keys, UnmarshalKeyReferenceInstanceInitializationContext)
+	err = core.UnmarshalModel(m, "keys", &obj.Keys, UnmarshalKeyReference)
 	if err != nil {
 		return
 	}
@@ -32258,7 +32383,7 @@ type InstanceInitializationPassword struct {
 	EncryptedPassword *[]byte `json:"encrypted_password" validate:"required"`
 
 	// The public SSH key used to encrypt the administrator password.
-	EncryptionKey KeyReferenceInstanceInitializationContextIntf `json:"encryption_key" validate:"required"`
+	EncryptionKey *KeyIdentityByFingerprint `json:"encryption_key" validate:"required"`
 }
 
 // UnmarshalInstanceInitializationPassword unmarshals an instance of InstanceInitializationPassword from the specified map of raw messages.
@@ -32268,7 +32393,7 @@ func UnmarshalInstanceInitializationPassword(m map[string]json.RawMessage, resul
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalModel(m, "encryption_key", &obj.EncryptionKey, UnmarshalKeyReferenceInstanceInitializationContext)
+	err = core.UnmarshalModel(m, "encryption_key", &obj.EncryptionKey, UnmarshalKeyIdentityByFingerprint)
 	if err != nil {
 		return
 	}
@@ -32287,13 +32412,18 @@ type InstancePatch struct {
 	// The profile to use for this virtual server instance. For the profile to be changed,
 	// the instance `status` must be `stopping` or `stopped`. In addition, the requested
 	// profile must:
-	// - Match the current profile's instance disk support. (Note: If the current profile
-	//   supports instance storage disks, the requested profile can have a different
-	//   instance storage disk configuration.)
+	// - Have matching instance disk support. Any disks associated with the current profile
+	//   will be deleted, and any disks associated with the requested profile will be
+	//   created.
 	// - Be compatible with any `placement_target` constraints. For example, if the
 	//   instance is placed on a dedicated host, the requested profile `family` must be
 	//   the same as the dedicated host `family`.
 	Profile InstancePatchProfileIntf `json:"profile,omitempty"`
+
+	// The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes. An increase in
+	// this value will result in a corresponding decrease to
+	// `total_network_bandwidth`.
+	TotalVolumeBandwidth *int64 `json:"total_volume_bandwidth,omitempty"`
 }
 
 // UnmarshalInstancePatch unmarshals an instance of InstancePatch from the specified map of raw messages.
@@ -32311,25 +32441,29 @@ func UnmarshalInstancePatch(m map[string]json.RawMessage, result interface{}) (e
 	if err != nil {
 		return
 	}
+	err = core.UnmarshalPrimitive(m, "total_volume_bandwidth", &obj.TotalVolumeBandwidth)
+	if err != nil {
+		return
+	}
 	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
 	return
 }
 
 // AsPatch returns a generic map representation of the InstancePatch
-func (instancePatch *InstancePatch) AsPatch() (patch map[string]interface{}, err error) {
+func (instancePatch *InstancePatch) AsPatch() (_patch map[string]interface{}, err error) {
 	var jsonData []byte
 	jsonData, err = json.Marshal(instancePatch)
 	if err == nil {
-		err = json.Unmarshal(jsonData, &patch)
+		err = json.Unmarshal(jsonData, &_patch)
 	}
 	return
 }
 
 // InstancePatchProfile : The profile to use for this virtual server instance. For the profile to be changed, the instance `status` must be
 // `stopping` or `stopped`. In addition, the requested profile must:
-// - Match the current profile's instance disk support. (Note: If the current profile
-//   supports instance storage disks, the requested profile can have a different
-//   instance storage disk configuration.)
+// - Have matching instance disk support. Any disks associated with the current profile
+//   will be deleted, and any disks associated with the requested profile will be
+//   created.
 // - Be compatible with any `placement_target` constraints. For example, if the
 //   instance is placed on a dedicated host, the requested profile `family` must be
 //   the same as the dedicated host `family`.
@@ -32386,8 +32520,7 @@ type InstancePlacementTarget struct {
 	// The unique identifier for this dedicated host group.
 	ID *string `json:"id,omitempty"`
 
-	// The unique user-defined name for this dedicated host group. If unspecified, the name will be a hyphenated list of
-	// randomly-selected words.
+	// The unique user-defined name for this dedicated host group.
 	Name *string `json:"name,omitempty"`
 
 	// The type of resource referenced.
@@ -32492,6 +32625,14 @@ type InstanceProfile struct {
 	// The product family this virtual server instance profile belongs to.
 	Family *string `json:"family,omitempty"`
 
+	GpuCount InstanceProfileGpuIntf `json:"gpu_count,omitempty"`
+
+	GpuManufacturer *InstanceProfileGpuManufacturer `json:"gpu_manufacturer,omitempty"`
+
+	GpuMemory InstanceProfileGpuMemoryIntf `json:"gpu_memory,omitempty"`
+
+	GpuModel *InstanceProfileGpuModel `json:"gpu_model,omitempty"`
+
 	// The URL for this virtual server instance profile.
 	Href *string `json:"href" validate:"required"`
 
@@ -32503,6 +32644,8 @@ type InstanceProfile struct {
 	OsArchitecture *InstanceProfileOsArchitecture `json:"os_architecture" validate:"required"`
 
 	PortSpeed InstanceProfilePortSpeedIntf `json:"port_speed" validate:"required"`
+
+	TotalVolumeBandwidth InstanceProfileVolumeBandwidthIntf `json:"total_volume_bandwidth" validate:"required"`
 
 	VcpuArchitecture *InstanceProfileVcpuArchitecture `json:"vcpu_architecture" validate:"required"`
 
@@ -32524,6 +32667,22 @@ func UnmarshalInstanceProfile(m map[string]json.RawMessage, result interface{}) 
 	if err != nil {
 		return
 	}
+	err = core.UnmarshalModel(m, "gpu_count", &obj.GpuCount, UnmarshalInstanceProfileGpu)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "gpu_manufacturer", &obj.GpuManufacturer, UnmarshalInstanceProfileGpuManufacturer)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "gpu_memory", &obj.GpuMemory, UnmarshalInstanceProfileGpuMemory)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "gpu_model", &obj.GpuModel, UnmarshalInstanceProfileGpuModel)
+	if err != nil {
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
 	if err != nil {
 		return
@@ -32541,6 +32700,10 @@ func UnmarshalInstanceProfile(m map[string]json.RawMessage, result interface{}) 
 		return
 	}
 	err = core.UnmarshalModel(m, "port_speed", &obj.PortSpeed, UnmarshalInstanceProfilePortSpeed)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "total_volume_bandwidth", &obj.TotalVolumeBandwidth, UnmarshalInstanceProfileVolumeBandwidth)
 	if err != nil {
 		return
 	}
@@ -32898,6 +33061,222 @@ func UnmarshalInstanceProfileDiskSupportedInterfaces(m map[string]json.RawMessag
 	return
 }
 
+// InstanceProfileGpu : InstanceProfileGpu struct
+// Models which "extend" this model:
+// - InstanceProfileGpuFixed
+// - InstanceProfileGpuRange
+// - InstanceProfileGpuEnum
+// - InstanceProfileGpuDependent
+type InstanceProfileGpu struct {
+	// The type for this profile field.
+	Type *string `json:"type,omitempty"`
+
+	// The value for this profile field.
+	Value *int64 `json:"value,omitempty"`
+
+	// The default value for this profile field.
+	Default *int64 `json:"default,omitempty"`
+
+	// The maximum value for this profile field.
+	Max *int64 `json:"max,omitempty"`
+
+	// The minimum value for this profile field.
+	Min *int64 `json:"min,omitempty"`
+
+	// The increment step value for this profile field.
+	Step *int64 `json:"step,omitempty"`
+
+	// The permitted values for this profile field.
+	Values []int64 `json:"values,omitempty"`
+}
+
+// Constants associated with the InstanceProfileGpu.Type property.
+// The type for this profile field.
+const (
+	InstanceProfileGpuTypeFixedConst = "fixed"
+)
+
+func (*InstanceProfileGpu) isaInstanceProfileGpu() bool {
+	return true
+}
+
+type InstanceProfileGpuIntf interface {
+	isaInstanceProfileGpu() bool
+}
+
+// UnmarshalInstanceProfileGpu unmarshals an instance of InstanceProfileGpu from the specified map of raw messages.
+func UnmarshalInstanceProfileGpu(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(InstanceProfileGpu)
+	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "value", &obj.Value)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "default", &obj.Default)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "max", &obj.Max)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "min", &obj.Min)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "step", &obj.Step)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "values", &obj.Values)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// InstanceProfileGpuManufacturer : InstanceProfileGpuManufacturer struct
+type InstanceProfileGpuManufacturer struct {
+	// The type for this profile field.
+	Type *string `json:"type" validate:"required"`
+
+	// The possible GPU manufacturer(s) for an instance with this profile.
+	Values []string `json:"values" validate:"required"`
+}
+
+// Constants associated with the InstanceProfileGpuManufacturer.Type property.
+// The type for this profile field.
+const (
+	InstanceProfileGpuManufacturerTypeEnumConst = "enum"
+)
+
+// UnmarshalInstanceProfileGpuManufacturer unmarshals an instance of InstanceProfileGpuManufacturer from the specified map of raw messages.
+func UnmarshalInstanceProfileGpuManufacturer(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(InstanceProfileGpuManufacturer)
+	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "values", &obj.Values)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// InstanceProfileGpuMemory : InstanceProfileGpuMemory struct
+// Models which "extend" this model:
+// - InstanceProfileGpuMemoryFixed
+// - InstanceProfileGpuMemoryRange
+// - InstanceProfileGpuMemoryEnum
+// - InstanceProfileGpuMemoryDependent
+type InstanceProfileGpuMemory struct {
+	// The type for this profile field.
+	Type *string `json:"type,omitempty"`
+
+	// The value for this profile field.
+	Value *int64 `json:"value,omitempty"`
+
+	// The default value for this profile field.
+	Default *int64 `json:"default,omitempty"`
+
+	// The maximum value for this profile field.
+	Max *int64 `json:"max,omitempty"`
+
+	// The minimum value for this profile field.
+	Min *int64 `json:"min,omitempty"`
+
+	// The increment step value for this profile field.
+	Step *int64 `json:"step,omitempty"`
+
+	// The permitted values for this profile field.
+	Values []int64 `json:"values,omitempty"`
+}
+
+// Constants associated with the InstanceProfileGpuMemory.Type property.
+// The type for this profile field.
+const (
+	InstanceProfileGpuMemoryTypeFixedConst = "fixed"
+)
+
+func (*InstanceProfileGpuMemory) isaInstanceProfileGpuMemory() bool {
+	return true
+}
+
+type InstanceProfileGpuMemoryIntf interface {
+	isaInstanceProfileGpuMemory() bool
+}
+
+// UnmarshalInstanceProfileGpuMemory unmarshals an instance of InstanceProfileGpuMemory from the specified map of raw messages.
+func UnmarshalInstanceProfileGpuMemory(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(InstanceProfileGpuMemory)
+	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "value", &obj.Value)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "default", &obj.Default)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "max", &obj.Max)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "min", &obj.Min)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "step", &obj.Step)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "values", &obj.Values)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// InstanceProfileGpuModel : InstanceProfileGpuModel struct
+type InstanceProfileGpuModel struct {
+	// The type for this profile field.
+	Type *string `json:"type" validate:"required"`
+
+	// The possible GPU model(s) for an instance with this profile.
+	Values []string `json:"values" validate:"required"`
+}
+
+// Constants associated with the InstanceProfileGpuModel.Type property.
+// The type for this profile field.
+const (
+	InstanceProfileGpuModelTypeEnumConst = "enum"
+)
+
+// UnmarshalInstanceProfileGpuModel unmarshals an instance of InstanceProfileGpuModel from the specified map of raw messages.
+func UnmarshalInstanceProfileGpuModel(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(InstanceProfileGpuModel)
+	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "values", &obj.Values)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
 // InstanceProfileIdentity : Identifies an instance profile by a unique property.
 // Models which "extend" this model:
 // - InstanceProfileIdentityByName
@@ -33228,6 +33607,84 @@ func UnmarshalInstanceProfileVcpuArchitecture(m map[string]json.RawMessage, resu
 	return
 }
 
+// InstanceProfileVolumeBandwidth : InstanceProfileVolumeBandwidth struct
+// Models which "extend" this model:
+// - InstanceProfileVolumeBandwidthFixed
+// - InstanceProfileVolumeBandwidthRange
+// - InstanceProfileVolumeBandwidthEnum
+// - InstanceProfileVolumeBandwidthDependent
+type InstanceProfileVolumeBandwidth struct {
+	// The type for this profile field.
+	Type *string `json:"type,omitempty"`
+
+	// The value for this profile field.
+	Value *int64 `json:"value,omitempty"`
+
+	// The default value for this profile field.
+	Default *int64 `json:"default,omitempty"`
+
+	// The maximum value for this profile field.
+	Max *int64 `json:"max,omitempty"`
+
+	// The minimum value for this profile field.
+	Min *int64 `json:"min,omitempty"`
+
+	// The increment step value for this profile field.
+	Step *int64 `json:"step,omitempty"`
+
+	// The permitted values for this profile field.
+	Values []int64 `json:"values,omitempty"`
+}
+
+// Constants associated with the InstanceProfileVolumeBandwidth.Type property.
+// The type for this profile field.
+const (
+	InstanceProfileVolumeBandwidthTypeFixedConst = "fixed"
+)
+
+func (*InstanceProfileVolumeBandwidth) isaInstanceProfileVolumeBandwidth() bool {
+	return true
+}
+
+type InstanceProfileVolumeBandwidthIntf interface {
+	isaInstanceProfileVolumeBandwidth() bool
+}
+
+// UnmarshalInstanceProfileVolumeBandwidth unmarshals an instance of InstanceProfileVolumeBandwidth from the specified map of raw messages.
+func UnmarshalInstanceProfileVolumeBandwidth(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(InstanceProfileVolumeBandwidth)
+	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "value", &obj.Value)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "default", &obj.Default)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "max", &obj.Max)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "min", &obj.Min)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "step", &obj.Step)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "values", &obj.Values)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
 // InstancePrototype : InstancePrototype struct
 // Models which "extend" this model:
 // - InstancePrototypeInstanceByImage
@@ -33245,6 +33702,10 @@ type InstancePrototype struct {
 	// password](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization). Keys are optional for other images, but if
 	// no keys are specified, the instance will be inaccessible unless the specified image provides another means of
 	// access.
+	//
+	// This property's value is used when provisioning the virtual server instance, but not subsequently managed.
+	// Accordingly, it is reflected as an [instance
+	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
 	Keys []KeyIdentityIntf `json:"keys,omitempty"`
 
 	// The unique user-defined name for this virtual server instance (and default system hostname). If unspecified, the
@@ -33264,14 +33725,19 @@ type InstancePrototype struct {
 	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) is used.
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
 
+	// The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes. An increase in
+	// this value will result in a corresponding decrease to
+	// `total_network_bandwidth`.
+	TotalVolumeBandwidth *int64 `json:"total_volume_bandwidth,omitempty"`
+
 	// User data to be made available when setting up the virtual server instance.
 	UserData *string `json:"user_data,omitempty"`
 
 	// The volume attachments for this virtual server instance.
 	VolumeAttachments []VolumeAttachmentPrototypeInstanceContext `json:"volume_attachments,omitempty"`
 
-	// The VPC the virtual server instance is to be a part of. If provided, must match the
-	// VPC tied to the subnets of the instance's network interfaces.
+	// The VPC the virtual server instance is to be a part of. If specified, it must match
+	// the VPC referenced by the subnets of the instance's network interfaces.
 	VPC VPCIdentityIntf `json:"vpc,omitempty"`
 
 	// The boot volume attachment for the virtual server instance.
@@ -33326,6 +33792,10 @@ func UnmarshalInstancePrototype(m map[string]json.RawMessage, result interface{}
 		return
 	}
 	err = core.UnmarshalModel(m, "resource_group", &obj.ResourceGroup, UnmarshalResourceGroupIdentity)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "total_volume_bandwidth", &obj.TotalVolumeBandwidth)
 	if err != nil {
 		return
 	}
@@ -33501,6 +33971,10 @@ type InstanceTemplate struct {
 	// password](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization). Keys are optional for other images, but if
 	// no keys are specified, the instance will be inaccessible unless the specified image provides another means of
 	// access.
+	//
+	// This property's value is used when provisioning the virtual server instance, but not subsequently managed.
+	// Accordingly, it is reflected as an [instance
+	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
 	Keys []KeyIdentityIntf `json:"keys,omitempty"`
 
 	// The unique user-defined name for this instance template.
@@ -33518,14 +33992,19 @@ type InstanceTemplate struct {
 	// The resource group for this instance template.
 	ResourceGroup *ResourceGroupReference `json:"resource_group" validate:"required"`
 
+	// The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes. An increase in
+	// this value will result in a corresponding decrease to
+	// `total_network_bandwidth`.
+	TotalVolumeBandwidth *int64 `json:"total_volume_bandwidth,omitempty"`
+
 	// User data to be made available when setting up the virtual server instance.
 	UserData *string `json:"user_data,omitempty"`
 
 	// The volume attachments for this virtual server instance.
 	VolumeAttachments []VolumeAttachmentPrototypeInstanceContext `json:"volume_attachments,omitempty"`
 
-	// The VPC the virtual server instance is to be a part of. If provided, must match the
-	// VPC tied to the subnets of the instance's network interfaces.
+	// The VPC the virtual server instance is to be a part of. If specified, it must match
+	// the VPC referenced by the subnets of the instance's network interfaces.
 	VPC VPCIdentityIntf `json:"vpc,omitempty"`
 
 	// The boot volume attachment for the virtual server instance.
@@ -33593,6 +34072,10 @@ func UnmarshalInstanceTemplate(m map[string]json.RawMessage, result interface{})
 		return
 	}
 	err = core.UnmarshalModel(m, "resource_group", &obj.ResourceGroup, UnmarshalResourceGroupReference)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "total_volume_bandwidth", &obj.TotalVolumeBandwidth)
 	if err != nil {
 		return
 	}
@@ -33769,11 +34252,11 @@ func UnmarshalInstanceTemplatePatch(m map[string]json.RawMessage, result interfa
 }
 
 // AsPatch returns a generic map representation of the InstanceTemplatePatch
-func (instanceTemplatePatch *InstanceTemplatePatch) AsPatch() (patch map[string]interface{}, err error) {
+func (instanceTemplatePatch *InstanceTemplatePatch) AsPatch() (_patch map[string]interface{}, err error) {
 	var jsonData []byte
 	jsonData, err = json.Marshal(instanceTemplatePatch)
 	if err == nil {
-		err = json.Unmarshal(jsonData, &patch)
+		err = json.Unmarshal(jsonData, &_patch)
 	}
 	return
 }
@@ -33795,6 +34278,10 @@ type InstanceTemplatePrototype struct {
 	// password](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization). Keys are optional for other images, but if
 	// no keys are specified, the instance will be inaccessible unless the specified image provides another means of
 	// access.
+	//
+	// This property's value is used when provisioning the virtual server instance, but not subsequently managed.
+	// Accordingly, it is reflected as an [instance
+	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
 	Keys []KeyIdentityIntf `json:"keys,omitempty"`
 
 	// The unique user-defined name for this virtual server instance (and default system hostname). If unspecified, the
@@ -33814,14 +34301,19 @@ type InstanceTemplatePrototype struct {
 	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) is used.
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
 
+	// The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes. An increase in
+	// this value will result in a corresponding decrease to
+	// `total_network_bandwidth`.
+	TotalVolumeBandwidth *int64 `json:"total_volume_bandwidth,omitempty"`
+
 	// User data to be made available when setting up the virtual server instance.
 	UserData *string `json:"user_data,omitempty"`
 
 	// The volume attachments for this virtual server instance.
 	VolumeAttachments []VolumeAttachmentPrototypeInstanceContext `json:"volume_attachments,omitempty"`
 
-	// The VPC the virtual server instance is to be a part of. If provided, must match the
-	// VPC tied to the subnets of the instance's network interfaces.
+	// The VPC the virtual server instance is to be a part of. If specified, it must match
+	// the VPC referenced by the subnets of the instance's network interfaces.
 	VPC VPCIdentityIntf `json:"vpc,omitempty"`
 
 	// The boot volume attachment for the virtual server instance.
@@ -33876,6 +34368,10 @@ func UnmarshalInstanceTemplatePrototype(m map[string]json.RawMessage, result int
 		return
 	}
 	err = core.UnmarshalModel(m, "resource_group", &obj.ResourceGroup, UnmarshalResourceGroupIdentity)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "total_volume_bandwidth", &obj.TotalVolumeBandwidth)
 	if err != nil {
 		return
 	}
@@ -34028,7 +34524,7 @@ type Key struct {
 	// words.
 	Name *string `json:"name" validate:"required"`
 
-	// The public SSH key.
+	// The public SSH key, consisting of two space-separated fields: the algorithm name, and the base64-encoded key.
 	PublicKey *string `json:"public_key" validate:"required"`
 
 	// The resource group for this key.
@@ -34137,6 +34633,18 @@ func UnmarshalKeyCollection(m map[string]json.RawMessage, result interface{}) (e
 	return
 }
 
+// Retrieve the value to be passed to a request to access the next page of results
+func (resp *KeyCollection) GetNextStart() (*string, error) {
+	if core.IsNil(resp.Next) {
+		return nil, nil
+	}
+	start, err := core.GetQueryParam(resp.Next.Href, "start")
+	if err != nil || start == nil {
+		return nil, err
+	}
+	return start, nil
+}
+
 // KeyCollectionFirst : A link to the first page of resources.
 type KeyCollectionFirst struct {
 	// The URL for a page of resources.
@@ -34176,7 +34684,7 @@ func UnmarshalKeyCollectionNext(m map[string]json.RawMessage, result interface{}
 // - KeyIdentityByID
 // - KeyIdentityByCRN
 // - KeyIdentityByHref
-// - KeyIdentityKeyIdentityByFingerprint
+// - KeyIdentityByFingerprint
 type KeyIdentity struct {
 	// The unique identifier for this key.
 	ID *string `json:"id,omitempty"`
@@ -34241,40 +34749,19 @@ func UnmarshalKeyPatch(m map[string]json.RawMessage, result interface{}) (err er
 }
 
 // AsPatch returns a generic map representation of the KeyPatch
-func (keyPatch *KeyPatch) AsPatch() (patch map[string]interface{}, err error) {
+func (keyPatch *KeyPatch) AsPatch() (_patch map[string]interface{}, err error) {
 	var jsonData []byte
 	jsonData, err = json.Marshal(keyPatch)
 	if err == nil {
-		err = json.Unmarshal(jsonData, &patch)
+		err = json.Unmarshal(jsonData, &_patch)
 	}
 	return
 }
 
-// KeyReferenceDeleted : If present, this property indicates the referenced resource has been deleted and provides some supplementary
-// information.
-type KeyReferenceDeleted struct {
-	// Link to documentation about deleted resources.
-	MoreInfo *string `json:"more_info" validate:"required"`
-}
-
-// UnmarshalKeyReferenceDeleted unmarshals an instance of KeyReferenceDeleted from the specified map of raw messages.
-func UnmarshalKeyReferenceDeleted(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(KeyReferenceDeleted)
-	err = core.UnmarshalPrimitive(m, "more_info", &obj.MoreInfo)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// KeyReferenceInstanceInitializationContext : KeyReferenceInstanceInitializationContext struct
-// Models which "extend" this model:
-// - KeyReferenceInstanceInitializationContextKeyReference
-// - KeyReferenceInstanceInitializationContextKeyIdentityByFingerprint
-type KeyReferenceInstanceInitializationContext struct {
+// KeyReference : KeyReference struct
+type KeyReference struct {
 	// The CRN for this key.
-	CRN *string `json:"crn,omitempty"`
+	CRN *string `json:"crn" validate:"required"`
 
 	// If present, this property indicates the referenced resource has been deleted and provides
 	// some supplementary information.
@@ -34282,29 +34769,21 @@ type KeyReferenceInstanceInitializationContext struct {
 
 	// The fingerprint for this key.  The value is returned base64-encoded and prefixed with the hash algorithm (always
 	// `SHA256`).
-	Fingerprint *string `json:"fingerprint,omitempty"`
+	Fingerprint *string `json:"fingerprint" validate:"required"`
 
 	// The URL for this key.
-	Href *string `json:"href,omitempty"`
+	Href *string `json:"href" validate:"required"`
 
 	// The unique identifier for this key.
-	ID *string `json:"id,omitempty"`
+	ID *string `json:"id" validate:"required"`
 
 	// The user-defined name for this key.
-	Name *string `json:"name,omitempty"`
+	Name *string `json:"name" validate:"required"`
 }
 
-func (*KeyReferenceInstanceInitializationContext) isaKeyReferenceInstanceInitializationContext() bool {
-	return true
-}
-
-type KeyReferenceInstanceInitializationContextIntf interface {
-	isaKeyReferenceInstanceInitializationContext() bool
-}
-
-// UnmarshalKeyReferenceInstanceInitializationContext unmarshals an instance of KeyReferenceInstanceInitializationContext from the specified map of raw messages.
-func UnmarshalKeyReferenceInstanceInitializationContext(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(KeyReferenceInstanceInitializationContext)
+// UnmarshalKeyReference unmarshals an instance of KeyReference from the specified map of raw messages.
+func UnmarshalKeyReference(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(KeyReference)
 	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
 	if err != nil {
 		return
@@ -34333,10 +34812,28 @@ func UnmarshalKeyReferenceInstanceInitializationContext(m map[string]json.RawMes
 	return
 }
 
+// KeyReferenceDeleted : If present, this property indicates the referenced resource has been deleted and provides some supplementary
+// information.
+type KeyReferenceDeleted struct {
+	// Link to documentation about deleted resources.
+	MoreInfo *string `json:"more_info" validate:"required"`
+}
+
+// UnmarshalKeyReferenceDeleted unmarshals an instance of KeyReferenceDeleted from the specified map of raw messages.
+func UnmarshalKeyReferenceDeleted(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(KeyReferenceDeleted)
+	err = core.UnmarshalPrimitive(m, "more_info", &obj.MoreInfo)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
 // ListDedicatedHostDisksOptions : The ListDedicatedHostDisks options.
 type ListDedicatedHostDisksOptions struct {
 	// The dedicated host identifier.
-	DedicatedHostID *string `validate:"required,ne="`
+	DedicatedHostID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -34350,9 +34847,9 @@ func (*VpcV1) NewListDedicatedHostDisksOptions(dedicatedHostID string) *ListDedi
 }
 
 // SetDedicatedHostID : Allow user to set DedicatedHostID
-func (options *ListDedicatedHostDisksOptions) SetDedicatedHostID(dedicatedHostID string) *ListDedicatedHostDisksOptions {
-	options.DedicatedHostID = core.StringPtr(dedicatedHostID)
-	return options
+func (_options *ListDedicatedHostDisksOptions) SetDedicatedHostID(dedicatedHostID string) *ListDedicatedHostDisksOptions {
+	_options.DedicatedHostID = core.StringPtr(dedicatedHostID)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -34364,17 +34861,19 @@ func (options *ListDedicatedHostDisksOptions) SetHeaders(param map[string]string
 // ListDedicatedHostGroupsOptions : The ListDedicatedHostGroups options.
 type ListDedicatedHostGroupsOptions struct {
 	// A server-supplied token determining what resource to start the page on.
-	Start *string
+	Start *string `json:"-"`
 
 	// The number of resources to return on a page.
-	Limit *int64
+	Limit *int64 `json:"-"`
 
-	// Filters the collection to resources within one of the resource groups identified in a comma-separated list of
-	// resource group identifiers.
-	ResourceGroupID *string
+	// Filters the collection to resources in the resource group with the specified identifier.
+	ResourceGroupID *string `json:"-"`
 
 	// Filters the collection to resources in the zone with the exact specified name.
-	ZoneName *string
+	ZoneName *string `json:"-"`
+
+	// Filters the collection to resources with the exact specified name.
+	Name *string `json:"-"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -34386,27 +34885,33 @@ func (*VpcV1) NewListDedicatedHostGroupsOptions() *ListDedicatedHostGroupsOption
 }
 
 // SetStart : Allow user to set Start
-func (options *ListDedicatedHostGroupsOptions) SetStart(start string) *ListDedicatedHostGroupsOptions {
-	options.Start = core.StringPtr(start)
-	return options
+func (_options *ListDedicatedHostGroupsOptions) SetStart(start string) *ListDedicatedHostGroupsOptions {
+	_options.Start = core.StringPtr(start)
+	return _options
 }
 
 // SetLimit : Allow user to set Limit
-func (options *ListDedicatedHostGroupsOptions) SetLimit(limit int64) *ListDedicatedHostGroupsOptions {
-	options.Limit = core.Int64Ptr(limit)
-	return options
+func (_options *ListDedicatedHostGroupsOptions) SetLimit(limit int64) *ListDedicatedHostGroupsOptions {
+	_options.Limit = core.Int64Ptr(limit)
+	return _options
 }
 
 // SetResourceGroupID : Allow user to set ResourceGroupID
-func (options *ListDedicatedHostGroupsOptions) SetResourceGroupID(resourceGroupID string) *ListDedicatedHostGroupsOptions {
-	options.ResourceGroupID = core.StringPtr(resourceGroupID)
-	return options
+func (_options *ListDedicatedHostGroupsOptions) SetResourceGroupID(resourceGroupID string) *ListDedicatedHostGroupsOptions {
+	_options.ResourceGroupID = core.StringPtr(resourceGroupID)
+	return _options
 }
 
 // SetZoneName : Allow user to set ZoneName
-func (options *ListDedicatedHostGroupsOptions) SetZoneName(zoneName string) *ListDedicatedHostGroupsOptions {
-	options.ZoneName = core.StringPtr(zoneName)
-	return options
+func (_options *ListDedicatedHostGroupsOptions) SetZoneName(zoneName string) *ListDedicatedHostGroupsOptions {
+	_options.ZoneName = core.StringPtr(zoneName)
+	return _options
+}
+
+// SetName : Allow user to set Name
+func (_options *ListDedicatedHostGroupsOptions) SetName(name string) *ListDedicatedHostGroupsOptions {
+	_options.Name = core.StringPtr(name)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -34418,10 +34923,10 @@ func (options *ListDedicatedHostGroupsOptions) SetHeaders(param map[string]strin
 // ListDedicatedHostProfilesOptions : The ListDedicatedHostProfiles options.
 type ListDedicatedHostProfilesOptions struct {
 	// A server-supplied token determining what resource to start the page on.
-	Start *string
+	Start *string `json:"-"`
 
 	// The number of resources to return on a page.
-	Limit *int64
+	Limit *int64 `json:"-"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -34433,15 +34938,15 @@ func (*VpcV1) NewListDedicatedHostProfilesOptions() *ListDedicatedHostProfilesOp
 }
 
 // SetStart : Allow user to set Start
-func (options *ListDedicatedHostProfilesOptions) SetStart(start string) *ListDedicatedHostProfilesOptions {
-	options.Start = core.StringPtr(start)
-	return options
+func (_options *ListDedicatedHostProfilesOptions) SetStart(start string) *ListDedicatedHostProfilesOptions {
+	_options.Start = core.StringPtr(start)
+	return _options
 }
 
 // SetLimit : Allow user to set Limit
-func (options *ListDedicatedHostProfilesOptions) SetLimit(limit int64) *ListDedicatedHostProfilesOptions {
-	options.Limit = core.Int64Ptr(limit)
-	return options
+func (_options *ListDedicatedHostProfilesOptions) SetLimit(limit int64) *ListDedicatedHostProfilesOptions {
+	_options.Limit = core.Int64Ptr(limit)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -34453,20 +34958,22 @@ func (options *ListDedicatedHostProfilesOptions) SetHeaders(param map[string]str
 // ListDedicatedHostsOptions : The ListDedicatedHosts options.
 type ListDedicatedHostsOptions struct {
 	// Filters the collection to dedicated host groups with the specified identifier.
-	DedicatedHostGroupID *string
+	DedicatedHostGroupID *string `json:"-"`
 
 	// A server-supplied token determining what resource to start the page on.
-	Start *string
+	Start *string `json:"-"`
 
 	// The number of resources to return on a page.
-	Limit *int64
+	Limit *int64 `json:"-"`
 
-	// Filters the collection to resources within one of the resource groups identified in a comma-separated list of
-	// resource group identifiers.
-	ResourceGroupID *string
+	// Filters the collection to resources in the resource group with the specified identifier.
+	ResourceGroupID *string `json:"-"`
 
 	// Filters the collection to resources in the zone with the exact specified name.
-	ZoneName *string
+	ZoneName *string `json:"-"`
+
+	// Filters the collection to resources with the exact specified name.
+	Name *string `json:"-"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -34478,33 +34985,39 @@ func (*VpcV1) NewListDedicatedHostsOptions() *ListDedicatedHostsOptions {
 }
 
 // SetDedicatedHostGroupID : Allow user to set DedicatedHostGroupID
-func (options *ListDedicatedHostsOptions) SetDedicatedHostGroupID(dedicatedHostGroupID string) *ListDedicatedHostsOptions {
-	options.DedicatedHostGroupID = core.StringPtr(dedicatedHostGroupID)
-	return options
+func (_options *ListDedicatedHostsOptions) SetDedicatedHostGroupID(dedicatedHostGroupID string) *ListDedicatedHostsOptions {
+	_options.DedicatedHostGroupID = core.StringPtr(dedicatedHostGroupID)
+	return _options
 }
 
 // SetStart : Allow user to set Start
-func (options *ListDedicatedHostsOptions) SetStart(start string) *ListDedicatedHostsOptions {
-	options.Start = core.StringPtr(start)
-	return options
+func (_options *ListDedicatedHostsOptions) SetStart(start string) *ListDedicatedHostsOptions {
+	_options.Start = core.StringPtr(start)
+	return _options
 }
 
 // SetLimit : Allow user to set Limit
-func (options *ListDedicatedHostsOptions) SetLimit(limit int64) *ListDedicatedHostsOptions {
-	options.Limit = core.Int64Ptr(limit)
-	return options
+func (_options *ListDedicatedHostsOptions) SetLimit(limit int64) *ListDedicatedHostsOptions {
+	_options.Limit = core.Int64Ptr(limit)
+	return _options
 }
 
 // SetResourceGroupID : Allow user to set ResourceGroupID
-func (options *ListDedicatedHostsOptions) SetResourceGroupID(resourceGroupID string) *ListDedicatedHostsOptions {
-	options.ResourceGroupID = core.StringPtr(resourceGroupID)
-	return options
+func (_options *ListDedicatedHostsOptions) SetResourceGroupID(resourceGroupID string) *ListDedicatedHostsOptions {
+	_options.ResourceGroupID = core.StringPtr(resourceGroupID)
+	return _options
 }
 
 // SetZoneName : Allow user to set ZoneName
-func (options *ListDedicatedHostsOptions) SetZoneName(zoneName string) *ListDedicatedHostsOptions {
-	options.ZoneName = core.StringPtr(zoneName)
-	return options
+func (_options *ListDedicatedHostsOptions) SetZoneName(zoneName string) *ListDedicatedHostsOptions {
+	_options.ZoneName = core.StringPtr(zoneName)
+	return _options
+}
+
+// SetName : Allow user to set Name
+func (_options *ListDedicatedHostsOptions) SetName(name string) *ListDedicatedHostsOptions {
+	_options.Name = core.StringPtr(name)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -34516,18 +35029,18 @@ func (options *ListDedicatedHostsOptions) SetHeaders(param map[string]string) *L
 // ListEndpointGatewayIpsOptions : The ListEndpointGatewayIps options.
 type ListEndpointGatewayIpsOptions struct {
 	// The endpoint gateway identifier.
-	EndpointGatewayID *string `validate:"required,ne="`
+	EndpointGatewayID *string `json:"-" validate:"required,ne="`
 
 	// A server-supplied token determining what resource to start the page on.
-	Start *string
+	Start *string `json:"-"`
 
 	// The number of resources to return on a page.
-	Limit *int64
+	Limit *int64 `json:"-"`
 
 	// Sorts the returned collection by the specified property name in ascending order. A `-` may be prepended to the name
 	// to sort in descending order. For example, the value `-created_at` sorts the collection by the `created_at` property
 	// in descending order, and the value `name` sorts it by the `name` property in ascending order.
-	Sort *string
+	Sort *string `json:"-"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -34551,27 +35064,27 @@ func (*VpcV1) NewListEndpointGatewayIpsOptions(endpointGatewayID string) *ListEn
 }
 
 // SetEndpointGatewayID : Allow user to set EndpointGatewayID
-func (options *ListEndpointGatewayIpsOptions) SetEndpointGatewayID(endpointGatewayID string) *ListEndpointGatewayIpsOptions {
-	options.EndpointGatewayID = core.StringPtr(endpointGatewayID)
-	return options
+func (_options *ListEndpointGatewayIpsOptions) SetEndpointGatewayID(endpointGatewayID string) *ListEndpointGatewayIpsOptions {
+	_options.EndpointGatewayID = core.StringPtr(endpointGatewayID)
+	return _options
 }
 
 // SetStart : Allow user to set Start
-func (options *ListEndpointGatewayIpsOptions) SetStart(start string) *ListEndpointGatewayIpsOptions {
-	options.Start = core.StringPtr(start)
-	return options
+func (_options *ListEndpointGatewayIpsOptions) SetStart(start string) *ListEndpointGatewayIpsOptions {
+	_options.Start = core.StringPtr(start)
+	return _options
 }
 
 // SetLimit : Allow user to set Limit
-func (options *ListEndpointGatewayIpsOptions) SetLimit(limit int64) *ListEndpointGatewayIpsOptions {
-	options.Limit = core.Int64Ptr(limit)
-	return options
+func (_options *ListEndpointGatewayIpsOptions) SetLimit(limit int64) *ListEndpointGatewayIpsOptions {
+	_options.Limit = core.Int64Ptr(limit)
+	return _options
 }
 
 // SetSort : Allow user to set Sort
-func (options *ListEndpointGatewayIpsOptions) SetSort(sort string) *ListEndpointGatewayIpsOptions {
-	options.Sort = core.StringPtr(sort)
-	return options
+func (_options *ListEndpointGatewayIpsOptions) SetSort(sort string) *ListEndpointGatewayIpsOptions {
+	_options.Sort = core.StringPtr(sort)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -34583,17 +35096,16 @@ func (options *ListEndpointGatewayIpsOptions) SetHeaders(param map[string]string
 // ListEndpointGatewaysOptions : The ListEndpointGateways options.
 type ListEndpointGatewaysOptions struct {
 	// Filters the collection to resources with the exact specified name.
-	Name *string
+	Name *string `json:"-"`
 
 	// A server-supplied token determining what resource to start the page on.
-	Start *string
+	Start *string `json:"-"`
 
 	// The number of resources to return on a page.
-	Limit *int64
+	Limit *int64 `json:"-"`
 
-	// Filters the collection to resources within one of the resource groups identified in a comma-separated list of
-	// resource group identifiers.
-	ResourceGroupID *string
+	// Filters the collection to resources in the resource group with the specified identifier.
+	ResourceGroupID *string `json:"-"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -34605,27 +35117,27 @@ func (*VpcV1) NewListEndpointGatewaysOptions() *ListEndpointGatewaysOptions {
 }
 
 // SetName : Allow user to set Name
-func (options *ListEndpointGatewaysOptions) SetName(name string) *ListEndpointGatewaysOptions {
-	options.Name = core.StringPtr(name)
-	return options
+func (_options *ListEndpointGatewaysOptions) SetName(name string) *ListEndpointGatewaysOptions {
+	_options.Name = core.StringPtr(name)
+	return _options
 }
 
 // SetStart : Allow user to set Start
-func (options *ListEndpointGatewaysOptions) SetStart(start string) *ListEndpointGatewaysOptions {
-	options.Start = core.StringPtr(start)
-	return options
+func (_options *ListEndpointGatewaysOptions) SetStart(start string) *ListEndpointGatewaysOptions {
+	_options.Start = core.StringPtr(start)
+	return _options
 }
 
 // SetLimit : Allow user to set Limit
-func (options *ListEndpointGatewaysOptions) SetLimit(limit int64) *ListEndpointGatewaysOptions {
-	options.Limit = core.Int64Ptr(limit)
-	return options
+func (_options *ListEndpointGatewaysOptions) SetLimit(limit int64) *ListEndpointGatewaysOptions {
+	_options.Limit = core.Int64Ptr(limit)
+	return _options
 }
 
 // SetResourceGroupID : Allow user to set ResourceGroupID
-func (options *ListEndpointGatewaysOptions) SetResourceGroupID(resourceGroupID string) *ListEndpointGatewaysOptions {
-	options.ResourceGroupID = core.StringPtr(resourceGroupID)
-	return options
+func (_options *ListEndpointGatewaysOptions) SetResourceGroupID(resourceGroupID string) *ListEndpointGatewaysOptions {
+	_options.ResourceGroupID = core.StringPtr(resourceGroupID)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -34637,14 +35149,13 @@ func (options *ListEndpointGatewaysOptions) SetHeaders(param map[string]string) 
 // ListFloatingIpsOptions : The ListFloatingIps options.
 type ListFloatingIpsOptions struct {
 	// A server-supplied token determining what resource to start the page on.
-	Start *string
+	Start *string `json:"-"`
 
 	// The number of resources to return on a page.
-	Limit *int64
+	Limit *int64 `json:"-"`
 
-	// Filters the collection to resources within one of the resource groups identified in a comma-separated list of
-	// resource group identifiers.
-	ResourceGroupID *string
+	// Filters the collection to resources in the resource group with the specified identifier.
+	ResourceGroupID *string `json:"-"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -34656,21 +35167,21 @@ func (*VpcV1) NewListFloatingIpsOptions() *ListFloatingIpsOptions {
 }
 
 // SetStart : Allow user to set Start
-func (options *ListFloatingIpsOptions) SetStart(start string) *ListFloatingIpsOptions {
-	options.Start = core.StringPtr(start)
-	return options
+func (_options *ListFloatingIpsOptions) SetStart(start string) *ListFloatingIpsOptions {
+	_options.Start = core.StringPtr(start)
+	return _options
 }
 
 // SetLimit : Allow user to set Limit
-func (options *ListFloatingIpsOptions) SetLimit(limit int64) *ListFloatingIpsOptions {
-	options.Limit = core.Int64Ptr(limit)
-	return options
+func (_options *ListFloatingIpsOptions) SetLimit(limit int64) *ListFloatingIpsOptions {
+	_options.Limit = core.Int64Ptr(limit)
+	return _options
 }
 
 // SetResourceGroupID : Allow user to set ResourceGroupID
-func (options *ListFloatingIpsOptions) SetResourceGroupID(resourceGroupID string) *ListFloatingIpsOptions {
-	options.ResourceGroupID = core.StringPtr(resourceGroupID)
-	return options
+func (_options *ListFloatingIpsOptions) SetResourceGroupID(resourceGroupID string) *ListFloatingIpsOptions {
+	_options.ResourceGroupID = core.StringPtr(resourceGroupID)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -34682,32 +35193,31 @@ func (options *ListFloatingIpsOptions) SetHeaders(param map[string]string) *List
 // ListFlowLogCollectorsOptions : The ListFlowLogCollectors options.
 type ListFlowLogCollectorsOptions struct {
 	// A server-supplied token determining what resource to start the page on.
-	Start *string
+	Start *string `json:"-"`
 
 	// The number of resources to return on a page.
-	Limit *int64
+	Limit *int64 `json:"-"`
 
-	// Filters the collection to resources within one of the resource groups identified in a comma-separated list of
-	// resource group identifiers.
-	ResourceGroupID *string
+	// Filters the collection to resources in the resource group with the specified identifier.
+	ResourceGroupID *string `json:"-"`
 
 	// Filters the collection to resources with the exact specified name.
-	Name *string
+	Name *string `json:"-"`
 
 	// Filters the collection to resources in the VPC with the specified identifier.
-	VPCID *string
+	VPCID *string `json:"-"`
 
 	// Filters the collection to resources in the VPC with the specified CRN.
-	VPCCRN *string
+	VPCCRN *string `json:"-"`
 
 	// Filters the collection to resources in the VPC with the exact specified name.
-	VPCName *string
+	VPCName *string `json:"-"`
 
 	// Filters the collection to flow log collectors that target the specified resource.
-	TargetID *string
+	TargetID *string `json:"-"`
 
 	// Filters the collection to flow log collectors that target the specified resource type.
-	TargetResourceType *string
+	TargetResourceType *string `json:"-"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -34728,57 +35238,57 @@ func (*VpcV1) NewListFlowLogCollectorsOptions() *ListFlowLogCollectorsOptions {
 }
 
 // SetStart : Allow user to set Start
-func (options *ListFlowLogCollectorsOptions) SetStart(start string) *ListFlowLogCollectorsOptions {
-	options.Start = core.StringPtr(start)
-	return options
+func (_options *ListFlowLogCollectorsOptions) SetStart(start string) *ListFlowLogCollectorsOptions {
+	_options.Start = core.StringPtr(start)
+	return _options
 }
 
 // SetLimit : Allow user to set Limit
-func (options *ListFlowLogCollectorsOptions) SetLimit(limit int64) *ListFlowLogCollectorsOptions {
-	options.Limit = core.Int64Ptr(limit)
-	return options
+func (_options *ListFlowLogCollectorsOptions) SetLimit(limit int64) *ListFlowLogCollectorsOptions {
+	_options.Limit = core.Int64Ptr(limit)
+	return _options
 }
 
 // SetResourceGroupID : Allow user to set ResourceGroupID
-func (options *ListFlowLogCollectorsOptions) SetResourceGroupID(resourceGroupID string) *ListFlowLogCollectorsOptions {
-	options.ResourceGroupID = core.StringPtr(resourceGroupID)
-	return options
+func (_options *ListFlowLogCollectorsOptions) SetResourceGroupID(resourceGroupID string) *ListFlowLogCollectorsOptions {
+	_options.ResourceGroupID = core.StringPtr(resourceGroupID)
+	return _options
 }
 
 // SetName : Allow user to set Name
-func (options *ListFlowLogCollectorsOptions) SetName(name string) *ListFlowLogCollectorsOptions {
-	options.Name = core.StringPtr(name)
-	return options
+func (_options *ListFlowLogCollectorsOptions) SetName(name string) *ListFlowLogCollectorsOptions {
+	_options.Name = core.StringPtr(name)
+	return _options
 }
 
 // SetVPCID : Allow user to set VPCID
-func (options *ListFlowLogCollectorsOptions) SetVPCID(vpcID string) *ListFlowLogCollectorsOptions {
-	options.VPCID = core.StringPtr(vpcID)
-	return options
+func (_options *ListFlowLogCollectorsOptions) SetVPCID(vpcID string) *ListFlowLogCollectorsOptions {
+	_options.VPCID = core.StringPtr(vpcID)
+	return _options
 }
 
 // SetVPCCRN : Allow user to set VPCCRN
-func (options *ListFlowLogCollectorsOptions) SetVPCCRN(vpcCRN string) *ListFlowLogCollectorsOptions {
-	options.VPCCRN = core.StringPtr(vpcCRN)
-	return options
+func (_options *ListFlowLogCollectorsOptions) SetVPCCRN(vpcCRN string) *ListFlowLogCollectorsOptions {
+	_options.VPCCRN = core.StringPtr(vpcCRN)
+	return _options
 }
 
 // SetVPCName : Allow user to set VPCName
-func (options *ListFlowLogCollectorsOptions) SetVPCName(vpcName string) *ListFlowLogCollectorsOptions {
-	options.VPCName = core.StringPtr(vpcName)
-	return options
+func (_options *ListFlowLogCollectorsOptions) SetVPCName(vpcName string) *ListFlowLogCollectorsOptions {
+	_options.VPCName = core.StringPtr(vpcName)
+	return _options
 }
 
 // SetTargetID : Allow user to set TargetID
-func (options *ListFlowLogCollectorsOptions) SetTargetID(targetID string) *ListFlowLogCollectorsOptions {
-	options.TargetID = core.StringPtr(targetID)
-	return options
+func (_options *ListFlowLogCollectorsOptions) SetTargetID(targetID string) *ListFlowLogCollectorsOptions {
+	_options.TargetID = core.StringPtr(targetID)
+	return _options
 }
 
 // SetTargetResourceType : Allow user to set TargetResourceType
-func (options *ListFlowLogCollectorsOptions) SetTargetResourceType(targetResourceType string) *ListFlowLogCollectorsOptions {
-	options.TargetResourceType = core.StringPtr(targetResourceType)
-	return options
+func (_options *ListFlowLogCollectorsOptions) SetTargetResourceType(targetResourceType string) *ListFlowLogCollectorsOptions {
+	_options.TargetResourceType = core.StringPtr(targetResourceType)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -34790,10 +35300,10 @@ func (options *ListFlowLogCollectorsOptions) SetHeaders(param map[string]string)
 // ListIkePoliciesOptions : The ListIkePolicies options.
 type ListIkePoliciesOptions struct {
 	// A server-supplied token determining what resource to start the page on.
-	Start *string
+	Start *string `json:"-"`
 
 	// The number of resources to return on a page.
-	Limit *int64
+	Limit *int64 `json:"-"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -34805,15 +35315,15 @@ func (*VpcV1) NewListIkePoliciesOptions() *ListIkePoliciesOptions {
 }
 
 // SetStart : Allow user to set Start
-func (options *ListIkePoliciesOptions) SetStart(start string) *ListIkePoliciesOptions {
-	options.Start = core.StringPtr(start)
-	return options
+func (_options *ListIkePoliciesOptions) SetStart(start string) *ListIkePoliciesOptions {
+	_options.Start = core.StringPtr(start)
+	return _options
 }
 
 // SetLimit : Allow user to set Limit
-func (options *ListIkePoliciesOptions) SetLimit(limit int64) *ListIkePoliciesOptions {
-	options.Limit = core.Int64Ptr(limit)
-	return options
+func (_options *ListIkePoliciesOptions) SetLimit(limit int64) *ListIkePoliciesOptions {
+	_options.Limit = core.Int64Ptr(limit)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -34825,7 +35335,7 @@ func (options *ListIkePoliciesOptions) SetHeaders(param map[string]string) *List
 // ListIkePolicyConnectionsOptions : The ListIkePolicyConnections options.
 type ListIkePolicyConnectionsOptions struct {
 	// The IKE policy identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -34839,9 +35349,9 @@ func (*VpcV1) NewListIkePolicyConnectionsOptions(id string) *ListIkePolicyConnec
 }
 
 // SetID : Allow user to set ID
-func (options *ListIkePolicyConnectionsOptions) SetID(id string) *ListIkePolicyConnectionsOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *ListIkePolicyConnectionsOptions) SetID(id string) *ListIkePolicyConnectionsOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -34853,20 +35363,19 @@ func (options *ListIkePolicyConnectionsOptions) SetHeaders(param map[string]stri
 // ListImagesOptions : The ListImages options.
 type ListImagesOptions struct {
 	// A server-supplied token determining what resource to start the page on.
-	Start *string
+	Start *string `json:"-"`
 
 	// The number of resources to return on a page.
-	Limit *int64
+	Limit *int64 `json:"-"`
 
-	// Filters the collection to resources within one of the resource groups identified in a comma-separated list of
-	// resource group identifiers.
-	ResourceGroupID *string
+	// Filters the collection to resources in the resource group with the specified identifier.
+	ResourceGroupID *string `json:"-"`
 
 	// Filters the collection to resources with the exact specified name.
-	Name *string
+	Name *string `json:"-"`
 
 	// Filters the collection to images with the specified `visibility`.
-	Visibility *string
+	Visibility *string `json:"-"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -34885,33 +35394,33 @@ func (*VpcV1) NewListImagesOptions() *ListImagesOptions {
 }
 
 // SetStart : Allow user to set Start
-func (options *ListImagesOptions) SetStart(start string) *ListImagesOptions {
-	options.Start = core.StringPtr(start)
-	return options
+func (_options *ListImagesOptions) SetStart(start string) *ListImagesOptions {
+	_options.Start = core.StringPtr(start)
+	return _options
 }
 
 // SetLimit : Allow user to set Limit
-func (options *ListImagesOptions) SetLimit(limit int64) *ListImagesOptions {
-	options.Limit = core.Int64Ptr(limit)
-	return options
+func (_options *ListImagesOptions) SetLimit(limit int64) *ListImagesOptions {
+	_options.Limit = core.Int64Ptr(limit)
+	return _options
 }
 
 // SetResourceGroupID : Allow user to set ResourceGroupID
-func (options *ListImagesOptions) SetResourceGroupID(resourceGroupID string) *ListImagesOptions {
-	options.ResourceGroupID = core.StringPtr(resourceGroupID)
-	return options
+func (_options *ListImagesOptions) SetResourceGroupID(resourceGroupID string) *ListImagesOptions {
+	_options.ResourceGroupID = core.StringPtr(resourceGroupID)
+	return _options
 }
 
 // SetName : Allow user to set Name
-func (options *ListImagesOptions) SetName(name string) *ListImagesOptions {
-	options.Name = core.StringPtr(name)
-	return options
+func (_options *ListImagesOptions) SetName(name string) *ListImagesOptions {
+	_options.Name = core.StringPtr(name)
+	return _options
 }
 
 // SetVisibility : Allow user to set Visibility
-func (options *ListImagesOptions) SetVisibility(visibility string) *ListImagesOptions {
-	options.Visibility = core.StringPtr(visibility)
-	return options
+func (_options *ListImagesOptions) SetVisibility(visibility string) *ListImagesOptions {
+	_options.Visibility = core.StringPtr(visibility)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -34923,7 +35432,7 @@ func (options *ListImagesOptions) SetHeaders(param map[string]string) *ListImage
 // ListInstanceDisksOptions : The ListInstanceDisks options.
 type ListInstanceDisksOptions struct {
 	// The instance identifier.
-	InstanceID *string `validate:"required,ne="`
+	InstanceID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -34937,9 +35446,9 @@ func (*VpcV1) NewListInstanceDisksOptions(instanceID string) *ListInstanceDisksO
 }
 
 // SetInstanceID : Allow user to set InstanceID
-func (options *ListInstanceDisksOptions) SetInstanceID(instanceID string) *ListInstanceDisksOptions {
-	options.InstanceID = core.StringPtr(instanceID)
-	return options
+func (_options *ListInstanceDisksOptions) SetInstanceID(instanceID string) *ListInstanceDisksOptions {
+	_options.InstanceID = core.StringPtr(instanceID)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -34951,16 +35460,16 @@ func (options *ListInstanceDisksOptions) SetHeaders(param map[string]string) *Li
 // ListInstanceGroupManagerActionsOptions : The ListInstanceGroupManagerActions options.
 type ListInstanceGroupManagerActionsOptions struct {
 	// The instance group identifier.
-	InstanceGroupID *string `validate:"required,ne="`
+	InstanceGroupID *string `json:"-" validate:"required,ne="`
 
 	// The instance group manager identifier.
-	InstanceGroupManagerID *string `validate:"required,ne="`
+	InstanceGroupManagerID *string `json:"-" validate:"required,ne="`
 
 	// A server-supplied token determining what resource to start the page on.
-	Start *string
+	Start *string `json:"-"`
 
 	// The number of resources to return on a page.
-	Limit *int64
+	Limit *int64 `json:"-"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -34975,27 +35484,27 @@ func (*VpcV1) NewListInstanceGroupManagerActionsOptions(instanceGroupID string, 
 }
 
 // SetInstanceGroupID : Allow user to set InstanceGroupID
-func (options *ListInstanceGroupManagerActionsOptions) SetInstanceGroupID(instanceGroupID string) *ListInstanceGroupManagerActionsOptions {
-	options.InstanceGroupID = core.StringPtr(instanceGroupID)
-	return options
+func (_options *ListInstanceGroupManagerActionsOptions) SetInstanceGroupID(instanceGroupID string) *ListInstanceGroupManagerActionsOptions {
+	_options.InstanceGroupID = core.StringPtr(instanceGroupID)
+	return _options
 }
 
 // SetInstanceGroupManagerID : Allow user to set InstanceGroupManagerID
-func (options *ListInstanceGroupManagerActionsOptions) SetInstanceGroupManagerID(instanceGroupManagerID string) *ListInstanceGroupManagerActionsOptions {
-	options.InstanceGroupManagerID = core.StringPtr(instanceGroupManagerID)
-	return options
+func (_options *ListInstanceGroupManagerActionsOptions) SetInstanceGroupManagerID(instanceGroupManagerID string) *ListInstanceGroupManagerActionsOptions {
+	_options.InstanceGroupManagerID = core.StringPtr(instanceGroupManagerID)
+	return _options
 }
 
 // SetStart : Allow user to set Start
-func (options *ListInstanceGroupManagerActionsOptions) SetStart(start string) *ListInstanceGroupManagerActionsOptions {
-	options.Start = core.StringPtr(start)
-	return options
+func (_options *ListInstanceGroupManagerActionsOptions) SetStart(start string) *ListInstanceGroupManagerActionsOptions {
+	_options.Start = core.StringPtr(start)
+	return _options
 }
 
 // SetLimit : Allow user to set Limit
-func (options *ListInstanceGroupManagerActionsOptions) SetLimit(limit int64) *ListInstanceGroupManagerActionsOptions {
-	options.Limit = core.Int64Ptr(limit)
-	return options
+func (_options *ListInstanceGroupManagerActionsOptions) SetLimit(limit int64) *ListInstanceGroupManagerActionsOptions {
+	_options.Limit = core.Int64Ptr(limit)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -35007,16 +35516,16 @@ func (options *ListInstanceGroupManagerActionsOptions) SetHeaders(param map[stri
 // ListInstanceGroupManagerPoliciesOptions : The ListInstanceGroupManagerPolicies options.
 type ListInstanceGroupManagerPoliciesOptions struct {
 	// The instance group identifier.
-	InstanceGroupID *string `validate:"required,ne="`
+	InstanceGroupID *string `json:"-" validate:"required,ne="`
 
 	// The instance group manager identifier.
-	InstanceGroupManagerID *string `validate:"required,ne="`
+	InstanceGroupManagerID *string `json:"-" validate:"required,ne="`
 
 	// A server-supplied token determining what resource to start the page on.
-	Start *string
+	Start *string `json:"-"`
 
 	// The number of resources to return on a page.
-	Limit *int64
+	Limit *int64 `json:"-"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -35031,27 +35540,27 @@ func (*VpcV1) NewListInstanceGroupManagerPoliciesOptions(instanceGroupID string,
 }
 
 // SetInstanceGroupID : Allow user to set InstanceGroupID
-func (options *ListInstanceGroupManagerPoliciesOptions) SetInstanceGroupID(instanceGroupID string) *ListInstanceGroupManagerPoliciesOptions {
-	options.InstanceGroupID = core.StringPtr(instanceGroupID)
-	return options
+func (_options *ListInstanceGroupManagerPoliciesOptions) SetInstanceGroupID(instanceGroupID string) *ListInstanceGroupManagerPoliciesOptions {
+	_options.InstanceGroupID = core.StringPtr(instanceGroupID)
+	return _options
 }
 
 // SetInstanceGroupManagerID : Allow user to set InstanceGroupManagerID
-func (options *ListInstanceGroupManagerPoliciesOptions) SetInstanceGroupManagerID(instanceGroupManagerID string) *ListInstanceGroupManagerPoliciesOptions {
-	options.InstanceGroupManagerID = core.StringPtr(instanceGroupManagerID)
-	return options
+func (_options *ListInstanceGroupManagerPoliciesOptions) SetInstanceGroupManagerID(instanceGroupManagerID string) *ListInstanceGroupManagerPoliciesOptions {
+	_options.InstanceGroupManagerID = core.StringPtr(instanceGroupManagerID)
+	return _options
 }
 
 // SetStart : Allow user to set Start
-func (options *ListInstanceGroupManagerPoliciesOptions) SetStart(start string) *ListInstanceGroupManagerPoliciesOptions {
-	options.Start = core.StringPtr(start)
-	return options
+func (_options *ListInstanceGroupManagerPoliciesOptions) SetStart(start string) *ListInstanceGroupManagerPoliciesOptions {
+	_options.Start = core.StringPtr(start)
+	return _options
 }
 
 // SetLimit : Allow user to set Limit
-func (options *ListInstanceGroupManagerPoliciesOptions) SetLimit(limit int64) *ListInstanceGroupManagerPoliciesOptions {
-	options.Limit = core.Int64Ptr(limit)
-	return options
+func (_options *ListInstanceGroupManagerPoliciesOptions) SetLimit(limit int64) *ListInstanceGroupManagerPoliciesOptions {
+	_options.Limit = core.Int64Ptr(limit)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -35063,13 +35572,13 @@ func (options *ListInstanceGroupManagerPoliciesOptions) SetHeaders(param map[str
 // ListInstanceGroupManagersOptions : The ListInstanceGroupManagers options.
 type ListInstanceGroupManagersOptions struct {
 	// The instance group identifier.
-	InstanceGroupID *string `validate:"required,ne="`
+	InstanceGroupID *string `json:"-" validate:"required,ne="`
 
 	// A server-supplied token determining what resource to start the page on.
-	Start *string
+	Start *string `json:"-"`
 
 	// The number of resources to return on a page.
-	Limit *int64
+	Limit *int64 `json:"-"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -35083,21 +35592,21 @@ func (*VpcV1) NewListInstanceGroupManagersOptions(instanceGroupID string) *ListI
 }
 
 // SetInstanceGroupID : Allow user to set InstanceGroupID
-func (options *ListInstanceGroupManagersOptions) SetInstanceGroupID(instanceGroupID string) *ListInstanceGroupManagersOptions {
-	options.InstanceGroupID = core.StringPtr(instanceGroupID)
-	return options
+func (_options *ListInstanceGroupManagersOptions) SetInstanceGroupID(instanceGroupID string) *ListInstanceGroupManagersOptions {
+	_options.InstanceGroupID = core.StringPtr(instanceGroupID)
+	return _options
 }
 
 // SetStart : Allow user to set Start
-func (options *ListInstanceGroupManagersOptions) SetStart(start string) *ListInstanceGroupManagersOptions {
-	options.Start = core.StringPtr(start)
-	return options
+func (_options *ListInstanceGroupManagersOptions) SetStart(start string) *ListInstanceGroupManagersOptions {
+	_options.Start = core.StringPtr(start)
+	return _options
 }
 
 // SetLimit : Allow user to set Limit
-func (options *ListInstanceGroupManagersOptions) SetLimit(limit int64) *ListInstanceGroupManagersOptions {
-	options.Limit = core.Int64Ptr(limit)
-	return options
+func (_options *ListInstanceGroupManagersOptions) SetLimit(limit int64) *ListInstanceGroupManagersOptions {
+	_options.Limit = core.Int64Ptr(limit)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -35109,13 +35618,13 @@ func (options *ListInstanceGroupManagersOptions) SetHeaders(param map[string]str
 // ListInstanceGroupMembershipsOptions : The ListInstanceGroupMemberships options.
 type ListInstanceGroupMembershipsOptions struct {
 	// The instance group identifier.
-	InstanceGroupID *string `validate:"required,ne="`
+	InstanceGroupID *string `json:"-" validate:"required,ne="`
 
 	// A server-supplied token determining what resource to start the page on.
-	Start *string
+	Start *string `json:"-"`
 
 	// The number of resources to return on a page.
-	Limit *int64
+	Limit *int64 `json:"-"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -35129,21 +35638,21 @@ func (*VpcV1) NewListInstanceGroupMembershipsOptions(instanceGroupID string) *Li
 }
 
 // SetInstanceGroupID : Allow user to set InstanceGroupID
-func (options *ListInstanceGroupMembershipsOptions) SetInstanceGroupID(instanceGroupID string) *ListInstanceGroupMembershipsOptions {
-	options.InstanceGroupID = core.StringPtr(instanceGroupID)
-	return options
+func (_options *ListInstanceGroupMembershipsOptions) SetInstanceGroupID(instanceGroupID string) *ListInstanceGroupMembershipsOptions {
+	_options.InstanceGroupID = core.StringPtr(instanceGroupID)
+	return _options
 }
 
 // SetStart : Allow user to set Start
-func (options *ListInstanceGroupMembershipsOptions) SetStart(start string) *ListInstanceGroupMembershipsOptions {
-	options.Start = core.StringPtr(start)
-	return options
+func (_options *ListInstanceGroupMembershipsOptions) SetStart(start string) *ListInstanceGroupMembershipsOptions {
+	_options.Start = core.StringPtr(start)
+	return _options
 }
 
 // SetLimit : Allow user to set Limit
-func (options *ListInstanceGroupMembershipsOptions) SetLimit(limit int64) *ListInstanceGroupMembershipsOptions {
-	options.Limit = core.Int64Ptr(limit)
-	return options
+func (_options *ListInstanceGroupMembershipsOptions) SetLimit(limit int64) *ListInstanceGroupMembershipsOptions {
+	_options.Limit = core.Int64Ptr(limit)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -35155,10 +35664,10 @@ func (options *ListInstanceGroupMembershipsOptions) SetHeaders(param map[string]
 // ListInstanceGroupsOptions : The ListInstanceGroups options.
 type ListInstanceGroupsOptions struct {
 	// A server-supplied token determining what resource to start the page on.
-	Start *string
+	Start *string `json:"-"`
 
 	// The number of resources to return on a page.
-	Limit *int64
+	Limit *int64 `json:"-"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -35170,15 +35679,15 @@ func (*VpcV1) NewListInstanceGroupsOptions() *ListInstanceGroupsOptions {
 }
 
 // SetStart : Allow user to set Start
-func (options *ListInstanceGroupsOptions) SetStart(start string) *ListInstanceGroupsOptions {
-	options.Start = core.StringPtr(start)
-	return options
+func (_options *ListInstanceGroupsOptions) SetStart(start string) *ListInstanceGroupsOptions {
+	_options.Start = core.StringPtr(start)
+	return _options
 }
 
 // SetLimit : Allow user to set Limit
-func (options *ListInstanceGroupsOptions) SetLimit(limit int64) *ListInstanceGroupsOptions {
-	options.Limit = core.Int64Ptr(limit)
-	return options
+func (_options *ListInstanceGroupsOptions) SetLimit(limit int64) *ListInstanceGroupsOptions {
+	_options.Limit = core.Int64Ptr(limit)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -35190,10 +35699,10 @@ func (options *ListInstanceGroupsOptions) SetHeaders(param map[string]string) *L
 // ListInstanceNetworkInterfaceFloatingIpsOptions : The ListInstanceNetworkInterfaceFloatingIps options.
 type ListInstanceNetworkInterfaceFloatingIpsOptions struct {
 	// The instance identifier.
-	InstanceID *string `validate:"required,ne="`
+	InstanceID *string `json:"-" validate:"required,ne="`
 
 	// The network interface identifier.
-	NetworkInterfaceID *string `validate:"required,ne="`
+	NetworkInterfaceID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -35208,15 +35717,15 @@ func (*VpcV1) NewListInstanceNetworkInterfaceFloatingIpsOptions(instanceID strin
 }
 
 // SetInstanceID : Allow user to set InstanceID
-func (options *ListInstanceNetworkInterfaceFloatingIpsOptions) SetInstanceID(instanceID string) *ListInstanceNetworkInterfaceFloatingIpsOptions {
-	options.InstanceID = core.StringPtr(instanceID)
-	return options
+func (_options *ListInstanceNetworkInterfaceFloatingIpsOptions) SetInstanceID(instanceID string) *ListInstanceNetworkInterfaceFloatingIpsOptions {
+	_options.InstanceID = core.StringPtr(instanceID)
+	return _options
 }
 
 // SetNetworkInterfaceID : Allow user to set NetworkInterfaceID
-func (options *ListInstanceNetworkInterfaceFloatingIpsOptions) SetNetworkInterfaceID(networkInterfaceID string) *ListInstanceNetworkInterfaceFloatingIpsOptions {
-	options.NetworkInterfaceID = core.StringPtr(networkInterfaceID)
-	return options
+func (_options *ListInstanceNetworkInterfaceFloatingIpsOptions) SetNetworkInterfaceID(networkInterfaceID string) *ListInstanceNetworkInterfaceFloatingIpsOptions {
+	_options.NetworkInterfaceID = core.StringPtr(networkInterfaceID)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -35228,7 +35737,7 @@ func (options *ListInstanceNetworkInterfaceFloatingIpsOptions) SetHeaders(param 
 // ListInstanceNetworkInterfacesOptions : The ListInstanceNetworkInterfaces options.
 type ListInstanceNetworkInterfacesOptions struct {
 	// The instance identifier.
-	InstanceID *string `validate:"required,ne="`
+	InstanceID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -35242,9 +35751,9 @@ func (*VpcV1) NewListInstanceNetworkInterfacesOptions(instanceID string) *ListIn
 }
 
 // SetInstanceID : Allow user to set InstanceID
-func (options *ListInstanceNetworkInterfacesOptions) SetInstanceID(instanceID string) *ListInstanceNetworkInterfacesOptions {
-	options.InstanceID = core.StringPtr(instanceID)
-	return options
+func (_options *ListInstanceNetworkInterfacesOptions) SetInstanceID(instanceID string) *ListInstanceNetworkInterfacesOptions {
+	_options.InstanceID = core.StringPtr(instanceID)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -35292,7 +35801,7 @@ func (options *ListInstanceTemplatesOptions) SetHeaders(param map[string]string)
 // ListInstanceVolumeAttachmentsOptions : The ListInstanceVolumeAttachments options.
 type ListInstanceVolumeAttachmentsOptions struct {
 	// The instance identifier.
-	InstanceID *string `validate:"required,ne="`
+	InstanceID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -35306,9 +35815,9 @@ func (*VpcV1) NewListInstanceVolumeAttachmentsOptions(instanceID string) *ListIn
 }
 
 // SetInstanceID : Allow user to set InstanceID
-func (options *ListInstanceVolumeAttachmentsOptions) SetInstanceID(instanceID string) *ListInstanceVolumeAttachmentsOptions {
-	options.InstanceID = core.StringPtr(instanceID)
-	return options
+func (_options *ListInstanceVolumeAttachmentsOptions) SetInstanceID(instanceID string) *ListInstanceVolumeAttachmentsOptions {
+	_options.InstanceID = core.StringPtr(instanceID)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -35320,44 +35829,43 @@ func (options *ListInstanceVolumeAttachmentsOptions) SetHeaders(param map[string
 // ListInstancesOptions : The ListInstances options.
 type ListInstancesOptions struct {
 	// A server-supplied token determining what resource to start the page on.
-	Start *string
+	Start *string `json:"-"`
 
 	// The number of resources to return on a page.
-	Limit *int64
+	Limit *int64 `json:"-"`
 
-	// Filters the collection to resources within one of the resource groups identified in a comma-separated list of
-	// resource group identifiers.
-	ResourceGroupID *string
+	// Filters the collection to resources in the resource group with the specified identifier.
+	ResourceGroupID *string `json:"-"`
 
 	// Filters the collection to resources with the exact specified name.
-	Name *string
+	Name *string `json:"-"`
 
 	// Filters the collection to resources in the VPC with the specified identifier.
-	VPCID *string
+	VPCID *string `json:"-"`
 
 	// Filters the collection to resources in the VPC with the specified CRN.
-	VPCCRN *string
+	VPCCRN *string `json:"-"`
 
 	// Filters the collection to resources in the VPC with the exact specified name.
-	VPCName *string
+	VPCName *string `json:"-"`
 
 	// Filters the collection to instances on the dedicated host with the specified identifier.
-	DedicatedHostID *string
+	DedicatedHostID *string `json:"-"`
 
 	// Filters the collection to instances on the dedicated host with the specified CRN.
-	DedicatedHostCRN *string
+	DedicatedHostCRN *string `json:"-"`
 
 	// Filters the collection to instances on the dedicated host with the specified name.
-	DedicatedHostName *string
+	DedicatedHostName *string `json:"-"`
 
 	// Filters the collection to instances in the placement group with the specified identifier.
-	PlacementGroupID *string
+	PlacementGroupID *string `json:"-"`
 
 	// Filters the collection to instances in the placement group with the specified CRN.
-	PlacementGroupCRN *string
+	PlacementGroupCRN *string `json:"-"`
 
 	// Filters the collection to instances in the placement group with the specified name.
-	PlacementGroupName *string
+	PlacementGroupName *string `json:"-"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -35369,81 +35877,81 @@ func (*VpcV1) NewListInstancesOptions() *ListInstancesOptions {
 }
 
 // SetStart : Allow user to set Start
-func (options *ListInstancesOptions) SetStart(start string) *ListInstancesOptions {
-	options.Start = core.StringPtr(start)
-	return options
+func (_options *ListInstancesOptions) SetStart(start string) *ListInstancesOptions {
+	_options.Start = core.StringPtr(start)
+	return _options
 }
 
 // SetLimit : Allow user to set Limit
-func (options *ListInstancesOptions) SetLimit(limit int64) *ListInstancesOptions {
-	options.Limit = core.Int64Ptr(limit)
-	return options
+func (_options *ListInstancesOptions) SetLimit(limit int64) *ListInstancesOptions {
+	_options.Limit = core.Int64Ptr(limit)
+	return _options
 }
 
 // SetResourceGroupID : Allow user to set ResourceGroupID
-func (options *ListInstancesOptions) SetResourceGroupID(resourceGroupID string) *ListInstancesOptions {
-	options.ResourceGroupID = core.StringPtr(resourceGroupID)
-	return options
+func (_options *ListInstancesOptions) SetResourceGroupID(resourceGroupID string) *ListInstancesOptions {
+	_options.ResourceGroupID = core.StringPtr(resourceGroupID)
+	return _options
 }
 
 // SetName : Allow user to set Name
-func (options *ListInstancesOptions) SetName(name string) *ListInstancesOptions {
-	options.Name = core.StringPtr(name)
-	return options
+func (_options *ListInstancesOptions) SetName(name string) *ListInstancesOptions {
+	_options.Name = core.StringPtr(name)
+	return _options
 }
 
 // SetVPCID : Allow user to set VPCID
-func (options *ListInstancesOptions) SetVPCID(vpcID string) *ListInstancesOptions {
-	options.VPCID = core.StringPtr(vpcID)
-	return options
+func (_options *ListInstancesOptions) SetVPCID(vpcID string) *ListInstancesOptions {
+	_options.VPCID = core.StringPtr(vpcID)
+	return _options
 }
 
 // SetVPCCRN : Allow user to set VPCCRN
-func (options *ListInstancesOptions) SetVPCCRN(vpcCRN string) *ListInstancesOptions {
-	options.VPCCRN = core.StringPtr(vpcCRN)
-	return options
+func (_options *ListInstancesOptions) SetVPCCRN(vpcCRN string) *ListInstancesOptions {
+	_options.VPCCRN = core.StringPtr(vpcCRN)
+	return _options
 }
 
 // SetVPCName : Allow user to set VPCName
-func (options *ListInstancesOptions) SetVPCName(vpcName string) *ListInstancesOptions {
-	options.VPCName = core.StringPtr(vpcName)
-	return options
+func (_options *ListInstancesOptions) SetVPCName(vpcName string) *ListInstancesOptions {
+	_options.VPCName = core.StringPtr(vpcName)
+	return _options
 }
 
 // SetDedicatedHostID : Allow user to set DedicatedHostID
-func (options *ListInstancesOptions) SetDedicatedHostID(dedicatedHostID string) *ListInstancesOptions {
-	options.DedicatedHostID = core.StringPtr(dedicatedHostID)
-	return options
+func (_options *ListInstancesOptions) SetDedicatedHostID(dedicatedHostID string) *ListInstancesOptions {
+	_options.DedicatedHostID = core.StringPtr(dedicatedHostID)
+	return _options
 }
 
 // SetDedicatedHostCRN : Allow user to set DedicatedHostCRN
-func (options *ListInstancesOptions) SetDedicatedHostCRN(dedicatedHostCRN string) *ListInstancesOptions {
-	options.DedicatedHostCRN = core.StringPtr(dedicatedHostCRN)
-	return options
+func (_options *ListInstancesOptions) SetDedicatedHostCRN(dedicatedHostCRN string) *ListInstancesOptions {
+	_options.DedicatedHostCRN = core.StringPtr(dedicatedHostCRN)
+	return _options
 }
 
 // SetDedicatedHostName : Allow user to set DedicatedHostName
-func (options *ListInstancesOptions) SetDedicatedHostName(dedicatedHostName string) *ListInstancesOptions {
-	options.DedicatedHostName = core.StringPtr(dedicatedHostName)
-	return options
+func (_options *ListInstancesOptions) SetDedicatedHostName(dedicatedHostName string) *ListInstancesOptions {
+	_options.DedicatedHostName = core.StringPtr(dedicatedHostName)
+	return _options
 }
 
 // SetPlacementGroupID : Allow user to set PlacementGroupID
-func (options *ListInstancesOptions) SetPlacementGroupID(placementGroupID string) *ListInstancesOptions {
-	options.PlacementGroupID = core.StringPtr(placementGroupID)
-	return options
+func (_options *ListInstancesOptions) SetPlacementGroupID(placementGroupID string) *ListInstancesOptions {
+	_options.PlacementGroupID = core.StringPtr(placementGroupID)
+	return _options
 }
 
 // SetPlacementGroupCRN : Allow user to set PlacementGroupCRN
-func (options *ListInstancesOptions) SetPlacementGroupCRN(placementGroupCRN string) *ListInstancesOptions {
-	options.PlacementGroupCRN = core.StringPtr(placementGroupCRN)
-	return options
+func (_options *ListInstancesOptions) SetPlacementGroupCRN(placementGroupCRN string) *ListInstancesOptions {
+	_options.PlacementGroupCRN = core.StringPtr(placementGroupCRN)
+	return _options
 }
 
 // SetPlacementGroupName : Allow user to set PlacementGroupName
-func (options *ListInstancesOptions) SetPlacementGroupName(placementGroupName string) *ListInstancesOptions {
-	options.PlacementGroupName = core.StringPtr(placementGroupName)
-	return options
+func (_options *ListInstancesOptions) SetPlacementGroupName(placementGroupName string) *ListInstancesOptions {
+	_options.PlacementGroupName = core.StringPtr(placementGroupName)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -35455,10 +35963,10 @@ func (options *ListInstancesOptions) SetHeaders(param map[string]string) *ListIn
 // ListIpsecPoliciesOptions : The ListIpsecPolicies options.
 type ListIpsecPoliciesOptions struct {
 	// A server-supplied token determining what resource to start the page on.
-	Start *string
+	Start *string `json:"-"`
 
 	// The number of resources to return on a page.
-	Limit *int64
+	Limit *int64 `json:"-"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -35470,15 +35978,15 @@ func (*VpcV1) NewListIpsecPoliciesOptions() *ListIpsecPoliciesOptions {
 }
 
 // SetStart : Allow user to set Start
-func (options *ListIpsecPoliciesOptions) SetStart(start string) *ListIpsecPoliciesOptions {
-	options.Start = core.StringPtr(start)
-	return options
+func (_options *ListIpsecPoliciesOptions) SetStart(start string) *ListIpsecPoliciesOptions {
+	_options.Start = core.StringPtr(start)
+	return _options
 }
 
 // SetLimit : Allow user to set Limit
-func (options *ListIpsecPoliciesOptions) SetLimit(limit int64) *ListIpsecPoliciesOptions {
-	options.Limit = core.Int64Ptr(limit)
-	return options
+func (_options *ListIpsecPoliciesOptions) SetLimit(limit int64) *ListIpsecPoliciesOptions {
+	_options.Limit = core.Int64Ptr(limit)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -35490,7 +35998,7 @@ func (options *ListIpsecPoliciesOptions) SetHeaders(param map[string]string) *Li
 // ListIpsecPolicyConnectionsOptions : The ListIpsecPolicyConnections options.
 type ListIpsecPolicyConnectionsOptions struct {
 	// The IPsec policy identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -35504,9 +36012,9 @@ func (*VpcV1) NewListIpsecPolicyConnectionsOptions(id string) *ListIpsecPolicyCo
 }
 
 // SetID : Allow user to set ID
-func (options *ListIpsecPolicyConnectionsOptions) SetID(id string) *ListIpsecPolicyConnectionsOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *ListIpsecPolicyConnectionsOptions) SetID(id string) *ListIpsecPolicyConnectionsOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -35518,14 +36026,10 @@ func (options *ListIpsecPolicyConnectionsOptions) SetHeaders(param map[string]st
 // ListKeysOptions : The ListKeys options.
 type ListKeysOptions struct {
 	// A server-supplied token determining what resource to start the page on.
-	Start *string
+	Start *string `json:"-"`
 
 	// The number of resources to return on a page.
-	Limit *int64
-
-	// Filters the collection to resources within one of the resource groups identified in a comma-separated list of
-	// resource group identifiers.
-	ResourceGroupID *string
+	Limit *int64 `json:"-"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -35537,21 +36041,15 @@ func (*VpcV1) NewListKeysOptions() *ListKeysOptions {
 }
 
 // SetStart : Allow user to set Start
-func (options *ListKeysOptions) SetStart(start string) *ListKeysOptions {
-	options.Start = core.StringPtr(start)
-	return options
+func (_options *ListKeysOptions) SetStart(start string) *ListKeysOptions {
+	_options.Start = core.StringPtr(start)
+	return _options
 }
 
 // SetLimit : Allow user to set Limit
-func (options *ListKeysOptions) SetLimit(limit int64) *ListKeysOptions {
-	options.Limit = core.Int64Ptr(limit)
-	return options
-}
-
-// SetResourceGroupID : Allow user to set ResourceGroupID
-func (options *ListKeysOptions) SetResourceGroupID(resourceGroupID string) *ListKeysOptions {
-	options.ResourceGroupID = core.StringPtr(resourceGroupID)
-	return options
+func (_options *ListKeysOptions) SetLimit(limit int64) *ListKeysOptions {
+	_options.Limit = core.Int64Ptr(limit)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -35563,10 +36061,10 @@ func (options *ListKeysOptions) SetHeaders(param map[string]string) *ListKeysOpt
 // ListLoadBalancerListenerPoliciesOptions : The ListLoadBalancerListenerPolicies options.
 type ListLoadBalancerListenerPoliciesOptions struct {
 	// The load balancer identifier.
-	LoadBalancerID *string `validate:"required,ne="`
+	LoadBalancerID *string `json:"-" validate:"required,ne="`
 
 	// The listener identifier.
-	ListenerID *string `validate:"required,ne="`
+	ListenerID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -35581,15 +36079,15 @@ func (*VpcV1) NewListLoadBalancerListenerPoliciesOptions(loadBalancerID string, 
 }
 
 // SetLoadBalancerID : Allow user to set LoadBalancerID
-func (options *ListLoadBalancerListenerPoliciesOptions) SetLoadBalancerID(loadBalancerID string) *ListLoadBalancerListenerPoliciesOptions {
-	options.LoadBalancerID = core.StringPtr(loadBalancerID)
-	return options
+func (_options *ListLoadBalancerListenerPoliciesOptions) SetLoadBalancerID(loadBalancerID string) *ListLoadBalancerListenerPoliciesOptions {
+	_options.LoadBalancerID = core.StringPtr(loadBalancerID)
+	return _options
 }
 
 // SetListenerID : Allow user to set ListenerID
-func (options *ListLoadBalancerListenerPoliciesOptions) SetListenerID(listenerID string) *ListLoadBalancerListenerPoliciesOptions {
-	options.ListenerID = core.StringPtr(listenerID)
-	return options
+func (_options *ListLoadBalancerListenerPoliciesOptions) SetListenerID(listenerID string) *ListLoadBalancerListenerPoliciesOptions {
+	_options.ListenerID = core.StringPtr(listenerID)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -35601,13 +36099,13 @@ func (options *ListLoadBalancerListenerPoliciesOptions) SetHeaders(param map[str
 // ListLoadBalancerListenerPolicyRulesOptions : The ListLoadBalancerListenerPolicyRules options.
 type ListLoadBalancerListenerPolicyRulesOptions struct {
 	// The load balancer identifier.
-	LoadBalancerID *string `validate:"required,ne="`
+	LoadBalancerID *string `json:"-" validate:"required,ne="`
 
 	// The listener identifier.
-	ListenerID *string `validate:"required,ne="`
+	ListenerID *string `json:"-" validate:"required,ne="`
 
 	// The policy identifier.
-	PolicyID *string `validate:"required,ne="`
+	PolicyID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -35623,21 +36121,21 @@ func (*VpcV1) NewListLoadBalancerListenerPolicyRulesOptions(loadBalancerID strin
 }
 
 // SetLoadBalancerID : Allow user to set LoadBalancerID
-func (options *ListLoadBalancerListenerPolicyRulesOptions) SetLoadBalancerID(loadBalancerID string) *ListLoadBalancerListenerPolicyRulesOptions {
-	options.LoadBalancerID = core.StringPtr(loadBalancerID)
-	return options
+func (_options *ListLoadBalancerListenerPolicyRulesOptions) SetLoadBalancerID(loadBalancerID string) *ListLoadBalancerListenerPolicyRulesOptions {
+	_options.LoadBalancerID = core.StringPtr(loadBalancerID)
+	return _options
 }
 
 // SetListenerID : Allow user to set ListenerID
-func (options *ListLoadBalancerListenerPolicyRulesOptions) SetListenerID(listenerID string) *ListLoadBalancerListenerPolicyRulesOptions {
-	options.ListenerID = core.StringPtr(listenerID)
-	return options
+func (_options *ListLoadBalancerListenerPolicyRulesOptions) SetListenerID(listenerID string) *ListLoadBalancerListenerPolicyRulesOptions {
+	_options.ListenerID = core.StringPtr(listenerID)
+	return _options
 }
 
 // SetPolicyID : Allow user to set PolicyID
-func (options *ListLoadBalancerListenerPolicyRulesOptions) SetPolicyID(policyID string) *ListLoadBalancerListenerPolicyRulesOptions {
-	options.PolicyID = core.StringPtr(policyID)
-	return options
+func (_options *ListLoadBalancerListenerPolicyRulesOptions) SetPolicyID(policyID string) *ListLoadBalancerListenerPolicyRulesOptions {
+	_options.PolicyID = core.StringPtr(policyID)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -35649,7 +36147,7 @@ func (options *ListLoadBalancerListenerPolicyRulesOptions) SetHeaders(param map[
 // ListLoadBalancerListenersOptions : The ListLoadBalancerListeners options.
 type ListLoadBalancerListenersOptions struct {
 	// The load balancer identifier.
-	LoadBalancerID *string `validate:"required,ne="`
+	LoadBalancerID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -35663,9 +36161,9 @@ func (*VpcV1) NewListLoadBalancerListenersOptions(loadBalancerID string) *ListLo
 }
 
 // SetLoadBalancerID : Allow user to set LoadBalancerID
-func (options *ListLoadBalancerListenersOptions) SetLoadBalancerID(loadBalancerID string) *ListLoadBalancerListenersOptions {
-	options.LoadBalancerID = core.StringPtr(loadBalancerID)
-	return options
+func (_options *ListLoadBalancerListenersOptions) SetLoadBalancerID(loadBalancerID string) *ListLoadBalancerListenersOptions {
+	_options.LoadBalancerID = core.StringPtr(loadBalancerID)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -35677,10 +36175,10 @@ func (options *ListLoadBalancerListenersOptions) SetHeaders(param map[string]str
 // ListLoadBalancerPoolMembersOptions : The ListLoadBalancerPoolMembers options.
 type ListLoadBalancerPoolMembersOptions struct {
 	// The load balancer identifier.
-	LoadBalancerID *string `validate:"required,ne="`
+	LoadBalancerID *string `json:"-" validate:"required,ne="`
 
 	// The pool identifier.
-	PoolID *string `validate:"required,ne="`
+	PoolID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -35695,15 +36193,15 @@ func (*VpcV1) NewListLoadBalancerPoolMembersOptions(loadBalancerID string, poolI
 }
 
 // SetLoadBalancerID : Allow user to set LoadBalancerID
-func (options *ListLoadBalancerPoolMembersOptions) SetLoadBalancerID(loadBalancerID string) *ListLoadBalancerPoolMembersOptions {
-	options.LoadBalancerID = core.StringPtr(loadBalancerID)
-	return options
+func (_options *ListLoadBalancerPoolMembersOptions) SetLoadBalancerID(loadBalancerID string) *ListLoadBalancerPoolMembersOptions {
+	_options.LoadBalancerID = core.StringPtr(loadBalancerID)
+	return _options
 }
 
 // SetPoolID : Allow user to set PoolID
-func (options *ListLoadBalancerPoolMembersOptions) SetPoolID(poolID string) *ListLoadBalancerPoolMembersOptions {
-	options.PoolID = core.StringPtr(poolID)
-	return options
+func (_options *ListLoadBalancerPoolMembersOptions) SetPoolID(poolID string) *ListLoadBalancerPoolMembersOptions {
+	_options.PoolID = core.StringPtr(poolID)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -35715,7 +36213,7 @@ func (options *ListLoadBalancerPoolMembersOptions) SetHeaders(param map[string]s
 // ListLoadBalancerPoolsOptions : The ListLoadBalancerPools options.
 type ListLoadBalancerPoolsOptions struct {
 	// The load balancer identifier.
-	LoadBalancerID *string `validate:"required,ne="`
+	LoadBalancerID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -35729,9 +36227,9 @@ func (*VpcV1) NewListLoadBalancerPoolsOptions(loadBalancerID string) *ListLoadBa
 }
 
 // SetLoadBalancerID : Allow user to set LoadBalancerID
-func (options *ListLoadBalancerPoolsOptions) SetLoadBalancerID(loadBalancerID string) *ListLoadBalancerPoolsOptions {
-	options.LoadBalancerID = core.StringPtr(loadBalancerID)
-	return options
+func (_options *ListLoadBalancerPoolsOptions) SetLoadBalancerID(loadBalancerID string) *ListLoadBalancerPoolsOptions {
+	_options.LoadBalancerID = core.StringPtr(loadBalancerID)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -35743,10 +36241,10 @@ func (options *ListLoadBalancerPoolsOptions) SetHeaders(param map[string]string)
 // ListLoadBalancerProfilesOptions : The ListLoadBalancerProfiles options.
 type ListLoadBalancerProfilesOptions struct {
 	// A server-supplied token determining what resource to start the page on.
-	Start *string
+	Start *string `json:"-"`
 
 	// The number of resources to return on a page.
-	Limit *int64
+	Limit *int64 `json:"-"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -35758,15 +36256,15 @@ func (*VpcV1) NewListLoadBalancerProfilesOptions() *ListLoadBalancerProfilesOpti
 }
 
 // SetStart : Allow user to set Start
-func (options *ListLoadBalancerProfilesOptions) SetStart(start string) *ListLoadBalancerProfilesOptions {
-	options.Start = core.StringPtr(start)
-	return options
+func (_options *ListLoadBalancerProfilesOptions) SetStart(start string) *ListLoadBalancerProfilesOptions {
+	_options.Start = core.StringPtr(start)
+	return _options
 }
 
 // SetLimit : Allow user to set Limit
-func (options *ListLoadBalancerProfilesOptions) SetLimit(limit int64) *ListLoadBalancerProfilesOptions {
-	options.Limit = core.Int64Ptr(limit)
-	return options
+func (_options *ListLoadBalancerProfilesOptions) SetLimit(limit int64) *ListLoadBalancerProfilesOptions {
+	_options.Limit = core.Int64Ptr(limit)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -35778,10 +36276,10 @@ func (options *ListLoadBalancerProfilesOptions) SetHeaders(param map[string]stri
 // ListLoadBalancersOptions : The ListLoadBalancers options.
 type ListLoadBalancersOptions struct {
 	// A server-supplied token determining what resource to start the page on.
-	Start *string
+	Start *string `json:"-"`
 
 	// The number of resources to return on a page.
-	Limit *int64
+	Limit *int64 `json:"-"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -35793,15 +36291,15 @@ func (*VpcV1) NewListLoadBalancersOptions() *ListLoadBalancersOptions {
 }
 
 // SetStart : Allow user to set Start
-func (options *ListLoadBalancersOptions) SetStart(start string) *ListLoadBalancersOptions {
-	options.Start = core.StringPtr(start)
-	return options
+func (_options *ListLoadBalancersOptions) SetStart(start string) *ListLoadBalancersOptions {
+	_options.Start = core.StringPtr(start)
+	return _options
 }
 
 // SetLimit : Allow user to set Limit
-func (options *ListLoadBalancersOptions) SetLimit(limit int64) *ListLoadBalancersOptions {
-	options.Limit = core.Int64Ptr(limit)
-	return options
+func (_options *ListLoadBalancersOptions) SetLimit(limit int64) *ListLoadBalancersOptions {
+	_options.Limit = core.Int64Ptr(limit)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -35813,16 +36311,16 @@ func (options *ListLoadBalancersOptions) SetHeaders(param map[string]string) *Li
 // ListNetworkACLRulesOptions : The ListNetworkACLRules options.
 type ListNetworkACLRulesOptions struct {
 	// The network ACL identifier.
-	NetworkACLID *string `validate:"required,ne="`
+	NetworkACLID *string `json:"-" validate:"required,ne="`
 
 	// A server-supplied token determining what resource to start the page on.
-	Start *string
+	Start *string `json:"-"`
 
 	// The number of resources to return on a page.
-	Limit *int64
+	Limit *int64 `json:"-"`
 
 	// Filters the collection to rules with the specified direction.
-	Direction *string
+	Direction *string `json:"-"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -35843,27 +36341,27 @@ func (*VpcV1) NewListNetworkACLRulesOptions(networkACLID string) *ListNetworkACL
 }
 
 // SetNetworkACLID : Allow user to set NetworkACLID
-func (options *ListNetworkACLRulesOptions) SetNetworkACLID(networkACLID string) *ListNetworkACLRulesOptions {
-	options.NetworkACLID = core.StringPtr(networkACLID)
-	return options
+func (_options *ListNetworkACLRulesOptions) SetNetworkACLID(networkACLID string) *ListNetworkACLRulesOptions {
+	_options.NetworkACLID = core.StringPtr(networkACLID)
+	return _options
 }
 
 // SetStart : Allow user to set Start
-func (options *ListNetworkACLRulesOptions) SetStart(start string) *ListNetworkACLRulesOptions {
-	options.Start = core.StringPtr(start)
-	return options
+func (_options *ListNetworkACLRulesOptions) SetStart(start string) *ListNetworkACLRulesOptions {
+	_options.Start = core.StringPtr(start)
+	return _options
 }
 
 // SetLimit : Allow user to set Limit
-func (options *ListNetworkACLRulesOptions) SetLimit(limit int64) *ListNetworkACLRulesOptions {
-	options.Limit = core.Int64Ptr(limit)
-	return options
+func (_options *ListNetworkACLRulesOptions) SetLimit(limit int64) *ListNetworkACLRulesOptions {
+	_options.Limit = core.Int64Ptr(limit)
+	return _options
 }
 
 // SetDirection : Allow user to set Direction
-func (options *ListNetworkACLRulesOptions) SetDirection(direction string) *ListNetworkACLRulesOptions {
-	options.Direction = core.StringPtr(direction)
-	return options
+func (_options *ListNetworkACLRulesOptions) SetDirection(direction string) *ListNetworkACLRulesOptions {
+	_options.Direction = core.StringPtr(direction)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -35875,14 +36373,13 @@ func (options *ListNetworkACLRulesOptions) SetHeaders(param map[string]string) *
 // ListNetworkAclsOptions : The ListNetworkAcls options.
 type ListNetworkAclsOptions struct {
 	// A server-supplied token determining what resource to start the page on.
-	Start *string
+	Start *string `json:"-"`
 
 	// The number of resources to return on a page.
-	Limit *int64
+	Limit *int64 `json:"-"`
 
-	// Filters the collection to resources within one of the resource groups identified in a comma-separated list of
-	// resource group identifiers.
-	ResourceGroupID *string
+	// Filters the collection to resources in the resource group with the specified identifier.
+	ResourceGroupID *string `json:"-"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -35894,21 +36391,21 @@ func (*VpcV1) NewListNetworkAclsOptions() *ListNetworkAclsOptions {
 }
 
 // SetStart : Allow user to set Start
-func (options *ListNetworkAclsOptions) SetStart(start string) *ListNetworkAclsOptions {
-	options.Start = core.StringPtr(start)
-	return options
+func (_options *ListNetworkAclsOptions) SetStart(start string) *ListNetworkAclsOptions {
+	_options.Start = core.StringPtr(start)
+	return _options
 }
 
 // SetLimit : Allow user to set Limit
-func (options *ListNetworkAclsOptions) SetLimit(limit int64) *ListNetworkAclsOptions {
-	options.Limit = core.Int64Ptr(limit)
-	return options
+func (_options *ListNetworkAclsOptions) SetLimit(limit int64) *ListNetworkAclsOptions {
+	_options.Limit = core.Int64Ptr(limit)
+	return _options
 }
 
 // SetResourceGroupID : Allow user to set ResourceGroupID
-func (options *ListNetworkAclsOptions) SetResourceGroupID(resourceGroupID string) *ListNetworkAclsOptions {
-	options.ResourceGroupID = core.StringPtr(resourceGroupID)
-	return options
+func (_options *ListNetworkAclsOptions) SetResourceGroupID(resourceGroupID string) *ListNetworkAclsOptions {
+	_options.ResourceGroupID = core.StringPtr(resourceGroupID)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -35920,10 +36417,10 @@ func (options *ListNetworkAclsOptions) SetHeaders(param map[string]string) *List
 // ListOperatingSystemsOptions : The ListOperatingSystems options.
 type ListOperatingSystemsOptions struct {
 	// A server-supplied token determining what resource to start the page on.
-	Start *string
+	Start *string `json:"-"`
 
 	// The number of resources to return on a page.
-	Limit *int64
+	Limit *int64 `json:"-"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -35935,15 +36432,15 @@ func (*VpcV1) NewListOperatingSystemsOptions() *ListOperatingSystemsOptions {
 }
 
 // SetStart : Allow user to set Start
-func (options *ListOperatingSystemsOptions) SetStart(start string) *ListOperatingSystemsOptions {
-	options.Start = core.StringPtr(start)
-	return options
+func (_options *ListOperatingSystemsOptions) SetStart(start string) *ListOperatingSystemsOptions {
+	_options.Start = core.StringPtr(start)
+	return _options
 }
 
 // SetLimit : Allow user to set Limit
-func (options *ListOperatingSystemsOptions) SetLimit(limit int64) *ListOperatingSystemsOptions {
-	options.Limit = core.Int64Ptr(limit)
-	return options
+func (_options *ListOperatingSystemsOptions) SetLimit(limit int64) *ListOperatingSystemsOptions {
+	_options.Limit = core.Int64Ptr(limit)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -35955,10 +36452,10 @@ func (options *ListOperatingSystemsOptions) SetHeaders(param map[string]string) 
 // ListPlacementGroupsOptions : The ListPlacementGroups options.
 type ListPlacementGroupsOptions struct {
 	// A server-supplied token determining what resource to start the page on.
-	Start *string
+	Start *string `json:"-"`
 
 	// The number of resources to return on a page.
-	Limit *int64
+	Limit *int64 `json:"-"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -35970,15 +36467,15 @@ func (*VpcV1) NewListPlacementGroupsOptions() *ListPlacementGroupsOptions {
 }
 
 // SetStart : Allow user to set Start
-func (options *ListPlacementGroupsOptions) SetStart(start string) *ListPlacementGroupsOptions {
-	options.Start = core.StringPtr(start)
-	return options
+func (_options *ListPlacementGroupsOptions) SetStart(start string) *ListPlacementGroupsOptions {
+	_options.Start = core.StringPtr(start)
+	return _options
 }
 
 // SetLimit : Allow user to set Limit
-func (options *ListPlacementGroupsOptions) SetLimit(limit int64) *ListPlacementGroupsOptions {
-	options.Limit = core.Int64Ptr(limit)
-	return options
+func (_options *ListPlacementGroupsOptions) SetLimit(limit int64) *ListPlacementGroupsOptions {
+	_options.Limit = core.Int64Ptr(limit)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -35990,14 +36487,13 @@ func (options *ListPlacementGroupsOptions) SetHeaders(param map[string]string) *
 // ListPublicGatewaysOptions : The ListPublicGateways options.
 type ListPublicGatewaysOptions struct {
 	// A server-supplied token determining what resource to start the page on.
-	Start *string
+	Start *string `json:"-"`
 
 	// The number of resources to return on a page.
-	Limit *int64
+	Limit *int64 `json:"-"`
 
-	// Filters the collection to resources within one of the resource groups identified in a comma-separated list of
-	// resource group identifiers.
-	ResourceGroupID *string
+	// Filters the collection to resources in the resource group with the specified identifier.
+	ResourceGroupID *string `json:"-"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -36009,21 +36505,21 @@ func (*VpcV1) NewListPublicGatewaysOptions() *ListPublicGatewaysOptions {
 }
 
 // SetStart : Allow user to set Start
-func (options *ListPublicGatewaysOptions) SetStart(start string) *ListPublicGatewaysOptions {
-	options.Start = core.StringPtr(start)
-	return options
+func (_options *ListPublicGatewaysOptions) SetStart(start string) *ListPublicGatewaysOptions {
+	_options.Start = core.StringPtr(start)
+	return _options
 }
 
 // SetLimit : Allow user to set Limit
-func (options *ListPublicGatewaysOptions) SetLimit(limit int64) *ListPublicGatewaysOptions {
-	options.Limit = core.Int64Ptr(limit)
-	return options
+func (_options *ListPublicGatewaysOptions) SetLimit(limit int64) *ListPublicGatewaysOptions {
+	_options.Limit = core.Int64Ptr(limit)
+	return _options
 }
 
 // SetResourceGroupID : Allow user to set ResourceGroupID
-func (options *ListPublicGatewaysOptions) SetResourceGroupID(resourceGroupID string) *ListPublicGatewaysOptions {
-	options.ResourceGroupID = core.StringPtr(resourceGroupID)
-	return options
+func (_options *ListPublicGatewaysOptions) SetResourceGroupID(resourceGroupID string) *ListPublicGatewaysOptions {
+	_options.ResourceGroupID = core.StringPtr(resourceGroupID)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -36035,7 +36531,7 @@ func (options *ListPublicGatewaysOptions) SetHeaders(param map[string]string) *L
 // ListRegionZonesOptions : The ListRegionZones options.
 type ListRegionZonesOptions struct {
 	// The region name.
-	RegionName *string `validate:"required,ne="`
+	RegionName *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -36049,9 +36545,9 @@ func (*VpcV1) NewListRegionZonesOptions(regionName string) *ListRegionZonesOptio
 }
 
 // SetRegionName : Allow user to set RegionName
-func (options *ListRegionZonesOptions) SetRegionName(regionName string) *ListRegionZonesOptions {
-	options.RegionName = core.StringPtr(regionName)
-	return options
+func (_options *ListRegionZonesOptions) SetRegionName(regionName string) *ListRegionZonesOptions {
+	_options.RegionName = core.StringPtr(regionName)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -36081,13 +36577,13 @@ func (options *ListRegionsOptions) SetHeaders(param map[string]string) *ListRegi
 // ListSecurityGroupNetworkInterfacesOptions : The ListSecurityGroupNetworkInterfaces options.
 type ListSecurityGroupNetworkInterfacesOptions struct {
 	// The security group identifier.
-	SecurityGroupID *string `validate:"required,ne="`
+	SecurityGroupID *string `json:"-" validate:"required,ne="`
 
 	// A server-supplied token determining what resource to start the page on.
-	Start *string
+	Start *string `json:"-"`
 
 	// The number of resources to return on a page.
-	Limit *int64
+	Limit *int64 `json:"-"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -36101,21 +36597,21 @@ func (*VpcV1) NewListSecurityGroupNetworkInterfacesOptions(securityGroupID strin
 }
 
 // SetSecurityGroupID : Allow user to set SecurityGroupID
-func (options *ListSecurityGroupNetworkInterfacesOptions) SetSecurityGroupID(securityGroupID string) *ListSecurityGroupNetworkInterfacesOptions {
-	options.SecurityGroupID = core.StringPtr(securityGroupID)
-	return options
+func (_options *ListSecurityGroupNetworkInterfacesOptions) SetSecurityGroupID(securityGroupID string) *ListSecurityGroupNetworkInterfacesOptions {
+	_options.SecurityGroupID = core.StringPtr(securityGroupID)
+	return _options
 }
 
 // SetStart : Allow user to set Start
-func (options *ListSecurityGroupNetworkInterfacesOptions) SetStart(start string) *ListSecurityGroupNetworkInterfacesOptions {
-	options.Start = core.StringPtr(start)
-	return options
+func (_options *ListSecurityGroupNetworkInterfacesOptions) SetStart(start string) *ListSecurityGroupNetworkInterfacesOptions {
+	_options.Start = core.StringPtr(start)
+	return _options
 }
 
 // SetLimit : Allow user to set Limit
-func (options *ListSecurityGroupNetworkInterfacesOptions) SetLimit(limit int64) *ListSecurityGroupNetworkInterfacesOptions {
-	options.Limit = core.Int64Ptr(limit)
-	return options
+func (_options *ListSecurityGroupNetworkInterfacesOptions) SetLimit(limit int64) *ListSecurityGroupNetworkInterfacesOptions {
+	_options.Limit = core.Int64Ptr(limit)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -36127,7 +36623,7 @@ func (options *ListSecurityGroupNetworkInterfacesOptions) SetHeaders(param map[s
 // ListSecurityGroupRulesOptions : The ListSecurityGroupRules options.
 type ListSecurityGroupRulesOptions struct {
 	// The security group identifier.
-	SecurityGroupID *string `validate:"required,ne="`
+	SecurityGroupID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -36141,9 +36637,9 @@ func (*VpcV1) NewListSecurityGroupRulesOptions(securityGroupID string) *ListSecu
 }
 
 // SetSecurityGroupID : Allow user to set SecurityGroupID
-func (options *ListSecurityGroupRulesOptions) SetSecurityGroupID(securityGroupID string) *ListSecurityGroupRulesOptions {
-	options.SecurityGroupID = core.StringPtr(securityGroupID)
-	return options
+func (_options *ListSecurityGroupRulesOptions) SetSecurityGroupID(securityGroupID string) *ListSecurityGroupRulesOptions {
+	_options.SecurityGroupID = core.StringPtr(securityGroupID)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -36155,13 +36651,13 @@ func (options *ListSecurityGroupRulesOptions) SetHeaders(param map[string]string
 // ListSecurityGroupTargetsOptions : The ListSecurityGroupTargets options.
 type ListSecurityGroupTargetsOptions struct {
 	// The security group identifier.
-	SecurityGroupID *string `validate:"required,ne="`
+	SecurityGroupID *string `json:"-" validate:"required,ne="`
 
 	// A server-supplied token determining what resource to start the page on.
-	Start *string
+	Start *string `json:"-"`
 
 	// The number of resources to return on a page.
-	Limit *int64
+	Limit *int64 `json:"-"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -36175,21 +36671,21 @@ func (*VpcV1) NewListSecurityGroupTargetsOptions(securityGroupID string) *ListSe
 }
 
 // SetSecurityGroupID : Allow user to set SecurityGroupID
-func (options *ListSecurityGroupTargetsOptions) SetSecurityGroupID(securityGroupID string) *ListSecurityGroupTargetsOptions {
-	options.SecurityGroupID = core.StringPtr(securityGroupID)
-	return options
+func (_options *ListSecurityGroupTargetsOptions) SetSecurityGroupID(securityGroupID string) *ListSecurityGroupTargetsOptions {
+	_options.SecurityGroupID = core.StringPtr(securityGroupID)
+	return _options
 }
 
 // SetStart : Allow user to set Start
-func (options *ListSecurityGroupTargetsOptions) SetStart(start string) *ListSecurityGroupTargetsOptions {
-	options.Start = core.StringPtr(start)
-	return options
+func (_options *ListSecurityGroupTargetsOptions) SetStart(start string) *ListSecurityGroupTargetsOptions {
+	_options.Start = core.StringPtr(start)
+	return _options
 }
 
 // SetLimit : Allow user to set Limit
-func (options *ListSecurityGroupTargetsOptions) SetLimit(limit int64) *ListSecurityGroupTargetsOptions {
-	options.Limit = core.Int64Ptr(limit)
-	return options
+func (_options *ListSecurityGroupTargetsOptions) SetLimit(limit int64) *ListSecurityGroupTargetsOptions {
+	_options.Limit = core.Int64Ptr(limit)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -36201,23 +36697,22 @@ func (options *ListSecurityGroupTargetsOptions) SetHeaders(param map[string]stri
 // ListSecurityGroupsOptions : The ListSecurityGroups options.
 type ListSecurityGroupsOptions struct {
 	// A server-supplied token determining what resource to start the page on.
-	Start *string
+	Start *string `json:"-"`
 
 	// The number of resources to return on a page.
-	Limit *int64
+	Limit *int64 `json:"-"`
 
-	// Filters the collection to resources within one of the resource groups identified in a comma-separated list of
-	// resource group identifiers.
-	ResourceGroupID *string
+	// Filters the collection to resources in the resource group with the specified identifier.
+	ResourceGroupID *string `json:"-"`
 
 	// Filters the collection to resources in the VPC with the specified identifier.
-	VPCID *string
+	VPCID *string `json:"-"`
 
 	// Filters the collection to resources in the VPC with the specified CRN.
-	VPCCRN *string
+	VPCCRN *string `json:"-"`
 
 	// Filters the collection to resources in the VPC with the exact specified name.
-	VPCName *string
+	VPCName *string `json:"-"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -36229,39 +36724,39 @@ func (*VpcV1) NewListSecurityGroupsOptions() *ListSecurityGroupsOptions {
 }
 
 // SetStart : Allow user to set Start
-func (options *ListSecurityGroupsOptions) SetStart(start string) *ListSecurityGroupsOptions {
-	options.Start = core.StringPtr(start)
-	return options
+func (_options *ListSecurityGroupsOptions) SetStart(start string) *ListSecurityGroupsOptions {
+	_options.Start = core.StringPtr(start)
+	return _options
 }
 
 // SetLimit : Allow user to set Limit
-func (options *ListSecurityGroupsOptions) SetLimit(limit int64) *ListSecurityGroupsOptions {
-	options.Limit = core.Int64Ptr(limit)
-	return options
+func (_options *ListSecurityGroupsOptions) SetLimit(limit int64) *ListSecurityGroupsOptions {
+	_options.Limit = core.Int64Ptr(limit)
+	return _options
 }
 
 // SetResourceGroupID : Allow user to set ResourceGroupID
-func (options *ListSecurityGroupsOptions) SetResourceGroupID(resourceGroupID string) *ListSecurityGroupsOptions {
-	options.ResourceGroupID = core.StringPtr(resourceGroupID)
-	return options
+func (_options *ListSecurityGroupsOptions) SetResourceGroupID(resourceGroupID string) *ListSecurityGroupsOptions {
+	_options.ResourceGroupID = core.StringPtr(resourceGroupID)
+	return _options
 }
 
 // SetVPCID : Allow user to set VPCID
-func (options *ListSecurityGroupsOptions) SetVPCID(vpcID string) *ListSecurityGroupsOptions {
-	options.VPCID = core.StringPtr(vpcID)
-	return options
+func (_options *ListSecurityGroupsOptions) SetVPCID(vpcID string) *ListSecurityGroupsOptions {
+	_options.VPCID = core.StringPtr(vpcID)
+	return _options
 }
 
 // SetVPCCRN : Allow user to set VPCCRN
-func (options *ListSecurityGroupsOptions) SetVPCCRN(vpcCRN string) *ListSecurityGroupsOptions {
-	options.VPCCRN = core.StringPtr(vpcCRN)
-	return options
+func (_options *ListSecurityGroupsOptions) SetVPCCRN(vpcCRN string) *ListSecurityGroupsOptions {
+	_options.VPCCRN = core.StringPtr(vpcCRN)
+	return _options
 }
 
 // SetVPCName : Allow user to set VPCName
-func (options *ListSecurityGroupsOptions) SetVPCName(vpcName string) *ListSecurityGroupsOptions {
-	options.VPCName = core.StringPtr(vpcName)
-	return options
+func (_options *ListSecurityGroupsOptions) SetVPCName(vpcName string) *ListSecurityGroupsOptions {
+	_options.VPCName = core.StringPtr(vpcName)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -36273,40 +36768,39 @@ func (options *ListSecurityGroupsOptions) SetHeaders(param map[string]string) *L
 // ListSnapshotsOptions : The ListSnapshots options.
 type ListSnapshotsOptions struct {
 	// A server-supplied token determining what resource to start the page on.
-	Start *string
+	Start *string `json:"-"`
 
 	// The number of resources to return on a page.
-	Limit *int64
+	Limit *int64 `json:"-"`
 
-	// Filters the collection to resources within one of the resource groups identified in a comma-separated list of
-	// resource group identifiers.
-	ResourceGroupID *string
+	// Filters the collection to resources in the resource group with the specified identifier.
+	ResourceGroupID *string `json:"-"`
 
 	// Filters the collection to resources with the exact specified name.
-	Name *string
+	Name *string `json:"-"`
 
 	// Filters the collection to resources with the source volume with the specified identifier.
-	SourceVolumeID *string
+	SourceVolumeID *string `json:"-"`
 
 	// Filters the collection to resources with the source volume with the specified CRN.
-	SourceVolumeCRN *string
+	SourceVolumeCRN *string `json:"-"`
 
 	// Filters the collection to resources with the source image with the specified identifier.
 	//
 	// This parameter also supports the values `null` and `not:null` which filter the collection to resources which have no
 	// source image or any existent source image, respectively.
-	SourceImageID *string
+	SourceImageID *string `json:"-"`
 
 	// Filters the collection to resources with the source volume with the specified CRN.
 	//
 	// This parameter also supports the values `null` and `not:null` which filter the collection to resources which have no
 	// source image or any existent source image, respectively.
-	SourceImageCRN *string
+	SourceImageCRN *string `json:"-"`
 
 	// Sorts the returned collection by the specified property name in ascending order. A `-` may be prepended to the name
 	// to sort in descending order. For example, the value `-created_at` sorts the collection by the `created_at` property
 	// in descending order, and the value `name` sorts it by the `name` property in ascending order.
-	Sort *string
+	Sort *string `json:"-"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -36327,57 +36821,57 @@ func (*VpcV1) NewListSnapshotsOptions() *ListSnapshotsOptions {
 }
 
 // SetStart : Allow user to set Start
-func (options *ListSnapshotsOptions) SetStart(start string) *ListSnapshotsOptions {
-	options.Start = core.StringPtr(start)
-	return options
+func (_options *ListSnapshotsOptions) SetStart(start string) *ListSnapshotsOptions {
+	_options.Start = core.StringPtr(start)
+	return _options
 }
 
 // SetLimit : Allow user to set Limit
-func (options *ListSnapshotsOptions) SetLimit(limit int64) *ListSnapshotsOptions {
-	options.Limit = core.Int64Ptr(limit)
-	return options
+func (_options *ListSnapshotsOptions) SetLimit(limit int64) *ListSnapshotsOptions {
+	_options.Limit = core.Int64Ptr(limit)
+	return _options
 }
 
 // SetResourceGroupID : Allow user to set ResourceGroupID
-func (options *ListSnapshotsOptions) SetResourceGroupID(resourceGroupID string) *ListSnapshotsOptions {
-	options.ResourceGroupID = core.StringPtr(resourceGroupID)
-	return options
+func (_options *ListSnapshotsOptions) SetResourceGroupID(resourceGroupID string) *ListSnapshotsOptions {
+	_options.ResourceGroupID = core.StringPtr(resourceGroupID)
+	return _options
 }
 
 // SetName : Allow user to set Name
-func (options *ListSnapshotsOptions) SetName(name string) *ListSnapshotsOptions {
-	options.Name = core.StringPtr(name)
-	return options
+func (_options *ListSnapshotsOptions) SetName(name string) *ListSnapshotsOptions {
+	_options.Name = core.StringPtr(name)
+	return _options
 }
 
 // SetSourceVolumeID : Allow user to set SourceVolumeID
-func (options *ListSnapshotsOptions) SetSourceVolumeID(sourceVolumeID string) *ListSnapshotsOptions {
-	options.SourceVolumeID = core.StringPtr(sourceVolumeID)
-	return options
+func (_options *ListSnapshotsOptions) SetSourceVolumeID(sourceVolumeID string) *ListSnapshotsOptions {
+	_options.SourceVolumeID = core.StringPtr(sourceVolumeID)
+	return _options
 }
 
 // SetSourceVolumeCRN : Allow user to set SourceVolumeCRN
-func (options *ListSnapshotsOptions) SetSourceVolumeCRN(sourceVolumeCRN string) *ListSnapshotsOptions {
-	options.SourceVolumeCRN = core.StringPtr(sourceVolumeCRN)
-	return options
+func (_options *ListSnapshotsOptions) SetSourceVolumeCRN(sourceVolumeCRN string) *ListSnapshotsOptions {
+	_options.SourceVolumeCRN = core.StringPtr(sourceVolumeCRN)
+	return _options
 }
 
 // SetSourceImageID : Allow user to set SourceImageID
-func (options *ListSnapshotsOptions) SetSourceImageID(sourceImageID string) *ListSnapshotsOptions {
-	options.SourceImageID = core.StringPtr(sourceImageID)
-	return options
+func (_options *ListSnapshotsOptions) SetSourceImageID(sourceImageID string) *ListSnapshotsOptions {
+	_options.SourceImageID = core.StringPtr(sourceImageID)
+	return _options
 }
 
 // SetSourceImageCRN : Allow user to set SourceImageCRN
-func (options *ListSnapshotsOptions) SetSourceImageCRN(sourceImageCRN string) *ListSnapshotsOptions {
-	options.SourceImageCRN = core.StringPtr(sourceImageCRN)
-	return options
+func (_options *ListSnapshotsOptions) SetSourceImageCRN(sourceImageCRN string) *ListSnapshotsOptions {
+	_options.SourceImageCRN = core.StringPtr(sourceImageCRN)
+	return _options
 }
 
 // SetSort : Allow user to set Sort
-func (options *ListSnapshotsOptions) SetSort(sort string) *ListSnapshotsOptions {
-	options.Sort = core.StringPtr(sort)
-	return options
+func (_options *ListSnapshotsOptions) SetSort(sort string) *ListSnapshotsOptions {
+	_options.Sort = core.StringPtr(sort)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -36389,18 +36883,18 @@ func (options *ListSnapshotsOptions) SetHeaders(param map[string]string) *ListSn
 // ListSubnetReservedIpsOptions : The ListSubnetReservedIps options.
 type ListSubnetReservedIpsOptions struct {
 	// The subnet identifier.
-	SubnetID *string `validate:"required,ne="`
+	SubnetID *string `json:"-" validate:"required,ne="`
 
 	// A server-supplied token determining what resource to start the page on.
-	Start *string
+	Start *string `json:"-"`
 
 	// The number of resources to return on a page.
-	Limit *int64
+	Limit *int64 `json:"-"`
 
 	// Sorts the returned collection by the specified property name in ascending order. A `-` may be prepended to the name
 	// to sort in descending order. For example, the value `-created_at` sorts the collection by the `created_at` property
 	// in descending order, and the value `name` sorts it by the `name` property in ascending order.
-	Sort *string
+	Sort *string `json:"-"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -36424,27 +36918,27 @@ func (*VpcV1) NewListSubnetReservedIpsOptions(subnetID string) *ListSubnetReserv
 }
 
 // SetSubnetID : Allow user to set SubnetID
-func (options *ListSubnetReservedIpsOptions) SetSubnetID(subnetID string) *ListSubnetReservedIpsOptions {
-	options.SubnetID = core.StringPtr(subnetID)
-	return options
+func (_options *ListSubnetReservedIpsOptions) SetSubnetID(subnetID string) *ListSubnetReservedIpsOptions {
+	_options.SubnetID = core.StringPtr(subnetID)
+	return _options
 }
 
 // SetStart : Allow user to set Start
-func (options *ListSubnetReservedIpsOptions) SetStart(start string) *ListSubnetReservedIpsOptions {
-	options.Start = core.StringPtr(start)
-	return options
+func (_options *ListSubnetReservedIpsOptions) SetStart(start string) *ListSubnetReservedIpsOptions {
+	_options.Start = core.StringPtr(start)
+	return _options
 }
 
 // SetLimit : Allow user to set Limit
-func (options *ListSubnetReservedIpsOptions) SetLimit(limit int64) *ListSubnetReservedIpsOptions {
-	options.Limit = core.Int64Ptr(limit)
-	return options
+func (_options *ListSubnetReservedIpsOptions) SetLimit(limit int64) *ListSubnetReservedIpsOptions {
+	_options.Limit = core.Int64Ptr(limit)
+	return _options
 }
 
 // SetSort : Allow user to set Sort
-func (options *ListSubnetReservedIpsOptions) SetSort(sort string) *ListSubnetReservedIpsOptions {
-	options.Sort = core.StringPtr(sort)
-	return options
+func (_options *ListSubnetReservedIpsOptions) SetSort(sort string) *ListSubnetReservedIpsOptions {
+	_options.Sort = core.StringPtr(sort)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -36456,20 +36950,19 @@ func (options *ListSubnetReservedIpsOptions) SetHeaders(param map[string]string)
 // ListSubnetsOptions : The ListSubnets options.
 type ListSubnetsOptions struct {
 	// A server-supplied token determining what resource to start the page on.
-	Start *string
+	Start *string `json:"-"`
 
 	// The number of resources to return on a page.
-	Limit *int64
+	Limit *int64 `json:"-"`
 
-	// Filters the collection to resources within one of the resource groups identified in a comma-separated list of
-	// resource group identifiers.
-	ResourceGroupID *string
+	// Filters the collection to resources in the resource group with the specified identifier.
+	ResourceGroupID *string `json:"-"`
 
 	// Filters the collection to subnets attached to the routing table with the specified identifier.
-	RoutingTableID *string
+	RoutingTableID *string `json:"-"`
 
 	// Filters the collection to subnets attached to the routing table with the specified name.
-	RoutingTableName *string
+	RoutingTableName *string `json:"-"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -36481,33 +36974,33 @@ func (*VpcV1) NewListSubnetsOptions() *ListSubnetsOptions {
 }
 
 // SetStart : Allow user to set Start
-func (options *ListSubnetsOptions) SetStart(start string) *ListSubnetsOptions {
-	options.Start = core.StringPtr(start)
-	return options
+func (_options *ListSubnetsOptions) SetStart(start string) *ListSubnetsOptions {
+	_options.Start = core.StringPtr(start)
+	return _options
 }
 
 // SetLimit : Allow user to set Limit
-func (options *ListSubnetsOptions) SetLimit(limit int64) *ListSubnetsOptions {
-	options.Limit = core.Int64Ptr(limit)
-	return options
+func (_options *ListSubnetsOptions) SetLimit(limit int64) *ListSubnetsOptions {
+	_options.Limit = core.Int64Ptr(limit)
+	return _options
 }
 
 // SetResourceGroupID : Allow user to set ResourceGroupID
-func (options *ListSubnetsOptions) SetResourceGroupID(resourceGroupID string) *ListSubnetsOptions {
-	options.ResourceGroupID = core.StringPtr(resourceGroupID)
-	return options
+func (_options *ListSubnetsOptions) SetResourceGroupID(resourceGroupID string) *ListSubnetsOptions {
+	_options.ResourceGroupID = core.StringPtr(resourceGroupID)
+	return _options
 }
 
 // SetRoutingTableID : Allow user to set RoutingTableID
-func (options *ListSubnetsOptions) SetRoutingTableID(routingTableID string) *ListSubnetsOptions {
-	options.RoutingTableID = core.StringPtr(routingTableID)
-	return options
+func (_options *ListSubnetsOptions) SetRoutingTableID(routingTableID string) *ListSubnetsOptions {
+	_options.RoutingTableID = core.StringPtr(routingTableID)
+	return _options
 }
 
 // SetRoutingTableName : Allow user to set RoutingTableName
-func (options *ListSubnetsOptions) SetRoutingTableName(routingTableName string) *ListSubnetsOptions {
-	options.RoutingTableName = core.StringPtr(routingTableName)
-	return options
+func (_options *ListSubnetsOptions) SetRoutingTableName(routingTableName string) *ListSubnetsOptions {
+	_options.RoutingTableName = core.StringPtr(routingTableName)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -36519,10 +37012,10 @@ func (options *ListSubnetsOptions) SetHeaders(param map[string]string) *ListSubn
 // ListVolumeProfilesOptions : The ListVolumeProfiles options.
 type ListVolumeProfilesOptions struct {
 	// A server-supplied token determining what resource to start the page on.
-	Start *string
+	Start *string `json:"-"`
 
 	// The number of resources to return on a page.
-	Limit *int64
+	Limit *int64 `json:"-"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -36534,15 +37027,15 @@ func (*VpcV1) NewListVolumeProfilesOptions() *ListVolumeProfilesOptions {
 }
 
 // SetStart : Allow user to set Start
-func (options *ListVolumeProfilesOptions) SetStart(start string) *ListVolumeProfilesOptions {
-	options.Start = core.StringPtr(start)
-	return options
+func (_options *ListVolumeProfilesOptions) SetStart(start string) *ListVolumeProfilesOptions {
+	_options.Start = core.StringPtr(start)
+	return _options
 }
 
 // SetLimit : Allow user to set Limit
-func (options *ListVolumeProfilesOptions) SetLimit(limit int64) *ListVolumeProfilesOptions {
-	options.Limit = core.Int64Ptr(limit)
-	return options
+func (_options *ListVolumeProfilesOptions) SetLimit(limit int64) *ListVolumeProfilesOptions {
+	_options.Limit = core.Int64Ptr(limit)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -36554,16 +37047,16 @@ func (options *ListVolumeProfilesOptions) SetHeaders(param map[string]string) *L
 // ListVolumesOptions : The ListVolumes options.
 type ListVolumesOptions struct {
 	// A server-supplied token determining what resource to start the page on.
-	Start *string
+	Start *string `json:"-"`
 
 	// The number of resources to return on a page.
-	Limit *int64
+	Limit *int64 `json:"-"`
 
 	// Filters the collection to resources with the exact specified name.
-	Name *string
+	Name *string `json:"-"`
 
 	// Filters the collection to resources in the zone with the exact specified name.
-	ZoneName *string
+	ZoneName *string `json:"-"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -36575,27 +37068,27 @@ func (*VpcV1) NewListVolumesOptions() *ListVolumesOptions {
 }
 
 // SetStart : Allow user to set Start
-func (options *ListVolumesOptions) SetStart(start string) *ListVolumesOptions {
-	options.Start = core.StringPtr(start)
-	return options
+func (_options *ListVolumesOptions) SetStart(start string) *ListVolumesOptions {
+	_options.Start = core.StringPtr(start)
+	return _options
 }
 
 // SetLimit : Allow user to set Limit
-func (options *ListVolumesOptions) SetLimit(limit int64) *ListVolumesOptions {
-	options.Limit = core.Int64Ptr(limit)
-	return options
+func (_options *ListVolumesOptions) SetLimit(limit int64) *ListVolumesOptions {
+	_options.Limit = core.Int64Ptr(limit)
+	return _options
 }
 
 // SetName : Allow user to set Name
-func (options *ListVolumesOptions) SetName(name string) *ListVolumesOptions {
-	options.Name = core.StringPtr(name)
-	return options
+func (_options *ListVolumesOptions) SetName(name string) *ListVolumesOptions {
+	_options.Name = core.StringPtr(name)
+	return _options
 }
 
 // SetZoneName : Allow user to set ZoneName
-func (options *ListVolumesOptions) SetZoneName(zoneName string) *ListVolumesOptions {
-	options.ZoneName = core.StringPtr(zoneName)
-	return options
+func (_options *ListVolumesOptions) SetZoneName(zoneName string) *ListVolumesOptions {
+	_options.ZoneName = core.StringPtr(zoneName)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -36607,13 +37100,13 @@ func (options *ListVolumesOptions) SetHeaders(param map[string]string) *ListVolu
 // ListVPCAddressPrefixesOptions : The ListVPCAddressPrefixes options.
 type ListVPCAddressPrefixesOptions struct {
 	// The VPC identifier.
-	VPCID *string `validate:"required,ne="`
+	VPCID *string `json:"-" validate:"required,ne="`
 
 	// A server-supplied token determining what resource to start the page on.
-	Start *string
+	Start *string `json:"-"`
 
 	// The number of resources to return on a page.
-	Limit *int64
+	Limit *int64 `json:"-"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -36627,21 +37120,21 @@ func (*VpcV1) NewListVPCAddressPrefixesOptions(vpcID string) *ListVPCAddressPref
 }
 
 // SetVPCID : Allow user to set VPCID
-func (options *ListVPCAddressPrefixesOptions) SetVPCID(vpcID string) *ListVPCAddressPrefixesOptions {
-	options.VPCID = core.StringPtr(vpcID)
-	return options
+func (_options *ListVPCAddressPrefixesOptions) SetVPCID(vpcID string) *ListVPCAddressPrefixesOptions {
+	_options.VPCID = core.StringPtr(vpcID)
+	return _options
 }
 
 // SetStart : Allow user to set Start
-func (options *ListVPCAddressPrefixesOptions) SetStart(start string) *ListVPCAddressPrefixesOptions {
-	options.Start = core.StringPtr(start)
-	return options
+func (_options *ListVPCAddressPrefixesOptions) SetStart(start string) *ListVPCAddressPrefixesOptions {
+	_options.Start = core.StringPtr(start)
+	return _options
 }
 
 // SetLimit : Allow user to set Limit
-func (options *ListVPCAddressPrefixesOptions) SetLimit(limit int64) *ListVPCAddressPrefixesOptions {
-	options.Limit = core.Int64Ptr(limit)
-	return options
+func (_options *ListVPCAddressPrefixesOptions) SetLimit(limit int64) *ListVPCAddressPrefixesOptions {
+	_options.Limit = core.Int64Ptr(limit)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -36653,16 +37146,16 @@ func (options *ListVPCAddressPrefixesOptions) SetHeaders(param map[string]string
 // ListVPCRoutesOptions : The ListVPCRoutes options.
 type ListVPCRoutesOptions struct {
 	// The VPC identifier.
-	VPCID *string `validate:"required,ne="`
+	VPCID *string `json:"-" validate:"required,ne="`
 
 	// Filters the collection to resources in the zone with the exact specified name.
-	ZoneName *string
+	ZoneName *string `json:"-"`
 
 	// A server-supplied token determining what resource to start the page on.
-	Start *string
+	Start *string `json:"-"`
 
 	// The number of resources to return on a page.
-	Limit *int64
+	Limit *int64 `json:"-"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -36676,27 +37169,27 @@ func (*VpcV1) NewListVPCRoutesOptions(vpcID string) *ListVPCRoutesOptions {
 }
 
 // SetVPCID : Allow user to set VPCID
-func (options *ListVPCRoutesOptions) SetVPCID(vpcID string) *ListVPCRoutesOptions {
-	options.VPCID = core.StringPtr(vpcID)
-	return options
+func (_options *ListVPCRoutesOptions) SetVPCID(vpcID string) *ListVPCRoutesOptions {
+	_options.VPCID = core.StringPtr(vpcID)
+	return _options
 }
 
 // SetZoneName : Allow user to set ZoneName
-func (options *ListVPCRoutesOptions) SetZoneName(zoneName string) *ListVPCRoutesOptions {
-	options.ZoneName = core.StringPtr(zoneName)
-	return options
+func (_options *ListVPCRoutesOptions) SetZoneName(zoneName string) *ListVPCRoutesOptions {
+	_options.ZoneName = core.StringPtr(zoneName)
+	return _options
 }
 
 // SetStart : Allow user to set Start
-func (options *ListVPCRoutesOptions) SetStart(start string) *ListVPCRoutesOptions {
-	options.Start = core.StringPtr(start)
-	return options
+func (_options *ListVPCRoutesOptions) SetStart(start string) *ListVPCRoutesOptions {
+	_options.Start = core.StringPtr(start)
+	return _options
 }
 
 // SetLimit : Allow user to set Limit
-func (options *ListVPCRoutesOptions) SetLimit(limit int64) *ListVPCRoutesOptions {
-	options.Limit = core.Int64Ptr(limit)
-	return options
+func (_options *ListVPCRoutesOptions) SetLimit(limit int64) *ListVPCRoutesOptions {
+	_options.Limit = core.Int64Ptr(limit)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -36708,16 +37201,16 @@ func (options *ListVPCRoutesOptions) SetHeaders(param map[string]string) *ListVP
 // ListVPCRoutingTableRoutesOptions : The ListVPCRoutingTableRoutes options.
 type ListVPCRoutingTableRoutesOptions struct {
 	// The VPC identifier.
-	VPCID *string `validate:"required,ne="`
+	VPCID *string `json:"-" validate:"required,ne="`
 
 	// The routing table identifier.
-	RoutingTableID *string `validate:"required,ne="`
+	RoutingTableID *string `json:"-" validate:"required,ne="`
 
 	// A server-supplied token determining what resource to start the page on.
-	Start *string
+	Start *string `json:"-"`
 
 	// The number of resources to return on a page.
-	Limit *int64
+	Limit *int64 `json:"-"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -36732,27 +37225,27 @@ func (*VpcV1) NewListVPCRoutingTableRoutesOptions(vpcID string, routingTableID s
 }
 
 // SetVPCID : Allow user to set VPCID
-func (options *ListVPCRoutingTableRoutesOptions) SetVPCID(vpcID string) *ListVPCRoutingTableRoutesOptions {
-	options.VPCID = core.StringPtr(vpcID)
-	return options
+func (_options *ListVPCRoutingTableRoutesOptions) SetVPCID(vpcID string) *ListVPCRoutingTableRoutesOptions {
+	_options.VPCID = core.StringPtr(vpcID)
+	return _options
 }
 
 // SetRoutingTableID : Allow user to set RoutingTableID
-func (options *ListVPCRoutingTableRoutesOptions) SetRoutingTableID(routingTableID string) *ListVPCRoutingTableRoutesOptions {
-	options.RoutingTableID = core.StringPtr(routingTableID)
-	return options
+func (_options *ListVPCRoutingTableRoutesOptions) SetRoutingTableID(routingTableID string) *ListVPCRoutingTableRoutesOptions {
+	_options.RoutingTableID = core.StringPtr(routingTableID)
+	return _options
 }
 
 // SetStart : Allow user to set Start
-func (options *ListVPCRoutingTableRoutesOptions) SetStart(start string) *ListVPCRoutingTableRoutesOptions {
-	options.Start = core.StringPtr(start)
-	return options
+func (_options *ListVPCRoutingTableRoutesOptions) SetStart(start string) *ListVPCRoutingTableRoutesOptions {
+	_options.Start = core.StringPtr(start)
+	return _options
 }
 
 // SetLimit : Allow user to set Limit
-func (options *ListVPCRoutingTableRoutesOptions) SetLimit(limit int64) *ListVPCRoutingTableRoutesOptions {
-	options.Limit = core.Int64Ptr(limit)
-	return options
+func (_options *ListVPCRoutingTableRoutesOptions) SetLimit(limit int64) *ListVPCRoutingTableRoutesOptions {
+	_options.Limit = core.Int64Ptr(limit)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -36764,17 +37257,17 @@ func (options *ListVPCRoutingTableRoutesOptions) SetHeaders(param map[string]str
 // ListVPCRoutingTablesOptions : The ListVPCRoutingTables options.
 type ListVPCRoutingTablesOptions struct {
 	// The VPC identifier.
-	VPCID *string `validate:"required,ne="`
+	VPCID *string `json:"-" validate:"required,ne="`
 
 	// A server-supplied token determining what resource to start the page on.
-	Start *string
+	Start *string `json:"-"`
 
 	// The number of resources to return on a page.
-	Limit *int64
+	Limit *int64 `json:"-"`
 
 	// If the supplied value is `true`, filters the routing table collection to only the default routing table. If the
 	// supplied value is `false`, filters the routing table collection to exclude the default routing table.
-	IsDefault *bool
+	IsDefault *bool `json:"-"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -36788,27 +37281,27 @@ func (*VpcV1) NewListVPCRoutingTablesOptions(vpcID string) *ListVPCRoutingTables
 }
 
 // SetVPCID : Allow user to set VPCID
-func (options *ListVPCRoutingTablesOptions) SetVPCID(vpcID string) *ListVPCRoutingTablesOptions {
-	options.VPCID = core.StringPtr(vpcID)
-	return options
+func (_options *ListVPCRoutingTablesOptions) SetVPCID(vpcID string) *ListVPCRoutingTablesOptions {
+	_options.VPCID = core.StringPtr(vpcID)
+	return _options
 }
 
 // SetStart : Allow user to set Start
-func (options *ListVPCRoutingTablesOptions) SetStart(start string) *ListVPCRoutingTablesOptions {
-	options.Start = core.StringPtr(start)
-	return options
+func (_options *ListVPCRoutingTablesOptions) SetStart(start string) *ListVPCRoutingTablesOptions {
+	_options.Start = core.StringPtr(start)
+	return _options
 }
 
 // SetLimit : Allow user to set Limit
-func (options *ListVPCRoutingTablesOptions) SetLimit(limit int64) *ListVPCRoutingTablesOptions {
-	options.Limit = core.Int64Ptr(limit)
-	return options
+func (_options *ListVPCRoutingTablesOptions) SetLimit(limit int64) *ListVPCRoutingTablesOptions {
+	_options.Limit = core.Int64Ptr(limit)
+	return _options
 }
 
 // SetIsDefault : Allow user to set IsDefault
-func (options *ListVPCRoutingTablesOptions) SetIsDefault(isDefault bool) *ListVPCRoutingTablesOptions {
-	options.IsDefault = core.BoolPtr(isDefault)
-	return options
+func (_options *ListVPCRoutingTablesOptions) SetIsDefault(isDefault bool) *ListVPCRoutingTablesOptions {
+	_options.IsDefault = core.BoolPtr(isDefault)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -36820,17 +37313,16 @@ func (options *ListVPCRoutingTablesOptions) SetHeaders(param map[string]string) 
 // ListVpcsOptions : The ListVpcs options.
 type ListVpcsOptions struct {
 	// A server-supplied token determining what resource to start the page on.
-	Start *string
+	Start *string `json:"-"`
 
 	// The number of resources to return on a page.
-	Limit *int64
+	Limit *int64 `json:"-"`
 
-	// Filters the collection to resources within one of the resource groups identified in a comma-separated list of
-	// resource group identifiers.
-	ResourceGroupID *string
+	// Filters the collection to resources in the resource group with the specified identifier.
+	ResourceGroupID *string `json:"-"`
 
 	// Filters the collection to VPCs with the specified `classic_access` value.
-	ClassicAccess *bool
+	ClassicAccess *bool `json:"-"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -36842,27 +37334,27 @@ func (*VpcV1) NewListVpcsOptions() *ListVpcsOptions {
 }
 
 // SetStart : Allow user to set Start
-func (options *ListVpcsOptions) SetStart(start string) *ListVpcsOptions {
-	options.Start = core.StringPtr(start)
-	return options
+func (_options *ListVpcsOptions) SetStart(start string) *ListVpcsOptions {
+	_options.Start = core.StringPtr(start)
+	return _options
 }
 
 // SetLimit : Allow user to set Limit
-func (options *ListVpcsOptions) SetLimit(limit int64) *ListVpcsOptions {
-	options.Limit = core.Int64Ptr(limit)
-	return options
+func (_options *ListVpcsOptions) SetLimit(limit int64) *ListVpcsOptions {
+	_options.Limit = core.Int64Ptr(limit)
+	return _options
 }
 
 // SetResourceGroupID : Allow user to set ResourceGroupID
-func (options *ListVpcsOptions) SetResourceGroupID(resourceGroupID string) *ListVpcsOptions {
-	options.ResourceGroupID = core.StringPtr(resourceGroupID)
-	return options
+func (_options *ListVpcsOptions) SetResourceGroupID(resourceGroupID string) *ListVpcsOptions {
+	_options.ResourceGroupID = core.StringPtr(resourceGroupID)
+	return _options
 }
 
 // SetClassicAccess : Allow user to set ClassicAccess
-func (options *ListVpcsOptions) SetClassicAccess(classicAccess bool) *ListVpcsOptions {
-	options.ClassicAccess = core.BoolPtr(classicAccess)
-	return options
+func (_options *ListVpcsOptions) SetClassicAccess(classicAccess bool) *ListVpcsOptions {
+	_options.ClassicAccess = core.BoolPtr(classicAccess)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -36871,78 +37363,78 @@ func (options *ListVpcsOptions) SetHeaders(param map[string]string) *ListVpcsOpt
 	return options
 }
 
-// ListVPNGatewayConnectionLocalCidrsOptions : The ListVPNGatewayConnectionLocalCidrs options.
-type ListVPNGatewayConnectionLocalCidrsOptions struct {
+// ListVPNGatewayConnectionLocalCIDRsOptions : The ListVPNGatewayConnectionLocalCIDRs options.
+type ListVPNGatewayConnectionLocalCIDRsOptions struct {
 	// The VPN gateway identifier.
-	VPNGatewayID *string `validate:"required,ne="`
+	VPNGatewayID *string `json:"-" validate:"required,ne="`
 
 	// The VPN gateway connection identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
 }
 
-// NewListVPNGatewayConnectionLocalCidrsOptions : Instantiate ListVPNGatewayConnectionLocalCidrsOptions
-func (*VpcV1) NewListVPNGatewayConnectionLocalCidrsOptions(vpnGatewayID string, id string) *ListVPNGatewayConnectionLocalCidrsOptions {
-	return &ListVPNGatewayConnectionLocalCidrsOptions{
+// NewListVPNGatewayConnectionLocalCIDRsOptions : Instantiate ListVPNGatewayConnectionLocalCIDRsOptions
+func (*VpcV1) NewListVPNGatewayConnectionLocalCIDRsOptions(vpnGatewayID string, id string) *ListVPNGatewayConnectionLocalCIDRsOptions {
+	return &ListVPNGatewayConnectionLocalCIDRsOptions{
 		VPNGatewayID: core.StringPtr(vpnGatewayID),
 		ID:           core.StringPtr(id),
 	}
 }
 
 // SetVPNGatewayID : Allow user to set VPNGatewayID
-func (options *ListVPNGatewayConnectionLocalCidrsOptions) SetVPNGatewayID(vpnGatewayID string) *ListVPNGatewayConnectionLocalCidrsOptions {
-	options.VPNGatewayID = core.StringPtr(vpnGatewayID)
-	return options
+func (_options *ListVPNGatewayConnectionLocalCIDRsOptions) SetVPNGatewayID(vpnGatewayID string) *ListVPNGatewayConnectionLocalCIDRsOptions {
+	_options.VPNGatewayID = core.StringPtr(vpnGatewayID)
+	return _options
 }
 
 // SetID : Allow user to set ID
-func (options *ListVPNGatewayConnectionLocalCidrsOptions) SetID(id string) *ListVPNGatewayConnectionLocalCidrsOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *ListVPNGatewayConnectionLocalCIDRsOptions) SetID(id string) *ListVPNGatewayConnectionLocalCIDRsOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
-func (options *ListVPNGatewayConnectionLocalCidrsOptions) SetHeaders(param map[string]string) *ListVPNGatewayConnectionLocalCidrsOptions {
+func (options *ListVPNGatewayConnectionLocalCIDRsOptions) SetHeaders(param map[string]string) *ListVPNGatewayConnectionLocalCIDRsOptions {
 	options.Headers = param
 	return options
 }
 
-// ListVPNGatewayConnectionPeerCidrsOptions : The ListVPNGatewayConnectionPeerCidrs options.
-type ListVPNGatewayConnectionPeerCidrsOptions struct {
+// ListVPNGatewayConnectionPeerCIDRsOptions : The ListVPNGatewayConnectionPeerCIDRs options.
+type ListVPNGatewayConnectionPeerCIDRsOptions struct {
 	// The VPN gateway identifier.
-	VPNGatewayID *string `validate:"required,ne="`
+	VPNGatewayID *string `json:"-" validate:"required,ne="`
 
 	// The VPN gateway connection identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
 }
 
-// NewListVPNGatewayConnectionPeerCidrsOptions : Instantiate ListVPNGatewayConnectionPeerCidrsOptions
-func (*VpcV1) NewListVPNGatewayConnectionPeerCidrsOptions(vpnGatewayID string, id string) *ListVPNGatewayConnectionPeerCidrsOptions {
-	return &ListVPNGatewayConnectionPeerCidrsOptions{
+// NewListVPNGatewayConnectionPeerCIDRsOptions : Instantiate ListVPNGatewayConnectionPeerCIDRsOptions
+func (*VpcV1) NewListVPNGatewayConnectionPeerCIDRsOptions(vpnGatewayID string, id string) *ListVPNGatewayConnectionPeerCIDRsOptions {
+	return &ListVPNGatewayConnectionPeerCIDRsOptions{
 		VPNGatewayID: core.StringPtr(vpnGatewayID),
 		ID:           core.StringPtr(id),
 	}
 }
 
 // SetVPNGatewayID : Allow user to set VPNGatewayID
-func (options *ListVPNGatewayConnectionPeerCidrsOptions) SetVPNGatewayID(vpnGatewayID string) *ListVPNGatewayConnectionPeerCidrsOptions {
-	options.VPNGatewayID = core.StringPtr(vpnGatewayID)
-	return options
+func (_options *ListVPNGatewayConnectionPeerCIDRsOptions) SetVPNGatewayID(vpnGatewayID string) *ListVPNGatewayConnectionPeerCIDRsOptions {
+	_options.VPNGatewayID = core.StringPtr(vpnGatewayID)
+	return _options
 }
 
 // SetID : Allow user to set ID
-func (options *ListVPNGatewayConnectionPeerCidrsOptions) SetID(id string) *ListVPNGatewayConnectionPeerCidrsOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *ListVPNGatewayConnectionPeerCIDRsOptions) SetID(id string) *ListVPNGatewayConnectionPeerCIDRsOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
-func (options *ListVPNGatewayConnectionPeerCidrsOptions) SetHeaders(param map[string]string) *ListVPNGatewayConnectionPeerCidrsOptions {
+func (options *ListVPNGatewayConnectionPeerCIDRsOptions) SetHeaders(param map[string]string) *ListVPNGatewayConnectionPeerCIDRsOptions {
 	options.Headers = param
 	return options
 }
@@ -36950,10 +37442,10 @@ func (options *ListVPNGatewayConnectionPeerCidrsOptions) SetHeaders(param map[st
 // ListVPNGatewayConnectionsOptions : The ListVPNGatewayConnections options.
 type ListVPNGatewayConnectionsOptions struct {
 	// The VPN gateway identifier.
-	VPNGatewayID *string `validate:"required,ne="`
+	VPNGatewayID *string `json:"-" validate:"required,ne="`
 
 	// Filters the collection to VPN gateway connections with the specified status.
-	Status *string
+	Status *string `json:"-"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -36967,15 +37459,15 @@ func (*VpcV1) NewListVPNGatewayConnectionsOptions(vpnGatewayID string) *ListVPNG
 }
 
 // SetVPNGatewayID : Allow user to set VPNGatewayID
-func (options *ListVPNGatewayConnectionsOptions) SetVPNGatewayID(vpnGatewayID string) *ListVPNGatewayConnectionsOptions {
-	options.VPNGatewayID = core.StringPtr(vpnGatewayID)
-	return options
+func (_options *ListVPNGatewayConnectionsOptions) SetVPNGatewayID(vpnGatewayID string) *ListVPNGatewayConnectionsOptions {
+	_options.VPNGatewayID = core.StringPtr(vpnGatewayID)
+	return _options
 }
 
 // SetStatus : Allow user to set Status
-func (options *ListVPNGatewayConnectionsOptions) SetStatus(status string) *ListVPNGatewayConnectionsOptions {
-	options.Status = core.StringPtr(status)
-	return options
+func (_options *ListVPNGatewayConnectionsOptions) SetStatus(status string) *ListVPNGatewayConnectionsOptions {
+	_options.Status = core.StringPtr(status)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -36987,17 +37479,16 @@ func (options *ListVPNGatewayConnectionsOptions) SetHeaders(param map[string]str
 // ListVPNGatewaysOptions : The ListVPNGateways options.
 type ListVPNGatewaysOptions struct {
 	// A server-supplied token determining what resource to start the page on.
-	Start *string
+	Start *string `json:"-"`
 
 	// The number of resources to return on a page.
-	Limit *int64
+	Limit *int64 `json:"-"`
 
-	// Filters the collection to resources within one of the resource groups identified in a comma-separated list of
-	// resource group identifiers.
-	ResourceGroupID *string
+	// Filters the collection to resources in the resource group with the specified identifier.
+	ResourceGroupID *string `json:"-"`
 
 	// Filters the collection to VPN gateways with the specified mode.
-	Mode *string
+	Mode *string `json:"-"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -37016,27 +37507,27 @@ func (*VpcV1) NewListVPNGatewaysOptions() *ListVPNGatewaysOptions {
 }
 
 // SetStart : Allow user to set Start
-func (options *ListVPNGatewaysOptions) SetStart(start string) *ListVPNGatewaysOptions {
-	options.Start = core.StringPtr(start)
-	return options
+func (_options *ListVPNGatewaysOptions) SetStart(start string) *ListVPNGatewaysOptions {
+	_options.Start = core.StringPtr(start)
+	return _options
 }
 
 // SetLimit : Allow user to set Limit
-func (options *ListVPNGatewaysOptions) SetLimit(limit int64) *ListVPNGatewaysOptions {
-	options.Limit = core.Int64Ptr(limit)
-	return options
+func (_options *ListVPNGatewaysOptions) SetLimit(limit int64) *ListVPNGatewaysOptions {
+	_options.Limit = core.Int64Ptr(limit)
+	return _options
 }
 
 // SetResourceGroupID : Allow user to set ResourceGroupID
-func (options *ListVPNGatewaysOptions) SetResourceGroupID(resourceGroupID string) *ListVPNGatewaysOptions {
-	options.ResourceGroupID = core.StringPtr(resourceGroupID)
-	return options
+func (_options *ListVPNGatewaysOptions) SetResourceGroupID(resourceGroupID string) *ListVPNGatewaysOptions {
+	_options.ResourceGroupID = core.StringPtr(resourceGroupID)
+	return _options
 }
 
 // SetMode : Allow user to set Mode
-func (options *ListVPNGatewaysOptions) SetMode(mode string) *ListVPNGatewaysOptions {
-	options.Mode = core.StringPtr(mode)
-	return options
+func (_options *ListVPNGatewaysOptions) SetMode(mode string) *ListVPNGatewaysOptions {
+	_options.Mode = core.StringPtr(mode)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -37096,6 +37587,11 @@ type LoadBalancer struct {
 
 	// The resource group for this load balancer.
 	ResourceGroup *ResourceGroupReference `json:"resource_group" validate:"required"`
+
+	// Indicates whether route mode is enabled for this load balancer.
+	//
+	// At present, public load balancers are not supported with route mode enabled.
+	RouteMode *bool `json:"route_mode" validate:"required"`
 
 	// The security groups targeting this load balancer.
 	//
@@ -37194,6 +37690,10 @@ func UnmarshalLoadBalancer(m map[string]json.RawMessage, result interface{}) (er
 	if err != nil {
 		return
 	}
+	err = core.UnmarshalPrimitive(m, "route_mode", &obj.RouteMode)
+	if err != nil {
+		return
+	}
 	err = core.UnmarshalModel(m, "security_groups", &obj.SecurityGroups, UnmarshalSecurityGroupReference)
 	if err != nil {
 		return
@@ -37254,6 +37754,18 @@ func UnmarshalLoadBalancerCollection(m map[string]json.RawMessage, result interf
 	}
 	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
 	return
+}
+
+// Retrieve the value to be passed to a request to access the next page of results
+func (resp *LoadBalancerCollection) GetNextStart() (*string, error) {
+	if core.IsNil(resp.Next) {
+		return nil, nil
+	}
+	start, err := core.GetQueryParam(resp.Next.Href, "start")
+	if err != nil || start == nil {
+		return nil, err
+	}
+	return start, nil
 }
 
 // LoadBalancerCollectionFirst : A link to the first page of resources.
@@ -37336,7 +37848,11 @@ func UnmarshalLoadBalancerIdentity(m map[string]json.RawMessage, result interfac
 // LoadBalancerListener : LoadBalancerListener struct
 type LoadBalancerListener struct {
 	// If set to `true`, this listener will accept and forward PROXY protocol information. Supported by load balancers in
-	// the `application` family (otherwise always `false`).
+	// the `application` family (otherwise always `false`). Additional restrictions:
+	// - If this listener has `https_redirect` specified, its `accept_proxy_protocol` value must
+	//   match the `accept_proxy_protocol` value of the `https_redirect` listener.
+	// - If this listener is the target of another listener's `https_redirect`, its
+	//   `accept_proxy_protocol` value must match that listener's `accept_proxy_protocol` value.
 	AcceptProxyProtocol *bool `json:"accept_proxy_protocol" validate:"required"`
 
 	// The certificate instance used for SSL termination. It is applicable only to `https`
@@ -37355,15 +37871,28 @@ type LoadBalancerListener struct {
 	// The listener's canonical URL.
 	Href *string `json:"href" validate:"required"`
 
+	// If specified, the target listener that requests are redirected to.
+	HTTPSRedirect *LoadBalancerListenerHTTPSRedirect `json:"https_redirect,omitempty"`
+
 	// The unique identifier for this load balancer listener.
 	ID *string `json:"id" validate:"required"`
 
 	// The policies for this listener.
 	Policies []LoadBalancerListenerPolicyReference `json:"policies,omitempty"`
 
-	// The listener port number. Each listener in the load balancer must have a unique
-	// `port` and `protocol` combination.
+	// The listener port number, or the inclusive lower bound of the port range. Each listener in the load balancer must
+	// have a unique `port` and `protocol` combination.
 	Port *int64 `json:"port" validate:"required"`
+
+	// The inclusive upper bound of the range of ports used by this listener.
+	//
+	// Only load balancers in the `network` family support more than one port per listener.
+	PortMax *int64 `json:"port_max" validate:"required"`
+
+	// The inclusive lower bound of the range of ports used by this listener.
+	//
+	// Only load balancers in the `network` family support more than one port per listener.
+	PortMin *int64 `json:"port_min" validate:"required"`
 
 	// The listener protocol. Load balancers in the `network` family support `tcp`. Load balancers in the `application`
 	// family support `tcp`, `http`, and `https`. Each listener in the load balancer must have a unique `port` and
@@ -37422,6 +37951,10 @@ func UnmarshalLoadBalancerListener(m map[string]json.RawMessage, result interfac
 	if err != nil {
 		return
 	}
+	err = core.UnmarshalModel(m, "https_redirect", &obj.HTTPSRedirect, UnmarshalLoadBalancerListenerHTTPSRedirect)
+	if err != nil {
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
 	if err != nil {
 		return
@@ -37431,6 +37964,14 @@ func UnmarshalLoadBalancerListener(m map[string]json.RawMessage, result interfac
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "port", &obj.Port)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "port_max", &obj.PortMax)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "port_min", &obj.PortMin)
 	if err != nil {
 		return
 	}
@@ -37463,10 +38004,151 @@ func UnmarshalLoadBalancerListenerCollection(m map[string]json.RawMessage, resul
 	return
 }
 
+// LoadBalancerListenerHTTPSRedirect : LoadBalancerListenerHTTPSRedirect struct
+type LoadBalancerListenerHTTPSRedirect struct {
+	// The HTTP status code for this redirect.
+	HTTPStatusCode *int64 `json:"http_status_code" validate:"required"`
+
+	Listener *LoadBalancerListenerReference `json:"listener" validate:"required"`
+
+	// The redirect relative target URI.
+	URI *string `json:"uri,omitempty"`
+}
+
+// UnmarshalLoadBalancerListenerHTTPSRedirect unmarshals an instance of LoadBalancerListenerHTTPSRedirect from the specified map of raw messages.
+func UnmarshalLoadBalancerListenerHTTPSRedirect(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(LoadBalancerListenerHTTPSRedirect)
+	err = core.UnmarshalPrimitive(m, "http_status_code", &obj.HTTPStatusCode)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "listener", &obj.Listener, UnmarshalLoadBalancerListenerReference)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "uri", &obj.URI)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// LoadBalancerListenerHTTPSRedirectPatch : LoadBalancerListenerHTTPSRedirectPatch struct
+type LoadBalancerListenerHTTPSRedirectPatch struct {
+	// The HTTP status code for this redirect.
+	HTTPStatusCode *int64 `json:"http_status_code,omitempty"`
+
+	// Identifies a load balancer listener by a unique property.
+	Listener LoadBalancerListenerIdentityIntf `json:"listener,omitempty"`
+
+	// The redirect relative target URI.
+	URI *string `json:"uri,omitempty"`
+}
+
+// UnmarshalLoadBalancerListenerHTTPSRedirectPatch unmarshals an instance of LoadBalancerListenerHTTPSRedirectPatch from the specified map of raw messages.
+func UnmarshalLoadBalancerListenerHTTPSRedirectPatch(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(LoadBalancerListenerHTTPSRedirectPatch)
+	err = core.UnmarshalPrimitive(m, "http_status_code", &obj.HTTPStatusCode)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "listener", &obj.Listener, UnmarshalLoadBalancerListenerIdentity)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "uri", &obj.URI)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// LoadBalancerListenerHTTPSRedirectPrototype : LoadBalancerListenerHTTPSRedirectPrototype struct
+type LoadBalancerListenerHTTPSRedirectPrototype struct {
+	// The HTTP status code for this redirect.
+	HTTPStatusCode *int64 `json:"http_status_code" validate:"required"`
+
+	// Identifies a load balancer listener by a unique property.
+	Listener LoadBalancerListenerIdentityIntf `json:"listener" validate:"required"`
+
+	// The redirect relative target URI.
+	URI *string `json:"uri,omitempty"`
+}
+
+// NewLoadBalancerListenerHTTPSRedirectPrototype : Instantiate LoadBalancerListenerHTTPSRedirectPrototype (Generic Model Constructor)
+func (*VpcV1) NewLoadBalancerListenerHTTPSRedirectPrototype(httpStatusCode int64, listener LoadBalancerListenerIdentityIntf) (_model *LoadBalancerListenerHTTPSRedirectPrototype, err error) {
+	_model = &LoadBalancerListenerHTTPSRedirectPrototype{
+		HTTPStatusCode: core.Int64Ptr(httpStatusCode),
+		Listener:       listener,
+	}
+	err = core.ValidateStruct(_model, "required parameters")
+	return
+}
+
+// UnmarshalLoadBalancerListenerHTTPSRedirectPrototype unmarshals an instance of LoadBalancerListenerHTTPSRedirectPrototype from the specified map of raw messages.
+func UnmarshalLoadBalancerListenerHTTPSRedirectPrototype(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(LoadBalancerListenerHTTPSRedirectPrototype)
+	err = core.UnmarshalPrimitive(m, "http_status_code", &obj.HTTPStatusCode)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "listener", &obj.Listener, UnmarshalLoadBalancerListenerIdentity)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "uri", &obj.URI)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// LoadBalancerListenerIdentity : Identifies a load balancer listener by a unique property.
+// Models which "extend" this model:
+// - LoadBalancerListenerIdentityByID
+// - LoadBalancerListenerIdentityByHref
+type LoadBalancerListenerIdentity struct {
+	// The unique identifier for this load balancer listener.
+	ID *string `json:"id,omitempty"`
+
+	// The listener's canonical URL.
+	Href *string `json:"href,omitempty"`
+}
+
+func (*LoadBalancerListenerIdentity) isaLoadBalancerListenerIdentity() bool {
+	return true
+}
+
+type LoadBalancerListenerIdentityIntf interface {
+	isaLoadBalancerListenerIdentity() bool
+}
+
+// UnmarshalLoadBalancerListenerIdentity unmarshals an instance of LoadBalancerListenerIdentity from the specified map of raw messages.
+func UnmarshalLoadBalancerListenerIdentity(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(LoadBalancerListenerIdentity)
+	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
 // LoadBalancerListenerPatch : LoadBalancerListenerPatch struct
 type LoadBalancerListenerPatch struct {
 	// If set to `true`, this listener will accept and forward PROXY protocol information. Supported by load balancers in
-	// the `application` family (otherwise always `false`).
+	// the `application` family (otherwise always `false`). Additional restrictions:
+	// - If this listener has `https_redirect` specified, its `accept_proxy_protocol` value must
+	//   match the `accept_proxy_protocol` value of the `https_redirect` listener.
+	// - If this listener is the target of another listener's `https_redirect`, its
+	//   `accept_proxy_protocol` value must match that listener's `accept_proxy_protocol` value.
 	AcceptProxyProtocol *bool `json:"accept_proxy_protocol,omitempty"`
 
 	// The certificate instance used for SSL termination. It is applicable only to `https`
@@ -37483,20 +38165,45 @@ type LoadBalancerListenerPatch struct {
 	// - Not already be the default pool for another listener.
 	DefaultPool LoadBalancerPoolIdentityIntf `json:"default_pool,omitempty"`
 
-	// The listener port number. Each listener in the load balancer must have a unique
-	// `port` and `protocol` combination.
+	// The target listener that requests will be redirected to. This listener must have a
+	// `protocol` of `http`, and the target listener must have a `protocol` of `https`.
+	// Specify `null` to remove any existing https redirect.
+	HTTPSRedirect *LoadBalancerListenerHTTPSRedirectPatch `json:"https_redirect,omitempty"`
+
+	// The listener port number, or the inclusive lower bound of the port range. Each listener in the load balancer must
+	// have a unique `port` and `protocol` combination.
+	//
+	// Not supported for load balancers operating with route mode enabled.
 	Port *int64 `json:"port,omitempty"`
 
-	// The listener protocol. Load balancers in the `network` family support `tcp`. Load balancers in the `application`
-	// family support `tcp`, `http`, and `https`. Each listener in the load balancer must have a unique `port` and
-	// `protocol` combination.
+	// The inclusive upper bound of the range of ports used by this listener. Must not be less than `port_min`.
+	//
+	// At present, only load balancers operating with route mode enabled support different values for `port_min` and
+	// `port_max`.  When route mode is enabled, only a value of
+	// `65535` is supported for `port_max`.
+	PortMax *int64 `json:"port_max,omitempty"`
+
+	// The inclusive lower bound of the range of ports used by this listener. Must not be greater than `port_max`.
+	//
+	// At present, only load balancers operating with route mode enabled support different values for `port_min` and
+	// `port_max`.  When route mode is enabled, only a value of
+	// `1` is supported for `port_min`.
+	PortMin *int64 `json:"port_min,omitempty"`
+
+	// The listener protocol. Each listener in the load balancer must have a unique `port` and `protocol` combination.
+	// Additional restrictions:
+	// - If this load balancer is in the `network` family, the protocol must be `tcp`.
+	// - If this listener has `https_redirect` specified, the protocol must be `http`.
+	// - If this listener is a listener's `https_redirect` target, the protocol must be `https`.
 	Protocol *string `json:"protocol,omitempty"`
 }
 
 // Constants associated with the LoadBalancerListenerPatch.Protocol property.
-// The listener protocol. Load balancers in the `network` family support `tcp`. Load balancers in the `application`
-// family support `tcp`, `http`, and `https`. Each listener in the load balancer must have a unique `port` and
-// `protocol` combination.
+// The listener protocol. Each listener in the load balancer must have a unique `port` and `protocol` combination.
+// Additional restrictions:
+// - If this load balancer is in the `network` family, the protocol must be `tcp`.
+// - If this listener has `https_redirect` specified, the protocol must be `http`.
+// - If this listener is a listener's `https_redirect` target, the protocol must be `https`.
 const (
 	LoadBalancerListenerPatchProtocolHTTPConst  = "http"
 	LoadBalancerListenerPatchProtocolHTTPSConst = "https"
@@ -37522,7 +38229,19 @@ func UnmarshalLoadBalancerListenerPatch(m map[string]json.RawMessage, result int
 	if err != nil {
 		return
 	}
+	err = core.UnmarshalModel(m, "https_redirect", &obj.HTTPSRedirect, UnmarshalLoadBalancerListenerHTTPSRedirectPatch)
+	if err != nil {
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "port", &obj.Port)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "port_max", &obj.PortMax)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "port_min", &obj.PortMin)
 	if err != nil {
 		return
 	}
@@ -37535,11 +38254,11 @@ func UnmarshalLoadBalancerListenerPatch(m map[string]json.RawMessage, result int
 }
 
 // AsPatch returns a generic map representation of the LoadBalancerListenerPatch
-func (loadBalancerListenerPatch *LoadBalancerListenerPatch) AsPatch() (patch map[string]interface{}, err error) {
+func (loadBalancerListenerPatch *LoadBalancerListenerPatch) AsPatch() (_patch map[string]interface{}, err error) {
 	var jsonData []byte
 	jsonData, err = json.Marshal(loadBalancerListenerPatch)
 	if err == nil {
-		err = json.Unmarshal(jsonData, &patch)
+		err = json.Unmarshal(jsonData, &_patch)
 	}
 	return
 }
@@ -37575,7 +38294,8 @@ type LoadBalancerListenerPolicy struct {
 	Rules []LoadBalancerListenerPolicyRuleReference `json:"rules" validate:"required"`
 
 	// - If `action` is `forward`, the response is a `LoadBalancerPoolReference`
-	// - If `action` is `redirect`, the response is a `LoadBalancerListenerPolicyRedirectURL`.
+	// - If `action` is `redirect`, the response is a `LoadBalancerListenerPolicyRedirectURL`
+	// - If `action` is `https_redirect`, the response is a `LoadBalancerListenerHTTPSRedirect`.
 	Target LoadBalancerListenerPolicyTargetIntf `json:"target,omitempty"`
 }
 
@@ -37586,9 +38306,10 @@ type LoadBalancerListenerPolicy struct {
 // for and log unknown values. Optionally halt processing and surface the error, or bypass the policy on which the
 // unexpected property value was encountered.
 const (
-	LoadBalancerListenerPolicyActionForwardConst  = "forward"
-	LoadBalancerListenerPolicyActionRedirectConst = "redirect"
-	LoadBalancerListenerPolicyActionRejectConst   = "reject"
+	LoadBalancerListenerPolicyActionForwardConst       = "forward"
+	LoadBalancerListenerPolicyActionHTTPSRedirectConst = "https_redirect"
+	LoadBalancerListenerPolicyActionRedirectConst      = "redirect"
+	LoadBalancerListenerPolicyActionRejectConst        = "reject"
 )
 
 // Constants associated with the LoadBalancerListenerPolicy.ProvisioningStatus property.
@@ -37672,6 +38393,8 @@ type LoadBalancerListenerPolicyPatch struct {
 
 	// - If `action` is `forward`, specify a `LoadBalancerPoolIdentity`.
 	// - If `action` is `redirect`, specify a `LoadBalancerListenerPolicyRedirectURLPatch`.
+	// - If `action` is `https_redirect`, specify a
+	//   `LoadBalancerListenerPolicyHTTPSRedirectPatch`.
 	Target LoadBalancerListenerPolicyTargetPatchIntf `json:"target,omitempty"`
 }
 
@@ -37695,11 +38418,11 @@ func UnmarshalLoadBalancerListenerPolicyPatch(m map[string]json.RawMessage, resu
 }
 
 // AsPatch returns a generic map representation of the LoadBalancerListenerPolicyPatch
-func (loadBalancerListenerPolicyPatch *LoadBalancerListenerPolicyPatch) AsPatch() (patch map[string]interface{}, err error) {
+func (loadBalancerListenerPolicyPatch *LoadBalancerListenerPolicyPatch) AsPatch() (_patch map[string]interface{}, err error) {
 	var jsonData []byte
 	jsonData, err = json.Marshal(loadBalancerListenerPolicyPatch)
 	if err == nil {
-		err = json.Unmarshal(jsonData, &patch)
+		err = json.Unmarshal(jsonData, &_patch)
 	}
 	return
 }
@@ -37724,6 +38447,8 @@ type LoadBalancerListenerPolicyPrototype struct {
 
 	// - If `action` is `forward`, specify a `LoadBalancerPoolIdentity`.
 	// - If `action` is `redirect`, specify a `LoadBalancerListenerPolicyRedirectURLPrototype`.
+	// - If `action` is `https_redirect`, specify a
+	//   `LoadBalancerListenerPolicyHTTPSRedirectPrototype`.
 	Target LoadBalancerListenerPolicyTargetPrototypeIntf `json:"target,omitempty"`
 }
 
@@ -37734,18 +38459,19 @@ type LoadBalancerListenerPolicyPrototype struct {
 // for and log unknown values. Optionally halt processing and surface the error, or bypass the policy on which the
 // unexpected property value was encountered.
 const (
-	LoadBalancerListenerPolicyPrototypeActionForwardConst  = "forward"
-	LoadBalancerListenerPolicyPrototypeActionRedirectConst = "redirect"
-	LoadBalancerListenerPolicyPrototypeActionRejectConst   = "reject"
+	LoadBalancerListenerPolicyPrototypeActionForwardConst       = "forward"
+	LoadBalancerListenerPolicyPrototypeActionHTTPSRedirectConst = "https_redirect"
+	LoadBalancerListenerPolicyPrototypeActionRedirectConst      = "redirect"
+	LoadBalancerListenerPolicyPrototypeActionRejectConst        = "reject"
 )
 
 // NewLoadBalancerListenerPolicyPrototype : Instantiate LoadBalancerListenerPolicyPrototype (Generic Model Constructor)
-func (*VpcV1) NewLoadBalancerListenerPolicyPrototype(action string, priority int64) (model *LoadBalancerListenerPolicyPrototype, err error) {
-	model = &LoadBalancerListenerPolicyPrototype{
+func (*VpcV1) NewLoadBalancerListenerPolicyPrototype(action string, priority int64) (_model *LoadBalancerListenerPolicyPrototype, err error) {
+	_model = &LoadBalancerListenerPolicyPrototype{
 		Action:   core.StringPtr(action),
 		Priority: core.Int64Ptr(priority),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -38021,11 +38747,11 @@ func UnmarshalLoadBalancerListenerPolicyRulePatch(m map[string]json.RawMessage, 
 }
 
 // AsPatch returns a generic map representation of the LoadBalancerListenerPolicyRulePatch
-func (loadBalancerListenerPolicyRulePatch *LoadBalancerListenerPolicyRulePatch) AsPatch() (patch map[string]interface{}, err error) {
+func (loadBalancerListenerPolicyRulePatch *LoadBalancerListenerPolicyRulePatch) AsPatch() (_patch map[string]interface{}, err error) {
 	var jsonData []byte
 	jsonData, err = json.Marshal(loadBalancerListenerPolicyRulePatch)
 	if err == nil {
-		err = json.Unmarshal(jsonData, &patch)
+		err = json.Unmarshal(jsonData, &_patch)
 	}
 	return
 }
@@ -38077,13 +38803,13 @@ const (
 )
 
 // NewLoadBalancerListenerPolicyRulePrototype : Instantiate LoadBalancerListenerPolicyRulePrototype (Generic Model Constructor)
-func (*VpcV1) NewLoadBalancerListenerPolicyRulePrototype(condition string, typeVar string, value string) (model *LoadBalancerListenerPolicyRulePrototype, err error) {
-	model = &LoadBalancerListenerPolicyRulePrototype{
+func (*VpcV1) NewLoadBalancerListenerPolicyRulePrototype(condition string, typeVar string, value string) (_model *LoadBalancerListenerPolicyRulePrototype, err error) {
+	_model = &LoadBalancerListenerPolicyRulePrototype{
 		Condition: core.StringPtr(condition),
 		Type:      core.StringPtr(typeVar),
 		Value:     core.StringPtr(value),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -38161,10 +38887,12 @@ func UnmarshalLoadBalancerListenerPolicyRuleReferenceDeleted(m map[string]json.R
 }
 
 // LoadBalancerListenerPolicyTarget : - If `action` is `forward`, the response is a `LoadBalancerPoolReference`
-// - If `action` is `redirect`, the response is a `LoadBalancerListenerPolicyRedirectURL`.
+// - If `action` is `redirect`, the response is a `LoadBalancerListenerPolicyRedirectURL`
+// - If `action` is `https_redirect`, the response is a `LoadBalancerListenerHTTPSRedirect`.
 // Models which "extend" this model:
 // - LoadBalancerListenerPolicyTargetLoadBalancerPoolReference
 // - LoadBalancerListenerPolicyTargetLoadBalancerListenerPolicyRedirectURL
+// - LoadBalancerListenerPolicyTargetLoadBalancerListenerHTTPSRedirect
 type LoadBalancerListenerPolicyTarget struct {
 	// If present, this property indicates the referenced resource has been deleted and provides
 	// some supplementary information.
@@ -38184,6 +38912,11 @@ type LoadBalancerListenerPolicyTarget struct {
 
 	// The redirect target URL.
 	URL *string `json:"url,omitempty"`
+
+	Listener *LoadBalancerListenerReference `json:"listener,omitempty"`
+
+	// The redirect relative target URI.
+	URI *string `json:"uri,omitempty"`
 }
 
 func (*LoadBalancerListenerPolicyTarget) isaLoadBalancerListenerPolicyTarget() bool {
@@ -38221,15 +38954,26 @@ func UnmarshalLoadBalancerListenerPolicyTarget(m map[string]json.RawMessage, res
 	if err != nil {
 		return
 	}
+	err = core.UnmarshalModel(m, "listener", &obj.Listener, UnmarshalLoadBalancerListenerReference)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "uri", &obj.URI)
+	if err != nil {
+		return
+	}
 	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
 	return
 }
 
 // LoadBalancerListenerPolicyTargetPatch : - If `action` is `forward`, specify a `LoadBalancerPoolIdentity`.
 // - If `action` is `redirect`, specify a `LoadBalancerListenerPolicyRedirectURLPatch`.
+// - If `action` is `https_redirect`, specify a
+//   `LoadBalancerListenerPolicyHTTPSRedirectPatch`.
 // Models which "extend" this model:
 // - LoadBalancerListenerPolicyTargetPatchLoadBalancerPoolIdentity
 // - LoadBalancerListenerPolicyTargetPatchLoadBalancerListenerPolicyRedirectURLPatch
+// - LoadBalancerListenerPolicyTargetPatchLoadBalancerListenerHTTPSRedirectPatch
 type LoadBalancerListenerPolicyTargetPatch struct {
 	// The unique identifier for this load balancer pool.
 	ID *string `json:"id,omitempty"`
@@ -38242,6 +38986,12 @@ type LoadBalancerListenerPolicyTargetPatch struct {
 
 	// The redirect target URL.
 	URL *string `json:"url,omitempty"`
+
+	// Identifies a load balancer listener by a unique property.
+	Listener LoadBalancerListenerIdentityIntf `json:"listener,omitempty"`
+
+	// The redirect relative target URI.
+	URI *string `json:"uri,omitempty"`
 }
 
 func (*LoadBalancerListenerPolicyTargetPatch) isaLoadBalancerListenerPolicyTargetPatch() bool {
@@ -38271,15 +39021,26 @@ func UnmarshalLoadBalancerListenerPolicyTargetPatch(m map[string]json.RawMessage
 	if err != nil {
 		return
 	}
+	err = core.UnmarshalModel(m, "listener", &obj.Listener, UnmarshalLoadBalancerListenerIdentity)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "uri", &obj.URI)
+	if err != nil {
+		return
+	}
 	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
 	return
 }
 
 // LoadBalancerListenerPolicyTargetPrototype : - If `action` is `forward`, specify a `LoadBalancerPoolIdentity`.
 // - If `action` is `redirect`, specify a `LoadBalancerListenerPolicyRedirectURLPrototype`.
+// - If `action` is `https_redirect`, specify a
+//   `LoadBalancerListenerPolicyHTTPSRedirectPrototype`.
 // Models which "extend" this model:
 // - LoadBalancerListenerPolicyTargetPrototypeLoadBalancerPoolIdentity
 // - LoadBalancerListenerPolicyTargetPrototypeLoadBalancerListenerPolicyRedirectURLPrototype
+// - LoadBalancerListenerPolicyTargetPrototypeLoadBalancerListenerHTTPSRedirectPrototype
 type LoadBalancerListenerPolicyTargetPrototype struct {
 	// The unique identifier for this load balancer pool.
 	ID *string `json:"id,omitempty"`
@@ -38292,6 +39053,12 @@ type LoadBalancerListenerPolicyTargetPrototype struct {
 
 	// The redirect target URL.
 	URL *string `json:"url,omitempty"`
+
+	// Identifies a load balancer listener by a unique property.
+	Listener LoadBalancerListenerIdentityIntf `json:"listener,omitempty"`
+
+	// The redirect relative target URI.
+	URI *string `json:"uri,omitempty"`
 }
 
 func (*LoadBalancerListenerPolicyTargetPrototype) isaLoadBalancerListenerPolicyTargetPrototype() bool {
@@ -38321,6 +39088,14 @@ func UnmarshalLoadBalancerListenerPolicyTargetPrototype(m map[string]json.RawMes
 	if err != nil {
 		return
 	}
+	err = core.UnmarshalModel(m, "listener", &obj.Listener, UnmarshalLoadBalancerListenerIdentity)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "uri", &obj.URI)
+	if err != nil {
+		return
+	}
 	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
 	return
 }
@@ -38328,7 +39103,11 @@ func UnmarshalLoadBalancerListenerPolicyTargetPrototype(m map[string]json.RawMes
 // LoadBalancerListenerPrototypeLoadBalancerContext : LoadBalancerListenerPrototypeLoadBalancerContext struct
 type LoadBalancerListenerPrototypeLoadBalancerContext struct {
 	// If set to `true`, this listener will accept and forward PROXY protocol information. Supported by load balancers in
-	// the `application` family (otherwise always `false`).
+	// the `application` family (otherwise always `false`). Additional restrictions:
+	// - If this listener has `https_redirect` specified, its `accept_proxy_protocol` value must
+	//   match the `accept_proxy_protocol` value of the `https_redirect` listener.
+	// - If this listener is the target of another listener's `https_redirect`, its
+	//   `accept_proxy_protocol` value must match that listener's `accept_proxy_protocol` value.
 	AcceptProxyProtocol *bool `json:"accept_proxy_protocol,omitempty"`
 
 	// The connection limit of the listener.
@@ -38337,9 +39116,25 @@ type LoadBalancerListenerPrototypeLoadBalancerContext struct {
 	// The default pool associated with the listener.
 	DefaultPool *LoadBalancerPoolIdentityByName `json:"default_pool,omitempty"`
 
-	// The listener port number. Each listener in the load balancer must have a unique
-	// `port` and `protocol` combination.
-	Port *int64 `json:"port" validate:"required"`
+	// The listener port number, or the inclusive lower bound of the port range. Each listener in the load balancer must
+	// have a unique `port` and `protocol` combination.
+	//
+	// Not supported for load balancers operating with route mode enabled.
+	Port *int64 `json:"port,omitempty"`
+
+	// The inclusive upper bound of the range of ports used by this listener. Must not be less than `port_min`.
+	//
+	// At present, only load balancers operating with route mode enabled support different values for `port_min` and
+	// `port_max`.  When route mode is enabled, only a value of
+	// `65535` is supported for `port_max`.
+	PortMax *int64 `json:"port_max,omitempty"`
+
+	// The inclusive lower bound of the range of ports used by this listener. Must not be greater than `port_max`.
+	//
+	// At present, only load balancers operating with route mode enabled support different values for `port_min` and
+	// `port_max`.  When route mode is enabled, only a value of
+	// `1` is supported for `port_min`.
+	PortMin *int64 `json:"port_min,omitempty"`
 
 	// The listener protocol. Load balancers in the `network` family support `tcp`. Load balancers in the `application`
 	// family support `tcp`, `http`, and `https`. Each listener in the load balancer must have a unique `port` and
@@ -38358,12 +39153,11 @@ const (
 )
 
 // NewLoadBalancerListenerPrototypeLoadBalancerContext : Instantiate LoadBalancerListenerPrototypeLoadBalancerContext (Generic Model Constructor)
-func (*VpcV1) NewLoadBalancerListenerPrototypeLoadBalancerContext(port int64, protocol string) (model *LoadBalancerListenerPrototypeLoadBalancerContext, err error) {
-	model = &LoadBalancerListenerPrototypeLoadBalancerContext{
-		Port:     core.Int64Ptr(port),
+func (*VpcV1) NewLoadBalancerListenerPrototypeLoadBalancerContext(protocol string) (_model *LoadBalancerListenerPrototypeLoadBalancerContext, err error) {
+	_model = &LoadBalancerListenerPrototypeLoadBalancerContext{
 		Protocol: core.StringPtr(protocol),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -38383,6 +39177,14 @@ func UnmarshalLoadBalancerListenerPrototypeLoadBalancerContext(m map[string]json
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "port", &obj.Port)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "port_max", &obj.PortMax)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "port_min", &obj.PortMin)
 	if err != nil {
 		return
 	}
@@ -38463,16 +39265,16 @@ func UnmarshalLoadBalancerLogging(m map[string]json.RawMessage, result interface
 
 // LoadBalancerLoggingDatapath : The datapath logging configuration for this load balancer.
 type LoadBalancerLoggingDatapath struct {
-	// If set to `true`, datapath logging is active for this load balancer.
+	// Indicates whether datapath logging is active for this load balancer.
 	Active *bool `json:"active" validate:"required"`
 }
 
 // NewLoadBalancerLoggingDatapath : Instantiate LoadBalancerLoggingDatapath (Generic Model Constructor)
-func (*VpcV1) NewLoadBalancerLoggingDatapath(active bool) (model *LoadBalancerLoggingDatapath, err error) {
-	model = &LoadBalancerLoggingDatapath{
+func (*VpcV1) NewLoadBalancerLoggingDatapath(active bool) (_model *LoadBalancerLoggingDatapath, err error) {
+	_model = &LoadBalancerLoggingDatapath{
 		Active: core.BoolPtr(active),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -38514,11 +39316,11 @@ func UnmarshalLoadBalancerPatch(m map[string]json.RawMessage, result interface{}
 }
 
 // AsPatch returns a generic map representation of the LoadBalancerPatch
-func (loadBalancerPatch *LoadBalancerPatch) AsPatch() (patch map[string]interface{}, err error) {
+func (loadBalancerPatch *LoadBalancerPatch) AsPatch() (_patch map[string]interface{}, err error) {
 	var jsonData []byte
 	jsonData, err = json.Marshal(loadBalancerPatch)
 	if err == nil {
-		err = json.Unmarshal(jsonData, &patch)
+		err = json.Unmarshal(jsonData, &_patch)
 	}
 	return
 }
@@ -38795,14 +39597,14 @@ const (
 )
 
 // NewLoadBalancerPoolHealthMonitorPatch : Instantiate LoadBalancerPoolHealthMonitorPatch (Generic Model Constructor)
-func (*VpcV1) NewLoadBalancerPoolHealthMonitorPatch(delay int64, maxRetries int64, timeout int64, typeVar string) (model *LoadBalancerPoolHealthMonitorPatch, err error) {
-	model = &LoadBalancerPoolHealthMonitorPatch{
+func (*VpcV1) NewLoadBalancerPoolHealthMonitorPatch(delay int64, maxRetries int64, timeout int64, typeVar string) (_model *LoadBalancerPoolHealthMonitorPatch, err error) {
+	_model = &LoadBalancerPoolHealthMonitorPatch{
 		Delay:      core.Int64Ptr(delay),
 		MaxRetries: core.Int64Ptr(maxRetries),
 		Timeout:    core.Int64Ptr(timeout),
 		Type:       core.StringPtr(typeVar),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -38869,14 +39671,14 @@ const (
 )
 
 // NewLoadBalancerPoolHealthMonitorPrototype : Instantiate LoadBalancerPoolHealthMonitorPrototype (Generic Model Constructor)
-func (*VpcV1) NewLoadBalancerPoolHealthMonitorPrototype(delay int64, maxRetries int64, timeout int64, typeVar string) (model *LoadBalancerPoolHealthMonitorPrototype, err error) {
-	model = &LoadBalancerPoolHealthMonitorPrototype{
+func (*VpcV1) NewLoadBalancerPoolHealthMonitorPrototype(delay int64, maxRetries int64, timeout int64, typeVar string) (_model *LoadBalancerPoolHealthMonitorPrototype, err error) {
+	_model = &LoadBalancerPoolHealthMonitorPrototype{
 		Delay:      core.Int64Ptr(delay),
 		MaxRetries: core.Int64Ptr(maxRetries),
 		Timeout:    core.Int64Ptr(timeout),
 		Type:       core.StringPtr(typeVar),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -38953,11 +39755,11 @@ type LoadBalancerPoolIdentityByName struct {
 }
 
 // NewLoadBalancerPoolIdentityByName : Instantiate LoadBalancerPoolIdentityByName (Generic Model Constructor)
-func (*VpcV1) NewLoadBalancerPoolIdentityByName(name string) (model *LoadBalancerPoolIdentityByName, err error) {
-	model = &LoadBalancerPoolIdentityByName{
+func (*VpcV1) NewLoadBalancerPoolIdentityByName(name string) (_model *LoadBalancerPoolIdentityByName, err error) {
+	_model = &LoadBalancerPoolIdentityByName{
 		Name: core.StringPtr(name),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -39110,11 +39912,11 @@ func UnmarshalLoadBalancerPoolMemberPatch(m map[string]json.RawMessage, result i
 }
 
 // AsPatch returns a generic map representation of the LoadBalancerPoolMemberPatch
-func (loadBalancerPoolMemberPatch *LoadBalancerPoolMemberPatch) AsPatch() (patch map[string]interface{}, err error) {
+func (loadBalancerPoolMemberPatch *LoadBalancerPoolMemberPatch) AsPatch() (_patch map[string]interface{}, err error) {
 	var jsonData []byte
 	jsonData, err = json.Marshal(loadBalancerPoolMemberPatch)
 	if err == nil {
-		err = json.Unmarshal(jsonData, &patch)
+		err = json.Unmarshal(jsonData, &_patch)
 	}
 	return
 }
@@ -39134,12 +39936,12 @@ type LoadBalancerPoolMemberPrototype struct {
 }
 
 // NewLoadBalancerPoolMemberPrototype : Instantiate LoadBalancerPoolMemberPrototype (Generic Model Constructor)
-func (*VpcV1) NewLoadBalancerPoolMemberPrototype(port int64, target LoadBalancerPoolMemberTargetPrototypeIntf) (model *LoadBalancerPoolMemberPrototype, err error) {
-	model = &LoadBalancerPoolMemberPrototype{
+func (*VpcV1) NewLoadBalancerPoolMemberPrototype(port int64, target LoadBalancerPoolMemberTargetPrototypeIntf) (_model *LoadBalancerPoolMemberPrototype, err error) {
+	_model = &LoadBalancerPoolMemberPrototype{
 		Port:   core.Int64Ptr(port),
 		Target: target,
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -39234,9 +40036,11 @@ type LoadBalancerPoolMemberTarget struct {
 	// The user-defined name for this virtual server instance (and default system hostname).
 	Name *string `json:"name,omitempty"`
 
-	// The IP address. This property may add support for IPv6 addresses in the future. When processing a value in this
-	// property, verify that the address is in an expected format. If it is not, log an error. Optionally halt processing
-	// and surface the error, or bypass the resource on which the unexpected IP address format was encountered.
+	// The IP address.
+	//
+	// This property may add support for IPv6 addresses in the future. When processing a value in this property, verify
+	// that the address is in an expected format. If it is not, log an error. Optionally halt processing and surface the
+	// error, or bypass the resource on which the unexpected IP address format was encountered.
 	Address *string `json:"address,omitempty"`
 }
 
@@ -39294,9 +40098,11 @@ type LoadBalancerPoolMemberTargetPrototype struct {
 	// The URL for this virtual server instance.
 	Href *string `json:"href,omitempty"`
 
-	// The IP address. This property may add support for IPv6 addresses in the future. When processing a value in this
-	// property, verify that the address is in an expected format. If it is not, log an error. Optionally halt processing
-	// and surface the error, or bypass the resource on which the unexpected IP address format was encountered.
+	// The IP address.
+	//
+	// This property may add support for IPv6 addresses in the future. When processing a value in this property, verify
+	// that the address is in an expected format. If it is not, log an error. Optionally halt processing and surface the
+	// error, or bypass the resource on which the unexpected IP address format was encountered.
 	Address *string `json:"address,omitempty"`
 }
 
@@ -39426,11 +40232,11 @@ func UnmarshalLoadBalancerPoolPatch(m map[string]json.RawMessage, result interfa
 }
 
 // AsPatch returns a generic map representation of the LoadBalancerPoolPatch
-func (loadBalancerPoolPatch *LoadBalancerPoolPatch) AsPatch() (patch map[string]interface{}, err error) {
+func (loadBalancerPoolPatch *LoadBalancerPoolPatch) AsPatch() (_patch map[string]interface{}, err error) {
 	var jsonData []byte
 	jsonData, err = json.Marshal(loadBalancerPoolPatch)
 	if err == nil {
-		err = json.Unmarshal(jsonData, &patch)
+		err = json.Unmarshal(jsonData, &_patch)
 	}
 	return
 }
@@ -39500,13 +40306,13 @@ const (
 )
 
 // NewLoadBalancerPoolPrototype : Instantiate LoadBalancerPoolPrototype (Generic Model Constructor)
-func (*VpcV1) NewLoadBalancerPoolPrototype(algorithm string, healthMonitor *LoadBalancerPoolHealthMonitorPrototype, protocol string) (model *LoadBalancerPoolPrototype, err error) {
-	model = &LoadBalancerPoolPrototype{
+func (*VpcV1) NewLoadBalancerPoolPrototype(algorithm string, healthMonitor *LoadBalancerPoolHealthMonitorPrototype, protocol string) (_model *LoadBalancerPoolPrototype, err error) {
+	_model = &LoadBalancerPoolPrototype{
 		Algorithm:     core.StringPtr(algorithm),
 		HealthMonitor: healthMonitor,
 		Protocol:      core.StringPtr(protocol),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -39693,11 +40499,11 @@ const (
 )
 
 // NewLoadBalancerPoolSessionPersistencePrototype : Instantiate LoadBalancerPoolSessionPersistencePrototype (Generic Model Constructor)
-func (*VpcV1) NewLoadBalancerPoolSessionPersistencePrototype(typeVar string) (model *LoadBalancerPoolSessionPersistencePrototype, err error) {
-	model = &LoadBalancerPoolSessionPersistencePrototype{
+func (*VpcV1) NewLoadBalancerPoolSessionPersistencePrototype(typeVar string) (_model *LoadBalancerPoolSessionPersistencePrototype, err error) {
+	_model = &LoadBalancerPoolSessionPersistencePrototype{
 		Type: core.StringPtr(typeVar),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -39730,6 +40536,8 @@ type LoadBalancerProfile struct {
 	// The globally unique name for this load balancer profile.
 	Name *string `json:"name" validate:"required"`
 
+	RouteModeSupported LoadBalancerProfileRouteModeSupportedIntf `json:"route_mode_supported" validate:"required"`
+
 	SecurityGroupsSupported LoadBalancerProfileSecurityGroupsSupportedIntf `json:"security_groups_supported" validate:"required"`
 }
 
@@ -39749,6 +40557,10 @@ func UnmarshalLoadBalancerProfile(m map[string]json.RawMessage, result interface
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "route_mode_supported", &obj.RouteModeSupported, UnmarshalLoadBalancerProfileRouteModeSupported)
 	if err != nil {
 		return
 	}
@@ -39804,6 +40616,18 @@ func UnmarshalLoadBalancerProfileCollection(m map[string]json.RawMessage, result
 	}
 	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
 	return
+}
+
+// Retrieve the value to be passed to a request to access the next page of results
+func (resp *LoadBalancerProfileCollection) GetNextStart() (*string, error) {
+	if core.IsNil(resp.Next) {
+		return nil, nil
+	}
+	start, err := core.GetQueryParam(resp.Next.Href, "start")
+	if err != nil || start == nil {
+		return nil, err
+	}
+	return start, nil
 }
 
 // LoadBalancerProfileCollectionFirst : A link to the first page of resources.
@@ -39929,6 +40753,47 @@ func UnmarshalLoadBalancerProfileReference(m map[string]json.RawMessage, result 
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// LoadBalancerProfileRouteModeSupported : LoadBalancerProfileRouteModeSupported struct
+// Models which "extend" this model:
+// - LoadBalancerProfileRouteModeSupportedFixed
+// - LoadBalancerProfileRouteModeSupportedDependent
+type LoadBalancerProfileRouteModeSupported struct {
+	// The type for this profile field.
+	Type *string `json:"type,omitempty"`
+
+	// The value for this profile field.
+	Value *bool `json:"value,omitempty"`
+}
+
+// Constants associated with the LoadBalancerProfileRouteModeSupported.Type property.
+// The type for this profile field.
+const (
+	LoadBalancerProfileRouteModeSupportedTypeFixedConst = "fixed"
+)
+
+func (*LoadBalancerProfileRouteModeSupported) isaLoadBalancerProfileRouteModeSupported() bool {
+	return true
+}
+
+type LoadBalancerProfileRouteModeSupportedIntf interface {
+	isaLoadBalancerProfileRouteModeSupported() bool
+}
+
+// UnmarshalLoadBalancerProfileRouteModeSupported unmarshals an instance of LoadBalancerProfileRouteModeSupported from the specified map of raw messages.
+func UnmarshalLoadBalancerProfileRouteModeSupported(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(LoadBalancerProfileRouteModeSupported)
+	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "value", &obj.Value)
 	if err != nil {
 		return
 	}
@@ -40152,6 +41017,18 @@ func UnmarshalNetworkACLCollection(m map[string]json.RawMessage, result interfac
 	return
 }
 
+// Retrieve the value to be passed to a request to access the next page of results
+func (resp *NetworkACLCollection) GetNextStart() (*string, error) {
+	if core.IsNil(resp.Next) {
+		return nil, nil
+	}
+	start, err := core.GetQueryParam(resp.Next.Href, "start")
+	if err != nil || start == nil {
+		return nil, err
+	}
+	return start, nil
+}
+
 // NetworkACLCollectionFirst : A link to the first page of resources.
 type NetworkACLCollectionFirst struct {
 	// The URL for a page of resources.
@@ -40247,11 +41124,11 @@ func UnmarshalNetworkACLPatch(m map[string]json.RawMessage, result interface{}) 
 }
 
 // AsPatch returns a generic map representation of the NetworkACLPatch
-func (networkACLPatch *NetworkACLPatch) AsPatch() (patch map[string]interface{}, err error) {
+func (networkACLPatch *NetworkACLPatch) AsPatch() (_patch map[string]interface{}, err error) {
 	var jsonData []byte
 	jsonData, err = json.Marshal(networkACLPatch)
 	if err == nil {
-		err = json.Unmarshal(jsonData, &patch)
+		err = json.Unmarshal(jsonData, &_patch)
 	}
 	return
 }
@@ -40611,6 +41488,18 @@ func UnmarshalNetworkACLRuleCollection(m map[string]json.RawMessage, result inte
 	return
 }
 
+// Retrieve the value to be passed to a request to access the next page of results
+func (resp *NetworkACLRuleCollection) GetNextStart() (*string, error) {
+	if core.IsNil(resp.Next) {
+		return nil, nil
+	}
+	start, err := core.GetQueryParam(resp.Next.Href, "start")
+	if err != nil || start == nil {
+		return nil, err
+	}
+	return start, nil
+}
+
 // NetworkACLRuleCollectionFirst : A link to the first page of resources.
 type NetworkACLRuleCollectionFirst struct {
 	// The URL for a page of resources.
@@ -40872,11 +41761,11 @@ func UnmarshalNetworkACLRulePatch(m map[string]json.RawMessage, result interface
 }
 
 // AsPatch returns a generic map representation of the NetworkACLRulePatch
-func (networkACLRulePatch *NetworkACLRulePatch) AsPatch() (patch map[string]interface{}, err error) {
+func (networkACLRulePatch *NetworkACLRulePatch) AsPatch() (_patch map[string]interface{}, err error) {
 	var jsonData []byte
 	jsonData, err = json.Marshal(networkACLRulePatch)
 	if err == nil {
-		err = json.Unmarshal(jsonData, &patch)
+		err = json.Unmarshal(jsonData, &_patch)
 	}
 	return
 }
@@ -41155,6 +42044,8 @@ type NetworkInterface struct {
 	PortSpeed *int64 `json:"port_speed" validate:"required"`
 
 	// The primary IPv4 address.
+	//
+	// If the address has not yet been selected, the value will be `0.0.0.0`.
 	PrimaryIpv4Address *string `json:"primary_ipv4_address" validate:"required"`
 
 	// The resource type.
@@ -41300,6 +42191,18 @@ func UnmarshalNetworkInterfaceCollection(m map[string]json.RawMessage, result in
 	return
 }
 
+// Retrieve the value to be passed to a request to access the next page of results
+func (resp *NetworkInterfaceCollection) GetNextStart() (*string, error) {
+	if core.IsNil(resp.Next) {
+		return nil, nil
+	}
+	start, err := core.GetQueryParam(resp.Next.Href, "start")
+	if err != nil || start == nil {
+		return nil, err
+	}
+	return start, nil
+}
+
 // NetworkInterfaceCollectionFirst : A link to the first page of resources.
 type NetworkInterfaceCollectionFirst struct {
 	// The URL for a page of resources.
@@ -41350,6 +42253,8 @@ type NetworkInterfaceInstanceContextReference struct {
 	Name *string `json:"name" validate:"required"`
 
 	// The primary IPv4 address.
+	//
+	// If the address has not yet been selected, the value will be `0.0.0.0`.
 	PrimaryIpv4Address *string `json:"primary_ipv4_address" validate:"required"`
 
 	// The resource type.
@@ -41424,7 +42329,8 @@ type NetworkInterfacePatch struct {
 	// interface. If true, source IP spoofing is allowed on this interface.
 	AllowIPSpoofing *bool `json:"allow_ip_spoofing,omitempty"`
 
-	// The user-defined name for this network interface.
+	// The user-defined name for network interface. Names must be unique within the instance the network interface resides
+	// in.
 	Name *string `json:"name,omitempty"`
 }
 
@@ -41444,11 +42350,11 @@ func UnmarshalNetworkInterfacePatch(m map[string]json.RawMessage, result interfa
 }
 
 // AsPatch returns a generic map representation of the NetworkInterfacePatch
-func (networkInterfacePatch *NetworkInterfacePatch) AsPatch() (patch map[string]interface{}, err error) {
+func (networkInterfacePatch *NetworkInterfacePatch) AsPatch() (_patch map[string]interface{}, err error) {
 	var jsonData []byte
 	jsonData, err = json.Marshal(networkInterfacePatch)
 	if err == nil {
-		err = json.Unmarshal(jsonData, &patch)
+		err = json.Unmarshal(jsonData, &_patch)
 	}
 	return
 }
@@ -41459,8 +42365,8 @@ type NetworkInterfacePrototype struct {
 	// interface. If true, source IP spoofing is allowed on this interface.
 	AllowIPSpoofing *bool `json:"allow_ip_spoofing,omitempty"`
 
-	// The user-defined name for this network interface. If unspecified, the name will be a hyphenated list of
-	// randomly-selected words.
+	// The user-defined name for network interface. Names must be unique within the instance the network interface resides
+	// in. If unspecified, the name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
 	// The primary IPv4 address. If specified, it must be an available address on the network interface's subnet. If
@@ -41475,11 +42381,11 @@ type NetworkInterfacePrototype struct {
 }
 
 // NewNetworkInterfacePrototype : Instantiate NetworkInterfacePrototype (Generic Model Constructor)
-func (*VpcV1) NewNetworkInterfacePrototype(subnet SubnetIdentityIntf) (model *NetworkInterfacePrototype, err error) {
-	model = &NetworkInterfacePrototype{
+func (*VpcV1) NewNetworkInterfacePrototype(subnet SubnetIdentityIntf) (_model *NetworkInterfacePrototype, err error) {
+	_model = &NetworkInterfacePrototype{
 		Subnet: subnet,
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -41526,6 +42432,8 @@ type NetworkInterfaceReference struct {
 	Name *string `json:"name" validate:"required"`
 
 	// The primary IPv4 address.
+	//
+	// If the address has not yet been selected, the value will be `0.0.0.0`.
 	PrimaryIpv4Address *string `json:"primary_ipv4_address" validate:"required"`
 
 	// The resource type.
@@ -41725,6 +42633,18 @@ func UnmarshalOperatingSystemCollection(m map[string]json.RawMessage, result int
 	}
 	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
 	return
+}
+
+// Retrieve the value to be passed to a request to access the next page of results
+func (resp *OperatingSystemCollection) GetNextStart() (*string, error) {
+	if core.IsNil(resp.Next) {
+		return nil, nil
+	}
+	start, err := core.GetQueryParam(resp.Next.Href, "start")
+	if err != nil || start == nil {
+		return nil, err
+	}
+	return start, nil
 }
 
 // OperatingSystemCollectionFirst : A link to the first page of resources.
@@ -41976,6 +42896,18 @@ func UnmarshalPlacementGroupCollection(m map[string]json.RawMessage, result inte
 	return
 }
 
+// Retrieve the value to be passed to a request to access the next page of results
+func (resp *PlacementGroupCollection) GetNextStart() (*string, error) {
+	if core.IsNil(resp.Next) {
+		return nil, nil
+	}
+	start, err := core.GetQueryParam(resp.Next.Href, "start")
+	if err != nil || start == nil {
+		return nil, err
+	}
+	return start, nil
+}
+
 // PlacementGroupCollectionFirst : A link to the first page of resources.
 type PlacementGroupCollectionFirst struct {
 	// The URL for a page of resources.
@@ -42028,11 +42960,11 @@ func UnmarshalPlacementGroupPatch(m map[string]json.RawMessage, result interface
 }
 
 // AsPatch returns a generic map representation of the PlacementGroupPatch
-func (placementGroupPatch *PlacementGroupPatch) AsPatch() (patch map[string]interface{}, err error) {
+func (placementGroupPatch *PlacementGroupPatch) AsPatch() (_patch map[string]interface{}, err error) {
 	var jsonData []byte
 	jsonData, err = json.Marshal(placementGroupPatch)
 	if err == nil {
-		err = json.Unmarshal(jsonData, &patch)
+		err = json.Unmarshal(jsonData, &_patch)
 	}
 	return
 }
@@ -42201,6 +43133,18 @@ func UnmarshalPublicGatewayCollection(m map[string]json.RawMessage, result inter
 	}
 	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
 	return
+}
+
+// Retrieve the value to be passed to a request to access the next page of results
+func (resp *PublicGatewayCollection) GetNextStart() (*string, error) {
+	if core.IsNil(resp.Next) {
+		return nil, nil
+	}
+	start, err := core.GetQueryParam(resp.Next.Href, "start")
+	if err != nil || start == nil {
+		return nil, err
+	}
+	return start, nil
 }
 
 // PublicGatewayCollectionFirst : A link to the first page of resources.
@@ -42416,11 +43360,11 @@ func UnmarshalPublicGatewayPatch(m map[string]json.RawMessage, result interface{
 }
 
 // AsPatch returns a generic map representation of the PublicGatewayPatch
-func (publicGatewayPatch *PublicGatewayPatch) AsPatch() (patch map[string]interface{}, err error) {
+func (publicGatewayPatch *PublicGatewayPatch) AsPatch() (_patch map[string]interface{}, err error) {
 	var jsonData []byte
 	jsonData, err = json.Marshal(publicGatewayPatch)
 	if err == nil {
-		err = json.Unmarshal(jsonData, &patch)
+		err = json.Unmarshal(jsonData, &_patch)
 	}
 	return
 }
@@ -42591,10 +43535,10 @@ func UnmarshalRegionReference(m map[string]json.RawMessage, result interface{}) 
 // RemoveEndpointGatewayIPOptions : The RemoveEndpointGatewayIP options.
 type RemoveEndpointGatewayIPOptions struct {
 	// The endpoint gateway identifier.
-	EndpointGatewayID *string `validate:"required,ne="`
+	EndpointGatewayID *string `json:"-" validate:"required,ne="`
 
 	// The reserved IP identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -42609,15 +43553,15 @@ func (*VpcV1) NewRemoveEndpointGatewayIPOptions(endpointGatewayID string, id str
 }
 
 // SetEndpointGatewayID : Allow user to set EndpointGatewayID
-func (options *RemoveEndpointGatewayIPOptions) SetEndpointGatewayID(endpointGatewayID string) *RemoveEndpointGatewayIPOptions {
-	options.EndpointGatewayID = core.StringPtr(endpointGatewayID)
-	return options
+func (_options *RemoveEndpointGatewayIPOptions) SetEndpointGatewayID(endpointGatewayID string) *RemoveEndpointGatewayIPOptions {
+	_options.EndpointGatewayID = core.StringPtr(endpointGatewayID)
+	return _options
 }
 
 // SetID : Allow user to set ID
-func (options *RemoveEndpointGatewayIPOptions) SetID(id string) *RemoveEndpointGatewayIPOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *RemoveEndpointGatewayIPOptions) SetID(id string) *RemoveEndpointGatewayIPOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -42629,13 +43573,13 @@ func (options *RemoveEndpointGatewayIPOptions) SetHeaders(param map[string]strin
 // RemoveInstanceNetworkInterfaceFloatingIPOptions : The RemoveInstanceNetworkInterfaceFloatingIP options.
 type RemoveInstanceNetworkInterfaceFloatingIPOptions struct {
 	// The instance identifier.
-	InstanceID *string `validate:"required,ne="`
+	InstanceID *string `json:"-" validate:"required,ne="`
 
 	// The network interface identifier.
-	NetworkInterfaceID *string `validate:"required,ne="`
+	NetworkInterfaceID *string `json:"-" validate:"required,ne="`
 
 	// The floating IP identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -42651,21 +43595,21 @@ func (*VpcV1) NewRemoveInstanceNetworkInterfaceFloatingIPOptions(instanceID stri
 }
 
 // SetInstanceID : Allow user to set InstanceID
-func (options *RemoveInstanceNetworkInterfaceFloatingIPOptions) SetInstanceID(instanceID string) *RemoveInstanceNetworkInterfaceFloatingIPOptions {
-	options.InstanceID = core.StringPtr(instanceID)
-	return options
+func (_options *RemoveInstanceNetworkInterfaceFloatingIPOptions) SetInstanceID(instanceID string) *RemoveInstanceNetworkInterfaceFloatingIPOptions {
+	_options.InstanceID = core.StringPtr(instanceID)
+	return _options
 }
 
 // SetNetworkInterfaceID : Allow user to set NetworkInterfaceID
-func (options *RemoveInstanceNetworkInterfaceFloatingIPOptions) SetNetworkInterfaceID(networkInterfaceID string) *RemoveInstanceNetworkInterfaceFloatingIPOptions {
-	options.NetworkInterfaceID = core.StringPtr(networkInterfaceID)
-	return options
+func (_options *RemoveInstanceNetworkInterfaceFloatingIPOptions) SetNetworkInterfaceID(networkInterfaceID string) *RemoveInstanceNetworkInterfaceFloatingIPOptions {
+	_options.NetworkInterfaceID = core.StringPtr(networkInterfaceID)
+	return _options
 }
 
 // SetID : Allow user to set ID
-func (options *RemoveInstanceNetworkInterfaceFloatingIPOptions) SetID(id string) *RemoveInstanceNetworkInterfaceFloatingIPOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *RemoveInstanceNetworkInterfaceFloatingIPOptions) SetID(id string) *RemoveInstanceNetworkInterfaceFloatingIPOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -42677,10 +43621,10 @@ func (options *RemoveInstanceNetworkInterfaceFloatingIPOptions) SetHeaders(param
 // RemoveSecurityGroupNetworkInterfaceOptions : The RemoveSecurityGroupNetworkInterface options.
 type RemoveSecurityGroupNetworkInterfaceOptions struct {
 	// The security group identifier.
-	SecurityGroupID *string `validate:"required,ne="`
+	SecurityGroupID *string `json:"-" validate:"required,ne="`
 
 	// The network interface identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -42695,15 +43639,15 @@ func (*VpcV1) NewRemoveSecurityGroupNetworkInterfaceOptions(securityGroupID stri
 }
 
 // SetSecurityGroupID : Allow user to set SecurityGroupID
-func (options *RemoveSecurityGroupNetworkInterfaceOptions) SetSecurityGroupID(securityGroupID string) *RemoveSecurityGroupNetworkInterfaceOptions {
-	options.SecurityGroupID = core.StringPtr(securityGroupID)
-	return options
+func (_options *RemoveSecurityGroupNetworkInterfaceOptions) SetSecurityGroupID(securityGroupID string) *RemoveSecurityGroupNetworkInterfaceOptions {
+	_options.SecurityGroupID = core.StringPtr(securityGroupID)
+	return _options
 }
 
 // SetID : Allow user to set ID
-func (options *RemoveSecurityGroupNetworkInterfaceOptions) SetID(id string) *RemoveSecurityGroupNetworkInterfaceOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *RemoveSecurityGroupNetworkInterfaceOptions) SetID(id string) *RemoveSecurityGroupNetworkInterfaceOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -42715,16 +43659,16 @@ func (options *RemoveSecurityGroupNetworkInterfaceOptions) SetHeaders(param map[
 // RemoveVPNGatewayConnectionLocalCIDROptions : The RemoveVPNGatewayConnectionLocalCIDR options.
 type RemoveVPNGatewayConnectionLocalCIDROptions struct {
 	// The VPN gateway identifier.
-	VPNGatewayID *string `validate:"required,ne="`
+	VPNGatewayID *string `json:"-" validate:"required,ne="`
 
 	// The VPN gateway connection identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// The address prefix part of the CIDR.
-	CIDRPrefix *string `validate:"required,ne="`
+	CIDRPrefix *string `json:"-" validate:"required,ne="`
 
 	// The prefix length part of the CIDR.
-	PrefixLength *string `validate:"required,ne="`
+	PrefixLength *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -42741,27 +43685,27 @@ func (*VpcV1) NewRemoveVPNGatewayConnectionLocalCIDROptions(vpnGatewayID string,
 }
 
 // SetVPNGatewayID : Allow user to set VPNGatewayID
-func (options *RemoveVPNGatewayConnectionLocalCIDROptions) SetVPNGatewayID(vpnGatewayID string) *RemoveVPNGatewayConnectionLocalCIDROptions {
-	options.VPNGatewayID = core.StringPtr(vpnGatewayID)
-	return options
+func (_options *RemoveVPNGatewayConnectionLocalCIDROptions) SetVPNGatewayID(vpnGatewayID string) *RemoveVPNGatewayConnectionLocalCIDROptions {
+	_options.VPNGatewayID = core.StringPtr(vpnGatewayID)
+	return _options
 }
 
 // SetID : Allow user to set ID
-func (options *RemoveVPNGatewayConnectionLocalCIDROptions) SetID(id string) *RemoveVPNGatewayConnectionLocalCIDROptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *RemoveVPNGatewayConnectionLocalCIDROptions) SetID(id string) *RemoveVPNGatewayConnectionLocalCIDROptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetCIDRPrefix : Allow user to set CIDRPrefix
-func (options *RemoveVPNGatewayConnectionLocalCIDROptions) SetCIDRPrefix(cidrPrefix string) *RemoveVPNGatewayConnectionLocalCIDROptions {
-	options.CIDRPrefix = core.StringPtr(cidrPrefix)
-	return options
+func (_options *RemoveVPNGatewayConnectionLocalCIDROptions) SetCIDRPrefix(cidrPrefix string) *RemoveVPNGatewayConnectionLocalCIDROptions {
+	_options.CIDRPrefix = core.StringPtr(cidrPrefix)
+	return _options
 }
 
 // SetPrefixLength : Allow user to set PrefixLength
-func (options *RemoveVPNGatewayConnectionLocalCIDROptions) SetPrefixLength(prefixLength string) *RemoveVPNGatewayConnectionLocalCIDROptions {
-	options.PrefixLength = core.StringPtr(prefixLength)
-	return options
+func (_options *RemoveVPNGatewayConnectionLocalCIDROptions) SetPrefixLength(prefixLength string) *RemoveVPNGatewayConnectionLocalCIDROptions {
+	_options.PrefixLength = core.StringPtr(prefixLength)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -42773,16 +43717,16 @@ func (options *RemoveVPNGatewayConnectionLocalCIDROptions) SetHeaders(param map[
 // RemoveVPNGatewayConnectionPeerCIDROptions : The RemoveVPNGatewayConnectionPeerCIDR options.
 type RemoveVPNGatewayConnectionPeerCIDROptions struct {
 	// The VPN gateway identifier.
-	VPNGatewayID *string `validate:"required,ne="`
+	VPNGatewayID *string `json:"-" validate:"required,ne="`
 
 	// The VPN gateway connection identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// The address prefix part of the CIDR.
-	CIDRPrefix *string `validate:"required,ne="`
+	CIDRPrefix *string `json:"-" validate:"required,ne="`
 
 	// The prefix length part of the CIDR.
-	PrefixLength *string `validate:"required,ne="`
+	PrefixLength *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -42799,27 +43743,27 @@ func (*VpcV1) NewRemoveVPNGatewayConnectionPeerCIDROptions(vpnGatewayID string, 
 }
 
 // SetVPNGatewayID : Allow user to set VPNGatewayID
-func (options *RemoveVPNGatewayConnectionPeerCIDROptions) SetVPNGatewayID(vpnGatewayID string) *RemoveVPNGatewayConnectionPeerCIDROptions {
-	options.VPNGatewayID = core.StringPtr(vpnGatewayID)
-	return options
+func (_options *RemoveVPNGatewayConnectionPeerCIDROptions) SetVPNGatewayID(vpnGatewayID string) *RemoveVPNGatewayConnectionPeerCIDROptions {
+	_options.VPNGatewayID = core.StringPtr(vpnGatewayID)
+	return _options
 }
 
 // SetID : Allow user to set ID
-func (options *RemoveVPNGatewayConnectionPeerCIDROptions) SetID(id string) *RemoveVPNGatewayConnectionPeerCIDROptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *RemoveVPNGatewayConnectionPeerCIDROptions) SetID(id string) *RemoveVPNGatewayConnectionPeerCIDROptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetCIDRPrefix : Allow user to set CIDRPrefix
-func (options *RemoveVPNGatewayConnectionPeerCIDROptions) SetCIDRPrefix(cidrPrefix string) *RemoveVPNGatewayConnectionPeerCIDROptions {
-	options.CIDRPrefix = core.StringPtr(cidrPrefix)
-	return options
+func (_options *RemoveVPNGatewayConnectionPeerCIDROptions) SetCIDRPrefix(cidrPrefix string) *RemoveVPNGatewayConnectionPeerCIDROptions {
+	_options.CIDRPrefix = core.StringPtr(cidrPrefix)
+	return _options
 }
 
 // SetPrefixLength : Allow user to set PrefixLength
-func (options *RemoveVPNGatewayConnectionPeerCIDROptions) SetPrefixLength(prefixLength string) *RemoveVPNGatewayConnectionPeerCIDROptions {
-	options.PrefixLength = core.StringPtr(prefixLength)
-	return options
+func (_options *RemoveVPNGatewayConnectionPeerCIDROptions) SetPrefixLength(prefixLength string) *RemoveVPNGatewayConnectionPeerCIDROptions {
+	_options.PrefixLength = core.StringPtr(prefixLength)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -42831,13 +43775,13 @@ func (options *RemoveVPNGatewayConnectionPeerCIDROptions) SetHeaders(param map[s
 // ReplaceLoadBalancerPoolMembersOptions : The ReplaceLoadBalancerPoolMembers options.
 type ReplaceLoadBalancerPoolMembersOptions struct {
 	// The load balancer identifier.
-	LoadBalancerID *string `validate:"required,ne="`
+	LoadBalancerID *string `json:"-" validate:"required,ne="`
 
 	// The pool identifier.
-	PoolID *string `validate:"required,ne="`
+	PoolID *string `json:"-" validate:"required,ne="`
 
 	// The member prototype objects for this pool.
-	Members []LoadBalancerPoolMemberPrototype `validate:"required"`
+	Members []LoadBalancerPoolMemberPrototype `json:"members" validate:"required"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -42853,21 +43797,21 @@ func (*VpcV1) NewReplaceLoadBalancerPoolMembersOptions(loadBalancerID string, po
 }
 
 // SetLoadBalancerID : Allow user to set LoadBalancerID
-func (options *ReplaceLoadBalancerPoolMembersOptions) SetLoadBalancerID(loadBalancerID string) *ReplaceLoadBalancerPoolMembersOptions {
-	options.LoadBalancerID = core.StringPtr(loadBalancerID)
-	return options
+func (_options *ReplaceLoadBalancerPoolMembersOptions) SetLoadBalancerID(loadBalancerID string) *ReplaceLoadBalancerPoolMembersOptions {
+	_options.LoadBalancerID = core.StringPtr(loadBalancerID)
+	return _options
 }
 
 // SetPoolID : Allow user to set PoolID
-func (options *ReplaceLoadBalancerPoolMembersOptions) SetPoolID(poolID string) *ReplaceLoadBalancerPoolMembersOptions {
-	options.PoolID = core.StringPtr(poolID)
-	return options
+func (_options *ReplaceLoadBalancerPoolMembersOptions) SetPoolID(poolID string) *ReplaceLoadBalancerPoolMembersOptions {
+	_options.PoolID = core.StringPtr(poolID)
+	return _options
 }
 
 // SetMembers : Allow user to set Members
-func (options *ReplaceLoadBalancerPoolMembersOptions) SetMembers(members []LoadBalancerPoolMemberPrototype) *ReplaceLoadBalancerPoolMembersOptions {
-	options.Members = members
-	return options
+func (_options *ReplaceLoadBalancerPoolMembersOptions) SetMembers(members []LoadBalancerPoolMemberPrototype) *ReplaceLoadBalancerPoolMembersOptions {
+	_options.Members = members
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -42879,10 +43823,10 @@ func (options *ReplaceLoadBalancerPoolMembersOptions) SetHeaders(param map[strin
 // ReplaceSubnetNetworkACLOptions : The ReplaceSubnetNetworkACL options.
 type ReplaceSubnetNetworkACLOptions struct {
 	// The subnet identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// The network ACL identity.
-	NetworkACLIdentity NetworkACLIdentityIntf `validate:"required"`
+	NetworkACLIdentity NetworkACLIdentityIntf `json:"NetworkACLIdentity" validate:"required"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -42897,15 +43841,15 @@ func (*VpcV1) NewReplaceSubnetNetworkACLOptions(id string, networkACLIdentity Ne
 }
 
 // SetID : Allow user to set ID
-func (options *ReplaceSubnetNetworkACLOptions) SetID(id string) *ReplaceSubnetNetworkACLOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *ReplaceSubnetNetworkACLOptions) SetID(id string) *ReplaceSubnetNetworkACLOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetNetworkACLIdentity : Allow user to set NetworkACLIdentity
-func (options *ReplaceSubnetNetworkACLOptions) SetNetworkACLIdentity(networkACLIdentity NetworkACLIdentityIntf) *ReplaceSubnetNetworkACLOptions {
-	options.NetworkACLIdentity = networkACLIdentity
-	return options
+func (_options *ReplaceSubnetNetworkACLOptions) SetNetworkACLIdentity(networkACLIdentity NetworkACLIdentityIntf) *ReplaceSubnetNetworkACLOptions {
+	_options.NetworkACLIdentity = networkACLIdentity
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -42917,10 +43861,10 @@ func (options *ReplaceSubnetNetworkACLOptions) SetHeaders(param map[string]strin
 // ReplaceSubnetRoutingTableOptions : The ReplaceSubnetRoutingTable options.
 type ReplaceSubnetRoutingTableOptions struct {
 	// The subnet identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// The routing table identity.
-	RoutingTableIdentity RoutingTableIdentityIntf `validate:"required"`
+	RoutingTableIdentity RoutingTableIdentityIntf `json:"RoutingTableIdentity" validate:"required"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -42935,15 +43879,15 @@ func (*VpcV1) NewReplaceSubnetRoutingTableOptions(id string, routingTableIdentit
 }
 
 // SetID : Allow user to set ID
-func (options *ReplaceSubnetRoutingTableOptions) SetID(id string) *ReplaceSubnetRoutingTableOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *ReplaceSubnetRoutingTableOptions) SetID(id string) *ReplaceSubnetRoutingTableOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetRoutingTableIdentity : Allow user to set RoutingTableIdentity
-func (options *ReplaceSubnetRoutingTableOptions) SetRoutingTableIdentity(routingTableIdentity RoutingTableIdentityIntf) *ReplaceSubnetRoutingTableOptions {
-	options.RoutingTableIdentity = routingTableIdentity
-	return options
+func (_options *ReplaceSubnetRoutingTableOptions) SetRoutingTableIdentity(routingTableIdentity RoutingTableIdentityIntf) *ReplaceSubnetRoutingTableOptions {
+	_options.RoutingTableIdentity = routingTableIdentity
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -42954,13 +43898,17 @@ func (options *ReplaceSubnetRoutingTableOptions) SetHeaders(param map[string]str
 
 // ReservedIP : ReservedIP struct
 type ReservedIP struct {
-	// The IP address. This property may add support for IPv6 addresses in the future. When processing a value in this
-	// property, verify that the address is in an expected format. If it is not, log an error. Optionally halt processing
-	// and surface the error, or bypass the resource on which the unexpected IP address format was encountered.
+	// The IP address.
+	//
+	// If the address has not yet been selected, the value will be `0.0.0.0`.
+	//
+	// This property may add support for IPv6 addresses in the future. When processing a value in this property, verify
+	// that the address is in an expected format. If it is not, log an error. Optionally halt processing and surface the
+	// error, or bypass the resource on which the unexpected IP address format was encountered.
 	Address *string `json:"address" validate:"required"`
 
-	// If set to `true`, this reserved IP will be automatically deleted when the target is deleted or when the reserved IP
-	// is unbound.
+	// Indicates whether this reserved IP member will be automatically deleted when either
+	// `target` is deleted, or the reserved IP is unbound.
 	AutoDelete *bool `json:"auto_delete" validate:"required"`
 
 	// The date and time that the reserved IP was created.
@@ -43087,6 +44035,18 @@ func UnmarshalReservedIPCollection(m map[string]json.RawMessage, result interfac
 	return
 }
 
+// Retrieve the value to be passed to a request to access the next page of results
+func (resp *ReservedIPCollection) GetNextStart() (*string, error) {
+	if core.IsNil(resp.Next) {
+		return nil, nil
+	}
+	start, err := core.GetQueryParam(resp.Next.Href, "start")
+	if err != nil || start == nil {
+		return nil, err
+	}
+	return start, nil
+}
+
 // ReservedIPCollectionEndpointGatewayContext : ReservedIPCollectionEndpointGatewayContext struct
 type ReservedIPCollectionEndpointGatewayContext struct {
 	// A link to the first page of resources.
@@ -43131,6 +44091,18 @@ func UnmarshalReservedIPCollectionEndpointGatewayContext(m map[string]json.RawMe
 	}
 	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
 	return
+}
+
+// Retrieve the value to be passed to a request to access the next page of results
+func (resp *ReservedIPCollectionEndpointGatewayContext) GetNextStart() (*string, error) {
+	if core.IsNil(resp.Next) {
+		return nil, nil
+	}
+	start, err := core.GetQueryParam(resp.Next.Href, "start")
+	if err != nil || start == nil {
+		return nil, err
+	}
+	return start, nil
 }
 
 // ReservedIPCollectionEndpointGatewayContextFirst : A link to the first page of resources.
@@ -43203,8 +44175,8 @@ func UnmarshalReservedIPCollectionNext(m map[string]json.RawMessage, result inte
 
 // ReservedIPPatch : ReservedIPPatch struct
 type ReservedIPPatch struct {
-	// If set to `true`, this reserved IP will be automatically deleted when the target is deleted or when the reserved IP
-	// is unbound. The value cannot be set to `true` if the reserved IP is unbound.
+	// Indicates whether this reserved IP member will be automatically deleted when either
+	// `target` is deleted, or the reserved IP is unbound. Must be `false` if the reserved IP is unbound.
 	AutoDelete *bool `json:"auto_delete,omitempty"`
 
 	// The user-defined name for this reserved IP. Names must be unique within the subnet the reserved IP resides in. Names
@@ -43228,20 +44200,24 @@ func UnmarshalReservedIPPatch(m map[string]json.RawMessage, result interface{}) 
 }
 
 // AsPatch returns a generic map representation of the ReservedIPPatch
-func (reservedIPPatch *ReservedIPPatch) AsPatch() (patch map[string]interface{}, err error) {
+func (reservedIPPatch *ReservedIPPatch) AsPatch() (_patch map[string]interface{}, err error) {
 	var jsonData []byte
 	jsonData, err = json.Marshal(reservedIPPatch)
 	if err == nil {
-		err = json.Unmarshal(jsonData, &patch)
+		err = json.Unmarshal(jsonData, &_patch)
 	}
 	return
 }
 
 // ReservedIPReference : ReservedIPReference struct
 type ReservedIPReference struct {
-	// The IP address. This property may add support for IPv6 addresses in the future. When processing a value in this
-	// property, verify that the address is in an expected format. If it is not, log an error. Optionally halt processing
-	// and surface the error, or bypass the resource on which the unexpected IP address format was encountered.
+	// The IP address.
+	//
+	// If the address has not yet been selected, the value will be `0.0.0.0`.
+	//
+	// This property may add support for IPv6 addresses in the future. When processing a value in this property, verify
+	// that the address is in an expected format. If it is not, log an error. Optionally halt processing and surface the
+	// error, or bypass the resource on which the unexpected IP address format was encountered.
 	Address *string `json:"address" validate:"required"`
 
 	// If present, this property indicates the referenced resource has been deleted and provides
@@ -43637,6 +44613,18 @@ func UnmarshalRouteCollection(m map[string]json.RawMessage, result interface{}) 
 	return
 }
 
+// Retrieve the value to be passed to a request to access the next page of results
+func (resp *RouteCollection) GetNextStart() (*string, error) {
+	if core.IsNil(resp.Next) {
+		return nil, nil
+	}
+	start, err := core.GetQueryParam(resp.Next.Href, "start")
+	if err != nil || start == nil {
+		return nil, err
+	}
+	return start, nil
+}
+
 // RouteCollectionFirst : A link to the first page of resources.
 type RouteCollectionFirst struct {
 	// The URL for a page of resources.
@@ -43676,9 +44664,11 @@ func UnmarshalRouteCollectionNext(m map[string]json.RawMessage, result interface
 // - RouteNextHopIP
 // - RouteNextHopVPNGatewayConnectionReference
 type RouteNextHop struct {
-	// The IP address. This property may add support for IPv6 addresses in the future. When processing a value in this
-	// property, verify that the address is in an expected format. If it is not, log an error. Optionally halt processing
-	// and surface the error, or bypass the resource on which the unexpected IP address format was encountered.
+	// The IP address.
+	//
+	// This property may add support for IPv6 addresses in the future. When processing a value in this property, verify
+	// that the address is in an expected format. If it is not, log an error. Optionally halt processing and surface the
+	// error, or bypass the resource on which the unexpected IP address format was encountered.
 	Address *string `json:"address,omitempty"`
 
 	// If present, this property indicates the referenced resource has been deleted and provides
@@ -43748,9 +44738,11 @@ func UnmarshalRouteNextHop(m map[string]json.RawMessage, result interface{}) (er
 // - RouteNextHopPrototypeRouteNextHopIP
 // - RouteNextHopPrototypeVPNGatewayConnectionIdentity
 type RouteNextHopPrototype struct {
-	// The IP address. This property may add support for IPv6 addresses in the future. When processing a value in this
-	// property, verify that the address is in an expected format. If it is not, log an error. Optionally halt processing
-	// and surface the error, or bypass the resource on which the unexpected IP address format was encountered.
+	// The IP address.
+	//
+	// This property may add support for IPv6 addresses in the future. When processing a value in this property, verify
+	// that the address is in an expected format. If it is not, log an error. Optionally halt processing and surface the
+	// error, or bypass the resource on which the unexpected IP address format was encountered.
 	Address *string `json:"address,omitempty"`
 
 	// The unique identifier for this VPN gateway connection.
@@ -43805,11 +44797,11 @@ func UnmarshalRoutePatch(m map[string]json.RawMessage, result interface{}) (err 
 }
 
 // AsPatch returns a generic map representation of the RoutePatch
-func (routePatch *RoutePatch) AsPatch() (patch map[string]interface{}, err error) {
+func (routePatch *RoutePatch) AsPatch() (_patch map[string]interface{}, err error) {
 	var jsonData []byte
 	jsonData, err = json.Marshal(routePatch)
 	if err == nil {
-		err = json.Unmarshal(jsonData, &patch)
+		err = json.Unmarshal(jsonData, &_patch)
 	}
 	return
 }
@@ -43857,12 +44849,12 @@ const (
 )
 
 // NewRoutePrototype : Instantiate RoutePrototype (Generic Model Constructor)
-func (*VpcV1) NewRoutePrototype(destination string, zone ZoneIdentityIntf) (model *RoutePrototype, err error) {
-	model = &RoutePrototype{
+func (*VpcV1) NewRoutePrototype(destination string, zone ZoneIdentityIntf) (_model *RoutePrototype, err error) {
+	_model = &RoutePrototype{
 		Destination: core.StringPtr(destination),
 		Zone:        zone,
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -44126,6 +45118,18 @@ func UnmarshalRoutingTableCollection(m map[string]json.RawMessage, result interf
 	return
 }
 
+// Retrieve the value to be passed to a request to access the next page of results
+func (resp *RoutingTableCollection) GetNextStart() (*string, error) {
+	if core.IsNil(resp.Next) {
+		return nil, nil
+	}
+	start, err := core.GetQueryParam(resp.Next.Href, "start")
+	if err != nil || start == nil {
+		return nil, err
+	}
+	return start, nil
+}
+
 // RoutingTableCollectionFirst : A link to the first page of resources.
 type RoutingTableCollectionFirst struct {
 	// The URL for a page of resources.
@@ -44262,11 +45266,11 @@ func UnmarshalRoutingTablePatch(m map[string]json.RawMessage, result interface{}
 }
 
 // AsPatch returns a generic map representation of the RoutingTablePatch
-func (routingTablePatch *RoutingTablePatch) AsPatch() (patch map[string]interface{}, err error) {
+func (routingTablePatch *RoutingTablePatch) AsPatch() (_patch map[string]interface{}, err error) {
 	var jsonData []byte
 	jsonData, err = json.Marshal(routingTablePatch)
 	if err == nil {
-		err = json.Unmarshal(jsonData, &patch)
+		err = json.Unmarshal(jsonData, &_patch)
 	}
 	return
 }
@@ -44467,6 +45471,18 @@ func UnmarshalSecurityGroupCollection(m map[string]json.RawMessage, result inter
 	return
 }
 
+// Retrieve the value to be passed to a request to access the next page of results
+func (resp *SecurityGroupCollection) GetNextStart() (*string, error) {
+	if core.IsNil(resp.Next) {
+		return nil, nil
+	}
+	start, err := core.GetQueryParam(resp.Next.Href, "start")
+	if err != nil || start == nil {
+		return nil, err
+	}
+	return start, nil
+}
+
 // SecurityGroupCollectionFirst : A link to the first page of resources.
 type SecurityGroupCollectionFirst struct {
 	// The URL for a page of resources.
@@ -44562,11 +45578,11 @@ func UnmarshalSecurityGroupPatch(m map[string]json.RawMessage, result interface{
 }
 
 // AsPatch returns a generic map representation of the SecurityGroupPatch
-func (securityGroupPatch *SecurityGroupPatch) AsPatch() (patch map[string]interface{}, err error) {
+func (securityGroupPatch *SecurityGroupPatch) AsPatch() (_patch map[string]interface{}, err error) {
 	var jsonData []byte
 	jsonData, err = json.Marshal(securityGroupPatch)
 	if err == nil {
-		err = json.Unmarshal(jsonData, &patch)
+		err = json.Unmarshal(jsonData, &_patch)
 	}
 	return
 }
@@ -44653,10 +45669,10 @@ type SecurityGroupRule struct {
 	// The IP version to enforce. The format of `remote.address` or `remote.cidr_block` must match this property, if they
 	// are used. Alternatively, if `remote` references a security group, then this rule only applies to IP addresses
 	// (network interfaces) in that group matching this IP version.
-	IPVersion *string `json:"ip_version,omitempty"`
+	IPVersion *string `json:"ip_version" validate:"required"`
 
 	// The protocol to enforce.
-	Protocol *string `json:"protocol,omitempty"`
+	Protocol *string `json:"protocol" validate:"required"`
 
 	// The IP addresses or security groups from which this rule allows traffic (or to which,
 	// for outbound rules). Can be specified as an IP address, a CIDR block, or a security
@@ -44826,11 +45842,11 @@ func UnmarshalSecurityGroupRulePatch(m map[string]json.RawMessage, result interf
 }
 
 // AsPatch returns a generic map representation of the SecurityGroupRulePatch
-func (securityGroupRulePatch *SecurityGroupRulePatch) AsPatch() (patch map[string]interface{}, err error) {
+func (securityGroupRulePatch *SecurityGroupRulePatch) AsPatch() (_patch map[string]interface{}, err error) {
 	var jsonData []byte
 	jsonData, err = json.Marshal(securityGroupRulePatch)
 	if err == nil {
-		err = json.Unmarshal(jsonData, &patch)
+		err = json.Unmarshal(jsonData, &_patch)
 	}
 	return
 }
@@ -44850,7 +45866,7 @@ type SecurityGroupRulePrototype struct {
 	IPVersion *string `json:"ip_version,omitempty"`
 
 	// The protocol to enforce.
-	Protocol *string `json:"protocol,omitempty"`
+	Protocol *string `json:"protocol" validate:"required"`
 
 	// The IP addresses or security groups from which this rule will allow traffic (or to
 	// which, for outbound rules). Can be specified as an IP address, a CIDR block, or a
@@ -44929,9 +45945,11 @@ func UnmarshalSecurityGroupRulePrototype(m map[string]json.RawMessage, result in
 // - SecurityGroupRuleRemoteCIDR
 // - SecurityGroupRuleRemoteSecurityGroupReference
 type SecurityGroupRuleRemote struct {
-	// The IP address. This property may add support for IPv6 addresses in the future. When processing a value in this
-	// property, verify that the address is in an expected format. If it is not, log an error. Optionally halt processing
-	// and surface the error, or bypass the resource on which the unexpected IP address format was encountered.
+	// The IP address.
+	//
+	// This property may add support for IPv6 addresses in the future. When processing a value in this property, verify
+	// that the address is in an expected format. If it is not, log an error. Optionally halt processing and surface the
+	// error, or bypass the resource on which the unexpected IP address format was encountered.
 	Address *string `json:"address,omitempty"`
 
 	// The CIDR block. This property may add support for IPv6 CIDR blocks in the future. When processing a value in this
@@ -45007,9 +46025,11 @@ func UnmarshalSecurityGroupRuleRemote(m map[string]json.RawMessage, result inter
 // - SecurityGroupRuleRemotePatchCIDR
 // - SecurityGroupRuleRemotePatchSecurityGroupIdentity
 type SecurityGroupRuleRemotePatch struct {
-	// The IP address. This property may add support for IPv6 addresses in the future. When processing a value in this
-	// property, verify that the address is in an expected format. If it is not, log an error. Optionally halt processing
-	// and surface the error, or bypass the resource on which the unexpected IP address format was encountered.
+	// The IP address.
+	//
+	// This property may add support for IPv6 addresses in the future. When processing a value in this property, verify
+	// that the address is in an expected format. If it is not, log an error. Optionally halt processing and surface the
+	// error, or bypass the resource on which the unexpected IP address format was encountered.
 	Address *string `json:"address,omitempty"`
 
 	// The CIDR block. This property may add support for IPv6 CIDR blocks in the future. When processing a value in this
@@ -45070,9 +46090,11 @@ func UnmarshalSecurityGroupRuleRemotePatch(m map[string]json.RawMessage, result 
 // - SecurityGroupRuleRemotePrototypeCIDR
 // - SecurityGroupRuleRemotePrototypeSecurityGroupIdentity
 type SecurityGroupRuleRemotePrototype struct {
-	// The IP address. This property may add support for IPv6 addresses in the future. When processing a value in this
-	// property, verify that the address is in an expected format. If it is not, log an error. Optionally halt processing
-	// and surface the error, or bypass the resource on which the unexpected IP address format was encountered.
+	// The IP address.
+	//
+	// This property may add support for IPv6 addresses in the future. When processing a value in this property, verify
+	// that the address is in an expected format. If it is not, log an error. Optionally halt processing and surface the
+	// error, or bypass the resource on which the unexpected IP address format was encountered.
 	Address *string `json:"address,omitempty"`
 
 	// The CIDR block. This property may add support for IPv6 CIDR blocks in the future. When processing a value in this
@@ -45169,6 +46191,18 @@ func UnmarshalSecurityGroupTargetCollection(m map[string]json.RawMessage, result
 	}
 	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
 	return
+}
+
+// Retrieve the value to be passed to a request to access the next page of results
+func (resp *SecurityGroupTargetCollection) GetNextStart() (*string, error) {
+	if core.IsNil(resp.Next) {
+		return nil, nil
+	}
+	start, err := core.GetQueryParam(resp.Next.Href, "start")
+	if err != nil || start == nil {
+		return nil, err
+	}
+	return start, nil
 }
 
 // SecurityGroupTargetCollectionFirst : A link to the first page of resources.
@@ -45280,10 +46314,10 @@ func UnmarshalSecurityGroupTargetReference(m map[string]json.RawMessage, result 
 // SetSubnetPublicGatewayOptions : The SetSubnetPublicGateway options.
 type SetSubnetPublicGatewayOptions struct {
 	// The subnet identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// The public gateway identity.
-	PublicGatewayIdentity PublicGatewayIdentityIntf `validate:"required"`
+	PublicGatewayIdentity PublicGatewayIdentityIntf `json:"PublicGatewayIdentity" validate:"required"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -45298,15 +46332,15 @@ func (*VpcV1) NewSetSubnetPublicGatewayOptions(id string, publicGatewayIdentity 
 }
 
 // SetID : Allow user to set ID
-func (options *SetSubnetPublicGatewayOptions) SetID(id string) *SetSubnetPublicGatewayOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *SetSubnetPublicGatewayOptions) SetID(id string) *SetSubnetPublicGatewayOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetPublicGatewayIdentity : Allow user to set PublicGatewayIdentity
-func (options *SetSubnetPublicGatewayOptions) SetPublicGatewayIdentity(publicGatewayIdentity PublicGatewayIdentityIntf) *SetSubnetPublicGatewayOptions {
-	options.PublicGatewayIdentity = publicGatewayIdentity
-	return options
+func (_options *SetSubnetPublicGatewayOptions) SetPublicGatewayIdentity(publicGatewayIdentity PublicGatewayIdentityIntf) *SetSubnetPublicGatewayOptions {
+	_options.PublicGatewayIdentity = publicGatewayIdentity
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -45326,7 +46360,7 @@ type Snapshot struct {
 	// The CRN for this snapshot.
 	CRN *string `json:"crn" validate:"required"`
 
-	// Indicates whether this snapshot can be deleted. This value will not be `true` if any other snapshots depend on it.
+	// Indicates whether this snapshot can be deleted.
 	Deletable *bool `json:"deletable" validate:"required"`
 
 	// The type of encryption used on the source volume.
@@ -45521,6 +46555,18 @@ func UnmarshalSnapshotCollection(m map[string]json.RawMessage, result interface{
 	return
 }
 
+// Retrieve the value to be passed to a request to access the next page of results
+func (resp *SnapshotCollection) GetNextStart() (*string, error) {
+	if core.IsNil(resp.Next) {
+		return nil, nil
+	}
+	start, err := core.GetQueryParam(resp.Next.Href, "start")
+	if err != nil || start == nil {
+		return nil, err
+	}
+	return start, nil
+}
+
 // SnapshotCollectionFirst : A link to the first page of resources.
 type SnapshotCollectionFirst struct {
 	// The URL for a page of resources.
@@ -45616,11 +46662,11 @@ func UnmarshalSnapshotPatch(m map[string]json.RawMessage, result interface{}) (e
 }
 
 // AsPatch returns a generic map representation of the SnapshotPatch
-func (snapshotPatch *SnapshotPatch) AsPatch() (patch map[string]interface{}, err error) {
+func (snapshotPatch *SnapshotPatch) AsPatch() (_patch map[string]interface{}, err error) {
 	var jsonData []byte
 	jsonData, err = json.Marshal(snapshotPatch)
 	if err == nil {
-		err = json.Unmarshal(jsonData, &patch)
+		err = json.Unmarshal(jsonData, &_patch)
 	}
 	return
 }
@@ -45889,6 +46935,18 @@ func UnmarshalSubnetCollection(m map[string]json.RawMessage, result interface{})
 	return
 }
 
+// Retrieve the value to be passed to a request to access the next page of results
+func (resp *SubnetCollection) GetNextStart() (*string, error) {
+	if core.IsNil(resp.Next) {
+		return nil, nil
+	}
+	start, err := core.GetQueryParam(resp.Next.Href, "start")
+	if err != nil || start == nil {
+		return nil, err
+	}
+	return start, nil
+}
+
 // SubnetCollectionFirst : A link to the first page of resources.
 type SubnetCollectionFirst struct {
 	// The URL for a page of resources.
@@ -46007,11 +47065,11 @@ func UnmarshalSubnetPatch(m map[string]json.RawMessage, result interface{}) (err
 }
 
 // AsPatch returns a generic map representation of the SubnetPatch
-func (subnetPatch *SubnetPatch) AsPatch() (patch map[string]interface{}, err error) {
+func (subnetPatch *SubnetPatch) AsPatch() (_patch map[string]interface{}, err error) {
 	var jsonData []byte
 	jsonData, err = json.Marshal(subnetPatch)
 	if err == nil {
-		err = json.Unmarshal(jsonData, &patch)
+		err = json.Unmarshal(jsonData, &_patch)
 	}
 	return
 }
@@ -46188,7 +47246,7 @@ func UnmarshalSubnetReferenceDeleted(m map[string]json.RawMessage, result interf
 // UnsetSubnetPublicGatewayOptions : The UnsetSubnetPublicGateway options.
 type UnsetSubnetPublicGatewayOptions struct {
 	// The subnet identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -46202,9 +47260,9 @@ func (*VpcV1) NewUnsetSubnetPublicGatewayOptions(id string) *UnsetSubnetPublicGa
 }
 
 // SetID : Allow user to set ID
-func (options *UnsetSubnetPublicGatewayOptions) SetID(id string) *UnsetSubnetPublicGatewayOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *UnsetSubnetPublicGatewayOptions) SetID(id string) *UnsetSubnetPublicGatewayOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -46216,13 +47274,13 @@ func (options *UnsetSubnetPublicGatewayOptions) SetHeaders(param map[string]stri
 // UpdateDedicatedHostDiskOptions : The UpdateDedicatedHostDisk options.
 type UpdateDedicatedHostDiskOptions struct {
 	// The dedicated host identifier.
-	DedicatedHostID *string `validate:"required,ne="`
+	DedicatedHostID *string `json:"-" validate:"required,ne="`
 
 	// The dedicated host disk identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// The dedicated host disk patch.
-	DedicatedHostDiskPatch map[string]interface{} `validate:"required"`
+	DedicatedHostDiskPatch map[string]interface{} `json:"DedicatedHostDisk_patch" validate:"required"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -46238,21 +47296,21 @@ func (*VpcV1) NewUpdateDedicatedHostDiskOptions(dedicatedHostID string, id strin
 }
 
 // SetDedicatedHostID : Allow user to set DedicatedHostID
-func (options *UpdateDedicatedHostDiskOptions) SetDedicatedHostID(dedicatedHostID string) *UpdateDedicatedHostDiskOptions {
-	options.DedicatedHostID = core.StringPtr(dedicatedHostID)
-	return options
+func (_options *UpdateDedicatedHostDiskOptions) SetDedicatedHostID(dedicatedHostID string) *UpdateDedicatedHostDiskOptions {
+	_options.DedicatedHostID = core.StringPtr(dedicatedHostID)
+	return _options
 }
 
 // SetID : Allow user to set ID
-func (options *UpdateDedicatedHostDiskOptions) SetID(id string) *UpdateDedicatedHostDiskOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *UpdateDedicatedHostDiskOptions) SetID(id string) *UpdateDedicatedHostDiskOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetDedicatedHostDiskPatch : Allow user to set DedicatedHostDiskPatch
-func (options *UpdateDedicatedHostDiskOptions) SetDedicatedHostDiskPatch(dedicatedHostDiskPatch map[string]interface{}) *UpdateDedicatedHostDiskOptions {
-	options.DedicatedHostDiskPatch = dedicatedHostDiskPatch
-	return options
+func (_options *UpdateDedicatedHostDiskOptions) SetDedicatedHostDiskPatch(dedicatedHostDiskPatch map[string]interface{}) *UpdateDedicatedHostDiskOptions {
+	_options.DedicatedHostDiskPatch = dedicatedHostDiskPatch
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -46264,10 +47322,10 @@ func (options *UpdateDedicatedHostDiskOptions) SetHeaders(param map[string]strin
 // UpdateDedicatedHostGroupOptions : The UpdateDedicatedHostGroup options.
 type UpdateDedicatedHostGroupOptions struct {
 	// The dedicated host group identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// The dedicated host group patch.
-	DedicatedHostGroupPatch map[string]interface{} `validate:"required"`
+	DedicatedHostGroupPatch map[string]interface{} `json:"DedicatedHostGroup_patch" validate:"required"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -46282,15 +47340,15 @@ func (*VpcV1) NewUpdateDedicatedHostGroupOptions(id string, dedicatedHostGroupPa
 }
 
 // SetID : Allow user to set ID
-func (options *UpdateDedicatedHostGroupOptions) SetID(id string) *UpdateDedicatedHostGroupOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *UpdateDedicatedHostGroupOptions) SetID(id string) *UpdateDedicatedHostGroupOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetDedicatedHostGroupPatch : Allow user to set DedicatedHostGroupPatch
-func (options *UpdateDedicatedHostGroupOptions) SetDedicatedHostGroupPatch(dedicatedHostGroupPatch map[string]interface{}) *UpdateDedicatedHostGroupOptions {
-	options.DedicatedHostGroupPatch = dedicatedHostGroupPatch
-	return options
+func (_options *UpdateDedicatedHostGroupOptions) SetDedicatedHostGroupPatch(dedicatedHostGroupPatch map[string]interface{}) *UpdateDedicatedHostGroupOptions {
+	_options.DedicatedHostGroupPatch = dedicatedHostGroupPatch
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -46302,10 +47360,10 @@ func (options *UpdateDedicatedHostGroupOptions) SetHeaders(param map[string]stri
 // UpdateDedicatedHostOptions : The UpdateDedicatedHost options.
 type UpdateDedicatedHostOptions struct {
 	// The dedicated host identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// The dedicated host patch.
-	DedicatedHostPatch map[string]interface{} `validate:"required"`
+	DedicatedHostPatch map[string]interface{} `json:"DedicatedHost_patch" validate:"required"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -46320,15 +47378,15 @@ func (*VpcV1) NewUpdateDedicatedHostOptions(id string, dedicatedHostPatch map[st
 }
 
 // SetID : Allow user to set ID
-func (options *UpdateDedicatedHostOptions) SetID(id string) *UpdateDedicatedHostOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *UpdateDedicatedHostOptions) SetID(id string) *UpdateDedicatedHostOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetDedicatedHostPatch : Allow user to set DedicatedHostPatch
-func (options *UpdateDedicatedHostOptions) SetDedicatedHostPatch(dedicatedHostPatch map[string]interface{}) *UpdateDedicatedHostOptions {
-	options.DedicatedHostPatch = dedicatedHostPatch
-	return options
+func (_options *UpdateDedicatedHostOptions) SetDedicatedHostPatch(dedicatedHostPatch map[string]interface{}) *UpdateDedicatedHostOptions {
+	_options.DedicatedHostPatch = dedicatedHostPatch
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -46340,10 +47398,10 @@ func (options *UpdateDedicatedHostOptions) SetHeaders(param map[string]string) *
 // UpdateEndpointGatewayOptions : The UpdateEndpointGateway options.
 type UpdateEndpointGatewayOptions struct {
 	// The endpoint gateway identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// The endpoint gateway patch.
-	EndpointGatewayPatch map[string]interface{} `validate:"required"`
+	EndpointGatewayPatch map[string]interface{} `json:"EndpointGateway_patch" validate:"required"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -46358,15 +47416,15 @@ func (*VpcV1) NewUpdateEndpointGatewayOptions(id string, endpointGatewayPatch ma
 }
 
 // SetID : Allow user to set ID
-func (options *UpdateEndpointGatewayOptions) SetID(id string) *UpdateEndpointGatewayOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *UpdateEndpointGatewayOptions) SetID(id string) *UpdateEndpointGatewayOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetEndpointGatewayPatch : Allow user to set EndpointGatewayPatch
-func (options *UpdateEndpointGatewayOptions) SetEndpointGatewayPatch(endpointGatewayPatch map[string]interface{}) *UpdateEndpointGatewayOptions {
-	options.EndpointGatewayPatch = endpointGatewayPatch
-	return options
+func (_options *UpdateEndpointGatewayOptions) SetEndpointGatewayPatch(endpointGatewayPatch map[string]interface{}) *UpdateEndpointGatewayOptions {
+	_options.EndpointGatewayPatch = endpointGatewayPatch
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -46378,10 +47436,10 @@ func (options *UpdateEndpointGatewayOptions) SetHeaders(param map[string]string)
 // UpdateFloatingIPOptions : The UpdateFloatingIP options.
 type UpdateFloatingIPOptions struct {
 	// The floating IP identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// The floating IP patch.
-	FloatingIPPatch map[string]interface{} `validate:"required"`
+	FloatingIPPatch map[string]interface{} `json:"FloatingIP_patch" validate:"required"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -46396,15 +47454,15 @@ func (*VpcV1) NewUpdateFloatingIPOptions(id string, floatingIPPatch map[string]i
 }
 
 // SetID : Allow user to set ID
-func (options *UpdateFloatingIPOptions) SetID(id string) *UpdateFloatingIPOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *UpdateFloatingIPOptions) SetID(id string) *UpdateFloatingIPOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetFloatingIPPatch : Allow user to set FloatingIPPatch
-func (options *UpdateFloatingIPOptions) SetFloatingIPPatch(floatingIPPatch map[string]interface{}) *UpdateFloatingIPOptions {
-	options.FloatingIPPatch = floatingIPPatch
-	return options
+func (_options *UpdateFloatingIPOptions) SetFloatingIPPatch(floatingIPPatch map[string]interface{}) *UpdateFloatingIPOptions {
+	_options.FloatingIPPatch = floatingIPPatch
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -46416,10 +47474,10 @@ func (options *UpdateFloatingIPOptions) SetHeaders(param map[string]string) *Upd
 // UpdateFlowLogCollectorOptions : The UpdateFlowLogCollector options.
 type UpdateFlowLogCollectorOptions struct {
 	// The flow log collector identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// The flow log collector patch.
-	FlowLogCollectorPatch map[string]interface{} `validate:"required"`
+	FlowLogCollectorPatch map[string]interface{} `json:"FlowLogCollector_patch" validate:"required"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -46434,15 +47492,15 @@ func (*VpcV1) NewUpdateFlowLogCollectorOptions(id string, flowLogCollectorPatch 
 }
 
 // SetID : Allow user to set ID
-func (options *UpdateFlowLogCollectorOptions) SetID(id string) *UpdateFlowLogCollectorOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *UpdateFlowLogCollectorOptions) SetID(id string) *UpdateFlowLogCollectorOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetFlowLogCollectorPatch : Allow user to set FlowLogCollectorPatch
-func (options *UpdateFlowLogCollectorOptions) SetFlowLogCollectorPatch(flowLogCollectorPatch map[string]interface{}) *UpdateFlowLogCollectorOptions {
-	options.FlowLogCollectorPatch = flowLogCollectorPatch
-	return options
+func (_options *UpdateFlowLogCollectorOptions) SetFlowLogCollectorPatch(flowLogCollectorPatch map[string]interface{}) *UpdateFlowLogCollectorOptions {
+	_options.FlowLogCollectorPatch = flowLogCollectorPatch
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -46454,10 +47512,10 @@ func (options *UpdateFlowLogCollectorOptions) SetHeaders(param map[string]string
 // UpdateIkePolicyOptions : The UpdateIkePolicy options.
 type UpdateIkePolicyOptions struct {
 	// The IKE policy identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// The IKE policy patch.
-	IkePolicyPatch map[string]interface{} `validate:"required"`
+	IkePolicyPatch map[string]interface{} `json:"IKEPolicy_patch" validate:"required"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -46472,15 +47530,15 @@ func (*VpcV1) NewUpdateIkePolicyOptions(id string, ikePolicyPatch map[string]int
 }
 
 // SetID : Allow user to set ID
-func (options *UpdateIkePolicyOptions) SetID(id string) *UpdateIkePolicyOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *UpdateIkePolicyOptions) SetID(id string) *UpdateIkePolicyOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetIkePolicyPatch : Allow user to set IkePolicyPatch
-func (options *UpdateIkePolicyOptions) SetIkePolicyPatch(ikePolicyPatch map[string]interface{}) *UpdateIkePolicyOptions {
-	options.IkePolicyPatch = ikePolicyPatch
-	return options
+func (_options *UpdateIkePolicyOptions) SetIkePolicyPatch(ikePolicyPatch map[string]interface{}) *UpdateIkePolicyOptions {
+	_options.IkePolicyPatch = ikePolicyPatch
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -46492,10 +47550,10 @@ func (options *UpdateIkePolicyOptions) SetHeaders(param map[string]string) *Upda
 // UpdateImageOptions : The UpdateImage options.
 type UpdateImageOptions struct {
 	// The image identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// The image patch.
-	ImagePatch map[string]interface{} `validate:"required"`
+	ImagePatch map[string]interface{} `json:"Image_patch" validate:"required"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -46510,15 +47568,15 @@ func (*VpcV1) NewUpdateImageOptions(id string, imagePatch map[string]interface{}
 }
 
 // SetID : Allow user to set ID
-func (options *UpdateImageOptions) SetID(id string) *UpdateImageOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *UpdateImageOptions) SetID(id string) *UpdateImageOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetImagePatch : Allow user to set ImagePatch
-func (options *UpdateImageOptions) SetImagePatch(imagePatch map[string]interface{}) *UpdateImageOptions {
-	options.ImagePatch = imagePatch
-	return options
+func (_options *UpdateImageOptions) SetImagePatch(imagePatch map[string]interface{}) *UpdateImageOptions {
+	_options.ImagePatch = imagePatch
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -46530,13 +47588,13 @@ func (options *UpdateImageOptions) SetHeaders(param map[string]string) *UpdateIm
 // UpdateInstanceDiskOptions : The UpdateInstanceDisk options.
 type UpdateInstanceDiskOptions struct {
 	// The instance identifier.
-	InstanceID *string `validate:"required,ne="`
+	InstanceID *string `json:"-" validate:"required,ne="`
 
 	// The instance disk identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// The instance disk patch.
-	InstanceDiskPatch map[string]interface{} `validate:"required"`
+	InstanceDiskPatch map[string]interface{} `json:"InstanceDisk_patch" validate:"required"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -46552,21 +47610,21 @@ func (*VpcV1) NewUpdateInstanceDiskOptions(instanceID string, id string, instanc
 }
 
 // SetInstanceID : Allow user to set InstanceID
-func (options *UpdateInstanceDiskOptions) SetInstanceID(instanceID string) *UpdateInstanceDiskOptions {
-	options.InstanceID = core.StringPtr(instanceID)
-	return options
+func (_options *UpdateInstanceDiskOptions) SetInstanceID(instanceID string) *UpdateInstanceDiskOptions {
+	_options.InstanceID = core.StringPtr(instanceID)
+	return _options
 }
 
 // SetID : Allow user to set ID
-func (options *UpdateInstanceDiskOptions) SetID(id string) *UpdateInstanceDiskOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *UpdateInstanceDiskOptions) SetID(id string) *UpdateInstanceDiskOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetInstanceDiskPatch : Allow user to set InstanceDiskPatch
-func (options *UpdateInstanceDiskOptions) SetInstanceDiskPatch(instanceDiskPatch map[string]interface{}) *UpdateInstanceDiskOptions {
-	options.InstanceDiskPatch = instanceDiskPatch
-	return options
+func (_options *UpdateInstanceDiskOptions) SetInstanceDiskPatch(instanceDiskPatch map[string]interface{}) *UpdateInstanceDiskOptions {
+	_options.InstanceDiskPatch = instanceDiskPatch
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -46578,16 +47636,16 @@ func (options *UpdateInstanceDiskOptions) SetHeaders(param map[string]string) *U
 // UpdateInstanceGroupManagerActionOptions : The UpdateInstanceGroupManagerAction options.
 type UpdateInstanceGroupManagerActionOptions struct {
 	// The instance group identifier.
-	InstanceGroupID *string `validate:"required,ne="`
+	InstanceGroupID *string `json:"-" validate:"required,ne="`
 
 	// The instance group manager identifier.
-	InstanceGroupManagerID *string `validate:"required,ne="`
+	InstanceGroupManagerID *string `json:"-" validate:"required,ne="`
 
 	// The instance group manager action identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// The instance group manager action patch.
-	InstanceGroupManagerActionPatch map[string]interface{} `validate:"required"`
+	InstanceGroupManagerActionPatch map[string]interface{} `json:"InstanceGroupManagerAction_patch" validate:"required"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -46604,27 +47662,27 @@ func (*VpcV1) NewUpdateInstanceGroupManagerActionOptions(instanceGroupID string,
 }
 
 // SetInstanceGroupID : Allow user to set InstanceGroupID
-func (options *UpdateInstanceGroupManagerActionOptions) SetInstanceGroupID(instanceGroupID string) *UpdateInstanceGroupManagerActionOptions {
-	options.InstanceGroupID = core.StringPtr(instanceGroupID)
-	return options
+func (_options *UpdateInstanceGroupManagerActionOptions) SetInstanceGroupID(instanceGroupID string) *UpdateInstanceGroupManagerActionOptions {
+	_options.InstanceGroupID = core.StringPtr(instanceGroupID)
+	return _options
 }
 
 // SetInstanceGroupManagerID : Allow user to set InstanceGroupManagerID
-func (options *UpdateInstanceGroupManagerActionOptions) SetInstanceGroupManagerID(instanceGroupManagerID string) *UpdateInstanceGroupManagerActionOptions {
-	options.InstanceGroupManagerID = core.StringPtr(instanceGroupManagerID)
-	return options
+func (_options *UpdateInstanceGroupManagerActionOptions) SetInstanceGroupManagerID(instanceGroupManagerID string) *UpdateInstanceGroupManagerActionOptions {
+	_options.InstanceGroupManagerID = core.StringPtr(instanceGroupManagerID)
+	return _options
 }
 
 // SetID : Allow user to set ID
-func (options *UpdateInstanceGroupManagerActionOptions) SetID(id string) *UpdateInstanceGroupManagerActionOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *UpdateInstanceGroupManagerActionOptions) SetID(id string) *UpdateInstanceGroupManagerActionOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetInstanceGroupManagerActionPatch : Allow user to set InstanceGroupManagerActionPatch
-func (options *UpdateInstanceGroupManagerActionOptions) SetInstanceGroupManagerActionPatch(instanceGroupManagerActionPatch map[string]interface{}) *UpdateInstanceGroupManagerActionOptions {
-	options.InstanceGroupManagerActionPatch = instanceGroupManagerActionPatch
-	return options
+func (_options *UpdateInstanceGroupManagerActionOptions) SetInstanceGroupManagerActionPatch(instanceGroupManagerActionPatch map[string]interface{}) *UpdateInstanceGroupManagerActionOptions {
+	_options.InstanceGroupManagerActionPatch = instanceGroupManagerActionPatch
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -46636,13 +47694,13 @@ func (options *UpdateInstanceGroupManagerActionOptions) SetHeaders(param map[str
 // UpdateInstanceGroupManagerOptions : The UpdateInstanceGroupManager options.
 type UpdateInstanceGroupManagerOptions struct {
 	// The instance group identifier.
-	InstanceGroupID *string `validate:"required,ne="`
+	InstanceGroupID *string `json:"-" validate:"required,ne="`
 
 	// The instance group manager identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// The instance group manager patch.
-	InstanceGroupManagerPatch map[string]interface{} `validate:"required"`
+	InstanceGroupManagerPatch map[string]interface{} `json:"InstanceGroupManager_patch" validate:"required"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -46658,21 +47716,21 @@ func (*VpcV1) NewUpdateInstanceGroupManagerOptions(instanceGroupID string, id st
 }
 
 // SetInstanceGroupID : Allow user to set InstanceGroupID
-func (options *UpdateInstanceGroupManagerOptions) SetInstanceGroupID(instanceGroupID string) *UpdateInstanceGroupManagerOptions {
-	options.InstanceGroupID = core.StringPtr(instanceGroupID)
-	return options
+func (_options *UpdateInstanceGroupManagerOptions) SetInstanceGroupID(instanceGroupID string) *UpdateInstanceGroupManagerOptions {
+	_options.InstanceGroupID = core.StringPtr(instanceGroupID)
+	return _options
 }
 
 // SetID : Allow user to set ID
-func (options *UpdateInstanceGroupManagerOptions) SetID(id string) *UpdateInstanceGroupManagerOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *UpdateInstanceGroupManagerOptions) SetID(id string) *UpdateInstanceGroupManagerOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetInstanceGroupManagerPatch : Allow user to set InstanceGroupManagerPatch
-func (options *UpdateInstanceGroupManagerOptions) SetInstanceGroupManagerPatch(instanceGroupManagerPatch map[string]interface{}) *UpdateInstanceGroupManagerOptions {
-	options.InstanceGroupManagerPatch = instanceGroupManagerPatch
-	return options
+func (_options *UpdateInstanceGroupManagerOptions) SetInstanceGroupManagerPatch(instanceGroupManagerPatch map[string]interface{}) *UpdateInstanceGroupManagerOptions {
+	_options.InstanceGroupManagerPatch = instanceGroupManagerPatch
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -46684,16 +47742,16 @@ func (options *UpdateInstanceGroupManagerOptions) SetHeaders(param map[string]st
 // UpdateInstanceGroupManagerPolicyOptions : The UpdateInstanceGroupManagerPolicy options.
 type UpdateInstanceGroupManagerPolicyOptions struct {
 	// The instance group identifier.
-	InstanceGroupID *string `validate:"required,ne="`
+	InstanceGroupID *string `json:"-" validate:"required,ne="`
 
 	// The instance group manager identifier.
-	InstanceGroupManagerID *string `validate:"required,ne="`
+	InstanceGroupManagerID *string `json:"-" validate:"required,ne="`
 
 	// The instance group manager policy identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// The instance group manager policy patch.
-	InstanceGroupManagerPolicyPatch map[string]interface{} `validate:"required"`
+	InstanceGroupManagerPolicyPatch map[string]interface{} `json:"InstanceGroupManagerPolicy_patch" validate:"required"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -46710,27 +47768,27 @@ func (*VpcV1) NewUpdateInstanceGroupManagerPolicyOptions(instanceGroupID string,
 }
 
 // SetInstanceGroupID : Allow user to set InstanceGroupID
-func (options *UpdateInstanceGroupManagerPolicyOptions) SetInstanceGroupID(instanceGroupID string) *UpdateInstanceGroupManagerPolicyOptions {
-	options.InstanceGroupID = core.StringPtr(instanceGroupID)
-	return options
+func (_options *UpdateInstanceGroupManagerPolicyOptions) SetInstanceGroupID(instanceGroupID string) *UpdateInstanceGroupManagerPolicyOptions {
+	_options.InstanceGroupID = core.StringPtr(instanceGroupID)
+	return _options
 }
 
 // SetInstanceGroupManagerID : Allow user to set InstanceGroupManagerID
-func (options *UpdateInstanceGroupManagerPolicyOptions) SetInstanceGroupManagerID(instanceGroupManagerID string) *UpdateInstanceGroupManagerPolicyOptions {
-	options.InstanceGroupManagerID = core.StringPtr(instanceGroupManagerID)
-	return options
+func (_options *UpdateInstanceGroupManagerPolicyOptions) SetInstanceGroupManagerID(instanceGroupManagerID string) *UpdateInstanceGroupManagerPolicyOptions {
+	_options.InstanceGroupManagerID = core.StringPtr(instanceGroupManagerID)
+	return _options
 }
 
 // SetID : Allow user to set ID
-func (options *UpdateInstanceGroupManagerPolicyOptions) SetID(id string) *UpdateInstanceGroupManagerPolicyOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *UpdateInstanceGroupManagerPolicyOptions) SetID(id string) *UpdateInstanceGroupManagerPolicyOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetInstanceGroupManagerPolicyPatch : Allow user to set InstanceGroupManagerPolicyPatch
-func (options *UpdateInstanceGroupManagerPolicyOptions) SetInstanceGroupManagerPolicyPatch(instanceGroupManagerPolicyPatch map[string]interface{}) *UpdateInstanceGroupManagerPolicyOptions {
-	options.InstanceGroupManagerPolicyPatch = instanceGroupManagerPolicyPatch
-	return options
+func (_options *UpdateInstanceGroupManagerPolicyOptions) SetInstanceGroupManagerPolicyPatch(instanceGroupManagerPolicyPatch map[string]interface{}) *UpdateInstanceGroupManagerPolicyOptions {
+	_options.InstanceGroupManagerPolicyPatch = instanceGroupManagerPolicyPatch
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -46742,13 +47800,13 @@ func (options *UpdateInstanceGroupManagerPolicyOptions) SetHeaders(param map[str
 // UpdateInstanceGroupMembershipOptions : The UpdateInstanceGroupMembership options.
 type UpdateInstanceGroupMembershipOptions struct {
 	// The instance group identifier.
-	InstanceGroupID *string `validate:"required,ne="`
+	InstanceGroupID *string `json:"-" validate:"required,ne="`
 
 	// The instance group membership identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// The instance group membership patch.
-	InstanceGroupMembershipPatch map[string]interface{} `validate:"required"`
+	InstanceGroupMembershipPatch map[string]interface{} `json:"InstanceGroupMembership_patch" validate:"required"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -46764,21 +47822,21 @@ func (*VpcV1) NewUpdateInstanceGroupMembershipOptions(instanceGroupID string, id
 }
 
 // SetInstanceGroupID : Allow user to set InstanceGroupID
-func (options *UpdateInstanceGroupMembershipOptions) SetInstanceGroupID(instanceGroupID string) *UpdateInstanceGroupMembershipOptions {
-	options.InstanceGroupID = core.StringPtr(instanceGroupID)
-	return options
+func (_options *UpdateInstanceGroupMembershipOptions) SetInstanceGroupID(instanceGroupID string) *UpdateInstanceGroupMembershipOptions {
+	_options.InstanceGroupID = core.StringPtr(instanceGroupID)
+	return _options
 }
 
 // SetID : Allow user to set ID
-func (options *UpdateInstanceGroupMembershipOptions) SetID(id string) *UpdateInstanceGroupMembershipOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *UpdateInstanceGroupMembershipOptions) SetID(id string) *UpdateInstanceGroupMembershipOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetInstanceGroupMembershipPatch : Allow user to set InstanceGroupMembershipPatch
-func (options *UpdateInstanceGroupMembershipOptions) SetInstanceGroupMembershipPatch(instanceGroupMembershipPatch map[string]interface{}) *UpdateInstanceGroupMembershipOptions {
-	options.InstanceGroupMembershipPatch = instanceGroupMembershipPatch
-	return options
+func (_options *UpdateInstanceGroupMembershipOptions) SetInstanceGroupMembershipPatch(instanceGroupMembershipPatch map[string]interface{}) *UpdateInstanceGroupMembershipOptions {
+	_options.InstanceGroupMembershipPatch = instanceGroupMembershipPatch
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -46790,10 +47848,10 @@ func (options *UpdateInstanceGroupMembershipOptions) SetHeaders(param map[string
 // UpdateInstanceGroupOptions : The UpdateInstanceGroup options.
 type UpdateInstanceGroupOptions struct {
 	// The instance group identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// The instance group patch.
-	InstanceGroupPatch map[string]interface{} `validate:"required"`
+	InstanceGroupPatch map[string]interface{} `json:"InstanceGroup_patch" validate:"required"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -46808,15 +47866,15 @@ func (*VpcV1) NewUpdateInstanceGroupOptions(id string, instanceGroupPatch map[st
 }
 
 // SetID : Allow user to set ID
-func (options *UpdateInstanceGroupOptions) SetID(id string) *UpdateInstanceGroupOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *UpdateInstanceGroupOptions) SetID(id string) *UpdateInstanceGroupOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetInstanceGroupPatch : Allow user to set InstanceGroupPatch
-func (options *UpdateInstanceGroupOptions) SetInstanceGroupPatch(instanceGroupPatch map[string]interface{}) *UpdateInstanceGroupOptions {
-	options.InstanceGroupPatch = instanceGroupPatch
-	return options
+func (_options *UpdateInstanceGroupOptions) SetInstanceGroupPatch(instanceGroupPatch map[string]interface{}) *UpdateInstanceGroupOptions {
+	_options.InstanceGroupPatch = instanceGroupPatch
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -46828,13 +47886,13 @@ func (options *UpdateInstanceGroupOptions) SetHeaders(param map[string]string) *
 // UpdateInstanceNetworkInterfaceOptions : The UpdateInstanceNetworkInterface options.
 type UpdateInstanceNetworkInterfaceOptions struct {
 	// The instance identifier.
-	InstanceID *string `validate:"required,ne="`
+	InstanceID *string `json:"-" validate:"required,ne="`
 
 	// The network interface identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// The network interface patch.
-	NetworkInterfacePatch map[string]interface{} `validate:"required"`
+	NetworkInterfacePatch map[string]interface{} `json:"NetworkInterface_patch" validate:"required"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -46850,21 +47908,21 @@ func (*VpcV1) NewUpdateInstanceNetworkInterfaceOptions(instanceID string, id str
 }
 
 // SetInstanceID : Allow user to set InstanceID
-func (options *UpdateInstanceNetworkInterfaceOptions) SetInstanceID(instanceID string) *UpdateInstanceNetworkInterfaceOptions {
-	options.InstanceID = core.StringPtr(instanceID)
-	return options
+func (_options *UpdateInstanceNetworkInterfaceOptions) SetInstanceID(instanceID string) *UpdateInstanceNetworkInterfaceOptions {
+	_options.InstanceID = core.StringPtr(instanceID)
+	return _options
 }
 
 // SetID : Allow user to set ID
-func (options *UpdateInstanceNetworkInterfaceOptions) SetID(id string) *UpdateInstanceNetworkInterfaceOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *UpdateInstanceNetworkInterfaceOptions) SetID(id string) *UpdateInstanceNetworkInterfaceOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetNetworkInterfacePatch : Allow user to set NetworkInterfacePatch
-func (options *UpdateInstanceNetworkInterfaceOptions) SetNetworkInterfacePatch(networkInterfacePatch map[string]interface{}) *UpdateInstanceNetworkInterfaceOptions {
-	options.NetworkInterfacePatch = networkInterfacePatch
-	return options
+func (_options *UpdateInstanceNetworkInterfaceOptions) SetNetworkInterfacePatch(networkInterfacePatch map[string]interface{}) *UpdateInstanceNetworkInterfaceOptions {
+	_options.NetworkInterfacePatch = networkInterfacePatch
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -46876,10 +47934,10 @@ func (options *UpdateInstanceNetworkInterfaceOptions) SetHeaders(param map[strin
 // UpdateInstanceOptions : The UpdateInstance options.
 type UpdateInstanceOptions struct {
 	// The instance identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// The instance patch.
-	InstancePatch map[string]interface{} `validate:"required"`
+	InstancePatch map[string]interface{} `json:"Instance_patch" validate:"required"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -46894,15 +47952,15 @@ func (*VpcV1) NewUpdateInstanceOptions(id string, instancePatch map[string]inter
 }
 
 // SetID : Allow user to set ID
-func (options *UpdateInstanceOptions) SetID(id string) *UpdateInstanceOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *UpdateInstanceOptions) SetID(id string) *UpdateInstanceOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetInstancePatch : Allow user to set InstancePatch
-func (options *UpdateInstanceOptions) SetInstancePatch(instancePatch map[string]interface{}) *UpdateInstanceOptions {
-	options.InstancePatch = instancePatch
-	return options
+func (_options *UpdateInstanceOptions) SetInstancePatch(instancePatch map[string]interface{}) *UpdateInstanceOptions {
+	_options.InstancePatch = instancePatch
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -46914,10 +47972,10 @@ func (options *UpdateInstanceOptions) SetHeaders(param map[string]string) *Updat
 // UpdateInstanceTemplateOptions : The UpdateInstanceTemplate options.
 type UpdateInstanceTemplateOptions struct {
 	// The instance template identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// The instance template patch.
-	InstanceTemplatePatch map[string]interface{} `validate:"required"`
+	InstanceTemplatePatch map[string]interface{} `json:"InstanceTemplate_patch" validate:"required"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -46932,15 +47990,15 @@ func (*VpcV1) NewUpdateInstanceTemplateOptions(id string, instanceTemplatePatch 
 }
 
 // SetID : Allow user to set ID
-func (options *UpdateInstanceTemplateOptions) SetID(id string) *UpdateInstanceTemplateOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *UpdateInstanceTemplateOptions) SetID(id string) *UpdateInstanceTemplateOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetInstanceTemplatePatch : Allow user to set InstanceTemplatePatch
-func (options *UpdateInstanceTemplateOptions) SetInstanceTemplatePatch(instanceTemplatePatch map[string]interface{}) *UpdateInstanceTemplateOptions {
-	options.InstanceTemplatePatch = instanceTemplatePatch
-	return options
+func (_options *UpdateInstanceTemplateOptions) SetInstanceTemplatePatch(instanceTemplatePatch map[string]interface{}) *UpdateInstanceTemplateOptions {
+	_options.InstanceTemplatePatch = instanceTemplatePatch
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -46952,13 +48010,13 @@ func (options *UpdateInstanceTemplateOptions) SetHeaders(param map[string]string
 // UpdateInstanceVolumeAttachmentOptions : The UpdateInstanceVolumeAttachment options.
 type UpdateInstanceVolumeAttachmentOptions struct {
 	// The instance identifier.
-	InstanceID *string `validate:"required,ne="`
+	InstanceID *string `json:"-" validate:"required,ne="`
 
 	// The volume attachment identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// The volume attachment patch.
-	VolumeAttachmentPatch map[string]interface{} `validate:"required"`
+	VolumeAttachmentPatch map[string]interface{} `json:"VolumeAttachment_patch" validate:"required"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -46974,21 +48032,21 @@ func (*VpcV1) NewUpdateInstanceVolumeAttachmentOptions(instanceID string, id str
 }
 
 // SetInstanceID : Allow user to set InstanceID
-func (options *UpdateInstanceVolumeAttachmentOptions) SetInstanceID(instanceID string) *UpdateInstanceVolumeAttachmentOptions {
-	options.InstanceID = core.StringPtr(instanceID)
-	return options
+func (_options *UpdateInstanceVolumeAttachmentOptions) SetInstanceID(instanceID string) *UpdateInstanceVolumeAttachmentOptions {
+	_options.InstanceID = core.StringPtr(instanceID)
+	return _options
 }
 
 // SetID : Allow user to set ID
-func (options *UpdateInstanceVolumeAttachmentOptions) SetID(id string) *UpdateInstanceVolumeAttachmentOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *UpdateInstanceVolumeAttachmentOptions) SetID(id string) *UpdateInstanceVolumeAttachmentOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetVolumeAttachmentPatch : Allow user to set VolumeAttachmentPatch
-func (options *UpdateInstanceVolumeAttachmentOptions) SetVolumeAttachmentPatch(volumeAttachmentPatch map[string]interface{}) *UpdateInstanceVolumeAttachmentOptions {
-	options.VolumeAttachmentPatch = volumeAttachmentPatch
-	return options
+func (_options *UpdateInstanceVolumeAttachmentOptions) SetVolumeAttachmentPatch(volumeAttachmentPatch map[string]interface{}) *UpdateInstanceVolumeAttachmentOptions {
+	_options.VolumeAttachmentPatch = volumeAttachmentPatch
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -47000,10 +48058,10 @@ func (options *UpdateInstanceVolumeAttachmentOptions) SetHeaders(param map[strin
 // UpdateIpsecPolicyOptions : The UpdateIpsecPolicy options.
 type UpdateIpsecPolicyOptions struct {
 	// The IPsec policy identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// The IPsec policy patch.
-	IPsecPolicyPatch map[string]interface{} `validate:"required"`
+	IPsecPolicyPatch map[string]interface{} `json:"IPsecPolicy_patch" validate:"required"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -47018,15 +48076,15 @@ func (*VpcV1) NewUpdateIpsecPolicyOptions(id string, iPsecPolicyPatch map[string
 }
 
 // SetID : Allow user to set ID
-func (options *UpdateIpsecPolicyOptions) SetID(id string) *UpdateIpsecPolicyOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *UpdateIpsecPolicyOptions) SetID(id string) *UpdateIpsecPolicyOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetIPsecPolicyPatch : Allow user to set IPsecPolicyPatch
-func (options *UpdateIpsecPolicyOptions) SetIPsecPolicyPatch(iPsecPolicyPatch map[string]interface{}) *UpdateIpsecPolicyOptions {
-	options.IPsecPolicyPatch = iPsecPolicyPatch
-	return options
+func (_options *UpdateIpsecPolicyOptions) SetIPsecPolicyPatch(iPsecPolicyPatch map[string]interface{}) *UpdateIpsecPolicyOptions {
+	_options.IPsecPolicyPatch = iPsecPolicyPatch
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -47038,10 +48096,10 @@ func (options *UpdateIpsecPolicyOptions) SetHeaders(param map[string]string) *Up
 // UpdateKeyOptions : The UpdateKey options.
 type UpdateKeyOptions struct {
 	// The key identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// The key patch.
-	KeyPatch map[string]interface{} `validate:"required"`
+	KeyPatch map[string]interface{} `json:"Key_patch" validate:"required"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -47056,15 +48114,15 @@ func (*VpcV1) NewUpdateKeyOptions(id string, keyPatch map[string]interface{}) *U
 }
 
 // SetID : Allow user to set ID
-func (options *UpdateKeyOptions) SetID(id string) *UpdateKeyOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *UpdateKeyOptions) SetID(id string) *UpdateKeyOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetKeyPatch : Allow user to set KeyPatch
-func (options *UpdateKeyOptions) SetKeyPatch(keyPatch map[string]interface{}) *UpdateKeyOptions {
-	options.KeyPatch = keyPatch
-	return options
+func (_options *UpdateKeyOptions) SetKeyPatch(keyPatch map[string]interface{}) *UpdateKeyOptions {
+	_options.KeyPatch = keyPatch
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -47076,13 +48134,13 @@ func (options *UpdateKeyOptions) SetHeaders(param map[string]string) *UpdateKeyO
 // UpdateLoadBalancerListenerOptions : The UpdateLoadBalancerListener options.
 type UpdateLoadBalancerListenerOptions struct {
 	// The load balancer identifier.
-	LoadBalancerID *string `validate:"required,ne="`
+	LoadBalancerID *string `json:"-" validate:"required,ne="`
 
 	// The listener identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// The load balancer listener patch.
-	LoadBalancerListenerPatch map[string]interface{} `validate:"required"`
+	LoadBalancerListenerPatch map[string]interface{} `json:"LoadBalancerListener_patch" validate:"required"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -47098,21 +48156,21 @@ func (*VpcV1) NewUpdateLoadBalancerListenerOptions(loadBalancerID string, id str
 }
 
 // SetLoadBalancerID : Allow user to set LoadBalancerID
-func (options *UpdateLoadBalancerListenerOptions) SetLoadBalancerID(loadBalancerID string) *UpdateLoadBalancerListenerOptions {
-	options.LoadBalancerID = core.StringPtr(loadBalancerID)
-	return options
+func (_options *UpdateLoadBalancerListenerOptions) SetLoadBalancerID(loadBalancerID string) *UpdateLoadBalancerListenerOptions {
+	_options.LoadBalancerID = core.StringPtr(loadBalancerID)
+	return _options
 }
 
 // SetID : Allow user to set ID
-func (options *UpdateLoadBalancerListenerOptions) SetID(id string) *UpdateLoadBalancerListenerOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *UpdateLoadBalancerListenerOptions) SetID(id string) *UpdateLoadBalancerListenerOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetLoadBalancerListenerPatch : Allow user to set LoadBalancerListenerPatch
-func (options *UpdateLoadBalancerListenerOptions) SetLoadBalancerListenerPatch(loadBalancerListenerPatch map[string]interface{}) *UpdateLoadBalancerListenerOptions {
-	options.LoadBalancerListenerPatch = loadBalancerListenerPatch
-	return options
+func (_options *UpdateLoadBalancerListenerOptions) SetLoadBalancerListenerPatch(loadBalancerListenerPatch map[string]interface{}) *UpdateLoadBalancerListenerOptions {
+	_options.LoadBalancerListenerPatch = loadBalancerListenerPatch
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -47124,16 +48182,16 @@ func (options *UpdateLoadBalancerListenerOptions) SetHeaders(param map[string]st
 // UpdateLoadBalancerListenerPolicyOptions : The UpdateLoadBalancerListenerPolicy options.
 type UpdateLoadBalancerListenerPolicyOptions struct {
 	// The load balancer identifier.
-	LoadBalancerID *string `validate:"required,ne="`
+	LoadBalancerID *string `json:"-" validate:"required,ne="`
 
 	// The listener identifier.
-	ListenerID *string `validate:"required,ne="`
+	ListenerID *string `json:"-" validate:"required,ne="`
 
 	// The policy identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// The listener policy patch.
-	LoadBalancerListenerPolicyPatch map[string]interface{} `validate:"required"`
+	LoadBalancerListenerPolicyPatch map[string]interface{} `json:"LoadBalancerListenerPolicy_patch" validate:"required"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -47150,27 +48208,27 @@ func (*VpcV1) NewUpdateLoadBalancerListenerPolicyOptions(loadBalancerID string, 
 }
 
 // SetLoadBalancerID : Allow user to set LoadBalancerID
-func (options *UpdateLoadBalancerListenerPolicyOptions) SetLoadBalancerID(loadBalancerID string) *UpdateLoadBalancerListenerPolicyOptions {
-	options.LoadBalancerID = core.StringPtr(loadBalancerID)
-	return options
+func (_options *UpdateLoadBalancerListenerPolicyOptions) SetLoadBalancerID(loadBalancerID string) *UpdateLoadBalancerListenerPolicyOptions {
+	_options.LoadBalancerID = core.StringPtr(loadBalancerID)
+	return _options
 }
 
 // SetListenerID : Allow user to set ListenerID
-func (options *UpdateLoadBalancerListenerPolicyOptions) SetListenerID(listenerID string) *UpdateLoadBalancerListenerPolicyOptions {
-	options.ListenerID = core.StringPtr(listenerID)
-	return options
+func (_options *UpdateLoadBalancerListenerPolicyOptions) SetListenerID(listenerID string) *UpdateLoadBalancerListenerPolicyOptions {
+	_options.ListenerID = core.StringPtr(listenerID)
+	return _options
 }
 
 // SetID : Allow user to set ID
-func (options *UpdateLoadBalancerListenerPolicyOptions) SetID(id string) *UpdateLoadBalancerListenerPolicyOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *UpdateLoadBalancerListenerPolicyOptions) SetID(id string) *UpdateLoadBalancerListenerPolicyOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetLoadBalancerListenerPolicyPatch : Allow user to set LoadBalancerListenerPolicyPatch
-func (options *UpdateLoadBalancerListenerPolicyOptions) SetLoadBalancerListenerPolicyPatch(loadBalancerListenerPolicyPatch map[string]interface{}) *UpdateLoadBalancerListenerPolicyOptions {
-	options.LoadBalancerListenerPolicyPatch = loadBalancerListenerPolicyPatch
-	return options
+func (_options *UpdateLoadBalancerListenerPolicyOptions) SetLoadBalancerListenerPolicyPatch(loadBalancerListenerPolicyPatch map[string]interface{}) *UpdateLoadBalancerListenerPolicyOptions {
+	_options.LoadBalancerListenerPolicyPatch = loadBalancerListenerPolicyPatch
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -47182,19 +48240,19 @@ func (options *UpdateLoadBalancerListenerPolicyOptions) SetHeaders(param map[str
 // UpdateLoadBalancerListenerPolicyRuleOptions : The UpdateLoadBalancerListenerPolicyRule options.
 type UpdateLoadBalancerListenerPolicyRuleOptions struct {
 	// The load balancer identifier.
-	LoadBalancerID *string `validate:"required,ne="`
+	LoadBalancerID *string `json:"-" validate:"required,ne="`
 
 	// The listener identifier.
-	ListenerID *string `validate:"required,ne="`
+	ListenerID *string `json:"-" validate:"required,ne="`
 
 	// The policy identifier.
-	PolicyID *string `validate:"required,ne="`
+	PolicyID *string `json:"-" validate:"required,ne="`
 
 	// The rule identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// The listener policy rule patch.
-	LoadBalancerListenerPolicyRulePatch map[string]interface{} `validate:"required"`
+	LoadBalancerListenerPolicyRulePatch map[string]interface{} `json:"LoadBalancerListenerPolicyRule_patch" validate:"required"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -47212,33 +48270,33 @@ func (*VpcV1) NewUpdateLoadBalancerListenerPolicyRuleOptions(loadBalancerID stri
 }
 
 // SetLoadBalancerID : Allow user to set LoadBalancerID
-func (options *UpdateLoadBalancerListenerPolicyRuleOptions) SetLoadBalancerID(loadBalancerID string) *UpdateLoadBalancerListenerPolicyRuleOptions {
-	options.LoadBalancerID = core.StringPtr(loadBalancerID)
-	return options
+func (_options *UpdateLoadBalancerListenerPolicyRuleOptions) SetLoadBalancerID(loadBalancerID string) *UpdateLoadBalancerListenerPolicyRuleOptions {
+	_options.LoadBalancerID = core.StringPtr(loadBalancerID)
+	return _options
 }
 
 // SetListenerID : Allow user to set ListenerID
-func (options *UpdateLoadBalancerListenerPolicyRuleOptions) SetListenerID(listenerID string) *UpdateLoadBalancerListenerPolicyRuleOptions {
-	options.ListenerID = core.StringPtr(listenerID)
-	return options
+func (_options *UpdateLoadBalancerListenerPolicyRuleOptions) SetListenerID(listenerID string) *UpdateLoadBalancerListenerPolicyRuleOptions {
+	_options.ListenerID = core.StringPtr(listenerID)
+	return _options
 }
 
 // SetPolicyID : Allow user to set PolicyID
-func (options *UpdateLoadBalancerListenerPolicyRuleOptions) SetPolicyID(policyID string) *UpdateLoadBalancerListenerPolicyRuleOptions {
-	options.PolicyID = core.StringPtr(policyID)
-	return options
+func (_options *UpdateLoadBalancerListenerPolicyRuleOptions) SetPolicyID(policyID string) *UpdateLoadBalancerListenerPolicyRuleOptions {
+	_options.PolicyID = core.StringPtr(policyID)
+	return _options
 }
 
 // SetID : Allow user to set ID
-func (options *UpdateLoadBalancerListenerPolicyRuleOptions) SetID(id string) *UpdateLoadBalancerListenerPolicyRuleOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *UpdateLoadBalancerListenerPolicyRuleOptions) SetID(id string) *UpdateLoadBalancerListenerPolicyRuleOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetLoadBalancerListenerPolicyRulePatch : Allow user to set LoadBalancerListenerPolicyRulePatch
-func (options *UpdateLoadBalancerListenerPolicyRuleOptions) SetLoadBalancerListenerPolicyRulePatch(loadBalancerListenerPolicyRulePatch map[string]interface{}) *UpdateLoadBalancerListenerPolicyRuleOptions {
-	options.LoadBalancerListenerPolicyRulePatch = loadBalancerListenerPolicyRulePatch
-	return options
+func (_options *UpdateLoadBalancerListenerPolicyRuleOptions) SetLoadBalancerListenerPolicyRulePatch(loadBalancerListenerPolicyRulePatch map[string]interface{}) *UpdateLoadBalancerListenerPolicyRuleOptions {
+	_options.LoadBalancerListenerPolicyRulePatch = loadBalancerListenerPolicyRulePatch
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -47250,10 +48308,10 @@ func (options *UpdateLoadBalancerListenerPolicyRuleOptions) SetHeaders(param map
 // UpdateLoadBalancerOptions : The UpdateLoadBalancer options.
 type UpdateLoadBalancerOptions struct {
 	// The load balancer identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// The load balancer patch.
-	LoadBalancerPatch map[string]interface{} `validate:"required"`
+	LoadBalancerPatch map[string]interface{} `json:"LoadBalancer_patch" validate:"required"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -47268,15 +48326,15 @@ func (*VpcV1) NewUpdateLoadBalancerOptions(id string, loadBalancerPatch map[stri
 }
 
 // SetID : Allow user to set ID
-func (options *UpdateLoadBalancerOptions) SetID(id string) *UpdateLoadBalancerOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *UpdateLoadBalancerOptions) SetID(id string) *UpdateLoadBalancerOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetLoadBalancerPatch : Allow user to set LoadBalancerPatch
-func (options *UpdateLoadBalancerOptions) SetLoadBalancerPatch(loadBalancerPatch map[string]interface{}) *UpdateLoadBalancerOptions {
-	options.LoadBalancerPatch = loadBalancerPatch
-	return options
+func (_options *UpdateLoadBalancerOptions) SetLoadBalancerPatch(loadBalancerPatch map[string]interface{}) *UpdateLoadBalancerOptions {
+	_options.LoadBalancerPatch = loadBalancerPatch
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -47288,16 +48346,16 @@ func (options *UpdateLoadBalancerOptions) SetHeaders(param map[string]string) *U
 // UpdateLoadBalancerPoolMemberOptions : The UpdateLoadBalancerPoolMember options.
 type UpdateLoadBalancerPoolMemberOptions struct {
 	// The load balancer identifier.
-	LoadBalancerID *string `validate:"required,ne="`
+	LoadBalancerID *string `json:"-" validate:"required,ne="`
 
 	// The pool identifier.
-	PoolID *string `validate:"required,ne="`
+	PoolID *string `json:"-" validate:"required,ne="`
 
 	// The member identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// The load balancer pool member patch.
-	LoadBalancerPoolMemberPatch map[string]interface{} `validate:"required"`
+	LoadBalancerPoolMemberPatch map[string]interface{} `json:"LoadBalancerPoolMember_patch" validate:"required"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -47314,27 +48372,27 @@ func (*VpcV1) NewUpdateLoadBalancerPoolMemberOptions(loadBalancerID string, pool
 }
 
 // SetLoadBalancerID : Allow user to set LoadBalancerID
-func (options *UpdateLoadBalancerPoolMemberOptions) SetLoadBalancerID(loadBalancerID string) *UpdateLoadBalancerPoolMemberOptions {
-	options.LoadBalancerID = core.StringPtr(loadBalancerID)
-	return options
+func (_options *UpdateLoadBalancerPoolMemberOptions) SetLoadBalancerID(loadBalancerID string) *UpdateLoadBalancerPoolMemberOptions {
+	_options.LoadBalancerID = core.StringPtr(loadBalancerID)
+	return _options
 }
 
 // SetPoolID : Allow user to set PoolID
-func (options *UpdateLoadBalancerPoolMemberOptions) SetPoolID(poolID string) *UpdateLoadBalancerPoolMemberOptions {
-	options.PoolID = core.StringPtr(poolID)
-	return options
+func (_options *UpdateLoadBalancerPoolMemberOptions) SetPoolID(poolID string) *UpdateLoadBalancerPoolMemberOptions {
+	_options.PoolID = core.StringPtr(poolID)
+	return _options
 }
 
 // SetID : Allow user to set ID
-func (options *UpdateLoadBalancerPoolMemberOptions) SetID(id string) *UpdateLoadBalancerPoolMemberOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *UpdateLoadBalancerPoolMemberOptions) SetID(id string) *UpdateLoadBalancerPoolMemberOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetLoadBalancerPoolMemberPatch : Allow user to set LoadBalancerPoolMemberPatch
-func (options *UpdateLoadBalancerPoolMemberOptions) SetLoadBalancerPoolMemberPatch(loadBalancerPoolMemberPatch map[string]interface{}) *UpdateLoadBalancerPoolMemberOptions {
-	options.LoadBalancerPoolMemberPatch = loadBalancerPoolMemberPatch
-	return options
+func (_options *UpdateLoadBalancerPoolMemberOptions) SetLoadBalancerPoolMemberPatch(loadBalancerPoolMemberPatch map[string]interface{}) *UpdateLoadBalancerPoolMemberOptions {
+	_options.LoadBalancerPoolMemberPatch = loadBalancerPoolMemberPatch
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -47346,13 +48404,13 @@ func (options *UpdateLoadBalancerPoolMemberOptions) SetHeaders(param map[string]
 // UpdateLoadBalancerPoolOptions : The UpdateLoadBalancerPool options.
 type UpdateLoadBalancerPoolOptions struct {
 	// The load balancer identifier.
-	LoadBalancerID *string `validate:"required,ne="`
+	LoadBalancerID *string `json:"-" validate:"required,ne="`
 
 	// The pool identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// The load balancer pool patch.
-	LoadBalancerPoolPatch map[string]interface{} `validate:"required"`
+	LoadBalancerPoolPatch map[string]interface{} `json:"LoadBalancerPool_patch" validate:"required"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -47368,21 +48426,21 @@ func (*VpcV1) NewUpdateLoadBalancerPoolOptions(loadBalancerID string, id string,
 }
 
 // SetLoadBalancerID : Allow user to set LoadBalancerID
-func (options *UpdateLoadBalancerPoolOptions) SetLoadBalancerID(loadBalancerID string) *UpdateLoadBalancerPoolOptions {
-	options.LoadBalancerID = core.StringPtr(loadBalancerID)
-	return options
+func (_options *UpdateLoadBalancerPoolOptions) SetLoadBalancerID(loadBalancerID string) *UpdateLoadBalancerPoolOptions {
+	_options.LoadBalancerID = core.StringPtr(loadBalancerID)
+	return _options
 }
 
 // SetID : Allow user to set ID
-func (options *UpdateLoadBalancerPoolOptions) SetID(id string) *UpdateLoadBalancerPoolOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *UpdateLoadBalancerPoolOptions) SetID(id string) *UpdateLoadBalancerPoolOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetLoadBalancerPoolPatch : Allow user to set LoadBalancerPoolPatch
-func (options *UpdateLoadBalancerPoolOptions) SetLoadBalancerPoolPatch(loadBalancerPoolPatch map[string]interface{}) *UpdateLoadBalancerPoolOptions {
-	options.LoadBalancerPoolPatch = loadBalancerPoolPatch
-	return options
+func (_options *UpdateLoadBalancerPoolOptions) SetLoadBalancerPoolPatch(loadBalancerPoolPatch map[string]interface{}) *UpdateLoadBalancerPoolOptions {
+	_options.LoadBalancerPoolPatch = loadBalancerPoolPatch
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -47394,10 +48452,10 @@ func (options *UpdateLoadBalancerPoolOptions) SetHeaders(param map[string]string
 // UpdateNetworkACLOptions : The UpdateNetworkACL options.
 type UpdateNetworkACLOptions struct {
 	// The network ACL identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// The network ACL patch.
-	NetworkACLPatch map[string]interface{} `validate:"required"`
+	NetworkACLPatch map[string]interface{} `json:"NetworkACL_patch" validate:"required"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -47412,15 +48470,15 @@ func (*VpcV1) NewUpdateNetworkACLOptions(id string, networkACLPatch map[string]i
 }
 
 // SetID : Allow user to set ID
-func (options *UpdateNetworkACLOptions) SetID(id string) *UpdateNetworkACLOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *UpdateNetworkACLOptions) SetID(id string) *UpdateNetworkACLOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetNetworkACLPatch : Allow user to set NetworkACLPatch
-func (options *UpdateNetworkACLOptions) SetNetworkACLPatch(networkACLPatch map[string]interface{}) *UpdateNetworkACLOptions {
-	options.NetworkACLPatch = networkACLPatch
-	return options
+func (_options *UpdateNetworkACLOptions) SetNetworkACLPatch(networkACLPatch map[string]interface{}) *UpdateNetworkACLOptions {
+	_options.NetworkACLPatch = networkACLPatch
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -47432,13 +48490,13 @@ func (options *UpdateNetworkACLOptions) SetHeaders(param map[string]string) *Upd
 // UpdateNetworkACLRuleOptions : The UpdateNetworkACLRule options.
 type UpdateNetworkACLRuleOptions struct {
 	// The network ACL identifier.
-	NetworkACLID *string `validate:"required,ne="`
+	NetworkACLID *string `json:"-" validate:"required,ne="`
 
 	// The rule identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// The network ACL rule patch.
-	NetworkACLRulePatch map[string]interface{} `validate:"required"`
+	NetworkACLRulePatch map[string]interface{} `json:"NetworkACLRule_patch" validate:"required"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -47454,21 +48512,21 @@ func (*VpcV1) NewUpdateNetworkACLRuleOptions(networkACLID string, id string, net
 }
 
 // SetNetworkACLID : Allow user to set NetworkACLID
-func (options *UpdateNetworkACLRuleOptions) SetNetworkACLID(networkACLID string) *UpdateNetworkACLRuleOptions {
-	options.NetworkACLID = core.StringPtr(networkACLID)
-	return options
+func (_options *UpdateNetworkACLRuleOptions) SetNetworkACLID(networkACLID string) *UpdateNetworkACLRuleOptions {
+	_options.NetworkACLID = core.StringPtr(networkACLID)
+	return _options
 }
 
 // SetID : Allow user to set ID
-func (options *UpdateNetworkACLRuleOptions) SetID(id string) *UpdateNetworkACLRuleOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *UpdateNetworkACLRuleOptions) SetID(id string) *UpdateNetworkACLRuleOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetNetworkACLRulePatch : Allow user to set NetworkACLRulePatch
-func (options *UpdateNetworkACLRuleOptions) SetNetworkACLRulePatch(networkACLRulePatch map[string]interface{}) *UpdateNetworkACLRuleOptions {
-	options.NetworkACLRulePatch = networkACLRulePatch
-	return options
+func (_options *UpdateNetworkACLRuleOptions) SetNetworkACLRulePatch(networkACLRulePatch map[string]interface{}) *UpdateNetworkACLRuleOptions {
+	_options.NetworkACLRulePatch = networkACLRulePatch
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -47480,10 +48538,10 @@ func (options *UpdateNetworkACLRuleOptions) SetHeaders(param map[string]string) 
 // UpdatePlacementGroupOptions : The UpdatePlacementGroup options.
 type UpdatePlacementGroupOptions struct {
 	// The placement group identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// The placement group patch.
-	PlacementGroupPatch map[string]interface{} `validate:"required"`
+	PlacementGroupPatch map[string]interface{} `json:"PlacementGroup_patch" validate:"required"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -47498,15 +48556,15 @@ func (*VpcV1) NewUpdatePlacementGroupOptions(id string, placementGroupPatch map[
 }
 
 // SetID : Allow user to set ID
-func (options *UpdatePlacementGroupOptions) SetID(id string) *UpdatePlacementGroupOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *UpdatePlacementGroupOptions) SetID(id string) *UpdatePlacementGroupOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetPlacementGroupPatch : Allow user to set PlacementGroupPatch
-func (options *UpdatePlacementGroupOptions) SetPlacementGroupPatch(placementGroupPatch map[string]interface{}) *UpdatePlacementGroupOptions {
-	options.PlacementGroupPatch = placementGroupPatch
-	return options
+func (_options *UpdatePlacementGroupOptions) SetPlacementGroupPatch(placementGroupPatch map[string]interface{}) *UpdatePlacementGroupOptions {
+	_options.PlacementGroupPatch = placementGroupPatch
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -47518,10 +48576,10 @@ func (options *UpdatePlacementGroupOptions) SetHeaders(param map[string]string) 
 // UpdatePublicGatewayOptions : The UpdatePublicGateway options.
 type UpdatePublicGatewayOptions struct {
 	// The public gateway identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// The public gateway patch.
-	PublicGatewayPatch map[string]interface{} `validate:"required"`
+	PublicGatewayPatch map[string]interface{} `json:"PublicGateway_patch" validate:"required"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -47536,15 +48594,15 @@ func (*VpcV1) NewUpdatePublicGatewayOptions(id string, publicGatewayPatch map[st
 }
 
 // SetID : Allow user to set ID
-func (options *UpdatePublicGatewayOptions) SetID(id string) *UpdatePublicGatewayOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *UpdatePublicGatewayOptions) SetID(id string) *UpdatePublicGatewayOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetPublicGatewayPatch : Allow user to set PublicGatewayPatch
-func (options *UpdatePublicGatewayOptions) SetPublicGatewayPatch(publicGatewayPatch map[string]interface{}) *UpdatePublicGatewayOptions {
-	options.PublicGatewayPatch = publicGatewayPatch
-	return options
+func (_options *UpdatePublicGatewayOptions) SetPublicGatewayPatch(publicGatewayPatch map[string]interface{}) *UpdatePublicGatewayOptions {
+	_options.PublicGatewayPatch = publicGatewayPatch
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -47556,10 +48614,10 @@ func (options *UpdatePublicGatewayOptions) SetHeaders(param map[string]string) *
 // UpdateSecurityGroupOptions : The UpdateSecurityGroup options.
 type UpdateSecurityGroupOptions struct {
 	// The security group identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// The security group patch.
-	SecurityGroupPatch map[string]interface{} `validate:"required"`
+	SecurityGroupPatch map[string]interface{} `json:"SecurityGroup_patch" validate:"required"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -47574,15 +48632,15 @@ func (*VpcV1) NewUpdateSecurityGroupOptions(id string, securityGroupPatch map[st
 }
 
 // SetID : Allow user to set ID
-func (options *UpdateSecurityGroupOptions) SetID(id string) *UpdateSecurityGroupOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *UpdateSecurityGroupOptions) SetID(id string) *UpdateSecurityGroupOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetSecurityGroupPatch : Allow user to set SecurityGroupPatch
-func (options *UpdateSecurityGroupOptions) SetSecurityGroupPatch(securityGroupPatch map[string]interface{}) *UpdateSecurityGroupOptions {
-	options.SecurityGroupPatch = securityGroupPatch
-	return options
+func (_options *UpdateSecurityGroupOptions) SetSecurityGroupPatch(securityGroupPatch map[string]interface{}) *UpdateSecurityGroupOptions {
+	_options.SecurityGroupPatch = securityGroupPatch
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -47594,13 +48652,13 @@ func (options *UpdateSecurityGroupOptions) SetHeaders(param map[string]string) *
 // UpdateSecurityGroupRuleOptions : The UpdateSecurityGroupRule options.
 type UpdateSecurityGroupRuleOptions struct {
 	// The security group identifier.
-	SecurityGroupID *string `validate:"required,ne="`
+	SecurityGroupID *string `json:"-" validate:"required,ne="`
 
 	// The rule identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// The security group rule patch.
-	SecurityGroupRulePatch map[string]interface{} `validate:"required"`
+	SecurityGroupRulePatch map[string]interface{} `json:"SecurityGroupRule_patch" validate:"required"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -47616,21 +48674,21 @@ func (*VpcV1) NewUpdateSecurityGroupRuleOptions(securityGroupID string, id strin
 }
 
 // SetSecurityGroupID : Allow user to set SecurityGroupID
-func (options *UpdateSecurityGroupRuleOptions) SetSecurityGroupID(securityGroupID string) *UpdateSecurityGroupRuleOptions {
-	options.SecurityGroupID = core.StringPtr(securityGroupID)
-	return options
+func (_options *UpdateSecurityGroupRuleOptions) SetSecurityGroupID(securityGroupID string) *UpdateSecurityGroupRuleOptions {
+	_options.SecurityGroupID = core.StringPtr(securityGroupID)
+	return _options
 }
 
 // SetID : Allow user to set ID
-func (options *UpdateSecurityGroupRuleOptions) SetID(id string) *UpdateSecurityGroupRuleOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *UpdateSecurityGroupRuleOptions) SetID(id string) *UpdateSecurityGroupRuleOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetSecurityGroupRulePatch : Allow user to set SecurityGroupRulePatch
-func (options *UpdateSecurityGroupRuleOptions) SetSecurityGroupRulePatch(securityGroupRulePatch map[string]interface{}) *UpdateSecurityGroupRuleOptions {
-	options.SecurityGroupRulePatch = securityGroupRulePatch
-	return options
+func (_options *UpdateSecurityGroupRuleOptions) SetSecurityGroupRulePatch(securityGroupRulePatch map[string]interface{}) *UpdateSecurityGroupRuleOptions {
+	_options.SecurityGroupRulePatch = securityGroupRulePatch
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -47642,10 +48700,10 @@ func (options *UpdateSecurityGroupRuleOptions) SetHeaders(param map[string]strin
 // UpdateSnapshotOptions : The UpdateSnapshot options.
 type UpdateSnapshotOptions struct {
 	// The snapshot identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// The snapshot patch.
-	SnapshotPatch map[string]interface{} `validate:"required"`
+	SnapshotPatch map[string]interface{} `json:"Snapshot_patch" validate:"required"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -47660,15 +48718,15 @@ func (*VpcV1) NewUpdateSnapshotOptions(id string, snapshotPatch map[string]inter
 }
 
 // SetID : Allow user to set ID
-func (options *UpdateSnapshotOptions) SetID(id string) *UpdateSnapshotOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *UpdateSnapshotOptions) SetID(id string) *UpdateSnapshotOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetSnapshotPatch : Allow user to set SnapshotPatch
-func (options *UpdateSnapshotOptions) SetSnapshotPatch(snapshotPatch map[string]interface{}) *UpdateSnapshotOptions {
-	options.SnapshotPatch = snapshotPatch
-	return options
+func (_options *UpdateSnapshotOptions) SetSnapshotPatch(snapshotPatch map[string]interface{}) *UpdateSnapshotOptions {
+	_options.SnapshotPatch = snapshotPatch
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -47680,10 +48738,10 @@ func (options *UpdateSnapshotOptions) SetHeaders(param map[string]string) *Updat
 // UpdateSubnetOptions : The UpdateSubnet options.
 type UpdateSubnetOptions struct {
 	// The subnet identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// The subnet patch.
-	SubnetPatch map[string]interface{} `validate:"required"`
+	SubnetPatch map[string]interface{} `json:"Subnet_patch" validate:"required"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -47698,15 +48756,15 @@ func (*VpcV1) NewUpdateSubnetOptions(id string, subnetPatch map[string]interface
 }
 
 // SetID : Allow user to set ID
-func (options *UpdateSubnetOptions) SetID(id string) *UpdateSubnetOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *UpdateSubnetOptions) SetID(id string) *UpdateSubnetOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetSubnetPatch : Allow user to set SubnetPatch
-func (options *UpdateSubnetOptions) SetSubnetPatch(subnetPatch map[string]interface{}) *UpdateSubnetOptions {
-	options.SubnetPatch = subnetPatch
-	return options
+func (_options *UpdateSubnetOptions) SetSubnetPatch(subnetPatch map[string]interface{}) *UpdateSubnetOptions {
+	_options.SubnetPatch = subnetPatch
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -47718,13 +48776,13 @@ func (options *UpdateSubnetOptions) SetHeaders(param map[string]string) *UpdateS
 // UpdateSubnetReservedIPOptions : The UpdateSubnetReservedIP options.
 type UpdateSubnetReservedIPOptions struct {
 	// The subnet identifier.
-	SubnetID *string `validate:"required,ne="`
+	SubnetID *string `json:"-" validate:"required,ne="`
 
 	// The reserved IP identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// The reserved IP patch.
-	ReservedIPPatch map[string]interface{} `validate:"required"`
+	ReservedIPPatch map[string]interface{} `json:"ReservedIP_patch" validate:"required"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -47740,21 +48798,21 @@ func (*VpcV1) NewUpdateSubnetReservedIPOptions(subnetID string, id string, reser
 }
 
 // SetSubnetID : Allow user to set SubnetID
-func (options *UpdateSubnetReservedIPOptions) SetSubnetID(subnetID string) *UpdateSubnetReservedIPOptions {
-	options.SubnetID = core.StringPtr(subnetID)
-	return options
+func (_options *UpdateSubnetReservedIPOptions) SetSubnetID(subnetID string) *UpdateSubnetReservedIPOptions {
+	_options.SubnetID = core.StringPtr(subnetID)
+	return _options
 }
 
 // SetID : Allow user to set ID
-func (options *UpdateSubnetReservedIPOptions) SetID(id string) *UpdateSubnetReservedIPOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *UpdateSubnetReservedIPOptions) SetID(id string) *UpdateSubnetReservedIPOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetReservedIPPatch : Allow user to set ReservedIPPatch
-func (options *UpdateSubnetReservedIPOptions) SetReservedIPPatch(reservedIPPatch map[string]interface{}) *UpdateSubnetReservedIPOptions {
-	options.ReservedIPPatch = reservedIPPatch
-	return options
+func (_options *UpdateSubnetReservedIPOptions) SetReservedIPPatch(reservedIPPatch map[string]interface{}) *UpdateSubnetReservedIPOptions {
+	_options.ReservedIPPatch = reservedIPPatch
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -47766,10 +48824,10 @@ func (options *UpdateSubnetReservedIPOptions) SetHeaders(param map[string]string
 // UpdateVolumeOptions : The UpdateVolume options.
 type UpdateVolumeOptions struct {
 	// The volume identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// The volume patch.
-	VolumePatch map[string]interface{} `validate:"required"`
+	VolumePatch map[string]interface{} `json:"Volume_patch" validate:"required"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -47784,15 +48842,15 @@ func (*VpcV1) NewUpdateVolumeOptions(id string, volumePatch map[string]interface
 }
 
 // SetID : Allow user to set ID
-func (options *UpdateVolumeOptions) SetID(id string) *UpdateVolumeOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *UpdateVolumeOptions) SetID(id string) *UpdateVolumeOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetVolumePatch : Allow user to set VolumePatch
-func (options *UpdateVolumeOptions) SetVolumePatch(volumePatch map[string]interface{}) *UpdateVolumeOptions {
-	options.VolumePatch = volumePatch
-	return options
+func (_options *UpdateVolumeOptions) SetVolumePatch(volumePatch map[string]interface{}) *UpdateVolumeOptions {
+	_options.VolumePatch = volumePatch
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -47804,13 +48862,13 @@ func (options *UpdateVolumeOptions) SetHeaders(param map[string]string) *UpdateV
 // UpdateVPCAddressPrefixOptions : The UpdateVPCAddressPrefix options.
 type UpdateVPCAddressPrefixOptions struct {
 	// The VPC identifier.
-	VPCID *string `validate:"required,ne="`
+	VPCID *string `json:"-" validate:"required,ne="`
 
 	// The prefix identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// The prefix patch.
-	AddressPrefixPatch map[string]interface{} `validate:"required"`
+	AddressPrefixPatch map[string]interface{} `json:"AddressPrefix_patch" validate:"required"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -47826,21 +48884,21 @@ func (*VpcV1) NewUpdateVPCAddressPrefixOptions(vpcID string, id string, addressP
 }
 
 // SetVPCID : Allow user to set VPCID
-func (options *UpdateVPCAddressPrefixOptions) SetVPCID(vpcID string) *UpdateVPCAddressPrefixOptions {
-	options.VPCID = core.StringPtr(vpcID)
-	return options
+func (_options *UpdateVPCAddressPrefixOptions) SetVPCID(vpcID string) *UpdateVPCAddressPrefixOptions {
+	_options.VPCID = core.StringPtr(vpcID)
+	return _options
 }
 
 // SetID : Allow user to set ID
-func (options *UpdateVPCAddressPrefixOptions) SetID(id string) *UpdateVPCAddressPrefixOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *UpdateVPCAddressPrefixOptions) SetID(id string) *UpdateVPCAddressPrefixOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetAddressPrefixPatch : Allow user to set AddressPrefixPatch
-func (options *UpdateVPCAddressPrefixOptions) SetAddressPrefixPatch(addressPrefixPatch map[string]interface{}) *UpdateVPCAddressPrefixOptions {
-	options.AddressPrefixPatch = addressPrefixPatch
-	return options
+func (_options *UpdateVPCAddressPrefixOptions) SetAddressPrefixPatch(addressPrefixPatch map[string]interface{}) *UpdateVPCAddressPrefixOptions {
+	_options.AddressPrefixPatch = addressPrefixPatch
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -47852,10 +48910,10 @@ func (options *UpdateVPCAddressPrefixOptions) SetHeaders(param map[string]string
 // UpdateVPCOptions : The UpdateVPC options.
 type UpdateVPCOptions struct {
 	// The VPC identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// The VPC patch.
-	VPCPatch map[string]interface{} `validate:"required"`
+	VPCPatch map[string]interface{} `json:"VPC_patch" validate:"required"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -47870,15 +48928,15 @@ func (*VpcV1) NewUpdateVPCOptions(id string, vpcPatch map[string]interface{}) *U
 }
 
 // SetID : Allow user to set ID
-func (options *UpdateVPCOptions) SetID(id string) *UpdateVPCOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *UpdateVPCOptions) SetID(id string) *UpdateVPCOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetVPCPatch : Allow user to set VPCPatch
-func (options *UpdateVPCOptions) SetVPCPatch(vpcPatch map[string]interface{}) *UpdateVPCOptions {
-	options.VPCPatch = vpcPatch
-	return options
+func (_options *UpdateVPCOptions) SetVPCPatch(vpcPatch map[string]interface{}) *UpdateVPCOptions {
+	_options.VPCPatch = vpcPatch
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -47890,13 +48948,13 @@ func (options *UpdateVPCOptions) SetHeaders(param map[string]string) *UpdateVPCO
 // UpdateVPCRouteOptions : The UpdateVPCRoute options.
 type UpdateVPCRouteOptions struct {
 	// The VPC identifier.
-	VPCID *string `validate:"required,ne="`
+	VPCID *string `json:"-" validate:"required,ne="`
 
 	// The route identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// The route patch.
-	RoutePatch map[string]interface{} `validate:"required"`
+	RoutePatch map[string]interface{} `json:"Route_patch" validate:"required"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -47912,21 +48970,21 @@ func (*VpcV1) NewUpdateVPCRouteOptions(vpcID string, id string, routePatch map[s
 }
 
 // SetVPCID : Allow user to set VPCID
-func (options *UpdateVPCRouteOptions) SetVPCID(vpcID string) *UpdateVPCRouteOptions {
-	options.VPCID = core.StringPtr(vpcID)
-	return options
+func (_options *UpdateVPCRouteOptions) SetVPCID(vpcID string) *UpdateVPCRouteOptions {
+	_options.VPCID = core.StringPtr(vpcID)
+	return _options
 }
 
 // SetID : Allow user to set ID
-func (options *UpdateVPCRouteOptions) SetID(id string) *UpdateVPCRouteOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *UpdateVPCRouteOptions) SetID(id string) *UpdateVPCRouteOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetRoutePatch : Allow user to set RoutePatch
-func (options *UpdateVPCRouteOptions) SetRoutePatch(routePatch map[string]interface{}) *UpdateVPCRouteOptions {
-	options.RoutePatch = routePatch
-	return options
+func (_options *UpdateVPCRouteOptions) SetRoutePatch(routePatch map[string]interface{}) *UpdateVPCRouteOptions {
+	_options.RoutePatch = routePatch
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -47938,13 +48996,13 @@ func (options *UpdateVPCRouteOptions) SetHeaders(param map[string]string) *Updat
 // UpdateVPCRoutingTableOptions : The UpdateVPCRoutingTable options.
 type UpdateVPCRoutingTableOptions struct {
 	// The VPC identifier.
-	VPCID *string `validate:"required,ne="`
+	VPCID *string `json:"-" validate:"required,ne="`
 
 	// The routing table identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// The routing table patch.
-	RoutingTablePatch map[string]interface{} `validate:"required"`
+	RoutingTablePatch map[string]interface{} `json:"RoutingTable_patch" validate:"required"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -47960,21 +49018,21 @@ func (*VpcV1) NewUpdateVPCRoutingTableOptions(vpcID string, id string, routingTa
 }
 
 // SetVPCID : Allow user to set VPCID
-func (options *UpdateVPCRoutingTableOptions) SetVPCID(vpcID string) *UpdateVPCRoutingTableOptions {
-	options.VPCID = core.StringPtr(vpcID)
-	return options
+func (_options *UpdateVPCRoutingTableOptions) SetVPCID(vpcID string) *UpdateVPCRoutingTableOptions {
+	_options.VPCID = core.StringPtr(vpcID)
+	return _options
 }
 
 // SetID : Allow user to set ID
-func (options *UpdateVPCRoutingTableOptions) SetID(id string) *UpdateVPCRoutingTableOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *UpdateVPCRoutingTableOptions) SetID(id string) *UpdateVPCRoutingTableOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetRoutingTablePatch : Allow user to set RoutingTablePatch
-func (options *UpdateVPCRoutingTableOptions) SetRoutingTablePatch(routingTablePatch map[string]interface{}) *UpdateVPCRoutingTableOptions {
-	options.RoutingTablePatch = routingTablePatch
-	return options
+func (_options *UpdateVPCRoutingTableOptions) SetRoutingTablePatch(routingTablePatch map[string]interface{}) *UpdateVPCRoutingTableOptions {
+	_options.RoutingTablePatch = routingTablePatch
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -47986,16 +49044,16 @@ func (options *UpdateVPCRoutingTableOptions) SetHeaders(param map[string]string)
 // UpdateVPCRoutingTableRouteOptions : The UpdateVPCRoutingTableRoute options.
 type UpdateVPCRoutingTableRouteOptions struct {
 	// The VPC identifier.
-	VPCID *string `validate:"required,ne="`
+	VPCID *string `json:"-" validate:"required,ne="`
 
 	// The routing table identifier.
-	RoutingTableID *string `validate:"required,ne="`
+	RoutingTableID *string `json:"-" validate:"required,ne="`
 
 	// The VPC routing table route identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// The VPC route patch.
-	RoutePatch map[string]interface{} `validate:"required"`
+	RoutePatch map[string]interface{} `json:"Route_patch" validate:"required"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -48012,27 +49070,27 @@ func (*VpcV1) NewUpdateVPCRoutingTableRouteOptions(vpcID string, routingTableID 
 }
 
 // SetVPCID : Allow user to set VPCID
-func (options *UpdateVPCRoutingTableRouteOptions) SetVPCID(vpcID string) *UpdateVPCRoutingTableRouteOptions {
-	options.VPCID = core.StringPtr(vpcID)
-	return options
+func (_options *UpdateVPCRoutingTableRouteOptions) SetVPCID(vpcID string) *UpdateVPCRoutingTableRouteOptions {
+	_options.VPCID = core.StringPtr(vpcID)
+	return _options
 }
 
 // SetRoutingTableID : Allow user to set RoutingTableID
-func (options *UpdateVPCRoutingTableRouteOptions) SetRoutingTableID(routingTableID string) *UpdateVPCRoutingTableRouteOptions {
-	options.RoutingTableID = core.StringPtr(routingTableID)
-	return options
+func (_options *UpdateVPCRoutingTableRouteOptions) SetRoutingTableID(routingTableID string) *UpdateVPCRoutingTableRouteOptions {
+	_options.RoutingTableID = core.StringPtr(routingTableID)
+	return _options
 }
 
 // SetID : Allow user to set ID
-func (options *UpdateVPCRoutingTableRouteOptions) SetID(id string) *UpdateVPCRoutingTableRouteOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *UpdateVPCRoutingTableRouteOptions) SetID(id string) *UpdateVPCRoutingTableRouteOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetRoutePatch : Allow user to set RoutePatch
-func (options *UpdateVPCRoutingTableRouteOptions) SetRoutePatch(routePatch map[string]interface{}) *UpdateVPCRoutingTableRouteOptions {
-	options.RoutePatch = routePatch
-	return options
+func (_options *UpdateVPCRoutingTableRouteOptions) SetRoutePatch(routePatch map[string]interface{}) *UpdateVPCRoutingTableRouteOptions {
+	_options.RoutePatch = routePatch
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -48044,13 +49102,13 @@ func (options *UpdateVPCRoutingTableRouteOptions) SetHeaders(param map[string]st
 // UpdateVPNGatewayConnectionOptions : The UpdateVPNGatewayConnection options.
 type UpdateVPNGatewayConnectionOptions struct {
 	// The VPN gateway identifier.
-	VPNGatewayID *string `validate:"required,ne="`
+	VPNGatewayID *string `json:"-" validate:"required,ne="`
 
 	// The VPN gateway connection identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// The VPN gateway connection patch.
-	VPNGatewayConnectionPatch map[string]interface{} `validate:"required"`
+	VPNGatewayConnectionPatch map[string]interface{} `json:"VPNGatewayConnection_patch" validate:"required"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -48066,21 +49124,21 @@ func (*VpcV1) NewUpdateVPNGatewayConnectionOptions(vpnGatewayID string, id strin
 }
 
 // SetVPNGatewayID : Allow user to set VPNGatewayID
-func (options *UpdateVPNGatewayConnectionOptions) SetVPNGatewayID(vpnGatewayID string) *UpdateVPNGatewayConnectionOptions {
-	options.VPNGatewayID = core.StringPtr(vpnGatewayID)
-	return options
+func (_options *UpdateVPNGatewayConnectionOptions) SetVPNGatewayID(vpnGatewayID string) *UpdateVPNGatewayConnectionOptions {
+	_options.VPNGatewayID = core.StringPtr(vpnGatewayID)
+	return _options
 }
 
 // SetID : Allow user to set ID
-func (options *UpdateVPNGatewayConnectionOptions) SetID(id string) *UpdateVPNGatewayConnectionOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *UpdateVPNGatewayConnectionOptions) SetID(id string) *UpdateVPNGatewayConnectionOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetVPNGatewayConnectionPatch : Allow user to set VPNGatewayConnectionPatch
-func (options *UpdateVPNGatewayConnectionOptions) SetVPNGatewayConnectionPatch(vpnGatewayConnectionPatch map[string]interface{}) *UpdateVPNGatewayConnectionOptions {
-	options.VPNGatewayConnectionPatch = vpnGatewayConnectionPatch
-	return options
+func (_options *UpdateVPNGatewayConnectionOptions) SetVPNGatewayConnectionPatch(vpnGatewayConnectionPatch map[string]interface{}) *UpdateVPNGatewayConnectionOptions {
+	_options.VPNGatewayConnectionPatch = vpnGatewayConnectionPatch
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -48092,10 +49150,10 @@ func (options *UpdateVPNGatewayConnectionOptions) SetHeaders(param map[string]st
 // UpdateVPNGatewayOptions : The UpdateVPNGateway options.
 type UpdateVPNGatewayOptions struct {
 	// The VPN gateway identifier.
-	ID *string `validate:"required,ne="`
+	ID *string `json:"-" validate:"required,ne="`
 
 	// The VPN gateway patch.
-	VPNGatewayPatch map[string]interface{} `validate:"required"`
+	VPNGatewayPatch map[string]interface{} `json:"VPNGateway_patch" validate:"required"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -48110,15 +49168,15 @@ func (*VpcV1) NewUpdateVPNGatewayOptions(id string, vpnGatewayPatch map[string]i
 }
 
 // SetID : Allow user to set ID
-func (options *UpdateVPNGatewayOptions) SetID(id string) *UpdateVPNGatewayOptions {
-	options.ID = core.StringPtr(id)
-	return options
+func (_options *UpdateVPNGatewayOptions) SetID(id string) *UpdateVPNGatewayOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
 }
 
 // SetVPNGatewayPatch : Allow user to set VPNGatewayPatch
-func (options *UpdateVPNGatewayOptions) SetVPNGatewayPatch(vpnGatewayPatch map[string]interface{}) *UpdateVPNGatewayOptions {
-	options.VPNGatewayPatch = vpnGatewayPatch
-	return options
+func (_options *UpdateVPNGatewayOptions) SetVPNGatewayPatch(vpnGatewayPatch map[string]interface{}) *UpdateVPNGatewayOptions {
+	_options.VPNGatewayPatch = vpnGatewayPatch
+	return _options
 }
 
 // SetHeaders : Allow user to set Headers
@@ -48327,6 +49385,18 @@ func UnmarshalVPCCollection(m map[string]json.RawMessage, result interface{}) (e
 	return
 }
 
+// Retrieve the value to be passed to a request to access the next page of results
+func (resp *VPCCollection) GetNextStart() (*string, error) {
+	if core.IsNil(resp.Next) {
+		return nil, nil
+	}
+	start, err := core.GetQueryParam(resp.Next.Href, "start")
+	if err != nil || start == nil {
+		return nil, err
+	}
+	return start, nil
+}
+
 // VPCCollectionFirst : A link to the first page of resources.
 type VPCCollectionFirst struct {
 	// The URL for a page of resources.
@@ -48422,11 +49492,11 @@ func UnmarshalVPCPatch(m map[string]json.RawMessage, result interface{}) (err er
 }
 
 // AsPatch returns a generic map representation of the VPCPatch
-func (vpcPatch *VPCPatch) AsPatch() (patch map[string]interface{}, err error) {
+func (vpcPatch *VPCPatch) AsPatch() (_patch map[string]interface{}, err error) {
 	var jsonData []byte
 	jsonData, err = json.Marshal(vpcPatch)
 	if err == nil {
-		err = json.Unmarshal(jsonData, &patch)
+		err = json.Unmarshal(jsonData, &_patch)
 	}
 	return
 }
@@ -48666,6 +49736,18 @@ func UnmarshalVPNGatewayCollection(m map[string]json.RawMessage, result interfac
 	return
 }
 
+// Retrieve the value to be passed to a request to access the next page of results
+func (resp *VPNGatewayCollection) GetNextStart() (*string, error) {
+	if core.IsNil(resp.Next) {
+		return nil, nil
+	}
+	start, err := core.GetQueryParam(resp.Next.Href, "start")
+	if err != nil || start == nil {
+		return nil, err
+	}
+	return start, nil
+}
+
 // VPNGatewayCollectionFirst : A link to the first page of resources.
 type VPNGatewayCollectionFirst struct {
 	// The URL for a page of resources.
@@ -48723,11 +49805,12 @@ type VPNGatewayConnection struct {
 	// The unique identifier for this VPN gateway connection.
 	ID *string `json:"id" validate:"required"`
 
-	// Optional IKE policy configuration. The absence of a policy indicates autonegotiation.
+	// The IKE policy. If absent, [auto-negotiation is
+	// used](https://cloud.ibm.com/docs/vpc?topic=vpc-using-vpn&interface=ui#ike-auto-negotiation-phase-1).
 	IkePolicy *IkePolicyReference `json:"ike_policy,omitempty"`
 
-	// Optional IPsec policy configuration. The absence of a policy indicates
-	// autonegotiation.
+	// The IPsec policy. If absent, [auto-negotiation is
+	// used](https://cloud.ibm.com/docs/vpc?topic=vpc-using-vpn&interface=ui#ipsec-auto-negotiation-phase-2).
 	IpsecPolicy *IPsecPolicyReference `json:"ipsec_policy,omitempty"`
 
 	// The mode of the VPN gateway.
@@ -48937,6 +50020,46 @@ func UnmarshalVPNGatewayConnectionDpd(m map[string]json.RawMessage, result inter
 	return
 }
 
+// VPNGatewayConnectionDpdPatch : The Dead Peer Detection settings.
+type VPNGatewayConnectionDpdPatch struct {
+	// Dead Peer Detection actions.
+	Action *string `json:"action,omitempty"`
+
+	// Dead Peer Detection interval in seconds.
+	Interval *int64 `json:"interval,omitempty"`
+
+	// Dead Peer Detection timeout in seconds. Must be at least the interval.
+	Timeout *int64 `json:"timeout,omitempty"`
+}
+
+// Constants associated with the VPNGatewayConnectionDpdPatch.Action property.
+// Dead Peer Detection actions.
+const (
+	VPNGatewayConnectionDpdPatchActionClearConst   = "clear"
+	VPNGatewayConnectionDpdPatchActionHoldConst    = "hold"
+	VPNGatewayConnectionDpdPatchActionNoneConst    = "none"
+	VPNGatewayConnectionDpdPatchActionRestartConst = "restart"
+)
+
+// UnmarshalVPNGatewayConnectionDpdPatch unmarshals an instance of VPNGatewayConnectionDpdPatch from the specified map of raw messages.
+func UnmarshalVPNGatewayConnectionDpdPatch(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(VPNGatewayConnectionDpdPatch)
+	err = core.UnmarshalPrimitive(m, "action", &obj.Action)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "interval", &obj.Interval)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "timeout", &obj.Timeout)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
 // VPNGatewayConnectionDpdPrototype : The Dead Peer Detection settings.
 type VPNGatewayConnectionDpdPrototype struct {
 	// Dead Peer Detection actions.
@@ -48977,15 +50100,159 @@ func UnmarshalVPNGatewayConnectionDpdPrototype(m map[string]json.RawMessage, res
 	return
 }
 
-// VPNGatewayConnectionLocalCidRs : VPNGatewayConnectionLocalCidRs struct
-type VPNGatewayConnectionLocalCidRs struct {
+// VPNGatewayConnectionIkePolicyPatch : The IKE policy to use. Specify `null` to remove any existing policy, [resulting in
+// auto-negotiation](https://cloud.ibm.com/docs/vpc?topic=vpc-using-vpn&interface=ui#ike-auto-negotiation-phase-1).
+// Models which "extend" this model:
+// - VPNGatewayConnectionIkePolicyPatchIkePolicyIdentityByID
+// - VPNGatewayConnectionIkePolicyPatchIkePolicyIdentityByHref
+type VPNGatewayConnectionIkePolicyPatch struct {
+	// The unique identifier for this IKE policy.
+	ID *string `json:"id,omitempty"`
+
+	// The IKE policy's canonical URL.
+	Href *string `json:"href,omitempty"`
+}
+
+func (*VPNGatewayConnectionIkePolicyPatch) isaVPNGatewayConnectionIkePolicyPatch() bool {
+	return true
+}
+
+type VPNGatewayConnectionIkePolicyPatchIntf interface {
+	isaVPNGatewayConnectionIkePolicyPatch() bool
+}
+
+// UnmarshalVPNGatewayConnectionIkePolicyPatch unmarshals an instance of VPNGatewayConnectionIkePolicyPatch from the specified map of raw messages.
+func UnmarshalVPNGatewayConnectionIkePolicyPatch(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(VPNGatewayConnectionIkePolicyPatch)
+	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// VPNGatewayConnectionIkePolicyPrototype : The IKE policy to use. If unspecified, [auto-negotiation will be
+// used](https://cloud.ibm.com/docs/vpc?topic=vpc-using-vpn&interface=ui#ike-auto-negotiation-phase-1).
+// Models which "extend" this model:
+// - VPNGatewayConnectionIkePolicyPrototypeIkePolicyIdentityByID
+// - VPNGatewayConnectionIkePolicyPrototypeIkePolicyIdentityByHref
+type VPNGatewayConnectionIkePolicyPrototype struct {
+	// The unique identifier for this IKE policy.
+	ID *string `json:"id,omitempty"`
+
+	// The IKE policy's canonical URL.
+	Href *string `json:"href,omitempty"`
+}
+
+func (*VPNGatewayConnectionIkePolicyPrototype) isaVPNGatewayConnectionIkePolicyPrototype() bool {
+	return true
+}
+
+type VPNGatewayConnectionIkePolicyPrototypeIntf interface {
+	isaVPNGatewayConnectionIkePolicyPrototype() bool
+}
+
+// UnmarshalVPNGatewayConnectionIkePolicyPrototype unmarshals an instance of VPNGatewayConnectionIkePolicyPrototype from the specified map of raw messages.
+func UnmarshalVPNGatewayConnectionIkePolicyPrototype(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(VPNGatewayConnectionIkePolicyPrototype)
+	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// VPNGatewayConnectionIPsecPolicyPatch : The IPsec policy to use. Specify `null` to remove any existing policy, [resulting in
+// auto-negotiation](https://cloud.ibm.com/docs/vpc?topic=vpc-using-vpn&interface=ui#ipsec-auto-negotiation-phase-2).
+// Models which "extend" this model:
+// - VPNGatewayConnectionIPsecPolicyPatchIPsecPolicyIdentityByID
+// - VPNGatewayConnectionIPsecPolicyPatchIPsecPolicyIdentityByHref
+type VPNGatewayConnectionIPsecPolicyPatch struct {
+	// The unique identifier for this IPsec policy.
+	ID *string `json:"id,omitempty"`
+
+	// The IPsec policy's canonical URL.
+	Href *string `json:"href,omitempty"`
+}
+
+func (*VPNGatewayConnectionIPsecPolicyPatch) isaVPNGatewayConnectionIPsecPolicyPatch() bool {
+	return true
+}
+
+type VPNGatewayConnectionIPsecPolicyPatchIntf interface {
+	isaVPNGatewayConnectionIPsecPolicyPatch() bool
+}
+
+// UnmarshalVPNGatewayConnectionIPsecPolicyPatch unmarshals an instance of VPNGatewayConnectionIPsecPolicyPatch from the specified map of raw messages.
+func UnmarshalVPNGatewayConnectionIPsecPolicyPatch(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(VPNGatewayConnectionIPsecPolicyPatch)
+	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// VPNGatewayConnectionIPsecPolicyPrototype : The IPsec policy to use. If unspecified, [auto-negotiation will be
+// used](https://cloud.ibm.com/docs/vpc?topic=vpc-using-vpn&interface=ui#ipsec-auto-negotiation-phase-2).
+// Models which "extend" this model:
+// - VPNGatewayConnectionIPsecPolicyPrototypeIPsecPolicyIdentityByID
+// - VPNGatewayConnectionIPsecPolicyPrototypeIPsecPolicyIdentityByHref
+type VPNGatewayConnectionIPsecPolicyPrototype struct {
+	// The unique identifier for this IPsec policy.
+	ID *string `json:"id,omitempty"`
+
+	// The IPsec policy's canonical URL.
+	Href *string `json:"href,omitempty"`
+}
+
+func (*VPNGatewayConnectionIPsecPolicyPrototype) isaVPNGatewayConnectionIPsecPolicyPrototype() bool {
+	return true
+}
+
+type VPNGatewayConnectionIPsecPolicyPrototypeIntf interface {
+	isaVPNGatewayConnectionIPsecPolicyPrototype() bool
+}
+
+// UnmarshalVPNGatewayConnectionIPsecPolicyPrototype unmarshals an instance of VPNGatewayConnectionIPsecPolicyPrototype from the specified map of raw messages.
+func UnmarshalVPNGatewayConnectionIPsecPolicyPrototype(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(VPNGatewayConnectionIPsecPolicyPrototype)
+	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// VPNGatewayConnectionLocalCIDRs : VPNGatewayConnectionLocalCIDRs struct
+type VPNGatewayConnectionLocalCIDRs struct {
 	// The local CIDRs for this resource.
 	LocalCIDRs []string `json:"local_cidrs,omitempty"`
 }
 
-// UnmarshalVPNGatewayConnectionLocalCidRs unmarshals an instance of VPNGatewayConnectionLocalCidRs from the specified map of raw messages.
-func UnmarshalVPNGatewayConnectionLocalCidRs(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(VPNGatewayConnectionLocalCidRs)
+// UnmarshalVPNGatewayConnectionLocalCIDRs unmarshals an instance of VPNGatewayConnectionLocalCIDRs from the specified map of raw messages.
+func UnmarshalVPNGatewayConnectionLocalCIDRs(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(VPNGatewayConnectionLocalCIDRs)
 	err = core.UnmarshalPrimitive(m, "local_cidrs", &obj.LocalCIDRs)
 	if err != nil {
 		return
@@ -49002,14 +50269,15 @@ type VPNGatewayConnectionPatch struct {
 	AdminStateUp *bool `json:"admin_state_up,omitempty"`
 
 	// The Dead Peer Detection settings.
-	DeadPeerDetection *VPNGatewayConnectionDpdPrototype `json:"dead_peer_detection,omitempty"`
+	DeadPeerDetection *VPNGatewayConnectionDpdPatch `json:"dead_peer_detection,omitempty"`
 
-	// Optional IKE policy configuration. The absence of a policy indicates autonegotiation.
-	IkePolicy IkePolicyIdentityIntf `json:"ike_policy,omitempty"`
+	// The IKE policy to use. Specify `null` to remove any existing policy, [resulting in
+	// auto-negotiation](https://cloud.ibm.com/docs/vpc?topic=vpc-using-vpn&interface=ui#ike-auto-negotiation-phase-1).
+	IkePolicy VPNGatewayConnectionIkePolicyPatchIntf `json:"ike_policy,omitempty"`
 
-	// Optional IPsec policy configuration. The absence of a policy indicates
-	// autonegotiation.
-	IpsecPolicy IPsecPolicyIdentityIntf `json:"ipsec_policy,omitempty"`
+	// The IPsec policy to use. Specify `null` to remove any existing policy, [resulting in
+	// auto-negotiation](https://cloud.ibm.com/docs/vpc?topic=vpc-using-vpn&interface=ui#ipsec-auto-negotiation-phase-2).
+	IpsecPolicy VPNGatewayConnectionIPsecPolicyPatchIntf `json:"ipsec_policy,omitempty"`
 
 	// The user-defined name for this VPN gateway connection.
 	Name *string `json:"name,omitempty"`
@@ -49045,15 +50313,15 @@ func UnmarshalVPNGatewayConnectionPatch(m map[string]json.RawMessage, result int
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalModel(m, "dead_peer_detection", &obj.DeadPeerDetection, UnmarshalVPNGatewayConnectionDpdPrototype)
+	err = core.UnmarshalModel(m, "dead_peer_detection", &obj.DeadPeerDetection, UnmarshalVPNGatewayConnectionDpdPatch)
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalModel(m, "ike_policy", &obj.IkePolicy, UnmarshalIkePolicyIdentity)
+	err = core.UnmarshalModel(m, "ike_policy", &obj.IkePolicy, UnmarshalVPNGatewayConnectionIkePolicyPatch)
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalModel(m, "ipsec_policy", &obj.IpsecPolicy, UnmarshalIPsecPolicyIdentity)
+	err = core.UnmarshalModel(m, "ipsec_policy", &obj.IpsecPolicy, UnmarshalVPNGatewayConnectionIPsecPolicyPatch)
 	if err != nil {
 		return
 	}
@@ -49078,24 +50346,24 @@ func UnmarshalVPNGatewayConnectionPatch(m map[string]json.RawMessage, result int
 }
 
 // AsPatch returns a generic map representation of the VPNGatewayConnectionPatch
-func (vpnGatewayConnectionPatch *VPNGatewayConnectionPatch) AsPatch() (patch map[string]interface{}, err error) {
+func (vpnGatewayConnectionPatch *VPNGatewayConnectionPatch) AsPatch() (_patch map[string]interface{}, err error) {
 	var jsonData []byte
 	jsonData, err = json.Marshal(vpnGatewayConnectionPatch)
 	if err == nil {
-		err = json.Unmarshal(jsonData, &patch)
+		err = json.Unmarshal(jsonData, &_patch)
 	}
 	return
 }
 
-// VPNGatewayConnectionPeerCidRs : VPNGatewayConnectionPeerCidRs struct
-type VPNGatewayConnectionPeerCidRs struct {
+// VPNGatewayConnectionPeerCIDRs : VPNGatewayConnectionPeerCIDRs struct
+type VPNGatewayConnectionPeerCIDRs struct {
 	// The peer CIDRs for this resource.
 	PeerCIDRs []string `json:"peer_cidrs,omitempty"`
 }
 
-// UnmarshalVPNGatewayConnectionPeerCidRs unmarshals an instance of VPNGatewayConnectionPeerCidRs from the specified map of raw messages.
-func UnmarshalVPNGatewayConnectionPeerCidRs(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(VPNGatewayConnectionPeerCidRs)
+// UnmarshalVPNGatewayConnectionPeerCIDRs unmarshals an instance of VPNGatewayConnectionPeerCIDRs from the specified map of raw messages.
+func UnmarshalVPNGatewayConnectionPeerCIDRs(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(VPNGatewayConnectionPeerCIDRs)
 	err = core.UnmarshalPrimitive(m, "peer_cidrs", &obj.PeerCIDRs)
 	if err != nil {
 		return
@@ -49115,12 +50383,13 @@ type VPNGatewayConnectionPrototype struct {
 	// The Dead Peer Detection settings.
 	DeadPeerDetection *VPNGatewayConnectionDpdPrototype `json:"dead_peer_detection,omitempty"`
 
-	// Optional IKE policy configuration. The absence of a policy indicates autonegotiation.
-	IkePolicy IkePolicyIdentityIntf `json:"ike_policy,omitempty"`
+	// The IKE policy to use. If unspecified, [auto-negotiation will be
+	// used](https://cloud.ibm.com/docs/vpc?topic=vpc-using-vpn&interface=ui#ike-auto-negotiation-phase-1).
+	IkePolicy VPNGatewayConnectionIkePolicyPrototypeIntf `json:"ike_policy,omitempty"`
 
-	// Optional IPsec policy configuration. The absence of a policy indicates
-	// autonegotiation.
-	IpsecPolicy IPsecPolicyIdentityIntf `json:"ipsec_policy,omitempty"`
+	// The IPsec policy to use. If unspecified, [auto-negotiation will be
+	// used](https://cloud.ibm.com/docs/vpc?topic=vpc-using-vpn&interface=ui#ipsec-auto-negotiation-phase-2).
+	IpsecPolicy VPNGatewayConnectionIPsecPolicyPrototypeIntf `json:"ipsec_policy,omitempty"`
 
 	// The user-defined name for this VPN gateway connection.
 	Name *string `json:"name,omitempty"`
@@ -49166,11 +50435,11 @@ func UnmarshalVPNGatewayConnectionPrototype(m map[string]json.RawMessage, result
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalModel(m, "ike_policy", &obj.IkePolicy, UnmarshalIkePolicyIdentity)
+	err = core.UnmarshalModel(m, "ike_policy", &obj.IkePolicy, UnmarshalVPNGatewayConnectionIkePolicyPrototype)
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalModel(m, "ipsec_policy", &obj.IpsecPolicy, UnmarshalIPsecPolicyIdentity)
+	err = core.UnmarshalModel(m, "ipsec_policy", &obj.IpsecPolicy, UnmarshalVPNGatewayConnectionIPsecPolicyPrototype)
 	if err != nil {
 		return
 	}
@@ -49377,11 +50646,11 @@ func UnmarshalVPNGatewayPatch(m map[string]json.RawMessage, result interface{}) 
 }
 
 // AsPatch returns a generic map representation of the VPNGatewayPatch
-func (vpnGatewayPatch *VPNGatewayPatch) AsPatch() (patch map[string]interface{}, err error) {
+func (vpnGatewayPatch *VPNGatewayPatch) AsPatch() (_patch map[string]interface{}, err error) {
 	var jsonData []byte
 	jsonData, err = json.Marshal(vpnGatewayPatch)
 	if err == nil {
-		err = json.Unmarshal(jsonData, &patch)
+		err = json.Unmarshal(jsonData, &_patch)
 	}
 	return
 }
@@ -49447,8 +50716,11 @@ type Volume struct {
 	// Indicates whether a running virtual server instance has an attachment to this volume.
 	Active *bool `json:"active" validate:"required"`
 
-	// Indicates whether this volume is performing an operation that must be serialized. If an operation specifies that it
-	// requires serialization, the operation will fail unless this property is `false`.
+	// The maximum bandwidth (in megabits per second) for the volume.
+	Bandwidth *int64 `json:"bandwidth" validate:"required"`
+
+	// Indicates whether this volume is performing an operation that must be serialized. This must be `false` to perform an
+	// operation that is specified to require serialization.
 	Busy *bool `json:"busy" validate:"required"`
 
 	// The capacity to use for the volume (in gigabytes). The specified minimum and maximum capacity values for creating or
@@ -49476,7 +50748,8 @@ type Volume struct {
 	// The unique identifier for this volume.
 	ID *string `json:"id" validate:"required"`
 
-	// The bandwidth for the volume.
+	// The maximum I/O operations per second (IOPS) to use for the volume. Applicable only to volumes using a profile
+	// `family` of `custom`.
 	Iops *int64 `json:"iops" validate:"required"`
 
 	// The unique user-defined name for this volume.
@@ -49546,6 +50819,10 @@ const (
 func UnmarshalVolume(m map[string]json.RawMessage, result interface{}) (err error) {
 	obj := new(Volume)
 	err = core.UnmarshalPrimitive(m, "active", &obj.Active)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "bandwidth", &obj.Bandwidth)
 	if err != nil {
 		return
 	}
@@ -49631,11 +50908,15 @@ func UnmarshalVolume(m map[string]json.RawMessage, result interface{}) (err erro
 
 // VolumeAttachment : VolumeAttachment struct
 type VolumeAttachment struct {
+	// The maximum bandwidth (in megabits per second) for the volume when attached to this instance. This may be lower than
+	// the volume bandwidth depending on the configuration of the instance.
+	Bandwidth *int64 `json:"bandwidth" validate:"required"`
+
 	// The date and time that the volume was attached.
 	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
 
 	// If set to true, when deleting the instance the volume will also be deleted.
-	DeleteVolumeOnInstanceDelete *bool `json:"delete_volume_on_instance_delete,omitempty"`
+	DeleteVolumeOnInstanceDelete *bool `json:"delete_volume_on_instance_delete" validate:"required"`
 
 	// Information about how the volume is exposed to the instance operating system.
 	//
@@ -49680,6 +50961,10 @@ const (
 // UnmarshalVolumeAttachment unmarshals an instance of VolumeAttachment from the specified map of raw messages.
 func UnmarshalVolumeAttachment(m map[string]json.RawMessage, result interface{}) (err error) {
 	obj := new(VolumeAttachment)
+	err = core.UnmarshalPrimitive(m, "bandwidth", &obj.Bandwidth)
+	if err != nil {
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "created_at", &obj.CreatedAt)
 	if err != nil {
 		return
@@ -49759,7 +51044,8 @@ type VolumeAttachmentPatch struct {
 	// If set to true, when deleting the instance the volume will also be deleted.
 	DeleteVolumeOnInstanceDelete *bool `json:"delete_volume_on_instance_delete,omitempty"`
 
-	// The user-defined name for this volume attachment.
+	// The user-defined name for this volume attachment. Names must be unique within the instance the volume attachment
+	// resides in.
 	Name *string `json:"name,omitempty"`
 }
 
@@ -49779,11 +51065,11 @@ func UnmarshalVolumeAttachmentPatch(m map[string]json.RawMessage, result interfa
 }
 
 // AsPatch returns a generic map representation of the VolumeAttachmentPatch
-func (volumeAttachmentPatch *VolumeAttachmentPatch) AsPatch() (patch map[string]interface{}, err error) {
+func (volumeAttachmentPatch *VolumeAttachmentPatch) AsPatch() (_patch map[string]interface{}, err error) {
 	var jsonData []byte
 	jsonData, err = json.Marshal(volumeAttachmentPatch)
 	if err == nil {
-		err = json.Unmarshal(jsonData, &patch)
+		err = json.Unmarshal(jsonData, &_patch)
 	}
 	return
 }
@@ -49793,7 +51079,8 @@ type VolumeAttachmentPrototypeInstanceByImageContext struct {
 	// If set to true, when deleting the instance the volume will also be deleted.
 	DeleteVolumeOnInstanceDelete *bool `json:"delete_volume_on_instance_delete,omitempty"`
 
-	// The user-defined name for this volume attachment.
+	// The user-defined name for this volume attachment. Names must be unique within the instance the volume attachment
+	// resides in.
 	Name *string `json:"name,omitempty"`
 
 	// A prototype object for a new volume.
@@ -49801,11 +51088,11 @@ type VolumeAttachmentPrototypeInstanceByImageContext struct {
 }
 
 // NewVolumeAttachmentPrototypeInstanceByImageContext : Instantiate VolumeAttachmentPrototypeInstanceByImageContext (Generic Model Constructor)
-func (*VpcV1) NewVolumeAttachmentPrototypeInstanceByImageContext(volume *VolumePrototypeInstanceByImageContext) (model *VolumeAttachmentPrototypeInstanceByImageContext, err error) {
-	model = &VolumeAttachmentPrototypeInstanceByImageContext{
+func (*VpcV1) NewVolumeAttachmentPrototypeInstanceByImageContext(volume *VolumePrototypeInstanceByImageContext) (_model *VolumeAttachmentPrototypeInstanceByImageContext, err error) {
+	_model = &VolumeAttachmentPrototypeInstanceByImageContext{
 		Volume: volume,
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -49833,7 +51120,8 @@ type VolumeAttachmentPrototypeInstanceByVolumeContext struct {
 	// If set to true, when deleting the instance the volume will also be deleted.
 	DeleteVolumeOnInstanceDelete *bool `json:"delete_volume_on_instance_delete,omitempty"`
 
-	// The user-defined name for this volume attachment.
+	// The user-defined name for this volume attachment. Names must be unique within the instance the volume attachment
+	// resides in.
 	Name *string `json:"name,omitempty"`
 
 	// An existing volume to attach to the instance, or a prototype object for a new volume.
@@ -49841,11 +51129,11 @@ type VolumeAttachmentPrototypeInstanceByVolumeContext struct {
 }
 
 // NewVolumeAttachmentPrototypeInstanceByVolumeContext : Instantiate VolumeAttachmentPrototypeInstanceByVolumeContext (Generic Model Constructor)
-func (*VpcV1) NewVolumeAttachmentPrototypeInstanceByVolumeContext(volume VolumeAttachmentVolumePrototypeInstanceByVolumeContextIntf) (model *VolumeAttachmentPrototypeInstanceByVolumeContext, err error) {
-	model = &VolumeAttachmentPrototypeInstanceByVolumeContext{
+func (*VpcV1) NewVolumeAttachmentPrototypeInstanceByVolumeContext(volume VolumeAttachmentVolumePrototypeInstanceByVolumeContextIntf) (_model *VolumeAttachmentPrototypeInstanceByVolumeContext, err error) {
+	_model = &VolumeAttachmentPrototypeInstanceByVolumeContext{
 		Volume: volume,
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -49873,7 +51161,8 @@ type VolumeAttachmentPrototypeInstanceContext struct {
 	// If set to true, when deleting the instance the volume will also be deleted.
 	DeleteVolumeOnInstanceDelete *bool `json:"delete_volume_on_instance_delete,omitempty"`
 
-	// The user-defined name for this volume attachment.
+	// The user-defined name for this volume attachment. Names must be unique within the instance the volume attachment
+	// resides in.
 	Name *string `json:"name,omitempty"`
 
 	// An existing volume to attach to the instance, or a prototype object for a new volume.
@@ -49881,11 +51170,11 @@ type VolumeAttachmentPrototypeInstanceContext struct {
 }
 
 // NewVolumeAttachmentPrototypeInstanceContext : Instantiate VolumeAttachmentPrototypeInstanceContext (Generic Model Constructor)
-func (*VpcV1) NewVolumeAttachmentPrototypeInstanceContext(volume VolumeAttachmentVolumePrototypeInstanceContextIntf) (model *VolumeAttachmentPrototypeInstanceContext, err error) {
-	model = &VolumeAttachmentPrototypeInstanceContext{
+func (*VpcV1) NewVolumeAttachmentPrototypeInstanceContext(volume VolumeAttachmentVolumePrototypeInstanceContextIntf) (_model *VolumeAttachmentPrototypeInstanceContext, err error) {
+	_model = &VolumeAttachmentPrototypeInstanceContext{
 		Volume: volume,
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -49922,7 +51211,8 @@ type VolumeAttachmentPrototypeVolume struct {
 	// The URL for this volume.
 	Href *string `json:"href,omitempty"`
 
-	// The bandwidth for the volume.
+	// The maximum I/O operations per second (IOPS) to use for the volume. Applicable only to volumes using a profile
+	// `family` of `custom`.
 	Iops *int64 `json:"iops,omitempty"`
 
 	// The unique user-defined name for this volume.
@@ -49937,8 +51227,7 @@ type VolumeAttachmentPrototypeVolume struct {
 
 	// The root key to use to wrap the data encryption key for the volume.
 	//
-	// If this property is not provided, the `encryption` type for the volume will be
-	// `provider_managed`.
+	// If unspecified, the `encryption` type for the volume will be `provider_managed`.
 	EncryptionKey EncryptionKeyIdentityIntf `json:"encryption_key,omitempty"`
 
 	// The snapshot from which to clone the volume.
@@ -50175,10 +51464,11 @@ type VolumeAttachmentVolumePrototypeInstanceByVolumeContext struct {
 
 	// The root key to use to wrap the data encryption key for the volume.
 	//
-	// If this property is not provided, the snapshot's `encryption_key` will be used.
+	// If unspecified, the snapshot's `encryption_key` will be used.
 	EncryptionKey EncryptionKeyIdentityIntf `json:"encryption_key,omitempty"`
 
-	// The bandwidth for the volume.
+	// The maximum I/O operations per second (IOPS) to use for the volume. Applicable only to volumes using a profile
+	// `family` of `custom`.
 	Iops *int64 `json:"iops,omitempty"`
 
 	// The unique user-defined name for this volume.
@@ -50244,7 +51534,8 @@ type VolumeAttachmentVolumePrototypeInstanceContext struct {
 	// The URL for this volume.
 	Href *string `json:"href,omitempty"`
 
-	// The bandwidth for the volume.
+	// The maximum I/O operations per second (IOPS) to use for the volume. Applicable only to volumes using a profile
+	// `family` of `custom`.
 	Iops *int64 `json:"iops,omitempty"`
 
 	// The unique user-defined name for this volume.
@@ -50259,8 +51550,7 @@ type VolumeAttachmentVolumePrototypeInstanceContext struct {
 
 	// The root key to use to wrap the data encryption key for the volume.
 	//
-	// If this property is not provided, the `encryption` type for the volume will be
-	// `provider_managed`.
+	// If unspecified, the `encryption` type for the volume will be `provider_managed`.
 	EncryptionKey EncryptionKeyIdentityIntf `json:"encryption_key,omitempty"`
 
 	// The snapshot from which to clone the volume.
@@ -50357,6 +51647,18 @@ func UnmarshalVolumeCollection(m map[string]json.RawMessage, result interface{})
 	return
 }
 
+// Retrieve the value to be passed to a request to access the next page of results
+func (resp *VolumeCollection) GetNextStart() (*string, error) {
+	if core.IsNil(resp.Next) {
+		return nil, nil
+	}
+	start, err := core.GetQueryParam(resp.Next.Href, "start")
+	if err != nil || start == nil {
+		return nil, err
+	}
+	return start, nil
+}
+
 // VolumeCollectionFirst : A link to the first page of resources.
 type VolumeCollectionFirst struct {
 	// The URL for a page of resources.
@@ -50436,14 +51738,41 @@ func UnmarshalVolumeIdentity(m map[string]json.RawMessage, result interface{}) (
 
 // VolumePatch : VolumePatch struct
 type VolumePatch struct {
+	// The capacity to use for the volume (in gigabytes). The volume must be attached as a data volume to a running virtual
+	// server instance, and the specified value must not be less than the current capacity.
+	//
+	// The minimum and maximum capacity limits for creating or updating volumes may expand in the future.
+	Capacity *int64 `json:"capacity,omitempty"`
+
+	// The maximum I/O operations per second (IOPS) to use for the volume. Applicable only to volumes using a profile
+	// `family` of `custom`. The volume must be attached as a data volume to a running virtual server instance.
+	Iops *int64 `json:"iops,omitempty"`
+
 	// The unique user-defined name for this volume.
 	Name *string `json:"name,omitempty"`
+
+	// The profile to use for this volume.  The requested profile must be in the same
+	// `family` as the current profile.  The volume must be attached as a data volume to a
+	//  running virtual server instance.
+	Profile VolumeProfileIdentityIntf `json:"profile,omitempty"`
 }
 
 // UnmarshalVolumePatch unmarshals an instance of VolumePatch from the specified map of raw messages.
 func UnmarshalVolumePatch(m map[string]json.RawMessage, result interface{}) (err error) {
 	obj := new(VolumePatch)
+	err = core.UnmarshalPrimitive(m, "capacity", &obj.Capacity)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "iops", &obj.Iops)
+	if err != nil {
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "profile", &obj.Profile, UnmarshalVolumeProfileIdentity)
 	if err != nil {
 		return
 	}
@@ -50452,11 +51781,11 @@ func UnmarshalVolumePatch(m map[string]json.RawMessage, result interface{}) (err
 }
 
 // AsPatch returns a generic map representation of the VolumePatch
-func (volumePatch *VolumePatch) AsPatch() (patch map[string]interface{}, err error) {
+func (volumePatch *VolumePatch) AsPatch() (_patch map[string]interface{}, err error) {
 	var jsonData []byte
 	jsonData, err = json.Marshal(volumePatch)
 	if err == nil {
-		err = json.Unmarshal(jsonData, &patch)
+		err = json.Unmarshal(jsonData, &_patch)
 	}
 	return
 }
@@ -50464,7 +51793,11 @@ func (volumePatch *VolumePatch) AsPatch() (patch map[string]interface{}, err err
 // VolumeProfile : VolumeProfile struct
 type VolumeProfile struct {
 	// The product family this volume profile belongs to.
-	Family *string `json:"family,omitempty"`
+	//
+	// The enumerated values for this property will expand in the future. When processing this property, check for and log
+	// unknown values. Optionally halt processing and surface the error, or bypass the volume profile on which the
+	// unexpected property value was encountered.
+	Family *string `json:"family" validate:"required"`
 
 	// The URL for this volume profile.
 	Href *string `json:"href" validate:"required"`
@@ -50472,6 +51805,17 @@ type VolumeProfile struct {
 	// The globally unique name for this volume profile.
 	Name *string `json:"name" validate:"required"`
 }
+
+// Constants associated with the VolumeProfile.Family property.
+// The product family this volume profile belongs to.
+//
+// The enumerated values for this property will expand in the future. When processing this property, check for and log
+// unknown values. Optionally halt processing and surface the error, or bypass the volume profile on which the
+// unexpected property value was encountered.
+const (
+	VolumeProfileFamilyCustomConst = "custom"
+	VolumeProfileFamilyTieredConst = "tiered"
+)
 
 // UnmarshalVolumeProfile unmarshals an instance of VolumeProfile from the specified map of raw messages.
 func UnmarshalVolumeProfile(m map[string]json.RawMessage, result interface{}) (err error) {
@@ -50536,6 +51880,18 @@ func UnmarshalVolumeProfileCollection(m map[string]json.RawMessage, result inter
 	}
 	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
 	return
+}
+
+// Retrieve the value to be passed to a request to access the next page of results
+func (resp *VolumeProfileCollection) GetNextStart() (*string, error) {
+	if core.IsNil(resp.Next) {
+		return nil, nil
+	}
+	start, err := core.GetQueryParam(resp.Next.Href, "start")
+	if err != nil || start == nil {
+		return nil, err
+	}
+	return start, nil
 }
 
 // VolumeProfileCollectionFirst : A link to the first page of resources.
@@ -50635,7 +51991,8 @@ func UnmarshalVolumeProfileReference(m map[string]json.RawMessage, result interf
 // Models which "extend" this model:
 // - VolumePrototypeVolumeByCapacity
 type VolumePrototype struct {
-	// The bandwidth for the volume.
+	// The maximum I/O operations per second (IOPS) to use for the volume. Applicable only to volumes using a profile
+	// `family` of `custom`.
 	Iops *int64 `json:"iops,omitempty"`
 
 	// The unique user-defined name for this volume.
@@ -50657,8 +52014,7 @@ type VolumePrototype struct {
 
 	// The root key to use to wrap the data encryption key for the volume.
 	//
-	// If this property is not provided, the `encryption` type for the volume will be
-	// `provider_managed`.
+	// If unspecified, the `encryption` type for the volume will be `provider_managed`.
 	EncryptionKey EncryptionKeyIdentityIntf `json:"encryption_key,omitempty"`
 }
 
@@ -50715,12 +52071,12 @@ type VolumePrototypeInstanceByImageContext struct {
 
 	// The root key to use to wrap the data encryption key for the volume.
 	//
-	// If this property is not provided but the image is encrypted, the image's
-	// `encryption_key` will be used. Otherwise, the `encryption` type for the
-	// volume will be `provider_managed`.
+	// If unspecified, and the image is encrypted, the image's `encryption_key` will be
+	// used. Otherwise, the `encryption` type for the volume will be `provider_managed`.
 	EncryptionKey EncryptionKeyIdentityIntf `json:"encryption_key,omitempty"`
 
-	// The bandwidth for the volume.
+	// The maximum I/O operations per second (IOPS) to use for the volume. Applicable only to volumes using a profile
+	// `family` of `custom`.
 	Iops *int64 `json:"iops,omitempty"`
 
 	// The unique user-defined name for this volume.
@@ -50731,11 +52087,11 @@ type VolumePrototypeInstanceByImageContext struct {
 }
 
 // NewVolumePrototypeInstanceByImageContext : Instantiate VolumePrototypeInstanceByImageContext (Generic Model Constructor)
-func (*VpcV1) NewVolumePrototypeInstanceByImageContext(profile VolumeProfileIdentityIntf) (model *VolumePrototypeInstanceByImageContext, err error) {
-	model = &VolumePrototypeInstanceByImageContext{
+func (*VpcV1) NewVolumePrototypeInstanceByImageContext(profile VolumeProfileIdentityIntf) (_model *VolumePrototypeInstanceByImageContext, err error) {
+	_model = &VolumePrototypeInstanceByImageContext{
 		Profile: profile,
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -50997,11 +52353,11 @@ type CertificateInstanceIdentityByCRN struct {
 }
 
 // NewCertificateInstanceIdentityByCRN : Instantiate CertificateInstanceIdentityByCRN (Generic Model Constructor)
-func (*VpcV1) NewCertificateInstanceIdentityByCRN(crn string) (model *CertificateInstanceIdentityByCRN, err error) {
-	model = &CertificateInstanceIdentityByCRN{
+func (*VpcV1) NewCertificateInstanceIdentityByCRN(crn string) (_model *CertificateInstanceIdentityByCRN, err error) {
+	_model = &CertificateInstanceIdentityByCRN{
 		CRN: core.StringPtr(crn),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -51028,11 +52384,11 @@ type CloudObjectStorageBucketIdentityByName struct {
 }
 
 // NewCloudObjectStorageBucketIdentityByName : Instantiate CloudObjectStorageBucketIdentityByName (Generic Model Constructor)
-func (*VpcV1) NewCloudObjectStorageBucketIdentityByName(name string) (model *CloudObjectStorageBucketIdentityByName, err error) {
-	model = &CloudObjectStorageBucketIdentityByName{
+func (*VpcV1) NewCloudObjectStorageBucketIdentityByName(name string) (_model *CloudObjectStorageBucketIdentityByName, err error) {
+	_model = &CloudObjectStorageBucketIdentityByName{
 		Name: core.StringPtr(name),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -51059,11 +52415,11 @@ type DedicatedHostGroupIdentityByCRN struct {
 }
 
 // NewDedicatedHostGroupIdentityByCRN : Instantiate DedicatedHostGroupIdentityByCRN (Generic Model Constructor)
-func (*VpcV1) NewDedicatedHostGroupIdentityByCRN(crn string) (model *DedicatedHostGroupIdentityByCRN, err error) {
-	model = &DedicatedHostGroupIdentityByCRN{
+func (*VpcV1) NewDedicatedHostGroupIdentityByCRN(crn string) (_model *DedicatedHostGroupIdentityByCRN, err error) {
+	_model = &DedicatedHostGroupIdentityByCRN{
 		CRN: core.StringPtr(crn),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -51090,11 +52446,11 @@ type DedicatedHostGroupIdentityByHref struct {
 }
 
 // NewDedicatedHostGroupIdentityByHref : Instantiate DedicatedHostGroupIdentityByHref (Generic Model Constructor)
-func (*VpcV1) NewDedicatedHostGroupIdentityByHref(href string) (model *DedicatedHostGroupIdentityByHref, err error) {
-	model = &DedicatedHostGroupIdentityByHref{
+func (*VpcV1) NewDedicatedHostGroupIdentityByHref(href string) (_model *DedicatedHostGroupIdentityByHref, err error) {
+	_model = &DedicatedHostGroupIdentityByHref{
 		Href: core.StringPtr(href),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -51121,11 +52477,11 @@ type DedicatedHostGroupIdentityByID struct {
 }
 
 // NewDedicatedHostGroupIdentityByID : Instantiate DedicatedHostGroupIdentityByID (Generic Model Constructor)
-func (*VpcV1) NewDedicatedHostGroupIdentityByID(id string) (model *DedicatedHostGroupIdentityByID, err error) {
-	model = &DedicatedHostGroupIdentityByID{
+func (*VpcV1) NewDedicatedHostGroupIdentityByID(id string) (_model *DedicatedHostGroupIdentityByID, err error) {
+	_model = &DedicatedHostGroupIdentityByID{
 		ID: core.StringPtr(id),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -51152,11 +52508,11 @@ type DedicatedHostProfileIdentityByHref struct {
 }
 
 // NewDedicatedHostProfileIdentityByHref : Instantiate DedicatedHostProfileIdentityByHref (Generic Model Constructor)
-func (*VpcV1) NewDedicatedHostProfileIdentityByHref(href string) (model *DedicatedHostProfileIdentityByHref, err error) {
-	model = &DedicatedHostProfileIdentityByHref{
+func (*VpcV1) NewDedicatedHostProfileIdentityByHref(href string) (_model *DedicatedHostProfileIdentityByHref, err error) {
+	_model = &DedicatedHostProfileIdentityByHref{
 		Href: core.StringPtr(href),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -51183,11 +52539,11 @@ type DedicatedHostProfileIdentityByName struct {
 }
 
 // NewDedicatedHostProfileIdentityByName : Instantiate DedicatedHostProfileIdentityByName (Generic Model Constructor)
-func (*VpcV1) NewDedicatedHostProfileIdentityByName(name string) (model *DedicatedHostProfileIdentityByName, err error) {
-	model = &DedicatedHostProfileIdentityByName{
+func (*VpcV1) NewDedicatedHostProfileIdentityByName(name string) (_model *DedicatedHostProfileIdentityByName, err error) {
+	_model = &DedicatedHostProfileIdentityByName{
 		Name: core.StringPtr(name),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -51709,12 +53065,12 @@ type DedicatedHostPrototypeDedicatedHostByGroup struct {
 }
 
 // NewDedicatedHostPrototypeDedicatedHostByGroup : Instantiate DedicatedHostPrototypeDedicatedHostByGroup (Generic Model Constructor)
-func (*VpcV1) NewDedicatedHostPrototypeDedicatedHostByGroup(profile DedicatedHostProfileIdentityIntf, group DedicatedHostGroupIdentityIntf) (model *DedicatedHostPrototypeDedicatedHostByGroup, err error) {
-	model = &DedicatedHostPrototypeDedicatedHostByGroup{
+func (*VpcV1) NewDedicatedHostPrototypeDedicatedHostByGroup(profile DedicatedHostProfileIdentityIntf, group DedicatedHostGroupIdentityIntf) (_model *DedicatedHostPrototypeDedicatedHostByGroup, err error) {
+	_model = &DedicatedHostPrototypeDedicatedHostByGroup{
 		Profile: profile,
 		Group:   group,
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -51771,12 +53127,12 @@ type DedicatedHostPrototypeDedicatedHostByZone struct {
 }
 
 // NewDedicatedHostPrototypeDedicatedHostByZone : Instantiate DedicatedHostPrototypeDedicatedHostByZone (Generic Model Constructor)
-func (*VpcV1) NewDedicatedHostPrototypeDedicatedHostByZone(profile DedicatedHostProfileIdentityIntf, zone ZoneIdentityIntf) (model *DedicatedHostPrototypeDedicatedHostByZone, err error) {
-	model = &DedicatedHostPrototypeDedicatedHostByZone{
+func (*VpcV1) NewDedicatedHostPrototypeDedicatedHostByZone(profile DedicatedHostProfileIdentityIntf, zone ZoneIdentityIntf) (_model *DedicatedHostPrototypeDedicatedHostByZone, err error) {
+	_model = &DedicatedHostPrototypeDedicatedHostByZone{
 		Profile: profile,
 		Zone:    zone,
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -51825,11 +53181,11 @@ type EncryptionKeyIdentityByCRN struct {
 }
 
 // NewEncryptionKeyIdentityByCRN : Instantiate EncryptionKeyIdentityByCRN (Generic Model Constructor)
-func (*VpcV1) NewEncryptionKeyIdentityByCRN(crn string) (model *EncryptionKeyIdentityByCRN, err error) {
-	model = &EncryptionKeyIdentityByCRN{
+func (*VpcV1) NewEncryptionKeyIdentityByCRN(crn string) (_model *EncryptionKeyIdentityByCRN, err error) {
+	_model = &EncryptionKeyIdentityByCRN{
 		CRN: core.StringPtr(crn),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -51892,13 +53248,13 @@ func UnmarshalEndpointGatewayReservedIPReservedIPIdentity(m map[string]json.RawM
 // EndpointGatewayReservedIPReservedIPPrototypeTargetContext : EndpointGatewayReservedIPReservedIPPrototypeTargetContext struct
 // This model "extends" EndpointGatewayReservedIP
 type EndpointGatewayReservedIPReservedIPPrototypeTargetContext struct {
-	// If set to `true`, this reserved IP will be automatically deleted when the target is deleted or when the reserved IP
-	// is unbound.
+	// Indicates whether this reserved IP member will be automatically deleted when either
+	// `target` is deleted, or the reserved IP is unbound.
 	AutoDelete *bool `json:"auto_delete,omitempty"`
 
-	// The user-defined name for this reserved IP. If not specified, the name will be a hyphenated list of
-	// randomly-selected words. Names must be unique within the subnet the reserved IP resides in. Names beginning with
-	// `ibm-` are reserved for provider-owned resources.
+	// The user-defined name for this reserved IP. If unspecified, the name will be a hyphenated list of randomly-selected
+	// words. Names must be unique within the subnet the reserved IP resides in. Names beginning with `ibm-` are reserved
+	// for provider-owned resources.
 	Name *string `json:"name,omitempty"`
 
 	// The subnet in which to create this reserved IP.
@@ -51906,11 +53262,11 @@ type EndpointGatewayReservedIPReservedIPPrototypeTargetContext struct {
 }
 
 // NewEndpointGatewayReservedIPReservedIPPrototypeTargetContext : Instantiate EndpointGatewayReservedIPReservedIPPrototypeTargetContext (Generic Model Constructor)
-func (*VpcV1) NewEndpointGatewayReservedIPReservedIPPrototypeTargetContext(subnet SubnetIdentityIntf) (model *EndpointGatewayReservedIPReservedIPPrototypeTargetContext, err error) {
-	model = &EndpointGatewayReservedIPReservedIPPrototypeTargetContext{
+func (*VpcV1) NewEndpointGatewayReservedIPReservedIPPrototypeTargetContext(subnet SubnetIdentityIntf) (_model *EndpointGatewayReservedIPReservedIPPrototypeTargetContext, err error) {
+	_model = &EndpointGatewayReservedIPReservedIPPrototypeTargetContext{
 		Subnet: subnet,
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -52111,11 +53467,11 @@ type FloatingIPByTargetNetworkInterfaceIdentityNetworkInterfaceIdentityByHref st
 }
 
 // NewFloatingIPByTargetNetworkInterfaceIdentityNetworkInterfaceIdentityByHref : Instantiate FloatingIPByTargetNetworkInterfaceIdentityNetworkInterfaceIdentityByHref (Generic Model Constructor)
-func (*VpcV1) NewFloatingIPByTargetNetworkInterfaceIdentityNetworkInterfaceIdentityByHref(href string) (model *FloatingIPByTargetNetworkInterfaceIdentityNetworkInterfaceIdentityByHref, err error) {
-	model = &FloatingIPByTargetNetworkInterfaceIdentityNetworkInterfaceIdentityByHref{
+func (*VpcV1) NewFloatingIPByTargetNetworkInterfaceIdentityNetworkInterfaceIdentityByHref(href string) (_model *FloatingIPByTargetNetworkInterfaceIdentityNetworkInterfaceIdentityByHref, err error) {
+	_model = &FloatingIPByTargetNetworkInterfaceIdentityNetworkInterfaceIdentityByHref{
 		Href: core.StringPtr(href),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -52142,11 +53498,11 @@ type FloatingIPByTargetNetworkInterfaceIdentityNetworkInterfaceIdentityByID stru
 }
 
 // NewFloatingIPByTargetNetworkInterfaceIdentityNetworkInterfaceIdentityByID : Instantiate FloatingIPByTargetNetworkInterfaceIdentityNetworkInterfaceIdentityByID (Generic Model Constructor)
-func (*VpcV1) NewFloatingIPByTargetNetworkInterfaceIdentityNetworkInterfaceIdentityByID(id string) (model *FloatingIPByTargetNetworkInterfaceIdentityNetworkInterfaceIdentityByID, err error) {
-	model = &FloatingIPByTargetNetworkInterfaceIdentityNetworkInterfaceIdentityByID{
+func (*VpcV1) NewFloatingIPByTargetNetworkInterfaceIdentityNetworkInterfaceIdentityByID(id string) (_model *FloatingIPByTargetNetworkInterfaceIdentityNetworkInterfaceIdentityByID, err error) {
+	_model = &FloatingIPByTargetNetworkInterfaceIdentityNetworkInterfaceIdentityByID{
 		ID: core.StringPtr(id),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -52173,11 +53529,11 @@ type FloatingIPPatchTargetNetworkInterfaceIdentityNetworkInterfaceIdentityByHref
 }
 
 // NewFloatingIPPatchTargetNetworkInterfaceIdentityNetworkInterfaceIdentityByHref : Instantiate FloatingIPPatchTargetNetworkInterfaceIdentityNetworkInterfaceIdentityByHref (Generic Model Constructor)
-func (*VpcV1) NewFloatingIPPatchTargetNetworkInterfaceIdentityNetworkInterfaceIdentityByHref(href string) (model *FloatingIPPatchTargetNetworkInterfaceIdentityNetworkInterfaceIdentityByHref, err error) {
-	model = &FloatingIPPatchTargetNetworkInterfaceIdentityNetworkInterfaceIdentityByHref{
+func (*VpcV1) NewFloatingIPPatchTargetNetworkInterfaceIdentityNetworkInterfaceIdentityByHref(href string) (_model *FloatingIPPatchTargetNetworkInterfaceIdentityNetworkInterfaceIdentityByHref, err error) {
+	_model = &FloatingIPPatchTargetNetworkInterfaceIdentityNetworkInterfaceIdentityByHref{
 		Href: core.StringPtr(href),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -52204,11 +53560,11 @@ type FloatingIPPatchTargetNetworkInterfaceIdentityNetworkInterfaceIdentityByID s
 }
 
 // NewFloatingIPPatchTargetNetworkInterfaceIdentityNetworkInterfaceIdentityByID : Instantiate FloatingIPPatchTargetNetworkInterfaceIdentityNetworkInterfaceIdentityByID (Generic Model Constructor)
-func (*VpcV1) NewFloatingIPPatchTargetNetworkInterfaceIdentityNetworkInterfaceIdentityByID(id string) (model *FloatingIPPatchTargetNetworkInterfaceIdentityNetworkInterfaceIdentityByID, err error) {
-	model = &FloatingIPPatchTargetNetworkInterfaceIdentityNetworkInterfaceIdentityByID{
+func (*VpcV1) NewFloatingIPPatchTargetNetworkInterfaceIdentityNetworkInterfaceIdentityByID(id string) (_model *FloatingIPPatchTargetNetworkInterfaceIdentityNetworkInterfaceIdentityByID, err error) {
+	_model = &FloatingIPPatchTargetNetworkInterfaceIdentityNetworkInterfaceIdentityByID{
 		ID: core.StringPtr(id),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -52241,11 +53597,11 @@ type FloatingIPPrototypeFloatingIPByTarget struct {
 }
 
 // NewFloatingIPPrototypeFloatingIPByTarget : Instantiate FloatingIPPrototypeFloatingIPByTarget (Generic Model Constructor)
-func (*VpcV1) NewFloatingIPPrototypeFloatingIPByTarget(target FloatingIPByTargetNetworkInterfaceIdentityIntf) (model *FloatingIPPrototypeFloatingIPByTarget, err error) {
-	model = &FloatingIPPrototypeFloatingIPByTarget{
+func (*VpcV1) NewFloatingIPPrototypeFloatingIPByTarget(target FloatingIPByTargetNetworkInterfaceIdentityIntf) (_model *FloatingIPPrototypeFloatingIPByTarget, err error) {
+	_model = &FloatingIPPrototypeFloatingIPByTarget{
 		Target: target,
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -52286,11 +53642,11 @@ type FloatingIPPrototypeFloatingIPByZone struct {
 }
 
 // NewFloatingIPPrototypeFloatingIPByZone : Instantiate FloatingIPPrototypeFloatingIPByZone (Generic Model Constructor)
-func (*VpcV1) NewFloatingIPPrototypeFloatingIPByZone(zone ZoneIdentityIntf) (model *FloatingIPPrototypeFloatingIPByZone, err error) {
-	model = &FloatingIPPrototypeFloatingIPByZone{
+func (*VpcV1) NewFloatingIPPrototypeFloatingIPByZone(zone ZoneIdentityIntf) (_model *FloatingIPPrototypeFloatingIPByZone, err error) {
+	_model = &FloatingIPPrototypeFloatingIPByZone{
 		Zone: zone,
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -52334,6 +53690,8 @@ type FloatingIPTargetNetworkInterfaceReference struct {
 	Name *string `json:"name" validate:"required"`
 
 	// The primary IPv4 address.
+	//
+	// If the address has not yet been selected, the value will be `0.0.0.0`.
 	PrimaryIpv4Address *string `json:"primary_ipv4_address" validate:"required"`
 
 	// The resource type.
@@ -52843,130 +54201,6 @@ func UnmarshalFlowLogCollectorTargetVPCReference(m map[string]json.RawMessage, r
 	return
 }
 
-// IkePolicyIdentityByHref : IkePolicyIdentityByHref struct
-// This model "extends" IkePolicyIdentity
-type IkePolicyIdentityByHref struct {
-	// The IKE policy's canonical URL.
-	Href *string `json:"href" validate:"required"`
-}
-
-// NewIkePolicyIdentityByHref : Instantiate IkePolicyIdentityByHref (Generic Model Constructor)
-func (*VpcV1) NewIkePolicyIdentityByHref(href string) (model *IkePolicyIdentityByHref, err error) {
-	model = &IkePolicyIdentityByHref{
-		Href: core.StringPtr(href),
-	}
-	err = core.ValidateStruct(model, "required parameters")
-	return
-}
-
-func (*IkePolicyIdentityByHref) isaIkePolicyIdentity() bool {
-	return true
-}
-
-// UnmarshalIkePolicyIdentityByHref unmarshals an instance of IkePolicyIdentityByHref from the specified map of raw messages.
-func UnmarshalIkePolicyIdentityByHref(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(IkePolicyIdentityByHref)
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// IkePolicyIdentityByID : IkePolicyIdentityByID struct
-// This model "extends" IkePolicyIdentity
-type IkePolicyIdentityByID struct {
-	// The unique identifier for this IKE policy.
-	ID *string `json:"id" validate:"required"`
-}
-
-// NewIkePolicyIdentityByID : Instantiate IkePolicyIdentityByID (Generic Model Constructor)
-func (*VpcV1) NewIkePolicyIdentityByID(id string) (model *IkePolicyIdentityByID, err error) {
-	model = &IkePolicyIdentityByID{
-		ID: core.StringPtr(id),
-	}
-	err = core.ValidateStruct(model, "required parameters")
-	return
-}
-
-func (*IkePolicyIdentityByID) isaIkePolicyIdentity() bool {
-	return true
-}
-
-// UnmarshalIkePolicyIdentityByID unmarshals an instance of IkePolicyIdentityByID from the specified map of raw messages.
-func UnmarshalIkePolicyIdentityByID(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(IkePolicyIdentityByID)
-	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// IPsecPolicyIdentityByHref : IPsecPolicyIdentityByHref struct
-// This model "extends" IPsecPolicyIdentity
-type IPsecPolicyIdentityByHref struct {
-	// The IPsec policy's canonical URL.
-	Href *string `json:"href" validate:"required"`
-}
-
-// NewIPsecPolicyIdentityByHref : Instantiate IPsecPolicyIdentityByHref (Generic Model Constructor)
-func (*VpcV1) NewIPsecPolicyIdentityByHref(href string) (model *IPsecPolicyIdentityByHref, err error) {
-	model = &IPsecPolicyIdentityByHref{
-		Href: core.StringPtr(href),
-	}
-	err = core.ValidateStruct(model, "required parameters")
-	return
-}
-
-func (*IPsecPolicyIdentityByHref) isaIPsecPolicyIdentity() bool {
-	return true
-}
-
-// UnmarshalIPsecPolicyIdentityByHref unmarshals an instance of IPsecPolicyIdentityByHref from the specified map of raw messages.
-func UnmarshalIPsecPolicyIdentityByHref(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(IPsecPolicyIdentityByHref)
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// IPsecPolicyIdentityByID : IPsecPolicyIdentityByID struct
-// This model "extends" IPsecPolicyIdentity
-type IPsecPolicyIdentityByID struct {
-	// The unique identifier for this IPsec policy.
-	ID *string `json:"id" validate:"required"`
-}
-
-// NewIPsecPolicyIdentityByID : Instantiate IPsecPolicyIdentityByID (Generic Model Constructor)
-func (*VpcV1) NewIPsecPolicyIdentityByID(id string) (model *IPsecPolicyIdentityByID, err error) {
-	model = &IPsecPolicyIdentityByID{
-		ID: core.StringPtr(id),
-	}
-	err = core.ValidateStruct(model, "required parameters")
-	return
-}
-
-func (*IPsecPolicyIdentityByID) isaIPsecPolicyIdentity() bool {
-	return true
-}
-
-// UnmarshalIPsecPolicyIdentityByID unmarshals an instance of IPsecPolicyIdentityByID from the specified map of raw messages.
-func UnmarshalIPsecPolicyIdentityByID(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(IPsecPolicyIdentityByID)
-	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
 // ImageIdentityByCRN : ImageIdentityByCRN struct
 // This model "extends" ImageIdentity
 type ImageIdentityByCRN struct {
@@ -52975,11 +54209,11 @@ type ImageIdentityByCRN struct {
 }
 
 // NewImageIdentityByCRN : Instantiate ImageIdentityByCRN (Generic Model Constructor)
-func (*VpcV1) NewImageIdentityByCRN(crn string) (model *ImageIdentityByCRN, err error) {
-	model = &ImageIdentityByCRN{
+func (*VpcV1) NewImageIdentityByCRN(crn string) (_model *ImageIdentityByCRN, err error) {
+	_model = &ImageIdentityByCRN{
 		CRN: core.StringPtr(crn),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -53006,11 +54240,11 @@ type ImageIdentityByHref struct {
 }
 
 // NewImageIdentityByHref : Instantiate ImageIdentityByHref (Generic Model Constructor)
-func (*VpcV1) NewImageIdentityByHref(href string) (model *ImageIdentityByHref, err error) {
-	model = &ImageIdentityByHref{
+func (*VpcV1) NewImageIdentityByHref(href string) (_model *ImageIdentityByHref, err error) {
+	_model = &ImageIdentityByHref{
 		Href: core.StringPtr(href),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -53037,11 +54271,11 @@ type ImageIdentityByID struct {
 }
 
 // NewImageIdentityByID : Instantiate ImageIdentityByID (Generic Model Constructor)
-func (*VpcV1) NewImageIdentityByID(id string) (model *ImageIdentityByID, err error) {
-	model = &ImageIdentityByID{
+func (*VpcV1) NewImageIdentityByID(id string) (_model *ImageIdentityByID, err error) {
+	_model = &ImageIdentityByID{
 		ID: core.StringPtr(id),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -53072,18 +54306,18 @@ type ImagePrototypeImageByFile struct {
 	// A base64-encoded, encrypted representation of the key that was used to encrypt the data for this image.
 	//
 	// That representation is created by wrapping the key's value with the `encryption_key` root key (which must also be
-	// provided), using either [Key Protect](https://cloud.ibm.com/docs/key-protect?topic=key-protect-wrap-keys) or the
+	// specified), using either [Key Protect](https://cloud.ibm.com/docs/key-protect?topic=key-protect-wrap-keys) or the
 	// [Hyper Protect Crypto Service](https://cloud.ibm.com/docs/services/hs-crypto?topic=hs-crypto-wrap-keys).
 	//
-	// If this property is not provided, the imported image is treated as unencrypted.
+	// If unspecified, the imported image is treated as unencrypted.
 	EncryptedDataKey *string `json:"encrypted_data_key,omitempty"`
 
 	// The root key that was used to wrap the data key (which is ultimately represented as
 	// `encrypted_data_key`). Additionally, the root key will be used to encrypt volumes
-	// created from this image (unless an alternate `encryption_key` is provided at volume
+	// created from this image (unless an alternate `encryption_key` is specified at volume
 	// creation).
 	//
-	// If this property is not provided, the imported image is treated as unencrypted.
+	// If unspecified, the imported image is treated as unencrypted.
 	EncryptionKey EncryptionKeyIdentityIntf `json:"encryption_key,omitempty"`
 
 	// The file from which to create the image.
@@ -53096,12 +54330,12 @@ type ImagePrototypeImageByFile struct {
 }
 
 // NewImagePrototypeImageByFile : Instantiate ImagePrototypeImageByFile (Generic Model Constructor)
-func (*VpcV1) NewImagePrototypeImageByFile(file *ImageFilePrototype, operatingSystem OperatingSystemIdentityIntf) (model *ImagePrototypeImageByFile, err error) {
-	model = &ImagePrototypeImageByFile{
+func (*VpcV1) NewImagePrototypeImageByFile(file *ImageFilePrototype, operatingSystem OperatingSystemIdentityIntf) (_model *ImagePrototypeImageByFile, err error) {
+	_model = &ImagePrototypeImageByFile{
 		File:            file,
 		OperatingSystem: operatingSystem,
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -53151,7 +54385,7 @@ type ImagePrototypeImageBySourceVolume struct {
 
 	// The root key used to wrap the system-generated data encryption key for the image.
 	//
-	// If this property is not provided, the root key from `source_volume` will be used.
+	// If unspecified, the root key from `source_volume` will be used.
 	EncryptionKey EncryptionKeyIdentityIntf `json:"encryption_key,omitempty"`
 
 	// The volume from which to create the image. The specified volume must:
@@ -53164,11 +54398,11 @@ type ImagePrototypeImageBySourceVolume struct {
 }
 
 // NewImagePrototypeImageBySourceVolume : Instantiate ImagePrototypeImageBySourceVolume (Generic Model Constructor)
-func (*VpcV1) NewImagePrototypeImageBySourceVolume(sourceVolume VolumeIdentityIntf) (model *ImagePrototypeImageBySourceVolume, err error) {
-	model = &ImagePrototypeImageBySourceVolume{
+func (*VpcV1) NewImagePrototypeImageBySourceVolume(sourceVolume VolumeIdentityIntf) (_model *ImagePrototypeImageBySourceVolume, err error) {
+	_model = &ImagePrototypeImageBySourceVolume{
 		SourceVolume: sourceVolume,
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -53267,12 +54501,14 @@ func UnmarshalInstanceGroupManagerActionPrototypeScheduledActionPrototype(m map[
 // - InstanceGroupManagerActionScheduledActionManagerTarget
 // This model "extends" InstanceGroupManagerAction
 type InstanceGroupManagerActionScheduledAction struct {
-	// If set to `true`, this scheduled action will be automatically deleted after it has finished and the
-	// `auto_delete_timeout` time has passed.
+	// Indicates whether this scheduled action will be automatically deleted after it has completed and
+	// `auto_delete_timeout` hours have passed. At present, this is always
+	// `true`, but may be modifiable in the future.
 	AutoDelete *bool `json:"auto_delete" validate:"required"`
 
-	// Amount of time in hours that are required to pass before the scheduled action will be automatically deleted once it
-	// has finished. If this value is 0, the action will be deleted on completion.
+	// If `auto_delete` is `true`, and this scheduled action has finished, the hours after which it will be automatically
+	// deleted. If the value is `0`, the action will be deleted once it has finished. This value may be modifiable in the
+	// future.
 	AutoDeleteTimeout *int64 `json:"auto_delete_timeout" validate:"required"`
 
 	// The date and time that the instance group manager action was created.
@@ -53309,10 +54545,10 @@ type InstanceGroupManagerActionScheduledAction struct {
 	// period.
 	CronSpec *string `json:"cron_spec,omitempty"`
 
-	// The date and time the scheduled action was last applied. If empty the action has never been applied.
+	// The date and time the scheduled action was last applied. If absent, the action has never been applied.
 	LastAppliedAt *strfmt.DateTime `json:"last_applied_at,omitempty"`
 
-	// The date and time the scheduled action will next run. If empty the system is currently calculating the next run
+	// The date and time the scheduled action will next run. If absent, the system is currently calculating the next run
 	// time.
 	NextRunAt *strfmt.DateTime `json:"next_run_at,omitempty"`
 
@@ -53440,7 +54676,7 @@ type InstanceGroupManagerAutoScale struct {
 	// The unique identifier for this instance group manager.
 	ID *string `json:"id" validate:"required"`
 
-	// If set to `true`, this manager will control the instance group.
+	// Indicates whether this manager will control the instance group.
 	ManagementEnabled *bool `json:"management_enabled" validate:"required"`
 
 	// The user-defined name for this instance group manager. Names must be unique within the instance group.
@@ -53566,13 +54802,13 @@ const (
 )
 
 // NewInstanceGroupManagerPolicyPrototypeInstanceGroupManagerTargetPolicyPrototype : Instantiate InstanceGroupManagerPolicyPrototypeInstanceGroupManagerTargetPolicyPrototype (Generic Model Constructor)
-func (*VpcV1) NewInstanceGroupManagerPolicyPrototypeInstanceGroupManagerTargetPolicyPrototype(metricType string, metricValue int64, policyType string) (model *InstanceGroupManagerPolicyPrototypeInstanceGroupManagerTargetPolicyPrototype, err error) {
-	model = &InstanceGroupManagerPolicyPrototypeInstanceGroupManagerTargetPolicyPrototype{
+func (*VpcV1) NewInstanceGroupManagerPolicyPrototypeInstanceGroupManagerTargetPolicyPrototype(metricType string, metricValue int64, policyType string) (_model *InstanceGroupManagerPolicyPrototypeInstanceGroupManagerTargetPolicyPrototype, err error) {
+	_model = &InstanceGroupManagerPolicyPrototypeInstanceGroupManagerTargetPolicyPrototype{
 		MetricType:  core.StringPtr(metricType),
 		MetricValue: core.Int64Ptr(metricValue),
 		PolicyType:  core.StringPtr(policyType),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -53693,7 +54929,7 @@ func UnmarshalInstanceGroupManagerPolicyInstanceGroupManagerTargetPolicy(m map[s
 // InstanceGroupManagerPrototypeInstanceGroupManagerAutoScalePrototype : InstanceGroupManagerPrototypeInstanceGroupManagerAutoScalePrototype struct
 // This model "extends" InstanceGroupManagerPrototype
 type InstanceGroupManagerPrototypeInstanceGroupManagerAutoScalePrototype struct {
-	// If set to `true`, this manager will control the instance group.
+	// Indicates whether this manager will control the instance group.
 	ManagementEnabled *bool `json:"management_enabled,omitempty"`
 
 	// The user-defined name for this instance group manager. Names must be unique within the instance group.
@@ -53722,12 +54958,12 @@ const (
 )
 
 // NewInstanceGroupManagerPrototypeInstanceGroupManagerAutoScalePrototype : Instantiate InstanceGroupManagerPrototypeInstanceGroupManagerAutoScalePrototype (Generic Model Constructor)
-func (*VpcV1) NewInstanceGroupManagerPrototypeInstanceGroupManagerAutoScalePrototype(managerType string, maxMembershipCount int64) (model *InstanceGroupManagerPrototypeInstanceGroupManagerAutoScalePrototype, err error) {
-	model = &InstanceGroupManagerPrototypeInstanceGroupManagerAutoScalePrototype{
+func (*VpcV1) NewInstanceGroupManagerPrototypeInstanceGroupManagerAutoScalePrototype(managerType string, maxMembershipCount int64) (_model *InstanceGroupManagerPrototypeInstanceGroupManagerAutoScalePrototype, err error) {
+	_model = &InstanceGroupManagerPrototypeInstanceGroupManagerAutoScalePrototype{
 		ManagerType:        core.StringPtr(managerType),
 		MaxMembershipCount: core.Int64Ptr(maxMembershipCount),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -53773,7 +55009,7 @@ func UnmarshalInstanceGroupManagerPrototypeInstanceGroupManagerAutoScalePrototyp
 // InstanceGroupManagerPrototypeInstanceGroupManagerScheduledPrototype : InstanceGroupManagerPrototypeInstanceGroupManagerScheduledPrototype struct
 // This model "extends" InstanceGroupManagerPrototype
 type InstanceGroupManagerPrototypeInstanceGroupManagerScheduledPrototype struct {
-	// If set to `true`, this manager will control the instance group.
+	// Indicates whether this manager will control the instance group.
 	ManagementEnabled *bool `json:"management_enabled,omitempty"`
 
 	// The user-defined name for this instance group manager. Names must be unique within the instance group.
@@ -53790,11 +55026,11 @@ const (
 )
 
 // NewInstanceGroupManagerPrototypeInstanceGroupManagerScheduledPrototype : Instantiate InstanceGroupManagerPrototypeInstanceGroupManagerScheduledPrototype (Generic Model Constructor)
-func (*VpcV1) NewInstanceGroupManagerPrototypeInstanceGroupManagerScheduledPrototype(managerType string) (model *InstanceGroupManagerPrototypeInstanceGroupManagerScheduledPrototype, err error) {
-	model = &InstanceGroupManagerPrototypeInstanceGroupManagerScheduledPrototype{
+func (*VpcV1) NewInstanceGroupManagerPrototypeInstanceGroupManagerScheduledPrototype(managerType string) (_model *InstanceGroupManagerPrototypeInstanceGroupManagerScheduledPrototype, err error) {
+	_model = &InstanceGroupManagerPrototypeInstanceGroupManagerScheduledPrototype{
 		ManagerType: core.StringPtr(managerType),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -53833,7 +55069,7 @@ type InstanceGroupManagerScheduled struct {
 	// The unique identifier for this instance group manager.
 	ID *string `json:"id" validate:"required"`
 
-	// If set to `true`, this manager will control the instance group.
+	// Indicates whether this manager will control the instance group.
 	ManagementEnabled *bool `json:"management_enabled" validate:"required"`
 
 	// The user-defined name for this instance group manager. Names must be unique within the instance group.
@@ -53956,8 +55192,8 @@ func UnmarshalInstanceGroupManagerScheduledActionManagerAutoScale(m map[string]j
 	return
 }
 
-// InstanceGroupManagerScheduledActionManagerPrototypeAutoScalePrototype : The auto scale manager to update and the property or properties to be updated. Exactly one of `id` or `href` must be
-// provided in addition to at least one of `min_membership_count` and
+// InstanceGroupManagerScheduledActionManagerPrototypeAutoScalePrototype : The auto scale manager to update, and one or more properties to be updated. Either `id` or `href` must be specified,
+// in addition to at least one of `min_membership_count` and
 // `max_membership_count`.
 // Models which "extend" this model:
 // - InstanceGroupManagerScheduledActionManagerPrototypeAutoScalePrototypeByID
@@ -54021,11 +55257,11 @@ type InstancePatchProfileInstanceProfileIdentityByHref struct {
 }
 
 // NewInstancePatchProfileInstanceProfileIdentityByHref : Instantiate InstancePatchProfileInstanceProfileIdentityByHref (Generic Model Constructor)
-func (*VpcV1) NewInstancePatchProfileInstanceProfileIdentityByHref(href string) (model *InstancePatchProfileInstanceProfileIdentityByHref, err error) {
-	model = &InstancePatchProfileInstanceProfileIdentityByHref{
+func (*VpcV1) NewInstancePatchProfileInstanceProfileIdentityByHref(href string) (_model *InstancePatchProfileInstanceProfileIdentityByHref, err error) {
+	_model = &InstancePatchProfileInstanceProfileIdentityByHref{
 		Href: core.StringPtr(href),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -54052,11 +55288,11 @@ type InstancePatchProfileInstanceProfileIdentityByName struct {
 }
 
 // NewInstancePatchProfileInstanceProfileIdentityByName : Instantiate InstancePatchProfileInstanceProfileIdentityByName (Generic Model Constructor)
-func (*VpcV1) NewInstancePatchProfileInstanceProfileIdentityByName(name string) (model *InstancePatchProfileInstanceProfileIdentityByName, err error) {
-	model = &InstancePatchProfileInstanceProfileIdentityByName{
+func (*VpcV1) NewInstancePatchProfileInstanceProfileIdentityByName(name string) (_model *InstancePatchProfileInstanceProfileIdentityByName, err error) {
+	_model = &InstancePatchProfileInstanceProfileIdentityByName{
 		Name: core.StringPtr(name),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -54238,8 +55474,7 @@ type InstancePlacementTargetDedicatedHostGroupReference struct {
 	// The unique identifier for this dedicated host group.
 	ID *string `json:"id" validate:"required"`
 
-	// The unique user-defined name for this dedicated host group. If unspecified, the name will be a hyphenated list of
-	// randomly-selected words.
+	// The unique user-defined name for this dedicated host group.
 	Name *string `json:"name" validate:"required"`
 
 	// The type of resource referenced.
@@ -54303,8 +55538,7 @@ type InstancePlacementTargetDedicatedHostReference struct {
 	// The unique identifier for this dedicated host.
 	ID *string `json:"id" validate:"required"`
 
-	// The unique user-defined name for this dedicated host. If unspecified, the name will be a hyphenated list of
-	// randomly-selected words.
+	// The unique user-defined name for this dedicated host.
 	Name *string `json:"name" validate:"required"`
 
 	// The type of resource referenced.
@@ -54445,8 +55679,8 @@ func UnmarshalInstanceProfileBandwidthDependent(m map[string]json.RawMessage, re
 	return
 }
 
-// InstanceProfileBandwidthEnum : The permitted total bandwidth values (in megabits per second) shared across the network interfaces of an instance
-// with this profile.
+// InstanceProfileBandwidthEnum : The permitted total bandwidth values (in megabits per second) shared across the network interfaces and storage
+// volumes of an instance with this profile.
 // This model "extends" InstanceProfileBandwidth
 type InstanceProfileBandwidthEnum struct {
 	// The default value for this profile field.
@@ -54904,6 +56138,328 @@ func UnmarshalInstanceProfileDiskSizeRange(m map[string]json.RawMessage, result 
 	return
 }
 
+// InstanceProfileGpuDependent : The GPU count for an instance with this profile depends on its configuration.
+// This model "extends" InstanceProfileGpu
+type InstanceProfileGpuDependent struct {
+	// The type for this profile field.
+	Type *string `json:"type" validate:"required"`
+}
+
+// Constants associated with the InstanceProfileGpuDependent.Type property.
+// The type for this profile field.
+const (
+	InstanceProfileGpuDependentTypeDependentConst = "dependent"
+)
+
+func (*InstanceProfileGpuDependent) isaInstanceProfileGpu() bool {
+	return true
+}
+
+// UnmarshalInstanceProfileGpuDependent unmarshals an instance of InstanceProfileGpuDependent from the specified map of raw messages.
+func UnmarshalInstanceProfileGpuDependent(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(InstanceProfileGpuDependent)
+	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// InstanceProfileGpuEnum : The permitted GPU count values for an instance with this profile.
+// This model "extends" InstanceProfileGpu
+type InstanceProfileGpuEnum struct {
+	// The default value for this profile field.
+	Default *int64 `json:"default" validate:"required"`
+
+	// The type for this profile field.
+	Type *string `json:"type" validate:"required"`
+
+	// The permitted values for this profile field.
+	Values []int64 `json:"values" validate:"required"`
+}
+
+// Constants associated with the InstanceProfileGpuEnum.Type property.
+// The type for this profile field.
+const (
+	InstanceProfileGpuEnumTypeEnumConst = "enum"
+)
+
+func (*InstanceProfileGpuEnum) isaInstanceProfileGpu() bool {
+	return true
+}
+
+// UnmarshalInstanceProfileGpuEnum unmarshals an instance of InstanceProfileGpuEnum from the specified map of raw messages.
+func UnmarshalInstanceProfileGpuEnum(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(InstanceProfileGpuEnum)
+	err = core.UnmarshalPrimitive(m, "default", &obj.Default)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "values", &obj.Values)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// InstanceProfileGpuFixed : The GPU count for an instance with this profile.
+// This model "extends" InstanceProfileGpu
+type InstanceProfileGpuFixed struct {
+	// The type for this profile field.
+	Type *string `json:"type" validate:"required"`
+
+	// The value for this profile field.
+	Value *int64 `json:"value" validate:"required"`
+}
+
+// Constants associated with the InstanceProfileGpuFixed.Type property.
+// The type for this profile field.
+const (
+	InstanceProfileGpuFixedTypeFixedConst = "fixed"
+)
+
+func (*InstanceProfileGpuFixed) isaInstanceProfileGpu() bool {
+	return true
+}
+
+// UnmarshalInstanceProfileGpuFixed unmarshals an instance of InstanceProfileGpuFixed from the specified map of raw messages.
+func UnmarshalInstanceProfileGpuFixed(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(InstanceProfileGpuFixed)
+	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "value", &obj.Value)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// InstanceProfileGpuMemoryDependent : The overall GPU memory value for an instance with this profile depends on its configuration.
+// This model "extends" InstanceProfileGpuMemory
+type InstanceProfileGpuMemoryDependent struct {
+	// The type for this profile field.
+	Type *string `json:"type" validate:"required"`
+}
+
+// Constants associated with the InstanceProfileGpuMemoryDependent.Type property.
+// The type for this profile field.
+const (
+	InstanceProfileGpuMemoryDependentTypeDependentConst = "dependent"
+)
+
+func (*InstanceProfileGpuMemoryDependent) isaInstanceProfileGpuMemory() bool {
+	return true
+}
+
+// UnmarshalInstanceProfileGpuMemoryDependent unmarshals an instance of InstanceProfileGpuMemoryDependent from the specified map of raw messages.
+func UnmarshalInstanceProfileGpuMemoryDependent(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(InstanceProfileGpuMemoryDependent)
+	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// InstanceProfileGpuMemoryEnum : The permitted overall GPU memory values in GiB (gibibytes) for an instance with this profile.
+// This model "extends" InstanceProfileGpuMemory
+type InstanceProfileGpuMemoryEnum struct {
+	// The default value for this profile field.
+	Default *int64 `json:"default" validate:"required"`
+
+	// The type for this profile field.
+	Type *string `json:"type" validate:"required"`
+
+	// The permitted values for this profile field.
+	Values []int64 `json:"values" validate:"required"`
+}
+
+// Constants associated with the InstanceProfileGpuMemoryEnum.Type property.
+// The type for this profile field.
+const (
+	InstanceProfileGpuMemoryEnumTypeEnumConst = "enum"
+)
+
+func (*InstanceProfileGpuMemoryEnum) isaInstanceProfileGpuMemory() bool {
+	return true
+}
+
+// UnmarshalInstanceProfileGpuMemoryEnum unmarshals an instance of InstanceProfileGpuMemoryEnum from the specified map of raw messages.
+func UnmarshalInstanceProfileGpuMemoryEnum(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(InstanceProfileGpuMemoryEnum)
+	err = core.UnmarshalPrimitive(m, "default", &obj.Default)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "values", &obj.Values)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// InstanceProfileGpuMemoryFixed : The overall GPU memory in GiB (gibibytes) for an instance with this profile.
+// This model "extends" InstanceProfileGpuMemory
+type InstanceProfileGpuMemoryFixed struct {
+	// The type for this profile field.
+	Type *string `json:"type" validate:"required"`
+
+	// The value for this profile field.
+	Value *int64 `json:"value" validate:"required"`
+}
+
+// Constants associated with the InstanceProfileGpuMemoryFixed.Type property.
+// The type for this profile field.
+const (
+	InstanceProfileGpuMemoryFixedTypeFixedConst = "fixed"
+)
+
+func (*InstanceProfileGpuMemoryFixed) isaInstanceProfileGpuMemory() bool {
+	return true
+}
+
+// UnmarshalInstanceProfileGpuMemoryFixed unmarshals an instance of InstanceProfileGpuMemoryFixed from the specified map of raw messages.
+func UnmarshalInstanceProfileGpuMemoryFixed(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(InstanceProfileGpuMemoryFixed)
+	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "value", &obj.Value)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// InstanceProfileGpuMemoryRange : The permitted overall GPU memory range in GiB (gibibytes) for an instance with this profile.
+// This model "extends" InstanceProfileGpuMemory
+type InstanceProfileGpuMemoryRange struct {
+	// The default value for this profile field.
+	Default *int64 `json:"default" validate:"required"`
+
+	// The maximum value for this profile field.
+	Max *int64 `json:"max" validate:"required"`
+
+	// The minimum value for this profile field.
+	Min *int64 `json:"min" validate:"required"`
+
+	// The increment step value for this profile field.
+	Step *int64 `json:"step" validate:"required"`
+
+	// The type for this profile field.
+	Type *string `json:"type" validate:"required"`
+}
+
+// Constants associated with the InstanceProfileGpuMemoryRange.Type property.
+// The type for this profile field.
+const (
+	InstanceProfileGpuMemoryRangeTypeRangeConst = "range"
+)
+
+func (*InstanceProfileGpuMemoryRange) isaInstanceProfileGpuMemory() bool {
+	return true
+}
+
+// UnmarshalInstanceProfileGpuMemoryRange unmarshals an instance of InstanceProfileGpuMemoryRange from the specified map of raw messages.
+func UnmarshalInstanceProfileGpuMemoryRange(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(InstanceProfileGpuMemoryRange)
+	err = core.UnmarshalPrimitive(m, "default", &obj.Default)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "max", &obj.Max)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "min", &obj.Min)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "step", &obj.Step)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// InstanceProfileGpuRange : The permitted GPU count range for an instance with this profile.
+// This model "extends" InstanceProfileGpu
+type InstanceProfileGpuRange struct {
+	// The default value for this profile field.
+	Default *int64 `json:"default" validate:"required"`
+
+	// The maximum value for this profile field.
+	Max *int64 `json:"max" validate:"required"`
+
+	// The minimum value for this profile field.
+	Min *int64 `json:"min" validate:"required"`
+
+	// The increment step value for this profile field.
+	Step *int64 `json:"step" validate:"required"`
+
+	// The type for this profile field.
+	Type *string `json:"type" validate:"required"`
+}
+
+// Constants associated with the InstanceProfileGpuRange.Type property.
+// The type for this profile field.
+const (
+	InstanceProfileGpuRangeTypeRangeConst = "range"
+)
+
+func (*InstanceProfileGpuRange) isaInstanceProfileGpu() bool {
+	return true
+}
+
+// UnmarshalInstanceProfileGpuRange unmarshals an instance of InstanceProfileGpuRange from the specified map of raw messages.
+func UnmarshalInstanceProfileGpuRange(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(InstanceProfileGpuRange)
+	err = core.UnmarshalPrimitive(m, "default", &obj.Default)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "max", &obj.Max)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "min", &obj.Min)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "step", &obj.Step)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
 // InstanceProfileIdentityByHref : InstanceProfileIdentityByHref struct
 // This model "extends" InstanceProfileIdentity
 type InstanceProfileIdentityByHref struct {
@@ -54912,11 +56468,11 @@ type InstanceProfileIdentityByHref struct {
 }
 
 // NewInstanceProfileIdentityByHref : Instantiate InstanceProfileIdentityByHref (Generic Model Constructor)
-func (*VpcV1) NewInstanceProfileIdentityByHref(href string) (model *InstanceProfileIdentityByHref, err error) {
-	model = &InstanceProfileIdentityByHref{
+func (*VpcV1) NewInstanceProfileIdentityByHref(href string) (_model *InstanceProfileIdentityByHref, err error) {
+	_model = &InstanceProfileIdentityByHref{
 		Href: core.StringPtr(href),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -54943,11 +56499,11 @@ type InstanceProfileIdentityByName struct {
 }
 
 // NewInstanceProfileIdentityByName : Instantiate InstanceProfileIdentityByName (Generic Model Constructor)
-func (*VpcV1) NewInstanceProfileIdentityByName(name string) (model *InstanceProfileIdentityByName, err error) {
-	model = &InstanceProfileIdentityByName{
+func (*VpcV1) NewInstanceProfileIdentityByName(name string) (_model *InstanceProfileIdentityByName, err error) {
+	_model = &InstanceProfileIdentityByName{
 		Name: core.StringPtr(name),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -55351,6 +56907,170 @@ func UnmarshalInstanceProfileVcpuRange(m map[string]json.RawMessage, result inte
 	return
 }
 
+// InstanceProfileVolumeBandwidthDependent : The storage bandwidth shared across the storage volumes of an instance with this profile depends on its
+// configuration.
+// This model "extends" InstanceProfileVolumeBandwidth
+type InstanceProfileVolumeBandwidthDependent struct {
+	// The type for this profile field.
+	Type *string `json:"type" validate:"required"`
+}
+
+// Constants associated with the InstanceProfileVolumeBandwidthDependent.Type property.
+// The type for this profile field.
+const (
+	InstanceProfileVolumeBandwidthDependentTypeDependentConst = "dependent"
+)
+
+func (*InstanceProfileVolumeBandwidthDependent) isaInstanceProfileVolumeBandwidth() bool {
+	return true
+}
+
+// UnmarshalInstanceProfileVolumeBandwidthDependent unmarshals an instance of InstanceProfileVolumeBandwidthDependent from the specified map of raw messages.
+func UnmarshalInstanceProfileVolumeBandwidthDependent(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(InstanceProfileVolumeBandwidthDependent)
+	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// InstanceProfileVolumeBandwidthEnum : The permitted storage bandwidth values (in megabits per second) shared across the storage volumes of an instance with
+// this profile.
+// This model "extends" InstanceProfileVolumeBandwidth
+type InstanceProfileVolumeBandwidthEnum struct {
+	// The default value for this profile field.
+	Default *int64 `json:"default" validate:"required"`
+
+	// The type for this profile field.
+	Type *string `json:"type" validate:"required"`
+
+	// The permitted values for this profile field.
+	Values []int64 `json:"values" validate:"required"`
+}
+
+// Constants associated with the InstanceProfileVolumeBandwidthEnum.Type property.
+// The type for this profile field.
+const (
+	InstanceProfileVolumeBandwidthEnumTypeEnumConst = "enum"
+)
+
+func (*InstanceProfileVolumeBandwidthEnum) isaInstanceProfileVolumeBandwidth() bool {
+	return true
+}
+
+// UnmarshalInstanceProfileVolumeBandwidthEnum unmarshals an instance of InstanceProfileVolumeBandwidthEnum from the specified map of raw messages.
+func UnmarshalInstanceProfileVolumeBandwidthEnum(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(InstanceProfileVolumeBandwidthEnum)
+	err = core.UnmarshalPrimitive(m, "default", &obj.Default)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "values", &obj.Values)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// InstanceProfileVolumeBandwidthFixed : The storage bandwidth (in megabits per second) shared across the storage volumes of an instance with this profile.
+// This model "extends" InstanceProfileVolumeBandwidth
+type InstanceProfileVolumeBandwidthFixed struct {
+	// The type for this profile field.
+	Type *string `json:"type" validate:"required"`
+
+	// The value for this profile field.
+	Value *int64 `json:"value" validate:"required"`
+}
+
+// Constants associated with the InstanceProfileVolumeBandwidthFixed.Type property.
+// The type for this profile field.
+const (
+	InstanceProfileVolumeBandwidthFixedTypeFixedConst = "fixed"
+)
+
+func (*InstanceProfileVolumeBandwidthFixed) isaInstanceProfileVolumeBandwidth() bool {
+	return true
+}
+
+// UnmarshalInstanceProfileVolumeBandwidthFixed unmarshals an instance of InstanceProfileVolumeBandwidthFixed from the specified map of raw messages.
+func UnmarshalInstanceProfileVolumeBandwidthFixed(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(InstanceProfileVolumeBandwidthFixed)
+	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "value", &obj.Value)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// InstanceProfileVolumeBandwidthRange : The permitted storage bandwidth range (in megabits per second) shared across the storage volumes of an instance with
+// this profile.
+// This model "extends" InstanceProfileVolumeBandwidth
+type InstanceProfileVolumeBandwidthRange struct {
+	// The default value for this profile field.
+	Default *int64 `json:"default" validate:"required"`
+
+	// The maximum value for this profile field.
+	Max *int64 `json:"max" validate:"required"`
+
+	// The minimum value for this profile field.
+	Min *int64 `json:"min" validate:"required"`
+
+	// The increment step value for this profile field.
+	Step *int64 `json:"step" validate:"required"`
+
+	// The type for this profile field.
+	Type *string `json:"type" validate:"required"`
+}
+
+// Constants associated with the InstanceProfileVolumeBandwidthRange.Type property.
+// The type for this profile field.
+const (
+	InstanceProfileVolumeBandwidthRangeTypeRangeConst = "range"
+)
+
+func (*InstanceProfileVolumeBandwidthRange) isaInstanceProfileVolumeBandwidth() bool {
+	return true
+}
+
+// UnmarshalInstanceProfileVolumeBandwidthRange unmarshals an instance of InstanceProfileVolumeBandwidthRange from the specified map of raw messages.
+func UnmarshalInstanceProfileVolumeBandwidthRange(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(InstanceProfileVolumeBandwidthRange)
+	err = core.UnmarshalPrimitive(m, "default", &obj.Default)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "max", &obj.Max)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "min", &obj.Min)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "step", &obj.Step)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
 // InstancePrototypeInstanceByImage : InstancePrototypeInstanceByImage struct
 // This model "extends" InstancePrototype
 type InstancePrototypeInstanceByImage struct {
@@ -55365,6 +57085,10 @@ type InstancePrototypeInstanceByImage struct {
 	// password](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization). Keys are optional for other images, but if
 	// no keys are specified, the instance will be inaccessible unless the specified image provides another means of
 	// access.
+	//
+	// This property's value is used when provisioning the virtual server instance, but not subsequently managed.
+	// Accordingly, it is reflected as an [instance
+	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
 	Keys []KeyIdentityIntf `json:"keys,omitempty"`
 
 	// The unique user-defined name for this virtual server instance (and default system hostname). If unspecified, the
@@ -55382,14 +57106,19 @@ type InstancePrototypeInstanceByImage struct {
 
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
 
+	// The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes. An increase in
+	// this value will result in a corresponding decrease to
+	// `total_network_bandwidth`.
+	TotalVolumeBandwidth *int64 `json:"total_volume_bandwidth,omitempty"`
+
 	// User data to be made available when setting up the virtual server instance.
 	UserData *string `json:"user_data,omitempty"`
 
 	// The volume attachments for this virtual server instance.
 	VolumeAttachments []VolumeAttachmentPrototypeInstanceContext `json:"volume_attachments,omitempty"`
 
-	// The VPC the virtual server instance is to be a part of. If provided, must match the VPC tied to the subnets of the
-	// instance's network interfaces.
+	// The VPC the virtual server instance is to be a part of. If specified, it must match the VPC referenced by the
+	// subnets of the instance's network interfaces.
 	VPC VPCIdentityIntf `json:"vpc,omitempty"`
 
 	// The boot volume attachment for the virtual server instance.
@@ -55406,13 +57135,13 @@ type InstancePrototypeInstanceByImage struct {
 }
 
 // NewInstancePrototypeInstanceByImage : Instantiate InstancePrototypeInstanceByImage (Generic Model Constructor)
-func (*VpcV1) NewInstancePrototypeInstanceByImage(image ImageIdentityIntf, primaryNetworkInterface *NetworkInterfacePrototype, zone ZoneIdentityIntf) (model *InstancePrototypeInstanceByImage, err error) {
-	model = &InstancePrototypeInstanceByImage{
+func (*VpcV1) NewInstancePrototypeInstanceByImage(image ImageIdentityIntf, primaryNetworkInterface *NetworkInterfacePrototype, zone ZoneIdentityIntf) (_model *InstancePrototypeInstanceByImage, err error) {
+	_model = &InstancePrototypeInstanceByImage{
 		Image:                   image,
 		PrimaryNetworkInterface: primaryNetworkInterface,
 		Zone:                    zone,
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -55448,6 +57177,10 @@ func UnmarshalInstancePrototypeInstanceByImage(m map[string]json.RawMessage, res
 		return
 	}
 	err = core.UnmarshalModel(m, "resource_group", &obj.ResourceGroup, UnmarshalResourceGroupIdentity)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "total_volume_bandwidth", &obj.TotalVolumeBandwidth)
 	if err != nil {
 		return
 	}
@@ -55497,6 +57230,10 @@ type InstancePrototypeInstanceBySourceTemplate struct {
 	// password](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization). Keys are optional for other images, but if
 	// no keys are specified, the instance will be inaccessible unless the specified image provides another means of
 	// access.
+	//
+	// This property's value is used when provisioning the virtual server instance, but not subsequently managed.
+	// Accordingly, it is reflected as an [instance
+	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
 	Keys []KeyIdentityIntf `json:"keys,omitempty"`
 
 	// The unique user-defined name for this virtual server instance (and default system hostname). If unspecified, the
@@ -55514,14 +57251,19 @@ type InstancePrototypeInstanceBySourceTemplate struct {
 
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
 
+	// The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes. An increase in
+	// this value will result in a corresponding decrease to
+	// `total_network_bandwidth`.
+	TotalVolumeBandwidth *int64 `json:"total_volume_bandwidth,omitempty"`
+
 	// User data to be made available when setting up the virtual server instance.
 	UserData *string `json:"user_data,omitempty"`
 
 	// The volume attachments for this virtual server instance.
 	VolumeAttachments []VolumeAttachmentPrototypeInstanceContext `json:"volume_attachments,omitempty"`
 
-	// The VPC the virtual server instance is to be a part of. If provided, must match the VPC tied to the subnets of the
-	// instance's network interfaces.
+	// The VPC the virtual server instance is to be a part of. If specified, it must match the VPC referenced by the
+	// subnets of the instance's network interfaces.
 	VPC VPCIdentityIntf `json:"vpc,omitempty"`
 
 	// The boot volume attachment for the virtual server instance.
@@ -55541,11 +57283,11 @@ type InstancePrototypeInstanceBySourceTemplate struct {
 }
 
 // NewInstancePrototypeInstanceBySourceTemplate : Instantiate InstancePrototypeInstanceBySourceTemplate (Generic Model Constructor)
-func (*VpcV1) NewInstancePrototypeInstanceBySourceTemplate(sourceTemplate InstanceTemplateIdentityIntf) (model *InstancePrototypeInstanceBySourceTemplate, err error) {
-	model = &InstancePrototypeInstanceBySourceTemplate{
+func (*VpcV1) NewInstancePrototypeInstanceBySourceTemplate(sourceTemplate InstanceTemplateIdentityIntf) (_model *InstancePrototypeInstanceBySourceTemplate, err error) {
+	_model = &InstancePrototypeInstanceBySourceTemplate{
 		SourceTemplate: sourceTemplate,
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -55581,6 +57323,10 @@ func UnmarshalInstancePrototypeInstanceBySourceTemplate(m map[string]json.RawMes
 		return
 	}
 	err = core.UnmarshalModel(m, "resource_group", &obj.ResourceGroup, UnmarshalResourceGroupIdentity)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "total_volume_bandwidth", &obj.TotalVolumeBandwidth)
 	if err != nil {
 		return
 	}
@@ -55634,6 +57380,10 @@ type InstancePrototypeInstanceByVolume struct {
 	// password](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization). Keys are optional for other images, but if
 	// no keys are specified, the instance will be inaccessible unless the specified image provides another means of
 	// access.
+	//
+	// This property's value is used when provisioning the virtual server instance, but not subsequently managed.
+	// Accordingly, it is reflected as an [instance
+	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
 	Keys []KeyIdentityIntf `json:"keys,omitempty"`
 
 	// The unique user-defined name for this virtual server instance (and default system hostname). If unspecified, the
@@ -55651,14 +57401,19 @@ type InstancePrototypeInstanceByVolume struct {
 
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
 
+	// The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes. An increase in
+	// this value will result in a corresponding decrease to
+	// `total_network_bandwidth`.
+	TotalVolumeBandwidth *int64 `json:"total_volume_bandwidth,omitempty"`
+
 	// User data to be made available when setting up the virtual server instance.
 	UserData *string `json:"user_data,omitempty"`
 
 	// The volume attachments for this virtual server instance.
 	VolumeAttachments []VolumeAttachmentPrototypeInstanceContext `json:"volume_attachments,omitempty"`
 
-	// The VPC the virtual server instance is to be a part of. If provided, must match the VPC tied to the subnets of the
-	// instance's network interfaces.
+	// The VPC the virtual server instance is to be a part of. If specified, it must match the VPC referenced by the
+	// subnets of the instance's network interfaces.
 	VPC VPCIdentityIntf `json:"vpc,omitempty"`
 
 	// The boot volume attachment for the virtual server instance.
@@ -55672,13 +57427,13 @@ type InstancePrototypeInstanceByVolume struct {
 }
 
 // NewInstancePrototypeInstanceByVolume : Instantiate InstancePrototypeInstanceByVolume (Generic Model Constructor)
-func (*VpcV1) NewInstancePrototypeInstanceByVolume(bootVolumeAttachment *VolumeAttachmentPrototypeInstanceByVolumeContext, primaryNetworkInterface *NetworkInterfacePrototype, zone ZoneIdentityIntf) (model *InstancePrototypeInstanceByVolume, err error) {
-	model = &InstancePrototypeInstanceByVolume{
+func (*VpcV1) NewInstancePrototypeInstanceByVolume(bootVolumeAttachment *VolumeAttachmentPrototypeInstanceByVolumeContext, primaryNetworkInterface *NetworkInterfacePrototype, zone ZoneIdentityIntf) (_model *InstancePrototypeInstanceByVolume, err error) {
+	_model = &InstancePrototypeInstanceByVolume{
 		BootVolumeAttachment:    bootVolumeAttachment,
 		PrimaryNetworkInterface: primaryNetworkInterface,
 		Zone:                    zone,
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -55714,6 +57469,10 @@ func UnmarshalInstancePrototypeInstanceByVolume(m map[string]json.RawMessage, re
 		return
 	}
 	err = core.UnmarshalModel(m, "resource_group", &obj.ResourceGroup, UnmarshalResourceGroupIdentity)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "total_volume_bandwidth", &obj.TotalVolumeBandwidth)
 	if err != nil {
 		return
 	}
@@ -55753,11 +57512,11 @@ type InstanceTemplateIdentityByCRN struct {
 }
 
 // NewInstanceTemplateIdentityByCRN : Instantiate InstanceTemplateIdentityByCRN (Generic Model Constructor)
-func (*VpcV1) NewInstanceTemplateIdentityByCRN(crn string) (model *InstanceTemplateIdentityByCRN, err error) {
-	model = &InstanceTemplateIdentityByCRN{
+func (*VpcV1) NewInstanceTemplateIdentityByCRN(crn string) (_model *InstanceTemplateIdentityByCRN, err error) {
+	_model = &InstanceTemplateIdentityByCRN{
 		CRN: core.StringPtr(crn),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -55784,11 +57543,11 @@ type InstanceTemplateIdentityByHref struct {
 }
 
 // NewInstanceTemplateIdentityByHref : Instantiate InstanceTemplateIdentityByHref (Generic Model Constructor)
-func (*VpcV1) NewInstanceTemplateIdentityByHref(href string) (model *InstanceTemplateIdentityByHref, err error) {
-	model = &InstanceTemplateIdentityByHref{
+func (*VpcV1) NewInstanceTemplateIdentityByHref(href string) (_model *InstanceTemplateIdentityByHref, err error) {
+	_model = &InstanceTemplateIdentityByHref{
 		Href: core.StringPtr(href),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -55815,11 +57574,11 @@ type InstanceTemplateIdentityByID struct {
 }
 
 // NewInstanceTemplateIdentityByID : Instantiate InstanceTemplateIdentityByID (Generic Model Constructor)
-func (*VpcV1) NewInstanceTemplateIdentityByID(id string) (model *InstanceTemplateIdentityByID, err error) {
-	model = &InstanceTemplateIdentityByID{
+func (*VpcV1) NewInstanceTemplateIdentityByID(id string) (_model *InstanceTemplateIdentityByID, err error) {
+	_model = &InstanceTemplateIdentityByID{
 		ID: core.StringPtr(id),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -55852,6 +57611,10 @@ type InstanceTemplatePrototypeInstanceByImage struct {
 	// password](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization). Keys are optional for other images, but if
 	// no keys are specified, the instance will be inaccessible unless the specified image provides another means of
 	// access.
+	//
+	// This property's value is used when provisioning the virtual server instance, but not subsequently managed.
+	// Accordingly, it is reflected as an [instance
+	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
 	Keys []KeyIdentityIntf `json:"keys,omitempty"`
 
 	// The unique user-defined name for this virtual server instance (and default system hostname). If unspecified, the
@@ -55869,14 +57632,19 @@ type InstanceTemplatePrototypeInstanceByImage struct {
 
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
 
+	// The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes. An increase in
+	// this value will result in a corresponding decrease to
+	// `total_network_bandwidth`.
+	TotalVolumeBandwidth *int64 `json:"total_volume_bandwidth,omitempty"`
+
 	// User data to be made available when setting up the virtual server instance.
 	UserData *string `json:"user_data,omitempty"`
 
 	// The volume attachments for this virtual server instance.
 	VolumeAttachments []VolumeAttachmentPrototypeInstanceContext `json:"volume_attachments,omitempty"`
 
-	// The VPC the virtual server instance is to be a part of. If provided, must match the VPC tied to the subnets of the
-	// instance's network interfaces.
+	// The VPC the virtual server instance is to be a part of. If specified, it must match the VPC referenced by the
+	// subnets of the instance's network interfaces.
 	VPC VPCIdentityIntf `json:"vpc,omitempty"`
 
 	// The boot volume attachment for the virtual server instance.
@@ -55893,13 +57661,13 @@ type InstanceTemplatePrototypeInstanceByImage struct {
 }
 
 // NewInstanceTemplatePrototypeInstanceByImage : Instantiate InstanceTemplatePrototypeInstanceByImage (Generic Model Constructor)
-func (*VpcV1) NewInstanceTemplatePrototypeInstanceByImage(image ImageIdentityIntf, primaryNetworkInterface *NetworkInterfacePrototype, zone ZoneIdentityIntf) (model *InstanceTemplatePrototypeInstanceByImage, err error) {
-	model = &InstanceTemplatePrototypeInstanceByImage{
+func (*VpcV1) NewInstanceTemplatePrototypeInstanceByImage(image ImageIdentityIntf, primaryNetworkInterface *NetworkInterfacePrototype, zone ZoneIdentityIntf) (_model *InstanceTemplatePrototypeInstanceByImage, err error) {
+	_model = &InstanceTemplatePrototypeInstanceByImage{
 		Image:                   image,
 		PrimaryNetworkInterface: primaryNetworkInterface,
 		Zone:                    zone,
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -55935,6 +57703,10 @@ func UnmarshalInstanceTemplatePrototypeInstanceByImage(m map[string]json.RawMess
 		return
 	}
 	err = core.UnmarshalModel(m, "resource_group", &obj.ResourceGroup, UnmarshalResourceGroupIdentity)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "total_volume_bandwidth", &obj.TotalVolumeBandwidth)
 	if err != nil {
 		return
 	}
@@ -55984,6 +57756,10 @@ type InstanceTemplatePrototypeInstanceBySourceTemplate struct {
 	// password](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization). Keys are optional for other images, but if
 	// no keys are specified, the instance will be inaccessible unless the specified image provides another means of
 	// access.
+	//
+	// This property's value is used when provisioning the virtual server instance, but not subsequently managed.
+	// Accordingly, it is reflected as an [instance
+	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
 	Keys []KeyIdentityIntf `json:"keys,omitempty"`
 
 	// The unique user-defined name for this virtual server instance (and default system hostname). If unspecified, the
@@ -56001,14 +57777,19 @@ type InstanceTemplatePrototypeInstanceBySourceTemplate struct {
 
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
 
+	// The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes. An increase in
+	// this value will result in a corresponding decrease to
+	// `total_network_bandwidth`.
+	TotalVolumeBandwidth *int64 `json:"total_volume_bandwidth,omitempty"`
+
 	// User data to be made available when setting up the virtual server instance.
 	UserData *string `json:"user_data,omitempty"`
 
 	// The volume attachments for this virtual server instance.
 	VolumeAttachments []VolumeAttachmentPrototypeInstanceContext `json:"volume_attachments,omitempty"`
 
-	// The VPC the virtual server instance is to be a part of. If provided, must match the VPC tied to the subnets of the
-	// instance's network interfaces.
+	// The VPC the virtual server instance is to be a part of. If specified, it must match the VPC referenced by the
+	// subnets of the instance's network interfaces.
 	VPC VPCIdentityIntf `json:"vpc,omitempty"`
 
 	// The boot volume attachment for the virtual server instance.
@@ -56028,11 +57809,11 @@ type InstanceTemplatePrototypeInstanceBySourceTemplate struct {
 }
 
 // NewInstanceTemplatePrototypeInstanceBySourceTemplate : Instantiate InstanceTemplatePrototypeInstanceBySourceTemplate (Generic Model Constructor)
-func (*VpcV1) NewInstanceTemplatePrototypeInstanceBySourceTemplate(sourceTemplate InstanceTemplateIdentityIntf) (model *InstanceTemplatePrototypeInstanceBySourceTemplate, err error) {
-	model = &InstanceTemplatePrototypeInstanceBySourceTemplate{
+func (*VpcV1) NewInstanceTemplatePrototypeInstanceBySourceTemplate(sourceTemplate InstanceTemplateIdentityIntf) (_model *InstanceTemplatePrototypeInstanceBySourceTemplate, err error) {
+	_model = &InstanceTemplatePrototypeInstanceBySourceTemplate{
 		SourceTemplate: sourceTemplate,
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -56068,6 +57849,10 @@ func UnmarshalInstanceTemplatePrototypeInstanceBySourceTemplate(m map[string]jso
 		return
 	}
 	err = core.UnmarshalModel(m, "resource_group", &obj.ResourceGroup, UnmarshalResourceGroupIdentity)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "total_volume_bandwidth", &obj.TotalVolumeBandwidth)
 	if err != nil {
 		return
 	}
@@ -56121,6 +57906,10 @@ type InstanceTemplatePrototypeInstanceByVolume struct {
 	// password](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization). Keys are optional for other images, but if
 	// no keys are specified, the instance will be inaccessible unless the specified image provides another means of
 	// access.
+	//
+	// This property's value is used when provisioning the virtual server instance, but not subsequently managed.
+	// Accordingly, it is reflected as an [instance
+	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
 	Keys []KeyIdentityIntf `json:"keys,omitempty"`
 
 	// The unique user-defined name for this virtual server instance (and default system hostname). If unspecified, the
@@ -56138,14 +57927,19 @@ type InstanceTemplatePrototypeInstanceByVolume struct {
 
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
 
+	// The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes. An increase in
+	// this value will result in a corresponding decrease to
+	// `total_network_bandwidth`.
+	TotalVolumeBandwidth *int64 `json:"total_volume_bandwidth,omitempty"`
+
 	// User data to be made available when setting up the virtual server instance.
 	UserData *string `json:"user_data,omitempty"`
 
 	// The volume attachments for this virtual server instance.
 	VolumeAttachments []VolumeAttachmentPrototypeInstanceContext `json:"volume_attachments,omitempty"`
 
-	// The VPC the virtual server instance is to be a part of. If provided, must match the VPC tied to the subnets of the
-	// instance's network interfaces.
+	// The VPC the virtual server instance is to be a part of. If specified, it must match the VPC referenced by the
+	// subnets of the instance's network interfaces.
 	VPC VPCIdentityIntf `json:"vpc,omitempty"`
 
 	// The boot volume attachment for the virtual server instance.
@@ -56159,13 +57953,13 @@ type InstanceTemplatePrototypeInstanceByVolume struct {
 }
 
 // NewInstanceTemplatePrototypeInstanceByVolume : Instantiate InstanceTemplatePrototypeInstanceByVolume (Generic Model Constructor)
-func (*VpcV1) NewInstanceTemplatePrototypeInstanceByVolume(bootVolumeAttachment *VolumeAttachmentPrototypeInstanceByVolumeContext, primaryNetworkInterface *NetworkInterfacePrototype, zone ZoneIdentityIntf) (model *InstanceTemplatePrototypeInstanceByVolume, err error) {
-	model = &InstanceTemplatePrototypeInstanceByVolume{
+func (*VpcV1) NewInstanceTemplatePrototypeInstanceByVolume(bootVolumeAttachment *VolumeAttachmentPrototypeInstanceByVolumeContext, primaryNetworkInterface *NetworkInterfacePrototype, zone ZoneIdentityIntf) (_model *InstanceTemplatePrototypeInstanceByVolume, err error) {
+	_model = &InstanceTemplatePrototypeInstanceByVolume{
 		BootVolumeAttachment:    bootVolumeAttachment,
 		PrimaryNetworkInterface: primaryNetworkInterface,
 		Zone:                    zone,
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -56201,6 +57995,10 @@ func UnmarshalInstanceTemplatePrototypeInstanceByVolume(m map[string]json.RawMes
 		return
 	}
 	err = core.UnmarshalModel(m, "resource_group", &obj.ResourceGroup, UnmarshalResourceGroupIdentity)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "total_volume_bandwidth", &obj.TotalVolumeBandwidth)
 	if err != nil {
 		return
 	}
@@ -56258,6 +58056,10 @@ type InstanceTemplateInstanceByImage struct {
 	// password](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization). Keys are optional for other images, but if
 	// no keys are specified, the instance will be inaccessible unless the specified image provides another means of
 	// access.
+	//
+	// This property's value is used when provisioning the virtual server instance, but not subsequently managed.
+	// Accordingly, it is reflected as an [instance
+	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
 	Keys []KeyIdentityIntf `json:"keys,omitempty"`
 
 	// The unique user-defined name for this instance template.
@@ -56275,14 +58077,19 @@ type InstanceTemplateInstanceByImage struct {
 	// The resource group for this instance template.
 	ResourceGroup *ResourceGroupReference `json:"resource_group" validate:"required"`
 
+	// The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes. An increase in
+	// this value will result in a corresponding decrease to
+	// `total_network_bandwidth`.
+	TotalVolumeBandwidth *int64 `json:"total_volume_bandwidth,omitempty"`
+
 	// User data to be made available when setting up the virtual server instance.
 	UserData *string `json:"user_data,omitempty"`
 
 	// The volume attachments for this virtual server instance.
 	VolumeAttachments []VolumeAttachmentPrototypeInstanceContext `json:"volume_attachments,omitempty"`
 
-	// The VPC the virtual server instance is to be a part of. If provided, must match the VPC tied to the subnets of the
-	// instance's network interfaces.
+	// The VPC the virtual server instance is to be a part of. If specified, it must match the VPC referenced by the
+	// subnets of the instance's network interfaces.
 	VPC VPCIdentityIntf `json:"vpc,omitempty"`
 
 	// The boot volume attachment for the virtual server instance.
@@ -56349,6 +58156,10 @@ func UnmarshalInstanceTemplateInstanceByImage(m map[string]json.RawMessage, resu
 	if err != nil {
 		return
 	}
+	err = core.UnmarshalPrimitive(m, "total_volume_bandwidth", &obj.TotalVolumeBandwidth)
+	if err != nil {
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "user_data", &obj.UserData)
 	if err != nil {
 		return
@@ -56407,6 +58218,10 @@ type InstanceTemplateInstanceByVolume struct {
 	// password](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization). Keys are optional for other images, but if
 	// no keys are specified, the instance will be inaccessible unless the specified image provides another means of
 	// access.
+	//
+	// This property's value is used when provisioning the virtual server instance, but not subsequently managed.
+	// Accordingly, it is reflected as an [instance
+	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
 	Keys []KeyIdentityIntf `json:"keys,omitempty"`
 
 	// The unique user-defined name for this instance template.
@@ -56424,14 +58239,19 @@ type InstanceTemplateInstanceByVolume struct {
 	// The resource group for this instance template.
 	ResourceGroup *ResourceGroupReference `json:"resource_group" validate:"required"`
 
+	// The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes. An increase in
+	// this value will result in a corresponding decrease to
+	// `total_network_bandwidth`.
+	TotalVolumeBandwidth *int64 `json:"total_volume_bandwidth,omitempty"`
+
 	// User data to be made available when setting up the virtual server instance.
 	UserData *string `json:"user_data,omitempty"`
 
 	// The volume attachments for this virtual server instance.
 	VolumeAttachments []VolumeAttachmentPrototypeInstanceContext `json:"volume_attachments,omitempty"`
 
-	// The VPC the virtual server instance is to be a part of. If provided, must match the VPC tied to the subnets of the
-	// instance's network interfaces.
+	// The VPC the virtual server instance is to be a part of. If specified, it must match the VPC referenced by the
+	// subnets of the instance's network interfaces.
 	VPC VPCIdentityIntf `json:"vpc,omitempty"`
 
 	// The boot volume attachment for the virtual server instance.
@@ -56495,6 +58315,10 @@ func UnmarshalInstanceTemplateInstanceByVolume(m map[string]json.RawMessage, res
 	if err != nil {
 		return
 	}
+	err = core.UnmarshalPrimitive(m, "total_volume_bandwidth", &obj.TotalVolumeBandwidth)
+	if err != nil {
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "user_data", &obj.UserData)
 	if err != nil {
 		return
@@ -56531,11 +58355,11 @@ type KeyIdentityByCRN struct {
 }
 
 // NewKeyIdentityByCRN : Instantiate KeyIdentityByCRN (Generic Model Constructor)
-func (*VpcV1) NewKeyIdentityByCRN(crn string) (model *KeyIdentityByCRN, err error) {
-	model = &KeyIdentityByCRN{
+func (*VpcV1) NewKeyIdentityByCRN(crn string) (_model *KeyIdentityByCRN, err error) {
+	_model = &KeyIdentityByCRN{
 		CRN: core.StringPtr(crn),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -56554,6 +58378,38 @@ func UnmarshalKeyIdentityByCRN(m map[string]json.RawMessage, result interface{})
 	return
 }
 
+// KeyIdentityByFingerprint : KeyIdentityByFingerprint struct
+// This model "extends" KeyIdentity
+type KeyIdentityByFingerprint struct {
+	// The fingerprint for this key.  The value is returned base64-encoded and prefixed with the hash algorithm (always
+	// `SHA256`).
+	Fingerprint *string `json:"fingerprint" validate:"required"`
+}
+
+// NewKeyIdentityByFingerprint : Instantiate KeyIdentityByFingerprint (Generic Model Constructor)
+func (*VpcV1) NewKeyIdentityByFingerprint(fingerprint string) (_model *KeyIdentityByFingerprint, err error) {
+	_model = &KeyIdentityByFingerprint{
+		Fingerprint: core.StringPtr(fingerprint),
+	}
+	err = core.ValidateStruct(_model, "required parameters")
+	return
+}
+
+func (*KeyIdentityByFingerprint) isaKeyIdentity() bool {
+	return true
+}
+
+// UnmarshalKeyIdentityByFingerprint unmarshals an instance of KeyIdentityByFingerprint from the specified map of raw messages.
+func UnmarshalKeyIdentityByFingerprint(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(KeyIdentityByFingerprint)
+	err = core.UnmarshalPrimitive(m, "fingerprint", &obj.Fingerprint)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
 // KeyIdentityByHref : KeyIdentityByHref struct
 // This model "extends" KeyIdentity
 type KeyIdentityByHref struct {
@@ -56562,11 +58418,11 @@ type KeyIdentityByHref struct {
 }
 
 // NewKeyIdentityByHref : Instantiate KeyIdentityByHref (Generic Model Constructor)
-func (*VpcV1) NewKeyIdentityByHref(href string) (model *KeyIdentityByHref, err error) {
-	model = &KeyIdentityByHref{
+func (*VpcV1) NewKeyIdentityByHref(href string) (_model *KeyIdentityByHref, err error) {
+	_model = &KeyIdentityByHref{
 		Href: core.StringPtr(href),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -56593,11 +58449,11 @@ type KeyIdentityByID struct {
 }
 
 // NewKeyIdentityByID : Instantiate KeyIdentityByID (Generic Model Constructor)
-func (*VpcV1) NewKeyIdentityByID(id string) (model *KeyIdentityByID, err error) {
-	model = &KeyIdentityByID{
+func (*VpcV1) NewKeyIdentityByID(id string) (_model *KeyIdentityByID, err error) {
+	_model = &KeyIdentityByID{
 		ID: core.StringPtr(id),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -56616,120 +58472,6 @@ func UnmarshalKeyIdentityByID(m map[string]json.RawMessage, result interface{}) 
 	return
 }
 
-// KeyIdentityKeyIdentityByFingerprint : KeyIdentityKeyIdentityByFingerprint struct
-// This model "extends" KeyIdentity
-type KeyIdentityKeyIdentityByFingerprint struct {
-	// The fingerprint for this key.  The value is returned base64-encoded and prefixed with the hash algorithm (always
-	// `SHA256`).
-	Fingerprint *string `json:"fingerprint" validate:"required"`
-}
-
-// NewKeyIdentityKeyIdentityByFingerprint : Instantiate KeyIdentityKeyIdentityByFingerprint (Generic Model Constructor)
-func (*VpcV1) NewKeyIdentityKeyIdentityByFingerprint(fingerprint string) (model *KeyIdentityKeyIdentityByFingerprint, err error) {
-	model = &KeyIdentityKeyIdentityByFingerprint{
-		Fingerprint: core.StringPtr(fingerprint),
-	}
-	err = core.ValidateStruct(model, "required parameters")
-	return
-}
-
-func (*KeyIdentityKeyIdentityByFingerprint) isaKeyIdentity() bool {
-	return true
-}
-
-// UnmarshalKeyIdentityKeyIdentityByFingerprint unmarshals an instance of KeyIdentityKeyIdentityByFingerprint from the specified map of raw messages.
-func UnmarshalKeyIdentityKeyIdentityByFingerprint(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(KeyIdentityKeyIdentityByFingerprint)
-	err = core.UnmarshalPrimitive(m, "fingerprint", &obj.Fingerprint)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// KeyReferenceInstanceInitializationContextKeyIdentityByFingerprint : KeyReferenceInstanceInitializationContextKeyIdentityByFingerprint struct
-// This model "extends" KeyReferenceInstanceInitializationContext
-type KeyReferenceInstanceInitializationContextKeyIdentityByFingerprint struct {
-	// The fingerprint for this key.  The value is returned base64-encoded and prefixed with the hash algorithm (always
-	// `SHA256`).
-	Fingerprint *string `json:"fingerprint" validate:"required"`
-}
-
-func (*KeyReferenceInstanceInitializationContextKeyIdentityByFingerprint) isaKeyReferenceInstanceInitializationContext() bool {
-	return true
-}
-
-// UnmarshalKeyReferenceInstanceInitializationContextKeyIdentityByFingerprint unmarshals an instance of KeyReferenceInstanceInitializationContextKeyIdentityByFingerprint from the specified map of raw messages.
-func UnmarshalKeyReferenceInstanceInitializationContextKeyIdentityByFingerprint(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(KeyReferenceInstanceInitializationContextKeyIdentityByFingerprint)
-	err = core.UnmarshalPrimitive(m, "fingerprint", &obj.Fingerprint)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// KeyReferenceInstanceInitializationContextKeyReference : KeyReferenceInstanceInitializationContextKeyReference struct
-// This model "extends" KeyReferenceInstanceInitializationContext
-type KeyReferenceInstanceInitializationContextKeyReference struct {
-	// The CRN for this key.
-	CRN *string `json:"crn" validate:"required"`
-
-	// If present, this property indicates the referenced resource has been deleted and provides
-	// some supplementary information.
-	Deleted *KeyReferenceDeleted `json:"deleted,omitempty"`
-
-	// The fingerprint for this key.  The value is returned base64-encoded and prefixed with the hash algorithm (always
-	// `SHA256`).
-	Fingerprint *string `json:"fingerprint" validate:"required"`
-
-	// The URL for this key.
-	Href *string `json:"href" validate:"required"`
-
-	// The unique identifier for this key.
-	ID *string `json:"id" validate:"required"`
-
-	// The user-defined name for this key.
-	Name *string `json:"name" validate:"required"`
-}
-
-func (*KeyReferenceInstanceInitializationContextKeyReference) isaKeyReferenceInstanceInitializationContext() bool {
-	return true
-}
-
-// UnmarshalKeyReferenceInstanceInitializationContextKeyReference unmarshals an instance of KeyReferenceInstanceInitializationContextKeyReference from the specified map of raw messages.
-func UnmarshalKeyReferenceInstanceInitializationContextKeyReference(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(KeyReferenceInstanceInitializationContextKeyReference)
-	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "deleted", &obj.Deleted, UnmarshalKeyReferenceDeleted)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "fingerprint", &obj.Fingerprint)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
 // LoadBalancerIdentityByCRN : LoadBalancerIdentityByCRN struct
 // This model "extends" LoadBalancerIdentity
 type LoadBalancerIdentityByCRN struct {
@@ -56738,11 +58480,11 @@ type LoadBalancerIdentityByCRN struct {
 }
 
 // NewLoadBalancerIdentityByCRN : Instantiate LoadBalancerIdentityByCRN (Generic Model Constructor)
-func (*VpcV1) NewLoadBalancerIdentityByCRN(crn string) (model *LoadBalancerIdentityByCRN, err error) {
-	model = &LoadBalancerIdentityByCRN{
+func (*VpcV1) NewLoadBalancerIdentityByCRN(crn string) (_model *LoadBalancerIdentityByCRN, err error) {
+	_model = &LoadBalancerIdentityByCRN{
 		CRN: core.StringPtr(crn),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -56769,11 +58511,11 @@ type LoadBalancerIdentityByHref struct {
 }
 
 // NewLoadBalancerIdentityByHref : Instantiate LoadBalancerIdentityByHref (Generic Model Constructor)
-func (*VpcV1) NewLoadBalancerIdentityByHref(href string) (model *LoadBalancerIdentityByHref, err error) {
-	model = &LoadBalancerIdentityByHref{
+func (*VpcV1) NewLoadBalancerIdentityByHref(href string) (_model *LoadBalancerIdentityByHref, err error) {
+	_model = &LoadBalancerIdentityByHref{
 		Href: core.StringPtr(href),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -56800,11 +58542,11 @@ type LoadBalancerIdentityByID struct {
 }
 
 // NewLoadBalancerIdentityByID : Instantiate LoadBalancerIdentityByID (Generic Model Constructor)
-func (*VpcV1) NewLoadBalancerIdentityByID(id string) (model *LoadBalancerIdentityByID, err error) {
-	model = &LoadBalancerIdentityByID{
+func (*VpcV1) NewLoadBalancerIdentityByID(id string) (_model *LoadBalancerIdentityByID, err error) {
+	_model = &LoadBalancerIdentityByID{
 		ID: core.StringPtr(id),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -56816,6 +58558,104 @@ func (*LoadBalancerIdentityByID) isaLoadBalancerIdentity() bool {
 func UnmarshalLoadBalancerIdentityByID(m map[string]json.RawMessage, result interface{}) (err error) {
 	obj := new(LoadBalancerIdentityByID)
 	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// LoadBalancerListenerIdentityByHref : LoadBalancerListenerIdentityByHref struct
+// This model "extends" LoadBalancerListenerIdentity
+type LoadBalancerListenerIdentityByHref struct {
+	// The listener's canonical URL.
+	Href *string `json:"href" validate:"required"`
+}
+
+// NewLoadBalancerListenerIdentityByHref : Instantiate LoadBalancerListenerIdentityByHref (Generic Model Constructor)
+func (*VpcV1) NewLoadBalancerListenerIdentityByHref(href string) (_model *LoadBalancerListenerIdentityByHref, err error) {
+	_model = &LoadBalancerListenerIdentityByHref{
+		Href: core.StringPtr(href),
+	}
+	err = core.ValidateStruct(_model, "required parameters")
+	return
+}
+
+func (*LoadBalancerListenerIdentityByHref) isaLoadBalancerListenerIdentity() bool {
+	return true
+}
+
+// UnmarshalLoadBalancerListenerIdentityByHref unmarshals an instance of LoadBalancerListenerIdentityByHref from the specified map of raw messages.
+func UnmarshalLoadBalancerListenerIdentityByHref(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(LoadBalancerListenerIdentityByHref)
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// LoadBalancerListenerIdentityByID : LoadBalancerListenerIdentityByID struct
+// This model "extends" LoadBalancerListenerIdentity
+type LoadBalancerListenerIdentityByID struct {
+	// The unique identifier for this load balancer listener.
+	ID *string `json:"id" validate:"required"`
+}
+
+// NewLoadBalancerListenerIdentityByID : Instantiate LoadBalancerListenerIdentityByID (Generic Model Constructor)
+func (*VpcV1) NewLoadBalancerListenerIdentityByID(id string) (_model *LoadBalancerListenerIdentityByID, err error) {
+	_model = &LoadBalancerListenerIdentityByID{
+		ID: core.StringPtr(id),
+	}
+	err = core.ValidateStruct(_model, "required parameters")
+	return
+}
+
+func (*LoadBalancerListenerIdentityByID) isaLoadBalancerListenerIdentity() bool {
+	return true
+}
+
+// UnmarshalLoadBalancerListenerIdentityByID unmarshals an instance of LoadBalancerListenerIdentityByID from the specified map of raw messages.
+func UnmarshalLoadBalancerListenerIdentityByID(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(LoadBalancerListenerIdentityByID)
+	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// LoadBalancerListenerPolicyTargetPatchLoadBalancerListenerHTTPSRedirectPatch : LoadBalancerListenerPolicyTargetPatchLoadBalancerListenerHTTPSRedirectPatch struct
+// This model "extends" LoadBalancerListenerPolicyTargetPatch
+type LoadBalancerListenerPolicyTargetPatchLoadBalancerListenerHTTPSRedirectPatch struct {
+	// The HTTP status code for this redirect.
+	HTTPStatusCode *int64 `json:"http_status_code,omitempty"`
+
+	// Identifies a load balancer listener by a unique property.
+	Listener LoadBalancerListenerIdentityIntf `json:"listener,omitempty"`
+
+	// The redirect relative target URI.
+	URI *string `json:"uri,omitempty"`
+}
+
+func (*LoadBalancerListenerPolicyTargetPatchLoadBalancerListenerHTTPSRedirectPatch) isaLoadBalancerListenerPolicyTargetPatch() bool {
+	return true
+}
+
+// UnmarshalLoadBalancerListenerPolicyTargetPatchLoadBalancerListenerHTTPSRedirectPatch unmarshals an instance of LoadBalancerListenerPolicyTargetPatchLoadBalancerListenerHTTPSRedirectPatch from the specified map of raw messages.
+func UnmarshalLoadBalancerListenerPolicyTargetPatchLoadBalancerListenerHTTPSRedirectPatch(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(LoadBalancerListenerPolicyTargetPatchLoadBalancerListenerHTTPSRedirectPatch)
+	err = core.UnmarshalPrimitive(m, "http_status_code", &obj.HTTPStatusCode)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "listener", &obj.Listener, UnmarshalLoadBalancerListenerIdentity)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "uri", &obj.URI)
 	if err != nil {
 		return
 	}
@@ -56893,6 +58733,52 @@ func UnmarshalLoadBalancerListenerPolicyTargetPatchLoadBalancerPoolIdentity(m ma
 	return
 }
 
+// LoadBalancerListenerPolicyTargetPrototypeLoadBalancerListenerHTTPSRedirectPrototype : LoadBalancerListenerPolicyTargetPrototypeLoadBalancerListenerHTTPSRedirectPrototype struct
+// This model "extends" LoadBalancerListenerPolicyTargetPrototype
+type LoadBalancerListenerPolicyTargetPrototypeLoadBalancerListenerHTTPSRedirectPrototype struct {
+	// The HTTP status code for this redirect.
+	HTTPStatusCode *int64 `json:"http_status_code" validate:"required"`
+
+	// Identifies a load balancer listener by a unique property.
+	Listener LoadBalancerListenerIdentityIntf `json:"listener" validate:"required"`
+
+	// The redirect relative target URI.
+	URI *string `json:"uri,omitempty"`
+}
+
+// NewLoadBalancerListenerPolicyTargetPrototypeLoadBalancerListenerHTTPSRedirectPrototype : Instantiate LoadBalancerListenerPolicyTargetPrototypeLoadBalancerListenerHTTPSRedirectPrototype (Generic Model Constructor)
+func (*VpcV1) NewLoadBalancerListenerPolicyTargetPrototypeLoadBalancerListenerHTTPSRedirectPrototype(httpStatusCode int64, listener LoadBalancerListenerIdentityIntf) (_model *LoadBalancerListenerPolicyTargetPrototypeLoadBalancerListenerHTTPSRedirectPrototype, err error) {
+	_model = &LoadBalancerListenerPolicyTargetPrototypeLoadBalancerListenerHTTPSRedirectPrototype{
+		HTTPStatusCode: core.Int64Ptr(httpStatusCode),
+		Listener:       listener,
+	}
+	err = core.ValidateStruct(_model, "required parameters")
+	return
+}
+
+func (*LoadBalancerListenerPolicyTargetPrototypeLoadBalancerListenerHTTPSRedirectPrototype) isaLoadBalancerListenerPolicyTargetPrototype() bool {
+	return true
+}
+
+// UnmarshalLoadBalancerListenerPolicyTargetPrototypeLoadBalancerListenerHTTPSRedirectPrototype unmarshals an instance of LoadBalancerListenerPolicyTargetPrototypeLoadBalancerListenerHTTPSRedirectPrototype from the specified map of raw messages.
+func UnmarshalLoadBalancerListenerPolicyTargetPrototypeLoadBalancerListenerHTTPSRedirectPrototype(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(LoadBalancerListenerPolicyTargetPrototypeLoadBalancerListenerHTTPSRedirectPrototype)
+	err = core.UnmarshalPrimitive(m, "http_status_code", &obj.HTTPStatusCode)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "listener", &obj.Listener, UnmarshalLoadBalancerListenerIdentity)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "uri", &obj.URI)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
 // LoadBalancerListenerPolicyTargetPrototypeLoadBalancerListenerPolicyRedirectURLPrototype : LoadBalancerListenerPolicyTargetPrototypeLoadBalancerListenerPolicyRedirectURLPrototype struct
 // This model "extends" LoadBalancerListenerPolicyTargetPrototype
 type LoadBalancerListenerPolicyTargetPrototypeLoadBalancerListenerPolicyRedirectURLPrototype struct {
@@ -56904,12 +58790,12 @@ type LoadBalancerListenerPolicyTargetPrototypeLoadBalancerListenerPolicyRedirect
 }
 
 // NewLoadBalancerListenerPolicyTargetPrototypeLoadBalancerListenerPolicyRedirectURLPrototype : Instantiate LoadBalancerListenerPolicyTargetPrototypeLoadBalancerListenerPolicyRedirectURLPrototype (Generic Model Constructor)
-func (*VpcV1) NewLoadBalancerListenerPolicyTargetPrototypeLoadBalancerListenerPolicyRedirectURLPrototype(httpStatusCode int64, url string) (model *LoadBalancerListenerPolicyTargetPrototypeLoadBalancerListenerPolicyRedirectURLPrototype, err error) {
-	model = &LoadBalancerListenerPolicyTargetPrototypeLoadBalancerListenerPolicyRedirectURLPrototype{
+func (*VpcV1) NewLoadBalancerListenerPolicyTargetPrototypeLoadBalancerListenerPolicyRedirectURLPrototype(httpStatusCode int64, url string) (_model *LoadBalancerListenerPolicyTargetPrototypeLoadBalancerListenerPolicyRedirectURLPrototype, err error) {
+	_model = &LoadBalancerListenerPolicyTargetPrototypeLoadBalancerListenerPolicyRedirectURLPrototype{
 		HTTPStatusCode: core.Int64Ptr(httpStatusCode),
 		URL:            core.StringPtr(url),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -56966,6 +58852,41 @@ func UnmarshalLoadBalancerListenerPolicyTargetPrototypeLoadBalancerPoolIdentity(
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// LoadBalancerListenerPolicyTargetLoadBalancerListenerHTTPSRedirect : LoadBalancerListenerPolicyTargetLoadBalancerListenerHTTPSRedirect struct
+// This model "extends" LoadBalancerListenerPolicyTarget
+type LoadBalancerListenerPolicyTargetLoadBalancerListenerHTTPSRedirect struct {
+	// The HTTP status code for this redirect.
+	HTTPStatusCode *int64 `json:"http_status_code" validate:"required"`
+
+	Listener *LoadBalancerListenerReference `json:"listener" validate:"required"`
+
+	// The redirect relative target URI.
+	URI *string `json:"uri,omitempty"`
+}
+
+func (*LoadBalancerListenerPolicyTargetLoadBalancerListenerHTTPSRedirect) isaLoadBalancerListenerPolicyTarget() bool {
+	return true
+}
+
+// UnmarshalLoadBalancerListenerPolicyTargetLoadBalancerListenerHTTPSRedirect unmarshals an instance of LoadBalancerListenerPolicyTargetLoadBalancerListenerHTTPSRedirect from the specified map of raw messages.
+func UnmarshalLoadBalancerListenerPolicyTargetLoadBalancerListenerHTTPSRedirect(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(LoadBalancerListenerPolicyTargetLoadBalancerListenerHTTPSRedirect)
+	err = core.UnmarshalPrimitive(m, "http_status_code", &obj.HTTPStatusCode)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "listener", &obj.Listener, UnmarshalLoadBalancerListenerReference)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "uri", &obj.URI)
 	if err != nil {
 		return
 	}
@@ -57054,11 +58975,11 @@ type LoadBalancerPoolIdentityByHref struct {
 }
 
 // NewLoadBalancerPoolIdentityByHref : Instantiate LoadBalancerPoolIdentityByHref (Generic Model Constructor)
-func (*VpcV1) NewLoadBalancerPoolIdentityByHref(href string) (model *LoadBalancerPoolIdentityByHref, err error) {
-	model = &LoadBalancerPoolIdentityByHref{
+func (*VpcV1) NewLoadBalancerPoolIdentityByHref(href string) (_model *LoadBalancerPoolIdentityByHref, err error) {
+	_model = &LoadBalancerPoolIdentityByHref{
 		Href: core.StringPtr(href),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -57085,11 +59006,11 @@ type LoadBalancerPoolIdentityByID struct {
 }
 
 // NewLoadBalancerPoolIdentityByID : Instantiate LoadBalancerPoolIdentityByID (Generic Model Constructor)
-func (*VpcV1) NewLoadBalancerPoolIdentityByID(id string) (model *LoadBalancerPoolIdentityByID, err error) {
-	model = &LoadBalancerPoolIdentityByID{
+func (*VpcV1) NewLoadBalancerPoolIdentityByID(id string) (_model *LoadBalancerPoolIdentityByID, err error) {
+	_model = &LoadBalancerPoolIdentityByID{
 		ID: core.StringPtr(id),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -57111,18 +59032,20 @@ func UnmarshalLoadBalancerPoolIdentityByID(m map[string]json.RawMessage, result 
 // LoadBalancerPoolMemberTargetPrototypeIP : LoadBalancerPoolMemberTargetPrototypeIP struct
 // This model "extends" LoadBalancerPoolMemberTargetPrototype
 type LoadBalancerPoolMemberTargetPrototypeIP struct {
-	// The IP address. This property may add support for IPv6 addresses in the future. When processing a value in this
-	// property, verify that the address is in an expected format. If it is not, log an error. Optionally halt processing
-	// and surface the error, or bypass the resource on which the unexpected IP address format was encountered.
+	// The IP address.
+	//
+	// This property may add support for IPv6 addresses in the future. When processing a value in this property, verify
+	// that the address is in an expected format. If it is not, log an error. Optionally halt processing and surface the
+	// error, or bypass the resource on which the unexpected IP address format was encountered.
 	Address *string `json:"address" validate:"required"`
 }
 
 // NewLoadBalancerPoolMemberTargetPrototypeIP : Instantiate LoadBalancerPoolMemberTargetPrototypeIP (Generic Model Constructor)
-func (*VpcV1) NewLoadBalancerPoolMemberTargetPrototypeIP(address string) (model *LoadBalancerPoolMemberTargetPrototypeIP, err error) {
-	model = &LoadBalancerPoolMemberTargetPrototypeIP{
+func (*VpcV1) NewLoadBalancerPoolMemberTargetPrototypeIP(address string) (_model *LoadBalancerPoolMemberTargetPrototypeIP, err error) {
+	_model = &LoadBalancerPoolMemberTargetPrototypeIP{
 		Address: core.StringPtr(address),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -57193,9 +59116,11 @@ func UnmarshalLoadBalancerPoolMemberTargetPrototypeInstanceIdentity(m map[string
 // LoadBalancerPoolMemberTargetIP : LoadBalancerPoolMemberTargetIP struct
 // This model "extends" LoadBalancerPoolMemberTarget
 type LoadBalancerPoolMemberTargetIP struct {
-	// The IP address. This property may add support for IPv6 addresses in the future. When processing a value in this
-	// property, verify that the address is in an expected format. If it is not, log an error. Optionally halt processing
-	// and surface the error, or bypass the resource on which the unexpected IP address format was encountered.
+	// The IP address.
+	//
+	// This property may add support for IPv6 addresses in the future. When processing a value in this property, verify
+	// that the address is in an expected format. If it is not, log an error. Optionally halt processing and surface the
+	// error, or bypass the resource on which the unexpected IP address format was encountered.
 	Address *string `json:"address" validate:"required"`
 }
 
@@ -57273,11 +59198,11 @@ type LoadBalancerProfileIdentityByHref struct {
 }
 
 // NewLoadBalancerProfileIdentityByHref : Instantiate LoadBalancerProfileIdentityByHref (Generic Model Constructor)
-func (*VpcV1) NewLoadBalancerProfileIdentityByHref(href string) (model *LoadBalancerProfileIdentityByHref, err error) {
-	model = &LoadBalancerProfileIdentityByHref{
+func (*VpcV1) NewLoadBalancerProfileIdentityByHref(href string) (_model *LoadBalancerProfileIdentityByHref, err error) {
+	_model = &LoadBalancerProfileIdentityByHref{
 		Href: core.StringPtr(href),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -57304,11 +59229,11 @@ type LoadBalancerProfileIdentityByName struct {
 }
 
 // NewLoadBalancerProfileIdentityByName : Instantiate LoadBalancerProfileIdentityByName (Generic Model Constructor)
-func (*VpcV1) NewLoadBalancerProfileIdentityByName(name string) (model *LoadBalancerProfileIdentityByName, err error) {
-	model = &LoadBalancerProfileIdentityByName{
+func (*VpcV1) NewLoadBalancerProfileIdentityByName(name string) (_model *LoadBalancerProfileIdentityByName, err error) {
+	_model = &LoadBalancerProfileIdentityByName{
 		Name: core.StringPtr(name),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -57320,6 +59245,69 @@ func (*LoadBalancerProfileIdentityByName) isaLoadBalancerProfileIdentity() bool 
 func UnmarshalLoadBalancerProfileIdentityByName(m map[string]json.RawMessage, result interface{}) (err error) {
 	obj := new(LoadBalancerProfileIdentityByName)
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// LoadBalancerProfileRouteModeSupportedDependent : The route mode support for a load balancer with this profile depends on its configuration.
+// This model "extends" LoadBalancerProfileRouteModeSupported
+type LoadBalancerProfileRouteModeSupportedDependent struct {
+	// The type for this profile field.
+	Type *string `json:"type" validate:"required"`
+}
+
+// Constants associated with the LoadBalancerProfileRouteModeSupportedDependent.Type property.
+// The type for this profile field.
+const (
+	LoadBalancerProfileRouteModeSupportedDependentTypeDependentConst = "dependent"
+)
+
+func (*LoadBalancerProfileRouteModeSupportedDependent) isaLoadBalancerProfileRouteModeSupported() bool {
+	return true
+}
+
+// UnmarshalLoadBalancerProfileRouteModeSupportedDependent unmarshals an instance of LoadBalancerProfileRouteModeSupportedDependent from the specified map of raw messages.
+func UnmarshalLoadBalancerProfileRouteModeSupportedDependent(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(LoadBalancerProfileRouteModeSupportedDependent)
+	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// LoadBalancerProfileRouteModeSupportedFixed : The route mode support for a load balancer with this profile.
+// This model "extends" LoadBalancerProfileRouteModeSupported
+type LoadBalancerProfileRouteModeSupportedFixed struct {
+	// The type for this profile field.
+	Type *string `json:"type" validate:"required"`
+
+	// The value for this profile field.
+	Value *bool `json:"value" validate:"required"`
+}
+
+// Constants associated with the LoadBalancerProfileRouteModeSupportedFixed.Type property.
+// The type for this profile field.
+const (
+	LoadBalancerProfileRouteModeSupportedFixedTypeFixedConst = "fixed"
+)
+
+func (*LoadBalancerProfileRouteModeSupportedFixed) isaLoadBalancerProfileRouteModeSupported() bool {
+	return true
+}
+
+// UnmarshalLoadBalancerProfileRouteModeSupportedFixed unmarshals an instance of LoadBalancerProfileRouteModeSupportedFixed from the specified map of raw messages.
+func UnmarshalLoadBalancerProfileRouteModeSupportedFixed(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(LoadBalancerProfileRouteModeSupportedFixed)
+	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "value", &obj.Value)
 	if err != nil {
 		return
 	}
@@ -57398,11 +59386,11 @@ type NetworkACLIdentityByCRN struct {
 }
 
 // NewNetworkACLIdentityByCRN : Instantiate NetworkACLIdentityByCRN (Generic Model Constructor)
-func (*VpcV1) NewNetworkACLIdentityByCRN(crn string) (model *NetworkACLIdentityByCRN, err error) {
-	model = &NetworkACLIdentityByCRN{
+func (*VpcV1) NewNetworkACLIdentityByCRN(crn string) (_model *NetworkACLIdentityByCRN, err error) {
+	_model = &NetworkACLIdentityByCRN{
 		CRN: core.StringPtr(crn),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -57429,11 +59417,11 @@ type NetworkACLIdentityByHref struct {
 }
 
 // NewNetworkACLIdentityByHref : Instantiate NetworkACLIdentityByHref (Generic Model Constructor)
-func (*VpcV1) NewNetworkACLIdentityByHref(href string) (model *NetworkACLIdentityByHref, err error) {
-	model = &NetworkACLIdentityByHref{
+func (*VpcV1) NewNetworkACLIdentityByHref(href string) (_model *NetworkACLIdentityByHref, err error) {
+	_model = &NetworkACLIdentityByHref{
 		Href: core.StringPtr(href),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -57460,11 +59448,11 @@ type NetworkACLIdentityByID struct {
 }
 
 // NewNetworkACLIdentityByID : Instantiate NetworkACLIdentityByID (Generic Model Constructor)
-func (*VpcV1) NewNetworkACLIdentityByID(id string) (model *NetworkACLIdentityByID, err error) {
-	model = &NetworkACLIdentityByID{
+func (*VpcV1) NewNetworkACLIdentityByID(id string) (_model *NetworkACLIdentityByID, err error) {
+	_model = &NetworkACLIdentityByID{
 		ID: core.StringPtr(id),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -57544,12 +59532,12 @@ type NetworkACLPrototypeNetworkACLBySourceNetworkACL struct {
 }
 
 // NewNetworkACLPrototypeNetworkACLBySourceNetworkACL : Instantiate NetworkACLPrototypeNetworkACLBySourceNetworkACL (Generic Model Constructor)
-func (*VpcV1) NewNetworkACLPrototypeNetworkACLBySourceNetworkACL(vpc VPCIdentityIntf, sourceNetworkACL NetworkACLIdentityIntf) (model *NetworkACLPrototypeNetworkACLBySourceNetworkACL, err error) {
-	model = &NetworkACLPrototypeNetworkACLBySourceNetworkACL{
+func (*VpcV1) NewNetworkACLPrototypeNetworkACLBySourceNetworkACL(vpc VPCIdentityIntf, sourceNetworkACL NetworkACLIdentityIntf) (_model *NetworkACLPrototypeNetworkACLBySourceNetworkACL, err error) {
+	_model = &NetworkACLPrototypeNetworkACLBySourceNetworkACL{
 		VPC:              vpc,
 		SourceNetworkACL: sourceNetworkACL,
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -57588,11 +59576,11 @@ type NetworkACLRuleBeforePatchNetworkACLRuleIdentityByHref struct {
 }
 
 // NewNetworkACLRuleBeforePatchNetworkACLRuleIdentityByHref : Instantiate NetworkACLRuleBeforePatchNetworkACLRuleIdentityByHref (Generic Model Constructor)
-func (*VpcV1) NewNetworkACLRuleBeforePatchNetworkACLRuleIdentityByHref(href string) (model *NetworkACLRuleBeforePatchNetworkACLRuleIdentityByHref, err error) {
-	model = &NetworkACLRuleBeforePatchNetworkACLRuleIdentityByHref{
+func (*VpcV1) NewNetworkACLRuleBeforePatchNetworkACLRuleIdentityByHref(href string) (_model *NetworkACLRuleBeforePatchNetworkACLRuleIdentityByHref, err error) {
+	_model = &NetworkACLRuleBeforePatchNetworkACLRuleIdentityByHref{
 		Href: core.StringPtr(href),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -57619,11 +59607,11 @@ type NetworkACLRuleBeforePatchNetworkACLRuleIdentityByID struct {
 }
 
 // NewNetworkACLRuleBeforePatchNetworkACLRuleIdentityByID : Instantiate NetworkACLRuleBeforePatchNetworkACLRuleIdentityByID (Generic Model Constructor)
-func (*VpcV1) NewNetworkACLRuleBeforePatchNetworkACLRuleIdentityByID(id string) (model *NetworkACLRuleBeforePatchNetworkACLRuleIdentityByID, err error) {
-	model = &NetworkACLRuleBeforePatchNetworkACLRuleIdentityByID{
+func (*VpcV1) NewNetworkACLRuleBeforePatchNetworkACLRuleIdentityByID(id string) (_model *NetworkACLRuleBeforePatchNetworkACLRuleIdentityByID, err error) {
+	_model = &NetworkACLRuleBeforePatchNetworkACLRuleIdentityByID{
 		ID: core.StringPtr(id),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -57650,11 +59638,11 @@ type NetworkACLRuleBeforePrototypeNetworkACLRuleIdentityByHref struct {
 }
 
 // NewNetworkACLRuleBeforePrototypeNetworkACLRuleIdentityByHref : Instantiate NetworkACLRuleBeforePrototypeNetworkACLRuleIdentityByHref (Generic Model Constructor)
-func (*VpcV1) NewNetworkACLRuleBeforePrototypeNetworkACLRuleIdentityByHref(href string) (model *NetworkACLRuleBeforePrototypeNetworkACLRuleIdentityByHref, err error) {
-	model = &NetworkACLRuleBeforePrototypeNetworkACLRuleIdentityByHref{
+func (*VpcV1) NewNetworkACLRuleBeforePrototypeNetworkACLRuleIdentityByHref(href string) (_model *NetworkACLRuleBeforePrototypeNetworkACLRuleIdentityByHref, err error) {
+	_model = &NetworkACLRuleBeforePrototypeNetworkACLRuleIdentityByHref{
 		Href: core.StringPtr(href),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -57681,11 +59669,11 @@ type NetworkACLRuleBeforePrototypeNetworkACLRuleIdentityByID struct {
 }
 
 // NewNetworkACLRuleBeforePrototypeNetworkACLRuleIdentityByID : Instantiate NetworkACLRuleBeforePrototypeNetworkACLRuleIdentityByID (Generic Model Constructor)
-func (*VpcV1) NewNetworkACLRuleBeforePrototypeNetworkACLRuleIdentityByID(id string) (model *NetworkACLRuleBeforePrototypeNetworkACLRuleIdentityByID, err error) {
-	model = &NetworkACLRuleBeforePrototypeNetworkACLRuleIdentityByID{
+func (*VpcV1) NewNetworkACLRuleBeforePrototypeNetworkACLRuleIdentityByID(id string) (_model *NetworkACLRuleBeforePrototypeNetworkACLRuleIdentityByID, err error) {
+	_model = &NetworkACLRuleBeforePrototypeNetworkACLRuleIdentityByID{
 		ID: core.StringPtr(id),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -58155,15 +60143,15 @@ const (
 )
 
 // NewNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAll : Instantiate NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAll (Generic Model Constructor)
-func (*VpcV1) NewNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAll(action string, destination string, direction string, source string, protocol string) (model *NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAll, err error) {
-	model = &NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAll{
+func (*VpcV1) NewNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAll(action string, destination string, direction string, source string, protocol string) (_model *NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAll, err error) {
+	_model = &NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAll{
 		Action:      core.StringPtr(action),
 		Destination: core.StringPtr(destination),
 		Direction:   core.StringPtr(direction),
 		Source:      core.StringPtr(source),
 		Protocol:    core.StringPtr(protocol),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -58253,15 +60241,15 @@ const (
 )
 
 // NewNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmp : Instantiate NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmp (Generic Model Constructor)
-func (*VpcV1) NewNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmp(action string, destination string, direction string, source string, protocol string) (model *NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmp, err error) {
-	model = &NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmp{
+func (*VpcV1) NewNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmp(action string, destination string, direction string, source string, protocol string) (_model *NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmp, err error) {
+	_model = &NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmp{
 		Action:      core.StringPtr(action),
 		Destination: core.StringPtr(destination),
 		Direction:   core.StringPtr(direction),
 		Source:      core.StringPtr(source),
 		Protocol:    core.StringPtr(protocol),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -58365,15 +60353,15 @@ const (
 )
 
 // NewNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudp : Instantiate NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudp (Generic Model Constructor)
-func (*VpcV1) NewNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudp(action string, destination string, direction string, source string, protocol string) (model *NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudp, err error) {
-	model = &NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudp{
+func (*VpcV1) NewNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudp(action string, destination string, direction string, source string, protocol string) (_model *NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudp, err error) {
+	_model = &NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudp{
 		Action:      core.StringPtr(action),
 		Destination: core.StringPtr(destination),
 		Direction:   core.StringPtr(direction),
 		Source:      core.StringPtr(source),
 		Protocol:    core.StringPtr(protocol),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -58474,15 +60462,15 @@ const (
 )
 
 // NewNetworkACLRulePrototypeNetworkACLRuleProtocolAll : Instantiate NetworkACLRulePrototypeNetworkACLRuleProtocolAll (Generic Model Constructor)
-func (*VpcV1) NewNetworkACLRulePrototypeNetworkACLRuleProtocolAll(action string, destination string, direction string, source string, protocol string) (model *NetworkACLRulePrototypeNetworkACLRuleProtocolAll, err error) {
-	model = &NetworkACLRulePrototypeNetworkACLRuleProtocolAll{
+func (*VpcV1) NewNetworkACLRulePrototypeNetworkACLRuleProtocolAll(action string, destination string, direction string, source string, protocol string) (_model *NetworkACLRulePrototypeNetworkACLRuleProtocolAll, err error) {
+	_model = &NetworkACLRulePrototypeNetworkACLRuleProtocolAll{
 		Action:      core.StringPtr(action),
 		Destination: core.StringPtr(destination),
 		Direction:   core.StringPtr(direction),
 		Source:      core.StringPtr(source),
 		Protocol:    core.StringPtr(protocol),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -58578,15 +60566,15 @@ const (
 )
 
 // NewNetworkACLRulePrototypeNetworkACLRuleProtocolIcmp : Instantiate NetworkACLRulePrototypeNetworkACLRuleProtocolIcmp (Generic Model Constructor)
-func (*VpcV1) NewNetworkACLRulePrototypeNetworkACLRuleProtocolIcmp(action string, destination string, direction string, source string, protocol string) (model *NetworkACLRulePrototypeNetworkACLRuleProtocolIcmp, err error) {
-	model = &NetworkACLRulePrototypeNetworkACLRuleProtocolIcmp{
+func (*VpcV1) NewNetworkACLRulePrototypeNetworkACLRuleProtocolIcmp(action string, destination string, direction string, source string, protocol string) (_model *NetworkACLRulePrototypeNetworkACLRuleProtocolIcmp, err error) {
+	_model = &NetworkACLRulePrototypeNetworkACLRuleProtocolIcmp{
 		Action:      core.StringPtr(action),
 		Destination: core.StringPtr(destination),
 		Direction:   core.StringPtr(direction),
 		Source:      core.StringPtr(source),
 		Protocol:    core.StringPtr(protocol),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -58696,15 +60684,15 @@ const (
 )
 
 // NewNetworkACLRulePrototypeNetworkACLRuleProtocolTcpudp : Instantiate NetworkACLRulePrototypeNetworkACLRuleProtocolTcpudp (Generic Model Constructor)
-func (*VpcV1) NewNetworkACLRulePrototypeNetworkACLRuleProtocolTcpudp(action string, destination string, direction string, source string, protocol string) (model *NetworkACLRulePrototypeNetworkACLRuleProtocolTcpudp, err error) {
-	model = &NetworkACLRulePrototypeNetworkACLRuleProtocolTcpudp{
+func (*VpcV1) NewNetworkACLRulePrototypeNetworkACLRuleProtocolTcpudp(action string, destination string, direction string, source string, protocol string) (_model *NetworkACLRulePrototypeNetworkACLRuleProtocolTcpudp, err error) {
+	_model = &NetworkACLRulePrototypeNetworkACLRuleProtocolTcpudp{
 		Action:      core.StringPtr(action),
 		Destination: core.StringPtr(destination),
 		Direction:   core.StringPtr(direction),
 		Source:      core.StringPtr(source),
 		Protocol:    core.StringPtr(protocol),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -59175,11 +61163,11 @@ type OperatingSystemIdentityByHref struct {
 }
 
 // NewOperatingSystemIdentityByHref : Instantiate OperatingSystemIdentityByHref (Generic Model Constructor)
-func (*VpcV1) NewOperatingSystemIdentityByHref(href string) (model *OperatingSystemIdentityByHref, err error) {
-	model = &OperatingSystemIdentityByHref{
+func (*VpcV1) NewOperatingSystemIdentityByHref(href string) (_model *OperatingSystemIdentityByHref, err error) {
+	_model = &OperatingSystemIdentityByHref{
 		Href: core.StringPtr(href),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -59206,11 +61194,11 @@ type OperatingSystemIdentityByName struct {
 }
 
 // NewOperatingSystemIdentityByName : Instantiate OperatingSystemIdentityByName (Generic Model Constructor)
-func (*VpcV1) NewOperatingSystemIdentityByName(name string) (model *OperatingSystemIdentityByName, err error) {
-	model = &OperatingSystemIdentityByName{
+func (*VpcV1) NewOperatingSystemIdentityByName(name string) (_model *OperatingSystemIdentityByName, err error) {
+	_model = &OperatingSystemIdentityByName{
 		Name: core.StringPtr(name),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -59325,11 +61313,11 @@ type PublicGatewayIdentityByCRN struct {
 }
 
 // NewPublicGatewayIdentityByCRN : Instantiate PublicGatewayIdentityByCRN (Generic Model Constructor)
-func (*VpcV1) NewPublicGatewayIdentityByCRN(crn string) (model *PublicGatewayIdentityByCRN, err error) {
-	model = &PublicGatewayIdentityByCRN{
+func (*VpcV1) NewPublicGatewayIdentityByCRN(crn string) (_model *PublicGatewayIdentityByCRN, err error) {
+	_model = &PublicGatewayIdentityByCRN{
 		CRN: core.StringPtr(crn),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -59356,11 +61344,11 @@ type PublicGatewayIdentityByHref struct {
 }
 
 // NewPublicGatewayIdentityByHref : Instantiate PublicGatewayIdentityByHref (Generic Model Constructor)
-func (*VpcV1) NewPublicGatewayIdentityByHref(href string) (model *PublicGatewayIdentityByHref, err error) {
-	model = &PublicGatewayIdentityByHref{
+func (*VpcV1) NewPublicGatewayIdentityByHref(href string) (_model *PublicGatewayIdentityByHref, err error) {
+	_model = &PublicGatewayIdentityByHref{
 		Href: core.StringPtr(href),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -59387,11 +61375,11 @@ type PublicGatewayIdentityByID struct {
 }
 
 // NewPublicGatewayIdentityByID : Instantiate PublicGatewayIdentityByID (Generic Model Constructor)
-func (*VpcV1) NewPublicGatewayIdentityByID(id string) (model *PublicGatewayIdentityByID, err error) {
-	model = &PublicGatewayIdentityByID{
+func (*VpcV1) NewPublicGatewayIdentityByID(id string) (_model *PublicGatewayIdentityByID, err error) {
+	_model = &PublicGatewayIdentityByID{
 		ID: core.StringPtr(id),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -59531,11 +61519,11 @@ type ResourceGroupIdentityByID struct {
 }
 
 // NewResourceGroupIdentityByID : Instantiate ResourceGroupIdentityByID (Generic Model Constructor)
-func (*VpcV1) NewResourceGroupIdentityByID(id string) (model *ResourceGroupIdentityByID, err error) {
-	model = &ResourceGroupIdentityByID{
+func (*VpcV1) NewResourceGroupIdentityByID(id string) (_model *ResourceGroupIdentityByID, err error) {
+	_model = &ResourceGroupIdentityByID{
 		ID: core.StringPtr(id),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -59557,9 +61545,11 @@ func UnmarshalResourceGroupIdentityByID(m map[string]json.RawMessage, result int
 // RouteNextHopIP : RouteNextHopIP struct
 // This model "extends" RouteNextHop
 type RouteNextHopIP struct {
-	// The IP address. This property may add support for IPv6 addresses in the future. When processing a value in this
-	// property, verify that the address is in an expected format. If it is not, log an error. Optionally halt processing
-	// and surface the error, or bypass the resource on which the unexpected IP address format was encountered.
+	// The IP address.
+	//
+	// This property may add support for IPv6 addresses in the future. When processing a value in this property, verify
+	// that the address is in an expected format. If it is not, log an error. Optionally halt processing and surface the
+	// error, or bypass the resource on which the unexpected IP address format was encountered.
 	Address *string `json:"address" validate:"required"`
 }
 
@@ -59581,18 +61571,20 @@ func UnmarshalRouteNextHopIP(m map[string]json.RawMessage, result interface{}) (
 // RouteNextHopPrototypeRouteNextHopIP : The IP address of the next hop to which to route packets.
 // This model "extends" RouteNextHopPrototype
 type RouteNextHopPrototypeRouteNextHopIP struct {
-	// The IP address. This property may add support for IPv6 addresses in the future. When processing a value in this
-	// property, verify that the address is in an expected format. If it is not, log an error. Optionally halt processing
-	// and surface the error, or bypass the resource on which the unexpected IP address format was encountered.
+	// The IP address.
+	//
+	// This property may add support for IPv6 addresses in the future. When processing a value in this property, verify
+	// that the address is in an expected format. If it is not, log an error. Optionally halt processing and surface the
+	// error, or bypass the resource on which the unexpected IP address format was encountered.
 	Address *string `json:"address" validate:"required"`
 }
 
 // NewRouteNextHopPrototypeRouteNextHopIP : Instantiate RouteNextHopPrototypeRouteNextHopIP (Generic Model Constructor)
-func (*VpcV1) NewRouteNextHopPrototypeRouteNextHopIP(address string) (model *RouteNextHopPrototypeRouteNextHopIP, err error) {
-	model = &RouteNextHopPrototypeRouteNextHopIP{
+func (*VpcV1) NewRouteNextHopPrototypeRouteNextHopIP(address string) (_model *RouteNextHopPrototypeRouteNextHopIP, err error) {
+	_model = &RouteNextHopPrototypeRouteNextHopIP{
 		Address: core.StringPtr(address),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -59717,11 +61709,11 @@ type RoutingTableIdentityByHref struct {
 }
 
 // NewRoutingTableIdentityByHref : Instantiate RoutingTableIdentityByHref (Generic Model Constructor)
-func (*VpcV1) NewRoutingTableIdentityByHref(href string) (model *RoutingTableIdentityByHref, err error) {
-	model = &RoutingTableIdentityByHref{
+func (*VpcV1) NewRoutingTableIdentityByHref(href string) (_model *RoutingTableIdentityByHref, err error) {
+	_model = &RoutingTableIdentityByHref{
 		Href: core.StringPtr(href),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -59748,11 +61740,11 @@ type RoutingTableIdentityByID struct {
 }
 
 // NewRoutingTableIdentityByID : Instantiate RoutingTableIdentityByID (Generic Model Constructor)
-func (*VpcV1) NewRoutingTableIdentityByID(id string) (model *RoutingTableIdentityByID, err error) {
-	model = &RoutingTableIdentityByID{
+func (*VpcV1) NewRoutingTableIdentityByID(id string) (_model *RoutingTableIdentityByID, err error) {
+	_model = &RoutingTableIdentityByID{
 		ID: core.StringPtr(id),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -59779,11 +61771,11 @@ type SecurityGroupIdentityByCRN struct {
 }
 
 // NewSecurityGroupIdentityByCRN : Instantiate SecurityGroupIdentityByCRN (Generic Model Constructor)
-func (*VpcV1) NewSecurityGroupIdentityByCRN(crn string) (model *SecurityGroupIdentityByCRN, err error) {
-	model = &SecurityGroupIdentityByCRN{
+func (*VpcV1) NewSecurityGroupIdentityByCRN(crn string) (_model *SecurityGroupIdentityByCRN, err error) {
+	_model = &SecurityGroupIdentityByCRN{
 		CRN: core.StringPtr(crn),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -59810,11 +61802,11 @@ type SecurityGroupIdentityByHref struct {
 }
 
 // NewSecurityGroupIdentityByHref : Instantiate SecurityGroupIdentityByHref (Generic Model Constructor)
-func (*VpcV1) NewSecurityGroupIdentityByHref(href string) (model *SecurityGroupIdentityByHref, err error) {
-	model = &SecurityGroupIdentityByHref{
+func (*VpcV1) NewSecurityGroupIdentityByHref(href string) (_model *SecurityGroupIdentityByHref, err error) {
+	_model = &SecurityGroupIdentityByHref{
 		Href: core.StringPtr(href),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -59841,11 +61833,11 @@ type SecurityGroupIdentityByID struct {
 }
 
 // NewSecurityGroupIdentityByID : Instantiate SecurityGroupIdentityByID (Generic Model Constructor)
-func (*VpcV1) NewSecurityGroupIdentityByID(id string) (model *SecurityGroupIdentityByID, err error) {
-	model = &SecurityGroupIdentityByID{
+func (*VpcV1) NewSecurityGroupIdentityByID(id string) (_model *SecurityGroupIdentityByID, err error) {
+	_model = &SecurityGroupIdentityByID{
 		ID: core.StringPtr(id),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -59908,12 +61900,12 @@ const (
 )
 
 // NewSecurityGroupRulePrototypeSecurityGroupRuleProtocolAll : Instantiate SecurityGroupRulePrototypeSecurityGroupRuleProtocolAll (Generic Model Constructor)
-func (*VpcV1) NewSecurityGroupRulePrototypeSecurityGroupRuleProtocolAll(direction string, protocol string) (model *SecurityGroupRulePrototypeSecurityGroupRuleProtocolAll, err error) {
-	model = &SecurityGroupRulePrototypeSecurityGroupRuleProtocolAll{
+func (*VpcV1) NewSecurityGroupRulePrototypeSecurityGroupRuleProtocolAll(direction string, protocol string) (_model *SecurityGroupRulePrototypeSecurityGroupRuleProtocolAll, err error) {
+	_model = &SecurityGroupRulePrototypeSecurityGroupRuleProtocolAll{
 		Direction: core.StringPtr(direction),
 		Protocol:  core.StringPtr(protocol),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -59995,12 +61987,12 @@ const (
 )
 
 // NewSecurityGroupRulePrototypeSecurityGroupRuleProtocolIcmp : Instantiate SecurityGroupRulePrototypeSecurityGroupRuleProtocolIcmp (Generic Model Constructor)
-func (*VpcV1) NewSecurityGroupRulePrototypeSecurityGroupRuleProtocolIcmp(direction string, protocol string) (model *SecurityGroupRulePrototypeSecurityGroupRuleProtocolIcmp, err error) {
-	model = &SecurityGroupRulePrototypeSecurityGroupRuleProtocolIcmp{
+func (*VpcV1) NewSecurityGroupRulePrototypeSecurityGroupRuleProtocolIcmp(direction string, protocol string) (_model *SecurityGroupRulePrototypeSecurityGroupRuleProtocolIcmp, err error) {
+	_model = &SecurityGroupRulePrototypeSecurityGroupRuleProtocolIcmp{
 		Direction: core.StringPtr(direction),
 		Protocol:  core.StringPtr(protocol),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -60091,12 +62083,12 @@ const (
 )
 
 // NewSecurityGroupRulePrototypeSecurityGroupRuleProtocolTcpudp : Instantiate SecurityGroupRulePrototypeSecurityGroupRuleProtocolTcpudp (Generic Model Constructor)
-func (*VpcV1) NewSecurityGroupRulePrototypeSecurityGroupRuleProtocolTcpudp(direction string, protocol string) (model *SecurityGroupRulePrototypeSecurityGroupRuleProtocolTcpudp, err error) {
-	model = &SecurityGroupRulePrototypeSecurityGroupRuleProtocolTcpudp{
+func (*VpcV1) NewSecurityGroupRulePrototypeSecurityGroupRuleProtocolTcpudp(direction string, protocol string) (_model *SecurityGroupRulePrototypeSecurityGroupRuleProtocolTcpudp, err error) {
+	_model = &SecurityGroupRulePrototypeSecurityGroupRuleProtocolTcpudp{
 		Direction: core.StringPtr(direction),
 		Protocol:  core.StringPtr(protocol),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -60145,11 +62137,11 @@ type SecurityGroupRuleRemotePatchCIDR struct {
 }
 
 // NewSecurityGroupRuleRemotePatchCIDR : Instantiate SecurityGroupRuleRemotePatchCIDR (Generic Model Constructor)
-func (*VpcV1) NewSecurityGroupRuleRemotePatchCIDR(cidrBlock string) (model *SecurityGroupRuleRemotePatchCIDR, err error) {
-	model = &SecurityGroupRuleRemotePatchCIDR{
+func (*VpcV1) NewSecurityGroupRuleRemotePatchCIDR(cidrBlock string) (_model *SecurityGroupRuleRemotePatchCIDR, err error) {
+	_model = &SecurityGroupRuleRemotePatchCIDR{
 		CIDRBlock: core.StringPtr(cidrBlock),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -60171,18 +62163,20 @@ func UnmarshalSecurityGroupRuleRemotePatchCIDR(m map[string]json.RawMessage, res
 // SecurityGroupRuleRemotePatchIP : SecurityGroupRuleRemotePatchIP struct
 // This model "extends" SecurityGroupRuleRemotePatch
 type SecurityGroupRuleRemotePatchIP struct {
-	// The IP address. This property may add support for IPv6 addresses in the future. When processing a value in this
-	// property, verify that the address is in an expected format. If it is not, log an error. Optionally halt processing
-	// and surface the error, or bypass the resource on which the unexpected IP address format was encountered.
+	// The IP address.
+	//
+	// This property may add support for IPv6 addresses in the future. When processing a value in this property, verify
+	// that the address is in an expected format. If it is not, log an error. Optionally halt processing and surface the
+	// error, or bypass the resource on which the unexpected IP address format was encountered.
 	Address *string `json:"address" validate:"required"`
 }
 
 // NewSecurityGroupRuleRemotePatchIP : Instantiate SecurityGroupRuleRemotePatchIP (Generic Model Constructor)
-func (*VpcV1) NewSecurityGroupRuleRemotePatchIP(address string) (model *SecurityGroupRuleRemotePatchIP, err error) {
-	model = &SecurityGroupRuleRemotePatchIP{
+func (*VpcV1) NewSecurityGroupRuleRemotePatchIP(address string) (_model *SecurityGroupRuleRemotePatchIP, err error) {
+	_model = &SecurityGroupRuleRemotePatchIP{
 		Address: core.StringPtr(address),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -60260,11 +62254,11 @@ type SecurityGroupRuleRemotePrototypeCIDR struct {
 }
 
 // NewSecurityGroupRuleRemotePrototypeCIDR : Instantiate SecurityGroupRuleRemotePrototypeCIDR (Generic Model Constructor)
-func (*VpcV1) NewSecurityGroupRuleRemotePrototypeCIDR(cidrBlock string) (model *SecurityGroupRuleRemotePrototypeCIDR, err error) {
-	model = &SecurityGroupRuleRemotePrototypeCIDR{
+func (*VpcV1) NewSecurityGroupRuleRemotePrototypeCIDR(cidrBlock string) (_model *SecurityGroupRuleRemotePrototypeCIDR, err error) {
+	_model = &SecurityGroupRuleRemotePrototypeCIDR{
 		CIDRBlock: core.StringPtr(cidrBlock),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -60286,18 +62280,20 @@ func UnmarshalSecurityGroupRuleRemotePrototypeCIDR(m map[string]json.RawMessage,
 // SecurityGroupRuleRemotePrototypeIP : SecurityGroupRuleRemotePrototypeIP struct
 // This model "extends" SecurityGroupRuleRemotePrototype
 type SecurityGroupRuleRemotePrototypeIP struct {
-	// The IP address. This property may add support for IPv6 addresses in the future. When processing a value in this
-	// property, verify that the address is in an expected format. If it is not, log an error. Optionally halt processing
-	// and surface the error, or bypass the resource on which the unexpected IP address format was encountered.
+	// The IP address.
+	//
+	// This property may add support for IPv6 addresses in the future. When processing a value in this property, verify
+	// that the address is in an expected format. If it is not, log an error. Optionally halt processing and surface the
+	// error, or bypass the resource on which the unexpected IP address format was encountered.
 	Address *string `json:"address" validate:"required"`
 }
 
 // NewSecurityGroupRuleRemotePrototypeIP : Instantiate SecurityGroupRuleRemotePrototypeIP (Generic Model Constructor)
-func (*VpcV1) NewSecurityGroupRuleRemotePrototypeIP(address string) (model *SecurityGroupRuleRemotePrototypeIP, err error) {
-	model = &SecurityGroupRuleRemotePrototypeIP{
+func (*VpcV1) NewSecurityGroupRuleRemotePrototypeIP(address string) (_model *SecurityGroupRuleRemotePrototypeIP, err error) {
+	_model = &SecurityGroupRuleRemotePrototypeIP{
 		Address: core.StringPtr(address),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -60392,9 +62388,11 @@ func UnmarshalSecurityGroupRuleRemoteCIDR(m map[string]json.RawMessage, result i
 // SecurityGroupRuleRemoteIP : SecurityGroupRuleRemoteIP struct
 // This model "extends" SecurityGroupRuleRemote
 type SecurityGroupRuleRemoteIP struct {
-	// The IP address. This property may add support for IPv6 addresses in the future. When processing a value in this
-	// property, verify that the address is in an expected format. If it is not, log an error. Optionally halt processing
-	// and surface the error, or bypass the resource on which the unexpected IP address format was encountered.
+	// The IP address.
+	//
+	// This property may add support for IPv6 addresses in the future. When processing a value in this property, verify
+	// that the address is in an expected format. If it is not, log an error. Optionally halt processing and surface the
+	// error, or bypass the resource on which the unexpected IP address format was encountered.
 	Address *string `json:"address" validate:"required"`
 }
 
@@ -60480,7 +62478,7 @@ type SecurityGroupRuleSecurityGroupRuleProtocolAll struct {
 	// The IP version to enforce. The format of `remote.address` or `remote.cidr_block` must match this property, if they
 	// are used. Alternatively, if `remote` references a security group, then this rule only applies to IP addresses
 	// (network interfaces) in that group matching this IP version.
-	IPVersion *string `json:"ip_version,omitempty"`
+	IPVersion *string `json:"ip_version" validate:"required"`
 
 	Remote SecurityGroupRuleRemoteIntf `json:"remote" validate:"required"`
 
@@ -60561,7 +62559,7 @@ type SecurityGroupRuleSecurityGroupRuleProtocolIcmp struct {
 	// The IP version to enforce. The format of `remote.address` or `remote.cidr_block` must match this property, if they
 	// are used. Alternatively, if `remote` references a security group, then this rule only applies to IP addresses
 	// (network interfaces) in that group matching this IP version.
-	IPVersion *string `json:"ip_version,omitempty"`
+	IPVersion *string `json:"ip_version" validate:"required"`
 
 	Remote SecurityGroupRuleRemoteIntf `json:"remote" validate:"required"`
 
@@ -60656,7 +62654,7 @@ type SecurityGroupRuleSecurityGroupRuleProtocolTcpudp struct {
 	// The IP version to enforce. The format of `remote.address` or `remote.cidr_block` must match this property, if they
 	// are used. Alternatively, if `remote` references a security group, then this rule only applies to IP addresses
 	// (network interfaces) in that group matching this IP version.
-	IPVersion *string `json:"ip_version,omitempty"`
+	IPVersion *string `json:"ip_version" validate:"required"`
 
 	Remote SecurityGroupRuleRemoteIntf `json:"remote" validate:"required"`
 
@@ -60851,11 +62849,11 @@ type SnapshotIdentityByCRN struct {
 }
 
 // NewSnapshotIdentityByCRN : Instantiate SnapshotIdentityByCRN (Generic Model Constructor)
-func (*VpcV1) NewSnapshotIdentityByCRN(crn string) (model *SnapshotIdentityByCRN, err error) {
-	model = &SnapshotIdentityByCRN{
+func (*VpcV1) NewSnapshotIdentityByCRN(crn string) (_model *SnapshotIdentityByCRN, err error) {
+	_model = &SnapshotIdentityByCRN{
 		CRN: core.StringPtr(crn),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -60882,11 +62880,11 @@ type SnapshotIdentityByHref struct {
 }
 
 // NewSnapshotIdentityByHref : Instantiate SnapshotIdentityByHref (Generic Model Constructor)
-func (*VpcV1) NewSnapshotIdentityByHref(href string) (model *SnapshotIdentityByHref, err error) {
-	model = &SnapshotIdentityByHref{
+func (*VpcV1) NewSnapshotIdentityByHref(href string) (_model *SnapshotIdentityByHref, err error) {
+	_model = &SnapshotIdentityByHref{
 		Href: core.StringPtr(href),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -60913,11 +62911,11 @@ type SnapshotIdentityByID struct {
 }
 
 // NewSnapshotIdentityByID : Instantiate SnapshotIdentityByID (Generic Model Constructor)
-func (*VpcV1) NewSnapshotIdentityByID(id string) (model *SnapshotIdentityByID, err error) {
-	model = &SnapshotIdentityByID{
+func (*VpcV1) NewSnapshotIdentityByID(id string) (_model *SnapshotIdentityByID, err error) {
+	_model = &SnapshotIdentityByID{
 		ID: core.StringPtr(id),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -60944,11 +62942,11 @@ type SubnetIdentityByCRN struct {
 }
 
 // NewSubnetIdentityByCRN : Instantiate SubnetIdentityByCRN (Generic Model Constructor)
-func (*VpcV1) NewSubnetIdentityByCRN(crn string) (model *SubnetIdentityByCRN, err error) {
-	model = &SubnetIdentityByCRN{
+func (*VpcV1) NewSubnetIdentityByCRN(crn string) (_model *SubnetIdentityByCRN, err error) {
+	_model = &SubnetIdentityByCRN{
 		CRN: core.StringPtr(crn),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -60975,11 +62973,11 @@ type SubnetIdentityByHref struct {
 }
 
 // NewSubnetIdentityByHref : Instantiate SubnetIdentityByHref (Generic Model Constructor)
-func (*VpcV1) NewSubnetIdentityByHref(href string) (model *SubnetIdentityByHref, err error) {
-	model = &SubnetIdentityByHref{
+func (*VpcV1) NewSubnetIdentityByHref(href string) (_model *SubnetIdentityByHref, err error) {
+	_model = &SubnetIdentityByHref{
 		Href: core.StringPtr(href),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -61006,11 +63004,11 @@ type SubnetIdentityByID struct {
 }
 
 // NewSubnetIdentityByID : Instantiate SubnetIdentityByID (Generic Model Constructor)
-func (*VpcV1) NewSubnetIdentityByID(id string) (model *SubnetIdentityByID, err error) {
-	model = &SubnetIdentityByID{
+func (*VpcV1) NewSubnetIdentityByID(id string) (_model *SubnetIdentityByID, err error) {
+	_model = &SubnetIdentityByID{
 		ID: core.StringPtr(id),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -61072,12 +63070,12 @@ const (
 )
 
 // NewSubnetPrototypeSubnetByCIDR : Instantiate SubnetPrototypeSubnetByCIDR (Generic Model Constructor)
-func (*VpcV1) NewSubnetPrototypeSubnetByCIDR(vpc VPCIdentityIntf, ipv4CIDRBlock string) (model *SubnetPrototypeSubnetByCIDR, err error) {
-	model = &SubnetPrototypeSubnetByCIDR{
+func (*VpcV1) NewSubnetPrototypeSubnetByCIDR(vpc VPCIdentityIntf, ipv4CIDRBlock string) (_model *SubnetPrototypeSubnetByCIDR, err error) {
+	_model = &SubnetPrototypeSubnetByCIDR{
 		VPC:           vpc,
 		Ipv4CIDRBlock: core.StringPtr(ipv4CIDRBlock),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -61169,13 +63167,13 @@ const (
 )
 
 // NewSubnetPrototypeSubnetByTotalCount : Instantiate SubnetPrototypeSubnetByTotalCount (Generic Model Constructor)
-func (*VpcV1) NewSubnetPrototypeSubnetByTotalCount(vpc VPCIdentityIntf, totalIpv4AddressCount int64, zone ZoneIdentityIntf) (model *SubnetPrototypeSubnetByTotalCount, err error) {
-	model = &SubnetPrototypeSubnetByTotalCount{
+func (*VpcV1) NewSubnetPrototypeSubnetByTotalCount(vpc VPCIdentityIntf, totalIpv4AddressCount int64, zone ZoneIdentityIntf) (_model *SubnetPrototypeSubnetByTotalCount, err error) {
+	_model = &SubnetPrototypeSubnetByTotalCount{
 		VPC:                   vpc,
 		TotalIpv4AddressCount: core.Int64Ptr(totalIpv4AddressCount),
 		Zone:                  zone,
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -61234,11 +63232,11 @@ type VPCIdentityByCRN struct {
 }
 
 // NewVPCIdentityByCRN : Instantiate VPCIdentityByCRN (Generic Model Constructor)
-func (*VpcV1) NewVPCIdentityByCRN(crn string) (model *VPCIdentityByCRN, err error) {
-	model = &VPCIdentityByCRN{
+func (*VpcV1) NewVPCIdentityByCRN(crn string) (_model *VPCIdentityByCRN, err error) {
+	_model = &VPCIdentityByCRN{
 		CRN: core.StringPtr(crn),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -61265,11 +63263,11 @@ type VPCIdentityByHref struct {
 }
 
 // NewVPCIdentityByHref : Instantiate VPCIdentityByHref (Generic Model Constructor)
-func (*VpcV1) NewVPCIdentityByHref(href string) (model *VPCIdentityByHref, err error) {
-	model = &VPCIdentityByHref{
+func (*VpcV1) NewVPCIdentityByHref(href string) (_model *VPCIdentityByHref, err error) {
+	_model = &VPCIdentityByHref{
 		Href: core.StringPtr(href),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -61296,11 +63294,11 @@ type VPCIdentityByID struct {
 }
 
 // NewVPCIdentityByID : Instantiate VPCIdentityByID (Generic Model Constructor)
-func (*VpcV1) NewVPCIdentityByID(id string) (model *VPCIdentityByID, err error) {
-	model = &VPCIdentityByID{
+func (*VpcV1) NewVPCIdentityByID(id string) (_model *VPCIdentityByID, err error) {
+	_model = &VPCIdentityByID{
 		ID: core.StringPtr(id),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -61319,19 +63317,265 @@ func UnmarshalVPCIdentityByID(m map[string]json.RawMessage, result interface{}) 
 	return
 }
 
+// VPNGatewayConnectionIkePolicyPatchIkePolicyIdentityByHref : VPNGatewayConnectionIkePolicyPatchIkePolicyIdentityByHref struct
+// This model "extends" VPNGatewayConnectionIkePolicyPatch
+type VPNGatewayConnectionIkePolicyPatchIkePolicyIdentityByHref struct {
+	// The IKE policy's canonical URL.
+	Href *string `json:"href" validate:"required"`
+}
+
+// NewVPNGatewayConnectionIkePolicyPatchIkePolicyIdentityByHref : Instantiate VPNGatewayConnectionIkePolicyPatchIkePolicyIdentityByHref (Generic Model Constructor)
+func (*VpcV1) NewVPNGatewayConnectionIkePolicyPatchIkePolicyIdentityByHref(href string) (_model *VPNGatewayConnectionIkePolicyPatchIkePolicyIdentityByHref, err error) {
+	_model = &VPNGatewayConnectionIkePolicyPatchIkePolicyIdentityByHref{
+		Href: core.StringPtr(href),
+	}
+	err = core.ValidateStruct(_model, "required parameters")
+	return
+}
+
+func (*VPNGatewayConnectionIkePolicyPatchIkePolicyIdentityByHref) isaVPNGatewayConnectionIkePolicyPatch() bool {
+	return true
+}
+
+// UnmarshalVPNGatewayConnectionIkePolicyPatchIkePolicyIdentityByHref unmarshals an instance of VPNGatewayConnectionIkePolicyPatchIkePolicyIdentityByHref from the specified map of raw messages.
+func UnmarshalVPNGatewayConnectionIkePolicyPatchIkePolicyIdentityByHref(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(VPNGatewayConnectionIkePolicyPatchIkePolicyIdentityByHref)
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// VPNGatewayConnectionIkePolicyPatchIkePolicyIdentityByID : VPNGatewayConnectionIkePolicyPatchIkePolicyIdentityByID struct
+// This model "extends" VPNGatewayConnectionIkePolicyPatch
+type VPNGatewayConnectionIkePolicyPatchIkePolicyIdentityByID struct {
+	// The unique identifier for this IKE policy.
+	ID *string `json:"id" validate:"required"`
+}
+
+// NewVPNGatewayConnectionIkePolicyPatchIkePolicyIdentityByID : Instantiate VPNGatewayConnectionIkePolicyPatchIkePolicyIdentityByID (Generic Model Constructor)
+func (*VpcV1) NewVPNGatewayConnectionIkePolicyPatchIkePolicyIdentityByID(id string) (_model *VPNGatewayConnectionIkePolicyPatchIkePolicyIdentityByID, err error) {
+	_model = &VPNGatewayConnectionIkePolicyPatchIkePolicyIdentityByID{
+		ID: core.StringPtr(id),
+	}
+	err = core.ValidateStruct(_model, "required parameters")
+	return
+}
+
+func (*VPNGatewayConnectionIkePolicyPatchIkePolicyIdentityByID) isaVPNGatewayConnectionIkePolicyPatch() bool {
+	return true
+}
+
+// UnmarshalVPNGatewayConnectionIkePolicyPatchIkePolicyIdentityByID unmarshals an instance of VPNGatewayConnectionIkePolicyPatchIkePolicyIdentityByID from the specified map of raw messages.
+func UnmarshalVPNGatewayConnectionIkePolicyPatchIkePolicyIdentityByID(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(VPNGatewayConnectionIkePolicyPatchIkePolicyIdentityByID)
+	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// VPNGatewayConnectionIkePolicyPrototypeIkePolicyIdentityByHref : VPNGatewayConnectionIkePolicyPrototypeIkePolicyIdentityByHref struct
+// This model "extends" VPNGatewayConnectionIkePolicyPrototype
+type VPNGatewayConnectionIkePolicyPrototypeIkePolicyIdentityByHref struct {
+	// The IKE policy's canonical URL.
+	Href *string `json:"href" validate:"required"`
+}
+
+// NewVPNGatewayConnectionIkePolicyPrototypeIkePolicyIdentityByHref : Instantiate VPNGatewayConnectionIkePolicyPrototypeIkePolicyIdentityByHref (Generic Model Constructor)
+func (*VpcV1) NewVPNGatewayConnectionIkePolicyPrototypeIkePolicyIdentityByHref(href string) (_model *VPNGatewayConnectionIkePolicyPrototypeIkePolicyIdentityByHref, err error) {
+	_model = &VPNGatewayConnectionIkePolicyPrototypeIkePolicyIdentityByHref{
+		Href: core.StringPtr(href),
+	}
+	err = core.ValidateStruct(_model, "required parameters")
+	return
+}
+
+func (*VPNGatewayConnectionIkePolicyPrototypeIkePolicyIdentityByHref) isaVPNGatewayConnectionIkePolicyPrototype() bool {
+	return true
+}
+
+// UnmarshalVPNGatewayConnectionIkePolicyPrototypeIkePolicyIdentityByHref unmarshals an instance of VPNGatewayConnectionIkePolicyPrototypeIkePolicyIdentityByHref from the specified map of raw messages.
+func UnmarshalVPNGatewayConnectionIkePolicyPrototypeIkePolicyIdentityByHref(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(VPNGatewayConnectionIkePolicyPrototypeIkePolicyIdentityByHref)
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// VPNGatewayConnectionIkePolicyPrototypeIkePolicyIdentityByID : VPNGatewayConnectionIkePolicyPrototypeIkePolicyIdentityByID struct
+// This model "extends" VPNGatewayConnectionIkePolicyPrototype
+type VPNGatewayConnectionIkePolicyPrototypeIkePolicyIdentityByID struct {
+	// The unique identifier for this IKE policy.
+	ID *string `json:"id" validate:"required"`
+}
+
+// NewVPNGatewayConnectionIkePolicyPrototypeIkePolicyIdentityByID : Instantiate VPNGatewayConnectionIkePolicyPrototypeIkePolicyIdentityByID (Generic Model Constructor)
+func (*VpcV1) NewVPNGatewayConnectionIkePolicyPrototypeIkePolicyIdentityByID(id string) (_model *VPNGatewayConnectionIkePolicyPrototypeIkePolicyIdentityByID, err error) {
+	_model = &VPNGatewayConnectionIkePolicyPrototypeIkePolicyIdentityByID{
+		ID: core.StringPtr(id),
+	}
+	err = core.ValidateStruct(_model, "required parameters")
+	return
+}
+
+func (*VPNGatewayConnectionIkePolicyPrototypeIkePolicyIdentityByID) isaVPNGatewayConnectionIkePolicyPrototype() bool {
+	return true
+}
+
+// UnmarshalVPNGatewayConnectionIkePolicyPrototypeIkePolicyIdentityByID unmarshals an instance of VPNGatewayConnectionIkePolicyPrototypeIkePolicyIdentityByID from the specified map of raw messages.
+func UnmarshalVPNGatewayConnectionIkePolicyPrototypeIkePolicyIdentityByID(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(VPNGatewayConnectionIkePolicyPrototypeIkePolicyIdentityByID)
+	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// VPNGatewayConnectionIPsecPolicyPatchIPsecPolicyIdentityByHref : VPNGatewayConnectionIPsecPolicyPatchIPsecPolicyIdentityByHref struct
+// This model "extends" VPNGatewayConnectionIPsecPolicyPatch
+type VPNGatewayConnectionIPsecPolicyPatchIPsecPolicyIdentityByHref struct {
+	// The IPsec policy's canonical URL.
+	Href *string `json:"href" validate:"required"`
+}
+
+// NewVPNGatewayConnectionIPsecPolicyPatchIPsecPolicyIdentityByHref : Instantiate VPNGatewayConnectionIPsecPolicyPatchIPsecPolicyIdentityByHref (Generic Model Constructor)
+func (*VpcV1) NewVPNGatewayConnectionIPsecPolicyPatchIPsecPolicyIdentityByHref(href string) (_model *VPNGatewayConnectionIPsecPolicyPatchIPsecPolicyIdentityByHref, err error) {
+	_model = &VPNGatewayConnectionIPsecPolicyPatchIPsecPolicyIdentityByHref{
+		Href: core.StringPtr(href),
+	}
+	err = core.ValidateStruct(_model, "required parameters")
+	return
+}
+
+func (*VPNGatewayConnectionIPsecPolicyPatchIPsecPolicyIdentityByHref) isaVPNGatewayConnectionIPsecPolicyPatch() bool {
+	return true
+}
+
+// UnmarshalVPNGatewayConnectionIPsecPolicyPatchIPsecPolicyIdentityByHref unmarshals an instance of VPNGatewayConnectionIPsecPolicyPatchIPsecPolicyIdentityByHref from the specified map of raw messages.
+func UnmarshalVPNGatewayConnectionIPsecPolicyPatchIPsecPolicyIdentityByHref(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(VPNGatewayConnectionIPsecPolicyPatchIPsecPolicyIdentityByHref)
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// VPNGatewayConnectionIPsecPolicyPatchIPsecPolicyIdentityByID : VPNGatewayConnectionIPsecPolicyPatchIPsecPolicyIdentityByID struct
+// This model "extends" VPNGatewayConnectionIPsecPolicyPatch
+type VPNGatewayConnectionIPsecPolicyPatchIPsecPolicyIdentityByID struct {
+	// The unique identifier for this IPsec policy.
+	ID *string `json:"id" validate:"required"`
+}
+
+// NewVPNGatewayConnectionIPsecPolicyPatchIPsecPolicyIdentityByID : Instantiate VPNGatewayConnectionIPsecPolicyPatchIPsecPolicyIdentityByID (Generic Model Constructor)
+func (*VpcV1) NewVPNGatewayConnectionIPsecPolicyPatchIPsecPolicyIdentityByID(id string) (_model *VPNGatewayConnectionIPsecPolicyPatchIPsecPolicyIdentityByID, err error) {
+	_model = &VPNGatewayConnectionIPsecPolicyPatchIPsecPolicyIdentityByID{
+		ID: core.StringPtr(id),
+	}
+	err = core.ValidateStruct(_model, "required parameters")
+	return
+}
+
+func (*VPNGatewayConnectionIPsecPolicyPatchIPsecPolicyIdentityByID) isaVPNGatewayConnectionIPsecPolicyPatch() bool {
+	return true
+}
+
+// UnmarshalVPNGatewayConnectionIPsecPolicyPatchIPsecPolicyIdentityByID unmarshals an instance of VPNGatewayConnectionIPsecPolicyPatchIPsecPolicyIdentityByID from the specified map of raw messages.
+func UnmarshalVPNGatewayConnectionIPsecPolicyPatchIPsecPolicyIdentityByID(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(VPNGatewayConnectionIPsecPolicyPatchIPsecPolicyIdentityByID)
+	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// VPNGatewayConnectionIPsecPolicyPrototypeIPsecPolicyIdentityByHref : VPNGatewayConnectionIPsecPolicyPrototypeIPsecPolicyIdentityByHref struct
+// This model "extends" VPNGatewayConnectionIPsecPolicyPrototype
+type VPNGatewayConnectionIPsecPolicyPrototypeIPsecPolicyIdentityByHref struct {
+	// The IPsec policy's canonical URL.
+	Href *string `json:"href" validate:"required"`
+}
+
+// NewVPNGatewayConnectionIPsecPolicyPrototypeIPsecPolicyIdentityByHref : Instantiate VPNGatewayConnectionIPsecPolicyPrototypeIPsecPolicyIdentityByHref (Generic Model Constructor)
+func (*VpcV1) NewVPNGatewayConnectionIPsecPolicyPrototypeIPsecPolicyIdentityByHref(href string) (_model *VPNGatewayConnectionIPsecPolicyPrototypeIPsecPolicyIdentityByHref, err error) {
+	_model = &VPNGatewayConnectionIPsecPolicyPrototypeIPsecPolicyIdentityByHref{
+		Href: core.StringPtr(href),
+	}
+	err = core.ValidateStruct(_model, "required parameters")
+	return
+}
+
+func (*VPNGatewayConnectionIPsecPolicyPrototypeIPsecPolicyIdentityByHref) isaVPNGatewayConnectionIPsecPolicyPrototype() bool {
+	return true
+}
+
+// UnmarshalVPNGatewayConnectionIPsecPolicyPrototypeIPsecPolicyIdentityByHref unmarshals an instance of VPNGatewayConnectionIPsecPolicyPrototypeIPsecPolicyIdentityByHref from the specified map of raw messages.
+func UnmarshalVPNGatewayConnectionIPsecPolicyPrototypeIPsecPolicyIdentityByHref(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(VPNGatewayConnectionIPsecPolicyPrototypeIPsecPolicyIdentityByHref)
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// VPNGatewayConnectionIPsecPolicyPrototypeIPsecPolicyIdentityByID : VPNGatewayConnectionIPsecPolicyPrototypeIPsecPolicyIdentityByID struct
+// This model "extends" VPNGatewayConnectionIPsecPolicyPrototype
+type VPNGatewayConnectionIPsecPolicyPrototypeIPsecPolicyIdentityByID struct {
+	// The unique identifier for this IPsec policy.
+	ID *string `json:"id" validate:"required"`
+}
+
+// NewVPNGatewayConnectionIPsecPolicyPrototypeIPsecPolicyIdentityByID : Instantiate VPNGatewayConnectionIPsecPolicyPrototypeIPsecPolicyIdentityByID (Generic Model Constructor)
+func (*VpcV1) NewVPNGatewayConnectionIPsecPolicyPrototypeIPsecPolicyIdentityByID(id string) (_model *VPNGatewayConnectionIPsecPolicyPrototypeIPsecPolicyIdentityByID, err error) {
+	_model = &VPNGatewayConnectionIPsecPolicyPrototypeIPsecPolicyIdentityByID{
+		ID: core.StringPtr(id),
+	}
+	err = core.ValidateStruct(_model, "required parameters")
+	return
+}
+
+func (*VPNGatewayConnectionIPsecPolicyPrototypeIPsecPolicyIdentityByID) isaVPNGatewayConnectionIPsecPolicyPrototype() bool {
+	return true
+}
+
+// UnmarshalVPNGatewayConnectionIPsecPolicyPrototypeIPsecPolicyIdentityByID unmarshals an instance of VPNGatewayConnectionIPsecPolicyPrototypeIPsecPolicyIdentityByID from the specified map of raw messages.
+func UnmarshalVPNGatewayConnectionIPsecPolicyPrototypeIPsecPolicyIdentityByID(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(VPNGatewayConnectionIPsecPolicyPrototypeIPsecPolicyIdentityByID)
+	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
 // VPNGatewayConnectionPatchVPNGatewayConnectionStaticRouteModePatch : VPNGatewayConnectionPatchVPNGatewayConnectionStaticRouteModePatch struct
 // This model "extends" VPNGatewayConnectionPatch
 type VPNGatewayConnectionPatchVPNGatewayConnectionStaticRouteModePatch struct {
 	// If set to false, the VPN gateway connection is shut down.
 	AdminStateUp *bool `json:"admin_state_up,omitempty"`
 
-	DeadPeerDetection *VPNGatewayConnectionDpdPrototype `json:"dead_peer_detection,omitempty"`
+	DeadPeerDetection *VPNGatewayConnectionDpdPatch `json:"dead_peer_detection,omitempty"`
 
-	// Optional IKE policy configuration. The absence of a policy indicates autonegotiation.
-	IkePolicy IkePolicyIdentityIntf `json:"ike_policy,omitempty"`
+	IkePolicy VPNGatewayConnectionIkePolicyPatchIntf `json:"ike_policy,omitempty"`
 
-	// Optional IPsec policy configuration. The absence of a policy indicates autonegotiation.
-	IpsecPolicy IPsecPolicyIdentityIntf `json:"ipsec_policy,omitempty"`
+	IpsecPolicy VPNGatewayConnectionIPsecPolicyPatchIntf `json:"ipsec_policy,omitempty"`
 
 	// The user-defined name for this VPN gateway connection.
 	Name *string `json:"name,omitempty"`
@@ -61363,15 +63607,15 @@ func UnmarshalVPNGatewayConnectionPatchVPNGatewayConnectionStaticRouteModePatch(
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalModel(m, "dead_peer_detection", &obj.DeadPeerDetection, UnmarshalVPNGatewayConnectionDpdPrototype)
+	err = core.UnmarshalModel(m, "dead_peer_detection", &obj.DeadPeerDetection, UnmarshalVPNGatewayConnectionDpdPatch)
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalModel(m, "ike_policy", &obj.IkePolicy, UnmarshalIkePolicyIdentity)
+	err = core.UnmarshalModel(m, "ike_policy", &obj.IkePolicy, UnmarshalVPNGatewayConnectionIkePolicyPatch)
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalModel(m, "ipsec_policy", &obj.IpsecPolicy, UnmarshalIPsecPolicyIdentity)
+	err = core.UnmarshalModel(m, "ipsec_policy", &obj.IpsecPolicy, UnmarshalVPNGatewayConnectionIPsecPolicyPatch)
 	if err != nil {
 		return
 	}
@@ -61395,6 +63639,16 @@ func UnmarshalVPNGatewayConnectionPatchVPNGatewayConnectionStaticRouteModePatch(
 	return
 }
 
+// AsPatch returns a generic map representation of the VPNGatewayConnectionPatchVPNGatewayConnectionStaticRouteModePatch
+func (vpnGatewayConnectionPatchVPNGatewayConnectionStaticRouteModePatch *VPNGatewayConnectionPatchVPNGatewayConnectionStaticRouteModePatch) AsPatch() (_patch map[string]interface{}, err error) {
+	var jsonData []byte
+	jsonData, err = json.Marshal(vpnGatewayConnectionPatchVPNGatewayConnectionStaticRouteModePatch)
+	if err == nil {
+		err = json.Unmarshal(jsonData, &_patch)
+	}
+	return
+}
+
 // VPNGatewayConnectionPolicyMode : VPNGatewayConnectionPolicyMode struct
 // This model "extends" VPNGatewayConnection
 type VPNGatewayConnectionPolicyMode struct {
@@ -61415,10 +63669,12 @@ type VPNGatewayConnectionPolicyMode struct {
 	// The unique identifier for this VPN gateway connection.
 	ID *string `json:"id" validate:"required"`
 
-	// Optional IKE policy configuration. The absence of a policy indicates autonegotiation.
+	// The IKE policy. If absent, [auto-negotiation is
+	// used](https://cloud.ibm.com/docs/vpc?topic=vpc-using-vpn&interface=ui#ike-auto-negotiation-phase-1).
 	IkePolicy *IkePolicyReference `json:"ike_policy,omitempty"`
 
-	// Optional IPsec policy configuration. The absence of a policy indicates autonegotiation.
+	// The IPsec policy. If absent, [auto-negotiation is
+	// used](https://cloud.ibm.com/docs/vpc?topic=vpc-using-vpn&interface=ui#ipsec-auto-negotiation-phase-2).
 	IpsecPolicy *IPsecPolicyReference `json:"ipsec_policy,omitempty"`
 
 	// The mode of the VPN gateway.
@@ -61555,11 +63811,9 @@ type VPNGatewayConnectionPrototypeVPNGatewayConnectionPolicyModePrototype struct
 
 	DeadPeerDetection *VPNGatewayConnectionDpdPrototype `json:"dead_peer_detection,omitempty"`
 
-	// Optional IKE policy configuration. The absence of a policy indicates autonegotiation.
-	IkePolicy IkePolicyIdentityIntf `json:"ike_policy,omitempty"`
+	IkePolicy VPNGatewayConnectionIkePolicyPrototypeIntf `json:"ike_policy,omitempty"`
 
-	// Optional IPsec policy configuration. The absence of a policy indicates autonegotiation.
-	IpsecPolicy IPsecPolicyIdentityIntf `json:"ipsec_policy,omitempty"`
+	IpsecPolicy VPNGatewayConnectionIPsecPolicyPrototypeIntf `json:"ipsec_policy,omitempty"`
 
 	// The user-defined name for this VPN gateway connection.
 	Name *string `json:"name,omitempty"`
@@ -61578,14 +63832,14 @@ type VPNGatewayConnectionPrototypeVPNGatewayConnectionPolicyModePrototype struct
 }
 
 // NewVPNGatewayConnectionPrototypeVPNGatewayConnectionPolicyModePrototype : Instantiate VPNGatewayConnectionPrototypeVPNGatewayConnectionPolicyModePrototype (Generic Model Constructor)
-func (*VpcV1) NewVPNGatewayConnectionPrototypeVPNGatewayConnectionPolicyModePrototype(peerAddress string, psk string, LocalCIDRs []string, PeerCIDRs []string) (model *VPNGatewayConnectionPrototypeVPNGatewayConnectionPolicyModePrototype, err error) {
-	model = &VPNGatewayConnectionPrototypeVPNGatewayConnectionPolicyModePrototype{
+func (*VpcV1) NewVPNGatewayConnectionPrototypeVPNGatewayConnectionPolicyModePrototype(peerAddress string, psk string, localCIDRs []string, peerCIDRs []string) (_model *VPNGatewayConnectionPrototypeVPNGatewayConnectionPolicyModePrototype, err error) {
+	_model = &VPNGatewayConnectionPrototypeVPNGatewayConnectionPolicyModePrototype{
 		PeerAddress: core.StringPtr(peerAddress),
 		Psk:         core.StringPtr(psk),
-		LocalCIDRs:  LocalCIDRs,
-		PeerCIDRs:   PeerCIDRs,
+		LocalCIDRs:  localCIDRs,
+		PeerCIDRs:   peerCIDRs,
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -61604,11 +63858,11 @@ func UnmarshalVPNGatewayConnectionPrototypeVPNGatewayConnectionPolicyModePrototy
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalModel(m, "ike_policy", &obj.IkePolicy, UnmarshalIkePolicyIdentity)
+	err = core.UnmarshalModel(m, "ike_policy", &obj.IkePolicy, UnmarshalVPNGatewayConnectionIkePolicyPrototype)
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalModel(m, "ipsec_policy", &obj.IpsecPolicy, UnmarshalIPsecPolicyIdentity)
+	err = core.UnmarshalModel(m, "ipsec_policy", &obj.IpsecPolicy, UnmarshalVPNGatewayConnectionIPsecPolicyPrototype)
 	if err != nil {
 		return
 	}
@@ -61644,11 +63898,9 @@ type VPNGatewayConnectionPrototypeVPNGatewayConnectionStaticRouteModePrototype s
 
 	DeadPeerDetection *VPNGatewayConnectionDpdPrototype `json:"dead_peer_detection,omitempty"`
 
-	// Optional IKE policy configuration. The absence of a policy indicates autonegotiation.
-	IkePolicy IkePolicyIdentityIntf `json:"ike_policy,omitempty"`
+	IkePolicy VPNGatewayConnectionIkePolicyPrototypeIntf `json:"ike_policy,omitempty"`
 
-	// Optional IPsec policy configuration. The absence of a policy indicates autonegotiation.
-	IpsecPolicy IPsecPolicyIdentityIntf `json:"ipsec_policy,omitempty"`
+	IpsecPolicy VPNGatewayConnectionIPsecPolicyPrototypeIntf `json:"ipsec_policy,omitempty"`
 
 	// The user-defined name for this VPN gateway connection.
 	Name *string `json:"name,omitempty"`
@@ -61684,11 +63936,11 @@ func UnmarshalVPNGatewayConnectionPrototypeVPNGatewayConnectionStaticRouteModePr
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalModel(m, "ike_policy", &obj.IkePolicy, UnmarshalIkePolicyIdentity)
+	err = core.UnmarshalModel(m, "ike_policy", &obj.IkePolicy, UnmarshalVPNGatewayConnectionIkePolicyPrototype)
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalModel(m, "ipsec_policy", &obj.IpsecPolicy, UnmarshalIPsecPolicyIdentity)
+	err = core.UnmarshalModel(m, "ipsec_policy", &obj.IpsecPolicy, UnmarshalVPNGatewayConnectionIPsecPolicyPrototype)
 	if err != nil {
 		return
 	}
@@ -61732,10 +63984,12 @@ type VPNGatewayConnectionStaticRouteMode struct {
 	// The unique identifier for this VPN gateway connection.
 	ID *string `json:"id" validate:"required"`
 
-	// Optional IKE policy configuration. The absence of a policy indicates autonegotiation.
+	// The IKE policy. If absent, [auto-negotiation is
+	// used](https://cloud.ibm.com/docs/vpc?topic=vpc-using-vpn&interface=ui#ike-auto-negotiation-phase-1).
 	IkePolicy *IkePolicyReference `json:"ike_policy,omitempty"`
 
-	// Optional IPsec policy configuration. The absence of a policy indicates autonegotiation.
+	// The IPsec policy. If absent, [auto-negotiation is
+	// used](https://cloud.ibm.com/docs/vpc?topic=vpc-using-vpn&interface=ui#ipsec-auto-negotiation-phase-2).
 	IpsecPolicy *IPsecPolicyReference `json:"ipsec_policy,omitempty"`
 
 	// The mode of the VPN gateway.
@@ -62257,7 +64511,8 @@ func UnmarshalVolumeAttachmentPrototypeVolumeVolumeIdentity(m map[string]json.Ra
 // - VolumeAttachmentPrototypeVolumeVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeBySourceSnapshot
 // This model "extends" VolumeAttachmentPrototypeVolume
 type VolumeAttachmentPrototypeVolumeVolumePrototypeInstanceContext struct {
-	// The bandwidth for the volume.
+	// The maximum I/O operations per second (IOPS) to use for the volume. Applicable only to volumes using a profile
+	// `family` of `custom`.
 	Iops *int64 `json:"iops,omitempty"`
 
 	// The unique user-defined name for this volume.
@@ -62272,8 +64527,7 @@ type VolumeAttachmentPrototypeVolumeVolumePrototypeInstanceContext struct {
 
 	// The root key to use to wrap the data encryption key for the volume.
 	//
-	// If this property is not provided, the `encryption` type for the volume will be
-	// `provider_managed`.
+	// If unspecified, the `encryption` type for the volume will be `provider_managed`.
 	EncryptionKey EncryptionKeyIdentityIntf `json:"encryption_key,omitempty"`
 
 	// The snapshot from which to clone the volume.
@@ -62335,10 +64589,11 @@ type VolumeAttachmentVolumePrototypeInstanceByVolumeContextVolumePrototypeInstan
 
 	// The root key to use to wrap the data encryption key for the volume.
 	//
-	// If this property is not provided, the snapshot's `encryption_key` will be used.
+	// If unspecified, the snapshot's `encryption_key` will be used.
 	EncryptionKey EncryptionKeyIdentityIntf `json:"encryption_key,omitempty"`
 
-	// The bandwidth for the volume.
+	// The maximum I/O operations per second (IOPS) to use for the volume. Applicable only to volumes using a profile
+	// `family` of `custom`.
 	Iops *int64 `json:"iops,omitempty"`
 
 	// The unique user-defined name for this volume.
@@ -62352,12 +64607,12 @@ type VolumeAttachmentVolumePrototypeInstanceByVolumeContextVolumePrototypeInstan
 }
 
 // NewVolumeAttachmentVolumePrototypeInstanceByVolumeContextVolumePrototypeInstanceByVolumeContext : Instantiate VolumeAttachmentVolumePrototypeInstanceByVolumeContextVolumePrototypeInstanceByVolumeContext (Generic Model Constructor)
-func (*VpcV1) NewVolumeAttachmentVolumePrototypeInstanceByVolumeContextVolumePrototypeInstanceByVolumeContext(profile VolumeProfileIdentityIntf, sourceSnapshot SnapshotIdentityIntf) (model *VolumeAttachmentVolumePrototypeInstanceByVolumeContextVolumePrototypeInstanceByVolumeContext, err error) {
-	model = &VolumeAttachmentVolumePrototypeInstanceByVolumeContextVolumePrototypeInstanceByVolumeContext{
+func (*VpcV1) NewVolumeAttachmentVolumePrototypeInstanceByVolumeContextVolumePrototypeInstanceByVolumeContext(profile VolumeProfileIdentityIntf, sourceSnapshot SnapshotIdentityIntf) (_model *VolumeAttachmentVolumePrototypeInstanceByVolumeContextVolumePrototypeInstanceByVolumeContext, err error) {
+	_model = &VolumeAttachmentVolumePrototypeInstanceByVolumeContextVolumePrototypeInstanceByVolumeContext{
 		Profile:        profile,
 		SourceSnapshot: sourceSnapshot,
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -62451,7 +64706,8 @@ func UnmarshalVolumeAttachmentVolumePrototypeInstanceContextVolumeIdentity(m map
 // - VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeBySourceSnapshot
 // This model "extends" VolumeAttachmentVolumePrototypeInstanceContext
 type VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContext struct {
-	// The bandwidth for the volume.
+	// The maximum I/O operations per second (IOPS) to use for the volume. Applicable only to volumes using a profile
+	// `family` of `custom`.
 	Iops *int64 `json:"iops,omitempty"`
 
 	// The unique user-defined name for this volume.
@@ -62466,8 +64722,7 @@ type VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContex
 
 	// The root key to use to wrap the data encryption key for the volume.
 	//
-	// If this property is not provided, the `encryption` type for the volume will be
-	// `provider_managed`.
+	// If unspecified, the `encryption` type for the volume will be `provider_managed`.
 	EncryptionKey EncryptionKeyIdentityIntf `json:"encryption_key,omitempty"`
 
 	// The snapshot from which to clone the volume.
@@ -62526,11 +64781,11 @@ type VolumeIdentityByCRN struct {
 }
 
 // NewVolumeIdentityByCRN : Instantiate VolumeIdentityByCRN (Generic Model Constructor)
-func (*VpcV1) NewVolumeIdentityByCRN(crn string) (model *VolumeIdentityByCRN, err error) {
-	model = &VolumeIdentityByCRN{
+func (*VpcV1) NewVolumeIdentityByCRN(crn string) (_model *VolumeIdentityByCRN, err error) {
+	_model = &VolumeIdentityByCRN{
 		CRN: core.StringPtr(crn),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -62557,11 +64812,11 @@ type VolumeIdentityByHref struct {
 }
 
 // NewVolumeIdentityByHref : Instantiate VolumeIdentityByHref (Generic Model Constructor)
-func (*VpcV1) NewVolumeIdentityByHref(href string) (model *VolumeIdentityByHref, err error) {
-	model = &VolumeIdentityByHref{
+func (*VpcV1) NewVolumeIdentityByHref(href string) (_model *VolumeIdentityByHref, err error) {
+	_model = &VolumeIdentityByHref{
 		Href: core.StringPtr(href),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -62588,11 +64843,11 @@ type VolumeIdentityByID struct {
 }
 
 // NewVolumeIdentityByID : Instantiate VolumeIdentityByID (Generic Model Constructor)
-func (*VpcV1) NewVolumeIdentityByID(id string) (model *VolumeIdentityByID, err error) {
-	model = &VolumeIdentityByID{
+func (*VpcV1) NewVolumeIdentityByID(id string) (_model *VolumeIdentityByID, err error) {
+	_model = &VolumeIdentityByID{
 		ID: core.StringPtr(id),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -62619,11 +64874,11 @@ type VolumeProfileIdentityByHref struct {
 }
 
 // NewVolumeProfileIdentityByHref : Instantiate VolumeProfileIdentityByHref (Generic Model Constructor)
-func (*VpcV1) NewVolumeProfileIdentityByHref(href string) (model *VolumeProfileIdentityByHref, err error) {
-	model = &VolumeProfileIdentityByHref{
+func (*VpcV1) NewVolumeProfileIdentityByHref(href string) (_model *VolumeProfileIdentityByHref, err error) {
+	_model = &VolumeProfileIdentityByHref{
 		Href: core.StringPtr(href),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -62650,11 +64905,11 @@ type VolumeProfileIdentityByName struct {
 }
 
 // NewVolumeProfileIdentityByName : Instantiate VolumeProfileIdentityByName (Generic Model Constructor)
-func (*VpcV1) NewVolumeProfileIdentityByName(name string) (model *VolumeProfileIdentityByName, err error) {
-	model = &VolumeProfileIdentityByName{
+func (*VpcV1) NewVolumeProfileIdentityByName(name string) (_model *VolumeProfileIdentityByName, err error) {
+	_model = &VolumeProfileIdentityByName{
 		Name: core.StringPtr(name),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -62676,7 +64931,8 @@ func UnmarshalVolumeProfileIdentityByName(m map[string]json.RawMessage, result i
 // VolumePrototypeVolumeByCapacity : VolumePrototypeVolumeByCapacity struct
 // This model "extends" VolumePrototype
 type VolumePrototypeVolumeByCapacity struct {
-	// The bandwidth for the volume.
+	// The maximum I/O operations per second (IOPS) to use for the volume. Applicable only to volumes using a profile
+	// `family` of `custom`.
 	Iops *int64 `json:"iops,omitempty"`
 
 	// The unique user-defined name for this volume.
@@ -62696,19 +64952,18 @@ type VolumePrototypeVolumeByCapacity struct {
 
 	// The root key to use to wrap the data encryption key for the volume.
 	//
-	// If this property is not provided, the `encryption` type for the volume will be
-	// `provider_managed`.
+	// If unspecified, the `encryption` type for the volume will be `provider_managed`.
 	EncryptionKey EncryptionKeyIdentityIntf `json:"encryption_key,omitempty"`
 }
 
 // NewVolumePrototypeVolumeByCapacity : Instantiate VolumePrototypeVolumeByCapacity (Generic Model Constructor)
-func (*VpcV1) NewVolumePrototypeVolumeByCapacity(profile VolumeProfileIdentityIntf, zone ZoneIdentityIntf, capacity int64) (model *VolumePrototypeVolumeByCapacity, err error) {
-	model = &VolumePrototypeVolumeByCapacity{
+func (*VpcV1) NewVolumePrototypeVolumeByCapacity(profile VolumeProfileIdentityIntf, zone ZoneIdentityIntf, capacity int64) (_model *VolumePrototypeVolumeByCapacity, err error) {
+	_model = &VolumePrototypeVolumeByCapacity{
 		Profile:  profile,
 		Zone:     zone,
 		Capacity: core.Int64Ptr(capacity),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -62759,11 +65014,11 @@ type ZoneIdentityByHref struct {
 }
 
 // NewZoneIdentityByHref : Instantiate ZoneIdentityByHref (Generic Model Constructor)
-func (*VpcV1) NewZoneIdentityByHref(href string) (model *ZoneIdentityByHref, err error) {
-	model = &ZoneIdentityByHref{
+func (*VpcV1) NewZoneIdentityByHref(href string) (_model *ZoneIdentityByHref, err error) {
+	_model = &ZoneIdentityByHref{
 		Href: core.StringPtr(href),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -62790,11 +65045,11 @@ type ZoneIdentityByName struct {
 }
 
 // NewZoneIdentityByName : Instantiate ZoneIdentityByName (Generic Model Constructor)
-func (*VpcV1) NewZoneIdentityByName(name string) (model *ZoneIdentityByName, err error) {
-	model = &ZoneIdentityByName{
+func (*VpcV1) NewZoneIdentityByName(name string) (_model *ZoneIdentityByName, err error) {
+	_model = &ZoneIdentityByName{
 		Name: core.StringPtr(name),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -62821,11 +65076,11 @@ type EndpointGatewayReservedIPReservedIPIdentityReservedIPIdentityByHref struct 
 }
 
 // NewEndpointGatewayReservedIPReservedIPIdentityReservedIPIdentityByHref : Instantiate EndpointGatewayReservedIPReservedIPIdentityReservedIPIdentityByHref (Generic Model Constructor)
-func (*VpcV1) NewEndpointGatewayReservedIPReservedIPIdentityReservedIPIdentityByHref(href string) (model *EndpointGatewayReservedIPReservedIPIdentityReservedIPIdentityByHref, err error) {
-	model = &EndpointGatewayReservedIPReservedIPIdentityReservedIPIdentityByHref{
+func (*VpcV1) NewEndpointGatewayReservedIPReservedIPIdentityReservedIPIdentityByHref(href string) (_model *EndpointGatewayReservedIPReservedIPIdentityReservedIPIdentityByHref, err error) {
+	_model = &EndpointGatewayReservedIPReservedIPIdentityReservedIPIdentityByHref{
 		Href: core.StringPtr(href),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -62856,11 +65111,11 @@ type EndpointGatewayReservedIPReservedIPIdentityReservedIPIdentityByID struct {
 }
 
 // NewEndpointGatewayReservedIPReservedIPIdentityReservedIPIdentityByID : Instantiate EndpointGatewayReservedIPReservedIPIdentityReservedIPIdentityByID (Generic Model Constructor)
-func (*VpcV1) NewEndpointGatewayReservedIPReservedIPIdentityReservedIPIdentityByID(id string) (model *EndpointGatewayReservedIPReservedIPIdentityReservedIPIdentityByID, err error) {
-	model = &EndpointGatewayReservedIPReservedIPIdentityReservedIPIdentityByID{
+func (*VpcV1) NewEndpointGatewayReservedIPReservedIPIdentityReservedIPIdentityByID(id string) (_model *EndpointGatewayReservedIPReservedIPIdentityReservedIPIdentityByID, err error) {
+	_model = &EndpointGatewayReservedIPReservedIPIdentityReservedIPIdentityByID{
 		ID: core.StringPtr(id),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -62901,12 +65156,12 @@ const (
 )
 
 // NewEndpointGatewayTargetPrototypeProviderCloudServiceIdentityProviderCloudServiceIdentityByCRN : Instantiate EndpointGatewayTargetPrototypeProviderCloudServiceIdentityProviderCloudServiceIdentityByCRN (Generic Model Constructor)
-func (*VpcV1) NewEndpointGatewayTargetPrototypeProviderCloudServiceIdentityProviderCloudServiceIdentityByCRN(resourceType string, crn string) (model *EndpointGatewayTargetPrototypeProviderCloudServiceIdentityProviderCloudServiceIdentityByCRN, err error) {
-	model = &EndpointGatewayTargetPrototypeProviderCloudServiceIdentityProviderCloudServiceIdentityByCRN{
+func (*VpcV1) NewEndpointGatewayTargetPrototypeProviderCloudServiceIdentityProviderCloudServiceIdentityByCRN(resourceType string, crn string) (_model *EndpointGatewayTargetPrototypeProviderCloudServiceIdentityProviderCloudServiceIdentityByCRN, err error) {
+	_model = &EndpointGatewayTargetPrototypeProviderCloudServiceIdentityProviderCloudServiceIdentityByCRN{
 		ResourceType: core.StringPtr(resourceType),
 		CRN:          core.StringPtr(crn),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -62952,12 +65207,12 @@ const (
 )
 
 // NewEndpointGatewayTargetPrototypeProviderInfrastructureServiceIdentityProviderInfrastructureServiceIdentityByName : Instantiate EndpointGatewayTargetPrototypeProviderInfrastructureServiceIdentityProviderInfrastructureServiceIdentityByName (Generic Model Constructor)
-func (*VpcV1) NewEndpointGatewayTargetPrototypeProviderInfrastructureServiceIdentityProviderInfrastructureServiceIdentityByName(resourceType string, name string) (model *EndpointGatewayTargetPrototypeProviderInfrastructureServiceIdentityProviderInfrastructureServiceIdentityByName, err error) {
-	model = &EndpointGatewayTargetPrototypeProviderInfrastructureServiceIdentityProviderInfrastructureServiceIdentityByName{
+func (*VpcV1) NewEndpointGatewayTargetPrototypeProviderInfrastructureServiceIdentityProviderInfrastructureServiceIdentityByName(resourceType string, name string) (_model *EndpointGatewayTargetPrototypeProviderInfrastructureServiceIdentityProviderInfrastructureServiceIdentityByName, err error) {
+	_model = &EndpointGatewayTargetPrototypeProviderInfrastructureServiceIdentityProviderInfrastructureServiceIdentityByName{
 		ResourceType: core.StringPtr(resourceType),
 		Name:         core.StringPtr(name),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -62992,11 +65247,11 @@ type FlowLogCollectorTargetPrototypeInstanceIdentityInstanceIdentityByCRN struct
 }
 
 // NewFlowLogCollectorTargetPrototypeInstanceIdentityInstanceIdentityByCRN : Instantiate FlowLogCollectorTargetPrototypeInstanceIdentityInstanceIdentityByCRN (Generic Model Constructor)
-func (*VpcV1) NewFlowLogCollectorTargetPrototypeInstanceIdentityInstanceIdentityByCRN(crn string) (model *FlowLogCollectorTargetPrototypeInstanceIdentityInstanceIdentityByCRN, err error) {
-	model = &FlowLogCollectorTargetPrototypeInstanceIdentityInstanceIdentityByCRN{
+func (*VpcV1) NewFlowLogCollectorTargetPrototypeInstanceIdentityInstanceIdentityByCRN(crn string) (_model *FlowLogCollectorTargetPrototypeInstanceIdentityInstanceIdentityByCRN, err error) {
+	_model = &FlowLogCollectorTargetPrototypeInstanceIdentityInstanceIdentityByCRN{
 		CRN: core.StringPtr(crn),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -63027,11 +65282,11 @@ type FlowLogCollectorTargetPrototypeInstanceIdentityInstanceIdentityByHref struc
 }
 
 // NewFlowLogCollectorTargetPrototypeInstanceIdentityInstanceIdentityByHref : Instantiate FlowLogCollectorTargetPrototypeInstanceIdentityInstanceIdentityByHref (Generic Model Constructor)
-func (*VpcV1) NewFlowLogCollectorTargetPrototypeInstanceIdentityInstanceIdentityByHref(href string) (model *FlowLogCollectorTargetPrototypeInstanceIdentityInstanceIdentityByHref, err error) {
-	model = &FlowLogCollectorTargetPrototypeInstanceIdentityInstanceIdentityByHref{
+func (*VpcV1) NewFlowLogCollectorTargetPrototypeInstanceIdentityInstanceIdentityByHref(href string) (_model *FlowLogCollectorTargetPrototypeInstanceIdentityInstanceIdentityByHref, err error) {
+	_model = &FlowLogCollectorTargetPrototypeInstanceIdentityInstanceIdentityByHref{
 		Href: core.StringPtr(href),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -63062,11 +65317,11 @@ type FlowLogCollectorTargetPrototypeInstanceIdentityInstanceIdentityByID struct 
 }
 
 // NewFlowLogCollectorTargetPrototypeInstanceIdentityInstanceIdentityByID : Instantiate FlowLogCollectorTargetPrototypeInstanceIdentityInstanceIdentityByID (Generic Model Constructor)
-func (*VpcV1) NewFlowLogCollectorTargetPrototypeInstanceIdentityInstanceIdentityByID(id string) (model *FlowLogCollectorTargetPrototypeInstanceIdentityInstanceIdentityByID, err error) {
-	model = &FlowLogCollectorTargetPrototypeInstanceIdentityInstanceIdentityByID{
+func (*VpcV1) NewFlowLogCollectorTargetPrototypeInstanceIdentityInstanceIdentityByID(id string) (_model *FlowLogCollectorTargetPrototypeInstanceIdentityInstanceIdentityByID, err error) {
+	_model = &FlowLogCollectorTargetPrototypeInstanceIdentityInstanceIdentityByID{
 		ID: core.StringPtr(id),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -63097,11 +65352,11 @@ type FlowLogCollectorTargetPrototypeNetworkInterfaceIdentityNetworkInterfaceIden
 }
 
 // NewFlowLogCollectorTargetPrototypeNetworkInterfaceIdentityNetworkInterfaceIdentityNetworkInterfaceIdentityByHref : Instantiate FlowLogCollectorTargetPrototypeNetworkInterfaceIdentityNetworkInterfaceIdentityNetworkInterfaceIdentityByHref (Generic Model Constructor)
-func (*VpcV1) NewFlowLogCollectorTargetPrototypeNetworkInterfaceIdentityNetworkInterfaceIdentityNetworkInterfaceIdentityByHref(href string) (model *FlowLogCollectorTargetPrototypeNetworkInterfaceIdentityNetworkInterfaceIdentityNetworkInterfaceIdentityByHref, err error) {
-	model = &FlowLogCollectorTargetPrototypeNetworkInterfaceIdentityNetworkInterfaceIdentityNetworkInterfaceIdentityByHref{
+func (*VpcV1) NewFlowLogCollectorTargetPrototypeNetworkInterfaceIdentityNetworkInterfaceIdentityNetworkInterfaceIdentityByHref(href string) (_model *FlowLogCollectorTargetPrototypeNetworkInterfaceIdentityNetworkInterfaceIdentityNetworkInterfaceIdentityByHref, err error) {
+	_model = &FlowLogCollectorTargetPrototypeNetworkInterfaceIdentityNetworkInterfaceIdentityNetworkInterfaceIdentityByHref{
 		Href: core.StringPtr(href),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -63132,11 +65387,11 @@ type FlowLogCollectorTargetPrototypeNetworkInterfaceIdentityNetworkInterfaceIden
 }
 
 // NewFlowLogCollectorTargetPrototypeNetworkInterfaceIdentityNetworkInterfaceIdentityNetworkInterfaceIdentityByID : Instantiate FlowLogCollectorTargetPrototypeNetworkInterfaceIdentityNetworkInterfaceIdentityNetworkInterfaceIdentityByID (Generic Model Constructor)
-func (*VpcV1) NewFlowLogCollectorTargetPrototypeNetworkInterfaceIdentityNetworkInterfaceIdentityNetworkInterfaceIdentityByID(id string) (model *FlowLogCollectorTargetPrototypeNetworkInterfaceIdentityNetworkInterfaceIdentityNetworkInterfaceIdentityByID, err error) {
-	model = &FlowLogCollectorTargetPrototypeNetworkInterfaceIdentityNetworkInterfaceIdentityNetworkInterfaceIdentityByID{
+func (*VpcV1) NewFlowLogCollectorTargetPrototypeNetworkInterfaceIdentityNetworkInterfaceIdentityNetworkInterfaceIdentityByID(id string) (_model *FlowLogCollectorTargetPrototypeNetworkInterfaceIdentityNetworkInterfaceIdentityNetworkInterfaceIdentityByID, err error) {
+	_model = &FlowLogCollectorTargetPrototypeNetworkInterfaceIdentityNetworkInterfaceIdentityNetworkInterfaceIdentityByID{
 		ID: core.StringPtr(id),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -63167,11 +65422,11 @@ type FlowLogCollectorTargetPrototypeSubnetIdentitySubnetIdentityByCRN struct {
 }
 
 // NewFlowLogCollectorTargetPrototypeSubnetIdentitySubnetIdentityByCRN : Instantiate FlowLogCollectorTargetPrototypeSubnetIdentitySubnetIdentityByCRN (Generic Model Constructor)
-func (*VpcV1) NewFlowLogCollectorTargetPrototypeSubnetIdentitySubnetIdentityByCRN(crn string) (model *FlowLogCollectorTargetPrototypeSubnetIdentitySubnetIdentityByCRN, err error) {
-	model = &FlowLogCollectorTargetPrototypeSubnetIdentitySubnetIdentityByCRN{
+func (*VpcV1) NewFlowLogCollectorTargetPrototypeSubnetIdentitySubnetIdentityByCRN(crn string) (_model *FlowLogCollectorTargetPrototypeSubnetIdentitySubnetIdentityByCRN, err error) {
+	_model = &FlowLogCollectorTargetPrototypeSubnetIdentitySubnetIdentityByCRN{
 		CRN: core.StringPtr(crn),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -63202,11 +65457,11 @@ type FlowLogCollectorTargetPrototypeSubnetIdentitySubnetIdentityByHref struct {
 }
 
 // NewFlowLogCollectorTargetPrototypeSubnetIdentitySubnetIdentityByHref : Instantiate FlowLogCollectorTargetPrototypeSubnetIdentitySubnetIdentityByHref (Generic Model Constructor)
-func (*VpcV1) NewFlowLogCollectorTargetPrototypeSubnetIdentitySubnetIdentityByHref(href string) (model *FlowLogCollectorTargetPrototypeSubnetIdentitySubnetIdentityByHref, err error) {
-	model = &FlowLogCollectorTargetPrototypeSubnetIdentitySubnetIdentityByHref{
+func (*VpcV1) NewFlowLogCollectorTargetPrototypeSubnetIdentitySubnetIdentityByHref(href string) (_model *FlowLogCollectorTargetPrototypeSubnetIdentitySubnetIdentityByHref, err error) {
+	_model = &FlowLogCollectorTargetPrototypeSubnetIdentitySubnetIdentityByHref{
 		Href: core.StringPtr(href),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -63237,11 +65492,11 @@ type FlowLogCollectorTargetPrototypeSubnetIdentitySubnetIdentityByID struct {
 }
 
 // NewFlowLogCollectorTargetPrototypeSubnetIdentitySubnetIdentityByID : Instantiate FlowLogCollectorTargetPrototypeSubnetIdentitySubnetIdentityByID (Generic Model Constructor)
-func (*VpcV1) NewFlowLogCollectorTargetPrototypeSubnetIdentitySubnetIdentityByID(id string) (model *FlowLogCollectorTargetPrototypeSubnetIdentitySubnetIdentityByID, err error) {
-	model = &FlowLogCollectorTargetPrototypeSubnetIdentitySubnetIdentityByID{
+func (*VpcV1) NewFlowLogCollectorTargetPrototypeSubnetIdentitySubnetIdentityByID(id string) (_model *FlowLogCollectorTargetPrototypeSubnetIdentitySubnetIdentityByID, err error) {
+	_model = &FlowLogCollectorTargetPrototypeSubnetIdentitySubnetIdentityByID{
 		ID: core.StringPtr(id),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -63272,11 +65527,11 @@ type FlowLogCollectorTargetPrototypeVPCIdentityVPCIdentityByCRN struct {
 }
 
 // NewFlowLogCollectorTargetPrototypeVPCIdentityVPCIdentityByCRN : Instantiate FlowLogCollectorTargetPrototypeVPCIdentityVPCIdentityByCRN (Generic Model Constructor)
-func (*VpcV1) NewFlowLogCollectorTargetPrototypeVPCIdentityVPCIdentityByCRN(crn string) (model *FlowLogCollectorTargetPrototypeVPCIdentityVPCIdentityByCRN, err error) {
-	model = &FlowLogCollectorTargetPrototypeVPCIdentityVPCIdentityByCRN{
+func (*VpcV1) NewFlowLogCollectorTargetPrototypeVPCIdentityVPCIdentityByCRN(crn string) (_model *FlowLogCollectorTargetPrototypeVPCIdentityVPCIdentityByCRN, err error) {
+	_model = &FlowLogCollectorTargetPrototypeVPCIdentityVPCIdentityByCRN{
 		CRN: core.StringPtr(crn),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -63307,11 +65562,11 @@ type FlowLogCollectorTargetPrototypeVPCIdentityVPCIdentityByHref struct {
 }
 
 // NewFlowLogCollectorTargetPrototypeVPCIdentityVPCIdentityByHref : Instantiate FlowLogCollectorTargetPrototypeVPCIdentityVPCIdentityByHref (Generic Model Constructor)
-func (*VpcV1) NewFlowLogCollectorTargetPrototypeVPCIdentityVPCIdentityByHref(href string) (model *FlowLogCollectorTargetPrototypeVPCIdentityVPCIdentityByHref, err error) {
-	model = &FlowLogCollectorTargetPrototypeVPCIdentityVPCIdentityByHref{
+func (*VpcV1) NewFlowLogCollectorTargetPrototypeVPCIdentityVPCIdentityByHref(href string) (_model *FlowLogCollectorTargetPrototypeVPCIdentityVPCIdentityByHref, err error) {
+	_model = &FlowLogCollectorTargetPrototypeVPCIdentityVPCIdentityByHref{
 		Href: core.StringPtr(href),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -63342,11 +65597,11 @@ type FlowLogCollectorTargetPrototypeVPCIdentityVPCIdentityByID struct {
 }
 
 // NewFlowLogCollectorTargetPrototypeVPCIdentityVPCIdentityByID : Instantiate FlowLogCollectorTargetPrototypeVPCIdentityVPCIdentityByID (Generic Model Constructor)
-func (*VpcV1) NewFlowLogCollectorTargetPrototypeVPCIdentityVPCIdentityByID(id string) (model *FlowLogCollectorTargetPrototypeVPCIdentityVPCIdentityByID, err error) {
-	model = &FlowLogCollectorTargetPrototypeVPCIdentityVPCIdentityByID{
+func (*VpcV1) NewFlowLogCollectorTargetPrototypeVPCIdentityVPCIdentityByID(id string) (_model *FlowLogCollectorTargetPrototypeVPCIdentityVPCIdentityByID, err error) {
+	_model = &FlowLogCollectorTargetPrototypeVPCIdentityVPCIdentityByID{
 		ID: core.StringPtr(id),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -63489,12 +65744,14 @@ func UnmarshalInstanceGroupManagerActionPrototypeScheduledActionPrototypeByRunAt
 // InstanceGroupManagerActionScheduledActionGroupTarget : InstanceGroupManagerActionScheduledActionGroupTarget struct
 // This model "extends" InstanceGroupManagerActionScheduledAction
 type InstanceGroupManagerActionScheduledActionGroupTarget struct {
-	// If set to `true`, this scheduled action will be automatically deleted after it has finished and the
-	// `auto_delete_timeout` time has passed.
+	// Indicates whether this scheduled action will be automatically deleted after it has completed and
+	// `auto_delete_timeout` hours have passed. At present, this is always
+	// `true`, but may be modifiable in the future.
 	AutoDelete *bool `json:"auto_delete" validate:"required"`
 
-	// Amount of time in hours that are required to pass before the scheduled action will be automatically deleted once it
-	// has finished. If this value is 0, the action will be deleted on completion.
+	// If `auto_delete` is `true`, and this scheduled action has finished, the hours after which it will be automatically
+	// deleted. If the value is `0`, the action will be deleted once it has finished. This value may be modifiable in the
+	// future.
 	AutoDeleteTimeout *int64 `json:"auto_delete_timeout" validate:"required"`
 
 	// The date and time that the instance group manager action was created.
@@ -63531,10 +65788,10 @@ type InstanceGroupManagerActionScheduledActionGroupTarget struct {
 	// period.
 	CronSpec *string `json:"cron_spec,omitempty"`
 
-	// The date and time the scheduled action was last applied. If empty the action has never been applied.
+	// The date and time the scheduled action was last applied. If absent, the action has never been applied.
 	LastAppliedAt *strfmt.DateTime `json:"last_applied_at,omitempty"`
 
-	// The date and time the scheduled action will next run. If empty the system is currently calculating the next run
+	// The date and time the scheduled action will next run. If absent, the system is currently calculating the next run
 	// time.
 	NextRunAt *strfmt.DateTime `json:"next_run_at,omitempty"`
 
@@ -63642,12 +65899,14 @@ func UnmarshalInstanceGroupManagerActionScheduledActionGroupTarget(m map[string]
 // InstanceGroupManagerActionScheduledActionManagerTarget : InstanceGroupManagerActionScheduledActionManagerTarget struct
 // This model "extends" InstanceGroupManagerActionScheduledAction
 type InstanceGroupManagerActionScheduledActionManagerTarget struct {
-	// If set to `true`, this scheduled action will be automatically deleted after it has finished and the
-	// `auto_delete_timeout` time has passed.
+	// Indicates whether this scheduled action will be automatically deleted after it has completed and
+	// `auto_delete_timeout` hours have passed. At present, this is always
+	// `true`, but may be modifiable in the future.
 	AutoDelete *bool `json:"auto_delete" validate:"required"`
 
-	// Amount of time in hours that are required to pass before the scheduled action will be automatically deleted once it
-	// has finished. If this value is 0, the action will be deleted on completion.
+	// If `auto_delete` is `true`, and this scheduled action has finished, the hours after which it will be automatically
+	// deleted. If the value is `0`, the action will be deleted once it has finished. This value may be modifiable in the
+	// future.
 	AutoDeleteTimeout *int64 `json:"auto_delete_timeout" validate:"required"`
 
 	// The date and time that the instance group manager action was created.
@@ -63684,10 +65943,10 @@ type InstanceGroupManagerActionScheduledActionManagerTarget struct {
 	// period.
 	CronSpec *string `json:"cron_spec,omitempty"`
 
-	// The date and time the scheduled action was last applied. If empty the action has never been applied.
+	// The date and time the scheduled action was last applied. If absent, the action has never been applied.
 	LastAppliedAt *strfmt.DateTime `json:"last_applied_at,omitempty"`
 
-	// The date and time the scheduled action will next run. If empty the system is currently calculating the next run
+	// The date and time the scheduled action will next run. If absent, the system is currently calculating the next run
 	// time.
 	NextRunAt *strfmt.DateTime `json:"next_run_at,omitempty"`
 
@@ -63806,11 +66065,11 @@ type InstanceGroupManagerScheduledActionManagerPrototypeAutoScalePrototypeByHref
 }
 
 // NewInstanceGroupManagerScheduledActionManagerPrototypeAutoScalePrototypeByHref : Instantiate InstanceGroupManagerScheduledActionManagerPrototypeAutoScalePrototypeByHref (Generic Model Constructor)
-func (*VpcV1) NewInstanceGroupManagerScheduledActionManagerPrototypeAutoScalePrototypeByHref(href string) (model *InstanceGroupManagerScheduledActionManagerPrototypeAutoScalePrototypeByHref, err error) {
-	model = &InstanceGroupManagerScheduledActionManagerPrototypeAutoScalePrototypeByHref{
+func (*VpcV1) NewInstanceGroupManagerScheduledActionManagerPrototypeAutoScalePrototypeByHref(href string) (_model *InstanceGroupManagerScheduledActionManagerPrototypeAutoScalePrototypeByHref, err error) {
+	_model = &InstanceGroupManagerScheduledActionManagerPrototypeAutoScalePrototypeByHref{
 		Href: core.StringPtr(href),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -63855,11 +66114,11 @@ type InstanceGroupManagerScheduledActionManagerPrototypeAutoScalePrototypeByID s
 }
 
 // NewInstanceGroupManagerScheduledActionManagerPrototypeAutoScalePrototypeByID : Instantiate InstanceGroupManagerScheduledActionManagerPrototypeAutoScalePrototypeByID (Generic Model Constructor)
-func (*VpcV1) NewInstanceGroupManagerScheduledActionManagerPrototypeAutoScalePrototypeByID(id string) (model *InstanceGroupManagerScheduledActionManagerPrototypeAutoScalePrototypeByID, err error) {
-	model = &InstanceGroupManagerScheduledActionManagerPrototypeAutoScalePrototypeByID{
+func (*VpcV1) NewInstanceGroupManagerScheduledActionManagerPrototypeAutoScalePrototypeByID(id string) (_model *InstanceGroupManagerScheduledActionManagerPrototypeAutoScalePrototypeByID, err error) {
+	_model = &InstanceGroupManagerScheduledActionManagerPrototypeAutoScalePrototypeByID{
 		ID: core.StringPtr(id),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -63898,11 +66157,11 @@ type InstancePlacementTargetPrototypeDedicatedHostGroupIdentityDedicatedHostGrou
 }
 
 // NewInstancePlacementTargetPrototypeDedicatedHostGroupIdentityDedicatedHostGroupIdentityByCRN : Instantiate InstancePlacementTargetPrototypeDedicatedHostGroupIdentityDedicatedHostGroupIdentityByCRN (Generic Model Constructor)
-func (*VpcV1) NewInstancePlacementTargetPrototypeDedicatedHostGroupIdentityDedicatedHostGroupIdentityByCRN(crn string) (model *InstancePlacementTargetPrototypeDedicatedHostGroupIdentityDedicatedHostGroupIdentityByCRN, err error) {
-	model = &InstancePlacementTargetPrototypeDedicatedHostGroupIdentityDedicatedHostGroupIdentityByCRN{
+func (*VpcV1) NewInstancePlacementTargetPrototypeDedicatedHostGroupIdentityDedicatedHostGroupIdentityByCRN(crn string) (_model *InstancePlacementTargetPrototypeDedicatedHostGroupIdentityDedicatedHostGroupIdentityByCRN, err error) {
+	_model = &InstancePlacementTargetPrototypeDedicatedHostGroupIdentityDedicatedHostGroupIdentityByCRN{
 		CRN: core.StringPtr(crn),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -63933,11 +66192,11 @@ type InstancePlacementTargetPrototypeDedicatedHostGroupIdentityDedicatedHostGrou
 }
 
 // NewInstancePlacementTargetPrototypeDedicatedHostGroupIdentityDedicatedHostGroupIdentityByHref : Instantiate InstancePlacementTargetPrototypeDedicatedHostGroupIdentityDedicatedHostGroupIdentityByHref (Generic Model Constructor)
-func (*VpcV1) NewInstancePlacementTargetPrototypeDedicatedHostGroupIdentityDedicatedHostGroupIdentityByHref(href string) (model *InstancePlacementTargetPrototypeDedicatedHostGroupIdentityDedicatedHostGroupIdentityByHref, err error) {
-	model = &InstancePlacementTargetPrototypeDedicatedHostGroupIdentityDedicatedHostGroupIdentityByHref{
+func (*VpcV1) NewInstancePlacementTargetPrototypeDedicatedHostGroupIdentityDedicatedHostGroupIdentityByHref(href string) (_model *InstancePlacementTargetPrototypeDedicatedHostGroupIdentityDedicatedHostGroupIdentityByHref, err error) {
+	_model = &InstancePlacementTargetPrototypeDedicatedHostGroupIdentityDedicatedHostGroupIdentityByHref{
 		Href: core.StringPtr(href),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -63968,11 +66227,11 @@ type InstancePlacementTargetPrototypeDedicatedHostGroupIdentityDedicatedHostGrou
 }
 
 // NewInstancePlacementTargetPrototypeDedicatedHostGroupIdentityDedicatedHostGroupIdentityByID : Instantiate InstancePlacementTargetPrototypeDedicatedHostGroupIdentityDedicatedHostGroupIdentityByID (Generic Model Constructor)
-func (*VpcV1) NewInstancePlacementTargetPrototypeDedicatedHostGroupIdentityDedicatedHostGroupIdentityByID(id string) (model *InstancePlacementTargetPrototypeDedicatedHostGroupIdentityDedicatedHostGroupIdentityByID, err error) {
-	model = &InstancePlacementTargetPrototypeDedicatedHostGroupIdentityDedicatedHostGroupIdentityByID{
+func (*VpcV1) NewInstancePlacementTargetPrototypeDedicatedHostGroupIdentityDedicatedHostGroupIdentityByID(id string) (_model *InstancePlacementTargetPrototypeDedicatedHostGroupIdentityDedicatedHostGroupIdentityByID, err error) {
+	_model = &InstancePlacementTargetPrototypeDedicatedHostGroupIdentityDedicatedHostGroupIdentityByID{
 		ID: core.StringPtr(id),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -64003,11 +66262,11 @@ type InstancePlacementTargetPrototypeDedicatedHostIdentityDedicatedHostIdentityB
 }
 
 // NewInstancePlacementTargetPrototypeDedicatedHostIdentityDedicatedHostIdentityByCRN : Instantiate InstancePlacementTargetPrototypeDedicatedHostIdentityDedicatedHostIdentityByCRN (Generic Model Constructor)
-func (*VpcV1) NewInstancePlacementTargetPrototypeDedicatedHostIdentityDedicatedHostIdentityByCRN(crn string) (model *InstancePlacementTargetPrototypeDedicatedHostIdentityDedicatedHostIdentityByCRN, err error) {
-	model = &InstancePlacementTargetPrototypeDedicatedHostIdentityDedicatedHostIdentityByCRN{
+func (*VpcV1) NewInstancePlacementTargetPrototypeDedicatedHostIdentityDedicatedHostIdentityByCRN(crn string) (_model *InstancePlacementTargetPrototypeDedicatedHostIdentityDedicatedHostIdentityByCRN, err error) {
+	_model = &InstancePlacementTargetPrototypeDedicatedHostIdentityDedicatedHostIdentityByCRN{
 		CRN: core.StringPtr(crn),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -64038,11 +66297,11 @@ type InstancePlacementTargetPrototypeDedicatedHostIdentityDedicatedHostIdentityB
 }
 
 // NewInstancePlacementTargetPrototypeDedicatedHostIdentityDedicatedHostIdentityByHref : Instantiate InstancePlacementTargetPrototypeDedicatedHostIdentityDedicatedHostIdentityByHref (Generic Model Constructor)
-func (*VpcV1) NewInstancePlacementTargetPrototypeDedicatedHostIdentityDedicatedHostIdentityByHref(href string) (model *InstancePlacementTargetPrototypeDedicatedHostIdentityDedicatedHostIdentityByHref, err error) {
-	model = &InstancePlacementTargetPrototypeDedicatedHostIdentityDedicatedHostIdentityByHref{
+func (*VpcV1) NewInstancePlacementTargetPrototypeDedicatedHostIdentityDedicatedHostIdentityByHref(href string) (_model *InstancePlacementTargetPrototypeDedicatedHostIdentityDedicatedHostIdentityByHref, err error) {
+	_model = &InstancePlacementTargetPrototypeDedicatedHostIdentityDedicatedHostIdentityByHref{
 		Href: core.StringPtr(href),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -64073,11 +66332,11 @@ type InstancePlacementTargetPrototypeDedicatedHostIdentityDedicatedHostIdentityB
 }
 
 // NewInstancePlacementTargetPrototypeDedicatedHostIdentityDedicatedHostIdentityByID : Instantiate InstancePlacementTargetPrototypeDedicatedHostIdentityDedicatedHostIdentityByID (Generic Model Constructor)
-func (*VpcV1) NewInstancePlacementTargetPrototypeDedicatedHostIdentityDedicatedHostIdentityByID(id string) (model *InstancePlacementTargetPrototypeDedicatedHostIdentityDedicatedHostIdentityByID, err error) {
-	model = &InstancePlacementTargetPrototypeDedicatedHostIdentityDedicatedHostIdentityByID{
+func (*VpcV1) NewInstancePlacementTargetPrototypeDedicatedHostIdentityDedicatedHostIdentityByID(id string) (_model *InstancePlacementTargetPrototypeDedicatedHostIdentityDedicatedHostIdentityByID, err error) {
+	_model = &InstancePlacementTargetPrototypeDedicatedHostIdentityDedicatedHostIdentityByID{
 		ID: core.StringPtr(id),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -64108,11 +66367,11 @@ type InstancePlacementTargetPrototypePlacementGroupIdentityPlacementGroupIdentit
 }
 
 // NewInstancePlacementTargetPrototypePlacementGroupIdentityPlacementGroupIdentityByCRN : Instantiate InstancePlacementTargetPrototypePlacementGroupIdentityPlacementGroupIdentityByCRN (Generic Model Constructor)
-func (*VpcV1) NewInstancePlacementTargetPrototypePlacementGroupIdentityPlacementGroupIdentityByCRN(crn string) (model *InstancePlacementTargetPrototypePlacementGroupIdentityPlacementGroupIdentityByCRN, err error) {
-	model = &InstancePlacementTargetPrototypePlacementGroupIdentityPlacementGroupIdentityByCRN{
+func (*VpcV1) NewInstancePlacementTargetPrototypePlacementGroupIdentityPlacementGroupIdentityByCRN(crn string) (_model *InstancePlacementTargetPrototypePlacementGroupIdentityPlacementGroupIdentityByCRN, err error) {
+	_model = &InstancePlacementTargetPrototypePlacementGroupIdentityPlacementGroupIdentityByCRN{
 		CRN: core.StringPtr(crn),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -64143,11 +66402,11 @@ type InstancePlacementTargetPrototypePlacementGroupIdentityPlacementGroupIdentit
 }
 
 // NewInstancePlacementTargetPrototypePlacementGroupIdentityPlacementGroupIdentityByHref : Instantiate InstancePlacementTargetPrototypePlacementGroupIdentityPlacementGroupIdentityByHref (Generic Model Constructor)
-func (*VpcV1) NewInstancePlacementTargetPrototypePlacementGroupIdentityPlacementGroupIdentityByHref(href string) (model *InstancePlacementTargetPrototypePlacementGroupIdentityPlacementGroupIdentityByHref, err error) {
-	model = &InstancePlacementTargetPrototypePlacementGroupIdentityPlacementGroupIdentityByHref{
+func (*VpcV1) NewInstancePlacementTargetPrototypePlacementGroupIdentityPlacementGroupIdentityByHref(href string) (_model *InstancePlacementTargetPrototypePlacementGroupIdentityPlacementGroupIdentityByHref, err error) {
+	_model = &InstancePlacementTargetPrototypePlacementGroupIdentityPlacementGroupIdentityByHref{
 		Href: core.StringPtr(href),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -64178,11 +66437,11 @@ type InstancePlacementTargetPrototypePlacementGroupIdentityPlacementGroupIdentit
 }
 
 // NewInstancePlacementTargetPrototypePlacementGroupIdentityPlacementGroupIdentityByID : Instantiate InstancePlacementTargetPrototypePlacementGroupIdentityPlacementGroupIdentityByID (Generic Model Constructor)
-func (*VpcV1) NewInstancePlacementTargetPrototypePlacementGroupIdentityPlacementGroupIdentityByID(id string) (model *InstancePlacementTargetPrototypePlacementGroupIdentityPlacementGroupIdentityByID, err error) {
-	model = &InstancePlacementTargetPrototypePlacementGroupIdentityPlacementGroupIdentityByID{
+func (*VpcV1) NewInstancePlacementTargetPrototypePlacementGroupIdentityPlacementGroupIdentityByID(id string) (_model *InstancePlacementTargetPrototypePlacementGroupIdentityPlacementGroupIdentityByID, err error) {
+	_model = &InstancePlacementTargetPrototypePlacementGroupIdentityPlacementGroupIdentityByID{
 		ID: core.StringPtr(id),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -64213,11 +66472,11 @@ type LoadBalancerListenerPolicyTargetPatchLoadBalancerPoolIdentityLoadBalancerPo
 }
 
 // NewLoadBalancerListenerPolicyTargetPatchLoadBalancerPoolIdentityLoadBalancerPoolIdentityByHref : Instantiate LoadBalancerListenerPolicyTargetPatchLoadBalancerPoolIdentityLoadBalancerPoolIdentityByHref (Generic Model Constructor)
-func (*VpcV1) NewLoadBalancerListenerPolicyTargetPatchLoadBalancerPoolIdentityLoadBalancerPoolIdentityByHref(href string) (model *LoadBalancerListenerPolicyTargetPatchLoadBalancerPoolIdentityLoadBalancerPoolIdentityByHref, err error) {
-	model = &LoadBalancerListenerPolicyTargetPatchLoadBalancerPoolIdentityLoadBalancerPoolIdentityByHref{
+func (*VpcV1) NewLoadBalancerListenerPolicyTargetPatchLoadBalancerPoolIdentityLoadBalancerPoolIdentityByHref(href string) (_model *LoadBalancerListenerPolicyTargetPatchLoadBalancerPoolIdentityLoadBalancerPoolIdentityByHref, err error) {
+	_model = &LoadBalancerListenerPolicyTargetPatchLoadBalancerPoolIdentityLoadBalancerPoolIdentityByHref{
 		Href: core.StringPtr(href),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -64248,11 +66507,11 @@ type LoadBalancerListenerPolicyTargetPatchLoadBalancerPoolIdentityLoadBalancerPo
 }
 
 // NewLoadBalancerListenerPolicyTargetPatchLoadBalancerPoolIdentityLoadBalancerPoolIdentityByID : Instantiate LoadBalancerListenerPolicyTargetPatchLoadBalancerPoolIdentityLoadBalancerPoolIdentityByID (Generic Model Constructor)
-func (*VpcV1) NewLoadBalancerListenerPolicyTargetPatchLoadBalancerPoolIdentityLoadBalancerPoolIdentityByID(id string) (model *LoadBalancerListenerPolicyTargetPatchLoadBalancerPoolIdentityLoadBalancerPoolIdentityByID, err error) {
-	model = &LoadBalancerListenerPolicyTargetPatchLoadBalancerPoolIdentityLoadBalancerPoolIdentityByID{
+func (*VpcV1) NewLoadBalancerListenerPolicyTargetPatchLoadBalancerPoolIdentityLoadBalancerPoolIdentityByID(id string) (_model *LoadBalancerListenerPolicyTargetPatchLoadBalancerPoolIdentityLoadBalancerPoolIdentityByID, err error) {
+	_model = &LoadBalancerListenerPolicyTargetPatchLoadBalancerPoolIdentityLoadBalancerPoolIdentityByID{
 		ID: core.StringPtr(id),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -64283,11 +66542,11 @@ type LoadBalancerListenerPolicyTargetPrototypeLoadBalancerPoolIdentityLoadBalanc
 }
 
 // NewLoadBalancerListenerPolicyTargetPrototypeLoadBalancerPoolIdentityLoadBalancerPoolIdentityByHref : Instantiate LoadBalancerListenerPolicyTargetPrototypeLoadBalancerPoolIdentityLoadBalancerPoolIdentityByHref (Generic Model Constructor)
-func (*VpcV1) NewLoadBalancerListenerPolicyTargetPrototypeLoadBalancerPoolIdentityLoadBalancerPoolIdentityByHref(href string) (model *LoadBalancerListenerPolicyTargetPrototypeLoadBalancerPoolIdentityLoadBalancerPoolIdentityByHref, err error) {
-	model = &LoadBalancerListenerPolicyTargetPrototypeLoadBalancerPoolIdentityLoadBalancerPoolIdentityByHref{
+func (*VpcV1) NewLoadBalancerListenerPolicyTargetPrototypeLoadBalancerPoolIdentityLoadBalancerPoolIdentityByHref(href string) (_model *LoadBalancerListenerPolicyTargetPrototypeLoadBalancerPoolIdentityLoadBalancerPoolIdentityByHref, err error) {
+	_model = &LoadBalancerListenerPolicyTargetPrototypeLoadBalancerPoolIdentityLoadBalancerPoolIdentityByHref{
 		Href: core.StringPtr(href),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -64318,11 +66577,11 @@ type LoadBalancerListenerPolicyTargetPrototypeLoadBalancerPoolIdentityLoadBalanc
 }
 
 // NewLoadBalancerListenerPolicyTargetPrototypeLoadBalancerPoolIdentityLoadBalancerPoolIdentityByID : Instantiate LoadBalancerListenerPolicyTargetPrototypeLoadBalancerPoolIdentityLoadBalancerPoolIdentityByID (Generic Model Constructor)
-func (*VpcV1) NewLoadBalancerListenerPolicyTargetPrototypeLoadBalancerPoolIdentityLoadBalancerPoolIdentityByID(id string) (model *LoadBalancerListenerPolicyTargetPrototypeLoadBalancerPoolIdentityLoadBalancerPoolIdentityByID, err error) {
-	model = &LoadBalancerListenerPolicyTargetPrototypeLoadBalancerPoolIdentityLoadBalancerPoolIdentityByID{
+func (*VpcV1) NewLoadBalancerListenerPolicyTargetPrototypeLoadBalancerPoolIdentityLoadBalancerPoolIdentityByID(id string) (_model *LoadBalancerListenerPolicyTargetPrototypeLoadBalancerPoolIdentityLoadBalancerPoolIdentityByID, err error) {
+	_model = &LoadBalancerListenerPolicyTargetPrototypeLoadBalancerPoolIdentityLoadBalancerPoolIdentityByID{
 		ID: core.StringPtr(id),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -64353,11 +66612,11 @@ type LoadBalancerPoolMemberTargetPrototypeInstanceIdentityInstanceIdentityByCRN 
 }
 
 // NewLoadBalancerPoolMemberTargetPrototypeInstanceIdentityInstanceIdentityByCRN : Instantiate LoadBalancerPoolMemberTargetPrototypeInstanceIdentityInstanceIdentityByCRN (Generic Model Constructor)
-func (*VpcV1) NewLoadBalancerPoolMemberTargetPrototypeInstanceIdentityInstanceIdentityByCRN(crn string) (model *LoadBalancerPoolMemberTargetPrototypeInstanceIdentityInstanceIdentityByCRN, err error) {
-	model = &LoadBalancerPoolMemberTargetPrototypeInstanceIdentityInstanceIdentityByCRN{
+func (*VpcV1) NewLoadBalancerPoolMemberTargetPrototypeInstanceIdentityInstanceIdentityByCRN(crn string) (_model *LoadBalancerPoolMemberTargetPrototypeInstanceIdentityInstanceIdentityByCRN, err error) {
+	_model = &LoadBalancerPoolMemberTargetPrototypeInstanceIdentityInstanceIdentityByCRN{
 		CRN: core.StringPtr(crn),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -64388,11 +66647,11 @@ type LoadBalancerPoolMemberTargetPrototypeInstanceIdentityInstanceIdentityByHref
 }
 
 // NewLoadBalancerPoolMemberTargetPrototypeInstanceIdentityInstanceIdentityByHref : Instantiate LoadBalancerPoolMemberTargetPrototypeInstanceIdentityInstanceIdentityByHref (Generic Model Constructor)
-func (*VpcV1) NewLoadBalancerPoolMemberTargetPrototypeInstanceIdentityInstanceIdentityByHref(href string) (model *LoadBalancerPoolMemberTargetPrototypeInstanceIdentityInstanceIdentityByHref, err error) {
-	model = &LoadBalancerPoolMemberTargetPrototypeInstanceIdentityInstanceIdentityByHref{
+func (*VpcV1) NewLoadBalancerPoolMemberTargetPrototypeInstanceIdentityInstanceIdentityByHref(href string) (_model *LoadBalancerPoolMemberTargetPrototypeInstanceIdentityInstanceIdentityByHref, err error) {
+	_model = &LoadBalancerPoolMemberTargetPrototypeInstanceIdentityInstanceIdentityByHref{
 		Href: core.StringPtr(href),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -64423,11 +66682,11 @@ type LoadBalancerPoolMemberTargetPrototypeInstanceIdentityInstanceIdentityByID s
 }
 
 // NewLoadBalancerPoolMemberTargetPrototypeInstanceIdentityInstanceIdentityByID : Instantiate LoadBalancerPoolMemberTargetPrototypeInstanceIdentityInstanceIdentityByID (Generic Model Constructor)
-func (*VpcV1) NewLoadBalancerPoolMemberTargetPrototypeInstanceIdentityInstanceIdentityByID(id string) (model *LoadBalancerPoolMemberTargetPrototypeInstanceIdentityInstanceIdentityByID, err error) {
-	model = &LoadBalancerPoolMemberTargetPrototypeInstanceIdentityInstanceIdentityByID{
+func (*VpcV1) NewLoadBalancerPoolMemberTargetPrototypeInstanceIdentityInstanceIdentityByID(id string) (_model *LoadBalancerPoolMemberTargetPrototypeInstanceIdentityInstanceIdentityByID, err error) {
+	_model = &LoadBalancerPoolMemberTargetPrototypeInstanceIdentityInstanceIdentityByID{
 		ID: core.StringPtr(id),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -64458,11 +66717,11 @@ type PublicGatewayFloatingIPPrototypeFloatingIPIdentityFloatingIPIdentityByAddre
 }
 
 // NewPublicGatewayFloatingIPPrototypeFloatingIPIdentityFloatingIPIdentityByAddress : Instantiate PublicGatewayFloatingIPPrototypeFloatingIPIdentityFloatingIPIdentityByAddress (Generic Model Constructor)
-func (*VpcV1) NewPublicGatewayFloatingIPPrototypeFloatingIPIdentityFloatingIPIdentityByAddress(address string) (model *PublicGatewayFloatingIPPrototypeFloatingIPIdentityFloatingIPIdentityByAddress, err error) {
-	model = &PublicGatewayFloatingIPPrototypeFloatingIPIdentityFloatingIPIdentityByAddress{
+func (*VpcV1) NewPublicGatewayFloatingIPPrototypeFloatingIPIdentityFloatingIPIdentityByAddress(address string) (_model *PublicGatewayFloatingIPPrototypeFloatingIPIdentityFloatingIPIdentityByAddress, err error) {
+	_model = &PublicGatewayFloatingIPPrototypeFloatingIPIdentityFloatingIPIdentityByAddress{
 		Address: core.StringPtr(address),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -64493,11 +66752,11 @@ type PublicGatewayFloatingIPPrototypeFloatingIPIdentityFloatingIPIdentityByCRN s
 }
 
 // NewPublicGatewayFloatingIPPrototypeFloatingIPIdentityFloatingIPIdentityByCRN : Instantiate PublicGatewayFloatingIPPrototypeFloatingIPIdentityFloatingIPIdentityByCRN (Generic Model Constructor)
-func (*VpcV1) NewPublicGatewayFloatingIPPrototypeFloatingIPIdentityFloatingIPIdentityByCRN(crn string) (model *PublicGatewayFloatingIPPrototypeFloatingIPIdentityFloatingIPIdentityByCRN, err error) {
-	model = &PublicGatewayFloatingIPPrototypeFloatingIPIdentityFloatingIPIdentityByCRN{
+func (*VpcV1) NewPublicGatewayFloatingIPPrototypeFloatingIPIdentityFloatingIPIdentityByCRN(crn string) (_model *PublicGatewayFloatingIPPrototypeFloatingIPIdentityFloatingIPIdentityByCRN, err error) {
+	_model = &PublicGatewayFloatingIPPrototypeFloatingIPIdentityFloatingIPIdentityByCRN{
 		CRN: core.StringPtr(crn),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -64528,11 +66787,11 @@ type PublicGatewayFloatingIPPrototypeFloatingIPIdentityFloatingIPIdentityByHref 
 }
 
 // NewPublicGatewayFloatingIPPrototypeFloatingIPIdentityFloatingIPIdentityByHref : Instantiate PublicGatewayFloatingIPPrototypeFloatingIPIdentityFloatingIPIdentityByHref (Generic Model Constructor)
-func (*VpcV1) NewPublicGatewayFloatingIPPrototypeFloatingIPIdentityFloatingIPIdentityByHref(href string) (model *PublicGatewayFloatingIPPrototypeFloatingIPIdentityFloatingIPIdentityByHref, err error) {
-	model = &PublicGatewayFloatingIPPrototypeFloatingIPIdentityFloatingIPIdentityByHref{
+func (*VpcV1) NewPublicGatewayFloatingIPPrototypeFloatingIPIdentityFloatingIPIdentityByHref(href string) (_model *PublicGatewayFloatingIPPrototypeFloatingIPIdentityFloatingIPIdentityByHref, err error) {
+	_model = &PublicGatewayFloatingIPPrototypeFloatingIPIdentityFloatingIPIdentityByHref{
 		Href: core.StringPtr(href),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -64563,11 +66822,11 @@ type PublicGatewayFloatingIPPrototypeFloatingIPIdentityFloatingIPIdentityByID st
 }
 
 // NewPublicGatewayFloatingIPPrototypeFloatingIPIdentityFloatingIPIdentityByID : Instantiate PublicGatewayFloatingIPPrototypeFloatingIPIdentityFloatingIPIdentityByID (Generic Model Constructor)
-func (*VpcV1) NewPublicGatewayFloatingIPPrototypeFloatingIPIdentityFloatingIPIdentityByID(id string) (model *PublicGatewayFloatingIPPrototypeFloatingIPIdentityFloatingIPIdentityByID, err error) {
-	model = &PublicGatewayFloatingIPPrototypeFloatingIPIdentityFloatingIPIdentityByID{
+func (*VpcV1) NewPublicGatewayFloatingIPPrototypeFloatingIPIdentityFloatingIPIdentityByID(id string) (_model *PublicGatewayFloatingIPPrototypeFloatingIPIdentityFloatingIPIdentityByID, err error) {
+	_model = &PublicGatewayFloatingIPPrototypeFloatingIPIdentityFloatingIPIdentityByID{
 		ID: core.StringPtr(id),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -64598,11 +66857,11 @@ type ReservedIPTargetPrototypeEndpointGatewayIdentityEndpointGatewayIdentityByCR
 }
 
 // NewReservedIPTargetPrototypeEndpointGatewayIdentityEndpointGatewayIdentityByCRN : Instantiate ReservedIPTargetPrototypeEndpointGatewayIdentityEndpointGatewayIdentityByCRN (Generic Model Constructor)
-func (*VpcV1) NewReservedIPTargetPrototypeEndpointGatewayIdentityEndpointGatewayIdentityByCRN(crn string) (model *ReservedIPTargetPrototypeEndpointGatewayIdentityEndpointGatewayIdentityByCRN, err error) {
-	model = &ReservedIPTargetPrototypeEndpointGatewayIdentityEndpointGatewayIdentityByCRN{
+func (*VpcV1) NewReservedIPTargetPrototypeEndpointGatewayIdentityEndpointGatewayIdentityByCRN(crn string) (_model *ReservedIPTargetPrototypeEndpointGatewayIdentityEndpointGatewayIdentityByCRN, err error) {
+	_model = &ReservedIPTargetPrototypeEndpointGatewayIdentityEndpointGatewayIdentityByCRN{
 		CRN: core.StringPtr(crn),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -64633,11 +66892,11 @@ type ReservedIPTargetPrototypeEndpointGatewayIdentityEndpointGatewayIdentityByHr
 }
 
 // NewReservedIPTargetPrototypeEndpointGatewayIdentityEndpointGatewayIdentityByHref : Instantiate ReservedIPTargetPrototypeEndpointGatewayIdentityEndpointGatewayIdentityByHref (Generic Model Constructor)
-func (*VpcV1) NewReservedIPTargetPrototypeEndpointGatewayIdentityEndpointGatewayIdentityByHref(href string) (model *ReservedIPTargetPrototypeEndpointGatewayIdentityEndpointGatewayIdentityByHref, err error) {
-	model = &ReservedIPTargetPrototypeEndpointGatewayIdentityEndpointGatewayIdentityByHref{
+func (*VpcV1) NewReservedIPTargetPrototypeEndpointGatewayIdentityEndpointGatewayIdentityByHref(href string) (_model *ReservedIPTargetPrototypeEndpointGatewayIdentityEndpointGatewayIdentityByHref, err error) {
+	_model = &ReservedIPTargetPrototypeEndpointGatewayIdentityEndpointGatewayIdentityByHref{
 		Href: core.StringPtr(href),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -64668,11 +66927,11 @@ type ReservedIPTargetPrototypeEndpointGatewayIdentityEndpointGatewayIdentityByID
 }
 
 // NewReservedIPTargetPrototypeEndpointGatewayIdentityEndpointGatewayIdentityByID : Instantiate ReservedIPTargetPrototypeEndpointGatewayIdentityEndpointGatewayIdentityByID (Generic Model Constructor)
-func (*VpcV1) NewReservedIPTargetPrototypeEndpointGatewayIdentityEndpointGatewayIdentityByID(id string) (model *ReservedIPTargetPrototypeEndpointGatewayIdentityEndpointGatewayIdentityByID, err error) {
-	model = &ReservedIPTargetPrototypeEndpointGatewayIdentityEndpointGatewayIdentityByID{
+func (*VpcV1) NewReservedIPTargetPrototypeEndpointGatewayIdentityEndpointGatewayIdentityByID(id string) (_model *ReservedIPTargetPrototypeEndpointGatewayIdentityEndpointGatewayIdentityByID, err error) {
+	_model = &ReservedIPTargetPrototypeEndpointGatewayIdentityEndpointGatewayIdentityByID{
 		ID: core.StringPtr(id),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -64703,11 +66962,11 @@ type RouteNextHopPrototypeVPNGatewayConnectionIdentityVPNGatewayConnectionIdenti
 }
 
 // NewRouteNextHopPrototypeVPNGatewayConnectionIdentityVPNGatewayConnectionIdentityByHref : Instantiate RouteNextHopPrototypeVPNGatewayConnectionIdentityVPNGatewayConnectionIdentityByHref (Generic Model Constructor)
-func (*VpcV1) NewRouteNextHopPrototypeVPNGatewayConnectionIdentityVPNGatewayConnectionIdentityByHref(href string) (model *RouteNextHopPrototypeVPNGatewayConnectionIdentityVPNGatewayConnectionIdentityByHref, err error) {
-	model = &RouteNextHopPrototypeVPNGatewayConnectionIdentityVPNGatewayConnectionIdentityByHref{
+func (*VpcV1) NewRouteNextHopPrototypeVPNGatewayConnectionIdentityVPNGatewayConnectionIdentityByHref(href string) (_model *RouteNextHopPrototypeVPNGatewayConnectionIdentityVPNGatewayConnectionIdentityByHref, err error) {
+	_model = &RouteNextHopPrototypeVPNGatewayConnectionIdentityVPNGatewayConnectionIdentityByHref{
 		Href: core.StringPtr(href),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -64738,11 +66997,11 @@ type RouteNextHopPrototypeVPNGatewayConnectionIdentityVPNGatewayConnectionIdenti
 }
 
 // NewRouteNextHopPrototypeVPNGatewayConnectionIdentityVPNGatewayConnectionIdentityByID : Instantiate RouteNextHopPrototypeVPNGatewayConnectionIdentityVPNGatewayConnectionIdentityByID (Generic Model Constructor)
-func (*VpcV1) NewRouteNextHopPrototypeVPNGatewayConnectionIdentityVPNGatewayConnectionIdentityByID(id string) (model *RouteNextHopPrototypeVPNGatewayConnectionIdentityVPNGatewayConnectionIdentityByID, err error) {
-	model = &RouteNextHopPrototypeVPNGatewayConnectionIdentityVPNGatewayConnectionIdentityByID{
+func (*VpcV1) NewRouteNextHopPrototypeVPNGatewayConnectionIdentityVPNGatewayConnectionIdentityByID(id string) (_model *RouteNextHopPrototypeVPNGatewayConnectionIdentityVPNGatewayConnectionIdentityByID, err error) {
+	_model = &RouteNextHopPrototypeVPNGatewayConnectionIdentityVPNGatewayConnectionIdentityByID{
 		ID: core.StringPtr(id),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -64773,11 +67032,11 @@ type SecurityGroupRuleRemotePatchSecurityGroupIdentitySecurityGroupIdentityByCRN
 }
 
 // NewSecurityGroupRuleRemotePatchSecurityGroupIdentitySecurityGroupIdentityByCRN : Instantiate SecurityGroupRuleRemotePatchSecurityGroupIdentitySecurityGroupIdentityByCRN (Generic Model Constructor)
-func (*VpcV1) NewSecurityGroupRuleRemotePatchSecurityGroupIdentitySecurityGroupIdentityByCRN(crn string) (model *SecurityGroupRuleRemotePatchSecurityGroupIdentitySecurityGroupIdentityByCRN, err error) {
-	model = &SecurityGroupRuleRemotePatchSecurityGroupIdentitySecurityGroupIdentityByCRN{
+func (*VpcV1) NewSecurityGroupRuleRemotePatchSecurityGroupIdentitySecurityGroupIdentityByCRN(crn string) (_model *SecurityGroupRuleRemotePatchSecurityGroupIdentitySecurityGroupIdentityByCRN, err error) {
+	_model = &SecurityGroupRuleRemotePatchSecurityGroupIdentitySecurityGroupIdentityByCRN{
 		CRN: core.StringPtr(crn),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -64808,11 +67067,11 @@ type SecurityGroupRuleRemotePatchSecurityGroupIdentitySecurityGroupIdentityByHre
 }
 
 // NewSecurityGroupRuleRemotePatchSecurityGroupIdentitySecurityGroupIdentityByHref : Instantiate SecurityGroupRuleRemotePatchSecurityGroupIdentitySecurityGroupIdentityByHref (Generic Model Constructor)
-func (*VpcV1) NewSecurityGroupRuleRemotePatchSecurityGroupIdentitySecurityGroupIdentityByHref(href string) (model *SecurityGroupRuleRemotePatchSecurityGroupIdentitySecurityGroupIdentityByHref, err error) {
-	model = &SecurityGroupRuleRemotePatchSecurityGroupIdentitySecurityGroupIdentityByHref{
+func (*VpcV1) NewSecurityGroupRuleRemotePatchSecurityGroupIdentitySecurityGroupIdentityByHref(href string) (_model *SecurityGroupRuleRemotePatchSecurityGroupIdentitySecurityGroupIdentityByHref, err error) {
+	_model = &SecurityGroupRuleRemotePatchSecurityGroupIdentitySecurityGroupIdentityByHref{
 		Href: core.StringPtr(href),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -64843,11 +67102,11 @@ type SecurityGroupRuleRemotePatchSecurityGroupIdentitySecurityGroupIdentityByID 
 }
 
 // NewSecurityGroupRuleRemotePatchSecurityGroupIdentitySecurityGroupIdentityByID : Instantiate SecurityGroupRuleRemotePatchSecurityGroupIdentitySecurityGroupIdentityByID (Generic Model Constructor)
-func (*VpcV1) NewSecurityGroupRuleRemotePatchSecurityGroupIdentitySecurityGroupIdentityByID(id string) (model *SecurityGroupRuleRemotePatchSecurityGroupIdentitySecurityGroupIdentityByID, err error) {
-	model = &SecurityGroupRuleRemotePatchSecurityGroupIdentitySecurityGroupIdentityByID{
+func (*VpcV1) NewSecurityGroupRuleRemotePatchSecurityGroupIdentitySecurityGroupIdentityByID(id string) (_model *SecurityGroupRuleRemotePatchSecurityGroupIdentitySecurityGroupIdentityByID, err error) {
+	_model = &SecurityGroupRuleRemotePatchSecurityGroupIdentitySecurityGroupIdentityByID{
 		ID: core.StringPtr(id),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -64878,11 +67137,11 @@ type SecurityGroupRuleRemotePrototypeSecurityGroupIdentitySecurityGroupIdentityB
 }
 
 // NewSecurityGroupRuleRemotePrototypeSecurityGroupIdentitySecurityGroupIdentityByCRN : Instantiate SecurityGroupRuleRemotePrototypeSecurityGroupIdentitySecurityGroupIdentityByCRN (Generic Model Constructor)
-func (*VpcV1) NewSecurityGroupRuleRemotePrototypeSecurityGroupIdentitySecurityGroupIdentityByCRN(crn string) (model *SecurityGroupRuleRemotePrototypeSecurityGroupIdentitySecurityGroupIdentityByCRN, err error) {
-	model = &SecurityGroupRuleRemotePrototypeSecurityGroupIdentitySecurityGroupIdentityByCRN{
+func (*VpcV1) NewSecurityGroupRuleRemotePrototypeSecurityGroupIdentitySecurityGroupIdentityByCRN(crn string) (_model *SecurityGroupRuleRemotePrototypeSecurityGroupIdentitySecurityGroupIdentityByCRN, err error) {
+	_model = &SecurityGroupRuleRemotePrototypeSecurityGroupIdentitySecurityGroupIdentityByCRN{
 		CRN: core.StringPtr(crn),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -64913,11 +67172,11 @@ type SecurityGroupRuleRemotePrototypeSecurityGroupIdentitySecurityGroupIdentityB
 }
 
 // NewSecurityGroupRuleRemotePrototypeSecurityGroupIdentitySecurityGroupIdentityByHref : Instantiate SecurityGroupRuleRemotePrototypeSecurityGroupIdentitySecurityGroupIdentityByHref (Generic Model Constructor)
-func (*VpcV1) NewSecurityGroupRuleRemotePrototypeSecurityGroupIdentitySecurityGroupIdentityByHref(href string) (model *SecurityGroupRuleRemotePrototypeSecurityGroupIdentitySecurityGroupIdentityByHref, err error) {
-	model = &SecurityGroupRuleRemotePrototypeSecurityGroupIdentitySecurityGroupIdentityByHref{
+func (*VpcV1) NewSecurityGroupRuleRemotePrototypeSecurityGroupIdentitySecurityGroupIdentityByHref(href string) (_model *SecurityGroupRuleRemotePrototypeSecurityGroupIdentitySecurityGroupIdentityByHref, err error) {
+	_model = &SecurityGroupRuleRemotePrototypeSecurityGroupIdentitySecurityGroupIdentityByHref{
 		Href: core.StringPtr(href),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -64948,11 +67207,11 @@ type SecurityGroupRuleRemotePrototypeSecurityGroupIdentitySecurityGroupIdentityB
 }
 
 // NewSecurityGroupRuleRemotePrototypeSecurityGroupIdentitySecurityGroupIdentityByID : Instantiate SecurityGroupRuleRemotePrototypeSecurityGroupIdentitySecurityGroupIdentityByID (Generic Model Constructor)
-func (*VpcV1) NewSecurityGroupRuleRemotePrototypeSecurityGroupIdentitySecurityGroupIdentityByID(id string) (model *SecurityGroupRuleRemotePrototypeSecurityGroupIdentitySecurityGroupIdentityByID, err error) {
-	model = &SecurityGroupRuleRemotePrototypeSecurityGroupIdentitySecurityGroupIdentityByID{
+func (*VpcV1) NewSecurityGroupRuleRemotePrototypeSecurityGroupIdentitySecurityGroupIdentityByID(id string) (_model *SecurityGroupRuleRemotePrototypeSecurityGroupIdentitySecurityGroupIdentityByID, err error) {
+	_model = &SecurityGroupRuleRemotePrototypeSecurityGroupIdentitySecurityGroupIdentityByID{
 		ID: core.StringPtr(id),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -64983,11 +67242,11 @@ type VolumeAttachmentPrototypeVolumeVolumeIdentityVolumeIdentityByCRN struct {
 }
 
 // NewVolumeAttachmentPrototypeVolumeVolumeIdentityVolumeIdentityByCRN : Instantiate VolumeAttachmentPrototypeVolumeVolumeIdentityVolumeIdentityByCRN (Generic Model Constructor)
-func (*VpcV1) NewVolumeAttachmentPrototypeVolumeVolumeIdentityVolumeIdentityByCRN(crn string) (model *VolumeAttachmentPrototypeVolumeVolumeIdentityVolumeIdentityByCRN, err error) {
-	model = &VolumeAttachmentPrototypeVolumeVolumeIdentityVolumeIdentityByCRN{
+func (*VpcV1) NewVolumeAttachmentPrototypeVolumeVolumeIdentityVolumeIdentityByCRN(crn string) (_model *VolumeAttachmentPrototypeVolumeVolumeIdentityVolumeIdentityByCRN, err error) {
+	_model = &VolumeAttachmentPrototypeVolumeVolumeIdentityVolumeIdentityByCRN{
 		CRN: core.StringPtr(crn),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -65018,11 +67277,11 @@ type VolumeAttachmentPrototypeVolumeVolumeIdentityVolumeIdentityByHref struct {
 }
 
 // NewVolumeAttachmentPrototypeVolumeVolumeIdentityVolumeIdentityByHref : Instantiate VolumeAttachmentPrototypeVolumeVolumeIdentityVolumeIdentityByHref (Generic Model Constructor)
-func (*VpcV1) NewVolumeAttachmentPrototypeVolumeVolumeIdentityVolumeIdentityByHref(href string) (model *VolumeAttachmentPrototypeVolumeVolumeIdentityVolumeIdentityByHref, err error) {
-	model = &VolumeAttachmentPrototypeVolumeVolumeIdentityVolumeIdentityByHref{
+func (*VpcV1) NewVolumeAttachmentPrototypeVolumeVolumeIdentityVolumeIdentityByHref(href string) (_model *VolumeAttachmentPrototypeVolumeVolumeIdentityVolumeIdentityByHref, err error) {
+	_model = &VolumeAttachmentPrototypeVolumeVolumeIdentityVolumeIdentityByHref{
 		Href: core.StringPtr(href),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -65053,11 +67312,11 @@ type VolumeAttachmentPrototypeVolumeVolumeIdentityVolumeIdentityByID struct {
 }
 
 // NewVolumeAttachmentPrototypeVolumeVolumeIdentityVolumeIdentityByID : Instantiate VolumeAttachmentPrototypeVolumeVolumeIdentityVolumeIdentityByID (Generic Model Constructor)
-func (*VpcV1) NewVolumeAttachmentPrototypeVolumeVolumeIdentityVolumeIdentityByID(id string) (model *VolumeAttachmentPrototypeVolumeVolumeIdentityVolumeIdentityByID, err error) {
-	model = &VolumeAttachmentPrototypeVolumeVolumeIdentityVolumeIdentityByID{
+func (*VpcV1) NewVolumeAttachmentPrototypeVolumeVolumeIdentityVolumeIdentityByID(id string) (_model *VolumeAttachmentPrototypeVolumeVolumeIdentityVolumeIdentityByID, err error) {
+	_model = &VolumeAttachmentPrototypeVolumeVolumeIdentityVolumeIdentityByID{
 		ID: core.StringPtr(id),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -65083,7 +67342,8 @@ func UnmarshalVolumeAttachmentPrototypeVolumeVolumeIdentityVolumeIdentityByID(m 
 // VolumeAttachmentPrototypeVolumeVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeByCapacity : VolumeAttachmentPrototypeVolumeVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeByCapacity struct
 // This model "extends" VolumeAttachmentPrototypeVolumeVolumePrototypeInstanceContext
 type VolumeAttachmentPrototypeVolumeVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeByCapacity struct {
-	// The bandwidth for the volume.
+	// The maximum I/O operations per second (IOPS) to use for the volume. Applicable only to volumes using a profile
+	// `family` of `custom`.
 	Iops *int64 `json:"iops,omitempty"`
 
 	// The unique user-defined name for this volume.
@@ -65098,18 +67358,17 @@ type VolumeAttachmentPrototypeVolumeVolumePrototypeInstanceContextVolumePrototyp
 
 	// The root key to use to wrap the data encryption key for the volume.
 	//
-	// If this property is not provided, the `encryption` type for the volume will be
-	// `provider_managed`.
+	// If unspecified, the `encryption` type for the volume will be `provider_managed`.
 	EncryptionKey EncryptionKeyIdentityIntf `json:"encryption_key,omitempty"`
 }
 
 // NewVolumeAttachmentPrototypeVolumeVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeByCapacity : Instantiate VolumeAttachmentPrototypeVolumeVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeByCapacity (Generic Model Constructor)
-func (*VpcV1) NewVolumeAttachmentPrototypeVolumeVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeByCapacity(profile VolumeProfileIdentityIntf, capacity int64) (model *VolumeAttachmentPrototypeVolumeVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeByCapacity, err error) {
-	model = &VolumeAttachmentPrototypeVolumeVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeByCapacity{
+func (*VpcV1) NewVolumeAttachmentPrototypeVolumeVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeByCapacity(profile VolumeProfileIdentityIntf, capacity int64) (_model *VolumeAttachmentPrototypeVolumeVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeByCapacity, err error) {
+	_model = &VolumeAttachmentPrototypeVolumeVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeByCapacity{
 		Profile:  profile,
 		Capacity: core.Int64Ptr(capacity),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -65151,7 +67410,8 @@ func UnmarshalVolumeAttachmentPrototypeVolumeVolumePrototypeInstanceContextVolum
 // VolumeAttachmentPrototypeVolumeVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeBySourceSnapshot : VolumeAttachmentPrototypeVolumeVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeBySourceSnapshot struct
 // This model "extends" VolumeAttachmentPrototypeVolumeVolumePrototypeInstanceContext
 type VolumeAttachmentPrototypeVolumeVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeBySourceSnapshot struct {
-	// The bandwidth for the volume.
+	// The maximum I/O operations per second (IOPS) to use for the volume. Applicable only to volumes using a profile
+	// `family` of `custom`.
 	Iops *int64 `json:"iops,omitempty"`
 
 	// The unique user-defined name for this volume.
@@ -65160,14 +67420,15 @@ type VolumeAttachmentPrototypeVolumeVolumePrototypeInstanceContextVolumePrototyp
 	// The profile to use for this volume.
 	Profile VolumeProfileIdentityIntf `json:"profile" validate:"required"`
 
-	// The capacity to use for the volume (in gigabytes). The allowed values are expected to expand in the future.
+	// The capacity to use for the volume (in gigabytes). The only allowed value is the source snapshot's
+	// `minimum_capacity`, but the allowed values are expected to expand in the future.
 	//
 	// If unspecified, the capacity will be the source snapshot's `minimum_capacity`.
 	Capacity *int64 `json:"capacity,omitempty"`
 
 	// The root key to use to wrap the data encryption key for the volume.
 	//
-	// If this property is not provided, the snapshot's `encryption_key` will be used.
+	// If unspecified, the snapshot's `encryption_key` will be used.
 	EncryptionKey EncryptionKeyIdentityIntf `json:"encryption_key,omitempty"`
 
 	// The snapshot from which to clone the volume.
@@ -65175,12 +67436,12 @@ type VolumeAttachmentPrototypeVolumeVolumePrototypeInstanceContextVolumePrototyp
 }
 
 // NewVolumeAttachmentPrototypeVolumeVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeBySourceSnapshot : Instantiate VolumeAttachmentPrototypeVolumeVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeBySourceSnapshot (Generic Model Constructor)
-func (*VpcV1) NewVolumeAttachmentPrototypeVolumeVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeBySourceSnapshot(profile VolumeProfileIdentityIntf, sourceSnapshot SnapshotIdentityIntf) (model *VolumeAttachmentPrototypeVolumeVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeBySourceSnapshot, err error) {
-	model = &VolumeAttachmentPrototypeVolumeVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeBySourceSnapshot{
+func (*VpcV1) NewVolumeAttachmentPrototypeVolumeVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeBySourceSnapshot(profile VolumeProfileIdentityIntf, sourceSnapshot SnapshotIdentityIntf) (_model *VolumeAttachmentPrototypeVolumeVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeBySourceSnapshot, err error) {
+	_model = &VolumeAttachmentPrototypeVolumeVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeBySourceSnapshot{
 		Profile:        profile,
 		SourceSnapshot: sourceSnapshot,
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -65231,11 +67492,11 @@ type VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityB
 }
 
 // NewVolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByCRN : Instantiate VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByCRN (Generic Model Constructor)
-func (*VpcV1) NewVolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByCRN(crn string) (model *VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByCRN, err error) {
-	model = &VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByCRN{
+func (*VpcV1) NewVolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByCRN(crn string) (_model *VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByCRN, err error) {
+	_model = &VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByCRN{
 		CRN: core.StringPtr(crn),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -65266,11 +67527,11 @@ type VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityB
 }
 
 // NewVolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByHref : Instantiate VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByHref (Generic Model Constructor)
-func (*VpcV1) NewVolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByHref(href string) (model *VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByHref, err error) {
-	model = &VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByHref{
+func (*VpcV1) NewVolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByHref(href string) (_model *VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByHref, err error) {
+	_model = &VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByHref{
 		Href: core.StringPtr(href),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -65301,11 +67562,11 @@ type VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityB
 }
 
 // NewVolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByID : Instantiate VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByID (Generic Model Constructor)
-func (*VpcV1) NewVolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByID(id string) (model *VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByID, err error) {
-	model = &VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByID{
+func (*VpcV1) NewVolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByID(id string) (_model *VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByID, err error) {
+	_model = &VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByID{
 		ID: core.StringPtr(id),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -65331,7 +67592,8 @@ func UnmarshalVolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolume
 // VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeByCapacity : VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeByCapacity struct
 // This model "extends" VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContext
 type VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeByCapacity struct {
-	// The bandwidth for the volume.
+	// The maximum I/O operations per second (IOPS) to use for the volume. Applicable only to volumes using a profile
+	// `family` of `custom`.
 	Iops *int64 `json:"iops,omitempty"`
 
 	// The unique user-defined name for this volume.
@@ -65346,18 +67608,17 @@ type VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContex
 
 	// The root key to use to wrap the data encryption key for the volume.
 	//
-	// If this property is not provided, the `encryption` type for the volume will be
-	// `provider_managed`.
+	// If unspecified, the `encryption` type for the volume will be `provider_managed`.
 	EncryptionKey EncryptionKeyIdentityIntf `json:"encryption_key,omitempty"`
 }
 
 // NewVolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeByCapacity : Instantiate VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeByCapacity (Generic Model Constructor)
-func (*VpcV1) NewVolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeByCapacity(profile VolumeProfileIdentityIntf, capacity int64) (model *VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeByCapacity, err error) {
-	model = &VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeByCapacity{
+func (*VpcV1) NewVolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeByCapacity(profile VolumeProfileIdentityIntf, capacity int64) (_model *VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeByCapacity, err error) {
+	_model = &VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeByCapacity{
 		Profile:  profile,
 		Capacity: core.Int64Ptr(capacity),
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -65399,7 +67660,8 @@ func UnmarshalVolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInsta
 // VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeBySourceSnapshot : VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeBySourceSnapshot struct
 // This model "extends" VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContext
 type VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeBySourceSnapshot struct {
-	// The bandwidth for the volume.
+	// The maximum I/O operations per second (IOPS) to use for the volume. Applicable only to volumes using a profile
+	// `family` of `custom`.
 	Iops *int64 `json:"iops,omitempty"`
 
 	// The unique user-defined name for this volume.
@@ -65408,14 +67670,15 @@ type VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContex
 	// The profile to use for this volume.
 	Profile VolumeProfileIdentityIntf `json:"profile" validate:"required"`
 
-	// The capacity to use for the volume (in gigabytes). The allowed values are expected to expand in the future.
+	// The capacity to use for the volume (in gigabytes). The only allowed value is the source snapshot's
+	// `minimum_capacity`, but the allowed values are expected to expand in the future.
 	//
 	// If unspecified, the capacity will be the source snapshot's `minimum_capacity`.
 	Capacity *int64 `json:"capacity,omitempty"`
 
 	// The root key to use to wrap the data encryption key for the volume.
 	//
-	// If this property is not provided, the snapshot's `encryption_key` will be used.
+	// If unspecified, the snapshot's `encryption_key` will be used.
 	EncryptionKey EncryptionKeyIdentityIntf `json:"encryption_key,omitempty"`
 
 	// The snapshot from which to clone the volume.
@@ -65423,12 +67686,12 @@ type VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContex
 }
 
 // NewVolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeBySourceSnapshot : Instantiate VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeBySourceSnapshot (Generic Model Constructor)
-func (*VpcV1) NewVolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeBySourceSnapshot(profile VolumeProfileIdentityIntf, sourceSnapshot SnapshotIdentityIntf) (model *VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeBySourceSnapshot, err error) {
-	model = &VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeBySourceSnapshot{
+func (*VpcV1) NewVolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeBySourceSnapshot(profile VolumeProfileIdentityIntf, sourceSnapshot SnapshotIdentityIntf) (_model *VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeBySourceSnapshot, err error) {
+	_model = &VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeBySourceSnapshot{
 		Profile:        profile,
 		SourceSnapshot: sourceSnapshot,
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -65486,11 +67749,11 @@ type InstanceGroupManagerActionPrototypeScheduledActionPrototypeByCronSpecByGrou
 }
 
 // NewInstanceGroupManagerActionPrototypeScheduledActionPrototypeByCronSpecByGroup : Instantiate InstanceGroupManagerActionPrototypeScheduledActionPrototypeByCronSpecByGroup (Generic Model Constructor)
-func (*VpcV1) NewInstanceGroupManagerActionPrototypeScheduledActionPrototypeByCronSpecByGroup(group *InstanceGroupManagerScheduledActionGroupPrototype) (model *InstanceGroupManagerActionPrototypeScheduledActionPrototypeByCronSpecByGroup, err error) {
-	model = &InstanceGroupManagerActionPrototypeScheduledActionPrototypeByCronSpecByGroup{
+func (*VpcV1) NewInstanceGroupManagerActionPrototypeScheduledActionPrototypeByCronSpecByGroup(group *InstanceGroupManagerScheduledActionGroupPrototype) (_model *InstanceGroupManagerActionPrototypeScheduledActionPrototypeByCronSpecByGroup, err error) {
+	_model = &InstanceGroupManagerActionPrototypeScheduledActionPrototypeByCronSpecByGroup{
 		Group: group,
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -65540,11 +67803,11 @@ type InstanceGroupManagerActionPrototypeScheduledActionPrototypeByCronSpecByMana
 }
 
 // NewInstanceGroupManagerActionPrototypeScheduledActionPrototypeByCronSpecByManager : Instantiate InstanceGroupManagerActionPrototypeScheduledActionPrototypeByCronSpecByManager (Generic Model Constructor)
-func (*VpcV1) NewInstanceGroupManagerActionPrototypeScheduledActionPrototypeByCronSpecByManager(manager InstanceGroupManagerScheduledActionManagerPrototypeIntf) (model *InstanceGroupManagerActionPrototypeScheduledActionPrototypeByCronSpecByManager, err error) {
-	model = &InstanceGroupManagerActionPrototypeScheduledActionPrototypeByCronSpecByManager{
+func (*VpcV1) NewInstanceGroupManagerActionPrototypeScheduledActionPrototypeByCronSpecByManager(manager InstanceGroupManagerScheduledActionManagerPrototypeIntf) (_model *InstanceGroupManagerActionPrototypeScheduledActionPrototypeByCronSpecByManager, err error) {
+	_model = &InstanceGroupManagerActionPrototypeScheduledActionPrototypeByCronSpecByManager{
 		Manager: manager,
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -65593,11 +67856,11 @@ type InstanceGroupManagerActionPrototypeScheduledActionPrototypeByRunAtByGroup s
 }
 
 // NewInstanceGroupManagerActionPrototypeScheduledActionPrototypeByRunAtByGroup : Instantiate InstanceGroupManagerActionPrototypeScheduledActionPrototypeByRunAtByGroup (Generic Model Constructor)
-func (*VpcV1) NewInstanceGroupManagerActionPrototypeScheduledActionPrototypeByRunAtByGroup(group *InstanceGroupManagerScheduledActionGroupPrototype) (model *InstanceGroupManagerActionPrototypeScheduledActionPrototypeByRunAtByGroup, err error) {
-	model = &InstanceGroupManagerActionPrototypeScheduledActionPrototypeByRunAtByGroup{
+func (*VpcV1) NewInstanceGroupManagerActionPrototypeScheduledActionPrototypeByRunAtByGroup(group *InstanceGroupManagerScheduledActionGroupPrototype) (_model *InstanceGroupManagerActionPrototypeScheduledActionPrototypeByRunAtByGroup, err error) {
+	_model = &InstanceGroupManagerActionPrototypeScheduledActionPrototypeByRunAtByGroup{
 		Group: group,
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
@@ -65646,11 +67909,11 @@ type InstanceGroupManagerActionPrototypeScheduledActionPrototypeByRunAtByManager
 }
 
 // NewInstanceGroupManagerActionPrototypeScheduledActionPrototypeByRunAtByManager : Instantiate InstanceGroupManagerActionPrototypeScheduledActionPrototypeByRunAtByManager (Generic Model Constructor)
-func (*VpcV1) NewInstanceGroupManagerActionPrototypeScheduledActionPrototypeByRunAtByManager(manager InstanceGroupManagerScheduledActionManagerPrototypeIntf) (model *InstanceGroupManagerActionPrototypeScheduledActionPrototypeByRunAtByManager, err error) {
-	model = &InstanceGroupManagerActionPrototypeScheduledActionPrototypeByRunAtByManager{
+func (*VpcV1) NewInstanceGroupManagerActionPrototypeScheduledActionPrototypeByRunAtByManager(manager InstanceGroupManagerScheduledActionManagerPrototypeIntf) (_model *InstanceGroupManagerActionPrototypeScheduledActionPrototypeByRunAtByManager, err error) {
+	_model = &InstanceGroupManagerActionPrototypeScheduledActionPrototypeByRunAtByManager{
 		Manager: manager,
 	}
-	err = core.ValidateStruct(model, "required parameters")
+	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 

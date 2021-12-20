@@ -86,7 +86,27 @@ func dataSourceIBMISInstances() *schema.Resource {
 							Computed:    true,
 							Description: "Instance status",
 						},
-
+						isAvailablePolicy: {
+							Type:        schema.TypeList,
+							Computed:    true,
+							MinItems:    1,
+							MaxItems:    1,
+							Description: "The availability policy to use for this virtual server instance",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									isHostFailure: {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The action to perform if the compute host experiences a failure.",
+									},
+									// isHostMaintenance: {
+									// 	Type:        schema.TypeString,
+									// 	Computed:    true,
+									// 	Description: "The action to perform if the compute host requires maintenance.",
+									// },
+								},
+							},
+						},
 						isInstanceStatusReasons: {
 							Type:        schema.TypeList,
 							Computed:    true,
@@ -492,6 +512,15 @@ func instancesList(d *schema.ResourceData, meta interface{}) error {
 		l["status"] = *instance.Status
 		l["resource_group"] = *instance.ResourceGroup.ID
 		l["vpc"] = *instance.VPC.ID
+
+		if instance.AvailabilityPolicy != nil {
+			availabilityPolicyList := make([]map[string]interface{}, 0)
+			availabilityPolicy := map[string]interface{}{}
+			availabilityPolicy[isHostFailure] = *instance.AvailabilityPolicy.HostFailure
+			// availabilityPolicy[isHostMaintenance] = *instance.AvailabilityPolicy.HostMaintenance
+			availabilityPolicyList = append(availabilityPolicyList, availabilityPolicy)
+			l[isAvailablePolicy] = availabilityPolicyList
+		}
 
 		if instance.BootVolumeAttachment != nil {
 			bootVolList := make([]map[string]interface{}, 0)

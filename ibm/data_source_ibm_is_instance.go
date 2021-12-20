@@ -60,6 +60,28 @@ func dataSourceIBMISInstance() *schema.Resource {
 				Description: "password for Windows Instance",
 			},
 
+			isAvailablePolicy: {
+				Type:        schema.TypeList,
+				Computed:    true,
+				MinItems:    1,
+				MaxItems:    1,
+				Description: "The availability policy to use for this virtual server instance",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						isHostFailure: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The action to perform if the compute host experiences a failure.",
+						},
+						// isHostMaintenance: {
+						// 	Type:        schema.TypeString,
+						// 	Computed:    true,
+						// 	Description: "The action to perform if the compute host requires maintenance.",
+						// },
+					},
+				},
+			},
+
 			isInstanceInitKeys: {
 				Type:        schema.TypeList,
 				Computed:    true,
@@ -486,6 +508,16 @@ func instanceGetByName(d *schema.ResourceData, meta interface{}, name string) er
 			if instance.Profile != nil {
 				d.Set(isInstanceProfile, *instance.Profile.Name)
 			}
+
+			if instance.AvailabilityPolicy != nil {
+				availabilityPolicyList := make([]map[string]interface{}, 0)
+				availabilityPolicy := map[string]interface{}{}
+				availabilityPolicy[isHostFailure] = *instance.AvailabilityPolicy.HostFailure
+				// availabilityPolicy[isHostMaintenance] = *instance.AvailabilityPolicy.HostMaintenance
+				availabilityPolicyList = append(availabilityPolicyList, availabilityPolicy)
+				d.Set(isAvailablePolicy, availabilityPolicyList)
+			}
+
 			cpuList := make([]map[string]interface{}, 0)
 			if instance.Vcpu != nil {
 				currentCPU := map[string]interface{}{}
