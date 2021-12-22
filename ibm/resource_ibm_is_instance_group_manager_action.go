@@ -75,6 +75,7 @@ func resourceIBMISInstanceGroupManagerAction() *schema.Resource {
 				ValidateFunc:  InvokeValidator("ibm_is_instance_group_manager_action", "membership_count"),
 				Description:   "The number of members the instance group should have at the scheduled time.",
 				ConflictsWith: []string{"target_manager", "max_membership_count", "min_membership_count"},
+				AtLeastOneOf:  []string{"target_manager", "membership_count"},
 			},
 
 			"max_membership_count": {
@@ -101,6 +102,7 @@ func resourceIBMISInstanceGroupManagerAction() *schema.Resource {
 				Description:   "The unique identifier for this instance group manager of type autoscale.",
 				ConflictsWith: []string{"membership_count"},
 				RequiredWith:  []string{"min_membership_count", "max_membership_count"},
+				AtLeastOneOf:  []string{"target_manager", "membership_count"},
 			},
 
 			"target_manager_name": {
