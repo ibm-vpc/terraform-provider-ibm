@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/conns"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/validate"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
@@ -268,6 +269,10 @@ func resourceIBMISInstanceGroupManagerActionCreate(d *schema.ResourceData, meta 
 
 	instanceGroupManagerActionOptions.InstanceGroupManagerActionPrototype = &instanceGroupManagerActionPrototype
 
+	isInsGrpKey := "Instance_Group_Key_" + instanceGroupID
+	conns.IbmMutexKV.Lock(isInsGrpKey)
+	defer conns.IbmMutexKV.Unlock(isInsGrpKey)
+
 	_, healthError := waitForHealthyInstanceGroup(instanceGroupID, meta, d.Timeout(schema.TimeoutCreate))
 	if healthError != nil {
 		return healthError
@@ -360,6 +365,10 @@ func resourceIBMISInstanceGroupManagerActionUpdate(d *schema.ResourceData, meta 
 			return fmt.Errorf("[ERROR] Error calling asPatch for instanceGroupManagerActionPatch: %s", err)
 		}
 		updateInstanceGroupManagerActionOptions.InstanceGroupManagerActionPatch = instanceGroupManagerActionPatch
+
+		isInsGrpKey := "Instance_Group_Key_" + instanceGroupID
+		conns.IbmMutexKV.Lock(isInsGrpKey)
+		defer conns.IbmMutexKV.Unlock(isInsGrpKey)
 
 		_, healthError := waitForHealthyInstanceGroup(instanceGroupID, meta, d.Timeout(schema.TimeoutUpdate))
 		if healthError != nil {
@@ -490,6 +499,10 @@ func resourceIBMISInstanceGroupManagerActionDelete(d *schema.ResourceData, meta 
 	deleteInstanceGroupManagerActionOptions.InstanceGroupID = &instanceGroupID
 	deleteInstanceGroupManagerActionOptions.InstanceGroupManagerID = &instancegroupmanagerscheduledID
 	deleteInstanceGroupManagerActionOptions.ID = &instanceGroupManagerActionID
+
+	isInsGrpKey := "Instance_Group_Key_" + instanceGroupID
+	conns.IbmMutexKV.Lock(isInsGrpKey)
+	defer conns.IbmMutexKV.Unlock(isInsGrpKey)
 
 	_, healthError := waitForHealthyInstanceGroup(instanceGroupID, meta, d.Timeout(schema.TimeoutDelete))
 	if healthError != nil {
