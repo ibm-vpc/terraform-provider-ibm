@@ -80,6 +80,7 @@ resource "ibm_is_instance" "example" {
 resource "ibm_is_instance_action" "example" {
   action = "stop"
   force_action = true
+  instance = ibm_is_instance.example.id
 }
 
 
