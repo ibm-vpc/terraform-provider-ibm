@@ -665,6 +665,7 @@ func subnetDelete(d *schema.ResourceData, meta interface{}, id string) error {
 	response, err = sess.DeleteSubnet(deleteSubnetOptions)
 	if err != nil {
 		if response != nil && response.StatusCode == 409 {
+			log.Printf("[DEBUG] Delete subnet response status code: 409 conflict, provider will try again. %s", err)
 			_, err = isWaitForSubnetDeleteRetry(sess, d.Id(), d.Timeout(schema.TimeoutDelete))
 			if err != nil {
 				return fmt.Errorf("Error Deleting Subnet : %s", err)
@@ -682,7 +683,7 @@ func subnetDelete(d *schema.ResourceData, meta interface{}, id string) error {
 }
 
 func isWaitForSubnetDeleteRetry(vpcClient *vpcv1.VpcV1, id string, timeout time.Duration) (interface{}, error) {
-	log.Printf("Retrying subnet (%s) delete", id)
+	log.Printf("[DEBUG] Retrying subnet (%s) delete", id)
 	stateConf := &resource.StateChangeConf{
 		Pending: []string{isSubnetInUse},
 		Target:  []string{isSubnetDeleting, isSubnetDeleted, ""},
@@ -690,7 +691,7 @@ func isWaitForSubnetDeleteRetry(vpcClient *vpcv1.VpcV1, id string, timeout time.
 			deleteSubnetOptions := &vpcv1.DeleteSubnetOptions{
 				ID: &id,
 			}
-			log.Printf("Retrying subnet (%s) delete", id)
+			log.Printf("[DEBUG] Retrying subnet (%s) delete", id)
 			response, err := vpcClient.DeleteSubnet(deleteSubnetOptions)
 			if err != nil {
 				if response != nil && response.StatusCode == 409 {
