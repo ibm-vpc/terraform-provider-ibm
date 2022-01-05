@@ -12,9 +12,9 @@ Provides a read-only data source for LoadBalancerListenerPolicyRuleCollection. F
 
 ```terraform
 data "ibm_is_lb_listener_policy_rules" "example" {
-	listener = ibm_is_lb_listener.example.listener_id
-	lb = ibm_is_lb.example.id
-	policy = ibm_is_lb_listener_policy.example.policy_id
+  listener = ibm_is_lb_listener.example.listener_id
+  lb       = ibm_is_lb.example.id
+  policy   = ibm_is_lb_listener_policy.example.policy_id
 }
 ```
 
@@ -22,22 +22,22 @@ data "ibm_is_lb_listener_policy_rules" "example" {
 
 Review the argument reference that you can specify for your data source.
 
-- `listener_id` - (Required, Forces new resource, String) The listener identifier.
-- `load_balancer_id` - (Required, Forces new resource, String) The load balancer identifier.
-- `policy_id` - (Required, Forces new resource, String) The policy identifier.
+- `listener` - (Required, String) The listener identifier.
+- `lb` - (Required, String) The load balancer identifier.
+- `policy` - (Required, String) The policy identifier.
 
 ## Attribute Reference
 
 In addition to all argument references listed, you can access the following attribute references after your data source is created.
 
 - `id` - The unique identifier of the LoadBalancerListenerPolicyRuleCollection.
-- `rules` - (Required, List) Collection of rules.
+- `rules` - (List) Collection of rules.
 Nested scheme for `rules`:
-	- `condition` - (Required, String) The condition of the rule.
-	- `created_at` - (Required, String) The date and time that this rule was created.
+	- `condition` - (String) The condition of the rule.
+	- `created_at` - (String) The date and time that this rule was created.
 	- `field` - (Optional, String) The field. This is applicable to `header`, `query`, and `body` rule types.If the rule type is `header`, this property is required.If the rule type is `query`, this is optional. If specified and the rule condition is not`matches_regex`, the value must be percent-encoded.If the rule type is `body`, this is optional.
-	- `href` - (Required, String) The rule's canonical URL.
-	- `id` - (Required, String) The rule's unique identifier.
-	- `provisioning_status` - (Required, String) The provisioning status of this rule.
-	- `type` - (Required, String) The type of the rule.Body rules are applied to form-encoded request bodies using the `UTF-8` character set.
-	- `value` - (Required, String) Value to be matched for rule condition.If the rule type is `query` and the rule condition is not `matches_regex`, the value must be percent-encoded.
+	- `href` - (String) The rule's canonical URL.
+	- `id` - (String) The rule's unique identifier.
+	- `provisioning_status` - (String) The provisioning status of this rule.
+	- `type` - (String) The type of the rule.Body rules are applied to form-encoded request bodies using the `UTF-8` character set.
+	- `value` - (String) Value to be matched for rule condition.If the rule type is `query` and the rule condition is not `matches_regex`, the value must be percent-encoded.

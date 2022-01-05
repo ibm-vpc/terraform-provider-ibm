@@ -14,7 +14,7 @@ import (
 	"github.com/IBM/vpc-go-sdk/vpcv1"
 )
 
-func dataSourceIBMIsLbListenerPolicy() *schema.Resource {
+func dataSourceIBMISLBListenerPolicy() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceIBMIsLbListenerPolicyRead,
 
@@ -203,12 +203,12 @@ func dataSourceIBMIsLbListenerPolicyRead(context context.Context, d *schema.Reso
 		log.Printf("[DEBUG] GetLoadBalancerListenerPolicyWithContext failed %s\n%s", err, response)
 		return diag.FromErr(fmt.Errorf("GetLoadBalancerListenerPolicyWithContext failed %s\n%s", err, response))
 	}
-
 	d.SetId(*loadBalancerListenerPolicy.ID)
 	if err = d.Set("action", loadBalancerListenerPolicy.Action); err != nil {
 		return diag.FromErr(fmt.Errorf("Error setting action: %s", err))
 	}
-	if err = d.Set("created_at", dateTimeToString(loadBalancerListenerPolicy.CreatedAt)); err != nil {
+
+	if err = d.Set("created_at", loadBalancerListenerPolicy.CreatedAt.String()); err != nil {
 		return diag.FromErr(fmt.Errorf("Error setting created_at: %s", err))
 	}
 	if err = d.Set("href", loadBalancerListenerPolicy.Href); err != nil {

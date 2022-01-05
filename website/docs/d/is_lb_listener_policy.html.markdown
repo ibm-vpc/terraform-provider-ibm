@@ -13,9 +13,9 @@ Provides a read-only data source for LoadBalancerListenerPolicy. For more inform
 
 ```terraform
 data "ibm_is_lb_listener_policy" "example" {
-	lb = ibm_is_lb.example.id
-	listener = ibm_is_lb_listener.example.listener_id
-	policy_id = ibm_is_lb_listener_policy.example.policy_id
+  lb        = ibm_is_lb.example.id
+  listener  = ibm_is_lb_listener.example.listener_id
+  policy_id = ibm_is_lb_listener_policy.example.policy_id
 }
 ```
 

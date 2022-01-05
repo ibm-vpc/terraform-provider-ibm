@@ -15,7 +15,7 @@ import (
 	"github.com/IBM/vpc-go-sdk/vpcv1"
 )
 
-func dataSourceIBMIsLbListenerPolicies() *schema.Resource {
+func dataSourceIBMISLBListenerPolicies() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceIBMIsLbListenerPoliciesRead,
 
@@ -209,8 +209,8 @@ func dataSourceIBMIsLbListenerPoliciesRead(context context.Context, d *schema.Re
 
 	listLoadBalancerListenerPoliciesOptions := &vpcv1.ListLoadBalancerListenerPoliciesOptions{}
 
-	listLoadBalancerListenerPoliciesOptions.SetLoadBalancerID(d.Get("load_balancer_id").(string))
-	listLoadBalancerListenerPoliciesOptions.SetListenerID(d.Get("listener_id").(string))
+	listLoadBalancerListenerPoliciesOptions.SetLoadBalancerID(d.Get(isLBListenerPolicyLBID).(string))
+	listLoadBalancerListenerPoliciesOptions.SetListenerID(d.Get(isLBListenerPolicyListenerID).(string))
 
 	loadBalancerListenerPolicyCollection, response, err := vpcClient.ListLoadBalancerListenerPoliciesWithContext(context, listLoadBalancerListenerPoliciesOptions)
 	if err != nil {

@@ -143,6 +143,12 @@ func Provider() *schema.Provider {
 				//DefaultFunc: schema.MultiEnvDefaultFunc([]string{"IC_GENERATION", "IBMCLOUD_GENERATION"}, nil),
 				Deprecated: "The generation field is deprecated and will be removed after couple of releases",
 			},
+			"iam_profile_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "IAM Trusted Profile Authentication token",
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{"IC_IAM_PROFILE_ID", "IBMCLOUD_IAM_PROFILE_ID"}, nil),
+			},
 			"iam_token": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -271,12 +277,14 @@ func Provider() *schema.Provider {
 			"ibm_event_streams_schema":               dataSourceIBMEventStreamsSchema(),
 			"ibm_hpcs":                               dataSourceIBMHPCS(),
 			"ibm_iam_access_group":                   dataSourceIBMIAMAccessGroup(),
+			"ibm_iam_access_group_policy":            dataSourceIBMIAMAccessGroupPolicy(),
 			"ibm_iam_account_settings":               dataSourceIBMIAMAccountSettings(),
 			"ibm_iam_auth_token":                     dataSourceIBMIAMAuthToken(),
 			"ibm_iam_role_actions":                   datasourceIBMIAMRoleAction(),
 			"ibm_iam_users":                          dataSourceIBMIAMUsers(),
 			"ibm_iam_roles":                          datasourceIBMIAMRole(),
 			"ibm_iam_user_policy":                    dataSourceIBMIAMUserPolicy(),
+			"ibm_iam_authorization_policies":         dataSourceIBMIAMAuthorizationPolicies(),
 			"ibm_iam_user_profile":                   dataSourceIBMIAMUserProfile(),
 			"ibm_iam_service_id":                     dataSourceIBMIAMServiceID(),
 			"ibm_iam_service_policy":                 dataSourceIBMIAMServicePolicy(),
@@ -284,6 +292,9 @@ func Provider() *schema.Provider {
 			"ibm_iam_trusted_profile":                dataSourceIBMIamTrustedProfile(),
 			"ibm_iam_trusted_profile_claim_rule":     dataSourceIBMIamTrustedProfileClaimRule(),
 			"ibm_iam_trusted_profile_link":           dataSourceIBMIamTrustedProfileLink(),
+			"ibm_iam_trusted_profile_claim_rules":    dataSourceIBMIamTrustedProfileClaimRules(),
+			"ibm_iam_trusted_profile_links":          dataSourceIBMIamTrustedProfileLinks(),
+			"ibm_iam_trusted_profiles":               dataSourceIBMIamTrustedProfiles(),
 			"ibm_iam_trusted_profile_policy":         dataSourceIBMIAMTrustedProfilePolicy(),
 			"ibm_is_dedicated_host":                  dataSourceIbmIsDedicatedHost(),
 			"ibm_is_dedicated_hosts":                 dataSourceIbmIsDedicatedHosts(),
@@ -320,11 +331,19 @@ func Provider() *schema.Provider {
 			"ibm_is_instance_profiles":               dataSourceIBMISInstanceProfiles(),
 			"ibm_is_instance":                        dataSourceIBMISInstance(),
 			"ibm_is_instances":                       dataSourceIBMISInstances(),
+			"ibm_is_instance_network_interface":      dataSourceIBMIsInstanceNetworkInterface(),
+			"ibm_is_instance_network_interfaces":     dataSourceIBMIsInstanceNetworkInterfaces(),
 			"ibm_is_instance_disk":                   dataSourceIbmIsInstanceDisk(),
 			"ibm_is_instance_disks":                  dataSourceIbmIsInstanceDisks(),
 			"ibm_is_instance_volume_attachment":      dataSourceIBMISInstanceVolumeAttachment(),
 			"ibm_is_instance_volume_attachments":     dataSourceIBMISInstanceVolumeAttachments(),
 			"ibm_is_lb":                              dataSourceIBMISLB(),
+			"ibm_is_lb_listener":                     dataSourceIBMISLBListener(),
+			"ibm_is_lb_listeners":                    dataSourceIBMISLBListeners(),
+			"ibm_is_lb_listener_policies":            dataSourceIBMISLBListenerPolicies(),
+			"ibm_is_lb_listener_policy":              dataSourceIBMISLBListenerPolicy(),
+			"ibm_is_lb_listener_policy_rule":         dataSourceIBMISLBListenerPolicyRule(),
+			"ibm_is_lb_listener_policy_rules":        dataSourceIBMISLBListenerPolicyRules(),
 			"ibm_is_lb_profiles":                     dataSourceIBMISLbProfiles(),
 			"ibm_is_lbs":                             dataSourceIBMISLBS(),
 			"ibm_is_public_gateway":                  dataSourceIBMISPublicGateway(),
@@ -396,6 +415,7 @@ func Provider() *schema.Provider {
 			// Added for Power Resources
 
 			"ibm_pi_key":                dataSourceIBMPIKey(),
+			"ibm_pi_keys":               dataSourceIBMPIKeys(),
 			"ibm_pi_image":              dataSourceIBMPIImage(),
 			"ibm_pi_instance":           dataSourceIBMPIInstance(),
 			"ibm_pi_tenant":             dataSourceIBMPITenant(),
@@ -413,6 +433,10 @@ func Provider() *schema.Provider {
 			"ibm_pi_dhcp":               dataSourceIBMPIDhcp(),
 			"ibm_pi_dhcps":              dataSourceIBMPIDhcps(),
 			"ibm_pi_cloud_connection":   dataSourceIBMPICloudConnection(),
+			"ibm_pi_cloud_connections":  dataSourceIBMPICloudConnections(),
+			"ibm_pi_sap_profiles":       dataSourceIBMPISAPProfiles(),
+			"ibm_pi_sap_profile":        dataSourceIBMPISAPProfile(),
+			"ibm_pi_console_languages":  dataSourceIBMPIInstanceConsoleLanguages(),
 
 			// Added for private dns zones
 
@@ -476,11 +500,14 @@ func Provider() *schema.Provider {
 			"ibm_atracker_endpoints": dataSourceIBMAtrackerEndpoints(),
 
 			//Security and Compliance Center
-			"ibm_scc_si_providers":   dataSourceIBMSccSiProviders(),
-			"ibm_scc_si_note":        dataSourceIBMSccSiNote(),
-			"ibm_scc_si_notes":       dataSourceIBMSccSiNotes(),
-			"ibm_scc_si_occurrence":  dataSourceIBMSccSiOccurrence(),
-			"ibm_scc_si_occurrences": dataSourceIBMSccSiOccurrences(),
+			"ibm_scc_si_providers":      dataSourceIBMSccSiProviders(),
+			"ibm_scc_si_note":           dataSourceIBMSccSiNote(),
+			"ibm_scc_si_notes":          dataSourceIBMSccSiNotes(),
+			"ibm_scc_account_location":  dataSourceIbmSccAccountLocation(),
+			"ibm_scc_account_locations": dataSourceIbmSccAccountLocations(),
+			"ibm_scc_account_settings":  dataSourceIbmSccAccountLocationSettings(),
+			"ibm_scc_si_occurrence":     dataSourceIBMSccSiOccurrence(),
+			"ibm_scc_si_occurrences":    dataSourceIBMSccSiOccurrences(),
 
 			// Compliance Posture Management
 			"ibm_scc_posture_scopes":         dataSourceIBMSccPostureScopes(),
@@ -488,6 +515,10 @@ func Provider() *schema.Provider {
 			"ibm_scc_posture_profiles":       dataSourceIBMSccPostureProfiles(),
 			"ibm_scc_posture_scan_summary":   dataSourceIBMSccPostureScansSummary(),
 			"ibm_scc_posture_scan_summaries": dataSourceIBMSccPostureScanSummaries(),
+
+			// Added for Context Based Restrictions
+			"ibm_cbr_zone": dataSourceIBMCbrZone(),
+			"ibm_cbr_rule": dataSourceIBMCbrRule(),
 
 			// Added for Event Notifications
 			"ibm_en_destination":   dataSourceIBMEnDestination(),
@@ -580,8 +611,10 @@ func Provider() *schema.Provider {
 			"ibm_compute_vm_instance":                            resourceIBMComputeVmInstance(),
 			"ibm_container_addons":                               resourceIBMContainerAddOns(),
 			"ibm_container_alb":                                  resourceIBMContainerALB(),
+			"ibm_container_alb_create":                           resourceIBMContainerAlbCreate(),
 			"ibm_container_api_key_reset":                        resourceIBMContainerAPIKeyReset(),
 			"ibm_container_vpc_alb":                              resourceIBMContainerVpcALB(),
+			"ibm_container_vpc_alb_create":                       resourceIBMContainerVpcAlbCreateNew(),
 			"ibm_container_vpc_worker_pool":                      resourceIBMContainerVpcWorkerPool(),
 			"ibm_container_vpc_cluster":                          resourceIBMContainerVpcCluster(),
 			"ibm_container_alb_cert":                             resourceIBMContainerALBCert(),
@@ -591,6 +624,7 @@ func Provider() *schema.Provider {
 			"ibm_container_worker_pool":                          resourceIBMContainerWorkerPool(),
 			"ibm_container_worker_pool_zone_attachment":          resourceIBMContainerWorkerPoolZoneAttachment(),
 			"ibm_container_storage_attachment":                   resourceIBMContainerVpcWorkerVolumeAttachment(),
+			"ibm_container_nlb_dns":                              resourceIbmContainerNlbDns(),
 			"ibm_cr_namespace":                                   resourceIBMCrNamespace(),
 			"ibm_cr_retention_policy":                            resourceIBMCrRetentionPolicy(),
 			"ibm_ob_logging":                                     resourceIBMObLogging(),
@@ -634,6 +668,7 @@ func Provider() *schema.Provider {
 			"ibm_is_flow_log":                                    resourceIBMISFlowLog(),
 			"ibm_is_instance":                                    resourceIBMISInstance(),
 			"ibm_is_instance_action":                             resourceIBMISInstanceAction(),
+			"ibm_is_instance_network_interface":                  resourceIBMIsInstanceNetworkInterface(),
 			"ibm_is_instance_disk_management":                    resourceIBMISInstanceDiskManagement(),
 			"ibm_is_instance_group":                              resourceIBMISInstanceGroup(),
 			"ibm_is_instance_group_membership":                   resourceIBMISInstanceGroupMembership(),
@@ -732,6 +767,10 @@ func Provider() *schema.Provider {
 			"ibm_pi_network_port_attach": resourceIBMPINetworkPortAttach(),
 			"ibm_pi_dhcp":                resourceIBMPIDhcp(),
 			"ibm_pi_cloud_connection":    resourceIBMPICloudConnection(),
+			"ibm_pi_ike_policy":          resourceIBMPIIKEPolicy(),
+			"ibm_pi_ipsec_policy":        resourceIBMPIIPSecPolicy(),
+			"ibm_pi_vpn_connection":      resourceIBMPIVPNConnection(),
+			"ibm_pi_console_language":    resourceIBMPIInstanceConsoleLanguage(),
 
 			//Private DNS related resources
 			"ibm_dns_zone":              resourceIBMPrivateDNSZone(),
@@ -779,6 +818,7 @@ func Provider() *schema.Provider {
 			"ibm_satellite_cluster_worker_pool": resourceIBMSatelliteClusterWorkerPool(),
 			"ibm_satellite_link":                resourceIbmSatelliteLink(),
 			"ibm_satellite_endpoint":            resourceIbmSatelliteEndpoint(),
+			"ibm_satellite_location_nlb_dns":    resourceIbmSatelliteLocationNlbDns(),
 
 			//Added for Resource Tag
 			"ibm_resource_tag": resourceIBMResourceTag(),
@@ -788,8 +828,13 @@ func Provider() *schema.Provider {
 			"ibm_atracker_route":  resourceIBMAtrackerRoute(),
 
 			//Security and Compliance Center
-			"ibm_scc_si_note":       resourceIBMSccSiNote(),
-			"ibm_scc_si_occurrence": resourceIBMSccSiOccurrence(),
+			"ibm_scc_si_note":          resourceIBMSccSiNote(),
+			"ibm_scc_account_settings": resourceIBMSccAccountSettings(),
+			"ibm_scc_si_occurrence":    resourceIBMSccSiOccurrence(),
+
+			// Added for Context Based Restrictions
+			"ibm_cbr_zone": resourceIBMCbrZone(),
+			"ibm_cbr_rule": resourceIBMCbrRule(),
 
 			// Added for Event Notifications
 			"ibm_en_destination":  resourceIBMEnDestination(),
@@ -862,6 +907,7 @@ func Validator() ValidatorDict {
 				"ibm_is_instance_template":                resourceIBMISInstanceTemplateValidator(),
 				"ibm_is_instance":                         resourceIBMISInstanceValidator(),
 				"ibm_is_instance_action":                  resourceIBMISInstanceActionValidator(),
+				"ibm_is_instance_network_interface":       resourceIBMIsInstanceNetworkInterfaceValidator(),
 				"ibm_is_instance_disk_management":         resourceIBMISInstanceDiskManagementValidator(),
 				"ibm_is_instance_volume_attachment":       resourceIBMISInstanceVolumeAttachmentValidator(),
 				"ibm_is_ipsec_policy":                     resourceIBMISIPSECValidator(),
@@ -909,7 +955,10 @@ func Validator() ValidatorDict {
 				"ibm_atracker_route":                      resourceIBMAtrackerRouteValidator(),
 				"ibm_satellite_endpoint":                  resourceIbmSatelliteEndpointValidator(),
 				"ibm_scc_si_note":                         resourceIBMSccSiNoteValidator(),
+				"ibm_scc_account_settings":                resourceIBMSccAccountSettingsValidator(),
 				"ibm_scc_si_occurrence":                   resourceIBMSccSiOccurrenceValidator(),
+				"ibm_cbr_zone":                            resourceIBMCbrZoneValidator(),
+				"ibm_cbr_rule":                            resourceIBMCbrRuleValidator(),
 
 				// Added for Event Notifications
 				"ibm_en_destination": resourceIBMEnDestinationValidator(),
@@ -934,7 +983,7 @@ func Validator() ValidatorDict {
 func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	var bluemixAPIKey string
 	var bluemixTimeout int
-	var iamToken, iamRefreshToken string
+	var iamToken, iamRefreshToken, iamTrustedProfileId string
 	if key, ok := d.GetOk("bluemix_api_key"); ok {
 		bluemixAPIKey = key.(string)
 	}
@@ -946,6 +995,9 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	}
 	if rtoken, ok := d.GetOk("iam_refresh_token"); ok {
 		iamRefreshToken = rtoken.(string)
+	}
+	if ttoken, ok := d.GetOk("iam_profile_id"); ok {
+		iamTrustedProfileId = ttoken.(string)
 	}
 	var softlayerUsername, softlayerAPIKey, softlayerEndpointUrl string
 	var softlayerTimeout int
@@ -1023,6 +1075,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 		Zone:                 zone,
 		Visibility:           visibility,
 		EndpointsFile:        file,
+		IAMTrustedProfileID:  iamTrustedProfileId,
 		//PowerServiceInstance: powerServiceInstance,
 	}
 

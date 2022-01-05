@@ -14,7 +14,7 @@ import (
 	"github.com/IBM/vpc-go-sdk/vpcv1"
 )
 
-func dataSourceIBMIsLbListener() *schema.Resource {
+func dataSourceIBMISLBListener() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceIBMIsLbListenerRead,
 
@@ -242,10 +242,12 @@ func dataSourceIBMIsLbListenerRead(context context.Context, d *schema.ResourceDa
 			return diag.FromErr(fmt.Errorf("Error setting certificate_instance %s", err))
 		}
 	}
-	if err = d.Set("connection_limit", intValue(loadBalancerListener.ConnectionLimit)); err != nil {
-		return diag.FromErr(fmt.Errorf("Error setting connection_limit: %s", err))
+	if loadBalancerListener.ConnectionLimit != nil {
+		if err = d.Set("connection_limit", intValue(loadBalancerListener.ConnectionLimit)); err != nil {
+			return diag.FromErr(fmt.Errorf("Error setting connection_limit: %s", err))
+		}
 	}
-	if err = d.Set("created_at", dateTimeToString(loadBalancerListener.CreatedAt)); err != nil {
+	if err = d.Set("created_at", loadBalancerListener.CreatedAt.String()); err != nil {
 		return diag.FromErr(fmt.Errorf("Error setting created_at: %s", err))
 	}
 

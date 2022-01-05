@@ -32,10 +32,10 @@ func TestAccIBMIsLbListenerPolicyRuleDataSourceBasic(t *testing.T) {
 			resource.TestStep{
 				Config: testAccCheckIBMIsLbListenerPolicyRuleDataSourceConfigBasic(vpcname, subnetname, ISZoneName, ISCIDR, lbname, port, protocol, lblistenerpolicyname, action, priority, condition, typeh, lblistenerpolicyRuleField1, lblistenerpolicyRuleValue1),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttrSet("data.ibm_is_lb_listener_policy_rule.is_lb_listener_policy_rule", "id"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_lb_listener_policy_rule.is_lb_listener_policy_rule", "load_balancer_id"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_lb_listener_policy_rule.is_lb_listener_policy_rule", "listener_id"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_lb_listener_policy_rule.is_lb_listener_policy_rule", "policy_id"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_lb_listener_policy_rule.is_lb_listener_policy_rule", "rule"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_lb_listener_policy_rule.is_lb_listener_policy_rule", "lb"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_lb_listener_policy_rule.is_lb_listener_policy_rule", "listener"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_lb_listener_policy_rule.is_lb_listener_policy_rule", "policy"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_lb_listener_policy_rule.is_lb_listener_policy_rule", "id"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_lb_listener_policy_rule.is_lb_listener_policy_rule", "condition"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_lb_listener_policy_rule.is_lb_listener_policy_rule", "created_at"),
@@ -51,11 +51,11 @@ func TestAccIBMIsLbListenerPolicyRuleDataSourceBasic(t *testing.T) {
 
 func testAccCheckIBMIsLbListenerPolicyRuleDataSourceConfigBasic(vpcname, subnetname, zone, cidr, lbname, port, protocol, lblistenerpolicyname, action, priority, condition, types, field, value string) string {
 	return testAccCheckIBMISLBListenerPolicyRuleConfig(vpcname, subnetname, ISZoneName, ISCIDR, lbname, port, protocol, lblistenerpolicyname, action, priority, condition, types, field, value) + fmt.Sprintf(`
-	data "ibm_is_lb_listener_policy_rule" "is_lb_listener_policies" {
+	data "ibm_is_lb_listener_policy_rule" "is_lb_listener_policy_rule" {
 		lb = "${ibm_is_lb.testacc_LB.id}"
-		listener = ibm_is_lb_listener.testacc_lb_listener.listener_id
-		policy = ibm_is_lb_listener_policy.testacc_lb_listener_policy.policy_id
-		rule = ibm_is_lb_listener_policy_rule.testacc_lb_listener_policy_rule.rule
+		listener = "${ibm_is_lb_listener.testacc_lb_listener.listener_id}"
+		policy = "${ibm_is_lb_listener_policy.testacc_lb_listener_policy.policy_id}"
+		rule = "${ibm_is_lb_listener_policy_rule.testacc_lb_listener_policy_rule.rule}"
 	}
 	`)
 }

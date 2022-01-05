@@ -15,7 +15,7 @@ import (
 	"github.com/IBM/vpc-go-sdk/vpcv1"
 )
 
-func dataSourceIBMIsLbListeners() *schema.Resource {
+func dataSourceIBMISLBListeners() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceIBMIsLbListenersRead,
 

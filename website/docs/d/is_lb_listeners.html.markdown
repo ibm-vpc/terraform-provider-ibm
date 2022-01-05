@@ -12,7 +12,7 @@ Provides a read-only data source for LoadBalancerListenerCollection. For more in
 
 ```terraform
 data "ibm_is_lb_listeners" "example" {
-	lb = ibm_is_lb.example.id
+  lb = ibm_is_lb.example.id
 }
 ```
 

@@ -41,8 +41,7 @@ func testAccCheckIBMIsLbListenerPoliciesDataSourceConfigBasic(vpcname, subnetnam
 	return testAccCheckIBMISLBListenerPolicyConfig(vpcname, subnetname, ISZoneName, ISCIDR, lbname, port, protocol, lblistenerpolicyname, action, priority) + fmt.Sprintf(`
 	data "ibm_is_lb_listener_policies" "is_lb_listener_policies" {
 		lb = "${ibm_is_lb.testacc_LB.id}"
-		listener = ibm_is_lb_listener.testacc_lb_listener.listener_id
-		name = "%s" name
+		listener = "${ibm_is_lb_listener.testacc_lb_listener.listener_id}"
 	}
-	`, lblistenerpolicyname)
+	`)
 }

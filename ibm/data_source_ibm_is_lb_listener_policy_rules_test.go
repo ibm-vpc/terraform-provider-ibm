@@ -34,9 +34,9 @@ func TestAccIBMIsLbListenerPolicyRulesDataSourceBasic(t *testing.T) {
 				Config: testAccCheckIBMIsLbListenerPolicyRulesDataSourceConfigBasic(vpcname, subnetname, ISZoneName, ISCIDR, lbname, port, protocol, lblistenerpolicyname, action, priority, condition, typeh, lblistenerpolicyRuleField1, lblistenerpolicyRuleValue1),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet("data.ibm_is_lb_listener_policy_rules.is_lb_listener_policy_rules", "id"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_lb_listener_policy_rules.is_lb_listener_policy_rules", "load_balancer_id"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_lb_listener_policy_rules.is_lb_listener_policy_rules", "listener_id"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_lb_listener_policy_rules.is_lb_listener_policy_rules", "policy_id"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_lb_listener_policy_rules.is_lb_listener_policy_rules", "lb"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_lb_listener_policy_rules.is_lb_listener_policy_rules", "listener"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_lb_listener_policy_rules.is_lb_listener_policy_rules", "policy"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_lb_listener_policy_rules.is_lb_listener_policy_rules", "rules.#"),
 				),
 			},
@@ -48,8 +48,8 @@ func testAccCheckIBMIsLbListenerPolicyRulesDataSourceConfigBasic(vpcname, subnet
 	return testAccCheckIBMISLBListenerPolicyRuleConfig(vpcname, subnetname, ISZoneName, ISCIDR, lbname, port, protocol, lblistenerpolicyname, action, priority, condition, types, field, value) + fmt.Sprintf(`
 	data "ibm_is_lb_listener_policy_rules" "is_lb_listener_policy_rules" {
 		lb = "${ibm_is_lb.testacc_LB.id}"
-		listener = ibm_is_lb_listener.testacc_lb_listener.listener_id
-		policy = ibm_is_lb_listener_policy.testacc_lb_listener_policy.policy_id
+		listener = "${ibm_is_lb_listener.testacc_lb_listener.listener_id}"
+		policy = "${ibm_is_lb_listener_policy.testacc_lb_listener_policy.policy_id}"
 	}
 	`)
 }
