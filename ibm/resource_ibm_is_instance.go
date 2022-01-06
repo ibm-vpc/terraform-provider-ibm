@@ -1476,11 +1476,11 @@ func isInstanceRefreshFunc(instanceC *vpcv1.VpcV1, id string, d *schema.Resource
 			// taint the instance if status is failed
 			if *instance.Status == "failed" {
 				instanceStatusReason := instance.StatusReasons
-				out, err := json.Marshal(instanceStatusReason)
+				out, err := json.MarshalIndent(instanceStatusReason, "", "    ")
 				if err != nil {
 					return instance, *instance.Status, fmt.Errorf("Instance (%s) went into failed state during the operation \n [WARNING] Running terraform apply again will remove the tainted instance and attempt to create the instance again replacing the previous configuration", *instance.ID)
 				}
-				return instance, *instance.Status, fmt.Errorf("Instance (%s) went into failed state during the operation (%s) \n [WARNING] Running terraform apply again will remove the tainted instance and attempt to create the instance again replacing the previous configuration", out, *instance.ID)
+				return instance, *instance.Status, fmt.Errorf("Instance (%s) went into failed state during the operation \n (%+v) \n [WARNING] Running terraform apply again will remove the tainted instance and attempt to create the instance again replacing the previous configuration", *instance.ID, string(out))
 			}
 			return instance, *instance.Status, nil
 
