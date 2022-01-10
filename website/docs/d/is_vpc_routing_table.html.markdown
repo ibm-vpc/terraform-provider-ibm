@@ -34,22 +34,22 @@ data "ibm_is_vpc_routing_table" "ibm_is_vpc_routing_table" {
 
 Review the argument reference that you can specify for your data source.
 
-- `routing_table` - (Required, String) The routing table identifier.
+- `routing_table` - (Required, String) The VPC routing table identifier.
 - `vpc` - (Required, String) The VPC identifier.
 
 ## Attribute Reference
 
 In addition to all argument references listed, you can access the following attribute references after your data source is created.
 
-- `id` - The unique identifier of the RoutingTable.
 - `created_at` - (String) The date and time that this routing table was created.
 - `href` - (String) The URL for this routing table.
+- `id` - (String) The unique identifier of the RoutingTable.
 - `is_default` - (Boolean) Indicates whether this is the default routing table for this VPC.
 - `lifecycle_state` - (String) The lifecycle state of the routing table.
   - Constraints: Allowable values are: `deleting`, `failed`, `pending`, `stable`, `suspended`, `updating`, `waiting`.
 - `name` - (String) The user-defined name for this routing table.
 - `resource_type` - (String) The resource type.
-- `route_direct_link_ingress` - (Boolean) Indicates whether this routing table is used to route traffic that originates from[Direct Link](https://cloud.ibm.com/docs/dl/) to this VPC.Incoming traffic will be routed according to the routing table with one exception: routes with an `action` of `deliver` are treated as `drop` unless the `next_hop` is an IP address within the VPC's address prefix ranges. Therefore, if an incoming packet matches a route with a `next_hop` of an internet-bound IP address or a VPN gateway connection, the packet will be dropped.
+- `route_direct_link_ingress` - (Boolean) Indicates whether this routing table is used to route traffic that originates from [Direct Link](https://cloud.ibm.com/docs/dl/) to this VPC.Incoming traffic will be routed according to the routing table with one exception: routes with an `action` of `deliver` are treated as `drop` unless the `next_hop` is an IP address within the VPC's address prefix ranges. Therefore, if an incoming packet matches a route with a `next_hop` of an internet-bound IP address or a VPN gateway connection, the packet will be dropped.
 - `route_transit_gateway_ingress` - (Boolean) Indicates whether this routing table is used to route traffic that originates from from [Transit Gateway](https://cloud.ibm.com/cloud/transit-gateway/) to this VPC.Incoming traffic will be routed according to the routing table with one exception: routes with an `action` of `deliver` are treated as `drop` unless the `next_hop` is an IP address within the VPC's address prefix ranges. Therefore, if an incoming packet matches a route with a `next_hop` of an internet-bound IP address or a VPN gateway connection, the packet will be dropped.
 - `route_vpc_zone_ingress` - (Boolean) Indicates whether this routing table is used to route traffic that originates from subnets in other zones in this VPC.Incoming traffic will be routed according to the routing table with one exception: routes with an `action` of `deliver` are treated as `drop` unless the `next_hop` is an IP address within the VPC's address prefix ranges. Therefore, if an incoming packet matches a route with a `next_hop` of an internet-bound IP address or a VPN gateway connection, the packet will be dropped.
 - `routes` - (List) The routes for this routing table.
@@ -63,11 +63,9 @@ In addition to all argument references listed, you can access the following attr
 - `subnets` - (List) The subnets to which this routing table is attached.
 	Nested scheme for **subnets**:
 	- `crn` - (String) The CRN for this subnet.
-	- `deleted` - (List) If present, this property indicates the referenced resource has been deleted and providessome supplementary information.
+	- `deleted` - (List) If present, this property indicates the referenced resource has been deleted and provides some supplementary information.
 		Nested scheme for **deleted**:
 		- `more_info` - (String) Link to documentation about deleted resources.
 	- `href` - (String) The URL for this subnet.
 	- `id` - (String) The unique identifier for this subnet.
 	- `name` - (String) The user-defined name for this subnet.
-
-

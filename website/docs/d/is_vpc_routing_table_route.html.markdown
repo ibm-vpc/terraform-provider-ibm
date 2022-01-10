@@ -36,14 +36,13 @@ data "ibm_is_vpc_routing_table_route" "example" {
 Review the argument reference that you can specify for your data source.
 
 - `route_id` - (Required, String) The VPC routing table route identifier.
-- `routing_table` - (Required, String) The routing table identifier.
+- `routing_table` - (Required, String) The VPC routing table identifier.
 - `vpc` - (Required, String) The VPC identifier.
 
 ## Attribute Reference
 
 In addition to all argument references listed, you can access the following attribute references after your data source is created.
 
-- `id` - The unique identifier of the Route.
 - `action` - (String) The action to perform with a packet matching the route, allowable values are: `delegate`, `delegate_vpc`, `deliver`, `drop`.
 	- `delegate`: delegate to the system's built-in routes
 	- `delegate_vpc`: delegate to the system's built-in routes, ignoring Internet-bound  routes
@@ -52,13 +51,14 @@ In addition to all argument references listed, you can access the following attr
 - `created_at` - (String) The date and time that the route was created.
 - `destination` - (String) The destination of the route.
 - `href` - (String) The URL for this route.
+- `id` - (String) The unique identifier of the Route.
 - `lifecycle_state` - (String) The lifecycle state of the route.
   - Constraints: Allowable values are: `deleting`, `failed`, `pending`, `stable`, `suspended`, `updating`, `waiting`.
 - `name` - (String) The user-defined name for this route.
 - `next_hop` - (List) If `action` is `deliver`, the next hop that packets will be delivered to.  For other `action` values, its `address` will be `0.0.0.0`.
 	Nested scheme for **next_hop**:
 	- `address` - (String) The IP address.This property may add support for IPv6 addresses in the future. When processing a value in this property, verify that the address is in an expected format. If it is not, log an error. Optionally halt processing and surface the error, or bypass the resource on which the unexpected IP address format was encountered.
-	- `deleted` - (List) If present, this property indicates the referenced resource has been deleted and providessome supplementary information.
+	- `deleted` - (List) If present, this property indicates the referenced resource has been deleted and provides some supplementary information.
 		Nested scheme for **deleted**:
 		- `more_info` - (String) Link to documentation about deleted resources.
 	- `href` - (String) The VPN connection's canonical URL.
@@ -67,9 +67,7 @@ In addition to all argument references listed, you can access the following attr
 	- `resource_type` - (String) The resource type.
 
 
-- `zone` - (List) The zone the route applies to. (Traffic from subnets in this zone will besubject to this route.).
-Nested scheme for **zone**:
+- `zone` - (List) The zone the route applies to. (Traffic from subnets in this zone will be subject to this route).
+	Nested scheme for **zone**:
 	- `href` - (String) The URL for this zone.
 	- `name` - (String) The globally unique name for this zone.
-
-
