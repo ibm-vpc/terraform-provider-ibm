@@ -33,6 +33,7 @@ func TestAccIBMISInstanceTemplates_dataBasic(t *testing.T) {
 						"data.ibm_is_instance_templates.instance_templates_data", "templates.0.id"),
 					resource.TestCheckResourceAttrSet(
 						"data.ibm_is_instance_templates.instance_templates_data", "templates.0.name"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_instance_templates.instance_templates_data", "templates.0.availability_policy.0.host_failure"),
 				),
 			},
 		},

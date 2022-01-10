@@ -78,6 +78,8 @@ const (
 	isInstanceStatusPending        = "pending"
 	isInstanceStatusRunning        = "running"
 	isInstanceStatusFailed         = "failed"
+	isInstanceAvailablePolicy      = "availability_policy"
+	isInstanceHostFailure          = "host_failure"
 
 	isInstanceBootAttachmentName = "name"
 	isInstanceBootSize           = "size"
@@ -150,6 +152,26 @@ func resourceIBMISInstance() *schema.Resource {
 		),
 
 		Schema: map[string]*schema.Schema{
+			isInstanceAvailablePolicy: {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Computed:    true,
+				MinItems:    1,
+				MaxItems:    1,
+				Description: "The availability policy to use for this virtual server instance",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						isInstanceHostFailure: {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Default:      "restart",
+							ValidateFunc: validateAllowedStringValue([]string{"restart", "stop"}),
+							Description:  "The action to perform if the compute host experiences a failure.",
+						},
+					},
+				},
+			},
+
 			isInstanceName: {
 				Type:         schema.TypeString,
 				Required:     true,
@@ -766,6 +788,15 @@ func instanceCreateByImage(d *schema.ResourceData, meta interface{}, profile, na
 			ID: &vpcID,
 		},
 	}
+	if v, ok := d.GetOk(isInstanceAvailablePolicy); ok {
+		availablePolicyItem := v.([]interface{})[0].(map[string]interface{})
+		if availablePolicyItem[isInstanceHostFailure] != nil {
+			hostFailure := availablePolicyItem[isInstanceHostFailure].(string)
+			instanceproto.AvailabilityPolicy = &vpcv1.InstanceAvailabilityPrototype{
+				HostFailure: &hostFailure,
+			}
+		}
+	}
 	if totalVolBandwidthIntf, ok := d.GetOk(isInstanceTotalVolumeBandwidth); ok {
 		totalVolBandwidthStr := int64(totalVolBandwidthIntf.(int))
 		instanceproto.TotalVolumeBandwidth = &totalVolBandwidthStr
@@ -970,6 +1001,15 @@ func instanceCreateByTemplate(d *schema.ResourceData, meta interface{}, profile,
 		},
 		Name: &name,
 	}
+	if v, ok := d.GetOk(isInstanceAvailablePolicy); ok {
+		availablePolicyItem := v.([]interface{})[0].(map[string]interface{})
+		if availablePolicyItem[isInstanceHostFailure] != nil {
+			hostFailure := availablePolicyItem[isInstanceHostFailure].(string)
+			instanceproto.AvailabilityPolicy = &vpcv1.InstanceAvailabilityPrototype{
+				HostFailure: &hostFailure,
+			}
+		}
+	}
 
 	if profile != "" {
 		instanceproto.Profile = &vpcv1.InstanceProfileIdentity{
@@ -1011,7 +1051,15 @@ func instanceCreateByTemplate(d *schema.ResourceData, meta interface{}, profile,
 		}
 		instanceproto.PlacementTarget = placementGrp
 	}
-
+	if v, ok := d.GetOk(isInstanceAvailablePolicy); ok {
+		availablePolicyItem := v.([]interface{})[0].(map[string]interface{})
+		if availablePolicyItem[isInstanceHostFailure] != nil {
+			hostFailure := availablePolicyItem[isInstanceHostFailure].(string)
+			instanceproto.AvailabilityPolicy = &vpcv1.InstanceAvailabilityPrototype{
+				HostFailure: &hostFailure,
+			}
+		}
+	}
 	if boot, ok := d.GetOk(isInstanceBootVolume); ok {
 		bootvol := boot.([]interface{})[0].(map[string]interface{})
 		var volTemplate = &vpcv1.VolumePrototypeInstanceByImageContext{}
@@ -1548,7 +1596,17 @@ func instanceGet(d *schema.ResourceData, meta interface{}, id string) error {
 		}
 		return fmt.Errorf("Error getting Instance: %s\n%s", err, response)
 	}
-
+	if instance.AvailabilityPolicy != nil {
+		availabilityPolicyList := make([]map[string]interface{}, 0)
+		availabilityPolicy := map[string]interface{}{}
+		if instance.AvailabilityPolicy.HostFailure != nil {
+			hostFailure := instance.AvailabilityPolicy.HostFailure
+			availabilityPolicy[isInstanceHostFailure] = hostFailure
+		}
+		// availabilityPolicy[isHostMaintenance] = &instance.AvailabilityPolicy.HostMaintenance
+		availabilityPolicyList = append(availabilityPolicyList, availabilityPolicy)
+		d.Set(isInstanceAvailablePolicy, availabilityPolicyList)
+	}
 	d.Set(isInstanceName, *instance.Name)
 	if instance.Profile != nil {
 		d.Set(isInstanceProfile, *instance.Profile.Name)
@@ -2064,6 +2122,29 @@ func instanceUpdate(d *schema.ResourceData, meta interface{}) error {
 		}
 	}
 
+	if d.HasChange(isInstanceAvailablePolicy) && !d.IsNewResource() {
+
+		updnetoptions := &vpcv1.UpdateInstanceOptions{
+			ID: &id,
+		}
+		availablePolicyItem := d.Get(isInstanceAvailablePolicy).([]interface{})[0].(map[string]interface{})
+		hostFailure := availablePolicyItem[isInstanceHostFailure].(string)
+		instancePatchModel := &vpcv1.InstancePatch{
+			AvailabilityPolicy: &vpcv1.InstanceAvailabilityPolicyPatch{
+				HostFailure: &hostFailure,
+			},
+		}
+		instancePatch, err := instancePatchModel.AsPatch()
+		if err != nil {
+			return fmt.Errorf("Error calling asPatch for InstancePatch: %s", err)
+		}
+		updnetoptions.InstancePatch = instancePatch
+
+		_, _, err = instanceC.UpdateInstance(updnetoptions)
+		if err != nil {
+			return err
+		}
+	}
 	if d.HasChange(isInstanceProfile) && !d.IsNewResource() {
 
 		getinsOptions := &vpcv1.GetInstanceOptions{
