@@ -25,9 +25,17 @@ func TestAccIBMISSubnetPublicGatewayAttachment_basic(t *testing.T) {
 		CheckDestroy: checkSubnetPublicGatewayAttachmentDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccCheckIBMISSubnetPublicGatewayAttachmentConfig(vpcname, name1, ISZoneName, ISCIDR, pgname),
+				Config: testAccCheckIBMISSubnetPublicGatewayAttachmentConfig(vpcname, name1, ISZoneName, pgname),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckIBMISSubnetPublicGatewayAttachmentExists("ibm_is_subnet_public_gateway_attachment.attach", subnetPublicGateway),
+					resource.TestCheckResourceAttrSet(
+						"ibm_is_subnet_public_gateway_attachment.attach", "crn"),
+					resource.TestCheckResourceAttrSet(
+						"ibm_is_subnet_public_gateway_attachment.attach", "id"),
+					resource.TestCheckResourceAttrSet(
+						"ibm_is_subnet_public_gateway_attachment.attach", "resource_type"),
+					resource.TestCheckResourceAttrSet(
+						"ibm_is_subnet_public_gateway_attachment.attach", "status"),
 				),
 			},
 		},
@@ -79,17 +87,17 @@ func testAccCheckIBMISSubnetPublicGatewayAttachmentExists(n, subnetPublicGateway
 	}
 }
 
-func testAccCheckIBMISSubnetPublicGatewayAttachmentConfig(vpcname, name, zone, cidr, pgname string) string {
+func testAccCheckIBMISSubnetPublicGatewayAttachmentConfig(vpcname, name, zone, pgname string) string {
 	return fmt.Sprintf(`
 	resource "ibm_is_vpc" "testacc_vpc" {
 		name = "%s"
 	}
 
 	resource "ibm_is_subnet" "testacc_subnet" {
-		name 				= "%s"
-		vpc 				= ibm_is_vpc.testacc_vpc.id
-		zone 				= "%s"
-		ipv4_cidr_block 	= "%s"
+		name 						= "%s"
+		vpc 						= ibm_is_vpc.testacc_vpc.id
+		zone 						= "%s"
+		total_ipv4_address_count 	= 16
 	}
 
 	resource "ibm_is_public_gateway" "testacc_pg" {
@@ -104,5 +112,5 @@ func testAccCheckIBMISSubnetPublicGatewayAttachmentConfig(vpcname, name, zone, c
 		public_gateway 	= ibm_is_public_gateway.testacc_pg.id
 	}
 
-	`, vpcname, name, zone, cidr, pgname, zone)
+	`, vpcname, name, zone, pgname, zone)
 }

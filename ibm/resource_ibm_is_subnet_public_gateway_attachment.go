@@ -335,7 +335,7 @@ func isSubnetPublicGatewayDeleteRefreshFunc(subnetC *vpcv1.VpcV1, id string) res
 
 		if err != nil {
 			if response != nil && response.StatusCode == 404 {
-				return pg, "", fmt.Errorf("Error getting subnet's (%s) attached public gateway: %s\n%s", id, err, response)
+				return pg, "", nil
 			}
 			return pg, "", fmt.Errorf("Error getting subnet's (%s) attached public gateway: %s\n%s", id, err, response)
 		}
