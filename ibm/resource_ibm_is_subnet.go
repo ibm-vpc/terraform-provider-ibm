@@ -142,6 +142,7 @@ func resourceIBMISSubnet() *schema.Resource {
 			isSubnetPublicGateway: {
 				Type:        schema.TypeString,
 				Optional:    true,
+				Computed:    true,
 				ForceNew:    false,
 				Description: "Public Gateway of the subnet",
 			},
