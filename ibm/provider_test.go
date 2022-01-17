@@ -107,6 +107,11 @@ var pi_instance_name string
 var pi_dhcp_id string
 var piCloudConnectionName string
 var piSAPProfileID string
+var pi_placement_group_name string
+
+var pi_capture_storage_image_path string
+var pi_capture_cloud_storage_access_key string
+var pi_capture_cloud_storage_secret_key string
 
 // For Image
 
@@ -133,6 +138,15 @@ var scc_si_account string
 var scc_posture_scope_id string
 var scc_posture_scan_id string
 var scc_posture_profile_id string
+var scc_posture_group_profile_id string
+var scc_posture_correlation_id string
+var scc_posture_report_setting_id string
+var scc_posture_profile_id_scansummary string
+var scc_posture_scan_id_scansummary string
+var scc_posture_credential_id_scope string
+var scc_posture_credential_id_scope_update string
+var scc_posture_collector_id_scope []string
+var scc_posture_collector_id_scope_update []string
 
 //ROKS Cluster
 var clusterName string
@@ -371,6 +385,12 @@ func init() {
 		fmt.Println("[WARN] Set the environment variable IBM_PLACEMENT_GROUP_NAME for testing ibm_compute_vm_instance resource else it is set to default value 'terraform-group'")
 	}
 
+	pi_placement_group_name = os.Getenv("PI_PLACEMENT_GROUP_NAME")
+	if pi_placement_group_name == "" {
+		pi_placement_group_name = "tf-pi-placement-group"
+		fmt.Println("[WARN] Set the environment variable PI_PLACEMENT_GROUP_NAME for testing ibm_pi_placement_group resource else it is set to default value 'tf-pi-placement-group'")
+	}
+
 	regionName = os.Getenv("SL_REGION")
 	if regionName == "" {
 		regionName = "us-south"
@@ -601,6 +621,25 @@ func init() {
 		fmt.Println("[WARN] Set the environment variable IMAGE_COS_URL with a VALID COS Image SQL URL for testing ibm_is_image resources on staging/test")
 	}
 
+	// Added for resource capture instance testing
+	pi_capture_storage_image_path = os.Getenv("PI_CAPTURE_STORAGE_IMAGE_PATH")
+	if pi_capture_storage_image_path == "" {
+		pi_capture_storage_image_path = "bucket-test"
+		fmt.Println("[INFO] Set the environment variable PI_CAPTURE_STORAGE_IMAGE_PATH for testing pi_capture_storage_image_path resource else it is set to default value 'terraform-test-power'")
+	}
+
+	pi_capture_cloud_storage_access_key = os.Getenv("PI_CAPTURE_CLOUD_STORAGE_ACCESS_KEY")
+	if pi_capture_cloud_storage_access_key == "" {
+		pi_capture_cloud_storage_access_key = "terraform-test-power"
+		fmt.Println("[INFO] Set the environment variable PI_CAPTURE_CLOUD_STORAGE_ACCESS_KEY for testing pi_capture_cloud_storage_access_key resource else it is set to default value 'terraform-test-power'")
+	}
+
+	pi_capture_cloud_storage_secret_key = os.Getenv("PI_CAPTURE_CLOUD_STORAGE_SECRET_KEY")
+	if pi_capture_cloud_storage_secret_key == "" {
+		pi_capture_cloud_storage_secret_key = "terraform-test-power"
+		fmt.Println("[INFO] Set the environment variable PI_CAPTURE_CLOUD_STORAGE_SECRET_KEY for testing pi_capture_cloud_storage_secret_key resource else it is set to default value 'terraform-test-power'")
+	}
+
 	// Added for resource image testing
 	image_cos_url_encrypted = os.Getenv("IMAGE_COS_URL_ENCRYPTED")
 	if image_cos_url_encrypted == "" {
@@ -717,6 +756,51 @@ func init() {
 		fmt.Println("[INFO] Set the environment variable SCC_POSTURE_PROFILE_ID for testing SCC Posture resource or datasource else  tests will fail if this is not set correctly")
 	}
 
+	scc_posture_group_profile_id = os.Getenv("SCC_POSTURE_GROUP_PROFILE_ID")
+	if scc_posture_group_profile_id == "" {
+		fmt.Println("[INFO] Set the environment variable SCC_POSTURE_GROUP_PROFILE_ID for testing SCC Posture resource or datasource else  tests will fail if this is not set correctly")
+	}
+
+	scc_posture_correlation_id = os.Getenv("SCC_POSTURE_CORRELATION_ID")
+	if scc_posture_correlation_id == "" {
+		fmt.Println("[INFO] Set the environment variable SCC_POSTURE_CORRELATION_ID for testing SCC Posture resource or datasource else  tests will fail if this is not set correctly")
+	}
+
+	scc_posture_report_setting_id = os.Getenv("SCC_POSTURE_REPORT_SETTING_ID")
+	if scc_posture_report_setting_id == "" {
+		fmt.Println("[INFO] Set the environment variable SCC_POSTURE_REPORT_SETTING_ID for testing SCC Posture resource or datasource else  tests will fail if this is not set correctly")
+	}
+
+	scc_posture_profile_id_scansummary = os.Getenv("SCC_POSTURE_PROFILE_ID_SCANSUMMARY")
+	if scc_posture_profile_id_scansummary == "" {
+		fmt.Println("[INFO] Set the environment variable SCC_POSTURE_PROFILE_ID_SCANSUMMARY for testing SCC Posture resource or datasource else  tests will fail if this is not set correctly")
+	}
+
+	scc_posture_scan_id_scansummary = os.Getenv("SCC_POSTURE_SCAN_ID_SCANSUMMARY")
+	if scc_posture_scan_id_scansummary == "" {
+		fmt.Println("[INFO] Set the environment variable SCC_POSTURE_SCAN_ID_SCANSUMMARY for testing SCC Posture resource or datasource else  tests will fail if this is not set correctly")
+	}
+
+	scc_posture_credential_id_scope = os.Getenv("SCC_POSTURE_CREDENTIAL_ID_SCOPE")
+	if scc_posture_credential_id_scope == "" {
+		fmt.Println("[INFO] Set the environment variable SCC_POSTURE_CREDENTIAL_ID_SCOPE for testing SCC Posture resource or datasource else  tests will fail if this is not set correctly")
+	}
+
+	scc_posture_credential_id_scope_update = os.Getenv("SCC_POSTURE_CREDENTIAL_ID_SCOPE_UPDATE")
+	if scc_posture_credential_id_scope_update == "" {
+		fmt.Println("[INFO] Set the environment variable SCC_POSTURE_CREDENTIAL_ID_SCOPE_UPDATE for testing SCC Posture resource or datasource else  tests will fail if this is not set correctly")
+	}
+
+	scc_posture_collector_id_scope = []string{os.Getenv("SCC_POSTURE_COLLECTOR_ID_SCOPE")}
+	if os.Getenv("SCC_POSTURE_COLLECTOR_ID_SCOPE") == "" {
+		fmt.Println("[INFO] Set the environment variable SCC_POSTURE_COLLECTOR_ID_SCOPE for testing SCC Posture resource or datasource else  tests will fail if this is not set correctly")
+	}
+
+	scc_posture_collector_id_scope_update = []string{os.Getenv("SCC_POSTURE_COLLECTOR_ID_SCOPE_UPDATE")}
+	if os.Getenv("SCC_POSTURE_COLLECTOR_ID_SCOPE_UPDATE") == "" {
+		fmt.Println("[INFO] Set the environment variable SCC_POSTURE_COLLECTOR_ID_SCOPE_UPDATE for testing SCC Posture resource or datasource else  tests will fail if this is not set correctly")
+	}
+
 	cloudShellAccountID = os.Getenv("IBM_CLOUD_SHELL_ACCOUNT_ID")
 	if cloudShellAccountID == "" {
 		fmt.Println("[INFO] Set the environment variable IBM_CLOUD_SHELL_ACCOUNT_ID for ibm-cloud-shell resource or datasource else tests will fail if this is not set correctly")
@@ -741,6 +825,7 @@ func init() {
 	if clusterName == "" {
 		fmt.Println("[INFO] Set the environment variable IBM_CONTAINER_CLUSTER_NAME for ibm_container_nlb_dns resource or datasource else tests will fail if this is not set correctly")
 	}
+
 }
 
 var testAccProviders map[string]*schema.Provider
