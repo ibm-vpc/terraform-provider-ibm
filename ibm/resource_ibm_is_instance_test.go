@@ -55,6 +55,8 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCKVmnMOlHKcZK8tpt3MP1lqOLAcqcJzhsvJcjscgVE
 						"ibm_is_instance.testacc_instance", "user_data", userData2),
 					resource.TestCheckResourceAttr(
 						"ibm_is_instance.testacc_instance", "zone", ISZoneName),
+					resource.TestCheckResourceAttrSet(
+						"ibm_is_instance.testacc_instance", "primary_network_interface.0.port_speed"),
 				),
 			},
 		},

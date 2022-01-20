@@ -609,6 +609,9 @@ func instanceGetByName(d *schema.ResourceData, meta interface{}, name string) er
 				if err != nil {
 					return fmt.Errorf("Error getting network interfaces attached to the instance %s\n%s", err, response)
 				}
+				if insnic.PortSpeed != nil {
+					currentPrimNic[isInstanceNicPortSpeed] = *insnic.PortSpeed
+				}
 				currentPrimNic[isInstanceNicSubnet] = *insnic.Subnet.ID
 				if len(insnic.SecurityGroups) != 0 {
 					secgrpList := []string{}

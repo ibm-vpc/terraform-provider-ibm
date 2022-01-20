@@ -32,7 +32,6 @@ resource "ibm_is_instance" "testacc_instance" {
   profile = "b-2x8"
 
   primary_network_interface {
-    port_speed = "1000"
     subnet     = "70be8eae-134c-436e-a86e-04849f84cb34"
   }
 
