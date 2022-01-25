@@ -1,7 +1,7 @@
 // Copyright IBM Corp. 2017, 2021 All Rights Reserved.
 // Licensed under the Mozilla Public License v2.0
 
-package ibm
+package vpc
 
 import (
 	"fmt"
@@ -16,7 +16,7 @@ const (
 	rtRoutes = "routes"
 )
 
-func resourceIBMISSubnetRoutingTableAttachment() *schema.Resource {
+func ResourceIBMISSubnetRoutingTableAttachment() *schema.Resource {
 	return &schema.Resource{
 		Create:   resourceIBMISSubnetRoutingTableAttachmentCreate,
 		Read:     resourceIBMISSubnetRoutingTableAttachmentRead,
