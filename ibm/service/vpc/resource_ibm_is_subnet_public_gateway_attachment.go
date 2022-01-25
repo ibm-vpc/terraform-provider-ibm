@@ -1,13 +1,14 @@
 // Copyright IBM Corp. 2017, 2021 All Rights Reserved.
 // Licensed under the Mozilla Public License v2.0
 
-package ibm
+package vpc
 
 import (
 	"fmt"
 	"log"
 	"time"
 
+	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -22,7 +23,7 @@ const (
 	IsPublicGatewayAttachmentPending   = "pending"
 )
 
-func resourceIBMISSubnetPublicGatewayAttachment() *schema.Resource {
+func ResourceIBMISSubnetPublicGatewayAttachment() *schema.Resource {
 	return &schema.Resource{
 		Create:   resourceIBMISSubnetPublicGatewayAttachmentCreate,
 		Read:     resourceIBMISSubnetPublicGatewayAttachmentRead,
@@ -98,7 +99,7 @@ func resourceIBMISSubnetPublicGatewayAttachment() *schema.Resource {
 				Description: "The crn of the resource",
 			},
 
-			ResourceGroupName: {
+			flex.ResourceGroupName: {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "The resource group name in which resource is provisioned",
@@ -173,7 +174,7 @@ func resourceIBMISSubnetPublicGatewayAttachmentRead(d *schema.ResourceData, meta
 	d.Set(isPublicGatewayStatus, pg.Status)
 	if pg.ResourceGroup != nil {
 		d.Set(isPublicGatewayResourceGroup, *pg.ResourceGroup.ID)
-		d.Set(ResourceGroupName, *pg.ResourceGroup.Name)
+		d.Set(flex.ResourceGroupName, *pg.ResourceGroup.Name)
 	}
 	d.Set(isPublicGatewayVPC, *pg.VPC.ID)
 	d.Set(isPublicGatewayZone, *pg.Zone.Name)

@@ -1,12 +1,15 @@
 // Copyright IBM Corp. 2017, 2021 All Rights Reserved.
 // Licensed under the Mozilla Public License v2.0
 
-package ibm
+package vpc_test
 
 import (
 	"errors"
 	"fmt"
 	"testing"
+
+	acc "github.com/IBM-Cloud/terraform-provider-ibm/ibm/acctest"
+	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/conns"
 
 	"github.com/IBM/vpc-go-sdk/vpcv1"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
@@ -20,12 +23,12 @@ func TestAccIBMISSubnetPublicGatewayAttachment_basic(t *testing.T) {
 	vpcname := fmt.Sprintf("tfsubnet-vpc-%d", acctest.RandIntRange(10, 100))
 	name1 := fmt.Sprintf("tfsubnet-%d", acctest.RandIntRange(10, 100))
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:     func() { acc.TestAccPreCheck(t) },
+		Providers:    acc.TestAccProviders,
 		CheckDestroy: checkSubnetPublicGatewayAttachmentDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccCheckIBMISSubnetPublicGatewayAttachmentConfig(vpcname, name1, ISZoneName, pgname),
+				Config: testAccCheckIBMISSubnetPublicGatewayAttachmentConfig(vpcname, name1, acc.ISZoneName, pgname),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckIBMISSubnetPublicGatewayAttachmentExists("ibm_is_subnet_public_gateway_attachment.attach", subnetPublicGateway),
 					resource.TestCheckResourceAttrSet(
@@ -44,7 +47,7 @@ func TestAccIBMISSubnetPublicGatewayAttachment_basic(t *testing.T) {
 
 func checkSubnetPublicGatewayAttachmentDestroy(s *terraform.State) error {
 
-	sess, _ := testAccProvider.Meta().(ClientSession).VpcV1API()
+	sess, _ := acc.TestAccProvider.Meta().(conns.ClientSession).VpcV1API()
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "ibm_is_subnet_public_gateway_attachment" {
 			continue
@@ -74,7 +77,7 @@ func testAccCheckIBMISSubnetPublicGatewayAttachmentExists(n, subnetPublicGateway
 			return errors.New("No Record ID is set")
 		}
 
-		sess, _ := testAccProvider.Meta().(ClientSession).VpcV1API()
+		sess, _ := acc.TestAccProvider.Meta().(conns.ClientSession).VpcV1API()
 		getSubnetPublicGatewayOptionsModel := &vpcv1.GetSubnetPublicGatewayOptions{
 			ID: &rs.Primary.ID,
 		}
