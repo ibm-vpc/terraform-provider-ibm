@@ -240,6 +240,20 @@ func volumeGet(d *schema.ResourceData, meta interface{}, name string) error {
 				}
 				statusReasonsList = append(statusReasonsList, currentSR)
 			}
+			d.Set(isVolumeStatusReasons, statusReasonsList)
+		}
+		d.Set(isVolumeTags, vol.UserTags)
+		controller, err := flex.GetBaseController(meta)
+		if err != nil {
+			return err
+		}
+		d.Set(flex.ResourceControllerURL, controller+"/vpc-ext/storage/storageVolumes")
+		d.Set(flex.ResourceName, *vol.Name)
+		d.Set(flex.ResourceCRN, *vol.CRN)
+		d.Set(flex.ResourceStatus, *vol.Status)
+		if vol.ResourceGroup != nil {
+			d.Set(flex.ResourceGroupName, vol.ResourceGroup.Name)
+			d.Set(isVolumeResourceGroup, *vol.ResourceGroup.ID)
 		}
 		d.Set(isVolumeStatusReasons, statusReasonsList)
 	}
