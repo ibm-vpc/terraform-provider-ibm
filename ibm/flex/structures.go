@@ -2247,10 +2247,10 @@ func ResourceVolumeAttachmentValidate(diff *schema.ResourceDiff) error {
 	if volsintf, ok := diff.GetOk("volume_attachments"); ok {
 		vols := volsintf.([]interface{})
 		for volAttIdx := range vols {
-			volumeid := "volume_attachments." + strconv.Itoa(volAttIdx) + "." + isInstanceTemplateVolAttVol
-			volumePrototype := "volume_attachments." + strconv.Itoa(volAttIdx) + "." + isInstanceTemplateVolAttVolPrototype
-			volumePrototypeCapacity := "volume_attachments." + strconv.Itoa(volAttIdx) + "." + isInstanceTemplateVolAttVolPrototype + ".0." + isInstanceTemplateVolAttVolCapacity
-			volumePrototypeSnapshot := "volume_attachments." + strconv.Itoa(volAttIdx) + "." + isInstanceTemplateVolAttVolPrototype + ".0." + isInstanceTemplateVolumeSnapshot
+			volumeid := "volume_attachments." + strconv.Itoa(volAttIdx) + "." + "volume"
+			volumePrototype := "volume_attachments." + strconv.Itoa(volAttIdx) + "." + "volume_prototype"
+			volumePrototypeCapacity := "volume_attachments." + strconv.Itoa(volAttIdx) + "." + "volume_prototype" + ".0." + "capacity"
+			volumePrototypeSnapshot := "volume_attachments." + strconv.Itoa(volAttIdx) + "." + "volume_prototype" + ".0." + "snapshot"
 			var volIdnterpolated = false
 			var volumeIdFound = false
 			if _, volumeIdFound = diff.GetOk(volumeid); !volumeIdFound {
