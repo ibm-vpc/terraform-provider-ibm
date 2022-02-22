@@ -49,7 +49,7 @@ const (
 	isInstanceTemplateResourceType                 = "resource_type"
 	isInstanceTemplateVolumeDeleteOnInstanceDelete = "delete_volume_on_instance_delete"
 	isInstanceTemplateSourceTemplate               = "source_template"
-	isInstanceTemplateVolumeSnapshot               = "snapshot"
+	isInstanceTemplateVolumeSnapshot               = "source_snapshot"
 )
 
 func ResourceIBMISInstanceTemplate() *schema.Resource {
@@ -101,8 +101,8 @@ func ResourceIBMISInstanceTemplate() *schema.Resource {
 				Type:          schema.TypeString,
 				ForceNew:      true,
 				Optional:      true,
-				AtLeastOneOf:  []string{isInstanceTemplateImage, isInstanceTemplateSourceTemplate, "boot_volume.0.snapshot"},
-				ConflictsWith: []string{"boot_volume.0.snapshot"},
+				AtLeastOneOf:  []string{isInstanceTemplateImage, isInstanceTemplateSourceTemplate, "boot_volume.0.source_snapshot"},
+				ConflictsWith: []string{"boot_volume.0.source_snapshot"},
 				Description:   "Id of the instance template",
 			},
 
@@ -314,8 +314,8 @@ func ResourceIBMISInstanceTemplate() *schema.Resource {
 				Type:          schema.TypeString,
 				ForceNew:      true,
 				Optional:      true,
-				ConflictsWith: []string{"boot_volume.0.snapshot"},
-				AtLeastOneOf:  []string{isInstanceTemplateImage, isInstanceTemplateSourceTemplate, "boot_volume.0.snapshot"},
+				ConflictsWith: []string{"boot_volume.0.source_snapshot"},
+				AtLeastOneOf:  []string{isInstanceTemplateImage, isInstanceTemplateSourceTemplate, "boot_volume.0.source_snapshot"},
 				RequiredWith:  []string{isInstanceTemplateZone, isInstanceTemplatePrimaryNetworkInterface, isInstanceTemplateKeys, isInstanceTemplateVPC, isInstanceTemplateProfile},
 				Description:   "image name",
 			},
@@ -354,7 +354,7 @@ func ResourceIBMISInstanceTemplate() *schema.Resource {
 						isInstanceTemplateVolumeSnapshot: {
 							Type:          schema.TypeString,
 							RequiredWith:  []string{isInstanceTemplateZone, isInstanceTemplatePrimaryNetworkInterface, isInstanceTemplateProfile, isInstanceTemplateKeys, isInstanceTemplateVPC},
-							AtLeastOneOf:  []string{isInstanceTemplateImage, isInstanceTemplateSourceTemplate, "boot_volume.0.snapshot"},
+							AtLeastOneOf:  []string{isInstanceTemplateImage, isInstanceTemplateSourceTemplate, "boot_volume.0.source_snapshot"},
 							ConflictsWith: []string{isInstanceTemplateImage, isInstanceTemplateSourceTemplate},
 							Optional:      true,
 							ForceNew:      true,
@@ -429,7 +429,7 @@ func resourceIBMisInstanceTemplateCreate(d *schema.ResourceData, meta interface{
 	vpcID := d.Get(isInstanceTemplateVPC).(string)
 	zone := d.Get(isInstanceTemplateZone).(string)
 	image := d.Get(isInstanceTemplateImage).(string)
-	snapshot := d.Get("boot_volume.0.snapshot").(string)
+	snapshot := d.Get("boot_volume.0.source_snapshot").(string)
 	template := d.Get(isInstanceTemplateSourceTemplate).(string)
 
 	if snapshot != "" {

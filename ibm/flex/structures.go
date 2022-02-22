@@ -2250,7 +2250,7 @@ func ResourceVolumeAttachmentValidate(diff *schema.ResourceDiff) error {
 			volumeid := "volume_attachments." + strconv.Itoa(volAttIdx) + "." + "volume"
 			volumePrototype := "volume_attachments." + strconv.Itoa(volAttIdx) + "." + "volume_prototype"
 			volumePrototypeCapacity := "volume_attachments." + strconv.Itoa(volAttIdx) + "." + "volume_prototype" + ".0." + "capacity"
-			volumePrototypeSnapshot := "volume_attachments." + strconv.Itoa(volAttIdx) + "." + "volume_prototype" + ".0." + "snapshot"
+			volumePrototypeSnapshot := "volume_attachments." + strconv.Itoa(volAttIdx) + "." + "volume_prototype" + ".0." + "source_snapshot"
 			var volIdnterpolated = false
 			var volumeIdFound = false
 			if _, volumeIdFound = diff.GetOk(volumeid); !volumeIdFound {
