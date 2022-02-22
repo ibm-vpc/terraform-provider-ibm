@@ -625,7 +625,7 @@ func instanceTemplateCreateBySnapshot(d *schema.ResourceData, meta interface{}, 
 						ID: &volSnapshotStr,
 					})
 					if err != nil {
-						return fmt.Errorf("Error while getting snapshot details %q for instance template : %q", volSnapshotStr, err)
+						return fmt.Errorf("[ERROR] Error while getting snapshot details %q for instance template : %q", volSnapshotStr, err)
 					}
 					snapCapacity = int64(int(*snapshotGet.MinimumCapacity))
 				}
@@ -779,9 +779,9 @@ func instanceTemplateCreateBySnapshot(d *schema.ResourceData, meta interface{}, 
 
 	instanceIntf, response, err := sess.CreateInstanceTemplate(options)
 	if err != nil {
-		return fmt.Errorf("[ERROR] Error creating InstanceTemplate: %s\n%s", err, response)
+		return fmt.Errorf("[ERROR] Error creating InstanceTemplate by Volume: %s\n%s", err, response)
 	}
-	instance := instanceIntf.(*vpcv1.InstanceTemplate)
+	instance := instanceIntf.(*vpcv1.InstanceTemplateInstanceByVolume)
 	d.SetId(*instance.ID)
 	return nil
 }
@@ -932,7 +932,7 @@ func instanceTemplateCreateByTemplate(d *schema.ResourceData, meta interface{}, 
 						ID: &volSnapshotStr,
 					})
 					if err != nil {
-						return fmt.Errorf("Error while getting snapshot details %q for instance template : %q", volSnapshotStr, err)
+						return fmt.Errorf("[ERROR] Error while getting snapshot details %q for instance template : %q", volSnapshotStr, err)
 					}
 					snapCapacity = int64(int(*snapshotGet.MinimumCapacity))
 				}
@@ -1086,9 +1086,9 @@ func instanceTemplateCreateByTemplate(d *schema.ResourceData, meta interface{}, 
 
 	instanceIntf, response, err := sess.CreateInstanceTemplate(options)
 	if err != nil {
-		return fmt.Errorf("Error creating InstanceTemplate: %s\n%s", err, response)
+		return fmt.Errorf("[ERROR] Error creating InstanceTemplate by template: %s\n%s", err, response)
 	}
-	instance := instanceIntf.(*vpcv1.InstanceTemplate)
+	instance := instanceIntf.(*vpcv1.InstanceTemplateInstanceByImage)
 	d.SetId(*instance.ID)
 	return nil
 }
@@ -1210,7 +1210,7 @@ func instanceTemplateCreateByImage(d *schema.ResourceData, meta interface{}, pro
 						ID: &volSnapshotStr,
 					})
 					if err != nil {
-						return fmt.Errorf("Error while getting snapshot details %q for instance template : %q", volSnapshotStr, err)
+						return fmt.Errorf("[ERROR] Error while getting snapshot details %q for instance template : %q", volSnapshotStr, err)
 					}
 					snapCapacity = int64(int(*snapshotGet.MinimumCapacity))
 				}
@@ -1364,9 +1364,9 @@ func instanceTemplateCreateByImage(d *schema.ResourceData, meta interface{}, pro
 
 	instanceIntf, response, err := sess.CreateInstanceTemplate(options)
 	if err != nil {
-		return fmt.Errorf("Error creating InstanceTemplate: %s\n%s", err, response)
+		return fmt.Errorf("[ERROR] Error creating InstanceTemplate by Image: %s\n%s", err, response)
 	}
-	instance := instanceIntf.(*vpcv1.InstanceTemplate)
+	instance := instanceIntf.(*vpcv1.InstanceTemplateInstanceByImage)
 	d.SetId(*instance.ID)
 	return nil
 }
@@ -1381,7 +1381,7 @@ func instanceTemplateGet(d *schema.ResourceData, meta interface{}, ID string) er
 	}
 	instanceIntf, response, err := instanceC.GetInstanceTemplate(getinsOptions)
 	if err != nil {
-		return fmt.Errorf("Error Getting Instance template: %s\n%s", err, response)
+		return fmt.Errorf("[ERROR] Error Getting Instance template: %s\n%s", err, response)
 	}
 
 	switch reflect.TypeOf(instanceIntf).String() {
@@ -1401,7 +1401,7 @@ func instanceTemplateGet(d *schema.ResourceData, meta interface{}, ID string) er
 				placementTargetMap = resourceIbmIsInstanceTemplateInstancePlacementTargetPrototypeToMap(*instance.PlacementTarget.(*vpcv1.InstancePlacementTargetPrototype))
 			}
 			if err = d.Set(isInstanceTemplatePlacementTarget, []map[string]interface{}{placementTargetMap}); err != nil {
-				return fmt.Errorf("Error setting placement_target: %s", err)
+				return fmt.Errorf("[ERROR] Error setting placement_target: %s", err)
 			}
 
 			if instance.PrimaryNetworkInterface != nil {
@@ -1551,7 +1551,7 @@ func instanceTemplateGet(d *schema.ResourceData, meta interface{}, ID string) er
 				placementTargetMap = resourceIbmIsInstanceTemplateInstancePlacementTargetPrototypeToMap(*instance.PlacementTarget.(*vpcv1.InstancePlacementTargetPrototype))
 			}
 			if err = d.Set(isInstanceTemplatePlacementTarget, []map[string]interface{}{placementTargetMap}); err != nil {
-				return fmt.Errorf("Error setting placement_target: %s", err)
+				return fmt.Errorf("[ERROR] Error setting placement_target: %s", err)
 			}
 
 			if instance.PrimaryNetworkInterface != nil {
