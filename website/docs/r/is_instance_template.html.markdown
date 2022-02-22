@@ -179,6 +179,10 @@ Review the argument references that you can specify for your resource.
 	- `delete_volume_on_instance_delete` - (Optional, Bool) You can configure to delete the boot volume based on instance deletion.
 	- `encryption` - (Optional, String) The encryption key CRN to encrypt the boot volume attached.
 	- `name` - (Optional, String) The name of the boot volume.
+	- `snapshot` - (Optional, Forces new resource, String) The snapshot id of the volume to be used for creating boot volume attachment
+    **Note** 
+    
+     - `snapshot` conflicts with `image` id and `source_template`
 - `total_volume_bandwidth` - (Optional, int) The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes
 - `dedicated_host` - (Optional, Force new resource,String) The placement restrictions to use for the virtual server instance. Unique Identifier of the dedicated host where the instance is placed.
 
@@ -216,6 +220,8 @@ Review the argument references that you can specify for your resource.
   - `security_groups` - (Optional, List) List of security groups of the subnet.
   - `subnet` - (Required, Forces new resource, String) The VPC subnet to assign to the interface.
 - `resource_group` - (Optional, Forces new resource, String) The resource group ID.
+- `source_template` - (Optional, Forces new resource, String) The instance template ID  of an existing instance template, its contents are copied into the new template prior to copying any other properties provided in the prototype object. 
+  **NOTE** with `source_template` other properties are not required.
 - `volume_attachments` - (Optional, List) A nested block describes the storage volume configuration for the template.
 
   Nested scheme for `volume_attachments`:
@@ -229,6 +235,7 @@ Review the argument references that you can specify for your resource.
     - `encryption_key` - (Optional, String) The CRN of the [Key Protect Root Key](https://cloud.ibm.com/docs/key-protect?topic=key-protect-getting-started-tutorial) or [Hyper Protect Crypto Service Root Key](https://cloud.ibm.com/docs/hs-crypto?topic=hs-crypto-get-started) for the resource.
     - `iops` - (Optional, Integer) The maximum input and output operations per second (IOPS) for the volume.
     - `profile` - (Optional, String) The global unique name for the volume profile to use for the volume.
+    - `snapshot` - (Optional, String) The unique identifier for this snapshot from which to clone the new volume.
     
     ~>**Note:** 
     
