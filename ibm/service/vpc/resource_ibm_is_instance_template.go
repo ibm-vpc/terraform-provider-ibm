@@ -47,6 +47,7 @@ const (
 	isInstanceTemplateDedicatedHostGroup           = "dedicated_host_group"
 	isInstanceTemplateResourceType                 = "resource_type"
 	isInstanceTemplateVolumeDeleteOnInstanceDelete = "delete_volume_on_instance_delete"
+	isInstanceTemplateMetadataServiceEnabled       = "metadata_service_enabled"
 )
 
 func ResourceIBMISInstanceTemplate() *schema.Resource {
@@ -78,6 +79,14 @@ func ResourceIBMISInstanceTemplate() *schema.Resource {
 				ForceNew:     false,
 				ValidateFunc: validate.ValidateISName,
 				Description:  "Instance Template name",
+			},
+
+			isInstanceTemplateMetadataServiceEnabled: {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				ForceNew:    true,
+				Default:     false,
+				Description: "Indicates whether the metadata service endpoint is available to the virtual server instance",
 			},
 
 			isInstanceTemplateVPC: {
@@ -469,6 +478,10 @@ func instanceTemplateCreate(d *schema.ResourceData, meta interface{}, profile, n
 	if name != "" {
 		instanceproto.Name = &name
 	}
+	metadataServiceEnabled := d.Get(isInstanceTemplateMetadataServiceEnabled).(bool)
+	instanceproto.MetadataService = &vpcv1.InstanceMetadataServicePrototype{
+		Enabled: &metadataServiceEnabled,
+	}
 
 	if dHostIdInf, ok := d.GetOk(isPlacementTargetDedicatedHost); ok {
 		dHostIdStr := dHostIdInf.(string)
@@ -742,6 +755,9 @@ func instanceTemplateGet(d *schema.ResourceData, meta interface{}, ID string) er
 
 	if instance.TotalVolumeBandwidth != nil {
 		d.Set(isInstanceTotalVolumeBandwidth, int(*instance.TotalVolumeBandwidth))
+	}
+	if instance.MetadataService != nil {
+		d.Set(isInstanceTemplateMetadataServiceEnabled, instance.MetadataService.Enabled)
 	}
 
 	var placementTargetMap map[string]interface{}

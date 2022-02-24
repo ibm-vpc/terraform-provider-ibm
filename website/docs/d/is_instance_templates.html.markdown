@@ -47,6 +47,7 @@ You can access the following attribute references after your data source is crea
 	- `id` - (String) The ID of the instance template.
 	- `image` - (String) The ID of the image to create the template.
 	- `keys` - (String) List of SSH key IDs used to allow log in user to the instances.
+	- `metadata_service_enabled` - (Boolean) Indicates whether the metadata service endpoint is available to the virtual server instance.
 	- `name` - (String) The name of the instance template.
 	- `network_interfaces` - (List) A nested block describes the network interfaces for the template.
 

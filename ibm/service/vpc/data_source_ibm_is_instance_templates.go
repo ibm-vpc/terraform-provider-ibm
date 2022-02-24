@@ -100,6 +100,11 @@ func DataSourceIBMISInstanceTemplates() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						isInstanceTemplateMetadataServiceEnabled: {
+							Type:        schema.TypeBool,
+							Computed:    true,
+							Description: "Indicates whether the metadata service endpoint is available to the virtual server instance",
+						},
 						isInstanceTemplatesHref: {
 							Type:     schema.TypeString,
 							Computed: true,
@@ -327,6 +332,10 @@ func dataSourceIBMISInstanceTemplatesRead(d *schema.ResourceData, meta interface
 		if instance.PlacementTarget != nil {
 			placementTargetMap := resourceIbmIsInstanceTemplateInstancePlacementTargetPrototypeToMap(*instance.PlacementTarget.(*vpcv1.InstancePlacementTargetPrototype))
 			template["placement_target"] = []map[string]interface{}{placementTargetMap}
+		}
+
+		if instance.MetadataService != nil {
+			template[isInstanceTemplateMetadataServiceEnabled] = *instance.MetadataService.Enabled
 		}
 
 		if instance.Keys != nil {

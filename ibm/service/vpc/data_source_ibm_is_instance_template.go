@@ -103,6 +103,11 @@ func DataSourceIBMISInstanceTemplate() *schema.Resource {
 				Computed:    true,
 				Description: "The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes",
 			},
+			isInstanceTemplateMetadataServiceEnabled: {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: "Indicates whether the metadata service endpoint is available to the virtual server instance",
+			},
 			isInstanceTemplateVolumeAttachments: {
 				Type:     schema.TypeList,
 				Computed: true,
@@ -301,6 +306,11 @@ func dataSourceIBMISInstanceTemplateRead(context context.Context, d *schema.Reso
 			}
 			d.Set(isInstanceTemplateKeys, keys)
 		}
+
+		if instance.MetadataService != nil {
+			d.Set(isInstanceTemplateMetadataServiceEnabled, instance.MetadataService.Enabled)
+		}
+
 		if instance.Profile != nil {
 			instanceProfileIntf := instance.Profile
 			identity := instanceProfileIntf.(*vpcv1.InstanceProfileIdentity)
@@ -475,6 +485,11 @@ func dataSourceIBMISInstanceTemplateRead(context context.Context, d *schema.Reso
 					}
 					d.Set(isInstanceTemplateKeys, keys)
 				}
+
+				if instance.MetadataService != nil {
+					d.Set(isInstanceTemplateMetadataServiceEnabled, instance.MetadataService.Enabled)
+				}
+
 				if instance.Profile != nil {
 					instanceProfileIntf := instance.Profile
 					identity := instanceProfileIntf.(*vpcv1.InstanceProfileIdentity)
