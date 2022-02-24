@@ -101,6 +101,12 @@ func DataSourceIBMISImages() *schema.Resource {
 							Computed:    true,
 							Description: "Source volume id of the image",
 						},
+						"supported_features": {
+							Description: "Supported features for this image",
+							Type:        schema.TypeSet,
+							Computed:    true,
+							Elem:        &schema.Schema{Type: schema.TypeString},
+						},
 					},
 				},
 			},
@@ -189,6 +195,10 @@ func imageList(d *schema.ResourceData, meta interface{}) error {
 		if image.SourceVolume != nil {
 			l["source_volume"] = *image.SourceVolume.ID
 		}
+		if len(image.SupportedFeatures) > 0 {
+			l["supported_features"] = image.SupportedFeatures
+		}
+
 		imagesInfo = append(imagesInfo, l)
 	}
 	d.SetId(dataSourceIBMISSubnetsID(d))

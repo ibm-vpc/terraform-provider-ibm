@@ -105,6 +105,11 @@ func DataSourceIBMISInstances() *schema.Resource {
 							Computed:    true,
 							Description: "Instance name",
 						},
+						isInstanceConfidentialComputing: {
+							Type:        schema.TypeBool,
+							Computed:    true,
+							Description: "Confidential computing",
+						},
 						"crn": {
 							Type:        schema.TypeString,
 							Computed:    true,
@@ -662,6 +667,10 @@ func instancesList(d *schema.ResourceData, meta interface{}) error {
 		}
 		if instance.Bandwidth != nil {
 			l[isInstanceBandwidth] = int(*instance.Bandwidth)
+		}
+
+		if instance.ConfidentialCompute != nil {
+			l[isInstanceConfidentialComputing] = *instance.ConfidentialCompute.Enabled
 		}
 
 		if instance.TotalNetworkBandwidth != nil {

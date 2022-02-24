@@ -75,6 +75,12 @@ func DataSourceIBMISImage() *schema.Resource {
 				Computed:    true,
 				Description: "The type of encryption used on the image",
 			},
+			"supported_features": {
+				Description: "Supported features for this image",
+				Type:        schema.TypeSet,
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
 			"source_volume": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -142,6 +148,7 @@ func imageGetByName(d *schema.ResourceData, meta interface{}, name, visibility s
 			}
 			d.Set("name", *image.Name)
 			d.Set("visibility", *image.Visibility)
+			d.Set("supported_features", image.SupportedFeatures)
 			d.Set("os", *image.OperatingSystem.Name)
 			d.Set("architecture", *image.OperatingSystem.Architecture)
 			d.Set("crn", *image.CRN)
@@ -187,6 +194,7 @@ func imageGetById(d *schema.ResourceData, meta interface{}, identifier string) e
 		fmt.Printf("[WARN] Given image %s is deprecated and soon will be obsolete.", name)
 	}
 	d.Set("name", *image.Name)
+	d.Set("supported_features", image.SupportedFeatures)
 	d.Set("visibility", *image.Visibility)
 	d.Set("os", *image.OperatingSystem.Name)
 	d.Set("architecture", *image.OperatingSystem.Architecture)

@@ -98,6 +98,8 @@ const (
 	isPlacementTargetDedicatedHostGroup = "dedicated_host_group"
 	isInstancePlacementTarget           = "placement_target"
 	isPlacementTargetPlacementGroup     = "placement_group"
+
+	isInstanceConfidentialComputing = "confidential_computing"
 )
 
 func ResourceIBMISInstance() *schema.Resource {
@@ -172,7 +174,13 @@ func ResourceIBMISInstance() *schema.Resource {
 				Computed:    true,
 				Description: "Crn for this Instance",
 			},
-
+			isInstanceConfidentialComputing: {
+				Type:        schema.TypeBool,
+				ForceNew:    true,
+				Optional:    true,
+				Computed:    true,
+				Description: "Confidential computing",
+			},
 			isInstanceSourceTemplate: {
 				Type:          schema.TypeString,
 				ForceNew:      true,
@@ -769,6 +777,15 @@ func instanceCreateByImage(d *schema.ResourceData, meta interface{}, profile, na
 			ID: &vpcID,
 		},
 	}
+
+	if confidentialComputingEnabledIntf, ok := d.GetOk(isInstanceConfidentialComputing); ok {
+		confidentialComputingEnabled := confidentialComputingEnabledIntf.(bool)
+		confidentialComputing := &vpcv1.InstanceConfidentialComputePrototype{
+			Enabled: &confidentialComputingEnabled,
+		}
+		instanceproto.ConfidentialCompute = confidentialComputing
+	}
+
 	if totalVolBandwidthIntf, ok := d.GetOk(isInstanceTotalVolumeBandwidth); ok {
 		totalVolBandwidthStr := int64(totalVolBandwidthIntf.(int))
 		instanceproto.TotalVolumeBandwidth = &totalVolBandwidthStr
@@ -979,6 +996,15 @@ func instanceCreateByTemplate(d *schema.ResourceData, meta interface{}, profile,
 			Name: &profile,
 		}
 	}
+
+	if confidentialComputingEnabledIntf, ok := d.GetOk(isInstanceConfidentialComputing); ok {
+		confidentialComputingEnabled := confidentialComputingEnabledIntf.(bool)
+		confidentialComputing := &vpcv1.InstanceConfidentialComputePrototype{
+			Enabled: &confidentialComputingEnabled,
+		}
+		instanceproto.ConfidentialCompute = confidentialComputing
+	}
+
 	if totalVolBandwidthIntf, ok := d.GetOk(isInstanceTotalVolumeBandwidth); ok {
 		totalVolBandwidthStr := int64(totalVolBandwidthIntf.(int))
 		instanceproto.TotalVolumeBandwidth = &totalVolBandwidthStr
@@ -1202,6 +1228,14 @@ func instanceCreateByVolume(d *schema.ResourceData, meta interface{}, profile, n
 			ID: &vpcID,
 		},
 	}
+	if confidentialComputingEnabledIntf, ok := d.GetOk(isInstanceConfidentialComputing); ok {
+		confidentialComputingEnabled := confidentialComputingEnabledIntf.(bool)
+		confidentialComputing := &vpcv1.InstanceConfidentialComputePrototype{
+			Enabled: &confidentialComputingEnabled,
+		}
+		instanceproto.ConfidentialCompute = confidentialComputing
+	}
+
 	if dHostIdInf, ok := d.GetOk(isPlacementTargetDedicatedHost); ok {
 		dHostIdStr := dHostIdInf.(string)
 		dHostPlaementTarget := &vpcv1.InstancePlacementTargetPrototypeDedicatedHostIdentity{
@@ -1572,6 +1606,10 @@ func instanceGet(d *schema.ResourceData, meta interface{}, id string) error {
 
 	if instance.Bandwidth != nil {
 		d.Set(isInstanceBandwidth, int(*instance.Bandwidth))
+	}
+
+	if instance.ConfidentialCompute != nil {
+		d.Set(isInstanceConfidentialComputing, instance.ConfidentialCompute.Enabled)
 	}
 
 	if instance.TotalNetworkBandwidth != nil {

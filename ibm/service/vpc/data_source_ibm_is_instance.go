@@ -54,6 +54,12 @@ func DataSourceIBMISInstance() *schema.Resource {
 				Description: "Passphrase for Instance Private Key file",
 			},
 
+			isInstanceConfidentialComputing: {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: "Confidential computing",
+			},
+
 			isInstanceInitPassword: {
 				Type:        schema.TypeString,
 				Sensitive:   true,
@@ -553,6 +559,11 @@ func instanceGetByName(d *schema.ResourceData, meta interface{}, name string) er
 			if instance.Profile != nil {
 				d.Set(isInstanceProfile, *instance.Profile.Name)
 			}
+
+			if instance.ConfidentialCompute != nil {
+				d.Set(isInstanceConfidentialComputing, instance.ConfidentialCompute.Enabled)
+			}
+
 			cpuList := make([]map[string]interface{}, 0)
 			if instance.Vcpu != nil {
 				currentCPU := map[string]interface{}{}
