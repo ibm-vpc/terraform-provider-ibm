@@ -795,11 +795,7 @@ func instanceCreateByImage(d *schema.ResourceData, meta interface{}, profile, na
 	}
 	if defaultTrustedProfileTargetIntf, ok := d.GetOk(isInstanceDefaultTrustedProfileTarget); ok {
 		defaultTrustedProfiletarget := defaultTrustedProfileTargetIntf.(string)
-		defaultTrustedProfileAutoLink := true
-		if defaultTrustedProfileAutoLinkIntf, ok := d.GetOkExists(isInstanceDefaultTrustedProfileAutoLink); ok {
 
-			defaultTrustedProfileAutoLink = defaultTrustedProfileAutoLinkIntf.(bool)
-		}
 		target := &vpcv1.TrustedProfileIdentity{}
 		if strings.HasPrefix(defaultTrustedProfiletarget, "crn") {
 			target.CRN = &defaultTrustedProfiletarget
@@ -807,8 +803,12 @@ func instanceCreateByImage(d *schema.ResourceData, meta interface{}, profile, na
 			target.ID = &defaultTrustedProfiletarget
 		}
 		instanceproto.DefaultTrustedProfile = &vpcv1.InstanceDefaultTrustedProfilePrototype{
-			Target:   target,
-			AutoLink: &defaultTrustedProfileAutoLink,
+			Target: target,
+		}
+
+		if defaultTrustedProfileAutoLinkIntf, ok := d.GetOkExists(isInstanceDefaultTrustedProfileAutoLink); ok {
+			defaultTrustedProfileAutoLink := defaultTrustedProfileAutoLinkIntf.(bool)
+			instanceproto.DefaultTrustedProfile.AutoLink = &defaultTrustedProfileAutoLink
 		}
 	}
 	if totalVolBandwidthIntf, ok := d.GetOk(isInstanceTotalVolumeBandwidth); ok {
@@ -1025,11 +1025,7 @@ func instanceCreateByTemplate(d *schema.ResourceData, meta interface{}, profile,
 
 	if defaultTrustedProfileTargetIntf, ok := d.GetOk(isInstanceDefaultTrustedProfileTarget); ok {
 		defaultTrustedProfiletarget := defaultTrustedProfileTargetIntf.(string)
-		defaultTrustedProfileAutoLink := true
-		if defaultTrustedProfileAutoLinkIntf, ok := d.GetOkExists(isInstanceDefaultTrustedProfileAutoLink); ok {
 
-			defaultTrustedProfileAutoLink = defaultTrustedProfileAutoLinkIntf.(bool)
-		}
 		target := &vpcv1.TrustedProfileIdentity{}
 		if strings.HasPrefix(defaultTrustedProfiletarget, "crn") {
 			target.CRN = &defaultTrustedProfiletarget
@@ -1037,8 +1033,12 @@ func instanceCreateByTemplate(d *schema.ResourceData, meta interface{}, profile,
 			target.ID = &defaultTrustedProfiletarget
 		}
 		instanceproto.DefaultTrustedProfile = &vpcv1.InstanceDefaultTrustedProfilePrototype{
-			Target:   target,
-			AutoLink: &defaultTrustedProfileAutoLink,
+			Target: target,
+		}
+
+		if defaultTrustedProfileAutoLinkIntf, ok := d.GetOkExists(isInstanceDefaultTrustedProfileAutoLink); ok {
+			defaultTrustedProfileAutoLink := defaultTrustedProfileAutoLinkIntf.(bool)
+			instanceproto.DefaultTrustedProfile.AutoLink = &defaultTrustedProfileAutoLink
 		}
 	}
 	if profile != "" {
@@ -1283,11 +1283,7 @@ func instanceCreateByVolume(d *schema.ResourceData, meta interface{}, profile, n
 
 	if defaultTrustedProfileTargetIntf, ok := d.GetOk(isInstanceDefaultTrustedProfileTarget); ok {
 		defaultTrustedProfiletarget := defaultTrustedProfileTargetIntf.(string)
-		defaultTrustedProfileAutoLink := true
-		if defaultTrustedProfileAutoLinkIntf, ok := d.GetOkExists(isInstanceDefaultTrustedProfileAutoLink); ok {
 
-			defaultTrustedProfileAutoLink = defaultTrustedProfileAutoLinkIntf.(bool)
-		}
 		target := &vpcv1.TrustedProfileIdentity{}
 		if strings.HasPrefix(defaultTrustedProfiletarget, "crn") {
 			target.CRN = &defaultTrustedProfiletarget
@@ -1295,8 +1291,12 @@ func instanceCreateByVolume(d *schema.ResourceData, meta interface{}, profile, n
 			target.ID = &defaultTrustedProfiletarget
 		}
 		instanceproto.DefaultTrustedProfile = &vpcv1.InstanceDefaultTrustedProfilePrototype{
-			Target:   target,
-			AutoLink: &defaultTrustedProfileAutoLink,
+			Target: target,
+		}
+
+		if defaultTrustedProfileAutoLinkIntf, ok := d.GetOkExists(isInstanceDefaultTrustedProfileAutoLink); ok {
+			defaultTrustedProfileAutoLink := defaultTrustedProfileAutoLinkIntf.(bool)
+			instanceproto.DefaultTrustedProfile.AutoLink = &defaultTrustedProfileAutoLink
 		}
 	}
 
