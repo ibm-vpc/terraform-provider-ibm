@@ -4,12 +4,14 @@
 package vpc
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"time"
 
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -25,12 +27,11 @@ const (
 
 func ResourceIBMISSubnetPublicGatewayAttachment() *schema.Resource {
 	return &schema.Resource{
-		Create:   resourceIBMISSubnetPublicGatewayAttachmentCreate,
-		Read:     resourceIBMISSubnetPublicGatewayAttachmentRead,
-		Update:   resourceIBMISSubnetPublicGatewayAttachmentUpdate,
-		Delete:   resourceIBMISSubnetPublicGatewayAttachmentDelete,
-		Exists:   resourceIBMISSubnetPublicGatewayAttachmentExists,
-		Importer: &schema.ResourceImporter{},
+		CreateContext: resourceIBMISSubnetPublicGatewayAttachmentCreate,
+		ReadContext:   resourceIBMISSubnetPublicGatewayAttachmentRead,
+		UpdateContext: resourceIBMISSubnetPublicGatewayAttachmentUpdate,
+		DeleteContext: resourceIBMISSubnetPublicGatewayAttachmentDelete,
+		Importer:      &schema.ResourceImporter{},
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(10 * time.Minute),
 			Update: schema.DefaultTimeout(10 * time.Minute),
@@ -49,7 +50,7 @@ func ResourceIBMISSubnetPublicGatewayAttachment() *schema.Resource {
 			isPublicGatewayID: {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: "The unique identifier of network ACL",
+				Description: "The unique identifier of public gateway",
 			},
 
 			isPublicGatewayName: {
@@ -108,10 +109,10 @@ func ResourceIBMISSubnetPublicGatewayAttachment() *schema.Resource {
 	}
 }
 
-func resourceIBMISSubnetPublicGatewayAttachmentCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISSubnetPublicGatewayAttachmentCreate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	subnet := d.Get(isSubnetID).(string)
@@ -131,24 +132,24 @@ func resourceIBMISSubnetPublicGatewayAttachmentCreate(d *schema.ResourceData, me
 
 	if err != nil {
 		log.Printf("[DEBUG] Error while attaching public gateway(%s) to subnet(%s) %s\n%s", publicGateway, subnet, err, response)
-		return fmt.Errorf("Error while attaching public gateway(%s) to subnet(%s) %s\n%s", publicGateway, subnet, err, response)
+		return diag.FromErr(fmt.Errorf("[ERROR] Error while attaching public gateway(%s) to subnet(%s) %s\n%s", publicGateway, subnet, err, response))
 	}
 	d.SetId(subnet)
 	_, err = isWaitForSubnetPublicGatewayAvailable(sess, d.Id(), d.Timeout(schema.TimeoutCreate))
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	log.Printf("[INFO] Public Gateway : %s", *pg.ID)
 	log.Printf("[INFO] Subnet ID : %s", subnet)
 
-	return resourceIBMISSubnetPublicGatewayAttachmentRead(d, meta)
+	return resourceIBMISSubnetPublicGatewayAttachmentRead(context, d, meta)
 }
 
-func resourceIBMISSubnetPublicGatewayAttachmentRead(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISSubnetPublicGatewayAttachmentRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	id := d.Id()
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	getSubnetPublicGatewayOptionsModel := &vpcv1.GetSubnetPublicGatewayOptions{
@@ -161,7 +162,7 @@ func resourceIBMISSubnetPublicGatewayAttachmentRead(d *schema.ResourceData, meta
 			d.SetId("")
 			return nil
 		}
-		return fmt.Errorf("Error getting subnet's (%s) attached public gateway: %s\n%s", id, err, response)
+		return diag.FromErr(fmt.Errorf("[ERROR] Error getting subnet's (%s) attached public gateway: %s\n%s", id, err, response))
 	}
 	d.Set(isPublicGatewayName, pg.Name)
 	if pg.FloatingIP != nil {
@@ -184,11 +185,11 @@ func resourceIBMISSubnetPublicGatewayAttachmentRead(d *schema.ResourceData, meta
 	return nil
 }
 
-func resourceIBMISSubnetPublicGatewayAttachmentUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISSubnetPublicGatewayAttachmentUpdate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	if d.HasChange(isPublicGatewayID) {
 		subnet := d.Get(isSubnetID).(string)
@@ -208,24 +209,24 @@ func resourceIBMISSubnetPublicGatewayAttachmentUpdate(d *schema.ResourceData, me
 
 		if err != nil || pg == nil {
 			log.Printf("[DEBUG] Error while attaching public gateway(%s) to subnet(%s) %s\n%s", publicGateway, subnet, err, response)
-			return fmt.Errorf("Error while attaching public gateway(%s) to subnet(%s) %s\n%s", publicGateway, subnet, err, response)
+			return diag.FromErr(fmt.Errorf("[ERROR] Error while attaching public gateway(%s) to subnet(%s) %s\n%s", publicGateway, subnet, err, response))
 		}
-		// log.Printf("[INFO] Updated subnet %s with public gateway(%s) : %s", subnet, publicGateway, *resultACL.ID)
+		log.Printf("[INFO] Updated subnet %s with public gateway(%s)", subnet, publicGateway)
 
 		d.SetId(subnet)
-		return resourceIBMISSubnetPublicGatewayAttachmentRead(d, meta)
+		return resourceIBMISSubnetPublicGatewayAttachmentRead(context, d, meta)
 	}
 
-	return resourceIBMISSubnetPublicGatewayAttachmentRead(d, meta)
+	return resourceIBMISSubnetPublicGatewayAttachmentRead(context, d, meta)
 }
 
-func resourceIBMISSubnetPublicGatewayAttachmentDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISSubnetPublicGatewayAttachmentDelete(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	id := d.Id()
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
-	// Set the subnet with VPC default network ACL
+	// Get subnet details
 	getSubnetOptions := &vpcv1.GetSubnetOptions{
 		ID: &id,
 	}
@@ -235,7 +236,7 @@ func resourceIBMISSubnetPublicGatewayAttachmentDelete(d *schema.ResourceData, me
 			d.SetId("")
 			return nil
 		}
-		return fmt.Errorf("Error Getting Subnet (%s): %s\n%s", id, err, response)
+		return diag.FromErr(fmt.Errorf("[ERROR] Error Getting Subnet (%s): %s\n%s", id, err, response))
 	}
 
 	// Construct an instance of the UnsetSubnetPublicGatewayOptions model
@@ -246,33 +247,14 @@ func resourceIBMISSubnetPublicGatewayAttachmentDelete(d *schema.ResourceData, me
 
 	if err != nil {
 		log.Printf("[DEBUG] Error while detaching public gateway to subnet %s\n%s", err, res)
-		return fmt.Errorf("Error while detaching public gateway to subnet %s\n%s", err, res)
+		return diag.FromErr(fmt.Errorf("[ERROR] Error while detaching public gateway to subnet %s\n%s", err, res))
 	}
 	_, err = isWaitForSubnetPublicGatewayDelete(sess, d.Id(), d.Timeout(schema.TimeoutCreate))
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	d.SetId("")
 	return nil
-}
-
-func resourceIBMISSubnetPublicGatewayAttachmentExists(d *schema.ResourceData, meta interface{}) (bool, error) {
-	id := d.Id()
-	sess, err := vpcClient(meta)
-	if err != nil {
-		return false, err
-	}
-	getSubnetPublicGatewayOptionsModel := &vpcv1.GetSubnetPublicGatewayOptions{
-		ID: &id,
-	}
-	pg, response, err := sess.GetSubnetPublicGateway(getSubnetPublicGatewayOptionsModel)
-	if err != nil || pg == nil {
-		if response != nil && response.StatusCode == 404 {
-			return false, nil
-		}
-		return false, fmt.Errorf("Error getting subnet's (%s) attached public gateway: %s\n%s", id, err, response)
-	}
-	return true, nil
 }
 
 func isWaitForSubnetPublicGatewayAvailable(subnetC *vpcv1.VpcV1, id string, timeout time.Duration) (interface{}, error) {
@@ -299,13 +281,13 @@ func isSubnetPublicGatewayRefreshFunc(subnetC *vpcv1.VpcV1, id string) resource.
 
 		if err != nil {
 			if response != nil && response.StatusCode == 404 {
-				return pg, "", fmt.Errorf("Error getting subnet's (%s) attached public gateway: %s\n%s", id, err, response)
+				return pg, "", fmt.Errorf("[ERROR] Error getting subnet's (%s) attached public gateway: %s\n%s", id, err, response)
 			}
-			return pg, "", fmt.Errorf("Error getting subnet's (%s) attached public gateway: %s\n%s", id, err, response)
+			return pg, "", fmt.Errorf("[ERROR] Error getting subnet's (%s) attached public gateway: %s\n%s", id, err, response)
 		}
 
 		if *pg.Status == "failed" {
-			return pg, IsPublicGatewayAttachmentFailed, fmt.Errorf("Error subnet (%s) public gateway attachment failed: %s\n%s", id, err, response)
+			return pg, IsPublicGatewayAttachmentFailed, fmt.Errorf("[ERROR] Error subnet (%s) public gateway attachment failed: %s\n%s", id, err, response)
 		}
 
 		return pg, *pg.Status, nil
@@ -338,11 +320,11 @@ func isSubnetPublicGatewayDeleteRefreshFunc(subnetC *vpcv1.VpcV1, id string) res
 			if response != nil && response.StatusCode == 404 {
 				return pg, "", nil
 			}
-			return pg, "", fmt.Errorf("Error getting subnet's (%s) attached public gateway: %s\n%s", id, err, response)
+			return pg, "", fmt.Errorf("[ERROR] Error getting subnet's (%s) attached public gateway: %s\n%s", id, err, response)
 		}
 
 		if *pg.Status == "failed" {
-			return pg, IsPublicGatewayAttachmentFailed, fmt.Errorf("Error subnet (%s) public gateway attachment failed: %s\n%s", id, err, response)
+			return pg, IsPublicGatewayAttachmentFailed, fmt.Errorf("[ERROR] Error subnet (%s) public gateway attachment failed: %s\n%s", id, err, response)
 		}
 
 		return pg, *pg.Status, nil

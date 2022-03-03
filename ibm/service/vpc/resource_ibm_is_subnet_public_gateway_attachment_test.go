@@ -19,7 +19,7 @@ import (
 
 func TestAccIBMISSubnetPublicGatewayAttachment_basic(t *testing.T) {
 	var subnetPublicGateway string
-	pgname := fmt.Sprintf("tfnw-acl-%d", acctest.RandIntRange(10, 100))
+	pgname := fmt.Sprintf("tfnw-pg-%d", acctest.RandIntRange(10, 100))
 	vpcname := fmt.Sprintf("tfsubnet-vpc-%d", acctest.RandIntRange(10, 100))
 	name1 := fmt.Sprintf("tfsubnet-%d", acctest.RandIntRange(10, 100))
 	resource.Test(t, resource.TestCase{

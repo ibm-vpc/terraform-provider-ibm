@@ -29,9 +29,9 @@ resource "ibm_is_vpc" "example" {
 }
 
 resource "ibm_is_subnet" "example" {
-  name 				      = "example-subnet"
-  vpc 				      = ibm_is_vpc.example.id
-  zone 				      = "eu-gb-1"
+  name 				              = "example-subnet"
+  vpc 				              = ibm_is_vpc.example.id
+  zone 				              = "eu-gb-1"
   total_ipv4_address_count  = 16
 }
 
@@ -42,8 +42,7 @@ resource "ibm_is_public_gateway" "example" {
 }
 
 resource "ibm_is_subnet_public_gateway_attachment" "example" {
-  depends_on 		  	= [ibm_is_public_gateway.example, ibm_is_subnet.example]
-  subnet      	 	= ibm_is_subnet.example.id
+  subnet      	 	  = ibm_is_subnet.example.id
   public_gateway 		= ibm_is_public_gateway.example.id
 }
 
