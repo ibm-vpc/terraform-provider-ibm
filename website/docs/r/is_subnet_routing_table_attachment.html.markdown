@@ -40,7 +40,6 @@ resource "ibm_is_subnet" "example" {
 }
 
 resource "ibm_is_subnet_routing_table_attachment" "example" {
-  depends_on    = [ibm_is_vpc_routing_table.example, ibm_is_subnet.example]
   subnet        = ibm_is_subnet.example.id
   routing_table = ibm_is_vpc_routing_table.example.routing_table
 }
