@@ -128,7 +128,7 @@ func resourceIBMISSubnetPublicGatewayAttachmentCreate(context context.Context, d
 		PublicGatewayIdentity: publicGatewayIdentity,
 	}
 
-	pg, response, err := sess.SetSubnetPublicGateway(setSubnetPublicGatewayOptions)
+	pg, response, err := sess.SetSubnetPublicGatewayWithContext(context, setSubnetPublicGatewayOptions)
 
 	if err != nil {
 		log.Printf("[DEBUG] Error while attaching public gateway(%s) to subnet(%s) %s\n%s", publicGateway, subnet, err, response)
@@ -155,7 +155,7 @@ func resourceIBMISSubnetPublicGatewayAttachmentRead(context context.Context, d *
 	getSubnetPublicGatewayOptionsModel := &vpcv1.GetSubnetPublicGatewayOptions{
 		ID: &id,
 	}
-	pg, response, err := sess.GetSubnetPublicGateway(getSubnetPublicGatewayOptionsModel)
+	pg, response, err := sess.GetSubnetPublicGatewayWithContext(context, getSubnetPublicGatewayOptionsModel)
 
 	if err != nil {
 		if response != nil && response.StatusCode == 404 {
@@ -205,7 +205,7 @@ func resourceIBMISSubnetPublicGatewayAttachmentUpdate(context context.Context, d
 			PublicGatewayIdentity: publicGatewayIdentity,
 		}
 
-		pg, response, err := sess.SetSubnetPublicGateway(setSubnetPublicGatewayOptions)
+		pg, response, err := sess.SetSubnetPublicGatewayWithContext(context, setSubnetPublicGatewayOptions)
 
 		if err != nil || pg == nil {
 			log.Printf("[DEBUG] Error while attaching public gateway(%s) to subnet(%s) %s\n%s", publicGateway, subnet, err, response)
@@ -230,7 +230,7 @@ func resourceIBMISSubnetPublicGatewayAttachmentDelete(context context.Context, d
 	getSubnetOptions := &vpcv1.GetSubnetOptions{
 		ID: &id,
 	}
-	_, response, err := sess.GetSubnet(getSubnetOptions)
+	_, response, err := sess.GetSubnetWithContext(context, getSubnetOptions)
 	if err != nil {
 		if response != nil && response.StatusCode == 404 {
 			d.SetId("")
@@ -243,7 +243,7 @@ func resourceIBMISSubnetPublicGatewayAttachmentDelete(context context.Context, d
 	unsetSubnetPublicGatewayOptions := &vpcv1.UnsetSubnetPublicGatewayOptions{
 		ID: &id,
 	}
-	res, err := sess.UnsetSubnetPublicGateway(unsetSubnetPublicGatewayOptions)
+	res, err := sess.UnsetSubnetPublicGatewayWithContext(context, unsetSubnetPublicGatewayOptions)
 
 	if err != nil {
 		log.Printf("[DEBUG] Error while detaching public gateway to subnet %s\n%s", err, res)
