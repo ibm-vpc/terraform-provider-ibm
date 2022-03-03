@@ -12,10 +12,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-const (
-	rtRoutes = "routes"
-)
-
 func ResourceIBMISSubnetRoutingTableAttachment() *schema.Resource {
 	return &schema.Resource{
 		Create:   resourceIBMISSubnetRoutingTableAttachmentCreate,
@@ -166,26 +162,26 @@ func resourceIBMISSubnetRoutingTableAttachmentRead(d *schema.ResourceData, meta 
 	getSubnetRoutingTableOptionsModel := &vpcv1.GetSubnetRoutingTableOptions{
 		ID: &id,
 	}
-	nwacl, response, err := sess.GetSubnetRoutingTable(getSubnetRoutingTableOptionsModel)
+	subRT, response, err := sess.GetSubnetRoutingTable(getSubnetRoutingTableOptionsModel)
 
 	if err != nil {
 		if response != nil && response.StatusCode == 404 {
 			d.SetId("")
 			return nil
 		}
-		return fmt.Errorf("Error getting subnet's (%s) attached routing table: %s\n%s", id, err, response)
+		return fmt.Errorf("[ERROR] Error getting subnet's (%s) attached routing table: %s\n%s", id, err, response)
 	}
-	d.Set(isRoutingTableName, *nwacl.Name)
-	d.Set(isRoutingTableResourceType, *nwacl.ResourceType)
-	d.Set(rtRouteDirectLinkIngress, *nwacl.RouteDirectLinkIngress)
-	d.Set(rtIsDefault, *nwacl.IsDefault)
-	d.Set(rtLifecycleState, *nwacl.LifecycleState)
-	d.Set(isRoutingTableResourceType, *nwacl.ResourceType)
-	d.Set(rtRouteTransitGatewayIngress, *nwacl.RouteTransitGatewayIngress)
-	d.Set(rtRouteVPCZoneIngress, *nwacl.RouteVPCZoneIngress)
+	d.Set(isRoutingTableName, *subRT.Name)
+	d.Set(isRoutingTableResourceType, *subRT.ResourceType)
+	d.Set(rtRouteDirectLinkIngress, *subRT.RouteDirectLinkIngress)
+	d.Set(rtIsDefault, *subRT.IsDefault)
+	d.Set(rtLifecycleState, *subRT.LifecycleState)
+	d.Set(isRoutingTableResourceType, *subRT.ResourceType)
+	d.Set(rtRouteTransitGatewayIngress, *subRT.RouteTransitGatewayIngress)
+	d.Set(rtRouteVPCZoneIngress, *subRT.RouteVPCZoneIngress)
 	subnets := make([]map[string]interface{}, 0)
 
-	for _, s := range nwacl.Subnets {
+	for _, s := range subRT.Subnets {
 		subnet := make(map[string]interface{})
 		subnet[ID] = *s.ID
 		subnet["name"] = *s.Name
@@ -194,7 +190,7 @@ func resourceIBMISSubnetRoutingTableAttachmentRead(d *schema.ResourceData, meta 
 	d.Set(rtSubnets, subnets)
 
 	routes := make([]map[string]interface{}, 0)
-	for _, s := range nwacl.Routes {
+	for _, s := range subRT.Routes {
 		route := make(map[string]interface{})
 		route[ID] = *s.ID
 		route["name"] = *s.Name
