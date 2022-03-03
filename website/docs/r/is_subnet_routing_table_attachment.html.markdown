@@ -48,7 +48,7 @@ resource "ibm_is_subnet_routing_table_attachment" "example" {
 ## Argument reference
 Review the argument references that you can specify for your resource. 
 
-- `routing_table` - (Required, Forces new resource, String) The routing table identity.
+- `routing_table` - (Required, String) The routing table identity.
 - `subnet` - (Required, Forces new resource, String) The subnet identifier.
 
 
