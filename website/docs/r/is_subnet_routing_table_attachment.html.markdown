@@ -24,26 +24,26 @@ provider "ibm" {
 ## Example usage
 
 ```terraform
-  resource "ibm_is_vpc" "example" {
-		name = "example-vpc"
-	}
-	resource "ibm_is_vpc_routing_table" "example" {
-		vpc   = ibm_is_vpc.example.id
-		name  = "example-rt"
-	}
+resource "ibm_is_vpc" "example" {
+  name = "example-vpc"
+}
+resource "ibm_is_vpc_routing_table" "example" {
+  vpc   = ibm_is_vpc.example.id
+  name  = "example-rt"
+}
 
-	resource "ibm_is_subnet" "example" {
-		name                        = "example-subnet"
-		vpc                         = ibm_is_vpc.example.id
-		zone                        = "eu-gb-1"
-		total_ipv4_address_count    = 16
-	}
+resource "ibm_is_subnet" "example" {
+  name                        = "example-subnet"
+  vpc                         = ibm_is_vpc.example.id
+  zone                        = "eu-gb-1"
+  total_ipv4_address_count    = 16
+}
 
-	resource "ibm_is_subnet_routing_table_attachment" "example" {
-		depends_on    = [ibm_is_vpc_routing_table.example, ibm_is_subnet.example]
-		subnet        = ibm_is_subnet.example.id
-		routing_table = ibm_is_vpc_routing_table.example.routing_table
-  }
+resource "ibm_is_subnet_routing_table_attachment" "example" {
+  depends_on    = [ibm_is_vpc_routing_table.example, ibm_is_subnet.example]
+  subnet        = ibm_is_subnet.example.id
+  routing_table = ibm_is_vpc_routing_table.example.routing_table
+}
 
 ```
 ## Argument reference
