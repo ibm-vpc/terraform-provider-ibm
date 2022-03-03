@@ -139,14 +139,14 @@ func resourceIBMISSubnetRoutingTableAttachmentCreate(d *schema.ResourceData, met
 	replaceSubnetRoutingTableOptionsModel := new(vpcv1.ReplaceSubnetRoutingTableOptions)
 	replaceSubnetRoutingTableOptionsModel.ID = &subnet
 	replaceSubnetRoutingTableOptionsModel.RoutingTableIdentity = routingTableIdentityModel
-	resultACL, response, err := sess.ReplaceSubnetRoutingTable(replaceSubnetRoutingTableOptionsModel)
+	resultRT, response, err := sess.ReplaceSubnetRoutingTable(replaceSubnetRoutingTableOptionsModel)
 
 	if err != nil {
 		log.Printf("[DEBUG] Error while attaching a routing table to a subnet %s\n%s", err, response)
-		return fmt.Errorf("Error while attaching a routing table to a subnet %s\n%s", err, response)
+		return fmt.Errorf("[ERROR] Error while attaching a routing table to a subnet %s\n%s", err, response)
 	}
 	d.SetId(subnet)
-	log.Printf("[INFO] Routing Table : %s", *resultACL.ID)
+	log.Printf("[INFO] Routing Table : %s", *resultRT.ID)
 	log.Printf("[INFO] Subnet ID : %s", subnet)
 
 	return resourceIBMISSubnetRoutingTableAttachmentRead(d, meta)
@@ -218,13 +218,13 @@ func resourceIBMISSubnetRoutingTableAttachmentUpdate(d *schema.ResourceData, met
 		replaceSubnetRoutingTableOptionsModel := new(vpcv1.ReplaceSubnetRoutingTableOptions)
 		replaceSubnetRoutingTableOptionsModel.ID = &subnet
 		replaceSubnetRoutingTableOptionsModel.RoutingTableIdentity = routingTableIdentityModel
-		resultACL, response, err := sess.ReplaceSubnetRoutingTable(replaceSubnetRoutingTableOptionsModel)
+		resultRT, response, err := sess.ReplaceSubnetRoutingTable(replaceSubnetRoutingTableOptionsModel)
 
 		if err != nil {
 			log.Printf("[DEBUG] Error while attaching a routing table to a subnet %s\n%s", err, response)
-			return fmt.Errorf("Error while attaching a routing table to a subnet %s\n%s", err, response)
+			return fmt.Errorf("[ERROR] Error while attaching a routing table to a subnet %s\n%s", err, response)
 		}
-		log.Printf("[INFO] Updated subnet %s with Routing Table : %s", subnet, *resultACL.ID)
+		log.Printf("[INFO] Updated subnet %s with Routing Table : %s", subnet, *resultRT.ID)
 
 		d.SetId(subnet)
 		return resourceIBMISSubnetRoutingTableAttachmentRead(d, meta)
@@ -263,7 +263,7 @@ func resourceIBMISSubnetRoutingTableAttachmentDelete(d *schema.ResourceData, met
 			d.SetId("")
 			return nil
 		}
-		return fmt.Errorf("Error getting VPC : %s\n%s", err, response)
+		return fmt.Errorf("[ERROR] Error getting VPC : %s\n%s", err, response)
 	}
 
 	// Fetch default routing table
@@ -277,13 +277,13 @@ func resourceIBMISSubnetRoutingTableAttachmentDelete(d *schema.ResourceData, met
 		replaceSubnetRoutingTableOptionsModel := new(vpcv1.ReplaceSubnetRoutingTableOptions)
 		replaceSubnetRoutingTableOptionsModel.ID = &id
 		replaceSubnetRoutingTableOptionsModel.RoutingTableIdentity = routingTableIdentityModel
-		resultACL, response, err := sess.ReplaceSubnetRoutingTable(replaceSubnetRoutingTableOptionsModel)
+		resultRT, response, err := sess.ReplaceSubnetRoutingTable(replaceSubnetRoutingTableOptionsModel)
 
 		if err != nil {
 			log.Printf("[DEBUG] Error while attaching a routing table to a subnet %s\n%s", err, response)
-			return fmt.Errorf("Error while attaching a routing table to a subnet %s\n%s", err, response)
+			return fmt.Errorf("[ERROR] Error while attaching a routing table to a subnet %s\n%s", err, response)
 		}
-		log.Printf("[INFO] Updated subnet %s with VPC default Routing Table : %s", id, *resultACL.ID)
+		log.Printf("[INFO] Updated subnet %s with VPC default Routing Table : %s", id, *resultRT.ID)
 	} else {
 		log.Printf("[DEBUG] vpc default routing table is  null")
 	}
@@ -306,7 +306,7 @@ func resourceIBMISSubnetRoutingTableAttachmentExists(d *schema.ResourceData, met
 		if response != nil && response.StatusCode == 404 {
 			return false, nil
 		}
-		return false, fmt.Errorf("Error getting subnet's attached routing table: %s\n%s", err, response)
+		return false, fmt.Errorf("[ERROR] Error getting subnet's attached routing table: %s\n%s", err, response)
 	}
 	return true, nil
 }
