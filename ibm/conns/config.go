@@ -50,6 +50,7 @@ import (
 	ciswafgroupv1 "github.com/IBM/networking-go-sdk/wafrulegroupsapiv1"
 	ciswafpackagev1 "github.com/IBM/networking-go-sdk/wafrulepackagesapiv1"
 	ciswafrulev1 "github.com/IBM/networking-go-sdk/wafrulesapiv1"
+	ciswebhooksv1 "github.com/IBM/networking-go-sdk/webhooksv1"
 	cisaccessrulev1 "github.com/IBM/networking-go-sdk/zonefirewallaccessrulesv1"
 	cislockdownv1 "github.com/IBM/networking-go-sdk/zonelockdownv1"
 	cisratelimitv1 "github.com/IBM/networking-go-sdk/zoneratelimitsv1"
@@ -67,9 +68,9 @@ import (
 	resourcecontroller "github.com/IBM/platform-services-go-sdk/resourcecontrollerv2"
 	resourcemanager "github.com/IBM/platform-services-go-sdk/resourcemanagerv2"
 	"github.com/IBM/push-notifications-go-sdk/pushservicev1"
-	"github.com/IBM/scc-go-sdk/adminserviceapiv1"
 	"github.com/IBM/scc-go-sdk/findingsv1"
 	"github.com/IBM/scc-go-sdk/posturemanagementv2"
+	"github.com/IBM/scc-go-sdk/v3/adminserviceapiv1"
 	schematicsv1 "github.com/IBM/schematics-go-sdk/schematicsv1"
 	"github.com/IBM/secrets-manager-go-sdk/secretsmanagerv1"
 	vpc "github.com/IBM/vpc-go-sdk/vpcv1"
@@ -176,9 +177,6 @@ type Config struct {
 	//IAM Refresh Token
 	IAMRefreshToken string
 
-	// PowerService Instance
-	PowerServiceInstance string
-
 	// Zone
 	Zone          string
 	Visibility    string
@@ -250,6 +248,7 @@ type ClientSession interface {
 	CisRoutingClientSession() (*cisroutingv1.RoutingV1, error)
 	CisWAFGroupClientSession() (*ciswafgroupv1.WafRuleGroupsApiV1, error)
 	CisCacheClientSession() (*ciscachev1.CachingApiV1, error)
+	CisWebhookSession() (*ciswebhooksv1.WebhooksV1, error)
 	CisCustomPageClientSession() (*ciscustompagev1.CustomPagesV1, error)
 	CisAccessRuleClientSession() (*cisaccessrulev1.ZoneFirewallAccessRulesV1, error)
 	CisUARuleClientSession() (*cisuarulev1.UserAgentBlockingRulesV1, error)
@@ -346,7 +345,6 @@ type clientSession struct {
 	resourceCatalogConfigErr  error
 	resourceCatalogServiceAPI catalog.ResourceCatalogAPI
 
-	powerConfigErr error
 	ibmpiConfigErr error
 	ibmpiSession   *ibmpisession.IBMPISession
 
@@ -513,6 +511,10 @@ type clientSession struct {
 	//IAM Access Groups
 	iamAccessGroupsErr error
 	iamAccessGroupsAPI *iamaccessgroups.IamAccessGroupsV2
+
+	// CIS Webhooks options
+	cisWebhooksClient *ciswebhooksv1.WebhooksV1
+	cisWebhooksErr    error
 
 	// CIS Filters options
 	cisFiltersClient *cisfiltersv1.FiltersV1
@@ -758,7 +760,7 @@ func (sess clientSession) TransitGatewayV1API() (*tg.TransitGatewayApisV1, error
 // Session to the Power Colo Service
 
 func (sess clientSession) IBMPISession() (*ibmpisession.IBMPISession, error) {
-	return sess.ibmpiSession, sess.powerConfigErr
+	return sess.ibmpiSession, sess.ibmpiConfigErr
 }
 
 // Private DNS Service
@@ -985,6 +987,14 @@ func (sess clientSession) SatelliteClientSession() (*kubernetesserviceapiv1.Kube
 	return sess.satelliteClient, sess.satelliteClientErr
 }
 
+// CIS Webhooks
+func (sess clientSession) CisWebhookSession() (*ciswebhooksv1.WebhooksV1, error) {
+	if sess.cisWebhooksErr != nil {
+		return sess.cisWebhooksClient, sess.cisWebhooksErr
+	}
+	return sess.cisWebhooksClient.Clone(), nil
+}
+
 // CIS Filters
 func (sess clientSession) CisFiltersSession() (*cisfiltersv1.FiltersV1, error) {
 	if sess.cisFiltersErr != nil {
@@ -1085,7 +1095,6 @@ func (c *Config) ClientSession() (interface{}, error) {
 		session.enterpriseManagementClientErr = errEmptyBluemixCredentials
 		session.resourceControllerErr = errEmptyBluemixCredentials
 		session.catalogManagementClientErr = errEmptyBluemixCredentials
-		session.powerConfigErr = errEmptyBluemixCredentials
 		session.ibmpiConfigErr = errEmptyBluemixCredentials
 		session.userManagementErr = errEmptyBluemixCredentials
 		session.certManagementErr = errEmptyBluemixCredentials
@@ -1123,6 +1132,7 @@ func (c *Config) ClientSession() (interface{}, error) {
 		session.iamIdentityErr = errEmptyBluemixCredentials
 		session.secretsManagerClientErr = errEmptyBluemixCredentials
 		session.cisFiltersErr = errEmptyBluemixCredentials
+		session.cisWebhooksErr = errEmptyBluemixCredentials
 		session.schematicsClientErr = errEmptyBluemixCredentials
 		session.satelliteClientErr = errEmptyBluemixCredentials
 		session.iamPolicyManagementErr = errEmptyBluemixCredentials
@@ -1149,8 +1159,6 @@ func (c *Config) ClientSession() (interface{}, error) {
 			if err != nil {
 				session.bmxUserFetchErr = fmt.Errorf("[ERROR] Error occured while fetching auth key for account user details: %q", err)
 				session.functionConfigErr = fmt.Errorf("[ERROR] Error occured while fetching auth key for function: %q", err)
-				session.powerConfigErr = fmt.Errorf("[ERROR] Error occured while fetching the auth key for power iaas: %q", err)
-				session.ibmpiConfigErr = fmt.Errorf("[ERROR] Error occured while fetching the auth key for power iaas: %q", err)
 			}
 		}
 		err = authenticateCF(sess.BluemixSession)
@@ -1329,10 +1337,20 @@ func (c *Config) ClientSession() (interface{}, error) {
 
 	var authenticator core.Authenticator
 
-	if c.BluemixAPIKey != "" {
-		authenticator = &core.IamAuthenticator{
-			ApiKey: c.BluemixAPIKey,
-			URL:    EnvFallBack([]string{"IBMCLOUD_IAM_API_ENDPOINT"}, iamURL) + "/identity/token",
+	if c.BluemixAPIKey != "" || sess.BluemixSession.Config.IAMRefreshToken != "" {
+		if c.BluemixAPIKey != "" {
+			authenticator = &core.IamAuthenticator{
+				ApiKey: c.BluemixAPIKey,
+				URL:    EnvFallBack([]string{"IBMCLOUD_IAM_API_ENDPOINT"}, iamURL),
+			}
+		} else {
+			// Construct the IamAuthenticator with the IAM refresh token.
+			authenticator = &core.IamAuthenticator{
+				RefreshToken: sess.BluemixSession.Config.IAMRefreshToken,
+				ClientId:     "bx",
+				ClientSecret: "bx",
+				URL:          EnvFallBack([]string{"IBMCLOUD_IAM_API_ENDPOINT"}, iamURL),
+			}
 		}
 	} else if strings.HasPrefix(sess.BluemixSession.Config.IAMAccessToken, "Bearer") {
 		authenticator = &core.BearerTokenAuthenticator{
@@ -1553,18 +1571,8 @@ func (c *Config) ClientSession() (interface{}, error) {
 
 	// VPC Service
 	vpcurl := ContructEndpoint(fmt.Sprintf("%s.iaas", c.Region), fmt.Sprintf("%s/v1", cloudEndpoint))
-	if c.Visibility == "private" {
-		if c.Region == "us-south" || c.Region == "us-east" {
-			vpcurl = ContructEndpoint(fmt.Sprintf("%s.private.iaas", c.Region), fmt.Sprintf("%s/v1", cloudEndpoint))
-		} else {
-			session.vpcErr = fmt.Errorf("[ERROR] VPC supports private endpoints only in us-south and us-east")
-		}
-	}
-	if c.Visibility == "public-and-private" {
-		if c.Region == "us-south" || c.Region == "us-east" {
-			vpcurl = ContructEndpoint(fmt.Sprintf("%s.private.iaas", c.Region), fmt.Sprintf("%s/v1", cloudEndpoint))
-		}
-		vpcurl = ContructEndpoint(fmt.Sprintf("%s.iaas", c.Region), fmt.Sprintf("%s/v1", cloudEndpoint))
+	if c.Visibility == "private" || c.Visibility == "public-and-private" {
+		vpcurl = ContructEndpoint(fmt.Sprintf("%s.private.iaas", c.Region), fmt.Sprintf("%s/v1", cloudEndpoint))
 	}
 	if fileMap != nil && c.Visibility != "public-and-private" {
 		vpcurl = fileFallBack(fileMap, c.Visibility, "IBMCLOUD_IS_NG_API_ENDPOINT", c.Region, vpcurl)
@@ -1809,10 +1817,18 @@ func (c *Config) ClientSession() (interface{}, error) {
 	session.apigatewayAPI = apigatewayAPI
 
 	// POWER SYSTEMS Service
-	ibmpisession, err := ibmpisession.New(sess.BluemixSession.Config.IAMAccessToken, c.Region, false, session.bmxUserDetails.UserAccount, c.Zone)
+	piURL := ContructEndpoint(c.Region, "power-iaas.cloud.ibm.com")
+	ibmPIOptions := &ibmpisession.IBMPIOptions{
+		Authenticator: authenticator,
+		Debug:         os.Getenv("TF_LOG") != "",
+		Region:        c.Region,
+		URL:           EnvFallBack([]string{"IBMCLOUD_PI_API_ENDPOINT"}, piURL),
+		UserAccount:   userConfig.UserAccount,
+		Zone:          c.Zone,
+	}
+	ibmpisession, err := ibmpisession.NewIBMPISession(ibmPIOptions)
 	if err != nil {
-		session.ibmpiConfigErr = err
-		return nil, err
+		session.ibmpiConfigErr = fmt.Errorf("Error occured while configuring ibmpisession: %q", err)
 	}
 	session.ibmpiSession = ibmpisession
 
@@ -1938,6 +1954,8 @@ func (c *Config) ClientSession() (interface{}, error) {
 		session.cisRangeAppErr = fmt.Errorf("CIS Service doesnt support private endpoints.")
 		session.cisWAFRuleErr = fmt.Errorf("CIS Service doesnt support private endpoints.")
 		session.cisFiltersErr = fmt.Errorf("CIS Service doesnt support private endpoints.")
+		session.cisWebhooksErr = fmt.Errorf("CIS Service doesnt support private endpoints.")
+
 	}
 	if fileMap != nil && c.Visibility != "public-and-private" {
 		cisURL = fileFallBack(fileMap, c.Visibility, "IBMCLOUD_CIS_API_ENDPOINT", c.Region, cisURL)
@@ -2392,6 +2410,24 @@ func (c *Config) ClientSession() (interface{}, error) {
 		})
 	}
 
+	// IBM Network CIS Webhooks
+	cisWebhooksOpt := &ciswebhooksv1.WebhooksV1Options{
+		URL:           cisEndPoint,
+		Crn:           core.StringPtr(""),
+		Authenticator: authenticator,
+	}
+	session.cisWebhooksClient, session.cisWebhooksErr = ciswebhooksv1.NewWebhooksV1(cisWebhooksOpt)
+	if session.cisWebhooksErr != nil {
+		session.cisWebhooksErr =
+			fmt.Errorf("[ERROR] Error occured while configuring CIS Webhooks : %s",
+				session.cisWebhooksErr)
+	}
+	if session.cisWebhooksClient != nil && session.cisWebhooksClient.Service != nil {
+		session.cisWebhooksClient.Service.EnableRetries(c.RetryCount, c.RetryDelay)
+		session.cisWebhooksClient.SetDefaultHeaders(gohttp.Header{
+			"X-Original-User-Agent": {fmt.Sprintf("terraform-provider-ibm/%s", version.Version)},
+		})
+	}
 	// IBM Network CIS Filters
 	cisFiltersOpt := &cisfiltersv1.FiltersV1Options{
 		URL:           cisEndPoint,
@@ -2878,8 +2914,6 @@ func newSession(c *Config) (*Session, error) {
 			Visibility:    c.Visibility,
 			EndpointsFile: c.EndpointsFile,
 			UserAgent:     fmt.Sprintf("terraform-provider-ibm/%s", version.Version),
-
-			//PowerServiceInstance: c.PowerServiceInstance,
 		}
 		sess, err := bxsession.New(bmxConfig)
 		if err != nil {
