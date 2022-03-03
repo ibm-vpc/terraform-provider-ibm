@@ -18,11 +18,10 @@ import (
 )
 
 func TestAccIBMISSubnetRoutingTableAttachment_basic(t *testing.T) {
-	var subnetNwACL string
+	var subnetRT string
 	rtname := fmt.Sprintf("tfrt-%d", acctest.RandIntRange(10, 100))
 	vpcname := fmt.Sprintf("tfvpc-vpc-%d", acctest.RandIntRange(10, 100))
 	subnetname := fmt.Sprintf("tfsubnet-vpc-%d", acctest.RandIntRange(10, 100))
-	// name1 := fmt.Sprintf("tfsubnet-%d", acctest.RandIntRange(10, 100))
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { acc.TestAccPreCheck(t) },
 		Providers:    acc.TestAccProviders,
@@ -31,7 +30,7 @@ func TestAccIBMISSubnetRoutingTableAttachment_basic(t *testing.T) {
 			resource.TestStep{
 				Config: testAccCheckIBMISSubnetRoutingTableAttachmentConfig(rtname, subnetname, vpcname, acc.ISZoneName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckIBMISSubnetRoutingTableAttachmentExists("ibm_is_subnet_routing_table_attachment.attach", subnetNwACL),
+					testAccCheckIBMISSubnetRoutingTableAttachmentExists("ibm_is_subnet_routing_table_attachment.attach", subnetRT),
 					resource.TestCheckResourceAttrSet(
 						"ibm_is_subnet_routing_table_attachment.attach", "lifecycle_state"),
 					resource.TestCheckResourceAttrSet(
@@ -64,7 +63,7 @@ func checkSubnetRoutingTableAttachmentDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testAccCheckIBMISSubnetRoutingTableAttachmentExists(n, subnetNwACL string) resource.TestCheckFunc {
+func testAccCheckIBMISSubnetRoutingTableAttachmentExists(n, subnetRT string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 
 		rs, ok := s.RootModule().Resources[n]
@@ -81,11 +80,11 @@ func testAccCheckIBMISSubnetRoutingTableAttachmentExists(n, subnetNwACL string) 
 		getSubnetRoutingTableOptionsModel := &vpcv1.GetSubnetRoutingTableOptions{
 			ID: &rs.Primary.ID,
 		}
-		foundSubnetNwACL, _, err := sess.GetSubnetRoutingTable(getSubnetRoutingTableOptionsModel)
+		foundsubnetRT, _, err := sess.GetSubnetRoutingTable(getSubnetRoutingTableOptionsModel)
 		if err != nil {
 			return err
 		}
-		subnetNwACL = *foundSubnetNwACL.ID
+		subnetRT = *foundsubnetRT.ID
 		return nil
 	}
 }

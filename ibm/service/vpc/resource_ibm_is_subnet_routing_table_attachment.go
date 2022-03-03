@@ -4,22 +4,23 @@
 package vpc
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"time"
 
 	"github.com/IBM/vpc-go-sdk/vpcv1"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func ResourceIBMISSubnetRoutingTableAttachment() *schema.Resource {
 	return &schema.Resource{
-		Create:   resourceIBMISSubnetRoutingTableAttachmentCreate,
-		Read:     resourceIBMISSubnetRoutingTableAttachmentRead,
-		Update:   resourceIBMISSubnetRoutingTableAttachmentUpdate,
-		Delete:   resourceIBMISSubnetRoutingTableAttachmentDelete,
-		Exists:   resourceIBMISSubnetRoutingTableAttachmentExists,
-		Importer: &schema.ResourceImporter{},
+		CreateContext: resourceIBMISSubnetRoutingTableAttachmentCreate,
+		ReadContext:   resourceIBMISSubnetRoutingTableAttachmentRead,
+		UpdateContext: resourceIBMISSubnetRoutingTableAttachmentUpdate,
+		DeleteContext: resourceIBMISSubnetRoutingTableAttachmentDelete,
+		Importer:      &schema.ResourceImporter{},
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(10 * time.Minute),
 			Update: schema.DefaultTimeout(10 * time.Minute),
@@ -122,10 +123,10 @@ func ResourceIBMISSubnetRoutingTableAttachment() *schema.Resource {
 	}
 }
 
-func resourceIBMISSubnetRoutingTableAttachmentCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISSubnetRoutingTableAttachmentCreate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	subnet := d.Get(isSubnetID).(string)
@@ -139,37 +140,37 @@ func resourceIBMISSubnetRoutingTableAttachmentCreate(d *schema.ResourceData, met
 	replaceSubnetRoutingTableOptionsModel := new(vpcv1.ReplaceSubnetRoutingTableOptions)
 	replaceSubnetRoutingTableOptionsModel.ID = &subnet
 	replaceSubnetRoutingTableOptionsModel.RoutingTableIdentity = routingTableIdentityModel
-	resultRT, response, err := sess.ReplaceSubnetRoutingTable(replaceSubnetRoutingTableOptionsModel)
+	resultRT, response, err := sess.ReplaceSubnetRoutingTableWithContext(context, replaceSubnetRoutingTableOptionsModel)
 
 	if err != nil {
 		log.Printf("[DEBUG] Error while attaching a routing table to a subnet %s\n%s", err, response)
-		return fmt.Errorf("[ERROR] Error while attaching a routing table to a subnet %s\n%s", err, response)
+		return diag.FromErr(fmt.Errorf("[ERROR] Error while attaching a routing table to a subnet %s\n%s", err, response))
 	}
 	d.SetId(subnet)
 	log.Printf("[INFO] Routing Table : %s", *resultRT.ID)
 	log.Printf("[INFO] Subnet ID : %s", subnet)
 
-	return resourceIBMISSubnetRoutingTableAttachmentRead(d, meta)
+	return resourceIBMISSubnetRoutingTableAttachmentRead(context, d, meta)
 }
 
-func resourceIBMISSubnetRoutingTableAttachmentRead(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISSubnetRoutingTableAttachmentRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	id := d.Id()
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	getSubnetRoutingTableOptionsModel := &vpcv1.GetSubnetRoutingTableOptions{
 		ID: &id,
 	}
-	subRT, response, err := sess.GetSubnetRoutingTable(getSubnetRoutingTableOptionsModel)
+	subRT, response, err := sess.GetSubnetRoutingTableWithContext(context, getSubnetRoutingTableOptionsModel)
 
 	if err != nil {
 		if response != nil && response.StatusCode == 404 {
 			d.SetId("")
 			return nil
 		}
-		return fmt.Errorf("[ERROR] Error getting subnet's (%s) attached routing table: %s\n%s", id, err, response)
+		return diag.FromErr(fmt.Errorf("[ERROR] Error getting subnet's (%s) attached routing table: %s\n%s", id, err, response))
 	}
 	d.Set(isRoutingTableName, *subRT.Name)
 	d.Set(isRoutingTableResourceType, *subRT.ResourceType)
@@ -200,11 +201,11 @@ func resourceIBMISSubnetRoutingTableAttachmentRead(d *schema.ResourceData, meta 
 	return nil
 }
 
-func resourceIBMISSubnetRoutingTableAttachmentUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISSubnetRoutingTableAttachmentUpdate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	if d.HasChange(isRoutingTableID) {
 		subnet := d.Get(isSubnetID).(string)
@@ -218,38 +219,38 @@ func resourceIBMISSubnetRoutingTableAttachmentUpdate(d *schema.ResourceData, met
 		replaceSubnetRoutingTableOptionsModel := new(vpcv1.ReplaceSubnetRoutingTableOptions)
 		replaceSubnetRoutingTableOptionsModel.ID = &subnet
 		replaceSubnetRoutingTableOptionsModel.RoutingTableIdentity = routingTableIdentityModel
-		resultRT, response, err := sess.ReplaceSubnetRoutingTable(replaceSubnetRoutingTableOptionsModel)
+		resultRT, response, err := sess.ReplaceSubnetRoutingTableWithContext(context, replaceSubnetRoutingTableOptionsModel)
 
 		if err != nil {
 			log.Printf("[DEBUG] Error while attaching a routing table to a subnet %s\n%s", err, response)
-			return fmt.Errorf("[ERROR] Error while attaching a routing table to a subnet %s\n%s", err, response)
+			return diag.FromErr(fmt.Errorf("[ERROR] Error while attaching a routing table to a subnet %s\n%s", err, response))
 		}
 		log.Printf("[INFO] Updated subnet %s with Routing Table : %s", subnet, *resultRT.ID)
 
 		d.SetId(subnet)
-		return resourceIBMISSubnetRoutingTableAttachmentRead(d, meta)
+		return resourceIBMISSubnetRoutingTableAttachmentRead(context, d, meta)
 	}
 
-	return resourceIBMISSubnetRoutingTableAttachmentRead(d, meta)
+	return resourceIBMISSubnetRoutingTableAttachmentRead(context, d, meta)
 }
 
-func resourceIBMISSubnetRoutingTableAttachmentDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISSubnetRoutingTableAttachmentDelete(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	id := d.Id()
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	// Set the subnet with VPC default routing table
 	getSubnetOptions := &vpcv1.GetSubnetOptions{
 		ID: &id,
 	}
-	subnet, response, err := sess.GetSubnet(getSubnetOptions)
+	subnet, response, err := sess.GetSubnetWithContext(context, getSubnetOptions)
 	if err != nil {
 		if response != nil && response.StatusCode == 404 {
 			d.SetId("")
 			return nil
 		}
-		return fmt.Errorf("Error Getting Subnet (%s): %s\n%s", id, err, response)
+		return diag.FromErr(fmt.Errorf("[ERROR] Error Getting Subnet (%s): %s\n%s", id, err, response))
 	}
 	// Fetch VPC
 	vpcID := *subnet.VPC.ID
@@ -257,13 +258,13 @@ func resourceIBMISSubnetRoutingTableAttachmentDelete(d *schema.ResourceData, met
 	getvpcOptions := &vpcv1.GetVPCOptions{
 		ID: &vpcID,
 	}
-	vpc, response, err := sess.GetVPC(getvpcOptions)
+	vpc, response, err := sess.GetVPCWithContext(context, getvpcOptions)
 	if err != nil {
 		if response != nil && response.StatusCode == 404 {
 			d.SetId("")
 			return nil
 		}
-		return fmt.Errorf("[ERROR] Error getting VPC : %s\n%s", err, response)
+		return diag.FromErr(fmt.Errorf("[ERROR] Error getting VPC : %s\n%s", err, response))
 	}
 
 	// Fetch default routing table
@@ -277,11 +278,11 @@ func resourceIBMISSubnetRoutingTableAttachmentDelete(d *schema.ResourceData, met
 		replaceSubnetRoutingTableOptionsModel := new(vpcv1.ReplaceSubnetRoutingTableOptions)
 		replaceSubnetRoutingTableOptionsModel.ID = &id
 		replaceSubnetRoutingTableOptionsModel.RoutingTableIdentity = routingTableIdentityModel
-		resultRT, response, err := sess.ReplaceSubnetRoutingTable(replaceSubnetRoutingTableOptionsModel)
+		resultRT, response, err := sess.ReplaceSubnetRoutingTableWithContext(context, replaceSubnetRoutingTableOptionsModel)
 
 		if err != nil {
 			log.Printf("[DEBUG] Error while attaching a routing table to a subnet %s\n%s", err, response)
-			return fmt.Errorf("[ERROR] Error while attaching a routing table to a subnet %s\n%s", err, response)
+			return diag.FromErr(fmt.Errorf("[ERROR] Error while attaching a routing table to a subnet %s\n%s", err, response))
 		}
 		log.Printf("[INFO] Updated subnet %s with VPC default Routing Table : %s", id, *resultRT.ID)
 	} else {
@@ -290,23 +291,4 @@ func resourceIBMISSubnetRoutingTableAttachmentDelete(d *schema.ResourceData, met
 
 	d.SetId("")
 	return nil
-}
-
-func resourceIBMISSubnetRoutingTableAttachmentExists(d *schema.ResourceData, meta interface{}) (bool, error) {
-	id := d.Id()
-	sess, err := vpcClient(meta)
-	if err != nil {
-		return false, err
-	}
-	getSubnetRoutingTableOptionsModel := &vpcv1.GetSubnetRoutingTableOptions{
-		ID: &id,
-	}
-	_, response, err := sess.GetSubnetRoutingTable(getSubnetRoutingTableOptionsModel)
-	if err != nil {
-		if response != nil && response.StatusCode == 404 {
-			return false, nil
-		}
-		return false, fmt.Errorf("[ERROR] Error getting subnet's attached routing table: %s\n%s", err, response)
-	}
-	return true, nil
 }
