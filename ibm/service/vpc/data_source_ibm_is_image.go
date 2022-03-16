@@ -5,6 +5,7 @@ package vpc
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/validate"
@@ -80,6 +81,13 @@ func DataSourceIBMISImage() *schema.Resource {
 				Computed:    true,
 				Description: "Source volume id of the image",
 			},
+			isImageAccessTags: {
+				Type:        schema.TypeSet,
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         flex.ResourceIBMVPCHash,
+				Description: "List of access tags",
+			},
 		},
 	}
 }
@@ -141,6 +149,12 @@ func imageGetByName(d *schema.ResourceData, meta interface{}, name, visibility s
 				fmt.Printf("[WARN] Given image %s is deprecated and soon will be obsolete.", name)
 			}
 			d.Set("name", *image.Name)
+			accesstags, err := flex.GetGlobalTagsUsingCRN(meta, *image.CRN, "", isImageAccessTagType)
+			if err != nil {
+				log.Printf(
+					"Error on get of resource image (%s) access tags: %s", d.Id(), err)
+			}
+			d.Set(isImageAccessTags, accesstags)
 			d.Set("visibility", *image.Visibility)
 			d.Set("os", *image.OperatingSystem.Name)
 			d.Set("architecture", *image.OperatingSystem.Architecture)

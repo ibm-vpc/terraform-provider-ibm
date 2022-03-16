@@ -46,6 +46,7 @@ You can access the following attribute references after your data source is crea
 - `images` - (List) List of all images in the IBM Cloud Infrastructure.
 
   Nested scheme for `images`:
+  - `access_tags`  - (String) Access management tags associated for the image.
   - `architecture` - (String) The architecture for this image.
   - `crn` - (String) The CRN for this image.
   - `checksum` - (String) TThe SHA256 checksum for this image.

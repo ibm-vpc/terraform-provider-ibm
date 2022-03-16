@@ -46,6 +46,7 @@ Review the argument references that you can specify for your data source.
 ## Attribute reference
 In addition to all argument reference list, you can access the following attribute references after your data source is created.
 
+- `access_tags`  - (String) Access management tags associated for the image.
 - `architecture` - (String) The architecture of the image.
 - `checksum`-  (String) The `SHA256` checksum of the image.
 - `crn` - (String) The CRN for this image.
