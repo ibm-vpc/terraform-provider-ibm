@@ -173,6 +173,10 @@ func ResourceIBMISInstance() *schema.Resource {
 				func(_ context.Context, diff *schema.ResourceDiff, v interface{}) error {
 					return flex.ResourceValidateAccessTags(diff, v)
 				}),
+			customdiff.Sequence(
+				func(_ context.Context, diff *schema.ResourceDiff, v interface{}) error {
+					return flex.ResourceValidateAccessTags(diff, v)
+				}),
 		),
 
 		Schema: map[string]*schema.Schema{

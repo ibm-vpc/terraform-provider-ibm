@@ -965,7 +965,7 @@ func instanceGetByName(d *schema.ResourceData, meta interface{}, name string) er
 		bootVolList = append(bootVolList, bootVol)
 		d.Set(isInstanceBootVolume, bootVolList)
 	}
-	tags, err := flex.GetTagsUsingCRN(meta, *instance.CRN)
+	tags, err := flex.GetGlobalTagsUsingCRN(meta, *instance.CRN, "", isInstanceUserTagType)
 	if err != nil {
 		log.Printf(
 			"[ERROR] Error on get of resource vpc Instance (%s) tags: %s", d.Id(), err)
