@@ -65,12 +65,12 @@ func ResourceIBMISSubnet() *schema.Resource {
 		CustomizeDiff: customdiff.All(
 			customdiff.Sequence(
 				func(_ context.Context, diff *schema.ResourceDiff, v interface{}) error {
-					return flex.resourceTagsCustomizeDiff(diff)
+					return flex.ResourceTagsCustomizeDiff(diff)
 				},
 			),
 			customdiff.Sequence(
 				func(_ context.Context, diff *schema.ResourceDiff, v interface{}) error {
-					return flex.resourceValidateAccessTags(diff, v)
+					return flex.ResourceValidateAccessTags(diff, v)
 				}),
 		),
 
