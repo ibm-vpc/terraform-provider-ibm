@@ -2221,7 +2221,7 @@ func ResourceValidateAccessTags(diff *schema.ResourceDiff, meta interface{}) err
 	return nil
 }
 
-func resourceLBListenerPolicyCustomizeDiff(diff *schema.ResourceDiff) error {
+func ResourceLBListenerPolicyCustomizeDiff(diff *schema.ResourceDiff) error {
 	policyActionIntf, _ := diff.GetOk(isLBListenerPolicyAction)
 	policyAction := policyActionIntf.(string)
 
