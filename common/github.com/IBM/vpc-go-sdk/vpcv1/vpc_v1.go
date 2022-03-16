@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corp. 2022.
+ * (C) Copyright IBM Corp. 2020, 2021, 2022.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 
 /*
- * IBM OpenAPI SDK Code Generator Version: 3.44.0-98838c07-20220128-151531
+ * IBM OpenAPI SDK Code Generator Version: 3.45.1-632ec580-20220210-190638
  */
 
 // Package vpcv1 : Operations and models for the VpcV1 service
@@ -37,7 +37,7 @@ import (
 // VpcV1 : The IBM Cloud Virtual Private Cloud (VPC) API can be used to programmatically provision and manage virtual
 // server instances, along with subnets, volumes, load balancers, and more.
 //
-// API Version: 2022-02-26
+// API Version: 2022-03-30
 type VpcV1 struct {
 	Service *core.BaseService
 
@@ -121,7 +121,7 @@ func NewVpcV1(options *VpcV1Options) (service *VpcV1, err error) {
 	}
 
 	if options.Version == nil {
-		options.Version = core.StringPtr("2022-03-14")
+		options.Version = core.StringPtr("2022-03-16")
 	}
 
 	service = &VpcV1{
@@ -4455,8 +4455,8 @@ func (vpc *VpcV1) ListInstancesWithContext(ctx context.Context, listInstancesOpt
 	}
 	builder.AddHeader("Accept", "application/json")
 
-	builder.AddQuery("version", "3000-01-01")
 	builder.AddQuery("future_version", "true")
+	builder.AddQuery("version", "3000-01-01")
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 	if listInstancesOptions.Start != nil {
 		builder.AddQuery("start", fmt.Sprint(*listInstancesOptions.Start))
@@ -4557,7 +4557,8 @@ func (vpc *VpcV1) CreateInstanceWithContext(ctx context.Context, createInstanceO
 	builder.AddHeader("Accept", "application/json")
 	builder.AddHeader("Content-Type", "application/json")
 
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
+	builder.AddQuery("future_version", "true")
+	builder.AddQuery("version", "3000-01-01")
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 
 	_, err = builder.SetBodyContentJSON(createInstanceOptions.InstancePrototype)
@@ -4677,8 +4678,8 @@ func (vpc *VpcV1) GetInstanceWithContext(ctx context.Context, getInstanceOptions
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
-	builder.AddQuery("future_version", "true")
 
+	builder.AddQuery("future_version", "true")
 	builder.AddQuery("version", "3000-01-01")
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 
@@ -4877,9 +4878,8 @@ func (vpc *VpcV1) CreateInstanceActionWithContext(ctx context.Context, createIns
 	}
 	builder.AddHeader("Accept", "application/json")
 	builder.AddHeader("Content-Type", "application/json")
-	builder.AddQuery("future_version", "true")
 
-	builder.AddQuery("version", "3000-01-01")
+	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 
 	body := make(map[string]interface{})
@@ -5319,9 +5319,6 @@ func (vpc *VpcV1) CreateInstanceNetworkInterfaceWithContext(ctx context.Context,
 	}
 	if createInstanceNetworkInterfaceOptions.PrimaryIP != nil {
 		body["primary_ip"] = createInstanceNetworkInterfaceOptions.PrimaryIP
-	}
-	if createInstanceNetworkInterfaceOptions.PrimaryIpv4Address != nil {
-		body["primary_ipv4_address"] = createInstanceNetworkInterfaceOptions.PrimaryIpv4Address
 	}
 	if createInstanceNetworkInterfaceOptions.SecurityGroups != nil {
 		body["security_groups"] = createInstanceNetworkInterfaceOptions.SecurityGroups
@@ -9399,7 +9396,8 @@ func (vpc *VpcV1) ListBareMetalServersWithContext(ctx context.Context, listBareM
 	}
 	builder.AddHeader("Accept", "application/json")
 
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
+	builder.AddQuery("future_version", "true")
+	builder.AddQuery("version", "3000-01-01")
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 	if listBareMetalServersOptions.Start != nil {
 		builder.AddQuery("start", fmt.Sprint(*listBareMetalServersOptions.Start))
@@ -9494,7 +9492,8 @@ func (vpc *VpcV1) CreateBareMetalServerWithContext(ctx context.Context, createBa
 	builder.AddHeader("Accept", "application/json")
 	builder.AddHeader("Content-Type", "application/json")
 
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
+	builder.AddQuery("future_version", "true")
+	builder.AddQuery("version", "3000-01-01")
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 
 	body := make(map[string]interface{})
@@ -9868,7 +9867,8 @@ func (vpc *VpcV1) ListBareMetalServerNetworkInterfacesWithContext(ctx context.Co
 	}
 	builder.AddHeader("Accept", "application/json")
 
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
+	builder.AddQuery("future_version", "true")
+	builder.AddQuery("version", "3000-01-01")
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 	if listBareMetalServerNetworkInterfacesOptions.Start != nil {
 		builder.AddQuery("start", fmt.Sprint(*listBareMetalServerNetworkInterfacesOptions.Start))
@@ -9941,7 +9941,8 @@ func (vpc *VpcV1) CreateBareMetalServerNetworkInterfaceWithContext(ctx context.C
 	builder.AddHeader("Accept", "application/json")
 	builder.AddHeader("Content-Type", "application/json")
 
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
+	builder.AddQuery("future_version", "true")
+	builder.AddQuery("version", "3000-01-01")
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 
 	_, err = builder.SetBodyContentJSON(createBareMetalServerNetworkInterfaceOptions.BareMetalServerNetworkInterfacePrototype)
@@ -10063,7 +10064,8 @@ func (vpc *VpcV1) GetBareMetalServerNetworkInterfaceWithContext(ctx context.Cont
 	}
 	builder.AddHeader("Accept", "application/json")
 
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
+	builder.AddQuery("future_version", "true")
+	builder.AddQuery("version", "3000-01-01")
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 
 	request, err := builder.Build()
@@ -10631,7 +10633,8 @@ func (vpc *VpcV1) GetBareMetalServerWithContext(ctx context.Context, getBareMeta
 	}
 	builder.AddHeader("Accept", "application/json")
 
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
+	builder.AddQuery("future_version", "true")
+	builder.AddQuery("version", "3000-01-01")
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 
 	request, err := builder.Build()
@@ -13678,262 +13681,6 @@ func (vpc *VpcV1) UpdateSecurityGroupWithContext(ctx context.Context, updateSecu
 	return
 }
 
-// ListSecurityGroupNetworkInterfaces : List all network interfaces associated with a security group
-// This request lists all network interfaces associated with a security group, to which the rules in the security group
-// are applied.
-func (vpc *VpcV1) ListSecurityGroupNetworkInterfaces(listSecurityGroupNetworkInterfacesOptions *ListSecurityGroupNetworkInterfacesOptions) (result *NetworkInterfaceCollection, response *core.DetailedResponse, err error) {
-	return vpc.ListSecurityGroupNetworkInterfacesWithContext(context.Background(), listSecurityGroupNetworkInterfacesOptions)
-}
-
-// ListSecurityGroupNetworkInterfacesWithContext is an alternate form of the ListSecurityGroupNetworkInterfaces method which supports a Context parameter
-func (vpc *VpcV1) ListSecurityGroupNetworkInterfacesWithContext(ctx context.Context, listSecurityGroupNetworkInterfacesOptions *ListSecurityGroupNetworkInterfacesOptions) (result *NetworkInterfaceCollection, response *core.DetailedResponse, err error) {
-	err = core.ValidateNotNil(listSecurityGroupNetworkInterfacesOptions, "listSecurityGroupNetworkInterfacesOptions cannot be nil")
-	if err != nil {
-		return
-	}
-	err = core.ValidateStruct(listSecurityGroupNetworkInterfacesOptions, "listSecurityGroupNetworkInterfacesOptions")
-	if err != nil {
-		return
-	}
-
-	pathParamsMap := map[string]string{
-		"security_group_id": *listSecurityGroupNetworkInterfacesOptions.SecurityGroupID,
-	}
-
-	builder := core.NewRequestBuilder(core.GET)
-	builder = builder.WithContext(ctx)
-	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
-	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/security_groups/{security_group_id}/network_interfaces`, pathParamsMap)
-	if err != nil {
-		return
-	}
-
-	for headerName, headerValue := range listSecurityGroupNetworkInterfacesOptions.Headers {
-		builder.AddHeader(headerName, headerValue)
-	}
-
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListSecurityGroupNetworkInterfaces")
-	for headerName, headerValue := range sdkHeaders {
-		builder.AddHeader(headerName, headerValue)
-	}
-	builder.AddHeader("Accept", "application/json")
-
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
-	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
-	if listSecurityGroupNetworkInterfacesOptions.Start != nil {
-		builder.AddQuery("start", fmt.Sprint(*listSecurityGroupNetworkInterfacesOptions.Start))
-	}
-	if listSecurityGroupNetworkInterfacesOptions.Limit != nil {
-		builder.AddQuery("limit", fmt.Sprint(*listSecurityGroupNetworkInterfacesOptions.Limit))
-	}
-
-	request, err := builder.Build()
-	if err != nil {
-		return
-	}
-
-	var rawResponse map[string]json.RawMessage
-	response, err = vpc.Service.Request(request, &rawResponse)
-	if err != nil {
-		return
-	}
-	if rawResponse != nil {
-		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalNetworkInterfaceCollection)
-		if err != nil {
-			return
-		}
-		response.Result = result
-	}
-
-	return
-}
-
-// RemoveSecurityGroupNetworkInterface : Remove a network interface from a security group
-// This request removes a network interface from a security group. Security groups are stateful, so any changes to a
-// network interface's security groups are applied to new connections. Existing connections are not affected. If the
-// network interface being removed has no other security groups, it will be attached to the VPC's default security
-// group.
-func (vpc *VpcV1) RemoveSecurityGroupNetworkInterface(removeSecurityGroupNetworkInterfaceOptions *RemoveSecurityGroupNetworkInterfaceOptions) (response *core.DetailedResponse, err error) {
-	return vpc.RemoveSecurityGroupNetworkInterfaceWithContext(context.Background(), removeSecurityGroupNetworkInterfaceOptions)
-}
-
-// RemoveSecurityGroupNetworkInterfaceWithContext is an alternate form of the RemoveSecurityGroupNetworkInterface method which supports a Context parameter
-func (vpc *VpcV1) RemoveSecurityGroupNetworkInterfaceWithContext(ctx context.Context, removeSecurityGroupNetworkInterfaceOptions *RemoveSecurityGroupNetworkInterfaceOptions) (response *core.DetailedResponse, err error) {
-	err = core.ValidateNotNil(removeSecurityGroupNetworkInterfaceOptions, "removeSecurityGroupNetworkInterfaceOptions cannot be nil")
-	if err != nil {
-		return
-	}
-	err = core.ValidateStruct(removeSecurityGroupNetworkInterfaceOptions, "removeSecurityGroupNetworkInterfaceOptions")
-	if err != nil {
-		return
-	}
-
-	pathParamsMap := map[string]string{
-		"security_group_id": *removeSecurityGroupNetworkInterfaceOptions.SecurityGroupID,
-		"id":                *removeSecurityGroupNetworkInterfaceOptions.ID,
-	}
-
-	builder := core.NewRequestBuilder(core.DELETE)
-	builder = builder.WithContext(ctx)
-	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
-	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/security_groups/{security_group_id}/network_interfaces/{id}`, pathParamsMap)
-	if err != nil {
-		return
-	}
-
-	for headerName, headerValue := range removeSecurityGroupNetworkInterfaceOptions.Headers {
-		builder.AddHeader(headerName, headerValue)
-	}
-
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "RemoveSecurityGroupNetworkInterface")
-	for headerName, headerValue := range sdkHeaders {
-		builder.AddHeader(headerName, headerValue)
-	}
-
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
-	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
-
-	request, err := builder.Build()
-	if err != nil {
-		return
-	}
-
-	response, err = vpc.Service.Request(request, nil)
-
-	return
-}
-
-// GetSecurityGroupNetworkInterface : Retrieve a network interface in a security group
-// This request retrieves a single network interface specified by the identifier in the URL path. The network interface
-// must be an existing member of the security group.
-func (vpc *VpcV1) GetSecurityGroupNetworkInterface(getSecurityGroupNetworkInterfaceOptions *GetSecurityGroupNetworkInterfaceOptions) (result *NetworkInterface, response *core.DetailedResponse, err error) {
-	return vpc.GetSecurityGroupNetworkInterfaceWithContext(context.Background(), getSecurityGroupNetworkInterfaceOptions)
-}
-
-// GetSecurityGroupNetworkInterfaceWithContext is an alternate form of the GetSecurityGroupNetworkInterface method which supports a Context parameter
-func (vpc *VpcV1) GetSecurityGroupNetworkInterfaceWithContext(ctx context.Context, getSecurityGroupNetworkInterfaceOptions *GetSecurityGroupNetworkInterfaceOptions) (result *NetworkInterface, response *core.DetailedResponse, err error) {
-	err = core.ValidateNotNil(getSecurityGroupNetworkInterfaceOptions, "getSecurityGroupNetworkInterfaceOptions cannot be nil")
-	if err != nil {
-		return
-	}
-	err = core.ValidateStruct(getSecurityGroupNetworkInterfaceOptions, "getSecurityGroupNetworkInterfaceOptions")
-	if err != nil {
-		return
-	}
-
-	pathParamsMap := map[string]string{
-		"security_group_id": *getSecurityGroupNetworkInterfaceOptions.SecurityGroupID,
-		"id":                *getSecurityGroupNetworkInterfaceOptions.ID,
-	}
-
-	builder := core.NewRequestBuilder(core.GET)
-	builder = builder.WithContext(ctx)
-	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
-	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/security_groups/{security_group_id}/network_interfaces/{id}`, pathParamsMap)
-	if err != nil {
-		return
-	}
-
-	for headerName, headerValue := range getSecurityGroupNetworkInterfaceOptions.Headers {
-		builder.AddHeader(headerName, headerValue)
-	}
-
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetSecurityGroupNetworkInterface")
-	for headerName, headerValue := range sdkHeaders {
-		builder.AddHeader(headerName, headerValue)
-	}
-	builder.AddHeader("Accept", "application/json")
-
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
-	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
-
-	request, err := builder.Build()
-	if err != nil {
-		return
-	}
-
-	var rawResponse map[string]json.RawMessage
-	response, err = vpc.Service.Request(request, &rawResponse)
-	if err != nil {
-		return
-	}
-	if rawResponse != nil {
-		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalNetworkInterface)
-		if err != nil {
-			return
-		}
-		response.Result = result
-	}
-
-	return
-}
-
-// AddSecurityGroupNetworkInterface : Add a network interface to a security group
-// This request adds an existing network interface to an existing security group. When a network interface is added to a
-// security group, the security group rules are applied to the network interface. A request body is not required, and if
-// provided, is ignored.
-func (vpc *VpcV1) AddSecurityGroupNetworkInterface(addSecurityGroupNetworkInterfaceOptions *AddSecurityGroupNetworkInterfaceOptions) (result *NetworkInterface, response *core.DetailedResponse, err error) {
-	return vpc.AddSecurityGroupNetworkInterfaceWithContext(context.Background(), addSecurityGroupNetworkInterfaceOptions)
-}
-
-// AddSecurityGroupNetworkInterfaceWithContext is an alternate form of the AddSecurityGroupNetworkInterface method which supports a Context parameter
-func (vpc *VpcV1) AddSecurityGroupNetworkInterfaceWithContext(ctx context.Context, addSecurityGroupNetworkInterfaceOptions *AddSecurityGroupNetworkInterfaceOptions) (result *NetworkInterface, response *core.DetailedResponse, err error) {
-	err = core.ValidateNotNil(addSecurityGroupNetworkInterfaceOptions, "addSecurityGroupNetworkInterfaceOptions cannot be nil")
-	if err != nil {
-		return
-	}
-	err = core.ValidateStruct(addSecurityGroupNetworkInterfaceOptions, "addSecurityGroupNetworkInterfaceOptions")
-	if err != nil {
-		return
-	}
-
-	pathParamsMap := map[string]string{
-		"security_group_id": *addSecurityGroupNetworkInterfaceOptions.SecurityGroupID,
-		"id":                *addSecurityGroupNetworkInterfaceOptions.ID,
-	}
-
-	builder := core.NewRequestBuilder(core.PUT)
-	builder = builder.WithContext(ctx)
-	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
-	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/security_groups/{security_group_id}/network_interfaces/{id}`, pathParamsMap)
-	if err != nil {
-		return
-	}
-
-	for headerName, headerValue := range addSecurityGroupNetworkInterfaceOptions.Headers {
-		builder.AddHeader(headerName, headerValue)
-	}
-
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "AddSecurityGroupNetworkInterface")
-	for headerName, headerValue := range sdkHeaders {
-		builder.AddHeader(headerName, headerValue)
-	}
-	builder.AddHeader("Accept", "application/json")
-
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
-	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
-
-	request, err := builder.Build()
-	if err != nil {
-		return
-	}
-
-	var rawResponse map[string]json.RawMessage
-	response, err = vpc.Service.Request(request, &rawResponse)
-	if err != nil {
-		return
-	}
-	if rawResponse != nil {
-		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalNetworkInterface)
-		if err != nil {
-			return
-		}
-		response.Result = result
-	}
-
-	return
-}
-
 // ListSecurityGroupRules : List all rules in a security group
 // This request lists all rules in a security group. These rules define what traffic the security group permits.
 // Security group rules are stateful, such that reverse traffic in response to allowed traffic is automatically
@@ -15346,7 +15093,8 @@ func (vpc *VpcV1) ListVPNGatewaysWithContext(ctx context.Context, listVPNGateway
 	}
 	builder.AddHeader("Accept", "application/json")
 
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
+	builder.AddQuery("future_version", "true")
+	builder.AddQuery("version", "3000-01-01")
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 	if listVPNGatewaysOptions.Start != nil {
 		builder.AddQuery("start", fmt.Sprint(*listVPNGatewaysOptions.Start))
@@ -15418,7 +15166,8 @@ func (vpc *VpcV1) CreateVPNGatewayWithContext(ctx context.Context, createVPNGate
 	builder.AddHeader("Accept", "application/json")
 	builder.AddHeader("Content-Type", "application/json")
 
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
+	builder.AddQuery("future_version", "true")
+	builder.AddQuery("version", "3000-01-01")
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 
 	_, err = builder.SetBodyContentJSON(createVPNGatewayOptions.VPNGatewayPrototype)
@@ -15539,7 +15288,8 @@ func (vpc *VpcV1) GetVPNGatewayWithContext(ctx context.Context, getVPNGatewayOpt
 	}
 	builder.AddHeader("Accept", "application/json")
 
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
+	builder.AddQuery("future_version", "true")
+	builder.AddQuery("version", "3000-01-01")
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 
 	request, err := builder.Build()
@@ -16564,7 +16314,8 @@ func (vpc *VpcV1) ListLoadBalancersWithContext(ctx context.Context, listLoadBala
 	}
 	builder.AddHeader("Accept", "application/json")
 
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
+	builder.AddQuery("future_version", "true")
+	builder.AddQuery("version", "3000-01-01")
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 	if listLoadBalancersOptions.Start != nil {
 		builder.AddQuery("start", fmt.Sprint(*listLoadBalancersOptions.Start))
@@ -16630,7 +16381,8 @@ func (vpc *VpcV1) CreateLoadBalancerWithContext(ctx context.Context, createLoadB
 	builder.AddHeader("Accept", "application/json")
 	builder.AddHeader("Content-Type", "application/json")
 
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
+	builder.AddQuery("future_version", "true")
+	builder.AddQuery("version", "3000-01-01")
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 
 	body := make(map[string]interface{})
@@ -16781,7 +16533,8 @@ func (vpc *VpcV1) GetLoadBalancerWithContext(ctx context.Context, getLoadBalance
 	}
 	builder.AddHeader("Accept", "application/json")
 
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
+	builder.AddQuery("future_version", "true")
+	builder.AddQuery("version", "3000-01-01")
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 
 	request, err := builder.Build()
@@ -19799,44 +19552,6 @@ func (options *AddInstanceNetworkInterfaceFloatingIPOptions) SetHeaders(param ma
 	return options
 }
 
-// AddSecurityGroupNetworkInterfaceOptions : The AddSecurityGroupNetworkInterface options.
-type AddSecurityGroupNetworkInterfaceOptions struct {
-	// The security group identifier.
-	SecurityGroupID *string `json:"security_group_id" validate:"required,ne="`
-
-	// The network interface identifier.
-	ID *string `json:"id" validate:"required,ne="`
-
-	// Allows users to set headers on API requests
-	Headers map[string]string
-}
-
-// NewAddSecurityGroupNetworkInterfaceOptions : Instantiate AddSecurityGroupNetworkInterfaceOptions
-func (*VpcV1) NewAddSecurityGroupNetworkInterfaceOptions(securityGroupID string, id string) *AddSecurityGroupNetworkInterfaceOptions {
-	return &AddSecurityGroupNetworkInterfaceOptions{
-		SecurityGroupID: core.StringPtr(securityGroupID),
-		ID:              core.StringPtr(id),
-	}
-}
-
-// SetSecurityGroupID : Allow user to set SecurityGroupID
-func (_options *AddSecurityGroupNetworkInterfaceOptions) SetSecurityGroupID(securityGroupID string) *AddSecurityGroupNetworkInterfaceOptions {
-	_options.SecurityGroupID = core.StringPtr(securityGroupID)
-	return _options
-}
-
-// SetID : Allow user to set ID
-func (_options *AddSecurityGroupNetworkInterfaceOptions) SetID(id string) *AddSecurityGroupNetworkInterfaceOptions {
-	_options.ID = core.StringPtr(id)
-	return _options
-}
-
-// SetHeaders : Allow user to set Headers
-func (options *AddSecurityGroupNetworkInterfaceOptions) SetHeaders(param map[string]string) *AddSecurityGroupNetworkInterfaceOptions {
-	options.Headers = param
-	return options
-}
-
 // AddVPNGatewayConnectionLocalCIDROptions : The AddVPNGatewayConnectionLocalCIDR options.
 type AddVPNGatewayConnectionLocalCIDROptions struct {
 	// The VPN gateway identifier.
@@ -20913,11 +20628,6 @@ type BareMetalServerNetworkInterface struct {
 
 	PrimaryIP *ReservedIPReference `json:"primary_ip" validate:"required"`
 
-	// The primary IPv4 address.
-	//
-	// If the address has not yet been selected, the value will be `0.0.0.0`.
-	PrimaryIpv4Address *string `json:"primary_ipv4_address" validate:"required"`
-
 	// The resource type.
 	ResourceType *string `json:"resource_type" validate:"required"`
 
@@ -21212,10 +20922,6 @@ type BareMetalServerNetworkInterfacePrototype struct {
 	// subnet will be automatically selected and reserved.
 	PrimaryIP NetworkInterfaceIPPrototypeIntf `json:"primary_ip,omitempty"`
 
-	// The primary IPv4 address. If specified, it must be an available address on the network interface's subnet. If
-	// unspecified, an available address on the subnet will be automatically selected.
-	PrimaryIpv4Address *string `json:"primary_ipv4_address,omitempty"`
-
 	// The security groups to use for this network interface. If unspecified, the VPC's default security group is used.
 	SecurityGroups []SecurityGroupIdentityIntf `json:"security_groups,omitempty"`
 
@@ -21351,10 +21057,6 @@ type BareMetalServerPrimaryNetworkInterfacePrototype struct {
 	// subnet will be automatically selected and reserved.
 	PrimaryIP NetworkInterfaceIPPrototypeIntf `json:"primary_ip,omitempty"`
 
-	// The primary IPv4 address. If specified, it must be an available address on the network interface's subnet. If
-	// unspecified, an available address on the subnet will be automatically selected.
-	PrimaryIpv4Address *string `json:"primary_ipv4_address,omitempty"`
-
 	// The security groups to use for this network interface. If unspecified, the VPC's default security group is used.
 	SecurityGroups []SecurityGroupIdentityIntf `json:"security_groups,omitempty"`
 
@@ -21406,10 +21108,6 @@ func UnmarshalBareMetalServerPrimaryNetworkInterfacePrototype(m map[string]json.
 		return
 	}
 	err = core.UnmarshalModel(m, "primary_ip", &obj.PrimaryIP, UnmarshalNetworkInterfaceIPPrototype)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "primary_ipv4_address", &obj.PrimaryIpv4Address)
 	if err != nil {
 		return
 	}
@@ -23623,10 +23321,6 @@ type CreateInstanceNetworkInterfaceOptions struct {
 	// subnet will be automatically selected and reserved.
 	PrimaryIP NetworkInterfaceIPPrototypeIntf `json:"primary_ip,omitempty"`
 
-	// The primary IPv4 address. If specified, it must be an available address on the network interface's subnet. If
-	// unspecified, an available address on the subnet will be automatically selected.
-	PrimaryIpv4Address *string `json:"primary_ipv4_address,omitempty"`
-
 	// The security groups to use for this network interface. If unspecified, the VPC's default security group is used.
 	SecurityGroups []SecurityGroupIdentityIntf `json:"security_groups,omitempty"`
 
@@ -23669,12 +23363,6 @@ func (_options *CreateInstanceNetworkInterfaceOptions) SetName(name string) *Cre
 // SetPrimaryIP : Allow user to set PrimaryIP
 func (_options *CreateInstanceNetworkInterfaceOptions) SetPrimaryIP(primaryIP NetworkInterfaceIPPrototypeIntf) *CreateInstanceNetworkInterfaceOptions {
 	_options.PrimaryIP = primaryIP
-	return _options
-}
-
-// SetPrimaryIpv4Address : Allow user to set PrimaryIpv4Address
-func (_options *CreateInstanceNetworkInterfaceOptions) SetPrimaryIpv4Address(primaryIpv4Address string) *CreateInstanceNetworkInterfaceOptions {
-	_options.PrimaryIpv4Address = core.StringPtr(primaryIpv4Address)
 	return _options
 }
 
@@ -30204,11 +29892,6 @@ type FloatingIPTarget struct {
 
 	PrimaryIP *ReservedIPReference `json:"primary_ip,omitempty"`
 
-	// The primary IPv4 address.
-	//
-	// If the address has not yet been selected, the value will be `0.0.0.0`.
-	PrimaryIpv4Address *string `json:"primary_ipv4_address,omitempty"`
-
 	// The resource type.
 	ResourceType *string `json:"resource_type,omitempty"`
 
@@ -30250,10 +29933,6 @@ func UnmarshalFloatingIPTarget(m map[string]json.RawMessage, result interface{})
 		return
 	}
 	err = core.UnmarshalModel(m, "primary_ip", &obj.PrimaryIP, UnmarshalReservedIPReference)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "primary_ipv4_address", &obj.PrimaryIpv4Address)
 	if err != nil {
 		return
 	}
@@ -32356,44 +32035,6 @@ func (_options *GetRegionZoneOptions) SetName(name string) *GetRegionZoneOptions
 
 // SetHeaders : Allow user to set Headers
 func (options *GetRegionZoneOptions) SetHeaders(param map[string]string) *GetRegionZoneOptions {
-	options.Headers = param
-	return options
-}
-
-// GetSecurityGroupNetworkInterfaceOptions : The GetSecurityGroupNetworkInterface options.
-type GetSecurityGroupNetworkInterfaceOptions struct {
-	// The security group identifier.
-	SecurityGroupID *string `json:"security_group_id" validate:"required,ne="`
-
-	// The network interface identifier.
-	ID *string `json:"id" validate:"required,ne="`
-
-	// Allows users to set headers on API requests
-	Headers map[string]string
-}
-
-// NewGetSecurityGroupNetworkInterfaceOptions : Instantiate GetSecurityGroupNetworkInterfaceOptions
-func (*VpcV1) NewGetSecurityGroupNetworkInterfaceOptions(securityGroupID string, id string) *GetSecurityGroupNetworkInterfaceOptions {
-	return &GetSecurityGroupNetworkInterfaceOptions{
-		SecurityGroupID: core.StringPtr(securityGroupID),
-		ID:              core.StringPtr(id),
-	}
-}
-
-// SetSecurityGroupID : Allow user to set SecurityGroupID
-func (_options *GetSecurityGroupNetworkInterfaceOptions) SetSecurityGroupID(securityGroupID string) *GetSecurityGroupNetworkInterfaceOptions {
-	_options.SecurityGroupID = core.StringPtr(securityGroupID)
-	return _options
-}
-
-// SetID : Allow user to set ID
-func (_options *GetSecurityGroupNetworkInterfaceOptions) SetID(id string) *GetSecurityGroupNetworkInterfaceOptions {
-	_options.ID = core.StringPtr(id)
-	return _options
-}
-
-// SetHeaders : Allow user to set Headers
-func (options *GetSecurityGroupNetworkInterfaceOptions) SetHeaders(param map[string]string) *GetSecurityGroupNetworkInterfaceOptions {
 	options.Headers = param
 	return options
 }
@@ -38746,7 +38387,7 @@ func UnmarshalInstanceProfileVolumeBandwidth(m map[string]json.RawMessage, resul
 // InstancePrototype : InstancePrototype struct
 // Models which "extend" this model:
 // - InstancePrototypeInstanceByImage
-// - InstancePrototypeInstanceByVolume
+// - InstancePrototypeInstanceBySourceSnapshot
 // - InstancePrototypeInstanceBySourceTemplate
 type InstancePrototype struct {
 	// The availability policy to use for this virtual server instance.
@@ -42056,52 +41697,6 @@ func (*VpcV1) NewListRegionsOptions() *ListRegionsOptions {
 
 // SetHeaders : Allow user to set Headers
 func (options *ListRegionsOptions) SetHeaders(param map[string]string) *ListRegionsOptions {
-	options.Headers = param
-	return options
-}
-
-// ListSecurityGroupNetworkInterfacesOptions : The ListSecurityGroupNetworkInterfaces options.
-type ListSecurityGroupNetworkInterfacesOptions struct {
-	// The security group identifier.
-	SecurityGroupID *string `json:"security_group_id" validate:"required,ne="`
-
-	// A server-provided token determining what resource to start the page on.
-	Start *string `json:"start,omitempty"`
-
-	// The number of resources to return on a page.
-	Limit *int64 `json:"limit,omitempty"`
-
-	// Allows users to set headers on API requests
-	Headers map[string]string
-}
-
-// NewListSecurityGroupNetworkInterfacesOptions : Instantiate ListSecurityGroupNetworkInterfacesOptions
-func (*VpcV1) NewListSecurityGroupNetworkInterfacesOptions(securityGroupID string) *ListSecurityGroupNetworkInterfacesOptions {
-	return &ListSecurityGroupNetworkInterfacesOptions{
-		SecurityGroupID: core.StringPtr(securityGroupID),
-	}
-}
-
-// SetSecurityGroupID : Allow user to set SecurityGroupID
-func (_options *ListSecurityGroupNetworkInterfacesOptions) SetSecurityGroupID(securityGroupID string) *ListSecurityGroupNetworkInterfacesOptions {
-	_options.SecurityGroupID = core.StringPtr(securityGroupID)
-	return _options
-}
-
-// SetStart : Allow user to set Start
-func (_options *ListSecurityGroupNetworkInterfacesOptions) SetStart(start string) *ListSecurityGroupNetworkInterfacesOptions {
-	_options.Start = core.StringPtr(start)
-	return _options
-}
-
-// SetLimit : Allow user to set Limit
-func (_options *ListSecurityGroupNetworkInterfacesOptions) SetLimit(limit int64) *ListSecurityGroupNetworkInterfacesOptions {
-	_options.Limit = core.Int64Ptr(limit)
-	return _options
-}
-
-// SetHeaders : Allow user to set Headers
-func (options *ListSecurityGroupNetworkInterfacesOptions) SetHeaders(param map[string]string) *ListSecurityGroupNetworkInterfacesOptions {
 	options.Headers = param
 	return options
 }
@@ -47651,11 +47246,6 @@ type NetworkInterface struct {
 
 	PrimaryIP *ReservedIPReference `json:"primary_ip" validate:"required"`
 
-	// The primary IPv4 address.
-	//
-	// If the address has not yet been selected, the value will be `0.0.0.0`.
-	PrimaryIpv4Address *string `json:"primary_ipv4_address" validate:"required"`
-
 	// The resource type.
 	ResourceType *string `json:"resource_type" validate:"required"`
 
@@ -47729,10 +47319,6 @@ func UnmarshalNetworkInterface(m map[string]json.RawMessage, result interface{})
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalPrimitive(m, "primary_ipv4_address", &obj.PrimaryIpv4Address)
-	if err != nil {
-		return
-	}
 	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
 	if err != nil {
 		return
@@ -47774,11 +47360,6 @@ type NetworkInterfaceBareMetalServerContextReference struct {
 
 	PrimaryIP *ReservedIPReference `json:"primary_ip" validate:"required"`
 
-	// The primary IPv4 address.
-	//
-	// If the address has not yet been selected, the value will be `0.0.0.0`.
-	PrimaryIpv4Address *string `json:"primary_ipv4_address" validate:"required"`
-
 	// The resource type.
 	ResourceType *string `json:"resource_type" validate:"required"`
 
@@ -47815,10 +47396,6 @@ func UnmarshalNetworkInterfaceBareMetalServerContextReference(m map[string]json.
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalPrimitive(m, "primary_ipv4_address", &obj.PrimaryIpv4Address)
-	if err != nil {
-		return
-	}
 	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
 	if err != nil {
 		return
@@ -47842,98 +47419,6 @@ type NetworkInterfaceBareMetalServerContextReferenceDeleted struct {
 func UnmarshalNetworkInterfaceBareMetalServerContextReferenceDeleted(m map[string]json.RawMessage, result interface{}) (err error) {
 	obj := new(NetworkInterfaceBareMetalServerContextReferenceDeleted)
 	err = core.UnmarshalPrimitive(m, "more_info", &obj.MoreInfo)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// NetworkInterfaceCollection : NetworkInterfaceCollection struct
-type NetworkInterfaceCollection struct {
-	// A link to the first page of resources.
-	First *NetworkInterfaceCollectionFirst `json:"first" validate:"required"`
-
-	// The maximum number of resources that can be returned by the request.
-	Limit *int64 `json:"limit" validate:"required"`
-
-	// Collection of network interfaces.
-	NetworkInterfaces []NetworkInterface `json:"network_interfaces" validate:"required"`
-
-	// A link to the next page of resources. This property is present for all pages
-	// except the last page.
-	Next *NetworkInterfaceCollectionNext `json:"next,omitempty"`
-
-	// The total number of resources across all pages.
-	TotalCount *int64 `json:"total_count" validate:"required"`
-}
-
-// UnmarshalNetworkInterfaceCollection unmarshals an instance of NetworkInterfaceCollection from the specified map of raw messages.
-func UnmarshalNetworkInterfaceCollection(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(NetworkInterfaceCollection)
-	err = core.UnmarshalModel(m, "first", &obj.First, UnmarshalNetworkInterfaceCollectionFirst)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "limit", &obj.Limit)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "network_interfaces", &obj.NetworkInterfaces, UnmarshalNetworkInterface)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "next", &obj.Next, UnmarshalNetworkInterfaceCollectionNext)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "total_count", &obj.TotalCount)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// Retrieve the value to be passed to a request to access the next page of results
-func (resp *NetworkInterfaceCollection) GetNextStart() (*string, error) {
-	if core.IsNil(resp.Next) {
-		return nil, nil
-	}
-	start, err := core.GetQueryParam(resp.Next.Href, "start")
-	if err != nil || start == nil {
-		return nil, err
-	}
-	return start, nil
-}
-
-// NetworkInterfaceCollectionFirst : A link to the first page of resources.
-type NetworkInterfaceCollectionFirst struct {
-	// The URL for a page of resources.
-	Href *string `json:"href" validate:"required"`
-}
-
-// UnmarshalNetworkInterfaceCollectionFirst unmarshals an instance of NetworkInterfaceCollectionFirst from the specified map of raw messages.
-func UnmarshalNetworkInterfaceCollectionFirst(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(NetworkInterfaceCollectionFirst)
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// NetworkInterfaceCollectionNext : A link to the next page of resources. This property is present for all pages except the last page.
-type NetworkInterfaceCollectionNext struct {
-	// The URL for a page of resources.
-	Href *string `json:"href" validate:"required"`
-}
-
-// UnmarshalNetworkInterfaceCollectionNext unmarshals an instance of NetworkInterfaceCollectionNext from the specified map of raw messages.
-func UnmarshalNetworkInterfaceCollectionNext(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(NetworkInterfaceCollectionNext)
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
 	if err != nil {
 		return
 	}
@@ -48019,11 +47504,6 @@ type NetworkInterfaceInstanceContextReference struct {
 
 	PrimaryIP *ReservedIPReference `json:"primary_ip" validate:"required"`
 
-	// The primary IPv4 address.
-	//
-	// If the address has not yet been selected, the value will be `0.0.0.0`.
-	PrimaryIpv4Address *string `json:"primary_ipv4_address" validate:"required"`
-
 	// The resource type.
 	ResourceType *string `json:"resource_type" validate:"required"`
 
@@ -48057,10 +47537,6 @@ func UnmarshalNetworkInterfaceInstanceContextReference(m map[string]json.RawMess
 		return
 	}
 	err = core.UnmarshalModel(m, "primary_ip", &obj.PrimaryIP, UnmarshalReservedIPReference)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "primary_ipv4_address", &obj.PrimaryIpv4Address)
 	if err != nil {
 		return
 	}
@@ -48148,10 +47624,6 @@ type NetworkInterfacePrototype struct {
 	// subnet will be automatically selected and reserved.
 	PrimaryIP NetworkInterfaceIPPrototypeIntf `json:"primary_ip,omitempty"`
 
-	// The primary IPv4 address. If specified, it must be an available address on the network interface's subnet. If
-	// unspecified, an available address on the subnet will be automatically selected.
-	PrimaryIpv4Address *string `json:"primary_ipv4_address,omitempty"`
-
 	// The security groups to use for this network interface. If unspecified, the VPC's default security group is used.
 	SecurityGroups []SecurityGroupIdentityIntf `json:"security_groups,omitempty"`
 
@@ -48183,82 +47655,11 @@ func UnmarshalNetworkInterfacePrototype(m map[string]json.RawMessage, result int
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalPrimitive(m, "primary_ipv4_address", &obj.PrimaryIpv4Address)
-	if err != nil {
-		return
-	}
 	err = core.UnmarshalModel(m, "security_groups", &obj.SecurityGroups, UnmarshalSecurityGroupIdentity)
 	if err != nil {
 		return
 	}
 	err = core.UnmarshalModel(m, "subnet", &obj.Subnet, UnmarshalSubnetIdentity)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// NetworkInterfaceReference : NetworkInterfaceReference struct
-type NetworkInterfaceReference struct {
-	// If present, this property indicates the referenced resource has been deleted and provides
-	// some supplementary information.
-	Deleted *NetworkInterfaceReferenceDeleted `json:"deleted,omitempty"`
-
-	// The URL for this network interface.
-	Href *string `json:"href" validate:"required"`
-
-	// The unique identifier for this network interface.
-	ID *string `json:"id" validate:"required"`
-
-	// The user-defined name for this network interface.
-	Name *string `json:"name" validate:"required"`
-
-	PrimaryIP *ReservedIPReference `json:"primary_ip" validate:"required"`
-
-	// The primary IPv4 address.
-	//
-	// If the address has not yet been selected, the value will be `0.0.0.0`.
-	PrimaryIpv4Address *string `json:"primary_ipv4_address" validate:"required"`
-
-	// The resource type.
-	ResourceType *string `json:"resource_type" validate:"required"`
-}
-
-// Constants associated with the NetworkInterfaceReference.ResourceType property.
-// The resource type.
-const (
-	NetworkInterfaceReferenceResourceTypeNetworkInterfaceConst = "network_interface"
-)
-
-// UnmarshalNetworkInterfaceReference unmarshals an instance of NetworkInterfaceReference from the specified map of raw messages.
-func UnmarshalNetworkInterfaceReference(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(NetworkInterfaceReference)
-	err = core.UnmarshalModel(m, "deleted", &obj.Deleted, UnmarshalNetworkInterfaceReferenceDeleted)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "primary_ip", &obj.PrimaryIP, UnmarshalReservedIPReference)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "primary_ipv4_address", &obj.PrimaryIpv4Address)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
 	if err != nil {
 		return
 	}
@@ -49455,44 +48856,6 @@ func (options *RemoveInstanceNetworkInterfaceFloatingIPOptions) SetHeaders(param
 	return options
 }
 
-// RemoveSecurityGroupNetworkInterfaceOptions : The RemoveSecurityGroupNetworkInterface options.
-type RemoveSecurityGroupNetworkInterfaceOptions struct {
-	// The security group identifier.
-	SecurityGroupID *string `json:"security_group_id" validate:"required,ne="`
-
-	// The network interface identifier.
-	ID *string `json:"id" validate:"required,ne="`
-
-	// Allows users to set headers on API requests
-	Headers map[string]string
-}
-
-// NewRemoveSecurityGroupNetworkInterfaceOptions : Instantiate RemoveSecurityGroupNetworkInterfaceOptions
-func (*VpcV1) NewRemoveSecurityGroupNetworkInterfaceOptions(securityGroupID string, id string) *RemoveSecurityGroupNetworkInterfaceOptions {
-	return &RemoveSecurityGroupNetworkInterfaceOptions{
-		SecurityGroupID: core.StringPtr(securityGroupID),
-		ID:              core.StringPtr(id),
-	}
-}
-
-// SetSecurityGroupID : Allow user to set SecurityGroupID
-func (_options *RemoveSecurityGroupNetworkInterfaceOptions) SetSecurityGroupID(securityGroupID string) *RemoveSecurityGroupNetworkInterfaceOptions {
-	_options.SecurityGroupID = core.StringPtr(securityGroupID)
-	return _options
-}
-
-// SetID : Allow user to set ID
-func (_options *RemoveSecurityGroupNetworkInterfaceOptions) SetID(id string) *RemoveSecurityGroupNetworkInterfaceOptions {
-	_options.ID = core.StringPtr(id)
-	return _options
-}
-
-// SetHeaders : Allow user to set Headers
-func (options *RemoveSecurityGroupNetworkInterfaceOptions) SetHeaders(param map[string]string) *RemoveSecurityGroupNetworkInterfaceOptions {
-	options.Headers = param
-	return options
-}
-
 // RemoveVPNGatewayConnectionLocalCIDROptions : The RemoveVPNGatewayConnectionLocalCIDR options.
 type RemoveVPNGatewayConnectionLocalCIDROptions struct {
 	// The VPN gateway identifier.
@@ -50246,7 +49609,6 @@ func UnmarshalReservedIPReferenceDeleted(m map[string]json.RawMessage, result in
 // - ReservedIPTargetNetworkInterfaceReferenceTargetContext
 // - ReservedIPTargetLoadBalancerReference
 // - ReservedIPTargetVPNGatewayReference
-// - ReservedIPTargetVPNServerReference
 // - ReservedIPTargetGenericResourceReference
 type ReservedIPTarget struct {
 	// The CRN for this endpoint gateway.
@@ -51344,9 +50706,6 @@ type SecurityGroup struct {
 	// The user-defined name for this security group. Names must be unique within the VPC the security group resides in.
 	Name *string `json:"name" validate:"required"`
 
-	// The network interfaces for this security group.
-	NetworkInterfaces []NetworkInterfaceReference `json:"network_interfaces" validate:"required"`
-
 	// The resource group for this security group.
 	ResourceGroup *ResourceGroupReference `json:"resource_group" validate:"required"`
 
@@ -51380,10 +50739,6 @@ func UnmarshalSecurityGroup(m map[string]json.RawMessage, result interface{}) (e
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "network_interfaces", &obj.NetworkInterfaces, UnmarshalNetworkInterfaceReference)
 	if err != nil {
 		return
 	}
@@ -57117,24 +56472,6 @@ func UnmarshalVPNGatewayReferenceDeleted(m map[string]json.RawMessage, result in
 	return
 }
 
-// VPNServerReferenceDeleted : If present, this property indicates the referenced resource has been deleted and provides some supplementary
-// information.
-type VPNServerReferenceDeleted struct {
-	// Link to documentation about deleted resources.
-	MoreInfo *string `json:"more_info" validate:"required"`
-}
-
-// UnmarshalVPNServerReferenceDeleted unmarshals an instance of VPNServerReferenceDeleted from the specified map of raw messages.
-func UnmarshalVPNServerReferenceDeleted(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(VPNServerReferenceDeleted)
-	err = core.UnmarshalPrimitive(m, "more_info", &obj.MoreInfo)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
 // Volume : Volume struct
 type Volume struct {
 	// Indicates whether a running virtual server instance has an attachment to this volume.
@@ -57539,8 +56876,8 @@ func UnmarshalVolumeAttachmentPrototypeInstanceByImageContext(m map[string]json.
 	return
 }
 
-// VolumeAttachmentPrototypeInstanceByVolumeContext : VolumeAttachmentPrototypeInstanceByVolumeContext struct
-type VolumeAttachmentPrototypeInstanceByVolumeContext struct {
+// VolumeAttachmentPrototypeInstanceBySourceSnapshotContext : VolumeAttachmentPrototypeInstanceBySourceSnapshotContext struct
+type VolumeAttachmentPrototypeInstanceBySourceSnapshotContext struct {
 	// If set to true, when deleting the instance the volume will also be deleted.
 	DeleteVolumeOnInstanceDelete *bool `json:"delete_volume_on_instance_delete,omitempty"`
 
@@ -57548,22 +56885,22 @@ type VolumeAttachmentPrototypeInstanceByVolumeContext struct {
 	// resides in.
 	Name *string `json:"name,omitempty"`
 
-	// An existing volume to attach to the instance, or a prototype object for a new volume.
-	Volume VolumeAttachmentVolumePrototypeInstanceByVolumeContextIntf `json:"volume" validate:"required"`
+	// A prototype object for a new volume from a snapshot.
+	Volume *VolumePrototypeInstanceBySourceSnapshotContext `json:"volume" validate:"required"`
 }
 
-// NewVolumeAttachmentPrototypeInstanceByVolumeContext : Instantiate VolumeAttachmentPrototypeInstanceByVolumeContext (Generic Model Constructor)
-func (*VpcV1) NewVolumeAttachmentPrototypeInstanceByVolumeContext(volume VolumeAttachmentVolumePrototypeInstanceByVolumeContextIntf) (_model *VolumeAttachmentPrototypeInstanceByVolumeContext, err error) {
-	_model = &VolumeAttachmentPrototypeInstanceByVolumeContext{
+// NewVolumeAttachmentPrototypeInstanceBySourceSnapshotContext : Instantiate VolumeAttachmentPrototypeInstanceBySourceSnapshotContext (Generic Model Constructor)
+func (*VpcV1) NewVolumeAttachmentPrototypeInstanceBySourceSnapshotContext(volume *VolumePrototypeInstanceBySourceSnapshotContext) (_model *VolumeAttachmentPrototypeInstanceBySourceSnapshotContext, err error) {
+	_model = &VolumeAttachmentPrototypeInstanceBySourceSnapshotContext{
 		Volume: volume,
 	}
 	err = core.ValidateStruct(_model, "required parameters")
 	return
 }
 
-// UnmarshalVolumeAttachmentPrototypeInstanceByVolumeContext unmarshals an instance of VolumeAttachmentPrototypeInstanceByVolumeContext from the specified map of raw messages.
-func UnmarshalVolumeAttachmentPrototypeInstanceByVolumeContext(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(VolumeAttachmentPrototypeInstanceByVolumeContext)
+// UnmarshalVolumeAttachmentPrototypeInstanceBySourceSnapshotContext unmarshals an instance of VolumeAttachmentPrototypeInstanceBySourceSnapshotContext from the specified map of raw messages.
+func UnmarshalVolumeAttachmentPrototypeInstanceBySourceSnapshotContext(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(VolumeAttachmentPrototypeInstanceBySourceSnapshotContext)
 	err = core.UnmarshalPrimitive(m, "delete_volume_on_instance_delete", &obj.DeleteVolumeOnInstanceDelete)
 	if err != nil {
 		return
@@ -57572,7 +56909,7 @@ func UnmarshalVolumeAttachmentPrototypeInstanceByVolumeContext(m map[string]json
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalModel(m, "volume", &obj.Volume, UnmarshalVolumeAttachmentVolumePrototypeInstanceByVolumeContext)
+	err = core.UnmarshalModel(m, "volume", &obj.Volume, UnmarshalVolumePrototypeInstanceBySourceSnapshotContext)
 	if err != nil {
 		return
 	}
@@ -57876,74 +57213,6 @@ func UnmarshalVolumeAttachmentReferenceVolumeContextDeleted(m map[string]json.Ra
 	return
 }
 
-// VolumeAttachmentVolumePrototypeInstanceByVolumeContext : An existing volume to attach to the instance, or a prototype object for a new volume.
-// Models which "extend" this model:
-// - VolumeAttachmentVolumePrototypeInstanceByVolumeContextVolumePrototypeInstanceByVolumeContext
-type VolumeAttachmentVolumePrototypeInstanceByVolumeContext struct {
-	// The capacity to use for the volume (in gigabytes). Must be at least the snapshot's
-	// `minimum_capacity`. The maximum value may increase in the future.
-	//
-	// If unspecified, the capacity will be the source snapshot's `minimum_capacity`.
-	Capacity *int64 `json:"capacity,omitempty"`
-
-	// The root key to use to wrap the data encryption key for the volume.
-	//
-	// If unspecified, the snapshot's `encryption_key` will be used.
-	EncryptionKey EncryptionKeyIdentityIntf `json:"encryption_key,omitempty"`
-
-	// The maximum I/O operations per second (IOPS) to use for the volume. Applicable only to volumes using a profile
-	// `family` of `custom`.
-	Iops *int64 `json:"iops,omitempty"`
-
-	// The unique user-defined name for this volume.
-	Name *string `json:"name,omitempty"`
-
-	// The profile to use for this volume.
-	Profile VolumeProfileIdentityIntf `json:"profile,omitempty"`
-
-	// The snapshot from which to clone the volume.
-	SourceSnapshot SnapshotIdentityIntf `json:"source_snapshot,omitempty"`
-}
-
-func (*VolumeAttachmentVolumePrototypeInstanceByVolumeContext) isaVolumeAttachmentVolumePrototypeInstanceByVolumeContext() bool {
-	return true
-}
-
-type VolumeAttachmentVolumePrototypeInstanceByVolumeContextIntf interface {
-	isaVolumeAttachmentVolumePrototypeInstanceByVolumeContext() bool
-}
-
-// UnmarshalVolumeAttachmentVolumePrototypeInstanceByVolumeContext unmarshals an instance of VolumeAttachmentVolumePrototypeInstanceByVolumeContext from the specified map of raw messages.
-func UnmarshalVolumeAttachmentVolumePrototypeInstanceByVolumeContext(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(VolumeAttachmentVolumePrototypeInstanceByVolumeContext)
-	err = core.UnmarshalPrimitive(m, "capacity", &obj.Capacity)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "encryption_key", &obj.EncryptionKey, UnmarshalEncryptionKeyIdentity)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "iops", &obj.Iops)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "profile", &obj.Profile, UnmarshalVolumeProfileIdentity)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "source_snapshot", &obj.SourceSnapshot, UnmarshalSnapshotIdentity)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
 // VolumeAttachmentVolumePrototypeInstanceContext : An existing volume to attach to the instance, or a prototype object for a new volume.
 // Models which "extend" this model:
 // - VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentity
@@ -58178,7 +57447,7 @@ type VolumePatch struct {
 
 	// The profile to use for this volume.  The requested profile must be in the same
 	// `family` as the current profile.  The volume must be attached as a data volume to a
-	//  running virtual server instance.
+	// running virtual server instance.
 	Profile VolumeProfileIdentityIntf `json:"profile,omitempty"`
 }
 
@@ -58540,6 +57809,74 @@ func UnmarshalVolumePrototypeInstanceByImageContext(m map[string]json.RawMessage
 		return
 	}
 	err = core.UnmarshalModel(m, "profile", &obj.Profile, UnmarshalVolumeProfileIdentity)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// VolumePrototypeInstanceBySourceSnapshotContext : VolumePrototypeInstanceBySourceSnapshotContext struct
+type VolumePrototypeInstanceBySourceSnapshotContext struct {
+	// The capacity to use for the volume (in gigabytes). Must be at least the snapshot's
+	// `minimum_capacity`. The maximum value may increase in the future.
+	//
+	// If unspecified, the capacity will be the source snapshot's `minimum_capacity`.
+	Capacity *int64 `json:"capacity,omitempty"`
+
+	// The root key to use to wrap the data encryption key for the volume.
+	//
+	// If unspecified, the snapshot's `encryption_key` will be used.
+	EncryptionKey EncryptionKeyIdentityIntf `json:"encryption_key,omitempty"`
+
+	// The maximum I/O operations per second (IOPS) to use for the volume. Applicable only to volumes using a profile
+	// `family` of `custom`.
+	Iops *int64 `json:"iops,omitempty"`
+
+	// The unique user-defined name for this volume.
+	Name *string `json:"name,omitempty"`
+
+	// The profile to use for this volume.
+	Profile VolumeProfileIdentityIntf `json:"profile" validate:"required"`
+
+	// The snapshot from which to clone the volume.
+	SourceSnapshot SnapshotIdentityIntf `json:"source_snapshot" validate:"required"`
+}
+
+// NewVolumePrototypeInstanceBySourceSnapshotContext : Instantiate VolumePrototypeInstanceBySourceSnapshotContext (Generic Model Constructor)
+func (*VpcV1) NewVolumePrototypeInstanceBySourceSnapshotContext(profile VolumeProfileIdentityIntf, sourceSnapshot SnapshotIdentityIntf) (_model *VolumePrototypeInstanceBySourceSnapshotContext, err error) {
+	_model = &VolumePrototypeInstanceBySourceSnapshotContext{
+		Profile:        profile,
+		SourceSnapshot: sourceSnapshot,
+	}
+	err = core.ValidateStruct(_model, "required parameters")
+	return
+}
+
+// UnmarshalVolumePrototypeInstanceBySourceSnapshotContext unmarshals an instance of VolumePrototypeInstanceBySourceSnapshotContext from the specified map of raw messages.
+func UnmarshalVolumePrototypeInstanceBySourceSnapshotContext(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(VolumePrototypeInstanceBySourceSnapshotContext)
+	err = core.UnmarshalPrimitive(m, "capacity", &obj.Capacity)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "encryption_key", &obj.EncryptionKey, UnmarshalEncryptionKeyIdentity)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "iops", &obj.Iops)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "profile", &obj.Profile, UnmarshalVolumeProfileIdentity)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "source_snapshot", &obj.SourceSnapshot, UnmarshalSnapshotIdentity)
 	if err != nil {
 		return
 	}
@@ -58930,11 +58267,6 @@ type BareMetalServerNetworkInterfaceByPci struct {
 
 	PrimaryIP *ReservedIPReference `json:"primary_ip" validate:"required"`
 
-	// The primary IPv4 address.
-	//
-	// If the address has not yet been selected, the value will be `0.0.0.0`.
-	PrimaryIpv4Address *string `json:"primary_ipv4_address" validate:"required"`
-
 	// The resource type.
 	ResourceType *string `json:"resource_type" validate:"required"`
 
@@ -59045,10 +58377,6 @@ func UnmarshalBareMetalServerNetworkInterfaceByPci(m map[string]json.RawMessage,
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalPrimitive(m, "primary_ipv4_address", &obj.PrimaryIpv4Address)
-	if err != nil {
-		return
-	}
 	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
 	if err != nil {
 		return
@@ -59130,11 +58458,6 @@ type BareMetalServerNetworkInterfaceByVlan struct {
 	PortSpeed *int64 `json:"port_speed" validate:"required"`
 
 	PrimaryIP *ReservedIPReference `json:"primary_ip" validate:"required"`
-
-	// The primary IPv4 address.
-	//
-	// If the address has not yet been selected, the value will be `0.0.0.0`.
-	PrimaryIpv4Address *string `json:"primary_ipv4_address" validate:"required"`
 
 	// The resource type.
 	ResourceType *string `json:"resource_type" validate:"required"`
@@ -59250,10 +58573,6 @@ func UnmarshalBareMetalServerNetworkInterfaceByVlan(m map[string]json.RawMessage
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalPrimitive(m, "primary_ipv4_address", &obj.PrimaryIpv4Address)
-	if err != nil {
-		return
-	}
 	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
 	if err != nil {
 		return
@@ -59328,10 +58647,6 @@ type BareMetalServerNetworkInterfacePrototypeBareMetalServerNetworkInterfaceByPc
 	// interface's subnet. Otherwise, an available address on the subnet will be automatically selected and reserved.
 	PrimaryIP NetworkInterfaceIPPrototypeIntf `json:"primary_ip,omitempty"`
 
-	// The primary IPv4 address. If specified, it must be an available address on the network interface's subnet. If
-	// unspecified, an available address on the subnet will be automatically selected.
-	PrimaryIpv4Address *string `json:"primary_ipv4_address,omitempty"`
-
 	// The security groups to use for this network interface. If unspecified, the VPC's default security group is used.
 	SecurityGroups []SecurityGroupIdentityIntf `json:"security_groups,omitempty"`
 
@@ -59397,10 +58712,6 @@ func UnmarshalBareMetalServerNetworkInterfacePrototypeBareMetalServerNetworkInte
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalPrimitive(m, "primary_ipv4_address", &obj.PrimaryIpv4Address)
-	if err != nil {
-		return
-	}
 	err = core.UnmarshalModel(m, "security_groups", &obj.SecurityGroups, UnmarshalSecurityGroupIdentity)
 	if err != nil {
 		return
@@ -59458,10 +58769,6 @@ type BareMetalServerNetworkInterfacePrototypeBareMetalServerNetworkInterfaceByVl
 	// If an existing reserved IP or a prototype object with an address is specified, it must be available on the network
 	// interface's subnet. Otherwise, an available address on the subnet will be automatically selected and reserved.
 	PrimaryIP NetworkInterfaceIPPrototypeIntf `json:"primary_ip,omitempty"`
-
-	// The primary IPv4 address. If specified, it must be an available address on the network interface's subnet. If
-	// unspecified, an available address on the subnet will be automatically selected.
-	PrimaryIpv4Address *string `json:"primary_ipv4_address,omitempty"`
 
 	// The security groups to use for this network interface. If unspecified, the VPC's default security group is used.
 	SecurityGroups []SecurityGroupIdentityIntf `json:"security_groups,omitempty"`
@@ -59530,10 +58837,6 @@ func UnmarshalBareMetalServerNetworkInterfacePrototypeBareMetalServerNetworkInte
 		return
 	}
 	err = core.UnmarshalModel(m, "primary_ip", &obj.PrimaryIP, UnmarshalNetworkInterfaceIPPrototype)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "primary_ipv4_address", &obj.PrimaryIpv4Address)
 	if err != nil {
 		return
 	}
@@ -61947,11 +61250,6 @@ type FloatingIPTargetNetworkInterfaceReference struct {
 
 	PrimaryIP *ReservedIPReference `json:"primary_ip" validate:"required"`
 
-	// The primary IPv4 address.
-	//
-	// If the address has not yet been selected, the value will be `0.0.0.0`.
-	PrimaryIpv4Address *string `json:"primary_ipv4_address" validate:"required"`
-
 	// The resource type.
 	ResourceType *string `json:"resource_type" validate:"required"`
 }
@@ -61986,10 +61284,6 @@ func UnmarshalFloatingIPTargetNetworkInterfaceReference(m map[string]json.RawMes
 		return
 	}
 	err = core.UnmarshalModel(m, "primary_ip", &obj.PrimaryIP, UnmarshalReservedIPReference)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "primary_ipv4_address", &obj.PrimaryIpv4Address)
 	if err != nil {
 		return
 	}
@@ -65593,6 +64887,161 @@ func UnmarshalInstancePrototypeInstanceByImage(m map[string]json.RawMessage, res
 	return
 }
 
+// InstancePrototypeInstanceBySourceSnapshot : InstancePrototypeInstanceBySourceSnapshot struct
+// This model "extends" InstancePrototype
+type InstancePrototypeInstanceBySourceSnapshot struct {
+	// The availability policy to use for this virtual server instance.
+	AvailabilityPolicy *InstanceAvailabilityPrototype `json:"availability_policy,omitempty"`
+
+	// The default trusted profile configuration to use for this virtual server instance  This property's value is used
+	// when provisioning the virtual server instance, but not subsequently managed. Accordingly, it is reflected as an
+	// [instance initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
+	DefaultTrustedProfile *InstanceDefaultTrustedProfilePrototype `json:"default_trusted_profile,omitempty"`
+
+	// The public SSH keys for the administrative user of the virtual server instance. Keys will be made available to the
+	// virtual server instance as cloud-init vendor data. For cloud-init enabled images, these keys will also be added as
+	// SSH authorized keys for the administrative user.
+	//
+	// For Windows images, at least one key must be specified, and one will be chosen to encrypt [the administrator
+	// password](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization). Keys are optional for other images, but if
+	// no keys are specified, the instance will be inaccessible unless the specified image provides another means of
+	// access.
+	//
+	// This property's value is used when provisioning the virtual server instance, but not subsequently managed.
+	// Accordingly, it is reflected as an [instance
+	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
+	Keys []KeyIdentityIntf `json:"keys,omitempty"`
+
+	// Configuration options for the instance metadata service.
+	MetadataService *InstanceMetadataServicePrototype `json:"metadata_service,omitempty"`
+
+	// The unique user-defined name for this virtual server instance (and default system hostname). If unspecified, the
+	// name will be a hyphenated list of randomly-selected words.
+	Name *string `json:"name,omitempty"`
+
+	// The additional network interfaces to create for the virtual server instance.
+	NetworkInterfaces []NetworkInterfacePrototype `json:"network_interfaces,omitempty"`
+
+	// The placement restrictions to use for the virtual server instance.
+	PlacementTarget InstancePlacementTargetPrototypeIntf `json:"placement_target,omitempty"`
+
+	// The profile to use for this virtual server instance. If unspecified, `bx2-2x8` will be used, but this default value
+	// is expected to change in the future.
+	Profile InstanceProfileIdentityIntf `json:"profile,omitempty"`
+
+	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
+
+	// The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes. An increase in
+	// this value will result in a corresponding decrease to
+	// `total_network_bandwidth`.
+	TotalVolumeBandwidth *int64 `json:"total_volume_bandwidth,omitempty"`
+
+	// User data to be made available when setting up the virtual server instance.
+	UserData *string `json:"user_data,omitempty"`
+
+	// The volume attachments for this virtual server instance.
+	VolumeAttachments []VolumeAttachmentPrototypeInstanceContext `json:"volume_attachments,omitempty"`
+
+	// The VPC the virtual server instance is to be a part of. If specified, it must match the VPC referenced by the
+	// subnets of the instance's network interfaces.
+	VPC VPCIdentityIntf `json:"vpc,omitempty"`
+
+	// The boot volume attachment for the virtual server instance.
+	BootVolumeAttachment *VolumeAttachmentPrototypeInstanceBySourceSnapshotContext `json:"boot_volume_attachment" validate:"required"`
+
+	// Primary network interface.
+	PrimaryNetworkInterface *NetworkInterfacePrototype `json:"primary_network_interface" validate:"required"`
+
+	// The zone this virtual server instance will reside in.
+	Zone ZoneIdentityIntf `json:"zone" validate:"required"`
+}
+
+// NewInstancePrototypeInstanceBySourceSnapshot : Instantiate InstancePrototypeInstanceBySourceSnapshot (Generic Model Constructor)
+func (*VpcV1) NewInstancePrototypeInstanceBySourceSnapshot(bootVolumeAttachment *VolumeAttachmentPrototypeInstanceBySourceSnapshotContext, primaryNetworkInterface *NetworkInterfacePrototype, zone ZoneIdentityIntf) (_model *InstancePrototypeInstanceBySourceSnapshot, err error) {
+	_model = &InstancePrototypeInstanceBySourceSnapshot{
+		BootVolumeAttachment:    bootVolumeAttachment,
+		PrimaryNetworkInterface: primaryNetworkInterface,
+		Zone:                    zone,
+	}
+	err = core.ValidateStruct(_model, "required parameters")
+	return
+}
+
+func (*InstancePrototypeInstanceBySourceSnapshot) isaInstancePrototype() bool {
+	return true
+}
+
+// UnmarshalInstancePrototypeInstanceBySourceSnapshot unmarshals an instance of InstancePrototypeInstanceBySourceSnapshot from the specified map of raw messages.
+func UnmarshalInstancePrototypeInstanceBySourceSnapshot(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(InstancePrototypeInstanceBySourceSnapshot)
+	err = core.UnmarshalModel(m, "availability_policy", &obj.AvailabilityPolicy, UnmarshalInstanceAvailabilityPrototype)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "default_trusted_profile", &obj.DefaultTrustedProfile, UnmarshalInstanceDefaultTrustedProfilePrototype)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "keys", &obj.Keys, UnmarshalKeyIdentity)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "metadata_service", &obj.MetadataService, UnmarshalInstanceMetadataServicePrototype)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "network_interfaces", &obj.NetworkInterfaces, UnmarshalNetworkInterfacePrototype)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "placement_target", &obj.PlacementTarget, UnmarshalInstancePlacementTargetPrototype)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "profile", &obj.Profile, UnmarshalInstanceProfileIdentity)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "resource_group", &obj.ResourceGroup, UnmarshalResourceGroupIdentity)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "total_volume_bandwidth", &obj.TotalVolumeBandwidth)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "user_data", &obj.UserData)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "volume_attachments", &obj.VolumeAttachments, UnmarshalVolumeAttachmentPrototypeInstanceContext)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "vpc", &obj.VPC, UnmarshalVPCIdentity)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "boot_volume_attachment", &obj.BootVolumeAttachment, UnmarshalVolumeAttachmentPrototypeInstanceBySourceSnapshotContext)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "primary_network_interface", &obj.PrimaryNetworkInterface, UnmarshalNetworkInterfacePrototype)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "zone", &obj.Zone, UnmarshalZoneIdentity)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
 // InstancePrototypeInstanceBySourceTemplate : InstancePrototypeInstanceBySourceTemplate struct
 // This model "extends" InstancePrototype
 type InstancePrototypeInstanceBySourceTemplate struct {
@@ -65749,161 +65198,6 @@ func UnmarshalInstancePrototypeInstanceBySourceTemplate(m map[string]json.RawMes
 		return
 	}
 	err = core.UnmarshalModel(m, "source_template", &obj.SourceTemplate, UnmarshalInstanceTemplateIdentity)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "zone", &obj.Zone, UnmarshalZoneIdentity)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// InstancePrototypeInstanceByVolume : InstancePrototypeInstanceByVolume struct
-// This model "extends" InstancePrototype
-type InstancePrototypeInstanceByVolume struct {
-	// The availability policy to use for this virtual server instance.
-	AvailabilityPolicy *InstanceAvailabilityPrototype `json:"availability_policy,omitempty"`
-
-	// The default trusted profile configuration to use for this virtual server instance  This property's value is used
-	// when provisioning the virtual server instance, but not subsequently managed. Accordingly, it is reflected as an
-	// [instance initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
-	DefaultTrustedProfile *InstanceDefaultTrustedProfilePrototype `json:"default_trusted_profile,omitempty"`
-
-	// The public SSH keys for the administrative user of the virtual server instance. Keys will be made available to the
-	// virtual server instance as cloud-init vendor data. For cloud-init enabled images, these keys will also be added as
-	// SSH authorized keys for the administrative user.
-	//
-	// For Windows images, at least one key must be specified, and one will be chosen to encrypt [the administrator
-	// password](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization). Keys are optional for other images, but if
-	// no keys are specified, the instance will be inaccessible unless the specified image provides another means of
-	// access.
-	//
-	// This property's value is used when provisioning the virtual server instance, but not subsequently managed.
-	// Accordingly, it is reflected as an [instance
-	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
-	Keys []KeyIdentityIntf `json:"keys,omitempty"`
-
-	// Configuration options for the instance metadata service.
-	MetadataService *InstanceMetadataServicePrototype `json:"metadata_service,omitempty"`
-
-	// The unique user-defined name for this virtual server instance (and default system hostname). If unspecified, the
-	// name will be a hyphenated list of randomly-selected words.
-	Name *string `json:"name,omitempty"`
-
-	// The additional network interfaces to create for the virtual server instance.
-	NetworkInterfaces []NetworkInterfacePrototype `json:"network_interfaces,omitempty"`
-
-	// The placement restrictions to use for the virtual server instance.
-	PlacementTarget InstancePlacementTargetPrototypeIntf `json:"placement_target,omitempty"`
-
-	// The profile to use for this virtual server instance. If unspecified, `bx2-2x8` will be used, but this default value
-	// is expected to change in the future.
-	Profile InstanceProfileIdentityIntf `json:"profile,omitempty"`
-
-	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
-
-	// The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes. An increase in
-	// this value will result in a corresponding decrease to
-	// `total_network_bandwidth`.
-	TotalVolumeBandwidth *int64 `json:"total_volume_bandwidth,omitempty"`
-
-	// User data to be made available when setting up the virtual server instance.
-	UserData *string `json:"user_data,omitempty"`
-
-	// The volume attachments for this virtual server instance.
-	VolumeAttachments []VolumeAttachmentPrototypeInstanceContext `json:"volume_attachments,omitempty"`
-
-	// The VPC the virtual server instance is to be a part of. If specified, it must match the VPC referenced by the
-	// subnets of the instance's network interfaces.
-	VPC VPCIdentityIntf `json:"vpc,omitempty"`
-
-	// The boot volume attachment for the virtual server instance.
-	BootVolumeAttachment *VolumeAttachmentPrototypeInstanceByVolumeContext `json:"boot_volume_attachment" validate:"required"`
-
-	// Primary network interface.
-	PrimaryNetworkInterface *NetworkInterfacePrototype `json:"primary_network_interface" validate:"required"`
-
-	// The zone this virtual server instance will reside in.
-	Zone ZoneIdentityIntf `json:"zone" validate:"required"`
-}
-
-// NewInstancePrototypeInstanceByVolume : Instantiate InstancePrototypeInstanceByVolume (Generic Model Constructor)
-func (*VpcV1) NewInstancePrototypeInstanceByVolume(bootVolumeAttachment *VolumeAttachmentPrototypeInstanceByVolumeContext, primaryNetworkInterface *NetworkInterfacePrototype, zone ZoneIdentityIntf) (_model *InstancePrototypeInstanceByVolume, err error) {
-	_model = &InstancePrototypeInstanceByVolume{
-		BootVolumeAttachment:    bootVolumeAttachment,
-		PrimaryNetworkInterface: primaryNetworkInterface,
-		Zone:                    zone,
-	}
-	err = core.ValidateStruct(_model, "required parameters")
-	return
-}
-
-func (*InstancePrototypeInstanceByVolume) isaInstancePrototype() bool {
-	return true
-}
-
-// UnmarshalInstancePrototypeInstanceByVolume unmarshals an instance of InstancePrototypeInstanceByVolume from the specified map of raw messages.
-func UnmarshalInstancePrototypeInstanceByVolume(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(InstancePrototypeInstanceByVolume)
-	err = core.UnmarshalModel(m, "availability_policy", &obj.AvailabilityPolicy, UnmarshalInstanceAvailabilityPrototype)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "default_trusted_profile", &obj.DefaultTrustedProfile, UnmarshalInstanceDefaultTrustedProfilePrototype)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "keys", &obj.Keys, UnmarshalKeyIdentity)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "metadata_service", &obj.MetadataService, UnmarshalInstanceMetadataServicePrototype)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "network_interfaces", &obj.NetworkInterfaces, UnmarshalNetworkInterfacePrototype)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "placement_target", &obj.PlacementTarget, UnmarshalInstancePlacementTargetPrototype)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "profile", &obj.Profile, UnmarshalInstanceProfileIdentity)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "resource_group", &obj.ResourceGroup, UnmarshalResourceGroupIdentity)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "total_volume_bandwidth", &obj.TotalVolumeBandwidth)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "user_data", &obj.UserData)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "volume_attachments", &obj.VolumeAttachments, UnmarshalVolumeAttachmentPrototypeInstanceContext)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "vpc", &obj.VPC, UnmarshalVPCIdentity)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "boot_volume_attachment", &obj.BootVolumeAttachment, UnmarshalVolumeAttachmentPrototypeInstanceByVolumeContext)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "primary_network_interface", &obj.PrimaryNetworkInterface, UnmarshalNetworkInterfacePrototype)
 	if err != nil {
 		return
 	}
@@ -69999,70 +69293,6 @@ func UnmarshalReservedIPTargetVPNGatewayReference(m map[string]json.RawMessage, 
 	return
 }
 
-// ReservedIPTargetVPNServerReference : ReservedIPTargetVPNServerReference struct
-// This model "extends" ReservedIPTarget
-type ReservedIPTargetVPNServerReference struct {
-	// The CRN for this VPN server.
-	CRN *string `json:"crn" validate:"required"`
-
-	// If present, this property indicates the referenced resource has been deleted and provides
-	// some supplementary information.
-	Deleted *VPNServerReferenceDeleted `json:"deleted,omitempty"`
-
-	// The URL for this VPN server.
-	Href *string `json:"href" validate:"required"`
-
-	// The unique identifier for this VPN server.
-	ID *string `json:"id" validate:"required"`
-
-	// The unique user-defined name for this VPN server.
-	Name *string `json:"name" validate:"required"`
-
-	// The resource type.
-	ResourceType *string `json:"resource_type" validate:"required"`
-}
-
-// Constants associated with the ReservedIPTargetVPNServerReference.ResourceType property.
-// The resource type.
-const (
-	ReservedIPTargetVPNServerReferenceResourceTypeVPNServerConst = "vpn_server"
-)
-
-func (*ReservedIPTargetVPNServerReference) isaReservedIPTarget() bool {
-	return true
-}
-
-// UnmarshalReservedIPTargetVPNServerReference unmarshals an instance of ReservedIPTargetVPNServerReference from the specified map of raw messages.
-func UnmarshalReservedIPTargetVPNServerReference(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(ReservedIPTargetVPNServerReference)
-	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "deleted", &obj.Deleted, UnmarshalVPNServerReferenceDeleted)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
 // ResourceGroupIdentityByID : ResourceGroupIdentityByID struct
 // This model "extends" ResourceGroupIdentity
 type ResourceGroupIdentityByID struct {
@@ -73382,79 +72612,6 @@ func UnmarshalVolumeAttachmentPrototypeVolumeVolumePrototypeInstanceContext(m ma
 		return
 	}
 	err = core.UnmarshalModel(m, "encryption_key", &obj.EncryptionKey, UnmarshalEncryptionKeyIdentity)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "source_snapshot", &obj.SourceSnapshot, UnmarshalSnapshotIdentity)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// VolumeAttachmentVolumePrototypeInstanceByVolumeContextVolumePrototypeInstanceByVolumeContext : VolumeAttachmentVolumePrototypeInstanceByVolumeContextVolumePrototypeInstanceByVolumeContext struct
-// This model "extends" VolumeAttachmentVolumePrototypeInstanceByVolumeContext
-type VolumeAttachmentVolumePrototypeInstanceByVolumeContextVolumePrototypeInstanceByVolumeContext struct {
-	// The capacity to use for the volume (in gigabytes). Must be at least the snapshot's
-	// `minimum_capacity`. The maximum value may increase in the future.
-	//
-	// If unspecified, the capacity will be the source snapshot's `minimum_capacity`.
-	Capacity *int64 `json:"capacity,omitempty"`
-
-	// The root key to use to wrap the data encryption key for the volume.
-	//
-	// If unspecified, the snapshot's `encryption_key` will be used.
-	EncryptionKey EncryptionKeyIdentityIntf `json:"encryption_key,omitempty"`
-
-	// The maximum I/O operations per second (IOPS) to use for the volume. Applicable only to volumes using a profile
-	// `family` of `custom`.
-	Iops *int64 `json:"iops,omitempty"`
-
-	// The unique user-defined name for this volume.
-	Name *string `json:"name,omitempty"`
-
-	// The profile to use for this volume.
-	Profile VolumeProfileIdentityIntf `json:"profile" validate:"required"`
-
-	// The snapshot from which to clone the volume.
-	SourceSnapshot SnapshotIdentityIntf `json:"source_snapshot" validate:"required"`
-}
-
-// NewVolumeAttachmentVolumePrototypeInstanceByVolumeContextVolumePrototypeInstanceByVolumeContext : Instantiate VolumeAttachmentVolumePrototypeInstanceByVolumeContextVolumePrototypeInstanceByVolumeContext (Generic Model Constructor)
-func (*VpcV1) NewVolumeAttachmentVolumePrototypeInstanceByVolumeContextVolumePrototypeInstanceByVolumeContext(profile VolumeProfileIdentityIntf, sourceSnapshot SnapshotIdentityIntf) (_model *VolumeAttachmentVolumePrototypeInstanceByVolumeContextVolumePrototypeInstanceByVolumeContext, err error) {
-	_model = &VolumeAttachmentVolumePrototypeInstanceByVolumeContextVolumePrototypeInstanceByVolumeContext{
-		Profile:        profile,
-		SourceSnapshot: sourceSnapshot,
-	}
-	err = core.ValidateStruct(_model, "required parameters")
-	return
-}
-
-func (*VolumeAttachmentVolumePrototypeInstanceByVolumeContextVolumePrototypeInstanceByVolumeContext) isaVolumeAttachmentVolumePrototypeInstanceByVolumeContext() bool {
-	return true
-}
-
-// UnmarshalVolumeAttachmentVolumePrototypeInstanceByVolumeContextVolumePrototypeInstanceByVolumeContext unmarshals an instance of VolumeAttachmentVolumePrototypeInstanceByVolumeContextVolumePrototypeInstanceByVolumeContext from the specified map of raw messages.
-func UnmarshalVolumeAttachmentVolumePrototypeInstanceByVolumeContextVolumePrototypeInstanceByVolumeContext(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(VolumeAttachmentVolumePrototypeInstanceByVolumeContextVolumePrototypeInstanceByVolumeContext)
-	err = core.UnmarshalPrimitive(m, "capacity", &obj.Capacity)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "encryption_key", &obj.EncryptionKey, UnmarshalEncryptionKeyIdentity)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "iops", &obj.Iops)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "profile", &obj.Profile, UnmarshalVolumeProfileIdentity)
 	if err != nil {
 		return
 	}
