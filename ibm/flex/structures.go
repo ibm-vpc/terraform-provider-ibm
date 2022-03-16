@@ -2184,7 +2184,7 @@ func ResourceTagsCustomizeDiff(diff *schema.ResourceDiff) error {
 	return nil
 }
 
-func resourceValidateAccessTags(diff *schema.ResourceDiff, meta interface{}) error {
+func ResourceValidateAccessTags(diff *schema.ResourceDiff, meta interface{}) error {
 
 	if value, ok := diff.GetOkExists("access_tags"); ok {
 		tagSet := value.(*schema.Set)
