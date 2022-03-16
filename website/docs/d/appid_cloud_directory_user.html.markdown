@@ -1,5 +1,5 @@
 ---
-subcategory: "AppID Management"
+subcategory: "App ID Management"
 layout: "ibm"
 page_title: "IBM: AppID Cloud Directory User"
 description: |-
@@ -7,7 +7,7 @@ description: |-
 ---
 
 # ibm_appid_cloud_directory_user
-Retrieve information about an IBM Cloud AppID Management Services Cloud Directory User.
+Retrieve information about an IBM Cloud AppID Management Services Cloud Directory User. For more information, see [managing users](https://cloud.ibm.com/docs/appid?topic=appid-cd-users)
 
 ## Example usage
 

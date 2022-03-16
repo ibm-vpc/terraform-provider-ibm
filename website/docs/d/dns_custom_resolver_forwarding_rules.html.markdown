@@ -10,23 +10,23 @@ description: |-
 
 Provides a read-only data source for forwarding rules. You can then reference the fields of the data source in other resources within the same configuration using interpolation syntax. For more information about forwarding rules, refer to [list-forwarding-rules](https://cloud.ibm.com/apidocs/dns-svcs#list-forwarding-rules)
 
-## Example Usage
+## Example usage
 
-```terraform
-data "ibm_dns_custom_resolver_forwarding_rules" "dns_custom_resolver_forwarding_rules" {
-  instance_id = ibm_dns_custom_resolver_forwarding_rule.dns_custom_resolver_forwarding_rule.instance_id
-  resolver_id = ibm_dns_custom_resolver_forwarding_rule.dns_custom_resolver_forwarding_rule.resolver_id
+
+data "ibm_dns_custom_resolver_forwarding_rules" "test-fr" {
+	instance_id	= ibm_dns_custom_resolver.test.instance_id
+	resolver_id	= ibm_dns_custom_resolver.test.custom_resolver_id
 }
 ```
 
-## Argument Reference
+## Argument reference
 
 Review the argument reference that you can specify for your data source.
 
 - `instance_id` - (Required, String) The GUID of the private DNS service instance.
 - `resolver_id` - (Required, String) The unique identifier of a custom resolver.
 
-## Attribute Reference
+## Attribute reference
 
 In addition to the argument references list, you can access the following attribute references after your data source are created.
 

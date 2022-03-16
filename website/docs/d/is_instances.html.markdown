@@ -9,20 +9,30 @@ description: |-
 # ibm_is_instances
 Retrieve information of an existing  IBM Cloud virtual server instances as a read-only data source. For more information, about virtual server instances, see [about virtual server instances for VPC](https://cloud.ibm.com/docs/vpc?topic=vpc-about-advanced-virtual-servers).
 
+**Note:** 
+VPC infrastructure services are a regional specific based endpoint, by default targets to `us-south`. Please make sure to target right region in the provider block as shown in the `provider.tf` file, if VPC service is created in region other than `us-south`.
+
+**provider.tf**
+
+```terraform
+provider "ibm" {
+  region = "eu-gb"
+}
+```
 
 ## Example usage
 
 ```terraform
 
-data "ibm_is_instances" "ds_instances" {
+data "ibm_is_instances" "example" {
 }
 
 ```
 
 ```terraform
 
-data "ibm_is_instances" "ds_instances1" {
-  vpc_name = "testacc_vpc"
+data "ibm_is_instances" "example" {
+  vpc_name = "example-vpc"
 }
 
 ```
@@ -47,6 +57,8 @@ In addition to all argument reference list, you can access the following attribu
 - `instances`- (List of Object) A list of Virtual Servers for VPC instances that exist in your account.
    
    Nested scheme for `instances`:
+    - `availability_policy_host_failure` - (String) The availability policy for this virtual server instance. The action to perform if the compute host experiences a failure. 
+    - `bandwidth` - (Integer) The total bandwidth (in megabits per second) shared across the instance's network interfaces and storage volumes
 	- `boot_volume`- (List) A list of boot volumes that were created for the instance.
 
 	  Nested scheme for `boot_volume`:
@@ -75,6 +87,7 @@ In addition to all argument reference list, you can access the following attribu
 	- `id` - (String) The ID that was assigned to the Virtual Servers for VPC instance.
 	- `image` - (String) The ID of the virtual server image that is used in the instance.
 	- `memory`- (Integer) The amount of memory that was allocated to the instance.
+	- `metadata_service_enabled` - (Boolean) Indicates whether the metadata service endpoint is available to the virtual server instance.
 	- `network_interfaces`- (List) A list of more network interfaces that the instance uses.
 
 	  Nested scheme for `network_interfaces`:
@@ -107,6 +120,8 @@ In addition to all argument reference list, you can access the following attribu
 		Nested scheme for `status_reasons`:
 		- `code` - (String)  A snake case string identifying the status reason.
 		- `message` - (String)  An explanation of the status reason
+	- `total_volume_bandwidth` - (Integer) The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes
+    - `total_network_bandwidth` - (Integer) The amount of bandwidth (in megabits per second) allocated exclusively to instance network interfaces.
 	- `volume_attachments`- (List) A list of volume attachments that were created for the instance.
 
 	  Nested scheme for `volume_attachments`: 

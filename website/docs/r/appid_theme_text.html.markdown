@@ -1,5 +1,5 @@
 ---
-subcategory: "AppID Management"
+subcategory: "App ID Management"
 layout: "ibm"
 page_title: "IBM: AppID Theme Text"
 description: |-
@@ -8,7 +8,7 @@ description: |-
 
 # ibm_appid_theme_text
 
-Create, update, or delete an IBM Cloud AppID Management Services theme text resource.
+Create, update, or delete an IBM Cloud AppID Management Services theme text resource. For more information, see [customizing the login widget](https://cloud.ibm.com/docs/appid?topic=appid-login-widget&interface=api#widget-customize)
 
 ## Example usage
 

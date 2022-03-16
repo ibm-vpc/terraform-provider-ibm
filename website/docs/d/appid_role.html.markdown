@@ -1,5 +1,5 @@
 ---
-subcategory: "AppID Management"
+subcategory: "App ID Management"
 layout: "ibm"
 page_title: "IBM: AppID Role"
 description: |-
@@ -7,7 +7,7 @@ description: |-
 ---
 
 # ibm_appid_role
-Retrieve information about an IBM Cloud AppID Management Services role.
+Retrieve information about an IBM Cloud AppID Management Services role. For more information, see [creating roles with API](https://cloud.ibm.com/docs/appid?topic=appid-access-control&interface=api#create-roles-api)
 
 ## Example usage
 

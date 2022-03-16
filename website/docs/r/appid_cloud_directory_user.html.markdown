@@ -1,5 +1,5 @@
 ---
-subcategory: "AppID Management"
+subcategory: "App ID Management"
 layout: "ibm"
 page_title: "IBM: AppID Cloud Directory User"
 description: |-
@@ -8,7 +8,7 @@ description: |-
 
 # ibm_appid_cloud_directory_user
 
-Create, update, or delete an IBM Cloud AppID Management Services Cloud Directory user resource.
+Create, update, or delete an IBM Cloud AppID Management Services Cloud Directory user resource. For more information, see [managing users](https://cloud.ibm.com/docs/appid?topic=appid-cd-users)
 
 Note: depending on your AppID Cloud Directory settings, new user creation may trigger user verification email.
 

@@ -1,5 +1,5 @@
 ---
-subcategory: "AppID Management"
+subcategory: "App ID Management"
 layout: "ibm"
 page_title: "IBM: AppID Theme Color"
 description: |-
@@ -7,7 +7,7 @@ description: |-
 ---
 
 # ibm_appid_theme_color
-Retrieve an IBM Cloud AppID Management Services theme color configuration.
+Retrieve an IBM Cloud AppID Management Services theme color configuration. For more information, see [customizing the login widget](https://cloud.ibm.com/docs/appid?topic=appid-login-widget&interface=api#widget-customize)
 
 ## Example usage
 

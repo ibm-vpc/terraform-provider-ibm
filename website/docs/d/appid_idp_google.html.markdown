@@ -1,5 +1,5 @@
 ---
-subcategory: "AppID Management"
+subcategory: "App ID Management"
 layout: "ibm"
 page_title: "IBM: AppID Google IDP"
 description: |-
@@ -7,7 +7,7 @@ description: |-
 ---
 
 # ibm_appid_idp_google
-Retrieve information about an IBM Cloud AppID Google IDP.
+Retrieve information about an IBM Cloud AppID Google IDP. For more information, see [App ID social identity providers](https://cloud.ibm.com/docs/appid?topic=appid-social)
 
 ## Example usage
 

@@ -1,5 +1,5 @@
 ---
-subcategory: "AppID Management"
+subcategory: "App ID Management"
 layout: "ibm"
 page_title: "IBM: AppID Languages"
 description: |-
@@ -8,7 +8,7 @@ description: |-
 
 # ibm_appid_languages
 
-Retrieve information about an IBM Cloud AppID Management Services languages.
+Retrieve information about an IBM Cloud AppID Management Services languages. For more information, see [supported languages](https://cloud.ibm.com/docs/appid?topic=appid-cd-types#cd-languages)
 
 ## Example usage
 

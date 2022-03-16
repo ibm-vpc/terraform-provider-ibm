@@ -1,5 +1,5 @@
 ---
-subcategory: "AppID Management"
+subcategory: "App ID Management"
 layout: "ibm"
 page_title: "IBM: AppID User Roles"
 description: |-
@@ -8,7 +8,7 @@ description: |-
 
 # ibm_appid_user_roles
 
-Create, update, or delete an IBM Cloud AppID Management Services user roles resource.
+Create, update, or delete an IBM Cloud AppID Management Services user roles resource. For more information, see [assigning roles to users with the API](https://cloud.ibm.com/docs/appid?topic=appid-access-control&interface=api#assign-roles-api)
 
 ## Example usage
 
