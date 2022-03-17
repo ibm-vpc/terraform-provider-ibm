@@ -102,6 +102,40 @@ func DataSourceIBMISVPNGateway() *schema.Resource {
 							Computed:    true,
 							Description: "The private IP address assigned to the VPN gateway member. This property will be present only when the VPN gateway status is`available`.",
 						},
+						isVPNGatewayPrivateIP: {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "The private IP addresses assigned to this load balancer.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									isVPNGatewayPrivateIpAddress: {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The IP address to reserve, which must not already be reserved on the subnet.",
+									},
+									isVPNGatewayPrivateIpHref: {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The URL for this reserved IP",
+									},
+									isVPNGatewayPrivateIpName: {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The user-defined name for this reserved IP. If unspecified, the name will be a hyphenated list of randomly-selected words. Names must be unique within the subnet the reserved IP resides in. ",
+									},
+									isVPNGatewayPrivateIpId: {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "Identifies a reserved IP by a unique property.",
+									},
+									isVPNGatewayPrivateIpResourceType: {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The resource type",
+									},
+								},
+							},
+						},
 						"public_ip_address": {
 							Type:        schema.TypeString,
 							Computed:    true,
@@ -372,6 +406,15 @@ func dataSourceVPNGatewayMembersToMap(membersItem vpcv1.VPNGatewayMember) (membe
 
 	if membersItem.PrivateIP != nil {
 		membersMap["private_ip_address"] = membersItem.PrivateIP.Address
+		privateIpDetailList := make([]map[string]interface{}, 0)
+		currentPriIp := map[string]interface{}{}
+		currentPriIp[isVPNGatewayPrivateIpAddress] = *membersItem.PrivateIP.Address
+		currentPriIp[isVPNGatewayPrivateIpHref] = *membersItem.PrivateIP.Href
+		currentPriIp[isVPNGatewayPrivateIpName] = *membersItem.PrivateIP.Name
+		currentPriIp[isVPNGatewayPrivateIpId] = *membersItem.PrivateIP.ID
+		currentPriIp[isVPNGatewayPrivateIpResourceType] = *membersItem.PrivateIP.ResourceType
+		privateIpDetailList = append(privateIpDetailList, currentPriIp)
+		membersMap[isVPNGatewayPrivateIP] = privateIpDetailList
 	}
 	if membersItem.PublicIP != nil {
 		membersMap["public_ip_address"] = membersItem.PublicIP.Address

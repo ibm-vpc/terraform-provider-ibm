@@ -456,7 +456,7 @@ func dataSourceIBMISBareMetalServerRead(context context.Context, d *schema.Resou
 		currentPrimNic[isBareMetalServerNicSubnet] = *bms.PrimaryNetworkInterface.Subnet.ID
 		primaryIpList := make([]map[string]interface{}, 0)
 		currentIP := map[string]interface{}{
-			isBareMetalServerNicIpAddress: *bms.PrimaryNetworkInterface.PrimaryIpv4Address,
+			isBareMetalServerNicIpAddress: *bms.PrimaryNetworkInterface.PrimaryIP.Address,
 		}
 		primaryIpList = append(primaryIpList, currentIP)
 		currentPrimNic[isBareMetalServerNicPrimaryIP] = primaryIpList
@@ -512,7 +512,7 @@ func dataSourceIBMISBareMetalServerRead(context context.Context, d *schema.Resou
 			currentNic[isBareMetalServerNicName] = *intfc.Name
 			primaryIpList := make([]map[string]interface{}, 0)
 			currentIP := map[string]interface{}{
-				isBareMetalServerNicIpAddress: *intfc.PrimaryIpv4Address,
+				isBareMetalServerNicIpAddress: *intfc.PrimaryIP.Address,
 			}
 			primaryIpList = append(primaryIpList, currentIP)
 			currentNic[isBareMetalServerNicPrimaryIP] = primaryIpList

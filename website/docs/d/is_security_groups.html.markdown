@@ -69,16 +69,6 @@ Nested scheme for `security_groups`:
 	- `href` - (String) The security group's canonical URL.
 	- `id` - (String) The unique identifier for this security group.
 	- `name` - (String) The user-defined name for this security group. Names must be unique within the VPC the security group resides in.
-	- `network_interfaces` - (Deprecated, List) The network interfaces for this security group.
-	Nested scheme for `network_interfaces`:
-		- `deleted` - (List) If present, this property indicates the referenced resource has been deleted and providessome supplementary information.
-		Nested scheme for `deleted`:
-			- `more_info` - (String) Link to documentation about deleted resources.
-		- `href` - (String) The URL for this network interface.
-		- `id` - (String) The unique identifier for this network interface.
-		- `name` - (String) The user-defined name for this network interface.
-		- `primary_ipv4_address` - (String) The primary IPv4 address.If the address has not yet been selected, the value will be `0.0.0.0`.
-		- `resource_type` - (String) The resource type.
 	- `resource_group` - (List) The resource group for this security group.
 	Nested scheme for `resource_group`:
 		- `href` - (String) The URL for this resource group.

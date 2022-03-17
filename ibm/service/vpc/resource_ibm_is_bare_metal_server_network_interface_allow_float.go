@@ -217,7 +217,9 @@ func createVlanTypeNetworkInterfaceAllowFloat(context context.Context, d *schema
 		reservedIpAddressOk, ok := primaryIp[isBareMetalServerNicIpAddress]
 		if ok && reservedIpAddressOk.(string) != "" {
 			reservedIpAddress := reservedIpAddressOk.(string)
-			nicOptions.PrimaryIpv4Address = &reservedIpAddress
+			nicOptions.PrimaryIP = &vpcv1.NetworkInterfaceIPPrototypeReservedIPPrototypeNetworkInterfaceContext{
+				Address: &reservedIpAddress,
+			}
 		}
 	}
 
@@ -365,7 +367,7 @@ func bareMetalServerNICAllowFloatGet(d *schema.ResourceData, meta interface{}, n
 			primaryIpList := make([]map[string]interface{}, 0)
 			currentIP := map[string]interface{}{
 
-				isBareMetalServerNicIpAddress: *nic.PrimaryIpv4Address,
+				isBareMetalServerNicIpAddress: *nic.PrimaryIP.Address,
 			}
 			primaryIpList = append(primaryIpList, currentIP)
 			d.Set(isBareMetalServerNicPrimaryIP, primaryIpList)
@@ -414,7 +416,7 @@ func bareMetalServerNICAllowFloatGet(d *schema.ResourceData, meta interface{}, n
 			primaryIpList := make([]map[string]interface{}, 0)
 			currentIP := map[string]interface{}{
 
-				isBareMetalServerNicIpAddress: *nic.PrimaryIpv4Address,
+				isBareMetalServerNicIpAddress: *nic.PrimaryIP.Address,
 			}
 			primaryIpList = append(primaryIpList, currentIP)
 			d.Set(isBareMetalServerNicPrimaryIP, primaryIpList)

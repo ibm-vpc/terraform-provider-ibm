@@ -66,8 +66,55 @@ func ResourceIBMIsInstanceNetworkInterface() *schema.Resource {
 				Optional:     true,
 				Computed:     true,
 				ForceNew:     true,
+				Deprecated:   "primary_ipv4_address is deprecated and support will be removed. Use primary_ip instead",
 				ValidateFunc: validate.InvokeValidator("ibm_is_instance_network_interface", isInstanceNicPrimaryIpv4Address),
 				Description:  "The primary IPv4 address. If specified, it must be an available address on the network interface's subnet. If unspecified, an available address on the subnet will be automatically selected.",
+			},
+			isInstanceNicPrimaryIP: {
+				Type:        schema.TypeList,
+				MinItems:    0,
+				MaxItems:    1,
+				Optional:    true,
+				Computed:    true,
+				Description: "The primary IP address to bind to the network interface. This can be specified using an existing reserved IP, or a prototype object for a new reserved IP.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						isInstanceNicReservedIpAddress: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The IP address to reserve, which must not already be reserved on the subnet.",
+						},
+						isInstanceNicReservedIpHref: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The URL for this reserved IP",
+						},
+						isInstanceNicReservedIpAutoDelete: {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Computed:    true,
+							Description: "Indicates whether this reserved IP member will be automatically deleted when either target is deleted, or the reserved IP is unbound.",
+						},
+						isInstanceNicReservedIpName: {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Computed:    true,
+							Description: "The user-defined name for this reserved IP. If unspecified, the name will be a hyphenated list of randomly-selected words. Names must be unique within the subnet the reserved IP resides in. ",
+						},
+						isInstanceNicReservedIpId: {
+							Type:          schema.TypeString,
+							Optional:      true,
+							ConflictsWith: []string{"primary_network_interface.0.primary_ipv4_address"},
+							Computed:      true,
+							Description:   "Identifies a reserved IP by a unique property.",
+						},
+						isInstanceNicReservedIpResourceType: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The resource type",
+						},
+					},
+				},
 			},
 			"network_interface": {
 				Type:        schema.TypeString,
@@ -216,8 +263,38 @@ func resourceIBMIsInstanceNetworkInterfaceCreate(context context.Context, d *sch
 	if name, ok := d.GetOk(isInstanceNicName); ok {
 		createInstanceNetworkInterfaceOptions.SetName(name.(string))
 	}
-	if primary_ipv4, ok := d.GetOk(isInstanceNicPrimaryIpv4Address); ok {
-		createInstanceNetworkInterfaceOptions.SetPrimaryIpv4Address(primary_ipv4.(string))
+	primary_ipv4 := ""
+	if primary_ipv4Ok, ok := d.GetOk(isInstanceNicPrimaryIpv4Address); ok {
+		primary_ipv4 = primary_ipv4Ok.(string)
+	}
+
+	//reserved ip changes
+	if primaryIpOk, ok := d.GetOk(isInstanceNicPrimaryIP); ok {
+		primip := primaryIpOk.([]interface{})[0].(map[string]interface{})
+
+		reservedipok, _ := primip[isInstanceNicReservedIpId]
+		reservedip := reservedipok.(string)
+		if reservedip != "" {
+			createInstanceNetworkInterfaceOptions.PrimaryIP = &vpcv1.NetworkInterfaceIPPrototypeReservedIPIdentity{
+				ID: &reservedip,
+			}
+		} else {
+			var primaryIpObj = &vpcv1.NetworkInterfaceIPPrototypeReservedIPPrototypeNetworkInterfaceContext{}
+			if primary_ipv4 != "" {
+				primaryIpObj.Address = &primary_ipv4
+			}
+			reservedipnameOk, ok := primip[isInstanceNicReservedIpId]
+			reservedipname := reservedipnameOk.(string)
+			if ok && reservedipname != "" {
+				primaryIpObj.Name = &reservedipname
+			}
+			reservedipautodeleteok, ok := primip[isInstanceNicReservedIpId]
+			if ok {
+				autodelete := reservedipautodeleteok.(bool)
+				primaryIpObj.AutoDelete = &autodelete
+			}
+			createInstanceNetworkInterfaceOptions.PrimaryIP = primaryIpObj
+		}
 	}
 
 	if secgrpintf, ok := d.GetOk(isInstanceNicSecurityGroups); ok {
@@ -318,7 +395,7 @@ func resourceIBMIsInstanceNetworkInterfaceRead(context context.Context, d *schem
 	if err = d.Set(isInstanceNicName, *networkInterface.Name); err != nil {
 		return diag.FromErr(fmt.Errorf("[ERROR] Error setting name: %s", err))
 	}
-	if err = d.Set(isInstanceNicPrimaryIpv4Address, *networkInterface.PrimaryIpv4Address); err != nil {
+	if err = d.Set(isInstanceNicPrimaryIpv4Address, *networkInterface.PrimaryIP.Address); err != nil {
 		return diag.FromErr(fmt.Errorf("[ERROR] Error setting primary_ipv4_address: %s", err))
 	}
 	if networkInterface.SecurityGroups != nil && len(networkInterface.SecurityGroups) != 0 {

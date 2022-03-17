@@ -576,7 +576,9 @@ func resourceIBMISBareMetalServerCreate(context context.Context, d *schema.Resou
 			reservedIpAddressOk, ok := primaryIp[isBareMetalServerNicIpAddress]
 			if ok && reservedIpAddressOk.(string) != "" {
 				reservedIpAddress := reservedIpAddressOk.(string)
-				primnicobj.PrimaryIpv4Address = &reservedIpAddress
+				primnicobj.PrimaryIP = &vpcv1.NetworkInterfaceIPPrototypeReservedIPPrototypeNetworkInterfaceContext{
+					Address: &reservedIpAddress,
+				}
 			}
 		}
 
@@ -664,7 +666,9 @@ func resourceIBMISBareMetalServerCreate(context context.Context, d *schema.Resou
 					reservedIpAddressOk, ok := primaryIp[isBareMetalServerNicIpAddress]
 					if ok && reservedIpAddressOk.(string) != "" {
 						reservedIpAddress := reservedIpAddressOk.(string)
-						nicobj.PrimaryIpv4Address = &reservedIpAddress
+						nicobj.PrimaryIP = &vpcv1.NetworkInterfaceIPPrototypeReservedIPPrototypeNetworkInterfaceContext{
+							Address: &reservedIpAddress,
+						}
 					}
 				}
 
@@ -723,7 +727,9 @@ func resourceIBMISBareMetalServerCreate(context context.Context, d *schema.Resou
 					reservedIpAddressOk, ok := primaryIp[isBareMetalServerNicIpAddress]
 					if ok && reservedIpAddressOk.(string) != "" {
 						reservedIpAddress := reservedIpAddressOk.(string)
-						nicobj.PrimaryIpv4Address = &reservedIpAddress
+						nicobj.PrimaryIP = &vpcv1.NetworkInterfaceIPPrototypeReservedIPPrototypeNetworkInterfaceContext{
+							Address: &reservedIpAddress,
+						}
 					}
 				}
 
@@ -883,7 +889,7 @@ func bareMetalServerGet(context context.Context, d *schema.ResourceData, meta in
 
 		primaryIpList := make([]map[string]interface{}, 0)
 		currentIP := map[string]interface{}{
-			isBareMetalServerNicIpAddress: *bms.PrimaryNetworkInterface.PrimaryIpv4Address,
+			isBareMetalServerNicIpAddress: *bms.PrimaryNetworkInterface.PrimaryIP.Address,
 		}
 		primaryIpList = append(primaryIpList, currentIP)
 		currentPrimNic[isBareMetalServerNicPrimaryIP] = primaryIpList
@@ -949,7 +955,7 @@ func bareMetalServerGet(context context.Context, d *schema.ResourceData, meta in
 			}
 			primaryIpList := make([]map[string]interface{}, 0)
 			currentIP := map[string]interface{}{
-				isBareMetalServerNicIpAddress: *intfc.PrimaryIpv4Address,
+				isBareMetalServerNicIpAddress: *intfc.PrimaryIP.Address,
 			}
 			primaryIpList = append(primaryIpList, currentIP)
 			currentNic[isBareMetalServerNicPrimaryIP] = primaryIpList

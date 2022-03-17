@@ -334,7 +334,9 @@ func resourceIBMISBareMetalServerNetworkInterfaceCreate(context context.Context,
 			reservedIpAddressOk, ok := primaryIp[isBareMetalServerNicIpAddress]
 			if ok && reservedIpAddressOk.(string) != "" {
 				reservedIpAddress := reservedIpAddressOk.(string)
-				nicOptions.PrimaryIpv4Address = &reservedIpAddress
+				nicOptions.PrimaryIP = &vpcv1.NetworkInterfaceIPPrototypeReservedIPPrototypeNetworkInterfaceContext{
+					Address: &reservedIpAddress,
+				}
 			}
 		}
 
@@ -440,7 +442,9 @@ func createVlanTypeNetworkInterface(context context.Context, d *schema.ResourceD
 		reservedIpAddressOk, ok := primaryIp[isBareMetalServerNicIpAddress]
 		if ok && reservedIpAddressOk.(string) != "" {
 			reservedIpAddress := reservedIpAddressOk.(string)
-			nicOptions.PrimaryIpv4Address = &reservedIpAddress
+			nicOptions.PrimaryIP = &vpcv1.NetworkInterfaceIPPrototypeReservedIPPrototypeNetworkInterfaceContext{
+				Address: &reservedIpAddress,
+			}
 		}
 	}
 
@@ -540,7 +544,7 @@ func bareMetalServerNICGet(d *schema.ResourceData, meta interface{}, nicIntf int
 			primaryIpList := make([]map[string]interface{}, 0)
 			currentIP := map[string]interface{}{
 
-				isBareMetalServerNicIpAddress: *nic.PrimaryIpv4Address,
+				isBareMetalServerNicIpAddress: *nic.PrimaryIP.Address,
 			}
 			primaryIpList = append(primaryIpList, currentIP)
 			d.Set(isBareMetalServerNicPrimaryIP, primaryIpList)
@@ -596,7 +600,7 @@ func bareMetalServerNICGet(d *schema.ResourceData, meta interface{}, nicIntf int
 			primaryIpList := make([]map[string]interface{}, 0)
 			currentIP := map[string]interface{}{
 
-				isBareMetalServerNicIpAddress: *nic.PrimaryIpv4Address,
+				isBareMetalServerNicIpAddress: *nic.PrimaryIP.Address,
 			}
 			primaryIpList = append(primaryIpList, currentIP)
 			d.Set(isBareMetalServerNicPrimaryIP, primaryIpList)

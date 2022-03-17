@@ -12,13 +12,19 @@ import (
 )
 
 const (
-	floatingIPName    = "name"
-	floatingIPAddress = "address"
-	floatingIPStatus  = "status"
-	floatingIPZone    = "zone"
-	floatingIPTarget  = "target"
-	floatingIPTags    = "tags"
-	floatingIPCRN     = "crn"
+	floatingIPName                  = "name"
+	floatingIPAddress               = "address"
+	floatingIPStatus                = "status"
+	floatingIPZone                  = "zone"
+	floatingIPTarget                = "target"
+	floatingIPTags                  = "tags"
+	floatingIPCRN                   = "crn"
+	floatingIpPrimaryIP             = "primary_ip"
+	floatingIpPrimaryIpAddress      = "address"
+	floatingIpPrimaryIpHref         = "href"
+	floatingIpPrimaryIpName         = "name"
+	floatingIpPrimaryIpId           = "id"
+	floatingIpPrimaryIpResourceType = "resource_type"
 )
 
 func DataSourceIBMISFloatingIP() *schema.Resource {
