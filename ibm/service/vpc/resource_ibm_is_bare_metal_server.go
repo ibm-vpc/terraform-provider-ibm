@@ -252,6 +252,34 @@ func ResourceIBMIsBareMetalServer() *schema.Resource {
 										Computed:    true,
 										Description: "The globally unique IP address",
 									},
+									isBareMetalServerNicIpHref: {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The URL for this reserved IP",
+									},
+									isBareMetalServerNicIpAutoDelete: {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Computed:    true,
+										Description: "Indicates whether this reserved IP member will be automatically deleted when either target is deleted, or the reserved IP is unbound.",
+									},
+									isBareMetalServerNicIpName: {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Computed:    true,
+										Description: "The user-defined name for this reserved IP. If unspecified, the name will be a hyphenated list of randomly-selected words. Names must be unique within the subnet the reserved IP resides in. ",
+									},
+									isBareMetalServerNicIpID: {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Computed:    true,
+										Description: "Identifies a reserved IP by a unique property.",
+									},
+									isBareMetalServerNicResourceType: {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The resource type",
+									},
 								},
 							},
 						},
@@ -347,6 +375,34 @@ func ResourceIBMIsBareMetalServer() *schema.Resource {
 										Optional:    true,
 										Computed:    true,
 										Description: "The globally unique IP address",
+									},
+									isBareMetalServerNicIpHref: {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The URL for this reserved IP",
+									},
+									isBareMetalServerNicIpAutoDelete: {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Computed:    true,
+										Description: "Indicates whether this reserved IP member will be automatically deleted when either target is deleted, or the reserved IP is unbound.",
+									},
+									isBareMetalServerNicIpName: {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Computed:    true,
+										Description: "The user-defined name for this reserved IP. If unspecified, the name will be a hyphenated list of randomly-selected words. Names must be unique within the subnet the reserved IP resides in. ",
+									},
+									isBareMetalServerNicIpID: {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Computed:    true,
+										Description: "Identifies a reserved IP by a unique property.",
+									},
+									isBareMetalServerNicResourceType: {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The resource type",
 									},
 								},
 							},
@@ -573,10 +629,35 @@ func resourceIBMISBareMetalServerCreate(context context.Context, d *schema.Resou
 
 		if primaryIpIntf, ok := primnic[isBareMetalServerNicPrimaryIP]; ok && len(primaryIpIntf.([]interface{})) > 0 {
 			primaryIp := primaryIpIntf.([]interface{})[0].(map[string]interface{})
-			reservedIpAddressOk, ok := primaryIp[isBareMetalServerNicIpAddress]
-			if ok && reservedIpAddressOk.(string) != "" {
-				reservedIpAddress := reservedIpAddressOk.(string)
-				primnicobj.PrimaryIpv4Address = &reservedIpAddress
+
+			reservedIpIdOk, ok := primaryIp[isBareMetalServerNicIpID]
+			if ok && reservedIpIdOk.(string) != "" {
+				ipid := reservedIpIdOk.(string)
+				primnicobj.PrimaryIP = &vpcv1.NetworkInterfaceIPPrototypeReservedIPIdentity{
+					ID: &ipid,
+				}
+			} else {
+				primaryip := &vpcv1.NetworkInterfaceIPPrototypeReservedIPPrototypeNetworkInterfaceContext{}
+
+				reservedIpAddressOk, okAdd := primaryIp[isBareMetalServerNicIpAddress]
+				if okAdd && reservedIpAddressOk.(string) != "" {
+					reservedIpAddress := reservedIpAddressOk.(string)
+					primaryip.Address = &reservedIpAddress
+				}
+
+				reservedIpNameOk, okName := primaryIp[isBareMetalServerNicIpName]
+				if okName && reservedIpNameOk.(string) != "" {
+					reservedIpName := reservedIpNameOk.(string)
+					primaryip.Name = &reservedIpName
+				}
+				reservedIpAutoOk, okAuto := primaryIp[isBareMetalServerNicIpAutoDelete]
+				if okAuto {
+					reservedIpAuto := reservedIpAutoOk.(bool)
+					primaryip.AutoDelete = &reservedIpAuto
+				}
+				if okAdd || okName || okAuto {
+					primnicobj.PrimaryIP = primaryip
+				}
 			}
 		}
 
@@ -661,11 +742,35 @@ func resourceIBMISBareMetalServerCreate(context context.Context, d *schema.Resou
 
 				if primaryIpIntf, ok := nic[isBareMetalServerNicPrimaryIP]; ok && len(primaryIpIntf.([]interface{})) > 0 {
 					primaryIp := primaryIpIntf.([]interface{})[0].(map[string]interface{})
-					reservedIpAddressOk, ok := primaryIp[isBareMetalServerNicIpAddress]
-					if ok && reservedIpAddressOk.(string) != "" {
-						reservedIpAddress := reservedIpAddressOk.(string)
-						nicobj.PrimaryIpv4Address = &reservedIpAddress
+
+					reservedIpIdOk, ok := primaryIp[isBareMetalServerNicIpID]
+					if ok && reservedIpIdOk.(string) != "" {
+						ipid := reservedIpIdOk.(string)
+						nicobj.PrimaryIP = &vpcv1.NetworkInterfaceIPPrototypeReservedIPIdentity{
+							ID: &ipid,
+						}
+					} else {
+						primaryip := &vpcv1.NetworkInterfaceIPPrototypeReservedIPPrototypeNetworkInterfaceContext{}
+						reservedIpAddressOk, okAdd := primaryIp[isBareMetalServerNicIpAddress]
+						if okAdd && reservedIpAddressOk.(string) != "" {
+							reservedIpAddress := reservedIpAddressOk.(string)
+							primaryip.Address = &reservedIpAddress
+						}
+						reservedIpNameOk, okName := primaryIp[isBareMetalServerNicIpName]
+						if okName && reservedIpNameOk.(string) != "" {
+							reservedIpName := reservedIpNameOk.(string)
+							primaryip.Name = &reservedIpName
+						}
+						reservedIpAutoOk, okAuto := primaryIp[isBareMetalServerNicIpAutoDelete]
+						if okAuto {
+							reservedIpAuto := reservedIpAutoOk.(bool)
+							primaryip.AutoDelete = &reservedIpAuto
+						}
+						if okAdd || okName || okAuto {
+							nicobj.PrimaryIP = primaryip
+						}
 					}
+
 				}
 
 				allowIPSpoofing, ok := nic[isBareMetalServerNicAllowIPSpoofing]
@@ -720,10 +825,35 @@ func resourceIBMISBareMetalServerCreate(context context.Context, d *schema.Resou
 
 				if primaryIpIntf, ok := nic[isBareMetalServerNicPrimaryIP]; ok && len(primaryIpIntf.([]interface{})) > 0 {
 					primaryIp := primaryIpIntf.([]interface{})[0].(map[string]interface{})
-					reservedIpAddressOk, ok := primaryIp[isBareMetalServerNicIpAddress]
-					if ok && reservedIpAddressOk.(string) != "" {
-						reservedIpAddress := reservedIpAddressOk.(string)
-						nicobj.PrimaryIpv4Address = &reservedIpAddress
+					reservedIpIdOk, ok := primaryIp[isBareMetalServerNicIpID]
+					if ok && reservedIpIdOk.(string) != "" {
+						ipid := reservedIpIdOk.(string)
+						nicobj.PrimaryIP = &vpcv1.NetworkInterfaceIPPrototypeReservedIPIdentity{
+							ID: &ipid,
+						}
+					} else {
+						primaryip := &vpcv1.NetworkInterfaceIPPrototypeReservedIPPrototypeNetworkInterfaceContext{}
+
+						reservedIpAddressOk, okAdd := primaryIp[isBareMetalServerNicIpAddress]
+						if okAdd && reservedIpAddressOk.(string) != "" {
+							reservedIpAddress := reservedIpAddressOk.(string)
+							primaryip.Address = &reservedIpAddress
+						}
+
+						reservedIpNameOk, okName := primaryIp[isBareMetalServerNicIpName]
+						if okName && reservedIpNameOk.(string) != "" {
+							reservedIpName := reservedIpNameOk.(string)
+							primaryip.Name = &reservedIpName
+						}
+
+						reservedIpAutoOk, okAuto := primaryIp[isBareMetalServerNicIpAutoDelete]
+						if okAuto {
+							reservedIpAuto := reservedIpAutoOk.(bool)
+							primaryip.AutoDelete = &reservedIpAuto
+						}
+						if okAdd || okName || okAuto {
+							nicobj.PrimaryIP = primaryip
+						}
 					}
 				}
 
@@ -883,7 +1013,11 @@ func bareMetalServerGet(context context.Context, d *schema.ResourceData, meta in
 
 		primaryIpList := make([]map[string]interface{}, 0)
 		currentIP := map[string]interface{}{
-			isBareMetalServerNicIpAddress: *bms.PrimaryNetworkInterface.PrimaryIpv4Address,
+			isBareMetalServerNicIpAddress:    *bms.PrimaryNetworkInterface.PrimaryIP.Address,
+			isBareMetalServerNicIpHref:       *bms.PrimaryNetworkInterface.PrimaryIP.Href,
+			isBareMetalServerNicIpName:       *bms.PrimaryNetworkInterface.PrimaryIP.Name,
+			isBareMetalServerNicIpID:         *bms.PrimaryNetworkInterface.PrimaryIP.ID,
+			isBareMetalServerNicResourceType: *bms.PrimaryNetworkInterface.PrimaryIP.ResourceType,
 		}
 		primaryIpList = append(primaryIpList, currentIP)
 		currentPrimNic[isBareMetalServerNicPrimaryIP] = primaryIpList
@@ -949,7 +1083,11 @@ func bareMetalServerGet(context context.Context, d *schema.ResourceData, meta in
 			}
 			primaryIpList := make([]map[string]interface{}, 0)
 			currentIP := map[string]interface{}{
-				isBareMetalServerNicIpAddress: *intfc.PrimaryIpv4Address,
+				isBareMetalServerNicIpAddress:    *intfc.PrimaryIP.Address,
+				isBareMetalServerNicIpHref:       *intfc.PrimaryIP.Href,
+				isBareMetalServerNicIpName:       *intfc.PrimaryIP.Name,
+				isBareMetalServerNicIpID:         *intfc.PrimaryIP.ID,
+				isBareMetalServerNicResourceType: *intfc.PrimaryIP.ResourceType,
 			}
 			primaryIpList = append(primaryIpList, currentIP)
 			currentNic[isBareMetalServerNicPrimaryIP] = primaryIpList

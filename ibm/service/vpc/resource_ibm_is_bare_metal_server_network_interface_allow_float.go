@@ -109,6 +109,34 @@ func ResourceIBMIsBareMetalServerNetworkInterfaceAllowFloat() *schema.Resource {
 							Computed:    true,
 							Description: "The globally unique IP address",
 						},
+						isBareMetalServerNicIpHref: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The URL for this reserved IP",
+						},
+						isBareMetalServerNicIpAutoDelete: {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Computed:    true,
+							Description: "Indicates whether this reserved IP member will be automatically deleted when either target is deleted, or the reserved IP is unbound.",
+						},
+						isBareMetalServerNicIpName: {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Computed:    true,
+							Description: "The user-defined name for this reserved IP. If unspecified, the name will be a hyphenated list of randomly-selected words. Names must be unique within the subnet the reserved IP resides in. ",
+						},
+						isBareMetalServerNicIpID: {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Computed:    true,
+							Description: "Identifies a reserved IP by a unique property.",
+						},
+						isBareMetalServerNicResourceType: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The resource type",
+						},
 					},
 				},
 			},
@@ -214,10 +242,34 @@ func createVlanTypeNetworkInterfaceAllowFloat(context context.Context, d *schema
 	if primaryIpIntf, ok := d.GetOk(isBareMetalServerNicPrimaryIP); ok && len(primaryIpIntf.([]interface{})) > 0 {
 		primaryIp := primaryIpIntf.([]interface{})[0].(map[string]interface{})
 
-		reservedIpAddressOk, ok := primaryIp[isBareMetalServerNicIpAddress]
-		if ok && reservedIpAddressOk.(string) != "" {
-			reservedIpAddress := reservedIpAddressOk.(string)
-			nicOptions.PrimaryIpv4Address = &reservedIpAddress
+		reservedIpIdOk, ok := primaryIp[isBareMetalServerNicIpID]
+		if ok && reservedIpIdOk.(string) != "" {
+			ipid := reservedIpIdOk.(string)
+			nicOptions.PrimaryIP = &vpcv1.NetworkInterfaceIPPrototypeReservedIPIdentity{
+				ID: &ipid,
+			}
+		} else {
+
+			primaryip := &vpcv1.NetworkInterfaceIPPrototypeReservedIPPrototypeNetworkInterfaceContext{}
+
+			reservedIpAddressOk, okAdd := primaryIp[isBareMetalServerNicIpAddress]
+			if okAdd && reservedIpAddressOk.(string) != "" {
+				reservedIpAddress := reservedIpAddressOk.(string)
+				primaryip.Address = &reservedIpAddress
+			}
+			reservedIpNameOk, okName := primaryIp[isBareMetalServerNicIpName]
+			if okName && reservedIpNameOk.(string) != "" {
+				reservedIpName := reservedIpNameOk.(string)
+				primaryip.Name = &reservedIpName
+			}
+			reservedIpAutoOk, okAuto := primaryIp[isBareMetalServerNicIpAutoDelete]
+			if okAuto {
+				reservedIpAuto := reservedIpAutoOk.(bool)
+				primaryip.AutoDelete = &reservedIpAuto
+			}
+			if okAdd || okName || okAuto {
+				nicOptions.PrimaryIP = primaryip
+			}
 		}
 	}
 
@@ -365,7 +417,11 @@ func bareMetalServerNICAllowFloatGet(d *schema.ResourceData, meta interface{}, n
 			primaryIpList := make([]map[string]interface{}, 0)
 			currentIP := map[string]interface{}{
 
-				isBareMetalServerNicIpAddress: *nic.PrimaryIpv4Address,
+				isBareMetalServerNicIpAddress:    *nic.PrimaryIP.Address,
+				isBareMetalServerNicIpHref:       *nic.PrimaryIP.Href,
+				isBareMetalServerNicIpName:       *nic.PrimaryIP.Name,
+				isBareMetalServerNicIpID:         *nic.PrimaryIP.ID,
+				isBareMetalServerNicResourceType: *nic.PrimaryIP.ResourceType,
 			}
 			primaryIpList = append(primaryIpList, currentIP)
 			d.Set(isBareMetalServerNicPrimaryIP, primaryIpList)
@@ -414,7 +470,11 @@ func bareMetalServerNICAllowFloatGet(d *schema.ResourceData, meta interface{}, n
 			primaryIpList := make([]map[string]interface{}, 0)
 			currentIP := map[string]interface{}{
 
-				isBareMetalServerNicIpAddress: *nic.PrimaryIpv4Address,
+				isBareMetalServerNicIpAddress:    *nic.PrimaryIP.Address,
+				isBareMetalServerNicIpHref:       *nic.PrimaryIP.Href,
+				isBareMetalServerNicIpName:       *nic.PrimaryIP.Name,
+				isBareMetalServerNicIpID:         *nic.PrimaryIP.ID,
+				isBareMetalServerNicResourceType: *nic.PrimaryIP.ResourceType,
 			}
 			primaryIpList = append(primaryIpList, currentIP)
 			d.Set(isBareMetalServerNicPrimaryIP, primaryIpList)

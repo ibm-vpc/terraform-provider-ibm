@@ -116,6 +116,26 @@ func DataSourceIBMIsBareMetalServerNetworkInterfaces() *schema.Resource {
 										Computed:    true,
 										Description: "The globally unique IP address",
 									},
+									isBareMetalServerNicIpHref: {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The URL for this reserved IP",
+									},
+									isBareMetalServerNicIpName: {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The user-defined name for this reserved IP. If unspecified, the name will be a hyphenated list of randomly-selected words. Names must be unique within the subnet the reserved IP resides in. ",
+									},
+									isBareMetalServerNicIpID: {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "Identifies a reserved IP by a unique property.",
+									},
+									isBareMetalServerNicResourceType: {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The resource type",
+									},
 								},
 							},
 						},
@@ -227,7 +247,11 @@ func dataSourceIBMISBareMetalServerNetworkInterfacesRead(context context.Context
 				}
 				primaryIpList := make([]map[string]interface{}, 0)
 				currentIP := map[string]interface{}{
-					isBareMetalServerNicIpAddress: *nic.PrimaryIpv4Address,
+					isBareMetalServerNicIpAddress:    *nic.PrimaryIP.Address,
+					isBareMetalServerNicIpHref:       *nic.PrimaryIP.Href,
+					isBareMetalServerNicIpName:       *nic.PrimaryIP.Name,
+					isBareMetalServerNicIpID:         *nic.PrimaryIP.ID,
+					isBareMetalServerNicResourceType: *nic.PrimaryIP.ResourceType,
 				}
 				primaryIpList = append(primaryIpList, currentIP)
 				l[isBareMetalServerNicPrimaryIP] = primaryIpList
@@ -279,7 +303,11 @@ func dataSourceIBMISBareMetalServerNetworkInterfacesRead(context context.Context
 
 				primaryIpList := make([]map[string]interface{}, 0)
 				currentIP := map[string]interface{}{
-					isBareMetalServerNicIpAddress: *nic.PrimaryIpv4Address,
+					isBareMetalServerNicIpAddress:    *nic.PrimaryIP.Address,
+					isBareMetalServerNicIpHref:       *nic.PrimaryIP.Href,
+					isBareMetalServerNicIpName:       *nic.PrimaryIP.Name,
+					isBareMetalServerNicIpID:         *nic.PrimaryIP.ID,
+					isBareMetalServerNicResourceType: *nic.PrimaryIP.ResourceType,
 				}
 				primaryIpList = append(primaryIpList, currentIP)
 				l[isBareMetalServerNicPrimaryIP] = primaryIpList
