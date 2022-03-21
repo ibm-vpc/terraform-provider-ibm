@@ -176,7 +176,7 @@ func ResourceIBMISVolume() *schema.Resource {
 			isVolumeTags: {
 				Type:        schema.TypeSet,
 				Optional:    true,
-				Elem:        &schema.Schema{Type: schema.TypeString, ValidateFunc: validate.InvokeValidator("ibm_is_volume", "tag")},
+				Elem:        &schema.Schema{Type: schema.TypeString, ValidateFunc: validate.InvokeValidator("ibm_is_volume", "tags")},
 				Set:         flex.ResourceIBMVPCHash,
 				Description: "UserTags for the volume instance",
 			},
