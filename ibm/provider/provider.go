@@ -389,8 +389,8 @@ func Provider() *schema.Provider {
 			"ibm_is_instance_disks":                  vpc.DataSourceIbmIsInstanceDisks(),
 
 			// reserved ips
-			"ibm_is_instance_reserved_ip":  vpc.DataSourceIBMISInstanceNICReservedIP(),
-			"ibm_is_instance_reserved_ips": vpc.DataSourceIBMISInstanceNICReservedIPs(),
+			"ibm_is_instance_network_interface_reserved_ip":  vpc.DataSourceIBMISInstanceNICReservedIP(),
+			"ibm_is_instance_network_interface_reserved_ips": vpc.DataSourceIBMISInstanceNICReservedIPs(),
 
 			"ibm_is_instance_volume_attachment":  vpc.DataSourceIBMISInstanceVolumeAttachment(),
 			"ibm_is_instance_volume_attachments": vpc.DataSourceIBMISInstanceVolumeAttachments(),

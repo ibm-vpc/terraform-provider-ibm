@@ -90,10 +90,11 @@ func ResourceIBMIsInstanceNetworkInterface() *schema.Resource {
 							Description: "The URL for this reserved IP",
 						},
 						isInstanceNicReservedIpAutoDelete: {
-							Type:        schema.TypeString,
-							Optional:    true,
-							Computed:    true,
-							Description: "Indicates whether this reserved IP member will be automatically deleted when either target is deleted, or the reserved IP is unbound.",
+							Type:             schema.TypeBool,
+							Optional:         true,
+							Computed:         true,
+							DiffSuppressFunc: flex.ApplyOnce,
+							Description:      "Indicates whether this reserved IP member will be automatically deleted when either target is deleted, or the reserved IP is unbound.",
 						},
 						isInstanceNicReservedIpName: {
 							Type:        schema.TypeString,
@@ -104,7 +105,7 @@ func ResourceIBMIsInstanceNetworkInterface() *schema.Resource {
 						isInstanceNicReservedIpId: {
 							Type:          schema.TypeString,
 							Optional:      true,
-							ConflictsWith: []string{"primary_network_interface.0.primary_ipv4_address"},
+							ConflictsWith: []string{"primary_ipv4_address"},
 							Computed:      true,
 							Description:   "Identifies a reserved IP by a unique property.",
 						},
@@ -283,17 +284,19 @@ func resourceIBMIsInstanceNetworkInterfaceCreate(context context.Context, d *sch
 			if primary_ipv4 != "" {
 				primaryIpObj.Address = &primary_ipv4
 			}
-			reservedipnameOk, ok := primip[isInstanceNicReservedIpId]
+			reservedipnameOk, okName := primip[isInstanceNicReservedIpName]
 			reservedipname := reservedipnameOk.(string)
-			if ok && reservedipname != "" {
+			if okName && reservedipname != "" {
 				primaryIpObj.Name = &reservedipname
 			}
-			reservedipautodeleteok, ok := primip[isInstanceNicReservedIpId]
-			if ok {
+			reservedipautodeleteok, okAuto := primip[isInstanceNicReservedIpAutoDelete]
+			if okAuto {
 				autodelete := reservedipautodeleteok.(bool)
 				primaryIpObj.AutoDelete = &autodelete
 			}
-			createInstanceNetworkInterfaceOptions.PrimaryIP = primaryIpObj
+			if primary_ipv4 != "" || okName || okAuto {
+				createInstanceNetworkInterfaceOptions.PrimaryIP = primaryIpObj
+			}
 		}
 	}
 

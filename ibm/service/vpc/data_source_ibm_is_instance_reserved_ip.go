@@ -16,7 +16,7 @@ import (
 // Define all the constants that matches with the given terrafrom attribute
 const (
 	// Request Param Constants
-	isInstanceNICID           = "network_interface_id"
+	isInstanceNICID           = "network_interface"
 	isInstanceNICReservedIPID = "reserved_ip_id"
 
 	// Response Param Constants

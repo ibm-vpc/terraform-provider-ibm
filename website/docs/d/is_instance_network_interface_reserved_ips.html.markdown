@@ -13,7 +13,7 @@ Import the details of all the Reserved IPs in a network interface of an instance
 ## Example Usage
 
 ```terraform
-data "ibm__is_instance_network_interface_reserved_ips" "data_reserved_ips" {
+data "ibm_is_instance_network_interface_reserved_ips" "data_reserved_ips" {
   instance_id = ibm_is_instance.test_instance.id
   network_interface_id = ibm_is_instance.test_instance.network_interfaces.0.id
 }

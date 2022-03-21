@@ -395,10 +395,11 @@ func ResourceIBMISInstance() *schema.Resource {
 										Description: "The URL for this reserved IP",
 									},
 									isInstanceNicReservedIpAutoDelete: {
-										Type:        schema.TypeString,
-										Optional:    true,
-										Computed:    true,
-										Description: "Indicates whether this reserved IP member will be automatically deleted when either target is deleted, or the reserved IP is unbound.",
+										Type:             schema.TypeBool,
+										Optional:         true,
+										Computed:         true,
+										DiffSuppressFunc: flex.ApplyOnce,
+										Description:      "Indicates whether this reserved IP member will be automatically deleted when either target is deleted, or the reserved IP is unbound.",
 									},
 									isInstanceNicReservedIpName: {
 										Type:        schema.TypeString,
@@ -480,10 +481,11 @@ func ResourceIBMISInstance() *schema.Resource {
 										Description: "The IP address to reserve, which must not already be reserved on the subnet.",
 									},
 									isInstanceNicReservedIpAutoDelete: {
-										Type:        schema.TypeString,
-										Optional:    true,
-										Computed:    true,
-										Description: "Indicates whether this reserved IP member will be automatically deleted when either target is deleted, or the reserved IP is unbound.",
+										Type:             schema.TypeBool,
+										Optional:         true,
+										Computed:         true,
+										DiffSuppressFunc: flex.ApplyOnce,
+										Description:      "Indicates whether this reserved IP member will be automatically deleted when either target is deleted, or the reserved IP is unbound.",
 									},
 									isInstanceNicReservedIpHref: {
 										Type:        schema.TypeString,
@@ -1034,17 +1036,19 @@ func instanceCreateByImage(d *schema.ResourceData, meta interface{}, profile, na
 			if ipv4str != "" {
 				primaryIpObj.Address = &ipv4str
 			}
-			reservedipnameOk, ok := primip[isInstanceNicReservedIpId]
+			reservedipnameOk, okName := primip[isInstanceNicReservedIpName]
 			reservedipname := reservedipnameOk.(string)
-			if ok && reservedipname != "" {
+			if okName && reservedipname != "" {
 				primaryIpObj.Name = &reservedipname
 			}
-			reservedipautodeleteok, ok := primip[isInstanceNicReservedIpId]
-			if ok {
+			reservedipautodeleteok, okAuto := primip[isInstanceNicReservedIpAutoDelete]
+			if okAuto {
 				autodelete := reservedipautodeleteok.(bool)
 				primaryIpObj.AutoDelete = &autodelete
 			}
-			primnicobj.PrimaryIP = primaryIpObj
+			if ipv4str != "" || okName || okAuto {
+				primnicobj.PrimaryIP = primaryIpObj
+			}
 		}
 
 		allowIPSpoofing, ok := primnic[isInstanceNicAllowIPSpoofing]
