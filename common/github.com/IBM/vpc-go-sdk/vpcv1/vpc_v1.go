@@ -4146,7 +4146,8 @@ func (vpc *VpcV1) ListInstanceTemplatesWithContext(ctx context.Context, listInst
 	}
 	builder.AddHeader("Accept", "application/json")
 
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
+	builder.AddQuery("future_version", "true")
+	builder.AddQuery("version", "3000-01-01")
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 
 	request, err := builder.Build()
@@ -4329,7 +4330,8 @@ func (vpc *VpcV1) GetInstanceTemplateWithContext(ctx context.Context, getInstanc
 	}
 	builder.AddHeader("Accept", "application/json")
 
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
+	builder.AddQuery("future_version", "true")
+	builder.AddQuery("version", "3000-01-01")
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 
 	request, err := builder.Build()
@@ -12412,7 +12414,8 @@ func (vpc *VpcV1) ListFloatingIpsWithContext(ctx context.Context, listFloatingIp
 	}
 	builder.AddHeader("Accept", "application/json")
 
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
+	builder.AddQuery("future_version", "true")
+	builder.AddQuery("version", "3000-01-01")
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 	if listFloatingIpsOptions.Start != nil {
 		builder.AddQuery("start", fmt.Sprint(*listFloatingIpsOptions.Start))
@@ -12601,7 +12604,8 @@ func (vpc *VpcV1) GetFloatingIPWithContext(ctx context.Context, getFloatingIPOpt
 	}
 	builder.AddHeader("Accept", "application/json")
 
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
+	builder.AddQuery("future_version", "true")
+	builder.AddQuery("version", "3000-01-01")
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 
 	request, err := builder.Build()
@@ -14182,7 +14186,8 @@ func (vpc *VpcV1) GetSecurityGroupTargetWithContext(ctx context.Context, getSecu
 	}
 	builder.AddHeader("Accept", "application/json")
 
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
+	builder.AddQuery("future_version", "true")
+	builder.AddQuery("version", "3000-01-01")
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 
 	request, err := builder.Build()
