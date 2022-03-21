@@ -17,7 +17,7 @@ import (
 const (
 	// Request Param Constants
 	isInstanceNICID           = "network_interface"
-	isInstanceNICReservedIPID = "reserved_ip_id"
+	isInstanceNICReservedIPID = "reserved_ip"
 
 	// Response Param Constants
 	isInstanceNICReservedIPAddress    = "address"
