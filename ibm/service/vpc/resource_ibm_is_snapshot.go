@@ -432,7 +432,7 @@ func snapshotUpdate(d *schema.ResourceData, meta interface{}, id, name string, h
 		}
 		return fmt.Errorf("Error getting Snapshot : %s\n%s", err, response)
 	}
-	eTag := response.Headers.Get("E-Tag")
+	eTag := response.Headers.Get("ETag")
 
 	updateSnapshotOptions := &vpcv1.UpdateSnapshotOptions{
 		ID: &id,
@@ -441,7 +441,6 @@ func snapshotUpdate(d *schema.ResourceData, meta interface{}, id, name string, h
 
 	// user tags update
 	if d.HasChange(isSnapshotUserTags) {
-		log.Println("Inside isSnapshotUserTags")
 		var userTags *schema.Set
 		if v, ok := d.GetOk(isSnapshotUserTags); ok {
 
@@ -453,20 +452,16 @@ func snapshotUpdate(d *schema.ResourceData, meta interface{}, id, name string, h
 					userTagsArray[i] = userTagStr
 				}
 				snapshotPatchModel := &vpcv1.SnapshotPatch{}
-				log.Println("snapshotPatchModel.UserTags = userTagsArray")
-				log.Println(userTagsArray)
 				snapshotPatchModel.UserTags = userTagsArray
 				snapshotPatch, err := snapshotPatchModel.AsPatch()
 				if err != nil {
 					return fmt.Errorf("Error calling asPatch for SnapshotPatch: %s", err)
 				}
 				updateSnapshotOptions.SnapshotPatch = snapshotPatch
-				result, response, err := sess.UpdateSnapshot(updateSnapshotOptions)
+				_, response, err := sess.UpdateSnapshot(updateSnapshotOptions)
 				if err != nil {
 					return fmt.Errorf("Error updating Snapshot : %s\n%s", err, response)
 				}
-				log.Println("Result of update operation")
-				log.Println(result.UserTags)
 				_, err = isWaitForSnapshotUpdate(sess, d.Id(), d.Timeout(schema.TimeoutCreate))
 				if err != nil {
 					return err
