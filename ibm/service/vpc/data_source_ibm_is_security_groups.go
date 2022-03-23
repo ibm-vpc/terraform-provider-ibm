@@ -419,16 +419,6 @@ func dataSourceSecurityGroupCollectionSecurityGroupsToMap(securityGroupsItem *vp
 	return resultMap
 }
 
-func dataSourceSecurityGroupCollectionNetworkInterfacesDeletedToMap(deletedItem *vpcv1.NetworkInterfaceReferenceDeleted) (resultMap map[string]interface{}) {
-	resultMap = map[string]interface{}{}
-
-	if deletedItem.MoreInfo != nil {
-		resultMap["more_info"] = deletedItem.MoreInfo
-	}
-
-	return resultMap
-}
-
 func dataSourceSecurityGroupCollectionSecurityGroupsResourceGroupToMap(resourceGroupItem *vpcv1.ResourceGroupReference) (resultMap map[string]interface{}) {
 	resultMap = map[string]interface{}{}
 
@@ -668,45 +658,6 @@ func dataSourceSecurityGroupCollectionVPCDeletedToMap(deletedItem *vpcv1.VPCRefe
 	return resultMap
 }
 
-func dataSourceSecurityGroupsRuleFlattenRemote(m vpcv1.SecurityGroupRuleRemoteIntf) (ruleList []map[string]interface{}) {
-	ruleList = []map[string]interface{}{}
-	ruleMap := dataSourceSecurityGroupsRuleRemoteToMap(m.(*vpcv1.SecurityGroupRuleRemote))
-	ruleList = append(ruleList, ruleMap)
-	return ruleList
-}
-
-func dataSourceSecurityGroupsRuleRemoteToMap(remoteItem *vpcv1.SecurityGroupRuleRemote) (remoteMap map[string]interface{}) {
-	remoteMap = map[string]interface{}{}
-
-	if remoteItem.Address != nil {
-		remoteMap["address"] = *remoteItem.Address
-	}
-
-	if remoteItem.CIDRBlock != nil {
-		remoteMap["cidr_block"] = *remoteItem.CIDRBlock
-	}
-	if remoteItem.CRN != nil {
-		remoteMap["crn"] = *remoteItem.CRN
-	}
-	if remoteItem.Deleted != nil {
-		remoteDeletedList := []map[string]interface{}{}
-		remoteDeletedMap := dataSourceSecurityGroupCollectionRemoteDeletedToMap(remoteItem.Deleted)
-		remoteDeletedList = append(remoteDeletedList, remoteDeletedMap)
-		remoteMap["deleted"] = remoteDeletedList
-	}
-
-	if remoteItem.Href != nil {
-		remoteMap["href"] = *remoteItem.Href
-	}
-	if remoteItem.ID != nil {
-		remoteMap["id"] = *remoteItem.ID
-	}
-	if remoteItem.Name != nil {
-		remoteMap["name"] = *remoteItem.Name
-	}
-
-	return remoteMap
-}
 func dataSourceSecurityGroupsRemoteToMap(remoteItem vpcv1.SecurityGroupRuleRemote) (remoteMap map[string]interface{}) {
 	remoteMap = map[string]interface{}{}
 

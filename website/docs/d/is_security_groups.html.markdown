@@ -13,8 +13,8 @@ For more information, about security group, see API Docs(https://cloud.ibm.com/d
 
 ## Example Usage
 
-```hcl
-  data "ibm_is_security_groups" "example" {
+```terraform
+data "ibm_is_security_groups" "example" {
 }
 ```
 
@@ -22,7 +22,7 @@ OR with Filters:
 
 Filter with VPC name
 
-```hcl
+```terraform
 data "ibm_is_security_groups" "example" {
   vpc_name = ibm_is_vpc.example.name
 }
@@ -30,14 +30,14 @@ data "ibm_is_security_groups" "example" {
 
 Filter with VPC ID
 
-```hcl
+```terraform
 data "ibm_is_security_groups" "example" {
   vpc_id = ibm_is_vpc.example.id
 }
 ```
 
 Filter with VPC CRN
-```hcl
+```terraform
 data "ibm_is_security_groups" "example" {
   vpc_crn = ibm_is_vpc.example.crn
 }
@@ -45,12 +45,11 @@ data "ibm_is_security_groups" "example" {
 
 Filter with Resource Group ID
 
-```hcl
+```terraform
 data "ibm_is_security_groups" "example" {
   resource_group= data.ibm_resource_group.default.id
 }
 ```
-
 
 
 ## Attribute Reference
