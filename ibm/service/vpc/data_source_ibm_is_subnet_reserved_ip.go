@@ -117,6 +117,7 @@ func dataSdataSourceIBMISReservedIPRead(d *schema.ResourceData, meta interface{}
 
 	d.SetId(*reserveIP.ID)
 	d.Set(isReservedIPAutoDelete, *reserveIP.AutoDelete)
+	d.Set(isReservedIPAddress, *reserveIP.Address)
 	d.Set(isReservedIPCreatedAt, (*reserveIP.CreatedAt).String())
 	d.Set(isReservedIPhref, *reserveIP.Href)
 	d.Set(isReservedIPName, *reserveIP.Name)
