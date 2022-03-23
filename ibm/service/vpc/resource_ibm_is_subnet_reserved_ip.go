@@ -74,6 +74,8 @@ func ResourceIBMISReservedIP() *schema.Resource {
 
 			isReservedIPAddress: {
 				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
 				Computed:    true,
 				Description: "The user-defined or system-provided name for this reserved IP.",
 			},
@@ -138,6 +140,13 @@ func resourceIBMISReservedIPCreate(d *schema.ResourceData, meta interface{}) err
 	}
 	if nameStr != "" {
 		options.Name = &nameStr
+	}
+	addStr := ""
+	if address, ok := d.GetOk(isReservedIPAddress); ok {
+		addStr = address.(string)
+	}
+	if addStr != "" {
+		options.Address = &addStr
 	}
 
 	autoDeleteBool := d.Get(isReservedIPAutoDelete).(bool)
