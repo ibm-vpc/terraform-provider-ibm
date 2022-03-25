@@ -356,11 +356,11 @@ func lbGetByName(d *schema.ResourceData, meta interface{}, name string) error {
 						privateIpList = append(privateIpList, prip)
 					}
 					currentPriIp := map[string]interface{}{}
-					currentPriIp[isLBPrivateIpAddress] = *ip.Address
-					currentPriIp[isLBPrivateIpHref] = *ip.Href
-					currentPriIp[isLBPrivateIpName] = *ip.Name
-					currentPriIp[isLBPrivateIpId] = *ip.ID
-					currentPriIp[isLBPrivateIpResourceType] = *ip.ResourceType
+					currentPriIp[isLBPrivateIpAddress] = ip.Address
+					currentPriIp[isLBPrivateIpHref] = ip.Href
+					currentPriIp[isLBPrivateIpName] = ip.Name
+					currentPriIp[isLBPrivateIpId] = ip.ID
+					currentPriIp[isLBPrivateIpResourceType] = ip.ResourceType
 					privateIpDetailList = append(privateIpDetailList, currentPriIp)
 
 				}

@@ -462,11 +462,11 @@ func vpngwGet(d *schema.ResourceData, meta interface{}, id string) error {
 				currentMemberIP["private_address"] = *memberIP.PrivateIP.Address
 				privateIpDetailList := make([]map[string]interface{}, 0)
 				currentPriIp := map[string]interface{}{}
-				currentPriIp[isVPNGatewayPrivateIpAddress] = *memberIP.PrivateIP.Address
-				currentPriIp[isVPNGatewayPrivateIpHref] = *memberIP.PrivateIP.Href
-				currentPriIp[isVPNGatewayPrivateIpName] = *memberIP.PrivateIP.Name
-				currentPriIp[isVPNGatewayPrivateIpId] = *memberIP.PrivateIP.ID
-				currentPriIp[isVPNGatewayPrivateIpResourceType] = *memberIP.PrivateIP.ResourceType
+				currentPriIp[isVPNGatewayPrivateIpAddress] = memberIP.PrivateIP.Address
+				currentPriIp[isVPNGatewayPrivateIpHref] = memberIP.PrivateIP.Href
+				currentPriIp[isVPNGatewayPrivateIpName] = memberIP.PrivateIP.Name
+				currentPriIp[isVPNGatewayPrivateIpId] = memberIP.PrivateIP.ID
+				currentPriIp[isVPNGatewayPrivateIpResourceType] = memberIP.PrivateIP.ResourceType
 				privateIpDetailList = append(privateIpDetailList, currentPriIp)
 				// private_address is same as isVPNGatewayPrivateIP.[].address
 				currentMemberIP[isVPNGatewayPrivateIP] = privateIpDetailList
