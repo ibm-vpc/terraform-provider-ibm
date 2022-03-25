@@ -409,8 +409,20 @@ func resourceIBMIsInstanceNetworkInterfaceRead(context context.Context, d *schem
 	if err = d.Set(isInstanceNicName, *networkInterface.Name); err != nil {
 		return diag.FromErr(fmt.Errorf("[ERROR] Error setting name: %s", err))
 	}
-	if err = d.Set(isInstanceNicPrimaryIpv4Address, *networkInterface.PrimaryIP.Address); err != nil {
-		return diag.FromErr(fmt.Errorf("[ERROR] Error setting primary_ipv4_address: %s", err))
+	if networkInterface.PrimaryIP != nil {
+		if err = d.Set(isInstanceNicPrimaryIpv4Address, *networkInterface.PrimaryIP.Address); err != nil {
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting primary_ipv4_address: %s", err))
+		}
+		// reserved ip changes
+		primaryIpList := make([]map[string]interface{}, 0)
+		currentPrimIp := map[string]interface{}{}
+		currentPrimIp[isInstanceNicReservedIpAddress] = networkInterface.PrimaryIP.Address
+		currentPrimIp[isInstanceNicReservedIpHref] = networkInterface.PrimaryIP.Href
+		currentPrimIp[isInstanceNicReservedIpName] = networkInterface.PrimaryIP.Name
+		currentPrimIp[isInstanceNicReservedIpId] = networkInterface.PrimaryIP.ID
+		currentPrimIp[isInstanceNicReservedIpResourceType] = networkInterface.PrimaryIP.ResourceType
+		primaryIpList = append(primaryIpList, currentPrimIp)
+		d.Set(isInstanceNicPrimaryIP, primaryIpList)
 	}
 	if networkInterface.SecurityGroups != nil && len(networkInterface.SecurityGroups) != 0 {
 		secgrpList := []string{}
