@@ -40,7 +40,7 @@ const (
 	isVPNGatewayPrivateIpAddress      = "address"
 	isVPNGatewayPrivateIpHref         = "href"
 	isVPNGatewayPrivateIpName         = "name"
-	isVPNGatewayPrivateIpId           = "id"
+	isVPNGatewayPrivateIpId           = "reserved_ip"
 	isVPNGatewayPrivateIpResourceType = "resource_type"
 )
 

@@ -36,7 +36,7 @@ const (
 	isLBPrivateIpAddress      = "address"
 	isLBPrivateIpHref         = "href"
 	isLBPrivateIpName         = "name"
-	isLBPrivateIpId           = "id"
+	isLBPrivateIpId           = "reserved_ip"
 	isLBPrivateIpResourceType = "resource_type"
 )
 

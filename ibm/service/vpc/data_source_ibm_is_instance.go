@@ -32,8 +32,7 @@ const (
 	isInstanceNicReservedIpHref         = "href"
 	isInstanceNicReservedIpAutoDelete   = "auto_delete"
 	isInstanceNicReservedIpName         = "name"
-	isInstanceNicReservedIpId           = "id"
-	isInstanceNicReservedIp             = "reserve_ip"
+	isInstanceNicReservedIpId           = "reserved_ip"
 	isInstanceNicReservedIpResourceType = "resource_type"
 )
 

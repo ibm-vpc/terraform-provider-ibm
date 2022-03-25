@@ -98,8 +98,8 @@ In addition to all argument reference list, you can access the following attribu
 	Nested scheme for `primary_ip_detailed`:
 	- `address` - (String) The IP address. If the address has not yet been selected, the value will be 0.0.0.0. This property may add support for IPv6 addresses in the future. When processing a value in this property, verify that the address is in an expected format. If it is not, log an error. Optionally halt processing and surface the error, or bypass the resource on which the unexpected IP address format was encountered.
 	- `href`- (String) The URL for this reserved IP
-	- `id`- (String) The unique identifier for this reserved IP
 	- `name`- (String) The user-defined or system-provided name for this reserved IP
+	- `reserved_ip`- (String) The unique identifier for this reserved IP
 	- `resource_type`- (String) The resource type.
 - `private_ips` - (List) The private IP addresses assigned to this load balancer. Same as `primary_ip_detailed.[].address`
 - `resource_group` - (String) The resource group where the load balancer is created.
