@@ -387,6 +387,8 @@ func ResourceIBMISInstance() *schema.Resource {
 									isInstanceNicReservedIpAddress: {
 										Type:        schema.TypeString,
 										Computed:    true,
+										ForceNew:    true,
+										Optional:    true,
 										Description: "The IP address to reserve, which must not already be reserved on the subnet.",
 									},
 									isInstanceNicReservedIpHref: {
@@ -402,15 +404,17 @@ func ResourceIBMISInstance() *schema.Resource {
 										Description:      "Indicates whether this reserved IP member will be automatically deleted when either target is deleted, or the reserved IP is unbound.",
 									},
 									isInstanceNicReservedIpName: {
-										Type:        schema.TypeString,
-										Optional:    true,
-										Computed:    true,
-										Description: "The user-defined name for this reserved IP. If unspecified, the name will be a hyphenated list of randomly-selected words. Names must be unique within the subnet the reserved IP resides in. ",
+										Type:             schema.TypeString,
+										Optional:         true,
+										Computed:         true,
+										DiffSuppressFunc: flex.ApplyOnce,
+										Description:      "The user-defined name for this reserved IP. If unspecified, the name will be a hyphenated list of randomly-selected words. Names must be unique within the subnet the reserved IP resides in. ",
 									},
 									isInstanceNicReservedIpId: {
 										Type:          schema.TypeString,
 										Optional:      true,
-										ConflictsWith: []string{"primary_network_interface.0.primary_ipv4_address"},
+										ForceNew:      true,
+										ConflictsWith: []string{"primary_network_interface.0.primary_ipv4_address", "primary_network_interface.0.primary_ip.0.address"},
 										Computed:      true,
 										Description:   "Identifies a reserved IP by a unique property.",
 									},
@@ -478,6 +482,8 @@ func ResourceIBMISInstance() *schema.Resource {
 									isInstanceNicReservedIpAddress: {
 										Type:        schema.TypeString,
 										Computed:    true,
+										ForceNew:    true,
+										Optional:    true,
 										Description: "The IP address to reserve, which must not already be reserved on the subnet.",
 									},
 									isInstanceNicReservedIpAutoDelete: {
@@ -493,10 +499,11 @@ func ResourceIBMISInstance() *schema.Resource {
 										Description: "The URL for this reserved IP",
 									},
 									isInstanceNicReservedIpName: {
-										Type:        schema.TypeString,
-										Optional:    true,
-										Computed:    true,
-										Description: "The user-defined name for this reserved IP. If unspecified, the name will be a hyphenated list of randomly-selected words. Names must be unique within the subnet the reserved IP resides in. ",
+										Type:             schema.TypeString,
+										DiffSuppressFunc: flex.ApplyOnce,
+										Optional:         true,
+										Computed:         true,
+										Description:      "The user-defined name for this reserved IP. If unspecified, the name will be a hyphenated list of randomly-selected words. Names must be unique within the subnet the reserved IP resides in. ",
 									},
 									isInstanceNicReservedIpId: {
 										Type:        schema.TypeString,
@@ -1038,6 +1045,16 @@ func instanceCreateByImage(d *schema.ResourceData, meta interface{}, profile, na
 				if ipv4str != "" {
 					primaryIpObj.Address = &ipv4str
 				}
+				reservedipv4Ok, okAdd := primip[isInstanceNicReservedIpAddress]
+				reservedipv4 := reservedipv4Ok.(string)
+
+				if ipv4str != "" && reservedipv4 != "" && ipv4str != reservedipv4 {
+					return fmt.Errorf("[ERROR] Error creating instance, use either primary_ipv4_address(%s) or primary_ip.0.address(%s)", ipv4str, reservedipv4)
+				}
+				if reservedipv4 != "" && okAdd {
+					primaryIpObj.Address = &reservedipv4
+				}
+
 				reservedipnameOk, okName := primip[isInstanceNicReservedIpName]
 				reservedipname := reservedipnameOk.(string)
 				if okName && reservedipname != "" {
@@ -1110,6 +1127,15 @@ func instanceCreateByImage(d *schema.ResourceData, meta interface{}, profile, na
 					ipv4str := ipv4.(string)
 					if ipv4str != "" {
 						primaryIpObj.Address = &ipv4str
+					}
+					reservedipv4Ok, okAdd := primip[isInstanceNicReservedIpAddress]
+					reservedipv4 := reservedipv4Ok.(string)
+
+					if ipv4str != "" && reservedipv4 != "" && ipv4str != reservedipv4 {
+						return fmt.Errorf("[ERROR] Error creating instance, use either primary_ipv4_address(%s) or primary_ip.0.address(%s)", ipv4str, reservedipv4)
+					}
+					if reservedipv4 != "" && okAdd {
+						primaryIpObj.Address = &reservedipv4
 					}
 					reservedipnameOk, ok := primip[isInstanceNicReservedIpId]
 					reservedipname := reservedipnameOk.(string)
@@ -1355,6 +1381,15 @@ func instanceCreateByTemplate(d *schema.ResourceData, meta interface{}, profile,
 				if ipv4str != "" {
 					primaryIpObj.Address = &ipv4str
 				}
+				reservedipv4Ok, okAdd := primip[isInstanceNicReservedIpAddress]
+				reservedipv4 := reservedipv4Ok.(string)
+
+				if ipv4str != "" && reservedipv4 != "" && ipv4str != reservedipv4 {
+					return fmt.Errorf("[ERROR] Error creating instance, use either primary_ipv4_address(%s) or primary_ip.0.address(%s)", ipv4str, reservedipv4)
+				}
+				if reservedipv4 != "" && okAdd {
+					primaryIpObj.Address = &reservedipv4
+				}
 				reservedipnameOk, ok := primip[isInstanceNicReservedIpId]
 				reservedipname := reservedipnameOk.(string)
 				if ok && reservedipname != "" {
@@ -1424,6 +1459,15 @@ func instanceCreateByTemplate(d *schema.ResourceData, meta interface{}, profile,
 					ipv4str := ipv4.(string)
 					if ipv4str != "" {
 						primaryIpObj.Address = &ipv4str
+					}
+					reservedipv4Ok, okAdd := primip[isInstanceNicReservedIpAddress]
+					reservedipv4 := reservedipv4Ok.(string)
+
+					if ipv4str != "" && reservedipv4 != "" && ipv4str != reservedipv4 {
+						return fmt.Errorf("[ERROR] Error creating instance, use either primary_ipv4_address(%s) or primary_ip.0.address(%s)", ipv4str, reservedipv4)
+					}
+					if reservedipv4 != "" && okAdd {
+						primaryIpObj.Address = &reservedipv4
 					}
 					reservedipnameOk, ok := nic[isInstanceNicReservedIpId]
 					reservedipname := reservedipnameOk.(string)
@@ -1663,6 +1707,15 @@ func instanceCreateByVolume(d *schema.ResourceData, meta interface{}, profile, n
 				if ipv4str != "" {
 					primaryIpObj.Address = &ipv4str
 				}
+				reservedipv4Ok, okAdd := primip[isInstanceNicReservedIpAddress]
+				reservedipv4 := reservedipv4Ok.(string)
+
+				if ipv4str != "" && reservedipv4 != "" && ipv4str != reservedipv4 {
+					return fmt.Errorf("[ERROR] Error creating instance, use either primary_ipv4_address(%s) or primary_ip.0.address(%s)", ipv4str, reservedipv4)
+				}
+				if reservedipv4 != "" && okAdd {
+					primaryIpObj.Address = &reservedipv4
+				}
 				reservedipnameOk, ok := primip[isInstanceNicReservedIpId]
 				reservedipname := reservedipnameOk.(string)
 				if ok && reservedipname != "" {
@@ -1732,6 +1785,15 @@ func instanceCreateByVolume(d *schema.ResourceData, meta interface{}, profile, n
 					ipv4str := ipv4.(string)
 					if ipv4str != "" {
 						primaryIpObj.Address = &ipv4str
+					}
+					reservedipv4Ok, okAdd := primip[isInstanceNicReservedIpAddress]
+					reservedipv4 := reservedipv4Ok.(string)
+
+					if ipv4str != "" && reservedipv4 != "" && ipv4str != reservedipv4 {
+						return fmt.Errorf("[ERROR] Error creating instance, use either primary_ipv4_address(%s) or primary_ip.0.address(%s)", ipv4str, reservedipv4)
+					}
+					if reservedipv4 != "" && okAdd {
+						primaryIpObj.Address = &reservedipv4
 					}
 					reservedipnameOk, ok := nic[isInstanceNicReservedIpId]
 					reservedipname := reservedipnameOk.(string)

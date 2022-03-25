@@ -33,6 +33,7 @@ const (
 	isInstanceNicReservedIpAutoDelete   = "auto_delete"
 	isInstanceNicReservedIpName         = "name"
 	isInstanceNicReservedIpId           = "id"
+	isInstanceNicReservedIp             = "reserve_ip"
 	isInstanceNicReservedIpResourceType = "resource_type"
 )
 

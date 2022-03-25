@@ -82,6 +82,8 @@ func ResourceIBMIsInstanceNetworkInterface() *schema.Resource {
 						isInstanceNicReservedIpAddress: {
 							Type:        schema.TypeString,
 							Computed:    true,
+							ForceNew:    true,
+							Optional:    true,
 							Description: "The IP address to reserve, which must not already be reserved on the subnet.",
 						},
 						isInstanceNicReservedIpHref: {
@@ -97,10 +99,11 @@ func ResourceIBMIsInstanceNetworkInterface() *schema.Resource {
 							Description:      "Indicates whether this reserved IP member will be automatically deleted when either target is deleted, or the reserved IP is unbound.",
 						},
 						isInstanceNicReservedIpName: {
-							Type:        schema.TypeString,
-							Optional:    true,
-							Computed:    true,
-							Description: "The user-defined name for this reserved IP. If unspecified, the name will be a hyphenated list of randomly-selected words. Names must be unique within the subnet the reserved IP resides in. ",
+							Type:             schema.TypeString,
+							Optional:         true,
+							Computed:         true,
+							DiffSuppressFunc: flex.ApplyOnce,
+							Description:      "The user-defined name for this reserved IP. If unspecified, the name will be a hyphenated list of randomly-selected words. Names must be unique within the subnet the reserved IP resides in. ",
 						},
 						isInstanceNicReservedIpId: {
 							Type:          schema.TypeString,
@@ -283,6 +286,14 @@ func resourceIBMIsInstanceNetworkInterfaceCreate(context context.Context, d *sch
 			var primaryIpObj = &vpcv1.NetworkInterfaceIPPrototypeReservedIPPrototypeNetworkInterfaceContext{}
 			if primary_ipv4 != "" {
 				primaryIpObj.Address = &primary_ipv4
+			}
+			reservedipv4Ok, okAdd := primip[isInstanceNicReservedIpAddress]
+			reservedipv4 := reservedipv4Ok.(string)
+			if primary_ipv4 != "" && reservedipv4 != "" && primary_ipv4 != reservedipv4 {
+				return diag.FromErr(fmt.Errorf("[ERROR] Error creating instance, use either primary_ipv4_address(%s) or primary_ip.0.address(%s)", primary_ipv4, reservedipv4))
+			}
+			if reservedipv4 != "" && okAdd {
+				primaryIpObj.Address = &reservedipv4
 			}
 			reservedipnameOk, okName := primip[isInstanceNicReservedIpName]
 			reservedipname := reservedipnameOk.(string)
