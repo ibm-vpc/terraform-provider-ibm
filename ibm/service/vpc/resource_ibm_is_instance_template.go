@@ -276,6 +276,7 @@ func ResourceIBMISInstanceTemplate() *schema.Resource {
 							Type:        schema.TypeList,
 							Optional:    true,
 							Computed:    true,
+							MaxItems:    1,
 							Description: "The primary IP address to bind to the network interface. This can be specified using an existing reserved IP, or a prototype object for a new reserved IP.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
