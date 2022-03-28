@@ -6,6 +6,7 @@ package vpc
 import (
 	"fmt"
 
+	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -117,6 +118,7 @@ func DataSourceIBMISEndpointGateway() *schema.Resource {
 
 func dataSourceIBMISEndpointGatewayRead(
 	d *schema.ResourceData, meta interface{}) error {
+	var found bool
 	sess, err := vpcClient(meta)
 	if err != nil {
 		return err
@@ -124,33 +126,46 @@ func dataSourceIBMISEndpointGatewayRead(
 
 	name := d.Get(isVirtualEndpointGatewayName).(string)
 
-	options := sess.NewListEndpointGatewaysOptions()
-	options.Name = &name
-
-	results, response, err := sess.ListEndpointGateways(options)
-	if err != nil {
-		return fmt.Errorf("[ERROR] Error fetching endpoint gateways %s\n%s", err, response)
+	start := ""
+	allrecs := []vpcv1.EndpointGateway{}
+	for {
+		options := sess.NewListEndpointGatewaysOptions()
+		if start != "" {
+			options.Start = &start
+		}
+		result, response, err := sess.ListEndpointGateways(options)
+		if err != nil {
+			return fmt.Errorf("[ERROR] Error fetching endpoint gateways %s\n%s", err, response)
+		}
+		start = flex.GetNext(result.Next)
+		allrecs = append(allrecs, result.EndpointGateways...)
+		if start == "" {
+			break
+		}
 	}
-	allrecs := results.EndpointGateways
-
-	if len(allrecs) == 0 {
+	for _, result := range allrecs {
+		if *result.Name == name {
+			d.SetId(*result.ID)
+			d.Set(isVirtualEndpointGatewayName, result.Name)
+			d.Set(isVirtualEndpointGatewayCRN, result.CRN)
+			d.Set(isVirtualEndpointGatewayHealthState, result.HealthState)
+			d.Set(isVirtualEndpointGatewayCreatedAt, result.CreatedAt.String())
+			d.Set(isVirtualEndpointGatewayLifecycleState, result.LifecycleState)
+			d.Set(isVirtualEndpointGatewayResourceType, result.ResourceType)
+			d.Set(isVirtualEndpointGatewayIPs, flattenIPs(result.Ips))
+			d.Set(isVirtualEndpointGatewayResourceGroupID, result.ResourceGroup.ID)
+			d.Set(isVirtualEndpointGatewayTarget, flattenEndpointGatewayTarget(
+				result.Target.(*vpcv1.EndpointGatewayTarget)))
+			d.Set(isVirtualEndpointGatewayVpcID, result.VPC.ID)
+			if result.SecurityGroups != nil {
+				d.Set(isVirtualEndpointGatewaySecurityGroups, flattenDataSourceSecurityGroups(result.SecurityGroups))
+			}
+			found = true
+			break
+		}
+	}
+	if !found {
 		return fmt.Errorf("[ERROR] No Virtual Endpoints Gateway found with given name %s", name)
-	}
-	result := allrecs[0]
-	d.SetId(*result.ID)
-	d.Set(isVirtualEndpointGatewayName, result.Name)
-	d.Set(isVirtualEndpointGatewayCRN, result.CRN)
-	d.Set(isVirtualEndpointGatewayHealthState, result.HealthState)
-	d.Set(isVirtualEndpointGatewayCreatedAt, result.CreatedAt.String())
-	d.Set(isVirtualEndpointGatewayLifecycleState, result.LifecycleState)
-	d.Set(isVirtualEndpointGatewayResourceType, result.ResourceType)
-	d.Set(isVirtualEndpointGatewayIPs, flattenIPs(result.Ips))
-	d.Set(isVirtualEndpointGatewayResourceGroupID, result.ResourceGroup.ID)
-	d.Set(isVirtualEndpointGatewayTarget, flattenEndpointGatewayTarget(
-		result.Target.(*vpcv1.EndpointGatewayTarget)))
-	d.Set(isVirtualEndpointGatewayVpcID, result.VPC.ID)
-	if result.SecurityGroups != nil {
-		d.Set(isVirtualEndpointGatewaySecurityGroups, flattenDataSourceSecurityGroups(result.SecurityGroups))
 	}
 	return nil
 }
