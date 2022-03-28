@@ -2915,7 +2915,7 @@ func (vpc *VpcV1) ListSubnetReservedIpsWithContext(ctx context.Context, listSubn
 	builder.AddHeader("Accept", "application/json")
 
 	builder.AddQuery("future_version", "true")
-	builder.AddQuery("version", "3000-01-01")
+	builder.AddQuery("version", "2022-03-29")
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 	if listSubnetReservedIpsOptions.Start != nil {
 		builder.AddQuery("start", fmt.Sprint(*listSubnetReservedIpsOptions.Start))
@@ -2990,7 +2990,7 @@ func (vpc *VpcV1) CreateSubnetReservedIPWithContext(ctx context.Context, createS
 	builder.AddHeader("Content-Type", "application/json")
 
 	builder.AddQuery("future_version", "true")
-	builder.AddQuery("version", "3000-01-01")
+	builder.AddQuery("version", "2022-03-29")
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 
 	body := make(map[string]interface{})
@@ -3072,7 +3072,7 @@ func (vpc *VpcV1) DeleteSubnetReservedIPWithContext(ctx context.Context, deleteS
 	}
 
 	builder.AddQuery("future_version", "true")
-	builder.AddQuery("version", "3000-01-01")
+	builder.AddQuery("version", "2022-03-29")
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 
 	request, err := builder.Build()
@@ -3126,7 +3126,7 @@ func (vpc *VpcV1) GetSubnetReservedIPWithContext(ctx context.Context, getSubnetR
 	builder.AddHeader("Accept", "application/json")
 
 	builder.AddQuery("future_version", "true")
-	builder.AddQuery("version", "3000-01-01")
+	builder.AddQuery("version", "2022-03-29")
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 
 	request, err := builder.Build()
@@ -3193,7 +3193,7 @@ func (vpc *VpcV1) UpdateSubnetReservedIPWithContext(ctx context.Context, updateS
 	builder.AddHeader("Content-Type", "application/merge-patch+json")
 
 	builder.AddQuery("future_version", "true")
-	builder.AddQuery("version", "3000-01-01")
+	builder.AddQuery("version", "2022-03-29")
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 
 	_, err = builder.SetBodyContentJSON(updateSubnetReservedIPOptions.ReservedIPPatch)
@@ -4152,7 +4152,7 @@ func (vpc *VpcV1) ListInstanceTemplatesWithContext(ctx context.Context, listInst
 	builder.AddHeader("Accept", "application/json")
 
 	builder.AddQuery("future_version", "true")
-	builder.AddQuery("version", "3000-01-01")
+	builder.AddQuery("version", "2022-03-29")
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 
 	request, err := builder.Build()
@@ -4336,7 +4336,7 @@ func (vpc *VpcV1) GetInstanceTemplateWithContext(ctx context.Context, getInstanc
 	builder.AddHeader("Accept", "application/json")
 
 	builder.AddQuery("future_version", "true")
-	builder.AddQuery("version", "3000-01-01")
+	builder.AddQuery("version", "2022-03-29")
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 
 	request, err := builder.Build()
@@ -4463,7 +4463,7 @@ func (vpc *VpcV1) ListInstancesWithContext(ctx context.Context, listInstancesOpt
 	builder.AddHeader("Accept", "application/json")
 
 	builder.AddQuery("future_version", "true")
-	builder.AddQuery("version", "3000-01-01")
+	builder.AddQuery("version", "2022-03-29")
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 	if listInstancesOptions.Start != nil {
 		builder.AddQuery("start", fmt.Sprint(*listInstancesOptions.Start))
@@ -4565,7 +4565,7 @@ func (vpc *VpcV1) CreateInstanceWithContext(ctx context.Context, createInstanceO
 	builder.AddHeader("Content-Type", "application/json")
 
 	builder.AddQuery("future_version", "true")
-	builder.AddQuery("version", "3000-01-01")
+	builder.AddQuery("version", "2022-03-29")
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 
 	_, err = builder.SetBodyContentJSON(createInstanceOptions.InstancePrototype)
@@ -4687,7 +4687,7 @@ func (vpc *VpcV1) GetInstanceWithContext(ctx context.Context, getInstanceOptions
 	builder.AddHeader("Accept", "application/json")
 
 	builder.AddQuery("future_version", "true")
-	builder.AddQuery("version", "3000-01-01")
+	builder.AddQuery("version", "2022-03-29")
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 
 	request, err := builder.Build()
@@ -5243,7 +5243,7 @@ func (vpc *VpcV1) ListInstanceNetworkInterfacesWithContext(ctx context.Context, 
 	builder.AddHeader("Accept", "application/json")
 
 	builder.AddQuery("future_version", "true")
-	builder.AddQuery("version", "3000-01-01")
+	builder.AddQuery("version", "2022-03-29")
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 
 	request, err := builder.Build()
@@ -5311,7 +5311,7 @@ func (vpc *VpcV1) CreateInstanceNetworkInterfaceWithContext(ctx context.Context,
 	builder.AddHeader("Content-Type", "application/json")
 
 	builder.AddQuery("future_version", "true")
-	builder.AddQuery("version", "3000-01-01")
+	builder.AddQuery("version", "2022-03-29")
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 
 	body := make(map[string]interface{})
@@ -5451,7 +5451,7 @@ func (vpc *VpcV1) GetInstanceNetworkInterfaceWithContext(ctx context.Context, ge
 	builder.AddHeader("Accept", "application/json")
 
 	builder.AddQuery("future_version", "true")
-	builder.AddQuery("version", "3000-01-01")
+	builder.AddQuery("version", "2022-03-29")
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 
 	request, err := builder.Build()
@@ -5838,7 +5838,7 @@ func (vpc *VpcV1) ListInstanceNetworkInterfaceIpsWithContext(ctx context.Context
 	builder.AddHeader("Accept", "application/json")
 
 	builder.AddQuery("future_version", "true")
-	builder.AddQuery("version", "3000-01-01")
+	builder.AddQuery("version", "2022-03-29")
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 	if listInstanceNetworkInterfaceIpsOptions.Start != nil {
 		builder.AddQuery("start", fmt.Sprint(*listInstanceNetworkInterfaceIpsOptions.Start))
@@ -5911,7 +5911,7 @@ func (vpc *VpcV1) GetInstanceNetworkInterfaceIPWithContext(ctx context.Context, 
 	builder.AddHeader("Accept", "application/json")
 
 	builder.AddQuery("future_version", "true")
-	builder.AddQuery("version", "3000-01-01")
+	builder.AddQuery("version", "2022-03-29")
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 
 	request, err := builder.Build()
@@ -9406,7 +9406,7 @@ func (vpc *VpcV1) ListBareMetalServersWithContext(ctx context.Context, listBareM
 	builder.AddHeader("Accept", "application/json")
 
 	builder.AddQuery("future_version", "true")
-	builder.AddQuery("version", "3000-01-01")
+	builder.AddQuery("version", "2022-03-29")
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 	if listBareMetalServersOptions.Start != nil {
 		builder.AddQuery("start", fmt.Sprint(*listBareMetalServersOptions.Start))
@@ -9502,7 +9502,7 @@ func (vpc *VpcV1) CreateBareMetalServerWithContext(ctx context.Context, createBa
 	builder.AddHeader("Content-Type", "application/json")
 
 	builder.AddQuery("future_version", "true")
-	builder.AddQuery("version", "3000-01-01")
+	builder.AddQuery("version", "2022-03-29")
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 
 	body := make(map[string]interface{})
@@ -9877,7 +9877,7 @@ func (vpc *VpcV1) ListBareMetalServerNetworkInterfacesWithContext(ctx context.Co
 	builder.AddHeader("Accept", "application/json")
 
 	builder.AddQuery("future_version", "true")
-	builder.AddQuery("version", "3000-01-01")
+	builder.AddQuery("version", "2022-03-29")
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 	if listBareMetalServerNetworkInterfacesOptions.Start != nil {
 		builder.AddQuery("start", fmt.Sprint(*listBareMetalServerNetworkInterfacesOptions.Start))
@@ -9951,7 +9951,7 @@ func (vpc *VpcV1) CreateBareMetalServerNetworkInterfaceWithContext(ctx context.C
 	builder.AddHeader("Content-Type", "application/json")
 
 	builder.AddQuery("future_version", "true")
-	builder.AddQuery("version", "3000-01-01")
+	builder.AddQuery("version", "2022-03-29")
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 
 	_, err = builder.SetBodyContentJSON(createBareMetalServerNetworkInterfaceOptions.BareMetalServerNetworkInterfacePrototype)
@@ -10074,7 +10074,7 @@ func (vpc *VpcV1) GetBareMetalServerNetworkInterfaceWithContext(ctx context.Cont
 	builder.AddHeader("Accept", "application/json")
 
 	builder.AddQuery("future_version", "true")
-	builder.AddQuery("version", "3000-01-01")
+	builder.AddQuery("version", "2022-03-29")
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 
 	request, err := builder.Build()
@@ -10643,7 +10643,7 @@ func (vpc *VpcV1) GetBareMetalServerWithContext(ctx context.Context, getBareMeta
 	builder.AddHeader("Accept", "application/json")
 
 	builder.AddQuery("future_version", "true")
-	builder.AddQuery("version", "3000-01-01")
+	builder.AddQuery("version", "2022-03-29")
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 
 	request, err := builder.Build()
@@ -12420,7 +12420,7 @@ func (vpc *VpcV1) ListFloatingIpsWithContext(ctx context.Context, listFloatingIp
 	builder.AddHeader("Accept", "application/json")
 
 	builder.AddQuery("future_version", "true")
-	builder.AddQuery("version", "3000-01-01")
+	builder.AddQuery("version", "2022-03-29")
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 	if listFloatingIpsOptions.Start != nil {
 		builder.AddQuery("start", fmt.Sprint(*listFloatingIpsOptions.Start))
@@ -12610,7 +12610,7 @@ func (vpc *VpcV1) GetFloatingIPWithContext(ctx context.Context, getFloatingIPOpt
 	builder.AddHeader("Accept", "application/json")
 
 	builder.AddQuery("future_version", "true")
-	builder.AddQuery("version", "3000-01-01")
+	builder.AddQuery("version", "2022-03-29")
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 
 	request, err := builder.Build()
@@ -14192,7 +14192,7 @@ func (vpc *VpcV1) GetSecurityGroupTargetWithContext(ctx context.Context, getSecu
 	builder.AddHeader("Accept", "application/json")
 
 	builder.AddQuery("future_version", "true")
-	builder.AddQuery("version", "3000-01-01")
+	builder.AddQuery("version", "2022-03-29")
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 
 	request, err := builder.Build()
@@ -15106,7 +15106,7 @@ func (vpc *VpcV1) ListVPNGatewaysWithContext(ctx context.Context, listVPNGateway
 	builder.AddHeader("Accept", "application/json")
 
 	builder.AddQuery("future_version", "true")
-	builder.AddQuery("version", "3000-01-01")
+	builder.AddQuery("version", "2022-03-29")
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 	if listVPNGatewaysOptions.Start != nil {
 		builder.AddQuery("start", fmt.Sprint(*listVPNGatewaysOptions.Start))
@@ -15179,7 +15179,7 @@ func (vpc *VpcV1) CreateVPNGatewayWithContext(ctx context.Context, createVPNGate
 	builder.AddHeader("Content-Type", "application/json")
 
 	builder.AddQuery("future_version", "true")
-	builder.AddQuery("version", "3000-01-01")
+	builder.AddQuery("version", "2022-03-29")
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 
 	_, err = builder.SetBodyContentJSON(createVPNGatewayOptions.VPNGatewayPrototype)
@@ -15301,7 +15301,7 @@ func (vpc *VpcV1) GetVPNGatewayWithContext(ctx context.Context, getVPNGatewayOpt
 	builder.AddHeader("Accept", "application/json")
 
 	builder.AddQuery("future_version", "true")
-	builder.AddQuery("version", "3000-01-01")
+	builder.AddQuery("version", "2022-03-29")
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 
 	request, err := builder.Build()
@@ -16327,7 +16327,7 @@ func (vpc *VpcV1) ListLoadBalancersWithContext(ctx context.Context, listLoadBala
 	builder.AddHeader("Accept", "application/json")
 
 	builder.AddQuery("future_version", "true")
-	builder.AddQuery("version", "3000-01-01")
+	builder.AddQuery("version", "2022-03-29")
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 	if listLoadBalancersOptions.Start != nil {
 		builder.AddQuery("start", fmt.Sprint(*listLoadBalancersOptions.Start))
@@ -16394,7 +16394,7 @@ func (vpc *VpcV1) CreateLoadBalancerWithContext(ctx context.Context, createLoadB
 	builder.AddHeader("Content-Type", "application/json")
 
 	builder.AddQuery("future_version", "true")
-	builder.AddQuery("version", "3000-01-01")
+	builder.AddQuery("version", "2022-03-29")
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 
 	body := make(map[string]interface{})
@@ -16546,7 +16546,7 @@ func (vpc *VpcV1) GetLoadBalancerWithContext(ctx context.Context, getLoadBalance
 	builder.AddHeader("Accept", "application/json")
 
 	builder.AddQuery("future_version", "true")
-	builder.AddQuery("version", "3000-01-01")
+	builder.AddQuery("version", "2022-03-29")
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 
 	request, err := builder.Build()
