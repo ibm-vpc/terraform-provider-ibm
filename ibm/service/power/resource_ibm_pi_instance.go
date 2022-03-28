@@ -220,9 +220,10 @@ func ResourceIBMPIInstance() *schema.Resource {
 				Description: "PIN Policy of the Instance",
 			},
 			helpers.PIInstanceImageId: {
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: "PI instance image id",
+				Type:             schema.TypeString,
+				Required:         true,
+				Description:      "PI instance image id",
+				DiffSuppressFunc: flex.ApplyOnce,
 			},
 			helpers.PIInstanceProcessors: {
 				Type:          schema.TypeFloat,
@@ -259,16 +260,14 @@ func ResourceIBMPIInstance() *schema.Resource {
 			PISAPInstanceProfileID: {
 				Type:          schema.TypeString,
 				Optional:      true,
-				ConflictsWith: []string{helpers.PIInstanceProcessors, helpers.PIInstanceMemory, helpers.PIInstanceProcType, helpers.PIInstanceSystemType},
+				ConflictsWith: []string{helpers.PIInstanceProcessors, helpers.PIInstanceMemory, helpers.PIInstanceProcType},
 				Description:   "SAP Profile ID for the amount of cores and memory",
 			},
 			helpers.PIInstanceSystemType: {
-				Type:          schema.TypeString,
-				Optional:      true,
-				Computed:      true,
-				ValidateFunc:  validate.ValidateAllowedStringValues([]string{"s922", "e880", "e980"}),
-				ConflictsWith: []string{PISAPInstanceProfileID},
-				Description:   "PI Instance system type",
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: "PI Instance system type",
 			},
 			helpers.PIInstanceReplicants: {
 				Type:        schema.TypeInt,
@@ -1058,6 +1057,9 @@ func createSAPInstance(d *schema.ResourceData, sapClient *st.IBMPISAPInstanceCli
 		}
 		body.UserData = userData
 	}
+	if sys, ok := d.GetOk(helpers.PIInstanceSystemType); ok {
+		body.SysType = sys.(string)
+	}
 
 	if st, ok := d.GetOk(helpers.PIInstanceStorageType); ok {
 		body.StorageType = st.(string)
@@ -1092,6 +1094,10 @@ func createSAPInstance(d *schema.ResourceData, sapClient *st.IBMPISAPInstanceCli
 			}
 		}
 		body.StorageAffinity = affinity
+	}
+
+	if pg, ok := d.GetOk(helpers.PIPlacementGroupID); ok {
+		body.PlacementGroup = pg.(string)
 	}
 
 	pvmList, err := sapClient.Create(body)

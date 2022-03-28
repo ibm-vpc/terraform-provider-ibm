@@ -41,6 +41,7 @@ const (
 	isSnapshotSuspended        = "suspended"
 	isSnapshotUpdating         = "updating"
 	isSnapshotWaiting          = "waiting"
+	isSnapshotCapturedAt       = "captured_at"
 	isSnapshotBackupPolicyPlan = "backup_policy_plan"
 )
 
