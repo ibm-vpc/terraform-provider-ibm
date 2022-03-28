@@ -345,6 +345,7 @@ func ResourceIBMISInstanceTemplate() *schema.Resource {
 						},
 						isInstanceTemplateNicPrimaryIP: {
 							Type:        schema.TypeList,
+							Optional:    true,
 							Computed:    true,
 							Description: "The primary IP address to bind to the network interface. This can be specified using an existing reserved IP, or a prototype object for a new reserved IP.",
 							Elem: &schema.Resource{
