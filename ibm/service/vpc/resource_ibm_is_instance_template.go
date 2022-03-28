@@ -266,22 +266,25 @@ func ResourceIBMISInstanceTemplate() *schema.Resource {
 							Computed: true,
 						},
 						isInstanceTemplateNicPrimaryIpv4Address: {
-							Type:       schema.TypeString,
-							Optional:   true,
-							Computed:   true,
-							Deprecated: "primary_ipv4_address is deprecated and support will be removed. Use primary_ip instead",
+							Type:          schema.TypeString,
+							Optional:      true,
+							Computed:      true,
+							ConflictsWith: []string{"primary_network_interface.0.primary_ip.0.address"},
+							Deprecated:    "primary_ipv4_address is deprecated and support will be removed. Use primary_ip instead",
 						},
 						isInstanceTemplateNicPrimaryIP: {
 							Type:        schema.TypeList,
+							Optional:    true,
 							Computed:    true,
 							Description: "The primary IP address to bind to the network interface. This can be specified using an existing reserved IP, or a prototype object for a new reserved IP.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									isInstanceTemplateNicReservedIpAddress: {
-										Type:        schema.TypeString,
-										Optional:    true,
-										Computed:    true,
-										Description: "The IP address to reserve, which must not already be reserved on the subnet.",
+										Type:          schema.TypeString,
+										Optional:      true,
+										ConflictsWith: []string{"primary_network_interface.0.primary_ipv4_address"},
+										Computed:      true,
+										Description:   "The IP address to reserve, which must not already be reserved on the subnet.",
 									},
 									isInstanceTemplateNicReservedIpHref: {
 										Type:        schema.TypeString,

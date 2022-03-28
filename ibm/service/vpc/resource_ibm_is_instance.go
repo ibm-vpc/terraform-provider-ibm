@@ -369,11 +369,12 @@ func ResourceIBMISInstance() *schema.Resource {
 							Deprecated:       "This field is deprected",
 						},
 						isInstanceNicPrimaryIpv4Address: {
-							Type:       schema.TypeString,
-							ForceNew:   true,
-							Optional:   true,
-							Computed:   true,
-							Deprecated: "primary_ipv4_address is deprecated and support will be removed. Use primary_ip instead",
+							Type:          schema.TypeString,
+							ForceNew:      true,
+							Optional:      true,
+							Computed:      true,
+							ConflictsWith: []string{"primary_network_interface.0.primary_ip.0.address"},
+							Deprecated:    "primary_ipv4_address is deprecated and support will be removed. Use primary_ip instead",
 						},
 						isInstanceNicPrimaryIP: {
 							Type:        schema.TypeList,
@@ -385,11 +386,12 @@ func ResourceIBMISInstance() *schema.Resource {
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									isInstanceNicReservedIpAddress: {
-										Type:        schema.TypeString,
-										Computed:    true,
-										ForceNew:    true,
-										Optional:    true,
-										Description: "The IP address to reserve, which must not already be reserved on the subnet.",
+										Type:          schema.TypeString,
+										Computed:      true,
+										ForceNew:      true,
+										Optional:      true,
+										ConflictsWith: []string{"primary_network_interface.0.primary_ipv4_address"},
+										Description:   "The IP address to reserve, which must not already be reserved on the subnet.",
 									},
 									isInstanceNicReservedIpHref: {
 										Type:        schema.TypeString,
