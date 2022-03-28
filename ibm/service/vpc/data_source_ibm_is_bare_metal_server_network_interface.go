@@ -21,7 +21,7 @@ const (
 	isBareMetalServerNicIpAddress             = "address"
 	isBareMetalServerNicIpCRN                 = "crn"
 	isBareMetalServerNicIpHref                = "href"
-	isBareMetalServerNicIpID                  = "id"
+	isBareMetalServerNicIpID                  = "reserved_ip"
 	isBareMetalServerNicIpName                = "name"
 	isBareMetalServerNicIpAutoDelete          = "auto_delete"
 	isBareMetalServerNicHref                  = "href"
