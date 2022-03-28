@@ -5,6 +5,7 @@ package iamaccessgroup
 
 import (
 	"fmt"
+
 	"log"
 
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/conns"
@@ -183,11 +184,8 @@ func dataIBMIAMAccessGroupRead(d *schema.ResourceData, meta interface{}) error {
 			break
 		}
 	}
-	offset := int64(0)
-	limit := int64(100)
+
 	listAccessGroupOption := iamAccessGroupsClient.NewListAccessGroupsOptions(accountID)
-	listAccessGroupOption.Limit = &plimit
-	listAccessGroupOption.Offset = &offset
 	retreivedGroups, detailedResponse, err := iamAccessGroupsClient.ListAccessGroups(listAccessGroupOption)
 	if err != nil {
 		return fmt.Errorf("[ERROR] Error retrieving access groups: %s. API Response is: %s", err, detailedResponse)
@@ -196,30 +194,17 @@ func dataIBMIAMAccessGroupRead(d *schema.ResourceData, meta interface{}) error {
 	if len(retreivedGroups.Groups) == 0 {
 		return fmt.Errorf("[ERROR] No access group in account")
 	}
-	allGroups := retreivedGroups.Groups
-
-	totalGroups := flex.IntValue(retreivedGroups.TotalCount)
-	for len(allGroups) < totalGroups {
-		offset = offset + limit
-		listAccessGroupOption.SetOffset(offset)
-		retreivedGroups, detailedResponse, err := iamAccessGroupsClient.ListAccessGroups(listAccessGroupOption)
-		if err != nil {
-			return fmt.Errorf("[ERROR] Error retrieving access groups: %s. API Response is: %s", err, detailedResponse)
-		}
-
-		allGroups = append(allGroups, retreivedGroups.Groups...)
-	}
 	var agName string
 	var matchGroups []iamaccessgroupsv2.Group
 	if v, ok := d.GetOk("access_group_name"); ok {
 		agName = v.(string)
-		for _, grpData := range allGroups {
+		for _, grpData := range retreivedGroups.Groups {
 			if *grpData.Name == agName {
 				matchGroups = append(matchGroups, grpData)
 			}
 		}
 	} else {
-		matchGroups = allGroups
+		matchGroups = retreivedGroups.Groups
 	}
 	if len(matchGroups) == 0 {
 		return fmt.Errorf("[ERROR] No Access Groups with name %s in Account", agName)

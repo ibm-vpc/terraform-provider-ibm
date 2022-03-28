@@ -80,11 +80,6 @@ func ResourceIBMIsBareMetalServerAction() *schema.Resource {
 							Computed:    true,
 							Description: "An explanation of the status reason",
 						},
-						isBareMetalServerStatusReasonsMoreInfo: {
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: "Link to documentation about this status reason",
-						},
 					},
 				},
 			},
@@ -95,7 +90,7 @@ func ResourceIBMIsBareMetalServerAction() *schema.Resource {
 func ResourceIBMISBareMetalServerActionValidator() *validate.ResourceValidator {
 	bareMetalServerStopTypes := "soft, hard"
 	bareMetalServerActions := "start, restart, stop"
-	validateSchema := make([]validate.ValidateSchema, 0)
+	validateSchema := make([]validate.ValidateSchema, 1)
 
 	validateSchema = append(validateSchema,
 		validate.ValidateSchema{
@@ -145,7 +140,7 @@ func resourceIBMISBareMetalServerActionCreate(context context.Context, d *schema
 		if err != nil {
 			return diag.FromErr(err)
 		}
-		_, waitErr := isWaitForBareMetalServerActionStop(sess, d.Timeout(schema.TimeoutCreate), bareMetalServerId, d)
+		_, waitErr := isWaitForBareMetalServerActionStop(sess, d.Timeout(schema.TimeoutDelete), bareMetalServerId, d)
 		if waitErr != nil {
 			return diag.FromErr(waitErr)
 		}
@@ -219,9 +214,6 @@ func bareMetalServerActionGet(context context.Context, sess *vpcv1.VpcV1, id str
 			if sr.Code != nil && sr.Message != nil {
 				currentSR[isBareMetalServerStatusReasonsCode] = *sr.Code
 				currentSR[isBareMetalServerStatusReasonsMessage] = *sr.Message
-				if sr.MoreInfo != nil {
-					currentSR[isBareMetalServerStatusReasonsMoreInfo] = *sr.MoreInfo
-				}
 				statusReasonsList = append(statusReasonsList, currentSR)
 			}
 		}
@@ -259,7 +251,7 @@ func resourceIBMISBareMetalServerActionUpdate(context context.Context, d *schema
 			if err != nil {
 				return diag.FromErr(err)
 			}
-			_, waitErr := isWaitForBareMetalServerActionStop(sess, d.Timeout(schema.TimeoutUpdate), bareMetalServerId, d)
+			_, waitErr := isWaitForBareMetalServerActionStop(sess, d.Timeout(schema.TimeoutDelete), bareMetalServerId, d)
 			if waitErr != nil {
 				return diag.FromErr(waitErr)
 			}

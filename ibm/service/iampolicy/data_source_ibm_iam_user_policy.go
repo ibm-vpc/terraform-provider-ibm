@@ -29,12 +29,6 @@ func DataSourceIBMIAMUserPolicy() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 			},
-			"transaction_id": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				Description: "Set transactionID for debug",
-			},
 			"policies": {
 				Type:     schema.TypeList,
 				Computed: true,
@@ -88,14 +82,8 @@ func DataSourceIBMIAMUserPolicy() *schema.Resource {
 									},
 									"service_type": {
 										Type:        schema.TypeString,
-										Computed:    true,
+										Optional:    true,
 										Description: "Service type of the policy definition",
-									},
-									"attributes": {
-										Type:        schema.TypeMap,
-										Computed:    true,
-										Description: "Set resource attributes in the form of 'name=value,name=value....",
-										Elem:        schema.TypeString,
 									},
 								},
 							},
@@ -166,17 +154,13 @@ func dataSourceIBMIAMUserPolicyRead(d *schema.ResourceData, meta interface{}) er
 		listPoliciesOptions.Sort = core.StringPtr(v.(string))
 	}
 
-	if transactionID, ok := d.GetOk("transaction_id"); ok {
-		listPoliciesOptions.SetHeaders(map[string]string{"Transaction-Id": transactionID.(string)})
-	}
-
 	policyList, resp, err := iamPolicyManagementClient.ListPolicies(listPoliciesOptions)
 
-	if err != nil || resp == nil {
+	if err != nil {
 		return fmt.Errorf("Error listing user policies: %s, %s", err, resp)
 	}
-
 	policies := policyList.Policies
+
 	userPolicies := make([]map[string]interface{}, 0, len(policies))
 	for _, policy := range policies {
 		roles := make([]string, len(policy.Roles))
@@ -194,9 +178,6 @@ func dataSourceIBMIAMUserPolicyRead(d *schema.ResourceData, meta interface{}) er
 			p["description"] = policy.Description
 		}
 		userPolicies = append(userPolicies, p)
-	}
-	if len(resp.Headers["Transaction-Id"]) > 0 && resp.Headers["Transaction-Id"][0] != "" {
-		d.Set("transaction_id", resp.Headers["Transaction-Id"][0])
 	}
 	d.SetId(userEmail)
 	d.Set("policies", userPolicies)

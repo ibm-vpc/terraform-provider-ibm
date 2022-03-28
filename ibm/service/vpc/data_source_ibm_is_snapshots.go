@@ -189,6 +189,11 @@ func DataSourceSnapshots() *schema.Resource {
 								},
 							},
 						},
+						isSnapshotCapturedAt: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The date and time that this snapshot was created",
+						},
 					},
 				},
 			},
@@ -264,6 +269,10 @@ func getSnapshots(d *schema.ResourceData, meta interface{}) error {
 
 		if snapshot.UserTags != nil {
 			l[isSnapshotUserTags] = snapshot.UserTags
+		}
+
+		if snapshot.CapturedAt != nil {
+			l[isSnapshotCapturedAt] = (*snapshot.CapturedAt).String()
 		}
 		if snapshot.ResourceGroup != nil && snapshot.ResourceGroup.ID != nil {
 			l[isSnapshotResourceGroup] = *snapshot.ResourceGroup.ID
