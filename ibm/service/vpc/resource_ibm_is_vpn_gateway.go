@@ -19,23 +19,29 @@ import (
 )
 
 const (
-	isVPNGatewayName              = "name"
-	isVPNGatewayResourceGroup     = "resource_group"
-	isVPNGatewayMode              = "mode"
-	isVPNGatewayCRN               = "crn"
-	isVPNGatewayTags              = "tags"
-	isVPNGatewaySubnet            = "subnet"
-	isVPNGatewayStatus            = "status"
-	isVPNGatewayDeleting          = "deleting"
-	isVPNGatewayDeleted           = "done"
-	isVPNGatewayProvisioning      = "provisioning"
-	isVPNGatewayProvisioningDone  = "done"
-	isVPNGatewayPublicIPAddress   = "public_ip_address"
-	isVPNGatewayMembers           = "members"
-	isVPNGatewayCreatedAt         = "created_at"
-	isVPNGatewayPublicIPAddress2  = "public_ip_address2"
-	isVPNGatewayPrivateIPAddress  = "private_ip_address"
-	isVPNGatewayPrivateIPAddress2 = "private_ip_address2"
+	isVPNGatewayName                  = "name"
+	isVPNGatewayResourceGroup         = "resource_group"
+	isVPNGatewayMode                  = "mode"
+	isVPNGatewayCRN                   = "crn"
+	isVPNGatewayTags                  = "tags"
+	isVPNGatewaySubnet                = "subnet"
+	isVPNGatewayStatus                = "status"
+	isVPNGatewayDeleting              = "deleting"
+	isVPNGatewayDeleted               = "done"
+	isVPNGatewayProvisioning          = "provisioning"
+	isVPNGatewayProvisioningDone      = "done"
+	isVPNGatewayPublicIPAddress       = "public_ip_address"
+	isVPNGatewayMembers               = "members"
+	isVPNGatewayCreatedAt             = "created_at"
+	isVPNGatewayPublicIPAddress2      = "public_ip_address2"
+	isVPNGatewayPrivateIPAddress      = "private_ip_address"
+	isVPNGatewayPrivateIPAddress2     = "private_ip_address2"
+	isVPNGatewayPrivateIP             = "private_ip"
+	isVPNGatewayPrivateIpAddress      = "address"
+	isVPNGatewayPrivateIpHref         = "href"
+	isVPNGatewayPrivateIpName         = "name"
+	isVPNGatewayPrivateIpId           = "reserved_ip"
+	isVPNGatewayPrivateIpResourceType = "resource_type"
 )
 
 func ResourceIBMISVPNGateway() *schema.Resource {
@@ -187,6 +193,41 @@ func ResourceIBMISVPNGateway() *schema.Resource {
 							Type:        schema.TypeString,
 							Computed:    true,
 							Description: "The private IP address assigned to the VPN gateway member",
+						},
+
+						isVPNGatewayPrivateIP: {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "The private IP addresses assigned to this load balancer.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									isVPNGatewayPrivateIpAddress: {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The IP address to reserve, which must not already be reserved on the subnet.",
+									},
+									isVPNGatewayPrivateIpHref: {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The URL for this reserved IP",
+									},
+									isVPNGatewayPrivateIpName: {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The user-defined name for this reserved IP. If unspecified, the name will be a hyphenated list of randomly-selected words. Names must be unique within the subnet the reserved IP resides in. ",
+									},
+									isVPNGatewayPrivateIpId: {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "Identifies a reserved IP by a unique property.",
+									},
+									isVPNGatewayPrivateIpResourceType: {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The resource type",
+									},
+								},
+							},
 						},
 
 						"role": {
@@ -419,6 +460,16 @@ func vpngwGet(d *schema.ResourceData, meta interface{}, id string) error {
 			}
 			if memberIP.PrivateIP != nil {
 				currentMemberIP["private_address"] = *memberIP.PrivateIP.Address
+				privateIpDetailList := make([]map[string]interface{}, 0)
+				currentPriIp := map[string]interface{}{}
+				currentPriIp[isVPNGatewayPrivateIpAddress] = memberIP.PrivateIP.Address
+				currentPriIp[isVPNGatewayPrivateIpHref] = memberIP.PrivateIP.Href
+				currentPriIp[isVPNGatewayPrivateIpName] = memberIP.PrivateIP.Name
+				currentPriIp[isVPNGatewayPrivateIpId] = memberIP.PrivateIP.ID
+				currentPriIp[isVPNGatewayPrivateIpResourceType] = memberIP.PrivateIP.ResourceType
+				privateIpDetailList = append(privateIpDetailList, currentPriIp)
+				// private_address is same as isVPNGatewayPrivateIP.[].address
+				currentMemberIP[isVPNGatewayPrivateIP] = privateIpDetailList
 			}
 		}
 		d.Set(isVPNGatewayMembers, vpcMembersIpsList)

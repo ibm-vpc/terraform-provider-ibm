@@ -185,6 +185,40 @@ func DataSourceIBMISInstanceTemplate() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						isInstanceTemplateNicPrimaryIP: {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "The primary IP address to bind to the network interface. This can be specified using an existing reserved IP, or a prototype object for a new reserved IP.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									isInstanceTemplateNicReservedIpAddress: {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The IP address to reserve, which must not already be reserved on the subnet.",
+									},
+									isInstanceTemplateNicReservedIpHref: {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The URL for this reserved IP",
+									},
+									isInstanceTemplateNicReservedIpName: {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The user-defined name for this reserved IP. If unspecified, the name will be a hyphenated list of randomly-selected words. Names must be unique within the subnet the reserved IP resides in. ",
+									},
+									isInstanceTemplateNicReservedIpId: {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "Identifies a reserved IP by a unique property.",
+									},
+									isInstanceTemplateNicReservedIpResourceType: {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The resource type",
+									},
+								},
+							},
+						},
 						isInstanceTemplateNicSecurityGroups: {
 							Type:     schema.TypeSet,
 							Computed: true,
@@ -211,6 +245,40 @@ func DataSourceIBMISInstanceTemplate() *schema.Resource {
 						isInstanceTemplateNicPrimaryIpv4Address: {
 							Type:     schema.TypeString,
 							Computed: true,
+						},
+						isInstanceTemplateNicPrimaryIP: {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "The primary IP address to bind to the network interface. This can be specified using an existing reserved IP, or a prototype object for a new reserved IP.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									isInstanceTemplateNicReservedIpAddress: {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The IP address to reserve, which must not already be reserved on the subnet.",
+									},
+									isInstanceTemplateNicReservedIpHref: {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The URL for this reserved IP",
+									},
+									isInstanceTemplateNicReservedIpName: {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The user-defined name for this reserved IP. If unspecified, the name will be a hyphenated list of randomly-selected words. Names must be unique within the subnet the reserved IP resides in. ",
+									},
+									isInstanceTemplateNicReservedIpId: {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "Identifies a reserved IP by a unique property.",
+									},
+									isInstanceTemplateNicReservedIpResourceType: {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The resource type",
+									},
+								},
+							},
 						},
 						isInstanceTemplateNicSecurityGroups: {
 							Type:     schema.TypeSet,
@@ -371,8 +439,26 @@ func dataSourceIBMISInstanceTemplateRead(context context.Context, d *schema.Reso
 			interfaceList := make([]map[string]interface{}, 0)
 			currentPrimNic := map[string]interface{}{}
 			currentPrimNic[isInstanceTemplateNicName] = *instance.PrimaryNetworkInterface.Name
-			if instance.PrimaryNetworkInterface.PrimaryIpv4Address != nil {
-				currentPrimNic[isInstanceTemplateNicPrimaryIpv4Address] = *instance.PrimaryNetworkInterface.PrimaryIpv4Address
+			if instance.PrimaryNetworkInterface.PrimaryIP != nil {
+				primaryipIntf := instance.PrimaryNetworkInterface.PrimaryIP
+				primaryIpList := make([]map[string]interface{}, 0)
+				currentPrimIp := map[string]interface{}{}
+				switch reflect.TypeOf(primaryipIntf).String() {
+				case "*vpcv1.NetworkInterfaceIPPrototype":
+					{
+						primaryip := primaryipIntf.(*vpcv1.NetworkInterfaceIPPrototype)
+						currentPrimNic[isInstanceTemplateNicPrimaryIpv4Address] = primaryip.Address
+						currentPrimIp[isInstanceTemplateNicReservedIpAddress] = primaryip.Address
+					}
+				case "*vpcv1.NetworkInterfaceIPPrototypeReservedIPPrototypeNetworkInterfaceContext":
+					{
+						primaryip := primaryipIntf.(*vpcv1.NetworkInterfaceIPPrototypeReservedIPPrototypeNetworkInterfaceContext)
+						currentPrimNic[isInstanceTemplateNicPrimaryIpv4Address] = primaryip.Address
+						currentPrimIp[isInstanceTemplateNicReservedIpAddress] = primaryip.Address
+					}
+				}
+				primaryIpList = append(primaryIpList, currentPrimIp)
+				currentPrimNic[isInstanceTemplateNicPrimaryIP] = primaryIpList
 			}
 			subInf := instance.PrimaryNetworkInterface.Subnet
 			subnetIdentity := subInf.(*vpcv1.SubnetIdentity)
@@ -396,8 +482,26 @@ func dataSourceIBMISInstanceTemplateRead(context context.Context, d *schema.Reso
 			for _, intfc := range instance.NetworkInterfaces {
 				currentNic := map[string]interface{}{}
 				currentNic[isInstanceTemplateNicName] = *intfc.Name
-				if intfc.PrimaryIpv4Address != nil {
-					currentNic[isInstanceTemplateNicPrimaryIpv4Address] = *intfc.PrimaryIpv4Address
+				if intfc.PrimaryIP != nil {
+					primaryipIntf := intfc.PrimaryIP
+					primaryIpList := make([]map[string]interface{}, 0)
+					currentPrimIp := map[string]interface{}{}
+					switch reflect.TypeOf(primaryipIntf).String() {
+					case "*vpcv1.NetworkInterfaceIPPrototype":
+						{
+							primaryip := primaryipIntf.(*vpcv1.NetworkInterfaceIPPrototype)
+							currentNic[isInstanceTemplateNicPrimaryIpv4Address] = primaryip.Address
+							currentPrimIp[isInstanceTemplateNicReservedIpAddress] = primaryip.Address
+						}
+					case "*vpcv1.NetworkInterfaceIPPrototypeReservedIPPrototypeNetworkInterfaceContext":
+						{
+							primaryip := primaryipIntf.(*vpcv1.NetworkInterfaceIPPrototypeReservedIPPrototypeNetworkInterfaceContext)
+							currentNic[isInstanceTemplateNicPrimaryIpv4Address] = primaryip.Address
+							currentPrimIp[isInstanceTemplateNicReservedIpAddress] = primaryip.Address
+						}
+					}
+					primaryIpList = append(primaryIpList, currentPrimIp)
+					currentNic[isInstanceTemplateNicPrimaryIP] = primaryIpList
 				}
 				//currentNic[isInstanceTemplateNicAllowIpSpoofing] = intfc.AllowIpSpoofing
 				subInf := intfc.Subnet
@@ -565,8 +669,20 @@ func dataSourceIBMISInstanceTemplateRead(context context.Context, d *schema.Reso
 					interfaceList := make([]map[string]interface{}, 0)
 					currentPrimNic := map[string]interface{}{}
 					currentPrimNic[isInstanceTemplateNicName] = *instance.PrimaryNetworkInterface.Name
-					if instance.PrimaryNetworkInterface.PrimaryIpv4Address != nil {
-						currentPrimNic[isInstanceTemplateNicPrimaryIpv4Address] = *instance.PrimaryNetworkInterface.PrimaryIpv4Address
+					if instance.PrimaryNetworkInterface.PrimaryIP != nil {
+						primaryipIntf := instance.PrimaryNetworkInterface.PrimaryIP
+						switch reflect.TypeOf(primaryipIntf).String() {
+						case "*vpcv1.NetworkInterfaceIPPrototype":
+							{
+								primaryip := primaryipIntf.(*vpcv1.NetworkInterfaceIPPrototype)
+								currentPrimNic[isInstanceTemplateNicPrimaryIpv4Address] = primaryip.Address
+							}
+						case "*vpcv1.NetworkInterfaceIPPrototypeReservedIPPrototypeNetworkInterfaceContext":
+							{
+								primaryip := primaryipIntf.(*vpcv1.NetworkInterfaceIPPrototypeReservedIPPrototypeNetworkInterfaceContext)
+								currentPrimNic[isInstanceTemplateNicPrimaryIpv4Address] = primaryip.Address
+							}
+						}
 					}
 					subInf := instance.PrimaryNetworkInterface.Subnet
 					subnetIdentity := subInf.(*vpcv1.SubnetIdentity)
@@ -590,8 +706,21 @@ func dataSourceIBMISInstanceTemplateRead(context context.Context, d *schema.Reso
 					for _, intfc := range instance.NetworkInterfaces {
 						currentNic := map[string]interface{}{}
 						currentNic[isInstanceTemplateNicName] = *intfc.Name
-						if intfc.PrimaryIpv4Address != nil {
-							currentNic[isInstanceTemplateNicPrimaryIpv4Address] = *intfc.PrimaryIpv4Address
+						if intfc.PrimaryIP != nil {
+							primaryipIntf := intfc.PrimaryIP
+							switch reflect.TypeOf(primaryipIntf).String() {
+							case "*vpcv1.NetworkInterfaceIPPrototype":
+								{
+									primaryip := primaryipIntf.(*vpcv1.NetworkInterfaceIPPrototype)
+									currentNic[isInstanceTemplateNicPrimaryIpv4Address] = primaryip.Address
+
+								}
+							case "*vpcv1.NetworkInterfaceIPPrototypeReservedIPPrototypeNetworkInterfaceContext":
+								{
+									primaryip := primaryipIntf.(*vpcv1.NetworkInterfaceIPPrototypeReservedIPPrototypeNetworkInterfaceContext)
+									currentNic[isInstanceTemplateNicPrimaryIpv4Address] = primaryip.Address
+								}
+							}
 						}
 						//currentNic[isInstanceTemplateNicAllowIpSpoofing] = intfc.AllowIpSpoofing
 						subInf := intfc.Subnet

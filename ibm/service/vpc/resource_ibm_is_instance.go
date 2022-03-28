@@ -369,10 +369,62 @@ func ResourceIBMISInstance() *schema.Resource {
 							Deprecated:       "This field is deprected",
 						},
 						isInstanceNicPrimaryIpv4Address: {
-							Type:     schema.TypeString,
-							ForceNew: true,
-							Optional: true,
-							Computed: true,
+							Type:       schema.TypeString,
+							ForceNew:   true,
+							Optional:   true,
+							Computed:   true,
+							Deprecated: "primary_ipv4_address is deprecated and support will be removed. Use primary_ip instead",
+						},
+						isInstanceNicPrimaryIP: {
+							Type:        schema.TypeList,
+							MinItems:    0,
+							MaxItems:    1,
+							Optional:    true,
+							Computed:    true,
+							Description: "The primary IP address to bind to the network interface. This can be specified using an existing reserved IP, or a prototype object for a new reserved IP.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									isInstanceNicReservedIpAddress: {
+										Type:        schema.TypeString,
+										Computed:    true,
+										ForceNew:    true,
+										Optional:    true,
+										Description: "The IP address to reserve, which must not already be reserved on the subnet.",
+									},
+									isInstanceNicReservedIpHref: {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The URL for this reserved IP",
+									},
+									isInstanceNicReservedIpAutoDelete: {
+										Type:             schema.TypeBool,
+										Optional:         true,
+										Computed:         true,
+										DiffSuppressFunc: flex.ApplyOnce,
+										Description:      "Indicates whether this reserved IP member will be automatically deleted when either target is deleted, or the reserved IP is unbound.",
+									},
+									isInstanceNicReservedIpName: {
+										Type:             schema.TypeString,
+										Optional:         true,
+										Computed:         true,
+										DiffSuppressFunc: flex.ApplyOnce,
+										Description:      "The user-defined name for this reserved IP. If unspecified, the name will be a hyphenated list of randomly-selected words. Names must be unique within the subnet the reserved IP resides in. ",
+									},
+									isInstanceNicReservedIpId: {
+										Type:          schema.TypeString,
+										Optional:      true,
+										ForceNew:      true,
+										ConflictsWith: []string{"primary_network_interface.0.primary_ipv4_address", "primary_network_interface.0.primary_ip.0.address"},
+										Computed:      true,
+										Description:   "Identifies a reserved IP by a unique property.",
+									},
+									isInstanceNicReservedIpResourceType: {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The resource type",
+									},
+								},
+							},
 						},
 						isInstanceNicSecurityGroups: {
 							Type:     schema.TypeSet,
@@ -412,10 +464,60 @@ func ResourceIBMISInstance() *schema.Resource {
 							Computed: true,
 						},
 						isInstanceNicPrimaryIpv4Address: {
-							Type:     schema.TypeString,
-							ForceNew: true,
-							Optional: true,
-							Computed: true,
+							Type:       schema.TypeString,
+							ForceNew:   true,
+							Optional:   true,
+							Deprecated: "primary_ipv4_address is deprecated and support will be removed. Use primary_ip instead",
+							Computed:   true,
+						},
+						isInstanceNicPrimaryIP: {
+							Type:        schema.TypeList,
+							MinItems:    0,
+							MaxItems:    1,
+							Optional:    true,
+							Computed:    true,
+							Description: "The primary IP address to bind to the network interface. This can be specified using an existing reserved IP, or a prototype object for a new reserved IP.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									isInstanceNicReservedIpAddress: {
+										Type:        schema.TypeString,
+										Computed:    true,
+										ForceNew:    true,
+										Optional:    true,
+										Description: "The IP address to reserve, which must not already be reserved on the subnet.",
+									},
+									isInstanceNicReservedIpAutoDelete: {
+										Type:             schema.TypeBool,
+										Optional:         true,
+										Computed:         true,
+										DiffSuppressFunc: flex.ApplyOnce,
+										Description:      "Indicates whether this reserved IP member will be automatically deleted when either target is deleted, or the reserved IP is unbound.",
+									},
+									isInstanceNicReservedIpHref: {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The URL for this reserved IP",
+									},
+									isInstanceNicReservedIpName: {
+										Type:             schema.TypeString,
+										DiffSuppressFunc: flex.ApplyOnce,
+										Optional:         true,
+										Computed:         true,
+										Description:      "The user-defined name for this reserved IP. If unspecified, the name will be a hyphenated list of randomly-selected words. Names must be unique within the subnet the reserved IP resides in. ",
+									},
+									isInstanceNicReservedIpId: {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Computed:    true,
+										Description: "Identifies a reserved IP by a unique property.",
+									},
+									isInstanceNicReservedIpResourceType: {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The resource type",
+									},
+								},
+							},
 						},
 						isInstanceNicSecurityGroups: {
 							Type:     schema.TypeSet,
@@ -923,11 +1025,52 @@ func instanceCreateByImage(d *schema.ResourceData, meta interface{}, profile, na
 		if namestr != "" {
 			primnicobj.Name = &namestr
 		}
-		ipv4, _ := primnic[isInstanceNicPrimaryIpv4Address]
-		ipv4str := ipv4.(string)
-		if ipv4str != "" {
-			primnicobj.PrimaryIpv4Address = &ipv4str
+
+		// reserved ip changes
+		primaryIpOk, ok := primnic[isInstanceNicPrimaryIP]
+
+		if ok && len(primaryIpOk.([]interface{})) > 0 {
+			primip := primaryIpOk.([]interface{})[0].(map[string]interface{})
+
+			reservedipok, _ := primip[isInstanceNicReservedIpId]
+			reservedip := reservedipok.(string)
+			if reservedip != "" {
+				primnicobj.PrimaryIP = &vpcv1.NetworkInterfaceIPPrototypeReservedIPIdentity{
+					ID: &reservedip,
+				}
+			} else {
+				var primaryIpObj = &vpcv1.NetworkInterfaceIPPrototypeReservedIPPrototypeNetworkInterfaceContext{}
+				ipv4, _ := primnic[isInstanceNicPrimaryIpv4Address]
+				ipv4str := ipv4.(string)
+				if ipv4str != "" {
+					primaryIpObj.Address = &ipv4str
+				}
+				reservedipv4Ok, okAdd := primip[isInstanceNicReservedIpAddress]
+				reservedipv4 := reservedipv4Ok.(string)
+
+				if ipv4str != "" && reservedipv4 != "" && ipv4str != reservedipv4 {
+					return fmt.Errorf("[ERROR] Error creating instance, use either primary_ipv4_address(%s) or primary_ip.0.address(%s)", ipv4str, reservedipv4)
+				}
+				if reservedipv4 != "" && okAdd {
+					primaryIpObj.Address = &reservedipv4
+				}
+
+				reservedipnameOk, okName := primip[isInstanceNicReservedIpName]
+				reservedipname := reservedipnameOk.(string)
+				if okName && reservedipname != "" {
+					primaryIpObj.Name = &reservedipname
+				}
+				reservedipautodeleteok, okAuto := primip[isInstanceNicReservedIpAutoDelete]
+				if okAuto {
+					autodelete := reservedipautodeleteok.(bool)
+					primaryIpObj.AutoDelete = &autodelete
+				}
+				if ipv4str != "" || okName || okAuto {
+					primnicobj.PrimaryIP = primaryIpObj
+				}
+			}
 		}
+
 		allowIPSpoofing, ok := primnic[isInstanceNicAllowIPSpoofing]
 		allowIPSpoofingbool := allowIPSpoofing.(bool)
 		if ok {
@@ -966,10 +1109,46 @@ func instanceCreateByImage(d *schema.ResourceData, meta interface{}, profile, na
 			if ok && namestr != "" {
 				nwInterface.Name = &namestr
 			}
-			ipv4, _ := nic[isInstanceNicPrimaryIpv4Address]
-			ipv4str := ipv4.(string)
-			if ipv4str != "" {
-				nwInterface.PrimaryIpv4Address = &ipv4str
+
+			// reserved ip changes
+			primaryIpOk, ok := nic[isInstanceNicPrimaryIP]
+			if ok && len(primaryIpOk.([]interface{})) > 0 {
+				primip := primaryIpOk.([]interface{})[0].(map[string]interface{})
+
+				reservedipok, _ := primip[isInstanceNicReservedIpId]
+				reservedip := reservedipok.(string)
+				if reservedip != "" {
+					nwInterface.PrimaryIP = &vpcv1.NetworkInterfaceIPPrototypeReservedIPIdentity{
+						ID: &reservedip,
+					}
+				} else {
+					var primaryIpObj = &vpcv1.NetworkInterfaceIPPrototypeReservedIPPrototypeNetworkInterfaceContext{}
+					ipv4, _ := nic[isInstanceNicPrimaryIpv4Address]
+					ipv4str := ipv4.(string)
+					if ipv4str != "" {
+						primaryIpObj.Address = &ipv4str
+					}
+					reservedipv4Ok, okAdd := primip[isInstanceNicReservedIpAddress]
+					reservedipv4 := reservedipv4Ok.(string)
+
+					if ipv4str != "" && reservedipv4 != "" && ipv4str != reservedipv4 {
+						return fmt.Errorf("[ERROR] Error creating instance, use either primary_ipv4_address(%s) or primary_ip.0.address(%s)", ipv4str, reservedipv4)
+					}
+					if reservedipv4 != "" && okAdd {
+						primaryIpObj.Address = &reservedipv4
+					}
+					reservedipnameOk, ok := primip[isInstanceNicReservedIpId]
+					reservedipname := reservedipnameOk.(string)
+					if ok && reservedipname != "" {
+						primaryIpObj.Name = &reservedipname
+					}
+					reservedipautodeleteok, ok := primip[isInstanceNicReservedIpId]
+					if ok {
+						autodelete := reservedipautodeleteok.(bool)
+						primaryIpObj.AutoDelete = &autodelete
+					}
+					nwInterface.PrimaryIP = primaryIpObj
+				}
 			}
 			allowIPSpoofing, ok := nic[isInstanceNicAllowIPSpoofing]
 			allowIPSpoofingbool := allowIPSpoofing.(bool)
@@ -1182,10 +1361,47 @@ func instanceCreateByTemplate(d *schema.ResourceData, meta interface{}, profile,
 		if namestr != "" {
 			primnicobj.Name = &namestr
 		}
-		ipv4, _ := primnic[isInstanceNicPrimaryIpv4Address]
-		ipv4str := ipv4.(string)
-		if ipv4str != "" {
-			primnicobj.PrimaryIpv4Address = &ipv4str
+
+		// reserved ip changes
+
+		primaryIpOk, ok := primnic[isInstanceNicPrimaryIP]
+		if ok && len(primaryIpOk.([]interface{})) > 0 {
+			primip := primaryIpOk.([]interface{})[0].(map[string]interface{})
+
+			reservedipok, _ := primip[isInstanceNicReservedIpId]
+			reservedip := reservedipok.(string)
+			if reservedip != "" {
+				primnicobj.PrimaryIP = &vpcv1.NetworkInterfaceIPPrototypeReservedIPIdentity{
+					ID: &reservedip,
+				}
+			} else {
+				var primaryIpObj = &vpcv1.NetworkInterfaceIPPrototypeReservedIPPrototypeNetworkInterfaceContext{}
+				ipv4, _ := primnic[isInstanceNicPrimaryIpv4Address]
+				ipv4str := ipv4.(string)
+				if ipv4str != "" {
+					primaryIpObj.Address = &ipv4str
+				}
+				reservedipv4Ok, okAdd := primip[isInstanceNicReservedIpAddress]
+				reservedipv4 := reservedipv4Ok.(string)
+
+				if ipv4str != "" && reservedipv4 != "" && ipv4str != reservedipv4 {
+					return fmt.Errorf("[ERROR] Error creating instance, use either primary_ipv4_address(%s) or primary_ip.0.address(%s)", ipv4str, reservedipv4)
+				}
+				if reservedipv4 != "" && okAdd {
+					primaryIpObj.Address = &reservedipv4
+				}
+				reservedipnameOk, ok := primip[isInstanceNicReservedIpId]
+				reservedipname := reservedipnameOk.(string)
+				if ok && reservedipname != "" {
+					primaryIpObj.Name = &reservedipname
+				}
+				reservedipautodeleteok, ok := primip[isInstanceNicReservedIpId]
+				if ok {
+					autodelete := reservedipautodeleteok.(bool)
+					primaryIpObj.AutoDelete = &autodelete
+				}
+				primnicobj.PrimaryIP = primaryIpObj
+			}
 		}
 		allowIPSpoofing, ok := primnic[isInstanceNicAllowIPSpoofing]
 		allowIPSpoofingbool := allowIPSpoofing.(bool)
@@ -1225,10 +1441,46 @@ func instanceCreateByTemplate(d *schema.ResourceData, meta interface{}, profile,
 			if ok && namestr != "" {
 				nwInterface.Name = &namestr
 			}
-			ipv4, _ := nic[isInstanceNicPrimaryIpv4Address]
-			ipv4str := ipv4.(string)
-			if ipv4str != "" {
-				nwInterface.PrimaryIpv4Address = &ipv4str
+
+			// reserved ip changes
+			primaryIpOk, ok := nic[isInstanceNicPrimaryIP]
+			if ok && len(primaryIpOk.([]interface{})) > 0 {
+				primip := primaryIpOk.([]interface{})[0].(map[string]interface{})
+
+				reservedipok, _ := primip[isInstanceNicReservedIpId]
+				reservedip := reservedipok.(string)
+				if reservedip != "" {
+					nwInterface.PrimaryIP = &vpcv1.NetworkInterfaceIPPrototypeReservedIPIdentity{
+						ID: &reservedip,
+					}
+				} else {
+					var primaryIpObj = &vpcv1.NetworkInterfaceIPPrototypeReservedIPPrototypeNetworkInterfaceContext{}
+					ipv4, _ := nic[isInstanceNicPrimaryIpv4Address]
+					ipv4str := ipv4.(string)
+					if ipv4str != "" {
+						primaryIpObj.Address = &ipv4str
+					}
+					reservedipv4Ok, okAdd := primip[isInstanceNicReservedIpAddress]
+					reservedipv4 := reservedipv4Ok.(string)
+
+					if ipv4str != "" && reservedipv4 != "" && ipv4str != reservedipv4 {
+						return fmt.Errorf("[ERROR] Error creating instance, use either primary_ipv4_address(%s) or primary_ip.0.address(%s)", ipv4str, reservedipv4)
+					}
+					if reservedipv4 != "" && okAdd {
+						primaryIpObj.Address = &reservedipv4
+					}
+					reservedipnameOk, ok := nic[isInstanceNicReservedIpId]
+					reservedipname := reservedipnameOk.(string)
+					if ok && reservedipname != "" {
+						primaryIpObj.Name = &reservedipname
+					}
+					reservedipautodeleteok, ok := nic[isInstanceNicReservedIpId]
+					if ok {
+						autodelete := reservedipautodeleteok.(bool)
+						primaryIpObj.AutoDelete = &autodelete
+					}
+					nwInterface.PrimaryIP = primaryIpObj
+				}
 			}
 			allowIPSpoofing, ok := nic[isInstanceNicAllowIPSpoofing]
 			allowIPSpoofingbool := allowIPSpoofing.(bool)
@@ -1326,7 +1578,7 @@ func instanceCreateByVolume(d *schema.ResourceData, meta interface{}, profile, n
 	if err != nil {
 		return err
 	}
-	instanceproto := &vpcv1.InstancePrototypeInstanceByVolume{
+	instanceproto := &vpcv1.InstancePrototypeInstanceBySourceSnapshot{
 		Zone: &vpcv1.ZoneIdentity{
 			Name: &zone,
 		},
@@ -1380,7 +1632,7 @@ func instanceCreateByVolume(d *schema.ResourceData, meta interface{}, profile, n
 
 	if boot, ok := d.GetOk(isInstanceBootVolume); ok {
 		bootvol := boot.([]interface{})[0].(map[string]interface{})
-		var volTemplate = &vpcv1.VolumeAttachmentVolumePrototypeInstanceByVolumeContext{}
+		var volTemplate = &vpcv1.VolumePrototypeInstanceBySourceSnapshotContext{}
 
 		name, ok := bootvol[isInstanceBootAttachmentName]
 		namestr := name.(string)
@@ -1413,7 +1665,7 @@ func instanceCreateByVolume(d *schema.ResourceData, meta interface{}, profile, n
 			}
 		}
 		deletebool := true
-		instanceproto.BootVolumeAttachment = &vpcv1.VolumeAttachmentPrototypeInstanceByVolumeContext{
+		instanceproto.BootVolumeAttachment = &vpcv1.VolumeAttachmentPrototypeInstanceBySourceSnapshotContext{
 			DeleteVolumeOnInstanceDelete: &deletebool,
 			Volume:                       volTemplate,
 		}
@@ -1436,10 +1688,46 @@ func instanceCreateByVolume(d *schema.ResourceData, meta interface{}, profile, n
 		if namestr != "" {
 			primnicobj.Name = &namestr
 		}
-		ipv4, _ := primnic[isInstanceNicPrimaryIpv4Address]
-		ipv4str := ipv4.(string)
-		if ipv4str != "" {
-			primnicobj.PrimaryIpv4Address = &ipv4str
+
+		// reserved ip changes
+		primaryIpOk, ok := primnic[isInstanceNicPrimaryIP]
+		if ok && len(primaryIpOk.([]interface{})) > 0 {
+			primip := primaryIpOk.([]interface{})[0].(map[string]interface{})
+
+			reservedipok, _ := primip[isInstanceNicReservedIpId]
+			reservedip := reservedipok.(string)
+			if reservedip != "" {
+				primnicobj.PrimaryIP = &vpcv1.NetworkInterfaceIPPrototypeReservedIPIdentity{
+					ID: &reservedip,
+				}
+			} else {
+				var primaryIpObj = &vpcv1.NetworkInterfaceIPPrototypeReservedIPPrototypeNetworkInterfaceContext{}
+				ipv4, _ := primnic[isInstanceNicPrimaryIpv4Address]
+				ipv4str := ipv4.(string)
+				if ipv4str != "" {
+					primaryIpObj.Address = &ipv4str
+				}
+				reservedipv4Ok, okAdd := primip[isInstanceNicReservedIpAddress]
+				reservedipv4 := reservedipv4Ok.(string)
+
+				if ipv4str != "" && reservedipv4 != "" && ipv4str != reservedipv4 {
+					return fmt.Errorf("[ERROR] Error creating instance, use either primary_ipv4_address(%s) or primary_ip.0.address(%s)", ipv4str, reservedipv4)
+				}
+				if reservedipv4 != "" && okAdd {
+					primaryIpObj.Address = &reservedipv4
+				}
+				reservedipnameOk, ok := primip[isInstanceNicReservedIpId]
+				reservedipname := reservedipnameOk.(string)
+				if ok && reservedipname != "" {
+					primaryIpObj.Name = &reservedipname
+				}
+				reservedipautodeleteok, ok := primip[isInstanceNicReservedIpId]
+				if ok {
+					autodelete := reservedipautodeleteok.(bool)
+					primaryIpObj.AutoDelete = &autodelete
+				}
+				primnicobj.PrimaryIP = primaryIpObj
+			}
 		}
 		allowIPSpoofing, ok := primnic[isInstanceNicAllowIPSpoofing]
 		allowIPSpoofingbool := allowIPSpoofing.(bool)
@@ -1479,10 +1767,46 @@ func instanceCreateByVolume(d *schema.ResourceData, meta interface{}, profile, n
 			if ok && namestr != "" {
 				nwInterface.Name = &namestr
 			}
-			ipv4, _ := nic[isInstanceNicPrimaryIpv4Address]
-			ipv4str := ipv4.(string)
-			if ipv4str != "" {
-				nwInterface.PrimaryIpv4Address = &ipv4str
+
+			// reserved ip changes
+			primaryIpOk, ok := nic[isInstanceNicPrimaryIP]
+			if ok && len(primaryIpOk.([]interface{})) > 0 {
+				primip := primaryIpOk.([]interface{})[0].(map[string]interface{})
+
+				reservedipok, _ := primip[isInstanceNicReservedIpId]
+				reservedip := reservedipok.(string)
+				if reservedip != "" {
+					nwInterface.PrimaryIP = &vpcv1.NetworkInterfaceIPPrototypeReservedIPIdentity{
+						ID: &reservedip,
+					}
+				} else {
+					var primaryIpObj = &vpcv1.NetworkInterfaceIPPrototypeReservedIPPrototypeNetworkInterfaceContext{}
+					ipv4, _ := nic[isInstanceNicPrimaryIpv4Address]
+					ipv4str := ipv4.(string)
+					if ipv4str != "" {
+						primaryIpObj.Address = &ipv4str
+					}
+					reservedipv4Ok, okAdd := primip[isInstanceNicReservedIpAddress]
+					reservedipv4 := reservedipv4Ok.(string)
+
+					if ipv4str != "" && reservedipv4 != "" && ipv4str != reservedipv4 {
+						return fmt.Errorf("[ERROR] Error creating instance, use either primary_ipv4_address(%s) or primary_ip.0.address(%s)", ipv4str, reservedipv4)
+					}
+					if reservedipv4 != "" && okAdd {
+						primaryIpObj.Address = &reservedipv4
+					}
+					reservedipnameOk, ok := nic[isInstanceNicReservedIpId]
+					reservedipname := reservedipnameOk.(string)
+					if ok && reservedipname != "" {
+						primaryIpObj.Name = &reservedipname
+					}
+					reservedipautodeleteok, ok := nic[isInstanceNicReservedIpId]
+					if ok {
+						autodelete := reservedipautodeleteok.(bool)
+						primaryIpObj.AutoDelete = &autodelete
+					}
+					nwInterface.PrimaryIP = primaryIpObj
+				}
 			}
 			allowIPSpoofing, ok := nic[isInstanceNicAllowIPSpoofing]
 			allowIPSpoofingbool := allowIPSpoofing.(bool)
@@ -1789,7 +2113,19 @@ func instanceGet(d *schema.ResourceData, meta interface{}, id string) error {
 		currentPrimNic := map[string]interface{}{}
 		currentPrimNic["id"] = *instance.PrimaryNetworkInterface.ID
 		currentPrimNic[isInstanceNicName] = *instance.PrimaryNetworkInterface.Name
-		currentPrimNic[isInstanceNicPrimaryIpv4Address] = *instance.PrimaryNetworkInterface.PrimaryIpv4Address
+		currentPrimNic[isInstanceNicPrimaryIpv4Address] = *instance.PrimaryNetworkInterface.PrimaryIP.Address
+
+		//reserved ip changes
+		primaryIpList := make([]map[string]interface{}, 0)
+		currentPrimIp := map[string]interface{}{}
+		currentPrimIp[isInstanceNicReservedIpAddress] = *instance.PrimaryNetworkInterface.PrimaryIP.Address
+		currentPrimIp[isInstanceNicReservedIpHref] = instance.PrimaryNetworkInterface.PrimaryIP.Href
+		currentPrimIp[isInstanceNicReservedIpName] = instance.PrimaryNetworkInterface.PrimaryIP.Name
+		currentPrimIp[isInstanceNicReservedIpId] = instance.PrimaryNetworkInterface.PrimaryIP.ID
+		currentPrimIp[isInstanceNicReservedIpResourceType] = instance.PrimaryNetworkInterface.PrimaryIP.ResourceType
+		primaryIpList = append(primaryIpList, currentPrimIp)
+		currentPrimNic[isInstanceNicPrimaryIP] = primaryIpList
+
 		getnicoptions := &vpcv1.GetInstanceNetworkInterfaceOptions{
 			InstanceID: &id,
 			ID:         instance.PrimaryNetworkInterface.ID,
@@ -1819,7 +2155,19 @@ func instanceGet(d *schema.ResourceData, meta interface{}, id string) error {
 				currentNic := map[string]interface{}{}
 				currentNic["id"] = *intfc.ID
 				currentNic[isInstanceNicName] = *intfc.Name
-				currentNic[isInstanceNicPrimaryIpv4Address] = *intfc.PrimaryIpv4Address
+
+				// reserved ip changes
+				primaryIpList := make([]map[string]interface{}, 0)
+				currentPrimIp := map[string]interface{}{}
+				currentPrimIp[isInstanceNicReservedIpAddress] = *intfc.PrimaryIP.Address
+				currentPrimIp[isInstanceNicReservedIpHref] = intfc.PrimaryIP.Href
+				currentPrimIp[isInstanceNicReservedIpName] = intfc.PrimaryIP.Name
+				currentPrimIp[isInstanceNicReservedIpId] = intfc.PrimaryIP.ID
+				currentPrimIp[isInstanceNicReservedIpResourceType] = intfc.PrimaryIP.ResourceType
+				primaryIpList = append(primaryIpList, currentPrimIp)
+				currentNic[isInstanceNicPrimaryIP] = primaryIpList
+				currentNic[isInstanceNicPrimaryIpv4Address] = *intfc.PrimaryIP.Address
+
 				getnicoptions := &vpcv1.GetInstanceNetworkInterfaceOptions{
 					InstanceID: &id,
 					ID:         intfc.ID,

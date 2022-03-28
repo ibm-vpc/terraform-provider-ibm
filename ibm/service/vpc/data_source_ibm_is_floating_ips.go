@@ -338,8 +338,8 @@ func dataSourceFloatingIPCollectionFloatingIpsTargetToMap(targetItemIntf vpcv1.F
 	if targetItem.Name != nil {
 		targetMap["name"] = targetItem.Name
 	}
-	if targetItem.PrimaryIpv4Address != nil {
-		targetMap["primary_ipv4_address"] = targetItem.PrimaryIpv4Address
+	if targetItem.PrimaryIP != nil {
+		targetMap["primary_ipv4_address"] = targetItem.PrimaryIP.Address
 	}
 	if targetItem.ResourceType != nil {
 		targetMap["resource_type"] = targetItem.ResourceType

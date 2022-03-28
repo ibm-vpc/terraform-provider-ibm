@@ -62,7 +62,40 @@ func DataSourceIBMISVPNGateways() *schema.Resource {
 										Computed:    true,
 										Description: "The private IP address assigned to the VPN gateway member",
 									},
-
+									isVPNGatewayPrivateIP: {
+										Type:        schema.TypeList,
+										Computed:    true,
+										Description: "The private IP addresses assigned to this load balancer.",
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												isVPNGatewayPrivateIpAddress: {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "The IP address to reserve, which must not already be reserved on the subnet.",
+												},
+												isVPNGatewayPrivateIpHref: {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "The URL for this reserved IP",
+												},
+												isVPNGatewayPrivateIpName: {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "The user-defined name for this reserved IP. If unspecified, the name will be a hyphenated list of randomly-selected words. Names must be unique within the subnet the reserved IP resides in. ",
+												},
+												isVPNGatewayPrivateIpId: {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "Identifies a reserved IP by a unique property.",
+												},
+												isVPNGatewayPrivateIpResourceType: {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "The resource type",
+												},
+											},
+										},
+									},
 									"role": {
 										Type:        schema.TypeString,
 										Computed:    true,
@@ -163,6 +196,15 @@ func dataSourceIBMVPNGatewaysRead(d *schema.ResourceData, meta interface{}) erro
 				}
 				if memberIP.PrivateIP != nil {
 					currentMemberIP["private_address"] = *memberIP.PrivateIP.Address
+					privateIpDetailList := make([]map[string]interface{}, 0)
+					currentPriIp := map[string]interface{}{}
+					currentPriIp[isVPNGatewayPrivateIpAddress] = memberIP.PrivateIP.Address
+					currentPriIp[isVPNGatewayPrivateIpHref] = memberIP.PrivateIP.Href
+					currentPriIp[isVPNGatewayPrivateIpName] = memberIP.PrivateIP.Name
+					currentPriIp[isVPNGatewayPrivateIpId] = memberIP.PrivateIP.ID
+					currentPriIp[isVPNGatewayPrivateIpResourceType] = memberIP.PrivateIP.ResourceType
+					privateIpDetailList = append(privateIpDetailList, currentPriIp)
+					currentMemberIP[isVPNGatewayPrivateIP] = privateIpDetailList
 				}
 			}
 			gateway[isVPNGatewayMembers] = vpcMembersIpsList

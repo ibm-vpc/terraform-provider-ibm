@@ -2914,7 +2914,8 @@ func (vpc *VpcV1) ListSubnetReservedIpsWithContext(ctx context.Context, listSubn
 	}
 	builder.AddHeader("Accept", "application/json")
 
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
+	builder.AddQuery("future_version", "true")
+	builder.AddQuery("version", "3000-01-01")
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 	if listSubnetReservedIpsOptions.Start != nil {
 		builder.AddQuery("start", fmt.Sprint(*listSubnetReservedIpsOptions.Start))
@@ -2988,7 +2989,8 @@ func (vpc *VpcV1) CreateSubnetReservedIPWithContext(ctx context.Context, createS
 	builder.AddHeader("Accept", "application/json")
 	builder.AddHeader("Content-Type", "application/json")
 
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
+	builder.AddQuery("future_version", "true")
+	builder.AddQuery("version", "3000-01-01")
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 
 	body := make(map[string]interface{})
@@ -3069,7 +3071,8 @@ func (vpc *VpcV1) DeleteSubnetReservedIPWithContext(ctx context.Context, deleteS
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
+	builder.AddQuery("future_version", "true")
+	builder.AddQuery("version", "3000-01-01")
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 
 	request, err := builder.Build()
@@ -3122,7 +3125,8 @@ func (vpc *VpcV1) GetSubnetReservedIPWithContext(ctx context.Context, getSubnetR
 	}
 	builder.AddHeader("Accept", "application/json")
 
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
+	builder.AddQuery("future_version", "true")
+	builder.AddQuery("version", "3000-01-01")
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 
 	request, err := builder.Build()
@@ -3188,7 +3192,8 @@ func (vpc *VpcV1) UpdateSubnetReservedIPWithContext(ctx context.Context, updateS
 	builder.AddHeader("Accept", "application/json")
 	builder.AddHeader("Content-Type", "application/merge-patch+json")
 
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
+	builder.AddQuery("future_version", "true")
+	builder.AddQuery("version", "3000-01-01")
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 
 	_, err = builder.SetBodyContentJSON(updateSubnetReservedIPOptions.ReservedIPPatch)
@@ -4146,7 +4151,8 @@ func (vpc *VpcV1) ListInstanceTemplatesWithContext(ctx context.Context, listInst
 	}
 	builder.AddHeader("Accept", "application/json")
 
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
+	builder.AddQuery("future_version", "true")
+	builder.AddQuery("version", "3000-01-01")
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 
 	request, err := builder.Build()
@@ -4329,7 +4335,8 @@ func (vpc *VpcV1) GetInstanceTemplateWithContext(ctx context.Context, getInstanc
 	}
 	builder.AddHeader("Accept", "application/json")
 
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
+	builder.AddQuery("future_version", "true")
+	builder.AddQuery("version", "3000-01-01")
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 
 	request, err := builder.Build()
@@ -5830,7 +5837,8 @@ func (vpc *VpcV1) ListInstanceNetworkInterfaceIpsWithContext(ctx context.Context
 	}
 	builder.AddHeader("Accept", "application/json")
 
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
+	builder.AddQuery("future_version", "true")
+	builder.AddQuery("version", "3000-01-01")
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 	if listInstanceNetworkInterfaceIpsOptions.Start != nil {
 		builder.AddQuery("start", fmt.Sprint(*listInstanceNetworkInterfaceIpsOptions.Start))
@@ -5902,7 +5910,8 @@ func (vpc *VpcV1) GetInstanceNetworkInterfaceIPWithContext(ctx context.Context, 
 	}
 	builder.AddHeader("Accept", "application/json")
 
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
+	builder.AddQuery("future_version", "true")
+	builder.AddQuery("version", "3000-01-01")
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 
 	request, err := builder.Build()
@@ -12410,7 +12419,8 @@ func (vpc *VpcV1) ListFloatingIpsWithContext(ctx context.Context, listFloatingIp
 	}
 	builder.AddHeader("Accept", "application/json")
 
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
+	builder.AddQuery("future_version", "true")
+	builder.AddQuery("version", "3000-01-01")
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 	if listFloatingIpsOptions.Start != nil {
 		builder.AddQuery("start", fmt.Sprint(*listFloatingIpsOptions.Start))
@@ -12599,7 +12609,8 @@ func (vpc *VpcV1) GetFloatingIPWithContext(ctx context.Context, getFloatingIPOpt
 	}
 	builder.AddHeader("Accept", "application/json")
 
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
+	builder.AddQuery("future_version", "true")
+	builder.AddQuery("version", "3000-01-01")
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 
 	request, err := builder.Build()
@@ -14180,7 +14191,8 @@ func (vpc *VpcV1) GetSecurityGroupTargetWithContext(ctx context.Context, getSecu
 	}
 	builder.AddHeader("Accept", "application/json")
 
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
+	builder.AddQuery("future_version", "true")
+	builder.AddQuery("version", "3000-01-01")
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 
 	request, err := builder.Build()
