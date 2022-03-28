@@ -100,6 +100,12 @@ func DataSourceSnapshot() *schema.Resource {
 				Description: "The size of the snapshot",
 			},
 
+			isSnapshotCapturedAt: {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The date and time that this snapshot was created",
+			},
+
 			isSnapshotUserTags: {
 				Type: schema.TypeSet,
 				// Optional: true,
@@ -151,11 +157,6 @@ func DataSourceSnapshot() *schema.Resource {
 						},
 					},
 				},
-			},
-			isSnapshotCapturedAt: {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: "The date and time that this snapshot was created",
 			},
 		},
 	}
@@ -224,13 +225,13 @@ func snapshotGetByNameOrID(d *schema.ResourceData, meta interface{}, name, id st
 				d.Set(isSnapshotLCState, *snapshot.LifecycleState)
 				d.Set(isSnapshotResourceType, *snapshot.ResourceType)
 				d.Set(isSnapshotBootable, *snapshot.Bootable)
+				if snapshot.CapturedAt != nil {
+					d.Set(isSnapshotCapturedAt, (*snapshot.CapturedAt).String())
+				}
 				if snapshot.UserTags != nil {
 					if err = d.Set(isSnapshotUserTags, snapshot.UserTags); err != nil {
 						return fmt.Errorf("Error setting user tags: %s", err)
 					}
-				}
-				if snapshot.CapturedAt != nil {
-					d.Set(isSnapshotCapturedAt, (*snapshot.CapturedAt).String())
 				}
 				if snapshot.ResourceGroup != nil && snapshot.ResourceGroup.ID != nil {
 					d.Set(isSnapshotResourceGroup, *snapshot.ResourceGroup.ID)
@@ -284,13 +285,13 @@ func snapshotGetByNameOrID(d *schema.ResourceData, meta interface{}, name, id st
 		d.Set(isSnapshotLCState, *snapshot.LifecycleState)
 		d.Set(isSnapshotResourceType, *snapshot.ResourceType)
 		d.Set(isSnapshotBootable, *snapshot.Bootable)
+		if snapshot.CapturedAt != nil {
+			d.Set(isSnapshotCapturedAt, (*snapshot.CapturedAt).String())
+		}
 		if snapshot.UserTags != nil {
 			if err = d.Set(isSnapshotUserTags, snapshot.UserTags); err != nil {
 				return fmt.Errorf("Error setting user tags: %s", err)
 			}
-		}
-		if snapshot.CapturedAt != nil {
-			d.Set(isSnapshotCapturedAt, (*snapshot.CapturedAt).String())
 		}
 		if snapshot.ResourceGroup != nil && snapshot.ResourceGroup.ID != nil {
 			d.Set(isSnapshotResourceGroup, *snapshot.ResourceGroup.ID)
