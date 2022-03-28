@@ -294,11 +294,13 @@ func ResourceIBMISInstanceTemplate() *schema.Resource {
 									},
 									isInstanceTemplateNicReservedIpName: {
 										Type:        schema.TypeString,
+										Optional:    true,
 										Computed:    true,
 										Description: "The user-defined name for this reserved IP. If unspecified, the name will be a hyphenated list of randomly-selected words. Names must be unique within the subnet the reserved IP resides in. ",
 									},
 									isInstanceTemplateNicReservedIpId: {
 										Type:        schema.TypeString,
+										Optional:    true,
 										Computed:    true,
 										Description: "Identifies a reserved IP by a unique property.",
 									},
@@ -350,6 +352,7 @@ func ResourceIBMISInstanceTemplate() *schema.Resource {
 						isInstanceTemplateNicPrimaryIP: {
 							Type:        schema.TypeList,
 							Optional:    true,
+							MaxItems:    1,
 							Computed:    true,
 							Description: "The primary IP address to bind to the network interface. This can be specified using an existing reserved IP, or a prototype object for a new reserved IP.",
 							Elem: &schema.Resource{
@@ -367,11 +370,13 @@ func ResourceIBMISInstanceTemplate() *schema.Resource {
 									},
 									isInstanceTemplateNicReservedIpName: {
 										Type:        schema.TypeString,
+										Optional:    true,
 										Computed:    true,
 										Description: "The user-defined name for this reserved IP. If unspecified, the name will be a hyphenated list of randomly-selected words. Names must be unique within the subnet the reserved IP resides in. ",
 									},
 									isInstanceTemplateNicReservedIpId: {
 										Type:        schema.TypeString,
+										Optional:    true,
 										Computed:    true,
 										Description: "Identifies a reserved IP by a unique property.",
 									},
