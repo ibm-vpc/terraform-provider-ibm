@@ -1326,7 +1326,7 @@ func instanceCreateByVolume(d *schema.ResourceData, meta interface{}, profile, n
 	if err != nil {
 		return err
 	}
-	instanceproto := &vpcv1.InstancePrototypeInstanceByVolume{
+	instanceproto := &vpcv1.InstancePrototypeInstanceBySourceSnapshot{
 		Zone: &vpcv1.ZoneIdentity{
 			Name: &zone,
 		},
@@ -1380,7 +1380,7 @@ func instanceCreateByVolume(d *schema.ResourceData, meta interface{}, profile, n
 
 	if boot, ok := d.GetOk(isInstanceBootVolume); ok {
 		bootvol := boot.([]interface{})[0].(map[string]interface{})
-		var volTemplate = &vpcv1.VolumeAttachmentVolumePrototypeInstanceByVolumeContext{}
+		var volTemplate = &vpcv1.VolumePrototypeInstanceBySourceSnapshotContext{}
 
 		name, ok := bootvol[isInstanceBootAttachmentName]
 		namestr := name.(string)
@@ -1413,7 +1413,7 @@ func instanceCreateByVolume(d *schema.ResourceData, meta interface{}, profile, n
 			}
 		}
 		deletebool := true
-		instanceproto.BootVolumeAttachment = &vpcv1.VolumeAttachmentPrototypeInstanceByVolumeContext{
+		instanceproto.BootVolumeAttachment = &vpcv1.VolumeAttachmentPrototypeInstanceBySourceSnapshotContext{
 			DeleteVolumeOnInstanceDelete: &deletebool,
 			Volume:                       volTemplate,
 		}
