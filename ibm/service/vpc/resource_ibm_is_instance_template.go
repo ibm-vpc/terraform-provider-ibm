@@ -301,11 +301,12 @@ func ResourceIBMISInstanceTemplate() *schema.Resource {
 										Description: "The user-defined name for this reserved IP. If unspecified, the name will be a hyphenated list of randomly-selected words. Names must be unique within the subnet the reserved IP resides in. ",
 									},
 									isInstanceTemplateNicReservedIpId: {
-										Type:        schema.TypeString,
-										Optional:    true,
-										Computed:    true,
-										ForceNew:    true,
-										Description: "Identifies a reserved IP by a unique property.",
+										Type:          schema.TypeString,
+										Optional:      true,
+										Computed:      true,
+										ForceNew:      true,
+										ConflictsWith: []string{"primary_network_interface.0.primary_ip.0.address", "primary_network_interface.0.primary_ip.0.auto_delete", "primary_network_interface.0.primary_ip.0.name", "primary_network_interface.0.primary_ipv4_address"},
+										Description:   "Identifies a reserved IP by a unique property.",
 									},
 								},
 							},
@@ -884,7 +885,8 @@ func instanceTemplateCreate(d *schema.ResourceData, meta interface{}, profile, n
 				reservedIpAddress = reservedipv4Ok.(string)
 				reservedipnameOk, _ := primip[isInstanceTemplateNicReservedIpName]
 				reservedIpName = reservedipnameOk.(string)
-				reservedipautodeleteok, okAuto := primip[isInstanceTemplateNicReservedIpAutoDelete]
+				var reservedipautodeleteok interface{}
+				reservedipautodeleteok, okAuto = primip[isInstanceTemplateNicReservedIpAutoDelete]
 				if okAuto {
 					reservedIpAutoDelete = reservedipautodeleteok.(bool)
 				}
@@ -893,7 +895,7 @@ func instanceTemplateCreate(d *schema.ResourceData, meta interface{}, profile, n
 				return fmt.Errorf("[ERROR] Error creating instance template, network_interfaces error, use either primary_ipv4_address(%s) or primary_ip.0.address(%s)", PrimaryIpv4Address, reservedIpAddress)
 			}
 			if reservedIp != "" && (PrimaryIpv4Address != "" || reservedIpAddress != "" || reservedIpName != "" || okAuto) {
-				return fmt.Errorf("[ERROR] Error creating instance template, network_interfaces error, use either reserved_ip(%s) or primary_ip.0.address(%s)", reservedIp, reservedIpAddress)
+				return fmt.Errorf("[ERROR] Error creating instance template, network_interfaces error, reserved_ip(%s) is mutually exclusive with other primary ip attributes", reservedIp)
 			}
 			if reservedIp != "" {
 				nwInterface.PrimaryIP = &vpcv1.NetworkInterfaceIPPrototypeReservedIPIdentity{
