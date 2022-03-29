@@ -196,11 +196,6 @@ func DataSourceIBMISInstanceTemplate() *schema.Resource {
 										Computed:    true,
 										Description: "The IP address to reserve, which must not already be reserved on the subnet.",
 									},
-									isInstanceTemplateNicReservedIpHref: {
-										Type:        schema.TypeString,
-										Computed:    true,
-										Description: "The URL for this reserved IP",
-									},
 									isInstanceTemplateNicReservedIpName: {
 										Type:        schema.TypeString,
 										Computed:    true,
@@ -210,11 +205,6 @@ func DataSourceIBMISInstanceTemplate() *schema.Resource {
 										Type:        schema.TypeString,
 										Computed:    true,
 										Description: "Identifies a reserved IP by a unique property.",
-									},
-									isInstanceTemplateNicReservedIpResourceType: {
-										Type:        schema.TypeString,
-										Computed:    true,
-										Description: "The resource type",
 									},
 								},
 							},
@@ -257,11 +247,6 @@ func DataSourceIBMISInstanceTemplate() *schema.Resource {
 										Computed:    true,
 										Description: "The IP address to reserve, which must not already be reserved on the subnet.",
 									},
-									isInstanceTemplateNicReservedIpHref: {
-										Type:        schema.TypeString,
-										Computed:    true,
-										Description: "The URL for this reserved IP",
-									},
 									isInstanceTemplateNicReservedIpName: {
 										Type:        schema.TypeString,
 										Computed:    true,
@@ -271,11 +256,6 @@ func DataSourceIBMISInstanceTemplate() *schema.Resource {
 										Type:        schema.TypeString,
 										Computed:    true,
 										Description: "Identifies a reserved IP by a unique property.",
-									},
-									isInstanceTemplateNicReservedIpResourceType: {
-										Type:        schema.TypeString,
-										Computed:    true,
-										Description: "The resource type",
 									},
 								},
 							},

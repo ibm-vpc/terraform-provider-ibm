@@ -54,11 +54,9 @@ const (
 	isInstanceTemplateHostFailure                  = "host_failure"
 	isInstanceTemplateNicPrimaryIP                 = "primary_ip"
 	isInstanceTemplateNicReservedIpAddress         = "address"
-	isInstanceTemplateNicReservedIpHref            = "href"
 	isInstanceTemplateNicReservedIpAutoDelete      = "auto_delete"
 	isInstanceTemplateNicReservedIpName            = "name"
 	isInstanceTemplateNicReservedIpId              = "reserved_ip"
-	isInstanceTemplateNicReservedIpResourceType    = "resource_type"
 )
 
 func ResourceIBMISInstanceTemplate() *schema.Resource {
@@ -285,29 +283,29 @@ func ResourceIBMISInstanceTemplate() *schema.Resource {
 										Optional:      true,
 										ConflictsWith: []string{"primary_network_interface.0.primary_ipv4_address"},
 										Computed:      true,
+										ForceNew:      true,
 										Description:   "The IP address to reserve, which must not already be reserved on the subnet.",
 									},
-									isInstanceTemplateNicReservedIpHref: {
-										Type:        schema.TypeString,
+									isInstanceTemplateNicReservedIpAutoDelete: {
+										Type:        schema.TypeBool,
+										Optional:    true,
 										Computed:    true,
-										Description: "The URL for this reserved IP",
+										ForceNew:    true,
+										Description: "Indicates whether this reserved IP member will be automatically deleted when either target is deleted, or the reserved IP is unbound.",
 									},
 									isInstanceTemplateNicReservedIpName: {
 										Type:        schema.TypeString,
 										Optional:    true,
 										Computed:    true,
+										ForceNew:    true,
 										Description: "The user-defined name for this reserved IP. If unspecified, the name will be a hyphenated list of randomly-selected words. Names must be unique within the subnet the reserved IP resides in. ",
 									},
 									isInstanceTemplateNicReservedIpId: {
 										Type:        schema.TypeString,
 										Optional:    true,
 										Computed:    true,
+										ForceNew:    true,
 										Description: "Identifies a reserved IP by a unique property.",
-									},
-									isInstanceTemplateNicReservedIpResourceType: {
-										Type:        schema.TypeString,
-										Computed:    true,
-										Description: "The resource type",
 									},
 								},
 							},
@@ -360,30 +358,30 @@ func ResourceIBMISInstanceTemplate() *schema.Resource {
 									isInstanceTemplateNicReservedIpAddress: {
 										Type:        schema.TypeString,
 										Optional:    true,
+										ForceNew:    true,
 										Computed:    true,
 										Description: "The IP address to reserve, which must not already be reserved on the subnet.",
 									},
-									isInstanceTemplateNicReservedIpHref: {
-										Type:        schema.TypeString,
+									isInstanceTemplateNicReservedIpAutoDelete: {
+										Type:        schema.TypeBool,
+										Optional:    true,
 										Computed:    true,
-										Description: "The URL for this reserved IP",
+										ForceNew:    true,
+										Description: "Indicates whether this reserved IP member will be automatically deleted when either target is deleted, or the reserved IP is unbound.",
 									},
 									isInstanceTemplateNicReservedIpName: {
 										Type:        schema.TypeString,
 										Optional:    true,
 										Computed:    true,
+										ForceNew:    true,
 										Description: "The user-defined name for this reserved IP. If unspecified, the name will be a hyphenated list of randomly-selected words. Names must be unique within the subnet the reserved IP resides in. ",
 									},
 									isInstanceTemplateNicReservedIpId: {
 										Type:        schema.TypeString,
 										Optional:    true,
 										Computed:    true,
+										ForceNew:    true,
 										Description: "Identifies a reserved IP by a unique property.",
-									},
-									isInstanceTemplateNicReservedIpResourceType: {
-										Type:        schema.TypeString,
-										Computed:    true,
-										Description: "The resource type",
 									},
 								},
 							},
@@ -800,13 +798,13 @@ func instanceTemplateCreate(d *schema.ResourceData, meta interface{}, profile, n
 			reservedIpAddress = reservedipv4Ok.(string)
 			reservedipnameOk, _ := primip[isInstanceTemplateNicReservedIpName]
 			reservedIpName = reservedipnameOk.(string)
-			reservedipautodeleteok, okAuto := primip[isInstanceNicReservedIpAutoDelete]
+			reservedipautodeleteok, okAuto := primip[isInstanceTemplateNicReservedIpAutoDelete]
 			if okAuto {
 				reservedIpAutoDelete = reservedipautodeleteok.(bool)
 			}
 		}
 		if PrimaryIpv4Address != "" && reservedIpAddress != "" && PrimaryIpv4Address != reservedIpAddress {
-			return fmt.Errorf("[ERROR] Error creating instance template, use either primary_ipv4_address(%s) or primary_ip.0.address(%s)", PrimaryIpv4Address, reservedIpAddress)
+			return fmt.Errorf("[ERROR] Error creating instance template, primary_network_interface error, use either primary_ipv4_address(%s) or primary_ip.0.address(%s)", PrimaryIpv4Address, reservedIpAddress)
 		}
 		if reservedIp != "" {
 			primnicobj.PrimaryIP = &vpcv1.NetworkInterfaceIPPrototypeReservedIPIdentity{
@@ -886,13 +884,16 @@ func instanceTemplateCreate(d *schema.ResourceData, meta interface{}, profile, n
 				reservedIpAddress = reservedipv4Ok.(string)
 				reservedipnameOk, _ := primip[isInstanceTemplateNicReservedIpName]
 				reservedIpName = reservedipnameOk.(string)
-				reservedipautodeleteok, okAuto := primip[isInstanceNicReservedIpAutoDelete]
+				reservedipautodeleteok, okAuto := primip[isInstanceTemplateNicReservedIpAutoDelete]
 				if okAuto {
 					reservedIpAutoDelete = reservedipautodeleteok.(bool)
 				}
 			}
 			if PrimaryIpv4Address != "" && reservedIpAddress != "" && PrimaryIpv4Address != reservedIpAddress {
-				return fmt.Errorf("[ERROR] Error creating instance template, use either primary_ipv4_address(%s) or primary_ip.0.address(%s)", PrimaryIpv4Address, reservedIpAddress)
+				return fmt.Errorf("[ERROR] Error creating instance template, network_interfaces error, use either primary_ipv4_address(%s) or primary_ip.0.address(%s)", PrimaryIpv4Address, reservedIpAddress)
+			}
+			if reservedIp != "" && (PrimaryIpv4Address != "" || reservedIpAddress != "" || reservedIpName != "" || okAuto) {
+				return fmt.Errorf("[ERROR] Error creating instance template, network_interfaces error, use either reserved_ip(%s) or primary_ip.0.address(%s)", reservedIp, reservedIpAddress)
 			}
 			if reservedIp != "" {
 				nwInterface.PrimaryIP = &vpcv1.NetworkInterfaceIPPrototypeReservedIPIdentity{
@@ -1037,6 +1038,7 @@ func instanceTemplateGet(d *schema.ResourceData, meta interface{}, ID string) er
 					currentPrimNic[isInstanceTemplateNicPrimaryIpv4Address] = pip.Address
 					currentPrimIp[isInstanceTemplateNicReservedIpAddress] = pip.Address
 					currentPrimIp[isInstanceTemplateNicReservedIpAutoDelete] = pip.AutoDelete
+					currentPrimIp[isInstanceTemplateNicReservedIpName] = pip.Name
 				}
 			case "*vpcv1.NetworkInterfaceIPPrototypeReservedIPPrototypeNetworkInterfaceContext":
 				{
@@ -1044,6 +1046,7 @@ func instanceTemplateGet(d *schema.ResourceData, meta interface{}, ID string) er
 					currentPrimNic[isInstanceTemplateNicPrimaryIpv4Address] = pip.Address
 					currentPrimIp[isInstanceTemplateNicReservedIpAddress] = pip.Address
 					currentPrimIp[isInstanceTemplateNicReservedIpAutoDelete] = pip.AutoDelete
+					currentPrimIp[isInstanceTemplateNicReservedIpName] = pip.Name
 				}
 			case "*vpcv1.NetworkInterfaceIPPrototypeReservedIPIdentity":
 				{
@@ -1091,6 +1094,7 @@ func instanceTemplateGet(d *schema.ResourceData, meta interface{}, ID string) er
 						currentNic[isInstanceTemplateNicPrimaryIpv4Address] = pip.Address
 						currentPrimIp[isInstanceTemplateNicReservedIpAddress] = pip.Address
 						currentPrimIp[isInstanceTemplateNicReservedIpAutoDelete] = pip.AutoDelete
+						currentPrimIp[isInstanceTemplateNicReservedIpName] = pip.Name
 					}
 				case "*vpcv1.NetworkInterfaceIPPrototypeReservedIPPrototypeNetworkInterfaceContext":
 					{
@@ -1098,6 +1102,7 @@ func instanceTemplateGet(d *schema.ResourceData, meta interface{}, ID string) er
 						currentNic[isInstanceTemplateNicPrimaryIpv4Address] = pip.Address
 						currentPrimIp[isInstanceTemplateNicReservedIpAddress] = pip.Address
 						currentPrimIp[isInstanceTemplateNicReservedIpAutoDelete] = pip.AutoDelete
+						currentPrimIp[isInstanceTemplateNicReservedIpName] = pip.Name
 					}
 				case "*vpcv1.NetworkInterfaceIPPrototypeReservedIPIdentity":
 					{
