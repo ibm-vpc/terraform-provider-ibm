@@ -784,30 +784,53 @@ func instanceTemplateCreate(d *schema.ResourceData, meta interface{}, profile, n
 				primnicobj.SecurityGroups = secgrpobjs
 			}
 		}
-		instanceproto.PrimaryNetworkInterface = primnicobj
-		PrimaryIpv4Address := ""
+		// reserved ip changes
+		var PrimaryIpv4Address, reservedIp, reservedIpAddress, reservedIpName string
+		var reservedIpAutoDelete, okAuto bool
 		if IPAddress, ok := primnic[isInstanceTemplateNicPrimaryIpv4Address]; ok {
-			if PrimaryIpv4Address = IPAddress.(string); PrimaryIpv4Address != "" {
-				primnicobj.PrimaryIP = &vpcv1.NetworkInterfaceIPPrototypeReservedIPPrototypeNetworkInterfaceContext{
-					Address: &PrimaryIpv4Address,
-				}
-			}
+			PrimaryIpv4Address = IPAddress.(string)
 		}
 		primaryIpOk, ok := primnic[isInstanceTemplateNicPrimaryIP]
 		if ok && len(primaryIpOk.([]interface{})) > 0 {
 			primip := primaryIpOk.([]interface{})[0].(map[string]interface{})
 
-			reservedipv4Ok, okAdd := primip[isInstanceTemplateNicReservedIpAddress]
-			reservedipv4 := reservedipv4Ok.(string)
-			if PrimaryIpv4Address != "" && reservedipv4 != "" && PrimaryIpv4Address != reservedipv4 {
-				return fmt.Errorf("[ERROR] Error creating instance template, use either primary_ipv4_address(%s) or primary_ip.0.address(%s)", PrimaryIpv4Address, reservedipv4)
-			}
-			if reservedipv4 != "" && okAdd {
-				primnicobj.PrimaryIP = &vpcv1.NetworkInterfaceIPPrototypeReservedIPPrototypeNetworkInterfaceContext{
-					Address: &reservedipv4,
-				}
+			reservedipok, _ := primip[isInstanceTemplateNicReservedIpId]
+			reservedIp = reservedipok.(string)
+			reservedipv4Ok, _ := primip[isInstanceTemplateNicReservedIpAddress]
+			reservedIpAddress = reservedipv4Ok.(string)
+			reservedipnameOk, _ := primip[isInstanceTemplateNicReservedIpName]
+			reservedIpName = reservedipnameOk.(string)
+			reservedipautodeleteok, okAuto := primip[isInstanceNicReservedIpAutoDelete]
+			if okAuto {
+				reservedIpAutoDelete = reservedipautodeleteok.(bool)
 			}
 		}
+		if PrimaryIpv4Address != "" && reservedIpAddress != "" && PrimaryIpv4Address != reservedIpAddress {
+			return fmt.Errorf("[ERROR] Error creating instance template, use either primary_ipv4_address(%s) or primary_ip.0.address(%s)", PrimaryIpv4Address, reservedIpAddress)
+		}
+		if reservedIp != "" {
+			primnicobj.PrimaryIP = &vpcv1.NetworkInterfaceIPPrototypeReservedIPIdentity{
+				ID: &reservedIp,
+			}
+		} else {
+			if PrimaryIpv4Address != "" || reservedIpAddress != "" || reservedIpName != "" || okAuto {
+				primaryipobj := &vpcv1.NetworkInterfaceIPPrototypeReservedIPPrototypeNetworkInterfaceContext{}
+				if PrimaryIpv4Address != "" {
+					primaryipobj.Address = &PrimaryIpv4Address
+				}
+				if reservedIpAddress != "" {
+					primaryipobj.Address = &reservedIpAddress
+				}
+				if reservedIpName != "" {
+					primaryipobj.Name = &reservedIpName
+				}
+				if okAuto {
+					primaryipobj.AutoDelete = &reservedIpAutoDelete
+				}
+				primnicobj.PrimaryIP = primaryipobj
+			}
+		}
+		instanceproto.PrimaryNetworkInterface = primnicobj
 	}
 
 	// Handle  additional network interface
@@ -847,27 +870,50 @@ func instanceTemplateCreate(d *schema.ResourceData, meta interface{}, profile, n
 					nwInterface.SecurityGroups = secgrpobjs
 				}
 			}
-			PrimaryIpv4Address := ""
+			// reserved ip changes
+			var PrimaryIpv4Address, reservedIp, reservedIpAddress, reservedIpName string
+			var reservedIpAutoDelete, okAuto bool
 			if IPAddress, ok := nic[isInstanceTemplateNicPrimaryIpv4Address]; ok {
-				if PrimaryIpv4Address = IPAddress.(string); PrimaryIpv4Address != "" {
-					nwInterface.PrimaryIP = &vpcv1.NetworkInterfaceIPPrototypeReservedIPPrototypeNetworkInterfaceContext{
-						Address: &PrimaryIpv4Address,
-					}
-				}
+				PrimaryIpv4Address = IPAddress.(string)
 			}
 			primaryIpOk, ok := nic[isInstanceTemplateNicPrimaryIP]
 			if ok && len(primaryIpOk.([]interface{})) > 0 {
 				primip := primaryIpOk.([]interface{})[0].(map[string]interface{})
 
-				reservedipv4Ok, okAdd := primip[isInstanceTemplateNicReservedIpAddress]
-				reservedipv4 := reservedipv4Ok.(string)
-				if PrimaryIpv4Address != "" && reservedipv4 != "" && PrimaryIpv4Address != reservedipv4 {
-					return fmt.Errorf("[ERROR] Error creating instance template, use either primary_ipv4_address(%s) or primary_ip.0.address(%s)", PrimaryIpv4Address, reservedipv4)
+				reservedipok, _ := primip[isInstanceTemplateNicReservedIpId]
+				reservedIp = reservedipok.(string)
+				reservedipv4Ok, _ := primip[isInstanceTemplateNicReservedIpAddress]
+				reservedIpAddress = reservedipv4Ok.(string)
+				reservedipnameOk, _ := primip[isInstanceTemplateNicReservedIpName]
+				reservedIpName = reservedipnameOk.(string)
+				reservedipautodeleteok, okAuto := primip[isInstanceNicReservedIpAutoDelete]
+				if okAuto {
+					reservedIpAutoDelete = reservedipautodeleteok.(bool)
 				}
-				if reservedipv4 != "" && okAdd {
-					nwInterface.PrimaryIP = &vpcv1.NetworkInterfaceIPPrototypeReservedIPPrototypeNetworkInterfaceContext{
-						Address: &reservedipv4,
+			}
+			if PrimaryIpv4Address != "" && reservedIpAddress != "" && PrimaryIpv4Address != reservedIpAddress {
+				return fmt.Errorf("[ERROR] Error creating instance template, use either primary_ipv4_address(%s) or primary_ip.0.address(%s)", PrimaryIpv4Address, reservedIpAddress)
+			}
+			if reservedIp != "" {
+				nwInterface.PrimaryIP = &vpcv1.NetworkInterfaceIPPrototypeReservedIPIdentity{
+					ID: &reservedIp,
+				}
+			} else {
+				if PrimaryIpv4Address != "" || reservedIpAddress != "" || reservedIpName != "" || okAuto {
+					primaryipobj := &vpcv1.NetworkInterfaceIPPrototypeReservedIPPrototypeNetworkInterfaceContext{}
+					if PrimaryIpv4Address != "" {
+						primaryipobj.Address = &PrimaryIpv4Address
 					}
+					if reservedIpAddress != "" {
+						primaryipobj.Address = &reservedIpAddress
+					}
+					if reservedIpName != "" {
+						primaryipobj.Name = &reservedIpName
+					}
+					if okAuto {
+						primaryipobj.AutoDelete = &reservedIpAutoDelete
+					}
+					nwInterface.PrimaryIP = primaryipobj
 				}
 			}
 			intfs = append(intfs, *nwInterface)
@@ -990,12 +1036,19 @@ func instanceTemplateGet(d *schema.ResourceData, meta interface{}, ID string) er
 					pip := pipIntf.(*vpcv1.NetworkInterfaceIPPrototype)
 					currentPrimNic[isInstanceTemplateNicPrimaryIpv4Address] = pip.Address
 					currentPrimIp[isInstanceTemplateNicReservedIpAddress] = pip.Address
+					currentPrimIp[isInstanceTemplateNicReservedIpAutoDelete] = pip.AutoDelete
 				}
 			case "*vpcv1.NetworkInterfaceIPPrototypeReservedIPPrototypeNetworkInterfaceContext":
 				{
 					pip := pipIntf.(*vpcv1.NetworkInterfaceIPPrototypeReservedIPPrototypeNetworkInterfaceContext)
 					currentPrimNic[isInstanceTemplateNicPrimaryIpv4Address] = pip.Address
 					currentPrimIp[isInstanceTemplateNicReservedIpAddress] = pip.Address
+					currentPrimIp[isInstanceTemplateNicReservedIpAutoDelete] = pip.AutoDelete
+				}
+			case "*vpcv1.NetworkInterfaceIPPrototypeReservedIPIdentity":
+				{
+					pip := pipIntf.(*vpcv1.NetworkInterfaceIPPrototypeReservedIPIdentity)
+					currentPrimIp[isInstanceTemplateNicReservedIpId] = pip.ID
 				}
 			}
 			primaryIpList = append(primaryIpList, currentPrimIp)
@@ -1037,13 +1090,19 @@ func instanceTemplateGet(d *schema.ResourceData, meta interface{}, ID string) er
 						pip := pipIntf.(*vpcv1.NetworkInterfaceIPPrototype)
 						currentNic[isInstanceTemplateNicPrimaryIpv4Address] = pip.Address
 						currentPrimIp[isInstanceTemplateNicReservedIpAddress] = pip.Address
+						currentPrimIp[isInstanceTemplateNicReservedIpAutoDelete] = pip.AutoDelete
 					}
 				case "*vpcv1.NetworkInterfaceIPPrototypeReservedIPPrototypeNetworkInterfaceContext":
 					{
 						pip := pipIntf.(*vpcv1.NetworkInterfaceIPPrototypeReservedIPPrototypeNetworkInterfaceContext)
 						currentNic[isInstanceTemplateNicPrimaryIpv4Address] = pip.Address
 						currentPrimIp[isInstanceTemplateNicReservedIpAddress] = pip.Address
-
+						currentPrimIp[isInstanceTemplateNicReservedIpAutoDelete] = pip.AutoDelete
+					}
+				case "*vpcv1.NetworkInterfaceIPPrototypeReservedIPIdentity":
+					{
+						pip := pipIntf.(*vpcv1.NetworkInterfaceIPPrototypeReservedIPIdentity)
+						currentPrimIp[isInstanceTemplateNicReservedIpId] = pip.ID
 					}
 				}
 				primaryIpList = append(primaryIpList, currentPrimIp)
