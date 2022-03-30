@@ -409,10 +409,10 @@ func dataSourceVPNGatewayMembersToMap(membersItem vpcv1.VPNGatewayMember) (membe
 		privateIpDetailList := make([]map[string]interface{}, 0)
 		currentPriIp := map[string]interface{}{}
 		currentPriIp[isVPNGatewayPrivateIpAddress] = membersItem.PrivateIP.Address
-		currentPriIp[isVPNGatewayPrivateIpHref] = membersItem.PrivateIP.Href
-		currentPriIp[isVPNGatewayPrivateIpName] = membersItem.PrivateIP.Name
-		currentPriIp[isVPNGatewayPrivateIpId] = membersItem.PrivateIP.ID
-		currentPriIp[isVPNGatewayPrivateIpResourceType] = membersItem.PrivateIP.ResourceType
+		// currentPriIp[isVPNGatewayPrivateIpHref] = membersItem.PrivateIP.Href
+		// currentPriIp[isVPNGatewayPrivateIpName] = membersItem.PrivateIP.Name
+		// currentPriIp[isVPNGatewayPrivateIpId] = membersItem.PrivateIP.ID
+		// currentPriIp[isVPNGatewayPrivateIpResourceType] = membersItem.PrivateIP.ResourceType
 		privateIpDetailList = append(privateIpDetailList, currentPriIp)
 		membersMap[isVPNGatewayPrivateIP] = privateIpDetailList
 	}
