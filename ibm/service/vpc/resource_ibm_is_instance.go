@@ -369,10 +369,11 @@ func ResourceIBMISInstance() *schema.Resource {
 							Deprecated:       "This field is deprected",
 						},
 						isInstanceNicPrimaryIpv4Address: {
-							Type:     schema.TypeString,
-							ForceNew: true,
-							Optional: true,
-							Computed: true,
+							Type:       schema.TypeString,
+							ForceNew:   true,
+							Optional:   true,
+							Computed:   true,
+							Deprecated: "primary_ipv4_address is deprecated and support will be removed. Use primary_ip instead",
 						},
 						isInstanceNicSecurityGroups: {
 							Type:     schema.TypeSet,
@@ -412,10 +413,11 @@ func ResourceIBMISInstance() *schema.Resource {
 							Computed: true,
 						},
 						isInstanceNicPrimaryIpv4Address: {
-							Type:     schema.TypeString,
-							ForceNew: true,
-							Optional: true,
-							Computed: true,
+							Type:       schema.TypeString,
+							ForceNew:   true,
+							Optional:   true,
+							Deprecated: "primary_ipv4_address is deprecated and support will be removed. Use primary_ip instead",
+							Computed:   true,
 						},
 						isInstanceNicSecurityGroups: {
 							Type:     schema.TypeSet,
@@ -923,11 +925,18 @@ func instanceCreateByImage(d *schema.ResourceData, meta interface{}, profile, na
 		if namestr != "" {
 			primnicobj.Name = &namestr
 		}
+
+		// reserved ip changes
+
+		var ipv4str string
 		ipv4, _ := primnic[isInstanceNicPrimaryIpv4Address]
-		ipv4str := ipv4.(string)
+		ipv4str = ipv4.(string)
 		if ipv4str != "" {
-			primnicobj.PrimaryIpv4Address = &ipv4str
+			primnicobj.PrimaryIP = &vpcv1.NetworkInterfaceIPPrototypeReservedIPPrototypeNetworkInterfaceContext{
+				Address: &ipv4str,
+			}
 		}
+
 		allowIPSpoofing, ok := primnic[isInstanceNicAllowIPSpoofing]
 		allowIPSpoofingbool := allowIPSpoofing.(bool)
 		if ok {
@@ -966,10 +975,17 @@ func instanceCreateByImage(d *schema.ResourceData, meta interface{}, profile, na
 			if ok && namestr != "" {
 				nwInterface.Name = &namestr
 			}
+
+			// reserved ip changes
+
+			var ipv4str string
 			ipv4, _ := nic[isInstanceNicPrimaryIpv4Address]
-			ipv4str := ipv4.(string)
+			ipv4str = ipv4.(string)
 			if ipv4str != "" {
-				nwInterface.PrimaryIpv4Address = &ipv4str
+				primaryipobj := &vpcv1.NetworkInterfaceIPPrototypeReservedIPPrototypeNetworkInterfaceContext{
+					Address: &ipv4str,
+				}
+				nwInterface.PrimaryIP = primaryipobj
 			}
 			allowIPSpoofing, ok := nic[isInstanceNicAllowIPSpoofing]
 			allowIPSpoofingbool := allowIPSpoofing.(bool)
@@ -1182,11 +1198,19 @@ func instanceCreateByTemplate(d *schema.ResourceData, meta interface{}, profile,
 		if namestr != "" {
 			primnicobj.Name = &namestr
 		}
+
+		// reserved ip changes
+
+		var ipv4str string
 		ipv4, _ := primnic[isInstanceNicPrimaryIpv4Address]
-		ipv4str := ipv4.(string)
+		ipv4str = ipv4.(string)
+
 		if ipv4str != "" {
-			primnicobj.PrimaryIpv4Address = &ipv4str
+			primaryipobj := &vpcv1.NetworkInterfaceIPPrototypeReservedIPPrototypeNetworkInterfaceContext{}
+			primaryipobj.Address = &ipv4str
+			primnicobj.PrimaryIP = primaryipobj
 		}
+
 		allowIPSpoofing, ok := primnic[isInstanceNicAllowIPSpoofing]
 		allowIPSpoofingbool := allowIPSpoofing.(bool)
 		if ok {
@@ -1225,10 +1249,16 @@ func instanceCreateByTemplate(d *schema.ResourceData, meta interface{}, profile,
 			if ok && namestr != "" {
 				nwInterface.Name = &namestr
 			}
+
+			// reserved ip changes
+
+			var ipv4str string
 			ipv4, _ := nic[isInstanceNicPrimaryIpv4Address]
-			ipv4str := ipv4.(string)
+			ipv4str = ipv4.(string)
 			if ipv4str != "" {
-				nwInterface.PrimaryIpv4Address = &ipv4str
+				primaryipobj := &vpcv1.NetworkInterfaceIPPrototypeReservedIPPrototypeNetworkInterfaceContext{}
+				primaryipobj.Address = &ipv4str
+				nwInterface.PrimaryIP = primaryipobj
 			}
 			allowIPSpoofing, ok := nic[isInstanceNicAllowIPSpoofing]
 			allowIPSpoofingbool := allowIPSpoofing.(bool)
@@ -1326,7 +1356,7 @@ func instanceCreateByVolume(d *schema.ResourceData, meta interface{}, profile, n
 	if err != nil {
 		return err
 	}
-	instanceproto := &vpcv1.InstancePrototypeInstanceByVolume{
+	instanceproto := &vpcv1.InstancePrototypeInstanceBySourceSnapshot{
 		Zone: &vpcv1.ZoneIdentity{
 			Name: &zone,
 		},
@@ -1380,7 +1410,7 @@ func instanceCreateByVolume(d *schema.ResourceData, meta interface{}, profile, n
 
 	if boot, ok := d.GetOk(isInstanceBootVolume); ok {
 		bootvol := boot.([]interface{})[0].(map[string]interface{})
-		var volTemplate = &vpcv1.VolumeAttachmentVolumePrototypeInstanceByVolumeContext{}
+		var volTemplate = &vpcv1.VolumePrototypeInstanceBySourceSnapshotContext{}
 
 		name, ok := bootvol[isInstanceBootAttachmentName]
 		namestr := name.(string)
@@ -1413,7 +1443,7 @@ func instanceCreateByVolume(d *schema.ResourceData, meta interface{}, profile, n
 			}
 		}
 		deletebool := true
-		instanceproto.BootVolumeAttachment = &vpcv1.VolumeAttachmentPrototypeInstanceByVolumeContext{
+		instanceproto.BootVolumeAttachment = &vpcv1.VolumeAttachmentPrototypeInstanceBySourceSnapshotContext{
 			DeleteVolumeOnInstanceDelete: &deletebool,
 			Volume:                       volTemplate,
 		}
@@ -1436,11 +1466,19 @@ func instanceCreateByVolume(d *schema.ResourceData, meta interface{}, profile, n
 		if namestr != "" {
 			primnicobj.Name = &namestr
 		}
+
+		// reserved ip changes
+
+		var ipv4str string
 		ipv4, _ := primnic[isInstanceNicPrimaryIpv4Address]
-		ipv4str := ipv4.(string)
+		ipv4str = ipv4.(string)
+
 		if ipv4str != "" {
-			primnicobj.PrimaryIpv4Address = &ipv4str
+			primaryipobj := &vpcv1.NetworkInterfaceIPPrototypeReservedIPPrototypeNetworkInterfaceContext{}
+			primaryipobj.Address = &ipv4str
+			primnicobj.PrimaryIP = primaryipobj
 		}
+
 		allowIPSpoofing, ok := primnic[isInstanceNicAllowIPSpoofing]
 		allowIPSpoofingbool := allowIPSpoofing.(bool)
 		if ok {
@@ -1479,11 +1517,18 @@ func instanceCreateByVolume(d *schema.ResourceData, meta interface{}, profile, n
 			if ok && namestr != "" {
 				nwInterface.Name = &namestr
 			}
+			// reserved ip changes
+
+			var ipv4str string
 			ipv4, _ := nic[isInstanceNicPrimaryIpv4Address]
-			ipv4str := ipv4.(string)
+			ipv4str = ipv4.(string)
+
 			if ipv4str != "" {
-				nwInterface.PrimaryIpv4Address = &ipv4str
+				primaryipobj := &vpcv1.NetworkInterfaceIPPrototypeReservedIPPrototypeNetworkInterfaceContext{}
+				primaryipobj.Address = &ipv4str
+				nwInterface.PrimaryIP = primaryipobj
 			}
+
 			allowIPSpoofing, ok := nic[isInstanceNicAllowIPSpoofing]
 			allowIPSpoofingbool := allowIPSpoofing.(bool)
 			if ok {
@@ -1789,7 +1834,8 @@ func instanceGet(d *schema.ResourceData, meta interface{}, id string) error {
 		currentPrimNic := map[string]interface{}{}
 		currentPrimNic["id"] = *instance.PrimaryNetworkInterface.ID
 		currentPrimNic[isInstanceNicName] = *instance.PrimaryNetworkInterface.Name
-		currentPrimNic[isInstanceNicPrimaryIpv4Address] = *instance.PrimaryNetworkInterface.PrimaryIpv4Address
+		currentPrimNic[isInstanceNicPrimaryIpv4Address] = *instance.PrimaryNetworkInterface.PrimaryIP.Address
+
 		getnicoptions := &vpcv1.GetInstanceNetworkInterfaceOptions{
 			InstanceID: &id,
 			ID:         instance.PrimaryNetworkInterface.ID,
@@ -1819,7 +1865,9 @@ func instanceGet(d *schema.ResourceData, meta interface{}, id string) error {
 				currentNic := map[string]interface{}{}
 				currentNic["id"] = *intfc.ID
 				currentNic[isInstanceNicName] = *intfc.Name
-				currentNic[isInstanceNicPrimaryIpv4Address] = *intfc.PrimaryIpv4Address
+
+				currentNic[isInstanceNicPrimaryIpv4Address] = *intfc.PrimaryIP.Address
+
 				getnicoptions := &vpcv1.GetInstanceNetworkInterfaceOptions{
 					InstanceID: &id,
 					ID:         intfc.ID,

@@ -281,7 +281,7 @@ func dataSourceIBMIsInstanceNetworkInterfaceRead(context context.Context, d *sch
 					if err = d.Set("port_speed", flex.IntValue(networkInterface.PortSpeed)); err != nil {
 						return diag.FromErr(fmt.Errorf("[ERROR] Error setting port_speed: %s", err))
 					}
-					if err = d.Set("primary_ipv4_address", networkInterface.PrimaryIpv4Address); err != nil {
+					if err = d.Set("primary_ipv4_address", networkInterface.PrimaryIP.Address); err != nil {
 						return diag.FromErr(fmt.Errorf("[ERROR] Error setting primary_ipv4_address: %s", err))
 					}
 					if err = d.Set("resource_type", networkInterface.ResourceType); err != nil {

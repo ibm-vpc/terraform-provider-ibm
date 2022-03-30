@@ -227,7 +227,7 @@ func dataSourceIBMISBareMetalServerNetworkInterfacesRead(context context.Context
 				}
 				primaryIpList := make([]map[string]interface{}, 0)
 				currentIP := map[string]interface{}{
-					isBareMetalServerNicIpAddress: *nic.PrimaryIpv4Address,
+					isBareMetalServerNicIpAddress: *nic.PrimaryIP.Address,
 				}
 				primaryIpList = append(primaryIpList, currentIP)
 				l[isBareMetalServerNicPrimaryIP] = primaryIpList
@@ -279,7 +279,7 @@ func dataSourceIBMISBareMetalServerNetworkInterfacesRead(context context.Context
 
 				primaryIpList := make([]map[string]interface{}, 0)
 				currentIP := map[string]interface{}{
-					isBareMetalServerNicIpAddress: *nic.PrimaryIpv4Address,
+					isBareMetalServerNicIpAddress: *nic.PrimaryIP.Address,
 				}
 				primaryIpList = append(primaryIpList, currentIP)
 				l[isBareMetalServerNicPrimaryIP] = primaryIpList
