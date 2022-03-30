@@ -1054,7 +1054,7 @@ func instanceCreateByImage(d *schema.ResourceData, meta interface{}, profile, na
 		if ipv4str != "" && reservedipv4 != "" && ipv4str != reservedipv4 {
 			return fmt.Errorf("[ERROR] Error creating instance, primary_network_interface error, use either primary_ipv4_address(%s) or primary_ip.0.address(%s)", ipv4str, reservedipv4)
 		}
-		if reservedIp != "" && (ipv4str != "" || reservedipv4 != "" || reservedipname != "" || okAuto) {
+		if reservedIp != "" && (ipv4str != "" || reservedipv4 != "" || reservedipname != "") {
 			return fmt.Errorf("[ERROR] Error creating instance, primary_network_interface error, reserved_ip(%s) is mutually exclusive with other primary_ip attributes", reservedIp)
 		}
 		if reservedIp != "" {
@@ -1145,7 +1145,7 @@ func instanceCreateByImage(d *schema.ResourceData, meta interface{}, profile, na
 			if ipv4str != "" && reservedipv4 != "" && ipv4str != reservedipv4 {
 				return fmt.Errorf("[ERROR] Error creating instance, network_interfaces error, use either primary_ipv4_address(%s) or primary_ip.0.address(%s)", ipv4str, reservedipv4)
 			}
-			if reservedIp != "" && (ipv4str != "" || reservedipv4 != "" || reservedipname != "" || okAuto) {
+			if reservedIp != "" && (ipv4str != "" || reservedipv4 != "" || reservedipname != "") {
 				return fmt.Errorf("[ERROR] Error creating instance, network_interfaces error, reserved_ip(%s) is mutually exclusive with other primary_ip attributes", reservedIp)
 			}
 			if reservedIp != "" {
@@ -1408,7 +1408,7 @@ func instanceCreateByTemplate(d *schema.ResourceData, meta interface{}, profile,
 		if ipv4str != "" && reservedipv4 != "" && ipv4str != reservedipv4 {
 			return fmt.Errorf("[ERROR] Error creating instance, primary_network_interface error, use either primary_ipv4_address(%s) or primary_ip.0.address(%s)", ipv4str, reservedipv4)
 		}
-		if reservedIp != "" && (ipv4str != "" || reservedipv4 != "" || reservedipname != "" || okAuto) {
+		if reservedIp != "" && (ipv4str != "" || reservedipv4 != "" || reservedipname != "") {
 			return fmt.Errorf("[ERROR] Error creating instance, primary_network_interface error, reserved_ip(%s) is mutually exclusive with other primary_ip attributes", reservedIp)
 		}
 		if reservedIp != "" {
@@ -1498,7 +1498,7 @@ func instanceCreateByTemplate(d *schema.ResourceData, meta interface{}, profile,
 			if ipv4str != "" && reservedipv4 != "" && ipv4str != reservedipv4 {
 				return fmt.Errorf("[ERROR] Error creating instance, network_interfaces error, use either primary_ipv4_address(%s) or primary_ip.0.address(%s)", ipv4str, reservedipv4)
 			}
-			if reservedIp != "" && (ipv4str != "" || reservedipv4 != "" || reservedipname != "" || okAuto) {
+			if reservedIp != "" && (ipv4str != "" || reservedipv4 != "" || reservedipname != "") {
 				return fmt.Errorf("[ERROR] Error creating instance, network_interfaces error, reserved_ip(%s) is mutually exclusive with other primary_ip attributes", reservedIp)
 			}
 			if reservedIp != "" {
@@ -1756,7 +1756,7 @@ func instanceCreateByVolume(d *schema.ResourceData, meta interface{}, profile, n
 		if ipv4str != "" && reservedipv4 != "" && ipv4str != reservedipv4 {
 			return fmt.Errorf("[ERROR] Error creating instance, primary_network_interface error, use either primary_ipv4_address(%s) or primary_ip.0.address(%s)", ipv4str, reservedipv4)
 		}
-		if reservedIp != "" && (ipv4str != "" || reservedipv4 != "" || reservedipname != "" || okAuto) {
+		if reservedIp != "" && (ipv4str != "" || reservedipv4 != "" || reservedipname != "") {
 			return fmt.Errorf("[ERROR] Error creating instance, primary_network_interface error, reserved_ip(%s) is mutually exclusive with other primary_ip attributes", reservedIp)
 		}
 		if reservedIp != "" {
@@ -1846,7 +1846,7 @@ func instanceCreateByVolume(d *schema.ResourceData, meta interface{}, profile, n
 			if ipv4str != "" && reservedipv4 != "" && ipv4str != reservedipv4 {
 				return fmt.Errorf("[ERROR] Error creating instance, network_interfaces error, use either primary_ipv4_address(%s) or primary_ip.0.address(%s)", ipv4str, reservedipv4)
 			}
-			if reservedIp != "" && (ipv4str != "" || reservedipv4 != "" || reservedipname != "" || okAuto) {
+			if reservedIp != "" && (ipv4str != "" || reservedipv4 != "" || reservedipname != "") {
 				return fmt.Errorf("[ERROR] Error creating instance, network_interfaces error, reserved_ip(%s) is mutually exclusive with other primary_ip attributes", reservedIp)
 			}
 			if reservedIp != "" {

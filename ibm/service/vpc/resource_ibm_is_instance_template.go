@@ -894,7 +894,7 @@ func instanceTemplateCreate(d *schema.ResourceData, meta interface{}, profile, n
 			if PrimaryIpv4Address != "" && reservedIpAddress != "" && PrimaryIpv4Address != reservedIpAddress {
 				return fmt.Errorf("[ERROR] Error creating instance template, network_interfaces error, use either primary_ipv4_address(%s) or primary_ip.0.address(%s)", PrimaryIpv4Address, reservedIpAddress)
 			}
-			if reservedIp != "" && (PrimaryIpv4Address != "" || reservedIpAddress != "" || reservedIpName != "" || okAuto) {
+			if reservedIp != "" && (PrimaryIpv4Address != "" || reservedIpAddress != "" || reservedIpName != "") {
 				return fmt.Errorf("[ERROR] Error creating instance template, network_interfaces error, reserved_ip(%s) is mutually exclusive with other primary_ip attributes", reservedIp)
 			}
 			if reservedIp != "" {
@@ -1088,7 +1088,6 @@ func instanceTemplateGet(d *schema.ResourceData, meta interface{}, ID string) er
 				primaryIpList := make([]map[string]interface{}, 0)
 				currentPrimIp := map[string]interface{}{}
 				pipIntf := intfc.PrimaryIP
-
 				switch reflect.TypeOf(pipIntf).String() {
 				case "*vpcv1.NetworkInterfaceIPPrototype":
 					{
@@ -1097,6 +1096,7 @@ func instanceTemplateGet(d *schema.ResourceData, meta interface{}, ID string) er
 						currentPrimIp[isInstanceTemplateNicReservedIpAddress] = pip.Address
 						currentPrimIp[isInstanceTemplateNicReservedIpAutoDelete] = pip.AutoDelete
 						currentPrimIp[isInstanceTemplateNicReservedIpName] = pip.Name
+						currentPrimIp[isInstanceTemplateNicReservedIpId] = pip.ID
 					}
 				case "*vpcv1.NetworkInterfaceIPPrototypeReservedIPPrototypeNetworkInterfaceContext":
 					{
