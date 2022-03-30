@@ -15,7 +15,7 @@
  */
 
 /*
- * IBM OpenAPI SDK Code Generator Version: 3.45.1-632ec580-20220210-190638
+ * IBM OpenAPI SDK Code Generator Version: 3.46.0-a4e29da0-20220224-210428
  */
 
 // Package vpcv1 : Operations and models for the VpcV1 service
@@ -41,11 +41,11 @@ import (
 type VpcV1 struct {
 	Service *core.BaseService
 
-	// Requests the API version as of a date, in format `YYYY-MM-DD`. Any date between
-	// `2019-01-01` and the current date may be specified. Specify the current date to request the latest version.
+	// The API version, in format `YYYY-MM-DD`. For the API behavior documented here, specify any date between `2022-03-29`
+	// and today's date (UTC).
 	Version *string
 
-	// The infrastructure generation for the request. For the API behavior documented here, use
+	// The infrastructure generation. For the API behavior documented here, specify
 	// `2`.
 	generation *int64
 }
@@ -62,8 +62,8 @@ type VpcV1Options struct {
 	URL           string
 	Authenticator core.Authenticator
 
-	// Requests the API version as of a date, in format `YYYY-MM-DD`. Any date between
-	// `2019-01-01` and the current date may be specified. Specify the current date to request the latest version.
+	// The API version, in format `YYYY-MM-DD`. For the API behavior documented here, specify any date between `2022-03-29`
+	// and today's date (UTC).
 	Version *string
 }
 
@@ -2914,7 +2914,7 @@ func (vpc *VpcV1) ListSubnetReservedIpsWithContext(ctx context.Context, listSubn
 	}
 	builder.AddHeader("Accept", "application/json")
 
-	builder.AddQuery("version", "2022-03-29")
+	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 	if listSubnetReservedIpsOptions.Start != nil {
 		builder.AddQuery("start", fmt.Sprint(*listSubnetReservedIpsOptions.Start))
@@ -2988,7 +2988,7 @@ func (vpc *VpcV1) CreateSubnetReservedIPWithContext(ctx context.Context, createS
 	builder.AddHeader("Accept", "application/json")
 	builder.AddHeader("Content-Type", "application/json")
 
-	builder.AddQuery("version", "2022-03-29")
+	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 
 	body := make(map[string]interface{})
@@ -3069,7 +3069,7 @@ func (vpc *VpcV1) DeleteSubnetReservedIPWithContext(ctx context.Context, deleteS
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	builder.AddQuery("version", "2022-03-29")
+	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 
 	request, err := builder.Build()
@@ -3122,7 +3122,7 @@ func (vpc *VpcV1) GetSubnetReservedIPWithContext(ctx context.Context, getSubnetR
 	}
 	builder.AddHeader("Accept", "application/json")
 
-	builder.AddQuery("version", "2022-03-29")
+	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 
 	request, err := builder.Build()
@@ -3188,7 +3188,7 @@ func (vpc *VpcV1) UpdateSubnetReservedIPWithContext(ctx context.Context, updateS
 	builder.AddHeader("Accept", "application/json")
 	builder.AddHeader("Content-Type", "application/merge-patch+json")
 
-	builder.AddQuery("version", "2022-03-29")
+	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 
 	_, err = builder.SetBodyContentJSON(updateSubnetReservedIPOptions.ReservedIPPatch)
@@ -4146,7 +4146,7 @@ func (vpc *VpcV1) ListInstanceTemplatesWithContext(ctx context.Context, listInst
 	}
 	builder.AddHeader("Accept", "application/json")
 
-	builder.AddQuery("version", "2022-03-29")
+	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 
 	request, err := builder.Build()
@@ -4329,7 +4329,7 @@ func (vpc *VpcV1) GetInstanceTemplateWithContext(ctx context.Context, getInstanc
 	}
 	builder.AddHeader("Accept", "application/json")
 
-	builder.AddQuery("version", "2022-03-29")
+	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 
 	request, err := builder.Build()
@@ -4455,7 +4455,7 @@ func (vpc *VpcV1) ListInstancesWithContext(ctx context.Context, listInstancesOpt
 	}
 	builder.AddHeader("Accept", "application/json")
 
-	builder.AddQuery("version", "2022-03-29")
+	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 	if listInstancesOptions.Start != nil {
 		builder.AddQuery("start", fmt.Sprint(*listInstancesOptions.Start))
@@ -4556,7 +4556,7 @@ func (vpc *VpcV1) CreateInstanceWithContext(ctx context.Context, createInstanceO
 	builder.AddHeader("Accept", "application/json")
 	builder.AddHeader("Content-Type", "application/json")
 
-	builder.AddQuery("version", "2022-03-29")
+	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 
 	_, err = builder.SetBodyContentJSON(createInstanceOptions.InstancePrototype)
@@ -4677,7 +4677,7 @@ func (vpc *VpcV1) GetInstanceWithContext(ctx context.Context, getInstanceOptions
 	}
 	builder.AddHeader("Accept", "application/json")
 
-	builder.AddQuery("version", "2022-03-29")
+	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 
 	request, err := builder.Build()
@@ -5232,7 +5232,7 @@ func (vpc *VpcV1) ListInstanceNetworkInterfacesWithContext(ctx context.Context, 
 	}
 	builder.AddHeader("Accept", "application/json")
 
-	builder.AddQuery("version", "2022-03-29")
+	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 
 	request, err := builder.Build()
@@ -5299,7 +5299,7 @@ func (vpc *VpcV1) CreateInstanceNetworkInterfaceWithContext(ctx context.Context,
 	builder.AddHeader("Accept", "application/json")
 	builder.AddHeader("Content-Type", "application/json")
 
-	builder.AddQuery("version", "2022-03-29")
+	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 
 	body := make(map[string]interface{})
@@ -5438,7 +5438,7 @@ func (vpc *VpcV1) GetInstanceNetworkInterfaceWithContext(ctx context.Context, ge
 	}
 	builder.AddHeader("Accept", "application/json")
 
-	builder.AddQuery("version", "2022-03-29")
+	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 
 	request, err := builder.Build()
@@ -5824,7 +5824,7 @@ func (vpc *VpcV1) ListInstanceNetworkInterfaceIpsWithContext(ctx context.Context
 	}
 	builder.AddHeader("Accept", "application/json")
 
-	builder.AddQuery("version", "2022-03-29")
+	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 	if listInstanceNetworkInterfaceIpsOptions.Start != nil {
 		builder.AddQuery("start", fmt.Sprint(*listInstanceNetworkInterfaceIpsOptions.Start))
@@ -5896,7 +5896,7 @@ func (vpc *VpcV1) GetInstanceNetworkInterfaceIPWithContext(ctx context.Context, 
 	}
 	builder.AddHeader("Accept", "application/json")
 
-	builder.AddQuery("version", "2022-03-29")
+	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 
 	request, err := builder.Build()
@@ -9390,7 +9390,7 @@ func (vpc *VpcV1) ListBareMetalServersWithContext(ctx context.Context, listBareM
 	}
 	builder.AddHeader("Accept", "application/json")
 
-	builder.AddQuery("version", "2022-03-29")
+	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 	if listBareMetalServersOptions.Start != nil {
 		builder.AddQuery("start", fmt.Sprint(*listBareMetalServersOptions.Start))
@@ -9485,7 +9485,7 @@ func (vpc *VpcV1) CreateBareMetalServerWithContext(ctx context.Context, createBa
 	builder.AddHeader("Accept", "application/json")
 	builder.AddHeader("Content-Type", "application/json")
 
-	builder.AddQuery("version", "2022-03-29")
+	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 
 	body := make(map[string]interface{})
@@ -9859,7 +9859,7 @@ func (vpc *VpcV1) ListBareMetalServerNetworkInterfacesWithContext(ctx context.Co
 	}
 	builder.AddHeader("Accept", "application/json")
 
-	builder.AddQuery("version", "2022-03-29")
+	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 	if listBareMetalServerNetworkInterfacesOptions.Start != nil {
 		builder.AddQuery("start", fmt.Sprint(*listBareMetalServerNetworkInterfacesOptions.Start))
@@ -9932,7 +9932,7 @@ func (vpc *VpcV1) CreateBareMetalServerNetworkInterfaceWithContext(ctx context.C
 	builder.AddHeader("Accept", "application/json")
 	builder.AddHeader("Content-Type", "application/json")
 
-	builder.AddQuery("version", "2022-03-29")
+	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 
 	_, err = builder.SetBodyContentJSON(createBareMetalServerNetworkInterfaceOptions.BareMetalServerNetworkInterfacePrototype)
@@ -10054,7 +10054,7 @@ func (vpc *VpcV1) GetBareMetalServerNetworkInterfaceWithContext(ctx context.Cont
 	}
 	builder.AddHeader("Accept", "application/json")
 
-	builder.AddQuery("version", "2022-03-29")
+	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 
 	request, err := builder.Build()
@@ -10622,7 +10622,7 @@ func (vpc *VpcV1) GetBareMetalServerWithContext(ctx context.Context, getBareMeta
 	}
 	builder.AddHeader("Accept", "application/json")
 
-	builder.AddQuery("version", "2022-03-29")
+	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 
 	request, err := builder.Build()
@@ -12398,7 +12398,7 @@ func (vpc *VpcV1) ListFloatingIpsWithContext(ctx context.Context, listFloatingIp
 	}
 	builder.AddHeader("Accept", "application/json")
 
-	builder.AddQuery("version", "2022-03-29")
+	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 	if listFloatingIpsOptions.Start != nil {
 		builder.AddQuery("start", fmt.Sprint(*listFloatingIpsOptions.Start))
@@ -12587,7 +12587,7 @@ func (vpc *VpcV1) GetFloatingIPWithContext(ctx context.Context, getFloatingIPOpt
 	}
 	builder.AddHeader("Accept", "application/json")
 
-	builder.AddQuery("version", "2022-03-29")
+	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 
 	request, err := builder.Build()
@@ -14168,7 +14168,7 @@ func (vpc *VpcV1) GetSecurityGroupTargetWithContext(ctx context.Context, getSecu
 	}
 	builder.AddHeader("Accept", "application/json")
 
-	builder.AddQuery("version", "2022-03-29")
+	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 
 	request, err := builder.Build()
@@ -15081,7 +15081,7 @@ func (vpc *VpcV1) ListVPNGatewaysWithContext(ctx context.Context, listVPNGateway
 	}
 	builder.AddHeader("Accept", "application/json")
 
-	builder.AddQuery("version", "2022-03-29")
+	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 	if listVPNGatewaysOptions.Start != nil {
 		builder.AddQuery("start", fmt.Sprint(*listVPNGatewaysOptions.Start))
@@ -15153,7 +15153,7 @@ func (vpc *VpcV1) CreateVPNGatewayWithContext(ctx context.Context, createVPNGate
 	builder.AddHeader("Accept", "application/json")
 	builder.AddHeader("Content-Type", "application/json")
 
-	builder.AddQuery("version", "2022-03-29")
+	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 
 	_, err = builder.SetBodyContentJSON(createVPNGatewayOptions.VPNGatewayPrototype)
@@ -15274,7 +15274,7 @@ func (vpc *VpcV1) GetVPNGatewayWithContext(ctx context.Context, getVPNGatewayOpt
 	}
 	builder.AddHeader("Accept", "application/json")
 
-	builder.AddQuery("version", "2022-03-29")
+	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 
 	request, err := builder.Build()
@@ -16299,7 +16299,7 @@ func (vpc *VpcV1) ListLoadBalancersWithContext(ctx context.Context, listLoadBala
 	}
 	builder.AddHeader("Accept", "application/json")
 
-	builder.AddQuery("version", "2022-03-29")
+	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 	if listLoadBalancersOptions.Start != nil {
 		builder.AddQuery("start", fmt.Sprint(*listLoadBalancersOptions.Start))
@@ -16365,7 +16365,7 @@ func (vpc *VpcV1) CreateLoadBalancerWithContext(ctx context.Context, createLoadB
 	builder.AddHeader("Accept", "application/json")
 	builder.AddHeader("Content-Type", "application/json")
 
-	builder.AddQuery("version", "2022-03-29")
+	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 
 	body := make(map[string]interface{})
@@ -16516,7 +16516,7 @@ func (vpc *VpcV1) GetLoadBalancerWithContext(ctx context.Context, getLoadBalance
 	}
 	builder.AddHeader("Accept", "application/json")
 
-	builder.AddQuery("version", "2022-03-29")
+	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 
 	request, err := builder.Build()
@@ -22293,50 +22293,6 @@ func (options *CheckVPNGatewayConnectionPeerCIDROptions) SetHeaders(param map[st
 	return options
 }
 
-// CloudObjectStorageBucketIdentity : Identifies a Cloud Object Storage bucket by a unique property.
-// Models which "extend" this model:
-// - CloudObjectStorageBucketIdentityByName
-type CloudObjectStorageBucketIdentity struct {
-	// The globally unique name of this COS bucket.
-	Name *string `json:"name,omitempty"`
-}
-
-func (*CloudObjectStorageBucketIdentity) isaCloudObjectStorageBucketIdentity() bool {
-	return true
-}
-
-type CloudObjectStorageBucketIdentityIntf interface {
-	isaCloudObjectStorageBucketIdentity() bool
-}
-
-// UnmarshalCloudObjectStorageBucketIdentity unmarshals an instance of CloudObjectStorageBucketIdentity from the specified map of raw messages.
-func UnmarshalCloudObjectStorageBucketIdentity(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(CloudObjectStorageBucketIdentity)
-	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// CloudObjectStorageBucketReference : CloudObjectStorageBucketReference struct
-type CloudObjectStorageBucketReference struct {
-	// The globally unique name of this COS bucket.
-	Name *string `json:"name" validate:"required"`
-}
-
-// UnmarshalCloudObjectStorageBucketReference unmarshals an instance of CloudObjectStorageBucketReference from the specified map of raw messages.
-func UnmarshalCloudObjectStorageBucketReference(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(CloudObjectStorageBucketReference)
-	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
 // CreateBareMetalServerConsoleAccessTokenOptions : The CreateBareMetalServerConsoleAccessToken options.
 type CreateBareMetalServerConsoleAccessTokenOptions struct {
 	// The bare metal server identifier.
@@ -22736,7 +22692,7 @@ type CreateFlowLogCollectorOptions struct {
 	// The bucket must exist and an IAM service authorization must grant
 	// `IBM Cloud Flow Logs` resources of `VPC Infrastructure Services` writer
 	// access to the bucket.
-	StorageBucket CloudObjectStorageBucketIdentityIntf `json:"storage_bucket" validate:"required"`
+	StorageBucket LegacyCloudObjectStorageBucketIdentityIntf `json:"storage_bucket" validate:"required"`
 
 	// The target this collector will collect flow logs for. If the target is an instance,
 	// subnet, or VPC, flow logs will not be collected for any network interfaces within the
@@ -22759,7 +22715,7 @@ type CreateFlowLogCollectorOptions struct {
 }
 
 // NewCreateFlowLogCollectorOptions : Instantiate CreateFlowLogCollectorOptions
-func (*VpcV1) NewCreateFlowLogCollectorOptions(storageBucket CloudObjectStorageBucketIdentityIntf, target FlowLogCollectorTargetPrototypeIntf) *CreateFlowLogCollectorOptions {
+func (*VpcV1) NewCreateFlowLogCollectorOptions(storageBucket LegacyCloudObjectStorageBucketIdentityIntf, target FlowLogCollectorTargetPrototypeIntf) *CreateFlowLogCollectorOptions {
 	return &CreateFlowLogCollectorOptions{
 		StorageBucket: storageBucket,
 		Target:        target,
@@ -22767,7 +22723,7 @@ func (*VpcV1) NewCreateFlowLogCollectorOptions(storageBucket CloudObjectStorageB
 }
 
 // SetStorageBucket : Allow user to set StorageBucket
-func (_options *CreateFlowLogCollectorOptions) SetStorageBucket(storageBucket CloudObjectStorageBucketIdentityIntf) *CreateFlowLogCollectorOptions {
+func (_options *CreateFlowLogCollectorOptions) SetStorageBucket(storageBucket LegacyCloudObjectStorageBucketIdentityIntf) *CreateFlowLogCollectorOptions {
 	_options.StorageBucket = storageBucket
 	return _options
 }
@@ -23648,9 +23604,10 @@ type CreateLoadBalancerListenerOptions struct {
 
 	// The listener protocol. Each listener in the load balancer must have a unique `port` and `protocol` combination.
 	// Additional restrictions:
-	// - If this load balancer is in the `network` family, the protocol must be `tcp`.
-	// - If this listener has `https_redirect` specified, the protocol must be `http`.
-	// - If this listener is a listener's `https_redirect` target, the protocol must be `https`.
+	// - If this load balancer is in the `network` family:
+	//   - The protocol must be `tcp` or `udp` (if `udp_supported` is `true`).
+	//   - If `default_pool` is set, the pool protocol must match.
+	// - If `https_redirect` is set, the protocol must be `http`.
 	Protocol *string `json:"protocol" validate:"required"`
 
 	// If set to `true`, this listener will accept and forward PROXY protocol information. Supported by load balancers in
@@ -23716,13 +23673,15 @@ type CreateLoadBalancerListenerOptions struct {
 // Constants associated with the CreateLoadBalancerListenerOptions.Protocol property.
 // The listener protocol. Each listener in the load balancer must have a unique `port` and `protocol` combination.
 // Additional restrictions:
-// - If this load balancer is in the `network` family, the protocol must be `tcp`.
-// - If this listener has `https_redirect` specified, the protocol must be `http`.
-// - If this listener is a listener's `https_redirect` target, the protocol must be `https`.
+// - If this load balancer is in the `network` family:
+//   - The protocol must be `tcp` or `udp` (if `udp_supported` is `true`).
+//   - If `default_pool` is set, the pool protocol must match.
+// - If `https_redirect` is set, the protocol must be `http`.
 const (
 	CreateLoadBalancerListenerOptionsProtocolHTTPConst  = "http"
 	CreateLoadBalancerListenerOptionsProtocolHTTPSConst = "https"
 	CreateLoadBalancerListenerOptionsProtocolTCPConst   = "tcp"
+	CreateLoadBalancerListenerOptionsProtocolUDPConst   = "udp"
 )
 
 // NewCreateLoadBalancerListenerOptions : Instantiate CreateLoadBalancerListenerOptions
@@ -24238,9 +24197,9 @@ type CreateLoadBalancerPoolOptions struct {
 	// The health monitor of this pool.
 	HealthMonitor *LoadBalancerPoolHealthMonitorPrototype `json:"health_monitor" validate:"required"`
 
-	// The protocol used for this load balancer pool. Load balancers in the `network` family support `tcp`. Load balancers
-	// in the `application` family support `tcp`, `http`, and
-	// `https`.
+	// The protocol used for this load balancer pool. Load balancers in the `network` family support `tcp` and `udp` (if
+	// `udp_supported` is `true`). Load balancers in the
+	// `application` family support `tcp`, `http`, and `https`.
 	Protocol *string `json:"protocol" validate:"required"`
 
 	// The members for this load balancer pool. For load balancers in the `network` family, the same `port` and `target`
@@ -24275,13 +24234,14 @@ const (
 )
 
 // Constants associated with the CreateLoadBalancerPoolOptions.Protocol property.
-// The protocol used for this load balancer pool. Load balancers in the `network` family support `tcp`. Load balancers
-// in the `application` family support `tcp`, `http`, and
-// `https`.
+// The protocol used for this load balancer pool. Load balancers in the `network` family support `tcp` and `udp` (if
+// `udp_supported` is `true`). Load balancers in the
+// `application` family support `tcp`, `http`, and `https`.
 const (
 	CreateLoadBalancerPoolOptionsProtocolHTTPConst  = "http"
 	CreateLoadBalancerPoolOptionsProtocolHTTPSConst = "https"
 	CreateLoadBalancerPoolOptionsProtocolTCPConst   = "tcp"
+	CreateLoadBalancerPoolOptionsProtocolUDPConst   = "udp"
 )
 
 // Constants associated with the CreateLoadBalancerPoolOptions.ProxyProtocol property.
@@ -30014,7 +29974,7 @@ type FlowLogCollector struct {
 	ResourceGroup *ResourceGroupReference `json:"resource_group" validate:"required"`
 
 	// The Cloud Object Storage bucket where the collected flows are logged.
-	StorageBucket *CloudObjectStorageBucketReference `json:"storage_bucket" validate:"required"`
+	StorageBucket *LegacyCloudObjectStorageBucketReference `json:"storage_bucket" validate:"required"`
 
 	// The target this collector is collecting flow logs for. If the target is an instance,
 	// subnet, or VPC, flow logs will not be collected for any network interfaces within the
@@ -30076,7 +30036,7 @@ func UnmarshalFlowLogCollector(m map[string]json.RawMessage, result interface{})
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalModel(m, "storage_bucket", &obj.StorageBucket, UnmarshalCloudObjectStorageBucketReference)
+	err = core.UnmarshalModel(m, "storage_bucket", &obj.StorageBucket, UnmarshalLegacyCloudObjectStorageBucketReference)
 	if err != nil {
 		return
 	}
@@ -33794,7 +33754,7 @@ func UnmarshalImageFileChecksums(m map[string]json.RawMessage, result interface{
 
 // ImageFilePrototype : ImageFilePrototype struct
 type ImageFilePrototype struct {
-	// The Cloud Object Store (COS) location of the image file.
+	// The Cloud Object Storage location of the image file.
 	Href *string `json:"href" validate:"required"`
 }
 
@@ -39571,6 +39531,50 @@ func UnmarshalKeyReferenceDeleted(m map[string]json.RawMessage, result interface
 	return
 }
 
+// LegacyCloudObjectStorageBucketIdentity : Identifies a Cloud Object Storage bucket by a unique property.
+// Models which "extend" this model:
+// - LegacyCloudObjectStorageBucketIdentityCloudObjectStorageBucketIdentityByName
+type LegacyCloudObjectStorageBucketIdentity struct {
+	// The globally unique name of this Cloud Object Storage bucket.
+	Name *string `json:"name,omitempty"`
+}
+
+func (*LegacyCloudObjectStorageBucketIdentity) isaLegacyCloudObjectStorageBucketIdentity() bool {
+	return true
+}
+
+type LegacyCloudObjectStorageBucketIdentityIntf interface {
+	isaLegacyCloudObjectStorageBucketIdentity() bool
+}
+
+// UnmarshalLegacyCloudObjectStorageBucketIdentity unmarshals an instance of LegacyCloudObjectStorageBucketIdentity from the specified map of raw messages.
+func UnmarshalLegacyCloudObjectStorageBucketIdentity(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(LegacyCloudObjectStorageBucketIdentity)
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// LegacyCloudObjectStorageBucketReference : LegacyCloudObjectStorageBucketReference struct
+type LegacyCloudObjectStorageBucketReference struct {
+	// The globally unique name of this Cloud Object Storage bucket.
+	Name *string `json:"name" validate:"required"`
+}
+
+// UnmarshalLegacyCloudObjectStorageBucketReference unmarshals an instance of LegacyCloudObjectStorageBucketReference from the specified map of raw messages.
+func UnmarshalLegacyCloudObjectStorageBucketReference(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(LegacyCloudObjectStorageBucketReference)
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
 // ListBareMetalServerDisksOptions : The ListBareMetalServerDisks options.
 type ListBareMetalServerDisksOptions struct {
 	// The bare metal server identifier.
@@ -42668,6 +42672,9 @@ type LoadBalancer struct {
 
 	// The subnets this load balancer is part of.
 	Subnets []SubnetReference `json:"subnets" validate:"required"`
+
+	// Indicates whether this load balancer supports UDP.
+	UDPSupported *bool `json:"udp_supported" validate:"required"`
 }
 
 // Constants associated with the LoadBalancer.OperatingStatus property.
@@ -42778,6 +42785,10 @@ func UnmarshalLoadBalancer(m map[string]json.RawMessage, result interface{}) (er
 		return
 	}
 	err = core.UnmarshalModel(m, "subnets", &obj.Subnets, UnmarshalSubnetReference)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "udp_supported", &obj.UDPSupported)
 	if err != nil {
 		return
 	}
@@ -42968,9 +42979,13 @@ type LoadBalancerListener struct {
 	// At present, only load balancers in the `network` family support more than one port per listener.
 	PortMin *int64 `json:"port_min" validate:"required"`
 
-	// The listener protocol. Load balancers in the `network` family support `tcp`. Load balancers in the `application`
-	// family support `tcp`, `http`, and `https`. Each listener in the load balancer must have a unique `port` and
-	// `protocol` combination.
+	// The listener protocol. Load balancers in the `network` family support `tcp` and
+	// `udp` (if `udp_supported` is `true`). Load balancers in the `application` family support `tcp`, `http`, and `https`.
+	// Each listener in the load balancer must have a unique `port` and `protocol` combination.
+	//
+	// The enumerated values for this property are expected to expand in the future. When processing this property, check
+	// for and log unknown values. Optionally halt processing and surface the error, or bypass the listener on which the
+	// unexpected property value was encountered.
 	Protocol *string `json:"protocol" validate:"required"`
 
 	// The provisioning status of this listener.
@@ -42978,13 +42993,18 @@ type LoadBalancerListener struct {
 }
 
 // Constants associated with the LoadBalancerListener.Protocol property.
-// The listener protocol. Load balancers in the `network` family support `tcp`. Load balancers in the `application`
-// family support `tcp`, `http`, and `https`. Each listener in the load balancer must have a unique `port` and
-// `protocol` combination.
+// The listener protocol. Load balancers in the `network` family support `tcp` and
+// `udp` (if `udp_supported` is `true`). Load balancers in the `application` family support `tcp`, `http`, and `https`.
+// Each listener in the load balancer must have a unique `port` and `protocol` combination.
+//
+// The enumerated values for this property are expected to expand in the future. When processing this property, check
+// for and log unknown values. Optionally halt processing and surface the error, or bypass the listener on which the
+// unexpected property value was encountered.
 const (
 	LoadBalancerListenerProtocolHTTPConst  = "http"
 	LoadBalancerListenerProtocolHTTPSConst = "https"
 	LoadBalancerListenerProtocolTCPConst   = "tcp"
+	LoadBalancerListenerProtocolUDPConst   = "udp"
 )
 
 // Constants associated with the LoadBalancerListener.ProvisioningStatus property.
@@ -43276,22 +43296,29 @@ type LoadBalancerListenerPatch struct {
 
 	// The listener protocol. Each listener in the load balancer must have a unique `port` and `protocol` combination.
 	// Additional restrictions:
-	// - If this load balancer is in the `network` family, the protocol must be `tcp`.
-	// - If this listener has `https_redirect` specified, the protocol must be `http`.
-	// - If this listener is a listener's `https_redirect` target, the protocol must be `https`.
+	// - If this load balancer is in the `network` family, the protocol must be `tcp`
+	//   or `udp` (if `udp_supported` is `true`) , and it cannot be changed while
+	//   `default_pool` is set.
+	// - If `https_redirect` is set, the protocol must be `http`.
+	// - If this listener is a listener's `https_redirect` target, the protocol must be
+	//   `https`.
 	Protocol *string `json:"protocol,omitempty"`
 }
 
 // Constants associated with the LoadBalancerListenerPatch.Protocol property.
 // The listener protocol. Each listener in the load balancer must have a unique `port` and `protocol` combination.
 // Additional restrictions:
-// - If this load balancer is in the `network` family, the protocol must be `tcp`.
-// - If this listener has `https_redirect` specified, the protocol must be `http`.
-// - If this listener is a listener's `https_redirect` target, the protocol must be `https`.
+// - If this load balancer is in the `network` family, the protocol must be `tcp`
+//   or `udp` (if `udp_supported` is `true`) , and it cannot be changed while
+//   `default_pool` is set.
+// - If `https_redirect` is set, the protocol must be `http`.
+// - If this listener is a listener's `https_redirect` target, the protocol must be
+//   `https`.
 const (
 	LoadBalancerListenerPatchProtocolHTTPConst  = "http"
 	LoadBalancerListenerPatchProtocolHTTPSConst = "https"
 	LoadBalancerListenerPatchProtocolTCPConst   = "tcp"
+	LoadBalancerListenerPatchProtocolUDPConst   = "udp"
 )
 
 // UnmarshalLoadBalancerListenerPatch unmarshals an instance of LoadBalancerListenerPatch from the specified map of raw messages.
@@ -44231,20 +44258,29 @@ type LoadBalancerListenerPrototypeLoadBalancerContext struct {
 	// same protocol.
 	PortMin *int64 `json:"port_min,omitempty"`
 
-	// The listener protocol. Load balancers in the `network` family support `tcp`. Load balancers in the `application`
-	// family support `tcp`, `http`, and `https`. Each listener in the load balancer must have a unique `port` and
-	// `protocol` combination.
+	// The listener protocol. Load balancers in the `network` family support `tcp` and
+	// `udp` (if `udp_supported` is `true`). Load balancers in the `application` family support `tcp`, `http`, and `https`.
+	// Each listener in the load balancer must have a unique `port` and `protocol` combination.
+	//
+	// The enumerated values for this property are expected to expand in the future. When processing this property, check
+	// for and log unknown values. Optionally halt processing and surface the error, or bypass the listener on which the
+	// unexpected property value was encountered.
 	Protocol *string `json:"protocol" validate:"required"`
 }
 
 // Constants associated with the LoadBalancerListenerPrototypeLoadBalancerContext.Protocol property.
-// The listener protocol. Load balancers in the `network` family support `tcp`. Load balancers in the `application`
-// family support `tcp`, `http`, and `https`. Each listener in the load balancer must have a unique `port` and
-// `protocol` combination.
+// The listener protocol. Load balancers in the `network` family support `tcp` and
+// `udp` (if `udp_supported` is `true`). Load balancers in the `application` family support `tcp`, `http`, and `https`.
+// Each listener in the load balancer must have a unique `port` and `protocol` combination.
+//
+// The enumerated values for this property are expected to expand in the future. When processing this property, check
+// for and log unknown values. Optionally halt processing and surface the error, or bypass the listener on which the
+// unexpected property value was encountered.
 const (
 	LoadBalancerListenerPrototypeLoadBalancerContextProtocolHTTPConst  = "http"
 	LoadBalancerListenerPrototypeLoadBalancerContextProtocolHTTPSConst = "https"
 	LoadBalancerListenerPrototypeLoadBalancerContextProtocolTCPConst   = "tcp"
+	LoadBalancerListenerPrototypeLoadBalancerContextProtocolUDPConst   = "udp"
 )
 
 // NewLoadBalancerListenerPrototypeLoadBalancerContext : Instantiate LoadBalancerListenerPrototypeLoadBalancerContext (Generic Model Constructor)
@@ -44491,6 +44527,7 @@ const (
 	LoadBalancerPoolProtocolHTTPConst  = "http"
 	LoadBalancerPoolProtocolHTTPSConst = "https"
 	LoadBalancerPoolProtocolTCPConst   = "tcp"
+	LoadBalancerPoolProtocolUDPConst   = "udp"
 )
 
 // Constants associated with the LoadBalancerPool.ProvisioningStatus property.
@@ -45262,13 +45299,11 @@ type LoadBalancerPoolPatch struct {
 	// The user-defined name for this load balancer pool.
 	Name *string `json:"name,omitempty"`
 
-	// The protocol to use for this load balancer pool. Load balancers in the `network` family support `tcp`. Load
-	// balancers in the `application` family support `tcp`, `http`, and
-	// `https`.
+	// The protocol to use for this load balancer pool. Load balancers in the `network` family support `tcp` and `udp` (if
+	// `udp_supported` is `true`). Load balancers in the `application` family support `tcp`, `http` and `https`.
 	//
 	// If this pool is associated with a load balancer listener, the specified protocol must be compatible with the
-	// listener's protocol. At present, the compatible protocols are
-	// `http` and `https`.
+	// listener's protocol. At present, the compatible protocols are `http` and `https`.
 	Protocol *string `json:"protocol,omitempty"`
 
 	// The PROXY protocol setting for this pool:
@@ -45292,17 +45327,16 @@ const (
 )
 
 // Constants associated with the LoadBalancerPoolPatch.Protocol property.
-// The protocol to use for this load balancer pool. Load balancers in the `network` family support `tcp`. Load balancers
-// in the `application` family support `tcp`, `http`, and
-// `https`.
+// The protocol to use for this load balancer pool. Load balancers in the `network` family support `tcp` and `udp` (if
+// `udp_supported` is `true`). Load balancers in the `application` family support `tcp`, `http` and `https`.
 //
 // If this pool is associated with a load balancer listener, the specified protocol must be compatible with the
-// listener's protocol. At present, the compatible protocols are
-// `http` and `https`.
+// listener's protocol. At present, the compatible protocols are `http` and `https`.
 const (
 	LoadBalancerPoolPatchProtocolHTTPConst  = "http"
 	LoadBalancerPoolPatchProtocolHTTPSConst = "https"
 	LoadBalancerPoolPatchProtocolTCPConst   = "tcp"
+	LoadBalancerPoolPatchProtocolUDPConst   = "udp"
 )
 
 // Constants associated with the LoadBalancerPoolPatch.ProxyProtocol property.
@@ -45375,9 +45409,9 @@ type LoadBalancerPoolPrototype struct {
 	// randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
-	// The protocol used for this load balancer pool. Load balancers in the `network` family support `tcp`. Load balancers
-	// in the `application` family support `tcp`, `http`, and
-	// `https`.
+	// The protocol used for this load balancer pool. Load balancers in the `network` family support `tcp` and `udp` (if
+	// `udp_supported` is `true`). Load balancers in the
+	// `application` family support `tcp`, `http`, and `https`.
 	Protocol *string `json:"protocol" validate:"required"`
 
 	// The PROXY protocol setting for this pool:
@@ -45401,13 +45435,14 @@ const (
 )
 
 // Constants associated with the LoadBalancerPoolPrototype.Protocol property.
-// The protocol used for this load balancer pool. Load balancers in the `network` family support `tcp`. Load balancers
-// in the `application` family support `tcp`, `http`, and
-// `https`.
+// The protocol used for this load balancer pool. Load balancers in the `network` family support `tcp` and `udp` (if
+// `udp_supported` is `true`). Load balancers in the
+// `application` family support `tcp`, `http`, and `https`.
 const (
 	LoadBalancerPoolPrototypeProtocolHTTPConst  = "http"
 	LoadBalancerPoolPrototypeProtocolHTTPSConst = "https"
 	LoadBalancerPoolPrototypeProtocolTCPConst   = "tcp"
+	LoadBalancerPoolPrototypeProtocolUDPConst   = "udp"
 )
 
 // Constants associated with the LoadBalancerPoolPrototype.ProxyProtocol property.
@@ -45722,6 +45757,8 @@ type LoadBalancerProfile struct {
 	RouteModeSupported LoadBalancerProfileRouteModeSupportedIntf `json:"route_mode_supported" validate:"required"`
 
 	SecurityGroupsSupported LoadBalancerProfileSecurityGroupsSupportedIntf `json:"security_groups_supported" validate:"required"`
+
+	UDPSupported LoadBalancerProfileUDPSupportedIntf `json:"udp_supported" validate:"required"`
 }
 
 // UnmarshalLoadBalancerProfile unmarshals an instance of LoadBalancerProfile from the specified map of raw messages.
@@ -45748,6 +45785,10 @@ func UnmarshalLoadBalancerProfile(m map[string]json.RawMessage, result interface
 		return
 	}
 	err = core.UnmarshalModel(m, "security_groups_supported", &obj.SecurityGroupsSupported, UnmarshalLoadBalancerProfileSecurityGroupsSupported)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "udp_supported", &obj.UDPSupported, UnmarshalLoadBalancerProfileUDPSupported)
 	if err != nil {
 		return
 	}
@@ -46013,6 +46054,47 @@ type LoadBalancerProfileSecurityGroupsSupportedIntf interface {
 // UnmarshalLoadBalancerProfileSecurityGroupsSupported unmarshals an instance of LoadBalancerProfileSecurityGroupsSupported from the specified map of raw messages.
 func UnmarshalLoadBalancerProfileSecurityGroupsSupported(m map[string]json.RawMessage, result interface{}) (err error) {
 	obj := new(LoadBalancerProfileSecurityGroupsSupported)
+	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "value", &obj.Value)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// LoadBalancerProfileUDPSupported : LoadBalancerProfileUDPSupported struct
+// Models which "extend" this model:
+// - LoadBalancerProfileUDPSupportedFixed
+// - LoadBalancerProfileUDPSupportedDependent
+type LoadBalancerProfileUDPSupported struct {
+	// The type for this profile field.
+	Type *string `json:"type,omitempty"`
+
+	// The value for this profile field.
+	Value *bool `json:"value,omitempty"`
+}
+
+// Constants associated with the LoadBalancerProfileUDPSupported.Type property.
+// The type for this profile field.
+const (
+	LoadBalancerProfileUDPSupportedTypeFixedConst = "fixed"
+)
+
+func (*LoadBalancerProfileUDPSupported) isaLoadBalancerProfileUDPSupported() bool {
+	return true
+}
+
+type LoadBalancerProfileUDPSupportedIntf interface {
+	isaLoadBalancerProfileUDPSupported() bool
+}
+
+// UnmarshalLoadBalancerProfileUDPSupported unmarshals an instance of LoadBalancerProfileUDPSupported from the specified map of raw messages.
+func UnmarshalLoadBalancerProfileUDPSupported(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(LoadBalancerProfileUDPSupported)
 	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
 	if err != nil {
 		return
@@ -49108,13 +49190,15 @@ type ReservedIP struct {
 	// The user-defined or system-provided name for this reserved IP.
 	Name *string `json:"name" validate:"required"`
 
-	// The owner of a reserved IP, defining whether it is managed by the user or the provider.
+	// The owner of the reserved IP.
 	Owner *string `json:"owner" validate:"required"`
 
 	// The resource type.
 	ResourceType *string `json:"resource_type" validate:"required"`
 
 	// The target of this reserved IP.
+	//
+	// If absent, this reserved IP is provider-owned or unbound.
 	Target ReservedIPTargetIntf `json:"target,omitempty"`
 }
 
@@ -49131,7 +49215,7 @@ const (
 )
 
 // Constants associated with the ReservedIP.Owner property.
-// The owner of a reserved IP, defining whether it is managed by the user or the provider.
+// The owner of the reserved IP.
 const (
 	ReservedIPOwnerProviderConst = "provider"
 	ReservedIPOwnerUserConst     = "user"
@@ -49586,6 +49670,8 @@ func UnmarshalReservedIPReferenceDeleted(m map[string]json.RawMessage, result in
 }
 
 // ReservedIPTarget : The target of this reserved IP.
+//
+// If absent, this reserved IP is provider-owned or unbound.
 // Models which "extend" this model:
 // - ReservedIPTargetEndpointGatewayReference
 // - ReservedIPTargetNetworkInterfaceReferenceTargetContext
@@ -56232,10 +56318,10 @@ func UnmarshalVPNGatewayConnectionStaticRouteModeTunnel(m map[string]json.RawMes
 
 // VPNGatewayMember : VPNGatewayMember struct
 type VPNGatewayMember struct {
-	// The reserved IP address assigned to the VPN gateway member. This
-	// property will be present only when the VPN gateway status is
-	// `available`.
-	PrivateIP *VPNGatewayMemberPrivateIP `json:"private_ip" validate:"required"`
+	// The private IP address assigned to the VPN gateway member.
+	//
+	// This property will be present only when the VPN gateway status is `available`.
+	PrivateIP *IP `json:"private_ip,omitempty"`
 
 	// The public IP address assigned to the VPN gateway member.
 	PublicIP *IP `json:"public_ip" validate:"required"`
@@ -56266,7 +56352,7 @@ const (
 // UnmarshalVPNGatewayMember unmarshals an instance of VPNGatewayMember from the specified map of raw messages.
 func UnmarshalVPNGatewayMember(m map[string]json.RawMessage, result interface{}) (err error) {
 	obj := new(VPNGatewayMember)
-	err = core.UnmarshalModel(m, "private_ip", &obj.PrivateIP, UnmarshalVPNGatewayMemberPrivateIP)
+	err = core.UnmarshalModel(m, "private_ip", &obj.PrivateIP, UnmarshalIP)
 	if err != nil {
 		return
 	}
@@ -56279,73 +56365,6 @@ func UnmarshalVPNGatewayMember(m map[string]json.RawMessage, result interface{})
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "status", &obj.Status)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// VPNGatewayMemberPrivateIP : The reserved IP address assigned to the VPN gateway member. This property will be present only when the VPN gateway
-// status is
-// `available`.
-type VPNGatewayMemberPrivateIP struct {
-	// The IP address.
-	//
-	// If the address has not yet been selected, the value will be `0.0.0.0`.
-	//
-	// This property may add support for IPv6 addresses in the future. When processing a value in this property, verify
-	// that the address is in an expected format. If it is not, log an error. Optionally halt processing and surface the
-	// error, or bypass the resource on which the unexpected IP address format was encountered.
-	Address *string `json:"address" validate:"required"`
-
-	// If present, this property indicates the referenced resource has been deleted and provides
-	// some supplementary information.
-	Deleted *ReservedIPReferenceDeleted `json:"deleted,omitempty"`
-
-	// The URL for this reserved IP.
-	Href *string `json:"href" validate:"required"`
-
-	// The unique identifier for this reserved IP.
-	ID *string `json:"id" validate:"required"`
-
-	// The user-defined or system-provided name for this reserved IP.
-	Name *string `json:"name" validate:"required"`
-
-	// The resource type.
-	ResourceType *string `json:"resource_type" validate:"required"`
-}
-
-// Constants associated with the VPNGatewayMemberPrivateIP.ResourceType property.
-// The resource type.
-const (
-	VPNGatewayMemberPrivateIPResourceTypeSubnetReservedIPConst = "subnet_reserved_ip"
-)
-
-// UnmarshalVPNGatewayMemberPrivateIP unmarshals an instance of VPNGatewayMemberPrivateIP from the specified map of raw messages.
-func UnmarshalVPNGatewayMemberPrivateIP(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(VPNGatewayMemberPrivateIP)
-	err = core.UnmarshalPrimitive(m, "address", &obj.Address)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "deleted", &obj.Deleted, UnmarshalReservedIPReferenceDeleted)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
 	if err != nil {
 		return
 	}
@@ -57427,9 +57446,10 @@ type VolumePatch struct {
 	// The unique user-defined name for this volume.
 	Name *string `json:"name,omitempty"`
 
-	// The profile to use for this volume.  The requested profile must be in the same
-	// `family` as the current profile.  The volume must be attached as a data volume to a
-	// running virtual server instance.
+	// The profile to use for this volume. The requested profile must be in the same
+	// `family` as the current profile. The volume must be attached as a data volume to a
+	// running virtual server instance, and must have a `capacity` within the range
+	// supported by the specified profile.
 	Profile VolumeProfileIdentityIntf `json:"profile,omitempty"`
 }
 
@@ -59901,37 +59921,6 @@ func (*CertificateInstanceIdentityByCRN) isaCertificateInstanceIdentity() bool {
 func UnmarshalCertificateInstanceIdentityByCRN(m map[string]json.RawMessage, result interface{}) (err error) {
 	obj := new(CertificateInstanceIdentityByCRN)
 	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// CloudObjectStorageBucketIdentityByName : CloudObjectStorageBucketIdentityByName struct
-// This model "extends" CloudObjectStorageBucketIdentity
-type CloudObjectStorageBucketIdentityByName struct {
-	// The globally unique name of this COS bucket.
-	Name *string `json:"name" validate:"required"`
-}
-
-// NewCloudObjectStorageBucketIdentityByName : Instantiate CloudObjectStorageBucketIdentityByName (Generic Model Constructor)
-func (*VpcV1) NewCloudObjectStorageBucketIdentityByName(name string) (_model *CloudObjectStorageBucketIdentityByName, err error) {
-	_model = &CloudObjectStorageBucketIdentityByName{
-		Name: core.StringPtr(name),
-	}
-	err = core.ValidateStruct(_model, "required parameters")
-	return
-}
-
-func (*CloudObjectStorageBucketIdentityByName) isaCloudObjectStorageBucketIdentity() bool {
-	return true
-}
-
-// UnmarshalCloudObjectStorageBucketIdentityByName unmarshals an instance of CloudObjectStorageBucketIdentityByName from the specified map of raw messages.
-func UnmarshalCloudObjectStorageBucketIdentityByName(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(CloudObjectStorageBucketIdentityByName)
-	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
 	if err != nil {
 		return
 	}
@@ -65917,6 +65906,37 @@ func UnmarshalKeyIdentityByID(m map[string]json.RawMessage, result interface{}) 
 	return
 }
 
+// LegacyCloudObjectStorageBucketIdentityCloudObjectStorageBucketIdentityByName : LegacyCloudObjectStorageBucketIdentityCloudObjectStorageBucketIdentityByName struct
+// This model "extends" LegacyCloudObjectStorageBucketIdentity
+type LegacyCloudObjectStorageBucketIdentityCloudObjectStorageBucketIdentityByName struct {
+	// The globally unique name of this Cloud Object Storage bucket.
+	Name *string `json:"name" validate:"required"`
+}
+
+// NewLegacyCloudObjectStorageBucketIdentityCloudObjectStorageBucketIdentityByName : Instantiate LegacyCloudObjectStorageBucketIdentityCloudObjectStorageBucketIdentityByName (Generic Model Constructor)
+func (*VpcV1) NewLegacyCloudObjectStorageBucketIdentityCloudObjectStorageBucketIdentityByName(name string) (_model *LegacyCloudObjectStorageBucketIdentityCloudObjectStorageBucketIdentityByName, err error) {
+	_model = &LegacyCloudObjectStorageBucketIdentityCloudObjectStorageBucketIdentityByName{
+		Name: core.StringPtr(name),
+	}
+	err = core.ValidateStruct(_model, "required parameters")
+	return
+}
+
+func (*LegacyCloudObjectStorageBucketIdentityCloudObjectStorageBucketIdentityByName) isaLegacyCloudObjectStorageBucketIdentity() bool {
+	return true
+}
+
+// UnmarshalLegacyCloudObjectStorageBucketIdentityCloudObjectStorageBucketIdentityByName unmarshals an instance of LegacyCloudObjectStorageBucketIdentityCloudObjectStorageBucketIdentityByName from the specified map of raw messages.
+func UnmarshalLegacyCloudObjectStorageBucketIdentityCloudObjectStorageBucketIdentityByName(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(LegacyCloudObjectStorageBucketIdentityCloudObjectStorageBucketIdentityByName)
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
 // LoadBalancerIdentityByCRN : LoadBalancerIdentityByCRN struct
 // This model "extends" LoadBalancerIdentity
 type LoadBalancerIdentityByCRN struct {
@@ -66811,6 +66831,69 @@ func (*LoadBalancerProfileSecurityGroupsSupportedFixed) isaLoadBalancerProfileSe
 // UnmarshalLoadBalancerProfileSecurityGroupsSupportedFixed unmarshals an instance of LoadBalancerProfileSecurityGroupsSupportedFixed from the specified map of raw messages.
 func UnmarshalLoadBalancerProfileSecurityGroupsSupportedFixed(m map[string]json.RawMessage, result interface{}) (err error) {
 	obj := new(LoadBalancerProfileSecurityGroupsSupportedFixed)
+	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "value", &obj.Value)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// LoadBalancerProfileUDPSupportedDependent : The UDP support for a load balancer with this profile depends on its configuration.
+// This model "extends" LoadBalancerProfileUDPSupported
+type LoadBalancerProfileUDPSupportedDependent struct {
+	// The type for this profile field.
+	Type *string `json:"type" validate:"required"`
+}
+
+// Constants associated with the LoadBalancerProfileUDPSupportedDependent.Type property.
+// The type for this profile field.
+const (
+	LoadBalancerProfileUDPSupportedDependentTypeDependentConst = "dependent"
+)
+
+func (*LoadBalancerProfileUDPSupportedDependent) isaLoadBalancerProfileUDPSupported() bool {
+	return true
+}
+
+// UnmarshalLoadBalancerProfileUDPSupportedDependent unmarshals an instance of LoadBalancerProfileUDPSupportedDependent from the specified map of raw messages.
+func UnmarshalLoadBalancerProfileUDPSupportedDependent(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(LoadBalancerProfileUDPSupportedDependent)
+	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// LoadBalancerProfileUDPSupportedFixed : The UDP support for a load balancer with this profile.
+// This model "extends" LoadBalancerProfileUDPSupported
+type LoadBalancerProfileUDPSupportedFixed struct {
+	// The type for this profile field.
+	Type *string `json:"type" validate:"required"`
+
+	// The value for this profile field.
+	Value *bool `json:"value" validate:"required"`
+}
+
+// Constants associated with the LoadBalancerProfileUDPSupportedFixed.Type property.
+// The type for this profile field.
+const (
+	LoadBalancerProfileUDPSupportedFixedTypeFixedConst = "fixed"
+)
+
+func (*LoadBalancerProfileUDPSupportedFixed) isaLoadBalancerProfileUDPSupported() bool {
+	return true
+}
+
+// UnmarshalLoadBalancerProfileUDPSupportedFixed unmarshals an instance of LoadBalancerProfileUDPSupportedFixed from the specified map of raw messages.
+func UnmarshalLoadBalancerProfileUDPSupportedFixed(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(LoadBalancerProfileUDPSupportedFixed)
 	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
 	if err != nil {
 		return
