@@ -62,13 +62,14 @@ func ResourceIBMIsInstanceNetworkInterface() *schema.Resource {
 				Description:  "The user-defined name for this network interface. If unspecified, the name will be a hyphenated list of randomly-selected words.",
 			},
 			isInstanceNicPrimaryIpv4Address: &schema.Schema{
-				Type:         schema.TypeString,
-				Optional:     true,
-				Computed:     true,
-				ForceNew:     true,
-				Deprecated:   "primary_ipv4_address is deprecated and support will be removed. Use primary_ip instead",
-				ValidateFunc: validate.InvokeValidator("ibm_is_instance_network_interface", isInstanceNicPrimaryIpv4Address),
-				Description:  "The primary IPv4 address. If specified, it must be an available address on the network interface's subnet. If unspecified, an available address on the subnet will be automatically selected.",
+				Type:          schema.TypeString,
+				Optional:      true,
+				Computed:      true,
+				ForceNew:      true,
+				ConflictsWith: []string{"primary_ip.0.address"},
+				Deprecated:    "primary_ipv4_address is deprecated and support will be removed. Use primary_ip instead",
+				ValidateFunc:  validate.InvokeValidator("ibm_is_instance_network_interface", isInstanceNicPrimaryIpv4Address),
+				Description:   "The primary IPv4 address. If specified, it must be an available address on the network interface's subnet. If unspecified, an available address on the subnet will be automatically selected.",
 			},
 			isInstanceNicPrimaryIP: {
 				Type:        schema.TypeList,
@@ -80,11 +81,12 @@ func ResourceIBMIsInstanceNetworkInterface() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						isInstanceNicReservedIpAddress: {
-							Type:        schema.TypeString,
-							Computed:    true,
-							ForceNew:    true,
-							Optional:    true,
-							Description: "The IP address to reserve, which must not already be reserved on the subnet.",
+							Type:          schema.TypeString,
+							Computed:      true,
+							ForceNew:      true,
+							Optional:      true,
+							ConflictsWith: []string{"primary_ipv4_address"},
+							Description:   "The IP address to reserve, which must not already be reserved on the subnet.",
 						},
 						isInstanceNicReservedIpHref: {
 							Type:        schema.TypeString,
