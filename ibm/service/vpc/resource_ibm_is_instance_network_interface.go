@@ -267,7 +267,9 @@ func resourceIBMIsInstanceNetworkInterfaceCreate(context context.Context, d *sch
 	if name, ok := d.GetOk(isInstanceNicName); ok {
 		createInstanceNetworkInterfaceOptions.SetName(name.(string))
 	}
-	primary_ipv4 := ""
+
+	var primary_ipv4, reservedIp, reservedipv4, reservedipname string
+	var autodelete, okAuto bool
 	if primary_ipv4Ok, ok := d.GetOk(isInstanceNicPrimaryIpv4Address); ok {
 		primary_ipv4 = primary_ipv4Ok.(string)
 	}
@@ -277,37 +279,45 @@ func resourceIBMIsInstanceNetworkInterfaceCreate(context context.Context, d *sch
 		primip := primaryIpOk.([]interface{})[0].(map[string]interface{})
 
 		reservedipok, _ := primip[isInstanceNicReservedIpId]
-		reservedip := reservedipok.(string)
-		if reservedip != "" {
-			createInstanceNetworkInterfaceOptions.PrimaryIP = &vpcv1.NetworkInterfaceIPPrototypeReservedIPIdentity{
-				ID: &reservedip,
-			}
-		} else {
-			var primaryIpObj = &vpcv1.NetworkInterfaceIPPrototypeReservedIPPrototypeNetworkInterfaceContext{}
+		reservedIp = reservedipok.(string)
+		reservedipv4Ok, _ := primip[isInstanceNicReservedIpAddress]
+		reservedipv4 = reservedipv4Ok.(string)
+
+		reservedipnameOk, _ := primip[isInstanceNicReservedIpName]
+		reservedipname = reservedipnameOk.(string)
+
+		reservedipautodeleteok, okAuto := primip[isInstanceNicReservedIpAutoDelete]
+		if okAuto {
+			autodelete = reservedipautodeleteok.(bool)
+		}
+	}
+
+	if primary_ipv4 != "" && reservedipv4 != "" && primary_ipv4 != reservedipv4 {
+		return diag.FromErr(fmt.Errorf("[ERROR] Error creating instance, network_interfaces error, use either primary_ipv4_address(%s) or primary_ip.0.address(%s)", primary_ipv4, reservedipv4))
+	}
+	if reservedIp != "" && (primary_ipv4 != "" || reservedipv4 != "" || reservedipname != "") {
+		return diag.FromErr(fmt.Errorf("[ERROR] Error creating instance, network_interfaces error, reserved_ip(%s) is mutually exclusive with other primary_ip attributes", reservedIp))
+	}
+	if reservedIp != "" {
+		createInstanceNetworkInterfaceOptions.PrimaryIP = &vpcv1.NetworkInterfaceIPPrototypeReservedIPIdentity{
+			ID: &reservedIp,
+		}
+	} else {
+		if primary_ipv4 != "" || reservedipv4 != "" || reservedipname != "" || okAuto {
+			primaryipobj := &vpcv1.NetworkInterfaceIPPrototypeReservedIPPrototypeNetworkInterfaceContext{}
 			if primary_ipv4 != "" {
-				primaryIpObj.Address = &primary_ipv4
+				primaryipobj.Address = &primary_ipv4
 			}
-			reservedipv4Ok, okAdd := primip[isInstanceNicReservedIpAddress]
-			reservedipv4 := reservedipv4Ok.(string)
-			if primary_ipv4 != "" && reservedipv4 != "" && primary_ipv4 != reservedipv4 {
-				return diag.FromErr(fmt.Errorf("[ERROR] Error creating instance, use either primary_ipv4_address(%s) or primary_ip.0.address(%s)", primary_ipv4, reservedipv4))
+			if reservedipv4 != "" {
+				primaryipobj.Address = &reservedipv4
 			}
-			if reservedipv4 != "" && okAdd {
-				primaryIpObj.Address = &reservedipv4
+			if reservedipname != "" {
+				primaryipobj.Name = &reservedipname
 			}
-			reservedipnameOk, okName := primip[isInstanceNicReservedIpName]
-			reservedipname := reservedipnameOk.(string)
-			if okName && reservedipname != "" {
-				primaryIpObj.Name = &reservedipname
-			}
-			reservedipautodeleteok, okAuto := primip[isInstanceNicReservedIpAutoDelete]
 			if okAuto {
-				autodelete := reservedipautodeleteok.(bool)
-				primaryIpObj.AutoDelete = &autodelete
+				primaryipobj.AutoDelete = &autodelete
 			}
-			if primary_ipv4 != "" || okName || okAuto {
-				createInstanceNetworkInterfaceOptions.PrimaryIP = primaryIpObj
-			}
+			createInstanceNetworkInterfaceOptions.PrimaryIP = primaryipobj
 		}
 	}
 

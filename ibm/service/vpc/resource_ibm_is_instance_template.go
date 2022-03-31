@@ -6,6 +6,7 @@ package vpc
 import (
 	"context"
 	"fmt"
+	"log"
 	"reflect"
 	"strings"
 
@@ -885,16 +886,22 @@ func instanceTemplateCreate(d *schema.ResourceData, meta interface{}, profile, n
 				reservedIpAddress = reservedipv4Ok.(string)
 				reservedipnameOk, _ := primip[isInstanceTemplateNicReservedIpName]
 				reservedIpName = reservedipnameOk.(string)
-				var reservedipautodeleteok interface{}
-				reservedipautodeleteok, okAuto = primip[isInstanceTemplateNicReservedIpAutoDelete]
-				if okAuto {
-					reservedIpAutoDelete = reservedipautodeleteok.(bool)
+				// var reservedipautodeleteok interface{}
+
+				if v, ok := primip[isInstanceTemplateNicReservedIpAutoDelete].(bool); ok && v {
+					log.Printf("[INFO] UJJK isInstanceTemplateNicReservedIpAutoDelete is v is %t and okay is %t", v, ok)
+					reservedIpAutoDelete = primip[isInstanceTemplateNicReservedIpAutoDelete].(bool)
+					okAuto = true
 				}
+				// reservedipautodeleteok, okAuto = primip[isInstanceTemplateNicReservedIpAutoDelete]
+				// if okAuto {
+				// 	reservedIpAutoDelete = reservedipautodeleteok.(bool)
+				// }
 			}
 			if PrimaryIpv4Address != "" && reservedIpAddress != "" && PrimaryIpv4Address != reservedIpAddress {
 				return fmt.Errorf("[ERROR] Error creating instance template, network_interfaces error, use either primary_ipv4_address(%s) or primary_ip.0.address(%s)", PrimaryIpv4Address, reservedIpAddress)
 			}
-			if reservedIp != "" && (PrimaryIpv4Address != "" || reservedIpAddress != "" || reservedIpName != "") {
+			if reservedIp != "" && (PrimaryIpv4Address != "" || reservedIpAddress != "" || reservedIpName != "" || okAuto) {
 				return fmt.Errorf("[ERROR] Error creating instance template, network_interfaces error, reserved_ip(%s) is mutually exclusive with other primary_ip attributes", reservedIp)
 			}
 			if reservedIp != "" {
