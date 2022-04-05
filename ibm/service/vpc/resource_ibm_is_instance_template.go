@@ -259,9 +259,10 @@ func ResourceIBMISInstanceTemplate() *schema.Resource {
 							Computed: true,
 						},
 						isInstanceTemplateNicPrimaryIpv4Address: {
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
+							Type:       schema.TypeString,
+							Optional:   true,
+							Computed:   true,
+							Deprecated: "primary_ipv4_address is deprecated and support will be removed. Use primary_ip instead",
 						},
 						isInstanceTemplateNicSecurityGroups: {
 							Type:     schema.TypeSet,
@@ -295,9 +296,10 @@ func ResourceIBMISInstanceTemplate() *schema.Resource {
 							Computed: true,
 						},
 						isInstanceTemplateNicPrimaryIpv4Address: {
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
+							Type:       schema.TypeString,
+							Optional:   true,
+							Deprecated: "primary_ipv4_address is deprecated and support will be removed. Use primary_ip instead",
+							Computed:   true,
 						},
 						isInstanceTemplateNicSecurityGroups: {
 							Type:     schema.TypeSet,
@@ -695,13 +697,16 @@ func instanceTemplateCreate(d *schema.ResourceData, meta interface{}, profile, n
 				primnicobj.SecurityGroups = secgrpobjs
 			}
 		}
-		instanceproto.PrimaryNetworkInterface = primnicobj
-
+		// reserved ip changes
+		var PrimaryIpv4Address string
 		if IPAddress, ok := primnic[isInstanceTemplateNicPrimaryIpv4Address]; ok {
-			if PrimaryIpv4Address := IPAddress.(string); PrimaryIpv4Address != "" {
-				primnicobj.PrimaryIpv4Address = &PrimaryIpv4Address
+			PrimaryIpv4Address = IPAddress.(string)
+			primaryipobj := &vpcv1.NetworkInterfaceIPPrototypeReservedIPPrototypeNetworkInterfaceContext{
+				Address: &PrimaryIpv4Address,
 			}
+			primnicobj.PrimaryIP = primaryipobj
 		}
+		instanceproto.PrimaryNetworkInterface = primnicobj
 	}
 
 	// Handle  additional network interface
@@ -741,10 +746,14 @@ func instanceTemplateCreate(d *schema.ResourceData, meta interface{}, profile, n
 					nwInterface.SecurityGroups = secgrpobjs
 				}
 			}
+			// reserved ip changes
+			var PrimaryIpv4Address string
 			if IPAddress, ok := nic[isInstanceTemplateNicPrimaryIpv4Address]; ok {
-				if PrimaryIpv4Address := IPAddress.(string); PrimaryIpv4Address != "" {
-					nwInterface.PrimaryIpv4Address = &PrimaryIpv4Address
+				PrimaryIpv4Address = IPAddress.(string)
+				primaryipobj := &vpcv1.NetworkInterfaceIPPrototypeReservedIPPrototypeNetworkInterfaceContext{
+					Address: &PrimaryIpv4Address,
 				}
+				nwInterface.PrimaryIP = primaryipobj
 			}
 			intfs = append(intfs, *nwInterface)
 		}
@@ -855,8 +864,22 @@ func instanceTemplateGet(d *schema.ResourceData, meta interface{}, ID string) er
 		primaryNicList := make([]map[string]interface{}, 0)
 		currentPrimNic := map[string]interface{}{}
 		currentPrimNic[isInstanceTemplateNicName] = *instance.PrimaryNetworkInterface.Name
-		if instance.PrimaryNetworkInterface.PrimaryIpv4Address != nil {
-			currentPrimNic[isInstanceTemplateNicPrimaryIpv4Address] = *instance.PrimaryNetworkInterface.PrimaryIpv4Address
+		if instance.PrimaryNetworkInterface.PrimaryIP != nil {
+			pipIntf := instance.PrimaryNetworkInterface.PrimaryIP
+			// reserved ip changes
+			switch reflect.TypeOf(pipIntf).String() {
+			case "*vpcv1.NetworkInterfaceIPPrototype":
+				{
+					pip := pipIntf.(*vpcv1.NetworkInterfaceIPPrototype)
+					currentPrimNic[isInstanceTemplateNicPrimaryIpv4Address] = pip.Address
+				}
+			case "*vpcv1.NetworkInterfaceIPPrototypeReservedIPPrototypeNetworkInterfaceContext":
+				{
+					pip := pipIntf.(*vpcv1.NetworkInterfaceIPPrototypeReservedIPPrototypeNetworkInterfaceContext)
+					currentPrimNic[isInstanceTemplateNicPrimaryIpv4Address] = pip.Address
+				}
+
+			}
 		}
 		subInf := instance.PrimaryNetworkInterface.Subnet
 		subnetIdentity := subInf.(*vpcv1.SubnetIdentity)
@@ -882,8 +905,22 @@ func instanceTemplateGet(d *schema.ResourceData, meta interface{}, ID string) er
 		for _, intfc := range instance.NetworkInterfaces {
 			currentNic := map[string]interface{}{}
 			currentNic[isInstanceTemplateNicName] = *intfc.Name
-			if intfc.PrimaryIpv4Address != nil {
-				currentNic[isInstanceTemplateNicPrimaryIpv4Address] = *intfc.PrimaryIpv4Address
+			if intfc.PrimaryIP != nil {
+				// reserved ip changes
+				pipIntf := intfc.PrimaryIP
+
+				switch reflect.TypeOf(pipIntf).String() {
+				case "*vpcv1.NetworkInterfaceIPPrototype":
+					{
+						pip := pipIntf.(*vpcv1.NetworkInterfaceIPPrototype)
+						currentNic[isInstanceTemplateNicPrimaryIpv4Address] = pip.Address
+					}
+				case "*vpcv1.NetworkInterfaceIPPrototypeReservedIPPrototypeNetworkInterfaceContext":
+					{
+						pip := pipIntf.(*vpcv1.NetworkInterfaceIPPrototypeReservedIPPrototypeNetworkInterfaceContext)
+						currentNic[isInstanceTemplateNicPrimaryIpv4Address] = pip.Address
+					}
+				}
 			}
 			if intfc.AllowIPSpoofing != nil {
 				currentNic[isInstanceTemplateNicAllowIPSpoofing] = *intfc.AllowIPSpoofing

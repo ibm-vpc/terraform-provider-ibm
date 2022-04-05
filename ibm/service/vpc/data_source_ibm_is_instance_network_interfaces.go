@@ -327,8 +327,8 @@ func dataSourceNetworkInterfaceCollectionNetworkInterfacesToMap(networkInterface
 	if networkInterfacesItem.PortSpeed != nil {
 		networkInterfacesMap["port_speed"] = networkInterfacesItem.PortSpeed
 	}
-	if networkInterfacesItem.PrimaryIpv4Address != nil {
-		networkInterfacesMap["primary_ipv4_address"] = networkInterfacesItem.PrimaryIpv4Address
+	if networkInterfacesItem.PrimaryIP != nil {
+		networkInterfacesMap["primary_ipv4_address"] = networkInterfacesItem.PrimaryIP.Address
 	}
 	if networkInterfacesItem.ResourceType != nil {
 		networkInterfacesMap["resource_type"] = networkInterfacesItem.ResourceType

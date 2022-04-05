@@ -66,6 +66,7 @@ func ResourceIBMIsInstanceNetworkInterface() *schema.Resource {
 				Optional:     true,
 				Computed:     true,
 				ForceNew:     true,
+				Deprecated:   "primary_ipv4_address is deprecated and support will be removed. Use primary_ip instead",
 				ValidateFunc: validate.InvokeValidator("ibm_is_instance_network_interface", isInstanceNicPrimaryIpv4Address),
 				Description:  "The primary IPv4 address. If specified, it must be an available address on the network interface's subnet. If unspecified, an available address on the subnet will be automatically selected.",
 			},
@@ -216,10 +217,16 @@ func resourceIBMIsInstanceNetworkInterfaceCreate(context context.Context, d *sch
 	if name, ok := d.GetOk(isInstanceNicName); ok {
 		createInstanceNetworkInterfaceOptions.SetName(name.(string))
 	}
-	if primary_ipv4, ok := d.GetOk(isInstanceNicPrimaryIpv4Address); ok {
-		createInstanceNetworkInterfaceOptions.SetPrimaryIpv4Address(primary_ipv4.(string))
-	}
+	primary_ipv4 := ""
+	if primary_ipv4Ok, ok := d.GetOk(isInstanceNicPrimaryIpv4Address); ok {
+		primary_ipv4 = primary_ipv4Ok.(string)
 
+		var primaryIpObj = &vpcv1.NetworkInterfaceIPPrototypeReservedIPPrototypeNetworkInterfaceContext{}
+		if primary_ipv4 != "" {
+			primaryIpObj.Address = &primary_ipv4
+			createInstanceNetworkInterfaceOptions.PrimaryIP = primaryIpObj
+		}
+	}
 	if secgrpintf, ok := d.GetOk(isInstanceNicSecurityGroups); ok {
 		secgrpSet := secgrpintf.(*schema.Set)
 		if secgrpSet.Len() != 0 {
@@ -318,8 +325,10 @@ func resourceIBMIsInstanceNetworkInterfaceRead(context context.Context, d *schem
 	if err = d.Set(isInstanceNicName, *networkInterface.Name); err != nil {
 		return diag.FromErr(fmt.Errorf("[ERROR] Error setting name: %s", err))
 	}
-	if err = d.Set(isInstanceNicPrimaryIpv4Address, *networkInterface.PrimaryIpv4Address); err != nil {
-		return diag.FromErr(fmt.Errorf("[ERROR] Error setting primary_ipv4_address: %s", err))
+	if networkInterface.PrimaryIP != nil {
+		if err = d.Set(isInstanceNicPrimaryIpv4Address, *networkInterface.PrimaryIP.Address); err != nil {
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting primary_ipv4_address: %s", err))
+		}
 	}
 	if networkInterface.SecurityGroups != nil && len(networkInterface.SecurityGroups) != 0 {
 		secgrpList := []string{}
