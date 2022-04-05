@@ -194,6 +194,26 @@ func DataSourceIBMIsBareMetalServers() *schema.Resource {
 													Computed:    true,
 													Description: "The globally unique IP address",
 												},
+												isBareMetalServerNicIpHref: {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "The URL for this reserved IP",
+												},
+												isBareMetalServerNicIpName: {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "The user-defined name for this reserved IP. If unspecified, the name will be a hyphenated list of randomly-selected words. Names must be unique within the subnet the reserved IP resides in. ",
+												},
+												isBareMetalServerNicIpID: {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "Identifies a reserved IP by a unique property.",
+												},
+												isBareMetalServerNicResourceType: {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "The resource type",
+												},
 											},
 										},
 									},
@@ -244,6 +264,26 @@ func DataSourceIBMIsBareMetalServers() *schema.Resource {
 													Type:        schema.TypeString,
 													Computed:    true,
 													Description: "The globally unique IP address",
+												},
+												isBareMetalServerNicIpHref: {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "The URL for this reserved IP",
+												},
+												isBareMetalServerNicIpName: {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "The user-defined name for this reserved IP. If unspecified, the name will be a hyphenated list of randomly-selected words. Names must be unique within the subnet the reserved IP resides in. ",
+												},
+												isBareMetalServerNicIpID: {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "Identifies a reserved IP by a unique property.",
+												},
+												isBareMetalServerNicResourceType: {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "The resource type",
 												},
 											},
 										},
@@ -414,7 +454,11 @@ func dataSourceIBMISBareMetalServersRead(context context.Context, d *schema.Reso
 			currentPrimNic[isBareMetalServerNicSubnet] = *bms.PrimaryNetworkInterface.Subnet.ID
 			primaryIpList := make([]map[string]interface{}, 0)
 			currentIP := map[string]interface{}{
-				isBareMetalServerNicIpAddress: *bms.PrimaryNetworkInterface.PrimaryIpv4Address,
+				isBareMetalServerNicIpAddress:    *bms.PrimaryNetworkInterface.PrimaryIP.Address,
+				isBareMetalServerNicIpHref:       *bms.PrimaryNetworkInterface.PrimaryIP.Href,
+				isBareMetalServerNicIpName:       *bms.PrimaryNetworkInterface.PrimaryIP.Name,
+				isBareMetalServerNicIpID:         *bms.PrimaryNetworkInterface.PrimaryIP.ID,
+				isBareMetalServerNicResourceType: *bms.PrimaryNetworkInterface.PrimaryIP.ResourceType,
 			}
 			primaryIpList = append(primaryIpList, currentIP)
 			currentPrimNic[isBareMetalServerNicPrimaryIP] = primaryIpList
@@ -470,7 +514,11 @@ func dataSourceIBMISBareMetalServersRead(context context.Context, d *schema.Reso
 				currentNic[isBareMetalServerNicName] = *intfc.Name
 				primaryIpList := make([]map[string]interface{}, 0)
 				currentIP := map[string]interface{}{
-					isBareMetalServerNicIpAddress: *intfc.PrimaryIpv4Address,
+					isBareMetalServerNicIpAddress:    *intfc.PrimaryIP.Address,
+					isBareMetalServerNicIpHref:       *intfc.PrimaryIP.Href,
+					isBareMetalServerNicIpName:       *intfc.PrimaryIP.Name,
+					isBareMetalServerNicIpID:         *intfc.PrimaryIP.ID,
+					isBareMetalServerNicResourceType: *intfc.PrimaryIP.ResourceType,
 				}
 				primaryIpList = append(primaryIpList, currentIP)
 				currentNic[isBareMetalServerNicPrimaryIP] = primaryIpList
