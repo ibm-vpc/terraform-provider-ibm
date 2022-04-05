@@ -38,6 +38,7 @@ const (
 	isLBResourceGroup           = "resource_group"
 	isLBProfile                 = "profile"
 	isLBRouteMode               = "route_mode"
+	isLBUdpSupported            = "udp_supported"
 	isLBLogging                 = "logging"
 	isLBSecurityGroups          = "security_groups"
 	isLBSecurityGroupsSupported = "security_group_supported"
@@ -173,6 +174,12 @@ func ResourceIBMISLB() *schema.Resource {
 				Optional:    true,
 				Default:     false,
 				Description: "Indicates whether route mode is enabled for this load balancer",
+			},
+
+			isLBUdpSupported: {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: "Indicates whether this load balancer supports UDP.",
 			},
 
 			isLBHostName: {
@@ -469,6 +476,9 @@ func lbGet(d *schema.ResourceData, meta interface{}, id string) error {
 
 	d.Set(isLBResourceGroup, *lb.ResourceGroup.ID)
 	d.Set(isLBHostName, *lb.Hostname)
+	if lb.UDPSupported != nil {
+		d.Set(isLBUdpSupported, *lb.UDPSupported)
+	}
 	tags, err := flex.GetTagsUsingCRN(meta, *lb.CRN)
 	if err != nil {
 		log.Printf(

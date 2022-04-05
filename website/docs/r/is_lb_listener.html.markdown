@@ -131,7 +131,7 @@ Review the argument references that you can specify for your resource.
     - Private network load balancers with `route_mode` enabled don't support `port`, they support `port` range from `port_min`(1) - `port_max`(65535).
     - Only accepted value of `port` for `route_mode` enabled private network load balancer is `1`. Any other value will show change or update-in-place and returns an error.
 
-- `protocol` - (Required, String) The listener protocol. Enumeration type are `http`, `tcp`, and `https`. Network load balancer supports only `tcp` protocol.
+- `protocol` - (Required, String) The listener protocol. Enumeration type are `http`, `tcp`, `https` and `udp`. Network load balancer supports only `tcp` and `udp` protocol.
 - `default_pool` - (Optional, String) The load balancer pool unique identifier.
 - `certificate_instance` - (Optional, String) The CRN of the certificate instance, it is applicable(mandatory) only to https protocol.
 - `connection_limit` - (Optional, Integer) The connection limit of the listener. Valid range is **1 to 15000**. Network load balancer do not support `connection_limit` argument.
