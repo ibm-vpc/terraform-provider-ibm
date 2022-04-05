@@ -272,6 +272,7 @@ func Provider() *schema.Provider {
 			"ibm_cis_waf_groups":                    cis.DataSourceIBMCISWAFGroups(),
 			"ibm_cis_alerts":                        cis.DataSourceIBMCISAlert(),
 			"ibm_cis_webhooks":                      cis.DataSourceIBMCISWebhooks(),
+			"ibm_cis_logpush_jobs":                  cis.DataSourceIBMCISLogPushJobs(),
 			"ibm_cis_edge_functions_actions":        cis.DataSourceIBMCISEdgeFunctionsActions(),
 			"ibm_cis_edge_functions_triggers":       cis.DataSourceIBMCISEdgeFunctionsTriggers(),
 			"ibm_cis_custom_pages":                  cis.DataSourceIBMCISCustomPages(),
@@ -684,6 +685,7 @@ func Provider() *schema.Provider {
 			"ibm_cis_tls_settings":                      cis.ResourceIBMCISTLSSettings(),
 			"ibm_cis_waf_package":                       cis.ResourceIBMCISWAFPackage(),
 			"ibm_cis_webhook":                           cis.ResourceIBMCISWebhooks(),
+			"ibm_cis_logpush_job":                       cis.ResourceIBMCISLogPushJob(),
 			"ibm_cis_alert":                             cis.ResourceIBMCISAlert(),
 			"ibm_cis_routing":                           cis.ResourceIBMCISRouting(),
 			"ibm_cis_waf_group":                         cis.ResourceIBMCISWAFGroup(),
@@ -942,9 +944,13 @@ func Provider() *schema.Provider {
 			"ibm_atracker_route":  atracker.ResourceIBMAtrackerRoute(),
 
 			// //Security and Compliance Center
-			"ibm_scc_si_note":          scc.ResourceIBMSccSiNote(),
-			"ibm_scc_account_settings": scc.ResourceIBMSccAccountSettings(),
-			"ibm_scc_si_occurrence":    scc.ResourceIBMSccSiOccurrence(),
+			"ibm_scc_si_note":             scc.ResourceIBMSccSiNote(),
+			"ibm_scc_account_settings":    scc.ResourceIBMSccAccountSettings(),
+			"ibm_scc_si_occurrence":       scc.ResourceIBMSccSiOccurrence(),
+			"ibm_scc_rule":                scc.ResourceIBMSccRule(),
+			"ibm_scc_rule_attachment":     scc.ResourceIBMSccRuleAttachment(),
+			"ibm_scc_template":            scc.ResourceIBMSccTemplate(),
+			"ibm_scc_template_attachment": scc.ResourceIBMSccTemplateAttachment(),
 
 			//Security and Compliance Center - PostureManagement
 			"ibm_scc_posture_collector":  scc.ResourceIBMSccPostureCollectors(),
@@ -1097,6 +1103,10 @@ func Validator() validate.ValidatorDict {
 				"ibm_scc_posture_collector":               scc.ResourceIBMSccPostureCollectorsValidator(),
 				"ibm_scc_posture_scope":                   scc.ResourceIBMSccPostureScopesValidator(),
 				"ibm_scc_posture_credential":              scc.ResourceIBMSccPostureCredentialsValidator(),
+				"ibm_scc_rule":                            scc.ResourceIBMSccRuleValidator(),
+				"ibm_scc_rule_attachment":                 scc.ResourceIBMSccRuleAttachmentValidator(),
+				"ibm_scc_template":                        scc.ResourceIBMSccTemplateValidator(),
+				"ibm_scc_template_attachment":             scc.ResourceIBMSccTemplateAttachmentValidator(),
 				"ibm_cbr_zone":                            contextbasedrestrictions.ResourceIBMCbrZoneValidator(),
 				"ibm_cbr_rule":                            contextbasedrestrictions.ResourceIBMCbrRuleValidator(),
 				"ibm_satellite_host":                      satellite.ResourceIBMSatelliteHostValidator(),
