@@ -379,7 +379,7 @@ func resourceIBMISBareMetalServerNetworkInterfaceCreate(context context.Context,
 		if err != nil || nic == nil {
 			return diag.FromErr(fmt.Errorf("[DEBUG] Create bare metal server (%s) network interface err %s\n%s", bareMetalServerId, err, response))
 		}
-		err = bareMetalServerNICGet(d, meta, nic, bareMetalServerId)
+		err = bareMetalServerNICGet(d, meta, sess, nic, bareMetalServerId)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -509,7 +509,7 @@ func createVlanTypeNetworkInterface(context context.Context, d *schema.ResourceD
 	if err != nil || nic == nil {
 		return fmt.Errorf("[DEBUG] Create bare metal server (%s) network interface err %s\n%s", bareMetalServerId, err, response)
 	}
-	err = bareMetalServerNICGet(d, meta, nic, bareMetalServerId)
+	err = bareMetalServerNICGet(d, meta, sess, nic, bareMetalServerId)
 	if err != nil {
 		return err
 	}
@@ -547,14 +547,14 @@ func resourceIBMISBareMetalServerNetworkInterfaceRead(context context.Context, d
 		}
 		return diag.FromErr(fmt.Errorf("[ERROR] Error getting Bare Metal Server (%s) network interface (%s): %s\n%s", bareMetalServerId, nicID, err, response))
 	}
-	err = bareMetalServerNICGet(d, meta, nicIntf, bareMetalServerId)
+	err = bareMetalServerNICGet(d, meta, sess, nicIntf, bareMetalServerId)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 	return nil
 }
 
-func bareMetalServerNICGet(d *schema.ResourceData, meta interface{}, nicIntf interface{}, bareMetalServerId string) error {
+func bareMetalServerNICGet(d *schema.ResourceData, meta interface{}, sess *vpcv1.VpcV1, nicIntf interface{}, bareMetalServerId string) error {
 	switch reflect.TypeOf(nicIntf).String() {
 	case "*vpcv1.BareMetalServerNetworkInterfaceByPci":
 		{
@@ -585,18 +585,29 @@ func bareMetalServerNICGet(d *schema.ResourceData, meta interface{}, nicIntf int
 			if nic.PortSpeed != nil {
 				d.Set(isBareMetalServerNicPortSpeed, *nic.PortSpeed)
 			}
-			primaryIpList := make([]map[string]interface{}, 0)
-			currentIP := map[string]interface{}{
+			if nic.PrimaryIP != nil {
+				primaryIpList := make([]map[string]interface{}, 0)
+				currentIP := map[string]interface{}{
 
-				isBareMetalServerNicIpAddress:    *nic.PrimaryIP.Address,
-				isBareMetalServerNicIpHref:       *nic.PrimaryIP.Href,
-				isBareMetalServerNicIpName:       *nic.PrimaryIP.Name,
-				isBareMetalServerNicIpID:         *nic.PrimaryIP.ID,
-				isBareMetalServerNicResourceType: *nic.PrimaryIP.ResourceType,
+					isBareMetalServerNicIpAddress:    *nic.PrimaryIP.Address,
+					isBareMetalServerNicIpHref:       *nic.PrimaryIP.Href,
+					isBareMetalServerNicIpName:       *nic.PrimaryIP.Name,
+					isBareMetalServerNicIpID:         *nic.PrimaryIP.ID,
+					isBareMetalServerNicResourceType: *nic.PrimaryIP.ResourceType,
+				}
+				getripoptions := &vpcv1.GetSubnetReservedIPOptions{
+					SubnetID: nic.Subnet.ID,
+					ID:       nic.PrimaryIP.ID,
+				}
+				bmsRip, response, err := sess.GetSubnetReservedIP(getripoptions)
+				if err != nil {
+					return fmt.Errorf("[ERROR] Error getting network interface reserved ip(%s) attached to the bare metal server network interface(%s): %s\n%s", *nic.PrimaryIP.ID, *nic.ID, err, response)
+				}
+				currentIP[isBareMetalServerNicIpAutoDelete] = bmsRip.AutoDelete
+				primaryIpList = append(primaryIpList, currentIP)
+
+				d.Set(isBareMetalServerNicPrimaryIP, primaryIpList)
 			}
-			primaryIpList = append(primaryIpList, currentIP)
-			d.Set(isBareMetalServerNicPrimaryIP, primaryIpList)
-
 			d.Set(isBareMetalServerNicResourceType, *nic.ResourceType)
 
 			if nic.SecurityGroups != nil && len(nic.SecurityGroups) != 0 {
@@ -654,6 +665,16 @@ func bareMetalServerNICGet(d *schema.ResourceData, meta interface{}, nicIntf int
 				isBareMetalServerNicIpID:         *nic.PrimaryIP.ID,
 				isBareMetalServerNicResourceType: *nic.PrimaryIP.ResourceType,
 			}
+			getripoptions := &vpcv1.GetSubnetReservedIPOptions{
+				SubnetID: nic.Subnet.ID,
+				ID:       nic.PrimaryIP.ID,
+			}
+			bmsRip, response, err := sess.GetSubnetReservedIP(getripoptions)
+			if err != nil {
+				return fmt.Errorf("[ERROR] Error getting network interface reserved ip(%s) attached to the bare metal server network interface(%s): %s\n%s", *nic.PrimaryIP.ID, *nic.ID, err, response)
+			}
+			currentIP[isBareMetalServerNicIpAutoDelete] = bmsRip.AutoDelete
+
 			primaryIpList = append(primaryIpList, currentIP)
 			d.Set(isBareMetalServerNicPrimaryIP, primaryIpList)
 
@@ -692,6 +713,34 @@ func resourceIBMISBareMetalServerNetworkInterfaceUpdate(context context.Context,
 		BareMetalServerID: &bareMetalServerId,
 		ID:                &nicId,
 	}
+
+	if d.HasChange("primary_ip.0.name") || d.HasChange("primary_ip.0.auto_delete") {
+		subnetId := d.Get(isBareMetalServerNicSubnet).(string)
+		ripId := d.Get("primary_ip.0.reserved_ip").(string)
+		updateripoptions := &vpcv1.UpdateSubnetReservedIPOptions{
+			SubnetID: &subnetId,
+			ID:       &ripId,
+		}
+		reservedIpPath := &vpcv1.ReservedIPPatch{}
+		if d.HasChange("primary_ip.0.name") {
+			name := d.Get("primary_ip.0.name").(string)
+			reservedIpPath.Name = &name
+		}
+		if d.HasChange("primary_ip.0.auto_delete") {
+			auto := d.Get("primary_ip.0.auto_delete").(bool)
+			reservedIpPath.AutoDelete = &auto
+		}
+		reservedIpPathAsPatch, err := reservedIpPath.AsPatch()
+		if err != nil {
+			return diag.FromErr(fmt.Errorf("[ERROR] Error calling reserved ip as patch \n%s", err))
+		}
+		updateripoptions.ReservedIPPatch = reservedIpPathAsPatch
+		_, response, err := sess.UpdateSubnetReservedIP(updateripoptions)
+		if err != nil {
+			return diag.FromErr(fmt.Errorf("[ERROR] Error updating network interface reserved ip(%s): %s\n%s", ripId, err, response))
+		}
+	}
+
 	nicPatchModel := &vpcv1.BareMetalServerNetworkInterfacePatch{}
 	flag := false
 	if d.HasChange(isBareMetalServerNicAllowIPSpoofing) {
@@ -742,7 +791,7 @@ func resourceIBMISBareMetalServerNetworkInterfaceUpdate(context context.Context,
 		if err != nil {
 			return diag.FromErr(fmt.Errorf("[ERROR] Error updating Bare Metal Server: %s\n%s", err, response))
 		}
-		return diag.FromErr(bareMetalServerNICGet(d, meta, nicIntf, bareMetalServerId))
+		return diag.FromErr(bareMetalServerNICGet(d, meta, sess, nicIntf, bareMetalServerId))
 	}
 
 	return nil

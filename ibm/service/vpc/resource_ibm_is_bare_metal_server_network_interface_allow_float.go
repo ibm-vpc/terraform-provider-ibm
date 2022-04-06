@@ -115,7 +115,7 @@ func ResourceIBMIsBareMetalServerNetworkInterfaceAllowFloat() *schema.Resource {
 							Description: "The URL for this reserved IP",
 						},
 						isBareMetalServerNicIpAutoDelete: {
-							Type:        schema.TypeString,
+							Type:        schema.TypeBool,
 							Optional:    true,
 							Computed:    true,
 							Description: "Indicates whether this reserved IP member will be automatically deleted when either target is deleted, or the reserved IP is unbound.",
@@ -290,7 +290,7 @@ func createVlanTypeNetworkInterfaceAllowFloat(context context.Context, d *schema
 	if err != nil || nic == nil {
 		return fmt.Errorf("[DEBUG] Create bare metal server (%s) network interface err %s\n%s", bareMetalServerId, err, response)
 	}
-	err = bareMetalServerNICGet(d, meta, nic, bareMetalServerId)
+	err = bareMetalServerNICAllowFloatGet(d, meta, sess, nic, bareMetalServerId)
 	if err != nil {
 		return err
 	}
@@ -339,7 +339,7 @@ func resourceIBMISBareMetalServerNetworkInterfaceAllowFloatRead(context context.
 			}
 		}
 	}
-	err = bareMetalServerNICAllowFloatGet(d, meta, nicIntf, bareMetalServerId)
+	err = bareMetalServerNICAllowFloatGet(d, meta, sess, nicIntf, bareMetalServerId)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -383,7 +383,7 @@ func findNicsWithoutBMS(context context.Context, sess *vpcv1.VpcV1, nicId string
 	return nil, nil, fmt.Errorf("[ERROR] Error Network interface not found")
 }
 
-func bareMetalServerNICAllowFloatGet(d *schema.ResourceData, meta interface{}, nicIntf interface{}, bareMetalServerId string) error {
+func bareMetalServerNICAllowFloatGet(d *schema.ResourceData, meta interface{}, sess *vpcv1.VpcV1, nicIntf interface{}, bareMetalServerId string) error {
 	switch reflect.TypeOf(nicIntf).String() {
 	case "*vpcv1.BareMetalServerNetworkInterfaceByPci":
 		{
@@ -423,6 +423,17 @@ func bareMetalServerNICAllowFloatGet(d *schema.ResourceData, meta interface{}, n
 				isBareMetalServerNicIpID:         *nic.PrimaryIP.ID,
 				isBareMetalServerNicResourceType: *nic.PrimaryIP.ResourceType,
 			}
+
+			getripoptions := &vpcv1.GetSubnetReservedIPOptions{
+				SubnetID: nic.Subnet.ID,
+				ID:       nic.PrimaryIP.ID,
+			}
+			bmsRip, response, err := sess.GetSubnetReservedIP(getripoptions)
+			if err != nil {
+				return fmt.Errorf("[ERROR] Error getting network interface reserved ip(%s) attached to the bare metal server network interface(%s): %s\n%s", *nic.PrimaryIP.ID, *nic.ID, err, response)
+			}
+			currentIP[isBareMetalServerNicIpAutoDelete] = bmsRip.AutoDelete
+
 			primaryIpList = append(primaryIpList, currentIP)
 			d.Set(isBareMetalServerNicPrimaryIP, primaryIpList)
 
@@ -510,6 +521,33 @@ func resourceIBMISBareMetalServerNetworkInterfaceAllowFloatUpdate(context contex
 		return diag.FromErr(err)
 	}
 
+	if d.HasChange("primary_ip.0.name") || d.HasChange("primary_ip.0.auto_delete") {
+		subnetId := d.Get(isBareMetalServerNicSubnet).(string)
+		ripId := d.Get("primary_ip.0.reserved_ip").(string)
+		updateripoptions := &vpcv1.UpdateSubnetReservedIPOptions{
+			SubnetID: &subnetId,
+			ID:       &ripId,
+		}
+		reservedIpPath := &vpcv1.ReservedIPPatch{}
+		if d.HasChange("primary_ip.0.name") {
+			name := d.Get("primary_ip.0.name").(string)
+			reservedIpPath.Name = &name
+		}
+		if d.HasChange("primary_ip.0.auto_delete") {
+			auto := d.Get("primary_ip.0.auto_delete").(bool)
+			reservedIpPath.AutoDelete = &auto
+		}
+		reservedIpPathAsPatch, err := reservedIpPath.AsPatch()
+		if err != nil {
+			return diag.FromErr(fmt.Errorf("[ERROR] Error calling reserved ip as patch \n%s", err))
+		}
+		updateripoptions.ReservedIPPatch = reservedIpPathAsPatch
+		_, response, err := sess.UpdateSubnetReservedIP(updateripoptions)
+		if err != nil {
+			return diag.FromErr(fmt.Errorf("[ERROR] Error updating network interface reserved ip(%s): %s\n%s", ripId, err, response))
+		}
+	}
+
 	options := &vpcv1.UpdateBareMetalServerNetworkInterfaceOptions{
 		BareMetalServerID: &bareMetalServerId,
 		ID:                &nicId,
@@ -552,7 +590,7 @@ func resourceIBMISBareMetalServerNetworkInterfaceAllowFloatUpdate(context contex
 		if err != nil {
 			return diag.FromErr(fmt.Errorf("[ERROR] Error updating Bare Metal Server: %s\n%s", err, response))
 		}
-		return diag.FromErr(bareMetalServerNICGet(d, meta, nicIntf, bareMetalServerId))
+		return diag.FromErr(bareMetalServerNICAllowFloatGet(d, meta, sess, nicIntf, bareMetalServerId))
 	}
 
 	return nil

@@ -258,7 +258,7 @@ func ResourceIBMIsBareMetalServer() *schema.Resource {
 										Description: "The URL for this reserved IP",
 									},
 									isBareMetalServerNicIpAutoDelete: {
-										Type:        schema.TypeString,
+										Type:        schema.TypeBool,
 										Optional:    true,
 										Computed:    true,
 										Description: "Indicates whether this reserved IP member will be automatically deleted when either target is deleted, or the reserved IP is unbound.",
@@ -1011,17 +1011,29 @@ func bareMetalServerGet(context context.Context, d *schema.ResourceData, meta in
 			return fmt.Errorf("[ERROR] Error getting network interfaces attached to the bare metal server %s\n%s", err, response)
 		}
 
-		primaryIpList := make([]map[string]interface{}, 0)
-		currentIP := map[string]interface{}{
-			isBareMetalServerNicIpAddress:    *bms.PrimaryNetworkInterface.PrimaryIP.Address,
-			isBareMetalServerNicIpHref:       *bms.PrimaryNetworkInterface.PrimaryIP.Href,
-			isBareMetalServerNicIpName:       *bms.PrimaryNetworkInterface.PrimaryIP.Name,
-			isBareMetalServerNicIpID:         *bms.PrimaryNetworkInterface.PrimaryIP.ID,
-			isBareMetalServerNicResourceType: *bms.PrimaryNetworkInterface.PrimaryIP.ResourceType,
-		}
-		primaryIpList = append(primaryIpList, currentIP)
-		currentPrimNic[isBareMetalServerNicPrimaryIP] = primaryIpList
+		if bms.PrimaryNetworkInterface.PrimaryIP != nil {
+			primaryIpList := make([]map[string]interface{}, 0)
+			currentIP := map[string]interface{}{
+				isBareMetalServerNicIpAddress:    *bms.PrimaryNetworkInterface.PrimaryIP.Address,
+				isBareMetalServerNicIpHref:       *bms.PrimaryNetworkInterface.PrimaryIP.Href,
+				isBareMetalServerNicIpName:       *bms.PrimaryNetworkInterface.PrimaryIP.Name,
+				isBareMetalServerNicIpID:         *bms.PrimaryNetworkInterface.PrimaryIP.ID,
+				isBareMetalServerNicResourceType: *bms.PrimaryNetworkInterface.PrimaryIP.ResourceType,
+			}
 
+			primaryIpList = append(primaryIpList, currentIP)
+			currentPrimNic[isBareMetalServerNicPrimaryIP] = primaryIpList
+
+			getripoptions := &vpcv1.GetSubnetReservedIPOptions{
+				SubnetID: bms.PrimaryNetworkInterface.Subnet.ID,
+				ID:       bms.PrimaryNetworkInterface.PrimaryIP.ID,
+			}
+			bmsRip, response, err := sess.GetSubnetReservedIP(getripoptions)
+			if err != nil {
+				return fmt.Errorf("[ERROR] Error getting network interface reserved ip(%s) attached to the bare metal server primary network interface(%s): %s\n%s", *bms.PrimaryNetworkInterface.PrimaryIP.ID, *bms.PrimaryNetworkInterface.ID, err, response)
+			}
+			currentIP[isBareMetalServerNicIpAutoDelete] = bmsRip.AutoDelete
+		}
 		switch reflect.TypeOf(bmsnic).String() {
 		case "*vpcv1.BareMetalServerNetworkInterfaceByPci":
 			{
@@ -1081,16 +1093,29 @@ func bareMetalServerGet(context context.Context, d *schema.ResourceData, meta in
 			if err != nil {
 				return fmt.Errorf("[ERROR] Error getting network interfaces attached to the bare metal server %s\n%s", err, response)
 			}
-			primaryIpList := make([]map[string]interface{}, 0)
-			currentIP := map[string]interface{}{
-				isBareMetalServerNicIpAddress:    *intfc.PrimaryIP.Address,
-				isBareMetalServerNicIpHref:       *intfc.PrimaryIP.Href,
-				isBareMetalServerNicIpName:       *intfc.PrimaryIP.Name,
-				isBareMetalServerNicIpID:         *intfc.PrimaryIP.ID,
-				isBareMetalServerNicResourceType: *intfc.PrimaryIP.ResourceType,
+			if intfc.PrimaryIP != nil {
+				primaryIpList := make([]map[string]interface{}, 0)
+				currentIP := map[string]interface{}{
+					isBareMetalServerNicIpAddress:    *intfc.PrimaryIP.Address,
+					isBareMetalServerNicIpHref:       *intfc.PrimaryIP.Href,
+					isBareMetalServerNicIpName:       *intfc.PrimaryIP.Name,
+					isBareMetalServerNicIpID:         *intfc.PrimaryIP.ID,
+					isBareMetalServerNicResourceType: *intfc.PrimaryIP.ResourceType,
+				}
+				getripoptions := &vpcv1.GetSubnetReservedIPOptions{
+					SubnetID: bms.PrimaryNetworkInterface.Subnet.ID,
+					ID:       bms.PrimaryNetworkInterface.PrimaryIP.ID,
+				}
+				bmsRip, response, err := sess.GetSubnetReservedIP(getripoptions)
+				if err != nil {
+					return fmt.Errorf("[ERROR] Error getting network interface reserved ip(%s) attached to the bare metal server primary network interface(%s): %s\n%s", *bms.PrimaryNetworkInterface.PrimaryIP.ID, *bms.PrimaryNetworkInterface.ID, err, response)
+				}
+				currentIP[isBareMetalServerNicIpAutoDelete] = bmsRip.AutoDelete
+
+				primaryIpList = append(primaryIpList, currentIP)
+				currentNic[isBareMetalServerNicPrimaryIP] = primaryIpList
 			}
-			primaryIpList = append(primaryIpList, currentIP)
-			currentNic[isBareMetalServerNicPrimaryIP] = primaryIpList
+
 			switch reflect.TypeOf(bmsnicintf).String() {
 			case "*vpcv1.BareMetalServerNetworkInterfaceByPci":
 				{

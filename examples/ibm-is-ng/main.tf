@@ -702,9 +702,11 @@ resource "ibm_is_instance" "instance7" {
     snapshot = ibm_is_snapshot.b_snapshot.id
   }
   auto_delete_volume = true
-  primary_ipv4_address = "10.0.0.5"
   primary_network_interface {
-    auto_delete = true
+    primary_ip {
+      address = "10.0.0.5"
+      auto_delete = true
+    } 
     name        = "test-reserved-ip"
     subnet      = ibm_is_subnet.subnet2.id
   }
