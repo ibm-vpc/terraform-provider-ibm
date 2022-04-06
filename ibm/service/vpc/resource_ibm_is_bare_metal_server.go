@@ -258,7 +258,7 @@ func ResourceIBMIsBareMetalServer() *schema.Resource {
 										Description: "The URL for this reserved IP",
 									},
 									isBareMetalServerNicIpAutoDelete: {
-										Type:        schema.TypeString,
+										Type:        schema.TypeBool,
 										Optional:    true,
 										Computed:    true,
 										Description: "Indicates whether this reserved IP member will be automatically deleted when either target is deleted, or the reserved IP is unbound.",
@@ -382,7 +382,7 @@ func ResourceIBMIsBareMetalServer() *schema.Resource {
 										Description: "The URL for this reserved IP",
 									},
 									isBareMetalServerNicIpAutoDelete: {
-										Type:        schema.TypeString,
+										Type:        schema.TypeBool,
 										Optional:    true,
 										Computed:    true,
 										Description: "Indicates whether this reserved IP member will be automatically deleted when either target is deleted, or the reserved IP is unbound.",
