@@ -384,6 +384,7 @@ func ResourceIBMISInstance() *schema.Resource {
 						isInstanceNicPortSpeed: {
 							Type:             schema.TypeInt,
 							Optional:         true,
+							Computed:         true,
 							DiffSuppressFunc: flex.ApplyOnce,
 							Deprecated:       "This field is deprected",
 						},
@@ -1852,6 +1853,9 @@ func instanceGet(d *schema.ResourceData, meta interface{}, id string) error {
 			return fmt.Errorf("[ERROR] Error getting network interfaces attached to the instance %s\n%s", err, response)
 		}
 		currentPrimNic[isInstanceNicAllowIPSpoofing] = *insnic.AllowIPSpoofing
+		if insnic.PortSpeed != nil {
+			currentPrimNic[isInstanceNicPortSpeed] = *insnic.PortSpeed
+		}
 		currentPrimNic[isInstanceNicSubnet] = *insnic.Subnet.ID
 		if len(insnic.SecurityGroups) != 0 {
 			secgrpList := []string{}
