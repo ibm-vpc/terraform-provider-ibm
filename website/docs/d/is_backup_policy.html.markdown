@@ -10,20 +10,35 @@ description: |-
 
 Provides a read-only data source for BackupPolicy. For more information, about backup policy in your IBM Cloud VPC, see [Backup policy](https://cloud.ibm.com/docs/vpc?topic=vpc-creating-backup-policy).
 
+**Note:** 
+VPC infrastructure services are a regional specific based endpoint, by default targets to `us-south`. Please make sure to target right region in the provider block as shown in the `provider.tf` file, if VPC service is created in region other than `us-south`.
+
+**provider.tf**
+
+```terraform
+provider "ibm" {
+  region = "eu-gb"
+}
+```
+
 ## Example Usage
 
 ```terraform
 data "ibm_is_backup_policy" "example" {
-	identifier = "id"
+	identifier = ibm_is_backup_policy.example.id
 }
 ```
 
 ## Argument Reference
 Review the argument references that you can specify for your data source. 
 
+- `backup_policy_id` - (Optional, string) Filters the collection to backup policy jobs with the backup plan with the specified identifier.
 - `identifier` - (Optional, string) The backup policy identifier, `identifier` and `name` are mutually exclusive.
 - `name` - (Optional, string) The unique user-defined name for backup policy, `identifier` and `name` are mutually exclusive.
-
+- `source_volume_id` - (Optional, string) Filters the collection to resources with the source volume with the specified identifier.
+- `status` - (Optional, string) Filters the collection to backup policy jobs with the specified status.
+- `target_snapshot_crn` - (Optional, string) Filters the collection to resources with the target snapshot with the specified CRN.
+- `target_snapshot_id` - (Optional, string) Filters the collection to resources with the target snapshot with the specified identifier.
 
 ## Attribute Reference
 In addition to all argument reference list, you can access the following attribute references after your data source is created.
@@ -38,21 +53,21 @@ In addition to all argument reference list, you can access the following attribu
 - `match_user_tags` - (List) The user tags this backup policy applies to. Resources that have both a matching user tag and a matching type will be subject to the backup policy.
 - `name` - (String) The unique user-defined name for this backup policy.
 - `plans` - (List) The plans for the backup policy.
+  
+  Nested `plans` blocks have the following structure:
+  - `deleted` - (List) If present, this property indicates the referenced resource has been deleted and provides some supplementary information. 
+    
+    Nested `deleted` blocks have the following structure:
+    - `more_info` - (String) Link to documentation about deleted resources.
+  - `href` - (String) The URL for this backup policy plan.
+  - `id` - (String) The unique identifier for this backup policy plan.
+  - `name` - (String) The unique user-defined name for this backup policy plan.
+  - `resource_type` - (String) The type of resource referenced.
 - `resource_group` - (List) The resource group for this backup policy.
+  
+  Nested `resource_group` blocks have the following structure:
+  - `href` - (String) The URL for this resource group.
+  - `id` - (String) The unique identifier for this resource group.
+  - `name` - (String) The user-defined name for this resource group.
 - `resource_type` - (String) The type of resource referenced.
-
-Nested `plans` blocks have the following structure:
-- `deleted` - (List) If present, this property indicates the referenced resource has been deleted and provides some supplementary information. 
-- `href` - (String) The URL for this backup policy plan.
-- `id` - (String) The unique identifier for this backup policy plan.
-- `name` - (String) The unique user-defined name for this backup policy plan.
-- `resource_type` - (String) The type of resource referenced.
-
-Nested `deleted` blocks have the following structure:
-- `more_info` - (String) Link to documentation about deleted resources.
-
-
-Nested `resource_group` blocks have the following structure:
-- `id` - (String) The unique identifier for this resource group.
-- `name` - (String) The user-defined name for this resource group.
 

@@ -99,7 +99,7 @@ func testAccCheckIBMIsBackupPolicyConfigBasic(backupPolicyName string, vpcname, 
 		}
 		vpc     = ibm_is_vpc.testacc_vpc.id
 		zone    = "%s"
-		keys    = ["r134-0391ca6e-2437-429c-8d58-1ac186c53555"]
+		keys    = ["r134-2009ee85-d70f-4df0-80b3-cc81bd5f1bf8"]
 		volumes = [ibm_is_volume.storage.id]
 	  }
 

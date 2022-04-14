@@ -83,10 +83,25 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCKVmnMOlHKcZK8tpt3MP1lqOLAcqcJzhsvJcjscgVE
 	})
 }
 
+func testAccCheckIBMIsBackupPolicyPlanConfigBasicupdate(backupPolicyName, vpcname, subnetname, sshname, publicKey, volName, name, cronSpec, bakupPolicyPlanName string, deleteOverCount string) string {
+
+	// return testAccCheckIBMIsBackupPolicyConfigBasic(backupPolicyName, vpcname, subnetname, sshname, publicKey, volName, name) + fmt.Sprintf(`
+	return fmt.Sprintf(`
+		resource "ibm_is_backup_policy_plan" "is_backup_policy_plan" {
+			backup_policy_id = "r134-de65ff48-aaf4-4cf7-9fd0-e62009e267dd"
+			name = "%s"
+			cron_spec = "%s"
+			deletion_trigger {
+				delete_after = 30
+				delete_over_count = "%s"
+			}
+		}
+	`, bakupPolicyPlanName, cronSpec, deleteOverCount)
+}
+
 func testAccCheckIBMIsBackupPolicyPlanConfigBasic(backupPolicyName, vpcname, subnetname, sshname, publicKey, volName, name, cronSpec, bakupPolicyPlanName string) string {
 
 	return testAccCheckIBMIsBackupPolicyConfigBasic(backupPolicyName, vpcname, subnetname, sshname, publicKey, volName, name) + fmt.Sprintf(`
-
 		resource "ibm_is_backup_policy_plan" "is_backup_policy_plan" {
 			backup_policy_id = ibm_is_backup_policy.is_backup_policy.id
 			name = "%s"

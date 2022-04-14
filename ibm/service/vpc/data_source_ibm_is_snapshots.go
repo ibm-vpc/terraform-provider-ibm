@@ -47,6 +47,12 @@ func DataSourceSnapshots() *schema.Resource {
 				Optional:    true,
 			},
 
+			"backup_policy_plan_id": &schema.Schema{
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "Filters the collection to backup policy jobs with the backup plan with the specified identifier",
+			},
+
 			isSnapshots: {
 				Type:        schema.TypeList,
 				Description: "List of snapshots",
@@ -138,8 +144,7 @@ func DataSourceSnapshots() *schema.Resource {
 						},
 
 						isSnapshotUserTags: {
-							Type: schema.TypeSet,
-							// Optional: true,
+							Type:        schema.TypeSet,
 							Computed:    true,
 							Elem:        &schema.Schema{Type: schema.TypeString},
 							Set:         flex.ResourceIBMVPCHash,
@@ -236,6 +241,10 @@ func getSnapshots(d *schema.ResourceData, meta interface{}) error {
 		if sourceVolumeFilterOk, ok := d.GetOk(isSnapshotSourceVolume); ok {
 			sourceVolumeFilter := sourceVolumeFilterOk.(string)
 			listSnapshotOptions.SourceVolumeID = &sourceVolumeFilter
+		}
+		if backupPolicyPlanIdFilterOk, ok := d.GetOk("backup_policy_plan_id"); ok {
+			backupPolicyPlanIdFilter := backupPolicyPlanIdFilterOk.(string)
+			listSnapshotOptions.BackupPolicyPlanID = &backupPolicyPlanIdFilter
 		}
 
 		snapshots, response, err := sess.ListSnapshots(listSnapshotOptions)

@@ -52,7 +52,6 @@ func TestAccIBMISVolume_basic(t *testing.T) {
 func TestAccIBMISVolumeUsertag_basic(t *testing.T) {
 	var vol string
 	name := fmt.Sprintf("tf-vol-%d", acctest.RandIntRange(10, 100))
-	// name1 := fmt.Sprintf("tf-vol-upd-%d", acctest.RandIntRange(10, 100))
 	tagname := fmt.Sprintf("tfusertag%d", acctest.RandIntRange(10, 100))
 	tagnameupdate := fmt.Sprintf("tfusertagupd%d", acctest.RandIntRange(10, 100))
 
