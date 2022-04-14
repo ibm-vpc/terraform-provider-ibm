@@ -42,7 +42,7 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCKVmnMOlHKcZK8tpt3MP1lqOLAcqcJzhsvJcjscgVE
 					resource.TestCheckResourceAttrSet("data.ibm_is_backup_policy_plans.is_backup_policy_plans", "plans.0.copy_user_tags"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_backup_policy_plans.is_backup_policy_plans", "plans.0.created_at"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_backup_policy_plans.is_backup_policy_plans", "plans.0.cron_spec"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_backup_policy_plans.is_backup_policy_plans", "plans.0.deletion_trigger.#"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_backup_policy_plans.is_backup_policy_plans", "plans.0.deletion_trigger.0.delete_after"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_backup_policy_plans.is_backup_policy_plans", "plans.0.href"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_backup_policy_plans.is_backup_policy_plans", "plans.0.id"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_backup_policy_plans.is_backup_policy_plans", "plans.0.lifecycle_state"),
@@ -58,6 +58,7 @@ func testAccCheckIBMIsBackupPolicyPlansDataSourceConfigBasic(backupPolicyName, v
 
 	return testAccCheckIBMIsBackupPolicyPlanConfigBasic(backupPolicyName, vpcname, subnetname, sshname, publicKey, volName, name, cronSpec, bakupPolicyPlanName) + fmt.Sprintf(`
 		data "ibm_is_backup_policy_plans" "is_backup_policy_plans" {
+			depends_on  = [ibm_is_backup_policy_plan.is_backup_policy_plan]
 			backup_policy_id = ibm_is_backup_policy.is_backup_policy.id
 			name = "%s"
 		}

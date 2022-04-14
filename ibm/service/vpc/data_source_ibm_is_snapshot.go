@@ -107,8 +107,7 @@ func DataSourceSnapshot() *schema.Resource {
 			},
 
 			isSnapshotUserTags: {
-				Type: schema.TypeSet,
-				// Optional: true,
+				Type:        schema.TypeSet,
 				Computed:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Set:         flex.ResourceIBMVPCHash,

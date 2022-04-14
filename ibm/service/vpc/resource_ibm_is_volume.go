@@ -167,9 +167,8 @@ func ResourceIBMISVolume() *schema.Resource {
 				Description: "Deletes all snapshots created from this volume",
 			},
 			isVolumeTags: {
-				Type:     schema.TypeSet,
-				Optional: true,
-				// Computed:    true,
+				Type:        schema.TypeSet,
+				Optional:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString, ValidateFunc: validate.InvokeValidator("ibm_is_volume", "tags")},
 				Set:         flex.ResourceIBMVPCHash,
 				Description: "UserTags for the volume instance",

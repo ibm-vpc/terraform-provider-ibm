@@ -140,11 +140,9 @@ func dataSourceIBMIsBackupPolicyPlansRead(context context.Context, d *schema.Res
 		suppliedFilter = true
 		for _, data := range backupPolicyPlanCollection.Plans {
 			if *data.Name == name {
-				log.Println("Hi I am inside if statement if *data.Name == name ")
 				matchPlans = append(matchPlans, data)
 			}
 		}
-		log.Println(matchPlans)
 		backupPolicyPlanCollection.Plans = matchPlans
 	}
 	if suppliedFilter {
@@ -188,12 +186,6 @@ func dataSourceBackupPolicyPlanCollectionPlansToMap(plansItem vpcv1.BackupPolicy
 	if plansItem.AttachUserTags != nil {
 		plansMap["attach_user_tags"] = plansItem.AttachUserTags
 	}
-	// if plansItem.ClonePolicy != nil {
-	// 	clonePolicyList := []map[string]interface{}{}
-	// 	clonePolicyMap := dataSourceBackupPolicyPlanCollectionPlansClonePolicyToMap(*plansItem.ClonePolicy)
-	// 	clonePolicyList = append(clonePolicyList, clonePolicyMap)
-	// 	plansMap["clone_policy"] = clonePolicyList
-	// }
 	if plansItem.CopyUserTags != nil {
 		plansMap["copy_user_tags"] = plansItem.CopyUserTags
 	}
@@ -227,23 +219,6 @@ func dataSourceBackupPolicyPlanCollectionPlansToMap(plansItem vpcv1.BackupPolicy
 
 	return plansMap
 }
-
-// func dataSourceBackupPolicyPlanCollectionPlansClonePolicyToMap(clonePolicyItem vpcv1.BackupPolicyPlanClonePolicy) (clonePolicyMap map[string]interface{}) {
-// 	clonePolicyMap = map[string]interface{}{}
-
-// 	if clonePolicyItem.MaxSnapshots != nil {
-// 		clonePolicyMap["max_snapshots"] = clonePolicyItem.MaxSnapshots
-// 	}
-// 	if clonePolicyItem.Zones != nil {
-// 		zonesList := []map[string]interface{}{}
-// 		for _, zonesItem := range clonePolicyItem.Zones {
-// 			zonesList = append(zonesList, dataSourceBackupPolicyPlanCollectionClonePolicyZonesToMap(zonesItem))
-// 		}
-// 		clonePolicyMap["zones"] = zonesList
-// 	}
-
-// 	return clonePolicyMap
-// }
 
 func dataSourceBackupPolicyPlanCollectionClonePolicyZonesToMap(zonesItem vpcv1.ZoneReference) (zonesMap map[string]interface{}) {
 	zonesMap = map[string]interface{}{}
