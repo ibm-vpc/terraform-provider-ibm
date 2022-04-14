@@ -7,30 +7,40 @@ description: |-
 ---
 
 # ibm_is_lb
-Retrieve information of an existing IBM VPC Load Balancer as a read-only data source. For more information, about VPC load balancer, see [load balancers for VPC overview](https://cloud.ibm.com/docs/vpc?topic=vpc-nlb-vs-elb).
+Retrieve information of an existing IBM VPC Load Balancer. For more information, about VPC load balancer, see [load balancers for VPC overview](https://cloud.ibm.com/docs/vpc?topic=vpc-nlb-vs-elb).
 
+**Note:** 
+VPC infrastructure services are a regional specific based endpoint, by default targets to `us-south`. Please make sure to target right region in the provider block as shown in the `provider.tf` file, if VPC service is created in region other than `us-south`.
+
+**provider.tf**
+
+```terraform
+provider "ibm" {
+  region = "eu-gb"
+}
+```
 
 ## Example usage
 
 ```terraform
-resource "ibm_is_vpc" "testacc_vpc" {
-  name = "testvpc"
+resource "ibm_is_vpc" "example" {
+  name = "example-vpc"
 }
 
-resource "ibm_is_subnet" "testacc_subnet" {
-  name            = "testsubnet"
-  vpc             = ibm_is_vpc.testacc_vpc.id
+resource "ibm_is_subnet" "example" {
+  name            = "example-subnet"
+  vpc             = ibm_is_vpc.example.id
   zone            = "us-south-1"
   ipv4_cidr_block = "10.240.0.0/24"
 }
 
-resource "ibm_is_lb" "testacc_lb" {
-  name    = "testlb"
-  subnets = [ibm_is_subnet.testacc_subnet.id]
+resource "ibm_is_lb" "example" {
+  name    = "example-lb"
+  subnets = [ibm_is_subnet.example.id]
 }
 
-data "ibm_is_lb" "ds_lb" {
-  name = ibm_is_lb.testacc_lb.name
+data "ibm_is_lb" "example" {
+  name = ibm_is_lb.example.name
 }
 ```
 
@@ -83,7 +93,15 @@ In addition to all argument reference list, you can access the following attribu
     Nested scheme for `session_persistence`:
 	- `type` - (String) The session persistence type.
 - `public_ips` - (String) The public IP addresses assigned to this load balancer.
-- `private_ips` - (String) The private IP addresses assigned to this load balancer.
+- `private_ip` - (List) The primary IP address to bind to the network interface. This can be specified using an existing reserved IP, or a prototype object for a new reserved IP.
+
+	Nested scheme for `private_ip`:
+	- `address` - (String) The IP address. If the address has not yet been selected, the value will be 0.0.0.0. This property may add support for IPv6 addresses in the future. When processing a value in this property, verify that the address is in an expected format. If it is not, log an error. Optionally halt processing and surface the error, or bypass the resource on which the unexpected IP address format was encountered.
+	- `href`- (String) The URL for this reserved IP
+	- `name`- (String) The user-defined or system-provided name for this reserved IP
+	- `reserved_ip`- (String) The unique identifier for this reserved IP
+	- `resource_type`- (String) The resource type.
+- `private_ips` - (List) The private IP addresses assigned to this load balancer. Same as `private_ip.[].address`
 - `resource_group` - (String) The resource group where the load balancer is created.
 - `route_mode` - (Bool) Indicates whether route mode is enabled for this load balancer.
 - `security_groups`- (String) A list of security groups that are used with this load balancer. This option is supported only for application load balancers.
@@ -92,3 +110,4 @@ In addition to all argument reference list, you can access the following attribu
 - `status` - (String) The status of load balancer.
 - `tags` - (String) The tags associated with the load balancer.
 - `type` - (String) The type of the load balancer.
+- `udp_supported`- (Bool) Indicates whether this load balancer supports UDP.

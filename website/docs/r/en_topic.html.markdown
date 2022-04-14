@@ -10,17 +10,17 @@ description: |-
 
 Create, update, or delete a topic by using IBM Cloud™ Event Notifications.
 
-## Example Usage
+## Example usage
 
-```hcl
+```terraform
 resource "ibm_en_topic" "en_topic" {
-  instance_guid = "instance_guid"
-  name = "name"
-  description = "description"
+  instance_guid = ibm_resource_instance.en_terraform_test_resource.guid
+  name = "e2e topic"
+  description = "Topic for EN events routing"
 }
 ```
 
-## Argument Reference
+## Argument reference
 
 Review the argument reference that you can specify for your resource.
 
@@ -44,7 +44,7 @@ Review the argument reference that you can specify for your resource.
 
   - `notification_filter` - (Optional, String) Notification filter. The minimum length is`0`characters. The value must match regular expression`/[a-zA-Z 0-9-_$.=']-/`.
 
-## Attribute Reference
+## Attribute reference
 
 In addition to all argument references listed, you can access the following attribute references after your resource is created.
 

@@ -10,16 +10,16 @@ description: |-
 
 Provides a read-only data source for subscription. You can then reference the fields of the data source in other resources within the same configuration using interpolation syntax.
 
-## Example Usage
+## Example usage
 
-```hcl
+```terraform
 data "ibm_en_subscription" "en_subscription" {
-  instance_guid = "instance_guid"
-  subscription_id = "subscription_id"
+  instance_guid = ibm_resource_instance.en_terraform_test_resource.guid
+  subscription_id = ibm_en_subscription.subscriptionemailnew.subscription_id
 }
 ```
 
-## Argument Reference
+## Argument reference
 
 Review the argument reference that you can specify for your data source.
 
@@ -27,7 +27,7 @@ Review the argument reference that you can specify for your data source.
 
 - `subscription_id` - (Required, String) Unique identifier for Subscription.
 
-## Attribute Reference
+## Attribute reference
 
 In addition to all argument references listed, you can access the following attribute references after your data source is created.
 
@@ -53,12 +53,18 @@ In addition to all argument references listed, you can access the following attr
 
   - `add_notification_payload` - (Boolean) Whether to add the notification payload to the email.
 
-  - `recipient_selection` - (String) The recipient selection method.
-
-  - `reply_to` - (String) The email address to reply to.
-
   - `signing_enabled`- (Boolean) Signing webhook attributes.
 
-  - `to`- (List) The phone number to send the SMS to.
+  - `signing_enabled` - (Optional, Boolean) Signing enabled.
+ 
+  - `additional_properties` - (Required, List) it will be displayed only in case of smtp_ibm destination type
+    - `reply_to` - (String) The email address to reply to.
+
+    - `reply_to_name` - (String) The Email User Name to reply to.
+
+    - `from_name` - (String) The email address user from which email is addressed.
+
+    - `to` - (List) The phone number to send the SMS to.
+- `additionalproperties` - (List) it will be displayed only in case of sms_ibm destination type  
 
 - `updated_at` - (String) Last updated time.

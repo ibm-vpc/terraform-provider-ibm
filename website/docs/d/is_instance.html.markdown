@@ -9,50 +9,70 @@ description: |-
 # ibm_is_instance
 Retrieve information of an existing IBM Cloud virtual server instance  as a read-only data source. For more information, about managing VPC instance, see [about virtual server instances for VPC](https://cloud.ibm.com/docs/vpc?topic=vpc-about-advanced-virtual-servers).
 
+**Note:** 
+VPC infrastructure services are a regional specific based endpoint, by default targets to `us-south`. Please make sure to target right region in the provider block as shown in the `provider.tf` file, if VPC service is created in region other than `us-south`.
+
+**provider.tf**
+
+```terraform
+provider "ibm" {
+  region = "eu-gb"
+}
+```
+
 ## Example usage
 
 ```terraform
-resource "ibm_is_vpc" "testacc_vpc" {
-  name = "testvpc"
+resource "ibm_is_vpc" "example" {
+  name = "example-vpc"
 }
 
-resource "ibm_is_subnet" "testacc_subnet" {
-  name            = "testsubnet"
-  vpc             = ibm_is_vpc.testacc_vpc.id
+resource "ibm_is_subnet" "example" {
+  name            = "example-subnet"
+  vpc             = ibm_is_vpc.example.id
   zone            = "us-south-1"
   ipv4_cidr_block = "10.240.0.0/24"
 }
 
-resource "ibm_is_ssh_key" "testacc_sshkey" {
-  name       = "testssh"
+resource "ibm_is_ssh_key" "example" {
+  name       = "example-ssh"
   public_key = file("~/.ssh/id_rsa.pub")
 }
 
-resource "ibm_is_instance" "testacc_instance" {
-  name    = "testinstance"
-  image   = "a7a0626c-f97e-4180-afbe-0331ec62f32a"
-  profile = "bc1-2x8"
+resource "ibm_is_image" "example" {
+  name               = "example-image"
+  href               = "cos://us-south/buckettesttest/livecd.ubuntu-cpc.azure.vhd"
+  operating_system   = "ubuntu-16-04-amd64"
+  encrypted_data_key = "eJxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx0="
+  encryption_key     = "crn:v1:bluemix:public:kms:us-south:a/6xxxxxxxxxxxxxxx:xxxxxxx-xxxx-xxxx-xxxxxxx:key:dxxxxxx-fxxx-4xxx-9xxx-7xxxxxxxx"
 
+}
+
+resource "ibm_is_instance" "example" {
+  name    = "example-instance"
+  image   = ibm_is_image.example.id
+  profile = "bc1-2x8"
+  metadata_service_enabled  = false
+  
   primary_network_interface {
-    subnet = ibm_is_subnet.testacc_subnet.id
+    subnet = ibm_is_subnet.example.id
   }
 
   network_interfaces {
     name   = "eth1"
-    subnet = ibm_is_subnet.testacc_subnet.id
+    subnet = ibm_is_subnet.example.id
   }
 
-  vpc  = ibm_is_vpc.testacc_vpc.id
+  vpc  = ibm_is_vpc.example.id
   zone = "us-south-1"
-  keys = [ibm_is_ssh_key.testacc_sshkey.id]
+  keys = [ibm_is_ssh_key.example.id]
 }
 
-data "ibm_is_instance" "ds_instance" {
-  name        = "${ibm_is_instance.testacc_instance.name}"
+data "ibm_is_instance" "example" {
+  name        = ibm_is_instance.example.name
   private_key = file("~/.ssh/id_rsa")
   passphrase  = ""
 }
-
 ```
 
 ## Argument reference
@@ -64,7 +84,7 @@ Review the argument references that you can specify for your data source.
 
 ## Attribute reference
 In addition to all argument reference list, you can access the following attribute references after your data source is created. 
-
+- `availability_policy_host_failure` - (String) The availability policy for this virtual server instance. The action to perform if the compute host experiences a failure. 
 - `bandwidth` - (Integer) The total bandwidth (in megabits per second) shared across the instance's network interfaces and storage volumes
 - `boot_volume` - (List of Objects) A list of boot volumes that were created for the instance.
 
@@ -100,12 +120,21 @@ In addition to all argument reference list, you can access the following attribu
   - `id` - (String) The ID of the SSH key.
   - `name` - (String) The name of the SSH key that you entered when you uploaded the key to IBM Cloud.
 - `memory`- (Integer) The amount of memory that was allocated to the instance.
+- `metadata_service_enabled` - (Boolean) Indicates whether the metadata service endpoint is available to the virtual server instance.
 - `network_interfaces`- (List) A list of more network interfaces that the instance uses.
 
   Nested scheme for `network_interfaces`:
   - `id` - (String) The ID of the more network interface.
   - `name` - (String) The name of the more network interface.
-  - `primary_ipv4_address` - (String) The IPv4 address range that the subnet uses.
+  - `primary_ip` - (List) The primary IP address to bind to the network interface. This can be specified using an existing reserved IP, or a prototype object for a new reserved IP.
+
+      Nested scheme for `primary_ip`:
+      - `address` - (String) The IP address. If the address has not yet been selected, the value will be 0.0.0.0. This property may add support for IPv6 addresses in the future. When processing a value in this property, verify that the address is in an expected format. If it is not, log an error. Optionally halt processing and surface the error, or bypass the resource on which the unexpected IP address format was encountered.
+      - `href`- (String) The URL for this reserved IP
+      - `name`- (String) The user-defined or system-provided name for this reserved IP
+      - `reserved_ip`- (String) The unique identifier for this reserved IP
+      - `resource_type`- (String) The resource type.
+  - `primary_ipv4_address` - (String) The IPv4 address range that the subnet uses. Same as `primary_ip.0.address`
   - `subnet` - (String) The ID of the subnet that is used in the more network interface.
   - `security_groups` (List)A list of security groups that were created for the interface.
 - `password` - (String) The password that you can use to access your instance.
@@ -124,7 +153,15 @@ In addition to all argument reference list, you can access the following attribu
   Nested scheme for `primary_network_interface`:
   - `id` - (String) The ID of the primary network interface.
   - `name` - (String) The name of the primary network interface.
-  - `primary_ipv4_address` - (String) The IPv4 address range that the subnet uses.
+  - `primary_ip` - (List) The primary IP address to bind to the network interface. This can be specified using an existing reserved IP, or a prototype object for a new reserved IP.
+  
+      Nested scheme for `primary_ip`:
+      - `address` - (String) The IP address. If the address has not yet been selected, the value will be 0.0.0.0. This property may add support for IPv6 addresses in the future. When processing a value in this property, verify that the address is in an expected format. If it is not, log an error. Optionally halt processing and surface the error, or bypass the resource on which the unexpected IP address format was encountered.
+      - `href`- (String) The URL for this reserved IP
+      - `name`- (String) The user-defined or system-provided name for this reserved IP
+      - `reserved_ip`- (String) The unique identifier for this reserved IP
+      - `resource_type`- (String) The resource type.
+  - `primary_ipv4_address` - (String) The IPv4 address range that the subnet uses. Same as `primary_ip.0.address`
   - `subnet` - (String) The ID of the subnet that is used in the primary network interface.
   - `security_groups` (List)A list of security groups that were created for the interface.
 - `resource_controller_url` - (String) The URL of the IBM Cloud dashboard that you can use to see details for your instance.  

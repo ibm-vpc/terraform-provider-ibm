@@ -10,15 +10,16 @@ description: |-
 
 Provides a read-only data source for scc_account_location_settings. You can then reference the fields of the data source in other resources within the same configuration using interpolation syntax.
 
-## Example Usage
+~> **NOTE**: exporting out the environmental variable `IBM_CLOUD_SCC_ADMIN_API_ENDPOINT` will help out if the account fails to resolve.
+## Example usage
 
-```hcl
+```terraform
 data "ibm_scc_account_settings" "scc_account_location_settings" {
 }
 ```
 
 
-## Attribute Reference
+## Attribute reference
 
 In addition to all argument references listed, you can access the following attribute references after your data source is created.
 

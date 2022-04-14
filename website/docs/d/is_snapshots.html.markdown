@@ -9,15 +9,35 @@ description: |-
 
 Import the details of an existing IBM Cloud infrastructure snapshot collection as a read-only data source. You can then reference the fields of the data source in other resources within the same configuration using interpolation syntax, see [viewing snapshots](https://cloud.ibm.com/docs/vpc?topic=vpc-snapshots-vpc-view).
 
+**Note:** 
+VPC infrastructure services are a regional specific based endpoint, by default targets to `us-south`. Please make sure to target right region in the provider block as shown in the `provider.tf` file, if VPC service is created in region other than `us-south`.
+
+**provider.tf**
+
+```terraform
+provider "ibm" {
+  region = "eu-gb"
+}
+```
+
 
 ## Example usage
 
 ```terraform
 
-data "ibm_is_snapshots" "ds_snapshots" {
+data "ibm_is_snapshots" "example" {
 }
 
 ```
+
+## Argument reference
+Review the argument references that you can specify for your data source. 
+
+- `name` - (Optional, String) Filter snapshot collection by name of the snapshot.
+- `resource_group` - (Optional, String) Filter snapshot collection by resource group id of the snapshot.
+- `source_image` - (Optional, String) Filter snapshot collection by source image of the snapshot.
+- `source_volume` - (Optional, String) Filter snapshot collection by source volume of the snapshot.
+
 
 ## Attribute reference
 In addition to all argument reference list, you can access the following attribute references after your data source is created.
@@ -37,4 +57,5 @@ In addition to all argument reference list, you can access the following attribu
   - `resource_type` - (String) The resource type.
   - `size` - (Integer) The size of this snapshot rounded up to the next gigabyte.
   - `source_image` - (String) If present, the unique identifier for the image from which the data on this volume was most directly provisioned.
+  - `captured_at` - (String) The date and time that this snapshot was captured.
 

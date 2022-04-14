@@ -8,18 +8,24 @@ description: |-
 
 # ibm_is_instance_network_interface
 
-Provides a resource for NetworkInterface. This allows NetworkInterface to be created, updated and deleted.
+Create, update, or delete an instance network interface on VPC. For more information, about instance network interface, see [managing an network interface](https://cloud.ibm.com/docs/vpc?topic=vpc-using-instance-vnics).
 
-~> **Note**
-  - IBM Cloud terraform provider currently provides both a standalone `ibm_is_instance_network_interface` resource and a `network_interfaces` block defined in-line in the `ibm_is_instance` resource. At this time you cannot use the `network_interfaces` block inline with `ibm_is_instance` in conjunction with the standalone resource `ibm_is_instance_network_interface`. Doing so will create a conflict of network interfaces and will overwrite it.
+**Note:**
+- IBM Cloud terraform provider currently provides both a standalone `ibm_is_instance_network_interface` resource and a `network_interfaces` block defined in-line in the `ibm_is_instance` resource. At this time you cannot use the `network_interfaces` block inline with `ibm_is_instance` in conjunction with the standalone resource `ibm_is_instance_network_interface`. Doing so will create a conflict of network interfaces and will overwrite it.
+- IBM Cloud terraform provider currently provides both a standalone `ibm_is_security_group_target` resource and a `security_groups` block defined in-line in the `ibm_is_instance_network_interface` resource to attach security group to a network interface target. At this time you cannot use the `security_groups` block inline with `ibm_is_instance_network_interface` in conjunction with the standalone resource `ibm_is_security_group_target`. Doing so will create a conflict of security groups attaching to the network interface and will overwrite it.
+- VPC infrastructure services are a regional specific based endpoint, by default targets to `us-south`. Please make sure to target right region in the provider block as shown in the `provider.tf` file, if VPC service is created in region other than `us-south`.
 
-~> **Note**
-  - IBM Cloud terraform provider currently provides both a standalone `ibm_is_security_group_target` resource and a `security_groups` block defined in-line in the `ibm_is_instance_network_interface` resource to attach security group to a network interface target. At this time you cannot use the `security_groups` block inline with `ibm_is_instance_network_interface` in conjunction with the standalone resource `ibm_is_security_group_target`. Doing so will create a conflict of security groups attaching to the network interface and will overwrite it.
+  **provider.tf**
 
+  ```terraform
+  provider "ibm" {
+    region = "eu-gb"
+  }
+  ```
 
-## Example Usage
+## Example usage
 
-```hcl
+```terraform
 
 resource "ibm_is_vpc" "example" {
   name = "example-vpc"
@@ -65,7 +71,7 @@ resource "ibm_is_instance_network_interface" "example" {
 }
 ```
 
-## Argument Reference
+## Argument reference
 
 The following arguments are supported:
 
@@ -73,6 +79,12 @@ The following arguments are supported:
 - `floating_ip` - (Optional, String) The ID of the floating IP to attach to this network interface.
 - `instance` - (Required, Forces new resource, String) The instance identifier.
 - `name` - (Required, String) The user-defined name for this network interface.
+- `primary_ip` - (Optional, List) The primary IP address to bind to the network interface. This can be specified using an existing reserved IP, or a prototype object for a new reserved IP.
+    Nested scheme for `primary_ip`:
+    - `auto_delete` - (Optional, Bool) Indicates whether this reserved IP member will be automatically deleted when either target is deleted, or the reserved IP is unbound.
+    - `address` - (Optional, String) The IP address. If the address has not yet been selected, the value will be 0.0.0.0. This property may add support for IPv6 addresses in the future. When processing a value in this property, verify that the address is in an expected format. If it is not, log an error. Optionally halt processing and surface the error, or bypass the resource on which the unexpected IP address format was encountered.
+    - `name`- (Optional, String) The user-defined or system-provided name for this reserved IP
+    - `reserved_ip`- (Optional, String) The unique identifier for this reserved IP
 - `primary_ipv4_address` - (Optional, Forces new resource, String) The primary IPv4 address. If specified, it must be an available address on the network interface's subnet. If unspecified, an available address on the subnet will be automatically selected.
 - `security_groups` - (Optional, List of strings) A comma separated list of security groups to add to the primary network interface.
 - `subnet` - (Required, Forces new resource, String) The unique identifier of the associated subnet.
@@ -85,7 +97,7 @@ The following arguments are supported:
 ~> **Note**
   - Using `ibm_is_security_group_target` to attach security groups to the network interface along with `security_groups` field in this resource could cause undesired behavior. Use either one of them to associate network interface to a security group.
 
-## Attribute Reference
+## Attribute reference
 
 In addition to all arguments above, the following attributes are exported:
 

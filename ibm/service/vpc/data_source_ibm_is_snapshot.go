@@ -1,0 +1,240 @@
+// Copyright IBM Corp. 2017, 2021 All Rights Reserved.
+// Licensed under the Mozilla Public License v2.0
+
+package vpc
+
+import (
+	"fmt"
+
+	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/validate"
+	"github.com/IBM/vpc-go-sdk/vpcv1"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+)
+
+func DataSourceSnapshot() *schema.Resource {
+	return &schema.Resource{
+		Read: dataSourceIBMISSnapshotRead,
+
+		Schema: map[string]*schema.Schema{
+			"identifier": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ExactlyOneOf: []string{isSnapshotName, "identifier"},
+				Description:  "Snapshot identifier",
+				ValidateFunc: validate.InvokeDataSourceValidator("ibm_is_snapshot", "identifier"),
+			},
+
+			isSnapshotName: {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ExactlyOneOf: []string{isSnapshotName, "identifier"},
+				ValidateFunc: validate.InvokeDataSourceValidator("ibm_is_snapshot", isSnapshotName),
+				Description:  "Snapshot name",
+			},
+
+			isSnapshotResourceGroup: {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Resource group info",
+			},
+
+			isSnapshotSourceVolume: {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Snapshot source volume id",
+			},
+			isSnapshotSourceImage: {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "If present, the image id from which the data on this volume was most directly provisioned.",
+			},
+
+			isSnapshotOperatingSystem: {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The globally unique name for the operating system included in this image",
+			},
+
+			isSnapshotBootable: {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: "Indicates if a boot volume attachment can be created with a volume created from this snapshot",
+			},
+
+			isSnapshotLCState: {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Snapshot lifecycle state",
+			},
+			isSnapshotCRN: {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The crn of the resource",
+			},
+			isSnapshotEncryption: {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Encryption type of the snapshot",
+			},
+			isSnapshotHref: {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "URL for the snapshot",
+			},
+
+			isSnapshotMinCapacity: {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: "Minimum capacity of the snapshot",
+			},
+			isSnapshotResourceType: {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The resource type of the snapshot",
+			},
+
+			isSnapshotSize: {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: "The size of the snapshot",
+			},
+			isSnapshotClones: {
+				Type:        schema.TypeSet,
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
+				Description: "Zones for creating the snapshot clone",
+			},
+			isSnapshotCapturedAt: {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The date and time that this snapshot was created",
+			},
+		},
+	}
+}
+
+func DataSourceIBMISSnapshotValidator() *validate.ResourceValidator {
+	validateSchema := make([]validate.ValidateSchema, 0)
+	validateSchema = append(validateSchema,
+		validate.ValidateSchema{
+			Identifier:                 "identifier",
+			ValidateFunctionIdentifier: validate.ValidateNoZeroValues,
+			Type:                       validate.TypeString})
+
+	validateSchema = append(validateSchema,
+		validate.ValidateSchema{
+			Identifier:                 isSnapshotName,
+			ValidateFunctionIdentifier: validate.ValidateNoZeroValues,
+			Type:                       validate.TypeString})
+
+	ibmISSnapshotDataSourceValidator := validate.ResourceValidator{ResourceName: "ibm_is_snapshot", Schema: validateSchema}
+	return &ibmISSnapshotDataSourceValidator
+}
+
+func dataSourceIBMISSnapshotRead(d *schema.ResourceData, meta interface{}) error {
+	name := d.Get(isSnapshotName).(string)
+	id := d.Get("identifier").(string)
+	err := snapshotGetByNameOrID(d, meta, name, id)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func snapshotGetByNameOrID(d *schema.ResourceData, meta interface{}, name, id string) error {
+	sess, err := vpcClient(meta)
+	if err != nil {
+		return err
+	}
+	if name != "" {
+		listSnapshotOptions := &vpcv1.ListSnapshotsOptions{
+			Name: &name,
+		}
+
+		snapshots, response, err := sess.ListSnapshots(listSnapshotOptions)
+		if err != nil {
+			return fmt.Errorf("[ERROR] Error Fetching snapshots %s\n%s", err, response)
+		}
+		allrecs := snapshots.Snapshots
+
+		if len(allrecs) == 0 {
+			return fmt.Errorf("[ERROR] No snapshot found with name %s", name)
+		}
+		snapshot := allrecs[0]
+		d.SetId(*snapshot.ID)
+		d.Set(isSnapshotName, *snapshot.Name)
+		d.Set(isSnapshotHref, *snapshot.Href)
+		d.Set(isSnapshotCRN, *snapshot.CRN)
+		d.Set(isSnapshotMinCapacity, *snapshot.MinimumCapacity)
+		d.Set(isSnapshotSize, *snapshot.Size)
+		d.Set(isSnapshotEncryption, *snapshot.Encryption)
+		d.Set(isSnapshotLCState, *snapshot.LifecycleState)
+		d.Set(isSnapshotResourceType, *snapshot.ResourceType)
+		d.Set(isSnapshotBootable, *snapshot.Bootable)
+		if snapshot.CapturedAt != nil {
+			d.Set(isSnapshotCapturedAt, (*snapshot.CapturedAt).String())
+		}
+		if snapshot.ResourceGroup != nil && snapshot.ResourceGroup.ID != nil {
+			d.Set(isSnapshotResourceGroup, *snapshot.ResourceGroup.ID)
+		}
+		if snapshot.SourceVolume != nil && snapshot.SourceVolume.ID != nil {
+			d.Set(isSnapshotSourceVolume, *snapshot.SourceVolume.ID)
+		}
+		if snapshot.SourceImage != nil && snapshot.SourceImage.ID != nil {
+			d.Set(isSnapshotSourceImage, *snapshot.SourceImage.ID)
+		}
+		if snapshot.OperatingSystem != nil && snapshot.OperatingSystem.Name != nil {
+			d.Set(isSnapshotOperatingSystem, *snapshot.OperatingSystem.Name)
+		}
+		return nil
+	} else {
+		getSnapshotOptions := &vpcv1.GetSnapshotOptions{
+			ID: &id,
+		}
+		snapshot, response, err := sess.GetSnapshot(getSnapshotOptions)
+		if err != nil {
+			return fmt.Errorf("[ERROR] Error fetching snapshot %s\n%s", err, response)
+		}
+		if (response != nil && response.StatusCode == 404) || snapshot == nil {
+			return fmt.Errorf("[ERROR] No snapshot found with id %s", id)
+		}
+		d.SetId(*snapshot.ID)
+		d.Set(isSnapshotName, *snapshot.Name)
+		d.Set(isSnapshotHref, *snapshot.Href)
+		d.Set(isSnapshotCRN, *snapshot.CRN)
+		d.Set(isSnapshotMinCapacity, *snapshot.MinimumCapacity)
+		d.Set(isSnapshotSize, *snapshot.Size)
+		d.Set(isSnapshotEncryption, *snapshot.Encryption)
+		d.Set(isSnapshotLCState, *snapshot.LifecycleState)
+		d.Set(isSnapshotResourceType, *snapshot.ResourceType)
+		d.Set(isSnapshotBootable, *snapshot.Bootable)
+		if snapshot.CapturedAt != nil {
+			d.Set(isSnapshotCapturedAt, (*snapshot.CapturedAt).String())
+		}
+		if snapshot.ResourceGroup != nil && snapshot.ResourceGroup.ID != nil {
+			d.Set(isSnapshotResourceGroup, *snapshot.ResourceGroup.ID)
+		}
+		if snapshot.SourceVolume != nil && snapshot.SourceVolume.ID != nil {
+			d.Set(isSnapshotSourceVolume, *snapshot.SourceVolume.ID)
+		}
+		if snapshot.SourceImage != nil && snapshot.SourceImage.ID != nil {
+			d.Set(isSnapshotSourceImage, *snapshot.SourceImage.ID)
+		}
+		if snapshot.OperatingSystem != nil && snapshot.OperatingSystem.Name != nil {
+			d.Set(isSnapshotOperatingSystem, *snapshot.OperatingSystem.Name)
+		}
+		var clones []string
+		clones = make([]string, 0)
+		if snapshot.Clones != nil {
+			for _, clone := range snapshot.Clones {
+				if clone.Zone != nil {
+					clones = append(clones, *clone.Zone.Name)
+				}
+			}
+		}
+		d.Set(isSnapshotClones, newStringSet(schema.HashString, clones))
+
+		return nil
+	}
+}

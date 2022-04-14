@@ -8,8 +8,18 @@ description: |-
 ---
 
 # ibm_is_instance_network_interfaces
+Retrieve information of an exisitng network interfaces collection. For more information, about instance network interfaces collection, see [managing an network interfaces](https://cloud.ibm.com/docs/vpc?topic=vpc-using-instance-vnics).
 
-Retrieve information about a network interface collection. For more information, about network interace collection, see [Network interface configurations](https://cloud.ibm.com/docs/vpc?topic=vpc-managing-nic-for-bare-metal-servers#nic-configs).
+**Note:** 
+VPC infrastructure services are a regional specific based endpoint, by default targets to `us-south`. Please make sure to target right region in the provider block as shown in the `provider.tf` file, if VPC service is created in region other than `us-south`.
+
+**provider.tf**
+
+```terraform
+provider "ibm" {
+  region = "eu-gb"
+}
+```
 
 ## Example usage
 
@@ -60,7 +70,7 @@ Review the argument reference that you can specify for your data source.
 
 - `instance_name` - (Required, string) The name of an instance.
 
-## Attribute Reference
+## Attribute reference
 
 In addition to all argument references listed, you can access the following attribute references after your data source is created.
 
@@ -83,7 +93,15 @@ In addition to all argument references listed, you can access the following attr
 	- `id` - (String) The unique identifier for this network interface.
 	- `name` - (String) The user-defined name for this network interface.
 	- `port_speed` - (Integer) The network interface port speed in Mbps.
-	- `primary_ipv4_address` - (String) The primary IPv4 address.
+	- `primary_ip` - (List) The primary IP address to bind to the network interface. This can be specified using an existing reserved IP, or a prototype object for a new reserved IP.
+
+		Nested scheme for `primary_ip`:
+		- `address` - (String) The IP address. If the address has not yet been selected, the value will be 0.0.0.0. This property may add support for IPv6 addresses in the future. When processing a value in this property, verify that the address is in an expected format. If it is not, log an error. Optionally halt processing and surface the error, or bypass the resource on which the unexpected IP address format was encountered.
+		- `href`- (String) The URL for this reserved IP
+		- `name`- (String) The user-defined or system-provided name for this reserved IP
+		- `reserved_ip`- (String) The unique identifier for this reserved IP
+		- `resource_type`- (String) The resource type.
+	- `primary_ipv4_address` - (String) The primary IPv4 address. Same as `primary_ip.0.address`
 	- `resource_type` - (String) The resource type.
 	- `security_groups` - (List) Collection of security groups. 
 	

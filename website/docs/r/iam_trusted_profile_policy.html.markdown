@@ -16,14 +16,19 @@ Create, update, or delete an IAM trusted profile policy. For more information, a
 ### Trusted Profile Policy for all Identity and Access enabled services 
 
 ```terraform
-resource "ibm_iam_trusted_profile" "profileID" {
+resource "ibm_iam_trusted_profile" "profile_id" {
   name = "test"
 }
 
 resource "ibm_iam_trusted_profile_policy" "policy" {
-  profile_id  = ibm_iam_trusted_profile.profileID.id
+  profile_id  = ibm_iam_trusted_profile.profile_id.id
   roles       = ["Viewer"]
   description = "IAM Trusted Profile Policy"
+  
+  resource_tags {
+    name = "env"
+    value = "dev"
+  }
 }
 
 ```
@@ -31,16 +36,17 @@ resource "ibm_iam_trusted_profile_policy" "policy" {
 ### Trusted Profile Policy using service with region
 
 ```terraform
-resource "ibm_iam_trusted_profile" "profileID" {
+resource "ibm_iam_trusted_profile" "profile_id" {
   name = "test"
 }
 
 resource "ibm_iam_trusted_profile_policy" "policy" {
-  profile_id = ibm_iam_trusted_profile.profileID.id
-  roles      = ["Viewer"]
+  profile_id = ibm_iam_trusted_profile.profile_id.id
+  roles      = ["Viewer", "Manager"]
 
   resources {
-    service = "cloud-object-storage"
+    service = "cloudantnosqldb"
+    region  = "us-south"
   }
 }
 
@@ -48,7 +54,7 @@ resource "ibm_iam_trusted_profile_policy" "policy" {
 ### Trusted Profile Policy by using resource instance 
 
 ```terraform
-resource "ibm_iam_trusted_profile" "profileID" {
+resource "ibm_iam_trusted_profile" "profile_id" {
   name = "test"
 }
 
@@ -60,7 +66,7 @@ resource "ibm_resource_instance" "instance" {
 }
 
 resource "ibm_iam_trusted_profile_policy" "policy" {
-  profile_id = ibm_iam_trusted_profile.profileID.id
+  profile_id = ibm_iam_trusted_profile.profile_id.id
   roles      = ["Manager", "Viewer", "Administrator"]
 
   resources {
@@ -74,7 +80,7 @@ resource "ibm_iam_trusted_profile_policy" "policy" {
 ### Trusted Profile Policy by using resource group 
 
 ```terraform
-resource "ibm_iam_trusted_profile" "profileID" {
+resource "ibm_iam_trusted_profile" "profile_id" {
   name = "test"
 }
 
@@ -83,7 +89,7 @@ data "ibm_resource_group" "group" {
 }
 
 resource "ibm_iam_trusted_profile_policy" "policy" {
-  profile_id = ibm_iam_trusted_profile.profileID.id
+  profile_id = ibm_iam_trusted_profile.profile_id.id
   roles      = ["Viewer"]
 
   resources {
@@ -97,7 +103,7 @@ resource "ibm_iam_trusted_profile_policy" "policy" {
 ### Trusted Profile Policy by using resource and resource type 
 
 ```terraform
-resource "ibm_iam_trusted_profile" "profileID" {
+resource "ibm_iam_trusted_profile" "profile_id" {
   name = "test"
 }
 
@@ -106,7 +112,7 @@ data "ibm_resource_group" "group" {
 }
 
 resource "ibm_iam_trusted_profile_policy" "policy" {
-  profile_id = ibm_iam_trusted_profile.profileID.id
+  profile_id = ibm_iam_trusted_profile.profile_id.id
   roles      = ["Administrator"]
 
   resources {
@@ -120,7 +126,7 @@ resource "ibm_iam_trusted_profile_policy" "policy" {
 ### Trusted Profile Policy by using attributes 
 
 ```terraform
-resource "ibm_iam_trusted_profile" "profileID" {
+resource "ibm_iam_trusted_profile" "profile_id" {
   name = "test"
 }
 
@@ -129,7 +135,7 @@ data "ibm_resource_group" "group" {
 }
 
 resource "ibm_iam_trusted_profile_policy" "policy" {
-  profile_id = ibm_iam_trusted_profile.profileID.id
+  profile_id = ibm_iam_trusted_profile.profile_id.id
   roles      = ["Administrator"]
 
   resources {
@@ -146,11 +152,11 @@ resource "ibm_iam_trusted_profile_policy" "policy" {
 ### Trusted Profile Policy by using resource_attributes
 
 ```terraform
-resource "ibm_iam_trusted_profile" "profileID" {
+resource "ibm_iam_trusted_profile" "profile_id" {
   name = "test"
 }
 resource "ibm_iam_trusted_profile_policy" "policy" {
-  profile_id = ibm_iam_trusted_profile.profileID.id
+  profile_id = ibm_iam_trusted_profile.profile_id.id
   roles      = ["Viewer"]
   resource_attributes {
     name     = "resource"
@@ -163,16 +169,35 @@ resource "ibm_iam_trusted_profile_policy" "policy" {
   }
 }
 ```
+### Trusted Profile Policy by using resource_attributes (serviceName,serviceInstance)
+```terraform
+resource "ibm_iam_trusted_profile" "profile_id" {
+  name = "test"
+}
+resource "ibm_iam_trusted_profile_policy" "policy" {
+  profile_id = ibm_iam_trusted_profile.profile_id.id
+  roles      = ["Viewer"]
 
+  resource_attributes {
+    name  = "serviceName"
+    value = "databases-for-redis"
+  }
+
+  resource_attributes {
+    name  = "serviceInstance"
+    value = var.redis_guid
+  }
+}
+```
 ### Trusted Profile Policy using service_type with region
 
 ```terraform
-resource "ibm_iam_trusted_profile" "profileID" {
+resource "ibm_iam_trusted_profile" "profile_id" {
   name = "test"
 }
 
 resource "ibm_iam_trusted_profile_policy" "policy" {
-  profile_id = ibm_iam_trusted_profile.profileID.id
+  profile_id = ibm_iam_trusted_profile.profile_id.id
   roles      = ["Viewer"]
 
   resources {
@@ -208,7 +233,13 @@ Review the argument references that you can specify for your resource.
   - `value` - (Required, String) The value of an attribute.
   - `operator` - (Optional, String) Operator of an attribute. The default value is `stringEquals`. **Note** Conflicts with `account_management` and `resources`.
 - `roles` - (Required, List) A comma separated list of roles. Valid roles are `Writer`, `Reader`, `Manager`, `Administrator`, `Operator`, `Viewer`, and `Editor`. For more information, about supported service specific roles, see  [IAM roles and actions](https://cloud.ibm.com/docs/account?topic=account-iam-service-roles-actions)
-- `tags`  - (Optional, List of Strings) A list of tags with the trusted profile policy instance. **Note** Tags are managed locally and not stored in the IBM Cloud service endpoint at this moment.
+
+- `resource_tags`  (Optional, List)  A nested block describing the access management tags.  **Note** `resource_tags` are only allowed in policy with resource attribute serviceType, where value is equal to service.
+  
+  Nested scheme for `resource_tags`:
+  - `name` - (Required, String) The key of an access management tag. 
+  - `value` - (Required, String) The value of an access management tag.
+  - `operator` - (Optional, String) Operator of an attribute. The default value is `stringEquals`.
 
 ## Attribute reference
 In addition to all argument reference list, you can access the following attribute reference after your resource is created.
