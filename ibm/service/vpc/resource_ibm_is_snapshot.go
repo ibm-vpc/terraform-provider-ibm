@@ -153,9 +153,8 @@ func ResourceIBMSnapshot() *schema.Resource {
 			},
 
 			isSnapshotUserTags: {
-				Type:     schema.TypeSet,
-				Optional: true,
-				// Computed:    true,
+				Type:        schema.TypeSet,
+				Optional:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString, ValidateFunc: validate.InvokeValidator("ibm_is_snapshot", isSnapshotUserTags)},
 				Set:         flex.ResourceIBMVPCHash,
 				Description: "User Tags for the snapshot",

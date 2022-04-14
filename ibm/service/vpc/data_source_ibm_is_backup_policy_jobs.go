@@ -40,6 +40,11 @@ func DataSourceIBMIsBackupPolicyJobs() *schema.Resource {
 				Description: "Filters the collection to resources with the target snapshot with the specified CRN",
 				Optional:    true,
 			},
+			"status": {
+				Type:        schema.TypeString,
+				Description: "Filters the collection to backup policy jobs with the specified status",
+				Optional:    true,
+			},
 			"jobs": &schema.Schema{
 				Type:        schema.TypeList,
 				Computed:    true,
@@ -268,6 +273,7 @@ func dataSourceIBMIsBackupPolicyJobsRead(context context.Context, d *schema.Reso
 	listBackupPolicyJobsOptions.SetSourceVolumeID(d.Get("source_volume_id").(string))
 	listBackupPolicyJobsOptions.SetTargetSnapshotID(d.Get("target_snapshot_id").(string))
 	listBackupPolicyJobsOptions.SetTargetSnapshotCRN(d.Get("target_snapshot_crn").(string))
+	listBackupPolicyJobsOptions.SetStatus(d.Get("status").(string))
 
 	backupPolicyJobCollection, response, err := vpcClient.ListBackupPolicyJobsWithContext(context, listBackupPolicyJobsOptions)
 	if err != nil {

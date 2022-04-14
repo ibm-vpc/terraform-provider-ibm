@@ -7,6 +7,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"strconv"
 
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/validate"
@@ -76,7 +77,7 @@ func ResourceIBMIsBackupPolicyPlan() *schema.Resource {
 							Description: "The maximum number of days to keep each backup after creation.",
 						},
 						"delete_over_count": &schema.Schema{
-							Type:        schema.TypeInt,
+							Type:        schema.TypeString,
 							Optional:    true,
 							Computed:    true,
 							Description: "The maximum number of recent backups to keep. If unspecified, there will be no maximum.",
@@ -86,7 +87,7 @@ func ResourceIBMIsBackupPolicyPlan() *schema.Resource {
 			},
 			"name": &schema.Schema{
 				Type:         schema.TypeString,
-				Required:     true,
+				Optional:     true,
 				ValidateFunc: validate.InvokeValidator("ibm_is_backup_policy_plan", "name"),
 				Description:  "The user-defined name for this backup policy plan. Names must be unique within the backup policy this plan resides in. If unspecified, the name will be a hyphenated list of randomly-selected words.",
 			},
@@ -111,8 +112,9 @@ func ResourceIBMIsBackupPolicyPlan() *schema.Resource {
 				Description: "The resource type.",
 			},
 			"version": &schema.Schema{
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Version of the BackupPolicyPlan.",
 			},
 		},
 	}
@@ -165,8 +167,29 @@ func resourceIBMIsBackupPolicyPlanCreate(context context.Context, d *schema.Reso
 		createBackupPolicyPlanOptions.SetCopyUserTags(d.Get("copy_user_tags").(bool))
 	}
 	if _, ok := d.GetOk("deletion_trigger"); ok {
-		deletionTrigger := resourceIBMIsBackupPolicyPlanMapToBackupPolicyPlanDeletionTriggerPrototype(d.Get("deletion_trigger.0").(map[string]interface{}))
-		createBackupPolicyPlanOptions.SetDeletionTrigger(&deletionTrigger)
+		// deletionTrigger := resourceIBMIsBackupPolicyPlanMapToBackupPolicyPlanDeletionTriggerPrototype(d.Get("deletion_trigger.0").(map[string]interface{}))
+		backupPolicyPlanDeletionTriggerPrototypeMap := d.Get("deletion_trigger.0").(map[string]interface{})
+		backupPolicyPlanDeletionTriggerPrototype := vpcv1.BackupPolicyPlanDeletionTriggerPrototype{}
+
+		if backupPolicyPlanDeletionTriggerPrototypeMap["delete_after"] != nil {
+			backupPolicyPlanDeletionTriggerPrototype.DeleteAfter = core.Int64Ptr(int64(backupPolicyPlanDeletionTriggerPrototypeMap["delete_after"].(int)))
+		}
+		log.Println("backupPolicyPlanDeletionTriggerPrototypeMap[delete_over_count] Inside")
+		log.Println(backupPolicyPlanDeletionTriggerPrototypeMap["delete_over_count"])
+		if backupPolicyPlanDeletionTriggerPrototypeMap["delete_over_count"] != nil {
+			deleteOverCountString := backupPolicyPlanDeletionTriggerPrototypeMap["delete_over_count"].(string)
+			if deleteOverCountString != "" {
+				deleteOverCount, err := strconv.ParseInt(backupPolicyPlanDeletionTriggerPrototypeMap["delete_over_count"].(string), 10, 64)
+				if err != nil {
+					return diag.FromErr(fmt.Errorf("Error setting delete_over_count: %s", err))
+				}
+				deleteOverCountint := int64(deleteOverCount)
+				if deleteOverCountint >= int64(0) {
+					backupPolicyPlanDeletionTriggerPrototype.DeleteOverCount = core.Int64Ptr(deleteOverCountint)
+				}
+			}
+		}
+		createBackupPolicyPlanOptions.SetDeletionTrigger(&backupPolicyPlanDeletionTriggerPrototype)
 	}
 	if _, ok := d.GetOk("name"); ok {
 		createBackupPolicyPlanOptions.SetName(d.Get("name").(string))
@@ -218,12 +241,23 @@ func resourceIBMIsBackupPolicyPlanMapToBackupPolicyPlanDeletionTriggerPrototype(
 	if backupPolicyPlanDeletionTriggerPrototypeMap["delete_after"] != nil {
 		backupPolicyPlanDeletionTriggerPrototype.DeleteAfter = core.Int64Ptr(int64(backupPolicyPlanDeletionTriggerPrototypeMap["delete_after"].(int)))
 	}
+	log.Println("backupPolicyPlanDeletionTriggerPrototypeMap[delete_over_count] Inside")
+	log.Println(backupPolicyPlanDeletionTriggerPrototypeMap["delete_over_count"])
 	if backupPolicyPlanDeletionTriggerPrototypeMap["delete_over_count"] != nil {
-		backupPolicyPlanDeletionTriggerPrototype.DeleteOverCount = core.Int64Ptr(int64(backupPolicyPlanDeletionTriggerPrototypeMap["delete_over_count"].(int)))
+
+		deleteOverCount, err := strconv.Atoi(backupPolicyPlanDeletionTriggerPrototypeMap["delete_over_count"].(string))
+		if err != nil {
+			// return diag.FromErr(fmt.Errorf("Error setting delete_over_count: %s", err))
+		}
+		deleteOverCountint := int64(deleteOverCount)
+		if deleteOverCountint >= int64(0) {
+			backupPolicyPlanDeletionTriggerPrototype.DeleteOverCount = core.Int64Ptr(int64(backupPolicyPlanDeletionTriggerPrototypeMap["delete_over_count"].(int)))
+		}
 	}
 
 	return backupPolicyPlanDeletionTriggerPrototype
 }
+
 func resourceIBMIsBackupPolicyPlanMapToBackupPolicyPlanDeletionTriggerPatch(backupPolicyPlanDeletionTriggerPrototypeMap map[string]interface{}) vpcv1.BackupPolicyPlanDeletionTriggerPatch {
 	backupPolicyPlanDeletionTriggerPrototype := vpcv1.BackupPolicyPlanDeletionTriggerPatch{}
 
@@ -369,7 +403,7 @@ func resourceIBMIsBackupPolicyPlanBackupPolicyPlanDeletionTriggerPrototypeToMap(
 		backupPolicyPlanDeletionTriggerPrototypeMap["delete_after"] = flex.IntValue(backupPolicyPlanDeletionTriggerPrototype.DeleteAfter)
 	}
 	if backupPolicyPlanDeletionTriggerPrototype.DeleteOverCount != nil {
-		backupPolicyPlanDeletionTriggerPrototypeMap["delete_over_count"] = flex.IntValue(backupPolicyPlanDeletionTriggerPrototype.DeleteOverCount)
+		backupPolicyPlanDeletionTriggerPrototypeMap["delete_over_count"] = strconv.FormatInt(*backupPolicyPlanDeletionTriggerPrototype.DeleteOverCount, 10)
 	}
 
 	return backupPolicyPlanDeletionTriggerPrototypeMap
@@ -410,11 +444,34 @@ func resourceIBMIsBackupPolicyPlanUpdate(context context.Context, d *schema.Reso
 		patchVals.CopyUserTags = core.BoolPtr(d.Get("copy_user_tags").(bool))
 		hasChange = true
 	}
+
+	deleteOverCountBool := false
 	if d.HasChange("deletion_trigger") {
-		deletionTrigger := resourceIBMIsBackupPolicyPlanMapToBackupPolicyPlanDeletionTriggerPatch(d.Get("deletion_trigger.0").(map[string]interface{}))
-		patchVals.DeletionTrigger = &deletionTrigger
+		// deletionTrigger := resourceIBMIsBackupPolicyPlanMapToBackupPolicyPlanDeletionTriggerPatch(d.Get("deletion_trigger.0").(map[string]interface{}))
+		backupPolicyPlanDeletionTriggerPrototype := vpcv1.BackupPolicyPlanDeletionTriggerPatch{}
+		backupPolicyPlanDeletionTriggerPrototypeMap := d.Get("deletion_trigger.0").(map[string]interface{})
+		if backupPolicyPlanDeletionTriggerPrototypeMap["delete_after"] != nil {
+			backupPolicyPlanDeletionTriggerPrototype.DeleteAfter = core.Int64Ptr(int64(backupPolicyPlanDeletionTriggerPrototypeMap["delete_after"].(int)))
+		}
+		if backupPolicyPlanDeletionTriggerPrototypeMap["delete_over_count"] != nil {
+			deleteOverCountString := backupPolicyPlanDeletionTriggerPrototypeMap["delete_over_count"].(string)
+			if deleteOverCountString != "" {
+				deleteOverCount, err := strconv.ParseInt(backupPolicyPlanDeletionTriggerPrototypeMap["delete_over_count"].(string), 10, 64)
+				if err != nil {
+					return diag.FromErr(fmt.Errorf("Error setting delete_over_count: %s", err))
+				}
+				deleteOverCountint := int64(deleteOverCount)
+				if deleteOverCountint >= int64(0) {
+					backupPolicyPlanDeletionTriggerPrototype.DeleteOverCount = core.Int64Ptr(deleteOverCountint)
+				}
+			} else {
+				deleteOverCountBool = true
+			}
+		}
+		patchVals.DeletionTrigger = &backupPolicyPlanDeletionTriggerPrototype
 		hasChange = true
 	}
+
 	if d.HasChange("name") {
 		patchVals.Name = core.StringPtr(d.Get("name").(string))
 		hasChange = true
@@ -422,7 +479,19 @@ func resourceIBMIsBackupPolicyPlanUpdate(context context.Context, d *schema.Reso
 	updateBackupPolicyPlanOptions.SetIfMatch(d.Get("version").(string))
 
 	if hasChange {
-		updateBackupPolicyPlanOptions.BackupPolicyPlanPatch, _ = patchVals.AsPatch()
+		backupPolicyPlanPatch, err := patchVals.AsPatch()
+		if err != nil {
+			return diag.FromErr(fmt.Errorf("[ERROR] Error calling asPatch for BackupPolicyPlanPatch: %s", err))
+		}
+
+		if deleteOverCountBool {
+			backupPolicyPlanDeletionTriggerMap := backupPolicyPlanPatch["deletion_trigger"]
+			backupPolicyPlanDeletionTrigger := backupPolicyPlanDeletionTriggerMap.(map[string]interface{})
+			backupPolicyPlanDeletionTrigger["delete_over_count"] = nil
+			backupPolicyPlanPatch["deletion_trigger"] = backupPolicyPlanDeletionTrigger
+		}
+
+		updateBackupPolicyPlanOptions.BackupPolicyPlanPatch = backupPolicyPlanPatch
 		_, response, err := vpcClient.UpdateBackupPolicyPlanWithContext(context, updateBackupPolicyPlanOptions)
 		if err != nil {
 			log.Printf("[DEBUG] UpdateBackupPolicyPlanWithContext failed %s\n%s", err, response)
