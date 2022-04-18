@@ -237,7 +237,7 @@ func getSnapshots(d *schema.ResourceData, meta interface{}) error {
 				}
 			}
 		}
-		l[isSnapshotClones] = newStringSet(schema.HashString, clones)
+		l[isSnapshotClones] = flex.NewStringSet(schema.HashString, clones)
 		snapshotsInfo = append(snapshotsInfo, l)
 	}
 	d.SetId(dataSourceIBMISSnapshotsID(d))

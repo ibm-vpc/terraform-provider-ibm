@@ -6,6 +6,7 @@ package vpc
 import (
 	"fmt"
 
+	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/validate"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -233,7 +234,7 @@ func snapshotGetByNameOrID(d *schema.ResourceData, meta interface{}, name, id st
 				}
 			}
 		}
-		d.Set(isSnapshotClones, newStringSet(schema.HashString, clones))
+		d.Set(isSnapshotClones, flex.NewStringSet(schema.HashString, clones))
 
 		return nil
 	}

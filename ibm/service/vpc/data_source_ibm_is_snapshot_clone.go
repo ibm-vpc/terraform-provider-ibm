@@ -7,12 +7,14 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/conns"
+	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func dataSourceSnapshotClone() *schema.Resource {
+func DataSourceSnapshotClone() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceIBMISSnapshotCloneRead,
 
@@ -54,7 +56,7 @@ func dataSourceIBMISSnapshotCloneRead(context context.Context, d *schema.Resourc
 }
 
 func getSnapshotClone(context context.Context, d *schema.ResourceData, meta interface{}, id, zone string) error {
-	sess, err := meta.(ClientSession).VpcV1API()
+	sess, err := meta.(conns.ClientSession).VpcV1API()
 	if err != nil {
 		return err
 	}
@@ -66,7 +68,7 @@ func getSnapshotClone(context context.Context, d *schema.ResourceData, meta inte
 
 	clone, response, err := sess.GetSnapshotCloneWithContext(context, getSnapshotCloneOptions)
 	if err != nil {
-		return fmt.Errorf("Error fetching snapshot(%s) clone(%s) %s\n%s", id, zone, err, response)
+		return fmt.Errorf("[ERROR] Error fetching snapshot(%s) clone(%s) %s\n%s", id, zone, err, response)
 	}
 
 	if clone != nil && clone.Zone != nil {
@@ -74,10 +76,10 @@ func getSnapshotClone(context context.Context, d *schema.ResourceData, meta inte
 		d.Set(isSnapshotCloneZone, *clone.Zone.Name)
 		d.Set(isSnapshotCloneAvailable, *clone.Available)
 		if clone.CreatedAt != nil {
-			d.Set(isSnapshotCloneCreatedAt, dateTimeToString(clone.CreatedAt))
+			d.Set(isSnapshotCloneCreatedAt, flex.DateTimeToString(clone.CreatedAt))
 		}
 	} else {
-		return fmt.Errorf("No snapshot(%s) clone(%s) found", id, zone)
+		return fmt.Errorf("[ERROR] No snapshot(%s) clone(%s) found", id, zone)
 	}
 	return nil
 }

@@ -183,7 +183,8 @@ func resourceIBMISSnapshotCreate(d *schema.ResourceData, meta interface{}) error
 	if err != nil {
 		return err
 	}
-	options := &vpcv1.CreateSnapshotOptions{}
+	createsnapshotoptions := &vpcv1.CreateSnapshotOptions{}
+	options := &vpcv1.SnapshotPrototypeSnapshotBySourceVolume{}
 	if snapshotName, ok := d.GetOk(isSnapshotName); ok {
 		name := snapshotName.(string)
 		options.Name = &name
@@ -217,8 +218,8 @@ func resourceIBMISSnapshotCreate(d *schema.ResourceData, meta interface{}) error
 	}
 
 	log.Printf("[DEBUG] Snapshot create")
-
-	snapshot, response, err := sess.CreateSnapshot(options)
+	createsnapshotoptions.SnapshotPrototype = options
+	snapshot, response, err := sess.CreateSnapshot(createsnapshotoptions)
 	if err != nil || snapshot == nil {
 		return fmt.Errorf("[ERROR] Error creating Snapshot %s\n%s", err, response)
 	}
@@ -329,7 +330,7 @@ func snapshotGet(d *schema.ResourceData, meta interface{}, id string) error {
 			}
 		}
 	}
-	d.Set(isSnapshotClones, newStringSet(schema.HashString, clones))
+	d.Set(isSnapshotClones, flex.NewStringSet(schema.HashString, clones))
 
 	return nil
 }
@@ -383,8 +384,8 @@ func snapshotUpdate(d *schema.ResourceData, meta interface{}, id, name string, h
 		ov := ovs.(*schema.Set)
 		nv := nvs.(*schema.Set)
 
-		remove := expandStringList(ov.Difference(nv).List())
-		add := expandStringList(nv.Difference(ov).List())
+		remove := flex.ExpandStringList(ov.Difference(nv).List())
+		add := flex.ExpandStringList(nv.Difference(ov).List())
 
 		if len(add) > 0 {
 			for i := range add {

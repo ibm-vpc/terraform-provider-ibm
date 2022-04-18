@@ -67,11 +67,11 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCKVmnMOlHKcZK8tpt3MP1lqOLAcqcJzhsvJcjscgVE
 	sshname := fmt.Sprintf("tf-ssh-%d", acctest.RandIntRange(10, 100))
 	volname := fmt.Sprintf("tf-vol-%d", acctest.RandIntRange(10, 100))
 	name1 := fmt.Sprintf("tfsnapshotuat-%d", acctest.RandIntRange(10, 100))
-	name2 := fmt.Sprintf("tfsnapshotuat-%d", acctest.RandIntRange(10, 100))
+	// name2 := fmt.Sprintf("tfsnapshotuat-%d", acctest.RandIntRange(10, 100))
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:     func() { acc.TestAccPreCheck(t) },
+		Providers:    acc.TestAccProviders,
 		CheckDestroy: testAccCheckIBMISSnapshotDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -208,7 +208,7 @@ func testAccCheckIBMISSnapshotCloneConfig(vpcname, subnetname, sshname, publicKe
 		name 			= "%s"
 		source_volume 	= ibm_is_instance.testacc_instance.volume_attachments[0].volume_id
 		clone			= ["%s"]
-}`, vpcname, subnetname, ISZoneName, sshname, publicKey, name, isImage, instanceProfileName, ISZoneName, sname, ISZoneName)
+}`, vpcname, subnetname, acc.ISZoneName, sshname, publicKey, name, acc.IsImage, acc.InstanceProfileName, acc.ISZoneName, sname, acc.ISZoneName)
 
 }
 

@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/conns"
+	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -21,7 +23,7 @@ const (
 	isSnapshotCloneZone      = "zone"
 )
 
-func dataSourceSnapshotClones() *schema.Resource {
+func DataSourceSnapshotClones() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceIBMISSnapshotClonesRead,
 
@@ -71,7 +73,7 @@ func dataSourceIBMISSnapshotClonesRead(context context.Context, d *schema.Resour
 }
 
 func getSnapshotClones(context context.Context, d *schema.ResourceData, meta interface{}, id string) error {
-	sess, err := meta.(ClientSession).VpcV1API()
+	sess, err := meta.(conns.ClientSession).VpcV1API()
 	if err != nil {
 		return err
 	}
@@ -82,7 +84,7 @@ func getSnapshotClones(context context.Context, d *schema.ResourceData, meta int
 
 	clonesCollection, response, err := sess.ListSnapshotClonesWithContext(context, listSnapshotClonesOptions)
 	if err != nil {
-		return fmt.Errorf("Error fetching snapshot(%s) clones %s\n%s", id, err, response)
+		return fmt.Errorf("[ERROR] Error fetching snapshot(%s) clones %s\n%s", id, err, response)
 	}
 	clones := clonesCollection.Clones
 
@@ -92,7 +94,7 @@ func getSnapshotClones(context context.Context, d *schema.ResourceData, meta int
 			isSnapshotCloneAvailable: *clone.Available,
 		}
 		if clone.CreatedAt != nil {
-			l[isSnapshotCloneCreatedAt] = dateTimeToString(clone.CreatedAt)
+			l[isSnapshotCloneCreatedAt] = flex.DateTimeToString(clone.CreatedAt)
 		}
 		if clone.Zone != nil {
 			l[isSnapshotCloneZone] = *clone.Zone.Name
