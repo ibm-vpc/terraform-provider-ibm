@@ -718,6 +718,7 @@ func resourceIBMISBareMetalServerCreate(context context.Context, d *schema.Resou
 
 	if nicsintf, ok := d.GetOk(isBareMetalServerNetworkInterfaces); ok {
 		nics := nicsintf.([]interface{})
+		inlinenicobj := make([]vpcv1.BareMetalServerNetworkInterfacePrototypeIntf, 0)
 		for _, resource := range nics {
 			nic := resource.(map[string]interface{})
 			interfaceType := ""
@@ -803,6 +804,7 @@ func resourceIBMISBareMetalServerCreate(context context.Context, d *schema.Resou
 						nicobj.SecurityGroups = secgrpobjs
 					}
 				}
+				inlinenicobj = append(inlinenicobj, nicobj)
 			} else {
 				interfaceType = "vlan"
 				var nicobj = &vpcv1.BareMetalServerNetworkInterfacePrototypeBareMetalServerNetworkInterfaceByVlanPrototype{}
@@ -887,8 +889,10 @@ func resourceIBMISBareMetalServerCreate(context context.Context, d *schema.Resou
 						nicobj.SecurityGroups = secgrpobjs
 					}
 				}
+				inlinenicobj = append(inlinenicobj, nicobj)
 			}
 		}
+		options.NetworkInterfaces = inlinenicobj
 	}
 
 	if rgrp, ok := d.GetOk(isBareMetalServerResourceGroup); ok {
