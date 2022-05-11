@@ -1221,7 +1221,9 @@ func bareMetalServerGet(context context.Context, d *schema.ResourceData, meta in
 						currentNic[isBareMetalServerNicEnableInfraNAT] = *bmsnic.EnableInfrastructureNat
 						currentNic[isBareMetalServerNicPortSpeed] = *bmsnic.PortSpeed
 						currentNic[isBareMetalServerNicInterfaceType] = "vlan"
-
+						if bmsnic.Vlan != nil {
+							currentNic[isBareMetalServerNicVlan] = *bmsnic.Vlan
+						}
 						if len(bmsnic.SecurityGroups) != 0 {
 							secgrpList := []string{}
 							for i := 0; i < len(bmsnic.SecurityGroups); i++ {
