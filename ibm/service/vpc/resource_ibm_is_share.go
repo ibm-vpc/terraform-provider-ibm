@@ -71,7 +71,7 @@ func ResourceIbmIsShare() *schema.Resource {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				Computed:     true,
-				ForceNew:     true,
+				ForceNew:     false,
 				ValidateFunc: validate.InvokeValidator("ibm_is_share", "iops"),
 				Description:  "The maximum input/output operation performance bandwidth per second for the file share.",
 			},
@@ -504,6 +504,12 @@ func resourceIbmIsShareUpdate(context context.Context, d *schema.ResourceData, m
 	if d.HasChange("size") {
 		size := int64(d.Get("size").(int))
 		sharePatchModel.Size = &size
+		hasChange = true
+	}
+
+	if d.HasChange("iops") {
+		size := int64(d.Get("iops").(int))
+		sharePatchModel.Iops = &size
 		hasChange = true
 	}
 
