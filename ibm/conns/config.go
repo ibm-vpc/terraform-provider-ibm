@@ -3014,7 +3014,7 @@ func (c *Config) ClientSession() (interface{}, error) {
 		})
 	}
 
-	if os.Getenv("TF_LOG") != "" {
+	if os.Getenv("TF_LOG") != "" && os.Getenv("TF_LOG") == "TRACE" {
 		logDestination := log.Writer()
 		goLogger := log.New(logDestination, "", log.LstdFlags)
 		core.SetLogger(core.NewLogger(core.LevelDebug, goLogger, goLogger))
