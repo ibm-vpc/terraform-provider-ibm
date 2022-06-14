@@ -35,6 +35,12 @@ func DataSourceIBMISImages() *schema.Resource {
 				ValidateFunc: validate.InvokeValidator("ibm_is_image", isImageName),
 				Description:  "The name of the image",
 			},
+			isImageStatus: {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validate.InvokeDataSourceValidator("ibm_is_images", isImageStatus),
+				Description:  "The status of the image",
+			},
 			isImageVisibility: {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -116,6 +122,21 @@ func DataSourceIBMISImages() *schema.Resource {
 	}
 }
 
+func DataSourceIBMISImagesValidator() *validate.ResourceValidator {
+
+	status := "available, deleting, deprecated, failed, obsolete, pending, tentative, unusable"
+	validateSchema := make([]validate.ValidateSchema, 0)
+	validateSchema = append(validateSchema,
+		validate.ValidateSchema{
+			Identifier:                 isImageStatus,
+			ValidateFunctionIdentifier: validate.ValidateAllowedStringValue,
+			Type:                       validate.TypeString,
+			Optional:                   true,
+			AllowedValues:              status})
+	ibmISImageResourceValidator := validate.ResourceValidator{ResourceName: "ibm_is_images", Schema: validateSchema}
+	return &ibmISImageResourceValidator
+}
+
 func dataSourceIBMISImagesRead(d *schema.ResourceData, meta interface{}) error {
 
 	err := imageList(d, meta)
@@ -148,6 +169,11 @@ func imageList(d *schema.ResourceData, meta interface{}) error {
 		visibility = v.(string)
 	}
 
+	var status string
+	if v, ok := d.GetOk(isImageStatus); ok {
+		status = v.(string)
+	}
+
 	listImagesOptions := &vpcv1.ListImagesOptions{}
 	if resourceGroupID != "" {
 		listImagesOptions.SetResourceGroupID(resourceGroupID)
@@ -173,6 +199,17 @@ func imageList(d *schema.ResourceData, meta interface{}) error {
 			break
 		}
 	}
+
+	if status != "" {
+		allrecsTemp := []vpcv1.Image{}
+		for _, image := range allrecs {
+			if status == *image.Status {
+				allrecsTemp = append(allrecsTemp, image)
+			}
+		}
+		allrecs = allrecsTemp
+	}
+
 	imagesInfo := make([]map[string]interface{}, 0)
 	for _, image := range allrecs {
 
