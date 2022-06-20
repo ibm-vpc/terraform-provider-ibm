@@ -592,12 +592,12 @@ func ResourceIBMISInstance() *schema.Resource {
 						},
 
 						isInstanceVolumeSnapshot: {
-							Type:             schema.TypeString,
-							RequiredWith:     []string{isInstanceZone, isInstancePrimaryNetworkInterface, isInstanceProfile, isInstanceKeys, isInstanceVPC},
-							AtLeastOneOf:     []string{isInstanceImage, isInstanceSourceTemplate, "boot_volume.0.snapshot"},
-							ConflictsWith:    []string{isInstanceImage, isInstanceSourceTemplate},
-							Optional:         true,
-							DiffSuppressFunc: flex.ApplyOnce,
+							Type:          schema.TypeString,
+							RequiredWith:  []string{isInstanceZone, isInstancePrimaryNetworkInterface, isInstanceProfile, isInstanceKeys, isInstanceVPC},
+							AtLeastOneOf:  []string{isInstanceImage, isInstanceSourceTemplate, "boot_volume.0.snapshot"},
+							ConflictsWith: []string{isInstanceImage, isInstanceSourceTemplate},
+							Optional:      true,
+							ForceNew:      true,
 						},
 						isInstanceBootEncryption: {
 							Type:             schema.TypeString,
