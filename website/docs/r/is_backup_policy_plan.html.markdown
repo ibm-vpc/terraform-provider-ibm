@@ -44,6 +44,10 @@ Review the argument reference that you can specify for your resource.
 backup_policy_plan_id
 - `copy_user_tags` - (Optional, Boolean) Indicates whether to copy the source's user tags to the created backups (snapshots). The default value is `true`.
 - `cron_spec` - (Required, String) The cron specification for the backup schedule. The value must match regular expression `^((((\d+,)+\d+|([\d\*]+(\/|-)\d+)|\d+|\*) ?){5,7})$`.
+	
+	->**Note** The cron specification for the backup schedule. The backup policy jobs (which create and delete backups for this plan) will not start until this time, and may start for up to 90 minutes after this time.
+	All backup schedules for plans in the same policy must be at least an hour apart.
+
 - `deletion_trigger` - (Optional, List)
   
   Nested scheme for `deletion_trigger`:
