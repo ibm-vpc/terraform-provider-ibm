@@ -58,3 +58,6 @@ In addition to all argument reference list, you can access the following attribu
 	- `lifecycle_state` - (String) The lifecycle state of this backup policy plan.
 	- `name` - (String) The unique user-defined name for this backup policy plan.
 	- `resource_type` - (String) The type of resource referenced.
+
+
+->**Note:**  Backup Policy Jobs are getting enhanced, will be available sooner.

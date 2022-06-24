@@ -31,6 +31,8 @@ resource "ibm_is_backup_policy" "example" {
 }
 ```
 
+->**Note:**  Backup Policy Jobs are getting enhanced, will be available sooner.
+
 ## Argument Reference
 
 Review the argument reference that you can specify for your resource.
