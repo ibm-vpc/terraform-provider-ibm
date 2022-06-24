@@ -71,4 +71,4 @@ In addition to all argument reference list, you can access the following attribu
         - `name` - (String) The user-defined name for this resource group.
 
 
-~>**Note:**  Backup Policy Jobs are getting enhanced, will be available sooner.
+~>**Note:**  Backup Policy Jobs are getting enhanced, will be available soon.

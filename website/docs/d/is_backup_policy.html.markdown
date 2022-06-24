@@ -72,4 +72,4 @@ In addition to all argument reference list, you can access the following attribu
 - `resource_type` - (String) The type of resource referenced.
 
 
-->**Note:**  Backup Policy Jobs are getting enhanced, will be available sooner.
+->**Note:**  Backup Policy Jobs are getting enhanced, will be available soon.

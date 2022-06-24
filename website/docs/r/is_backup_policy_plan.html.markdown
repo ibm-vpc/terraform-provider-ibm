@@ -32,7 +32,7 @@ resource "ibm_is_backup_policy_plan" "example" {
 }
 ```
 
-->**Note:**  Backup Policy Jobs are getting enhanced, will be available sooner.
+->**Note:**  Backup Policy Jobs are getting enhanced, will be available soon.
 
 ## Argument Reference
 

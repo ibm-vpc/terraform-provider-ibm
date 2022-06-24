@@ -46,6 +46,10 @@ In addition to all argument reference list, you can access the following attribu
 - `copy_user_tags` - (Boolean) Indicates whether to copy the source's user tags to the created resource.
 - `created_at` - (String) The date and time that the backup policy plan was created.
 - `cron_spec` - (String) The cron specification for the backup schedule.
+	
+	->**Note** The cron specification for the backup schedule. The backup policy jobs (which create and delete backups for this plan) will not start until this time, and may start for up to 90 minutes after this time.
+	All backup schedules for plans in the same policy must be at least an hour apart.
+
 - `deletion_trigger` (List) `deletion_trigger` block has the following structure:
 	
 	Nested scheme for `deletion_trigger`:
@@ -56,4 +60,4 @@ In addition to all argument reference list, you can access the following attribu
 - `resource_type` - (String) The type of resource referenced.
 
 
-->**Note:**  Backup Policy Jobs are getting enhanced, will be available sooner.
+->**Note:**  Backup Policy Jobs are getting enhanced, will be available soon.
