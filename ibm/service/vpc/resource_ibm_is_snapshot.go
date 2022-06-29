@@ -255,7 +255,6 @@ func resourceIBMISSnapshotCreate(d *schema.ResourceData, meta interface{}) error
 			ID: &rg,
 		}
 	}
-	options.SnapshotPrototype = snapshotprototypeoptions
 
 	var userTags *schema.Set
 	if v, ok := d.GetOk(isSnapshotUserTags); ok {
@@ -266,9 +265,10 @@ func resourceIBMISSnapshotCreate(d *schema.ResourceData, meta interface{}) error
 				userTagStr := userTag.(string)
 				userTagsArray[i] = userTagStr
 			}
-			options.UserTags = userTagsArray
+			snapshotprototypeoptions.UserTags = userTagsArray
 		}
 	}
+	options.SnapshotPrototype = snapshotprototypeoptions
 
 	log.Printf("[DEBUG] Snapshot create")
 
