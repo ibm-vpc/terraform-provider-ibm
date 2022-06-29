@@ -1080,12 +1080,3 @@ data "ibm_is_backup_policy_plan" "is_backup_policy_plan" {
   backup_policy_id = ibm_is_backup_policy.is_backup_policy.id
   name             = "my-backup-policy-plan"
 }
-
-data "ibm_is_backup_policy_job" "is_backup_policy_job" {
-	backup_policy_id = ibm_is_backup_policy.is_backup_policy.id
-	identifier = " "
-}
-
-data "ibm_is_backup_policy_jobs" "is_backup_policy_jobs" {
-	backup_policy_id = ibm_is_backup_policy.is_backup_policy.id	
-}
