@@ -157,11 +157,6 @@ func DataSourceSnapshot() *schema.Resource {
 					},
 				},
 			},
-			isSnapshotCapturedAt: {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: "The date and time that this snapshot was created",
-			},
 		},
 	}
 }
@@ -237,9 +232,6 @@ func snapshotGetByNameOrID(d *schema.ResourceData, meta interface{}, name, id st
 						return fmt.Errorf("Error setting user tags: %s", err)
 					}
 				}
-				if snapshot.CapturedAt != nil {
-					d.Set(isSnapshotCapturedAt, (*snapshot.CapturedAt).String())
-				}
 				if snapshot.ResourceGroup != nil && snapshot.ResourceGroup.ID != nil {
 					d.Set(isSnapshotResourceGroup, *snapshot.ResourceGroup.ID)
 				}
@@ -299,9 +291,6 @@ func snapshotGetByNameOrID(d *schema.ResourceData, meta interface{}, name, id st
 			if err = d.Set(isSnapshotUserTags, snapshot.UserTags); err != nil {
 				return fmt.Errorf("Error setting user tags: %s", err)
 			}
-		}
-		if snapshot.CapturedAt != nil {
-			d.Set(isSnapshotCapturedAt, (*snapshot.CapturedAt).String())
 		}
 		if snapshot.ResourceGroup != nil && snapshot.ResourceGroup.ID != nil {
 			d.Set(isSnapshotResourceGroup, *snapshot.ResourceGroup.ID)
