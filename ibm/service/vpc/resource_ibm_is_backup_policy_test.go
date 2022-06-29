@@ -81,6 +81,10 @@ func testAccCheckIBMIsBackupPolicyConfigBasic(backupPolicyName string, vpcname, 
 		ipv4_cidr_block = "%s"
 	  }
 
+	  resource "ibm_is_ssh_key" "testacc_sshkey" {
+		name       = "%s"
+		public_key = file("../../test-fixtures/.ssh/id_rsa")
+	  }
 
 	  resource "ibm_is_volume" "storage" {
 		name    = "%s"
@@ -99,7 +103,7 @@ func testAccCheckIBMIsBackupPolicyConfigBasic(backupPolicyName string, vpcname, 
 		}
 		vpc     = ibm_is_vpc.testacc_vpc.id
 		zone    = "%s"
-		keys    = ["r134-2009ee85-d70f-4df0-80b3-cc81bd5f1bf8"]
+		keys    = [ibm_is_ssh_key.testacc_sshkey.id]
 		volumes = [ibm_is_volume.storage.id]
 	  }
 
@@ -107,7 +111,7 @@ func testAccCheckIBMIsBackupPolicyConfigBasic(backupPolicyName string, vpcname, 
 		depends_on  = [ibm_is_instance.testacc_instance]
 		match_user_tags = ["tag-0"]
 		name            = "%s"
-	}`, vpcname, subnetname, acc.ISZoneName, acc.ISCIDR, volName, acc.ISZoneName, name, "r134-8070fddf-88bf-4c58-a0f4-05a8306af951", acc.InstanceProfileName, acc.ISZoneName, backupPolicyName)
+	}`, vpcname, subnetname, acc.ISZoneName, acc.ISCIDR, sshname, volName, acc.ISZoneName, name, acc.IsImageName, acc.InstanceProfileName, acc.ISZoneName, backupPolicyName)
 }
 
 func testAccCheckIBMIsBackupPolicyDestroy(s *terraform.State) error {

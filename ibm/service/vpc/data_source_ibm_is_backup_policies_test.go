@@ -60,6 +60,7 @@ func testAccCheckIBMIsBackupPoliciesDataSourceConfigBasic(backupPolicyName, vpcn
 
 	return testAccCheckIBMIsBackupPolicyPlanConfigBasic(backupPolicyName, vpcname, subnetname, sshname, publicKey, volName, name, cronSpec, bakupPolicyPlanName) + fmt.Sprintf(`
 		data "ibm_is_backup_policies" "is_backup_policies" {
+			depends_on  = [ibm_is_backup_policy_plan.is_backup_policy_plan]
 		}
 	`)
 }
