@@ -8,7 +8,7 @@ description: |-
 
 # ibm_is_backup_policy
 
-Provides a read-only data source for BackupPolicy. For more information, about backup policy in your IBM Cloud VPC, see [Backup policy](https://cloud.ibm.com/docs/vpc?topic=vpc-creating-backup-policy).
+Provides a read-only data source for BackupPolicy. For more information, about backup policy in your IBM Cloud VPC, see [Backup policy](https://cloud.ibm.com/docs/vpc?topic=vpc-backup-view-policies).
 
 **Note:** 
 VPC infrastructure services are a regional specific based endpoint, by default targets to `us-south`. Please make sure to target right region in the provider block as shown in the `provider.tf` file, if VPC service is created in region other than `us-south`.
@@ -35,10 +35,6 @@ Review the argument references that you can specify for your data source.
 - `backup_policy_id` - (Optional, string) Filters the collection to backup policy jobs with the backup plan with the specified identifier.
 - `identifier` - (Optional, string) The backup policy identifier, `identifier` and `name` are mutually exclusive.
 - `name` - (Optional, string) The unique user-defined name for backup policy, `identifier` and `name` are mutually exclusive.
-- `source_volume_id` - (Optional, string) Filters the collection to resources with the source volume with the specified identifier.
-- `status` - (Optional, string) Filters the collection to backup policy jobs with the specified status.
-- `target_snapshot_crn` - (Optional, string) Filters the collection to resources with the target snapshot with the specified CRN.
-- `target_snapshot_id` - (Optional, string) Filters the collection to resources with the target snapshot with the specified identifier.
 
 ## Attribute Reference
 In addition to all argument reference list, you can access the following attribute references after your data source is created.

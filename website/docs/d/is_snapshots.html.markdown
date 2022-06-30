@@ -68,6 +68,6 @@ In addition to all argument reference list, you can access the following attribu
   - `size` - (Integer) The size of this snapshot rounded up to the next gigabyte.
   - `source_image` - (String) If present, the unique identifier for the image from which the data on this volume was most directly provisioned.
   - `captured_at` - (String) The date and time that this snapshot was captured.
-  - `tags` - (String) Tags associated with the snapshot.
+  - `user_tags` - (String) Tags associated with the snapshot.
 
 

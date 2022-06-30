@@ -8,7 +8,7 @@ description: |-
 
 # ibm_is_backup_policy_plan
 
-Provides a resource for BackupPolicyPlan. This allows BackupPolicyPlan to be created, updated and deleted.For more information, about backup policy plan in your IBM Cloud VPC, see [Backup policy plan](https://cloud.ibm.com/docs/vpc?topic=vpc-creating-backup-policy-plan).
+Provides a resource for BackupPolicyPlan. This allows BackupPolicyPlan to be created, updated and deleted.For more information, about backup policy plan in your IBM Cloud VPC, see [Backup policy plan](https://cloud.ibm.com/docs/vpc?topic=vpc-backup-policy-create).
 
 **Note:** 
 VPC infrastructure services are a regional specific based endpoint, by default targets to `us-south`. Please make sure to target right region in the provider block as shown in the `provider.tf` file, if VPC service is created in region other than `us-south`.
