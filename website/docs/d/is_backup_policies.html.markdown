@@ -8,7 +8,7 @@ description: |-
 
 # ibm_is_backup_policies
 
-Provides a read-only data source for BackupPolicyCollection. For more information, about backup policy in your IBM Cloud VPC, see [Backup policy](https://cloud.ibm.com/docs/vpc?topic=vpc-creating-backup-policy).
+Provides a read-only data source for BackupPolicyCollection. For more information, about backup policy in your IBM Cloud VPC, see [Backup policy](https://cloud.ibm.com/docs/vpc?topic=vpc-backup-view-policies).
 
 **Note:** 
 VPC infrastructure services are a regional specific based endpoint, by default targets to `us-south`. Please make sure to target right region in the provider block as shown in the `provider.tf` file, if VPC service is created in region other than `us-south`.

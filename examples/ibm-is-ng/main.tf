@@ -1041,15 +1041,6 @@ data "ibm_is_volumes" "example" {
 resource "ibm_is_backup_policy" "is_backup_policy" {
   match_user_tags = ["tag1"]
   name            = "my-backup-policy"
-  plans {
-    name      = "my-backup-policy-plan"
-    cron_spec = "30 09 * * *" 
-    deletion_trigger {
-      delete_after      = 20
-      delete_over_count = 20
-    }
-    copy_user_tags = true
-  }
 }
 
 resource "ibm_is_backup_policy_plan" "is_backup_policy_plan" {
