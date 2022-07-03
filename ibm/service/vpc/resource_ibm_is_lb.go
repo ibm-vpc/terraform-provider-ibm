@@ -652,10 +652,10 @@ func lbUpdate(d *schema.ResourceData, meta interface{}, id, name string, hasChan
 
 		if len(add) > 0 {
 			for _, securityGroupID := range add {
-				createSecurityGroupTargetBindingOptions := &vpcv1.CreateSecurityGroupTargetBindingOptions{}
+				createSecurityGroupTargetBindingOptions := &vpcv1.AddSecurityGroupTargetOptions{}
 				createSecurityGroupTargetBindingOptions.SecurityGroupID = &securityGroupID
 				createSecurityGroupTargetBindingOptions.ID = &id
-				_, response, err := sess.CreateSecurityGroupTargetBinding(createSecurityGroupTargetBindingOptions)
+				_, response, err := sess.AddSecurityGroupTarget(createSecurityGroupTargetBindingOptions)
 				if err != nil {
 					return fmt.Errorf("[ERROR] Error while creating Security Group Target Binding %s\n%s", err, response)
 				}
@@ -679,8 +679,8 @@ func lbUpdate(d *schema.ResourceData, meta interface{}, id, name string, hasChan
 					}
 					return fmt.Errorf("[ERROR] Error Getting Security Group Target for this load balancer (%s): %s\n%s", securityGroupID, err, response)
 				}
-				deleteSecurityGroupTargetBindingOptions := sess.NewDeleteSecurityGroupTargetBindingOptions(securityGroupID, id)
-				response, err = sess.DeleteSecurityGroupTargetBinding(deleteSecurityGroupTargetBindingOptions)
+				deleteSecurityGroupTargetBindingOptions := sess.NewRemoveSecurityGroupTargetOptions(securityGroupID, id)
+				response, err = sess.RemoveSecurityGroupTarget(deleteSecurityGroupTargetBindingOptions)
 				if err != nil {
 					return fmt.Errorf("[ERROR] Error Deleting Security Group Target for this load balancer : %s\n%s", err, response)
 				}

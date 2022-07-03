@@ -350,10 +350,10 @@ func resourceIBMisVirtualEndpointGatewayUpdate(d *schema.ResourceData, meta inte
 		add = flex.ExpandStringList(nSecurityGroups.Difference(oSecurityGroups).List())
 		if len(add) > 0 {
 			for _, sgId := range add {
-				createSecurityGroupTargetBindingOptions := &vpcv1.CreateSecurityGroupTargetBindingOptions{}
+				createSecurityGroupTargetBindingOptions := &vpcv1.AddSecurityGroupTargetOptions{}
 				createSecurityGroupTargetBindingOptions.SecurityGroupID = &sgId
 				createSecurityGroupTargetBindingOptions.ID = &id
-				_, response, err := sess.CreateSecurityGroupTargetBinding(createSecurityGroupTargetBindingOptions)
+				_, response, err := sess.AddSecurityGroupTarget(createSecurityGroupTargetBindingOptions)
 				if err != nil {
 					return fmt.Errorf("Error while creating Security Group Target Binding %s\n%s", err, response)
 				}
@@ -376,8 +376,8 @@ func resourceIBMisVirtualEndpointGatewayUpdate(d *schema.ResourceData, meta inte
 					}
 					return fmt.Errorf("Error Getting Security Group Target for this endpoint gateway (%s): %s\n%s", sgId, err, response)
 				}
-				deleteSecurityGroupTargetBindingOptions := sess.NewDeleteSecurityGroupTargetBindingOptions(sgId, id)
-				response, err = sess.DeleteSecurityGroupTargetBinding(deleteSecurityGroupTargetBindingOptions)
+				deleteSecurityGroupTargetBindingOptions := sess.NewRemoveSecurityGroupTargetOptions(sgId, id)
+				response, err = sess.RemoveSecurityGroupTarget(deleteSecurityGroupTargetBindingOptions)
 				if err != nil {
 					return fmt.Errorf("Error Deleting Security Group Target for this endpoint gateway : %s\n%s", err, response)
 				}
