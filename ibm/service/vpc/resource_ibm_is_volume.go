@@ -26,7 +26,7 @@ const (
 	isVolumeCapacity              = "capacity"
 	isVolumeIops                  = "iops"
 	isVolumeCrn                   = "crn"
-	isVolumeTags                  = "tags"
+	isVolumeTags                  = "user_tags"
 	isVolumeStatus                = "status"
 	isVolumeStatusReasons         = "status_reasons"
 	isVolumeStatusReasonsCode     = "code"
