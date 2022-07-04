@@ -53,6 +53,12 @@ func DataSourceSnapshots() *schema.Resource {
 				Description: "Filters the collection to backup policy jobs with the backup plan with the specified identifier",
 			},
 
+			"backup_policy_plan_tag": &schema.Schema{
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "Filters the collection to resources with the exact tag value",
+			},
+
 			isSnapshots: {
 				Type:        schema.TypeList,
 				Description: "List of snapshots",
@@ -240,6 +246,10 @@ func getSnapshots(d *schema.ResourceData, meta interface{}) error {
 		if backupPolicyPlanIdFilterOk, ok := d.GetOk("backup_policy_plan_id"); ok {
 			backupPolicyPlanIdFilter := backupPolicyPlanIdFilterOk.(string)
 			listSnapshotOptions.BackupPolicyPlanID = &backupPolicyPlanIdFilter
+		}
+		if backupPolicyPlanTagFilterOk, ok := d.GetOk("backup_policy_plan_tag"); ok {
+			backupPolicyPlanTagFilter := backupPolicyPlanTagFilterOk.(string)
+			listSnapshotOptions.Tag = &backupPolicyPlanTagFilter
 		}
 
 		snapshots, response, err := sess.ListSnapshots(listSnapshotOptions)
