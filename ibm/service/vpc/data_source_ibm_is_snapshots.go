@@ -247,9 +247,9 @@ func getSnapshots(d *schema.ResourceData, meta interface{}) error {
 			backupPolicyPlanIdFilter := backupPolicyPlanIdFilterOk.(string)
 			listSnapshotOptions.BackupPolicyPlanID = &backupPolicyPlanIdFilter
 		}
-		if backupPolicyPlanTagFilterOk, ok := d.GetOk("tag"); ok {
-			backupPolicyPlanTagFilter := backupPolicyPlanTagFilterOk.(string)
-			listSnapshotOptions.Tag = &backupPolicyPlanTagFilter
+		if tagFilterOk, ok := d.GetOk("tag"); ok {
+			tagFilter := tagFilterOk.(string)
+			listSnapshotOptions.Tag = &tagFilter
 		}
 
 		snapshots, response, err := sess.ListSnapshots(listSnapshotOptions)

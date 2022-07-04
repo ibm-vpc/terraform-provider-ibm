@@ -90,7 +90,7 @@ Review the argument references that you can specify for your resource.
     - tiered profiles [`general-purpose`, `5iops-tier`, `10iops-tier`] can be upgraded and downgraded into each other if volume is attached to an running virtual server instance. Stopped instances will be started on update of volume.
 - `resource_group` - (Optional, Forces new resource, String) The resource group ID for this volume.
 - `resource_controller_url` - (Optional, Forces new resource, String) The URL of the IBM Cloud dashboard that can be used to explore and view details about this instance.
-- `user_tags`- (Optional, Array of Strings) A list of tags that you want to add to your volume. Tags can help you find your volume more easily later.
+- `user_tags`- (Optional, Array of Strings) A list of tags that you want to add to your volume. (https://cloud.ibm.com/apidocs/tagging#types-of-tags)
 - `zone` - (Required, Forces new resource, String) The location of the volume.
 
 ## Attribute reference

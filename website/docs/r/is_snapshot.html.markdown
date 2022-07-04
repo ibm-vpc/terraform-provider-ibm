@@ -81,7 +81,7 @@ Review the argument references that you can specify for your resource.
 - `name` - (Optional, String) The name of the snapshot.
 - `resource_group` - (Optional, Forces new resource, String) The resource group ID where the snapshot is to be created
 - `source_volume` - (Required, Forces new resource, String) The unique identifier for the volume for which snapshot is to be created. 
-- `tags`- (Optional, Array of Strings) A list of user tags that you want to add to your snapshot. Tags can help you find your snapshot more easily later.
+- `user_tags`- (Optional, Array of Strings) A list of user tags that you want to add to your snapshot. (https://cloud.ibm.com/apidocs/tagging#types-of-tags)
 
 
 ## Attribute reference
