@@ -94,6 +94,25 @@ func DataSourceIBMIsBackupPolicyPlan() *schema.Resource {
 				Computed:    true,
 				Description: "The lifecycle state of this backup policy plan.",
 			},
+			"clone_policy": &schema.Schema{
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"max_snapshots": &schema.Schema{
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: "The maximum number of recent snapshots (per source) that will keep clones.",
+						},
+						"zones": &schema.Schema{
+							Type:        schema.TypeSet,
+							Elem:        &schema.Schema{Type: schema.TypeString},
+							Computed:    true,
+							Description: "The zone this backup policy plan will create snapshot clones in.",
+						},
+					},
+				},
+			},
 			"resource_type": &schema.Schema{
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -178,6 +197,21 @@ func dataSourceIBMIsBackupPolicyPlanRead(context context.Context, d *schema.Reso
 	}
 	if err = d.Set("name", backupPolicyPlan.Name); err != nil {
 		return diag.FromErr(fmt.Errorf("Error setting name: %s", err))
+	}
+	if backupPolicyPlan.ClonePolicy != nil {
+		backupPolicyPlanClonePolicyMap := map[string]interface{}{}
+
+		if backupPolicyPlan.ClonePolicy.MaxSnapshots != nil {
+			backupPolicyPlanClonePolicyMap["max_snapshots"] = flex.IntValue(backupPolicyPlan.ClonePolicy.MaxSnapshots)
+		}
+		if backupPolicyPlan.ClonePolicy.Zones != nil && len(backupPolicyPlan.ClonePolicy.Zones) != 0 {
+			zoneList := []string{}
+			for i := 0; i < len(backupPolicyPlan.ClonePolicy.Zones); i++ {
+				zoneList = append(zoneList, string(*(backupPolicyPlan.ClonePolicy.Zones[i].Name)))
+			}
+			backupPolicyPlanClonePolicyMap["zones"] = flex.NewStringSet(schema.HashString, zoneList)
+		}
+		d.Set("clone_policy", backupPolicyPlanClonePolicyMap)
 	}
 	if err = d.Set("resource_type", backupPolicyPlan.ResourceType); err != nil {
 		return diag.FromErr(fmt.Errorf("Error setting resource_type: %s", err))

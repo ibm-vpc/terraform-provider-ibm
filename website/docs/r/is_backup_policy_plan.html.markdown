@@ -53,6 +53,11 @@ backup_policy_plan_id
   - `delete_after` - (Optional, Integer) The maximum number of days to keep each backup after creation. Default value is 30.
   - `delete_over_count` - (Optional, Integer) The maximum number of recent backups to keep. If unspecified, there will be no maximum.
 - `name` - (Optional, String) The user-defined name for this backup policy plan. Names must be unique within the backup policy this plan resides in. If unspecified, the name will be a hyphenated list of randomly-selected words.
+- `clone_policy` - (Optional, List)
+  
+  Nested scheme for `clone_policy`:
+  - `max_snapshots` - (Optional, Integer) The maximum number of recent snapshots (per source) that will keep clones.
+  - `zones` - (Optional, List) The zone list this backup policy plan will create snapshot clones in.
 
 ## Attribute Reference
 

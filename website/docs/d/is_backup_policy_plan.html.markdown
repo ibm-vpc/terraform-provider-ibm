@@ -58,4 +58,9 @@ In addition to all argument reference list, you can access the following attribu
 	- `delete_over_count` - (Integer) The maximum number of recent backups to keep. If absent, there is no maximum.
 - `href` - (String) The URL for this backup policy plan.
 - `lifecycle_state` - (String) The lifecycle state of this backup policy plan.
+- `clone_policy` - (List)
+  
+  Nested scheme for `clone_policy`:
+  - `max_snapshots` - (Integer) The maximum number of recent snapshots (per source) that will keep clones.
+  - `zones` - (List) The zone list this backup policy plan will create snapshot clones in.
 - `resource_type` - (String) The type of resource referenced.

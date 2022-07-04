@@ -62,4 +62,8 @@ In addition to all argument reference list, you can access the following attribu
 	- `id` - (String) The unique identifier for this backup policy plan.
 	- `lifecycle_state` - (String) The lifecycle state of this backup policy plan.
 	- `name` - (String) The unique user-defined name for this backup policy plan.
+	- `clone_policy` - (List)
+		Nested scheme for `clone_policy`:
+		- `max_snapshots` - (Integer) The maximum number of recent snapshots (per source) that will keep clones.
+		- `zones` - (List) The zone list this backup policy plan will create snapshot clones in.
 	- `resource_type` - (String) The type of resource referenced.
