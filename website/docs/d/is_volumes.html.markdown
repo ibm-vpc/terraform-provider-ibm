@@ -45,13 +45,13 @@ In addition to all argument references listed, you can access the following attr
 	- `name` - (String) The unique user-defined name for this volume.
 	  - Constraints: The maximum length is `63` characters. The minimum length is `1` character. The value must match regular expression `/^-?([a-z]|[a-z][-a-z0-9]*[a-z0-9]|[0-9][-a-z0-9]*([a-z]|[-a-z][-a-z0-9]*[a-z0-9]))$/`.
 	- `operating_system` - (Optional, List) The operating system associated with this volume. If absent, this volume was notcreated from an image, or the image did not include an operating system.
-	Nested scheme for **operating_system**:
+		Nested scheme for **operating_system**:
 		- `href` - (String) The URL for this operating system.
 		  - Constraints: The value must match regular expression `/^http(s)?:\/\/([^\/?#]*)([^?#]*)(\\?([^#]*))?(#(.*))?$/`.
 		- `name` - (String) The globally unique name for this operating system.
 		  - Constraints: The maximum length is `63` characters. The minimum length is `1` character. The value must match regular expression `/^([a-z]|[a-z][-a-z0-9]*[a-z0-9]|[0-9][-a-z0-9]*([a-z]|[-a-z][-a-z0-9]*[a-z0-9]))$/`.
 	- `profile` - (List) The profile this volume uses.
-	Nested scheme for **profile**:
+		Nested scheme for **profile**:
 		- `href` - (String) The URL for this volume profile.
 		  - Constraints: The value must match regular expression `/^http(s)?:\/\/([^\/?#]*)([^?#]*)(\\?([^#]*))?(#(.*))?$/`.
 		- `name` - (String) The globally unique name for this volume profile.
@@ -116,7 +116,7 @@ In addition to all argument references listed, you can access the following attr
 		- `id` - (String) The unique identifier for this volume attachment.
 		  - Constraints: The maximum length is `64` characters. The minimum length is `1` character. The value must match regular expression `/^[-0-9a-z_]+$/`.
 		- `instance` - (List) The attached instance.
-		Nested scheme for **instance**:
+			Nested scheme for **instance**:
 			- `crn` - (String) The CRN for this virtual server instance.
 			- `deleted` - (Optional, List) If present, this property indicates the referenced resource has been deleted and providessome supplementary information.
 			Nested scheme for **deleted**:
@@ -132,8 +132,9 @@ In addition to all argument references listed, you can access the following attr
 		  - Constraints: The maximum length is `63` characters. The minimum length is `1` character. The value must match regular expression `/^-?([a-z]|[a-z][-a-z0-9]*[a-z0-9]|[0-9][-a-z0-9]*([a-z]|[-a-z][-a-z0-9]*[a-z0-9]))$/`.
 		- `type` - (String) The type of volume attachment.
 		  - Constraints: Allowable values are: `boot`, `data`.
+	- `user_tags`- The user tags associated with this volume.
 	- `zone` - (List) The zone this volume resides in.
-	Nested scheme for **zone**:
+		Nested scheme for **zone**:
 		- `name` - (String) The globally unique name for this zone.
 		  - Constraints: The maximum length is `63` characters. The minimum length is `1` character. The value must match regular expression `/^([a-z]|[a-z][-a-z0-9]*[a-z0-9]|[0-9][-a-z0-9]*([a-z]|[-a-z][-a-z0-9]*[a-z0-9]))$/`.
 
