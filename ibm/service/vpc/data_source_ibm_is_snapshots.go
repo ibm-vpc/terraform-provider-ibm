@@ -53,7 +53,7 @@ func DataSourceSnapshots() *schema.Resource {
 				Description: "Filters the collection to backup policy jobs with the backup plan with the specified identifier",
 			},
 
-			"backup_policy_plan_tag": &schema.Schema{
+			"tag": &schema.Schema{
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "Filters the collection to resources with the exact tag value",
@@ -247,7 +247,7 @@ func getSnapshots(d *schema.ResourceData, meta interface{}) error {
 			backupPolicyPlanIdFilter := backupPolicyPlanIdFilterOk.(string)
 			listSnapshotOptions.BackupPolicyPlanID = &backupPolicyPlanIdFilter
 		}
-		if backupPolicyPlanTagFilterOk, ok := d.GetOk("backup_policy_plan_tag"); ok {
+		if backupPolicyPlanTagFilterOk, ok := d.GetOk("tag"); ok {
 			backupPolicyPlanTagFilter := backupPolicyPlanTagFilterOk.(string)
 			listSnapshotOptions.Tag = &backupPolicyPlanTagFilter
 		}
