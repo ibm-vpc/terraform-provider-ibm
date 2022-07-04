@@ -37,6 +37,7 @@ Review the argument references that you can specify for your data source.
 - `resource_group` - (Optional, String) Filter snapshot collection by resource group id of the snapshot.
 - `source_image` - (Optional, String) Filter snapshot collection by source image of the snapshot.
 - `source_volume` - (Optional, String) Filter snapshot collection by source volume of the snapshot.
+- `` - add the plan filter if it works ?
 
 
 ## Attribute reference

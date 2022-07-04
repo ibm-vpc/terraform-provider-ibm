@@ -166,7 +166,7 @@ func resourceIBMIsBackupPolicyCreate(context context.Context, d *schema.Resource
 	backupPolicy, response, err := vpcClient.CreateBackupPolicyWithContext(context, createBackupPolicyOptions)
 	if err != nil {
 		log.Printf("[DEBUG] CreateBackupPolicyWithContext failed %s\n%s", err, response)
-		return diag.FromErr(fmt.Errorf("CreateBackupPolicyWithContext failed %s\n%s", err, response))
+		return diag.FromErr(fmt.Errorf("[ERROR] CreateBackupPolicyWithContext failed %s\n%s", err, response))
 	}
 
 	d.SetId(*backupPolicy.ID)
@@ -201,68 +201,68 @@ func resourceIBMIsBackupPolicyRead(context context.Context, d *schema.ResourceDa
 			return nil
 		}
 		log.Printf("[DEBUG] GetBackupPolicyWithContext failed %s\n%s", err, response)
-		return diag.FromErr(fmt.Errorf("GetBackupPolicyWithContext failed %s\n%s", err, response))
+		return diag.FromErr(fmt.Errorf("[ERROR] GetBackupPolicyWithContext failed %s\n%s", err, response))
 	}
 
 	if backupPolicy.MatchResourceTypes != nil {
 		if err = d.Set("match_resource_types", backupPolicy.MatchResourceTypes); err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting match_resource_types: %s", err))
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting match_resource_types: %s", err))
 		}
 	}
 	if backupPolicy.MatchUserTags != nil {
 		if err = d.Set("match_user_tags", backupPolicy.MatchUserTags); err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting match_user_tags: %s", err))
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting match_user_tags: %s", err))
 		}
 	}
 	if backupPolicy.Name != nil {
 		if err = d.Set("name", backupPolicy.Name); err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting name: %s", err))
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting name: %s", err))
 		}
 	}
 	if backupPolicy.ResourceGroup != nil {
 		resourceGroupMap := resourceIBMIsBackupPolicyResourceGroupIdentityToMap(*backupPolicy.ResourceGroup)
 		if err = d.Set("resource_group", []map[string]interface{}{resourceGroupMap}); err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting resource_group: %s", err))
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting resource_group: %s", err))
 		}
 	}
 	if backupPolicy.CreatedAt != nil {
 		if err = d.Set("created_at", flex.DateTimeToString(backupPolicy.CreatedAt)); err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting created_at: %s", err))
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting created_at: %s", err))
 		}
 	}
 
 	if backupPolicy.CRN != nil {
 		if err = d.Set("crn", backupPolicy.CRN); err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting crn: %s", err))
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting crn: %s", err))
 		}
 	}
 
 	if backupPolicy.Href != nil {
 		if err = d.Set("href", backupPolicy.Href); err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting href: %s", err))
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting href: %s", err))
 		}
 	}
 
 	if backupPolicy.LastJobCompletedAt != nil {
 		if err = d.Set("last_job_completed_at", flex.DateTimeToString(backupPolicy.LastJobCompletedAt)); err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting last_job_completed_at: %s", err))
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting last_job_completed_at: %s", err))
 		}
 	}
 
 	if backupPolicy.LifecycleState != nil {
 		if err = d.Set("lifecycle_state", backupPolicy.LifecycleState); err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting lifecycle_state: %s", err))
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting lifecycle_state: %s", err))
 		}
 	}
 
 	if backupPolicy.ResourceType != nil {
 		if err = d.Set("resource_type", backupPolicy.ResourceType); err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting resource_type: %s", err))
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting resource_type: %s", err))
 		}
 	}
 
 	if err = d.Set("version", response.Headers.Get("Etag")); err != nil {
-		return diag.FromErr(fmt.Errorf("Error setting version: %s", err))
+		return diag.FromErr(fmt.Errorf("[ERROR] Error setting version: %s", err))
 	}
 
 	return nil
@@ -296,7 +296,7 @@ func resourceIBMIsBackupPolicyUpdate(context context.Context, d *schema.Resource
 		_, response, err := vpcClient.UpdateBackupPolicyWithContext(context, updateBackupPolicyOptions)
 		if err != nil {
 			log.Printf("[DEBUG] UpdateBackupPolicyWithContext failed %s\n%s", err, response)
-			return diag.FromErr(fmt.Errorf("UpdateBackupPolicyWithContext failed %s\n%s", err, response))
+			return diag.FromErr(fmt.Errorf("[ERROR] UpdateBackupPolicyWithContext failed %s\n%s", err, response))
 		}
 	}
 
@@ -310,7 +310,7 @@ func resourceIBMIsBackupPolicyUpdate(context context.Context, d *schema.Resource
 				return nil
 			}
 			log.Printf("[DEBUG] GetBackupPolicyWithContext failed %s\n%s", err, response)
-			return diag.FromErr(fmt.Errorf("GetBackupPolicyWithContext failed %s\n%s", err, response))
+			return diag.FromErr(fmt.Errorf("[ERROR] GetBackupPolicyWithContext failed %s\n%s", err, response))
 		}
 		backupPolicyPlanID := backupPolicy.Plans[0].ID
 		getBackupPolicyPlanOptions := &vpcv1.GetBackupPolicyPlanOptions{}
@@ -323,7 +323,7 @@ func resourceIBMIsBackupPolicyUpdate(context context.Context, d *schema.Resource
 				return nil
 			}
 			log.Printf("[DEBUG] GetBackupPolicyPlanWithContext failed %s\n%s", err, response)
-			return diag.FromErr(fmt.Errorf("GetBackupPolicyPlanWithContext failed %s\n%s", err, response))
+			return diag.FromErr(fmt.Errorf("[ERROR] GetBackupPolicyPlanWithContext failed %s\n%s", err, response))
 		}
 		etag := response.Headers.Get("E-tag")
 		plans := d.Get("plans").([]interface{})
@@ -378,7 +378,7 @@ func resourceIBMIsBackupPolicyUpdate(context context.Context, d *schema.Resource
 				_, response, err := vpcClient.UpdateBackupPolicyPlanWithContext(context, updateBackupPolicyPlanOptions)
 				if err != nil {
 					log.Printf("[DEBUG] UpdateBackupPolicyPlanWithContext failed %s\n%s", err, response)
-					return diag.FromErr(fmt.Errorf("UpdateBackupPolicyPlanWithContext failed %s\n%s", err, response))
+					return diag.FromErr(fmt.Errorf("[ERROR] UpdateBackupPolicyPlanWithContext failed %s\n%s", err, response))
 				}
 			}
 
@@ -400,7 +400,7 @@ func resourceIBMIsBackupPolicyDelete(context context.Context, d *schema.Resource
 	_, response, err := vpcClient.DeleteBackupPolicyWithContext(context, deleteBackupPolicyOptions)
 	if err != nil {
 		log.Printf("[DEBUG] DeleteBackupPolicyWithContext failed %s\n%s", err, response)
-		return diag.FromErr(fmt.Errorf("DeleteBackupPolicyWithContext failed %s\n%s", err, response))
+		return diag.FromErr(fmt.Errorf("[ERROR] DeleteBackupPolicyWithContext failed %s\n%s", err, response))
 	}
 	d.SetId("")
 	return nil

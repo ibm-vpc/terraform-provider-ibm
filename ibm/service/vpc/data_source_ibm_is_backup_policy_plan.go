@@ -120,7 +120,7 @@ func dataSourceIBMIsBackupPolicyPlanRead(context context.Context, d *schema.Reso
 		backupPolicyPlanInfo, response, err := sess.GetBackupPolicyPlanWithContext(context, getBackupPolicyPlanOptions)
 		if err != nil {
 			log.Printf("[DEBUG] GetBackupPolicyPlanWithContext failed %s\n%s", err, response)
-			return diag.FromErr(fmt.Errorf("GetBackupPolicyPlanWithContext failed %s\n%s", err, response))
+			return diag.FromErr(fmt.Errorf("[ERROR] [ERROR] GetBackupPolicyPlanWithContext failed %s\n%s", err, response))
 		}
 		backupPolicyPlan = backupPolicyPlanInfo
 	} else if v, ok := d.GetOk("name"); ok {
@@ -133,7 +133,7 @@ func dataSourceIBMIsBackupPolicyPlanRead(context context.Context, d *schema.Reso
 		backupPolicyPlanCollection, response, err := sess.ListBackupPolicyPlansWithContext(context, listBackupPolicyPlansOptions)
 		if err != nil {
 			log.Printf("[DEBUG] ListBackupPolicyPlansWithContext failed %s\n%s", err, response)
-			return diag.FromErr(fmt.Errorf("ListBackupPolicyPlansWithContext failed %s\n%s", err, response))
+			return diag.FromErr(fmt.Errorf("[ERROR] ListBackupPolicyPlansWithContext failed %s\n%s", err, response))
 		}
 		for _, backupPolicyPlanInfo := range backupPolicyPlanCollection.Plans {
 			if *backupPolicyPlanInfo.Name == name {
@@ -142,45 +142,45 @@ func dataSourceIBMIsBackupPolicyPlanRead(context context.Context, d *schema.Reso
 			}
 		}
 		if backupPolicyPlan == nil {
-			return diag.FromErr(fmt.Errorf("No BackupPolicy Plan found with name (%s)", name))
+			return diag.FromErr(fmt.Errorf("[ERROR] No BackupPolicy Plan found with name (%s)", name))
 		}
 	}
 
 	d.SetId(*backupPolicyPlan.ID)
 
 	if err = d.Set("active", backupPolicyPlan.Active); err != nil {
-		return diag.FromErr(fmt.Errorf("Error setting active: %s", err))
+		return diag.FromErr(fmt.Errorf("[ERROR] Error setting active: %s", err))
 	}
 	if err = d.Set("attach_user_tags", backupPolicyPlan.AttachUserTags); err != nil {
-		return diag.FromErr(fmt.Errorf("Error setting attach_user_tags: %s", err))
+		return diag.FromErr(fmt.Errorf("[ERROR] Error setting attach_user_tags: %s", err))
 	}
 	if err = d.Set("copy_user_tags", backupPolicyPlan.CopyUserTags); err != nil {
-		return diag.FromErr(fmt.Errorf("Error setting copy_user_tags: %s", err))
+		return diag.FromErr(fmt.Errorf("[ERROR] Error setting copy_user_tags: %s", err))
 	}
 	if err = d.Set("created_at", flex.DateTimeToString(backupPolicyPlan.CreatedAt)); err != nil {
-		return diag.FromErr(fmt.Errorf("Error setting created_at: %s", err))
+		return diag.FromErr(fmt.Errorf("[ERROR] Error setting created_at: %s", err))
 	}
 	if err = d.Set("cron_spec", backupPolicyPlan.CronSpec); err != nil {
-		return diag.FromErr(fmt.Errorf("Error setting cron_spec: %s", err))
+		return diag.FromErr(fmt.Errorf("[ERROR] Error setting cron_spec: %s", err))
 	}
 
 	if backupPolicyPlan.DeletionTrigger != nil {
 		err = d.Set("deletion_trigger", dataSourceBackupPolicyPlanFlattenDeletionTrigger(*backupPolicyPlan.DeletionTrigger))
 		if err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting deletion_trigger %s", err))
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting deletion_trigger %s", err))
 		}
 	}
 	if err = d.Set("href", backupPolicyPlan.Href); err != nil {
-		return diag.FromErr(fmt.Errorf("Error setting href: %s", err))
+		return diag.FromErr(fmt.Errorf("[ERROR] Error setting href: %s", err))
 	}
 	if err = d.Set("lifecycle_state", backupPolicyPlan.LifecycleState); err != nil {
-		return diag.FromErr(fmt.Errorf("Error setting lifecycle_state: %s", err))
+		return diag.FromErr(fmt.Errorf("[ERROR] Error setting lifecycle_state: %s", err))
 	}
 	if err = d.Set("name", backupPolicyPlan.Name); err != nil {
-		return diag.FromErr(fmt.Errorf("Error setting name: %s", err))
+		return diag.FromErr(fmt.Errorf("[ERROR] Error setting name: %s", err))
 	}
 	if err = d.Set("resource_type", backupPolicyPlan.ResourceType); err != nil {
-		return diag.FromErr(fmt.Errorf("Error setting resource_type: %s", err))
+		return diag.FromErr(fmt.Errorf("[ERROR] Error setting resource_type: %s", err))
 	}
 
 	return nil

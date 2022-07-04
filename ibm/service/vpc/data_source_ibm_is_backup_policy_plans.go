@@ -127,7 +127,7 @@ func dataSourceIBMIsBackupPolicyPlansRead(context context.Context, d *schema.Res
 	backupPolicyPlanCollection, response, err := vpcClient.ListBackupPolicyPlansWithContext(context, listBackupPolicyPlansOptions)
 	if err != nil {
 		log.Printf("[DEBUG] ListBackupPolicyPlansWithContext failed %s\n%s", err, response)
-		return diag.FromErr(fmt.Errorf("ListBackupPolicyPlansWithContext failed %s\n%s", err, response))
+		return diag.FromErr(fmt.Errorf("[ERROR] ListBackupPolicyPlansWithContext failed %s\n%s", err, response))
 	}
 
 	// Use the provided filter argument and construct a new list with only the requested resource(s)
@@ -147,7 +147,7 @@ func dataSourceIBMIsBackupPolicyPlansRead(context context.Context, d *schema.Res
 	}
 	if suppliedFilter {
 		if len(backupPolicyPlanCollection.Plans) == 0 {
-			return diag.FromErr(fmt.Errorf("no Plans found with name %s", name))
+			return diag.FromErr(fmt.Errorf("[ERROR] no Plans found with name %s", name))
 		}
 		d.SetId(name)
 	} else {
@@ -157,7 +157,7 @@ func dataSourceIBMIsBackupPolicyPlansRead(context context.Context, d *schema.Res
 	if backupPolicyPlanCollection.Plans != nil {
 		err = d.Set("plans", dataSourceBackupPolicyPlanCollectionFlattenPlans(backupPolicyPlanCollection.Plans))
 		if err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting plans %s", err))
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting plans %s", err))
 		}
 	}
 
