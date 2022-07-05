@@ -35,7 +35,10 @@ data "ibm_is_vpc" "example" {
 ## Argument reference
 Review the argument references that you can specify for your data source. 
 
-- `name` - (Required, String) The name of the VPC.
+- `name` - (Optional, String) The name of the VPC.
+    ~> **Note:** `name` and `identifier` are mutually exclusive.
+- `identifier` - (Optional, String) The id of the VPC.
+    ~> **Note:** `name` and `identifier` are mutually exclusive.
 
 ## Attribute reference
 In addition to all argument reference list, you can access the following attribute references after your data source is created. 
