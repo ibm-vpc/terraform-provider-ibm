@@ -107,11 +107,11 @@ func resourceIBMISSecurityGroupTargetCreate(d *schema.ResourceData, meta interfa
 	securityGroupID := d.Get("security_group").(string)
 	targetID := d.Get(isSecurityGroupTargetID).(string)
 
-	createSecurityGroupTargetBindingOptions := &vpcv1.CreateSecurityGroupTargetBindingOptions{}
+	createSecurityGroupTargetBindingOptions := &vpcv1.AddSecurityGroupTargetOptions{}
 	createSecurityGroupTargetBindingOptions.SecurityGroupID = &securityGroupID
 	createSecurityGroupTargetBindingOptions.ID = &targetID
 
-	sg, response, err := sess.CreateSecurityGroupTargetBinding(createSecurityGroupTargetBindingOptions)
+	sg, response, err := sess.AddSecurityGroupTarget(createSecurityGroupTargetBindingOptions)
 	if err != nil || sg == nil {
 		return fmt.Errorf("[ERROR] Error while creating Security Group Target Binding %s\n%s", err, response)
 	}
@@ -193,8 +193,8 @@ func resourceIBMISSecurityGroupTargetDelete(d *schema.ResourceData, meta interfa
 		return fmt.Errorf("[ERROR] Error Getting Security Group Targets (%s): %s\n%s", securityGroupID, err, response)
 	}
 
-	deleteSecurityGroupTargetBindingOptions := sess.NewDeleteSecurityGroupTargetBindingOptions(securityGroupID, securityGroupTargetID)
-	response, err = sess.DeleteSecurityGroupTargetBinding(deleteSecurityGroupTargetBindingOptions)
+	deleteSecurityGroupTargetBindingOptions := sess.NewRemoveSecurityGroupTargetOptions(securityGroupID, securityGroupTargetID)
+	response, err = sess.RemoveSecurityGroupTarget(deleteSecurityGroupTargetBindingOptions)
 	if err != nil {
 		return fmt.Errorf("[ERROR] Error Deleting Security Group Targets : %s\n%s", err, response)
 	}

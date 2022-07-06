@@ -587,11 +587,11 @@ func resourceIBMIsInstanceNetworkInterfaceUpdate(context context.Context, d *sch
 		add := flex.ExpandStringList(nv.Difference(ov).List())
 		if len(add) > 0 {
 			for i := range add {
-				createsgnicoptions := &vpcv1.CreateSecurityGroupTargetBindingOptions{
+				createsgnicoptions := &vpcv1.AddSecurityGroupTargetOptions{
 					SecurityGroupID: &add[i],
 					ID:              &network_interface_id,
 				}
-				_, response, err := vpcClient.CreateSecurityGroupTargetBinding(createsgnicoptions)
+				_, response, err := vpcClient.AddSecurityGroupTarget(createsgnicoptions)
 				if err != nil {
 					return diag.FromErr(fmt.Errorf("[ERROR] Error while creating security group %q for network interface of instance %s\n%s: %q", add[i], d.Id(), err, response))
 				}
@@ -604,11 +604,11 @@ func resourceIBMIsInstanceNetworkInterfaceUpdate(context context.Context, d *sch
 		}
 		if len(remove) > 0 {
 			for i := range remove {
-				deletesgnicoptions := &vpcv1.DeleteSecurityGroupTargetBindingOptions{
+				deletesgnicoptions := &vpcv1.RemoveSecurityGroupTargetOptions{
 					SecurityGroupID: &remove[i],
 					ID:              &network_interface_id,
 				}
-				response, err := vpcClient.DeleteSecurityGroupTargetBinding(deletesgnicoptions)
+				response, err := vpcClient.RemoveSecurityGroupTarget(deletesgnicoptions)
 				if err != nil {
 					return diag.FromErr(fmt.Errorf("[ERROR] Error while removing security group %q for network interface of instance %s\n%s: %q", remove[i], d.Id(), err, response))
 				}
