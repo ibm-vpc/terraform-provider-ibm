@@ -180,6 +180,10 @@ var HostPoolID string
 // Continuous Delivery
 var CdResourceGroupID string
 
+// VPN Server
+var ISCertificateCrn string
+var ISClientCaCrn string
+
 func init() {
 	testlogger := os.Getenv("TF_LOG")
 	if testlogger != "" {
@@ -956,6 +960,18 @@ func init() {
 	CdResourceGroupID = os.Getenv("IBM_CD_RESOURCE_GROUP_ID")
 	if CdResourceGroupID == "" {
 		fmt.Println("[WARN] Set the environment variable IBM_CD_RESOURCE_GROUP_ID for testing CD resources, CD tests will fail if this is not set")
+	}
+
+	ISCertificateCrn = os.Getenv("IS_CERTIFICATE_CRN")
+	if ISCertificateCrn == "" {
+		ISCertificateCrn = "crn:v1:staging:public:secrets-manager:eu-gb:a/efe5afc483594adaa8325e2b4d1290df:27835509-694d-4742-8a77-c02cc7e067d0:secret:601250e1-e800-6e99-dfd2-2dbadd52f060" // for next gen infrastructure
+		fmt.Println("[INFO] Set the environment variable IS_CERTIFICATE_CRN for testing ibm_is_vpn_server resource else it is set to default value 'crn:v1:staging:public:secrets-manager:eu-gb:a/efe5afc483594adaa8325e2b4d1290df:27835509-694d-4742-8a77-c02cc7e067d0:secret:601250e1-e800-6e99-dfd2-2dbadd52f060'")
+	}
+
+	ISClientCaCrn = os.Getenv("IS_CLIENT_CA_CRN")
+	if ISClientCaCrn == "" {
+		ISClientCaCrn = "crn:v1:staging:public:secrets-manager:eu-gb:a/efe5afc483594adaa8325e2b4d1290df:27835509-694d-4742-8a77-c02cc7e067d0:secret:05df98a9-15f7-10ea-8383-714836589bed" // for next gen infrastructure
+		fmt.Println("[INFO] Set the environment variable IS_CLIENT_CA_CRN for testing ibm_is_vpn_server resource else it is set to default value 'crn:v1:staging:public:secrets-manager:eu-gb:a/efe5afc483594adaa8325e2b4d1290df:27835509-694d-4742-8a77-c02cc7e067d0:secret:05df98a9-15f7-10ea-8383-714836589bed'")
 	}
 }
 

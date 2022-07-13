@@ -1,4 +1,4 @@
-// Copyright IBM Corp. 2017, 2021 All Rights Reserved.
+// Copyright IBM Corp. 2017, 2022 All Rights Reserved.
 // Licensed under the Mozilla Public License v2.0
 
 package vpc
@@ -55,6 +55,20 @@ func ResourceIBMISVPCRoutingTable() *schema.Resource {
 				Required:    true,
 				ForceNew:    true,
 				Description: "The VPC identifier.",
+			},
+			"accept_routes_from": {
+				Type:        schema.TypeList,
+				Required:    true,
+				Description: "The filters specifying the resources that may create routes in this routing table.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"resource_type": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: "The resource type: vpn_gateway or vpn_server",
+						},
+					},
+				},
 			},
 			rtRouteDirectLinkIngress: {
 				Type:        schema.TypeBool,
@@ -172,6 +186,7 @@ func resourceIBMISVPCRoutingTableCreate(d *schema.ResourceData, meta interface{}
 
 	vpcID := d.Get(rtVpcID).(string)
 	rtName := d.Get(rtName).(string)
+	// acptresourcetype
 
 	createVpcRoutingTableOptions := sess.NewCreateVPCRoutingTableOptions(vpcID)
 	createVpcRoutingTableOptions.SetName(rtName)
@@ -179,6 +194,23 @@ func resourceIBMISVPCRoutingTableCreate(d *schema.ResourceData, meta interface{}
 		routeDirectLinkIngress := d.Get(rtRouteDirectLinkIngress).(bool)
 		createVpcRoutingTableOptions.RouteDirectLinkIngress = &routeDirectLinkIngress
 	}
+
+	if acceptRoutesFrom, ok := d.GetOk("accept_routes_from"); ok {
+		acptRoutes := acceptRoutesFrom.([]interface{})
+		var aroutes []vpcv1.ResourceFilter
+		for _, resType := range acptRoutes {
+			accptroute := resType.(map[string]interface{})
+			aroutesIntf := &vpcv1.ResourceFilter{}
+			resourcetype, ok := accptroute["resource_type"]
+			resourceTypestr := resourcetype.(string)
+			if ok && resourcetype != "" {
+				aroutesIntf.ResourceType = &resourceTypestr
+			}
+			aroutes = append(aroutes, *aroutesIntf)
+		}
+		createVpcRoutingTableOptions.AcceptRoutesFrom = aroutes
+	}
+
 	if _, ok := d.GetOk(rtRouteTransitGatewayIngress); ok {
 		routeTransitGatewayIngress := d.Get(rtRouteTransitGatewayIngress).(bool)
 		createVpcRoutingTableOptions.RouteTransitGatewayIngress = &routeTransitGatewayIngress
@@ -246,34 +278,66 @@ func resourceIBMISVPCRoutingTableUpdate(d *schema.ResourceData, meta interface{}
 	if err != nil {
 		return err
 	}
+	//Etag
+	idSett := strings.Split(d.Id(), "/")
+	getVpcRoutingTableOptions := sess.NewGetVPCRoutingTableOptions(idSett[0], idSett[1])
+	_, respGet, err := sess.GetVPCRoutingTable(getVpcRoutingTableOptions)
+	eTag := respGet.Headers.Get("ETag")
 
 	idSet := strings.Split(d.Id(), "/")
 	updateVpcRoutingTableOptions := new(vpcv1.UpdateVPCRoutingTableOptions)
 	updateVpcRoutingTableOptions.VPCID = &idSet[0]
 	updateVpcRoutingTableOptions.ID = &idSet[1]
+	hasChange := false
 	// Construct an instance of the RoutingTablePatch model
 	routingTablePatchModel := new(vpcv1.RoutingTablePatch)
 
 	if d.HasChange(rtName) {
 		name := d.Get(rtName).(string)
 		routingTablePatchModel.Name = core.StringPtr(name)
+		hasChange = true
+	}
+	if d.HasChange("accept_routes_from") {
+		acceptRoutesFrom := d.Get("accept_routes_from")
+		acptRoutes := acceptRoutesFrom.([]interface{})
+		var aroutes []vpcv1.ResourceFilter
+		for _, resType := range acptRoutes {
+			accptroute := resType.(map[string]interface{})
+			aroutesIntf := &vpcv1.ResourceFilter{}
+			resourcetype, ok := accptroute["resource_type"]
+			resourceTypestr := resourcetype.(string)
+			if ok && resourcetype != "" {
+				aroutesIntf.ResourceType = &resourceTypestr
+			}
+			aroutes = append(aroutes, *aroutesIntf)
+		}
+		routingTablePatchModel.AcceptRoutesFrom = aroutes
+		hasChange = true
 	}
 	if d.HasChange(rtRouteDirectLinkIngress) {
 		routeDirectLinkIngress := d.Get(rtRouteDirectLinkIngress).(bool)
 		routingTablePatchModel.RouteDirectLinkIngress = core.BoolPtr(routeDirectLinkIngress)
+		hasChange = true
 	}
 	if d.HasChange(rtRouteTransitGatewayIngress) {
 		routeTransitGatewayIngress := d.Get(rtRouteTransitGatewayIngress).(bool)
 		routingTablePatchModel.RouteTransitGatewayIngress = core.BoolPtr(routeTransitGatewayIngress)
+		hasChange = true
 	}
 	if d.HasChange(rtRouteVPCZoneIngress) {
 		routeVPCZoneIngress := d.Get(rtRouteVPCZoneIngress).(bool)
 		routingTablePatchModel.RouteVPCZoneIngress = core.BoolPtr(routeVPCZoneIngress)
+		hasChange = true
 	}
+	if hasChange {
+		updateVpcRoutingTableOptions.IfMatch = &eTag
+	}
+
 	routingTablePatchModelAsPatch, asPatchErr := routingTablePatchModel.AsPatch()
 	if asPatchErr != nil {
 		return fmt.Errorf("[ERROR] Error calling asPatch for RoutingTablePatchModel: %s", asPatchErr)
 	}
+
 	updateVpcRoutingTableOptions.RoutingTablePatch = routingTablePatchModelAsPatch
 	_, response, err := sess.UpdateVPCRoutingTable(updateVpcRoutingTableOptions)
 	if err != nil {
