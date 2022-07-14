@@ -233,6 +233,12 @@ func ResourceIBMISInstanceTemplate() *schema.Resource {
 										ForceNew:    true,
 										Description: "The CRN of the [Key Protect Root Key](https://cloud.ibm.com/docs/key-protect?topic=key-protect-getting-started-tutorial) or [Hyper Protect Crypto Service Root Key](https://cloud.ibm.com/docs/hs-crypto?topic=hs-crypto-get-started) for this resource.",
 									},
+									isVolumeTags: {
+										Type:        schema.TypeString,
+										Optional:    true,
+										ForceNew:    true,
+										Description: "User Tags of the volume to be attached",
+									},
 								},
 							},
 						},
@@ -349,6 +355,12 @@ func ResourceIBMISInstanceTemplate() *schema.Resource {
 							Type:     schema.TypeString,
 							Optional: true,
 							Computed: true,
+						},
+						isVolumeTags: {
+							Type:        schema.TypeString,
+							Optional:    true,
+							ForceNew:    true,
+							Description: "User Tags of the volume to be attached",
 						},
 						isInstanceTemplateBootEncryption: {
 							Type:     schema.TypeString,
@@ -584,6 +596,19 @@ func instanceTemplateCreate(d *schema.ResourceData, meta interface{}, profile, n
 			volTemplate.Name = &namestr
 		}
 
+		var userTags *schema.Set
+		if v, ok := bootvol[isVolumeTags]; ok {
+			userTags = v.(*schema.Set)
+			if userTags != nil && userTags.Len() != 0 {
+				userTagsArray := make([]string, userTags.Len())
+				for i, userTag := range userTags.List() {
+					userTagStr := userTag.(string)
+					userTagsArray[i] = userTagStr
+				}
+				volTemplate.UserTags = userTagsArray
+			}
+		}
+
 		volcap := 100
 		volcapint64 := int64(volcap)
 		volprof := "general-purpose"
@@ -653,6 +678,20 @@ func instanceTemplateCreate(d *schema.ResourceData, meta interface{}, profile, n
 						CRN: &encryptionKey,
 					}
 				}
+
+				var userTags *schema.Set
+				if v, ok := newvol[isVolumeTags]; ok {
+					userTags = v.(*schema.Set)
+					if userTags != nil && userTags.Len() != 0 {
+						userTagsArray := make([]string, userTags.Len())
+						for i, userTag := range userTags.List() {
+							userTagStr := userTag.(string)
+							userTagsArray[i] = userTagStr
+						}
+						volPrototype.UserTags = userTagsArray
+					}
+				}
+
 				volInterface.Volume = volPrototype
 			}
 
@@ -1008,6 +1047,9 @@ func instanceTemplateGet(d *schema.ResourceData, meta interface{}, ID string) er
 				volEncryption := volumeIntf.EncryptionKey
 				volEncryptionIntf := volEncryption.(*vpcv1.EncryptionKeyIdentity)
 				bootVol[isInstanceTemplateBootEncryption] = volEncryptionIntf.CRN
+			}
+			if volumeIntf.UserTags != nil {
+				bootVol[isVolumeTags] = volumeIntf.UserTags
 			}
 		}
 

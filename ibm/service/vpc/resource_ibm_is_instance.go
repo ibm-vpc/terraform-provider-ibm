@@ -25,6 +25,7 @@ const (
 	IsInstanceCRN                     = "crn"
 	isInstanceKeys                    = "keys"
 	isInstanceTags                    = "tags"
+	isInstanceBootVolumeTags          = "tags"
 	isInstanceNetworkInterfaces       = "network_interfaces"
 	isInstancePrimaryNetworkInterface = "primary_network_interface"
 	isInstanceNicName                 = "name"
@@ -500,6 +501,15 @@ func ResourceIBMISInstance() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+
+						isInstanceBootVolumeTags: {
+							Type:        schema.TypeSet,
+							Optional:    true,
+							Computed:    true,
+							Elem:        &schema.Schema{Type: schema.TypeString, ValidateFunc: validate.InvokeValidator("ibm_is_volume", "tags")},
+							Set:         flex.ResourceIBMVPCHash,
+							Description: "UserTags for the volume instance",
+						},
 					},
 				},
 			},
@@ -904,6 +914,26 @@ func instanceCreateByImage(d *schema.ResourceData, meta interface{}, profile, na
 		volTemplate.Profile = &vpcv1.VolumeProfileIdentity{
 			Name: &volprof,
 		}
+
+		var userTags *schema.Set
+		if v, ok := bootvol[isInstanceBootVolumeTags]; ok {
+			userTags = v.(*schema.Set)
+			if userTags != nil && userTags.Len() != 0 {
+				userTagsArray := make([]string, userTags.Len())
+				for i, userTag := range userTags.List() {
+					userTagStr := userTag.(string)
+					userTagsArray[i] = userTagStr
+				}
+				schematicTags := os.Getenv("IC_ENV_TAGS")
+				var envTags []string
+				if schematicTags != "" {
+					envTags = strings.Split(schematicTags, ",")
+					userTagsArray = append(userTagsArray, envTags...)
+				}
+				volTemplate.UserTags = userTagsArray
+			}
+		}
+
 		deletebool := true
 		instanceproto.BootVolumeAttachment = &vpcv1.VolumeAttachmentPrototypeInstanceByImageContext{
 			DeleteVolumeOnInstanceDelete: &deletebool,
@@ -1177,6 +1207,24 @@ func instanceCreateByTemplate(d *schema.ResourceData, meta interface{}, profile,
 		volTemplate.Profile = &vpcv1.VolumeProfileIdentity{
 			Name: &volprof,
 		}
+		var userTags *schema.Set
+		if v, ok := bootvol[isInstanceBootVolumeTags]; ok {
+			userTags = v.(*schema.Set)
+			if userTags != nil && userTags.Len() != 0 {
+				userTagsArray := make([]string, userTags.Len())
+				for i, userTag := range userTags.List() {
+					userTagStr := userTag.(string)
+					userTagsArray[i] = userTagStr
+				}
+				schematicTags := os.Getenv("IC_ENV_TAGS")
+				var envTags []string
+				if schematicTags != "" {
+					envTags = strings.Split(schematicTags, ",")
+					userTagsArray = append(userTagsArray, envTags...)
+				}
+				volTemplate.UserTags = userTagsArray
+			}
+		}
 		deletebool := true
 
 		instanceproto.BootVolumeAttachment = &vpcv1.VolumeAttachmentPrototypeInstanceByImageContext{
@@ -1434,6 +1482,24 @@ func instanceCreateByVolume(d *schema.ResourceData, meta interface{}, profile, n
 		volprof := "general-purpose"
 		volTemplate.Profile = &vpcv1.VolumeProfileIdentity{
 			Name: &volprof,
+		}
+		var userTags *schema.Set
+		if v, ok := bootvol[isInstanceBootVolumeTags]; ok {
+			userTags = v.(*schema.Set)
+			if userTags != nil && userTags.Len() != 0 {
+				userTagsArray := make([]string, userTags.Len())
+				for i, userTag := range userTags.List() {
+					userTagStr := userTag.(string)
+					userTagsArray[i] = userTagStr
+				}
+				schematicTags := os.Getenv("IC_ENV_TAGS")
+				var envTags []string
+				if schematicTags != "" {
+					envTags = strings.Split(schematicTags, ",")
+					userTagsArray = append(userTagsArray, envTags...)
+				}
+				volTemplate.UserTags = userTagsArray
+			}
 		}
 		snapshotId, ok := bootvol[isInstanceVolumeSnapshot]
 		snapshotIdStr := snapshotId.(string)
@@ -1954,6 +2020,9 @@ func instanceGet(d *schema.ResourceData, meta interface{}, id string) error {
 				}
 				if vol.SourceSnapshot != nil {
 					bootVol[isInstanceVolumeSnapshot] = vol.SourceSnapshot.ID
+				}
+				if vol.UserTags != nil {
+					bootVol[isInstanceBootVolumeTags] = vol.UserTags
 				}
 			}
 		}

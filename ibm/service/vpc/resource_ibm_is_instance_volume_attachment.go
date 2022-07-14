@@ -93,7 +93,7 @@ func ResourceIBMISInstanceVolumeAttachment() *schema.Resource {
 				Optional:      true,
 				Computed:      true,
 				ForceNew:      true,
-				ConflictsWith: []string{isInstanceVolIops, isInstanceVolumeAttVolumeReferenceName, isInstanceVolProfile, isInstanceVolCapacity, isInstanceVolumeSnapshot},
+				ConflictsWith: []string{isInstanceVolIops, isInstanceVolumeAttVolumeReferenceName, isInstanceVolProfile, isInstanceVolCapacity, isInstanceVolumeSnapshot, isVolumeTags},
 				ValidateFunc:  validate.InvokeValidator("ibm_is_instance_volume_attachment", isInstanceName),
 				Description:   "Instance id",
 			},
@@ -112,6 +112,14 @@ func ResourceIBMISInstanceVolumeAttachment() *schema.Resource {
 				Computed:     true,
 				ValidateFunc: validate.InvokeValidator("ibm_is_instance_volume_attachment", isInstanceVolumeAttVolumeReferenceName),
 				Description:  "The unique user-defined name for this volume",
+			},
+
+			isVolumeTags: {
+				Type:          schema.TypeString,
+				Optional:      true,
+				ForceNew:      true,
+				ConflictsWith: []string{isInstanceVolAttVol},
+				Description:   "User Tags of the volume to be attached",
 			},
 
 			isInstanceVolProfile: {
@@ -263,7 +271,18 @@ func instanceVolAttachmentCreate(d *schema.ResourceData, meta interface{}, insta
 			volnamestr := volname.(string)
 			volProtoVol.Name = &volnamestr
 		}
-
+		var userTags *schema.Set
+		if v, ok := d.GetOk(isVolumeTags); ok {
+			userTags = v.(*schema.Set)
+			if userTags != nil && userTags.Len() != 0 {
+				userTagsArray := make([]string, userTags.Len())
+				for i, userTag := range userTags.List() {
+					userTagStr := userTag.(string)
+					userTagsArray[i] = userTagStr
+				}
+				volProtoVol.UserTags = userTagsArray
+			}
+		}
 		volSnapshotStr := ""
 		if volSnapshot, ok := d.GetOk(isInstanceVolumeSnapshot); ok {
 			volSnapshotStr = volSnapshot.(string)
