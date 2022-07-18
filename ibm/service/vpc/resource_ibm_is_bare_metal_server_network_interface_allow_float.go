@@ -226,30 +226,12 @@ func createVlanTypeNetworkInterfaceAllowFloat(context context.Context, d *schema
 	}
 	nicOptions.InterfaceType = &interfaceType
 
-	log.Printf("[INFO] UJJK isBareMetalServerNicAllowIPSpoofing GET %v", d.Get(isBareMetalServerNicAllowIPSpoofing))
-	//getok
-	ais, ok := d.GetOk(isBareMetalServerNicAllowIPSpoofing)
-	log.Printf("[INFO] UJJK isBareMetalServerNicAllowIPSpoofing GETOK %v, =====  %t", ais, ok)
-
-	//getokexiss
-	aisx, ok := d.GetOkExists(isBareMetalServerNicAllowIPSpoofing)
-	log.Printf("[INFO] UJJK isBareMetalServerNicAllowIPSpoofing GetOkExists %v, =====  %t", aisx, ok)
-
 	if ais, ok := d.GetOkExists(isBareMetalServerNicAllowIPSpoofing); ok {
 		allowIPSpoofing := ais.(bool)
 		if allowIPSpoofing {
 			nicOptions.AllowIPSpoofing = &allowIPSpoofing
 		}
 	}
-
-	log.Printf("[INFO] UJJK isBareMetalServerNicEnableInfraNAT GET %v", d.Get(isBareMetalServerNicEnableInfraNAT))
-	//getok
-	kais, ok := d.GetOk(isBareMetalServerNicEnableInfraNAT)
-	log.Printf("[INFO] UJJK isBareMetalServerNicEnableInfraNAT GETOK %v, =====  %t", kais, ok)
-
-	//getokexiss
-	kaisx, ok := d.GetOkExists(isBareMetalServerNicEnableInfraNAT)
-	log.Printf("[INFO] UJJK  isBareMetalServerNicEnableInfraNAT GetOkExists %v, =====  %t", kaisx, ok)
 
 	if ein, ok := d.GetOkExists(isBareMetalServerNicEnableInfraNAT); ok {
 		enableInfrastructureNat := ein.(bool)
