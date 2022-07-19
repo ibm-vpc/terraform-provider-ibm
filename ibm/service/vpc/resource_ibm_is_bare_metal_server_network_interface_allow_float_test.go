@@ -43,6 +43,16 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCKVmnMOlHKcZK8tpt3MP1lqOLAcqcJzhsvJcjscgVE
 						"ibm_is_bare_metal_server.testacc_bms", "name", name),
 					resource.TestCheckResourceAttr(
 						"ibm_is_bare_metal_server.testacc_bms", "zone", acc.ISZoneName),
+					resource.TestCheckResourceAttr(
+						"ibm_is_subnet_reserved_ip.testacc_rip", "name", subnetreservedipname),
+					resource.TestCheckResourceAttr(
+						"ibm_is_bare_metal_server_network_interface_allow_float.bms_nic", "interface_type", "vlan"),
+					resource.TestCheckResourceAttr(
+						"ibm_is_bare_metal_server_network_interface_allow_float.bms_nic", "allow_ip_spoofing", "false"),
+					resource.TestCheckResourceAttr(
+						"ibm_is_bare_metal_server_network_interface_allow_float.bms_nic", "enable_infrastructure_nat", "true"),
+					resource.TestCheckResourceAttr(
+						"ibm_is_bare_metal_server_network_interface_allow_float.bms_nic", "name", "eth21"),
 				),
 			},
 		},
