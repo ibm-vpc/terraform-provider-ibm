@@ -410,7 +410,11 @@ func resourceIBMISSecurityGroupDelete(d *schema.ResourceData, meta interface{}) 
 				deleteSecurityGroupTargetBindingOptions := sess.NewDeleteSecurityGroupTargetBindingOptions(id, *securityGroupTargetReference.ID)
 				response, err = sess.DeleteSecurityGroupTargetBinding(deleteSecurityGroupTargetBindingOptions)
 				if err != nil {
-					return fmt.Errorf("[ERROR] Error deleting security group target binding while deleting security group : %s\n%s", err, response)
+					if response != nil && response.StatusCode == 404 {
+						log.Printf("[DEBUG] Security group target(%s) binding is already deleted", *securityGroupTargetReference.ID)
+					} else {
+						return fmt.Errorf("[ERROR] Error deleting security group target binding while deleting security group : %s\n%s", err, response)
+					}
 				}
 
 			}
