@@ -39,7 +39,6 @@ Review the argument references that you can specify for your data source.
 - `name` - (Optional, String) The name of the VPC.
 - `identifier` - (Optional, String) The id of the VPC.
 
-
 ## Attribute reference
 In addition to all argument reference list, you can access the following attribute references after your data source is created. 
 
