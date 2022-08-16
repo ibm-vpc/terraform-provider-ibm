@@ -94,7 +94,7 @@ resource "ibm_is_instance_template" "example" {
     name                             = "example-volume-att-01"
     volume_prototype {
       iops     = 3000
-      profile  = "general-purpose"
+      profile  = "custom"
       capacity = 200
     }
   }
@@ -220,22 +220,21 @@ Review the argument references that you can specify for your resource.
   - `security_groups` - (Optional, List) List of security groups of the subnet.
   - `subnet` - (Required, Forces new resource, String) The VPC subnet to assign to the interface.
 - `resource_group` - (Optional, Forces new resource, String) The resource group ID.
-- `volume_attachments` - (Optional, List) A nested block describes the storage volume configuration for the template.
+- `volume_attachments` - (Optional, Force new resource, List) A nested block describes the storage volume configuration for the template. 
 
   Nested scheme for `volume_attachments`:
-	- `name` - (Required, String) The name of the boot volume.
-	- `volume` - (Required, String) The storage volume ID created in VPC.
-  - `delete_volume_on_instance_delete`- (Required, Bool) You can configure to delete the storage volume to delete based on instance deletion.
-  - `volume_prototype` - (Optional, Force new resource, List)
+	- `delete_volume_on_instance_delete`- (Required, Bool) You can configure to delete the storage volume to delete based on instance deletion.
+  - `name` - (Required, String) The name of the boot volume.
+	- `volume` - (Optional, Forces new resource, String) The storage volume ID created in VPC.
+  - `volume_prototype` - (Optional, Forces new resource, List)
 
     Nested scheme for `volume_prototype`:
-    - `capacity` - (Optional, Integer) The capacity of the volume in gigabytes. The specified minimum and maximum capacity values for creating or updating volumes may expand in the future.
-    - `encryption_key` - (Optional, String) The CRN of the [Key Protect Root Key](https://cloud.ibm.com/docs/key-protect?topic=key-protect-getting-started-tutorial) or [Hyper Protect Crypto Service Root Key](https://cloud.ibm.com/docs/hs-crypto?topic=hs-crypto-get-started) for the resource.
-    - `iops` - (Optional, Integer) The maximum input and output operations per second (IOPS) for the volume.
-    - `profile` - (Optional, String) The global unique name for the volume profile to use for the volume.
+    - `capacity` - (Required, Forces new resource, Integer) The capacity of the volume in gigabytes. The specified minimum and maximum capacity values for creating or updating volumes may expand in the future.
+    - `encryption_key` - (Optional, Forces new resource, String) The CRN of the [Key Protect Root Key](https://cloud.ibm.com/docs/key-protect?topic=key-protect-getting-started-tutorial) or [Hyper Protect Crypto Service Root Key](https://cloud.ibm.com/docs/hs-crypto?topic=hs-crypto-get-started) for the resource.
+    - `iops` - (Optional, Forces new resource, Integer) The maximum input and output operations per second (IOPS) for the volume.
+    - `profile` - (Required, Forces new resource, String) The global unique name for the volume profile to use for the volume. Allowed values areFor more information, about volume profiles, see [volume profiles](https://cloud.ibm.com/docs/vpc?topic=vpc-block-storage-profiles)
     
     ~>**Note:** 
-    
     `volume_attachments` provides either `volume` with a storage volume ID, or `volume_prototype` to create a new volume. If you plan to use this template with instance group, provide the `volume_prototype`. Instance group does not support template with existing storage volume IDs.
 - `vpc` - (Required, String) The VPC ID that the instance templates needs to be created.
 - `user_data` -  (Optional, String) The user data provided for the instance.

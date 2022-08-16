@@ -157,13 +157,7 @@ Review the argument references that you can specify for your resource.
 - `capacity` - (Optional, Integer) The capacity of the volume in gigabytes.
 
   ~> **NOTE**
-        <ul>
-        <li> The specified minimum and maximum capacity values for creating or updating volumes may expand in the future. Accepted value is in [10-16000].</li>
-        <li> If unspecified, the capacity will be the source snapshot's `minimum_capacity` when `snapshot` is provided.</li>
-        <li> Supports only expansion on update (must not be less than the current volume capacity)</li>
-        <li> Can be updated only if volume is attached to an running virtual server instance.</li>
-        <li> Stopped instance will be started on update of capacity of the volume.</li>
-        </ul>
+  **&#x2022;** The specified minimum and maximum capacity values for creating or updating volumes may expand in the future. Accepted value is in [10-16000]. </br>**&#x2022;** If unspecified, the capacity will be the source snapshot's `minimum_capacity` when `snapshot` is provided.</br>**&#x2022;** Supports only expansion on update (must not be less than the current volume capacity)</br>**&#x2022;** Can be updated only if volume is attached to an running virtual server instance.</br>**&#x2022;** Stopped instance will be started on update of capacity of the volume.</br>
 
 - `delete_volume_on_attachment_delete` - (Optional, Bool) If set to **true**, when deleting the attachment, the volume will also be deleted. By default it is **true**
 - `delete_volume_on_instance_delete` - (Optional, Bool) If set to **true**, when deleting the instance, the volume will also be deleted. By default it is **false**
@@ -172,8 +166,8 @@ Review the argument references that you can specify for your resource.
 - `iops` - (Optional, Integer) The bandwidth for the new volume.  This value is required for `custom` storage profiles only.
 
   ~> **NOTE**
-      `iops` value can be upgraded and downgraged if volume is attached to an running virtual server instance. Stopped instances will be started on update of volume.
-      - This table shows how storage size affects the `iops` ranges:
+      **&#x2022;** `iops` value can be upgraded and downgraged if volume is attached to an running virtual server instance. Stopped instances will be started on update of volume.</br>
+      **&#x2022;** This table shows how storage size affects the `iops` ranges:
 
                 |   Size range (GB)  |   IOPS range   |
                 |--------------------|----------------|
@@ -187,24 +181,23 @@ Review the argument references that you can specify for your resource.
                 |  4000  -   1999    |  100  -  40000 |
                 |  8000  -   1999    |  100  -  48000 |
                 | 10000  -  16000    |  100  -  48000 |
+      </br>
 
 - `name` - (Required, String) The name of the volume attachment.
 - `profile` - (Optional, String) The globally unique name for this volume profile.
 
   ~> **NOTE**
-        <ul>
-        <li> Allowed values are : [`general-purpose`, `5iops-tier`, `10iops-tier`, `custom`].</li>
-        <li> If `iops` is not present, `general-purpose` is taken as the volume profile.</li>
-        <li> If `iops` is present, `custom` is taken as the volume profile.</li>
-        Tiered profiles [`general-purpose`, `5iops-tier`, `10iops-tier`] can be upgraded and downgraded into each other.</li>
-        <li> Can be updated only if volume is attached to an running virtual server instance.</li>
-        <li> Stopped instances will be started on update of volume.</li></ul>
+        **&#x2022;**  Allowed values are : [`general-purpose`, `5iops-tier`, `10iops-tier`, `custom`].</br>
+        **&#x2022;** If `iops` is not present, `general-purpose` is taken as the volume profile.</br>
+        **&#x2022;** If `iops` is present, `custom` is taken as the volume profile.</br>
+        **&#x2022;** Tiered profiles [`general-purpose`, `5iops-tier`, `10iops-tier`] can be upgraded and downgraded into each other.</br>
+        **&#x2022;** Can be updated only if volume is attached to an running virtual server instance.</br>
+        **&#x2022;** Stopped instances will be started on update of volume.</br>
 - `snapshot` - (Optional, String) The unique identifier for this snapshot from which to clone the new volume. 
 
   ~> **NOTE**
-        <ul>
-        <li> one of `capacity` or `snapshot` must be present for volume creation.</li>
-        <li> If `capacity` is not present or less than `minimum_capacity` of the snapshot, `minimum_capacity` is taken as the volume capacity.</li></ul>
+        **&#x2022;** one of `capacity` or `snapshot` must be present for volume creation.</br>
+        **&#x2022;** If `capacity` is not present or less than `minimum_capacity` of the snapshot, `minimum_capacity` is taken as the volume capacity.</br>
 - `volume` - (Optional, String) The unique identifier for the existing volume
 - `volume_name` - (Optional, String) The unique user-defined name for this new volume.
 
