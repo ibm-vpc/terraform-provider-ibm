@@ -130,6 +130,39 @@ func DataSourceIBMISInstances() *schema.Resource {
 							Computed:    true,
 							Description: "The availability policy to use for this virtual server instance. The action to perform if the compute host experiences a failure.",
 						},
+
+						isInstanceLifecycleState: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The lifecycle state of the virtual server instance.",
+						},
+						isInstanceLifecycleReasons: {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "The reasons for the current lifecycle_state (if any).",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									isInstanceLifecycleReasonsCode: {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "A snake case string succinctly identifying the reason for this lifecycle state.",
+									},
+
+									isInstanceLifecycleReasonsMessage: {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "An explanation of the reason for this lifecycle state.",
+									},
+
+									isInstanceLifecycleReasonsMoreInfo: {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "Link to documentation about the reason for this lifecycle state.",
+									},
+								},
+							},
+						},
+
 						isInstanceStatusReasons: {
 							Type:        schema.TypeList,
 							Computed:    true,
@@ -932,6 +965,26 @@ func instancesList(d *schema.ResourceData, meta interface{}) error {
 			currentGpu[isInstanceGpuMemory] = instance.Gpu.Memory
 			gpuList = append(gpuList, currentGpu)
 			l[isInstanceGpu] = gpuList
+		}
+
+		//set the lifecycle status, reasons
+		if instance.LifecycleState != nil {
+			l[isInstanceLifecycleState] = *instance.LifecycleState
+		}
+		if instance.LifecycleReasons != nil {
+			lifecycleReasonsList := make([]map[string]interface{}, 0)
+			for _, lr := range instance.LifecycleReasons {
+				currentLR := map[string]interface{}{}
+				if lr.Code != nil && lr.Message != nil {
+					currentLR[isInstanceLifecycleReasonsCode] = *lr.Code
+					currentLR[isInstanceLifecycleReasonsMessage] = *lr.Message
+					if lr.MoreInfo != nil {
+						currentLR[isInstanceLifecycleReasonsMoreInfo] = *lr.MoreInfo
+					}
+					lifecycleReasonsList = append(lifecycleReasonsList, currentLR)
+				}
+			}
+			l[isInstanceLifecycleReasons] = lifecycleReasonsList
 		}
 
 		l["zone"] = *instance.Zone.Name
