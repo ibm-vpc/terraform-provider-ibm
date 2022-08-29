@@ -875,12 +875,24 @@ func resourceIBMIsVPNServerDelete(context context.Context, d *schema.ResourceDat
 	if err != nil {
 		return diag.FromErr(err)
 	}
+
+	getVPNServerOptions := &vpcv1.GetVPNServerOptions{}
+	getVPNServerOptions.SetID(d.Id())
+	_, getresponse, err := sess.GetVPNServerWithContext(context, getVPNServerOptions)
+	if err != nil {
+		if getresponse != nil && getresponse.StatusCode == 404 {
+			d.SetId("")
+			return nil
+		}
+		return diag.FromErr(fmt.Errorf("[ERROR] Error getting VPN Server(%s) %s\n%s", d.Id(), err, getresponse))
+	}
+	eTag := getresponse.Headers.Get("ETag")
 	deleteVPNServerOptions := &vpcv1.DeleteVPNServerOptions{}
 
 	deleteVPNServerOptions.SetID(d.Id())
-
-	deleteVPNServerOptions.SetIfMatch(d.Get("version").(string))
-
+	// fmt.Println("Etag: ", d.Get("ETag").(string), " version: ", d.Get("version").(string))
+	// deleteVPNServerOptions.SetIfMatch(d.Get("version").(string))
+	deleteVPNServerOptions.SetIfMatch(eTag)
 	response, err := sess.DeleteVPNServerWithContext(context, deleteVPNServerOptions)
 	if err != nil {
 		log.Printf("[DEBUG] DeleteVPNServerWithContext failed %s\n%s", err, response)

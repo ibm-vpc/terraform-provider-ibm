@@ -335,7 +335,7 @@ func isWaitForVPNServerRouteDeleted(context context.Context, sess *vpcv1.VpcV1, 
 	log.Printf("Waiting for VPN Server  Route(%s) to be deleted.", d.Id())
 	stateConf := &resource.StateChangeConf{
 		Pending: []string{"retry", isVPNServerRouteStatusDeleting},
-		Target:  []string{isVPNServerStatusDeleted, isVPNServerRouteStatusFailed},
+		Target:  []string{isVPNServerStatusDeleted},
 		Refresh: func() (interface{}, string, error) {
 			getVPNServerRouteOptions := &vpcv1.GetVPNServerRouteOptions{}
 
