@@ -62,14 +62,14 @@ The following arguments are supported:
   - `name` - (Optional, String)
   - `profile` - (Optional, String)
   - `replication_cron_spec` - (Optional, String)
-  - `targets`
+  - `mount_targets`
     - `name` - (Optional, String)
     - `subnet` - (Optional, String)
     - `vpc` - (Required, String) 
   - `zone` - (Required, String)
 - `resource_group` - (Optional, string) The unique identifier for this resource group. If unspecified, the account's [default resourcegroup](https://cloud.ibm.com/apidocs/resource-manager#introduction) is used.
 - `size` - (Required, int) The size of the file share rounded up to the next gigabyte.
-- `share_target_prototype` - (Optional, List) Share targets for the file share.
+- `mount_targets` - (Optional, List) Share targets for the file share.
   - `name` - (Optional, string) The user-defined name for this share target. Names must be unique within the share the share target resides in. If unspecified, the name will be a hyphenated list of randomly-selected words.
   - `vpc` - (Required, string) The VPC in which instances can mount the file share using this share target.This property will be removed in a future release.The `subnet` property should be used instead.
 - `source_share` - (Optional, String) The ID of the source file share for this replica file share. The specified file share must not already have a replica, and must not be a replica.

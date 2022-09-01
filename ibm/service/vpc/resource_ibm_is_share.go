@@ -92,7 +92,7 @@ func ResourceIbmIsShare() *schema.Resource {
 				ValidateFunc:  validate.InvokeValidator("ibm_is_share", "size"),
 				Description:   "The size of the file share rounded up to the next gigabyte.",
 			},
-			"share_target_prototype": {
+			"mount_targets": {
 				Type:        schema.TypeList,
 				Optional:    true,
 				Description: "Share targets for the file share.",
@@ -168,10 +168,10 @@ func ResourceIbmIsShare() *schema.Resource {
 							ForceNew:    true,
 							Description: "The cron specification for the file share replication schedule.Replication of a share can be scheduled to occur at most once per hour.",
 						},
-						"targets": &schema.Schema{
+						"mount_targets": &schema.Schema{
 							Type:        schema.TypeList,
 							Optional:    true,
-							Description: "The share targets for this replica file share.Share targets mounted from a replica must be mounted read-only.",
+							Description: "The share mount targets for this replica file share.Share targets mounted from a replica must be mounted read-only.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"name": &schema.Schema{
@@ -523,7 +523,7 @@ func resourceIbmIsShareCreate(context context.Context, d *schema.ResourceData, m
 				}
 			}
 
-			replicaTargets, ok := replicaShare["targets"]
+			replicaTargets, ok := replicaShare["mount_targets"]
 			if ok {
 				var targets []vpcv1.ShareMountTargetPrototype
 				targetsIntf := replicaTargets.([]interface{})
@@ -583,7 +583,7 @@ func resourceIbmIsShareCreate(context context.Context, d *schema.ResourceData, m
 		sharePrototype.Profile = profile
 	}
 
-	if shareTargetPrototypeIntf, ok := d.GetOk("share_target_prototype"); ok {
+	if shareTargetPrototypeIntf, ok := d.GetOk("mount_targets"); ok {
 		var targets []vpcv1.ShareMountTargetPrototype
 		for _, e := range shareTargetPrototypeIntf.([]interface{}) {
 			value := e.(map[string]interface{})
