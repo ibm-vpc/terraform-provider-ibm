@@ -23,14 +23,14 @@ func TestAccIbmIsShareTargetDataSourceAllArgs(t *testing.T) {
 			{
 				Config: testAccCheckIbmIsShareTargetDataSourceConfigBasic(shareName, vpcName, targetName),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttrSet("data.ibm_is_share_target.is_share_target", "id"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_share_target.is_share_target", "created_at"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_share_target.is_share_target", "href"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_share_target.is_share_target", "lifecycle_state"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_share_target.is_share_target", "mount_path"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_share_target.is_share_target", "name"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_share_target.is_share_target", "resource_type"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_share_target.is_share_target", "vpc.#"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_share_mount_target.is_share_target", "id"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_share_mount_target.is_share_target", "created_at"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_share_mount_target.is_share_target", "href"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_share_mount_target.is_share_target", "lifecycle_state"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_share_mount_target.is_share_target", "mount_path"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_share_mount_target.is_share_target", "name"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_share_mount_target.is_share_target", "resource_type"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_share_mount_target.is_share_target", "vpc.#"),
 				),
 			},
 		},
@@ -40,9 +40,9 @@ func TestAccIbmIsShareTargetDataSourceAllArgs(t *testing.T) {
 func testAccCheckIbmIsShareTargetDataSourceConfigBasic(sname, vpcName, targetName string) string {
 	return testAccCheckIbmIsShareTargetsDataSourceConfigBasic(sname, vpcName, targetName) + fmt.Sprintf(`
 		
-		data "ibm_is_share_target" "is_share_target" {
+		data "ibm_is_share_mount_target" "is_share_target" {
 			share = ibm_is_share.is_share.id
-			share_target = data.ibm_is_share_targets.is_share_targets.share_targets.0.id
+			share_target = data.ibm_is_share_mount_targets.is_share_targets.share_targets.0.id
 		}
 	`)
 }

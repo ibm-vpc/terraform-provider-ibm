@@ -24,15 +24,15 @@ resource "ibm_is_share" "example" {
   zone = "us-south-2"
 }
 
-resource "ibm_is_share_target" "example" {
+resource "ibm_is_share_mount_target" "example" {
   share = ibm_is_share.is_share.id
   vpc = ibm_is_vpc.example.id
   name = "example-share-target"
 }
 
-data "ibm_is_share_target" "example" {
+data "ibm_is_share_mount_target" "example" {
 	share = ibm_is_share.example.id
-	share_target = ibm_is_share_target.example.share_target
+	share_target = ibm_is_share_mount_target.example.share_target
 }
 ```
 

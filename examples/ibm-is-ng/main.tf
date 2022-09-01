@@ -1133,18 +1133,18 @@ resource "ibm_is_share" "is_share" {
   access_tags = ["accesstag1", "accesstag2"]
 }
 
-resource "ibm_is_share_target" "is_share_target" {
+resource "ibm_is_share_mount_target" "is_share_target" {
   share = ibm_is_share.is_share.id
   vpc = ibm_is_vpc.vpc1.id
   name = "my-share-target"
 }
 
-data "ibm_is_share_target" "is_share_target" {
+data "ibm_is_share_mount_target" "is_share_target" {
 	share = ibm_is_share.is_share.id
-	share_target = ibm_is_share_target.is_share_target.share_target
+	share_target = ibm_is_share_mount_target.is_share_target.share_target
 }
 
-data "ibm_is_share_targets" "is_share_targets" {
+data "ibm_is_share_mount_targets" "is_share_targets" {
 	share = ibm_is_share.is_share.id
 }
 

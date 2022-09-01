@@ -31,14 +31,14 @@ func TestAccIbmIsShareTargetBasic(t *testing.T) {
 			{
 				Config: testAccCheckIbmIsShareTargetConfigBasic(vpcname, sname, targetName),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					testAccCheckIbmIsShareTargetExists("ibm_is_share_target.is_share_target", conf),
-					resource.TestCheckResourceAttr("ibm_is_share_target.is_share_target", "name", targetName),
+					testAccCheckIbmIsShareTargetExists("ibm_is_share_mount_target.is_share_target", conf),
+					resource.TestCheckResourceAttr("ibm_is_share_mount_target.is_share_target", "name", targetName),
 				),
 			},
 			{
 				Config: testAccCheckIbmIsShareTargetConfigBasic(vpcname, sname, targetNameUpdate),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("ibm_is_share_target.is_share_target", "name", targetNameUpdate),
+					resource.TestCheckResourceAttr("ibm_is_share_mount_target.is_share_target", "name", targetNameUpdate),
 				),
 			},
 		},
@@ -59,7 +59,7 @@ func testAccCheckIbmIsShareTargetConfigBasic(vpcName, sname, targetName string) 
 	resource "ibm_is_vpc" "testacc_vpc" {
 		name = "%s"
 	}
-	resource "ibm_is_share_target" "is_share_target" {
+	resource "ibm_is_share_mount_target" "is_share_target" {
 		share = ibm_is_share.is_share.id
 		vpc = ibm_is_vpc.testacc_vpc.id
 		name = "%s"
@@ -106,7 +106,7 @@ func testAccCheckIbmIsShareTargetDestroy(s *terraform.State) error {
 		return err
 	}
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "ibm_is_share_target" {
+		if rs.Type != "ibm_is_share_mount_target" {
 			continue
 		}
 

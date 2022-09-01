@@ -23,14 +23,14 @@ func TestAccIbmIsShareTargetsDataSource(t *testing.T) {
 			{
 				Config: testAccCheckIbmIsShareTargetsDataSourceConfigBasic(shareName, vpcName, targetName),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttrSet("data.ibm_is_share_targets.is_share_targets", "share_targets.#"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_share_targets.is_share_targets", "share_targets.0.created_at"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_share_targets.is_share_targets", "share_targets.0.href"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_share_targets.is_share_targets", "share_targets.0.id"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_share_targets.is_share_targets", "share_targets.0.lifecycle_state"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_share_targets.is_share_targets", "share_targets.0.mount_path"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_share_targets.is_share_targets", "share_targets.0.name"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_share_targets.is_share_targets", "share_targets.0.resource_type"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_share_mount_targets.is_share_targets", "share_targets.#"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_share_mount_targets.is_share_targets", "share_targets.0.created_at"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_share_mount_targets.is_share_targets", "share_targets.0.href"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_share_mount_targets.is_share_targets", "share_targets.0.id"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_share_mount_targets.is_share_targets", "share_targets.0.lifecycle_state"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_share_mount_targets.is_share_targets", "share_targets.0.mount_path"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_share_mount_targets.is_share_targets", "share_targets.0.name"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_share_mount_targets.is_share_targets", "share_targets.0.resource_type"),
 				),
 			},
 		},
@@ -50,14 +50,14 @@ func testAccCheckIbmIsShareTargetsDataSourceConfigBasic(sname, vpcName, targetNa
 			name = "%s"
 		}
 
-		resource "ibm_is_share_target" "is_share_target" {
+		resource "ibm_is_share_mount_target" "is_share_target" {
 			share = ibm_is_share.is_share.id
 			name = "%s"
 			vpc = ibm_is_vpc.testacc_vpc.id
 		}
 
-		data "ibm_is_share_targets" "is_share_targets" {
-			share = ibm_is_share_target.is_share_target.share
+		data "ibm_is_share_mount_targets" "is_share_targets" {
+			share = ibm_is_share_mount_target.is_share_target.share
 		}
 	`, sname, acc.ShareProfileName, vpcName, targetName)
 }

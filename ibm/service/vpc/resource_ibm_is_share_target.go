@@ -19,12 +19,12 @@ import (
 	"github.com/IBM/vpc-go-sdk/vpcv1"
 )
 
-func ResourceIbmIsShareTarget() *schema.Resource {
+func ResourceIbmIsShareMountTarget() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceIbmIsShareTargetCreate,
-		ReadContext:   resourceIbmIsShareTargetRead,
-		UpdateContext: resourceIbmIsShareTargetUpdate,
-		DeleteContext: resourceIbmIsShareTargetDelete,
+		CreateContext: resourceIbmIsShareMountTargetCreate,
+		ReadContext:   resourceIbmIsShareMountTargetRead,
+		UpdateContext: resourceIbmIsShareMountTargetUpdate,
+		DeleteContext: resourceIbmIsShareMountTargetDelete,
 		Importer:      &schema.ResourceImporter{},
 
 		Schema: map[string]*schema.Schema{
@@ -43,7 +43,7 @@ func ResourceIbmIsShareTarget() *schema.Resource {
 			"name": {
 				Type:         schema.TypeString,
 				Required:     true,
-				ValidateFunc: validate.InvokeValidator("ibm_is_share_target", "name"),
+				ValidateFunc: validate.InvokeValidator("ibm_is_share_mount_target", "name"),
 				Description:  "The user-defined name for this share target. Names must be unique within the share the share target resides in. If unspecified, the name will be a hyphenated list of randomly-selected words.",
 			},
 			// "subnet": {
@@ -85,7 +85,7 @@ func ResourceIbmIsShareTarget() *schema.Resource {
 	}
 }
 
-func ResourceIbmIsShareTargetValidator() *validate.ResourceValidator {
+func ResourceIbmIsShareMountTargetValidator() *validate.ResourceValidator {
 	validateSchema := make([]validate.ValidateSchema, 1)
 	validateSchema = append(validateSchema,
 		validate.ValidateSchema{
@@ -99,171 +99,171 @@ func ResourceIbmIsShareTargetValidator() *validate.ResourceValidator {
 		},
 	)
 
-	resourceValidator := validate.ResourceValidator{ResourceName: "ibm_is_share_target", Schema: validateSchema}
+	resourceValidator := validate.ResourceValidator{ResourceName: "ibm_is_share_mount_target", Schema: validateSchema}
 	return &resourceValidator
 }
 
-func resourceIbmIsShareTargetCreate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceIbmIsShareMountTargetCreate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	vpcClient, err := meta.(conns.ClientSession).VpcV1API()
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	createShareTargetOptions := &vpcv1.CreateShareTargetOptions{}
+	createShareMountTargetOptions := &vpcv1.CreateShareTargetOptions{}
 
-	createShareTargetOptions.SetShareID(d.Get("share").(string))
+	createShareMountTargetOptions.SetShareID(d.Get("share").(string))
 	vpcid := d.Get("vpc").(string)
 	vpc := &vpcv1.VPCIdentity{
 		ID: &vpcid,
 	}
-	createShareTargetOptions.SetVPC(vpc)
+	createShareMountTargetOptions.SetVPC(vpc)
 	if _, ok := d.GetOk("name"); ok {
-		createShareTargetOptions.SetName(d.Get("name").(string))
+		createShareMountTargetOptions.SetName(d.Get("name").(string))
 	}
 	// if subnetIntf, ok := d.GetOk("subnet"); ok {
 	// 	subnet := subnetIntf.(string)
 	// 	subnetIdentity := &vpcv1.SubnetIdentity{
 	// 		ID: &subnet,
 	// 	}
-	// 	createShareTargetOptions.Subnet = subnetIdentity
+	// 	createShareMountTargetOptions.Subnet = subnetIdentity
 	// }
 
-	shareTarget, response, err := vpcClient.CreateShareTargetWithContext(context, createShareTargetOptions)
+	shareMountTarget, response, err := vpcClient.CreateShareTargetWithContext(context, createShareMountTargetOptions)
 	if err != nil {
-		log.Printf("[DEBUG] CreateShareTargetWithContext failed %s\n%s", err, response)
+		log.Printf("[DEBUG] CreateShareMountTargetWithContext failed %s\n%s", err, response)
 		return diag.FromErr(err)
 	}
-	_, err = isWaitForTargetAvailable(context, vpcClient, *createShareTargetOptions.ShareID, *shareTarget.ID, d, d.Timeout(schema.TimeoutCreate))
+	_, err = isWaitForTargetAvailable(context, vpcClient, *createShareMountTargetOptions.ShareID, *shareMountTarget.ID, d, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	d.SetId(fmt.Sprintf("%s/%s", *createShareTargetOptions.ShareID, *shareTarget.ID))
-	d.Set("share_target", *shareTarget.ID)
-	return resourceIbmIsShareTargetRead(context, d, meta)
+	d.SetId(fmt.Sprintf("%s/%s", *createShareMountTargetOptions.ShareID, *shareMountTarget.ID))
+	d.Set("share_target", *shareMountTarget.ID)
+	return resourceIbmIsShareMountTargetRead(context, d, meta)
 }
 
-func resourceIbmIsShareTargetRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceIbmIsShareMountTargetRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	vpcClient, err := meta.(conns.ClientSession).VpcV1API()
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	getShareTargetOptions := &vpcv1.GetShareTargetOptions{}
+	getShareMountTargetOptions := &vpcv1.GetShareTargetOptions{}
 
 	parts, err := flex.IdParts(d.Id())
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	getShareTargetOptions.SetShareID(parts[0])
-	getShareTargetOptions.SetID(parts[1])
+	getShareMountTargetOptions.SetShareID(parts[0])
+	getShareMountTargetOptions.SetID(parts[1])
 
-	shareTarget, response, err := vpcClient.GetShareTargetWithContext(context, getShareTargetOptions)
+	shareMountTarget, response, err := vpcClient.GetShareTargetWithContext(context, getShareMountTargetOptions)
 	if err != nil {
 		if response != nil && response.StatusCode == 404 {
 			d.SetId("")
 			return nil
 		}
-		log.Printf("[DEBUG] GetShareTargetWithContext failed %s\n%s", err, response)
+		log.Printf("[DEBUG] GetShareMountTargetWithContext failed %s\n%s", err, response)
 		return diag.FromErr(err)
 	}
 
-	d.Set("share_target", *shareTarget.ID)
+	d.Set("share_target", *shareMountTarget.ID)
 
-	if err = d.Set("vpc", *shareTarget.VPC.ID); err != nil {
+	if err = d.Set("vpc", *shareMountTarget.VPC.ID); err != nil {
 		return diag.FromErr(fmt.Errorf("Error setting name: %s", err))
 	}
 
-	if err = d.Set("name", *shareTarget.Name); err != nil {
+	if err = d.Set("name", *shareMountTarget.Name); err != nil {
 		return diag.FromErr(fmt.Errorf("Error setting name: %s", err))
 	}
-	// if shareTarget.Subnet != nil {
-	// 	if err = d.Set("subnet", *shareTarget.Subnet.ID); err != nil {
+	// if shareMountTarget.Subnet != nil {
+	// 	if err = d.Set("subnet", *shareMountTarget.Subnet.ID); err != nil {
 	// 		return diag.FromErr(fmt.Errorf("Error setting subnet: %s", err))
 	// 	}
 	// }
-	if err = d.Set("created_at", shareTarget.CreatedAt.String()); err != nil {
+	if err = d.Set("created_at", shareMountTarget.CreatedAt.String()); err != nil {
 		return diag.FromErr(fmt.Errorf("Error setting created_at: %s", err))
 	}
-	if err = d.Set("href", shareTarget.Href); err != nil {
+	if err = d.Set("href", shareMountTarget.Href); err != nil {
 		return diag.FromErr(fmt.Errorf("Error setting href: %s", err))
 	}
-	if err = d.Set("lifecycle_state", shareTarget.LifecycleState); err != nil {
+	if err = d.Set("lifecycle_state", shareMountTarget.LifecycleState); err != nil {
 		return diag.FromErr(fmt.Errorf("Error setting lifecycle_state: %s", err))
 	}
-	if err = d.Set("mount_path", shareTarget.MountPath); err != nil {
+	if err = d.Set("mount_path", shareMountTarget.MountPath); err != nil {
 		return diag.FromErr(fmt.Errorf("Error setting mount_path: %s", err))
 	}
-	if err = d.Set("resource_type", shareTarget.ResourceType); err != nil {
+	if err = d.Set("resource_type", shareMountTarget.ResourceType); err != nil {
 		return diag.FromErr(fmt.Errorf("Error setting resource_type: %s", err))
 	}
 
 	return nil
 }
 
-func resourceIbmIsShareTargetUpdate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceIbmIsShareMountTargetUpdate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	vpcClient, err := meta.(conns.ClientSession).VpcV1API()
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	updateShareTargetOptions := &vpcv1.UpdateShareTargetOptions{}
+	updateShareMountTargetOptions := &vpcv1.UpdateShareTargetOptions{}
 
 	parts, err := flex.IdParts(d.Id())
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	updateShareTargetOptions.SetShareID(parts[0])
-	updateShareTargetOptions.SetID(parts[1])
+	updateShareMountTargetOptions.SetShareID(parts[0])
+	updateShareMountTargetOptions.SetID(parts[1])
 
 	hasChange := false
 
-	shareTargetPatchModel := &vpcv1.ShareMountTargetPatch{}
+	shareMountTargetPatchModel := &vpcv1.ShareMountTargetPatch{}
 
 	if d.HasChange("name") {
 		name := d.Get("name").(string)
-		shareTargetPatchModel.Name = &name
+		shareMountTargetPatchModel.Name = &name
 		hasChange = true
 	}
 
 	if hasChange {
-		shareTargetPatch, err := shareTargetPatchModel.AsPatch()
+		shareMountTargetPatch, err := shareMountTargetPatchModel.AsPatch()
 		if err != nil {
-			log.Printf("[DEBUG] ShareTargetPatch AsPatch failed %s", err)
+			log.Printf("[DEBUG] ShareMountTargetPatch AsPatch failed %s", err)
 			return diag.FromErr(err)
 		}
-		updateShareTargetOptions.SetShareMountTargetPatch(shareTargetPatch)
-		_, response, err := vpcClient.UpdateShareTargetWithContext(context, updateShareTargetOptions)
+		updateShareMountTargetOptions.SetShareMountTargetPatch(shareMountTargetPatch)
+		_, response, err := vpcClient.UpdateShareTargetWithContext(context, updateShareMountTargetOptions)
 		if err != nil {
-			log.Printf("[DEBUG] UpdateShareTargetWithContext failed %s\n%s", err, response)
+			log.Printf("[DEBUG] UpdateShareMountTargetWithContext failed %s\n%s", err, response)
 			return diag.FromErr(err)
 		}
 	}
 
-	return resourceIbmIsShareTargetRead(context, d, meta)
+	return resourceIbmIsShareMountTargetRead(context, d, meta)
 }
 
-func resourceIbmIsShareTargetDelete(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceIbmIsShareMountTargetDelete(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	vpcClient, err := meta.(conns.ClientSession).VpcV1API()
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	deleteShareTargetOptions := &vpcv1.DeleteShareTargetOptions{}
+	deleteShareMountTargetOptions := &vpcv1.DeleteShareTargetOptions{}
 
 	parts, err := flex.IdParts(d.Id())
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	deleteShareTargetOptions.SetShareID(parts[0])
-	deleteShareTargetOptions.SetID(parts[1])
+	deleteShareMountTargetOptions.SetShareID(parts[0])
+	deleteShareMountTargetOptions.SetID(parts[1])
 
-	_, response, err := vpcClient.DeleteShareTargetWithContext(context, deleteShareTargetOptions)
+	_, response, err := vpcClient.DeleteShareTargetWithContext(context, deleteShareMountTargetOptions)
 	if err != nil {
-		log.Printf("[DEBUG] DeleteShareTargetWithContext failed %s\n%s", err, response)
+		log.Printf("[DEBUG] DeleteShareMountTargetWithContext failed %s\n%s", err, response)
 		return diag.FromErr(err)
 	}
 	_, err = isWaitForTargetDelete(context, vpcClient, d, parts[0], parts[1])
@@ -293,12 +293,12 @@ func isWaitForTargetAvailable(context context.Context, vpcClient *vpcv1.VpcV1, s
 
 func isTargetRefreshFunc(context context.Context, vpcClient *vpcv1.VpcV1, shareid, targetid string, d *schema.ResourceData) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		shareTargetOptions := &vpcv1.GetShareTargetOptions{}
+		shareMountTargetOptions := &vpcv1.GetShareTargetOptions{}
 
-		shareTargetOptions.SetShareID(shareid)
-		shareTargetOptions.SetID(targetid)
+		shareMountTargetOptions.SetShareID(shareid)
+		shareMountTargetOptions.SetID(targetid)
 
-		target, response, err := vpcClient.GetShareTargetWithContext(context, shareTargetOptions)
+		target, response, err := vpcClient.GetShareTargetWithContext(context, shareMountTargetOptions)
 		if err != nil {
 			return nil, "", fmt.Errorf("Error Getting target: %s\n%s", err, response)
 		}
@@ -318,12 +318,12 @@ func isWaitForTargetDelete(context context.Context, vpcClient *vpcv1.VpcV1, d *s
 		Pending: []string{"deleting", "stable"},
 		Target:  []string{"done"},
 		Refresh: func() (interface{}, string, error) {
-			shareTargetOptions := &vpcv1.GetShareTargetOptions{}
+			shareMountTargetOptions := &vpcv1.GetShareTargetOptions{}
 
-			shareTargetOptions.SetShareID(shareid)
-			shareTargetOptions.SetID(targetid)
+			shareMountTargetOptions.SetShareID(shareid)
+			shareMountTargetOptions.SetID(targetid)
 
-			target, response, err := vpcClient.GetShareTargetWithContext(context, shareTargetOptions)
+			target, response, err := vpcClient.GetShareTargetWithContext(context, shareMountTargetOptions)
 			if err != nil {
 				if response != nil && response.StatusCode == 404 {
 					return target, "done", nil
