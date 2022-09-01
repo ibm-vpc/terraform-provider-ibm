@@ -525,14 +525,14 @@ func resourceIbmIsShareCreate(context context.Context, d *schema.ResourceData, m
 
 			replicaTargets, ok := replicaShare["targets"]
 			if ok {
-				var targets []vpcv1.ShareTargetPrototype
+				var targets []vpcv1.ShareMountTargetPrototype
 				targetsIntf := replicaTargets.([]interface{})
 				for _, targetIntf := range targetsIntf {
 					target := targetIntf.(map[string]interface{})
 					targetsItem := resourceIbmIsShareMapToShareTargetPrototype(target)
 					targets = append(targets, targetsItem)
 				}
-				model.Targets = targets
+				model.MountTargets = targets
 			}
 
 			var userTags *schema.Set
@@ -584,13 +584,13 @@ func resourceIbmIsShareCreate(context context.Context, d *schema.ResourceData, m
 	}
 
 	if shareTargetPrototypeIntf, ok := d.GetOk("share_target_prototype"); ok {
-		var targets []vpcv1.ShareTargetPrototype
+		var targets []vpcv1.ShareMountTargetPrototype
 		for _, e := range shareTargetPrototypeIntf.([]interface{}) {
 			value := e.(map[string]interface{})
 			targetsItem := resourceIbmIsShareMapToShareTargetPrototype(value)
 			targets = append(targets, targetsItem)
 		}
-		sharePrototype.Targets = targets
+		sharePrototype.MountTargets = targets
 	}
 	if zone, ok := d.GetOk("zone"); ok {
 		zonestr := zone.(string)
@@ -656,8 +656,8 @@ func resourceIbmIsShareCreate(context context.Context, d *schema.ResourceData, m
 	return resourceIbmIsShareRead(context, d, meta)
 }
 
-func resourceIbmIsShareMapToShareTargetPrototype(shareTargetPrototypeMap map[string]interface{}) vpcv1.ShareTargetPrototype {
-	shareTargetPrototype := vpcv1.ShareTargetPrototype{}
+func resourceIbmIsShareMapToShareTargetPrototype(shareTargetPrototypeMap map[string]interface{}) vpcv1.ShareMountTargetPrototype {
+	shareTargetPrototype := vpcv1.ShareMountTargetPrototype{}
 
 	if nameIntf, ok := shareTargetPrototypeMap["name"]; ok && nameIntf != "" {
 		shareTargetPrototype.Name = core.StringPtr(nameIntf.(string))
@@ -719,8 +719,8 @@ func resourceIbmIsShareRead(context context.Context, d *schema.ResourceData, met
 		return diag.FromErr(fmt.Errorf("Error setting size: %s", err))
 	}
 	targets := []map[string]interface{}{}
-	if share.Targets != nil {
-		for _, targetsItem := range share.Targets {
+	if share.MountTargets != nil {
+		for _, targetsItem := range share.MountTargets {
 			targetsItemMap := dataSourceShareTargetsToMap(targetsItem)
 			targets = append(targets, targetsItemMap)
 		}
@@ -936,8 +936,8 @@ func resourceIbmIsShareDelete(context context.Context, d *schema.ResourceData, m
 		log.Printf("[DEBUG] GetShareWithContext failed %s\n%s", err, response)
 		return diag.FromErr(err)
 	}
-	if share.Targets != nil {
-		for _, targetsItem := range share.Targets {
+	if share.MountTargets != nil {
+		for _, targetsItem := range share.MountTargets {
 
 			deleteShareTargetOptions := &vpcv1.DeleteShareTargetOptions{}
 

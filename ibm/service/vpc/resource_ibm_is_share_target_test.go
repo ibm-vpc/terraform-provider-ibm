@@ -18,7 +18,7 @@ import (
 )
 
 func TestAccIbmIsShareTargetBasic(t *testing.T) {
-	var conf vpcv1.ShareTarget
+	var conf vpcv1.ShareMountTarget
 	vpcname := fmt.Sprintf("tf-vpc-name-%d", acctest.RandIntRange(10, 100))
 	targetName := fmt.Sprintf("tf-target-%d", acctest.RandIntRange(10, 100))
 	targetNameUpdate := fmt.Sprintf("tf-target-%d", acctest.RandIntRange(10, 100))
@@ -67,7 +67,7 @@ func testAccCheckIbmIsShareTargetConfigBasic(vpcName, sname, targetName string) 
 	`, sname, acc.ShareProfileName, vpcName, targetName)
 }
 
-func testAccCheckIbmIsShareTargetExists(n string, obj vpcv1.ShareTarget) resource.TestCheckFunc {
+func testAccCheckIbmIsShareTargetExists(n string, obj vpcv1.ShareMountTarget) resource.TestCheckFunc {
 
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]

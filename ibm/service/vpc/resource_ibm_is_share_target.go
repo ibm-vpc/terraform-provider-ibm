@@ -220,7 +220,7 @@ func resourceIbmIsShareTargetUpdate(context context.Context, d *schema.ResourceD
 
 	hasChange := false
 
-	shareTargetPatchModel := &vpcv1.ShareTargetPatch{}
+	shareTargetPatchModel := &vpcv1.ShareMountTargetPatch{}
 
 	if d.HasChange("name") {
 		name := d.Get("name").(string)
@@ -234,7 +234,7 @@ func resourceIbmIsShareTargetUpdate(context context.Context, d *schema.ResourceD
 			log.Printf("[DEBUG] ShareTargetPatch AsPatch failed %s", err)
 			return diag.FromErr(err)
 		}
-		updateShareTargetOptions.SetShareTargetPatch(shareTargetPatch)
+		updateShareTargetOptions.SetShareMountTargetPatch(shareTargetPatch)
 		_, response, err := vpcClient.UpdateShareTargetWithContext(context, updateShareTargetOptions)
 		if err != nil {
 			log.Printf("[DEBUG] UpdateShareTargetWithContext failed %s\n%s", err, response)

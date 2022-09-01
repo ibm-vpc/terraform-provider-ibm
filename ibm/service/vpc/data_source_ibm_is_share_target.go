@@ -182,7 +182,7 @@ func dataSourceIbmIsShareTargetRead(context context.Context, d *schema.ResourceD
 	share_name := d.Get("share_name").(string)
 	share_target := d.Get("share_target").(string)
 	share_target_name := d.Get("share_target_name").(string)
-	var shareTarget *vpcv1.ShareTarget
+	var shareTarget *vpcv1.ShareMountTarget
 	if share_name != "" {
 		listSharesOptions := &vpcv1.ListSharesOptions{}
 		listSharesOptions.Name = &share_name
@@ -209,7 +209,7 @@ func dataSourceIbmIsShareTargetRead(context context.Context, d *schema.ResourceD
 			log.Printf("[DEBUG] ListShareTargetsWithContext failed %s\n%s", err, response)
 			return diag.FromErr(err)
 		}
-		for _, targetsItem := range shareTargetCollection.Targets {
+		for _, targetsItem := range shareTargetCollection.MountTargets {
 			if *targetsItem.Name == share_target_name {
 				shareTarget = &targetsItem
 				break

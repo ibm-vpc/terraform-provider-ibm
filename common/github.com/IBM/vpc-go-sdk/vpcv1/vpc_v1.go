@@ -41,7 +41,7 @@ import (
 type VpcV1 struct {
 	Service *core.BaseService
 
-	// The API version, in format `YYYY-MM-DD`. For the API behavior documented here, specify any date between `2022-08-03`
+	// The API version, in format `YYYY-MM-DD`. For the API behavior documented here, specify any date between `2022-09-01`
 	// and today's date (UTC).
 	Version *string
 
@@ -62,7 +62,7 @@ type VpcV1Options struct {
 	URL           string
 	Authenticator core.Authenticator
 
-	// The API version, in format `YYYY-MM-DD`. For the API behavior documented here, specify any date between `2022-08-03`
+	// The API version, in format `YYYY-MM-DD`. For the API behavior documented here, specify any date between `2022-09-01`
 	// and today's date (UTC).
 	Version *string
 }
@@ -4013,8 +4013,8 @@ func (vpc *VpcV1) UpdateKeyWithContext(ctx context.Context, updateKeyOptions *Up
 }
 
 // ListInstanceProfiles : List all instance profiles
-// This request lists provisionable instance profiles in the region. An instance profile specifies the performance
-// characteristics and pricing model for an instance.
+// This request lists provisionable [instance profiles](https://cloud.ibm.com/docs/vpc?topic=vpc-profiles) in the
+// region. An instance profile specifies the performance characteristics and pricing model for an instance.
 func (vpc *VpcV1) ListInstanceProfiles(listInstanceProfilesOptions *ListInstanceProfilesOptions) (result *InstanceProfileCollection, response *core.DetailedResponse, err error) {
 	return vpc.ListInstanceProfilesWithContext(context.Background(), listInstanceProfilesOptions)
 }
@@ -8283,8 +8283,8 @@ func (vpc *VpcV1) UpdateDedicatedHostGroupWithContext(ctx context.Context, updat
 }
 
 // ListDedicatedHostProfiles : List all dedicated host profiles
-// This request lists all provisionable dedicated host profiles in the region. A dedicated host profile specifies the
-// hardware characteristics for a dedicated host.
+// This request lists provisionable [dedicated host profiles](https://cloud.ibm.com/docs/vpc?topic=vpc-dh-profiles) in
+// the region. A dedicated host profile specifies the hardware characteristics for a dedicated host.
 func (vpc *VpcV1) ListDedicatedHostProfiles(listDedicatedHostProfilesOptions *ListDedicatedHostProfilesOptions) (result *DedicatedHostProfileCollection, response *core.DetailedResponse, err error) {
 	return vpc.ListDedicatedHostProfilesWithContext(context.Background(), listDedicatedHostProfilesOptions)
 }
@@ -9976,8 +9976,9 @@ func (vpc *VpcV1) UpdatePlacementGroupWithContext(ctx context.Context, updatePla
 }
 
 // ListBareMetalServerProfiles : List all bare metal server profiles
-// This request lists all bare metal server profiles available in the region. A bare metal server profile specifies the
-// performance characteristics and pricing model for a bare metal server.
+// This request lists all [bare metal server
+// profiles](https://cloud.ibm.com/docs/vpc?topic=vpc-bare-metal-servers-profile) available in the region. A bare metal
+// server profile specifies the performance characteristics and pricing model for a bare metal server.
 func (vpc *VpcV1) ListBareMetalServerProfiles(listBareMetalServerProfilesOptions *ListBareMetalServerProfilesOptions) (result *BareMetalServerProfileCollection, response *core.DetailedResponse, err error) {
 	return vpc.ListBareMetalServerProfilesWithContext(context.Background(), listBareMetalServerProfilesOptions)
 }
@@ -11139,6 +11140,136 @@ func (vpc *VpcV1) AddBareMetalServerNetworkInterfaceFloatingIPWithContext(ctx co
 	return
 }
 
+// ListBareMetalServerNetworkInterfaceIps : List all reserved IPs bound to a network interface
+// This request lists all reserved IPs bound to a network interface.
+func (vpc *VpcV1) ListBareMetalServerNetworkInterfaceIps(listBareMetalServerNetworkInterfaceIpsOptions *ListBareMetalServerNetworkInterfaceIpsOptions) (result *ReservedIPCollectionNetworkInterfaceContext, response *core.DetailedResponse, err error) {
+	return vpc.ListBareMetalServerNetworkInterfaceIpsWithContext(context.Background(), listBareMetalServerNetworkInterfaceIpsOptions)
+}
+
+// ListBareMetalServerNetworkInterfaceIpsWithContext is an alternate form of the ListBareMetalServerNetworkInterfaceIps method which supports a Context parameter
+func (vpc *VpcV1) ListBareMetalServerNetworkInterfaceIpsWithContext(ctx context.Context, listBareMetalServerNetworkInterfaceIpsOptions *ListBareMetalServerNetworkInterfaceIpsOptions) (result *ReservedIPCollectionNetworkInterfaceContext, response *core.DetailedResponse, err error) {
+	err = core.ValidateNotNil(listBareMetalServerNetworkInterfaceIpsOptions, "listBareMetalServerNetworkInterfaceIpsOptions cannot be nil")
+	if err != nil {
+		return
+	}
+	err = core.ValidateStruct(listBareMetalServerNetworkInterfaceIpsOptions, "listBareMetalServerNetworkInterfaceIpsOptions")
+	if err != nil {
+		return
+	}
+
+	pathParamsMap := map[string]string{
+		"bare_metal_server_id": *listBareMetalServerNetworkInterfaceIpsOptions.BareMetalServerID,
+		"network_interface_id": *listBareMetalServerNetworkInterfaceIpsOptions.NetworkInterfaceID,
+	}
+
+	builder := core.NewRequestBuilder(core.GET)
+	builder = builder.WithContext(ctx)
+	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
+	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/bare_metal_servers/{bare_metal_server_id}/network_interfaces/{network_interface_id}/ips`, pathParamsMap)
+	if err != nil {
+		return
+	}
+
+	for headerName, headerValue := range listBareMetalServerNetworkInterfaceIpsOptions.Headers {
+		builder.AddHeader(headerName, headerValue)
+	}
+
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListBareMetalServerNetworkInterfaceIps")
+	for headerName, headerValue := range sdkHeaders {
+		builder.AddHeader(headerName, headerValue)
+	}
+	builder.AddHeader("Accept", "application/json")
+
+	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
+	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
+
+	request, err := builder.Build()
+	if err != nil {
+		return
+	}
+
+	var rawResponse map[string]json.RawMessage
+	response, err = vpc.Service.Request(request, &rawResponse)
+	if err != nil {
+		return
+	}
+	if rawResponse != nil {
+		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalReservedIPCollectionNetworkInterfaceContext)
+		if err != nil {
+			return
+		}
+		response.Result = result
+	}
+
+	return
+}
+
+// GetBareMetalServerNetworkInterfaceIP : Retrieve bound reserved IP
+// This request a retrieves the specified reserved IP address if it is bound to the network interface and bare metal
+// server specified in the URL.
+func (vpc *VpcV1) GetBareMetalServerNetworkInterfaceIP(getBareMetalServerNetworkInterfaceIPOptions *GetBareMetalServerNetworkInterfaceIPOptions) (result *ReservedIP, response *core.DetailedResponse, err error) {
+	return vpc.GetBareMetalServerNetworkInterfaceIPWithContext(context.Background(), getBareMetalServerNetworkInterfaceIPOptions)
+}
+
+// GetBareMetalServerNetworkInterfaceIPWithContext is an alternate form of the GetBareMetalServerNetworkInterfaceIP method which supports a Context parameter
+func (vpc *VpcV1) GetBareMetalServerNetworkInterfaceIPWithContext(ctx context.Context, getBareMetalServerNetworkInterfaceIPOptions *GetBareMetalServerNetworkInterfaceIPOptions) (result *ReservedIP, response *core.DetailedResponse, err error) {
+	err = core.ValidateNotNil(getBareMetalServerNetworkInterfaceIPOptions, "getBareMetalServerNetworkInterfaceIPOptions cannot be nil")
+	if err != nil {
+		return
+	}
+	err = core.ValidateStruct(getBareMetalServerNetworkInterfaceIPOptions, "getBareMetalServerNetworkInterfaceIPOptions")
+	if err != nil {
+		return
+	}
+
+	pathParamsMap := map[string]string{
+		"bare_metal_server_id": *getBareMetalServerNetworkInterfaceIPOptions.BareMetalServerID,
+		"network_interface_id": *getBareMetalServerNetworkInterfaceIPOptions.NetworkInterfaceID,
+		"id":                   *getBareMetalServerNetworkInterfaceIPOptions.ID,
+	}
+
+	builder := core.NewRequestBuilder(core.GET)
+	builder = builder.WithContext(ctx)
+	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
+	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/bare_metal_servers/{bare_metal_server_id}/network_interfaces/{network_interface_id}/ips/{id}`, pathParamsMap)
+	if err != nil {
+		return
+	}
+
+	for headerName, headerValue := range getBareMetalServerNetworkInterfaceIPOptions.Headers {
+		builder.AddHeader(headerName, headerValue)
+	}
+
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetBareMetalServerNetworkInterfaceIP")
+	for headerName, headerValue := range sdkHeaders {
+		builder.AddHeader(headerName, headerValue)
+	}
+	builder.AddHeader("Accept", "application/json")
+
+	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
+	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
+
+	request, err := builder.Build()
+	if err != nil {
+		return
+	}
+
+	var rawResponse map[string]json.RawMessage
+	response, err = vpc.Service.Request(request, &rawResponse)
+	if err != nil {
+		return
+	}
+	if rawResponse != nil {
+		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalReservedIP)
+		if err != nil {
+			return
+		}
+		response.Result = result
+	}
+
+	return
+}
+
 // DeleteBareMetalServer : Delete a bare metal server
 // This request deletes a bare metal server. This operation cannot be reversed. Any floating IPs associated with the
 // bare metal server's network interfaces are implicitly disassociated.
@@ -11554,8 +11685,8 @@ func (vpc *VpcV1) StopBareMetalServerWithContext(ctx context.Context, stopBareMe
 }
 
 // ListVolumeProfiles : List all volume profiles
-// This request lists all volume profiles available in the region. A volume profile specifies the performance
-// characteristics and pricing model for a volume.
+// This request lists all [volume profiles](https://cloud.ibm.com/docs/vpc?topic=vpc-block-storage-profiles) available
+// in the region. A volume profile specifies the performance characteristics and pricing model for a volume.
 func (vpc *VpcV1) ListVolumeProfiles(listVolumeProfilesOptions *ListVolumeProfilesOptions) (result *VolumeProfileCollection, response *core.DetailedResponse, err error) {
 	return vpc.ListVolumeProfilesWithContext(context.Background(), listVolumeProfilesOptions)
 }
@@ -13366,8 +13497,9 @@ func (vpc *VpcV1) ListNetworkAclsWithContext(ctx context.Context, listNetworkAcl
 }
 
 // CreateNetworkACL : Create a network ACL
-// This request creates a new network ACL from a network ACL prototype object. The prototype object is structured in the
-// same way as a retrieved network ACL, and contains the information necessary to create the new network ACL.
+// This request creates a new stateless network ACL from a network ACL prototype object. The prototype object is
+// structured in the same way as a retrieved network ACL, and contains the information necessary to create the new
+// network ACL.
 func (vpc *VpcV1) CreateNetworkACL(createNetworkACLOptions *CreateNetworkACLOptions) (result *NetworkACL, response *core.DetailedResponse, err error) {
 	return vpc.CreateNetworkACLWithContext(context.Background(), createNetworkACLOptions)
 }
@@ -21042,8 +21174,9 @@ func (vpc *VpcV1) UpdateFlowLogCollectorWithContext(ctx context.Context, updateF
 }
 
 // ListShareProfiles : List all file share profiles
-// This request lists all file share profiles available in the region. A file share profile specifies the performance
-// characteristics and pricing model for a file share.
+// This request lists all [file share profiles](https://cloud.ibm.com/docs/vpc?topic=vpc-file-storage-profiles)
+// available in the region. A file share profile specifies the performance characteristics and pricing model for a file
+// share.
 func (vpc *VpcV1) ListShareProfiles(listShareProfilesOptions *ListShareProfilesOptions) (result *ShareProfileCollection, response *core.DetailedResponse, err error) {
 	return vpc.ListShareProfilesWithContext(context.Background(), listShareProfilesOptions)
 }
@@ -21311,7 +21444,7 @@ func (vpc *VpcV1) CreateShareWithContext(ctx context.Context, createShareOptions
 
 // DeleteShare : Delete a file share
 // This request deletes a share. This operation cannot be reversed. A share cannot be deleted if it:
-// - has share targets
+// - has share mount targets
 // - has a `lifecycle_state` of `updating`
 // - has a replication operation in progress
 //
@@ -21445,7 +21578,8 @@ func (vpc *VpcV1) GetShareWithContext(ctx context.Context, getShareOptions *GetS
 }
 
 // UpdateShare : Update a file share
-// This request updates a file share's name.
+// This request updates a share with the information in a provided share patch. The share patch object is structured in
+// the same way as a retrieved share and contains only the information to be updated.
 func (vpc *VpcV1) UpdateShare(updateShareOptions *UpdateShareOptions) (result *Share, response *core.DetailedResponse, err error) {
 	return vpc.UpdateShareWithContext(context.Background(), updateShareOptions)
 }
@@ -21585,6 +21719,363 @@ func (vpc *VpcV1) FailoverShareWithContext(ctx context.Context, failoverShareOpt
 	return
 }
 
+// ListShareTargets : List all targets for a file share
+// This request retrieves all share mount targets for a file share.
+//
+// A share mount target is a network endpoint at which a file share may be mounted.
+//
+// It exists within the same zone where the file share resides in.
+//
+// The file share can be mounted by instances in the same VPC and zone after creating share mount targets.
+func (vpc *VpcV1) ListShareTargets(listShareTargetsOptions *ListShareTargetsOptions) (result *ShareMountTargetCollection, response *core.DetailedResponse, err error) {
+	return vpc.ListShareTargetsWithContext(context.Background(), listShareTargetsOptions)
+}
+
+// ListShareTargetsWithContext is an alternate form of the ListShareTargets method which supports a Context parameter
+func (vpc *VpcV1) ListShareTargetsWithContext(ctx context.Context, listShareTargetsOptions *ListShareTargetsOptions) (result *ShareMountTargetCollection, response *core.DetailedResponse, err error) {
+	err = core.ValidateNotNil(listShareTargetsOptions, "listShareTargetsOptions cannot be nil")
+	if err != nil {
+		return
+	}
+	err = core.ValidateStruct(listShareTargetsOptions, "listShareTargetsOptions")
+	if err != nil {
+		return
+	}
+
+	pathParamsMap := map[string]string{
+		"share_id": *listShareTargetsOptions.ShareID,
+	}
+
+	builder := core.NewRequestBuilder(core.GET)
+	builder = builder.WithContext(ctx)
+	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
+	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/shares/{share_id}/mount_targets`, pathParamsMap)
+	if err != nil {
+		return
+	}
+
+	for headerName, headerValue := range listShareTargetsOptions.Headers {
+		builder.AddHeader(headerName, headerValue)
+	}
+
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListShareTargets")
+	for headerName, headerValue := range sdkHeaders {
+		builder.AddHeader(headerName, headerValue)
+	}
+	builder.AddHeader("Accept", "application/json")
+
+	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
+	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
+	if listShareTargetsOptions.Name != nil {
+		builder.AddQuery("name", fmt.Sprint(*listShareTargetsOptions.Name))
+	}
+
+	request, err := builder.Build()
+	if err != nil {
+		return
+	}
+
+	var rawResponse map[string]json.RawMessage
+	response, err = vpc.Service.Request(request, &rawResponse)
+	if err != nil {
+		return
+	}
+	if rawResponse != nil {
+		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalShareMountTargetCollection)
+		if err != nil {
+			return
+		}
+		response.Result = result
+	}
+
+	return
+}
+
+// CreateShareTarget : Create a target for a file share
+// This request creates a new share mount target from a share mount target prototype object.
+//
+// The prototype object is structured in the same way as a retrieved share mount target, and contains the information
+// necessary to provision the new file share mount target.
+func (vpc *VpcV1) CreateShareTarget(createShareTargetOptions *CreateShareTargetOptions) (result *ShareMountTarget, response *core.DetailedResponse, err error) {
+	return vpc.CreateShareTargetWithContext(context.Background(), createShareTargetOptions)
+}
+
+// CreateShareTargetWithContext is an alternate form of the CreateShareTarget method which supports a Context parameter
+func (vpc *VpcV1) CreateShareTargetWithContext(ctx context.Context, createShareTargetOptions *CreateShareTargetOptions) (result *ShareMountTarget, response *core.DetailedResponse, err error) {
+	err = core.ValidateNotNil(createShareTargetOptions, "createShareTargetOptions cannot be nil")
+	if err != nil {
+		return
+	}
+	err = core.ValidateStruct(createShareTargetOptions, "createShareTargetOptions")
+	if err != nil {
+		return
+	}
+
+	pathParamsMap := map[string]string{
+		"share_id": *createShareTargetOptions.ShareID,
+	}
+
+	builder := core.NewRequestBuilder(core.POST)
+	builder = builder.WithContext(ctx)
+	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
+	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/shares/{share_id}/mount_targets`, pathParamsMap)
+	if err != nil {
+		return
+	}
+
+	for headerName, headerValue := range createShareTargetOptions.Headers {
+		builder.AddHeader(headerName, headerValue)
+	}
+
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateShareTarget")
+	for headerName, headerValue := range sdkHeaders {
+		builder.AddHeader(headerName, headerValue)
+	}
+	builder.AddHeader("Accept", "application/json")
+	builder.AddHeader("Content-Type", "application/json")
+
+	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
+	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
+
+	body := make(map[string]interface{})
+	if createShareTargetOptions.VPC != nil {
+		body["vpc"] = createShareTargetOptions.VPC
+	}
+	if createShareTargetOptions.Name != nil {
+		body["name"] = createShareTargetOptions.Name
+	}
+	if createShareTargetOptions.SecurityGroups != nil {
+		body["security_groups"] = createShareTargetOptions.SecurityGroups
+	}
+	_, err = builder.SetBodyContentJSON(body)
+	if err != nil {
+		return
+	}
+
+	request, err := builder.Build()
+	if err != nil {
+		return
+	}
+
+	var rawResponse map[string]json.RawMessage
+	response, err = vpc.Service.Request(request, &rawResponse)
+	if err != nil {
+		return
+	}
+	if rawResponse != nil {
+		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalShareMountTarget)
+		if err != nil {
+			return
+		}
+		response.Result = result
+	}
+
+	return
+}
+
+// DeleteShareTarget : Delete a share mount target
+// This request deletes a share mount target. This operation cannot be reversed.
+//
+// If the request is accepted, the share mount target `status` will be set to `deleting`. Otherwise, once deletion
+// processing completes, the share mount target will no longer be retrievable.
+func (vpc *VpcV1) DeleteShareTarget(deleteShareTargetOptions *DeleteShareTargetOptions) (result *ShareMountTarget, response *core.DetailedResponse, err error) {
+	return vpc.DeleteShareTargetWithContext(context.Background(), deleteShareTargetOptions)
+}
+
+// DeleteShareTargetWithContext is an alternate form of the DeleteShareTarget method which supports a Context parameter
+func (vpc *VpcV1) DeleteShareTargetWithContext(ctx context.Context, deleteShareTargetOptions *DeleteShareTargetOptions) (result *ShareMountTarget, response *core.DetailedResponse, err error) {
+	err = core.ValidateNotNil(deleteShareTargetOptions, "deleteShareTargetOptions cannot be nil")
+	if err != nil {
+		return
+	}
+	err = core.ValidateStruct(deleteShareTargetOptions, "deleteShareTargetOptions")
+	if err != nil {
+		return
+	}
+
+	pathParamsMap := map[string]string{
+		"share_id": *deleteShareTargetOptions.ShareID,
+		"id":       *deleteShareTargetOptions.ID,
+	}
+
+	builder := core.NewRequestBuilder(core.DELETE)
+	builder = builder.WithContext(ctx)
+	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
+	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/shares/{share_id}/mount_targets/{id}`, pathParamsMap)
+	if err != nil {
+		return
+	}
+
+	for headerName, headerValue := range deleteShareTargetOptions.Headers {
+		builder.AddHeader(headerName, headerValue)
+	}
+
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteShareTarget")
+	for headerName, headerValue := range sdkHeaders {
+		builder.AddHeader(headerName, headerValue)
+	}
+	builder.AddHeader("Accept", "application/json")
+
+	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
+	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
+
+	request, err := builder.Build()
+	if err != nil {
+		return
+	}
+
+	var rawResponse map[string]json.RawMessage
+	response, err = vpc.Service.Request(request, &rawResponse)
+	if err != nil {
+		return
+	}
+	if rawResponse != nil {
+		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalShareMountTarget)
+		if err != nil {
+			return
+		}
+		response.Result = result
+	}
+
+	return
+}
+
+// GetShareTarget : Retrieve a share mount target
+// This request retrieves a single share mount target specified by the identifier in the URL.
+func (vpc *VpcV1) GetShareTarget(getShareTargetOptions *GetShareTargetOptions) (result *ShareMountTarget, response *core.DetailedResponse, err error) {
+	return vpc.GetShareTargetWithContext(context.Background(), getShareTargetOptions)
+}
+
+// GetShareTargetWithContext is an alternate form of the GetShareTarget method which supports a Context parameter
+func (vpc *VpcV1) GetShareTargetWithContext(ctx context.Context, getShareTargetOptions *GetShareTargetOptions) (result *ShareMountTarget, response *core.DetailedResponse, err error) {
+	err = core.ValidateNotNil(getShareTargetOptions, "getShareTargetOptions cannot be nil")
+	if err != nil {
+		return
+	}
+	err = core.ValidateStruct(getShareTargetOptions, "getShareTargetOptions")
+	if err != nil {
+		return
+	}
+
+	pathParamsMap := map[string]string{
+		"share_id": *getShareTargetOptions.ShareID,
+		"id":       *getShareTargetOptions.ID,
+	}
+
+	builder := core.NewRequestBuilder(core.GET)
+	builder = builder.WithContext(ctx)
+	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
+	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/shares/{share_id}/mount_targets/{id}`, pathParamsMap)
+	if err != nil {
+		return
+	}
+
+	for headerName, headerValue := range getShareTargetOptions.Headers {
+		builder.AddHeader(headerName, headerValue)
+	}
+
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetShareTarget")
+	for headerName, headerValue := range sdkHeaders {
+		builder.AddHeader(headerName, headerValue)
+	}
+	builder.AddHeader("Accept", "application/json")
+
+	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
+	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
+
+	request, err := builder.Build()
+	if err != nil {
+		return
+	}
+
+	var rawResponse map[string]json.RawMessage
+	response, err = vpc.Service.Request(request, &rawResponse)
+	if err != nil {
+		return
+	}
+	if rawResponse != nil {
+		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalShareMountTarget)
+		if err != nil {
+			return
+		}
+		response.Result = result
+	}
+
+	return
+}
+
+// UpdateShareTarget : Update a share mount target
+// This request updates a share mount target with the information provided in a share target patch object. The share
+// mount target patch object is structured in the same way as a retrieved share mount target and needs to contain only
+// the information to be updated.
+func (vpc *VpcV1) UpdateShareTarget(updateShareTargetOptions *UpdateShareTargetOptions) (result *ShareMountTarget, response *core.DetailedResponse, err error) {
+	return vpc.UpdateShareTargetWithContext(context.Background(), updateShareTargetOptions)
+}
+
+// UpdateShareTargetWithContext is an alternate form of the UpdateShareTarget method which supports a Context parameter
+func (vpc *VpcV1) UpdateShareTargetWithContext(ctx context.Context, updateShareTargetOptions *UpdateShareTargetOptions) (result *ShareMountTarget, response *core.DetailedResponse, err error) {
+	err = core.ValidateNotNil(updateShareTargetOptions, "updateShareTargetOptions cannot be nil")
+	if err != nil {
+		return
+	}
+	err = core.ValidateStruct(updateShareTargetOptions, "updateShareTargetOptions")
+	if err != nil {
+		return
+	}
+
+	pathParamsMap := map[string]string{
+		"share_id": *updateShareTargetOptions.ShareID,
+		"id":       *updateShareTargetOptions.ID,
+	}
+
+	builder := core.NewRequestBuilder(core.PATCH)
+	builder = builder.WithContext(ctx)
+	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
+	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/shares/{share_id}/mount_targets/{id}`, pathParamsMap)
+	if err != nil {
+		return
+	}
+
+	for headerName, headerValue := range updateShareTargetOptions.Headers {
+		builder.AddHeader(headerName, headerValue)
+	}
+
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateShareTarget")
+	for headerName, headerValue := range sdkHeaders {
+		builder.AddHeader(headerName, headerValue)
+	}
+	builder.AddHeader("Accept", "application/json")
+	builder.AddHeader("Content-Type", "application/merge-patch+json")
+
+	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
+	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
+
+	_, err = builder.SetBodyContentJSON(updateShareTargetOptions.ShareMountTargetPatch)
+	if err != nil {
+		return
+	}
+
+	request, err := builder.Build()
+	if err != nil {
+		return
+	}
+
+	var rawResponse map[string]json.RawMessage
+	response, err = vpc.Service.Request(request, &rawResponse)
+	if err != nil {
+		return
+	}
+	if rawResponse != nil {
+		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalShareMountTarget)
+		if err != nil {
+			return
+		}
+		response.Result = result
+	}
+
+	return
+}
+
 // DeleteShareSource : Split the source file share from a replica share
 // This request removes the replication relationship between a source share and the replica share specified by the
 // identifier in the URL. The replication relationship cannot be removed if a source share or the replica share has a
@@ -21695,363 +22186,6 @@ func (vpc *VpcV1) GetShareSourceWithContext(ctx context.Context, getShareSourceO
 	}
 	if rawResponse != nil {
 		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalShare)
-		if err != nil {
-			return
-		}
-		response.Result = result
-	}
-
-	return
-}
-
-// ListShareTargets : List all targets for a file share
-// This request retrieves all share targets for a file share.
-//
-// A share target is a network endpoint at which a file share may be mounted.
-//
-// It exists within the same zone where the file share resides in.
-//
-// The file share can be mounted by instances in the same VPC and zone after creating share targets.
-func (vpc *VpcV1) ListShareTargets(listShareTargetsOptions *ListShareTargetsOptions) (result *ShareTargetCollection, response *core.DetailedResponse, err error) {
-	return vpc.ListShareTargetsWithContext(context.Background(), listShareTargetsOptions)
-}
-
-// ListShareTargetsWithContext is an alternate form of the ListShareTargets method which supports a Context parameter
-func (vpc *VpcV1) ListShareTargetsWithContext(ctx context.Context, listShareTargetsOptions *ListShareTargetsOptions) (result *ShareTargetCollection, response *core.DetailedResponse, err error) {
-	err = core.ValidateNotNil(listShareTargetsOptions, "listShareTargetsOptions cannot be nil")
-	if err != nil {
-		return
-	}
-	err = core.ValidateStruct(listShareTargetsOptions, "listShareTargetsOptions")
-	if err != nil {
-		return
-	}
-
-	pathParamsMap := map[string]string{
-		"share_id": *listShareTargetsOptions.ShareID,
-	}
-
-	builder := core.NewRequestBuilder(core.GET)
-	builder = builder.WithContext(ctx)
-	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
-	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/shares/{share_id}/targets`, pathParamsMap)
-	if err != nil {
-		return
-	}
-
-	for headerName, headerValue := range listShareTargetsOptions.Headers {
-		builder.AddHeader(headerName, headerValue)
-	}
-
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListShareTargets")
-	for headerName, headerValue := range sdkHeaders {
-		builder.AddHeader(headerName, headerValue)
-	}
-	builder.AddHeader("Accept", "application/json")
-
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
-	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
-	if listShareTargetsOptions.Name != nil {
-		builder.AddQuery("name", fmt.Sprint(*listShareTargetsOptions.Name))
-	}
-
-	request, err := builder.Build()
-	if err != nil {
-		return
-	}
-
-	var rawResponse map[string]json.RawMessage
-	response, err = vpc.Service.Request(request, &rawResponse)
-	if err != nil {
-		return
-	}
-	if rawResponse != nil {
-		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalShareTargetCollection)
-		if err != nil {
-			return
-		}
-		response.Result = result
-	}
-
-	return
-}
-
-// CreateShareTarget : Create a target for a file share
-// This request creates a new share target from a share target prototype object.
-//
-// The prototype object is structured in the same way as a retrieved share target, and contains the information
-// necessary to provision the new file share target.
-func (vpc *VpcV1) CreateShareTarget(createShareTargetOptions *CreateShareTargetOptions) (result *ShareTarget, response *core.DetailedResponse, err error) {
-	return vpc.CreateShareTargetWithContext(context.Background(), createShareTargetOptions)
-}
-
-// CreateShareTargetWithContext is an alternate form of the CreateShareTarget method which supports a Context parameter
-func (vpc *VpcV1) CreateShareTargetWithContext(ctx context.Context, createShareTargetOptions *CreateShareTargetOptions) (result *ShareTarget, response *core.DetailedResponse, err error) {
-	err = core.ValidateNotNil(createShareTargetOptions, "createShareTargetOptions cannot be nil")
-	if err != nil {
-		return
-	}
-	err = core.ValidateStruct(createShareTargetOptions, "createShareTargetOptions")
-	if err != nil {
-		return
-	}
-
-	pathParamsMap := map[string]string{
-		"share_id": *createShareTargetOptions.ShareID,
-	}
-
-	builder := core.NewRequestBuilder(core.POST)
-	builder = builder.WithContext(ctx)
-	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
-	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/shares/{share_id}/targets`, pathParamsMap)
-	if err != nil {
-		return
-	}
-
-	for headerName, headerValue := range createShareTargetOptions.Headers {
-		builder.AddHeader(headerName, headerValue)
-	}
-
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateShareTarget")
-	for headerName, headerValue := range sdkHeaders {
-		builder.AddHeader(headerName, headerValue)
-	}
-	builder.AddHeader("Accept", "application/json")
-	builder.AddHeader("Content-Type", "application/json")
-
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
-	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
-
-	body := make(map[string]interface{})
-	if createShareTargetOptions.VPC != nil {
-		body["vpc"] = createShareTargetOptions.VPC
-	}
-	if createShareTargetOptions.Name != nil {
-		body["name"] = createShareTargetOptions.Name
-	}
-	if createShareTargetOptions.SecurityGroups != nil {
-		body["security_groups"] = createShareTargetOptions.SecurityGroups
-	}
-	_, err = builder.SetBodyContentJSON(body)
-	if err != nil {
-		return
-	}
-
-	request, err := builder.Build()
-	if err != nil {
-		return
-	}
-
-	var rawResponse map[string]json.RawMessage
-	response, err = vpc.Service.Request(request, &rawResponse)
-	if err != nil {
-		return
-	}
-	if rawResponse != nil {
-		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalShareTarget)
-		if err != nil {
-			return
-		}
-		response.Result = result
-	}
-
-	return
-}
-
-// DeleteShareTarget : Delete a share target
-// This request deletes a share target. This operation cannot be reversed.
-//
-// If the request is accepted, the share target `status` will be set to `deleting`. Otherwise, once deletion processing
-// completes, the share target will no longer be retrievable.
-func (vpc *VpcV1) DeleteShareTarget(deleteShareTargetOptions *DeleteShareTargetOptions) (result *ShareTarget, response *core.DetailedResponse, err error) {
-	return vpc.DeleteShareTargetWithContext(context.Background(), deleteShareTargetOptions)
-}
-
-// DeleteShareTargetWithContext is an alternate form of the DeleteShareTarget method which supports a Context parameter
-func (vpc *VpcV1) DeleteShareTargetWithContext(ctx context.Context, deleteShareTargetOptions *DeleteShareTargetOptions) (result *ShareTarget, response *core.DetailedResponse, err error) {
-	err = core.ValidateNotNil(deleteShareTargetOptions, "deleteShareTargetOptions cannot be nil")
-	if err != nil {
-		return
-	}
-	err = core.ValidateStruct(deleteShareTargetOptions, "deleteShareTargetOptions")
-	if err != nil {
-		return
-	}
-
-	pathParamsMap := map[string]string{
-		"share_id": *deleteShareTargetOptions.ShareID,
-		"id":       *deleteShareTargetOptions.ID,
-	}
-
-	builder := core.NewRequestBuilder(core.DELETE)
-	builder = builder.WithContext(ctx)
-	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
-	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/shares/{share_id}/targets/{id}`, pathParamsMap)
-	if err != nil {
-		return
-	}
-
-	for headerName, headerValue := range deleteShareTargetOptions.Headers {
-		builder.AddHeader(headerName, headerValue)
-	}
-
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteShareTarget")
-	for headerName, headerValue := range sdkHeaders {
-		builder.AddHeader(headerName, headerValue)
-	}
-	builder.AddHeader("Accept", "application/json")
-
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
-	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
-
-	request, err := builder.Build()
-	if err != nil {
-		return
-	}
-
-	var rawResponse map[string]json.RawMessage
-	response, err = vpc.Service.Request(request, &rawResponse)
-	if err != nil {
-		return
-	}
-	if rawResponse != nil {
-		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalShareTarget)
-		if err != nil {
-			return
-		}
-		response.Result = result
-	}
-
-	return
-}
-
-// GetShareTarget : Retrieve a share target
-// This request retrieves a single share target specified by the identifier in the URL.
-func (vpc *VpcV1) GetShareTarget(getShareTargetOptions *GetShareTargetOptions) (result *ShareTarget, response *core.DetailedResponse, err error) {
-	return vpc.GetShareTargetWithContext(context.Background(), getShareTargetOptions)
-}
-
-// GetShareTargetWithContext is an alternate form of the GetShareTarget method which supports a Context parameter
-func (vpc *VpcV1) GetShareTargetWithContext(ctx context.Context, getShareTargetOptions *GetShareTargetOptions) (result *ShareTarget, response *core.DetailedResponse, err error) {
-	err = core.ValidateNotNil(getShareTargetOptions, "getShareTargetOptions cannot be nil")
-	if err != nil {
-		return
-	}
-	err = core.ValidateStruct(getShareTargetOptions, "getShareTargetOptions")
-	if err != nil {
-		return
-	}
-
-	pathParamsMap := map[string]string{
-		"share_id": *getShareTargetOptions.ShareID,
-		"id":       *getShareTargetOptions.ID,
-	}
-
-	builder := core.NewRequestBuilder(core.GET)
-	builder = builder.WithContext(ctx)
-	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
-	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/shares/{share_id}/targets/{id}`, pathParamsMap)
-	if err != nil {
-		return
-	}
-
-	for headerName, headerValue := range getShareTargetOptions.Headers {
-		builder.AddHeader(headerName, headerValue)
-	}
-
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetShareTarget")
-	for headerName, headerValue := range sdkHeaders {
-		builder.AddHeader(headerName, headerValue)
-	}
-	builder.AddHeader("Accept", "application/json")
-
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
-	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
-
-	request, err := builder.Build()
-	if err != nil {
-		return
-	}
-
-	var rawResponse map[string]json.RawMessage
-	response, err = vpc.Service.Request(request, &rawResponse)
-	if err != nil {
-		return
-	}
-	if rawResponse != nil {
-		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalShareTarget)
-		if err != nil {
-			return
-		}
-		response.Result = result
-	}
-
-	return
-}
-
-// UpdateShareTarget : Update a share target
-// This request updates a share target with the information provided in a share target patch object. The share target
-// patch object is structured in the same way as a retrieved share target and needs to contain only the information to
-// be updated.
-func (vpc *VpcV1) UpdateShareTarget(updateShareTargetOptions *UpdateShareTargetOptions) (result *ShareTarget, response *core.DetailedResponse, err error) {
-	return vpc.UpdateShareTargetWithContext(context.Background(), updateShareTargetOptions)
-}
-
-// UpdateShareTargetWithContext is an alternate form of the UpdateShareTarget method which supports a Context parameter
-func (vpc *VpcV1) UpdateShareTargetWithContext(ctx context.Context, updateShareTargetOptions *UpdateShareTargetOptions) (result *ShareTarget, response *core.DetailedResponse, err error) {
-	err = core.ValidateNotNil(updateShareTargetOptions, "updateShareTargetOptions cannot be nil")
-	if err != nil {
-		return
-	}
-	err = core.ValidateStruct(updateShareTargetOptions, "updateShareTargetOptions")
-	if err != nil {
-		return
-	}
-
-	pathParamsMap := map[string]string{
-		"share_id": *updateShareTargetOptions.ShareID,
-		"id":       *updateShareTargetOptions.ID,
-	}
-
-	builder := core.NewRequestBuilder(core.PATCH)
-	builder = builder.WithContext(ctx)
-	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
-	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/shares/{share_id}/targets/{id}`, pathParamsMap)
-	if err != nil {
-		return
-	}
-
-	for headerName, headerValue := range updateShareTargetOptions.Headers {
-		builder.AddHeader(headerName, headerValue)
-	}
-
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateShareTarget")
-	for headerName, headerValue := range sdkHeaders {
-		builder.AddHeader(headerName, headerValue)
-	}
-	builder.AddHeader("Accept", "application/json")
-	builder.AddHeader("Content-Type", "application/merge-patch+json")
-
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
-	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
-
-	_, err = builder.SetBodyContentJSON(updateShareTargetOptions.ShareTargetPatch)
-	if err != nil {
-		return
-	}
-
-	request, err := builder.Build()
-	if err != nil {
-		return
-	}
-
-	var rawResponse map[string]json.RawMessage
-	response, err = vpc.Service.Request(request, &rawResponse)
-	if err != nil {
-		return
-	}
-	if rawResponse != nil {
-		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalShareTarget)
 		if err != nil {
 			return
 		}
@@ -23202,7 +23336,8 @@ type BareMetalServer struct {
 	// Primary network interface.
 	PrimaryNetworkInterface *NetworkInterfaceBareMetalServerContextReference `json:"primary_network_interface" validate:"required"`
 
-	// The profile this bare metal server uses.
+	// The [profile](https://cloud.ibm.com/docs/vpc?topic=vpc-bare-metal-servers-profile)
+	// for this bare metal server.
 	Profile *BareMetalServerProfileReference `json:"profile" validate:"required"`
 
 	// The resource group for this bare metal server.
@@ -23884,7 +24019,7 @@ type BareMetalServerNetworkInterface struct {
 	//   - A single floating IP can be assigned to the network interface.
 	//
 	// If `false`:
-	//   - Packets are passed unmodified to/from the network interface,
+	//   - Packets are passed unchanged to/from the network interface,
 	//     allowing the workload to perform any needed NAT operations.
 	//   - Multiple floating IPs can be assigned to the network interface.
 	//   - `allow_ip_spoofing` must be set to `false`.
@@ -23938,8 +24073,7 @@ type BareMetalServerNetworkInterface struct {
 	// The type of this bare metal server network interface.
 	Type *string `json:"type" validate:"required"`
 
-	// Indicates what VLAN IDs (for VLAN type only) can use this physical (PCI type) interface.  A given VLAN can only be
-	// in the `allowed_vlans` array for one PCI type adapter per bare metal server.
+	// Indicates what VLAN IDs (for VLAN type only) can use this physical (PCI type) interface.
 	AllowedVlans []int64 `json:"allowed_vlans,omitempty"`
 
 	// Indicates if the interface can float to any other server within the same
@@ -24119,8 +24253,7 @@ type BareMetalServerNetworkInterfacePatch struct {
 	// interface. If true, source IP spoofing is allowed on this interface.
 	AllowIPSpoofing *bool `json:"allow_ip_spoofing,omitempty"`
 
-	// Indicates what VLAN IDs (for VLAN type only) can use this physical (PCI type) interface.  A given VLAN can only be
-	// in the `allowed_vlans` array for one PCI type adapter per bare metal server.
+	// Indicates what VLAN IDs (for VLAN type only) can use this physical (PCI type) interface.
 	AllowedVlans []int64 `json:"allowed_vlans,omitempty"`
 
 	// If `true`:
@@ -24128,7 +24261,7 @@ type BareMetalServerNetworkInterfacePatch struct {
 	//   - A single floating IP can be assigned to the network interface.
 	//
 	// If `false`:
-	//   - Packets are passed unmodified to/from the network interface,
+	//   - Packets are passed unchanged to/from the network interface,
 	//     allowing the workload to perform any needed NAT operations.
 	//   - Multiple floating IPs can be assigned to the network interface.
 	//   - `allow_ip_spoofing` must be set to `false`.
@@ -24186,7 +24319,7 @@ type BareMetalServerNetworkInterfacePrototype struct {
 	//   - A single floating IP can be assigned to the network interface.
 	//
 	// If `false`:
-	//   - Packets are passed unmodified to/from the network interface,
+	//   - Packets are passed unchanged to/from the network interface,
 	//     allowing the workload to perform any needed NAT operations.
 	//   - Multiple floating IPs can be assigned to the network interface.
 	//   - `allow_ip_spoofing` must be set to `false`.
@@ -24223,8 +24356,7 @@ type BareMetalServerNetworkInterfacePrototype struct {
 	// The associated subnet.
 	Subnet SubnetIdentityIntf `json:"subnet" validate:"required"`
 
-	// Indicates what VLAN IDs (for VLAN type only) can use this physical (PCI type) interface.  A given VLAN can only be
-	// in the `allowed_vlans` array for one PCI type adapter per bare metal server.
+	// Indicates what VLAN IDs (for VLAN type only) can use this physical (PCI type) interface.
 	AllowedVlans []int64 `json:"allowed_vlans,omitempty"`
 
 	// Indicates if the interface can float to any other server within the same
@@ -24317,8 +24449,7 @@ type BareMetalServerPrimaryNetworkInterfacePrototype struct {
 	// interface. If true, source IP spoofing is allowed on this interface.
 	AllowIPSpoofing *bool `json:"allow_ip_spoofing,omitempty"`
 
-	// Indicates what VLAN IDs (for VLAN type only) can use this physical (PCI type) interface.  A given VLAN can only be
-	// in the `allowed_vlans` array for one PCI type adapter per bare metal server.
+	// Indicates what VLAN IDs (for VLAN type only) can use this physical (PCI type) interface.
 	AllowedVlans []int64 `json:"allowed_vlans,omitempty"`
 
 	// If `true`:
@@ -24326,7 +24457,7 @@ type BareMetalServerPrimaryNetworkInterfacePrototype struct {
 	//   - A single floating IP can be assigned to the network interface.
 	//
 	// If `false`:
-	//   - Packets are passed unmodified to/from the network interface,
+	//   - Packets are passed unchanged to/from the network interface,
 	//     allowing the workload to perform any needed NAT operations.
 	//   - Multiple floating IPs can be assigned to the network interface.
 	//   - `allow_ip_spoofing` must be set to `false`.
@@ -25865,7 +25996,8 @@ type CreateBareMetalServerOptions struct {
 	// Primary network interface for the bare metal server.
 	PrimaryNetworkInterface *BareMetalServerPrimaryNetworkInterfacePrototype `json:"primary_network_interface" validate:"required"`
 
-	// The profile to use for this bare metal server.
+	// The [profile](https://cloud.ibm.com/docs/vpc?topic=vpc-bare-metal-servers-profile)
+	// to use for this bare metal server.
 	Profile BareMetalServerProfileIdentityIntf `json:"profile" validate:"required"`
 
 	// The zone this bare metal server will reside in.
@@ -25882,8 +26014,10 @@ type CreateBareMetalServerOptions struct {
 	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) is used.
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
 
-	// The VPC the bare metal server is to be a part of. If specified, it must match the
-	// VPC referenced by the subnets of the server's network interfaces.
+	// The VPC this bare metal server will reside in.
+	//
+	// If specified, it must match the VPC for the subnets of the server's network
+	// interfaces.
 	VPC VPCIdentityIntf `json:"vpc,omitempty"`
 
 	// Allows users to set headers on API requests
@@ -26059,7 +26193,7 @@ type CreateEndpointGatewayOptions struct {
 	// The target for this endpoint gateway.
 	Target EndpointGatewayTargetPrototypeIntf `json:"target" validate:"required"`
 
-	// The VPC this endpoint gateway will serve.
+	// The VPC this endpoint gateway will reside in.
 	VPC VPCIdentityIntf `json:"vpc" validate:"required"`
 
 	// The reserved IPs to bind to this endpoint gateway. At most one reserved IP per zone is allowed.
@@ -27077,10 +27211,15 @@ type CreateLoadBalancerListenerOptions struct {
 	LoadBalancerID *string `json:"load_balancer_id" validate:"required,ne="`
 
 	// The listener protocol. Each listener in the load balancer must have a unique `port` and `protocol` combination.
+	//
+	// Load balancers in the `network` family support `tcp` and `udp` (if `udp_supported` is `true`). Load balancers in the
+	// `application` family support `tcp`, `http` and
+	// `https`.
+	//
 	// Additional restrictions:
-	// - If this load balancer is in the `network` family:
-	//   - The protocol must be `tcp` or `udp` (if `udp_supported` is `true`).
-	//   - If `default_pool` is set, the pool protocol must match.
+	// - If `default_pool` is set, the pool's protocol must match, or be compatible with
+	//   the listener's protocol. At present, the compatible protocols are `http` and
+	//   `https`.
 	// - If `https_redirect` is set, the protocol must be `http`.
 	Protocol *string `json:"protocol" validate:"required"`
 
@@ -27092,19 +27231,21 @@ type CreateLoadBalancerListenerOptions struct {
 	//   `accept_proxy_protocol` value must match that listener's `accept_proxy_protocol` value.
 	AcceptProxyProtocol *bool `json:"accept_proxy_protocol,omitempty"`
 
-	// The certificate instance used for SSL termination. It is applicable only to `https`
-	// protocol.
+	// The certificate instance to use for SSL termination. The listener must have a
+	// `protocol` of `https`.
 	CertificateInstance CertificateInstanceIdentityIntf `json:"certificate_instance,omitempty"`
 
 	// The connection limit of the listener.
 	ConnectionLimit *int64 `json:"connection_limit,omitempty"`
 
-	// The default pool for this listener. The specified pool must:
-	//
-	// - Belong to this load balancer
+	// The default pool for this listener. If specified, the pool must:
+	// - Belong to this load balancer.
 	// - Have the same `protocol` as this listener, or have a compatible protocol.
 	//   At present, the compatible protocols are `http` and `https`.
 	// - Not already be the `default_pool` for another listener.
+	//
+	// If unspecified, this listener will be created with no default pool, but one may be
+	// subsequently set.
 	DefaultPool LoadBalancerPoolIdentityIntf `json:"default_pool,omitempty"`
 
 	// The target listener that requests will be redirected to. This listener must have a
@@ -27146,10 +27287,15 @@ type CreateLoadBalancerListenerOptions struct {
 
 // Constants associated with the CreateLoadBalancerListenerOptions.Protocol property.
 // The listener protocol. Each listener in the load balancer must have a unique `port` and `protocol` combination.
+//
+// Load balancers in the `network` family support `tcp` and `udp` (if `udp_supported` is `true`). Load balancers in the
+// `application` family support `tcp`, `http` and
+// `https`.
+//
 // Additional restrictions:
-// - If this load balancer is in the `network` family:
-//   - The protocol must be `tcp` or `udp` (if `udp_supported` is `true`).
-//   - If `default_pool` is set, the pool protocol must match.
+// - If `default_pool` is set, the pool's protocol must match, or be compatible with
+//   the listener's protocol. At present, the compatible protocols are `http` and
+//   `https`.
 // - If `https_redirect` is set, the protocol must be `http`.
 const (
 	CreateLoadBalancerListenerOptionsProtocolHTTPConst  = "http"
@@ -27934,7 +28080,7 @@ func (options *CreatePlacementGroupOptions) SetHeaders(param map[string]string) 
 
 // CreatePublicGatewayOptions : The CreatePublicGateway options.
 type CreatePublicGatewayOptions struct {
-	// The VPC this public gateway will serve.
+	// The VPC this public gateway will reside in.
 	VPC VPCIdentityIntf `json:"vpc" validate:"required"`
 
 	// The zone this public gateway will reside in.
@@ -28000,7 +28146,7 @@ func (options *CreatePublicGatewayOptions) SetHeaders(param map[string]string) *
 
 // CreateSecurityGroupOptions : The CreateSecurityGroup options.
 type CreateSecurityGroupOptions struct {
-	// The VPC this security group is to be a part of.
+	// The VPC this security group will reside in.
 	VPC VPCIdentityIntf `json:"vpc" validate:"required"`
 
 	// The user-defined name for this security group. If unspecified, the name will be a hyphenated list of
@@ -28163,14 +28309,14 @@ type CreateShareTargetOptions struct {
 	// The file share identifier.
 	ShareID *string `json:"share_id" validate:"required,ne="`
 
-	// The VPC in which instances can mount the file share using this share target.
+	// The VPC in which instances can mount the file share using this share mount target.
 	VPC VPCIdentityIntf `json:"vpc" validate:"required"`
 
-	// The user-defined name for this share target. Names must be unique within the share the share target resides in. If
-	// unspecified, the name will be a hyphenated list of randomly-selected words.
+	// The user-defined name for this share mount target. Names must be unique within the share the share mount target
+	// resides in. If unspecified, the name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
-	// The security groups to use for this share target. If unspecified, the VPC's default security group is used.
+	// The security groups to use for this share mount target. If unspecified, the VPC's default security group is used.
 	SecurityGroups []SecurityGroupIdentityIntf `json:"security_groups,omitempty"`
 
 	// Allows users to set headers on API requests
@@ -28523,8 +28669,7 @@ type CreateVPCRouteOptions struct {
 	VPCID *string `json:"vpc_id" validate:"required,ne="`
 
 	// The destination of the route. At most two routes per `zone` in a table can have the same destination, and only if
-	// both routes have an `action` of `deliver` and the
-	// `next_hop` is an IP address.
+	// both routes have an `action` of `deliver` and the `next_hop` is an IP address.
 	Destination *string `json:"destination" validate:"required"`
 
 	// The zone to apply the route to. (Traffic from subnets in this zone will be
@@ -28734,8 +28879,7 @@ type CreateVPCRoutingTableRouteOptions struct {
 	RoutingTableID *string `json:"routing_table_id" validate:"required,ne="`
 
 	// The destination of the route. At most two routes per `zone` in a table can have the same destination, and only if
-	// both routes have an `action` of `deliver` and the
-	// `next_hop` is an IP address.
+	// both routes have an `action` of `deliver` and the `next_hop` is an IP address.
 	Destination *string `json:"destination" validate:"required"`
 
 	// The zone to apply the route to. (Traffic from subnets in this zone will be
@@ -29172,7 +29316,8 @@ type DedicatedHost struct {
 	// The unique user-defined name for this dedicated host.
 	Name *string `json:"name" validate:"required"`
 
-	// The profile this dedicated host uses.
+	// The [profile](https://cloud.ibm.com/docs/vpc?topic=vpc-dh-profiles) for this
+	// dedicated host.
 	Profile *DedicatedHostProfileReference `json:"profile" validate:"required"`
 
 	// Indicates whether this dedicated host is available for instance creation.
@@ -30708,7 +30853,8 @@ type DedicatedHostPrototype struct {
 	// randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
-	// The profile to use for this dedicated host.
+	// The [profile](https://cloud.ibm.com/docs/vpc?topic=vpc-dh-profiles) to use for this
+	// dedicated host.
 	Profile DedicatedHostProfileIdentityIntf `json:"profile" validate:"required"`
 
 	// The resource group to use. If unspecified, the account's [default resource
@@ -30867,7 +31013,7 @@ type DefaultNetworkACL struct {
 	// The subnets to which this network ACL is attached.
 	Subnets []SubnetReference `json:"subnets" validate:"required"`
 
-	// The VPC this network ACL is a part of.
+	// The VPC this network ACL resides in.
 	VPC *VPCReference `json:"vpc" validate:"required"`
 }
 
@@ -31085,7 +31231,7 @@ type DefaultSecurityGroup struct {
 	// The targets for this security group.
 	Targets []SecurityGroupTargetReferenceIntf `json:"targets" validate:"required"`
 
-	// The VPC this security group is a part of.
+	// The VPC this security group resides in.
 	VPC *VPCReference `json:"vpc" validate:"required"`
 }
 
@@ -32476,7 +32622,7 @@ type DeleteShareTargetOptions struct {
 	// The file share identifier.
 	ShareID *string `json:"share_id" validate:"required,ne="`
 
-	// The share target identifier.
+	// The share mount target identifier.
 	ID *string `json:"id" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
@@ -33191,7 +33337,7 @@ type EndpointGateway struct {
 	// The target for this endpoint gateway.
 	Target EndpointGatewayTargetIntf `json:"target" validate:"required"`
 
-	// The VPC this endpoint gateway is serving.
+	// The VPC this endpoint gateway resides in.
 	VPC *VPCReference `json:"vpc" validate:"required"`
 }
 
@@ -34212,7 +34358,7 @@ type FlowLogCollector struct {
 	// target that are themselves the target of a more specific flow log collector.
 	Target FlowLogCollectorTargetIntf `json:"target" validate:"required"`
 
-	// The VPC this flow log collector is associated with.
+	// The VPC this flow log collector resides in.
 	VPC *VPCReference `json:"vpc" validate:"required"`
 }
 
@@ -34724,6 +34870,54 @@ func (_options *GetBareMetalServerNetworkInterfaceFloatingIPOptions) SetID(id st
 
 // SetHeaders : Allow user to set Headers
 func (options *GetBareMetalServerNetworkInterfaceFloatingIPOptions) SetHeaders(param map[string]string) *GetBareMetalServerNetworkInterfaceFloatingIPOptions {
+	options.Headers = param
+	return options
+}
+
+// GetBareMetalServerNetworkInterfaceIPOptions : The GetBareMetalServerNetworkInterfaceIP options.
+type GetBareMetalServerNetworkInterfaceIPOptions struct {
+	// The bare metal server identifier.
+	BareMetalServerID *string `json:"bare_metal_server_id" validate:"required,ne="`
+
+	// The network interface identifier.
+	NetworkInterfaceID *string `json:"network_interface_id" validate:"required,ne="`
+
+	// The reserved IP identifier.
+	ID *string `json:"id" validate:"required,ne="`
+
+	// Allows users to set headers on API requests
+	Headers map[string]string
+}
+
+// NewGetBareMetalServerNetworkInterfaceIPOptions : Instantiate GetBareMetalServerNetworkInterfaceIPOptions
+func (*VpcV1) NewGetBareMetalServerNetworkInterfaceIPOptions(bareMetalServerID string, networkInterfaceID string, id string) *GetBareMetalServerNetworkInterfaceIPOptions {
+	return &GetBareMetalServerNetworkInterfaceIPOptions{
+		BareMetalServerID:  core.StringPtr(bareMetalServerID),
+		NetworkInterfaceID: core.StringPtr(networkInterfaceID),
+		ID:                 core.StringPtr(id),
+	}
+}
+
+// SetBareMetalServerID : Allow user to set BareMetalServerID
+func (_options *GetBareMetalServerNetworkInterfaceIPOptions) SetBareMetalServerID(bareMetalServerID string) *GetBareMetalServerNetworkInterfaceIPOptions {
+	_options.BareMetalServerID = core.StringPtr(bareMetalServerID)
+	return _options
+}
+
+// SetNetworkInterfaceID : Allow user to set NetworkInterfaceID
+func (_options *GetBareMetalServerNetworkInterfaceIPOptions) SetNetworkInterfaceID(networkInterfaceID string) *GetBareMetalServerNetworkInterfaceIPOptions {
+	_options.NetworkInterfaceID = core.StringPtr(networkInterfaceID)
+	return _options
+}
+
+// SetID : Allow user to set ID
+func (_options *GetBareMetalServerNetworkInterfaceIPOptions) SetID(id string) *GetBareMetalServerNetworkInterfaceIPOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
+}
+
+// SetHeaders : Allow user to set Headers
+func (options *GetBareMetalServerNetworkInterfaceIPOptions) SetHeaders(param map[string]string) *GetBareMetalServerNetworkInterfaceIPOptions {
 	options.Headers = param
 	return options
 }
@@ -36423,7 +36617,7 @@ type GetShareTargetOptions struct {
 	// The file share identifier.
 	ShareID *string `json:"share_id" validate:"required,ne="`
 
-	// The share target identifier.
+	// The share mount target identifier.
 	ID *string `json:"id" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
@@ -38016,8 +38210,13 @@ type Image struct {
 	Status *string `json:"status" validate:"required"`
 
 	// The reasons for the current status (if any):
+	// - `encrypted_data_key_invalid`: image cannot be decrypted with the specified
+	//   `encryption_key`
 	// - `encryption_key_deleted`: image unusable because its `encryption_key` was deleted
 	// - `encryption_key_disabled`: image unusable until its `encryption_key` is re-enabled
+	// - `image_data_corrupted`: image data is corrupt, or is not in the specified format
+	// - `image_provisioned_size_unsupported`: image requires a boot volume size greater
+	//   than the maximum supported value
 	// - `image_request_in_progress`: image operation is in progress (such as an import from
 	//    Cloud Object Storage)
 	// - `image_request_queued`: image request has been accepted but the requested
@@ -38538,10 +38737,13 @@ type ImageStatusReason struct {
 // Constants associated with the ImageStatusReason.Code property.
 // A snake case string succinctly identifying the status reason.
 const (
-	ImageStatusReasonCodeEncryptionKeyDeletedConst   = "encryption_key_deleted"
-	ImageStatusReasonCodeEncryptionKeyDisabledConst  = "encryption_key_disabled"
-	ImageStatusReasonCodeImageRequestInProgressConst = "image_request_in_progress"
-	ImageStatusReasonCodeImageRequestQueuedConst     = "image_request_queued"
+	ImageStatusReasonCodeEncryptedDataKeyInvalidConst         = "encrypted_data_key_invalid"
+	ImageStatusReasonCodeEncryptionKeyDeletedConst            = "encryption_key_deleted"
+	ImageStatusReasonCodeEncryptionKeyDisabledConst           = "encryption_key_disabled"
+	ImageStatusReasonCodeImageDataCorruptedConst              = "image_data_corrupted"
+	ImageStatusReasonCodeImageProvisionedSizeUnsupportedConst = "image_provisioned_size_unsupported"
+	ImageStatusReasonCodeImageRequestInProgressConst          = "image_request_in_progress"
+	ImageStatusReasonCodeImageRequestQueuedConst              = "image_request_queued"
 )
 
 // UnmarshalImageStatusReason unmarshals an instance of ImageStatusReason from the specified map of raw messages.
@@ -38627,7 +38829,8 @@ type Instance struct {
 	// Primary network interface.
 	PrimaryNetworkInterface *NetworkInterfaceInstanceContextReference `json:"primary_network_interface" validate:"required"`
 
-	// The profile for this virtual server instance.
+	// The [profile](https://cloud.ibm.com/docs/vpc?topic=vpc-profiles) for this virtual
+	// server instance.
 	Profile *InstanceProfileReference `json:"profile" validate:"required"`
 
 	// The resource group for this instance.
@@ -39833,7 +40036,7 @@ type InstanceGroupManagerAction struct {
 	// - `omitted`: Action was not applied because this action's manager was disabled.
 	Status *string `json:"status" validate:"required"`
 
-	// The date and time that the instance group manager action was modified.
+	// The date and time that the instance group manager action was updated.
 	UpdatedAt *strfmt.DateTime `json:"updated_at" validate:"required"`
 
 	// The type of action for the instance group.
@@ -41580,7 +41783,7 @@ type InstancePatch struct {
 	// - Be compatible with any `placement_target` constraints. For example, if the
 	//   instance is placed on a dedicated host, the requested profile `family` must be
 	//   the same as the dedicated host `family`.
-	// - Have the same `vcpu_architecture`.
+	// - Have the same `vcpu.architecture`.
 	Profile InstancePatchProfileIntf `json:"profile,omitempty"`
 
 	// The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes. An increase in
@@ -41638,7 +41841,7 @@ func (instancePatch *InstancePatch) AsPatch() (_patch map[string]interface{}, er
 // - Be compatible with any `placement_target` constraints. For example, if the
 //   instance is placed on a dedicated host, the requested profile `family` must be
 //   the same as the dedicated host `family`.
-// - Have the same `vcpu_architecture`.
+// - Have the same `vcpu.architecture`.
 // Models which "extend" this model:
 // - InstancePatchProfileInstanceProfileIdentityByName
 // - InstancePatchProfileInstanceProfileIdentityByHref
@@ -42943,8 +43146,11 @@ type InstancePrototype struct {
 	// The placement restrictions to use for the virtual server instance.
 	PlacementTarget InstancePlacementTargetPrototypeIntf `json:"placement_target,omitempty"`
 
-	// The profile to use for this virtual server instance. If unspecified, `bx2-2x8` will
-	// be used, but this default value is expected to change in the future.
+	// The [profile](https://cloud.ibm.com/docs/vpc?topic=vpc-profiles) to use for this
+	// virtual server instance.
+	//
+	// If unspecified, `bx2-2x8` will be used, but this default value is expected to change
+	// in the future.
 	Profile InstanceProfileIdentityIntf `json:"profile,omitempty"`
 
 	// The resource group to use. If unspecified, the account's [default resource
@@ -42963,8 +43169,10 @@ type InstancePrototype struct {
 	// The additional volume attachments to create for the virtual server instance.
 	VolumeAttachments []VolumeAttachmentPrototypeInstanceContext `json:"volume_attachments,omitempty"`
 
-	// The VPC the virtual server instance is to be a part of. If specified, it must match
-	// the VPC referenced by the subnets of the instance's network interfaces.
+	// The VPC this virtual server instance will reside in.
+	//
+	// If specified, it must match the VPC for the subnets of the instance's network
+	// interfaces.
 	VPC VPCIdentityIntf `json:"vpc,omitempty"`
 
 	// The boot volume attachment for the virtual server instance.
@@ -43234,8 +43442,11 @@ type InstanceTemplate struct {
 	// The placement restrictions to use for the virtual server instance.
 	PlacementTarget InstancePlacementTargetPrototypeIntf `json:"placement_target,omitempty"`
 
-	// The profile to use for this virtual server instance. If unspecified, `bx2-2x8` will
-	// be used, but this default value is expected to change in the future.
+	// The [profile](https://cloud.ibm.com/docs/vpc?topic=vpc-profiles) to use for this
+	// virtual server instance.
+	//
+	// If unspecified, `bx2-2x8` will be used, but this default value is expected to change
+	// in the future.
 	Profile InstanceProfileIdentityIntf `json:"profile,omitempty"`
 
 	// The resource group for this instance template.
@@ -43253,8 +43464,10 @@ type InstanceTemplate struct {
 	// The additional volume attachments to create for the virtual server instance.
 	VolumeAttachments []VolumeAttachmentPrototypeInstanceContext `json:"volume_attachments,omitempty"`
 
-	// The VPC the virtual server instance is to be a part of. If specified, it must match
-	// the VPC referenced by the subnets of the instance's network interfaces.
+	// The VPC this virtual server instance will reside in.
+	//
+	// If specified, it must match the VPC for the subnets of the instance's network
+	// interfaces.
 	VPC VPCIdentityIntf `json:"vpc,omitempty"`
 
 	// The boot volume attachment for the virtual server instance.
@@ -43523,6 +43736,7 @@ func (instanceTemplatePatch *InstanceTemplatePatch) AsPatch() (_patch map[string
 // Models which "extend" this model:
 // - InstanceTemplatePrototypeInstanceByImage
 // - InstanceTemplatePrototypeInstanceBySourceTemplate
+// - InstanceTemplatePrototypeInstanceBySourceSnapshot
 type InstanceTemplatePrototype struct {
 	// The availability policy to use for this virtual server instance.
 	AvailabilityPolicy *InstanceAvailabilityPrototype `json:"availability_policy,omitempty"`
@@ -43562,8 +43776,11 @@ type InstanceTemplatePrototype struct {
 	// The placement restrictions to use for the virtual server instance.
 	PlacementTarget InstancePlacementTargetPrototypeIntf `json:"placement_target,omitempty"`
 
-	// The profile to use for this virtual server instance. If unspecified, `bx2-2x8` will
-	// be used, but this default value is expected to change in the future.
+	// The [profile](https://cloud.ibm.com/docs/vpc?topic=vpc-profiles) to use for this
+	// virtual server instance.
+	//
+	// If unspecified, `bx2-2x8` will be used, but this default value is expected to change
+	// in the future.
 	Profile InstanceProfileIdentityIntf `json:"profile,omitempty"`
 
 	// The resource group to use. If unspecified, the account's [default resource
@@ -43582,8 +43799,10 @@ type InstanceTemplatePrototype struct {
 	// The additional volume attachments to create for the virtual server instance.
 	VolumeAttachments []VolumeAttachmentPrototypeInstanceContext `json:"volume_attachments,omitempty"`
 
-	// The VPC the virtual server instance is to be a part of. If specified, it must match
-	// the VPC referenced by the subnets of the instance's network interfaces.
+	// The VPC this virtual server instance will reside in.
+	//
+	// If specified, it must match the VPC for the subnets of the instance's network
+	// interfaces.
 	VPC VPCIdentityIntf `json:"vpc,omitempty"`
 
 	// The boot volume attachment for the virtual server instance.
@@ -44350,6 +44569,44 @@ func (_options *ListBareMetalServerNetworkInterfaceFloatingIpsOptions) SetNetwor
 
 // SetHeaders : Allow user to set Headers
 func (options *ListBareMetalServerNetworkInterfaceFloatingIpsOptions) SetHeaders(param map[string]string) *ListBareMetalServerNetworkInterfaceFloatingIpsOptions {
+	options.Headers = param
+	return options
+}
+
+// ListBareMetalServerNetworkInterfaceIpsOptions : The ListBareMetalServerNetworkInterfaceIps options.
+type ListBareMetalServerNetworkInterfaceIpsOptions struct {
+	// The bare metal server identifier.
+	BareMetalServerID *string `json:"bare_metal_server_id" validate:"required,ne="`
+
+	// The network interface identifier.
+	NetworkInterfaceID *string `json:"network_interface_id" validate:"required,ne="`
+
+	// Allows users to set headers on API requests
+	Headers map[string]string
+}
+
+// NewListBareMetalServerNetworkInterfaceIpsOptions : Instantiate ListBareMetalServerNetworkInterfaceIpsOptions
+func (*VpcV1) NewListBareMetalServerNetworkInterfaceIpsOptions(bareMetalServerID string, networkInterfaceID string) *ListBareMetalServerNetworkInterfaceIpsOptions {
+	return &ListBareMetalServerNetworkInterfaceIpsOptions{
+		BareMetalServerID:  core.StringPtr(bareMetalServerID),
+		NetworkInterfaceID: core.StringPtr(networkInterfaceID),
+	}
+}
+
+// SetBareMetalServerID : Allow user to set BareMetalServerID
+func (_options *ListBareMetalServerNetworkInterfaceIpsOptions) SetBareMetalServerID(bareMetalServerID string) *ListBareMetalServerNetworkInterfaceIpsOptions {
+	_options.BareMetalServerID = core.StringPtr(bareMetalServerID)
+	return _options
+}
+
+// SetNetworkInterfaceID : Allow user to set NetworkInterfaceID
+func (_options *ListBareMetalServerNetworkInterfaceIpsOptions) SetNetworkInterfaceID(networkInterfaceID string) *ListBareMetalServerNetworkInterfaceIpsOptions {
+	_options.NetworkInterfaceID = core.StringPtr(networkInterfaceID)
+	return _options
+}
+
+// SetHeaders : Allow user to set Headers
+func (options *ListBareMetalServerNetworkInterfaceIpsOptions) SetHeaders(param map[string]string) *ListBareMetalServerNetworkInterfaceIpsOptions {
 	options.Headers = param
 	return options
 }
@@ -47731,6 +47988,10 @@ type LoadBalancer struct {
 	//       error (contact IBM support).
 	// - `update_pending`: The load balancer is being updated
 	//                     to the requested configuration.
+	//
+	// The enumerated values for this property are expected to expand in the future. When processing this property, check
+	// for and log unknown values. Optionally halt processing and surface the error, or bypass the load balancer on which
+	// the unexpected property value was encountered.
 	ProvisioningStatus *string `json:"provisioning_status" validate:"required"`
 
 	// The public IP addresses assigned to this load balancer.
@@ -47781,6 +48042,10 @@ const (
 //       error (contact IBM support).
 // - `update_pending`: The load balancer is being updated
 //                     to the requested configuration.
+//
+// The enumerated values for this property are expected to expand in the future. When processing this property, check
+// for and log unknown values. Optionally halt processing and surface the error, or bypass the load balancer on which
+// the unexpected property value was encountered.
 const (
 	LoadBalancerProvisioningStatusActiveConst             = "active"
 	LoadBalancerProvisioningStatusCreatePendingConst      = "create_pending"
@@ -48036,8 +48301,9 @@ type LoadBalancerListener struct {
 	//   `accept_proxy_protocol` value must match that listener's `accept_proxy_protocol` value.
 	AcceptProxyProtocol *bool `json:"accept_proxy_protocol" validate:"required"`
 
-	// The certificate instance used for SSL termination. It is applicable only to `https`
-	// protocol.
+	// The certificate instance used for SSL termination.
+	//
+	// If absent, this listener is not using a certificate instance.
 	CertificateInstance *CertificateInstanceReference `json:"certificate_instance,omitempty"`
 
 	// The connection limit of the listener.
@@ -48052,7 +48318,7 @@ type LoadBalancerListener struct {
 	// The listener's canonical URL.
 	Href *string `json:"href" validate:"required"`
 
-	// If specified, the target listener that requests are redirected to.
+	// If present, the target listener that requests are redirected to.
 	HTTPSRedirect *LoadBalancerListenerHTTPSRedirect `json:"https_redirect,omitempty"`
 
 	// The unique identifier for this load balancer listener.
@@ -48074,23 +48340,23 @@ type LoadBalancerListener struct {
 	// At present, only load balancers in the `network` family support more than one port per listener.
 	PortMin *int64 `json:"port_min" validate:"required"`
 
-	// The listener protocol. Load balancers in the `network` family support `tcp` and
-	// `udp` (if `udp_supported` is `true`). Load balancers in the `application` family support `tcp`, `http`, and `https`.
-	// Each listener in the load balancer must have a unique `port` and `protocol` combination.
+	// The listener protocol.
 	//
 	// The enumerated values for this property are expected to expand in the future. When processing this property, check
 	// for and log unknown values. Optionally halt processing and surface the error, or bypass the listener on which the
 	// unexpected property value was encountered.
 	Protocol *string `json:"protocol" validate:"required"`
 
-	// The provisioning status of this listener.
+	// The provisioning status of this listener
+	//
+	// The enumerated values for this property are expected to expand in the future. When processing this property, check
+	// for and log unknown values. Optionally halt processing and surface the error, or bypass the listener on which the
+	// unexpected property value was encountered.
 	ProvisioningStatus *string `json:"provisioning_status" validate:"required"`
 }
 
 // Constants associated with the LoadBalancerListener.Protocol property.
-// The listener protocol. Load balancers in the `network` family support `tcp` and
-// `udp` (if `udp_supported` is `true`). Load balancers in the `application` family support `tcp`, `http`, and `https`.
-// Each listener in the load balancer must have a unique `port` and `protocol` combination.
+// The listener protocol.
 //
 // The enumerated values for this property are expected to expand in the future. When processing this property, check
 // for and log unknown values. Optionally halt processing and surface the error, or bypass the listener on which the
@@ -48103,14 +48369,17 @@ const (
 )
 
 // Constants associated with the LoadBalancerListener.ProvisioningStatus property.
-// The provisioning status of this listener.
+// The provisioning status of this listener
+//
+// The enumerated values for this property are expected to expand in the future. When processing this property, check
+// for and log unknown values. Optionally halt processing and surface the error, or bypass the listener on which the
+// unexpected property value was encountered.
 const (
-	LoadBalancerListenerProvisioningStatusActiveConst             = "active"
-	LoadBalancerListenerProvisioningStatusCreatePendingConst      = "create_pending"
-	LoadBalancerListenerProvisioningStatusDeletePendingConst      = "delete_pending"
-	LoadBalancerListenerProvisioningStatusFailedConst             = "failed"
-	LoadBalancerListenerProvisioningStatusMaintenancePendingConst = "maintenance_pending"
-	LoadBalancerListenerProvisioningStatusUpdatePendingConst      = "update_pending"
+	LoadBalancerListenerProvisioningStatusActiveConst        = "active"
+	LoadBalancerListenerProvisioningStatusCreatePendingConst = "create_pending"
+	LoadBalancerListenerProvisioningStatusDeletePendingConst = "delete_pending"
+	LoadBalancerListenerProvisioningStatusFailedConst        = "failed"
+	LoadBalancerListenerProvisioningStatusUpdatePendingConst = "update_pending"
 )
 
 // UnmarshalLoadBalancerListener unmarshals an instance of LoadBalancerListener from the specified map of raw messages.
@@ -48340,8 +48609,8 @@ type LoadBalancerListenerPatch struct {
 	//   `accept_proxy_protocol` value must match that listener's `accept_proxy_protocol` value.
 	AcceptProxyProtocol *bool `json:"accept_proxy_protocol,omitempty"`
 
-	// The certificate instance used for SSL termination. It is applicable only to `https`
-	// protocol.
+	// The certificate instance to use for SSL termination. The listener must have a
+	// `protocol` of `https`.
 	CertificateInstance CertificateInstanceIdentityIntf `json:"certificate_instance,omitempty"`
 
 	// The connection limit of the listener.
@@ -48390,24 +48659,30 @@ type LoadBalancerListenerPatch struct {
 	PortMin *int64 `json:"port_min,omitempty"`
 
 	// The listener protocol. Each listener in the load balancer must have a unique `port` and `protocol` combination.
+	//
+	// Load balancers in the `network` family support `tcp` and `udp` (if `udp_supported` is `true`). Load balancers in the
+	// `application` family support `tcp`, `http` and
+	// `https`.
+	//
 	// Additional restrictions:
-	// - If this load balancer is in the `network` family, the protocol must be `tcp`
-	//   or `udp` (if `udp_supported` is `true`) , and it cannot be changed while
-	//   `default_pool` is set.
+	// - If `default_pool` is set, the protocol cannot be changed.
 	// - If `https_redirect` is set, the protocol must be `http`.
-	// - If this listener is a listener's `https_redirect` target, the protocol must be
+	// - If another listener's `https_redirect` targets this listener, the protocol must be
 	//   `https`.
 	Protocol *string `json:"protocol,omitempty"`
 }
 
 // Constants associated with the LoadBalancerListenerPatch.Protocol property.
 // The listener protocol. Each listener in the load balancer must have a unique `port` and `protocol` combination.
+//
+// Load balancers in the `network` family support `tcp` and `udp` (if `udp_supported` is `true`). Load balancers in the
+// `application` family support `tcp`, `http` and
+// `https`.
+//
 // Additional restrictions:
-// - If this load balancer is in the `network` family, the protocol must be `tcp`
-//   or `udp` (if `udp_supported` is `true`) , and it cannot be changed while
-//   `default_pool` is set.
+// - If `default_pool` is set, the protocol cannot be changed.
 // - If `https_redirect` is set, the protocol must be `http`.
-// - If this listener is a listener's `https_redirect` target, the protocol must be
+// - If another listener's `https_redirect` targets this listener, the protocol must be
 //   `https`.
 const (
 	LoadBalancerListenerPatchProtocolHTTPConst  = "http"
@@ -48493,7 +48768,11 @@ type LoadBalancerListenerPolicy struct {
 	// Priority of the policy. Lower value indicates higher priority.
 	Priority *int64 `json:"priority" validate:"required"`
 
-	// The provisioning status of this policy.
+	// The provisioning status of this policy
+	//
+	// The enumerated values for this property are expected to expand in the future. When processing this property, check
+	// for and log unknown values. Optionally halt processing and surface the error, or bypass the policy on which the
+	// unexpected property value was encountered.
 	ProvisioningStatus *string `json:"provisioning_status" validate:"required"`
 
 	// The rules for this policy.
@@ -48519,14 +48798,17 @@ const (
 )
 
 // Constants associated with the LoadBalancerListenerPolicy.ProvisioningStatus property.
-// The provisioning status of this policy.
+// The provisioning status of this policy
+//
+// The enumerated values for this property are expected to expand in the future. When processing this property, check
+// for and log unknown values. Optionally halt processing and surface the error, or bypass the policy on which the
+// unexpected property value was encountered.
 const (
-	LoadBalancerListenerPolicyProvisioningStatusActiveConst             = "active"
-	LoadBalancerListenerPolicyProvisioningStatusCreatePendingConst      = "create_pending"
-	LoadBalancerListenerPolicyProvisioningStatusDeletePendingConst      = "delete_pending"
-	LoadBalancerListenerPolicyProvisioningStatusFailedConst             = "failed"
-	LoadBalancerListenerPolicyProvisioningStatusMaintenancePendingConst = "maintenance_pending"
-	LoadBalancerListenerPolicyProvisioningStatusUpdatePendingConst      = "update_pending"
+	LoadBalancerListenerPolicyProvisioningStatusActiveConst        = "active"
+	LoadBalancerListenerPolicyProvisioningStatusCreatePendingConst = "create_pending"
+	LoadBalancerListenerPolicyProvisioningStatusDeletePendingConst = "delete_pending"
+	LoadBalancerListenerPolicyProvisioningStatusFailedConst        = "failed"
+	LoadBalancerListenerPolicyProvisioningStatusUpdatePendingConst = "update_pending"
 )
 
 // UnmarshalLoadBalancerListenerPolicy unmarshals an instance of LoadBalancerListenerPolicy from the specified map of raw messages.
@@ -48782,7 +49064,11 @@ type LoadBalancerListenerPolicyRule struct {
 	// The rule's unique identifier.
 	ID *string `json:"id" validate:"required"`
 
-	// The provisioning status of this rule.
+	// The provisioning status of this rule
+	//
+	// The enumerated values for this property are expected to expand in the future. When processing this property, check
+	// for and log unknown values. Optionally halt processing and surface the error, or bypass the rule on which the
+	// unexpected property value was encountered.
 	ProvisioningStatus *string `json:"provisioning_status" validate:"required"`
 
 	// The type of the rule.
@@ -48805,14 +49091,17 @@ const (
 )
 
 // Constants associated with the LoadBalancerListenerPolicyRule.ProvisioningStatus property.
-// The provisioning status of this rule.
+// The provisioning status of this rule
+//
+// The enumerated values for this property are expected to expand in the future. When processing this property, check
+// for and log unknown values. Optionally halt processing and surface the error, or bypass the rule on which the
+// unexpected property value was encountered.
 const (
-	LoadBalancerListenerPolicyRuleProvisioningStatusActiveConst             = "active"
-	LoadBalancerListenerPolicyRuleProvisioningStatusCreatePendingConst      = "create_pending"
-	LoadBalancerListenerPolicyRuleProvisioningStatusDeletePendingConst      = "delete_pending"
-	LoadBalancerListenerPolicyRuleProvisioningStatusFailedConst             = "failed"
-	LoadBalancerListenerPolicyRuleProvisioningStatusMaintenancePendingConst = "maintenance_pending"
-	LoadBalancerListenerPolicyRuleProvisioningStatusUpdatePendingConst      = "update_pending"
+	LoadBalancerListenerPolicyRuleProvisioningStatusActiveConst        = "active"
+	LoadBalancerListenerPolicyRuleProvisioningStatusCreatePendingConst = "create_pending"
+	LoadBalancerListenerPolicyRuleProvisioningStatusDeletePendingConst = "delete_pending"
+	LoadBalancerListenerPolicyRuleProvisioningStatusFailedConst        = "failed"
+	LoadBalancerListenerPolicyRuleProvisioningStatusUpdatePendingConst = "update_pending"
 )
 
 // Constants associated with the LoadBalancerListenerPolicyRule.Type property.
@@ -49316,16 +49605,26 @@ type LoadBalancerListenerPrototypeLoadBalancerContext struct {
 	//   `accept_proxy_protocol` value must match that listener's `accept_proxy_protocol` value.
 	AcceptProxyProtocol *bool `json:"accept_proxy_protocol,omitempty"`
 
+	// The certificate instance to use for SSL termination. The listener must have a
+	// `protocol` of `https`.
+	CertificateInstance CertificateInstanceIdentityIntf `json:"certificate_instance,omitempty"`
+
 	// The connection limit of the listener.
 	ConnectionLimit *int64 `json:"connection_limit,omitempty"`
 
-	// The default pool for this listener. If specified, the pool's protocol must match the
-	// listener's protocol, or the protocols must be compatible. At present, the compatible
-	// protocols are `http` and `https`.
+	// The default pool for this listener. If specified, the pool must:
+	//   - Belong to this load balancer.
+	//   - Have the same `protocol` as this listener, or have a compatible protocol.
+	//     At present, the compatible protocols are `http` and `https`.
+	//   - Not already be the `default_pool` for another listener.
 	//
 	// If unspecified, this listener will be created with no default pool, but one may be
 	// subsequently set.
 	DefaultPool *LoadBalancerPoolIdentityByName `json:"default_pool,omitempty"`
+
+	// The target listener that requests will be redirected to. This listener must have a
+	// `protocol` of `http`, and the target listener must have a `protocol` of `https`.
+	HTTPSRedirect *LoadBalancerListenerHTTPSRedirectPrototype `json:"https_redirect,omitempty"`
 
 	// The listener port number, or the inclusive lower bound of the port range. Each listener in the load balancer must
 	// have a unique `port` and `protocol` combination.
@@ -49353,24 +49652,32 @@ type LoadBalancerListenerPrototypeLoadBalancerContext struct {
 	// same protocol.
 	PortMin *int64 `json:"port_min,omitempty"`
 
-	// The listener protocol. Load balancers in the `network` family support `tcp` and
-	// `udp` (if `udp_supported` is `true`). Load balancers in the `application` family support `tcp`, `http`, and `https`.
-	// Each listener in the load balancer must have a unique `port` and `protocol` combination.
+	// The listener protocol. Each listener in the load balancer must have a unique `port` and `protocol` combination.
 	//
-	// The enumerated values for this property are expected to expand in the future. When processing this property, check
-	// for and log unknown values. Optionally halt processing and surface the error, or bypass the listener on which the
-	// unexpected property value was encountered.
+	// Load balancers in the `network` family support `tcp` and `udp` (if `udp_supported` is `true`). Load balancers in the
+	// `application` family support `tcp`, `http` and
+	// `https`.
+	//
+	// Additional restrictions:
+	// - If `default_pool` is set, the pool's protocol must match, or be compatible with
+	//   the listener's protocol. At present, the compatible protocols are `http` and
+	//   `https`.
+	// - If `https_redirect` is set, the protocol must be `http`.
 	Protocol *string `json:"protocol" validate:"required"`
 }
 
 // Constants associated with the LoadBalancerListenerPrototypeLoadBalancerContext.Protocol property.
-// The listener protocol. Load balancers in the `network` family support `tcp` and
-// `udp` (if `udp_supported` is `true`). Load balancers in the `application` family support `tcp`, `http`, and `https`.
-// Each listener in the load balancer must have a unique `port` and `protocol` combination.
+// The listener protocol. Each listener in the load balancer must have a unique `port` and `protocol` combination.
 //
-// The enumerated values for this property are expected to expand in the future. When processing this property, check
-// for and log unknown values. Optionally halt processing and surface the error, or bypass the listener on which the
-// unexpected property value was encountered.
+// Load balancers in the `network` family support `tcp` and `udp` (if `udp_supported` is `true`). Load balancers in the
+// `application` family support `tcp`, `http` and
+// `https`.
+//
+// Additional restrictions:
+// - If `default_pool` is set, the pool's protocol must match, or be compatible with
+//   the listener's protocol. At present, the compatible protocols are `http` and
+//   `https`.
+// - If `https_redirect` is set, the protocol must be `http`.
 const (
 	LoadBalancerListenerPrototypeLoadBalancerContextProtocolHTTPConst  = "http"
 	LoadBalancerListenerPrototypeLoadBalancerContextProtocolHTTPSConst = "https"
@@ -49394,11 +49701,19 @@ func UnmarshalLoadBalancerListenerPrototypeLoadBalancerContext(m map[string]json
 	if err != nil {
 		return
 	}
+	err = core.UnmarshalModel(m, "certificate_instance", &obj.CertificateInstance, UnmarshalCertificateInstanceIdentity)
+	if err != nil {
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "connection_limit", &obj.ConnectionLimit)
 	if err != nil {
 		return
 	}
 	err = core.UnmarshalModel(m, "default_pool", &obj.DefaultPool, UnmarshalLoadBalancerPoolIdentityByName)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "https_redirect", &obj.HTTPSRedirect, UnmarshalLoadBalancerListenerHTTPSRedirectPrototype)
 	if err != nil {
 		return
 	}
@@ -49577,14 +49892,18 @@ type LoadBalancerPool struct {
 	// The user-defined name for this load balancer pool.
 	Name *string `json:"name" validate:"required"`
 
-	// The protocol used for this load balancer pool.
+	// The protocol for this load balancer pool.
 	//
 	// The enumerated values for this property are expected to expand in the future. When processing this property, check
 	// for and log unknown values. Optionally halt processing and surface the error, or bypass the pool on which the
 	// unexpected property value was encountered.
 	Protocol *string `json:"protocol" validate:"required"`
 
-	// The provisioning status of this pool.
+	// The provisioning status of this pool
+	//
+	// The enumerated values for this property are expected to expand in the future. When processing this property, check
+	// for and log unknown values. Optionally halt processing and surface the error, or bypass the pool on which the
+	// unexpected property value was encountered.
 	ProvisioningStatus *string `json:"provisioning_status" validate:"required"`
 
 	// The PROXY protocol setting for this pool:
@@ -49613,7 +49932,7 @@ const (
 )
 
 // Constants associated with the LoadBalancerPool.Protocol property.
-// The protocol used for this load balancer pool.
+// The protocol for this load balancer pool.
 //
 // The enumerated values for this property are expected to expand in the future. When processing this property, check
 // for and log unknown values. Optionally halt processing and surface the error, or bypass the pool on which the
@@ -49626,14 +49945,17 @@ const (
 )
 
 // Constants associated with the LoadBalancerPool.ProvisioningStatus property.
-// The provisioning status of this pool.
+// The provisioning status of this pool
+//
+// The enumerated values for this property are expected to expand in the future. When processing this property, check
+// for and log unknown values. Optionally halt processing and surface the error, or bypass the pool on which the
+// unexpected property value was encountered.
 const (
-	LoadBalancerPoolProvisioningStatusActiveConst             = "active"
-	LoadBalancerPoolProvisioningStatusCreatePendingConst      = "create_pending"
-	LoadBalancerPoolProvisioningStatusDeletePendingConst      = "delete_pending"
-	LoadBalancerPoolProvisioningStatusFailedConst             = "failed"
-	LoadBalancerPoolProvisioningStatusMaintenancePendingConst = "maintenance_pending"
-	LoadBalancerPoolProvisioningStatusUpdatePendingConst      = "update_pending"
+	LoadBalancerPoolProvisioningStatusActiveConst        = "active"
+	LoadBalancerPoolProvisioningStatusCreatePendingConst = "create_pending"
+	LoadBalancerPoolProvisioningStatusDeletePendingConst = "delete_pending"
+	LoadBalancerPoolProvisioningStatusFailedConst        = "failed"
+	LoadBalancerPoolProvisioningStatusUpdatePendingConst = "update_pending"
 )
 
 // Constants associated with the LoadBalancerPool.ProxyProtocol property.
@@ -50023,7 +50345,11 @@ type LoadBalancerPoolMember struct {
 	// `health_monitor` property is specified.
 	Port *int64 `json:"port" validate:"required"`
 
-	// The provisioning status of this member.
+	// The provisioning status of this member
+	//
+	// The enumerated values for this property are expected to expand in the future. When processing this property, check
+	// for and log unknown values. Optionally halt processing and surface the error, or bypass the pool member on which the
+	// unexpected property value was encountered.
 	ProvisioningStatus *string `json:"provisioning_status" validate:"required"`
 
 	// The pool member target. Load balancers in the `network` family support virtual server
@@ -50046,14 +50372,17 @@ const (
 )
 
 // Constants associated with the LoadBalancerPoolMember.ProvisioningStatus property.
-// The provisioning status of this member.
+// The provisioning status of this member
+//
+// The enumerated values for this property are expected to expand in the future. When processing this property, check
+// for and log unknown values. Optionally halt processing and surface the error, or bypass the pool member on which the
+// unexpected property value was encountered.
 const (
-	LoadBalancerPoolMemberProvisioningStatusActiveConst             = "active"
-	LoadBalancerPoolMemberProvisioningStatusCreatePendingConst      = "create_pending"
-	LoadBalancerPoolMemberProvisioningStatusDeletePendingConst      = "delete_pending"
-	LoadBalancerPoolMemberProvisioningStatusFailedConst             = "failed"
-	LoadBalancerPoolMemberProvisioningStatusMaintenancePendingConst = "maintenance_pending"
-	LoadBalancerPoolMemberProvisioningStatusUpdatePendingConst      = "update_pending"
+	LoadBalancerPoolMemberProvisioningStatusActiveConst        = "active"
+	LoadBalancerPoolMemberProvisioningStatusCreatePendingConst = "create_pending"
+	LoadBalancerPoolMemberProvisioningStatusDeletePendingConst = "delete_pending"
+	LoadBalancerPoolMemberProvisioningStatusFailedConst        = "failed"
+	LoadBalancerPoolMemberProvisioningStatusUpdatePendingConst = "update_pending"
 )
 
 // UnmarshalLoadBalancerPoolMember unmarshals an instance of LoadBalancerPoolMember from the specified map of raw messages.
@@ -50402,11 +50731,14 @@ type LoadBalancerPoolPatch struct {
 	// The user-defined name for this load balancer pool.
 	Name *string `json:"name,omitempty"`
 
-	// The protocol to use for this load balancer pool. Load balancers in the `network` family support `tcp` and `udp` (if
-	// `udp_supported` is `true`). Load balancers in the `application` family support `tcp`, `http` and `https`.
+	// The protocol for this load balancer pool.
 	//
-	// If this pool is associated with a load balancer listener, the specified protocol must be compatible with the
-	// listener's protocol. At present, the compatible protocols are `http` and `https`.
+	// Load balancers in the `network` family support `tcp` and `udp` (if `udp_supported` is `true`). Load balancers in the
+	// `application` family support `tcp`, `http` and
+	// `https`.
+	//
+	// If this pool is associated with a load balancer listener, the specified protocol must match, or be compatible with
+	// the listener's protocol. At present, the compatible protocols are `http` and `https`.
 	Protocol *string `json:"protocol,omitempty"`
 
 	// The PROXY protocol setting for this pool:
@@ -50430,11 +50762,14 @@ const (
 )
 
 // Constants associated with the LoadBalancerPoolPatch.Protocol property.
-// The protocol to use for this load balancer pool. Load balancers in the `network` family support `tcp` and `udp` (if
-// `udp_supported` is `true`). Load balancers in the `application` family support `tcp`, `http` and `https`.
+// The protocol for this load balancer pool.
 //
-// If this pool is associated with a load balancer listener, the specified protocol must be compatible with the
-// listener's protocol. At present, the compatible protocols are `http` and `https`.
+// Load balancers in the `network` family support `tcp` and `udp` (if `udp_supported` is `true`). Load balancers in the
+// `application` family support `tcp`, `http` and
+// `https`.
+//
+// If this pool is associated with a load balancer listener, the specified protocol must match, or be compatible with
+// the listener's protocol. At present, the compatible protocols are `http` and `https`.
 const (
 	LoadBalancerPoolPatchProtocolHTTPConst  = "http"
 	LoadBalancerPoolPatchProtocolHTTPSConst = "https"
@@ -51292,7 +51627,7 @@ type NetworkACL struct {
 	// The subnets to which this network ACL is attached.
 	Subnets []SubnetReference `json:"subnets" validate:"required"`
 
-	// The VPC this network ACL is a part of.
+	// The VPC this network ACL resides in.
 	VPC *VPCReference `json:"vpc" validate:"required"`
 }
 
@@ -51514,7 +51849,7 @@ type NetworkACLPrototype struct {
 	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) is used.
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
 
-	// The VPC this network ACL is to be a part of.
+	// The VPC this network ACL will reside in.
 	VPC VPCIdentityIntf `json:"vpc" validate:"required"`
 
 	// The prototype objects for rules to create along with this network ACL. If unspecified, no rules will be created,
@@ -51630,7 +51965,7 @@ func UnmarshalNetworkACLReferenceDeleted(m map[string]json.RawMessage, result in
 // - NetworkACLRuleNetworkACLRuleProtocolIcmp
 // - NetworkACLRuleNetworkACLRuleProtocolAll
 type NetworkACLRule struct {
-	// Whether to allow or deny matching traffic.
+	// The action to perform for a packet matching the rule.
 	Action *string `json:"action" validate:"required"`
 
 	// The rule that this rule is immediately before. If absent, this is the last rule.
@@ -51639,10 +51974,10 @@ type NetworkACLRule struct {
 	// The date and time that the rule was created.
 	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
 
-	// The destination CIDR block. The CIDR block `0.0.0.0/0` applies to all addresses.
+	// The destination IP address or CIDR block to match. The CIDR block `0.0.0.0/0` matches all destination addresses.
 	Destination *string `json:"destination" validate:"required"`
 
-	// Whether the traffic to be matched is `inbound` or `outbound`.
+	// The direction of traffic to match.
 	Direction *string `json:"direction" validate:"required"`
 
 	// The URL for this network ACL rule.
@@ -51654,14 +51989,13 @@ type NetworkACLRule struct {
 	// The IP version for this rule.
 	IPVersion *string `json:"ip_version" validate:"required"`
 
-	// The user-defined name for this rule. Names must be unique within the network ACL the rule resides in. If
-	// unspecified, the name will be a hyphenated list of randomly-selected words.
+	// The user-defined name for this network ACL rule.
 	Name *string `json:"name" validate:"required"`
 
 	// The protocol to enforce.
 	Protocol *string `json:"protocol" validate:"required"`
 
-	// The source CIDR block. The CIDR block `0.0.0.0/0` applies to all addresses.
+	// The source IP address or CIDR block to match. The CIDR block `0.0.0.0/0` matches all source addresses.
 	Source *string `json:"source" validate:"required"`
 
 	// The inclusive upper bound of TCP/UDP destination port range.
@@ -51676,23 +52010,26 @@ type NetworkACLRule struct {
 	// The inclusive lower bound of TCP/UDP source port range.
 	SourcePortMin *int64 `json:"source_port_min,omitempty"`
 
-	// The ICMP traffic code to allow. If unspecified, all codes are allowed. This can only be specified if type is also
-	// specified.
+	// The ICMP traffic code to match.
+	//
+	// If absent, all codes are matched.
 	Code *int64 `json:"code,omitempty"`
 
-	// The ICMP traffic type to allow. If unspecified, all types are allowed by this rule.
+	// The ICMP traffic type to match.
+	//
+	// If absent, all types are matched.
 	Type *int64 `json:"type,omitempty"`
 }
 
 // Constants associated with the NetworkACLRule.Action property.
-// Whether to allow or deny matching traffic.
+// The action to perform for a packet matching the rule.
 const (
 	NetworkACLRuleActionAllowConst = "allow"
 	NetworkACLRuleActionDenyConst  = "deny"
 )
 
 // Constants associated with the NetworkACLRule.Direction property.
-// Whether the traffic to be matched is `inbound` or `outbound`.
+// The direction of traffic to match.
 const (
 	NetworkACLRuleDirectionInboundConst  = "inbound"
 	NetworkACLRuleDirectionOutboundConst = "outbound"
@@ -51702,7 +52039,15 @@ const (
 // The IP version for this rule.
 const (
 	NetworkACLRuleIPVersionIpv4Const = "ipv4"
-	NetworkACLRuleIPVersionIpv6Const = "ipv6"
+)
+
+// Constants associated with the NetworkACLRule.Protocol property.
+// The protocol to enforce.
+const (
+	NetworkACLRuleProtocolAllConst  = "all"
+	NetworkACLRuleProtocolIcmpConst = "icmp"
+	NetworkACLRuleProtocolTCPConst  = "tcp"
+	NetworkACLRuleProtocolUDPConst  = "udp"
 )
 
 func (*NetworkACLRule) isaNetworkACLRule() bool {
@@ -51740,7 +52085,9 @@ func UnmarshalNetworkACLRule(m map[string]json.RawMessage, result interface{}) (
 	return
 }
 
-// NetworkACLRuleBeforePatch : The rule to move this rule immediately before. Specify `null` to move this rule after all existing rules.
+// NetworkACLRuleBeforePatch : The rule to move this rule immediately before.
+//
+// Specify `null` to move this rule after all existing rules.
 // Models which "extend" this model:
 // - NetworkACLRuleBeforePatchNetworkACLRuleIdentityByID
 // - NetworkACLRuleBeforePatchNetworkACLRuleIdentityByHref
@@ -51775,7 +52122,9 @@ func UnmarshalNetworkACLRuleBeforePatch(m map[string]json.RawMessage, result int
 	return
 }
 
-// NetworkACLRuleBeforePrototype : The rule to insert this rule immediately before. If omitted, this rule will be inserted after all existing rules.
+// NetworkACLRuleBeforePrototype : The rule to insert this rule immediately before.
+//
+// If unspecified, this rule will be inserted after all existing rules.
 // Models which "extend" this model:
 // - NetworkACLRuleBeforePrototypeNetworkACLRuleIdentityByID
 // - NetworkACLRuleBeforePrototypeNetworkACLRuleIdentityByHref
@@ -51908,7 +52257,7 @@ func UnmarshalNetworkACLRuleCollectionNext(m map[string]json.RawMessage, result 
 // - NetworkACLRuleItemNetworkACLRuleProtocolIcmp
 // - NetworkACLRuleItemNetworkACLRuleProtocolAll
 type NetworkACLRuleItem struct {
-	// Whether to allow or deny matching traffic.
+	// The action to perform for a packet matching the rule.
 	Action *string `json:"action" validate:"required"`
 
 	// The rule that this rule is immediately before. In a rule collection, this always
@@ -51918,10 +52267,10 @@ type NetworkACLRuleItem struct {
 	// The date and time that the rule was created.
 	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
 
-	// The destination CIDR block. The CIDR block `0.0.0.0/0` applies to all addresses.
+	// The destination IP address or CIDR block to match. The CIDR block `0.0.0.0/0` matches all destination addresses.
 	Destination *string `json:"destination" validate:"required"`
 
-	// Whether the traffic to be matched is `inbound` or `outbound`.
+	// The direction of traffic to match.
 	Direction *string `json:"direction" validate:"required"`
 
 	// The URL for this network ACL rule.
@@ -51933,14 +52282,13 @@ type NetworkACLRuleItem struct {
 	// The IP version for this rule.
 	IPVersion *string `json:"ip_version" validate:"required"`
 
-	// The user-defined name for this rule. Names must be unique within the network ACL the rule resides in. If
-	// unspecified, the name will be a hyphenated list of randomly-selected words.
+	// The user-defined name for this network ACL rule.
 	Name *string `json:"name" validate:"required"`
 
 	// The protocol to enforce.
 	Protocol *string `json:"protocol" validate:"required"`
 
-	// The source CIDR block. The CIDR block `0.0.0.0/0` applies to all addresses.
+	// The source IP address or CIDR block to match. The CIDR block `0.0.0.0/0` matches all source addresses.
 	Source *string `json:"source" validate:"required"`
 
 	// The inclusive upper bound of TCP/UDP destination port range.
@@ -51955,23 +52303,26 @@ type NetworkACLRuleItem struct {
 	// The inclusive lower bound of TCP/UDP source port range.
 	SourcePortMin *int64 `json:"source_port_min,omitempty"`
 
-	// The ICMP traffic code to allow. If unspecified, all codes are allowed. This can only be specified if type is also
-	// specified.
+	// The ICMP traffic code to match.
+	//
+	// If absent, all codes are matched.
 	Code *int64 `json:"code,omitempty"`
 
-	// The ICMP traffic type to allow. If unspecified, all types are allowed by this rule.
+	// The ICMP traffic type to match.
+	//
+	// If absent, all types are matched.
 	Type *int64 `json:"type,omitempty"`
 }
 
 // Constants associated with the NetworkACLRuleItem.Action property.
-// Whether to allow or deny matching traffic.
+// The action to perform for a packet matching the rule.
 const (
 	NetworkACLRuleItemActionAllowConst = "allow"
 	NetworkACLRuleItemActionDenyConst  = "deny"
 )
 
 // Constants associated with the NetworkACLRuleItem.Direction property.
-// Whether the traffic to be matched is `inbound` or `outbound`.
+// The direction of traffic to match.
 const (
 	NetworkACLRuleItemDirectionInboundConst  = "inbound"
 	NetworkACLRuleItemDirectionOutboundConst = "outbound"
@@ -51981,7 +52332,15 @@ const (
 // The IP version for this rule.
 const (
 	NetworkACLRuleItemIPVersionIpv4Const = "ipv4"
-	NetworkACLRuleItemIPVersionIpv6Const = "ipv6"
+)
+
+// Constants associated with the NetworkACLRuleItem.Protocol property.
+// The protocol to enforce.
+const (
+	NetworkACLRuleItemProtocolAllConst  = "all"
+	NetworkACLRuleItemProtocolIcmpConst = "icmp"
+	NetworkACLRuleItemProtocolTCPConst  = "tcp"
+	NetworkACLRuleItemProtocolUDPConst  = "udp"
 )
 
 func (*NetworkACLRuleItem) isaNetworkACLRuleItem() bool {
@@ -52021,17 +52380,18 @@ func UnmarshalNetworkACLRuleItem(m map[string]json.RawMessage, result interface{
 
 // NetworkACLRulePatch : NetworkACLRulePatch struct
 type NetworkACLRulePatch struct {
-	// Whether to allow or deny matching traffic.
+	// The action to perform for a packet matching the rule.
 	Action *string `json:"action,omitempty"`
 
-	// The rule to move this rule immediately before. Specify `null` to move this rule after
-	// all existing rules.
+	// The rule to move this rule immediately before.
+	//
+	// Specify `null` to move this rule after all existing rules.
 	Before NetworkACLRuleBeforePatchIntf `json:"before,omitempty"`
 
-	// The ICMP traffic code to allow.
+	// The ICMP traffic code to match.
 	Code *int64 `json:"code,omitempty"`
 
-	// The destination IP address or CIDR block. The CIDR block `0.0.0.0/0` applies to all addresses.
+	// The destination IP address or CIDR block to match. The CIDR block `0.0.0.0/0` matches all destination addresses.
 	Destination *string `json:"destination,omitempty"`
 
 	// The inclusive upper bound of TCP/UDP destination port range.
@@ -52040,13 +52400,16 @@ type NetworkACLRulePatch struct {
 	// The inclusive lower bound of TCP/UDP destination port range.
 	DestinationPortMin *int64 `json:"destination_port_min,omitempty"`
 
-	// Whether the traffic to be matched is `inbound` or `outbound`.
+	// The direction of traffic to match.
 	Direction *string `json:"direction,omitempty"`
 
 	// The user-defined name for this rule. Names must be unique within the network ACL the rule resides in.
 	Name *string `json:"name,omitempty"`
 
-	// The source IP address or CIDR block.  The CIDR block `0.0.0.0/0` applies to all addresses.
+	// The protocol to enforce.
+	Protocol *string `json:"protocol,omitempty"`
+
+	// The source IP address or CIDR block to match. The CIDR block `0.0.0.0/0` matches all source addresses.
 	Source *string `json:"source,omitempty"`
 
 	// The inclusive upper bound of TCP/UDP source port range.
@@ -52055,22 +52418,31 @@ type NetworkACLRulePatch struct {
 	// The inclusive lower bound of TCP/UDP source port range.
 	SourcePortMin *int64 `json:"source_port_min,omitempty"`
 
-	// The ICMP traffic type to allow.
+	// The ICMP traffic type to match.
 	Type *int64 `json:"type,omitempty"`
 }
 
 // Constants associated with the NetworkACLRulePatch.Action property.
-// Whether to allow or deny matching traffic.
+// The action to perform for a packet matching the rule.
 const (
 	NetworkACLRulePatchActionAllowConst = "allow"
 	NetworkACLRulePatchActionDenyConst  = "deny"
 )
 
 // Constants associated with the NetworkACLRulePatch.Direction property.
-// Whether the traffic to be matched is `inbound` or `outbound`.
+// The direction of traffic to match.
 const (
 	NetworkACLRulePatchDirectionInboundConst  = "inbound"
 	NetworkACLRulePatchDirectionOutboundConst = "outbound"
+)
+
+// Constants associated with the NetworkACLRulePatch.Protocol property.
+// The protocol to enforce.
+const (
+	NetworkACLRulePatchProtocolAllConst  = "all"
+	NetworkACLRulePatchProtocolIcmpConst = "icmp"
+	NetworkACLRulePatchProtocolTCPConst  = "tcp"
+	NetworkACLRulePatchProtocolUDPConst  = "udp"
 )
 
 // UnmarshalNetworkACLRulePatch unmarshals an instance of NetworkACLRulePatch from the specified map of raw messages.
@@ -52108,6 +52480,10 @@ func UnmarshalNetworkACLRulePatch(m map[string]json.RawMessage, result interface
 	if err != nil {
 		return
 	}
+	err = core.UnmarshalPrimitive(m, "protocol", &obj.Protocol)
+	if err != nil {
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "source", &obj.Source)
 	if err != nil {
 		return
@@ -52140,21 +52516,22 @@ func (networkACLRulePatch *NetworkACLRulePatch) AsPatch() (_patch map[string]int
 
 // NetworkACLRulePrototype : NetworkACLRulePrototype struct
 // Models which "extend" this model:
-// - NetworkACLRulePrototypeNetworkACLRuleProtocolTcpudp
-// - NetworkACLRulePrototypeNetworkACLRuleProtocolIcmp
-// - NetworkACLRulePrototypeNetworkACLRuleProtocolAll
+// - NetworkACLRulePrototypeNetworkACLRuleProtocolTcpudpPrototype
+// - NetworkACLRulePrototypeNetworkACLRuleProtocolIcmpPrototype
+// - NetworkACLRulePrototypeNetworkACLRuleProtocolAllPrototype
 type NetworkACLRulePrototype struct {
-	// Whether to allow or deny matching traffic.
+	// The action to perform for a packet matching the rule.
 	Action *string `json:"action" validate:"required"`
 
-	// The rule to insert this rule immediately before. If omitted, this rule will be
-	// inserted after all existing rules.
+	// The rule to insert this rule immediately before.
+	//
+	// If unspecified, this rule will be inserted after all existing rules.
 	Before NetworkACLRuleBeforePrototypeIntf `json:"before,omitempty"`
 
-	// The destination IP address or CIDR block. The CIDR block `0.0.0.0/0` applies to all addresses.
+	// The destination IP address or CIDR block to match. The CIDR block `0.0.0.0/0` matches all destination addresses.
 	Destination *string `json:"destination" validate:"required"`
 
-	// Whether the traffic to be matched is `inbound` or `outbound`.
+	// The direction of traffic to match.
 	Direction *string `json:"direction" validate:"required"`
 
 	// The user-defined name for this rule. Names must be unique within the network ACL the rule resides in. If
@@ -52164,7 +52541,7 @@ type NetworkACLRulePrototype struct {
 	// The protocol to enforce.
 	Protocol *string `json:"protocol" validate:"required"`
 
-	// The source IP address or CIDR block.  The CIDR block `0.0.0.0/0` applies to all addresses.
+	// The source IP address or CIDR block to match. The CIDR block `0.0.0.0/0` matches all source addresses.
 	Source *string `json:"source" validate:"required"`
 
 	// The inclusive upper bound of TCP/UDP destination port range.
@@ -52179,26 +52556,38 @@ type NetworkACLRulePrototype struct {
 	// The inclusive lower bound of TCP/UDP source port range.
 	SourcePortMin *int64 `json:"source_port_min,omitempty"`
 
-	// The ICMP traffic code to allow. If unspecified, all codes are allowed. This can only be specified if type is also
-	// specified.
+	// The ICMP traffic code to match.
+	//
+	// If specified, `type` must also be specified.  If unspecified, all codes are matched.
 	Code *int64 `json:"code,omitempty"`
 
-	// The ICMP traffic type to allow. If unspecified, all types are allowed by this rule.
+	// The ICMP traffic type to match.
+	//
+	// If unspecified, all types are matched.
 	Type *int64 `json:"type,omitempty"`
 }
 
 // Constants associated with the NetworkACLRulePrototype.Action property.
-// Whether to allow or deny matching traffic.
+// The action to perform for a packet matching the rule.
 const (
 	NetworkACLRulePrototypeActionAllowConst = "allow"
 	NetworkACLRulePrototypeActionDenyConst  = "deny"
 )
 
 // Constants associated with the NetworkACLRulePrototype.Direction property.
-// Whether the traffic to be matched is `inbound` or `outbound`.
+// The direction of traffic to match.
 const (
 	NetworkACLRulePrototypeDirectionInboundConst  = "inbound"
 	NetworkACLRulePrototypeDirectionOutboundConst = "outbound"
+)
+
+// Constants associated with the NetworkACLRulePrototype.Protocol property.
+// The protocol to enforce.
+const (
+	NetworkACLRulePrototypeProtocolAllConst  = "all"
+	NetworkACLRulePrototypeProtocolIcmpConst = "icmp"
+	NetworkACLRulePrototypeProtocolTCPConst  = "tcp"
+	NetworkACLRulePrototypeProtocolUDPConst  = "udp"
 )
 
 func (*NetworkACLRulePrototype) isaNetworkACLRulePrototype() bool {
@@ -52223,13 +52612,13 @@ func UnmarshalNetworkACLRulePrototype(m map[string]json.RawMessage, result inter
 		return
 	}
 	if discValue == "all" {
-		err = core.UnmarshalModel(m, "", result, UnmarshalNetworkACLRulePrototypeNetworkACLRuleProtocolAll)
+		err = core.UnmarshalModel(m, "", result, UnmarshalNetworkACLRulePrototypeNetworkACLRuleProtocolAllPrototype)
 	} else if discValue == "icmp" {
-		err = core.UnmarshalModel(m, "", result, UnmarshalNetworkACLRulePrototypeNetworkACLRuleProtocolIcmp)
+		err = core.UnmarshalModel(m, "", result, UnmarshalNetworkACLRulePrototypeNetworkACLRuleProtocolIcmpPrototype)
 	} else if discValue == "tcp" {
-		err = core.UnmarshalModel(m, "", result, UnmarshalNetworkACLRulePrototypeNetworkACLRuleProtocolTcpudp)
+		err = core.UnmarshalModel(m, "", result, UnmarshalNetworkACLRulePrototypeNetworkACLRuleProtocolTcpudpPrototype)
 	} else if discValue == "udp" {
-		err = core.UnmarshalModel(m, "", result, UnmarshalNetworkACLRulePrototypeNetworkACLRuleProtocolTcpudp)
+		err = core.UnmarshalModel(m, "", result, UnmarshalNetworkACLRulePrototypeNetworkACLRuleProtocolTcpudpPrototype)
 	} else {
 		err = fmt.Errorf("unrecognized value for discriminator property 'protocol': %s", discValue)
 	}
@@ -52238,17 +52627,17 @@ func UnmarshalNetworkACLRulePrototype(m map[string]json.RawMessage, result inter
 
 // NetworkACLRulePrototypeNetworkACLContext : NetworkACLRulePrototypeNetworkACLContext struct
 // Models which "extend" this model:
-// - NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudp
-// - NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmp
-// - NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAll
+// - NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudpPrototype
+// - NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmpPrototype
+// - NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAllPrototype
 type NetworkACLRulePrototypeNetworkACLContext struct {
-	// Whether to allow or deny matching traffic.
+	// The action to perform for a packet matching the rule.
 	Action *string `json:"action" validate:"required"`
 
-	// The destination IP address or CIDR block. The CIDR block `0.0.0.0/0` applies to all addresses.
+	// The destination IP address or CIDR block to match. The CIDR block `0.0.0.0/0` matches all destination addresses.
 	Destination *string `json:"destination" validate:"required"`
 
-	// Whether the traffic to be matched is `inbound` or `outbound`.
+	// The direction of traffic to match.
 	Direction *string `json:"direction" validate:"required"`
 
 	// The user-defined name for this rule. Names must be unique within the network ACL the rule resides in. If
@@ -52258,7 +52647,7 @@ type NetworkACLRulePrototypeNetworkACLContext struct {
 	// The protocol to enforce.
 	Protocol *string `json:"protocol" validate:"required"`
 
-	// The source IP address or CIDR block.  The CIDR block `0.0.0.0/0` applies to all addresses.
+	// The source IP address or CIDR block to match. The CIDR block `0.0.0.0/0` matches all source addresses.
 	Source *string `json:"source" validate:"required"`
 
 	// The inclusive upper bound of TCP/UDP destination port range.
@@ -52273,26 +52662,38 @@ type NetworkACLRulePrototypeNetworkACLContext struct {
 	// The inclusive lower bound of TCP/UDP source port range.
 	SourcePortMin *int64 `json:"source_port_min,omitempty"`
 
-	// The ICMP traffic code to allow. If unspecified, all codes are allowed. This can only be specified if type is also
-	// specified.
+	// The ICMP traffic code to match.
+	//
+	// If specified, `type` must also be specified.  If unspecified, all codes are matched.
 	Code *int64 `json:"code,omitempty"`
 
-	// The ICMP traffic type to allow. If unspecified, all types are allowed by this rule.
+	// The ICMP traffic type to match.
+	//
+	// If unspecified, all types are matched.
 	Type *int64 `json:"type,omitempty"`
 }
 
 // Constants associated with the NetworkACLRulePrototypeNetworkACLContext.Action property.
-// Whether to allow or deny matching traffic.
+// The action to perform for a packet matching the rule.
 const (
 	NetworkACLRulePrototypeNetworkACLContextActionAllowConst = "allow"
 	NetworkACLRulePrototypeNetworkACLContextActionDenyConst  = "deny"
 )
 
 // Constants associated with the NetworkACLRulePrototypeNetworkACLContext.Direction property.
-// Whether the traffic to be matched is `inbound` or `outbound`.
+// The direction of traffic to match.
 const (
 	NetworkACLRulePrototypeNetworkACLContextDirectionInboundConst  = "inbound"
 	NetworkACLRulePrototypeNetworkACLContextDirectionOutboundConst = "outbound"
+)
+
+// Constants associated with the NetworkACLRulePrototypeNetworkACLContext.Protocol property.
+// The protocol to enforce.
+const (
+	NetworkACLRulePrototypeNetworkACLContextProtocolAllConst  = "all"
+	NetworkACLRulePrototypeNetworkACLContextProtocolIcmpConst = "icmp"
+	NetworkACLRulePrototypeNetworkACLContextProtocolTCPConst  = "tcp"
+	NetworkACLRulePrototypeNetworkACLContextProtocolUDPConst  = "udp"
 )
 
 func (*NetworkACLRulePrototypeNetworkACLContext) isaNetworkACLRulePrototypeNetworkACLContext() bool {
@@ -52317,13 +52718,13 @@ func UnmarshalNetworkACLRulePrototypeNetworkACLContext(m map[string]json.RawMess
 		return
 	}
 	if discValue == "all" {
-		err = core.UnmarshalModel(m, "", result, UnmarshalNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAll)
+		err = core.UnmarshalModel(m, "", result, UnmarshalNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAllPrototype)
 	} else if discValue == "icmp" {
-		err = core.UnmarshalModel(m, "", result, UnmarshalNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmp)
+		err = core.UnmarshalModel(m, "", result, UnmarshalNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmpPrototype)
 	} else if discValue == "tcp" {
-		err = core.UnmarshalModel(m, "", result, UnmarshalNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudp)
+		err = core.UnmarshalModel(m, "", result, UnmarshalNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudpPrototype)
 	} else if discValue == "udp" {
-		err = core.UnmarshalModel(m, "", result, UnmarshalNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudp)
+		err = core.UnmarshalModel(m, "", result, UnmarshalNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudpPrototype)
 	} else {
 		err = fmt.Errorf("unrecognized value for discriminator property 'protocol': %s", discValue)
 	}
@@ -53370,10 +53771,10 @@ type PublicGateway struct {
 	// The resource type.
 	ResourceType *string `json:"resource_type" validate:"required"`
 
-	// The status of the volume.
+	// The status of this public gateway.
 	Status *string `json:"status" validate:"required"`
 
-	// The VPC this public gateway serves.
+	// The VPC this public gateway resides in.
 	VPC *VPCReference `json:"vpc" validate:"required"`
 
 	// The zone this public gateway resides in.
@@ -53387,7 +53788,7 @@ const (
 )
 
 // Constants associated with the PublicGateway.Status property.
-// The status of the volume.
+// The status of this public gateway.
 const (
 	PublicGatewayStatusAvailableConst = "available"
 	PublicGatewayStatusDeletingConst  = "deleting"
@@ -55408,8 +55809,7 @@ type RoutePrototype struct {
 	Action *string `json:"action,omitempty"`
 
 	// The destination of the route. At most two routes per `zone` in a table can have the same destination, and only if
-	// both routes have an `action` of `deliver` and the
-	// `next_hop` is an IP address.
+	// both routes have an `action` of `deliver` and the `next_hop` is an IP address.
 	Destination *string `json:"destination" validate:"required"`
 
 	// The user-defined name for this route. If unspecified, the name will be a hyphenated list of randomly-selected words.
@@ -56031,7 +56431,7 @@ type SecurityGroup struct {
 	// The targets for this security group.
 	Targets []SecurityGroupTargetReferenceIntf `json:"targets" validate:"required"`
 
-	// The VPC this security group is a part of.
+	// The VPC this security group resides in.
 	VPC *VPCReference `json:"vpc" validate:"required"`
 }
 
@@ -56582,6 +56982,15 @@ const (
 	SecurityGroupRulePrototypeIPVersionIpv4Const = "ipv4"
 )
 
+// Constants associated with the SecurityGroupRulePrototype.Protocol property.
+// The protocol to enforce.
+const (
+	SecurityGroupRulePrototypeProtocolAllConst  = "all"
+	SecurityGroupRulePrototypeProtocolIcmpConst = "icmp"
+	SecurityGroupRulePrototypeProtocolTCPConst  = "tcp"
+	SecurityGroupRulePrototypeProtocolUDPConst  = "udp"
+)
+
 func (*SecurityGroupRulePrototype) isaSecurityGroupRulePrototype() bool {
 	return true
 }
@@ -57071,10 +57480,14 @@ type Share struct {
 	// The lifecycle state of the file share.
 	LifecycleState *string `json:"lifecycle_state" validate:"required"`
 
+	// Mount targets for the file share.
+	MountTargets []ShareMountTargetReference `json:"mount_targets" validate:"required"`
+
 	// The unique user-defined name for this file share.
 	Name *string `json:"name" validate:"required"`
 
-	// The profile this file share uses.
+	// The [profile](https://cloud.ibm.com/docs/vpc?topic=vpc-file-storage-profiles) for
+	// this file share.
 	Profile *ShareProfileReference `json:"profile" validate:"required"`
 
 	// The replica file share for this source file share.
@@ -57129,9 +57542,6 @@ type Share struct {
 	//
 	// This property will be present when the `replication_role` is `replica`.
 	SourceShare *ShareReference `json:"source_share,omitempty"`
-
-	// Mount targets for the file share.
-	Targets []ShareTargetReference `json:"targets" validate:"required"`
 
 	// Tags for this resource.
 	UserTags []string `json:"user_tags" validate:"required"`
@@ -57242,6 +57652,10 @@ func UnmarshalShare(m map[string]json.RawMessage, result interface{}) (err error
 	if err != nil {
 		return
 	}
+	err = core.UnmarshalModel(m, "mount_targets", &obj.MountTargets, UnmarshalShareMountTargetReference)
+	if err != nil {
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
 	if err != nil {
 		return
@@ -57283,10 +57697,6 @@ func UnmarshalShare(m map[string]json.RawMessage, result interface{}) (err error
 		return
 	}
 	err = core.UnmarshalModel(m, "source_share", &obj.SourceShare, UnmarshalShareReference)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "targets", &obj.Targets, UnmarshalShareTargetReference)
 	if err != nil {
 		return
 	}
@@ -57584,6 +57994,266 @@ func UnmarshalShareJobStatusReason(m map[string]json.RawMessage, result interfac
 	if err != nil {
 		return
 	}
+	err = core.UnmarshalPrimitive(m, "more_info", &obj.MoreInfo)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// ShareMountTarget : ShareMountTarget struct
+type ShareMountTarget struct {
+	// The date and time that the share mount target was created.
+	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
+
+	// The URL for this share mount target.
+	Href *string `json:"href" validate:"required"`
+
+	// The unique identifier for this share mount target.
+	ID *string `json:"id" validate:"required"`
+
+	// The reasons for the current `lifecycle_state` (if any).
+	//
+	// The enumerated reason code values for this property will expand in the future. When processing this property, check
+	// for and log unknown values. Optionally halt processing and surface the error, or bypass the resource on which the
+	// unexpected reason code was encountered.
+	LifecycleReasons []LifecycleReason `json:"lifecycle_reasons" validate:"required"`
+
+	// The lifecycle state of the mount target.
+	LifecycleState *string `json:"lifecycle_state" validate:"required"`
+
+	// The mount path for the share.
+	//
+	// The IP addresses used in the mount path are currently within the IBM services IP range, but are expected to change
+	// to be within one of the VPC's subnets in the future.
+	MountPath *string `json:"mount_path" validate:"required"`
+
+	// The user-defined name for this share mount target.
+	Name *string `json:"name" validate:"required"`
+
+	// The resource type.
+	ResourceType *string `json:"resource_type" validate:"required"`
+
+	// The security groups targeting this share mount target.
+	SecurityGroups []SecurityGroupReference `json:"security_groups" validate:"required"`
+
+	// The VPC in which instances can mount the file share using this share mount target.
+	VPC *VPCReference `json:"vpc" validate:"required"`
+}
+
+// Constants associated with the ShareMountTarget.LifecycleState property.
+// The lifecycle state of the mount target.
+const (
+	ShareMountTargetLifecycleStateDeletingConst  = "deleting"
+	ShareMountTargetLifecycleStateFailedConst    = "failed"
+	ShareMountTargetLifecycleStatePendingConst   = "pending"
+	ShareMountTargetLifecycleStateStableConst    = "stable"
+	ShareMountTargetLifecycleStateSuspendedConst = "suspended"
+	ShareMountTargetLifecycleStateUpdatingConst  = "updating"
+	ShareMountTargetLifecycleStateWaitingConst   = "waiting"
+)
+
+// Constants associated with the ShareMountTarget.ResourceType property.
+// The resource type.
+const (
+	ShareMountTargetResourceTypeShareTargetConst = "share_target"
+)
+
+// UnmarshalShareMountTarget unmarshals an instance of ShareMountTarget from the specified map of raw messages.
+func UnmarshalShareMountTarget(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(ShareMountTarget)
+	err = core.UnmarshalPrimitive(m, "created_at", &obj.CreatedAt)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "lifecycle_reasons", &obj.LifecycleReasons, UnmarshalLifecycleReason)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "lifecycle_state", &obj.LifecycleState)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "mount_path", &obj.MountPath)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "security_groups", &obj.SecurityGroups, UnmarshalSecurityGroupReference)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "vpc", &obj.VPC, UnmarshalVPCReference)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// ShareMountTargetCollection : ShareMountTargetCollection struct
+type ShareMountTargetCollection struct {
+	// Collection of share mount targets.
+	MountTargets []ShareMountTarget `json:"mount_targets" validate:"required"`
+}
+
+// UnmarshalShareMountTargetCollection unmarshals an instance of ShareMountTargetCollection from the specified map of raw messages.
+func UnmarshalShareMountTargetCollection(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(ShareMountTargetCollection)
+	err = core.UnmarshalModel(m, "mount_targets", &obj.MountTargets, UnmarshalShareMountTarget)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// ShareMountTargetPatch : ShareMountTargetPatch struct
+type ShareMountTargetPatch struct {
+	// The user-defined name for this share mount target.
+	Name *string `json:"name,omitempty"`
+}
+
+// UnmarshalShareMountTargetPatch unmarshals an instance of ShareMountTargetPatch from the specified map of raw messages.
+func UnmarshalShareMountTargetPatch(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(ShareMountTargetPatch)
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// AsPatch returns a generic map representation of the ShareMountTargetPatch
+func (shareMountTargetPatch *ShareMountTargetPatch) AsPatch() (_patch map[string]interface{}, err error) {
+	var jsonData []byte
+	jsonData, err = json.Marshal(shareMountTargetPatch)
+	if err == nil {
+		err = json.Unmarshal(jsonData, &_patch)
+	}
+	return
+}
+
+// ShareMountTargetPrototype : ShareMountTargetPrototype struct
+type ShareMountTargetPrototype struct {
+	// The user-defined name for this share mount target. Names must be unique within the share the share mount target
+	// resides in. If unspecified, the name will be a hyphenated list of randomly-selected words.
+	Name *string `json:"name,omitempty"`
+
+	// The security groups to use for this share mount target. If unspecified, the VPC's default security group is used.
+	SecurityGroups []SecurityGroupIdentityIntf `json:"security_groups,omitempty"`
+
+	// The VPC in which instances can mount the file share using this share mount target.
+	VPC VPCIdentityIntf `json:"vpc" validate:"required"`
+}
+
+// NewShareMountTargetPrototype : Instantiate ShareMountTargetPrototype (Generic Model Constructor)
+func (*VpcV1) NewShareMountTargetPrototype(vpc VPCIdentityIntf) (_model *ShareMountTargetPrototype, err error) {
+	_model = &ShareMountTargetPrototype{
+		VPC: vpc,
+	}
+	err = core.ValidateStruct(_model, "required parameters")
+	return
+}
+
+// UnmarshalShareMountTargetPrototype unmarshals an instance of ShareMountTargetPrototype from the specified map of raw messages.
+func UnmarshalShareMountTargetPrototype(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(ShareMountTargetPrototype)
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "security_groups", &obj.SecurityGroups, UnmarshalSecurityGroupIdentity)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "vpc", &obj.VPC, UnmarshalVPCIdentity)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// ShareMountTargetReference : ShareMountTargetReference struct
+type ShareMountTargetReference struct {
+	// If present, this property indicates the referenced resource has been deleted, and provides
+	// some supplementary information.
+	Deleted *ShareMountTargetReferenceDeleted `json:"deleted,omitempty"`
+
+	// The URL for this share mount target.
+	Href *string `json:"href" validate:"required"`
+
+	// The unique identifier for this share mount target.
+	ID *string `json:"id" validate:"required"`
+
+	// The user-defined name for this share mount target.
+	Name *string `json:"name" validate:"required"`
+
+	// The resource type.
+	ResourceType *string `json:"resource_type" validate:"required"`
+}
+
+// Constants associated with the ShareMountTargetReference.ResourceType property.
+// The resource type.
+const (
+	ShareMountTargetReferenceResourceTypeShareTargetConst = "share_target"
+)
+
+// UnmarshalShareMountTargetReference unmarshals an instance of ShareMountTargetReference from the specified map of raw messages.
+func UnmarshalShareMountTargetReference(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(ShareMountTargetReference)
+	err = core.UnmarshalModel(m, "deleted", &obj.Deleted, UnmarshalShareMountTargetReferenceDeleted)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// ShareMountTargetReferenceDeleted : If present, this property indicates the referenced resource has been deleted, and provides some supplementary
+// information.
+type ShareMountTargetReferenceDeleted struct {
+	// Link to documentation about deleted resources.
+	MoreInfo *string `json:"more_info" validate:"required"`
+}
+
+// UnmarshalShareMountTargetReferenceDeleted unmarshals an instance of ShareMountTargetReferenceDeleted from the specified map of raw messages.
+func UnmarshalShareMountTargetReferenceDeleted(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(ShareMountTargetReferenceDeleted)
 	err = core.UnmarshalPrimitive(m, "more_info", &obj.MoreInfo)
 	if err != nil {
 		return
@@ -57898,21 +58568,21 @@ type SharePrototype struct {
 	// In addition, each host accessing the share will be restricted to 48000 IOPS.
 	Iops *int64 `json:"iops,omitempty"`
 
+	// The mount targets for the file share.
+	MountTargets []ShareMountTargetPrototype `json:"mount_targets,omitempty"`
+
 	// The unique user-defined name for this file share. If unspecified, the name will be a hyphenated list of
 	// randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
-	// The profile to use for this file share. The profile must support the share's
-	// specified IOPS and size.
+	// The [profile](https://cloud.ibm.com/docs/vpc?topic=vpc-file-storage-profiles) to use
+	// for this file share. The profile must support the share's specified IOPS and size.
 	Profile ShareProfileIdentityIntf `json:"profile" validate:"required"`
 
 	// Configuration for a replica file share to create and associate with this file share. If
 	// unspecified, a replica may be subsequently added by creating a new file share with a
 	// `source_share` referencing this file share.
 	ReplicaShare *SharePrototypeShareContext `json:"replica_share,omitempty"`
-
-	// The share targets for the file share.
-	Targets []ShareTargetPrototype `json:"targets,omitempty"`
 
 	// Tags for this resource.
 	UserTags []string `json:"user_tags,omitempty"`
@@ -57966,6 +58636,10 @@ func UnmarshalSharePrototype(m map[string]json.RawMessage, result interface{}) (
 	if err != nil {
 		return
 	}
+	err = core.UnmarshalModel(m, "mount_targets", &obj.MountTargets, UnmarshalShareMountTargetPrototype)
+	if err != nil {
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
 	if err != nil {
 		return
@@ -57975,10 +58649,6 @@ func UnmarshalSharePrototype(m map[string]json.RawMessage, result interface{}) (
 		return
 	}
 	err = core.UnmarshalModel(m, "replica_share", &obj.ReplicaShare, UnmarshalSharePrototypeShareContext)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "targets", &obj.Targets, UnmarshalShareTargetPrototype)
 	if err != nil {
 		return
 	}
@@ -58028,23 +58698,23 @@ type SharePrototypeShareContext struct {
 	// In addition, each host accessing the share will be restricted to 48000 IOPS.
 	Iops *int64 `json:"iops,omitempty"`
 
+	// The mount targets for this replica file share.
+	//
+	// A replica's mount targets must be mounted read-only.
+	MountTargets []ShareMountTargetPrototype `json:"mount_targets,omitempty"`
+
 	// The unique user-defined name for this file share. If unspecified, the name will be a hyphenated list of
 	// randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
-	// The profile to use for this file share. The profile must support the share's
-	// specified IOPS and size.
+	// The [profile](https://cloud.ibm.com/docs/vpc?topic=vpc-file-storage-profiles) to use
+	// for this file share. The profile must support the share's specified IOPS and size.
 	Profile ShareProfileIdentityIntf `json:"profile" validate:"required"`
 
 	// The cron specification for the file share replication schedule.
 	//
 	// Replication of a share can be scheduled to occur at most once per hour.
 	ReplicationCronSpec *string `json:"replication_cron_spec" validate:"required"`
-
-	// The share targets for this replica file share.
-	//
-	// Share targets mounted from a replica must be mounted read-only.
-	Targets []ShareTargetPrototype `json:"targets,omitempty"`
 
 	// Tags for this resource.
 	UserTags []string `json:"user_tags,omitempty"`
@@ -58073,6 +58743,10 @@ func UnmarshalSharePrototypeShareContext(m map[string]json.RawMessage, result in
 	if err != nil {
 		return
 	}
+	err = core.UnmarshalModel(m, "mount_targets", &obj.MountTargets, UnmarshalShareMountTargetPrototype)
+	if err != nil {
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
 	if err != nil {
 		return
@@ -58082,10 +58756,6 @@ func UnmarshalSharePrototypeShareContext(m map[string]json.RawMessage, result in
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "replication_cron_spec", &obj.ReplicationCronSpec)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "targets", &obj.Targets, UnmarshalShareTargetPrototype)
 	if err != nil {
 		return
 	}
@@ -58209,266 +58879,6 @@ func UnmarshalShareReplicationStatusReason(m map[string]json.RawMessage, result 
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalPrimitive(m, "more_info", &obj.MoreInfo)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// ShareTarget : ShareTarget struct
-type ShareTarget struct {
-	// The date and time that the share target was created.
-	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
-
-	// The URL for this share target.
-	Href *string `json:"href" validate:"required"`
-
-	// The unique identifier for this share target.
-	ID *string `json:"id" validate:"required"`
-
-	// The reasons for the current `lifecycle_state` (if any).
-	//
-	// The enumerated reason code values for this property will expand in the future. When processing this property, check
-	// for and log unknown values. Optionally halt processing and surface the error, or bypass the resource on which the
-	// unexpected reason code was encountered.
-	LifecycleReasons []LifecycleReason `json:"lifecycle_reasons" validate:"required"`
-
-	// The lifecycle state of the mount target.
-	LifecycleState *string `json:"lifecycle_state" validate:"required"`
-
-	// The mount path for the share.
-	//
-	// The IP addresses used in the mount path are currently within the IBM services IP range, but are expected to change
-	// to be within one of the VPC's subnets in the future.
-	MountPath *string `json:"mount_path" validate:"required"`
-
-	// The user-defined name for this share target.
-	Name *string `json:"name" validate:"required"`
-
-	// The resource type.
-	ResourceType *string `json:"resource_type" validate:"required"`
-
-	// The security groups targeting this share target.
-	SecurityGroups []SecurityGroupReference `json:"security_groups" validate:"required"`
-
-	// The VPC in which instances can mount the file share using this share target.
-	VPC *VPCReference `json:"vpc" validate:"required"`
-}
-
-// Constants associated with the ShareTarget.LifecycleState property.
-// The lifecycle state of the mount target.
-const (
-	ShareTargetLifecycleStateDeletingConst  = "deleting"
-	ShareTargetLifecycleStateFailedConst    = "failed"
-	ShareTargetLifecycleStatePendingConst   = "pending"
-	ShareTargetLifecycleStateStableConst    = "stable"
-	ShareTargetLifecycleStateSuspendedConst = "suspended"
-	ShareTargetLifecycleStateUpdatingConst  = "updating"
-	ShareTargetLifecycleStateWaitingConst   = "waiting"
-)
-
-// Constants associated with the ShareTarget.ResourceType property.
-// The resource type.
-const (
-	ShareTargetResourceTypeShareTargetConst = "share_target"
-)
-
-// UnmarshalShareTarget unmarshals an instance of ShareTarget from the specified map of raw messages.
-func UnmarshalShareTarget(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(ShareTarget)
-	err = core.UnmarshalPrimitive(m, "created_at", &obj.CreatedAt)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "lifecycle_reasons", &obj.LifecycleReasons, UnmarshalLifecycleReason)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "lifecycle_state", &obj.LifecycleState)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "mount_path", &obj.MountPath)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "security_groups", &obj.SecurityGroups, UnmarshalSecurityGroupReference)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "vpc", &obj.VPC, UnmarshalVPCReference)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// ShareTargetCollection : ShareTargetCollection struct
-type ShareTargetCollection struct {
-	// Collection of share targets.
-	Targets []ShareTarget `json:"targets" validate:"required"`
-}
-
-// UnmarshalShareTargetCollection unmarshals an instance of ShareTargetCollection from the specified map of raw messages.
-func UnmarshalShareTargetCollection(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(ShareTargetCollection)
-	err = core.UnmarshalModel(m, "targets", &obj.Targets, UnmarshalShareTarget)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// ShareTargetPatch : ShareTargetPatch struct
-type ShareTargetPatch struct {
-	// The user-defined name for this share target.
-	Name *string `json:"name,omitempty"`
-}
-
-// UnmarshalShareTargetPatch unmarshals an instance of ShareTargetPatch from the specified map of raw messages.
-func UnmarshalShareTargetPatch(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(ShareTargetPatch)
-	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// AsPatch returns a generic map representation of the ShareTargetPatch
-func (shareTargetPatch *ShareTargetPatch) AsPatch() (_patch map[string]interface{}, err error) {
-	var jsonData []byte
-	jsonData, err = json.Marshal(shareTargetPatch)
-	if err == nil {
-		err = json.Unmarshal(jsonData, &_patch)
-	}
-	return
-}
-
-// ShareTargetPrototype : ShareTargetPrototype struct
-type ShareTargetPrototype struct {
-	// The user-defined name for this share target. Names must be unique within the share the share target resides in. If
-	// unspecified, the name will be a hyphenated list of randomly-selected words.
-	Name *string `json:"name,omitempty"`
-
-	// The security groups to use for this share target. If unspecified, the VPC's default security group is used.
-	SecurityGroups []SecurityGroupIdentityIntf `json:"security_groups,omitempty"`
-
-	// The VPC in which instances can mount the file share using this share target.
-	VPC VPCIdentityIntf `json:"vpc" validate:"required"`
-}
-
-// NewShareTargetPrototype : Instantiate ShareTargetPrototype (Generic Model Constructor)
-func (*VpcV1) NewShareTargetPrototype(vpc VPCIdentityIntf) (_model *ShareTargetPrototype, err error) {
-	_model = &ShareTargetPrototype{
-		VPC: vpc,
-	}
-	err = core.ValidateStruct(_model, "required parameters")
-	return
-}
-
-// UnmarshalShareTargetPrototype unmarshals an instance of ShareTargetPrototype from the specified map of raw messages.
-func UnmarshalShareTargetPrototype(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(ShareTargetPrototype)
-	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "security_groups", &obj.SecurityGroups, UnmarshalSecurityGroupIdentity)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "vpc", &obj.VPC, UnmarshalVPCIdentity)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// ShareTargetReference : ShareTargetReference struct
-type ShareTargetReference struct {
-	// If present, this property indicates the referenced resource has been deleted, and provides
-	// some supplementary information.
-	Deleted *ShareTargetReferenceDeleted `json:"deleted,omitempty"`
-
-	// The URL for this share target.
-	Href *string `json:"href" validate:"required"`
-
-	// The unique identifier for this share target.
-	ID *string `json:"id" validate:"required"`
-
-	// The user-defined name for this share target.
-	Name *string `json:"name" validate:"required"`
-
-	// The resource type.
-	ResourceType *string `json:"resource_type" validate:"required"`
-}
-
-// Constants associated with the ShareTargetReference.ResourceType property.
-// The resource type.
-const (
-	ShareTargetReferenceResourceTypeShareTargetConst = "share_target"
-)
-
-// UnmarshalShareTargetReference unmarshals an instance of ShareTargetReference from the specified map of raw messages.
-func UnmarshalShareTargetReference(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(ShareTargetReference)
-	err = core.UnmarshalModel(m, "deleted", &obj.Deleted, UnmarshalShareTargetReferenceDeleted)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// ShareTargetReferenceDeleted : If present, this property indicates the referenced resource has been deleted, and provides some supplementary
-// information.
-type ShareTargetReferenceDeleted struct {
-	// Link to documentation about deleted resources.
-	MoreInfo *string `json:"more_info" validate:"required"`
-}
-
-// UnmarshalShareTargetReferenceDeleted unmarshals an instance of ShareTargetReferenceDeleted from the specified map of raw messages.
-func UnmarshalShareTargetReferenceDeleted(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(ShareTargetReferenceDeleted)
 	err = core.UnmarshalPrimitive(m, "more_info", &obj.MoreInfo)
 	if err != nil {
 		return
@@ -59093,7 +59503,7 @@ type Subnet struct {
 	// 2<sup>(32 - 24)</sup> = 2<sup>8</sup> = 256 addresses.
 	TotalIpv4AddressCount *int64 `json:"total_ipv4_address_count" validate:"required"`
 
-	// The VPC this subnet is a part of.
+	// The VPC this subnet resides in.
 	VPC *VPCReference `json:"vpc" validate:"required"`
 
 	// The zone this subnet resides in.
@@ -59409,7 +59819,7 @@ type SubnetPrototype struct {
 	// `route_transit_gateway_ingress`, and `route_vpc_zone_ingress` must be `false`.
 	RoutingTable RoutingTableIdentityIntf `json:"routing_table,omitempty"`
 
-	// The VPC the subnet is to be a part of.
+	// The VPC the subnet will reside in.
 	VPC VPCIdentityIntf `json:"vpc" validate:"required"`
 
 	// The total number of IPv4 addresses required. Must be a power of 2. The VPC must have a default address prefix in the
@@ -61427,22 +61837,22 @@ type UpdateShareTargetOptions struct {
 	// The file share identifier.
 	ShareID *string `json:"share_id" validate:"required,ne="`
 
-	// The share target identifier.
+	// The share mount target identifier.
 	ID *string `json:"id" validate:"required,ne="`
 
-	// The share target patch.
-	ShareTargetPatch map[string]interface{} `json:"ShareTarget_patch" validate:"required"`
+	// The share mount target patch.
+	ShareMountTargetPatch map[string]interface{} `json:"ShareMountTarget_patch" validate:"required"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
 }
 
 // NewUpdateShareTargetOptions : Instantiate UpdateShareTargetOptions
-func (*VpcV1) NewUpdateShareTargetOptions(shareID string, id string, shareTargetPatch map[string]interface{}) *UpdateShareTargetOptions {
+func (*VpcV1) NewUpdateShareTargetOptions(shareID string, id string, shareMountTargetPatch map[string]interface{}) *UpdateShareTargetOptions {
 	return &UpdateShareTargetOptions{
-		ShareID:          core.StringPtr(shareID),
-		ID:               core.StringPtr(id),
-		ShareTargetPatch: shareTargetPatch,
+		ShareID:               core.StringPtr(shareID),
+		ID:                    core.StringPtr(id),
+		ShareMountTargetPatch: shareMountTargetPatch,
 	}
 }
 
@@ -61458,9 +61868,9 @@ func (_options *UpdateShareTargetOptions) SetID(id string) *UpdateShareTargetOpt
 	return _options
 }
 
-// SetShareTargetPatch : Allow user to set ShareTargetPatch
-func (_options *UpdateShareTargetOptions) SetShareTargetPatch(shareTargetPatch map[string]interface{}) *UpdateShareTargetOptions {
-	_options.ShareTargetPatch = shareTargetPatch
+// SetShareMountTargetPatch : Allow user to set ShareMountTargetPatch
+func (_options *UpdateShareTargetOptions) SetShareMountTargetPatch(shareMountTargetPatch map[string]interface{}) *UpdateShareTargetOptions {
+	_options.ShareMountTargetPatch = shareMountTargetPatch
 	return _options
 }
 
@@ -62527,6 +62937,9 @@ type VPNGateway struct {
 
 	Subnet *SubnetReference `json:"subnet" validate:"required"`
 
+	// The VPC this VPN gateway resides in.
+	VPC *VPCReference `json:"vpc" validate:"required"`
+
 	// Route mode VPN gateway.
 	Mode *string `json:"mode,omitempty"`
 }
@@ -62604,6 +63017,10 @@ func UnmarshalVPNGateway(m map[string]json.RawMessage, result interface{}) (err 
 		return
 	}
 	err = core.UnmarshalModel(m, "subnet", &obj.Subnet, UnmarshalSubnetReference)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "vpc", &obj.VPC, UnmarshalVPCReference)
 	if err != nil {
 		return
 	}
@@ -64742,7 +65159,8 @@ type Volume struct {
 	// created from an image, or the image did not include an operating system.
 	OperatingSystem *OperatingSystemReference `json:"operating_system,omitempty"`
 
-	// The profile this volume uses.
+	// The [profile](https://cloud.ibm.com/docs/vpc?topic=vpc-block-storage-profiles) for
+	// this volume.
 	Profile *VolumeProfileReference `json:"profile" validate:"required"`
 
 	// The resource group for this volume.
@@ -65211,8 +65629,12 @@ type VolumeAttachmentPrototypeVolume struct {
 	// The unique user-defined name for this volume.
 	Name *string `json:"name,omitempty"`
 
-	// The profile to use for this volume.
+	// The [profile](https://cloud.ibm.com/docs/vpc?topic=vpc-block-storage-profiles) to
+	// use for this volume.
 	Profile VolumeProfileIdentityIntf `json:"profile,omitempty"`
+
+	// The [user tags](https://cloud.ibm.com/apidocs/tagging#types-of-tags) associated with this volume.
+	UserTags []string `json:"user_tags,omitempty"`
 
 	// The capacity to use for the volume (in gigabytes). The specified minimum and maximum capacity values for creating or
 	// updating volumes may expand in the future.
@@ -65259,6 +65681,10 @@ func UnmarshalVolumeAttachmentPrototypeVolume(m map[string]json.RawMessage, resu
 		return
 	}
 	err = core.UnmarshalModel(m, "profile", &obj.Profile, UnmarshalVolumeProfileIdentity)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "user_tags", &obj.UserTags)
 	if err != nil {
 		return
 	}
@@ -65468,8 +65894,12 @@ type VolumeAttachmentVolumePrototypeInstanceContext struct {
 	// The unique user-defined name for this volume.
 	Name *string `json:"name,omitempty"`
 
-	// The profile to use for this volume.
+	// The [profile](https://cloud.ibm.com/docs/vpc?topic=vpc-block-storage-profiles) to
+	// use for this volume.
 	Profile VolumeProfileIdentityIntf `json:"profile,omitempty"`
+
+	// The [user tags](https://cloud.ibm.com/apidocs/tagging#types-of-tags) associated with this volume.
+	UserTags []string `json:"user_tags,omitempty"`
 
 	// The capacity to use for the volume (in gigabytes). The specified minimum and maximum capacity values for creating or
 	// updating volumes may expand in the future.
@@ -65516,6 +65946,10 @@ func UnmarshalVolumeAttachmentVolumePrototypeInstanceContext(m map[string]json.R
 		return
 	}
 	err = core.UnmarshalModel(m, "profile", &obj.Profile, UnmarshalVolumeProfileIdentity)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "user_tags", &obj.UserTags)
 	if err != nil {
 		return
 	}
@@ -65935,7 +66369,8 @@ type VolumePrototype struct {
 	// The unique user-defined name for this volume.
 	Name *string `json:"name,omitempty"`
 
-	// The profile to use for this volume.
+	// The [profile](https://cloud.ibm.com/docs/vpc?topic=vpc-block-storage-profiles) to
+	// use for this volume.
 	Profile VolumeProfileIdentityIntf `json:"profile" validate:"required"`
 
 	// The resource group to use. If unspecified, the account's [default resource
@@ -66032,8 +66467,12 @@ type VolumePrototypeInstanceByImageContext struct {
 	// The unique user-defined name for this volume.
 	Name *string `json:"name,omitempty"`
 
-	// The profile to use for this volume.
+	// The [profile](https://cloud.ibm.com/docs/vpc?topic=vpc-block-storage-profiles) to
+	// use for this volume.
 	Profile VolumeProfileIdentityIntf `json:"profile" validate:"required"`
+
+	// The [user tags](https://cloud.ibm.com/apidocs/tagging#types-of-tags) associated with this volume.
+	UserTags []string `json:"user_tags,omitempty"`
 }
 
 // NewVolumePrototypeInstanceByImageContext : Instantiate VolumePrototypeInstanceByImageContext (Generic Model Constructor)
@@ -66068,6 +66507,10 @@ func UnmarshalVolumePrototypeInstanceByImageContext(m map[string]json.RawMessage
 	if err != nil {
 		return
 	}
+	err = core.UnmarshalPrimitive(m, "user_tags", &obj.UserTags)
+	if err != nil {
+		return
+	}
 	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
 	return
 }
@@ -66092,11 +66535,15 @@ type VolumePrototypeInstanceBySourceSnapshotContext struct {
 	// The unique user-defined name for this volume.
 	Name *string `json:"name,omitempty"`
 
-	// The profile to use for this volume.
+	// The [profile](https://cloud.ibm.com/docs/vpc?topic=vpc-block-storage-profiles) to
+	// use for this volume.
 	Profile VolumeProfileIdentityIntf `json:"profile" validate:"required"`
 
 	// The snapshot from which to clone the volume.
 	SourceSnapshot SnapshotIdentityIntf `json:"source_snapshot" validate:"required"`
+
+	// The [user tags](https://cloud.ibm.com/apidocs/tagging#types-of-tags) associated with this volume.
+	UserTags []string `json:"user_tags,omitempty"`
 }
 
 // NewVolumePrototypeInstanceBySourceSnapshotContext : Instantiate VolumePrototypeInstanceBySourceSnapshotContext (Generic Model Constructor)
@@ -66133,6 +66580,10 @@ func UnmarshalVolumePrototypeInstanceBySourceSnapshotContext(m map[string]json.R
 		return
 	}
 	err = core.UnmarshalModel(m, "source_snapshot", &obj.SourceSnapshot, UnmarshalSnapshotIdentity)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "user_tags", &obj.UserTags)
 	if err != nil {
 		return
 	}
@@ -66484,7 +66935,7 @@ type BareMetalServerNetworkInterfaceByPci struct {
 	//   - A single floating IP can be assigned to the network interface.
 	//
 	// If `false`:
-	//   - Packets are passed unmodified to/from the network interface,
+	//   - Packets are passed unchanged to/from the network interface,
 	//     allowing the workload to perform any needed NAT operations.
 	//   - Multiple floating IPs can be assigned to the network interface.
 	//   - `allow_ip_spoofing` must be set to `false`.
@@ -66525,8 +66976,7 @@ type BareMetalServerNetworkInterfaceByPci struct {
 	// The type of this bare metal server network interface.
 	Type *string `json:"type" validate:"required"`
 
-	// Indicates what VLAN IDs (for VLAN type only) can use this physical (PCI type) interface.  A given VLAN can only be
-	// in the `allowed_vlans` array for one PCI type adapter per bare metal server.
+	// Indicates what VLAN IDs (for VLAN type only) can use this physical (PCI type) interface.
 	AllowedVlans []int64 `json:"allowed_vlans" validate:"required"`
 
 	// - `pci`: a physical PCI device which can only be created or deleted when the bare metal
@@ -66663,7 +67113,7 @@ type BareMetalServerNetworkInterfaceByVlan struct {
 	//   - A single floating IP can be assigned to the network interface.
 	//
 	// If `false`:
-	//   - Packets are passed unmodified to/from the network interface,
+	//   - Packets are passed unchanged to/from the network interface,
 	//     allowing the workload to perform any needed NAT operations.
 	//   - Multiple floating IPs can be assigned to the network interface.
 	//   - `allow_ip_spoofing` must be set to `false`.
@@ -66847,7 +67297,7 @@ type BareMetalServerNetworkInterfacePrototypeBareMetalServerNetworkInterfaceByPc
 	//   - A single floating IP can be assigned to the network interface.
 	//
 	// If `false`:
-	//   - Packets are passed unmodified to/from the network interface,
+	//   - Packets are passed unchanged to/from the network interface,
 	//     allowing the workload to perform any needed NAT operations.
 	//   - Multiple floating IPs can be assigned to the network interface.
 	//   - `allow_ip_spoofing` must be set to `false`.
@@ -66870,8 +67320,7 @@ type BareMetalServerNetworkInterfacePrototypeBareMetalServerNetworkInterfaceByPc
 	// The associated subnet.
 	Subnet SubnetIdentityIntf `json:"subnet" validate:"required"`
 
-	// Indicates what VLAN IDs (for VLAN type only) can use this physical (PCI type) interface.  A given VLAN can only be
-	// in the `allowed_vlans` array for one PCI type adapter per bare metal server.
+	// Indicates what VLAN IDs (for VLAN type only) can use this physical (PCI type) interface.
 	AllowedVlans []int64 `json:"allowed_vlans,omitempty"`
 
 	// - `pci`: a physical PCI device which can only be created or deleted when the bare metal
@@ -66957,7 +67406,7 @@ type BareMetalServerNetworkInterfacePrototypeBareMetalServerNetworkInterfaceByVl
 	//   - A single floating IP can be assigned to the network interface.
 	//
 	// If `false`:
-	//   - Packets are passed unmodified to/from the network interface,
+	//   - Packets are passed unchanged to/from the network interface,
 	//     allowing the workload to perform any needed NAT operations.
 	//   - Multiple floating IPs can be assigned to the network interface.
 	//   - `allow_ip_spoofing` must be set to `false`.
@@ -68778,7 +69227,7 @@ type DedicatedHostPrototypeDedicatedHostByGroup struct {
 	// randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
-	// The profile to use for this dedicated host.
+	// The [profile](https://cloud.ibm.com/docs/vpc?topic=vpc-dh-profiles) to use for this dedicated host.
 	Profile DedicatedHostProfileIdentityIntf `json:"profile" validate:"required"`
 
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
@@ -68838,7 +69287,7 @@ type DedicatedHostPrototypeDedicatedHostByZone struct {
 	// randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
-	// The profile to use for this dedicated host.
+	// The [profile](https://cloud.ibm.com/docs/vpc?topic=vpc-dh-profiles) to use for this dedicated host.
 	Profile DedicatedHostProfileIdentityIntf `json:"profile" validate:"required"`
 
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
@@ -70289,7 +70738,7 @@ type InstanceGroupManagerActionScheduledAction struct {
 	// - `omitted`: Action was not applied because this action's manager was disabled.
 	Status *string `json:"status" validate:"required"`
 
-	// The date and time that the instance group manager action was modified.
+	// The date and time that the instance group manager action was updated.
 	UpdatedAt *strfmt.DateTime `json:"updated_at" validate:"required"`
 
 	// The type of action for the instance group.
@@ -72961,8 +73410,8 @@ type InstancePrototypeInstanceByImage struct {
 	// The placement restrictions to use for the virtual server instance.
 	PlacementTarget InstancePlacementTargetPrototypeIntf `json:"placement_target,omitempty"`
 
-	// The profile to use for this virtual server instance. If unspecified, `bx2-2x8` will be used, but this default value
-	// is expected to change in the future.
+	// The [profile](https://cloud.ibm.com/docs/vpc?topic=vpc-profiles) to use for this virtual server instance.  If
+	// unspecified, `bx2-2x8` will be used, but this default value is expected to change in the future.
 	Profile InstanceProfileIdentityIntf `json:"profile,omitempty"`
 
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
@@ -72979,8 +73428,8 @@ type InstancePrototypeInstanceByImage struct {
 	// The additional volume attachments to create for the virtual server instance.
 	VolumeAttachments []VolumeAttachmentPrototypeInstanceContext `json:"volume_attachments,omitempty"`
 
-	// The VPC the virtual server instance is to be a part of. If specified, it must match the VPC referenced by the
-	// subnets of the instance's network interfaces.
+	// The VPC this virtual server instance will reside in.  If specified, it must match the VPC for the subnets of the
+	// instance's network interfaces.
 	VPC VPCIdentityIntf `json:"vpc,omitempty"`
 
 	// The boot volume attachment for the virtual server instance.
@@ -73123,8 +73572,8 @@ type InstancePrototypeInstanceBySourceSnapshot struct {
 	// The placement restrictions to use for the virtual server instance.
 	PlacementTarget InstancePlacementTargetPrototypeIntf `json:"placement_target,omitempty"`
 
-	// The profile to use for this virtual server instance. If unspecified, `bx2-2x8` will be used, but this default value
-	// is expected to change in the future.
+	// The [profile](https://cloud.ibm.com/docs/vpc?topic=vpc-profiles) to use for this virtual server instance.  If
+	// unspecified, `bx2-2x8` will be used, but this default value is expected to change in the future.
 	Profile InstanceProfileIdentityIntf `json:"profile,omitempty"`
 
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
@@ -73141,8 +73590,8 @@ type InstancePrototypeInstanceBySourceSnapshot struct {
 	// The additional volume attachments to create for the virtual server instance.
 	VolumeAttachments []VolumeAttachmentPrototypeInstanceContext `json:"volume_attachments,omitempty"`
 
-	// The VPC the virtual server instance is to be a part of. If specified, it must match the VPC referenced by the
-	// subnets of the instance's network interfaces.
+	// The VPC this virtual server instance will reside in.  If specified, it must match the VPC for the subnets of the
+	// instance's network interfaces.
 	VPC VPCIdentityIntf `json:"vpc,omitempty"`
 
 	// The boot volume attachment for the virtual server instance.
@@ -73278,8 +73727,8 @@ type InstancePrototypeInstanceBySourceTemplate struct {
 	// The placement restrictions to use for the virtual server instance.
 	PlacementTarget InstancePlacementTargetPrototypeIntf `json:"placement_target,omitempty"`
 
-	// The profile to use for this virtual server instance. If unspecified, `bx2-2x8` will be used, but this default value
-	// is expected to change in the future.
+	// The [profile](https://cloud.ibm.com/docs/vpc?topic=vpc-profiles) to use for this virtual server instance.  If
+	// unspecified, `bx2-2x8` will be used, but this default value is expected to change in the future.
 	Profile InstanceProfileIdentityIntf `json:"profile,omitempty"`
 
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
@@ -73296,8 +73745,8 @@ type InstancePrototypeInstanceBySourceTemplate struct {
 	// The additional volume attachments to create for the virtual server instance.
 	VolumeAttachments []VolumeAttachmentPrototypeInstanceContext `json:"volume_attachments,omitempty"`
 
-	// The VPC the virtual server instance is to be a part of. If specified, it must match the VPC referenced by the
-	// subnets of the instance's network interfaces.
+	// The VPC this virtual server instance will reside in.  If specified, it must match the VPC for the subnets of the
+	// instance's network interfaces.
 	VPC VPCIdentityIntf `json:"vpc,omitempty"`
 
 	// The boot volume attachment for the virtual server instance.
@@ -73538,8 +73987,8 @@ type InstanceTemplatePrototypeInstanceByImage struct {
 	// The placement restrictions to use for the virtual server instance.
 	PlacementTarget InstancePlacementTargetPrototypeIntf `json:"placement_target,omitempty"`
 
-	// The profile to use for this virtual server instance. If unspecified, `bx2-2x8` will be used, but this default value
-	// is expected to change in the future.
+	// The [profile](https://cloud.ibm.com/docs/vpc?topic=vpc-profiles) to use for this virtual server instance.  If
+	// unspecified, `bx2-2x8` will be used, but this default value is expected to change in the future.
 	Profile InstanceProfileIdentityIntf `json:"profile,omitempty"`
 
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
@@ -73556,8 +74005,8 @@ type InstanceTemplatePrototypeInstanceByImage struct {
 	// The additional volume attachments to create for the virtual server instance.
 	VolumeAttachments []VolumeAttachmentPrototypeInstanceContext `json:"volume_attachments,omitempty"`
 
-	// The VPC the virtual server instance is to be a part of. If specified, it must match the VPC referenced by the
-	// subnets of the instance's network interfaces.
+	// The VPC this virtual server instance will reside in.  If specified, it must match the VPC for the subnets of the
+	// instance's network interfaces.
 	VPC VPCIdentityIntf `json:"vpc,omitempty"`
 
 	// The boot volume attachment for the virtual server instance.
@@ -73663,6 +74112,161 @@ func UnmarshalInstanceTemplatePrototypeInstanceByImage(m map[string]json.RawMess
 	return
 }
 
+// InstanceTemplatePrototypeInstanceBySourceSnapshot : InstanceTemplatePrototypeInstanceBySourceSnapshot struct
+// This model "extends" InstanceTemplatePrototype
+type InstanceTemplatePrototypeInstanceBySourceSnapshot struct {
+	// The availability policy to use for this virtual server instance.
+	AvailabilityPolicy *InstanceAvailabilityPrototype `json:"availability_policy,omitempty"`
+
+	// The default trusted profile configuration to use for this virtual server instance  This property's value is used
+	// when provisioning the virtual server instance, but not subsequently managed. Accordingly, it is reflected as an
+	// [instance initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
+	DefaultTrustedProfile *InstanceDefaultTrustedProfilePrototype `json:"default_trusted_profile,omitempty"`
+
+	// The public SSH keys for the administrative user of the virtual server instance. Keys will be made available to the
+	// virtual server instance as cloud-init vendor data. For cloud-init enabled images, these keys will also be added as
+	// SSH authorized keys for the administrative user.
+	//
+	// For Windows images, at least one key must be specified, and one will be chosen to encrypt [the administrator
+	// password](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization). Keys are optional for other images, but if
+	// no keys are specified, the instance will be inaccessible unless the specified image provides another means of
+	// access.
+	//
+	// This property's value is used when provisioning the virtual server instance, but not subsequently managed.
+	// Accordingly, it is reflected as an [instance
+	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
+	Keys []KeyIdentityIntf `json:"keys,omitempty"`
+
+	MetadataService *InstanceMetadataServicePrototype `json:"metadata_service,omitempty"`
+
+	// The unique user-defined name for this virtual server instance (and default system hostname). If unspecified, the
+	// name will be a hyphenated list of randomly-selected words.
+	Name *string `json:"name,omitempty"`
+
+	// The additional network interfaces to create for the virtual server instance.
+	NetworkInterfaces []NetworkInterfacePrototype `json:"network_interfaces,omitempty"`
+
+	// The placement restrictions to use for the virtual server instance.
+	PlacementTarget InstancePlacementTargetPrototypeIntf `json:"placement_target,omitempty"`
+
+	// The [profile](https://cloud.ibm.com/docs/vpc?topic=vpc-profiles) to use for this virtual server instance.  If
+	// unspecified, `bx2-2x8` will be used, but this default value is expected to change in the future.
+	Profile InstanceProfileIdentityIntf `json:"profile,omitempty"`
+
+	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
+
+	// The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes. An increase in
+	// this value will result in a corresponding decrease to
+	// `total_network_bandwidth`.
+	TotalVolumeBandwidth *int64 `json:"total_volume_bandwidth,omitempty"`
+
+	// [User data](https://cloud.ibm.com/docs/vpc?topic=vpc-user-data) to make available when setting up the virtual server
+	// instance.
+	UserData *string `json:"user_data,omitempty"`
+
+	// The additional volume attachments to create for the virtual server instance.
+	VolumeAttachments []VolumeAttachmentPrototypeInstanceContext `json:"volume_attachments,omitempty"`
+
+	// The VPC this virtual server instance will reside in.  If specified, it must match the VPC for the subnets of the
+	// instance's network interfaces.
+	VPC VPCIdentityIntf `json:"vpc,omitempty"`
+
+	// The boot volume attachment for the virtual server instance.
+	BootVolumeAttachment *VolumeAttachmentPrototypeInstanceBySourceSnapshotContext `json:"boot_volume_attachment" validate:"required"`
+
+	// Primary network interface.
+	PrimaryNetworkInterface *NetworkInterfacePrototype `json:"primary_network_interface" validate:"required"`
+
+	// The zone this virtual server instance will reside in.
+	Zone ZoneIdentityIntf `json:"zone" validate:"required"`
+}
+
+// NewInstanceTemplatePrototypeInstanceBySourceSnapshot : Instantiate InstanceTemplatePrototypeInstanceBySourceSnapshot (Generic Model Constructor)
+func (*VpcV1) NewInstanceTemplatePrototypeInstanceBySourceSnapshot(bootVolumeAttachment *VolumeAttachmentPrototypeInstanceBySourceSnapshotContext, primaryNetworkInterface *NetworkInterfacePrototype, zone ZoneIdentityIntf) (_model *InstanceTemplatePrototypeInstanceBySourceSnapshot, err error) {
+	_model = &InstanceTemplatePrototypeInstanceBySourceSnapshot{
+		BootVolumeAttachment:    bootVolumeAttachment,
+		PrimaryNetworkInterface: primaryNetworkInterface,
+		Zone:                    zone,
+	}
+	err = core.ValidateStruct(_model, "required parameters")
+	return
+}
+
+func (*InstanceTemplatePrototypeInstanceBySourceSnapshot) isaInstanceTemplatePrototype() bool {
+	return true
+}
+
+// UnmarshalInstanceTemplatePrototypeInstanceBySourceSnapshot unmarshals an instance of InstanceTemplatePrototypeInstanceBySourceSnapshot from the specified map of raw messages.
+func UnmarshalInstanceTemplatePrototypeInstanceBySourceSnapshot(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(InstanceTemplatePrototypeInstanceBySourceSnapshot)
+	err = core.UnmarshalModel(m, "availability_policy", &obj.AvailabilityPolicy, UnmarshalInstanceAvailabilityPrototype)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "default_trusted_profile", &obj.DefaultTrustedProfile, UnmarshalInstanceDefaultTrustedProfilePrototype)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "keys", &obj.Keys, UnmarshalKeyIdentity)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "metadata_service", &obj.MetadataService, UnmarshalInstanceMetadataServicePrototype)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "network_interfaces", &obj.NetworkInterfaces, UnmarshalNetworkInterfacePrototype)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "placement_target", &obj.PlacementTarget, UnmarshalInstancePlacementTargetPrototype)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "profile", &obj.Profile, UnmarshalInstanceProfileIdentity)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "resource_group", &obj.ResourceGroup, UnmarshalResourceGroupIdentity)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "total_volume_bandwidth", &obj.TotalVolumeBandwidth)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "user_data", &obj.UserData)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "volume_attachments", &obj.VolumeAttachments, UnmarshalVolumeAttachmentPrototypeInstanceContext)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "vpc", &obj.VPC, UnmarshalVPCIdentity)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "boot_volume_attachment", &obj.BootVolumeAttachment, UnmarshalVolumeAttachmentPrototypeInstanceBySourceSnapshotContext)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "primary_network_interface", &obj.PrimaryNetworkInterface, UnmarshalNetworkInterfacePrototype)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "zone", &obj.Zone, UnmarshalZoneIdentity)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
 // InstanceTemplatePrototypeInstanceBySourceTemplate : InstanceTemplatePrototypeInstanceBySourceTemplate struct
 // This model "extends" InstanceTemplatePrototype
 type InstanceTemplatePrototypeInstanceBySourceTemplate struct {
@@ -73700,8 +74304,8 @@ type InstanceTemplatePrototypeInstanceBySourceTemplate struct {
 	// The placement restrictions to use for the virtual server instance.
 	PlacementTarget InstancePlacementTargetPrototypeIntf `json:"placement_target,omitempty"`
 
-	// The profile to use for this virtual server instance. If unspecified, `bx2-2x8` will be used, but this default value
-	// is expected to change in the future.
+	// The [profile](https://cloud.ibm.com/docs/vpc?topic=vpc-profiles) to use for this virtual server instance.  If
+	// unspecified, `bx2-2x8` will be used, but this default value is expected to change in the future.
 	Profile InstanceProfileIdentityIntf `json:"profile,omitempty"`
 
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
@@ -73718,8 +74322,8 @@ type InstanceTemplatePrototypeInstanceBySourceTemplate struct {
 	// The additional volume attachments to create for the virtual server instance.
 	VolumeAttachments []VolumeAttachmentPrototypeInstanceContext `json:"volume_attachments,omitempty"`
 
-	// The VPC the virtual server instance is to be a part of. If specified, it must match the VPC referenced by the
-	// subnets of the instance's network interfaces.
+	// The VPC this virtual server instance will reside in.  If specified, it must match the VPC for the subnets of the
+	// instance's network interfaces.
 	VPC VPCIdentityIntf `json:"vpc,omitempty"`
 
 	// The boot volume attachment for the virtual server instance.
@@ -73878,8 +74482,8 @@ type InstanceTemplateInstanceByImage struct {
 	// The placement restrictions to use for the virtual server instance.
 	PlacementTarget InstancePlacementTargetPrototypeIntf `json:"placement_target,omitempty"`
 
-	// The profile to use for this virtual server instance. If unspecified, `bx2-2x8` will be used, but this default value
-	// is expected to change in the future.
+	// The [profile](https://cloud.ibm.com/docs/vpc?topic=vpc-profiles) to use for this virtual server instance.  If
+	// unspecified, `bx2-2x8` will be used, but this default value is expected to change in the future.
 	Profile InstanceProfileIdentityIntf `json:"profile,omitempty"`
 
 	// The resource group for this instance template.
@@ -73897,8 +74501,8 @@ type InstanceTemplateInstanceByImage struct {
 	// The additional volume attachments to create for the virtual server instance.
 	VolumeAttachments []VolumeAttachmentPrototypeInstanceContext `json:"volume_attachments,omitempty"`
 
-	// The VPC the virtual server instance is to be a part of. If specified, it must match the VPC referenced by the
-	// subnets of the instance's network interfaces.
+	// The VPC this virtual server instance will reside in.  If specified, it must match the VPC for the subnets of the
+	// instance's network interfaces.
 	VPC VPCIdentityIntf `json:"vpc,omitempty"`
 
 	// The boot volume attachment for the virtual server instance.
@@ -74057,8 +74661,8 @@ type InstanceTemplateInstanceBySourceSnapshot struct {
 	// The placement restrictions to use for the virtual server instance.
 	PlacementTarget InstancePlacementTargetPrototypeIntf `json:"placement_target,omitempty"`
 
-	// The profile to use for this virtual server instance. If unspecified, `bx2-2x8` will be used, but this default value
-	// is expected to change in the future.
+	// The [profile](https://cloud.ibm.com/docs/vpc?topic=vpc-profiles) to use for this virtual server instance.  If
+	// unspecified, `bx2-2x8` will be used, but this default value is expected to change in the future.
 	Profile InstanceProfileIdentityIntf `json:"profile,omitempty"`
 
 	// The resource group for this instance template.
@@ -74076,8 +74680,8 @@ type InstanceTemplateInstanceBySourceSnapshot struct {
 	// The additional volume attachments to create for the virtual server instance.
 	VolumeAttachments []VolumeAttachmentPrototypeInstanceContext `json:"volume_attachments,omitempty"`
 
-	// The VPC the virtual server instance is to be a part of. If specified, it must match the VPC referenced by the
-	// subnets of the instance's network interfaces.
+	// The VPC this virtual server instance will reside in.  If specified, it must match the VPC for the subnets of the
+	// instance's network interfaces.
 	VPC VPCIdentityIntf `json:"vpc,omitempty"`
 
 	// The boot volume attachment for the virtual server instance.
@@ -75408,7 +76012,7 @@ type NetworkACLPrototypeNetworkACLByRules struct {
 
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
 
-	// The VPC this network ACL is to be a part of.
+	// The VPC this network ACL will reside in.
 	VPC VPCIdentityIntf `json:"vpc" validate:"required"`
 
 	// The prototype objects for rules to create along with this network ACL. If unspecified, no rules will be created,
@@ -75452,7 +76056,7 @@ type NetworkACLPrototypeNetworkACLBySourceNetworkACL struct {
 
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
 
-	// The VPC this network ACL is to be a part of.
+	// The VPC this network ACL will reside in.
 	VPC VPCIdentityIntf `json:"vpc" validate:"required"`
 
 	// Network ACL to copy rules from.
@@ -75623,7 +76227,7 @@ func UnmarshalNetworkACLRuleBeforePrototypeNetworkACLRuleIdentityByID(m map[stri
 // NetworkACLRuleItemNetworkACLRuleProtocolAll : NetworkACLRuleItemNetworkACLRuleProtocolAll struct
 // This model "extends" NetworkACLRuleItem
 type NetworkACLRuleItemNetworkACLRuleProtocolAll struct {
-	// Whether to allow or deny matching traffic.
+	// The action to perform for a packet matching the rule.
 	Action *string `json:"action" validate:"required"`
 
 	// The rule that this rule is immediately before. In a rule collection, this always refers to the next item in the
@@ -75633,10 +76237,10 @@ type NetworkACLRuleItemNetworkACLRuleProtocolAll struct {
 	// The date and time that the rule was created.
 	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
 
-	// The destination CIDR block. The CIDR block `0.0.0.0/0` applies to all addresses.
+	// The destination IP address or CIDR block to match. The CIDR block `0.0.0.0/0` matches all destination addresses.
 	Destination *string `json:"destination" validate:"required"`
 
-	// Whether the traffic to be matched is `inbound` or `outbound`.
+	// The direction of traffic to match.
 	Direction *string `json:"direction" validate:"required"`
 
 	// The URL for this network ACL rule.
@@ -75648,11 +76252,10 @@ type NetworkACLRuleItemNetworkACLRuleProtocolAll struct {
 	// The IP version for this rule.
 	IPVersion *string `json:"ip_version" validate:"required"`
 
-	// The user-defined name for this rule. Names must be unique within the network ACL the rule resides in. If
-	// unspecified, the name will be a hyphenated list of randomly-selected words.
+	// The user-defined name for this network ACL rule.
 	Name *string `json:"name" validate:"required"`
 
-	// The source CIDR block. The CIDR block `0.0.0.0/0` applies to all addresses.
+	// The source IP address or CIDR block to match. The CIDR block `0.0.0.0/0` matches all source addresses.
 	Source *string `json:"source" validate:"required"`
 
 	// The protocol to enforce.
@@ -75660,14 +76263,14 @@ type NetworkACLRuleItemNetworkACLRuleProtocolAll struct {
 }
 
 // Constants associated with the NetworkACLRuleItemNetworkACLRuleProtocolAll.Action property.
-// Whether to allow or deny matching traffic.
+// The action to perform for a packet matching the rule.
 const (
 	NetworkACLRuleItemNetworkACLRuleProtocolAllActionAllowConst = "allow"
 	NetworkACLRuleItemNetworkACLRuleProtocolAllActionDenyConst  = "deny"
 )
 
 // Constants associated with the NetworkACLRuleItemNetworkACLRuleProtocolAll.Direction property.
-// Whether the traffic to be matched is `inbound` or `outbound`.
+// The direction of traffic to match.
 const (
 	NetworkACLRuleItemNetworkACLRuleProtocolAllDirectionInboundConst  = "inbound"
 	NetworkACLRuleItemNetworkACLRuleProtocolAllDirectionOutboundConst = "outbound"
@@ -75677,7 +76280,6 @@ const (
 // The IP version for this rule.
 const (
 	NetworkACLRuleItemNetworkACLRuleProtocolAllIPVersionIpv4Const = "ipv4"
-	NetworkACLRuleItemNetworkACLRuleProtocolAllIPVersionIpv6Const = "ipv6"
 )
 
 // Constants associated with the NetworkACLRuleItemNetworkACLRuleProtocolAll.Protocol property.
@@ -75744,7 +76346,7 @@ func UnmarshalNetworkACLRuleItemNetworkACLRuleProtocolAll(m map[string]json.RawM
 // NetworkACLRuleItemNetworkACLRuleProtocolIcmp : NetworkACLRuleItemNetworkACLRuleProtocolIcmp struct
 // This model "extends" NetworkACLRuleItem
 type NetworkACLRuleItemNetworkACLRuleProtocolIcmp struct {
-	// Whether to allow or deny matching traffic.
+	// The action to perform for a packet matching the rule.
 	Action *string `json:"action" validate:"required"`
 
 	// The rule that this rule is immediately before. In a rule collection, this always refers to the next item in the
@@ -75754,10 +76356,10 @@ type NetworkACLRuleItemNetworkACLRuleProtocolIcmp struct {
 	// The date and time that the rule was created.
 	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
 
-	// The destination CIDR block. The CIDR block `0.0.0.0/0` applies to all addresses.
+	// The destination IP address or CIDR block to match. The CIDR block `0.0.0.0/0` matches all destination addresses.
 	Destination *string `json:"destination" validate:"required"`
 
-	// Whether the traffic to be matched is `inbound` or `outbound`.
+	// The direction of traffic to match.
 	Direction *string `json:"direction" validate:"required"`
 
 	// The URL for this network ACL rule.
@@ -75769,33 +76371,35 @@ type NetworkACLRuleItemNetworkACLRuleProtocolIcmp struct {
 	// The IP version for this rule.
 	IPVersion *string `json:"ip_version" validate:"required"`
 
-	// The user-defined name for this rule. Names must be unique within the network ACL the rule resides in. If
-	// unspecified, the name will be a hyphenated list of randomly-selected words.
+	// The user-defined name for this network ACL rule.
 	Name *string `json:"name" validate:"required"`
 
-	// The source CIDR block. The CIDR block `0.0.0.0/0` applies to all addresses.
+	// The source IP address or CIDR block to match. The CIDR block `0.0.0.0/0` matches all source addresses.
 	Source *string `json:"source" validate:"required"`
 
-	// The ICMP traffic code to allow. If unspecified, all codes are allowed. This can only be specified if type is also
-	// specified.
+	// The ICMP traffic code to match.
+	//
+	// If absent, all codes are matched.
 	Code *int64 `json:"code,omitempty"`
 
 	// The protocol to enforce.
 	Protocol *string `json:"protocol" validate:"required"`
 
-	// The ICMP traffic type to allow. If unspecified, all types are allowed by this rule.
+	// The ICMP traffic type to match.
+	//
+	// If absent, all types are matched.
 	Type *int64 `json:"type,omitempty"`
 }
 
 // Constants associated with the NetworkACLRuleItemNetworkACLRuleProtocolIcmp.Action property.
-// Whether to allow or deny matching traffic.
+// The action to perform for a packet matching the rule.
 const (
 	NetworkACLRuleItemNetworkACLRuleProtocolIcmpActionAllowConst = "allow"
 	NetworkACLRuleItemNetworkACLRuleProtocolIcmpActionDenyConst  = "deny"
 )
 
 // Constants associated with the NetworkACLRuleItemNetworkACLRuleProtocolIcmp.Direction property.
-// Whether the traffic to be matched is `inbound` or `outbound`.
+// The direction of traffic to match.
 const (
 	NetworkACLRuleItemNetworkACLRuleProtocolIcmpDirectionInboundConst  = "inbound"
 	NetworkACLRuleItemNetworkACLRuleProtocolIcmpDirectionOutboundConst = "outbound"
@@ -75805,7 +76409,6 @@ const (
 // The IP version for this rule.
 const (
 	NetworkACLRuleItemNetworkACLRuleProtocolIcmpIPVersionIpv4Const = "ipv4"
-	NetworkACLRuleItemNetworkACLRuleProtocolIcmpIPVersionIpv6Const = "ipv6"
 )
 
 // Constants associated with the NetworkACLRuleItemNetworkACLRuleProtocolIcmp.Protocol property.
@@ -75880,7 +76483,7 @@ func UnmarshalNetworkACLRuleItemNetworkACLRuleProtocolIcmp(m map[string]json.Raw
 // NetworkACLRuleItemNetworkACLRuleProtocolTcpudp : NetworkACLRuleItemNetworkACLRuleProtocolTcpudp struct
 // This model "extends" NetworkACLRuleItem
 type NetworkACLRuleItemNetworkACLRuleProtocolTcpudp struct {
-	// Whether to allow or deny matching traffic.
+	// The action to perform for a packet matching the rule.
 	Action *string `json:"action" validate:"required"`
 
 	// The rule that this rule is immediately before. In a rule collection, this always refers to the next item in the
@@ -75890,10 +76493,10 @@ type NetworkACLRuleItemNetworkACLRuleProtocolTcpudp struct {
 	// The date and time that the rule was created.
 	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
 
-	// The destination CIDR block. The CIDR block `0.0.0.0/0` applies to all addresses.
+	// The destination IP address or CIDR block to match. The CIDR block `0.0.0.0/0` matches all destination addresses.
 	Destination *string `json:"destination" validate:"required"`
 
-	// Whether the traffic to be matched is `inbound` or `outbound`.
+	// The direction of traffic to match.
 	Direction *string `json:"direction" validate:"required"`
 
 	// The URL for this network ACL rule.
@@ -75905,38 +76508,37 @@ type NetworkACLRuleItemNetworkACLRuleProtocolTcpudp struct {
 	// The IP version for this rule.
 	IPVersion *string `json:"ip_version" validate:"required"`
 
-	// The user-defined name for this rule. Names must be unique within the network ACL the rule resides in. If
-	// unspecified, the name will be a hyphenated list of randomly-selected words.
+	// The user-defined name for this network ACL rule.
 	Name *string `json:"name" validate:"required"`
 
-	// The source CIDR block. The CIDR block `0.0.0.0/0` applies to all addresses.
+	// The source IP address or CIDR block to match. The CIDR block `0.0.0.0/0` matches all source addresses.
 	Source *string `json:"source" validate:"required"`
 
 	// The inclusive upper bound of TCP/UDP destination port range.
-	DestinationPortMax *int64 `json:"destination_port_max,omitempty"`
+	DestinationPortMax *int64 `json:"destination_port_max" validate:"required"`
 
 	// The inclusive lower bound of TCP/UDP destination port range.
-	DestinationPortMin *int64 `json:"destination_port_min,omitempty"`
+	DestinationPortMin *int64 `json:"destination_port_min" validate:"required"`
 
 	// The protocol to enforce.
 	Protocol *string `json:"protocol" validate:"required"`
 
 	// The inclusive upper bound of TCP/UDP source port range.
-	SourcePortMax *int64 `json:"source_port_max,omitempty"`
+	SourcePortMax *int64 `json:"source_port_max" validate:"required"`
 
 	// The inclusive lower bound of TCP/UDP source port range.
-	SourcePortMin *int64 `json:"source_port_min,omitempty"`
+	SourcePortMin *int64 `json:"source_port_min" validate:"required"`
 }
 
 // Constants associated with the NetworkACLRuleItemNetworkACLRuleProtocolTcpudp.Action property.
-// Whether to allow or deny matching traffic.
+// The action to perform for a packet matching the rule.
 const (
 	NetworkACLRuleItemNetworkACLRuleProtocolTcpudpActionAllowConst = "allow"
 	NetworkACLRuleItemNetworkACLRuleProtocolTcpudpActionDenyConst  = "deny"
 )
 
 // Constants associated with the NetworkACLRuleItemNetworkACLRuleProtocolTcpudp.Direction property.
-// Whether the traffic to be matched is `inbound` or `outbound`.
+// The direction of traffic to match.
 const (
 	NetworkACLRuleItemNetworkACLRuleProtocolTcpudpDirectionInboundConst  = "inbound"
 	NetworkACLRuleItemNetworkACLRuleProtocolTcpudpDirectionOutboundConst = "outbound"
@@ -75946,7 +76548,6 @@ const (
 // The IP version for this rule.
 const (
 	NetworkACLRuleItemNetworkACLRuleProtocolTcpudpIPVersionIpv4Const = "ipv4"
-	NetworkACLRuleItemNetworkACLRuleProtocolTcpudpIPVersionIpv6Const = "ipv6"
 )
 
 // Constants associated with the NetworkACLRuleItemNetworkACLRuleProtocolTcpudp.Protocol property.
@@ -76027,52 +76628,52 @@ func UnmarshalNetworkACLRuleItemNetworkACLRuleProtocolTcpudp(m map[string]json.R
 	return
 }
 
-// NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAll : NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAll struct
+// NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAllPrototype : NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAllPrototype struct
 // This model "extends" NetworkACLRulePrototypeNetworkACLContext
-type NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAll struct {
-	// Whether to allow or deny matching traffic.
+type NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAllPrototype struct {
+	// The action to perform for a packet matching the rule.
 	Action *string `json:"action" validate:"required"`
 
-	// The destination IP address or CIDR block. The CIDR block `0.0.0.0/0` applies to all addresses.
+	// The destination IP address or CIDR block to match. The CIDR block `0.0.0.0/0` matches all destination addresses.
 	Destination *string `json:"destination" validate:"required"`
 
-	// Whether the traffic to be matched is `inbound` or `outbound`.
+	// The direction of traffic to match.
 	Direction *string `json:"direction" validate:"required"`
 
 	// The user-defined name for this rule. Names must be unique within the network ACL the rule resides in. If
 	// unspecified, the name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
-	// The source IP address or CIDR block.  The CIDR block `0.0.0.0/0` applies to all addresses.
+	// The source IP address or CIDR block to match. The CIDR block `0.0.0.0/0` matches all source addresses.
 	Source *string `json:"source" validate:"required"`
 
 	// The protocol to enforce.
 	Protocol *string `json:"protocol" validate:"required"`
 }
 
-// Constants associated with the NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAll.Action property.
-// Whether to allow or deny matching traffic.
+// Constants associated with the NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAllPrototype.Action property.
+// The action to perform for a packet matching the rule.
 const (
-	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAllActionAllowConst = "allow"
-	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAllActionDenyConst  = "deny"
+	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAllPrototypeActionAllowConst = "allow"
+	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAllPrototypeActionDenyConst  = "deny"
 )
 
-// Constants associated with the NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAll.Direction property.
-// Whether the traffic to be matched is `inbound` or `outbound`.
+// Constants associated with the NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAllPrototype.Direction property.
+// The direction of traffic to match.
 const (
-	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAllDirectionInboundConst  = "inbound"
-	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAllDirectionOutboundConst = "outbound"
+	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAllPrototypeDirectionInboundConst  = "inbound"
+	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAllPrototypeDirectionOutboundConst = "outbound"
 )
 
-// Constants associated with the NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAll.Protocol property.
+// Constants associated with the NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAllPrototype.Protocol property.
 // The protocol to enforce.
 const (
-	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAllProtocolAllConst = "all"
+	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAllPrototypeProtocolAllConst = "all"
 )
 
-// NewNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAll : Instantiate NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAll (Generic Model Constructor)
-func (*VpcV1) NewNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAll(action string, destination string, direction string, source string, protocol string) (_model *NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAll, err error) {
-	_model = &NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAll{
+// NewNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAllPrototype : Instantiate NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAllPrototype (Generic Model Constructor)
+func (*VpcV1) NewNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAllPrototype(action string, destination string, direction string, source string, protocol string) (_model *NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAllPrototype, err error) {
+	_model = &NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAllPrototype{
 		Action:      core.StringPtr(action),
 		Destination: core.StringPtr(destination),
 		Direction:   core.StringPtr(direction),
@@ -76083,13 +76684,13 @@ func (*VpcV1) NewNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolA
 	return
 }
 
-func (*NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAll) isaNetworkACLRulePrototypeNetworkACLContext() bool {
+func (*NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAllPrototype) isaNetworkACLRulePrototypeNetworkACLContext() bool {
 	return true
 }
 
-// UnmarshalNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAll unmarshals an instance of NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAll from the specified map of raw messages.
-func UnmarshalNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAll(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAll)
+// UnmarshalNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAllPrototype unmarshals an instance of NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAllPrototype from the specified map of raw messages.
+func UnmarshalNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAllPrototype(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAllPrototype)
 	err = core.UnmarshalPrimitive(m, "action", &obj.Action)
 	if err != nil {
 		return
@@ -76118,59 +76719,62 @@ func UnmarshalNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAll(
 	return
 }
 
-// NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmp : NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmp struct
+// NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmpPrototype : NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmpPrototype struct
 // This model "extends" NetworkACLRulePrototypeNetworkACLContext
-type NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmp struct {
-	// Whether to allow or deny matching traffic.
+type NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmpPrototype struct {
+	// The action to perform for a packet matching the rule.
 	Action *string `json:"action" validate:"required"`
 
-	// The destination IP address or CIDR block. The CIDR block `0.0.0.0/0` applies to all addresses.
+	// The destination IP address or CIDR block to match. The CIDR block `0.0.0.0/0` matches all destination addresses.
 	Destination *string `json:"destination" validate:"required"`
 
-	// Whether the traffic to be matched is `inbound` or `outbound`.
+	// The direction of traffic to match.
 	Direction *string `json:"direction" validate:"required"`
 
 	// The user-defined name for this rule. Names must be unique within the network ACL the rule resides in. If
 	// unspecified, the name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
-	// The source IP address or CIDR block.  The CIDR block `0.0.0.0/0` applies to all addresses.
+	// The source IP address or CIDR block to match. The CIDR block `0.0.0.0/0` matches all source addresses.
 	Source *string `json:"source" validate:"required"`
 
-	// The ICMP traffic code to allow. If unspecified, all codes are allowed. This can only be specified if type is also
-	// specified.
+	// The ICMP traffic code to match.
+	//
+	// If specified, `type` must also be specified.  If unspecified, all codes are matched.
 	Code *int64 `json:"code,omitempty"`
 
 	// The protocol to enforce.
 	Protocol *string `json:"protocol" validate:"required"`
 
-	// The ICMP traffic type to allow. If unspecified, all types are allowed by this rule.
+	// The ICMP traffic type to match.
+	//
+	// If unspecified, all types are matched.
 	Type *int64 `json:"type,omitempty"`
 }
 
-// Constants associated with the NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmp.Action property.
-// Whether to allow or deny matching traffic.
+// Constants associated with the NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmpPrototype.Action property.
+// The action to perform for a packet matching the rule.
 const (
-	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmpActionAllowConst = "allow"
-	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmpActionDenyConst  = "deny"
+	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmpPrototypeActionAllowConst = "allow"
+	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmpPrototypeActionDenyConst  = "deny"
 )
 
-// Constants associated with the NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmp.Direction property.
-// Whether the traffic to be matched is `inbound` or `outbound`.
+// Constants associated with the NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmpPrototype.Direction property.
+// The direction of traffic to match.
 const (
-	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmpDirectionInboundConst  = "inbound"
-	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmpDirectionOutboundConst = "outbound"
+	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmpPrototypeDirectionInboundConst  = "inbound"
+	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmpPrototypeDirectionOutboundConst = "outbound"
 )
 
-// Constants associated with the NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmp.Protocol property.
+// Constants associated with the NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmpPrototype.Protocol property.
 // The protocol to enforce.
 const (
-	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmpProtocolIcmpConst = "icmp"
+	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmpPrototypeProtocolIcmpConst = "icmp"
 )
 
-// NewNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmp : Instantiate NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmp (Generic Model Constructor)
-func (*VpcV1) NewNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmp(action string, destination string, direction string, source string, protocol string) (_model *NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmp, err error) {
-	_model = &NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmp{
+// NewNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmpPrototype : Instantiate NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmpPrototype (Generic Model Constructor)
+func (*VpcV1) NewNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmpPrototype(action string, destination string, direction string, source string, protocol string) (_model *NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmpPrototype, err error) {
+	_model = &NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmpPrototype{
 		Action:      core.StringPtr(action),
 		Destination: core.StringPtr(destination),
 		Direction:   core.StringPtr(direction),
@@ -76181,13 +76785,13 @@ func (*VpcV1) NewNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolI
 	return
 }
 
-func (*NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmp) isaNetworkACLRulePrototypeNetworkACLContext() bool {
+func (*NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmpPrototype) isaNetworkACLRulePrototypeNetworkACLContext() bool {
 	return true
 }
 
-// UnmarshalNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmp unmarshals an instance of NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmp from the specified map of raw messages.
-func UnmarshalNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmp(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmp)
+// UnmarshalNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmpPrototype unmarshals an instance of NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmpPrototype from the specified map of raw messages.
+func UnmarshalNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmpPrototype(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmpPrototype)
 	err = core.UnmarshalPrimitive(m, "action", &obj.Action)
 	if err != nil {
 		return
@@ -76224,23 +76828,23 @@ func UnmarshalNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmp
 	return
 }
 
-// NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudp : NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudp struct
+// NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudpPrototype : NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudpPrototype struct
 // This model "extends" NetworkACLRulePrototypeNetworkACLContext
-type NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudp struct {
-	// Whether to allow or deny matching traffic.
+type NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudpPrototype struct {
+	// The action to perform for a packet matching the rule.
 	Action *string `json:"action" validate:"required"`
 
-	// The destination IP address or CIDR block. The CIDR block `0.0.0.0/0` applies to all addresses.
+	// The destination IP address or CIDR block to match. The CIDR block `0.0.0.0/0` matches all destination addresses.
 	Destination *string `json:"destination" validate:"required"`
 
-	// Whether the traffic to be matched is `inbound` or `outbound`.
+	// The direction of traffic to match.
 	Direction *string `json:"direction" validate:"required"`
 
 	// The user-defined name for this rule. Names must be unique within the network ACL the rule resides in. If
 	// unspecified, the name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
-	// The source IP address or CIDR block.  The CIDR block `0.0.0.0/0` applies to all addresses.
+	// The source IP address or CIDR block to match. The CIDR block `0.0.0.0/0` matches all source addresses.
 	Source *string `json:"source" validate:"required"`
 
 	// The inclusive upper bound of TCP/UDP destination port range.
@@ -76259,30 +76863,30 @@ type NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudp struct
 	SourcePortMin *int64 `json:"source_port_min,omitempty"`
 }
 
-// Constants associated with the NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudp.Action property.
-// Whether to allow or deny matching traffic.
+// Constants associated with the NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudpPrototype.Action property.
+// The action to perform for a packet matching the rule.
 const (
-	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudpActionAllowConst = "allow"
-	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudpActionDenyConst  = "deny"
+	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudpPrototypeActionAllowConst = "allow"
+	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudpPrototypeActionDenyConst  = "deny"
 )
 
-// Constants associated with the NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudp.Direction property.
-// Whether the traffic to be matched is `inbound` or `outbound`.
+// Constants associated with the NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudpPrototype.Direction property.
+// The direction of traffic to match.
 const (
-	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudpDirectionInboundConst  = "inbound"
-	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudpDirectionOutboundConst = "outbound"
+	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudpPrototypeDirectionInboundConst  = "inbound"
+	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudpPrototypeDirectionOutboundConst = "outbound"
 )
 
-// Constants associated with the NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudp.Protocol property.
+// Constants associated with the NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudpPrototype.Protocol property.
 // The protocol to enforce.
 const (
-	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudpProtocolTCPConst = "tcp"
-	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudpProtocolUDPConst = "udp"
+	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudpPrototypeProtocolTCPConst = "tcp"
+	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudpPrototypeProtocolUDPConst = "udp"
 )
 
-// NewNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudp : Instantiate NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudp (Generic Model Constructor)
-func (*VpcV1) NewNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudp(action string, destination string, direction string, source string, protocol string) (_model *NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudp, err error) {
-	_model = &NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudp{
+// NewNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudpPrototype : Instantiate NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudpPrototype (Generic Model Constructor)
+func (*VpcV1) NewNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudpPrototype(action string, destination string, direction string, source string, protocol string) (_model *NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudpPrototype, err error) {
+	_model = &NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudpPrototype{
 		Action:      core.StringPtr(action),
 		Destination: core.StringPtr(destination),
 		Direction:   core.StringPtr(direction),
@@ -76293,13 +76897,13 @@ func (*VpcV1) NewNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolT
 	return
 }
 
-func (*NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudp) isaNetworkACLRulePrototypeNetworkACLContext() bool {
+func (*NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudpPrototype) isaNetworkACLRulePrototypeNetworkACLContext() bool {
 	return true
 }
 
-// UnmarshalNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudp unmarshals an instance of NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudp from the specified map of raw messages.
-func UnmarshalNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudp(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudp)
+// UnmarshalNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudpPrototype unmarshals an instance of NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudpPrototype from the specified map of raw messages.
+func UnmarshalNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudpPrototype(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudpPrototype)
 	err = core.UnmarshalPrimitive(m, "action", &obj.Action)
 	if err != nil {
 		return
@@ -76344,54 +76948,54 @@ func UnmarshalNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpu
 	return
 }
 
-// NetworkACLRulePrototypeNetworkACLRuleProtocolAll : NetworkACLRulePrototypeNetworkACLRuleProtocolAll struct
+// NetworkACLRulePrototypeNetworkACLRuleProtocolAllPrototype : NetworkACLRulePrototypeNetworkACLRuleProtocolAllPrototype struct
 // This model "extends" NetworkACLRulePrototype
-type NetworkACLRulePrototypeNetworkACLRuleProtocolAll struct {
-	// Whether to allow or deny matching traffic.
+type NetworkACLRulePrototypeNetworkACLRuleProtocolAllPrototype struct {
+	// The action to perform for a packet matching the rule.
 	Action *string `json:"action" validate:"required"`
 
 	Before NetworkACLRuleBeforePrototypeIntf `json:"before,omitempty"`
 
-	// The destination IP address or CIDR block. The CIDR block `0.0.0.0/0` applies to all addresses.
+	// The destination IP address or CIDR block to match. The CIDR block `0.0.0.0/0` matches all destination addresses.
 	Destination *string `json:"destination" validate:"required"`
 
-	// Whether the traffic to be matched is `inbound` or `outbound`.
+	// The direction of traffic to match.
 	Direction *string `json:"direction" validate:"required"`
 
 	// The user-defined name for this rule. Names must be unique within the network ACL the rule resides in. If
 	// unspecified, the name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
-	// The source IP address or CIDR block.  The CIDR block `0.0.0.0/0` applies to all addresses.
+	// The source IP address or CIDR block to match. The CIDR block `0.0.0.0/0` matches all source addresses.
 	Source *string `json:"source" validate:"required"`
 
 	// The protocol to enforce.
 	Protocol *string `json:"protocol" validate:"required"`
 }
 
-// Constants associated with the NetworkACLRulePrototypeNetworkACLRuleProtocolAll.Action property.
-// Whether to allow or deny matching traffic.
+// Constants associated with the NetworkACLRulePrototypeNetworkACLRuleProtocolAllPrototype.Action property.
+// The action to perform for a packet matching the rule.
 const (
-	NetworkACLRulePrototypeNetworkACLRuleProtocolAllActionAllowConst = "allow"
-	NetworkACLRulePrototypeNetworkACLRuleProtocolAllActionDenyConst  = "deny"
+	NetworkACLRulePrototypeNetworkACLRuleProtocolAllPrototypeActionAllowConst = "allow"
+	NetworkACLRulePrototypeNetworkACLRuleProtocolAllPrototypeActionDenyConst  = "deny"
 )
 
-// Constants associated with the NetworkACLRulePrototypeNetworkACLRuleProtocolAll.Direction property.
-// Whether the traffic to be matched is `inbound` or `outbound`.
+// Constants associated with the NetworkACLRulePrototypeNetworkACLRuleProtocolAllPrototype.Direction property.
+// The direction of traffic to match.
 const (
-	NetworkACLRulePrototypeNetworkACLRuleProtocolAllDirectionInboundConst  = "inbound"
-	NetworkACLRulePrototypeNetworkACLRuleProtocolAllDirectionOutboundConst = "outbound"
+	NetworkACLRulePrototypeNetworkACLRuleProtocolAllPrototypeDirectionInboundConst  = "inbound"
+	NetworkACLRulePrototypeNetworkACLRuleProtocolAllPrototypeDirectionOutboundConst = "outbound"
 )
 
-// Constants associated with the NetworkACLRulePrototypeNetworkACLRuleProtocolAll.Protocol property.
+// Constants associated with the NetworkACLRulePrototypeNetworkACLRuleProtocolAllPrototype.Protocol property.
 // The protocol to enforce.
 const (
-	NetworkACLRulePrototypeNetworkACLRuleProtocolAllProtocolAllConst = "all"
+	NetworkACLRulePrototypeNetworkACLRuleProtocolAllPrototypeProtocolAllConst = "all"
 )
 
-// NewNetworkACLRulePrototypeNetworkACLRuleProtocolAll : Instantiate NetworkACLRulePrototypeNetworkACLRuleProtocolAll (Generic Model Constructor)
-func (*VpcV1) NewNetworkACLRulePrototypeNetworkACLRuleProtocolAll(action string, destination string, direction string, source string, protocol string) (_model *NetworkACLRulePrototypeNetworkACLRuleProtocolAll, err error) {
-	_model = &NetworkACLRulePrototypeNetworkACLRuleProtocolAll{
+// NewNetworkACLRulePrototypeNetworkACLRuleProtocolAllPrototype : Instantiate NetworkACLRulePrototypeNetworkACLRuleProtocolAllPrototype (Generic Model Constructor)
+func (*VpcV1) NewNetworkACLRulePrototypeNetworkACLRuleProtocolAllPrototype(action string, destination string, direction string, source string, protocol string) (_model *NetworkACLRulePrototypeNetworkACLRuleProtocolAllPrototype, err error) {
+	_model = &NetworkACLRulePrototypeNetworkACLRuleProtocolAllPrototype{
 		Action:      core.StringPtr(action),
 		Destination: core.StringPtr(destination),
 		Direction:   core.StringPtr(direction),
@@ -76402,13 +77006,13 @@ func (*VpcV1) NewNetworkACLRulePrototypeNetworkACLRuleProtocolAll(action string,
 	return
 }
 
-func (*NetworkACLRulePrototypeNetworkACLRuleProtocolAll) isaNetworkACLRulePrototype() bool {
+func (*NetworkACLRulePrototypeNetworkACLRuleProtocolAllPrototype) isaNetworkACLRulePrototype() bool {
 	return true
 }
 
-// UnmarshalNetworkACLRulePrototypeNetworkACLRuleProtocolAll unmarshals an instance of NetworkACLRulePrototypeNetworkACLRuleProtocolAll from the specified map of raw messages.
-func UnmarshalNetworkACLRulePrototypeNetworkACLRuleProtocolAll(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(NetworkACLRulePrototypeNetworkACLRuleProtocolAll)
+// UnmarshalNetworkACLRulePrototypeNetworkACLRuleProtocolAllPrototype unmarshals an instance of NetworkACLRulePrototypeNetworkACLRuleProtocolAllPrototype from the specified map of raw messages.
+func UnmarshalNetworkACLRulePrototypeNetworkACLRuleProtocolAllPrototype(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(NetworkACLRulePrototypeNetworkACLRuleProtocolAllPrototype)
 	err = core.UnmarshalPrimitive(m, "action", &obj.Action)
 	if err != nil {
 		return
@@ -76441,61 +77045,64 @@ func UnmarshalNetworkACLRulePrototypeNetworkACLRuleProtocolAll(m map[string]json
 	return
 }
 
-// NetworkACLRulePrototypeNetworkACLRuleProtocolIcmp : NetworkACLRulePrototypeNetworkACLRuleProtocolIcmp struct
+// NetworkACLRulePrototypeNetworkACLRuleProtocolIcmpPrototype : NetworkACLRulePrototypeNetworkACLRuleProtocolIcmpPrototype struct
 // This model "extends" NetworkACLRulePrototype
-type NetworkACLRulePrototypeNetworkACLRuleProtocolIcmp struct {
-	// Whether to allow or deny matching traffic.
+type NetworkACLRulePrototypeNetworkACLRuleProtocolIcmpPrototype struct {
+	// The action to perform for a packet matching the rule.
 	Action *string `json:"action" validate:"required"`
 
 	Before NetworkACLRuleBeforePrototypeIntf `json:"before,omitempty"`
 
-	// The destination IP address or CIDR block. The CIDR block `0.0.0.0/0` applies to all addresses.
+	// The destination IP address or CIDR block to match. The CIDR block `0.0.0.0/0` matches all destination addresses.
 	Destination *string `json:"destination" validate:"required"`
 
-	// Whether the traffic to be matched is `inbound` or `outbound`.
+	// The direction of traffic to match.
 	Direction *string `json:"direction" validate:"required"`
 
 	// The user-defined name for this rule. Names must be unique within the network ACL the rule resides in. If
 	// unspecified, the name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
-	// The source IP address or CIDR block.  The CIDR block `0.0.0.0/0` applies to all addresses.
+	// The source IP address or CIDR block to match. The CIDR block `0.0.0.0/0` matches all source addresses.
 	Source *string `json:"source" validate:"required"`
 
-	// The ICMP traffic code to allow. If unspecified, all codes are allowed. This can only be specified if type is also
-	// specified.
+	// The ICMP traffic code to match.
+	//
+	// If specified, `type` must also be specified.  If unspecified, all codes are matched.
 	Code *int64 `json:"code,omitempty"`
 
 	// The protocol to enforce.
 	Protocol *string `json:"protocol" validate:"required"`
 
-	// The ICMP traffic type to allow. If unspecified, all types are allowed by this rule.
+	// The ICMP traffic type to match.
+	//
+	// If unspecified, all types are matched.
 	Type *int64 `json:"type,omitempty"`
 }
 
-// Constants associated with the NetworkACLRulePrototypeNetworkACLRuleProtocolIcmp.Action property.
-// Whether to allow or deny matching traffic.
+// Constants associated with the NetworkACLRulePrototypeNetworkACLRuleProtocolIcmpPrototype.Action property.
+// The action to perform for a packet matching the rule.
 const (
-	NetworkACLRulePrototypeNetworkACLRuleProtocolIcmpActionAllowConst = "allow"
-	NetworkACLRulePrototypeNetworkACLRuleProtocolIcmpActionDenyConst  = "deny"
+	NetworkACLRulePrototypeNetworkACLRuleProtocolIcmpPrototypeActionAllowConst = "allow"
+	NetworkACLRulePrototypeNetworkACLRuleProtocolIcmpPrototypeActionDenyConst  = "deny"
 )
 
-// Constants associated with the NetworkACLRulePrototypeNetworkACLRuleProtocolIcmp.Direction property.
-// Whether the traffic to be matched is `inbound` or `outbound`.
+// Constants associated with the NetworkACLRulePrototypeNetworkACLRuleProtocolIcmpPrototype.Direction property.
+// The direction of traffic to match.
 const (
-	NetworkACLRulePrototypeNetworkACLRuleProtocolIcmpDirectionInboundConst  = "inbound"
-	NetworkACLRulePrototypeNetworkACLRuleProtocolIcmpDirectionOutboundConst = "outbound"
+	NetworkACLRulePrototypeNetworkACLRuleProtocolIcmpPrototypeDirectionInboundConst  = "inbound"
+	NetworkACLRulePrototypeNetworkACLRuleProtocolIcmpPrototypeDirectionOutboundConst = "outbound"
 )
 
-// Constants associated with the NetworkACLRulePrototypeNetworkACLRuleProtocolIcmp.Protocol property.
+// Constants associated with the NetworkACLRulePrototypeNetworkACLRuleProtocolIcmpPrototype.Protocol property.
 // The protocol to enforce.
 const (
-	NetworkACLRulePrototypeNetworkACLRuleProtocolIcmpProtocolIcmpConst = "icmp"
+	NetworkACLRulePrototypeNetworkACLRuleProtocolIcmpPrototypeProtocolIcmpConst = "icmp"
 )
 
-// NewNetworkACLRulePrototypeNetworkACLRuleProtocolIcmp : Instantiate NetworkACLRulePrototypeNetworkACLRuleProtocolIcmp (Generic Model Constructor)
-func (*VpcV1) NewNetworkACLRulePrototypeNetworkACLRuleProtocolIcmp(action string, destination string, direction string, source string, protocol string) (_model *NetworkACLRulePrototypeNetworkACLRuleProtocolIcmp, err error) {
-	_model = &NetworkACLRulePrototypeNetworkACLRuleProtocolIcmp{
+// NewNetworkACLRulePrototypeNetworkACLRuleProtocolIcmpPrototype : Instantiate NetworkACLRulePrototypeNetworkACLRuleProtocolIcmpPrototype (Generic Model Constructor)
+func (*VpcV1) NewNetworkACLRulePrototypeNetworkACLRuleProtocolIcmpPrototype(action string, destination string, direction string, source string, protocol string) (_model *NetworkACLRulePrototypeNetworkACLRuleProtocolIcmpPrototype, err error) {
+	_model = &NetworkACLRulePrototypeNetworkACLRuleProtocolIcmpPrototype{
 		Action:      core.StringPtr(action),
 		Destination: core.StringPtr(destination),
 		Direction:   core.StringPtr(direction),
@@ -76506,13 +77113,13 @@ func (*VpcV1) NewNetworkACLRulePrototypeNetworkACLRuleProtocolIcmp(action string
 	return
 }
 
-func (*NetworkACLRulePrototypeNetworkACLRuleProtocolIcmp) isaNetworkACLRulePrototype() bool {
+func (*NetworkACLRulePrototypeNetworkACLRuleProtocolIcmpPrototype) isaNetworkACLRulePrototype() bool {
 	return true
 }
 
-// UnmarshalNetworkACLRulePrototypeNetworkACLRuleProtocolIcmp unmarshals an instance of NetworkACLRulePrototypeNetworkACLRuleProtocolIcmp from the specified map of raw messages.
-func UnmarshalNetworkACLRulePrototypeNetworkACLRuleProtocolIcmp(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(NetworkACLRulePrototypeNetworkACLRuleProtocolIcmp)
+// UnmarshalNetworkACLRulePrototypeNetworkACLRuleProtocolIcmpPrototype unmarshals an instance of NetworkACLRulePrototypeNetworkACLRuleProtocolIcmpPrototype from the specified map of raw messages.
+func UnmarshalNetworkACLRulePrototypeNetworkACLRuleProtocolIcmpPrototype(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(NetworkACLRulePrototypeNetworkACLRuleProtocolIcmpPrototype)
 	err = core.UnmarshalPrimitive(m, "action", &obj.Action)
 	if err != nil {
 		return
@@ -76553,25 +77160,25 @@ func UnmarshalNetworkACLRulePrototypeNetworkACLRuleProtocolIcmp(m map[string]jso
 	return
 }
 
-// NetworkACLRulePrototypeNetworkACLRuleProtocolTcpudp : NetworkACLRulePrototypeNetworkACLRuleProtocolTcpudp struct
+// NetworkACLRulePrototypeNetworkACLRuleProtocolTcpudpPrototype : NetworkACLRulePrototypeNetworkACLRuleProtocolTcpudpPrototype struct
 // This model "extends" NetworkACLRulePrototype
-type NetworkACLRulePrototypeNetworkACLRuleProtocolTcpudp struct {
-	// Whether to allow or deny matching traffic.
+type NetworkACLRulePrototypeNetworkACLRuleProtocolTcpudpPrototype struct {
+	// The action to perform for a packet matching the rule.
 	Action *string `json:"action" validate:"required"`
 
 	Before NetworkACLRuleBeforePrototypeIntf `json:"before,omitempty"`
 
-	// The destination IP address or CIDR block. The CIDR block `0.0.0.0/0` applies to all addresses.
+	// The destination IP address or CIDR block to match. The CIDR block `0.0.0.0/0` matches all destination addresses.
 	Destination *string `json:"destination" validate:"required"`
 
-	// Whether the traffic to be matched is `inbound` or `outbound`.
+	// The direction of traffic to match.
 	Direction *string `json:"direction" validate:"required"`
 
 	// The user-defined name for this rule. Names must be unique within the network ACL the rule resides in. If
 	// unspecified, the name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
-	// The source IP address or CIDR block.  The CIDR block `0.0.0.0/0` applies to all addresses.
+	// The source IP address or CIDR block to match. The CIDR block `0.0.0.0/0` matches all source addresses.
 	Source *string `json:"source" validate:"required"`
 
 	// The inclusive upper bound of TCP/UDP destination port range.
@@ -76590,30 +77197,30 @@ type NetworkACLRulePrototypeNetworkACLRuleProtocolTcpudp struct {
 	SourcePortMin *int64 `json:"source_port_min,omitempty"`
 }
 
-// Constants associated with the NetworkACLRulePrototypeNetworkACLRuleProtocolTcpudp.Action property.
-// Whether to allow or deny matching traffic.
+// Constants associated with the NetworkACLRulePrototypeNetworkACLRuleProtocolTcpudpPrototype.Action property.
+// The action to perform for a packet matching the rule.
 const (
-	NetworkACLRulePrototypeNetworkACLRuleProtocolTcpudpActionAllowConst = "allow"
-	NetworkACLRulePrototypeNetworkACLRuleProtocolTcpudpActionDenyConst  = "deny"
+	NetworkACLRulePrototypeNetworkACLRuleProtocolTcpudpPrototypeActionAllowConst = "allow"
+	NetworkACLRulePrototypeNetworkACLRuleProtocolTcpudpPrototypeActionDenyConst  = "deny"
 )
 
-// Constants associated with the NetworkACLRulePrototypeNetworkACLRuleProtocolTcpudp.Direction property.
-// Whether the traffic to be matched is `inbound` or `outbound`.
+// Constants associated with the NetworkACLRulePrototypeNetworkACLRuleProtocolTcpudpPrototype.Direction property.
+// The direction of traffic to match.
 const (
-	NetworkACLRulePrototypeNetworkACLRuleProtocolTcpudpDirectionInboundConst  = "inbound"
-	NetworkACLRulePrototypeNetworkACLRuleProtocolTcpudpDirectionOutboundConst = "outbound"
+	NetworkACLRulePrototypeNetworkACLRuleProtocolTcpudpPrototypeDirectionInboundConst  = "inbound"
+	NetworkACLRulePrototypeNetworkACLRuleProtocolTcpudpPrototypeDirectionOutboundConst = "outbound"
 )
 
-// Constants associated with the NetworkACLRulePrototypeNetworkACLRuleProtocolTcpudp.Protocol property.
+// Constants associated with the NetworkACLRulePrototypeNetworkACLRuleProtocolTcpudpPrototype.Protocol property.
 // The protocol to enforce.
 const (
-	NetworkACLRulePrototypeNetworkACLRuleProtocolTcpudpProtocolTCPConst = "tcp"
-	NetworkACLRulePrototypeNetworkACLRuleProtocolTcpudpProtocolUDPConst = "udp"
+	NetworkACLRulePrototypeNetworkACLRuleProtocolTcpudpPrototypeProtocolTCPConst = "tcp"
+	NetworkACLRulePrototypeNetworkACLRuleProtocolTcpudpPrototypeProtocolUDPConst = "udp"
 )
 
-// NewNetworkACLRulePrototypeNetworkACLRuleProtocolTcpudp : Instantiate NetworkACLRulePrototypeNetworkACLRuleProtocolTcpudp (Generic Model Constructor)
-func (*VpcV1) NewNetworkACLRulePrototypeNetworkACLRuleProtocolTcpudp(action string, destination string, direction string, source string, protocol string) (_model *NetworkACLRulePrototypeNetworkACLRuleProtocolTcpudp, err error) {
-	_model = &NetworkACLRulePrototypeNetworkACLRuleProtocolTcpudp{
+// NewNetworkACLRulePrototypeNetworkACLRuleProtocolTcpudpPrototype : Instantiate NetworkACLRulePrototypeNetworkACLRuleProtocolTcpudpPrototype (Generic Model Constructor)
+func (*VpcV1) NewNetworkACLRulePrototypeNetworkACLRuleProtocolTcpudpPrototype(action string, destination string, direction string, source string, protocol string) (_model *NetworkACLRulePrototypeNetworkACLRuleProtocolTcpudpPrototype, err error) {
+	_model = &NetworkACLRulePrototypeNetworkACLRuleProtocolTcpudpPrototype{
 		Action:      core.StringPtr(action),
 		Destination: core.StringPtr(destination),
 		Direction:   core.StringPtr(direction),
@@ -76624,13 +77231,13 @@ func (*VpcV1) NewNetworkACLRulePrototypeNetworkACLRuleProtocolTcpudp(action stri
 	return
 }
 
-func (*NetworkACLRulePrototypeNetworkACLRuleProtocolTcpudp) isaNetworkACLRulePrototype() bool {
+func (*NetworkACLRulePrototypeNetworkACLRuleProtocolTcpudpPrototype) isaNetworkACLRulePrototype() bool {
 	return true
 }
 
-// UnmarshalNetworkACLRulePrototypeNetworkACLRuleProtocolTcpudp unmarshals an instance of NetworkACLRulePrototypeNetworkACLRuleProtocolTcpudp from the specified map of raw messages.
-func UnmarshalNetworkACLRulePrototypeNetworkACLRuleProtocolTcpudp(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(NetworkACLRulePrototypeNetworkACLRuleProtocolTcpudp)
+// UnmarshalNetworkACLRulePrototypeNetworkACLRuleProtocolTcpudpPrototype unmarshals an instance of NetworkACLRulePrototypeNetworkACLRuleProtocolTcpudpPrototype from the specified map of raw messages.
+func UnmarshalNetworkACLRulePrototypeNetworkACLRuleProtocolTcpudpPrototype(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(NetworkACLRulePrototypeNetworkACLRuleProtocolTcpudpPrototype)
 	err = core.UnmarshalPrimitive(m, "action", &obj.Action)
 	if err != nil {
 		return
@@ -76682,7 +77289,7 @@ func UnmarshalNetworkACLRulePrototypeNetworkACLRuleProtocolTcpudp(m map[string]j
 // NetworkACLRuleNetworkACLRuleProtocolAll : NetworkACLRuleNetworkACLRuleProtocolAll struct
 // This model "extends" NetworkACLRule
 type NetworkACLRuleNetworkACLRuleProtocolAll struct {
-	// Whether to allow or deny matching traffic.
+	// The action to perform for a packet matching the rule.
 	Action *string `json:"action" validate:"required"`
 
 	// The rule that this rule is immediately before. If absent, this is the last rule.
@@ -76691,10 +77298,10 @@ type NetworkACLRuleNetworkACLRuleProtocolAll struct {
 	// The date and time that the rule was created.
 	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
 
-	// The destination CIDR block. The CIDR block `0.0.0.0/0` applies to all addresses.
+	// The destination IP address or CIDR block to match. The CIDR block `0.0.0.0/0` matches all destination addresses.
 	Destination *string `json:"destination" validate:"required"`
 
-	// Whether the traffic to be matched is `inbound` or `outbound`.
+	// The direction of traffic to match.
 	Direction *string `json:"direction" validate:"required"`
 
 	// The URL for this network ACL rule.
@@ -76706,11 +77313,10 @@ type NetworkACLRuleNetworkACLRuleProtocolAll struct {
 	// The IP version for this rule.
 	IPVersion *string `json:"ip_version" validate:"required"`
 
-	// The user-defined name for this rule. Names must be unique within the network ACL the rule resides in. If
-	// unspecified, the name will be a hyphenated list of randomly-selected words.
+	// The user-defined name for this network ACL rule.
 	Name *string `json:"name" validate:"required"`
 
-	// The source CIDR block. The CIDR block `0.0.0.0/0` applies to all addresses.
+	// The source IP address or CIDR block to match. The CIDR block `0.0.0.0/0` matches all source addresses.
 	Source *string `json:"source" validate:"required"`
 
 	// The protocol to enforce.
@@ -76718,14 +77324,14 @@ type NetworkACLRuleNetworkACLRuleProtocolAll struct {
 }
 
 // Constants associated with the NetworkACLRuleNetworkACLRuleProtocolAll.Action property.
-// Whether to allow or deny matching traffic.
+// The action to perform for a packet matching the rule.
 const (
 	NetworkACLRuleNetworkACLRuleProtocolAllActionAllowConst = "allow"
 	NetworkACLRuleNetworkACLRuleProtocolAllActionDenyConst  = "deny"
 )
 
 // Constants associated with the NetworkACLRuleNetworkACLRuleProtocolAll.Direction property.
-// Whether the traffic to be matched is `inbound` or `outbound`.
+// The direction of traffic to match.
 const (
 	NetworkACLRuleNetworkACLRuleProtocolAllDirectionInboundConst  = "inbound"
 	NetworkACLRuleNetworkACLRuleProtocolAllDirectionOutboundConst = "outbound"
@@ -76735,7 +77341,6 @@ const (
 // The IP version for this rule.
 const (
 	NetworkACLRuleNetworkACLRuleProtocolAllIPVersionIpv4Const = "ipv4"
-	NetworkACLRuleNetworkACLRuleProtocolAllIPVersionIpv6Const = "ipv6"
 )
 
 // Constants associated with the NetworkACLRuleNetworkACLRuleProtocolAll.Protocol property.
@@ -76802,7 +77407,7 @@ func UnmarshalNetworkACLRuleNetworkACLRuleProtocolAll(m map[string]json.RawMessa
 // NetworkACLRuleNetworkACLRuleProtocolIcmp : NetworkACLRuleNetworkACLRuleProtocolIcmp struct
 // This model "extends" NetworkACLRule
 type NetworkACLRuleNetworkACLRuleProtocolIcmp struct {
-	// Whether to allow or deny matching traffic.
+	// The action to perform for a packet matching the rule.
 	Action *string `json:"action" validate:"required"`
 
 	// The rule that this rule is immediately before. If absent, this is the last rule.
@@ -76811,10 +77416,10 @@ type NetworkACLRuleNetworkACLRuleProtocolIcmp struct {
 	// The date and time that the rule was created.
 	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
 
-	// The destination CIDR block. The CIDR block `0.0.0.0/0` applies to all addresses.
+	// The destination IP address or CIDR block to match. The CIDR block `0.0.0.0/0` matches all destination addresses.
 	Destination *string `json:"destination" validate:"required"`
 
-	// Whether the traffic to be matched is `inbound` or `outbound`.
+	// The direction of traffic to match.
 	Direction *string `json:"direction" validate:"required"`
 
 	// The URL for this network ACL rule.
@@ -76826,33 +77431,35 @@ type NetworkACLRuleNetworkACLRuleProtocolIcmp struct {
 	// The IP version for this rule.
 	IPVersion *string `json:"ip_version" validate:"required"`
 
-	// The user-defined name for this rule. Names must be unique within the network ACL the rule resides in. If
-	// unspecified, the name will be a hyphenated list of randomly-selected words.
+	// The user-defined name for this network ACL rule.
 	Name *string `json:"name" validate:"required"`
 
-	// The source CIDR block. The CIDR block `0.0.0.0/0` applies to all addresses.
+	// The source IP address or CIDR block to match. The CIDR block `0.0.0.0/0` matches all source addresses.
 	Source *string `json:"source" validate:"required"`
 
-	// The ICMP traffic code to allow. If unspecified, all codes are allowed. This can only be specified if type is also
-	// specified.
+	// The ICMP traffic code to match.
+	//
+	// If absent, all codes are matched.
 	Code *int64 `json:"code,omitempty"`
 
 	// The protocol to enforce.
 	Protocol *string `json:"protocol" validate:"required"`
 
-	// The ICMP traffic type to allow. If unspecified, all types are allowed by this rule.
+	// The ICMP traffic type to match.
+	//
+	// If absent, all types are matched.
 	Type *int64 `json:"type,omitempty"`
 }
 
 // Constants associated with the NetworkACLRuleNetworkACLRuleProtocolIcmp.Action property.
-// Whether to allow or deny matching traffic.
+// The action to perform for a packet matching the rule.
 const (
 	NetworkACLRuleNetworkACLRuleProtocolIcmpActionAllowConst = "allow"
 	NetworkACLRuleNetworkACLRuleProtocolIcmpActionDenyConst  = "deny"
 )
 
 // Constants associated with the NetworkACLRuleNetworkACLRuleProtocolIcmp.Direction property.
-// Whether the traffic to be matched is `inbound` or `outbound`.
+// The direction of traffic to match.
 const (
 	NetworkACLRuleNetworkACLRuleProtocolIcmpDirectionInboundConst  = "inbound"
 	NetworkACLRuleNetworkACLRuleProtocolIcmpDirectionOutboundConst = "outbound"
@@ -76862,7 +77469,6 @@ const (
 // The IP version for this rule.
 const (
 	NetworkACLRuleNetworkACLRuleProtocolIcmpIPVersionIpv4Const = "ipv4"
-	NetworkACLRuleNetworkACLRuleProtocolIcmpIPVersionIpv6Const = "ipv6"
 )
 
 // Constants associated with the NetworkACLRuleNetworkACLRuleProtocolIcmp.Protocol property.
@@ -76937,7 +77543,7 @@ func UnmarshalNetworkACLRuleNetworkACLRuleProtocolIcmp(m map[string]json.RawMess
 // NetworkACLRuleNetworkACLRuleProtocolTcpudp : NetworkACLRuleNetworkACLRuleProtocolTcpudp struct
 // This model "extends" NetworkACLRule
 type NetworkACLRuleNetworkACLRuleProtocolTcpudp struct {
-	// Whether to allow or deny matching traffic.
+	// The action to perform for a packet matching the rule.
 	Action *string `json:"action" validate:"required"`
 
 	// The rule that this rule is immediately before. If absent, this is the last rule.
@@ -76946,10 +77552,10 @@ type NetworkACLRuleNetworkACLRuleProtocolTcpudp struct {
 	// The date and time that the rule was created.
 	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
 
-	// The destination CIDR block. The CIDR block `0.0.0.0/0` applies to all addresses.
+	// The destination IP address or CIDR block to match. The CIDR block `0.0.0.0/0` matches all destination addresses.
 	Destination *string `json:"destination" validate:"required"`
 
-	// Whether the traffic to be matched is `inbound` or `outbound`.
+	// The direction of traffic to match.
 	Direction *string `json:"direction" validate:"required"`
 
 	// The URL for this network ACL rule.
@@ -76961,38 +77567,37 @@ type NetworkACLRuleNetworkACLRuleProtocolTcpudp struct {
 	// The IP version for this rule.
 	IPVersion *string `json:"ip_version" validate:"required"`
 
-	// The user-defined name for this rule. Names must be unique within the network ACL the rule resides in. If
-	// unspecified, the name will be a hyphenated list of randomly-selected words.
+	// The user-defined name for this network ACL rule.
 	Name *string `json:"name" validate:"required"`
 
-	// The source CIDR block. The CIDR block `0.0.0.0/0` applies to all addresses.
+	// The source IP address or CIDR block to match. The CIDR block `0.0.0.0/0` matches all source addresses.
 	Source *string `json:"source" validate:"required"`
 
 	// The inclusive upper bound of TCP/UDP destination port range.
-	DestinationPortMax *int64 `json:"destination_port_max,omitempty"`
+	DestinationPortMax *int64 `json:"destination_port_max" validate:"required"`
 
 	// The inclusive lower bound of TCP/UDP destination port range.
-	DestinationPortMin *int64 `json:"destination_port_min,omitempty"`
+	DestinationPortMin *int64 `json:"destination_port_min" validate:"required"`
 
 	// The protocol to enforce.
 	Protocol *string `json:"protocol" validate:"required"`
 
 	// The inclusive upper bound of TCP/UDP source port range.
-	SourcePortMax *int64 `json:"source_port_max,omitempty"`
+	SourcePortMax *int64 `json:"source_port_max" validate:"required"`
 
 	// The inclusive lower bound of TCP/UDP source port range.
-	SourcePortMin *int64 `json:"source_port_min,omitempty"`
+	SourcePortMin *int64 `json:"source_port_min" validate:"required"`
 }
 
 // Constants associated with the NetworkACLRuleNetworkACLRuleProtocolTcpudp.Action property.
-// Whether to allow or deny matching traffic.
+// The action to perform for a packet matching the rule.
 const (
 	NetworkACLRuleNetworkACLRuleProtocolTcpudpActionAllowConst = "allow"
 	NetworkACLRuleNetworkACLRuleProtocolTcpudpActionDenyConst  = "deny"
 )
 
 // Constants associated with the NetworkACLRuleNetworkACLRuleProtocolTcpudp.Direction property.
-// Whether the traffic to be matched is `inbound` or `outbound`.
+// The direction of traffic to match.
 const (
 	NetworkACLRuleNetworkACLRuleProtocolTcpudpDirectionInboundConst  = "inbound"
 	NetworkACLRuleNetworkACLRuleProtocolTcpudpDirectionOutboundConst = "outbound"
@@ -77002,7 +77607,6 @@ const (
 // The IP version for this rule.
 const (
 	NetworkACLRuleNetworkACLRuleProtocolTcpudpIPVersionIpv4Const = "ipv4"
-	NetworkACLRuleNetworkACLRuleProtocolTcpudpIPVersionIpv6Const = "ipv6"
 )
 
 // Constants associated with the NetworkACLRuleNetworkACLRuleProtocolTcpudp.Protocol property.
@@ -79570,17 +80174,18 @@ type SharePrototypeShareBySize struct {
 	// In addition, each host accessing the share will be restricted to 48000 IOPS.
 	Iops *int64 `json:"iops,omitempty"`
 
+	// The mount targets for the file share.
+	MountTargets []ShareMountTargetPrototype `json:"mount_targets,omitempty"`
+
 	// The unique user-defined name for this file share. If unspecified, the name will be a hyphenated list of
 	// randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
-	// The profile to use for this file share. The profile must support the share's specified IOPS and size.
+	// The [profile](https://cloud.ibm.com/docs/vpc?topic=vpc-file-storage-profiles) to use for this file share. The
+	// profile must support the share's specified IOPS and size.
 	Profile ShareProfileIdentityIntf `json:"profile" validate:"required"`
 
 	ReplicaShare *SharePrototypeShareContext `json:"replica_share,omitempty"`
-
-	// The share targets for the file share.
-	Targets []ShareTargetPrototype `json:"targets,omitempty"`
 
 	// Tags for this resource.
 	UserTags []string `json:"user_tags,omitempty"`
@@ -79632,6 +80237,10 @@ func UnmarshalSharePrototypeShareBySize(m map[string]json.RawMessage, result int
 	if err != nil {
 		return
 	}
+	err = core.UnmarshalModel(m, "mount_targets", &obj.MountTargets, UnmarshalShareMountTargetPrototype)
+	if err != nil {
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
 	if err != nil {
 		return
@@ -79641,10 +80250,6 @@ func UnmarshalSharePrototypeShareBySize(m map[string]json.RawMessage, result int
 		return
 	}
 	err = core.UnmarshalModel(m, "replica_share", &obj.ReplicaShare, UnmarshalSharePrototypeShareContext)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "targets", &obj.Targets, UnmarshalShareTargetPrototype)
 	if err != nil {
 		return
 	}
@@ -79686,17 +80291,18 @@ type SharePrototypeShareBySourceShare struct {
 	// In addition, each host accessing the share will be restricted to 48000 IOPS.
 	Iops *int64 `json:"iops,omitempty"`
 
+	// The mount targets for the file share.
+	MountTargets []ShareMountTargetPrototype `json:"mount_targets,omitempty"`
+
 	// The unique user-defined name for this file share. If unspecified, the name will be a hyphenated list of
 	// randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
-	// The profile to use for this file share. The profile must support the share's specified IOPS and size.
+	// The [profile](https://cloud.ibm.com/docs/vpc?topic=vpc-file-storage-profiles) to use for this file share. The
+	// profile must support the share's specified IOPS and size.
 	Profile ShareProfileIdentityIntf `json:"profile" validate:"required"`
 
 	ReplicaShare *SharePrototypeShareContext `json:"replica_share,omitempty"`
-
-	// The share targets for the file share.
-	Targets []ShareTargetPrototype `json:"targets,omitempty"`
 
 	// Tags for this resource.
 	UserTags []string `json:"user_tags,omitempty"`
@@ -79738,6 +80344,10 @@ func UnmarshalSharePrototypeShareBySourceShare(m map[string]json.RawMessage, res
 	if err != nil {
 		return
 	}
+	err = core.UnmarshalModel(m, "mount_targets", &obj.MountTargets, UnmarshalShareMountTargetPrototype)
+	if err != nil {
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
 	if err != nil {
 		return
@@ -79747,10 +80357,6 @@ func UnmarshalSharePrototypeShareBySourceShare(m map[string]json.RawMessage, res
 		return
 	}
 	err = core.UnmarshalModel(m, "replica_share", &obj.ReplicaShare, UnmarshalSharePrototypeShareContext)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "targets", &obj.Targets, UnmarshalShareTargetPrototype)
 	if err != nil {
 		return
 	}
@@ -80036,7 +80642,7 @@ type SubnetPrototypeSubnetByCIDR struct {
 	// `route_transit_gateway_ingress`, and `route_vpc_zone_ingress` must be `false`.
 	RoutingTable RoutingTableIdentityIntf `json:"routing_table,omitempty"`
 
-	// The VPC the subnet is to be a part of.
+	// The VPC the subnet will reside in.
 	VPC VPCIdentityIntf `json:"vpc" validate:"required"`
 
 	// The IPv4 range of the subnet, expressed in CIDR format. The prefix length of the subnet's CIDR must be between `/9`
@@ -80137,7 +80743,7 @@ type SubnetPrototypeSubnetByTotalCount struct {
 	// `route_transit_gateway_ingress`, and `route_vpc_zone_ingress` must be `false`.
 	RoutingTable RoutingTableIdentityIntf `json:"routing_table,omitempty"`
 
-	// The VPC the subnet is to be a part of.
+	// The VPC the subnet will reside in.
 	VPC VPCIdentityIntf `json:"vpc" validate:"required"`
 
 	// The total number of IPv4 addresses required. Must be a power of 2. The VPC must have a default address prefix in the
@@ -81302,6 +81908,9 @@ type VPNGatewayPolicyMode struct {
 
 	Subnet *SubnetReference `json:"subnet" validate:"required"`
 
+	// The VPC this VPN gateway resides in.
+	VPC *VPCReference `json:"vpc" validate:"required"`
+
 	// Policy mode VPN gateway.
 	Mode *string `json:"mode" validate:"required"`
 }
@@ -81375,6 +81984,10 @@ func UnmarshalVPNGatewayPolicyMode(m map[string]json.RawMessage, result interfac
 		return
 	}
 	err = core.UnmarshalModel(m, "subnet", &obj.Subnet, UnmarshalSubnetReference)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "vpc", &obj.VPC, UnmarshalVPCReference)
 	if err != nil {
 		return
 	}
@@ -81515,6 +82128,9 @@ type VPNGatewayRouteMode struct {
 
 	Subnet *SubnetReference `json:"subnet" validate:"required"`
 
+	// The VPC this VPN gateway resides in.
+	VPC *VPCReference `json:"vpc" validate:"required"`
+
 	// Route mode VPN gateway.
 	Mode *string `json:"mode" validate:"required"`
 }
@@ -81588,6 +82204,10 @@ func UnmarshalVPNGatewayRouteMode(m map[string]json.RawMessage, result interface
 		return
 	}
 	err = core.UnmarshalModel(m, "subnet", &obj.Subnet, UnmarshalSubnetReference)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "vpc", &obj.VPC, UnmarshalVPCReference)
 	if err != nil {
 		return
 	}
@@ -81886,8 +82506,12 @@ type VolumeAttachmentPrototypeVolumeVolumePrototypeInstanceContext struct {
 	// The unique user-defined name for this volume.
 	Name *string `json:"name,omitempty"`
 
-	// The profile to use for this volume.
+	// The [profile](https://cloud.ibm.com/docs/vpc?topic=vpc-block-storage-profiles) to
+	// use for this volume.
 	Profile VolumeProfileIdentityIntf `json:"profile" validate:"required"`
+
+	// The [user tags](https://cloud.ibm.com/apidocs/tagging#types-of-tags) associated with this volume.
+	UserTags []string `json:"user_tags,omitempty"`
 
 	// The capacity to use for the volume (in gigabytes). The specified minimum and maximum capacity values for creating or
 	// updating volumes may expand in the future.
@@ -81927,6 +82551,10 @@ func UnmarshalVolumeAttachmentPrototypeVolumeVolumePrototypeInstanceContext(m ma
 		return
 	}
 	err = core.UnmarshalModel(m, "profile", &obj.Profile, UnmarshalVolumeProfileIdentity)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "user_tags", &obj.UserTags)
 	if err != nil {
 		return
 	}
@@ -82008,8 +82636,12 @@ type VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContex
 	// The unique user-defined name for this volume.
 	Name *string `json:"name,omitempty"`
 
-	// The profile to use for this volume.
+	// The [profile](https://cloud.ibm.com/docs/vpc?topic=vpc-block-storage-profiles) to
+	// use for this volume.
 	Profile VolumeProfileIdentityIntf `json:"profile" validate:"required"`
+
+	// The [user tags](https://cloud.ibm.com/apidocs/tagging#types-of-tags) associated with this volume.
+	UserTags []string `json:"user_tags,omitempty"`
 
 	// The capacity to use for the volume (in gigabytes). The specified minimum and maximum capacity values for creating or
 	// updating volumes may expand in the future.
@@ -82049,6 +82681,10 @@ func UnmarshalVolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInsta
 		return
 	}
 	err = core.UnmarshalModel(m, "profile", &obj.Profile, UnmarshalVolumeProfileIdentity)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "user_tags", &obj.UserTags)
 	if err != nil {
 		return
 	}
@@ -82233,7 +82869,7 @@ type VolumePrototypeVolumeByCapacity struct {
 	// The unique user-defined name for this volume.
 	Name *string `json:"name,omitempty"`
 
-	// The profile to use for this volume.
+	// The [profile](https://cloud.ibm.com/docs/vpc?topic=vpc-block-storage-profiles) to use for this volume.
 	Profile VolumeProfileIdentityIntf `json:"profile" validate:"required"`
 
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
@@ -82318,7 +82954,7 @@ type VolumePrototypeVolumeBySourceSnapshot struct {
 	// The unique user-defined name for this volume.
 	Name *string `json:"name,omitempty"`
 
-	// The profile to use for this volume.
+	// The [profile](https://cloud.ibm.com/docs/vpc?topic=vpc-block-storage-profiles) to use for this volume.
 	Profile VolumeProfileIdentityIntf `json:"profile" validate:"required"`
 
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
@@ -83173,7 +83809,7 @@ type InstanceGroupManagerActionScheduledActionGroupTarget struct {
 	// - `omitted`: Action was not applied because this action's manager was disabled.
 	Status *string `json:"status" validate:"required"`
 
-	// The date and time that the instance group manager action was modified.
+	// The date and time that the instance group manager action was updated.
 	UpdatedAt *strfmt.DateTime `json:"updated_at" validate:"required"`
 
 	// The type of action for the instance group.
@@ -83327,7 +83963,7 @@ type InstanceGroupManagerActionScheduledActionManagerTarget struct {
 	// - `omitted`: Action was not applied because this action's manager was disabled.
 	Status *string `json:"status" validate:"required"`
 
-	// The date and time that the instance group manager action was modified.
+	// The date and time that the instance group manager action was updated.
 	UpdatedAt *strfmt.DateTime `json:"updated_at" validate:"required"`
 
 	// The type of action for the instance group.
@@ -85023,8 +85659,11 @@ type VolumeAttachmentPrototypeVolumeVolumePrototypeInstanceContextVolumePrototyp
 	// The unique user-defined name for this volume.
 	Name *string `json:"name,omitempty"`
 
-	// The profile to use for this volume.
+	// The [profile](https://cloud.ibm.com/docs/vpc?topic=vpc-block-storage-profiles) to use for this volume.
 	Profile VolumeProfileIdentityIntf `json:"profile" validate:"required"`
+
+	// The [user tags](https://cloud.ibm.com/apidocs/tagging#types-of-tags) associated with this volume.
+	UserTags []string `json:"user_tags,omitempty"`
 
 	// The capacity to use for the volume (in gigabytes). The specified minimum and maximum capacity values for creating or
 	// updating volumes may expand in the future.
@@ -85069,6 +85708,10 @@ func UnmarshalVolumeAttachmentPrototypeVolumeVolumePrototypeInstanceContextVolum
 	if err != nil {
 		return
 	}
+	err = core.UnmarshalPrimitive(m, "user_tags", &obj.UserTags)
+	if err != nil {
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "capacity", &obj.Capacity)
 	if err != nil {
 		return
@@ -85091,8 +85734,11 @@ type VolumeAttachmentPrototypeVolumeVolumePrototypeInstanceContextVolumePrototyp
 	// The unique user-defined name for this volume.
 	Name *string `json:"name,omitempty"`
 
-	// The profile to use for this volume.
+	// The [profile](https://cloud.ibm.com/docs/vpc?topic=vpc-block-storage-profiles) to use for this volume.
 	Profile VolumeProfileIdentityIntf `json:"profile" validate:"required"`
+
+	// The [user tags](https://cloud.ibm.com/apidocs/tagging#types-of-tags) associated with this volume.
+	UserTags []string `json:"user_tags,omitempty"`
 
 	// The capacity to use for the volume (in gigabytes). Must be at least the snapshot's
 	// `minimum_capacity`. The maximum value may increase in the future.
@@ -85139,6 +85785,10 @@ func UnmarshalVolumeAttachmentPrototypeVolumeVolumePrototypeInstanceContextVolum
 		return
 	}
 	err = core.UnmarshalModel(m, "profile", &obj.Profile, UnmarshalVolumeProfileIdentity)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "user_tags", &obj.UserTags)
 	if err != nil {
 		return
 	}
@@ -85273,8 +85923,11 @@ type VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContex
 	// The unique user-defined name for this volume.
 	Name *string `json:"name,omitempty"`
 
-	// The profile to use for this volume.
+	// The [profile](https://cloud.ibm.com/docs/vpc?topic=vpc-block-storage-profiles) to use for this volume.
 	Profile VolumeProfileIdentityIntf `json:"profile" validate:"required"`
+
+	// The [user tags](https://cloud.ibm.com/apidocs/tagging#types-of-tags) associated with this volume.
+	UserTags []string `json:"user_tags,omitempty"`
 
 	// The capacity to use for the volume (in gigabytes). The specified minimum and maximum capacity values for creating or
 	// updating volumes may expand in the future.
@@ -85319,6 +85972,10 @@ func UnmarshalVolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInsta
 	if err != nil {
 		return
 	}
+	err = core.UnmarshalPrimitive(m, "user_tags", &obj.UserTags)
+	if err != nil {
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "capacity", &obj.Capacity)
 	if err != nil {
 		return
@@ -85341,8 +85998,11 @@ type VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContex
 	// The unique user-defined name for this volume.
 	Name *string `json:"name,omitempty"`
 
-	// The profile to use for this volume.
+	// The [profile](https://cloud.ibm.com/docs/vpc?topic=vpc-block-storage-profiles) to use for this volume.
 	Profile VolumeProfileIdentityIntf `json:"profile" validate:"required"`
+
+	// The [user tags](https://cloud.ibm.com/apidocs/tagging#types-of-tags) associated with this volume.
+	UserTags []string `json:"user_tags,omitempty"`
 
 	// The capacity to use for the volume (in gigabytes). Must be at least the snapshot's
 	// `minimum_capacity`. The maximum value may increase in the future.
@@ -85389,6 +86049,10 @@ func UnmarshalVolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInsta
 		return
 	}
 	err = core.UnmarshalModel(m, "profile", &obj.Profile, UnmarshalVolumeProfileIdentity)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "user_tags", &obj.UserTags)
 	if err != nil {
 		return
 	}

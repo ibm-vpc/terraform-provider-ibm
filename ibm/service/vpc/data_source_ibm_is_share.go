@@ -468,8 +468,8 @@ func dataSourceIbmIsShareRead(context context.Context, d *schema.ResourceData, m
 			return diag.FromErr(fmt.Errorf("Error setting source_share %s", err))
 		}
 	}
-	if share.Targets != nil {
-		err = d.Set("share_targets", dataSourceShareFlattenTargets(share.Targets))
+	if share.MountTargets != nil {
+		err = d.Set("share_targets", dataSourceShareFlattenTargets(share.MountTargets))
 		if err != nil {
 			return diag.FromErr(fmt.Errorf("Error setting targets %s", err))
 		}
@@ -500,7 +500,7 @@ func dataSourceIbmIsShareRead(context context.Context, d *schema.ResourceData, m
 	return nil
 }
 
-func dataSourceShareFlattenTargets(result []vpcv1.ShareTargetReference) (targets []map[string]interface{}) {
+func dataSourceShareFlattenTargets(result []vpcv1.ShareMountTargetReference) (targets []map[string]interface{}) {
 	for _, targetsItem := range result {
 		targets = append(targets, dataSourceShareTargetsToMap(targetsItem))
 	}
@@ -508,7 +508,7 @@ func dataSourceShareFlattenTargets(result []vpcv1.ShareTargetReference) (targets
 	return targets
 }
 
-func dataSourceShareTargetsToMap(targetsItem vpcv1.ShareTargetReference) (targetsMap map[string]interface{}) {
+func dataSourceShareTargetsToMap(targetsItem vpcv1.ShareMountTargetReference) (targetsMap map[string]interface{}) {
 	targetsMap = map[string]interface{}{}
 
 	if targetsItem.Deleted != nil {
@@ -533,7 +533,7 @@ func dataSourceShareTargetsToMap(targetsItem vpcv1.ShareTargetReference) (target
 	return targetsMap
 }
 
-func dataSourceShareTargetsDeletedToMap(deletedItem vpcv1.ShareTargetReferenceDeleted) (deletedMap map[string]interface{}) {
+func dataSourceShareTargetsDeletedToMap(deletedItem vpcv1.ShareMountTargetReferenceDeleted) (deletedMap map[string]interface{}) {
 	deletedMap = map[string]interface{}{}
 
 	if deletedItem.MoreInfo != nil {

@@ -196,8 +196,8 @@ func dataSourceIbmIsShareTargetsRead(context context.Context, d *schema.Resource
 
 	d.SetId(dataSourceIbmIsShareTargetsID(d))
 
-	if shareTargetCollection.Targets != nil {
-		err = d.Set("share_targets", dataSourceShareTargetCollectionFlattenTargets(shareTargetCollection.Targets))
+	if shareTargetCollection.MountTargets != nil {
+		err = d.Set("share_targets", dataSourceShareTargetCollectionFlattenTargets(shareTargetCollection.MountTargets))
 		if err != nil {
 			return diag.FromErr(fmt.Errorf("Error setting targets %s", err))
 		}
@@ -211,7 +211,7 @@ func dataSourceIbmIsShareTargetsID(d *schema.ResourceData) string {
 	return time.Now().UTC().String()
 }
 
-func dataSourceShareTargetCollectionFlattenTargets(result []vpcv1.ShareTarget) (targets []map[string]interface{}) {
+func dataSourceShareTargetCollectionFlattenTargets(result []vpcv1.ShareMountTarget) (targets []map[string]interface{}) {
 	for _, targetsItem := range result {
 		targets = append(targets, dataSourceShareTargetCollectionTargetsToMap(targetsItem))
 	}
@@ -219,7 +219,7 @@ func dataSourceShareTargetCollectionFlattenTargets(result []vpcv1.ShareTarget) (
 	return targets
 }
 
-func dataSourceShareTargetCollectionTargetsToMap(targetsItem vpcv1.ShareTarget) (targetsMap map[string]interface{}) {
+func dataSourceShareTargetCollectionTargetsToMap(targetsItem vpcv1.ShareMountTarget) (targetsMap map[string]interface{}) {
 	targetsMap = map[string]interface{}{}
 
 	if targetsItem.CreatedAt != nil {
