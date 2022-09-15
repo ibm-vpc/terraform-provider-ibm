@@ -25,10 +25,10 @@ require (
 	github.com/IBM/platform-services-go-sdk v0.28.2
 	github.com/IBM/push-notifications-go-sdk v0.0.0-20210310100607-5790b96c47f5
 	github.com/IBM/scc-go-sdk/v3 v3.1.6
-	github.com/IBM/scc-go-sdk/v4 v4.0.0 // indirect
+	github.com/IBM/scc-go-sdk/v4 v4.0.0
 	github.com/IBM/schematics-go-sdk v0.2.1
 	github.com/IBM/secrets-manager-go-sdk v0.1.19
-	github.com/IBM/vpc-go-sdk v0.23.0
+	github.com/IBM/vpc-go-sdk v0.24.0
 	github.com/PromonLogicalis/asn1 v0.0.0-20190312173541-d60463189a56 // indirect
 	github.com/ScaleFT/sshkeys v0.0.0-20200327173127-6142f742bca5
 	github.com/Shopify/sarama v1.29.1
