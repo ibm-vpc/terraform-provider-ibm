@@ -26,6 +26,7 @@ import (
 
 const (
 	isBareMetalServerAction                  = "action"
+	isBareMetalServerEnableSecureBoot        = "enable_secure_boot"
 	isBareMetalServerBandwidth               = "bandwidth"
 	isBareMetalServerBootTarget              = "boot_target"
 	isBareMetalServerCreatedAt               = "created_at"
@@ -112,6 +113,12 @@ func ResourceIBMIsBareMetalServer() *schema.Resource {
 				Optional:     true,
 				ValidateFunc: validate.InvokeValidator("ibm_is_bare_metal_server", isBareMetalServerName),
 				Description:  "Bare metal server name",
+			},
+			isBareMetalServerEnableSecureBoot: {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     false,
+				Description: "Indicates whether secure boot is enabled. If enabled, the image must support secure boot or the server will fail to boot.",
 			},
 
 			isBareMetalServerAction: {
@@ -609,6 +616,13 @@ func resourceIBMISBareMetalServerCreate(context context.Context, d *schema.Resou
 	if image, ok := d.GetOk(isBareMetalServerImage); ok {
 		imageStr = image.(string)
 	}
+
+	// enable secure boot
+
+	if _, ok := d.GetOk(isBareMetalServerEnableSecureBoot); ok {
+		options.SetEnableSecureBoot(d.Get(isBareMetalServerEnableSecureBoot).(bool))
+	}
+
 	keySet := d.Get(isBareMetalServerKeys).(*schema.Set)
 	if keySet.Len() != 0 {
 		keyobjs := make([]vpcv1.KeyIdentityIntf, keySet.Len())
@@ -1088,7 +1102,9 @@ func bareMetalServerGet(context context.Context, d *schema.ResourceData, meta in
 	}
 	d.Set(isBareMetalServerCPU, cpuList)
 	d.Set(isBareMetalServerCRN, *bms.CRN)
-
+	if err = d.Set(isBareMetalServerEnableSecureBoot, bms.EnableSecureBoot); err != nil {
+		return fmt.Errorf("Error setting enable_secure_boot: %s", err)
+	}
 	diskList := make([]map[string]interface{}, 0)
 	if bms.Disks != nil {
 		for _, disk := range bms.Disks {
@@ -1897,6 +1913,12 @@ func bareMetalServerUpdate(context context.Context, d *schema.ResourceData, meta
 	}
 	bmsPatchModel := &vpcv1.BareMetalServerPatch{}
 	flag := false
+
+	if d.HasChange(isBareMetalServerEnableSecureBoot) {
+		newEnableSecureBoot := d.Get(isBareMetalServerEnableSecureBoot).(bool)
+		bmsPatchModel.EnableSecureBoot = &newEnableSecureBoot
+		flag = true
+	}
 
 	if d.HasChange(isBareMetalServerPrimaryNetworkInterface) {
 		nicId := d.Get("primary_network_interface.0.id").(string)
