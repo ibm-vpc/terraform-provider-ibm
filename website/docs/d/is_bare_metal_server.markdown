@@ -68,6 +68,7 @@ In addition to all argument reference list, you can access the following attribu
     - `name` - (String) The user-defined name for this disk
     - `resource_type` - (String) The resource type
     - `size` - (Integer) The size of the disk in GB (gigabytes)
+- `enable_secure_boot` - (Boolean) Indicates whether secure boot is enabled. If enabled, the image must support secure boot or the server will fail to boot.
 - `href` - (String) The URL for this bare metal server
 - `id` - (String) The unique identifier for this bare metal server
 - `image` - (String) Image used in the bare metal server.
@@ -117,5 +118,12 @@ In addition to all argument reference list, you can access the following attribu
     - `message` - (String) An explanation of the status reason
     - `more_info` - (String) Link to documentation about this status reason
 - `tags` - (Array) Tags associated with the instance.
+- `trusted_platform_module` - (List) trusted platform module (TPM) configuration for the bare metals server
+
+  Nested scheme for **trusted_platform_module**:
+    - `enabled` - (Boolean) Indicates whether the trusted platform module (TPM) is enabled. If enabled, `mode` will also be set.
+      - Constraints: The default value is `false`.
+    - `mode` - (String) The mode for the trusted platform module (TPM):- `tpm_2`: Standard TPM 2 capabilities- `tpm_2_with_txt`: Standard TPM 2 with Intel Trusted Execution Technology (TXT)The enumerated values for this property are expected to expand in the future. When processing this property, check for and log unknown values. Optionally halt processing and surface the error, or bypass the resource on which the unexpected property value was encountered.
+      - Constraints: Allowable values are: `tpm_2`, `tpm_2_with_txt`.
 - `vpc` - (String) The VPC this bare metal server resides in.
 - `zone` - (String) The zone this bare metal server resides in.

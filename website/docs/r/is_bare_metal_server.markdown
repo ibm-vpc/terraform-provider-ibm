@@ -92,6 +92,7 @@ ibm_is_bare-metal_server provides the following [Timeouts](https://www.terraform
 Review the argument references that you can specify for your resource. 
 
 - `delete_type` - (Optional, String) Type of deletion on destroy. **soft** signals running operating system to quiesce and shutdown cleanly, **hard** immediately stop the server. By default its `hard`.
+- `enable_secure_boot` - (Optional, Boolean) Indicates whether secure boot is enabled. If enabled, the image must support secure boot or the server will fail to boot.
 - `image` - (Required, String) ID of the image.
 - `keys` - (Required, List) Comma separated IDs of ssh keys.  
 - `name` - (Optional, String) The bare metal server name.
@@ -140,6 +141,13 @@ Review the argument references that you can specify for your resource.
 
 - `profile` - (Required, Forces new resource, String) The name the profile to use for this bare metal server. 
 - `resource_group` - (Optional, Forces new resource, String) The resource group ID for this bare metal server.
+- `trusted_platform_module` - (Optional, List) trusted platform module (TPM) configuration for the bare metals server
+
+  Nested scheme for **trusted_platform_module**:
+    - `enabled` - (Optional, Boolean) Indicates whether the trusted platform module (TPM) is enabled. If enabled, `mode` will also be set.
+      - Constraints: The default value is `false`.
+    - `mode` - (Optional, String) The mode for the trusted platform module (TPM):- `tpm_2`: Standard TPM 2 capabilities- `tpm_2_with_txt`: Standard TPM 2 with Intel Trusted Execution Technology (TXT)The enumerated values for this property are expected to expand in the future. When processing this property, check for and log unknown values. Optionally halt processing and surface the error, or bypass the resource on which the unexpected property value was encountered.
+      - Constraints: Allowable values are: `tpm_2`, `tpm_2_with_txt`.
 - `user_data` - (Optional, String) User data to transfer to the server bare metal server.
 - `vpc` - (Required, Forces new resource, String) The VPC ID of the bare metal server is to be a part of. It must match the VPC tied to the subnets of the server's network interfaces.
 - `zone` - (Required, Forces new resource, String) Name of the zone in which this bare metal server will reside in.

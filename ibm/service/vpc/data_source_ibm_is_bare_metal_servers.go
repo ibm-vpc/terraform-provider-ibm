@@ -49,6 +49,30 @@ func DataSourceIBMIsBareMetalServers() *schema.Resource {
 							Computed:    true,
 							Description: "The total bandwidth (in megabits per second)",
 						},
+						isBareMetalServerEnableSecureBoot: {
+							Type:        schema.TypeBool,
+							Computed:    true,
+							Description: "Indicates whether secure boot is enabled. If enabled, the image must support secure boot or the server will fail to boot.",
+						},
+
+						isBareMetalServerTrustedPlatformModule: {
+							Type:     schema.TypeList,
+							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									isBareMetalServerTrustedPlatformModuleEnabled: {
+										Type:        schema.TypeBool,
+										Computed:    true,
+										Description: "Indicates whether the trusted platform module (TPM) is enabled. If enabled, `mode` will also be set.",
+									},
+									isBareMetalServerTrustedPlatformModuleMode: {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The mode for the trusted platform module (TPM):- `tpm_2`: Standard TPM 2 capabilities- `tpm_2_with_txt`: Standard TPM 2 with Intel Trusted Execution Technology (TXT)The enumerated values for this property are expected to expand in the future. When processing this property, check for and log unknown values. Optionally halt processing and surface the error, or bypass the resource on which the unexpected property value was encountered.",
+									},
+								},
+							},
+						},
 						isBareMetalServerBootTarget: {
 							Type:        schema.TypeString,
 							Computed:    true,
@@ -447,6 +471,21 @@ func dataSourceIBMISBareMetalServersRead(context context.Context, d *schema.Reso
 		l[isBareMetalServerHref] = *bms.Href
 		l[isBareMetalServerMemory] = *bms.Memory
 		l[isBareMetalServerProfile] = *bms.Profile.Name
+
+		//enable secure boot
+		if bms.EnableSecureBoot != nil {
+			l[isBareMetalServerEnableSecureBoot] = bms.EnableSecureBoot
+		}
+
+		// tpm
+		if bms.TrustedPlatformModule != nil {
+			trustedPlatformModuleMap, err := resourceIBMIsBareMetalServerBareMetalServerTrustedPlatformModulePrototypeToMap(bms.TrustedPlatformModule)
+			if err != nil {
+				return diag.FromErr(err)
+			}
+			l[isBareMetalServerTrustedPlatformModule] = []map[string]interface{}{trustedPlatformModuleMap}
+		}
+
 		//pni
 
 		if bms.PrimaryNetworkInterface != nil && bms.PrimaryNetworkInterface.ID != nil {
