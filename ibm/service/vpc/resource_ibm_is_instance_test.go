@@ -1794,3 +1794,362 @@ func testAccCheckIBMISInstanceUserTagConfig(vpcname, subnetname, sshname, public
 		keys = [ibm_is_ssh_key.testacc_sshkey.id]
 	  }`, vpcname, subnetname, acc.ISZoneName, acc.ISCIDR, sshname, publicKey, name, acc.IsImage, acc.InstanceProfileName, userTags1, userData, acc.ISZoneName)
 }
+
+func TestAccIBMISInstance_update(t *testing.T) {
+	var instance string
+	vpcname := fmt.Sprintf("tf-vpc-%d", acctest.RandIntRange(10, 100))
+	name := fmt.Sprintf("tf-instnace-%d", acctest.RandIntRange(10, 100))
+	name2 := fmt.Sprintf("tf-instnace-update-%d", acctest.RandIntRange(10, 100))
+	subnetname := fmt.Sprintf("tf-subnet-%d", acctest.RandIntRange(10, 100))
+	publicKey := strings.TrimSpace(`
+ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCKVmnMOlHKcZK8tpt3MP1lqOLAcqcJzhsvJcjscgVERRN7/9484SOBJ3HSKxxNG5JN8owAjy5f9yYwcUg+JaUVuytn5Pv3aeYROHGGg+5G346xaq3DAwX6Y5ykr2fvjObgncQBnuU5KHWCECO/4h8uWuwh/kfniXPVjFToc+gnkqA+3RKpAecZhFXwfalQ9mMuYGFxn+fwn8cYEApsJbsEmb0iJwPiZ5hjFC8wREuiTlhPHDgkBLOiycd20op2nXzDbHfCHInquEe/gYxEitALONxm0swBOwJZwlTDOB7C6y2dzlrtxr1L59m7pCkWI4EtTRLvleehBoj3u7jB4usR
+`)
+	sshname := fmt.Sprintf("tf-ssh-%d", acctest.RandIntRange(10, 100))
+	userData1 := "a"
+	userData2 := "b"
+	profileName1 := "cx2-2x4"
+	profileName2 := "cx2-4x8"
+	availabilityPolicyHostFailure1 := "restart"
+	availabilityPolicyHostFailure2 := "stop"
+	metaDataEnabled1 := "true"
+	metaDataEnabled2 := "false"
+	totalVolumeBandwidth1 := 500
+	totalVolumeBandwidth2 := 1000
+	placementgroupname := fmt.Sprintf("tf-pg-%d", acctest.RandIntRange(10, 100))
+	placementgroupstrategy1 := "host_spread"
+	placementgroupstrategy2 := "power_spread"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { acc.TestAccPreCheck(t) },
+		Providers:    acc.TestAccProviders,
+		CheckDestroy: testAccCheckIBMISInstanceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckIBMISInstanceConfigUpdate(vpcname, subnetname, sshname, publicKey, placementgroupname, placementgroupstrategy1, name, availabilityPolicyHostFailure2, metaDataEnabled2, profileName1, userData1, totalVolumeBandwidth1),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckIBMISInstanceExists("ibm_is_instance.testacc_instance", instance),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance", "name", name),
+					resource.TestCheckResourceAttrSet(
+						"ibm_is_instance.testacc_instance", "placement_group"),
+					resource.TestCheckResourceAttr(
+						"ibm_is_placement_group.testacc_placement_group", "strategy", placementgroupstrategy1),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance", "status", "running"),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance", "availability_policy_host_failure", availabilityPolicyHostFailure2),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance", "metadata_service_enabled", metaDataEnabled2),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance", "profile", profileName1),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance", "total_volume_bandwidth", fmt.Sprintf("%d", totalVolumeBandwidth1)),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance", "user_data", userData1),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance", "zone", acc.ISZoneName),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance", "lifecycle_state", "stable"),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance", "lifecycle_reasons.#", "0"),
+				),
+			},
+			// update availability policy
+			{
+				Config: testAccCheckIBMISInstanceConfigUpdate(vpcname, subnetname, sshname, publicKey, placementgroupname, placementgroupstrategy1, name, availabilityPolicyHostFailure1, metaDataEnabled1, profileName1, userData2, totalVolumeBandwidth1),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckIBMISInstanceExists("ibm_is_instance.testacc_instance", instance),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance", "name", name),
+					resource.TestCheckResourceAttrSet(
+						"ibm_is_instance.testacc_instance", "placement_group"),
+					resource.TestCheckResourceAttr(
+						"ibm_is_placement_group.testacc_placement_group", "strategy", placementgroupstrategy1),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance", "status", "running"),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance", "availability_policy_host_failure", availabilityPolicyHostFailure1),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance", "metadata_service_enabled", metaDataEnabled1),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance", "profile", profileName1),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance", "total_volume_bandwidth", fmt.Sprintf("%d", totalVolumeBandwidth1)),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance", "user_data", userData2),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance", "zone", acc.ISZoneName),
+					resource.TestCheckResourceAttrSet(
+						"ibm_is_instance.testacc_instance", "primary_network_interface.0.port_speed"),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance", "lifecycle_state", "stable"),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance", "lifecycle_reasons.#", "0"),
+				),
+			},
+			// update  metadata service
+			{
+				Config: testAccCheckIBMISInstanceConfigUpdate(vpcname, subnetname, sshname, publicKey, placementgroupname, placementgroupstrategy1, name, availabilityPolicyHostFailure1, metaDataEnabled1, profileName1, userData2, totalVolumeBandwidth1),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckIBMISInstanceExists("ibm_is_instance.testacc_instance", instance),
+					resource.TestCheckResourceAttr(
+						"ibm_is_placement_group.testacc_placement_group", "strategy", placementgroupstrategy1),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance", "name", name),
+					resource.TestCheckResourceAttrSet(
+						"ibm_is_instance.testacc_instance", "placement_group"),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance", "status", "running"),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance", "availability_policy_host_failure", availabilityPolicyHostFailure1),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance", "metadata_service_enabled", metaDataEnabled1),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance", "profile", profileName1),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance", "total_volume_bandwidth", fmt.Sprintf("%d", totalVolumeBandwidth1)),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance", "user_data", userData2),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance", "zone", acc.ISZoneName),
+					resource.TestCheckResourceAttrSet(
+						"ibm_is_instance.testacc_instance", "primary_network_interface.0.port_speed"),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance", "lifecycle_state", "stable"),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance", "lifecycle_reasons.#", "0"),
+				),
+			},
+			// update name, profile
+			{
+				Config: testAccCheckIBMISInstanceConfigUpdate(vpcname, subnetname, sshname, publicKey, placementgroupname, placementgroupstrategy1, name2, availabilityPolicyHostFailure1, metaDataEnabled1, profileName2, userData2, totalVolumeBandwidth1),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckIBMISInstanceExists("ibm_is_instance.testacc_instance", instance),
+					resource.TestCheckResourceAttr(
+						"ibm_is_placement_group.testacc_placement_group", "strategy", placementgroupstrategy1),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance", "name", name2),
+					resource.TestCheckResourceAttrSet(
+						"ibm_is_instance.testacc_instance", "placement_group"),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance", "status", "running"),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance", "availability_policy_host_failure", availabilityPolicyHostFailure1),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance", "metadata_service_enabled", metaDataEnabled1),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance", "profile", profileName2),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance", "total_volume_bandwidth", fmt.Sprintf("%d", totalVolumeBandwidth1)),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance", "user_data", userData2),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance", "zone", acc.ISZoneName),
+					resource.TestCheckResourceAttrSet(
+						"ibm_is_instance.testacc_instance", "primary_network_interface.0.port_speed"),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance", "lifecycle_state", "stable"),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance", "lifecycle_reasons.#", "0"),
+				),
+			},
+			// update placement target
+			{
+				Config: testAccCheckIBMISInstanceConfigUpdate(vpcname, subnetname, sshname, publicKey, placementgroupname, placementgroupstrategy2, name2, availabilityPolicyHostFailure1, metaDataEnabled1, profileName2, userData2, totalVolumeBandwidth1),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckIBMISInstanceExists("ibm_is_instance.testacc_instance", instance),
+					resource.TestCheckResourceAttr(
+						"ibm_is_placement_group.testacc_placement_group", "strategy", placementgroupstrategy2),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance", "name", name2),
+					resource.TestCheckResourceAttrSet(
+						"ibm_is_instance.testacc_instance", "placement_group"),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance", "status", "running"),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance", "availability_policy_host_failure", availabilityPolicyHostFailure1),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance", "metadata_service_enabled", metaDataEnabled1),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance", "profile", profileName2),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance", "total_volume_bandwidth", fmt.Sprintf("%d", totalVolumeBandwidth1)),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance", "user_data", userData2),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance", "zone", acc.ISZoneName),
+					resource.TestCheckResourceAttrSet(
+						"ibm_is_instance.testacc_instance", "primary_network_interface.0.port_speed"),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance", "lifecycle_state", "stable"),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance", "lifecycle_reasons.#", "0"),
+				),
+			},
+			//update total bandwidth
+			{
+				Config: testAccCheckIBMISInstanceConfigUpdate(vpcname, subnetname, sshname, publicKey, placementgroupname, placementgroupstrategy2, name2, availabilityPolicyHostFailure1, metaDataEnabled1, profileName2, userData2, totalVolumeBandwidth2),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckIBMISInstanceExists("ibm_is_instance.testacc_instance", instance),
+					resource.TestCheckResourceAttr(
+						"ibm_is_placement_group.testacc_placement_group", "strategy", placementgroupstrategy2),
+					resource.TestCheckResourceAttrSet(
+						"ibm_is_instance.testacc_instance", "placement_group"),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance", "name", name2),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance", "status", "running"),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance", "user_data", userData2),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance", "zone", acc.ISZoneName),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance", "availability_policy_host_failure", availabilityPolicyHostFailure1),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance", "metadata_service_enabled", metaDataEnabled1),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance", "profile", profileName2),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance", "total_volume_bandwidth", fmt.Sprintf("%d", totalVolumeBandwidth2)),
+					resource.TestCheckResourceAttrSet(
+						"ibm_is_instance.testacc_instance", "primary_network_interface.0.port_speed"),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance", "lifecycle_state", "stable"),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance", "lifecycle_reasons.#", "0"),
+				),
+			},
+			// update multi nics
+			// {
+			// 	Config: testAccCheckIBMISInstanceConfigUpdate(vpcname, subnetname, sshname, publicKey, name2, availabilityPolicyHostFailure2, metaDataEnabled1, profileName2, userData2, totalVolumeBandwidth2),
+			// 	Check: resource.ComposeTestCheckFunc(
+			// 		testAccCheckIBMISInstanceExists("ibm_is_instance.testacc_instance", instance),
+			// 		resource.TestCheckResourceAttr(
+			// 			"ibm_is_instance.testacc_instance", "name", name2),
+			// 		resource.TestCheckResourceAttr(
+			// 			"ibm_is_instance.testacc_instance", "status", "running"),
+			// 		resource.TestCheckResourceAttr(
+			// 			"ibm_is_instance.testacc_instance", "user_data", userData2),
+			// 		resource.TestCheckResourceAttr(
+			// 			"ibm_is_instance.testacc_instance", "zone", acc.ISZoneName),
+			// 		resource.TestCheckResourceAttr(
+			// 			"ibm_is_instance.testacc_instance", "availability_policy_host_failure", availabilityPolicyHostFailure2),
+			// 		resource.TestCheckResourceAttr(
+			// 			"ibm_is_instance.testacc_instance", "metadata_service_enabled", metaDataEnabled1),
+			// 		resource.TestCheckResourceAttr(
+			// 			"ibm_is_instance.testacc_instance", "profile", profileName2),
+			// 		resource.TestCheckResourceAttr(
+			// 			"ibm_is_instance.testacc_instance", "total_volume_bandwidth", fmt.Sprintf("%d", totalVolumeBandwidth2)),
+			// 		resource.TestCheckResourceAttrSet(
+			// 			"ibm_is_instance.testacc_instance", "primary_network_interface.0.port_speed"),
+			// 		resource.TestCheckResourceAttr(
+			// 			"ibm_is_instance.testacc_instance", "lifecycle_state", "stable"),
+			// 		resource.TestCheckResourceAttr(
+			// 			"ibm_is_instance.testacc_instance", "lifecycle_reasons.#", "0"),
+			// 	),
+			// },
+			// update actions
+			// {
+			// 	Config: testAccCheckIBMISInstanceConfigUpdate(vpcname, subnetname, sshname, publicKey, name2, availabilityPolicyHostFailure2, metaDataEnabled1, profileName2, userData2, totalVolumeBandwidth2),
+			// 	Check: resource.ComposeTestCheckFunc(
+			// 		testAccCheckIBMISInstanceExists("ibm_is_instance.testacc_instance", instance),
+			// 		resource.TestCheckResourceAttr(
+			// 			"ibm_is_instance.testacc_instance", "name", name2),
+			// 		resource.TestCheckResourceAttr(
+			// 			"ibm_is_instance.testacc_instance", "status", "running"),
+			// 		resource.TestCheckResourceAttr(
+			// 			"ibm_is_instance.testacc_instance", "user_data", userData2),
+			// 		resource.TestCheckResourceAttr(
+			// 			"ibm_is_instance.testacc_instance", "zone", acc.ISZoneName),
+			// 		resource.TestCheckResourceAttr(
+			// 			"ibm_is_instance.testacc_instance", "availability_policy_host_failure", availabilityPolicyHostFailure2),
+			// 		resource.TestCheckResourceAttr(
+			// 			"ibm_is_instance.testacc_instance", "metadata_service_enabled", metaDataEnabled1),
+			// 		resource.TestCheckResourceAttr(
+			// 			"ibm_is_instance.testacc_instance", "profile", profileName2),
+			// 		resource.TestCheckResourceAttr(
+			// 			"ibm_is_instance.testacc_instance", "total_volume_bandwidth", fmt.Sprintf("%d", totalVolumeBandwidth2)),
+			// 		resource.TestCheckResourceAttrSet(
+			// 			"ibm_is_instance.testacc_instance", "primary_network_interface.0.port_speed"),
+			// 		resource.TestCheckResourceAttr(
+			// 			"ibm_is_instance.testacc_instance", "lifecycle_state", "stable"),
+			// 		resource.TestCheckResourceAttr(
+			// 			"ibm_is_instance.testacc_instance", "lifecycle_reasons.#", "0"),
+			// 	),
+			// },
+			//update volume attachments
+			// {
+			// 	Config: testAccCheckIBMISInstanceConfigUpdate(vpcname, subnetname, sshname, publicKey, name2, availabilityPolicyHostFailure2, metaDataEnabled1, profileName2, userData2, totalVolumeBandwidth2),
+			// 	Check: resource.ComposeTestCheckFunc(
+			// 		testAccCheckIBMISInstanceExists("ibm_is_instance.testacc_instance", instance),
+			// 		resource.TestCheckResourceAttr(
+			// 			"ibm_is_instance.testacc_instance", "name", name2),
+			// 		resource.TestCheckResourceAttr(
+			// 			"ibm_is_instance.testacc_instance", "status", "running"),
+			// 		resource.TestCheckResourceAttr(
+			// 			"ibm_is_instance.testacc_instance", "user_data", userData2),
+			// 		resource.TestCheckResourceAttr(
+			// 			"ibm_is_instance.testacc_instance", "zone", acc.ISZoneName),
+			// 		resource.TestCheckResourceAttr(
+			// 			"ibm_is_instance.testacc_instance", "availability_policy_host_failure", availabilityPolicyHostFailure2),
+			// 		resource.TestCheckResourceAttr(
+			// 			"ibm_is_instance.testacc_instance", "metadata_service_enabled", metaDataEnabled1),
+			// 		resource.TestCheckResourceAttr(
+			// 			"ibm_is_instance.testacc_instance", "profile", profileName2),
+			// 		resource.TestCheckResourceAttr(
+			// 			"ibm_is_instance.testacc_instance", "total_volume_bandwidth", fmt.Sprintf("%d", totalVolumeBandwidth2)),
+			// 		resource.TestCheckResourceAttrSet(
+			// 			"ibm_is_instance.testacc_instance", "primary_network_interface.0.port_speed"),
+			// 		resource.TestCheckResourceAttr(
+			// 			"ibm_is_instance.testacc_instance", "lifecycle_state", "stable"),
+			// 		resource.TestCheckResourceAttr(
+			// 			"ibm_is_instance.testacc_instance", "lifecycle_reasons.#", "0"),
+			// 	),
+			// },
+		},
+	})
+}
+
+func testAccCheckIBMISInstanceConfigUpdate(vpcname, subnetname, sshname, publicKey, placementgroupname, placementgroupstrategy, name, availabilityPolicyHostFailure, metadataServiceEnabled, profile, userData string, totalVolumeBandwidth int) string {
+	return fmt.Sprintf(`
+	resource "ibm_is_vpc" "testacc_vpc" {
+		name = "%s"
+	  }
+	  
+	  resource "ibm_is_subnet" "testacc_subnet" {
+		name            = "%s"
+		vpc             = ibm_is_vpc.testacc_vpc.id
+		zone            = "%s"
+		ipv4_cidr_block = "%s"
+	  }
+	  
+	  resource "ibm_is_ssh_key" "testacc_sshkey" {
+		name       = "%s"
+		public_key = "%s"
+	  }
+
+	  resource "ibm_is_placement_group" "testacc_placement_group" {
+		  	name 		= "%s"
+			strategy 	= "%s"
+		}
+	  resource "ibm_is_instance" "testacc_instance" {
+		name    = "%s"
+		availability_policy_host_failure = "%s"
+		metadata_service_enabled = %s
+		total_volume_bandwidth = %d
+		placement_group = ibm_is_placement_group.testacc_placement_group.id
+		image   = "%s"
+		profile = "%s"
+		primary_network_interface {
+		  subnet     = ibm_is_subnet.testacc_subnet.id
+		}
+		user_data = "%s"
+		vpc  = ibm_is_vpc.testacc_vpc.id
+		zone = "%s"
+		keys = [ibm_is_ssh_key.testacc_sshkey.id]
+		network_interfaces {
+		  subnet = ibm_is_subnet.testacc_subnet.id
+		  name   = "eth1"
+		}
+	  }`, vpcname, subnetname, acc.ISZoneName, acc.ISCIDR, sshname, publicKey, placementgroupname, placementgroupstrategy, name, availabilityPolicyHostFailure, metadataServiceEnabled, totalVolumeBandwidth, acc.IsImage, profile, userData, acc.ISZoneName)
+}
