@@ -3,8 +3,8 @@
 subcategory: "Object Storage"
 layout: "ibm"
 page_title: "IBM : Cloud Object Storage Bucket"
-description: |-
-  Manages IBM Cloud Object Storage bucket.
+description: 
+  "Manages IBM Cloud Object Storage bucket."
 ---
 
 # ibm_cos_bucket
@@ -253,10 +253,137 @@ resource "ibm_cos_bucket" "objectversioning" {
 
 ```
 
+# cos satellite bucket
+
+Create or delete an COS satellite bucket. See the architecture of COS Satellite 
+https://cloud.ibm.com/docs/cloud-object-storage?topic=cloud-object-storage-about-cos-satellite for more details. We are using existing cos instance to create bucket , so no need to create any cos instance via a terraform. Cos satellite does not support all features see the section **What features are currently supported?** in https://cloud.ibm.com/docs/cloud-object-storage?topic=cloud-object-storage-about-cos-satellite.
+IBM Satellite documentation https://cloud.ibm.com/docs/satellite?topic=satellite-getting-started. We are supporting object versioning and expiration features as of now. Firewall is not supported yet.
+
+## Example usage
+
+```terraform
+data "ibm_resource_group" "group" {
+    name = "Default"
+}
+
+resource "ibm_satellite_location" "create_location" {
+  location          = var.location
+  zones             = var.location_zones
+  managed_from      = var.managed_from
+  resource_group_id = data.ibm_resource_group.group.id
+}
+
+resource "ibm_cos_bucket" "cos_bucket" {
+  bucket_name           = "cos-sat-terraform"
+  resource_instance_id  = data.ibm_resource_instance.cos_instance.id
+  satellite_location_id  = data.ibm_satellite_location.create_location.id
+  object_versioning {
+    enable  = true
+  }
+  expire_rule {
+    rule_id = "bucket-tf-rule1"
+    enable  = false
+    days    = 20
+    prefix  = "logs/"
+  }
+}
+```
+
+
+# Key Protect enabled COS bucket
+
+Create or delete an COS bucket with a key protect root key.For more details about key protect see https://cloud.ibm.com/docs/key-protect?topic=key-protect-about  .We  need to create and manage root key using  **ibm_kms_key** resource. We are using existing cos instance to create bucket , so no need to create any cos instance via a terraform. https://registry.terraform.io/providers/IBM-Cloud/ibm/latest/docs/resources/kms_key
+
+## Example usage
+
+```terraform
+resource "ibm_resource_instance" "kms_instance" {
+  name     = "instance-name"
+  service  = "kms"
+  plan     = "tiered-pricing"
+  location = "us-south"
+}
+resource "ibm_kms_key" "test" {
+  instance_id  = ibm_resource_instance.kms_instance.guid
+  key_name     = "key-name"
+  standard_key = false
+  force_delete =true
+}
+resource "ibm_iam_authorization_policy" "policy" {
+	source_service_name = "cloud-object-storage"
+	target_service_name = "kms"
+	roles               = ["Reader"]
+}
+resource "ibm_cos_bucket" "smart-us-south" {
+  depends_on           = [ibm_iam_authorization_policy.policy]
+  bucket_name          = "atest-bucket"
+  resource_instance_id = ibm_resource_instance.cos_instance.id
+  region_location      = "us-south"
+  storage_class        = "smart"
+  key_protect          = ibm_kms_key.test.id
+}
+```
+
+
+# HPCS enabled COS bucket
+
+Create or delete a COS bucket with a Hyper Protect Crypto Services (HPCS) root key.For more details about HPCS see https://cloud.ibm.com/docs/hs-crypto?topic=hs-crypto-get-started .To enable HPCS on a COS bucket, an HPCS instance is required and needs to be initialized by loading the master key to create and manage HPCS keys. For more information on initializing the HPCS instance, see https://cloud.ibm.com/docs/hs-crypto?topic=hs-crypto-initialize-hsm-recovery-crypto-unit. To create an HPCS instance using terraform, see https://registry.terraform.io/providers/IBM-Cloud/ibm/latest/docs/resources/hpcs.
+
+
+## Example usage
+
+```terraform
+resource ibm_hpcs hpcs {
+  location             = "us-south"
+  name                 = "test-hpcs"
+  plan                 = "standard"
+  units                = 2
+  signature_threshold  = 1
+  revocation_threshold = 1
+  admins {
+    name  = "admin1"
+    key   = "/cloudTKE/1.sigkey"
+    token = "<sensitive1234>"
+  }
+  admins {
+    name  = "admin2"
+    key   = "/cloudTKE/2.sigkey"
+    token = "<sensitive1234>"
+  }
+}
+resource "ibm_kms_key" "key" {
+  instance_id  = ibm_hpcs.hpcs.guid
+  key_name     = "key-name"
+  standard_key = false
+  force_delete = true
+}
+
+resource "ibm_iam_authorization_policy" "policy1" {
+  source_service_name = "cloud-object-storage"
+  target_service_name = "hs-crypto"
+  roles               = ["Reader"]
+}
+resource "ibm_cos_bucket" "smart-us-south" {
+  depends_on           = [ibm_iam_authorization_policy.policy]
+  bucket_name          = "atest-bucket"
+  resource_instance_id = ibm_resource_instance.cos_instance.id
+  region_location      = "us-south"
+  storage_class        = "smart"
+  key_protect          = ibm_kms_key.key.id
+}
+
+```
 
 ## Argument reference
 Review the argument references that you can specify for your resource. 
 
+- `abort_incomplete_multipart_upload_days` (Optional,List) Nested block with the following structure.
+  
+  Nested scheme for `abort_incomplete_multipart_upload_days`:
+  - `days_after_initiation` - (Optional, Integer) Specifies the number of days that govern the automatic cancellation of part upload. Clean up incomplete multi-part uploads after a period of time. Must be a value greater than 0 and less than 3650.
+  - `enable` - (Required, Bool) A rule can either be `enabled` or `disabled`. A rule is active only when enabled.
+  - `prefix` - (Optional, String)  A rule with a prefix will only apply to the objects that match. You can use multiple rules for different actions for different prefixes within the same bucket.
+  - `rule_id` - (Optional, String) Unique identifier for the rule. Rules allow you to set a specific time frame after which objects are deleted. Set Rule ID for cos bucket.
 - `allowed_ip` - (Optional, Array of string)  A list of IPv4 or IPv6 addresses in CIDR notation that you want to allow access to your IBM Cloud Object Storage bucket.
 - `activity_tracking`- (List of objects) Object to enable auditing with IBM Cloud Activity Tracker - Optional - Configure your IBM Cloud Activity Tracker service instance and the type of events that you want to send to your service to audit activity against your bucket. For a list of supported actions, see [Bucket actions](https://cloud.ibm.com/docs/cloud-object-storage?topic=cloud-object-storage-at-events#at-actions-mngt-2).
 
@@ -346,7 +473,8 @@ Review the argument references that you can specify for your resource.
      - Permanent retention can only be enabled at a IBM Cloud Object Storage bucket level with retention policy enabled and users are able to select the permanent retention period option during object uploads. Once enabled, this process can't be reversed and objects uploaded that use a permanent retention period cannot be deleted. It's the responsibility of the users to validate at their end if there's a legitimate need to permanently store objects by using Object Storage buckets with a retention policy.
      - force deleting the bucket will not work if any object is still under retention. As objects cannot be deleted or overwritten until the retention period has expired and all the legal holds have been removed.
 - `single_site_location` - (Optional, String) The location for a single site bucket. Supported values are: `ams03`, `che01`, `hkg02`, `mel01`, `mex01`, `mil01`, `mon01`, `osl01`, `par01`, `sjc04`, `sao01`, `seo01`, `sng01`, and `tor01`. If you set this parameter, do not set `region_location` or `cross_region_location` at the same time.
-- `storage_class` - (Required, String) The storage class that you want to use for the bucket. Supported values are `standard`, `vault`, `cold` and `smart`. For more information, about storage classes, see [Use storage classes](https://cloud.ibm.com/docs/cloud-object-storage?topic=cloud-object-storage-classes).
+- `storage_class` - (Optional, String) The storage class that you want to use for the bucket. Supported values are `standard`, `vault`, `cold` and `smart`. For more information, about storage classes, see [Use storage classes](https://cloud.ibm.com/docs/cloud-object-storage?topic=cloud-object-storage-classes). We can not use storage_class with Satellite location id.
+- `satellite_location_id` - (Optional, String) satellite location id. Provided by end users.
 
 ## Attribute reference
 In addition to all argument reference list, you can access the following attribute reference after your resource is created.
@@ -363,7 +491,7 @@ In addition to all argument reference list, you can access the following attribu
 - `s3_endpoint_private` - (String) Private endpoint for cos bucket.
 - `s3_endpoint_direct` - (String) Direct endpoint for cos bucket.
 
-## Import
+## Import IBM COS Bucket
 The `ibm_cos_bucket` resource can be imported by using the `id`. The ID is formed from the `CRN` (Cloud Resource Name), the `bucket type` which must be `ssl` for single_site_location, `rl` for region_location or `crl` for cross_region_location, and the bucket location. The `CRN` and bucket location can be found on the portal.
 
 id = `$CRN:meta:$buckettype:$bucketlocation`
@@ -380,5 +508,18 @@ $ terraform import ibm_cos_bucket.mybucket `$CRN:meta:$buckettype:$bucketlocatio
 ```
 
 $ terraform import ibm_cos_bucket.mybucket crn:v1:bluemix:public:cloud-object-storage:global:a/4ea1882a2d3401ed1e459979941966ea:31fa970d-51d0-4b05-893e-251cba75a7b3:bucket:mybucketname:meta:crl:eu:public
+
+```
+
+## Import COS Satelllite Bucket
+The `cos satellite bucket` resource can be imported by using the `id`. The ID is formed from the `CRN` (Cloud Resource Name), the `satellite_location_id` which must be `sl` for satellite_location_id and the bucket location. The `CRN` and bucket location can be found on the portal.
+
+id = `$CRN:meta:$buckettype:$bucketlocation`
+
+**Example**
+
+```
+
+$ terraform import ibm_cos_bucket.cos_bucket crn:v1:staging:public:cloud-object-storage:satloc_dal_c8fctn320qtrspbisg80:a/81ee25188545f05150650a0a4ee015bb:a2deec95-0836-4720-bfc7-ca41c28a8c66:bucket:tf-listbuckettest:meta:sl:c8fctn320qtrspbisg80:public
 
 ```

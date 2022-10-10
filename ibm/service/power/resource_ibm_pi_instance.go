@@ -23,18 +23,6 @@ import (
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/validate"
 )
 
-const (
-	//Added timeout values for warning  and active status
-	warningTimeOut = 60 * time.Second
-	activeTimeOut  = 2 * time.Minute
-	// power service instance capabilities
-	CUSTOM_VIRTUAL_CORES          = "custom-virtualcores"
-	PIInstanceNetwork             = "pi_network"
-	PIInstanceStoragePool         = "pi_storage_pool"
-	PISAPInstanceProfileID        = "pi_sap_profile_id"
-	PIInstanceStoragePoolAffinity = "pi_storage_pool_affinity"
-)
-
 func ResourceIBMPIInstance() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceIBMPIInstanceCreate,
@@ -53,6 +41,7 @@ func ResourceIBMPIInstance() *schema.Resource {
 
 			helpers.PICloudInstanceId: {
 				Type:        schema.TypeString,
+				ForceNew:    true,
 				Required:    true,
 				Description: "This is the Power Instance id that is assigned to the account",
 			},
@@ -204,6 +193,18 @@ func ResourceIBMPIInstance() *schema.Resource {
 				Optional:    true,
 				Description: "Placement group ID",
 			},
+			Arg_PIInstanceSharedProcessorPool: {
+				Type:          schema.TypeString,
+				Optional:      true,
+				ForceNew:      true,
+				ConflictsWith: []string{PISAPInstanceProfileID},
+				Description:   "Shared Processor Pool the instance is deployed on",
+			},
+			Attr_PIInstanceSharedProcessorPoolID: {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Shared Processor Pool ID the instance is deployed on",
+			},
 			"health_status": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -220,9 +221,10 @@ func ResourceIBMPIInstance() *schema.Resource {
 				Description: "PIN Policy of the Instance",
 			},
 			helpers.PIInstanceImageId: {
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: "PI instance image id",
+				Type:             schema.TypeString,
+				Required:         true,
+				Description:      "PI instance image id",
+				DiffSuppressFunc: flex.ApplyOnce,
 			},
 			helpers.PIInstanceProcessors: {
 				Type:          schema.TypeFloat,
@@ -245,9 +247,10 @@ func ResourceIBMPIInstance() *schema.Resource {
 				Description:   "Instance processor type",
 			},
 			helpers.PIInstanceSSHKeyName: {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: "SSH key name",
+				Type:             schema.TypeString,
+				Optional:         true,
+				DiffSuppressFunc: flex.ApplyOnce,
+				Description:      "SSH key name",
 			},
 			helpers.PIInstanceMemory: {
 				Type:          schema.TypeFloat,
@@ -256,11 +259,21 @@ func ResourceIBMPIInstance() *schema.Resource {
 				ConflictsWith: []string{PISAPInstanceProfileID},
 				Description:   "Memory size",
 			},
+			PIInstanceDeploymentType: {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "Custom Deployment Type Information",
+			},
 			PISAPInstanceProfileID: {
 				Type:          schema.TypeString,
 				Optional:      true,
 				ConflictsWith: []string{helpers.PIInstanceProcessors, helpers.PIInstanceMemory, helpers.PIInstanceProcType},
 				Description:   "SAP Profile ID for the amount of cores and memory",
+			},
+			PISAPInstanceDeploymentType: {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "Custom SAP Deployment Type Information",
 			},
 			helpers.PIInstanceSystemType: {
 				Type:        schema.TypeString,
@@ -439,6 +452,8 @@ func resourceIBMPIInstanceRead(ctx context.Context, d *schema.ResourceData, meta
 	if *powervmdata.PlacementGroup != "none" {
 		d.Set(helpers.PIPlacementGroupID, powervmdata.PlacementGroup)
 	}
+	d.Set(Arg_PIInstanceSharedProcessorPool, powervmdata.SharedProcessorPool)
+	d.Set(Attr_PIInstanceSharedProcessorPoolID, powervmdata.SharedProcessorPoolID)
 
 	networksMap := []map[string]interface{}{}
 	if powervmdata.Networks != nil {
@@ -480,7 +495,7 @@ func resourceIBMPIInstanceRead(ctx context.Context, d *schema.ResourceData, meta
 		d.Set("min_virtual_cores", powervmdata.VirtualCores.Min)
 	}
 	d.Set(helpers.PIInstanceLicenseRepositoryCapacity, powervmdata.LicenseRepositoryCapacity)
-
+	d.Set(PIInstanceDeploymentType, powervmdata.DeploymentType)
 	return nil
 }
 
@@ -821,7 +836,12 @@ func isPIInstanceRefreshFunc(client *st.IBMPIInstanceClient, id, instanceReadySt
 			return pvm, helpers.PIInstanceAvailable, nil
 		}
 		if *pvm.Status == "ERROR" {
-			return pvm, *pvm.Status, fmt.Errorf("failed to create the lpar")
+			if pvm.Fault != nil {
+				err = fmt.Errorf("failed to create the lpar: %s", pvm.Fault.Message)
+			} else {
+				err = fmt.Errorf("failed to create the lpar")
+			}
+			return pvm, *pvm.Status, err
 		}
 
 		return pvm, helpers.PIInstanceBuilding, nil
@@ -996,6 +1016,7 @@ func checkCloudInstanceCapability(cloudInstance *models.CloudInstance, custom_ca
 	}
 	return false
 }
+
 func createSAPInstance(d *schema.ResourceData, sapClient *st.IBMPISAPInstanceClient) (*models.PVMInstanceList, error) {
 
 	name := d.Get(helpers.PIInstanceName).(string)
@@ -1030,6 +1051,9 @@ func createSAPInstance(d *schema.ResourceData, sapClient *st.IBMPISAPInstanceCli
 		ProfileID: &profileID,
 	}
 
+	if v, ok := d.GetOk(PISAPInstanceDeploymentType); ok {
+		body.DeploymentType = v.(string)
+	}
 	if v, ok := d.GetOk(helpers.PIInstanceVolumeIds); ok {
 		volids := flex.ExpandStringList((v.(*schema.Set)).List())
 		if len(volids) > 0 {
@@ -1095,6 +1119,10 @@ func createSAPInstance(d *schema.ResourceData, sapClient *st.IBMPISAPInstanceCli
 		body.StorageAffinity = affinity
 	}
 
+	if pg, ok := d.GetOk(helpers.PIPlacementGroupID); ok {
+		body.PlacementGroup = pg.(string)
+	}
+
 	pvmList, err := sapClient.Create(body)
 	if err != nil {
 		return nil, fmt.Errorf("failed to provision: %v", err)
@@ -1105,6 +1133,7 @@ func createSAPInstance(d *schema.ResourceData, sapClient *st.IBMPISAPInstanceCli
 
 	return pvmList, nil
 }
+
 func createPVMInstance(d *schema.ResourceData, client *st.IBMPIInstanceClient, imageClient *st.IBMPIImageClient) (*models.PVMInstanceList, error) {
 
 	name := d.Get(helpers.PIInstanceName).(string)
@@ -1214,6 +1243,10 @@ func createPVMInstance(d *schema.ResourceData, client *st.IBMPIInstanceClient, i
 		body.StoragePool = sp.(string)
 	}
 
+	if dt, ok := d.GetOk(PIInstanceDeploymentType); ok {
+		body.DeploymentType = dt.(string)
+	}
+
 	if ap, ok := d.GetOk(PIAffinityPolicy); ok {
 		policy := ap.(string)
 		affinity := &models.StorageAffinity{
@@ -1248,6 +1281,10 @@ func createPVMInstance(d *schema.ResourceData, client *st.IBMPIInstanceClient, i
 
 	if pg, ok := d.GetOk(helpers.PIPlacementGroupID); ok {
 		body.PlacementGroup = pg.(string)
+	}
+
+	if spp, ok := d.GetOk(Arg_PIInstanceSharedProcessorPool); ok {
+		body.SharedProcessorPool = spp.(string)
 	}
 
 	if lrc, ok := d.GetOk(helpers.PIInstanceLicenseRepositoryCapacity); ok {

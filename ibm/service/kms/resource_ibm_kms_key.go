@@ -6,7 +6,6 @@ package kms
 import (
 	"context"
 	"fmt"
-	"log"
 	"net/url"
 	"strconv"
 	"strings"
@@ -22,12 +21,16 @@ import (
 
 func suppressKMSInstanceIDDiff(k, old, new string, d *schema.ResourceData) bool {
 	// TF currently uses GUID. So just check when instance crn is passed as input it has same GUID in it.
-	crnData := strings.Split(new, ":")
-	if len(crnData) > 3 {
-		instanceID := crnData[len(crnData)-3]
-		return instanceID == old
+	return old == getInstanceIDFromCRN(new)
+}
+
+// Get Instance ID from CRN
+func getInstanceIDFromCRN(crn string) string {
+	crnSegments := strings.Split(crn, ":")
+	if len(crnSegments) > 3 {
+		return crnSegments[len(crnSegments)-3]
 	}
-	return false
+	return crn
 }
 
 func ResourceIBMKmskey() *schema.Resource {
@@ -125,112 +128,6 @@ func ResourceIBMKmskey() *schema.Resource {
 				Description: "The date the key material expires. The date format follows RFC 3339. You can set an expiration date on any key on its creation. A key moves into the Deactivated state within one hour past its expiration date, if one is assigned. If you create a key without specifying an expiration date, the key does not expire",
 				ForceNew:    true,
 			},
-			"policies": {
-				Type:        schema.TypeList,
-				Deprecated:  "Support for creating Policies with the key will soon be removed, Utilise the new resource for creating policies for the keys => ibm_kms_key_policies",
-				Optional:    true,
-				Computed:    true,
-				Description: "Creates or updates one or more policies for the specified key",
-				MinItems:    1,
-				MaxItems:    1,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"rotation": {
-							Type:         schema.TypeList,
-							Optional:     true,
-							Computed:     true,
-							AtLeastOneOf: []string{"policies.0.rotation", "policies.0.dual_auth_delete"},
-							Description:  "Specifies the key rotation time interval in months, with a minimum of 1, and a maximum of 12",
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"id": {
-										Type:        schema.TypeString,
-										Computed:    true,
-										Description: "The v4 UUID used to uniquely identify the policy resource, as specified by RFC 4122.",
-									},
-									"crn": {
-										Type:        schema.TypeString,
-										Computed:    true,
-										Description: "Cloud Resource Name (CRN) that uniquely identifies your cloud resources.",
-									},
-									"created_by": {
-										Type:        schema.TypeString,
-										Computed:    true,
-										Description: "The unique identifier for the resource that created the policy.",
-									},
-									"creation_date": {
-										Type:        schema.TypeString,
-										Computed:    true,
-										Description: "The date the policy was created. The date format follows RFC 3339.",
-									},
-									"updated_by": {
-										Type:        schema.TypeString,
-										Computed:    true,
-										Description: "The unique identifier for the resource that updated the policy.",
-									},
-									"last_update_date": {
-										Type:        schema.TypeString,
-										Computed:    true,
-										Description: "Updates when the policy is replaced or modified. The date format follows RFC 3339.",
-									},
-									"interval_month": {
-										Type:         schema.TypeInt,
-										Required:     true,
-										ValidateFunc: validate.ValidateAllowedRangeInt(1, 12),
-										Description:  "Specifies the key rotation time interval in months",
-									},
-								},
-							},
-						},
-						"dual_auth_delete": {
-							Type:         schema.TypeList,
-							Optional:     true,
-							Computed:     true,
-							AtLeastOneOf: []string{"policies.0.rotation", "policies.0.dual_auth_delete"},
-							Description:  "Data associated with the dual authorization delete policy.",
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"id": {
-										Type:        schema.TypeString,
-										Computed:    true,
-										Description: "The v4 UUID used to uniquely identify the policy resource, as specified by RFC 4122.",
-									},
-									"crn": {
-										Type:        schema.TypeString,
-										Computed:    true,
-										Description: "Cloud Resource Name (CRN) that uniquely identifies your cloud resources.",
-									},
-									"created_by": {
-										Type:        schema.TypeString,
-										Computed:    true,
-										Description: "The unique identifier for the resource that created the policy.",
-									},
-									"creation_date": {
-										Type:        schema.TypeString,
-										Computed:    true,
-										Description: "The date the policy was created. The date format follows RFC 3339.",
-									},
-									"updated_by": {
-										Type:        schema.TypeString,
-										Computed:    true,
-										Description: "The unique identifier for the resource that updated the policy.",
-									},
-									"last_update_date": {
-										Type:        schema.TypeString,
-										Computed:    true,
-										Description: "Updates when the policy is replaced or modified. The date format follows RFC 3339.",
-									},
-									"enabled": {
-										Type:        schema.TypeBool,
-										Required:    true,
-										Description: "If set to true, Key Protect enables a dual authorization policy on a single key.",
-									},
-								},
-							},
-						},
-					},
-				},
-			},
 			"instance_crn": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -269,39 +166,11 @@ func ResourceIBMKmskey() *schema.Resource {
 }
 
 func resourceIBMKmsKeyCreate(d *schema.ResourceData, meta interface{}) error {
-	kpAPI, err := meta.(conns.ClientSession).KeyManagementAPI()
+	instanceID := getInstanceIDFromCRN(d.Get("instance_id").(string))
+	kpAPI, _, err := populateKPClient(d, meta, instanceID)
 	if err != nil {
 		return err
 	}
-
-	instanceID := d.Get("instance_id").(string)
-	CrnInstanceID := strings.Split(instanceID, ":")
-	if len(CrnInstanceID) > 3 {
-		instanceID = CrnInstanceID[len(CrnInstanceID)-3]
-	}
-
-	endpointType := d.Get("endpoint_type").(string)
-
-	rsConClient, err := meta.(conns.ClientSession).ResourceControllerV2API()
-	if err != nil {
-		return err
-	}
-	resourceInstanceGet := rc.GetResourceInstanceOptions{
-		ID: &instanceID,
-	}
-
-	instanceData, resp, err := rsConClient.GetResourceInstance(&resourceInstanceGet)
-	if err != nil || instanceData == nil {
-		return fmt.Errorf("[ERROR] Error retrieving resource instance: %s with resp code: %s", err, resp)
-	}
-	extensions := instanceData.Extensions
-	URL, err := KmsEndpointURL(kpAPI, endpointType, extensions)
-	if err != nil {
-		return err
-	}
-	kpAPI.URL = URL
-
-	kpAPI.Config.InstanceID = instanceID
 
 	kpAPI.Config.KeyRing = d.Get("key_ring_id").(string)
 
@@ -368,38 +237,12 @@ func resourceIBMKmsKeyCreate(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceIBMKmsKeyRead(d *schema.ResourceData, meta interface{}) error {
-	kpAPI, err := meta.(conns.ClientSession).KeyManagementAPI()
+	instanceCRN, instanceID, keyid := getInstanceAndKeyDataFromCRN(d.Id())
+
+	kpAPI, _, err := populateKPClient(d, meta, instanceID)
 	if err != nil {
 		return err
 	}
-	crn := d.Id()
-	crnData := strings.Split(crn, ":")
-	instanceCRN := fmt.Sprintf("%s::", strings.Split(crn, ":key:")[0])
-	endpointType := d.Get("endpoint_type").(string)
-	instanceID := crnData[len(crnData)-3]
-	keyid := crnData[len(crnData)-1]
-
-	rsConClient, err := meta.(conns.ClientSession).ResourceControllerV2API()
-	if err != nil {
-		return err
-	}
-	resourceInstanceGet := rc.GetResourceInstanceOptions{
-		ID: &instanceID,
-	}
-
-	instanceData, resp, err := rsConClient.GetResourceInstance(&resourceInstanceGet)
-	if err != nil || instanceData == nil {
-		return fmt.Errorf("[ERROR] Error retrieving resource instance: %s with resp code: %s", err, resp)
-	}
-	extensions := instanceData.Extensions
-
-	URL, err := KmsEndpointURL(kpAPI, endpointType, extensions)
-	if err != nil {
-		return err
-	}
-	kpAPI.URL = URL
-
-	kpAPI.Config.InstanceID = instanceID
 	// keyid := d.Id()
 	key, err := kpAPI.GetKey(context.Background(), keyid)
 	if err != nil {
@@ -408,24 +251,107 @@ func resourceIBMKmsKeyRead(d *schema.ResourceData, meta interface{}) error {
 			d.SetId("")
 			return nil
 		}
-		return fmt.Errorf("[ERROR] Get Key failed with error while reading policies: %s", err)
+		return fmt.Errorf("[ERROR] Get Key failed with error while reading Key: %s", err)
 	} else if key.State == 5 { //Refers to Deleted state of the Key
 		d.SetId("")
 		return nil
 	}
 
-	policies, err := kpAPI.GetPolicies(context.Background(), keyid)
-	if err != nil && !strings.Contains(fmt.Sprint(err), "Unauthorized: The user does not have access to the specified resource") {
-		return fmt.Errorf("[ERROR] Failed to read policies: %s", err)
+	err = setKeyDetails(d, meta, instanceID, instanceCRN, key, kpAPI)
+	if err != nil {
+		return err
 	}
-	if len(policies) == 0 {
-		log.Printf("No Policy Configurations read\n")
-	} else {
-		d.Set("policies", flex.FlattenKeyPolicies(policies))
+
+	return nil
+
+}
+
+func resourceIBMKmsKeyUpdate(d *schema.ResourceData, meta interface{}) error {
+
+	if d.HasChange("force_delete") {
+		d.Set("force_delete", d.Get("force_delete").(bool))
 	}
+	return resourceIBMKmsKeyRead(d, meta)
+
+}
+
+func resourceIBMKmsKeyDelete(d *schema.ResourceData, meta interface{}) error {
+	_, instanceID, keyid := getInstanceAndKeyDataFromCRN(d.Id())
+	kpAPI, _, err := populateKPClient(d, meta, instanceID)
+	if err != nil {
+		return err
+	}
+
+	force := d.Get("force_delete").(bool)
+	f := kp.ForceOpt{
+		Force: force,
+	}
+
+	_, err1 := kpAPI.DeleteKey(context.Background(), keyid, kp.ReturnRepresentation, f)
+	if err1 != nil {
+		return fmt.Errorf("[ERROR] Error while deleting: %s", err1)
+	}
+	d.SetId("")
+	return nil
+
+}
+
+func resourceIBMKmsKeyExists(d *schema.ResourceData, meta interface{}) (bool, error) {
+	_, instanceID, keyid := getInstanceAndKeyDataFromCRN(d.Id())
+
+	kpAPI, _, err := populateKPClient(d, meta, instanceID)
+	if err != nil {
+		return false, err
+	}
+
+	_, err = kpAPI.GetKey(context.Background(), keyid)
+	if err != nil {
+		kpError := err.(*kp.Error)
+		if kpError.StatusCode == 404 {
+			return false, nil
+		}
+		return false, err
+	}
+	return true, nil
+
+}
+
+// Populate KP Client using info from schema
+func populateKPClient(d *schema.ResourceData, meta interface{}, instanceID string) (kpAPI *kp.Client, instanceCRN *string, err error) {
+	kpAPI, err = meta.(conns.ClientSession).KeyManagementAPI()
+	if err != nil {
+		return nil, nil, err
+	}
+
+	endpointType := d.Get("endpoint_type").(string)
+
+	rsConClient, err := meta.(conns.ClientSession).ResourceControllerV2API()
+	if err != nil {
+		return nil, nil, err
+	}
+	resourceInstanceGet := rc.GetResourceInstanceOptions{
+		ID: &instanceID,
+	}
+
+	instanceData, resp, err := rsConClient.GetResourceInstance(&resourceInstanceGet)
+	if err != nil || instanceData == nil {
+		return nil, nil, fmt.Errorf("[ERROR] Error retrieving resource instance: %s with resp code: %s", err, resp)
+	}
+	extensions := instanceData.Extensions
+	kpAPI.URL, err = KmsEndpointURL(kpAPI, endpointType, extensions)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	kpAPI.Config.InstanceID = instanceID
+	return kpAPI, instanceData.CRN, nil
+}
+
+// Set Key Details in the schema
+func setKeyDetails(d *schema.ResourceData, meta interface{}, instanceID string, instanceCRN string, key *kp.Key, kpAPI *kp.Client) error {
 	d.Set("instance_id", instanceID)
 	d.Set("instance_crn", instanceCRN)
-	d.Set("key_id", keyid)
+	d.Set("key_id", key.ID)
 	d.Set("standard_key", key.Extractable)
 	d.Set("payload", key.Payload)
 	d.Set("encrypted_nonce", key.EncryptedNonce)
@@ -437,7 +363,7 @@ func resourceIBMKmsKeyRead(d *schema.ResourceData, meta interface{}) error {
 	} else {
 		d.Set("endpoint_type", "public")
 	}
-	d.Set("type", crnData[4])
+	d.Set("type", strings.Split(d.Id(), ":")[4])
 	if d.Get("force_delete") != nil {
 		d.Set("force_delete", d.Get("force_delete").(bool))
 	}
@@ -462,178 +388,18 @@ func resourceIBMKmsKeyRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set(flex.ResourceControllerURL, rcontroller+"/services/kms/"+url.QueryEscape(crn1)+"%3A%3A")
 
 	return nil
-
 }
 
-func resourceIBMKmsKeyUpdate(d *schema.ResourceData, meta interface{}) error {
-
-	if d.HasChange("force_delete") {
-		d.Set("force_delete", d.Get("force_delete").(bool))
-	}
-	if d.HasChange("policies") {
-
-		kpAPI, err := meta.(conns.ClientSession).KeyManagementAPI()
-		if err != nil {
-			return err
-		}
-
-		crn := d.Id()
-		crnData := strings.Split(crn, ":")
-		endpointType := d.Get("endpoint_type").(string)
-		instanceID := crnData[len(crnData)-3]
-		key_id := crnData[len(crnData)-1]
-
-		rsConClient, err := meta.(conns.ClientSession).ResourceControllerV2API()
-		if err != nil {
-			return err
-		}
-		resourceInstanceGet := rc.GetResourceInstanceOptions{
-			ID: &instanceID,
-		}
-
-		instanceData, resp, err := rsConClient.GetResourceInstance(&resourceInstanceGet)
-		if err != nil || instanceData == nil {
-			return fmt.Errorf("[ERROR] Error retrieving resource instance: %s with resp code: %s", err, resp)
-		}
-		extensions := instanceData.Extensions
-		URL, err := KmsEndpointURL(kpAPI, endpointType, extensions)
-		if err != nil {
-			return err
-		}
-		kpAPI.URL = URL
-		kpAPI.Config.InstanceID = instanceID
-
-		err = handlePolicies(d, kpAPI, meta, key_id)
-		if err != nil {
-			return fmt.Errorf("[ERROR] Could not update policies: %s", err)
-		}
-	}
-	return resourceIBMKmsKeyRead(d, meta)
-
-}
-
-func resourceIBMKmsKeyDelete(d *schema.ResourceData, meta interface{}) error {
-	kpAPI, err := meta.(conns.ClientSession).KeyManagementAPI()
-	if err != nil {
-		return err
-	}
-	crn := d.Id()
+// Extract Instance and Key related info from crn
+func getInstanceAndKeyDataFromCRN(crn string) (instanceCRN string, instanceID string, keyID string) {
 	crnData := strings.Split(crn, ":")
-	endpointType := d.Get("endpoint_type").(string)
-	instanceID := crnData[len(crnData)-3]
-	keyid := crnData[len(crnData)-1]
-
-	rsConClient, err := meta.(conns.ClientSession).ResourceControllerV2API()
-	if err != nil {
-		return err
-	}
-	resourceInstanceGet := rc.GetResourceInstanceOptions{
-		ID: &instanceID,
-	}
-
-	instanceData, resp, err := rsConClient.GetResourceInstance(&resourceInstanceGet)
-	if err != nil || instanceData == nil {
-		return fmt.Errorf("[ERROR] Error retrieving resource instance: %s with resp code: %s", err, resp)
-	}
-	extensions := instanceData.Extensions
-	URL, err := KmsEndpointURL(kpAPI, endpointType, extensions)
-	if err != nil {
-		return err
-	}
-	kpAPI.URL = URL
-	kpAPI.Config.InstanceID = instanceID
-
-	force := d.Get("force_delete").(bool)
-	f := kp.ForceOpt{
-		Force: force,
-	}
-
-	_, err1 := kpAPI.DeleteKey(context.Background(), keyid, kp.ReturnRepresentation, f)
-	if err1 != nil {
-		return fmt.Errorf("[ERROR] Error while deleting: %s", err1)
-	}
-	d.SetId("")
-	return nil
-
+	instanceCRN = fmt.Sprintf("%s::", strings.Split(crn, ":key:")[0])
+	keyID = crnData[len(crnData)-1]
+	instanceID = crnData[len(crnData)-3]
+	return instanceCRN, instanceID, keyID
 }
 
-func resourceIBMKmsKeyExists(d *schema.ResourceData, meta interface{}) (bool, error) {
-	kpAPI, err := meta.(conns.ClientSession).KeyManagementAPI()
-	if err != nil {
-		return false, err
-	}
-
-	crn := d.Id()
-	crnData := strings.Split(crn, ":")
-	endpointType := d.Get("endpoint_type").(string)
-	instanceID := crnData[len(crnData)-3]
-	keyid := crnData[len(crnData)-1]
-
-	rsConClient, err := meta.(conns.ClientSession).ResourceControllerV2API()
-	if err != nil {
-		return false, err
-	}
-	resourceInstanceGet := rc.GetResourceInstanceOptions{
-		ID: &instanceID,
-	}
-
-	instanceData, resp, err := rsConClient.GetResourceInstance(&resourceInstanceGet)
-	if err != nil || instanceData == nil {
-		return false, fmt.Errorf("[ERROR] Error retrieving resource instance: %s with resp code: %s", err, resp)
-	}
-	extensions := instanceData.Extensions
-	URL, err := KmsEndpointURL(kpAPI, endpointType, extensions)
-	if err != nil {
-		return false, err
-	}
-	kpAPI.URL = URL
-	kpAPI.Config.InstanceID = instanceID
-
-	_, err = kpAPI.GetKey(context.Background(), keyid)
-	if err != nil {
-		kpError := err.(*kp.Error)
-		if kpError.StatusCode == 404 {
-			return false, nil
-		}
-		return false, err
-	}
-	return true, nil
-
-}
-
-func handlePolicies(d *schema.ResourceData, kpAPI *kp.Client, meta interface{}, key_id string) error {
-	var setRotation, setDualAuthDelete, dualAuthEnable bool
-	var rotationInterval int
-
-	if policyInfo, ok := d.GetOk("policies"); ok {
-
-		policyDataList := policyInfo.([]interface{})
-		policyData := policyDataList[0].(map[string]interface{})
-
-		if rpd, ok := policyData["rotation"]; ok {
-			rpdList := rpd.([]interface{})
-			if len(rpdList) != 0 {
-				rotationInterval = rpdList[0].(map[string]interface{})["interval_month"].(int)
-				setRotation = true
-			}
-		}
-		if dadp, ok := policyData["dual_auth_delete"]; ok {
-			dadpList := dadp.([]interface{})
-			if len(dadpList) != 0 {
-				dualAuthEnable = dadpList[0].(map[string]interface{})["enabled"].(bool)
-				setDualAuthDelete = true
-			}
-		}
-
-		_, err := kpAPI.SetPolicies(context.Background(), key_id, setRotation, rotationInterval, setDualAuthDelete, dualAuthEnable)
-		if err != nil {
-			return fmt.Errorf("[ERROR] Error while creating policies: %s", err)
-		}
-	}
-	return nil
-}
-
-//Construct KMS URL
+// Construct KMS URL
 func KmsEndpointURL(kpAPI *kp.Client, endpointType string, extensions map[string]interface{}) (*url.URL, error) {
 
 	exturl := extensions["endpoints"].(map[string]interface{})["public"]

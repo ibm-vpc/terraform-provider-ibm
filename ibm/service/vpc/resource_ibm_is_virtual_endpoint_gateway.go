@@ -70,7 +70,7 @@ func ResourceIBMISEndpointGateway() *schema.Resource {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
-				ValidateFunc: validate.ValidateISName,
+				ValidateFunc: validate.InvokeValidator("ibm_is_virtual_endpoint_gateway", isVirtualEndpointGatewayName),
 				Description:  "Endpoint gateway name",
 			},
 			isVirtualEndpointGatewayResourceType: {
@@ -198,7 +198,7 @@ func ResourceIBMISEndpointGateway() *schema.Resource {
 				Type:        schema.TypeSet,
 				Optional:    true,
 				Computed:    true,
-				Elem:        &schema.Schema{Type: schema.TypeString, ValidateFunc: validate.InvokeValidator("ibm_is_virtual_endpoint_gateway", "tag")},
+				Elem:        &schema.Schema{Type: schema.TypeString, ValidateFunc: validate.InvokeValidator("ibm_is_virtual_endpoint_gateway", "tags")},
 				Set:         flex.ResourceIBMVPCHash,
 				Description: "List of tags for VPE",
 			},
@@ -210,7 +210,16 @@ func ResourceIBMISEndpointGatewayValidator() *validate.ResourceValidator {
 	validateSchema := make([]validate.ValidateSchema, 0)
 	validateSchema = append(validateSchema,
 		validate.ValidateSchema{
-			Identifier:                 "tag",
+			Identifier:                 isVirtualEndpointGatewayName,
+			ValidateFunctionIdentifier: validate.ValidateRegexpLen,
+			Type:                       validate.TypeString,
+			Required:                   true,
+			Regexp:                     `^([a-z]|[a-z][-a-z0-9]*[a-z0-9])$`,
+			MinValueLength:             1,
+			MaxValueLength:             63})
+	validateSchema = append(validateSchema,
+		validate.ValidateSchema{
+			Identifier:                 "tags",
 			ValidateFunctionIdentifier: validate.ValidateRegexpLen,
 			Type:                       validate.TypeString,
 			Optional:                   true,

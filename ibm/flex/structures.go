@@ -67,6 +67,7 @@ const (
 	isLBListenerPolicyAction                  = "action"
 	isLBListenerPolicyTargetID                = "target_id"
 	isLBListenerPolicyTargetURL               = "target_url"
+	isLBListenerPolicyTargetHTTPStatusCode    = "target_http_status_code"
 	isLBListenerPolicyHTTPSRedirectStatusCode = "target_https_redirect_status_code"
 	isLBListenerPolicyHTTPSRedirectURI        = "target_https_redirect_uri"
 	isLBListenerPolicyHTTPSRedirectListener   = "target_https_redirect_listener"
@@ -353,6 +354,7 @@ func FlattenVpcWorkerPools(list []containerv2.GetWorkerPoolResponse) []map[strin
 			"isolation":    workerPool.Isolation,
 			"labels":       workerPool.Labels,
 			"state":        workerPool.Lifecycle.ActualState,
+			"host_pool_id": workerPool.HostPoolID,
 		}
 		zones := workerPool.Zones
 		zonesConfig := make([]map[string]interface{}, len(zones))
@@ -871,6 +873,43 @@ func FlattenCosObejctVersioning(in *s3.GetBucketVersioningOutput) []interface{} 
 	return versioning
 }
 
+func ReplicationRuleGet(in *s3.ReplicationConfiguration) []map[string]interface{} {
+	rules := make([]map[string]interface{}, 0, 1)
+	if in != nil {
+		for _, replicaterule := range in.Rules {
+			replicationConfig := make(map[string]interface{})
+			if replicaterule.DeleteMarkerReplication != nil {
+				if *(replicaterule.DeleteMarkerReplication).Status == "Enabled" {
+					replicationConfig["deletemarker_replication_status"] = true
+				} else {
+					replicationConfig["deletemarker_replication_status"] = false
+				}
+			}
+			if replicaterule.Destination != nil {
+				replicationConfig["destination_bucket_crn"] = *(replicaterule.Destination).Bucket
+			}
+			if replicaterule.ID != nil {
+				replicationConfig["rule_id"] = *replicaterule.ID
+			}
+			if replicaterule.Priority != nil {
+				replicationConfig["priority"] = int(*replicaterule.Priority)
+			}
+			if replicaterule.Status != nil {
+				if *replicaterule.Status == "Enabled" {
+					replicationConfig["enable"] = true
+				} else {
+					replicationConfig["enable"] = false
+				}
+			}
+			if replicaterule.Filter != nil && replicaterule.Filter.Prefix != nil {
+				replicationConfig["prefix"] = *(replicaterule.Filter).Prefix
+			}
+			rules = append(rules, replicationConfig)
+		}
+	}
+	return rules
+}
+
 func FlattenLimits(in *whisk.Limits) []interface{} {
 	att := make(map[string]interface{})
 	if in.Timeout != nil {
@@ -980,7 +1019,7 @@ func float64Value(f32 *float32) (f float64) {
 	return
 }
 
-func dateToString(d *strfmt.Date) (s string) {
+func DateToString(d *strfmt.Date) (s string) {
 	if d != nil {
 		s = d.String()
 	}
@@ -1399,9 +1438,10 @@ func StringContains(s []string, str string) bool {
 	return false
 }
 
-func FlattenMembersData(list []iamaccessgroupsv2.ListGroupMembersResponseMember, users []usermanagementv2.UserInfo, serviceids []iamidentityv1.ServiceID) ([]string, []string) {
+func FlattenMembersData(list []iamaccessgroupsv2.ListGroupMembersResponseMember, users []usermanagementv2.UserInfo, serviceids []iamidentityv1.ServiceID, profileids []iamidentityv1.TrustedProfile) ([]string, []string, []string) {
 	var ibmid []string
 	var serviceid []string
+	var profileid []string
 	for _, m := range list {
 		if *m.Type == "user" {
 			for _, user := range users {
@@ -1410,19 +1450,24 @@ func FlattenMembersData(list []iamaccessgroupsv2.ListGroupMembersResponseMember,
 					break
 				}
 			}
+		} else if *m.Type == "profile" {
+			for _, prid := range profileids {
+				if *prid.IamID == *m.IamID {
+					profileid = append(profileid, *prid.ID)
+					break
+				}
+			}
 		} else {
-
 			for _, srid := range serviceids {
 				if *srid.IamID == *m.IamID {
 					serviceid = append(serviceid, *srid.ID)
 					break
 				}
 			}
-
 		}
 
 	}
-	return ibmid, serviceid
+	return ibmid, serviceid, profileid
 }
 
 func FlattenAccessGroupMembers(list []iamaccessgroupsv2.ListGroupMembersResponseMember, users []usermanagementv2.UserInfo, serviceids []iamidentityv1.ServiceID) []map[string]interface{} {
@@ -1618,6 +1663,16 @@ func FlattenWhitelist(whitelist icdv4.Whitelist) []map[string]interface{} {
 		entries[i] = l
 	}
 	return entries
+}
+
+func ExpandPlatformOptions(platformOptions icdv4.PlatformOptions) []map[string]interface{} {
+	pltOptions := make([]map[string]interface{}, 0, 1)
+	pltOption := make(map[string]interface{})
+	pltOption["key_protect_key_id"] = platformOptions.KeyProtectKey
+	pltOption["disk_encryption_key_crn"] = platformOptions.DiskENcryptionKeyCrn
+	pltOption["backup_encryption_key_crn"] = platformOptions.BackUpEncryptionKeyCrn
+	pltOptions = append(pltOptions, pltOption)
+	return pltOptions
 }
 
 func expandStringMap(inVal interface{}) map[string]string {
@@ -2195,10 +2250,10 @@ func ResourceLBListenerPolicyCustomizeDiff(diff *schema.ResourceDiff) error {
 			return fmt.Errorf("Load balancer listener policy: When action is forward please specify target_id")
 		}
 	} else if policyAction == "redirect" {
-		_, httpsStatusCodeSet := diff.GetOk(isLBListenerPolicyHTTPSRedirectStatusCode)
+		_, httpsStatusCodeSet := diff.GetOk(isLBListenerPolicyTargetHTTPStatusCode)
 		_, targetURLSet := diff.GetOk(isLBListenerPolicyTargetURL)
 
-		if !httpsStatusCodeSet && diff.NewValueKnown(isLBListenerPolicyHTTPSRedirectStatusCode) {
+		if !httpsStatusCodeSet && diff.NewValueKnown(isLBListenerPolicyTargetHTTPStatusCode) {
 			return fmt.Errorf("Load balancer listener policy: When action is redirect please specify target_http_status_code")
 		}
 
@@ -2274,6 +2329,33 @@ func ResourceVolumeAttachmentValidate(diff *schema.ResourceDiff) error {
 				return fmt.Errorf("InstanceTemplate - volume_attachments[%d]: Volume details missing. Provide either 'volume' or 'volume_prototype'.", volAttIdx)
 			}
 		}
+	}
+
+	return nil
+}
+
+func InstanceProfileValidate(diff *schema.ResourceDiff) error {
+	if diff.Id() != "" && diff.HasChange("profile") {
+		o, n := diff.GetChange("profile")
+		old := o.(string)
+		new := n.(string)
+		log.Println("old profile : ", old)
+		log.Println("new profile : ", new)
+		if !strings.Contains(old, "d") && strings.Contains(new, "d") {
+			diff.ForceNew("profile")
+		} else if strings.Contains(old, "d") && !strings.Contains(new, "d") {
+			diff.ForceNew("profile")
+		}
+	}
+	return nil
+}
+
+func ResourceIPSecPolicyValidate(diff *schema.ResourceDiff) error {
+
+	newEncAlgo := diff.Get("encryption_algorithm").(string)
+	newAuthAlgo := diff.Get("authentication_algorithm").(string)
+	if (newEncAlgo == "aes128gcm16" || newEncAlgo == "aes192gcm16" || newEncAlgo == "aes256gcm16") && newAuthAlgo != "disabled" {
+		return fmt.Errorf("authentication_algorithm must be set to 'disabled' when the encryption_algorithm is either one of 'aes128gcm16', 'aes192gcm16', 'aes256gcm16'")
 	}
 
 	return nil
@@ -2516,9 +2598,17 @@ func DefaultResourceGroup(meta interface{}) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	userDetails, err := meta.(conns.ClientSession).BluemixUserDetails()
+	if err != nil {
+		return "", err
+	}
+	accountID := userDetails.UserAccount
 	defaultGrp := true
 	resourceGroupList := rg.ListResourceGroupsOptions{
 		Default: &defaultGrp,
+	}
+	if accountID != "" {
+		resourceGroupList.AccountID = &accountID
 	}
 	grpList, resp, err := rMgtClient.ListResourceGroups(&resourceGroupList)
 	if err != nil || grpList == nil || grpList.Resources == nil {
@@ -2911,6 +3001,9 @@ func GeneratePolicyOptions(d *schema.ResourceData, meta interface{}) (iampolicym
 			name := a["name"].(string)
 			value := a["value"].(string)
 			operator := a["operator"].(string)
+			if name == "serviceName" {
+				serviceName = value
+			}
 			at := iampolicymanagementv1.ResourceAttribute{
 				Name:     &name,
 				Value:    &value,

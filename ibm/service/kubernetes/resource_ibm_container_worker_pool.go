@@ -37,6 +37,9 @@ func ResourceIBMContainerWorkerPool() *schema.Resource {
 				Required:    true,
 				ForceNew:    true,
 				Description: "Cluster name",
+				ValidateFunc: validate.InvokeValidator(
+					"ibm_container_worker_pool",
+					"cluster"),
 			},
 
 			"machine_type": {
@@ -152,7 +155,7 @@ func ResourceIBMContainerWorkerPool() *schema.Resource {
 							Description: "Effect for taint. Accepted values are NoSchedule, PreferNoSchedule and NoExecute.",
 							ValidateFunc: validate.InvokeValidator(
 								"ibm_container_worker_pool",
-								"worker_taints"),
+								"effect"),
 						},
 					},
 				},
@@ -187,11 +190,19 @@ func ResourceIBMContainerWorkerPoolValidator() *validate.ResourceValidator {
 	validateSchema := make([]validate.ValidateSchema, 0)
 	validateSchema = append(validateSchema,
 		validate.ValidateSchema{
-			Identifier:                 "worker_taints",
+			Identifier:                 "effect",
 			ValidateFunctionIdentifier: validate.ValidateAllowedStringValue,
 			Type:                       validate.TypeString,
 			Required:                   true,
 			AllowedValues:              tainteffects})
+	validateSchema = append(validateSchema,
+		validate.ValidateSchema{
+			Identifier:                 "cluster",
+			ValidateFunctionIdentifier: validate.ValidateCloudData,
+			Type:                       validate.TypeString,
+			Required:                   true,
+			CloudDataType:              "cluster",
+			CloudDataRange:             []string{"resolved_to:name"}})
 
 	containerWorkerPoolTaintsValidator := validate.ResourceValidator{ResourceName: "ibm_container_worker_pool", Schema: validateSchema}
 	return &containerWorkerPoolTaintsValidator

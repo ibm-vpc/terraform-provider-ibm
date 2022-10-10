@@ -100,7 +100,7 @@ func ResourceIBMHPCS() *schema.Resource {
 				Type:     schema.TypeSet,
 				Optional: true,
 				Computed: true,
-				Elem:     &schema.Schema{Type: schema.TypeString, ValidateFunc: validate.InvokeValidator("ibm_hpcs", "tag")},
+				Elem:     &schema.Schema{Type: schema.TypeString, ValidateFunc: validate.InvokeValidator("ibm_hpcs", "tags")},
 				Set:      flex.ResourceIBMVPCHash,
 			},
 			"status": {
@@ -309,16 +309,17 @@ func ResourceIBMHPCS() *schema.Resource {
 }
 
 type HPCSParams struct {
-	Units            int    `json:"units,omitempty"`
-	FailoverUnits    int    `json:"failover_units,omitempty"`
-	ServiceEndpoints string `json:"allowed_network,omitempty"`
+	Units                 int    `json:"units,omitempty"`
+	FailoverUnits         int    `json:"failover_units,omitempty"`
+	RequiresRecoveryUnits bool   `json:"requires_recovery_units,omitempty"`
+	ServiceEndpoints      string `json:"allowed_network,omitempty"`
 }
 
 func ResourceIBMHPCSValidator() *validate.ResourceValidator {
 	validateSchema := make([]validate.ValidateSchema, 0)
 	validateSchema = append(validateSchema,
 		validate.ValidateSchema{
-			Identifier:                 "tag",
+			Identifier:                 "tags",
 			ValidateFunctionIdentifier: validate.ValidateRegexpLen,
 			Type:                       validate.TypeString,
 			Optional:                   true,
@@ -411,6 +412,7 @@ func resourceIBMHPCSCreate(context context.Context, d *schema.ResourceData, meta
 	if serviceEndpoint, ok := d.GetOk("service_endpoints"); ok {
 		params.ServiceEndpoints = serviceEndpoint.(string)
 	}
+	params.RequiresRecoveryUnits = true
 	// Convert HPCSParams srtuct to map
 	parameters, _ := json.Marshal(params)
 	var raw map[string]interface{}

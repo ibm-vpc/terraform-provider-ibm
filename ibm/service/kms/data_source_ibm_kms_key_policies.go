@@ -6,13 +6,11 @@ package kms
 import (
 	"context"
 	"log"
-	"strings"
 
 	//kp "github.com/IBM/keyprotect-go-client"
-	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/conns"
+
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/validate"
-	rc "github.com/IBM/platform-services-go-sdk/resourcecontrollerv2"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -35,9 +33,16 @@ func DataSourceIBMKMSkeyPolicies() *schema.Resource {
 				Default:      "public",
 			},
 			"key_id": {
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: "Key ID of the Key",
+				Type:         schema.TypeString,
+				Optional:     true,
+				Description:  "Key ID of the Key",
+				ExactlyOneOf: []string{"key_id", "alias"},
+			},
+			"alias": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Description:  "Alias of the Key",
+				ExactlyOneOf: []string{"key_id", "alias"},
 			},
 			"policies": {
 				Type:        schema.TypeList,
@@ -149,40 +154,27 @@ func DataSourceIBMKMSkeyPolicies() *schema.Resource {
 }
 
 func dataSourceIBMKMSKeyPoliciesRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	api, err := meta.(conns.ClientSession).KeyManagementAPI()
+	instanceID := getInstanceIDFromCRN(d.Get("instance_id").(string))
+	api, _, err := populateKPClient(d, meta, instanceID)
 	if err != nil {
 		return diag.FromErr(err)
-	}
-
-	instanceID := d.Get("instance_id").(string)
-	CrnInstanceID := strings.Split(instanceID, ":")
-	if len(CrnInstanceID) > 3 {
-		instanceID = CrnInstanceID[len(CrnInstanceID)-3]
 	}
 	endpointType := d.Get("endpoint_type").(string)
-	key_id := d.Get("key_id").(string)
-
-	rsConClient, err := meta.(conns.ClientSession).ResourceControllerV2API()
-	if err != nil {
-		return diag.FromErr(err)
+	var id string
+	if v, ok := d.GetOk("key_id"); ok {
+		id = v.(string)
+		d.Set("key_id", id)
 	}
-	resourceInstanceGet := rc.GetResourceInstanceOptions{
-		ID: &instanceID,
+	if v, ok := d.GetOk("alias"); ok {
+		id = v.(string)
+		key, err := api.GetKey(context, id)
+		if err != nil {
+			return diag.Errorf("Failed to get Key: %s", err)
+		}
+		d.Set("alias", id)
+		d.Set("key_id", key.ID)
 	}
-
-	instanceData, resp, err := rsConClient.GetResourceInstance(&resourceInstanceGet)
-	if err != nil || instanceData == nil {
-		return diag.Errorf("[ERROR] Error retrieving resource instance: %s with resp code: %s", err, resp)
-	}
-	extensions := instanceData.Extensions
-	URL, err := KmsEndpointURL(api, endpointType, extensions)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-	api.URL = URL
-
-	api.Config.InstanceID = instanceID
-	policies, err := api.GetPolicies(context, key_id)
+	policies, err := api.GetPolicies(context, id)
 	if err != nil {
 		return diag.Errorf("Failed to read policies: %s", err)
 	}
@@ -192,12 +184,9 @@ func dataSourceIBMKMSKeyPoliciesRead(context context.Context, d *schema.Resource
 	} else {
 		d.Set("policies", flex.FlattenKeyPolicies(policies))
 	}
-
 	d.SetId(instanceID)
-	d.Set("key_id", key_id)
 	d.Set("instance_id", instanceID)
 	d.Set("endpoint_type", endpointType)
 
 	return nil
-
 }

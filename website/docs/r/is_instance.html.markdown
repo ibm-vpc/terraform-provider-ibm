@@ -47,6 +47,7 @@ resource "ibm_is_instance" "example" {
   name    = "example-instance"
   image   = ibm_is_image.example.id
   profile = "bc1-2x8"
+  metadata_service_enabled  = false
 
   boot_volume {
     encryption = "crn:v1:bluemix:public:kms:us-south:a/dffc98a0f1f0f95f6613b3b752286b87:e4a29d1a-2ef0-42a6-8fd2-350deb1c647e:key:5437653b-c4b1-447f-9646-b2a2a4cd6179"
@@ -54,7 +55,7 @@ resource "ibm_is_instance" "example" {
 
   primary_network_interface {
     subnet = ibm_is_subnet.example.id
-    primary_ipv4_address = "10.240.0.6"
+    primary_ipv4_address = "10.240.0.6"  // will be deprecated. Use primary_ip.[0].address
     allow_ip_spoofing = true
   }
 
@@ -75,6 +76,55 @@ resource "ibm_is_instance" "example" {
     delete = "15m"
   }
 }
+// primary_ipv4_address deprecation 
+output "primary_ipv4_address" {
+  # value = ibm_is_instance.example.primary_network_interface.0.primary_ipv4_address // will be deprecated in future
+  value = ibm_is_instance.example.primary_network_interface.0.primary_ip.0.address // use this instead 
+}
+
+```
+### Sample for creating an instance with reserved ip as primary_ip reference.
+
+The following example shows how you can create a virtual server instance using reserved ip as the primary ip reference of the network interface
+
+// Example to provision instance using reserved ip
+
+```terraform
+resource "ibm_is_subnet_reserved_ip" "example" {
+  subnet    = ibm_is_subnet.example.id
+  name      = "example-reserved-ip1"
+  address		= "${replace(ibm_is_subnet.example.ipv4_cidr_block, "0/24", "13")}"
+}
+
+resource "ibm_is_instance" "example1" {
+  name    = "example-instance-reserved-ip"
+  image   = ibm_is_image.example.id
+  profile = "bc1-2x8"
+  metadata_service_enabled  = false
+
+  primary_network_interface {
+    name   = "eth0"
+    subnet = ibm_is_subnet.example.id
+    primary_ip {
+      reserved_ip = ibm_is_subnet_reserved_ip.example.reserved_ip
+    }
+  }  
+  network_interfaces {
+    name   = "eth1"
+    subnet = ibm_is_subnet.example.id
+    allow_ip_spoofing = false
+    primary_ip {
+      name = "example-reserved-ip1"
+      auto_delete = true
+      address = "${replace(ibm_is_subnet.example.ipv4_cidr_block, "0/24", "14")}"
+    }
+  }
+
+  vpc  = ibm_is_vpc.example.id
+  zone = "us-south-1"
+  keys = [ibm_is_ssh_key.example.id]
+}
+
 ```
 
 ### Sample for creating an instance with custom security group rules.
@@ -236,6 +286,7 @@ resource "ibm_is_instance" "example" {
   boot_volume {
     name     = "boot-restore"
     snapshot = ibm_is_snapshot.example.id
+    tags     = ["tags-0"]
   }
   primary_network_interface {
     subnet = ibm_is_subnet.example.id
@@ -268,73 +319,111 @@ Review the argument references that you can specify for your resource.
   ~> **Note** 
     `action` allows to start, stop and reboot the instance and it is not recommended to manage the instance from terraform and other clients (UI/CLI) simultaneously, as it would cause unknown behaviour. `start` action can be performed only when the instance is in `stopped` state. `stop` and `reboot` actions can be performed only when the instance is in `running` state. It is also recommended to remove the `action` configuration from terraform once it is applied succesfully, to avoid instability in the terraform configuration later.
 - `auto_delete_volume`- (Optional, Bool) If set to **true**, automatically deletes the volumes that are attached to an instance. **Note** Setting this argument can bring some inconsistency in the volume resource, as the volumes is destroyed along with instances.
+- `availability_policy_host_failure` - (Optional, String) The availability policy to use for this virtual server instance. The action to perform if the compute host experiences a failure. Supported values are `restart` and `stop`.
 - `boot_volume`  (Optional, List) A list of boot volumes for an instance.
 
   Nested scheme for `boot_volume`:
   - `encryption` - (Optional, String) The type of encryption to use for the boot volume.
   - `name` - (Optional, String) The name of the boot volume.
+  - `size` - (Optional, Integer) The size of the boot volume.(The capacity of the volume in gigabytes. This defaults to minimum capacity of the image and maximum to `250`.
+
+    ~> **NOTE:**
+    Supports only expansion on update (must be attached to a running instance and must not be less than the current volume size)
   - `snapshot` - (Optional, Forces new resource, String) The snapshot id of the volume to be used for creating boot volume attachment
-    ~> **Note:** 
     
-     - `snapshot` conflicts with `image` id and `instance_template`
-- `dedicated_host` - (Optional, Forces new resource, String) The placement restrictions to use the virtual server instance. Unique ID of the dedicated host where the instance id placed.
-- `dedicated_host_group` - (Optional, Forces new resource, String) The placement restrictions to use for the virtual server instance. Unique ID of the dedicated host group where the instance is placed.
+    ~> **Note:**
+    `snapshot` conflicts with `image` id and `instance_template`
+  - `tags`- (Optional, Array of Strings) A list of user tags that you want to add to your volume. (https://cloud.ibm.com/apidocs/tagging#types-of-tags)
+- `dedicated_host` - (Optional, String) The placement restrictions to use the virtual server instance. Unique ID of the dedicated host where the instance id placed.
+- `dedicated_host_group` - (Optional, String) The placement restrictions to use for the virtual server instance. Unique ID of the dedicated host group where the instance is placed.
+
+  -> **NOTE:**
+  An instance can be moved from one dedicated host or group to another host or group. Moving an instance from public to dedicated host or vice versa is not allowed.
+
+- `default_trusted_profile_auto_link` - (Optional, Forces new resource, Boolean) If set to `true`, the system will create a link to the specified `target` trusted profile during instance creation. Regardless of whether a link is created by the system or manually using the IAM Identity service, it will be automatically deleted when the instance is deleted. Default value : **true**
+- `default_trusted_profile_target` - (Optional, Forces new resource, String) The unique identifier or CRN of the default IAM trusted profile to use for this virtual server instance.
 - `force_action` - (Optional, Boolean) Required with `action`. If set to `true`, the action will be forced immediately, and all queued actions deleted. Ignored for the start action.
-- `force_recovery_time` - (Optional, Integer) Define timeout (in minutes), to force the `is_instance` to recover from a perpetual "starting" state, during provisioning. And to force the is_instance to recover from a perpetual "stopping" state, during removal of user access. ~>**Note:** The force_recovery_time is used to retry multiple times until timeout.
-- `image` - (Optional, String) The ID of the virtual server image that you want to use. To list supported images, run `ibmcloud is images`.
-  ~> **Note:** 
-    
-  - `image` conflicts with `boot_volume.0.snapshot`  
-- `keys` - (Optional, List) A comma-separated list of SSH keys that you want to add to your instance.
+- `force_recovery_time` - (Optional, Integer) Define timeout (in minutes), to force the `is_instance` to recover from a perpetual "starting" state, during provisioning. And to force the is_instance to recover from a perpetual "stopping" state, during removal of user access.
+
+  ~>**Note:** The force_recovery_time is used to retry multiple times until timeout.
+- `image` - (Required, String) The ID of the virtual server image that you want to use. To list supported images, run `ibmcloud is images` or use `ibm_is_images` datasource.
+  
+  ~> **Note:**
+  `image` conflicts with `boot_volume.0.snapshot`, not required when creating instance using `instance_template`
+- `keys` - (Required, List) A comma-separated list of SSH keys that you want to add to your instance.
+- `lifecycle_reasons`- (List) The reasons for the current lifecycle_state (if any).
+
+  Nested scheme for `lifecycle_reasons`:
+    - `code` - (String) A snake case string succinctly identifying the reason for this lifecycle state.
+    - `message` - (String) An explanation of the reason for this lifecycle state.
+    - `more_info` - (String) Link to documentation about the reason for this lifecycle state.
+- `lifecycle_state`- (String) The lifecycle state of the virtual server instance. [ **deleting**, **failed**, **pending**, **stable**, **suspended**, **updating**, **waiting** ]
+- `metadata_service_enabled` - (Optional, Boolean) Indicates whether the metadata service endpoint is available to the virtual server instance. Default value : **false**
 - `name` - (Optional, String) The instance name.
 - `network_interfaces`  (Optional,  Forces new resource, List) A list of more network interfaces that are set up for the instance.
 
   Nested scheme for `network_interfaces`:
   - `allow_ip_spoofing`- (Optional, Bool) Indicates whether IP spoofing is allowed on the interface. If **false**, IP spoofing is prevented on the interface. If **true**, IP spoofing is allowed on the interface.
-    ~> **NOTE:**:
-      - `allow_ip_spoofing` requires **IP spoofing operator** access under VPC infrastructure Services. As the **IP spoofing operator**, you can enable or disable the IP spoofing check on virtual server instances.
-      - Use this only if you have **IP spoofing operator** access.
+      
+      ~> **NOTE:**
+      `allow_ip_spoofing` requires **IP spoofing operator** access under VPC infrastructure Services. As the **IP spoofing operator**, you can enable or disable the IP spoofing check on virtual server instances. Use this only if you have **IP spoofing operator** access.
 
   - `name` - (Optional, String) The name of the network interface.
-  - `primary_ipv4_address` - (Optional, Forces new resource, String) The IPV4 address of the interface.
+  - `primary_ip` - (Optional, List) The primary IP address to bind to the network interface. This can be specified using an existing reserved IP, or a prototype object for a new reserved IP.
+
+      Nested scheme for `primary_ip`:
+      - `auto_delete` - (Optional, Bool) Indicates whether this reserved IP member will be automatically deleted when either target is deleted, or the reserved IP is unbound.
+      - `address` - (Optional, String) The IP address of the reserved IP. This is same as `network_interfaces.[].primary_ipv4_address`
+      - `name`- (Optional, String) The user-defined or system-provided name for this reserved IP
+      - `reserved_ip`- (Optional, String) The unique identifier for this reserved IP.
+  - `primary_ipv4_address` - (Optional, Deprecated, Forces new resource, String) The IPV4 address of the interface. `primary_ipv4_address` will be deprecated, use `primary_ip.[0].address` instead.
   - `subnet` - (Required, String) The ID of the subnet.
   - `security_groups`- (Optional, List of strings)A comma separated list of security groups to add to the primary network interface.
 - `placement_group` - (Optional, string) Unique Identifier of the Placement Group for restricting the placement of the instance
-- `primary_network_interface` - (Optional, List) A nested block describes the primary network interface of this instance. Only one primary network interface can be specified for an instance.
+- `primary_network_interface` - (Required, List) A nested block describes the primary network interface of this instance. Only one primary network interface can be specified for an instance. When using `instance_template`, `primary_network_interface` is not required.
 
   Nested scheme for `primary_network_interface`:
   - `allow_ip_spoofing`- (Optional, Bool) Indicates whether IP spoofing is allowed on the interface. If **false**, IP spoofing is prevented on the interface. If **true**, IP spoofing is allowed on the interface.
-    ~> **NOTE:**:
-      - `allow_ip_spoofing` requires **IP spoofing operator** access under VPC infrastructure Services. As the **IP spoofing operator**, you can enable or disable the IP spoofing check on virtual server instances.
-      - Use this only if you have **IP spoofing operator** access.
+
+    ~> **NOTE:**
+    `allow_ip_spoofing` requires **IP spoofing operator** access under VPC infrastructure Services. As the **IP spoofing operator**, you can enable or disable the IP spoofing check on virtual server instances. Use this only if you have **IP spoofing operator** access.
 
   - `name` - (Optional, String) The name of the network interface.
   - `port_speed` - (Deprecated, Integer) Speed of the network interface.
-  - `primary_ipv4_address` - (Optional, Forces new resource, String) The IPV4 address of the interface.
+  - `primary_ip` - (Optional, List) The primary IP address to bind to the network interface. This can be specified using an existing reserved IP, or a prototype object for a new reserved IP.
+
+      Nested scheme for `primary_ip`:
+      - `auto_delete` - (Optional, Bool) Indicates whether this reserved IP member will be automatically deleted when either target is deleted, or the reserved IP is unbound.
+      - `address` - (Optional, String) The IP address of the reserved IP. This is same as `primary_network_interface.[0].primary_ipv4_address` which will be deprecated.
+      - `name`- (Optional, String) The user-defined or system-provided name for this reserved IP
+      - `reserved_ip`- (Optional, String) The unique identifier for this reserved IP
+  - `primary_ipv4_address` - (Optional, Deprecated, Forces new resource, String) The IPV4 address of the interface.`primary_ipv4_address` will be deprecated, use `primary_ip.[0].address` instead.
   - `subnet` - (Required, String) The ID of the subnet.
   - `security_groups`-List of strings-Optional-A comma separated list of security groups to add to the primary network interface.
-- `profile` - (Optional, String) The name of the profile that you want to use for your instance. To list supported profiles, run `ibmcloud is instance-profiles`.
+- `profile` - (Required, String) The name of the profile that you want to use for your instance. Not required when using `instance_template`. To list supported profiles, run `ibmcloud is instance-profiles` or `ibm_is_instance_profiles` datasource.
 
-  ~>**NOTE:**
-      When the `profile` is changed, the VSI is restarted. The new profile must:                                                                                                                                          
-          1. Have matching instance disk support. Any disks associated with the current profile will be deleted, and any disks associated with the requested profile will be created.        
-          2. Be compatible with any placement_target(`dedicated_host`, `dedicated_host_group`, `placement_group`) constraints. For example, if the instance is placed on a dedicated host, the requested profile family must be the same as the dedicated host family.
+  **NOTE:**
+  When the `profile` is changed, the VSI is restarted. The new profile must:
+    1. Have matching instance disk support. Any disks associated with the current profile will be deleted, and any disks associated with the requested profile will be created.        
+    2. Be compatible with any placement_target(`dedicated_host`, `dedicated_host_group`, `placement_group`) constraints. For example, if the instance is placed on a dedicated host, the requested profile family must be the same as the dedicated host family.
+  
+  ~> **NOTE**
+   Changing a `profile` without disk to a `profile` with disk or vise versa will result in recreating(forcenew) the resource.
 - `resource_group` - (Optional, Forces new resource, String) The ID of the resource group where you want to create the instance.
-- `instance_template` - (Optional, String) ID of the source template.
-  ~> **Note:** 
-    
-  - `instance_template` conflicts with `boot_volume.0.snapshot`  
+- `instance_template` - (Optional, String) ID of the instance template to create the instance from. To create an instance template, use `ibm_is_instance_template` resource.
+  
+  ~> **Note:**
+  `instance_template` conflicts with `boot_volume.0.snapshot`. When creating an instance using `instance_template`, [`image `, `primary_network_interface`, `vpc`, `zone`] are not required.
 - `tags` (Optional, Array of Strings) A list of tags that you want to add to your instance. Tags can help you find your instance more easily later.
 - `total_volume_bandwidth` - (Optional, Integer) The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes
-- `user_data` - (Optional, String) User data to transfer to the instance.
+- `user_data` - (Optional, String) User data to transfer to the instance. For more information, about `user_data`, see [about user data](https://cloud.ibm.com/docs/vpc?topic=vpc-user-data).
 - `volumes`  (Optional, List) A comma separated list of volume IDs to attach to the instance.
-- `vpc` - (Optional, Forces new resource, String) The ID of the VPC where you want to create the instance.
-- `zone` - (Optional, Forces new resource, String) The name of the VPC zone where you want to create the instance.
+- `vpc` - (Required, Forces new resource, String) The ID of the VPC where you want to create the instance. When using `instance_template`, `vpc` is not required.
+- `zone` - (Required, Forces new resource, String) The name of the VPC zone where you want to create the instance. When using `instance_template`, `zone` is not required.
 
 
 ## Attribute reference
 In addition to all argument reference list, you can access the following attribute reference after your resource is created.
-
 - `bandwidth` - The total bandwidth (in megabits per second) shared across the instance's network interfaces and storage volumes
 - `boot_volume`- (List of Strings) A list of boot volumes that the instance uses.
 
@@ -380,7 +469,14 @@ In addition to all argument reference list, you can access the following attribu
   - `name` - (String) The name of the network interface.
   - `subnet` - (String) The ID of the subnet.
   - `security_groups`- (List of Strings) A list of security groups that are used in the network interface.
-  - `primary_ipv4_address` - (String) The primary IPv4 address.
+  - `primary_ip` - (List) The primary IP address to bind to the network interface. This can be specified using an existing reserved IP, or a prototype object for a new reserved IP.
+
+      Nested scheme for `primary_ip`:
+      - `auto_delete` - (Bool) Indicates whether this reserved IP member will be automatically deleted when either target is deleted, or the reserved IP is unbound.
+      - `address` - (String) The IP address of the reserved IP. This is same as `network_interfaces.[].primary_ipv4_address` which will be deprecated.
+      - `name`- (String) The user-defined or system-provided name for this reserved IP
+      - `reserved_ip`- (String) The unique identifier for this reserved IP
+  - `primary_ipv4_address` - (String, Deprecated) The primary IPv4 address. Same as `primary_ip.[0].address`
 - `primary_network_interface`- (List of Strings) A list of primary network interfaces that are attached to the instance.
 
   Nested scheme for `primary_network_interface`:
@@ -389,13 +485,28 @@ In addition to all argument reference list, you can access the following attribu
   - `name` - (String) The name of the primary network interface.
   - `subnet` - (String) The ID of the subnet that the primary network interface is attached to.
   - `security_groups`-List of strings-A list of security groups that are used in the primary network interface.
-  - `primary_ipv4_address` - (String) The primary IPv4 address.
+  - `primary_ip` - (List) The primary IP address to bind to the network interface. This can be specified using an existing reserved IP, or a prototype object for a new reserved IP.
+
+      Nested scheme for `primary_ip`:
+      - `auto_delete` - (Bool) Indicates whether this reserved IP member will be automatically deleted when either target is deleted, or the reserved IP is unbound.
+      - `address` - (String) The IP address of the reserved IP. This is same as `primary_network_interface.[0].primary_ipv4_address` which will be deprecated.
+      - `name`- (String) The user-defined or system-provided name for this reserved IP
+      - `reserved_ip`- (String) The unique identifier for this reserved IP.
+  - `primary_ipv4_address` - (String, Deprecated) The primary IPv4 address. Same as `primary_ip.[0].address`
+      ```terraform
+      // primary_ipv4_address deprecation 
+      output "primary_ipv4_address" {
+        # value = ibm_is_instance.example.primary_network_interface.0.primary_ipv4_address // will be deprecated in future
+        value = ibm_is_instance.example.primary_network_interface.0.primary_ip.0.address // use this instead 
+      }
+      ```
 - `status` - (String) The status of the instance.
 - `status_reasons` - (List) Array of reasons for the current status.
 
   Nested scheme for `status_reasons`:
   - `code` - (String) A string with an underscore as a special character identifying the status reason.
   - `message` - (String) An explanation of the status reason.
+  - `more_info` - (String) Link to documentation about this status reason
 - `total_network_bandwidth` - (Integer) The amount of bandwidth (in megabits per second) allocated exclusively to instance network interfaces.
 - `volume_attachments`- (List of Strings) A list of volume attachments for the instance.
 

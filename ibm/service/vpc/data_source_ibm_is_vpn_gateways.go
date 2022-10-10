@@ -62,7 +62,6 @@ func DataSourceIBMISVPNGateways() *schema.Resource {
 										Computed:    true,
 										Description: "The private IP address assigned to the VPN gateway member",
 									},
-
 									"role": {
 										Type:        schema.TypeString,
 										Computed:    true,
@@ -104,6 +103,49 @@ func DataSourceIBMISVPNGateways() *schema.Resource {
 							Type:        schema.TypeString,
 							Computed:    true,
 							Description: " VPN gateway mode(policy/route) ",
+						},
+						"vpc": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "VPC for the VPN Gateway",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"crn": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The CRN for this VPC.",
+									},
+									"deleted": {
+										Type:        schema.TypeList,
+										Computed:    true,
+										Description: "If present, this property indicates the referenced resource has been deleted and providessome supplementary information.",
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"more_info": {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "Link to documentation about deleted resources.",
+												},
+											},
+										},
+									},
+									"href": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The URL for this VPC.",
+									},
+									"id": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The unique identifier for this VPC.",
+									},
+									"name": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The unique user-defined name for this VPC.",
+									},
+								},
+							},
 						},
 					},
 				},
@@ -161,11 +203,17 @@ func dataSourceIBMVPNGatewaysRead(d *schema.ResourceData, meta interface{}) erro
 					currentMemberIP["status"] = *memberIP.Status
 					vpcMembersIpsList = append(vpcMembersIpsList, currentMemberIP)
 				}
-				if memberIP.PrivateIP != nil {
+				if memberIP.PrivateIP != nil && memberIP.PrivateIP.Address != nil {
 					currentMemberIP["private_address"] = *memberIP.PrivateIP.Address
 				}
 			}
 			gateway[isVPNGatewayMembers] = vpcMembersIpsList
+		}
+
+		if data.VPC != nil {
+			vpcList := []map[string]interface{}{}
+			vpcList = append(vpcList, dataSourceVPNServerCollectionVPNGatewayVpcReferenceToMap(data.VPC))
+			gateway["vpc"] = vpcList
 		}
 
 		vpngateways = append(vpngateways, gateway)
@@ -179,4 +227,39 @@ func dataSourceIBMVPNGatewaysRead(d *schema.ResourceData, meta interface{}) erro
 // dataSourceIBMVPNGatewaysID returns a reasonable ID  list.
 func dataSourceIBMVPNGatewaysID(d *schema.ResourceData) string {
 	return time.Now().UTC().String()
+}
+
+func dataSourceVPNServerCollectionVPNGatewayVpcReferenceToMap(vpcsItem *vpcv1.VPCReference) (vpcsMap map[string]interface{}) {
+	vpcsMap = map[string]interface{}{}
+
+	if vpcsItem.CRN != nil {
+		vpcsMap["crn"] = vpcsItem.CRN
+	}
+	if vpcsItem.Deleted != nil {
+		deletedList := []map[string]interface{}{}
+		deletedMap := dataSourceVPNGatewayCollectionVpcsDeletedToMap(*vpcsItem.Deleted)
+		deletedList = append(deletedList, deletedMap)
+		vpcsMap["deleted"] = deletedList
+	}
+	if vpcsItem.Href != nil {
+		vpcsMap["href"] = vpcsItem.Href
+	}
+	if vpcsItem.ID != nil {
+		vpcsMap["id"] = vpcsItem.ID
+	}
+	if vpcsItem.Name != nil {
+		vpcsMap["name"] = vpcsItem.Name
+	}
+
+	return vpcsMap
+}
+
+func dataSourceVPNGatewayCollectionVpcsDeletedToMap(deletedItem vpcv1.VPCReferenceDeleted) (deletedMap map[string]interface{}) {
+	deletedMap = map[string]interface{}{}
+
+	if deletedItem.MoreInfo != nil {
+		deletedMap["more_info"] = deletedItem.MoreInfo
+	}
+
+	return deletedMap
 }

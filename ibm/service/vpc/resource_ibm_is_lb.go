@@ -38,6 +38,7 @@ const (
 	isLBResourceGroup           = "resource_group"
 	isLBProfile                 = "profile"
 	isLBRouteMode               = "route_mode"
+	isLBUdpSupported            = "udp_supported"
 	isLBLogging                 = "logging"
 	isLBSecurityGroups          = "security_groups"
 	isLBSecurityGroupsSupported = "security_group_supported"
@@ -116,11 +117,46 @@ func ResourceIBMISLB() *schema.Resource {
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
-
+			isLBPrivateIPDetail: {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "The private IP addresses assigned to this load balancer.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						isLBPrivateIpAddress: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The IP address to reserve, which must not already be reserved on the subnet.",
+						},
+						isLBPrivateIpHref: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The URL for this reserved IP",
+						},
+						isLBPrivateIpName: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The user-defined name for this reserved IP. If unspecified, the name will be a hyphenated list of randomly-selected words. Names must be unique within the subnet the reserved IP resides in. ",
+						},
+						isLBPrivateIpId: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "Identifies a reserved IP by a unique property.",
+						},
+						isLBPrivateIpResourceType: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The resource type",
+						},
+					},
+				},
+			},
 			isLBSubnets: {
 				Type:        schema.TypeSet,
 				Required:    true,
-				ForceNew:    true,
+				ForceNew:    false,
+				MinItems:    1,
+				MaxItems:    15,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Set:         schema.HashString,
 				Description: "Load Balancer subnets list",
@@ -156,7 +192,7 @@ func ResourceIBMISLB() *schema.Resource {
 				Type:     schema.TypeSet,
 				Optional: true,
 				Computed: true,
-				Elem:     &schema.Schema{Type: schema.TypeString, ValidateFunc: validate.InvokeValidator("ibm_is_lb", "tag")},
+				Elem:     &schema.Schema{Type: schema.TypeString, ValidateFunc: validate.InvokeValidator("ibm_is_lb", "tags")},
 				Set:      flex.ResourceIBMVPCHash,
 			},
 
@@ -173,6 +209,12 @@ func ResourceIBMISLB() *schema.Resource {
 				Optional:    true,
 				Default:     false,
 				Description: "Indicates whether route mode is enabled for this load balancer",
+			},
+
+			isLBUdpSupported: {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: "Indicates whether this load balancer supports UDP.",
 			},
 
 			isLBHostName: {
@@ -204,6 +246,11 @@ func ResourceIBMISLB() *schema.Resource {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "The resource group name in which resource is provisioned",
+			},
+
+			"version": &schema.Schema{
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 		},
 	}
@@ -240,7 +287,7 @@ func ResourceIBMISLBValidator() *validate.ResourceValidator {
 			AllowedValues:              isLBProfileAllowedValues})
 	validateSchema = append(validateSchema,
 		validate.ValidateSchema{
-			Identifier:                 "tag",
+			Identifier:                 "tags",
 			ValidateFunctionIdentifier: validate.ValidateRegexpLen,
 			Type:                       validate.TypeString,
 			Optional:                   true,
@@ -423,15 +470,35 @@ func lbGet(d *schema.ResourceData, meta interface{}, id string) error {
 	}
 	d.Set(isLBPublicIPs, publicIpList)
 	privateIpList := make([]string, 0)
+	privateIpDetailList := make([]map[string]interface{}, 0)
 	if lb.PrivateIps != nil {
 		for _, ip := range lb.PrivateIps {
 			if ip.Address != nil {
 				prip := *ip.Address
 				privateIpList = append(privateIpList, prip)
 			}
+			currentPriIp := map[string]interface{}{}
+			if ip.Address != nil {
+				currentPriIp[isLBPrivateIpAddress] = ip.Address
+			}
+			if ip.Href != nil {
+				currentPriIp[isLBPrivateIpHref] = ip.Href
+			}
+			if ip.Name != nil {
+				currentPriIp[isLBPrivateIpName] = ip.Name
+			}
+			if ip.ID != nil {
+				currentPriIp[isLBPrivateIpId] = ip.ID
+			}
+			if ip.ResourceType != nil {
+				currentPriIp[isLBPrivateIpResourceType] = ip.ResourceType
+			}
+			privateIpDetailList = append(privateIpDetailList, currentPriIp)
 		}
 	}
+	// isLBPrivateIPs is same as isLBPrivateIPDetail.[].address
 	d.Set(isLBPrivateIPs, privateIpList)
+	d.Set(isLBPrivateIPDetail, privateIpDetailList)
 	if lb.Subnets != nil {
 		subnetList := make([]string, 0)
 		for _, subnet := range lb.Subnets {
@@ -469,6 +536,9 @@ func lbGet(d *schema.ResourceData, meta interface{}, id string) error {
 
 	d.Set(isLBResourceGroup, *lb.ResourceGroup.ID)
 	d.Set(isLBHostName, *lb.Hostname)
+	if lb.UDPSupported != nil {
+		d.Set(isLBUdpSupported, *lb.UDPSupported)
+	}
 	tags, err := flex.GetTagsUsingCRN(meta, *lb.CRN)
 	if err != nil {
 		log.Printf(
@@ -483,6 +553,9 @@ func lbGet(d *schema.ResourceData, meta interface{}, id string) error {
 	d.Set(flex.ResourceName, *lb.Name)
 	if lb.ResourceGroup != nil {
 		d.Set(flex.ResourceGroupName, lb.ResourceGroup.Name)
+	}
+	if err = d.Set("version", response.Headers.Get("Etag")); err != nil {
+		return fmt.Errorf("[ERROR] Error setting version: %s", err)
 	}
 	return nil
 }
@@ -542,6 +615,40 @@ func lbUpdate(d *schema.ResourceData, meta interface{}, id, name string, hasChan
 				"Error on update of resource vpc Load Balancer (%s) tags: %s", d.Id(), err)
 		}
 	}
+
+	if d.HasChange(isLBSubnets) {
+		updateLoadBalancerOptions := &vpcv1.UpdateLoadBalancerOptions{
+			ID: &id,
+		}
+		updateLoadBalancerOptions.SetIfMatch(d.Get("version").(string))
+		loadBalancerPatchModel := &vpcv1.LoadBalancerPatch{}
+		subnets := d.Get(isLBSubnets).(*schema.Set)
+		if subnets.Len() != 0 {
+			subnetobjs := make([]vpcv1.SubnetIdentityIntf, subnets.Len())
+			for i, subnet := range subnets.List() {
+				subnetstr := subnet.(string)
+				subnetobjs[i] = &vpcv1.SubnetIdentity{
+					ID: &subnetstr,
+				}
+			}
+			loadBalancerPatchModel.Subnets = subnetobjs
+		}
+		loadBalancerPatch, err := loadBalancerPatchModel.AsPatch()
+		if err != nil {
+			return fmt.Errorf("[ERROR] Error calling asPatch for LoadBalancerPatch: %s", err)
+		}
+		updateLoadBalancerOptions.LoadBalancerPatch = loadBalancerPatch
+
+		_, response, err := sess.UpdateLoadBalancer(updateLoadBalancerOptions)
+		if err != nil {
+			return fmt.Errorf("[ERROR] Error Updating subents in vpc Load Balancer : %s\n%s", err, response)
+		}
+		_, err = isWaitForLBAvailable(sess, d.Id(), d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return err
+		}
+	}
+
 	if hasChanged {
 		updateLoadBalancerOptions := &vpcv1.UpdateLoadBalancerOptions{
 			ID: &id,

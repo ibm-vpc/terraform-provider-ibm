@@ -107,6 +107,12 @@ func ResourceIBMPICloudConnection() *schema.Resource {
 				RequiredWith: []string{helpers.PICloudConnectionVPCEnabled},
 				Description:  "Set of VPCs to attach to this cloud connection",
 			},
+			PICloudConnectionTransitEnabled: {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     false,
+				Description: "Enable transit gateway for this cloud connection",
+			},
 
 			//Computed Attributes
 			PICloudConnectionId: {
@@ -138,6 +144,11 @@ func ResourceIBMPICloudConnection() *schema.Resource {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "GRE auto-assigned source IP address",
+			},
+			PICloudConnectionConnectionMode: {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Type of service the gateway is attached to",
 			},
 		},
 	}
@@ -194,13 +205,19 @@ func resourceIBMPICloudConnectionCreate(ctx context.Context, d *schema.ResourceD
 			vpcIds := flex.ExpandStringList(v.(*schema.Set).List())
 			vpcs := make([]*models.CloudConnectionVPC, len(vpcIds))
 			for i, vpcId := range vpcIds {
+				vpcIdCopy := vpcId[0:]
 				vpcs[i] = &models.CloudConnectionVPC{
-					VpcID: &vpcId,
+					VpcID: &vpcIdCopy,
 				}
 			}
 			vpc.Vpcs = vpcs
 		}
 		body.Vpc = vpc
+	}
+
+	// Transit Gateway
+	if v, ok := d.GetOk(PICloudConnectionTransitEnabled); ok {
+		body.TransitEnabled = v.(bool)
 	}
 
 	client := st.NewIBMPICloudConnectionClient(ctx, sess, cloudInstanceID)
@@ -397,6 +414,7 @@ func resourceIBMPICloudConnectionRead(ctx context.Context, d *schema.ResourceDat
 	d.Set(PICloudConnectionPort, cloudConnection.Port)
 	d.Set(helpers.PICloudConnectionSpeed, cloudConnection.Speed)
 	d.Set(helpers.PICloudInstanceId, cloudInstanceID)
+	d.Set(PICloudConnectionConnectionMode, cloudConnection.ConnectionMode)
 	if cloudConnection.Networks != nil {
 		networks := make([]string, 0)
 		for _, ccNetwork := range cloudConnection.Networks {

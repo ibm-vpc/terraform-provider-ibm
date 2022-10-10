@@ -16,6 +16,7 @@ Examples can be found in the subfolders along with the instructions how to run t
 - [Lite plan with legacy credentials](lite-plan-legacy)
 - [Lite plan with IAM credentials](lite-plan-iam)
 - [Standard plan with custom capacity](standard-plan)
+- [Standard plan with a new database](standard-plan-with-database)
 - [Standard plan with data event tracking](standard-plan-with-data-events)
 - [Standard plan on dedicated hardware](standard-plan-on-dedicated-hw)
 
@@ -23,6 +24,9 @@ Examples can be found in the subfolders along with the instructions how to run t
 
 ## Notes
 
+1. The credentials used by the Terraform provider must at a minimum have these roles or equivalent actions:
+    - `Administrator` role for Cloudant Platform
+    - `Viewer` role for the resource group that the resources will be in
 1. With `Lite` plan `capacity` can be set no more than 1 throughput blocks.
 1. `parameters` can overwrite the previously set arguments named the same way.
 1. With [`Standard` plan on dedicated hardware](standard-plan-on-dedicated-hw) the hardware must be ordered separately and provisioning should be completed before using Terraform on it
@@ -60,6 +64,7 @@ Examples can be found in the subfolders along with the instructions how to run t
 | resource_group_id | The resource group id. (Forces new resource.) | `string` | false | -
 | service_endpoints | Types of the service endpoints. Possible values are 'public', 'private', 'public-and-private'. | `string` | false | -
 | tags | Tags associated with the instance. | `set(string)` | false | -
+| db_name | A name of database to create. | `string` | true | -
 | timeouts.create<br>timeouts.update<br>timeouts.delete | The operation of the IBM Cloudant instance is considered failed if no response received for the given timeout. | `string` | false | -
 
 ## Outputs

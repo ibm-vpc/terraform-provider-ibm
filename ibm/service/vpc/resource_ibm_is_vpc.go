@@ -93,11 +93,8 @@ func ResourceIBMISVPC() *schema.Resource {
 
 			isVPCDefaultNetworkACL: {
 				Type:        schema.TypeString,
-				Optional:    true,
-				Default:     nil,
 				Computed:    true,
-				Deprecated:  "This field is deprecated",
-				Description: "Default network ACL",
+				Description: "Default network ACL ID",
 			},
 
 			isVPCDefaultRoutingTable: {
@@ -181,7 +178,7 @@ func ResourceIBMISVPC() *schema.Resource {
 				Type:        schema.TypeSet,
 				Optional:    true,
 				Computed:    true,
-				Elem:        &schema.Schema{Type: schema.TypeString, ValidateFunc: validate.InvokeValidator("ibm_is_vpc", "tag")},
+				Elem:        &schema.Schema{Type: schema.TypeString, ValidateFunc: validate.InvokeValidator("ibm_is_vpc", "tags")},
 				Set:         flex.ResourceIBMVPCHash,
 				Description: "List of tags",
 			},
@@ -419,7 +416,7 @@ func ResourceIBMISVPCValidator() *validate.ResourceValidator {
 
 	validateSchema = append(validateSchema,
 		validate.ValidateSchema{
-			Identifier:                 "tag",
+			Identifier:                 "tags",
 			ValidateFunctionIdentifier: validate.ValidateRegexpLen,
 			Type:                       validate.TypeString,
 			Optional:                   true,

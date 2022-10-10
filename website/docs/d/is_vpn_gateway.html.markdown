@@ -53,7 +53,15 @@ In addition to all argument references listed, you can access the following attr
 
 - `members` - (List) Collection of VPN gateway members.
   Nested scheme for **members**:
-	- `private_ip_address` - (String) The private IP address assigned to the VPN gateway member. This property will be present only when the VPN gateway status is `available`. This property may add support for IPv6 addresses in the future. When processing a value in this property, verify that the address is in an expected format. If it is not, log an error. Optionally halt processing and surface the error, or bypass the resource on which the unexpected IP address format was encountered.
+
+	- `private_ip` - (List) The primary IP address to bind to the network interface. This can be specified using an existing reserved IP, or a prototype object for a new reserved IP.
+		Nested scheme for `private_ip`:
+		- `address` - (String) The IP address. If the address has not yet been selected, the value will be 0.0.0.0. This property may add support for IPv6 addresses in the future. When processing a value in this property, verify that the address is in an expected format. If it is not, log an error. Optionally halt processing and surface the error, or bypass the resource on which the unexpected IP address format was encountered.
+		- `href`- (String) The URL for this reserved IP
+		- `name`- (String) The user-defined or system-provided name for this reserved IP
+		- `reserved_ip`- (String) The unique identifier for this reserved IP
+		- `resource_type`- (String) The resource type.
+	- `private_ip_address` - (String) The private IP address assigned to the VPN gateway member. This property will be present only when the VPN gateway status is `available`. This property may add support for IPv6 addresses in the future. When processing a value in this property, verify that the address is in an expected format. If it is not, log an error. Optionally halt processing and surface the error, or bypass the resource on which the unexpected IP address format was encountered. Same as `primary_ip.0.address`
 	- `public_ip_address` - (String) The public IP address assigned to the VPN gateway member. This property may add support for IPv6 addresses in the future. When processing a value in this property, verify that the address is in an expected format. If it is not, log an error. Optionally halt processing and surface the error, or bypass the resource on which the unexpected IP address format was encountered.
 	- `role` - (String) The high availability role assigned to the VPN gateway member.
 	- `status` - (String) The status of the VPN gateway member.
@@ -62,7 +70,7 @@ In addition to all argument references listed, you can access the following attr
 
 - `name` - (String) The user-defined name for this VPN gateway.
 
-- `resource_group` - (List) The resource group for this VPN gateway.
+- `resource_group` - (List) The resource group object, for this VPN gateway.
   Nested scheme for **resource_group**:
 	- `href` - (String) The URL for this resource group.
 	- `id` - (String) The unique identifier for this resource group.
@@ -81,4 +89,14 @@ In addition to all argument references listed, you can access the following attr
 	- `href` - (String) The URL for this subnet.
 	- `id` - (String) The unique identifier for this subnet.
 	- `name` - (String) The user-defined name for this subnet.
+- `vpc` - (String) The VPC this VPN server resides in.
+  Nested scheme for `vpc`:
+  - `crn` - (String) The CRN for this VPC.
+  - `deleted` - (List) 	If present, this property indicates the referenced resource has been deleted and provides some supplementary information.
+	  Nested scheme for **deleted**:
+		- `more_info` - (String) Link to documentation about deleted resources.
+  - `href` - (String) - The URL for this VPC
+  - `id` - (String) - The unique identifier for this VPC.
+  - `name` - (String) - The unique user-defined name for this VPC.
+- `resource_type` - (String) - The resource type.
 

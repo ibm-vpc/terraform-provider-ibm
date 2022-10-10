@@ -16,6 +16,7 @@ import (
 
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/conns"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
+	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/validate"
 	"github.com/IBM/platform-services-go-sdk/iampolicymanagementv1"
 )
 
@@ -55,6 +56,8 @@ func ResourceIBMResourceKey() *schema.Resource {
 				ForceNew:      true,
 				Description:   "The id of the resource instance for which to create resource key",
 				ConflictsWith: []string{"resource_alias_id"},
+				ValidateFunc: validate.InvokeValidator("ibm_resource_key",
+					"resource_instance_id"),
 			},
 
 			"resource_alias_id": {
@@ -190,6 +193,21 @@ func ResourceIBMResourceKey() *schema.Resource {
 	}
 }
 
+func ResourceIBMResourceKeyValidator() *validate.ResourceValidator {
+	validateSchema := make([]validate.ValidateSchema, 0)
+	validateSchema = append(validateSchema,
+		validate.ValidateSchema{
+			Identifier:                 "resource_instance_id",
+			ValidateFunctionIdentifier: validate.ValidateCloudData,
+			Type:                       validate.TypeString,
+			CloudDataType:              "resource_instance",
+			CloudDataRange:             []string{"service:%s"},
+			Optional:                   true})
+
+	ibmResourceKeyResourceValidator := validate.ResourceValidator{ResourceName: "ibm_resource_key", Schema: validateSchema}
+	return &ibmResourceKeyResourceValidator
+}
+
 func resourceIBMResourceKeyCreate(d *schema.ResourceData, meta interface{}) error {
 	rsContClient, err := meta.(conns.ClientSession).ResourceControllerV2API()
 	if err != nil {
@@ -298,38 +316,37 @@ func resourceIBMResourceKeyRead(d *schema.ResourceData, meta interface{}) error 
 	}
 	d.Set("name", *resourceKey.Name)
 	d.Set("status", *resourceKey.State)
+	if resourceKey.Credentials != nil && resourceKey.Credentials.Redacted != nil {
+		log.Printf("Credentials are redacted with code: %s.The User doesn't have the correct access to view the credentials. Refer to the API documentation for additional details.", *resourceKey.Credentials.Redacted)
+	}
 	if resourceKey.Credentials != nil && resourceKey.Credentials.IamRoleCRN != nil {
 		roleCrn := *resourceKey.Credentials.IamRoleCRN
-		roleName := roleCrn[strings.LastIndex(roleCrn, ":")+1:]
-
-		// TODO.S: update client
-		if strings.Contains(roleCrn, ":customRole:") {
-			iamPolicyManagementClient, err := meta.(conns.ClientSession).IAMPolicyManagementV1API()
-			if err == nil {
-				var resourceCRN string
-				if resourceKey.CRN != nil {
-					serviceName := strings.Split(*resourceKey.CRN, ":")
-					if len(serviceName) > 4 {
-						resourceCRN = serviceName[4]
-					}
+		iamPolicyManagementClient, err := meta.(conns.ClientSession).IAMPolicyManagementV1API()
+		if err == nil {
+			var resourceCRN string
+			if resourceKey.CRN != nil {
+				serviceName := strings.Split(*resourceKey.CRN, ":")
+				if len(serviceName) > 4 {
+					resourceCRN = serviceName[4]
 				}
-				listRoleOptions := &iampolicymanagementv1.ListRolesOptions{
-					AccountID:   resourceKey.AccountID,
-					ServiceName: &resourceCRN,
-				}
-				roleList, _, err := iamPolicyManagementClient.ListRoles(listRoleOptions)
-				roles := roleList.CustomRoles
-				if err == nil && len(roles) > 0 {
-					for _, role := range roles {
-						if *role.Name == roleName {
-							customRoleName := role.DisplayName
-							d.Set("role", customRoleName)
-						}
+			}
+			listRoleOptions := &iampolicymanagementv1.ListRolesOptions{
+				AccountID:   resourceKey.AccountID,
+				ServiceName: &resourceCRN,
+			}
+			roleList, resp, err := iamPolicyManagementClient.ListRoles(listRoleOptions)
+			roles := flex.MapRoleListToPolicyRoles(*roleList)
+			if err == nil && len(roles) > 0 {
+				for _, role := range roles {
+					if *role.RoleID == roleCrn {
+						RoleName := role.DisplayName
+						d.Set("role", RoleName)
 					}
 				}
 			}
-		} else {
-			d.Set("role", roleName)
+			if err != nil {
+				log.Printf("[ERROR] Error listing IAM Roles %s, %s", err, resp)
+			}
 		}
 	}
 

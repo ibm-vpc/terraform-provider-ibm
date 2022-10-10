@@ -43,7 +43,7 @@ variable "expire_days" {
 }
 
 variable "expire_date" {
-  default = ""
+  default = "2022-06-09"
 }
 
 variable "expire_prefix" {
@@ -88,4 +88,63 @@ variable "maximum_retention" {
 
 variable "quota" {
   default = "1"
+}
+
+variable "satellite_location_id" {
+  default = ""  
+}
+
+variable "replicate_ruleid" {
+  default = ""
+}
+
+variable "replicate_prefix" {
+  default = ""
+}
+
+variable "replicate_priority" {
+  default = "1"
+}
+
+variable "delmarkerrep_status" {
+  default = true
+}
+
+variable "dest_rep_bkt_crn" {
+  default = ""
+}
+
+variable "hpcs_location" {
+  default     = "us-south"
+  type        = string
+}
+variable "hpcs_plan" {
+  default     = "standard"
+  type        = string
+}
+variable "hpcs_crypto_units" {
+  type        = number
+  default     = 2
+}
+variable "hpcs_signature_threshold" {
+  type        = number
+  default     = 1
+}
+variable "hpcs_revocation_threshold" {
+  type        = number
+  default     = 1
+}
+variable "hpcs_crypto_unit_admins" {
+  type = list(object({
+    name  = string
+    key   = string
+    token = string
+  }))
+}
+# Key name that has to be created on the HPCS Instance
+variable "hpcs_key_name" {
+  type        = string
+}
+variable "hpcs_uko_rootkeycrn" {
+  default = ""
 }

@@ -161,6 +161,37 @@ resource "ibm_is_lb_pool" "testacc_pool" {
   session_persistence_type = "source_ip"
 }
 
+data "ibm_is_lb_listener" "is_lb_listener" {
+	lb = "${ibm_is_lb.lb2.id}"
+	listener_id = ibm_is_lb_listener.lb_listener2.listener_id
+}
+data "ibm_is_lb_listeners" "is_lb_listeners" {
+	lb = "${ibm_is_lb.lb2.id}"
+}
+
+data "ibm_is_lb_listener_policy" "is_lb_listener_policy" {
+	lb = "${ibm_is_lb.lb2.id}"
+	listener = ibm_is_lb_listener.lb_listener2.listener_id
+	policy_id = ibm_is_lb_listener_policy.lb_listener_policy.policy_id
+}
+data "ibm_is_lb_listener_policies" "is_lb_listener_policies" {
+	lb = "${ibm_is_lb.lb2.id}"
+	listener = "${ibm_is_lb_listener.lb_listener2.listener_id}"
+}
+
+data "ibm_is_lb_listener_policy_rule" "is_lb_listener_policy_rule" {
+	lb = "${ibm_is_lb.lb2.id}"
+	listener = "${ibm_is_lb_listener.lb_listener2.listener_id}"
+	policy = "${ibm_is_lb_listener_policy.lb_listener_policy.policy_id}"
+	rule = "${ibm_is_lb_listener_policy_rule.lb_listener_policy_rule.rule}"
+}
+
+data "ibm_is_lb_listener_policy_rules" "is_lb_listener_policy_rules" {
+	lb = "${ibm_is_lb.lb2.id}"
+	listener = "${ibm_is_lb_listener.lb_listener2.listener_id}"
+	policy = "${ibm_is_lb_listener_policy.lb_listener_policy.policy_id}"
+}
+
 resource "ibm_is_vpn_gateway" "VPNGateway1" {
   name   = "vpn1"
   subnet = ibm_is_subnet.subnet1.id
@@ -457,6 +488,12 @@ resource "ibm_is_public_gateway" "publicgateway1" {
   zone = var.zone1
 }
 
+// subnet public gateway attachment
+resource "ibm_is_subnet_public_gateway_attachment" "example" {
+  subnet      	  = ibm_is_subnet.subnet1.id
+  public_gateway 	= ibm_is_public_gateway.publicgateway1.id
+}
+
 data "ibm_is_public_gateway" "testacc_dspgw"{
   name = ibm_is_public_gateway.publicgateway1.name
 }
@@ -547,12 +584,14 @@ resource "ibm_is_instance" "instance4" {
 resource "ibm_is_snapshot" "b_snapshot" {
   name          = "my-snapshot-boot"
   source_volume = ibm_is_instance.instance4.volume_attachments[0].volume_id
+  tags          = ["tags1"]
 }
 
 // creating a snapshot from data volume
 resource "ibm_is_snapshot" "d_snapshot" {
   name          = "my-snapshot-data"
   source_volume = ibm_is_instance.instance4.volume_attachments[1].volume_id
+  tags          = ["tags1"]
 }
 
 // data source for snapshot by name
@@ -586,6 +625,7 @@ resource "ibm_is_volume" "vol5" {
   name    = "vol5"
   profile = "10iops-tier"
   zone    = "us-south-2"
+  tags    = ["tag1"]
 }
 
 // creating a volume attachment on an existing instance using an existing volume
@@ -653,6 +693,41 @@ resource "ibm_is_instance_disk_management" "disks"{
 
 data "ibm_is_instance_disks" "disk1" {
   instance = ibm_is_instance.instance1.id
+}
+
+// reserved ips
+
+resource "ibm_is_instance" "instance7" {
+  name    = "instance5"
+  profile = var.profile
+  boot_volume {
+    name     = "boot-restore"
+    snapshot = ibm_is_snapshot.b_snapshot.id
+  }
+  auto_delete_volume = true
+  primary_network_interface {
+    primary_ip {
+      address = "10.0.0.5"
+      auto_delete = true
+    } 
+    name        = "test-reserved-ip"
+    subnet      = ibm_is_subnet.subnet2.id
+  }
+  vpc  = ibm_is_vpc.vpc2.id
+  zone = "us-south-2"
+  keys = [ibm_is_ssh_key.sshkey.id]
+}
+
+
+data "ibm_is_instance_network_interface_reserved_ip" "data_reserved_ip" {
+  instance = ibm_is_instance.test_instance.id
+  network_interface = ibm_is_instance.test_instance.network_interfaces.0.id
+  reserved_ip = ibm_is_instance.test_instance.network_interfaces.0.ips.0.id
+}
+
+data "ibm_is_instance_network_interface_reserved_ips" "data_reserved_ips" {
+  instance = ibm_is_instance.test_instance.id
+  network_interface = ibm_is_instance.test_instance.network_interfaces.0.id
 }
 
 data "ibm_is_instance_disk" "disk1" {
@@ -827,19 +902,74 @@ data "ibm_is_vpc_address_prefix" "example" {
   vpc = ibm_is_vpc.vpc1.id
   address_prefix = ibm_is_vpc_address_prefix.testacc_vpc_address_prefix.address_prefix
 }
+
 data "ibm_is_vpc_address_prefix" "example-1" {
   vpc_name = ibm_is_vpc.vpc1.name
   address_prefix = ibm_is_vpc_address_prefix.testacc_vpc_address_prefix.address_prefix
 }
+
 data "ibm_is_vpc_address_prefix" "example-2" {
   vpc = ibm_is_vpc.vpc1.id
   address_prefix_name = ibm_is_vpc_address_prefix.testacc_vpc_address_prefix.name
 }
+
 data "ibm_is_vpc_address_prefix" "example-3" {
   vpc_name = ibm_is_vpc.vpc1.name
   address_prefix_name = ibm_is_vpc_address_prefix.testacc_vpc_address_prefix.name
 }
+  
+## Security Groups/Rules/Rule
+// Create is_security_groups data source
+data "ibm_is_security_groups" "example" {
+}
 
+// Create is_security_group data source
+resource "ibm_is_security_group" "example" {
+  name = "example-security-group"
+  vpc  = ibm_is_vpc.vpc1.id
+}
+
+resource "ibm_is_security_group_rule" "exampleudp" {
+  depends_on = [
+      ibm_is_security_group.example,
+  ]
+  group     = ibm_is_security_group.example.id
+  direction = "inbound"
+  remote    = "127.0.0.1"
+  udp {
+    port_min = 805
+    port_max = 807
+  }
+}
+
+data "ibm_is_security_group_rule" "example" {
+  depends_on = [
+      ibm_is_security_group_rule.exampleudp,
+  ]
+    security_group_rule = ibm_is_security_group_rule.exampleudp.rule_id
+    security_group = ibm_is_security_group.example.id
+}
+
+// Create is_security_group_rules data source
+resource "ibm_is_security_group_rule" "exampletcp" {
+  group     = ibm_is_security_group.example.id
+  direction = "outbound"
+  remote    = "127.0.0.1"
+  tcp {
+    port_min = 8080
+    port_max = 8080
+  }
+  depends_on = [
+    ibm_is_security_group.example,
+  ]
+}
+
+data "ibm_is_security_group_rules" "example" {
+  depends_on = [
+    ibm_is_security_group_rule.exampletcp,
+  ]
+} 
+  
 data "ibm_is_vpn_gateway" "example" {
   vpn_gateway = ibm_is_vpn_gateway.example.id
 }
@@ -861,4 +991,129 @@ data "ibm_is_vpn_gateway_connection" "example-2" {
 data "ibm_is_vpn_gateway_connection" "example-3" {
   vpn_gateway_name = ibm_is_vpn_gateway.example.name
   vpn_gateway_connection_name = ibm_is_vpn_gateway_connection.example.name
+}
+data "ibm_is_ike_policies" "example" {
+}
+
+data "ibm_is_ipsec_policies" "example" {
+}
+
+data "ibm_is_ike_policy" "example" {
+  ike_policy = ibm_is_ike_policy.example.id
+}
+
+data "ibm_is_ipsec_policy" "example1" {
+  ipsec_policy = ibm_is_ipsec_policy.example.id
+}
+
+data "ibm_is_ike_policy" "example2" {
+  name = "my-ike-policy"
+}
+
+data "ibm_is_ipsec_policy" "example3" {
+  name = "my-ipsec-policy"
+}
+
+# List ssh keys 
+data "ibm_is_ssh_keys" "example" {
+}
+
+# List ssh keys by Resource group id
+data "ibm_is_ssh_keys" "example" {
+  resource_group = data.ibm_resource_group.default.id
+}
+
+# List volumes
+data "ibm_is_volumes" "example-volumes" {
+}
+
+# List Volumes by Name 
+data "ibm_is_volumes" "example" {
+  volume_name = "worrier-mailable-timpani-scowling"
+}
+
+# List Volumes by Zone name
+data "ibm_is_volumes" "example" {
+  zone_name = "us-south-1"
+}
+
+## Backup Policy
+resource "ibm_is_backup_policy" "is_backup_policy" {
+  match_user_tags = ["tag1"]
+  name            = "my-backup-policy"
+}
+
+resource "ibm_is_backup_policy_plan" "is_backup_policy_plan" {
+  backup_policy_id = ibm_is_backup_policy.is_backup_policy.id
+  cron_spec        = "30 09 * * *"
+  active           = false
+  attach_user_tags = ["tag2"]
+  copy_user_tags = true
+  deletion_trigger {
+    delete_after      = 20
+    delete_over_count = "20"
+  }
+  name = "my-backup-policy-plan-1"
+}
+
+data "ibm_is_backup_policies" "is_backup_policies" {
+}
+
+data "ibm_is_backup_policy" "is_backup_policy" {
+  name = "my-backup-policy"
+}
+
+data "ibm_is_backup_policy_plans" "is_backup_policy_plans" {
+  backup_policy_id = ibm_is_backup_policy.is_backup_policy.id
+}
+
+data "ibm_is_backup_policy_plan" "is_backup_policy_plan" {
+  backup_policy_id = ibm_is_backup_policy.is_backup_policy.id
+  name             = "my-backup-policy-plan"
+}
+
+// Vpn Server
+resource "ibm_is_vpn_server" "is_vpn_server" {
+  certificate_crn = var.is_certificate_crn
+  client_authentication {
+    method    = "certificate"
+    client_ca = var.is_client_ca
+  }
+  client_ip_pool         = "10.5.0.0/21"
+  subnets                = [ibm_is_subnet.subnet1.id]
+  client_dns_server_ips  = ["192.168.3.4"]
+  client_idle_timeout    = 2800
+  enable_split_tunneling = false
+  name                   = "example-vpn-server"
+  port                   = 443
+  protocol               = "udp"
+}
+
+resource "ibm_is_vpn_server_route" "is_vpn_server_route" {
+  vpn_server_id = ibm_is_vpn_server.is_vpn_server.vpn_server
+  destination   = "172.16.0.0/16"
+  action        = "translate"
+  name          = "example-vpn-server-route"
+}
+
+data "ibm_is_vpn_server" "is_vpn_server" {
+	identifier = ibm_is_vpn_server.is_vpn_server.vpn_server
+}
+data "ibm_is_vpn_servers" "is_vpn_servers" {
+}
+
+data "ibm_is_vpn_server_routes" "is_vpn_server_routes" {
+	vpn_server_id = ibm_is_vpn_server.is_vpn_server.vpn_server
+}
+
+data "ibm_is_vpn_server_route" "is_vpn_server_route" {
+	vpn_server_id = ibm_is_vpn_server.is_vpn_server.vpn_server
+	identifier = ibm_is_vpn_server_route.is_vpn_server_route.vpn_route
+}
+data "ibm_is_vpn_server_clients" "is_vpn_server_clients" {
+	vpn_server_id = ibm_is_vpn_server.is_vpn_server.vpn_server
+}
+data "ibm_is_vpn_server_client" "is_vpn_server_client" {
+	vpn_server_id = ibm_is_vpn_server.is_vpn_server.vpn_server
+	identifier = "0726-61b2f53f-1e95-42a7-94ab-55de8f8cbdd5"
 }
