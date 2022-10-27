@@ -355,13 +355,19 @@ func DataSourceIBMIsBareMetalServers() *schema.Resource {
 										Computed:    true,
 										Description: "An explanation of the status reason",
 									},
+
+									isBareMetalServerStatusReasonsMoreInfo: {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "Link to documentation about this status reason",
+									},
 								},
 							},
 						},
 						isBareMetalServerTags: {
 							Type:        schema.TypeSet,
 							Computed:    true,
-							Elem:        &schema.Schema{Type: schema.TypeString, ValidateFunc: validate.InvokeValidator("ibm_is_bare_metal_server", "tag")},
+							Elem:        &schema.Schema{Type: schema.TypeString, ValidateFunc: validate.InvokeValidator("ibm_is_bare_metal_server", "tags")},
 							Set:         flex.ResourceIBMVPCHash,
 							Description: "Tags for the Bare metal server",
 						},
@@ -594,6 +600,9 @@ func dataSourceIBMISBareMetalServersRead(context context.Context, d *schema.Reso
 				if sr.Code != nil && sr.Message != nil {
 					currentSR[isBareMetalServerStatusReasonsCode] = *sr.Code
 					currentSR[isBareMetalServerStatusReasonsMessage] = *sr.Message
+					if sr.MoreInfo != nil {
+						currentSR[isBareMetalServerStatusReasonsMoreInfo] = *sr.MoreInfo
+					}
 					statusReasonsList = append(statusReasonsList, currentSR)
 				}
 			}

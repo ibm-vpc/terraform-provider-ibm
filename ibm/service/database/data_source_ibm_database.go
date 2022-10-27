@@ -19,6 +19,7 @@ import (
 	"github.com/IBM-Cloud/bluemix-go/models"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/conns"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
+	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/validate"
 )
 
 func DataSourceIBMDatabaseInstance() *schema.Resource {
@@ -30,18 +31,27 @@ func DataSourceIBMDatabaseInstance() *schema.Resource {
 				Description: "Resource instance name for example, my Database instance",
 				Type:        schema.TypeString,
 				Required:    true,
+				ValidateFunc: validate.InvokeDataSourceValidator(
+					"ibm_database",
+					"name"),
 			},
 
 			"resource_group_id": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "The id of the resource group in which the Database instance is present",
+				ValidateFunc: validate.InvokeDataSourceValidator(
+					"ibm_database",
+					"resource_group_id"),
 			},
 
 			"location": {
 				Description: "The location or the region in which the Database instance exists",
 				Type:        schema.TypeString,
 				Optional:    true,
+				ValidateFunc: validate.InvokeDataSourceValidator(
+					"ibm_database",
+					"location"),
 			},
 
 			"guid": {
@@ -86,16 +96,38 @@ func DataSourceIBMDatabaseInstance() *schema.Resource {
 				Description: "Memory allocation required for cluster",
 				Type:        schema.TypeInt,
 				Computed:    true,
+				Deprecated:  "This field is deprecated please use groups",
 			},
 			"members_disk_allocation_mb": {
 				Description: "Disk allocation required for cluster",
 				Type:        schema.TypeInt,
 				Computed:    true,
+				Deprecated:  "This field is deprecated please use groups",
 			},
 			"platform_options": {
 				Description: "Platform-specific options for this deployment.r",
-				Type:        schema.TypeMap,
+				Type:        schema.TypeSet,
 				Computed:    true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"key_protect_key_id": {
+							Description: "Key protect key id",
+							Type:        schema.TypeString,
+							Computed:    true,
+							Deprecated:  "This field is deprecated and has been replaced by disk_encryption_key_crn",
+						},
+						"disk_encryption_key_crn": {
+							Description: "Disk encryption key crn",
+							Type:        schema.TypeString,
+							Computed:    true,
+						},
+						"backup_encryption_key_crn": {
+							Description: "Backup encryption key crn",
+							Type:        schema.TypeString,
+							Computed:    true,
+						},
+					},
+				},
 			},
 			"tags": {
 				Type:     schema.TypeSet,
@@ -207,6 +239,7 @@ func DataSourceIBMDatabaseInstance() *schema.Resource {
 						},
 					},
 				},
+				Deprecated: "This field is deprecated, please use ibm_database_connection instead",
 			},
 			"whitelist": {
 				Type:     schema.TypeSet,
@@ -553,6 +586,37 @@ func DataSourceIBMDatabaseInstance() *schema.Resource {
 	}
 }
 
+func DataSourceIBMDatabaseInstanceValidator() *validate.ResourceValidator {
+	validateSchema := make([]validate.ValidateSchema, 0)
+	validateSchema = append(validateSchema,
+		validate.ValidateSchema{
+			Identifier:                 "name",
+			ValidateFunctionIdentifier: validate.ValidateCloudData,
+			Type:                       validate.TypeString,
+			Required:                   true,
+			CloudDataType:              "cloud-database",
+			CloudDataRange:             []string{"resolved_to:name"}})
+
+	validateSchema = append(validateSchema,
+		validate.ValidateSchema{
+			Identifier:                 "resource_group_id",
+			ValidateFunctionIdentifier: validate.ValidateCloudData,
+			Type:                       validate.TypeString,
+			CloudDataType:              "resource_group",
+			CloudDataRange:             []string{"resolved_to:id"},
+			Optional:                   true})
+	validateSchema = append(validateSchema,
+		validate.ValidateSchema{
+			Identifier:                 "location",
+			ValidateFunctionIdentifier: validate.ValidateCloudData,
+			Type:                       validate.TypeString,
+			CloudDataType:              "region",
+			Optional:                   true})
+
+	iBMDatabaseInstanceValidator := validate.ResourceValidator{ResourceName: "ibm_database", Schema: validateSchema}
+	return &iBMDatabaseInstanceValidator
+}
+
 func dataSourceIBMDatabaseInstanceRead(d *schema.ResourceData, meta interface{}) error {
 	rsConClient, err := meta.(conns.ClientSession).ResourceControllerAPIV2()
 	if err != nil {
@@ -676,12 +740,7 @@ func dataSourceIBMDatabaseInstanceRead(d *schema.ResourceData, meta interface{})
 	d.Set("adminuser", cdb.AdminUser)
 	d.Set("version", cdb.Version)
 	if &cdb.PlatformOptions != nil {
-		platformOptions := map[string]interface{}{
-			"key_protect_key_id":        cdb.PlatformOptions.KeyProtectKey,
-			"disk_encryption_key_crn":   cdb.PlatformOptions.DiskENcryptionKeyCrn,
-			"backup_encryption_key_crn": cdb.PlatformOptions.BackUpEncryptionKeyCrn,
-		}
-		d.Set("platform_options", platformOptions)
+		d.Set("platform_options", flex.ExpandPlatformOptions(cdb.PlatformOptions))
 	}
 
 	groupList, err := icdClient.Groups().GetGroups(icdId)

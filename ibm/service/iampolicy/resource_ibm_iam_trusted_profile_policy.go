@@ -10,6 +10,7 @@ import (
 
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/conns"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
+	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/validate"
 	"github.com/IBM/go-sdk-core/v5/core"
 	"github.com/IBM/platform-services-go-sdk/iamidentityv1"
 	"github.com/IBM/platform-services-go-sdk/iampolicymanagementv1"
@@ -43,6 +44,8 @@ func ResourceIBMIAMTrustedProfilePolicy() *schema.Resource {
 				ExactlyOneOf: []string{"profile_id", "iam_id"},
 				Description:  "UUID of Trusted Profile",
 				ForceNew:     true,
+				ValidateFunc: validate.InvokeValidator("ibm_iam_trusted_profile_policy",
+					"profile_id"),
 			},
 			"iam_id": {
 				Type:         schema.TypeString,
@@ -189,8 +192,30 @@ func ResourceIBMIAMTrustedProfilePolicy() *schema.Resource {
 				Optional:    true,
 				Description: "Description of the Policy",
 			},
+
+			"transaction_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: "Set transactionID for debug",
+			},
 		},
 	}
+}
+
+func ResourceIBMIAMTrustedProfilePolicyValidator() *validate.ResourceValidator {
+	validateSchema := make([]validate.ValidateSchema, 0)
+	validateSchema = append(validateSchema,
+		validate.ValidateSchema{
+			Identifier:                 "profile_id",
+			ValidateFunctionIdentifier: validate.ValidateCloudData,
+			Type:                       validate.TypeString,
+			CloudDataType:              "iam",
+			CloudDataRange:             []string{"service:trusted_profile", "resolved_to:id"},
+			Required:                   true})
+
+	iBMIAMTrustedProfilePolicyValidator := validate.ResourceValidator{ResourceName: "ibm_iam_trusted_profile_policy", Schema: validateSchema}
+	return &iBMIAMTrustedProfilePolicyValidator
 }
 
 func resourceIBMIAMTrustedProfilePolicyCreate(d *schema.ResourceData, meta interface{}) error {
@@ -263,6 +288,10 @@ func resourceIBMIAMTrustedProfilePolicyCreate(d *schema.ResourceData, meta inter
 		createPolicyOptions.Description = &des
 	}
 
+	if transactionID, ok := d.GetOk("transaction_id"); ok {
+		createPolicyOptions.SetHeaders(map[string]string{"Transaction-Id": transactionID.(string)})
+	}
+
 	trustedProfilePolicy, res, err := iamPolicyManagementClient.CreatePolicy(createPolicyOptions)
 	if err != nil {
 		return fmt.Errorf("[ERROR] Error creating trustedProfilePolicy: %s %s", err, res)
@@ -271,6 +300,10 @@ func resourceIBMIAMTrustedProfilePolicyCreate(d *schema.ResourceData, meta inter
 	getPolicyOptions := iamPolicyManagementClient.NewGetPolicyOptions(
 		*trustedProfilePolicy.ID,
 	)
+
+	if transactionID, ok := d.GetOk("transaction_id"); ok {
+		getPolicyOptions.SetHeaders(map[string]string{"Transaction-Id": transactionID.(string)})
+	}
 
 	err = resource.Retry(5*time.Minute, func() *resource.RetryError {
 		var err error
@@ -327,6 +360,10 @@ func resourceIBMIAMTrustedProfilePolicyRead(d *schema.ResourceData, meta interfa
 	getPolicyOptions := iamPolicyManagementClient.NewGetPolicyOptions(
 		trustedProfilePolicyID,
 	)
+	if transactionID, ok := d.GetOk("transaction_id"); ok {
+		getPolicyOptions.SetHeaders(map[string]string{"Transaction-Id": transactionID.(string)})
+	}
+
 	err = resource.Retry(5*time.Minute, func() *resource.RetryError {
 		var err error
 		trustedProfilePolicy, res, err = iamPolicyManagementClient.GetPolicy(getPolicyOptions)
@@ -343,7 +380,7 @@ func resourceIBMIAMTrustedProfilePolicyRead(d *schema.ResourceData, meta interfa
 	if conns.IsResourceTimeoutError(err) {
 		trustedProfilePolicy, res, err = iamPolicyManagementClient.GetPolicy(getPolicyOptions)
 	}
-	if err != nil || trustedProfilePolicy == nil {
+	if err != nil || trustedProfilePolicy == nil || res == nil {
 		return fmt.Errorf("[ERROR] Error retrieving trusted profile policy: %s %s", err, res)
 	}
 	if strings.HasPrefix(profileIDUUID, "iam-") {
@@ -379,6 +416,9 @@ func resourceIBMIAMTrustedProfilePolicyRead(d *schema.ResourceData, meta interfa
 	}
 	if trustedProfilePolicy.Description != nil {
 		d.Set("description", *trustedProfilePolicy.Description)
+	}
+	if len(res.Headers["Transaction-Id"]) > 0 && res.Headers["Transaction-Id"][0] != "" {
+		d.Set("transaction_id", res.Headers["Transaction-Id"][0])
 	}
 
 	return nil
@@ -452,6 +492,11 @@ func resourceIBMIAMTrustedProfilePolicyUpdate(d *schema.ResourceData, meta inter
 		getPolicyOptions := iamPolicyManagementClient.NewGetPolicyOptions(
 			trustedProfilePolicyID,
 		)
+
+		if transactionID, ok := d.GetOk("transaction_id"); ok {
+			getPolicyOptions.SetHeaders(map[string]string{"Transaction-Id": transactionID.(string)})
+		}
+
 		policy, response, err := iamPolicyManagementClient.GetPolicy(getPolicyOptions)
 		if err != nil || policy == nil {
 			if response != nil && response.StatusCode == 404 {
@@ -473,6 +518,10 @@ func resourceIBMIAMTrustedProfilePolicyUpdate(d *schema.ResourceData, meta inter
 		if desc, ok := d.GetOk("description"); ok {
 			des := desc.(string)
 			updatePolicyOptions.Description = &des
+		}
+
+		if transactionID, ok := d.GetOk("transaction_id"); ok {
+			updatePolicyOptions.SetHeaders(map[string]string{"Transaction-Id": transactionID.(string)})
 		}
 
 		_, resp, err := iamPolicyManagementClient.UpdatePolicy(updatePolicyOptions)
@@ -501,6 +550,10 @@ func resourceIBMIAMTrustedProfilePolicyDelete(d *schema.ResourceData, meta inter
 	deletePolicyOptions := iamPolicyManagementClient.NewDeletePolicyOptions(
 		trustedProfilePolicyID,
 	)
+
+	if transactionID, ok := d.GetOk("transaction_id"); ok {
+		deletePolicyOptions.SetHeaders(map[string]string{"Transaction-Id": transactionID.(string)})
+	}
 
 	resp, err := iamPolicyManagementClient.DeletePolicy(deletePolicyOptions)
 	if err != nil {

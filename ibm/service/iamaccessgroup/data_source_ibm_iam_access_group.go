@@ -5,11 +5,11 @@ package iamaccessgroup
 
 import (
 	"fmt"
-
 	"log"
 
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/conns"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
+	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/validate"
 	"github.com/IBM/platform-services-go-sdk/iamaccessgroupsv2"
 	"github.com/IBM/platform-services-go-sdk/iamidentityv1"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -23,6 +23,8 @@ func DataSourceIBMIAMAccessGroup() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "Name of the access group",
+				ValidateFunc: validate.InvokeDataSourceValidator("ibm_iam_access_group",
+					"access_group_name"),
 			},
 			"groups": {
 				Type:     schema.TypeList,
@@ -111,6 +113,20 @@ func DataSourceIBMIAMAccessGroup() *schema.Resource {
 		},
 	}
 }
+func DataSourceIBMIAMAccessGroupValidator() *validate.ResourceValidator {
+	validateSchema := make([]validate.ValidateSchema, 0)
+	validateSchema = append(validateSchema,
+		validate.ValidateSchema{
+			Identifier:                 "access_group_name",
+			ValidateFunctionIdentifier: validate.ValidateCloudData,
+			Type:                       validate.TypeString,
+			CloudDataType:              "iam",
+			CloudDataRange:             []string{"service:access_group", "resolved_to:name"},
+			Optional:                   true})
+
+	iBMIAMAccessGroupValidator := validate.ResourceValidator{ResourceName: "ibm_iam_access_group", Schema: validateSchema}
+	return &iBMIAMAccessGroupValidator
+}
 
 func dataIBMIAMAccessGroupRead(d *schema.ResourceData, meta interface{}) error {
 	iamAccessGroupsClient, err := meta.(conns.ClientSession).IAMAccessGroupsV2()
@@ -184,8 +200,11 @@ func dataIBMIAMAccessGroupRead(d *schema.ResourceData, meta interface{}) error {
 			break
 		}
 	}
-
+	offset := int64(0)
+	limit := int64(100)
 	listAccessGroupOption := iamAccessGroupsClient.NewListAccessGroupsOptions(accountID)
+	listAccessGroupOption.Limit = &plimit
+	listAccessGroupOption.Offset = &offset
 	retreivedGroups, detailedResponse, err := iamAccessGroupsClient.ListAccessGroups(listAccessGroupOption)
 	if err != nil {
 		return fmt.Errorf("[ERROR] Error retrieving access groups: %s. API Response is: %s", err, detailedResponse)
@@ -194,17 +213,30 @@ func dataIBMIAMAccessGroupRead(d *schema.ResourceData, meta interface{}) error {
 	if len(retreivedGroups.Groups) == 0 {
 		return fmt.Errorf("[ERROR] No access group in account")
 	}
+	allGroups := retreivedGroups.Groups
+
+	totalGroups := flex.IntValue(retreivedGroups.TotalCount)
+	for len(allGroups) < totalGroups {
+		offset = offset + limit
+		listAccessGroupOption.SetOffset(offset)
+		retreivedGroups, detailedResponse, err := iamAccessGroupsClient.ListAccessGroups(listAccessGroupOption)
+		if err != nil {
+			return fmt.Errorf("[ERROR] Error retrieving access groups: %s. API Response is: %s", err, detailedResponse)
+		}
+
+		allGroups = append(allGroups, retreivedGroups.Groups...)
+	}
 	var agName string
 	var matchGroups []iamaccessgroupsv2.Group
 	if v, ok := d.GetOk("access_group_name"); ok {
 		agName = v.(string)
-		for _, grpData := range retreivedGroups.Groups {
+		for _, grpData := range allGroups {
 			if *grpData.Name == agName {
 				matchGroups = append(matchGroups, grpData)
 			}
 		}
 	} else {
-		matchGroups = retreivedGroups.Groups
+		matchGroups = allGroups
 	}
 	if len(matchGroups) == 0 {
 		return fmt.Errorf("[ERROR] No Access Groups with name %s in Account", agName)

@@ -8,6 +8,7 @@ import (
 
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/conns"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
+	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/validate"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/IBM/go-sdk-core/v5/core"
@@ -26,6 +27,8 @@ func DataSourceIBMIAMServicePolicy() *schema.Resource {
 				Optional:     true,
 				ExactlyOneOf: []string{"iam_service_id", "iam_id"},
 				Description:  "UUID of ServiceID",
+				ValidateFunc: validate.InvokeDataSourceValidator("ibm_iam_service_policy",
+					"iam_service_id"),
 			},
 			"iam_id": {
 				Type:         schema.TypeString,
@@ -37,6 +40,12 @@ func DataSourceIBMIAMServicePolicy() *schema.Resource {
 				Description: "Sort query for policies",
 				Type:        schema.TypeString,
 				Optional:    true,
+			},
+			"transaction_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: "Set transactionID for debug",
 			},
 			"policies": {
 				Type:     schema.TypeList,
@@ -91,8 +100,14 @@ func DataSourceIBMIAMServicePolicy() *schema.Resource {
 									},
 									"service_type": {
 										Type:        schema.TypeString,
-										Optional:    true,
+										Computed:    true,
 										Description: "Service type of the policy definition",
+									},
+									"attributes": {
+										Type:        schema.TypeMap,
+										Computed:    true,
+										Description: "Set resource attributes in the form of 'name=value,name=value....",
+										Elem:        schema.TypeString,
 									},
 								},
 							},
@@ -132,6 +147,20 @@ func DataSourceIBMIAMServicePolicy() *schema.Resource {
 		},
 	}
 }
+func DataSourceIBMIAMServicePolicyValidator() *validate.ResourceValidator {
+	validateSchema := make([]validate.ValidateSchema, 0)
+	validateSchema = append(validateSchema,
+		validate.ValidateSchema{
+			Identifier:                 "iam_service_id",
+			ValidateFunctionIdentifier: validate.ValidateCloudData,
+			Type:                       validate.TypeString,
+			CloudDataType:              "iam",
+			CloudDataRange:             []string{"service:service_id", "resolved_to:id"},
+			Optional:                   true})
+
+	iBMIAMServicePolicyValidator := validate.ResourceValidator{ResourceName: "ibm_iam_service_policy", Schema: validateSchema}
+	return &iBMIAMServicePolicyValidator
+}
 
 func dataSourceIBMIAMServicePolicyRead(d *schema.ResourceData, meta interface{}) error {
 
@@ -147,7 +176,7 @@ func dataSourceIBMIAMServicePolicyRead(d *schema.ResourceData, meta interface{})
 			ID: &serviceIDUUID,
 		}
 		serviceID, resp, err := iamClient.GetServiceID(&getServiceIDOptions)
-		if err != nil {
+		if err != nil || resp == nil {
 			return fmt.Errorf("[ERROR] Error] Error Getting Service Id %s %s", err, resp)
 		}
 		iamID = *serviceID.IamID
@@ -176,13 +205,17 @@ func dataSourceIBMIAMServicePolicyRead(d *schema.ResourceData, meta interface{})
 		listPoliciesOptions.Sort = core.StringPtr(v.(string))
 	}
 
+	if transactionID, ok := d.GetOk("transaction_id"); ok {
+		listPoliciesOptions.SetHeaders(map[string]string{"Transaction-Id": transactionID.(string)})
+	}
+
 	policyList, resp, err := iamPolicyManagementClient.ListPolicies(listPoliciesOptions)
 
 	if err != nil {
 		return fmt.Errorf("Error listing service policies: %s, %s", err, resp)
 	}
-	policies := policyList.Policies
 
+	policies := policyList.Policies
 	servicePolicies := make([]map[string]interface{}, 0, len(policies))
 	for _, policy := range policies {
 		roles := make([]string, len(policy.Roles))
@@ -214,6 +247,9 @@ func dataSourceIBMIAMServicePolicyRead(d *schema.ResourceData, meta interface{})
 	} else if v, ok := d.GetOk("iam_id"); ok && v != nil {
 		iamID := v.(string)
 		d.SetId(iamID)
+	}
+	if len(resp.Headers["Transaction-Id"]) > 0 && resp.Headers["Transaction-Id"][0] != "" {
+		d.Set("transaction_id", resp.Headers["Transaction-Id"][0])
 	}
 	d.Set("policies", servicePolicies)
 	return nil

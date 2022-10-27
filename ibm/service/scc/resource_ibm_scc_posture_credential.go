@@ -14,7 +14,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/IBM/go-sdk-core/v5/core"
-	"github.com/IBM/scc-go-sdk/v3/posturemanagementv2"
+	"github.com/IBM/scc-go-sdk/v4/posturemanagementv2"
 )
 
 func ResourceIBMSccPostureCredentials() *schema.Resource {
@@ -97,7 +97,7 @@ func ResourceIBMSccPostureCredentials() *schema.Resource {
 }
 
 func ResourceIBMSccPostureCredentialsValidator() *validate.ResourceValidator {
-	validateSchema := make([]validate.ValidateSchema, 1)
+	validateSchema := make([]validate.ValidateSchema, 0)
 	validateSchema = append(validateSchema,
 		validate.ValidateSchema{
 			Identifier:                 "type",
@@ -111,16 +111,16 @@ func ResourceIBMSccPostureCredentialsValidator() *validate.ResourceValidator {
 			ValidateFunctionIdentifier: validate.ValidateRegexpLen,
 			Type:                       validate.TypeString,
 			Required:                   true,
-			Regexp:                     `^[a-zA-Z0-9-\\._,\\s]*$`,
-			MinValueLength:             1,
-			MaxValueLength:             255,
+			Regexp:                     `^[a-zA-Z0-9-._,\s]*$`,
+			MinValueLength:             3,
+			MaxValueLength:             30,
 		},
 		validate.ValidateSchema{
 			Identifier:                 "description",
 			ValidateFunctionIdentifier: validate.ValidateRegexpLen,
 			Type:                       validate.TypeString,
 			Required:                   true,
-			Regexp:                     `^[a-zA-Z0-9-\\._,\\s]*$`,
+			Regexp:                     `^[a-zA-Z0-9-._,\s]*$`,
 			MinValueLength:             1,
 			MaxValueLength:             255,
 		},

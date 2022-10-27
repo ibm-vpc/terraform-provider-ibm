@@ -8,6 +8,7 @@ import (
 
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/conns"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
+	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/validate"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/IBM/go-sdk-core/v5/core"
@@ -26,6 +27,8 @@ func DataSourceIBMIAMTrustedProfilePolicy() *schema.Resource {
 				Optional:     true,
 				ExactlyOneOf: []string{"profile_id", "iam_id"},
 				Description:  "UUID of trusted profile",
+				ValidateFunc: validate.InvokeDataSourceValidator("ibm_iam_trusted_profile_policy",
+					"profile_id"),
 			},
 			"iam_id": {
 				Type:         schema.TypeString,
@@ -37,6 +40,12 @@ func DataSourceIBMIAMTrustedProfilePolicy() *schema.Resource {
 				Description: "Sort query for policies",
 				Type:        schema.TypeString,
 				Optional:    true,
+			},
+			"transaction_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: "Set transactionID for debug",
 			},
 			"policies": {
 				Type:     schema.TypeList,
@@ -91,8 +100,14 @@ func DataSourceIBMIAMTrustedProfilePolicy() *schema.Resource {
 									},
 									"service_type": {
 										Type:        schema.TypeString,
-										Optional:    true,
+										Computed:    true,
 										Description: "Service type of the policy definition",
+									},
+									"attributes": {
+										Type:        schema.TypeMap,
+										Computed:    true,
+										Description: "Set resource attributes in the form of 'name=value,name=value....",
+										Elem:        schema.TypeString,
 									},
 								},
 							},
@@ -131,6 +146,21 @@ func DataSourceIBMIAMTrustedProfilePolicy() *schema.Resource {
 			},
 		},
 	}
+}
+
+func DataSourceIBMIAMTrustedProfilePolicyValidator() *validate.ResourceValidator {
+	validateSchema := make([]validate.ValidateSchema, 0)
+	validateSchema = append(validateSchema,
+		validate.ValidateSchema{
+			Identifier:                 "profile_id",
+			ValidateFunctionIdentifier: validate.ValidateCloudData,
+			Type:                       validate.TypeString,
+			CloudDataType:              "iam",
+			CloudDataRange:             []string{"service:trusted_profile", "resolved_to:id"},
+			Required:                   true})
+
+	iBMIAMTrustedProfilePolicyValidator := validate.ResourceValidator{ResourceName: "ibm_iam_trusted_profile_policy", Schema: validateSchema}
+	return &iBMIAMTrustedProfilePolicyValidator
 }
 
 func dataSourceIBMIAMTrustedProfilePolicyRead(d *schema.ResourceData, meta interface{}) error {
@@ -176,8 +206,13 @@ func dataSourceIBMIAMTrustedProfilePolicyRead(d *schema.ResourceData, meta inter
 		listPoliciesOptions.Sort = core.StringPtr(v.(string))
 	}
 
+	if transactionID, ok := d.GetOk("transaction_id"); ok {
+		listPoliciesOptions.SetHeaders(map[string]string{"Transaction-Id": transactionID.(string)})
+	}
+
 	policyList, resp, err := iamPolicyManagementClient.ListPolicies(listPoliciesOptions)
-	if err != nil {
+
+	if err != nil || resp == nil {
 		return fmt.Errorf("Error listing trusted profile policies: %s, %s", err, resp)
 	}
 
@@ -213,6 +248,9 @@ func dataSourceIBMIAMTrustedProfilePolicyRead(d *schema.ResourceData, meta inter
 	} else if v, ok := d.GetOk("iam_id"); ok && v != nil {
 		iamID := v.(string)
 		d.SetId(iamID)
+	}
+	if len(resp.Headers["Transaction-Id"]) > 0 && resp.Headers["Transaction-Id"][0] != "" {
+		d.Set("transaction_id", resp.Headers["Transaction-Id"][0])
 	}
 	d.Set("policies", profilePolicies)
 	return nil

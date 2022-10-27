@@ -9,6 +9,7 @@ import (
 
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/conns"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
+	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/validate"
 	"github.com/IBM/go-sdk-core/v5/core"
 	"github.com/IBM/platform-services-go-sdk/iampolicymanagementv1"
 
@@ -75,6 +76,8 @@ func ResourceIBMIAMAuthorizationPolicy() *schema.Resource {
 				ForceNew:      true,
 				ConflictsWith: []string{"subject_attributes"},
 				Description:   "The source resource group Id",
+				ValidateFunc: validate.InvokeValidator("ibm_iam_authorization_policy",
+					"source_resource_group_id"),
 			},
 
 			"target_resource_group_id": {
@@ -84,6 +87,8 @@ func ResourceIBMIAMAuthorizationPolicy() *schema.Resource {
 				ForceNew:      true,
 				ConflictsWith: []string{"resource_attributes"},
 				Description:   "The target resource group Id",
+				ValidateFunc: validate.InvokeValidator("ibm_iam_authorization_policy",
+					"target_resource_group_id"),
 			},
 
 			"source_resource_type": {
@@ -175,10 +180,39 @@ func ResourceIBMIAMAuthorizationPolicy() *schema.Resource {
 				Optional:    true,
 				Description: "Description of the Policy",
 			},
+
+			"transaction_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: "Set transactionID for debug",
+			},
 		},
 	}
 }
 
+func ResourceIBMIAMAuthorizationPolicyValidator() *validate.ResourceValidator {
+	validateSchema := make([]validate.ValidateSchema, 0)
+	validateSchema = append(validateSchema,
+		validate.ValidateSchema{
+			Identifier:                 "source_resource_group_id",
+			ValidateFunctionIdentifier: validate.ValidateCloudData,
+			Type:                       validate.TypeString,
+			CloudDataType:              "resource_group",
+			CloudDataRange:             []string{"resolved_to:id"},
+			Optional:                   true})
+	validateSchema = append(validateSchema,
+		validate.ValidateSchema{
+			Identifier:                 "target_resource_group_id",
+			ValidateFunctionIdentifier: validate.ValidateCloudData,
+			Type:                       validate.TypeString,
+			CloudDataType:              "resource_group",
+			CloudDataRange:             []string{"resolved_to:id"},
+			Optional:                   true})
+
+	iBMIAMAuthorizationPolicyValidator := validate.ResourceValidator{ResourceName: "ibm_iam_authorization_policy", Schema: validateSchema}
+	return &iBMIAMAuthorizationPolicyValidator
+}
 func resourceIBMIAMAuthorizationPolicyCreate(d *schema.ResourceData, meta interface{}) error {
 
 	var sourceServiceName, targetServiceName string
@@ -347,6 +381,10 @@ func resourceIBMIAMAuthorizationPolicyCreate(d *schema.ResourceData, meta interf
 		createPolicyOptions.Description = &des
 	}
 
+	if transactionID, ok := d.GetOk("transaction_id"); ok {
+		createPolicyOptions.SetHeaders(map[string]string{"Transaction-Id": transactionID.(string)})
+	}
+
 	authPolicy, resp, err := iampapClient.CreatePolicy(createPolicyOptions)
 	if err != nil {
 		return fmt.Errorf("[ERROR] Error creating authorization policy: %s %s", err, resp)
@@ -368,8 +406,12 @@ func resourceIBMIAMAuthorizationPolicyRead(d *schema.ResourceData, meta interfac
 		PolicyID: core.StringPtr(d.Id()),
 	}
 
+	if transactionID, ok := d.GetOk("transaction_id"); ok {
+		getPolicyOptions.SetHeaders(map[string]string{"Transaction-Id": transactionID.(string)})
+	}
+
 	authorizationPolicy, resp, err := iampapClient.GetPolicy(getPolicyOptions)
-	if err != nil {
+	if err != nil || resp == nil {
 		return fmt.Errorf("[ERROR] Error retrieving authorizationPolicy: %s %s", err, resp)
 	}
 	roles := make([]string, len(authorizationPolicy.Roles))
@@ -378,6 +420,9 @@ func resourceIBMIAMAuthorizationPolicyRead(d *schema.ResourceData, meta interfac
 	}
 	if authorizationPolicy.Description != nil {
 		d.Set("description", *authorizationPolicy.Description)
+	}
+	if len(resp.Headers["Transaction-Id"]) > 0 && resp.Headers["Transaction-Id"][0] != "" {
+		d.Set("transaction_id", resp.Headers["Transaction-Id"][0])
 	}
 	d.Set("roles", roles)
 	source := authorizationPolicy.Subjects[0]
@@ -415,6 +460,11 @@ func resourceIBMIAMAuthorizationPolicyDelete(d *schema.ResourceData, meta interf
 	deletePolicyOptions := &iampolicymanagementv1.DeletePolicyOptions{
 		PolicyID: core.StringPtr(authorizationPolicyID),
 	}
+
+	if transactionID, ok := d.GetOk("transaction_id"); ok {
+		deletePolicyOptions.SetHeaders(map[string]string{"Transaction-Id": transactionID.(string)})
+	}
+
 	resp, err := iampapClient.DeletePolicy(deletePolicyOptions)
 	if err != nil {
 		log.Printf(

@@ -23,8 +23,8 @@ const (
 	cisCachePurgeByURLs               = "purge_by_urls"
 	cisCachePurgeByCacheTags          = "purge_by_tags"
 	cisCachePurgeByHosts              = "purge_by_hosts"
-	cisCacheSettingsOnOffValidatorID  = "on_off_validator_id"
-	cisCacheServeStaleContent         = "serve_stale_content"
+	// cisCacheSettingsOnOffValidatorID  = "on_off_validator_id"
+	cisCacheServeStaleContent = "serve_stale_content"
 )
 
 func ResourceIBMCISCacheSettings() *schema.Resource {
@@ -34,6 +34,8 @@ func ResourceIBMCISCacheSettings() *schema.Resource {
 				Type:        schema.TypeString,
 				Description: "CIS instance crn",
 				Required:    true,
+				ValidateFunc: validate.InvokeValidator(ibmCISCacheSettings,
+					"cis_id"),
 			},
 			cisDomainID: {
 				Type:             schema.TypeString,
@@ -71,7 +73,7 @@ func ResourceIBMCISCacheSettings() *schema.Resource {
 				Optional:    true,
 				Computed:    true,
 				ValidateFunc: validate.InvokeValidator(ibmCISCacheSettings,
-					cisCacheSettingsOnOffValidatorID),
+					cisCacheSettingsDevelopmentMode),
 			},
 			cisCacheSettingsQueryStringSort: {
 				Type:        schema.TypeString,
@@ -79,7 +81,7 @@ func ResourceIBMCISCacheSettings() *schema.Resource {
 				Optional:    true,
 				Computed:    true,
 				ValidateFunc: validate.InvokeValidator(ibmCISCacheSettings,
-					cisCacheSettingsOnOffValidatorID),
+					cisCacheSettingsQueryStringSort),
 			},
 			cisCachePurgeAll: {
 				Type:        schema.TypeBool,
@@ -143,7 +145,22 @@ func ResourceIBMCISCacheSettingsValidator() *validate.ResourceValidator {
 		"691200, 1382400, 2073600, 2678400, 5356800, 16070400, 31536000"
 	validateSchema = append(validateSchema,
 		validate.ValidateSchema{
-			Identifier:                 cisCacheSettingsOnOffValidatorID,
+			Identifier:                 "cis_id",
+			ValidateFunctionIdentifier: validate.ValidateCloudData,
+			Type:                       validate.TypeString,
+			CloudDataType:              "resource_instance",
+			CloudDataRange:             []string{"service:internet-svcs"},
+			Required:                   true})
+	validateSchema = append(validateSchema,
+		validate.ValidateSchema{
+			Identifier:                 cisCacheSettingsDevelopmentMode,
+			ValidateFunctionIdentifier: validate.ValidateAllowedStringValue,
+			Type:                       validate.TypeString,
+			Required:                   true,
+			AllowedValues:              "on, off"})
+	validateSchema = append(validateSchema,
+		validate.ValidateSchema{
+			Identifier:                 cisCacheSettingsQueryStringSort,
 			ValidateFunctionIdentifier: validate.ValidateAllowedStringValue,
 			Type:                       validate.TypeString,
 			Required:                   true,
@@ -175,6 +192,42 @@ func ResourceIBMCISCacheSettingsValidator() *validate.ResourceValidator {
 	return &ibmCISCacheSettingsResourceValidator
 }
 
+/* MUST READ :  There is loop-hole in the framework API (Schema API)
+   if a valid input is zero (0). It gives wrong interpreration as this value
+   is returned from API and we may end up taking wrong decision.
+   Following API have this loop whole so to avoid writing following wrarpers
+   resourceCISCacheSettingsUpdateDefaultCheck
+   resourceCISCacheSettingsUpdateGetValueCheck
+   Issue#3814
+
+*/
+
+func resourceCISCacheSettingsUpdateDefaultCheck(d *schema.ResourceData, meta interface{}) bool {
+	if !d.HasChange(cisCacheSettingsBrowserExpiration) {
+		value, _ := d.GetOk(cisCacheSettingsBrowserExpiration)
+		if (value.(int)) == 0 {
+			return true
+		} else {
+			return false
+		}
+	}
+	return true
+}
+
+// Helper functino to validatae broswer expiratin value
+func resourceCISCacheSettingsUpdateGetValueCheck(d *schema.ResourceData) bool {
+	_, ok := d.GetOk(cisCacheSettingsBrowserExpiration)
+	if !ok {
+		value, _ := d.GetOk(cisCacheSettingsBrowserExpiration)
+		if (value.(int)) == 0 {
+			return true
+		} else {
+			return false
+		}
+	}
+	return true
+}
+
 func resourceCISCacheSettingsUpdate(d *schema.ResourceData, meta interface{}) error {
 	cisClient, err := meta.(conns.ClientSession).CisCacheClientSession()
 	if err != nil {
@@ -186,7 +239,7 @@ func resourceCISCacheSettingsUpdate(d *schema.ResourceData, meta interface{}) er
 	cisClient.ZoneID = core.StringPtr(zoneID)
 
 	if d.HasChange(cisCacheSettingsCachingLevel) ||
-		d.HasChange(cisCacheSettingsBrowserExpiration) ||
+		resourceCISCacheSettingsUpdateDefaultCheck(d, meta) ||
 		d.HasChange(cisCacheSettingsDevelopmentMode) ||
 		d.HasChange(cisCacheSettingsQueryStringSort) ||
 		d.HasChange(cisCachePurgeAll) ||
@@ -217,7 +270,8 @@ func resourceCISCacheSettingsUpdate(d *schema.ResourceData, meta interface{}) er
 		}
 
 		// Browser Expiration setting
-		if value, ok := d.GetOk(cisCacheSettingsBrowserExpiration); ok {
+		if resourceCISCacheSettingsUpdateGetValueCheck(d) {
+			value, _ := d.GetOk(cisCacheSettingsBrowserExpiration)
 			opt := cisClient.NewUpdateBrowserCacheTtlOptions()
 			opt.SetValue(int64(value.(int)))
 			_, resp, err := cisClient.UpdateBrowserCacheTTL(opt)

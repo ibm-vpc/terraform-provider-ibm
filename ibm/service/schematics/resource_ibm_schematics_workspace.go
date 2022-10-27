@@ -7,6 +7,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"strings"
 
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/conns"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
@@ -100,18 +101,19 @@ func ResourceIBMSchematicsWorkspace() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Description:  "The description of the workspace.",
-				ValidateFunc: validate.InvokeValidator("ibm_schematics_workspace", schematicsWorkspaceDescription),
+				ValidateFunc: validate.InvokeValidator("ibm_schematics_workspace", "description"),
 			},
 			"location": {
 				Type:        schema.TypeString,
 				Optional:    true,
+				Computed:    true,
 				Description: "The location where you want to create your Schematics workspace and run the Schematics jobs. The location that you enter must match the API endpoint that you use. For example, if you use the Frankfurt API endpoint, you must specify `eu-de` as your location. If you use an API endpoint for a geography and you do not specify a location, Schematics determines the location based on availability.",
 			},
 			"name": {
 				Type:         schema.TypeString,
 				Required:     true,
 				Description:  "The name of your workspace. The name can be up to 128 characters long and can include alphanumeric characters, spaces, dashes, and underscores. When you create a workspace for your own Terraform template, consider including the microservice component that you set up with your Terraform template and the IBM Cloud environment where you want to deploy your resources in your name.",
-				ValidateFunc: validate.InvokeValidator("ibm_schematics_workspace", schematicsWorkspaceName),
+				ValidateFunc: validate.InvokeValidator("ibm_schematics_workspace", "name"),
 			},
 			"resource_group": {
 				Type:        schema.TypeString,
@@ -205,7 +207,7 @@ func ResourceIBMSchematicsWorkspace() *schema.Resource {
 				Type:         schema.TypeString,
 				Required:     true,
 				Description:  "The Terraform version that you want to use to run your Terraform code. Enter `terraform_v0.12` to use Terraform version 0.12, and `terraform_v0.11` to use Terraform version 0.11. The Terraform config files are run with Terraform version 0.11. This is a required variable. Make sure that your Terraform config files are compatible with the Terraform version that you select.",
-				ValidateFunc: validate.InvokeValidator("ibm_schematics_workspace", schematicsWorkspaceTemplateType),
+				ValidateFunc: validate.InvokeValidator("ibm_schematics_workspace", "template_type"),
 			},
 			"template_uninstall_script_name": {
 				Type:        schema.TypeString,
@@ -470,7 +472,7 @@ func ResourceIBMSchematicsWorkspaceValidator() *validate.ResourceValidator {
 			Identifier:                 schematicsWorkspaceTemplateType,
 			ValidateFunctionIdentifier: validate.ValidateRegexp,
 			Type:                       validate.TypeString,
-			Regexp:                     `^terraform_v(?:0\.11|0\.12|0\.13|0\.14|0\.15|1\.0)(?:\.\d+)?$`,
+			Regexp:                     `^terraform_v(?:0\.11|0\.12|0\.13|0\.14|0\.15|1\.0|1\.1)(?:\.\d+)?$`,
 			Default:                    "[]",
 			Optional:                   true})
 
@@ -483,7 +485,13 @@ func resourceIBMSchematicsWorkspaceCreate(context context.Context, d *schema.Res
 	if err != nil {
 		return diag.FromErr(err)
 	}
-
+	if r, ok := d.GetOk("location"); ok {
+		region := r.(string)
+		schematicsURL, updatedURL, _ := SchematicsEndpointURL(region, meta)
+		if updatedURL {
+			schematicsClient.Service.Options.URL = schematicsURL
+		}
+	}
 	createWorkspaceOptions := &schematicsv1.CreateWorkspaceOptions{}
 
 	if _, ok := d.GetOk("applied_shareddata_ids"); ok {
@@ -749,9 +757,9 @@ func resourceIBMSchematicsWorkspaceMapToTemplateSourceDataRequest(templateSource
 		templateSourceDataRequest.Values = core.StringPtr(templateSourceDataRequestMap["values"].(string))
 	}
 	if templateSourceDataRequestMap["values_metadata"] != nil {
-		valuesMetadata := []interface{}{}
+		valuesMetadata := make([]schematicsv1.VariableMetadata, 0)
 		for _, valuesMetadataItem := range templateSourceDataRequestMap["values_metadata"].([]interface{}) {
-			valuesMetadata = append(valuesMetadata, valuesMetadataItem.(interface{}))
+			valuesMetadata = append(valuesMetadata, valuesMetadataItem.(schematicsv1.VariableMetadata))
 		}
 		templateSourceDataRequest.ValuesMetadata = valuesMetadata
 	}
@@ -899,7 +907,12 @@ func resourceIBMSchematicsWorkspaceRead(context context.Context, d *schema.Resou
 	if err != nil {
 		return diag.FromErr(err)
 	}
-
+	actionIDSplit := strings.Split(d.Id(), ".")
+	region := actionIDSplit[0]
+	schematicsURL, updatedURL, _ := SchematicsEndpointURL(region, meta)
+	if updatedURL {
+		schematicsClient.Service.Options.URL = schematicsURL
+	}
 	getWorkspaceOptions := &schematicsv1.GetWorkspaceOptions{}
 
 	getWorkspaceOptions.SetWID(d.Id())
@@ -913,7 +926,6 @@ func resourceIBMSchematicsWorkspaceRead(context context.Context, d *schema.Resou
 		log.Printf("[DEBUG] GetWorkspaceWithContext failed %s\n%s", err, response)
 		return diag.FromErr(fmt.Errorf("GetWorkspaceWithContext failed %s\n%s", err, response))
 	}
-
 	if workspaceResponse.AppliedShareddataIds != nil {
 		if err = d.Set("applied_shareddata_ids", workspaceResponse.AppliedShareddataIds); err != nil {
 			return diag.FromErr(fmt.Errorf("[ERROR] Error setting applied_shareddata_ids: %s", err))
@@ -1435,7 +1447,12 @@ func resourceIBMSchematicsWorkspaceUpdate(context context.Context, d *schema.Res
 	if err != nil {
 		return diag.FromErr(err)
 	}
-
+	actionIDSplit := strings.Split(d.Id(), ".")
+	region := actionIDSplit[0]
+	schematicsURL, updatedURL, _ := SchematicsEndpointURL(region, meta)
+	if updatedURL {
+		schematicsClient.Service.Options.URL = schematicsURL
+	}
 	updateWorkspaceOptions := &schematicsv1.UpdateWorkspaceOptions{}
 	replaceWorkspaceOptions := &schematicsv1.ReplaceWorkspaceOptions{}
 
@@ -1674,7 +1691,12 @@ func resourceIBMSchematicsWorkspaceDelete(context context.Context, d *schema.Res
 	if err != nil {
 		return diag.FromErr(err)
 	}
-
+	actionIDSplit := strings.Split(d.Id(), ".")
+	region := actionIDSplit[0]
+	schematicsURL, updatedURL, _ := SchematicsEndpointURL(region, meta)
+	if updatedURL {
+		schematicsClient.Service.Options.URL = schematicsURL
+	}
 	deleteWorkspaceOptions := &schematicsv1.DeleteWorkspaceOptions{}
 
 	deleteWorkspaceOptions.SetWID(d.Id())

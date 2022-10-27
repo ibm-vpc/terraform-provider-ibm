@@ -8,6 +8,7 @@ import (
 
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/conns"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
+	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/validate"
 	"github.com/IBM/go-sdk-core/v5/core"
 	"github.com/IBM/platform-services-go-sdk/iampolicymanagementv1"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -23,11 +24,19 @@ func DataSourceIBMIAMAccessGroupPolicy() *schema.Resource {
 				Description: "ID of access group",
 				Type:        schema.TypeString,
 				Required:    true,
+				ValidateFunc: validate.InvokeDataSourceValidator("ibm_iam_access_group_policy",
+					"access_group_id"),
 			},
 			"sort": {
 				Description: "Sort query for policies",
 				Type:        schema.TypeString,
 				Optional:    true,
+			},
+			"transaction_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: "Set transactionID for debug",
 			},
 			"policies": {
 				Type:     schema.TypeList,
@@ -82,8 +91,14 @@ func DataSourceIBMIAMAccessGroupPolicy() *schema.Resource {
 									},
 									"service_type": {
 										Type:        schema.TypeString,
-										Optional:    true,
+										Computed:    true,
 										Description: "Service type of the policy definition",
+									},
+									"attributes": {
+										Type:        schema.TypeMap,
+										Computed:    true,
+										Description: "Set resource attributes in the form of 'name=value,name=value....",
+										Elem:        schema.TypeString,
 									},
 								},
 							},
@@ -124,6 +139,21 @@ func DataSourceIBMIAMAccessGroupPolicy() *schema.Resource {
 	}
 }
 
+func DataSourceIBMIAMAccessGroupPolicyValidator() *validate.ResourceValidator {
+	validateSchema := make([]validate.ValidateSchema, 0)
+	validateSchema = append(validateSchema,
+		validate.ValidateSchema{
+			Identifier:                 "access_group_id",
+			ValidateFunctionIdentifier: validate.ValidateCloudData,
+			Type:                       validate.TypeString,
+			CloudDataType:              "iam",
+			CloudDataRange:             []string{"service:access_group", "resolved_to:id"},
+			Required:                   true})
+
+	iBMIAMAccessGroupPolicyValidator := validate.ResourceValidator{ResourceName: "ibm_iam_access_group_policy", Schema: validateSchema}
+	return &iBMIAMAccessGroupPolicyValidator
+}
+
 func dataSourceIBMIAMAccessGroupPolicyRead(d *schema.ResourceData, meta interface{}) error {
 	iamPolicyManagementClient, err := meta.(conns.ClientSession).IAMPolicyManagementV1API()
 	if err != nil {
@@ -149,8 +179,13 @@ func dataSourceIBMIAMAccessGroupPolicyRead(d *schema.ResourceData, meta interfac
 		listPoliciesOptions.Sort = core.StringPtr(v.(string))
 	}
 
+	if transactionID, ok := d.GetOk("transaction_id"); ok {
+		listPoliciesOptions.SetHeaders(map[string]string{"Transaction-Id": transactionID.(string)})
+	}
+
 	policyList, resp, err := iamPolicyManagementClient.ListPolicies(listPoliciesOptions)
-	if err != nil {
+
+	if err != nil || resp == nil {
 		return fmt.Errorf("Error listing access group policies: %s, %s", err, resp)
 	}
 
@@ -174,6 +209,11 @@ func dataSourceIBMIAMAccessGroupPolicyRead(d *schema.ResourceData, meta interfac
 		accessGroupPolicies = append(accessGroupPolicies, p)
 	}
 	d.SetId(accessGroupId)
+
+	if len(resp.Headers["Transaction-Id"]) > 0 && resp.Headers["Transaction-Id"][0] != "" {
+		d.Set("transaction_id", resp.Headers["Transaction-Id"][0])
+	}
+
 	d.Set("policies", accessGroupPolicies)
 
 	return nil

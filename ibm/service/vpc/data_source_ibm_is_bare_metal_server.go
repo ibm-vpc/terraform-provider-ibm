@@ -350,13 +350,19 @@ func DataSourceIBMIsBareMetalServer() *schema.Resource {
 							Computed:    true,
 							Description: "An explanation of the status reason",
 						},
+
+						isBareMetalServerStatusReasonsMoreInfo: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "Link to documentation about this status reason",
+						},
 					},
 				},
 			},
 			isBareMetalServerTags: {
 				Type:        schema.TypeSet,
 				Computed:    true,
-				Elem:        &schema.Schema{Type: schema.TypeString, ValidateFunc: validate.InvokeValidator("ibm_is_bare_metal_server", "tag")},
+				Elem:        &schema.Schema{Type: schema.TypeString, ValidateFunc: validate.InvokeValidator("ibm_is_bare_metal_server", "tags")},
 				Set:         flex.ResourceIBMVPCHash,
 				Description: "Tags for the Bare metal server",
 			},
@@ -365,7 +371,7 @@ func DataSourceIBMIsBareMetalServer() *schema.Resource {
 }
 
 func DataSourceIBMIsBareMetalServerValidator() *validate.ResourceValidator {
-	validateSchema := make([]validate.ValidateSchema, 1)
+	validateSchema := make([]validate.ValidateSchema, 0)
 	validateSchema = append(validateSchema,
 		validate.ValidateSchema{
 			Identifier:                 "identifier",
@@ -377,6 +383,15 @@ func DataSourceIBMIsBareMetalServerValidator() *validate.ResourceValidator {
 			Identifier:                 isBareMetalServerName,
 			ValidateFunctionIdentifier: validate.ValidateNoZeroValues,
 			Type:                       validate.TypeString})
+	validateSchema = append(validateSchema,
+		validate.ValidateSchema{
+			Identifier:                 "tags",
+			ValidateFunctionIdentifier: validate.ValidateRegexpLen,
+			Type:                       validate.TypeString,
+			Optional:                   true,
+			Regexp:                     `^[A-Za-z0-9:_ .-]+$`,
+			MinValueLength:             1,
+			MaxValueLength:             128})
 
 	ibmISBMSDataSourceValidator := validate.ResourceValidator{ResourceName: "ibm_is_bare_metal_server", Schema: validateSchema}
 	return &ibmISBMSDataSourceValidator
@@ -648,6 +663,9 @@ func dataSourceIBMISBareMetalServerRead(context context.Context, d *schema.Resou
 			if sr.Code != nil && sr.Message != nil {
 				currentSR[isBareMetalServerStatusReasonsCode] = *sr.Code
 				currentSR[isBareMetalServerStatusReasonsMessage] = *sr.Message
+				if sr.MoreInfo != nil {
+					currentSR[isBareMetalServerStatusReasonsMoreInfo] = *sr.MoreInfo
+				}
 				statusReasonsList = append(statusReasonsList, currentSR)
 			}
 		}

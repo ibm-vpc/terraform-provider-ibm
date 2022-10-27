@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"regexp"
+	"strings"
 	"testing"
 
 	"time"
@@ -41,12 +42,12 @@ var crossRegionLocation = []string{
 }
 
 var storageClass = []string{
-	"standard", "vault", "cold", "smart",
+	"standard", "vault", "cold", "smart", "onerate_active",
 }
 
-var singleSiteLocationRegex = regexp.MustCompile("^[a-z]{3}[0-9][0-9]-[a-z]{4,8}$")
-var regionLocationRegex = regexp.MustCompile("^[a-z]{2}-[a-z]{2,5}[0-9]?-[a-z]{4,8}$")
-var crossRegionLocationRegex = regexp.MustCompile("^[a-z]{2}-[a-z]{4,8}$")
+var singleSiteLocationRegex = regexp.MustCompile("^[a-z]{3}[0-9][0-9]-[a-z_a-z]{4,14}$")
+var regionLocationRegex = regexp.MustCompile("^[a-z]{2}-[a-z]{2,5}[0-9]?-[a-z_a-z]{4,14}$")
+var crossRegionLocationRegex = regexp.MustCompile("^[a-z]{2}-[a-z_a-z]{4,14}$")
 
 func TestAccIBMCosBucket_Basic(t *testing.T) {
 
@@ -81,6 +82,45 @@ func TestAccIBMCosBucket_Basic(t *testing.T) {
 			},
 		},
 	})
+}
+
+func TestAccIBMCosBucket_AllowedIP(t *testing.T) {
+	serviceName := fmt.Sprintf("terraform_%d", acctest.RandIntRange(10, 100))
+	bucketName := fmt.Sprintf("terraform%d", acctest.RandIntRange(10, 100))
+	bucketRegion := "us"
+	bucketClass := "standard"
+	bucketRegionType := "cross_region_location"
+	allowedIp1 := "103.208.71.79"
+	allowedIp2 := "172.30.8.121"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { acc.TestAccPreCheck(t) },
+		Providers:    acc.TestAccProviders,
+		CheckDestroy: testAccCheckIBMCosBucketDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckIBMCosBucket_allowedip(serviceName, bucketName, bucketRegionType, bucketRegion, bucketClass, allowedIp1, allowedIp2),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					testAccCheckIBMCosBucketExists("ibm_resource_instance.instance", "ibm_cos_bucket.bucket", bucketRegionType, bucketRegion, bucketName),
+					resource.TestCheckResourceAttr("ibm_cos_bucket.bucket", "bucket_name", bucketName),
+					resource.TestCheckResourceAttr("ibm_cos_bucket.bucket", "storage_class", bucketClass),
+					resource.TestCheckResourceAttr("ibm_cos_bucket.bucket", "cross_region_location", bucketRegion),
+					resource.TestCheckResourceAttr("ibm_cos_bucket.bucket", "allowed_ip.#", "2"),
+				),
+			},
+			{
+				Config: testAccCheckIBMCosBucket_allowedipremoved(serviceName, bucketName, bucketRegionType, bucketRegion, bucketClass),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					testAccCheckIBMCosBucketExists("ibm_resource_instance.instance", "ibm_cos_bucket.bucket", bucketRegionType, bucketRegion, bucketName),
+					resource.TestCheckResourceAttr("ibm_cos_bucket.bucket", "bucket_name", bucketName),
+					resource.TestCheckResourceAttr("ibm_cos_bucket.bucket", "storage_class", bucketClass),
+					resource.TestCheckResourceAttr("ibm_cos_bucket.bucket", "cross_region_location", bucketRegion),
+					resource.TestCheckResourceAttr("ibm_cos_bucket.bucket", "allowed_ip.#", "0"),
+				),
+			},
+		},
+	})
+
 }
 
 func TestAccIBMCosBucket_Direct(t *testing.T) {
@@ -630,6 +670,357 @@ func TestAccIBMCosBucket_import(t *testing.T) {
 	})
 }
 
+// Satellite location
+func TestAccIBMCosBucket_Satellite(t *testing.T) {
+
+	serviceName := fmt.Sprintf("terraform_%d", acctest.RandIntRange(10, 100))
+	bucketName := fmt.Sprintf("terraform%d", acctest.RandIntRange(10, 100))
+	bucketRegion := acc.Satellite_location_id
+	ResourceInstanceId := acc.Satellite_Resource_instance_id
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { acc.TestAccPreCheck(t) },
+		Providers:    acc.TestAccProviders,
+		CheckDestroy: testAccCheckIBMCosBucketDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckIBMCosBucket_basic_sat(serviceName, bucketName),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					testAccCheckIBMCosBucket_Satellite_Exists(ResourceInstanceId, "ibm_cos_bucket.bucket", bucketRegion, bucketName),
+					resource.TestCheckResourceAttr("ibm_cos_bucket.bucket", "bucket_name", bucketName),
+				),
+			},
+			{
+				Config: testAccCheckIBMCosBucket_sat_updateWithSameName(serviceName, bucketName),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					testAccCheckIBMCosBucket_Satellite_Exists(ResourceInstanceId, "ibm_cos_bucket.bucket", bucketRegion, bucketName),
+					resource.TestCheckResourceAttr("ibm_cos_bucket.bucket", "bucket_name", bucketName),
+				),
+			},
+		},
+	})
+}
+
+func TestAccIBMCosBucket_Satellite_Expiredays(t *testing.T) {
+
+	bucketName := fmt.Sprintf("terraform%d", acctest.RandIntRange(10, 100))
+	bucketRegion := acc.Satellite_location_id
+	ResourceInstanceId := acc.Satellite_Resource_instance_id
+	ruleId := "my-rule-id-bucket-expiredays"
+	enable := true
+	expireDays := 2
+	prefix := "prefix/"
+	expireDaysUpdate := 3
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { acc.TestAccPreCheck(t) },
+		Providers:    acc.TestAccProviders,
+		CheckDestroy: testAccCheckIBMCosBucketDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckIBMCosBucket_expiredays_satellite(bucketName, bucketRegion, ruleId, enable, expireDays, prefix),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					testAccCheckIBMCosBucket_Satellite_Exists(ResourceInstanceId, "ibm_cos_bucket.bucket", bucketRegion, bucketName),
+					resource.TestCheckResourceAttr("ibm_cos_bucket.bucket", "bucket_name", bucketName),
+					resource.TestCheckResourceAttr("ibm_cos_bucket.bucket", "expire_rule.#", "1"),
+				),
+			},
+			{
+				Config: testAccCheckIBMCosBucket_expire_updateDays_satellite(bucketName, bucketRegion, ruleId, enable, expireDaysUpdate, prefix),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					testAccCheckIBMCosBucket_Satellite_Exists(ResourceInstanceId, "ibm_cos_bucket.bucket", bucketRegion, bucketName),
+					resource.TestCheckResourceAttr("ibm_cos_bucket.bucket", "bucket_name", bucketName),
+					resource.TestCheckResourceAttr("ibm_cos_bucket.bucket", "expire_rule.0.days", fmt.Sprintf("%d", expireDaysUpdate)),
+				),
+			},
+			{
+				Config: testAccCheckIBMCosBucket_update_expiredays_satellite(bucketName, bucketRegion, ruleId, enable, expireDays, prefix),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					testAccCheckIBMCosBucket_Satellite_Exists(ResourceInstanceId, "ibm_cos_bucket.bucket", bucketRegion, bucketName),
+					resource.TestCheckResourceAttr("ibm_cos_bucket.bucket", "bucket_name", bucketName),
+					resource.TestCheckResourceAttr("ibm_cos_bucket.bucket", "expire_rule.#", "0"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccIBMCosBucket_Satellite_Expiredate(t *testing.T) {
+
+	bucketName := fmt.Sprintf("terraform%d", acctest.RandIntRange(10, 100))
+	bucketRegion := acc.Satellite_location_id
+	ResourceInstanceId := acc.Satellite_Resource_instance_id
+	ruleId := "my-rule-id-bucket-expiredate"
+	enable := true
+	expireDate := "2021-11-28"
+	prefix := ""
+	expireDateUpdate := "2021-11-30"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { acc.TestAccPreCheck(t) },
+		Providers:    acc.TestAccProviders,
+		CheckDestroy: testAccCheckIBMCosBucketDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckIBMCosBucket_sat_expiredate(bucketName, bucketRegion, ruleId, enable, expireDate, prefix),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					testAccCheckIBMCosBucket_Satellite_Exists(ResourceInstanceId, "ibm_cos_bucket.bucket", bucketRegion, bucketName),
+					resource.TestCheckResourceAttr("ibm_cos_bucket.bucket", "bucket_name", bucketName),
+					resource.TestCheckResourceAttr("ibm_cos_bucket.bucket", "expire_rule.#", "1"),
+				),
+			},
+			{
+				Config: testAccCheckIBMCosBucket_sat_expire_updateDate(bucketName, bucketRegion, ruleId, enable, expireDateUpdate, prefix),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					testAccCheckIBMCosBucket_Satellite_Exists(ResourceInstanceId, "ibm_cos_bucket.bucket", bucketRegion, bucketName),
+					resource.TestCheckResourceAttr("ibm_cos_bucket.bucket", "bucket_name", bucketName),
+					resource.TestCheckResourceAttr("ibm_cos_bucket.bucket", "expire_rule.0.date", expireDateUpdate),
+				),
+			},
+			{
+				Config: testAccCheckIBMCosBucket_sat_update_expiredate(bucketName, bucketRegion, ruleId, enable, expireDate, prefix),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					testAccCheckIBMCosBucket_Satellite_Exists(ResourceInstanceId, "ibm_cos_bucket.bucket", bucketRegion, bucketName),
+					resource.TestCheckResourceAttr("ibm_cos_bucket.bucket", "bucket_name", bucketName),
+					resource.TestCheckResourceAttr("ibm_cos_bucket.bucket", "expire_rule.#", "0"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccIBMCosBucket_Satellite_Expireddeletemarker(t *testing.T) {
+
+	bucketName := fmt.Sprintf("terraform%d", acctest.RandIntRange(10, 100))
+	bucketRegion := acc.Satellite_location_id
+	ResourceInstanceId := acc.Satellite_Resource_instance_id
+	ruleId := "my-rule-id-bucket-expireddeletemarker"
+	enable := true
+	prefix := ""
+	expiredObjectDeleteMarker := false
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { acc.TestAccPreCheck(t) },
+		Providers:    acc.TestAccProviders,
+		CheckDestroy: testAccCheckIBMCosBucketDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckIBMCosBucket_sat_expiredeletemarker(bucketName, bucketRegion, ruleId, enable, expiredObjectDeleteMarker, prefix),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					testAccCheckIBMCosBucket_Satellite_Exists(ResourceInstanceId, "ibm_cos_bucket.bucket", bucketRegion, bucketName),
+					resource.TestCheckResourceAttr("ibm_cos_bucket.bucket", "bucket_name", bucketName),
+					resource.TestCheckResourceAttr("ibm_cos_bucket.bucket", "expire_rule.#", "1"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccIBMCosBucket_Satellite_AbortIncompeleteMPU(t *testing.T) {
+
+	bucketName := fmt.Sprintf("terraform%d", acctest.RandIntRange(10, 100))
+	bucketRegion := acc.Satellite_location_id
+	ResourceInstanceId := acc.Satellite_Resource_instance_id
+	ruleId := "my-rule-id-bucket-abortmpu"
+	enable := true
+	prefix := ""
+	daysAfterInitiation := 1
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { acc.TestAccPreCheck(t) },
+		Providers:    acc.TestAccProviders,
+		CheckDestroy: testAccCheckIBMCosBucketDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckIBMCosBucket_sat_abortincompletempu(bucketName, bucketRegion, ruleId, enable, daysAfterInitiation, prefix),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					testAccCheckIBMCosBucket_Satellite_Exists(ResourceInstanceId, "ibm_cos_bucket.bucket", bucketRegion, bucketName),
+					resource.TestCheckResourceAttr("ibm_cos_bucket.bucket", "bucket_name", bucketName),
+					resource.TestCheckResourceAttr("ibm_cos_bucket.bucket", "abort_incomplete_multipart_upload_days.#", "1"),
+				),
+			},
+			{
+				Config: testAccCheckIBMCosBucket_sat_update_abortincompletempu(bucketName, bucketRegion, ruleId, enable, daysAfterInitiation, prefix),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					testAccCheckIBMCosBucket_Satellite_Exists(ResourceInstanceId, "ibm_cos_bucket.bucket", bucketRegion, bucketName),
+					resource.TestCheckResourceAttr("ibm_cos_bucket.bucket", "bucket_name", bucketName),
+					resource.TestCheckResourceAttr("ibm_cos_bucket.bucket", "abort_incomplete_multipart_upload_days.#", "0"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccIBMCosBucket_Satellite_noncurrentversion(t *testing.T) {
+
+	bucketName := fmt.Sprintf("terraform%d", acctest.RandIntRange(10, 100))
+	bucketRegion := acc.Satellite_location_id
+	ResourceInstanceId := acc.Satellite_Resource_instance_id
+	ruleId := "my-rule-id-bucket-ncversion"
+	enable := true
+	prefix := ""
+	noncurrentDays := 1
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { acc.TestAccPreCheck(t) },
+		Providers:    acc.TestAccProviders,
+		CheckDestroy: testAccCheckIBMCosBucketDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckIBMCosBucket_sat_noncurrentversion(bucketName, bucketRegion, ruleId, enable, noncurrentDays, prefix),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					testAccCheckIBMCosBucket_Satellite_Exists(ResourceInstanceId, "ibm_cos_bucket.bucket", bucketRegion, bucketName),
+					resource.TestCheckResourceAttr("ibm_cos_bucket.bucket", "bucket_name", bucketName),
+					resource.TestCheckResourceAttr("ibm_cos_bucket.bucket", "noncurrent_version_expiration.#", "1"),
+				),
+			},
+			{
+				Config: testAccCheckIBMCosBucket_sat_update_noncurrentversion(bucketName, bucketRegion, ruleId, enable, noncurrentDays, prefix),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					testAccCheckIBMCosBucket_Satellite_Exists(ResourceInstanceId, "ibm_cos_bucket.bucket", bucketRegion, bucketName),
+					resource.TestCheckResourceAttr("ibm_cos_bucket.bucket", "bucket_name", bucketName),
+					resource.TestCheckResourceAttr("ibm_cos_bucket.bucket", "noncurrent_version_expiration.#", "0"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccIBMCosBucket_Satellite_Object_Versioning(t *testing.T) {
+
+	bucketName := fmt.Sprintf("terraform%d", acctest.RandIntRange(10, 100))
+	bucketRegion := acc.Satellite_location_id
+	ResourceInstanceId := acc.Satellite_Resource_instance_id
+	enable := true
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { acc.TestAccPreCheck(t) },
+		Providers:    acc.TestAccProviders,
+		CheckDestroy: testAccCheckIBMCosBucketDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckIBMCosBucket_sat_object_versioning(bucketName, bucketRegion, enable),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					testAccCheckIBMCosBucket_Satellite_Exists(ResourceInstanceId, "ibm_cos_bucket.bucket", bucketRegion, bucketName),
+					resource.TestCheckResourceAttr("ibm_cos_bucket.bucket", "bucket_name", bucketName),
+
+					resource.TestCheckResourceAttr("ibm_cos_bucket.bucket", "object_versioning.#", "1"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccIBMCosBucket_OneRate_With_Storageclass(t *testing.T) {
+
+	serviceName := fmt.Sprintf("terraform_%d", acctest.RandIntRange(10, 100))
+	bucketName := fmt.Sprintf("terraform%d", acctest.RandIntRange(10, 100))
+	bucketRegion := "us-south"
+	bucketClass := "onerate_active"
+	bucketRegionType := "region_location"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { acc.TestAccPreCheck(t) },
+		Providers:    acc.TestAccProviders,
+		CheckDestroy: testAccCheckIBMCosBucketDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckIBMCosBucket_Onerate_With_Storageclass(serviceName, bucketName, bucketRegionType, bucketRegion, bucketClass),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					testAccCheckIBMCosBucketExists("ibm_resource_instance.instance", "ibm_cos_bucket.bucket", bucketRegionType, bucketRegion, bucketName),
+					resource.TestCheckResourceAttr("ibm_cos_bucket.bucket", "bucket_name", bucketName),
+					resource.TestCheckResourceAttr("ibm_cos_bucket.bucket", "storage_class", bucketClass),
+					resource.TestCheckResourceAttr("ibm_cos_bucket.bucket", "region_location", bucketRegion),
+				),
+			},
+		},
+	})
+}
+
+func TestAccIBMCosBucket_OneRate_Without_Storage_class(t *testing.T) {
+
+	serviceName := fmt.Sprintf("terraform_%d", acctest.RandIntRange(10, 100))
+	bucketName := fmt.Sprintf("terraform%d", acctest.RandIntRange(10, 100))
+	bucketRegion := "us-south"
+	bucketRegionType := "region_location"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { acc.TestAccPreCheck(t) },
+		Providers:    acc.TestAccProviders,
+		CheckDestroy: testAccCheckIBMCosBucketDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckIBMCosBucket_Onerate_Without_Storage_class(serviceName, bucketName, bucketRegionType, bucketRegion),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					testAccCheckIBMCosBucketExists("ibm_resource_instance.instance", "ibm_cos_bucket.bucket", bucketRegionType, bucketRegion, bucketName),
+					resource.TestCheckResourceAttr("ibm_cos_bucket.bucket", "bucket_name", bucketName),
+					resource.TestCheckResourceAttr("ibm_cos_bucket.bucket", "region_location", bucketRegion),
+				),
+			},
+		},
+	})
+}
+func TestAccIBMCosBucket_OneRate_With_Invalid_Storageclass(t *testing.T) {
+
+	serviceName := fmt.Sprintf("terraform_%d", acctest.RandIntRange(10, 100))
+	bucketName := fmt.Sprintf("terraform%d", acctest.RandIntRange(10, 100))
+	bucketRegion := "us-south"
+	bucketClass := "invalidstorageclass"
+	bucketRegionType := "region_location"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { acc.TestAccPreCheck(t) },
+		Providers:    acc.TestAccProviders,
+		CheckDestroy: testAccCheckIBMCosBucketDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config:      testAccCheckIBMCosBucket_Onerate_With_Invalid_Storageclass(serviceName, bucketName, bucketRegionType, bucketRegion, bucketClass),
+				ExpectError: regexp.MustCompile("\"storage_class\" must contain a value from \\[\\]string{\"standard\", \"vault\", \"cold\", \"smart\", \"flex\", \"onerate_active\"}, got \"invalidstorageclass\""),
+			},
+		},
+	})
+}
+
+func TestAccIBMCosBucket_COS_Plan_Storageclass_Mismatch_Type1(t *testing.T) {
+
+	serviceName := fmt.Sprintf("terraform_%d", acctest.RandIntRange(10, 100))
+	bucketName := fmt.Sprintf("terraform%d", acctest.RandIntRange(10, 100))
+	bucketRegion := "us-south"
+	bucketClass := "standard"
+	bucketRegionType := "region_location"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { acc.TestAccPreCheck(t) },
+		Providers:    acc.TestAccProviders,
+		CheckDestroy: testAccCheckIBMCosBucketDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config:      testAccCheckIBMCosBucket_COS_Plan_Storageclass_Mismatch_Type1(serviceName, bucketName, bucketRegionType, bucketRegion, bucketClass),
+				ExpectError: regexp.MustCompile("InvalidLocationConstraint: Storage class not allowed for one rate user"),
+			},
+		},
+	})
+}
+func TestAccIBMCosBucket_COS_Plan_Storageclass_Mismatch_Type2(t *testing.T) {
+
+	serviceName := fmt.Sprintf("terraform_%d", acctest.RandIntRange(10, 100))
+	bucketName := fmt.Sprintf("terraform%d", acctest.RandIntRange(10, 100))
+	bucketRegion := "us-south"
+	bucketClass := "onerate_active"
+	bucketRegionType := "region_location"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { acc.TestAccPreCheck(t) },
+		Providers:    acc.TestAccProviders,
+		CheckDestroy: testAccCheckIBMCosBucketDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config:      testAccCheckIBMCosBucket_COS_Plan_Storageclass_Mismatch_Type2(serviceName, bucketName, bucketRegionType, bucketRegion, bucketClass),
+				ExpectError: regexp.MustCompile("InvalidLocationConstraint: Storage class not allowed for standard or cloud lite user"),
+			},
+		},
+	})
+}
 func testAccCheckIBMCosBucketDestroy(s *terraform.State) error {
 
 	var s3Conf *aws.Config
@@ -683,16 +1074,81 @@ func testAccCheckIBMCosBucketDestroy(s *terraform.State) error {
 	return nil
 }
 
+// COS Satellite
+func testAccCheckIBMCosBucket_Satellite_Exists(resource string, bucket string, region string, bucketname string) resource.TestCheckFunc {
+
+	return func(s *terraform.State) error {
+		var s3Conf *aws.Config
+
+		bucket, ok := s.RootModule().Resources[bucket]
+		if !ok {
+			return fmt.Errorf("Bucket Not found: %s", bucket)
+		}
+
+		satloc_guid := strings.Split(resource, ":")
+		bucketsatcrn := satloc_guid[7]
+		resource = bucketsatcrn
+
+		var rt string
+
+		rt = "sl"
+
+		apiEndpoint := cos.SelectSatlocCosApi(rt, resource, region)
+
+		rsContClient, err := acc.TestAccProvider.Meta().(conns.ClientSession).BluemixSession()
+		if err != nil {
+			return err
+		}
+
+		authEndpoint, err := rsContClient.Config.EndpointLocator.IAMEndpoint()
+		if err != nil {
+			return err
+		}
+		authEndpointPath := fmt.Sprintf("%s%s", authEndpoint, "/identity/token")
+		apiKey := rsContClient.Config.BluemixAPIKey
+		if apiKey != "" {
+			s3Conf = aws.NewConfig().WithEndpoint(apiEndpoint).WithCredentials(ibmiam.NewStaticCredentials(aws.NewConfig(), authEndpointPath, apiKey, resource)).WithS3ForcePathStyle(true)
+		}
+		iamAccessToken := rsContClient.Config.IAMAccessToken
+		if iamAccessToken != "" {
+			initFunc := func() (*token.Token, error) {
+				return &token.Token{
+					AccessToken:  rsContClient.Config.IAMAccessToken,
+					RefreshToken: rsContClient.Config.IAMRefreshToken,
+					TokenType:    "Bearer",
+					ExpiresIn:    int64((time.Hour * 248).Seconds()) * -1,
+					Expiration:   time.Now().Add(-1 * time.Hour).Unix(),
+				}, nil
+			}
+			s3Conf = aws.NewConfig().WithEndpoint(apiEndpoint).WithCredentials(ibmiam.NewCustomInitFuncCredentials(aws.NewConfig(), initFunc, authEndpointPath, resource)).WithS3ForcePathStyle(true)
+		}
+		s3Sess := session.Must(session.NewSession())
+		s3Client := s3.New(s3Sess, s3Conf)
+
+		bucketList, _ := s3Client.ListBuckets(&s3.ListBucketsInput{})
+		for _, bucket := range bucketList.Buckets {
+			bn := *bucket.Name
+			if bn == bucketname {
+				return nil
+			}
+		}
+		return errors.New("bucket does not exist")
+	}
+}
+
+// / IBMCLOUD
 func testAccCheckIBMCosBucketExists(resource string, bucket string, regiontype string, region string, bucketname string) resource.TestCheckFunc {
 
 	return func(s *terraform.State) error {
 		var s3Conf *aws.Config
 		resourceInstance, ok := s.RootModule().Resources[resource]
+
 		if !ok {
 			return fmt.Errorf("Not found: %s", resource)
 		}
 
 		bucket, ok := s.RootModule().Resources[bucket]
+
 		if !ok {
 			return fmt.Errorf("Not found: %s", bucket)
 		}
@@ -750,6 +1206,54 @@ func testAccCheckIBMCosBucketExists(resource string, bucket string, regiontype s
 		return errors.New("bucket does not exist")
 	}
 }
+func TestAccIBMCOSKP(t *testing.T) {
+	instanceName := fmt.Sprintf("kms_%d", acctest.RandIntRange(10, 100))
+	serviceName := fmt.Sprintf("terraform_%d", acctest.RandIntRange(10, 100))
+	bucketName := fmt.Sprintf("terraform%d", acctest.RandIntRange(10, 100))
+	keyName := fmt.Sprintf("key_%d", acctest.RandIntRange(10, 100))
+	bucketRegion := "us"
+	bucketClass := "standard"
+	bucketRegionType := "cross_region_location"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { acc.TestAccPreCheck(t) },
+		Providers: acc.TestAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckIBMKeyProtectRootkeyWithCOSBucket(instanceName, keyName, serviceName, bucketName, bucketRegion, bucketClass),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("ibm_kms_key.test", "key_name", keyName),
+					testAccCheckIBMCosBucketExists("ibm_resource_instance.instance", "ibm_cos_bucket.bucket", bucketRegionType, bucketRegion, bucketName),
+					resource.TestCheckResourceAttr("ibm_cos_bucket.bucket", "bucket_name", bucketName),
+				),
+			},
+		},
+	})
+}
+
+func TestAccIBMCOSHPCS(t *testing.T) {
+	serviceName := fmt.Sprintf("terraform_%d", acctest.RandIntRange(10, 100))
+	bucketName := fmt.Sprintf("terraform%d", acctest.RandIntRange(10, 100))
+	keyName := fmt.Sprintf("key_%d", acctest.RandIntRange(10, 100))
+	bucketRegion := "us-south"
+	bucketClass := "standard"
+	bucketRegionType := "cross_region_location"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { acc.TestAccPreCheck(t) },
+		Providers: acc.TestAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckIBMHPCSRootkeyWithCOSBucket(keyName, serviceName, bucketName, bucketRegion, bucketClass),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckIBMCosBucketExists("ibm_resource_instance.instance", "ibm_cos_bucket.bucket", bucketRegionType, bucketRegion, bucketName),
+					resource.TestCheckResourceAttr("ibm_cos_bucket.bucket", "bucket_name", bucketName),
+					resource.TestCheckResourceAttr("ibm_cos_bucket.bucket", "key_protect", acc.HpcsRootKeyCrn),
+				),
+			},
+		},
+	})
+}
 
 func testAccCheckIBMCosBucket_basic(serviceName string, bucketName string, regiontype string, region string, storageClass string) string {
 
@@ -771,6 +1275,183 @@ func testAccCheckIBMCosBucket_basic(serviceName string, bucketName string, regio
 		resource_instance_id = ibm_resource_instance.instance.id
 		storage_class        = "%s"
 		cross_region_location = "%s"
+	}
+	  
+		  
+	`, serviceName, bucketName, storageClass, region)
+}
+
+func testAccCheckIBMCosBucket_Onerate_With_Storageclass(serviceName string, bucketName string, regiontype string, region string, storageClass string) string {
+
+	return fmt.Sprintf(`
+	data "ibm_resource_group" "group" {
+		is_default=true
+	}
+	  
+	resource "ibm_resource_instance" "instance" {
+		name              = "%s"
+		service           = "cloud-object-storage"
+		plan              = "cos-one-rate-plan"
+		location          = "global"
+		resource_group_id = data.ibm_resource_group.group.id
+	}
+	  
+	resource "ibm_cos_bucket" "bucket" {
+		bucket_name          = "%s"
+		resource_instance_id = ibm_resource_instance.instance.id
+		storage_class        = "%s"
+		region_location = "%s"
+	}
+	  
+		  
+	`, serviceName, bucketName, storageClass, region)
+}
+
+func testAccCheckIBMCosBucket_Onerate_Without_Storage_class(serviceName string, bucketName string, regiontype string, region string) string {
+
+	return fmt.Sprintf(`
+	data "ibm_resource_group" "group" {
+		is_default=true
+	}
+
+	resource "ibm_resource_instance" "instance" {
+		name              = "%s"
+		service           = "cloud-object-storage"
+		plan              = "cos-one-rate-plan"
+		location          = "global"
+		resource_group_id = data.ibm_resource_group.group.id
+	}
+
+	resource "ibm_cos_bucket" "bucket" {
+		bucket_name          = "%s"
+		resource_instance_id = ibm_resource_instance.instance.id
+		region_location = "%s"
+	}
+
+	`, serviceName, bucketName, region)
+}
+
+func testAccCheckIBMCosBucket_Onerate_With_Invalid_Storageclass(serviceName string, bucketName string, regiontype string, region string, storageClass string) string {
+
+	return fmt.Sprintf(`
+	data "ibm_resource_group" "group" {
+		is_default=true
+	}
+
+	resource "ibm_resource_instance" "instance" {
+		name              = "%s"
+		service           = "cloud-object-storage"
+		plan              = "cos-one-rate-plan"
+		location          = "global"
+		resource_group_id = data.ibm_resource_group.group.id
+	}
+
+	resource "ibm_cos_bucket" "bucket" {
+		bucket_name          = "%s"
+		resource_instance_id = ibm_resource_instance.instance.id
+		storage_class        = "%s"
+		region_location = "%s"
+	}
+
+	`, serviceName, bucketName, storageClass, region)
+}
+
+func testAccCheckIBMCosBucket_COS_Plan_Storageclass_Mismatch_Type1(serviceName string, bucketName string, regiontype string, region string, storageClass string) string {
+
+	return fmt.Sprintf(`
+	data "ibm_resource_group" "group" {
+		is_default=true
+	}
+
+	resource "ibm_resource_instance" "instance" {
+		name              = "%s"
+		service           = "cloud-object-storage"
+		plan              = "cos-one-rate-plan"
+		location          = "global"
+		resource_group_id = data.ibm_resource_group.group.id
+	}
+
+	resource "ibm_cos_bucket" "bucket" {
+		bucket_name          = "%s"
+		resource_instance_id = ibm_resource_instance.instance.id
+		storage_class        = "%s"
+		region_location = "%s"
+	}
+
+	`, serviceName, bucketName, storageClass, region)
+}
+func testAccCheckIBMCosBucket_COS_Plan_Storageclass_Mismatch_Type2(serviceName string, bucketName string, regiontype string, region string, storageClass string) string {
+
+	return fmt.Sprintf(`
+	data "ibm_resource_group" "group" {
+		is_default=true
+	}
+
+	resource "ibm_resource_instance" "instance" {
+		name              = "%s"
+		service           = "cloud-object-storage"
+		plan              = "standard"
+		location          = "global"
+		resource_group_id = data.ibm_resource_group.group.id
+	}
+
+	resource "ibm_cos_bucket" "bucket" {
+		bucket_name          = "%s"
+		resource_instance_id = ibm_resource_instance.instance.id
+		storage_class        = "%s"
+		region_location = "%s"
+	}
+
+	`, serviceName, bucketName, storageClass, region)
+}
+
+func testAccCheckIBMCosBucket_allowedip(serviceName string, bucketName string, regiontype string, region string, storageClass string, allowedIp1 string, allowedIp2 string) string {
+
+	return fmt.Sprintf(`
+	data "ibm_resource_group" "group" {
+		is_default=true
+	}
+
+	resource "ibm_resource_instance" "instance" {
+		name              = "%s"
+		service           = "cloud-object-storage"
+		plan              = "standard"
+		location          = "global"
+		resource_group_id = data.ibm_resource_group.group.id
+	}
+
+	resource "ibm_cos_bucket" "bucket" {
+		bucket_name          = "%s"
+		resource_instance_id = ibm_resource_instance.instance.id
+		storage_class        = "%s"
+		cross_region_location = "%s"
+		allowed_ip = ["%s","%s"]
+	}
+	  
+	`, serviceName, bucketName, storageClass, region, allowedIp1, allowedIp2)
+}
+
+func testAccCheckIBMCosBucket_allowedipremoved(serviceName string, bucketName string, regiontype string, region string, storageClass string) string {
+
+	return fmt.Sprintf(`
+	data "ibm_resource_group" "group" {
+		is_default=true
+	}
+	  
+	resource "ibm_resource_instance" "instance" {
+		name              = "%s"
+		service           = "cloud-object-storage"
+		plan              = "standard"
+		location          = "global"
+		resource_group_id = data.ibm_resource_group.group.id
+	}
+	  
+	resource "ibm_cos_bucket" "bucket" {
+		bucket_name          = "%s"
+		resource_instance_id = ibm_resource_instance.instance.id
+		storage_class        = "%s"
+		cross_region_location = "%s"
+
 	}
 	  
 		  
@@ -1504,6 +2185,299 @@ func testAccCheckIBMCosBucket_update_noncurrentversion(cosServiceName string, bu
 		storage_class         = "%s"
 	}
 	`, cosServiceName, bucketName, region, storageClass)
+}
+
+//Satellite
+
+func testAccCheckIBMCosBucket_basic_sat(serviceName string, bucketName string) string {
+	return fmt.Sprintf(`
+	
+	resource "ibm_cos_bucket" "bucket" {
+		bucket_name          = "%s"
+		resource_instance_id = "%s"
+		satellite_location_id = "%s"
+	}
+	  
+		  
+	`, bucketName, acc.Satellite_Resource_instance_id, acc.Satellite_location_id)
+}
+func testAccCheckIBMCosBucket_sat_updateWithSameName(serviceName string, bucketName string) string {
+
+	return fmt.Sprintf(`	
+
+	resource "ibm_cos_bucket" "bucket" {
+		bucket_name          = "%s"
+		resource_instance_id = "%s"
+		satellite_location_id = "%s"
+	}
+	`, bucketName, acc.Satellite_Resource_instance_id, acc.Satellite_location_id)
+}
+
+func testAccCheckIBMCosBucket_sat_expiredeletemarker(bucketName string, region string, ruleId string, enable bool, expiredObjectDeleteMarker bool, prefix string) string {
+
+	return fmt.Sprintf(`
+	resource "ibm_cos_bucket" "bucket" {
+		bucket_name          = "%s"
+		resource_instance_id = "%s"
+		satellite_location_id = "%s"
+		expire_rule {
+			rule_id                     = "%s"
+			enable                      = true
+			expired_object_delete_marker = true
+			prefix                       = "%s"
+		}
+	}
+	`, bucketName, acc.Satellite_Resource_instance_id, acc.Satellite_location_id, ruleId, prefix)
+}
+
+func testAccCheckIBMCosBucket_sat_abortincompletempu(bucketName string, region string, ruleId string, enable bool, daysAfterInitiation int, prefix string) string {
+	return fmt.Sprintf(`
+	resource "ibm_cos_bucket" "bucket" {
+		bucket_name          = "%s"
+		resource_instance_id = "%s"
+		satellite_location_id = "%s"
+		abort_incomplete_multipart_upload_days {
+			rule_id             	= "%s"
+			enable              	= true
+			days_after_initiation   = %d
+			prefix                  = "%s"
+		}
+	}
+	`, bucketName, acc.Satellite_Resource_instance_id, acc.Satellite_location_id, ruleId, daysAfterInitiation, prefix)
+}
+
+func testAccCheckIBMCosBucket_sat_abortincompletempu_updateDays(bucketName string, region string, ruleId string, enable bool, daysAfterInitiationUpdate int, prefix string) string {
+	return fmt.Sprintf(`
+	resource "ibm_cos_bucket" "bucket" {
+		bucket_name          = "%s"
+		resource_instance_id = "%s"
+		satellite_location_id = "%s"
+		abort_incomplete_multipart_upload_days {
+			rule_id            	    = "%s"
+			enable              	= true
+			days_after_initiation   = %d
+			prefix                  = "%s"
+		  }
+	}
+	`, bucketName, acc.Satellite_Resource_instance_id, acc.Satellite_location_id, ruleId, daysAfterInitiationUpdate, prefix)
+
+}
+
+func testAccCheckIBMCosBucket_sat_update_abortincompletempu(bucketName string, region string, ruleId string, enable bool, daysAfterInitiation int, prefix string) string {
+	return fmt.Sprintf(`
+	resource "ibm_cos_bucket" "bucket" {
+		bucket_name          = "%s"
+		resource_instance_id = "%s"
+		satellite_location_id = "%s"
+	}
+	`, bucketName, acc.Satellite_Resource_instance_id, acc.Satellite_location_id)
+}
+
+func testAccCheckIBMCosBucket_sat_noncurrentversion(bucketName string, region string, ruleId string, enable bool, noncurrentDays int, prefix string) string {
+	return fmt.Sprintf(`
+	resource "ibm_cos_bucket" "bucket" {
+		bucket_name          = "%s"
+		resource_instance_id = "%s"
+		satellite_location_id = "%s"
+		noncurrent_version_expiration {
+			rule_id             	= "%s"
+			enable              	= true
+			noncurrent_days  		= %d
+			prefix                  = "%s"
+		}
+	}
+	`, bucketName, acc.Satellite_Resource_instance_id, acc.Satellite_location_id, ruleId, noncurrentDays, prefix)
+}
+
+func testAccCheckIBMCosBucket_sat_update_noncurrentversion(bucketName string, region string, ruleId string, enable bool, noncurrentDays int, prefix string) string {
+	return fmt.Sprintf(`
+	resource "ibm_cos_bucket" "bucket" {
+		bucket_name          = "%s"
+		resource_instance_id = "%s"
+		satellite_location_id = "%s"
+	}
+	`, bucketName, acc.Satellite_Resource_instance_id, acc.Satellite_location_id)
+}
+
+func testAccCheckIBMCosBucket_sat_expiredate(bucketName string, region string, ruleId string, enable bool, expireDate string, prefix string) string {
+
+	return fmt.Sprintf(`
+	resource "ibm_cos_bucket" "bucket" {
+		bucket_name          = "%s"
+		resource_instance_id = "%s"
+		satellite_location_id = "%s"
+		expire_rule {
+			rule_id             = "%s"
+			enable              = true
+			date                = "%s"
+			prefix              = "%s"
+		}
+	}
+	`, bucketName, acc.Satellite_Resource_instance_id, acc.Satellite_location_id, ruleId, expireDate, prefix)
+}
+
+func testAccCheckIBMCosBucket_sat_expire_updateDate(bucketName string, region string, ruleId string, enable bool, expireDateUpdate string, prefix string) string {
+
+	return fmt.Sprintf(`
+	resource "ibm_cos_bucket" "bucket" {
+		bucket_name          = "%s"
+		resource_instance_id = "%s"
+		satellite_location_id = "%s"
+		expire_rule {
+			rule_id             = "%s"
+			enable              = true
+			date                = "%s"
+			prefix              = "%s"
+		}
+	}
+	`, bucketName, acc.Satellite_Resource_instance_id, acc.Satellite_location_id, ruleId, expireDateUpdate, prefix)
+
+}
+
+func testAccCheckIBMCosBucket_sat_update_expiredate(bucketName string, region string, ruleId string, enable bool, expireDate string, prefix string) string {
+
+	return fmt.Sprintf(`
+	resource "ibm_cos_bucket" "bucket" {
+		bucket_name          = "%s"
+		resource_instance_id = "%s"
+		satellite_location_id = "%s"
+	}
+	`, bucketName, acc.Satellite_Resource_instance_id, acc.Satellite_location_id)
+}
+
+func testAccCheckIBMCosBucket_sat_object_versioning(bucketName string, region string, enable bool) string {
+
+	return fmt.Sprintf(`
+	
+	resource "ibm_cos_bucket" "bucket" {
+		bucket_name          = "%s"
+		resource_instance_id = "%s"
+		satellite_location_id = "%s"
+		object_versioning {
+			enable  = true
+		}
+	}
+	`, bucketName, acc.Satellite_Resource_instance_id, acc.Satellite_location_id)
+}
+
+func testAccCheckIBMCosBucket_expiredays_satellite(bucketName string, region string, ruleId string, enable bool, expireDays int, prefix string) string {
+
+	return fmt.Sprintf(`
+	
+	resource "ibm_cos_bucket" "bucket" {
+		bucket_name          = "%s"
+		resource_instance_id = "%s"
+		satellite_location_id = "%s"
+		expire_rule {
+			rule_id             = "%s"
+			enable              = true
+			days                = %d
+			prefix              = "%s"
+		}
+	}
+
+	`, bucketName, acc.Satellite_Resource_instance_id, acc.Satellite_location_id, ruleId, expireDays, prefix)
+}
+
+func testAccCheckIBMCosBucket_expire_updateDays_satellite(bucketName string, region string, ruleId string, enable bool, expireDaysUpdate int, prefix string) string {
+
+	return fmt.Sprintf(`
+	resource "ibm_cos_bucket" "bucket" {
+		bucket_name          = "%s"
+		resource_instance_id = "%s"
+		satellite_location_id = "%s"
+		expire_rule {
+			rule_id             = "%s"
+			enable              = true
+			days                = %d
+			prefix              = "%s"
+		}
+	}
+
+	`, bucketName, acc.Satellite_Resource_instance_id, acc.Satellite_location_id, ruleId, expireDaysUpdate, prefix)
+
+}
+
+func testAccCheckIBMCosBucket_update_expiredays_satellite(bucketName string, region string, ruleId string, enable bool, expireDays int, prefix string) string {
+
+	return fmt.Sprintf(`
+	
+	resource "ibm_cos_bucket" "bucket" {
+		bucket_name          = "%s"
+		resource_instance_id = "%s"
+		satellite_location_id = "%s"
+	}
+	`, bucketName, acc.Satellite_Resource_instance_id, acc.Satellite_location_id)
+}
+
+func testAccCheckIBMKeyProtectRootkeyWithCOSBucket(instanceName, KeyName, serviceName, bucketName, bucketRegion, bucketClass string) string {
+	return fmt.Sprintf(`
+	data "ibm_resource_group" "group" {
+		is_default=true
+	}
+	resource "ibm_resource_instance" "kms_instance1" {
+		name              = "%s"
+		service           = "kms"
+		plan              = "tiered-pricing"
+		location          = "us-south"
+	  }
+	  resource "ibm_iam_authorization_policy" "policy1" {
+		source_service_name = "cloud-object-storage"
+		target_service_name = "kms"
+		roles               = ["Reader"]
+	  }
+	  resource "ibm_kms_key" "test" {
+		instance_id = "${ibm_resource_instance.kms_instance1.guid}"
+		key_name = "%s"
+		standard_key =  false
+		force_delete = true
+	}
+
+	resource "ibm_resource_instance" "instance" {
+		name     = "%s"
+		service  = "cloud-object-storage"
+		plan     = "standard"
+		location = "global"
+	}
+
+	resource "ibm_cos_bucket" "bucket" {
+		depends_on           = [ibm_iam_authorization_policy.policy1]
+		bucket_name          = "%s"
+		resource_instance_id = ibm_resource_instance.instance.id
+		cross_region_location = "%s"
+		storage_class        = "%s"
+		key_protect          = ibm_kms_key.test.id
+	}
+`, instanceName, KeyName, serviceName, bucketName, bucketRegion, bucketClass)
+}
+
+func testAccCheckIBMHPCSRootkeyWithCOSBucket(KeyName, serviceName, bucketName, bucketRegion, bucketClass string) string {
+	return fmt.Sprintf(`
+	data "ibm_resource_group" "group" {
+		is_default=true
+	}
+	resource "ibm_iam_authorization_policy" "policy1" {
+		source_service_name = "cloud-object-storage"
+		target_service_name = "hs-crypto"
+		roles               = ["Reader"]
+	  }
+
+	resource "ibm_resource_instance" "instance" {
+		name     = "%s"
+		service  = "cloud-object-storage"
+		plan     = "standard"
+		location = "global"
+	}
+
+	resource "ibm_cos_bucket" "bucket" {
+		depends_on           = [ibm_iam_authorization_policy.policy1]
+		bucket_name          = "%s"
+		resource_instance_id = ibm_resource_instance.instance.id
+		region_location 	= "%s"
+		storage_class       = "%s"
+		key_protect			= "%s"
+	}
+`, serviceName, bucketName, bucketRegion, bucketClass, acc.HpcsRootKeyCrn)
 }
 
 func TestSingleSiteLocationRegex(t *testing.T) {
