@@ -278,7 +278,7 @@ func resourceIBMISSnapshotCreate(d *schema.ResourceData, meta interface{}) error
 					},
 				}
 			}
-			options.Clones = cloneobjs
+			snapshotprototypeoptions.Clones = cloneobjs
 		}
 	}
 
