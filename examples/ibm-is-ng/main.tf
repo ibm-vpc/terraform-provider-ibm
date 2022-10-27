@@ -1143,7 +1143,8 @@ data "ibm_is_backup_policy_job" "is_backup_policy_job" {
 }
 
 data "ibm_is_backup_policy_jobs" "is_backup_policy_jobs" {
-	backup_policy_id = ibm_is_backup_policy.is_backup_policy.id	
+  backup_policy_plan_id   = ibm_is_backup_policy.is_backup_policy.backup_policy_plan_id
+	backup_policy_id        = ibm_is_backup_policy.is_backup_policy.id	
 }
 
 data "ibm_is_vpn_server" "is_vpn_server" {

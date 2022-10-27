@@ -46,7 +46,6 @@ func TestAccIBMIsBackupPolicyJobDataSourceBasic(t *testing.T) {
 					resource.TestCheckResourceAttrSet("data.ibm_is_backup_policy_job.is_backup_policy_job", "source_volume.0.id"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_backup_policy_job.is_backup_policy_job", "source_volume.0.name"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_backup_policy_job.is_backup_policy_job", "status"),
-					// resource.TestCheckResourceAttrSet("data.ibm_is_backup_policy_job.is_backup_policy_job", "status_reasons.#"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_backup_policy_job.is_backup_policy_job", "target_snapshot.#"),
 				),
 			},

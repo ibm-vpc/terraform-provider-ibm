@@ -9,6 +9,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -25,20 +26,25 @@ func DataSourceIBMIsBackupPolicyJobs() *schema.Resource {
 				Required:    true,
 				Description: "The backup policy identifier.",
 			},
-			"source_volume_id": {
+			"source_id": {
 				Type:        schema.TypeString,
-				Description: "Filters the collection to resources with the source volume with the specified identifier",
+				Description: "Filters the collection to backup policy jobs with a source with the specified identifier",
 				Optional:    true,
 			},
-			"target_snapshot_id": {
+			"target_snapshots_id": {
 				Type:        schema.TypeString,
 				Description: "Filters the collection to resources with the target snapshot with the specified identifier",
 				Optional:    true,
 			},
-			"target_snapshot_crn": {
+			"target_snapshots_crn": {
 				Type:        schema.TypeString,
-				Description: "Filters the collection to resources with the target snapshot with the specified CRN",
+				Description: "Filters the collection to backup policy jobs with the target snapshot with the specified CRN",
 				Optional:    true,
+			},
+			"backup_policy_plan_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "Filters the collection to backup policy jobs with the backup plan with the specified identifier.",
 			},
 			"status": {
 				Type:        schema.TypeString,
@@ -270,21 +276,57 @@ func dataSourceIBMIsBackupPolicyJobsRead(context context.Context, d *schema.Reso
 	listBackupPolicyJobsOptions := &vpcv1.ListBackupPolicyJobsOptions{}
 
 	listBackupPolicyJobsOptions.SetBackupPolicyID(d.Get("backup_policy_id").(string))
-	listBackupPolicyJobsOptions.SetSourceVolumeID(d.Get("source_volume_id").(string))
-	listBackupPolicyJobsOptions.SetTargetSnapshotID(d.Get("target_snapshot_id").(string))
-	listBackupPolicyJobsOptions.SetTargetSnapshotCRN(d.Get("target_snapshot_crn").(string))
-	listBackupPolicyJobsOptions.SetStatus(d.Get("status").(string))
 
-	backupPolicyJobCollection, response, err := vpcClient.ListBackupPolicyJobsWithContext(context, listBackupPolicyJobsOptions)
-	if err != nil {
-		log.Printf("[DEBUG] ListBackupPolicyJobsWithContext failed %s\n%s", err, response)
-		return diag.FromErr(fmt.Errorf("ListBackupPolicyJobsWithContext failed %s\n%s", err, response))
+	if sourceId, ok := d.GetOk("source_id"); ok {
+		listBackupPolicyJobsOptions.SetSourceID(sourceId.(string))
+	}
+
+	if targetSnapshotsId, ok := d.GetOk("target_snapshots_id"); ok {
+		listBackupPolicyJobsOptions.SetTargetSnapshotsID(targetSnapshotsId.(string))
+	}
+
+	if targetSnapshotsCrn, ok := d.GetOk("target_snapshots_crn"); ok {
+		listBackupPolicyJobsOptions.SetTargetSnapshotsCRN(targetSnapshotsCrn.(string))
+	}
+
+	if status, ok := d.GetOk("status"); ok {
+		listBackupPolicyJobsOptions.SetStatus(status.(string))
+	}
+
+	if backupPolicyPlanId, ok := d.GetOk("backup_policy_plan_id"); ok {
+		listBackupPolicyJobsOptions.SetBackupPolicyPlanID(backupPolicyPlanId.(string))
+	}
+
+	// Support for pagination
+	start := ""
+	allrecs := []vpcv1.BackupPolicyJob{}
+
+	for {
+
+		if start != "" {
+			listBackupPolicyJobsOptions.Start = &start
+		}
+
+		backupPolicyJobCollection, response, err := vpcClient.ListBackupPolicyJobsWithContext(context, listBackupPolicyJobsOptions)
+		if err != nil {
+			log.Printf("[DEBUG] ListBackupPolicyJobsWithContext failed %s\n%s", err, response)
+			return diag.FromErr(fmt.Errorf("ListBackupPolicyJobsWithContext failed %s\n%s", err, response))
+		}
+
+		if backupPolicyJobCollection != nil && *backupPolicyJobCollection.TotalCount == int64(0) {
+			break
+		}
+		start = flex.GetNext(backupPolicyJobCollection.Next)
+		allrecs = append(allrecs, backupPolicyJobCollection.Jobs...)
+		if start == "" {
+			break
+		}
 	}
 
 	d.SetId(dataSourceIBMIsBackupPolicyJobsID(d))
 
-	if backupPolicyJobCollection.Jobs != nil {
-		err = d.Set("jobs", dataSourceBackupPolicyJobCollectionFlattenJobs(backupPolicyJobCollection.Jobs))
+	if allrecs != nil {
+		err = d.Set("jobs", dataSourceBackupPolicyJobCollectionFlattenJobs(allrecs))
 		if err != nil {
 			return diag.FromErr(fmt.Errorf("Error setting jobs %s", err))
 		}
@@ -296,16 +338,6 @@ func dataSourceIBMIsBackupPolicyJobsRead(context context.Context, d *schema.Reso
 // dataSourceIBMIsBackupPolicyJobsID returns a reasonable ID for the list.
 func dataSourceIBMIsBackupPolicyJobsID(d *schema.ResourceData) string {
 	return time.Now().UTC().String()
-}
-
-func dataSourceBackupPolicyJobCollectionFirstToMap(firstItem vpcv1.BackupPolicyJobCollectionFirst) (firstMap map[string]interface{}) {
-	firstMap = map[string]interface{}{}
-
-	if firstItem.Href != nil {
-		firstMap["href"] = firstItem.Href
-	}
-
-	return firstMap
 }
 
 func dataSourceBackupPolicyJobCollectionFlattenJobs(result []vpcv1.BackupPolicyJob) (jobs []map[string]interface{}) {
