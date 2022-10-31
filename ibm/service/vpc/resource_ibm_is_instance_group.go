@@ -26,6 +26,8 @@ const (
 	HEALTHY = "healthy"
 	// DELETING ...
 	DELETING = "deleting"
+	// UNHEALTHY ...
+	UNHEALTHY = "unhealthy"
 )
 
 func ResourceIBMISInstanceGroup() *schema.Resource {
@@ -531,7 +533,7 @@ func waitForHealthyInstanceGroup(instanceGroupID string, meta interface{}, timeo
 	getInstanceGroupOptions := vpcv1.GetInstanceGroupOptions{ID: &instanceGroupID}
 
 	healthStateConf := &resource.StateChangeConf{
-		Pending: []string{SCALING},
+		Pending: []string{SCALING, UNHEALTHY},
 		Target:  []string{HEALTHY},
 		Refresh: func() (interface{}, string, error) {
 			instanceGroup, response, err := sess.GetInstanceGroup(&getInstanceGroupOptions)
