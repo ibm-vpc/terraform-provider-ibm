@@ -78,7 +78,7 @@ const (
 	isLBType                                  = "type"
 )
 
-//HashInt ...
+// HashInt ...
 func HashInt(v interface{}) int { return v.(int) }
 
 func ExpandStringList(input []interface{}) []string {
@@ -2261,7 +2261,6 @@ func ResourceValidateAccessTags(diff *schema.ResourceDiff, meta interface{}) err
 		for _, item := range taggingResult.Items {
 			taglist = append(taglist, *item.Name)
 		}
-		log.Println("access tagList: ", taglist)
 		existingAccessTags := NewStringSet(ResourceIBMVPCHash, taglist)
 		errStatement := ""
 		for _, tag := range newTagList {
