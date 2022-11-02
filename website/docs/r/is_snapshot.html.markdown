@@ -78,6 +78,12 @@ The `ibm_is_snapshot` resource provides the following [Timeouts](https://www.ter
 ## Argument reference
 Review the argument references that you can specify for your resource. 
 
+- `access_tags`  - (Optional, List of Strings) A list of access management tags to attach to the subnet.
+  **Note:**
+    - You can attach only those access tags that already exists.
+    - For more information, about creating access tags, see [working with tags](https://cloud.ibm.com/docs/account?topic=account-tag&interface=ui#create-access-console).
+    - You must have the access listed in the [Granting users access to tag resources](https://cloud.ibm.com/docs/account?topic=account-access) for `access_tags`
+    - `access_tags` must be in the format `key:value`.
 - `name` - (Optional, String) The name of the snapshot.
 - `resource_group` - (Optional, Forces new resource, String) The resource group ID where the snapshot is to be created
 - `source_volume` - (Required, Forces new resource, String) The unique identifier for the volume for which snapshot is to be created. 
