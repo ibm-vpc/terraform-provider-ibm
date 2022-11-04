@@ -423,14 +423,12 @@ func dataSourceSecurityGroupCollectionSecurityGroupsToMap(securityGroupsItem *vp
 		mapSlice = append(mapSlice, modelMap)
 		resultMap["vpc"] = mapSlice
 	}
-	if _, ok := d.GetOk(isSecurityGroupAccessTags); ok {
-		oldList, newList := d.GetChange(isSecurityGroupAccessTags)
-		err := flex.UpdateGlobalTagsUsingCRN(oldList, newList, meta, *securityGroupsItem.CRN, "", isAccessTagType)
-		if err != nil {
-			log.Printf(
-				"Error on create of Security Group (%s) access tags: %s", d.Id(), err)
-		}
+	accesstags, err := flex.GetGlobalTagsUsingCRN(meta, *securityGroupsItem.CRN, "", isAccessTagType)
+	if err != nil {
+		log.Printf(
+			"Error on get of security group (%s) access tags: %s", d.Id(), err)
 	}
+	resultMap[isSecurityGroupAccessTags] = accesstags
 
 	return resultMap
 }
