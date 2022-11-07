@@ -77,6 +77,13 @@ func DataSourceIBMISPublicGateways() *schema.Resource {
 							Set:         flex.ResourceIBMVPCHash,
 							Description: "Service tags for the public gateway instance",
 						},
+						isPublicGatewayAccessTags: {
+							Type:        schema.TypeSet,
+							Computed:    true,
+							Elem:        &schema.Schema{Type: schema.TypeString},
+							Set:         flex.ResourceIBMVPCHash,
+							Description: "List of access management tags",
+						},
 
 						flex.ResourceControllerURL: {
 							Type:        schema.TypeString,
