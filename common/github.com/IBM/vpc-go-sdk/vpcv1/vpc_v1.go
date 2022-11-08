@@ -1526,6 +1526,9 @@ func (vpc *VpcV1) CreateVPCRoutingTableWithContext(ctx context.Context, createVP
 	if createVPCRoutingTableOptions.RouteDirectLinkIngress != nil {
 		body["route_direct_link_ingress"] = createVPCRoutingTableOptions.RouteDirectLinkIngress
 	}
+	if createVPCRoutingTableOptions.RouteInternetIngress != nil {
+		body["route_internet_ingress"] = createVPCRoutingTableOptions.RouteInternetIngress
+	}
 	if createVPCRoutingTableOptions.RouteTransitGatewayIngress != nil {
 		body["route_transit_gateway_ingress"] = createVPCRoutingTableOptions.RouteTransitGatewayIngress
 	}
@@ -3376,7 +3379,7 @@ func (vpc *VpcV1) CreateImageWithContext(ctx context.Context, createImageOptions
 // DeleteImage : Delete an image
 // This request deletes an image. This operation cannot be reversed. A system-provided image is not allowed to be
 // deleted. Additionally, an image cannot be deleted if it:
-// - has a `status` of `tentative` or `deleting`
+// - has a `status` of `deleting`
 // - has a `status` of `pending` with a `status_reasons` code of `image_request_in_progress`
 // - has `catalog_offering.managed` set to `true`.
 func (vpc *VpcV1) DeleteImage(deleteImageOptions *DeleteImageOptions) (response *core.DetailedResponse, err error) {
@@ -9133,6 +9136,12 @@ func (vpc *VpcV1) ListBackupPolicyJobsWithContext(ctx context.Context, listBacku
 	}
 	if listBackupPolicyJobsOptions.BackupPolicyPlanID != nil {
 		builder.AddQuery("backup_policy_plan.id", fmt.Sprint(*listBackupPolicyJobsOptions.BackupPolicyPlanID))
+	}
+	if listBackupPolicyJobsOptions.Start != nil {
+		builder.AddQuery("start", fmt.Sprint(*listBackupPolicyJobsOptions.Start))
+	}
+	if listBackupPolicyJobsOptions.Limit != nil {
+		builder.AddQuery("limit", fmt.Sprint(*listBackupPolicyJobsOptions.Limit))
 	}
 	if listBackupPolicyJobsOptions.Sort != nil {
 		builder.AddQuery("sort", fmt.Sprint(*listBackupPolicyJobsOptions.Sort))
@@ -22006,7 +22015,9 @@ type BackupPolicyJob struct {
 	BackupPolicyPlan *BackupPolicyPlanReference `json:"backup_policy_plan" validate:"required"`
 
 	// The date and time that the backup policy job was completed.
-	CompletedAt *strfmt.DateTime `json:"completed_at" validate:"required"`
+	//
+	// If absent, the backup policy job has not yet completed.
+	CompletedAt *strfmt.DateTime `json:"completed_at,omitempty"`
 
 	// The date and time that the backup policy job was created.
 	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
@@ -22024,12 +22035,12 @@ type BackupPolicyJob struct {
 	// unexpected property value was encountered.
 	JobType *string `json:"job_type" validate:"required"`
 
-	// The type of resource referenced.
+	// The resource type.
 	ResourceType *string `json:"resource_type" validate:"required"`
 
-	// The source volume this backup was created from (may be
+	// The source this backup was created from (may be
 	// [deleted](https://cloud.ibm.com/apidocs/vpc#deleted-resources)).
-	SourceVolume *VolumeReference `json:"source_volume" validate:"required"`
+	Source BackupPolicyJobSourceIntf `json:"source" validate:"required"`
 
 	// The status of the backup policy job.
 	//
@@ -22045,9 +22056,9 @@ type BackupPolicyJob struct {
 	// unexpected reason code was encountered.
 	StatusReasons []BackupPolicyJobStatusReason `json:"status_reasons" validate:"required"`
 
-	// The snapshot operated on by this backup policy job (may be
+	// The snapshots operated on by this backup policy job (may be
 	// [deleted](https://cloud.ibm.com/apidocs/vpc#deleted-resources)).
-	TargetSnapshot *SnapshotReference `json:"target_snapshot" validate:"required"`
+	TargetSnapshots []SnapshotReference `json:"target_snapshots" validate:"required"`
 }
 
 // Constants associated with the BackupPolicyJob.JobType property.
@@ -22062,7 +22073,7 @@ const (
 )
 
 // Constants associated with the BackupPolicyJob.ResourceType property.
-// The type of resource referenced.
+// The resource type.
 const (
 	BackupPolicyJobResourceTypeBackupPolicyJobConst = "backup_policy_job"
 )
@@ -22118,7 +22129,7 @@ func UnmarshalBackupPolicyJob(m map[string]json.RawMessage, result interface{}) 
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalModel(m, "source_volume", &obj.SourceVolume, UnmarshalVolumeReference)
+	err = core.UnmarshalModel(m, "source", &obj.Source, UnmarshalBackupPolicyJobSource)
 	if err != nil {
 		return
 	}
@@ -22130,7 +22141,7 @@ func UnmarshalBackupPolicyJob(m map[string]json.RawMessage, result interface{}) 
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalModel(m, "target_snapshot", &obj.TargetSnapshot, UnmarshalSnapshotReference)
+	err = core.UnmarshalModel(m, "target_snapshots", &obj.TargetSnapshots, UnmarshalSnapshotReference)
 	if err != nil {
 		return
 	}
@@ -22184,6 +22195,18 @@ func UnmarshalBackupPolicyJobCollection(m map[string]json.RawMessage, result int
 	return
 }
 
+// Retrieve the value to be passed to a request to access the next page of results
+func (resp *BackupPolicyJobCollection) GetNextStart() (*string, error) {
+	if core.IsNil(resp.Next) {
+		return nil, nil
+	}
+	start, err := core.GetQueryParam(resp.Next.Href, "start")
+	if err != nil || start == nil {
+		return nil, err
+	}
+	return start, nil
+}
+
 // BackupPolicyJobCollectionFirst : A link to the first page of resources.
 type BackupPolicyJobCollectionFirst struct {
 	// The URL for a page of resources.
@@ -22211,6 +22234,63 @@ type BackupPolicyJobCollectionNext struct {
 func UnmarshalBackupPolicyJobCollectionNext(m map[string]json.RawMessage, result interface{}) (err error) {
 	obj := new(BackupPolicyJobCollectionNext)
 	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// BackupPolicyJobSource : The source this backup was created from (may be
+// [deleted](https://cloud.ibm.com/apidocs/vpc#deleted-resources)).
+// Models which "extend" this model:
+// - BackupPolicyJobSourceVolumeReference
+type BackupPolicyJobSource struct {
+	// The CRN for this volume.
+	CRN *string `json:"crn,omitempty"`
+
+	// If present, this property indicates the referenced resource has been deleted, and provides
+	// some supplementary information.
+	Deleted *VolumeReferenceDeleted `json:"deleted,omitempty"`
+
+	// The URL for this volume.
+	Href *string `json:"href,omitempty"`
+
+	// The unique identifier for this volume.
+	ID *string `json:"id,omitempty"`
+
+	// The unique user-defined name for this volume.
+	Name *string `json:"name,omitempty"`
+}
+
+func (*BackupPolicyJobSource) isaBackupPolicyJobSource() bool {
+	return true
+}
+
+type BackupPolicyJobSourceIntf interface {
+	isaBackupPolicyJobSource() bool
+}
+
+// UnmarshalBackupPolicyJobSource unmarshals an instance of BackupPolicyJobSource from the specified map of raw messages.
+func UnmarshalBackupPolicyJobSource(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(BackupPolicyJobSource)
+	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "deleted", &obj.Deleted, UnmarshalVolumeReferenceDeleted)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
 	if err != nil {
 		return
 	}
@@ -28056,8 +28136,9 @@ type CreateVPCAddressPrefixOptions struct {
 	// The VPC identifier.
 	VPCID *string `json:"vpc_id" validate:"required,ne="`
 
-	// The IPv4 range of the address prefix, expressed in CIDR format. The request must not overlap with any existing
-	// address prefixes in the VPC or any of the following reserved address ranges:
+	// The IPv4 range of the address prefix, expressed in CIDR format. The range must not overlap with any existing address
+	// prefixes in the VPC or any of the following reserved address ranges:
+	//
 	//   - `127.0.0.0/8` (IPv4 loopback addresses)
 	//   - `161.26.0.0/16` (IBM services)
 	//   - `166.8.0.0/14` (Cloud Service Endpoints)
@@ -28311,18 +28392,8 @@ type CreateVPCRoutingTableOptions struct {
 	Name *string `json:"name,omitempty"`
 
 	// If set to `true`, this routing table will be used to route traffic that originates from [Direct
-	// Link](https://cloud.ibm.com/docs/dl/) to this VPC. For this to succeed, the VPC must not already have a routing
-	// table with this property set to `true`.
-	//
-	// Incoming traffic will be routed according to the routing table with one exception: routes with an `action` of
-	// `deliver` are treated as `drop` unless the `next_hop` is an IP address bound to a network interface on a subnet in
-	// the route's `zone`. Therefore, if an incoming packet matches a route with a `next_hop` of an internet-bound IP
-	// address or a VPN gateway connection, the packet will be dropped.
-	RouteDirectLinkIngress *bool `json:"route_direct_link_ingress,omitempty"`
-
-	// If set to `true`, this routing table will be used to route traffic that originates from [Transit
-	// Gateway](https://cloud.ibm.com/cloud/transit-gateway/) to this VPC. For this to succeed, the VPC must not already
-	// have a routing table with this property set to `true`.
+	// Link](https://cloud.ibm.com/docs/dl) to this VPC. The VPC must not already have a routing table with this property
+	// set to `true`.
 	//
 	// Incoming traffic will be routed according to the routing table with one exception: routes with an `action` of
 	// `deliver` are treated as `drop` unless the `next_hop` is an IP address bound to a network interface on a subnet in
@@ -28332,10 +28403,32 @@ type CreateVPCRoutingTableOptions struct {
 	// If [Classic Access](https://cloud.ibm.com/docs/vpc?topic=vpc-setting-up-access-to-classic-infrastructure) is enabled
 	// for this VPC, and this property is set to `true`, its incoming traffic will also be routed according to this routing
 	// table.
+	RouteDirectLinkIngress *bool `json:"route_direct_link_ingress,omitempty"`
+
+	// If set to `true`, this routing table will be used to route traffic that originates from the internet. For this to
+	// succeed, the VPC must not already have a routing table with this property set to `true`.
+	//
+	// Incoming traffic will be routed according to the routing table with two exceptions:
+	// - Traffic destined for IP addresses associated with public gateways will not be
+	//   subject to routes in this routing table.
+	// - Routes with an action of deliver are treated as drop unless the `next_hop` is an
+	//   IP address bound to a network interface on a subnet in the route's `zone`.
+	//   Therefore, if an incoming packet matches a route with a `next_hop` of an
+	//   internet-bound IP address or a VPN gateway connection, the packet will be dropped.
+	RouteInternetIngress *bool `json:"route_internet_ingress,omitempty"`
+
+	// If set to `true`, this routing table will be used to route traffic that originates from [Transit
+	// Gateway](https://cloud.ibm.com/docs/transit-gateway) to this VPC. The VPC must not already have a routing table with
+	// this property set to `true`.
+	//
+	// Incoming traffic will be routed according to the routing table with one exception: routes with an `action` of
+	// `deliver` are treated as `drop` unless the `next_hop` is an IP address bound to a network interface on a subnet in
+	// the route's `zone`. Therefore, if an incoming packet matches a route with a `next_hop` of an internet-bound IP
+	// address or a VPN gateway connection, the packet will be dropped.
 	RouteTransitGatewayIngress *bool `json:"route_transit_gateway_ingress,omitempty"`
 
 	// If set to `true`, this routing table will be used to route traffic that originates from subnets in other zones in
-	// this VPC. For this to succeed, the VPC must not already have a routing table with this property set to `true`.
+	// this VPC. The VPC must not already have a routing table with this property set to `true`.
 	//
 	// Incoming traffic will be routed according to the routing table with one exception: routes with an `action` of
 	// `deliver` are treated as `drop` unless the `next_hop` is an IP address within the VPC's address prefix ranges.
@@ -28379,6 +28472,12 @@ func (_options *CreateVPCRoutingTableOptions) SetName(name string) *CreateVPCRou
 // SetRouteDirectLinkIngress : Allow user to set RouteDirectLinkIngress
 func (_options *CreateVPCRoutingTableOptions) SetRouteDirectLinkIngress(routeDirectLinkIngress bool) *CreateVPCRoutingTableOptions {
 	_options.RouteDirectLinkIngress = core.BoolPtr(routeDirectLinkIngress)
+	return _options
+}
+
+// SetRouteInternetIngress : Allow user to set RouteInternetIngress
+func (_options *CreateVPCRoutingTableOptions) SetRouteInternetIngress(routeInternetIngress bool) *CreateVPCRoutingTableOptions {
+	_options.RouteInternetIngress = core.BoolPtr(routeInternetIngress)
 	return _options
 }
 
@@ -30627,7 +30726,7 @@ type DefaultRoutingTable struct {
 	ResourceType *string `json:"resource_type" validate:"required"`
 
 	// Indicates whether this routing table is used to route traffic that originates from
-	// [Direct Link](https://cloud.ibm.com/docs/dl/) to this VPC.
+	// [Direct Link](https://cloud.ibm.com/docs/dl) to this VPC.
 	//
 	// Incoming traffic will be routed according to the routing table with one exception: routes with an `action` of
 	// `deliver` are treated as `drop` unless the `next_hop` is an IP address bound to a network interface on a subnet in
@@ -30635,8 +30734,19 @@ type DefaultRoutingTable struct {
 	// address or a VPN gateway connection, the packet will be dropped.
 	RouteDirectLinkIngress *bool `json:"route_direct_link_ingress" validate:"required"`
 
+	// Indicates whether this routing table is used to route traffic that originates from the internet.
+	//
+	// Incoming traffic will be routed according to the routing table with two exceptions:
+	// - Traffic destined for IP addresses associated with public gateways will not be
+	//   subject to routes in this routing table.
+	// - Routes with an action of deliver are treated as drop unless the `next_hop` is an
+	//   IP address bound to a network interface on a subnet in the route's `zone`.
+	//   Therefore, if an incoming packet matches a route with a `next_hop` of an
+	//   internet-bound IP address or a VPN gateway connection, the packet will be dropped.
+	RouteInternetIngress *bool `json:"route_internet_ingress" validate:"required"`
+
 	// Indicates whether this routing table is used to route traffic that originates from from [Transit
-	// Gateway](https://cloud.ibm.com/cloud/transit-gateway/) to this VPC.
+	// Gateway](https://cloud.ibm.com/docs/transit-gateway) to this VPC.
 	//
 	// Incoming traffic will be routed according to the routing table with one exception: routes with an `action` of
 	// `deliver` are treated as `drop` unless the `next_hop` is an IP address bound to a network interface on a subnet in
@@ -30715,6 +30825,10 @@ func UnmarshalDefaultRoutingTable(m map[string]json.RawMessage, result interface
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "route_direct_link_ingress", &obj.RouteDirectLinkIngress)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "route_internet_ingress", &obj.RouteInternetIngress)
 	if err != nil {
 		return
 	}
@@ -33415,9 +33529,8 @@ type FloatingIPPatch struct {
 	// The unique user-defined name for this floating IP.
 	Name *string `json:"name,omitempty"`
 
-	// The network interface to bind the floating IP to, replacing any existing binding. For
-	// this request to succeed, the floating IP must not be required by another resource, such
-	// as a public gateway.
+	// The network interface to bind the floating IP to, replacing any existing binding.
+	// The floating IP must not be required by another resource, such as a public gateway.
 	Target FloatingIPTargetPatchIntf `json:"target,omitempty"`
 }
 
@@ -33644,8 +33757,8 @@ func UnmarshalFloatingIPTarget(m map[string]json.RawMessage, result interface{})
 	return
 }
 
-// FloatingIPTargetPatch : The network interface to bind the floating IP to, replacing any existing binding. For this request to succeed, the
-// floating IP must not be required by another resource, such as a public gateway.
+// FloatingIPTargetPatch : The network interface to bind the floating IP to, replacing any existing binding. The floating IP must not be
+// required by another resource, such as a public gateway.
 // Models which "extend" this model:
 // - FloatingIPTargetPatchNetworkInterfaceIdentityByID
 // - FloatingIPTargetPatchNetworkInterfaceIdentityByHref
@@ -33730,9 +33843,18 @@ type FlowLogCollector struct {
 	// The Cloud Object Storage bucket where the collected flows are logged.
 	StorageBucket *LegacyCloudObjectStorageBucketReference `json:"storage_bucket" validate:"required"`
 
-	// The target this collector is collecting flow logs for. If the target is an instance,
-	// subnet, or VPC, flow logs will not be collected for any network interfaces within the
-	// target that are themselves the target of a more specific flow log collector.
+	// The target this collector is collecting flow logs for.
+	// - If the target is a network interface, flow logs will be collected
+	//   for that network interface.
+	// - If the target is a virtual server instance, flow logs will be collected
+	//   for all network interfaces attached to that instance.
+	// - If the target is a subnet, flow logs will be collected
+	//   for all network interfaces attached to that subnet.
+	// - If the target is a VPC, flow logs will be collected for network interfaces
+	//   attached to all subnets within that VPC.
+	// If the target is an instance, subnet, or VPC, flow logs will not be collected
+	// for any network interfaces within the target that are themselves the target of
+	// a more specific flow log collector.
 	Target FlowLogCollectorTargetIntf `json:"target" validate:"required"`
 
 	// The VPC this flow log collector resides in.
@@ -33933,9 +34055,18 @@ func (flowLogCollectorPatch *FlowLogCollectorPatch) AsPatch() (_patch map[string
 	return
 }
 
-// FlowLogCollectorTarget : The target this collector is collecting flow logs for. If the target is an instance, subnet, or VPC, flow logs will
-// not be collected for any network interfaces within the target that are themselves the target of a more specific flow
-// log collector.
+// FlowLogCollectorTarget : The target this collector is collecting flow logs for.
+//   - If the target is a network interface, flow logs will be collected
+//     for that network interface.
+//   - If the target is a virtual server instance, flow logs will be collected
+//     for all network interfaces attached to that instance.
+//   - If the target is a subnet, flow logs will be collected
+//     for all network interfaces attached to that subnet.
+//   - If the target is a VPC, flow logs will be collected for network interfaces
+//     attached to all subnets within that VPC. If the target is an instance, subnet, or VPC, flow logs will not be
+//
+// collected for any network interfaces within the target that are themselves the target of a more specific flow log
+// collector.
 // Models which "extend" this model:
 // - FlowLogCollectorTargetNetworkInterfaceReferenceTargetContext
 // - FlowLogCollectorTargetInstanceReference
@@ -34053,6 +34184,24 @@ func UnmarshalFlowLogCollectorTargetPrototype(m map[string]json.RawMessage, resu
 	return
 }
 
+// GenericResourceReferenceDeleted : If present, this property indicates the referenced resource has been deleted, and provides some supplementary
+// information.
+type GenericResourceReferenceDeleted struct {
+	// Link to documentation about deleted resources.
+	MoreInfo *string `json:"more_info" validate:"required"`
+}
+
+// UnmarshalGenericResourceReferenceDeleted unmarshals an instance of GenericResourceReferenceDeleted from the specified map of raw messages.
+func UnmarshalGenericResourceReferenceDeleted(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(GenericResourceReferenceDeleted)
+	err = core.UnmarshalPrimitive(m, "more_info", &obj.MoreInfo)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
 // GetBackupPolicyJobOptions : The GetBackupPolicyJob options.
 type GetBackupPolicyJobOptions struct {
 	// The backup policy identifier.
@@ -34089,24 +34238,6 @@ func (_options *GetBackupPolicyJobOptions) SetID(id string) *GetBackupPolicyJobO
 func (options *GetBackupPolicyJobOptions) SetHeaders(param map[string]string) *GetBackupPolicyJobOptions {
 	options.Headers = param
 	return options
-}
-
-// GenericResourceReferenceDeleted : If present, this property indicates the referenced resource has been deleted, and provides some supplementary
-// information.
-type GenericResourceReferenceDeleted struct {
-	// Link to documentation about deleted resources.
-	MoreInfo *string `json:"more_info" validate:"required"`
-}
-
-// UnmarshalGenericResourceReferenceDeleted unmarshals an instance of GenericResourceReferenceDeleted from the specified map of raw messages.
-func UnmarshalGenericResourceReferenceDeleted(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(GenericResourceReferenceDeleted)
-	err = core.UnmarshalPrimitive(m, "more_info", &obj.MoreInfo)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
 }
 
 // GetBackupPolicyOptions : The GetBackupPolicy options.
@@ -37578,8 +37709,7 @@ type Image struct {
 
 	// The minimum size (in gigabytes) of a volume onto which this image may be provisioned.
 	//
-	// This property may be absent if the image has a `status` of `pending`, `tentative`, or
-	// `failed`.
+	// This property may be absent if the image has a `status` of `pending` or `failed`.
 	MinimumProvisionedSize *int64 `json:"minimum_provisioned_size,omitempty"`
 
 	// The user-defined or system-provided name for this image.
@@ -37603,7 +37733,6 @@ type Image struct {
 	// - deprecated: image is administratively slated to be deleted
 	// - failed: image is corrupt or did not pass validation
 	// - pending: image is being imported and is not yet `available`
-	// - tentative: image import has timed out (contact support)
 	// - unusable: image cannot be used (see `status_reasons[]` for possible remediation)
 	//
 	// The enumerated values for this property are expected to expand in the future. When processing this property, check
@@ -37648,7 +37777,6 @@ const (
 //   - deprecated: image is administratively slated to be deleted
 //   - failed: image is corrupt or did not pass validation
 //   - pending: image is being imported and is not yet `available`
-//   - tentative: image import has timed out (contact support)
 //   - unusable: image cannot be used (see `status_reasons[]` for possible remediation)
 //
 // The enumerated values for this property are expected to expand in the future. When processing this property, check
@@ -37660,7 +37788,6 @@ const (
 	ImageStatusDeprecatedConst = "deprecated"
 	ImageStatusFailedConst     = "failed"
 	ImageStatusPendingConst    = "pending"
-	ImageStatusTentativeConst  = "tentative"
 	ImageStatusUnusableConst   = "unusable"
 )
 
@@ -44117,6 +44244,18 @@ func (_options *ListBackupPolicyJobsOptions) SetBackupPolicyPlanID(backupPolicyP
 	return _options
 }
 
+// SetStart : Allow user to set Start
+func (_options *ListBackupPolicyJobsOptions) SetStart(start string) *ListBackupPolicyJobsOptions {
+	_options.Start = core.StringPtr(start)
+	return _options
+}
+
+// SetLimit : Allow user to set Limit
+func (_options *ListBackupPolicyJobsOptions) SetLimit(limit int64) *ListBackupPolicyJobsOptions {
+	_options.Limit = core.Int64Ptr(limit)
+	return _options
+}
+
 // SetSort : Allow user to set Sort
 func (_options *ListBackupPolicyJobsOptions) SetSort(sort string) *ListBackupPolicyJobsOptions {
 	_options.Sort = core.StringPtr(sort)
@@ -48180,7 +48319,7 @@ type LoadBalancerListenerPatch struct {
 	// - If `default_pool` is set, the protocol cannot be changed.
 	// - If `https_redirect` is set, the protocol must be `http`.
 	// - If another listener's `https_redirect` targets this listener, the protocol must be
-	//   `https`.
+	// `https`.
 	Protocol *string `json:"protocol,omitempty"`
 }
 
@@ -48192,10 +48331,10 @@ type LoadBalancerListenerPatch struct {
 // `https`.
 //
 // Additional restrictions:
-//   - If `default_pool` is set, the protocol cannot be changed.
-//   - If `https_redirect` is set, the protocol must be `http`.
-//   - If another listener's `https_redirect` targets this listener, the protocol must be
-//     `https`.
+// - If `default_pool` is set, the protocol cannot be changed.
+// - If `https_redirect` is set, the protocol must be `http`.
+// - If another listener's `https_redirect` targets this listener, the protocol must be
+// `https`.
 const (
 	LoadBalancerListenerPatchProtocolHTTPConst  = "http"
 	LoadBalancerListenerPatchProtocolHTTPSConst = "https"
@@ -55547,7 +55686,7 @@ type RoutingTable struct {
 	ResourceType *string `json:"resource_type" validate:"required"`
 
 	// Indicates whether this routing table is used to route traffic that originates from
-	// [Direct Link](https://cloud.ibm.com/docs/dl/) to this VPC.
+	// [Direct Link](https://cloud.ibm.com/docs/dl) to this VPC.
 	//
 	// Incoming traffic will be routed according to the routing table with one exception: routes with an `action` of
 	// `deliver` are treated as `drop` unless the `next_hop` is an IP address bound to a network interface on a subnet in
@@ -55555,8 +55694,19 @@ type RoutingTable struct {
 	// address or a VPN gateway connection, the packet will be dropped.
 	RouteDirectLinkIngress *bool `json:"route_direct_link_ingress" validate:"required"`
 
+	// Indicates whether this routing table is used to route traffic that originates from the internet.
+	//
+	// Incoming traffic will be routed according to the routing table with two exceptions:
+	// - Traffic destined for IP addresses associated with public gateways will not be
+	//   subject to routes in this routing table.
+	// - Routes with an action of deliver are treated as drop unless the `next_hop` is an
+	//   IP address bound to a network interface on a subnet in the route's `zone`.
+	//   Therefore, if an incoming packet matches a route with a `next_hop` of an
+	//   internet-bound IP address or a VPN gateway connection, the packet will be dropped.
+	RouteInternetIngress *bool `json:"route_internet_ingress" validate:"required"`
+
 	// Indicates whether this routing table is used to route traffic that originates from from [Transit
-	// Gateway](https://cloud.ibm.com/cloud/transit-gateway/) to this VPC.
+	// Gateway](https://cloud.ibm.com/docs/transit-gateway) to this VPC.
 	//
 	// Incoming traffic will be routed according to the routing table with one exception: routes with an `action` of
 	// `deliver` are treated as `drop` unless the `next_hop` is an IP address bound to a network interface on a subnet in
@@ -55634,6 +55784,10 @@ func UnmarshalRoutingTable(m map[string]json.RawMessage, result interface{}) (er
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "route_direct_link_ingress", &obj.RouteDirectLinkIngress)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "route_internet_ingress", &obj.RouteInternetIngress)
 	if err != nil {
 		return
 	}
@@ -55809,8 +55963,21 @@ type RoutingTablePatch struct {
 	// address or a VPN gateway connection, the packet will be dropped.
 	RouteDirectLinkIngress *bool `json:"route_direct_link_ingress,omitempty"`
 
+	// Indicates whether this routing table is used to route traffic that originates from the internet.  Updating to `true`
+	// selects this routing table, provided no other routing table in the VPC already has this property set to `true`.
+	// Updating to `false` deselects this routing table.
+	//
+	// Incoming traffic will be routed according to the routing table with two exceptions:
+	// -  Traffic destined for IP addresses associated with public gateways will not be subject
+	//    to routes in this routing table.
+	// -  Routes with an `action` of `deliver` are treated as `drop` unless the `next_hop` is an
+	//    IP address bound to a network interface on a subnet in the route's `zone`. Therefore,
+	//    if an incoming packet matches a route with a `next_hop` of an internet-bound IP
+	//    address or a VPN gateway connection, the packet will be dropped.
+	RouteInternetIngress *bool `json:"route_internet_ingress,omitempty"`
+
 	// Indicates whether this routing table is used to route traffic that originates from
-	// [Transit Gateway](https://cloud.ibm.com/cloud/transit-gateway/) to this VPC. Updating to
+	// [Transit Gateway](https://cloud.ibm.com/docs/transit-gateway) to this VPC. Updating to
 	// `true` selects this routing table, provided no other routing table in the VPC already has this property set to
 	// `true`, and no subnets are attached to this routing table. Updating to `false` deselects this routing table.
 	//
@@ -55848,6 +56015,10 @@ func UnmarshalRoutingTablePatch(m map[string]json.RawMessage, result interface{}
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "route_direct_link_ingress", &obj.RouteDirectLinkIngress)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "route_internet_ingress", &obj.RouteInternetIngress)
 	if err != nil {
 		return
 	}
@@ -57846,8 +58017,8 @@ type SubnetPatch struct {
 	PublicGateway SubnetPublicGatewayPatchIntf `json:"public_gateway,omitempty"`
 
 	// The routing table to use for this subnet.  The routing table properties
-	// `route_direct_link_ingress`, `route_transit_gateway_ingress`, and
-	// `route_vpc_zone_ingress` must be `false`.
+	// `route_direct_link_ingress`, `route_internet_ingress`,
+	// `route_transit_gateway_ingress`, and `route_vpc_zone_ingress` must be `false`.
 	RoutingTable RoutingTableIdentityIntf `json:"routing_table,omitempty"`
 }
 
@@ -57909,7 +58080,8 @@ type SubnetPrototype struct {
 
 	// The routing table to use for this subnet. If unspecified, the default routing table
 	// for the VPC is used. The routing table properties `route_direct_link_ingress`,
-	// `route_transit_gateway_ingress`, and `route_vpc_zone_ingress` must be `false`.
+	// `route_internet_ingress`, `route_transit_gateway_ingress`, and
+	// `route_vpc_zone_ingress` must be `false`.
 	RoutingTable RoutingTableIdentityIntf `json:"routing_table,omitempty"`
 
 	// The VPC the subnet will reside in.
@@ -79265,7 +79437,8 @@ type SubnetPrototypeSubnetByCIDR struct {
 
 	// The routing table to use for this subnet. If unspecified, the default routing table for the VPC is used. The routing
 	// table properties `route_direct_link_ingress`,
-	// `route_transit_gateway_ingress`, and `route_vpc_zone_ingress` must be `false`.
+	// `route_internet_ingress`, `route_transit_gateway_ingress`, and
+	// `route_vpc_zone_ingress` must be `false`.
 	RoutingTable RoutingTableIdentityIntf `json:"routing_table,omitempty"`
 
 	// The VPC the subnet will reside in.
@@ -79366,7 +79539,8 @@ type SubnetPrototypeSubnetByTotalCount struct {
 
 	// The routing table to use for this subnet. If unspecified, the default routing table for the VPC is used. The routing
 	// table properties `route_direct_link_ingress`,
-	// `route_transit_gateway_ingress`, and `route_vpc_zone_ingress` must be `false`.
+	// `route_internet_ingress`, `route_transit_gateway_ingress`, and
+	// `route_vpc_zone_ingress` must be `false`.
 	RoutingTable RoutingTableIdentityIntf `json:"routing_table,omitempty"`
 
 	// The VPC the subnet will reside in.

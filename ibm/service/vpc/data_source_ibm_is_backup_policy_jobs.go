@@ -349,6 +349,7 @@ func dataSourceBackupPolicyJobCollectionFlattenJobs(result []vpcv1.BackupPolicyJ
 }
 
 func dataSourceBackupPolicyJobCollectionJobsToMap(jobsItem vpcv1.BackupPolicyJob) (jobsMap map[string]interface{}) {
+	// log.Println("Hi I am inside dataSourceBackupPolicyJobCollectionJobsToMap")
 	jobsMap = map[string]interface{}{}
 
 	if jobsItem.AutoDelete != nil {
@@ -381,9 +382,12 @@ func dataSourceBackupPolicyJobCollectionJobsToMap(jobsItem vpcv1.BackupPolicyJob
 	if jobsItem.ResourceType != nil {
 		jobsMap["resource_type"] = jobsItem.ResourceType
 	}
-	if jobsItem.SourceVolume != nil {
+	log.Println("jobsItem.Source")
+	log.Println(jobsItem.Source)
+	if jobsItem.Source != nil {
 		sourceVolumeList := []map[string]interface{}{}
-		sourceVolumeMap := dataSourceBackupPolicyJobCollectionJobsSourceVolumeToMap(*jobsItem.SourceVolume)
+		jobSource := jobsItem.Source.(*vpcv1.BackupPolicyJobSource)
+		sourceVolumeMap := dataSourceBackupPolicyJobCollectionJobsSourceVolumeToMap(*jobSource)
 		sourceVolumeList = append(sourceVolumeList, sourceVolumeMap)
 		jobsMap["source_volume"] = sourceVolumeList
 	}
@@ -397,13 +401,18 @@ func dataSourceBackupPolicyJobCollectionJobsToMap(jobsItem vpcv1.BackupPolicyJob
 		}
 		jobsMap["status_reasons"] = statusReasonsList
 	}
-	if jobsItem.TargetSnapshot != nil {
+	log.Println("jobsItem.TargetSnapshot")
+	log.Println(jobsItem.TargetSnapshots)
+	if jobsItem.TargetSnapshots != nil {
 		targetSnapshotList := []map[string]interface{}{}
-		targetSnapshotMap := dataSourceBackupPolicyJobCollectionJobsTargetSnapshotToMap(*jobsItem.TargetSnapshot)
-		targetSnapshotList = append(targetSnapshotList, targetSnapshotMap)
+		for _, targetSnapshotsItem := range jobsItem.TargetSnapshots {
+			targetSnapshotMap := dataSourceBackupPolicyJobCollectionJobsTargetSnapshotToMap(targetSnapshotsItem)
+			targetSnapshotList = append(targetSnapshotList, targetSnapshotMap)
+		}
 		jobsMap["target_snapshot"] = targetSnapshotList
 	}
-
+	// log.Println("jobsItem")
+	// log.Println(jobsItem)
 	return jobsMap
 }
 
@@ -442,7 +451,7 @@ func dataSourceBackupPolicyJobCollectionBackupPolicyPlanDeletedToMap(deletedItem
 	return deletedMap
 }
 
-func dataSourceBackupPolicyJobCollectionJobsSourceVolumeToMap(sourceVolumeItem vpcv1.VolumeReference) (sourceVolumeMap map[string]interface{}) {
+func dataSourceBackupPolicyJobCollectionJobsSourceVolumeToMap(sourceVolumeItem vpcv1.BackupPolicyJobSource) (sourceVolumeMap map[string]interface{}) {
 	sourceVolumeMap = map[string]interface{}{}
 
 	if sourceVolumeItem.CRN != nil {

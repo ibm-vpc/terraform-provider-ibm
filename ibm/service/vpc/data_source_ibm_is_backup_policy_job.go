@@ -279,8 +279,9 @@ func dataSourceIBMIsBackupPolicyJobRead(context context.Context, d *schema.Resou
 		return diag.FromErr(fmt.Errorf("Error setting resource_type: %s", err))
 	}
 
-	if backupPolicyJob.SourceVolume != nil {
-		err = d.Set("source_volume", dataSourceBackupPolicyJobFlattenSourceVolume(*backupPolicyJob.SourceVolume))
+	if backupPolicyJob.Source != nil {
+		jobSource := backupPolicyJob.Source.(*vpcv1.BackupPolicyJobSource)
+		err = d.Set("source_volume", dataSourceBackupPolicyJobFlattenSourceVolume(*jobSource))
 		if err != nil {
 			return diag.FromErr(fmt.Errorf("Error setting source_volume %s", err))
 		}
@@ -296,8 +297,8 @@ func dataSourceIBMIsBackupPolicyJobRead(context context.Context, d *schema.Resou
 		}
 	}
 
-	if backupPolicyJob.TargetSnapshot != nil {
-		err = d.Set("target_snapshot", dataSourceBackupPolicyJobFlattenTargetSnapshot(*backupPolicyJob.TargetSnapshot))
+	if backupPolicyJob.TargetSnapshots != nil {
+		err = d.Set("target_snapshot", dataSourceBackupPolicyJobFlattenTargetSnapshot(backupPolicyJob.TargetSnapshots))
 		if err != nil {
 			return diag.FromErr(fmt.Errorf("Error setting target_snapshot %s", err))
 		}
@@ -349,7 +350,7 @@ func dataSourceBackupPolicyJobBackupPolicyPlanDeletedToMap(deletedItem vpcv1.Bac
 	return deletedMap
 }
 
-func dataSourceBackupPolicyJobFlattenSourceVolume(result vpcv1.VolumeReference) (finalList []map[string]interface{}) {
+func dataSourceBackupPolicyJobFlattenSourceVolume(result vpcv1.BackupPolicyJobSource) (finalList []map[string]interface{}) {
 	finalList = []map[string]interface{}{}
 	finalMap := dataSourceBackupPolicyJobSourceVolumeToMap(result)
 	finalList = append(finalList, finalMap)
@@ -357,7 +358,7 @@ func dataSourceBackupPolicyJobFlattenSourceVolume(result vpcv1.VolumeReference) 
 	return finalList
 }
 
-func dataSourceBackupPolicyJobSourceVolumeToMap(sourceVolumeItem vpcv1.VolumeReference) (sourceVolumeMap map[string]interface{}) {
+func dataSourceBackupPolicyJobSourceVolumeToMap(sourceVolumeItem vpcv1.BackupPolicyJobSource) (sourceVolumeMap map[string]interface{}) {
 	sourceVolumeMap = map[string]interface{}{}
 
 	if sourceVolumeItem.CRN != nil {
@@ -416,10 +417,12 @@ func dataSourceBackupPolicyJobStatusReasonsToMap(statusReasonsItem vpcv1.BackupP
 	return statusReasonsMap
 }
 
-func dataSourceBackupPolicyJobFlattenTargetSnapshot(result vpcv1.SnapshotReference) (finalList []map[string]interface{}) {
+func dataSourceBackupPolicyJobFlattenTargetSnapshot(result []vpcv1.SnapshotReference) (finalList []map[string]interface{}) {
 	finalList = []map[string]interface{}{}
-	finalMap := dataSourceBackupPolicyJobTargetSnapshotToMap(result)
-	finalList = append(finalList, finalMap)
+	for _, snapshotReferenceItem := range result {
+		finalMap := dataSourceBackupPolicyJobTargetSnapshotToMap(snapshotReferenceItem)
+		finalList = append(finalList, finalMap)
+	}
 
 	return finalList
 }

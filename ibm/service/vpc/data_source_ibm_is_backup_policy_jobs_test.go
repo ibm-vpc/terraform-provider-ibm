@@ -61,6 +61,5 @@ func testAccCheckIBMIsBackupPolicyJobsDataSourceConfigBasic() string {
 	return fmt.Sprintf(`
 		data "ibm_is_backup_policy_jobs" "is_backup_policy_jobs" {
 			backup_policy_id = "%s"
-		}
-	`, acc.BackupPolicyID)
+		}`, acc.BackupPolicyID)
 }
