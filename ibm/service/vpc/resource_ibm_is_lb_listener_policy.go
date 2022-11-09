@@ -492,6 +492,11 @@ func lbListenerPolicyCreate(d *schema.ResourceData, meta interface{}, lbID, list
 	if err != nil {
 		return err
 	}
+	_, err = isWaitForLbAvailable(sess, lbID, d.Timeout(schema.TimeoutCreate))
+	if err != nil {
+		return fmt.Errorf(
+			"LB-LP Error checking for load balancer (%s) is active: %s", lbID, err)
+	}
 	return nil
 }
 
@@ -791,6 +796,11 @@ func lbListenerPolicyUpdate(d *schema.ResourceData, meta interface{}, lbID, list
 		_, err = isWaitForLbListenerPolicyAvailable(sess, d.Id(), d.Timeout(schema.TimeoutCreate))
 		if err != nil {
 			return err
+		}
+		_, err = isWaitForLbAvailable(sess, lbID, d.Timeout(schema.TimeoutCreate))
+		if err != nil {
+			return fmt.Errorf(
+				"LB-LP Error checking for load balancer (%s) is active: %s", lbID, err)
 		}
 	}
 	return nil
