@@ -3026,9 +3026,11 @@ func instanceUpdate(d *schema.ResourceData, meta interface{}) error {
 		}
 	}
 
-	if d.HasChange(isPlacementTargetDedicatedHost) || d.HasChange(isPlacementTargetDedicatedHostGroup) && !d.IsNewResource() {
+	if d.HasChange(isPlacementTargetDedicatedHost) || d.HasChange(isPlacementTargetDedicatedHostGroup) || d.HasChange(isPlacementTargetPlacementGroup) && !d.IsNewResource() {
 		dedicatedHost := d.Get(isPlacementTargetDedicatedHost).(string)
 		dedicatedHostGroup := d.Get(isPlacementTargetDedicatedHostGroup).(string)
+		placementGroup := d.Get(isPlacementTargetPlacementGroup).(string)
+
 		actiontype := "stop"
 
 		if dedicatedHost == "" && dedicatedHostGroup == "" {
@@ -3065,6 +3067,11 @@ func instanceUpdate(d *schema.ResourceData, meta interface{}) error {
 		} else if dedicatedHostGroup != "" {
 			placementTarget := &vpcv1.InstancePlacementTargetPatch{
 				ID: &dedicatedHostGroup,
+			}
+			instancePatchModel.PlacementTarget = placementTarget
+		} else if placementGroup != "" {
+			placementTarget := &vpcv1.InstancePlacementTargetPatch{
+				ID: &placementGroup,
 			}
 			instancePatchModel.PlacementTarget = placementTarget
 		}
