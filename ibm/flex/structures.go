@@ -2068,6 +2068,30 @@ func UpdateGlobalTagsUsingCRN(oldList, newList interface{}, meta interface{}, re
 			add = append(add, envTags...)
 		}
 	}
+	if strings.TrimSpace(tagType) == "access" {
+
+		listTagsOptions := &globaltaggingv1.ListTagsOptions{
+			TagType: &tagType,
+		}
+		taggingResult, _, err := gtClient.ListTags(listTagsOptions)
+		if err != nil {
+			return err
+		}
+		var taglist []string
+		for _, item := range taggingResult.Items {
+			taglist = append(taglist, *item.Name)
+		}
+		existingAccessTags := NewStringSet(ResourceIBMVPCHash, taglist)
+		errStatement := ""
+		for _, tag := range add {
+			if !existingAccessTags.Contains(tag) {
+				errStatement = errStatement + " " + tag
+			}
+		}
+		if errStatement != "" {
+			return fmt.Errorf("[ERROR] Error : Access tag(s) %s does not exist", errStatement)
+		}
+	}
 
 	if len(remove) > 0 {
 		detachTagOptions := &globaltaggingv1.DetachTagOptions{}
