@@ -307,6 +307,10 @@ func resourceIBMisVirtualEndpointGatewayCreate(d *schema.ResourceData, meta inte
 	}
 
 	d.SetId(*result.ID)
+	_, err = isWaitForVirtualEndpointGatewayAvailable(sess, d.Id(), d.Timeout(schema.TimeoutUpdate))
+	if err != nil {
+		return err
+	}
 	v := os.Getenv("IC_ENV_TAGS")
 	if _, ok := d.GetOk(isVirtualEndpointGatewayTags); ok || v != "" {
 		oldList, newList := d.GetChange(isVirtualEndpointGatewayTags)
