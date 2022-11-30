@@ -92,12 +92,14 @@ func ResourceIBMISSecurityGroupRule() *schema.Resource {
 						isSecurityGroupRuleType: {
 							Type:         schema.TypeInt,
 							Optional:     true,
+							Default:      255,
 							ForceNew:     false,
 							ValidateFunc: validate.InvokeValidator("ibm_is_security_group_rule", isSecurityGroupRuleType),
 						},
 						isSecurityGroupRuleCode: {
 							Type:         schema.TypeInt,
 							Optional:     true,
+							Default:      256,
 							ForceNew:     false,
 							ValidateFunc: validate.InvokeValidator("ibm_is_security_group_rule", isSecurityGroupRuleCode),
 						},
@@ -200,14 +202,14 @@ func ResourceIBMISSecurityGroupRuleValidator() *validate.ResourceValidator {
 			ValidateFunctionIdentifier: validate.IntBetween,
 			Type:                       validate.TypeInt,
 			MinValue:                   "0",
-			MaxValue:                   "254"})
+			MaxValue:                   "255"})
 	validateSchema = append(validateSchema,
 		validate.ValidateSchema{
 			Identifier:                 isSecurityGroupRuleCode,
 			ValidateFunctionIdentifier: validate.IntBetween,
 			Type:                       validate.TypeInt,
 			MinValue:                   "0",
-			MaxValue:                   "255"})
+			MaxValue:                   "256"})
 	validateSchema = append(validateSchema,
 		validate.ValidateSchema{
 			Identifier:                 isSecurityGroupRulePortMin,
@@ -321,9 +323,13 @@ func resourceIBMISSecurityGroupRuleRead(d *schema.ResourceData, meta interface{}
 
 			if rule.Type != nil {
 				icmpProtocol["type"] = *rule.Type
+			} else {
+				icmpProtocol["type"] = 255
 			}
 			if rule.Code != nil {
 				icmpProtocol["code"] = *rule.Code
+			} else {
+				icmpProtocol["code"] = 256
 			}
 			protocolList := make([]map[string]interface{}, 0)
 			protocolList = append(protocolList, icmpProtocol)
@@ -539,8 +545,6 @@ func parseIBMISSecurityGroupRuleDictionary(d *schema.ResourceData, tag string, s
 	sgTemplate := &vpcv1.SecurityGroupRulePrototype{}
 	sgTemplateUpdate := &vpcv1.UpdateSecurityGroupRuleOptions{}
 	var err error
-	parsed.icmpType = -1
-	parsed.icmpCode = -1
 	parsed.portMin = -1
 	parsed.portMax = -1
 
@@ -629,9 +633,13 @@ func parseIBMISSecurityGroupRuleDictionary(d *schema.ResourceData, tag string, s
 		if icmpInterface.([]interface{})[0] == nil {
 			parsed.icmpType = 0
 			parsed.icmpCode = 0
-		} else {
-			sgTemplate.Type = &parsed.icmpType
-			sgTemplate.Code = &parsed.icmpCode
+		} else if parsed.icmpType != 255 || parsed.icmpCode != 256 {
+			if parsed.icmpType != 255 {
+				sgTemplate.Type = &parsed.icmpType
+			}
+			if parsed.icmpCode != 256 {
+				sgTemplate.Code = &parsed.icmpCode
+			}
 		}
 		sgTemplate.Protocol = &parsed.protocol
 		securityGroupRulePatchModel.Type = &parsed.icmpType
@@ -679,6 +687,16 @@ func parseIBMISSecurityGroupRuleDictionary(d *schema.ResourceData, tag string, s
 	if err != nil {
 		return nil, nil, nil, fmt.Errorf("[ERROR] Error calling asPatch for SecurityGroupRulePatch: %s", err)
 	}
+	if _, ok := d.GetOk("icmp"); ok {
+
+		if *securityGroupRulePatchModel.Type == 255 {
+			securityGroupRulePatch["type"] = nil
+		}
+		if *securityGroupRulePatchModel.Code == 256 {
+			securityGroupRulePatch["code"] = nil
+		}
+	}
+
 	sgTemplateUpdate.SecurityGroupRulePatch = securityGroupRulePatch
 	//	log.Printf("[DEBUG] parse tag=%s\n\t%v  \n\t%v  \n\t%v  \n\t%v  \n\t%v \n\t%v \n\t%v \n\t%v  \n\t%v  \n\t%v  \n\t%v  \n\t%v ",
 	//		tag, parsed.secgrpID, parsed.ruleID, parsed.direction, parsed.ipversion, parsed.protocol, parsed.remoteAddress,

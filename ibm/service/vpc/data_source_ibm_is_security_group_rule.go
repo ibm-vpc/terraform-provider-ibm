@@ -202,13 +202,25 @@ func dataSourceIBMIsSecurityGroupRuleRead(context context.Context, d *schema.Res
 					return diag.FromErr(fmt.Errorf("Error setting remote %s", err))
 				}
 			}
+			if securityGroupRule.Code != nil {
+				if err = d.Set("code", flex.IntValue(securityGroupRule.Code)); err != nil {
+					return diag.FromErr(fmt.Errorf("Error setting code: %s", err))
+				}
+			} else {
+				if err = d.Set("code", int64(256)); err != nil {
+					return diag.FromErr(fmt.Errorf("Error setting code: %s", err))
+				}
+			}
+			if securityGroupRule.Type != nil {
+				if err = d.Set("type", flex.IntValue(securityGroupRule.Type)); err != nil {
+					return diag.FromErr(fmt.Errorf("Error setting type: %s", err))
+				}
+			} else {
+				if err = d.Set("type", int64(255)); err != nil {
+					return diag.FromErr(fmt.Errorf("Error setting type: %s", err))
+				}
+			}
 
-			if err = d.Set("code", flex.IntValue(securityGroupRule.Code)); err != nil {
-				return diag.FromErr(fmt.Errorf("Error setting code: %s", err))
-			}
-			if err = d.Set("type", flex.IntValue(securityGroupRule.Type)); err != nil {
-				return diag.FromErr(fmt.Errorf("Error setting type: %s", err))
-			}
 		}
 	case "*vpcv1.SecurityGroupRuleSecurityGroupRuleProtocolTcpudp":
 		{

@@ -32,8 +32,9 @@ Review the argument reference that you can specify for your data source.
 
 In addition to all argument references listed, you can access the following attribute references after your data source is created.
 
-- `id` - The unique identifier of the is_security_group_rule.
-- `code` - (Integer) The ICMP traffic code to allow.
+- `id` - The unique identifier of the is_security_group_rule. 
+
+- `code` - (Integer) The ICMP traffic code to allow, value `256` indicates all codes are allowed.
 
 - `direction` - (String) The direction of traffic to enforce, either `inbound` or `outbound`.
 
@@ -59,5 +60,5 @@ Nested scheme for `remote`:
 	- `id` - (String) The unique identifier for this security group.
 	- `name` - (String) The user-defined name for this security group. Names must be unique within the VPC the security group resides in.
 
-- `type` - (Integer) The ICMP traffic type to allow.
+- `type` - (Integer) The ICMP traffic type to allow, value `255` indicates all types are allowed.
 

@@ -32,7 +32,7 @@ In addition to all argument references listed, you can access the following attr
 - `id` - The unique identifier of the SecurityGroupRuleCollection.
 - `rules` - (List) Array of rules.
 Nested scheme for `rules`:
-	- `code` - (Integer) The ICMP traffic code to allow.
+	- `code` - (Integer) The ICMP traffic code to allow, value `256` indicates all codes are allowed.
 	- `direction` - (String) The direction of traffic to enforce, either `inbound` or `outbound`.
 	- `href` - (String) The URL for this security group rule.
 	- `id` - (String) The unique identifier for this security group rule.
@@ -51,5 +51,5 @@ Nested scheme for `rules`:
 		- `href` - (String) The security group's canonical URL.
 		- `id` - (String) The unique identifier for this security group.
 		- `name` - (String) The user-defined name for this security group. Names must be unique within the VPC the security group resides in.
-	- `type` - (Integer) The ICMP traffic type to allow.
+	- `type` - (Integer) The ICMP traffic type to allow, value `255` indicates all types are allowed.
 

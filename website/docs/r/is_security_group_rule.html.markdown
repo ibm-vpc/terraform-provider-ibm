@@ -105,8 +105,8 @@ Review the argument references that you can specify for your resource.
 - `icmp` - (Optional, List) A nested block describes the `icmp` protocol of this security group rule.
 
   Nested scheme for `icmp`:
-  - `type`- (Required, Integer) The ICMP traffic type to allow. Valid values from 0 to 254.
-  - `code` - (Optional, Integer) The ICMP traffic code to allow. Valid values from 0 to 255.
+  - `type`- (Required, Integer) The ICMP traffic type to allow. Valid values from 0 to 254. Please specify value `255` to allow `all` types.
+  - `code` - (Optional, Integer) The ICMP traffic code to allow. Valid values from 0 to 255. Please specify value `256` to allow `all` codes
 - `remote` - (Optional, String) Security group ID, an IP address, a CIDR block, or a single security group identifier.
 - `tcp` - (Optional, List) A nested block describes the `tcp` protocol of this security group rule.
 

@@ -177,9 +177,17 @@ func dataSourceIBMIsSecurityGroupRulesRead(d *schema.ResourceData, meta interfac
 				l["href"] = *rulex.Href
 				l["id"] = *rulex.ID
 				l["ip_version"] = *rulex.IPVersion
-				l["code"] = *rulex.Code
+				if rulex.Code != nil {
+					l["code"] = *rulex.Code
+				} else {
+					l["code"] = 256
+				}
 				l["protocol"] = *rulex.Protocol
-				l["type"] = *rulex.Type
+				if rulex.Type != nil {
+					l["type"] = *rulex.Type
+				} else {
+					l["type"] = 255
+				}
 				// remote
 				if rulex.Remote != nil {
 					remoteList := []map[string]interface{}{}
