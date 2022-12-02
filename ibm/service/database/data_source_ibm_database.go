@@ -8,9 +8,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/url"
 	"path/filepath"
 
+	"github.com/IBM/cloud-databases-go-sdk/clouddatabasesv5"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/IBM-Cloud/bluemix-go/api/icd/icdv4"
@@ -19,6 +21,7 @@ import (
 	"github.com/IBM-Cloud/bluemix-go/models"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/conns"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
+	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/validate"
 )
 
 func DataSourceIBMDatabaseInstance() *schema.Resource {
@@ -30,18 +33,27 @@ func DataSourceIBMDatabaseInstance() *schema.Resource {
 				Description: "Resource instance name for example, my Database instance",
 				Type:        schema.TypeString,
 				Required:    true,
+				ValidateFunc: validate.InvokeDataSourceValidator(
+					"ibm_database",
+					"name"),
 			},
 
 			"resource_group_id": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "The id of the resource group in which the Database instance is present",
+				ValidateFunc: validate.InvokeDataSourceValidator(
+					"ibm_database",
+					"resource_group_id"),
 			},
 
 			"location": {
 				Description: "The location or the region in which the Database instance exists",
 				Type:        schema.TypeString,
 				Optional:    true,
+				ValidateFunc: validate.InvokeDataSourceValidator(
+					"ibm_database",
+					"location"),
 			},
 
 			"guid": {
@@ -229,6 +241,7 @@ func DataSourceIBMDatabaseInstance() *schema.Resource {
 						},
 					},
 				},
+				Deprecated: "This field is deprecated, please use ibm_database_connection instead",
 			},
 			"whitelist": {
 				Type:     schema.TypeSet,
@@ -237,6 +250,25 @@ func DataSourceIBMDatabaseInstance() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"address": {
 							Description: "Whitelist IP address in CIDR notation",
+							Type:        schema.TypeString,
+							Computed:    true,
+						},
+						"description": {
+							Description: "Unique white list description",
+							Type:        schema.TypeString,
+							Computed:    true,
+						},
+					},
+				},
+				Deprecated: "The whitelist field is deprecated please use allowlist",
+			},
+			"allowlist": {
+				Type:     schema.TypeSet,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"address": {
+							Description: "Allowlist IP address in CIDR notation",
 							Type:        schema.TypeString,
 							Computed:    true,
 						},
@@ -575,6 +607,37 @@ func DataSourceIBMDatabaseInstance() *schema.Resource {
 	}
 }
 
+func DataSourceIBMDatabaseInstanceValidator() *validate.ResourceValidator {
+	validateSchema := make([]validate.ValidateSchema, 0)
+	validateSchema = append(validateSchema,
+		validate.ValidateSchema{
+			Identifier:                 "name",
+			ValidateFunctionIdentifier: validate.ValidateCloudData,
+			Type:                       validate.TypeString,
+			Required:                   true,
+			CloudDataType:              "cloud-database",
+			CloudDataRange:             []string{"resolved_to:name"}})
+
+	validateSchema = append(validateSchema,
+		validate.ValidateSchema{
+			Identifier:                 "resource_group_id",
+			ValidateFunctionIdentifier: validate.ValidateCloudData,
+			Type:                       validate.TypeString,
+			CloudDataType:              "resource_group",
+			CloudDataRange:             []string{"resolved_to:id"},
+			Optional:                   true})
+	validateSchema = append(validateSchema,
+		validate.ValidateSchema{
+			Identifier:                 "location",
+			ValidateFunctionIdentifier: validate.ValidateCloudData,
+			Type:                       validate.TypeString,
+			CloudDataType:              "region",
+			Optional:                   true})
+
+	iBMDatabaseInstanceValidator := validate.ResourceValidator{ResourceName: "ibm_database", Schema: validateSchema}
+	return &iBMDatabaseInstanceValidator
+}
+
 func dataSourceIBMDatabaseInstanceRead(d *schema.ResourceData, meta interface{}) error {
 	rsConClient, err := meta.(conns.ClientSession).ResourceControllerAPIV2()
 	if err != nil {
@@ -647,10 +710,12 @@ func dataSourceIBMDatabaseInstanceRead(d *schema.ResourceData, meta interface{})
 
 	d.SetId(instance.ID)
 
-	err = flex.GetTags(d, meta)
+	tags, err := flex.GetTagsUsingCRN(meta, d.Id())
 	if err != nil {
-		return fmt.Errorf("[ERROR] Error on get of resource instance (%s) tags: %s", d.Id(), err)
+		log.Printf(
+			"Error on get of ibm Database tags (%s) tags: %s", d.Id(), err)
 	}
+	d.Set("tags", tags)
 
 	d.Set("name", instance.Name)
 	d.Set("status", instance.State)
@@ -720,6 +785,19 @@ func dataSourceIBMDatabaseInstanceRead(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("[ERROR] Error getting database whitelist: %s", err)
 	}
 	d.Set("whitelist", flex.FlattenWhitelist(whitelist))
+
+	cloudDatabasesClient, err := meta.(conns.ClientSession).CloudDatabasesV5()
+	alEntry := &clouddatabasesv5.GetAllowlistOptions{
+		ID: &instance.ID,
+	}
+
+	allowlist, _, err := cloudDatabasesClient.GetAllowlist(alEntry)
+
+	if err != nil {
+		return fmt.Errorf("[ERROR] Error getting database allowlist: %s", err)
+	}
+
+	d.Set("allowlist", flex.FlattenGetAllowlist(*allowlist))
 
 	connectionEndpoint := "public"
 	if instance.Parameters != nil {
