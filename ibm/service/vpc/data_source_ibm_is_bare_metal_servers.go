@@ -60,11 +60,11 @@ func DataSourceIBMIsBareMetalServers() *schema.Resource {
 							Computed: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
-									isBareMetalServerTrustedPlatformModuleEnabled: {
-										Type:        schema.TypeBool,
-										Computed:    true,
-										Description: "Indicates whether the trusted platform module (TPM) is enabled. If enabled, `mode` will also be set.",
-									},
+									// isBareMetalServerTrustedPlatformModuleEnabled: {
+									// 	Type:        schema.TypeBool,
+									// 	Computed:    true,
+									// 	Description: "Indicates whether the trusted platform module (TPM) is enabled. If enabled, `mode` will also be set.",
+									// },
 									isBareMetalServerTrustedPlatformModuleMode: {
 										Type:        schema.TypeString,
 										Computed:    true,
