@@ -98,7 +98,9 @@ Review the argument references that you can specify for your resource.
 
 In addition to all argument reference list, you can access the following attribute reference after your resource is created.
 
-- `status` - (String) The status of the instance. The supported status are **failed**, **pending**, **restarting**, **running**, **starting**, **stopped**, or **stopping**.
+- `status` - (String) The status of the instance. 
+
+  -> **Supported Action**  </br>&#x2022; failed </br>&#x2022; pending </br>&#x2022; restarting </br>&#x2022; running </br>&#x2022; starting </br>&#x2022; stopped </br>&#x2022; stopping
 - `status_reasons` - (List) Array of reasons for the current status (if any).
 
   Nested `status_reasons`:
