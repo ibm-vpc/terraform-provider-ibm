@@ -121,6 +121,14 @@ func DataSourceIBMISVolume() *schema.Resource {
 				Description: "Tags for the volume instance",
 			},
 
+			isVolumeAccessTags: {
+				Type:        schema.TypeSet,
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         flex.ResourceIBMVPCHash,
+				Description: "Access management tags for the volume instance",
+			},
+
 			isVolumeSourceSnapshot: {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -240,15 +248,29 @@ func volumeGet(d *schema.ResourceData, meta interface{}, name string) error {
 				}
 				statusReasonsList = append(statusReasonsList, currentSR)
 			}
+			d.Set(isVolumeStatusReasons, statusReasonsList)
+		}
+		d.Set(isVolumeTags, vol.UserTags)
+		accesstags, err := flex.GetGlobalTagsUsingCRN(meta, *vol.CRN, "", isVolumeAccessTagType)
+		if err != nil {
+			log.Printf(
+				"Error on get of resource vpc volume (%s) access tags: %s", d.Id(), err)
+		}
+		d.Set(isVolumeAccessTags, accesstags)
+		controller, err := flex.GetBaseController(meta)
+		if err != nil {
+			return err
+		}
+		d.Set(flex.ResourceControllerURL, controller+"/vpc-ext/storage/storageVolumes")
+		d.Set(flex.ResourceName, *vol.Name)
+		d.Set(flex.ResourceCRN, *vol.CRN)
+		d.Set(flex.ResourceStatus, *vol.Status)
+		if vol.ResourceGroup != nil {
+			d.Set(flex.ResourceGroupName, vol.ResourceGroup.Name)
+			d.Set(isVolumeResourceGroup, *vol.ResourceGroup.ID)
 		}
 		d.Set(isVolumeStatusReasons, statusReasonsList)
 	}
-	tags, err := flex.GetTagsUsingCRN(meta, *vol.CRN)
-	if err != nil {
-		log.Printf(
-			"Error on get of resource vpc volume (%s) tags: %s", d.Id(), err)
-	}
-	d.Set(isVolumeTags, tags)
 	controller, err := flex.GetBaseController(meta)
 	if err != nil {
 		return err

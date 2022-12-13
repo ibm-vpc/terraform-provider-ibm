@@ -34,6 +34,7 @@ Review the attribute references that you can access after you retrieve your data
 - `load_balancers` - (List) The Collection of load balancers.
 
   Nested scheme for `load_balancers`:
+  	- `access_tags`  - (String) Access management tags associated for the load balancer.
 	- `id` - (String) The unique identifier of the load balancer.
 	- `created_at` - (String) The date and time this load balancer was created.
 	- `crn` - (String) The load balancer's CRN.
@@ -75,7 +76,7 @@ Review the attribute references that you can access after you retrieve your data
 	- `private_ips` - (String) The private IP addresses assigned to this load balancer. Same as `private_ip.[].address`
 	- `provisioning_status` - (String) The provisioning status of this load balancer. Possible values are: **active**, **create_pending**, **delete_pending**, **failed**, **maintenance_pending**, **update_pending**-
 	- `public_ips` - (String) The public IP addresses assigned to this load balancer.
-	- `resource_group` - (String) The resource group where the load balancer is created.
+	- `resource_group` - (String) The resource group id, where the load balancer is created.
 	- `route_mode` - (Bool) Indicates whether route mode is enabled for this load balancer.
 	- `status` - (String) The status of the load balancers.
 	- `type` - (String) The type of the load balancer.

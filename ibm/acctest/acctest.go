@@ -57,7 +57,9 @@ var CertCRN string
 var UpdatedCertCRN string
 var RegionName string
 var ISZoneName string
+var ISZoneName2 string
 var ISCIDR string
+var ISCIDR2 string
 var ISAddressPrefixCIDR string
 var InstanceName string
 var InstanceProfileName string
@@ -88,6 +90,7 @@ var HpcsAdmin1 string
 var HpcsToken1 string
 var HpcsAdmin2 string
 var HpcsToken2 string
+var HpcsRootKeyCrn string
 var RealmName string
 var IksSa string
 var IksClusterID string
@@ -97,8 +100,10 @@ var IksClusterResourceGroupID string
 var IcdDbRegion string
 var IcdDbDeploymentId string
 var IcdDbBackupId string
+var IcdDbTaskId string
 var KmsInstanceID string
 var CrkID string
+var KmsAccountID string
 
 // For Power Colo
 
@@ -111,6 +116,13 @@ var Pi_image_bucket_secret_key string
 var Pi_image_bucket_region string
 var Pi_key_name string
 var Pi_volume_name string
+var Pi_volume_id string
+var Pi_replication_volume_name string
+var Pi_volume_onboarding_source_crn string
+var Pi_auxiliary_volume_name string
+var Pi_volume_group_name string
+var Pi_volume_group_id string
+var Pi_volume_onboarding_id string
 var Pi_network_name string
 var Pi_cloud_instance_id string
 var Pi_instance_name string
@@ -118,8 +130,10 @@ var Pi_dhcp_id string
 var PiCloudConnectionName string
 var PiSAPProfileID string
 var Pi_placement_group_name string
+var Pi_spp_placement_group_id string
 var PiStoragePool string
 var PiStorageType string
+var Pi_shared_processor_pool_id string
 
 var Pi_capture_storage_image_path string
 var Pi_capture_cloud_storage_access_key string
@@ -140,17 +154,17 @@ var Image_operating_system string
 var Tg_cross_network_account_id string
 var Tg_cross_network_id string
 
-//Enterprise Management
+// Enterprise Management
 var Account_to_be_imported string
 
 // Secuity and Complinace Center, Governance
 var Scc_gov_account_id string
 var Scc_resource_group_id string
 
-//Security and Compliance Center, SI
+// Security and Compliance Center, SI
 var Scc_si_account string
 
-//Security and Compliance Center, Posture Management
+// Security and Compliance Center, Posture Management
 var Scc_posture_scope_id string
 var Scc_posture_scan_id string
 var Scc_posture_profile_id string
@@ -163,16 +177,49 @@ var Scc_posture_credential_id_scope string
 var Scc_posture_credential_id_scope_update string
 var Scc_posture_collector_id_scope []string
 var Scc_posture_collector_id_scope_update []string
+var Scc_posture_collector_id string
+var Scc_posture_credential_id string
 
-//ROKS Cluster
+// ROKS Cluster
 var ClusterName string
 
 // Satellite instance
 var Satellite_location_id string
 var Satellite_Resource_instance_id string
 
-//Dedicated host
+// Dedicated host
 var HostPoolID string
+
+// Continuous Delivery
+var CdResourceGroupName string
+var CdAppConfigInstanceName string
+var CdKeyProtectInstanceName string
+var CdSecretsManagerInstanceName string
+var CdSlackChannelName string
+var CdSlackTeamName string
+var CdSlackWebhook string
+var CdJiraProjectKey string
+var CdJiraApiUrl string
+var CdJiraUsername string
+var CdJiraApiToken string
+var CdSaucelabsAccessKey string
+var CdSaucelabsUsername string
+var CdBitbucketRepoUrl string
+var CdGithubConsolidatedRepoUrl string
+var CdGitlabRepoUrl string
+var CdHostedGitRepoUrl string
+
+// VPN Server
+var ISCertificateCrn string
+var ISClientCaCrn string
+
+// COS Replication Bucket
+var IBM_AccountID_REPL string
+
+// Atracker
+var IesApiKey string
+var IngestionKey string
+var COSApiKey string
 
 func init() {
 	testlogger := os.Getenv("TF_LOG")
@@ -420,10 +467,22 @@ func init() {
 		fmt.Println("[INFO] Set the environment variable SL_ZONE for testing ibm_is_zone datasource else it is set to default value 'us-south-1'")
 	}
 
+	ISZoneName2 = os.Getenv("SL_ZONE_2")
+	if ISZoneName2 == "" {
+		ISZoneName2 = "us-south-2"
+		fmt.Println("[INFO] Set the environment variable SL_ZONE_2 for testing ibm_is_zone datasource else it is set to default value 'us-south-2'")
+	}
+
 	ISCIDR = os.Getenv("SL_CIDR")
 	if ISCIDR == "" {
 		ISCIDR = "10.240.0.0/24"
 		fmt.Println("[INFO] Set the environment variable SL_CIDR for testing ibm_is_subnet else it is set to default value '10.240.0.0/24'")
+	}
+
+	ISCIDR2 = os.Getenv("SL_CIDR_2")
+	if ISCIDR2 == "" {
+		ISCIDR2 = "10.240.64.0/24"
+		fmt.Println("[INFO] Set the environment variable SL_CIDR_2 for testing ibm_is_subnet else it is set to default value '10.240.64.0/24'")
 	}
 
 	ISAddressPrefixCIDR = os.Getenv("SL_ADDRESS_PREFIX_CIDR")
@@ -550,6 +609,11 @@ func init() {
 		fmt.Println("[INFO] Set the environment variable ICD_DB_BACKUP_ID for testing ibm_cloud_databases else it is set to default value 'crn:v1:bluemix:public:databases-for-redis:au-syd:a/40ddc34a953a8c02f10987b59085b60e:5042afe1-72c2-4231-89cc-c949e5d56251:backup:0d862fdb-4faa-42e5-aecb-5057f4d399c3'")
 	}
 
+	IcdDbTaskId = os.Getenv("ICD_DB_TASK_ID")
+	if IcdDbTaskId == "" {
+		IcdDbTaskId = "crn:v1:bluemix:public:databases-for-redis:au-syd:a/40ddc34a953a8c02f10987b59085b60e:367b0a22-05bb-41e3-a1ed-ded1ff0889e5:task:882013a6-2751-4df7-a77a-98d258638704"
+		fmt.Println("[INFO] Set the environment variable ICD_DB_TASK_ID for testing ibm_cloud_databases else it is set to default value 'crn:v1:bluemix:public:databases-for-redis:au-syd:a/40ddc34a953a8c02f10987b59085b60e:367b0a22-05bb-41e3-a1ed-ded1ff0889e5:task:882013a6-2751-4df7-a77a-98d258638704'")
+	}
 	// Added for Power Colo Testing
 	Pi_image = os.Getenv("PI_IMAGE")
 	if Pi_image == "" {
@@ -607,6 +671,48 @@ func init() {
 		fmt.Println("[INFO] Set the environment variable PI_VOLUME_NAME for testing ibm_pi_network_name resource else it is set to default value 'terraform-test-power'")
 	}
 
+	Pi_volume_id = os.Getenv("PI_VOLUME_ID")
+	if Pi_volume_id == "" {
+		Pi_volume_id = "terraform-test-power"
+		fmt.Println("[INFO] Set the environment variable PI_VOLUME_ID for testing ibm_pi_volume_flash_copy_mappings resource else it is set to default value 'terraform-test-power'")
+	}
+
+	Pi_replication_volume_name = os.Getenv("PI_REPLICATION_VOLUME_NAME")
+	if Pi_replication_volume_name == "" {
+		Pi_replication_volume_name = "terraform-test-power"
+		fmt.Println("[INFO] Set the environment variable PI_REPLICATION_VOLUME_NAME for testing ibm_pi_volume resource else it is set to default value 'terraform-test-power'")
+	}
+
+	Pi_volume_onboarding_source_crn = os.Getenv("PI_VOLUME_ONBARDING_SOURCE_CRN")
+	if Pi_volume_onboarding_source_crn == "" {
+		Pi_volume_onboarding_source_crn = "terraform-test-power"
+		fmt.Println("[INFO] Set the environment variable PI_VOLUME_ONBARDING_SOURCE_CRN for testing ibm_pi_volume_onboarding resource else it is set to default value 'terraform-test-power'")
+	}
+
+	Pi_auxiliary_volume_name = os.Getenv("PI_AUXILIARY_VOLUME_NAME")
+	if Pi_auxiliary_volume_name == "" {
+		Pi_auxiliary_volume_name = "terraform-test-power"
+		fmt.Println("[INFO] Set the environment variable PI_AUXILIARY_VOLUME_NAME for testing ibm_pi_volume_onboarding resource else it is set to default value 'terraform-test-power'")
+	}
+
+	Pi_volume_group_name = os.Getenv("PI_VOLUME_GROUP_NAME")
+	if Pi_volume_group_name == "" {
+		Pi_volume_group_name = "terraform-test-power"
+		fmt.Println("[INFO] Set the environment variable PI_VOLUME_GROUP_NAME for testing ibm_pi_volume_group resource else it is set to default value 'terraform-test-power'")
+	}
+
+	Pi_volume_group_id = os.Getenv("PI_VOLUME_GROUP_ID")
+	if Pi_volume_group_id == "" {
+		Pi_volume_group_id = "terraform-test-power"
+		fmt.Println("[INFO] Set the environment variable PI_VOLUME_GROUP_ID for testing ibm_pi_volume_group_storage_details data source else it is set to default value 'terraform-test-power'")
+	}
+
+	Pi_volume_onboarding_id = os.Getenv("PI_VOLUME_ONBOARDING_ID")
+	if Pi_volume_onboarding_id == "" {
+		Pi_volume_onboarding_id = "terraform-test-power"
+		fmt.Println("[INFO] Set the environment variable PI_VOLUME_ONBOARDING_ID for testing ibm_pi_volume_onboarding resource else it is set to default value 'terraform-test-power'")
+	}
+
 	Pi_cloud_instance_id = os.Getenv("PI_CLOUDINSTANCE_ID")
 	if Pi_cloud_instance_id == "" {
 		Pi_cloud_instance_id = "fd3454a3-14d8-4eb0-b075-acf3da5cd324"
@@ -642,6 +748,11 @@ func init() {
 		Pi_placement_group_name = "tf-pi-placement-group"
 		fmt.Println("[WARN] Set the environment variable PI_PLACEMENT_GROUP_NAME for testing ibm_pi_placement_group resource else it is set to default value 'tf-pi-placement-group'")
 	}
+	Pi_spp_placement_group_id = os.Getenv("PI_SPP_PLACEMENT_GROUP_ID")
+	if Pi_spp_placement_group_id == "" {
+		Pi_spp_placement_group_id = "tf-pi-spp-placement-group"
+		fmt.Println("[WARN] Set the environment variable PI_SPP_PLACEMENT_GROUP_ID for testing ibm_pi_spp_placement_group resource else it is set to default value 'tf-pi-spp-placement-group'")
+	}
 	PiStoragePool = os.Getenv("PI_STORAGE_POOL")
 	if PiStoragePool == "" {
 		PiStoragePool = "terraform-test-power"
@@ -669,6 +780,12 @@ func init() {
 	if Pi_capture_cloud_storage_secret_key == "" {
 		Pi_capture_cloud_storage_secret_key = "terraform-test-power"
 		fmt.Println("[INFO] Set the environment variable PI_CAPTURE_CLOUD_STORAGE_SECRET_KEY for testing Pi_capture_cloud_storage_secret_key resource else it is set to default value 'terraform-test-power'")
+	}
+
+	Pi_shared_processor_pool_id = os.Getenv("PI_SHARED_PROCESSOR_POOL_ID")
+	if Pi_shared_processor_pool_id == "" {
+		Pi_shared_processor_pool_id = "tf-pi-shared-processor-pool"
+		fmt.Println("[WARN] Set the environment variable PI_SHARED_PROCESSOR_POOL_ID for testing ibm_pi_shared_processor_pool resource else it is set to default value 'tf-pi-shared-processor-pool'")
 	}
 
 	WorkspaceID = os.Getenv("SCHEMATICS_WORKSPACE_ID")
@@ -802,6 +919,10 @@ func init() {
 	if HpcsToken2 == "" {
 		fmt.Println("[WARN] Set the environment variable IBM_HPCS_TOKEN2 with a VALID token for HPCS Admin Key2")
 	}
+	HpcsRootKeyCrn = os.Getenv("IBM_HPCS_ROOTKEY_CRN")
+	if HpcsRootKeyCrn == "" {
+		fmt.Println("[WARN] Set the environment variable IBM_HPCS_ROOTKEY_CRN with a VALID CRN for a root key created in the HPCS instance")
+	}
 
 	Scc_gov_account_id = os.Getenv("SCC_GOVERNANCE_ACCOUNT_ID")
 	if Scc_gov_account_id == "" {
@@ -877,6 +998,16 @@ func init() {
 		fmt.Println("[INFO] Set the environment variable SCC_POSTURE_COLLECTOR_ID_SCOPE_UPDATE for testing SCC Posture resource or datasource else  tests will fail if this is not set correctly")
 	}
 
+	Scc_posture_collector_id = os.Getenv("SCC_POSTURE_COLLECTOR_ID")
+	if Scc_posture_collector_id == "" {
+		fmt.Println("[INFO] Set the environment variable SCC_POSTURE_COLLECTOR_ID for testing SCC Posture resources or datasource resource else  tests will fail if this is not set correctly")
+	}
+
+	Scc_posture_credential_id = os.Getenv("SCC_POSTURE_CREDENTIAL_ID")
+	if Scc_posture_credential_id == "" {
+		fmt.Println("[INFO] Set the environment variable SCC_POSTURE_CREDENTIAL_ID for testing SCC Posture resources or datasource resource else  tests will fail if this is not set correctly")
+	}
+
 	CloudShellAccountID = os.Getenv("IBM_CLOUD_SHELL_ACCOUNT_ID")
 	if CloudShellAccountID == "" {
 		fmt.Println("[INFO] Set the environment variable IBM_CLOUD_SHELL_ACCOUNT_ID for ibm-cloud-shell resource or datasource else tests will fail if this is not set correctly")
@@ -927,11 +1058,127 @@ func init() {
 		fmt.Println("[INFO] Set the environment variable IBM_CRK_ID for ibm_container_vpc_cluster resource or datasource else tests will fail if this is not set correctly")
 	}
 
+	KmsAccountID = os.Getenv("IBM_KMS_ACCOUNT_ID")
+	if CrkID == "" {
+		fmt.Println("[INFO] Set the environment variable IBM_KMS_ACCOUNT_ID for ibm_container_vpc_cluster resource or datasource else tests will fail if this is not set correctly")
+	}
+
 	IksClusterID = os.Getenv("IBM_CLUSTER_ID")
 	if IksClusterID == "" {
 		fmt.Println("[INFO] Set the environment variable IBM_CLUSTER_ID for ibm_container_vpc_worker_pool resource or datasource else tests will fail if this is not set correctly")
 	}
 
+	CdResourceGroupName = os.Getenv("IBM_CD_RESOURCE_GROUP_NAME")
+	if CdResourceGroupName == "" {
+		fmt.Println("[WARN] Set the environment variable IBM_CD_RESOURCE_GROUP_NAME for testing CD resources, CD tests will fail if this is not set")
+	}
+
+	CdAppConfigInstanceName = os.Getenv("IBM_CD_APPCONFIG_INSTANCE_NAME")
+	if CdAppConfigInstanceName == "" {
+		fmt.Println("[WARN] Set the environment variable IBM_CD_APPCONFIG_INSTANCE_NAME for testing CD resources, CD tests will fail if this is not set")
+	}
+
+	CdKeyProtectInstanceName = os.Getenv("IBM_CD_KEYPROTECT_INSTANCE_NAME")
+	if CdKeyProtectInstanceName == "" {
+		fmt.Println("[WARN] Set the environment variable IBM_CD_KEYPROTECT_INSTANCE_NAME for testing CD resources, CD tests will fail if this is not set")
+	}
+
+	CdSecretsManagerInstanceName = os.Getenv("IBM_CD_SECRETSMANAGER_INSTANCE_NAME")
+	if CdSecretsManagerInstanceName == "" {
+		fmt.Println("[WARN] Set the environment variable IBM_CD_SECRETSMANAGER_INSTANCE_NAME for testing CD resources, CD tests will fail if this is not set")
+	}
+
+	CdSlackChannelName = os.Getenv("IBM_CD_SLACK_CHANNEL_NAME")
+	if CdSecretsManagerInstanceName == "" {
+		fmt.Println("[WARN] Set the environment variable IBM_CD_SLACK_CHANNEL_NAME for testing CD resources, CD tests will fail if this is not set")
+	}
+	CdSlackTeamName = os.Getenv("IBM_CD_SLACK_TEAM_NAME")
+	if CdSecretsManagerInstanceName == "" {
+		fmt.Println("[WARN] Set the environment variable IBM_CD_SLACK_TEAM_NAME for testing CD resources, CD tests will fail if this is not set")
+	}
+	CdSlackWebhook = os.Getenv("IBM_CD_SLACK_WEBHOOK")
+	if CdSecretsManagerInstanceName == "" {
+		fmt.Println("[WARN] Set the environment variable IBM_CD_SLACK_WEBHOOK for testing CD resources, CD tests will fail if this is not set")
+	}
+
+	CdJiraProjectKey = os.Getenv("IBM_CD_JIRA_PROJECT_KEY")
+	if CdSecretsManagerInstanceName == "" {
+		fmt.Println("[WARN] Set the environment variable IBM_CD_JIRA_PROJECT_KEY for testing CD resources, CD tests will fail if this is not set")
+	}
+	CdJiraApiUrl = os.Getenv("IBM_CD_JIRA_API_URL")
+	if CdSecretsManagerInstanceName == "" {
+		fmt.Println("[WARN] Set the environment variable IBM_CD_JIRA_API_URL for testing CD resources, CD tests will fail if this is not set")
+	}
+	CdJiraUsername = os.Getenv("IBM_CD_JIRA_USERNAME")
+	if CdSecretsManagerInstanceName == "" {
+		fmt.Println("[WARN] Set the environment variable IBM_CD_JIRA_USERNAME for testing CD resources, CD tests will fail if this is not set")
+	}
+	CdJiraApiToken = os.Getenv("IBM_CD_JIRA_API_TOKEN")
+	if CdSecretsManagerInstanceName == "" {
+		fmt.Println("[WARN] Set the environment variable IBM_CD_JIRA_API_TOKEN for testing CD resources, CD tests will fail if this is not set")
+	}
+
+	CdSaucelabsAccessKey = os.Getenv("IBM_CD_SAUCELABS_ACCESS_KEY")
+	if CdSecretsManagerInstanceName == "" {
+		fmt.Println("[WARN] Set the environment variable IBM_CD_SAUCELABS_ACCESS_KEY for testing CD resources, CD tests will fail if this is not set")
+	}
+	CdSaucelabsUsername = os.Getenv("IBM_CD_SAUCELABS_USERNAME")
+	if CdSecretsManagerInstanceName == "" {
+		fmt.Println("[WARN] Set the environment variable IBM_CD_SAUCELABS_USERNAME for testing CD resources, CD tests will fail if this is not set")
+	}
+
+	CdBitbucketRepoUrl = os.Getenv("IBM_CD_BITBUCKET_REPO_URL")
+	if CdBitbucketRepoUrl == "" {
+		fmt.Println("[WARN] Set the environment variable IBM_CD_BITBUCKET_REPO_URL for testing CD resources, CD tests will fail if this is not set")
+	}
+
+	CdGithubConsolidatedRepoUrl = os.Getenv("IBM_CD_GITHUB_CONSOLIDATED_REPO_URL")
+	if CdGithubConsolidatedRepoUrl == "" {
+		fmt.Println("[WARN] Set the environment variable IBM_CD_GITHUB_CONSOLIDATED_REPO_URL for testing CD resources, CD tests will fail if this is not set")
+	}
+
+	CdGitlabRepoUrl = os.Getenv("IBM_CD_GITLAB_REPO_URL")
+	if CdGitlabRepoUrl == "" {
+		fmt.Println("[WARN] Set the environment variable IBM_CD_GITLAB_REPO_URL for testing CD resources, CD tests will fail if this is not set")
+	}
+
+	CdHostedGitRepoUrl = os.Getenv("IBM_CD_HOSTED_GIT_REPO_URL")
+	if CdHostedGitRepoUrl == "" {
+		fmt.Println("[WARN] Set the environment variable IBM_CD_HOSTED_GIT_REPO_URL for testing CD resources, CD tests will fail if this is not set")
+	}
+
+	ISCertificateCrn = os.Getenv("IS_CERTIFICATE_CRN")
+	if ISCertificateCrn == "" {
+		fmt.Println("[INFO] Set the environment variable IS_CERTIFICATE_CRN for testing ibm_is_vpn_server resource")
+	}
+
+	ISClientCaCrn = os.Getenv("IS_CLIENT_CA_CRN")
+	if ISClientCaCrn == "" {
+		fmt.Println("[INFO] Set the environment variable IS_CLIENT_CA_CRN for testing ibm_is_vpn_server resource")
+	}
+
+	IBM_AccountID_REPL = os.Getenv("IBM_AccountID_REPL")
+	if IBM_AccountID_REPL == "" {
+		fmt.Println("[INFO] Set the environment variable IBM_AccountID_REPL for setting up authorization policy to enable replication feature resource or datasource else tests will fail if this is not set correctly")
+	}
+
+	COSApiKey = os.Getenv("COS_API_KEY")
+	if COSApiKey == "" {
+		COSApiKey = "xxxxxxxxxxxx" // pragma: allowlist secret
+		fmt.Println("[WARN] Set the environment variable COS_API_KEY for testing COS targets, the tests will fail if this is not set")
+	}
+
+	IngestionKey = os.Getenv("INGESTION_KEY")
+	if IngestionKey == "" {
+		IngestionKey = "xxxxxxxxxxxx"
+		fmt.Println("[WARN] Set the environment variable INGESTION_KEY for testing Logdna targets, the tests will fail if this is not set")
+	}
+
+	IesApiKey = os.Getenv("IES_API_KEY")
+	if IesApiKey == "" {
+		IesApiKey = "xxxxxxxxxxxx" // pragma: allowlist secret
+		fmt.Println("[WARN] Set the environment variable IES_API_KEY for testing Event streams targets, the tests will fail if this is not set")
+	}
 }
 
 var TestAccProviders map[string]*schema.Provider

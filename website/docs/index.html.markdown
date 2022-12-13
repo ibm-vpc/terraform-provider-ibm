@@ -20,7 +20,7 @@ terraform {
   required_providers {
     ibm = {
       source = "IBM-Cloud/ibm"
-      version = "~> 1.12.0"
+      version = ">= 1.12.0"
     }
   }
 }
@@ -255,4 +255,4 @@ export IBMCLOUD_UAA_ENDPOINT="https://iam.cloud.ibm.com/cloudfoundry/login/<regi
 
 ## References 
 
-* [IBM Cloud Terraform Docs](https://cloud.ibm.com/docs/ibm-cloud-provider-for-terraform?topic=ibm-cloud-provider-for-terraform-index-of-terraform-resources-and-data-sources)
+* [IBM Cloud Terraform Docs](https://cloud.ibm.com/docs/ibm-cloud-provider-for-terraform?topic=ibm-cloud-provider-for-terraform-resources-datasource-list)

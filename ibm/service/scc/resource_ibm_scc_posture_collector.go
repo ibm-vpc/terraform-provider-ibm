@@ -13,7 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
-	"github.com/IBM/scc-go-sdk/v3/posturemanagementv2"
+	"github.com/IBM/scc-go-sdk/v4/posturemanagementv2"
 )
 
 func ResourceIBMSccPostureCollectors() *schema.Resource {
@@ -72,9 +72,9 @@ func ResourceIBMSccPostureCollectorsValidator() *validate.ResourceValidator {
 			ValidateFunctionIdentifier: validate.ValidateRegexpLen,
 			Type:                       validate.TypeString,
 			Required:                   true,
-			Regexp:                     `^[a-zA-Z0-9-\\.,_\\s]*$`,
-			MinValueLength:             1,
-			MaxValueLength:             32,
+			Regexp:                     `^[a-zA-Z0-9-.,_\s]*$`,
+			MinValueLength:             3,
+			MaxValueLength:             46,
 		},
 		validate.ValidateSchema{
 			Identifier:                 "managed_by",
@@ -88,18 +88,18 @@ func ResourceIBMSccPostureCollectorsValidator() *validate.ResourceValidator {
 			ValidateFunctionIdentifier: validate.ValidateRegexpLen,
 			Type:                       validate.TypeString,
 			Optional:                   true,
-			Regexp:                     `^[a-zA-Z0-9-\\._,\\s]*$`,
+			Regexp:                     `^[a-zA-Z0-9-._,\s]*$`,
 			MinValueLength:             1,
-			MaxValueLength:             1000,
+			MaxValueLength:             255,
 		},
 		validate.ValidateSchema{
 			Identifier:                 "passphrase",
 			ValidateFunctionIdentifier: validate.ValidateRegexpLen,
 			Type:                       validate.TypeString,
 			Optional:                   true,
-			Regexp:                     `^[a-zA-Z0-9-\\._,\\s]*$`,
+			Regexp:                     `^[a-zA-Z0-9-._,\s]*$`,
 			MinValueLength:             1,
-			MaxValueLength:             200,
+			MaxValueLength:             255,
 		},
 	)
 

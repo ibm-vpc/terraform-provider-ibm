@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
@@ -41,6 +42,9 @@ const (
 	isVolumeSourceSnapshot        = "source_snapshot"
 	isVolumeDeleteAllSnapshots    = "delete_all_snapshots"
 	isVolumeBandwidth             = "bandwidth"
+	isVolumeAccessTags            = "access_tags"
+	isVolumeUserTagType           = "user"
+	isVolumeAccessTagType         = "access"
 )
 
 func ResourceIBMISVolume() *schema.Resource {
@@ -66,6 +70,10 @@ func ResourceIBMISVolume() *schema.Resource {
 			customdiff.Sequence(
 				func(_ context.Context, diff *schema.ResourceDiff, v interface{}) error {
 					return flex.ResourceVolumeValidate(diff)
+				}),
+			customdiff.Sequence(
+				func(_ context.Context, diff *schema.ResourceDiff, v interface{}) error {
+					return flex.ResourceValidateAccessTags(diff, v)
 				}),
 		),
 
@@ -178,9 +186,17 @@ func ResourceIBMISVolume() *schema.Resource {
 				Type:        schema.TypeSet,
 				Optional:    true,
 				Computed:    true,
-				Elem:        &schema.Schema{Type: schema.TypeString, ValidateFunc: validate.InvokeValidator("ibm_is_volume", "tag")},
+				Elem:        &schema.Schema{Type: schema.TypeString, ValidateFunc: validate.InvokeValidator("ibm_is_volume", "tags")},
 				Set:         flex.ResourceIBMVPCHash,
-				Description: "Tags for the volume instance",
+				Description: "UserTags for the volume instance",
+			},
+			isVolumeAccessTags: {
+				Type:        schema.TypeSet,
+				Optional:    true,
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString, ValidateFunc: validate.InvokeValidator("ibm_is_volume", "accesstag")},
+				Set:         flex.ResourceIBMVPCHash,
+				Description: "Access management tags for the volume instance",
 			},
 
 			flex.ResourceControllerURL: {
@@ -237,7 +253,7 @@ func ResourceIBMISVolumeValidator() *validate.ResourceValidator {
 
 	validateSchema = append(validateSchema,
 		validate.ValidateSchema{
-			Identifier:                 "tag",
+			Identifier:                 "tags",
 			ValidateFunctionIdentifier: validate.ValidateRegexpLen,
 			Type:                       validate.TypeString,
 			Optional:                   true,
@@ -266,6 +282,15 @@ func ResourceIBMISVolumeValidator() *validate.ResourceValidator {
 			Type:                       validate.TypeInt,
 			MinValue:                   "100",
 			MaxValue:                   "48000"})
+	validateSchema = append(validateSchema,
+		validate.ValidateSchema{
+			Identifier:                 "accesstag",
+			ValidateFunctionIdentifier: validate.ValidateRegexpLen,
+			Type:                       validate.TypeString,
+			Optional:                   true,
+			Regexp:                     `^([A-Za-z0-9_.-]|[A-Za-z0-9_.-][A-Za-z0-9_ .-]*[A-Za-z0-9_.-]):([A-Za-z0-9_.-]|[A-Za-z0-9_.-][A-Za-z0-9_ .-]*[A-Za-z0-9_.-])$`,
+			MinValueLength:             1,
+			MaxValueLength:             128})
 
 	ibmISVolumeResourceValidator := validate.ResourceValidator{ResourceName: "ibm_is_volume", Schema: validateSchema}
 	return &ibmISVolumeResourceValidator
@@ -329,6 +354,25 @@ func volCreate(d *schema.ResourceData, meta interface{}, volName, profile, zone 
 		volTemplate.Iops = &iops
 	}
 
+	var userTags *schema.Set
+	if v, ok := d.GetOk(isVolumeTags); ok {
+		userTags = v.(*schema.Set)
+		if userTags != nil && userTags.Len() != 0 {
+			userTagsArray := make([]string, userTags.Len())
+			for i, userTag := range userTags.List() {
+				userTagStr := userTag.(string)
+				userTagsArray[i] = userTagStr
+			}
+			schematicTags := os.Getenv("IC_ENV_TAGS")
+			var envTags []string
+			if schematicTags != "" {
+				envTags = strings.Split(schematicTags, ",")
+				userTagsArray = append(userTagsArray, envTags...)
+			}
+			volTemplate.UserTags = userTagsArray
+		}
+	}
+
 	vol, response, err := sess.CreateVolume(options)
 	if err != nil {
 		return fmt.Errorf("[DEBUG] Create volume err %s\n%s", err, response)
@@ -339,13 +383,13 @@ func volCreate(d *schema.ResourceData, meta interface{}, volName, profile, zone 
 	if err != nil {
 		return err
 	}
-	v := os.Getenv("IC_ENV_TAGS")
-	if _, ok := d.GetOk(isVolumeTags); ok || v != "" {
-		oldList, newList := d.GetChange(isVolumeTags)
-		err = flex.UpdateTagsUsingCRN(oldList, newList, meta, *vol.CRN)
+
+	if _, ok := d.GetOk(isVolumeAccessTags); ok {
+		oldList, newList := d.GetChange(isVolumeAccessTags)
+		err = flex.UpdateGlobalTagsUsingCRN(oldList, newList, meta, *vol.CRN, "", isVolumeAccessTagType)
 		if err != nil {
 			log.Printf(
-				"Error on create of resource Volume (%s) tags: %s", d.Id(), err)
+				"Error on create of resource vpc volume (%s) access tags: %s", d.Id(), err)
 		}
 	}
 	return nil
@@ -411,12 +455,17 @@ func volGet(d *schema.ResourceData, meta interface{}, id string) error {
 		}
 		d.Set(isVolumeStatusReasons, statusReasonsList)
 	}
-	tags, err := flex.GetTagsUsingCRN(meta, *vol.CRN)
+	if vol.UserTags != nil {
+		if err = d.Set(isVolumeTags, vol.UserTags); err != nil {
+			return fmt.Errorf("Error setting user tags: %s", err)
+		}
+	}
+	accesstags, err := flex.GetGlobalTagsUsingCRN(meta, *vol.CRN, "", isVolumeAccessTagType)
 	if err != nil {
 		log.Printf(
-			"Error on get of resource vpc volume (%s) tags: %s", d.Id(), err)
+			"Error on get of resource volume (%s) access tags: %s", d.Id(), err)
 	}
-	d.Set(isVolumeTags, tags)
+	d.Set(isVolumeAccessTags, accesstags)
 	controller, err := flex.GetBaseController(meta)
 	if err != nil {
 		return err
@@ -465,26 +514,39 @@ func volUpdate(d *schema.ResourceData, meta interface{}, id, name string, hasNam
 		deleteAllSnapshots(sess, id)
 	}
 
-	// tags update
-	if d.HasChange(isVolumeTags) {
+	if d.HasChange(isVolumeAccessTags) {
 		options := &vpcv1.GetVolumeOptions{
 			ID: &id,
 		}
 		vol, response, err := sess.GetVolume(options)
 		if err != nil {
-			return fmt.Errorf("[ERROR] Error getting Volume : %s\n%s", err, response)
+			return fmt.Errorf("Error getting Volume : %s\n%s", err, response)
 		}
-		oldList, newList := d.GetChange(isVolumeTags)
-		err = flex.UpdateTagsUsingCRN(oldList, newList, meta, *vol.CRN)
+		oldList, newList := d.GetChange(isVolumeAccessTags)
+
+		err = flex.UpdateGlobalTagsUsingCRN(oldList, newList, meta, *vol.CRN, "", isVolumeAccessTagType)
 		if err != nil {
 			log.Printf(
-				"Error on update of resource vpc volume (%s) tags: %s", id, err)
+				"Error on update of resource vpc volume (%s) access tags: %s", id, err)
 		}
 	}
 
+	optionsget := &vpcv1.GetVolumeOptions{
+		ID: &id,
+	}
+	_, response, err := sess.GetVolume(optionsget)
+	if err != nil {
+		if response != nil && response.StatusCode == 404 {
+			d.SetId("")
+			return nil
+		}
+		return fmt.Errorf("Error getting Volume (%s): %s\n%s", id, err, response)
+	}
+	eTag := response.Headers.Get("ETag")
 	options := &vpcv1.UpdateVolumeOptions{
 		ID: &id,
 	}
+	options.IfMatch = &eTag
 
 	//name update
 	volumeNamePatchModel := &vpcv1.VolumePatch{}
@@ -622,6 +684,43 @@ func volUpdate(d *schema.ResourceData, meta interface{}, id, name string, hasNam
 		_, err = isWaitForVolumeAvailable(sess, d.Id(), d.Timeout(schema.TimeoutCreate))
 		if err != nil {
 			return err
+		}
+	}
+
+	// user tags update
+	if d.HasChange(isVolumeTags) {
+		var userTags *schema.Set
+		if v, ok := d.GetOk(isVolumeTags); ok {
+			userTags = v.(*schema.Set)
+			if userTags != nil && userTags.Len() != 0 {
+				userTagsArray := make([]string, userTags.Len())
+				for i, userTag := range userTags.List() {
+					userTagStr := userTag.(string)
+					userTagsArray[i] = userTagStr
+				}
+				schematicTags := os.Getenv("IC_ENV_TAGS")
+				var envTags []string
+				if schematicTags != "" {
+					envTags = strings.Split(schematicTags, ",")
+					userTagsArray = append(userTagsArray, envTags...)
+				}
+				volumeNamePatchModel := &vpcv1.VolumePatch{}
+				volumeNamePatchModel.UserTags = userTagsArray
+				volumeNamePatch, err := volumeNamePatchModel.AsPatch()
+				if err != nil {
+					return fmt.Errorf("Error calling asPatch for volumeNamePatch: %s", err)
+				}
+				options.IfMatch = &eTag
+				options.VolumePatch = volumeNamePatch
+				_, response, err := sess.UpdateVolume(options)
+				if err != nil {
+					return fmt.Errorf("Error updating volume : %s\n%s", err, response)
+				}
+				_, err = isWaitForVolumeAvailable(sess, d.Id(), d.Timeout(schema.TimeoutCreate))
+				if err != nil {
+					return err
+				}
+			}
 		}
 	}
 

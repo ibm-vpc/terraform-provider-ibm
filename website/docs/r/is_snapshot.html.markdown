@@ -78,13 +78,32 @@ The `ibm_is_snapshot` resource provides the following [Timeouts](https://www.ter
 ## Argument reference
 Review the argument references that you can specify for your resource. 
 
+- `access_tags`  - (Optional, List of Strings) A list of access management tags to attach to the bare metal server.
+
+  ~> **Note:** 
+  **&#x2022;** You can attach only those access tags that already exists.</br>
+  **&#x2022;** For more information, about creating access tags, see [working with tags](https://cloud.ibm.com/docs/account?topic=account-tag&interface=ui#create-access-console).</br>
+  **&#x2022;** You must have the access listed in the [Granting users access to tag resources](https://cloud.ibm.com/docs/account?topic=account-access) for `access_tags`</br>
+  **&#x2022;** `access_tags` must be in the format `key:value`.
 - `name` - (Optional, String) The name of the snapshot.
 - `resource_group` - (Optional, Forces new resource, String) The resource group ID where the snapshot is to be created
 - `source_volume` - (Required, Forces new resource, String) The unique identifier for the volume for which snapshot is to be created. 
+- `tags`- (Optional, Array of Strings) A list of user tags that you want to add to your snapshot. (https://cloud.ibm.com/apidocs/tagging#types-of-tags)
+
 
 ## Attribute reference
 In addition to all argument reference list, you can access the following attribute reference after your resource is created.
-
+- `backup_policy_plan` - (List) If present, the backup policy plan which created this snapshot.
+  
+   Nested scheme for `backup_policy_plan`:
+    - `deleted` - (List) If present, this property indicates the referenced resource has been deleted and provides some supplementary information.
+   
+      Nested scheme for `deleted`:
+      - `more_info` - (String) Link to documentation about deleted resources.
+    - `href` - (String) The URL for this backup policy plan.
+    - `id` - (String) The unique identifier for this backup policy plan.
+    - `name` - (String) The unique user defined name for this backup policy plan. If unspecified, the name will be a hyphenated list of randomly selected words.
+    - `resource_type` - (String) The type of resource referenced.
 - `bootable` - (Bool) Indicates if a boot volume attachment can be created with a volume created from this snapshot.
 - `crn` - (String) The CRN for this snapshot.
 - `encryption` - (String) The type of encryption used on the source volume. Supported values are **provider_managed**, **user_managed**.

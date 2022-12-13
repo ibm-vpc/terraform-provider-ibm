@@ -65,6 +65,60 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCKVmnMOlHKcZK8tpt3MP1lqOLAcqcJzhsvJcjscgVE
 		},
 	})
 }
+func TestAccIBMISInstance_lifecycle(t *testing.T) {
+	var instance string
+	vpcname := fmt.Sprintf("tf-vpc-%d", acctest.RandIntRange(10, 100))
+	name := fmt.Sprintf("tf-instnace-%d", acctest.RandIntRange(10, 100))
+	subnetname := fmt.Sprintf("tf-subnet-%d", acctest.RandIntRange(10, 100))
+	publicKey := strings.TrimSpace(`
+ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCKVmnMOlHKcZK8tpt3MP1lqOLAcqcJzhsvJcjscgVERRN7/9484SOBJ3HSKxxNG5JN8owAjy5f9yYwcUg+JaUVuytn5Pv3aeYROHGGg+5G346xaq3DAwX6Y5ykr2fvjObgncQBnuU5KHWCECO/4h8uWuwh/kfniXPVjFToc+gnkqA+3RKpAecZhFXwfalQ9mMuYGFxn+fwn8cYEApsJbsEmb0iJwPiZ5hjFC8wREuiTlhPHDgkBLOiycd20op2nXzDbHfCHInquEe/gYxEitALONxm0swBOwJZwlTDOB7C6y2dzlrtxr1L59m7pCkWI4EtTRLvleehBoj3u7jB4usR
+`)
+	sshname := fmt.Sprintf("tf-ssh-%d", acctest.RandIntRange(10, 100))
+	userData1 := "a"
+	userData2 := "b"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { acc.TestAccPreCheck(t) },
+		Providers:    acc.TestAccProviders,
+		CheckDestroy: testAccCheckIBMISInstanceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckIBMISInstanceConfig(vpcname, subnetname, sshname, publicKey, name, userData1),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckIBMISInstanceExists("ibm_is_instance.testacc_instance", instance),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance", "name", name),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance", "user_data", userData1),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance", "zone", acc.ISZoneName),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance", "lifecycle_state", "stable"),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance", "lifecycle_reasons.#", "0"),
+				),
+			},
+			{
+				Config: testAccCheckIBMISInstanceConfig(vpcname, subnetname, sshname, publicKey, name, userData2),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckIBMISInstanceExists("ibm_is_instance.testacc_instance", instance),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance", "name", name),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance", "user_data", userData2),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance", "zone", acc.ISZoneName),
+					resource.TestCheckResourceAttrSet(
+						"ibm_is_instance.testacc_instance", "primary_network_interface.0.port_speed"),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance", "lifecycle_state", "stable"),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance", "lifecycle_reasons.#", "0"),
+				),
+			},
+		},
+	})
+}
 func TestAccIBMISInstance_rip(t *testing.T) {
 	var instance string
 	vpcname := fmt.Sprintf("tf-vpc-%d", acctest.RandIntRange(10, 100))
@@ -146,6 +200,44 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCKVmnMOlHKcZK8tpt3MP1lqOLAcqcJzhsvJcjscgVE
 		},
 	})
 }
+
+func TestAccIBMISInstance_bootVolumeUserTags(t *testing.T) {
+	var instance string
+	vpcname := fmt.Sprintf("tf-vpc-%d", acctest.RandIntRange(10, 100))
+	name := fmt.Sprintf("tf-instnace-%d", acctest.RandIntRange(10, 100))
+	subnetname := fmt.Sprintf("tf-subnet-%d", acctest.RandIntRange(10, 100))
+	publicKey := strings.TrimSpace(`
+ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCKVmnMOlHKcZK8tpt3MP1lqOLAcqcJzhsvJcjscgVERRN7/9484SOBJ3HSKxxNG5JN8owAjy5f9yYwcUg+JaUVuytn5Pv3aeYROHGGg+5G346xaq3DAwX6Y5ykr2fvjObgncQBnuU5KHWCECO/4h8uWuwh/kfniXPVjFToc+gnkqA+3RKpAecZhFXwfalQ9mMuYGFxn+fwn8cYEApsJbsEmb0iJwPiZ5hjFC8wREuiTlhPHDgkBLOiycd20op2nXzDbHfCHInquEe/gYxEitALONxm0swBOwJZwlTDOB7C6y2dzlrtxr1L59m7pCkWI4EtTRLvleehBoj3u7jB4usR
+`)
+	sshname := fmt.Sprintf("tf-ssh-%d", acctest.RandIntRange(10, 100))
+	userData1 := "a"
+	userTags1 := "tags-0"
+	userTags2 := "tags-1"
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { acc.TestAccPreCheck(t) },
+		Providers:    acc.TestAccProviders,
+		CheckDestroy: testAccCheckIBMISInstanceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckIBMISInstanceUserTagConfig(vpcname, subnetname, sshname, publicKey, name, userData1, userTags1),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckIBMISInstanceExists("ibm_is_instance.testacc_instance", instance),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance", "boot_volume.0.tags.0", userTags1),
+				),
+			},
+			{
+				Config: testAccCheckIBMISInstanceUserTagConfig(vpcname, subnetname, sshname, publicKey, name, userData1, userTags2),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckIBMISInstanceExists("ibm_is_instance.testacc_instance", instance),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance", "boot_volume.0.tags.0", userTags2),
+				),
+			},
+		},
+	})
+}
+
 func TestAccIBMISInstance_withAvailablePolicy(t *testing.T) {
 	var instance string
 	vpcname := fmt.Sprintf("tf-vpc-%d", acctest.RandIntRange(10, 100))
@@ -640,6 +732,64 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCKVmnMOlHKcZK8tpt3MP1lqOLAcqcJzhsvJcjscgVE
 	})
 }
 
+func TestAccIBMISInstanceSnapshotRestore_forcenew(t *testing.T) {
+	var instance, instanceRestore string
+	vpcname := fmt.Sprintf("tf-vpc-%d", acctest.RandIntRange(10, 100))
+	name := fmt.Sprintf("tf-instnace-%d", acctest.RandIntRange(10, 100))
+	name2 := fmt.Sprintf("tf-instnace2-%d", acctest.RandIntRange(10, 100))
+	subnetname := fmt.Sprintf("tf-subnet-%d", acctest.RandIntRange(10, 100))
+	publicKey := strings.TrimSpace(`
+ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCKVmnMOlHKcZK8tpt3MP1lqOLAcqcJzhsvJcjscgVERRN7/9484SOBJ3HSKxxNG5JN8owAjy5f9yYwcUg+JaUVuytn5Pv3aeYROHGGg+5G346xaq3DAwX6Y5ykr2fvjObgncQBnuU5KHWCECO/4h8uWuwh/kfniXPVjFToc+gnkqA+3RKpAecZhFXwfalQ9mMuYGFxn+fwn8cYEApsJbsEmb0iJwPiZ5hjFC8wREuiTlhPHDgkBLOiycd20op2nXzDbHfCHInquEe/gYxEitALONxm0swBOwJZwlTDOB7C6y2dzlrtxr1L59m7pCkWI4EtTRLvleehBoj3u7jB4usR
+`)
+	sshname := fmt.Sprintf("tf-ssh-%d", acctest.RandIntRange(10, 100))
+	vsiRestore := fmt.Sprintf("tf-instancerestore-%d", acctest.RandIntRange(10, 100))
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { acc.TestAccPreCheck(t) },
+		Providers:    acc.TestAccProviders,
+		CheckDestroy: testAccCheckIBMISInstanceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckIBMISInstanceSnapshotRestoreForceNewConfig(vpcname, subnetname, sshname, publicKey, name, name2, name, vsiRestore),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckIBMISInstanceExists("ibm_is_instance.testacc_instance", instance),
+					testAccCheckIBMISInstanceExists("ibm_is_instance.testacc_instance_restore", instanceRestore),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance", "name", name),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance", "zone", acc.ISZoneName),
+					resource.TestCheckResourceAttr(
+						"ibm_is_snapshot.testacc_snapshot", "name", fmt.Sprintf("%s%s", name, "-snapshot")),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance_restore", "zone", acc.ISZoneName),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance_restore", "name", vsiRestore),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance_restore", "boot_volume.0.name", "boot-restore"),
+				),
+			},
+			{
+				Config: testAccCheckIBMISInstanceSnapshotRestoreForceNewConfig(vpcname, subnetname, sshname, publicKey, name, name2, name2, vsiRestore),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckIBMISInstanceExists("ibm_is_instance.testacc_instance", instance),
+					testAccCheckIBMISInstanceExists("ibm_is_instance.testacc_instance_restore", instanceRestore),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance", "name", name),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance", "zone", acc.ISZoneName),
+					resource.TestCheckResourceAttr(
+						"ibm_is_snapshot.testacc_snapshot", "name", fmt.Sprintf("%s%s", name2, "-snapshot")),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance_restore", "zone", acc.ISZoneName),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance_restore", "name", vsiRestore),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance_restore", "boot_volume.0.name", "boot-restore"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckIBMISInstanceDestroy(s *terraform.State) error {
 
 	instanceC, _ := acc.TestAccProvider.Meta().(conns.ClientSession).VpcV1API()
@@ -831,6 +981,7 @@ func testAccCheckIBMISInstanceConfig(vpcname, subnetname, sshname, publicKey, na
 		}
 	  }`, vpcname, subnetname, acc.ISZoneName, acc.ISCIDR, sshname, publicKey, name, acc.IsImage, acc.InstanceProfileName, userData, acc.ISZoneName)
 }
+
 func testAccCheckIBMISInstanceRipConfig(vpcname, subnetname, subnetripname, sshname, publicKey, name, userData string) string {
 	return fmt.Sprintf(`
 	resource "ibm_is_vpc" "testacc_vpc" {
@@ -1146,6 +1297,87 @@ func testAccCheckIBMISInstanceSnapshotRestoreConfig(vpcname, subnetname, sshname
 		}
 	  }
 	  `, vpcname, subnetname, acc.ISZoneName, sshname, publicKey, name, acc.IsImage, acc.InstanceProfileName, acc.ISZoneName, snapshot, insRestore, acc.InstanceProfileName, acc.ISZoneName)
+}
+
+func testAccCheckIBMISInstanceSnapshotRestoreForceNewConfig(vpcname, subnetname, sshname, publicKey, name, name2, name3, insRestore string) string {
+	return fmt.Sprintf(`
+	resource "ibm_is_vpc" "testacc_vpc" {
+		name = "%s"
+	  }
+	  
+	  resource "ibm_is_subnet" "testacc_subnet" {
+		name            = "%s"
+		vpc             = ibm_is_vpc.testacc_vpc.id
+		zone            = "%s"
+		total_ipv4_address_count 	= 16
+	  }
+	  
+	  resource "ibm_is_ssh_key" "testacc_sshkey" {
+		name       = "%s"
+		public_key = "%s"
+	  }
+	  
+	  resource "ibm_is_instance" "testacc_instance" {
+		name    = "%s"
+		image   = "%s"
+		profile = "%s"
+		primary_network_interface {
+		  subnet     = ibm_is_subnet.testacc_subnet.id
+		}
+		vpc  = ibm_is_vpc.testacc_vpc.id
+		zone = "%s"
+		keys = [ibm_is_ssh_key.testacc_sshkey.id]
+		network_interfaces {
+		  subnet = ibm_is_subnet.testacc_subnet.id
+		  name   = "eth1"
+		}
+	  }
+	  resource "ibm_is_instance" "testacc_instance1" {
+		name    = "%s"
+		image   = "%s"
+		profile = "%s"
+		primary_network_interface {
+		  subnet     = ibm_is_subnet.testacc_subnet.id
+		}
+		vpc  = ibm_is_vpc.testacc_vpc.id
+		zone = "%s"
+		keys = [ibm_is_ssh_key.testacc_sshkey.id]
+		network_interfaces {
+		  subnet = ibm_is_subnet.testacc_subnet.id
+		  name   = "eth1"
+		}
+	  }
+	  data "ibm_is_instance" "testacc_ins_data" {
+		  name = "%s"
+		  depends_on = [
+			ibm_is_instance.testacc_instance,
+			ibm_is_instance.testacc_instance1,
+		  ]
+	  }
+	  resource "ibm_is_snapshot" "testacc_snapshot" {
+		name 			= "${data.ibm_is_instance.testacc_ins_data.name}-snapshot"
+		source_volume 	= data.ibm_is_instance.testacc_ins_data.boot_volume[0].volume_id
+	  }
+
+	  resource "ibm_is_instance" "testacc_instance_restore" {
+		name    = "%s"
+		profile = "%s"
+		boot_volume {
+			name     = "boot-restore"
+			snapshot = ibm_is_snapshot.testacc_snapshot.id
+		}
+		primary_network_interface {
+		  subnet     = ibm_is_subnet.testacc_subnet.id
+		}
+		vpc  = ibm_is_vpc.testacc_vpc.id
+		zone = "%s"
+		keys = [ibm_is_ssh_key.testacc_sshkey.id]
+		network_interfaces {
+		  subnet = ibm_is_subnet.testacc_subnet.id
+		  name   = "eth1"
+		}
+	  }
+	  `, vpcname, subnetname, acc.ISZoneName, sshname, publicKey, name, acc.IsImage, acc.InstanceProfileName, acc.ISZoneName, name2, acc.IsImage, acc.InstanceProfileName, acc.ISZoneName, name3, insRestore, acc.InstanceProfileName, acc.ISZoneName)
 }
 
 func testAccCheckIBMISInstanceConfigWithProfile(vpcname, subnetname, sshname, publicKey, name, isInstanceProfileName string) string {
@@ -1527,4 +1759,117 @@ func testAccCheckIBMISInstanceConfigWithAvailablePolicyHostFailure_WithTemplate(
 		name              = "%s"
   		instance_template   = ibm_is_instance_template.instancetemplate1.id
 	  }`, vpcname, subnetname, acc.ISZoneName, acc.ISCIDR, sshname, publicKey, templateName, acc.ISZoneName, name)
+}
+
+func testAccCheckIBMISInstanceUserTagConfig(vpcname, subnetname, sshname, publicKey, name, userData, userTags1 string) string {
+	return fmt.Sprintf(`
+	resource "ibm_is_vpc" "testacc_vpc" {
+		name = "%s"
+	  }
+
+	  resource "ibm_is_subnet" "testacc_subnet" {
+		name            = "%s"
+		vpc             = ibm_is_vpc.testacc_vpc.id
+		zone            = "%s"
+		ipv4_cidr_block = "%s"
+	  }
+
+	  resource "ibm_is_ssh_key" "testacc_sshkey" {
+		name       = "%s"
+		public_key = "%s"
+	  }
+
+	  resource "ibm_is_instance" "testacc_instance" {
+		name    = "%s"
+		image   = "%s"
+		profile = "%s"
+		boot_volume {
+			tags = ["%s"]
+		}
+		primary_network_interface {
+		  subnet     = ibm_is_subnet.testacc_subnet.id
+		}
+		user_data = "%s"
+		vpc  = ibm_is_vpc.testacc_vpc.id
+		zone = "%s"
+		keys = [ibm_is_ssh_key.testacc_sshkey.id]
+	  }`, vpcname, subnetname, acc.ISZoneName, acc.ISCIDR, sshname, publicKey, name, acc.IsImage, acc.InstanceProfileName, userTags1, userData, acc.ISZoneName)
+}
+
+func TestAccIBMISInstance_catalog(t *testing.T) {
+	var instance string
+	vpcname := fmt.Sprintf("tf-vpc-%d", acctest.RandIntRange(10, 100))
+	name := fmt.Sprintf("tf-instnace-%d", acctest.RandIntRange(10, 100))
+	subnetname := fmt.Sprintf("tf-subnet-%d", acctest.RandIntRange(10, 100))
+	publicKey := strings.TrimSpace(`
+ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCKVmnMOlHKcZK8tpt3MP1lqOLAcqcJzhsvJcjscgVERRN7/9484SOBJ3HSKxxNG5JN8owAjy5f9yYwcUg+JaUVuytn5Pv3aeYROHGGg+5G346xaq3DAwX6Y5ykr2fvjObgncQBnuU5KHWCECO/4h8uWuwh/kfniXPVjFToc+gnkqA+3RKpAecZhFXwfalQ9mMuYGFxn+fwn8cYEApsJbsEmb0iJwPiZ5hjFC8wREuiTlhPHDgkBLOiycd20op2nXzDbHfCHInquEe/gYxEitALONxm0swBOwJZwlTDOB7C6y2dzlrtxr1L59m7pCkWI4EtTRLvleehBoj3u7jB4usR
+`)
+	sshname := fmt.Sprintf("tf-ssh-%d", acctest.RandIntRange(10, 100))
+	userData1 := "a"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { acc.TestAccPreCheck(t) },
+		Providers:    acc.TestAccProviders,
+		CheckDestroy: testAccCheckIBMISInstanceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckIBMISInstanceCatalogImageConfig(vpcname, subnetname, sshname, publicKey, name, userData1),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckIBMISInstanceExists("ibm_is_instance.testacc_instance", instance),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance", "name", name),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance", "user_data", userData1),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance", "zone", acc.ISZoneName),
+					resource.TestCheckResourceAttrSet(
+						"ibm_is_instance.testacc_instance", "catalog_offering.0.version_crn"),
+					resource.TestCheckResourceAttrSet(
+						"data.ibm_is_images.testacc_images", "images.0.name"),
+				),
+			},
+		},
+	})
+}
+
+func testAccCheckIBMISInstanceCatalogImageConfig(vpcname, subnetname, sshname, publicKey, name, userData string) string {
+	return fmt.Sprintf(`
+	resource "ibm_is_vpc" "testacc_vpc" {
+		name = "%s"
+	  }
+	  
+	  resource "ibm_is_subnet" "testacc_subnet" {
+		name            = "%s"
+		vpc             = ibm_is_vpc.testacc_vpc.id
+		zone            = "%s"
+		ipv4_cidr_block = "%s"
+	  }
+	  
+	  resource "ibm_is_ssh_key" "testacc_sshkey" {
+		name       = "%s"
+		public_key = "%s"
+	  }
+
+	  data "ibm_is_images" "testacc_images" {
+		catalog_managed = true
+	  }
+	  
+	  resource "ibm_is_instance" "testacc_instance" {
+		name    = "%s"
+		profile = "%s"
+		primary_network_interface {
+		  subnet     = ibm_is_subnet.testacc_subnet.id
+		}
+		user_data = "%s"
+		vpc  = ibm_is_vpc.testacc_vpc.id
+		zone = "%s"
+		keys = [ibm_is_ssh_key.testacc_sshkey.id]
+		network_interfaces {
+		  subnet = ibm_is_subnet.testacc_subnet.id
+		  name   = "eth1"
+		}
+		catalog_offering {
+			version_crn = data.ibm_is_images.testacc_images.images.0.catalog_offering.0.version.0.crn
+		}
+	  }`, vpcname, subnetname, acc.ISZoneName, acc.ISCIDR, sshname, publicKey, name, acc.InstanceProfileName, userData, acc.ISZoneName)
 }

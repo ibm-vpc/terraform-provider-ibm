@@ -15,10 +15,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-const (
-	customerAccountID = "customer_account_id"
-)
-
 func ResourceIBMDLProviderGateway() *schema.Resource {
 	return &schema.Resource{
 		Create:   resourceIBMdlProviderGatewayCreate,
@@ -123,7 +119,7 @@ func ResourceIBMDLProviderGateway() *schema.Resource {
 				Type:        schema.TypeSet,
 				Optional:    true,
 				Computed:    true,
-				Elem:        &schema.Schema{Type: schema.TypeString, ValidateFunc: validate.InvokeValidator("ibm_dl_provider_gateway", "tag")},
+				Elem:        &schema.Schema{Type: schema.TypeString, ValidateFunc: validate.InvokeValidator("ibm_dl_provider_gateway", dlTags)},
 				Set:         flex.ResourceIBMVPCHash,
 				Description: "Tags for the direct link gateway",
 			},
@@ -184,7 +180,7 @@ func ResourceIBMDLProviderGatewayValidator() *validate.ResourceValidator {
 			MaxValueLength:             63})
 	validateSchema = append(validateSchema,
 		validate.ValidateSchema{
-			Identifier:                 "tag",
+			Identifier:                 dlTags,
 			ValidateFunctionIdentifier: validate.ValidateRegexpLen,
 			Type:                       validate.TypeString,
 			Optional:                   true,

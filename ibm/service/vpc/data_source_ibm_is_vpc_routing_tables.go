@@ -1,10 +1,11 @@
-// Copyright IBM Corp. 2017, 2021 All Rights Reserved.
+// Copyright IBM Corp. 2017, 2022 All Rights Reserved.
 // Licensed under the Mozilla Public License v2.0
 
 package vpc
 
 import (
 	//"encoding/json"
+
 	"log"
 	"time"
 
@@ -14,6 +15,7 @@ import (
 )
 
 const (
+	isRoutingTableAcceptRoutesFrom      = "accept_routes_from"
 	isRoutingTableID                    = "routing_table"
 	isRoutingTableHref                  = "href"
 	isRoutingTableName                  = "name"
@@ -25,6 +27,7 @@ const (
 	isRoutingTables                     = "routing_tables"
 	isVpcID                             = "vpc"
 	isRoutingTableDirectLinkIngress     = "route_direct_link_ingress"
+	isRoutingTableInternetIngress       = "route_internet_ingress"
 	isRoutingTableTransitGatewayIngress = "route_transit_gateway_ingress"
 	isRoutingTableVPCZoneIngress        = "route_vpc_zone_ingress"
 	isRoutingTableDefault               = "is_default"
@@ -45,6 +48,20 @@ func DataSourceIBMISVPCRoutingTables() *schema.Resource {
 				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						isRoutingTableAcceptRoutesFrom: {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "The filters specifying the resources that may create routes in this routing table.At present, only the `resource_type` filter is permitted, and only the `vpn_gateway` value is supported, but filter support is expected to expand in the future.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"resource_type": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The resource type.",
+									},
+								},
+							},
+						},
 						isRoutingTableID: {
 							Type:        schema.TypeString,
 							Computed:    true,
@@ -79,6 +96,11 @@ func DataSourceIBMISVPCRoutingTables() *schema.Resource {
 							Type:        schema.TypeBool,
 							Computed:    true,
 							Description: "If set to true, this routing table will be used to route traffic that originates from Direct Link to this VPC.",
+						},
+						isRoutingTableInternetIngress: {
+							Type:        schema.TypeBool,
+							Computed:    true,
+							Description: "Indicates whether this routing table is used to route traffic that originates from the internet.Incoming traffic will be routed according to the routing table with two exceptions:- Traffic destined for IP addresses associated with public gateways will not be  subject to routes in this routing table.- Routes with an action of deliver are treated as drop unless the `next_hop` is an  IP address bound to a network interface on a subnet in the route's `zone`.  Therefore, if an incoming packet matches a route with a `next_hop` of an  internet-bound IP address or a VPN gateway connection, the packet will be dropped.",
 						},
 						isRoutingTableTransitGatewayIngress: {
 							Type:        schema.TypeBool,
@@ -171,6 +193,15 @@ func dataSourceIBMISVPCRoutingTablesList(d *schema.ResourceData, meta interface{
 	for _, routingTable := range allrecs {
 
 		rtable := map[string]interface{}{}
+		acceptRoutesFromInfo := make([]map[string]interface{}, 0)
+		for _, AcceptRoutesFrom := range routingTable.AcceptRoutesFrom {
+			if AcceptRoutesFrom.ResourceType != nil {
+				l := map[string]interface{}{}
+				l["resource_type"] = *AcceptRoutesFrom.ResourceType
+				acceptRoutesFromInfo = append(acceptRoutesFromInfo, l)
+			}
+		}
+		rtable[isRoutingTableAcceptRoutesFrom] = acceptRoutesFromInfo
 		if routingTable.ID != nil {
 			rtable[isRoutingTableID] = *routingTable.ID
 		}
@@ -191,6 +222,9 @@ func dataSourceIBMISVPCRoutingTablesList(d *schema.ResourceData, meta interface{
 		}
 		if routingTable.RouteDirectLinkIngress != nil {
 			rtable[isRoutingTableDirectLinkIngress] = *routingTable.RouteDirectLinkIngress
+		}
+		if routingTable.RouteInternetIngress != nil {
+			rtable[isRoutingTableInternetIngress] = *&routingTable.RouteInternetIngress
 		}
 		if routingTable.RouteTransitGatewayIngress != nil {
 			rtable[isRoutingTableTransitGatewayIngress] = *routingTable.RouteTransitGatewayIngress

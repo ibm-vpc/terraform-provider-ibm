@@ -62,10 +62,15 @@ func ResourceIBMISSubnet() *schema.Resource {
 			Delete: schema.DefaultTimeout(10 * time.Minute),
 		},
 
-		CustomizeDiff: customdiff.Sequence(
-			func(_ context.Context, diff *schema.ResourceDiff, v interface{}) error {
-				return flex.ResourceTagsCustomizeDiff(diff)
-			},
+		CustomizeDiff: customdiff.All(
+			customdiff.Sequence(
+				func(_ context.Context, diff *schema.ResourceDiff, v interface{}) error {
+					return flex.ResourceTagsCustomizeDiff(diff)
+				}),
+			customdiff.Sequence(
+				func(_ context.Context, diff *schema.ResourceDiff, v interface{}) error {
+					return flex.ResourceValidateAccessTags(diff, v)
+				}),
 		),
 
 		Schema: map[string]*schema.Schema{
@@ -114,7 +119,7 @@ func ResourceIBMISSubnet() *schema.Resource {
 				Type:        schema.TypeSet,
 				Optional:    true,
 				Computed:    true,
-				Elem:        &schema.Schema{Type: schema.TypeString, ValidateFunc: validate.InvokeValidator("ibm_is_subnet", "tag")},
+				Elem:        &schema.Schema{Type: schema.TypeString, ValidateFunc: validate.InvokeValidator("ibm_is_subnet", "tags")},
 				Set:         flex.ResourceIBMVPCHash,
 				Description: "List of tags",
 			},
@@ -123,7 +128,7 @@ func ResourceIBMISSubnet() *schema.Resource {
 				Type:        schema.TypeSet,
 				Optional:    true,
 				Computed:    true,
-				Elem:        &schema.Schema{Type: schema.TypeString, ValidateFunc: validate.InvokeValidator("ibm_is_subnet", "accesstag")},
+				Elem:        &schema.Schema{Type: schema.TypeString, ValidateFunc: validate.InvokeValidator("ibm_is_subnet", isSubnetAccessTags)},
 				Set:         flex.ResourceIBMVPCHash,
 				Description: "List of access management tags",
 			},
@@ -239,7 +244,7 @@ func ResourceIBMISSubnetValidator() *validate.ResourceValidator {
 
 	validateSchema = append(validateSchema,
 		validate.ValidateSchema{
-			Identifier:                 "tag",
+			Identifier:                 "tags",
 			ValidateFunctionIdentifier: validate.ValidateRegexpLen,
 			Type:                       validate.TypeString,
 			Optional:                   true,
@@ -249,11 +254,11 @@ func ResourceIBMISSubnetValidator() *validate.ResourceValidator {
 
 	validateSchema = append(validateSchema,
 		validate.ValidateSchema{
-			Identifier:                 "accesstag",
+			Identifier:                 isSubnetAccessTags,
 			ValidateFunctionIdentifier: validate.ValidateRegexpLen,
 			Type:                       validate.TypeString,
 			Optional:                   true,
-			Regexp:                     `^([ ]*[A-Za-z0-9:_.-]+[ ]*)+$`,
+			Regexp:                     `^([A-Za-z0-9_.-]|[A-Za-z0-9_.-][A-Za-z0-9_ .-]*[A-Za-z0-9_.-]):([A-Za-z0-9_.-]|[A-Za-z0-9_.-][A-Za-z0-9_ .-]*[A-Za-z0-9_.-])$`,
 			MinValueLength:             1,
 			MaxValueLength:             128})
 

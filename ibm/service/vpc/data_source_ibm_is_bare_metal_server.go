@@ -362,9 +362,16 @@ func DataSourceIBMIsBareMetalServer() *schema.Resource {
 			isBareMetalServerTags: {
 				Type:        schema.TypeSet,
 				Computed:    true,
-				Elem:        &schema.Schema{Type: schema.TypeString, ValidateFunc: validate.InvokeValidator("ibm_is_bare_metal_server", "tag")},
+				Elem:        &schema.Schema{Type: schema.TypeString, ValidateFunc: validate.InvokeValidator("ibm_is_bare_metal_server", "tags")},
 				Set:         flex.ResourceIBMVPCHash,
 				Description: "Tags for the Bare metal server",
+			},
+			isBareMetalServerAccessTags: {
+				Type:        schema.TypeSet,
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         flex.ResourceIBMVPCHash,
+				Description: "List of access tags",
 			},
 		},
 	}
@@ -383,6 +390,15 @@ func DataSourceIBMIsBareMetalServerValidator() *validate.ResourceValidator {
 			Identifier:                 isBareMetalServerName,
 			ValidateFunctionIdentifier: validate.ValidateNoZeroValues,
 			Type:                       validate.TypeString})
+	validateSchema = append(validateSchema,
+		validate.ValidateSchema{
+			Identifier:                 "tags",
+			ValidateFunctionIdentifier: validate.ValidateRegexpLen,
+			Type:                       validate.TypeString,
+			Optional:                   true,
+			Regexp:                     `^[A-Za-z0-9:_ .-]+$`,
+			MinValueLength:             1,
+			MaxValueLength:             128})
 
 	ibmISBMSDataSourceValidator := validate.ResourceValidator{ResourceName: "ibm_is_bare_metal_server", Schema: validateSchema}
 	return &ibmISBMSDataSourceValidator
@@ -670,11 +686,19 @@ func dataSourceIBMISBareMetalServerRead(context context.Context, d *schema.Resou
 		return diag.FromErr(fmt.Errorf("[ERROR] Error setting zone: %s", err))
 	}
 
-	tags, err := flex.GetTagsUsingCRN(meta, *bms.CRN)
+	tags, err := flex.GetGlobalTagsUsingCRN(meta, *bms.CRN, "", isBareMetalServerAccessTagType)
 	if err != nil {
 		log.Printf(
 			"[ERROR] Error on get of resource bare metal server (%s) tags: %s", d.Id(), err)
 	}
 	d.Set(isBareMetalServerTags, tags)
+
+	accesstags, err := flex.GetGlobalTagsUsingCRN(meta, *bms.CRN, "", isBareMetalServerAccessTagType)
+	if err != nil {
+		log.Printf(
+			"[ERROR] Error on get of resource bare metal server (%s) tags: %s", d.Id(), err)
+	}
+	d.Set(isBareMetalServerAccessTags, accesstags)
+
 	return nil
 }

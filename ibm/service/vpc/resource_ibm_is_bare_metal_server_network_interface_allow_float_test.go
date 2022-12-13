@@ -19,7 +19,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
-func TestAccIBMISBareMetalServerNetworkInterfaceAllowFloat_basic(t *testing.T) {
+func TestAccIBMISBareMetalServerNetworkInterfaceAllowFloat_rip_basic(t *testing.T) {
 	var server string
 	vpcname := fmt.Sprintf("tf-vpc-%d", acctest.RandIntRange(10, 100))
 	name := fmt.Sprintf("tf-server-%d", acctest.RandIntRange(10, 100))
@@ -43,12 +43,36 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCKVmnMOlHKcZK8tpt3MP1lqOLAcqcJzhsvJcjscgVE
 						"ibm_is_bare_metal_server.testacc_bms", "name", name),
 					resource.TestCheckResourceAttr(
 						"ibm_is_bare_metal_server.testacc_bms", "zone", acc.ISZoneName),
+					resource.TestCheckResourceAttr(
+						"ibm_is_subnet_reserved_ip.testacc_rip", "name", subnetreservedipname),
+					resource.TestCheckResourceAttr(
+						"ibm_is_bare_metal_server_network_interface_allow_float.bms_nic", "interface_type", "vlan"),
+					resource.TestCheckResourceAttr(
+						"ibm_is_bare_metal_server_network_interface_allow_float.bms_nic", "allow_ip_spoofing", "false"),
+					resource.TestCheckResourceAttr(
+						"ibm_is_bare_metal_server_network_interface_allow_float.bms_nic", "enable_infrastructure_nat", "true"),
+					resource.TestCheckResourceAttr(
+						"ibm_is_bare_metal_server_network_interface_allow_float.bms_nic", "name", "eth21"),
+					resource.TestCheckResourceAttrWith("ibm_is_bare_metal_server_network_interface_allow_float.bms_nic", "primary_ip.0.address", func(v string) error {
+						if v == "0.0.0.0" {
+							return fmt.Errorf("Attribute 'address' %s is not updated", v)
+						}
+						return nil
+					}),
+					resource.TestCheckResourceAttrSet(
+						"ibm_is_bare_metal_server_network_interface_allow_float.bms_nic", "floating_bare_metal_server"),
+					resource.TestCheckResourceAttrWith("ibm_is_bare_metal_server_network_interface_allow_float.bms_nic", "floating_bare_metal_server", func(v string) error {
+						if v == "" {
+							return fmt.Errorf("Attribute 'floating_bare_metal_server' %s is not populated", v)
+						}
+						return nil
+					}),
 				),
 			},
 		},
 	})
 }
-func TestAccIBMISBareMetalServerNetworkInterfaceAllowFloat_basic_rip(t *testing.T) {
+func TestAccIBMISBareMetalServerNetworkInterfaceAllowFloat_basic(t *testing.T) {
 	var server string
 	vpcname := fmt.Sprintf("tf-vpc-%d", acctest.RandIntRange(10, 100))
 	name := fmt.Sprintf("tf-server-%d", acctest.RandIntRange(10, 100))
@@ -71,6 +95,26 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCKVmnMOlHKcZK8tpt3MP1lqOLAcqcJzhsvJcjscgVE
 						"ibm_is_bare_metal_server.testacc_bms", "name", name),
 					resource.TestCheckResourceAttr(
 						"ibm_is_bare_metal_server.testacc_bms", "zone", acc.ISZoneName),
+					resource.TestCheckResourceAttr(
+						"ibm_is_bare_metal_server_network_interface_allow_float.bms_nic", "allow_ip_spoofing", "false"),
+					resource.TestCheckResourceAttr(
+						"ibm_is_bare_metal_server_network_interface_allow_float.bms_nic", "allow_interface_to_float", "true"),
+					resource.TestCheckResourceAttr(
+						"ibm_is_bare_metal_server_network_interface_allow_float.bms_nic", "enable_infrastructure_nat", "false"),
+					resource.TestCheckResourceAttrWith("ibm_is_bare_metal_server_network_interface_allow_float.bms_nic", "primary_ip.0.address", func(v string) error {
+						if v == "0.0.0.0" {
+							return fmt.Errorf("Attribute 'address' %s is not updated", v)
+						}
+						return nil
+					}),
+					resource.TestCheckResourceAttrSet(
+						"ibm_is_bare_metal_server_network_interface_allow_float.bms_nic", "floating_bare_metal_server"),
+					resource.TestCheckResourceAttrWith("ibm_is_bare_metal_server_network_interface_allow_float.bms_nic", "floating_bare_metal_server", func(v string) error {
+						if v == "" {
+							return fmt.Errorf("Attribute 'floating_bare_metal_server' %s is not populated", v)
+						}
+						return nil
+					}),
 				),
 			},
 		},
@@ -155,6 +199,8 @@ func testAccCheckIBMISBareMetalServerNetworkInterfaceAllowFloatConfig(vpcname, s
 			subnet 				= ibm_is_subnet.testacc_subnet.id
 			name   				= "eth21"
 			vlan 				= 101
+			allow_ip_spoofing 	= false
+			enable_infrastructure_nat = false
 			}
 
 		

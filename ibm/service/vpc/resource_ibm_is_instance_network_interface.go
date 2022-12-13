@@ -337,7 +337,7 @@ func resourceIBMIsInstanceNetworkInterfaceCreate(context context.Context, d *sch
 		}
 	}
 
-	isNICKey := "instance_network_interface_key_" + instance_id
+	isNICKey := "instance_key_" + instance_id
 	conns.IbmMutexKV.Lock(isNICKey)
 	defer conns.IbmMutexKV.Unlock(isNICKey)
 
@@ -551,7 +551,7 @@ func resourceIBMIsInstanceNetworkInterfaceUpdate(context context.Context, d *sch
 		patchVals.Name = core.StringPtr(d.Get(isInstanceNicName).(string))
 		hasChange = true
 	}
-	if d.HasChange("primary_network_interface.0.primary_ip.0.name") || d.HasChange("primary_network_interface.0.primary_ip.0.auto_delete") {
+	if !d.IsNewResource() && (d.HasChange("primary_network_interface.0.primary_ip.0.name") || d.HasChange("primary_network_interface.0.primary_ip.0.auto_delete")) {
 		subnetId := d.Get(isBareMetalServerNicSubnet).(string)
 		ripId := d.Get("primary_network_interface.0.primary_ip.0.reserved_ip").(string)
 		updateripoptions := &vpcv1.UpdateSubnetReservedIPOptions{
@@ -621,7 +621,7 @@ func resourceIBMIsInstanceNetworkInterfaceUpdate(context context.Context, d *sch
 		hasChange = true
 	}
 	if hasChange {
-		isNICKey := "instance_network_interface_key_" + instance_id
+		isNICKey := "instance_key_" + instance_id
 		conns.IbmMutexKV.Lock(isNICKey)
 		defer conns.IbmMutexKV.Unlock(isNICKey)
 		updateInstanceNetworkInterfaceOptions.NetworkInterfacePatch, _ = patchVals.AsPatch()
@@ -710,7 +710,7 @@ func resourceIBMIsInstanceNetworkInterfaceDelete(context context.Context, d *sch
 	}
 	instance_id := parts[0]
 	network_intf_id := parts[1]
-	isNICKey := "instance_network_interface_key_" + instance_id
+	isNICKey := "instance_key_" + instance_id
 	conns.IbmMutexKV.Lock(isNICKey)
 	defer conns.IbmMutexKV.Unlock(isNICKey)
 
