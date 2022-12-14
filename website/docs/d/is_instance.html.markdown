@@ -84,6 +84,7 @@ Review the argument references that you can specify for your data source.
 
 ## Attribute reference
 In addition to all argument reference list, you can access the following attribute references after your data source is created. 
+- `access_tags`  - (List) Access management tags associated for instance.
 - `availability_policy_host_failure` - (String) The availability policy for this virtual server instance. The action to perform if the compute host experiences a failure. 
 - `bandwidth` - (Integer) The total bandwidth (in megabits per second) shared across the instance's network interfaces and storage volumes
 - `boot_volume` - (List of Objects) A list of boot volumes that were created for the instance.
@@ -94,6 +95,13 @@ In addition to all argument reference list, you can access the following attribu
   - `device` - (String) The name of the device that is associated with the boot volume.
   - `volume_id` - (String) The ID of the volume that is associated with the boot volume attachment.
   - `volume_crn` - (String) The CRN of the volume that is associated with the boot volume attachment.
+
+- `catalog_offering` - (List) The [catalog](https://cloud.ibm.com/docs/account?topic=account-restrict-by-user&interface=ui) offering or offering version to use when provisioning this virtual server instance. If an offering is specified, the latest version of that offering will be used. The specified offering or offering version may be in a different account in the same [enterprise](https://cloud.ibm.com/docs/account?topic=account-what-is-enterprise), subject to IAM policies.
+
+  Nested scheme for `catalog_offering`:
+    - `offering_crn` - (String) The CRN for this catalog offering. Identifies a catalog offering by this unique property
+    - `version_crn` - (String) The CRN for this version of a catalog offering. Identifies a version of a catalog offering by this unique property
+   
 - `crn` - (String) The CRN of the instance.
 - `disks` - (List) Collection of the instance's disks. Nested `disks` blocks has the following structure:
 

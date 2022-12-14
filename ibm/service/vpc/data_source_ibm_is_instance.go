@@ -175,6 +175,13 @@ func DataSourceIBMISInstance() *schema.Resource {
 				Set:         flex.ResourceIBMVPCHash,
 				Description: "list of tags for the instance",
 			},
+			isInstanceAccessTags: {
+				Type:        schema.TypeSet,
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         flex.ResourceIBMVPCHash,
+				Description: "list of access tags for the instance",
+			},
 			isInstanceBootVolume: {
 				Type:        schema.TypeList,
 				Computed:    true,
@@ -210,6 +217,26 @@ func DataSourceIBMISInstance() *schema.Resource {
 							Type:        schema.TypeString,
 							Computed:    true,
 							Description: "Instance Boot Volume's volume CRN",
+						},
+					},
+				},
+			},
+
+			isInstanceCatalogOffering: {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "The catalog offering or offering version to use when provisioning this virtual server instance. If an offering is specified, the latest version of that offering will be used. The specified offering or offering version may be in a different account in the same enterprise, subject to IAM policies.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						isInstanceCatalogOfferingOfferingCrn: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "Identifies a catalog offering by a unique CRN property",
+						},
+						isInstanceCatalogOfferingVersionCrn: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "Identifies a version of a catalog offering by a unique CRN property",
 						},
 					},
 				},
@@ -669,6 +696,17 @@ func instanceGetByName(d *schema.ResourceData, meta interface{}, name string) er
 	instance := allrecs[0]
 	d.SetId(*instance.ID)
 	id := *instance.ID
+
+	// catalog
+	if instance.CatalogOffering != nil {
+		versionCrn := *instance.CatalogOffering.Version.CRN
+		catalogList := make([]map[string]interface{}, 0)
+		catalogMap := map[string]interface{}{}
+		catalogMap[isInstanceCatalogOfferingVersionCrn] = versionCrn
+		catalogList = append(catalogList, catalogMap)
+		d.Set(isInstanceCatalogOffering, catalogList)
+	}
+
 	d.Set(isInstanceName, *instance.Name)
 	if instance.Profile != nil {
 		d.Set(isInstanceProfile, *instance.Profile.Name)
@@ -996,12 +1034,18 @@ func instanceGetByName(d *schema.ResourceData, meta interface{}, name string) er
 		bootVolList = append(bootVolList, bootVol)
 		d.Set(isInstanceBootVolume, bootVolList)
 	}
-	tags, err := flex.GetTagsUsingCRN(meta, *instance.CRN)
+	tags, err := flex.GetGlobalTagsUsingCRN(meta, *instance.CRN, "", isInstanceUserTagType)
 	if err != nil {
 		log.Printf(
 			"[ERROR] Error on get of resource vpc Instance (%s) tags: %s", d.Id(), err)
 	}
 	d.Set(isInstanceTags, tags)
+	accesstags, err := flex.GetGlobalTagsUsingCRN(meta, *instance.CRN, "", isInstanceAccessTagType)
+	if err != nil {
+		log.Printf(
+			"Error on get of resource vpc Instance (%s) access tags: %s", d.Id(), err)
+	}
+	d.Set(isInstanceAccessTags, accesstags)
 
 	controller, err := flex.GetBaseController(meta)
 	if err != nil {
