@@ -2433,6 +2433,8 @@ func ResourceVolumeAttachmentValidate(diff *schema.ResourceDiff) error {
 		for volAttIdx := range vols {
 			volumeid := "volume_attachments." + strconv.Itoa(volAttIdx) + "." + "volume"
 			volumePrototype := "volume_attachments." + strconv.Itoa(volAttIdx) + "." + "volume_prototype"
+			volumePrototypeCapacity := "volume_attachments." + strconv.Itoa(volAttIdx) + "." + "volume_prototype" + ".0." + "capacity"
+			volumePrototypeSnapshot := "volume_attachments." + strconv.Itoa(volAttIdx) + "." + "volume_prototype" + ".0." + "source_snapshot"
 			var volIdnterpolated = false
 			var volumeIdFound = false
 			if _, volumeIdFound = diff.GetOk(volumeid); !volumeIdFound {
@@ -2444,6 +2446,13 @@ func ResourceVolumeAttachmentValidate(diff *schema.ResourceDiff) error {
 
 			if volPrototypeFound && (volumeIdFound || volIdnterpolated) {
 				return fmt.Errorf("InstanceTemplate - volume_attachments[%d]: Cannot provide both 'volume' and 'volume_prototype' together.", volAttIdx)
+			}
+			if volPrototypeFound {
+				if _, snapshotFound := diff.GetOk(volumePrototypeSnapshot); !snapshotFound && diff.NewValueKnown(volumePrototypeSnapshot) {
+					if cap, capacityFound := diff.GetOk(volumePrototypeCapacity); !capacityFound || cap.(int) == 0 {
+						return fmt.Errorf("InstanceTemplate - volume_attachments[%d]: at least one of 'capacity' or 'snapshot' for 'volume_prototype' is required.", volAttIdx)
+					}
+				}
 			}
 			if !volPrototypeFound && !volumeIdFound && !volIdnterpolated {
 				return fmt.Errorf("InstanceTemplate - volume_attachments[%d]: Volume details missing. Provide either 'volume' or 'volume_prototype'.", volAttIdx)
