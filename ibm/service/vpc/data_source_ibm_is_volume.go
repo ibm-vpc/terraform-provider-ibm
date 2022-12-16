@@ -109,6 +109,38 @@ func DataSourceIBMISVolume() *schema.Resource {
 							Computed:    true,
 							Description: "Link to documentation about this status reason",
 						},
+
+						isVolumeHealthReasons: {
+							Type:     schema.TypeList,
+							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									isVolumeHealthReasonsCode: {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "A snake case string succinctly identifying the reason for this health state.",
+									},
+
+									isVolumeHealthReasonsMessage: {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "An explanation of the reason for this health state.",
+									},
+
+									isVolumeHealthReasonsMoreInfo: {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "Link to documentation about the reason for this health state.",
+									},
+								},
+							},
+						},
+
+						isVolumeHealthState: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The health of this resource.",
+						},
 					},
 				},
 			},
@@ -271,6 +303,30 @@ func volumeGet(d *schema.ResourceData, meta interface{}, name string) error {
 		}
 		d.Set(isVolumeStatusReasons, statusReasonsList)
 	}
+	if vol.HealthReasons != nil {
+		healthReasonsList := make([]map[string]interface{}, 0)
+		for _, sr := range vol.HealthReasons {
+			currentSR := map[string]interface{}{}
+			if sr.Code != nil && sr.Message != nil {
+				currentSR[isVolumeHealthReasonsCode] = *sr.Code
+				currentSR[isVolumeHealthReasonsMessage] = *sr.Message
+				if sr.MoreInfo != nil {
+					currentSR[isVolumeHealthReasonsMoreInfo] = *sr.Message
+				}
+				healthReasonsList = append(healthReasonsList, currentSR)
+			}
+		}
+		d.Set(isVolumeHealthReasons, healthReasonsList)
+	}
+	if vol.HealthState != nil {
+		d.Set(isVolumeHealthState, *vol.HealthState)
+	}
+	tags, err := flex.GetTagsUsingCRN(meta, *vol.CRN)
+	if err != nil {
+		log.Printf(
+			"Error on get of resource vpc volume (%s) tags: %s", d.Id(), err)
+	}
+	d.Set(isVolumeTags, tags)
 	controller, err := flex.GetBaseController(meta)
 	if err != nil {
 		return err
