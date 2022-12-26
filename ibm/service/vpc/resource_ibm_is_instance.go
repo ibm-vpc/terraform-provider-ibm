@@ -681,13 +681,11 @@ func ResourceIBMISInstance() *schema.Resource {
 			},
 
 			isInstanceVolumes: {
-				Type:        schema.TypeSet,
+				Type:        schema.TypeList,
 				Optional:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
-				Set:         schema.HashString,
 				Description: "List of volumes",
 			},
-
 			isInstanceVolAttVolAutoDelete: {
 				Type:        schema.TypeBool,
 				Optional:    true,
@@ -3340,12 +3338,20 @@ func instanceUpdate(d *schema.ResourceData, meta interface{}) error {
 		}
 	}
 	if d.HasChange(isInstanceVolumes) {
-		ovs, nvs := d.GetChange(isInstanceVolumes)
-		ov := ovs.(*schema.Set)
-		nv := nvs.(*schema.Set)
-
-		remove := flex.ExpandStringList(ov.Difference(nv).List())
-		add := flex.ExpandStringList(nv.Difference(ov).List())
+		old, new := d.GetChange(isInstanceVolumes)
+		oldaddons := old.([]interface{})
+		newaddons := new.([]interface{})
+		var oldaddon, newaddon, add []string
+		for _, v := range oldaddons {
+			oldaddon = append(oldaddon, v.(string))
+		}
+		for _, v := range newaddons {
+			newaddon = append(newaddon, v.(string))
+		}
+		// 1. Remove old addons no longer appearing in the new set
+		// 2. Add new addons not already provisioned
+		remove := listdifference(oldaddon, newaddon)
+		add = listdifference(newaddon, oldaddon)
 		var volautoDelete bool
 		if volumeautodeleteIntf, ok := d.GetOk(isInstanceVolAttVolAutoDelete); ok && volumeautodeleteIntf != nil {
 			volautoDelete = volumeautodeleteIntf.(bool)
@@ -4252,4 +4258,20 @@ func GetInstanceMetadataServiceOptions(d *schema.ResourceData) (metadataService 
 		return
 	}
 	return nil
+}
+
+// This function takes two lists and returns the difference between the two lists
+// listdifference([1,2] [2,3]) = [1]
+func listdifference(a, b []string) []string {
+	mb := map[string]bool{}
+	for _, x := range b {
+		mb[x] = true
+	}
+	ab := []string{}
+	for _, x := range a {
+		if _, ok := mb[x]; !ok {
+			ab = append(ab, x)
+		}
+	}
+	return ab
 }
