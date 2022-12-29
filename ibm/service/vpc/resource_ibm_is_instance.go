@@ -1504,6 +1504,19 @@ func instanceCreateByCatalogOffering(d *schema.ResourceData, meta interface{}, p
 		volTemplate.Profile = &vpcv1.VolumeProfileIdentity{
 			Name: &volprof,
 		}
+
+		var userTags *schema.Set
+		if v, ok := bootvol[isInstanceBootVolumeTags]; ok {
+			userTags = v.(*schema.Set)
+			if userTags != nil && userTags.Len() != 0 {
+				userTagsArray := make([]string, userTags.Len())
+				for i, userTag := range userTags.List() {
+					userTagStr := userTag.(string)
+					userTagsArray[i] = userTagStr
+				}
+				volTemplate.UserTags = userTagsArray
+			}
+		}
 		deleteboolIntf := bootvol[isInstanceVolAttVolAutoDelete]
 		deletebool := deleteboolIntf.(bool)
 		instanceproto.BootVolumeAttachment = &vpcv1.VolumeAttachmentPrototypeInstanceByImageContext{
@@ -3065,44 +3078,45 @@ func instanceUpdate(d *schema.ResourceData, meta interface{}) error {
 	bootVolTags := "boot_volume.0.tags"
 	if d.HasChange(bootVolTags) && !d.IsNewResource() {
 		var userTags *schema.Set
-		if v, ok := d.GetOk("boot_volume.0.tags"); ok {
-			volId := d.Get("boot_volume.0.volume_id").(string)
-			updateVolumeOptions := &vpcv1.UpdateVolumeOptions{
-				ID: &volId,
-			}
-			userTags = v.(*schema.Set)
-			if userTags != nil && userTags.Len() != 0 {
-				userTagsArray := make([]string, userTags.Len())
-				for i, userTag := range userTags.List() {
-					userTagStr := userTag.(string)
-					userTagsArray[i] = userTagStr
-				}
-				volumePatchModel := &vpcv1.VolumePatch{}
-				volumePatchModel.UserTags = userTagsArray
-				volumePatch, err := volumePatchModel.AsPatch()
-				if err != nil {
-					return fmt.Errorf("[ERROR] Error encountered while apply as patch for boot volume of instance %s", err)
-				}
-				optionsget := &vpcv1.GetVolumeOptions{
-					ID: &volId,
-				}
-				_, response, err := instanceC.GetVolume(optionsget)
-				if err != nil {
-					return fmt.Errorf("[ERROR] Error getting Boot Volume (%s): %s\n%s", id, err, response)
-				}
-				eTag := response.Headers.Get("ETag")
-				updateVolumeOptions.IfMatch = &eTag
-				updateVolumeOptions.VolumePatch = volumePatch
-				vol, res, err := instanceC.UpdateVolume(updateVolumeOptions)
-				if vol == nil || err != nil {
-					return (fmt.Errorf("[ERROR] Error encountered while applying tags for boot volume of instance %s/n%s", err, res))
-				}
-				_, err = isWaitForVolumeAvailable(instanceC, volId, d.Timeout(schema.TimeoutCreate))
-				if err != nil {
-					return err
-				}
-			}
+		v := d.Get("boot_volume.0.tags")
+		volId := d.Get("boot_volume.0.volume_id").(string)
+		updateVolumeOptions := &vpcv1.UpdateVolumeOptions{
+			ID: &volId,
 		}
+		userTags = v.(*schema.Set)
+		userTagsArray := make([]string, userTags.Len())
+		for i, userTag := range userTags.List() {
+			userTagStr := userTag.(string)
+			userTagsArray[i] = userTagStr
+		}
+		volumePatchModel := &vpcv1.VolumePatch{}
+		volumePatchModel.UserTags = userTagsArray
+		volumePatch, err := volumePatchModel.AsPatch()
+		if err != nil {
+			return fmt.Errorf("[ERROR] Error encountered while apply as patch for boot volume of instance %s", err)
+		}
+		if len(userTagsArray) == 0 {
+			volumePatch["user_tags"] = []string{}
+		}
+		optionsget := &vpcv1.GetVolumeOptions{
+			ID: &volId,
+		}
+		_, response, err := instanceC.GetVolume(optionsget)
+		if err != nil {
+			return fmt.Errorf("[ERROR] Error getting Boot Volume (%s): %s\n%s", id, err, response)
+		}
+		eTag := response.Headers.Get("ETag")
+		updateVolumeOptions.IfMatch = &eTag
+		updateVolumeOptions.VolumePatch = volumePatch
+		vol, res, err := instanceC.UpdateVolume(updateVolumeOptions)
+		if vol == nil || err != nil {
+			return (fmt.Errorf("[ERROR] Error encountered while applying tags for boot volume of instance %s/n%s", err, res))
+		}
+		_, err = isWaitForVolumeAvailable(instanceC, volId, d.Timeout(schema.TimeoutCreate))
+		if err != nil {
+			return err
+		}
+
 	}
 	bootVolAutoDel := "boot_volume.0.auto_delete_volume"
 	if d.HasChange(bootVolAutoDel) && !d.IsNewResource() {
