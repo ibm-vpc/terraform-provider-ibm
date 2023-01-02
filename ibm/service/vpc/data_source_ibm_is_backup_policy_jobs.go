@@ -7,6 +7,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
@@ -32,14 +33,20 @@ func DataSourceIBMIsBackupPolicyJobs() *schema.Resource {
 				Optional:    true,
 			},
 			"target_snapshots_id": {
-				Type:        schema.TypeString,
-				Description: "Filters the collection to resources with the target snapshot with the specified identifier",
-				Optional:    true,
+				Type:          schema.TypeSet,
+				ConflictsWith: []string{"target_snapshots_crn"},
+				Description:   "Filters the collection to resources with the target snapshot with the specified identifier",
+				Elem:          &schema.Schema{Type: schema.TypeString},
+				Set:           schema.HashString,
+				Optional:      true,
 			},
 			"target_snapshots_crn": {
-				Type:        schema.TypeString,
-				Description: "Filters the collection to backup policy jobs with the target snapshot with the specified CRN",
-				Optional:    true,
+				Type:          schema.TypeSet,
+				ConflictsWith: []string{"target_snapshots_id"},
+				Description:   "Filters the collection to backup policy jobs with the target snapshot with the specified CRN",
+				Elem:          &schema.Schema{Type: schema.TypeString},
+				Set:           schema.HashString,
+				Optional:      true,
 			},
 			"backup_policy_plan_id": {
 				Type:        schema.TypeString,
@@ -282,11 +289,27 @@ func dataSourceIBMIsBackupPolicyJobsRead(context context.Context, d *schema.Reso
 	}
 
 	if targetSnapshotsId, ok := d.GetOk("target_snapshots_id"); ok {
-		listBackupPolicyJobsOptions.SetTargetSnapshotsID(targetSnapshotsId.(string))
+		targetSnapshotsIds := targetSnapshotsId.(*schema.Set)
+		if targetSnapshotsIds.Len() != 0 {
+			targetSnapshotsIdsArray := make([]string, targetSnapshotsIds.Len())
+			for i, key := range targetSnapshotsIds.List() {
+				keystr := key.(string)
+				targetSnapshotsIdsArray[i] = keystr
+			}
+			listBackupPolicyJobsOptions.SetTargetSnapshotsID(strings.Join(targetSnapshotsIdsArray, ","))
+		}
 	}
 
 	if targetSnapshotsCrn, ok := d.GetOk("target_snapshots_crn"); ok {
-		listBackupPolicyJobsOptions.SetTargetSnapshotsCRN(targetSnapshotsCrn.(string))
+		targetSnapshotsCrns := targetSnapshotsCrn.(*schema.Set)
+		if targetSnapshotsCrns.Len() != 0 {
+			targetSnapshotsCrnsArray := make([]string, targetSnapshotsCrns.Len())
+			for i, key := range targetSnapshotsCrns.List() {
+				keystr := key.(string)
+				targetSnapshotsCrnsArray[i] = keystr
+			}
+			listBackupPolicyJobsOptions.SetTargetSnapshotsCRN(strings.Join(targetSnapshotsCrnsArray, ","))
+		}
 	}
 
 	if status, ok := d.GetOk("status"); ok {

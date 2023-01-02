@@ -34,9 +34,9 @@ data "ibm_is_backup_policy_jobs" "example" {
 Review the argument reference that you can specify for your data source.
 
 - `backup_policy_id` - (Required, String) The backup policy identifier.
-- `target_snapshot_crn` - (Optional, String) Filters the collection to resources with the target snapshot with the specified CRN.
-- `target_snapshot_id` - (Optional, String) Filters the collection to resources with the source volume with the specified identifier.
-- `status` - (Optional, String) Filters the collection to backup policy jobs with the specified status.
+- `target_snapshots_crn` - (Optional, List) Filters the collection to resources with the target snapshot with the specified CRN.
+- `target_snapshots_id` - (Optional, List) Filters the collection to resources with the source volume with the specified identifier.
+- `status` - (Optional, String) Filters the collection to backup policy jobs with the specified status, allowed values are `failed, running, succeeded`.
 - `source_volume_id` - (Optional, String) Filters the collection to resources with the source volume with the specified identifier.
 
 ## Attribute Reference
