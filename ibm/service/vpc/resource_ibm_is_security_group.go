@@ -461,8 +461,8 @@ func resourceIBMISSecurityGroupDelete(d *schema.ResourceData, meta interface{}) 
 			securityGroupTargetReference := securityGroupTargetReferenceIntf.(*vpcv1.SecurityGroupTargetReference)
 			if securityGroupTargetReference != nil && securityGroupTargetReference.ID != nil {
 
-				deleteSecurityGroupTargetBindingOptions := sess.NewRemoveSecurityGroupTargetOptions(id, *securityGroupTargetReference.ID)
-				response, err = sess.RemoveSecurityGroupTarget(deleteSecurityGroupTargetBindingOptions)
+				deleteSecurityGroupTargetBindingOptions := sess.NewDeleteSecurityGroupTargetBindingOptions(id, *securityGroupTargetReference.ID)
+				response, err = sess.DeleteSecurityGroupTargetBinding(deleteSecurityGroupTargetBindingOptions)
 				if err != nil {
 					if response != nil {
 						if response.StatusCode == 404 {

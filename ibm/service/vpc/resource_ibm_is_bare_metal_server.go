@@ -1915,11 +1915,11 @@ func bareMetalServerUpdate(context context.Context, d *schema.ResourceData, meta
 		// 			networkIDKey := fmt.Sprintf("network_interfaces.%d.id", i)
 		// 			networkID := d.Get(networkIDKey).(string)
 		// 			for i := range add {
-		// 				createsgnicoptions := &vpcv1.AddSecurityGroupTargetOptions{
+		// 				createsgnicoptions := &vpcv1.CreateSecurityGroupTargetBindingOptions{
 		// 					SecurityGroupID: &add[i],
 		// 					ID:              &networkID,
 		// 				}
-		// 				_, response, err := sess.AddSecurityGroupTarget(createsgnicoptions)
+		// 				_, response, err := sess.CreateSecurityGroupTargetBinding(createsgnicoptions)
 		// 				if err != nil {
 		// 					return fmt.Errorf("[ERROR] Error while creating security group %q for network interface of bare metal server %s\n%s: %q", add[i], d.Id(), err, response)
 		// 				}
@@ -1930,11 +1930,11 @@ func bareMetalServerUpdate(context context.Context, d *schema.ResourceData, meta
 		// 			networkIDKey := fmt.Sprintf("network_interfaces.%d.id", i)
 		// 			networkID := d.Get(networkIDKey).(string)
 		// 			for i := range remove {
-		// 				deletesgnicoptions := &vpcv1.RemoveSecurityGroupTargetOptions{
+		// 				deletesgnicoptions := &vpcv1.DeleteSecurityGroupTargetBindingOptions{
 		// 					SecurityGroupID: &remove[i],
 		// 					ID:              &networkID,
 		// 				}
-		// 				response, err := sess.RemoveSecurityGroupTarget(deletesgnicoptions)
+		// 				response, err := sess.DeleteSecurityGroupTargetBinding(deletesgnicoptions)
 		// 				if err != nil {
 		// 					return fmt.Errorf("[ERROR] Error while removing security group %q for network interface of instance %s\n%s: %q", remove[i], d.Id(), err, response)
 		// 				}

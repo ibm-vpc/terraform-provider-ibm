@@ -3327,11 +3327,11 @@ func instanceUpdate(d *schema.ResourceData, meta interface{}) error {
 		if len(add) > 0 {
 			networkID := d.Get("primary_network_interface.0.id").(string)
 			for i := range add {
-				createsgnicoptions := &vpcv1.AddSecurityGroupTargetOptions{
+				createsgnicoptions := &vpcv1.CreateSecurityGroupTargetBindingOptions{
 					SecurityGroupID: &add[i],
 					ID:              &networkID,
 				}
-				_, response, err := instanceC.AddSecurityGroupTarget(createsgnicoptions)
+				_, response, err := instanceC.CreateSecurityGroupTargetBinding(createsgnicoptions)
 				if err != nil {
 					return fmt.Errorf("[ERROR] Error while creating security group %q for primary network interface of instance %s\n%s: %q", add[i], d.Id(), err, response)
 				}
@@ -3345,11 +3345,11 @@ func instanceUpdate(d *schema.ResourceData, meta interface{}) error {
 		if len(remove) > 0 {
 			networkID := d.Get("primary_network_interface.0.id").(string)
 			for i := range remove {
-				deletesgnicoptions := &vpcv1.RemoveSecurityGroupTargetOptions{
+				deletesgnicoptions := &vpcv1.DeleteSecurityGroupTargetBindingOptions{
 					SecurityGroupID: &remove[i],
 					ID:              &networkID,
 				}
-				response, err := instanceC.RemoveSecurityGroupTarget(deletesgnicoptions)
+				response, err := instanceC.DeleteSecurityGroupTargetBinding(deletesgnicoptions)
 				if err != nil {
 					return fmt.Errorf("[ERROR] Error while removing security group %q for primary network interface of instance %s\n%s: %q", remove[i], d.Id(), err, response)
 				}
@@ -3464,11 +3464,11 @@ func instanceUpdate(d *schema.ResourceData, meta interface{}) error {
 					networkIDKey := fmt.Sprintf("network_interfaces.%d.id", i)
 					networkID := d.Get(networkIDKey).(string)
 					for i := range add {
-						createsgnicoptions := &vpcv1.AddSecurityGroupTargetOptions{
+						createsgnicoptions := &vpcv1.CreateSecurityGroupTargetBindingOptions{
 							SecurityGroupID: &add[i],
 							ID:              &networkID,
 						}
-						_, response, err := instanceC.AddSecurityGroupTarget(createsgnicoptions)
+						_, response, err := instanceC.CreateSecurityGroupTargetBinding(createsgnicoptions)
 						if err != nil {
 							return fmt.Errorf("[ERROR] Error while creating security group %q for network interface of instance %s\n%s: %q", add[i], d.Id(), err, response)
 						}
@@ -3483,11 +3483,11 @@ func instanceUpdate(d *schema.ResourceData, meta interface{}) error {
 					networkIDKey := fmt.Sprintf("network_interfaces.%d.id", i)
 					networkID := d.Get(networkIDKey).(string)
 					for i := range remove {
-						deletesgnicoptions := &vpcv1.RemoveSecurityGroupTargetOptions{
+						deletesgnicoptions := &vpcv1.DeleteSecurityGroupTargetBindingOptions{
 							SecurityGroupID: &remove[i],
 							ID:              &networkID,
 						}
-						response, err := instanceC.RemoveSecurityGroupTarget(deletesgnicoptions)
+						response, err := instanceC.DeleteSecurityGroupTargetBinding(deletesgnicoptions)
 						if err != nil {
 							return fmt.Errorf("[ERROR] Error while removing security group %q for network interface of instance %s\n%s: %q", remove[i], d.Id(), err, response)
 						}

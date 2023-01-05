@@ -162,11 +162,11 @@ func resourceIBMISSecurityGroupNetworkInterfaceAttachmentCreate(d *schema.Resour
 	sgID := d.Get(isSGNICAGroupId).(string)
 	nicID := d.Get(isSGNICANicId).(string)
 
-	options := &vpcv1.AddSecurityGroupTargetOptions{
+	options := &vpcv1.CreateSecurityGroupTargetBindingOptions{
 		SecurityGroupID: &sgID,
 		ID:              &nicID,
 	}
-	_, response, err := sess.AddSecurityGroupTarget(options)
+	_, response, err := sess.CreateSecurityGroupTargetBinding(options)
 	if err != nil {
 		return fmt.Errorf("[ERROR] Error while creating SecurityGroup NetworkInterface Binding %s\n%s", err, response)
 	}
@@ -280,11 +280,11 @@ func resourceIBMISSecurityGroupNetworkInterfaceAttachmentDelete(d *schema.Resour
 		return fmt.Errorf("[ERROR] Error getting NetworkInterface(%s) for the SecurityGroup (%s) : %s\n%s", nicID, sgID, err, response)
 	}
 
-	removeSecurityGroupNetworkInterfaceOptions := &vpcv1.RemoveSecurityGroupTargetOptions{
+	removeSecurityGroupNetworkInterfaceOptions := &vpcv1.DeleteSecurityGroupTargetBindingOptions{
 		SecurityGroupID: &sgID,
 		ID:              &nicID,
 	}
-	response, err = sess.RemoveSecurityGroupTarget(removeSecurityGroupNetworkInterfaceOptions)
+	response, err = sess.DeleteSecurityGroupTargetBinding(removeSecurityGroupNetworkInterfaceOptions)
 	if err != nil {
 		return fmt.Errorf("[ERROR] Error Deleting NetworkInterface(%s) for the SecurityGroup (%s) : %s\n%s", nicID, sgID, err, response)
 	}

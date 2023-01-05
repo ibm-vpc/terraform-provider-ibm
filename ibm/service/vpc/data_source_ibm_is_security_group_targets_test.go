@@ -61,12 +61,12 @@ func testAccCheckIBMISSecurityGroupTargetsDestroy(s *terraform.State) error {
 		securityGroupID := parts[0]
 		targetID := parts[1]
 
-		deleteSecurityGroupTargetBindingOptions := &vpcv1.RemoveSecurityGroupTargetOptions{
+		deleteSecurityGroupTargetBindingOptions := &vpcv1.DeleteSecurityGroupTargetBindingOptions{
 			SecurityGroupID: &securityGroupID,
 			ID:              &targetID,
 		}
 
-		response, err := sess.RemoveSecurityGroupTarget(deleteSecurityGroupTargetBindingOptions)
+		response, err := sess.DeleteSecurityGroupTargetBinding(deleteSecurityGroupTargetBindingOptions)
 		if err == nil {
 			return fmt.Errorf("Security Group Targets still exists: %v", response)
 		}
