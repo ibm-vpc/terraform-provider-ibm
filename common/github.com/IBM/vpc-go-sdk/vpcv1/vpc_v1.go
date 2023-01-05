@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corp. 2022.
+ * (C) Copyright IBM Corp. 2023.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 
 /*
- * IBM OpenAPI SDK Code Generator Version: 3.48.1-52130155-20220425-145431
+ * IBM OpenAPI SDK Code Generator Version: 3.60.2-95dc7721-20221102-203229
  */
 
 // Package vpcv1 : Operations and models for the VpcV1 service
@@ -37,11 +37,11 @@ import (
 // VpcV1 : The IBM Cloud Virtual Private Cloud (VPC) API can be used to programmatically provision and manage virtual
 // server instances, along with subnets, volumes, load balancers, and more.
 //
-// API Version: 2022-03-29
+// API Version: today
 type VpcV1 struct {
 	Service *core.BaseService
 
-	// The API version, in format `YYYY-MM-DD`. For the API behavior documented here, specify any date between `2022-07-03`
+	// The API version, in format `YYYY-MM-DD`. For the API behavior documented here, specify any date between `2022-09-13`
 	// and today's date (UTC).
 	Version *string
 
@@ -62,7 +62,7 @@ type VpcV1Options struct {
 	URL           string
 	Authenticator core.Authenticator
 
-	// The API version, in format `YYYY-MM-DD`. For the API behavior documented here, specify any date between `2022-07-03`
+	// The API version, in format `YYYY-MM-DD`. For the API behavior documented here, specify any date between `2022-09-13`
 	// and today's date (UTC).
 	Version *string
 }
@@ -121,7 +121,7 @@ func NewVpcV1(options *VpcV1Options) (service *VpcV1, err error) {
 	}
 
 	if options.Version == nil {
-		options.Version = core.StringPtr("2022-03-29")
+		options.Version = core.StringPtr("2022-09-13")
 	}
 
 	service = &VpcV1{
@@ -580,7 +580,7 @@ func (vpc *VpcV1) GetVPCDefaultNetworkACLWithContext(ctx context.Context, getVPC
 
 // GetVPCDefaultRoutingTable : Retrieve a VPC's default routing table
 // This request retrieves the default routing table for the VPC specified by the identifier in the URL. The default
-// routing table is associated with any subnets in the VPC which have not been explicitly associated with a user-defined
+// routing table is associated with any subnets in the VPC which have not been explicitly associated with another
 // routing table.
 func (vpc *VpcV1) GetVPCDefaultRoutingTable(getVPCDefaultRoutingTableOptions *GetVPCDefaultRoutingTableOptions) (result *DefaultRoutingTable, response *core.DetailedResponse, err error) {
 	return vpc.GetVPCDefaultRoutingTableWithContext(context.Background(), getVPCDefaultRoutingTableOptions)
@@ -1052,12 +1052,15 @@ func (vpc *VpcV1) UpdateVPCAddressPrefixWithContext(ctx context.Context, updateV
 // This request lists all routes in the VPC's default routing table. Each route is zone-specific and directs any packets
 // matching its destination CIDR block to a `next_hop` IP address. The most specific route matching a packet's
 // destination will be used. If multiple equally-specific routes exist, traffic will be distributed across them.
+// Deprecated: this method is deprecated and may be removed in a future release.
 func (vpc *VpcV1) ListVPCRoutes(listVPCRoutesOptions *ListVPCRoutesOptions) (result *RouteCollection, response *core.DetailedResponse, err error) {
 	return vpc.ListVPCRoutesWithContext(context.Background(), listVPCRoutesOptions)
 }
 
 // ListVPCRoutesWithContext is an alternate form of the ListVPCRoutes method which supports a Context parameter
+// Deprecated: this method is deprecated and may be removed in a future release.
 func (vpc *VpcV1) ListVPCRoutesWithContext(ctx context.Context, listVPCRoutesOptions *ListVPCRoutesOptions) (result *RouteCollection, response *core.DetailedResponse, err error) {
+	core.GetLogger().Warn("A deprecated operation has been invoked: ListVPCRoutes")
 	err = core.ValidateNotNil(listVPCRoutesOptions, "listVPCRoutesOptions cannot be nil")
 	if err != nil {
 		return
@@ -1126,12 +1129,15 @@ func (vpc *VpcV1) ListVPCRoutesWithContext(ctx context.Context, listVPCRoutesOpt
 // This request creates a new route in the VPC's default routing table. The route prototype object is structured in the
 // same way as a retrieved route, and contains the information necessary to create the new route. The request will fail
 // if the new route will cause a loop.
+// Deprecated: this method is deprecated and may be removed in a future release.
 func (vpc *VpcV1) CreateVPCRoute(createVPCRouteOptions *CreateVPCRouteOptions) (result *Route, response *core.DetailedResponse, err error) {
 	return vpc.CreateVPCRouteWithContext(context.Background(), createVPCRouteOptions)
 }
 
 // CreateVPCRouteWithContext is an alternate form of the CreateVPCRoute method which supports a Context parameter
+// Deprecated: this method is deprecated and may be removed in a future release.
 func (vpc *VpcV1) CreateVPCRouteWithContext(ctx context.Context, createVPCRouteOptions *CreateVPCRouteOptions) (result *Route, response *core.DetailedResponse, err error) {
+	core.GetLogger().Warn("A deprecated operation has been invoked: CreateVPCRoute")
 	err = core.ValidateNotNil(createVPCRouteOptions, "createVPCRouteOptions cannot be nil")
 	if err != nil {
 		return
@@ -1211,12 +1217,15 @@ func (vpc *VpcV1) CreateVPCRouteWithContext(ctx context.Context, createVPCRouteO
 
 // DeleteVPCRoute : Delete a VPC route
 // This request deletes a route. This operation cannot be reversed.
+// Deprecated: this method is deprecated and may be removed in a future release.
 func (vpc *VpcV1) DeleteVPCRoute(deleteVPCRouteOptions *DeleteVPCRouteOptions) (response *core.DetailedResponse, err error) {
 	return vpc.DeleteVPCRouteWithContext(context.Background(), deleteVPCRouteOptions)
 }
 
 // DeleteVPCRouteWithContext is an alternate form of the DeleteVPCRoute method which supports a Context parameter
+// Deprecated: this method is deprecated and may be removed in a future release.
 func (vpc *VpcV1) DeleteVPCRouteWithContext(ctx context.Context, deleteVPCRouteOptions *DeleteVPCRouteOptions) (response *core.DetailedResponse, err error) {
+	core.GetLogger().Warn("A deprecated operation has been invoked: DeleteVPCRoute")
 	err = core.ValidateNotNil(deleteVPCRouteOptions, "deleteVPCRouteOptions cannot be nil")
 	if err != nil {
 		return
@@ -1263,12 +1272,15 @@ func (vpc *VpcV1) DeleteVPCRouteWithContext(ctx context.Context, deleteVPCRouteO
 
 // GetVPCRoute : Retrieve a VPC route
 // This request retrieves a single route specified by the identifier in the URL.
+// Deprecated: this method is deprecated and may be removed in a future release.
 func (vpc *VpcV1) GetVPCRoute(getVPCRouteOptions *GetVPCRouteOptions) (result *Route, response *core.DetailedResponse, err error) {
 	return vpc.GetVPCRouteWithContext(context.Background(), getVPCRouteOptions)
 }
 
 // GetVPCRouteWithContext is an alternate form of the GetVPCRoute method which supports a Context parameter
+// Deprecated: this method is deprecated and may be removed in a future release.
 func (vpc *VpcV1) GetVPCRouteWithContext(ctx context.Context, getVPCRouteOptions *GetVPCRouteOptions) (result *Route, response *core.DetailedResponse, err error) {
+	core.GetLogger().Warn("A deprecated operation has been invoked: GetVPCRoute")
 	err = core.ValidateNotNil(getVPCRouteOptions, "getVPCRouteOptions cannot be nil")
 	if err != nil {
 		return
@@ -1328,12 +1340,15 @@ func (vpc *VpcV1) GetVPCRouteWithContext(ctx context.Context, getVPCRouteOptions
 // UpdateVPCRoute : Update a VPC route
 // This request updates a route with the information in a provided route patch. The route patch object is structured in
 // the same way as a retrieved route and contains only the information to be updated.
+// Deprecated: this method is deprecated and may be removed in a future release.
 func (vpc *VpcV1) UpdateVPCRoute(updateVPCRouteOptions *UpdateVPCRouteOptions) (result *Route, response *core.DetailedResponse, err error) {
 	return vpc.UpdateVPCRouteWithContext(context.Background(), updateVPCRouteOptions)
 }
 
 // UpdateVPCRouteWithContext is an alternate form of the UpdateVPCRoute method which supports a Context parameter
+// Deprecated: this method is deprecated and may be removed in a future release.
 func (vpc *VpcV1) UpdateVPCRouteWithContext(ctx context.Context, updateVPCRouteOptions *UpdateVPCRouteOptions) (result *Route, response *core.DetailedResponse, err error) {
+	core.GetLogger().Warn("A deprecated operation has been invoked: UpdateVPCRoute")
 	err = core.ValidateNotNil(updateVPCRouteOptions, "updateVPCRouteOptions cannot be nil")
 	if err != nil {
 		return
@@ -1397,10 +1412,10 @@ func (vpc *VpcV1) UpdateVPCRouteWithContext(ctx context.Context, updateVPCRouteO
 }
 
 // ListVPCRoutingTables : List all routing tables for a VPC
-// This request lists all user-defined routing tables for a VPC.  Each subnet in a VPC is associated with a routing
-// table, which controls delivery of packets sent on that subnet according to the action of the most specific matching
-// route in the table.  If multiple equally-specific routes exist, traffic will be distributed across them. If no routes
-// match, delivery will be controlled by the system's built-in routes.
+// This request lists all routing tables for a VPC. Each subnet in a VPC is associated with a routing table, which
+// controls delivery of packets sent on that subnet according to the action of the most specific matching route in the
+// table. If multiple equally-specific routes exist, traffic will be distributed across them. If no routes match,
+// delivery will be controlled by the system's built-in routes.
 func (vpc *VpcV1) ListVPCRoutingTables(listVPCRoutingTablesOptions *ListVPCRoutingTablesOptions) (result *RoutingTableCollection, response *core.DetailedResponse, err error) {
 	return vpc.ListVPCRoutingTablesWithContext(context.Background(), listVPCRoutingTablesOptions)
 }
@@ -1472,9 +1487,8 @@ func (vpc *VpcV1) ListVPCRoutingTablesWithContext(ctx context.Context, listVPCRo
 }
 
 // CreateVPCRoutingTable : Create a routing table for a VPC
-// This request creates a user-defined routing table from a routing table prototype object. The prototype object is
-// structured in the same way as a retrieved routing table, and contains the information necessary to create the new
-// routing table.
+// This request creates a routing table from a routing table prototype object. The prototype object is structured in the
+// same way as a retrieved routing table, and contains the information necessary to create the new routing table.
 func (vpc *VpcV1) CreateVPCRoutingTable(createVPCRoutingTableOptions *CreateVPCRoutingTableOptions) (result *RoutingTable, response *core.DetailedResponse, err error) {
 	return vpc.CreateVPCRoutingTableWithContext(context.Background(), createVPCRoutingTableOptions)
 }
@@ -1525,6 +1539,9 @@ func (vpc *VpcV1) CreateVPCRoutingTableWithContext(ctx context.Context, createVP
 	}
 	if createVPCRoutingTableOptions.RouteDirectLinkIngress != nil {
 		body["route_direct_link_ingress"] = createVPCRoutingTableOptions.RouteDirectLinkIngress
+	}
+	if createVPCRoutingTableOptions.RouteInternetIngress != nil {
+		body["route_internet_ingress"] = createVPCRoutingTableOptions.RouteInternetIngress
 	}
 	if createVPCRoutingTableOptions.RouteTransitGatewayIngress != nil {
 		body["route_transit_gateway_ingress"] = createVPCRoutingTableOptions.RouteTransitGatewayIngress
@@ -1916,7 +1933,8 @@ func (vpc *VpcV1) CreateVPCRoutingTableRouteWithContext(ctx context.Context, cre
 }
 
 // DeleteVPCRoutingTableRoute : Delete a VPC routing table route
-// This request deletes a VPC route. This operation cannot be reversed.
+// This request deletes a VPC route. This operation cannot be reversed. Only VPC routes with an `origin` of `user` are
+// allowed to be deleted.
 func (vpc *VpcV1) DeleteVPCRoutingTableRoute(deleteVPCRoutingTableRouteOptions *DeleteVPCRoutingTableRouteOptions) (response *core.DetailedResponse, err error) {
 	return vpc.DeleteVPCRoutingTableRouteWithContext(context.Background(), deleteVPCRoutingTableRouteOptions)
 }
@@ -2035,7 +2053,8 @@ func (vpc *VpcV1) GetVPCRoutingTableRouteWithContext(ctx context.Context, getVPC
 
 // UpdateVPCRoutingTableRoute : Update a VPC routing table route
 // This request updates a VPC route with the information provided in a route patch object. The patch object is
-// structured in the same way as a retrieved VPC route and needs to contain only the information to be updated.
+// structured in the same way as a retrieved VPC route and needs to contain only the information to be updated. Only VPC
+// routes with an `origin` of `user` are allowed to be updated.
 func (vpc *VpcV1) UpdateVPCRoutingTableRoute(updateVPCRoutingTableRouteOptions *UpdateVPCRoutingTableRouteOptions) (result *Route, response *core.DetailedResponse, err error) {
 	return vpc.UpdateVPCRoutingTableRouteWithContext(context.Background(), updateVPCRoutingTableRouteOptions)
 }
@@ -2493,9 +2512,8 @@ func (vpc *VpcV1) GetSubnetNetworkACLWithContext(ctx context.Context, getSubnetN
 	return
 }
 
-// ReplaceSubnetNetworkACL : Attach a network ACL to a subnet
-// This request attaches the network ACL, specified in the request body, to the subnet specified by the subnet
-// identifier in the URL. This replaces the existing network ACL on the subnet.
+// ReplaceSubnetNetworkACL : Replace the network ACL for a subnet
+// This request replaces the existing network ACL for a subnet with the network ACL specified in the request body.
 func (vpc *VpcV1) ReplaceSubnetNetworkACL(replaceSubnetNetworkACLOptions *ReplaceSubnetNetworkACLOptions) (result *NetworkACL, response *core.DetailedResponse, err error) {
 	return vpc.ReplaceSubnetNetworkACLWithContext(context.Background(), replaceSubnetNetworkACLOptions)
 }
@@ -2810,9 +2828,8 @@ func (vpc *VpcV1) GetSubnetRoutingTableWithContext(ctx context.Context, getSubne
 	return
 }
 
-// ReplaceSubnetRoutingTable : Attach a routing table to a subnet
-// This request attaches the routing table, specified in the request body, to the subnet specified by the subnet
-// identifier in the URL. This replaces the existing routing table on the subnet.
+// ReplaceSubnetRoutingTable : Replace the routing table for a subnet
+// This request replaces the existing routing table for a subnet with the routing table specified in the request body.
 //
 // For this request to succeed, the routing table `route_direct_link_ingress`,
 // `route_transit_gateway_ingress`, and `route_vpc_zone_ingress` properties must be `false`.
@@ -3041,6 +3058,9 @@ func (vpc *VpcV1) CreateSubnetReservedIPWithContext(ctx context.Context, createS
 
 // DeleteSubnetReservedIP : Delete a reserved IP
 // This request releases a reserved IP. This operation cannot be reversed.
+//
+// For this request to succeed, the reserved IP must not be required by another resource, such as a network interface
+// for which it is the primary IP. A provider-owned reserved IP is not allowed to be deleted.
 func (vpc *VpcV1) DeleteSubnetReservedIP(deleteSubnetReservedIPOptions *DeleteSubnetReservedIPOptions) (response *core.DetailedResponse, err error) {
 	return vpc.DeleteSubnetReservedIPWithContext(context.Background(), deleteSubnetReservedIPOptions)
 }
@@ -3158,6 +3178,8 @@ func (vpc *VpcV1) GetSubnetReservedIPWithContext(ctx context.Context, getSubnetR
 // UpdateSubnetReservedIP : Update a reserved IP
 // This request updates a reserved IP with the information in a provided reserved IP patch. The reserved IP patch object
 // is structured in the same way as a retrieved reserved IP and contains only the information to be updated.
+//
+// A provider-owned reserved IP is not allowed to be updated.
 func (vpc *VpcV1) UpdateSubnetReservedIP(updateSubnetReservedIPOptions *UpdateSubnetReservedIPOptions) (result *ReservedIP, response *core.DetailedResponse, err error) {
 	return vpc.UpdateSubnetReservedIPWithContext(context.Background(), updateSubnetReservedIPOptions)
 }
@@ -3228,7 +3250,7 @@ func (vpc *VpcV1) UpdateSubnetReservedIPWithContext(ctx context.Context, updateS
 
 // ListImages : List all images
 // This request lists all images available in the region. An image provides source data for a volume. Images are either
-// system-provided, or created from another source, such as importing from object storage.
+// system-provided, or created from another source, such as importing from Cloud Object Storage.
 //
 // The images will be sorted by their `created_at` property values, with the newest first. Images with identical
 // `created_at` values will be secondarily sorted by ascending `id` property values.
@@ -3371,8 +3393,9 @@ func (vpc *VpcV1) CreateImageWithContext(ctx context.Context, createImageOptions
 // DeleteImage : Delete an image
 // This request deletes an image. This operation cannot be reversed. A system-provided image is not allowed to be
 // deleted. Additionally, an image cannot be deleted if it:
-// - has a `status` of `tentative` or `deleting`
-// - has a `status` of `pending` with a `status_reasons` code of `image_request_in_progress`.
+// - has a `status` of `deleting`
+// - has a `status` of `pending` with a `status_reasons` code of `image_request_in_progress`
+// - has `catalog_offering.managed` set to `true`.
 func (vpc *VpcV1) DeleteImage(deleteImageOptions *DeleteImageOptions) (response *core.DetailedResponse, err error) {
 	return vpc.DeleteImageWithContext(context.Background(), deleteImageOptions)
 }
@@ -4006,8 +4029,8 @@ func (vpc *VpcV1) UpdateKeyWithContext(ctx context.Context, updateKeyOptions *Up
 }
 
 // ListInstanceProfiles : List all instance profiles
-// This request lists provisionable instance profiles in the region. An instance profile specifies the performance
-// characteristics and pricing model for an instance.
+// This request lists provisionable [instance profiles](https://cloud.ibm.com/docs/vpc?topic=vpc-profiles) in the
+// region. An instance profile specifies the performance characteristics and pricing model for an instance.
 func (vpc *VpcV1) ListInstanceProfiles(listInstanceProfilesOptions *ListInstanceProfilesOptions) (result *InstanceProfileCollection, response *core.DetailedResponse, err error) {
 	return vpc.ListInstanceProfilesWithContext(context.Background(), listInstanceProfilesOptions)
 }
@@ -8276,8 +8299,8 @@ func (vpc *VpcV1) UpdateDedicatedHostGroupWithContext(ctx context.Context, updat
 }
 
 // ListDedicatedHostProfiles : List all dedicated host profiles
-// This request lists all provisionable dedicated host profiles in the region. A dedicated host profile specifies the
-// hardware characteristics for a dedicated host.
+// This request lists provisionable [dedicated host profiles](https://cloud.ibm.com/docs/vpc?topic=vpc-dh-profiles) in
+// the region. A dedicated host profile specifies the hardware characteristics for a dedicated host.
 func (vpc *VpcV1) ListDedicatedHostProfiles(listDedicatedHostProfilesOptions *ListDedicatedHostProfilesOptions) (result *DedicatedHostProfileCollection, response *core.DetailedResponse, err error) {
 	return vpc.ListDedicatedHostProfilesWithContext(context.Background(), listDedicatedHostProfilesOptions)
 }
@@ -9062,6 +9085,158 @@ func (vpc *VpcV1) CreateBackupPolicyWithContext(ctx context.Context, createBacku
 	}
 	if rawResponse != nil {
 		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalBackupPolicy)
+		if err != nil {
+			return
+		}
+		response.Result = result
+	}
+
+	return
+}
+
+// ListBackupPolicyJobs : List all jobs for a backup policy
+// This request retrieves all jobs for a backup policy. A backup job represents the execution of a backup policy plan
+// for a resource matching the policy's criteria.
+func (vpc *VpcV1) ListBackupPolicyJobs(listBackupPolicyJobsOptions *ListBackupPolicyJobsOptions) (result *BackupPolicyJobCollection, response *core.DetailedResponse, err error) {
+	return vpc.ListBackupPolicyJobsWithContext(context.Background(), listBackupPolicyJobsOptions)
+}
+
+// ListBackupPolicyJobsWithContext is an alternate form of the ListBackupPolicyJobs method which supports a Context parameter
+func (vpc *VpcV1) ListBackupPolicyJobsWithContext(ctx context.Context, listBackupPolicyJobsOptions *ListBackupPolicyJobsOptions) (result *BackupPolicyJobCollection, response *core.DetailedResponse, err error) {
+	err = core.ValidateNotNil(listBackupPolicyJobsOptions, "listBackupPolicyJobsOptions cannot be nil")
+	if err != nil {
+		return
+	}
+	err = core.ValidateStruct(listBackupPolicyJobsOptions, "listBackupPolicyJobsOptions")
+	if err != nil {
+		return
+	}
+
+	pathParamsMap := map[string]string{
+		"backup_policy_id": *listBackupPolicyJobsOptions.BackupPolicyID,
+	}
+
+	builder := core.NewRequestBuilder(core.GET)
+	builder = builder.WithContext(ctx)
+	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
+	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/backup_policies/{backup_policy_id}/jobs`, pathParamsMap)
+	if err != nil {
+		return
+	}
+
+	for headerName, headerValue := range listBackupPolicyJobsOptions.Headers {
+		builder.AddHeader(headerName, headerValue)
+	}
+
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListBackupPolicyJobs")
+	for headerName, headerValue := range sdkHeaders {
+		builder.AddHeader(headerName, headerValue)
+	}
+	builder.AddHeader("Accept", "application/json")
+
+	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
+	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
+	if listBackupPolicyJobsOptions.Status != nil {
+		builder.AddQuery("status", fmt.Sprint(*listBackupPolicyJobsOptions.Status))
+	}
+	if listBackupPolicyJobsOptions.BackupPolicyPlanID != nil {
+		builder.AddQuery("backup_policy_plan.id", fmt.Sprint(*listBackupPolicyJobsOptions.BackupPolicyPlanID))
+	}
+	if listBackupPolicyJobsOptions.Start != nil {
+		builder.AddQuery("start", fmt.Sprint(*listBackupPolicyJobsOptions.Start))
+	}
+	if listBackupPolicyJobsOptions.Limit != nil {
+		builder.AddQuery("limit", fmt.Sprint(*listBackupPolicyJobsOptions.Limit))
+	}
+	if listBackupPolicyJobsOptions.Sort != nil {
+		builder.AddQuery("sort", fmt.Sprint(*listBackupPolicyJobsOptions.Sort))
+	}
+	if listBackupPolicyJobsOptions.SourceID != nil {
+		builder.AddQuery("source.id", fmt.Sprint(*listBackupPolicyJobsOptions.SourceID))
+	}
+	if listBackupPolicyJobsOptions.TargetSnapshotsID != nil {
+		builder.AddQuery("target_snapshots[].id", fmt.Sprint(*listBackupPolicyJobsOptions.TargetSnapshotsID))
+	}
+	if listBackupPolicyJobsOptions.TargetSnapshotsCRN != nil {
+		builder.AddQuery("target_snapshots[].crn", fmt.Sprint(*listBackupPolicyJobsOptions.TargetSnapshotsCRN))
+	}
+
+	request, err := builder.Build()
+	if err != nil {
+		return
+	}
+
+	var rawResponse map[string]json.RawMessage
+	response, err = vpc.Service.Request(request, &rawResponse)
+	if err != nil {
+		return
+	}
+	if rawResponse != nil {
+		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalBackupPolicyJobCollection)
+		if err != nil {
+			return
+		}
+		response.Result = result
+	}
+
+	return
+}
+
+// GetBackupPolicyJob : Retrieve a backup policy job
+// This request retrieves a single backup policy job specified by the identifier in the URL.
+func (vpc *VpcV1) GetBackupPolicyJob(getBackupPolicyJobOptions *GetBackupPolicyJobOptions) (result *BackupPolicyJob, response *core.DetailedResponse, err error) {
+	return vpc.GetBackupPolicyJobWithContext(context.Background(), getBackupPolicyJobOptions)
+}
+
+// GetBackupPolicyJobWithContext is an alternate form of the GetBackupPolicyJob method which supports a Context parameter
+func (vpc *VpcV1) GetBackupPolicyJobWithContext(ctx context.Context, getBackupPolicyJobOptions *GetBackupPolicyJobOptions) (result *BackupPolicyJob, response *core.DetailedResponse, err error) {
+	err = core.ValidateNotNil(getBackupPolicyJobOptions, "getBackupPolicyJobOptions cannot be nil")
+	if err != nil {
+		return
+	}
+	err = core.ValidateStruct(getBackupPolicyJobOptions, "getBackupPolicyJobOptions")
+	if err != nil {
+		return
+	}
+
+	pathParamsMap := map[string]string{
+		"backup_policy_id": *getBackupPolicyJobOptions.BackupPolicyID,
+		"id":               *getBackupPolicyJobOptions.ID,
+	}
+
+	builder := core.NewRequestBuilder(core.GET)
+	builder = builder.WithContext(ctx)
+	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
+	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/backup_policies/{backup_policy_id}/jobs/{id}`, pathParamsMap)
+	if err != nil {
+		return
+	}
+
+	for headerName, headerValue := range getBackupPolicyJobOptions.Headers {
+		builder.AddHeader(headerName, headerValue)
+	}
+
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetBackupPolicyJob")
+	for headerName, headerValue := range sdkHeaders {
+		builder.AddHeader(headerName, headerValue)
+	}
+	builder.AddHeader("Accept", "application/json")
+
+	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
+	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
+
+	request, err := builder.Build()
+	if err != nil {
+		return
+	}
+
+	var rawResponse map[string]json.RawMessage
+	response, err = vpc.Service.Request(request, &rawResponse)
+	if err != nil {
+		return
+	}
+	if rawResponse != nil {
+		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalBackupPolicyJob)
 		if err != nil {
 			return
 		}
@@ -9972,8 +10147,9 @@ func (vpc *VpcV1) UpdatePlacementGroupWithContext(ctx context.Context, updatePla
 }
 
 // ListBareMetalServerProfiles : List all bare metal server profiles
-// This request lists all bare metal server profiles available in the region. A bare metal server profile specifies the
-// performance characteristics and pricing model for a bare metal server.
+// This request lists all [bare metal server
+// profiles](https://cloud.ibm.com/docs/vpc?topic=vpc-bare-metal-servers-profile) available in the region. A bare metal
+// server profile specifies the performance characteristics and pricing model for a bare metal server.
 func (vpc *VpcV1) ListBareMetalServerProfiles(listBareMetalServerProfilesOptions *ListBareMetalServerProfilesOptions) (result *BareMetalServerProfileCollection, response *core.DetailedResponse, err error) {
 	return vpc.ListBareMetalServerProfilesWithContext(context.Background(), listBareMetalServerProfilesOptions)
 }
@@ -11135,6 +11311,136 @@ func (vpc *VpcV1) AddBareMetalServerNetworkInterfaceFloatingIPWithContext(ctx co
 	return
 }
 
+// ListBareMetalServerNetworkInterfaceIps : List all reserved IPs bound to a network interface
+// This request lists all reserved IPs bound to a network interface.
+func (vpc *VpcV1) ListBareMetalServerNetworkInterfaceIps(listBareMetalServerNetworkInterfaceIpsOptions *ListBareMetalServerNetworkInterfaceIpsOptions) (result *ReservedIPCollectionNetworkInterfaceContext, response *core.DetailedResponse, err error) {
+	return vpc.ListBareMetalServerNetworkInterfaceIpsWithContext(context.Background(), listBareMetalServerNetworkInterfaceIpsOptions)
+}
+
+// ListBareMetalServerNetworkInterfaceIpsWithContext is an alternate form of the ListBareMetalServerNetworkInterfaceIps method which supports a Context parameter
+func (vpc *VpcV1) ListBareMetalServerNetworkInterfaceIpsWithContext(ctx context.Context, listBareMetalServerNetworkInterfaceIpsOptions *ListBareMetalServerNetworkInterfaceIpsOptions) (result *ReservedIPCollectionNetworkInterfaceContext, response *core.DetailedResponse, err error) {
+	err = core.ValidateNotNil(listBareMetalServerNetworkInterfaceIpsOptions, "listBareMetalServerNetworkInterfaceIpsOptions cannot be nil")
+	if err != nil {
+		return
+	}
+	err = core.ValidateStruct(listBareMetalServerNetworkInterfaceIpsOptions, "listBareMetalServerNetworkInterfaceIpsOptions")
+	if err != nil {
+		return
+	}
+
+	pathParamsMap := map[string]string{
+		"bare_metal_server_id": *listBareMetalServerNetworkInterfaceIpsOptions.BareMetalServerID,
+		"network_interface_id": *listBareMetalServerNetworkInterfaceIpsOptions.NetworkInterfaceID,
+	}
+
+	builder := core.NewRequestBuilder(core.GET)
+	builder = builder.WithContext(ctx)
+	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
+	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/bare_metal_servers/{bare_metal_server_id}/network_interfaces/{network_interface_id}/ips`, pathParamsMap)
+	if err != nil {
+		return
+	}
+
+	for headerName, headerValue := range listBareMetalServerNetworkInterfaceIpsOptions.Headers {
+		builder.AddHeader(headerName, headerValue)
+	}
+
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListBareMetalServerNetworkInterfaceIps")
+	for headerName, headerValue := range sdkHeaders {
+		builder.AddHeader(headerName, headerValue)
+	}
+	builder.AddHeader("Accept", "application/json")
+
+	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
+	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
+
+	request, err := builder.Build()
+	if err != nil {
+		return
+	}
+
+	var rawResponse map[string]json.RawMessage
+	response, err = vpc.Service.Request(request, &rawResponse)
+	if err != nil {
+		return
+	}
+	if rawResponse != nil {
+		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalReservedIPCollectionNetworkInterfaceContext)
+		if err != nil {
+			return
+		}
+		response.Result = result
+	}
+
+	return
+}
+
+// GetBareMetalServerNetworkInterfaceIP : Retrieve bound reserved IP
+// This request a retrieves the specified reserved IP address if it is bound to the network interface and bare metal
+// server specified in the URL.
+func (vpc *VpcV1) GetBareMetalServerNetworkInterfaceIP(getBareMetalServerNetworkInterfaceIPOptions *GetBareMetalServerNetworkInterfaceIPOptions) (result *ReservedIP, response *core.DetailedResponse, err error) {
+	return vpc.GetBareMetalServerNetworkInterfaceIPWithContext(context.Background(), getBareMetalServerNetworkInterfaceIPOptions)
+}
+
+// GetBareMetalServerNetworkInterfaceIPWithContext is an alternate form of the GetBareMetalServerNetworkInterfaceIP method which supports a Context parameter
+func (vpc *VpcV1) GetBareMetalServerNetworkInterfaceIPWithContext(ctx context.Context, getBareMetalServerNetworkInterfaceIPOptions *GetBareMetalServerNetworkInterfaceIPOptions) (result *ReservedIP, response *core.DetailedResponse, err error) {
+	err = core.ValidateNotNil(getBareMetalServerNetworkInterfaceIPOptions, "getBareMetalServerNetworkInterfaceIPOptions cannot be nil")
+	if err != nil {
+		return
+	}
+	err = core.ValidateStruct(getBareMetalServerNetworkInterfaceIPOptions, "getBareMetalServerNetworkInterfaceIPOptions")
+	if err != nil {
+		return
+	}
+
+	pathParamsMap := map[string]string{
+		"bare_metal_server_id": *getBareMetalServerNetworkInterfaceIPOptions.BareMetalServerID,
+		"network_interface_id": *getBareMetalServerNetworkInterfaceIPOptions.NetworkInterfaceID,
+		"id":                   *getBareMetalServerNetworkInterfaceIPOptions.ID,
+	}
+
+	builder := core.NewRequestBuilder(core.GET)
+	builder = builder.WithContext(ctx)
+	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
+	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/bare_metal_servers/{bare_metal_server_id}/network_interfaces/{network_interface_id}/ips/{id}`, pathParamsMap)
+	if err != nil {
+		return
+	}
+
+	for headerName, headerValue := range getBareMetalServerNetworkInterfaceIPOptions.Headers {
+		builder.AddHeader(headerName, headerValue)
+	}
+
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetBareMetalServerNetworkInterfaceIP")
+	for headerName, headerValue := range sdkHeaders {
+		builder.AddHeader(headerName, headerValue)
+	}
+	builder.AddHeader("Accept", "application/json")
+
+	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
+	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
+
+	request, err := builder.Build()
+	if err != nil {
+		return
+	}
+
+	var rawResponse map[string]json.RawMessage
+	response, err = vpc.Service.Request(request, &rawResponse)
+	if err != nil {
+		return
+	}
+	if rawResponse != nil {
+		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalReservedIP)
+		if err != nil {
+			return
+		}
+		response.Result = result
+	}
+
+	return
+}
+
 // DeleteBareMetalServer : Delete a bare metal server
 // This request deletes a bare metal server. This operation cannot be reversed. Any floating IPs associated with the
 // bare metal server's network interfaces are implicitly disassociated.
@@ -11550,8 +11856,8 @@ func (vpc *VpcV1) StopBareMetalServerWithContext(ctx context.Context, stopBareMe
 }
 
 // ListVolumeProfiles : List all volume profiles
-// This request lists all volume profiles available in the region. A volume profile specifies the performance
-// characteristics and pricing model for a volume.
+// This request lists all [volume profiles](https://cloud.ibm.com/docs/vpc?topic=vpc-block-storage-profiles) available
+// in the region. A volume profile specifies the performance characteristics and pricing model for a volume.
 func (vpc *VpcV1) ListVolumeProfiles(listVolumeProfilesOptions *ListVolumeProfilesOptions) (result *VolumeProfileCollection, response *core.DetailedResponse, err error) {
 	return vpc.ListVolumeProfilesWithContext(context.Background(), listVolumeProfilesOptions)
 }
@@ -13362,8 +13668,9 @@ func (vpc *VpcV1) ListNetworkAclsWithContext(ctx context.Context, listNetworkAcl
 }
 
 // CreateNetworkACL : Create a network ACL
-// This request creates a new network ACL from a network ACL prototype object. The prototype object is structured in the
-// same way as a retrieved network ACL, and contains the information necessary to create the new network ACL.
+// This request creates a new stateless network ACL from a network ACL prototype object. The prototype object is
+// structured in the same way as a retrieved network ACL, and contains the information necessary to create the new
+// network ACL.
 func (vpc *VpcV1) CreateNetworkACL(createNetworkACLOptions *CreateNetworkACLOptions) (result *NetworkACL, response *core.DetailedResponse, err error) {
 	return vpc.CreateNetworkACLWithContext(context.Background(), createNetworkACLOptions)
 }
@@ -14681,35 +14988,36 @@ func (vpc *VpcV1) ListSecurityGroupTargetsWithContext(ctx context.Context, listS
 	return
 }
 
-// RemoveSecurityGroupTarget : Remove a target from a security group
+// DeleteSecurityGroupTargetBinding : Remove a target from a security group
 // This request removes a target from a security group. For this request to succeed, the target must be attached to at
 // least one other security group.  The specified target identifier can be:
 //
-// - A network interface identifier
+// - An instance network interface identifier
+// - A bare metal server network interface identifier
 // - A VPN server identifier
 // - An application load balancer identifier
 // - An endpoint gateway identifier
 //
 // Security groups are stateful, so any changes to a target's security groups are applied to new connections. Existing
 // connections are not affected.
-func (vpc *VpcV1) RemoveSecurityGroupTarget(removeSecurityGroupTargetOptions *RemoveSecurityGroupTargetOptions) (response *core.DetailedResponse, err error) {
-	return vpc.RemoveSecurityGroupTargetWithContext(context.Background(), removeSecurityGroupTargetOptions)
+func (vpc *VpcV1) DeleteSecurityGroupTargetBinding(deleteSecurityGroupTargetBindingOptions *DeleteSecurityGroupTargetBindingOptions) (response *core.DetailedResponse, err error) {
+	return vpc.DeleteSecurityGroupTargetBindingWithContext(context.Background(), deleteSecurityGroupTargetBindingOptions)
 }
 
-// RemoveSecurityGroupTargetWithContext is an alternate form of the RemoveSecurityGroupTarget method which supports a Context parameter
-func (vpc *VpcV1) RemoveSecurityGroupTargetWithContext(ctx context.Context, removeSecurityGroupTargetOptions *RemoveSecurityGroupTargetOptions) (response *core.DetailedResponse, err error) {
-	err = core.ValidateNotNil(removeSecurityGroupTargetOptions, "removeSecurityGroupTargetOptions cannot be nil")
+// DeleteSecurityGroupTargetBindingWithContext is an alternate form of the DeleteSecurityGroupTargetBinding method which supports a Context parameter
+func (vpc *VpcV1) DeleteSecurityGroupTargetBindingWithContext(ctx context.Context, deleteSecurityGroupTargetBindingOptions *DeleteSecurityGroupTargetBindingOptions) (response *core.DetailedResponse, err error) {
+	err = core.ValidateNotNil(deleteSecurityGroupTargetBindingOptions, "deleteSecurityGroupTargetBindingOptions cannot be nil")
 	if err != nil {
 		return
 	}
-	err = core.ValidateStruct(removeSecurityGroupTargetOptions, "removeSecurityGroupTargetOptions")
+	err = core.ValidateStruct(deleteSecurityGroupTargetBindingOptions, "deleteSecurityGroupTargetBindingOptions")
 	if err != nil {
 		return
 	}
 
 	pathParamsMap := map[string]string{
-		"security_group_id": *removeSecurityGroupTargetOptions.SecurityGroupID,
-		"id":                *removeSecurityGroupTargetOptions.ID,
+		"security_group_id": *deleteSecurityGroupTargetBindingOptions.SecurityGroupID,
+		"id":                *deleteSecurityGroupTargetBindingOptions.ID,
 	}
 
 	builder := core.NewRequestBuilder(core.DELETE)
@@ -14720,11 +15028,11 @@ func (vpc *VpcV1) RemoveSecurityGroupTargetWithContext(ctx context.Context, remo
 		return
 	}
 
-	for headerName, headerValue := range removeSecurityGroupTargetOptions.Headers {
+	for headerName, headerValue := range deleteSecurityGroupTargetBindingOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "RemoveSecurityGroupTarget")
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteSecurityGroupTargetBinding")
 	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
@@ -14807,34 +15115,35 @@ func (vpc *VpcV1) GetSecurityGroupTargetWithContext(ctx context.Context, getSecu
 	return
 }
 
-// AddSecurityGroupTarget : Add a target to a security group
+// CreateSecurityGroupTargetBinding : Add a target to a security group
 // This request adds a resource to an existing security group. The specified target identifier can be:
 //
-// - A network interface identifier
+// - An instance network interface identifier
+// - A bare metal server network interface identifier
 // - A VPN server identifier
 // - An application load balancer identifier
 // - An endpoint gateway identifier
 //
 // When a target is added to a security group, the security group rules are applied to the target. A request body is not
 // required, and if provided, is ignored.
-func (vpc *VpcV1) AddSecurityGroupTarget(addSecurityGroupTargetOptions *AddSecurityGroupTargetOptions) (result SecurityGroupTargetReferenceIntf, response *core.DetailedResponse, err error) {
-	return vpc.AddSecurityGroupTargetWithContext(context.Background(), addSecurityGroupTargetOptions)
+func (vpc *VpcV1) CreateSecurityGroupTargetBinding(createSecurityGroupTargetBindingOptions *CreateSecurityGroupTargetBindingOptions) (result SecurityGroupTargetReferenceIntf, response *core.DetailedResponse, err error) {
+	return vpc.CreateSecurityGroupTargetBindingWithContext(context.Background(), createSecurityGroupTargetBindingOptions)
 }
 
-// AddSecurityGroupTargetWithContext is an alternate form of the AddSecurityGroupTarget method which supports a Context parameter
-func (vpc *VpcV1) AddSecurityGroupTargetWithContext(ctx context.Context, addSecurityGroupTargetOptions *AddSecurityGroupTargetOptions) (result SecurityGroupTargetReferenceIntf, response *core.DetailedResponse, err error) {
-	err = core.ValidateNotNil(addSecurityGroupTargetOptions, "addSecurityGroupTargetOptions cannot be nil")
+// CreateSecurityGroupTargetBindingWithContext is an alternate form of the CreateSecurityGroupTargetBinding method which supports a Context parameter
+func (vpc *VpcV1) CreateSecurityGroupTargetBindingWithContext(ctx context.Context, createSecurityGroupTargetBindingOptions *CreateSecurityGroupTargetBindingOptions) (result SecurityGroupTargetReferenceIntf, response *core.DetailedResponse, err error) {
+	err = core.ValidateNotNil(createSecurityGroupTargetBindingOptions, "createSecurityGroupTargetBindingOptions cannot be nil")
 	if err != nil {
 		return
 	}
-	err = core.ValidateStruct(addSecurityGroupTargetOptions, "addSecurityGroupTargetOptions")
+	err = core.ValidateStruct(createSecurityGroupTargetBindingOptions, "createSecurityGroupTargetBindingOptions")
 	if err != nil {
 		return
 	}
 
 	pathParamsMap := map[string]string{
-		"security_group_id": *addSecurityGroupTargetOptions.SecurityGroupID,
-		"id":                *addSecurityGroupTargetOptions.ID,
+		"security_group_id": *createSecurityGroupTargetBindingOptions.SecurityGroupID,
+		"id":                *createSecurityGroupTargetBindingOptions.ID,
 	}
 
 	builder := core.NewRequestBuilder(core.PUT)
@@ -14845,11 +15154,11 @@ func (vpc *VpcV1) AddSecurityGroupTargetWithContext(ctx context.Context, addSecu
 		return
 	}
 
-	for headerName, headerValue := range addSecurityGroupTargetOptions.Headers {
+	for headerName, headerValue := range createSecurityGroupTargetBindingOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "AddSecurityGroupTarget")
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateSecurityGroupTargetBinding")
 	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
@@ -15708,6 +16017,9 @@ func (vpc *VpcV1) ListVPNGatewaysWithContext(ctx context.Context, listVPNGateway
 	if listVPNGatewaysOptions.ResourceGroupID != nil {
 		builder.AddQuery("resource_group.id", fmt.Sprint(*listVPNGatewaysOptions.ResourceGroupID))
 	}
+	if listVPNGatewaysOptions.Sort != nil {
+		builder.AddQuery("sort", fmt.Sprint(*listVPNGatewaysOptions.Sort))
+	}
 	if listVPNGatewaysOptions.Mode != nil {
 		builder.AddQuery("mode", fmt.Sprint(*listVPNGatewaysOptions.Mode))
 	}
@@ -16309,12 +16621,12 @@ func (vpc *VpcV1) UpdateVPNGatewayConnectionWithContext(ctx context.Context, upd
 // This request lists all local CIDRs for a VPN gateway connection.
 //
 // This request is only supported for policy mode VPN gateways.
-func (vpc *VpcV1) ListVPNGatewayConnectionLocalCIDRs(listVPNGatewayConnectionLocalCIDRsOptions *ListVPNGatewayConnectionLocalCIDRsOptions) (result *VPNGatewayConnectionLocalCidRs, response *core.DetailedResponse, err error) {
+func (vpc *VpcV1) ListVPNGatewayConnectionLocalCIDRs(listVPNGatewayConnectionLocalCIDRsOptions *ListVPNGatewayConnectionLocalCIDRsOptions) (result *VPNGatewayConnectionLocalCIDRs, response *core.DetailedResponse, err error) {
 	return vpc.ListVPNGatewayConnectionLocalCIDRsWithContext(context.Background(), listVPNGatewayConnectionLocalCIDRsOptions)
 }
 
 // ListVPNGatewayConnectionLocalCIDRsWithContext is an alternate form of the ListVPNGatewayConnectionLocalCIDRs method which supports a Context parameter
-func (vpc *VpcV1) ListVPNGatewayConnectionLocalCIDRsWithContext(ctx context.Context, listVPNGatewayConnectionLocalCIDRsOptions *ListVPNGatewayConnectionLocalCIDRsOptions) (result *VPNGatewayConnectionLocalCidRs, response *core.DetailedResponse, err error) {
+func (vpc *VpcV1) ListVPNGatewayConnectionLocalCIDRsWithContext(ctx context.Context, listVPNGatewayConnectionLocalCIDRsOptions *ListVPNGatewayConnectionLocalCIDRsOptions) (result *VPNGatewayConnectionLocalCIDRs, response *core.DetailedResponse, err error) {
 	err = core.ValidateNotNil(listVPNGatewayConnectionLocalCIDRsOptions, "listVPNGatewayConnectionLocalCIDRsOptions cannot be nil")
 	if err != nil {
 		return
@@ -16361,7 +16673,7 @@ func (vpc *VpcV1) ListVPNGatewayConnectionLocalCIDRsWithContext(ctx context.Cont
 		return
 	}
 	if rawResponse != nil {
-		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalVPNGatewayConnectionLocalCidRs)
+		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalVPNGatewayConnectionLocalCIDRs)
 		if err != nil {
 			return
 		}
@@ -16544,12 +16856,12 @@ func (vpc *VpcV1) AddVPNGatewayConnectionLocalCIDRWithContext(ctx context.Contex
 // This request lists all peer CIDRs for a VPN gateway connection.
 //
 // This request is only supported for policy mode VPN gateways.
-func (vpc *VpcV1) ListVPNGatewayConnectionPeerCIDRs(listVPNGatewayConnectionPeerCIDRsOptions *ListVPNGatewayConnectionPeerCIDRsOptions) (result *VPNGatewayConnectionPeerCidRs, response *core.DetailedResponse, err error) {
+func (vpc *VpcV1) ListVPNGatewayConnectionPeerCIDRs(listVPNGatewayConnectionPeerCIDRsOptions *ListVPNGatewayConnectionPeerCIDRsOptions) (result *VPNGatewayConnectionPeerCIDRs, response *core.DetailedResponse, err error) {
 	return vpc.ListVPNGatewayConnectionPeerCIDRsWithContext(context.Background(), listVPNGatewayConnectionPeerCIDRsOptions)
 }
 
 // ListVPNGatewayConnectionPeerCIDRsWithContext is an alternate form of the ListVPNGatewayConnectionPeerCIDRs method which supports a Context parameter
-func (vpc *VpcV1) ListVPNGatewayConnectionPeerCIDRsWithContext(ctx context.Context, listVPNGatewayConnectionPeerCIDRsOptions *ListVPNGatewayConnectionPeerCIDRsOptions) (result *VPNGatewayConnectionPeerCidRs, response *core.DetailedResponse, err error) {
+func (vpc *VpcV1) ListVPNGatewayConnectionPeerCIDRsWithContext(ctx context.Context, listVPNGatewayConnectionPeerCIDRsOptions *ListVPNGatewayConnectionPeerCIDRsOptions) (result *VPNGatewayConnectionPeerCIDRs, response *core.DetailedResponse, err error) {
 	err = core.ValidateNotNil(listVPNGatewayConnectionPeerCIDRsOptions, "listVPNGatewayConnectionPeerCIDRsOptions cannot be nil")
 	if err != nil {
 		return
@@ -16596,7 +16908,7 @@ func (vpc *VpcV1) ListVPNGatewayConnectionPeerCIDRsWithContext(ctx context.Conte
 		return
 	}
 	if rawResponse != nil {
-		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalVPNGatewayConnectionPeerCidRs)
+		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalVPNGatewayConnectionPeerCIDRs)
 		if err != nil {
 			return
 		}
@@ -18098,6 +18410,9 @@ func (vpc *VpcV1) DeleteLoadBalancerWithContext(ctx context.Context, deleteLoadB
 	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
+	if deleteLoadBalancerOptions.IfMatch != nil {
+		builder.AddHeader("If-Match", fmt.Sprint(*deleteLoadBalancerOptions.IfMatch))
+	}
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
@@ -18176,7 +18491,9 @@ func (vpc *VpcV1) GetLoadBalancerWithContext(ctx context.Context, getLoadBalance
 }
 
 // UpdateLoadBalancer : Update a load balancer
-// This request updates a load balancer.
+// This request updates a load balancer with the information in a provided load balancer patch. The load balancer patch
+// object is structured in the same way as a retrieved load balancer and contains only the information to be updated. A
+// load balancer can only be updated if its `provisioning_status` is `active`.
 func (vpc *VpcV1) UpdateLoadBalancer(updateLoadBalancerOptions *UpdateLoadBalancerOptions) (result *LoadBalancer, response *core.DetailedResponse, err error) {
 	return vpc.UpdateLoadBalancerWithContext(context.Background(), updateLoadBalancerOptions)
 }
@@ -18214,6 +18531,9 @@ func (vpc *VpcV1) UpdateLoadBalancerWithContext(ctx context.Context, updateLoadB
 	}
 	builder.AddHeader("Accept", "application/json")
 	builder.AddHeader("Content-Type", "application/merge-patch+json")
+	if updateLoadBalancerOptions.IfMatch != nil {
+		builder.AddHeader("If-Match", fmt.Sprint(*updateLoadBalancerOptions.IfMatch))
+	}
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
@@ -21169,44 +21489,6 @@ func (options *AddInstanceNetworkInterfaceFloatingIPOptions) SetHeaders(param ma
 	return options
 }
 
-// AddSecurityGroupTargetOptions : The AddSecurityGroupTarget options.
-type AddSecurityGroupTargetOptions struct {
-	// The security group identifier.
-	SecurityGroupID *string `json:"security_group_id" validate:"required,ne="`
-
-	// The security group target identifier.
-	ID *string `json:"id" validate:"required,ne="`
-
-	// Allows users to set headers on API requests
-	Headers map[string]string
-}
-
-// NewAddSecurityGroupTargetOptions : Instantiate AddSecurityGroupTargetOptions
-func (*VpcV1) NewAddSecurityGroupTargetOptions(securityGroupID string, id string) *AddSecurityGroupTargetOptions {
-	return &AddSecurityGroupTargetOptions{
-		SecurityGroupID: core.StringPtr(securityGroupID),
-		ID:              core.StringPtr(id),
-	}
-}
-
-// SetSecurityGroupID : Allow user to set SecurityGroupID
-func (_options *AddSecurityGroupTargetOptions) SetSecurityGroupID(securityGroupID string) *AddSecurityGroupTargetOptions {
-	_options.SecurityGroupID = core.StringPtr(securityGroupID)
-	return _options
-}
-
-// SetID : Allow user to set ID
-func (_options *AddSecurityGroupTargetOptions) SetID(id string) *AddSecurityGroupTargetOptions {
-	_options.ID = core.StringPtr(id)
-	return _options
-}
-
-// SetHeaders : Allow user to set Headers
-func (options *AddSecurityGroupTargetOptions) SetHeaders(param map[string]string) *AddSecurityGroupTargetOptions {
-	options.Headers = param
-	return options
-}
-
 // AddVPNGatewayConnectionLocalCIDROptions : The AddVPNGatewayConnectionLocalCIDR options.
 type AddVPNGatewayConnectionLocalCIDROptions struct {
 	// The VPN gateway identifier.
@@ -21342,10 +21624,10 @@ type AddressPrefix struct {
 
 	// Indicates whether this is the default prefix for this zone in this VPC. If a default prefix was automatically
 	// created when the VPC was created, the prefix is automatically named using a hyphenated list of randomly-selected
-	// words, but may be updated with a user-specified name.
+	// words, but may be changed.
 	IsDefault *bool `json:"is_default" validate:"required"`
 
-	// The user-defined name for this address prefix. Names must be unique within the VPC the address prefix resides in.
+	// The name for this address prefix. The name must not be used by another address prefix for the VPC.
 	Name *string `json:"name" validate:"required"`
 
 	// The zone this address prefix resides in.
@@ -21490,7 +21772,7 @@ type AddressPrefixPatch struct {
 	// Updating to false removes the default prefix for this zone in this VPC.
 	IsDefault *bool `json:"is_default,omitempty"`
 
-	// The user-defined name for this address prefix. Names must be unique within the VPC the address prefix resides in.
+	// The name for this address prefix. The name must not be used by another address prefix for the VPC.
 	Name *string `json:"name,omitempty"`
 }
 
@@ -21553,7 +21835,7 @@ type BackupPolicy struct {
 	// be subject to the backup policy.
 	MatchUserTags []string `json:"match_user_tags" validate:"required"`
 
-	// The unique user-defined name for this backup policy.
+	// The name for this backup policy. The name is unique across all backup policies in the region.
 	Name *string `json:"name" validate:"required"`
 
 	// The plans for the backup policy.
@@ -21737,13 +22019,359 @@ func UnmarshalBackupPolicyCollectionNext(m map[string]json.RawMessage, result in
 	return
 }
 
+// BackupPolicyJob : BackupPolicyJob struct
+type BackupPolicyJob struct {
+	// Indicates whether this backup policy job will be automatically deleted after it completes. At present, this is
+	// always `true`, but may be modifiable in the future.
+	AutoDelete *bool `json:"auto_delete" validate:"required"`
+
+	// If `auto_delete` is `true`, the days after completion that this backup policy job will be deleted. This value may be
+	// modifiable in the future.
+	AutoDeleteAfter *int64 `json:"auto_delete_after" validate:"required"`
+
+	// The backup policy plan operated this backup policy job (may be
+	// [deleted](https://cloud.ibm.com/apidocs/vpc#deleted-resources)).
+	BackupPolicyPlan *BackupPolicyPlanReference `json:"backup_policy_plan" validate:"required"`
+
+	// The date and time that the backup policy job was completed.
+	//
+	// If absent, the backup policy job has not yet completed.
+	CompletedAt *strfmt.DateTime `json:"completed_at,omitempty"`
+
+	// The date and time that the backup policy job was created.
+	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
+
+	// The URL for this backup policy job.
+	Href *string `json:"href" validate:"required"`
+
+	// The unique identifier for this backup policy job.
+	ID *string `json:"id" validate:"required"`
+
+	// The type of backup policy job.
+	//
+	// The enumerated values for this property will expand in the future. When processing this property, check for and log
+	// unknown values. Optionally halt processing and surface the error, or bypass the backup policy job on which the
+	// unexpected property value was encountered.
+	JobType *string `json:"job_type" validate:"required"`
+
+	// The resource type.
+	ResourceType *string `json:"resource_type" validate:"required"`
+
+	// The source this backup was created from (may be
+	// [deleted](https://cloud.ibm.com/apidocs/vpc#deleted-resources)).
+	Source BackupPolicyJobSourceIntf `json:"source" validate:"required"`
+
+	// The status of the backup policy job.
+	//
+	// The enumerated values for this property will expand in the future. When processing this property, check for and log
+	// unknown values. Optionally halt processing and surface the error, or bypass the backup policy job on which the
+	// unexpected property value was encountered.
+	Status *string `json:"status" validate:"required"`
+
+	// The reasons for the current status (if any).
+	//
+	// The enumerated reason code values for this property will expand in the future. When processing this property, check
+	// for and log unknown values. Optionally halt processing and surface the error, or bypass the resource on which the
+	// unexpected reason code was encountered.
+	StatusReasons []BackupPolicyJobStatusReason `json:"status_reasons" validate:"required"`
+
+	// The snapshots operated on by this backup policy job (may be
+	// [deleted](https://cloud.ibm.com/apidocs/vpc#deleted-resources)).
+	TargetSnapshots []SnapshotReference `json:"target_snapshots" validate:"required"`
+}
+
+// Constants associated with the BackupPolicyJob.JobType property.
+// The type of backup policy job.
+//
+// The enumerated values for this property will expand in the future. When processing this property, check for and log
+// unknown values. Optionally halt processing and surface the error, or bypass the backup policy job on which the
+// unexpected property value was encountered.
+const (
+	BackupPolicyJobJobTypeCreationConst = "creation"
+	BackupPolicyJobJobTypeDeletionConst = "deletion"
+)
+
+// Constants associated with the BackupPolicyJob.ResourceType property.
+// The resource type.
+const (
+	BackupPolicyJobResourceTypeBackupPolicyJobConst = "backup_policy_job"
+)
+
+// Constants associated with the BackupPolicyJob.Status property.
+// The status of the backup policy job.
+//
+// The enumerated values for this property will expand in the future. When processing this property, check for and log
+// unknown values. Optionally halt processing and surface the error, or bypass the backup policy job on which the
+// unexpected property value was encountered.
+const (
+	BackupPolicyJobStatusFailedConst    = "failed"
+	BackupPolicyJobStatusRunningConst   = "running"
+	BackupPolicyJobStatusSucceededConst = "succeeded"
+)
+
+// UnmarshalBackupPolicyJob unmarshals an instance of BackupPolicyJob from the specified map of raw messages.
+func UnmarshalBackupPolicyJob(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(BackupPolicyJob)
+	err = core.UnmarshalPrimitive(m, "auto_delete", &obj.AutoDelete)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "auto_delete_after", &obj.AutoDeleteAfter)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "backup_policy_plan", &obj.BackupPolicyPlan, UnmarshalBackupPolicyPlanReference)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "completed_at", &obj.CompletedAt)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "created_at", &obj.CreatedAt)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "job_type", &obj.JobType)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "source", &obj.Source, UnmarshalBackupPolicyJobSource)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "status", &obj.Status)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "status_reasons", &obj.StatusReasons, UnmarshalBackupPolicyJobStatusReason)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "target_snapshots", &obj.TargetSnapshots, UnmarshalSnapshotReference)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// BackupPolicyJobCollection : BackupPolicyJobCollection struct
+type BackupPolicyJobCollection struct {
+	// A link to the first page of resources.
+	First *BackupPolicyJobCollectionFirst `json:"first" validate:"required"`
+
+	// Collection of backup policy jobs.
+	Jobs []BackupPolicyJob `json:"jobs" validate:"required"`
+
+	// The maximum number of resources that can be returned by the request.
+	Limit *int64 `json:"limit" validate:"required"`
+
+	// A link to the next page of resources. This property is present for all pages
+	// except the last page.
+	Next *BackupPolicyJobCollectionNext `json:"next,omitempty"`
+
+	// The total number of resources across all pages.
+	TotalCount *int64 `json:"total_count" validate:"required"`
+}
+
+// UnmarshalBackupPolicyJobCollection unmarshals an instance of BackupPolicyJobCollection from the specified map of raw messages.
+func UnmarshalBackupPolicyJobCollection(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(BackupPolicyJobCollection)
+	err = core.UnmarshalModel(m, "first", &obj.First, UnmarshalBackupPolicyJobCollectionFirst)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "jobs", &obj.Jobs, UnmarshalBackupPolicyJob)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "limit", &obj.Limit)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "next", &obj.Next, UnmarshalBackupPolicyJobCollectionNext)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "total_count", &obj.TotalCount)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// Retrieve the value to be passed to a request to access the next page of results
+func (resp *BackupPolicyJobCollection) GetNextStart() (*string, error) {
+	if core.IsNil(resp.Next) {
+		return nil, nil
+	}
+	start, err := core.GetQueryParam(resp.Next.Href, "start")
+	if err != nil || start == nil {
+		return nil, err
+	}
+	return start, nil
+}
+
+// BackupPolicyJobCollectionFirst : A link to the first page of resources.
+type BackupPolicyJobCollectionFirst struct {
+	// The URL for a page of resources.
+	Href *string `json:"href" validate:"required"`
+}
+
+// UnmarshalBackupPolicyJobCollectionFirst unmarshals an instance of BackupPolicyJobCollectionFirst from the specified map of raw messages.
+func UnmarshalBackupPolicyJobCollectionFirst(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(BackupPolicyJobCollectionFirst)
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// BackupPolicyJobCollectionNext : A link to the next page of resources. This property is present for all pages except the last page.
+type BackupPolicyJobCollectionNext struct {
+	// The URL for a page of resources.
+	Href *string `json:"href" validate:"required"`
+}
+
+// UnmarshalBackupPolicyJobCollectionNext unmarshals an instance of BackupPolicyJobCollectionNext from the specified map of raw messages.
+func UnmarshalBackupPolicyJobCollectionNext(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(BackupPolicyJobCollectionNext)
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// BackupPolicyJobSource : The source this backup was created from (may be
+// [deleted](https://cloud.ibm.com/apidocs/vpc#deleted-resources)).
+// Models which "extend" this model:
+// - BackupPolicyJobSourceVolumeReference
+type BackupPolicyJobSource struct {
+	// The CRN for this volume.
+	CRN *string `json:"crn,omitempty"`
+
+	// If present, this property indicates the referenced resource has been deleted, and provides
+	// some supplementary information.
+	Deleted *VolumeReferenceDeleted `json:"deleted,omitempty"`
+
+	// The URL for this volume.
+	Href *string `json:"href,omitempty"`
+
+	// The unique identifier for this volume.
+	ID *string `json:"id,omitempty"`
+
+	// The name for this volume. The name is unique across all volumes in the region.
+	Name *string `json:"name,omitempty"`
+}
+
+func (*BackupPolicyJobSource) isaBackupPolicyJobSource() bool {
+	return true
+}
+
+type BackupPolicyJobSourceIntf interface {
+	isaBackupPolicyJobSource() bool
+}
+
+// UnmarshalBackupPolicyJobSource unmarshals an instance of BackupPolicyJobSource from the specified map of raw messages.
+func UnmarshalBackupPolicyJobSource(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(BackupPolicyJobSource)
+	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "deleted", &obj.Deleted, UnmarshalVolumeReferenceDeleted)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// BackupPolicyJobStatusReason : BackupPolicyJobStatusReason struct
+type BackupPolicyJobStatusReason struct {
+	// A snake case string succinctly identifying the status reason:
+	// - `internal_error`: Internal error (contact IBM support)
+	// - `snapshot_pending`: Cannot delete backup (snapshot) in the `pending` lifecycle state
+	// - `snapshot_volume_limit`: The snapshot limit for the source volume has been reached
+	// - `source_volume_busy`: The source volume has `busy` set (after multiple retries).
+	Code *string `json:"code" validate:"required"`
+
+	// An explanation of the status reason.
+	Message *string `json:"message" validate:"required"`
+
+	// Link to documentation about this status reason.
+	MoreInfo *string `json:"more_info,omitempty"`
+}
+
+// Constants associated with the BackupPolicyJobStatusReason.Code property.
+// A snake case string succinctly identifying the status reason:
+// - `internal_error`: Internal error (contact IBM support)
+// - `snapshot_pending`: Cannot delete backup (snapshot) in the `pending` lifecycle state
+// - `snapshot_volume_limit`: The snapshot limit for the source volume has been reached
+// - `source_volume_busy`: The source volume has `busy` set (after multiple retries).
+const (
+	BackupPolicyJobStatusReasonCodeInternalErrorConst       = "internal_error"
+	BackupPolicyJobStatusReasonCodeSnapshotPendingConst     = "snapshot_pending"
+	BackupPolicyJobStatusReasonCodeSnapshotVolumeLimitConst = "snapshot_volume_limit"
+	BackupPolicyJobStatusReasonCodeSourceVolumeBusyConst    = "source_volume_busy"
+)
+
+// UnmarshalBackupPolicyJobStatusReason unmarshals an instance of BackupPolicyJobStatusReason from the specified map of raw messages.
+func UnmarshalBackupPolicyJobStatusReason(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(BackupPolicyJobStatusReason)
+	err = core.UnmarshalPrimitive(m, "code", &obj.Code)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "message", &obj.Message)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "more_info", &obj.MoreInfo)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
 // BackupPolicyPatch : BackupPolicyPatch struct
 type BackupPolicyPatch struct {
 	// The user tags this backup policy applies to (replacing any existing tags). Resources that have both a matching user
 	// tag and a matching type will be subject to the backup policy.
 	MatchUserTags []string `json:"match_user_tags,omitempty"`
 
-	// The user-defined name for this backup policy. Names must be unique within the region this backup policy resides in.
+	// The name for this backup policy. The name must not be used by another backup policy in the region.
 	Name *string `json:"name,omitempty"`
 }
 
@@ -21806,7 +22434,7 @@ type BackupPolicyPlan struct {
 	// The lifecycle state of this backup policy plan.
 	LifecycleState *string `json:"lifecycle_state" validate:"required"`
 
-	// The unique user-defined name for this backup policy plan.
+	// The name for this backup policy plan. The name is unique across all plans in the backup policy.
 	Name *string `json:"name" validate:"required"`
 
 	// The resource type.
@@ -22080,8 +22708,7 @@ type BackupPolicyPlanPatch struct {
 
 	DeletionTrigger *BackupPolicyPlanDeletionTriggerPatch `json:"deletion_trigger,omitempty"`
 
-	// The user-defined name for this backup policy plan. Names must be unique within the backup policy this plan resides
-	// in.
+	// The name for this backup policy plan. The name must not be used by another plan for the backup policy.
 	Name *string `json:"name,omitempty"`
 }
 
@@ -22152,8 +22779,8 @@ type BackupPolicyPlanPrototype struct {
 
 	DeletionTrigger *BackupPolicyPlanDeletionTriggerPrototype `json:"deletion_trigger,omitempty"`
 
-	// The user-defined name for this backup policy plan. Names must be unique within the backup policy this plan resides
-	// in. If unspecified, the name will be a hyphenated list of randomly-selected words.
+	// The name for this backup policy plan. The name must not be used by another plan for the backup policy. If
+	// unspecified, the name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 }
 
@@ -22203,7 +22830,7 @@ func UnmarshalBackupPolicyPlanPrototype(m map[string]json.RawMessage, result int
 
 // BackupPolicyPlanReference : BackupPolicyPlanReference struct
 type BackupPolicyPlanReference struct {
-	// If present, this property indicates the referenced resource has been deleted and provides
+	// If present, this property indicates the referenced resource has been deleted, and provides
 	// some supplementary information.
 	Deleted *BackupPolicyPlanReferenceDeleted `json:"deleted,omitempty"`
 
@@ -22213,7 +22840,7 @@ type BackupPolicyPlanReference struct {
 	// The unique identifier for this backup policy plan.
 	ID *string `json:"id" validate:"required"`
 
-	// The unique user-defined name for this backup policy plan.
+	// The name for this backup policy plan. The name is unique across all plans in the backup policy.
 	Name *string `json:"name" validate:"required"`
 
 	// The resource type.
@@ -22253,7 +22880,7 @@ func UnmarshalBackupPolicyPlanReference(m map[string]json.RawMessage, result int
 	return
 }
 
-// BackupPolicyPlanReferenceDeleted : If present, this property indicates the referenced resource has been deleted and provides some supplementary
+// BackupPolicyPlanReferenceDeleted : If present, this property indicates the referenced resource has been deleted, and provides some supplementary
 // information.
 type BackupPolicyPlanReferenceDeleted struct {
 	// Link to documentation about deleted resources.
@@ -22305,7 +22932,7 @@ type BareMetalServer struct {
 	// The amount of memory, truncated to whole gibibytes.
 	Memory *int64 `json:"memory" validate:"required"`
 
-	// The user-defined name for this bare metal server (and default system hostname).
+	// The name for this bare metal server. The name is unique across all bare metal servers in the region.
 	Name *string `json:"name" validate:"required"`
 
 	// The network interfaces for this bare metal server, including the primary network interface.
@@ -22314,7 +22941,8 @@ type BareMetalServer struct {
 	// Primary network interface.
 	PrimaryNetworkInterface *NetworkInterfaceBareMetalServerContextReference `json:"primary_network_interface" validate:"required"`
 
-	// The profile this bare metal server uses.
+	// The [profile](https://cloud.ibm.com/docs/vpc?topic=vpc-bare-metal-servers-profile)
+	// for this bare metal server.
 	Profile *BareMetalServerProfileReference `json:"profile" validate:"required"`
 
 	// The resource group for this bare metal server.
@@ -22456,7 +23084,7 @@ func UnmarshalBareMetalServer(m map[string]json.RawMessage, result interface{}) 
 // Models which "extend" this model:
 // - BareMetalServerBootTargetBareMetalServerDiskReference
 type BareMetalServerBootTarget struct {
-	// If present, this property indicates the referenced resource has been deleted and provides
+	// If present, this property indicates the referenced resource has been deleted, and provides
 	// some supplementary information.
 	Deleted *BareMetalServerDiskReferenceDeleted `json:"deleted,omitempty"`
 
@@ -22466,7 +23094,7 @@ type BareMetalServerBootTarget struct {
 	// The unique identifier for this bare metal server disk.
 	ID *string `json:"id,omitempty"`
 
-	// The user-defined name for this disk.
+	// The name for this bare metal server disk. The name is unique across all disks on the bare metal server.
 	Name *string `json:"name,omitempty"`
 
 	// The resource type.
@@ -22717,12 +23345,16 @@ type BareMetalServerDisk struct {
 
 	// The disk interface used for attaching the disk.
 	//
+	// - `fcp`: Attached using Fiber Channel Protocol
+	// - `sata`: Attached using Serial Advanced Technology Attachment
+	// - `nvme`: Attached using Non-Volatile Memory Express
+	//
 	// The enumerated values for this property are expected to expand in the future. When processing this property, check
 	// for and log unknown values. Optionally halt processing and surface the error, or bypass the resource on which the
 	// unexpected property value was encountered.
 	InterfaceType *string `json:"interface_type" validate:"required"`
 
-	// The user-defined name for this disk.
+	// The name for this bare metal server disk. The name is unique across all disks on the bare metal server.
 	Name *string `json:"name" validate:"required"`
 
 	// The resource type.
@@ -22735,10 +23367,15 @@ type BareMetalServerDisk struct {
 // Constants associated with the BareMetalServerDisk.InterfaceType property.
 // The disk interface used for attaching the disk.
 //
+// - `fcp`: Attached using Fiber Channel Protocol
+// - `sata`: Attached using Serial Advanced Technology Attachment
+// - `nvme`: Attached using Non-Volatile Memory Express
+//
 // The enumerated values for this property are expected to expand in the future. When processing this property, check
 // for and log unknown values. Optionally halt processing and surface the error, or bypass the resource on which the
 // unexpected property value was encountered.
 const (
+	BareMetalServerDiskInterfaceTypeFcpConst  = "fcp"
 	BareMetalServerDiskInterfaceTypeNvmeConst = "nvme"
 	BareMetalServerDiskInterfaceTypeSataConst = "sata"
 )
@@ -22803,7 +23440,7 @@ func UnmarshalBareMetalServerDiskCollection(m map[string]json.RawMessage, result
 
 // BareMetalServerDiskPatch : BareMetalServerDiskPatch struct
 type BareMetalServerDiskPatch struct {
-	// The user-defined name for this disk.
+	// The name for this bare metal server disk. The name must not be used by another disk on the bare metal server.
 	Name *string `json:"name,omitempty"`
 }
 
@@ -22828,7 +23465,7 @@ func (bareMetalServerDiskPatch *BareMetalServerDiskPatch) AsPatch() (_patch map[
 	return
 }
 
-// BareMetalServerDiskReferenceDeleted : If present, this property indicates the referenced resource has been deleted and provides some supplementary
+// BareMetalServerDiskReferenceDeleted : If present, this property indicates the referenced resource has been deleted, and provides some supplementary
 // information.
 type BareMetalServerDiskReferenceDeleted struct {
 	// Link to documentation about deleted resources.
@@ -22981,6 +23618,7 @@ func UnmarshalBareMetalServerInitializationUserAccount(m map[string]json.RawMess
 
 // BareMetalServerNetworkInterface : BareMetalServerNetworkInterface struct
 // Models which "extend" this model:
+// - BareMetalServerNetworkInterfaceByHiperSocket
 // - BareMetalServerNetworkInterfaceByPci
 // - BareMetalServerNetworkInterfaceByVlan
 type BareMetalServerNetworkInterface struct {
@@ -22996,10 +23634,12 @@ type BareMetalServerNetworkInterface struct {
 	//   - A single floating IP can be assigned to the network interface.
 	//
 	// If `false`:
-	//   - Packets are passed unmodified to/from the network interface,
+	//   - Packets are passed unchanged to/from the network interface,
 	//     allowing the workload to perform any needed NAT operations.
 	//   - Multiple floating IPs can be assigned to the network interface.
 	//   - `allow_ip_spoofing` must be set to `false`.
+	//
+	// This must be `true` when `interface_type` is `hipersocket`.
 	EnableInfrastructureNat *bool `json:"enable_infrastructure_nat" validate:"required"`
 
 	// The floating IPs associated with this network interface.
@@ -23012,6 +23652,8 @@ type BareMetalServerNetworkInterface struct {
 	ID *string `json:"id" validate:"required"`
 
 	// The network interface type:
+	// - `hipersocket`: a virtual network device that provides high-speed TCP/IP connectivity
+	//   within a `s390x` based system
 	// - `pci`: a physical PCI device which can only be created or deleted when the bare metal
 	//   server is stopped
 	//   - Has an `allowed_vlans` property which controls the VLANs that will be permitted
@@ -23022,12 +23664,16 @@ type BareMetalServerNetworkInterface struct {
 	//   - Must use an IEEE 802.1q tag.
 	//   - Has its own security groups and does not inherit those of the PCI device through
 	//     which traffic flows.
+	//
+	// The enumerated values for this property are expected to expand in the future. When processing this property, check
+	// for and log unknown values. Optionally halt processing and surface the error, or bypass the resource on which the
+	// unexpected property value was encountered.
 	InterfaceType *string `json:"interface_type" validate:"required"`
 
 	// The MAC address of the interface.  If absent, the value is not known.
 	MacAddress *string `json:"mac_address" validate:"required"`
 
-	// The user-defined name for this network interface.
+	// The name for this network interface.
 	Name *string `json:"name" validate:"required"`
 
 	// The network interface port speed in Mbps.
@@ -23050,8 +23696,7 @@ type BareMetalServerNetworkInterface struct {
 	// The type of this bare metal server network interface.
 	Type *string `json:"type" validate:"required"`
 
-	// Indicates what VLAN IDs (for VLAN type only) can use this physical (PCI type) interface.  A given VLAN can only be
-	// in the `allowed_vlans` array for one PCI type adapter per bare metal server.
+	// Indicates what VLAN IDs (for VLAN type only) can use this physical (PCI type) interface.
 	AllowedVlans []int64 `json:"allowed_vlans,omitempty"`
 
 	// Indicates if the interface can float to any other server within the same
@@ -23065,19 +23710,26 @@ type BareMetalServerNetworkInterface struct {
 
 // Constants associated with the BareMetalServerNetworkInterface.InterfaceType property.
 // The network interface type:
-// - `pci`: a physical PCI device which can only be created or deleted when the bare metal
-//   server is stopped
+//   - `hipersocket`: a virtual network device that provides high-speed TCP/IP connectivity
+//     within a `s390x` based system
+//   - `pci`: a physical PCI device which can only be created or deleted when the bare metal
+//     server is stopped
 //   - Has an `allowed_vlans` property which controls the VLANs that will be permitted
 //     to use the PCI interface
 //   - Cannot directly use an IEEE 802.1q VLAN tag.
-// - `vlan`: a virtual device, used through a `pci` device that has the `vlan` in its
-//   array of `allowed_vlans`.
+//   - `vlan`: a virtual device, used through a `pci` device that has the `vlan` in its
+//     array of `allowed_vlans`.
 //   - Must use an IEEE 802.1q tag.
 //   - Has its own security groups and does not inherit those of the PCI device through
 //     which traffic flows.
+//
+// The enumerated values for this property are expected to expand in the future. When processing this property, check
+// for and log unknown values. Optionally halt processing and surface the error, or bypass the resource on which the
+// unexpected property value was encountered.
 const (
-	BareMetalServerNetworkInterfaceInterfaceTypePciConst  = "pci"
-	BareMetalServerNetworkInterfaceInterfaceTypeVlanConst = "vlan"
+	BareMetalServerNetworkInterfaceInterfaceTypeHipersocketConst = "hipersocket"
+	BareMetalServerNetworkInterfaceInterfaceTypePciConst         = "pci"
+	BareMetalServerNetworkInterfaceInterfaceTypeVlanConst        = "vlan"
 )
 
 // Constants associated with the BareMetalServerNetworkInterface.ResourceType property.
@@ -23123,7 +23775,9 @@ func UnmarshalBareMetalServerNetworkInterface(m map[string]json.RawMessage, resu
 		err = fmt.Errorf("required discriminator property 'interface_type' not found in JSON object")
 		return
 	}
-	if discValue == "pci" {
+	if discValue == "hipersocket" {
+		err = core.UnmarshalModel(m, "", result, UnmarshalBareMetalServerNetworkInterfaceByHiperSocket)
+	} else if discValue == "pci" {
 		err = core.UnmarshalModel(m, "", result, UnmarshalBareMetalServerNetworkInterfaceByPci)
 	} else if discValue == "vlan" {
 		err = core.UnmarshalModel(m, "", result, UnmarshalBareMetalServerNetworkInterfaceByVlan)
@@ -23231,8 +23885,7 @@ type BareMetalServerNetworkInterfacePatch struct {
 	// interface. If true, source IP spoofing is allowed on this interface.
 	AllowIPSpoofing *bool `json:"allow_ip_spoofing,omitempty"`
 
-	// Indicates what VLAN IDs (for VLAN type only) can use this physical (PCI type) interface.  A given VLAN can only be
-	// in the `allowed_vlans` array for one PCI type adapter per bare metal server.
+	// Indicates what VLAN IDs (for VLAN type only) can use this physical (PCI type) interface.
 	AllowedVlans []int64 `json:"allowed_vlans,omitempty"`
 
 	// If `true`:
@@ -23240,14 +23893,16 @@ type BareMetalServerNetworkInterfacePatch struct {
 	//   - A single floating IP can be assigned to the network interface.
 	//
 	// If `false`:
-	//   - Packets are passed unmodified to/from the network interface,
+	//   - Packets are passed unchanged to/from the network interface,
 	//     allowing the workload to perform any needed NAT operations.
 	//   - Multiple floating IPs can be assigned to the network interface.
 	//   - `allow_ip_spoofing` must be set to `false`.
+	//
+	// This must be `true` when `interface_type` is `hipersocket`.
 	EnableInfrastructureNat *bool `json:"enable_infrastructure_nat,omitempty"`
 
-	// The user-defined name for network interface. Names must be unique within the instance the network interface resides
-	// in.
+	// The name for this network interface. The name must not be used by another network interface on the bare metal
+	// server.
 	Name *string `json:"name,omitempty"`
 }
 
@@ -23286,6 +23941,7 @@ func (bareMetalServerNetworkInterfacePatch *BareMetalServerNetworkInterfacePatch
 
 // BareMetalServerNetworkInterfacePrototype : BareMetalServerNetworkInterfacePrototype struct
 // Models which "extend" this model:
+// - BareMetalServerNetworkInterfacePrototypeBareMetalServerNetworkInterfaceByHiperSocketPrototype
 // - BareMetalServerNetworkInterfacePrototypeBareMetalServerNetworkInterfaceByPciPrototype
 // - BareMetalServerNetworkInterfacePrototypeBareMetalServerNetworkInterfaceByVlanPrototype
 type BareMetalServerNetworkInterfacePrototype struct {
@@ -23298,27 +23954,34 @@ type BareMetalServerNetworkInterfacePrototype struct {
 	//   - A single floating IP can be assigned to the network interface.
 	//
 	// If `false`:
-	//   - Packets are passed unmodified to/from the network interface,
+	//   - Packets are passed unchanged to/from the network interface,
 	//     allowing the workload to perform any needed NAT operations.
 	//   - Multiple floating IPs can be assigned to the network interface.
 	//   - `allow_ip_spoofing` must be set to `false`.
+	//
+	// This must be `true` when `interface_type` is `hipersocket`.
 	EnableInfrastructureNat *bool `json:"enable_infrastructure_nat,omitempty"`
 
 	// The network interface type:
+	// - `hipersocket`: a virtual network device that provides high-speed TCP/IP connectivity
+	//   within a `s390x` based system
+	//   - Not supported on bare metal servers with a `cpu.architecture` of `amd64`
 	// - `pci`: a physical PCI device which can only be created or deleted when the bare metal
 	//   server is stopped
 	//   - Has an `allowed_vlans` property which controls the VLANs that will be permitted
 	//     to use the PCI interface
 	//   - Cannot directly use an IEEE 802.1q VLAN tag.
+	//   - Not supported on bare metal servers with a `cpu.architecture` of `s390x`
 	// - `vlan`: a virtual device, used through a `pci` device that has the `vlan` in its
 	//   array of `allowed_vlans`.
 	//   - Must use an IEEE 802.1q tag.
 	//   - Has its own security groups and does not inherit those of the PCI device through
 	//     which traffic flows.
+	//   - Not supported on bare metal servers with a `cpu.architecture` of `s390x`.
 	InterfaceType *string `json:"interface_type" validate:"required"`
 
-	// The user-defined name for network interface. Names must be unique within the instance the network interface resides
-	// in. If unspecified, the name will be a hyphenated list of randomly-selected words.
+	// The name for this network interface. The name must not be used by another network interface on the bare metal
+	// server. If unspecified, the name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
 	// The primary IP address to bind to the network interface. This can be specified using
@@ -23335,8 +23998,7 @@ type BareMetalServerNetworkInterfacePrototype struct {
 	// The associated subnet.
 	Subnet SubnetIdentityIntf `json:"subnet" validate:"required"`
 
-	// Indicates what VLAN IDs (for VLAN type only) can use this physical (PCI type) interface.  A given VLAN can only be
-	// in the `allowed_vlans` array for one PCI type adapter per bare metal server.
+	// Indicates what VLAN IDs (for VLAN type only) can use this physical (PCI type) interface.
 	AllowedVlans []int64 `json:"allowed_vlans,omitempty"`
 
 	// Indicates if the interface can float to any other server within the same
@@ -23350,19 +24012,25 @@ type BareMetalServerNetworkInterfacePrototype struct {
 
 // Constants associated with the BareMetalServerNetworkInterfacePrototype.InterfaceType property.
 // The network interface type:
-// - `pci`: a physical PCI device which can only be created or deleted when the bare metal
-//   server is stopped
+//   - `hipersocket`: a virtual network device that provides high-speed TCP/IP connectivity
+//     within a `s390x` based system
+//   - Not supported on bare metal servers with a `cpu.architecture` of `amd64`
+//   - `pci`: a physical PCI device which can only be created or deleted when the bare metal
+//     server is stopped
 //   - Has an `allowed_vlans` property which controls the VLANs that will be permitted
 //     to use the PCI interface
 //   - Cannot directly use an IEEE 802.1q VLAN tag.
-// - `vlan`: a virtual device, used through a `pci` device that has the `vlan` in its
-//   array of `allowed_vlans`.
+//   - Not supported on bare metal servers with a `cpu.architecture` of `s390x`
+//   - `vlan`: a virtual device, used through a `pci` device that has the `vlan` in its
+//     array of `allowed_vlans`.
 //   - Must use an IEEE 802.1q tag.
 //   - Has its own security groups and does not inherit those of the PCI device through
 //     which traffic flows.
+//   - Not supported on bare metal servers with a `cpu.architecture` of `s390x`.
 const (
-	BareMetalServerNetworkInterfacePrototypeInterfaceTypePciConst  = "pci"
-	BareMetalServerNetworkInterfacePrototypeInterfaceTypeVlanConst = "vlan"
+	BareMetalServerNetworkInterfacePrototypeInterfaceTypeHipersocketConst = "hipersocket"
+	BareMetalServerNetworkInterfacePrototypeInterfaceTypePciConst         = "pci"
+	BareMetalServerNetworkInterfacePrototypeInterfaceTypeVlanConst        = "vlan"
 )
 
 func (*BareMetalServerNetworkInterfacePrototype) isaBareMetalServerNetworkInterfacePrototype() bool {
@@ -23386,7 +24054,9 @@ func UnmarshalBareMetalServerNetworkInterfacePrototype(m map[string]json.RawMess
 		err = fmt.Errorf("required discriminator property 'interface_type' not found in JSON object")
 		return
 	}
-	if discValue == "pci" {
+	if discValue == "hipersocket" {
+		err = core.UnmarshalModel(m, "", result, UnmarshalBareMetalServerNetworkInterfacePrototypeBareMetalServerNetworkInterfaceByHiperSocketPrototype)
+	} else if discValue == "pci" {
 		err = core.UnmarshalModel(m, "", result, UnmarshalBareMetalServerNetworkInterfacePrototypeBareMetalServerNetworkInterfaceByPciPrototype)
 	} else if discValue == "vlan" {
 		err = core.UnmarshalModel(m, "", result, UnmarshalBareMetalServerNetworkInterfacePrototypeBareMetalServerNetworkInterfaceByVlanPrototype)
@@ -23398,7 +24068,8 @@ func UnmarshalBareMetalServerNetworkInterfacePrototype(m map[string]json.RawMess
 
 // BareMetalServerPatch : BareMetalServerPatch struct
 type BareMetalServerPatch struct {
-	// The user-defined name for this bare metal server (and default system hostname).
+	// The name for this bare metal server. The name must not be used by another bare metal server in the region. Changing
+	// the name will not affect the system hostname.
 	Name *string `json:"name,omitempty"`
 }
 
@@ -23429,8 +24100,7 @@ type BareMetalServerPrimaryNetworkInterfacePrototype struct {
 	// interface. If true, source IP spoofing is allowed on this interface.
 	AllowIPSpoofing *bool `json:"allow_ip_spoofing,omitempty"`
 
-	// Indicates what VLAN IDs (for VLAN type only) can use this physical (PCI type) interface.  A given VLAN can only be
-	// in the `allowed_vlans` array for one PCI type adapter per bare metal server.
+	// Indicates what VLAN IDs (for VLAN type only) can use this physical (PCI type) interface.
 	AllowedVlans []int64 `json:"allowed_vlans,omitempty"`
 
 	// If `true`:
@@ -23438,22 +24108,28 @@ type BareMetalServerPrimaryNetworkInterfacePrototype struct {
 	//   - A single floating IP can be assigned to the network interface.
 	//
 	// If `false`:
-	//   - Packets are passed unmodified to/from the network interface,
+	//   - Packets are passed unchanged to/from the network interface,
 	//     allowing the workload to perform any needed NAT operations.
 	//   - Multiple floating IPs can be assigned to the network interface.
 	//   - `allow_ip_spoofing` must be set to `false`.
+	//
+	// This must be `true` when `interface_type` is `hipersocket`.
 	EnableInfrastructureNat *bool `json:"enable_infrastructure_nat,omitempty"`
 
 	// The network interface type:
+	// - `hipersocket`: a virtual network device that provides high-speed TCP/IP connectivity
+	//   within a `s390x` based system.
+	//   - Not supported on bare metal servers with a `cpu.architecture` of `amd64`
 	// - `pci`: a physical PCI device which can only be created or deleted when the bare metal
 	//   server is stopped
 	//   - Has an `allowed_vlans` property which controls the VLANs that will be permitted
 	//     to use the PCI interface
 	//   - Cannot directly use an IEEE 802.1q VLAN tag.
+	//   - Not supported on bare metal servers with a `cpu.architecture` of `s390x`.
 	InterfaceType *string `json:"interface_type,omitempty"`
 
-	// The user-defined name for network interface. Names must be unique within the instance the network interface resides
-	// in. If unspecified, the name will be a hyphenated list of randomly-selected words.
+	// The name for this network interface. The name must not be used by another network interface on the bare metal
+	// server. If unspecified, the name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
 	// The primary IP address to bind to the network interface. This can be specified using
@@ -23473,13 +24149,18 @@ type BareMetalServerPrimaryNetworkInterfacePrototype struct {
 
 // Constants associated with the BareMetalServerPrimaryNetworkInterfacePrototype.InterfaceType property.
 // The network interface type:
-// - `pci`: a physical PCI device which can only be created or deleted when the bare metal
-//   server is stopped
+//   - `hipersocket`: a virtual network device that provides high-speed TCP/IP connectivity
+//     within a `s390x` based system.
+//   - Not supported on bare metal servers with a `cpu.architecture` of `amd64`
+//   - `pci`: a physical PCI device which can only be created or deleted when the bare metal
+//     server is stopped
 //   - Has an `allowed_vlans` property which controls the VLANs that will be permitted
 //     to use the PCI interface
 //   - Cannot directly use an IEEE 802.1q VLAN tag.
+//   - Not supported on bare metal servers with a `cpu.architecture` of `s390x`.
 const (
-	BareMetalServerPrimaryNetworkInterfacePrototypeInterfaceTypePciConst = "pci"
+	BareMetalServerPrimaryNetworkInterfacePrototypeInterfaceTypeHipersocketConst = "hipersocket"
+	BareMetalServerPrimaryNetworkInterfacePrototypeInterfaceTypePciConst         = "pci"
 )
 
 // NewBareMetalServerPrimaryNetworkInterfacePrototype : Instantiate BareMetalServerPrimaryNetworkInterfacePrototype (Generic Model Constructor)
@@ -23559,7 +24240,7 @@ type BareMetalServerProfile struct {
 	// The resource type.
 	ResourceType *string `json:"resource_type" validate:"required"`
 
-	// The supported trusted platform module (TPM) modes for this bare metal server profile.
+	// The supported trusted platform module modes for this bare metal server profile.
 	SupportedTrustedPlatformModuleModes *BareMetalServerProfileSupportedTrustedPlatformModuleModes `json:"supported_trusted_platform_module_modes" validate:"required"`
 }
 
@@ -24175,6 +24856,10 @@ func UnmarshalBareMetalServerProfileDiskSize(m map[string]json.RawMessage, resul
 type BareMetalServerProfileDiskSupportedInterfaces struct {
 	// The disk interface used for attaching the disk.
 	//
+	// - `fcp`: Attached using Fiber Channel Protocol
+	// - `sata`: Attached using Serial Advanced Technology Attachment
+	// - `nvme`: Attached using Non-Volatile Memory Express
+	//
 	// The enumerated values for this property are expected to expand in the future. When processing this property, check
 	// for and log unknown values. Optionally halt processing and surface the error, or bypass the resource on which the
 	// unexpected property value was encountered.
@@ -24190,10 +24875,15 @@ type BareMetalServerProfileDiskSupportedInterfaces struct {
 // Constants associated with the BareMetalServerProfileDiskSupportedInterfaces.Default property.
 // The disk interface used for attaching the disk.
 //
+// - `fcp`: Attached using Fiber Channel Protocol
+// - `sata`: Attached using Serial Advanced Technology Attachment
+// - `nvme`: Attached using Non-Volatile Memory Express
+//
 // The enumerated values for this property are expected to expand in the future. When processing this property, check
 // for and log unknown values. Optionally halt processing and surface the error, or bypass the resource on which the
 // unexpected property value was encountered.
 const (
+	BareMetalServerProfileDiskSupportedInterfacesDefaultFcpConst  = "fcp"
 	BareMetalServerProfileDiskSupportedInterfacesDefaultNvmeConst = "nvme"
 	BareMetalServerProfileDiskSupportedInterfacesDefaultSataConst = "sata"
 )
@@ -24207,10 +24897,15 @@ const (
 // Constants associated with the BareMetalServerProfileDiskSupportedInterfaces.Values property.
 // The disk interface used for attaching the disk.
 //
+// - `fcp`: Attached using Fiber Channel Protocol
+// - `sata`: Attached using Serial Advanced Technology Attachment
+// - `nvme`: Attached using Non-Volatile Memory Express
+//
 // The enumerated values for this property are expected to expand in the future. When processing this property, check
 // for and log unknown values. Optionally halt processing and surface the error, or bypass the resource on which the
 // unexpected property value was encountered.
 const (
+	BareMetalServerProfileDiskSupportedInterfacesValuesFcpConst  = "fcp"
 	BareMetalServerProfileDiskSupportedInterfacesValuesNvmeConst = "nvme"
 	BareMetalServerProfileDiskSupportedInterfacesValuesSataConst = "sata"
 )
@@ -24421,12 +25116,12 @@ func UnmarshalBareMetalServerProfileReference(m map[string]json.RawMessage, resu
 	return
 }
 
-// BareMetalServerProfileSupportedTrustedPlatformModuleModes : The supported trusted platform module (TPM) modes for this bare metal server profile.
+// BareMetalServerProfileSupportedTrustedPlatformModuleModes : The supported trusted platform module modes for this bare metal server profile.
 type BareMetalServerProfileSupportedTrustedPlatformModuleModes struct {
 	// The type for this profile field.
 	Type *string `json:"type" validate:"required"`
 
-	// The supported trusted platform module (TPM) modes.
+	// The supported trusted platform module modes.
 	Values []string `json:"values" validate:"required"`
 }
 
@@ -24437,16 +25132,14 @@ const (
 )
 
 // Constants associated with the BareMetalServerProfileSupportedTrustedPlatformModuleModes.Values property.
-// The mode for the trusted platform module (TPM):
-// - `tpm_2`: Standard TPM 2 capabilities
-// - `tpm_2_with_txt`: Standard TPM 2 with Intel Trusted Execution Technology (TXT)
+// The trusted platform module (TPM) mode:
+// - `tpm_2`: TPM 2.0
 //
 // The enumerated values for this property are expected to expand in the future. When processing this property, check
 // for and log unknown values. Optionally halt processing and surface the error, or bypass the resource on which the
 // unexpected property value was encountered.
 const (
-	BareMetalServerProfileSupportedTrustedPlatformModuleModesValuesTpm2Const        = "tpm_2"
-	BareMetalServerProfileSupportedTrustedPlatformModuleModesValuesTpm2WithTxtConst = "tpm_2_with_txt"
+	BareMetalServerProfileSupportedTrustedPlatformModuleModesValuesTpm2Const = "tpm_2"
 )
 
 // UnmarshalBareMetalServerProfileSupportedTrustedPlatformModuleModes unmarshals an instance of BareMetalServerProfileSupportedTrustedPlatformModuleModes from the specified map of raw messages.
@@ -24517,12 +25210,11 @@ func UnmarshalBareMetalServerStatusReason(m map[string]json.RawMessage, result i
 
 // BareMetalServerTrustedPlatformModule : BareMetalServerTrustedPlatformModule struct
 type BareMetalServerTrustedPlatformModule struct {
-	// Indicates whether the trusted platform module (TPM) is enabled. If enabled, `mode` will also be set.
+	// Indicates whether the trusted platform module is enabled.
 	Enabled *bool `json:"enabled" validate:"required"`
 
-	// The mode for the trusted platform module (TPM):
-	// - `tpm_2`: Standard TPM 2 capabilities
-	// - `tpm_2_with_txt`: Standard TPM 2 with Intel Trusted Execution Technology (TXT)
+	// The trusted platform module (TPM) mode:
+	// - `tpm_2`: TPM 2.0
 	//
 	// The enumerated values for this property are expected to expand in the future. When processing this property, check
 	// for and log unknown values. Optionally halt processing and surface the error, or bypass the resource on which the
@@ -24531,16 +25223,14 @@ type BareMetalServerTrustedPlatformModule struct {
 }
 
 // Constants associated with the BareMetalServerTrustedPlatformModule.Mode property.
-// The mode for the trusted platform module (TPM):
-// - `tpm_2`: Standard TPM 2 capabilities
-// - `tpm_2_with_txt`: Standard TPM 2 with Intel Trusted Execution Technology (TXT)
+// The trusted platform module (TPM) mode:
+// - `tpm_2`: TPM 2.0
 //
 // The enumerated values for this property are expected to expand in the future. When processing this property, check
 // for and log unknown values. Optionally halt processing and surface the error, or bypass the resource on which the
 // unexpected property value was encountered.
 const (
-	BareMetalServerTrustedPlatformModuleModeTpm2Const        = "tpm_2"
-	BareMetalServerTrustedPlatformModuleModeTpm2WithTxtConst = "tpm_2_with_txt"
+	BareMetalServerTrustedPlatformModuleModeTpm2Const = "tpm_2"
 )
 
 // UnmarshalBareMetalServerTrustedPlatformModule unmarshals an instance of BareMetalServerTrustedPlatformModule from the specified map of raw messages.
@@ -24551,6 +25241,82 @@ func UnmarshalBareMetalServerTrustedPlatformModule(m map[string]json.RawMessage,
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "mode", &obj.Mode)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// CatalogOfferingIdentity : Identifies a [catalog](https://cloud.ibm.com/docs/account?topic=account-restrict-by-user) offering by a unique
+// property.
+// Models which "extend" this model:
+// - CatalogOfferingIdentityCatalogOfferingByCRN
+type CatalogOfferingIdentity struct {
+	// The CRN for this
+	// [catalog](https://cloud.ibm.com/docs/account?topic=account-restrict-by-user) offering.
+	CRN *string `json:"crn,omitempty"`
+}
+
+func (*CatalogOfferingIdentity) isaCatalogOfferingIdentity() bool {
+	return true
+}
+
+type CatalogOfferingIdentityIntf interface {
+	isaCatalogOfferingIdentity() bool
+}
+
+// UnmarshalCatalogOfferingIdentity unmarshals an instance of CatalogOfferingIdentity from the specified map of raw messages.
+func UnmarshalCatalogOfferingIdentity(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(CatalogOfferingIdentity)
+	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// CatalogOfferingVersionIdentity : Identifies a version of a
+// [catalog](https://cloud.ibm.com/docs/account?topic=account-restrict-by-user) offering by a unique property.
+// Models which "extend" this model:
+// - CatalogOfferingVersionIdentityCatalogOfferingVersionByCRN
+type CatalogOfferingVersionIdentity struct {
+	// The CRN for this version of a
+	// [catalog](https://cloud.ibm.com/docs/account?topic=account-restrict-by-user) offering.
+	CRN *string `json:"crn,omitempty"`
+}
+
+func (*CatalogOfferingVersionIdentity) isaCatalogOfferingVersionIdentity() bool {
+	return true
+}
+
+type CatalogOfferingVersionIdentityIntf interface {
+	isaCatalogOfferingVersionIdentity() bool
+}
+
+// UnmarshalCatalogOfferingVersionIdentity unmarshals an instance of CatalogOfferingVersionIdentity from the specified map of raw messages.
+func UnmarshalCatalogOfferingVersionIdentity(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(CatalogOfferingVersionIdentity)
+	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// CatalogOfferingVersionReference : CatalogOfferingVersionReference struct
+type CatalogOfferingVersionReference struct {
+	// The CRN for this version of a
+	// [catalog](https://cloud.ibm.com/docs/account?topic=account-restrict-by-user) offering.
+	CRN *string `json:"crn" validate:"required"`
+}
+
+// UnmarshalCatalogOfferingVersionReference unmarshals an instance of CatalogOfferingVersionReference from the specified map of raw messages.
+func UnmarshalCatalogOfferingVersionReference(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(CatalogOfferingVersionReference)
+	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
 	if err != nil {
 		return
 	}
@@ -24728,8 +25494,8 @@ type CreateBackupPolicyOptions struct {
 	// be subject to the backup policy.
 	MatchUserTags []string `json:"match_user_tags,omitempty"`
 
-	// The user-defined name for this backup policy. Names must be unique within the region this backup policy resides in.
-	// If unspecified, the name will be a hyphenated list of randomly-selected words.
+	// The name for this backup policy. The name must not be used by another backup policy in the region. If unspecified,
+	// the name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
 	// The prototype objects for backup plans to be created for this backup policy.
@@ -24815,8 +25581,8 @@ type CreateBackupPolicyPlanOptions struct {
 
 	DeletionTrigger *BackupPolicyPlanDeletionTriggerPrototype `json:"deletion_trigger,omitempty"`
 
-	// The user-defined name for this backup policy plan. Names must be unique within the backup policy this plan resides
-	// in. If unspecified, the name will be a hyphenated list of randomly-selected words.
+	// The name for this backup policy plan. The name must not be used by another plan for the backup policy. If
+	// unspecified, the name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
 	// Allows users to set headers on API requests
@@ -24890,7 +25656,9 @@ type CreateBareMetalServerConsoleAccessTokenOptions struct {
 	// The bare metal server identifier.
 	BareMetalServerID *string `json:"bare_metal_server_id" validate:"required,ne="`
 
-	// The bare metal server console type for which this token may be used.
+	// The bare metal server console type for which this token may be used
+	//
+	// Must be `serial` for bare metal servers with a `cpu.architecture` of `s390x`.
 	ConsoleType *string `json:"console_type" validate:"required"`
 
 	// Indicates whether to disconnect an existing serial console session as the serial console cannot be shared.  This has
@@ -24902,7 +25670,9 @@ type CreateBareMetalServerConsoleAccessTokenOptions struct {
 }
 
 // Constants associated with the CreateBareMetalServerConsoleAccessTokenOptions.ConsoleType property.
-// The bare metal server console type for which this token may be used.
+// The bare metal server console type for which this token may be used
+//
+// Must be `serial` for bare metal servers with a `cpu.architecture` of `s390x`.
 const (
 	CreateBareMetalServerConsoleAccessTokenOptionsConsoleTypeSerialConst = "serial"
 	CreateBareMetalServerConsoleAccessTokenOptionsConsoleTypeVncConst    = "vnc"
@@ -24985,14 +25755,17 @@ type CreateBareMetalServerOptions struct {
 	// Primary network interface for the bare metal server.
 	PrimaryNetworkInterface *BareMetalServerPrimaryNetworkInterfacePrototype `json:"primary_network_interface" validate:"required"`
 
-	// The profile to use for this bare metal server.
+	// The [profile](https://cloud.ibm.com/docs/vpc?topic=vpc-bare-metal-servers-profile)
+	// to use for this bare metal server.
 	Profile BareMetalServerProfileIdentityIntf `json:"profile" validate:"required"`
 
 	// The zone this bare metal server will reside in.
 	Zone ZoneIdentityIntf `json:"zone" validate:"required"`
 
-	// The unique user-defined name for this bare metal server (and default system hostname). If unspecified, the name will
-	// be a hyphenated list of randomly-selected words.
+	// The name for this bare metal server. The name must not be used by another bare metal server in the region. If
+	// unspecified, the name will be a hyphenated list of randomly-selected words.
+	//
+	// The system hostname will be based on this name.
 	Name *string `json:"name,omitempty"`
 
 	// The additional network interfaces to create for the bare metal server.
@@ -25002,8 +25775,10 @@ type CreateBareMetalServerOptions struct {
 	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) is used.
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
 
-	// The VPC the bare metal server is to be a part of. If specified, it must match the
-	// VPC referenced by the subnets of the server's network interfaces.
+	// The VPC this bare metal server will reside in.
+	//
+	// If specified, it must match the VPC for the subnets of the server's network
+	// interfaces.
 	VPC VPCIdentityIntf `json:"vpc,omitempty"`
 
 	// Allows users to set headers on API requests
@@ -25082,8 +25857,8 @@ type CreateDedicatedHostGroupOptions struct {
 	// The dedicated host profile family for hosts in this group.
 	Family *string `json:"family,omitempty"`
 
-	// The unique user-defined name for this dedicated host group. If unspecified, the name will be a hyphenated list of
-	// randomly-selected words.
+	// The name for this dedicated host group. The name must not be used by another dedicated host group in the region. If
+	// unspecified, the name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
 	// The resource group to use. If unspecified, the account's [default resource
@@ -25176,17 +25951,18 @@ func (options *CreateDedicatedHostOptions) SetHeaders(param map[string]string) *
 
 // CreateEndpointGatewayOptions : The CreateEndpointGateway options.
 type CreateEndpointGatewayOptions struct {
-	// The target for this endpoint gateway.
+	// The target to use for this endpoint gateway. Must not already be the target of another
+	// endpoint gateway in the VPC.
 	Target EndpointGatewayTargetPrototypeIntf `json:"target" validate:"required"`
 
-	// The VPC this endpoint gateway will serve.
+	// The VPC this endpoint gateway will reside in.
 	VPC VPCIdentityIntf `json:"vpc" validate:"required"`
 
 	// The reserved IPs to bind to this endpoint gateway. At most one reserved IP per zone is allowed.
 	Ips []EndpointGatewayReservedIPIntf `json:"ips,omitempty"`
 
-	// The user-defined name for this endpoint gateway. If unspecified, the name will be a hyphenated list of
-	// randomly-selected words. Names must be unique within the VPC this endpoint gateway is serving.
+	// The name for this endpoint gateway. The name must not be used by another endpoint gateway in the VPC. If
+	// unspecified, the name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
 	// The resource group to use. If unspecified, the account's [default resource
@@ -25294,8 +26070,8 @@ type CreateFlowLogCollectorOptions struct {
 	// Indicates whether this collector will be active upon creation.
 	Active *bool `json:"active,omitempty"`
 
-	// The unique user-defined name for this flow log collector. If unspecified, the name will be a hyphenated list of
-	// randomly-selected words.
+	// The name for this flow log collector. The name must not be used by another flow log collector in the region. If
+	// unspecified, the name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
 	// The resource group to use. If unspecified, the account's [default resource
@@ -25352,13 +26128,19 @@ func (options *CreateFlowLogCollectorOptions) SetHeaders(param map[string]string
 
 // CreateIkePolicyOptions : The CreateIkePolicy options.
 type CreateIkePolicyOptions struct {
-	// The authentication algorithm.
+	// The authentication algorithm
+	//
+	// The `md5` and `sha1` algorithms have been deprecated.
 	AuthenticationAlgorithm *string `json:"authentication_algorithm" validate:"required"`
 
-	// The Diffie-Hellman group.
+	// The Diffie-Hellman group
+	//
+	// Groups `2` and `5` have been deprecated.
 	DhGroup *int64 `json:"dh_group" validate:"required"`
 
-	// The encryption algorithm.
+	// The encryption algorithm
+	//
+	// The `triple_des` algorithm has been deprecated.
 	EncryptionAlgorithm *string `json:"encryption_algorithm" validate:"required"`
 
 	// The IKE protocol version.
@@ -25367,7 +26149,8 @@ type CreateIkePolicyOptions struct {
 	// The key lifetime in seconds.
 	KeyLifetime *int64 `json:"key_lifetime,omitempty"`
 
-	// The user-defined name for this IKE policy.
+	// The name for this IKE policy. The name must not be used by another IKE policies in the region. If unspecified, the
+	// name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
 	// The resource group to use. If unspecified, the account's [default resource
@@ -25379,18 +26162,24 @@ type CreateIkePolicyOptions struct {
 }
 
 // Constants associated with the CreateIkePolicyOptions.AuthenticationAlgorithm property.
-// The authentication algorithm.
+// The authentication algorithm
+//
+// The `md5` and `sha1` algorithms have been deprecated.
 const (
 	CreateIkePolicyOptionsAuthenticationAlgorithmMd5Const    = "md5"
 	CreateIkePolicyOptionsAuthenticationAlgorithmSha1Const   = "sha1"
 	CreateIkePolicyOptionsAuthenticationAlgorithmSha256Const = "sha256"
+	CreateIkePolicyOptionsAuthenticationAlgorithmSha384Const = "sha384"
 	CreateIkePolicyOptionsAuthenticationAlgorithmSha512Const = "sha512"
 )
 
 // Constants associated with the CreateIkePolicyOptions.EncryptionAlgorithm property.
-// The encryption algorithm.
+// The encryption algorithm
+//
+// The `triple_des` algorithm has been deprecated.
 const (
 	CreateIkePolicyOptionsEncryptionAlgorithmAes128Const    = "aes128"
+	CreateIkePolicyOptionsEncryptionAlgorithmAes192Const    = "aes192"
 	CreateIkePolicyOptionsEncryptionAlgorithmAes256Const    = "aes256"
 	CreateIkePolicyOptionsEncryptionAlgorithmTripleDesConst = "triple_des"
 )
@@ -25736,8 +26525,9 @@ type CreateInstanceGroupOptions struct {
 	// The subnets to use when creating new instances.
 	Subnets []SubnetIdentityIntf `json:"subnets" validate:"required"`
 
-	// Required if specifying a load balancer pool only. Used by the instance group when scaling up instances to supply the
-	// port for the load balancer pool member.
+	// The port to use for new load balancer pool members created by this instance group.
+	//
+	// This property must be specified if and only if `load_balancer_pool` has been specified.
 	ApplicationPort *int64 `json:"application_port,omitempty"`
 
 	// The load balancer associated with the specified load balancer pool.
@@ -25746,17 +26536,17 @@ type CreateInstanceGroupOptions struct {
 	// At present, only load balancers in the `application` family are supported.
 	LoadBalancer LoadBalancerIdentityIntf `json:"load_balancer,omitempty"`
 
-	// If specified, the load balancer pool will be managed by this
-	// group. Instances created by this group will have a new load
-	// balancer pool member in that pool created. Must be used with
-	// `application_port`.
+	// If specified, the load balancer pool this instance group will manage. A pool member
+	// will be created for each instance created by this group.
+	//
+	// If specified, `load_balancer` and `application_port` must also be specified.
 	LoadBalancerPool LoadBalancerPoolIdentityIntf `json:"load_balancer_pool,omitempty"`
 
 	// The number of instances in the instance group.
 	MembershipCount *int64 `json:"membership_count,omitempty"`
 
-	// The unique user-defined name for this instance group. If unspecified, the name will be a hyphenated list of
-	// randomly-selected words.
+	// The name for this instance group. The name must not be used by another instance group in the region. If unspecified,
+	// the name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
 	// The resource group to use. If unspecified, the account's [default resource
@@ -25841,8 +26631,8 @@ type CreateInstanceNetworkInterfaceOptions struct {
 	// interface. If true, source IP spoofing is allowed on this interface.
 	AllowIPSpoofing *bool `json:"allow_ip_spoofing,omitempty"`
 
-	// The user-defined name for network interface. Names must be unique within the instance the network interface resides
-	// in. If unspecified, the name will be a hyphenated list of randomly-selected words.
+	// The name for network interface. The name must not be used by another network interface on the virtual server
+	// instance. If unspecified, the name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
 	// The primary IP address to bind to the network interface. This can be specified using
@@ -25974,11 +26764,11 @@ type CreateInstanceVolumeAttachmentOptions struct {
 	// An existing volume to attach to the instance, or a prototype object for a new volume.
 	Volume VolumeAttachmentPrototypeVolumeIntf `json:"volume" validate:"required"`
 
-	// If set to true, when deleting the instance the volume will also be deleted.
+	// Indicates whether deleting the instance will also delete the attached volume.
 	DeleteVolumeOnInstanceDelete *bool `json:"delete_volume_on_instance_delete,omitempty"`
 
-	// The user-defined name for this volume attachment. Names must be unique within the instance the volume attachment
-	// resides in. If unspecified, the name will be a hyphenated list of randomly-selected words.
+	// The name for this volume attachment. The name must not be used by another volume attachment on the instance. If
+	// unspecified, the name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
 	// Allows users to set headers on API requests
@@ -26025,19 +26815,33 @@ func (options *CreateInstanceVolumeAttachmentOptions) SetHeaders(param map[strin
 
 // CreateIpsecPolicyOptions : The CreateIpsecPolicy options.
 type CreateIpsecPolicyOptions struct {
-	// The authentication algorithm.
+	// The authentication algorithm
+	//
+	// The `md5` and `sha1` algorithms have been deprecated
+	//
+	// Must be `disabled` if and only if the `encryption_algorithm` is
+	// `aes128gcm16`, `aes192gcm16`, or `aes256gcm16`.
 	AuthenticationAlgorithm *string `json:"authentication_algorithm" validate:"required"`
 
-	// The encryption algorithm.
+	// The encryption algorithm
+	//
+	// The `triple_des` algorithm has been deprecated
+	//
+	// The `authentication_algorithm` must be `disabled` if and only if
+	// `encryption_algorithm` is `aes128gcm16`, `aes192gcm16`, or
+	// `aes256gcm16`.
 	EncryptionAlgorithm *string `json:"encryption_algorithm" validate:"required"`
 
-	// Perfect Forward Secrecy.
+	// Perfect Forward Secrecy
+	//
+	// Groups `group_2` and `group_5` have been deprecated.
 	Pfs *string `json:"pfs" validate:"required"`
 
 	// The key lifetime in seconds.
 	KeyLifetime *int64 `json:"key_lifetime,omitempty"`
 
-	// The user-defined name for this IPsec policy.
+	// The name for this IPsec policy. The name must not be used by another IPsec policies in the region. If unspecified,
+	// the name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
 	// The resource group to use. If unspecified, the account's [default resource
@@ -26049,29 +26853,58 @@ type CreateIpsecPolicyOptions struct {
 }
 
 // Constants associated with the CreateIpsecPolicyOptions.AuthenticationAlgorithm property.
-// The authentication algorithm.
+// The authentication algorithm
+//
+// # The `md5` and `sha1` algorithms have been deprecated
+//
+// Must be `disabled` if and only if the `encryption_algorithm` is
+// `aes128gcm16`, `aes192gcm16`, or `aes256gcm16`.
 const (
-	CreateIpsecPolicyOptionsAuthenticationAlgorithmMd5Const    = "md5"
-	CreateIpsecPolicyOptionsAuthenticationAlgorithmSha1Const   = "sha1"
-	CreateIpsecPolicyOptionsAuthenticationAlgorithmSha256Const = "sha256"
-	CreateIpsecPolicyOptionsAuthenticationAlgorithmSha512Const = "sha512"
+	CreateIpsecPolicyOptionsAuthenticationAlgorithmDisabledConst = "disabled"
+	CreateIpsecPolicyOptionsAuthenticationAlgorithmMd5Const      = "md5"
+	CreateIpsecPolicyOptionsAuthenticationAlgorithmSha1Const     = "sha1"
+	CreateIpsecPolicyOptionsAuthenticationAlgorithmSha256Const   = "sha256"
+	CreateIpsecPolicyOptionsAuthenticationAlgorithmSha384Const   = "sha384"
+	CreateIpsecPolicyOptionsAuthenticationAlgorithmSha512Const   = "sha512"
 )
 
 // Constants associated with the CreateIpsecPolicyOptions.EncryptionAlgorithm property.
-// The encryption algorithm.
+// The encryption algorithm
+//
+// The `triple_des` algorithm has been deprecated
+//
+// The `authentication_algorithm` must be `disabled` if and only if
+// `encryption_algorithm` is `aes128gcm16`, `aes192gcm16`, or
+// `aes256gcm16`.
 const (
-	CreateIpsecPolicyOptionsEncryptionAlgorithmAes128Const    = "aes128"
-	CreateIpsecPolicyOptionsEncryptionAlgorithmAes256Const    = "aes256"
-	CreateIpsecPolicyOptionsEncryptionAlgorithmTripleDesConst = "triple_des"
+	CreateIpsecPolicyOptionsEncryptionAlgorithmAes128Const      = "aes128"
+	CreateIpsecPolicyOptionsEncryptionAlgorithmAes128gcm16Const = "aes128gcm16"
+	CreateIpsecPolicyOptionsEncryptionAlgorithmAes192Const      = "aes192"
+	CreateIpsecPolicyOptionsEncryptionAlgorithmAes192gcm16Const = "aes192gcm16"
+	CreateIpsecPolicyOptionsEncryptionAlgorithmAes256Const      = "aes256"
+	CreateIpsecPolicyOptionsEncryptionAlgorithmAes256gcm16Const = "aes256gcm16"
+	CreateIpsecPolicyOptionsEncryptionAlgorithmTripleDesConst   = "triple_des"
 )
 
 // Constants associated with the CreateIpsecPolicyOptions.Pfs property.
-// Perfect Forward Secrecy.
+// Perfect Forward Secrecy
+//
+// Groups `group_2` and `group_5` have been deprecated.
 const (
 	CreateIpsecPolicyOptionsPfsDisabledConst = "disabled"
 	CreateIpsecPolicyOptionsPfsGroup14Const  = "group_14"
+	CreateIpsecPolicyOptionsPfsGroup15Const  = "group_15"
+	CreateIpsecPolicyOptionsPfsGroup16Const  = "group_16"
+	CreateIpsecPolicyOptionsPfsGroup17Const  = "group_17"
+	CreateIpsecPolicyOptionsPfsGroup18Const  = "group_18"
 	CreateIpsecPolicyOptionsPfsGroup19Const  = "group_19"
 	CreateIpsecPolicyOptionsPfsGroup2Const   = "group_2"
+	CreateIpsecPolicyOptionsPfsGroup20Const  = "group_20"
+	CreateIpsecPolicyOptionsPfsGroup21Const  = "group_21"
+	CreateIpsecPolicyOptionsPfsGroup22Const  = "group_22"
+	CreateIpsecPolicyOptionsPfsGroup23Const  = "group_23"
+	CreateIpsecPolicyOptionsPfsGroup24Const  = "group_24"
+	CreateIpsecPolicyOptionsPfsGroup31Const  = "group_31"
 	CreateIpsecPolicyOptionsPfsGroup5Const   = "group_5"
 )
 
@@ -26133,8 +26966,8 @@ type CreateKeyOptions struct {
 	// imported.
 	PublicKey *string `json:"public_key" validate:"required"`
 
-	// The unique user-defined name for this key. If unspecified, the name will be a hyphenated list of randomly-selected
-	// words.
+	// The name for this key. The name must not be used by another key in the region. If unspecified, the name will be a
+	// hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
 	// The resource group to use. If unspecified, the account's [default resource
@@ -26197,10 +27030,15 @@ type CreateLoadBalancerListenerOptions struct {
 	LoadBalancerID *string `json:"load_balancer_id" validate:"required,ne="`
 
 	// The listener protocol. Each listener in the load balancer must have a unique `port` and `protocol` combination.
+	//
+	// Load balancers in the `network` family support `tcp` and `udp` (if `udp_supported` is `true`). Load balancers in the
+	// `application` family support `tcp`, `http` and
+	// `https`.
+	//
 	// Additional restrictions:
-	// - If this load balancer is in the `network` family:
-	//   - The protocol must be `tcp` or `udp` (if `udp_supported` is `true`).
-	//   - If `default_pool` is set, the pool protocol must match.
+	// - If `default_pool` is set, the pool's protocol must match, or be compatible with
+	//   the listener's protocol. At present, the compatible protocols are `http` and
+	//   `https`.
 	// - If `https_redirect` is set, the protocol must be `http`.
 	Protocol *string `json:"protocol" validate:"required"`
 
@@ -26212,26 +27050,29 @@ type CreateLoadBalancerListenerOptions struct {
 	//   `accept_proxy_protocol` value must match that listener's `accept_proxy_protocol` value.
 	AcceptProxyProtocol *bool `json:"accept_proxy_protocol,omitempty"`
 
-	// The certificate instance used for SSL termination. It is applicable only to `https`
-	// protocol.
+	// The certificate instance to use for SSL termination. The listener must have a
+	// `protocol` of `https`.
 	CertificateInstance CertificateInstanceIdentityIntf `json:"certificate_instance,omitempty"`
 
 	// The connection limit of the listener.
 	ConnectionLimit *int64 `json:"connection_limit,omitempty"`
 
-	// The default pool for this listener. The specified pool must:
-	//
-	// - Belong to this load balancer
+	// The default pool for this listener. If specified, the pool must:
+	// - Belong to this load balancer.
 	// - Have the same `protocol` as this listener, or have a compatible protocol.
 	//   At present, the compatible protocols are `http` and `https`.
 	// - Not already be the `default_pool` for another listener.
+	//
+	// If unspecified, this listener will be created with no default pool, but one may be
+	// subsequently set.
 	DefaultPool LoadBalancerPoolIdentityIntf `json:"default_pool,omitempty"`
 
 	// The target listener that requests will be redirected to. This listener must have a
 	// `protocol` of `http`, and the target listener must have a `protocol` of `https`.
 	HTTPSRedirect *LoadBalancerListenerHTTPSRedirectPrototype `json:"https_redirect,omitempty"`
 
-	// The policy prototype objects for this listener.
+	// The policy prototype objects for this listener. The load balancer must be in the
+	// `application` family.
 	Policies []LoadBalancerListenerPolicyPrototype `json:"policies,omitempty"`
 
 	// The listener port number, or the inclusive lower bound of the port range. Each listener in the load balancer must
@@ -26266,11 +27107,16 @@ type CreateLoadBalancerListenerOptions struct {
 
 // Constants associated with the CreateLoadBalancerListenerOptions.Protocol property.
 // The listener protocol. Each listener in the load balancer must have a unique `port` and `protocol` combination.
+//
+// Load balancers in the `network` family support `tcp` and `udp` (if `udp_supported` is `true`). Load balancers in the
+// `application` family support `tcp`, `http` and
+// `https`.
+//
 // Additional restrictions:
-// - If this load balancer is in the `network` family:
-//   - The protocol must be `tcp` or `udp` (if `udp_supported` is `true`).
-//   - If `default_pool` is set, the pool protocol must match.
-// - If `https_redirect` is set, the protocol must be `http`.
+//   - If `default_pool` is set, the pool's protocol must match, or be compatible with
+//     the listener's protocol. At present, the compatible protocols are `http` and
+//     `https`.
+//   - If `https_redirect` is set, the protocol must be `http`.
 const (
 	CreateLoadBalancerListenerOptionsProtocolHTTPConst  = "http"
 	CreateLoadBalancerListenerOptionsProtocolHTTPSConst = "https"
@@ -26376,7 +27222,8 @@ type CreateLoadBalancerListenerPolicyOptions struct {
 	// Priority of the policy. Lower value indicates higher priority.
 	Priority *int64 `json:"priority" validate:"required"`
 
-	// The user-defined name for this policy. Names must be unique within the load balancer listener the policy resides in.
+	// The name for this policy. The name must not be used by another policy for the load balancer listener. If
+	// unspecified, the name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
 	// The rule prototype objects for this policy.
@@ -26583,13 +27430,13 @@ func (options *CreateLoadBalancerListenerPolicyRuleOptions) SetHeaders(param map
 
 // CreateLoadBalancerOptions : The CreateLoadBalancer options.
 type CreateLoadBalancerOptions struct {
-	// Indicates whether this load balancer is public or private.
+	// Indicates whether this load balancer is public.
 	//
-	// At present, if route mode is enabled, the load balancer must be private.
+	// At present, if route mode is enabled, the load balancer must not be public.
 	IsPublic *bool `json:"is_public" validate:"required"`
 
-	// The subnets to provision this load balancer in.  The load balancer's availability will depend on the availability of
-	// the zones the specified subnets reside in.
+	// The subnets to provision this load balancer in. The subnets must be in the same VPC. The load balancer's
+	// availability will depend on the availability of the zones that the subnets reside in.
 	//
 	// Load balancers in the `network` family allow only one subnet to be specified.
 	Subnets []SubnetIdentityIntf `json:"subnets" validate:"required"`
@@ -26598,21 +27445,20 @@ type CreateLoadBalancerOptions struct {
 	Listeners []LoadBalancerListenerPrototypeLoadBalancerContext `json:"listeners,omitempty"`
 
 	// The logging configuration to use for this load balancer. See [VPC Datapath
-	// Logging](https://cloud.ibm.com/docs/vpc?topic=vpc-datapath-logging)
-	// on the logging format, fields and permitted values.
+	// Logging](https://cloud.ibm.com/docs/vpc?topic=vpc-datapath-logging) on the logging
+	// format, fields and permitted values.
 	//
-	// To activate logging, the load balancer profile must support the specified logging
-	// type.
+	// To activate logging, the load balancer profile must support the specified logging type.
 	Logging *LoadBalancerLogging `json:"logging,omitempty"`
 
-	// The user-defined name for this load balancer. If unspecified, the name will be a hyphenated list of
-	// randomly-selected words.
+	// The name for this load balancer. The name must not be used by another load balancer in the VPC.  If unspecified, the
+	// name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
 	// The pools of this load balancer.
 	Pools []LoadBalancerPoolPrototype `json:"pools,omitempty"`
 
-	// The profile to use for this load balancer
+	// The profile to use for this load balancer.
 	//
 	// If unspecified, `application` will be used.
 	Profile LoadBalancerProfileIdentityIntf `json:"profile,omitempty"`
@@ -26807,8 +27653,8 @@ type CreateLoadBalancerPoolOptions struct {
 	// tuple cannot be shared by a pool member of any other load balancer in the same VPC.
 	Members []LoadBalancerPoolMemberPrototype `json:"members,omitempty"`
 
-	// The user-defined name for this load balancer pool. If unspecified, the name will be a hyphenated list of
-	// randomly-selected words.
+	// The name for this load balancer pool. The name must not be used by another pool for the load balancer. If
+	// unspecified, the name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
 	// The PROXY protocol setting for this pool:
@@ -26997,8 +27843,8 @@ type CreatePlacementGroupOptions struct {
 	// unexpected strategy was encountered.
 	Strategy *string `json:"strategy" validate:"required"`
 
-	// The unique user-defined name for this placement group. If unspecified, the name will be a hyphenated list of
-	// randomly-selected words.
+	// The name for this placement group. The name must not be used by another placement group in the region. If
+	// unspecified, the name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
 	// The resource group to use. If unspecified, the account's [default resource
@@ -27055,7 +27901,7 @@ func (options *CreatePlacementGroupOptions) SetHeaders(param map[string]string) 
 
 // CreatePublicGatewayOptions : The CreatePublicGateway options.
 type CreatePublicGatewayOptions struct {
-	// The VPC this public gateway will serve.
+	// The VPC this public gateway will reside in.
 	VPC VPCIdentityIntf `json:"vpc" validate:"required"`
 
 	// The zone this public gateway will reside in.
@@ -27063,8 +27909,8 @@ type CreatePublicGatewayOptions struct {
 
 	FloatingIP PublicGatewayFloatingIPPrototypeIntf `json:"floating_ip,omitempty"`
 
-	// The user-defined name for this public gateway. Names must be unique within the VPC the public gateway resides in. If
-	// unspecified, the name will be a hyphenated list of randomly-selected words.
+	// The name for this public gateway. The name must not be used by another public gateway in the VPC. If unspecified,
+	// the name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
 	// The resource group to use. If unspecified, the account's [default resource
@@ -27121,11 +27967,11 @@ func (options *CreatePublicGatewayOptions) SetHeaders(param map[string]string) *
 
 // CreateSecurityGroupOptions : The CreateSecurityGroup options.
 type CreateSecurityGroupOptions struct {
-	// The VPC this security group is to be a part of.
+	// The VPC this security group will reside in.
 	VPC VPCIdentityIntf `json:"vpc" validate:"required"`
 
-	// The user-defined name for this security group. If unspecified, the name will be a hyphenated list of
-	// randomly-selected words. Names must be unique within the VPC the security group resides in.
+	// The name for this security group. The name must not be used by another security group for the VPC. If unspecified,
+	// the name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
 	// The resource group to use. If unspecified, the account's [default resource
@@ -27215,6 +28061,44 @@ func (options *CreateSecurityGroupRuleOptions) SetHeaders(param map[string]strin
 	return options
 }
 
+// CreateSecurityGroupTargetBindingOptions : The CreateSecurityGroupTargetBinding options.
+type CreateSecurityGroupTargetBindingOptions struct {
+	// The security group identifier.
+	SecurityGroupID *string `json:"security_group_id" validate:"required,ne="`
+
+	// The security group target identifier.
+	ID *string `json:"id" validate:"required,ne="`
+
+	// Allows users to set headers on API requests
+	Headers map[string]string
+}
+
+// NewCreateSecurityGroupTargetBindingOptions : Instantiate CreateSecurityGroupTargetBindingOptions
+func (*VpcV1) NewCreateSecurityGroupTargetBindingOptions(securityGroupID string, id string) *CreateSecurityGroupTargetBindingOptions {
+	return &CreateSecurityGroupTargetBindingOptions{
+		SecurityGroupID: core.StringPtr(securityGroupID),
+		ID:              core.StringPtr(id),
+	}
+}
+
+// SetSecurityGroupID : Allow user to set SecurityGroupID
+func (_options *CreateSecurityGroupTargetBindingOptions) SetSecurityGroupID(securityGroupID string) *CreateSecurityGroupTargetBindingOptions {
+	_options.SecurityGroupID = core.StringPtr(securityGroupID)
+	return _options
+}
+
+// SetID : Allow user to set ID
+func (_options *CreateSecurityGroupTargetBindingOptions) SetID(id string) *CreateSecurityGroupTargetBindingOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
+}
+
+// SetHeaders : Allow user to set Headers
+func (options *CreateSecurityGroupTargetBindingOptions) SetHeaders(param map[string]string) *CreateSecurityGroupTargetBindingOptions {
+	options.Headers = param
+	return options
+}
+
 // CreateSnapshotOptions : The CreateSnapshot options.
 type CreateSnapshotOptions struct {
 	// The snapshot prototype object.
@@ -27285,13 +28169,17 @@ type CreateSubnetReservedIPOptions struct {
 	// `target` is deleted, or the reserved IP is unbound. Must be `false` if the reserved IP is unbound.
 	AutoDelete *bool `json:"auto_delete,omitempty"`
 
-	// The user-defined name for this reserved IP. If unspecified, the name will be a hyphenated list of randomly-selected
-	// words. Names must be unique within the subnet the reserved IP resides in. Names beginning with `ibm-` are reserved
-	// for provider-owned resources.
+	// The name for this reserved IP. The name must not be used by another reserved IP in the subnet. Names starting with
+	// `ibm-` are reserved for provider-owned resources, and are not allowed. If unspecified, the name will be a hyphenated
+	// list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
-	// The target this reserved IP is to be bound to. The target must be an endpoint gateway not
-	// already bound to a reserved IP in the subnet's zone.
+	// The target to bind this reserved IP to.  The target must be in the same VPC.
+	//
+	// At present, only endpoint gateway targets are supported.  The endpoint gateway must
+	// not be already bound to a reserved IP in the subnet's zone.
+	//
+	// If unspecified, the reserved IP will be created unbound.
 	Target ReservedIPTargetPrototypeIntf `json:"target,omitempty"`
 
 	// Allows users to set headers on API requests
@@ -27374,8 +28262,9 @@ type CreateVPCAddressPrefixOptions struct {
 	// The VPC identifier.
 	VPCID *string `json:"vpc_id" validate:"required,ne="`
 
-	// The IPv4 range of the address prefix, expressed in CIDR format. The request must not overlap with any existing
-	// address prefixes in the VPC or any of the following reserved address ranges:
+	// The IPv4 range of the address prefix, expressed in CIDR format. The range must not overlap with any existing address
+	// prefixes in the VPC or any of the following reserved address ranges:
+	//
 	//   - `127.0.0.0/8` (IPv4 loopback addresses)
 	//   - `161.26.0.0/16` (IBM services)
 	//   - `166.8.0.0/14` (Cloud Service Endpoints)
@@ -27392,8 +28281,8 @@ type CreateVPCAddressPrefixOptions struct {
 	// have a default address prefix for this zone.
 	IsDefault *bool `json:"is_default,omitempty"`
 
-	// The user-defined name for this address prefix. Names must be unique within the VPC the address prefix resides in. If
-	// unspecified, the name will be a hyphenated list of randomly-selected words.
+	// The name for this address prefix. The name must not be used by another address prefix for the VPC. If unspecified,
+	// the name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
 	// Allows users to set headers on API requests
@@ -27447,8 +28336,9 @@ func (options *CreateVPCAddressPrefixOptions) SetHeaders(param map[string]string
 
 // CreateVPCOptions : The CreateVPC options.
 type CreateVPCOptions struct {
-	// Indicates whether a default address prefix will be automatically created for each zone in this VPC. If `manual`,
-	// this VPC will be created with no default address prefixes.
+	// Indicates whether a [default address prefix](https://cloud.ibm.com/docs/vpc?topic=vpc-configuring-address-prefixes)
+	// will be automatically created for each zone in this VPC. If `manual`, this VPC will be created with no default
+	// address prefixes.
 	//
 	// Since address prefixes are managed identically regardless of whether they were automatically created, the value is
 	// not preserved as a VPC property.
@@ -27459,8 +28349,8 @@ type CreateVPCOptions struct {
 	// connected in this way. This value is set at creation and subsequently immutable.
 	ClassicAccess *bool `json:"classic_access,omitempty"`
 
-	// The unique user-defined name for this VPC. If unspecified, the name will be a hyphenated list of randomly-selected
-	// words.
+	// The name for this VPC. The name must not be used by another VPC in the region. If unspecified, the name will be a
+	// hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
 	// The resource group to use. If unspecified, the account's [default resource
@@ -27472,8 +28362,9 @@ type CreateVPCOptions struct {
 }
 
 // Constants associated with the CreateVPCOptions.AddressPrefixManagement property.
-// Indicates whether a default address prefix will be automatically created for each zone in this VPC. If `manual`, this
-// VPC will be created with no default address prefixes.
+// Indicates whether a [default address prefix](https://cloud.ibm.com/docs/vpc?topic=vpc-configuring-address-prefixes)
+// will be automatically created for each zone in this VPC. If `manual`, this VPC will be created with no default
+// address prefixes.
 //
 // Since address prefixes are managed identically regardless of whether they were automatically created, the value is
 // not preserved as a VPC property.
@@ -27523,8 +28414,7 @@ type CreateVPCRouteOptions struct {
 	VPCID *string `json:"vpc_id" validate:"required,ne="`
 
 	// The destination of the route. At most two routes per `zone` in a table can have the same destination, and only if
-	// both routes have an `action` of `deliver` and the
-	// `next_hop` is an IP address.
+	// both routes have an `action` of `deliver` and the `next_hop` is an IP address.
 	Destination *string `json:"destination" validate:"required"`
 
 	// The zone to apply the route to. (Traffic from subnets in this zone will be
@@ -27532,15 +28422,15 @@ type CreateVPCRouteOptions struct {
 	Zone ZoneIdentityIntf `json:"zone" validate:"required"`
 
 	// The action to perform with a packet matching the route:
-	// - `delegate`: delegate to the system's built-in routes
-	// - `delegate_vpc`: delegate to the system's built-in routes, ignoring Internet-bound
-	//   routes
+	// - `delegate`: delegate to system-provided routes
+	// - `delegate_vpc`: delegate to system-provided routes, ignoring Internet-bound routes
 	// - `deliver`: deliver the packet to the specified `next_hop`
 	// - `drop`: drop the packet.
 	Action *string `json:"action,omitempty"`
 
-	// The user-defined name for this route. If unspecified, the name will be a hyphenated list of randomly-selected words.
-	// Names must be unique within the VPC routing table the route resides in.
+	// The name for this route. The name must not be used by another route in the routing table. Names starting with `ibm-`
+	// are reserved for system-provided routes, and are not allowed. If unspecified, the name will be a hyphenated list of
+	// randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
 	// If `action` is `deliver`, the next hop that packets will be delivered to. For other `action`
@@ -27553,9 +28443,8 @@ type CreateVPCRouteOptions struct {
 
 // Constants associated with the CreateVPCRouteOptions.Action property.
 // The action to perform with a packet matching the route:
-// - `delegate`: delegate to the system's built-in routes
-// - `delegate_vpc`: delegate to the system's built-in routes, ignoring Internet-bound
-//   routes
+// - `delegate`: delegate to system-provided routes
+// - `delegate_vpc`: delegate to system-provided routes, ignoring Internet-bound routes
 // - `deliver`: deliver the packet to the specified `next_hop`
 // - `drop`: drop the packet.
 const (
@@ -27627,23 +28516,13 @@ type CreateVPCRoutingTableOptions struct {
 	// support is expected to expand in the future.
 	AcceptRoutesFrom []ResourceFilter `json:"accept_routes_from,omitempty"`
 
-	// The user-defined name for this routing table. Names must be unique within the VPC the routing table resides in. If
-	// unspecified, the name will be a hyphenated list of randomly-selected words.
+	// The name for this routing table. The name must not be used by another routing table in the VPC. If unspecified, the
+	// name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
 	// If set to `true`, this routing table will be used to route traffic that originates from [Direct
-	// Link](https://cloud.ibm.com/docs/dl/) to this VPC. For this to succeed, the VPC must not already have a routing
-	// table with this property set to `true`.
-	//
-	// Incoming traffic will be routed according to the routing table with one exception: routes with an `action` of
-	// `deliver` are treated as `drop` unless the `next_hop` is an IP address bound to a network interface on a subnet in
-	// the route's `zone`. Therefore, if an incoming packet matches a route with a `next_hop` of an internet-bound IP
-	// address or a VPN gateway connection, the packet will be dropped.
-	RouteDirectLinkIngress *bool `json:"route_direct_link_ingress,omitempty"`
-
-	// If set to `true`, this routing table will be used to route traffic that originates from [Transit
-	// Gateway](https://cloud.ibm.com/cloud/transit-gateway/) to this VPC. For this to succeed, the VPC must not already
-	// have a routing table with this property set to `true`.
+	// Link](https://cloud.ibm.com/docs/dl) to this VPC. The VPC must not already have a routing table with this property
+	// set to `true`.
 	//
 	// Incoming traffic will be routed according to the routing table with one exception: routes with an `action` of
 	// `deliver` are treated as `drop` unless the `next_hop` is an IP address bound to a network interface on a subnet in
@@ -27653,10 +28532,32 @@ type CreateVPCRoutingTableOptions struct {
 	// If [Classic Access](https://cloud.ibm.com/docs/vpc?topic=vpc-setting-up-access-to-classic-infrastructure) is enabled
 	// for this VPC, and this property is set to `true`, its incoming traffic will also be routed according to this routing
 	// table.
+	RouteDirectLinkIngress *bool `json:"route_direct_link_ingress,omitempty"`
+
+	// If set to `true`, this routing table will be used to route traffic that originates from the internet. For this to
+	// succeed, the VPC must not already have a routing table with this property set to `true`.
+	//
+	// Incoming traffic will be routed according to the routing table with two exceptions:
+	// - Traffic destined for IP addresses associated with public gateways will not be
+	//   subject to routes in this routing table.
+	// - Routes with an action of deliver are treated as drop unless the `next_hop` is an
+	//   IP address bound to a network interface on a subnet in the route's `zone`.
+	//   Therefore, if an incoming packet matches a route with a `next_hop` of an
+	//   internet-bound IP address or a VPN gateway connection, the packet will be dropped.
+	RouteInternetIngress *bool `json:"route_internet_ingress,omitempty"`
+
+	// If set to `true`, this routing table will be used to route traffic that originates from [Transit
+	// Gateway](https://cloud.ibm.com/docs/transit-gateway) to this VPC. The VPC must not already have a routing table with
+	// this property set to `true`.
+	//
+	// Incoming traffic will be routed according to the routing table with one exception: routes with an `action` of
+	// `deliver` are treated as `drop` unless the `next_hop` is an IP address bound to a network interface on a subnet in
+	// the route's `zone`. Therefore, if an incoming packet matches a route with a `next_hop` of an internet-bound IP
+	// address or a VPN gateway connection, the packet will be dropped.
 	RouteTransitGatewayIngress *bool `json:"route_transit_gateway_ingress,omitempty"`
 
 	// If set to `true`, this routing table will be used to route traffic that originates from subnets in other zones in
-	// this VPC. For this to succeed, the VPC must not already have a routing table with this property set to `true`.
+	// this VPC. The VPC must not already have a routing table with this property set to `true`.
 	//
 	// Incoming traffic will be routed according to the routing table with one exception: routes with an `action` of
 	// `deliver` are treated as `drop` unless the `next_hop` is an IP address within the VPC's address prefix ranges.
@@ -27703,6 +28604,12 @@ func (_options *CreateVPCRoutingTableOptions) SetRouteDirectLinkIngress(routeDir
 	return _options
 }
 
+// SetRouteInternetIngress : Allow user to set RouteInternetIngress
+func (_options *CreateVPCRoutingTableOptions) SetRouteInternetIngress(routeInternetIngress bool) *CreateVPCRoutingTableOptions {
+	_options.RouteInternetIngress = core.BoolPtr(routeInternetIngress)
+	return _options
+}
+
 // SetRouteTransitGatewayIngress : Allow user to set RouteTransitGatewayIngress
 func (_options *CreateVPCRoutingTableOptions) SetRouteTransitGatewayIngress(routeTransitGatewayIngress bool) *CreateVPCRoutingTableOptions {
 	_options.RouteTransitGatewayIngress = core.BoolPtr(routeTransitGatewayIngress)
@@ -27736,8 +28643,7 @@ type CreateVPCRoutingTableRouteOptions struct {
 	RoutingTableID *string `json:"routing_table_id" validate:"required,ne="`
 
 	// The destination of the route. At most two routes per `zone` in a table can have the same destination, and only if
-	// both routes have an `action` of `deliver` and the
-	// `next_hop` is an IP address.
+	// both routes have an `action` of `deliver` and the `next_hop` is an IP address.
 	Destination *string `json:"destination" validate:"required"`
 
 	// The zone to apply the route to. (Traffic from subnets in this zone will be
@@ -27745,15 +28651,15 @@ type CreateVPCRoutingTableRouteOptions struct {
 	Zone ZoneIdentityIntf `json:"zone" validate:"required"`
 
 	// The action to perform with a packet matching the route:
-	// - `delegate`: delegate to the system's built-in routes
-	// - `delegate_vpc`: delegate to the system's built-in routes, ignoring Internet-bound
-	//   routes
+	// - `delegate`: delegate to system-provided routes
+	// - `delegate_vpc`: delegate to system-provided routes, ignoring Internet-bound routes
 	// - `deliver`: deliver the packet to the specified `next_hop`
 	// - `drop`: drop the packet.
 	Action *string `json:"action,omitempty"`
 
-	// The user-defined name for this route. If unspecified, the name will be a hyphenated list of randomly-selected words.
-	// Names must be unique within the VPC routing table the route resides in.
+	// The name for this route. The name must not be used by another route in the routing table. Names starting with `ibm-`
+	// are reserved for system-provided routes, and are not allowed. If unspecified, the name will be a hyphenated list of
+	// randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
 	// If `action` is `deliver`, the next hop that packets will be delivered to. For other `action`
@@ -27766,9 +28672,8 @@ type CreateVPCRoutingTableRouteOptions struct {
 
 // Constants associated with the CreateVPCRoutingTableRouteOptions.Action property.
 // The action to perform with a packet matching the route:
-// - `delegate`: delegate to the system's built-in routes
-// - `delegate_vpc`: delegate to the system's built-in routes, ignoring Internet-bound
-//   routes
+// - `delegate`: delegate to system-provided routes
+// - `delegate_vpc`: delegate to system-provided routes, ignoring Internet-bound routes
 // - `deliver`: deliver the packet to the specified `next_hop`
 // - `drop`: drop the packet.
 const (
@@ -27937,8 +28842,8 @@ type CreateVPNServerOptions struct {
 	// Indicates whether the split tunneling is enabled on this VPN server.
 	EnableSplitTunneling *bool `json:"enable_split_tunneling,omitempty"`
 
-	// The user-defined name for this VPN server. If unspecified, the name will be a hyphenated list of randomly-selected
-	// words. Names must be unique within the VPC this VPN server is serving.
+	// The name for this VPN server. The name must not be used by another VPN server in the VPC. If unspecified, the name
+	// will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
 	// The port number to use for this VPN server.
@@ -28073,8 +28978,8 @@ type CreateVPNServerRouteOptions struct {
 	// unexpected property value was encountered.
 	Action *string `json:"action,omitempty"`
 
-	// The user-defined name for this VPN route. If unspecified, the name will be a hyphenated list of randomly-selected
-	// words. Names must be unique within the VPN server the VPN route resides in.
+	// The name for this VPN server route. The name must not be used by another route for the VPN server. If unspecified,
+	// the name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
 	// Allows users to set headers on API requests
@@ -28173,10 +29078,11 @@ type DedicatedHost struct {
 	// The total amount of memory in gibibytes for this host.
 	Memory *int64 `json:"memory" validate:"required"`
 
-	// The unique user-defined name for this dedicated host.
+	// The name for this dedicated host. The name is unique across all dedicated hosts in the region.
 	Name *string `json:"name" validate:"required"`
 
-	// The profile this dedicated host uses.
+	// The [profile](https://cloud.ibm.com/docs/vpc?topic=vpc-dh-profiles) for this
+	// dedicated host.
 	Profile *DedicatedHostProfileReference `json:"profile" validate:"required"`
 
 	// Indicates whether this dedicated host is available for instance creation.
@@ -28453,7 +29359,7 @@ type DedicatedHostDisk struct {
 	// The lifecycle state of this dedicated host disk.
 	LifecycleState *string `json:"lifecycle_state,omitempty"`
 
-	// The user-defined or system-provided name for this disk.
+	// The name for this dedicated host disk. The name is unique across all disks on the dedicated host.
 	Name *string `json:"name" validate:"required"`
 
 	// Indicates whether this dedicated host disk is available for instance disk creation.
@@ -28582,7 +29488,7 @@ func UnmarshalDedicatedHostDiskCollection(m map[string]json.RawMessage, result i
 
 // DedicatedHostDiskPatch : DedicatedHostDiskPatch struct
 type DedicatedHostDiskPatch struct {
-	// The user-defined name for this disk.
+	// The name for this dedicated host disk. The name must not be used by another disk on the dedicated host.
 	Name *string `json:"name,omitempty"`
 }
 
@@ -28630,7 +29536,7 @@ type DedicatedHostGroup struct {
 	// The unique identifier for this dedicated host group.
 	ID *string `json:"id" validate:"required"`
 
-	// The unique user-defined name for this dedicated host group.
+	// The name for this dedicated host group. The name is unique across all dedicated host groups in the region.
 	Name *string `json:"name" validate:"required"`
 
 	// The resource group for this dedicated host group.
@@ -28852,7 +29758,7 @@ func UnmarshalDedicatedHostGroupIdentity(m map[string]json.RawMessage, result in
 
 // DedicatedHostGroupPatch : DedicatedHostGroupPatch struct
 type DedicatedHostGroupPatch struct {
-	// The unique user-defined name for this dedicated host group.
+	// The name for this dedicated host group. The name must not be used by another dedicated host group in the region.
 	Name *string `json:"name,omitempty"`
 }
 
@@ -28879,7 +29785,8 @@ func (dedicatedHostGroupPatch *DedicatedHostGroupPatch) AsPatch() (_patch map[st
 
 // DedicatedHostGroupPrototypeDedicatedHostByZoneContext : DedicatedHostGroupPrototypeDedicatedHostByZoneContext struct
 type DedicatedHostGroupPrototypeDedicatedHostByZoneContext struct {
-	// The unique user-defined name for this dedicated host group.
+	// The name for this dedicated host group. The name must not be used by another dedicated host group in the region. If
+	// unspecified, the name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
 	// The resource group to use. If unspecified, the host's resource group is used.
@@ -28906,7 +29813,7 @@ type DedicatedHostGroupReference struct {
 	// The CRN for this dedicated host group.
 	CRN *string `json:"crn" validate:"required"`
 
-	// If present, this property indicates the referenced resource has been deleted and provides
+	// If present, this property indicates the referenced resource has been deleted, and provides
 	// some supplementary information.
 	Deleted *DedicatedHostGroupReferenceDeleted `json:"deleted,omitempty"`
 
@@ -28916,7 +29823,7 @@ type DedicatedHostGroupReference struct {
 	// The unique identifier for this dedicated host group.
 	ID *string `json:"id" validate:"required"`
 
-	// The unique user-defined name for this dedicated host group.
+	// The name for this dedicated host group. The name is unique across all dedicated host groups in the region.
 	Name *string `json:"name" validate:"required"`
 
 	// The resource type.
@@ -28960,7 +29867,7 @@ func UnmarshalDedicatedHostGroupReference(m map[string]json.RawMessage, result i
 	return
 }
 
-// DedicatedHostGroupReferenceDeleted : If present, this property indicates the referenced resource has been deleted and provides some supplementary
+// DedicatedHostGroupReferenceDeleted : If present, this property indicates the referenced resource has been deleted, and provides some supplementary
 // information.
 type DedicatedHostGroupReferenceDeleted struct {
 	// Link to documentation about deleted resources.
@@ -28983,7 +29890,7 @@ type DedicatedHostPatch struct {
 	// If set to true, instances can be placed on this dedicated host.
 	InstancePlacementEnabled *bool `json:"instance_placement_enabled,omitempty"`
 
-	// The unique user-defined name for this dedicated host.
+	// The name for this dedicated host. The name must not be used by another dedicated host in the region.
 	Name *string `json:"name,omitempty"`
 }
 
@@ -29708,11 +30615,12 @@ type DedicatedHostPrototype struct {
 	// If set to true, instances can be placed on this dedicated host.
 	InstancePlacementEnabled *bool `json:"instance_placement_enabled,omitempty"`
 
-	// The unique user-defined name for this dedicated host. If unspecified, the name will be a hyphenated list of
-	// randomly-selected words.
+	// The name for this dedicated host. The name must not be used by another dedicated host in the region. If unspecified,
+	// the name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
-	// The profile to use for this dedicated host.
+	// The [profile](https://cloud.ibm.com/docs/vpc?topic=vpc-dh-profiles) to use for this
+	// dedicated host.
 	Profile DedicatedHostProfileIdentityIntf `json:"profile" validate:"required"`
 
 	// The resource group to use. If unspecified, the account's [default resource
@@ -29770,7 +30678,7 @@ type DedicatedHostReference struct {
 	// The CRN for this dedicated host.
 	CRN *string `json:"crn" validate:"required"`
 
-	// If present, this property indicates the referenced resource has been deleted and provides
+	// If present, this property indicates the referenced resource has been deleted, and provides
 	// some supplementary information.
 	Deleted *DedicatedHostReferenceDeleted `json:"deleted,omitempty"`
 
@@ -29780,7 +30688,7 @@ type DedicatedHostReference struct {
 	// The unique identifier for this dedicated host.
 	ID *string `json:"id" validate:"required"`
 
-	// The unique user-defined name for this dedicated host.
+	// The name for this dedicated host. The name is unique across all dedicated hosts in the region.
 	Name *string `json:"name" validate:"required"`
 
 	// The resource type.
@@ -29824,7 +30732,7 @@ func UnmarshalDedicatedHostReference(m map[string]json.RawMessage, result interf
 	return
 }
 
-// DedicatedHostReferenceDeleted : If present, this property indicates the referenced resource has been deleted and provides some supplementary
+// DedicatedHostReferenceDeleted : If present, this property indicates the referenced resource has been deleted, and provides some supplementary
 // information.
 type DedicatedHostReferenceDeleted struct {
 	// Link to documentation about deleted resources.
@@ -29857,7 +30765,7 @@ type DefaultNetworkACL struct {
 	ID *string `json:"id" validate:"required"`
 
 	// The name of the default network ACL created for a VPC. The name will be a hyphenated list of randomly-selected words
-	// at creation, but may be user-specified with a subsequent request.
+	// at creation, but may be changed.
 	Name *string `json:"name" validate:"required"`
 
 	// The resource group for the default network ACL for a VPC. Set to the VPC's
@@ -29871,7 +30779,7 @@ type DefaultNetworkACL struct {
 	// The subnets to which this network ACL is attached.
 	Subnets []SubnetReference `json:"subnets" validate:"required"`
 
-	// The VPC this network ACL is a part of.
+	// The VPC this network ACL resides in.
 	VPC *VPCReference `json:"vpc" validate:"required"`
 }
 
@@ -29942,14 +30850,14 @@ type DefaultRoutingTable struct {
 	LifecycleState *string `json:"lifecycle_state" validate:"required"`
 
 	// The name of the default routing table created for this VPC. The name will be a hyphenated list of randomly-selected
-	// words at creation, but may be user-specified with a subsequent request.
+	// words at creation, but may be changed.
 	Name *string `json:"name" validate:"required"`
 
 	// The resource type.
 	ResourceType *string `json:"resource_type" validate:"required"`
 
 	// Indicates whether this routing table is used to route traffic that originates from
-	// [Direct Link](https://cloud.ibm.com/docs/dl/) to this VPC.
+	// [Direct Link](https://cloud.ibm.com/docs/dl) to this VPC.
 	//
 	// Incoming traffic will be routed according to the routing table with one exception: routes with an `action` of
 	// `deliver` are treated as `drop` unless the `next_hop` is an IP address bound to a network interface on a subnet in
@@ -29957,8 +30865,19 @@ type DefaultRoutingTable struct {
 	// address or a VPN gateway connection, the packet will be dropped.
 	RouteDirectLinkIngress *bool `json:"route_direct_link_ingress" validate:"required"`
 
+	// Indicates whether this routing table is used to route traffic that originates from the internet.
+	//
+	// Incoming traffic will be routed according to the routing table with two exceptions:
+	// - Traffic destined for IP addresses associated with public gateways will not be
+	//   subject to routes in this routing table.
+	// - Routes with an action of deliver are treated as drop unless the `next_hop` is an
+	//   IP address bound to a network interface on a subnet in the route's `zone`.
+	//   Therefore, if an incoming packet matches a route with a `next_hop` of an
+	//   internet-bound IP address or a VPN gateway connection, the packet will be dropped.
+	RouteInternetIngress *bool `json:"route_internet_ingress" validate:"required"`
+
 	// Indicates whether this routing table is used to route traffic that originates from from [Transit
-	// Gateway](https://cloud.ibm.com/cloud/transit-gateway/) to this VPC.
+	// Gateway](https://cloud.ibm.com/docs/transit-gateway) to this VPC.
 	//
 	// Incoming traffic will be routed according to the routing table with one exception: routes with an `action` of
 	// `deliver` are treated as `drop` unless the `next_hop` is an IP address bound to a network interface on a subnet in
@@ -30040,6 +30959,10 @@ func UnmarshalDefaultRoutingTable(m map[string]json.RawMessage, result interface
 	if err != nil {
 		return
 	}
+	err = core.UnmarshalPrimitive(m, "route_internet_ingress", &obj.RouteInternetIngress)
+	if err != nil {
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "route_transit_gateway_ingress", &obj.RouteTransitGatewayIngress)
 	if err != nil {
 		return
@@ -30074,8 +30997,8 @@ type DefaultSecurityGroup struct {
 	// The unique identifier for this security group.
 	ID *string `json:"id" validate:"required"`
 
-	// The name of the default security group created for a VPC. The name will be a hyphenated list of randomly-selected
-	// words at creation, but may be user-specified with a subsequent request.
+	// The name for the default security group for a VPC. The name will be a hyphenated list of randomly-selected words at
+	// creation, but may changed.
 	Name *string `json:"name" validate:"required"`
 
 	// The resource group for this security group.
@@ -30089,7 +31012,7 @@ type DefaultSecurityGroup struct {
 	// The targets for this security group.
 	Targets []SecurityGroupTargetReferenceIntf `json:"targets" validate:"required"`
 
-	// The VPC this security group is a part of.
+	// The VPC this security group resides in.
 	VPC *VPCReference `json:"vpc" validate:"required"`
 }
 
@@ -31075,6 +31998,9 @@ type DeleteLoadBalancerOptions struct {
 	// The load balancer identifier.
 	ID *string `json:"id" validate:"required,ne="`
 
+	// If present, the request will fail if the specified ETag value does not match the resource's current ETag value.
+	IfMatch *string `json:"If-Match,omitempty"`
+
 	// Allows users to set headers on API requests
 	Headers map[string]string
 }
@@ -31089,6 +32015,12 @@ func (*VpcV1) NewDeleteLoadBalancerOptions(id string) *DeleteLoadBalancerOptions
 // SetID : Allow user to set ID
 func (_options *DeleteLoadBalancerOptions) SetID(id string) *DeleteLoadBalancerOptions {
 	_options.ID = core.StringPtr(id)
+	return _options
+}
+
+// SetIfMatch : Allow user to set IfMatch
+func (_options *DeleteLoadBalancerOptions) SetIfMatch(ifMatch string) *DeleteLoadBalancerOptions {
+	_options.IfMatch = core.StringPtr(ifMatch)
 	return _options
 }
 
@@ -31368,6 +32300,44 @@ func (_options *DeleteSecurityGroupRuleOptions) SetID(id string) *DeleteSecurity
 
 // SetHeaders : Allow user to set Headers
 func (options *DeleteSecurityGroupRuleOptions) SetHeaders(param map[string]string) *DeleteSecurityGroupRuleOptions {
+	options.Headers = param
+	return options
+}
+
+// DeleteSecurityGroupTargetBindingOptions : The DeleteSecurityGroupTargetBinding options.
+type DeleteSecurityGroupTargetBindingOptions struct {
+	// The security group identifier.
+	SecurityGroupID *string `json:"security_group_id" validate:"required,ne="`
+
+	// The security group target identifier.
+	ID *string `json:"id" validate:"required,ne="`
+
+	// Allows users to set headers on API requests
+	Headers map[string]string
+}
+
+// NewDeleteSecurityGroupTargetBindingOptions : Instantiate DeleteSecurityGroupTargetBindingOptions
+func (*VpcV1) NewDeleteSecurityGroupTargetBindingOptions(securityGroupID string, id string) *DeleteSecurityGroupTargetBindingOptions {
+	return &DeleteSecurityGroupTargetBindingOptions{
+		SecurityGroupID: core.StringPtr(securityGroupID),
+		ID:              core.StringPtr(id),
+	}
+}
+
+// SetSecurityGroupID : Allow user to set SecurityGroupID
+func (_options *DeleteSecurityGroupTargetBindingOptions) SetSecurityGroupID(securityGroupID string) *DeleteSecurityGroupTargetBindingOptions {
+	_options.SecurityGroupID = core.StringPtr(securityGroupID)
+	return _options
+}
+
+// SetID : Allow user to set ID
+func (_options *DeleteSecurityGroupTargetBindingOptions) SetID(id string) *DeleteSecurityGroupTargetBindingOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
+}
+
+// SetHeaders : Allow user to set Headers
+func (options *DeleteSecurityGroupTargetBindingOptions) SetHeaders(param map[string]string) *DeleteSecurityGroupTargetBindingOptions {
 	options.Headers = param
 	return options
 }
@@ -32033,7 +33003,7 @@ type EndpointGateway struct {
 	// The lifecycle state of the endpoint gateway.
 	LifecycleState *string `json:"lifecycle_state" validate:"required"`
 
-	// The unique user-defined name for this endpoint gateway.
+	// The name for this endpoint gateway. The name is unique across all endpoint gateways in the VPC.
 	Name *string `json:"name" validate:"required"`
 
 	// The resource group for this endpoint gateway.
@@ -32046,6 +33016,7 @@ type EndpointGateway struct {
 	SecurityGroups []SecurityGroupReference `json:"security_groups" validate:"required"`
 
 	// The fully qualified domain name for the target service.
+	// Deprecated: this field is deprecated and may be removed in a future release.
 	ServiceEndpoint *string `json:"service_endpoint,omitempty"`
 
 	// The fully qualified domain names for the target service.
@@ -32054,7 +33025,7 @@ type EndpointGateway struct {
 	// The target for this endpoint gateway.
 	Target EndpointGatewayTargetIntf `json:"target" validate:"required"`
 
-	// The VPC this endpoint gateway is serving.
+	// The VPC this endpoint gateway resides in.
 	VPC *VPCReference `json:"vpc" validate:"required"`
 }
 
@@ -32252,8 +33223,7 @@ func UnmarshalEndpointGatewayCollectionNext(m map[string]json.RawMessage, result
 
 // EndpointGatewayPatch : EndpointGatewayPatch struct
 type EndpointGatewayPatch struct {
-	// The user-defined name for this endpoint gateway. Names must be unique within the VPC this endpoint gateway is
-	// serving.
+	// The name for this endpoint gateway. The name must not be used by another endpoint gateway in the VPC.
 	Name *string `json:"name,omitempty"`
 }
 
@@ -32278,7 +33248,7 @@ func (endpointGatewayPatch *EndpointGatewayPatch) AsPatch() (_patch map[string]i
 	return
 }
 
-// EndpointGatewayReferenceDeleted : If present, this property indicates the referenced resource has been deleted and provides some supplementary
+// EndpointGatewayReferenceDeleted : If present, this property indicates the referenced resource has been deleted, and provides some supplementary
 // information.
 type EndpointGatewayReferenceDeleted struct {
 	// Link to documentation about deleted resources.
@@ -32318,9 +33288,9 @@ type EndpointGatewayReservedIP struct {
 	// `target` is deleted, or the reserved IP is unbound.
 	AutoDelete *bool `json:"auto_delete,omitempty"`
 
-	// The user-defined name for this reserved IP. If unspecified, the name will be a hyphenated list of randomly-selected
-	// words. Names must be unique within the subnet the reserved IP resides in. Names beginning with `ibm-` are reserved
-	// for provider-owned resources.
+	// The name for this reserved IP. The name must not be used by another reserved IP in the subnet. Names starting with
+	// `ibm-` are reserved for provider-owned resources, and are not allowed. If unspecified, the name will be a hyphenated
+	// list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
 	// The subnet in which to create this reserved IP.
@@ -32415,7 +33385,7 @@ func UnmarshalEndpointGatewayTarget(m map[string]json.RawMessage, result interfa
 	return
 }
 
-// EndpointGatewayTargetPrototype : The target for this endpoint gateway.
+// EndpointGatewayTargetPrototype : The target to use for this endpoint gateway. Must not already be the target of another endpoint gateway in the VPC.
 // Models which "extend" this model:
 // - EndpointGatewayTargetPrototypeProviderCloudServiceIdentity
 // - EndpointGatewayTargetPrototypeProviderInfrastructureServiceIdentity
@@ -32486,7 +33456,7 @@ type FloatingIP struct {
 	// The unique identifier for this floating IP.
 	ID *string `json:"id" validate:"required"`
 
-	// The unique user-defined name for this floating IP.
+	// The name for this floating IP. The name is unique across all floating IPs in the region.
 	Name *string `json:"name" validate:"required"`
 
 	// The resource group for this floating IP.
@@ -32687,12 +33657,11 @@ func UnmarshalFloatingIPCollectionNext(m map[string]json.RawMessage, result inte
 
 // FloatingIPPatch : FloatingIPPatch struct
 type FloatingIPPatch struct {
-	// The unique user-defined name for this floating IP.
+	// The name for this floating IP. The name must not be used by another floating IP in the region.
 	Name *string `json:"name,omitempty"`
 
-	// The network interface to bind the floating IP to, replacing any existing binding. For
-	// this request to succeed, the floating IP must not be required by another resource, such
-	// as a public gateway.
+	// The network interface to bind the floating IP to, replacing any existing binding.
+	// The floating IP must not be required by another resource, such as a public gateway.
 	Target FloatingIPTargetPatchIntf `json:"target,omitempty"`
 }
 
@@ -32726,8 +33695,8 @@ func (floatingIPPatch *FloatingIPPatch) AsPatch() (_patch map[string]interface{}
 // - FloatingIPPrototypeFloatingIPByZone
 // - FloatingIPPrototypeFloatingIPByTarget
 type FloatingIPPrototype struct {
-	// The unique user-defined name for this floating IP. If unspecified, the name will be a hyphenated list of
-	// randomly-selected words.
+	// The name for this floating IP. The name must not be used by another floating IP in the region. If unspecified, the
+	// name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
 	// The resource group to use. If unspecified, the account's [default resource
@@ -32780,7 +33749,7 @@ type FloatingIPReference struct {
 	// The CRN for this floating IP.
 	CRN *string `json:"crn" validate:"required"`
 
-	// If present, this property indicates the referenced resource has been deleted and provides
+	// If present, this property indicates the referenced resource has been deleted, and provides
 	// some supplementary information.
 	Deleted *FloatingIPReferenceDeleted `json:"deleted,omitempty"`
 
@@ -32790,7 +33759,7 @@ type FloatingIPReference struct {
 	// The unique identifier for this floating IP.
 	ID *string `json:"id" validate:"required"`
 
-	// The unique user-defined name for this floating IP.
+	// The name for this floating IP. The name is unique across all floating IPs in the region.
 	Name *string `json:"name" validate:"required"`
 }
 
@@ -32825,7 +33794,7 @@ func UnmarshalFloatingIPReference(m map[string]json.RawMessage, result interface
 	return
 }
 
-// FloatingIPReferenceDeleted : If present, this property indicates the referenced resource has been deleted and provides some supplementary
+// FloatingIPReferenceDeleted : If present, this property indicates the referenced resource has been deleted, and provides some supplementary
 // information.
 type FloatingIPReferenceDeleted struct {
 	// Link to documentation about deleted resources.
@@ -32848,7 +33817,7 @@ func UnmarshalFloatingIPReferenceDeleted(m map[string]json.RawMessage, result in
 // - FloatingIPTargetNetworkInterfaceReference
 // - FloatingIPTargetPublicGatewayReference
 type FloatingIPTarget struct {
-	// If present, this property indicates the referenced resource has been deleted and provides
+	// If present, this property indicates the referenced resource has been deleted, and provides
 	// some supplementary information.
 	Deleted *NetworkInterfaceReferenceDeleted `json:"deleted,omitempty"`
 
@@ -32858,7 +33827,7 @@ type FloatingIPTarget struct {
 	// The unique identifier for this network interface.
 	ID *string `json:"id,omitempty"`
 
-	// The user-defined name for this network interface.
+	// The name for this network interface.
 	Name *string `json:"name,omitempty"`
 
 	PrimaryIP *ReservedIPReference `json:"primary_ip,omitempty"`
@@ -32919,8 +33888,8 @@ func UnmarshalFloatingIPTarget(m map[string]json.RawMessage, result interface{})
 	return
 }
 
-// FloatingIPTargetPatch : The network interface to bind the floating IP to, replacing any existing binding. For this request to succeed, the
-// floating IP must not be required by another resource, such as a public gateway.
+// FloatingIPTargetPatch : The network interface to bind the floating IP to, replacing any existing binding. The floating IP must not be
+// required by another resource, such as a public gateway.
 // Models which "extend" this model:
 // - FloatingIPTargetPatchNetworkInterfaceIdentityByID
 // - FloatingIPTargetPatchNetworkInterfaceIdentityByHref
@@ -32996,7 +33965,7 @@ type FlowLogCollector struct {
 	// The lifecycle state of the flow log collector.
 	LifecycleState *string `json:"lifecycle_state" validate:"required"`
 
-	// The unique user-defined name for this flow log collector.
+	// The name for this flow log collector. The name is unique across all flow log collectors in the region.
 	Name *string `json:"name" validate:"required"`
 
 	// The resource group for this flow log collector.
@@ -33005,12 +33974,21 @@ type FlowLogCollector struct {
 	// The Cloud Object Storage bucket where the collected flows are logged.
 	StorageBucket *LegacyCloudObjectStorageBucketReference `json:"storage_bucket" validate:"required"`
 
-	// The target this collector is collecting flow logs for. If the target is an instance,
-	// subnet, or VPC, flow logs will not be collected for any network interfaces within the
-	// target that are themselves the target of a more specific flow log collector.
+	// The target this collector is collecting flow logs for.
+	// - If the target is a network interface, flow logs will be collected
+	//   for that network interface.
+	// - If the target is a virtual server instance, flow logs will be collected
+	//   for all network interfaces attached to that instance.
+	// - If the target is a subnet, flow logs will be collected
+	//   for all network interfaces attached to that subnet.
+	// - If the target is a VPC, flow logs will be collected for network interfaces
+	//   attached to all subnets within that VPC.
+	// If the target is an instance, subnet, or VPC, flow logs will not be collected
+	// for any network interfaces within the target that are themselves the target of
+	// a more specific flow log collector.
 	Target FlowLogCollectorTargetIntf `json:"target" validate:"required"`
 
-	// The VPC this flow log collector is associated with.
+	// The VPC this flow log collector resides in.
 	VPC *VPCReference `json:"vpc" validate:"required"`
 }
 
@@ -33179,7 +34157,7 @@ type FlowLogCollectorPatch struct {
 	// activates the collector.
 	Active *bool `json:"active,omitempty"`
 
-	// The unique user-defined name for this flow log collector.
+	// The name for this flow log collector. The name must not be used by another flow log collector in the region.
 	Name *string `json:"name,omitempty"`
 }
 
@@ -33208,16 +34186,25 @@ func (flowLogCollectorPatch *FlowLogCollectorPatch) AsPatch() (_patch map[string
 	return
 }
 
-// FlowLogCollectorTarget : The target this collector is collecting flow logs for. If the target is an instance, subnet, or VPC, flow logs will
-// not be collected for any network interfaces within the target that are themselves the target of a more specific flow
-// log collector.
+// FlowLogCollectorTarget : The target this collector is collecting flow logs for.
+//   - If the target is a network interface, flow logs will be collected
+//     for that network interface.
+//   - If the target is a virtual server instance, flow logs will be collected
+//     for all network interfaces attached to that instance.
+//   - If the target is a subnet, flow logs will be collected
+//     for all network interfaces attached to that subnet.
+//   - If the target is a VPC, flow logs will be collected for network interfaces
+//     attached to all subnets within that VPC. If the target is an instance, subnet, or VPC, flow logs will not be
+//
+// collected for any network interfaces within the target that are themselves the target of a more specific flow log
+// collector.
 // Models which "extend" this model:
 // - FlowLogCollectorTargetNetworkInterfaceReferenceTargetContext
 // - FlowLogCollectorTargetInstanceReference
 // - FlowLogCollectorTargetSubnetReference
 // - FlowLogCollectorTargetVPCReference
 type FlowLogCollectorTarget struct {
-	// If present, this property indicates the referenced resource has been deleted and provides
+	// If present, this property indicates the referenced resource has been deleted, and provides
 	// some supplementary information.
 	Deleted *NetworkInterfaceReferenceTargetContextDeleted `json:"deleted,omitempty"`
 
@@ -33227,7 +34214,7 @@ type FlowLogCollectorTarget struct {
 	// The unique identifier for this network interface.
 	ID *string `json:"id,omitempty"`
 
-	// The user-defined name for this network interface.
+	// The name for this network interface.
 	Name *string `json:"name,omitempty"`
 
 	// The resource type.
@@ -33328,7 +34315,7 @@ func UnmarshalFlowLogCollectorTargetPrototype(m map[string]json.RawMessage, resu
 	return
 }
 
-// GenericResourceReferenceDeleted : If present, this property indicates the referenced resource has been deleted and provides some supplementary
+// GenericResourceReferenceDeleted : If present, this property indicates the referenced resource has been deleted, and provides some supplementary
 // information.
 type GenericResourceReferenceDeleted struct {
 	// Link to documentation about deleted resources.
@@ -33344,6 +34331,44 @@ func UnmarshalGenericResourceReferenceDeleted(m map[string]json.RawMessage, resu
 	}
 	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
 	return
+}
+
+// GetBackupPolicyJobOptions : The GetBackupPolicyJob options.
+type GetBackupPolicyJobOptions struct {
+	// The backup policy identifier.
+	BackupPolicyID *string `json:"backup_policy_id" validate:"required,ne="`
+
+	// The backup policy job identifier.
+	ID *string `json:"id" validate:"required,ne="`
+
+	// Allows users to set headers on API requests
+	Headers map[string]string
+}
+
+// NewGetBackupPolicyJobOptions : Instantiate GetBackupPolicyJobOptions
+func (*VpcV1) NewGetBackupPolicyJobOptions(backupPolicyID string, id string) *GetBackupPolicyJobOptions {
+	return &GetBackupPolicyJobOptions{
+		BackupPolicyID: core.StringPtr(backupPolicyID),
+		ID:             core.StringPtr(id),
+	}
+}
+
+// SetBackupPolicyID : Allow user to set BackupPolicyID
+func (_options *GetBackupPolicyJobOptions) SetBackupPolicyID(backupPolicyID string) *GetBackupPolicyJobOptions {
+	_options.BackupPolicyID = core.StringPtr(backupPolicyID)
+	return _options
+}
+
+// SetID : Allow user to set ID
+func (_options *GetBackupPolicyJobOptions) SetID(id string) *GetBackupPolicyJobOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
+}
+
+// SetHeaders : Allow user to set Headers
+func (options *GetBackupPolicyJobOptions) SetHeaders(param map[string]string) *GetBackupPolicyJobOptions {
+	options.Headers = param
+	return options
 }
 
 // GetBackupPolicyOptions : The GetBackupPolicy options.
@@ -33522,6 +34547,54 @@ func (_options *GetBareMetalServerNetworkInterfaceFloatingIPOptions) SetID(id st
 
 // SetHeaders : Allow user to set Headers
 func (options *GetBareMetalServerNetworkInterfaceFloatingIPOptions) SetHeaders(param map[string]string) *GetBareMetalServerNetworkInterfaceFloatingIPOptions {
+	options.Headers = param
+	return options
+}
+
+// GetBareMetalServerNetworkInterfaceIPOptions : The GetBareMetalServerNetworkInterfaceIP options.
+type GetBareMetalServerNetworkInterfaceIPOptions struct {
+	// The bare metal server identifier.
+	BareMetalServerID *string `json:"bare_metal_server_id" validate:"required,ne="`
+
+	// The network interface identifier.
+	NetworkInterfaceID *string `json:"network_interface_id" validate:"required,ne="`
+
+	// The reserved IP identifier.
+	ID *string `json:"id" validate:"required,ne="`
+
+	// Allows users to set headers on API requests
+	Headers map[string]string
+}
+
+// NewGetBareMetalServerNetworkInterfaceIPOptions : Instantiate GetBareMetalServerNetworkInterfaceIPOptions
+func (*VpcV1) NewGetBareMetalServerNetworkInterfaceIPOptions(bareMetalServerID string, networkInterfaceID string, id string) *GetBareMetalServerNetworkInterfaceIPOptions {
+	return &GetBareMetalServerNetworkInterfaceIPOptions{
+		BareMetalServerID:  core.StringPtr(bareMetalServerID),
+		NetworkInterfaceID: core.StringPtr(networkInterfaceID),
+		ID:                 core.StringPtr(id),
+	}
+}
+
+// SetBareMetalServerID : Allow user to set BareMetalServerID
+func (_options *GetBareMetalServerNetworkInterfaceIPOptions) SetBareMetalServerID(bareMetalServerID string) *GetBareMetalServerNetworkInterfaceIPOptions {
+	_options.BareMetalServerID = core.StringPtr(bareMetalServerID)
+	return _options
+}
+
+// SetNetworkInterfaceID : Allow user to set NetworkInterfaceID
+func (_options *GetBareMetalServerNetworkInterfaceIPOptions) SetNetworkInterfaceID(networkInterfaceID string) *GetBareMetalServerNetworkInterfaceIPOptions {
+	_options.NetworkInterfaceID = core.StringPtr(networkInterfaceID)
+	return _options
+}
+
+// SetID : Allow user to set ID
+func (_options *GetBareMetalServerNetworkInterfaceIPOptions) SetID(id string) *GetBareMetalServerNetworkInterfaceIPOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
+}
+
+// SetHeaders : Allow user to set Headers
+func (options *GetBareMetalServerNetworkInterfaceIPOptions) SetHeaders(param map[string]string) *GetBareMetalServerNetworkInterfaceIPOptions {
 	options.Headers = param
 	return options
 }
@@ -35840,7 +36913,9 @@ func (options *GetVPNServerRouteOptions) SetHeaders(param map[string]string) *Ge
 
 // IkePolicy : IkePolicy struct
 type IkePolicy struct {
-	// The authentication algorithm.
+	// The authentication algorithm
+	//
+	// The `md5` and `sha1` algorithms have been deprecated.
 	AuthenticationAlgorithm *string `json:"authentication_algorithm" validate:"required"`
 
 	// The VPN gateway connections that use this IKE policy.
@@ -35849,10 +36924,14 @@ type IkePolicy struct {
 	// The date and time that this IKE policy was created.
 	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
 
-	// The Diffie-Hellman group.
+	// The Diffie-Hellman group
+	//
+	// Groups `2` and `5` have been deprecated.
 	DhGroup *int64 `json:"dh_group" validate:"required"`
 
-	// The encryption algorithm.
+	// The encryption algorithm
+	//
+	// The `triple_des` algorithm has been deprecated.
 	EncryptionAlgorithm *string `json:"encryption_algorithm" validate:"required"`
 
 	// The IKE policy's canonical URL.
@@ -35867,7 +36946,7 @@ type IkePolicy struct {
 	// The key lifetime in seconds.
 	KeyLifetime *int64 `json:"key_lifetime" validate:"required"`
 
-	// The user-defined name for this IKE policy.
+	// The name for this IKE policy. The name is unique across all IKE policies in the region.
 	Name *string `json:"name" validate:"required"`
 
 	// The IKE negotiation mode. Only `main` is supported.
@@ -35881,18 +36960,24 @@ type IkePolicy struct {
 }
 
 // Constants associated with the IkePolicy.AuthenticationAlgorithm property.
-// The authentication algorithm.
+// The authentication algorithm
+//
+// The `md5` and `sha1` algorithms have been deprecated.
 const (
 	IkePolicyAuthenticationAlgorithmMd5Const    = "md5"
 	IkePolicyAuthenticationAlgorithmSha1Const   = "sha1"
 	IkePolicyAuthenticationAlgorithmSha256Const = "sha256"
+	IkePolicyAuthenticationAlgorithmSha384Const = "sha384"
 	IkePolicyAuthenticationAlgorithmSha512Const = "sha512"
 )
 
 // Constants associated with the IkePolicy.EncryptionAlgorithm property.
-// The encryption algorithm.
+// The encryption algorithm
+//
+// The `triple_des` algorithm has been deprecated.
 const (
 	IkePolicyEncryptionAlgorithmAes128Const    = "aes128"
+	IkePolicyEncryptionAlgorithmAes192Const    = "aes192"
 	IkePolicyEncryptionAlgorithmAes256Const    = "aes256"
 	IkePolicyEncryptionAlgorithmTripleDesConst = "triple_des"
 )
@@ -36028,13 +37113,19 @@ func (resp *IkePolicyCollection) GetNextStart() (*string, error) {
 
 // IkePolicyPatch : IkePolicyPatch struct
 type IkePolicyPatch struct {
-	// The authentication algorithm.
+	// The authentication algorithm
+	//
+	// The `md5` and `sha1` algorithms have been deprecated.
 	AuthenticationAlgorithm *string `json:"authentication_algorithm,omitempty"`
 
-	// The Diffie-Hellman group.
+	// The Diffie-Hellman group
+	//
+	// Groups `2` and `5` have been deprecated.
 	DhGroup *int64 `json:"dh_group,omitempty"`
 
-	// The encryption algorithm.
+	// The encryption algorithm
+	//
+	// The `triple_des` algorithm has been deprecated.
 	EncryptionAlgorithm *string `json:"encryption_algorithm,omitempty"`
 
 	// The IKE protocol version.
@@ -36043,23 +37134,29 @@ type IkePolicyPatch struct {
 	// The key lifetime in seconds.
 	KeyLifetime *int64 `json:"key_lifetime,omitempty"`
 
-	// The user-defined name for this IKE policy.
+	// The name for this IKE policy. The name must not be used by another IKE policy in the region.
 	Name *string `json:"name,omitempty"`
 }
 
 // Constants associated with the IkePolicyPatch.AuthenticationAlgorithm property.
-// The authentication algorithm.
+// The authentication algorithm
+//
+// The `md5` and `sha1` algorithms have been deprecated.
 const (
 	IkePolicyPatchAuthenticationAlgorithmMd5Const    = "md5"
 	IkePolicyPatchAuthenticationAlgorithmSha1Const   = "sha1"
 	IkePolicyPatchAuthenticationAlgorithmSha256Const = "sha256"
+	IkePolicyPatchAuthenticationAlgorithmSha384Const = "sha384"
 	IkePolicyPatchAuthenticationAlgorithmSha512Const = "sha512"
 )
 
 // Constants associated with the IkePolicyPatch.EncryptionAlgorithm property.
-// The encryption algorithm.
+// The encryption algorithm
+//
+// The `triple_des` algorithm has been deprecated.
 const (
 	IkePolicyPatchEncryptionAlgorithmAes128Const    = "aes128"
+	IkePolicyPatchEncryptionAlgorithmAes192Const    = "aes192"
 	IkePolicyPatchEncryptionAlgorithmAes256Const    = "aes256"
 	IkePolicyPatchEncryptionAlgorithmTripleDesConst = "triple_des"
 )
@@ -36107,7 +37204,7 @@ func (ikePolicyPatch *IkePolicyPatch) AsPatch() (_patch map[string]interface{}, 
 
 // IkePolicyReference : IkePolicyReference struct
 type IkePolicyReference struct {
-	// If present, this property indicates the referenced resource has been deleted and provides
+	// If present, this property indicates the referenced resource has been deleted, and provides
 	// some supplementary information.
 	Deleted *IkePolicyReferenceDeleted `json:"deleted,omitempty"`
 
@@ -36117,7 +37214,7 @@ type IkePolicyReference struct {
 	// The unique identifier for this IKE policy.
 	ID *string `json:"id" validate:"required"`
 
-	// The user-defined name for this IKE policy.
+	// The name for this IKE policy. The name is unique across all IKE policies in the region.
 	Name *string `json:"name" validate:"required"`
 
 	// The resource type.
@@ -36189,7 +37286,12 @@ func UnmarshalIP(m map[string]json.RawMessage, result interface{}) (err error) {
 
 // IPsecPolicy : IPsecPolicy struct
 type IPsecPolicy struct {
-	// The authentication algorithm.
+	// The authentication algorithm
+	//
+	// The `md5` and `sha1` algorithms have been deprecated
+	//
+	// Must be `disabled` if and only if the `encryption_algorithm` is
+	// `aes128gcm16`, `aes192gcm16`, or `aes256gcm16`.
 	AuthenticationAlgorithm *string `json:"authentication_algorithm" validate:"required"`
 
 	// The VPN gateway connections that use this IPsec policy.
@@ -36201,7 +37303,13 @@ type IPsecPolicy struct {
 	// The encapsulation mode used. Only `tunnel` is supported.
 	EncapsulationMode *string `json:"encapsulation_mode" validate:"required"`
 
-	// The encryption algorithm.
+	// The encryption algorithm
+	//
+	// The `triple_des` algorithm has been deprecated
+	//
+	// The `authentication_algorithm` must be `disabled` if and only if
+	// `encryption_algorithm` is `aes128gcm16`, `aes192gcm16`, or
+	// `aes256gcm16`.
 	EncryptionAlgorithm *string `json:"encryption_algorithm" validate:"required"`
 
 	// The IPsec policy's canonical URL.
@@ -36213,10 +37321,12 @@ type IPsecPolicy struct {
 	// The key lifetime in seconds.
 	KeyLifetime *int64 `json:"key_lifetime" validate:"required"`
 
-	// The user-defined name for this IPsec policy.
+	// The name for this IPsec policy. The name is unique across all IPsec policies in the region.
 	Name *string `json:"name" validate:"required"`
 
-	// Perfect Forward Secrecy.
+	// Perfect Forward Secrecy
+	//
+	// Groups `group_2` and `group_5` have been deprecated.
 	Pfs *string `json:"pfs" validate:"required"`
 
 	// The resource group for this IPsec policy.
@@ -36230,12 +37340,19 @@ type IPsecPolicy struct {
 }
 
 // Constants associated with the IPsecPolicy.AuthenticationAlgorithm property.
-// The authentication algorithm.
+// The authentication algorithm
+//
+// # The `md5` and `sha1` algorithms have been deprecated
+//
+// Must be `disabled` if and only if the `encryption_algorithm` is
+// `aes128gcm16`, `aes192gcm16`, or `aes256gcm16`.
 const (
-	IPsecPolicyAuthenticationAlgorithmMd5Const    = "md5"
-	IPsecPolicyAuthenticationAlgorithmSha1Const   = "sha1"
-	IPsecPolicyAuthenticationAlgorithmSha256Const = "sha256"
-	IPsecPolicyAuthenticationAlgorithmSha512Const = "sha512"
+	IPsecPolicyAuthenticationAlgorithmDisabledConst = "disabled"
+	IPsecPolicyAuthenticationAlgorithmMd5Const      = "md5"
+	IPsecPolicyAuthenticationAlgorithmSha1Const     = "sha1"
+	IPsecPolicyAuthenticationAlgorithmSha256Const   = "sha256"
+	IPsecPolicyAuthenticationAlgorithmSha384Const   = "sha384"
+	IPsecPolicyAuthenticationAlgorithmSha512Const   = "sha512"
 )
 
 // Constants associated with the IPsecPolicy.EncapsulationMode property.
@@ -36245,20 +37362,42 @@ const (
 )
 
 // Constants associated with the IPsecPolicy.EncryptionAlgorithm property.
-// The encryption algorithm.
+// The encryption algorithm
+//
+// The `triple_des` algorithm has been deprecated
+//
+// The `authentication_algorithm` must be `disabled` if and only if
+// `encryption_algorithm` is `aes128gcm16`, `aes192gcm16`, or
+// `aes256gcm16`.
 const (
-	IPsecPolicyEncryptionAlgorithmAes128Const    = "aes128"
-	IPsecPolicyEncryptionAlgorithmAes256Const    = "aes256"
-	IPsecPolicyEncryptionAlgorithmTripleDesConst = "triple_des"
+	IPsecPolicyEncryptionAlgorithmAes128Const      = "aes128"
+	IPsecPolicyEncryptionAlgorithmAes128gcm16Const = "aes128gcm16"
+	IPsecPolicyEncryptionAlgorithmAes192Const      = "aes192"
+	IPsecPolicyEncryptionAlgorithmAes192gcm16Const = "aes192gcm16"
+	IPsecPolicyEncryptionAlgorithmAes256Const      = "aes256"
+	IPsecPolicyEncryptionAlgorithmAes256gcm16Const = "aes256gcm16"
+	IPsecPolicyEncryptionAlgorithmTripleDesConst   = "triple_des"
 )
 
 // Constants associated with the IPsecPolicy.Pfs property.
-// Perfect Forward Secrecy.
+// Perfect Forward Secrecy
+//
+// Groups `group_2` and `group_5` have been deprecated.
 const (
 	IPsecPolicyPfsDisabledConst = "disabled"
 	IPsecPolicyPfsGroup14Const  = "group_14"
+	IPsecPolicyPfsGroup15Const  = "group_15"
+	IPsecPolicyPfsGroup16Const  = "group_16"
+	IPsecPolicyPfsGroup17Const  = "group_17"
+	IPsecPolicyPfsGroup18Const  = "group_18"
 	IPsecPolicyPfsGroup19Const  = "group_19"
 	IPsecPolicyPfsGroup2Const   = "group_2"
+	IPsecPolicyPfsGroup20Const  = "group_20"
+	IPsecPolicyPfsGroup21Const  = "group_21"
+	IPsecPolicyPfsGroup22Const  = "group_22"
+	IPsecPolicyPfsGroup23Const  = "group_23"
+	IPsecPolicyPfsGroup24Const  = "group_24"
+	IPsecPolicyPfsGroup31Const  = "group_31"
 	IPsecPolicyPfsGroup5Const   = "group_5"
 )
 
@@ -36427,46 +37566,88 @@ func UnmarshalIPsecPolicyCollectionNext(m map[string]json.RawMessage, result int
 
 // IPsecPolicyPatch : IPsecPolicyPatch struct
 type IPsecPolicyPatch struct {
-	// The authentication algorithm.
+	// The authentication algorithm
+	//
+	// The `md5` and `sha1` algorithms have been deprecated
+	//
+	// Must be `disabled` if and only if the `encryption_algorithm` is
+	// `aes128gcm16`, `aes192gcm16`, or `aes256gcm16`.
 	AuthenticationAlgorithm *string `json:"authentication_algorithm,omitempty"`
 
-	// The encryption algorithm.
+	// The encryption algorithm
+	//
+	// The `triple_des` algorithm has been deprecated
+	//
+	// The `authentication_algorithm` must be `disabled` if and only if
+	// `encryption_algorithm` is `aes128gcm16`, `aes192gcm16`, or
+	// `aes256gcm16`.
 	EncryptionAlgorithm *string `json:"encryption_algorithm,omitempty"`
 
 	// The key lifetime in seconds.
 	KeyLifetime *int64 `json:"key_lifetime,omitempty"`
 
-	// The user-defined name for this IPsec policy.
+	// The name for this IPsec policy. The name must not be used by another IPsec policy in the region.
 	Name *string `json:"name,omitempty"`
 
-	// Perfect Forward Secrecy.
+	// Perfect Forward Secrecy
+	//
+	// Groups `group_2` and `group_5` have been deprecated.
 	Pfs *string `json:"pfs,omitempty"`
 }
 
 // Constants associated with the IPsecPolicyPatch.AuthenticationAlgorithm property.
-// The authentication algorithm.
+// The authentication algorithm
+//
+// # The `md5` and `sha1` algorithms have been deprecated
+//
+// Must be `disabled` if and only if the `encryption_algorithm` is
+// `aes128gcm16`, `aes192gcm16`, or `aes256gcm16`.
 const (
-	IPsecPolicyPatchAuthenticationAlgorithmMd5Const    = "md5"
-	IPsecPolicyPatchAuthenticationAlgorithmSha1Const   = "sha1"
-	IPsecPolicyPatchAuthenticationAlgorithmSha256Const = "sha256"
-	IPsecPolicyPatchAuthenticationAlgorithmSha512Const = "sha512"
+	IPsecPolicyPatchAuthenticationAlgorithmDisabledConst = "disabled"
+	IPsecPolicyPatchAuthenticationAlgorithmMd5Const      = "md5"
+	IPsecPolicyPatchAuthenticationAlgorithmSha1Const     = "sha1"
+	IPsecPolicyPatchAuthenticationAlgorithmSha256Const   = "sha256"
+	IPsecPolicyPatchAuthenticationAlgorithmSha384Const   = "sha384"
+	IPsecPolicyPatchAuthenticationAlgorithmSha512Const   = "sha512"
 )
 
 // Constants associated with the IPsecPolicyPatch.EncryptionAlgorithm property.
-// The encryption algorithm.
+// The encryption algorithm
+//
+// The `triple_des` algorithm has been deprecated
+//
+// The `authentication_algorithm` must be `disabled` if and only if
+// `encryption_algorithm` is `aes128gcm16`, `aes192gcm16`, or
+// `aes256gcm16`.
 const (
-	IPsecPolicyPatchEncryptionAlgorithmAes128Const    = "aes128"
-	IPsecPolicyPatchEncryptionAlgorithmAes256Const    = "aes256"
-	IPsecPolicyPatchEncryptionAlgorithmTripleDesConst = "triple_des"
+	IPsecPolicyPatchEncryptionAlgorithmAes128Const      = "aes128"
+	IPsecPolicyPatchEncryptionAlgorithmAes128gcm16Const = "aes128gcm16"
+	IPsecPolicyPatchEncryptionAlgorithmAes192Const      = "aes192"
+	IPsecPolicyPatchEncryptionAlgorithmAes192gcm16Const = "aes192gcm16"
+	IPsecPolicyPatchEncryptionAlgorithmAes256Const      = "aes256"
+	IPsecPolicyPatchEncryptionAlgorithmAes256gcm16Const = "aes256gcm16"
+	IPsecPolicyPatchEncryptionAlgorithmTripleDesConst   = "triple_des"
 )
 
 // Constants associated with the IPsecPolicyPatch.Pfs property.
-// Perfect Forward Secrecy.
+// Perfect Forward Secrecy
+//
+// Groups `group_2` and `group_5` have been deprecated.
 const (
 	IPsecPolicyPatchPfsDisabledConst = "disabled"
 	IPsecPolicyPatchPfsGroup14Const  = "group_14"
+	IPsecPolicyPatchPfsGroup15Const  = "group_15"
+	IPsecPolicyPatchPfsGroup16Const  = "group_16"
+	IPsecPolicyPatchPfsGroup17Const  = "group_17"
+	IPsecPolicyPatchPfsGroup18Const  = "group_18"
 	IPsecPolicyPatchPfsGroup19Const  = "group_19"
 	IPsecPolicyPatchPfsGroup2Const   = "group_2"
+	IPsecPolicyPatchPfsGroup20Const  = "group_20"
+	IPsecPolicyPatchPfsGroup21Const  = "group_21"
+	IPsecPolicyPatchPfsGroup22Const  = "group_22"
+	IPsecPolicyPatchPfsGroup23Const  = "group_23"
+	IPsecPolicyPatchPfsGroup24Const  = "group_24"
+	IPsecPolicyPatchPfsGroup31Const  = "group_31"
 	IPsecPolicyPatchPfsGroup5Const   = "group_5"
 )
 
@@ -36509,7 +37690,7 @@ func (iPsecPolicyPatch *IPsecPolicyPatch) AsPatch() (_patch map[string]interface
 
 // IPsecPolicyReference : IPsecPolicyReference struct
 type IPsecPolicyReference struct {
-	// If present, this property indicates the referenced resource has been deleted and provides
+	// If present, this property indicates the referenced resource has been deleted, and provides
 	// some supplementary information.
 	Deleted *IPsecPolicyReferenceDeleted `json:"deleted,omitempty"`
 
@@ -36519,7 +37700,7 @@ type IPsecPolicyReference struct {
 	// The unique identifier for this IPsec policy.
 	ID *string `json:"id" validate:"required"`
 
-	// The user-defined name for this IPsec policy.
+	// The name for this IPsec policy. The name is unique across all IPsec policies in the region.
 	Name *string `json:"name" validate:"required"`
 
 	// The resource type.
@@ -36559,7 +37740,7 @@ func UnmarshalIPsecPolicyReference(m map[string]json.RawMessage, result interfac
 	return
 }
 
-// IPsecPolicyReferenceDeleted : If present, this property indicates the referenced resource has been deleted and provides some supplementary
+// IPsecPolicyReferenceDeleted : If present, this property indicates the referenced resource has been deleted, and provides some supplementary
 // information.
 type IPsecPolicyReferenceDeleted struct {
 	// Link to documentation about deleted resources.
@@ -36611,7 +37792,7 @@ func UnmarshalIkePolicyCollectionNext(m map[string]json.RawMessage, result inter
 	return
 }
 
-// IkePolicyReferenceDeleted : If present, this property indicates the referenced resource has been deleted and provides some supplementary
+// IkePolicyReferenceDeleted : If present, this property indicates the referenced resource has been deleted, and provides some supplementary
 // information.
 type IkePolicyReferenceDeleted struct {
 	// Link to documentation about deleted resources.
@@ -36631,6 +37812,8 @@ func UnmarshalIkePolicyReferenceDeleted(m map[string]json.RawMessage, result int
 
 // Image : Image struct
 type Image struct {
+	CatalogOffering *ImageCatalogOffering `json:"catalog_offering" validate:"required"`
+
 	// The date and time that the image was created.
 	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
 
@@ -36657,11 +37840,10 @@ type Image struct {
 
 	// The minimum size (in gigabytes) of a volume onto which this image may be provisioned.
 	//
-	// This property may be absent if the image has a `status` of `pending`, `tentative`, or
-	// `failed`.
+	// This property may be absent if the image has a `status` of `pending` or `failed`.
 	MinimumProvisionedSize *int64 `json:"minimum_provisioned_size,omitempty"`
 
-	// The user-defined or system-provided name for this image.
+	// The name for this image. The name is unique across all images in the region.
 	Name *string `json:"name" validate:"required"`
 
 	// The operating system included in this image.
@@ -36679,11 +37861,9 @@ type Image struct {
 	// - available: image can be used (provisionable)
 	// - deleting: image is being deleted, and can no longer be used to provision new
 	//   resources
-	// - deprecated: image can be used, but is slated to become `obsolete` (provisionable)
+	// - deprecated: image is administratively slated to be deleted
 	// - failed: image is corrupt or did not pass validation
-	// - obsolete: image can no longer be used to provision new resources
 	// - pending: image is being imported and is not yet `available`
-	// - tentative: image import has timed out (contact support)
 	// - unusable: image cannot be used (see `status_reasons[]` for possible remediation)
 	//
 	// The enumerated values for this property are expected to expand in the future. When processing this property, check
@@ -36691,7 +37871,18 @@ type Image struct {
 	// unexpected property value was encountered.
 	Status *string `json:"status" validate:"required"`
 
-	// The reasons for the current status (if any).
+	// The reasons for the current status (if any):
+	// - `encrypted_data_key_invalid`: image cannot be decrypted with the specified
+	//   `encryption_key`
+	// - `encryption_key_deleted`: image unusable because its `encryption_key` was deleted
+	// - `encryption_key_disabled`: image unusable until its `encryption_key` is re-enabled
+	// - `image_data_corrupted`: image data is corrupt, or is not in the specified format
+	// - `image_provisioned_size_unsupported`: image requires a boot volume size greater
+	//   than the maximum supported value
+	// - `image_request_in_progress`: image operation is in progress (such as an import from
+	//    Cloud Object Storage)
+	// - `image_request_queued`: image request has been accepted but the requested
+	//   operation has not started
 	//
 	// The enumerated reason code values for this property will expand in the future. When processing this property, check
 	// for and log unknown values. Optionally halt processing and surface the error, or bypass the resource on which the
@@ -36711,15 +37902,13 @@ const (
 
 // Constants associated with the Image.Status property.
 // The status of this image
-// - available: image can be used (provisionable)
-// - deleting: image is being deleted, and can no longer be used to provision new
-//   resources
-// - deprecated: image can be used, but is slated to become `obsolete` (provisionable)
-// - failed: image is corrupt or did not pass validation
-// - obsolete: image can no longer be used to provision new resources
-// - pending: image is being imported and is not yet `available`
-// - tentative: image import has timed out (contact support)
-// - unusable: image cannot be used (see `status_reasons[]` for possible remediation)
+//   - available: image can be used (provisionable)
+//   - deleting: image is being deleted, and can no longer be used to provision new
+//     resources
+//   - deprecated: image is administratively slated to be deleted
+//   - failed: image is corrupt or did not pass validation
+//   - pending: image is being imported and is not yet `available`
+//   - unusable: image cannot be used (see `status_reasons[]` for possible remediation)
 //
 // The enumerated values for this property are expected to expand in the future. When processing this property, check
 // for and log unknown values. Optionally halt processing and surface the error, or bypass the image on which the
@@ -36730,7 +37919,6 @@ const (
 	ImageStatusDeprecatedConst = "deprecated"
 	ImageStatusFailedConst     = "failed"
 	ImageStatusPendingConst    = "pending"
-	ImageStatusTentativeConst  = "tentative"
 	ImageStatusUnusableConst   = "unusable"
 )
 
@@ -36744,6 +37932,10 @@ const (
 // UnmarshalImage unmarshals an instance of Image from the specified map of raw messages.
 func UnmarshalImage(m map[string]json.RawMessage, result interface{}) (err error) {
 	obj := new(Image)
+	err = core.UnmarshalModel(m, "catalog_offering", &obj.CatalogOffering, UnmarshalImageCatalogOffering)
+	if err != nil {
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "created_at", &obj.CreatedAt)
 	if err != nil {
 		return
@@ -36801,6 +37993,37 @@ func UnmarshalImage(m map[string]json.RawMessage, result interface{}) (err error
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "visibility", &obj.Visibility)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// ImageCatalogOffering : ImageCatalogOffering struct
+type ImageCatalogOffering struct {
+	// Indicates whether this image is managed as part of a
+	// [catalog](https://cloud.ibm.com/docs/account?topic=account-restrict-by-user) offering. If an image is managed,
+	// accounts in the same
+	// [enterprise](https://cloud.ibm.com/docs/account?topic=account-what-is-enterprise) with access to that catalog can
+	// specify the image's catalog offering version CRN to provision virtual server instances using the image.
+	Managed *bool `json:"managed" validate:"required"`
+
+	// The [catalog](https://cloud.ibm.com/docs/account?topic=account-restrict-by-user)
+	// offering version associated with this image.
+	//
+	// If absent, this image is not associated with a cloud catalog offering.
+	Version *CatalogOfferingVersionReference `json:"version,omitempty"`
+}
+
+// UnmarshalImageCatalogOffering unmarshals an instance of ImageCatalogOffering from the specified map of raw messages.
+func UnmarshalImageCatalogOffering(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(ImageCatalogOffering)
+	err = core.UnmarshalPrimitive(m, "managed", &obj.Managed)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "version", &obj.Version, UnmarshalCatalogOfferingVersionReference)
 	if err != nil {
 		return
 	}
@@ -36943,6 +38166,9 @@ func UnmarshalImageFileChecksums(m map[string]json.RawMessage, result interface{
 // ImageFilePrototype : ImageFilePrototype struct
 type ImageFilePrototype struct {
 	// The Cloud Object Storage location of the image file.
+	//
+	// The image file format is specified by the file's extension, which must be either
+	// `qcow2` or `vhd`.
 	Href *string `json:"href" validate:"required"`
 }
 
@@ -37011,7 +38237,8 @@ func UnmarshalImageIdentity(m map[string]json.RawMessage, result interface{}) (e
 
 // ImagePatch : ImagePatch struct
 type ImagePatch struct {
-	// The unique user-defined name for this image. Names starting with `ibm-` are not allowed.
+	// The name for this image. The name must not be used by another image in the region. Names starting with `ibm-` are
+	// reserved for system-provided images, and are not allowed.
 	Name *string `json:"name,omitempty"`
 }
 
@@ -37041,8 +38268,9 @@ func (imagePatch *ImagePatch) AsPatch() (_patch map[string]interface{}, err erro
 // - ImagePrototypeImageByFile
 // - ImagePrototypeImageBySourceVolume
 type ImagePrototype struct {
-	// The unique user-defined name for this image. Names starting with `ibm-` are not allowed. If unspecified, the name
-	// will be a hyphenated list of randomly-selected words.
+	// The name for this image. The name must not be used by another image in the region. Names starting with `ibm-` are
+	// reserved for system-provided images, and are not allowed. If unspecified, the name will be a hyphenated list of
+	// randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
 	// The resource group to use. If unspecified, the account's [default resource
@@ -37075,7 +38303,7 @@ type ImagePrototype struct {
 	OperatingSystem OperatingSystemIdentityIntf `json:"operating_system,omitempty"`
 
 	// The volume from which to create the image. The specified volume must:
-	// - Originate from an image, which will be used to populate this image's
+	// - Have an `operating_system`, which will be used to populate this image's
 	//   operating system information.
 	// - Not be `active` or `busy`.
 	//
@@ -37131,7 +38359,7 @@ type ImageReference struct {
 	// The CRN for this image.
 	CRN *string `json:"crn" validate:"required"`
 
-	// If present, this property indicates the referenced resource has been deleted and provides
+	// If present, this property indicates the referenced resource has been deleted, and provides
 	// some supplementary information.
 	Deleted *ImageReferenceDeleted `json:"deleted,omitempty"`
 
@@ -37141,7 +38369,7 @@ type ImageReference struct {
 	// The unique identifier for this image.
 	ID *string `json:"id" validate:"required"`
 
-	// The user-defined or system-provided name for this image.
+	// The name for this image. The name is unique across all images in the region.
 	Name *string `json:"name" validate:"required"`
 }
 
@@ -37172,7 +38400,7 @@ func UnmarshalImageReference(m map[string]json.RawMessage, result interface{}) (
 	return
 }
 
-// ImageReferenceDeleted : If present, this property indicates the referenced resource has been deleted and provides some supplementary
+// ImageReferenceDeleted : If present, this property indicates the referenced resource has been deleted, and provides some supplementary
 // information.
 type ImageReferenceDeleted struct {
 	// Link to documentation about deleted resources.
@@ -37205,10 +38433,13 @@ type ImageStatusReason struct {
 // Constants associated with the ImageStatusReason.Code property.
 // A snake case string succinctly identifying the status reason.
 const (
-	ImageStatusReasonCodeEncryptionKeyDeletedConst   = "encryption_key_deleted"
-	ImageStatusReasonCodeEncryptionKeyDisabledConst  = "encryption_key_disabled"
-	ImageStatusReasonCodeImageRequestInProgressConst = "image_request_in_progress"
-	ImageStatusReasonCodeImageRequestQueuedConst     = "image_request_queued"
+	ImageStatusReasonCodeEncryptedDataKeyInvalidConst         = "encrypted_data_key_invalid"
+	ImageStatusReasonCodeEncryptionKeyDeletedConst            = "encryption_key_deleted"
+	ImageStatusReasonCodeEncryptionKeyDisabledConst           = "encryption_key_disabled"
+	ImageStatusReasonCodeImageDataCorruptedConst              = "image_data_corrupted"
+	ImageStatusReasonCodeImageProvisionedSizeUnsupportedConst = "image_provisioned_size_unsupported"
+	ImageStatusReasonCodeImageRequestInProgressConst          = "image_request_in_progress"
+	ImageStatusReasonCodeImageRequestQueuedConst              = "image_request_queued"
 )
 
 // UnmarshalImageStatusReason unmarshals an instance of ImageStatusReason from the specified map of raw messages.
@@ -37242,6 +38473,10 @@ type Instance struct {
 	// Boot volume attachment.
 	BootVolumeAttachment *VolumeAttachmentReferenceInstanceContext `json:"boot_volume_attachment" validate:"required"`
 
+	// If present, this virtual server instance was provisioned from a
+	// [catalog](https://cloud.ibm.com/docs/account?topic=account-restrict-by-user).
+	CatalogOffering *InstanceCatalogOffering `json:"catalog_offering,omitempty"`
+
 	// The date and time that the virtual server instance was created.
 	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
 
@@ -37266,13 +38501,23 @@ type Instance struct {
 	// The image the virtual server instance was provisioned from.
 	Image *ImageReference `json:"image,omitempty"`
 
+	// The reasons for the current `lifecycle_state` (if any).
+	//
+	// The enumerated reason code values for this property will expand in the future. When processing this property, check
+	// for and log unknown values. Optionally halt processing and surface the error, or bypass the resource on which the
+	// unexpected reason code was encountered.
+	LifecycleReasons []LifecycleReason `json:"lifecycle_reasons" validate:"required"`
+
+	// The lifecycle state of the virtual server instance.
+	LifecycleState *string `json:"lifecycle_state" validate:"required"`
+
 	// The amount of memory, truncated to whole gibibytes.
 	Memory *int64 `json:"memory" validate:"required"`
 
 	// The metadata service configuration.
 	MetadataService *InstanceMetadataService `json:"metadata_service" validate:"required"`
 
-	// The user-defined name for this virtual server instance (and default system hostname).
+	// The name for this virtual server instance. The name is unique across all virtual server instances in the region.
 	Name *string `json:"name" validate:"required"`
 
 	// The network interfaces for this virtual server instance, including the primary network interface.
@@ -37284,7 +38529,8 @@ type Instance struct {
 	// Primary network interface.
 	PrimaryNetworkInterface *NetworkInterfaceInstanceContextReference `json:"primary_network_interface" validate:"required"`
 
-	// The profile for this virtual server instance.
+	// The [profile](https://cloud.ibm.com/docs/vpc?topic=vpc-profiles) for this virtual
+	// server instance.
 	Profile *InstanceProfileReference `json:"profile" validate:"required"`
 
 	// The resource group for this instance.
@@ -37297,6 +38543,10 @@ type Instance struct {
 	Startable *bool `json:"startable" validate:"required"`
 
 	// The status of the virtual server instance.
+	//
+	// The enumerated values for this property will expand in the future. When processing this property, check for and log
+	// unknown values. Optionally halt processing and surface the error, or bypass the instance on which the unexpected
+	// property value was encountered.
 	Status *string `json:"status" validate:"required"`
 
 	// The reasons for the current status (if any).
@@ -37327,6 +38577,18 @@ type Instance struct {
 	Zone *ZoneReference `json:"zone" validate:"required"`
 }
 
+// Constants associated with the Instance.LifecycleState property.
+// The lifecycle state of the virtual server instance.
+const (
+	InstanceLifecycleStateDeletingConst  = "deleting"
+	InstanceLifecycleStateFailedConst    = "failed"
+	InstanceLifecycleStatePendingConst   = "pending"
+	InstanceLifecycleStateStableConst    = "stable"
+	InstanceLifecycleStateSuspendedConst = "suspended"
+	InstanceLifecycleStateUpdatingConst  = "updating"
+	InstanceLifecycleStateWaitingConst   = "waiting"
+)
+
 // Constants associated with the Instance.ResourceType property.
 // The resource type.
 const (
@@ -37335,14 +38597,15 @@ const (
 
 // Constants associated with the Instance.Status property.
 // The status of the virtual server instance.
+//
+// The enumerated values for this property will expand in the future. When processing this property, check for and log
+// unknown values. Optionally halt processing and surface the error, or bypass the instance on which the unexpected
+// property value was encountered.
 const (
 	InstanceStatusDeletingConst   = "deleting"
 	InstanceStatusFailedConst     = "failed"
-	InstanceStatusPausedConst     = "paused"
-	InstanceStatusPausingConst    = "pausing"
 	InstanceStatusPendingConst    = "pending"
 	InstanceStatusRestartingConst = "restarting"
-	InstanceStatusResumingConst   = "resuming"
 	InstanceStatusRunningConst    = "running"
 	InstanceStatusStartingConst   = "starting"
 	InstanceStatusStoppedConst    = "stopped"
@@ -37361,6 +38624,10 @@ func UnmarshalInstance(m map[string]json.RawMessage, result interface{}) (err er
 		return
 	}
 	err = core.UnmarshalModel(m, "boot_volume_attachment", &obj.BootVolumeAttachment, UnmarshalVolumeAttachmentReferenceInstanceContext)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "catalog_offering", &obj.CatalogOffering, UnmarshalInstanceCatalogOffering)
 	if err != nil {
 		return
 	}
@@ -37393,6 +38660,14 @@ func UnmarshalInstance(m map[string]json.RawMessage, result interface{}) (err er
 		return
 	}
 	err = core.UnmarshalModel(m, "image", &obj.Image, UnmarshalImageReference)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "lifecycle_reasons", &obj.LifecycleReasons, UnmarshalLifecycleReason)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "lifecycle_state", &obj.LifecycleState)
 	if err != nil {
 		return
 	}
@@ -37475,6 +38750,7 @@ func UnmarshalInstance(m map[string]json.RawMessage, result interface{}) (err er
 // InstanceAction : InstanceAction struct
 type InstanceAction struct {
 	// The date and time that the action was completed.
+	// Deprecated: this field is deprecated and may be removed in a future release.
 	CompletedAt *strfmt.DateTime `json:"completed_at,omitempty"`
 
 	// The date and time that the action was created.
@@ -37484,15 +38760,19 @@ type InstanceAction struct {
 	Force *bool `json:"force,omitempty"`
 
 	// The URL for this instance action.
+	// Deprecated: this field is deprecated and may be removed in a future release.
 	Href *string `json:"href" validate:"required"`
 
 	// The identifier for this instance action.
+	// Deprecated: this field is deprecated and may be removed in a future release.
 	ID *string `json:"id" validate:"required"`
 
 	// The date and time that the action was started.
+	// Deprecated: this field is deprecated and may be removed in a future release.
 	StartedAt *strfmt.DateTime `json:"started_at,omitempty"`
 
 	// The current status of this action.
+	// Deprecated: this field is deprecated and may be removed in a future release.
 	Status *string `json:"status" validate:"required"`
 
 	// The type of action.
@@ -37656,6 +38936,72 @@ const (
 func UnmarshalInstanceAvailabilityPrototype(m map[string]json.RawMessage, result interface{}) (err error) {
 	obj := new(InstanceAvailabilityPrototype)
 	err = core.UnmarshalPrimitive(m, "host_failure", &obj.HostFailure)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// InstanceCatalogOffering : InstanceCatalogOffering struct
+type InstanceCatalogOffering struct {
+	// The catalog offering version this virtual server instance was provisioned from.
+	//
+	// The catalog offering version is not managed by the IBM VPC service, and may no longer
+	// exist, or may refer to a different image CRN than the `image.crn` for this virtual
+	// server instance. However, all images associated with a catalog offering version will
+	// have the same checksum, and therefore will have the same data.
+	Version *CatalogOfferingVersionReference `json:"version" validate:"required"`
+}
+
+// UnmarshalInstanceCatalogOffering unmarshals an instance of InstanceCatalogOffering from the specified map of raw messages.
+func UnmarshalInstanceCatalogOffering(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(InstanceCatalogOffering)
+	err = core.UnmarshalModel(m, "version", &obj.Version, UnmarshalCatalogOfferingVersionReference)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// InstanceCatalogOfferingPrototype : The [catalog](https://cloud.ibm.com/docs/account?topic=account-restrict-by-user) offering or offering version to use
+// when provisioning this virtual server instance.
+//
+// If an offering is specified, the latest version of that offering will be used.
+//
+// The specified offering or offering version may be in a different account in the same
+// [enterprise](https://cloud.ibm.com/docs/account?topic=account-what-is-enterprise), subject to IAM policies.
+// Models which "extend" this model:
+// - InstanceCatalogOfferingPrototypeCatalogOfferingByOffering
+// - InstanceCatalogOfferingPrototypeCatalogOfferingByVersion
+type InstanceCatalogOfferingPrototype struct {
+	// Identifies a [catalog](https://cloud.ibm.com/docs/account?topic=account-restrict-by-user)
+	// offering by a unique property.
+	Offering CatalogOfferingIdentityIntf `json:"offering,omitempty"`
+
+	// Identifies a version of a
+	// [catalog](https://cloud.ibm.com/docs/account?topic=account-restrict-by-user) offering by a
+	// unique property.
+	Version CatalogOfferingVersionIdentityIntf `json:"version,omitempty"`
+}
+
+func (*InstanceCatalogOfferingPrototype) isaInstanceCatalogOfferingPrototype() bool {
+	return true
+}
+
+type InstanceCatalogOfferingPrototypeIntf interface {
+	isaInstanceCatalogOfferingPrototype() bool
+}
+
+// UnmarshalInstanceCatalogOfferingPrototype unmarshals an instance of InstanceCatalogOfferingPrototype from the specified map of raw messages.
+func UnmarshalInstanceCatalogOfferingPrototype(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(InstanceCatalogOfferingPrototype)
+	err = core.UnmarshalModel(m, "offering", &obj.Offering, UnmarshalCatalogOfferingIdentity)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "version", &obj.Version, UnmarshalCatalogOfferingVersionIdentity)
 	if err != nil {
 		return
 	}
@@ -37868,7 +39214,7 @@ type InstanceDisk struct {
 	// unexpected property value was encountered.
 	InterfaceType *string `json:"interface_type" validate:"required"`
 
-	// The user-defined name for this disk.
+	// The name for this instance disk. The name is unique across all disks on the instance.
 	Name *string `json:"name" validate:"required"`
 
 	// The resource type.
@@ -37949,7 +39295,7 @@ func UnmarshalInstanceDiskCollection(m map[string]json.RawMessage, result interf
 
 // InstanceDiskPatch : InstanceDiskPatch struct
 type InstanceDiskPatch struct {
-	// The user-defined name for this disk.
+	// The name for this instance disk. The name must not be used by another disk on the instance.
 	Name *string `json:"name,omitempty"`
 }
 
@@ -37976,7 +39322,7 @@ func (instanceDiskPatch *InstanceDiskPatch) AsPatch() (_patch map[string]interfa
 
 // InstanceDiskReference : InstanceDiskReference struct
 type InstanceDiskReference struct {
-	// If present, this property indicates the referenced resource has been deleted and provides
+	// If present, this property indicates the referenced resource has been deleted, and provides
 	// some supplementary information.
 	Deleted *InstanceDiskReferenceDeleted `json:"deleted,omitempty"`
 
@@ -37986,7 +39332,7 @@ type InstanceDiskReference struct {
 	// The unique identifier for this instance disk.
 	ID *string `json:"id" validate:"required"`
 
-	// The user-defined name for this disk.
+	// The name for this instance disk. The name is unique across all disks on the instance.
 	Name *string `json:"name" validate:"required"`
 
 	// The resource type.
@@ -38026,7 +39372,7 @@ func UnmarshalInstanceDiskReference(m map[string]json.RawMessage, result interfa
 	return
 }
 
-// InstanceDiskReferenceDeleted : If present, this property indicates the referenced resource has been deleted and provides some supplementary
+// InstanceDiskReferenceDeleted : If present, this property indicates the referenced resource has been deleted, and provides some supplementary
 // information.
 type InstanceDiskReferenceDeleted struct {
 	// Link to documentation about deleted resources.
@@ -38084,8 +39430,9 @@ func UnmarshalInstanceGpu(m map[string]json.RawMessage, result interface{}) (err
 
 // InstanceGroup : InstanceGroup struct
 type InstanceGroup struct {
-	// Required if specifying a load balancer pool only. Used by the instance group when scaling up instances to supply the
-	// port for the load balancer pool member.
+	// The port used for new load balancer pool members created by this instance group.
+	//
+	// This property will be present if and only if `load_balancer_pool` is present.
 	ApplicationPort *int64 `json:"application_port,omitempty"`
 
 	// The date and time that the instance group was created.
@@ -38103,9 +39450,8 @@ type InstanceGroup struct {
 	// The template used to create new instances for this group.
 	InstanceTemplate *InstanceTemplateReference `json:"instance_template" validate:"required"`
 
-	// The load balancer pool managed by this group. Instances created
-	// by this group will have a new load balancer pool member in that
-	// pool created.
+	// If present, the load balancer pool this instance group manages. A pool member will
+	// be created for each instance created by this group.
 	LoadBalancerPool *LoadBalancerPoolReference `json:"load_balancer_pool,omitempty"`
 
 	// The managers for the instance group.
@@ -38114,7 +39460,7 @@ type InstanceGroup struct {
 	// The number of instances in the instance group.
 	MembershipCount *int64 `json:"membership_count" validate:"required"`
 
-	// The user-defined name for this instance group.
+	// The name for this instance group. The name is unique across all instance groups in the region.
 	Name *string `json:"name" validate:"required"`
 
 	ResourceGroup *ResourceGroupReference `json:"resource_group" validate:"required"`
@@ -38139,11 +39485,11 @@ type InstanceGroup struct {
 
 // Constants associated with the InstanceGroup.Status property.
 // The status of the instance group
-// - `deleting`: Group is being deleted
-// - `healthy`: Group has `membership_count` instances
-// - `scaling`: Instances in the group are being created or deleted to reach
-//              `membership_count`
-// - `unhealthy`: Group is unable to reach `membership_count` instances.
+//   - `deleting`: Group is being deleted
+//   - `healthy`: Group has `membership_count` instances
+//   - `scaling`: Instances in the group are being created or deleted to reach
+//     `membership_count`
+//   - `unhealthy`: Group is unable to reach `membership_count` instances.
 const (
 	InstanceGroupStatusDeletingConst  = "deleting"
 	InstanceGroupStatusHealthyConst   = "healthy"
@@ -38327,7 +39673,7 @@ type InstanceGroupManager struct {
 	// Indicates whether this manager will control the instance group.
 	ManagementEnabled *bool `json:"management_enabled" validate:"required"`
 
-	// The user-defined name for this instance group manager.
+	// The name for this instance group manager. The name is unique across all managers for the instance group.
 	Name *string `json:"name" validate:"required"`
 
 	// The date and time that the instance group manager was updated.
@@ -38451,7 +39797,8 @@ type InstanceGroupManagerAction struct {
 	// The unique identifier for this instance group manager action.
 	ID *string `json:"id" validate:"required"`
 
-	// The user-defined name for this instance group manager action.
+	// The name for this instance group manager action. The name is unique across all actions for the instance group
+	// manager.
 	Name *string `json:"name" validate:"required"`
 
 	// The resource type.
@@ -38465,7 +39812,7 @@ type InstanceGroupManagerAction struct {
 	// - `omitted`: Action was not applied because this action's manager was disabled.
 	Status *string `json:"status" validate:"required"`
 
-	// The date and time that the instance group manager action was modified.
+	// The date and time that the instance group manager action was updated.
 	UpdatedAt *strfmt.DateTime `json:"updated_at" validate:"required"`
 
 	// The type of action for the instance group.
@@ -38640,7 +39987,8 @@ type InstanceGroupManagerActionPatch struct {
 
 	Manager *InstanceGroupManagerActionManagerPatch `json:"manager,omitempty"`
 
-	// The user-defined name for this instance group manager action.
+	// The name for this instance group manager action. The name must not be used by another action for the instance group
+	// manager.
 	Name *string `json:"name,omitempty"`
 
 	// The date and time the scheduled action will run.
@@ -38688,7 +40036,7 @@ func (instanceGroupManagerActionPatch *InstanceGroupManagerActionPatch) AsPatch(
 // Models which "extend" this model:
 // - InstanceGroupManagerActionPrototypeScheduledActionPrototype
 type InstanceGroupManagerActionPrototype struct {
-	// The user-defined name for this instance group manager action. Names must be unique within the instance group
+	// The name for this instance group manager action. The name must not be used by another action for the instance group
 	// manager. If unspecified, the name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
@@ -38741,7 +40089,7 @@ func UnmarshalInstanceGroupManagerActionPrototype(m map[string]json.RawMessage, 
 
 // InstanceGroupManagerActionReference : InstanceGroupManagerActionReference struct
 type InstanceGroupManagerActionReference struct {
-	// If present, this property indicates the referenced resource has been deleted and provides
+	// If present, this property indicates the referenced resource has been deleted, and provides
 	// some supplementary information.
 	Deleted *InstanceGroupManagerActionReferenceDeleted `json:"deleted,omitempty"`
 
@@ -38751,7 +40099,8 @@ type InstanceGroupManagerActionReference struct {
 	// The unique identifier for this instance group manager action.
 	ID *string `json:"id" validate:"required"`
 
-	// The user-defined name for this instance group manager action.
+	// The name for this instance group manager action. The name is unique across all actions for the instance group
+	// manager.
 	Name *string `json:"name" validate:"required"`
 
 	// The resource type.
@@ -38791,7 +40140,7 @@ func UnmarshalInstanceGroupManagerActionReference(m map[string]json.RawMessage, 
 	return
 }
 
-// InstanceGroupManagerActionReferenceDeleted : If present, this property indicates the referenced resource has been deleted and provides some supplementary
+// InstanceGroupManagerActionReferenceDeleted : If present, this property indicates the referenced resource has been deleted, and provides some supplementary
 // information.
 type InstanceGroupManagerActionReferenceDeleted struct {
 	// Link to documentation about deleted resources.
@@ -39010,7 +40359,7 @@ type InstanceGroupManagerPatch struct {
 	// The minimum number of members in a managed instance group.
 	MinMembershipCount *int64 `json:"min_membership_count,omitempty"`
 
-	// The user-defined name for this instance group manager.
+	// The name for this instance group manager. The name must not be used by another manager for the instance group.
 	Name *string `json:"name,omitempty"`
 }
 
@@ -39068,7 +40417,8 @@ type InstanceGroupManagerPolicy struct {
 	// The unique identifier for this instance group manager policy.
 	ID *string `json:"id" validate:"required"`
 
-	// The user-defined name for this instance group manager policy.
+	// The name for this instance group manager policy. The name is unique across all policies for the instance group
+	// manager.
 	Name *string `json:"name" validate:"required"`
 
 	// The date and time that the instance group manager policy was updated.
@@ -39246,7 +40596,8 @@ type InstanceGroupManagerPolicyPatch struct {
 	// The metric value to be evaluated.
 	MetricValue *int64 `json:"metric_value,omitempty"`
 
-	// The user-defined name for this instance group manager policy.
+	// The name for this instance group manager policy. The name must not be used by another policy for the instance group
+	// manager.
 	Name *string `json:"name,omitempty"`
 }
 
@@ -39292,7 +40643,7 @@ func (instanceGroupManagerPolicyPatch *InstanceGroupManagerPolicyPatch) AsPatch(
 // Models which "extend" this model:
 // - InstanceGroupManagerPolicyPrototypeInstanceGroupManagerTargetPolicyPrototype
 type InstanceGroupManagerPolicyPrototype struct {
-	// The user-defined name for this instance group manager policy. Names must be unique within the instance group
+	// The name for this instance group manager policy. The name must not be used by another policy for the instance group
 	// manager. If unspecified, the name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
@@ -39354,7 +40705,7 @@ func UnmarshalInstanceGroupManagerPolicyPrototype(m map[string]json.RawMessage, 
 
 // InstanceGroupManagerPolicyReference : InstanceGroupManagerPolicyReference struct
 type InstanceGroupManagerPolicyReference struct {
-	// If present, this property indicates the referenced resource has been deleted and provides
+	// If present, this property indicates the referenced resource has been deleted, and provides
 	// some supplementary information.
 	Deleted *InstanceGroupManagerPolicyReferenceDeleted `json:"deleted,omitempty"`
 
@@ -39364,7 +40715,8 @@ type InstanceGroupManagerPolicyReference struct {
 	// The unique identifier for this instance group manager policy.
 	ID *string `json:"id" validate:"required"`
 
-	// The user-defined name for this instance group manager policy.
+	// The name for this instance group manager policy. The name is unique across all policies for the instance group
+	// manager.
 	Name *string `json:"name" validate:"required"`
 }
 
@@ -39391,7 +40743,7 @@ func UnmarshalInstanceGroupManagerPolicyReference(m map[string]json.RawMessage, 
 	return
 }
 
-// InstanceGroupManagerPolicyReferenceDeleted : If present, this property indicates the referenced resource has been deleted and provides some supplementary
+// InstanceGroupManagerPolicyReferenceDeleted : If present, this property indicates the referenced resource has been deleted, and provides some supplementary
 // information.
 type InstanceGroupManagerPolicyReferenceDeleted struct {
 	// Link to documentation about deleted resources.
@@ -39417,7 +40769,7 @@ type InstanceGroupManagerPrototype struct {
 	// Indicates whether this manager will control the instance group.
 	ManagementEnabled *bool `json:"management_enabled,omitempty"`
 
-	// The user-defined name for this instance group manager. Names must be unique within the instance group. If
+	// The name for this instance group manager. The name must not be used by another manager for the instance group. If
 	// unspecified, the name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
@@ -39488,7 +40840,7 @@ func UnmarshalInstanceGroupManagerPrototype(m map[string]json.RawMessage, result
 
 // InstanceGroupManagerReference : InstanceGroupManagerReference struct
 type InstanceGroupManagerReference struct {
-	// If present, this property indicates the referenced resource has been deleted and provides
+	// If present, this property indicates the referenced resource has been deleted, and provides
 	// some supplementary information.
 	Deleted *InstanceGroupManagerReferenceDeleted `json:"deleted,omitempty"`
 
@@ -39498,7 +40850,7 @@ type InstanceGroupManagerReference struct {
 	// The unique identifier for this instance group manager.
 	ID *string `json:"id" validate:"required"`
 
-	// The user-defined name for this instance group manager.
+	// The name for this instance group manager. The name is unique across all managers for the instance group.
 	Name *string `json:"name" validate:"required"`
 }
 
@@ -39525,7 +40877,7 @@ func UnmarshalInstanceGroupManagerReference(m map[string]json.RawMessage, result
 	return
 }
 
-// InstanceGroupManagerReferenceDeleted : If present, this property indicates the referenced resource has been deleted and provides some supplementary
+// InstanceGroupManagerReferenceDeleted : If present, this property indicates the referenced resource has been deleted, and provides some supplementary
 // information.
 type InstanceGroupManagerReferenceDeleted struct {
 	// Link to documentation about deleted resources.
@@ -39590,7 +40942,7 @@ func UnmarshalInstanceGroupManagerScheduledActionGroupPrototype(m map[string]jso
 // Models which "extend" this model:
 // - InstanceGroupManagerScheduledActionManagerAutoScale
 type InstanceGroupManagerScheduledActionManager struct {
-	// If present, this property indicates the referenced resource has been deleted and provides
+	// If present, this property indicates the referenced resource has been deleted, and provides
 	// some supplementary information.
 	Deleted *InstanceGroupManagerReferenceDeleted `json:"deleted,omitempty"`
 
@@ -39600,7 +40952,7 @@ type InstanceGroupManagerScheduledActionManager struct {
 	// The unique identifier for this instance group manager.
 	ID *string `json:"id,omitempty"`
 
-	// The user-defined name for this instance group manager.
+	// The name for this instance group manager. The name is unique across all managers for the instance group.
 	Name *string `json:"name,omitempty"`
 
 	// The desired maximum number of instance group members at the scheduled time.
@@ -39715,7 +41067,7 @@ type InstanceGroupMembership struct {
 
 	InstanceTemplate *InstanceTemplateReference `json:"instance_template" validate:"required"`
 
-	// The user-defined name for this instance group membership. Names must be unique within the instance group.
+	// The name for this instance group membership. The name is unique across all memberships for the instance group.
 	Name *string `json:"name" validate:"required"`
 
 	PoolMember *LoadBalancerPoolMemberReference `json:"pool_member,omitempty"`
@@ -39888,7 +41240,8 @@ func UnmarshalInstanceGroupMembershipCollectionNext(m map[string]json.RawMessage
 
 // InstanceGroupMembershipPatch : InstanceGroupMembershipPatch struct
 type InstanceGroupMembershipPatch struct {
-	// The user-defined name for this instance group membership. Names must be unique within the instance group.
+	// The name for this instance group membership. The name must not be used by another membership for the instance group
+	// manager.
 	Name *string `json:"name,omitempty"`
 }
 
@@ -39915,8 +41268,9 @@ func (instanceGroupMembershipPatch *InstanceGroupMembershipPatch) AsPatch() (_pa
 
 // InstanceGroupPatch : To add or update load balancer specification for an instance group the `membership_count` must first be set to 0.
 type InstanceGroupPatch struct {
-	// Required if specifying a load balancer pool only. Used by the instance group when scaling up instances to supply the
-	// port for the load balancer pool member.
+	// The port to use for new load balancer pool members created by this instance group.
+	//
+	// This property must be set if and only if `load_balancer_pool` has been set.
 	ApplicationPort *int64 `json:"application_port,omitempty"`
 
 	// Instance template to use when creating new instances.
@@ -39931,16 +41285,16 @@ type InstanceGroupPatch struct {
 	// At present, only load balancers in the `application` family are supported.
 	LoadBalancer LoadBalancerIdentityIntf `json:"load_balancer,omitempty"`
 
-	// If specified, the load balancer pool will be managed by this
-	// group. Instances created by this group will have a new load
-	// balancer pool member in that pool created. Must be used with
-	// `application_port`.
+	// If specified, the load balancer pool this instance group will manage. A pool member
+	// will be created for each instance created by this group.
+	//
+	// If specified, `load_balancer` and `application_port` must also be specified.
 	LoadBalancerPool LoadBalancerPoolIdentityIntf `json:"load_balancer_pool,omitempty"`
 
 	// The number of instances in the instance group.
 	MembershipCount *int64 `json:"membership_count,omitempty"`
 
-	// The user-defined name for this instance group.
+	// The name for this instance group. The name must not be used by another instance group in the region.
 	Name *string `json:"name,omitempty"`
 
 	// The subnets to use when creating new instances.
@@ -39997,7 +41351,7 @@ type InstanceGroupReference struct {
 	// The CRN for this instance group.
 	CRN *string `json:"crn" validate:"required"`
 
-	// If present, this property indicates the referenced resource has been deleted and provides
+	// If present, this property indicates the referenced resource has been deleted, and provides
 	// some supplementary information.
 	Deleted *InstanceGroupReferenceDeleted `json:"deleted,omitempty"`
 
@@ -40007,7 +41361,7 @@ type InstanceGroupReference struct {
 	// The unique identifier for this instance group.
 	ID *string `json:"id" validate:"required"`
 
-	// The user-defined name for this instance group.
+	// The name for this instance group. The name is unique across all instance groups in the region.
 	Name *string `json:"name" validate:"required"`
 }
 
@@ -40038,7 +41392,7 @@ func UnmarshalInstanceGroupReference(m map[string]json.RawMessage, result interf
 	return
 }
 
-// InstanceGroupReferenceDeleted : If present, this property indicates the referenced resource has been deleted and provides some supplementary
+// InstanceGroupReferenceDeleted : If present, this property indicates the referenced resource has been deleted, and provides some supplementary
 // information.
 type InstanceGroupReferenceDeleted struct {
 	// Link to documentation about deleted resources.
@@ -40196,7 +41550,8 @@ type InstancePatch struct {
 	// The metadata service configuration.
 	MetadataService *InstanceMetadataServicePatch `json:"metadata_service,omitempty"`
 
-	// The user-defined name for this virtual server instance (and default system hostname).
+	// The name for this virtual server instance. The name must not be used by another virtual server instance in the
+	// region. Changing the name will not affect the system hostname.
 	Name *string `json:"name,omitempty"`
 
 	// The placement restrictions to use for the virtual server instance. For the placement
@@ -40212,6 +41567,7 @@ type InstancePatch struct {
 	// - Be compatible with any `placement_target` constraints. For example, if the
 	//   instance is placed on a dedicated host, the requested profile `family` must be
 	//   the same as the dedicated host `family`.
+	// - Have the same `vcpu.architecture`.
 	Profile InstancePatchProfileIntf `json:"profile,omitempty"`
 
 	// The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes. An increase in
@@ -40263,12 +41619,14 @@ func (instancePatch *InstancePatch) AsPatch() (_patch map[string]interface{}, er
 
 // InstancePatchProfile : The profile to use for this virtual server instance. For the profile to be changed, the instance `status` must be
 // `stopping` or `stopped`. In addition, the requested profile must:
-// - Have matching instance disk support. Any disks associated with the current profile
-//   will be deleted, and any disks associated with the requested profile will be
-//   created.
-// - Be compatible with any `placement_target` constraints. For example, if the
-//   instance is placed on a dedicated host, the requested profile `family` must be
-//   the same as the dedicated host `family`.
+//   - Have matching instance disk support. Any disks associated with the current profile
+//     will be deleted, and any disks associated with the requested profile will be
+//     created.
+//   - Be compatible with any `placement_target` constraints. For example, if the
+//     instance is placed on a dedicated host, the requested profile `family` must be
+//     the same as the dedicated host `family`.
+//   - Have the same `vcpu.architecture`.
+//
 // Models which "extend" this model:
 // - InstancePatchProfileInstanceProfileIdentityByName
 // - InstancePatchProfileInstanceProfileIdentityByHref
@@ -40312,7 +41670,7 @@ type InstancePlacementTarget struct {
 	// The CRN for this dedicated host group.
 	CRN *string `json:"crn,omitempty"`
 
-	// If present, this property indicates the referenced resource has been deleted and provides
+	// If present, this property indicates the referenced resource has been deleted, and provides
 	// some supplementary information.
 	Deleted *DedicatedHostGroupReferenceDeleted `json:"deleted,omitempty"`
 
@@ -40322,7 +41680,7 @@ type InstancePlacementTarget struct {
 	// The unique identifier for this dedicated host group.
 	ID *string `json:"id,omitempty"`
 
-	// The unique user-defined name for this dedicated host group.
+	// The name for this dedicated host group. The name is unique across all dedicated host groups in the region.
 	Name *string `json:"name,omitempty"`
 
 	// The resource type.
@@ -40467,7 +41825,7 @@ type InstanceProfile struct {
 	Disks []InstanceProfileDisk `json:"disks" validate:"required"`
 
 	// The product family this virtual server instance profile belongs to.
-	Family *string `json:"family,omitempty"`
+	Family *string `json:"family" validate:"required"`
 
 	GpuCount InstanceProfileGpuIntf `json:"gpu_count,omitempty"`
 
@@ -41532,6 +42890,7 @@ func UnmarshalInstanceProfileVolumeBandwidth(m map[string]json.RawMessage, resul
 // InstancePrototype : InstancePrototype struct
 // Models which "extend" this model:
 // - InstancePrototypeInstanceByImage
+// - InstancePrototypeInstanceByCatalogOffering
 // - InstancePrototypeInstanceBySourceSnapshot
 // - InstancePrototypeInstanceBySourceTemplate
 type InstancePrototype struct {
@@ -41563,8 +42922,10 @@ type InstancePrototype struct {
 	// The metadata service configuration.
 	MetadataService *InstanceMetadataServicePrototype `json:"metadata_service,omitempty"`
 
-	// The unique user-defined name for this virtual server instance (and default system hostname). If unspecified, the
-	// name will be a hyphenated list of randomly-selected words.
+	// The name for this virtual server instance. The name must not be used by another virtual server instance in the
+	// region. If unspecified, the name will be a hyphenated list of randomly-selected words.
+	//
+	// The system hostname will be based on this name.
 	Name *string `json:"name,omitempty"`
 
 	// The additional network interfaces to create for the virtual server instance.
@@ -41573,8 +42934,11 @@ type InstancePrototype struct {
 	// The placement restrictions to use for the virtual server instance.
 	PlacementTarget InstancePlacementTargetPrototypeIntf `json:"placement_target,omitempty"`
 
-	// The profile to use for this virtual server instance. If unspecified, `bx2-2x8` will
-	// be used, but this default value is expected to change in the future.
+	// The [profile](https://cloud.ibm.com/docs/vpc?topic=vpc-profiles) to use for this
+	// virtual server instance.
+	//
+	// If unspecified, `bx2-2x8` will be used, but this default value is expected to change
+	// in the future.
 	Profile InstanceProfileIdentityIntf `json:"profile,omitempty"`
 
 	// The resource group to use. If unspecified, the account's [default resource
@@ -41591,10 +42955,12 @@ type InstancePrototype struct {
 	UserData *string `json:"user_data,omitempty"`
 
 	// The additional volume attachments to create for the virtual server instance.
-	VolumeAttachments []VolumeAttachmentPrototypeInstanceContext `json:"volume_attachments,omitempty"`
+	VolumeAttachments []VolumeAttachmentPrototype `json:"volume_attachments,omitempty"`
 
-	// The VPC the virtual server instance is to be a part of. If specified, it must match
-	// the VPC referenced by the subnets of the instance's network interfaces.
+	// The VPC this virtual server instance will reside in.
+	//
+	// If specified, it must match the VPC for the subnets of the instance's network
+	// interfaces.
 	VPC VPCIdentityIntf `json:"vpc,omitempty"`
 
 	// The boot volume attachment for the virtual server instance.
@@ -41608,6 +42974,16 @@ type InstancePrototype struct {
 
 	// The zone this virtual server instance will reside in.
 	Zone ZoneIdentityIntf `json:"zone,omitempty"`
+
+	// The [catalog](https://cloud.ibm.com/docs/account?topic=account-restrict-by-user) offering
+	// or offering version to use when provisioning this virtual server instance.
+	//
+	// If an offering is specified, the latest version of that offering will be used.
+	//
+	// The specified offering or offering version may be in a different account in the same
+	// [enterprise](https://cloud.ibm.com/docs/account?topic=account-what-is-enterprise), subject
+	// to IAM policies.
+	CatalogOffering InstanceCatalogOfferingPrototypeIntf `json:"catalog_offering,omitempty"`
 
 	// The template to create this virtual server instance from.
 	SourceTemplate InstanceTemplateIdentityIntf `json:"source_template,omitempty"`
@@ -41668,7 +43044,7 @@ func UnmarshalInstancePrototype(m map[string]json.RawMessage, result interface{}
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalModel(m, "volume_attachments", &obj.VolumeAttachments, UnmarshalVolumeAttachmentPrototypeInstanceContext)
+	err = core.UnmarshalModel(m, "volume_attachments", &obj.VolumeAttachments, UnmarshalVolumeAttachmentPrototype)
 	if err != nil {
 		return
 	}
@@ -41692,6 +43068,10 @@ func UnmarshalInstancePrototype(m map[string]json.RawMessage, result interface{}
 	if err != nil {
 		return
 	}
+	err = core.UnmarshalModel(m, "catalog_offering", &obj.CatalogOffering, UnmarshalInstanceCatalogOfferingPrototype)
+	if err != nil {
+		return
+	}
 	err = core.UnmarshalModel(m, "source_template", &obj.SourceTemplate, UnmarshalInstanceTemplateIdentity)
 	if err != nil {
 		return
@@ -41705,7 +43085,7 @@ type InstanceReference struct {
 	// The CRN for this virtual server instance.
 	CRN *string `json:"crn" validate:"required"`
 
-	// If present, this property indicates the referenced resource has been deleted and provides
+	// If present, this property indicates the referenced resource has been deleted, and provides
 	// some supplementary information.
 	Deleted *InstanceReferenceDeleted `json:"deleted,omitempty"`
 
@@ -41715,7 +43095,7 @@ type InstanceReference struct {
 	// The unique identifier for this virtual server instance.
 	ID *string `json:"id" validate:"required"`
 
-	// The user-defined name for this virtual server instance (and default system hostname).
+	// The name for this virtual server instance. The name is unique across all virtual server instances in the region.
 	Name *string `json:"name" validate:"required"`
 }
 
@@ -41746,7 +43126,7 @@ func UnmarshalInstanceReference(m map[string]json.RawMessage, result interface{}
 	return
 }
 
-// InstanceReferenceDeleted : If present, this property indicates the referenced resource has been deleted and provides some supplementary
+// InstanceReferenceDeleted : If present, this property indicates the referenced resource has been deleted, and provides some supplementary
 // information.
 type InstanceReferenceDeleted struct {
 	// Link to documentation about deleted resources.
@@ -41814,6 +43194,7 @@ func UnmarshalInstanceStatusReason(m map[string]json.RawMessage, result interfac
 // Models which "extend" this model:
 // - InstanceTemplateInstanceByImage
 // - InstanceTemplateInstanceBySourceSnapshot
+// - InstanceTemplateInstanceByCatalogOffering
 type InstanceTemplate struct {
 	// The availability policy to use for this virtual server instance.
 	AvailabilityPolicy *InstanceAvailabilityPrototype `json:"availability_policy,omitempty"`
@@ -41855,7 +43236,7 @@ type InstanceTemplate struct {
 	// The metadata service configuration.
 	MetadataService *InstanceMetadataServicePrototype `json:"metadata_service,omitempty"`
 
-	// The unique user-defined name for this instance template.
+	// The name for this instance template. The name is unique across all instance templates in the region.
 	Name *string `json:"name" validate:"required"`
 
 	// The additional network interfaces to create for the virtual server instance.
@@ -41864,8 +43245,11 @@ type InstanceTemplate struct {
 	// The placement restrictions to use for the virtual server instance.
 	PlacementTarget InstancePlacementTargetPrototypeIntf `json:"placement_target,omitempty"`
 
-	// The profile to use for this virtual server instance. If unspecified, `bx2-2x8` will
-	// be used, but this default value is expected to change in the future.
+	// The [profile](https://cloud.ibm.com/docs/vpc?topic=vpc-profiles) to use for this
+	// virtual server instance.
+	//
+	// If unspecified, `bx2-2x8` will be used, but this default value is expected to change
+	// in the future.
 	Profile InstanceProfileIdentityIntf `json:"profile,omitempty"`
 
 	// The resource group for this instance template.
@@ -41881,10 +43265,12 @@ type InstanceTemplate struct {
 	UserData *string `json:"user_data,omitempty"`
 
 	// The additional volume attachments to create for the virtual server instance.
-	VolumeAttachments []VolumeAttachmentPrototypeInstanceContext `json:"volume_attachments,omitempty"`
+	VolumeAttachments []VolumeAttachmentPrototype `json:"volume_attachments,omitempty"`
 
-	// The VPC the virtual server instance is to be a part of. If specified, it must match
-	// the VPC referenced by the subnets of the instance's network interfaces.
+	// The VPC this virtual server instance will reside in.
+	//
+	// If specified, it must match the VPC for the subnets of the instance's network
+	// interfaces.
 	VPC VPCIdentityIntf `json:"vpc,omitempty"`
 
 	// The boot volume attachment for the virtual server instance.
@@ -41898,6 +43284,16 @@ type InstanceTemplate struct {
 
 	// The zone this virtual server instance will reside in.
 	Zone ZoneIdentityIntf `json:"zone,omitempty"`
+
+	// The [catalog](https://cloud.ibm.com/docs/account?topic=account-restrict-by-user) offering
+	// or offering version to use when provisioning this virtual server instance.
+	//
+	// If an offering is specified, the latest version of that offering will be used.
+	//
+	// The specified offering or offering version may be in a different account in the same
+	// [enterprise](https://cloud.ibm.com/docs/account?topic=account-what-is-enterprise), subject
+	// to IAM policies.
+	CatalogOffering InstanceCatalogOfferingPrototypeIntf `json:"catalog_offering,omitempty"`
 }
 
 func (*InstanceTemplate) isaInstanceTemplate() bool {
@@ -41971,7 +43367,7 @@ func UnmarshalInstanceTemplate(m map[string]json.RawMessage, result interface{})
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalModel(m, "volume_attachments", &obj.VolumeAttachments, UnmarshalVolumeAttachmentPrototypeInstanceContext)
+	err = core.UnmarshalModel(m, "volume_attachments", &obj.VolumeAttachments, UnmarshalVolumeAttachmentPrototype)
 	if err != nil {
 		return
 	}
@@ -41992,6 +43388,10 @@ func UnmarshalInstanceTemplate(m map[string]json.RawMessage, result interface{})
 		return
 	}
 	err = core.UnmarshalModel(m, "zone", &obj.Zone, UnmarshalZoneIdentity)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "catalog_offering", &obj.CatalogOffering, UnmarshalInstanceCatalogOfferingPrototype)
 	if err != nil {
 		return
 	}
@@ -42124,7 +43524,7 @@ func UnmarshalInstanceTemplateIdentity(m map[string]json.RawMessage, result inte
 
 // InstanceTemplatePatch : InstanceTemplatePatch struct
 type InstanceTemplatePatch struct {
-	// The unique user-defined name for this instance template.
+	// The name for this instance template. The name must not be used by another instance template in the region.
 	Name *string `json:"name,omitempty"`
 }
 
@@ -42153,6 +43553,8 @@ func (instanceTemplatePatch *InstanceTemplatePatch) AsPatch() (_patch map[string
 // Models which "extend" this model:
 // - InstanceTemplatePrototypeInstanceByImage
 // - InstanceTemplatePrototypeInstanceBySourceTemplate
+// - InstanceTemplatePrototypeInstanceBySourceSnapshot
+// - InstanceTemplatePrototypeInstanceByCatalogOffering
 type InstanceTemplatePrototype struct {
 	// The availability policy to use for this virtual server instance.
 	AvailabilityPolicy *InstanceAvailabilityPrototype `json:"availability_policy,omitempty"`
@@ -42182,8 +43584,8 @@ type InstanceTemplatePrototype struct {
 	// The metadata service configuration.
 	MetadataService *InstanceMetadataServicePrototype `json:"metadata_service,omitempty"`
 
-	// The unique user-defined name for this virtual server instance (and default system hostname). If unspecified, the
-	// name will be a hyphenated list of randomly-selected words.
+	// The name for this instance template. The name must not be used by another instance template in the region. If
+	// unspecified, the name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
 	// The additional network interfaces to create for the virtual server instance.
@@ -42192,8 +43594,11 @@ type InstanceTemplatePrototype struct {
 	// The placement restrictions to use for the virtual server instance.
 	PlacementTarget InstancePlacementTargetPrototypeIntf `json:"placement_target,omitempty"`
 
-	// The profile to use for this virtual server instance. If unspecified, `bx2-2x8` will
-	// be used, but this default value is expected to change in the future.
+	// The [profile](https://cloud.ibm.com/docs/vpc?topic=vpc-profiles) to use for this
+	// virtual server instance.
+	//
+	// If unspecified, `bx2-2x8` will be used, but this default value is expected to change
+	// in the future.
 	Profile InstanceProfileIdentityIntf `json:"profile,omitempty"`
 
 	// The resource group to use. If unspecified, the account's [default resource
@@ -42210,10 +43615,12 @@ type InstanceTemplatePrototype struct {
 	UserData *string `json:"user_data,omitempty"`
 
 	// The additional volume attachments to create for the virtual server instance.
-	VolumeAttachments []VolumeAttachmentPrototypeInstanceContext `json:"volume_attachments,omitempty"`
+	VolumeAttachments []VolumeAttachmentPrototype `json:"volume_attachments,omitempty"`
 
-	// The VPC the virtual server instance is to be a part of. If specified, it must match
-	// the VPC referenced by the subnets of the instance's network interfaces.
+	// The VPC this virtual server instance will reside in.
+	//
+	// If specified, it must match the VPC for the subnets of the instance's network
+	// interfaces.
 	VPC VPCIdentityIntf `json:"vpc,omitempty"`
 
 	// The boot volume attachment for the virtual server instance.
@@ -42227,6 +43634,17 @@ type InstanceTemplatePrototype struct {
 
 	// The zone this virtual server instance will reside in.
 	Zone ZoneIdentityIntf `json:"zone,omitempty"`
+
+	// The [catalog](https://cloud.ibm.com/docs/account?topic=account-restrict-by-user)
+	// offering version to use when provisioning this virtual server instance.
+	// If an offering is specified, the latest version of that offering will be used.
+	//
+	// The specified offering or offering version may be in a different account, subject to
+	// IAM policies.
+	//
+	// If specified, `image` must not be specified, and `source_template` must not have
+	// `image` specified.
+	CatalogOffering InstanceCatalogOfferingPrototypeIntf `json:"catalog_offering,omitempty"`
 
 	// The template to create this virtual server instance from.
 	SourceTemplate InstanceTemplateIdentityIntf `json:"source_template,omitempty"`
@@ -42287,7 +43705,7 @@ func UnmarshalInstanceTemplatePrototype(m map[string]json.RawMessage, result int
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalModel(m, "volume_attachments", &obj.VolumeAttachments, UnmarshalVolumeAttachmentPrototypeInstanceContext)
+	err = core.UnmarshalModel(m, "volume_attachments", &obj.VolumeAttachments, UnmarshalVolumeAttachmentPrototype)
 	if err != nil {
 		return
 	}
@@ -42311,6 +43729,10 @@ func UnmarshalInstanceTemplatePrototype(m map[string]json.RawMessage, result int
 	if err != nil {
 		return
 	}
+	err = core.UnmarshalModel(m, "catalog_offering", &obj.CatalogOffering, UnmarshalInstanceCatalogOfferingPrototype)
+	if err != nil {
+		return
+	}
 	err = core.UnmarshalModel(m, "source_template", &obj.SourceTemplate, UnmarshalInstanceTemplateIdentity)
 	if err != nil {
 		return
@@ -42324,7 +43746,7 @@ type InstanceTemplateReference struct {
 	// The CRN for this instance template.
 	CRN *string `json:"crn" validate:"required"`
 
-	// If present, this property indicates the referenced resource has been deleted and provides
+	// If present, this property indicates the referenced resource has been deleted, and provides
 	// some supplementary information.
 	Deleted *InstanceTemplateReferenceDeleted `json:"deleted,omitempty"`
 
@@ -42334,7 +43756,7 @@ type InstanceTemplateReference struct {
 	// The unique identifier for this instance template.
 	ID *string `json:"id" validate:"required"`
 
-	// The unique user-defined name for this instance template.
+	// The name for this instance template. The name is unique across all instance templates in the region.
 	Name *string `json:"name" validate:"required"`
 }
 
@@ -42365,7 +43787,7 @@ func UnmarshalInstanceTemplateReference(m map[string]json.RawMessage, result int
 	return
 }
 
-// InstanceTemplateReferenceDeleted : If present, this property indicates the referenced resource has been deleted and provides some supplementary
+// InstanceTemplateReferenceDeleted : If present, this property indicates the referenced resource has been deleted, and provides some supplementary
 // information.
 type InstanceTemplateReferenceDeleted struct {
 	// Link to documentation about deleted resources.
@@ -42428,8 +43850,8 @@ type Key struct {
 	// The length of this key (in bits).
 	Length *int64 `json:"length" validate:"required"`
 
-	// The unique user-defined name for this key. If unspecified, the name will be a hyphenated list of randomly-selected
-	// words.
+	// The name for this key. The name must not be used by another key in the region. If unspecified, the name will be a
+	// hyphenated list of randomly-selected words.
 	Name *string `json:"name" validate:"required"`
 
 	// The public SSH key, consisting of two space-separated fields: the algorithm name, and the base64-encoded key.
@@ -42641,7 +44063,7 @@ func UnmarshalKeyIdentity(m map[string]json.RawMessage, result interface{}) (err
 
 // KeyPatch : KeyPatch struct
 type KeyPatch struct {
-	// The user-defined name for this key.
+	// The name for this key. The name must not be used by another key in the region.
 	Name *string `json:"name,omitempty"`
 }
 
@@ -42671,7 +44093,7 @@ type KeyReference struct {
 	// The CRN for this key.
 	CRN *string `json:"crn" validate:"required"`
 
-	// If present, this property indicates the referenced resource has been deleted and provides
+	// If present, this property indicates the referenced resource has been deleted, and provides
 	// some supplementary information.
 	Deleted *KeyReferenceDeleted `json:"deleted,omitempty"`
 
@@ -42685,7 +44107,7 @@ type KeyReference struct {
 	// The unique identifier for this key.
 	ID *string `json:"id" validate:"required"`
 
-	// The user-defined name for this key.
+	// The name for this key. The name is unique across all keys in the region.
 	Name *string `json:"name" validate:"required"`
 }
 
@@ -42720,7 +44142,7 @@ func UnmarshalKeyReference(m map[string]json.RawMessage, result interface{}) (er
 	return
 }
 
-// KeyReferenceDeleted : If present, this property indicates the referenced resource has been deleted and provides some supplementary
+// KeyReferenceDeleted : If present, this property indicates the referenced resource has been deleted, and provides some supplementary
 // information.
 type KeyReferenceDeleted struct {
 	// Link to documentation about deleted resources.
@@ -42775,6 +44197,43 @@ type LegacyCloudObjectStorageBucketReference struct {
 func UnmarshalLegacyCloudObjectStorageBucketReference(m map[string]json.RawMessage, result interface{}) (err error) {
 	obj := new(LegacyCloudObjectStorageBucketReference)
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// LifecycleReason : LifecycleReason struct
+type LifecycleReason struct {
+	// A snake case string succinctly identifying the reason for this lifecycle state.
+	Code *string `json:"code" validate:"required"`
+
+	// An explanation of the reason for this lifecycle state.
+	Message *string `json:"message" validate:"required"`
+
+	// Link to documentation about the reason for this lifecycle state.
+	MoreInfo *string `json:"more_info,omitempty"`
+}
+
+// Constants associated with the LifecycleReason.Code property.
+// A snake case string succinctly identifying the reason for this lifecycle state.
+const (
+	LifecycleReasonCodeResourceSuspendedByProviderConst = "resource_suspended_by_provider"
+)
+
+// UnmarshalLifecycleReason unmarshals an instance of LifecycleReason from the specified map of raw messages.
+func UnmarshalLifecycleReason(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(LifecycleReason)
+	err = core.UnmarshalPrimitive(m, "code", &obj.Code)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "message", &obj.Message)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "more_info", &obj.MoreInfo)
 	if err != nil {
 		return
 	}
@@ -42840,6 +44299,117 @@ func (_options *ListBackupPoliciesOptions) SetTag(tag string) *ListBackupPolicie
 
 // SetHeaders : Allow user to set Headers
 func (options *ListBackupPoliciesOptions) SetHeaders(param map[string]string) *ListBackupPoliciesOptions {
+	options.Headers = param
+	return options
+}
+
+// ListBackupPolicyJobsOptions : The ListBackupPolicyJobs options.
+type ListBackupPolicyJobsOptions struct {
+	// The backup policy identifier.
+	BackupPolicyID *string `json:"backup_policy_id" validate:"required,ne="`
+
+	// Filters the collection to backup policy jobs with the specified status.
+	Status *string `json:"status,omitempty"`
+
+	// Filters the collection to backup policy jobs with the backup plan with the specified identifier.
+	BackupPolicyPlanID *string `json:"backup_policy_plan.id,omitempty"`
+
+	// A server-provided token determining what resource to start the page on.
+	Start *string `json:"start,omitempty"`
+
+	// The number of resources to return on a page.
+	Limit *int64 `json:"limit,omitempty"`
+
+	// Sorts the returned collection by the specified property name in ascending order. A `-` may be prepended to the name
+	// to sort in descending order. For example, the value `-created_at` sorts the collection by the `created_at` property
+	// in descending order, and the value `name` sorts it by the `name` property in ascending order.
+	Sort *string `json:"sort,omitempty"`
+
+	// Filters the collection to backup policy jobs with a source with the specified identifier.
+	SourceID *string `json:"source.id,omitempty"`
+
+	// Filters the collection to resources with the target snapshot with the specified identifier.
+	TargetSnapshotsID *string `json:"target_snapshots[].id,omitempty"`
+
+	// Filters the collection to backup policy jobs with the target snapshot with the specified CRN.
+	TargetSnapshotsCRN *string `json:"target_snapshots[].crn,omitempty"`
+
+	// Allows users to set headers on API requests
+	Headers map[string]string
+}
+
+// Constants associated with the ListBackupPolicyJobsOptions.Sort property.
+// Sorts the returned collection by the specified property name in ascending order. A `-` may be prepended to the name
+// to sort in descending order. For example, the value `-created_at` sorts the collection by the `created_at` property
+// in descending order, and the value `name` sorts it by the `name` property in ascending order.
+const (
+	ListBackupPolicyJobsOptionsSortCreatedAtConst = "created_at"
+	ListBackupPolicyJobsOptionsSortNameConst      = "name"
+)
+
+// NewListBackupPolicyJobsOptions : Instantiate ListBackupPolicyJobsOptions
+func (*VpcV1) NewListBackupPolicyJobsOptions(backupPolicyID string) *ListBackupPolicyJobsOptions {
+	return &ListBackupPolicyJobsOptions{
+		BackupPolicyID: core.StringPtr(backupPolicyID),
+	}
+}
+
+// SetBackupPolicyID : Allow user to set BackupPolicyID
+func (_options *ListBackupPolicyJobsOptions) SetBackupPolicyID(backupPolicyID string) *ListBackupPolicyJobsOptions {
+	_options.BackupPolicyID = core.StringPtr(backupPolicyID)
+	return _options
+}
+
+// SetStatus : Allow user to set Status
+func (_options *ListBackupPolicyJobsOptions) SetStatus(status string) *ListBackupPolicyJobsOptions {
+	_options.Status = core.StringPtr(status)
+	return _options
+}
+
+// SetBackupPolicyPlanID : Allow user to set BackupPolicyPlanID
+func (_options *ListBackupPolicyJobsOptions) SetBackupPolicyPlanID(backupPolicyPlanID string) *ListBackupPolicyJobsOptions {
+	_options.BackupPolicyPlanID = core.StringPtr(backupPolicyPlanID)
+	return _options
+}
+
+// SetStart : Allow user to set Start
+func (_options *ListBackupPolicyJobsOptions) SetStart(start string) *ListBackupPolicyJobsOptions {
+	_options.Start = core.StringPtr(start)
+	return _options
+}
+
+// SetLimit : Allow user to set Limit
+func (_options *ListBackupPolicyJobsOptions) SetLimit(limit int64) *ListBackupPolicyJobsOptions {
+	_options.Limit = core.Int64Ptr(limit)
+	return _options
+}
+
+// SetSort : Allow user to set Sort
+func (_options *ListBackupPolicyJobsOptions) SetSort(sort string) *ListBackupPolicyJobsOptions {
+	_options.Sort = core.StringPtr(sort)
+	return _options
+}
+
+// SetSourceID : Allow user to set SourceID
+func (_options *ListBackupPolicyJobsOptions) SetSourceID(sourceID string) *ListBackupPolicyJobsOptions {
+	_options.SourceID = core.StringPtr(sourceID)
+	return _options
+}
+
+// SetTargetSnapshotsID : Allow user to set TargetSnapshotsID
+func (_options *ListBackupPolicyJobsOptions) SetTargetSnapshotsID(targetSnapshotsID string) *ListBackupPolicyJobsOptions {
+	_options.TargetSnapshotsID = core.StringPtr(targetSnapshotsID)
+	return _options
+}
+
+// SetTargetSnapshotsCRN : Allow user to set TargetSnapshotsCRN
+func (_options *ListBackupPolicyJobsOptions) SetTargetSnapshotsCRN(targetSnapshotsCRN string) *ListBackupPolicyJobsOptions {
+	_options.TargetSnapshotsCRN = core.StringPtr(targetSnapshotsCRN)
+	return _options
+}
+
+// SetHeaders : Allow user to set Headers
+func (options *ListBackupPolicyJobsOptions) SetHeaders(param map[string]string) *ListBackupPolicyJobsOptions {
 	options.Headers = param
 	return options
 }
@@ -42943,6 +44513,44 @@ func (_options *ListBareMetalServerNetworkInterfaceFloatingIpsOptions) SetNetwor
 
 // SetHeaders : Allow user to set Headers
 func (options *ListBareMetalServerNetworkInterfaceFloatingIpsOptions) SetHeaders(param map[string]string) *ListBareMetalServerNetworkInterfaceFloatingIpsOptions {
+	options.Headers = param
+	return options
+}
+
+// ListBareMetalServerNetworkInterfaceIpsOptions : The ListBareMetalServerNetworkInterfaceIps options.
+type ListBareMetalServerNetworkInterfaceIpsOptions struct {
+	// The bare metal server identifier.
+	BareMetalServerID *string `json:"bare_metal_server_id" validate:"required,ne="`
+
+	// The network interface identifier.
+	NetworkInterfaceID *string `json:"network_interface_id" validate:"required,ne="`
+
+	// Allows users to set headers on API requests
+	Headers map[string]string
+}
+
+// NewListBareMetalServerNetworkInterfaceIpsOptions : Instantiate ListBareMetalServerNetworkInterfaceIpsOptions
+func (*VpcV1) NewListBareMetalServerNetworkInterfaceIpsOptions(bareMetalServerID string, networkInterfaceID string) *ListBareMetalServerNetworkInterfaceIpsOptions {
+	return &ListBareMetalServerNetworkInterfaceIpsOptions{
+		BareMetalServerID:  core.StringPtr(bareMetalServerID),
+		NetworkInterfaceID: core.StringPtr(networkInterfaceID),
+	}
+}
+
+// SetBareMetalServerID : Allow user to set BareMetalServerID
+func (_options *ListBareMetalServerNetworkInterfaceIpsOptions) SetBareMetalServerID(bareMetalServerID string) *ListBareMetalServerNetworkInterfaceIpsOptions {
+	_options.BareMetalServerID = core.StringPtr(bareMetalServerID)
+	return _options
+}
+
+// SetNetworkInterfaceID : Allow user to set NetworkInterfaceID
+func (_options *ListBareMetalServerNetworkInterfaceIpsOptions) SetNetworkInterfaceID(networkInterfaceID string) *ListBareMetalServerNetworkInterfaceIpsOptions {
+	_options.NetworkInterfaceID = core.StringPtr(networkInterfaceID)
+	return _options
+}
+
+// SetHeaders : Allow user to set Headers
+func (options *ListBareMetalServerNetworkInterfaceIpsOptions) SetHeaders(param map[string]string) *ListBareMetalServerNetworkInterfaceIpsOptions {
 	options.Headers = param
 	return options
 }
@@ -45839,12 +47447,26 @@ type ListVPNGatewaysOptions struct {
 	// Filters the collection to resources in the resource group with the specified identifier.
 	ResourceGroupID *string `json:"resource_group.id,omitempty"`
 
+	// Sorts the returned collection by the specified property name in ascending order. A `-` may be prepended to the name
+	// to sort in descending order. For example, the value `-created_at` sorts the collection by the `created_at` property
+	// in descending order, and the value `name` sorts it by the `name` property in ascending order.
+	Sort *string `json:"sort,omitempty"`
+
 	// Filters the collection to VPN gateways with the specified mode.
 	Mode *string `json:"mode,omitempty"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
 }
+
+// Constants associated with the ListVPNGatewaysOptions.Sort property.
+// Sorts the returned collection by the specified property name in ascending order. A `-` may be prepended to the name
+// to sort in descending order. For example, the value `-created_at` sorts the collection by the `created_at` property
+// in descending order, and the value `name` sorts it by the `name` property in ascending order.
+const (
+	ListVPNGatewaysOptionsSortCreatedAtConst = "created_at"
+	ListVPNGatewaysOptionsSortNameConst      = "name"
+)
 
 // Constants associated with the ListVPNGatewaysOptions.Mode property.
 // Filters the collection to VPN gateways with the specified mode.
@@ -45873,6 +47495,12 @@ func (_options *ListVPNGatewaysOptions) SetLimit(limit int64) *ListVPNGatewaysOp
 // SetResourceGroupID : Allow user to set ResourceGroupID
 func (_options *ListVPNGatewaysOptions) SetResourceGroupID(resourceGroupID string) *ListVPNGatewaysOptions {
 	_options.ResourceGroupID = core.StringPtr(resourceGroupID)
+	return _options
+}
+
+// SetSort : Allow user to set Sort
+func (_options *ListVPNGatewaysOptions) SetSort(sort string) *ListVPNGatewaysOptions {
+	_options.Sort = core.StringPtr(sort)
 	return _options
 }
 
@@ -46118,7 +47746,7 @@ type LoadBalancer struct {
 	// The logging configuration for this load balancer.
 	Logging *LoadBalancerLogging `json:"logging" validate:"required"`
 
-	// The unique user-defined name for this load balancer.
+	// The name for this load balancer. The name is unique across all load balancers in the VPC.
 	Name *string `json:"name" validate:"required"`
 
 	// The operating status of this load balancer.
@@ -46133,7 +47761,22 @@ type LoadBalancer struct {
 	// The profile for this load balancer.
 	Profile *LoadBalancerProfileReference `json:"profile" validate:"required"`
 
-	// The provisioning status of this load balancer.
+	// The provisioning status of this load balancer:
+	//
+	// - `active`: The load balancer is running.
+	// - `create_pending`: The load balancer is being created.
+	// - `delete_pending`: The load balancer is being deleted.
+	// - `maintenance_pending`: The load balancer is unavailable due to an internal
+	//                           error (contact IBM support).
+	// - `migrate_pending`: The load balancer is migrating to the requested configuration.
+	//                       Performance may be degraded.
+	// - `update_pending`: The load balancer is being updated
+	//     to the requested configuration.
+	//
+	//   The enumerated values for this property are expected to expand in the future. When
+	//   processing this property, check for and log unknown values. Optionally halt
+	//   processing and surface the error, or bypass the load balancer on which the
+	//   unexpected property value was encountered.
 	ProvisioningStatus *string `json:"provisioning_status" validate:"required"`
 
 	// The public IP addresses assigned to this load balancer.
@@ -46160,7 +47803,10 @@ type LoadBalancer struct {
 	// Indicates whether this load balancer supports security groups.
 	SecurityGroupsSupported *bool `json:"security_groups_supported" validate:"required"`
 
-	// The subnets this load balancer is part of.
+	// The subnets this load balancer is provisioned in.  The load balancer's availability depends on the availability of
+	// the zones that the subnets reside in.
+	//
+	// All subnets will be in the same VPC.
 	Subnets []SubnetReference `json:"subnets" validate:"required"`
 
 	// Indicates whether this load balancer supports UDP.
@@ -46175,13 +47821,34 @@ const (
 )
 
 // Constants associated with the LoadBalancer.ProvisioningStatus property.
-// The provisioning status of this load balancer.
+// The provisioning status of this load balancer:
+//
+//   - `active`: The load balancer is running.
+//
+//   - `create_pending`: The load balancer is being created.
+//
+//   - `delete_pending`: The load balancer is being deleted.
+//
+//   - `maintenance_pending`: The load balancer is unavailable due to an internal
+//     error (contact IBM support).
+//
+//   - `migrate_pending`: The load balancer is migrating to the requested configuration.
+//     Performance may be degraded.
+//
+//   - `update_pending`: The load balancer is being updated
+//     to the requested configuration.
+//
+//     The enumerated values for this property are expected to expand in the future. When
+//     processing this property, check for and log unknown values. Optionally halt
+//     processing and surface the error, or bypass the load balancer on which the
+//     unexpected property value was encountered.
 const (
 	LoadBalancerProvisioningStatusActiveConst             = "active"
 	LoadBalancerProvisioningStatusCreatePendingConst      = "create_pending"
 	LoadBalancerProvisioningStatusDeletePendingConst      = "delete_pending"
 	LoadBalancerProvisioningStatusFailedConst             = "failed"
 	LoadBalancerProvisioningStatusMaintenancePendingConst = "maintenance_pending"
+	LoadBalancerProvisioningStatusMigratePendingConst     = "migrate_pending"
 	LoadBalancerProvisioningStatusUpdatePendingConst      = "update_pending"
 )
 
@@ -46431,8 +48098,9 @@ type LoadBalancerListener struct {
 	//   `accept_proxy_protocol` value must match that listener's `accept_proxy_protocol` value.
 	AcceptProxyProtocol *bool `json:"accept_proxy_protocol" validate:"required"`
 
-	// The certificate instance used for SSL termination. It is applicable only to `https`
-	// protocol.
+	// The certificate instance used for SSL termination.
+	//
+	// If absent, this listener is not using a certificate instance.
 	CertificateInstance *CertificateInstanceReference `json:"certificate_instance,omitempty"`
 
 	// The connection limit of the listener.
@@ -46447,7 +48115,7 @@ type LoadBalancerListener struct {
 	// The listener's canonical URL.
 	Href *string `json:"href" validate:"required"`
 
-	// If specified, the target listener that requests are redirected to.
+	// If present, the target listener that requests are redirected to.
 	HTTPSRedirect *LoadBalancerListenerHTTPSRedirect `json:"https_redirect,omitempty"`
 
 	// The unique identifier for this load balancer listener.
@@ -46469,23 +48137,23 @@ type LoadBalancerListener struct {
 	// At present, only load balancers in the `network` family support more than one port per listener.
 	PortMin *int64 `json:"port_min" validate:"required"`
 
-	// The listener protocol. Load balancers in the `network` family support `tcp` and
-	// `udp` (if `udp_supported` is `true`). Load balancers in the `application` family support `tcp`, `http`, and `https`.
-	// Each listener in the load balancer must have a unique `port` and `protocol` combination.
+	// The listener protocol.
 	//
 	// The enumerated values for this property are expected to expand in the future. When processing this property, check
 	// for and log unknown values. Optionally halt processing and surface the error, or bypass the listener on which the
 	// unexpected property value was encountered.
 	Protocol *string `json:"protocol" validate:"required"`
 
-	// The provisioning status of this listener.
+	// The provisioning status of this listener
+	//
+	// The enumerated values for this property are expected to expand in the future. When processing this property, check
+	// for and log unknown values. Optionally halt processing and surface the error, or bypass the listener on which the
+	// unexpected property value was encountered.
 	ProvisioningStatus *string `json:"provisioning_status" validate:"required"`
 }
 
 // Constants associated with the LoadBalancerListener.Protocol property.
-// The listener protocol. Load balancers in the `network` family support `tcp` and
-// `udp` (if `udp_supported` is `true`). Load balancers in the `application` family support `tcp`, `http`, and `https`.
-// Each listener in the load balancer must have a unique `port` and `protocol` combination.
+// The listener protocol.
 //
 // The enumerated values for this property are expected to expand in the future. When processing this property, check
 // for and log unknown values. Optionally halt processing and surface the error, or bypass the listener on which the
@@ -46498,14 +48166,17 @@ const (
 )
 
 // Constants associated with the LoadBalancerListener.ProvisioningStatus property.
-// The provisioning status of this listener.
+// The provisioning status of this listener
+//
+// The enumerated values for this property are expected to expand in the future. When processing this property, check
+// for and log unknown values. Optionally halt processing and surface the error, or bypass the listener on which the
+// unexpected property value was encountered.
 const (
-	LoadBalancerListenerProvisioningStatusActiveConst             = "active"
-	LoadBalancerListenerProvisioningStatusCreatePendingConst      = "create_pending"
-	LoadBalancerListenerProvisioningStatusDeletePendingConst      = "delete_pending"
-	LoadBalancerListenerProvisioningStatusFailedConst             = "failed"
-	LoadBalancerListenerProvisioningStatusMaintenancePendingConst = "maintenance_pending"
-	LoadBalancerListenerProvisioningStatusUpdatePendingConst      = "update_pending"
+	LoadBalancerListenerProvisioningStatusActiveConst        = "active"
+	LoadBalancerListenerProvisioningStatusCreatePendingConst = "create_pending"
+	LoadBalancerListenerProvisioningStatusDeletePendingConst = "delete_pending"
+	LoadBalancerListenerProvisioningStatusFailedConst        = "failed"
+	LoadBalancerListenerProvisioningStatusUpdatePendingConst = "update_pending"
 )
 
 // UnmarshalLoadBalancerListener unmarshals an instance of LoadBalancerListener from the specified map of raw messages.
@@ -46735,8 +48406,8 @@ type LoadBalancerListenerPatch struct {
 	//   `accept_proxy_protocol` value must match that listener's `accept_proxy_protocol` value.
 	AcceptProxyProtocol *bool `json:"accept_proxy_protocol,omitempty"`
 
-	// The certificate instance used for SSL termination. It is applicable only to `https`
-	// protocol.
+	// The certificate instance to use for SSL termination. The listener must have a
+	// `protocol` of `https`.
 	CertificateInstance CertificateInstanceIdentityIntf `json:"certificate_instance,omitempty"`
 
 	// The connection limit of the listener.
@@ -46785,25 +48456,31 @@ type LoadBalancerListenerPatch struct {
 	PortMin *int64 `json:"port_min,omitempty"`
 
 	// The listener protocol. Each listener in the load balancer must have a unique `port` and `protocol` combination.
+	//
+	// Load balancers in the `network` family support `tcp` and `udp` (if `udp_supported` is `true`). Load balancers in the
+	// `application` family support `tcp`, `http` and
+	// `https`.
+	//
 	// Additional restrictions:
-	// - If this load balancer is in the `network` family, the protocol must be `tcp`
-	//   or `udp` (if `udp_supported` is `true`) , and it cannot be changed while
-	//   `default_pool` is set.
+	// - If `default_pool` is set, the protocol cannot be changed.
 	// - If `https_redirect` is set, the protocol must be `http`.
-	// - If this listener is a listener's `https_redirect` target, the protocol must be
-	//   `https`.
+	// - If another listener's `https_redirect` targets this listener, the protocol must be
+	// `https`.
 	Protocol *string `json:"protocol,omitempty"`
 }
 
 // Constants associated with the LoadBalancerListenerPatch.Protocol property.
 // The listener protocol. Each listener in the load balancer must have a unique `port` and `protocol` combination.
+//
+// Load balancers in the `network` family support `tcp` and `udp` (if `udp_supported` is `true`). Load balancers in the
+// `application` family support `tcp`, `http` and
+// `https`.
+//
 // Additional restrictions:
-// - If this load balancer is in the `network` family, the protocol must be `tcp`
-//   or `udp` (if `udp_supported` is `true`) , and it cannot be changed while
-//   `default_pool` is set.
+// - If `default_pool` is set, the protocol cannot be changed.
 // - If `https_redirect` is set, the protocol must be `http`.
-// - If this listener is a listener's `https_redirect` target, the protocol must be
-//   `https`.
+// - If another listener's `https_redirect` targets this listener, the protocol must be
+// `https`.
 const (
 	LoadBalancerListenerPatchProtocolHTTPConst  = "http"
 	LoadBalancerListenerPatchProtocolHTTPSConst = "https"
@@ -46882,13 +48559,18 @@ type LoadBalancerListenerPolicy struct {
 	// The policy's unique identifier.
 	ID *string `json:"id" validate:"required"`
 
-	// The user-defined name for this policy.
+	// The name for this load balancer listener policy. The name is unique across all policies for the load balancer
+	// listener.
 	Name *string `json:"name" validate:"required"`
 
 	// Priority of the policy. Lower value indicates higher priority.
 	Priority *int64 `json:"priority" validate:"required"`
 
-	// The provisioning status of this policy.
+	// The provisioning status of this policy
+	//
+	// The enumerated values for this property are expected to expand in the future. When processing this property, check
+	// for and log unknown values. Optionally halt processing and surface the error, or bypass the policy on which the
+	// unexpected property value was encountered.
 	ProvisioningStatus *string `json:"provisioning_status" validate:"required"`
 
 	// The rules for this policy.
@@ -46914,14 +48596,17 @@ const (
 )
 
 // Constants associated with the LoadBalancerListenerPolicy.ProvisioningStatus property.
-// The provisioning status of this policy.
+// The provisioning status of this policy
+//
+// The enumerated values for this property are expected to expand in the future. When processing this property, check
+// for and log unknown values. Optionally halt processing and surface the error, or bypass the policy on which the
+// unexpected property value was encountered.
 const (
-	LoadBalancerListenerPolicyProvisioningStatusActiveConst             = "active"
-	LoadBalancerListenerPolicyProvisioningStatusCreatePendingConst      = "create_pending"
-	LoadBalancerListenerPolicyProvisioningStatusDeletePendingConst      = "delete_pending"
-	LoadBalancerListenerPolicyProvisioningStatusFailedConst             = "failed"
-	LoadBalancerListenerPolicyProvisioningStatusMaintenancePendingConst = "maintenance_pending"
-	LoadBalancerListenerPolicyProvisioningStatusUpdatePendingConst      = "update_pending"
+	LoadBalancerListenerPolicyProvisioningStatusActiveConst        = "active"
+	LoadBalancerListenerPolicyProvisioningStatusCreatePendingConst = "create_pending"
+	LoadBalancerListenerPolicyProvisioningStatusDeletePendingConst = "delete_pending"
+	LoadBalancerListenerPolicyProvisioningStatusFailedConst        = "failed"
+	LoadBalancerListenerPolicyProvisioningStatusUpdatePendingConst = "update_pending"
 )
 
 // UnmarshalLoadBalancerListenerPolicy unmarshals an instance of LoadBalancerListenerPolicy from the specified map of raw messages.
@@ -46986,7 +48671,7 @@ func UnmarshalLoadBalancerListenerPolicyCollection(m map[string]json.RawMessage,
 
 // LoadBalancerListenerPolicyPatch : LoadBalancerListenerPolicyPatch struct
 type LoadBalancerListenerPolicyPatch struct {
-	// The user-defined name for this policy. Names must be unique within the load balancer listener the policy resides in.
+	// The name for this policy. The name must not be used by another policy for the load balancer listener.
 	Name *string `json:"name,omitempty"`
 
 	// Priority of the policy. Lower value indicates higher priority.
@@ -47037,7 +48722,8 @@ type LoadBalancerListenerPolicyPrototype struct {
 	// unexpected property value was encountered.
 	Action *string `json:"action" validate:"required"`
 
-	// The user-defined name for this policy. Names must be unique within the load balancer listener the policy resides in.
+	// The name for this policy. The name must not be used by another policy for the load balancer listener. If
+	// unspecified, the name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
 	// Priority of the policy. Lower value indicates higher priority.
@@ -47105,7 +48791,7 @@ func UnmarshalLoadBalancerListenerPolicyPrototype(m map[string]json.RawMessage, 
 
 // LoadBalancerListenerPolicyReference : LoadBalancerListenerPolicyReference struct
 type LoadBalancerListenerPolicyReference struct {
-	// If present, this property indicates the referenced resource has been deleted and provides
+	// If present, this property indicates the referenced resource has been deleted, and provides
 	// some supplementary information.
 	Deleted *LoadBalancerListenerPolicyReferenceDeleted `json:"deleted,omitempty"`
 
@@ -47114,6 +48800,8 @@ type LoadBalancerListenerPolicyReference struct {
 
 	// The policy's unique identifier.
 	ID *string `json:"id" validate:"required"`
+
+	Name interface{} `json:"name" validate:"required"`
 }
 
 // UnmarshalLoadBalancerListenerPolicyReference unmarshals an instance of LoadBalancerListenerPolicyReference from the specified map of raw messages.
@@ -47131,11 +48819,15 @@ func UnmarshalLoadBalancerListenerPolicyReference(m map[string]json.RawMessage, 
 	if err != nil {
 		return
 	}
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		return
+	}
 	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
 	return
 }
 
-// LoadBalancerListenerPolicyReferenceDeleted : If present, this property indicates the referenced resource has been deleted and provides some supplementary
+// LoadBalancerListenerPolicyReferenceDeleted : If present, this property indicates the referenced resource has been deleted, and provides some supplementary
 // information.
 type LoadBalancerListenerPolicyReferenceDeleted struct {
 	// Link to documentation about deleted resources.
@@ -47177,7 +48869,11 @@ type LoadBalancerListenerPolicyRule struct {
 	// The rule's unique identifier.
 	ID *string `json:"id" validate:"required"`
 
-	// The provisioning status of this rule.
+	// The provisioning status of this rule
+	//
+	// The enumerated values for this property are expected to expand in the future. When processing this property, check
+	// for and log unknown values. Optionally halt processing and surface the error, or bypass the rule on which the
+	// unexpected property value was encountered.
 	ProvisioningStatus *string `json:"provisioning_status" validate:"required"`
 
 	// The type of the rule.
@@ -47200,14 +48896,17 @@ const (
 )
 
 // Constants associated with the LoadBalancerListenerPolicyRule.ProvisioningStatus property.
-// The provisioning status of this rule.
+// The provisioning status of this rule
+//
+// The enumerated values for this property are expected to expand in the future. When processing this property, check
+// for and log unknown values. Optionally halt processing and surface the error, or bypass the rule on which the
+// unexpected property value was encountered.
 const (
-	LoadBalancerListenerPolicyRuleProvisioningStatusActiveConst             = "active"
-	LoadBalancerListenerPolicyRuleProvisioningStatusCreatePendingConst      = "create_pending"
-	LoadBalancerListenerPolicyRuleProvisioningStatusDeletePendingConst      = "delete_pending"
-	LoadBalancerListenerPolicyRuleProvisioningStatusFailedConst             = "failed"
-	LoadBalancerListenerPolicyRuleProvisioningStatusMaintenancePendingConst = "maintenance_pending"
-	LoadBalancerListenerPolicyRuleProvisioningStatusUpdatePendingConst      = "update_pending"
+	LoadBalancerListenerPolicyRuleProvisioningStatusActiveConst        = "active"
+	LoadBalancerListenerPolicyRuleProvisioningStatusCreatePendingConst = "create_pending"
+	LoadBalancerListenerPolicyRuleProvisioningStatusDeletePendingConst = "delete_pending"
+	LoadBalancerListenerPolicyRuleProvisioningStatusFailedConst        = "failed"
+	LoadBalancerListenerPolicyRuleProvisioningStatusUpdatePendingConst = "update_pending"
 )
 
 // Constants associated with the LoadBalancerListenerPolicyRule.Type property.
@@ -47439,7 +49138,7 @@ func UnmarshalLoadBalancerListenerPolicyRulePrototype(m map[string]json.RawMessa
 
 // LoadBalancerListenerPolicyRuleReference : LoadBalancerListenerPolicyRuleReference struct
 type LoadBalancerListenerPolicyRuleReference struct {
-	// If present, this property indicates the referenced resource has been deleted and provides
+	// If present, this property indicates the referenced resource has been deleted, and provides
 	// some supplementary information.
 	Deleted *LoadBalancerListenerPolicyRuleReferenceDeleted `json:"deleted,omitempty"`
 
@@ -47469,7 +49168,7 @@ func UnmarshalLoadBalancerListenerPolicyRuleReference(m map[string]json.RawMessa
 	return
 }
 
-// LoadBalancerListenerPolicyRuleReferenceDeleted : If present, this property indicates the referenced resource has been deleted and provides some supplementary
+// LoadBalancerListenerPolicyRuleReferenceDeleted : If present, this property indicates the referenced resource has been deleted, and provides some supplementary
 // information.
 type LoadBalancerListenerPolicyRuleReferenceDeleted struct {
 	// Link to documentation about deleted resources.
@@ -47495,7 +49194,7 @@ func UnmarshalLoadBalancerListenerPolicyRuleReferenceDeleted(m map[string]json.R
 // - LoadBalancerListenerPolicyTargetLoadBalancerListenerPolicyRedirectURL
 // - LoadBalancerListenerPolicyTargetLoadBalancerListenerHTTPSRedirect
 type LoadBalancerListenerPolicyTarget struct {
-	// If present, this property indicates the referenced resource has been deleted and provides
+	// If present, this property indicates the referenced resource has been deleted, and provides
 	// some supplementary information.
 	Deleted *LoadBalancerPoolReferenceDeleted `json:"deleted,omitempty"`
 
@@ -47505,7 +49204,7 @@ type LoadBalancerListenerPolicyTarget struct {
 	// The unique identifier for this load balancer pool.
 	ID *string `json:"id,omitempty"`
 
-	// The user-defined name for this load balancer pool.
+	// The name for this load balancer pool. The name is unique across all pools for the load balancer.
 	Name *string `json:"name,omitempty"`
 
 	// The HTTP status code for this redirect.
@@ -47568,9 +49267,10 @@ func UnmarshalLoadBalancerListenerPolicyTarget(m map[string]json.RawMessage, res
 }
 
 // LoadBalancerListenerPolicyTargetPatch : - If `action` is `forward`, specify a `LoadBalancerPoolIdentity`.
-// - If `action` is `redirect`, specify a `LoadBalancerListenerPolicyRedirectURLPatch`.
-// - If `action` is `https_redirect`, specify a
-//   `LoadBalancerListenerPolicyHTTPSRedirectPatch`.
+//   - If `action` is `redirect`, specify a `LoadBalancerListenerPolicyRedirectURLPatch`.
+//   - If `action` is `https_redirect`, specify a
+//     `LoadBalancerListenerPolicyHTTPSRedirectPatch`.
+//
 // Models which "extend" this model:
 // - LoadBalancerListenerPolicyTargetPatchLoadBalancerPoolIdentity
 // - LoadBalancerListenerPolicyTargetPatchLoadBalancerListenerPolicyRedirectURLPatch
@@ -47635,9 +49335,10 @@ func UnmarshalLoadBalancerListenerPolicyTargetPatch(m map[string]json.RawMessage
 }
 
 // LoadBalancerListenerPolicyTargetPrototype : - If `action` is `forward`, specify a `LoadBalancerPoolIdentity`.
-// - If `action` is `redirect`, specify a `LoadBalancerListenerPolicyRedirectURLPrototype`.
-// - If `action` is `https_redirect`, specify a
-//   `LoadBalancerListenerPolicyHTTPSRedirectPrototype`.
+//   - If `action` is `redirect`, specify a `LoadBalancerListenerPolicyRedirectURLPrototype`.
+//   - If `action` is `https_redirect`, specify a
+//     `LoadBalancerListenerPolicyHTTPSRedirectPrototype`.
+//
 // Models which "extend" this model:
 // - LoadBalancerListenerPolicyTargetPrototypeLoadBalancerPoolIdentity
 // - LoadBalancerListenerPolicyTargetPrototypeLoadBalancerListenerPolicyRedirectURLPrototype
@@ -47711,16 +49412,26 @@ type LoadBalancerListenerPrototypeLoadBalancerContext struct {
 	//   `accept_proxy_protocol` value must match that listener's `accept_proxy_protocol` value.
 	AcceptProxyProtocol *bool `json:"accept_proxy_protocol,omitempty"`
 
+	// The certificate instance to use for SSL termination. The listener must have a
+	// `protocol` of `https`.
+	CertificateInstance CertificateInstanceIdentityIntf `json:"certificate_instance,omitempty"`
+
 	// The connection limit of the listener.
 	ConnectionLimit *int64 `json:"connection_limit,omitempty"`
 
-	// The default pool for this listener. If specified, the pool's protocol must match the
-	// listener's protocol, or the protocols must be compatible. At present, the compatible
-	// protocols are `http` and `https`.
+	// The default pool for this listener. If specified, the pool must:
+	//   - Belong to this load balancer.
+	//   - Have the same `protocol` as this listener, or have a compatible protocol.
+	//     At present, the compatible protocols are `http` and `https`.
+	//   - Not already be the `default_pool` for another listener.
 	//
 	// If unspecified, this listener will be created with no default pool, but one may be
 	// subsequently set.
 	DefaultPool *LoadBalancerPoolIdentityByName `json:"default_pool,omitempty"`
+
+	// The target listener that requests will be redirected to. This listener must have a
+	// `protocol` of `http`, and the target listener must have a `protocol` of `https`.
+	HTTPSRedirect *LoadBalancerListenerHTTPSRedirectPrototype `json:"https_redirect,omitempty"`
 
 	// The listener port number, or the inclusive lower bound of the port range. Each listener in the load balancer must
 	// have a unique `port` and `protocol` combination.
@@ -47748,24 +49459,32 @@ type LoadBalancerListenerPrototypeLoadBalancerContext struct {
 	// same protocol.
 	PortMin *int64 `json:"port_min,omitempty"`
 
-	// The listener protocol. Load balancers in the `network` family support `tcp` and
-	// `udp` (if `udp_supported` is `true`). Load balancers in the `application` family support `tcp`, `http`, and `https`.
-	// Each listener in the load balancer must have a unique `port` and `protocol` combination.
+	// The listener protocol. Each listener in the load balancer must have a unique `port` and `protocol` combination.
 	//
-	// The enumerated values for this property are expected to expand in the future. When processing this property, check
-	// for and log unknown values. Optionally halt processing and surface the error, or bypass the listener on which the
-	// unexpected property value was encountered.
+	// Load balancers in the `network` family support `tcp` and `udp` (if `udp_supported` is `true`). Load balancers in the
+	// `application` family support `tcp`, `http` and
+	// `https`.
+	//
+	// Additional restrictions:
+	// - If `default_pool` is set, the pool's protocol must match, or be compatible with
+	//   the listener's protocol. At present, the compatible protocols are `http` and
+	//   `https`.
+	// - If `https_redirect` is set, the protocol must be `http`.
 	Protocol *string `json:"protocol" validate:"required"`
 }
 
 // Constants associated with the LoadBalancerListenerPrototypeLoadBalancerContext.Protocol property.
-// The listener protocol. Load balancers in the `network` family support `tcp` and
-// `udp` (if `udp_supported` is `true`). Load balancers in the `application` family support `tcp`, `http`, and `https`.
-// Each listener in the load balancer must have a unique `port` and `protocol` combination.
+// The listener protocol. Each listener in the load balancer must have a unique `port` and `protocol` combination.
 //
-// The enumerated values for this property are expected to expand in the future. When processing this property, check
-// for and log unknown values. Optionally halt processing and surface the error, or bypass the listener on which the
-// unexpected property value was encountered.
+// Load balancers in the `network` family support `tcp` and `udp` (if `udp_supported` is `true`). Load balancers in the
+// `application` family support `tcp`, `http` and
+// `https`.
+//
+// Additional restrictions:
+//   - If `default_pool` is set, the pool's protocol must match, or be compatible with
+//     the listener's protocol. At present, the compatible protocols are `http` and
+//     `https`.
+//   - If `https_redirect` is set, the protocol must be `http`.
 const (
 	LoadBalancerListenerPrototypeLoadBalancerContextProtocolHTTPConst  = "http"
 	LoadBalancerListenerPrototypeLoadBalancerContextProtocolHTTPSConst = "https"
@@ -47789,11 +49508,19 @@ func UnmarshalLoadBalancerListenerPrototypeLoadBalancerContext(m map[string]json
 	if err != nil {
 		return
 	}
+	err = core.UnmarshalModel(m, "certificate_instance", &obj.CertificateInstance, UnmarshalCertificateInstanceIdentity)
+	if err != nil {
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "connection_limit", &obj.ConnectionLimit)
 	if err != nil {
 		return
 	}
 	err = core.UnmarshalModel(m, "default_pool", &obj.DefaultPool, UnmarshalLoadBalancerPoolIdentityByName)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "https_redirect", &obj.HTTPSRedirect, UnmarshalLoadBalancerListenerHTTPSRedirectPrototype)
 	if err != nil {
 		return
 	}
@@ -47819,7 +49546,7 @@ func UnmarshalLoadBalancerListenerPrototypeLoadBalancerContext(m map[string]json
 
 // LoadBalancerListenerReference : LoadBalancerListenerReference struct
 type LoadBalancerListenerReference struct {
-	// If present, this property indicates the referenced resource has been deleted and provides
+	// If present, this property indicates the referenced resource has been deleted, and provides
 	// some supplementary information.
 	Deleted *LoadBalancerListenerReferenceDeleted `json:"deleted,omitempty"`
 
@@ -47849,7 +49576,7 @@ func UnmarshalLoadBalancerListenerReference(m map[string]json.RawMessage, result
 	return
 }
 
-// LoadBalancerListenerReferenceDeleted : If present, this property indicates the referenced resource has been deleted and provides some supplementary
+// LoadBalancerListenerReferenceDeleted : If present, this property indicates the referenced resource has been deleted, and provides some supplementary
 // information.
 type LoadBalancerListenerReferenceDeleted struct {
 	// Link to documentation about deleted resources.
@@ -47867,7 +49594,7 @@ func UnmarshalLoadBalancerListenerReferenceDeleted(m map[string]json.RawMessage,
 	return
 }
 
-// LoadBalancerLogging : The logging configuration for this load balancer.
+// LoadBalancerLogging : LoadBalancerLogging struct
 type LoadBalancerLogging struct {
 	// The datapath logging configuration for this load balancer.
 	Datapath *LoadBalancerLoggingDatapath `json:"datapath,omitempty"`
@@ -47917,8 +49644,17 @@ type LoadBalancerPatch struct {
 	// To activate logging, the load balancer profile must support the specified logging type.
 	Logging *LoadBalancerLogging `json:"logging,omitempty"`
 
-	// The unique user-defined name for this load balancer.
+	// The name for this load balancer. The name must not be used by another load balancer in the VPC.
 	Name *string `json:"name,omitempty"`
+
+	// The subnets to provision this load balancer in. The load balancer's availability will depend on the availability of
+	// the zones that the subnets reside in.
+	//
+	// The specified subnets must be in the same VPC as the existing subnets, and will completely replace the existing
+	// subnets.
+	//
+	// The load balancer must be in the `application` family.
+	Subnets []SubnetIdentityIntf `json:"subnets,omitempty"`
 }
 
 // UnmarshalLoadBalancerPatch unmarshals an instance of LoadBalancerPatch from the specified map of raw messages.
@@ -47929,6 +49665,10 @@ func UnmarshalLoadBalancerPatch(m map[string]json.RawMessage, result interface{}
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "subnets", &obj.Subnets, UnmarshalSubnetIdentity)
 	if err != nil {
 		return
 	}
@@ -47969,17 +49709,21 @@ type LoadBalancerPool struct {
 	// The backend server members of the pool.
 	Members []LoadBalancerPoolMemberReference `json:"members,omitempty"`
 
-	// The user-defined name for this load balancer pool.
+	// The name for this load balancer pool. The name is unique across all pools for the load balancer.
 	Name *string `json:"name" validate:"required"`
 
-	// The protocol used for this load balancer pool.
+	// The protocol for this load balancer pool.
 	//
 	// The enumerated values for this property are expected to expand in the future. When processing this property, check
 	// for and log unknown values. Optionally halt processing and surface the error, or bypass the pool on which the
 	// unexpected property value was encountered.
 	Protocol *string `json:"protocol" validate:"required"`
 
-	// The provisioning status of this pool.
+	// The provisioning status of this pool
+	//
+	// The enumerated values for this property are expected to expand in the future. When processing this property, check
+	// for and log unknown values. Optionally halt processing and surface the error, or bypass the pool on which the
+	// unexpected property value was encountered.
 	ProvisioningStatus *string `json:"provisioning_status" validate:"required"`
 
 	// The PROXY protocol setting for this pool:
@@ -48008,7 +49752,7 @@ const (
 )
 
 // Constants associated with the LoadBalancerPool.Protocol property.
-// The protocol used for this load balancer pool.
+// The protocol for this load balancer pool.
 //
 // The enumerated values for this property are expected to expand in the future. When processing this property, check
 // for and log unknown values. Optionally halt processing and surface the error, or bypass the pool on which the
@@ -48021,14 +49765,17 @@ const (
 )
 
 // Constants associated with the LoadBalancerPool.ProvisioningStatus property.
-// The provisioning status of this pool.
+// The provisioning status of this pool
+//
+// The enumerated values for this property are expected to expand in the future. When processing this property, check
+// for and log unknown values. Optionally halt processing and surface the error, or bypass the pool on which the
+// unexpected property value was encountered.
 const (
-	LoadBalancerPoolProvisioningStatusActiveConst             = "active"
-	LoadBalancerPoolProvisioningStatusCreatePendingConst      = "create_pending"
-	LoadBalancerPoolProvisioningStatusDeletePendingConst      = "delete_pending"
-	LoadBalancerPoolProvisioningStatusFailedConst             = "failed"
-	LoadBalancerPoolProvisioningStatusMaintenancePendingConst = "maintenance_pending"
-	LoadBalancerPoolProvisioningStatusUpdatePendingConst      = "update_pending"
+	LoadBalancerPoolProvisioningStatusActiveConst        = "active"
+	LoadBalancerPoolProvisioningStatusCreatePendingConst = "create_pending"
+	LoadBalancerPoolProvisioningStatusDeletePendingConst = "delete_pending"
+	LoadBalancerPoolProvisioningStatusFailedConst        = "failed"
+	LoadBalancerPoolProvisioningStatusUpdatePendingConst = "update_pending"
 )
 
 // Constants associated with the LoadBalancerPool.ProxyProtocol property.
@@ -48118,33 +49865,35 @@ func UnmarshalLoadBalancerPoolCollection(m map[string]json.RawMessage, result in
 
 // LoadBalancerPoolHealthMonitor : LoadBalancerPoolHealthMonitor struct
 type LoadBalancerPoolHealthMonitor struct {
-	// The health check interval in seconds. Interval must be greater than timeout value.
+	// The seconds to wait between health checks.
 	Delay *int64 `json:"delay" validate:"required"`
 
 	// The health check max retries.
 	MaxRetries *int64 `json:"max_retries" validate:"required"`
 
-	// The health check port number. If specified, this overrides the ports specified in the server member resources.
+	// The health check port.
+	//
+	// If present, this overrides the pool member port values.
 	Port *int64 `json:"port,omitempty"`
 
-	// The health check timeout in seconds.
+	// The seconds to wait for a response to a health check.
 	Timeout *int64 `json:"timeout" validate:"required"`
 
-	// The protocol type of this load balancer pool health monitor.
+	// The protocol type to use for health checks.
 	//
 	// The enumerated values for this property are expected to expand in the future. When processing this property, check
 	// for and log unknown values. Optionally halt processing and surface the error, or bypass the health monitor on which
 	// the unexpected property value was encountered.
 	Type *string `json:"type" validate:"required"`
 
-	// The health check URL path. Applicable only if the health monitor `type` is `http` or
-	// `https`. This value must be in the format of an [origin-form request
-	// target](https://tools.ietf.org/html/rfc7230#section-5.3.1).
+	// The health check URL path. Applicable when `type` is `http` or `https`.
+	//
+	// Must be in the format of an [origin-form request target](https://tools.ietf.org/html/rfc7230#section-5.3.1).
 	URLPath *string `json:"url_path,omitempty"`
 }
 
 // Constants associated with the LoadBalancerPoolHealthMonitor.Type property.
-// The protocol type of this load balancer pool health monitor.
+// The protocol type to use for health checks.
 //
 // The enumerated values for this property are expected to expand in the future. When processing this property, check
 // for and log unknown values. Optionally halt processing and surface the error, or bypass the health monitor on which
@@ -48188,30 +49937,33 @@ func UnmarshalLoadBalancerPoolHealthMonitor(m map[string]json.RawMessage, result
 
 // LoadBalancerPoolHealthMonitorPatch : LoadBalancerPoolHealthMonitorPatch struct
 type LoadBalancerPoolHealthMonitorPatch struct {
-	// The health check interval in seconds. Interval must be greater than timeout value.
+	// The seconds to wait between health checks.  Must be greater than `timeout`.
 	Delay *int64 `json:"delay" validate:"required"`
 
 	// The health check max retries.
 	MaxRetries *int64 `json:"max_retries" validate:"required"`
 
-	// The health check port number. If specified, this overrides the ports specified in the server member resources.
-	// Specify `null` to remove an existing port value.
+	// The health check port.
+	//
+	// If set, this overrides the pool member port values.
+	//
+	// Specify `null` to remove an existing health check port.
 	Port *int64 `json:"port,omitempty"`
 
-	// The health check timeout in seconds.
+	// The seconds to wait for a response to a health check.  Must be less than `delay`.
 	Timeout *int64 `json:"timeout" validate:"required"`
 
-	// The protocol type of this load balancer pool health monitor.
+	// The protocol type to use for health checks.
 	Type *string `json:"type" validate:"required"`
 
-	// The health check URL path. Applicable only if the health monitor `type` is `http` or
-	// `https`. This value must be in the format of an [origin-form request
-	// target](https://tools.ietf.org/html/rfc7230#section-5.3.1).
+	// The health check URL path. Applicable when `type` is `http` or `https`.
+	//
+	// Must be in the format of an [origin-form request target](https://tools.ietf.org/html/rfc7230#section-5.3.1).
 	URLPath *string `json:"url_path,omitempty"`
 }
 
 // Constants associated with the LoadBalancerPoolHealthMonitorPatch.Type property.
-// The protocol type of this load balancer pool health monitor.
+// The protocol type to use for health checks.
 const (
 	LoadBalancerPoolHealthMonitorPatchTypeHTTPConst  = "http"
 	LoadBalancerPoolHealthMonitorPatchTypeHTTPSConst = "https"
@@ -48263,29 +50015,31 @@ func UnmarshalLoadBalancerPoolHealthMonitorPatch(m map[string]json.RawMessage, r
 
 // LoadBalancerPoolHealthMonitorPrototype : LoadBalancerPoolHealthMonitorPrototype struct
 type LoadBalancerPoolHealthMonitorPrototype struct {
-	// The health check interval in seconds. Interval must be greater than timeout value.
+	// The seconds to wait between health checks.  Must be greater than `timeout`.
 	Delay *int64 `json:"delay" validate:"required"`
 
 	// The health check max retries.
 	MaxRetries *int64 `json:"max_retries" validate:"required"`
 
-	// The health check port number. If specified, this overrides the ports specified in the server member resources.
+	// The health check port.
+	//
+	// If specified, this overrides the pool member port values.
 	Port *int64 `json:"port,omitempty"`
 
-	// The health check timeout in seconds.
+	// The seconds to wait for a response to a health check.  Must be less than `delay`.
 	Timeout *int64 `json:"timeout" validate:"required"`
 
-	// The protocol type of this load balancer pool health monitor.
+	// The protocol type to use for health checks.
 	Type *string `json:"type" validate:"required"`
 
-	// The health check URL path. Applicable only if the health monitor `type` is `http` or
-	// `https`. This value must be in the format of an [origin-form request
-	// target](https://tools.ietf.org/html/rfc7230#section-5.3.1).
+	// The health check URL path. Applicable when `type` is `http` or `https`.
+	//
+	// Must be in the format of an [origin-form request target](https://tools.ietf.org/html/rfc7230#section-5.3.1).
 	URLPath *string `json:"url_path,omitempty"`
 }
 
 // Constants associated with the LoadBalancerPoolHealthMonitorPrototype.Type property.
-// The protocol type of this load balancer pool health monitor.
+// The protocol type to use for health checks.
 const (
 	LoadBalancerPoolHealthMonitorPrototypeTypeHTTPConst  = "http"
 	LoadBalancerPoolHealthMonitorPrototypeTypeHTTPSConst = "https"
@@ -48372,7 +50126,7 @@ func UnmarshalLoadBalancerPoolIdentity(m map[string]json.RawMessage, result inte
 
 // LoadBalancerPoolIdentityByName : LoadBalancerPoolIdentityByName struct
 type LoadBalancerPoolIdentityByName struct {
-	// The user-defined name for this load balancer pool.
+	// The name for this load balancer pool. The name is unique across all pools for the load balancer.
 	Name *string `json:"name" validate:"required"`
 }
 
@@ -48418,7 +50172,11 @@ type LoadBalancerPoolMember struct {
 	// `health_monitor` property is specified.
 	Port *int64 `json:"port" validate:"required"`
 
-	// The provisioning status of this member.
+	// The provisioning status of this member
+	//
+	// The enumerated values for this property are expected to expand in the future. When processing this property, check
+	// for and log unknown values. Optionally halt processing and surface the error, or bypass the pool member on which the
+	// unexpected property value was encountered.
 	ProvisioningStatus *string `json:"provisioning_status" validate:"required"`
 
 	// The pool member target. Load balancers in the `network` family support virtual server
@@ -48441,14 +50199,17 @@ const (
 )
 
 // Constants associated with the LoadBalancerPoolMember.ProvisioningStatus property.
-// The provisioning status of this member.
+// The provisioning status of this member
+//
+// The enumerated values for this property are expected to expand in the future. When processing this property, check
+// for and log unknown values. Optionally halt processing and surface the error, or bypass the pool member on which the
+// unexpected property value was encountered.
 const (
-	LoadBalancerPoolMemberProvisioningStatusActiveConst             = "active"
-	LoadBalancerPoolMemberProvisioningStatusCreatePendingConst      = "create_pending"
-	LoadBalancerPoolMemberProvisioningStatusDeletePendingConst      = "delete_pending"
-	LoadBalancerPoolMemberProvisioningStatusFailedConst             = "failed"
-	LoadBalancerPoolMemberProvisioningStatusMaintenancePendingConst = "maintenance_pending"
-	LoadBalancerPoolMemberProvisioningStatusUpdatePendingConst      = "update_pending"
+	LoadBalancerPoolMemberProvisioningStatusActiveConst        = "active"
+	LoadBalancerPoolMemberProvisioningStatusCreatePendingConst = "create_pending"
+	LoadBalancerPoolMemberProvisioningStatusDeletePendingConst = "delete_pending"
+	LoadBalancerPoolMemberProvisioningStatusFailedConst        = "failed"
+	LoadBalancerPoolMemberProvisioningStatusUpdatePendingConst = "update_pending"
 )
 
 // UnmarshalLoadBalancerPoolMember unmarshals an instance of LoadBalancerPoolMember from the specified map of raw messages.
@@ -48613,7 +50374,7 @@ func UnmarshalLoadBalancerPoolMemberPrototype(m map[string]json.RawMessage, resu
 
 // LoadBalancerPoolMemberReference : LoadBalancerPoolMemberReference struct
 type LoadBalancerPoolMemberReference struct {
-	// If present, this property indicates the referenced resource has been deleted and provides
+	// If present, this property indicates the referenced resource has been deleted, and provides
 	// some supplementary information.
 	Deleted *LoadBalancerPoolMemberReferenceDeleted `json:"deleted,omitempty"`
 
@@ -48643,7 +50404,7 @@ func UnmarshalLoadBalancerPoolMemberReference(m map[string]json.RawMessage, resu
 	return
 }
 
-// LoadBalancerPoolMemberReferenceDeleted : If present, this property indicates the referenced resource has been deleted and provides some supplementary
+// LoadBalancerPoolMemberReferenceDeleted : If present, this property indicates the referenced resource has been deleted, and provides some supplementary
 // information.
 type LoadBalancerPoolMemberReferenceDeleted struct {
 	// Link to documentation about deleted resources.
@@ -48671,7 +50432,7 @@ type LoadBalancerPoolMemberTarget struct {
 	// The CRN for this virtual server instance.
 	CRN *string `json:"crn,omitempty"`
 
-	// If present, this property indicates the referenced resource has been deleted and provides
+	// If present, this property indicates the referenced resource has been deleted, and provides
 	// some supplementary information.
 	Deleted *InstanceReferenceDeleted `json:"deleted,omitempty"`
 
@@ -48681,7 +50442,7 @@ type LoadBalancerPoolMemberTarget struct {
 	// The unique identifier for this virtual server instance.
 	ID *string `json:"id,omitempty"`
 
-	// The user-defined name for this virtual server instance (and default system hostname).
+	// The name for this virtual server instance. The name is unique across all virtual server instances in the region.
 	Name *string `json:"name,omitempty"`
 
 	// The IP address.
@@ -48794,14 +50555,17 @@ type LoadBalancerPoolPatch struct {
 	// The health monitor of this pool.
 	HealthMonitor *LoadBalancerPoolHealthMonitorPatch `json:"health_monitor,omitempty"`
 
-	// The user-defined name for this load balancer pool.
+	// The name for this load balancer pool. The name must not be used by another pool for the load balancer.
 	Name *string `json:"name,omitempty"`
 
-	// The protocol to use for this load balancer pool. Load balancers in the `network` family support `tcp` and `udp` (if
-	// `udp_supported` is `true`). Load balancers in the `application` family support `tcp`, `http` and `https`.
+	// The protocol for this load balancer pool.
 	//
-	// If this pool is associated with a load balancer listener, the specified protocol must be compatible with the
-	// listener's protocol. At present, the compatible protocols are `http` and `https`.
+	// Load balancers in the `network` family support `tcp` and `udp` (if `udp_supported` is `true`). Load balancers in the
+	// `application` family support `tcp`, `http` and
+	// `https`.
+	//
+	// If this pool is associated with a load balancer listener, the specified protocol must match, or be compatible with
+	// the listener's protocol. At present, the compatible protocols are `http` and `https`.
 	Protocol *string `json:"protocol,omitempty"`
 
 	// The PROXY protocol setting for this pool:
@@ -48825,11 +50589,14 @@ const (
 )
 
 // Constants associated with the LoadBalancerPoolPatch.Protocol property.
-// The protocol to use for this load balancer pool. Load balancers in the `network` family support `tcp` and `udp` (if
-// `udp_supported` is `true`). Load balancers in the `application` family support `tcp`, `http` and `https`.
+// The protocol for this load balancer pool.
 //
-// If this pool is associated with a load balancer listener, the specified protocol must be compatible with the
-// listener's protocol. At present, the compatible protocols are `http` and `https`.
+// Load balancers in the `network` family support `tcp` and `udp` (if `udp_supported` is `true`). Load balancers in the
+// `application` family support `tcp`, `http` and
+// `https`.
+//
+// If this pool is associated with a load balancer listener, the specified protocol must match, or be compatible with
+// the listener's protocol. At present, the compatible protocols are `http` and `https`.
 const (
 	LoadBalancerPoolPatchProtocolHTTPConst  = "http"
 	LoadBalancerPoolPatchProtocolHTTPSConst = "https"
@@ -48903,8 +50670,8 @@ type LoadBalancerPoolPrototype struct {
 	// tuple cannot be shared by a pool member of any other load balancer in the same VPC.
 	Members []LoadBalancerPoolMemberPrototype `json:"members,omitempty"`
 
-	// The user-defined name for this load balancer pool. If unspecified, the name will be a hyphenated list of
-	// randomly-selected words.
+	// The name for this load balancer pool. The name must not be used by another pool for the load balancer. If
+	// unspecified, the name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
 	// The protocol used for this load balancer pool. Load balancers in the `network` family support `tcp` and `udp` (if
@@ -49004,7 +50771,7 @@ func UnmarshalLoadBalancerPoolPrototype(m map[string]json.RawMessage, result int
 
 // LoadBalancerPoolReference : LoadBalancerPoolReference struct
 type LoadBalancerPoolReference struct {
-	// If present, this property indicates the referenced resource has been deleted and provides
+	// If present, this property indicates the referenced resource has been deleted, and provides
 	// some supplementary information.
 	Deleted *LoadBalancerPoolReferenceDeleted `json:"deleted,omitempty"`
 
@@ -49014,7 +50781,7 @@ type LoadBalancerPoolReference struct {
 	// The unique identifier for this load balancer pool.
 	ID *string `json:"id" validate:"required"`
 
-	// The user-defined name for this load balancer pool.
+	// The name for this load balancer pool. The name is unique across all pools for the load balancer.
 	Name *string `json:"name" validate:"required"`
 }
 
@@ -49041,7 +50808,7 @@ func UnmarshalLoadBalancerPoolReference(m map[string]json.RawMessage, result int
 	return
 }
 
-// LoadBalancerPoolReferenceDeleted : If present, this property indicates the referenced resource has been deleted and provides some supplementary
+// LoadBalancerPoolReferenceDeleted : If present, this property indicates the referenced resource has been deleted, and provides some supplementary
 // information.
 type LoadBalancerPoolReferenceDeleted struct {
 	// Link to documentation about deleted resources.
@@ -49184,7 +50951,7 @@ type LoadBalancerPrivateIpsItem struct {
 	// error, or bypass the resource on which the unexpected IP address format was encountered.
 	Address *string `json:"address" validate:"required"`
 
-	// If present, this property indicates the referenced resource has been deleted and provides
+	// If present, this property indicates the referenced resource has been deleted, and provides
 	// some supplementary information.
 	Deleted *ReservedIPReferenceDeleted `json:"deleted,omitempty"`
 
@@ -49194,7 +50961,7 @@ type LoadBalancerPrivateIpsItem struct {
 	// The unique identifier for this reserved IP.
 	ID *string `json:"id" validate:"required"`
 
-	// The user-defined or system-provided name for this reserved IP.
+	// The name for this reserved IP. The name is unique across all reserved IPs in a subnet.
 	Name *string `json:"name" validate:"required"`
 
 	// The resource type.
@@ -49605,7 +51372,7 @@ func UnmarshalLoadBalancerProfileUDPSupported(m map[string]json.RawMessage, resu
 	return
 }
 
-// LoadBalancerReferenceDeleted : If present, this property indicates the referenced resource has been deleted and provides some supplementary
+// LoadBalancerReferenceDeleted : If present, this property indicates the referenced resource has been deleted, and provides some supplementary
 // information.
 type LoadBalancerReferenceDeleted struct {
 	// Link to documentation about deleted resources.
@@ -49675,7 +51442,7 @@ type NetworkACL struct {
 	// The unique identifier for this network ACL.
 	ID *string `json:"id" validate:"required"`
 
-	// The user-defined name for this network ACL.
+	// The name for this network ACL. The name is unique across all network ACLs for the VPC.
 	Name *string `json:"name" validate:"required"`
 
 	// The resource group for this network ACL.
@@ -49687,7 +51454,7 @@ type NetworkACL struct {
 	// The subnets to which this network ACL is attached.
 	Subnets []SubnetReference `json:"subnets" validate:"required"`
 
-	// The VPC this network ACL is a part of.
+	// The VPC this network ACL resides in.
 	VPC *VPCReference `json:"vpc" validate:"required"`
 }
 
@@ -49871,7 +51638,7 @@ func UnmarshalNetworkACLIdentity(m map[string]json.RawMessage, result interface{
 
 // NetworkACLPatch : NetworkACLPatch struct
 type NetworkACLPatch struct {
-	// The user-defined name for this network ACL. Names must be unique within the VPC the network ACL resides in.
+	// The name for this network ACL. The name must not be used by another network ACL for the VPC.
 	Name *string `json:"name,omitempty"`
 }
 
@@ -49901,15 +51668,15 @@ func (networkACLPatch *NetworkACLPatch) AsPatch() (_patch map[string]interface{}
 // - NetworkACLPrototypeNetworkACLByRules
 // - NetworkACLPrototypeNetworkACLBySourceNetworkACL
 type NetworkACLPrototype struct {
-	// The user-defined name for this network ACL. Names must be unique within the VPC the network ACL resides in. If
-	// unspecified, the name will be a hyphenated list of randomly-selected words.
+	// The name for this network ACL. The name must not be used by another network ACL for the VPC. If unspecified, the
+	// name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
 	// The resource group to use. If unspecified, the account's [default resource
 	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) is used.
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
 
-	// The VPC this network ACL is to be a part of.
+	// The VPC this network ACL will reside in.
 	VPC VPCIdentityIntf `json:"vpc" validate:"required"`
 
 	// The prototype objects for rules to create along with this network ACL. If unspecified, no rules will be created,
@@ -49960,7 +51727,7 @@ type NetworkACLReference struct {
 	// The CRN for this network ACL.
 	CRN *string `json:"crn" validate:"required"`
 
-	// If present, this property indicates the referenced resource has been deleted and provides
+	// If present, this property indicates the referenced resource has been deleted, and provides
 	// some supplementary information.
 	Deleted *NetworkACLReferenceDeleted `json:"deleted,omitempty"`
 
@@ -49970,7 +51737,7 @@ type NetworkACLReference struct {
 	// The unique identifier for this network ACL.
 	ID *string `json:"id" validate:"required"`
 
-	// The user-defined name for this network ACL.
+	// The name for this network ACL. The name is unique across all network ACLs for the VPC.
 	Name *string `json:"name" validate:"required"`
 }
 
@@ -50001,7 +51768,7 @@ func UnmarshalNetworkACLReference(m map[string]json.RawMessage, result interface
 	return
 }
 
-// NetworkACLReferenceDeleted : If present, this property indicates the referenced resource has been deleted and provides some supplementary
+// NetworkACLReferenceDeleted : If present, this property indicates the referenced resource has been deleted, and provides some supplementary
 // information.
 type NetworkACLReferenceDeleted struct {
 	// Link to documentation about deleted resources.
@@ -50025,7 +51792,7 @@ func UnmarshalNetworkACLReferenceDeleted(m map[string]json.RawMessage, result in
 // - NetworkACLRuleNetworkACLRuleProtocolIcmp
 // - NetworkACLRuleNetworkACLRuleProtocolAll
 type NetworkACLRule struct {
-	// Whether to allow or deny matching traffic.
+	// The action to perform for a packet matching the rule.
 	Action *string `json:"action" validate:"required"`
 
 	// The rule that this rule is immediately before. If absent, this is the last rule.
@@ -50034,10 +51801,10 @@ type NetworkACLRule struct {
 	// The date and time that the rule was created.
 	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
 
-	// The destination CIDR block. The CIDR block `0.0.0.0/0` applies to all addresses.
+	// The destination IP address or CIDR block to match. The CIDR block `0.0.0.0/0` matches all destination addresses.
 	Destination *string `json:"destination" validate:"required"`
 
-	// Whether the traffic to be matched is `inbound` or `outbound`.
+	// The direction of traffic to match.
 	Direction *string `json:"direction" validate:"required"`
 
 	// The URL for this network ACL rule.
@@ -50049,14 +51816,13 @@ type NetworkACLRule struct {
 	// The IP version for this rule.
 	IPVersion *string `json:"ip_version" validate:"required"`
 
-	// The user-defined name for this rule. Names must be unique within the network ACL the rule resides in. If
-	// unspecified, the name will be a hyphenated list of randomly-selected words.
+	// The name for this network ACL rule. The name is unique across all rules for the network ACL.
 	Name *string `json:"name" validate:"required"`
 
 	// The protocol to enforce.
 	Protocol *string `json:"protocol" validate:"required"`
 
-	// The source CIDR block. The CIDR block `0.0.0.0/0` applies to all addresses.
+	// The source IP address or CIDR block to match. The CIDR block `0.0.0.0/0` matches all source addresses.
 	Source *string `json:"source" validate:"required"`
 
 	// The inclusive upper bound of TCP/UDP destination port range.
@@ -50071,23 +51837,26 @@ type NetworkACLRule struct {
 	// The inclusive lower bound of TCP/UDP source port range.
 	SourcePortMin *int64 `json:"source_port_min,omitempty"`
 
-	// The ICMP traffic code to allow. If unspecified, all codes are allowed. This can only be specified if type is also
-	// specified.
+	// The ICMP traffic code to match.
+	//
+	// If absent, all codes are matched.
 	Code *int64 `json:"code,omitempty"`
 
-	// The ICMP traffic type to allow. If unspecified, all types are allowed by this rule.
+	// The ICMP traffic type to match.
+	//
+	// If absent, all types are matched.
 	Type *int64 `json:"type,omitempty"`
 }
 
 // Constants associated with the NetworkACLRule.Action property.
-// Whether to allow or deny matching traffic.
+// The action to perform for a packet matching the rule.
 const (
 	NetworkACLRuleActionAllowConst = "allow"
 	NetworkACLRuleActionDenyConst  = "deny"
 )
 
 // Constants associated with the NetworkACLRule.Direction property.
-// Whether the traffic to be matched is `inbound` or `outbound`.
+// The direction of traffic to match.
 const (
 	NetworkACLRuleDirectionInboundConst  = "inbound"
 	NetworkACLRuleDirectionOutboundConst = "outbound"
@@ -50097,7 +51866,15 @@ const (
 // The IP version for this rule.
 const (
 	NetworkACLRuleIPVersionIpv4Const = "ipv4"
-	NetworkACLRuleIPVersionIpv6Const = "ipv6"
+)
+
+// Constants associated with the NetworkACLRule.Protocol property.
+// The protocol to enforce.
+const (
+	NetworkACLRuleProtocolAllConst  = "all"
+	NetworkACLRuleProtocolIcmpConst = "icmp"
+	NetworkACLRuleProtocolTCPConst  = "tcp"
+	NetworkACLRuleProtocolUDPConst  = "udp"
 )
 
 func (*NetworkACLRule) isaNetworkACLRule() bool {
@@ -50135,7 +51912,9 @@ func UnmarshalNetworkACLRule(m map[string]json.RawMessage, result interface{}) (
 	return
 }
 
-// NetworkACLRuleBeforePatch : The rule to move this rule immediately before. Specify `null` to move this rule after all existing rules.
+// NetworkACLRuleBeforePatch : The rule to move this rule immediately before.
+//
+// Specify `null` to move this rule after all existing rules.
 // Models which "extend" this model:
 // - NetworkACLRuleBeforePatchNetworkACLRuleIdentityByID
 // - NetworkACLRuleBeforePatchNetworkACLRuleIdentityByHref
@@ -50170,7 +51949,9 @@ func UnmarshalNetworkACLRuleBeforePatch(m map[string]json.RawMessage, result int
 	return
 }
 
-// NetworkACLRuleBeforePrototype : The rule to insert this rule immediately before. If omitted, this rule will be inserted after all existing rules.
+// NetworkACLRuleBeforePrototype : The rule to insert this rule immediately before.
+//
+// If unspecified, this rule will be inserted after all existing rules.
 // Models which "extend" this model:
 // - NetworkACLRuleBeforePrototypeNetworkACLRuleIdentityByID
 // - NetworkACLRuleBeforePrototypeNetworkACLRuleIdentityByHref
@@ -50303,7 +52084,7 @@ func UnmarshalNetworkACLRuleCollectionNext(m map[string]json.RawMessage, result 
 // - NetworkACLRuleItemNetworkACLRuleProtocolIcmp
 // - NetworkACLRuleItemNetworkACLRuleProtocolAll
 type NetworkACLRuleItem struct {
-	// Whether to allow or deny matching traffic.
+	// The action to perform for a packet matching the rule.
 	Action *string `json:"action" validate:"required"`
 
 	// The rule that this rule is immediately before. In a rule collection, this always
@@ -50313,10 +52094,10 @@ type NetworkACLRuleItem struct {
 	// The date and time that the rule was created.
 	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
 
-	// The destination CIDR block. The CIDR block `0.0.0.0/0` applies to all addresses.
+	// The destination IP address or CIDR block to match. The CIDR block `0.0.0.0/0` matches all destination addresses.
 	Destination *string `json:"destination" validate:"required"`
 
-	// Whether the traffic to be matched is `inbound` or `outbound`.
+	// The direction of traffic to match.
 	Direction *string `json:"direction" validate:"required"`
 
 	// The URL for this network ACL rule.
@@ -50328,14 +52109,13 @@ type NetworkACLRuleItem struct {
 	// The IP version for this rule.
 	IPVersion *string `json:"ip_version" validate:"required"`
 
-	// The user-defined name for this rule. Names must be unique within the network ACL the rule resides in. If
-	// unspecified, the name will be a hyphenated list of randomly-selected words.
+	// The name for this network ACL rule. The name is unique across all rules for the network ACL.
 	Name *string `json:"name" validate:"required"`
 
 	// The protocol to enforce.
 	Protocol *string `json:"protocol" validate:"required"`
 
-	// The source CIDR block. The CIDR block `0.0.0.0/0` applies to all addresses.
+	// The source IP address or CIDR block to match. The CIDR block `0.0.0.0/0` matches all source addresses.
 	Source *string `json:"source" validate:"required"`
 
 	// The inclusive upper bound of TCP/UDP destination port range.
@@ -50350,23 +52130,26 @@ type NetworkACLRuleItem struct {
 	// The inclusive lower bound of TCP/UDP source port range.
 	SourcePortMin *int64 `json:"source_port_min,omitempty"`
 
-	// The ICMP traffic code to allow. If unspecified, all codes are allowed. This can only be specified if type is also
-	// specified.
+	// The ICMP traffic code to match.
+	//
+	// If absent, all codes are matched.
 	Code *int64 `json:"code,omitempty"`
 
-	// The ICMP traffic type to allow. If unspecified, all types are allowed by this rule.
+	// The ICMP traffic type to match.
+	//
+	// If absent, all types are matched.
 	Type *int64 `json:"type,omitempty"`
 }
 
 // Constants associated with the NetworkACLRuleItem.Action property.
-// Whether to allow or deny matching traffic.
+// The action to perform for a packet matching the rule.
 const (
 	NetworkACLRuleItemActionAllowConst = "allow"
 	NetworkACLRuleItemActionDenyConst  = "deny"
 )
 
 // Constants associated with the NetworkACLRuleItem.Direction property.
-// Whether the traffic to be matched is `inbound` or `outbound`.
+// The direction of traffic to match.
 const (
 	NetworkACLRuleItemDirectionInboundConst  = "inbound"
 	NetworkACLRuleItemDirectionOutboundConst = "outbound"
@@ -50376,7 +52159,15 @@ const (
 // The IP version for this rule.
 const (
 	NetworkACLRuleItemIPVersionIpv4Const = "ipv4"
-	NetworkACLRuleItemIPVersionIpv6Const = "ipv6"
+)
+
+// Constants associated with the NetworkACLRuleItem.Protocol property.
+// The protocol to enforce.
+const (
+	NetworkACLRuleItemProtocolAllConst  = "all"
+	NetworkACLRuleItemProtocolIcmpConst = "icmp"
+	NetworkACLRuleItemProtocolTCPConst  = "tcp"
+	NetworkACLRuleItemProtocolUDPConst  = "udp"
 )
 
 func (*NetworkACLRuleItem) isaNetworkACLRuleItem() bool {
@@ -50416,17 +52207,18 @@ func UnmarshalNetworkACLRuleItem(m map[string]json.RawMessage, result interface{
 
 // NetworkACLRulePatch : NetworkACLRulePatch struct
 type NetworkACLRulePatch struct {
-	// Whether to allow or deny matching traffic.
+	// The action to perform for a packet matching the rule.
 	Action *string `json:"action,omitempty"`
 
-	// The rule to move this rule immediately before. Specify `null` to move this rule after
-	// all existing rules.
+	// The rule to move this rule immediately before.
+	//
+	// Specify `null` to move this rule after all existing rules.
 	Before NetworkACLRuleBeforePatchIntf `json:"before,omitempty"`
 
-	// The ICMP traffic code to allow.
+	// The ICMP traffic code to match.
 	Code *int64 `json:"code,omitempty"`
 
-	// The destination IP address or CIDR block. The CIDR block `0.0.0.0/0` applies to all addresses.
+	// The destination IP address or CIDR block to match. The CIDR block `0.0.0.0/0` matches all destination addresses.
 	Destination *string `json:"destination,omitempty"`
 
 	// The inclusive upper bound of TCP/UDP destination port range.
@@ -50435,13 +52227,16 @@ type NetworkACLRulePatch struct {
 	// The inclusive lower bound of TCP/UDP destination port range.
 	DestinationPortMin *int64 `json:"destination_port_min,omitempty"`
 
-	// Whether the traffic to be matched is `inbound` or `outbound`.
+	// The direction of traffic to match.
 	Direction *string `json:"direction,omitempty"`
 
-	// The user-defined name for this rule. Names must be unique within the network ACL the rule resides in.
+	// The name for this network ACL rule. The name must not be used by another rule for the network ACL.
 	Name *string `json:"name,omitempty"`
 
-	// The source IP address or CIDR block.  The CIDR block `0.0.0.0/0` applies to all addresses.
+	// The protocol to enforce.
+	Protocol *string `json:"protocol,omitempty"`
+
+	// The source IP address or CIDR block to match. The CIDR block `0.0.0.0/0` matches all source addresses.
 	Source *string `json:"source,omitempty"`
 
 	// The inclusive upper bound of TCP/UDP source port range.
@@ -50450,22 +52245,31 @@ type NetworkACLRulePatch struct {
 	// The inclusive lower bound of TCP/UDP source port range.
 	SourcePortMin *int64 `json:"source_port_min,omitempty"`
 
-	// The ICMP traffic type to allow.
+	// The ICMP traffic type to match.
 	Type *int64 `json:"type,omitempty"`
 }
 
 // Constants associated with the NetworkACLRulePatch.Action property.
-// Whether to allow or deny matching traffic.
+// The action to perform for a packet matching the rule.
 const (
 	NetworkACLRulePatchActionAllowConst = "allow"
 	NetworkACLRulePatchActionDenyConst  = "deny"
 )
 
 // Constants associated with the NetworkACLRulePatch.Direction property.
-// Whether the traffic to be matched is `inbound` or `outbound`.
+// The direction of traffic to match.
 const (
 	NetworkACLRulePatchDirectionInboundConst  = "inbound"
 	NetworkACLRulePatchDirectionOutboundConst = "outbound"
+)
+
+// Constants associated with the NetworkACLRulePatch.Protocol property.
+// The protocol to enforce.
+const (
+	NetworkACLRulePatchProtocolAllConst  = "all"
+	NetworkACLRulePatchProtocolIcmpConst = "icmp"
+	NetworkACLRulePatchProtocolTCPConst  = "tcp"
+	NetworkACLRulePatchProtocolUDPConst  = "udp"
 )
 
 // UnmarshalNetworkACLRulePatch unmarshals an instance of NetworkACLRulePatch from the specified map of raw messages.
@@ -50503,6 +52307,10 @@ func UnmarshalNetworkACLRulePatch(m map[string]json.RawMessage, result interface
 	if err != nil {
 		return
 	}
+	err = core.UnmarshalPrimitive(m, "protocol", &obj.Protocol)
+	if err != nil {
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "source", &obj.Source)
 	if err != nil {
 		return
@@ -50535,31 +52343,32 @@ func (networkACLRulePatch *NetworkACLRulePatch) AsPatch() (_patch map[string]int
 
 // NetworkACLRulePrototype : NetworkACLRulePrototype struct
 // Models which "extend" this model:
-// - NetworkACLRulePrototypeNetworkACLRuleProtocolTcpudp
-// - NetworkACLRulePrototypeNetworkACLRuleProtocolIcmp
-// - NetworkACLRulePrototypeNetworkACLRuleProtocolAll
+// - NetworkACLRulePrototypeNetworkACLRuleProtocolTcpudpPrototype
+// - NetworkACLRulePrototypeNetworkACLRuleProtocolIcmpPrototype
+// - NetworkACLRulePrototypeNetworkACLRuleProtocolAllPrototype
 type NetworkACLRulePrototype struct {
-	// Whether to allow or deny matching traffic.
+	// The action to perform for a packet matching the rule.
 	Action *string `json:"action" validate:"required"`
 
-	// The rule to insert this rule immediately before. If omitted, this rule will be
-	// inserted after all existing rules.
+	// The rule to insert this rule immediately before.
+	//
+	// If unspecified, this rule will be inserted after all existing rules.
 	Before NetworkACLRuleBeforePrototypeIntf `json:"before,omitempty"`
 
-	// The destination IP address or CIDR block. The CIDR block `0.0.0.0/0` applies to all addresses.
+	// The destination IP address or CIDR block to match. The CIDR block `0.0.0.0/0` matches all destination addresses.
 	Destination *string `json:"destination" validate:"required"`
 
-	// Whether the traffic to be matched is `inbound` or `outbound`.
+	// The direction of traffic to match.
 	Direction *string `json:"direction" validate:"required"`
 
-	// The user-defined name for this rule. Names must be unique within the network ACL the rule resides in. If
-	// unspecified, the name will be a hyphenated list of randomly-selected words.
+	// The name for this network ACL rule. The name must not be used by another rule for the network ACL. If unspecified,
+	// the name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
 	// The protocol to enforce.
 	Protocol *string `json:"protocol" validate:"required"`
 
-	// The source IP address or CIDR block.  The CIDR block `0.0.0.0/0` applies to all addresses.
+	// The source IP address or CIDR block to match. The CIDR block `0.0.0.0/0` matches all source addresses.
 	Source *string `json:"source" validate:"required"`
 
 	// The inclusive upper bound of TCP/UDP destination port range.
@@ -50574,26 +52383,38 @@ type NetworkACLRulePrototype struct {
 	// The inclusive lower bound of TCP/UDP source port range.
 	SourcePortMin *int64 `json:"source_port_min,omitempty"`
 
-	// The ICMP traffic code to allow. If unspecified, all codes are allowed. This can only be specified if type is also
-	// specified.
+	// The ICMP traffic code to match.
+	//
+	// If specified, `type` must also be specified.  If unspecified, all codes are matched.
 	Code *int64 `json:"code,omitempty"`
 
-	// The ICMP traffic type to allow. If unspecified, all types are allowed by this rule.
+	// The ICMP traffic type to match.
+	//
+	// If unspecified, all types are matched.
 	Type *int64 `json:"type,omitempty"`
 }
 
 // Constants associated with the NetworkACLRulePrototype.Action property.
-// Whether to allow or deny matching traffic.
+// The action to perform for a packet matching the rule.
 const (
 	NetworkACLRulePrototypeActionAllowConst = "allow"
 	NetworkACLRulePrototypeActionDenyConst  = "deny"
 )
 
 // Constants associated with the NetworkACLRulePrototype.Direction property.
-// Whether the traffic to be matched is `inbound` or `outbound`.
+// The direction of traffic to match.
 const (
 	NetworkACLRulePrototypeDirectionInboundConst  = "inbound"
 	NetworkACLRulePrototypeDirectionOutboundConst = "outbound"
+)
+
+// Constants associated with the NetworkACLRulePrototype.Protocol property.
+// The protocol to enforce.
+const (
+	NetworkACLRulePrototypeProtocolAllConst  = "all"
+	NetworkACLRulePrototypeProtocolIcmpConst = "icmp"
+	NetworkACLRulePrototypeProtocolTCPConst  = "tcp"
+	NetworkACLRulePrototypeProtocolUDPConst  = "udp"
 )
 
 func (*NetworkACLRulePrototype) isaNetworkACLRulePrototype() bool {
@@ -50618,13 +52439,13 @@ func UnmarshalNetworkACLRulePrototype(m map[string]json.RawMessage, result inter
 		return
 	}
 	if discValue == "all" {
-		err = core.UnmarshalModel(m, "", result, UnmarshalNetworkACLRulePrototypeNetworkACLRuleProtocolAll)
+		err = core.UnmarshalModel(m, "", result, UnmarshalNetworkACLRulePrototypeNetworkACLRuleProtocolAllPrototype)
 	} else if discValue == "icmp" {
-		err = core.UnmarshalModel(m, "", result, UnmarshalNetworkACLRulePrototypeNetworkACLRuleProtocolIcmp)
+		err = core.UnmarshalModel(m, "", result, UnmarshalNetworkACLRulePrototypeNetworkACLRuleProtocolIcmpPrototype)
 	} else if discValue == "tcp" {
-		err = core.UnmarshalModel(m, "", result, UnmarshalNetworkACLRulePrototypeNetworkACLRuleProtocolTcpudp)
+		err = core.UnmarshalModel(m, "", result, UnmarshalNetworkACLRulePrototypeNetworkACLRuleProtocolTcpudpPrototype)
 	} else if discValue == "udp" {
-		err = core.UnmarshalModel(m, "", result, UnmarshalNetworkACLRulePrototypeNetworkACLRuleProtocolTcpudp)
+		err = core.UnmarshalModel(m, "", result, UnmarshalNetworkACLRulePrototypeNetworkACLRuleProtocolTcpudpPrototype)
 	} else {
 		err = fmt.Errorf("unrecognized value for discriminator property 'protocol': %s", discValue)
 	}
@@ -50633,27 +52454,27 @@ func UnmarshalNetworkACLRulePrototype(m map[string]json.RawMessage, result inter
 
 // NetworkACLRulePrototypeNetworkACLContext : NetworkACLRulePrototypeNetworkACLContext struct
 // Models which "extend" this model:
-// - NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudp
-// - NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmp
-// - NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAll
+// - NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudpPrototype
+// - NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmpPrototype
+// - NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAllPrototype
 type NetworkACLRulePrototypeNetworkACLContext struct {
-	// Whether to allow or deny matching traffic.
+	// The action to perform for a packet matching the rule.
 	Action *string `json:"action" validate:"required"`
 
-	// The destination IP address or CIDR block. The CIDR block `0.0.0.0/0` applies to all addresses.
+	// The destination IP address or CIDR block to match. The CIDR block `0.0.0.0/0` matches all destination addresses.
 	Destination *string `json:"destination" validate:"required"`
 
-	// Whether the traffic to be matched is `inbound` or `outbound`.
+	// The direction of traffic to match.
 	Direction *string `json:"direction" validate:"required"`
 
-	// The user-defined name for this rule. Names must be unique within the network ACL the rule resides in. If
-	// unspecified, the name will be a hyphenated list of randomly-selected words.
+	// The name for this network ACL rule. The name must not be used by another rule for the network ACL. If unspecified,
+	// the name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
 	// The protocol to enforce.
 	Protocol *string `json:"protocol" validate:"required"`
 
-	// The source IP address or CIDR block.  The CIDR block `0.0.0.0/0` applies to all addresses.
+	// The source IP address or CIDR block to match. The CIDR block `0.0.0.0/0` matches all source addresses.
 	Source *string `json:"source" validate:"required"`
 
 	// The inclusive upper bound of TCP/UDP destination port range.
@@ -50668,26 +52489,38 @@ type NetworkACLRulePrototypeNetworkACLContext struct {
 	// The inclusive lower bound of TCP/UDP source port range.
 	SourcePortMin *int64 `json:"source_port_min,omitempty"`
 
-	// The ICMP traffic code to allow. If unspecified, all codes are allowed. This can only be specified if type is also
-	// specified.
+	// The ICMP traffic code to match.
+	//
+	// If specified, `type` must also be specified.  If unspecified, all codes are matched.
 	Code *int64 `json:"code,omitempty"`
 
-	// The ICMP traffic type to allow. If unspecified, all types are allowed by this rule.
+	// The ICMP traffic type to match.
+	//
+	// If unspecified, all types are matched.
 	Type *int64 `json:"type,omitempty"`
 }
 
 // Constants associated with the NetworkACLRulePrototypeNetworkACLContext.Action property.
-// Whether to allow or deny matching traffic.
+// The action to perform for a packet matching the rule.
 const (
 	NetworkACLRulePrototypeNetworkACLContextActionAllowConst = "allow"
 	NetworkACLRulePrototypeNetworkACLContextActionDenyConst  = "deny"
 )
 
 // Constants associated with the NetworkACLRulePrototypeNetworkACLContext.Direction property.
-// Whether the traffic to be matched is `inbound` or `outbound`.
+// The direction of traffic to match.
 const (
 	NetworkACLRulePrototypeNetworkACLContextDirectionInboundConst  = "inbound"
 	NetworkACLRulePrototypeNetworkACLContextDirectionOutboundConst = "outbound"
+)
+
+// Constants associated with the NetworkACLRulePrototypeNetworkACLContext.Protocol property.
+// The protocol to enforce.
+const (
+	NetworkACLRulePrototypeNetworkACLContextProtocolAllConst  = "all"
+	NetworkACLRulePrototypeNetworkACLContextProtocolIcmpConst = "icmp"
+	NetworkACLRulePrototypeNetworkACLContextProtocolTCPConst  = "tcp"
+	NetworkACLRulePrototypeNetworkACLContextProtocolUDPConst  = "udp"
 )
 
 func (*NetworkACLRulePrototypeNetworkACLContext) isaNetworkACLRulePrototypeNetworkACLContext() bool {
@@ -50712,13 +52545,13 @@ func UnmarshalNetworkACLRulePrototypeNetworkACLContext(m map[string]json.RawMess
 		return
 	}
 	if discValue == "all" {
-		err = core.UnmarshalModel(m, "", result, UnmarshalNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAll)
+		err = core.UnmarshalModel(m, "", result, UnmarshalNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAllPrototype)
 	} else if discValue == "icmp" {
-		err = core.UnmarshalModel(m, "", result, UnmarshalNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmp)
+		err = core.UnmarshalModel(m, "", result, UnmarshalNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmpPrototype)
 	} else if discValue == "tcp" {
-		err = core.UnmarshalModel(m, "", result, UnmarshalNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudp)
+		err = core.UnmarshalModel(m, "", result, UnmarshalNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudpPrototype)
 	} else if discValue == "udp" {
-		err = core.UnmarshalModel(m, "", result, UnmarshalNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudp)
+		err = core.UnmarshalModel(m, "", result, UnmarshalNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudpPrototype)
 	} else {
 		err = fmt.Errorf("unrecognized value for discriminator property 'protocol': %s", discValue)
 	}
@@ -50727,7 +52560,7 @@ func UnmarshalNetworkACLRulePrototypeNetworkACLContext(m map[string]json.RawMess
 
 // NetworkACLRuleReference : NetworkACLRuleReference struct
 type NetworkACLRuleReference struct {
-	// If present, this property indicates the referenced resource has been deleted and provides
+	// If present, this property indicates the referenced resource has been deleted, and provides
 	// some supplementary information.
 	Deleted *NetworkACLRuleReferenceDeleted `json:"deleted,omitempty"`
 
@@ -50737,7 +52570,7 @@ type NetworkACLRuleReference struct {
 	// The unique identifier for this network ACL rule.
 	ID *string `json:"id" validate:"required"`
 
-	// The user-defined name for this network ACL rule.
+	// The name for this network ACL rule. The name is unique across all rules for the network ACL.
 	Name *string `json:"name" validate:"required"`
 }
 
@@ -50764,7 +52597,7 @@ func UnmarshalNetworkACLRuleReference(m map[string]json.RawMessage, result inter
 	return
 }
 
-// NetworkACLRuleReferenceDeleted : If present, this property indicates the referenced resource has been deleted and provides some supplementary
+// NetworkACLRuleReferenceDeleted : If present, this property indicates the referenced resource has been deleted, and provides some supplementary
 // information.
 type NetworkACLRuleReferenceDeleted struct {
 	// Link to documentation about deleted resources.
@@ -50800,7 +52633,7 @@ type NetworkInterface struct {
 	// The unique identifier for this network interface.
 	ID *string `json:"id" validate:"required"`
 
-	// The user-defined name for this network interface.
+	// The name for this network interface.
 	Name *string `json:"name" validate:"required"`
 
 	// The network interface port speed in Mbps.
@@ -50907,7 +52740,7 @@ func UnmarshalNetworkInterface(m map[string]json.RawMessage, result interface{})
 
 // NetworkInterfaceBareMetalServerContextReference : NetworkInterfaceBareMetalServerContextReference struct
 type NetworkInterfaceBareMetalServerContextReference struct {
-	// If present, this property indicates the referenced resource has been deleted and provides
+	// If present, this property indicates the referenced resource has been deleted, and provides
 	// some supplementary information.
 	Deleted *NetworkInterfaceBareMetalServerContextReferenceDeleted `json:"deleted,omitempty"`
 
@@ -50917,7 +52750,7 @@ type NetworkInterfaceBareMetalServerContextReference struct {
 	// The unique identifier for this network interface.
 	ID *string `json:"id" validate:"required"`
 
-	// The user-defined name for this network interface.
+	// The name for this network interface.
 	Name *string `json:"name" validate:"required"`
 
 	PrimaryIP *ReservedIPReference `json:"primary_ip" validate:"required"`
@@ -50970,7 +52803,7 @@ func UnmarshalNetworkInterfaceBareMetalServerContextReference(m map[string]json.
 	return
 }
 
-// NetworkInterfaceBareMetalServerContextReferenceDeleted : If present, this property indicates the referenced resource has been deleted and provides some supplementary
+// NetworkInterfaceBareMetalServerContextReferenceDeleted : If present, this property indicates the referenced resource has been deleted, and provides some supplementary
 // information.
 type NetworkInterfaceBareMetalServerContextReferenceDeleted struct {
 	// Link to documentation about deleted resources.
@@ -51008,9 +52841,9 @@ type NetworkInterfaceIPPrototype struct {
 	// `target` is deleted, or the reserved IP is unbound.
 	AutoDelete *bool `json:"auto_delete,omitempty"`
 
-	// The user-defined name for this reserved IP. If unspecified, the name will be a hyphenated list of randomly-selected
-	// words. Names must be unique within the subnet the reserved IP resides in. Names beginning with `ibm-` are reserved
-	// for provider-owned resources.
+	// The name for this reserved IP. The name must not be used by another reserved IP in the subnet. Names starting with
+	// `ibm-` are reserved for provider-owned resources, and are not allowed. If unspecified, the name will be a hyphenated
+	// list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 }
 
@@ -51051,7 +52884,7 @@ func UnmarshalNetworkInterfaceIPPrototype(m map[string]json.RawMessage, result i
 
 // NetworkInterfaceInstanceContextReference : NetworkInterfaceInstanceContextReference struct
 type NetworkInterfaceInstanceContextReference struct {
-	// If present, this property indicates the referenced resource has been deleted and provides
+	// If present, this property indicates the referenced resource has been deleted, and provides
 	// some supplementary information.
 	Deleted *NetworkInterfaceInstanceContextReferenceDeleted `json:"deleted,omitempty"`
 
@@ -51061,7 +52894,7 @@ type NetworkInterfaceInstanceContextReference struct {
 	// The unique identifier for this network interface.
 	ID *string `json:"id" validate:"required"`
 
-	// The user-defined name for this network interface.
+	// The name for this network interface.
 	Name *string `json:"name" validate:"required"`
 
 	PrimaryIP *ReservedIPReference `json:"primary_ip" validate:"required"`
@@ -51114,7 +52947,7 @@ func UnmarshalNetworkInterfaceInstanceContextReference(m map[string]json.RawMess
 	return
 }
 
-// NetworkInterfaceInstanceContextReferenceDeleted : If present, this property indicates the referenced resource has been deleted and provides some supplementary
+// NetworkInterfaceInstanceContextReferenceDeleted : If present, this property indicates the referenced resource has been deleted, and provides some supplementary
 // information.
 type NetworkInterfaceInstanceContextReferenceDeleted struct {
 	// Link to documentation about deleted resources.
@@ -51138,8 +52971,8 @@ type NetworkInterfacePatch struct {
 	// interface. If true, source IP spoofing is allowed on this interface.
 	AllowIPSpoofing *bool `json:"allow_ip_spoofing,omitempty"`
 
-	// The user-defined name for network interface. Names must be unique within the instance the network interface resides
-	// in.
+	// The name for network interface. The name must not be used by another network interface on the virtual server
+	// instance.
 	Name *string `json:"name,omitempty"`
 }
 
@@ -51174,8 +53007,8 @@ type NetworkInterfacePrototype struct {
 	// interface. If true, source IP spoofing is allowed on this interface.
 	AllowIPSpoofing *bool `json:"allow_ip_spoofing,omitempty"`
 
-	// The user-defined name for network interface. Names must be unique within the instance the network interface resides
-	// in. If unspecified, the name will be a hyphenated list of randomly-selected words.
+	// The name for network interface. The name must not be used by another network interface on the virtual server
+	// instance. If unspecified, the name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
 	// The primary IP address to bind to the network interface. This can be specified using
@@ -51229,7 +53062,7 @@ func UnmarshalNetworkInterfacePrototype(m map[string]json.RawMessage, result int
 	return
 }
 
-// NetworkInterfaceReferenceDeleted : If present, this property indicates the referenced resource has been deleted and provides some supplementary
+// NetworkInterfaceReferenceDeleted : If present, this property indicates the referenced resource has been deleted, and provides some supplementary
 // information.
 type NetworkInterfaceReferenceDeleted struct {
 	// Link to documentation about deleted resources.
@@ -51247,7 +53080,7 @@ func UnmarshalNetworkInterfaceReferenceDeleted(m map[string]json.RawMessage, res
 	return
 }
 
-// NetworkInterfaceReferenceTargetContextDeleted : If present, this property indicates the referenced resource has been deleted and provides some supplementary
+// NetworkInterfaceReferenceTargetContextDeleted : If present, this property indicates the referenced resource has been deleted, and provides some supplementary
 // information.
 type NetworkInterfaceReferenceTargetContextDeleted struct {
 	// Link to documentation about deleted resources.
@@ -51509,7 +53342,7 @@ type PlacementGroup struct {
 	// The lifecycle state of the placement group.
 	LifecycleState *string `json:"lifecycle_state" validate:"required"`
 
-	// The user-defined name for this placement group.
+	// The name for this placement group. The name is unique across all placement groups in the region.
 	Name *string `json:"name" validate:"required"`
 
 	// The resource group for this placement group.
@@ -51696,7 +53529,7 @@ func UnmarshalPlacementGroupCollectionNext(m map[string]json.RawMessage, result 
 
 // PlacementGroupPatch : PlacementGroupPatch struct
 type PlacementGroupPatch struct {
-	// The user-defined name for this placement group.
+	// The name for this placement group. The name must not be used by another placement group in the region.
 	Name *string `json:"name,omitempty"`
 }
 
@@ -51721,7 +53554,7 @@ func (placementGroupPatch *PlacementGroupPatch) AsPatch() (_patch map[string]int
 	return
 }
 
-// PlacementGroupReferenceDeleted : If present, this property indicates the referenced resource has been deleted and provides some supplementary
+// PlacementGroupReferenceDeleted : If present, this property indicates the referenced resource has been deleted, and provides some supplementary
 // information.
 type PlacementGroupReferenceDeleted struct {
 	// Link to documentation about deleted resources.
@@ -51756,7 +53589,7 @@ type PublicGateway struct {
 	// The unique identifier for this public gateway.
 	ID *string `json:"id" validate:"required"`
 
-	// The user-defined name for this public gateway.
+	// The name for this public gateway. The name is unique across all public gateways in the VPC.
 	Name *string `json:"name" validate:"required"`
 
 	// The resource group for this public gateway.
@@ -51765,10 +53598,10 @@ type PublicGateway struct {
 	// The resource type.
 	ResourceType *string `json:"resource_type" validate:"required"`
 
-	// The status of the volume.
+	// The status of this public gateway.
 	Status *string `json:"status" validate:"required"`
 
-	// The VPC this public gateway serves.
+	// The VPC this public gateway resides in.
 	VPC *VPCReference `json:"vpc" validate:"required"`
 
 	// The zone this public gateway resides in.
@@ -51782,7 +53615,7 @@ const (
 )
 
 // Constants associated with the PublicGateway.Status property.
-// The status of the volume.
+// The status of this public gateway.
 const (
 	PublicGatewayStatusAvailableConst = "available"
 	PublicGatewayStatusDeletingConst  = "deleting"
@@ -51941,7 +53774,7 @@ type PublicGatewayFloatingIP struct {
 	// The CRN for this floating IP.
 	CRN *string `json:"crn" validate:"required"`
 
-	// If present, this property indicates the referenced resource has been deleted and provides
+	// If present, this property indicates the referenced resource has been deleted, and provides
 	// some supplementary information.
 	Deleted *FloatingIPReferenceDeleted `json:"deleted,omitempty"`
 
@@ -51951,7 +53784,7 @@ type PublicGatewayFloatingIP struct {
 	// The unique identifier for this floating IP.
 	ID *string `json:"id" validate:"required"`
 
-	// The unique user-defined name for this floating IP.
+	// The name for this floating IP. The name is unique across all floating IPs in the region.
 	Name *string `json:"name" validate:"required"`
 }
 
@@ -52003,8 +53836,8 @@ type PublicGatewayFloatingIPPrototype struct {
 	// The globally unique IP address.
 	Address *string `json:"address,omitempty"`
 
-	// The unique user-defined name for this floating IP. If unspecified, the name will be a hyphenated list of
-	// randomly-selected words.
+	// The name for this floating IP. The name must not be used by another floating IP in the region. If unspecified, the
+	// name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
 	// The resource group to use. If unspecified, the account's [default resource
@@ -52096,7 +53929,7 @@ func UnmarshalPublicGatewayIdentity(m map[string]json.RawMessage, result interfa
 
 // PublicGatewayPatch : PublicGatewayPatch struct
 type PublicGatewayPatch struct {
-	// The user-defined name for this public gateway. Names must be unique within the VPC the public gateway resides in.
+	// The name for this public gateway. The name must not be used by another public gateway in the VPC.
 	Name *string `json:"name,omitempty"`
 }
 
@@ -52126,7 +53959,7 @@ type PublicGatewayReference struct {
 	// The CRN for this public gateway.
 	CRN *string `json:"crn" validate:"required"`
 
-	// If present, this property indicates the referenced resource has been deleted and provides
+	// If present, this property indicates the referenced resource has been deleted, and provides
 	// some supplementary information.
 	Deleted *PublicGatewayReferenceDeleted `json:"deleted,omitempty"`
 
@@ -52136,7 +53969,7 @@ type PublicGatewayReference struct {
 	// The unique identifier for this public gateway.
 	ID *string `json:"id" validate:"required"`
 
-	// The user-defined name for this public gateway.
+	// The name for this public gateway. The name is unique across all public gateways in the VPC.
 	Name *string `json:"name" validate:"required"`
 
 	// The resource type.
@@ -52180,7 +54013,7 @@ func UnmarshalPublicGatewayReference(m map[string]json.RawMessage, result interf
 	return
 }
 
-// PublicGatewayReferenceDeleted : If present, this property indicates the referenced resource has been deleted and provides some supplementary
+// PublicGatewayReferenceDeleted : If present, this property indicates the referenced resource has been deleted, and provides some supplementary
 // information.
 type PublicGatewayReferenceDeleted struct {
 	// Link to documentation about deleted resources.
@@ -52414,44 +54247,6 @@ func (_options *RemoveInstanceNetworkInterfaceFloatingIPOptions) SetID(id string
 
 // SetHeaders : Allow user to set Headers
 func (options *RemoveInstanceNetworkInterfaceFloatingIPOptions) SetHeaders(param map[string]string) *RemoveInstanceNetworkInterfaceFloatingIPOptions {
-	options.Headers = param
-	return options
-}
-
-// RemoveSecurityGroupTargetOptions : The RemoveSecurityGroupTarget options.
-type RemoveSecurityGroupTargetOptions struct {
-	// The security group identifier.
-	SecurityGroupID *string `json:"security_group_id" validate:"required,ne="`
-
-	// The security group target identifier.
-	ID *string `json:"id" validate:"required,ne="`
-
-	// Allows users to set headers on API requests
-	Headers map[string]string
-}
-
-// NewRemoveSecurityGroupTargetOptions : Instantiate RemoveSecurityGroupTargetOptions
-func (*VpcV1) NewRemoveSecurityGroupTargetOptions(securityGroupID string, id string) *RemoveSecurityGroupTargetOptions {
-	return &RemoveSecurityGroupTargetOptions{
-		SecurityGroupID: core.StringPtr(securityGroupID),
-		ID:              core.StringPtr(id),
-	}
-}
-
-// SetSecurityGroupID : Allow user to set SecurityGroupID
-func (_options *RemoveSecurityGroupTargetOptions) SetSecurityGroupID(securityGroupID string) *RemoveSecurityGroupTargetOptions {
-	_options.SecurityGroupID = core.StringPtr(securityGroupID)
-	return _options
-}
-
-// SetID : Allow user to set ID
-func (_options *RemoveSecurityGroupTargetOptions) SetID(id string) *RemoveSecurityGroupTargetOptions {
-	_options.ID = core.StringPtr(id)
-	return _options
-}
-
-// SetHeaders : Allow user to set Headers
-func (options *RemoveSecurityGroupTargetOptions) SetHeaders(param map[string]string) *RemoveSecurityGroupTargetOptions {
 	options.Headers = param
 	return options
 }
@@ -52723,7 +54518,7 @@ type ReservedIP struct {
 	// The lifecycle state of the reserved IP.
 	LifecycleState *string `json:"lifecycle_state" validate:"required"`
 
-	// The user-defined or system-provided name for this reserved IP.
+	// The name for this reserved IP. The name is unique across all reserved IPs in a subnet.
 	Name *string `json:"name" validate:"required"`
 
 	// The owner of the reserved IP.
@@ -52732,7 +54527,7 @@ type ReservedIP struct {
 	// The resource type.
 	ResourceType *string `json:"resource_type" validate:"required"`
 
-	// The target of this reserved IP.
+	// The target this reserved IP is bound to.
 	//
 	// If absent, this reserved IP is provider-owned or unbound.
 	Target ReservedIPTargetIntf `json:"target,omitempty"`
@@ -53092,8 +54887,8 @@ type ReservedIPPatch struct {
 	// `target` is deleted, or the reserved IP is unbound. Must be `false` if the reserved IP is unbound.
 	AutoDelete *bool `json:"auto_delete,omitempty"`
 
-	// The user-defined name for this reserved IP. Names must be unique within the subnet the reserved IP resides in. Names
-	// beginning with `ibm-` are reserved for provider-owned resources.
+	// The name for this reserved IP. The name must not be used by another reserved IP in the subnet. Names starting with
+	// `ibm-` are reserved for provider-owned resources, and are not allowed.
 	Name *string `json:"name,omitempty"`
 }
 
@@ -53133,7 +54928,7 @@ type ReservedIPReference struct {
 	// error, or bypass the resource on which the unexpected IP address format was encountered.
 	Address *string `json:"address" validate:"required"`
 
-	// If present, this property indicates the referenced resource has been deleted and provides
+	// If present, this property indicates the referenced resource has been deleted, and provides
 	// some supplementary information.
 	Deleted *ReservedIPReferenceDeleted `json:"deleted,omitempty"`
 
@@ -53143,7 +54938,7 @@ type ReservedIPReference struct {
 	// The unique identifier for this reserved IP.
 	ID *string `json:"id" validate:"required"`
 
-	// The user-defined or system-provided name for this reserved IP.
+	// The name for this reserved IP. The name is unique across all reserved IPs in a subnet.
 	Name *string `json:"name" validate:"required"`
 
 	// The resource type.
@@ -53187,7 +54982,7 @@ func UnmarshalReservedIPReference(m map[string]json.RawMessage, result interface
 	return
 }
 
-// ReservedIPReferenceDeleted : If present, this property indicates the referenced resource has been deleted and provides some supplementary
+// ReservedIPReferenceDeleted : If present, this property indicates the referenced resource has been deleted, and provides some supplementary
 // information.
 type ReservedIPReferenceDeleted struct {
 	// Link to documentation about deleted resources.
@@ -53205,7 +55000,7 @@ func UnmarshalReservedIPReferenceDeleted(m map[string]json.RawMessage, result in
 	return
 }
 
-// ReservedIPTarget : The target of this reserved IP.
+// ReservedIPTarget : The target this reserved IP is bound to.
 //
 // If absent, this reserved IP is provider-owned or unbound.
 // Models which "extend" this model:
@@ -53219,7 +55014,7 @@ type ReservedIPTarget struct {
 	// The CRN for this endpoint gateway.
 	CRN *string `json:"crn,omitempty"`
 
-	// If present, this property indicates the referenced resource has been deleted and provides
+	// If present, this property indicates the referenced resource has been deleted, and provides
 	// some supplementary information.
 	Deleted *EndpointGatewayReferenceDeleted `json:"deleted,omitempty"`
 
@@ -53229,7 +55024,7 @@ type ReservedIPTarget struct {
 	// The unique identifier for this endpoint gateway.
 	ID *string `json:"id,omitempty"`
 
-	// The unique user-defined name for this endpoint gateway.
+	// The name for this endpoint gateway. The name is unique across all endpoint gateways in the VPC.
 	Name *string `json:"name,omitempty"`
 
 	// The resource type.
@@ -53281,8 +55076,12 @@ func UnmarshalReservedIPTarget(m map[string]json.RawMessage, result interface{})
 	return
 }
 
-// ReservedIPTargetPrototype : The target this reserved IP is to be bound to. The target must be an endpoint gateway not already bound to a reserved
-// IP in the subnet's zone.
+// ReservedIPTargetPrototype : The target to bind this reserved IP to.  The target must be in the same VPC.
+//
+// At present, only endpoint gateway targets are supported.  The endpoint gateway must not be already bound to a
+// reserved IP in the subnet's zone.
+//
+// If unspecified, the reserved IP will be created unbound.
 // Models which "extend" this model:
 // - ReservedIPTargetPrototypeEndpointGatewayIdentity
 type ReservedIPTargetPrototype struct {
@@ -53376,7 +55175,7 @@ type ResourceGroupReference struct {
 	// The unique identifier for this resource group.
 	ID *string `json:"id" validate:"required"`
 
-	// The user-defined name for this resource group.
+	// The name for this resource group.
 	Name *string `json:"name" validate:"required"`
 }
 
@@ -53430,9 +55229,8 @@ func (options *RestartBareMetalServerOptions) SetHeaders(param map[string]string
 // Route : Route struct
 type Route struct {
 	// The action to perform with a packet matching the route:
-	// - `delegate`: delegate to the system's built-in routes
-	// - `delegate_vpc`: delegate to the system's built-in routes, ignoring Internet-bound
-	//   routes
+	// - `delegate`: delegate to system-provided routes
+	// - `delegate_vpc`: delegate to system-provided routes, ignoring Internet-bound routes
 	// - `deliver`: deliver the packet to the specified `next_hop`
 	// - `drop`: drop the packet.
 	Action *string `json:"action" validate:"required"`
@@ -53440,9 +55238,9 @@ type Route struct {
 	// The date and time that the route was created.
 	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
 
-	// If present, the resource that created the route. Routes with this property present cannot be
-	// directly deleted. All routes with an `origin` of `learned` or `service` will have this
-	// property set, and future `origin` values may also have this property set.
+	// If present, the resource that created the route. Routes with this property present cannot
+	// be directly deleted. All routes with an `origin` of `service` will have this property set,
+	// and future `origin` values may also have this property set.
 	Creator RouteCreatorIntf `json:"creator,omitempty"`
 
 	// The destination of the route.
@@ -53457,7 +55255,7 @@ type Route struct {
 	// The lifecycle state of the route.
 	LifecycleState *string `json:"lifecycle_state" validate:"required"`
 
-	// The user-defined name for this route.
+	// The name for this route. The name is unique across all routes in the routing table.
 	Name *string `json:"name" validate:"required"`
 
 	// If `action` is `deliver`, the next hop that packets will be delivered to.  For
@@ -53480,9 +55278,8 @@ type Route struct {
 
 // Constants associated with the Route.Action property.
 // The action to perform with a packet matching the route:
-// - `delegate`: delegate to the system's built-in routes
-// - `delegate_vpc`: delegate to the system's built-in routes, ignoring Internet-bound
-//   routes
+// - `delegate`: delegate to system-provided routes
+// - `delegate_vpc`: delegate to system-provided routes, ignoring Internet-bound routes
 // - `deliver`: deliver the packet to the specified `next_hop`
 // - `drop`: drop the packet.
 const (
@@ -53661,8 +55458,8 @@ func UnmarshalRouteCollectionNext(m map[string]json.RawMessage, result interface
 }
 
 // RouteCreator : If present, the resource that created the route. Routes with this property present cannot be directly deleted. All
-// routes with an `origin` of `learned` or `service` will have this property set, and future `origin` values may also
-// have this property set.
+// routes with an `origin` of `service` will have this property set, and future `origin` values may also have this
+// property set.
 // Models which "extend" this model:
 // - RouteCreatorVPNGatewayReference
 // - RouteCreatorVPNServerReference
@@ -53670,7 +55467,7 @@ type RouteCreator struct {
 	// The VPN gateway's CRN.
 	CRN *string `json:"crn,omitempty"`
 
-	// If present, this property indicates the referenced resource has been deleted and provides
+	// If present, this property indicates the referenced resource has been deleted, and provides
 	// some supplementary information.
 	Deleted *VPNGatewayReferenceDeleted `json:"deleted,omitempty"`
 
@@ -53680,7 +55477,7 @@ type RouteCreator struct {
 	// The unique identifier for this VPN gateway.
 	ID *string `json:"id,omitempty"`
 
-	// The user-defined name for this VPN gateway.
+	// The name for this VPN gateway. The name is unique across all VPN gateways in the VPC.
 	Name *string `json:"name,omitempty"`
 
 	// The resource type.
@@ -53744,7 +55541,7 @@ type RouteNextHop struct {
 	// error, or bypass the resource on which the unexpected IP address format was encountered.
 	Address *string `json:"address,omitempty"`
 
-	// If present, this property indicates the referenced resource has been deleted and provides
+	// If present, this property indicates the referenced resource has been deleted, and provides
 	// some supplementary information.
 	Deleted *VPNGatewayConnectionReferenceDeleted `json:"deleted,omitempty"`
 
@@ -53754,7 +55551,7 @@ type RouteNextHop struct {
 	// The unique identifier for this VPN gateway connection.
 	ID *string `json:"id,omitempty"`
 
-	// The user-defined name for this VPN connection.
+	// The name for this VPN gateway connection. The name is unique across all connections for the VPN gateway.
 	Name *string `json:"name,omitempty"`
 
 	// The resource type.
@@ -53808,7 +55605,8 @@ func UnmarshalRouteNextHop(m map[string]json.RawMessage, result interface{}) (er
 
 // RoutePatch : RoutePatch struct
 type RoutePatch struct {
-	// The user-defined name for this route. Names must be unique within the VPC routing table the route resides in.
+	// The name for this route. The name must not be used by another route in the routing table. Names starting with `ibm-`
+	// are reserved for system-provided routes, and are not allowed.
 	Name *string `json:"name,omitempty"`
 }
 
@@ -53836,20 +55634,19 @@ func (routePatch *RoutePatch) AsPatch() (_patch map[string]interface{}, err erro
 // RoutePrototype : RoutePrototype struct
 type RoutePrototype struct {
 	// The action to perform with a packet matching the route:
-	// - `delegate`: delegate to the system's built-in routes
-	// - `delegate_vpc`: delegate to the system's built-in routes, ignoring Internet-bound
-	//   routes
+	// - `delegate`: delegate to system-provided routes
+	// - `delegate_vpc`: delegate to system-provided routes, ignoring Internet-bound routes
 	// - `deliver`: deliver the packet to the specified `next_hop`
 	// - `drop`: drop the packet.
 	Action *string `json:"action,omitempty"`
 
 	// The destination of the route. At most two routes per `zone` in a table can have the same destination, and only if
-	// both routes have an `action` of `deliver` and the
-	// `next_hop` is an IP address.
+	// both routes have an `action` of `deliver` and the `next_hop` is an IP address.
 	Destination *string `json:"destination" validate:"required"`
 
-	// The user-defined name for this route. If unspecified, the name will be a hyphenated list of randomly-selected words.
-	// Names must be unique within the VPC routing table the route resides in.
+	// The name for this route. The name must not be used by another route in the routing table. Names starting with `ibm-`
+	// are reserved for system-provided routes, and are not allowed. If unspecified, the name will be a hyphenated list of
+	// randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
 	// If `action` is `deliver`, the next hop that packets will be delivered to. For other `action`
@@ -53863,9 +55660,8 @@ type RoutePrototype struct {
 
 // Constants associated with the RoutePrototype.Action property.
 // The action to perform with a packet matching the route:
-// - `delegate`: delegate to the system's built-in routes
-// - `delegate_vpc`: delegate to the system's built-in routes, ignoring Internet-bound
-//   routes
+// - `delegate`: delegate to system-provided routes
+// - `delegate_vpc`: delegate to system-provided routes, ignoring Internet-bound routes
 // - `deliver`: deliver the packet to the specified `next_hop`
 // - `drop`: drop the packet.
 const (
@@ -53961,7 +55757,7 @@ func UnmarshalRoutePrototypeNextHop(m map[string]json.RawMessage, result interfa
 
 // RouteReference : RouteReference struct
 type RouteReference struct {
-	// If present, this property indicates the referenced resource has been deleted and provides
+	// If present, this property indicates the referenced resource has been deleted, and provides
 	// some supplementary information.
 	Deleted *RouteReferenceDeleted `json:"deleted,omitempty"`
 
@@ -53971,7 +55767,7 @@ type RouteReference struct {
 	// The unique identifier for this route.
 	ID *string `json:"id" validate:"required"`
 
-	// The user-defined name for this route.
+	// The name for this route. The name is unique across all routes in the routing table.
 	Name *string `json:"name" validate:"required"`
 }
 
@@ -53998,7 +55794,7 @@ func UnmarshalRouteReference(m map[string]json.RawMessage, result interface{}) (
 	return
 }
 
-// RouteReferenceDeleted : If present, this property indicates the referenced resource has been deleted and provides some supplementary
+// RouteReferenceDeleted : If present, this property indicates the referenced resource has been deleted, and provides some supplementary
 // information.
 type RouteReferenceDeleted struct {
 	// Link to documentation about deleted resources.
@@ -54039,14 +55835,14 @@ type RoutingTable struct {
 	// The lifecycle state of the routing table.
 	LifecycleState *string `json:"lifecycle_state" validate:"required"`
 
-	// The user-defined name for this routing table.
+	// The name for this routing table. The name is unique across all routing tables for the VPC.
 	Name *string `json:"name" validate:"required"`
 
 	// The resource type.
 	ResourceType *string `json:"resource_type" validate:"required"`
 
 	// Indicates whether this routing table is used to route traffic that originates from
-	// [Direct Link](https://cloud.ibm.com/docs/dl/) to this VPC.
+	// [Direct Link](https://cloud.ibm.com/docs/dl) to this VPC.
 	//
 	// Incoming traffic will be routed according to the routing table with one exception: routes with an `action` of
 	// `deliver` are treated as `drop` unless the `next_hop` is an IP address bound to a network interface on a subnet in
@@ -54054,8 +55850,19 @@ type RoutingTable struct {
 	// address or a VPN gateway connection, the packet will be dropped.
 	RouteDirectLinkIngress *bool `json:"route_direct_link_ingress" validate:"required"`
 
+	// Indicates whether this routing table is used to route traffic that originates from the internet.
+	//
+	// Incoming traffic will be routed according to the routing table with two exceptions:
+	// - Traffic destined for IP addresses associated with public gateways will not be
+	//   subject to routes in this routing table.
+	// - Routes with an action of deliver are treated as drop unless the `next_hop` is an
+	//   IP address bound to a network interface on a subnet in the route's `zone`.
+	//   Therefore, if an incoming packet matches a route with a `next_hop` of an
+	//   internet-bound IP address or a VPN gateway connection, the packet will be dropped.
+	RouteInternetIngress *bool `json:"route_internet_ingress" validate:"required"`
+
 	// Indicates whether this routing table is used to route traffic that originates from from [Transit
-	// Gateway](https://cloud.ibm.com/cloud/transit-gateway/) to this VPC.
+	// Gateway](https://cloud.ibm.com/docs/transit-gateway) to this VPC.
 	//
 	// Incoming traffic will be routed according to the routing table with one exception: routes with an `action` of
 	// `deliver` are treated as `drop` unless the `next_hop` is an IP address bound to a network interface on a subnet in
@@ -54133,6 +55940,10 @@ func UnmarshalRoutingTable(m map[string]json.RawMessage, result interface{}) (er
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "route_direct_link_ingress", &obj.RouteDirectLinkIngress)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "route_internet_ingress", &obj.RouteInternetIngress)
 	if err != nil {
 		return
 	}
@@ -54286,15 +56097,15 @@ func UnmarshalRoutingTableIdentity(m map[string]json.RawMessage, result interfac
 // RoutingTablePatch : RoutingTablePatch struct
 type RoutingTablePatch struct {
 	// The filters specifying the resources that may create routes in this routing table
-	// (replacing any existing filters). All routes learned from resources that match a given filter will be removed when
-	// an existing filter is removed. Therefore, if an empty array is specified, all filters will be removed, resulting in
-	// all learned routes being removed.
+	// (replacing any existing filters). All routes created by resources that match a given filter will be removed when an
+	// existing filter is removed. Therefore, if an empty array is specified, all filters will be removed, resulting in all
+	// routes not directly created by the user being removed.
 	//
 	// At present, only the `resource_type` filter is permitted, and only the `vpn_server` value is supported, but filter
 	// support is expected to expand in the future.
 	AcceptRoutesFrom []ResourceFilter `json:"accept_routes_from,omitempty"`
 
-	// The user-defined name for this routing table. Names must be unique within the VPC the routing table resides in.
+	// The name for this routing table. The name must not be used by another routing table in the VPC.
 	Name *string `json:"name,omitempty"`
 
 	// Indicates whether this routing table is used to route traffic that originates from
@@ -54308,8 +56119,21 @@ type RoutingTablePatch struct {
 	// address or a VPN gateway connection, the packet will be dropped.
 	RouteDirectLinkIngress *bool `json:"route_direct_link_ingress,omitempty"`
 
+	// Indicates whether this routing table is used to route traffic that originates from the internet.  Updating to `true`
+	// selects this routing table, provided no other routing table in the VPC already has this property set to `true`.
+	// Updating to `false` deselects this routing table.
+	//
+	// Incoming traffic will be routed according to the routing table with two exceptions:
+	// -  Traffic destined for IP addresses associated with public gateways will not be subject
+	//    to routes in this routing table.
+	// -  Routes with an `action` of `deliver` are treated as `drop` unless the `next_hop` is an
+	//    IP address bound to a network interface on a subnet in the route's `zone`. Therefore,
+	//    if an incoming packet matches a route with a `next_hop` of an internet-bound IP
+	//    address or a VPN gateway connection, the packet will be dropped.
+	RouteInternetIngress *bool `json:"route_internet_ingress,omitempty"`
+
 	// Indicates whether this routing table is used to route traffic that originates from
-	// [Transit Gateway](https://cloud.ibm.com/cloud/transit-gateway/) to this VPC. Updating to
+	// [Transit Gateway](https://cloud.ibm.com/docs/transit-gateway) to this VPC. Updating to
 	// `true` selects this routing table, provided no other routing table in the VPC already has this property set to
 	// `true`, and no subnets are attached to this routing table. Updating to `false` deselects this routing table.
 	//
@@ -54350,6 +56174,10 @@ func UnmarshalRoutingTablePatch(m map[string]json.RawMessage, result interface{}
 	if err != nil {
 		return
 	}
+	err = core.UnmarshalPrimitive(m, "route_internet_ingress", &obj.RouteInternetIngress)
+	if err != nil {
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "route_transit_gateway_ingress", &obj.RouteTransitGatewayIngress)
 	if err != nil {
 		return
@@ -54374,7 +56202,7 @@ func (routingTablePatch *RoutingTablePatch) AsPatch() (_patch map[string]interfa
 
 // RoutingTableReference : RoutingTableReference struct
 type RoutingTableReference struct {
-	// If present, this property indicates the referenced resource has been deleted and provides
+	// If present, this property indicates the referenced resource has been deleted, and provides
 	// some supplementary information.
 	Deleted *RoutingTableReferenceDeleted `json:"deleted,omitempty"`
 
@@ -54384,7 +56212,7 @@ type RoutingTableReference struct {
 	// The unique identifier for this routing table.
 	ID *string `json:"id" validate:"required"`
 
-	// The user-defined name for this routing table.
+	// The name for this routing table. The name is unique across all routing tables for the VPC.
 	Name *string `json:"name" validate:"required"`
 
 	// The resource type.
@@ -54424,7 +56252,7 @@ func UnmarshalRoutingTableReference(m map[string]json.RawMessage, result interfa
 	return
 }
 
-// RoutingTableReferenceDeleted : If present, this property indicates the referenced resource has been deleted and provides some supplementary
+// RoutingTableReferenceDeleted : If present, this property indicates the referenced resource has been deleted, and provides some supplementary
 // information.
 type RoutingTableReferenceDeleted struct {
 	// Link to documentation about deleted resources.
@@ -54456,7 +56284,7 @@ type SecurityGroup struct {
 	// The unique identifier for this security group.
 	ID *string `json:"id" validate:"required"`
 
-	// The user-defined name for this security group. Names must be unique within the VPC the security group resides in.
+	// The name for this security group. The name is unique across all security groups for the VPC.
 	Name *string `json:"name" validate:"required"`
 
 	// The resource group for this security group.
@@ -54468,7 +56296,7 @@ type SecurityGroup struct {
 	// The targets for this security group.
 	Targets []SecurityGroupTargetReferenceIntf `json:"targets" validate:"required"`
 
-	// The VPC this security group is a part of.
+	// The VPC this security group resides in.
 	VPC *VPCReference `json:"vpc" validate:"required"`
 }
 
@@ -54652,7 +56480,7 @@ func UnmarshalSecurityGroupIdentity(m map[string]json.RawMessage, result interfa
 
 // SecurityGroupPatch : SecurityGroupPatch struct
 type SecurityGroupPatch struct {
-	// The user-defined name for this security group. Names must be unique within the VPC the security group resides in.
+	// The name for this security group. The name must not be used by another security group for the VPC.
 	Name *string `json:"name,omitempty"`
 }
 
@@ -54682,7 +56510,7 @@ type SecurityGroupReference struct {
 	// The security group's CRN.
 	CRN *string `json:"crn" validate:"required"`
 
-	// If present, this property indicates the referenced resource has been deleted and provides
+	// If present, this property indicates the referenced resource has been deleted, and provides
 	// some supplementary information.
 	Deleted *SecurityGroupReferenceDeleted `json:"deleted,omitempty"`
 
@@ -54692,7 +56520,7 @@ type SecurityGroupReference struct {
 	// The unique identifier for this security group.
 	ID *string `json:"id" validate:"required"`
 
-	// The user-defined name for this security group. Names must be unique within the VPC the security group resides in.
+	// The name for this security group. The name is unique across all security groups for the VPC.
 	Name *string `json:"name" validate:"required"`
 }
 
@@ -54723,7 +56551,7 @@ func UnmarshalSecurityGroupReference(m map[string]json.RawMessage, result interf
 	return
 }
 
-// SecurityGroupReferenceDeleted : If present, this property indicates the referenced resource has been deleted and provides some supplementary
+// SecurityGroupReferenceDeleted : If present, this property indicates the referenced resource has been deleted, and provides some supplementary
 // information.
 type SecurityGroupReferenceDeleted struct {
 	// Link to documentation about deleted resources.
@@ -54747,7 +56575,7 @@ func UnmarshalSecurityGroupReferenceDeleted(m map[string]json.RawMessage, result
 // - SecurityGroupRuleSecurityGroupRuleProtocolIcmp
 // - SecurityGroupRuleSecurityGroupRuleProtocolTcpudp
 type SecurityGroupRule struct {
-	// The direction of traffic to enforce, either `inbound` or `outbound`.
+	// The direction of traffic to enforce.
 	Direction *string `json:"direction" validate:"required"`
 
 	// The URL for this security group rule.
@@ -54764,16 +56592,16 @@ type SecurityGroupRule struct {
 	// The protocol to enforce.
 	Protocol *string `json:"protocol" validate:"required"`
 
-	// The IP addresses or security groups from which this rule allows traffic (or to which,
-	// for outbound rules). Can be specified as an IP address, a CIDR block, or a security
-	// group. A CIDR block of `0.0.0.0/0` allows traffic from any source (or to any source,
-	// for outbound rules).
+	// The IP addresses or security groups from which this rule allows traffic (or to which, for
+	// outbound rules). Can be specified as an IP address, a CIDR block, or a security group. A
+	// CIDR block of `0.0.0.0/0` allows traffic from any source (or to any destination, for
+	// outbound rules).
 	Remote SecurityGroupRuleRemoteIntf `json:"remote" validate:"required"`
 
-	// The ICMP traffic code to allow.
+	// The ICMP traffic code to allow. If absent, all codes are allowed.
 	Code *int64 `json:"code,omitempty"`
 
-	// The ICMP traffic type to allow.
+	// The ICMP traffic type to allow. If absent, all types are allowed.
 	Type *int64 `json:"type,omitempty"`
 
 	// The inclusive upper bound of TCP/UDP port range.
@@ -54784,7 +56612,7 @@ type SecurityGroupRule struct {
 }
 
 // Constants associated with the SecurityGroupRule.Direction property.
-// The direction of traffic to enforce, either `inbound` or `outbound`.
+// The direction of traffic to enforce.
 const (
 	SecurityGroupRuleDirectionInboundConst  = "inbound"
 	SecurityGroupRuleDirectionOutboundConst = "outbound"
@@ -54796,6 +56624,15 @@ const (
 // (network interfaces) in that group matching this IP version.
 const (
 	SecurityGroupRuleIPVersionIpv4Const = "ipv4"
+)
+
+// Constants associated with the SecurityGroupRule.Protocol property.
+// The protocol to enforce.
+const (
+	SecurityGroupRuleProtocolAllConst  = "all"
+	SecurityGroupRuleProtocolIcmpConst = "icmp"
+	SecurityGroupRuleProtocolTCPConst  = "tcp"
+	SecurityGroupRuleProtocolUDPConst  = "udp"
 )
 
 func (*SecurityGroupRule) isaSecurityGroupRule() bool {
@@ -54852,10 +56689,12 @@ func UnmarshalSecurityGroupRuleCollection(m map[string]json.RawMessage, result i
 
 // SecurityGroupRulePatch : SecurityGroupRulePatch struct
 type SecurityGroupRulePatch struct {
-	// The ICMP traffic code to allow. Specify `null` to remove an existing ICMP traffic code value.
+	// The ICMP traffic code to allow. If set, `type` must also be set.
+	//
+	// Specify `null` to remove an existing ICMP traffic code.
 	Code *int64 `json:"code,omitempty"`
 
-	// The direction of traffic to enforce, either `inbound` or `outbound`.
+	// The direction of traffic to enforce.
 	Direction *string `json:"direction,omitempty"`
 
 	// The IP version to enforce. The format of `remote.address` or `remote.cidr_block` must match this property, if they
@@ -54863,26 +56702,30 @@ type SecurityGroupRulePatch struct {
 	// (network interfaces) in that group matching this IP version.
 	IPVersion *string `json:"ip_version,omitempty"`
 
-	// The inclusive upper bound of the protocol port range. Specify `null` to clear an existing upper bound. If a lower
-	// bound has been set, the upper bound must also be set, and must not be smaller.
+	// The inclusive upper bound of the protocol port range. If set, `port_min` must also be set, and must not be larger.
+	//
+	// Specify `null` to remove an existing upper bound.
 	PortMax *int64 `json:"port_max,omitempty"`
 
-	// The inclusive lower bound of the protocol port range. Specify `null` to clear an existing lower bound. If an upper
-	// bound has been set, the lower bound must also be set, and must not be larger.
+	// The inclusive lower bound of the protocol port range. If set, `port_max` must also be set, and must not be smaller.
+	//
+	// Specify `null` to remove an existing lower bound.
 	PortMin *int64 `json:"port_min,omitempty"`
 
 	// The IP addresses or security groups from which this rule will allow traffic (or to
 	// which, for outbound rules). Can be specified as an IP address, a CIDR block, or a
 	// security group. A CIDR block of `0.0.0.0/0` will allow traffic from any source (or to
-	// any source, for outbound rules).
+	// any destination, for outbound rules).
 	Remote SecurityGroupRuleRemotePatchIntf `json:"remote,omitempty"`
 
-	// The ICMP traffic type to allow. Specify `null` to remove an existing ICMP traffic type value.
+	// The ICMP traffic type to allow.
+	//
+	// Specify `null` to remove an existing ICMP traffic type value.
 	Type *int64 `json:"type,omitempty"`
 }
 
 // Constants associated with the SecurityGroupRulePatch.Direction property.
-// The direction of traffic to enforce, either `inbound` or `outbound`.
+// The direction of traffic to enforce.
 const (
 	SecurityGroupRulePatchDirectionInboundConst  = "inbound"
 	SecurityGroupRulePatchDirectionOutboundConst = "outbound"
@@ -54947,7 +56790,7 @@ func (securityGroupRulePatch *SecurityGroupRulePatch) AsPatch() (_patch map[stri
 // - SecurityGroupRulePrototypeSecurityGroupRuleProtocolIcmp
 // - SecurityGroupRulePrototypeSecurityGroupRuleProtocolTcpudp
 type SecurityGroupRulePrototype struct {
-	// The direction of traffic to enforce, either `inbound` or `outbound`.
+	// The direction of traffic to enforce.
 	Direction *string `json:"direction" validate:"required"`
 
 	// The IP version to enforce. The format of `remote.address` or `remote.cidr_block` must match this property, if they
@@ -54958,27 +56801,39 @@ type SecurityGroupRulePrototype struct {
 	// The protocol to enforce.
 	Protocol *string `json:"protocol" validate:"required"`
 
-	// The IP addresses or security groups from which this rule will allow traffic (or to
-	// which, for outbound rules). Can be specified as an IP address, a CIDR block, or a
-	// security group. If omitted, a CIDR block of `0.0.0.0/0` will be used to allow traffic
-	// from any source (or to any source, for outbound rules).
+	// The IP addresses or security groups from which this rule will allow traffic (or to which,
+	// for outbound rules). Can be specified as an IP address, a CIDR block, or a security group
+	// within the VPC.
+	//
+	// If unspecified, a CIDR block of `0.0.0.0/0` will be used to allow traffic from any source
+	// (or to any destination, for outbound rules).
 	Remote SecurityGroupRuleRemotePrototypeIntf `json:"remote,omitempty"`
 
 	// The ICMP traffic code to allow.
+	//
+	// If specified, `type` must also be specified.  If unspecified, all codes are allowed.
 	Code *int64 `json:"code,omitempty"`
 
 	// The ICMP traffic type to allow.
+	//
+	// If unspecified, all types are allowed.
 	Type *int64 `json:"type,omitempty"`
 
 	// The inclusive upper bound of TCP/UDP port range.
+	//
+	// If specified, `port_min` must also be specified, and must not be larger. If unspecified, `port_min` must also be
+	// unspecified, allowing traffic on all ports.
 	PortMax *int64 `json:"port_max,omitempty"`
 
-	// The inclusive lower bound of TCP/UDP port range.
+	// The inclusive lower bound of TCP/UDP port range
+	//
+	// If specified, `port_max` must also be specified, and must not be smaller. If unspecified, `port_max` must also be
+	// unspecified, allowing traffic on all ports.
 	PortMin *int64 `json:"port_min,omitempty"`
 }
 
 // Constants associated with the SecurityGroupRulePrototype.Direction property.
-// The direction of traffic to enforce, either `inbound` or `outbound`.
+// The direction of traffic to enforce.
 const (
 	SecurityGroupRulePrototypeDirectionInboundConst  = "inbound"
 	SecurityGroupRulePrototypeDirectionOutboundConst = "outbound"
@@ -54990,6 +56845,15 @@ const (
 // (network interfaces) in that group matching this IP version.
 const (
 	SecurityGroupRulePrototypeIPVersionIpv4Const = "ipv4"
+)
+
+// Constants associated with the SecurityGroupRulePrototype.Protocol property.
+// The protocol to enforce.
+const (
+	SecurityGroupRulePrototypeProtocolAllConst  = "all"
+	SecurityGroupRulePrototypeProtocolIcmpConst = "icmp"
+	SecurityGroupRulePrototypeProtocolTCPConst  = "tcp"
+	SecurityGroupRulePrototypeProtocolUDPConst  = "udp"
 )
 
 func (*SecurityGroupRulePrototype) isaSecurityGroupRulePrototype() bool {
@@ -55029,7 +56893,7 @@ func UnmarshalSecurityGroupRulePrototype(m map[string]json.RawMessage, result in
 
 // SecurityGroupRuleRemote : The IP addresses or security groups from which this rule allows traffic (or to which, for outbound rules). Can be
 // specified as an IP address, a CIDR block, or a security group. A CIDR block of `0.0.0.0/0` allows traffic from any
-// source (or to any source, for outbound rules).
+// source (or to any destination, for outbound rules).
 // Models which "extend" this model:
 // - SecurityGroupRuleRemoteIP
 // - SecurityGroupRuleRemoteCIDR
@@ -55050,7 +56914,7 @@ type SecurityGroupRuleRemote struct {
 	// The security group's CRN.
 	CRN *string `json:"crn,omitempty"`
 
-	// If present, this property indicates the referenced resource has been deleted and provides
+	// If present, this property indicates the referenced resource has been deleted, and provides
 	// some supplementary information.
 	Deleted *SecurityGroupReferenceDeleted `json:"deleted,omitempty"`
 
@@ -55060,7 +56924,7 @@ type SecurityGroupRuleRemote struct {
 	// The unique identifier for this security group.
 	ID *string `json:"id,omitempty"`
 
-	// The user-defined name for this security group. Names must be unique within the VPC the security group resides in.
+	// The name for this security group. The name is unique across all security groups for the VPC.
 	Name *string `json:"name,omitempty"`
 }
 
@@ -55109,7 +56973,7 @@ func UnmarshalSecurityGroupRuleRemote(m map[string]json.RawMessage, result inter
 
 // SecurityGroupRuleRemotePatch : The IP addresses or security groups from which this rule will allow traffic (or to which, for outbound rules). Can be
 // specified as an IP address, a CIDR block, or a security group. A CIDR block of `0.0.0.0/0` will allow traffic from
-// any source (or to any source, for outbound rules).
+// any source (or to any destination, for outbound rules).
 // Models which "extend" this model:
 // - SecurityGroupRuleRemotePatchIP
 // - SecurityGroupRuleRemotePatchCIDR
@@ -55173,8 +57037,10 @@ func UnmarshalSecurityGroupRuleRemotePatch(m map[string]json.RawMessage, result 
 }
 
 // SecurityGroupRuleRemotePrototype : The IP addresses or security groups from which this rule will allow traffic (or to which, for outbound rules). Can be
-// specified as an IP address, a CIDR block, or a security group. If omitted, a CIDR block of `0.0.0.0/0` will be used
-// to allow traffic from any source (or to any source, for outbound rules).
+// specified as an IP address, a CIDR block, or a security group within the VPC.
+//
+// If unspecified, a CIDR block of `0.0.0.0/0` will be used to allow traffic from any source
+// (or to any destination, for outbound rules).
 // Models which "extend" this model:
 // - SecurityGroupRuleRemotePrototypeIP
 // - SecurityGroupRuleRemotePrototypeCIDR
@@ -55338,7 +57204,7 @@ func UnmarshalSecurityGroupTargetCollectionNext(m map[string]json.RawMessage, re
 // - SecurityGroupTargetReferenceEndpointGatewayReference
 // - SecurityGroupTargetReferenceVPNServerReference
 type SecurityGroupTargetReference struct {
-	// If present, this property indicates the referenced resource has been deleted and provides
+	// If present, this property indicates the referenced resource has been deleted, and provides
 	// some supplementary information.
 	Deleted *NetworkInterfaceReferenceTargetContextDeleted `json:"deleted,omitempty"`
 
@@ -55348,7 +57214,7 @@ type SecurityGroupTargetReference struct {
 	// The unique identifier for this network interface.
 	ID *string `json:"id,omitempty"`
 
-	// The user-defined name for this network interface.
+	// The name for this network interface.
 	Name *string `json:"name,omitempty"`
 
 	// The resource type.
@@ -55462,6 +57328,7 @@ type Snapshot struct {
 	CRN *string `json:"crn" validate:"required"`
 
 	// Indicates whether this snapshot can be deleted. This value will always be `true`.
+	// Deprecated: this field is deprecated and may be removed in a future release.
 	Deletable *bool `json:"deletable" validate:"required"`
 
 	// The type of encryption used on the source volume.
@@ -55486,7 +57353,7 @@ type Snapshot struct {
 	// capacity of the `source_volume`.
 	MinimumCapacity *int64 `json:"minimum_capacity" validate:"required"`
 
-	// The user-defined name for this snapshot.
+	// The name for this snapshot. The name is unique across all snapshots in the region.
 	Name *string `json:"name" validate:"required"`
 
 	// The operating system included in this image.
@@ -55770,7 +57637,7 @@ func UnmarshalSnapshotIdentity(m map[string]json.RawMessage, result interface{})
 
 // SnapshotPatch : SnapshotPatch struct
 type SnapshotPatch struct {
-	// The user-defined name for this snapshot.
+	// The name for this snapshot. The name must not be used by another snapshot in the region.
 	Name *string `json:"name,omitempty"`
 
 	// The [user tags](https://cloud.ibm.com/apidocs/tagging#types-of-tags) associated with this snapshot.
@@ -55806,8 +57673,8 @@ func (snapshotPatch *SnapshotPatch) AsPatch() (_patch map[string]interface{}, er
 // Models which "extend" this model:
 // - SnapshotPrototypeSnapshotBySourceVolume
 type SnapshotPrototype struct {
-	// The unique user-defined name for this snapshot. If unspecified, the name will be a hyphenated list of
-	// randomly-selected words.
+	// The name for this snapshot. The name must not be used by another snapshot in the region. If unspecified, the name
+	// will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
 	// The resource group to use. If unspecified, the account's [default resource
@@ -55857,7 +57724,7 @@ type SnapshotReference struct {
 	// The CRN of this snapshot.
 	CRN *string `json:"crn" validate:"required"`
 
-	// If present, this property indicates the referenced resource has been deleted and provides
+	// If present, this property indicates the referenced resource has been deleted, and provides
 	// some supplementary information.
 	Deleted *SnapshotReferenceDeleted `json:"deleted,omitempty"`
 
@@ -55867,7 +57734,7 @@ type SnapshotReference struct {
 	// The unique identifier for this snapshot.
 	ID *string `json:"id" validate:"required"`
 
-	// The user-defined name for this snapshot.
+	// The name for this snapshot. The name is unique across all snapshots in the region.
 	Name *string `json:"name" validate:"required"`
 
 	// The resource type.
@@ -55911,7 +57778,7 @@ func UnmarshalSnapshotReference(m map[string]json.RawMessage, result interface{}
 	return
 }
 
-// SnapshotReferenceDeleted : If present, this property indicates the referenced resource has been deleted and provides some supplementary
+// SnapshotReferenceDeleted : If present, this property indicates the referenced resource has been deleted, and provides some supplementary
 // information.
 type SnapshotReferenceDeleted struct {
 	// Link to documentation about deleted resources.
@@ -56030,7 +57897,7 @@ type Subnet struct {
 	// The IPv4 range of the subnet, expressed in CIDR format.
 	Ipv4CIDRBlock *string `json:"ipv4_cidr_block" validate:"required"`
 
-	// The user-defined name for this subnet.
+	// The name for this subnet. The name is unique across all subnets in the VPC.
 	Name *string `json:"name" validate:"required"`
 
 	// The network ACL for this subnet.
@@ -56057,7 +57924,7 @@ type Subnet struct {
 	// 2<sup>(32 - 24)</sup> = 2<sup>8</sup> = 256 addresses.
 	TotalIpv4AddressCount *int64 `json:"total_ipv4_address_count" validate:"required"`
 
-	// The VPC this subnet is a part of.
+	// The VPC this subnet resides in.
 	VPC *VPCReference `json:"vpc" validate:"required"`
 
 	// The zone this subnet resides in.
@@ -56297,7 +58164,7 @@ func UnmarshalSubnetIdentity(m map[string]json.RawMessage, result interface{}) (
 
 // SubnetPatch : SubnetPatch struct
 type SubnetPatch struct {
-	// The user-defined name for this subnet. Names must be unique within the VPC the subnet resides in.
+	// The name for this subnet. The name must not be used by another subnet in the VPC.
 	Name *string `json:"name,omitempty"`
 
 	// The network ACL to use for this subnet.
@@ -56307,8 +58174,8 @@ type SubnetPatch struct {
 	PublicGateway SubnetPublicGatewayPatchIntf `json:"public_gateway,omitempty"`
 
 	// The routing table to use for this subnet.  The routing table properties
-	// `route_direct_link_ingress`, `route_transit_gateway_ingress`, and
-	// `route_vpc_zone_ingress` must be `false`.
+	// `route_direct_link_ingress`, `route_internet_ingress`,
+	// `route_transit_gateway_ingress`, and `route_vpc_zone_ingress` must be `false`.
 	RoutingTable RoutingTableIdentityIntf `json:"routing_table,omitempty"`
 }
 
@@ -56353,8 +58220,8 @@ type SubnetPrototype struct {
 	// The IP version(s) to support for this subnet.
 	IPVersion *string `json:"ip_version,omitempty"`
 
-	// The user-defined name for this subnet. Names must be unique within the VPC the subnet resides in. If unspecified,
-	// the name will be a hyphenated list of randomly-selected words.
+	// The name for this subnet. The name must not be used by another subnet in the VPC. If unspecified, the name will be a
+	// hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
 	// The network ACL to use for this subnet.
@@ -56370,10 +58237,11 @@ type SubnetPrototype struct {
 
 	// The routing table to use for this subnet. If unspecified, the default routing table
 	// for the VPC is used. The routing table properties `route_direct_link_ingress`,
-	// `route_transit_gateway_ingress`, and `route_vpc_zone_ingress` must be `false`.
+	// `route_internet_ingress`, `route_transit_gateway_ingress`, and
+	// `route_vpc_zone_ingress` must be `false`.
 	RoutingTable RoutingTableIdentityIntf `json:"routing_table,omitempty"`
 
-	// The VPC the subnet is to be a part of.
+	// The VPC the subnet will reside in.
 	VPC VPCIdentityIntf `json:"vpc" validate:"required"`
 
 	// The total number of IPv4 addresses required. Must be a power of 2. The VPC must have a default address prefix in the
@@ -56500,7 +58368,7 @@ type SubnetReference struct {
 	// The CRN for this subnet.
 	CRN *string `json:"crn" validate:"required"`
 
-	// If present, this property indicates the referenced resource has been deleted and provides
+	// If present, this property indicates the referenced resource has been deleted, and provides
 	// some supplementary information.
 	Deleted *SubnetReferenceDeleted `json:"deleted,omitempty"`
 
@@ -56510,7 +58378,7 @@ type SubnetReference struct {
 	// The unique identifier for this subnet.
 	ID *string `json:"id" validate:"required"`
 
-	// The user-defined name for this subnet.
+	// The name for this subnet. The name is unique across all subnets in the VPC.
 	Name *string `json:"name" validate:"required"`
 
 	// The resource type.
@@ -56554,7 +58422,7 @@ func UnmarshalSubnetReference(m map[string]json.RawMessage, result interface{}) 
 	return
 }
 
-// SubnetReferenceDeleted : If present, this property indicates the referenced resource has been deleted and provides some supplementary
+// SubnetReferenceDeleted : If present, this property indicates the referenced resource has been deleted, and provides some supplementary
 // information.
 type SubnetReferenceDeleted struct {
 	// Link to documentation about deleted resources.
@@ -57954,6 +59822,10 @@ type UpdateLoadBalancerOptions struct {
 	// The load balancer patch.
 	LoadBalancerPatch map[string]interface{} `json:"LoadBalancer_patch" validate:"required"`
 
+	// If present, the request will fail if the specified ETag value does not match the resource's current ETag value.
+	// Required if the request body includes an array.
+	IfMatch *string `json:"If-Match,omitempty"`
+
 	// Allows users to set headers on API requests
 	Headers map[string]string
 }
@@ -57975,6 +59847,12 @@ func (_options *UpdateLoadBalancerOptions) SetID(id string) *UpdateLoadBalancerO
 // SetLoadBalancerPatch : Allow user to set LoadBalancerPatch
 func (_options *UpdateLoadBalancerOptions) SetLoadBalancerPatch(loadBalancerPatch map[string]interface{}) *UpdateLoadBalancerOptions {
 	_options.LoadBalancerPatch = loadBalancerPatch
+	return _options
+}
+
+// SetIfMatch : Allow user to set IfMatch
+func (_options *UpdateLoadBalancerOptions) SetIfMatch(ifMatch string) *UpdateLoadBalancerOptions {
+	_options.IfMatch = core.StringPtr(ifMatch)
 	return _options
 }
 
@@ -59008,7 +60886,7 @@ type VPC struct {
 	// The unique identifier for this VPC.
 	ID *string `json:"id" validate:"required"`
 
-	// The unique user-defined name for this VPC.
+	// The name for this VPC. The name is unique across all VPCs in the region.
 	Name *string `json:"name" validate:"required"`
 
 	// The resource group for this VPC.
@@ -59256,7 +61134,7 @@ func UnmarshalVPCIdentity(m map[string]json.RawMessage, result interface{}) (err
 
 // VPCPatch : VPCPatch struct
 type VPCPatch struct {
-	// The unique user-defined name for this VPC.
+	// The name for this VPC. The name must not be used by another VPC in the region.
 	Name *string `json:"name,omitempty"`
 }
 
@@ -59286,7 +61164,7 @@ type VPCReference struct {
 	// The CRN for this VPC.
 	CRN *string `json:"crn" validate:"required"`
 
-	// If present, this property indicates the referenced resource has been deleted and provides
+	// If present, this property indicates the referenced resource has been deleted, and provides
 	// some supplementary information.
 	Deleted *VPCReferenceDeleted `json:"deleted,omitempty"`
 
@@ -59296,7 +61174,7 @@ type VPCReference struct {
 	// The unique identifier for this VPC.
 	ID *string `json:"id" validate:"required"`
 
-	// The unique user-defined name for this VPC.
+	// The name for this VPC. The name is unique across all VPCs in the region.
 	Name *string `json:"name" validate:"required"`
 
 	// The resource type.
@@ -59340,7 +61218,7 @@ func UnmarshalVPCReference(m map[string]json.RawMessage, result interface{}) (er
 	return
 }
 
-// VPCReferenceDeleted : If present, this property indicates the referenced resource has been deleted and provides some supplementary
+// VPCReferenceDeleted : If present, this property indicates the referenced resource has been deleted, and provides some supplementary
 // information.
 type VPCReferenceDeleted struct {
 	// Link to documentation about deleted resources.
@@ -59381,7 +61259,7 @@ type VPNGateway struct {
 	// Collection of VPN gateway members.
 	Members []VPNGatewayMember `json:"members" validate:"required"`
 
-	// The user-defined name for this VPN gateway.
+	// The name for this VPN gateway. The name is unique across all VPN gateways in the VPC.
 	Name *string `json:"name" validate:"required"`
 
 	// The resource group for this VPN gateway.
@@ -59394,6 +61272,9 @@ type VPNGateway struct {
 	Status *string `json:"status" validate:"required"`
 
 	Subnet *SubnetReference `json:"subnet" validate:"required"`
+
+	// The VPC this VPN gateway resides in.
+	VPC *VPCReference `json:"vpc" validate:"required"`
 
 	// Route mode VPN gateway.
 	Mode *string `json:"mode,omitempty"`
@@ -59472,6 +61353,10 @@ func UnmarshalVPNGateway(m map[string]json.RawMessage, result interface{}) (err 
 		return
 	}
 	err = core.UnmarshalModel(m, "subnet", &obj.Subnet, UnmarshalSubnetReference)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "vpc", &obj.VPC, UnmarshalVPCReference)
 	if err != nil {
 		return
 	}
@@ -59609,7 +61494,7 @@ type VPNGatewayConnection struct {
 	// The mode of the VPN gateway.
 	Mode *string `json:"mode" validate:"required"`
 
-	// The user-defined name for this VPN gateway connection.
+	// The name for this VPN gateway connection. The name is unique across all connections for the VPN gateway.
 	Name *string `json:"name" validate:"required"`
 
 	// The IP address of the peer VPN gateway.
@@ -60037,15 +61922,15 @@ func UnmarshalVPNGatewayConnectionIPsecPolicyPrototype(m map[string]json.RawMess
 	return
 }
 
-// VPNGatewayConnectionLocalCidRs : VPNGatewayConnectionLocalCidRs struct
-type VPNGatewayConnectionLocalCidRs struct {
+// VPNGatewayConnectionLocalCIDRs : VPNGatewayConnectionLocalCIDRs struct
+type VPNGatewayConnectionLocalCIDRs struct {
 	// The local CIDRs for this resource.
 	LocalCIDRs []string `json:"local_cidrs,omitempty"`
 }
 
-// UnmarshalVPNGatewayConnectionLocalCidRs unmarshals an instance of VPNGatewayConnectionLocalCidRs from the specified map of raw messages.
-func UnmarshalVPNGatewayConnectionLocalCidRs(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(VPNGatewayConnectionLocalCidRs)
+// UnmarshalVPNGatewayConnectionLocalCIDRs unmarshals an instance of VPNGatewayConnectionLocalCIDRs from the specified map of raw messages.
+func UnmarshalVPNGatewayConnectionLocalCIDRs(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(VPNGatewayConnectionLocalCIDRs)
 	err = core.UnmarshalPrimitive(m, "local_cidrs", &obj.LocalCIDRs)
 	if err != nil {
 		return
@@ -60072,7 +61957,7 @@ type VPNGatewayConnectionPatch struct {
 	// auto-negotiation](https://cloud.ibm.com/docs/vpc?topic=vpc-using-vpn&interface=ui#ipsec-auto-negotiation-phase-2).
 	IpsecPolicy VPNGatewayConnectionIPsecPolicyPatchIntf `json:"ipsec_policy,omitempty"`
 
-	// The user-defined name for this VPN gateway connection.
+	// The name for this VPN gateway connection. The name must not be used by another connection for the VPN gateway.
 	Name *string `json:"name,omitempty"`
 
 	// The IP address of the peer VPN gateway.
@@ -60148,15 +62033,15 @@ func (vpnGatewayConnectionPatch *VPNGatewayConnectionPatch) AsPatch() (_patch ma
 	return
 }
 
-// VPNGatewayConnectionPeerCidRs : VPNGatewayConnectionPeerCidRs struct
-type VPNGatewayConnectionPeerCidRs struct {
+// VPNGatewayConnectionPeerCIDRs : VPNGatewayConnectionPeerCIDRs struct
+type VPNGatewayConnectionPeerCIDRs struct {
 	// The peer CIDRs for this resource.
 	PeerCIDRs []string `json:"peer_cidrs,omitempty"`
 }
 
-// UnmarshalVPNGatewayConnectionPeerCidRs unmarshals an instance of VPNGatewayConnectionPeerCidRs from the specified map of raw messages.
-func UnmarshalVPNGatewayConnectionPeerCidRs(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(VPNGatewayConnectionPeerCidRs)
+// UnmarshalVPNGatewayConnectionPeerCIDRs unmarshals an instance of VPNGatewayConnectionPeerCIDRs from the specified map of raw messages.
+func UnmarshalVPNGatewayConnectionPeerCIDRs(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(VPNGatewayConnectionPeerCIDRs)
 	err = core.UnmarshalPrimitive(m, "peer_cidrs", &obj.PeerCIDRs)
 	if err != nil {
 		return
@@ -60184,7 +62069,8 @@ type VPNGatewayConnectionPrototype struct {
 	// used](https://cloud.ibm.com/docs/vpc?topic=vpc-using-vpn&interface=ui#ipsec-auto-negotiation-phase-2).
 	IpsecPolicy VPNGatewayConnectionIPsecPolicyPrototypeIntf `json:"ipsec_policy,omitempty"`
 
-	// The user-defined name for this VPN gateway connection.
+	// The name for this VPN gateway connection. The name must not be used by another connection for the VPN gateway. If
+	// unspecified, the name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
 	// The IP address of the peer VPN gateway.
@@ -60266,7 +62152,7 @@ func UnmarshalVPNGatewayConnectionPrototype(m map[string]json.RawMessage, result
 
 // VPNGatewayConnectionReference : VPNGatewayConnectionReference struct
 type VPNGatewayConnectionReference struct {
-	// If present, this property indicates the referenced resource has been deleted and provides
+	// If present, this property indicates the referenced resource has been deleted, and provides
 	// some supplementary information.
 	Deleted *VPNGatewayConnectionReferenceDeleted `json:"deleted,omitempty"`
 
@@ -60276,7 +62162,7 @@ type VPNGatewayConnectionReference struct {
 	// The unique identifier for this VPN gateway connection.
 	ID *string `json:"id" validate:"required"`
 
-	// The user-defined name for this VPN connection.
+	// The name for this VPN gateway connection. The name is unique across all connections for the VPN gateway.
 	Name *string `json:"name" validate:"required"`
 
 	// The resource type.
@@ -60316,7 +62202,7 @@ func UnmarshalVPNGatewayConnectionReference(m map[string]json.RawMessage, result
 	return
 }
 
-// VPNGatewayConnectionReferenceDeleted : If present, this property indicates the referenced resource has been deleted and provides some supplementary
+// VPNGatewayConnectionReferenceDeleted : If present, this property indicates the referenced resource has been deleted, and provides some supplementary
 // information.
 type VPNGatewayConnectionReferenceDeleted struct {
 	// Link to documentation about deleted resources.
@@ -60423,7 +62309,7 @@ func UnmarshalVPNGatewayMember(m map[string]json.RawMessage, result interface{})
 
 // VPNGatewayPatch : VPNGatewayPatch struct
 type VPNGatewayPatch struct {
-	// The user-defined name for this VPN gateway.
+	// The name for this VPN gateway. The name must not be used by another VPN gateway in the VPC.
 	Name *string `json:"name,omitempty"`
 }
 
@@ -60453,7 +62339,8 @@ func (vpnGatewayPatch *VPNGatewayPatch) AsPatch() (_patch map[string]interface{}
 // - VPNGatewayPrototypeVPNGatewayRouteModePrototype
 // - VPNGatewayPrototypeVPNGatewayPolicyModePrototype
 type VPNGatewayPrototype struct {
-	// The user-defined name for this VPN gateway.
+	// The name for this VPN gateway. The name must not be used by another VPN gateway in the VPC. If unspecified, the name
+	// will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
 	// The resource group to use. If unspecified, the account's [default resource
@@ -60504,7 +62391,7 @@ func UnmarshalVPNGatewayPrototype(m map[string]json.RawMessage, result interface
 	return
 }
 
-// VPNGatewayReferenceDeleted : If present, this property indicates the referenced resource has been deleted and provides some supplementary
+// VPNGatewayReferenceDeleted : If present, this property indicates the referenced resource has been deleted, and provides some supplementary
 // information.
 type VPNGatewayReferenceDeleted struct {
 	// Link to documentation about deleted resources.
@@ -60580,7 +62467,7 @@ type VPNServer struct {
 	// The lifecycle state of the VPN server.
 	LifecycleState *string `json:"lifecycle_state" validate:"required"`
 
-	// The unique user-defined name for this VPN server.
+	// The name for this VPN server. The name is unique across all VPN servers in the VPC.
 	Name *string `json:"name" validate:"required"`
 
 	// The port number used by this VPN server.
@@ -61241,7 +63128,7 @@ type VPNServerPatch struct {
 	// Indicates whether the split tunneling is enabled on this VPN server.
 	EnableSplitTunneling *bool `json:"enable_split_tunneling,omitempty"`
 
-	// The user-defined name for this VPN server. Names must be unique within the VPC this VPN server is serving.
+	// The name for this VPN server. The name must not be used by another VPN server in the VPC.
 	Name *string `json:"name,omitempty"`
 
 	// The port number used by this VPN server.
@@ -61318,7 +63205,7 @@ func (vpnServerPatch *VPNServerPatch) AsPatch() (_patch map[string]interface{}, 
 	return
 }
 
-// VPNServerReferenceDeleted : If present, this property indicates the referenced resource has been deleted and provides some supplementary
+// VPNServerReferenceDeleted : If present, this property indicates the referenced resource has been deleted, and provides some supplementary
 // information.
 type VPNServerReferenceDeleted struct {
 	// Link to documentation about deleted resources.
@@ -61364,7 +63251,7 @@ type VPNServerRoute struct {
 	// The lifecycle state of the VPN route.
 	LifecycleState *string `json:"lifecycle_state" validate:"required"`
 
-	// The user-defined name for this VPN route.
+	// The name for this VPN route. The name is unique across all routes for a VPN server.
 	Name *string `json:"name" validate:"required"`
 
 	// The resource type.
@@ -61537,7 +63424,7 @@ func UnmarshalVPNServerRouteCollectionNext(m map[string]json.RawMessage, result 
 
 // VPNServerRoutePatch : VPNServerRoutePatch struct
 type VPNServerRoutePatch struct {
-	// The user-defined name for this VPN route. Names must be unique within the VPN server the VPN route resides in.
+	// The name for this VPN server route. The name must not be used by another route for the VPN server.
 	Name *string `json:"name,omitempty"`
 }
 
@@ -61593,6 +63480,22 @@ type Volume struct {
 	// `user_managed`.
 	EncryptionKey *EncryptionKeyReference `json:"encryption_key,omitempty"`
 
+	// The reasons for the current `health_state` (if any).
+	//
+	// The enumerated reason code values for this property will expand in the future. When processing this property, check
+	// for and log unknown values. Optionally halt processing and surface the error, or bypass the resource on which the
+	// unexpected reason code was encountered.
+	HealthReasons []VolumeHealthReason `json:"health_reasons" validate:"required"`
+
+	// The health of this resource.
+	// - `ok`: No abnormal behavior detected
+	// - `degraded`: Experiencing compromised performance, capacity, or connectivity
+	// - `faulted`: Completely unreachable, inoperative, or otherwise entirely incapacitated
+	// - `inapplicable`: The health state does not apply because of the current lifecycle state. A resource with a
+	// lifecycle state of `failed` or `deleting` will have a health state of `inapplicable`. A `pending` resource may also
+	// have this state.
+	HealthState *string `json:"health_state" validate:"required"`
+
 	// The URL for this volume.
 	Href *string `json:"href" validate:"required"`
 
@@ -61603,14 +63506,15 @@ type Volume struct {
 	// `family` of `custom`.
 	Iops *int64 `json:"iops" validate:"required"`
 
-	// The unique user-defined name for this volume.
+	// The name for this volume. The name is unique across all volumes in the region.
 	Name *string `json:"name" validate:"required"`
 
 	// The operating system associated with this volume. If absent, this volume was not
 	// created from an image, or the image did not include an operating system.
 	OperatingSystem *OperatingSystemReference `json:"operating_system,omitempty"`
 
-	// The profile this volume uses.
+	// The [profile](https://cloud.ibm.com/docs/vpc?topic=vpc-block-storage-profiles) for
+	// this volume.
 	Profile *VolumeProfileReference `json:"profile" validate:"required"`
 
 	// The resource group for this volume.
@@ -61653,6 +63557,21 @@ type Volume struct {
 const (
 	VolumeEncryptionProviderManagedConst = "provider_managed"
 	VolumeEncryptionUserManagedConst     = "user_managed"
+)
+
+// Constants associated with the Volume.HealthState property.
+// The health of this resource.
+// - `ok`: No abnormal behavior detected
+// - `degraded`: Experiencing compromised performance, capacity, or connectivity
+// - `faulted`: Completely unreachable, inoperative, or otherwise entirely incapacitated
+// - `inapplicable`: The health state does not apply because of the current lifecycle state. A resource with a lifecycle
+// state of `failed` or `deleting` will have a health state of `inapplicable`. A `pending` resource may also have this
+// state.
+const (
+	VolumeHealthStateDegradedConst     = "degraded"
+	VolumeHealthStateFaultedConst      = "faulted"
+	VolumeHealthStateInapplicableConst = "inapplicable"
+	VolumeHealthStateOkConst           = "ok"
 )
 
 // Constants associated with the Volume.Status property.
@@ -61702,6 +63621,14 @@ func UnmarshalVolume(m map[string]json.RawMessage, result interface{}) (err erro
 		return
 	}
 	err = core.UnmarshalModel(m, "encryption_key", &obj.EncryptionKey, UnmarshalEncryptionKeyReference)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "health_reasons", &obj.HealthReasons, UnmarshalVolumeHealthReason)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "health_state", &obj.HealthState)
 	if err != nil {
 		return
 	}
@@ -61774,7 +63701,7 @@ type VolumeAttachment struct {
 	// The date and time that the volume was attached.
 	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
 
-	// If set to true, when deleting the instance the volume will also be deleted.
+	// Indicates whether deleting the instance will also delete the attached volume.
 	DeleteVolumeOnInstanceDelete *bool `json:"delete_volume_on_instance_delete" validate:"required"`
 
 	// Information about how the volume is exposed to the instance operating system.
@@ -61788,7 +63715,7 @@ type VolumeAttachment struct {
 	// The unique identifier for this volume attachment.
 	ID *string `json:"id" validate:"required"`
 
-	// The user-defined name for this volume attachment.
+	// The name for this volume attachment. The name is unique across all volume attachments on the instance.
 	Name *string `json:"name" validate:"required"`
 
 	// The status of this volume attachment.
@@ -61798,7 +63725,9 @@ type VolumeAttachment struct {
 	Type *string `json:"type" validate:"required"`
 
 	// The attached volume.
-	Volume *VolumeReference `json:"volume" validate:"required"`
+	//
+	// This property will be absent if the volume has not yet been provisioned.
+	Volume *VolumeReference `json:"volume,omitempty"`
 }
 
 // Constants associated with the VolumeAttachment.Status property.
@@ -61900,11 +63829,10 @@ func UnmarshalVolumeAttachmentDevice(m map[string]json.RawMessage, result interf
 
 // VolumeAttachmentPatch : VolumeAttachmentPatch struct
 type VolumeAttachmentPatch struct {
-	// If set to true, when deleting the instance the volume will also be deleted.
+	// Indicates whether deleting the instance will also delete the attached volume.
 	DeleteVolumeOnInstanceDelete *bool `json:"delete_volume_on_instance_delete,omitempty"`
 
-	// The user-defined name for this volume attachment. Names must be unique within the instance the volume attachment
-	// resides in.
+	// The name for this volume attachment. The name must not be used by another volume attachment on the instance.
 	Name *string `json:"name,omitempty"`
 }
 
@@ -61933,13 +63861,54 @@ func (volumeAttachmentPatch *VolumeAttachmentPatch) AsPatch() (_patch map[string
 	return
 }
 
-// VolumeAttachmentPrototypeInstanceByImageContext : VolumeAttachmentPrototypeInstanceByImageContext struct
-type VolumeAttachmentPrototypeInstanceByImageContext struct {
-	// If set to true, when deleting the instance the volume will also be deleted.
+// VolumeAttachmentPrototype : VolumeAttachmentPrototype struct
+type VolumeAttachmentPrototype struct {
+	// Indicates whether deleting the instance will also delete the attached volume.
 	DeleteVolumeOnInstanceDelete *bool `json:"delete_volume_on_instance_delete,omitempty"`
 
-	// The user-defined name for this volume attachment. Names must be unique within the instance the volume attachment
-	// resides in.
+	// The name for this volume attachment. The name must not be used by another volume attachment on the instance. If
+	// unspecified, the name will be a hyphenated list of randomly-selected words.
+	Name *string `json:"name,omitempty"`
+
+	// An existing volume to attach to the instance, or a prototype object for a new volume.
+	Volume VolumeAttachmentPrototypeVolumeIntf `json:"volume" validate:"required"`
+}
+
+// NewVolumeAttachmentPrototype : Instantiate VolumeAttachmentPrototype (Generic Model Constructor)
+func (*VpcV1) NewVolumeAttachmentPrototype(volume VolumeAttachmentPrototypeVolumeIntf) (_model *VolumeAttachmentPrototype, err error) {
+	_model = &VolumeAttachmentPrototype{
+		Volume: volume,
+	}
+	err = core.ValidateStruct(_model, "required parameters")
+	return
+}
+
+// UnmarshalVolumeAttachmentPrototype unmarshals an instance of VolumeAttachmentPrototype from the specified map of raw messages.
+func UnmarshalVolumeAttachmentPrototype(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(VolumeAttachmentPrototype)
+	err = core.UnmarshalPrimitive(m, "delete_volume_on_instance_delete", &obj.DeleteVolumeOnInstanceDelete)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "volume", &obj.Volume, UnmarshalVolumeAttachmentPrototypeVolume)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// VolumeAttachmentPrototypeInstanceByImageContext : VolumeAttachmentPrototypeInstanceByImageContext struct
+type VolumeAttachmentPrototypeInstanceByImageContext struct {
+	// Indicates whether deleting the instance will also delete the attached volume.
+	DeleteVolumeOnInstanceDelete *bool `json:"delete_volume_on_instance_delete,omitempty"`
+
+	// The name for this volume attachment. The name must not be used by another volume attachment on the instance. If
+	// unspecified, the name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
 	// A prototype object for a new volume.
@@ -61976,11 +63945,11 @@ func UnmarshalVolumeAttachmentPrototypeInstanceByImageContext(m map[string]json.
 
 // VolumeAttachmentPrototypeInstanceBySourceSnapshotContext : VolumeAttachmentPrototypeInstanceBySourceSnapshotContext struct
 type VolumeAttachmentPrototypeInstanceBySourceSnapshotContext struct {
-	// If set to true, when deleting the instance the volume will also be deleted.
+	// Indicates whether deleting the instance will also delete the attached volume.
 	DeleteVolumeOnInstanceDelete *bool `json:"delete_volume_on_instance_delete,omitempty"`
 
-	// The user-defined name for this volume attachment. Names must be unique within the instance the volume attachment
-	// resides in.
+	// The name for this volume attachment. The name must not be used by another volume attachment on the instance. If
+	// unspecified, the name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
 	// A prototype object for a new volume from a snapshot.
@@ -62015,47 +63984,6 @@ func UnmarshalVolumeAttachmentPrototypeInstanceBySourceSnapshotContext(m map[str
 	return
 }
 
-// VolumeAttachmentPrototypeInstanceContext : VolumeAttachmentPrototypeInstanceContext struct
-type VolumeAttachmentPrototypeInstanceContext struct {
-	// If set to true, when deleting the instance the volume will also be deleted.
-	DeleteVolumeOnInstanceDelete *bool `json:"delete_volume_on_instance_delete,omitempty"`
-
-	// The user-defined name for this volume attachment. Names must be unique within the instance the volume attachment
-	// resides in.
-	Name *string `json:"name,omitempty"`
-
-	// An existing volume to attach to the instance, or a prototype object for a new volume.
-	Volume VolumeAttachmentVolumePrototypeInstanceContextIntf `json:"volume" validate:"required"`
-}
-
-// NewVolumeAttachmentPrototypeInstanceContext : Instantiate VolumeAttachmentPrototypeInstanceContext (Generic Model Constructor)
-func (*VpcV1) NewVolumeAttachmentPrototypeInstanceContext(volume VolumeAttachmentVolumePrototypeInstanceContextIntf) (_model *VolumeAttachmentPrototypeInstanceContext, err error) {
-	_model = &VolumeAttachmentPrototypeInstanceContext{
-		Volume: volume,
-	}
-	err = core.ValidateStruct(_model, "required parameters")
-	return
-}
-
-// UnmarshalVolumeAttachmentPrototypeInstanceContext unmarshals an instance of VolumeAttachmentPrototypeInstanceContext from the specified map of raw messages.
-func UnmarshalVolumeAttachmentPrototypeInstanceContext(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(VolumeAttachmentPrototypeInstanceContext)
-	err = core.UnmarshalPrimitive(m, "delete_volume_on_instance_delete", &obj.DeleteVolumeOnInstanceDelete)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "volume", &obj.Volume, UnmarshalVolumeAttachmentVolumePrototypeInstanceContext)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
 // VolumeAttachmentPrototypeVolume : An existing volume to attach to the instance, or a prototype object for a new volume.
 // Models which "extend" this model:
 // - VolumeAttachmentPrototypeVolumeVolumeIdentity
@@ -62074,11 +64002,16 @@ type VolumeAttachmentPrototypeVolume struct {
 	// `family` of `custom`.
 	Iops *int64 `json:"iops,omitempty"`
 
-	// The unique user-defined name for this volume.
+	// The name for this volume. The name must not be used by another volume in the region. If unspecified, the name will
+	// be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
-	// The profile to use for this volume.
+	// The [profile](https://cloud.ibm.com/docs/vpc?topic=vpc-block-storage-profiles) to
+	// use for this volume.
 	Profile VolumeProfileIdentityIntf `json:"profile,omitempty"`
+
+	// The [user tags](https://cloud.ibm.com/apidocs/tagging#types-of-tags) associated with this volume.
+	UserTags []string `json:"user_tags,omitempty"`
 
 	// The capacity to use for the volume (in gigabytes). The specified minimum and maximum capacity values for creating or
 	// updating volumes may expand in the future.
@@ -62128,6 +64061,10 @@ func UnmarshalVolumeAttachmentPrototypeVolume(m map[string]json.RawMessage, resu
 	if err != nil {
 		return
 	}
+	err = core.UnmarshalPrimitive(m, "user_tags", &obj.UserTags)
+	if err != nil {
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "capacity", &obj.Capacity)
 	if err != nil {
 		return
@@ -62146,7 +64083,7 @@ func UnmarshalVolumeAttachmentPrototypeVolume(m map[string]json.RawMessage, resu
 
 // VolumeAttachmentReferenceInstanceContext : VolumeAttachmentReferenceInstanceContext struct
 type VolumeAttachmentReferenceInstanceContext struct {
-	// If present, this property indicates the referenced resource has been deleted and provides
+	// If present, this property indicates the referenced resource has been deleted, and provides
 	// some supplementary information.
 	Deleted *VolumeAttachmentReferenceInstanceContextDeleted `json:"deleted,omitempty"`
 
@@ -62161,11 +64098,13 @@ type VolumeAttachmentReferenceInstanceContext struct {
 	// The unique identifier for this volume attachment.
 	ID *string `json:"id" validate:"required"`
 
-	// The user-defined name for this volume attachment.
+	// The name for this volume attachment. The name is unique across all volume attachments on the instance.
 	Name *string `json:"name" validate:"required"`
 
 	// The attached volume.
-	Volume *VolumeReference `json:"volume" validate:"required"`
+	//
+	// This property will be absent if the volume has not yet been provisioned.
+	Volume *VolumeReference `json:"volume,omitempty"`
 }
 
 // UnmarshalVolumeAttachmentReferenceInstanceContext unmarshals an instance of VolumeAttachmentReferenceInstanceContext from the specified map of raw messages.
@@ -62199,7 +64138,7 @@ func UnmarshalVolumeAttachmentReferenceInstanceContext(m map[string]json.RawMess
 	return
 }
 
-// VolumeAttachmentReferenceInstanceContextDeleted : If present, this property indicates the referenced resource has been deleted and provides some supplementary
+// VolumeAttachmentReferenceInstanceContextDeleted : If present, this property indicates the referenced resource has been deleted, and provides some supplementary
 // information.
 type VolumeAttachmentReferenceInstanceContextDeleted struct {
 	// Link to documentation about deleted resources.
@@ -62219,10 +64158,10 @@ func UnmarshalVolumeAttachmentReferenceInstanceContextDeleted(m map[string]json.
 
 // VolumeAttachmentReferenceVolumeContext : VolumeAttachmentReferenceVolumeContext struct
 type VolumeAttachmentReferenceVolumeContext struct {
-	// If set to true, when deleting the instance the volume will also be deleted.
+	// Indicates whether deleting the instance will also delete the attached volume.
 	DeleteVolumeOnInstanceDelete *bool `json:"delete_volume_on_instance_delete" validate:"required"`
 
-	// If present, this property indicates the referenced resource has been deleted and provides
+	// If present, this property indicates the referenced resource has been deleted, and provides
 	// some supplementary information.
 	Deleted *VolumeAttachmentReferenceVolumeContextDeleted `json:"deleted,omitempty"`
 
@@ -62240,7 +64179,7 @@ type VolumeAttachmentReferenceVolumeContext struct {
 	// The attached instance.
 	Instance *InstanceReference `json:"instance" validate:"required"`
 
-	// The user-defined name for this volume attachment.
+	// The name for this volume attachment. The name is unique across all volume attachments on the instance.
 	Name *string `json:"name" validate:"required"`
 
 	// The type of volume attachment.
@@ -62293,7 +64232,7 @@ func UnmarshalVolumeAttachmentReferenceVolumeContext(m map[string]json.RawMessag
 	return
 }
 
-// VolumeAttachmentReferenceVolumeContextDeleted : If present, this property indicates the referenced resource has been deleted and provides some supplementary
+// VolumeAttachmentReferenceVolumeContextDeleted : If present, this property indicates the referenced resource has been deleted, and provides some supplementary
 // information.
 type VolumeAttachmentReferenceVolumeContextDeleted struct {
 	// Link to documentation about deleted resources.
@@ -62304,94 +64243,6 @@ type VolumeAttachmentReferenceVolumeContextDeleted struct {
 func UnmarshalVolumeAttachmentReferenceVolumeContextDeleted(m map[string]json.RawMessage, result interface{}) (err error) {
 	obj := new(VolumeAttachmentReferenceVolumeContextDeleted)
 	err = core.UnmarshalPrimitive(m, "more_info", &obj.MoreInfo)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// VolumeAttachmentVolumePrototypeInstanceContext : An existing volume to attach to the instance, or a prototype object for a new volume.
-// Models which "extend" this model:
-// - VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentity
-// - VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContext
-type VolumeAttachmentVolumePrototypeInstanceContext struct {
-	// The unique identifier for this volume.
-	ID *string `json:"id,omitempty"`
-
-	// The CRN for this volume.
-	CRN *string `json:"crn,omitempty"`
-
-	// The URL for this volume.
-	Href *string `json:"href,omitempty"`
-
-	// The maximum I/O operations per second (IOPS) to use for the volume. Applicable only to volumes using a profile
-	// `family` of `custom`.
-	Iops *int64 `json:"iops,omitempty"`
-
-	// The unique user-defined name for this volume.
-	Name *string `json:"name,omitempty"`
-
-	// The profile to use for this volume.
-	Profile VolumeProfileIdentityIntf `json:"profile,omitempty"`
-
-	// The capacity to use for the volume (in gigabytes). The specified minimum and maximum capacity values for creating or
-	// updating volumes may expand in the future.
-	Capacity *int64 `json:"capacity,omitempty"`
-
-	// The root key to use to wrap the data encryption key for the volume.
-	//
-	// If unspecified, the `encryption` type for the volume will be `provider_managed`.
-	EncryptionKey EncryptionKeyIdentityIntf `json:"encryption_key,omitempty"`
-
-	// The snapshot from which to clone the volume.
-	SourceSnapshot SnapshotIdentityIntf `json:"source_snapshot,omitempty"`
-}
-
-func (*VolumeAttachmentVolumePrototypeInstanceContext) isaVolumeAttachmentVolumePrototypeInstanceContext() bool {
-	return true
-}
-
-type VolumeAttachmentVolumePrototypeInstanceContextIntf interface {
-	isaVolumeAttachmentVolumePrototypeInstanceContext() bool
-}
-
-// UnmarshalVolumeAttachmentVolumePrototypeInstanceContext unmarshals an instance of VolumeAttachmentVolumePrototypeInstanceContext from the specified map of raw messages.
-func UnmarshalVolumeAttachmentVolumePrototypeInstanceContext(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(VolumeAttachmentVolumePrototypeInstanceContext)
-	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "iops", &obj.Iops)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "profile", &obj.Profile, UnmarshalVolumeProfileIdentity)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "capacity", &obj.Capacity)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "encryption_key", &obj.EncryptionKey, UnmarshalEncryptionKeyIdentity)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "source_snapshot", &obj.SourceSnapshot, UnmarshalSnapshotIdentity)
 	if err != nil {
 		return
 	}
@@ -62484,6 +64335,43 @@ func UnmarshalVolumeCollectionNext(m map[string]json.RawMessage, result interfac
 	return
 }
 
+// VolumeHealthReason : VolumeHealthReason struct
+type VolumeHealthReason struct {
+	// A snake case string succinctly identifying the reason for this health state.
+	Code *string `json:"code" validate:"required"`
+
+	// An explanation of the reason for this health state.
+	Message *string `json:"message" validate:"required"`
+
+	// Link to documentation about the reason for this health state.
+	MoreInfo *string `json:"more_info,omitempty"`
+}
+
+// Constants associated with the VolumeHealthReason.Code property.
+// A snake case string succinctly identifying the reason for this health state.
+const (
+	VolumeHealthReasonCodeInitializingFromSnapshotConst = "initializing_from_snapshot"
+)
+
+// UnmarshalVolumeHealthReason unmarshals an instance of VolumeHealthReason from the specified map of raw messages.
+func UnmarshalVolumeHealthReason(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(VolumeHealthReason)
+	err = core.UnmarshalPrimitive(m, "code", &obj.Code)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "message", &obj.Message)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "more_info", &obj.MoreInfo)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
 // VolumeIdentity : Identifies a volume by a unique property.
 // Models which "extend" this model:
 // - VolumeIdentityByID
@@ -62540,7 +64428,7 @@ type VolumePatch struct {
 	// `family` of `custom`. The volume must be attached as a data volume to a running virtual server instance.
 	Iops *int64 `json:"iops,omitempty"`
 
-	// The unique user-defined name for this volume.
+	// The name for this volume. The name must not be used by another volume in the region.
 	Name *string `json:"name,omitempty"`
 
 	// The profile to use for this volume. The requested profile must be in the same
@@ -62796,10 +64684,12 @@ type VolumePrototype struct {
 	// `family` of `custom`.
 	Iops *int64 `json:"iops,omitempty"`
 
-	// The unique user-defined name for this volume.
+	// The name for this volume. The name must not be used by another volume in the region. If unspecified, the name will
+	// be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
-	// The profile to use for this volume.
+	// The [profile](https://cloud.ibm.com/docs/vpc?topic=vpc-block-storage-profiles) to
+	// use for this volume.
 	Profile VolumeProfileIdentityIntf `json:"profile" validate:"required"`
 
 	// The resource group to use. If unspecified, the account's [default resource
@@ -62886,19 +64776,23 @@ type VolumePrototypeInstanceByImageContext struct {
 
 	// The root key to use to wrap the data encryption key for the volume.
 	//
-	// If unspecified, and the image is encrypted, the image's `encryption_key` will be
-	// used. Otherwise, the `encryption` type for the volume will be `provider_managed`.
+	// If unspecified, the `encryption` type for the volume will be `provider_managed`.
 	EncryptionKey EncryptionKeyIdentityIntf `json:"encryption_key,omitempty"`
 
 	// The maximum I/O operations per second (IOPS) to use for the volume. Applicable only to volumes using a profile
 	// `family` of `custom`.
 	Iops *int64 `json:"iops,omitempty"`
 
-	// The unique user-defined name for this volume.
+	// The name for this volume. The name must not be used by another volume in the region. If unspecified, the name will
+	// be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
-	// The profile to use for this volume.
+	// The [profile](https://cloud.ibm.com/docs/vpc?topic=vpc-block-storage-profiles) to
+	// use for this volume.
 	Profile VolumeProfileIdentityIntf `json:"profile" validate:"required"`
+
+	// The [user tags](https://cloud.ibm.com/apidocs/tagging#types-of-tags) associated with this volume.
+	UserTags []string `json:"user_tags,omitempty"`
 }
 
 // NewVolumePrototypeInstanceByImageContext : Instantiate VolumePrototypeInstanceByImageContext (Generic Model Constructor)
@@ -62933,6 +64827,10 @@ func UnmarshalVolumePrototypeInstanceByImageContext(m map[string]json.RawMessage
 	if err != nil {
 		return
 	}
+	err = core.UnmarshalPrimitive(m, "user_tags", &obj.UserTags)
+	if err != nil {
+		return
+	}
 	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
 	return
 }
@@ -62947,21 +64845,26 @@ type VolumePrototypeInstanceBySourceSnapshotContext struct {
 
 	// The root key to use to wrap the data encryption key for the volume.
 	//
-	// If unspecified, the snapshot's `encryption_key` will be used.
+	// If unspecified, the `encryption` type for the volume will be `provider_managed`.
 	EncryptionKey EncryptionKeyIdentityIntf `json:"encryption_key,omitempty"`
 
 	// The maximum I/O operations per second (IOPS) to use for the volume. Applicable only to volumes using a profile
 	// `family` of `custom`.
 	Iops *int64 `json:"iops,omitempty"`
 
-	// The unique user-defined name for this volume.
+	// The name for this volume. The name must not be used by another volume in the region. If unspecified, the name will
+	// be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
-	// The profile to use for this volume.
+	// The [profile](https://cloud.ibm.com/docs/vpc?topic=vpc-block-storage-profiles) to
+	// use for this volume.
 	Profile VolumeProfileIdentityIntf `json:"profile" validate:"required"`
 
 	// The snapshot from which to clone the volume.
 	SourceSnapshot SnapshotIdentityIntf `json:"source_snapshot" validate:"required"`
+
+	// The [user tags](https://cloud.ibm.com/apidocs/tagging#types-of-tags) associated with this volume.
+	UserTags []string `json:"user_tags,omitempty"`
 }
 
 // NewVolumePrototypeInstanceBySourceSnapshotContext : Instantiate VolumePrototypeInstanceBySourceSnapshotContext (Generic Model Constructor)
@@ -63001,6 +64904,10 @@ func UnmarshalVolumePrototypeInstanceBySourceSnapshotContext(m map[string]json.R
 	if err != nil {
 		return
 	}
+	err = core.UnmarshalPrimitive(m, "user_tags", &obj.UserTags)
+	if err != nil {
+		return
+	}
 	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
 	return
 }
@@ -63010,7 +64917,7 @@ type VolumeReference struct {
 	// The CRN for this volume.
 	CRN *string `json:"crn" validate:"required"`
 
-	// If present, this property indicates the referenced resource has been deleted and provides
+	// If present, this property indicates the referenced resource has been deleted, and provides
 	// some supplementary information.
 	Deleted *VolumeReferenceDeleted `json:"deleted,omitempty"`
 
@@ -63020,7 +64927,7 @@ type VolumeReference struct {
 	// The unique identifier for this volume.
 	ID *string `json:"id" validate:"required"`
 
-	// The unique user-defined name for this volume.
+	// The name for this volume. The name is unique across all volumes in the region.
 	Name *string `json:"name" validate:"required"`
 }
 
@@ -63051,7 +64958,7 @@ func UnmarshalVolumeReference(m map[string]json.RawMessage, result interface{}) 
 	return
 }
 
-// VolumeReferenceDeleted : If present, this property indicates the referenced resource has been deleted and provides some supplementary
+// VolumeReferenceDeleted : If present, this property indicates the referenced resource has been deleted, and provides some supplementary
 // information.
 type VolumeReferenceDeleted struct {
 	// Link to documentation about deleted resources.
@@ -63228,10 +65135,61 @@ func UnmarshalZoneReference(m map[string]json.RawMessage, result interface{}) (e
 	return
 }
 
+// BackupPolicyJobSourceVolumeReference : BackupPolicyJobSourceVolumeReference struct
+// This model "extends" BackupPolicyJobSource
+type BackupPolicyJobSourceVolumeReference struct {
+	// The CRN for this volume.
+	CRN *string `json:"crn" validate:"required"`
+
+	// If present, this property indicates the referenced resource has been deleted, and provides
+	// some supplementary information.
+	Deleted *VolumeReferenceDeleted `json:"deleted,omitempty"`
+
+	// The URL for this volume.
+	Href *string `json:"href" validate:"required"`
+
+	// The unique identifier for this volume.
+	ID *string `json:"id" validate:"required"`
+
+	// The name for this volume. The name is unique across all volumes in the region.
+	Name *string `json:"name" validate:"required"`
+}
+
+func (*BackupPolicyJobSourceVolumeReference) isaBackupPolicyJobSource() bool {
+	return true
+}
+
+// UnmarshalBackupPolicyJobSourceVolumeReference unmarshals an instance of BackupPolicyJobSourceVolumeReference from the specified map of raw messages.
+func UnmarshalBackupPolicyJobSourceVolumeReference(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(BackupPolicyJobSourceVolumeReference)
+	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "deleted", &obj.Deleted, UnmarshalVolumeReferenceDeleted)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
 // BareMetalServerBootTargetBareMetalServerDiskReference : BareMetalServerBootTargetBareMetalServerDiskReference struct
 // This model "extends" BareMetalServerBootTarget
 type BareMetalServerBootTargetBareMetalServerDiskReference struct {
-	// If present, this property indicates the referenced resource has been deleted and provides
+	// If present, this property indicates the referenced resource has been deleted, and provides
 	// some supplementary information.
 	Deleted *BareMetalServerDiskReferenceDeleted `json:"deleted,omitempty"`
 
@@ -63241,7 +65199,7 @@ type BareMetalServerBootTargetBareMetalServerDiskReference struct {
 	// The unique identifier for this bare metal server disk.
 	ID *string `json:"id" validate:"required"`
 
-	// The user-defined name for this disk.
+	// The name for this bare metal server disk. The name is unique across all disks on the bare metal server.
 	Name *string `json:"name" validate:"required"`
 
 	// The resource type.
@@ -63334,9 +65292,9 @@ func UnmarshalBareMetalServerInitializationUserAccountBareMetalServerInitializat
 	return
 }
 
-// BareMetalServerNetworkInterfaceByPci : BareMetalServerNetworkInterfaceByPci struct
+// BareMetalServerNetworkInterfaceByHiperSocket : BareMetalServerNetworkInterfaceByHiperSocket struct
 // This model "extends" BareMetalServerNetworkInterface
-type BareMetalServerNetworkInterfaceByPci struct {
+type BareMetalServerNetworkInterfaceByHiperSocket struct {
 	// Indicates whether source IP spoofing is allowed on this interface. If false, source IP spoofing is prevented on this
 	// interface. If true, source IP spoofing is allowed on this interface.
 	AllowIPSpoofing *bool `json:"allow_ip_spoofing" validate:"required"`
@@ -63349,10 +65307,12 @@ type BareMetalServerNetworkInterfaceByPci struct {
 	//   - A single floating IP can be assigned to the network interface.
 	//
 	// If `false`:
-	//   - Packets are passed unmodified to/from the network interface,
+	//   - Packets are passed unchanged to/from the network interface,
 	//     allowing the workload to perform any needed NAT operations.
 	//   - Multiple floating IPs can be assigned to the network interface.
 	//   - `allow_ip_spoofing` must be set to `false`.
+	//
+	// This must be `true` when `interface_type` is `hipersocket`.
 	EnableInfrastructureNat *bool `json:"enable_infrastructure_nat" validate:"required"`
 
 	// The floating IPs associated with this network interface.
@@ -63367,7 +65327,7 @@ type BareMetalServerNetworkInterfaceByPci struct {
 	// The MAC address of the interface.  If absent, the value is not known.
 	MacAddress *string `json:"mac_address" validate:"required"`
 
-	// The user-defined name for this network interface.
+	// The name for this network interface.
 	Name *string `json:"name" validate:"required"`
 
 	// The network interface port speed in Mbps.
@@ -63390,8 +65350,174 @@ type BareMetalServerNetworkInterfaceByPci struct {
 	// The type of this bare metal server network interface.
 	Type *string `json:"type" validate:"required"`
 
-	// Indicates what VLAN IDs (for VLAN type only) can use this physical (PCI type) interface.  A given VLAN can only be
-	// in the `allowed_vlans` array for one PCI type adapter per bare metal server.
+	// - `hipersocket`: a virtual network device that provides high-speed TCP/IP connectivity
+	//   within a `s390x` based system.
+	InterfaceType *string `json:"interface_type" validate:"required"`
+}
+
+// Constants associated with the BareMetalServerNetworkInterfaceByHiperSocket.ResourceType property.
+// The resource type.
+const (
+	BareMetalServerNetworkInterfaceByHiperSocketResourceTypeNetworkInterfaceConst = "network_interface"
+)
+
+// Constants associated with the BareMetalServerNetworkInterfaceByHiperSocket.Status property.
+// The status of the network interface.
+const (
+	BareMetalServerNetworkInterfaceByHiperSocketStatusAvailableConst = "available"
+	BareMetalServerNetworkInterfaceByHiperSocketStatusDeletingConst  = "deleting"
+	BareMetalServerNetworkInterfaceByHiperSocketStatusFailedConst    = "failed"
+	BareMetalServerNetworkInterfaceByHiperSocketStatusPendingConst   = "pending"
+)
+
+// Constants associated with the BareMetalServerNetworkInterfaceByHiperSocket.Type property.
+// The type of this bare metal server network interface.
+const (
+	BareMetalServerNetworkInterfaceByHiperSocketTypePrimaryConst   = "primary"
+	BareMetalServerNetworkInterfaceByHiperSocketTypeSecondaryConst = "secondary"
+)
+
+// Constants associated with the BareMetalServerNetworkInterfaceByHiperSocket.InterfaceType property.
+//   - `hipersocket`: a virtual network device that provides high-speed TCP/IP connectivity
+//     within a `s390x` based system.
+const (
+	BareMetalServerNetworkInterfaceByHiperSocketInterfaceTypeHipersocketConst = "hipersocket"
+)
+
+func (*BareMetalServerNetworkInterfaceByHiperSocket) isaBareMetalServerNetworkInterface() bool {
+	return true
+}
+
+// UnmarshalBareMetalServerNetworkInterfaceByHiperSocket unmarshals an instance of BareMetalServerNetworkInterfaceByHiperSocket from the specified map of raw messages.
+func UnmarshalBareMetalServerNetworkInterfaceByHiperSocket(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(BareMetalServerNetworkInterfaceByHiperSocket)
+	err = core.UnmarshalPrimitive(m, "allow_ip_spoofing", &obj.AllowIPSpoofing)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "created_at", &obj.CreatedAt)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "enable_infrastructure_nat", &obj.EnableInfrastructureNat)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "floating_ips", &obj.FloatingIps, UnmarshalFloatingIPReference)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "mac_address", &obj.MacAddress)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "port_speed", &obj.PortSpeed)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "primary_ip", &obj.PrimaryIP, UnmarshalReservedIPReference)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "security_groups", &obj.SecurityGroups, UnmarshalSecurityGroupReference)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "status", &obj.Status)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "subnet", &obj.Subnet, UnmarshalSubnetReference)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "interface_type", &obj.InterfaceType)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// BareMetalServerNetworkInterfaceByPci : BareMetalServerNetworkInterfaceByPci struct
+// This model "extends" BareMetalServerNetworkInterface
+type BareMetalServerNetworkInterfaceByPci struct {
+	// Indicates whether source IP spoofing is allowed on this interface. If false, source IP spoofing is prevented on this
+	// interface. If true, source IP spoofing is allowed on this interface.
+	AllowIPSpoofing *bool `json:"allow_ip_spoofing" validate:"required"`
+
+	// The date and time that the network interface was created.
+	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
+
+	// If `true`:
+	//   - The VPC infrastructure performs any needed NAT operations.
+	//   - A single floating IP can be assigned to the network interface.
+	//
+	// If `false`:
+	//   - Packets are passed unchanged to/from the network interface,
+	//     allowing the workload to perform any needed NAT operations.
+	//   - Multiple floating IPs can be assigned to the network interface.
+	//   - `allow_ip_spoofing` must be set to `false`.
+	//
+	// This must be `true` when `interface_type` is `hipersocket`.
+	EnableInfrastructureNat *bool `json:"enable_infrastructure_nat" validate:"required"`
+
+	// The floating IPs associated with this network interface.
+	FloatingIps []FloatingIPReference `json:"floating_ips,omitempty"`
+
+	// The URL for this network interface.
+	Href *string `json:"href" validate:"required"`
+
+	// The unique identifier for this network interface.
+	ID *string `json:"id" validate:"required"`
+
+	// The MAC address of the interface.  If absent, the value is not known.
+	MacAddress *string `json:"mac_address" validate:"required"`
+
+	// The name for this network interface.
+	Name *string `json:"name" validate:"required"`
+
+	// The network interface port speed in Mbps.
+	PortSpeed *int64 `json:"port_speed" validate:"required"`
+
+	PrimaryIP *ReservedIPReference `json:"primary_ip" validate:"required"`
+
+	// The resource type.
+	ResourceType *string `json:"resource_type" validate:"required"`
+
+	// The security groups targeting this network interface.
+	SecurityGroups []SecurityGroupReference `json:"security_groups" validate:"required"`
+
+	// The status of the network interface.
+	Status *string `json:"status" validate:"required"`
+
+	// The associated subnet.
+	Subnet *SubnetReference `json:"subnet" validate:"required"`
+
+	// The type of this bare metal server network interface.
+	Type *string `json:"type" validate:"required"`
+
+	// Indicates what VLAN IDs (for VLAN type only) can use this physical (PCI type) interface.
 	AllowedVlans []int64 `json:"allowed_vlans" validate:"required"`
 
 	// - `pci`: a physical PCI device which can only be created or deleted when the bare metal
@@ -63425,8 +65551,8 @@ const (
 )
 
 // Constants associated with the BareMetalServerNetworkInterfaceByPci.InterfaceType property.
-// - `pci`: a physical PCI device which can only be created or deleted when the bare metal
-//   server is stopped
+//   - `pci`: a physical PCI device which can only be created or deleted when the bare metal
+//     server is stopped
 //   - Has an `allowed_vlans` property which controls the VLANs that will be permitted
 //     to use the PCI interface
 //   - Cannot directly use an IEEE 802.1q VLAN tag.
@@ -63528,10 +65654,12 @@ type BareMetalServerNetworkInterfaceByVlan struct {
 	//   - A single floating IP can be assigned to the network interface.
 	//
 	// If `false`:
-	//   - Packets are passed unmodified to/from the network interface,
+	//   - Packets are passed unchanged to/from the network interface,
 	//     allowing the workload to perform any needed NAT operations.
 	//   - Multiple floating IPs can be assigned to the network interface.
 	//   - `allow_ip_spoofing` must be set to `false`.
+	//
+	// This must be `true` when `interface_type` is `hipersocket`.
 	EnableInfrastructureNat *bool `json:"enable_infrastructure_nat" validate:"required"`
 
 	// The floating IPs associated with this network interface.
@@ -63546,7 +65674,7 @@ type BareMetalServerNetworkInterfaceByVlan struct {
 	// The MAC address of the interface.  If absent, the value is not known.
 	MacAddress *string `json:"mac_address" validate:"required"`
 
-	// The user-defined name for this network interface.
+	// The name for this network interface.
 	Name *string `json:"name" validate:"required"`
 
 	// The network interface port speed in Mbps.
@@ -63608,8 +65736,8 @@ const (
 )
 
 // Constants associated with the BareMetalServerNetworkInterfaceByVlan.InterfaceType property.
-// - `vlan`: a virtual device, used through a `pci` device that has the `vlan` in its array
-//    of `allowed_vlans`.
+//   - `vlan`: a virtual device, used through a `pci` device that has the `vlan` in its array
+//     of `allowed_vlans`.
 //   - Must use an IEEE 802.1q tag.
 //   - Has its own security groups and does not inherit those of the PCI device through
 //     which traffic flows.
@@ -63700,9 +65828,9 @@ func UnmarshalBareMetalServerNetworkInterfaceByVlan(m map[string]json.RawMessage
 	return
 }
 
-// BareMetalServerNetworkInterfacePrototypeBareMetalServerNetworkInterfaceByPciPrototype : BareMetalServerNetworkInterfacePrototypeBareMetalServerNetworkInterfaceByPciPrototype struct
+// BareMetalServerNetworkInterfacePrototypeBareMetalServerNetworkInterfaceByHiperSocketPrototype : BareMetalServerNetworkInterfacePrototypeBareMetalServerNetworkInterfaceByHiperSocketPrototype struct
 // This model "extends" BareMetalServerNetworkInterfacePrototype
-type BareMetalServerNetworkInterfacePrototypeBareMetalServerNetworkInterfaceByPciPrototype struct {
+type BareMetalServerNetworkInterfacePrototypeBareMetalServerNetworkInterfaceByHiperSocketPrototype struct {
 	// Indicates whether source IP spoofing is allowed on this interface. If false, source IP spoofing is prevented on this
 	// interface. If true, source IP spoofing is allowed on this interface.
 	AllowIPSpoofing *bool `json:"allow_ip_spoofing,omitempty"`
@@ -63712,14 +65840,16 @@ type BareMetalServerNetworkInterfacePrototypeBareMetalServerNetworkInterfaceByPc
 	//   - A single floating IP can be assigned to the network interface.
 	//
 	// If `false`:
-	//   - Packets are passed unmodified to/from the network interface,
+	//   - Packets are passed unchanged to/from the network interface,
 	//     allowing the workload to perform any needed NAT operations.
 	//   - Multiple floating IPs can be assigned to the network interface.
 	//   - `allow_ip_spoofing` must be set to `false`.
+	//
+	// This must be `true` when `interface_type` is `hipersocket`.
 	EnableInfrastructureNat *bool `json:"enable_infrastructure_nat,omitempty"`
 
-	// The user-defined name for network interface. Names must be unique within the instance the network interface resides
-	// in. If unspecified, the name will be a hyphenated list of randomly-selected words.
+	// The name for this network interface. The name must not be used by another network interface on the bare metal
+	// server. If unspecified, the name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
 	// The primary IP address to bind to the network interface. This can be specified using an existing reserved IP, or a
@@ -63735,8 +65865,107 @@ type BareMetalServerNetworkInterfacePrototypeBareMetalServerNetworkInterfaceByPc
 	// The associated subnet.
 	Subnet SubnetIdentityIntf `json:"subnet" validate:"required"`
 
-	// Indicates what VLAN IDs (for VLAN type only) can use this physical (PCI type) interface.  A given VLAN can only be
-	// in the `allowed_vlans` array for one PCI type adapter per bare metal server.
+	// - `hipersocket`: a virtual network device that provides high-speed TCP/IP connectivity
+	//   within a `s390x` based system.
+	//   - Not supported on bare metal servers with a `cpu.architecture` of `amd64`.
+	InterfaceType *string `json:"interface_type" validate:"required"`
+}
+
+// Constants associated with the BareMetalServerNetworkInterfacePrototypeBareMetalServerNetworkInterfaceByHiperSocketPrototype.InterfaceType property.
+//   - `hipersocket`: a virtual network device that provides high-speed TCP/IP connectivity
+//     within a `s390x` based system.
+//   - Not supported on bare metal servers with a `cpu.architecture` of `amd64`.
+const (
+	BareMetalServerNetworkInterfacePrototypeBareMetalServerNetworkInterfaceByHiperSocketPrototypeInterfaceTypeHipersocketConst = "hipersocket"
+)
+
+// NewBareMetalServerNetworkInterfacePrototypeBareMetalServerNetworkInterfaceByHiperSocketPrototype : Instantiate BareMetalServerNetworkInterfacePrototypeBareMetalServerNetworkInterfaceByHiperSocketPrototype (Generic Model Constructor)
+func (*VpcV1) NewBareMetalServerNetworkInterfacePrototypeBareMetalServerNetworkInterfaceByHiperSocketPrototype(subnet SubnetIdentityIntf, interfaceType string) (_model *BareMetalServerNetworkInterfacePrototypeBareMetalServerNetworkInterfaceByHiperSocketPrototype, err error) {
+	_model = &BareMetalServerNetworkInterfacePrototypeBareMetalServerNetworkInterfaceByHiperSocketPrototype{
+		Subnet:        subnet,
+		InterfaceType: core.StringPtr(interfaceType),
+	}
+	err = core.ValidateStruct(_model, "required parameters")
+	return
+}
+
+func (*BareMetalServerNetworkInterfacePrototypeBareMetalServerNetworkInterfaceByHiperSocketPrototype) isaBareMetalServerNetworkInterfacePrototype() bool {
+	return true
+}
+
+// UnmarshalBareMetalServerNetworkInterfacePrototypeBareMetalServerNetworkInterfaceByHiperSocketPrototype unmarshals an instance of BareMetalServerNetworkInterfacePrototypeBareMetalServerNetworkInterfaceByHiperSocketPrototype from the specified map of raw messages.
+func UnmarshalBareMetalServerNetworkInterfacePrototypeBareMetalServerNetworkInterfaceByHiperSocketPrototype(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(BareMetalServerNetworkInterfacePrototypeBareMetalServerNetworkInterfaceByHiperSocketPrototype)
+	err = core.UnmarshalPrimitive(m, "allow_ip_spoofing", &obj.AllowIPSpoofing)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "enable_infrastructure_nat", &obj.EnableInfrastructureNat)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "primary_ip", &obj.PrimaryIP, UnmarshalNetworkInterfaceIPPrototype)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "security_groups", &obj.SecurityGroups, UnmarshalSecurityGroupIdentity)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "subnet", &obj.Subnet, UnmarshalSubnetIdentity)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "interface_type", &obj.InterfaceType)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// BareMetalServerNetworkInterfacePrototypeBareMetalServerNetworkInterfaceByPciPrototype : BareMetalServerNetworkInterfacePrototypeBareMetalServerNetworkInterfaceByPciPrototype struct
+// This model "extends" BareMetalServerNetworkInterfacePrototype
+type BareMetalServerNetworkInterfacePrototypeBareMetalServerNetworkInterfaceByPciPrototype struct {
+	// Indicates whether source IP spoofing is allowed on this interface. If false, source IP spoofing is prevented on this
+	// interface. If true, source IP spoofing is allowed on this interface.
+	AllowIPSpoofing *bool `json:"allow_ip_spoofing,omitempty"`
+
+	// If `true`:
+	//   - The VPC infrastructure performs any needed NAT operations.
+	//   - A single floating IP can be assigned to the network interface.
+	//
+	// If `false`:
+	//   - Packets are passed unchanged to/from the network interface,
+	//     allowing the workload to perform any needed NAT operations.
+	//   - Multiple floating IPs can be assigned to the network interface.
+	//   - `allow_ip_spoofing` must be set to `false`.
+	//
+	// This must be `true` when `interface_type` is `hipersocket`.
+	EnableInfrastructureNat *bool `json:"enable_infrastructure_nat,omitempty"`
+
+	// The name for this network interface. The name must not be used by another network interface on the bare metal
+	// server. If unspecified, the name will be a hyphenated list of randomly-selected words.
+	Name *string `json:"name,omitempty"`
+
+	// The primary IP address to bind to the network interface. This can be specified using an existing reserved IP, or a
+	// prototype object for a new reserved IP.
+	//
+	// If an existing reserved IP or a prototype object with an address is specified, it must be available on the network
+	// interface's subnet. Otherwise, an available address on the subnet will be automatically selected and reserved.
+	PrimaryIP NetworkInterfaceIPPrototypeIntf `json:"primary_ip,omitempty"`
+
+	// The security groups to use for this network interface. If unspecified, the VPC's default security group is used.
+	SecurityGroups []SecurityGroupIdentityIntf `json:"security_groups,omitempty"`
+
+	// The associated subnet.
+	Subnet SubnetIdentityIntf `json:"subnet" validate:"required"`
+
+	// Indicates what VLAN IDs (for VLAN type only) can use this physical (PCI type) interface.
 	AllowedVlans []int64 `json:"allowed_vlans,omitempty"`
 
 	// - `pci`: a physical PCI device which can only be created or deleted when the bare metal
@@ -63744,15 +65973,17 @@ type BareMetalServerNetworkInterfacePrototypeBareMetalServerNetworkInterfaceByPc
 	//   - Has an `allowed_vlans` property which controls the VLANs that will be permitted
 	//     to use the PCI interface
 	//   - Cannot directly use an IEEE 802.1q VLAN tag.
+	//   - Not supported on bare metal servers with a `cpu.architecture` of `s390x`.
 	InterfaceType *string `json:"interface_type" validate:"required"`
 }
 
 // Constants associated with the BareMetalServerNetworkInterfacePrototypeBareMetalServerNetworkInterfaceByPciPrototype.InterfaceType property.
-// - `pci`: a physical PCI device which can only be created or deleted when the bare metal
-//   server is stopped
+//   - `pci`: a physical PCI device which can only be created or deleted when the bare metal
+//     server is stopped
 //   - Has an `allowed_vlans` property which controls the VLANs that will be permitted
 //     to use the PCI interface
 //   - Cannot directly use an IEEE 802.1q VLAN tag.
+//   - Not supported on bare metal servers with a `cpu.architecture` of `s390x`.
 const (
 	BareMetalServerNetworkInterfacePrototypeBareMetalServerNetworkInterfaceByPciPrototypeInterfaceTypePciConst = "pci"
 )
@@ -63822,14 +66053,16 @@ type BareMetalServerNetworkInterfacePrototypeBareMetalServerNetworkInterfaceByVl
 	//   - A single floating IP can be assigned to the network interface.
 	//
 	// If `false`:
-	//   - Packets are passed unmodified to/from the network interface,
+	//   - Packets are passed unchanged to/from the network interface,
 	//     allowing the workload to perform any needed NAT operations.
 	//   - Multiple floating IPs can be assigned to the network interface.
 	//   - `allow_ip_spoofing` must be set to `false`.
+	//
+	// This must be `true` when `interface_type` is `hipersocket`.
 	EnableInfrastructureNat *bool `json:"enable_infrastructure_nat,omitempty"`
 
-	// The user-defined name for network interface. Names must be unique within the instance the network interface resides
-	// in. If unspecified, the name will be a hyphenated list of randomly-selected words.
+	// The name for this network interface. The name must not be used by another network interface on the bare metal
+	// server. If unspecified, the name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
 	// The primary IP address to bind to the network interface. This can be specified using an existing reserved IP, or a
@@ -63855,6 +66088,7 @@ type BareMetalServerNetworkInterfacePrototypeBareMetalServerNetworkInterfaceByVl
 	//   - Must use an IEEE 802.1q tag.
 	//   - Has its own security groups and does not inherit those of the PCI device through
 	//     which traffic flows.
+	//   - Not supported on bare metal servers with a `cpu.architecture` of `s390x`.
 	InterfaceType *string `json:"interface_type" validate:"required"`
 
 	// Indicates the 802.1Q VLAN ID tag that must be used for all traffic on this interface.
@@ -63862,11 +66096,12 @@ type BareMetalServerNetworkInterfacePrototypeBareMetalServerNetworkInterfaceByVl
 }
 
 // Constants associated with the BareMetalServerNetworkInterfacePrototypeBareMetalServerNetworkInterfaceByVlanPrototype.InterfaceType property.
-// - `vlan`: a virtual device, used through a `pci` device that has the `vlan` in its array
-//    of `allowed_vlans`.
+//   - `vlan`: a virtual device, used through a `pci` device that has the `vlan` in its array
+//     of `allowed_vlans`.
 //   - Must use an IEEE 802.1q tag.
 //   - Has its own security groups and does not inherit those of the PCI device through
 //     which traffic flows.
+//   - Not supported on bare metal servers with a `cpu.architecture` of `s390x`.
 const (
 	BareMetalServerNetworkInterfacePrototypeBareMetalServerNetworkInterfaceByVlanPrototypeInterfaceTypeVlanConst = "vlan"
 )
@@ -64964,6 +67199,70 @@ func UnmarshalBareMetalServerProfileMemoryRange(m map[string]json.RawMessage, re
 	return
 }
 
+// CatalogOfferingIdentityCatalogOfferingByCRN : CatalogOfferingIdentityCatalogOfferingByCRN struct
+// This model "extends" CatalogOfferingIdentity
+type CatalogOfferingIdentityCatalogOfferingByCRN struct {
+	// The CRN for this
+	// [catalog](https://cloud.ibm.com/docs/account?topic=account-restrict-by-user) offering.
+	CRN *string `json:"crn" validate:"required"`
+}
+
+// NewCatalogOfferingIdentityCatalogOfferingByCRN : Instantiate CatalogOfferingIdentityCatalogOfferingByCRN (Generic Model Constructor)
+func (*VpcV1) NewCatalogOfferingIdentityCatalogOfferingByCRN(crn string) (_model *CatalogOfferingIdentityCatalogOfferingByCRN, err error) {
+	_model = &CatalogOfferingIdentityCatalogOfferingByCRN{
+		CRN: core.StringPtr(crn),
+	}
+	err = core.ValidateStruct(_model, "required parameters")
+	return
+}
+
+func (*CatalogOfferingIdentityCatalogOfferingByCRN) isaCatalogOfferingIdentity() bool {
+	return true
+}
+
+// UnmarshalCatalogOfferingIdentityCatalogOfferingByCRN unmarshals an instance of CatalogOfferingIdentityCatalogOfferingByCRN from the specified map of raw messages.
+func UnmarshalCatalogOfferingIdentityCatalogOfferingByCRN(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(CatalogOfferingIdentityCatalogOfferingByCRN)
+	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// CatalogOfferingVersionIdentityCatalogOfferingVersionByCRN : CatalogOfferingVersionIdentityCatalogOfferingVersionByCRN struct
+// This model "extends" CatalogOfferingVersionIdentity
+type CatalogOfferingVersionIdentityCatalogOfferingVersionByCRN struct {
+	// The CRN for this version of a
+	// [catalog](https://cloud.ibm.com/docs/account?topic=account-restrict-by-user) offering.
+	CRN *string `json:"crn" validate:"required"`
+}
+
+// NewCatalogOfferingVersionIdentityCatalogOfferingVersionByCRN : Instantiate CatalogOfferingVersionIdentityCatalogOfferingVersionByCRN (Generic Model Constructor)
+func (*VpcV1) NewCatalogOfferingVersionIdentityCatalogOfferingVersionByCRN(crn string) (_model *CatalogOfferingVersionIdentityCatalogOfferingVersionByCRN, err error) {
+	_model = &CatalogOfferingVersionIdentityCatalogOfferingVersionByCRN{
+		CRN: core.StringPtr(crn),
+	}
+	err = core.ValidateStruct(_model, "required parameters")
+	return
+}
+
+func (*CatalogOfferingVersionIdentityCatalogOfferingVersionByCRN) isaCatalogOfferingVersionIdentity() bool {
+	return true
+}
+
+// UnmarshalCatalogOfferingVersionIdentityCatalogOfferingVersionByCRN unmarshals an instance of CatalogOfferingVersionIdentityCatalogOfferingVersionByCRN from the specified map of raw messages.
+func UnmarshalCatalogOfferingVersionIdentityCatalogOfferingVersionByCRN(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(CatalogOfferingVersionIdentityCatalogOfferingVersionByCRN)
+	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
 // CertificateInstanceIdentityByCRN : CertificateInstanceIdentityByCRN struct
 // This model "extends" CertificateInstanceIdentity
 type CertificateInstanceIdentityByCRN struct {
@@ -65639,11 +67938,11 @@ type DedicatedHostPrototypeDedicatedHostByGroup struct {
 	// If set to true, instances can be placed on this dedicated host.
 	InstancePlacementEnabled *bool `json:"instance_placement_enabled,omitempty"`
 
-	// The unique user-defined name for this dedicated host. If unspecified, the name will be a hyphenated list of
-	// randomly-selected words.
+	// The name for this dedicated host. The name must not be used by another dedicated host in the region. If unspecified,
+	// the name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
-	// The profile to use for this dedicated host.
+	// The [profile](https://cloud.ibm.com/docs/vpc?topic=vpc-dh-profiles) to use for this dedicated host.
 	Profile DedicatedHostProfileIdentityIntf `json:"profile" validate:"required"`
 
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
@@ -65699,11 +67998,11 @@ type DedicatedHostPrototypeDedicatedHostByZone struct {
 	// If set to true, instances can be placed on this dedicated host.
 	InstancePlacementEnabled *bool `json:"instance_placement_enabled,omitempty"`
 
-	// The unique user-defined name for this dedicated host. If unspecified, the name will be a hyphenated list of
-	// randomly-selected words.
+	// The name for this dedicated host. The name must not be used by another dedicated host in the region. If unspecified,
+	// the name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
-	// The profile to use for this dedicated host.
+	// The [profile](https://cloud.ibm.com/docs/vpc?topic=vpc-dh-profiles) to use for this dedicated host.
 	Profile DedicatedHostProfileIdentityIntf `json:"profile" validate:"required"`
 
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
@@ -65845,9 +68144,9 @@ type EndpointGatewayReservedIPReservedIPPrototypeTargetContext struct {
 	// `target` is deleted, or the reserved IP is unbound.
 	AutoDelete *bool `json:"auto_delete,omitempty"`
 
-	// The user-defined name for this reserved IP. If unspecified, the name will be a hyphenated list of randomly-selected
-	// words. Names must be unique within the subnet the reserved IP resides in. Names beginning with `ibm-` are reserved
-	// for provider-owned resources.
+	// The name for this reserved IP. The name must not be used by another reserved IP in the subnet. Names starting with
+	// `ibm-` are reserved for provider-owned resources, and are not allowed. If unspecified, the name will be a hyphenated
+	// list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
 	// The subnet in which to create this reserved IP.
@@ -66121,8 +68420,8 @@ func UnmarshalFloatingIPByTargetNetworkInterfaceIdentityNetworkInterfaceIdentity
 // FloatingIPPrototypeFloatingIPByTarget : FloatingIPPrototypeFloatingIPByTarget struct
 // This model "extends" FloatingIPPrototype
 type FloatingIPPrototypeFloatingIPByTarget struct {
-	// The unique user-defined name for this floating IP. If unspecified, the name will be a hyphenated list of
-	// randomly-selected words.
+	// The name for this floating IP. The name must not be used by another floating IP in the region. If unspecified, the
+	// name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
@@ -66166,8 +68465,8 @@ func UnmarshalFloatingIPPrototypeFloatingIPByTarget(m map[string]json.RawMessage
 // FloatingIPPrototypeFloatingIPByZone : FloatingIPPrototypeFloatingIPByZone struct
 // This model "extends" FloatingIPPrototype
 type FloatingIPPrototypeFloatingIPByZone struct {
-	// The unique user-defined name for this floating IP. If unspecified, the name will be a hyphenated list of
-	// randomly-selected words.
+	// The name for this floating IP. The name must not be used by another floating IP in the region. If unspecified, the
+	// name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
@@ -66273,7 +68572,7 @@ func UnmarshalFloatingIPTargetPatchNetworkInterfaceIdentityByID(m map[string]jso
 // FloatingIPTargetNetworkInterfaceReference : FloatingIPTargetNetworkInterfaceReference struct
 // This model "extends" FloatingIPTarget
 type FloatingIPTargetNetworkInterfaceReference struct {
-	// If present, this property indicates the referenced resource has been deleted and provides
+	// If present, this property indicates the referenced resource has been deleted, and provides
 	// some supplementary information.
 	Deleted *NetworkInterfaceReferenceDeleted `json:"deleted,omitempty"`
 
@@ -66283,7 +68582,7 @@ type FloatingIPTargetNetworkInterfaceReference struct {
 	// The unique identifier for this network interface.
 	ID *string `json:"id" validate:"required"`
 
-	// The user-defined name for this network interface.
+	// The name for this network interface.
 	Name *string `json:"name" validate:"required"`
 
 	PrimaryIP *ReservedIPReference `json:"primary_ip" validate:"required"`
@@ -66339,7 +68638,7 @@ type FloatingIPTargetPublicGatewayReference struct {
 	// The CRN for this public gateway.
 	CRN *string `json:"crn" validate:"required"`
 
-	// If present, this property indicates the referenced resource has been deleted and provides
+	// If present, this property indicates the referenced resource has been deleted, and provides
 	// some supplementary information.
 	Deleted *PublicGatewayReferenceDeleted `json:"deleted,omitempty"`
 
@@ -66349,7 +68648,7 @@ type FloatingIPTargetPublicGatewayReference struct {
 	// The unique identifier for this public gateway.
 	ID *string `json:"id" validate:"required"`
 
-	// The user-defined name for this public gateway.
+	// The name for this public gateway. The name is unique across all public gateways in the VPC.
 	Name *string `json:"name" validate:"required"`
 
 	// The resource type.
@@ -66591,7 +68890,7 @@ type FlowLogCollectorTargetInstanceReference struct {
 	// The CRN for this virtual server instance.
 	CRN *string `json:"crn" validate:"required"`
 
-	// If present, this property indicates the referenced resource has been deleted and provides
+	// If present, this property indicates the referenced resource has been deleted, and provides
 	// some supplementary information.
 	Deleted *InstanceReferenceDeleted `json:"deleted,omitempty"`
 
@@ -66601,7 +68900,7 @@ type FlowLogCollectorTargetInstanceReference struct {
 	// The unique identifier for this virtual server instance.
 	ID *string `json:"id" validate:"required"`
 
-	// The user-defined name for this virtual server instance (and default system hostname).
+	// The name for this virtual server instance. The name is unique across all virtual server instances in the region.
 	Name *string `json:"name" validate:"required"`
 }
 
@@ -66639,7 +68938,7 @@ func UnmarshalFlowLogCollectorTargetInstanceReference(m map[string]json.RawMessa
 // FlowLogCollectorTargetNetworkInterfaceReferenceTargetContext : FlowLogCollectorTargetNetworkInterfaceReferenceTargetContext struct
 // This model "extends" FlowLogCollectorTarget
 type FlowLogCollectorTargetNetworkInterfaceReferenceTargetContext struct {
-	// If present, this property indicates the referenced resource has been deleted and provides
+	// If present, this property indicates the referenced resource has been deleted, and provides
 	// some supplementary information.
 	Deleted *NetworkInterfaceReferenceTargetContextDeleted `json:"deleted,omitempty"`
 
@@ -66649,7 +68948,7 @@ type FlowLogCollectorTargetNetworkInterfaceReferenceTargetContext struct {
 	// The unique identifier for this network interface.
 	ID *string `json:"id" validate:"required"`
 
-	// The user-defined name for this network interface.
+	// The name for this network interface.
 	Name *string `json:"name" validate:"required"`
 
 	// The resource type.
@@ -66699,7 +68998,7 @@ type FlowLogCollectorTargetSubnetReference struct {
 	// The CRN for this subnet.
 	CRN *string `json:"crn" validate:"required"`
 
-	// If present, this property indicates the referenced resource has been deleted and provides
+	// If present, this property indicates the referenced resource has been deleted, and provides
 	// some supplementary information.
 	Deleted *SubnetReferenceDeleted `json:"deleted,omitempty"`
 
@@ -66709,7 +69008,7 @@ type FlowLogCollectorTargetSubnetReference struct {
 	// The unique identifier for this subnet.
 	ID *string `json:"id" validate:"required"`
 
-	// The user-defined name for this subnet.
+	// The name for this subnet. The name is unique across all subnets in the VPC.
 	Name *string `json:"name" validate:"required"`
 
 	// The resource type.
@@ -66763,7 +69062,7 @@ type FlowLogCollectorTargetVPCReference struct {
 	// The CRN for this VPC.
 	CRN *string `json:"crn" validate:"required"`
 
-	// If present, this property indicates the referenced resource has been deleted and provides
+	// If present, this property indicates the referenced resource has been deleted, and provides
 	// some supplementary information.
 	Deleted *VPCReferenceDeleted `json:"deleted,omitempty"`
 
@@ -66773,7 +69072,7 @@ type FlowLogCollectorTargetVPCReference struct {
 	// The unique identifier for this VPC.
 	ID *string `json:"id" validate:"required"`
 
-	// The unique user-defined name for this VPC.
+	// The name for this VPC. The name is unique across all VPCs in the region.
 	Name *string `json:"name" validate:"required"`
 
 	// The resource type.
@@ -66917,8 +69216,9 @@ func UnmarshalImageIdentityByID(m map[string]json.RawMessage, result interface{}
 // ImagePrototypeImageByFile : ImagePrototypeImageByFile struct
 // This model "extends" ImagePrototype
 type ImagePrototypeImageByFile struct {
-	// The unique user-defined name for this image. Names starting with `ibm-` are not allowed. If unspecified, the name
-	// will be a hyphenated list of randomly-selected words.
+	// The name for this image. The name must not be used by another image in the region. Names starting with `ibm-` are
+	// reserved for system-provided images, and are not allowed. If unspecified, the name will be a hyphenated list of
+	// randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
@@ -66997,8 +69297,9 @@ func UnmarshalImagePrototypeImageByFile(m map[string]json.RawMessage, result int
 // ImagePrototypeImageBySourceVolume : ImagePrototypeImageBySourceVolume struct
 // This model "extends" ImagePrototype
 type ImagePrototypeImageBySourceVolume struct {
-	// The unique user-defined name for this image. Names starting with `ibm-` are not allowed. If unspecified, the name
-	// will be a hyphenated list of randomly-selected words.
+	// The name for this image. The name must not be used by another image in the region. Names starting with `ibm-` are
+	// reserved for system-provided images, and are not allowed. If unspecified, the name will be a hyphenated list of
+	// randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
@@ -67009,7 +69310,7 @@ type ImagePrototypeImageBySourceVolume struct {
 	EncryptionKey EncryptionKeyIdentityIntf `json:"encryption_key,omitempty"`
 
 	// The volume from which to create the image. The specified volume must:
-	// - Originate from an image, which will be used to populate this image's
+	// - Have an `operating_system`, which will be used to populate this image's
 	//   operating system information.
 	// - Not be `active` or `busy`.
 	//
@@ -67053,13 +69354,78 @@ func UnmarshalImagePrototypeImageBySourceVolume(m map[string]json.RawMessage, re
 	return
 }
 
+// InstanceCatalogOfferingPrototypeCatalogOfferingByOffering : InstanceCatalogOfferingPrototypeCatalogOfferingByOffering struct
+// This model "extends" InstanceCatalogOfferingPrototype
+type InstanceCatalogOfferingPrototypeCatalogOfferingByOffering struct {
+	// Identifies a [catalog](https://cloud.ibm.com/docs/account?topic=account-restrict-by-user)
+	// offering by a unique property.
+	Offering CatalogOfferingIdentityIntf `json:"offering" validate:"required"`
+}
+
+// NewInstanceCatalogOfferingPrototypeCatalogOfferingByOffering : Instantiate InstanceCatalogOfferingPrototypeCatalogOfferingByOffering (Generic Model Constructor)
+func (*VpcV1) NewInstanceCatalogOfferingPrototypeCatalogOfferingByOffering(offering CatalogOfferingIdentityIntf) (_model *InstanceCatalogOfferingPrototypeCatalogOfferingByOffering, err error) {
+	_model = &InstanceCatalogOfferingPrototypeCatalogOfferingByOffering{
+		Offering: offering,
+	}
+	err = core.ValidateStruct(_model, "required parameters")
+	return
+}
+
+func (*InstanceCatalogOfferingPrototypeCatalogOfferingByOffering) isaInstanceCatalogOfferingPrototype() bool {
+	return true
+}
+
+// UnmarshalInstanceCatalogOfferingPrototypeCatalogOfferingByOffering unmarshals an instance of InstanceCatalogOfferingPrototypeCatalogOfferingByOffering from the specified map of raw messages.
+func UnmarshalInstanceCatalogOfferingPrototypeCatalogOfferingByOffering(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(InstanceCatalogOfferingPrototypeCatalogOfferingByOffering)
+	err = core.UnmarshalModel(m, "offering", &obj.Offering, UnmarshalCatalogOfferingIdentity)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// InstanceCatalogOfferingPrototypeCatalogOfferingByVersion : InstanceCatalogOfferingPrototypeCatalogOfferingByVersion struct
+// This model "extends" InstanceCatalogOfferingPrototype
+type InstanceCatalogOfferingPrototypeCatalogOfferingByVersion struct {
+	// Identifies a version of a
+	// [catalog](https://cloud.ibm.com/docs/account?topic=account-restrict-by-user) offering by a
+	// unique property.
+	Version CatalogOfferingVersionIdentityIntf `json:"version" validate:"required"`
+}
+
+// NewInstanceCatalogOfferingPrototypeCatalogOfferingByVersion : Instantiate InstanceCatalogOfferingPrototypeCatalogOfferingByVersion (Generic Model Constructor)
+func (*VpcV1) NewInstanceCatalogOfferingPrototypeCatalogOfferingByVersion(version CatalogOfferingVersionIdentityIntf) (_model *InstanceCatalogOfferingPrototypeCatalogOfferingByVersion, err error) {
+	_model = &InstanceCatalogOfferingPrototypeCatalogOfferingByVersion{
+		Version: version,
+	}
+	err = core.ValidateStruct(_model, "required parameters")
+	return
+}
+
+func (*InstanceCatalogOfferingPrototypeCatalogOfferingByVersion) isaInstanceCatalogOfferingPrototype() bool {
+	return true
+}
+
+// UnmarshalInstanceCatalogOfferingPrototypeCatalogOfferingByVersion unmarshals an instance of InstanceCatalogOfferingPrototypeCatalogOfferingByVersion from the specified map of raw messages.
+func UnmarshalInstanceCatalogOfferingPrototypeCatalogOfferingByVersion(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(InstanceCatalogOfferingPrototypeCatalogOfferingByVersion)
+	err = core.UnmarshalModel(m, "version", &obj.Version, UnmarshalCatalogOfferingVersionIdentity)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
 // InstanceGroupManagerActionPrototypeScheduledActionPrototype : InstanceGroupManagerActionPrototypeScheduledActionPrototype struct
 // Models which "extend" this model:
 // - InstanceGroupManagerActionPrototypeScheduledActionPrototypeByRunAt
 // - InstanceGroupManagerActionPrototypeScheduledActionPrototypeByCronSpec
 // This model "extends" InstanceGroupManagerActionPrototype
 type InstanceGroupManagerActionPrototypeScheduledActionPrototype struct {
-	// The user-defined name for this instance group manager action. Names must be unique within the instance group
+	// The name for this instance group manager action. The name must not be used by another action for the instance group
 	// manager. If unspecified, the name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
@@ -67140,7 +69506,8 @@ type InstanceGroupManagerActionScheduledAction struct {
 	// The unique identifier for this instance group manager action.
 	ID *string `json:"id" validate:"required"`
 
-	// The user-defined name for this instance group manager action.
+	// The name for this instance group manager action. The name is unique across all actions for the instance group
+	// manager.
 	Name *string `json:"name" validate:"required"`
 
 	// The resource type.
@@ -67154,7 +69521,7 @@ type InstanceGroupManagerActionScheduledAction struct {
 	// - `omitted`: Action was not applied because this action's manager was disabled.
 	Status *string `json:"status" validate:"required"`
 
-	// The date and time that the instance group manager action was modified.
+	// The date and time that the instance group manager action was updated.
 	UpdatedAt *strfmt.DateTime `json:"updated_at" validate:"required"`
 
 	// The type of action for the instance group.
@@ -67298,7 +69665,7 @@ type InstanceGroupManagerAutoScale struct {
 	// Indicates whether this manager will control the instance group.
 	ManagementEnabled *bool `json:"management_enabled" validate:"required"`
 
-	// The user-defined name for this instance group manager.
+	// The name for this instance group manager. The name is unique across all managers for the instance group.
 	Name *string `json:"name" validate:"required"`
 
 	// The date and time that the instance group manager was updated.
@@ -67391,7 +69758,7 @@ func UnmarshalInstanceGroupManagerAutoScale(m map[string]json.RawMessage, result
 // InstanceGroupManagerPolicyPrototypeInstanceGroupManagerTargetPolicyPrototype : InstanceGroupManagerPolicyPrototypeInstanceGroupManagerTargetPolicyPrototype struct
 // This model "extends" InstanceGroupManagerPolicyPrototype
 type InstanceGroupManagerPolicyPrototypeInstanceGroupManagerTargetPolicyPrototype struct {
-	// The user-defined name for this instance group manager policy. Names must be unique within the instance group
+	// The name for this instance group manager policy. The name must not be used by another policy for the instance group
 	// manager. If unspecified, the name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
@@ -67470,7 +69837,8 @@ type InstanceGroupManagerPolicyInstanceGroupManagerTargetPolicy struct {
 	// The unique identifier for this instance group manager policy.
 	ID *string `json:"id" validate:"required"`
 
-	// The user-defined name for this instance group manager policy.
+	// The name for this instance group manager policy. The name is unique across all policies for the instance group
+	// manager.
 	Name *string `json:"name" validate:"required"`
 
 	// The date and time that the instance group manager policy was updated.
@@ -67550,7 +69918,7 @@ type InstanceGroupManagerPrototypeInstanceGroupManagerAutoScalePrototype struct 
 	// Indicates whether this manager will control the instance group.
 	ManagementEnabled *bool `json:"management_enabled,omitempty"`
 
-	// The user-defined name for this instance group manager. Names must be unique within the instance group. If
+	// The name for this instance group manager. The name must not be used by another manager for the instance group. If
 	// unspecified, the name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
@@ -67631,7 +69999,7 @@ type InstanceGroupManagerPrototypeInstanceGroupManagerScheduledPrototype struct 
 	// Indicates whether this manager will control the instance group.
 	ManagementEnabled *bool `json:"management_enabled,omitempty"`
 
-	// The user-defined name for this instance group manager. Names must be unique within the instance group. If
+	// The name for this instance group manager. The name must not be used by another manager for the instance group. If
 	// unspecified, the name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
@@ -67692,7 +70060,7 @@ type InstanceGroupManagerScheduled struct {
 	// Indicates whether this manager will control the instance group.
 	ManagementEnabled *bool `json:"management_enabled" validate:"required"`
 
-	// The user-defined name for this instance group manager.
+	// The name for this instance group manager. The name is unique across all managers for the instance group.
 	Name *string `json:"name" validate:"required"`
 
 	// The date and time that the instance group manager was updated.
@@ -67757,7 +70125,7 @@ func UnmarshalInstanceGroupManagerScheduled(m map[string]json.RawMessage, result
 // InstanceGroupManagerScheduledActionManagerAutoScale : InstanceGroupManagerScheduledActionManagerAutoScale struct
 // This model "extends" InstanceGroupManagerScheduledActionManager
 type InstanceGroupManagerScheduledActionManagerAutoScale struct {
-	// If present, this property indicates the referenced resource has been deleted and provides
+	// If present, this property indicates the referenced resource has been deleted, and provides
 	// some supplementary information.
 	Deleted *InstanceGroupManagerReferenceDeleted `json:"deleted,omitempty"`
 
@@ -67767,7 +70135,7 @@ type InstanceGroupManagerScheduledActionManagerAutoScale struct {
 	// The unique identifier for this instance group manager.
 	ID *string `json:"id" validate:"required"`
 
-	// The user-defined name for this instance group manager.
+	// The name for this instance group manager. The name is unique across all managers for the instance group.
 	Name *string `json:"name" validate:"required"`
 
 	// The desired maximum number of instance group members at the scheduled time.
@@ -68182,7 +70550,7 @@ type InstancePlacementTargetDedicatedHostGroupReference struct {
 	// The CRN for this dedicated host group.
 	CRN *string `json:"crn" validate:"required"`
 
-	// If present, this property indicates the referenced resource has been deleted and provides
+	// If present, this property indicates the referenced resource has been deleted, and provides
 	// some supplementary information.
 	Deleted *DedicatedHostGroupReferenceDeleted `json:"deleted,omitempty"`
 
@@ -68192,7 +70560,7 @@ type InstancePlacementTargetDedicatedHostGroupReference struct {
 	// The unique identifier for this dedicated host group.
 	ID *string `json:"id" validate:"required"`
 
-	// The unique user-defined name for this dedicated host group.
+	// The name for this dedicated host group. The name is unique across all dedicated host groups in the region.
 	Name *string `json:"name" validate:"required"`
 
 	// The resource type.
@@ -68246,7 +70614,7 @@ type InstancePlacementTargetDedicatedHostReference struct {
 	// The CRN for this dedicated host.
 	CRN *string `json:"crn" validate:"required"`
 
-	// If present, this property indicates the referenced resource has been deleted and provides
+	// If present, this property indicates the referenced resource has been deleted, and provides
 	// some supplementary information.
 	Deleted *DedicatedHostReferenceDeleted `json:"deleted,omitempty"`
 
@@ -68256,7 +70624,7 @@ type InstancePlacementTargetDedicatedHostReference struct {
 	// The unique identifier for this dedicated host.
 	ID *string `json:"id" validate:"required"`
 
-	// The unique user-defined name for this dedicated host.
+	// The name for this dedicated host. The name is unique across all dedicated hosts in the region.
 	Name *string `json:"name" validate:"required"`
 
 	// The resource type.
@@ -68310,7 +70678,7 @@ type InstancePlacementTargetPlacementGroupReference struct {
 	// The CRN for this placement group.
 	CRN *string `json:"crn" validate:"required"`
 
-	// If present, this property indicates the referenced resource has been deleted and provides
+	// If present, this property indicates the referenced resource has been deleted, and provides
 	// some supplementary information.
 	Deleted *PlacementGroupReferenceDeleted `json:"deleted,omitempty"`
 
@@ -68320,7 +70688,7 @@ type InstancePlacementTargetPlacementGroupReference struct {
 	// The unique identifier for this placement group.
 	ID *string `json:"id" validate:"required"`
 
-	// The user-defined name for this placement group.
+	// The name for this placement group. The name is unique across all placement groups in the region.
 	Name *string `json:"name" validate:"required"`
 
 	// The resource type.
@@ -69789,6 +72157,177 @@ func UnmarshalInstanceProfileVolumeBandwidthRange(m map[string]json.RawMessage, 
 	return
 }
 
+// InstancePrototypeInstanceByCatalogOffering : InstancePrototypeInstanceByCatalogOffering struct
+// This model "extends" InstancePrototype
+type InstancePrototypeInstanceByCatalogOffering struct {
+	// The availability policy to use for this virtual server instance.
+	AvailabilityPolicy *InstanceAvailabilityPrototype `json:"availability_policy,omitempty"`
+
+	// The default trusted profile configuration to use for this virtual server instance  This property's value is used
+	// when provisioning the virtual server instance, but not subsequently managed. Accordingly, it is reflected as an
+	// [instance initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
+	DefaultTrustedProfile *InstanceDefaultTrustedProfilePrototype `json:"default_trusted_profile,omitempty"`
+
+	// The public SSH keys for the administrative user of the virtual server instance. Keys will be made available to the
+	// virtual server instance as cloud-init vendor data. For cloud-init enabled images, these keys will also be added as
+	// SSH authorized keys for the administrative user.
+	//
+	// For Windows images, at least one key must be specified, and one will be chosen to encrypt [the administrator
+	// password](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization). Keys are optional for other images, but if
+	// no keys are specified, the instance will be inaccessible unless the specified image provides another means of
+	// access.
+	//
+	// This property's value is used when provisioning the virtual server instance, but not subsequently managed.
+	// Accordingly, it is reflected as an [instance
+	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
+	Keys []KeyIdentityIntf `json:"keys,omitempty"`
+
+	MetadataService *InstanceMetadataServicePrototype `json:"metadata_service,omitempty"`
+
+	// The name for this virtual server instance. The name must not be used by another virtual server instance in the
+	// region. If unspecified, the name will be a hyphenated list of randomly-selected words.
+	//
+	// The system hostname will be based on this name.
+	Name *string `json:"name,omitempty"`
+
+	// The additional network interfaces to create for the virtual server instance.
+	NetworkInterfaces []NetworkInterfacePrototype `json:"network_interfaces,omitempty"`
+
+	// The placement restrictions to use for the virtual server instance.
+	PlacementTarget InstancePlacementTargetPrototypeIntf `json:"placement_target,omitempty"`
+
+	// The [profile](https://cloud.ibm.com/docs/vpc?topic=vpc-profiles) to use for this virtual server instance.  If
+	// unspecified, `bx2-2x8` will be used, but this default value is expected to change in the future.
+	Profile InstanceProfileIdentityIntf `json:"profile,omitempty"`
+
+	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
+
+	// The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes. An increase in
+	// this value will result in a corresponding decrease to
+	// `total_network_bandwidth`.
+	TotalVolumeBandwidth *int64 `json:"total_volume_bandwidth,omitempty"`
+
+	// [User data](https://cloud.ibm.com/docs/vpc?topic=vpc-user-data) to make available when setting up the virtual server
+	// instance.
+	UserData *string `json:"user_data,omitempty"`
+
+	// The additional volume attachments to create for the virtual server instance.
+	VolumeAttachments []VolumeAttachmentPrototype `json:"volume_attachments,omitempty"`
+
+	// The VPC this virtual server instance will reside in.  If specified, it must match the VPC for the subnets of the
+	// instance's network interfaces.
+	VPC VPCIdentityIntf `json:"vpc,omitempty"`
+
+	// The boot volume attachment for the virtual server instance.
+	BootVolumeAttachment *VolumeAttachmentPrototypeInstanceByImageContext `json:"boot_volume_attachment,omitempty"`
+
+	// The [catalog](https://cloud.ibm.com/docs/account?topic=account-restrict-by-user) offering
+	// or offering version to use when provisioning this virtual server instance.
+	//
+	// If an offering is specified, the latest version of that offering will be used.
+	//
+	// The specified offering or offering version may be in a different account in the same
+	// [enterprise](https://cloud.ibm.com/docs/account?topic=account-what-is-enterprise), subject
+	// to IAM policies.
+	CatalogOffering InstanceCatalogOfferingPrototypeIntf `json:"catalog_offering" validate:"required"`
+
+	// Primary network interface.
+	PrimaryNetworkInterface *NetworkInterfacePrototype `json:"primary_network_interface" validate:"required"`
+
+	// The zone this virtual server instance will reside in.
+	Zone ZoneIdentityIntf `json:"zone" validate:"required"`
+}
+
+// NewInstancePrototypeInstanceByCatalogOffering : Instantiate InstancePrototypeInstanceByCatalogOffering (Generic Model Constructor)
+func (*VpcV1) NewInstancePrototypeInstanceByCatalogOffering(catalogOffering InstanceCatalogOfferingPrototypeIntf, primaryNetworkInterface *NetworkInterfacePrototype, zone ZoneIdentityIntf) (_model *InstancePrototypeInstanceByCatalogOffering, err error) {
+	_model = &InstancePrototypeInstanceByCatalogOffering{
+		CatalogOffering:         catalogOffering,
+		PrimaryNetworkInterface: primaryNetworkInterface,
+		Zone:                    zone,
+	}
+	err = core.ValidateStruct(_model, "required parameters")
+	return
+}
+
+func (*InstancePrototypeInstanceByCatalogOffering) isaInstancePrototype() bool {
+	return true
+}
+
+// UnmarshalInstancePrototypeInstanceByCatalogOffering unmarshals an instance of InstancePrototypeInstanceByCatalogOffering from the specified map of raw messages.
+func UnmarshalInstancePrototypeInstanceByCatalogOffering(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(InstancePrototypeInstanceByCatalogOffering)
+	err = core.UnmarshalModel(m, "availability_policy", &obj.AvailabilityPolicy, UnmarshalInstanceAvailabilityPrototype)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "default_trusted_profile", &obj.DefaultTrustedProfile, UnmarshalInstanceDefaultTrustedProfilePrototype)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "keys", &obj.Keys, UnmarshalKeyIdentity)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "metadata_service", &obj.MetadataService, UnmarshalInstanceMetadataServicePrototype)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "network_interfaces", &obj.NetworkInterfaces, UnmarshalNetworkInterfacePrototype)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "placement_target", &obj.PlacementTarget, UnmarshalInstancePlacementTargetPrototype)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "profile", &obj.Profile, UnmarshalInstanceProfileIdentity)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "resource_group", &obj.ResourceGroup, UnmarshalResourceGroupIdentity)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "total_volume_bandwidth", &obj.TotalVolumeBandwidth)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "user_data", &obj.UserData)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "volume_attachments", &obj.VolumeAttachments, UnmarshalVolumeAttachmentPrototype)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "vpc", &obj.VPC, UnmarshalVPCIdentity)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "boot_volume_attachment", &obj.BootVolumeAttachment, UnmarshalVolumeAttachmentPrototypeInstanceByImageContext)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "catalog_offering", &obj.CatalogOffering, UnmarshalInstanceCatalogOfferingPrototype)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "primary_network_interface", &obj.PrimaryNetworkInterface, UnmarshalNetworkInterfacePrototype)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "zone", &obj.Zone, UnmarshalZoneIdentity)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
 // InstancePrototypeInstanceByImage : InstancePrototypeInstanceByImage struct
 // This model "extends" InstancePrototype
 type InstancePrototypeInstanceByImage struct {
@@ -69816,8 +72355,10 @@ type InstancePrototypeInstanceByImage struct {
 
 	MetadataService *InstanceMetadataServicePrototype `json:"metadata_service,omitempty"`
 
-	// The unique user-defined name for this virtual server instance (and default system hostname). If unspecified, the
-	// name will be a hyphenated list of randomly-selected words.
+	// The name for this virtual server instance. The name must not be used by another virtual server instance in the
+	// region. If unspecified, the name will be a hyphenated list of randomly-selected words.
+	//
+	// The system hostname will be based on this name.
 	Name *string `json:"name,omitempty"`
 
 	// The additional network interfaces to create for the virtual server instance.
@@ -69826,8 +72367,8 @@ type InstancePrototypeInstanceByImage struct {
 	// The placement restrictions to use for the virtual server instance.
 	PlacementTarget InstancePlacementTargetPrototypeIntf `json:"placement_target,omitempty"`
 
-	// The profile to use for this virtual server instance. If unspecified, `bx2-2x8` will be used, but this default value
-	// is expected to change in the future.
+	// The [profile](https://cloud.ibm.com/docs/vpc?topic=vpc-profiles) to use for this virtual server instance.  If
+	// unspecified, `bx2-2x8` will be used, but this default value is expected to change in the future.
 	Profile InstanceProfileIdentityIntf `json:"profile,omitempty"`
 
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
@@ -69842,10 +72383,10 @@ type InstancePrototypeInstanceByImage struct {
 	UserData *string `json:"user_data,omitempty"`
 
 	// The additional volume attachments to create for the virtual server instance.
-	VolumeAttachments []VolumeAttachmentPrototypeInstanceContext `json:"volume_attachments,omitempty"`
+	VolumeAttachments []VolumeAttachmentPrototype `json:"volume_attachments,omitempty"`
 
-	// The VPC the virtual server instance is to be a part of. If specified, it must match the VPC referenced by the
-	// subnets of the instance's network interfaces.
+	// The VPC this virtual server instance will reside in.  If specified, it must match the VPC for the subnets of the
+	// instance's network interfaces.
 	VPC VPCIdentityIntf `json:"vpc,omitempty"`
 
 	// The boot volume attachment for the virtual server instance.
@@ -69923,7 +72464,7 @@ func UnmarshalInstancePrototypeInstanceByImage(m map[string]json.RawMessage, res
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalModel(m, "volume_attachments", &obj.VolumeAttachments, UnmarshalVolumeAttachmentPrototypeInstanceContext)
+	err = core.UnmarshalModel(m, "volume_attachments", &obj.VolumeAttachments, UnmarshalVolumeAttachmentPrototype)
 	if err != nil {
 		return
 	}
@@ -69978,8 +72519,10 @@ type InstancePrototypeInstanceBySourceSnapshot struct {
 
 	MetadataService *InstanceMetadataServicePrototype `json:"metadata_service,omitempty"`
 
-	// The unique user-defined name for this virtual server instance (and default system hostname). If unspecified, the
-	// name will be a hyphenated list of randomly-selected words.
+	// The name for this virtual server instance. The name must not be used by another virtual server instance in the
+	// region. If unspecified, the name will be a hyphenated list of randomly-selected words.
+	//
+	// The system hostname will be based on this name.
 	Name *string `json:"name,omitempty"`
 
 	// The additional network interfaces to create for the virtual server instance.
@@ -69988,8 +72531,8 @@ type InstancePrototypeInstanceBySourceSnapshot struct {
 	// The placement restrictions to use for the virtual server instance.
 	PlacementTarget InstancePlacementTargetPrototypeIntf `json:"placement_target,omitempty"`
 
-	// The profile to use for this virtual server instance. If unspecified, `bx2-2x8` will be used, but this default value
-	// is expected to change in the future.
+	// The [profile](https://cloud.ibm.com/docs/vpc?topic=vpc-profiles) to use for this virtual server instance.  If
+	// unspecified, `bx2-2x8` will be used, but this default value is expected to change in the future.
 	Profile InstanceProfileIdentityIntf `json:"profile,omitempty"`
 
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
@@ -70004,10 +72547,10 @@ type InstancePrototypeInstanceBySourceSnapshot struct {
 	UserData *string `json:"user_data,omitempty"`
 
 	// The additional volume attachments to create for the virtual server instance.
-	VolumeAttachments []VolumeAttachmentPrototypeInstanceContext `json:"volume_attachments,omitempty"`
+	VolumeAttachments []VolumeAttachmentPrototype `json:"volume_attachments,omitempty"`
 
-	// The VPC the virtual server instance is to be a part of. If specified, it must match the VPC referenced by the
-	// subnets of the instance's network interfaces.
+	// The VPC this virtual server instance will reside in.  If specified, it must match the VPC for the subnets of the
+	// instance's network interfaces.
 	VPC VPCIdentityIntf `json:"vpc,omitempty"`
 
 	// The boot volume attachment for the virtual server instance.
@@ -70082,7 +72625,7 @@ func UnmarshalInstancePrototypeInstanceBySourceSnapshot(m map[string]json.RawMes
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalModel(m, "volume_attachments", &obj.VolumeAttachments, UnmarshalVolumeAttachmentPrototypeInstanceContext)
+	err = core.UnmarshalModel(m, "volume_attachments", &obj.VolumeAttachments, UnmarshalVolumeAttachmentPrototype)
 	if err != nil {
 		return
 	}
@@ -70133,8 +72676,10 @@ type InstancePrototypeInstanceBySourceTemplate struct {
 
 	MetadataService *InstanceMetadataServicePrototype `json:"metadata_service,omitempty"`
 
-	// The unique user-defined name for this virtual server instance (and default system hostname). If unspecified, the
-	// name will be a hyphenated list of randomly-selected words.
+	// The name for this virtual server instance. The name must not be used by another virtual server instance in the
+	// region. If unspecified, the name will be a hyphenated list of randomly-selected words.
+	//
+	// The system hostname will be based on this name.
 	Name *string `json:"name,omitempty"`
 
 	// The additional network interfaces to create for the virtual server instance.
@@ -70143,8 +72688,8 @@ type InstancePrototypeInstanceBySourceTemplate struct {
 	// The placement restrictions to use for the virtual server instance.
 	PlacementTarget InstancePlacementTargetPrototypeIntf `json:"placement_target,omitempty"`
 
-	// The profile to use for this virtual server instance. If unspecified, `bx2-2x8` will be used, but this default value
-	// is expected to change in the future.
+	// The [profile](https://cloud.ibm.com/docs/vpc?topic=vpc-profiles) to use for this virtual server instance.  If
+	// unspecified, `bx2-2x8` will be used, but this default value is expected to change in the future.
 	Profile InstanceProfileIdentityIntf `json:"profile,omitempty"`
 
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
@@ -70159,14 +72704,25 @@ type InstancePrototypeInstanceBySourceTemplate struct {
 	UserData *string `json:"user_data,omitempty"`
 
 	// The additional volume attachments to create for the virtual server instance.
-	VolumeAttachments []VolumeAttachmentPrototypeInstanceContext `json:"volume_attachments,omitempty"`
+	VolumeAttachments []VolumeAttachmentPrototype `json:"volume_attachments,omitempty"`
 
-	// The VPC the virtual server instance is to be a part of. If specified, it must match the VPC referenced by the
-	// subnets of the instance's network interfaces.
+	// The VPC this virtual server instance will reside in.  If specified, it must match the VPC for the subnets of the
+	// instance's network interfaces.
 	VPC VPCIdentityIntf `json:"vpc,omitempty"`
 
 	// The boot volume attachment for the virtual server instance.
 	BootVolumeAttachment *VolumeAttachmentPrototypeInstanceByImageContext `json:"boot_volume_attachment,omitempty"`
+
+	// The [catalog](https://cloud.ibm.com/docs/account?topic=account-restrict-by-user)
+	// offering version to use when provisioning this virtual server instance.
+	// If an offering is specified, the latest version of that offering will be used.
+	//
+	// The specified offering or offering version may be in a different account, subject to
+	// IAM policies.
+	//
+	// If specified, `image` must not be specified, and `source_template` must not have
+	// `image` specified.
+	CatalogOffering InstanceCatalogOfferingPrototypeIntf `json:"catalog_offering,omitempty"`
 
 	// The image to use when provisioning the virtual server instance.
 	Image ImageIdentityIntf `json:"image,omitempty"`
@@ -70241,7 +72797,7 @@ func UnmarshalInstancePrototypeInstanceBySourceTemplate(m map[string]json.RawMes
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalModel(m, "volume_attachments", &obj.VolumeAttachments, UnmarshalVolumeAttachmentPrototypeInstanceContext)
+	err = core.UnmarshalModel(m, "volume_attachments", &obj.VolumeAttachments, UnmarshalVolumeAttachmentPrototype)
 	if err != nil {
 		return
 	}
@@ -70250,6 +72806,10 @@ func UnmarshalInstancePrototypeInstanceBySourceTemplate(m map[string]json.RawMes
 		return
 	}
 	err = core.UnmarshalModel(m, "boot_volume_attachment", &obj.BootVolumeAttachment, UnmarshalVolumeAttachmentPrototypeInstanceByImageContext)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "catalog_offering", &obj.CatalogOffering, UnmarshalInstanceCatalogOfferingPrototype)
 	if err != nil {
 		return
 	}
@@ -70366,6 +72926,175 @@ func UnmarshalInstanceTemplateIdentityByID(m map[string]json.RawMessage, result 
 	return
 }
 
+// InstanceTemplatePrototypeInstanceByCatalogOffering : InstanceTemplatePrototypeInstanceByCatalogOffering struct
+// This model "extends" InstanceTemplatePrototype
+type InstanceTemplatePrototypeInstanceByCatalogOffering struct {
+	// The availability policy to use for this virtual server instance.
+	AvailabilityPolicy *InstanceAvailabilityPrototype `json:"availability_policy,omitempty"`
+
+	// The default trusted profile configuration to use for this virtual server instance  This property's value is used
+	// when provisioning the virtual server instance, but not subsequently managed. Accordingly, it is reflected as an
+	// [instance initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
+	DefaultTrustedProfile *InstanceDefaultTrustedProfilePrototype `json:"default_trusted_profile,omitempty"`
+
+	// The public SSH keys for the administrative user of the virtual server instance. Keys will be made available to the
+	// virtual server instance as cloud-init vendor data. For cloud-init enabled images, these keys will also be added as
+	// SSH authorized keys for the administrative user.
+	//
+	// For Windows images, at least one key must be specified, and one will be chosen to encrypt [the administrator
+	// password](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization). Keys are optional for other images, but if
+	// no keys are specified, the instance will be inaccessible unless the specified image provides another means of
+	// access.
+	//
+	// This property's value is used when provisioning the virtual server instance, but not subsequently managed.
+	// Accordingly, it is reflected as an [instance
+	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
+	Keys []KeyIdentityIntf `json:"keys,omitempty"`
+
+	MetadataService *InstanceMetadataServicePrototype `json:"metadata_service,omitempty"`
+
+	// The name for this instance template. The name must not be used by another instance template in the region. If
+	// unspecified, the name will be a hyphenated list of randomly-selected words.
+	Name *string `json:"name,omitempty"`
+
+	// The additional network interfaces to create for the virtual server instance.
+	NetworkInterfaces []NetworkInterfacePrototype `json:"network_interfaces,omitempty"`
+
+	// The placement restrictions to use for the virtual server instance.
+	PlacementTarget InstancePlacementTargetPrototypeIntf `json:"placement_target,omitempty"`
+
+	// The [profile](https://cloud.ibm.com/docs/vpc?topic=vpc-profiles) to use for this virtual server instance.  If
+	// unspecified, `bx2-2x8` will be used, but this default value is expected to change in the future.
+	Profile InstanceProfileIdentityIntf `json:"profile,omitempty"`
+
+	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
+
+	// The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes. An increase in
+	// this value will result in a corresponding decrease to
+	// `total_network_bandwidth`.
+	TotalVolumeBandwidth *int64 `json:"total_volume_bandwidth,omitempty"`
+
+	// [User data](https://cloud.ibm.com/docs/vpc?topic=vpc-user-data) to make available when setting up the virtual server
+	// instance.
+	UserData *string `json:"user_data,omitempty"`
+
+	// The additional volume attachments to create for the virtual server instance.
+	VolumeAttachments []VolumeAttachmentPrototype `json:"volume_attachments,omitempty"`
+
+	// The VPC this virtual server instance will reside in.  If specified, it must match the VPC for the subnets of the
+	// instance's network interfaces.
+	VPC VPCIdentityIntf `json:"vpc,omitempty"`
+
+	// The boot volume attachment for the virtual server instance.
+	BootVolumeAttachment *VolumeAttachmentPrototypeInstanceByImageContext `json:"boot_volume_attachment,omitempty"`
+
+	// The [catalog](https://cloud.ibm.com/docs/account?topic=account-restrict-by-user) offering
+	// or offering version to use when provisioning this virtual server instance.
+	//
+	// If an offering is specified, the latest version of that offering will be used.
+	//
+	// The specified offering or offering version may be in a different account in the same
+	// [enterprise](https://cloud.ibm.com/docs/account?topic=account-what-is-enterprise), subject
+	// to IAM policies.
+	CatalogOffering InstanceCatalogOfferingPrototypeIntf `json:"catalog_offering" validate:"required"`
+
+	// Primary network interface.
+	PrimaryNetworkInterface *NetworkInterfacePrototype `json:"primary_network_interface" validate:"required"`
+
+	// The zone this virtual server instance will reside in.
+	Zone ZoneIdentityIntf `json:"zone" validate:"required"`
+}
+
+// NewInstanceTemplatePrototypeInstanceByCatalogOffering : Instantiate InstanceTemplatePrototypeInstanceByCatalogOffering (Generic Model Constructor)
+func (*VpcV1) NewInstanceTemplatePrototypeInstanceByCatalogOffering(catalogOffering InstanceCatalogOfferingPrototypeIntf, primaryNetworkInterface *NetworkInterfacePrototype, zone ZoneIdentityIntf) (_model *InstanceTemplatePrototypeInstanceByCatalogOffering, err error) {
+	_model = &InstanceTemplatePrototypeInstanceByCatalogOffering{
+		CatalogOffering:         catalogOffering,
+		PrimaryNetworkInterface: primaryNetworkInterface,
+		Zone:                    zone,
+	}
+	err = core.ValidateStruct(_model, "required parameters")
+	return
+}
+
+func (*InstanceTemplatePrototypeInstanceByCatalogOffering) isaInstanceTemplatePrototype() bool {
+	return true
+}
+
+// UnmarshalInstanceTemplatePrototypeInstanceByCatalogOffering unmarshals an instance of InstanceTemplatePrototypeInstanceByCatalogOffering from the specified map of raw messages.
+func UnmarshalInstanceTemplatePrototypeInstanceByCatalogOffering(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(InstanceTemplatePrototypeInstanceByCatalogOffering)
+	err = core.UnmarshalModel(m, "availability_policy", &obj.AvailabilityPolicy, UnmarshalInstanceAvailabilityPrototype)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "default_trusted_profile", &obj.DefaultTrustedProfile, UnmarshalInstanceDefaultTrustedProfilePrototype)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "keys", &obj.Keys, UnmarshalKeyIdentity)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "metadata_service", &obj.MetadataService, UnmarshalInstanceMetadataServicePrototype)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "network_interfaces", &obj.NetworkInterfaces, UnmarshalNetworkInterfacePrototype)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "placement_target", &obj.PlacementTarget, UnmarshalInstancePlacementTargetPrototype)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "profile", &obj.Profile, UnmarshalInstanceProfileIdentity)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "resource_group", &obj.ResourceGroup, UnmarshalResourceGroupIdentity)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "total_volume_bandwidth", &obj.TotalVolumeBandwidth)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "user_data", &obj.UserData)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "volume_attachments", &obj.VolumeAttachments, UnmarshalVolumeAttachmentPrototype)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "vpc", &obj.VPC, UnmarshalVPCIdentity)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "boot_volume_attachment", &obj.BootVolumeAttachment, UnmarshalVolumeAttachmentPrototypeInstanceByImageContext)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "catalog_offering", &obj.CatalogOffering, UnmarshalInstanceCatalogOfferingPrototype)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "primary_network_interface", &obj.PrimaryNetworkInterface, UnmarshalNetworkInterfacePrototype)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "zone", &obj.Zone, UnmarshalZoneIdentity)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
 // InstanceTemplatePrototypeInstanceByImage : InstanceTemplatePrototypeInstanceByImage struct
 // This model "extends" InstanceTemplatePrototype
 type InstanceTemplatePrototypeInstanceByImage struct {
@@ -70393,8 +73122,8 @@ type InstanceTemplatePrototypeInstanceByImage struct {
 
 	MetadataService *InstanceMetadataServicePrototype `json:"metadata_service,omitempty"`
 
-	// The unique user-defined name for this virtual server instance (and default system hostname). If unspecified, the
-	// name will be a hyphenated list of randomly-selected words.
+	// The name for this instance template. The name must not be used by another instance template in the region. If
+	// unspecified, the name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
 	// The additional network interfaces to create for the virtual server instance.
@@ -70403,8 +73132,8 @@ type InstanceTemplatePrototypeInstanceByImage struct {
 	// The placement restrictions to use for the virtual server instance.
 	PlacementTarget InstancePlacementTargetPrototypeIntf `json:"placement_target,omitempty"`
 
-	// The profile to use for this virtual server instance. If unspecified, `bx2-2x8` will be used, but this default value
-	// is expected to change in the future.
+	// The [profile](https://cloud.ibm.com/docs/vpc?topic=vpc-profiles) to use for this virtual server instance.  If
+	// unspecified, `bx2-2x8` will be used, but this default value is expected to change in the future.
 	Profile InstanceProfileIdentityIntf `json:"profile,omitempty"`
 
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
@@ -70419,10 +73148,10 @@ type InstanceTemplatePrototypeInstanceByImage struct {
 	UserData *string `json:"user_data,omitempty"`
 
 	// The additional volume attachments to create for the virtual server instance.
-	VolumeAttachments []VolumeAttachmentPrototypeInstanceContext `json:"volume_attachments,omitempty"`
+	VolumeAttachments []VolumeAttachmentPrototype `json:"volume_attachments,omitempty"`
 
-	// The VPC the virtual server instance is to be a part of. If specified, it must match the VPC referenced by the
-	// subnets of the instance's network interfaces.
+	// The VPC this virtual server instance will reside in.  If specified, it must match the VPC for the subnets of the
+	// instance's network interfaces.
 	VPC VPCIdentityIntf `json:"vpc,omitempty"`
 
 	// The boot volume attachment for the virtual server instance.
@@ -70500,7 +73229,7 @@ func UnmarshalInstanceTemplatePrototypeInstanceByImage(m map[string]json.RawMess
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalModel(m, "volume_attachments", &obj.VolumeAttachments, UnmarshalVolumeAttachmentPrototypeInstanceContext)
+	err = core.UnmarshalModel(m, "volume_attachments", &obj.VolumeAttachments, UnmarshalVolumeAttachmentPrototype)
 	if err != nil {
 		return
 	}
@@ -70513,6 +73242,161 @@ func UnmarshalInstanceTemplatePrototypeInstanceByImage(m map[string]json.RawMess
 		return
 	}
 	err = core.UnmarshalModel(m, "image", &obj.Image, UnmarshalImageIdentity)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "primary_network_interface", &obj.PrimaryNetworkInterface, UnmarshalNetworkInterfacePrototype)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "zone", &obj.Zone, UnmarshalZoneIdentity)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// InstanceTemplatePrototypeInstanceBySourceSnapshot : InstanceTemplatePrototypeInstanceBySourceSnapshot struct
+// This model "extends" InstanceTemplatePrototype
+type InstanceTemplatePrototypeInstanceBySourceSnapshot struct {
+	// The availability policy to use for this virtual server instance.
+	AvailabilityPolicy *InstanceAvailabilityPrototype `json:"availability_policy,omitempty"`
+
+	// The default trusted profile configuration to use for this virtual server instance  This property's value is used
+	// when provisioning the virtual server instance, but not subsequently managed. Accordingly, it is reflected as an
+	// [instance initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
+	DefaultTrustedProfile *InstanceDefaultTrustedProfilePrototype `json:"default_trusted_profile,omitempty"`
+
+	// The public SSH keys for the administrative user of the virtual server instance. Keys will be made available to the
+	// virtual server instance as cloud-init vendor data. For cloud-init enabled images, these keys will also be added as
+	// SSH authorized keys for the administrative user.
+	//
+	// For Windows images, at least one key must be specified, and one will be chosen to encrypt [the administrator
+	// password](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization). Keys are optional for other images, but if
+	// no keys are specified, the instance will be inaccessible unless the specified image provides another means of
+	// access.
+	//
+	// This property's value is used when provisioning the virtual server instance, but not subsequently managed.
+	// Accordingly, it is reflected as an [instance
+	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
+	Keys []KeyIdentityIntf `json:"keys,omitempty"`
+
+	MetadataService *InstanceMetadataServicePrototype `json:"metadata_service,omitempty"`
+
+	// The name for this instance template. The name must not be used by another instance template in the region. If
+	// unspecified, the name will be a hyphenated list of randomly-selected words.
+	Name *string `json:"name,omitempty"`
+
+	// The additional network interfaces to create for the virtual server instance.
+	NetworkInterfaces []NetworkInterfacePrototype `json:"network_interfaces,omitempty"`
+
+	// The placement restrictions to use for the virtual server instance.
+	PlacementTarget InstancePlacementTargetPrototypeIntf `json:"placement_target,omitempty"`
+
+	// The [profile](https://cloud.ibm.com/docs/vpc?topic=vpc-profiles) to use for this virtual server instance.  If
+	// unspecified, `bx2-2x8` will be used, but this default value is expected to change in the future.
+	Profile InstanceProfileIdentityIntf `json:"profile,omitempty"`
+
+	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
+
+	// The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes. An increase in
+	// this value will result in a corresponding decrease to
+	// `total_network_bandwidth`.
+	TotalVolumeBandwidth *int64 `json:"total_volume_bandwidth,omitempty"`
+
+	// [User data](https://cloud.ibm.com/docs/vpc?topic=vpc-user-data) to make available when setting up the virtual server
+	// instance.
+	UserData *string `json:"user_data,omitempty"`
+
+	// The additional volume attachments to create for the virtual server instance.
+	VolumeAttachments []VolumeAttachmentPrototype `json:"volume_attachments,omitempty"`
+
+	// The VPC this virtual server instance will reside in.  If specified, it must match the VPC for the subnets of the
+	// instance's network interfaces.
+	VPC VPCIdentityIntf `json:"vpc,omitempty"`
+
+	// The boot volume attachment for the virtual server instance.
+	BootVolumeAttachment *VolumeAttachmentPrototypeInstanceBySourceSnapshotContext `json:"boot_volume_attachment" validate:"required"`
+
+	// Primary network interface.
+	PrimaryNetworkInterface *NetworkInterfacePrototype `json:"primary_network_interface" validate:"required"`
+
+	// The zone this virtual server instance will reside in.
+	Zone ZoneIdentityIntf `json:"zone" validate:"required"`
+}
+
+// NewInstanceTemplatePrototypeInstanceBySourceSnapshot : Instantiate InstanceTemplatePrototypeInstanceBySourceSnapshot (Generic Model Constructor)
+func (*VpcV1) NewInstanceTemplatePrototypeInstanceBySourceSnapshot(bootVolumeAttachment *VolumeAttachmentPrototypeInstanceBySourceSnapshotContext, primaryNetworkInterface *NetworkInterfacePrototype, zone ZoneIdentityIntf) (_model *InstanceTemplatePrototypeInstanceBySourceSnapshot, err error) {
+	_model = &InstanceTemplatePrototypeInstanceBySourceSnapshot{
+		BootVolumeAttachment:    bootVolumeAttachment,
+		PrimaryNetworkInterface: primaryNetworkInterface,
+		Zone:                    zone,
+	}
+	err = core.ValidateStruct(_model, "required parameters")
+	return
+}
+
+func (*InstanceTemplatePrototypeInstanceBySourceSnapshot) isaInstanceTemplatePrototype() bool {
+	return true
+}
+
+// UnmarshalInstanceTemplatePrototypeInstanceBySourceSnapshot unmarshals an instance of InstanceTemplatePrototypeInstanceBySourceSnapshot from the specified map of raw messages.
+func UnmarshalInstanceTemplatePrototypeInstanceBySourceSnapshot(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(InstanceTemplatePrototypeInstanceBySourceSnapshot)
+	err = core.UnmarshalModel(m, "availability_policy", &obj.AvailabilityPolicy, UnmarshalInstanceAvailabilityPrototype)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "default_trusted_profile", &obj.DefaultTrustedProfile, UnmarshalInstanceDefaultTrustedProfilePrototype)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "keys", &obj.Keys, UnmarshalKeyIdentity)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "metadata_service", &obj.MetadataService, UnmarshalInstanceMetadataServicePrototype)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "network_interfaces", &obj.NetworkInterfaces, UnmarshalNetworkInterfacePrototype)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "placement_target", &obj.PlacementTarget, UnmarshalInstancePlacementTargetPrototype)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "profile", &obj.Profile, UnmarshalInstanceProfileIdentity)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "resource_group", &obj.ResourceGroup, UnmarshalResourceGroupIdentity)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "total_volume_bandwidth", &obj.TotalVolumeBandwidth)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "user_data", &obj.UserData)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "volume_attachments", &obj.VolumeAttachments, UnmarshalVolumeAttachmentPrototype)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "vpc", &obj.VPC, UnmarshalVPCIdentity)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "boot_volume_attachment", &obj.BootVolumeAttachment, UnmarshalVolumeAttachmentPrototypeInstanceBySourceSnapshotContext)
 	if err != nil {
 		return
 	}
@@ -70555,8 +73439,8 @@ type InstanceTemplatePrototypeInstanceBySourceTemplate struct {
 
 	MetadataService *InstanceMetadataServicePrototype `json:"metadata_service,omitempty"`
 
-	// The unique user-defined name for this virtual server instance (and default system hostname). If unspecified, the
-	// name will be a hyphenated list of randomly-selected words.
+	// The name for this instance template. The name must not be used by another instance template in the region. If
+	// unspecified, the name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
 	// The additional network interfaces to create for the virtual server instance.
@@ -70565,8 +73449,8 @@ type InstanceTemplatePrototypeInstanceBySourceTemplate struct {
 	// The placement restrictions to use for the virtual server instance.
 	PlacementTarget InstancePlacementTargetPrototypeIntf `json:"placement_target,omitempty"`
 
-	// The profile to use for this virtual server instance. If unspecified, `bx2-2x8` will be used, but this default value
-	// is expected to change in the future.
+	// The [profile](https://cloud.ibm.com/docs/vpc?topic=vpc-profiles) to use for this virtual server instance.  If
+	// unspecified, `bx2-2x8` will be used, but this default value is expected to change in the future.
 	Profile InstanceProfileIdentityIntf `json:"profile,omitempty"`
 
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
@@ -70581,14 +73465,25 @@ type InstanceTemplatePrototypeInstanceBySourceTemplate struct {
 	UserData *string `json:"user_data,omitempty"`
 
 	// The additional volume attachments to create for the virtual server instance.
-	VolumeAttachments []VolumeAttachmentPrototypeInstanceContext `json:"volume_attachments,omitempty"`
+	VolumeAttachments []VolumeAttachmentPrototype `json:"volume_attachments,omitempty"`
 
-	// The VPC the virtual server instance is to be a part of. If specified, it must match the VPC referenced by the
-	// subnets of the instance's network interfaces.
+	// The VPC this virtual server instance will reside in.  If specified, it must match the VPC for the subnets of the
+	// instance's network interfaces.
 	VPC VPCIdentityIntf `json:"vpc,omitempty"`
 
 	// The boot volume attachment for the virtual server instance.
 	BootVolumeAttachment *VolumeAttachmentPrototypeInstanceByImageContext `json:"boot_volume_attachment,omitempty"`
+
+	// The [catalog](https://cloud.ibm.com/docs/account?topic=account-restrict-by-user)
+	// offering version to use when provisioning this virtual server instance.
+	// If an offering is specified, the latest version of that offering will be used.
+	//
+	// The specified offering or offering version may be in a different account, subject to
+	// IAM policies.
+	//
+	// If specified, `image` must not be specified, and `source_template` must not have
+	// `image` specified.
+	CatalogOffering InstanceCatalogOfferingPrototypeIntf `json:"catalog_offering,omitempty"`
 
 	// The image to use when provisioning the virtual server instance.
 	Image ImageIdentityIntf `json:"image,omitempty"`
@@ -70663,7 +73558,7 @@ func UnmarshalInstanceTemplatePrototypeInstanceBySourceTemplate(m map[string]jso
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalModel(m, "volume_attachments", &obj.VolumeAttachments, UnmarshalVolumeAttachmentPrototypeInstanceContext)
+	err = core.UnmarshalModel(m, "volume_attachments", &obj.VolumeAttachments, UnmarshalVolumeAttachmentPrototype)
 	if err != nil {
 		return
 	}
@@ -70672,6 +73567,10 @@ func UnmarshalInstanceTemplatePrototypeInstanceBySourceTemplate(m map[string]jso
 		return
 	}
 	err = core.UnmarshalModel(m, "boot_volume_attachment", &obj.BootVolumeAttachment, UnmarshalVolumeAttachmentPrototypeInstanceByImageContext)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "catalog_offering", &obj.CatalogOffering, UnmarshalInstanceCatalogOfferingPrototype)
 	if err != nil {
 		return
 	}
@@ -70684,6 +73583,192 @@ func UnmarshalInstanceTemplatePrototypeInstanceBySourceTemplate(m map[string]jso
 		return
 	}
 	err = core.UnmarshalModel(m, "source_template", &obj.SourceTemplate, UnmarshalInstanceTemplateIdentity)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "zone", &obj.Zone, UnmarshalZoneIdentity)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// InstanceTemplateInstanceByCatalogOffering : InstanceTemplateInstanceByCatalogOffering struct
+// This model "extends" InstanceTemplate
+type InstanceTemplateInstanceByCatalogOffering struct {
+	// The availability policy to use for this virtual server instance.
+	AvailabilityPolicy *InstanceAvailabilityPrototype `json:"availability_policy,omitempty"`
+
+	// The date and time that the instance template was created.
+	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
+
+	// The CRN for this instance template.
+	CRN *string `json:"crn" validate:"required"`
+
+	// The default trusted profile configuration to use for this virtual server instance  This property's value is used
+	// when provisioning the virtual server instance, but not subsequently managed. Accordingly, it is reflected as an
+	// [instance initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
+	DefaultTrustedProfile *InstanceDefaultTrustedProfilePrototype `json:"default_trusted_profile,omitempty"`
+
+	// The URL for this instance template.
+	Href *string `json:"href" validate:"required"`
+
+	// The unique identifier for this instance template.
+	ID *string `json:"id" validate:"required"`
+
+	// The public SSH keys for the administrative user of the virtual server instance. Keys will be made available to the
+	// virtual server instance as cloud-init vendor data. For cloud-init enabled images, these keys will also be added as
+	// SSH authorized keys for the administrative user.
+	//
+	// For Windows images, at least one key must be specified, and one will be chosen to encrypt [the administrator
+	// password](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization). Keys are optional for other images, but if
+	// no keys are specified, the instance will be inaccessible unless the specified image provides another means of
+	// access.
+	//
+	// This property's value is used when provisioning the virtual server instance, but not subsequently managed.
+	// Accordingly, it is reflected as an [instance
+	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
+	Keys []KeyIdentityIntf `json:"keys,omitempty"`
+
+	MetadataService *InstanceMetadataServicePrototype `json:"metadata_service,omitempty"`
+
+	// The name for this instance template. The name is unique across all instance templates in the region.
+	Name *string `json:"name" validate:"required"`
+
+	// The additional network interfaces to create for the virtual server instance.
+	NetworkInterfaces []NetworkInterfacePrototype `json:"network_interfaces,omitempty"`
+
+	// The placement restrictions to use for the virtual server instance.
+	PlacementTarget InstancePlacementTargetPrototypeIntf `json:"placement_target,omitempty"`
+
+	// The [profile](https://cloud.ibm.com/docs/vpc?topic=vpc-profiles) to use for this virtual server instance.  If
+	// unspecified, `bx2-2x8` will be used, but this default value is expected to change in the future.
+	Profile InstanceProfileIdentityIntf `json:"profile,omitempty"`
+
+	// The resource group for this instance template.
+	ResourceGroup *ResourceGroupReference `json:"resource_group" validate:"required"`
+
+	// The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes. An increase in
+	// this value will result in a corresponding decrease to
+	// `total_network_bandwidth`.
+	TotalVolumeBandwidth *int64 `json:"total_volume_bandwidth,omitempty"`
+
+	// [User data](https://cloud.ibm.com/docs/vpc?topic=vpc-user-data) to make available when setting up the virtual server
+	// instance.
+	UserData *string `json:"user_data,omitempty"`
+
+	// The additional volume attachments to create for the virtual server instance.
+	VolumeAttachments []VolumeAttachmentPrototype `json:"volume_attachments,omitempty"`
+
+	// The VPC this virtual server instance will reside in.  If specified, it must match the VPC for the subnets of the
+	// instance's network interfaces.
+	VPC VPCIdentityIntf `json:"vpc,omitempty"`
+
+	// The boot volume attachment for the virtual server instance.
+	BootVolumeAttachment *VolumeAttachmentPrototypeInstanceByImageContext `json:"boot_volume_attachment,omitempty"`
+
+	// The [catalog](https://cloud.ibm.com/docs/account?topic=account-restrict-by-user) offering
+	// or offering version to use when provisioning this virtual server instance.
+	//
+	// If an offering is specified, the latest version of that offering will be used.
+	//
+	// The specified offering or offering version may be in a different account in the same
+	// [enterprise](https://cloud.ibm.com/docs/account?topic=account-what-is-enterprise), subject
+	// to IAM policies.
+	CatalogOffering InstanceCatalogOfferingPrototypeIntf `json:"catalog_offering" validate:"required"`
+
+	// Primary network interface.
+	PrimaryNetworkInterface *NetworkInterfacePrototype `json:"primary_network_interface" validate:"required"`
+
+	// The zone this virtual server instance will reside in.
+	Zone ZoneIdentityIntf `json:"zone" validate:"required"`
+}
+
+func (*InstanceTemplateInstanceByCatalogOffering) isaInstanceTemplate() bool {
+	return true
+}
+
+// UnmarshalInstanceTemplateInstanceByCatalogOffering unmarshals an instance of InstanceTemplateInstanceByCatalogOffering from the specified map of raw messages.
+func UnmarshalInstanceTemplateInstanceByCatalogOffering(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(InstanceTemplateInstanceByCatalogOffering)
+	err = core.UnmarshalModel(m, "availability_policy", &obj.AvailabilityPolicy, UnmarshalInstanceAvailabilityPrototype)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "created_at", &obj.CreatedAt)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "default_trusted_profile", &obj.DefaultTrustedProfile, UnmarshalInstanceDefaultTrustedProfilePrototype)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "keys", &obj.Keys, UnmarshalKeyIdentity)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "metadata_service", &obj.MetadataService, UnmarshalInstanceMetadataServicePrototype)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "network_interfaces", &obj.NetworkInterfaces, UnmarshalNetworkInterfacePrototype)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "placement_target", &obj.PlacementTarget, UnmarshalInstancePlacementTargetPrototype)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "profile", &obj.Profile, UnmarshalInstanceProfileIdentity)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "resource_group", &obj.ResourceGroup, UnmarshalResourceGroupReference)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "total_volume_bandwidth", &obj.TotalVolumeBandwidth)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "user_data", &obj.UserData)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "volume_attachments", &obj.VolumeAttachments, UnmarshalVolumeAttachmentPrototype)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "vpc", &obj.VPC, UnmarshalVPCIdentity)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "boot_volume_attachment", &obj.BootVolumeAttachment, UnmarshalVolumeAttachmentPrototypeInstanceByImageContext)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "catalog_offering", &obj.CatalogOffering, UnmarshalInstanceCatalogOfferingPrototype)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "primary_network_interface", &obj.PrimaryNetworkInterface, UnmarshalNetworkInterfacePrototype)
 	if err != nil {
 		return
 	}
@@ -70734,7 +73819,7 @@ type InstanceTemplateInstanceByImage struct {
 
 	MetadataService *InstanceMetadataServicePrototype `json:"metadata_service,omitempty"`
 
-	// The unique user-defined name for this instance template.
+	// The name for this instance template. The name is unique across all instance templates in the region.
 	Name *string `json:"name" validate:"required"`
 
 	// The additional network interfaces to create for the virtual server instance.
@@ -70743,8 +73828,8 @@ type InstanceTemplateInstanceByImage struct {
 	// The placement restrictions to use for the virtual server instance.
 	PlacementTarget InstancePlacementTargetPrototypeIntf `json:"placement_target,omitempty"`
 
-	// The profile to use for this virtual server instance. If unspecified, `bx2-2x8` will be used, but this default value
-	// is expected to change in the future.
+	// The [profile](https://cloud.ibm.com/docs/vpc?topic=vpc-profiles) to use for this virtual server instance.  If
+	// unspecified, `bx2-2x8` will be used, but this default value is expected to change in the future.
 	Profile InstanceProfileIdentityIntf `json:"profile,omitempty"`
 
 	// The resource group for this instance template.
@@ -70760,10 +73845,10 @@ type InstanceTemplateInstanceByImage struct {
 	UserData *string `json:"user_data,omitempty"`
 
 	// The additional volume attachments to create for the virtual server instance.
-	VolumeAttachments []VolumeAttachmentPrototypeInstanceContext `json:"volume_attachments,omitempty"`
+	VolumeAttachments []VolumeAttachmentPrototype `json:"volume_attachments,omitempty"`
 
-	// The VPC the virtual server instance is to be a part of. If specified, it must match the VPC referenced by the
-	// subnets of the instance's network interfaces.
+	// The VPC this virtual server instance will reside in.  If specified, it must match the VPC for the subnets of the
+	// instance's network interfaces.
 	VPC VPCIdentityIntf `json:"vpc,omitempty"`
 
 	// The boot volume attachment for the virtual server instance.
@@ -70846,7 +73931,7 @@ func UnmarshalInstanceTemplateInstanceByImage(m map[string]json.RawMessage, resu
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalModel(m, "volume_attachments", &obj.VolumeAttachments, UnmarshalVolumeAttachmentPrototypeInstanceContext)
+	err = core.UnmarshalModel(m, "volume_attachments", &obj.VolumeAttachments, UnmarshalVolumeAttachmentPrototype)
 	if err != nil {
 		return
 	}
@@ -70913,7 +73998,7 @@ type InstanceTemplateInstanceBySourceSnapshot struct {
 
 	MetadataService *InstanceMetadataServicePrototype `json:"metadata_service,omitempty"`
 
-	// The unique user-defined name for this instance template.
+	// The name for this instance template. The name is unique across all instance templates in the region.
 	Name *string `json:"name" validate:"required"`
 
 	// The additional network interfaces to create for the virtual server instance.
@@ -70922,8 +74007,8 @@ type InstanceTemplateInstanceBySourceSnapshot struct {
 	// The placement restrictions to use for the virtual server instance.
 	PlacementTarget InstancePlacementTargetPrototypeIntf `json:"placement_target,omitempty"`
 
-	// The profile to use for this virtual server instance. If unspecified, `bx2-2x8` will be used, but this default value
-	// is expected to change in the future.
+	// The [profile](https://cloud.ibm.com/docs/vpc?topic=vpc-profiles) to use for this virtual server instance.  If
+	// unspecified, `bx2-2x8` will be used, but this default value is expected to change in the future.
 	Profile InstanceProfileIdentityIntf `json:"profile,omitempty"`
 
 	// The resource group for this instance template.
@@ -70939,10 +74024,10 @@ type InstanceTemplateInstanceBySourceSnapshot struct {
 	UserData *string `json:"user_data,omitempty"`
 
 	// The additional volume attachments to create for the virtual server instance.
-	VolumeAttachments []VolumeAttachmentPrototypeInstanceContext `json:"volume_attachments,omitempty"`
+	VolumeAttachments []VolumeAttachmentPrototype `json:"volume_attachments,omitempty"`
 
-	// The VPC the virtual server instance is to be a part of. If specified, it must match the VPC referenced by the
-	// subnets of the instance's network interfaces.
+	// The VPC this virtual server instance will reside in.  If specified, it must match the VPC for the subnets of the
+	// instance's network interfaces.
 	VPC VPCIdentityIntf `json:"vpc,omitempty"`
 
 	// The boot volume attachment for the virtual server instance.
@@ -71022,7 +74107,7 @@ func UnmarshalInstanceTemplateInstanceBySourceSnapshot(m map[string]json.RawMess
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalModel(m, "volume_attachments", &obj.VolumeAttachments, UnmarshalVolumeAttachmentPrototypeInstanceContext)
+	err = core.UnmarshalModel(m, "volume_attachments", &obj.VolumeAttachments, UnmarshalVolumeAttachmentPrototype)
 	if err != nil {
 		return
 	}
@@ -71656,7 +74741,7 @@ func UnmarshalLoadBalancerListenerPolicyTargetLoadBalancerListenerPolicyRedirect
 // LoadBalancerListenerPolicyTargetLoadBalancerPoolReference : LoadBalancerListenerPolicyTargetLoadBalancerPoolReference struct
 // This model "extends" LoadBalancerListenerPolicyTarget
 type LoadBalancerListenerPolicyTargetLoadBalancerPoolReference struct {
-	// If present, this property indicates the referenced resource has been deleted and provides
+	// If present, this property indicates the referenced resource has been deleted, and provides
 	// some supplementary information.
 	Deleted *LoadBalancerPoolReferenceDeleted `json:"deleted,omitempty"`
 
@@ -71666,7 +74751,7 @@ type LoadBalancerListenerPolicyTargetLoadBalancerPoolReference struct {
 	// The unique identifier for this load balancer pool.
 	ID *string `json:"id" validate:"required"`
 
-	// The user-defined name for this load balancer pool.
+	// The name for this load balancer pool. The name is unique across all pools for the load balancer.
 	Name *string `json:"name" validate:"required"`
 }
 
@@ -71875,7 +74960,7 @@ type LoadBalancerPoolMemberTargetInstanceReference struct {
 	// The CRN for this virtual server instance.
 	CRN *string `json:"crn" validate:"required"`
 
-	// If present, this property indicates the referenced resource has been deleted and provides
+	// If present, this property indicates the referenced resource has been deleted, and provides
 	// some supplementary information.
 	Deleted *InstanceReferenceDeleted `json:"deleted,omitempty"`
 
@@ -71885,7 +74970,7 @@ type LoadBalancerPoolMemberTargetInstanceReference struct {
 	// The unique identifier for this virtual server instance.
 	ID *string `json:"id" validate:"required"`
 
-	// The user-defined name for this virtual server instance (and default system hostname).
+	// The name for this virtual server instance. The name is unique across all virtual server instances in the region.
 	Name *string `json:"name" validate:"required"`
 }
 
@@ -72267,13 +75352,13 @@ func UnmarshalNetworkACLIdentityByID(m map[string]json.RawMessage, result interf
 // NetworkACLPrototypeNetworkACLByRules : NetworkACLPrototypeNetworkACLByRules struct
 // This model "extends" NetworkACLPrototype
 type NetworkACLPrototypeNetworkACLByRules struct {
-	// The user-defined name for this network ACL. Names must be unique within the VPC the network ACL resides in. If
-	// unspecified, the name will be a hyphenated list of randomly-selected words.
+	// The name for this network ACL. The name must not be used by another network ACL for the VPC. If unspecified, the
+	// name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
 
-	// The VPC this network ACL is to be a part of.
+	// The VPC this network ACL will reside in.
 	VPC VPCIdentityIntf `json:"vpc" validate:"required"`
 
 	// The prototype objects for rules to create along with this network ACL. If unspecified, no rules will be created,
@@ -72320,13 +75405,13 @@ func UnmarshalNetworkACLPrototypeNetworkACLByRules(m map[string]json.RawMessage,
 // NetworkACLPrototypeNetworkACLBySourceNetworkACL : NetworkACLPrototypeNetworkACLBySourceNetworkACL struct
 // This model "extends" NetworkACLPrototype
 type NetworkACLPrototypeNetworkACLBySourceNetworkACL struct {
-	// The user-defined name for this network ACL. Names must be unique within the VPC the network ACL resides in. If
-	// unspecified, the name will be a hyphenated list of randomly-selected words.
+	// The name for this network ACL. The name must not be used by another network ACL for the VPC. If unspecified, the
+	// name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
 
-	// The VPC this network ACL is to be a part of.
+	// The VPC this network ACL will reside in.
 	VPC VPCIdentityIntf `json:"vpc" validate:"required"`
 
 	// Network ACL to copy rules from.
@@ -72497,7 +75582,7 @@ func UnmarshalNetworkACLRuleBeforePrototypeNetworkACLRuleIdentityByID(m map[stri
 // NetworkACLRuleItemNetworkACLRuleProtocolAll : NetworkACLRuleItemNetworkACLRuleProtocolAll struct
 // This model "extends" NetworkACLRuleItem
 type NetworkACLRuleItemNetworkACLRuleProtocolAll struct {
-	// Whether to allow or deny matching traffic.
+	// The action to perform for a packet matching the rule.
 	Action *string `json:"action" validate:"required"`
 
 	// The rule that this rule is immediately before. In a rule collection, this always refers to the next item in the
@@ -72507,10 +75592,10 @@ type NetworkACLRuleItemNetworkACLRuleProtocolAll struct {
 	// The date and time that the rule was created.
 	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
 
-	// The destination CIDR block. The CIDR block `0.0.0.0/0` applies to all addresses.
+	// The destination IP address or CIDR block to match. The CIDR block `0.0.0.0/0` matches all destination addresses.
 	Destination *string `json:"destination" validate:"required"`
 
-	// Whether the traffic to be matched is `inbound` or `outbound`.
+	// The direction of traffic to match.
 	Direction *string `json:"direction" validate:"required"`
 
 	// The URL for this network ACL rule.
@@ -72522,11 +75607,10 @@ type NetworkACLRuleItemNetworkACLRuleProtocolAll struct {
 	// The IP version for this rule.
 	IPVersion *string `json:"ip_version" validate:"required"`
 
-	// The user-defined name for this rule. Names must be unique within the network ACL the rule resides in. If
-	// unspecified, the name will be a hyphenated list of randomly-selected words.
+	// The name for this network ACL rule. The name is unique across all rules for the network ACL.
 	Name *string `json:"name" validate:"required"`
 
-	// The source CIDR block. The CIDR block `0.0.0.0/0` applies to all addresses.
+	// The source IP address or CIDR block to match. The CIDR block `0.0.0.0/0` matches all source addresses.
 	Source *string `json:"source" validate:"required"`
 
 	// The protocol to enforce.
@@ -72534,14 +75618,14 @@ type NetworkACLRuleItemNetworkACLRuleProtocolAll struct {
 }
 
 // Constants associated with the NetworkACLRuleItemNetworkACLRuleProtocolAll.Action property.
-// Whether to allow or deny matching traffic.
+// The action to perform for a packet matching the rule.
 const (
 	NetworkACLRuleItemNetworkACLRuleProtocolAllActionAllowConst = "allow"
 	NetworkACLRuleItemNetworkACLRuleProtocolAllActionDenyConst  = "deny"
 )
 
 // Constants associated with the NetworkACLRuleItemNetworkACLRuleProtocolAll.Direction property.
-// Whether the traffic to be matched is `inbound` or `outbound`.
+// The direction of traffic to match.
 const (
 	NetworkACLRuleItemNetworkACLRuleProtocolAllDirectionInboundConst  = "inbound"
 	NetworkACLRuleItemNetworkACLRuleProtocolAllDirectionOutboundConst = "outbound"
@@ -72551,7 +75635,6 @@ const (
 // The IP version for this rule.
 const (
 	NetworkACLRuleItemNetworkACLRuleProtocolAllIPVersionIpv4Const = "ipv4"
-	NetworkACLRuleItemNetworkACLRuleProtocolAllIPVersionIpv6Const = "ipv6"
 )
 
 // Constants associated with the NetworkACLRuleItemNetworkACLRuleProtocolAll.Protocol property.
@@ -72618,7 +75701,7 @@ func UnmarshalNetworkACLRuleItemNetworkACLRuleProtocolAll(m map[string]json.RawM
 // NetworkACLRuleItemNetworkACLRuleProtocolIcmp : NetworkACLRuleItemNetworkACLRuleProtocolIcmp struct
 // This model "extends" NetworkACLRuleItem
 type NetworkACLRuleItemNetworkACLRuleProtocolIcmp struct {
-	// Whether to allow or deny matching traffic.
+	// The action to perform for a packet matching the rule.
 	Action *string `json:"action" validate:"required"`
 
 	// The rule that this rule is immediately before. In a rule collection, this always refers to the next item in the
@@ -72628,10 +75711,10 @@ type NetworkACLRuleItemNetworkACLRuleProtocolIcmp struct {
 	// The date and time that the rule was created.
 	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
 
-	// The destination CIDR block. The CIDR block `0.0.0.0/0` applies to all addresses.
+	// The destination IP address or CIDR block to match. The CIDR block `0.0.0.0/0` matches all destination addresses.
 	Destination *string `json:"destination" validate:"required"`
 
-	// Whether the traffic to be matched is `inbound` or `outbound`.
+	// The direction of traffic to match.
 	Direction *string `json:"direction" validate:"required"`
 
 	// The URL for this network ACL rule.
@@ -72643,33 +75726,35 @@ type NetworkACLRuleItemNetworkACLRuleProtocolIcmp struct {
 	// The IP version for this rule.
 	IPVersion *string `json:"ip_version" validate:"required"`
 
-	// The user-defined name for this rule. Names must be unique within the network ACL the rule resides in. If
-	// unspecified, the name will be a hyphenated list of randomly-selected words.
+	// The name for this network ACL rule. The name is unique across all rules for the network ACL.
 	Name *string `json:"name" validate:"required"`
 
-	// The source CIDR block. The CIDR block `0.0.0.0/0` applies to all addresses.
+	// The source IP address or CIDR block to match. The CIDR block `0.0.0.0/0` matches all source addresses.
 	Source *string `json:"source" validate:"required"`
 
-	// The ICMP traffic code to allow. If unspecified, all codes are allowed. This can only be specified if type is also
-	// specified.
+	// The ICMP traffic code to match.
+	//
+	// If absent, all codes are matched.
 	Code *int64 `json:"code,omitempty"`
 
 	// The protocol to enforce.
 	Protocol *string `json:"protocol" validate:"required"`
 
-	// The ICMP traffic type to allow. If unspecified, all types are allowed by this rule.
+	// The ICMP traffic type to match.
+	//
+	// If absent, all types are matched.
 	Type *int64 `json:"type,omitempty"`
 }
 
 // Constants associated with the NetworkACLRuleItemNetworkACLRuleProtocolIcmp.Action property.
-// Whether to allow or deny matching traffic.
+// The action to perform for a packet matching the rule.
 const (
 	NetworkACLRuleItemNetworkACLRuleProtocolIcmpActionAllowConst = "allow"
 	NetworkACLRuleItemNetworkACLRuleProtocolIcmpActionDenyConst  = "deny"
 )
 
 // Constants associated with the NetworkACLRuleItemNetworkACLRuleProtocolIcmp.Direction property.
-// Whether the traffic to be matched is `inbound` or `outbound`.
+// The direction of traffic to match.
 const (
 	NetworkACLRuleItemNetworkACLRuleProtocolIcmpDirectionInboundConst  = "inbound"
 	NetworkACLRuleItemNetworkACLRuleProtocolIcmpDirectionOutboundConst = "outbound"
@@ -72679,7 +75764,6 @@ const (
 // The IP version for this rule.
 const (
 	NetworkACLRuleItemNetworkACLRuleProtocolIcmpIPVersionIpv4Const = "ipv4"
-	NetworkACLRuleItemNetworkACLRuleProtocolIcmpIPVersionIpv6Const = "ipv6"
 )
 
 // Constants associated with the NetworkACLRuleItemNetworkACLRuleProtocolIcmp.Protocol property.
@@ -72754,7 +75838,7 @@ func UnmarshalNetworkACLRuleItemNetworkACLRuleProtocolIcmp(m map[string]json.Raw
 // NetworkACLRuleItemNetworkACLRuleProtocolTcpudp : NetworkACLRuleItemNetworkACLRuleProtocolTcpudp struct
 // This model "extends" NetworkACLRuleItem
 type NetworkACLRuleItemNetworkACLRuleProtocolTcpudp struct {
-	// Whether to allow or deny matching traffic.
+	// The action to perform for a packet matching the rule.
 	Action *string `json:"action" validate:"required"`
 
 	// The rule that this rule is immediately before. In a rule collection, this always refers to the next item in the
@@ -72764,10 +75848,10 @@ type NetworkACLRuleItemNetworkACLRuleProtocolTcpudp struct {
 	// The date and time that the rule was created.
 	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
 
-	// The destination CIDR block. The CIDR block `0.0.0.0/0` applies to all addresses.
+	// The destination IP address or CIDR block to match. The CIDR block `0.0.0.0/0` matches all destination addresses.
 	Destination *string `json:"destination" validate:"required"`
 
-	// Whether the traffic to be matched is `inbound` or `outbound`.
+	// The direction of traffic to match.
 	Direction *string `json:"direction" validate:"required"`
 
 	// The URL for this network ACL rule.
@@ -72779,38 +75863,37 @@ type NetworkACLRuleItemNetworkACLRuleProtocolTcpudp struct {
 	// The IP version for this rule.
 	IPVersion *string `json:"ip_version" validate:"required"`
 
-	// The user-defined name for this rule. Names must be unique within the network ACL the rule resides in. If
-	// unspecified, the name will be a hyphenated list of randomly-selected words.
+	// The name for this network ACL rule. The name is unique across all rules for the network ACL.
 	Name *string `json:"name" validate:"required"`
 
-	// The source CIDR block. The CIDR block `0.0.0.0/0` applies to all addresses.
+	// The source IP address or CIDR block to match. The CIDR block `0.0.0.0/0` matches all source addresses.
 	Source *string `json:"source" validate:"required"`
 
 	// The inclusive upper bound of TCP/UDP destination port range.
-	DestinationPortMax *int64 `json:"destination_port_max,omitempty"`
+	DestinationPortMax *int64 `json:"destination_port_max" validate:"required"`
 
 	// The inclusive lower bound of TCP/UDP destination port range.
-	DestinationPortMin *int64 `json:"destination_port_min,omitempty"`
+	DestinationPortMin *int64 `json:"destination_port_min" validate:"required"`
 
 	// The protocol to enforce.
 	Protocol *string `json:"protocol" validate:"required"`
 
 	// The inclusive upper bound of TCP/UDP source port range.
-	SourcePortMax *int64 `json:"source_port_max,omitempty"`
+	SourcePortMax *int64 `json:"source_port_max" validate:"required"`
 
 	// The inclusive lower bound of TCP/UDP source port range.
-	SourcePortMin *int64 `json:"source_port_min,omitempty"`
+	SourcePortMin *int64 `json:"source_port_min" validate:"required"`
 }
 
 // Constants associated with the NetworkACLRuleItemNetworkACLRuleProtocolTcpudp.Action property.
-// Whether to allow or deny matching traffic.
+// The action to perform for a packet matching the rule.
 const (
 	NetworkACLRuleItemNetworkACLRuleProtocolTcpudpActionAllowConst = "allow"
 	NetworkACLRuleItemNetworkACLRuleProtocolTcpudpActionDenyConst  = "deny"
 )
 
 // Constants associated with the NetworkACLRuleItemNetworkACLRuleProtocolTcpudp.Direction property.
-// Whether the traffic to be matched is `inbound` or `outbound`.
+// The direction of traffic to match.
 const (
 	NetworkACLRuleItemNetworkACLRuleProtocolTcpudpDirectionInboundConst  = "inbound"
 	NetworkACLRuleItemNetworkACLRuleProtocolTcpudpDirectionOutboundConst = "outbound"
@@ -72820,7 +75903,6 @@ const (
 // The IP version for this rule.
 const (
 	NetworkACLRuleItemNetworkACLRuleProtocolTcpudpIPVersionIpv4Const = "ipv4"
-	NetworkACLRuleItemNetworkACLRuleProtocolTcpudpIPVersionIpv6Const = "ipv6"
 )
 
 // Constants associated with the NetworkACLRuleItemNetworkACLRuleProtocolTcpudp.Protocol property.
@@ -72901,52 +75983,52 @@ func UnmarshalNetworkACLRuleItemNetworkACLRuleProtocolTcpudp(m map[string]json.R
 	return
 }
 
-// NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAll : NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAll struct
+// NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAllPrototype : NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAllPrototype struct
 // This model "extends" NetworkACLRulePrototypeNetworkACLContext
-type NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAll struct {
-	// Whether to allow or deny matching traffic.
+type NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAllPrototype struct {
+	// The action to perform for a packet matching the rule.
 	Action *string `json:"action" validate:"required"`
 
-	// The destination IP address or CIDR block. The CIDR block `0.0.0.0/0` applies to all addresses.
+	// The destination IP address or CIDR block to match. The CIDR block `0.0.0.0/0` matches all destination addresses.
 	Destination *string `json:"destination" validate:"required"`
 
-	// Whether the traffic to be matched is `inbound` or `outbound`.
+	// The direction of traffic to match.
 	Direction *string `json:"direction" validate:"required"`
 
-	// The user-defined name for this rule. Names must be unique within the network ACL the rule resides in. If
-	// unspecified, the name will be a hyphenated list of randomly-selected words.
+	// The name for this network ACL rule. The name must not be used by another rule for the network ACL. If unspecified,
+	// the name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
-	// The source IP address or CIDR block.  The CIDR block `0.0.0.0/0` applies to all addresses.
+	// The source IP address or CIDR block to match. The CIDR block `0.0.0.0/0` matches all source addresses.
 	Source *string `json:"source" validate:"required"`
 
 	// The protocol to enforce.
 	Protocol *string `json:"protocol" validate:"required"`
 }
 
-// Constants associated with the NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAll.Action property.
-// Whether to allow or deny matching traffic.
+// Constants associated with the NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAllPrototype.Action property.
+// The action to perform for a packet matching the rule.
 const (
-	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAllActionAllowConst = "allow"
-	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAllActionDenyConst  = "deny"
+	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAllPrototypeActionAllowConst = "allow"
+	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAllPrototypeActionDenyConst  = "deny"
 )
 
-// Constants associated with the NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAll.Direction property.
-// Whether the traffic to be matched is `inbound` or `outbound`.
+// Constants associated with the NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAllPrototype.Direction property.
+// The direction of traffic to match.
 const (
-	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAllDirectionInboundConst  = "inbound"
-	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAllDirectionOutboundConst = "outbound"
+	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAllPrototypeDirectionInboundConst  = "inbound"
+	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAllPrototypeDirectionOutboundConst = "outbound"
 )
 
-// Constants associated with the NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAll.Protocol property.
+// Constants associated with the NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAllPrototype.Protocol property.
 // The protocol to enforce.
 const (
-	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAllProtocolAllConst = "all"
+	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAllPrototypeProtocolAllConst = "all"
 )
 
-// NewNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAll : Instantiate NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAll (Generic Model Constructor)
-func (*VpcV1) NewNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAll(action string, destination string, direction string, source string, protocol string) (_model *NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAll, err error) {
-	_model = &NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAll{
+// NewNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAllPrototype : Instantiate NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAllPrototype (Generic Model Constructor)
+func (*VpcV1) NewNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAllPrototype(action string, destination string, direction string, source string, protocol string) (_model *NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAllPrototype, err error) {
+	_model = &NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAllPrototype{
 		Action:      core.StringPtr(action),
 		Destination: core.StringPtr(destination),
 		Direction:   core.StringPtr(direction),
@@ -72957,13 +76039,13 @@ func (*VpcV1) NewNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolA
 	return
 }
 
-func (*NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAll) isaNetworkACLRulePrototypeNetworkACLContext() bool {
+func (*NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAllPrototype) isaNetworkACLRulePrototypeNetworkACLContext() bool {
 	return true
 }
 
-// UnmarshalNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAll unmarshals an instance of NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAll from the specified map of raw messages.
-func UnmarshalNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAll(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAll)
+// UnmarshalNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAllPrototype unmarshals an instance of NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAllPrototype from the specified map of raw messages.
+func UnmarshalNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAllPrototype(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAllPrototype)
 	err = core.UnmarshalPrimitive(m, "action", &obj.Action)
 	if err != nil {
 		return
@@ -72992,59 +76074,62 @@ func UnmarshalNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAll(
 	return
 }
 
-// NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmp : NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmp struct
+// NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmpPrototype : NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmpPrototype struct
 // This model "extends" NetworkACLRulePrototypeNetworkACLContext
-type NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmp struct {
-	// Whether to allow or deny matching traffic.
+type NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmpPrototype struct {
+	// The action to perform for a packet matching the rule.
 	Action *string `json:"action" validate:"required"`
 
-	// The destination IP address or CIDR block. The CIDR block `0.0.0.0/0` applies to all addresses.
+	// The destination IP address or CIDR block to match. The CIDR block `0.0.0.0/0` matches all destination addresses.
 	Destination *string `json:"destination" validate:"required"`
 
-	// Whether the traffic to be matched is `inbound` or `outbound`.
+	// The direction of traffic to match.
 	Direction *string `json:"direction" validate:"required"`
 
-	// The user-defined name for this rule. Names must be unique within the network ACL the rule resides in. If
-	// unspecified, the name will be a hyphenated list of randomly-selected words.
+	// The name for this network ACL rule. The name must not be used by another rule for the network ACL. If unspecified,
+	// the name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
-	// The source IP address or CIDR block.  The CIDR block `0.0.0.0/0` applies to all addresses.
+	// The source IP address or CIDR block to match. The CIDR block `0.0.0.0/0` matches all source addresses.
 	Source *string `json:"source" validate:"required"`
 
-	// The ICMP traffic code to allow. If unspecified, all codes are allowed. This can only be specified if type is also
-	// specified.
+	// The ICMP traffic code to match.
+	//
+	// If specified, `type` must also be specified.  If unspecified, all codes are matched.
 	Code *int64 `json:"code,omitempty"`
 
 	// The protocol to enforce.
 	Protocol *string `json:"protocol" validate:"required"`
 
-	// The ICMP traffic type to allow. If unspecified, all types are allowed by this rule.
+	// The ICMP traffic type to match.
+	//
+	// If unspecified, all types are matched.
 	Type *int64 `json:"type,omitempty"`
 }
 
-// Constants associated with the NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmp.Action property.
-// Whether to allow or deny matching traffic.
+// Constants associated with the NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmpPrototype.Action property.
+// The action to perform for a packet matching the rule.
 const (
-	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmpActionAllowConst = "allow"
-	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmpActionDenyConst  = "deny"
+	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmpPrototypeActionAllowConst = "allow"
+	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmpPrototypeActionDenyConst  = "deny"
 )
 
-// Constants associated with the NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmp.Direction property.
-// Whether the traffic to be matched is `inbound` or `outbound`.
+// Constants associated with the NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmpPrototype.Direction property.
+// The direction of traffic to match.
 const (
-	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmpDirectionInboundConst  = "inbound"
-	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmpDirectionOutboundConst = "outbound"
+	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmpPrototypeDirectionInboundConst  = "inbound"
+	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmpPrototypeDirectionOutboundConst = "outbound"
 )
 
-// Constants associated with the NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmp.Protocol property.
+// Constants associated with the NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmpPrototype.Protocol property.
 // The protocol to enforce.
 const (
-	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmpProtocolIcmpConst = "icmp"
+	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmpPrototypeProtocolIcmpConst = "icmp"
 )
 
-// NewNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmp : Instantiate NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmp (Generic Model Constructor)
-func (*VpcV1) NewNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmp(action string, destination string, direction string, source string, protocol string) (_model *NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmp, err error) {
-	_model = &NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmp{
+// NewNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmpPrototype : Instantiate NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmpPrototype (Generic Model Constructor)
+func (*VpcV1) NewNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmpPrototype(action string, destination string, direction string, source string, protocol string) (_model *NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmpPrototype, err error) {
+	_model = &NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmpPrototype{
 		Action:      core.StringPtr(action),
 		Destination: core.StringPtr(destination),
 		Direction:   core.StringPtr(direction),
@@ -73055,13 +76140,13 @@ func (*VpcV1) NewNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolI
 	return
 }
 
-func (*NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmp) isaNetworkACLRulePrototypeNetworkACLContext() bool {
+func (*NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmpPrototype) isaNetworkACLRulePrototypeNetworkACLContext() bool {
 	return true
 }
 
-// UnmarshalNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmp unmarshals an instance of NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmp from the specified map of raw messages.
-func UnmarshalNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmp(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmp)
+// UnmarshalNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmpPrototype unmarshals an instance of NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmpPrototype from the specified map of raw messages.
+func UnmarshalNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmpPrototype(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmpPrototype)
 	err = core.UnmarshalPrimitive(m, "action", &obj.Action)
 	if err != nil {
 		return
@@ -73098,23 +76183,23 @@ func UnmarshalNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmp
 	return
 }
 
-// NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudp : NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudp struct
+// NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudpPrototype : NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudpPrototype struct
 // This model "extends" NetworkACLRulePrototypeNetworkACLContext
-type NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudp struct {
-	// Whether to allow or deny matching traffic.
+type NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudpPrototype struct {
+	// The action to perform for a packet matching the rule.
 	Action *string `json:"action" validate:"required"`
 
-	// The destination IP address or CIDR block. The CIDR block `0.0.0.0/0` applies to all addresses.
+	// The destination IP address or CIDR block to match. The CIDR block `0.0.0.0/0` matches all destination addresses.
 	Destination *string `json:"destination" validate:"required"`
 
-	// Whether the traffic to be matched is `inbound` or `outbound`.
+	// The direction of traffic to match.
 	Direction *string `json:"direction" validate:"required"`
 
-	// The user-defined name for this rule. Names must be unique within the network ACL the rule resides in. If
-	// unspecified, the name will be a hyphenated list of randomly-selected words.
+	// The name for this network ACL rule. The name must not be used by another rule for the network ACL. If unspecified,
+	// the name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
-	// The source IP address or CIDR block.  The CIDR block `0.0.0.0/0` applies to all addresses.
+	// The source IP address or CIDR block to match. The CIDR block `0.0.0.0/0` matches all source addresses.
 	Source *string `json:"source" validate:"required"`
 
 	// The inclusive upper bound of TCP/UDP destination port range.
@@ -73133,30 +76218,30 @@ type NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudp struct
 	SourcePortMin *int64 `json:"source_port_min,omitempty"`
 }
 
-// Constants associated with the NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudp.Action property.
-// Whether to allow or deny matching traffic.
+// Constants associated with the NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudpPrototype.Action property.
+// The action to perform for a packet matching the rule.
 const (
-	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudpActionAllowConst = "allow"
-	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudpActionDenyConst  = "deny"
+	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudpPrototypeActionAllowConst = "allow"
+	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudpPrototypeActionDenyConst  = "deny"
 )
 
-// Constants associated with the NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudp.Direction property.
-// Whether the traffic to be matched is `inbound` or `outbound`.
+// Constants associated with the NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudpPrototype.Direction property.
+// The direction of traffic to match.
 const (
-	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudpDirectionInboundConst  = "inbound"
-	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudpDirectionOutboundConst = "outbound"
+	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudpPrototypeDirectionInboundConst  = "inbound"
+	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudpPrototypeDirectionOutboundConst = "outbound"
 )
 
-// Constants associated with the NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudp.Protocol property.
+// Constants associated with the NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudpPrototype.Protocol property.
 // The protocol to enforce.
 const (
-	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudpProtocolTCPConst = "tcp"
-	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudpProtocolUDPConst = "udp"
+	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudpPrototypeProtocolTCPConst = "tcp"
+	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudpPrototypeProtocolUDPConst = "udp"
 )
 
-// NewNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudp : Instantiate NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudp (Generic Model Constructor)
-func (*VpcV1) NewNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudp(action string, destination string, direction string, source string, protocol string) (_model *NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudp, err error) {
-	_model = &NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudp{
+// NewNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudpPrototype : Instantiate NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudpPrototype (Generic Model Constructor)
+func (*VpcV1) NewNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudpPrototype(action string, destination string, direction string, source string, protocol string) (_model *NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudpPrototype, err error) {
+	_model = &NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudpPrototype{
 		Action:      core.StringPtr(action),
 		Destination: core.StringPtr(destination),
 		Direction:   core.StringPtr(direction),
@@ -73167,13 +76252,13 @@ func (*VpcV1) NewNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolT
 	return
 }
 
-func (*NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudp) isaNetworkACLRulePrototypeNetworkACLContext() bool {
+func (*NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudpPrototype) isaNetworkACLRulePrototypeNetworkACLContext() bool {
 	return true
 }
 
-// UnmarshalNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudp unmarshals an instance of NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudp from the specified map of raw messages.
-func UnmarshalNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudp(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudp)
+// UnmarshalNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudpPrototype unmarshals an instance of NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudpPrototype from the specified map of raw messages.
+func UnmarshalNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudpPrototype(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudpPrototype)
 	err = core.UnmarshalPrimitive(m, "action", &obj.Action)
 	if err != nil {
 		return
@@ -73218,54 +76303,54 @@ func UnmarshalNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpu
 	return
 }
 
-// NetworkACLRulePrototypeNetworkACLRuleProtocolAll : NetworkACLRulePrototypeNetworkACLRuleProtocolAll struct
+// NetworkACLRulePrototypeNetworkACLRuleProtocolAllPrototype : NetworkACLRulePrototypeNetworkACLRuleProtocolAllPrototype struct
 // This model "extends" NetworkACLRulePrototype
-type NetworkACLRulePrototypeNetworkACLRuleProtocolAll struct {
-	// Whether to allow or deny matching traffic.
+type NetworkACLRulePrototypeNetworkACLRuleProtocolAllPrototype struct {
+	// The action to perform for a packet matching the rule.
 	Action *string `json:"action" validate:"required"`
 
 	Before NetworkACLRuleBeforePrototypeIntf `json:"before,omitempty"`
 
-	// The destination IP address or CIDR block. The CIDR block `0.0.0.0/0` applies to all addresses.
+	// The destination IP address or CIDR block to match. The CIDR block `0.0.0.0/0` matches all destination addresses.
 	Destination *string `json:"destination" validate:"required"`
 
-	// Whether the traffic to be matched is `inbound` or `outbound`.
+	// The direction of traffic to match.
 	Direction *string `json:"direction" validate:"required"`
 
-	// The user-defined name for this rule. Names must be unique within the network ACL the rule resides in. If
-	// unspecified, the name will be a hyphenated list of randomly-selected words.
+	// The name for this network ACL rule. The name must not be used by another rule for the network ACL. If unspecified,
+	// the name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
-	// The source IP address or CIDR block.  The CIDR block `0.0.0.0/0` applies to all addresses.
+	// The source IP address or CIDR block to match. The CIDR block `0.0.0.0/0` matches all source addresses.
 	Source *string `json:"source" validate:"required"`
 
 	// The protocol to enforce.
 	Protocol *string `json:"protocol" validate:"required"`
 }
 
-// Constants associated with the NetworkACLRulePrototypeNetworkACLRuleProtocolAll.Action property.
-// Whether to allow or deny matching traffic.
+// Constants associated with the NetworkACLRulePrototypeNetworkACLRuleProtocolAllPrototype.Action property.
+// The action to perform for a packet matching the rule.
 const (
-	NetworkACLRulePrototypeNetworkACLRuleProtocolAllActionAllowConst = "allow"
-	NetworkACLRulePrototypeNetworkACLRuleProtocolAllActionDenyConst  = "deny"
+	NetworkACLRulePrototypeNetworkACLRuleProtocolAllPrototypeActionAllowConst = "allow"
+	NetworkACLRulePrototypeNetworkACLRuleProtocolAllPrototypeActionDenyConst  = "deny"
 )
 
-// Constants associated with the NetworkACLRulePrototypeNetworkACLRuleProtocolAll.Direction property.
-// Whether the traffic to be matched is `inbound` or `outbound`.
+// Constants associated with the NetworkACLRulePrototypeNetworkACLRuleProtocolAllPrototype.Direction property.
+// The direction of traffic to match.
 const (
-	NetworkACLRulePrototypeNetworkACLRuleProtocolAllDirectionInboundConst  = "inbound"
-	NetworkACLRulePrototypeNetworkACLRuleProtocolAllDirectionOutboundConst = "outbound"
+	NetworkACLRulePrototypeNetworkACLRuleProtocolAllPrototypeDirectionInboundConst  = "inbound"
+	NetworkACLRulePrototypeNetworkACLRuleProtocolAllPrototypeDirectionOutboundConst = "outbound"
 )
 
-// Constants associated with the NetworkACLRulePrototypeNetworkACLRuleProtocolAll.Protocol property.
+// Constants associated with the NetworkACLRulePrototypeNetworkACLRuleProtocolAllPrototype.Protocol property.
 // The protocol to enforce.
 const (
-	NetworkACLRulePrototypeNetworkACLRuleProtocolAllProtocolAllConst = "all"
+	NetworkACLRulePrototypeNetworkACLRuleProtocolAllPrototypeProtocolAllConst = "all"
 )
 
-// NewNetworkACLRulePrototypeNetworkACLRuleProtocolAll : Instantiate NetworkACLRulePrototypeNetworkACLRuleProtocolAll (Generic Model Constructor)
-func (*VpcV1) NewNetworkACLRulePrototypeNetworkACLRuleProtocolAll(action string, destination string, direction string, source string, protocol string) (_model *NetworkACLRulePrototypeNetworkACLRuleProtocolAll, err error) {
-	_model = &NetworkACLRulePrototypeNetworkACLRuleProtocolAll{
+// NewNetworkACLRulePrototypeNetworkACLRuleProtocolAllPrototype : Instantiate NetworkACLRulePrototypeNetworkACLRuleProtocolAllPrototype (Generic Model Constructor)
+func (*VpcV1) NewNetworkACLRulePrototypeNetworkACLRuleProtocolAllPrototype(action string, destination string, direction string, source string, protocol string) (_model *NetworkACLRulePrototypeNetworkACLRuleProtocolAllPrototype, err error) {
+	_model = &NetworkACLRulePrototypeNetworkACLRuleProtocolAllPrototype{
 		Action:      core.StringPtr(action),
 		Destination: core.StringPtr(destination),
 		Direction:   core.StringPtr(direction),
@@ -73276,13 +76361,13 @@ func (*VpcV1) NewNetworkACLRulePrototypeNetworkACLRuleProtocolAll(action string,
 	return
 }
 
-func (*NetworkACLRulePrototypeNetworkACLRuleProtocolAll) isaNetworkACLRulePrototype() bool {
+func (*NetworkACLRulePrototypeNetworkACLRuleProtocolAllPrototype) isaNetworkACLRulePrototype() bool {
 	return true
 }
 
-// UnmarshalNetworkACLRulePrototypeNetworkACLRuleProtocolAll unmarshals an instance of NetworkACLRulePrototypeNetworkACLRuleProtocolAll from the specified map of raw messages.
-func UnmarshalNetworkACLRulePrototypeNetworkACLRuleProtocolAll(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(NetworkACLRulePrototypeNetworkACLRuleProtocolAll)
+// UnmarshalNetworkACLRulePrototypeNetworkACLRuleProtocolAllPrototype unmarshals an instance of NetworkACLRulePrototypeNetworkACLRuleProtocolAllPrototype from the specified map of raw messages.
+func UnmarshalNetworkACLRulePrototypeNetworkACLRuleProtocolAllPrototype(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(NetworkACLRulePrototypeNetworkACLRuleProtocolAllPrototype)
 	err = core.UnmarshalPrimitive(m, "action", &obj.Action)
 	if err != nil {
 		return
@@ -73315,61 +76400,64 @@ func UnmarshalNetworkACLRulePrototypeNetworkACLRuleProtocolAll(m map[string]json
 	return
 }
 
-// NetworkACLRulePrototypeNetworkACLRuleProtocolIcmp : NetworkACLRulePrototypeNetworkACLRuleProtocolIcmp struct
+// NetworkACLRulePrototypeNetworkACLRuleProtocolIcmpPrototype : NetworkACLRulePrototypeNetworkACLRuleProtocolIcmpPrototype struct
 // This model "extends" NetworkACLRulePrototype
-type NetworkACLRulePrototypeNetworkACLRuleProtocolIcmp struct {
-	// Whether to allow or deny matching traffic.
+type NetworkACLRulePrototypeNetworkACLRuleProtocolIcmpPrototype struct {
+	// The action to perform for a packet matching the rule.
 	Action *string `json:"action" validate:"required"`
 
 	Before NetworkACLRuleBeforePrototypeIntf `json:"before,omitempty"`
 
-	// The destination IP address or CIDR block. The CIDR block `0.0.0.0/0` applies to all addresses.
+	// The destination IP address or CIDR block to match. The CIDR block `0.0.0.0/0` matches all destination addresses.
 	Destination *string `json:"destination" validate:"required"`
 
-	// Whether the traffic to be matched is `inbound` or `outbound`.
+	// The direction of traffic to match.
 	Direction *string `json:"direction" validate:"required"`
 
-	// The user-defined name for this rule. Names must be unique within the network ACL the rule resides in. If
-	// unspecified, the name will be a hyphenated list of randomly-selected words.
+	// The name for this network ACL rule. The name must not be used by another rule for the network ACL. If unspecified,
+	// the name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
-	// The source IP address or CIDR block.  The CIDR block `0.0.0.0/0` applies to all addresses.
+	// The source IP address or CIDR block to match. The CIDR block `0.0.0.0/0` matches all source addresses.
 	Source *string `json:"source" validate:"required"`
 
-	// The ICMP traffic code to allow. If unspecified, all codes are allowed. This can only be specified if type is also
-	// specified.
+	// The ICMP traffic code to match.
+	//
+	// If specified, `type` must also be specified.  If unspecified, all codes are matched.
 	Code *int64 `json:"code,omitempty"`
 
 	// The protocol to enforce.
 	Protocol *string `json:"protocol" validate:"required"`
 
-	// The ICMP traffic type to allow. If unspecified, all types are allowed by this rule.
+	// The ICMP traffic type to match.
+	//
+	// If unspecified, all types are matched.
 	Type *int64 `json:"type,omitempty"`
 }
 
-// Constants associated with the NetworkACLRulePrototypeNetworkACLRuleProtocolIcmp.Action property.
-// Whether to allow or deny matching traffic.
+// Constants associated with the NetworkACLRulePrototypeNetworkACLRuleProtocolIcmpPrototype.Action property.
+// The action to perform for a packet matching the rule.
 const (
-	NetworkACLRulePrototypeNetworkACLRuleProtocolIcmpActionAllowConst = "allow"
-	NetworkACLRulePrototypeNetworkACLRuleProtocolIcmpActionDenyConst  = "deny"
+	NetworkACLRulePrototypeNetworkACLRuleProtocolIcmpPrototypeActionAllowConst = "allow"
+	NetworkACLRulePrototypeNetworkACLRuleProtocolIcmpPrototypeActionDenyConst  = "deny"
 )
 
-// Constants associated with the NetworkACLRulePrototypeNetworkACLRuleProtocolIcmp.Direction property.
-// Whether the traffic to be matched is `inbound` or `outbound`.
+// Constants associated with the NetworkACLRulePrototypeNetworkACLRuleProtocolIcmpPrototype.Direction property.
+// The direction of traffic to match.
 const (
-	NetworkACLRulePrototypeNetworkACLRuleProtocolIcmpDirectionInboundConst  = "inbound"
-	NetworkACLRulePrototypeNetworkACLRuleProtocolIcmpDirectionOutboundConst = "outbound"
+	NetworkACLRulePrototypeNetworkACLRuleProtocolIcmpPrototypeDirectionInboundConst  = "inbound"
+	NetworkACLRulePrototypeNetworkACLRuleProtocolIcmpPrototypeDirectionOutboundConst = "outbound"
 )
 
-// Constants associated with the NetworkACLRulePrototypeNetworkACLRuleProtocolIcmp.Protocol property.
+// Constants associated with the NetworkACLRulePrototypeNetworkACLRuleProtocolIcmpPrototype.Protocol property.
 // The protocol to enforce.
 const (
-	NetworkACLRulePrototypeNetworkACLRuleProtocolIcmpProtocolIcmpConst = "icmp"
+	NetworkACLRulePrototypeNetworkACLRuleProtocolIcmpPrototypeProtocolIcmpConst = "icmp"
 )
 
-// NewNetworkACLRulePrototypeNetworkACLRuleProtocolIcmp : Instantiate NetworkACLRulePrototypeNetworkACLRuleProtocolIcmp (Generic Model Constructor)
-func (*VpcV1) NewNetworkACLRulePrototypeNetworkACLRuleProtocolIcmp(action string, destination string, direction string, source string, protocol string) (_model *NetworkACLRulePrototypeNetworkACLRuleProtocolIcmp, err error) {
-	_model = &NetworkACLRulePrototypeNetworkACLRuleProtocolIcmp{
+// NewNetworkACLRulePrototypeNetworkACLRuleProtocolIcmpPrototype : Instantiate NetworkACLRulePrototypeNetworkACLRuleProtocolIcmpPrototype (Generic Model Constructor)
+func (*VpcV1) NewNetworkACLRulePrototypeNetworkACLRuleProtocolIcmpPrototype(action string, destination string, direction string, source string, protocol string) (_model *NetworkACLRulePrototypeNetworkACLRuleProtocolIcmpPrototype, err error) {
+	_model = &NetworkACLRulePrototypeNetworkACLRuleProtocolIcmpPrototype{
 		Action:      core.StringPtr(action),
 		Destination: core.StringPtr(destination),
 		Direction:   core.StringPtr(direction),
@@ -73380,13 +76468,13 @@ func (*VpcV1) NewNetworkACLRulePrototypeNetworkACLRuleProtocolIcmp(action string
 	return
 }
 
-func (*NetworkACLRulePrototypeNetworkACLRuleProtocolIcmp) isaNetworkACLRulePrototype() bool {
+func (*NetworkACLRulePrototypeNetworkACLRuleProtocolIcmpPrototype) isaNetworkACLRulePrototype() bool {
 	return true
 }
 
-// UnmarshalNetworkACLRulePrototypeNetworkACLRuleProtocolIcmp unmarshals an instance of NetworkACLRulePrototypeNetworkACLRuleProtocolIcmp from the specified map of raw messages.
-func UnmarshalNetworkACLRulePrototypeNetworkACLRuleProtocolIcmp(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(NetworkACLRulePrototypeNetworkACLRuleProtocolIcmp)
+// UnmarshalNetworkACLRulePrototypeNetworkACLRuleProtocolIcmpPrototype unmarshals an instance of NetworkACLRulePrototypeNetworkACLRuleProtocolIcmpPrototype from the specified map of raw messages.
+func UnmarshalNetworkACLRulePrototypeNetworkACLRuleProtocolIcmpPrototype(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(NetworkACLRulePrototypeNetworkACLRuleProtocolIcmpPrototype)
 	err = core.UnmarshalPrimitive(m, "action", &obj.Action)
 	if err != nil {
 		return
@@ -73427,25 +76515,25 @@ func UnmarshalNetworkACLRulePrototypeNetworkACLRuleProtocolIcmp(m map[string]jso
 	return
 }
 
-// NetworkACLRulePrototypeNetworkACLRuleProtocolTcpudp : NetworkACLRulePrototypeNetworkACLRuleProtocolTcpudp struct
+// NetworkACLRulePrototypeNetworkACLRuleProtocolTcpudpPrototype : NetworkACLRulePrototypeNetworkACLRuleProtocolTcpudpPrototype struct
 // This model "extends" NetworkACLRulePrototype
-type NetworkACLRulePrototypeNetworkACLRuleProtocolTcpudp struct {
-	// Whether to allow or deny matching traffic.
+type NetworkACLRulePrototypeNetworkACLRuleProtocolTcpudpPrototype struct {
+	// The action to perform for a packet matching the rule.
 	Action *string `json:"action" validate:"required"`
 
 	Before NetworkACLRuleBeforePrototypeIntf `json:"before,omitempty"`
 
-	// The destination IP address or CIDR block. The CIDR block `0.0.0.0/0` applies to all addresses.
+	// The destination IP address or CIDR block to match. The CIDR block `0.0.0.0/0` matches all destination addresses.
 	Destination *string `json:"destination" validate:"required"`
 
-	// Whether the traffic to be matched is `inbound` or `outbound`.
+	// The direction of traffic to match.
 	Direction *string `json:"direction" validate:"required"`
 
-	// The user-defined name for this rule. Names must be unique within the network ACL the rule resides in. If
-	// unspecified, the name will be a hyphenated list of randomly-selected words.
+	// The name for this network ACL rule. The name must not be used by another rule for the network ACL. If unspecified,
+	// the name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
-	// The source IP address or CIDR block.  The CIDR block `0.0.0.0/0` applies to all addresses.
+	// The source IP address or CIDR block to match. The CIDR block `0.0.0.0/0` matches all source addresses.
 	Source *string `json:"source" validate:"required"`
 
 	// The inclusive upper bound of TCP/UDP destination port range.
@@ -73464,30 +76552,30 @@ type NetworkACLRulePrototypeNetworkACLRuleProtocolTcpudp struct {
 	SourcePortMin *int64 `json:"source_port_min,omitempty"`
 }
 
-// Constants associated with the NetworkACLRulePrototypeNetworkACLRuleProtocolTcpudp.Action property.
-// Whether to allow or deny matching traffic.
+// Constants associated with the NetworkACLRulePrototypeNetworkACLRuleProtocolTcpudpPrototype.Action property.
+// The action to perform for a packet matching the rule.
 const (
-	NetworkACLRulePrototypeNetworkACLRuleProtocolTcpudpActionAllowConst = "allow"
-	NetworkACLRulePrototypeNetworkACLRuleProtocolTcpudpActionDenyConst  = "deny"
+	NetworkACLRulePrototypeNetworkACLRuleProtocolTcpudpPrototypeActionAllowConst = "allow"
+	NetworkACLRulePrototypeNetworkACLRuleProtocolTcpudpPrototypeActionDenyConst  = "deny"
 )
 
-// Constants associated with the NetworkACLRulePrototypeNetworkACLRuleProtocolTcpudp.Direction property.
-// Whether the traffic to be matched is `inbound` or `outbound`.
+// Constants associated with the NetworkACLRulePrototypeNetworkACLRuleProtocolTcpudpPrototype.Direction property.
+// The direction of traffic to match.
 const (
-	NetworkACLRulePrototypeNetworkACLRuleProtocolTcpudpDirectionInboundConst  = "inbound"
-	NetworkACLRulePrototypeNetworkACLRuleProtocolTcpudpDirectionOutboundConst = "outbound"
+	NetworkACLRulePrototypeNetworkACLRuleProtocolTcpudpPrototypeDirectionInboundConst  = "inbound"
+	NetworkACLRulePrototypeNetworkACLRuleProtocolTcpudpPrototypeDirectionOutboundConst = "outbound"
 )
 
-// Constants associated with the NetworkACLRulePrototypeNetworkACLRuleProtocolTcpudp.Protocol property.
+// Constants associated with the NetworkACLRulePrototypeNetworkACLRuleProtocolTcpudpPrototype.Protocol property.
 // The protocol to enforce.
 const (
-	NetworkACLRulePrototypeNetworkACLRuleProtocolTcpudpProtocolTCPConst = "tcp"
-	NetworkACLRulePrototypeNetworkACLRuleProtocolTcpudpProtocolUDPConst = "udp"
+	NetworkACLRulePrototypeNetworkACLRuleProtocolTcpudpPrototypeProtocolTCPConst = "tcp"
+	NetworkACLRulePrototypeNetworkACLRuleProtocolTcpudpPrototypeProtocolUDPConst = "udp"
 )
 
-// NewNetworkACLRulePrototypeNetworkACLRuleProtocolTcpudp : Instantiate NetworkACLRulePrototypeNetworkACLRuleProtocolTcpudp (Generic Model Constructor)
-func (*VpcV1) NewNetworkACLRulePrototypeNetworkACLRuleProtocolTcpudp(action string, destination string, direction string, source string, protocol string) (_model *NetworkACLRulePrototypeNetworkACLRuleProtocolTcpudp, err error) {
-	_model = &NetworkACLRulePrototypeNetworkACLRuleProtocolTcpudp{
+// NewNetworkACLRulePrototypeNetworkACLRuleProtocolTcpudpPrototype : Instantiate NetworkACLRulePrototypeNetworkACLRuleProtocolTcpudpPrototype (Generic Model Constructor)
+func (*VpcV1) NewNetworkACLRulePrototypeNetworkACLRuleProtocolTcpudpPrototype(action string, destination string, direction string, source string, protocol string) (_model *NetworkACLRulePrototypeNetworkACLRuleProtocolTcpudpPrototype, err error) {
+	_model = &NetworkACLRulePrototypeNetworkACLRuleProtocolTcpudpPrototype{
 		Action:      core.StringPtr(action),
 		Destination: core.StringPtr(destination),
 		Direction:   core.StringPtr(direction),
@@ -73498,13 +76586,13 @@ func (*VpcV1) NewNetworkACLRulePrototypeNetworkACLRuleProtocolTcpudp(action stri
 	return
 }
 
-func (*NetworkACLRulePrototypeNetworkACLRuleProtocolTcpudp) isaNetworkACLRulePrototype() bool {
+func (*NetworkACLRulePrototypeNetworkACLRuleProtocolTcpudpPrototype) isaNetworkACLRulePrototype() bool {
 	return true
 }
 
-// UnmarshalNetworkACLRulePrototypeNetworkACLRuleProtocolTcpudp unmarshals an instance of NetworkACLRulePrototypeNetworkACLRuleProtocolTcpudp from the specified map of raw messages.
-func UnmarshalNetworkACLRulePrototypeNetworkACLRuleProtocolTcpudp(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(NetworkACLRulePrototypeNetworkACLRuleProtocolTcpudp)
+// UnmarshalNetworkACLRulePrototypeNetworkACLRuleProtocolTcpudpPrototype unmarshals an instance of NetworkACLRulePrototypeNetworkACLRuleProtocolTcpudpPrototype from the specified map of raw messages.
+func UnmarshalNetworkACLRulePrototypeNetworkACLRuleProtocolTcpudpPrototype(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(NetworkACLRulePrototypeNetworkACLRuleProtocolTcpudpPrototype)
 	err = core.UnmarshalPrimitive(m, "action", &obj.Action)
 	if err != nil {
 		return
@@ -73556,7 +76644,7 @@ func UnmarshalNetworkACLRulePrototypeNetworkACLRuleProtocolTcpudp(m map[string]j
 // NetworkACLRuleNetworkACLRuleProtocolAll : NetworkACLRuleNetworkACLRuleProtocolAll struct
 // This model "extends" NetworkACLRule
 type NetworkACLRuleNetworkACLRuleProtocolAll struct {
-	// Whether to allow or deny matching traffic.
+	// The action to perform for a packet matching the rule.
 	Action *string `json:"action" validate:"required"`
 
 	// The rule that this rule is immediately before. If absent, this is the last rule.
@@ -73565,10 +76653,10 @@ type NetworkACLRuleNetworkACLRuleProtocolAll struct {
 	// The date and time that the rule was created.
 	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
 
-	// The destination CIDR block. The CIDR block `0.0.0.0/0` applies to all addresses.
+	// The destination IP address or CIDR block to match. The CIDR block `0.0.0.0/0` matches all destination addresses.
 	Destination *string `json:"destination" validate:"required"`
 
-	// Whether the traffic to be matched is `inbound` or `outbound`.
+	// The direction of traffic to match.
 	Direction *string `json:"direction" validate:"required"`
 
 	// The URL for this network ACL rule.
@@ -73580,11 +76668,10 @@ type NetworkACLRuleNetworkACLRuleProtocolAll struct {
 	// The IP version for this rule.
 	IPVersion *string `json:"ip_version" validate:"required"`
 
-	// The user-defined name for this rule. Names must be unique within the network ACL the rule resides in. If
-	// unspecified, the name will be a hyphenated list of randomly-selected words.
+	// The name for this network ACL rule. The name is unique across all rules for the network ACL.
 	Name *string `json:"name" validate:"required"`
 
-	// The source CIDR block. The CIDR block `0.0.0.0/0` applies to all addresses.
+	// The source IP address or CIDR block to match. The CIDR block `0.0.0.0/0` matches all source addresses.
 	Source *string `json:"source" validate:"required"`
 
 	// The protocol to enforce.
@@ -73592,14 +76679,14 @@ type NetworkACLRuleNetworkACLRuleProtocolAll struct {
 }
 
 // Constants associated with the NetworkACLRuleNetworkACLRuleProtocolAll.Action property.
-// Whether to allow or deny matching traffic.
+// The action to perform for a packet matching the rule.
 const (
 	NetworkACLRuleNetworkACLRuleProtocolAllActionAllowConst = "allow"
 	NetworkACLRuleNetworkACLRuleProtocolAllActionDenyConst  = "deny"
 )
 
 // Constants associated with the NetworkACLRuleNetworkACLRuleProtocolAll.Direction property.
-// Whether the traffic to be matched is `inbound` or `outbound`.
+// The direction of traffic to match.
 const (
 	NetworkACLRuleNetworkACLRuleProtocolAllDirectionInboundConst  = "inbound"
 	NetworkACLRuleNetworkACLRuleProtocolAllDirectionOutboundConst = "outbound"
@@ -73609,7 +76696,6 @@ const (
 // The IP version for this rule.
 const (
 	NetworkACLRuleNetworkACLRuleProtocolAllIPVersionIpv4Const = "ipv4"
-	NetworkACLRuleNetworkACLRuleProtocolAllIPVersionIpv6Const = "ipv6"
 )
 
 // Constants associated with the NetworkACLRuleNetworkACLRuleProtocolAll.Protocol property.
@@ -73676,7 +76762,7 @@ func UnmarshalNetworkACLRuleNetworkACLRuleProtocolAll(m map[string]json.RawMessa
 // NetworkACLRuleNetworkACLRuleProtocolIcmp : NetworkACLRuleNetworkACLRuleProtocolIcmp struct
 // This model "extends" NetworkACLRule
 type NetworkACLRuleNetworkACLRuleProtocolIcmp struct {
-	// Whether to allow or deny matching traffic.
+	// The action to perform for a packet matching the rule.
 	Action *string `json:"action" validate:"required"`
 
 	// The rule that this rule is immediately before. If absent, this is the last rule.
@@ -73685,10 +76771,10 @@ type NetworkACLRuleNetworkACLRuleProtocolIcmp struct {
 	// The date and time that the rule was created.
 	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
 
-	// The destination CIDR block. The CIDR block `0.0.0.0/0` applies to all addresses.
+	// The destination IP address or CIDR block to match. The CIDR block `0.0.0.0/0` matches all destination addresses.
 	Destination *string `json:"destination" validate:"required"`
 
-	// Whether the traffic to be matched is `inbound` or `outbound`.
+	// The direction of traffic to match.
 	Direction *string `json:"direction" validate:"required"`
 
 	// The URL for this network ACL rule.
@@ -73700,33 +76786,35 @@ type NetworkACLRuleNetworkACLRuleProtocolIcmp struct {
 	// The IP version for this rule.
 	IPVersion *string `json:"ip_version" validate:"required"`
 
-	// The user-defined name for this rule. Names must be unique within the network ACL the rule resides in. If
-	// unspecified, the name will be a hyphenated list of randomly-selected words.
+	// The name for this network ACL rule. The name is unique across all rules for the network ACL.
 	Name *string `json:"name" validate:"required"`
 
-	// The source CIDR block. The CIDR block `0.0.0.0/0` applies to all addresses.
+	// The source IP address or CIDR block to match. The CIDR block `0.0.0.0/0` matches all source addresses.
 	Source *string `json:"source" validate:"required"`
 
-	// The ICMP traffic code to allow. If unspecified, all codes are allowed. This can only be specified if type is also
-	// specified.
+	// The ICMP traffic code to match.
+	//
+	// If absent, all codes are matched.
 	Code *int64 `json:"code,omitempty"`
 
 	// The protocol to enforce.
 	Protocol *string `json:"protocol" validate:"required"`
 
-	// The ICMP traffic type to allow. If unspecified, all types are allowed by this rule.
+	// The ICMP traffic type to match.
+	//
+	// If absent, all types are matched.
 	Type *int64 `json:"type,omitempty"`
 }
 
 // Constants associated with the NetworkACLRuleNetworkACLRuleProtocolIcmp.Action property.
-// Whether to allow or deny matching traffic.
+// The action to perform for a packet matching the rule.
 const (
 	NetworkACLRuleNetworkACLRuleProtocolIcmpActionAllowConst = "allow"
 	NetworkACLRuleNetworkACLRuleProtocolIcmpActionDenyConst  = "deny"
 )
 
 // Constants associated with the NetworkACLRuleNetworkACLRuleProtocolIcmp.Direction property.
-// Whether the traffic to be matched is `inbound` or `outbound`.
+// The direction of traffic to match.
 const (
 	NetworkACLRuleNetworkACLRuleProtocolIcmpDirectionInboundConst  = "inbound"
 	NetworkACLRuleNetworkACLRuleProtocolIcmpDirectionOutboundConst = "outbound"
@@ -73736,7 +76824,6 @@ const (
 // The IP version for this rule.
 const (
 	NetworkACLRuleNetworkACLRuleProtocolIcmpIPVersionIpv4Const = "ipv4"
-	NetworkACLRuleNetworkACLRuleProtocolIcmpIPVersionIpv6Const = "ipv6"
 )
 
 // Constants associated with the NetworkACLRuleNetworkACLRuleProtocolIcmp.Protocol property.
@@ -73811,7 +76898,7 @@ func UnmarshalNetworkACLRuleNetworkACLRuleProtocolIcmp(m map[string]json.RawMess
 // NetworkACLRuleNetworkACLRuleProtocolTcpudp : NetworkACLRuleNetworkACLRuleProtocolTcpudp struct
 // This model "extends" NetworkACLRule
 type NetworkACLRuleNetworkACLRuleProtocolTcpudp struct {
-	// Whether to allow or deny matching traffic.
+	// The action to perform for a packet matching the rule.
 	Action *string `json:"action" validate:"required"`
 
 	// The rule that this rule is immediately before. If absent, this is the last rule.
@@ -73820,10 +76907,10 @@ type NetworkACLRuleNetworkACLRuleProtocolTcpudp struct {
 	// The date and time that the rule was created.
 	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
 
-	// The destination CIDR block. The CIDR block `0.0.0.0/0` applies to all addresses.
+	// The destination IP address or CIDR block to match. The CIDR block `0.0.0.0/0` matches all destination addresses.
 	Destination *string `json:"destination" validate:"required"`
 
-	// Whether the traffic to be matched is `inbound` or `outbound`.
+	// The direction of traffic to match.
 	Direction *string `json:"direction" validate:"required"`
 
 	// The URL for this network ACL rule.
@@ -73835,38 +76922,37 @@ type NetworkACLRuleNetworkACLRuleProtocolTcpudp struct {
 	// The IP version for this rule.
 	IPVersion *string `json:"ip_version" validate:"required"`
 
-	// The user-defined name for this rule. Names must be unique within the network ACL the rule resides in. If
-	// unspecified, the name will be a hyphenated list of randomly-selected words.
+	// The name for this network ACL rule. The name is unique across all rules for the network ACL.
 	Name *string `json:"name" validate:"required"`
 
-	// The source CIDR block. The CIDR block `0.0.0.0/0` applies to all addresses.
+	// The source IP address or CIDR block to match. The CIDR block `0.0.0.0/0` matches all source addresses.
 	Source *string `json:"source" validate:"required"`
 
 	// The inclusive upper bound of TCP/UDP destination port range.
-	DestinationPortMax *int64 `json:"destination_port_max,omitempty"`
+	DestinationPortMax *int64 `json:"destination_port_max" validate:"required"`
 
 	// The inclusive lower bound of TCP/UDP destination port range.
-	DestinationPortMin *int64 `json:"destination_port_min,omitempty"`
+	DestinationPortMin *int64 `json:"destination_port_min" validate:"required"`
 
 	// The protocol to enforce.
 	Protocol *string `json:"protocol" validate:"required"`
 
 	// The inclusive upper bound of TCP/UDP source port range.
-	SourcePortMax *int64 `json:"source_port_max,omitempty"`
+	SourcePortMax *int64 `json:"source_port_max" validate:"required"`
 
 	// The inclusive lower bound of TCP/UDP source port range.
-	SourcePortMin *int64 `json:"source_port_min,omitempty"`
+	SourcePortMin *int64 `json:"source_port_min" validate:"required"`
 }
 
 // Constants associated with the NetworkACLRuleNetworkACLRuleProtocolTcpudp.Action property.
-// Whether to allow or deny matching traffic.
+// The action to perform for a packet matching the rule.
 const (
 	NetworkACLRuleNetworkACLRuleProtocolTcpudpActionAllowConst = "allow"
 	NetworkACLRuleNetworkACLRuleProtocolTcpudpActionDenyConst  = "deny"
 )
 
 // Constants associated with the NetworkACLRuleNetworkACLRuleProtocolTcpudp.Direction property.
-// Whether the traffic to be matched is `inbound` or `outbound`.
+// The direction of traffic to match.
 const (
 	NetworkACLRuleNetworkACLRuleProtocolTcpudpDirectionInboundConst  = "inbound"
 	NetworkACLRuleNetworkACLRuleProtocolTcpudpDirectionOutboundConst = "outbound"
@@ -73876,7 +76962,6 @@ const (
 // The IP version for this rule.
 const (
 	NetworkACLRuleNetworkACLRuleProtocolTcpudpIPVersionIpv4Const = "ipv4"
-	NetworkACLRuleNetworkACLRuleProtocolTcpudpIPVersionIpv6Const = "ipv6"
 )
 
 // Constants associated with the NetworkACLRuleNetworkACLRuleProtocolTcpudp.Protocol property.
@@ -74010,9 +77095,9 @@ type NetworkInterfaceIPPrototypeReservedIPPrototypeNetworkInterfaceContext struc
 	// `target` is deleted, or the reserved IP is unbound.
 	AutoDelete *bool `json:"auto_delete,omitempty"`
 
-	// The user-defined name for this reserved IP. If unspecified, the name will be a hyphenated list of randomly-selected
-	// words. Names must be unique within the subnet the reserved IP resides in. Names beginning with `ibm-` are reserved
-	// for provider-owned resources.
+	// The name for this reserved IP. The name must not be used by another reserved IP in the subnet. Names starting with
+	// `ibm-` are reserved for provider-owned resources, and are not allowed. If unspecified, the name will be a hyphenated
+	// list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 }
 
@@ -74161,8 +77246,8 @@ func UnmarshalPublicGatewayFloatingIPPrototypeFloatingIPIdentity(m map[string]js
 // PublicGatewayFloatingIPPrototypeFloatingIPPrototypeTargetContext : PublicGatewayFloatingIPPrototypeFloatingIPPrototypeTargetContext struct
 // This model "extends" PublicGatewayFloatingIPPrototype
 type PublicGatewayFloatingIPPrototypeFloatingIPPrototypeTargetContext struct {
-	// The unique user-defined name for this floating IP. If unspecified, the name will be a hyphenated list of
-	// randomly-selected words.
+	// The name for this floating IP. The name must not be used by another floating IP in the region. If unspecified, the
+	// name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
 	// The resource group to use. If unspecified, the account's [default resource
@@ -74337,7 +77422,7 @@ type ReservedIPTargetEndpointGatewayReference struct {
 	// The CRN for this endpoint gateway.
 	CRN *string `json:"crn" validate:"required"`
 
-	// If present, this property indicates the referenced resource has been deleted and provides
+	// If present, this property indicates the referenced resource has been deleted, and provides
 	// some supplementary information.
 	Deleted *EndpointGatewayReferenceDeleted `json:"deleted,omitempty"`
 
@@ -74347,7 +77432,7 @@ type ReservedIPTargetEndpointGatewayReference struct {
 	// The unique identifier for this endpoint gateway.
 	ID *string `json:"id" validate:"required"`
 
-	// The unique user-defined name for this endpoint gateway.
+	// The name for this endpoint gateway. The name is unique across all endpoint gateways in the VPC.
 	Name *string `json:"name" validate:"required"`
 
 	// The resource type.
@@ -74401,7 +77486,7 @@ type ReservedIPTargetGenericResourceReference struct {
 	// The CRN for the resource.
 	CRN *string `json:"crn" validate:"required"`
 
-	// If present, this property indicates the referenced resource has been deleted and provides
+	// If present, this property indicates the referenced resource has been deleted, and provides
 	// some supplementary information.
 	Deleted *GenericResourceReferenceDeleted `json:"deleted,omitempty"`
 
@@ -74444,7 +77529,7 @@ type ReservedIPTargetLoadBalancerReference struct {
 	// The load balancer's CRN.
 	CRN *string `json:"crn" validate:"required"`
 
-	// If present, this property indicates the referenced resource has been deleted and provides
+	// If present, this property indicates the referenced resource has been deleted, and provides
 	// some supplementary information.
 	Deleted *LoadBalancerReferenceDeleted `json:"deleted,omitempty"`
 
@@ -74454,7 +77539,7 @@ type ReservedIPTargetLoadBalancerReference struct {
 	// The unique identifier for this load balancer.
 	ID *string `json:"id" validate:"required"`
 
-	// The unique user-defined name for this load balancer.
+	// The name for this load balancer. The name is unique across all load balancers in the VPC.
 	Name *string `json:"name" validate:"required"`
 
 	// The resource type.
@@ -74505,7 +77590,7 @@ func UnmarshalReservedIPTargetLoadBalancerReference(m map[string]json.RawMessage
 // ReservedIPTargetNetworkInterfaceReferenceTargetContext : ReservedIPTargetNetworkInterfaceReferenceTargetContext struct
 // This model "extends" ReservedIPTarget
 type ReservedIPTargetNetworkInterfaceReferenceTargetContext struct {
-	// If present, this property indicates the referenced resource has been deleted and provides
+	// If present, this property indicates the referenced resource has been deleted, and provides
 	// some supplementary information.
 	Deleted *NetworkInterfaceReferenceTargetContextDeleted `json:"deleted,omitempty"`
 
@@ -74515,7 +77600,7 @@ type ReservedIPTargetNetworkInterfaceReferenceTargetContext struct {
 	// The unique identifier for this network interface.
 	ID *string `json:"id" validate:"required"`
 
-	// The user-defined name for this network interface.
+	// The name for this network interface.
 	Name *string `json:"name" validate:"required"`
 
 	// The resource type.
@@ -74565,7 +77650,7 @@ type ReservedIPTargetVPNGatewayReference struct {
 	// The VPN gateway's CRN.
 	CRN *string `json:"crn" validate:"required"`
 
-	// If present, this property indicates the referenced resource has been deleted and provides
+	// If present, this property indicates the referenced resource has been deleted, and provides
 	// some supplementary information.
 	Deleted *VPNGatewayReferenceDeleted `json:"deleted,omitempty"`
 
@@ -74575,7 +77660,7 @@ type ReservedIPTargetVPNGatewayReference struct {
 	// The unique identifier for this VPN gateway.
 	ID *string `json:"id" validate:"required"`
 
-	// The user-defined name for this VPN gateway.
+	// The name for this VPN gateway. The name is unique across all VPN gateways in the VPC.
 	Name *string `json:"name" validate:"required"`
 
 	// The resource type.
@@ -74629,7 +77714,7 @@ type ReservedIPTargetVPNServerReference struct {
 	// The CRN for this VPN server.
 	CRN *string `json:"crn" validate:"required"`
 
-	// If present, this property indicates the referenced resource has been deleted and provides
+	// If present, this property indicates the referenced resource has been deleted, and provides
 	// some supplementary information.
 	Deleted *VPNServerReferenceDeleted `json:"deleted,omitempty"`
 
@@ -74639,7 +77724,7 @@ type ReservedIPTargetVPNServerReference struct {
 	// The unique identifier for this VPN server.
 	ID *string `json:"id" validate:"required"`
 
-	// The unique user-defined name for this VPN server.
+	// The name for this VPN server. The name is unique across all VPN servers in the VPC.
 	Name *string `json:"name" validate:"required"`
 
 	// The resource type.
@@ -74724,7 +77809,7 @@ type RouteCreatorVPNGatewayReference struct {
 	// The VPN gateway's CRN.
 	CRN *string `json:"crn" validate:"required"`
 
-	// If present, this property indicates the referenced resource has been deleted and provides
+	// If present, this property indicates the referenced resource has been deleted, and provides
 	// some supplementary information.
 	Deleted *VPNGatewayReferenceDeleted `json:"deleted,omitempty"`
 
@@ -74734,7 +77819,7 @@ type RouteCreatorVPNGatewayReference struct {
 	// The unique identifier for this VPN gateway.
 	ID *string `json:"id" validate:"required"`
 
-	// The user-defined name for this VPN gateway.
+	// The name for this VPN gateway. The name is unique across all VPN gateways in the VPC.
 	Name *string `json:"name" validate:"required"`
 
 	// The resource type.
@@ -74788,7 +77873,7 @@ type RouteCreatorVPNServerReference struct {
 	// The CRN for this VPN server.
 	CRN *string `json:"crn" validate:"required"`
 
-	// If present, this property indicates the referenced resource has been deleted and provides
+	// If present, this property indicates the referenced resource has been deleted, and provides
 	// some supplementary information.
 	Deleted *VPNServerReferenceDeleted `json:"deleted,omitempty"`
 
@@ -74798,7 +77883,7 @@ type RouteCreatorVPNServerReference struct {
 	// The unique identifier for this VPN server.
 	ID *string `json:"id" validate:"required"`
 
-	// The unique user-defined name for this VPN server.
+	// The name for this VPN server. The name is unique across all VPN servers in the VPC.
 	Name *string `json:"name" validate:"required"`
 
 	// The resource type.
@@ -74875,7 +77960,7 @@ func UnmarshalRouteNextHopIP(m map[string]json.RawMessage, result interface{}) (
 // RouteNextHopVPNGatewayConnectionReference : RouteNextHopVPNGatewayConnectionReference struct
 // This model "extends" RouteNextHop
 type RouteNextHopVPNGatewayConnectionReference struct {
-	// If present, this property indicates the referenced resource has been deleted and provides
+	// If present, this property indicates the referenced resource has been deleted, and provides
 	// some supplementary information.
 	Deleted *VPNGatewayConnectionReferenceDeleted `json:"deleted,omitempty"`
 
@@ -74885,7 +77970,7 @@ type RouteNextHopVPNGatewayConnectionReference struct {
 	// The unique identifier for this VPN gateway connection.
 	ID *string `json:"id" validate:"required"`
 
-	// The user-defined name for this VPN connection.
+	// The name for this VPN gateway connection. The name is unique across all connections for the VPN gateway.
 	Name *string `json:"name" validate:"required"`
 
 	// The resource type.
@@ -75160,11 +78245,10 @@ func UnmarshalSecurityGroupIdentityByID(m map[string]json.RawMessage, result int
 	return
 }
 
-// SecurityGroupRulePrototypeSecurityGroupRuleProtocolAll : When `protocol` is `all`, then it's invalid to specify `port_min`, `port_max`, `type` or
-// `code`.
+// SecurityGroupRulePrototypeSecurityGroupRuleProtocolAll : A rule allowing traffic for all supported protocols.
 // This model "extends" SecurityGroupRulePrototype
 type SecurityGroupRulePrototypeSecurityGroupRuleProtocolAll struct {
-	// The direction of traffic to enforce, either `inbound` or `outbound`.
+	// The direction of traffic to enforce.
 	Direction *string `json:"direction" validate:"required"`
 
 	// The IP version to enforce. The format of `remote.address` or `remote.cidr_block` must match this property, if they
@@ -75175,15 +78259,17 @@ type SecurityGroupRulePrototypeSecurityGroupRuleProtocolAll struct {
 	// The protocol to enforce.
 	Protocol *string `json:"protocol" validate:"required"`
 
-	// The IP addresses or security groups from which this rule will allow traffic (or to
-	// which, for outbound rules). Can be specified as an IP address, a CIDR block, or a
-	// security group. If omitted, a CIDR block of `0.0.0.0/0` will be used to allow traffic
-	// from any source (or to any source, for outbound rules).
+	// The IP addresses or security groups from which this rule will allow traffic (or to which,
+	// for outbound rules). Can be specified as an IP address, a CIDR block, or a security group
+	// within the VPC.
+	//
+	// If unspecified, a CIDR block of `0.0.0.0/0` will be used to allow traffic from any source
+	// (or to any destination, for outbound rules).
 	Remote SecurityGroupRuleRemotePrototypeIntf `json:"remote,omitempty"`
 }
 
 // Constants associated with the SecurityGroupRulePrototypeSecurityGroupRuleProtocolAll.Direction property.
-// The direction of traffic to enforce, either `inbound` or `outbound`.
+// The direction of traffic to enforce.
 const (
 	SecurityGroupRulePrototypeSecurityGroupRuleProtocolAllDirectionInboundConst  = "inbound"
 	SecurityGroupRulePrototypeSecurityGroupRuleProtocolAllDirectionOutboundConst = "outbound"
@@ -75240,15 +78326,15 @@ func UnmarshalSecurityGroupRulePrototypeSecurityGroupRuleProtocolAll(m map[strin
 	return
 }
 
-// SecurityGroupRulePrototypeSecurityGroupRuleProtocolIcmp : When `protocol` is `icmp`, the `type` property may optionally be specified. If specified, then ICMP traffic is
-// allowed only for the specified ICMP type. Further, if `type` is specified, the `code` property may optionally be
-// specified to allow traffic only for the specified ICMP code.
+// SecurityGroupRulePrototypeSecurityGroupRuleProtocolIcmp : A rule specifying the ICMP traffic to allow.
 // This model "extends" SecurityGroupRulePrototype
 type SecurityGroupRulePrototypeSecurityGroupRuleProtocolIcmp struct {
 	// The ICMP traffic code to allow.
+	//
+	// If specified, `type` must also be specified.  If unspecified, all codes are allowed.
 	Code *int64 `json:"code,omitempty"`
 
-	// The direction of traffic to enforce, either `inbound` or `outbound`.
+	// The direction of traffic to enforce.
 	Direction *string `json:"direction" validate:"required"`
 
 	// The IP version to enforce. The format of `remote.address` or `remote.cidr_block` must match this property, if they
@@ -75259,18 +78345,22 @@ type SecurityGroupRulePrototypeSecurityGroupRuleProtocolIcmp struct {
 	// The protocol to enforce.
 	Protocol *string `json:"protocol" validate:"required"`
 
-	// The IP addresses or security groups from which this rule will allow traffic (or to
-	// which, for outbound rules). Can be specified as an IP address, a CIDR block, or a
-	// security group. If omitted, a CIDR block of `0.0.0.0/0` will be used to allow traffic
-	// from any source (or to any source, for outbound rules).
+	// The IP addresses or security groups from which this rule will allow traffic (or to which,
+	// for outbound rules). Can be specified as an IP address, a CIDR block, or a security group
+	// within the VPC.
+	//
+	// If unspecified, a CIDR block of `0.0.0.0/0` will be used to allow traffic from any source
+	// (or to any destination, for outbound rules).
 	Remote SecurityGroupRuleRemotePrototypeIntf `json:"remote,omitempty"`
 
 	// The ICMP traffic type to allow.
+	//
+	// If unspecified, all types are allowed.
 	Type *int64 `json:"type,omitempty"`
 }
 
 // Constants associated with the SecurityGroupRulePrototypeSecurityGroupRuleProtocolIcmp.Direction property.
-// The direction of traffic to enforce, either `inbound` or `outbound`.
+// The direction of traffic to enforce.
 const (
 	SecurityGroupRulePrototypeSecurityGroupRuleProtocolIcmpDirectionInboundConst  = "inbound"
 	SecurityGroupRulePrototypeSecurityGroupRuleProtocolIcmpDirectionOutboundConst = "outbound"
@@ -75335,12 +78425,13 @@ func UnmarshalSecurityGroupRulePrototypeSecurityGroupRuleProtocolIcmp(m map[stri
 	return
 }
 
-// SecurityGroupRulePrototypeSecurityGroupRuleProtocolTcpudp : If `protocol` is either `tcp` or `udp`, then the rule may also contain `port_min` and
-// `port_max`. Either both must be set, or neither. When neither is set then traffic is allowed on all ports. For a
-// single port, set both to the same value.
+// SecurityGroupRulePrototypeSecurityGroupRuleProtocolTcpudp : A rule specifying the TCP or UDP traffic to allow.
+//
+// Either both `port_min` and `port_max` will be present, or neither. When neither is present, all ports are allowed for
+// the protocol. When both have the same value, that single port is allowed.
 // This model "extends" SecurityGroupRulePrototype
 type SecurityGroupRulePrototypeSecurityGroupRuleProtocolTcpudp struct {
-	// The direction of traffic to enforce, either `inbound` or `outbound`.
+	// The direction of traffic to enforce.
 	Direction *string `json:"direction" validate:"required"`
 
 	// The IP version to enforce. The format of `remote.address` or `remote.cidr_block` must match this property, if they
@@ -75349,23 +78440,31 @@ type SecurityGroupRulePrototypeSecurityGroupRuleProtocolTcpudp struct {
 	IPVersion *string `json:"ip_version,omitempty"`
 
 	// The inclusive upper bound of TCP/UDP port range.
+	//
+	// If specified, `port_min` must also be specified, and must not be larger. If unspecified, `port_min` must also be
+	// unspecified, allowing traffic on all ports.
 	PortMax *int64 `json:"port_max,omitempty"`
 
-	// The inclusive lower bound of TCP/UDP port range.
+	// The inclusive lower bound of TCP/UDP port range
+	//
+	// If specified, `port_max` must also be specified, and must not be smaller. If unspecified, `port_max` must also be
+	// unspecified, allowing traffic on all ports.
 	PortMin *int64 `json:"port_min,omitempty"`
 
 	// The protocol to enforce.
 	Protocol *string `json:"protocol" validate:"required"`
 
-	// The IP addresses or security groups from which this rule will allow traffic (or to
-	// which, for outbound rules). Can be specified as an IP address, a CIDR block, or a
-	// security group. If omitted, a CIDR block of `0.0.0.0/0` will be used to allow traffic
-	// from any source (or to any source, for outbound rules).
+	// The IP addresses or security groups from which this rule will allow traffic (or to which,
+	// for outbound rules). Can be specified as an IP address, a CIDR block, or a security group
+	// within the VPC.
+	//
+	// If unspecified, a CIDR block of `0.0.0.0/0` will be used to allow traffic from any source
+	// (or to any destination, for outbound rules).
 	Remote SecurityGroupRuleRemotePrototypeIntf `json:"remote,omitempty"`
 }
 
 // Constants associated with the SecurityGroupRulePrototypeSecurityGroupRuleProtocolTcpudp.Direction property.
-// The direction of traffic to enforce, either `inbound` or `outbound`.
+// The direction of traffic to enforce.
 const (
 	SecurityGroupRulePrototypeSecurityGroupRuleProtocolTcpudpDirectionInboundConst  = "inbound"
 	SecurityGroupRulePrototypeSecurityGroupRuleProtocolTcpudpDirectionOutboundConst = "outbound"
@@ -75721,7 +78820,7 @@ type SecurityGroupRuleRemoteSecurityGroupReference struct {
 	// The security group's CRN.
 	CRN *string `json:"crn" validate:"required"`
 
-	// If present, this property indicates the referenced resource has been deleted and provides
+	// If present, this property indicates the referenced resource has been deleted, and provides
 	// some supplementary information.
 	Deleted *SecurityGroupReferenceDeleted `json:"deleted,omitempty"`
 
@@ -75731,7 +78830,7 @@ type SecurityGroupRuleRemoteSecurityGroupReference struct {
 	// The unique identifier for this security group.
 	ID *string `json:"id" validate:"required"`
 
-	// The user-defined name for this security group. Names must be unique within the VPC the security group resides in.
+	// The name for this security group. The name is unique across all security groups for the VPC.
 	Name *string `json:"name" validate:"required"`
 }
 
@@ -75766,11 +78865,10 @@ func UnmarshalSecurityGroupRuleRemoteSecurityGroupReference(m map[string]json.Ra
 	return
 }
 
-// SecurityGroupRuleSecurityGroupRuleProtocolAll : When `protocol` is `all`, then it's invalid to specify `port_min`, `port_max`, `type` or
-// `code`.
+// SecurityGroupRuleSecurityGroupRuleProtocolAll : A rule allowing traffic for all supported protocols.
 // This model "extends" SecurityGroupRule
 type SecurityGroupRuleSecurityGroupRuleProtocolAll struct {
-	// The direction of traffic to enforce, either `inbound` or `outbound`.
+	// The direction of traffic to enforce.
 	Direction *string `json:"direction" validate:"required"`
 
 	// The URL for this security group rule.
@@ -75791,7 +78889,7 @@ type SecurityGroupRuleSecurityGroupRuleProtocolAll struct {
 }
 
 // Constants associated with the SecurityGroupRuleSecurityGroupRuleProtocolAll.Direction property.
-// The direction of traffic to enforce, either `inbound` or `outbound`.
+// The direction of traffic to enforce.
 const (
 	SecurityGroupRuleSecurityGroupRuleProtocolAllDirectionInboundConst  = "inbound"
 	SecurityGroupRuleSecurityGroupRuleProtocolAllDirectionOutboundConst = "outbound"
@@ -75846,12 +78944,10 @@ func UnmarshalSecurityGroupRuleSecurityGroupRuleProtocolAll(m map[string]json.Ra
 	return
 }
 
-// SecurityGroupRuleSecurityGroupRuleProtocolIcmp : When `protocol` is `icmp`, the `type` property may optionally be specified. If specified, then ICMP traffic is
-// allowed only for the specified ICMP type. Further, if `type` is specified, the `code` property may optionally be
-// specified to allow traffic only for the specified ICMP code.
+// SecurityGroupRuleSecurityGroupRuleProtocolIcmp : A rule specifying the ICMP traffic to allow.
 // This model "extends" SecurityGroupRule
 type SecurityGroupRuleSecurityGroupRuleProtocolIcmp struct {
-	// The direction of traffic to enforce, either `inbound` or `outbound`.
+	// The direction of traffic to enforce.
 	Direction *string `json:"direction" validate:"required"`
 
 	// The URL for this security group rule.
@@ -75867,18 +78963,18 @@ type SecurityGroupRuleSecurityGroupRuleProtocolIcmp struct {
 
 	Remote SecurityGroupRuleRemoteIntf `json:"remote" validate:"required"`
 
-	// The ICMP traffic code to allow.
+	// The ICMP traffic code to allow. If absent, all codes are allowed.
 	Code *int64 `json:"code,omitempty"`
 
 	// The protocol to enforce.
 	Protocol *string `json:"protocol" validate:"required"`
 
-	// The ICMP traffic type to allow.
+	// The ICMP traffic type to allow. If absent, all types are allowed.
 	Type *int64 `json:"type,omitempty"`
 }
 
 // Constants associated with the SecurityGroupRuleSecurityGroupRuleProtocolIcmp.Direction property.
-// The direction of traffic to enforce, either `inbound` or `outbound`.
+// The direction of traffic to enforce.
 const (
 	SecurityGroupRuleSecurityGroupRuleProtocolIcmpDirectionInboundConst  = "inbound"
 	SecurityGroupRuleSecurityGroupRuleProtocolIcmpDirectionOutboundConst = "outbound"
@@ -75941,12 +79037,13 @@ func UnmarshalSecurityGroupRuleSecurityGroupRuleProtocolIcmp(m map[string]json.R
 	return
 }
 
-// SecurityGroupRuleSecurityGroupRuleProtocolTcpudp : If `protocol` is either `tcp` or `udp`, then the rule may also contain `port_min` and
-// `port_max`. Either both must be set, or neither. When neither is set then traffic is allowed on all ports. For a
-// single port, set both to the same value.
+// SecurityGroupRuleSecurityGroupRuleProtocolTcpudp : A rule specifying the TCP or UDP traffic to allow.
+//
+// Either both `port_min` and `port_max` will be present, or neither. When neither is present, all ports are allowed for
+// the protocol. When both have the same value, that single port is allowed.
 // This model "extends" SecurityGroupRule
 type SecurityGroupRuleSecurityGroupRuleProtocolTcpudp struct {
-	// The direction of traffic to enforce, either `inbound` or `outbound`.
+	// The direction of traffic to enforce.
 	Direction *string `json:"direction" validate:"required"`
 
 	// The URL for this security group rule.
@@ -75973,7 +79070,7 @@ type SecurityGroupRuleSecurityGroupRuleProtocolTcpudp struct {
 }
 
 // Constants associated with the SecurityGroupRuleSecurityGroupRuleProtocolTcpudp.Direction property.
-// The direction of traffic to enforce, either `inbound` or `outbound`.
+// The direction of traffic to enforce.
 const (
 	SecurityGroupRuleSecurityGroupRuleProtocolTcpudpDirectionInboundConst  = "inbound"
 	SecurityGroupRuleSecurityGroupRuleProtocolTcpudpDirectionOutboundConst = "outbound"
@@ -76043,7 +79140,7 @@ type SecurityGroupTargetReferenceEndpointGatewayReference struct {
 	// The CRN for this endpoint gateway.
 	CRN *string `json:"crn" validate:"required"`
 
-	// If present, this property indicates the referenced resource has been deleted and provides
+	// If present, this property indicates the referenced resource has been deleted, and provides
 	// some supplementary information.
 	Deleted *EndpointGatewayReferenceDeleted `json:"deleted,omitempty"`
 
@@ -76053,7 +79150,7 @@ type SecurityGroupTargetReferenceEndpointGatewayReference struct {
 	// The unique identifier for this endpoint gateway.
 	ID *string `json:"id" validate:"required"`
 
-	// The unique user-defined name for this endpoint gateway.
+	// The name for this endpoint gateway. The name is unique across all endpoint gateways in the VPC.
 	Name *string `json:"name" validate:"required"`
 
 	// The resource type.
@@ -76107,7 +79204,7 @@ type SecurityGroupTargetReferenceLoadBalancerReference struct {
 	// The load balancer's CRN.
 	CRN *string `json:"crn" validate:"required"`
 
-	// If present, this property indicates the referenced resource has been deleted and provides
+	// If present, this property indicates the referenced resource has been deleted, and provides
 	// some supplementary information.
 	Deleted *LoadBalancerReferenceDeleted `json:"deleted,omitempty"`
 
@@ -76117,7 +79214,7 @@ type SecurityGroupTargetReferenceLoadBalancerReference struct {
 	// The unique identifier for this load balancer.
 	ID *string `json:"id" validate:"required"`
 
-	// The unique user-defined name for this load balancer.
+	// The name for this load balancer. The name is unique across all load balancers in the VPC.
 	Name *string `json:"name" validate:"required"`
 
 	// The resource type.
@@ -76168,7 +79265,7 @@ func UnmarshalSecurityGroupTargetReferenceLoadBalancerReference(m map[string]jso
 // SecurityGroupTargetReferenceNetworkInterfaceReferenceTargetContext : SecurityGroupTargetReferenceNetworkInterfaceReferenceTargetContext struct
 // This model "extends" SecurityGroupTargetReference
 type SecurityGroupTargetReferenceNetworkInterfaceReferenceTargetContext struct {
-	// If present, this property indicates the referenced resource has been deleted and provides
+	// If present, this property indicates the referenced resource has been deleted, and provides
 	// some supplementary information.
 	Deleted *NetworkInterfaceReferenceTargetContextDeleted `json:"deleted,omitempty"`
 
@@ -76178,7 +79275,7 @@ type SecurityGroupTargetReferenceNetworkInterfaceReferenceTargetContext struct {
 	// The unique identifier for this network interface.
 	ID *string `json:"id" validate:"required"`
 
-	// The user-defined name for this network interface.
+	// The name for this network interface.
 	Name *string `json:"name" validate:"required"`
 
 	// The resource type.
@@ -76228,7 +79325,7 @@ type SecurityGroupTargetReferenceVPNServerReference struct {
 	// The CRN for this VPN server.
 	CRN *string `json:"crn" validate:"required"`
 
-	// If present, this property indicates the referenced resource has been deleted and provides
+	// If present, this property indicates the referenced resource has been deleted, and provides
 	// some supplementary information.
 	Deleted *VPNServerReferenceDeleted `json:"deleted,omitempty"`
 
@@ -76238,7 +79335,7 @@ type SecurityGroupTargetReferenceVPNServerReference struct {
 	// The unique identifier for this VPN server.
 	ID *string `json:"id" validate:"required"`
 
-	// The unique user-defined name for this VPN server.
+	// The name for this VPN server. The name is unique across all VPN servers in the VPC.
 	Name *string `json:"name" validate:"required"`
 
 	// The resource type.
@@ -76382,8 +79479,8 @@ func UnmarshalSnapshotIdentityByID(m map[string]json.RawMessage, result interfac
 // SnapshotPrototypeSnapshotBySourceVolume : SnapshotPrototypeSnapshotBySourceVolume struct
 // This model "extends" SnapshotPrototype
 type SnapshotPrototypeSnapshotBySourceVolume struct {
-	// The unique user-defined name for this snapshot. If unspecified, the name will be a hyphenated list of
-	// randomly-selected words.
+	// The name for this snapshot. The name must not be used by another snapshot in the region. If unspecified, the name
+	// will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
@@ -76530,8 +79627,8 @@ type SubnetPrototypeSubnetByCIDR struct {
 	// The IP version(s) to support for this subnet.
 	IPVersion *string `json:"ip_version,omitempty"`
 
-	// The user-defined name for this subnet. Names must be unique within the VPC the subnet resides in. If unspecified,
-	// the name will be a hyphenated list of randomly-selected words.
+	// The name for this subnet. The name must not be used by another subnet in the VPC. If unspecified, the name will be a
+	// hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
 	// The network ACL to use for this subnet. If unspecified, the default network ACL for the VPC is used.
@@ -76545,10 +79642,11 @@ type SubnetPrototypeSubnetByCIDR struct {
 
 	// The routing table to use for this subnet. If unspecified, the default routing table for the VPC is used. The routing
 	// table properties `route_direct_link_ingress`,
-	// `route_transit_gateway_ingress`, and `route_vpc_zone_ingress` must be `false`.
+	// `route_internet_ingress`, `route_transit_gateway_ingress`, and
+	// `route_vpc_zone_ingress` must be `false`.
 	RoutingTable RoutingTableIdentityIntf `json:"routing_table,omitempty"`
 
-	// The VPC the subnet is to be a part of.
+	// The VPC the subnet will reside in.
 	VPC VPCIdentityIntf `json:"vpc" validate:"required"`
 
 	// The IPv4 range of the subnet, expressed in CIDR format. The prefix length of the subnet's CIDR must be between `/9`
@@ -76631,8 +79729,8 @@ type SubnetPrototypeSubnetByTotalCount struct {
 	// The IP version(s) to support for this subnet.
 	IPVersion *string `json:"ip_version,omitempty"`
 
-	// The user-defined name for this subnet. Names must be unique within the VPC the subnet resides in. If unspecified,
-	// the name will be a hyphenated list of randomly-selected words.
+	// The name for this subnet. The name must not be used by another subnet in the VPC. If unspecified, the name will be a
+	// hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
 	// The network ACL to use for this subnet. If unspecified, the default network ACL for the VPC is used.
@@ -76646,10 +79744,11 @@ type SubnetPrototypeSubnetByTotalCount struct {
 
 	// The routing table to use for this subnet. If unspecified, the default routing table for the VPC is used. The routing
 	// table properties `route_direct_link_ingress`,
-	// `route_transit_gateway_ingress`, and `route_vpc_zone_ingress` must be `false`.
+	// `route_internet_ingress`, `route_transit_gateway_ingress`, and
+	// `route_vpc_zone_ingress` must be `false`.
 	RoutingTable RoutingTableIdentityIntf `json:"routing_table,omitempty"`
 
-	// The VPC the subnet is to be a part of.
+	// The VPC the subnet will reside in.
 	VPC VPCIdentityIntf `json:"vpc" validate:"required"`
 
 	// The total number of IPv4 addresses required. Must be a power of 2. The VPC must have a default address prefix in the
@@ -77232,7 +80331,7 @@ type VPNGatewayConnectionPatchVPNGatewayConnectionStaticRouteModePatch struct {
 
 	IpsecPolicy VPNGatewayConnectionIPsecPolicyPatchIntf `json:"ipsec_policy,omitempty"`
 
-	// The user-defined name for this VPN gateway connection.
+	// The name for this VPN gateway connection. The name must not be used by another connection for the VPN gateway.
 	Name *string `json:"name,omitempty"`
 
 	// The IP address of the peer VPN gateway.
@@ -77335,7 +80434,7 @@ type VPNGatewayConnectionPolicyMode struct {
 	// The mode of the VPN gateway.
 	Mode *string `json:"mode" validate:"required"`
 
-	// The user-defined name for this VPN gateway connection.
+	// The name for this VPN gateway connection. The name is unique across all connections for the VPN gateway.
 	Name *string `json:"name" validate:"required"`
 
 	// The IP address of the peer VPN gateway.
@@ -77470,7 +80569,8 @@ type VPNGatewayConnectionPrototypeVPNGatewayConnectionPolicyModePrototype struct
 
 	IpsecPolicy VPNGatewayConnectionIPsecPolicyPrototypeIntf `json:"ipsec_policy,omitempty"`
 
-	// The user-defined name for this VPN gateway connection.
+	// The name for this VPN gateway connection. The name must not be used by another connection for the VPN gateway. If
+	// unspecified, the name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
 	// The IP address of the peer VPN gateway.
@@ -77557,7 +80657,8 @@ type VPNGatewayConnectionPrototypeVPNGatewayConnectionStaticRouteModePrototype s
 
 	IpsecPolicy VPNGatewayConnectionIPsecPolicyPrototypeIntf `json:"ipsec_policy,omitempty"`
 
-	// The user-defined name for this VPN gateway connection.
+	// The name for this VPN gateway connection. The name must not be used by another connection for the VPN gateway. If
+	// unspecified, the name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
 	// The IP address of the peer VPN gateway.
@@ -77660,7 +80761,7 @@ type VPNGatewayConnectionStaticRouteMode struct {
 	// The mode of the VPN gateway.
 	Mode *string `json:"mode" validate:"required"`
 
-	// The user-defined name for this VPN gateway connection.
+	// The name for this VPN gateway connection. The name is unique across all connections for the VPN gateway.
 	Name *string `json:"name" validate:"required"`
 
 	// The IP address of the peer VPN gateway.
@@ -77810,7 +80911,7 @@ type VPNGatewayPolicyMode struct {
 	// Collection of VPN gateway members.
 	Members []VPNGatewayMember `json:"members" validate:"required"`
 
-	// The user-defined name for this VPN gateway.
+	// The name for this VPN gateway. The name is unique across all VPN gateways in the VPC.
 	Name *string `json:"name" validate:"required"`
 
 	// The resource group for this VPN gateway.
@@ -77823,6 +80924,9 @@ type VPNGatewayPolicyMode struct {
 	Status *string `json:"status" validate:"required"`
 
 	Subnet *SubnetReference `json:"subnet" validate:"required"`
+
+	// The VPC this VPN gateway resides in.
+	VPC *VPCReference `json:"vpc" validate:"required"`
 
 	// Policy mode VPN gateway.
 	Mode *string `json:"mode" validate:"required"`
@@ -77900,6 +81004,10 @@ func UnmarshalVPNGatewayPolicyMode(m map[string]json.RawMessage, result interfac
 	if err != nil {
 		return
 	}
+	err = core.UnmarshalModel(m, "vpc", &obj.VPC, UnmarshalVPCReference)
+	if err != nil {
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "mode", &obj.Mode)
 	if err != nil {
 		return
@@ -77911,7 +81019,8 @@ func UnmarshalVPNGatewayPolicyMode(m map[string]json.RawMessage, result interfac
 // VPNGatewayPrototypeVPNGatewayPolicyModePrototype : VPNGatewayPrototypeVPNGatewayPolicyModePrototype struct
 // This model "extends" VPNGatewayPrototype
 type VPNGatewayPrototypeVPNGatewayPolicyModePrototype struct {
-	// The user-defined name for this VPN gateway.
+	// The name for this VPN gateway. The name must not be used by another VPN gateway in the VPC. If unspecified, the name
+	// will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
@@ -77967,7 +81076,8 @@ func UnmarshalVPNGatewayPrototypeVPNGatewayPolicyModePrototype(m map[string]json
 // VPNGatewayPrototypeVPNGatewayRouteModePrototype : VPNGatewayPrototypeVPNGatewayRouteModePrototype struct
 // This model "extends" VPNGatewayPrototype
 type VPNGatewayPrototypeVPNGatewayRouteModePrototype struct {
-	// The user-defined name for this VPN gateway.
+	// The name for this VPN gateway. The name must not be used by another VPN gateway in the VPC. If unspecified, the name
+	// will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
@@ -78041,7 +81151,7 @@ type VPNGatewayRouteMode struct {
 	// Collection of VPN gateway members.
 	Members []VPNGatewayMember `json:"members" validate:"required"`
 
-	// The user-defined name for this VPN gateway.
+	// The name for this VPN gateway. The name is unique across all VPN gateways in the VPC.
 	Name *string `json:"name" validate:"required"`
 
 	// The resource group for this VPN gateway.
@@ -78054,6 +81164,9 @@ type VPNGatewayRouteMode struct {
 	Status *string `json:"status" validate:"required"`
 
 	Subnet *SubnetReference `json:"subnet" validate:"required"`
+
+	// The VPC this VPN gateway resides in.
+	VPC *VPCReference `json:"vpc" validate:"required"`
 
 	// Route mode VPN gateway.
 	Mode *string `json:"mode" validate:"required"`
@@ -78128,6 +81241,10 @@ func UnmarshalVPNGatewayRouteMode(m map[string]json.RawMessage, result interface
 		return
 	}
 	err = core.UnmarshalModel(m, "subnet", &obj.Subnet, UnmarshalSubnetReference)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "vpc", &obj.VPC, UnmarshalVPCReference)
 	if err != nil {
 		return
 	}
@@ -78423,11 +81540,16 @@ type VolumeAttachmentPrototypeVolumeVolumePrototypeInstanceContext struct {
 	// `family` of `custom`.
 	Iops *int64 `json:"iops,omitempty"`
 
-	// The unique user-defined name for this volume.
+	// The name for this volume. The name must not be used by another volume in the region. If unspecified, the name will
+	// be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
-	// The profile to use for this volume.
+	// The [profile](https://cloud.ibm.com/docs/vpc?topic=vpc-block-storage-profiles) to
+	// use for this volume.
 	Profile VolumeProfileIdentityIntf `json:"profile" validate:"required"`
+
+	// The [user tags](https://cloud.ibm.com/apidocs/tagging#types-of-tags) associated with this volume.
+	UserTags []string `json:"user_tags,omitempty"`
 
 	// The capacity to use for the volume (in gigabytes). The specified minimum and maximum capacity values for creating or
 	// updating volumes may expand in the future.
@@ -78470,125 +81592,7 @@ func UnmarshalVolumeAttachmentPrototypeVolumeVolumePrototypeInstanceContext(m ma
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalPrimitive(m, "capacity", &obj.Capacity)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "encryption_key", &obj.EncryptionKey, UnmarshalEncryptionKeyIdentity)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "source_snapshot", &obj.SourceSnapshot, UnmarshalSnapshotIdentity)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentity : Identifies a volume by a unique property.
-// Models which "extend" this model:
-// - VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByID
-// - VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByCRN
-// - VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByHref
-// This model "extends" VolumeAttachmentVolumePrototypeInstanceContext
-type VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentity struct {
-	// The unique identifier for this volume.
-	ID *string `json:"id,omitempty"`
-
-	// The CRN for this volume.
-	CRN *string `json:"crn,omitempty"`
-
-	// The URL for this volume.
-	Href *string `json:"href,omitempty"`
-}
-
-func (*VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentity) isaVolumeAttachmentVolumePrototypeInstanceContextVolumeIdentity() bool {
-	return true
-}
-
-type VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityIntf interface {
-	VolumeAttachmentVolumePrototypeInstanceContextIntf
-	isaVolumeAttachmentVolumePrototypeInstanceContextVolumeIdentity() bool
-}
-
-func (*VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentity) isaVolumeAttachmentVolumePrototypeInstanceContext() bool {
-	return true
-}
-
-// UnmarshalVolumeAttachmentVolumePrototypeInstanceContextVolumeIdentity unmarshals an instance of VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentity from the specified map of raw messages.
-func UnmarshalVolumeAttachmentVolumePrototypeInstanceContextVolumeIdentity(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentity)
-	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContext : VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContext struct
-// Models which "extend" this model:
-// - VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeByCapacity
-// - VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeBySourceSnapshot
-// This model "extends" VolumeAttachmentVolumePrototypeInstanceContext
-type VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContext struct {
-	// The maximum I/O operations per second (IOPS) to use for the volume. Applicable only to volumes using a profile
-	// `family` of `custom`.
-	Iops *int64 `json:"iops,omitempty"`
-
-	// The unique user-defined name for this volume.
-	Name *string `json:"name,omitempty"`
-
-	// The profile to use for this volume.
-	Profile VolumeProfileIdentityIntf `json:"profile" validate:"required"`
-
-	// The capacity to use for the volume (in gigabytes). The specified minimum and maximum capacity values for creating or
-	// updating volumes may expand in the future.
-	Capacity *int64 `json:"capacity,omitempty"`
-
-	// The root key to use to wrap the data encryption key for the volume.
-	//
-	// If unspecified, the `encryption` type for the volume will be `provider_managed`.
-	EncryptionKey EncryptionKeyIdentityIntf `json:"encryption_key,omitempty"`
-
-	// The snapshot from which to clone the volume.
-	SourceSnapshot SnapshotIdentityIntf `json:"source_snapshot,omitempty"`
-}
-
-func (*VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContext) isaVolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContext() bool {
-	return true
-}
-
-type VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContextIntf interface {
-	VolumeAttachmentVolumePrototypeInstanceContextIntf
-	isaVolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContext() bool
-}
-
-func (*VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContext) isaVolumeAttachmentVolumePrototypeInstanceContext() bool {
-	return true
-}
-
-// UnmarshalVolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContext unmarshals an instance of VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContext from the specified map of raw messages.
-func UnmarshalVolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContext(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContext)
-	err = core.UnmarshalPrimitive(m, "iops", &obj.Iops)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "profile", &obj.Profile, UnmarshalVolumeProfileIdentity)
+	err = core.UnmarshalPrimitive(m, "user_tags", &obj.UserTags)
 	if err != nil {
 		return
 	}
@@ -78770,10 +81774,11 @@ type VolumePrototypeVolumeByCapacity struct {
 	// `family` of `custom`.
 	Iops *int64 `json:"iops,omitempty"`
 
-	// The unique user-defined name for this volume.
+	// The name for this volume. The name must not be used by another volume in the region. If unspecified, the name will
+	// be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
-	// The profile to use for this volume.
+	// The [profile](https://cloud.ibm.com/docs/vpc?topic=vpc-block-storage-profiles) to use for this volume.
 	Profile VolumeProfileIdentityIntf `json:"profile" validate:"required"`
 
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
@@ -78855,10 +81860,11 @@ type VolumePrototypeVolumeBySourceSnapshot struct {
 	// `family` of `custom`.
 	Iops *int64 `json:"iops,omitempty"`
 
-	// The unique user-defined name for this volume.
+	// The name for this volume. The name must not be used by another volume in the region. If unspecified, the name will
+	// be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
-	// The profile to use for this volume.
+	// The [profile](https://cloud.ibm.com/docs/vpc?topic=vpc-block-storage-profiles) to use for this volume.
 	Profile VolumeProfileIdentityIntf `json:"profile" validate:"required"`
 
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
@@ -78877,7 +81883,7 @@ type VolumePrototypeVolumeBySourceSnapshot struct {
 
 	// The root key to use to wrap the data encryption key for the volume.
 	//
-	// If unspecified, the snapshot's `encryption_key` will be used.
+	// If unspecified, the `encryption` type for the volume will be `provider_managed`.
 	EncryptionKey EncryptionKeyIdentityIntf `json:"encryption_key,omitempty"`
 
 	// The snapshot from which to clone the volume.
@@ -79566,7 +82572,7 @@ func UnmarshalFlowLogCollectorTargetPrototypeVPCIdentityVPCIdentityByID(m map[st
 // - InstanceGroupManagerActionPrototypeScheduledActionPrototypeByCronSpecByManager
 // This model "extends" InstanceGroupManagerActionPrototypeScheduledActionPrototype
 type InstanceGroupManagerActionPrototypeScheduledActionPrototypeByCronSpec struct {
-	// The user-defined name for this instance group manager action. Names must be unique within the instance group
+	// The name for this instance group manager action. The name must not be used by another action for the instance group
 	// manager. If unspecified, the name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
@@ -79625,7 +82631,7 @@ func UnmarshalInstanceGroupManagerActionPrototypeScheduledActionPrototypeByCronS
 // - InstanceGroupManagerActionPrototypeScheduledActionPrototypeByRunAtByManager
 // This model "extends" InstanceGroupManagerActionPrototypeScheduledActionPrototype
 type InstanceGroupManagerActionPrototypeScheduledActionPrototypeByRunAt struct {
-	// The user-defined name for this instance group manager action. Names must be unique within the instance group
+	// The name for this instance group manager action. The name must not be used by another action for the instance group
 	// manager. If unspecified, the name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
@@ -79699,7 +82705,8 @@ type InstanceGroupManagerActionScheduledActionGroupTarget struct {
 	// The unique identifier for this instance group manager action.
 	ID *string `json:"id" validate:"required"`
 
-	// The user-defined name for this instance group manager action.
+	// The name for this instance group manager action. The name is unique across all actions for the instance group
+	// manager.
 	Name *string `json:"name" validate:"required"`
 
 	// The resource type.
@@ -79713,7 +82720,7 @@ type InstanceGroupManagerActionScheduledActionGroupTarget struct {
 	// - `omitted`: Action was not applied because this action's manager was disabled.
 	Status *string `json:"status" validate:"required"`
 
-	// The date and time that the instance group manager action was modified.
+	// The date and time that the instance group manager action was updated.
 	UpdatedAt *strfmt.DateTime `json:"updated_at" validate:"required"`
 
 	// The type of action for the instance group.
@@ -79853,7 +82860,8 @@ type InstanceGroupManagerActionScheduledActionManagerTarget struct {
 	// The unique identifier for this instance group manager action.
 	ID *string `json:"id" validate:"required"`
 
-	// The user-defined name for this instance group manager action.
+	// The name for this instance group manager action. The name is unique across all actions for the instance group
+	// manager.
 	Name *string `json:"name" validate:"required"`
 
 	// The resource type.
@@ -79867,7 +82875,7 @@ type InstanceGroupManagerActionScheduledActionManagerTarget struct {
 	// - `omitted`: Action was not applied because this action's manager was disabled.
 	Status *string `json:"status" validate:"required"`
 
-	// The date and time that the instance group manager action was modified.
+	// The date and time that the instance group manager action was updated.
 	UpdatedAt *strfmt.DateTime `json:"updated_at" validate:"required"`
 
 	// The type of action for the instance group.
@@ -81560,11 +84568,15 @@ type VolumeAttachmentPrototypeVolumeVolumePrototypeInstanceContextVolumePrototyp
 	// `family` of `custom`.
 	Iops *int64 `json:"iops,omitempty"`
 
-	// The unique user-defined name for this volume.
+	// The name for this volume. The name must not be used by another volume in the region. If unspecified, the name will
+	// be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
-	// The profile to use for this volume.
+	// The [profile](https://cloud.ibm.com/docs/vpc?topic=vpc-block-storage-profiles) to use for this volume.
 	Profile VolumeProfileIdentityIntf `json:"profile" validate:"required"`
+
+	// The [user tags](https://cloud.ibm.com/apidocs/tagging#types-of-tags) associated with this volume.
+	UserTags []string `json:"user_tags,omitempty"`
 
 	// The capacity to use for the volume (in gigabytes). The specified minimum and maximum capacity values for creating or
 	// updating volumes may expand in the future.
@@ -81609,6 +84621,10 @@ func UnmarshalVolumeAttachmentPrototypeVolumeVolumePrototypeInstanceContextVolum
 	if err != nil {
 		return
 	}
+	err = core.UnmarshalPrimitive(m, "user_tags", &obj.UserTags)
+	if err != nil {
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "capacity", &obj.Capacity)
 	if err != nil {
 		return
@@ -81628,11 +84644,15 @@ type VolumeAttachmentPrototypeVolumeVolumePrototypeInstanceContextVolumePrototyp
 	// `family` of `custom`.
 	Iops *int64 `json:"iops,omitempty"`
 
-	// The unique user-defined name for this volume.
+	// The name for this volume. The name must not be used by another volume in the region. If unspecified, the name will
+	// be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
-	// The profile to use for this volume.
+	// The [profile](https://cloud.ibm.com/docs/vpc?topic=vpc-block-storage-profiles) to use for this volume.
 	Profile VolumeProfileIdentityIntf `json:"profile" validate:"required"`
+
+	// The [user tags](https://cloud.ibm.com/apidocs/tagging#types-of-tags) associated with this volume.
+	UserTags []string `json:"user_tags,omitempty"`
 
 	// The capacity to use for the volume (in gigabytes). Must be at least the snapshot's
 	// `minimum_capacity`. The maximum value may increase in the future.
@@ -81642,7 +84662,7 @@ type VolumeAttachmentPrototypeVolumeVolumePrototypeInstanceContextVolumePrototyp
 
 	// The root key to use to wrap the data encryption key for the volume.
 	//
-	// If unspecified, the snapshot's `encryption_key` will be used.
+	// If unspecified, the `encryption` type for the volume will be `provider_managed`.
 	EncryptionKey EncryptionKeyIdentityIntf `json:"encryption_key,omitempty"`
 
 	// The snapshot from which to clone the volume.
@@ -81682,253 +84702,7 @@ func UnmarshalVolumeAttachmentPrototypeVolumeVolumePrototypeInstanceContextVolum
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalPrimitive(m, "capacity", &obj.Capacity)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "encryption_key", &obj.EncryptionKey, UnmarshalEncryptionKeyIdentity)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "source_snapshot", &obj.SourceSnapshot, UnmarshalSnapshotIdentity)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByCRN : VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByCRN struct
-// This model "extends" VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentity
-type VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByCRN struct {
-	// The CRN for this volume.
-	CRN *string `json:"crn" validate:"required"`
-}
-
-// NewVolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByCRN : Instantiate VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByCRN (Generic Model Constructor)
-func (*VpcV1) NewVolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByCRN(crn string) (_model *VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByCRN, err error) {
-	_model = &VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByCRN{
-		CRN: core.StringPtr(crn),
-	}
-	err = core.ValidateStruct(_model, "required parameters")
-	return
-}
-
-func (*VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByCRN) isaVolumeAttachmentVolumePrototypeInstanceContextVolumeIdentity() bool {
-	return true
-}
-
-func (*VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByCRN) isaVolumeAttachmentVolumePrototypeInstanceContext() bool {
-	return true
-}
-
-// UnmarshalVolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByCRN unmarshals an instance of VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByCRN from the specified map of raw messages.
-func UnmarshalVolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByCRN(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByCRN)
-	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByHref : VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByHref struct
-// This model "extends" VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentity
-type VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByHref struct {
-	// The URL for this volume.
-	Href *string `json:"href" validate:"required"`
-}
-
-// NewVolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByHref : Instantiate VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByHref (Generic Model Constructor)
-func (*VpcV1) NewVolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByHref(href string) (_model *VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByHref, err error) {
-	_model = &VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByHref{
-		Href: core.StringPtr(href),
-	}
-	err = core.ValidateStruct(_model, "required parameters")
-	return
-}
-
-func (*VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByHref) isaVolumeAttachmentVolumePrototypeInstanceContextVolumeIdentity() bool {
-	return true
-}
-
-func (*VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByHref) isaVolumeAttachmentVolumePrototypeInstanceContext() bool {
-	return true
-}
-
-// UnmarshalVolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByHref unmarshals an instance of VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByHref from the specified map of raw messages.
-func UnmarshalVolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByHref(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByHref)
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByID : VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByID struct
-// This model "extends" VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentity
-type VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByID struct {
-	// The unique identifier for this volume.
-	ID *string `json:"id" validate:"required"`
-}
-
-// NewVolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByID : Instantiate VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByID (Generic Model Constructor)
-func (*VpcV1) NewVolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByID(id string) (_model *VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByID, err error) {
-	_model = &VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByID{
-		ID: core.StringPtr(id),
-	}
-	err = core.ValidateStruct(_model, "required parameters")
-	return
-}
-
-func (*VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByID) isaVolumeAttachmentVolumePrototypeInstanceContextVolumeIdentity() bool {
-	return true
-}
-
-func (*VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByID) isaVolumeAttachmentVolumePrototypeInstanceContext() bool {
-	return true
-}
-
-// UnmarshalVolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByID unmarshals an instance of VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByID from the specified map of raw messages.
-func UnmarshalVolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByID(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(VolumeAttachmentVolumePrototypeInstanceContextVolumeIdentityVolumeIdentityByID)
-	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeByCapacity : VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeByCapacity struct
-// This model "extends" VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContext
-type VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeByCapacity struct {
-	// The maximum I/O operations per second (IOPS) to use for the volume. Applicable only to volumes using a profile
-	// `family` of `custom`.
-	Iops *int64 `json:"iops,omitempty"`
-
-	// The unique user-defined name for this volume.
-	Name *string `json:"name,omitempty"`
-
-	// The profile to use for this volume.
-	Profile VolumeProfileIdentityIntf `json:"profile" validate:"required"`
-
-	// The capacity to use for the volume (in gigabytes). The specified minimum and maximum capacity values for creating or
-	// updating volumes may expand in the future.
-	Capacity *int64 `json:"capacity" validate:"required"`
-
-	// The root key to use to wrap the data encryption key for the volume.
-	//
-	// If unspecified, the `encryption` type for the volume will be `provider_managed`.
-	EncryptionKey EncryptionKeyIdentityIntf `json:"encryption_key,omitempty"`
-}
-
-// NewVolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeByCapacity : Instantiate VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeByCapacity (Generic Model Constructor)
-func (*VpcV1) NewVolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeByCapacity(profile VolumeProfileIdentityIntf, capacity int64) (_model *VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeByCapacity, err error) {
-	_model = &VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeByCapacity{
-		Profile:  profile,
-		Capacity: core.Int64Ptr(capacity),
-	}
-	err = core.ValidateStruct(_model, "required parameters")
-	return
-}
-
-func (*VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeByCapacity) isaVolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContext() bool {
-	return true
-}
-
-func (*VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeByCapacity) isaVolumeAttachmentVolumePrototypeInstanceContext() bool {
-	return true
-}
-
-// UnmarshalVolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeByCapacity unmarshals an instance of VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeByCapacity from the specified map of raw messages.
-func UnmarshalVolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeByCapacity(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeByCapacity)
-	err = core.UnmarshalPrimitive(m, "iops", &obj.Iops)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "profile", &obj.Profile, UnmarshalVolumeProfileIdentity)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "capacity", &obj.Capacity)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "encryption_key", &obj.EncryptionKey, UnmarshalEncryptionKeyIdentity)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeBySourceSnapshot : VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeBySourceSnapshot struct
-// This model "extends" VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContext
-type VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeBySourceSnapshot struct {
-	// The maximum I/O operations per second (IOPS) to use for the volume. Applicable only to volumes using a profile
-	// `family` of `custom`.
-	Iops *int64 `json:"iops,omitempty"`
-
-	// The unique user-defined name for this volume.
-	Name *string `json:"name,omitempty"`
-
-	// The profile to use for this volume.
-	Profile VolumeProfileIdentityIntf `json:"profile" validate:"required"`
-
-	// The capacity to use for the volume (in gigabytes). Must be at least the snapshot's
-	// `minimum_capacity`. The maximum value may increase in the future.
-	//
-	// If unspecified, the capacity will be the source snapshot's `minimum_capacity`.
-	Capacity *int64 `json:"capacity,omitempty"`
-
-	// The root key to use to wrap the data encryption key for the volume.
-	//
-	// If unspecified, the snapshot's `encryption_key` will be used.
-	EncryptionKey EncryptionKeyIdentityIntf `json:"encryption_key,omitempty"`
-
-	// The snapshot from which to clone the volume.
-	SourceSnapshot SnapshotIdentityIntf `json:"source_snapshot" validate:"required"`
-}
-
-// NewVolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeBySourceSnapshot : Instantiate VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeBySourceSnapshot (Generic Model Constructor)
-func (*VpcV1) NewVolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeBySourceSnapshot(profile VolumeProfileIdentityIntf, sourceSnapshot SnapshotIdentityIntf) (_model *VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeBySourceSnapshot, err error) {
-	_model = &VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeBySourceSnapshot{
-		Profile:        profile,
-		SourceSnapshot: sourceSnapshot,
-	}
-	err = core.ValidateStruct(_model, "required parameters")
-	return
-}
-
-func (*VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeBySourceSnapshot) isaVolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContext() bool {
-	return true
-}
-
-func (*VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeBySourceSnapshot) isaVolumeAttachmentVolumePrototypeInstanceContext() bool {
-	return true
-}
-
-// UnmarshalVolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeBySourceSnapshot unmarshals an instance of VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeBySourceSnapshot from the specified map of raw messages.
-func UnmarshalVolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeBySourceSnapshot(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(VolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeBySourceSnapshot)
-	err = core.UnmarshalPrimitive(m, "iops", &obj.Iops)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "profile", &obj.Profile, UnmarshalVolumeProfileIdentity)
+	err = core.UnmarshalPrimitive(m, "user_tags", &obj.UserTags)
 	if err != nil {
 		return
 	}
@@ -81951,7 +84725,7 @@ func UnmarshalVolumeAttachmentVolumePrototypeInstanceContextVolumePrototypeInsta
 // InstanceGroupManagerActionPrototypeScheduledActionPrototypeByCronSpecByGroup : InstanceGroupManagerActionPrototypeScheduledActionPrototypeByCronSpecByGroup struct
 // This model "extends" InstanceGroupManagerActionPrototypeScheduledActionPrototypeByCronSpec
 type InstanceGroupManagerActionPrototypeScheduledActionPrototypeByCronSpecByGroup struct {
-	// The user-defined name for this instance group manager action. Names must be unique within the instance group
+	// The name for this instance group manager action. The name must not be used by another action for the instance group
 	// manager. If unspecified, the name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
@@ -82005,7 +84779,7 @@ func UnmarshalInstanceGroupManagerActionPrototypeScheduledActionPrototypeByCronS
 // InstanceGroupManagerActionPrototypeScheduledActionPrototypeByCronSpecByManager : InstanceGroupManagerActionPrototypeScheduledActionPrototypeByCronSpecByManager struct
 // This model "extends" InstanceGroupManagerActionPrototypeScheduledActionPrototypeByCronSpec
 type InstanceGroupManagerActionPrototypeScheduledActionPrototypeByCronSpecByManager struct {
-	// The user-defined name for this instance group manager action. Names must be unique within the instance group
+	// The name for this instance group manager action. The name must not be used by another action for the instance group
 	// manager. If unspecified, the name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
@@ -82059,7 +84833,7 @@ func UnmarshalInstanceGroupManagerActionPrototypeScheduledActionPrototypeByCronS
 // InstanceGroupManagerActionPrototypeScheduledActionPrototypeByRunAtByGroup : InstanceGroupManagerActionPrototypeScheduledActionPrototypeByRunAtByGroup struct
 // This model "extends" InstanceGroupManagerActionPrototypeScheduledActionPrototypeByRunAt
 type InstanceGroupManagerActionPrototypeScheduledActionPrototypeByRunAtByGroup struct {
-	// The user-defined name for this instance group manager action. Names must be unique within the instance group
+	// The name for this instance group manager action. The name must not be used by another action for the instance group
 	// manager. If unspecified, the name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
@@ -82112,7 +84886,7 @@ func UnmarshalInstanceGroupManagerActionPrototypeScheduledActionPrototypeByRunAt
 // InstanceGroupManagerActionPrototypeScheduledActionPrototypeByRunAtByManager : InstanceGroupManagerActionPrototypeScheduledActionPrototypeByRunAtByManager struct
 // This model "extends" InstanceGroupManagerActionPrototypeScheduledActionPrototypeByRunAt
 type InstanceGroupManagerActionPrototypeScheduledActionPrototypeByRunAtByManager struct {
-	// The user-defined name for this instance group manager action. Names must be unique within the instance group
+	// The name for this instance group manager action. The name must not be used by another action for the instance group
 	// manager. If unspecified, the name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
@@ -82160,4 +84934,3914 @@ func UnmarshalInstanceGroupManagerActionPrototypeScheduledActionPrototypeByRunAt
 	}
 	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
 	return
+}
+
+// VpcsPager can be used to simplify the use of the "ListVpcs" method.
+type VpcsPager struct {
+	hasNext     bool
+	options     *ListVpcsOptions
+	client      *VpcV1
+	pageContext struct {
+		next *string
+	}
+}
+
+// NewVpcsPager returns a new VpcsPager instance.
+func (vpc *VpcV1) NewVpcsPager(options *ListVpcsOptions) (pager *VpcsPager, err error) {
+	if options.Start != nil && *options.Start != "" {
+		err = fmt.Errorf("the 'options.Start' field should not be set")
+		return
+	}
+
+	var optionsCopy ListVpcsOptions = *options
+	pager = &VpcsPager{
+		hasNext: true,
+		options: &optionsCopy,
+		client:  vpc,
+	}
+	return
+}
+
+// HasNext returns true if there are potentially more results to be retrieved.
+func (pager *VpcsPager) HasNext() bool {
+	return pager.hasNext
+}
+
+// GetNextWithContext returns the next page of results using the specified Context.
+func (pager *VpcsPager) GetNextWithContext(ctx context.Context) (page []VPC, err error) {
+	if !pager.HasNext() {
+		return nil, fmt.Errorf("no more results available")
+	}
+
+	pager.options.Start = pager.pageContext.next
+
+	result, _, err := pager.client.ListVpcsWithContext(ctx, pager.options)
+	if err != nil {
+		return
+	}
+
+	var next *string
+	if result.Next != nil {
+		var start *string
+		start, err = core.GetQueryParam(result.Next.Href, "start")
+		if err != nil {
+			err = fmt.Errorf("error retrieving 'start' query parameter from URL '%s': %s", *result.Next.Href, err.Error())
+			return
+		}
+		next = start
+	}
+	pager.pageContext.next = next
+	pager.hasNext = (pager.pageContext.next != nil)
+	page = result.Vpcs
+
+	return
+}
+
+// GetAllWithContext returns all results by invoking GetNextWithContext() repeatedly
+// until all pages of results have been retrieved.
+func (pager *VpcsPager) GetAllWithContext(ctx context.Context) (allItems []VPC, err error) {
+	for pager.HasNext() {
+		var nextPage []VPC
+		nextPage, err = pager.GetNextWithContext(ctx)
+		if err != nil {
+			return
+		}
+		allItems = append(allItems, nextPage...)
+	}
+	return
+}
+
+// GetNext invokes GetNextWithContext() using context.Background() as the Context parameter.
+func (pager *VpcsPager) GetNext() (page []VPC, err error) {
+	return pager.GetNextWithContext(context.Background())
+}
+
+// GetAll invokes GetAllWithContext() using context.Background() as the Context parameter.
+func (pager *VpcsPager) GetAll() (allItems []VPC, err error) {
+	return pager.GetAllWithContext(context.Background())
+}
+
+// VPCAddressPrefixesPager can be used to simplify the use of the "ListVPCAddressPrefixes" method.
+type VPCAddressPrefixesPager struct {
+	hasNext     bool
+	options     *ListVPCAddressPrefixesOptions
+	client      *VpcV1
+	pageContext struct {
+		next *string
+	}
+}
+
+// NewVPCAddressPrefixesPager returns a new VPCAddressPrefixesPager instance.
+func (vpc *VpcV1) NewVPCAddressPrefixesPager(options *ListVPCAddressPrefixesOptions) (pager *VPCAddressPrefixesPager, err error) {
+	if options.Start != nil && *options.Start != "" {
+		err = fmt.Errorf("the 'options.Start' field should not be set")
+		return
+	}
+
+	var optionsCopy ListVPCAddressPrefixesOptions = *options
+	pager = &VPCAddressPrefixesPager{
+		hasNext: true,
+		options: &optionsCopy,
+		client:  vpc,
+	}
+	return
+}
+
+// HasNext returns true if there are potentially more results to be retrieved.
+func (pager *VPCAddressPrefixesPager) HasNext() bool {
+	return pager.hasNext
+}
+
+// GetNextWithContext returns the next page of results using the specified Context.
+func (pager *VPCAddressPrefixesPager) GetNextWithContext(ctx context.Context) (page []AddressPrefix, err error) {
+	if !pager.HasNext() {
+		return nil, fmt.Errorf("no more results available")
+	}
+
+	pager.options.Start = pager.pageContext.next
+
+	result, _, err := pager.client.ListVPCAddressPrefixesWithContext(ctx, pager.options)
+	if err != nil {
+		return
+	}
+
+	var next *string
+	if result.Next != nil {
+		var start *string
+		start, err = core.GetQueryParam(result.Next.Href, "start")
+		if err != nil {
+			err = fmt.Errorf("error retrieving 'start' query parameter from URL '%s': %s", *result.Next.Href, err.Error())
+			return
+		}
+		next = start
+	}
+	pager.pageContext.next = next
+	pager.hasNext = (pager.pageContext.next != nil)
+	page = result.AddressPrefixes
+
+	return
+}
+
+// GetAllWithContext returns all results by invoking GetNextWithContext() repeatedly
+// until all pages of results have been retrieved.
+func (pager *VPCAddressPrefixesPager) GetAllWithContext(ctx context.Context) (allItems []AddressPrefix, err error) {
+	for pager.HasNext() {
+		var nextPage []AddressPrefix
+		nextPage, err = pager.GetNextWithContext(ctx)
+		if err != nil {
+			return
+		}
+		allItems = append(allItems, nextPage...)
+	}
+	return
+}
+
+// GetNext invokes GetNextWithContext() using context.Background() as the Context parameter.
+func (pager *VPCAddressPrefixesPager) GetNext() (page []AddressPrefix, err error) {
+	return pager.GetNextWithContext(context.Background())
+}
+
+// GetAll invokes GetAllWithContext() using context.Background() as the Context parameter.
+func (pager *VPCAddressPrefixesPager) GetAll() (allItems []AddressPrefix, err error) {
+	return pager.GetAllWithContext(context.Background())
+}
+
+// VPCRoutesPager can be used to simplify the use of the "ListVPCRoutes" method.
+type VPCRoutesPager struct {
+	hasNext     bool
+	options     *ListVPCRoutesOptions
+	client      *VpcV1
+	pageContext struct {
+		next *string
+	}
+}
+
+// NewVPCRoutesPager returns a new VPCRoutesPager instance.
+func (vpc *VpcV1) NewVPCRoutesPager(options *ListVPCRoutesOptions) (pager *VPCRoutesPager, err error) {
+	if options.Start != nil && *options.Start != "" {
+		err = fmt.Errorf("the 'options.Start' field should not be set")
+		return
+	}
+
+	var optionsCopy ListVPCRoutesOptions = *options
+	pager = &VPCRoutesPager{
+		hasNext: true,
+		options: &optionsCopy,
+		client:  vpc,
+	}
+	return
+}
+
+// HasNext returns true if there are potentially more results to be retrieved.
+func (pager *VPCRoutesPager) HasNext() bool {
+	return pager.hasNext
+}
+
+// GetNextWithContext returns the next page of results using the specified Context.
+func (pager *VPCRoutesPager) GetNextWithContext(ctx context.Context) (page []Route, err error) {
+	if !pager.HasNext() {
+		return nil, fmt.Errorf("no more results available")
+	}
+
+	pager.options.Start = pager.pageContext.next
+
+	result, _, err := pager.client.ListVPCRoutesWithContext(ctx, pager.options)
+	if err != nil {
+		return
+	}
+
+	var next *string
+	if result.Next != nil {
+		var start *string
+		start, err = core.GetQueryParam(result.Next.Href, "start")
+		if err != nil {
+			err = fmt.Errorf("error retrieving 'start' query parameter from URL '%s': %s", *result.Next.Href, err.Error())
+			return
+		}
+		next = start
+	}
+	pager.pageContext.next = next
+	pager.hasNext = (pager.pageContext.next != nil)
+	page = result.Routes
+
+	return
+}
+
+// GetAllWithContext returns all results by invoking GetNextWithContext() repeatedly
+// until all pages of results have been retrieved.
+func (pager *VPCRoutesPager) GetAllWithContext(ctx context.Context) (allItems []Route, err error) {
+	for pager.HasNext() {
+		var nextPage []Route
+		nextPage, err = pager.GetNextWithContext(ctx)
+		if err != nil {
+			return
+		}
+		allItems = append(allItems, nextPage...)
+	}
+	return
+}
+
+// GetNext invokes GetNextWithContext() using context.Background() as the Context parameter.
+func (pager *VPCRoutesPager) GetNext() (page []Route, err error) {
+	return pager.GetNextWithContext(context.Background())
+}
+
+// GetAll invokes GetAllWithContext() using context.Background() as the Context parameter.
+func (pager *VPCRoutesPager) GetAll() (allItems []Route, err error) {
+	return pager.GetAllWithContext(context.Background())
+}
+
+// VPCRoutingTablesPager can be used to simplify the use of the "ListVPCRoutingTables" method.
+type VPCRoutingTablesPager struct {
+	hasNext     bool
+	options     *ListVPCRoutingTablesOptions
+	client      *VpcV1
+	pageContext struct {
+		next *string
+	}
+}
+
+// NewVPCRoutingTablesPager returns a new VPCRoutingTablesPager instance.
+func (vpc *VpcV1) NewVPCRoutingTablesPager(options *ListVPCRoutingTablesOptions) (pager *VPCRoutingTablesPager, err error) {
+	if options.Start != nil && *options.Start != "" {
+		err = fmt.Errorf("the 'options.Start' field should not be set")
+		return
+	}
+
+	var optionsCopy ListVPCRoutingTablesOptions = *options
+	pager = &VPCRoutingTablesPager{
+		hasNext: true,
+		options: &optionsCopy,
+		client:  vpc,
+	}
+	return
+}
+
+// HasNext returns true if there are potentially more results to be retrieved.
+func (pager *VPCRoutingTablesPager) HasNext() bool {
+	return pager.hasNext
+}
+
+// GetNextWithContext returns the next page of results using the specified Context.
+func (pager *VPCRoutingTablesPager) GetNextWithContext(ctx context.Context) (page []RoutingTable, err error) {
+	if !pager.HasNext() {
+		return nil, fmt.Errorf("no more results available")
+	}
+
+	pager.options.Start = pager.pageContext.next
+
+	result, _, err := pager.client.ListVPCRoutingTablesWithContext(ctx, pager.options)
+	if err != nil {
+		return
+	}
+
+	var next *string
+	if result.Next != nil {
+		var start *string
+		start, err = core.GetQueryParam(result.Next.Href, "start")
+		if err != nil {
+			err = fmt.Errorf("error retrieving 'start' query parameter from URL '%s': %s", *result.Next.Href, err.Error())
+			return
+		}
+		next = start
+	}
+	pager.pageContext.next = next
+	pager.hasNext = (pager.pageContext.next != nil)
+	page = result.RoutingTables
+
+	return
+}
+
+// GetAllWithContext returns all results by invoking GetNextWithContext() repeatedly
+// until all pages of results have been retrieved.
+func (pager *VPCRoutingTablesPager) GetAllWithContext(ctx context.Context) (allItems []RoutingTable, err error) {
+	for pager.HasNext() {
+		var nextPage []RoutingTable
+		nextPage, err = pager.GetNextWithContext(ctx)
+		if err != nil {
+			return
+		}
+		allItems = append(allItems, nextPage...)
+	}
+	return
+}
+
+// GetNext invokes GetNextWithContext() using context.Background() as the Context parameter.
+func (pager *VPCRoutingTablesPager) GetNext() (page []RoutingTable, err error) {
+	return pager.GetNextWithContext(context.Background())
+}
+
+// GetAll invokes GetAllWithContext() using context.Background() as the Context parameter.
+func (pager *VPCRoutingTablesPager) GetAll() (allItems []RoutingTable, err error) {
+	return pager.GetAllWithContext(context.Background())
+}
+
+// VPCRoutingTableRoutesPager can be used to simplify the use of the "ListVPCRoutingTableRoutes" method.
+type VPCRoutingTableRoutesPager struct {
+	hasNext     bool
+	options     *ListVPCRoutingTableRoutesOptions
+	client      *VpcV1
+	pageContext struct {
+		next *string
+	}
+}
+
+// NewVPCRoutingTableRoutesPager returns a new VPCRoutingTableRoutesPager instance.
+func (vpc *VpcV1) NewVPCRoutingTableRoutesPager(options *ListVPCRoutingTableRoutesOptions) (pager *VPCRoutingTableRoutesPager, err error) {
+	if options.Start != nil && *options.Start != "" {
+		err = fmt.Errorf("the 'options.Start' field should not be set")
+		return
+	}
+
+	var optionsCopy ListVPCRoutingTableRoutesOptions = *options
+	pager = &VPCRoutingTableRoutesPager{
+		hasNext: true,
+		options: &optionsCopy,
+		client:  vpc,
+	}
+	return
+}
+
+// HasNext returns true if there are potentially more results to be retrieved.
+func (pager *VPCRoutingTableRoutesPager) HasNext() bool {
+	return pager.hasNext
+}
+
+// GetNextWithContext returns the next page of results using the specified Context.
+func (pager *VPCRoutingTableRoutesPager) GetNextWithContext(ctx context.Context) (page []Route, err error) {
+	if !pager.HasNext() {
+		return nil, fmt.Errorf("no more results available")
+	}
+
+	pager.options.Start = pager.pageContext.next
+
+	result, _, err := pager.client.ListVPCRoutingTableRoutesWithContext(ctx, pager.options)
+	if err != nil {
+		return
+	}
+
+	var next *string
+	if result.Next != nil {
+		var start *string
+		start, err = core.GetQueryParam(result.Next.Href, "start")
+		if err != nil {
+			err = fmt.Errorf("error retrieving 'start' query parameter from URL '%s': %s", *result.Next.Href, err.Error())
+			return
+		}
+		next = start
+	}
+	pager.pageContext.next = next
+	pager.hasNext = (pager.pageContext.next != nil)
+	page = result.Routes
+
+	return
+}
+
+// GetAllWithContext returns all results by invoking GetNextWithContext() repeatedly
+// until all pages of results have been retrieved.
+func (pager *VPCRoutingTableRoutesPager) GetAllWithContext(ctx context.Context) (allItems []Route, err error) {
+	for pager.HasNext() {
+		var nextPage []Route
+		nextPage, err = pager.GetNextWithContext(ctx)
+		if err != nil {
+			return
+		}
+		allItems = append(allItems, nextPage...)
+	}
+	return
+}
+
+// GetNext invokes GetNextWithContext() using context.Background() as the Context parameter.
+func (pager *VPCRoutingTableRoutesPager) GetNext() (page []Route, err error) {
+	return pager.GetNextWithContext(context.Background())
+}
+
+// GetAll invokes GetAllWithContext() using context.Background() as the Context parameter.
+func (pager *VPCRoutingTableRoutesPager) GetAll() (allItems []Route, err error) {
+	return pager.GetAllWithContext(context.Background())
+}
+
+// SubnetsPager can be used to simplify the use of the "ListSubnets" method.
+type SubnetsPager struct {
+	hasNext     bool
+	options     *ListSubnetsOptions
+	client      *VpcV1
+	pageContext struct {
+		next *string
+	}
+}
+
+// NewSubnetsPager returns a new SubnetsPager instance.
+func (vpc *VpcV1) NewSubnetsPager(options *ListSubnetsOptions) (pager *SubnetsPager, err error) {
+	if options.Start != nil && *options.Start != "" {
+		err = fmt.Errorf("the 'options.Start' field should not be set")
+		return
+	}
+
+	var optionsCopy ListSubnetsOptions = *options
+	pager = &SubnetsPager{
+		hasNext: true,
+		options: &optionsCopy,
+		client:  vpc,
+	}
+	return
+}
+
+// HasNext returns true if there are potentially more results to be retrieved.
+func (pager *SubnetsPager) HasNext() bool {
+	return pager.hasNext
+}
+
+// GetNextWithContext returns the next page of results using the specified Context.
+func (pager *SubnetsPager) GetNextWithContext(ctx context.Context) (page []Subnet, err error) {
+	if !pager.HasNext() {
+		return nil, fmt.Errorf("no more results available")
+	}
+
+	pager.options.Start = pager.pageContext.next
+
+	result, _, err := pager.client.ListSubnetsWithContext(ctx, pager.options)
+	if err != nil {
+		return
+	}
+
+	var next *string
+	if result.Next != nil {
+		var start *string
+		start, err = core.GetQueryParam(result.Next.Href, "start")
+		if err != nil {
+			err = fmt.Errorf("error retrieving 'start' query parameter from URL '%s': %s", *result.Next.Href, err.Error())
+			return
+		}
+		next = start
+	}
+	pager.pageContext.next = next
+	pager.hasNext = (pager.pageContext.next != nil)
+	page = result.Subnets
+
+	return
+}
+
+// GetAllWithContext returns all results by invoking GetNextWithContext() repeatedly
+// until all pages of results have been retrieved.
+func (pager *SubnetsPager) GetAllWithContext(ctx context.Context) (allItems []Subnet, err error) {
+	for pager.HasNext() {
+		var nextPage []Subnet
+		nextPage, err = pager.GetNextWithContext(ctx)
+		if err != nil {
+			return
+		}
+		allItems = append(allItems, nextPage...)
+	}
+	return
+}
+
+// GetNext invokes GetNextWithContext() using context.Background() as the Context parameter.
+func (pager *SubnetsPager) GetNext() (page []Subnet, err error) {
+	return pager.GetNextWithContext(context.Background())
+}
+
+// GetAll invokes GetAllWithContext() using context.Background() as the Context parameter.
+func (pager *SubnetsPager) GetAll() (allItems []Subnet, err error) {
+	return pager.GetAllWithContext(context.Background())
+}
+
+// SubnetReservedIpsPager can be used to simplify the use of the "ListSubnetReservedIps" method.
+type SubnetReservedIpsPager struct {
+	hasNext     bool
+	options     *ListSubnetReservedIpsOptions
+	client      *VpcV1
+	pageContext struct {
+		next *string
+	}
+}
+
+// NewSubnetReservedIpsPager returns a new SubnetReservedIpsPager instance.
+func (vpc *VpcV1) NewSubnetReservedIpsPager(options *ListSubnetReservedIpsOptions) (pager *SubnetReservedIpsPager, err error) {
+	if options.Start != nil && *options.Start != "" {
+		err = fmt.Errorf("the 'options.Start' field should not be set")
+		return
+	}
+
+	var optionsCopy ListSubnetReservedIpsOptions = *options
+	pager = &SubnetReservedIpsPager{
+		hasNext: true,
+		options: &optionsCopy,
+		client:  vpc,
+	}
+	return
+}
+
+// HasNext returns true if there are potentially more results to be retrieved.
+func (pager *SubnetReservedIpsPager) HasNext() bool {
+	return pager.hasNext
+}
+
+// GetNextWithContext returns the next page of results using the specified Context.
+func (pager *SubnetReservedIpsPager) GetNextWithContext(ctx context.Context) (page []ReservedIP, err error) {
+	if !pager.HasNext() {
+		return nil, fmt.Errorf("no more results available")
+	}
+
+	pager.options.Start = pager.pageContext.next
+
+	result, _, err := pager.client.ListSubnetReservedIpsWithContext(ctx, pager.options)
+	if err != nil {
+		return
+	}
+
+	var next *string
+	if result.Next != nil {
+		var start *string
+		start, err = core.GetQueryParam(result.Next.Href, "start")
+		if err != nil {
+			err = fmt.Errorf("error retrieving 'start' query parameter from URL '%s': %s", *result.Next.Href, err.Error())
+			return
+		}
+		next = start
+	}
+	pager.pageContext.next = next
+	pager.hasNext = (pager.pageContext.next != nil)
+	page = result.ReservedIps
+
+	return
+}
+
+// GetAllWithContext returns all results by invoking GetNextWithContext() repeatedly
+// until all pages of results have been retrieved.
+func (pager *SubnetReservedIpsPager) GetAllWithContext(ctx context.Context) (allItems []ReservedIP, err error) {
+	for pager.HasNext() {
+		var nextPage []ReservedIP
+		nextPage, err = pager.GetNextWithContext(ctx)
+		if err != nil {
+			return
+		}
+		allItems = append(allItems, nextPage...)
+	}
+	return
+}
+
+// GetNext invokes GetNextWithContext() using context.Background() as the Context parameter.
+func (pager *SubnetReservedIpsPager) GetNext() (page []ReservedIP, err error) {
+	return pager.GetNextWithContext(context.Background())
+}
+
+// GetAll invokes GetAllWithContext() using context.Background() as the Context parameter.
+func (pager *SubnetReservedIpsPager) GetAll() (allItems []ReservedIP, err error) {
+	return pager.GetAllWithContext(context.Background())
+}
+
+// ImagesPager can be used to simplify the use of the "ListImages" method.
+type ImagesPager struct {
+	hasNext     bool
+	options     *ListImagesOptions
+	client      *VpcV1
+	pageContext struct {
+		next *string
+	}
+}
+
+// NewImagesPager returns a new ImagesPager instance.
+func (vpc *VpcV1) NewImagesPager(options *ListImagesOptions) (pager *ImagesPager, err error) {
+	if options.Start != nil && *options.Start != "" {
+		err = fmt.Errorf("the 'options.Start' field should not be set")
+		return
+	}
+
+	var optionsCopy ListImagesOptions = *options
+	pager = &ImagesPager{
+		hasNext: true,
+		options: &optionsCopy,
+		client:  vpc,
+	}
+	return
+}
+
+// HasNext returns true if there are potentially more results to be retrieved.
+func (pager *ImagesPager) HasNext() bool {
+	return pager.hasNext
+}
+
+// GetNextWithContext returns the next page of results using the specified Context.
+func (pager *ImagesPager) GetNextWithContext(ctx context.Context) (page []Image, err error) {
+	if !pager.HasNext() {
+		return nil, fmt.Errorf("no more results available")
+	}
+
+	pager.options.Start = pager.pageContext.next
+
+	result, _, err := pager.client.ListImagesWithContext(ctx, pager.options)
+	if err != nil {
+		return
+	}
+
+	var next *string
+	if result.Next != nil {
+		var start *string
+		start, err = core.GetQueryParam(result.Next.Href, "start")
+		if err != nil {
+			err = fmt.Errorf("error retrieving 'start' query parameter from URL '%s': %s", *result.Next.Href, err.Error())
+			return
+		}
+		next = start
+	}
+	pager.pageContext.next = next
+	pager.hasNext = (pager.pageContext.next != nil)
+	page = result.Images
+
+	return
+}
+
+// GetAllWithContext returns all results by invoking GetNextWithContext() repeatedly
+// until all pages of results have been retrieved.
+func (pager *ImagesPager) GetAllWithContext(ctx context.Context) (allItems []Image, err error) {
+	for pager.HasNext() {
+		var nextPage []Image
+		nextPage, err = pager.GetNextWithContext(ctx)
+		if err != nil {
+			return
+		}
+		allItems = append(allItems, nextPage...)
+	}
+	return
+}
+
+// GetNext invokes GetNextWithContext() using context.Background() as the Context parameter.
+func (pager *ImagesPager) GetNext() (page []Image, err error) {
+	return pager.GetNextWithContext(context.Background())
+}
+
+// GetAll invokes GetAllWithContext() using context.Background() as the Context parameter.
+func (pager *ImagesPager) GetAll() (allItems []Image, err error) {
+	return pager.GetAllWithContext(context.Background())
+}
+
+// OperatingSystemsPager can be used to simplify the use of the "ListOperatingSystems" method.
+type OperatingSystemsPager struct {
+	hasNext     bool
+	options     *ListOperatingSystemsOptions
+	client      *VpcV1
+	pageContext struct {
+		next *string
+	}
+}
+
+// NewOperatingSystemsPager returns a new OperatingSystemsPager instance.
+func (vpc *VpcV1) NewOperatingSystemsPager(options *ListOperatingSystemsOptions) (pager *OperatingSystemsPager, err error) {
+	if options.Start != nil && *options.Start != "" {
+		err = fmt.Errorf("the 'options.Start' field should not be set")
+		return
+	}
+
+	var optionsCopy ListOperatingSystemsOptions = *options
+	pager = &OperatingSystemsPager{
+		hasNext: true,
+		options: &optionsCopy,
+		client:  vpc,
+	}
+	return
+}
+
+// HasNext returns true if there are potentially more results to be retrieved.
+func (pager *OperatingSystemsPager) HasNext() bool {
+	return pager.hasNext
+}
+
+// GetNextWithContext returns the next page of results using the specified Context.
+func (pager *OperatingSystemsPager) GetNextWithContext(ctx context.Context) (page []OperatingSystem, err error) {
+	if !pager.HasNext() {
+		return nil, fmt.Errorf("no more results available")
+	}
+
+	pager.options.Start = pager.pageContext.next
+
+	result, _, err := pager.client.ListOperatingSystemsWithContext(ctx, pager.options)
+	if err != nil {
+		return
+	}
+
+	var next *string
+	if result.Next != nil {
+		var start *string
+		start, err = core.GetQueryParam(result.Next.Href, "start")
+		if err != nil {
+			err = fmt.Errorf("error retrieving 'start' query parameter from URL '%s': %s", *result.Next.Href, err.Error())
+			return
+		}
+		next = start
+	}
+	pager.pageContext.next = next
+	pager.hasNext = (pager.pageContext.next != nil)
+	page = result.OperatingSystems
+
+	return
+}
+
+// GetAllWithContext returns all results by invoking GetNextWithContext() repeatedly
+// until all pages of results have been retrieved.
+func (pager *OperatingSystemsPager) GetAllWithContext(ctx context.Context) (allItems []OperatingSystem, err error) {
+	for pager.HasNext() {
+		var nextPage []OperatingSystem
+		nextPage, err = pager.GetNextWithContext(ctx)
+		if err != nil {
+			return
+		}
+		allItems = append(allItems, nextPage...)
+	}
+	return
+}
+
+// GetNext invokes GetNextWithContext() using context.Background() as the Context parameter.
+func (pager *OperatingSystemsPager) GetNext() (page []OperatingSystem, err error) {
+	return pager.GetNextWithContext(context.Background())
+}
+
+// GetAll invokes GetAllWithContext() using context.Background() as the Context parameter.
+func (pager *OperatingSystemsPager) GetAll() (allItems []OperatingSystem, err error) {
+	return pager.GetAllWithContext(context.Background())
+}
+
+// KeysPager can be used to simplify the use of the "ListKeys" method.
+type KeysPager struct {
+	hasNext     bool
+	options     *ListKeysOptions
+	client      *VpcV1
+	pageContext struct {
+		next *string
+	}
+}
+
+// NewKeysPager returns a new KeysPager instance.
+func (vpc *VpcV1) NewKeysPager(options *ListKeysOptions) (pager *KeysPager, err error) {
+	if options.Start != nil && *options.Start != "" {
+		err = fmt.Errorf("the 'options.Start' field should not be set")
+		return
+	}
+
+	var optionsCopy ListKeysOptions = *options
+	pager = &KeysPager{
+		hasNext: true,
+		options: &optionsCopy,
+		client:  vpc,
+	}
+	return
+}
+
+// HasNext returns true if there are potentially more results to be retrieved.
+func (pager *KeysPager) HasNext() bool {
+	return pager.hasNext
+}
+
+// GetNextWithContext returns the next page of results using the specified Context.
+func (pager *KeysPager) GetNextWithContext(ctx context.Context) (page []Key, err error) {
+	if !pager.HasNext() {
+		return nil, fmt.Errorf("no more results available")
+	}
+
+	pager.options.Start = pager.pageContext.next
+
+	result, _, err := pager.client.ListKeysWithContext(ctx, pager.options)
+	if err != nil {
+		return
+	}
+
+	var next *string
+	if result.Next != nil {
+		var start *string
+		start, err = core.GetQueryParam(result.Next.Href, "start")
+		if err != nil {
+			err = fmt.Errorf("error retrieving 'start' query parameter from URL '%s': %s", *result.Next.Href, err.Error())
+			return
+		}
+		next = start
+	}
+	pager.pageContext.next = next
+	pager.hasNext = (pager.pageContext.next != nil)
+	page = result.Keys
+
+	return
+}
+
+// GetAllWithContext returns all results by invoking GetNextWithContext() repeatedly
+// until all pages of results have been retrieved.
+func (pager *KeysPager) GetAllWithContext(ctx context.Context) (allItems []Key, err error) {
+	for pager.HasNext() {
+		var nextPage []Key
+		nextPage, err = pager.GetNextWithContext(ctx)
+		if err != nil {
+			return
+		}
+		allItems = append(allItems, nextPage...)
+	}
+	return
+}
+
+// GetNext invokes GetNextWithContext() using context.Background() as the Context parameter.
+func (pager *KeysPager) GetNext() (page []Key, err error) {
+	return pager.GetNextWithContext(context.Background())
+}
+
+// GetAll invokes GetAllWithContext() using context.Background() as the Context parameter.
+func (pager *KeysPager) GetAll() (allItems []Key, err error) {
+	return pager.GetAllWithContext(context.Background())
+}
+
+// InstancesPager can be used to simplify the use of the "ListInstances" method.
+type InstancesPager struct {
+	hasNext     bool
+	options     *ListInstancesOptions
+	client      *VpcV1
+	pageContext struct {
+		next *string
+	}
+}
+
+// NewInstancesPager returns a new InstancesPager instance.
+func (vpc *VpcV1) NewInstancesPager(options *ListInstancesOptions) (pager *InstancesPager, err error) {
+	if options.Start != nil && *options.Start != "" {
+		err = fmt.Errorf("the 'options.Start' field should not be set")
+		return
+	}
+
+	var optionsCopy ListInstancesOptions = *options
+	pager = &InstancesPager{
+		hasNext: true,
+		options: &optionsCopy,
+		client:  vpc,
+	}
+	return
+}
+
+// HasNext returns true if there are potentially more results to be retrieved.
+func (pager *InstancesPager) HasNext() bool {
+	return pager.hasNext
+}
+
+// GetNextWithContext returns the next page of results using the specified Context.
+func (pager *InstancesPager) GetNextWithContext(ctx context.Context) (page []Instance, err error) {
+	if !pager.HasNext() {
+		return nil, fmt.Errorf("no more results available")
+	}
+
+	pager.options.Start = pager.pageContext.next
+
+	result, _, err := pager.client.ListInstancesWithContext(ctx, pager.options)
+	if err != nil {
+		return
+	}
+
+	var next *string
+	if result.Next != nil {
+		var start *string
+		start, err = core.GetQueryParam(result.Next.Href, "start")
+		if err != nil {
+			err = fmt.Errorf("error retrieving 'start' query parameter from URL '%s': %s", *result.Next.Href, err.Error())
+			return
+		}
+		next = start
+	}
+	pager.pageContext.next = next
+	pager.hasNext = (pager.pageContext.next != nil)
+	page = result.Instances
+
+	return
+}
+
+// GetAllWithContext returns all results by invoking GetNextWithContext() repeatedly
+// until all pages of results have been retrieved.
+func (pager *InstancesPager) GetAllWithContext(ctx context.Context) (allItems []Instance, err error) {
+	for pager.HasNext() {
+		var nextPage []Instance
+		nextPage, err = pager.GetNextWithContext(ctx)
+		if err != nil {
+			return
+		}
+		allItems = append(allItems, nextPage...)
+	}
+	return
+}
+
+// GetNext invokes GetNextWithContext() using context.Background() as the Context parameter.
+func (pager *InstancesPager) GetNext() (page []Instance, err error) {
+	return pager.GetNextWithContext(context.Background())
+}
+
+// GetAll invokes GetAllWithContext() using context.Background() as the Context parameter.
+func (pager *InstancesPager) GetAll() (allItems []Instance, err error) {
+	return pager.GetAllWithContext(context.Background())
+}
+
+// InstanceNetworkInterfaceIpsPager can be used to simplify the use of the "ListInstanceNetworkInterfaceIps" method.
+type InstanceNetworkInterfaceIpsPager struct {
+	hasNext     bool
+	options     *ListInstanceNetworkInterfaceIpsOptions
+	client      *VpcV1
+	pageContext struct {
+		next *string
+	}
+}
+
+// NewInstanceNetworkInterfaceIpsPager returns a new InstanceNetworkInterfaceIpsPager instance.
+func (vpc *VpcV1) NewInstanceNetworkInterfaceIpsPager(options *ListInstanceNetworkInterfaceIpsOptions) (pager *InstanceNetworkInterfaceIpsPager, err error) {
+	if options.Start != nil && *options.Start != "" {
+		err = fmt.Errorf("the 'options.Start' field should not be set")
+		return
+	}
+
+	var optionsCopy ListInstanceNetworkInterfaceIpsOptions = *options
+	pager = &InstanceNetworkInterfaceIpsPager{
+		hasNext: true,
+		options: &optionsCopy,
+		client:  vpc,
+	}
+	return
+}
+
+// HasNext returns true if there are potentially more results to be retrieved.
+func (pager *InstanceNetworkInterfaceIpsPager) HasNext() bool {
+	return pager.hasNext
+}
+
+// GetNextWithContext returns the next page of results using the specified Context.
+func (pager *InstanceNetworkInterfaceIpsPager) GetNextWithContext(ctx context.Context) (page []ReservedIP, err error) {
+	if !pager.HasNext() {
+		return nil, fmt.Errorf("no more results available")
+	}
+
+	pager.options.Start = pager.pageContext.next
+
+	result, _, err := pager.client.ListInstanceNetworkInterfaceIpsWithContext(ctx, pager.options)
+	if err != nil {
+		return
+	}
+
+	var next *string
+	if result.Next != nil {
+		var start *string
+		start, err = core.GetQueryParam(result.Next.Href, "start")
+		if err != nil {
+			err = fmt.Errorf("error retrieving 'start' query parameter from URL '%s': %s", *result.Next.Href, err.Error())
+			return
+		}
+		next = start
+	}
+	pager.pageContext.next = next
+	pager.hasNext = (pager.pageContext.next != nil)
+	page = result.Ips
+
+	return
+}
+
+// GetAllWithContext returns all results by invoking GetNextWithContext() repeatedly
+// until all pages of results have been retrieved.
+func (pager *InstanceNetworkInterfaceIpsPager) GetAllWithContext(ctx context.Context) (allItems []ReservedIP, err error) {
+	for pager.HasNext() {
+		var nextPage []ReservedIP
+		nextPage, err = pager.GetNextWithContext(ctx)
+		if err != nil {
+			return
+		}
+		allItems = append(allItems, nextPage...)
+	}
+	return
+}
+
+// GetNext invokes GetNextWithContext() using context.Background() as the Context parameter.
+func (pager *InstanceNetworkInterfaceIpsPager) GetNext() (page []ReservedIP, err error) {
+	return pager.GetNextWithContext(context.Background())
+}
+
+// GetAll invokes GetAllWithContext() using context.Background() as the Context parameter.
+func (pager *InstanceNetworkInterfaceIpsPager) GetAll() (allItems []ReservedIP, err error) {
+	return pager.GetAllWithContext(context.Background())
+}
+
+// InstanceGroupsPager can be used to simplify the use of the "ListInstanceGroups" method.
+type InstanceGroupsPager struct {
+	hasNext     bool
+	options     *ListInstanceGroupsOptions
+	client      *VpcV1
+	pageContext struct {
+		next *string
+	}
+}
+
+// NewInstanceGroupsPager returns a new InstanceGroupsPager instance.
+func (vpc *VpcV1) NewInstanceGroupsPager(options *ListInstanceGroupsOptions) (pager *InstanceGroupsPager, err error) {
+	if options.Start != nil && *options.Start != "" {
+		err = fmt.Errorf("the 'options.Start' field should not be set")
+		return
+	}
+
+	var optionsCopy ListInstanceGroupsOptions = *options
+	pager = &InstanceGroupsPager{
+		hasNext: true,
+		options: &optionsCopy,
+		client:  vpc,
+	}
+	return
+}
+
+// HasNext returns true if there are potentially more results to be retrieved.
+func (pager *InstanceGroupsPager) HasNext() bool {
+	return pager.hasNext
+}
+
+// GetNextWithContext returns the next page of results using the specified Context.
+func (pager *InstanceGroupsPager) GetNextWithContext(ctx context.Context) (page []InstanceGroup, err error) {
+	if !pager.HasNext() {
+		return nil, fmt.Errorf("no more results available")
+	}
+
+	pager.options.Start = pager.pageContext.next
+
+	result, _, err := pager.client.ListInstanceGroupsWithContext(ctx, pager.options)
+	if err != nil {
+		return
+	}
+
+	var next *string
+	if result.Next != nil {
+		var start *string
+		start, err = core.GetQueryParam(result.Next.Href, "start")
+		if err != nil {
+			err = fmt.Errorf("error retrieving 'start' query parameter from URL '%s': %s", *result.Next.Href, err.Error())
+			return
+		}
+		next = start
+	}
+	pager.pageContext.next = next
+	pager.hasNext = (pager.pageContext.next != nil)
+	page = result.InstanceGroups
+
+	return
+}
+
+// GetAllWithContext returns all results by invoking GetNextWithContext() repeatedly
+// until all pages of results have been retrieved.
+func (pager *InstanceGroupsPager) GetAllWithContext(ctx context.Context) (allItems []InstanceGroup, err error) {
+	for pager.HasNext() {
+		var nextPage []InstanceGroup
+		nextPage, err = pager.GetNextWithContext(ctx)
+		if err != nil {
+			return
+		}
+		allItems = append(allItems, nextPage...)
+	}
+	return
+}
+
+// GetNext invokes GetNextWithContext() using context.Background() as the Context parameter.
+func (pager *InstanceGroupsPager) GetNext() (page []InstanceGroup, err error) {
+	return pager.GetNextWithContext(context.Background())
+}
+
+// GetAll invokes GetAllWithContext() using context.Background() as the Context parameter.
+func (pager *InstanceGroupsPager) GetAll() (allItems []InstanceGroup, err error) {
+	return pager.GetAllWithContext(context.Background())
+}
+
+// InstanceGroupManagersPager can be used to simplify the use of the "ListInstanceGroupManagers" method.
+type InstanceGroupManagersPager struct {
+	hasNext     bool
+	options     *ListInstanceGroupManagersOptions
+	client      *VpcV1
+	pageContext struct {
+		next *string
+	}
+}
+
+// NewInstanceGroupManagersPager returns a new InstanceGroupManagersPager instance.
+func (vpc *VpcV1) NewInstanceGroupManagersPager(options *ListInstanceGroupManagersOptions) (pager *InstanceGroupManagersPager, err error) {
+	if options.Start != nil && *options.Start != "" {
+		err = fmt.Errorf("the 'options.Start' field should not be set")
+		return
+	}
+
+	var optionsCopy ListInstanceGroupManagersOptions = *options
+	pager = &InstanceGroupManagersPager{
+		hasNext: true,
+		options: &optionsCopy,
+		client:  vpc,
+	}
+	return
+}
+
+// HasNext returns true if there are potentially more results to be retrieved.
+func (pager *InstanceGroupManagersPager) HasNext() bool {
+	return pager.hasNext
+}
+
+// GetNextWithContext returns the next page of results using the specified Context.
+func (pager *InstanceGroupManagersPager) GetNextWithContext(ctx context.Context) (page []InstanceGroupManagerIntf, err error) {
+	if !pager.HasNext() {
+		return nil, fmt.Errorf("no more results available")
+	}
+
+	pager.options.Start = pager.pageContext.next
+
+	result, _, err := pager.client.ListInstanceGroupManagersWithContext(ctx, pager.options)
+	if err != nil {
+		return
+	}
+
+	var next *string
+	if result.Next != nil {
+		var start *string
+		start, err = core.GetQueryParam(result.Next.Href, "start")
+		if err != nil {
+			err = fmt.Errorf("error retrieving 'start' query parameter from URL '%s': %s", *result.Next.Href, err.Error())
+			return
+		}
+		next = start
+	}
+	pager.pageContext.next = next
+	pager.hasNext = (pager.pageContext.next != nil)
+	page = result.Managers
+
+	return
+}
+
+// GetAllWithContext returns all results by invoking GetNextWithContext() repeatedly
+// until all pages of results have been retrieved.
+func (pager *InstanceGroupManagersPager) GetAllWithContext(ctx context.Context) (allItems []InstanceGroupManagerIntf, err error) {
+	for pager.HasNext() {
+		var nextPage []InstanceGroupManagerIntf
+		nextPage, err = pager.GetNextWithContext(ctx)
+		if err != nil {
+			return
+		}
+		allItems = append(allItems, nextPage...)
+	}
+	return
+}
+
+// GetNext invokes GetNextWithContext() using context.Background() as the Context parameter.
+func (pager *InstanceGroupManagersPager) GetNext() (page []InstanceGroupManagerIntf, err error) {
+	return pager.GetNextWithContext(context.Background())
+}
+
+// GetAll invokes GetAllWithContext() using context.Background() as the Context parameter.
+func (pager *InstanceGroupManagersPager) GetAll() (allItems []InstanceGroupManagerIntf, err error) {
+	return pager.GetAllWithContext(context.Background())
+}
+
+// InstanceGroupManagerActionsPager can be used to simplify the use of the "ListInstanceGroupManagerActions" method.
+type InstanceGroupManagerActionsPager struct {
+	hasNext     bool
+	options     *ListInstanceGroupManagerActionsOptions
+	client      *VpcV1
+	pageContext struct {
+		next *string
+	}
+}
+
+// NewInstanceGroupManagerActionsPager returns a new InstanceGroupManagerActionsPager instance.
+func (vpc *VpcV1) NewInstanceGroupManagerActionsPager(options *ListInstanceGroupManagerActionsOptions) (pager *InstanceGroupManagerActionsPager, err error) {
+	if options.Start != nil && *options.Start != "" {
+		err = fmt.Errorf("the 'options.Start' field should not be set")
+		return
+	}
+
+	var optionsCopy ListInstanceGroupManagerActionsOptions = *options
+	pager = &InstanceGroupManagerActionsPager{
+		hasNext: true,
+		options: &optionsCopy,
+		client:  vpc,
+	}
+	return
+}
+
+// HasNext returns true if there are potentially more results to be retrieved.
+func (pager *InstanceGroupManagerActionsPager) HasNext() bool {
+	return pager.hasNext
+}
+
+// GetNextWithContext returns the next page of results using the specified Context.
+func (pager *InstanceGroupManagerActionsPager) GetNextWithContext(ctx context.Context) (page []InstanceGroupManagerActionIntf, err error) {
+	if !pager.HasNext() {
+		return nil, fmt.Errorf("no more results available")
+	}
+
+	pager.options.Start = pager.pageContext.next
+
+	result, _, err := pager.client.ListInstanceGroupManagerActionsWithContext(ctx, pager.options)
+	if err != nil {
+		return
+	}
+
+	var next *string
+	if result.Next != nil {
+		var start *string
+		start, err = core.GetQueryParam(result.Next.Href, "start")
+		if err != nil {
+			err = fmt.Errorf("error retrieving 'start' query parameter from URL '%s': %s", *result.Next.Href, err.Error())
+			return
+		}
+		next = start
+	}
+	pager.pageContext.next = next
+	pager.hasNext = (pager.pageContext.next != nil)
+	page = result.Actions
+
+	return
+}
+
+// GetAllWithContext returns all results by invoking GetNextWithContext() repeatedly
+// until all pages of results have been retrieved.
+func (pager *InstanceGroupManagerActionsPager) GetAllWithContext(ctx context.Context) (allItems []InstanceGroupManagerActionIntf, err error) {
+	for pager.HasNext() {
+		var nextPage []InstanceGroupManagerActionIntf
+		nextPage, err = pager.GetNextWithContext(ctx)
+		if err != nil {
+			return
+		}
+		allItems = append(allItems, nextPage...)
+	}
+	return
+}
+
+// GetNext invokes GetNextWithContext() using context.Background() as the Context parameter.
+func (pager *InstanceGroupManagerActionsPager) GetNext() (page []InstanceGroupManagerActionIntf, err error) {
+	return pager.GetNextWithContext(context.Background())
+}
+
+// GetAll invokes GetAllWithContext() using context.Background() as the Context parameter.
+func (pager *InstanceGroupManagerActionsPager) GetAll() (allItems []InstanceGroupManagerActionIntf, err error) {
+	return pager.GetAllWithContext(context.Background())
+}
+
+// InstanceGroupManagerPoliciesPager can be used to simplify the use of the "ListInstanceGroupManagerPolicies" method.
+type InstanceGroupManagerPoliciesPager struct {
+	hasNext     bool
+	options     *ListInstanceGroupManagerPoliciesOptions
+	client      *VpcV1
+	pageContext struct {
+		next *string
+	}
+}
+
+// NewInstanceGroupManagerPoliciesPager returns a new InstanceGroupManagerPoliciesPager instance.
+func (vpc *VpcV1) NewInstanceGroupManagerPoliciesPager(options *ListInstanceGroupManagerPoliciesOptions) (pager *InstanceGroupManagerPoliciesPager, err error) {
+	if options.Start != nil && *options.Start != "" {
+		err = fmt.Errorf("the 'options.Start' field should not be set")
+		return
+	}
+
+	var optionsCopy ListInstanceGroupManagerPoliciesOptions = *options
+	pager = &InstanceGroupManagerPoliciesPager{
+		hasNext: true,
+		options: &optionsCopy,
+		client:  vpc,
+	}
+	return
+}
+
+// HasNext returns true if there are potentially more results to be retrieved.
+func (pager *InstanceGroupManagerPoliciesPager) HasNext() bool {
+	return pager.hasNext
+}
+
+// GetNextWithContext returns the next page of results using the specified Context.
+func (pager *InstanceGroupManagerPoliciesPager) GetNextWithContext(ctx context.Context) (page []InstanceGroupManagerPolicyIntf, err error) {
+	if !pager.HasNext() {
+		return nil, fmt.Errorf("no more results available")
+	}
+
+	pager.options.Start = pager.pageContext.next
+
+	result, _, err := pager.client.ListInstanceGroupManagerPoliciesWithContext(ctx, pager.options)
+	if err != nil {
+		return
+	}
+
+	var next *string
+	if result.Next != nil {
+		var start *string
+		start, err = core.GetQueryParam(result.Next.Href, "start")
+		if err != nil {
+			err = fmt.Errorf("error retrieving 'start' query parameter from URL '%s': %s", *result.Next.Href, err.Error())
+			return
+		}
+		next = start
+	}
+	pager.pageContext.next = next
+	pager.hasNext = (pager.pageContext.next != nil)
+	page = result.Policies
+
+	return
+}
+
+// GetAllWithContext returns all results by invoking GetNextWithContext() repeatedly
+// until all pages of results have been retrieved.
+func (pager *InstanceGroupManagerPoliciesPager) GetAllWithContext(ctx context.Context) (allItems []InstanceGroupManagerPolicyIntf, err error) {
+	for pager.HasNext() {
+		var nextPage []InstanceGroupManagerPolicyIntf
+		nextPage, err = pager.GetNextWithContext(ctx)
+		if err != nil {
+			return
+		}
+		allItems = append(allItems, nextPage...)
+	}
+	return
+}
+
+// GetNext invokes GetNextWithContext() using context.Background() as the Context parameter.
+func (pager *InstanceGroupManagerPoliciesPager) GetNext() (page []InstanceGroupManagerPolicyIntf, err error) {
+	return pager.GetNextWithContext(context.Background())
+}
+
+// GetAll invokes GetAllWithContext() using context.Background() as the Context parameter.
+func (pager *InstanceGroupManagerPoliciesPager) GetAll() (allItems []InstanceGroupManagerPolicyIntf, err error) {
+	return pager.GetAllWithContext(context.Background())
+}
+
+// InstanceGroupMembershipsPager can be used to simplify the use of the "ListInstanceGroupMemberships" method.
+type InstanceGroupMembershipsPager struct {
+	hasNext     bool
+	options     *ListInstanceGroupMembershipsOptions
+	client      *VpcV1
+	pageContext struct {
+		next *string
+	}
+}
+
+// NewInstanceGroupMembershipsPager returns a new InstanceGroupMembershipsPager instance.
+func (vpc *VpcV1) NewInstanceGroupMembershipsPager(options *ListInstanceGroupMembershipsOptions) (pager *InstanceGroupMembershipsPager, err error) {
+	if options.Start != nil && *options.Start != "" {
+		err = fmt.Errorf("the 'options.Start' field should not be set")
+		return
+	}
+
+	var optionsCopy ListInstanceGroupMembershipsOptions = *options
+	pager = &InstanceGroupMembershipsPager{
+		hasNext: true,
+		options: &optionsCopy,
+		client:  vpc,
+	}
+	return
+}
+
+// HasNext returns true if there are potentially more results to be retrieved.
+func (pager *InstanceGroupMembershipsPager) HasNext() bool {
+	return pager.hasNext
+}
+
+// GetNextWithContext returns the next page of results using the specified Context.
+func (pager *InstanceGroupMembershipsPager) GetNextWithContext(ctx context.Context) (page []InstanceGroupMembership, err error) {
+	if !pager.HasNext() {
+		return nil, fmt.Errorf("no more results available")
+	}
+
+	pager.options.Start = pager.pageContext.next
+
+	result, _, err := pager.client.ListInstanceGroupMembershipsWithContext(ctx, pager.options)
+	if err != nil {
+		return
+	}
+
+	var next *string
+	if result.Next != nil {
+		var start *string
+		start, err = core.GetQueryParam(result.Next.Href, "start")
+		if err != nil {
+			err = fmt.Errorf("error retrieving 'start' query parameter from URL '%s': %s", *result.Next.Href, err.Error())
+			return
+		}
+		next = start
+	}
+	pager.pageContext.next = next
+	pager.hasNext = (pager.pageContext.next != nil)
+	page = result.Memberships
+
+	return
+}
+
+// GetAllWithContext returns all results by invoking GetNextWithContext() repeatedly
+// until all pages of results have been retrieved.
+func (pager *InstanceGroupMembershipsPager) GetAllWithContext(ctx context.Context) (allItems []InstanceGroupMembership, err error) {
+	for pager.HasNext() {
+		var nextPage []InstanceGroupMembership
+		nextPage, err = pager.GetNextWithContext(ctx)
+		if err != nil {
+			return
+		}
+		allItems = append(allItems, nextPage...)
+	}
+	return
+}
+
+// GetNext invokes GetNextWithContext() using context.Background() as the Context parameter.
+func (pager *InstanceGroupMembershipsPager) GetNext() (page []InstanceGroupMembership, err error) {
+	return pager.GetNextWithContext(context.Background())
+}
+
+// GetAll invokes GetAllWithContext() using context.Background() as the Context parameter.
+func (pager *InstanceGroupMembershipsPager) GetAll() (allItems []InstanceGroupMembership, err error) {
+	return pager.GetAllWithContext(context.Background())
+}
+
+// DedicatedHostGroupsPager can be used to simplify the use of the "ListDedicatedHostGroups" method.
+type DedicatedHostGroupsPager struct {
+	hasNext     bool
+	options     *ListDedicatedHostGroupsOptions
+	client      *VpcV1
+	pageContext struct {
+		next *string
+	}
+}
+
+// NewDedicatedHostGroupsPager returns a new DedicatedHostGroupsPager instance.
+func (vpc *VpcV1) NewDedicatedHostGroupsPager(options *ListDedicatedHostGroupsOptions) (pager *DedicatedHostGroupsPager, err error) {
+	if options.Start != nil && *options.Start != "" {
+		err = fmt.Errorf("the 'options.Start' field should not be set")
+		return
+	}
+
+	var optionsCopy ListDedicatedHostGroupsOptions = *options
+	pager = &DedicatedHostGroupsPager{
+		hasNext: true,
+		options: &optionsCopy,
+		client:  vpc,
+	}
+	return
+}
+
+// HasNext returns true if there are potentially more results to be retrieved.
+func (pager *DedicatedHostGroupsPager) HasNext() bool {
+	return pager.hasNext
+}
+
+// GetNextWithContext returns the next page of results using the specified Context.
+func (pager *DedicatedHostGroupsPager) GetNextWithContext(ctx context.Context) (page []DedicatedHostGroup, err error) {
+	if !pager.HasNext() {
+		return nil, fmt.Errorf("no more results available")
+	}
+
+	pager.options.Start = pager.pageContext.next
+
+	result, _, err := pager.client.ListDedicatedHostGroupsWithContext(ctx, pager.options)
+	if err != nil {
+		return
+	}
+
+	var next *string
+	if result.Next != nil {
+		var start *string
+		start, err = core.GetQueryParam(result.Next.Href, "start")
+		if err != nil {
+			err = fmt.Errorf("error retrieving 'start' query parameter from URL '%s': %s", *result.Next.Href, err.Error())
+			return
+		}
+		next = start
+	}
+	pager.pageContext.next = next
+	pager.hasNext = (pager.pageContext.next != nil)
+	page = result.Groups
+
+	return
+}
+
+// GetAllWithContext returns all results by invoking GetNextWithContext() repeatedly
+// until all pages of results have been retrieved.
+func (pager *DedicatedHostGroupsPager) GetAllWithContext(ctx context.Context) (allItems []DedicatedHostGroup, err error) {
+	for pager.HasNext() {
+		var nextPage []DedicatedHostGroup
+		nextPage, err = pager.GetNextWithContext(ctx)
+		if err != nil {
+			return
+		}
+		allItems = append(allItems, nextPage...)
+	}
+	return
+}
+
+// GetNext invokes GetNextWithContext() using context.Background() as the Context parameter.
+func (pager *DedicatedHostGroupsPager) GetNext() (page []DedicatedHostGroup, err error) {
+	return pager.GetNextWithContext(context.Background())
+}
+
+// GetAll invokes GetAllWithContext() using context.Background() as the Context parameter.
+func (pager *DedicatedHostGroupsPager) GetAll() (allItems []DedicatedHostGroup, err error) {
+	return pager.GetAllWithContext(context.Background())
+}
+
+// DedicatedHostProfilesPager can be used to simplify the use of the "ListDedicatedHostProfiles" method.
+type DedicatedHostProfilesPager struct {
+	hasNext     bool
+	options     *ListDedicatedHostProfilesOptions
+	client      *VpcV1
+	pageContext struct {
+		next *string
+	}
+}
+
+// NewDedicatedHostProfilesPager returns a new DedicatedHostProfilesPager instance.
+func (vpc *VpcV1) NewDedicatedHostProfilesPager(options *ListDedicatedHostProfilesOptions) (pager *DedicatedHostProfilesPager, err error) {
+	if options.Start != nil && *options.Start != "" {
+		err = fmt.Errorf("the 'options.Start' field should not be set")
+		return
+	}
+
+	var optionsCopy ListDedicatedHostProfilesOptions = *options
+	pager = &DedicatedHostProfilesPager{
+		hasNext: true,
+		options: &optionsCopy,
+		client:  vpc,
+	}
+	return
+}
+
+// HasNext returns true if there are potentially more results to be retrieved.
+func (pager *DedicatedHostProfilesPager) HasNext() bool {
+	return pager.hasNext
+}
+
+// GetNextWithContext returns the next page of results using the specified Context.
+func (pager *DedicatedHostProfilesPager) GetNextWithContext(ctx context.Context) (page []DedicatedHostProfile, err error) {
+	if !pager.HasNext() {
+		return nil, fmt.Errorf("no more results available")
+	}
+
+	pager.options.Start = pager.pageContext.next
+
+	result, _, err := pager.client.ListDedicatedHostProfilesWithContext(ctx, pager.options)
+	if err != nil {
+		return
+	}
+
+	var next *string
+	if result.Next != nil {
+		var start *string
+		start, err = core.GetQueryParam(result.Next.Href, "start")
+		if err != nil {
+			err = fmt.Errorf("error retrieving 'start' query parameter from URL '%s': %s", *result.Next.Href, err.Error())
+			return
+		}
+		next = start
+	}
+	pager.pageContext.next = next
+	pager.hasNext = (pager.pageContext.next != nil)
+	page = result.Profiles
+
+	return
+}
+
+// GetAllWithContext returns all results by invoking GetNextWithContext() repeatedly
+// until all pages of results have been retrieved.
+func (pager *DedicatedHostProfilesPager) GetAllWithContext(ctx context.Context) (allItems []DedicatedHostProfile, err error) {
+	for pager.HasNext() {
+		var nextPage []DedicatedHostProfile
+		nextPage, err = pager.GetNextWithContext(ctx)
+		if err != nil {
+			return
+		}
+		allItems = append(allItems, nextPage...)
+	}
+	return
+}
+
+// GetNext invokes GetNextWithContext() using context.Background() as the Context parameter.
+func (pager *DedicatedHostProfilesPager) GetNext() (page []DedicatedHostProfile, err error) {
+	return pager.GetNextWithContext(context.Background())
+}
+
+// GetAll invokes GetAllWithContext() using context.Background() as the Context parameter.
+func (pager *DedicatedHostProfilesPager) GetAll() (allItems []DedicatedHostProfile, err error) {
+	return pager.GetAllWithContext(context.Background())
+}
+
+// DedicatedHostsPager can be used to simplify the use of the "ListDedicatedHosts" method.
+type DedicatedHostsPager struct {
+	hasNext     bool
+	options     *ListDedicatedHostsOptions
+	client      *VpcV1
+	pageContext struct {
+		next *string
+	}
+}
+
+// NewDedicatedHostsPager returns a new DedicatedHostsPager instance.
+func (vpc *VpcV1) NewDedicatedHostsPager(options *ListDedicatedHostsOptions) (pager *DedicatedHostsPager, err error) {
+	if options.Start != nil && *options.Start != "" {
+		err = fmt.Errorf("the 'options.Start' field should not be set")
+		return
+	}
+
+	var optionsCopy ListDedicatedHostsOptions = *options
+	pager = &DedicatedHostsPager{
+		hasNext: true,
+		options: &optionsCopy,
+		client:  vpc,
+	}
+	return
+}
+
+// HasNext returns true if there are potentially more results to be retrieved.
+func (pager *DedicatedHostsPager) HasNext() bool {
+	return pager.hasNext
+}
+
+// GetNextWithContext returns the next page of results using the specified Context.
+func (pager *DedicatedHostsPager) GetNextWithContext(ctx context.Context) (page []DedicatedHost, err error) {
+	if !pager.HasNext() {
+		return nil, fmt.Errorf("no more results available")
+	}
+
+	pager.options.Start = pager.pageContext.next
+
+	result, _, err := pager.client.ListDedicatedHostsWithContext(ctx, pager.options)
+	if err != nil {
+		return
+	}
+
+	var next *string
+	if result.Next != nil {
+		var start *string
+		start, err = core.GetQueryParam(result.Next.Href, "start")
+		if err != nil {
+			err = fmt.Errorf("error retrieving 'start' query parameter from URL '%s': %s", *result.Next.Href, err.Error())
+			return
+		}
+		next = start
+	}
+	pager.pageContext.next = next
+	pager.hasNext = (pager.pageContext.next != nil)
+	page = result.DedicatedHosts
+
+	return
+}
+
+// GetAllWithContext returns all results by invoking GetNextWithContext() repeatedly
+// until all pages of results have been retrieved.
+func (pager *DedicatedHostsPager) GetAllWithContext(ctx context.Context) (allItems []DedicatedHost, err error) {
+	for pager.HasNext() {
+		var nextPage []DedicatedHost
+		nextPage, err = pager.GetNextWithContext(ctx)
+		if err != nil {
+			return
+		}
+		allItems = append(allItems, nextPage...)
+	}
+	return
+}
+
+// GetNext invokes GetNextWithContext() using context.Background() as the Context parameter.
+func (pager *DedicatedHostsPager) GetNext() (page []DedicatedHost, err error) {
+	return pager.GetNextWithContext(context.Background())
+}
+
+// GetAll invokes GetAllWithContext() using context.Background() as the Context parameter.
+func (pager *DedicatedHostsPager) GetAll() (allItems []DedicatedHost, err error) {
+	return pager.GetAllWithContext(context.Background())
+}
+
+// BackupPoliciesPager can be used to simplify the use of the "ListBackupPolicies" method.
+type BackupPoliciesPager struct {
+	hasNext     bool
+	options     *ListBackupPoliciesOptions
+	client      *VpcV1
+	pageContext struct {
+		next *string
+	}
+}
+
+// NewBackupPoliciesPager returns a new BackupPoliciesPager instance.
+func (vpc *VpcV1) NewBackupPoliciesPager(options *ListBackupPoliciesOptions) (pager *BackupPoliciesPager, err error) {
+	if options.Start != nil && *options.Start != "" {
+		err = fmt.Errorf("the 'options.Start' field should not be set")
+		return
+	}
+
+	var optionsCopy ListBackupPoliciesOptions = *options
+	pager = &BackupPoliciesPager{
+		hasNext: true,
+		options: &optionsCopy,
+		client:  vpc,
+	}
+	return
+}
+
+// HasNext returns true if there are potentially more results to be retrieved.
+func (pager *BackupPoliciesPager) HasNext() bool {
+	return pager.hasNext
+}
+
+// GetNextWithContext returns the next page of results using the specified Context.
+func (pager *BackupPoliciesPager) GetNextWithContext(ctx context.Context) (page []BackupPolicy, err error) {
+	if !pager.HasNext() {
+		return nil, fmt.Errorf("no more results available")
+	}
+
+	pager.options.Start = pager.pageContext.next
+
+	result, _, err := pager.client.ListBackupPoliciesWithContext(ctx, pager.options)
+	if err != nil {
+		return
+	}
+
+	var next *string
+	if result.Next != nil {
+		var start *string
+		start, err = core.GetQueryParam(result.Next.Href, "start")
+		if err != nil {
+			err = fmt.Errorf("error retrieving 'start' query parameter from URL '%s': %s", *result.Next.Href, err.Error())
+			return
+		}
+		next = start
+	}
+	pager.pageContext.next = next
+	pager.hasNext = (pager.pageContext.next != nil)
+	page = result.BackupPolicies
+
+	return
+}
+
+// GetAllWithContext returns all results by invoking GetNextWithContext() repeatedly
+// until all pages of results have been retrieved.
+func (pager *BackupPoliciesPager) GetAllWithContext(ctx context.Context) (allItems []BackupPolicy, err error) {
+	for pager.HasNext() {
+		var nextPage []BackupPolicy
+		nextPage, err = pager.GetNextWithContext(ctx)
+		if err != nil {
+			return
+		}
+		allItems = append(allItems, nextPage...)
+	}
+	return
+}
+
+// GetNext invokes GetNextWithContext() using context.Background() as the Context parameter.
+func (pager *BackupPoliciesPager) GetNext() (page []BackupPolicy, err error) {
+	return pager.GetNextWithContext(context.Background())
+}
+
+// GetAll invokes GetAllWithContext() using context.Background() as the Context parameter.
+func (pager *BackupPoliciesPager) GetAll() (allItems []BackupPolicy, err error) {
+	return pager.GetAllWithContext(context.Background())
+}
+
+// BackupPolicyJobsPager can be used to simplify the use of the "ListBackupPolicyJobs" method.
+type BackupPolicyJobsPager struct {
+	hasNext     bool
+	options     *ListBackupPolicyJobsOptions
+	client      *VpcV1
+	pageContext struct {
+		next *string
+	}
+}
+
+// NewBackupPolicyJobsPager returns a new BackupPolicyJobsPager instance.
+func (vpc *VpcV1) NewBackupPolicyJobsPager(options *ListBackupPolicyJobsOptions) (pager *BackupPolicyJobsPager, err error) {
+	if options.Start != nil && *options.Start != "" {
+		err = fmt.Errorf("the 'options.Start' field should not be set")
+		return
+	}
+
+	var optionsCopy ListBackupPolicyJobsOptions = *options
+	pager = &BackupPolicyJobsPager{
+		hasNext: true,
+		options: &optionsCopy,
+		client:  vpc,
+	}
+	return
+}
+
+// HasNext returns true if there are potentially more results to be retrieved.
+func (pager *BackupPolicyJobsPager) HasNext() bool {
+	return pager.hasNext
+}
+
+// GetNextWithContext returns the next page of results using the specified Context.
+func (pager *BackupPolicyJobsPager) GetNextWithContext(ctx context.Context) (page []BackupPolicyJob, err error) {
+	if !pager.HasNext() {
+		return nil, fmt.Errorf("no more results available")
+	}
+
+	pager.options.Start = pager.pageContext.next
+
+	result, _, err := pager.client.ListBackupPolicyJobsWithContext(ctx, pager.options)
+	if err != nil {
+		return
+	}
+
+	var next *string
+	if result.Next != nil {
+		var start *string
+		start, err = core.GetQueryParam(result.Next.Href, "start")
+		if err != nil {
+			err = fmt.Errorf("error retrieving 'start' query parameter from URL '%s': %s", *result.Next.Href, err.Error())
+			return
+		}
+		next = start
+	}
+	pager.pageContext.next = next
+	pager.hasNext = (pager.pageContext.next != nil)
+	page = result.Jobs
+
+	return
+}
+
+// GetAllWithContext returns all results by invoking GetNextWithContext() repeatedly
+// until all pages of results have been retrieved.
+func (pager *BackupPolicyJobsPager) GetAllWithContext(ctx context.Context) (allItems []BackupPolicyJob, err error) {
+	for pager.HasNext() {
+		var nextPage []BackupPolicyJob
+		nextPage, err = pager.GetNextWithContext(ctx)
+		if err != nil {
+			return
+		}
+		allItems = append(allItems, nextPage...)
+	}
+	return
+}
+
+// GetNext invokes GetNextWithContext() using context.Background() as the Context parameter.
+func (pager *BackupPolicyJobsPager) GetNext() (page []BackupPolicyJob, err error) {
+	return pager.GetNextWithContext(context.Background())
+}
+
+// GetAll invokes GetAllWithContext() using context.Background() as the Context parameter.
+func (pager *BackupPolicyJobsPager) GetAll() (allItems []BackupPolicyJob, err error) {
+	return pager.GetAllWithContext(context.Background())
+}
+
+// PlacementGroupsPager can be used to simplify the use of the "ListPlacementGroups" method.
+type PlacementGroupsPager struct {
+	hasNext     bool
+	options     *ListPlacementGroupsOptions
+	client      *VpcV1
+	pageContext struct {
+		next *string
+	}
+}
+
+// NewPlacementGroupsPager returns a new PlacementGroupsPager instance.
+func (vpc *VpcV1) NewPlacementGroupsPager(options *ListPlacementGroupsOptions) (pager *PlacementGroupsPager, err error) {
+	if options.Start != nil && *options.Start != "" {
+		err = fmt.Errorf("the 'options.Start' field should not be set")
+		return
+	}
+
+	var optionsCopy ListPlacementGroupsOptions = *options
+	pager = &PlacementGroupsPager{
+		hasNext: true,
+		options: &optionsCopy,
+		client:  vpc,
+	}
+	return
+}
+
+// HasNext returns true if there are potentially more results to be retrieved.
+func (pager *PlacementGroupsPager) HasNext() bool {
+	return pager.hasNext
+}
+
+// GetNextWithContext returns the next page of results using the specified Context.
+func (pager *PlacementGroupsPager) GetNextWithContext(ctx context.Context) (page []PlacementGroup, err error) {
+	if !pager.HasNext() {
+		return nil, fmt.Errorf("no more results available")
+	}
+
+	pager.options.Start = pager.pageContext.next
+
+	result, _, err := pager.client.ListPlacementGroupsWithContext(ctx, pager.options)
+	if err != nil {
+		return
+	}
+
+	var next *string
+	if result.Next != nil {
+		var start *string
+		start, err = core.GetQueryParam(result.Next.Href, "start")
+		if err != nil {
+			err = fmt.Errorf("error retrieving 'start' query parameter from URL '%s': %s", *result.Next.Href, err.Error())
+			return
+		}
+		next = start
+	}
+	pager.pageContext.next = next
+	pager.hasNext = (pager.pageContext.next != nil)
+	page = result.PlacementGroups
+
+	return
+}
+
+// GetAllWithContext returns all results by invoking GetNextWithContext() repeatedly
+// until all pages of results have been retrieved.
+func (pager *PlacementGroupsPager) GetAllWithContext(ctx context.Context) (allItems []PlacementGroup, err error) {
+	for pager.HasNext() {
+		var nextPage []PlacementGroup
+		nextPage, err = pager.GetNextWithContext(ctx)
+		if err != nil {
+			return
+		}
+		allItems = append(allItems, nextPage...)
+	}
+	return
+}
+
+// GetNext invokes GetNextWithContext() using context.Background() as the Context parameter.
+func (pager *PlacementGroupsPager) GetNext() (page []PlacementGroup, err error) {
+	return pager.GetNextWithContext(context.Background())
+}
+
+// GetAll invokes GetAllWithContext() using context.Background() as the Context parameter.
+func (pager *PlacementGroupsPager) GetAll() (allItems []PlacementGroup, err error) {
+	return pager.GetAllWithContext(context.Background())
+}
+
+// BareMetalServerProfilesPager can be used to simplify the use of the "ListBareMetalServerProfiles" method.
+type BareMetalServerProfilesPager struct {
+	hasNext     bool
+	options     *ListBareMetalServerProfilesOptions
+	client      *VpcV1
+	pageContext struct {
+		next *string
+	}
+}
+
+// NewBareMetalServerProfilesPager returns a new BareMetalServerProfilesPager instance.
+func (vpc *VpcV1) NewBareMetalServerProfilesPager(options *ListBareMetalServerProfilesOptions) (pager *BareMetalServerProfilesPager, err error) {
+	if options.Start != nil && *options.Start != "" {
+		err = fmt.Errorf("the 'options.Start' field should not be set")
+		return
+	}
+
+	var optionsCopy ListBareMetalServerProfilesOptions = *options
+	pager = &BareMetalServerProfilesPager{
+		hasNext: true,
+		options: &optionsCopy,
+		client:  vpc,
+	}
+	return
+}
+
+// HasNext returns true if there are potentially more results to be retrieved.
+func (pager *BareMetalServerProfilesPager) HasNext() bool {
+	return pager.hasNext
+}
+
+// GetNextWithContext returns the next page of results using the specified Context.
+func (pager *BareMetalServerProfilesPager) GetNextWithContext(ctx context.Context) (page []BareMetalServerProfile, err error) {
+	if !pager.HasNext() {
+		return nil, fmt.Errorf("no more results available")
+	}
+
+	pager.options.Start = pager.pageContext.next
+
+	result, _, err := pager.client.ListBareMetalServerProfilesWithContext(ctx, pager.options)
+	if err != nil {
+		return
+	}
+
+	var next *string
+	if result.Next != nil {
+		var start *string
+		start, err = core.GetQueryParam(result.Next.Href, "start")
+		if err != nil {
+			err = fmt.Errorf("error retrieving 'start' query parameter from URL '%s': %s", *result.Next.Href, err.Error())
+			return
+		}
+		next = start
+	}
+	pager.pageContext.next = next
+	pager.hasNext = (pager.pageContext.next != nil)
+	page = result.Profiles
+
+	return
+}
+
+// GetAllWithContext returns all results by invoking GetNextWithContext() repeatedly
+// until all pages of results have been retrieved.
+func (pager *BareMetalServerProfilesPager) GetAllWithContext(ctx context.Context) (allItems []BareMetalServerProfile, err error) {
+	for pager.HasNext() {
+		var nextPage []BareMetalServerProfile
+		nextPage, err = pager.GetNextWithContext(ctx)
+		if err != nil {
+			return
+		}
+		allItems = append(allItems, nextPage...)
+	}
+	return
+}
+
+// GetNext invokes GetNextWithContext() using context.Background() as the Context parameter.
+func (pager *BareMetalServerProfilesPager) GetNext() (page []BareMetalServerProfile, err error) {
+	return pager.GetNextWithContext(context.Background())
+}
+
+// GetAll invokes GetAllWithContext() using context.Background() as the Context parameter.
+func (pager *BareMetalServerProfilesPager) GetAll() (allItems []BareMetalServerProfile, err error) {
+	return pager.GetAllWithContext(context.Background())
+}
+
+// BareMetalServersPager can be used to simplify the use of the "ListBareMetalServers" method.
+type BareMetalServersPager struct {
+	hasNext     bool
+	options     *ListBareMetalServersOptions
+	client      *VpcV1
+	pageContext struct {
+		next *string
+	}
+}
+
+// NewBareMetalServersPager returns a new BareMetalServersPager instance.
+func (vpc *VpcV1) NewBareMetalServersPager(options *ListBareMetalServersOptions) (pager *BareMetalServersPager, err error) {
+	if options.Start != nil && *options.Start != "" {
+		err = fmt.Errorf("the 'options.Start' field should not be set")
+		return
+	}
+
+	var optionsCopy ListBareMetalServersOptions = *options
+	pager = &BareMetalServersPager{
+		hasNext: true,
+		options: &optionsCopy,
+		client:  vpc,
+	}
+	return
+}
+
+// HasNext returns true if there are potentially more results to be retrieved.
+func (pager *BareMetalServersPager) HasNext() bool {
+	return pager.hasNext
+}
+
+// GetNextWithContext returns the next page of results using the specified Context.
+func (pager *BareMetalServersPager) GetNextWithContext(ctx context.Context) (page []BareMetalServer, err error) {
+	if !pager.HasNext() {
+		return nil, fmt.Errorf("no more results available")
+	}
+
+	pager.options.Start = pager.pageContext.next
+
+	result, _, err := pager.client.ListBareMetalServersWithContext(ctx, pager.options)
+	if err != nil {
+		return
+	}
+
+	var next *string
+	if result.Next != nil {
+		var start *string
+		start, err = core.GetQueryParam(result.Next.Href, "start")
+		if err != nil {
+			err = fmt.Errorf("error retrieving 'start' query parameter from URL '%s': %s", *result.Next.Href, err.Error())
+			return
+		}
+		next = start
+	}
+	pager.pageContext.next = next
+	pager.hasNext = (pager.pageContext.next != nil)
+	page = result.BareMetalServers
+
+	return
+}
+
+// GetAllWithContext returns all results by invoking GetNextWithContext() repeatedly
+// until all pages of results have been retrieved.
+func (pager *BareMetalServersPager) GetAllWithContext(ctx context.Context) (allItems []BareMetalServer, err error) {
+	for pager.HasNext() {
+		var nextPage []BareMetalServer
+		nextPage, err = pager.GetNextWithContext(ctx)
+		if err != nil {
+			return
+		}
+		allItems = append(allItems, nextPage...)
+	}
+	return
+}
+
+// GetNext invokes GetNextWithContext() using context.Background() as the Context parameter.
+func (pager *BareMetalServersPager) GetNext() (page []BareMetalServer, err error) {
+	return pager.GetNextWithContext(context.Background())
+}
+
+// GetAll invokes GetAllWithContext() using context.Background() as the Context parameter.
+func (pager *BareMetalServersPager) GetAll() (allItems []BareMetalServer, err error) {
+	return pager.GetAllWithContext(context.Background())
+}
+
+// BareMetalServerNetworkInterfacesPager can be used to simplify the use of the "ListBareMetalServerNetworkInterfaces" method.
+type BareMetalServerNetworkInterfacesPager struct {
+	hasNext     bool
+	options     *ListBareMetalServerNetworkInterfacesOptions
+	client      *VpcV1
+	pageContext struct {
+		next *string
+	}
+}
+
+// NewBareMetalServerNetworkInterfacesPager returns a new BareMetalServerNetworkInterfacesPager instance.
+func (vpc *VpcV1) NewBareMetalServerNetworkInterfacesPager(options *ListBareMetalServerNetworkInterfacesOptions) (pager *BareMetalServerNetworkInterfacesPager, err error) {
+	if options.Start != nil && *options.Start != "" {
+		err = fmt.Errorf("the 'options.Start' field should not be set")
+		return
+	}
+
+	var optionsCopy ListBareMetalServerNetworkInterfacesOptions = *options
+	pager = &BareMetalServerNetworkInterfacesPager{
+		hasNext: true,
+		options: &optionsCopy,
+		client:  vpc,
+	}
+	return
+}
+
+// HasNext returns true if there are potentially more results to be retrieved.
+func (pager *BareMetalServerNetworkInterfacesPager) HasNext() bool {
+	return pager.hasNext
+}
+
+// GetNextWithContext returns the next page of results using the specified Context.
+func (pager *BareMetalServerNetworkInterfacesPager) GetNextWithContext(ctx context.Context) (page []BareMetalServerNetworkInterfaceIntf, err error) {
+	if !pager.HasNext() {
+		return nil, fmt.Errorf("no more results available")
+	}
+
+	pager.options.Start = pager.pageContext.next
+
+	result, _, err := pager.client.ListBareMetalServerNetworkInterfacesWithContext(ctx, pager.options)
+	if err != nil {
+		return
+	}
+
+	var next *string
+	if result.Next != nil {
+		var start *string
+		start, err = core.GetQueryParam(result.Next.Href, "start")
+		if err != nil {
+			err = fmt.Errorf("error retrieving 'start' query parameter from URL '%s': %s", *result.Next.Href, err.Error())
+			return
+		}
+		next = start
+	}
+	pager.pageContext.next = next
+	pager.hasNext = (pager.pageContext.next != nil)
+	page = result.NetworkInterfaces
+
+	return
+}
+
+// GetAllWithContext returns all results by invoking GetNextWithContext() repeatedly
+// until all pages of results have been retrieved.
+func (pager *BareMetalServerNetworkInterfacesPager) GetAllWithContext(ctx context.Context) (allItems []BareMetalServerNetworkInterfaceIntf, err error) {
+	for pager.HasNext() {
+		var nextPage []BareMetalServerNetworkInterfaceIntf
+		nextPage, err = pager.GetNextWithContext(ctx)
+		if err != nil {
+			return
+		}
+		allItems = append(allItems, nextPage...)
+	}
+	return
+}
+
+// GetNext invokes GetNextWithContext() using context.Background() as the Context parameter.
+func (pager *BareMetalServerNetworkInterfacesPager) GetNext() (page []BareMetalServerNetworkInterfaceIntf, err error) {
+	return pager.GetNextWithContext(context.Background())
+}
+
+// GetAll invokes GetAllWithContext() using context.Background() as the Context parameter.
+func (pager *BareMetalServerNetworkInterfacesPager) GetAll() (allItems []BareMetalServerNetworkInterfaceIntf, err error) {
+	return pager.GetAllWithContext(context.Background())
+}
+
+// VolumeProfilesPager can be used to simplify the use of the "ListVolumeProfiles" method.
+type VolumeProfilesPager struct {
+	hasNext     bool
+	options     *ListVolumeProfilesOptions
+	client      *VpcV1
+	pageContext struct {
+		next *string
+	}
+}
+
+// NewVolumeProfilesPager returns a new VolumeProfilesPager instance.
+func (vpc *VpcV1) NewVolumeProfilesPager(options *ListVolumeProfilesOptions) (pager *VolumeProfilesPager, err error) {
+	if options.Start != nil && *options.Start != "" {
+		err = fmt.Errorf("the 'options.Start' field should not be set")
+		return
+	}
+
+	var optionsCopy ListVolumeProfilesOptions = *options
+	pager = &VolumeProfilesPager{
+		hasNext: true,
+		options: &optionsCopy,
+		client:  vpc,
+	}
+	return
+}
+
+// HasNext returns true if there are potentially more results to be retrieved.
+func (pager *VolumeProfilesPager) HasNext() bool {
+	return pager.hasNext
+}
+
+// GetNextWithContext returns the next page of results using the specified Context.
+func (pager *VolumeProfilesPager) GetNextWithContext(ctx context.Context) (page []VolumeProfile, err error) {
+	if !pager.HasNext() {
+		return nil, fmt.Errorf("no more results available")
+	}
+
+	pager.options.Start = pager.pageContext.next
+
+	result, _, err := pager.client.ListVolumeProfilesWithContext(ctx, pager.options)
+	if err != nil {
+		return
+	}
+
+	var next *string
+	if result.Next != nil {
+		var start *string
+		start, err = core.GetQueryParam(result.Next.Href, "start")
+		if err != nil {
+			err = fmt.Errorf("error retrieving 'start' query parameter from URL '%s': %s", *result.Next.Href, err.Error())
+			return
+		}
+		next = start
+	}
+	pager.pageContext.next = next
+	pager.hasNext = (pager.pageContext.next != nil)
+	page = result.Profiles
+
+	return
+}
+
+// GetAllWithContext returns all results by invoking GetNextWithContext() repeatedly
+// until all pages of results have been retrieved.
+func (pager *VolumeProfilesPager) GetAllWithContext(ctx context.Context) (allItems []VolumeProfile, err error) {
+	for pager.HasNext() {
+		var nextPage []VolumeProfile
+		nextPage, err = pager.GetNextWithContext(ctx)
+		if err != nil {
+			return
+		}
+		allItems = append(allItems, nextPage...)
+	}
+	return
+}
+
+// GetNext invokes GetNextWithContext() using context.Background() as the Context parameter.
+func (pager *VolumeProfilesPager) GetNext() (page []VolumeProfile, err error) {
+	return pager.GetNextWithContext(context.Background())
+}
+
+// GetAll invokes GetAllWithContext() using context.Background() as the Context parameter.
+func (pager *VolumeProfilesPager) GetAll() (allItems []VolumeProfile, err error) {
+	return pager.GetAllWithContext(context.Background())
+}
+
+// VolumesPager can be used to simplify the use of the "ListVolumes" method.
+type VolumesPager struct {
+	hasNext     bool
+	options     *ListVolumesOptions
+	client      *VpcV1
+	pageContext struct {
+		next *string
+	}
+}
+
+// NewVolumesPager returns a new VolumesPager instance.
+func (vpc *VpcV1) NewVolumesPager(options *ListVolumesOptions) (pager *VolumesPager, err error) {
+	if options.Start != nil && *options.Start != "" {
+		err = fmt.Errorf("the 'options.Start' field should not be set")
+		return
+	}
+
+	var optionsCopy ListVolumesOptions = *options
+	pager = &VolumesPager{
+		hasNext: true,
+		options: &optionsCopy,
+		client:  vpc,
+	}
+	return
+}
+
+// HasNext returns true if there are potentially more results to be retrieved.
+func (pager *VolumesPager) HasNext() bool {
+	return pager.hasNext
+}
+
+// GetNextWithContext returns the next page of results using the specified Context.
+func (pager *VolumesPager) GetNextWithContext(ctx context.Context) (page []Volume, err error) {
+	if !pager.HasNext() {
+		return nil, fmt.Errorf("no more results available")
+	}
+
+	pager.options.Start = pager.pageContext.next
+
+	result, _, err := pager.client.ListVolumesWithContext(ctx, pager.options)
+	if err != nil {
+		return
+	}
+
+	var next *string
+	if result.Next != nil {
+		var start *string
+		start, err = core.GetQueryParam(result.Next.Href, "start")
+		if err != nil {
+			err = fmt.Errorf("error retrieving 'start' query parameter from URL '%s': %s", *result.Next.Href, err.Error())
+			return
+		}
+		next = start
+	}
+	pager.pageContext.next = next
+	pager.hasNext = (pager.pageContext.next != nil)
+	page = result.Volumes
+
+	return
+}
+
+// GetAllWithContext returns all results by invoking GetNextWithContext() repeatedly
+// until all pages of results have been retrieved.
+func (pager *VolumesPager) GetAllWithContext(ctx context.Context) (allItems []Volume, err error) {
+	for pager.HasNext() {
+		var nextPage []Volume
+		nextPage, err = pager.GetNextWithContext(ctx)
+		if err != nil {
+			return
+		}
+		allItems = append(allItems, nextPage...)
+	}
+	return
+}
+
+// GetNext invokes GetNextWithContext() using context.Background() as the Context parameter.
+func (pager *VolumesPager) GetNext() (page []Volume, err error) {
+	return pager.GetNextWithContext(context.Background())
+}
+
+// GetAll invokes GetAllWithContext() using context.Background() as the Context parameter.
+func (pager *VolumesPager) GetAll() (allItems []Volume, err error) {
+	return pager.GetAllWithContext(context.Background())
+}
+
+// SnapshotsPager can be used to simplify the use of the "ListSnapshots" method.
+type SnapshotsPager struct {
+	hasNext     bool
+	options     *ListSnapshotsOptions
+	client      *VpcV1
+	pageContext struct {
+		next *string
+	}
+}
+
+// NewSnapshotsPager returns a new SnapshotsPager instance.
+func (vpc *VpcV1) NewSnapshotsPager(options *ListSnapshotsOptions) (pager *SnapshotsPager, err error) {
+	if options.Start != nil && *options.Start != "" {
+		err = fmt.Errorf("the 'options.Start' field should not be set")
+		return
+	}
+
+	var optionsCopy ListSnapshotsOptions = *options
+	pager = &SnapshotsPager{
+		hasNext: true,
+		options: &optionsCopy,
+		client:  vpc,
+	}
+	return
+}
+
+// HasNext returns true if there are potentially more results to be retrieved.
+func (pager *SnapshotsPager) HasNext() bool {
+	return pager.hasNext
+}
+
+// GetNextWithContext returns the next page of results using the specified Context.
+func (pager *SnapshotsPager) GetNextWithContext(ctx context.Context) (page []Snapshot, err error) {
+	if !pager.HasNext() {
+		return nil, fmt.Errorf("no more results available")
+	}
+
+	pager.options.Start = pager.pageContext.next
+
+	result, _, err := pager.client.ListSnapshotsWithContext(ctx, pager.options)
+	if err != nil {
+		return
+	}
+
+	var next *string
+	if result.Next != nil {
+		var start *string
+		start, err = core.GetQueryParam(result.Next.Href, "start")
+		if err != nil {
+			err = fmt.Errorf("error retrieving 'start' query parameter from URL '%s': %s", *result.Next.Href, err.Error())
+			return
+		}
+		next = start
+	}
+	pager.pageContext.next = next
+	pager.hasNext = (pager.pageContext.next != nil)
+	page = result.Snapshots
+
+	return
+}
+
+// GetAllWithContext returns all results by invoking GetNextWithContext() repeatedly
+// until all pages of results have been retrieved.
+func (pager *SnapshotsPager) GetAllWithContext(ctx context.Context) (allItems []Snapshot, err error) {
+	for pager.HasNext() {
+		var nextPage []Snapshot
+		nextPage, err = pager.GetNextWithContext(ctx)
+		if err != nil {
+			return
+		}
+		allItems = append(allItems, nextPage...)
+	}
+	return
+}
+
+// GetNext invokes GetNextWithContext() using context.Background() as the Context parameter.
+func (pager *SnapshotsPager) GetNext() (page []Snapshot, err error) {
+	return pager.GetNextWithContext(context.Background())
+}
+
+// GetAll invokes GetAllWithContext() using context.Background() as the Context parameter.
+func (pager *SnapshotsPager) GetAll() (allItems []Snapshot, err error) {
+	return pager.GetAllWithContext(context.Background())
+}
+
+// PublicGatewaysPager can be used to simplify the use of the "ListPublicGateways" method.
+type PublicGatewaysPager struct {
+	hasNext     bool
+	options     *ListPublicGatewaysOptions
+	client      *VpcV1
+	pageContext struct {
+		next *string
+	}
+}
+
+// NewPublicGatewaysPager returns a new PublicGatewaysPager instance.
+func (vpc *VpcV1) NewPublicGatewaysPager(options *ListPublicGatewaysOptions) (pager *PublicGatewaysPager, err error) {
+	if options.Start != nil && *options.Start != "" {
+		err = fmt.Errorf("the 'options.Start' field should not be set")
+		return
+	}
+
+	var optionsCopy ListPublicGatewaysOptions = *options
+	pager = &PublicGatewaysPager{
+		hasNext: true,
+		options: &optionsCopy,
+		client:  vpc,
+	}
+	return
+}
+
+// HasNext returns true if there are potentially more results to be retrieved.
+func (pager *PublicGatewaysPager) HasNext() bool {
+	return pager.hasNext
+}
+
+// GetNextWithContext returns the next page of results using the specified Context.
+func (pager *PublicGatewaysPager) GetNextWithContext(ctx context.Context) (page []PublicGateway, err error) {
+	if !pager.HasNext() {
+		return nil, fmt.Errorf("no more results available")
+	}
+
+	pager.options.Start = pager.pageContext.next
+
+	result, _, err := pager.client.ListPublicGatewaysWithContext(ctx, pager.options)
+	if err != nil {
+		return
+	}
+
+	var next *string
+	if result.Next != nil {
+		var start *string
+		start, err = core.GetQueryParam(result.Next.Href, "start")
+		if err != nil {
+			err = fmt.Errorf("error retrieving 'start' query parameter from URL '%s': %s", *result.Next.Href, err.Error())
+			return
+		}
+		next = start
+	}
+	pager.pageContext.next = next
+	pager.hasNext = (pager.pageContext.next != nil)
+	page = result.PublicGateways
+
+	return
+}
+
+// GetAllWithContext returns all results by invoking GetNextWithContext() repeatedly
+// until all pages of results have been retrieved.
+func (pager *PublicGatewaysPager) GetAllWithContext(ctx context.Context) (allItems []PublicGateway, err error) {
+	for pager.HasNext() {
+		var nextPage []PublicGateway
+		nextPage, err = pager.GetNextWithContext(ctx)
+		if err != nil {
+			return
+		}
+		allItems = append(allItems, nextPage...)
+	}
+	return
+}
+
+// GetNext invokes GetNextWithContext() using context.Background() as the Context parameter.
+func (pager *PublicGatewaysPager) GetNext() (page []PublicGateway, err error) {
+	return pager.GetNextWithContext(context.Background())
+}
+
+// GetAll invokes GetAllWithContext() using context.Background() as the Context parameter.
+func (pager *PublicGatewaysPager) GetAll() (allItems []PublicGateway, err error) {
+	return pager.GetAllWithContext(context.Background())
+}
+
+// FloatingIpsPager can be used to simplify the use of the "ListFloatingIps" method.
+type FloatingIpsPager struct {
+	hasNext     bool
+	options     *ListFloatingIpsOptions
+	client      *VpcV1
+	pageContext struct {
+		next *string
+	}
+}
+
+// NewFloatingIpsPager returns a new FloatingIpsPager instance.
+func (vpc *VpcV1) NewFloatingIpsPager(options *ListFloatingIpsOptions) (pager *FloatingIpsPager, err error) {
+	if options.Start != nil && *options.Start != "" {
+		err = fmt.Errorf("the 'options.Start' field should not be set")
+		return
+	}
+
+	var optionsCopy ListFloatingIpsOptions = *options
+	pager = &FloatingIpsPager{
+		hasNext: true,
+		options: &optionsCopy,
+		client:  vpc,
+	}
+	return
+}
+
+// HasNext returns true if there are potentially more results to be retrieved.
+func (pager *FloatingIpsPager) HasNext() bool {
+	return pager.hasNext
+}
+
+// GetNextWithContext returns the next page of results using the specified Context.
+func (pager *FloatingIpsPager) GetNextWithContext(ctx context.Context) (page []FloatingIP, err error) {
+	if !pager.HasNext() {
+		return nil, fmt.Errorf("no more results available")
+	}
+
+	pager.options.Start = pager.pageContext.next
+
+	result, _, err := pager.client.ListFloatingIpsWithContext(ctx, pager.options)
+	if err != nil {
+		return
+	}
+
+	var next *string
+	if result.Next != nil {
+		var start *string
+		start, err = core.GetQueryParam(result.Next.Href, "start")
+		if err != nil {
+			err = fmt.Errorf("error retrieving 'start' query parameter from URL '%s': %s", *result.Next.Href, err.Error())
+			return
+		}
+		next = start
+	}
+	pager.pageContext.next = next
+	pager.hasNext = (pager.pageContext.next != nil)
+	page = result.FloatingIps
+
+	return
+}
+
+// GetAllWithContext returns all results by invoking GetNextWithContext() repeatedly
+// until all pages of results have been retrieved.
+func (pager *FloatingIpsPager) GetAllWithContext(ctx context.Context) (allItems []FloatingIP, err error) {
+	for pager.HasNext() {
+		var nextPage []FloatingIP
+		nextPage, err = pager.GetNextWithContext(ctx)
+		if err != nil {
+			return
+		}
+		allItems = append(allItems, nextPage...)
+	}
+	return
+}
+
+// GetNext invokes GetNextWithContext() using context.Background() as the Context parameter.
+func (pager *FloatingIpsPager) GetNext() (page []FloatingIP, err error) {
+	return pager.GetNextWithContext(context.Background())
+}
+
+// GetAll invokes GetAllWithContext() using context.Background() as the Context parameter.
+func (pager *FloatingIpsPager) GetAll() (allItems []FloatingIP, err error) {
+	return pager.GetAllWithContext(context.Background())
+}
+
+// NetworkAclsPager can be used to simplify the use of the "ListNetworkAcls" method.
+type NetworkAclsPager struct {
+	hasNext     bool
+	options     *ListNetworkAclsOptions
+	client      *VpcV1
+	pageContext struct {
+		next *string
+	}
+}
+
+// NewNetworkAclsPager returns a new NetworkAclsPager instance.
+func (vpc *VpcV1) NewNetworkAclsPager(options *ListNetworkAclsOptions) (pager *NetworkAclsPager, err error) {
+	if options.Start != nil && *options.Start != "" {
+		err = fmt.Errorf("the 'options.Start' field should not be set")
+		return
+	}
+
+	var optionsCopy ListNetworkAclsOptions = *options
+	pager = &NetworkAclsPager{
+		hasNext: true,
+		options: &optionsCopy,
+		client:  vpc,
+	}
+	return
+}
+
+// HasNext returns true if there are potentially more results to be retrieved.
+func (pager *NetworkAclsPager) HasNext() bool {
+	return pager.hasNext
+}
+
+// GetNextWithContext returns the next page of results using the specified Context.
+func (pager *NetworkAclsPager) GetNextWithContext(ctx context.Context) (page []NetworkACL, err error) {
+	if !pager.HasNext() {
+		return nil, fmt.Errorf("no more results available")
+	}
+
+	pager.options.Start = pager.pageContext.next
+
+	result, _, err := pager.client.ListNetworkAclsWithContext(ctx, pager.options)
+	if err != nil {
+		return
+	}
+
+	var next *string
+	if result.Next != nil {
+		var start *string
+		start, err = core.GetQueryParam(result.Next.Href, "start")
+		if err != nil {
+			err = fmt.Errorf("error retrieving 'start' query parameter from URL '%s': %s", *result.Next.Href, err.Error())
+			return
+		}
+		next = start
+	}
+	pager.pageContext.next = next
+	pager.hasNext = (pager.pageContext.next != nil)
+	page = result.NetworkAcls
+
+	return
+}
+
+// GetAllWithContext returns all results by invoking GetNextWithContext() repeatedly
+// until all pages of results have been retrieved.
+func (pager *NetworkAclsPager) GetAllWithContext(ctx context.Context) (allItems []NetworkACL, err error) {
+	for pager.HasNext() {
+		var nextPage []NetworkACL
+		nextPage, err = pager.GetNextWithContext(ctx)
+		if err != nil {
+			return
+		}
+		allItems = append(allItems, nextPage...)
+	}
+	return
+}
+
+// GetNext invokes GetNextWithContext() using context.Background() as the Context parameter.
+func (pager *NetworkAclsPager) GetNext() (page []NetworkACL, err error) {
+	return pager.GetNextWithContext(context.Background())
+}
+
+// GetAll invokes GetAllWithContext() using context.Background() as the Context parameter.
+func (pager *NetworkAclsPager) GetAll() (allItems []NetworkACL, err error) {
+	return pager.GetAllWithContext(context.Background())
+}
+
+// NetworkACLRulesPager can be used to simplify the use of the "ListNetworkACLRules" method.
+type NetworkACLRulesPager struct {
+	hasNext     bool
+	options     *ListNetworkACLRulesOptions
+	client      *VpcV1
+	pageContext struct {
+		next *string
+	}
+}
+
+// NewNetworkACLRulesPager returns a new NetworkACLRulesPager instance.
+func (vpc *VpcV1) NewNetworkACLRulesPager(options *ListNetworkACLRulesOptions) (pager *NetworkACLRulesPager, err error) {
+	if options.Start != nil && *options.Start != "" {
+		err = fmt.Errorf("the 'options.Start' field should not be set")
+		return
+	}
+
+	var optionsCopy ListNetworkACLRulesOptions = *options
+	pager = &NetworkACLRulesPager{
+		hasNext: true,
+		options: &optionsCopy,
+		client:  vpc,
+	}
+	return
+}
+
+// HasNext returns true if there are potentially more results to be retrieved.
+func (pager *NetworkACLRulesPager) HasNext() bool {
+	return pager.hasNext
+}
+
+// GetNextWithContext returns the next page of results using the specified Context.
+func (pager *NetworkACLRulesPager) GetNextWithContext(ctx context.Context) (page []NetworkACLRuleItemIntf, err error) {
+	if !pager.HasNext() {
+		return nil, fmt.Errorf("no more results available")
+	}
+
+	pager.options.Start = pager.pageContext.next
+
+	result, _, err := pager.client.ListNetworkACLRulesWithContext(ctx, pager.options)
+	if err != nil {
+		return
+	}
+
+	var next *string
+	if result.Next != nil {
+		var start *string
+		start, err = core.GetQueryParam(result.Next.Href, "start")
+		if err != nil {
+			err = fmt.Errorf("error retrieving 'start' query parameter from URL '%s': %s", *result.Next.Href, err.Error())
+			return
+		}
+		next = start
+	}
+	pager.pageContext.next = next
+	pager.hasNext = (pager.pageContext.next != nil)
+	page = result.Rules
+
+	return
+}
+
+// GetAllWithContext returns all results by invoking GetNextWithContext() repeatedly
+// until all pages of results have been retrieved.
+func (pager *NetworkACLRulesPager) GetAllWithContext(ctx context.Context) (allItems []NetworkACLRuleItemIntf, err error) {
+	for pager.HasNext() {
+		var nextPage []NetworkACLRuleItemIntf
+		nextPage, err = pager.GetNextWithContext(ctx)
+		if err != nil {
+			return
+		}
+		allItems = append(allItems, nextPage...)
+	}
+	return
+}
+
+// GetNext invokes GetNextWithContext() using context.Background() as the Context parameter.
+func (pager *NetworkACLRulesPager) GetNext() (page []NetworkACLRuleItemIntf, err error) {
+	return pager.GetNextWithContext(context.Background())
+}
+
+// GetAll invokes GetAllWithContext() using context.Background() as the Context parameter.
+func (pager *NetworkACLRulesPager) GetAll() (allItems []NetworkACLRuleItemIntf, err error) {
+	return pager.GetAllWithContext(context.Background())
+}
+
+// SecurityGroupsPager can be used to simplify the use of the "ListSecurityGroups" method.
+type SecurityGroupsPager struct {
+	hasNext     bool
+	options     *ListSecurityGroupsOptions
+	client      *VpcV1
+	pageContext struct {
+		next *string
+	}
+}
+
+// NewSecurityGroupsPager returns a new SecurityGroupsPager instance.
+func (vpc *VpcV1) NewSecurityGroupsPager(options *ListSecurityGroupsOptions) (pager *SecurityGroupsPager, err error) {
+	if options.Start != nil && *options.Start != "" {
+		err = fmt.Errorf("the 'options.Start' field should not be set")
+		return
+	}
+
+	var optionsCopy ListSecurityGroupsOptions = *options
+	pager = &SecurityGroupsPager{
+		hasNext: true,
+		options: &optionsCopy,
+		client:  vpc,
+	}
+	return
+}
+
+// HasNext returns true if there are potentially more results to be retrieved.
+func (pager *SecurityGroupsPager) HasNext() bool {
+	return pager.hasNext
+}
+
+// GetNextWithContext returns the next page of results using the specified Context.
+func (pager *SecurityGroupsPager) GetNextWithContext(ctx context.Context) (page []SecurityGroup, err error) {
+	if !pager.HasNext() {
+		return nil, fmt.Errorf("no more results available")
+	}
+
+	pager.options.Start = pager.pageContext.next
+
+	result, _, err := pager.client.ListSecurityGroupsWithContext(ctx, pager.options)
+	if err != nil {
+		return
+	}
+
+	var next *string
+	if result.Next != nil {
+		var start *string
+		start, err = core.GetQueryParam(result.Next.Href, "start")
+		if err != nil {
+			err = fmt.Errorf("error retrieving 'start' query parameter from URL '%s': %s", *result.Next.Href, err.Error())
+			return
+		}
+		next = start
+	}
+	pager.pageContext.next = next
+	pager.hasNext = (pager.pageContext.next != nil)
+	page = result.SecurityGroups
+
+	return
+}
+
+// GetAllWithContext returns all results by invoking GetNextWithContext() repeatedly
+// until all pages of results have been retrieved.
+func (pager *SecurityGroupsPager) GetAllWithContext(ctx context.Context) (allItems []SecurityGroup, err error) {
+	for pager.HasNext() {
+		var nextPage []SecurityGroup
+		nextPage, err = pager.GetNextWithContext(ctx)
+		if err != nil {
+			return
+		}
+		allItems = append(allItems, nextPage...)
+	}
+	return
+}
+
+// GetNext invokes GetNextWithContext() using context.Background() as the Context parameter.
+func (pager *SecurityGroupsPager) GetNext() (page []SecurityGroup, err error) {
+	return pager.GetNextWithContext(context.Background())
+}
+
+// GetAll invokes GetAllWithContext() using context.Background() as the Context parameter.
+func (pager *SecurityGroupsPager) GetAll() (allItems []SecurityGroup, err error) {
+	return pager.GetAllWithContext(context.Background())
+}
+
+// SecurityGroupTargetsPager can be used to simplify the use of the "ListSecurityGroupTargets" method.
+type SecurityGroupTargetsPager struct {
+	hasNext     bool
+	options     *ListSecurityGroupTargetsOptions
+	client      *VpcV1
+	pageContext struct {
+		next *string
+	}
+}
+
+// NewSecurityGroupTargetsPager returns a new SecurityGroupTargetsPager instance.
+func (vpc *VpcV1) NewSecurityGroupTargetsPager(options *ListSecurityGroupTargetsOptions) (pager *SecurityGroupTargetsPager, err error) {
+	if options.Start != nil && *options.Start != "" {
+		err = fmt.Errorf("the 'options.Start' field should not be set")
+		return
+	}
+
+	var optionsCopy ListSecurityGroupTargetsOptions = *options
+	pager = &SecurityGroupTargetsPager{
+		hasNext: true,
+		options: &optionsCopy,
+		client:  vpc,
+	}
+	return
+}
+
+// HasNext returns true if there are potentially more results to be retrieved.
+func (pager *SecurityGroupTargetsPager) HasNext() bool {
+	return pager.hasNext
+}
+
+// GetNextWithContext returns the next page of results using the specified Context.
+func (pager *SecurityGroupTargetsPager) GetNextWithContext(ctx context.Context) (page []SecurityGroupTargetReferenceIntf, err error) {
+	if !pager.HasNext() {
+		return nil, fmt.Errorf("no more results available")
+	}
+
+	pager.options.Start = pager.pageContext.next
+
+	result, _, err := pager.client.ListSecurityGroupTargetsWithContext(ctx, pager.options)
+	if err != nil {
+		return
+	}
+
+	var next *string
+	if result.Next != nil {
+		var start *string
+		start, err = core.GetQueryParam(result.Next.Href, "start")
+		if err != nil {
+			err = fmt.Errorf("error retrieving 'start' query parameter from URL '%s': %s", *result.Next.Href, err.Error())
+			return
+		}
+		next = start
+	}
+	pager.pageContext.next = next
+	pager.hasNext = (pager.pageContext.next != nil)
+	page = result.Targets
+
+	return
+}
+
+// GetAllWithContext returns all results by invoking GetNextWithContext() repeatedly
+// until all pages of results have been retrieved.
+func (pager *SecurityGroupTargetsPager) GetAllWithContext(ctx context.Context) (allItems []SecurityGroupTargetReferenceIntf, err error) {
+	for pager.HasNext() {
+		var nextPage []SecurityGroupTargetReferenceIntf
+		nextPage, err = pager.GetNextWithContext(ctx)
+		if err != nil {
+			return
+		}
+		allItems = append(allItems, nextPage...)
+	}
+	return
+}
+
+// GetNext invokes GetNextWithContext() using context.Background() as the Context parameter.
+func (pager *SecurityGroupTargetsPager) GetNext() (page []SecurityGroupTargetReferenceIntf, err error) {
+	return pager.GetNextWithContext(context.Background())
+}
+
+// GetAll invokes GetAllWithContext() using context.Background() as the Context parameter.
+func (pager *SecurityGroupTargetsPager) GetAll() (allItems []SecurityGroupTargetReferenceIntf, err error) {
+	return pager.GetAllWithContext(context.Background())
+}
+
+// IkePoliciesPager can be used to simplify the use of the "ListIkePolicies" method.
+type IkePoliciesPager struct {
+	hasNext     bool
+	options     *ListIkePoliciesOptions
+	client      *VpcV1
+	pageContext struct {
+		next *string
+	}
+}
+
+// NewIkePoliciesPager returns a new IkePoliciesPager instance.
+func (vpc *VpcV1) NewIkePoliciesPager(options *ListIkePoliciesOptions) (pager *IkePoliciesPager, err error) {
+	if options.Start != nil && *options.Start != "" {
+		err = fmt.Errorf("the 'options.Start' field should not be set")
+		return
+	}
+
+	var optionsCopy ListIkePoliciesOptions = *options
+	pager = &IkePoliciesPager{
+		hasNext: true,
+		options: &optionsCopy,
+		client:  vpc,
+	}
+	return
+}
+
+// HasNext returns true if there are potentially more results to be retrieved.
+func (pager *IkePoliciesPager) HasNext() bool {
+	return pager.hasNext
+}
+
+// GetNextWithContext returns the next page of results using the specified Context.
+func (pager *IkePoliciesPager) GetNextWithContext(ctx context.Context) (page []IkePolicy, err error) {
+	if !pager.HasNext() {
+		return nil, fmt.Errorf("no more results available")
+	}
+
+	pager.options.Start = pager.pageContext.next
+
+	result, _, err := pager.client.ListIkePoliciesWithContext(ctx, pager.options)
+	if err != nil {
+		return
+	}
+
+	var next *string
+	if result.Next != nil {
+		var start *string
+		start, err = core.GetQueryParam(result.Next.Href, "start")
+		if err != nil {
+			err = fmt.Errorf("error retrieving 'start' query parameter from URL '%s': %s", *result.Next.Href, err.Error())
+			return
+		}
+		next = start
+	}
+	pager.pageContext.next = next
+	pager.hasNext = (pager.pageContext.next != nil)
+	page = result.IkePolicies
+
+	return
+}
+
+// GetAllWithContext returns all results by invoking GetNextWithContext() repeatedly
+// until all pages of results have been retrieved.
+func (pager *IkePoliciesPager) GetAllWithContext(ctx context.Context) (allItems []IkePolicy, err error) {
+	for pager.HasNext() {
+		var nextPage []IkePolicy
+		nextPage, err = pager.GetNextWithContext(ctx)
+		if err != nil {
+			return
+		}
+		allItems = append(allItems, nextPage...)
+	}
+	return
+}
+
+// GetNext invokes GetNextWithContext() using context.Background() as the Context parameter.
+func (pager *IkePoliciesPager) GetNext() (page []IkePolicy, err error) {
+	return pager.GetNextWithContext(context.Background())
+}
+
+// GetAll invokes GetAllWithContext() using context.Background() as the Context parameter.
+func (pager *IkePoliciesPager) GetAll() (allItems []IkePolicy, err error) {
+	return pager.GetAllWithContext(context.Background())
+}
+
+// IpsecPoliciesPager can be used to simplify the use of the "ListIpsecPolicies" method.
+type IpsecPoliciesPager struct {
+	hasNext     bool
+	options     *ListIpsecPoliciesOptions
+	client      *VpcV1
+	pageContext struct {
+		next *string
+	}
+}
+
+// NewIpsecPoliciesPager returns a new IpsecPoliciesPager instance.
+func (vpc *VpcV1) NewIpsecPoliciesPager(options *ListIpsecPoliciesOptions) (pager *IpsecPoliciesPager, err error) {
+	if options.Start != nil && *options.Start != "" {
+		err = fmt.Errorf("the 'options.Start' field should not be set")
+		return
+	}
+
+	var optionsCopy ListIpsecPoliciesOptions = *options
+	pager = &IpsecPoliciesPager{
+		hasNext: true,
+		options: &optionsCopy,
+		client:  vpc,
+	}
+	return
+}
+
+// HasNext returns true if there are potentially more results to be retrieved.
+func (pager *IpsecPoliciesPager) HasNext() bool {
+	return pager.hasNext
+}
+
+// GetNextWithContext returns the next page of results using the specified Context.
+func (pager *IpsecPoliciesPager) GetNextWithContext(ctx context.Context) (page []IPsecPolicy, err error) {
+	if !pager.HasNext() {
+		return nil, fmt.Errorf("no more results available")
+	}
+
+	pager.options.Start = pager.pageContext.next
+
+	result, _, err := pager.client.ListIpsecPoliciesWithContext(ctx, pager.options)
+	if err != nil {
+		return
+	}
+
+	var next *string
+	if result.Next != nil {
+		var start *string
+		start, err = core.GetQueryParam(result.Next.Href, "start")
+		if err != nil {
+			err = fmt.Errorf("error retrieving 'start' query parameter from URL '%s': %s", *result.Next.Href, err.Error())
+			return
+		}
+		next = start
+	}
+	pager.pageContext.next = next
+	pager.hasNext = (pager.pageContext.next != nil)
+	page = result.IpsecPolicies
+
+	return
+}
+
+// GetAllWithContext returns all results by invoking GetNextWithContext() repeatedly
+// until all pages of results have been retrieved.
+func (pager *IpsecPoliciesPager) GetAllWithContext(ctx context.Context) (allItems []IPsecPolicy, err error) {
+	for pager.HasNext() {
+		var nextPage []IPsecPolicy
+		nextPage, err = pager.GetNextWithContext(ctx)
+		if err != nil {
+			return
+		}
+		allItems = append(allItems, nextPage...)
+	}
+	return
+}
+
+// GetNext invokes GetNextWithContext() using context.Background() as the Context parameter.
+func (pager *IpsecPoliciesPager) GetNext() (page []IPsecPolicy, err error) {
+	return pager.GetNextWithContext(context.Background())
+}
+
+// GetAll invokes GetAllWithContext() using context.Background() as the Context parameter.
+func (pager *IpsecPoliciesPager) GetAll() (allItems []IPsecPolicy, err error) {
+	return pager.GetAllWithContext(context.Background())
+}
+
+// VPNGatewaysPager can be used to simplify the use of the "ListVPNGateways" method.
+type VPNGatewaysPager struct {
+	hasNext     bool
+	options     *ListVPNGatewaysOptions
+	client      *VpcV1
+	pageContext struct {
+		next *string
+	}
+}
+
+// NewVPNGatewaysPager returns a new VPNGatewaysPager instance.
+func (vpc *VpcV1) NewVPNGatewaysPager(options *ListVPNGatewaysOptions) (pager *VPNGatewaysPager, err error) {
+	if options.Start != nil && *options.Start != "" {
+		err = fmt.Errorf("the 'options.Start' field should not be set")
+		return
+	}
+
+	var optionsCopy ListVPNGatewaysOptions = *options
+	pager = &VPNGatewaysPager{
+		hasNext: true,
+		options: &optionsCopy,
+		client:  vpc,
+	}
+	return
+}
+
+// HasNext returns true if there are potentially more results to be retrieved.
+func (pager *VPNGatewaysPager) HasNext() bool {
+	return pager.hasNext
+}
+
+// GetNextWithContext returns the next page of results using the specified Context.
+func (pager *VPNGatewaysPager) GetNextWithContext(ctx context.Context) (page []VPNGatewayIntf, err error) {
+	if !pager.HasNext() {
+		return nil, fmt.Errorf("no more results available")
+	}
+
+	pager.options.Start = pager.pageContext.next
+
+	result, _, err := pager.client.ListVPNGatewaysWithContext(ctx, pager.options)
+	if err != nil {
+		return
+	}
+
+	var next *string
+	if result.Next != nil {
+		var start *string
+		start, err = core.GetQueryParam(result.Next.Href, "start")
+		if err != nil {
+			err = fmt.Errorf("error retrieving 'start' query parameter from URL '%s': %s", *result.Next.Href, err.Error())
+			return
+		}
+		next = start
+	}
+	pager.pageContext.next = next
+	pager.hasNext = (pager.pageContext.next != nil)
+	page = result.VPNGateways
+
+	return
+}
+
+// GetAllWithContext returns all results by invoking GetNextWithContext() repeatedly
+// until all pages of results have been retrieved.
+func (pager *VPNGatewaysPager) GetAllWithContext(ctx context.Context) (allItems []VPNGatewayIntf, err error) {
+	for pager.HasNext() {
+		var nextPage []VPNGatewayIntf
+		nextPage, err = pager.GetNextWithContext(ctx)
+		if err != nil {
+			return
+		}
+		allItems = append(allItems, nextPage...)
+	}
+	return
+}
+
+// GetNext invokes GetNextWithContext() using context.Background() as the Context parameter.
+func (pager *VPNGatewaysPager) GetNext() (page []VPNGatewayIntf, err error) {
+	return pager.GetNextWithContext(context.Background())
+}
+
+// GetAll invokes GetAllWithContext() using context.Background() as the Context parameter.
+func (pager *VPNGatewaysPager) GetAll() (allItems []VPNGatewayIntf, err error) {
+	return pager.GetAllWithContext(context.Background())
+}
+
+// VPNServersPager can be used to simplify the use of the "ListVPNServers" method.
+type VPNServersPager struct {
+	hasNext     bool
+	options     *ListVPNServersOptions
+	client      *VpcV1
+	pageContext struct {
+		next *string
+	}
+}
+
+// NewVPNServersPager returns a new VPNServersPager instance.
+func (vpc *VpcV1) NewVPNServersPager(options *ListVPNServersOptions) (pager *VPNServersPager, err error) {
+	if options.Start != nil && *options.Start != "" {
+		err = fmt.Errorf("the 'options.Start' field should not be set")
+		return
+	}
+
+	var optionsCopy ListVPNServersOptions = *options
+	pager = &VPNServersPager{
+		hasNext: true,
+		options: &optionsCopy,
+		client:  vpc,
+	}
+	return
+}
+
+// HasNext returns true if there are potentially more results to be retrieved.
+func (pager *VPNServersPager) HasNext() bool {
+	return pager.hasNext
+}
+
+// GetNextWithContext returns the next page of results using the specified Context.
+func (pager *VPNServersPager) GetNextWithContext(ctx context.Context) (page []VPNServer, err error) {
+	if !pager.HasNext() {
+		return nil, fmt.Errorf("no more results available")
+	}
+
+	pager.options.Start = pager.pageContext.next
+
+	result, _, err := pager.client.ListVPNServersWithContext(ctx, pager.options)
+	if err != nil {
+		return
+	}
+
+	var next *string
+	if result.Next != nil {
+		var start *string
+		start, err = core.GetQueryParam(result.Next.Href, "start")
+		if err != nil {
+			err = fmt.Errorf("error retrieving 'start' query parameter from URL '%s': %s", *result.Next.Href, err.Error())
+			return
+		}
+		next = start
+	}
+	pager.pageContext.next = next
+	pager.hasNext = (pager.pageContext.next != nil)
+	page = result.VPNServers
+
+	return
+}
+
+// GetAllWithContext returns all results by invoking GetNextWithContext() repeatedly
+// until all pages of results have been retrieved.
+func (pager *VPNServersPager) GetAllWithContext(ctx context.Context) (allItems []VPNServer, err error) {
+	for pager.HasNext() {
+		var nextPage []VPNServer
+		nextPage, err = pager.GetNextWithContext(ctx)
+		if err != nil {
+			return
+		}
+		allItems = append(allItems, nextPage...)
+	}
+	return
+}
+
+// GetNext invokes GetNextWithContext() using context.Background() as the Context parameter.
+func (pager *VPNServersPager) GetNext() (page []VPNServer, err error) {
+	return pager.GetNextWithContext(context.Background())
+}
+
+// GetAll invokes GetAllWithContext() using context.Background() as the Context parameter.
+func (pager *VPNServersPager) GetAll() (allItems []VPNServer, err error) {
+	return pager.GetAllWithContext(context.Background())
+}
+
+// VPNServerClientsPager can be used to simplify the use of the "ListVPNServerClients" method.
+type VPNServerClientsPager struct {
+	hasNext     bool
+	options     *ListVPNServerClientsOptions
+	client      *VpcV1
+	pageContext struct {
+		next *string
+	}
+}
+
+// NewVPNServerClientsPager returns a new VPNServerClientsPager instance.
+func (vpc *VpcV1) NewVPNServerClientsPager(options *ListVPNServerClientsOptions) (pager *VPNServerClientsPager, err error) {
+	if options.Start != nil && *options.Start != "" {
+		err = fmt.Errorf("the 'options.Start' field should not be set")
+		return
+	}
+
+	var optionsCopy ListVPNServerClientsOptions = *options
+	pager = &VPNServerClientsPager{
+		hasNext: true,
+		options: &optionsCopy,
+		client:  vpc,
+	}
+	return
+}
+
+// HasNext returns true if there are potentially more results to be retrieved.
+func (pager *VPNServerClientsPager) HasNext() bool {
+	return pager.hasNext
+}
+
+// GetNextWithContext returns the next page of results using the specified Context.
+func (pager *VPNServerClientsPager) GetNextWithContext(ctx context.Context) (page []VPNServerClient, err error) {
+	if !pager.HasNext() {
+		return nil, fmt.Errorf("no more results available")
+	}
+
+	pager.options.Start = pager.pageContext.next
+
+	result, _, err := pager.client.ListVPNServerClientsWithContext(ctx, pager.options)
+	if err != nil {
+		return
+	}
+
+	var next *string
+	if result.Next != nil {
+		var start *string
+		start, err = core.GetQueryParam(result.Next.Href, "start")
+		if err != nil {
+			err = fmt.Errorf("error retrieving 'start' query parameter from URL '%s': %s", *result.Next.Href, err.Error())
+			return
+		}
+		next = start
+	}
+	pager.pageContext.next = next
+	pager.hasNext = (pager.pageContext.next != nil)
+	page = result.Clients
+
+	return
+}
+
+// GetAllWithContext returns all results by invoking GetNextWithContext() repeatedly
+// until all pages of results have been retrieved.
+func (pager *VPNServerClientsPager) GetAllWithContext(ctx context.Context) (allItems []VPNServerClient, err error) {
+	for pager.HasNext() {
+		var nextPage []VPNServerClient
+		nextPage, err = pager.GetNextWithContext(ctx)
+		if err != nil {
+			return
+		}
+		allItems = append(allItems, nextPage...)
+	}
+	return
+}
+
+// GetNext invokes GetNextWithContext() using context.Background() as the Context parameter.
+func (pager *VPNServerClientsPager) GetNext() (page []VPNServerClient, err error) {
+	return pager.GetNextWithContext(context.Background())
+}
+
+// GetAll invokes GetAllWithContext() using context.Background() as the Context parameter.
+func (pager *VPNServerClientsPager) GetAll() (allItems []VPNServerClient, err error) {
+	return pager.GetAllWithContext(context.Background())
+}
+
+// VPNServerRoutesPager can be used to simplify the use of the "ListVPNServerRoutes" method.
+type VPNServerRoutesPager struct {
+	hasNext     bool
+	options     *ListVPNServerRoutesOptions
+	client      *VpcV1
+	pageContext struct {
+		next *string
+	}
+}
+
+// NewVPNServerRoutesPager returns a new VPNServerRoutesPager instance.
+func (vpc *VpcV1) NewVPNServerRoutesPager(options *ListVPNServerRoutesOptions) (pager *VPNServerRoutesPager, err error) {
+	if options.Start != nil && *options.Start != "" {
+		err = fmt.Errorf("the 'options.Start' field should not be set")
+		return
+	}
+
+	var optionsCopy ListVPNServerRoutesOptions = *options
+	pager = &VPNServerRoutesPager{
+		hasNext: true,
+		options: &optionsCopy,
+		client:  vpc,
+	}
+	return
+}
+
+// HasNext returns true if there are potentially more results to be retrieved.
+func (pager *VPNServerRoutesPager) HasNext() bool {
+	return pager.hasNext
+}
+
+// GetNextWithContext returns the next page of results using the specified Context.
+func (pager *VPNServerRoutesPager) GetNextWithContext(ctx context.Context) (page []VPNServerRoute, err error) {
+	if !pager.HasNext() {
+		return nil, fmt.Errorf("no more results available")
+	}
+
+	pager.options.Start = pager.pageContext.next
+
+	result, _, err := pager.client.ListVPNServerRoutesWithContext(ctx, pager.options)
+	if err != nil {
+		return
+	}
+
+	var next *string
+	if result.Next != nil {
+		var start *string
+		start, err = core.GetQueryParam(result.Next.Href, "start")
+		if err != nil {
+			err = fmt.Errorf("error retrieving 'start' query parameter from URL '%s': %s", *result.Next.Href, err.Error())
+			return
+		}
+		next = start
+	}
+	pager.pageContext.next = next
+	pager.hasNext = (pager.pageContext.next != nil)
+	page = result.Routes
+
+	return
+}
+
+// GetAllWithContext returns all results by invoking GetNextWithContext() repeatedly
+// until all pages of results have been retrieved.
+func (pager *VPNServerRoutesPager) GetAllWithContext(ctx context.Context) (allItems []VPNServerRoute, err error) {
+	for pager.HasNext() {
+		var nextPage []VPNServerRoute
+		nextPage, err = pager.GetNextWithContext(ctx)
+		if err != nil {
+			return
+		}
+		allItems = append(allItems, nextPage...)
+	}
+	return
+}
+
+// GetNext invokes GetNextWithContext() using context.Background() as the Context parameter.
+func (pager *VPNServerRoutesPager) GetNext() (page []VPNServerRoute, err error) {
+	return pager.GetNextWithContext(context.Background())
+}
+
+// GetAll invokes GetAllWithContext() using context.Background() as the Context parameter.
+func (pager *VPNServerRoutesPager) GetAll() (allItems []VPNServerRoute, err error) {
+	return pager.GetAllWithContext(context.Background())
+}
+
+// LoadBalancerProfilesPager can be used to simplify the use of the "ListLoadBalancerProfiles" method.
+type LoadBalancerProfilesPager struct {
+	hasNext     bool
+	options     *ListLoadBalancerProfilesOptions
+	client      *VpcV1
+	pageContext struct {
+		next *string
+	}
+}
+
+// NewLoadBalancerProfilesPager returns a new LoadBalancerProfilesPager instance.
+func (vpc *VpcV1) NewLoadBalancerProfilesPager(options *ListLoadBalancerProfilesOptions) (pager *LoadBalancerProfilesPager, err error) {
+	if options.Start != nil && *options.Start != "" {
+		err = fmt.Errorf("the 'options.Start' field should not be set")
+		return
+	}
+
+	var optionsCopy ListLoadBalancerProfilesOptions = *options
+	pager = &LoadBalancerProfilesPager{
+		hasNext: true,
+		options: &optionsCopy,
+		client:  vpc,
+	}
+	return
+}
+
+// HasNext returns true if there are potentially more results to be retrieved.
+func (pager *LoadBalancerProfilesPager) HasNext() bool {
+	return pager.hasNext
+}
+
+// GetNextWithContext returns the next page of results using the specified Context.
+func (pager *LoadBalancerProfilesPager) GetNextWithContext(ctx context.Context) (page []LoadBalancerProfile, err error) {
+	if !pager.HasNext() {
+		return nil, fmt.Errorf("no more results available")
+	}
+
+	pager.options.Start = pager.pageContext.next
+
+	result, _, err := pager.client.ListLoadBalancerProfilesWithContext(ctx, pager.options)
+	if err != nil {
+		return
+	}
+
+	var next *string
+	if result.Next != nil {
+		var start *string
+		start, err = core.GetQueryParam(result.Next.Href, "start")
+		if err != nil {
+			err = fmt.Errorf("error retrieving 'start' query parameter from URL '%s': %s", *result.Next.Href, err.Error())
+			return
+		}
+		next = start
+	}
+	pager.pageContext.next = next
+	pager.hasNext = (pager.pageContext.next != nil)
+	page = result.Profiles
+
+	return
+}
+
+// GetAllWithContext returns all results by invoking GetNextWithContext() repeatedly
+// until all pages of results have been retrieved.
+func (pager *LoadBalancerProfilesPager) GetAllWithContext(ctx context.Context) (allItems []LoadBalancerProfile, err error) {
+	for pager.HasNext() {
+		var nextPage []LoadBalancerProfile
+		nextPage, err = pager.GetNextWithContext(ctx)
+		if err != nil {
+			return
+		}
+		allItems = append(allItems, nextPage...)
+	}
+	return
+}
+
+// GetNext invokes GetNextWithContext() using context.Background() as the Context parameter.
+func (pager *LoadBalancerProfilesPager) GetNext() (page []LoadBalancerProfile, err error) {
+	return pager.GetNextWithContext(context.Background())
+}
+
+// GetAll invokes GetAllWithContext() using context.Background() as the Context parameter.
+func (pager *LoadBalancerProfilesPager) GetAll() (allItems []LoadBalancerProfile, err error) {
+	return pager.GetAllWithContext(context.Background())
+}
+
+// LoadBalancersPager can be used to simplify the use of the "ListLoadBalancers" method.
+type LoadBalancersPager struct {
+	hasNext     bool
+	options     *ListLoadBalancersOptions
+	client      *VpcV1
+	pageContext struct {
+		next *string
+	}
+}
+
+// NewLoadBalancersPager returns a new LoadBalancersPager instance.
+func (vpc *VpcV1) NewLoadBalancersPager(options *ListLoadBalancersOptions) (pager *LoadBalancersPager, err error) {
+	if options.Start != nil && *options.Start != "" {
+		err = fmt.Errorf("the 'options.Start' field should not be set")
+		return
+	}
+
+	var optionsCopy ListLoadBalancersOptions = *options
+	pager = &LoadBalancersPager{
+		hasNext: true,
+		options: &optionsCopy,
+		client:  vpc,
+	}
+	return
+}
+
+// HasNext returns true if there are potentially more results to be retrieved.
+func (pager *LoadBalancersPager) HasNext() bool {
+	return pager.hasNext
+}
+
+// GetNextWithContext returns the next page of results using the specified Context.
+func (pager *LoadBalancersPager) GetNextWithContext(ctx context.Context) (page []LoadBalancer, err error) {
+	if !pager.HasNext() {
+		return nil, fmt.Errorf("no more results available")
+	}
+
+	pager.options.Start = pager.pageContext.next
+
+	result, _, err := pager.client.ListLoadBalancersWithContext(ctx, pager.options)
+	if err != nil {
+		return
+	}
+
+	var next *string
+	if result.Next != nil {
+		var start *string
+		start, err = core.GetQueryParam(result.Next.Href, "start")
+		if err != nil {
+			err = fmt.Errorf("error retrieving 'start' query parameter from URL '%s': %s", *result.Next.Href, err.Error())
+			return
+		}
+		next = start
+	}
+	pager.pageContext.next = next
+	pager.hasNext = (pager.pageContext.next != nil)
+	page = result.LoadBalancers
+
+	return
+}
+
+// GetAllWithContext returns all results by invoking GetNextWithContext() repeatedly
+// until all pages of results have been retrieved.
+func (pager *LoadBalancersPager) GetAllWithContext(ctx context.Context) (allItems []LoadBalancer, err error) {
+	for pager.HasNext() {
+		var nextPage []LoadBalancer
+		nextPage, err = pager.GetNextWithContext(ctx)
+		if err != nil {
+			return
+		}
+		allItems = append(allItems, nextPage...)
+	}
+	return
+}
+
+// GetNext invokes GetNextWithContext() using context.Background() as the Context parameter.
+func (pager *LoadBalancersPager) GetNext() (page []LoadBalancer, err error) {
+	return pager.GetNextWithContext(context.Background())
+}
+
+// GetAll invokes GetAllWithContext() using context.Background() as the Context parameter.
+func (pager *LoadBalancersPager) GetAll() (allItems []LoadBalancer, err error) {
+	return pager.GetAllWithContext(context.Background())
+}
+
+// EndpointGatewaysPager can be used to simplify the use of the "ListEndpointGateways" method.
+type EndpointGatewaysPager struct {
+	hasNext     bool
+	options     *ListEndpointGatewaysOptions
+	client      *VpcV1
+	pageContext struct {
+		next *string
+	}
+}
+
+// NewEndpointGatewaysPager returns a new EndpointGatewaysPager instance.
+func (vpc *VpcV1) NewEndpointGatewaysPager(options *ListEndpointGatewaysOptions) (pager *EndpointGatewaysPager, err error) {
+	if options.Start != nil && *options.Start != "" {
+		err = fmt.Errorf("the 'options.Start' field should not be set")
+		return
+	}
+
+	var optionsCopy ListEndpointGatewaysOptions = *options
+	pager = &EndpointGatewaysPager{
+		hasNext: true,
+		options: &optionsCopy,
+		client:  vpc,
+	}
+	return
+}
+
+// HasNext returns true if there are potentially more results to be retrieved.
+func (pager *EndpointGatewaysPager) HasNext() bool {
+	return pager.hasNext
+}
+
+// GetNextWithContext returns the next page of results using the specified Context.
+func (pager *EndpointGatewaysPager) GetNextWithContext(ctx context.Context) (page []EndpointGateway, err error) {
+	if !pager.HasNext() {
+		return nil, fmt.Errorf("no more results available")
+	}
+
+	pager.options.Start = pager.pageContext.next
+
+	result, _, err := pager.client.ListEndpointGatewaysWithContext(ctx, pager.options)
+	if err != nil {
+		return
+	}
+
+	var next *string
+	if result.Next != nil {
+		var start *string
+		start, err = core.GetQueryParam(result.Next.Href, "start")
+		if err != nil {
+			err = fmt.Errorf("error retrieving 'start' query parameter from URL '%s': %s", *result.Next.Href, err.Error())
+			return
+		}
+		next = start
+	}
+	pager.pageContext.next = next
+	pager.hasNext = (pager.pageContext.next != nil)
+	page = result.EndpointGateways
+
+	return
+}
+
+// GetAllWithContext returns all results by invoking GetNextWithContext() repeatedly
+// until all pages of results have been retrieved.
+func (pager *EndpointGatewaysPager) GetAllWithContext(ctx context.Context) (allItems []EndpointGateway, err error) {
+	for pager.HasNext() {
+		var nextPage []EndpointGateway
+		nextPage, err = pager.GetNextWithContext(ctx)
+		if err != nil {
+			return
+		}
+		allItems = append(allItems, nextPage...)
+	}
+	return
+}
+
+// GetNext invokes GetNextWithContext() using context.Background() as the Context parameter.
+func (pager *EndpointGatewaysPager) GetNext() (page []EndpointGateway, err error) {
+	return pager.GetNextWithContext(context.Background())
+}
+
+// GetAll invokes GetAllWithContext() using context.Background() as the Context parameter.
+func (pager *EndpointGatewaysPager) GetAll() (allItems []EndpointGateway, err error) {
+	return pager.GetAllWithContext(context.Background())
+}
+
+// EndpointGatewayIpsPager can be used to simplify the use of the "ListEndpointGatewayIps" method.
+type EndpointGatewayIpsPager struct {
+	hasNext     bool
+	options     *ListEndpointGatewayIpsOptions
+	client      *VpcV1
+	pageContext struct {
+		next *string
+	}
+}
+
+// NewEndpointGatewayIpsPager returns a new EndpointGatewayIpsPager instance.
+func (vpc *VpcV1) NewEndpointGatewayIpsPager(options *ListEndpointGatewayIpsOptions) (pager *EndpointGatewayIpsPager, err error) {
+	if options.Start != nil && *options.Start != "" {
+		err = fmt.Errorf("the 'options.Start' field should not be set")
+		return
+	}
+
+	var optionsCopy ListEndpointGatewayIpsOptions = *options
+	pager = &EndpointGatewayIpsPager{
+		hasNext: true,
+		options: &optionsCopy,
+		client:  vpc,
+	}
+	return
+}
+
+// HasNext returns true if there are potentially more results to be retrieved.
+func (pager *EndpointGatewayIpsPager) HasNext() bool {
+	return pager.hasNext
+}
+
+// GetNextWithContext returns the next page of results using the specified Context.
+func (pager *EndpointGatewayIpsPager) GetNextWithContext(ctx context.Context) (page []ReservedIP, err error) {
+	if !pager.HasNext() {
+		return nil, fmt.Errorf("no more results available")
+	}
+
+	pager.options.Start = pager.pageContext.next
+
+	result, _, err := pager.client.ListEndpointGatewayIpsWithContext(ctx, pager.options)
+	if err != nil {
+		return
+	}
+
+	var next *string
+	if result.Next != nil {
+		var start *string
+		start, err = core.GetQueryParam(result.Next.Href, "start")
+		if err != nil {
+			err = fmt.Errorf("error retrieving 'start' query parameter from URL '%s': %s", *result.Next.Href, err.Error())
+			return
+		}
+		next = start
+	}
+	pager.pageContext.next = next
+	pager.hasNext = (pager.pageContext.next != nil)
+	page = result.Ips
+
+	return
+}
+
+// GetAllWithContext returns all results by invoking GetNextWithContext() repeatedly
+// until all pages of results have been retrieved.
+func (pager *EndpointGatewayIpsPager) GetAllWithContext(ctx context.Context) (allItems []ReservedIP, err error) {
+	for pager.HasNext() {
+		var nextPage []ReservedIP
+		nextPage, err = pager.GetNextWithContext(ctx)
+		if err != nil {
+			return
+		}
+		allItems = append(allItems, nextPage...)
+	}
+	return
+}
+
+// GetNext invokes GetNextWithContext() using context.Background() as the Context parameter.
+func (pager *EndpointGatewayIpsPager) GetNext() (page []ReservedIP, err error) {
+	return pager.GetNextWithContext(context.Background())
+}
+
+// GetAll invokes GetAllWithContext() using context.Background() as the Context parameter.
+func (pager *EndpointGatewayIpsPager) GetAll() (allItems []ReservedIP, err error) {
+	return pager.GetAllWithContext(context.Background())
+}
+
+// FlowLogCollectorsPager can be used to simplify the use of the "ListFlowLogCollectors" method.
+type FlowLogCollectorsPager struct {
+	hasNext     bool
+	options     *ListFlowLogCollectorsOptions
+	client      *VpcV1
+	pageContext struct {
+		next *string
+	}
+}
+
+// NewFlowLogCollectorsPager returns a new FlowLogCollectorsPager instance.
+func (vpc *VpcV1) NewFlowLogCollectorsPager(options *ListFlowLogCollectorsOptions) (pager *FlowLogCollectorsPager, err error) {
+	if options.Start != nil && *options.Start != "" {
+		err = fmt.Errorf("the 'options.Start' field should not be set")
+		return
+	}
+
+	var optionsCopy ListFlowLogCollectorsOptions = *options
+	pager = &FlowLogCollectorsPager{
+		hasNext: true,
+		options: &optionsCopy,
+		client:  vpc,
+	}
+	return
+}
+
+// HasNext returns true if there are potentially more results to be retrieved.
+func (pager *FlowLogCollectorsPager) HasNext() bool {
+	return pager.hasNext
+}
+
+// GetNextWithContext returns the next page of results using the specified Context.
+func (pager *FlowLogCollectorsPager) GetNextWithContext(ctx context.Context) (page []FlowLogCollector, err error) {
+	if !pager.HasNext() {
+		return nil, fmt.Errorf("no more results available")
+	}
+
+	pager.options.Start = pager.pageContext.next
+
+	result, _, err := pager.client.ListFlowLogCollectorsWithContext(ctx, pager.options)
+	if err != nil {
+		return
+	}
+
+	var next *string
+	if result.Next != nil {
+		var start *string
+		start, err = core.GetQueryParam(result.Next.Href, "start")
+		if err != nil {
+			err = fmt.Errorf("error retrieving 'start' query parameter from URL '%s': %s", *result.Next.Href, err.Error())
+			return
+		}
+		next = start
+	}
+	pager.pageContext.next = next
+	pager.hasNext = (pager.pageContext.next != nil)
+	page = result.FlowLogCollectors
+
+	return
+}
+
+// GetAllWithContext returns all results by invoking GetNextWithContext() repeatedly
+// until all pages of results have been retrieved.
+func (pager *FlowLogCollectorsPager) GetAllWithContext(ctx context.Context) (allItems []FlowLogCollector, err error) {
+	for pager.HasNext() {
+		var nextPage []FlowLogCollector
+		nextPage, err = pager.GetNextWithContext(ctx)
+		if err != nil {
+			return
+		}
+		allItems = append(allItems, nextPage...)
+	}
+	return
+}
+
+// GetNext invokes GetNextWithContext() using context.Background() as the Context parameter.
+func (pager *FlowLogCollectorsPager) GetNext() (page []FlowLogCollector, err error) {
+	return pager.GetNextWithContext(context.Background())
+}
+
+// GetAll invokes GetAllWithContext() using context.Background() as the Context parameter.
+func (pager *FlowLogCollectorsPager) GetAll() (allItems []FlowLogCollector, err error) {
+	return pager.GetAllWithContext(context.Background())
 }
