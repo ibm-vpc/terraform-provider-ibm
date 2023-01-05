@@ -7,6 +7,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"strings"
 
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/conns"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
@@ -105,6 +106,7 @@ func ResourceIBMSchematicsWorkspace() *schema.Resource {
 			"location": {
 				Type:        schema.TypeString,
 				Optional:    true,
+				Computed:    true,
 				Description: "The location where you want to create your Schematics workspace and run the Schematics jobs. The location that you enter must match the API endpoint that you use. For example, if you use the Frankfurt API endpoint, you must specify `eu-de` as your location. If you use an API endpoint for a geography and you do not specify a location, Schematics determines the location based on availability.",
 			},
 			"name": {
@@ -199,7 +201,7 @@ func ResourceIBMSchematicsWorkspace() *schema.Resource {
 			"template_init_state_file": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: "The content of an existing Terraform statefile that you want to import in to your workspace. To get the content of a Terraform statefile for a specific Terraform template in an existing workspace, run `ibmcloud terraform state pull --id <workspace_id> --template <template_id>`.",
+				Description: "The content of an existing Terraform statefile that you want to import in to your workspace. To get the content of a Terraform statefile for a specific Terraform template in an existing workspace, run `ibmcloud schematics state pull --id <workspace_id> --template <template_id>`.",
 			},
 			"template_type": {
 				Type:         schema.TypeString,
@@ -470,7 +472,7 @@ func ResourceIBMSchematicsWorkspaceValidator() *validate.ResourceValidator {
 			Identifier:                 schematicsWorkspaceTemplateType,
 			ValidateFunctionIdentifier: validate.ValidateRegexp,
 			Type:                       validate.TypeString,
-			Regexp:                     `^terraform_v(?:0\.11|0\.12|0\.13|0\.14|0\.15|1\.0)(?:\.\d+)?$`,
+			Regexp:                     `^terraform_v(?:0\.11|0\.12|0\.13|0\.14|0\.15|1\.0|1\.1)(?:\.\d+)?$`,
 			Default:                    "[]",
 			Optional:                   true})
 
@@ -483,7 +485,13 @@ func resourceIBMSchematicsWorkspaceCreate(context context.Context, d *schema.Res
 	if err != nil {
 		return diag.FromErr(err)
 	}
-
+	if r, ok := d.GetOk("location"); ok {
+		region := r.(string)
+		schematicsURL, updatedURL, _ := SchematicsEndpointURL(region, meta)
+		if updatedURL {
+			schematicsClient.Service.Options.URL = schematicsURL
+		}
+	}
 	createWorkspaceOptions := &schematicsv1.CreateWorkspaceOptions{}
 
 	if _, ok := d.GetOk("applied_shareddata_ids"); ok {
@@ -749,9 +757,9 @@ func resourceIBMSchematicsWorkspaceMapToTemplateSourceDataRequest(templateSource
 		templateSourceDataRequest.Values = core.StringPtr(templateSourceDataRequestMap["values"].(string))
 	}
 	if templateSourceDataRequestMap["values_metadata"] != nil {
-		valuesMetadata := []interface{}{}
+		valuesMetadata := make([]schematicsv1.VariableMetadata, 0)
 		for _, valuesMetadataItem := range templateSourceDataRequestMap["values_metadata"].([]interface{}) {
-			valuesMetadata = append(valuesMetadata, valuesMetadataItem.(interface{}))
+			valuesMetadata = append(valuesMetadata, valuesMetadataItem.(schematicsv1.VariableMetadata))
 		}
 		templateSourceDataRequest.ValuesMetadata = valuesMetadata
 	}
@@ -899,7 +907,12 @@ func resourceIBMSchematicsWorkspaceRead(context context.Context, d *schema.Resou
 	if err != nil {
 		return diag.FromErr(err)
 	}
-
+	actionIDSplit := strings.Split(d.Id(), ".")
+	region := actionIDSplit[0]
+	schematicsURL, updatedURL, _ := SchematicsEndpointURL(region, meta)
+	if updatedURL {
+		schematicsClient.Service.Options.URL = schematicsURL
+	}
 	getWorkspaceOptions := &schematicsv1.GetWorkspaceOptions{}
 
 	getWorkspaceOptions.SetWID(d.Id())
@@ -913,7 +926,6 @@ func resourceIBMSchematicsWorkspaceRead(context context.Context, d *schema.Resou
 		log.Printf("[DEBUG] GetWorkspaceWithContext failed %s\n%s", err, response)
 		return diag.FromErr(fmt.Errorf("GetWorkspaceWithContext failed %s\n%s", err, response))
 	}
-
 	if workspaceResponse.AppliedShareddataIds != nil {
 		if err = d.Set("applied_shareddata_ids", workspaceResponse.AppliedShareddataIds); err != nil {
 			return diag.FromErr(fmt.Errorf("[ERROR] Error setting applied_shareddata_ids: %s", err))
@@ -1435,7 +1447,12 @@ func resourceIBMSchematicsWorkspaceUpdate(context context.Context, d *schema.Res
 	if err != nil {
 		return diag.FromErr(err)
 	}
-
+	actionIDSplit := strings.Split(d.Id(), ".")
+	region := actionIDSplit[0]
+	schematicsURL, updatedURL, _ := SchematicsEndpointURL(region, meta)
+	if updatedURL {
+		schematicsClient.Service.Options.URL = schematicsURL
+	}
 	updateWorkspaceOptions := &schematicsv1.UpdateWorkspaceOptions{}
 	replaceWorkspaceOptions := &schematicsv1.ReplaceWorkspaceOptions{}
 
@@ -1674,7 +1691,12 @@ func resourceIBMSchematicsWorkspaceDelete(context context.Context, d *schema.Res
 	if err != nil {
 		return diag.FromErr(err)
 	}
-
+	actionIDSplit := strings.Split(d.Id(), ".")
+	region := actionIDSplit[0]
+	schematicsURL, updatedURL, _ := SchematicsEndpointURL(region, meta)
+	if updatedURL {
+		schematicsClient.Service.Options.URL = schematicsURL
+	}
 	deleteWorkspaceOptions := &schematicsv1.DeleteWorkspaceOptions{}
 
 	deleteWorkspaceOptions.SetWID(d.Id())

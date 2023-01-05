@@ -167,8 +167,34 @@ func DataSourceIBMISInstanceTemplate() *schema.Resource {
 										Computed:    true,
 										Description: "The CRN of the [Key Protect Root Key](https://cloud.ibm.com/docs/key-protect?topic=key-protect-getting-started-tutorial) or [Hyper Protect Crypto Service Root Key](https://cloud.ibm.com/docs/hs-crypto?topic=hs-crypto-get-started) for this resource.",
 									},
+									isInstanceTemplateVolAttTags: {
+										Type:        schema.TypeSet,
+										Computed:    true,
+										Elem:        &schema.Schema{Type: schema.TypeString},
+										Set:         flex.ResourceIBMVPCHash,
+										Description: "The user tags associated with this volume.",
+									},
 								},
 							},
+						},
+					},
+				},
+			},
+			isInstanceTemplateCatalogOffering: {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "The catalog offering or offering version to use when provisioning this virtual server instance template. If an offering is specified, the latest version of that offering will be used. The specified offering or offering version may be in a different account in the same enterprise, subject to IAM policies.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						isInstanceTemplateCatalogOfferingOfferingCrn: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "Identifies a catalog offering by a unique CRN property",
+						},
+						isInstanceTemplateCatalogOfferingVersionCrn: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "Identifies a version of a catalog offering by a unique CRN property",
 						},
 					},
 				},
@@ -307,6 +333,13 @@ func DataSourceIBMISInstanceTemplate() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						isInstanceTemplateBootVolumeTags: {
+							Type:        schema.TypeSet,
+							Computed:    true,
+							Elem:        &schema.Schema{Type: schema.TypeString},
+							Set:         flex.ResourceIBMVPCHash,
+							Description: "The user tags associated with this volume.",
+						},
 					},
 				},
 			},
@@ -381,6 +414,24 @@ func dataSourceIBMISInstanceTemplateRead(context context.Context, d *schema.Reso
 					}
 				}
 			}
+		}
+
+		// catalog offering if any
+		if instance.CatalogOffering != nil {
+			catOfferingList := make([]map[string]interface{}, 0)
+			insTempCatalogOffering := instance.CatalogOffering.(*vpcv1.InstanceCatalogOfferingPrototype)
+
+			currentOffering := map[string]interface{}{}
+			if insTempCatalogOffering.Offering != nil {
+				offering := insTempCatalogOffering.Offering.(*vpcv1.CatalogOfferingIdentity)
+				currentOffering[isInstanceTemplateCatalogOfferingOfferingCrn] = *offering.CRN
+			}
+			if insTempCatalogOffering.Version != nil {
+				version := insTempCatalogOffering.Version.(*vpcv1.CatalogOfferingVersionIdentity)
+				currentOffering[isInstanceTemplateCatalogOfferingVersionCrn] = *version.CRN
+			}
+			catOfferingList = append(catOfferingList, currentOffering)
+			d.Set(isInstanceTemplateCatalogOffering, catOfferingList)
 		}
 
 		if instance.AvailabilityPolicy != nil && instance.AvailabilityPolicy.HostFailure != nil {
@@ -551,7 +602,7 @@ func dataSourceIBMISInstanceTemplateRead(context context.Context, d *schema.Reso
 				volumeAttach[isInstanceTemplateVolAttName] = *volume.Name
 				volumeAttach[isInstanceTemplateDeleteVolume] = *volume.DeleteVolumeOnInstanceDelete
 				volumeIntf := volume.Volume
-				volumeInst := volumeIntf.(*vpcv1.VolumeAttachmentVolumePrototypeInstanceContext)
+				volumeInst := volumeIntf.(*vpcv1.VolumeAttachmentPrototypeVolume)
 				newVolumeArr := []map[string]interface{}{}
 				newVolume := map[string]interface{}{}
 
@@ -573,6 +624,9 @@ func dataSourceIBMISInstanceTemplateRead(context context.Context, d *schema.Reso
 				if volumeInst.EncryptionKey != nil {
 					encryptionKey := volumeInst.EncryptionKey.(*vpcv1.EncryptionKeyIdentity)
 					newVolume[isInstanceTemplateVolAttVolEncryptionKey] = *encryptionKey.CRN
+				}
+				if volumeInst.UserTags != nil {
+					newVolume[isInstanceTemplateVolAttTags] = instance.BootVolumeAttachment.Volume.UserTags
 				}
 				newVolumeArr = append(newVolumeArr, newVolume)
 				volumeAttach[isInstanceTemplateVolAttVolPrototype] = newVolumeArr
@@ -596,6 +650,9 @@ func dataSourceIBMISInstanceTemplateRead(context context.Context, d *schema.Reso
 					volProfIntf := instance.BootVolumeAttachment.Volume.Profile
 					volProfInst := volProfIntf.(*vpcv1.VolumeProfileIdentity)
 					bootVol[isInstanceTemplateBootProfile] = volProfInst.Name
+				}
+				if instance.BootVolumeAttachment.Volume.UserTags != nil {
+					bootVol[isInstanceTemplateBootVolumeTags] = instance.BootVolumeAttachment.Volume.UserTags
 				}
 			}
 			bootVolList = append(bootVolList, bootVol)
@@ -623,6 +680,24 @@ func dataSourceIBMISInstanceTemplateRead(context context.Context, d *schema.Reso
 				d.Set(isInstanceTemplateCrn, instance.CRN)
 				d.Set(isInstanceTemplateName, instance.Name)
 				d.Set(isInstanceTemplateUserData, instance.UserData)
+
+				// catalog offering if any
+				if instance.CatalogOffering != nil {
+					catOfferingList := make([]map[string]interface{}, 0)
+					insTempCatalogOffering := instance.CatalogOffering.(*vpcv1.InstanceCatalogOfferingPrototype)
+
+					currentOffering := map[string]interface{}{}
+					if insTempCatalogOffering.Offering != nil {
+						offering := insTempCatalogOffering.Offering.(*vpcv1.CatalogOfferingIdentity)
+						currentOffering[isInstanceTemplateCatalogOfferingOfferingCrn] = *offering.CRN
+					}
+					if insTempCatalogOffering.Version != nil {
+						version := insTempCatalogOffering.Version.(*vpcv1.CatalogOfferingVersionIdentity)
+						currentOffering[isInstanceTemplateCatalogOfferingVersionCrn] = *version.CRN
+					}
+					catOfferingList = append(catOfferingList, currentOffering)
+					d.Set(isInstanceTemplateCatalogOffering, catOfferingList)
+				}
 
 				if instance.DefaultTrustedProfile != nil {
 					if instance.DefaultTrustedProfile.AutoLink != nil {
@@ -797,7 +872,7 @@ func dataSourceIBMISInstanceTemplateRead(context context.Context, d *schema.Reso
 						volumeAttach[isInstanceTemplateVolAttName] = *volume.Name
 						volumeAttach[isInstanceTemplateDeleteVolume] = *volume.DeleteVolumeOnInstanceDelete
 						volumeIntf := volume.Volume
-						volumeInst := volumeIntf.(*vpcv1.VolumeAttachmentVolumePrototypeInstanceContext)
+						volumeInst := volumeIntf.(*vpcv1.VolumeAttachmentPrototypeVolume)
 						newVolumeArr := []map[string]interface{}{}
 						newVolume := map[string]interface{}{}
 
@@ -819,6 +894,9 @@ func dataSourceIBMISInstanceTemplateRead(context context.Context, d *schema.Reso
 						if volumeInst.EncryptionKey != nil {
 							encryptionKey := volumeInst.EncryptionKey.(*vpcv1.EncryptionKeyIdentity)
 							newVolume[isInstanceTemplateVolAttVolEncryptionKey] = *encryptionKey.CRN
+						}
+						if volumeInst.UserTags != nil {
+							newVolume[isInstanceTemplateVolAttTags] = volumeInst.UserTags
 						}
 						newVolumeArr = append(newVolumeArr, newVolume)
 						volumeAttach[isInstanceTemplateVolAttVolPrototype] = newVolumeArr
@@ -842,6 +920,9 @@ func dataSourceIBMISInstanceTemplateRead(context context.Context, d *schema.Reso
 							volProfIntf := instance.BootVolumeAttachment.Volume.Profile
 							volProfInst := volProfIntf.(*vpcv1.VolumeProfileIdentity)
 							bootVol[isInstanceTemplateBootProfile] = volProfInst.Name
+						}
+						if instance.BootVolumeAttachment.Volume.UserTags != nil {
+							bootVol[isInstanceTemplateBootVolumeTags] = instance.BootVolumeAttachment.Volume.UserTags
 						}
 					}
 					bootVolList = append(bootVolList, bootVol)

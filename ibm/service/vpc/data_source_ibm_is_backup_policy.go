@@ -168,7 +168,7 @@ func dataSourceIBMIsBackupPolicyRead(context context.Context, d *schema.Resource
 		backupPolicyInfo, response, err := sess.GetBackupPolicyWithContext(context, getBackupPolicyOptions)
 		if err != nil {
 			log.Printf("[DEBUG] GetBackupPolicyWithContext failed %s\n%s", err, response)
-			return diag.FromErr(fmt.Errorf("GetBackupPolicyWithContext failed %s\n%s", err, response))
+			return diag.FromErr(fmt.Errorf("[ERROR] GetBackupPolicyWithContext failed %s\n%s", err, response))
 		}
 		backupPolicy = backupPolicyInfo
 
@@ -185,7 +185,7 @@ func dataSourceIBMIsBackupPolicyRead(context context.Context, d *schema.Resource
 			backupPolicyCollection, response, err := sess.ListBackupPoliciesWithContext(context, listBackupPoliciesOptions)
 			if err != nil {
 				log.Printf("[DEBUG] ListBackupPoliciesWithContext failed %s\n%s", err, response)
-				return diag.FromErr(fmt.Errorf("ListBackupPoliciesWithContext failed %s\n%s", err, response))
+				return diag.FromErr(fmt.Errorf("[ERROR] ListBackupPoliciesWithContext failed %s\n%s", err, response))
 			}
 			if backupPolicyCollection != nil && *backupPolicyCollection.TotalCount == int64(0) {
 				break
@@ -203,37 +203,37 @@ func dataSourceIBMIsBackupPolicyRead(context context.Context, d *schema.Resource
 			}
 		}
 		if backupPolicy == nil {
-			return diag.FromErr(fmt.Errorf("No BackupPolicy found with name (%s)", name))
+			return diag.FromErr(fmt.Errorf("[ERROR] No backup policy found with name (%s)", name))
 		}
 	}
 
 	d.SetId(*backupPolicy.ID)
 
 	if err = d.Set("created_at", backupPolicy.CreatedAt.String()); err != nil {
-		return diag.FromErr(fmt.Errorf("Error setting created_at: %s", err))
+		return diag.FromErr(fmt.Errorf("[ERROR] Error setting created_at: %s", err))
 	}
 	if err = d.Set("crn", backupPolicy.CRN); err != nil {
-		return diag.FromErr(fmt.Errorf("Error setting crn: %s", err))
+		return diag.FromErr(fmt.Errorf("[ERROR] Error setting crn: %s", err))
 	}
 	if err = d.Set("href", backupPolicy.Href); err != nil {
-		return diag.FromErr(fmt.Errorf("Error setting href: %s", err))
+		return diag.FromErr(fmt.Errorf("[ERROR] Error setting href: %s", err))
 	}
 	if backupPolicy.LastJobCompletedAt != nil {
 		if err = d.Set("last_job_completed_at", backupPolicy.LastJobCompletedAt.String()); err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting last_job_completed_at: %s", err))
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting last_job_completed_at: %s", err))
 		}
 	}
 	if err = d.Set("lifecycle_state", backupPolicy.LifecycleState); err != nil {
-		return diag.FromErr(fmt.Errorf("Error setting lifecycle_state: %s", err))
+		return diag.FromErr(fmt.Errorf("[ERROR] Error setting lifecycle_state: %s", err))
 	}
 	if err = d.Set("name", backupPolicy.Name); err != nil {
-		return diag.FromErr(fmt.Errorf("Error setting name: %s", err))
+		return diag.FromErr(fmt.Errorf("[ERROR] Error setting name: %s", err))
 	}
 
 	if backupPolicy.Plans != nil {
 		err = d.Set("plans", dataSourceBackupPolicyFlattenPlans(backupPolicy.Plans))
 		if err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting plans %s", err))
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting plans %s", err))
 		}
 	}
 
@@ -256,11 +256,11 @@ func dataSourceIBMIsBackupPolicyRead(context context.Context, d *schema.Resource
 	if backupPolicy.ResourceGroup != nil {
 		err = d.Set("resource_group", dataSourceBackupPolicyFlattenResourceGroup(*backupPolicy.ResourceGroup))
 		if err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting resource_group %s", err))
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting resource_group %s", err))
 		}
 	}
 	if err = d.Set("resource_type", backupPolicy.ResourceType); err != nil {
-		return diag.FromErr(fmt.Errorf("Error setting resource_type: %s", err))
+		return diag.FromErr(fmt.Errorf("[ERROR] Error setting resource_type: %s", err))
 	}
 
 	return nil

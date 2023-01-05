@@ -47,22 +47,12 @@ func ResourceIBMIsBackupPolicy() *schema.Resource {
 				ValidateFunc: validate.InvokeValidator("ibm_is_backup_policy", "name"),
 				Description:  "The user-defined name for this backup policy. Names must be unique within the region this backup policy resides in. If unspecified, the name will be a hyphenated list of randomly-selected words.",
 			},
-			"resource_group": &schema.Schema{
-				Type:        schema.TypeList,
-				MaxItems:    1,
-				ForceNew:    true,
+			"resource_group": {
+				Type:        schema.TypeString,
 				Optional:    true,
+				ForceNew:    true,
 				Computed:    true,
-				Description: "The resource group to use. If unspecified, the account's [default resourcegroup](https://cloud.ibm.com/apidocs/resource-manager#introduction) is used.",
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"id": &schema.Schema{
-							Type:        schema.TypeString,
-							Optional:    true,
-							Description: "The unique identifier for this resource group.",
-						},
-					},
-				},
+				Description: "The unique identifier of the resource group to use. If unspecified, the account's [default resourcegroup](https://cloud.ibm.com/apidocs/resource-manager#introduction) is used.",
 			},
 			"created_at": &schema.Schema{
 				Type:        schema.TypeString,
@@ -103,7 +93,7 @@ func ResourceIBMIsBackupPolicy() *schema.Resource {
 }
 
 func ResourceIBMIsBackupPolicyValidator() *validate.ResourceValidator {
-	validateSchema := make([]validate.ValidateSchema, 1)
+	validateSchema := make([]validate.ValidateSchema, 0)
 	validateSchema = append(validateSchema,
 		validate.ValidateSchema{
 			Identifier:                 "name",
@@ -158,30 +148,23 @@ func resourceIBMIsBackupPolicyCreate(context context.Context, d *schema.Resource
 	if _, ok := d.GetOk("name"); ok {
 		createBackupPolicyOptions.SetName(d.Get("name").(string))
 	}
-	if _, ok := d.GetOk("resource_group"); ok {
-		resourceGroup := resourceIBMIsBackupPolicyMapToResourceGroupIdentity(d.Get("resource_group.0").(map[string]interface{}))
-		createBackupPolicyOptions.ResourceGroup = resourceGroup
+	if resGroup, ok := d.GetOk("resource_group"); ok {
+		resourceGroupStr := resGroup.(string)
+		resourceGroup := vpcv1.ResourceGroupIdentity{
+			ID: &resourceGroupStr,
+		}
+		createBackupPolicyOptions.SetResourceGroup(&resourceGroup)
 	}
 
 	backupPolicy, response, err := vpcClient.CreateBackupPolicyWithContext(context, createBackupPolicyOptions)
 	if err != nil {
 		log.Printf("[DEBUG] CreateBackupPolicyWithContext failed %s\n%s", err, response)
-		return diag.FromErr(fmt.Errorf("CreateBackupPolicyWithContext failed %s\n%s", err, response))
+		return diag.FromErr(fmt.Errorf("[ERROR] CreateBackupPolicyWithContext failed %s\n%s", err, response))
 	}
 
 	d.SetId(*backupPolicy.ID)
 
 	return resourceIBMIsBackupPolicyRead(context, d, meta)
-}
-
-func resourceIBMIsBackupPolicyMapToResourceGroupIdentity(resourceGroupIdentityMap map[string]interface{}) vpcv1.ResourceGroupIdentityIntf {
-	resourceGroupIdentity := vpcv1.ResourceGroupIdentity{}
-
-	if resourceGroupIdentityMap["id"] != nil {
-		resourceGroupIdentity.ID = core.StringPtr(resourceGroupIdentityMap["id"].(string))
-	}
-
-	return &resourceGroupIdentity
 }
 
 func resourceIBMIsBackupPolicyRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -201,76 +184,71 @@ func resourceIBMIsBackupPolicyRead(context context.Context, d *schema.ResourceDa
 			return nil
 		}
 		log.Printf("[DEBUG] GetBackupPolicyWithContext failed %s\n%s", err, response)
-		return diag.FromErr(fmt.Errorf("GetBackupPolicyWithContext failed %s\n%s", err, response))
+		return diag.FromErr(fmt.Errorf("[ERROR] GetBackupPolicyWithContext failed %s\n%s", err, response))
 	}
 
 	if backupPolicy.MatchResourceTypes != nil {
 		if err = d.Set("match_resource_types", backupPolicy.MatchResourceTypes); err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting match_resource_types: %s", err))
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting match_resource_types: %s", err))
 		}
 	}
 	if backupPolicy.MatchUserTags != nil {
 		if err = d.Set("match_user_tags", backupPolicy.MatchUserTags); err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting match_user_tags: %s", err))
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting match_user_tags: %s", err))
 		}
 	}
 	if backupPolicy.Name != nil {
 		if err = d.Set("name", backupPolicy.Name); err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting name: %s", err))
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting name: %s", err))
 		}
 	}
 	if backupPolicy.ResourceGroup != nil {
-		resourceGroupMap := resourceIBMIsBackupPolicyResourceGroupIdentityToMap(*backupPolicy.ResourceGroup)
-		if err = d.Set("resource_group", []map[string]interface{}{resourceGroupMap}); err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting resource_group: %s", err))
+		resourceGroupID := *backupPolicy.ResourceGroup.ID
+		if err = d.Set("resource_group", resourceGroupID); err != nil {
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting resource_group: %s", err))
 		}
 	}
 	if backupPolicy.CreatedAt != nil {
 		if err = d.Set("created_at", flex.DateTimeToString(backupPolicy.CreatedAt)); err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting created_at: %s", err))
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting created_at: %s", err))
 		}
 	}
 
 	if backupPolicy.CRN != nil {
 		if err = d.Set("crn", backupPolicy.CRN); err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting crn: %s", err))
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting crn: %s", err))
 		}
 	}
 
 	if backupPolicy.Href != nil {
 		if err = d.Set("href", backupPolicy.Href); err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting href: %s", err))
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting href: %s", err))
 		}
 	}
 
 	if backupPolicy.LastJobCompletedAt != nil {
 		if err = d.Set("last_job_completed_at", flex.DateTimeToString(backupPolicy.LastJobCompletedAt)); err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting last_job_completed_at: %s", err))
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting last_job_completed_at: %s", err))
 		}
 	}
 
 	if backupPolicy.LifecycleState != nil {
 		if err = d.Set("lifecycle_state", backupPolicy.LifecycleState); err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting lifecycle_state: %s", err))
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting lifecycle_state: %s", err))
 		}
 	}
 
 	if backupPolicy.ResourceType != nil {
 		if err = d.Set("resource_type", backupPolicy.ResourceType); err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting resource_type: %s", err))
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting resource_type: %s", err))
 		}
 	}
 
 	if err = d.Set("version", response.Headers.Get("Etag")); err != nil {
-		return diag.FromErr(fmt.Errorf("Error setting version: %s", err))
+		return diag.FromErr(fmt.Errorf("[ERROR] Error setting version: %s", err))
 	}
 
 	return nil
-}
-func resourceIBMIsBackupPolicyResourceGroupIdentityToMap(resourceGroupIdentity vpcv1.ResourceGroupReference) map[string]interface{} {
-	resourceGroupIdentityMap := map[string]interface{}{}
-	resourceGroupIdentityMap["id"] = resourceGroupIdentity.ID
-	return resourceGroupIdentityMap
 }
 
 func resourceIBMIsBackupPolicyUpdate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -296,94 +274,8 @@ func resourceIBMIsBackupPolicyUpdate(context context.Context, d *schema.Resource
 		_, response, err := vpcClient.UpdateBackupPolicyWithContext(context, updateBackupPolicyOptions)
 		if err != nil {
 			log.Printf("[DEBUG] UpdateBackupPolicyWithContext failed %s\n%s", err, response)
-			return diag.FromErr(fmt.Errorf("UpdateBackupPolicyWithContext failed %s\n%s", err, response))
+			return diag.FromErr(fmt.Errorf("[ERROR] UpdateBackupPolicyWithContext failed %s\n%s", err, response))
 		}
-	}
-
-	if d.HasChange("plans") && !d.IsNewResource() {
-		getBackupPolicyOptions := &vpcv1.GetBackupPolicyOptions{}
-		getBackupPolicyOptions.SetID(d.Id())
-		backupPolicy, response, err := vpcClient.GetBackupPolicyWithContext(context, getBackupPolicyOptions)
-		if err != nil {
-			if response != nil && response.StatusCode == 404 {
-				d.SetId("")
-				return nil
-			}
-			log.Printf("[DEBUG] GetBackupPolicyWithContext failed %s\n%s", err, response)
-			return diag.FromErr(fmt.Errorf("GetBackupPolicyWithContext failed %s\n%s", err, response))
-		}
-		backupPolicyPlanID := backupPolicy.Plans[0].ID
-		getBackupPolicyPlanOptions := &vpcv1.GetBackupPolicyPlanOptions{}
-		getBackupPolicyPlanOptions.SetBackupPolicyID(d.Id())
-		getBackupPolicyPlanOptions.SetID(*backupPolicyPlanID)
-		_, response, err = vpcClient.GetBackupPolicyPlanWithContext(context, getBackupPolicyPlanOptions)
-		if err != nil {
-			if response != nil && response.StatusCode == 404 {
-				d.SetId("")
-				return nil
-			}
-			log.Printf("[DEBUG] GetBackupPolicyPlanWithContext failed %s\n%s", err, response)
-			return diag.FromErr(fmt.Errorf("GetBackupPolicyPlanWithContext failed %s\n%s", err, response))
-		}
-		etag := response.Headers.Get("E-tag")
-		plans := d.Get("plans").([]interface{})
-		for i := range plans {
-			updateBackupPolicyPlanOptions := &vpcv1.UpdateBackupPolicyPlanOptions{}
-			updateBackupPolicyPlanOptions.SetBackupPolicyID(d.Id())
-			updateBackupPolicyPlanOptions.SetID(*backupPolicyPlanID)
-			hasChange := false
-			patchVals := &vpcv1.BackupPolicyPlanPatch{}
-
-			cronSpec := fmt.Sprintf("plans.%d.cron_spec", i)
-			if d.HasChange(cronSpec) {
-				patchVals.CronSpec = core.StringPtr(d.Get(cronSpec).(string))
-				hasChange = true
-			}
-
-			active := fmt.Sprintf("plans.%d.active", i)
-			if d.HasChange(active) {
-				patchVals.Active = core.BoolPtr(d.Get(active).(bool))
-				hasChange = true
-			}
-
-			attachUserTags := fmt.Sprintf("plans.%d.attach_user_tags", i)
-			if d.HasChange(attachUserTags) {
-				patchVals.AttachUserTags = (flex.ExpandStringList((d.Get(attachUserTags).(*schema.Set)).List()))
-				hasChange = true
-			}
-
-			copyUserTags := fmt.Sprintf("plans.%d.copy_user_tags", i)
-			if d.HasChange(copyUserTags) {
-				patchVals.CopyUserTags = core.BoolPtr(d.Get(copyUserTags).(bool))
-				hasChange = true
-			}
-
-			deletionTrigger := fmt.Sprintf("plans.%d.deletion_trigger", i)
-			if d.HasChange(deletionTrigger) {
-				deletionTriggerItem := fmt.Sprintf("plans.%d.deletion_trigger.0", i)
-				deletionTrigger := resourceIBMIsBackupPolicyPlanMapToBackupPolicyPlanDeletionTriggerPatch(d.Get(deletionTriggerItem).(map[string]interface{}))
-				patchVals.DeletionTrigger = &deletionTrigger
-				hasChange = true
-			}
-
-			name := fmt.Sprintf("plans.%d.name", i)
-			if d.HasChange(name) {
-				patchVals.Name = core.StringPtr(d.Get(name).(string))
-				hasChange = true
-			}
-			updateBackupPolicyPlanOptions.SetIfMatch(etag)
-
-			if hasChange {
-				updateBackupPolicyPlanOptions.BackupPolicyPlanPatch, _ = patchVals.AsPatch()
-				_, response, err := vpcClient.UpdateBackupPolicyPlanWithContext(context, updateBackupPolicyPlanOptions)
-				if err != nil {
-					log.Printf("[DEBUG] UpdateBackupPolicyPlanWithContext failed %s\n%s", err, response)
-					return diag.FromErr(fmt.Errorf("UpdateBackupPolicyPlanWithContext failed %s\n%s", err, response))
-				}
-			}
-
-		}
-
 	}
 
 	return resourceIBMIsBackupPolicyRead(context, d, meta)
@@ -400,7 +292,7 @@ func resourceIBMIsBackupPolicyDelete(context context.Context, d *schema.Resource
 	_, response, err := vpcClient.DeleteBackupPolicyWithContext(context, deleteBackupPolicyOptions)
 	if err != nil {
 		log.Printf("[DEBUG] DeleteBackupPolicyWithContext failed %s\n%s", err, response)
-		return diag.FromErr(fmt.Errorf("DeleteBackupPolicyWithContext failed %s\n%s", err, response))
+		return diag.FromErr(fmt.Errorf("[ERROR] DeleteBackupPolicyWithContext failed %s\n%s", err, response))
 	}
 	d.SetId("")
 	return nil

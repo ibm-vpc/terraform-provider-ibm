@@ -22,9 +22,10 @@ func TestAccSatelliteCluster_Basic(t *testing.T) {
 	clusterName := fmt.Sprintf("tf-satellitecluster-%d", acctest.RandIntRange(10, 100))
 	locationName := fmt.Sprintf("tf-satellitelocation-%d", acctest.RandIntRange(10, 100))
 	managed_from := "wdc04"
-	zones := []string{"us-east-1", "us-east-2", "us-east-3"}
+	operatingSystem := "REDHAT_7_64"
+	zones := []string{"us-south-1", "us-south-2", "us-south-3"}
 	resource_group := "default"
-	region := "us-east"
+	region := "us-south"
 	resource_prefix := "tf-satellite"
 	host_provider := "ibm"
 	publicKey := strings.TrimSpace(`
@@ -38,7 +39,7 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCKVmnMOlHKcZK8tpt3MP1lqOLAcqcJzhsvJcjscgVE
 		Steps: []resource.TestStep{
 
 			{
-				Config: testAccCheckSatelliteClusterCreate(clusterName, locationName, managed_from, resource_group, resource_prefix, region, publicKey, host_provider, zones),
+				Config: testAccCheckSatelliteClusterCreate(clusterName, locationName, managed_from, operatingSystem, resource_group, resource_prefix, region, publicKey, host_provider, zones),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					testAccCheckSatelliteClusterExists("ibm_satellite_cluster.create_cluster", instance),
 					resource.TestCheckResourceAttr("ibm_satellite_cluster.create_cluster", "name", clusterName),
@@ -53,9 +54,10 @@ func TestAccSatelliteCluster_Import(t *testing.T) {
 	clusterName := fmt.Sprintf("tf-satellitecluster-%d", acctest.RandIntRange(10, 100))
 	locationName := fmt.Sprintf("tf-satellitelocation-%d", acctest.RandIntRange(10, 100))
 	managed_from := "wdc04"
-	zones := []string{"us-east-1", "us-east-2", "us-east-3"}
+	operatingSystem := "REDHAT_7_64"
+	zones := []string{"us-south-1", "us-south-2", "us-south-3"}
 	resource_group := "default"
-	region := "us-east"
+	region := "us-south"
 	resource_prefix := "tf-satellite"
 	host_provider := "ibm"
 	publicKey := strings.TrimSpace(`
@@ -69,7 +71,7 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCKVmnMOlHKcZK8tpt3MP1lqOLAcqcJzhsvJcjscgVE
 		Steps: []resource.TestStep{
 
 			{
-				Config: testAccCheckSatelliteClusterCreate(clusterName, locationName, managed_from, resource_group, resource_prefix, region, publicKey, host_provider, zones),
+				Config: testAccCheckSatelliteClusterCreate(clusterName, locationName, managed_from, operatingSystem, resource_group, resource_prefix, region, publicKey, host_provider, zones),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					testAccCheckSatelliteClusterExists("ibm_satellite_cluster.create_cluster", instance),
 					resource.TestCheckResourceAttr("ibm_satellite_cluster.create_cluster", "name", clusterName),
@@ -142,21 +144,17 @@ func testAccCheckSatelliteClusterDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testAccCheckSatelliteClusterCreate(clusterName, locationName, managed_from, resource_group, resource_prefix, region, publicKey, host_provider string, zones []string) string {
+func testAccCheckSatelliteClusterCreate(clusterName, locationName, managed_from, operatingSystem, resource_group, resource_prefix, region, publicKey, host_provider string, zones []string) string {
 	return fmt.Sprintf(`
-
-	provider "ibm" {
-		region = "us-east"
-	}
 
 	variable "location_zones" {
 		description = "Allocate your hosts across these three zones"
 		type        = list(string)
-		default     = ["us-east-1", "us-east-2", "us-east-3"]
+		default     = ["us-south-1", "us-south-2", "us-south-3"]
 	}
 
 	data "ibm_is_image" "rhel7" {
-		name = "ibm-redhat-7-9-minimal-amd64-3"
+		name = "ibm-redhat-7-9-minimal-amd64-7"
 	}
 
 	resource "ibm_satellite_location" "location" {
@@ -231,7 +229,8 @@ func testAccCheckSatelliteClusterCreate(clusterName, locationName, managed_from,
 		name                   = "%s"  
 		location               = ibm_satellite_host.assign_host.0.location
 		enable_config_admin    = true
-		kube_version           = "4.6_openshift"
+		kube_version           = "4.9_openshift"
+		operating_system       = "%s"
 		wait_for_worker_update = true
 		dynamic "zones" {
 			for_each = var.location_zones
@@ -245,5 +244,5 @@ func testAccCheckSatelliteClusterCreate(clusterName, locationName, managed_from,
 		}
 	  }
 
-`, locationName, managed_from, resource_group, resource_prefix, resource_prefix, region, resource_prefix, publicKey, resource_prefix, region, resource_prefix, host_provider, clusterName)
+`, locationName, managed_from, resource_group, resource_prefix, resource_prefix, region, resource_prefix, publicKey, resource_prefix, region, resource_prefix, host_provider, clusterName, operatingSystem)
 }

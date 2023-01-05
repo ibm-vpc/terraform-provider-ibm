@@ -23,12 +23,15 @@ import (
 	"github.com/IBM-Cloud/bluemix-go/models"
 	"github.com/IBM-Cloud/container-services-go-sdk/kubernetesserviceapiv1"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/conns"
+	"github.com/IBM/cloud-databases-go-sdk/clouddatabasesv5"
 	"github.com/IBM/go-sdk-core/v5/core"
 	"github.com/IBM/ibm-cos-sdk-go-config/resourceconfigurationv1"
 	"github.com/IBM/ibm-cos-sdk-go/service/s3"
 	kp "github.com/IBM/keyprotect-go-client"
+	"github.com/IBM/platform-services-go-sdk/globalsearchv2"
 	"github.com/IBM/platform-services-go-sdk/globaltaggingv1"
 	"github.com/IBM/platform-services-go-sdk/iampolicymanagementv1"
+	"github.com/IBM/platform-services-go-sdk/resourcecontrollerv2"
 	rg "github.com/IBM/platform-services-go-sdk/resourcemanagerv2"
 	"github.com/apache/openwhisk-client-go/whisk"
 	"github.com/go-openapi/strfmt"
@@ -44,6 +47,7 @@ import (
 	"github.com/IBM-Cloud/bluemix-go/api/usermanagement/usermanagementv2"
 	"github.com/IBM/platform-services-go-sdk/iamaccessgroupsv2"
 	"github.com/IBM/platform-services-go-sdk/iamidentityv1"
+	rc "github.com/IBM/platform-services-go-sdk/resourcecontrollerv2"
 )
 
 const (
@@ -67,6 +71,7 @@ const (
 	isLBListenerPolicyAction                  = "action"
 	isLBListenerPolicyTargetID                = "target_id"
 	isLBListenerPolicyTargetURL               = "target_url"
+	isLBListenerPolicyTargetHTTPStatusCode    = "target_http_status_code"
 	isLBListenerPolicyHTTPSRedirectStatusCode = "target_https_redirect_status_code"
 	isLBListenerPolicyHTTPSRedirectURI        = "target_https_redirect_uri"
 	isLBListenerPolicyHTTPSRedirectListener   = "target_https_redirect_listener"
@@ -75,9 +80,17 @@ const (
 	isLBProfile                               = "profile"
 	isLBRouteMode                             = "route_mode"
 	isLBType                                  = "type"
+	crnSeparator                              = ":"
+	scopeSeparator                            = "/"
+	crn                                       = "crn"
 )
 
-//HashInt ...
+var (
+	ErrMalformedCRN   = errors.New("malformed CRN")
+	ErrMalformedScope = errors.New("malformed scope in CRN")
+)
+
+// HashInt ...
 func HashInt(v interface{}) int { return v.(int) }
 
 func ExpandStringList(input []interface{}) []string {
@@ -237,53 +250,6 @@ func FlattenUsersSet(userList *schema.Set) []string {
 	return users
 }
 
-func ExpandProtocols(configured []interface{}) ([]datatypes.Network_LBaaS_LoadBalancerProtocolConfiguration, error) {
-	protocols := make([]datatypes.Network_LBaaS_LoadBalancerProtocolConfiguration, 0, len(configured))
-	var lbMethodToId = make(map[string]string)
-	for _, lRaw := range configured {
-		data := lRaw.(map[string]interface{})
-		p := &datatypes.Network_LBaaS_LoadBalancerProtocolConfiguration{
-			FrontendProtocol: sl.String(data["frontend_protocol"].(string)),
-			BackendProtocol:  sl.String(data["backend_protocol"].(string)),
-			FrontendPort:     sl.Int(data["frontend_port"].(int)),
-			BackendPort:      sl.Int(data["backend_port"].(int)),
-		}
-		if v, ok := data["session_stickiness"]; ok && v.(string) != "" {
-			p.SessionType = sl.String(v.(string))
-		}
-		if v, ok := data["max_conn"]; ok && v.(int) != 0 {
-			p.MaxConn = sl.Int(v.(int))
-		}
-		if v, ok := data["tls_certificate_id"]; ok && v.(int) != 0 {
-			p.TlsCertificateId = sl.Int(v.(int))
-		}
-		if v, ok := data["load_balancing_method"]; ok {
-			p.LoadBalancingMethod = sl.String(lbMethodToId[v.(string)])
-		}
-		if v, ok := data["protocol_id"]; ok && v.(string) != "" {
-			p.ListenerUuid = sl.String(v.(string))
-		}
-
-		var isValid bool
-		if p.TlsCertificateId != nil && *p.TlsCertificateId != 0 {
-			// validate the protocol is correct
-			if *p.FrontendProtocol == "HTTPS" {
-				isValid = true
-			}
-		} else {
-			isValid = true
-		}
-
-		if isValid {
-			protocols = append(protocols, *p)
-		} else {
-			return protocols, fmt.Errorf("tls_certificate_id may be set only when frontend protocol is 'HTTPS'")
-		}
-
-	}
-	return protocols, nil
-}
-
 func ExpandMembers(configured []interface{}) []datatypes.Network_LBaaS_LoadBalancerServerInstanceInfo {
 	members := make([]datatypes.Network_LBaaS_LoadBalancerServerInstanceInfo, 0, len(configured))
 	for _, lRaw := range configured {
@@ -346,14 +312,15 @@ func FlattenVpcWorkerPools(list []containerv2.GetWorkerPoolResponse) []map[strin
 	workerPools := make([]map[string]interface{}, len(list))
 	for i, workerPool := range list {
 		l := map[string]interface{}{
-			"id":           workerPool.ID,
-			"name":         workerPool.PoolName,
-			"flavor":       workerPool.Flavor,
-			"worker_count": workerPool.WorkerCount,
-			"isolation":    workerPool.Isolation,
-			"labels":       workerPool.Labels,
-			"state":        workerPool.Lifecycle.ActualState,
-			"host_pool_id": workerPool.HostPoolID,
+			"id":               workerPool.ID,
+			"name":             workerPool.PoolName,
+			"flavor":           workerPool.Flavor,
+			"worker_count":     workerPool.WorkerCount,
+			"isolation":        workerPool.Isolation,
+			"labels":           workerPool.Labels,
+			"operating_system": workerPool.OperatingSystem,
+			"state":            workerPool.Lifecycle.ActualState,
+			"host_pool_id":     workerPool.HostPoolID,
 		}
 		zones := workerPool.Zones
 		zonesConfig := make([]map[string]interface{}, len(zones))
@@ -870,6 +837,43 @@ func FlattenCosObejctVersioning(in *s3.GetBucketVersioningOutput) []interface{} 
 		}
 	}
 	return versioning
+}
+
+func ReplicationRuleGet(in *s3.ReplicationConfiguration) []map[string]interface{} {
+	rules := make([]map[string]interface{}, 0, 1)
+	if in != nil {
+		for _, replicaterule := range in.Rules {
+			replicationConfig := make(map[string]interface{})
+			if replicaterule.DeleteMarkerReplication != nil {
+				if *(replicaterule.DeleteMarkerReplication).Status == "Enabled" {
+					replicationConfig["deletemarker_replication_status"] = true
+				} else {
+					replicationConfig["deletemarker_replication_status"] = false
+				}
+			}
+			if replicaterule.Destination != nil {
+				replicationConfig["destination_bucket_crn"] = *(replicaterule.Destination).Bucket
+			}
+			if replicaterule.ID != nil {
+				replicationConfig["rule_id"] = *replicaterule.ID
+			}
+			if replicaterule.Priority != nil {
+				replicationConfig["priority"] = int(*replicaterule.Priority)
+			}
+			if replicaterule.Status != nil {
+				if *replicaterule.Status == "Enabled" {
+					replicationConfig["enable"] = true
+				} else {
+					replicationConfig["enable"] = false
+				}
+			}
+			if replicaterule.Filter != nil && replicaterule.Filter.Prefix != nil {
+				replicationConfig["prefix"] = *(replicaterule.Filter).Prefix
+			}
+			rules = append(rules, replicationConfig)
+		}
+	}
+	return rules
 }
 
 func FlattenLimits(in *whisk.Limits) []interface{} {
@@ -1602,29 +1606,40 @@ func FlattenremoteSubnet(vpn *datatypes.Network_Tunnel_Module_Context) []map[str
 }
 
 // IBM Cloud Databases
-func ExpandWhitelist(whiteList *schema.Set) (whitelist []icdv4.WhitelistEntry) {
-	for _, iface := range whiteList.List() {
-		wlItem := iface.(map[string]interface{})
-		wlEntry := icdv4.WhitelistEntry{
-			Address:     wlItem["address"].(string),
-			Description: wlItem["description"].(string),
+func ExpandAllowlist(allowList *schema.Set) (entries []clouddatabasesv5.AllowlistEntry) {
+	entries = make([]clouddatabasesv5.AllowlistEntry, 0, len(allowList.List()))
+	for _, iface := range allowList.List() {
+		alItem := iface.(map[string]interface{})
+		alEntry := &clouddatabasesv5.AllowlistEntry{
+			Address:     core.StringPtr(alItem["address"].(string)),
+			Description: core.StringPtr(alItem["description"].(string)),
 		}
-		whitelist = append(whitelist, wlEntry)
+		entries = append(entries, *alEntry)
 	}
 	return
 }
 
-// Cloud Internet Services
-func FlattenWhitelist(whitelist icdv4.Whitelist) []map[string]interface{} {
-	entries := make([]map[string]interface{}, len(whitelist.WhitelistEntrys), len(whitelist.WhitelistEntrys))
-	for i, whitelistEntry := range whitelist.WhitelistEntrys {
-		l := map[string]interface{}{
-			"address":     whitelistEntry.Address,
-			"description": whitelistEntry.Description,
+// IBM Cloud Databases
+func FlattenAllowlist(allowlist []clouddatabasesv5.AllowlistEntry) []map[string]interface{} {
+	entries := make([]map[string]interface{}, 0, len(allowlist))
+	for _, ip := range allowlist {
+		entry := map[string]interface{}{
+			"address":     ip.Address,
+			"description": ip.Description,
 		}
-		entries[i] = l
+		entries = append(entries, entry)
 	}
 	return entries
+}
+
+func ExpandPlatformOptions(platformOptions icdv4.PlatformOptions) []map[string]interface{} {
+	pltOptions := make([]map[string]interface{}, 0, 1)
+	pltOption := make(map[string]interface{})
+	pltOption["key_protect_key_id"] = platformOptions.KeyProtectKey
+	pltOption["disk_encryption_key_crn"] = platformOptions.DiskENcryptionKeyCrn
+	pltOption["backup_encryption_key_crn"] = platformOptions.BackUpEncryptionKeyCrn
+	pltOptions = append(pltOptions, pltOption)
+	return pltOptions
 }
 
 func expandStringMap(inVal interface{}) map[string]string {
@@ -1870,6 +1885,72 @@ func GetLocation(instance models.ServiceInstanceV2) string {
 	}
 }
 
+type CRN struct {
+	Scheme          string
+	Version         string
+	CName           string
+	CType           string
+	ServiceName     string
+	Region          string
+	ScopeType       string
+	Scope           string
+	ServiceInstance string
+	ResourceType    string
+	Resource        string
+}
+
+func Parse(s string) (CRN, error) {
+	if s == "" {
+		return CRN{}, nil
+	}
+
+	segments := strings.Split(s, crnSeparator)
+	if len(segments) != 10 || segments[0] != crn {
+		return CRN{}, ErrMalformedCRN
+	}
+
+	crn := CRN{
+		Scheme:          segments[0],
+		Version:         segments[1],
+		CName:           segments[2],
+		CType:           segments[3],
+		ServiceName:     segments[4],
+		Region:          segments[5],
+		ServiceInstance: segments[7],
+		ResourceType:    segments[8],
+		Resource:        segments[9],
+	}
+
+	scopeSegments := segments[6]
+	if scopeSegments != "" {
+		if scopeSegments == "global" {
+			crn.Scope = "global"
+		} else {
+			scopeParts := strings.Split(scopeSegments, scopeSeparator)
+			if len(scopeParts) == 2 {
+				crn.ScopeType, crn.Scope = scopeParts[0], scopeParts[1]
+			} else {
+				return CRN{}, ErrMalformedScope
+			}
+		}
+	}
+
+	return crn, nil
+}
+func GetLocationV2(instance rc.ResourceInstance) string {
+	crn, err := Parse(*instance.CRN)
+	if err != nil {
+		log.Fatal(err)
+	}
+	region := crn.Region
+	cName := crn.CName
+	if cName == "bluemix" || cName == "staging" {
+		return region
+	} else {
+		return cName + "-" + region
+	}
+}
+
 func GetTags(d *schema.ResourceData, meta interface{}) error {
 	resourceID := d.Id()
 	gtClient, err := meta.(conns.ClientSession).GlobalTaggingAPI()
@@ -1936,28 +2017,18 @@ func GetTags(d *schema.ResourceData, meta interface{}) error {
 // }
 
 func GetGlobalTagsUsingCRN(meta interface{}, resourceID, resourceType, tagType string) (*schema.Set, error) {
-
-	gtClient, err := meta.(conns.ClientSession).GlobalTaggingAPIv1()
-	if err != nil {
-		return nil, fmt.Errorf("[ERROR] Error getting global tagging client settings: %s", err)
-	}
-
 	userDetails, err := meta.(conns.ClientSession).BluemixUserDetails()
 	if err != nil {
 		return nil, err
 	}
 	accountID := userDetails.UserAccount
-
-	var providers []string
-	if strings.Contains(resourceType, "SoftLayer_") {
-		providers = []string{"ims"}
-	}
-
 	ListTagsOptions := &globaltaggingv1.ListTagsOptions{}
 	if resourceID != "" {
 		ListTagsOptions.AttachedTo = &resourceID
 	}
-	ListTagsOptions.Providers = providers
+	if strings.HasPrefix(resourceType, "Softlayer_") {
+		ListTagsOptions.Providers = []string{"ims"}
+	}
 	if len(tagType) > 0 {
 		ListTagsOptions.TagType = PtrToString(tagType)
 
@@ -1965,15 +2036,60 @@ func GetGlobalTagsUsingCRN(meta interface{}, resourceID, resourceType, tagType s
 			ListTagsOptions.AccountID = PtrToString(accountID)
 		}
 	}
-	taggingResult, _, err := gtClient.ListTags(ListTagsOptions)
+	taggingResult, err := GetGlobalTagsUsingSearchAPI(meta, resourceID, resourceType, tagType)
 	if err != nil {
 		return nil, err
 	}
-	var taglist []string
-	for _, item := range taggingResult.Items {
-		taglist = append(taglist, *item.Name)
+	return taggingResult, nil
+}
+
+func GetGlobalTagsUsingSearchAPI(meta interface{}, resourceID, resourceType, tagType string) (*schema.Set, error) {
+
+	gsClient, err := meta.(conns.ClientSession).GlobalSearchAPIV2()
+	if err != nil {
+		return nil, fmt.Errorf("[ERROR] Error getting global search client settings: %s", err)
 	}
-	log.Println("tagList: ", taglist)
+	options := globalsearchv2.SearchOptions{}
+	var query string
+	if strings.Contains(resourceType, "SoftLayer_") {
+		query = fmt.Sprintf("doc.id:%s AND family:ims", resourceID)
+		options.SetQuery(query)
+	} else {
+		query = fmt.Sprintf("crn:\"%s\"", resourceID)
+		options.SetQuery(query)
+	}
+	if tagType == "service" {
+		userDetails, err := meta.(conns.ClientSession).BluemixUserDetails()
+		if err != nil {
+			return nil, err
+		}
+		options.SetAccountID(userDetails.UserAccount)
+	}
+	options.SetFields([]string{"access_tags", "tags", "service_tags"})
+	result, resp, err := gsClient.Search(&options)
+	if err != nil {
+		return nil, fmt.Errorf("[ERROR] Error to query the tags for the resource: %s %s", err, resp)
+	}
+	var taglist []string
+	var t interface{}
+	if len(result.Items) > 0 {
+		if tagType == "access" {
+			t = result.Items[0].GetProperty("access_tags")
+		} else if tagType == "service" {
+			t = result.Items[0].GetProperty("service_tags")
+		} else {
+			t = result.Items[0].GetProperty("tags")
+		}
+		switch reflect.TypeOf(t).Kind() {
+		case reflect.Slice:
+			s := reflect.ValueOf(t)
+
+			for i := 0; i < s.Len(); i++ {
+				t := fmt.Sprintf("%s", (s.Index(i)))
+				taglist = append(taglist, t)
+			}
+		}
+	}
 	return NewStringSet(ResourceIBMVPCHash, taglist), nil
 }
 
@@ -2087,15 +2203,22 @@ func GetTagsUsingCRN(meta interface{}, resourceCRN string) (*schema.Set, error) 
 	if err != nil {
 		return nil, fmt.Errorf("[ERROR] Error getting global tagging client settings: %s", err)
 	}
+	var taglist []string
 	taggingResult, err := gtClient.Tags().GetTags(resourceCRN)
 	if err != nil {
+		if strings.Contains(err.Error(), "Too Many Requests") {
+			temp, err := GetGlobalTagsUsingSearchAPI(meta, resourceCRN, "", "user")
+			if err != nil {
+				return nil, err
+			}
+			return temp, nil
+		}
 		return nil, err
 	}
-	var taglist []string
+
 	for _, item := range taggingResult.Items {
 		taglist = append(taglist, item.Name)
 	}
-	log.Println("tagList: ", taglist)
 	return NewStringSet(ResourceIBMVPCHash, taglist), nil
 }
 
@@ -2191,6 +2314,42 @@ func ResourceTagsCustomizeDiff(diff *schema.ResourceDiff) error {
 	return nil
 }
 
+func ResourceValidateAccessTags(diff *schema.ResourceDiff, meta interface{}) error {
+
+	if value, ok := diff.GetOkExists("access_tags"); ok {
+		tagSet := value.(*schema.Set)
+		newTagList := tagSet.List()
+		tagType := "access"
+		gtClient, err := meta.(conns.ClientSession).GlobalTaggingAPIv1()
+		if err != nil {
+			return fmt.Errorf("Error getting global tagging client settings: %s", err)
+		}
+
+		listTagsOptions := &globaltaggingv1.ListTagsOptions{
+			TagType: &tagType,
+		}
+		taggingResult, _, err := gtClient.ListTags(listTagsOptions)
+		if err != nil {
+			return err
+		}
+		var taglist []string
+		for _, item := range taggingResult.Items {
+			taglist = append(taglist, *item.Name)
+		}
+		existingAccessTags := NewStringSet(ResourceIBMVPCHash, taglist)
+		errStatement := ""
+		for _, tag := range newTagList {
+			if !existingAccessTags.Contains(tag) {
+				errStatement = errStatement + " " + tag.(string)
+			}
+		}
+		if errStatement != "" {
+			return fmt.Errorf("[ERROR] Error : Access tag(s) %s does not exist", errStatement)
+		}
+	}
+	return nil
+}
+
 func ResourceLBListenerPolicyCustomizeDiff(diff *schema.ResourceDiff) error {
 	policyActionIntf, _ := diff.GetOk(isLBListenerPolicyAction)
 	policyAction := policyActionIntf.(string)
@@ -2202,10 +2361,10 @@ func ResourceLBListenerPolicyCustomizeDiff(diff *schema.ResourceDiff) error {
 			return fmt.Errorf("Load balancer listener policy: When action is forward please specify target_id")
 		}
 	} else if policyAction == "redirect" {
-		_, httpsStatusCodeSet := diff.GetOk(isLBListenerPolicyHTTPSRedirectStatusCode)
+		_, httpsStatusCodeSet := diff.GetOk(isLBListenerPolicyTargetHTTPStatusCode)
 		_, targetURLSet := diff.GetOk(isLBListenerPolicyTargetURL)
 
-		if !httpsStatusCodeSet && diff.NewValueKnown(isLBListenerPolicyHTTPSRedirectStatusCode) {
+		if !httpsStatusCodeSet && diff.NewValueKnown(isLBListenerPolicyTargetHTTPStatusCode) {
 			return fmt.Errorf("Load balancer listener policy: When action is redirect please specify target_http_status_code")
 		}
 
@@ -2290,6 +2449,17 @@ func InstanceProfileValidate(diff *schema.ResourceDiff) error {
 			diff.ForceNew("profile")
 		}
 	}
+	return nil
+}
+
+func ResourceIPSecPolicyValidate(diff *schema.ResourceDiff) error {
+
+	newEncAlgo := diff.Get("encryption_algorithm").(string)
+	newAuthAlgo := diff.Get("authentication_algorithm").(string)
+	if (newEncAlgo == "aes128gcm16" || newEncAlgo == "aes192gcm16" || newEncAlgo == "aes256gcm16") && newAuthAlgo != "disabled" {
+		return fmt.Errorf("authentication_algorithm must be set to 'disabled' when the encryption_algorithm is either one of 'aes128gcm16', 'aes192gcm16', 'aes256gcm16'")
+	}
+
 	return nil
 }
 
@@ -2530,9 +2700,17 @@ func DefaultResourceGroup(meta interface{}) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	userDetails, err := meta.(conns.ClientSession).BluemixUserDetails()
+	if err != nil {
+		return "", err
+	}
+	accountID := userDetails.UserAccount
 	defaultGrp := true
 	resourceGroupList := rg.ListResourceGroupsOptions{
 		Default: &defaultGrp,
+	}
+	if accountID != "" {
+		resourceGroupList.AccountID = &accountID
 	}
 	grpList, resp, err := rMgtClient.ListResourceGroups(&resourceGroupList)
 	if err != nil || grpList == nil || grpList.Resources == nil {
@@ -2561,6 +2739,7 @@ func FlattenKeyPolicies(policies []kp.Policy) []map[string]interface{} {
 		}
 		if policy.Rotation != nil {
 			policyInstance["interval_month"] = policy.Rotation.Interval
+			policyInstance["enabled"] = *policy.Rotation.Enabled
 			rotationMap = append(rotationMap, policyInstance)
 		} else if policy.DualAuth != nil {
 			policyInstance["enabled"] = *(policy.DualAuth.Enabled)
@@ -2579,7 +2758,6 @@ func FlattenKeyIndividualPolicy(policy string, policies []kp.Policy) []map[strin
 	rotationMap := make([]map[string]interface{}, 0, 1)
 	dualAuthMap := make([]map[string]interface{}, 0, 1)
 	for _, policy := range policies {
-		log.Println("Policy CRN Data =============>", policy.CRN)
 		policyCRNData := strings.Split(policy.CRN, ":")
 		policyInstance := map[string]interface{}{
 			"id":               policyCRNData[9],
@@ -2591,6 +2769,7 @@ func FlattenKeyIndividualPolicy(policy string, policies []kp.Policy) []map[strin
 		}
 		if policy.Rotation != nil {
 			policyInstance["interval_month"] = policy.Rotation.Interval
+			policyInstance["enabled"] = *policy.Rotation.Enabled
 			rotationMap = append(rotationMap, policyInstance)
 		} else if policy.DualAuth != nil {
 			policyInstance["enabled"] = *(policy.DualAuth.Enabled)
@@ -2603,6 +2782,77 @@ func FlattenKeyIndividualPolicy(policy string, policies []kp.Policy) []map[strin
 		return dualAuthMap
 	}
 	return nil
+}
+
+func FlattenInstancePolicy(policyType string, policies []kp.InstancePolicy) []map[string]interface{} {
+	dualAuthMap := make([]map[string]interface{}, 0, 1)
+	rotationMap := make([]map[string]interface{}, 0, 1)
+	metricsMap := make([]map[string]interface{}, 0, 1)
+	keyCreateImportAccessMap := make([]map[string]interface{}, 0, 1)
+	for _, policy := range policies {
+		policyInstance := map[string]interface{}{
+			"created_by":    policy.CreatedBy,
+			"creation_date": (*policy.CreatedAt).String(),
+			"updated_by":    policy.UpdatedBy,
+			"last_updated":  (*policy.UpdatedAt).String(),
+		}
+		if policy.PolicyType == "dualAuthDelete" {
+			policyInstance["enabled"] = policy.PolicyData.Enabled
+			dualAuthMap = append(dualAuthMap, policyInstance)
+		}
+		if policy.PolicyType == "rotation" {
+			policyInstance["enabled"] = policy.PolicyData.Enabled
+			if policy.PolicyData.Attributes != nil {
+				policyInstance["interval_month"] = policy.PolicyData.Attributes.IntervalMonth
+			}
+			rotationMap = append(rotationMap, policyInstance)
+		}
+		if policy.PolicyType == "metrics" {
+			policyInstance["enabled"] = policy.PolicyData.Enabled
+			metricsMap = append(metricsMap, policyInstance)
+		}
+		if policy.PolicyType == "keyCreateImportAccess" {
+			policyInstance["enabled"] = policy.PolicyData.Enabled
+			policyInstance["create_root_key"] = policy.PolicyData.Attributes.CreateRootKey
+			policyInstance["create_standard_key"] = policy.PolicyData.Attributes.CreateStandardKey
+			policyInstance["import_root_key"] = policy.PolicyData.Attributes.ImportRootKey
+			policyInstance["import_standard_key"] = policy.PolicyData.Attributes.ImportStandardKey
+			policyInstance["enforce_token"] = policy.PolicyData.Attributes.EnforceToken
+			keyCreateImportAccessMap = append(keyCreateImportAccessMap, policyInstance)
+		}
+	}
+	if policyType == "rotation" {
+		return rotationMap
+	} else if policyType == "dual_auth_delete" {
+		return dualAuthMap
+	} else if policyType == "metrics" {
+		return metricsMap
+	} else if policyType == "key_create_import_access" {
+		return keyCreateImportAccessMap
+	}
+	return nil
+}
+func FlattenKeyPoliciesKey(policies []kp.Policy) []map[string]interface{} {
+	policyMap := make([]map[string]interface{}, 0, 1)
+	rotationMap := make([]map[string]interface{}, 0, 1)
+	dualAuthMap := make([]map[string]interface{}, 0, 1)
+	for _, policy := range policies {
+		policyInstance := map[string]interface{}{}
+		if policy.Rotation != nil {
+			policyInstance["interval_month"] = policy.Rotation.Interval
+			policyInstance["enabled"] = *(policy.Rotation.Enabled)
+			rotationMap = append(rotationMap, policyInstance)
+		} else if policy.DualAuth != nil {
+			policyInstance["enabled"] = *(policy.DualAuth.Enabled)
+			dualAuthMap = append(dualAuthMap, policyInstance)
+		}
+	}
+	tempMap := map[string]interface{}{
+		"rotation":         rotationMap,
+		"dual_auth_delete": dualAuthMap,
+	}
+	policyMap = append(policyMap, tempMap)
+	return policyMap
 }
 
 // IgnoreSystemLabels returns non-IBM tag keys.
@@ -2674,9 +2924,10 @@ func FlattenHostLabels(hostLabels []interface{}) map[string]string {
 	labels := make(map[string]string)
 	for _, v := range hostLabels {
 		parts := strings.Split(v.(string), ":")
-		if parts != nil {
-			labels[parts[0]] = parts[1]
+		if len(parts) != 2 {
+			log.Fatal("Entered label " + v.(string) + "is in incorrect format.")
 		}
+		labels[parts[0]] = parts[1]
 	}
 
 	return labels
@@ -3118,11 +3369,12 @@ func FlattenSatelliteHosts(hostList []kubernetesserviceapiv1.MultishiftQueueNode
 }
 
 func FlattenWorkerPoolHostLabels(hostLabels map[string]string) *schema.Set {
-	mapped := make([]string, len(hostLabels))
-	idx := 0
+	mapped := make([]string, 0)
 	for k, v := range hostLabels {
-		mapped[idx] = fmt.Sprintf("%s:%v", k, v)
-		idx++
+		if strings.HasPrefix(k, "os") {
+			continue
+		}
+		mapped = append(mapped, fmt.Sprintf("%s:%v", k, v))
 	}
 
 	return NewStringSet(schema.HashString, mapped)
@@ -3152,4 +3404,63 @@ func FlattenSatelliteClusterZones(list []string) []map[string]interface{} {
 		zones[i] = l
 	}
 	return zones
+}
+
+func FetchResourceInstanceDetails(d *schema.ResourceData, meta interface{}, instanceID string) error {
+	// Get ResourceController from ClientSession
+	resourceControllerClient, err := meta.(conns.ClientSession).ResourceControllerV2API()
+	if err != nil {
+		return err
+	}
+
+	getResourceOpts := resourcecontrollerv2.GetResourceInstanceOptions{
+		ID: &instanceID,
+	}
+
+	instance, response, err := resourceControllerClient.GetResourceInstance(&getResourceOpts)
+	if err != nil {
+		log.Printf("[DEBUG] Error retrieving resource instance: %s\n%s", err, response)
+		return fmt.Errorf("Error retrieving resource instance: %s\n%s", err, response)
+	}
+	if strings.Contains(*instance.State, "removed") {
+		log.Printf("[DEBUG] Error retrieving resource instance details: Resource has been removed")
+		return fmt.Errorf("Error retrieving resource instance details: Resource has been removed")
+	}
+
+	extensionsMap := Flatten(instance.Extensions)
+	if extensionsMap == nil {
+		log.Printf("[DEBUG] Error parsing resource instance: Endpoints are missing in instance Extensions map")
+		return fmt.Errorf("Error parsing resource instance: Endpoints are missing in instance Extensions map")
+	}
+	d.Set("extensions", extensionsMap)
+
+	return nil
+}
+
+func GetResourceInstanceURL(d *schema.ResourceData, meta interface{}) (*string, error) {
+
+	var endpoint string
+	extensions := d.Get("extensions").(map[string]interface{})
+
+	if url, ok := extensions["endpoints.public"]; ok {
+		endpoint = "https://" + url.(string)
+	}
+
+	if endpoint == "" {
+		return nil, fmt.Errorf("[ERROR] Missing endpoints.public in extensions")
+	}
+
+	return &endpoint, nil
+}
+
+// Converts a struct to a map while maintaining the json alias as keys
+func StructToMap(obj interface{}) (newMap map[string]interface{}, err error) {
+	data, err := json.Marshal(obj) // Convert to a json string
+
+	if err != nil {
+		return
+	}
+
+	err = json.Unmarshal(data, &newMap) // Convert to a map
+	return
 }

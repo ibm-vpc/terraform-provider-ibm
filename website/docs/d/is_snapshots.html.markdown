@@ -37,6 +37,8 @@ Review the argument references that you can specify for your data source.
 - `resource_group` - (Optional, String) Filter snapshot collection by resource group id of the snapshot.
 - `source_image` - (Optional, String) Filter snapshot collection by source image of the snapshot.
 - `source_volume` - (Optional, String) Filter snapshot collection by source volume of the snapshot.
+- `backup_policy_plan_tag` - Filters the collection to resources with the exact tag value.
+- `backup_policy_plan_id` - Filters the collection to backup policy jobs with the backup plan with the specified identifier
 
 
 ## Attribute reference
@@ -45,6 +47,7 @@ In addition to all argument reference list, you can access the following attribu
 - `snapshots` - (List) List of snapshots in the IBM Cloud Infrastructure.
   
   Nested scheme for `snapshots`:
+  - `access_tags`  - (Array of Strings) Access management tags associated with the snapshot.
   - `id` - (String) The unique identifier for this snapshot.
   - `backup_policy_plan` - (List) If present, the backup policy plan which created this snapshot.
   
@@ -68,6 +71,6 @@ In addition to all argument reference list, you can access the following attribu
   - `size` - (Integer) The size of this snapshot rounded up to the next gigabyte.
   - `source_image` - (String) If present, the unique identifier for the image from which the data on this volume was most directly provisioned.
   - `captured_at` - (String) The date and time that this snapshot was captured.
-  - `user_tags` - (String) Tags associated with the snapshot.
+  - `tags` - (String) Tags associated with the snapshot.
 
 

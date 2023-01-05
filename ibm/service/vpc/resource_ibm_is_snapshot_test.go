@@ -265,6 +265,6 @@ func testAccCheckIBMISSnapshotConfigUsertag(vpcname, subnetname, sshname, public
 			name 			= "%s"
 			source_volume 	= ibm_is_instance.testacc_instance.volume_attachments[0].volume_id
 			tags = ["%s"]
-	}`, vpcname, subnetname, acc.ISZoneName, sshname, publicKey, name, "r134-63363662-a4ee-4ba4-a6c4-92e6c78c6b58", acc.InstanceProfileName, acc.ISZoneName, sname, usertag)
+	}`, vpcname, subnetname, acc.ISZoneName, sshname, publicKey, name, acc.IsImage, acc.InstanceProfileName, acc.ISZoneName, sname, usertag)
 
 }

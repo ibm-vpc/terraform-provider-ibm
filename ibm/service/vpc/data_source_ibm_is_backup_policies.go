@@ -214,7 +214,7 @@ func dataSourceIBMIsBackupPoliciesRead(context context.Context, d *schema.Resour
 		backupPolicyCollection, response, err := sess.ListBackupPoliciesWithContext(context, listBackupPoliciesOptions)
 		if err != nil {
 			log.Printf("[DEBUG] ListBackupPoliciesWithContext failed %s\n%s", err, response)
-			return diag.FromErr(fmt.Errorf("ListBackupPoliciesWithContext failed %s\n%s", err, response))
+			return diag.FromErr(fmt.Errorf("[ERROR] ListBackupPoliciesWithContext failed %s\n%s", err, response))
 		}
 		if backupPolicyCollection != nil && *backupPolicyCollection.TotalCount == int64(0) {
 			break
@@ -226,16 +226,13 @@ func dataSourceIBMIsBackupPoliciesRead(context context.Context, d *schema.Resour
 		}
 
 	}
-	if len(matchBackupPolicies) == 0 {
-		return diag.FromErr(fmt.Errorf("no BackupPolicies found"))
-	}
 
 	d.SetId(dataSourceIBMIsBackupPoliciesID(d))
 
 	if matchBackupPolicies != nil {
 		err = d.Set("backup_policies", dataSourceBackupPolicyCollectionFlattenBackupPolicies(matchBackupPolicies))
 		if err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting backup_policies %s", err))
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting backup_policies %s", err))
 		}
 	}
 

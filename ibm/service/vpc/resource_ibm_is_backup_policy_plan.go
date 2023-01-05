@@ -73,7 +73,7 @@ func ResourceIBMIsBackupPolicyPlan() *schema.Resource {
 						"delete_after": &schema.Schema{
 							Type:        schema.TypeInt,
 							Optional:    true,
-							Computed:    true,
+							Default:     30,
 							Description: "The maximum number of days to keep each backup after creation.",
 						},
 						"delete_over_count": &schema.Schema{
@@ -145,7 +145,7 @@ func ResourceIBMIsBackupPolicyPlan() *schema.Resource {
 }
 
 func ResourceIBMIsBackupPolicyPlanValidator() *validate.ResourceValidator {
-	validateSchema := make([]validate.ValidateSchema, 1)
+	validateSchema := make([]validate.ValidateSchema, 0)
 	validateSchema = append(validateSchema,
 		validate.ValidateSchema{
 			Identifier:                 "cron_spec",
@@ -212,25 +212,24 @@ func resourceIBMIsBackupPolicyPlanCreate(context context.Context, d *schema.Reso
 		createBackupPolicyPlanOptions.SetCopyUserTags(d.Get("copy_user_tags").(bool))
 	}
 	if _, ok := d.GetOk("deletion_trigger"); ok {
-		// deletionTrigger := resourceIBMIsBackupPolicyPlanMapToBackupPolicyPlanDeletionTriggerPrototype(d.Get("deletion_trigger.0").(map[string]interface{}))
 		backupPolicyPlanDeletionTriggerPrototypeMap := d.Get("deletion_trigger.0").(map[string]interface{})
 		backupPolicyPlanDeletionTriggerPrototype := vpcv1.BackupPolicyPlanDeletionTriggerPrototype{}
 
 		if backupPolicyPlanDeletionTriggerPrototypeMap["delete_after"] != nil {
 			backupPolicyPlanDeletionTriggerPrototype.DeleteAfter = core.Int64Ptr(int64(backupPolicyPlanDeletionTriggerPrototypeMap["delete_after"].(int)))
 		}
-		log.Println("backupPolicyPlanDeletionTriggerPrototypeMap[delete_over_count] Inside")
-		log.Println(backupPolicyPlanDeletionTriggerPrototypeMap["delete_over_count"])
 		if backupPolicyPlanDeletionTriggerPrototypeMap["delete_over_count"] != nil {
 			deleteOverCountString := backupPolicyPlanDeletionTriggerPrototypeMap["delete_over_count"].(string)
-			if deleteOverCountString != "" {
+			if deleteOverCountString != "" && deleteOverCountString != "null" {
 				deleteOverCount, err := strconv.ParseInt(backupPolicyPlanDeletionTriggerPrototypeMap["delete_over_count"].(string), 10, 64)
 				if err != nil {
-					return diag.FromErr(fmt.Errorf("Error setting delete_over_count: %s", err))
+					return diag.FromErr(fmt.Errorf("[ERROR] Error setting delete_over_count: %s", err))
 				}
 				deleteOverCountint := int64(deleteOverCount)
 				if deleteOverCountint >= int64(0) {
 					backupPolicyPlanDeletionTriggerPrototype.DeleteOverCount = core.Int64Ptr(deleteOverCountint)
+				} else {
+					return diag.FromErr(fmt.Errorf("[ERROR] Error setting delete_over_count: Retention count and days cannot be both zero"))
 				}
 			}
 		}
@@ -243,77 +242,12 @@ func resourceIBMIsBackupPolicyPlanCreate(context context.Context, d *schema.Reso
 	backupPolicyPlan, response, err := vpcClient.CreateBackupPolicyPlanWithContext(context, createBackupPolicyPlanOptions)
 	if err != nil {
 		log.Printf("[DEBUG] CreateBackupPolicyPlanWithContext failed %s\n%s", err, response)
-		return diag.FromErr(fmt.Errorf("CreateBackupPolicyPlanWithContext failed %s\n%s", err, response))
+		return diag.FromErr(fmt.Errorf("[ERROR] CreateBackupPolicyPlanWithContext failed %s\n%s", err, response))
 	}
 
 	d.SetId(fmt.Sprintf("%s/%s", *createBackupPolicyPlanOptions.BackupPolicyID, *backupPolicyPlan.ID))
 
 	return resourceIBMIsBackupPolicyPlanRead(context, d, meta)
-}
-
-func resourceIBMIsBackupPolicyPlanMapToZoneIdentity(zoneIdentityMap map[string]interface{}) vpcv1.ZoneIdentityIntf {
-	zoneIdentity := vpcv1.ZoneIdentity{}
-
-	if zoneIdentityMap["name"] != nil {
-		zoneIdentity.Name = core.StringPtr(zoneIdentityMap["name"].(string))
-	}
-	if zoneIdentityMap["href"] != nil {
-		zoneIdentity.Href = core.StringPtr(zoneIdentityMap["href"].(string))
-	}
-
-	return &zoneIdentity
-}
-
-func resourceIBMIsBackupPolicyPlanMapToZoneIdentityByName(zoneIdentityByNameMap map[string]interface{}) vpcv1.ZoneIdentityByName {
-	zoneIdentityByName := vpcv1.ZoneIdentityByName{}
-
-	zoneIdentityByName.Name = core.StringPtr(zoneIdentityByNameMap["name"].(string))
-
-	return zoneIdentityByName
-}
-
-func resourceIBMIsBackupPolicyPlanMapToZoneIdentityByHref(zoneIdentityByHrefMap map[string]interface{}) vpcv1.ZoneIdentityByHref {
-	zoneIdentityByHref := vpcv1.ZoneIdentityByHref{}
-
-	zoneIdentityByHref.Href = core.StringPtr(zoneIdentityByHrefMap["href"].(string))
-
-	return zoneIdentityByHref
-}
-
-func resourceIBMIsBackupPolicyPlanMapToBackupPolicyPlanDeletionTriggerPrototype(backupPolicyPlanDeletionTriggerPrototypeMap map[string]interface{}) vpcv1.BackupPolicyPlanDeletionTriggerPrototype {
-	backupPolicyPlanDeletionTriggerPrototype := vpcv1.BackupPolicyPlanDeletionTriggerPrototype{}
-
-	if backupPolicyPlanDeletionTriggerPrototypeMap["delete_after"] != nil {
-		backupPolicyPlanDeletionTriggerPrototype.DeleteAfter = core.Int64Ptr(int64(backupPolicyPlanDeletionTriggerPrototypeMap["delete_after"].(int)))
-	}
-	log.Println("backupPolicyPlanDeletionTriggerPrototypeMap[delete_over_count] Inside")
-	log.Println(backupPolicyPlanDeletionTriggerPrototypeMap["delete_over_count"])
-	if backupPolicyPlanDeletionTriggerPrototypeMap["delete_over_count"] != nil {
-
-		deleteOverCount, err := strconv.Atoi(backupPolicyPlanDeletionTriggerPrototypeMap["delete_over_count"].(string))
-		if err != nil {
-			// return diag.FromErr(fmt.Errorf("Error setting delete_over_count: %s", err))
-		}
-		deleteOverCountint := int64(deleteOverCount)
-		if deleteOverCountint >= int64(0) {
-			backupPolicyPlanDeletionTriggerPrototype.DeleteOverCount = core.Int64Ptr(int64(backupPolicyPlanDeletionTriggerPrototypeMap["delete_over_count"].(int)))
-		}
-	}
-
-	return backupPolicyPlanDeletionTriggerPrototype
-}
-
-func resourceIBMIsBackupPolicyPlanMapToBackupPolicyPlanDeletionTriggerPatch(backupPolicyPlanDeletionTriggerPrototypeMap map[string]interface{}) vpcv1.BackupPolicyPlanDeletionTriggerPatch {
-	backupPolicyPlanDeletionTriggerPrototype := vpcv1.BackupPolicyPlanDeletionTriggerPatch{}
-
-	if backupPolicyPlanDeletionTriggerPrototypeMap["delete_after"] != nil {
-		backupPolicyPlanDeletionTriggerPrototype.DeleteAfter = core.Int64Ptr(int64(backupPolicyPlanDeletionTriggerPrototypeMap["delete_after"].(int)))
-	}
-	if backupPolicyPlanDeletionTriggerPrototypeMap["delete_over_count"] != nil {
-		backupPolicyPlanDeletionTriggerPrototype.DeleteOverCount = core.Int64Ptr(int64(backupPolicyPlanDeletionTriggerPrototypeMap["delete_over_count"].(int)))
-	}
-
-	return backupPolicyPlanDeletionTriggerPrototype
 }
 
 func resourceIBMIsBackupPolicyPlanRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -339,32 +273,33 @@ func resourceIBMIsBackupPolicyPlanRead(context context.Context, d *schema.Resour
 			return nil
 		}
 		log.Printf("[DEBUG] GetBackupPolicyPlanWithContext failed %s\n%s", err, response)
-		return diag.FromErr(fmt.Errorf("GetBackupPolicyPlanWithContext failed %s\n%s", err, response))
+		return diag.FromErr(fmt.Errorf("[ERROR] GetBackupPolicyPlanWithContext failed %s\n%s", err, response))
 	}
 
 	if getBackupPolicyPlanOptions.BackupPolicyID != nil {
 		if err = d.Set("backup_policy_id", getBackupPolicyPlanOptions.BackupPolicyID); err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting backup_policy_id: %s", err))
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting backup_policy_id: %s", err))
 		}
 	}
 
 	if getBackupPolicyPlanOptions.ID != nil {
 		if err = d.Set("backup_policy_plan_id", getBackupPolicyPlanOptions.ID); err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting backup_policy_plan_id: %s", err))
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting backup_policy_plan_id: %s", err))
 		}
 	}
 
 	if backupPolicyPlan.CronSpec != nil {
 		if err = d.Set("cron_spec", backupPolicyPlan.CronSpec); err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting cron_spec: %s", err))
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting cron_spec: %s", err))
 		}
 	}
 
 	if backupPolicyPlan.Active != nil {
 		if err = d.Set("active", backupPolicyPlan.Active); err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting active: %s", err))
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting active: %s", err))
 		}
 	}
+
 	if backupPolicyPlan.ClonePolicy != nil {
 		backupPolicyPlanClonePolicyMap := map[string]interface{}{}
 
@@ -383,77 +318,49 @@ func resourceIBMIsBackupPolicyPlanRead(context context.Context, d *schema.Resour
 
 	if backupPolicyPlan.AttachUserTags != nil {
 		if err = d.Set("attach_user_tags", backupPolicyPlan.AttachUserTags); err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting attach_user_tags: %s", err))
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting attach_user_tags: %s", err))
 		}
 	}
 
 	if backupPolicyPlan.CopyUserTags != nil {
 		if err = d.Set("copy_user_tags", backupPolicyPlan.CopyUserTags); err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting copy_user_tags: %s", err))
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting copy_user_tags: %s", err))
 		}
 	}
 
 	if backupPolicyPlan.DeletionTrigger != nil {
 		deletionTriggerMap := resourceIBMIsBackupPolicyPlanBackupPolicyPlanDeletionTriggerPrototypeToMap(*backupPolicyPlan.DeletionTrigger)
 		if err = d.Set("deletion_trigger", []map[string]interface{}{deletionTriggerMap}); err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting deletion_trigger: %s", err))
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting deletion_trigger: %s", err))
 		}
 	}
 
 	if backupPolicyPlan.Name != nil {
 		if err = d.Set("name", backupPolicyPlan.Name); err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting name: %s", err))
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting name: %s", err))
 		}
 	}
 
 	if backupPolicyPlan.CreatedAt != nil {
 		if err = d.Set("created_at", flex.DateTimeToString(backupPolicyPlan.CreatedAt)); err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting created_at: %s", err))
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting created_at: %s", err))
 		}
 	}
 
 	if err = d.Set("href", backupPolicyPlan.Href); err != nil {
-		return diag.FromErr(fmt.Errorf("Error setting href: %s", err))
+		return diag.FromErr(fmt.Errorf("[ERROR] Error setting href: %s", err))
 	}
 	if err = d.Set("lifecycle_state", backupPolicyPlan.LifecycleState); err != nil {
-		return diag.FromErr(fmt.Errorf("Error setting lifecycle_state: %s", err))
+		return diag.FromErr(fmt.Errorf("[ERROR] Error setting lifecycle_state: %s", err))
 	}
 	if err = d.Set("resource_type", backupPolicyPlan.ResourceType); err != nil {
-		return diag.FromErr(fmt.Errorf("Error setting resource_type: %s", err))
+		return diag.FromErr(fmt.Errorf("[ERROR] Error setting resource_type: %s", err))
 	}
 	if err = d.Set("version", response.Headers.Get("Etag")); err != nil {
-		return diag.FromErr(fmt.Errorf("Error setting version: %s", err))
+		return diag.FromErr(fmt.Errorf("[ERROR] Error setting version: %s", err))
 	}
 
 	return nil
-}
-
-func resourceIBMIsBackupPolicyPlanZoneIdentityToMap(zoneIdentity vpcv1.ZoneReference) map[string]interface{} {
-	zoneIdentityMap := map[string]interface{}{}
-
-	if zoneIdentity.Name != nil {
-		zoneIdentityMap["name"] = zoneIdentity.Name
-	}
-	if zoneIdentity.Href != nil {
-		zoneIdentityMap["href"] = zoneIdentity.Href
-	}
-	return zoneIdentityMap
-}
-
-func resourceIBMIsBackupPolicyPlanZoneIdentityByNameToMap(zoneIdentityByName vpcv1.ZoneIdentityByName) map[string]interface{} {
-	zoneIdentityByNameMap := map[string]interface{}{}
-
-	zoneIdentityByNameMap["name"] = zoneIdentityByName.Name
-
-	return zoneIdentityByNameMap
-}
-
-func resourceIBMIsBackupPolicyPlanZoneIdentityByHrefToMap(zoneIdentityByHref vpcv1.ZoneIdentityByHref) map[string]interface{} {
-	zoneIdentityByHrefMap := map[string]interface{}{}
-
-	zoneIdentityByHrefMap["href"] = zoneIdentityByHref.Href
-
-	return zoneIdentityByHrefMap
 }
 
 func resourceIBMIsBackupPolicyPlanBackupPolicyPlanDeletionTriggerPrototypeToMap(backupPolicyPlanDeletionTriggerPrototype vpcv1.BackupPolicyPlanDeletionTrigger) map[string]interface{} {
@@ -464,6 +371,8 @@ func resourceIBMIsBackupPolicyPlanBackupPolicyPlanDeletionTriggerPrototypeToMap(
 	}
 	if backupPolicyPlanDeletionTriggerPrototype.DeleteOverCount != nil {
 		backupPolicyPlanDeletionTriggerPrototypeMap["delete_over_count"] = strconv.FormatInt(*backupPolicyPlanDeletionTriggerPrototype.DeleteOverCount, 10)
+	} else {
+		backupPolicyPlanDeletionTriggerPrototypeMap["delete_over_count"] = "null"
 	}
 
 	return backupPolicyPlanDeletionTriggerPrototypeMap
@@ -507,7 +416,6 @@ func resourceIBMIsBackupPolicyPlanUpdate(context context.Context, d *schema.Reso
 
 	deleteOverCountBool := false
 	if d.HasChange("deletion_trigger") {
-		// deletionTrigger := resourceIBMIsBackupPolicyPlanMapToBackupPolicyPlanDeletionTriggerPatch(d.Get("deletion_trigger.0").(map[string]interface{}))
 		backupPolicyPlanDeletionTriggerPrototype := vpcv1.BackupPolicyPlanDeletionTriggerPatch{}
 		backupPolicyPlanDeletionTriggerPrototypeMap := d.Get("deletion_trigger.0").(map[string]interface{})
 		if backupPolicyPlanDeletionTriggerPrototypeMap["delete_after"] != nil {
@@ -515,10 +423,10 @@ func resourceIBMIsBackupPolicyPlanUpdate(context context.Context, d *schema.Reso
 		}
 		if backupPolicyPlanDeletionTriggerPrototypeMap["delete_over_count"] != nil {
 			deleteOverCountString := backupPolicyPlanDeletionTriggerPrototypeMap["delete_over_count"].(string)
-			if deleteOverCountString != "" {
+			if deleteOverCountString != "" && deleteOverCountString != "null" {
 				deleteOverCount, err := strconv.ParseInt(backupPolicyPlanDeletionTriggerPrototypeMap["delete_over_count"].(string), 10, 64)
 				if err != nil {
-					return diag.FromErr(fmt.Errorf("Error setting delete_over_count: %s", err))
+					return diag.FromErr(fmt.Errorf("[ERROR] Error setting delete_over_count: %s", err))
 				}
 				deleteOverCountint := int64(deleteOverCount)
 				if deleteOverCountint >= int64(0) {
@@ -565,7 +473,7 @@ func resourceIBMIsBackupPolicyPlanUpdate(context context.Context, d *schema.Reso
 	if hasChange {
 		backupPolicyPlanPatch, err := patchVals.AsPatch()
 		if err != nil {
-			return diag.FromErr(fmt.Errorf("[ERROR] Error calling asPatch for BackupPolicyPlanPatch: %s", err))
+			return diag.FromErr(fmt.Errorf("[ERROR] [ERROR] Error calling asPatch for BackupPolicyPlanPatch: %s", err))
 		}
 
 		if deleteOverCountBool {
@@ -579,7 +487,7 @@ func resourceIBMIsBackupPolicyPlanUpdate(context context.Context, d *schema.Reso
 		_, response, err := vpcClient.UpdateBackupPolicyPlanWithContext(context, updateBackupPolicyPlanOptions)
 		if err != nil {
 			log.Printf("[DEBUG] UpdateBackupPolicyPlanWithContext failed %s\n%s", err, response)
-			return diag.FromErr(fmt.Errorf("UpdateBackupPolicyPlanWithContext failed %s\n%s", err, response))
+			return diag.FromErr(fmt.Errorf("[ERROR] UpdateBackupPolicyPlanWithContext failed %s\n%s", err, response))
 		}
 	}
 
@@ -607,7 +515,7 @@ func resourceIBMIsBackupPolicyPlanDelete(context context.Context, d *schema.Reso
 	_, response, err := vpcClient.DeleteBackupPolicyPlanWithContext(context, deleteBackupPolicyPlanOptions)
 	if err != nil {
 		log.Printf("[DEBUG] DeleteBackupPolicyPlanWithContext failed %s\n%s", err, response)
-		return diag.FromErr(fmt.Errorf("DeleteBackupPolicyPlanWithContext failed %s\n%s", err, response))
+		return diag.FromErr(fmt.Errorf("[ERROR] DeleteBackupPolicyPlanWithContext failed %s\n%s", err, response))
 	}
 
 	d.SetId("")

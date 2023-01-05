@@ -718,6 +718,47 @@ resource "ibm_is_instance" "instance7" {
   keys = [ibm_is_ssh_key.sshkey.id]
 }
 
+// catalog images 
+
+data "ibm_is_images" "imageslist" {
+  catalog_managed = true
+}
+resource "ibm_is_instance" "instance8" {
+  name    = "instance8"
+  profile = var.profile
+  auto_delete_volume = true
+  primary_network_interface {
+    primary_ip {
+      name = "example-reserved-ip"
+      auto_delete = true
+    } 
+    name        = "test-reserved-ip"
+    subnet      = ibm_is_subnet.subnet2.id
+  }
+  catalog_offering {
+    version_crn = data.ibm_is_images.imageslist.images.0.catalog_offering.0.version.0.crn
+  }
+  vpc  = ibm_is_vpc.vpc2.id
+  zone = "us-south-2"
+  keys = [ibm_is_ssh_key.sshkey.id]
+}
+
+resource "ibm_is_instance_template" "instancetemplate3" {
+  name    = "instancetemplate-3"
+  catalog_offering {
+    version_crn = data.ibm_is_images.imageslist.images.0.catalog_offering.0.version.0.crn
+  }
+  profile = var.profile
+
+  primary_network_interface {
+    subnet = ibm_is_subnet.subnet2.id
+  }
+
+  vpc       = ibm_is_vpc.vpc2.id
+  zone      = "us-south-2"
+  keys      = [ibm_is_ssh_key.sshkey.id]
+}
+
 
 data "ibm_is_instance_network_interface_reserved_ip" "data_reserved_ip" {
   instance = ibm_is_instance.test_instance.id
@@ -1051,7 +1092,7 @@ resource "ibm_is_backup_policy_plan" "is_backup_policy_plan" {
   copy_user_tags = true
   deletion_trigger {
     delete_after      = 20
-    delete_over_count = 20
+    delete_over_count = "20"
   }
   name = "my-backup-policy-plan-1"
 }
@@ -1070,4 +1111,50 @@ data "ibm_is_backup_policy_plans" "is_backup_policy_plans" {
 data "ibm_is_backup_policy_plan" "is_backup_policy_plan" {
   backup_policy_id = ibm_is_backup_policy.is_backup_policy.id
   name             = "my-backup-policy-plan"
+}
+
+// Vpn Server
+resource "ibm_is_vpn_server" "is_vpn_server" {
+  certificate_crn = var.is_certificate_crn
+  client_authentication {
+    method    = "certificate"
+    client_ca = var.is_client_ca
+  }
+  client_ip_pool         = "10.5.0.0/21"
+  subnets                = [ibm_is_subnet.subnet1.id]
+  client_dns_server_ips  = ["192.168.3.4"]
+  client_idle_timeout    = 2800
+  enable_split_tunneling = false
+  name                   = "example-vpn-server"
+  port                   = 443
+  protocol               = "udp"
+}
+
+resource "ibm_is_vpn_server_route" "is_vpn_server_route" {
+  vpn_server_id = ibm_is_vpn_server.is_vpn_server.vpn_server
+  destination   = "172.16.0.0/16"
+  action        = "translate"
+  name          = "example-vpn-server-route"
+}
+
+data "ibm_is_vpn_server" "is_vpn_server" {
+	identifier = ibm_is_vpn_server.is_vpn_server.vpn_server
+}
+data "ibm_is_vpn_servers" "is_vpn_servers" {
+}
+
+data "ibm_is_vpn_server_routes" "is_vpn_server_routes" {
+	vpn_server_id = ibm_is_vpn_server.is_vpn_server.vpn_server
+}
+
+data "ibm_is_vpn_server_route" "is_vpn_server_route" {
+	vpn_server_id = ibm_is_vpn_server.is_vpn_server.vpn_server
+	identifier = ibm_is_vpn_server_route.is_vpn_server_route.vpn_route
+}
+data "ibm_is_vpn_server_clients" "is_vpn_server_clients" {
+	vpn_server_id = ibm_is_vpn_server.is_vpn_server.vpn_server
+}
+data "ibm_is_vpn_server_client" "is_vpn_server_client" {
+	vpn_server_id = ibm_is_vpn_server.is_vpn_server.vpn_server
+	identifier = "0726-61b2f53f-1e95-42a7-94ab-55de8f8cbdd5"
 }

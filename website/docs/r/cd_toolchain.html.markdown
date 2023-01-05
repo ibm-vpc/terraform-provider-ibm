@@ -3,19 +3,17 @@ layout: "ibm"
 page_title: "IBM : ibm_cd_toolchain"
 description: |-
   Manages cd_toolchain.
-subcategory: "CD Toolchain"
+subcategory: "Continuous Delivery"
 ---
 
 # ibm_cd_toolchain
-
-~> **Beta:** This resource is in Beta, and is subject to change.
 
 Provides a resource for cd_toolchain. This allows cd_toolchain to be created, updated and deleted.
 
 ## Example Usage
 
 ```hcl
-resource "ibm_cd_toolchain" "cd_toolchain" {
+resource "ibm_cd_toolchain" "cd_toolchain_instance" {
   description = "A sample toolchain to test the API"
   name = "TestToolchainV2"
   resource_group_id = "6a9a01f2cff54a7f966f803d92877123"
@@ -38,14 +36,14 @@ Review the argument reference that you can specify for your resource.
 In addition to all argument references listed, you can access the following attribute references after your resource is created.
 
 * `id` - The unique identifier of the cd_toolchain.
-* `account_id` - (Required, String) Account ID where toolchain can be found.
-* `created_at` - (Required, String) Toolchain creation timestamp.
-* `created_by` - (Required, String) Identity that created the toolchain.
-* `crn` - (Required, String) Toolchain CRN.
-* `href` - (Required, String) URI that can be used to retrieve toolchain.
-* `location` - (Required, String) Toolchain region.
-* `tags` - (Required, List) Tags associated with the toolchain.
-* `updated_at` - (Required, String) Latest toolchain update timestamp.
+* `account_id` - (String) Account ID where toolchain can be found.
+* `created_at` - (String) Toolchain creation timestamp.
+* `created_by` - (String) Identity that created the toolchain.
+* `crn` - (String) Toolchain CRN.
+* `href` - (String) URI that can be used to retrieve toolchain.
+* `location` - (String) Toolchain region.
+* `ui_href` - (String) URL of a user-facing user interface for this toolchain.
+* `updated_at` - (String) Latest toolchain update timestamp.
 
 ## Provider Configuration
 

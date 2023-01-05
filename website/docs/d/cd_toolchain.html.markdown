@@ -3,12 +3,10 @@ layout: "ibm"
 page_title: "IBM : ibm_cd_toolchain"
 description: |-
   Get information about cd_toolchain
-subcategory: "CD Toolchain"
+subcategory: "Continuous Delivery"
 ---
 
 # ibm_cd_toolchain
-
-~> **Beta:** This data source is in Beta, and is subject to change.
 
 Provides a read-only data source for cd_toolchain. You can then reference the fields of the data source in other resources within the same configuration using interpolation syntax.
 
@@ -16,7 +14,7 @@ Provides a read-only data source for cd_toolchain. You can then reference the fi
 
 ```hcl
 data "ibm_cd_toolchain" "cd_toolchain" {
-	toolchain_id = "toolchain_id"
+	toolchain_id = "b7c3f7f6-0613-4a2c-a4b0-3189ac95bdc9"
 }
 ```
 
@@ -32,26 +30,26 @@ Review the argument reference that you can specify for your data source.
 In addition to all argument references listed, you can access the following attribute references after your data source is created.
 
 * `id` - The unique identifier of the cd_toolchain.
-* `account_id` - (Required, String) Account ID where toolchain can be found.
+* `account_id` - (String) Account ID where toolchain can be found.
 
-* `created_at` - (Required, String) Toolchain creation timestamp.
+* `created_at` - (String) Toolchain creation timestamp.
 
-* `created_by` - (Required, String) Identity that created the toolchain.
+* `created_by` - (String) Identity that created the toolchain.
 
-* `crn` - (Required, String) Toolchain CRN.
+* `crn` - (String) Toolchain CRN.
 
-* `description` - (Required, String) Toolchain description.
+* `description` - (String) Toolchain description.
 
-* `href` - (Required, String) URI that can be used to retrieve toolchain.
+* `href` - (String) URI that can be used to retrieve toolchain.
 
-* `location` - (Required, String) Toolchain region.
+* `location` - (String) Toolchain region.
 
-* `name` - (Required, String) Toolchain name.
+* `name` - (String) Toolchain name.
   * Constraints: The maximum length is `128` characters. The value must match regular expression `/^([^\\x00-\\x7F]|[a-zA-Z0-9-._ ])+$/`.
 
-* `resource_group_id` - (Required, String) Resource group where toolchain can be found.
+* `resource_group_id` - (String) Resource group where the toolchain is located.
 
-* `tags` - (Required, List) Tags associated with the toolchain.
+* `ui_href` - (String) URL of a user-facing user interface for this toolchain.
 
-* `updated_at` - (Required, String) Latest toolchain update timestamp.
+* `updated_at` - (String) Latest toolchain update timestamp.
 

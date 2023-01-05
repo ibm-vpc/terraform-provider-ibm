@@ -26,7 +26,7 @@ provider "ibm" {
 
 In the following example, you can create a Bare Metal Server:
 
-### Basic Example Using AMI Lookup
+### Basic Example
 ```terraform
 
 resource "ibm_is_vpc" "example" {
@@ -91,13 +91,41 @@ ibm_is_bare-metal_server provides the following [Timeouts](https://www.terraform
 
 Review the argument references that you can specify for your resource. 
 
+- `access_tags`  - (Optional, List of Strings) A list of access management tags to attach to the bare metal server.
+
+  ~> **Note:** 
+  **&#x2022;** You can attach only those access tags that already exists.</br>
+  **&#x2022;** For more information, about creating access tags, see [working with tags](https://cloud.ibm.com/docs/account?topic=account-tag&interface=ui#create-access-console).</br>
+  **&#x2022;** You must have the access listed in the [Granting users access to tag resources](https://cloud.ibm.com/docs/account?topic=account-access) for `access_tags`</br>
+  **&#x2022;** `access_tags` must be in the format `key:value`.
 - `delete_type` - (Optional, String) Type of deletion on destroy. **soft** signals running operating system to quiesce and shutdown cleanly, **hard** immediately stop the server. By default its `hard`.
 - `image` - (Required, String) ID of the image.
 - `keys` - (Required, List) Comma separated IDs of ssh keys.  
 - `name` - (Optional, String) The bare metal server name.
 
   -> **NOTE:**
-    a bare metal server can take up to 30 mins to clean up on delete, replacement/re-creation using the same name will return error
+    a bare metal server can take up to 30 mins to clean up on delete, replacement/re-creation using the same name may return error
+
+- `network_interfaces` - (Optional, List) The additional network interfaces to create for the bare metal server to this bare metal server. Use `ibm_is_bare_metal_server_network_interface` &  `ibm_is_bare_metal_server_network_interface_allow_float` resource for network interfaces.
+
+  ~> **NOTE:**
+    creating network interfaces both inline with `ibm_is_bare_metal_server` & as a separate `ibm_is_bare_metal_server_network_interface` resource, will show change alternatively on both resources, to avoid this use `ibm_is_bare_metal_server_network_interface` for creating network interfaces.
+  
+  Nested scheme for `network_interfaces`:
+    - `allow_ip_spoofing` - (Optional, Boolean) Indicates whether IP spoofing is allowed on this interface. If false, IP spoofing is prevented on this interface. If true, IP spoofing is allowed on this interface. [default : `false`]
+    - `allowed_vlans` - (Optional, Array) Comma separated VLANs, Indicates what VLAN IDs (for VLAN type only) can use this physical (`PCI` type) interface. A given VLAN can only be in the `allowed_vlans` array for one PCI type adapter per bare metal server.  [ conflicts with `vlan`]
+    - `enable_infrastructure_nat` - (Optional, Boolean) If true, the VPC infrastructure performs any needed NAT operations. If false, the packet is passed unmodified to/from the network interface, allowing the workload to perform any needed NAT operations. [default : `true`]
+    - `name` - (Required, String) The name of the network interface.
+    - `primary_ip` - (Optional, List) The primary IP address to bind to the network interface. This can be specified using an existing reserved IP, or a prototype object for a new reserved IP.
+
+      Nested scheme for `primary_ip`:
+        - `address` - (Optional, String) title: IPv4 The IP address. This property may add support for IPv6 addresses in the future. When processing a value in this property, verify that the address is in an expected format. If it is not, log an error. Optionally halt processing and surface the error, or bypass the resource on which the unexpected IP address format was encountered.
+        - `reserved_ip`- (Optional, String) The unique identifier for this reserved IP.
+        - `name`- (Optional, String) The user-defined or system-provided name for this reserved IP
+      
+    - `security_groups` - (Optional, Array) Comma separated IDs of security groups.
+    - `subnet` -  (Required, String) ID of the subnet to associate with.
+    - `vlan` -  (Optional, Integer) Indicates the 802.1Q VLAN ID tag that must be used for all traffic on this interface. [ conflicts with `allowed_vlans`]
 
 - `primary_network_interface` - (Required, List) A nested block describing the primary network interface of this bare metal server. We can have only one primary network interface.
   

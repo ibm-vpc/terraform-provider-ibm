@@ -5,6 +5,7 @@ package vpc
 
 import (
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
@@ -51,6 +52,12 @@ func DataSourceSnapshots() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "Filters the collection to backup policy jobs with the backup plan with the specified identifier",
+			},
+
+			"tag": &schema.Schema{
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "Filters the collection to resources with the exact tag value",
 			},
 
 			isSnapshots: {
@@ -151,6 +158,14 @@ func DataSourceSnapshots() *schema.Resource {
 							Description: "User Tags for the snapshot",
 						},
 
+						isSnapshotAccessTags: {
+							Type:        schema.TypeSet,
+							Computed:    true,
+							Elem:        &schema.Schema{Type: schema.TypeString},
+							Set:         flex.ResourceIBMVPCHash,
+							Description: "List of access tags",
+						},
+
 						isSnapshotBackupPolicyPlan: {
 							Type:        schema.TypeList,
 							Computed:    true,
@@ -241,6 +256,10 @@ func getSnapshots(d *schema.ResourceData, meta interface{}) error {
 			backupPolicyPlanIdFilter := backupPolicyPlanIdFilterOk.(string)
 			listSnapshotOptions.BackupPolicyPlanID = &backupPolicyPlanIdFilter
 		}
+		if tagFilterOk, ok := d.GetOk("tag"); ok {
+			tagFilter := tagFilterOk.(string)
+			listSnapshotOptions.Tag = &tagFilter
+		}
 
 		snapshots, response, err := sess.ListSnapshots(listSnapshotOptions)
 		if err != nil {
@@ -301,6 +320,12 @@ func getSnapshots(d *schema.ResourceData, meta interface{}) error {
 			backupPolicyPlanList = append(backupPolicyPlanList, backupPolicyPlan)
 		}
 		l[isSnapshotBackupPolicyPlan] = backupPolicyPlanList
+		accesstags, err := flex.GetGlobalTagsUsingCRN(meta, *snapshot.CRN, "", isAccessTagType)
+		if err != nil {
+			log.Printf(
+				"Error on get of resource snapshot (%s) access tags: %s", d.Id(), err)
+		}
+		l[isSnapshotAccessTags] = accesstags
 		snapshotsInfo = append(snapshotsInfo, l)
 	}
 	d.SetId(dataSourceIBMISSnapshotsID(d))

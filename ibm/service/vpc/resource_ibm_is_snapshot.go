@@ -7,6 +7,8 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
+	"strings"
 	"time"
 
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
@@ -22,7 +24,8 @@ const (
 	isSnapshotResourceGroup    = "resource_group"
 	isSnapshotSourceVolume     = "source_volume"
 	isSnapshotSourceImage      = "source_image"
-	isSnapshotUserTags         = "user_tags"
+	isSnapshotUserTags         = "tags"
+	isSnapshotAccessTags       = "access_tags"
 	isSnapshotCRN              = "crn"
 	isSnapshotHref             = "href"
 	isSnapshotEncryption       = "encryption"
@@ -59,10 +62,15 @@ func ResourceIBMSnapshot() *schema.Resource {
 			Delete: schema.DefaultTimeout(10 * time.Minute),
 		},
 
-		CustomizeDiff: customdiff.Sequence(
-			func(_ context.Context, diff *schema.ResourceDiff, v interface{}) error {
-				return flex.ResourceTagsCustomizeDiff(diff)
-			},
+		CustomizeDiff: customdiff.All(
+			customdiff.Sequence(
+				func(_ context.Context, diff *schema.ResourceDiff, v interface{}) error {
+					return flex.ResourceTagsCustomizeDiff(diff)
+				}),
+			customdiff.Sequence(
+				func(_ context.Context, diff *schema.ResourceDiff, v interface{}) error {
+					return flex.ResourceValidateAccessTags(diff, v)
+				}),
 		),
 
 		Schema: map[string]*schema.Schema{
@@ -146,6 +154,15 @@ func ResourceIBMSnapshot() *schema.Resource {
 				Description: "The resource type of the snapshot",
 			},
 
+			isSnapshotAccessTags: {
+				Type:        schema.TypeSet,
+				Optional:    true,
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString, ValidateFunc: validate.InvokeValidator("ibm_is_snapshot", "accesstag")},
+				Set:         flex.ResourceIBMVPCHash,
+				Description: "List of access management tags",
+			},
+
 			isSnapshotSize: {
 				Type:        schema.TypeInt,
 				Computed:    true,
@@ -155,6 +172,7 @@ func ResourceIBMSnapshot() *schema.Resource {
 			isSnapshotUserTags: {
 				Type:        schema.TypeSet,
 				Optional:    true,
+				Computed:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString, ValidateFunc: validate.InvokeValidator("ibm_is_snapshot", isSnapshotUserTags)},
 				Set:         flex.ResourceIBMVPCHash,
 				Description: "User Tags for the snapshot",
@@ -228,6 +246,15 @@ func ResourceIBMISSnapshotValidator() *validate.ResourceValidator {
 			Regexp:                     `^[A-Za-z0-9:_ .-]+$`,
 			MinValueLength:             1,
 			MaxValueLength:             128})
+	validateSchema = append(validateSchema,
+		validate.ValidateSchema{
+			Identifier:                 "accesstag",
+			ValidateFunctionIdentifier: validate.ValidateRegexpLen,
+			Type:                       validate.TypeString,
+			Optional:                   true,
+			Regexp:                     `^([A-Za-z0-9_.-]|[A-Za-z0-9_.-][A-Za-z0-9_ .-]*[A-Za-z0-9_.-]):([A-Za-z0-9_.-]|[A-Za-z0-9_.-][A-Za-z0-9_ .-]*[A-Za-z0-9_.-])$`,
+			MinValueLength:             1,
+			MaxValueLength:             128})
 	ibmISSnapshotResourceValidator := validate.ResourceValidator{ResourceName: "ibm_is_snapshot", Schema: validateSchema}
 	return &ibmISSnapshotResourceValidator
 }
@@ -265,13 +292,18 @@ func resourceIBMISSnapshotCreate(d *schema.ResourceData, meta interface{}) error
 				userTagStr := userTag.(string)
 				userTagsArray[i] = userTagStr
 			}
+			schematicTags := os.Getenv("IC_ENV_TAGS")
+			var envTags []string
+			if schematicTags != "" {
+				envTags = strings.Split(schematicTags, ",")
+				userTagsArray = append(userTagsArray, envTags...)
+			}
 			snapshotprototypeoptions.UserTags = userTagsArray
 		}
 	}
-	options.SnapshotPrototype = snapshotprototypeoptions
 
 	log.Printf("[DEBUG] Snapshot create")
-
+	options.SnapshotPrototype = snapshotprototypeoptions
 	snapshot, response, err := sess.CreateSnapshot(options)
 	if err != nil || snapshot == nil {
 		return fmt.Errorf("[ERROR] Error creating Snapshot %s\n%s", err, response)
@@ -286,6 +318,14 @@ func resourceIBMISSnapshotCreate(d *schema.ResourceData, meta interface{}) error
 		return err
 	}
 
+	if _, ok := d.GetOk(isSnapshotAccessTags); ok {
+		oldList, newList := d.GetChange(isSubnetAccessTags)
+		err = flex.UpdateGlobalTagsUsingCRN(oldList, newList, meta, *snapshot.CRN, "", isAccessTagType)
+		if err != nil {
+			log.Printf(
+				"Error on create of resource snapshot (%s) access tags: %s", d.Id(), err)
+		}
+	}
 	return resourceIBMISSnapshotRead(d, meta)
 }
 
@@ -394,6 +434,12 @@ func snapshotGet(d *schema.ResourceData, meta interface{}, id string) error {
 		backupPolicyPlanList = append(backupPolicyPlanList, backupPolicyPlan)
 	}
 	d.Set(isSnapshotBackupPolicyPlan, backupPolicyPlanList)
+	accesstags, err := flex.GetGlobalTagsUsingCRN(meta, *snapshot.CRN, "", isAccessTagType)
+	if err != nil {
+		log.Printf(
+			"Error on get of resource snapshot (%s) access tags: %s", d.Id(), err)
+	}
+	d.Set(isSnapshotAccessTags, accesstags)
 	return nil
 }
 
@@ -450,6 +496,12 @@ func snapshotUpdate(d *schema.ResourceData, meta interface{}, id, name string, h
 					userTagStr := userTag.(string)
 					userTagsArray[i] = userTagStr
 				}
+				schematicTags := os.Getenv("IC_ENV_TAGS")
+				var envTags []string
+				if schematicTags != "" {
+					envTags = strings.Split(schematicTags, ",")
+					userTagsArray = append(userTagsArray, envTags...)
+				}
 				snapshotPatchModel := &vpcv1.SnapshotPatch{}
 				snapshotPatchModel.UserTags = userTagsArray
 				snapshotPatch, err := snapshotPatchModel.AsPatch()
@@ -488,6 +540,15 @@ func snapshotUpdate(d *schema.ResourceData, meta interface{}, id, name string, h
 		_, err = isWaitForSnapshotUpdate(sess, d.Id(), d.Timeout(schema.TimeoutCreate))
 		if err != nil {
 			return err
+		}
+	}
+
+	if d.HasChange(isSnapshotAccessTags) {
+		oldList, newList := d.GetChange(isSnapshotAccessTags)
+		err := flex.UpdateGlobalTagsUsingCRN(oldList, newList, meta, d.Get(isSnapshotCRN).(string), "", isAccessTagType)
+		if err != nil {
+			log.Printf(
+				"Error on update of resource snapshot (%s) access tags: %s", d.Id(), err)
 		}
 	}
 	return nil

@@ -89,7 +89,7 @@ Review the argument references that you can specify for your data source.
 
 ## Attribute reference
 In addition to all argument reference list, you can access the following attribute reference after your data source is created.
-
+- `access_tags`  - (Array of Strings) Access management tags associated with the snapshot.
 - `backup_policy_plan` - (List) If present, the backup policy plan which created this snapshot.
   
    Nested scheme for `backup_policy_plan`:
@@ -112,4 +112,4 @@ In addition to all argument reference list, you can access the following attribu
 - `size` - (Integer) The size of this snapshot rounded up to the next gigabyte.
 - `source_image` - (String) If present, the unique identifier for the image from which the data on this volume was most directly provisioned.
 - `captured_at` - (String) The date and time that this snapshot was captured.
-- `user_tags` - (String) Tags associated with the snapshot.
+- `tags` - (String) Tags associated with the snapshot.

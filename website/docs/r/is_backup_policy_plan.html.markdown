@@ -27,8 +27,8 @@ provider "ibm" {
 ```terraform
 resource "ibm_is_backup_policy_plan" "example" {
   backup_policy_id = "backup_policy_id"
-  cron_spec = "0 12 * * *"
-  name = "example-backup-policy-plan"
+  cron_spec        = "0 12 * * *"
+  name             = "example-backup-policy-plan"
 }
 ```
 
@@ -46,18 +46,21 @@ backup_policy_plan_id
 - `cron_spec` - (Required, String) The cron specification for the backup schedule. The value must match regular expression `^((((\d+,)+\d+|([\d\*]+(\/|-)\d+)|\d+|\*) ?){5,7})$`.
 
 	->**Note** The backup policy jobs (which create and delete backups for this plan) will not start until this time, and may start for up to 90 minutes after this time.All backup schedules for plans in the same policy must be at least an hour apart.
-		
-- `deletion_trigger` - (Optional, List)
-  
-  Nested scheme for `deletion_trigger`:
-  - `delete_after` - (Optional, Integer) The maximum number of days to keep each backup after creation. Default value is 30.
-  - `delete_over_count` - (Optional, Integer) The maximum number of recent backups to keep. If unspecified, there will be no maximum.
-- `name` - (Optional, String) The user-defined name for this backup policy plan. Names must be unique within the backup policy this plan resides in. If unspecified, the name will be a hyphenated list of randomly-selected words.
 - `clone_policy` - (Optional, List)
   
   Nested scheme for `clone_policy`:
   - `max_snapshots` - (Optional, Integer) The maximum number of recent snapshots (per source) that will keep clones.
   - `zones` - (Optional, List) The zone list this backup policy plan will create snapshot clones in.
+
+- `deletion_trigger` - (Optional, List)
+  
+  Nested scheme for `deletion_trigger`:
+  - `delete_after` - (Optional, Integer) The maximum number of days to keep each backup after creation. Default value is 30.
+  - `delete_over_count` - (Optional, String) The maximum number of recent backups to keep. If unspecified, there will be no maximum.
+    
+      ->**Note** Assign back to "null" to reset to no maximum.
+
+- `name` - (Optional, String) The user-defined name for this backup policy plan. Names must be unique within the backup policy this plan resides in. If unspecified, the name will be a hyphenated list of randomly-selected words.
 
 ## Attribute Reference
 

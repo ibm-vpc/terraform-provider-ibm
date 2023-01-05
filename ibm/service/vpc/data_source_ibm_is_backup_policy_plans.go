@@ -67,17 +67,17 @@ func DataSourceIBMIsBackupPolicyPlans() *schema.Resource {
 						},
 						"deletion_trigger": &schema.Schema{
 							Type:     schema.TypeList,
-							Computed: true,
+							Optional: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"delete_after": &schema.Schema{
 										Type:        schema.TypeInt,
-										Computed:    true,
+										Optional:    true,
 										Description: "The maximum number of days to keep each backup after creation.",
 									},
 									"delete_over_count": &schema.Schema{
 										Type:        schema.TypeInt,
-										Computed:    true,
+										Optional:    true,
 										Description: "The maximum number of recent backups to keep. If absent, there is no maximum.",
 									},
 								},
@@ -147,7 +147,7 @@ func dataSourceIBMIsBackupPolicyPlansRead(context context.Context, d *schema.Res
 	backupPolicyPlanCollection, response, err := vpcClient.ListBackupPolicyPlansWithContext(context, listBackupPolicyPlansOptions)
 	if err != nil {
 		log.Printf("[DEBUG] ListBackupPolicyPlansWithContext failed %s\n%s", err, response)
-		return diag.FromErr(fmt.Errorf("ListBackupPolicyPlansWithContext failed %s\n%s", err, response))
+		return diag.FromErr(fmt.Errorf("[ERROR] ListBackupPolicyPlansWithContext failed %s\n%s", err, response))
 	}
 
 	// Use the provided filter argument and construct a new list with only the requested resource(s)
@@ -167,7 +167,7 @@ func dataSourceIBMIsBackupPolicyPlansRead(context context.Context, d *schema.Res
 	}
 	if suppliedFilter {
 		if len(backupPolicyPlanCollection.Plans) == 0 {
-			return diag.FromErr(fmt.Errorf("no Plans found with name %s", name))
+			return diag.FromErr(fmt.Errorf("[ERROR] no plans found with name %s", name))
 		}
 		d.SetId(name)
 	} else {
@@ -177,7 +177,7 @@ func dataSourceIBMIsBackupPolicyPlansRead(context context.Context, d *schema.Res
 	if backupPolicyPlanCollection.Plans != nil {
 		err = d.Set("plans", dataSourceBackupPolicyPlanCollectionFlattenPlans(backupPolicyPlanCollection.Plans))
 		if err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting plans %s", err))
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting plans %s", err))
 		}
 	}
 
