@@ -766,7 +766,7 @@ func nwaclDelete(d *schema.ResourceData, meta interface{}, id string) error {
 
 						// Construct an instance of the ReplaceSubnetNetworkACLOptions model
 						replaceSubnetNetworkACLOptionsModel := new(vpcv1.ReplaceSubnetNetworkACLOptions)
-						replaceSubnetNetworkACLOptionsModel.ID = &id
+						replaceSubnetNetworkACLOptionsModel.ID = s.ID
 						replaceSubnetNetworkACLOptionsModel.NetworkACLIdentity = networkACLIdentityModel
 						_, response, err := sess.ReplaceSubnetNetworkACL(replaceSubnetNetworkACLOptionsModel)
 
@@ -776,10 +776,15 @@ func nwaclDelete(d *schema.ResourceData, meta interface{}, id string) error {
 						}
 					}
 
+					response, err = sess.DeleteNetworkACL(deleteNetworkAclOptions)
+					if err != nil {
+						return fmt.Errorf("[ERROR] Error Deleting Network ACL : %s\n%s", err, response)
+					}
 				}
 			}
+		} else {
+			return fmt.Errorf("[ERROR] Error Deleting Network ACL : %s\n%s", err, response)
 		}
-		return fmt.Errorf("[ERROR] Error Deleting Network ACL : %s\n%s", err, response)
 	}
 	d.SetId("")
 	return nil
