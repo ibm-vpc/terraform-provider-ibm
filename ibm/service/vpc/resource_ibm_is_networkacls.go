@@ -737,6 +737,48 @@ func nwaclDelete(d *schema.ResourceData, meta interface{}, id string) error {
 	}
 	response, err = sess.DeleteNetworkACL(deleteNetworkAclOptions)
 	if err != nil {
+		if response.StatusCode == 409 && strings.Contains(err.Error(), "The network ACL cannot be deleted,network ACL must not be attached to any subnets") {
+			listSubnetsOptions := &vpcv1.ListSubnetsOptions{}
+			subnets, _, _ := sess.ListSubnets(listSubnetsOptions)
+			for _, s := range subnets.Subnets {
+				if id == *s.NetworkACL.ID {
+					// Fetch VPC
+					vpcID := *s.VPC.ID
+
+					getvpcOptions := &vpcv1.GetVPCOptions{
+						ID: &vpcID,
+					}
+					vpc, response, err := sess.GetVPC(getvpcOptions)
+					if err != nil {
+						if response != nil && response.StatusCode == 404 {
+							d.SetId("")
+							return nil
+						}
+						return fmt.Errorf("[ERROR] Error getting VPC : %s\n%s", err, response)
+					}
+
+					// Fetch default network ACL
+					if vpc.DefaultNetworkACL != nil {
+						log.Printf("[DEBUG] vpc default network acl is not null :%s", *vpc.DefaultNetworkACL.ID)
+						// Construct an instance of the NetworkACLIdentityByID model
+						networkACLIdentityModel := new(vpcv1.NetworkACLIdentityByID)
+						networkACLIdentityModel.ID = vpc.DefaultNetworkACL.ID
+
+						// Construct an instance of the ReplaceSubnetNetworkACLOptions model
+						replaceSubnetNetworkACLOptionsModel := new(vpcv1.ReplaceSubnetNetworkACLOptions)
+						replaceSubnetNetworkACLOptionsModel.ID = &id
+						replaceSubnetNetworkACLOptionsModel.NetworkACLIdentity = networkACLIdentityModel
+						_, response, err := sess.ReplaceSubnetNetworkACL(replaceSubnetNetworkACLOptionsModel)
+
+						if err != nil {
+							log.Printf("[DEBUG] Error while attaching a network ACL to a subnet %s\n%s", err, response)
+							return fmt.Errorf("[ERROR] Error while attaching a network ACL to a subnet %s\n%s", err, response)
+						}
+					}
+
+				}
+			}
+		}
 		return fmt.Errorf("[ERROR] Error Deleting Network ACL : %s\n%s", err, response)
 	}
 	d.SetId("")
