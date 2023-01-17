@@ -351,15 +351,15 @@ func lbGetByName(d *schema.ResourceData, meta interface{}, name string) error {
 	for _, lb := range allrecs {
 		if *lb.Name == name {
 			d.SetId(*lb.ID)
-			dnsList := make([]map[string]interface{}, 0)
-			if lb.Dns != nil {
-				dns := map[string]interface{}{}
-				dns["instance_crn"] = lb.Dns.Instance.CRN
-				dns["zone_id"] = lb.Dns.Zone.ID
-				dns["name"] = lb.Dns.Name
-				dnsList = append(dnsList, dns)
-				d.Set("dns", dnsList)
-			}
+			// dnsList := make([]map[string]interface{}, 0)
+			// if lb.Dns != nil {
+			// 	dns := map[string]interface{}{}
+			// 	dns["instance_crn"] = lb.Dns.Instance.CRN
+			// 	dns["zone_id"] = lb.Dns.Zone.ID
+			// 	dns["name"] = lb.Dns.Name
+			// 	dnsList = append(dnsList, dns)
+			// 	d.Set("dns", dnsList)
+			// }
 			d.Set(isLBName, *lb.Name)
 			if lb.Logging != nil && lb.Logging.Datapath != nil {
 				d.Set(isLBLogging, *lb.Logging.Datapath.Active)

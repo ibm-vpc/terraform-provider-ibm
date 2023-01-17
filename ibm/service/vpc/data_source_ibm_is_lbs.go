@@ -319,15 +319,15 @@ func getLbs(d *schema.ResourceData, meta interface{}) error {
 		//	log.Printf("******* lb ******** : (%+v)", lb)
 		lbInfo[ID] = *lb.ID
 		lbInfo[isLBName] = *lb.Name
-		dnsList := make([]map[string]interface{}, 0)
-		if lb.Dns != nil {
-			dns := map[string]interface{}{}
-			dns["instance_crn"] = lb.Dns.Instance.CRN
-			dns["zone_id"] = lb.Dns.Zone.ID
-			dns["name"] = lb.Dns.Name
-			dnsList = append(dnsList, dns)
-			lbInfo["dns"] = dnsList
-		}
+		//dnsList := make([]map[string]interface{}, 0)
+		// if lb.Dns != nil {
+		// 	dns := map[string]interface{}{}
+		// 	dns["instance_crn"] = lb.Dns.Instance.CRN
+		// 	dns["zone_id"] = lb.Dns.Zone.ID
+		// 	dns["name"] = lb.Dns.Name
+		// 	dnsList = append(dnsList, dns)
+		// 	lbInfo["dns"] = dnsList
+		// }
 		if lb.RouteMode != nil {
 			lbInfo[isLBRouteMode] = *lb.RouteMode
 		}

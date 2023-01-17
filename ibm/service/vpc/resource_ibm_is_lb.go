@@ -284,8 +284,8 @@ func ResourceIBMISLB() *schema.Resource {
 func ResourceIBMISLBValidator() *validate.ResourceValidator {
 
 	validateSchema := make([]validate.ValidateSchema, 0)
-	lbtype := "public, private"
-	isLBProfileAllowedValues := "network-fixed"
+	lbtype := "public, private, private_path"
+	isLBProfileAllowedValues := "network-fixed, network-private-path"
 
 	validateSchema = append(validateSchema,
 		validate.ValidateSchema{
@@ -341,6 +341,7 @@ func resourceIBMISLBCreate(d *schema.ResourceData, meta interface{}) error {
 
 	// subnets := flex.ExpandStringList((d.Get(isLBSubnets).(*schema.Set)).List())
 	var lbType, rg string
+	isPrivatePath := false
 	isPublic := true
 	if types, ok := d.GetOk(isLBType); ok {
 		lbType = types.(string)
@@ -350,11 +351,16 @@ func resourceIBMISLBCreate(d *schema.ResourceData, meta interface{}) error {
 		isPublic = false
 	}
 
+	if lbType == "private_path" {
+		isPrivatePath = true
+		isPublic = false
+	}
+
 	if grp, ok := d.GetOk(isLBResourceGroup); ok {
 		rg = grp.(string)
 	}
 
-	err := lbCreate(d, meta, name, lbType, rg, subnets, isPublic, isLogging, securityGroups)
+	err := lbCreate(d, meta, name, lbType, rg, subnets, isPublic, isPrivatePath, isLogging, securityGroups)
 	if err != nil {
 		return err
 	}
@@ -362,33 +368,34 @@ func resourceIBMISLBCreate(d *schema.ResourceData, meta interface{}) error {
 	return resourceIBMISLBRead(d, meta)
 }
 
-func lbCreate(d *schema.ResourceData, meta interface{}, name, lbType, rg string, subnets *schema.Set, isPublic, isLogging bool, securityGroups *schema.Set) error {
+func lbCreate(d *schema.ResourceData, meta interface{}, name, lbType, rg string, subnets *schema.Set, isPublic, isPrivatePath, isLogging bool, securityGroups *schema.Set) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
 		return err
 	}
 
 	options := &vpcv1.CreateLoadBalancerOptions{
-		IsPublic: &isPublic,
-		Name:     &name,
+		IsPublic:      &isPublic,
+		IsPrivatePath: &isPrivatePath,
+		Name:          &name,
 	}
 
-	if dnsIntf, ok := d.GetOk("dns"); ok {
-		dnsMap := dnsIntf.([]interface{})[0].(map[string]interface{})
-		dnsInstance, _ := dnsMap["instance_crn"].(string)
-		name, _ := dnsMap["name"].(string)
-		zone, _ := dnsMap["zone_id"].(string)
-		dns := &vpcv1.LoadBalancerDnsPrototype{
-			Instance: &vpcv1.DnsInstanceReference{
-				CRN: &dnsInstance,
-			},
-			Name: &name,
-			Zone: &vpcv1.DnsZoneReference{
-				ID: &zone,
-			},
-		}
-		options.Dns = dns
-	}
+	// if dnsIntf, ok := d.GetOk("dns"); ok {
+	// 	dnsMap := dnsIntf.([]interface{})[0].(map[string]interface{})
+	// 	dnsInstance, _ := dnsMap["instance_crn"].(string)
+	// 	name, _ := dnsMap["name"].(string)
+	// 	zone, _ := dnsMap["zone_id"].(string)
+	// 	dns := &vpcv1.LoadBalancerDnsPrototype{
+	// 		Instance: &vpcv1.DnsInstanceReference{
+	// 			CRN: &dnsInstance,
+	// 		},
+	// 		Name: &name,
+	// 		Zone: &vpcv1.DnsZoneReference{
+	// 			ID: &zone,
+	// 		},
+	// 	}
+	// 	options.Dns = dns
+	// }
 
 	if routeModeBool, ok := d.GetOk(isLBRouteMode); ok {
 		routeMode := routeModeBool.(bool)
@@ -431,10 +438,10 @@ func lbCreate(d *schema.ResourceData, meta interface{}, name, lbType, rg string,
 		options.Profile = loadBalancerProfileIdentityModel
 	} else {
 
-		dataPath := &vpcv1.LoadBalancerLoggingDatapath{
+		dataPath := &vpcv1.LoadBalancerLoggingDatapathPrototype{
 			Active: &isLogging,
 		}
-		loadBalancerLogging := &vpcv1.LoadBalancerLogging{
+		loadBalancerLogging := &vpcv1.LoadBalancerLoggingPrototype{
 			Datapath: dataPath,
 		}
 		options.Logging = loadBalancerLogging
@@ -489,22 +496,26 @@ func lbGet(d *schema.ResourceData, meta interface{}, id string) error {
 		}
 		return fmt.Errorf("[ERROR] Error getting Load Balancer : %s\n%s", err, response)
 	}
-	dnsList := make([]map[string]interface{}, 0)
-	if lb.Dns != nil {
-		dns := map[string]interface{}{}
-		dns["instance_crn"] = lb.Dns.Instance.CRN
-		dns["zone_id"] = lb.Dns.Zone.ID
-		dns["name"] = lb.Dns.Name
-		dnsList = append(dnsList, dns)
-		d.Set("dns", dnsList)
-	} else {
-		d.Set("dns", nil)
-	}
+	// dnsList := make([]map[string]interface{}, 0)
+	// if lb.Dns != nil {
+	// 	dns := map[string]interface{}{}
+	// 	dns["instance_crn"] = lb.Dns.Instance.CRN
+	// 	dns["zone_id"] = lb.Dns.Zone.ID
+	// 	dns["name"] = lb.Dns.Name
+	// 	dnsList = append(dnsList, dns)
+	// 	d.Set("dns", dnsList)
+	// } else {
+	// 	d.Set("dns", nil)
+	// }
 	d.Set(isLBName, *lb.Name)
 	if *lb.IsPublic {
 		d.Set(isLBType, "public")
 	} else {
-		d.Set(isLBType, "private")
+		if *lb.IsPrivatePath {
+			d.Set(isLBType, "private_path")
+		} else {
+			d.Set(isLBType, "private")
+		}
 	}
 	if lb.RouteMode != nil {
 		d.Set(isLBRouteMode, *lb.RouteMode)
@@ -669,56 +680,56 @@ func lbUpdate(d *schema.ResourceData, meta interface{}, id, name string, hasChan
 		}
 	}
 
-	if d.HasChange("dns") {
-		updateLoadBalancerOptions := &vpcv1.UpdateLoadBalancerOptions{
-			ID: &id,
-		}
-		dnsRemoved := false
-		if _, ok := d.GetOk("dns"); !ok {
-			dnsRemoved = true
-		}
-		dnsPatchModel := &vpcv1.LoadBalancerDnsPatch{}
-		if d.HasChange("dns.0.instance_crn") {
+	// if d.HasChange("dns") {
+	// 	updateLoadBalancerOptions := &vpcv1.UpdateLoadBalancerOptions{
+	// 		ID: &id,
+	// 	}
+	// 	dnsRemoved := false
+	// 	if _, ok := d.GetOk("dns"); !ok {
+	// 		dnsRemoved = true
+	// 	}
+	// 	dnsPatchModel := &vpcv1.LoadBalancerDnsPatch{}
+	// 	if d.HasChange("dns.0.instance_crn") {
 
-		}
-		if d.HasChange("dns.0.instance_crn") {
-			dnsInstanceCrn := d.Get("dns.0.instance_crn").(string)
-			dnsPatchModel.Instance = &vpcv1.DnsInstanceReference{
-				CRN: &dnsInstanceCrn,
-			}
-		}
-		if d.HasChange("dns.0.name") {
-			dnsName := d.Get("dns.0.name").(string)
-			dnsPatchModel.Name = &dnsName
-		}
-		if d.HasChange("dns.0.zone_id") {
-			dnsZoneId := d.Get("dns.0.zone_id").(string)
-			dnsPatchModel.Zone = &vpcv1.DnsZoneReference{
-				ID: &dnsZoneId,
-			}
-		}
+	// 	}
+	// 	if d.HasChange("dns.0.instance_crn") {
+	// 		dnsInstanceCrn := d.Get("dns.0.instance_crn").(string)
+	// 		dnsPatchModel.Instance = &vpcv1.DnsInstanceReference{
+	// 			CRN: &dnsInstanceCrn,
+	// 		}
+	// 	}
+	// 	if d.HasChange("dns.0.name") {
+	// 		dnsName := d.Get("dns.0.name").(string)
+	// 		dnsPatchModel.Name = &dnsName
+	// 	}
+	// 	if d.HasChange("dns.0.zone_id") {
+	// 		dnsZoneId := d.Get("dns.0.zone_id").(string)
+	// 		dnsPatchModel.Zone = &vpcv1.DnsZoneReference{
+	// 			ID: &dnsZoneId,
+	// 		}
+	// 	}
 
-		loadBalancerPatchModel := &vpcv1.LoadBalancerPatch{
-			Dns: dnsPatchModel,
-		}
-		loadBalancerPatch, err := loadBalancerPatchModel.AsPatch()
-		if err != nil {
-			return fmt.Errorf("[ERROR] Error calling asPatch for LoadBalancerPatch: %s", err)
-		}
-		if dnsRemoved {
-			loadBalancerPatch["dns"] = nil
-		}
-		updateLoadBalancerOptions.LoadBalancerPatch = loadBalancerPatch
+	// 	loadBalancerPatchModel := &vpcv1.LoadBalancerPatch{
+	// 		Dns: dnsPatchModel,
+	// 	}
+	// 	loadBalancerPatch, err := loadBalancerPatchModel.AsPatch()
+	// 	if err != nil {
+	// 		return fmt.Errorf("[ERROR] Error calling asPatch for LoadBalancerPatch: %s", err)
+	// 	}
+	// 	if dnsRemoved {
+	// 		loadBalancerPatch["dns"] = nil
+	// 	}
+	// 	updateLoadBalancerOptions.LoadBalancerPatch = loadBalancerPatch
 
-		_, response, err := sess.UpdateLoadBalancer(updateLoadBalancerOptions)
-		if err != nil {
-			return fmt.Errorf("[ERROR] Error Updating subents in vpc Load Balancer : %s\n%s", err, response)
-		}
-		_, err = isWaitForLBAvailable(sess, d.Id(), d.Timeout(schema.TimeoutUpdate))
-		if err != nil {
-			return err
-		}
-	}
+	// 	_, response, err := sess.UpdateLoadBalancer(updateLoadBalancerOptions)
+	// 	if err != nil {
+	// 		return fmt.Errorf("[ERROR] Error Updating subents in vpc Load Balancer : %s\n%s", err, response)
+	// 	}
+	// 	_, err = isWaitForLBAvailable(sess, d.Id(), d.Timeout(schema.TimeoutUpdate))
+	// 	if err != nil {
+	// 		return err
+	// 	}
+	// }
 
 	if d.HasChange(isLBSubnets) {
 		updateLoadBalancerOptions := &vpcv1.UpdateLoadBalancerOptions{
@@ -775,10 +786,10 @@ func lbUpdate(d *schema.ResourceData, meta interface{}, id, name string, hasChan
 		updateLoadBalancerOptions := &vpcv1.UpdateLoadBalancerOptions{
 			ID: &id,
 		}
-		dataPath := &vpcv1.LoadBalancerLoggingDatapath{
+		dataPath := &vpcv1.LoadBalancerLoggingDatapathPatch{
 			Active: &isLogging,
 		}
-		loadBalancerLogging := &vpcv1.LoadBalancerLogging{
+		loadBalancerLogging := &vpcv1.LoadBalancerLoggingPatch{
 			Datapath: dataPath,
 		}
 		loadBalancerPatchModel := &vpcv1.LoadBalancerPatch{
