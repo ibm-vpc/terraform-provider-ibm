@@ -621,8 +621,8 @@ func isWaitForInstanceNetworkInterfaceSGDelete(vpcClient *vpcv1.VpcV1, securityG
 	log.Printf("Waiting for Instance Network Interface (%s) to be deleted.", instanceID)
 
 	stateConf := &resource.StateChangeConf{
-		Pending:    []string{isNetworkInterfacePending, isNetworkInterfaceDeleting, isNetworkInterfaceAvailable},
-		Target:     []string{isNetworkInterfaceDeleted},
+		Pending:    []string{isNetworkInterfacePending},
+		Target:     []string{isNetworkInterfaceAvailable, isNetworkInterfaceFailed},
 		Refresh:    isInstanceNetworkInterfaceRefreshDeleteFunc(vpcClient, securityGroupID, instanceID, networkInterfaceId),
 		Timeout:    timeout,
 		Delay:      10 * time.Second,
@@ -647,9 +647,6 @@ func isInstanceNetworkInterfaceRefreshDeleteFunc(vpcClient *vpcv1.VpcV1, securit
 				getInstanceNetworkInterfaceOptions.SetID(networkInterfaceId)
 				networkInterface, response, err := vpcClient.GetInstanceNetworkInterface(getInstanceNetworkInterfaceOptions)
 				if err != nil {
-					if response != nil && response.StatusCode == 404 {
-						return networkInterface, isNetworkInterfaceDeleted, nil
-					}
 					return nil, "", fmt.Errorf("GetInstanceNetworkInterface failed %s\n%s", err, response)
 				}
 				if *networkInterface.Status == isNetworkInterfaceFailed {
@@ -668,8 +665,8 @@ func isWaitForBareMetalServerNetworkInterfaceSGDelete(sess *vpcv1.VpcV1, securit
 	log.Printf("[INFO] Waiting for bare metal server (%s) network interface binding (%s) to be removed.", bareMetalServerId, nicId)
 
 	stateConf := &resource.StateChangeConf{
-		Pending: []string{isBareMetalServerNetworkInterfacePending, "available", "deleting", "failed"},
-		Target:  []string{"deleted"},
+		Pending: []string{isBareMetalServerNetworkInterfacePending, "deleting", "failed"},
+		Target:  []string{"available"},
 		Refresh: func() (interface{}, string, error) {
 
 			getSecurityGroupTargetOptions := &vpcv1.GetSecurityGroupTargetOptions{
@@ -686,14 +683,11 @@ func isWaitForBareMetalServerNetworkInterfaceSGDelete(sess *vpcv1.VpcV1, securit
 					}
 					result, response, err := sess.GetBareMetalServerNetworkInterface(getBmsNicOptions)
 					if err != nil {
-						if response != nil && response.StatusCode == 404 {
-							return result, isBareMetalServerNetworkInterfaceDeleted, nil
-						}
 						return nil, "", fmt.Errorf("[ERROR] Error getting Bare Metal Server(%s) Network Interface (%s): %s\n%s", bareMetalServerId, nicId, err, response)
 					}
 					nicVal := result.(*vpcv1.BareMetalServerNetworkInterface)
 					status := *nicVal.Status
-					if status == "available" || status == "failed" {
+					if status == "failed" {
 						return nicVal, status, fmt.Errorf("[ERROR] Network Interface deleting failed with status %s ", status)
 					}
 					return nicVal, status, nil
