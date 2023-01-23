@@ -7,6 +7,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"reflect"
 	"strings"
 	"time"
 
@@ -603,17 +604,30 @@ func isNetworkInterfaceBareMetalSgTargetRefreshFunc(client *vpcv1.VpcV1, bareMet
 			BareMetalServerID: &bareMetalServerId,
 			ID:                &networkInterfaceId,
 		}
-		bmsNic, response, err := client.GetBareMetalServerNetworkInterface(getBmsNicOptions)
+		result, response, err := client.GetBareMetalServerNetworkInterface(getBmsNicOptions)
 		if err != nil {
 			return nil, "", fmt.Errorf("[ERROR] Error getting Bare Metal Server (%s) Network Interface (%s) : %s\n%s", bareMetalServerId, networkInterfaceId, err, response)
 		}
-
-		nic := bmsNic.(*vpcv1.BareMetalServerNetworkInterface)
-		status := *nic.Status
-		if status == "available" || status == "failed" {
-			return bmsNic, status, nil
+		status := ""
+		switch reflect.TypeOf(result).String() {
+		case "*vpcv1.BareMetalServerNetworkInterfaceByPci":
+			{
+				nic := result.(*vpcv1.BareMetalServerNetworkInterfaceByPci)
+				status = *nic.Status
+				if status == "available" || status == "failed" {
+					return result, status, nil
+				}
+			}
+		case "*vpcv1.BareMetalServerNetworkInterfaceByVlan":
+			{
+				nic := result.(*vpcv1.BareMetalServerNetworkInterfaceByVlan)
+				status = *nic.Status
+				if status == "available" || status == "failed" {
+					return result, status, nil
+				}
+			}
 		}
-		return bmsNic, "pending", nil
+		return result, "pending", nil
 	}
 }
 
@@ -665,8 +679,8 @@ func isWaitForBareMetalServerNetworkInterfaceSGDelete(sess *vpcv1.VpcV1, securit
 	log.Printf("[INFO] Waiting for bare metal server (%s) network interface binding (%s) to be removed.", bareMetalServerId, nicId)
 
 	stateConf := &resource.StateChangeConf{
-		Pending: []string{isBareMetalServerNetworkInterfacePending, "deleting", "failed"},
-		Target:  []string{"available"},
+		Pending: []string{"pending", "deleting"},
+		Target:  []string{"available", "deleted"},
 		Refresh: func() (interface{}, string, error) {
 
 			getSecurityGroupTargetOptions := &vpcv1.GetSecurityGroupTargetOptions{
@@ -685,12 +699,33 @@ func isWaitForBareMetalServerNetworkInterfaceSGDelete(sess *vpcv1.VpcV1, securit
 					if err != nil {
 						return nil, "", fmt.Errorf("[ERROR] Error getting Bare Metal Server(%s) Network Interface (%s): %s\n%s", bareMetalServerId, nicId, err, response)
 					}
-					nicVal := result.(*vpcv1.BareMetalServerNetworkInterface)
-					status := *nicVal.Status
-					if status == "failed" {
-						return nicVal, status, fmt.Errorf("[ERROR] Network Interface deleting failed with status %s ", status)
+					status := ""
+					switch reflect.TypeOf(result).String() {
+					case "*vpcv1.BareMetalServerNetworkInterfaceByPci":
+						{
+							nic := result.(*vpcv1.BareMetalServerNetworkInterfaceByPci)
+							status = *nic.Status
+							if status == "failed" {
+								return nic, status, fmt.Errorf("[ERROR] Network Interface deleting failed with status %s ", status)
+							} else if status == "available" {
+								return nic, status, nil
+							}
+						}
+					case "*vpcv1.BareMetalServerNetworkInterfaceByVlan":
+						{
+							nic := result.(*vpcv1.BareMetalServerNetworkInterfaceByVlan)
+							status = *nic.Status
+							if status == "failed" {
+								return nic, status, fmt.Errorf("[ERROR] Network Interface deleting failed with status %s ", status)
+							} else if status == "available" {
+								return nic, status, nil
+							}
+						}
 					}
-					return nicVal, status, nil
+					// nicVal := result.(*vpcv1.BareMetalServerNetworkInterface)
+					// status := *nic.Status
+
+					return result, "pending", nil
 				}
 				return nil, "", fmt.Errorf("[ERROR] Error getting Security Group Target : %s\n%s", err, response)
 			}
