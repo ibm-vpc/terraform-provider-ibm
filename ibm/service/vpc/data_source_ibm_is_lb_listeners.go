@@ -218,6 +218,11 @@ func DataSourceIBMISLBListeners() *schema.Resource {
 							Computed:    true,
 							Description: "The provisioning status of this listener.",
 						},
+						isLBListenerIdleConnectionTimeout: {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: "idle connection timeout of listener",
+						},
 					},
 				},
 			},
@@ -323,6 +328,9 @@ func dataSourceLoadBalancerListenerCollectionListenersToMap(listenersItem vpcv1.
 	}
 	if listenersItem.ProvisioningStatus != nil {
 		listenersMap["provisioning_status"] = listenersItem.ProvisioningStatus
+	}
+	if listenersItem.IdleConnectionTimeout != nil {
+		listenersMap[isLBListenerIdleConnectionTimeout] = listenersItem.IdleConnectionTimeout
 	}
 
 	return listenersMap

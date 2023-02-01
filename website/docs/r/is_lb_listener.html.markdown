@@ -33,6 +33,7 @@ resource "ibm_is_lb_listener" "example" {
   https_redirect_listener    = ibm_is_lb_listener.example.listener_id
   https_redirect_status_code = 301
   https_redirect_uri         = "/example?doc=get"
+  idle_connection_timeout    = 80
 }
 
 resource "ibm_is_lb_pool" "example" {
@@ -194,7 +195,7 @@ Review the argument references that you can specify for your resource.
 - `https_redirect_listener` - (Optional, String) ID of the listener that will be set as http redirect target.
 - `https_redirect_status_code` - (Optional, Integer) The HTTP status code to be returned in the redirect response, one of [301, 302, 303, 307, 308].
 - `https_redirect_uri` - (Optional, String) Target URI where traffic will be redirected.
-
+- `idle_connection_timeout` - (Optional, Integer) The idle connection timeout of the listener in seconds. This property will be present for load balancers in the `application` family. Default value is `50`.
 ## Attribute reference
 In addition to all argument reference list, you can access the following attribute reference after your resource is created.
 
