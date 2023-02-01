@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corp. 2023.
+ * (C) Copyright IBM Corp. 2021, 2022, 2023.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 
 /*
- * IBM OpenAPI SDK Code Generator Version: 3.62.2-e5d4c32b-20221214-193750
+ * IBM OpenAPI SDK Code Generator Version: 3.60.2-95dc7721-20221102-203229
  */
 
 // Package vpcv1 : Operations and models for the VpcV1 service
@@ -37,7 +37,7 @@ import (
 // VpcV1 : The IBM Cloud Virtual Private Cloud (VPC) API can be used to programmatically provision and manage virtual
 // server instances, along with subnets, volumes, load balancers, and more.
 //
-// API Version: today
+// API Version: 2023-01-15
 type VpcV1 struct {
 	Service *core.BaseService
 
@@ -119,9 +119,11 @@ func NewVpcV1(options *VpcV1Options) (service *VpcV1, err error) {
 			return
 		}
 	}
+
 	if options.Version == nil {
 		options.Version = core.StringPtr("2022-09-13")
 	}
+
 	service = &VpcV1{
 		Service:    baseService,
 		Version:    options.Version,
@@ -18749,9 +18751,6 @@ func (vpc *VpcV1) CreateLoadBalancerListenerWithContext(ctx context.Context, cre
 	}
 	if createLoadBalancerListenerOptions.HTTPSRedirect != nil {
 		body["https_redirect"] = createLoadBalancerListenerOptions.HTTPSRedirect
-	}
-	if createLoadBalancerListenerOptions.IdleConnectionTimeout != nil {
-		body["idle_connection_timeout"] = createLoadBalancerListenerOptions.IdleConnectionTimeout
 	}
 	if createLoadBalancerListenerOptions.Policies != nil {
 		body["policies"] = createLoadBalancerListenerOptions.Policies
@@ -63497,7 +63496,8 @@ type Volume struct {
 	// The unique identifier for this volume.
 	ID *string `json:"id" validate:"required"`
 
-	// The maximum I/O operations per second (IOPS) for this volume.
+	// The maximum I/O operations per second (IOPS) to use for the volume. Applicable only to volumes using a profile
+	// `family` of `custom`.
 	Iops *int64 `json:"iops" validate:"required"`
 
 	// The name for this volume. The name is unique across all volumes in the region.
@@ -63992,7 +63992,7 @@ type VolumeAttachmentPrototypeVolume struct {
 	// The URL for this volume.
 	Href *string `json:"href,omitempty"`
 
-	// The maximum I/O operations per second (IOPS) to use for this volume. Applicable only to volumes using a profile
+	// The maximum I/O operations per second (IOPS) to use for the volume. Applicable only to volumes using a profile
 	// `family` of `custom`.
 	Iops *int64 `json:"iops,omitempty"`
 
@@ -64418,7 +64418,7 @@ type VolumePatch struct {
 	// The minimum and maximum capacity limits for creating or updating volumes may expand in the future.
 	Capacity *int64 `json:"capacity,omitempty"`
 
-	// The maximum I/O operations per second (IOPS) to use for this volume. Applicable only to volumes using a profile
+	// The maximum I/O operations per second (IOPS) to use for the volume. Applicable only to volumes using a profile
 	// `family` of `custom`. The volume must be attached as a data volume to a running virtual server instance.
 	Iops *int64 `json:"iops,omitempty"`
 
@@ -64674,7 +64674,7 @@ func UnmarshalVolumeProfileReference(m map[string]json.RawMessage, result interf
 // - VolumePrototypeVolumeByCapacity
 // - VolumePrototypeVolumeBySourceSnapshot
 type VolumePrototype struct {
-	// The maximum I/O operations per second (IOPS) to use for this volume. Applicable only to volumes using a profile
+	// The maximum I/O operations per second (IOPS) to use for the volume. Applicable only to volumes using a profile
 	// `family` of `custom`.
 	Iops *int64 `json:"iops,omitempty"`
 
@@ -64773,7 +64773,7 @@ type VolumePrototypeInstanceByImageContext struct {
 	// If unspecified, the `encryption` type for the volume will be `provider_managed`.
 	EncryptionKey EncryptionKeyIdentityIntf `json:"encryption_key,omitempty"`
 
-	// The maximum I/O operations per second (IOPS) to use for this volume. Applicable only to volumes using a profile
+	// The maximum I/O operations per second (IOPS) to use for the volume. Applicable only to volumes using a profile
 	// `family` of `custom`.
 	Iops *int64 `json:"iops,omitempty"`
 
@@ -64842,7 +64842,7 @@ type VolumePrototypeInstanceBySourceSnapshotContext struct {
 	// If unspecified, the `encryption` type for the volume will be `provider_managed`.
 	EncryptionKey EncryptionKeyIdentityIntf `json:"encryption_key,omitempty"`
 
-	// The maximum I/O operations per second (IOPS) to use for this volume. Applicable only to volumes using a profile
+	// The maximum I/O operations per second (IOPS) to use for the volume. Applicable only to volumes using a profile
 	// `family` of `custom`.
 	Iops *int64 `json:"iops,omitempty"`
 
@@ -81530,7 +81530,7 @@ func UnmarshalVolumeAttachmentPrototypeVolumeVolumeIdentity(m map[string]json.Ra
 // - VolumeAttachmentPrototypeVolumeVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeBySourceSnapshot
 // This model "extends" VolumeAttachmentPrototypeVolume
 type VolumeAttachmentPrototypeVolumeVolumePrototypeInstanceContext struct {
-	// The maximum I/O operations per second (IOPS) to use for this volume. Applicable only to volumes using a profile
+	// The maximum I/O operations per second (IOPS) to use for the volume. Applicable only to volumes using a profile
 	// `family` of `custom`.
 	Iops *int64 `json:"iops,omitempty"`
 
@@ -81764,7 +81764,7 @@ func UnmarshalVolumeProfileIdentityByName(m map[string]json.RawMessage, result i
 // VolumePrototypeVolumeByCapacity : VolumePrototypeVolumeByCapacity struct
 // This model "extends" VolumePrototype
 type VolumePrototypeVolumeByCapacity struct {
-	// The maximum I/O operations per second (IOPS) to use for this volume. Applicable only to volumes using a profile
+	// The maximum I/O operations per second (IOPS) to use for the volume. Applicable only to volumes using a profile
 	// `family` of `custom`.
 	Iops *int64 `json:"iops,omitempty"`
 
@@ -81850,7 +81850,7 @@ func UnmarshalVolumePrototypeVolumeByCapacity(m map[string]json.RawMessage, resu
 // VolumePrototypeVolumeBySourceSnapshot : VolumePrototypeVolumeBySourceSnapshot struct
 // This model "extends" VolumePrototype
 type VolumePrototypeVolumeBySourceSnapshot struct {
-	// The maximum I/O operations per second (IOPS) to use for this volume. Applicable only to volumes using a profile
+	// The maximum I/O operations per second (IOPS) to use for the volume. Applicable only to volumes using a profile
 	// `family` of `custom`.
 	Iops *int64 `json:"iops,omitempty"`
 
@@ -84558,7 +84558,7 @@ func UnmarshalVolumeAttachmentPrototypeVolumeVolumeIdentityVolumeIdentityByID(m 
 // VolumeAttachmentPrototypeVolumeVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeByCapacity : VolumeAttachmentPrototypeVolumeVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeByCapacity struct
 // This model "extends" VolumeAttachmentPrototypeVolumeVolumePrototypeInstanceContext
 type VolumeAttachmentPrototypeVolumeVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeByCapacity struct {
-	// The maximum I/O operations per second (IOPS) to use for this volume. Applicable only to volumes using a profile
+	// The maximum I/O operations per second (IOPS) to use for the volume. Applicable only to volumes using a profile
 	// `family` of `custom`.
 	Iops *int64 `json:"iops,omitempty"`
 
@@ -84634,7 +84634,7 @@ func UnmarshalVolumeAttachmentPrototypeVolumeVolumePrototypeInstanceContextVolum
 // VolumeAttachmentPrototypeVolumeVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeBySourceSnapshot : VolumeAttachmentPrototypeVolumeVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeBySourceSnapshot struct
 // This model "extends" VolumeAttachmentPrototypeVolumeVolumePrototypeInstanceContext
 type VolumeAttachmentPrototypeVolumeVolumePrototypeInstanceContextVolumePrototypeInstanceContextVolumeBySourceSnapshot struct {
-	// The maximum I/O operations per second (IOPS) to use for this volume. Applicable only to volumes using a profile
+	// The maximum I/O operations per second (IOPS) to use for the volume. Applicable only to volumes using a profile
 	// `family` of `custom`.
 	Iops *int64 `json:"iops,omitempty"`
 
