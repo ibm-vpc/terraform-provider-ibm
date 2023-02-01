@@ -308,6 +308,19 @@ func FlattenProtocols(list []datatypes.Network_LBaaS_Listener) []map[string]inte
 	return result
 }
 
+func FlattenVpcWorkerPoolSecondaryDisk(secondaryDisk containerv2.DiskConfigResp) []map[string]interface{} {
+	storageList := make([]map[string]interface{}, 1)
+	secondary_storage := map[string]interface{}{
+		"name":               secondaryDisk.Name,
+		"count":              secondaryDisk.Count,
+		"size":               secondaryDisk.Size,
+		"device_type":        secondaryDisk.DeviceType,
+		"raid_configuration": secondaryDisk.RAIDConfiguration,
+		"profile":            secondaryDisk.Profile,
+	}
+	storageList[0] = secondary_storage
+	return storageList
+}
 func FlattenVpcWorkerPools(list []containerv2.GetWorkerPoolResponse) []map[string]interface{} {
 	workerPools := make([]map[string]interface{}, len(list))
 	for i, workerPool := range list {
@@ -342,6 +355,9 @@ func FlattenVpcWorkerPools(list []containerv2.GetWorkerPoolResponse) []map[strin
 			zonesConfig[j] = z
 		}
 		l["zones"] = zonesConfig
+		if workerPool.SecondaryStorageOption != nil {
+			l["secondary_storage"] = FlattenVpcWorkerPoolSecondaryDisk(*workerPool.SecondaryStorageOption)
+		}
 		workerPools[i] = l
 	}
 
@@ -1606,53 +1622,28 @@ func FlattenremoteSubnet(vpn *datatypes.Network_Tunnel_Module_Context) []map[str
 }
 
 // IBM Cloud Databases
-func ExpandWhitelist(whiteList *schema.Set) (whitelist []icdv4.WhitelistEntry) {
-	for _, iface := range whiteList.List() {
-		wlItem := iface.(map[string]interface{})
-		wlEntry := icdv4.WhitelistEntry{
-			Address:     wlItem["address"].(string),
-			Description: wlItem["description"].(string),
-		}
-		whitelist = append(whitelist, wlEntry)
-	}
-	return
-}
-
-// IBM Cloud Databases
-func ExpandAllowlist(allowList *schema.Set) (allowlist []clouddatabasesv5.AllowlistEntry) {
+func ExpandAllowlist(allowList *schema.Set) (entries []clouddatabasesv5.AllowlistEntry) {
+	entries = make([]clouddatabasesv5.AllowlistEntry, 0, len(allowList.List()))
 	for _, iface := range allowList.List() {
 		alItem := iface.(map[string]interface{})
 		alEntry := &clouddatabasesv5.AllowlistEntry{
 			Address:     core.StringPtr(alItem["address"].(string)),
 			Description: core.StringPtr(alItem["description"].(string)),
 		}
-		allowlist = append(allowlist, *alEntry)
+		entries = append(entries, *alEntry)
 	}
 	return
 }
 
-// Cloud Internet Services
-func FlattenWhitelist(whitelist icdv4.Whitelist) []map[string]interface{} {
-	entries := make([]map[string]interface{}, len(whitelist.WhitelistEntrys), len(whitelist.WhitelistEntrys))
-	for i, whitelistEntry := range whitelist.WhitelistEntrys {
-		l := map[string]interface{}{
-			"address":     whitelistEntry.Address,
-			"description": whitelistEntry.Description,
+// IBM Cloud Databases
+func FlattenAllowlist(allowlist []clouddatabasesv5.AllowlistEntry) []map[string]interface{} {
+	entries := make([]map[string]interface{}, 0, len(allowlist))
+	for _, ip := range allowlist {
+		entry := map[string]interface{}{
+			"address":     ip.Address,
+			"description": ip.Description,
 		}
-		entries[i] = l
-	}
-	return entries
-}
-
-// Cloud Internet Services
-func FlattenGetAllowlist(allowlist clouddatabasesv5.GetAllowlistResponse) []map[string]interface{} {
-	entries := make([]map[string]interface{}, len(allowlist.IPAddresses), len(allowlist.IPAddresses))
-	for i, allowlistEntry := range allowlist.IPAddresses {
-		l := map[string]interface{}{
-			"address":     allowlistEntry.Address,
-			"description": allowlistEntry.Description,
-		}
-		entries[i] = l
+		entries = append(entries, entry)
 	}
 	return entries
 }
@@ -2042,12 +2033,6 @@ func GetTags(d *schema.ResourceData, meta interface{}) error {
 // }
 
 func GetGlobalTagsUsingCRN(meta interface{}, resourceID, resourceType, tagType string) (*schema.Set, error) {
-
-	gtClient, err := meta.(conns.ClientSession).GlobalTaggingAPIv1()
-	if err != nil {
-		return nil, fmt.Errorf("[ERROR] Error getting global tagging client settings: %s", err)
-	}
-
 	userDetails, err := meta.(conns.ClientSession).BluemixUserDetails()
 	if err != nil {
 		return nil, err
@@ -2067,23 +2052,11 @@ func GetGlobalTagsUsingCRN(meta interface{}, resourceID, resourceType, tagType s
 			ListTagsOptions.AccountID = PtrToString(accountID)
 		}
 	}
-	taggingResult, _, err := gtClient.ListTags(ListTagsOptions)
+	taggingResult, err := GetGlobalTagsUsingSearchAPI(meta, resourceID, resourceType, tagType)
 	if err != nil {
-		if strings.Contains(err.Error(), "Too Many Requests") {
-			temp, err := GetGlobalTagsUsingSearchAPI(meta, resourceID, resourceType, tagType)
-			if err != nil {
-				return nil, err
-			}
-			return temp, nil
-		}
 		return nil, err
 	}
-	var taglist []string
-	for _, item := range taggingResult.Items {
-		taglist = append(taglist, *item.Name)
-	}
-	log.Println("tagList: ", taglist)
-	return NewStringSet(ResourceIBMVPCHash, taglist), nil
+	return taggingResult, nil
 }
 
 func GetGlobalTagsUsingSearchAPI(meta interface{}, resourceID, resourceType, tagType string) (*schema.Set, error) {
@@ -2241,28 +2214,12 @@ func ApplyOnce(k, o, n string, d *schema.ResourceData) bool {
 	return true
 }
 func GetTagsUsingCRN(meta interface{}, resourceCRN string) (*schema.Set, error) {
-
-	gtClient, err := meta.(conns.ClientSession).GlobalTaggingAPI()
+	// Move the API to use globalsearch API instead of globalTags API due to rate limit
+	taggingResult, err := GetGlobalTagsUsingSearchAPI(meta, resourceCRN, "", "user")
 	if err != nil {
-		return nil, fmt.Errorf("[ERROR] Error getting global tagging client settings: %s", err)
-	}
-	var taglist []string
-	taggingResult, err := gtClient.Tags().GetTags(resourceCRN)
-	if err != nil {
-		if strings.Contains(err.Error(), "Too Many Requests") {
-			temp, err := GetGlobalTagsUsingSearchAPI(meta, resourceCRN, "", "user")
-			if err != nil {
-				return nil, err
-			}
-			return temp, nil
-		}
 		return nil, err
 	}
-
-	for _, item := range taggingResult.Items {
-		taglist = append(taglist, item.Name)
-	}
-	return NewStringSet(ResourceIBMVPCHash, taglist), nil
+	return taggingResult, nil
 }
 
 func UpdateTagsUsingCRN(oldList, newList interface{}, meta interface{}, resourceCRN string) error {
@@ -3412,14 +3369,12 @@ func FlattenSatelliteHosts(hostList []kubernetesserviceapiv1.MultishiftQueueNode
 }
 
 func FlattenWorkerPoolHostLabels(hostLabels map[string]string) *schema.Set {
-	mapped := make([]string, len(hostLabels)-1)
-	idx := 0
+	mapped := make([]string, 0)
 	for k, v := range hostLabels {
 		if strings.HasPrefix(k, "os") {
 			continue
 		}
-		mapped[idx] = fmt.Sprintf("%s:%v", k, v)
-		idx++
+		mapped = append(mapped, fmt.Sprintf("%s:%v", k, v))
 	}
 
 	return NewStringSet(schema.HashString, mapped)
@@ -3496,4 +3451,16 @@ func GetResourceInstanceURL(d *schema.ResourceData, meta interface{}) (*string, 
 	}
 
 	return &endpoint, nil
+}
+
+// Converts a struct to a map while maintaining the json alias as keys
+func StructToMap(obj interface{}) (newMap map[string]interface{}, err error) {
+	data, err := json.Marshal(obj) // Convert to a json string
+
+	if err != nil {
+		return
+	}
+
+	err = json.Unmarshal(data, &newMap) // Convert to a map
+	return
 }
