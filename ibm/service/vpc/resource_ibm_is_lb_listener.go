@@ -66,7 +66,7 @@ func ResourceIBMISLBListener() *schema.Resource {
 			isLBListenerIdleConnectionTimeout: {
 				Type:         schema.TypeInt,
 				Optional:     true,
-				Default:      50,
+				Computed:     true,
 				Description:  "idle connection timeout of listener",
 				ValidateFunc: validate.InvokeValidator("ibm_is_lb_listener", isLBListenerIdleConnectionTimeout),
 			},
@@ -230,7 +230,10 @@ func resourceIBMISLBListenerCreate(d *schema.ResourceData, meta interface{}) err
 	var idleConnectionTimeout int64
 
 	if idleconnectiontimeout, ok := d.GetOk(isLBListenerIdleConnectionTimeout); ok {
+		log.Println("if idleconnectiontimeout, ok := d.GetOk(isLBListenerIdleConnectionTimeout); ok {}")
 		idleConnectionTimeout = int64(idleconnectiontimeout.(int))
+		log.Println("idleConnectionTimeout")
+		log.Println(idleConnectionTimeout)
 	}
 
 	if crn, ok := d.GetOk(isLBListenerCertificateInstance); ok {
@@ -365,7 +368,8 @@ func lbListenerCreate(d *schema.ResourceData, meta interface{}, lbID, protocol, 
 	if err != nil {
 		return fmt.Errorf("[ERROR] Error checking for load balancer (%s) is active: %s", lbID, err)
 	}
-
+	log.Println("options.IdleConnectionTimeout")
+	log.Println(*options.IdleConnectionTimeout)
 	lbListener, response, err := sess.CreateLoadBalancerListener(options)
 	if err != nil {
 		return fmt.Errorf("[ERROR] Error while creating Load Balanacer Listener err %s\n%s", err, response)
@@ -488,7 +492,10 @@ func lbListenerGet(d *schema.ResourceData, meta interface{}, lbID, lbListenerID 
 		ID: &lbID,
 	}
 	if lbListener.IdleConnectionTimeout != nil {
+		log.Println("if lbListener.IdleConnectionTimeout != nil {}")
 		d.Set(isLBListenerIdleConnectionTimeout, *lbListener.IdleConnectionTimeout)
+		log.Println("*lbListener.IdleConnectionTimeout")
+		log.Println(*lbListener.IdleConnectionTimeout)
 	}
 	lb, response, err := sess.GetLoadBalancer(getLoadBalancerOptions)
 	if err != nil {
@@ -611,6 +618,7 @@ func lbListenerUpdate(d *schema.ResourceData, meta interface{}, lbID, lbListener
 	}
 
 	if d.HasChange(isLBListenerIdleConnectionTimeout) {
+		log.Println("if d.HasChange(isLBListenerIdleConnectionTimeout) {}")
 		idleConnectionTimeout := int64(d.Get(isLBListenerIdleConnectionTimeout).(int))
 		loadBalancerListenerPatchModel.IdleConnectionTimeout = &idleConnectionTimeout
 		hasChanged = true
