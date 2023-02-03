@@ -45,9 +45,22 @@ resource "ibm_is_subnet" "example" {
   resource_group  = data.ibm_resource_group.example.id
 }
 
+data "ibm_is_subnets" "example4" {
+}
+
+```
+## Example use of subnets with provided resource group.
+```terraform
+
 data "ibm_is_subnets" "example1" {
   resource_group = data.ibm_resource_group.example.id
 }
+
+```
+
+## Example use of subnets with provided routing table name or identifier
+
+```terraform
 
 data "ibm_is_subnets" "example2" {
   routing_table_name = ibm_is_vpc_routing_table.example.name
@@ -57,8 +70,7 @@ data "ibm_is_subnets" "example3" {
   routing_table = ibm_is_vpc_routing_table.example.id
 }
 
-data "ibm_is_subnets" "example4" {
-}
+
 ```
 
 ## Argument reference
