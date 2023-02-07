@@ -142,18 +142,18 @@ func DataSourceIBMISVPCRoutingTableRoutes() *schema.Resource {
 							Description: "If `action` is `deliver`, the next hop that packets will be delivered to.  Forother `action` values, its `address` will be `0.0.0.0`.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
-									"address": &schema.Schema{
+									rAddress: &schema.Schema{
 										Type:        schema.TypeString,
 										Computed:    true,
 										Description: "The IP address.This property may add support for IPv6 addresses in the future. When processing a value in this property, verify that the address is in an expected format. If it is not, log an error. Optionally halt processing and surface the error, or bypass the resource on which the unexpected IP address format was encountered.",
 									},
-									"deleted": &schema.Schema{
+									rDeleted: &schema.Schema{
 										Type:        schema.TypeList,
 										Computed:    true,
 										Description: "If present, this property indicates the referenced resource has been deleted, and providessome supplementary information.",
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
-												"more_info": &schema.Schema{
+												rMoreInfo: &schema.Schema{
 													Type:        schema.TypeString,
 													Computed:    true,
 													Description: "Link to documentation about deleted resources.",
@@ -161,22 +161,22 @@ func DataSourceIBMISVPCRoutingTableRoutes() *schema.Resource {
 											},
 										},
 									},
-									"href": &schema.Schema{
+									rtHref: &schema.Schema{
 										Type:        schema.TypeString,
 										Computed:    true,
 										Description: "The VPN connection's canonical URL.",
 									},
-									"id": &schema.Schema{
+									rId: &schema.Schema{
 										Type:        schema.TypeString,
 										Computed:    true,
 										Description: "The unique identifier for this VPN gateway connection.",
 									},
-									"name": &schema.Schema{
+									rName: &schema.Schema{
 										Type:        schema.TypeString,
 										Computed:    true,
 										Description: "The name for this VPN gateway connection. The name is unique across all connections for the VPN gateway.",
 									},
-									"resource_type": &schema.Schema{
+									rtResourceType: &schema.Schema{
 										Type:        schema.TypeString,
 										Computed:    true,
 										Description: "The resource type.",
@@ -415,26 +415,26 @@ func dataSourceIBMIsVPCRoutingTableRoutesRouteNextHopToMap(nextHopDetails vpcv1.
 		nextHopDetailsMap := make(map[string]interface{})
 		nextHopDetails := nextHopDetails.(*vpcv1.RouteNextHop)
 		if nextHopDetails.Address != nil {
-			nextHopDetailsMap["address"] = *nextHopDetails.Address
+			nextHopDetailsMap[rAddress] = *nextHopDetails.Address
 		}
 		if nextHopDetails.Deleted != nil {
 			deletedMap, err := dataSourceIBMIsVPCRoutingTableRoutesVPNGatewayConnectionReferenceDeletedToMap(nextHopDetails.Deleted)
 			if err != nil {
 				return nextHopDetailsMap, err
 			}
-			nextHopDetailsMap["deleted"] = []map[string]interface{}{deletedMap}
+			nextHopDetailsMap[rDeleted] = []map[string]interface{}{deletedMap}
 		}
 		if nextHopDetails.Href != nil {
-			nextHopDetailsMap["href"] = *nextHopDetails.Href
+			nextHopDetailsMap[rtHref] = *nextHopDetails.Href
 		}
 		if nextHopDetails.ID != nil {
-			nextHopDetailsMap["id"] = *nextHopDetails.ID
+			nextHopDetailsMap[rId] = *nextHopDetails.ID
 		}
 		if nextHopDetails.Name != nil {
-			nextHopDetailsMap["name"] = *nextHopDetails.Name
+			nextHopDetailsMap[rName] = *nextHopDetails.Name
 		}
 		if nextHopDetails.ResourceType != nil {
-			nextHopDetailsMap["resource_type"] = *nextHopDetails.ResourceType
+			nextHopDetailsMap[rtResourceType] = *nextHopDetails.ResourceType
 		}
 		return nextHopDetailsMap, nil
 	} else {
@@ -445,7 +445,7 @@ func dataSourceIBMIsVPCRoutingTableRoutesRouteNextHopToMap(nextHopDetails vpcv1.
 func dataSourceIBMIsVPCRoutingTableRoutesVPNGatewayConnectionReferenceDeletedToMap(deleted *vpcv1.VPNGatewayConnectionReferenceDeleted) (map[string]interface{}, error) {
 	deletedMap := make(map[string]interface{})
 	if deleted.MoreInfo != nil {
-		deletedMap["more_info"] = *deleted.MoreInfo
+		deletedMap[rMoreInfo] = *deleted.MoreInfo
 	}
 	return deletedMap, nil
 }
@@ -453,7 +453,7 @@ func dataSourceIBMIsVPCRoutingTableRoutesVPNGatewayConnectionReferenceDeletedToM
 func dataSourceIBMIsVPCRoutingTableRoutesRouteNextHopIPToMap(ip *vpcv1.RouteNextHopIP) (map[string]interface{}, error) {
 	ipMap := make(map[string]interface{})
 	if ip.Address != nil {
-		ipMap["address"] = *ip.Address
+		ipMap[rAddress] = *ip.Address
 	}
 	return ipMap, nil
 }
@@ -465,19 +465,19 @@ func dataSourceIBMIsVPCRoutingTableRoutesRouteNextHopVPNGatewayConnectionReferen
 		if err != nil {
 			return varVPNGatewayConnectionReferenceMap, err
 		}
-		varVPNGatewayConnectionReferenceMap["deleted"] = []map[string]interface{}{deletedMap}
+		varVPNGatewayConnectionReferenceMap[rDeleted] = []map[string]interface{}{deletedMap}
 	}
 	if varVPNGatewayConnectionReference.Href != nil {
-		varVPNGatewayConnectionReferenceMap["href"] = *varVPNGatewayConnectionReference.Href
+		varVPNGatewayConnectionReferenceMap[rtHref] = *varVPNGatewayConnectionReference.Href
 	}
 	if varVPNGatewayConnectionReference.ID != nil {
-		varVPNGatewayConnectionReferenceMap["id"] = *varVPNGatewayConnectionReference.ID
+		varVPNGatewayConnectionReferenceMap[rId] = *varVPNGatewayConnectionReference.ID
 	}
 	if varVPNGatewayConnectionReference.Name != nil {
-		varVPNGatewayConnectionReferenceMap["name"] = *varVPNGatewayConnectionReference.Name
+		varVPNGatewayConnectionReferenceMap[rName] = *varVPNGatewayConnectionReference.Name
 	}
 	if varVPNGatewayConnectionReference.ResourceType != nil {
-		varVPNGatewayConnectionReferenceMap["resource_type"] = *varVPNGatewayConnectionReference.ResourceType
+		varVPNGatewayConnectionReferenceMap[rtResourceType] = *varVPNGatewayConnectionReference.ResourceType
 	}
 	return varVPNGatewayConnectionReferenceMap, nil
 }
