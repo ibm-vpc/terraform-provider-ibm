@@ -513,7 +513,7 @@ func resourceIBMIsVPNServerCreate(context context.Context, d *schema.ResourceDat
 
 	d.SetId(*vpnServer.ID)
 
-	_, err = isWaitForVPNServerStable(context, sess, d, d.Timeout(schema.TimeoutCreate))
+	_, err = isWaitForVPNServerStable(context, sess, d, vpnServer, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return diag.FromErr(fmt.Errorf("[ERROR] VPNServer failed %s\n", err))
 	}
@@ -530,7 +530,7 @@ func resourceIBMIsVPNServerCreate(context context.Context, d *schema.ResourceDat
 	return resourceIBMIsVPNServerRead(context, d, meta)
 }
 
-func isWaitForVPNServerStable(context context.Context, sess *vpcv1.VpcV1, d *schema.ResourceData, timeout time.Duration) (interface{}, error) {
+func isWaitForVPNServerStable(context context.Context, sess *vpcv1.VpcV1, d *schema.ResourceData, vpnServer *vpcv1.VPNServer, timeout time.Duration) (interface{}, error) {
 
 	log.Printf("Waiting for VPN Server(%s) to be stable.", d.Id())
 	stateConf := &resource.StateChangeConf{
@@ -544,7 +544,7 @@ func isWaitForVPNServerStable(context context.Context, sess *vpcv1.VpcV1, d *sch
 			vpnServer, response, err := sess.GetVPNServerWithContext(context, getVPNServerOptions)
 			if err != nil {
 				log.Printf("[DEBUG] GetVPNServerWithContext failed %s\n%s", err, response)
-				return vpnServer, "", fmt.Errorf("Error Getting VPC Server: %s\n%s", err, response)
+				return vpnServer, "", fmt.Errorf("[ERROR] Error Getting VPC Server: %s\n%s", err, response)
 			}
 
 			if *vpnServer.LifecycleState == "stable" || *vpnServer.LifecycleState == "failed" {
@@ -911,12 +911,12 @@ func resourceIBMIsVPNServerUpdate(context context.Context, d *schema.ResourceDat
 	if hasChange {
 		updateVPNServerOptions.IfMatch = &eTag // if-Match or Etag Change for Patch
 		updateVPNServerOptions.VPNServerPatch, _ = patchVals.AsPatch()
-		_, response, err := sess.UpdateVPNServerWithContext(context, updateVPNServerOptions)
+		vpnServer, response, err := sess.UpdateVPNServerWithContext(context, updateVPNServerOptions)
 		if err != nil {
 			log.Printf("[DEBUG] UpdateVPNServerWithContext failed %s\n%s", err, response)
 			return diag.FromErr(fmt.Errorf("[ERROR] UpdateVPNServerWithContext failed %s\n%s", err, response))
 		}
-		_, err = isWaitForVPNServerStable(context, sess, d, d.Timeout(schema.TimeoutUpdate))
+		_, err = isWaitForVPNServerStable(context, sess, d, vpnServer, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return diag.FromErr(fmt.Errorf("[ERROR] VPNServer failed %s\n", err))
 		}
