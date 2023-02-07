@@ -54,7 +54,7 @@ In addition to all argument references listed, you can access the following attr
 
 You can import the `ibm_is_vpn_server_route` resource by using `id`.
 The `id` property can be formed from `vpn_server_id`, and `vpn_route` in the following format:
-- `vpn_server_id`: A string. The VPN server identifier.
+- `vpn_server`: A string. The VPN server identifier.
 - `vpn_route`: A string. The VPN route identifier.
 
 ```
