@@ -88,6 +88,7 @@ func ResourceIBMISNetworkACLRule() *schema.Resource {
 			},
 			isNetworkACLRuleIPVersion: {
 				Type:        schema.TypeString,
+				Optional:    true,
 				Computed:    true,
 				Description: "The IP version for this rule.",
 			},
@@ -435,6 +436,11 @@ func nwaclRuleCreate(d *schema.ResourceData, meta interface{}, nwACLID string) e
 	}
 	if protocol == "all" {
 		ruleTemplate.Protocol = &protocol
+	}
+
+	if ipVersionOk, ok := d.GetOk(isNetworkACLRuleName); ok {
+		ipVersion := ipVersionOk.(string)
+		ruleTemplate.IPVersion = &ipVersion
 	}
 
 	createNetworkAclRuleOptions := &vpcv1.CreateNetworkACLRuleOptions{
