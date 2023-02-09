@@ -81,6 +81,7 @@ Review the argument references that you can specify for your resource.
     Nested scheme for `icmp`:
     - `code` - (Optional, Integer) The ICMP traffic code to allow. Valid values from 0 to 255. If unspecified, all codes are allowed. This can only be specified if type is also specified.
     - `type` - (Optional, Integer) The ICMP traffic type to allow. Valid values from 0 to 254. If unspecified, all types are allowed by this rule.
+  - `ip_version` - (Optional, String) The IP version of the rule. [ **ipv4** ]
   - `tcp`- (Optional, List) The TCP protocol.
 
     Nested scheme for `tcp`:

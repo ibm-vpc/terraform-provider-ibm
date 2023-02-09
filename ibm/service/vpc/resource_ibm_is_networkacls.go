@@ -164,6 +164,7 @@ func ResourceIBMISNetworkACL() *schema.Resource {
 						},
 						isNetworkACLRuleIPVersion: {
 							Type:     schema.TypeString,
+							Optional: true,
 							Computed: true,
 						},
 						isNetworkACLRuleSource: {
@@ -893,6 +894,10 @@ func createInlineRules(nwaclC *vpcv1.VpcV1, nwaclid string, rules []interface{})
 					icmpcode = int64(val.(int))
 					ruleTemplate.Code = &icmpcode
 				}
+				if ipVersionOk, ok := icmpval[isNetworkACLRuleIPVersion]; ok {
+					ipVersion := ipVersionOk.(string)
+					ruleTemplate.IPVersion = &ipVersion
+				}
 			}
 		} else if len(tcp) > 0 {
 			protocol = "tcp"
@@ -914,6 +919,10 @@ func createInlineRules(nwaclC *vpcv1.VpcV1, nwaclid string, rules []interface{})
 				sourcemaxport = int64(val.(int))
 				ruleTemplate.SourcePortMax = &sourcemaxport
 			}
+			if ipVersionOk, ok := tcpval[isNetworkACLRuleIPVersion]; ok {
+				ipVersion := ipVersionOk.(string)
+				ruleTemplate.IPVersion = &ipVersion
+			}
 		} else if len(udp) > 0 {
 			protocol = "udp"
 			ruleTemplate.Protocol = &protocol
@@ -933,6 +942,10 @@ func createInlineRules(nwaclC *vpcv1.VpcV1, nwaclid string, rules []interface{})
 			if val, ok := udpval[isNetworkACLRuleSourcePortMax]; ok {
 				sourcemaxport = int64(val.(int))
 				ruleTemplate.SourcePortMax = &sourcemaxport
+			}
+			if ipVersionOk, ok := udpval[isNetworkACLRuleIPVersion]; ok {
+				ipVersion := ipVersionOk.(string)
+				ruleTemplate.IPVersion = &ipVersion
 			}
 		}
 		if protocol == "all" {
