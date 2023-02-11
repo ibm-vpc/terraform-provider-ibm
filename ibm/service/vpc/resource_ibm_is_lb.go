@@ -19,29 +19,32 @@ import (
 )
 
 const (
-	isLBName                    = "name"
-	isLBStatus                  = "status"
-	isLBCrn                     = "crn"
-	isLBTags                    = "tags"
-	isLBType                    = "type"
-	isLBSubnets                 = "subnets"
-	isLBHostName                = "hostname"
-	isLBPublicIPs               = "public_ips"
-	isLBPrivateIPs              = "private_ips"
-	isLBListeners               = "listeners"
-	isLBPools                   = "pools"
-	isLBOperatingStatus         = "operating_status"
-	isLBDeleting                = "deleting"
-	isLBDeleted                 = "done"
-	isLBProvisioning            = "provisioning"
-	isLBProvisioningDone        = "done"
-	isLBResourceGroup           = "resource_group"
-	isLBProfile                 = "profile"
-	isLBRouteMode               = "route_mode"
-	isLBUdpSupported            = "udp_supported"
-	isLBLogging                 = "logging"
-	isLBSecurityGroups          = "security_groups"
-	isLBSecurityGroupsSupported = "security_group_supported"
+	isLBAvailability                 = "availability"
+	isLBInstanceGroupsSupported      = "instance_groups_supported"
+	isLBSourceIPPersistenceSupported = "source_ip_session_persistence_supported"
+	isLBName                         = "name"
+	isLBStatus                       = "status"
+	isLBCrn                          = "crn"
+	isLBTags                         = "tags"
+	isLBType                         = "type"
+	isLBSubnets                      = "subnets"
+	isLBHostName                     = "hostname"
+	isLBPublicIPs                    = "public_ips"
+	isLBPrivateIPs                   = "private_ips"
+	isLBListeners                    = "listeners"
+	isLBPools                        = "pools"
+	isLBOperatingStatus              = "operating_status"
+	isLBDeleting                     = "deleting"
+	isLBDeleted                      = "done"
+	isLBProvisioning                 = "provisioning"
+	isLBProvisioningDone             = "done"
+	isLBResourceGroup                = "resource_group"
+	isLBProfile                      = "profile"
+	isLBRouteMode                    = "route_mode"
+	isLBUdpSupported                 = "udp_supported"
+	isLBLogging                      = "logging"
+	isLBSecurityGroups               = "security_groups"
+	isLBSecurityGroupsSupported      = "security_group_supported"
 
 	isLBAccessTags = "access_tags"
 )
@@ -96,6 +99,21 @@ func ResourceIBMISLB() *schema.Resource {
 				Description:  "Load Balancer type",
 			},
 
+			isLBAvailability: {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The availability of this load balancer",
+			},
+			isLBInstanceGroupsSupported: {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: "Indicates whether this load balancer supports instance groups.",
+			},
+			isLBSourceIPPersistenceSupported: {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: "Indicates whether this load balancer supports source IP session persistence.",
+			},
 			isLBStatus: {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -274,8 +292,8 @@ func ResourceIBMISLB() *schema.Resource {
 func ResourceIBMISLBValidator() *validate.ResourceValidator {
 
 	validateSchema := make([]validate.ValidateSchema, 0)
-	lbtype := "public, private"
-	isLBProfileAllowedValues := "network-fixed"
+	lbtype := "public, private, private_path"
+	isLBProfileAllowedValues := "network-fixed, network-private-path"
 
 	validateSchema = append(validateSchema,
 		validate.ValidateSchema{
@@ -341,6 +359,7 @@ func resourceIBMISLBCreate(d *schema.ResourceData, meta interface{}) error {
 
 	// subnets := flex.ExpandStringList((d.Get(isLBSubnets).(*schema.Set)).List())
 	var lbType, rg string
+	isPrivatePath := false
 	isPublic := true
 	if types, ok := d.GetOk(isLBType); ok {
 		lbType = types.(string)
@@ -350,11 +369,16 @@ func resourceIBMISLBCreate(d *schema.ResourceData, meta interface{}) error {
 		isPublic = false
 	}
 
+	if lbType == "private_path" {
+		isPrivatePath = true
+		isPublic = false
+	}
+
 	if grp, ok := d.GetOk(isLBResourceGroup); ok {
 		rg = grp.(string)
 	}
 
-	err := lbCreate(d, meta, name, lbType, rg, subnets, isPublic, isLogging, securityGroups)
+	err := lbCreate(d, meta, name, lbType, rg, subnets, isPublic, isPrivatePath, isLogging, securityGroups)
 	if err != nil {
 		return err
 	}
@@ -362,15 +386,16 @@ func resourceIBMISLBCreate(d *schema.ResourceData, meta interface{}) error {
 	return resourceIBMISLBRead(d, meta)
 }
 
-func lbCreate(d *schema.ResourceData, meta interface{}, name, lbType, rg string, subnets *schema.Set, isPublic, isLogging bool, securityGroups *schema.Set) error {
+func lbCreate(d *schema.ResourceData, meta interface{}, name, lbType, rg string, subnets *schema.Set, isPublic, isPrivatePath, isLogging bool, securityGroups *schema.Set) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
 		return err
 	}
 
 	options := &vpcv1.CreateLoadBalancerOptions{
-		IsPublic: &isPublic,
-		Name:     &name,
+		IsPublic:      &isPublic,
+		IsPrivatePath: &isPrivatePath,
+		Name:          &name,
 	}
 
 	if routeModeBool, ok := d.GetOk(isLBRouteMode); ok {
@@ -481,11 +506,25 @@ func lbGet(d *schema.ResourceData, meta interface{}, id string) error {
 		}
 		return fmt.Errorf("[ERROR] Error getting Load Balancer : %s\n%s", err, response)
 	}
+	if lb.Availability != nil {
+		d.Set(isLBAvailability, *lb.Availability)
+	}
+	if lb.InstanceGroupsSupported != nil {
+		d.Set(isLBInstanceGroupsSupported, *lb.InstanceGroupsSupported)
+	}
+	if lb.SourceIPSessionPersistenceSupported != nil {
+		d.Set(isLBSourceIPPersistenceSupported, *lb.SourceIPSessionPersistenceSupported)
+	}
+
 	d.Set(isLBName, *lb.Name)
 	if *lb.IsPublic {
 		d.Set(isLBType, "public")
 	} else {
-		d.Set(isLBType, "private")
+		if *lb.IsPrivatePath {
+			d.Set(isLBType, "private_path")
+		} else {
+			d.Set(isLBType, "private")
+		}
 	}
 	if lb.RouteMode != nil {
 		d.Set(isLBRouteMode, *lb.RouteMode)
