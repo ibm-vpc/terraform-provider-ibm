@@ -23614,15 +23614,15 @@ type BareMetalServerNetworkInterface struct {
 
 // Constants associated with the BareMetalServerNetworkInterface.InterfaceType property.
 // The network interface type:
-// - `hipersocket`: a virtual network device that provides high-speed TCP/IP connectivity
-//   within a `s390x` based system
-// - `pci`: a physical PCI device which can only be created or deleted when the bare metal
-//   server is stopped
+//   - `hipersocket`: a virtual network device that provides high-speed TCP/IP connectivity
+//     within a `s390x` based system
+//   - `pci`: a physical PCI device which can only be created or deleted when the bare metal
+//     server is stopped
 //   - Has an `allowed_vlans` property which controls the VLANs that will be permitted
 //     to use the PCI interface
 //   - Cannot directly use an IEEE 802.1q VLAN tag.
-// - `vlan`: a virtual device, used through a `pci` device that has the `vlan` in its
-//   array of `allowed_vlans`.
+//   - `vlan`: a virtual device, used through a `pci` device that has the `vlan` in its
+//     array of `allowed_vlans`.
 //   - Must use an IEEE 802.1q tag.
 //   - Has its own security groups and does not inherit those of the PCI device through
 //     which traffic flows.
@@ -23916,17 +23916,17 @@ type BareMetalServerNetworkInterfacePrototype struct {
 
 // Constants associated with the BareMetalServerNetworkInterfacePrototype.InterfaceType property.
 // The network interface type:
-// - `hipersocket`: a virtual network device that provides high-speed TCP/IP connectivity
-//   within a `s390x` based system
+//   - `hipersocket`: a virtual network device that provides high-speed TCP/IP connectivity
+//     within a `s390x` based system
 //   - Not supported on bare metal servers with a `cpu.architecture` of `amd64`
-// - `pci`: a physical PCI device which can only be created or deleted when the bare metal
-//   server is stopped
+//   - `pci`: a physical PCI device which can only be created or deleted when the bare metal
+//     server is stopped
 //   - Has an `allowed_vlans` property which controls the VLANs that will be permitted
 //     to use the PCI interface
 //   - Cannot directly use an IEEE 802.1q VLAN tag.
 //   - Not supported on bare metal servers with a `cpu.architecture` of `s390x`
-// - `vlan`: a virtual device, used through a `pci` device that has the `vlan` in its
-//   array of `allowed_vlans`.
+//   - `vlan`: a virtual device, used through a `pci` device that has the `vlan` in its
+//     array of `allowed_vlans`.
 //   - Must use an IEEE 802.1q tag.
 //   - Has its own security groups and does not inherit those of the PCI device through
 //     which traffic flows.
@@ -24053,11 +24053,11 @@ type BareMetalServerPrimaryNetworkInterfacePrototype struct {
 
 // Constants associated with the BareMetalServerPrimaryNetworkInterfacePrototype.InterfaceType property.
 // The network interface type:
-// - `hipersocket`: a virtual network device that provides high-speed TCP/IP connectivity
-//   within a `s390x` based system.
+//   - `hipersocket`: a virtual network device that provides high-speed TCP/IP connectivity
+//     within a `s390x` based system.
 //   - Not supported on bare metal servers with a `cpu.architecture` of `amd64`
-// - `pci`: a physical PCI device which can only be created or deleted when the bare metal
-//   server is stopped
+//   - `pci`: a physical PCI device which can only be created or deleted when the bare metal
+//     server is stopped
 //   - Has an `allowed_vlans` property which controls the VLANs that will be permitted
 //     to use the PCI interface
 //   - Cannot directly use an IEEE 802.1q VLAN tag.
@@ -26750,7 +26750,7 @@ type CreateIpsecPolicyOptions struct {
 // Constants associated with the CreateIpsecPolicyOptions.AuthenticationAlgorithm property.
 // The authentication algorithm
 //
-// The `md5` and `sha1` algorithms have been deprecated
+// # The `md5` and `sha1` algorithms have been deprecated
 //
 // Must be `disabled` if and only if the `encryption_algorithm` is
 // `aes128gcm16`, `aes192gcm16`, or `aes256gcm16`.
@@ -27008,10 +27008,10 @@ type CreateLoadBalancerListenerOptions struct {
 // `https`.
 //
 // Additional restrictions:
-// - If `default_pool` is set, the pool's protocol must match, or be compatible with
-//   the listener's protocol. At present, the compatible protocols are `http` and
-//   `https`.
-// - If `https_redirect` is set, the protocol must be `http`.
+//   - If `default_pool` is set, the pool's protocol must match, or be compatible with
+//     the listener's protocol. At present, the compatible protocols are `http` and
+//     `https`.
+//   - If `https_redirect` is set, the protocol must be `http`.
 const (
 	CreateLoadBalancerListenerOptionsProtocolHTTPConst  = "http"
 	CreateLoadBalancerListenerOptionsProtocolHTTPSConst = "https"
@@ -34107,14 +34107,15 @@ func (flowLogCollectorPatch *FlowLogCollectorPatch) AsPatch() (_patch map[string
 }
 
 // FlowLogCollectorTarget : The target this collector is collecting flow logs for.
-// - If the target is a network interface, flow logs will be collected
-//   for that network interface.
-// - If the target is a virtual server instance, flow logs will be collected
-//   for all network interfaces attached to that instance.
-// - If the target is a subnet, flow logs will be collected
-//   for all network interfaces attached to that subnet.
-// - If the target is a VPC, flow logs will be collected for network interfaces
-//   attached to all subnets within that VPC. If the target is an instance, subnet, or VPC, flow logs will not be
+//   - If the target is a network interface, flow logs will be collected
+//     for that network interface.
+//   - If the target is a virtual server instance, flow logs will be collected
+//     for all network interfaces attached to that instance.
+//   - If the target is a subnet, flow logs will be collected
+//     for all network interfaces attached to that subnet.
+//   - If the target is a VPC, flow logs will be collected for network interfaces
+//     attached to all subnets within that VPC. If the target is an instance, subnet, or VPC, flow logs will not be
+//
 // collected for any network interfaces within the target that are themselves the target of a more specific flow log
 // collector.
 // Models which "extend" this model:
@@ -37261,7 +37262,7 @@ type IPsecPolicy struct {
 // Constants associated with the IPsecPolicy.AuthenticationAlgorithm property.
 // The authentication algorithm
 //
-// The `md5` and `sha1` algorithms have been deprecated
+// # The `md5` and `sha1` algorithms have been deprecated
 //
 // Must be `disabled` if and only if the `encryption_algorithm` is
 // `aes128gcm16`, `aes192gcm16`, or `aes256gcm16`.
@@ -37517,7 +37518,7 @@ type IPsecPolicyPatch struct {
 // Constants associated with the IPsecPolicyPatch.AuthenticationAlgorithm property.
 // The authentication algorithm
 //
-// The `md5` and `sha1` algorithms have been deprecated
+// # The `md5` and `sha1` algorithms have been deprecated
 //
 // Must be `disabled` if and only if the `encryption_algorithm` is
 // `aes128gcm16`, `aes192gcm16`, or `aes256gcm16`.
@@ -37821,13 +37822,13 @@ const (
 
 // Constants associated with the Image.Status property.
 // The status of this image
-// - available: image can be used (provisionable)
-// - deleting: image is being deleted, and can no longer be used to provision new
-//   resources
-// - deprecated: image is administratively slated to be deleted
-// - failed: image is corrupt or did not pass validation
-// - pending: image is being imported and is not yet `available`
-// - unusable: image cannot be used (see `status_reasons[]` for possible remediation)
+//   - available: image can be used (provisionable)
+//   - deleting: image is being deleted, and can no longer be used to provision new
+//     resources
+//   - deprecated: image is administratively slated to be deleted
+//   - failed: image is corrupt or did not pass validation
+//   - pending: image is being imported and is not yet `available`
+//   - unusable: image cannot be used (see `status_reasons[]` for possible remediation)
 //
 // The enumerated values for this property are expected to expand in the future. When processing this property, check
 // for and log unknown values. Optionally halt processing and surface the error, or bypass the image on which the
@@ -39404,11 +39405,11 @@ type InstanceGroup struct {
 
 // Constants associated with the InstanceGroup.Status property.
 // The status of the instance group
-// - `deleting`: Group is being deleted
-// - `healthy`: Group has `membership_count` instances
-// - `scaling`: Instances in the group are being created or deleted to reach
-//              `membership_count`
-// - `unhealthy`: Group is unable to reach `membership_count` instances.
+//   - `deleting`: Group is being deleted
+//   - `healthy`: Group has `membership_count` instances
+//   - `scaling`: Instances in the group are being created or deleted to reach
+//     `membership_count`
+//   - `unhealthy`: Group is unable to reach `membership_count` instances.
 const (
 	InstanceGroupStatusDeletingConst  = "deleting"
 	InstanceGroupStatusHealthyConst   = "healthy"
@@ -41538,14 +41539,15 @@ func (instancePatch *InstancePatch) AsPatch() (_patch map[string]interface{}, er
 
 // InstancePatchProfile : The profile to use for this virtual server instance. For the profile to be changed, the instance `status` must be
 // `stopping` or `stopped`. In addition, the requested profile must:
-// - Have matching instance disk support. Any disks associated with the current profile
-//   will be deleted, and any disks associated with the requested profile will be
-//   created.
-// - Be compatible with any `placement_target` constraints. For example, if the
-//   instance is placed on a dedicated host, the requested profile `family` must be
-//   the same as the dedicated host `family`.
-// - Have the same `vcpu.architecture`.
-// - Support the number of network interfaces currently attached to the instance.
+//   - Have matching instance disk support. Any disks associated with the current profile
+//     will be deleted, and any disks associated with the requested profile will be
+//     created.
+//   - Be compatible with any `placement_target` constraints. For example, if the
+//     instance is placed on a dedicated host, the requested profile `family` must be
+//     the same as the dedicated host `family`.
+//   - Have the same `vcpu.architecture`.
+//   - Support the number of network interfaces currently attached to the instance.
+//
 // Models which "extend" this model:
 // - InstancePatchProfileInstanceProfileIdentityByName
 // - InstancePatchProfileInstanceProfileIdentityByHref
@@ -47753,9 +47755,9 @@ type LoadBalancer struct {
 
 // Constants associated with the LoadBalancer.Availability property.
 // The availability of this load balancer
-// - `subnet`: remains available if at least one zone that the load balancer's subnets reside
-//   in is available
-// - `region`: remains available if at least one zone in the region is available.
+//   - `subnet`: remains available if at least one zone that the load balancer's subnets reside
+//     in is available
+//   - `region`: remains available if at least one zone in the region is available.
 //
 // The enumerated values for this property are expected to expand in the future. When processing this property, check
 // for and log unknown values. Optionally halt processing and surface the error, or bypass the resource on which the
@@ -47775,20 +47777,25 @@ const (
 // Constants associated with the LoadBalancer.ProvisioningStatus property.
 // The provisioning status of this load balancer:
 //
-// - `active`: The load balancer is running.
-// - `create_pending`: The load balancer is being created.
-// - `delete_pending`: The load balancer is being deleted.
-// - `maintenance_pending`: The load balancer is unavailable due to an internal
-//                           error (contact IBM support).
-// - `migrate_pending`: The load balancer is migrating to the requested configuration.
-//                       Performance may be degraded.
-// - `update_pending`: The load balancer is being updated
+//   - `active`: The load balancer is running.
+//
+//   - `create_pending`: The load balancer is being created.
+//
+//   - `delete_pending`: The load balancer is being deleted.
+//
+//   - `maintenance_pending`: The load balancer is unavailable due to an internal
+//     error (contact IBM support).
+//
+//   - `migrate_pending`: The load balancer is migrating to the requested configuration.
+//     Performance may be degraded.
+//
+//   - `update_pending`: The load balancer is being updated
 //     to the requested configuration.
 //
-//   The enumerated values for this property are expected to expand in the future. When
-//   processing this property, check for and log unknown values. Optionally halt
-//   processing and surface the error, or bypass the load balancer on which the
-//   unexpected property value was encountered.
+//     The enumerated values for this property are expected to expand in the future. When
+//     processing this property, check for and log unknown values. Optionally halt
+//     processing and surface the error, or bypass the load balancer on which the
+//     unexpected property value was encountered.
 const (
 	LoadBalancerProvisioningStatusActiveConst             = "active"
 	LoadBalancerProvisioningStatusCreatePendingConst      = "create_pending"
@@ -49228,9 +49235,10 @@ func UnmarshalLoadBalancerListenerPolicyTarget(m map[string]json.RawMessage, res
 }
 
 // LoadBalancerListenerPolicyTargetPatch : - If `action` is `forward`, specify a `LoadBalancerPoolIdentity`.
-// - If `action` is `redirect`, specify a `LoadBalancerListenerPolicyRedirectURLPatch`.
-// - If `action` is `https_redirect`, specify a
-//   `LoadBalancerListenerPolicyHTTPSRedirectPatch`.
+//   - If `action` is `redirect`, specify a `LoadBalancerListenerPolicyRedirectURLPatch`.
+//   - If `action` is `https_redirect`, specify a
+//     `LoadBalancerListenerPolicyHTTPSRedirectPatch`.
+//
 // Models which "extend" this model:
 // - LoadBalancerListenerPolicyTargetPatchLoadBalancerPoolIdentity
 // - LoadBalancerListenerPolicyTargetPatchLoadBalancerListenerPolicyRedirectURLPatch
@@ -49295,9 +49303,10 @@ func UnmarshalLoadBalancerListenerPolicyTargetPatch(m map[string]json.RawMessage
 }
 
 // LoadBalancerListenerPolicyTargetPrototype : - If `action` is `forward`, specify a `LoadBalancerPoolIdentity`.
-// - If `action` is `redirect`, specify a `LoadBalancerListenerPolicyRedirectURLPrototype`.
-// - If `action` is `https_redirect`, specify a
-//   `LoadBalancerListenerPolicyHTTPSRedirectPrototype`.
+//   - If `action` is `redirect`, specify a `LoadBalancerListenerPolicyRedirectURLPrototype`.
+//   - If `action` is `https_redirect`, specify a
+//     `LoadBalancerListenerPolicyHTTPSRedirectPrototype`.
+//
 // Models which "extend" this model:
 // - LoadBalancerListenerPolicyTargetPrototypeLoadBalancerPoolIdentity
 // - LoadBalancerListenerPolicyTargetPrototypeLoadBalancerListenerPolicyRedirectURLPrototype
@@ -49440,10 +49449,10 @@ type LoadBalancerListenerPrototypeLoadBalancerContext struct {
 // `https`.
 //
 // Additional restrictions:
-// - If `default_pool` is set, the pool's protocol must match, or be compatible with
-//   the listener's protocol. At present, the compatible protocols are `http` and
-//   `https`.
-// - If `https_redirect` is set, the protocol must be `http`.
+//   - If `default_pool` is set, the pool's protocol must match, or be compatible with
+//     the listener's protocol. At present, the compatible protocols are `http` and
+//     `https`.
+//   - If `https_redirect` is set, the protocol must be `http`.
 const (
 	LoadBalancerListenerPrototypeLoadBalancerContextProtocolHTTPConst  = "http"
 	LoadBalancerListenerPrototypeLoadBalancerContextProtocolHTTPSConst = "https"
@@ -51126,9 +51135,9 @@ const (
 
 // Constants associated with the LoadBalancerProfileAvailability.Value property.
 // The availability of this load balancer
-// - `subnet`: remains available if at least one zone that the load balancer's subnets reside
-//   in is available
-// - `region`: remains available if at least one zone in the region is available.
+//   - `subnet`: remains available if at least one zone that the load balancer's subnets reside
+//     in is available
+//   - `region`: remains available if at least one zone in the region is available.
 //
 // The enumerated values for this property are expected to expand in the future. When processing this property, check
 // for and log unknown values. Optionally halt processing and surface the error, or bypass the resource on which the
@@ -65560,8 +65569,8 @@ const (
 )
 
 // Constants associated with the BareMetalServerNetworkInterfaceByHiperSocket.InterfaceType property.
-// - `hipersocket`: a virtual network device that provides high-speed TCP/IP connectivity
-//   within a `s390x` based system.
+//   - `hipersocket`: a virtual network device that provides high-speed TCP/IP connectivity
+//     within a `s390x` based system.
 const (
 	BareMetalServerNetworkInterfaceByHiperSocketInterfaceTypeHipersocketConst = "hipersocket"
 )
@@ -65733,8 +65742,8 @@ const (
 )
 
 // Constants associated with the BareMetalServerNetworkInterfaceByPci.InterfaceType property.
-// - `pci`: a physical PCI device which can only be created or deleted when the bare metal
-//   server is stopped
+//   - `pci`: a physical PCI device which can only be created or deleted when the bare metal
+//     server is stopped
 //   - Has an `allowed_vlans` property which controls the VLANs that will be permitted
 //     to use the PCI interface
 //   - Cannot directly use an IEEE 802.1q VLAN tag.
@@ -65918,8 +65927,8 @@ const (
 )
 
 // Constants associated with the BareMetalServerNetworkInterfaceByVlan.InterfaceType property.
-// - `vlan`: a virtual device, used through a `pci` device that has the `vlan` in its array
-//    of `allowed_vlans`.
+//   - `vlan`: a virtual device, used through a `pci` device that has the `vlan` in its array
+//     of `allowed_vlans`.
 //   - Must use an IEEE 802.1q tag.
 //   - Has its own security groups and does not inherit those of the PCI device through
 //     which traffic flows.
@@ -66054,8 +66063,8 @@ type BareMetalServerNetworkInterfacePrototypeBareMetalServerNetworkInterfaceByHi
 }
 
 // Constants associated with the BareMetalServerNetworkInterfacePrototypeBareMetalServerNetworkInterfaceByHiperSocketPrototype.InterfaceType property.
-// - `hipersocket`: a virtual network device that provides high-speed TCP/IP connectivity
-//   within a `s390x` based system.
+//   - `hipersocket`: a virtual network device that provides high-speed TCP/IP connectivity
+//     within a `s390x` based system.
 //   - Not supported on bare metal servers with a `cpu.architecture` of `amd64`.
 const (
 	BareMetalServerNetworkInterfacePrototypeBareMetalServerNetworkInterfaceByHiperSocketPrototypeInterfaceTypeHipersocketConst = "hipersocket"
@@ -66160,8 +66169,8 @@ type BareMetalServerNetworkInterfacePrototypeBareMetalServerNetworkInterfaceByPc
 }
 
 // Constants associated with the BareMetalServerNetworkInterfacePrototypeBareMetalServerNetworkInterfaceByPciPrototype.InterfaceType property.
-// - `pci`: a physical PCI device which can only be created or deleted when the bare metal
-//   server is stopped
+//   - `pci`: a physical PCI device which can only be created or deleted when the bare metal
+//     server is stopped
 //   - Has an `allowed_vlans` property which controls the VLANs that will be permitted
 //     to use the PCI interface
 //   - Cannot directly use an IEEE 802.1q VLAN tag.
@@ -66278,8 +66287,8 @@ type BareMetalServerNetworkInterfacePrototypeBareMetalServerNetworkInterfaceByVl
 }
 
 // Constants associated with the BareMetalServerNetworkInterfacePrototypeBareMetalServerNetworkInterfaceByVlanPrototype.InterfaceType property.
-// - `vlan`: a virtual device, used through a `pci` device that has the `vlan` in its array
-//    of `allowed_vlans`.
+//   - `vlan`: a virtual device, used through a `pci` device that has the `vlan` in its array
+//     of `allowed_vlans`.
 //   - Must use an IEEE 802.1q tag.
 //   - Has its own security groups and does not inherit those of the PCI device through
 //     which traffic flows.
@@ -75240,9 +75249,9 @@ const (
 
 // Constants associated with the LoadBalancerProfileAvailabilityFixed.Value property.
 // The availability of this load balancer
-// - `subnet`: remains available if at least one zone that the load balancer's subnets reside
-//   in is available
-// - `region`: remains available if at least one zone in the region is available.
+//   - `subnet`: remains available if at least one zone that the load balancer's subnets reside
+//     in is available
+//   - `region`: remains available if at least one zone in the region is available.
 //
 // The enumerated values for this property are expected to expand in the future. When processing this property, check
 // for and log unknown values. Optionally halt processing and surface the error, or bypass the resource on which the
@@ -85328,9 +85337,7 @@ func UnmarshalInstanceGroupManagerActionPrototypeScheduledActionPrototypeByRunAt
 	return
 }
 
-//
 // VpcsPager can be used to simplify the use of the "ListVpcs" method.
-//
 type VpcsPager struct {
 	hasNext     bool
 	options     *ListVpcsOptions
@@ -85415,9 +85422,7 @@ func (pager *VpcsPager) GetAll() (allItems []VPC, err error) {
 	return pager.GetAllWithContext(context.Background())
 }
 
-//
 // VPCAddressPrefixesPager can be used to simplify the use of the "ListVPCAddressPrefixes" method.
-//
 type VPCAddressPrefixesPager struct {
 	hasNext     bool
 	options     *ListVPCAddressPrefixesOptions
@@ -85502,9 +85507,7 @@ func (pager *VPCAddressPrefixesPager) GetAll() (allItems []AddressPrefix, err er
 	return pager.GetAllWithContext(context.Background())
 }
 
-//
 // VPCRoutesPager can be used to simplify the use of the "ListVPCRoutes" method.
-//
 type VPCRoutesPager struct {
 	hasNext     bool
 	options     *ListVPCRoutesOptions
@@ -85589,9 +85592,7 @@ func (pager *VPCRoutesPager) GetAll() (allItems []Route, err error) {
 	return pager.GetAllWithContext(context.Background())
 }
 
-//
 // VPCRoutingTablesPager can be used to simplify the use of the "ListVPCRoutingTables" method.
-//
 type VPCRoutingTablesPager struct {
 	hasNext     bool
 	options     *ListVPCRoutingTablesOptions
@@ -85676,9 +85677,7 @@ func (pager *VPCRoutingTablesPager) GetAll() (allItems []RoutingTable, err error
 	return pager.GetAllWithContext(context.Background())
 }
 
-//
 // VPCRoutingTableRoutesPager can be used to simplify the use of the "ListVPCRoutingTableRoutes" method.
-//
 type VPCRoutingTableRoutesPager struct {
 	hasNext     bool
 	options     *ListVPCRoutingTableRoutesOptions
@@ -85763,9 +85762,7 @@ func (pager *VPCRoutingTableRoutesPager) GetAll() (allItems []Route, err error) 
 	return pager.GetAllWithContext(context.Background())
 }
 
-//
 // SubnetsPager can be used to simplify the use of the "ListSubnets" method.
-//
 type SubnetsPager struct {
 	hasNext     bool
 	options     *ListSubnetsOptions
@@ -85850,9 +85847,7 @@ func (pager *SubnetsPager) GetAll() (allItems []Subnet, err error) {
 	return pager.GetAllWithContext(context.Background())
 }
 
-//
 // SubnetReservedIpsPager can be used to simplify the use of the "ListSubnetReservedIps" method.
-//
 type SubnetReservedIpsPager struct {
 	hasNext     bool
 	options     *ListSubnetReservedIpsOptions
@@ -85937,9 +85932,7 @@ func (pager *SubnetReservedIpsPager) GetAll() (allItems []ReservedIP, err error)
 	return pager.GetAllWithContext(context.Background())
 }
 
-//
 // ImagesPager can be used to simplify the use of the "ListImages" method.
-//
 type ImagesPager struct {
 	hasNext     bool
 	options     *ListImagesOptions
@@ -86024,9 +86017,7 @@ func (pager *ImagesPager) GetAll() (allItems []Image, err error) {
 	return pager.GetAllWithContext(context.Background())
 }
 
-//
 // OperatingSystemsPager can be used to simplify the use of the "ListOperatingSystems" method.
-//
 type OperatingSystemsPager struct {
 	hasNext     bool
 	options     *ListOperatingSystemsOptions
@@ -86111,9 +86102,7 @@ func (pager *OperatingSystemsPager) GetAll() (allItems []OperatingSystem, err er
 	return pager.GetAllWithContext(context.Background())
 }
 
-//
 // KeysPager can be used to simplify the use of the "ListKeys" method.
-//
 type KeysPager struct {
 	hasNext     bool
 	options     *ListKeysOptions
@@ -86198,9 +86187,7 @@ func (pager *KeysPager) GetAll() (allItems []Key, err error) {
 	return pager.GetAllWithContext(context.Background())
 }
 
-//
 // InstancesPager can be used to simplify the use of the "ListInstances" method.
-//
 type InstancesPager struct {
 	hasNext     bool
 	options     *ListInstancesOptions
@@ -86285,9 +86272,7 @@ func (pager *InstancesPager) GetAll() (allItems []Instance, err error) {
 	return pager.GetAllWithContext(context.Background())
 }
 
-//
 // InstanceNetworkInterfaceIpsPager can be used to simplify the use of the "ListInstanceNetworkInterfaceIps" method.
-//
 type InstanceNetworkInterfaceIpsPager struct {
 	hasNext     bool
 	options     *ListInstanceNetworkInterfaceIpsOptions
@@ -86372,9 +86357,7 @@ func (pager *InstanceNetworkInterfaceIpsPager) GetAll() (allItems []ReservedIP, 
 	return pager.GetAllWithContext(context.Background())
 }
 
-//
 // InstanceGroupsPager can be used to simplify the use of the "ListInstanceGroups" method.
-//
 type InstanceGroupsPager struct {
 	hasNext     bool
 	options     *ListInstanceGroupsOptions
@@ -86459,9 +86442,7 @@ func (pager *InstanceGroupsPager) GetAll() (allItems []InstanceGroup, err error)
 	return pager.GetAllWithContext(context.Background())
 }
 
-//
 // InstanceGroupManagersPager can be used to simplify the use of the "ListInstanceGroupManagers" method.
-//
 type InstanceGroupManagersPager struct {
 	hasNext     bool
 	options     *ListInstanceGroupManagersOptions
@@ -86546,9 +86527,7 @@ func (pager *InstanceGroupManagersPager) GetAll() (allItems []InstanceGroupManag
 	return pager.GetAllWithContext(context.Background())
 }
 
-//
 // InstanceGroupManagerActionsPager can be used to simplify the use of the "ListInstanceGroupManagerActions" method.
-//
 type InstanceGroupManagerActionsPager struct {
 	hasNext     bool
 	options     *ListInstanceGroupManagerActionsOptions
@@ -86633,9 +86612,7 @@ func (pager *InstanceGroupManagerActionsPager) GetAll() (allItems []InstanceGrou
 	return pager.GetAllWithContext(context.Background())
 }
 
-//
 // InstanceGroupManagerPoliciesPager can be used to simplify the use of the "ListInstanceGroupManagerPolicies" method.
-//
 type InstanceGroupManagerPoliciesPager struct {
 	hasNext     bool
 	options     *ListInstanceGroupManagerPoliciesOptions
@@ -86720,9 +86697,7 @@ func (pager *InstanceGroupManagerPoliciesPager) GetAll() (allItems []InstanceGro
 	return pager.GetAllWithContext(context.Background())
 }
 
-//
 // InstanceGroupMembershipsPager can be used to simplify the use of the "ListInstanceGroupMemberships" method.
-//
 type InstanceGroupMembershipsPager struct {
 	hasNext     bool
 	options     *ListInstanceGroupMembershipsOptions
@@ -86807,9 +86782,7 @@ func (pager *InstanceGroupMembershipsPager) GetAll() (allItems []InstanceGroupMe
 	return pager.GetAllWithContext(context.Background())
 }
 
-//
 // DedicatedHostGroupsPager can be used to simplify the use of the "ListDedicatedHostGroups" method.
-//
 type DedicatedHostGroupsPager struct {
 	hasNext     bool
 	options     *ListDedicatedHostGroupsOptions
@@ -86894,9 +86867,7 @@ func (pager *DedicatedHostGroupsPager) GetAll() (allItems []DedicatedHostGroup, 
 	return pager.GetAllWithContext(context.Background())
 }
 
-//
 // DedicatedHostProfilesPager can be used to simplify the use of the "ListDedicatedHostProfiles" method.
-//
 type DedicatedHostProfilesPager struct {
 	hasNext     bool
 	options     *ListDedicatedHostProfilesOptions
@@ -86981,9 +86952,7 @@ func (pager *DedicatedHostProfilesPager) GetAll() (allItems []DedicatedHostProfi
 	return pager.GetAllWithContext(context.Background())
 }
 
-//
 // DedicatedHostsPager can be used to simplify the use of the "ListDedicatedHosts" method.
-//
 type DedicatedHostsPager struct {
 	hasNext     bool
 	options     *ListDedicatedHostsOptions
@@ -87068,9 +87037,7 @@ func (pager *DedicatedHostsPager) GetAll() (allItems []DedicatedHost, err error)
 	return pager.GetAllWithContext(context.Background())
 }
 
-//
 // BackupPoliciesPager can be used to simplify the use of the "ListBackupPolicies" method.
-//
 type BackupPoliciesPager struct {
 	hasNext     bool
 	options     *ListBackupPoliciesOptions
@@ -87155,9 +87122,7 @@ func (pager *BackupPoliciesPager) GetAll() (allItems []BackupPolicy, err error) 
 	return pager.GetAllWithContext(context.Background())
 }
 
-//
 // BackupPolicyJobsPager can be used to simplify the use of the "ListBackupPolicyJobs" method.
-//
 type BackupPolicyJobsPager struct {
 	hasNext     bool
 	options     *ListBackupPolicyJobsOptions
@@ -87242,9 +87207,7 @@ func (pager *BackupPolicyJobsPager) GetAll() (allItems []BackupPolicyJob, err er
 	return pager.GetAllWithContext(context.Background())
 }
 
-//
 // PlacementGroupsPager can be used to simplify the use of the "ListPlacementGroups" method.
-//
 type PlacementGroupsPager struct {
 	hasNext     bool
 	options     *ListPlacementGroupsOptions
@@ -87329,9 +87292,7 @@ func (pager *PlacementGroupsPager) GetAll() (allItems []PlacementGroup, err erro
 	return pager.GetAllWithContext(context.Background())
 }
 
-//
 // BareMetalServerProfilesPager can be used to simplify the use of the "ListBareMetalServerProfiles" method.
-//
 type BareMetalServerProfilesPager struct {
 	hasNext     bool
 	options     *ListBareMetalServerProfilesOptions
@@ -87416,9 +87377,7 @@ func (pager *BareMetalServerProfilesPager) GetAll() (allItems []BareMetalServerP
 	return pager.GetAllWithContext(context.Background())
 }
 
-//
 // BareMetalServersPager can be used to simplify the use of the "ListBareMetalServers" method.
-//
 type BareMetalServersPager struct {
 	hasNext     bool
 	options     *ListBareMetalServersOptions
@@ -87503,9 +87462,7 @@ func (pager *BareMetalServersPager) GetAll() (allItems []BareMetalServer, err er
 	return pager.GetAllWithContext(context.Background())
 }
 
-//
 // BareMetalServerNetworkInterfacesPager can be used to simplify the use of the "ListBareMetalServerNetworkInterfaces" method.
-//
 type BareMetalServerNetworkInterfacesPager struct {
 	hasNext     bool
 	options     *ListBareMetalServerNetworkInterfacesOptions
@@ -87590,9 +87547,7 @@ func (pager *BareMetalServerNetworkInterfacesPager) GetAll() (allItems []BareMet
 	return pager.GetAllWithContext(context.Background())
 }
 
-//
 // VolumeProfilesPager can be used to simplify the use of the "ListVolumeProfiles" method.
-//
 type VolumeProfilesPager struct {
 	hasNext     bool
 	options     *ListVolumeProfilesOptions
@@ -87677,9 +87632,7 @@ func (pager *VolumeProfilesPager) GetAll() (allItems []VolumeProfile, err error)
 	return pager.GetAllWithContext(context.Background())
 }
 
-//
 // VolumesPager can be used to simplify the use of the "ListVolumes" method.
-//
 type VolumesPager struct {
 	hasNext     bool
 	options     *ListVolumesOptions
@@ -87764,9 +87717,7 @@ func (pager *VolumesPager) GetAll() (allItems []Volume, err error) {
 	return pager.GetAllWithContext(context.Background())
 }
 
-//
 // SnapshotsPager can be used to simplify the use of the "ListSnapshots" method.
-//
 type SnapshotsPager struct {
 	hasNext     bool
 	options     *ListSnapshotsOptions
@@ -87851,9 +87802,7 @@ func (pager *SnapshotsPager) GetAll() (allItems []Snapshot, err error) {
 	return pager.GetAllWithContext(context.Background())
 }
 
-//
 // PublicGatewaysPager can be used to simplify the use of the "ListPublicGateways" method.
-//
 type PublicGatewaysPager struct {
 	hasNext     bool
 	options     *ListPublicGatewaysOptions
@@ -87938,9 +87887,7 @@ func (pager *PublicGatewaysPager) GetAll() (allItems []PublicGateway, err error)
 	return pager.GetAllWithContext(context.Background())
 }
 
-//
 // FloatingIpsPager can be used to simplify the use of the "ListFloatingIps" method.
-//
 type FloatingIpsPager struct {
 	hasNext     bool
 	options     *ListFloatingIpsOptions
@@ -88025,9 +87972,7 @@ func (pager *FloatingIpsPager) GetAll() (allItems []FloatingIP, err error) {
 	return pager.GetAllWithContext(context.Background())
 }
 
-//
 // NetworkAclsPager can be used to simplify the use of the "ListNetworkAcls" method.
-//
 type NetworkAclsPager struct {
 	hasNext     bool
 	options     *ListNetworkAclsOptions
@@ -88112,9 +88057,7 @@ func (pager *NetworkAclsPager) GetAll() (allItems []NetworkACL, err error) {
 	return pager.GetAllWithContext(context.Background())
 }
 
-//
 // NetworkACLRulesPager can be used to simplify the use of the "ListNetworkACLRules" method.
-//
 type NetworkACLRulesPager struct {
 	hasNext     bool
 	options     *ListNetworkACLRulesOptions
@@ -88199,9 +88142,7 @@ func (pager *NetworkACLRulesPager) GetAll() (allItems []NetworkACLRuleItemIntf, 
 	return pager.GetAllWithContext(context.Background())
 }
 
-//
 // SecurityGroupsPager can be used to simplify the use of the "ListSecurityGroups" method.
-//
 type SecurityGroupsPager struct {
 	hasNext     bool
 	options     *ListSecurityGroupsOptions
@@ -88286,9 +88227,7 @@ func (pager *SecurityGroupsPager) GetAll() (allItems []SecurityGroup, err error)
 	return pager.GetAllWithContext(context.Background())
 }
 
-//
 // SecurityGroupTargetsPager can be used to simplify the use of the "ListSecurityGroupTargets" method.
-//
 type SecurityGroupTargetsPager struct {
 	hasNext     bool
 	options     *ListSecurityGroupTargetsOptions
@@ -88373,9 +88312,7 @@ func (pager *SecurityGroupTargetsPager) GetAll() (allItems []SecurityGroupTarget
 	return pager.GetAllWithContext(context.Background())
 }
 
-//
 // IkePoliciesPager can be used to simplify the use of the "ListIkePolicies" method.
-//
 type IkePoliciesPager struct {
 	hasNext     bool
 	options     *ListIkePoliciesOptions
@@ -88460,9 +88397,7 @@ func (pager *IkePoliciesPager) GetAll() (allItems []IkePolicy, err error) {
 	return pager.GetAllWithContext(context.Background())
 }
 
-//
 // IpsecPoliciesPager can be used to simplify the use of the "ListIpsecPolicies" method.
-//
 type IpsecPoliciesPager struct {
 	hasNext     bool
 	options     *ListIpsecPoliciesOptions
@@ -88547,9 +88482,7 @@ func (pager *IpsecPoliciesPager) GetAll() (allItems []IPsecPolicy, err error) {
 	return pager.GetAllWithContext(context.Background())
 }
 
-//
 // VPNGatewaysPager can be used to simplify the use of the "ListVPNGateways" method.
-//
 type VPNGatewaysPager struct {
 	hasNext     bool
 	options     *ListVPNGatewaysOptions
@@ -88634,9 +88567,7 @@ func (pager *VPNGatewaysPager) GetAll() (allItems []VPNGatewayIntf, err error) {
 	return pager.GetAllWithContext(context.Background())
 }
 
-//
 // VPNServersPager can be used to simplify the use of the "ListVPNServers" method.
-//
 type VPNServersPager struct {
 	hasNext     bool
 	options     *ListVPNServersOptions
@@ -88721,9 +88652,7 @@ func (pager *VPNServersPager) GetAll() (allItems []VPNServer, err error) {
 	return pager.GetAllWithContext(context.Background())
 }
 
-//
 // VPNServerClientsPager can be used to simplify the use of the "ListVPNServerClients" method.
-//
 type VPNServerClientsPager struct {
 	hasNext     bool
 	options     *ListVPNServerClientsOptions
@@ -88808,9 +88737,7 @@ func (pager *VPNServerClientsPager) GetAll() (allItems []VPNServerClient, err er
 	return pager.GetAllWithContext(context.Background())
 }
 
-//
 // VPNServerRoutesPager can be used to simplify the use of the "ListVPNServerRoutes" method.
-//
 type VPNServerRoutesPager struct {
 	hasNext     bool
 	options     *ListVPNServerRoutesOptions
@@ -88895,9 +88822,7 @@ func (pager *VPNServerRoutesPager) GetAll() (allItems []VPNServerRoute, err erro
 	return pager.GetAllWithContext(context.Background())
 }
 
-//
 // LoadBalancerProfilesPager can be used to simplify the use of the "ListLoadBalancerProfiles" method.
-//
 type LoadBalancerProfilesPager struct {
 	hasNext     bool
 	options     *ListLoadBalancerProfilesOptions
@@ -88982,9 +88907,7 @@ func (pager *LoadBalancerProfilesPager) GetAll() (allItems []LoadBalancerProfile
 	return pager.GetAllWithContext(context.Background())
 }
 
-//
 // LoadBalancersPager can be used to simplify the use of the "ListLoadBalancers" method.
-//
 type LoadBalancersPager struct {
 	hasNext     bool
 	options     *ListLoadBalancersOptions
@@ -89069,9 +88992,7 @@ func (pager *LoadBalancersPager) GetAll() (allItems []LoadBalancer, err error) {
 	return pager.GetAllWithContext(context.Background())
 }
 
-//
 // EndpointGatewaysPager can be used to simplify the use of the "ListEndpointGateways" method.
-//
 type EndpointGatewaysPager struct {
 	hasNext     bool
 	options     *ListEndpointGatewaysOptions
@@ -89156,9 +89077,7 @@ func (pager *EndpointGatewaysPager) GetAll() (allItems []EndpointGateway, err er
 	return pager.GetAllWithContext(context.Background())
 }
 
-//
 // EndpointGatewayIpsPager can be used to simplify the use of the "ListEndpointGatewayIps" method.
-//
 type EndpointGatewayIpsPager struct {
 	hasNext     bool
 	options     *ListEndpointGatewayIpsOptions
@@ -89243,9 +89162,7 @@ func (pager *EndpointGatewayIpsPager) GetAll() (allItems []ReservedIP, err error
 	return pager.GetAllWithContext(context.Background())
 }
 
-//
 // FlowLogCollectorsPager can be used to simplify the use of the "ListFlowLogCollectors" method.
-//
 type FlowLogCollectorsPager struct {
 	hasNext     bool
 	options     *ListFlowLogCollectorsOptions
