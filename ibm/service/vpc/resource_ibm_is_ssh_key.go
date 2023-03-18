@@ -17,6 +17,7 @@ import (
 	"github.com/IBM/vpc-go-sdk/vpcv1"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"golang.org/x/crypto/ssh"
 )
 
@@ -73,9 +74,11 @@ func ResourceIBMISSSHKey() *schema.Resource {
 			},
 
 			isKeyType: {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: "Key type",
+				Type:         schema.TypeString,
+				Optional:     true,
+				Default:      "rsa",
+				ValidateFunc: validation.StringInSlice([]string{"ed25519", "rsa"}, false),
+				Description:  "Key type",
 			},
 
 			isKeyFingerprint: {
@@ -179,7 +182,6 @@ func ResourceIBMISSHKeyValidator() *validate.ResourceValidator {
 			Regexp:                     `^([A-Za-z0-9_.-]|[A-Za-z0-9_.-][A-Za-z0-9_ .-]*[A-Za-z0-9_.-]):([A-Za-z0-9_.-]|[A-Za-z0-9_.-][A-Za-z0-9_ .-]*[A-Za-z0-9_.-])$`,
 			MinValueLength:             1,
 			MaxValueLength:             128})
-
 	ibmISSSHKeyResourceValidator := validate.ResourceValidator{ResourceName: "ibm_is_ssh_key", Schema: validateSchema}
 	return &ibmISSSHKeyResourceValidator
 }
@@ -212,6 +214,11 @@ func keyCreate(d *schema.ResourceData, meta interface{}, name, publickey string)
 		options.ResourceGroup = &vpcv1.ResourceGroupIdentity{
 			ID: &rg,
 		}
+	}
+
+	if keytype, ok := d.GetOk(isKeyType); ok {
+		kt := keytype.(string)
+		options.Type = &kt
 	}
 
 	key, response, err := sess.CreateKey(options)
