@@ -359,7 +359,7 @@ func imgCreateByVolume(d *schema.ResourceData, meta interface{}, name, volume st
 	if err != nil || vol == nil {
 		return fmt.Errorf("[ERROR] Error retrieving Volume (%s) details: %s\n%s", volume, err, response)
 	}
-	if vol.VolumeAttachments == nil {
+	if vol.VolumeAttachments == nil || len(vol.VolumeAttachments) == 0 {
 		return fmt.Errorf("[ERROR] Error creating Image because the specified source_volume %s is not attached to a virtual server instance ", volume)
 	}
 	volAtt := &vol.VolumeAttachments[0]
