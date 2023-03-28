@@ -363,6 +363,9 @@ func imgCreateByVolume(d *schema.ResourceData, meta interface{}, name, volume st
 		return fmt.Errorf("[ERROR] Error creating Image because the specified source_volume %s is not attached to a virtual server instance ", volume)
 	}
 	volAtt := &vol.VolumeAttachments[0]
+	if *volAtt.Type != "boot" {
+		return fmt.Errorf("[ERROR] Error creating Image because the specified source_volume %s is not boot volume ", volume)
+	}
 	insId = *volAtt.Instance.ID
 	getinsOptions := &vpcv1.GetInstanceOptions{
 		ID: &insId,
