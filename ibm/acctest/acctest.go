@@ -80,7 +80,8 @@ var DedicatedHostGroupFamily string
 var DedicatedHostGroupClass string
 var ShareProfileName string
 var VolumeProfileName string
-var UnattachedBootVolumeID string
+var VSIUnattachedBootVolumeID string
+var VSIDataVolumeID string
 var ISRouteDestination string
 var ISRouteNextHop string
 var WorkspaceID string
@@ -652,10 +653,15 @@ func init() {
 		VolumeProfileName = "general-purpose"
 		fmt.Println("[INFO] Set the environment variable IS_VOLUME_PROFILE for testing ibm_is_volume_profile else it is set to default value 'general-purpose'")
 	}
-	UnattachedBootVolumeID = os.Getenv("IS_UNATTACHED_BOOT_VOLUME_ID")
-	if UnattachedBootVolumeID == "" {
-		UnattachedBootVolumeID = "r006-1cbe9f0a-7101-4d25-ae72-2a2d725e530e"
+	VSIUnattachedBootVolumeID = os.Getenv("IS_VSI_UNATTACHED_BOOT_VOLUME_ID")
+	if VSIUnattachedBootVolumeID == "" {
+		VSIUnattachedBootVolumeID = "r006-1cbe9f0a-7101-4d25-ae72-2a2d725e530e"
 		fmt.Println("[INFO] Set the environment variable IS_UNATTACHED_BOOT_VOLUME_NAME for testing ibm_is_image else it is set to default value 'r006-1cbe9f0a-7101-4d25-ae72-2a2d725e530e'")
+	}
+	VSIDataVolumeID = os.Getenv("IS_VSI_DATA_VOLUME_ID")
+	if VSIDataVolumeID == "" {
+		VSIDataVolumeID = "r006-1cbe9f0a-7101-4d25-ae72-2a2d725e530e"
+		fmt.Println("[INFO] Set the environment variable IS_VSI_DATA_VOLUME_ID for testing ibm_is_image else it is set to default value 'r006-1cbe9f0a-7101-4d25-ae72-2a2d725e530e'")
 	}
 
 	ISRouteDestination = os.Getenv("SL_ROUTE_DESTINATION")

@@ -51,6 +51,10 @@ func TestAccIBMISImage_error(t *testing.T) {
 				Config:      testAccCheckIBMISImageError(name),
 				ExpectError: regexp.MustCompile("is not attached to a virtual server instance"),
 			},
+			{
+				Config:      testAccCheckIBMISImageError2(name),
+				ExpectError: regexp.MustCompile("is not boot volume"),
+			},
 		},
 	})
 }
@@ -207,7 +211,17 @@ func testAccCheckIBMISImageError(name string) string {
 			timeouts {
 				create = "45m"
 			}
-		}`, name, acc.UnattachedBootVolumeID)
+		}`, name, acc.VSIUnattachedBootVolumeID)
+}
+func testAccCheckIBMISImageError2(name string) string {
+	return fmt.Sprintf(`
+		resource "ibm_is_image" "isExampleImageFromVolume" {
+			name = "%s"
+			source_volume = "%s"
+			timeouts {
+				create = "45m"
+			}
+		}`, name, acc.VSIDataVolumeID)
 }
 
 func testAccCheckIBMISImageEncryptedConfig(name string) string {
