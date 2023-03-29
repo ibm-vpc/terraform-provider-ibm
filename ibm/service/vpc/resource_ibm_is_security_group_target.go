@@ -4,14 +4,17 @@
 package vpc
 
 import (
+	"context"
 	"fmt"
 	"log"
+	"reflect"
 	"strings"
 	"time"
 
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/validate"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -24,14 +27,15 @@ const (
 func ResourceIBMISSecurityGroupTarget() *schema.Resource {
 
 	return &schema.Resource{
-		Create:   resourceIBMISSecurityGroupTargetCreate,
-		Read:     resourceIBMISSecurityGroupTargetRead,
-		Delete:   resourceIBMISSecurityGroupTargetDelete,
-		Exists:   resourceIBMISSecurityGroupTargetExists,
-		Importer: &schema.ResourceImporter{},
+		CreateContext: resourceIBMISSecurityGroupTargetCreate,
+		ReadContext:   resourceIBMISSecurityGroupTargetRead,
+		DeleteContext: resourceIBMISSecurityGroupTargetDelete,
+		Exists:        resourceIBMISSecurityGroupTargetExists,
+		Importer:      &schema.ResourceImporter{},
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(10 * time.Minute),
+			Update: schema.DefaultTimeout(10 * time.Minute),
 			Delete: schema.DefaultTimeout(10 * time.Minute),
 		},
 
@@ -61,6 +65,27 @@ func ResourceIBMISSecurityGroupTarget() *schema.Resource {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "The CRN for this Security group target",
+			},
+
+			"deleted": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "If present, this property indicates the referenced resource has been deleted and providessome supplementary information.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"more_info": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "Link to documentation about deleted resources.",
+						},
+					},
+				},
+			},
+
+			"href": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The URL for Security group target.",
 			},
 
 			isSecurityGroupResourceType: {
@@ -97,11 +122,11 @@ func ResourceIBMISSecurityGroupTargetValidator() *validate.ResourceValidator {
 	return &ibmISSecurityGroupResourceValidator
 }
 
-func resourceIBMISSecurityGroupTargetCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISSecurityGroupTargetCreate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	securityGroupID := d.Get("security_group").(string)
@@ -113,32 +138,24 @@ func resourceIBMISSecurityGroupTargetCreate(d *schema.ResourceData, meta interfa
 
 	sg, response, err := sess.CreateSecurityGroupTargetBinding(createSecurityGroupTargetBindingOptions)
 	if err != nil || sg == nil {
-		return fmt.Errorf("[ERROR] Error while creating Security Group Target Binding %s\n%s", err, response)
+		return diag.FromErr(fmt.Errorf("[ERROR] Error while creating Security Group Target Binding %s\n%s", err, response))
 	}
 	sgtarget := sg.(*vpcv1.SecurityGroupTargetReference)
 	d.SetId(fmt.Sprintf("%s/%s", securityGroupID, *sgtarget.ID))
-	crn := sgtarget.CRN
-	if crn != nil && *crn != "" && strings.Contains(*crn, "load-balancer") {
-		lbid := sgtarget.ID
-		_, errsgt := isWaitForLbSgTargetCreateAvailable(sess, *lbid, d.Timeout(schema.TimeoutCreate))
-		if errsgt != nil {
-			return errsgt
-		}
-	}
 
-	return resourceIBMISSecurityGroupTargetRead(d, meta)
+	return resourceIBMISSecurityGroupTargetRead(context, d, meta)
 }
 
-func resourceIBMISSecurityGroupTargetRead(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISSecurityGroupTargetRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	parts, err := flex.IdParts(d.Id())
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	securityGroupID := parts[0]
 	securityGroupTargetID := parts[1]
@@ -157,28 +174,96 @@ func resourceIBMISSecurityGroupTargetRead(d *schema.ResourceData, meta interface
 			d.SetId("")
 			return nil
 		}
-		return fmt.Errorf("[ERROR] Error getting Security Group Target : %s\n%s", err, response)
+		return diag.FromErr(fmt.Errorf("[ERROR] Error getting Security Group Target : %s\n%s", err, response))
 	}
 
 	target := data.(*vpcv1.SecurityGroupTargetReference)
-	d.Set("name", *target.Name)
-	d.Set("crn", target.CRN)
+
+	if target.ResourceType != nil && *target.ResourceType != "" && *target.ResourceType == "load_balancer" {
+		lbid := target.ID
+		_, errsgt := isWaitForLbSgTargetCreateAvailable(sess, *lbid, d.Timeout(schema.TimeoutUpdate))
+		if errsgt != nil {
+			return diag.FromErr(fmt.Errorf("[ERROR] Error while creating Security Group Target Binding %s\n", errsgt))
+		}
+	} else if target.ResourceType != nil && *target.ResourceType != "" && *target.ResourceType == "endpoint_gateway" {
+		edid := target.ID
+		_, errsgt := isWaitForVirtualEndpointGatewayAvailable(sess, *edid, d.Timeout(schema.TimeoutUpdate))
+		if errsgt != nil {
+			return diag.FromErr(fmt.Errorf("[ERROR] Error while creating Security Group Target Binding %s\n", errsgt))
+		}
+	} else if target.ResourceType != nil && *target.ResourceType != "" && *target.ResourceType == "vpn_server" {
+		_, errsgt := isWaitForVPNServerSgTargetCreateAvailable(sess, securityGroupTargetID, d.Timeout(schema.TimeoutUpdate))
+		if errsgt != nil {
+			return diag.FromErr(fmt.Errorf("[ERROR] Error while creating Security Group Target Binding %s\n", errsgt))
+		}
+	} else if target.ResourceType != nil && *target.ResourceType != "" && *target.ResourceType == "network_interface" {
+		if target.Href != nil && *target.Href != "" && strings.Contains(*target.Href, "bare_metal_servers") {
+			splitHref := strings.Split(strings.Split(*target.Href, "bare_metal_servers/")[1], "/")
+			_, errsgt := isWaitForNetworkInterfaceBareMetalServerSgAvailable(sess, splitHref[0], splitHref[len(splitHref)-1], d.Timeout(schema.TimeoutUpdate))
+			if errsgt != nil {
+				return diag.FromErr(fmt.Errorf("[ERROR] Error while creating Security Group Target Binding %s\n", errsgt))
+			}
+		} else if target.Href != nil && *target.Href != "" && strings.Contains(*target.Href, "instances") {
+			splitHref := strings.Split(strings.Split(*target.Href, "instances/")[1], "/")
+			_, errsgt := isWaitForNetworkInterfaceInstanceSgTargetCreateAvailable(sess, splitHref[0], splitHref[len(splitHref)-1], d.Timeout(schema.TimeoutUpdate))
+			if errsgt != nil {
+				return diag.FromErr(fmt.Errorf("[ERROR] Error while creating Security Group Target Binding %s\n", errsgt))
+			}
+		}
+	}
+
+	if target.Name != nil {
+		if err = d.Set("name", *target.Name); err != nil {
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting name: %s", err))
+		}
+	}
+	if target.Href != nil {
+		if err = d.Set("href", *target.Href); err != nil {
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting href: %s", err))
+		}
+	}
+	if target.CRN != nil {
+		if err = d.Set("crn", *target.CRN); err != nil {
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting crn: %s", err))
+		}
+	}
+
+	if target.Deleted != nil {
+		targetDeletedMap := map[string]interface{}{}
+		if target.Deleted.MoreInfo != nil {
+			targetDeletedMap["more_info"] = *(target.Deleted.MoreInfo)
+			if err = d.Set("deleted", []map[string]interface{}{targetDeletedMap}); err != nil {
+				return diag.FromErr(fmt.Errorf("[ERROR] Error setting deleted: %s", err))
+			}
+		} else {
+			if err = d.Set("deleted", []map[string]interface{}{}); err != nil {
+				return diag.FromErr(fmt.Errorf("[ERROR] Error setting deleted: %s", err))
+			}
+		}
+	} else {
+		if err = d.Set("deleted", []map[string]interface{}{}); err != nil {
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting deleted: %s", err))
+		}
+	}
+
 	if target.ResourceType != nil && *target.ResourceType != "" {
-		d.Set(isSecurityGroupResourceType, *target.ResourceType)
+		if err = d.Set(isSecurityGroupResourceType, *target.ResourceType); err != nil {
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting resource type: %s", err))
+		}
 	}
 
 	return nil
 }
 
-func resourceIBMISSecurityGroupTargetDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISSecurityGroupTargetDelete(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	parts, err := flex.IdParts(d.Id())
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	securityGroupID := parts[0]
 	securityGroupTargetID := parts[1]
@@ -193,21 +278,46 @@ func resourceIBMISSecurityGroupTargetDelete(d *schema.ResourceData, meta interfa
 			d.SetId("")
 			return nil
 		}
-		return fmt.Errorf("[ERROR] Error Getting Security Group Targets (%s): %s\n%s", securityGroupID, err, response)
+		return diag.FromErr(fmt.Errorf("[ERROR] Error Getting Security Group Targets (%s): %s\n%s", securityGroupID, err, response))
 	}
 
 	deleteSecurityGroupTargetBindingOptions := sess.NewDeleteSecurityGroupTargetBindingOptions(securityGroupID, securityGroupTargetID)
 	response, err = sess.DeleteSecurityGroupTargetBinding(deleteSecurityGroupTargetBindingOptions)
 	if err != nil {
-		return fmt.Errorf("[ERROR] Error Deleting Security Group Targets : %s\n%s", err, response)
+		return diag.FromErr(fmt.Errorf("[ERROR] Error Deleting Security Group Targets : %s\n%s", err, response))
 	}
 	securityGroupTargetReference := sgt.(*vpcv1.SecurityGroupTargetReference)
-	crn := securityGroupTargetReference.CRN
-	if crn != nil && *crn != "" && strings.Contains(*crn, "load-balancer") {
+	if securityGroupTargetReference.ResourceType != nil && *securityGroupTargetReference.ResourceType != "" && *securityGroupTargetReference.ResourceType == "load_balancer" {
 		lbid := securityGroupTargetReference.ID
-		_, errsgt := isWaitForLBRemoveAvailable(sess, sgt, *lbid, securityGroupID, securityGroupTargetID, d.Timeout(schema.TimeoutDelete))
+		_, errsgt := isWaitForLBDelete(sess, sgt, *lbid, securityGroupID, securityGroupTargetID, d.Timeout(schema.TimeoutDelete))
 		if errsgt != nil {
-			return errsgt
+			return diag.FromErr(fmt.Errorf("[ERROR] Error while deleting Security Group Target Binding %s\n", errsgt))
+		}
+	} else if securityGroupTargetReference.ResourceType != nil && *securityGroupTargetReference.ResourceType != "" && *securityGroupTargetReference.ResourceType == "endpoint_gateway" {
+		edid := securityGroupTargetReference.ID
+		_, errsgt := isWaitForEndpointGatewayDelete(sess, sgt, *edid, securityGroupID, securityGroupTargetID, d.Timeout(schema.TimeoutDelete))
+		if errsgt != nil {
+			return diag.FromErr(fmt.Errorf("[ERROR] Error while deleting Security Group Target Binding %s\n", errsgt))
+		}
+	} else if securityGroupTargetReference.ResourceType != nil && *securityGroupTargetReference.ResourceType != "" && *securityGroupTargetReference.ResourceType == "vpn_server" {
+		vpnServerId := securityGroupTargetReference.ID
+		_, errsgt := isWaitForVPNServerDelete(sess, sgt, *vpnServerId, securityGroupID, securityGroupTargetID, d.Timeout(schema.TimeoutDelete))
+		if errsgt != nil {
+			return diag.FromErr(fmt.Errorf("[ERROR] Error while deleting Security Group Target Binding %s\n", errsgt))
+		}
+	} else if securityGroupTargetReference.ResourceType != nil && *securityGroupTargetReference.ResourceType != "" && *securityGroupTargetReference.ResourceType == "network_interface" {
+		if securityGroupTargetReference.Href != nil && *securityGroupTargetReference.Href != "" && strings.Contains(*securityGroupTargetReference.Href, "bare_metal_servers") {
+			splitHref := strings.Split(strings.Split(*securityGroupTargetReference.Href, "bare_metal_servers/")[1], "/")
+			_, errsgt := isWaitForBareMetalServerNetworkInterfaceSGDelete(sess, securityGroupID, splitHref[0], splitHref[len(splitHref)-1], d.Timeout(schema.TimeoutUpdate))
+			if errsgt != nil {
+				return diag.FromErr(fmt.Errorf("[ERROR] Error while deleting Security Group Target Binding %s\n", errsgt))
+			}
+		} else if securityGroupTargetReference.Href != nil && *securityGroupTargetReference.Href != "" && strings.Contains(*securityGroupTargetReference.Href, "instances") {
+			splitHref := strings.Split(strings.Split(*securityGroupTargetReference.Href, "instances/")[1], "/")
+			_, errsgt := isWaitForInstanceNetworkInterfaceSGDelete(sess, securityGroupID, splitHref[0], splitHref[len(splitHref)-1], d.Timeout(schema.TimeoutUpdate))
+			if errsgt != nil {
+				return diag.FromErr(fmt.Errorf("[ERROR] Error while deleting Security Group Target Binding %s\n", errsgt))
+			}
 		}
 	}
 	d.SetId("")
@@ -245,13 +355,99 @@ func resourceIBMISSecurityGroupTargetExists(d *schema.ResourceData, meta interfa
 
 }
 
-func isWaitForLBRemoveAvailable(sess *vpcv1.VpcV1, sgt vpcv1.SecurityGroupTargetReferenceIntf, lbId, securityGroupID, securityGroupTargetID string, timeout time.Duration) (interface{}, error) {
+func isWaitForLBDelete(sess *vpcv1.VpcV1, sgt vpcv1.SecurityGroupTargetReferenceIntf, lbId, securityGroupID, securityGroupTargetID string, timeout time.Duration) (interface{}, error) {
 	log.Printf("[INFO] Waiting for load balancer binding (%s) to be removed.", lbId)
 
 	stateConf := &resource.StateChangeConf{
 		Pending:        []string{isLBProvisioning},
 		Target:         []string{isLBProvisioningDone},
 		Refresh:        isLBRemoveRefreshFunc(sess, sgt, lbId, securityGroupID, securityGroupTargetID),
+		Timeout:        timeout,
+		Delay:          10 * time.Second,
+		MinTimeout:     10 * time.Second,
+		NotFoundChecks: 1,
+	}
+
+	return stateConf.WaitForState()
+}
+
+func isWaitForVPNServerDelete(sess *vpcv1.VpcV1, sgt vpcv1.SecurityGroupTargetReferenceIntf, vpnServerId, securityGroupID, securityGroupTargetID string, timeout time.Duration) (interface{}, error) {
+	log.Printf("[INFO] Waiting for vpn server binding (%s) to be removed.", vpnServerId)
+
+	stateConf := &resource.StateChangeConf{
+		Pending: []string{isVPNServerStatusPending},
+		Target:  []string{isVPNServerStatusStable},
+		Refresh: func() (interface{}, string, error) {
+
+			getSecurityGroupTargetOptions := &vpcv1.GetSecurityGroupTargetOptions{
+				SecurityGroupID: &securityGroupID,
+				ID:              &securityGroupTargetID,
+			}
+			_, response, err := sess.GetSecurityGroupTarget(getSecurityGroupTargetOptions)
+
+			if err != nil {
+				if response != nil && response.StatusCode == 404 {
+					getVPNServerOptions := &vpcv1.GetVPNServerOptions{}
+
+					getVPNServerOptions.SetID(vpnServerId)
+
+					vpnServer, response, err := sess.GetVPNServer(getVPNServerOptions)
+					if err != nil {
+						log.Printf("[DEBUG] GetVPNServerWithContext failed %s\n%s", err, response)
+						return vpnServer, "", fmt.Errorf("Error Getting VPC Server: %s\n%s", err, response)
+					}
+
+					if *vpnServer.LifecycleState == "stable" || *vpnServer.LifecycleState == "failed" {
+						return vpnServer, *vpnServer.LifecycleState, nil
+					}
+					return vpnServer, *vpnServer.LifecycleState, nil
+				}
+				return nil, isVPNServerStatusStable, fmt.Errorf("[ERROR] Error getting Security Group Target : %s\n%s", err, response)
+			}
+			return sgt, isVPNServerStatusPending, nil
+		},
+		Timeout:        timeout,
+		Delay:          10 * time.Second,
+		MinTimeout:     10 * time.Second,
+		NotFoundChecks: 1,
+	}
+
+	return stateConf.WaitForState()
+}
+
+func isWaitForEndpointGatewayDelete(sess *vpcv1.VpcV1, sgt vpcv1.SecurityGroupTargetReferenceIntf, endpointGatewayId, securityGroupID, securityGroupTargetID string, timeout time.Duration) (interface{}, error) {
+	log.Printf("[INFO] Waiting for endpoint gateway binding (%s) to be removed.", endpointGatewayId)
+
+	stateConf := &resource.StateChangeConf{
+		Pending: []string{"waiting", "pending", "updating"},
+		Target:  []string{"stable"},
+		Refresh: func() (interface{}, string, error) {
+
+			getSecurityGroupTargetOptions := &vpcv1.GetSecurityGroupTargetOptions{
+				SecurityGroupID: &securityGroupID,
+				ID:              &securityGroupTargetID,
+			}
+			_, response, err := sess.GetSecurityGroupTarget(getSecurityGroupTargetOptions)
+
+			if err != nil {
+				if response != nil && response.StatusCode == 404 {
+
+					opt := sess.NewGetEndpointGatewayOptions(endpointGatewayId)
+					result, response, err := sess.GetEndpointGateway(opt)
+					if err != nil {
+						if response != nil && response.StatusCode == 404 {
+							return result, "", fmt.Errorf("Error Getting Virtual Endpoint Gateway : %s\n%s", err, response)
+						}
+					}
+					if *result.LifecycleState == "stable" || *result.LifecycleState == "failed" {
+						return result, *result.LifecycleState, nil
+					}
+					return result, *result.LifecycleState, nil
+				}
+				return nil, "stable", fmt.Errorf("[ERROR] Error getting Security Group Target : %s\n%s", err, response)
+			}
+			return sgt, "pending", nil
+		},
 		Timeout:        timeout,
 		Delay:          10 * time.Second,
 		MinTimeout:     10 * time.Second,
@@ -307,6 +503,36 @@ func isWaitForLbSgTargetCreateAvailable(sess *vpcv1.VpcV1, lbId string, timeout 
 	return stateConf.WaitForState()
 }
 
+func isWaitForVPNServerSgTargetCreateAvailable(sess *vpcv1.VpcV1, vpnServerId string, timeout time.Duration) (interface{}, error) {
+
+	log.Printf("Waiting for VPN Server(%s) to be stable.", vpnServerId)
+	stateConf := &resource.StateChangeConf{
+		Pending: []string{isVPNServerStatusPending, isVPNServerStatusUpdating},
+		Target:  []string{isVPNServerStatusStable, isVPNServerStatusFailed},
+		Refresh: func() (interface{}, string, error) {
+			getVPNServerOptions := &vpcv1.GetVPNServerOptions{}
+
+			getVPNServerOptions.SetID(vpnServerId)
+
+			vpnServer, response, err := sess.GetVPNServer(getVPNServerOptions)
+			if err != nil {
+				log.Printf("[DEBUG] GetVPNServerWithContext failed %s\n%s", err, response)
+				return vpnServer, "", fmt.Errorf("Error Getting VPC Server: %s\n%s", err, response)
+			}
+
+			if *vpnServer.LifecycleState == "stable" || *vpnServer.LifecycleState == "failed" {
+				return vpnServer, *vpnServer.LifecycleState, nil
+			}
+			return vpnServer, *vpnServer.LifecycleState, nil
+		},
+		Timeout:    timeout,
+		Delay:      10 * time.Second,
+		MinTimeout: 10 * time.Second,
+	}
+
+	return stateConf.WaitForState()
+}
+
 func isLBSgTargetRefreshFunc(sess *vpcv1.VpcV1, lbId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 
@@ -324,4 +550,192 @@ func isLBSgTargetRefreshFunc(sess *vpcv1.VpcV1, lbId string) resource.StateRefre
 
 		return lb, isLBProvisioning, nil
 	}
+}
+
+func isWaitForNetworkInterfaceInstanceSgTargetCreateAvailable(vpcClient *vpcv1.VpcV1, instanceID string, networkInterfaceId string, timeout time.Duration) (interface{}, error) {
+	log.Printf("Waiting for network interface (%s) of instance (%s) to be available.", networkInterfaceId, instanceID)
+
+	stateConf := &resource.StateChangeConf{
+		Pending:    []string{isNetworkInterfacePending},
+		Target:     []string{isNetworkInterfaceAvailable, isNetworkInterfaceFailed},
+		Refresh:    isNetworkInterfaceInstanceSgTargetRefreshFunc(vpcClient, instanceID, networkInterfaceId),
+		Timeout:    timeout,
+		Delay:      10 * time.Second,
+		MinTimeout: 10 * time.Second,
+	}
+
+	return stateConf.WaitForState()
+}
+
+func isNetworkInterfaceInstanceSgTargetRefreshFunc(sess *vpcv1.VpcV1, instanceID string, networkInterfaceId string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+
+		getInstanceNetworkInterfaceOptions := &vpcv1.GetInstanceNetworkInterfaceOptions{}
+		getInstanceNetworkInterfaceOptions.SetInstanceID(instanceID)
+		getInstanceNetworkInterfaceOptions.SetID(networkInterfaceId)
+
+		networkInterface, response, err := sess.GetInstanceNetworkInterface(getInstanceNetworkInterfaceOptions)
+		if err != nil {
+			return nil, "", fmt.Errorf("GetInstanceNetworkInterface failed %s\n%s", err, response)
+		}
+		if *networkInterface.Status == isNetworkInterfaceFailed {
+			return networkInterface, *networkInterface.Status, fmt.Errorf("Network Interface creation failed with status %s ", *networkInterface.Status)
+		}
+		return networkInterface, *networkInterface.Status, nil
+	}
+}
+
+func isWaitForNetworkInterfaceBareMetalServerSgAvailable(vpcClient *vpcv1.VpcV1, bareMetalServerId string, networkInterfaceId string, timeout time.Duration) (interface{}, error) {
+	log.Printf("Waiting for Network Interface (%s) of Bare Metal Server (%s)  to be available.", networkInterfaceId, bareMetalServerId)
+	stateConf := &resource.StateChangeConf{
+		Pending:    []string{isBareMetalServerNetworkInterfacePending},
+		Target:     []string{isBareMetalServerNetworkInterfaceAvailable, isBareMetalServerNetworkInterfacePCIPending, isBareMetalServerNetworkInterfaceFailed},
+		Refresh:    isNetworkInterfaceBareMetalSgTargetRefreshFunc(vpcClient, bareMetalServerId, networkInterfaceId),
+		Timeout:    timeout,
+		Delay:      10 * time.Second,
+		MinTimeout: 10 * time.Second,
+	}
+	return stateConf.WaitForState()
+}
+
+func isNetworkInterfaceBareMetalSgTargetRefreshFunc(client *vpcv1.VpcV1, bareMetalServerId string, networkInterfaceId string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		getBmsNicOptions := &vpcv1.GetBareMetalServerNetworkInterfaceOptions{
+			BareMetalServerID: &bareMetalServerId,
+			ID:                &networkInterfaceId,
+		}
+		result, response, err := client.GetBareMetalServerNetworkInterface(getBmsNicOptions)
+		if err != nil {
+			return nil, "", fmt.Errorf("[ERROR] Error getting Bare Metal Server (%s) Network Interface (%s) : %s\n%s", bareMetalServerId, networkInterfaceId, err, response)
+		}
+		status := ""
+		switch reflect.TypeOf(result).String() {
+		case "*vpcv1.BareMetalServerNetworkInterfaceByPci":
+			{
+				nic := result.(*vpcv1.BareMetalServerNetworkInterfaceByPci)
+				status = *nic.Status
+				if status == "available" || status == "failed" {
+					return result, status, nil
+				}
+			}
+		case "*vpcv1.BareMetalServerNetworkInterfaceByVlan":
+			{
+				nic := result.(*vpcv1.BareMetalServerNetworkInterfaceByVlan)
+				status = *nic.Status
+				if status == "available" || status == "failed" {
+					return result, status, nil
+				}
+			}
+		}
+		return result, "pending", nil
+	}
+}
+
+func isWaitForInstanceNetworkInterfaceSGDelete(vpcClient *vpcv1.VpcV1, securityGroupID, instanceID string, networkInterfaceId string, timeout time.Duration) (interface{}, error) {
+	log.Printf("Waiting for Instance Network Interface (%s) to be deleted.", instanceID)
+
+	stateConf := &resource.StateChangeConf{
+		Pending:    []string{isNetworkInterfacePending},
+		Target:     []string{isNetworkInterfaceAvailable, isNetworkInterfaceFailed},
+		Refresh:    isInstanceNetworkInterfaceRefreshDeleteFunc(vpcClient, securityGroupID, instanceID, networkInterfaceId),
+		Timeout:    timeout,
+		Delay:      10 * time.Second,
+		MinTimeout: 10 * time.Second,
+	}
+
+	return stateConf.WaitForState()
+}
+
+func isInstanceNetworkInterfaceRefreshDeleteFunc(vpcClient *vpcv1.VpcV1, securityGroupID, instanceID string, networkInterfaceId string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		getSecurityGroupTargetOptions := &vpcv1.GetSecurityGroupTargetOptions{
+			SecurityGroupID: &securityGroupID,
+			ID:              &networkInterfaceId,
+		}
+		_, response, err := vpcClient.GetSecurityGroupTarget(getSecurityGroupTargetOptions)
+
+		if err != nil {
+			if response != nil && response.StatusCode == 404 {
+				getInstanceNetworkInterfaceOptions := &vpcv1.GetInstanceNetworkInterfaceOptions{}
+				getInstanceNetworkInterfaceOptions.SetInstanceID(instanceID)
+				getInstanceNetworkInterfaceOptions.SetID(networkInterfaceId)
+				networkInterface, response, err := vpcClient.GetInstanceNetworkInterface(getInstanceNetworkInterfaceOptions)
+				if err != nil {
+					return nil, "", fmt.Errorf("GetInstanceNetworkInterface failed %s\n%s", err, response)
+				}
+				if *networkInterface.Status == isNetworkInterfaceFailed {
+					return networkInterface, *networkInterface.Status, fmt.Errorf("Network Interface deleting failed with status %s ", *networkInterface.Status)
+				}
+				return networkInterface, *networkInterface.Status, nil
+			}
+			return nil, "", fmt.Errorf("[ERROR] Error getting Security Group Target : %s\n%s", err, response)
+		}
+		return nil, "pending", nil
+
+	}
+}
+
+func isWaitForBareMetalServerNetworkInterfaceSGDelete(sess *vpcv1.VpcV1, securityGroupID, bareMetalServerId, nicId string, timeout time.Duration) (interface{}, error) {
+	log.Printf("[INFO] Waiting for bare metal server (%s) network interface binding (%s) to be removed.", bareMetalServerId, nicId)
+
+	stateConf := &resource.StateChangeConf{
+		Pending: []string{"pending", "deleting"},
+		Target:  []string{"available", "deleted"},
+		Refresh: func() (interface{}, string, error) {
+
+			getSecurityGroupTargetOptions := &vpcv1.GetSecurityGroupTargetOptions{
+				SecurityGroupID: &securityGroupID,
+				ID:              &nicId,
+			}
+			_, response, err := sess.GetSecurityGroupTarget(getSecurityGroupTargetOptions)
+
+			if err != nil {
+				if response != nil && response.StatusCode == 404 {
+					getBmsNicOptions := &vpcv1.GetBareMetalServerNetworkInterfaceOptions{
+						BareMetalServerID: &bareMetalServerId,
+						ID:                &nicId,
+					}
+					result, response, err := sess.GetBareMetalServerNetworkInterface(getBmsNicOptions)
+					if err != nil {
+						return nil, "", fmt.Errorf("[ERROR] Error getting Bare Metal Server(%s) Network Interface (%s): %s\n%s", bareMetalServerId, nicId, err, response)
+					}
+					status := ""
+					switch reflect.TypeOf(result).String() {
+					case "*vpcv1.BareMetalServerNetworkInterfaceByPci":
+						{
+							nic := result.(*vpcv1.BareMetalServerNetworkInterfaceByPci)
+							status = *nic.Status
+							if status == "failed" {
+								return nic, status, fmt.Errorf("[ERROR] Network Interface deleting failed with status %s ", status)
+							} else if status == "available" {
+								return nic, status, nil
+							}
+						}
+					case "*vpcv1.BareMetalServerNetworkInterfaceByVlan":
+						{
+							nic := result.(*vpcv1.BareMetalServerNetworkInterfaceByVlan)
+							status = *nic.Status
+							if status == "failed" {
+								return nic, status, fmt.Errorf("[ERROR] Network Interface deleting failed with status %s ", status)
+							} else if status == "available" {
+								return nic, status, nil
+							}
+						}
+					}
+					// nicVal := result.(*vpcv1.BareMetalServerNetworkInterface)
+					// status := *nic.Status
+
+					return result, "pending", nil
+				}
+				return nil, "", fmt.Errorf("[ERROR] Error getting Security Group Target : %s\n%s", err, response)
+			}
+			return nil, "pending", nil
+		},
+		Timeout:        timeout,
+		Delay:          10 * time.Second,
+		MinTimeout:     10 * time.Second,
+		NotFoundChecks: 1,
+	}
+
+	return stateConf.WaitForState()
 }
