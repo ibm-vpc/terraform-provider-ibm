@@ -318,7 +318,7 @@ func lbListenerCreate(d *schema.ResourceData, meta interface{}, lbID, protocol, 
 			}
 		}
 	}
-	if idleconnectiontimeout, ok := d.GetOk(isLBListenerIdleConnectionTimeout); ok && strings.EqualFold(*lb.Profile.Family, "application") {
+	if idleconnectiontimeout, ok := d.GetOk(isLBListenerIdleConnectionTimeout); ok {
 		idleConnectionTimeout := int64(idleconnectiontimeout.(int))
 		options.IdleConnectionTimeout = &idleConnectionTimeout
 	}
