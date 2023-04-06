@@ -2339,7 +2339,7 @@ func bareMetalServerUpdate(context context.Context, d *schema.ResourceData, meta
 
 	if d.HasChange(isBareMetalServerPrimaryNetworkInterface) {
 		nicId := d.Get("primary_network_interface.0.id").(string)
-		flag := false
+		nicflag := false
 		if d.HasChange("primary_network_interface.0.primary_ip.0.name") || d.HasChange("primary_network_interface.0.primary_ip.0.auto_delete") {
 			subnetId := d.Get("primary_network_interface.0.subnet").(string)
 			ripId := d.Get("primary_network_interface.0.primary_ip.0.reserved_ip").(string)
@@ -2380,7 +2380,7 @@ func bareMetalServerUpdate(context context.Context, d *schema.ResourceData, meta
 				}
 				bmsNicPatchModel.AllowedVlans = allowedVlans
 			}
-			flag = true
+			nicflag = true
 		}
 		if d.HasChange("primary_network_interface.0.allow_ip_spoofing") {
 
@@ -2389,14 +2389,14 @@ func bareMetalServerUpdate(context context.Context, d *schema.ResourceData, meta
 				if allowIpSpoofing {
 					bmsNicPatchModel.AllowIPSpoofing = &allowIpSpoofing
 				}
-				flag = true
+				nicflag = true
 			}
 		}
 		if d.HasChange("primary_network_interface.0.enable_infrastructure_nat") {
 			if enableNatOk, ok := d.GetOk("primary_network_interface.0.enable_infrastructure_nat"); ok {
 				enableNat := enableNatOk.(bool)
 				bmsNicPatchModel.EnableInfrastructureNat = &enableNat
-				flag = true
+				nicflag = true
 			}
 		}
 		if d.HasChange("primary_network_interface.0.security_groups") && !d.IsNewResource() {
@@ -2445,10 +2445,10 @@ func bareMetalServerUpdate(context context.Context, d *schema.ResourceData, meta
 			if nameOk, ok := d.GetOk("primary_network_interface.0.name"); ok {
 				name := nameOk.(string)
 				bmsNicPatchModel.Name = &name
-				flag = true
+				nicflag = true
 			}
 		}
-		if flag {
+		if nicflag {
 			bmsNicPatch, err := bmsNicPatchModel.AsPatch()
 			if err != nil {
 				return err
