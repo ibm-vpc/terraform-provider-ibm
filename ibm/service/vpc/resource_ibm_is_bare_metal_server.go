@@ -2396,6 +2396,48 @@ func bareMetalServerUpdate(context context.Context, d *schema.ResourceData, meta
 				bmsNicPatchModel.EnableInfrastructureNat = &enableNat
 			}
 		}
+		if d.HasChange("primary_network_interface.0.security_groups") && !d.IsNewResource() {
+			ovs, nvs := d.GetChange("primary_network_interface.0.security_groups")
+			ov := ovs.(*schema.Set)
+			nv := nvs.(*schema.Set)
+			remove := flex.ExpandStringList(ov.Difference(nv).List())
+			add := flex.ExpandStringList(nv.Difference(ov).List())
+			if len(add) > 0 {
+				networkID := d.Get("primary_network_interface.0.id").(string)
+				for i := range add {
+					createsgnicoptions := &vpcv1.CreateSecurityGroupTargetBindingOptions{
+						SecurityGroupID: &add[i],
+						ID:              &networkID,
+					}
+					_, response, err := sess.CreateSecurityGroupTargetBinding(createsgnicoptions)
+					if err != nil {
+						return fmt.Errorf("[ERROR] Error while creating security group %q for primary network interface of bare metal server %s\n%s: %q", add[i], d.Id(), err, response)
+					}
+					_, err = isWaitForBareMetalServerAvailable(sess, id, d.Timeout(schema.TimeoutUpdate), d)
+					if err != nil {
+						return err
+					}
+				}
+
+			}
+			if len(remove) > 0 {
+				networkID := d.Get("primary_network_interface.0.id").(string)
+				for i := range remove {
+					deletesgnicoptions := &vpcv1.DeleteSecurityGroupTargetBindingOptions{
+						SecurityGroupID: &remove[i],
+						ID:              &networkID,
+					}
+					response, err := sess.DeleteSecurityGroupTargetBinding(deletesgnicoptions)
+					if err != nil {
+						return fmt.Errorf("[ERROR] Error while removing security group %q for primary network interface of bare metal server %s\n%s: %q", remove[i], d.Id(), err, response)
+					}
+					_, err = isWaitForBareMetalServerAvailable(sess, id, d.Timeout(schema.TimeoutUpdate), d)
+					if err != nil {
+						return err
+					}
+				}
+			}
+		}
 		if d.HasChange("primary_network_interface.0.name") {
 			if nameOk, ok := d.GetOk("primary_network_interface.0.name"); ok {
 				name := nameOk.(string)
