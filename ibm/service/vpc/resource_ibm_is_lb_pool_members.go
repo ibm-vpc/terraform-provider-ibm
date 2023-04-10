@@ -304,7 +304,10 @@ func isLBPoolMembersRefreshFunc(lbc *vpcv1.VpcV1, lbID, lbPoolID, lbPoolMemID st
 }
 
 func resourceIBMISLBPoolMembersRead(d *schema.ResourceData, meta interface{}) error {
-
+	sess, err := vpcClient(meta)
+	if err != nil {
+		return nil
+	}
 	parts, err := flex.IdParts(d.Id())
 	if err != nil {
 		return err
@@ -317,6 +320,31 @@ func resourceIBMISLBPoolMembersRead(d *schema.ResourceData, meta interface{}) er
 
 	lbID := parts[0]
 	lbPoolID := parts[1]
+
+	getLoadBalancerOptions := &vpcv1.GetLoadBalancerOptions{
+		ID: &lbID,
+	}
+	_, response, err := sess.GetLoadBalancer(getLoadBalancerOptions)
+	if err != nil {
+		if response != nil && response.StatusCode == 404 {
+			d.SetId("")
+			return nil
+		}
+		return fmt.Errorf("[ERROR] Error getting Load Balancer : %s\n%s", err, response)
+	}
+	getLoadBalancerPoolOptions := &vpcv1.GetLoadBalancerPoolOptions{
+		LoadBalancerID: &lbID,
+		ID:             &lbPoolID,
+	}
+
+	_, response, err = sess.GetLoadBalancerPool(getLoadBalancerPoolOptions)
+	if err != nil {
+		if response != nil && response.StatusCode == 404 {
+			d.SetId("")
+			return nil
+		}
+		return fmt.Errorf("[ERROR] Error Getting Load Balancer Pool : %s\n%s", err, response)
+	}
 	//lbPoolMemID := parts[2]
 	membersSet := d.Get(isLBPoolMembers)
 	membersList := membersSet.(*schema.Set).List()
@@ -410,16 +438,21 @@ func lbpmembersUpdate(d *schema.ResourceData, meta interface{}, lbID, lbPoolID s
 	}
 
 	if d.HasChanges(isLBPoolMembers) {
-		members := d.Get(isLBPoolMembers)
+		membersSet := d.Get(isLBPoolMembers)
+		membersList := membersSet.(*schema.Set).List()
+
 		//count := len(members.([]interface{}))
 		isLBKey := "load_balancer_key_" + lbID
 		conns.IbmMutexKV.Lock(isLBKey)
 		defer conns.IbmMutexKV.Unlock(isLBKey)
 
-		for i, memberIntf := range members.(*schema.Set).List() {
+		for i, memberIntf := range membersList {
 			member := memberIntf.(map[string]interface{})
 			hasChange := false
 			memberId := member["member"].(string)
+			port := member["port"].(int)
+			log.Println("Update: member id", memberId)
+			log.Println("Update: port", port)
 			_, err = isWaitForLBPoolActive(sess, lbID, lbPoolID, d.Timeout(schema.TimeoutUpdate))
 			if err != nil {
 				return fmt.Errorf(
@@ -764,7 +797,7 @@ func resourceIBMIsLBPoolMembersHash(v interface{}) int {
 	default:
 		buf.WriteString(fmt.Sprintf("%d-", 8888))
 	}
-	buf.WriteString(fmt.Sprintf("%s-", a["target"].(string)))
+	//buf.WriteString(fmt.Sprintf("%s-", a["target"].(string)))
 
 	return conns.String(buf.String())
 }
