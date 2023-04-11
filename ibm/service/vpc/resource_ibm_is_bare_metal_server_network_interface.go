@@ -1160,7 +1160,7 @@ func isWaitForBareMetalServerNetworkInterfaceDeleted(bmsC *vpcv1.VpcV1, bareMeta
 	log.Printf("Waiting for (%s) / (%s) to be deleted.", bareMetalServerId, nicId)
 	stateConf := &resource.StateChangeConf{
 		Pending:    []string{isBareMetalServerNetworkInterfaceAvailable, isBareMetalServerNetworkInterfaceDeleting, isBareMetalServerNetworkInterfacePending},
-		Target:     []string{isBareMetalServerNetworkInterfaceDeleted, isBareMetalServerNetworkInterfaceVlanPending, isBareMetalServerNetworkInterfaceFailed, ""},
+		Target:     []string{isBareMetalServerNetworkInterfaceDeleted, isBareMetalServerNetworkInterfaceVlanPending, isBareMetalServerNetworkInterfaceFailed, isBareMetalServerNetworkInterfacePCIPending, ""},
 		Refresh:    isBareMetalServerNetworkInterfaceDeleteRefreshFunc(bmsC, bareMetalServerId, nicId, nicType, nicIntf),
 		Timeout:    timeout,
 		Delay:      10 * time.Second,
@@ -1187,6 +1187,18 @@ func isBareMetalServerNetworkInterfaceDeleteRefreshFunc(bmsC *vpcv1.VpcV1, bareM
 			}
 			if *bms.Status == "stopped" {
 				return bmsNic, isBareMetalServerNetworkInterfaceVlanPending, fmt.Errorf("[ERROR] Error deleting Bare Metal Server(%s) Network Interface (%s), server in stopped state ", bareMetalServerId, nicId)
+			}
+		}
+		if bmsNic != nil && nicType == "pci" {
+			getBmsOptions := &vpcv1.GetBareMetalServerOptions{
+				ID: &bareMetalServerId,
+			}
+			bms, response, err := bmsC.GetBareMetalServer(getBmsOptions)
+			if err != nil {
+				return bmsNic, isBareMetalServerNetworkInterfaceFailed, fmt.Errorf("[ERROR] Error getting Bare Metal Server(%s) : %s\n%s", bareMetalServerId, err, response)
+			}
+			if *bms.Status == "stopped" {
+				return bmsNic, isBareMetalServerNetworkInterfacePCIPending, nil
 			}
 		}
 		if err != nil {
