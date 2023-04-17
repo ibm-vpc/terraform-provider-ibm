@@ -28,6 +28,8 @@ func TestAccIBMISVirtualEndpointGatewayDataSource_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(
 						resName, "name", name1),
+					resource.TestCheckResourceAttrSet(
+						resName, "service_endpoints.#"),
 				),
 			},
 		},

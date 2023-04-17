@@ -30,6 +30,8 @@ func TestAccIBMISVirtualEndpointGateway_Basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckisVirtualEndpointGatewayExists(name, &endpointGateway),
 					resource.TestCheckResourceAttr(name, "name", name1),
+					resource.TestCheckResourceAttrSet(
+						name, "service_endpoints.#"),
 				),
 			},
 		},
