@@ -158,7 +158,7 @@ func testAccCheckIBMISBareMetalServerNetworkInterfaceExists(n, ip string) resour
 		switch reflect.TypeOf(nicIntf).String() {
 		case "*vpcv1.BareMetalServerNetworkInterfaceByPci":
 			{
-				nic := nicIntf.(*vpcv1.BareMetalServerNetworkInterfaceByVlan)
+				nic := nicIntf.(*vpcv1.BareMetalServerNetworkInterfaceByPci)
 				ip = vpc.MakeTerraformNICID(bmsId, *nic.ID)
 			}
 		case "*vpcv1.BareMetalServerNetworkInterfaceByVlan":

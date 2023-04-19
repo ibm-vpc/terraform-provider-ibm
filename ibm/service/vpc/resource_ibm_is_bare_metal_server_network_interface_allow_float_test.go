@@ -73,7 +73,7 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCKVmnMOlHKcZK8tpt3MP1lqOLAcqcJzhsvJcjscgVE
 	})
 }
 func TestAccIBMISBareMetalServerNetworkInterfaceAllowFloat_basic(t *testing.T) {
-	var server string
+	var serverNic string
 	vpcname := fmt.Sprintf("tf-vpc-%d", acctest.RandIntRange(10, 100))
 	name := fmt.Sprintf("tf-server-%d", acctest.RandIntRange(10, 100))
 	subnetname := fmt.Sprintf("tfip-subnet-%d", acctest.RandIntRange(10, 100))
@@ -90,7 +90,7 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCKVmnMOlHKcZK8tpt3MP1lqOLAcqcJzhsvJcjscgVE
 			{
 				Config: testAccCheckIBMISBareMetalServerNetworkInterfaceAllowFloatConfig(vpcname, subnetname, sshname, publicKey, name),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckIBMISBareMetalServerNetworkInterfaceAllowFloatExists("ibm_is_bare_metal_server_network_interface_allow_float.bms_nic", server),
+					testAccCheckIBMISBareMetalServerNetworkInterfaceAllowFloatExists("ibm_is_bare_metal_server_network_interface_allow_float.bms_nic", serverNic),
 					resource.TestCheckResourceAttr(
 						"ibm_is_bare_metal_server.testacc_bms", "name", name),
 					resource.TestCheckResourceAttr(
