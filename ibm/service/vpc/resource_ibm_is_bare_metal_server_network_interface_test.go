@@ -48,7 +48,7 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCKVmnMOlHKcZK8tpt3MP1lqOLAcqcJzhsvJcjscgVE
 	})
 }
 func TestAccIBMISBareMetalServerNetworkInterface_pci_nic_delete(t *testing.T) {
-	var server string
+	var serverNic string
 	vpcname := fmt.Sprintf("tf-vpc-%d", acctest.RandIntRange(10, 100))
 	name := fmt.Sprintf("tf-server-%d", acctest.RandIntRange(10, 100))
 	subnetname := fmt.Sprintf("tf-subnet-%d", acctest.RandIntRange(10, 100))
@@ -66,7 +66,7 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCKVmnMOlHKcZK8tpt3MP1lqOLAcqcJzhsvJcjscgVE
 			{
 				Config: testAccCheckIBMISBareMetalServerNetworkInterfacePciNicDeleteConfig(vpcname, subnetname, subnetname1, sshname, publicKey, name),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckIBMISBareMetalServerNetworkInterfaceExists("ibm_is_bare_metal_server.testacc_bms", server),
+					testAccCheckIBMISBareMetalServerNetworkInterfaceExists("ibm_is_bare_metal_server_network_interface.bms_nic", serverNic),
 					resource.TestCheckResourceAttr(
 						"ibm_is_bare_metal_server.testacc_bms", "name", name),
 					resource.TestCheckResourceAttr(
