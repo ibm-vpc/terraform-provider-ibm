@@ -209,7 +209,7 @@ func testAccCheckIBMISBareMetalServerNetworkInterfaceConfig(vpcname, subnetname,
 			allowed_vlans = [101, 102]
 		  }
 		
-`, vpcname, subnetname, acc.ISZoneName, sshname, publicKey, acc.IsBareMetalServerProfileName, name, acc.IsImage, acc.ISZoneName)
+`, vpcname, subnetname, acc.ISZoneName, sshname, publicKey, acc.IsBareMetalServerProfileName, name, acc.IsBareMetalServerImage, acc.ISZoneName)
 }
 func testAccCheckIBMISBareMetalServerNetworkInterfacePciNicDeleteConfig(vpcname, subnetname, subnetname1, sshname, publicKey, name string) string {
 	return fmt.Sprintf(`
@@ -263,7 +263,7 @@ func testAccCheckIBMISBareMetalServerNetworkInterfacePciNicDeleteConfig(vpcname,
 			 depends_on = [ibm_is_bare_metal_server_network_interface.bms_nic]
 		  }
 		
-`, vpcname, subnetname, acc.ISZoneName, subnetname1, acc.ISZoneName, sshname, publicKey, acc.IsBareMetalServerProfileName, name, acc.IsImage, acc.ISZoneName)
+`, vpcname, subnetname, acc.ISZoneName, subnetname1, acc.ISZoneName, sshname, publicKey, acc.IsBareMetalServerProfileName, name, acc.IsBareMetalServerImage, acc.ISZoneName)
 }
 func testAccCheckIBMISBareMetalServerNetworkInterfaceRipConfig(vpcname, subnetname, subnetreservedipname, sshname, publicKey, name string) string {
 	return fmt.Sprintf(`
@@ -310,5 +310,5 @@ func testAccCheckIBMISBareMetalServerNetworkInterfaceRipConfig(vpcname, subnetna
 			}
 		  }
 		
-`, vpcname, subnetname, acc.ISZoneName, subnetreservedipname, sshname, publicKey, acc.IsBareMetalServerProfileName, name, acc.IsImage, acc.ISZoneName)
+`, vpcname, subnetname, acc.ISZoneName, subnetreservedipname, sshname, publicKey, acc.IsBareMetalServerProfileName, name, acc.IsBareMetalServerImage, acc.ISZoneName)
 }
