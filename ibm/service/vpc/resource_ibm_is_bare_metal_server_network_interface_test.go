@@ -223,7 +223,7 @@ func testAccCheckIBMISBareMetalServerNetworkInterfacePciNicDeleteConfig(vpcname,
 			zone            			= "%s"
 			total_ipv4_address_count 	= 16
 		}
-		resource "ibm_is_subnet" "testacc_subnet" {
+		resource "ibm_is_subnet" "testacc_subnet1" {
 			name            			= "%s"
 			vpc             			= ibm_is_vpc.testacc_vpc.id
 			zone            			= "%s"
