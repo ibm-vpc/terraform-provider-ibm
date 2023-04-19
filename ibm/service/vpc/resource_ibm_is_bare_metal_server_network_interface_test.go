@@ -254,13 +254,23 @@ func testAccCheckIBMISBareMetalServerNetworkInterfacePciNicDeleteConfig(vpcname,
 			name   = "eth2"
 			allow_ip_spoofing = true
 			allowed_vlans = [101, 102]
+			timeouts {
+				create = "20m"
+				delete = "20m"
+				update = "20m"
+			}
 		  }
 		  resource "ibm_is_bare_metal_server_network_interface_allow_float" "bms_nic_allow_float" {
 			name              = "allow-float-nic"
 			bare_metal_server = ibm_is_bare_metal_server.testacc_bms.id
 			subnet            = ibm_is_subnet.testacc_subnet1.id
 			vlan              = 201
-			 depends_on = [ibm_is_bare_metal_server_network_interface.bms_nic]
+			depends_on = [ibm_is_bare_metal_server_network_interface.bms_nic]
+			timeouts {
+				create = "20m"
+				delete = "20m"
+				update = "20m"
+			} 
 		  }
 		
 `, vpcname, subnetname, acc.ISZoneName, subnetname1, acc.ISZoneName, sshname, publicKey, acc.IsBareMetalServerProfileName, name, acc.IsBareMetalServerImage, acc.ISZoneName)
