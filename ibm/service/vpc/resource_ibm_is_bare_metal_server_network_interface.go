@@ -299,7 +299,7 @@ func resourceIBMISBareMetalServerNetworkInterfaceCreate(context context.Context,
 		} else if *bms.Status == "running" {
 			log.Printf("[DEBUG] Stopping bare metal server (%s) to create a PCI network interface", bareMetalServerId)
 			stopType := "hard"
-			if d.Get(isBareMetalServerHardStop).(bool) {
+			if _, ok := d.GetOk(isBareMetalServerHardStop); ok && !d.Get(isBareMetalServerHardStop).(bool) {
 				stopType = "soft"
 			}
 			createstopaction := &vpcv1.StopBareMetalServerOptions{
