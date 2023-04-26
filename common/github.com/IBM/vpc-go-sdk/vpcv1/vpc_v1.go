@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corp. 2021, 2022, 2023.
+ * (C) Copyright IBM Corp. 2023.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ import (
 // VpcV1 : The IBM Cloud Virtual Private Cloud (VPC) API can be used to programmatically provision and manage virtual
 // server instances, along with subnets, volumes, load balancers, and more.
 //
-// API Version: 2022-09-13
+// API Version: today
 type VpcV1 struct {
 	Service *core.BaseService
 
@@ -8050,6 +8050,10 @@ func (vpc *VpcV1) CreateDedicatedHostGroup(createDedicatedHostGroupOptions *Crea
 
 // CreateDedicatedHostGroupWithContext is an alternate form of the CreateDedicatedHostGroup method which supports a Context parameter
 func (vpc *VpcV1) CreateDedicatedHostGroupWithContext(ctx context.Context, createDedicatedHostGroupOptions *CreateDedicatedHostGroupOptions) (result *DedicatedHostGroup, response *core.DetailedResponse, err error) {
+	err = core.ValidateNotNil(createDedicatedHostGroupOptions, "createDedicatedHostGroupOptions cannot be nil")
+	if err != nil {
+		return
+	}
 	err = core.ValidateStruct(createDedicatedHostGroupOptions, "createDedicatedHostGroupOptions")
 	if err != nil {
 		return
@@ -8084,14 +8088,14 @@ func (vpc *VpcV1) CreateDedicatedHostGroupWithContext(ctx context.Context, creat
 	if createDedicatedHostGroupOptions.Family != nil {
 		body["family"] = createDedicatedHostGroupOptions.Family
 	}
+	if createDedicatedHostGroupOptions.Zone != nil {
+		body["zone"] = createDedicatedHostGroupOptions.Zone
+	}
 	if createDedicatedHostGroupOptions.Name != nil {
 		body["name"] = createDedicatedHostGroupOptions.Name
 	}
 	if createDedicatedHostGroupOptions.ResourceGroup != nil {
 		body["resource_group"] = createDedicatedHostGroupOptions.ResourceGroup
-	}
-	if createDedicatedHostGroupOptions.Zone != nil {
-		body["zone"] = createDedicatedHostGroupOptions.Zone
 	}
 	_, err = builder.SetBodyContentJSON(body)
 	if err != nil {
@@ -9031,6 +9035,10 @@ func (vpc *VpcV1) CreateBackupPolicy(createBackupPolicyOptions *CreateBackupPoli
 
 // CreateBackupPolicyWithContext is an alternate form of the CreateBackupPolicy method which supports a Context parameter
 func (vpc *VpcV1) CreateBackupPolicyWithContext(ctx context.Context, createBackupPolicyOptions *CreateBackupPolicyOptions) (result *BackupPolicy, response *core.DetailedResponse, err error) {
+	err = core.ValidateNotNil(createBackupPolicyOptions, "createBackupPolicyOptions cannot be nil")
+	if err != nil {
+		return
+	}
 	err = core.ValidateStruct(createBackupPolicyOptions, "createBackupPolicyOptions")
 	if err != nil {
 		return
@@ -9059,11 +9067,11 @@ func (vpc *VpcV1) CreateBackupPolicyWithContext(ctx context.Context, createBacku
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 
 	body := make(map[string]interface{})
-	if createBackupPolicyOptions.MatchResourceTypes != nil {
-		body["match_resource_types"] = createBackupPolicyOptions.MatchResourceTypes
-	}
 	if createBackupPolicyOptions.MatchUserTags != nil {
 		body["match_user_tags"] = createBackupPolicyOptions.MatchUserTags
+	}
+	if createBackupPolicyOptions.MatchResourceTypes != nil {
+		body["match_resource_types"] = createBackupPolicyOptions.MatchResourceTypes
 	}
 	if createBackupPolicyOptions.Name != nil {
 		body["name"] = createBackupPolicyOptions.Name
@@ -13949,6 +13957,10 @@ func (vpc *VpcV1) CreateNetworkACL(createNetworkACLOptions *CreateNetworkACLOpti
 
 // CreateNetworkACLWithContext is an alternate form of the CreateNetworkACL method which supports a Context parameter
 func (vpc *VpcV1) CreateNetworkACLWithContext(ctx context.Context, createNetworkACLOptions *CreateNetworkACLOptions) (result *NetworkACL, response *core.DetailedResponse, err error) {
+	err = core.ValidateNotNil(createNetworkACLOptions, "createNetworkACLOptions cannot be nil")
+	if err != nil {
+		return
+	}
 	err = core.ValidateStruct(createNetworkACLOptions, "createNetworkACLOptions")
 	if err != nil {
 		return
@@ -13976,11 +13988,9 @@ func (vpc *VpcV1) CreateNetworkACLWithContext(ctx context.Context, createNetwork
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
 
-	if createNetworkACLOptions.NetworkACLPrototype != nil {
-		_, err = builder.SetBodyContentJSON(createNetworkACLOptions.NetworkACLPrototype)
-		if err != nil {
-			return
-		}
+	_, err = builder.SetBodyContentJSON(createNetworkACLOptions.NetworkACLPrototype)
+	if err != nil {
+		return
 	}
 
 	request, err := builder.Build()
@@ -26022,13 +26032,13 @@ func (options *CheckVPNGatewayConnectionPeerCIDROptions) SetHeaders(param map[st
 
 // CreateBackupPolicyOptions : The CreateBackupPolicy options.
 type CreateBackupPolicyOptions struct {
+	// The user tags this backup policy applies to. Resources that have both a matching user tag and a matching type will
+	// be subject to the backup policy.
+	MatchUserTags []string `json:"match_user_tags" validate:"required"`
+
 	// A resource type this backup policy applies to. Resources that have both a matching type and a matching user tag will
 	// be subject to the backup policy.
 	MatchResourceTypes []string `json:"match_resource_types,omitempty"`
-
-	// The user tags this backup policy applies to. Resources that have both a matching user tag and a matching type will
-	// be subject to the backup policy.
-	MatchUserTags []string `json:"match_user_tags,omitempty"`
 
 	// The name for this backup policy. The name must not be used by another backup policy in the region. If unspecified,
 	// the name will be a hyphenated list of randomly-selected words.
@@ -26052,19 +26062,21 @@ const (
 )
 
 // NewCreateBackupPolicyOptions : Instantiate CreateBackupPolicyOptions
-func (*VpcV1) NewCreateBackupPolicyOptions() *CreateBackupPolicyOptions {
-	return &CreateBackupPolicyOptions{}
-}
-
-// SetMatchResourceTypes : Allow user to set MatchResourceTypes
-func (_options *CreateBackupPolicyOptions) SetMatchResourceTypes(matchResourceTypes []string) *CreateBackupPolicyOptions {
-	_options.MatchResourceTypes = matchResourceTypes
-	return _options
+func (*VpcV1) NewCreateBackupPolicyOptions(matchUserTags []string) *CreateBackupPolicyOptions {
+	return &CreateBackupPolicyOptions{
+		MatchUserTags: matchUserTags,
+	}
 }
 
 // SetMatchUserTags : Allow user to set MatchUserTags
 func (_options *CreateBackupPolicyOptions) SetMatchUserTags(matchUserTags []string) *CreateBackupPolicyOptions {
 	_options.MatchUserTags = matchUserTags
+	return _options
+}
+
+// SetMatchResourceTypes : Allow user to set MatchResourceTypes
+func (_options *CreateBackupPolicyOptions) SetMatchResourceTypes(matchResourceTypes []string) *CreateBackupPolicyOptions {
+	_options.MatchResourceTypes = matchResourceTypes
 	return _options
 }
 
@@ -26288,7 +26300,7 @@ func (options *CreateBareMetalServerNetworkInterfaceOptions) SetHeaders(param ma
 type CreateBareMetalServerOptions struct {
 	Initialization *BareMetalServerInitializationPrototype `json:"initialization" validate:"required"`
 
-	// Primary network interface for the bare metal server.
+	// The primary network interface to create for the bare metal server.
 	PrimaryNetworkInterface *BareMetalServerPrimaryNetworkInterfacePrototype `json:"primary_network_interface" validate:"required"`
 
 	// The [profile](https://cloud.ibm.com/docs/vpc?topic=vpc-bare-metal-servers-profile)
@@ -26406,10 +26418,13 @@ func (options *CreateBareMetalServerOptions) SetHeaders(param map[string]string)
 // CreateDedicatedHostGroupOptions : The CreateDedicatedHostGroup options.
 type CreateDedicatedHostGroupOptions struct {
 	// The dedicated host profile class for hosts in this group.
-	Class *string `json:"class,omitempty"`
+	Class *string `json:"class" validate:"required"`
 
 	// The dedicated host profile family for hosts in this group.
-	Family *string `json:"family,omitempty"`
+	Family *string `json:"family" validate:"required"`
+
+	// The zone this dedicated host group will reside in.
+	Zone ZoneIdentityIntf `json:"zone" validate:"required"`
 
 	// The name for this dedicated host group. The name must not be used by another dedicated host group in the region. If
 	// unspecified, the name will be a hyphenated list of randomly-selected words.
@@ -26418,9 +26433,6 @@ type CreateDedicatedHostGroupOptions struct {
 	// The resource group to use. If unspecified, the account's [default resource
 	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) is used.
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
-
-	// The zone this dedicated host group will reside in.
-	Zone ZoneIdentityIntf `json:"zone,omitempty"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -26435,8 +26447,12 @@ const (
 )
 
 // NewCreateDedicatedHostGroupOptions : Instantiate CreateDedicatedHostGroupOptions
-func (*VpcV1) NewCreateDedicatedHostGroupOptions() *CreateDedicatedHostGroupOptions {
-	return &CreateDedicatedHostGroupOptions{}
+func (*VpcV1) NewCreateDedicatedHostGroupOptions(class string, family string, zone ZoneIdentityIntf) *CreateDedicatedHostGroupOptions {
+	return &CreateDedicatedHostGroupOptions{
+		Class:  core.StringPtr(class),
+		Family: core.StringPtr(family),
+		Zone:   zone,
+	}
 }
 
 // SetClass : Allow user to set Class
@@ -26451,6 +26467,12 @@ func (_options *CreateDedicatedHostGroupOptions) SetFamily(family string) *Creat
 	return _options
 }
 
+// SetZone : Allow user to set Zone
+func (_options *CreateDedicatedHostGroupOptions) SetZone(zone ZoneIdentityIntf) *CreateDedicatedHostGroupOptions {
+	_options.Zone = zone
+	return _options
+}
+
 // SetName : Allow user to set Name
 func (_options *CreateDedicatedHostGroupOptions) SetName(name string) *CreateDedicatedHostGroupOptions {
 	_options.Name = core.StringPtr(name)
@@ -26460,12 +26482,6 @@ func (_options *CreateDedicatedHostGroupOptions) SetName(name string) *CreateDed
 // SetResourceGroup : Allow user to set ResourceGroup
 func (_options *CreateDedicatedHostGroupOptions) SetResourceGroup(resourceGroup ResourceGroupIdentityIntf) *CreateDedicatedHostGroupOptions {
 	_options.ResourceGroup = resourceGroup
-	return _options
-}
-
-// SetZone : Allow user to set Zone
-func (_options *CreateDedicatedHostGroupOptions) SetZone(zone ZoneIdentityIntf) *CreateDedicatedHostGroupOptions {
-	_options.Zone = zone
 	return _options
 }
 
@@ -26624,7 +26640,7 @@ type CreateFlowLogCollectorOptions struct {
 	// Indicates whether this collector will be active upon creation.
 	Active *bool `json:"active,omitempty"`
 
-	// The name for this flow log collector. The name must not be used by another flow log collector in the region. If
+	// The name for this flow log collector. The name must not be used by another flow log collector in the VPC. If
 	// unspecified, the name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
@@ -28356,15 +28372,17 @@ func (options *CreateLoadBalancerPoolOptions) SetHeaders(param map[string]string
 // CreateNetworkACLOptions : The CreateNetworkACL options.
 type CreateNetworkACLOptions struct {
 	// The network ACL prototype object.
-	NetworkACLPrototype NetworkACLPrototypeIntf `json:"NetworkACLPrototype,omitempty"`
+	NetworkACLPrototype NetworkACLPrototypeIntf `json:"NetworkACLPrototype" validate:"required"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
 }
 
 // NewCreateNetworkACLOptions : Instantiate CreateNetworkACLOptions
-func (*VpcV1) NewCreateNetworkACLOptions() *CreateNetworkACLOptions {
-	return &CreateNetworkACLOptions{}
+func (*VpcV1) NewCreateNetworkACLOptions(networkACLPrototype NetworkACLPrototypeIntf) *CreateNetworkACLOptions {
+	return &CreateNetworkACLOptions{
+		NetworkACLPrototype: networkACLPrototype,
+	}
 }
 
 // SetNetworkACLPrototype : Allow user to set NetworkACLPrototype
@@ -34800,7 +34818,7 @@ type FlowLogCollector struct {
 	// The lifecycle state of the flow log collector.
 	LifecycleState *string `json:"lifecycle_state" validate:"required"`
 
-	// The name for this flow log collector. The name is unique across all flow log collectors in the region.
+	// The name for this flow log collector. The name is unique across all flow log collectors in the VPC.
 	Name *string `json:"name" validate:"required"`
 
 	// The resource group for this flow log collector.
@@ -34992,7 +35010,7 @@ type FlowLogCollectorPatch struct {
 	// activates the collector.
 	Active *bool `json:"active,omitempty"`
 
-	// The name for this flow log collector. The name must not be used by another flow log collector in the region.
+	// The name for this flow log collector. The name must not be used by another flow log collector in the VPC.
 	Name *string `json:"name,omitempty"`
 }
 
@@ -39350,6 +39368,9 @@ type Instance struct {
 	// [catalog](https://cloud.ibm.com/docs/account?topic=account-restrict-by-user).
 	CatalogOffering *InstanceCatalogOffering `json:"catalog_offering,omitempty"`
 
+	// The confidential compute mode for this virtual server instance.
+	ConfidentialComputeMode *string `json:"confidential_compute_mode" validate:"required"`
+
 	// The date and time that the virtual server instance was created.
 	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
 
@@ -39361,6 +39382,9 @@ type Instance struct {
 
 	// The instance disks for this virtual server instance.
 	Disks []InstanceDisk `json:"disks" validate:"required"`
+
+	// Indicates whether secure boot is enabled for this virtual server instance.
+	EnableSecureBoot *bool `json:"enable_secure_boot" validate:"required"`
 
 	// The virtual server instance GPU configuration.
 	Gpu *InstanceGpu `json:"gpu,omitempty"`
@@ -39450,6 +39474,14 @@ type Instance struct {
 	Zone *ZoneReference `json:"zone" validate:"required"`
 }
 
+// Constants associated with the Instance.ConfidentialComputeMode property.
+// The confidential compute mode for this virtual server instance.
+const (
+	InstanceConfidentialComputeModeDisabledConst = "disabled"
+	InstanceConfidentialComputeModeSgxConst      = "sgx"
+	InstanceConfidentialComputeModeTdxConst      = "tdx"
+)
+
 // Constants associated with the Instance.LifecycleState property.
 // The lifecycle state of the virtual server instance.
 const (
@@ -39504,6 +39536,10 @@ func UnmarshalInstance(m map[string]json.RawMessage, result interface{}) (err er
 	if err != nil {
 		return
 	}
+	err = core.UnmarshalPrimitive(m, "confidential_compute_mode", &obj.ConfidentialComputeMode)
+	if err != nil {
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "created_at", &obj.CreatedAt)
 	if err != nil {
 		return
@@ -39517,6 +39553,10 @@ func UnmarshalInstance(m map[string]json.RawMessage, result interface{}) (err er
 		return
 	}
 	err = core.UnmarshalModel(m, "disks", &obj.Disks, UnmarshalInstanceDisk)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "enable_secure_boot", &obj.EnableSecureBoot)
 	if err != nil {
 		return
 	}
@@ -42525,6 +42565,18 @@ type InstancePatch struct {
 	// The availability policy for this virtual server instance.
 	AvailabilityPolicy *InstanceAvailabilityPolicyPatch `json:"availability_policy,omitempty"`
 
+	// The confidential compute mode to use for this virtual server instance.
+	//
+	// For this property to be changed, the virtual server instance `status` must be
+	// `stopping` or `stopped`.
+	ConfidentialComputeMode *string `json:"confidential_compute_mode,omitempty"`
+
+	// Indicates whether secure boot is enabled for this virtual server instance.
+	//
+	// For this property to be changed, the virtual server instance `status` must be
+	// `stopping` or `stopped`.
+	EnableSecureBoot *bool `json:"enable_secure_boot,omitempty"`
+
 	// The metadata service configuration.
 	MetadataService *InstanceMetadataServicePatch `json:"metadata_service,omitempty"`
 
@@ -42555,10 +42607,29 @@ type InstancePatch struct {
 	TotalVolumeBandwidth *int64 `json:"total_volume_bandwidth,omitempty"`
 }
 
+// Constants associated with the InstancePatch.ConfidentialComputeMode property.
+// The confidential compute mode to use for this virtual server instance.
+//
+// For this property to be changed, the virtual server instance `status` must be
+// `stopping` or `stopped`.
+const (
+	InstancePatchConfidentialComputeModeDisabledConst = "disabled"
+	InstancePatchConfidentialComputeModeSgxConst      = "sgx"
+	InstancePatchConfidentialComputeModeTdxConst      = "tdx"
+)
+
 // UnmarshalInstancePatch unmarshals an instance of InstancePatch from the specified map of raw messages.
 func UnmarshalInstancePatch(m map[string]json.RawMessage, result interface{}) (err error) {
 	obj := new(InstancePatch)
 	err = core.UnmarshalModel(m, "availability_policy", &obj.AvailabilityPolicy, UnmarshalInstanceAvailabilityPolicyPatch)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "confidential_compute_mode", &obj.ConfidentialComputeMode)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "enable_secure_boot", &obj.EnableSecureBoot)
 	if err != nil {
 		return
 	}
@@ -42801,6 +42872,8 @@ func UnmarshalInstancePlacementTargetPrototype(m map[string]json.RawMessage, res
 type InstanceProfile struct {
 	Bandwidth InstanceProfileBandwidthIntf `json:"bandwidth" validate:"required"`
 
+	ConfidentialComputeModes *InstanceProfileSupportedConfidentialComputeModes `json:"confidential_compute_modes,omitempty"`
+
 	// Collection of the instance profile's disks.
 	Disks []InstanceProfileDisk `json:"disks" validate:"required"`
 
@@ -42829,6 +42902,8 @@ type InstanceProfile struct {
 
 	PortSpeed InstanceProfilePortSpeedIntf `json:"port_speed" validate:"required"`
 
+	SecureBootModes *InstanceProfileSupportedSecureBootModes `json:"secure_boot_modes,omitempty"`
+
 	TotalVolumeBandwidth InstanceProfileVolumeBandwidthIntf `json:"total_volume_bandwidth" validate:"required"`
 
 	VcpuArchitecture *InstanceProfileVcpuArchitecture `json:"vcpu_architecture" validate:"required"`
@@ -42842,6 +42917,10 @@ type InstanceProfile struct {
 func UnmarshalInstanceProfile(m map[string]json.RawMessage, result interface{}) (err error) {
 	obj := new(InstanceProfile)
 	err = core.UnmarshalModel(m, "bandwidth", &obj.Bandwidth, UnmarshalInstanceProfileBandwidth)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "confidential_compute_modes", &obj.ConfidentialComputeModes, UnmarshalInstanceProfileSupportedConfidentialComputeModes)
 	if err != nil {
 		return
 	}
@@ -42890,6 +42969,10 @@ func UnmarshalInstanceProfile(m map[string]json.RawMessage, result interface{}) 
 		return
 	}
 	err = core.UnmarshalModel(m, "port_speed", &obj.PortSpeed, UnmarshalInstanceProfilePortSpeed)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "secure_boot_modes", &obj.SecureBootModes, UnmarshalInstanceProfileSupportedSecureBootModes)
 	if err != nil {
 		return
 	}
@@ -43734,6 +43817,103 @@ func UnmarshalInstanceProfileReference(m map[string]json.RawMessage, result inte
 	return
 }
 
+// InstanceProfileSupportedConfidentialComputeModes : InstanceProfileSupportedConfidentialComputeModes struct
+type InstanceProfileSupportedConfidentialComputeModes struct {
+	// The default confidential compute mode for this profile.
+	Default *string `json:"default" validate:"required"`
+
+	// The type for this profile field.
+	Type *string `json:"type" validate:"required"`
+
+	// The supported confidential compute modes.
+	Values []string `json:"values" validate:"required"`
+}
+
+// Constants associated with the InstanceProfileSupportedConfidentialComputeModes.Default property.
+// The default confidential compute mode for this profile.
+const (
+	InstanceProfileSupportedConfidentialComputeModesDefaultDisabledConst = "disabled"
+	InstanceProfileSupportedConfidentialComputeModesDefaultSgxConst      = "sgx"
+	InstanceProfileSupportedConfidentialComputeModesDefaultTdxConst      = "tdx"
+)
+
+// Constants associated with the InstanceProfileSupportedConfidentialComputeModes.Type property.
+// The type for this profile field.
+const (
+	InstanceProfileSupportedConfidentialComputeModesTypeEnumConst = "enum"
+)
+
+// Constants associated with the InstanceProfileSupportedConfidentialComputeModes.Values property.
+// The confidential compute modes:
+// - `tdx`: Intel Trust Domain Extensions
+// - `sgx`: Intel Software Guard Extensions
+// - `disabled`: No confidential compute functionality
+//
+// The enumerated values for this property are expected to expand in the future. When processing this property, check
+// for and log unknown values. Optionally halt processing and surface the error, or bypass the resource on which the
+// unexpected property value was encountered.
+const (
+	InstanceProfileSupportedConfidentialComputeModesValuesDisabledConst = "disabled"
+	InstanceProfileSupportedConfidentialComputeModesValuesSgxConst      = "sgx"
+	InstanceProfileSupportedConfidentialComputeModesValuesTdxConst      = "tdx"
+)
+
+// UnmarshalInstanceProfileSupportedConfidentialComputeModes unmarshals an instance of InstanceProfileSupportedConfidentialComputeModes from the specified map of raw messages.
+func UnmarshalInstanceProfileSupportedConfidentialComputeModes(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(InstanceProfileSupportedConfidentialComputeModes)
+	err = core.UnmarshalPrimitive(m, "default", &obj.Default)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "values", &obj.Values)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// InstanceProfileSupportedSecureBootModes : InstanceProfileSupportedSecureBootModes struct
+type InstanceProfileSupportedSecureBootModes struct {
+	// The default secure boot mode for this profile.
+	Default *bool `json:"default" validate:"required"`
+
+	// The type for this profile field.
+	Type *string `json:"type" validate:"required"`
+
+	// The supported `enable_secure_boot` values for an instance using this profile.
+	Values []bool `json:"values" validate:"required"`
+}
+
+// Constants associated with the InstanceProfileSupportedSecureBootModes.Type property.
+// The type for this profile field.
+const (
+	InstanceProfileSupportedSecureBootModesTypeEnumConst = "enum"
+)
+
+// UnmarshalInstanceProfileSupportedSecureBootModes unmarshals an instance of InstanceProfileSupportedSecureBootModes from the specified map of raw messages.
+func UnmarshalInstanceProfileSupportedSecureBootModes(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(InstanceProfileSupportedSecureBootModes)
+	err = core.UnmarshalPrimitive(m, "default", &obj.Default)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "values", &obj.Values)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
 // InstanceProfileVcpu : InstanceProfileVcpu struct
 // Models which "extend" this model:
 // - InstanceProfileVcpuFixed
@@ -43975,6 +44155,11 @@ type InstancePrototype struct {
 	// The availability policy to use for this virtual server instance.
 	AvailabilityPolicy *InstanceAvailabilityPolicyPrototype `json:"availability_policy,omitempty"`
 
+	// The confidential compute mode to use for this virtual server instance.
+	//
+	// If unspecified, the default confidential compute mode from the profile will be used.
+	ConfidentialComputeMode *string `json:"confidential_compute_mode,omitempty"`
+
 	// The default trusted profile configuration to use for this virtual server instance
 	//
 	// This property's value is used when provisioning the virtual server instance, but not
@@ -43982,6 +44167,11 @@ type InstancePrototype struct {
 	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization)
 	// property.
 	DefaultTrustedProfile *InstanceDefaultTrustedProfilePrototype `json:"default_trusted_profile,omitempty"`
+
+	// Indicates whether secure boot is enabled for this virtual server instance.
+	//
+	// If unspecified, the default secure boot mode from the profile will be used.
+	EnableSecureBoot *bool `json:"enable_secure_boot,omitempty"`
 
 	// The public SSH keys for the administrative user of the virtual server instance. Keys will be made available to the
 	// virtual server instance as cloud-init vendor data. For cloud-init enabled images, these keys will also be added as
@@ -44005,9 +44195,6 @@ type InstancePrototype struct {
 	//
 	// The system hostname will be based on this name.
 	Name *string `json:"name,omitempty"`
-
-	// The additional network interfaces to create for the virtual server instance.
-	NetworkInterfaces []NetworkInterfacePrototype `json:"network_interfaces,omitempty"`
 
 	// The placement restrictions to use for the virtual server instance.
 	PlacementTarget InstancePlacementTargetPrototypeIntf `json:"placement_target,omitempty"`
@@ -44041,13 +44228,16 @@ type InstancePrototype struct {
 	// interfaces.
 	VPC VPCIdentityIntf `json:"vpc,omitempty"`
 
-	// The boot volume attachment for the virtual server instance.
+	// The boot volume attachment to create for the virtual server instance.
 	BootVolumeAttachment *VolumeAttachmentPrototypeInstanceByImageContext `json:"boot_volume_attachment,omitempty"`
 
 	// The image to use when provisioning the virtual server instance.
 	Image ImageIdentityIntf `json:"image,omitempty"`
 
-	// Primary network interface.
+	// The additional network interfaces to create for the virtual server instance.
+	NetworkInterfaces []NetworkInterfacePrototype `json:"network_interfaces,omitempty"`
+
+	// The primary network interface to create for the virtual server instance.
 	PrimaryNetworkInterface *NetworkInterfacePrototype `json:"primary_network_interface,omitempty"`
 
 	// The zone this virtual server instance will reside in.
@@ -44067,6 +44257,16 @@ type InstancePrototype struct {
 	SourceTemplate InstanceTemplateIdentityIntf `json:"source_template,omitempty"`
 }
 
+// Constants associated with the InstancePrototype.ConfidentialComputeMode property.
+// The confidential compute mode to use for this virtual server instance.
+//
+// If unspecified, the default confidential compute mode from the profile will be used.
+const (
+	InstancePrototypeConfidentialComputeModeDisabledConst = "disabled"
+	InstancePrototypeConfidentialComputeModeSgxConst      = "sgx"
+	InstancePrototypeConfidentialComputeModeTdxConst      = "tdx"
+)
+
 func (*InstancePrototype) isaInstancePrototype() bool {
 	return true
 }
@@ -44082,7 +44282,15 @@ func UnmarshalInstancePrototype(m map[string]json.RawMessage, result interface{}
 	if err != nil {
 		return
 	}
+	err = core.UnmarshalPrimitive(m, "confidential_compute_mode", &obj.ConfidentialComputeMode)
+	if err != nil {
+		return
+	}
 	err = core.UnmarshalModel(m, "default_trusted_profile", &obj.DefaultTrustedProfile, UnmarshalInstanceDefaultTrustedProfilePrototype)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "enable_secure_boot", &obj.EnableSecureBoot)
 	if err != nil {
 		return
 	}
@@ -44095,10 +44303,6 @@ func UnmarshalInstancePrototype(m map[string]json.RawMessage, result interface{}
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "network_interfaces", &obj.NetworkInterfaces, UnmarshalNetworkInterfacePrototype)
 	if err != nil {
 		return
 	}
@@ -44135,6 +44339,10 @@ func UnmarshalInstancePrototype(m map[string]json.RawMessage, result interface{}
 		return
 	}
 	err = core.UnmarshalModel(m, "image", &obj.Image, UnmarshalImageIdentity)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "network_interfaces", &obj.NetworkInterfaces, UnmarshalNetworkInterfacePrototype)
 	if err != nil {
 		return
 	}
@@ -44277,6 +44485,11 @@ type InstanceTemplate struct {
 	// The availability policy to use for this virtual server instance.
 	AvailabilityPolicy *InstanceAvailabilityPolicyPrototype `json:"availability_policy,omitempty"`
 
+	// The confidential compute mode to use for this virtual server instance.
+	//
+	// If unspecified, the default confidential compute mode from the profile will be used.
+	ConfidentialComputeMode *string `json:"confidential_compute_mode,omitempty"`
+
 	// The date and time that the instance template was created.
 	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
 
@@ -44290,6 +44503,11 @@ type InstanceTemplate struct {
 	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization)
 	// property.
 	DefaultTrustedProfile *InstanceDefaultTrustedProfilePrototype `json:"default_trusted_profile,omitempty"`
+
+	// Indicates whether secure boot is enabled for this virtual server instance.
+	//
+	// If unspecified, the default secure boot mode from the profile will be used.
+	EnableSecureBoot *bool `json:"enable_secure_boot,omitempty"`
 
 	// The URL for this instance template.
 	Href *string `json:"href" validate:"required"`
@@ -44316,9 +44534,6 @@ type InstanceTemplate struct {
 
 	// The name for this instance template. The name is unique across all instance templates in the region.
 	Name *string `json:"name" validate:"required"`
-
-	// The additional network interfaces to create for the virtual server instance.
-	NetworkInterfaces []NetworkInterfacePrototype `json:"network_interfaces,omitempty"`
 
 	// The placement restrictions to use for the virtual server instance.
 	PlacementTarget InstancePlacementTargetPrototypeIntf `json:"placement_target,omitempty"`
@@ -44351,13 +44566,16 @@ type InstanceTemplate struct {
 	// interfaces.
 	VPC VPCIdentityIntf `json:"vpc,omitempty"`
 
-	// The boot volume attachment for the virtual server instance.
+	// The boot volume attachment to create for the virtual server instance.
 	BootVolumeAttachment *VolumeAttachmentPrototypeInstanceByImageContext `json:"boot_volume_attachment,omitempty"`
 
 	// The image to use when provisioning the virtual server instance.
 	Image ImageIdentityIntf `json:"image,omitempty"`
 
-	// Primary network interface.
+	// The additional network interfaces to create for the virtual server instance.
+	NetworkInterfaces []NetworkInterfacePrototype `json:"network_interfaces,omitempty"`
+
+	// The primary network interface to create for the virtual server instance.
 	PrimaryNetworkInterface *NetworkInterfacePrototype `json:"primary_network_interface,omitempty"`
 
 	// The zone this virtual server instance will reside in.
@@ -44374,6 +44592,16 @@ type InstanceTemplate struct {
 	CatalogOffering InstanceCatalogOfferingPrototypeIntf `json:"catalog_offering,omitempty"`
 }
 
+// Constants associated with the InstanceTemplate.ConfidentialComputeMode property.
+// The confidential compute mode to use for this virtual server instance.
+//
+// If unspecified, the default confidential compute mode from the profile will be used.
+const (
+	InstanceTemplateConfidentialComputeModeDisabledConst = "disabled"
+	InstanceTemplateConfidentialComputeModeSgxConst      = "sgx"
+	InstanceTemplateConfidentialComputeModeTdxConst      = "tdx"
+)
+
 func (*InstanceTemplate) isaInstanceTemplate() bool {
 	return true
 }
@@ -44389,6 +44617,10 @@ func UnmarshalInstanceTemplate(m map[string]json.RawMessage, result interface{})
 	if err != nil {
 		return
 	}
+	err = core.UnmarshalPrimitive(m, "confidential_compute_mode", &obj.ConfidentialComputeMode)
+	if err != nil {
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "created_at", &obj.CreatedAt)
 	if err != nil {
 		return
@@ -44398,6 +44630,10 @@ func UnmarshalInstanceTemplate(m map[string]json.RawMessage, result interface{})
 		return
 	}
 	err = core.UnmarshalModel(m, "default_trusted_profile", &obj.DefaultTrustedProfile, UnmarshalInstanceDefaultTrustedProfilePrototype)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "enable_secure_boot", &obj.EnableSecureBoot)
 	if err != nil {
 		return
 	}
@@ -44418,10 +44654,6 @@ func UnmarshalInstanceTemplate(m map[string]json.RawMessage, result interface{})
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "network_interfaces", &obj.NetworkInterfaces, UnmarshalNetworkInterfacePrototype)
 	if err != nil {
 		return
 	}
@@ -44458,6 +44690,10 @@ func UnmarshalInstanceTemplate(m map[string]json.RawMessage, result interface{})
 		return
 	}
 	err = core.UnmarshalModel(m, "image", &obj.Image, UnmarshalImageIdentity)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "network_interfaces", &obj.NetworkInterfaces, UnmarshalNetworkInterfacePrototype)
 	if err != nil {
 		return
 	}
@@ -44637,6 +44873,11 @@ type InstanceTemplatePrototype struct {
 	// The availability policy to use for this virtual server instance.
 	AvailabilityPolicy *InstanceAvailabilityPolicyPrototype `json:"availability_policy,omitempty"`
 
+	// The confidential compute mode to use for this virtual server instance.
+	//
+	// If unspecified, the default confidential compute mode from the profile will be used.
+	ConfidentialComputeMode *string `json:"confidential_compute_mode,omitempty"`
+
 	// The default trusted profile configuration to use for this virtual server instance
 	//
 	// This property's value is used when provisioning the virtual server instance, but not
@@ -44644,6 +44885,11 @@ type InstanceTemplatePrototype struct {
 	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization)
 	// property.
 	DefaultTrustedProfile *InstanceDefaultTrustedProfilePrototype `json:"default_trusted_profile,omitempty"`
+
+	// Indicates whether secure boot is enabled for this virtual server instance.
+	//
+	// If unspecified, the default secure boot mode from the profile will be used.
+	EnableSecureBoot *bool `json:"enable_secure_boot,omitempty"`
 
 	// The public SSH keys for the administrative user of the virtual server instance. Keys will be made available to the
 	// virtual server instance as cloud-init vendor data. For cloud-init enabled images, these keys will also be added as
@@ -44665,9 +44911,6 @@ type InstanceTemplatePrototype struct {
 	// The name for this instance template. The name must not be used by another instance template in the region. If
 	// unspecified, the name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
-
-	// The additional network interfaces to create for the virtual server instance.
-	NetworkInterfaces []NetworkInterfacePrototype `json:"network_interfaces,omitempty"`
 
 	// The placement restrictions to use for the virtual server instance.
 	PlacementTarget InstancePlacementTargetPrototypeIntf `json:"placement_target,omitempty"`
@@ -44701,13 +44944,16 @@ type InstanceTemplatePrototype struct {
 	// interfaces.
 	VPC VPCIdentityIntf `json:"vpc,omitempty"`
 
-	// The boot volume attachment for the virtual server instance.
+	// The boot volume attachment to create for the virtual server instance.
 	BootVolumeAttachment *VolumeAttachmentPrototypeInstanceByImageContext `json:"boot_volume_attachment,omitempty"`
 
 	// The image to use when provisioning the virtual server instance.
 	Image ImageIdentityIntf `json:"image,omitempty"`
 
-	// Primary network interface.
+	// The additional network interfaces to create for the virtual server instance.
+	NetworkInterfaces []NetworkInterfacePrototype `json:"network_interfaces,omitempty"`
+
+	// The primary network interface to create for the virtual server instance.
 	PrimaryNetworkInterface *NetworkInterfacePrototype `json:"primary_network_interface,omitempty"`
 
 	// The zone this virtual server instance will reside in.
@@ -44728,6 +44974,16 @@ type InstanceTemplatePrototype struct {
 	SourceTemplate InstanceTemplateIdentityIntf `json:"source_template,omitempty"`
 }
 
+// Constants associated with the InstanceTemplatePrototype.ConfidentialComputeMode property.
+// The confidential compute mode to use for this virtual server instance.
+//
+// If unspecified, the default confidential compute mode from the profile will be used.
+const (
+	InstanceTemplatePrototypeConfidentialComputeModeDisabledConst = "disabled"
+	InstanceTemplatePrototypeConfidentialComputeModeSgxConst      = "sgx"
+	InstanceTemplatePrototypeConfidentialComputeModeTdxConst      = "tdx"
+)
+
 func (*InstanceTemplatePrototype) isaInstanceTemplatePrototype() bool {
 	return true
 }
@@ -44743,7 +44999,15 @@ func UnmarshalInstanceTemplatePrototype(m map[string]json.RawMessage, result int
 	if err != nil {
 		return
 	}
+	err = core.UnmarshalPrimitive(m, "confidential_compute_mode", &obj.ConfidentialComputeMode)
+	if err != nil {
+		return
+	}
 	err = core.UnmarshalModel(m, "default_trusted_profile", &obj.DefaultTrustedProfile, UnmarshalInstanceDefaultTrustedProfilePrototype)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "enable_secure_boot", &obj.EnableSecureBoot)
 	if err != nil {
 		return
 	}
@@ -44756,10 +45020,6 @@ func UnmarshalInstanceTemplatePrototype(m map[string]json.RawMessage, result int
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "network_interfaces", &obj.NetworkInterfaces, UnmarshalNetworkInterfacePrototype)
 	if err != nil {
 		return
 	}
@@ -44796,6 +45056,10 @@ func UnmarshalInstanceTemplatePrototype(m map[string]json.RawMessage, result int
 		return
 	}
 	err = core.UnmarshalModel(m, "image", &obj.Image, UnmarshalImageIdentity)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "network_interfaces", &obj.NetworkInterfaces, UnmarshalNetworkInterfacePrototype)
 	if err != nil {
 		return
 	}
@@ -73984,10 +74248,20 @@ type InstancePrototypeInstanceByCatalogOffering struct {
 	// The availability policy to use for this virtual server instance.
 	AvailabilityPolicy *InstanceAvailabilityPolicyPrototype `json:"availability_policy,omitempty"`
 
+	// The confidential compute mode to use for this virtual server instance.
+	//
+	// If unspecified, the default confidential compute mode from the profile will be used.
+	ConfidentialComputeMode *string `json:"confidential_compute_mode,omitempty"`
+
 	// The default trusted profile configuration to use for this virtual server instance  This property's value is used
 	// when provisioning the virtual server instance, but not subsequently managed. Accordingly, it is reflected as an
 	// [instance initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
 	DefaultTrustedProfile *InstanceDefaultTrustedProfilePrototype `json:"default_trusted_profile,omitempty"`
+
+	// Indicates whether secure boot is enabled for this virtual server instance.
+	//
+	// If unspecified, the default secure boot mode from the profile will be used.
+	EnableSecureBoot *bool `json:"enable_secure_boot,omitempty"`
 
 	// The public SSH keys for the administrative user of the virtual server instance. Keys will be made available to the
 	// virtual server instance as cloud-init vendor data. For cloud-init enabled images, these keys will also be added as
@@ -74010,9 +74284,6 @@ type InstancePrototypeInstanceByCatalogOffering struct {
 	//
 	// The system hostname will be based on this name.
 	Name *string `json:"name,omitempty"`
-
-	// The additional network interfaces to create for the virtual server instance.
-	NetworkInterfaces []NetworkInterfacePrototype `json:"network_interfaces,omitempty"`
 
 	// The placement restrictions to use for the virtual server instance.
 	PlacementTarget InstancePlacementTargetPrototypeIntf `json:"placement_target,omitempty"`
@@ -74039,7 +74310,7 @@ type InstancePrototypeInstanceByCatalogOffering struct {
 	// instance's network interfaces.
 	VPC VPCIdentityIntf `json:"vpc,omitempty"`
 
-	// The boot volume attachment for the virtual server instance.
+	// The boot volume attachment to create for the virtual server instance.
 	BootVolumeAttachment *VolumeAttachmentPrototypeInstanceByImageContext `json:"boot_volume_attachment,omitempty"`
 
 	// The [catalog](https://cloud.ibm.com/docs/account?topic=account-restrict-by-user) offering
@@ -74052,12 +74323,25 @@ type InstancePrototypeInstanceByCatalogOffering struct {
 	// to IAM policies.
 	CatalogOffering InstanceCatalogOfferingPrototypeIntf `json:"catalog_offering" validate:"required"`
 
-	// Primary network interface.
+	// The additional network interfaces to create for the virtual server instance.
+	NetworkInterfaces []NetworkInterfacePrototype `json:"network_interfaces,omitempty"`
+
+	// The primary network interface to create for the virtual server instance.
 	PrimaryNetworkInterface *NetworkInterfacePrototype `json:"primary_network_interface" validate:"required"`
 
 	// The zone this virtual server instance will reside in.
 	Zone ZoneIdentityIntf `json:"zone" validate:"required"`
 }
+
+// Constants associated with the InstancePrototypeInstanceByCatalogOffering.ConfidentialComputeMode property.
+// The confidential compute mode to use for this virtual server instance.
+//
+// If unspecified, the default confidential compute mode from the profile will be used.
+const (
+	InstancePrototypeInstanceByCatalogOfferingConfidentialComputeModeDisabledConst = "disabled"
+	InstancePrototypeInstanceByCatalogOfferingConfidentialComputeModeSgxConst      = "sgx"
+	InstancePrototypeInstanceByCatalogOfferingConfidentialComputeModeTdxConst      = "tdx"
+)
 
 // NewInstancePrototypeInstanceByCatalogOffering : Instantiate InstancePrototypeInstanceByCatalogOffering (Generic Model Constructor)
 func (*VpcV1) NewInstancePrototypeInstanceByCatalogOffering(catalogOffering InstanceCatalogOfferingPrototypeIntf, primaryNetworkInterface *NetworkInterfacePrototype, zone ZoneIdentityIntf) (_model *InstancePrototypeInstanceByCatalogOffering, err error) {
@@ -74081,7 +74365,15 @@ func UnmarshalInstancePrototypeInstanceByCatalogOffering(m map[string]json.RawMe
 	if err != nil {
 		return
 	}
+	err = core.UnmarshalPrimitive(m, "confidential_compute_mode", &obj.ConfidentialComputeMode)
+	if err != nil {
+		return
+	}
 	err = core.UnmarshalModel(m, "default_trusted_profile", &obj.DefaultTrustedProfile, UnmarshalInstanceDefaultTrustedProfilePrototype)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "enable_secure_boot", &obj.EnableSecureBoot)
 	if err != nil {
 		return
 	}
@@ -74094,10 +74386,6 @@ func UnmarshalInstancePrototypeInstanceByCatalogOffering(m map[string]json.RawMe
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "network_interfaces", &obj.NetworkInterfaces, UnmarshalNetworkInterfacePrototype)
 	if err != nil {
 		return
 	}
@@ -74137,6 +74425,10 @@ func UnmarshalInstancePrototypeInstanceByCatalogOffering(m map[string]json.RawMe
 	if err != nil {
 		return
 	}
+	err = core.UnmarshalModel(m, "network_interfaces", &obj.NetworkInterfaces, UnmarshalNetworkInterfacePrototype)
+	if err != nil {
+		return
+	}
 	err = core.UnmarshalModel(m, "primary_network_interface", &obj.PrimaryNetworkInterface, UnmarshalNetworkInterfacePrototype)
 	if err != nil {
 		return
@@ -74155,10 +74447,20 @@ type InstancePrototypeInstanceByImage struct {
 	// The availability policy to use for this virtual server instance.
 	AvailabilityPolicy *InstanceAvailabilityPolicyPrototype `json:"availability_policy,omitempty"`
 
+	// The confidential compute mode to use for this virtual server instance.
+	//
+	// If unspecified, the default confidential compute mode from the profile will be used.
+	ConfidentialComputeMode *string `json:"confidential_compute_mode,omitempty"`
+
 	// The default trusted profile configuration to use for this virtual server instance  This property's value is used
 	// when provisioning the virtual server instance, but not subsequently managed. Accordingly, it is reflected as an
 	// [instance initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
 	DefaultTrustedProfile *InstanceDefaultTrustedProfilePrototype `json:"default_trusted_profile,omitempty"`
+
+	// Indicates whether secure boot is enabled for this virtual server instance.
+	//
+	// If unspecified, the default secure boot mode from the profile will be used.
+	EnableSecureBoot *bool `json:"enable_secure_boot,omitempty"`
 
 	// The public SSH keys for the administrative user of the virtual server instance. Keys will be made available to the
 	// virtual server instance as cloud-init vendor data. For cloud-init enabled images, these keys will also be added as
@@ -74181,9 +74483,6 @@ type InstancePrototypeInstanceByImage struct {
 	//
 	// The system hostname will be based on this name.
 	Name *string `json:"name,omitempty"`
-
-	// The additional network interfaces to create for the virtual server instance.
-	NetworkInterfaces []NetworkInterfacePrototype `json:"network_interfaces,omitempty"`
 
 	// The placement restrictions to use for the virtual server instance.
 	PlacementTarget InstancePlacementTargetPrototypeIntf `json:"placement_target,omitempty"`
@@ -74210,18 +74509,31 @@ type InstancePrototypeInstanceByImage struct {
 	// instance's network interfaces.
 	VPC VPCIdentityIntf `json:"vpc,omitempty"`
 
-	// The boot volume attachment for the virtual server instance.
+	// The boot volume attachment to create for the virtual server instance.
 	BootVolumeAttachment *VolumeAttachmentPrototypeInstanceByImageContext `json:"boot_volume_attachment,omitempty"`
 
 	// The image to use when provisioning the virtual server instance.
 	Image ImageIdentityIntf `json:"image" validate:"required"`
 
-	// Primary network interface.
+	// The additional network interfaces to create for the virtual server instance.
+	NetworkInterfaces []NetworkInterfacePrototype `json:"network_interfaces,omitempty"`
+
+	// The primary network interface to create for the virtual server instance.
 	PrimaryNetworkInterface *NetworkInterfacePrototype `json:"primary_network_interface" validate:"required"`
 
 	// The zone this virtual server instance will reside in.
 	Zone ZoneIdentityIntf `json:"zone" validate:"required"`
 }
+
+// Constants associated with the InstancePrototypeInstanceByImage.ConfidentialComputeMode property.
+// The confidential compute mode to use for this virtual server instance.
+//
+// If unspecified, the default confidential compute mode from the profile will be used.
+const (
+	InstancePrototypeInstanceByImageConfidentialComputeModeDisabledConst = "disabled"
+	InstancePrototypeInstanceByImageConfidentialComputeModeSgxConst      = "sgx"
+	InstancePrototypeInstanceByImageConfidentialComputeModeTdxConst      = "tdx"
+)
 
 // NewInstancePrototypeInstanceByImage : Instantiate InstancePrototypeInstanceByImage (Generic Model Constructor)
 func (*VpcV1) NewInstancePrototypeInstanceByImage(image ImageIdentityIntf, primaryNetworkInterface *NetworkInterfacePrototype, zone ZoneIdentityIntf) (_model *InstancePrototypeInstanceByImage, err error) {
@@ -74245,7 +74557,15 @@ func UnmarshalInstancePrototypeInstanceByImage(m map[string]json.RawMessage, res
 	if err != nil {
 		return
 	}
+	err = core.UnmarshalPrimitive(m, "confidential_compute_mode", &obj.ConfidentialComputeMode)
+	if err != nil {
+		return
+	}
 	err = core.UnmarshalModel(m, "default_trusted_profile", &obj.DefaultTrustedProfile, UnmarshalInstanceDefaultTrustedProfilePrototype)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "enable_secure_boot", &obj.EnableSecureBoot)
 	if err != nil {
 		return
 	}
@@ -74258,10 +74578,6 @@ func UnmarshalInstancePrototypeInstanceByImage(m map[string]json.RawMessage, res
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "network_interfaces", &obj.NetworkInterfaces, UnmarshalNetworkInterfacePrototype)
 	if err != nil {
 		return
 	}
@@ -74301,6 +74617,10 @@ func UnmarshalInstancePrototypeInstanceByImage(m map[string]json.RawMessage, res
 	if err != nil {
 		return
 	}
+	err = core.UnmarshalModel(m, "network_interfaces", &obj.NetworkInterfaces, UnmarshalNetworkInterfacePrototype)
+	if err != nil {
+		return
+	}
 	err = core.UnmarshalModel(m, "primary_network_interface", &obj.PrimaryNetworkInterface, UnmarshalNetworkInterfacePrototype)
 	if err != nil {
 		return
@@ -74319,10 +74639,20 @@ type InstancePrototypeInstanceBySourceSnapshot struct {
 	// The availability policy to use for this virtual server instance.
 	AvailabilityPolicy *InstanceAvailabilityPolicyPrototype `json:"availability_policy,omitempty"`
 
+	// The confidential compute mode to use for this virtual server instance.
+	//
+	// If unspecified, the default confidential compute mode from the profile will be used.
+	ConfidentialComputeMode *string `json:"confidential_compute_mode,omitempty"`
+
 	// The default trusted profile configuration to use for this virtual server instance  This property's value is used
 	// when provisioning the virtual server instance, but not subsequently managed. Accordingly, it is reflected as an
 	// [instance initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
 	DefaultTrustedProfile *InstanceDefaultTrustedProfilePrototype `json:"default_trusted_profile,omitempty"`
+
+	// Indicates whether secure boot is enabled for this virtual server instance.
+	//
+	// If unspecified, the default secure boot mode from the profile will be used.
+	EnableSecureBoot *bool `json:"enable_secure_boot,omitempty"`
 
 	// The public SSH keys for the administrative user of the virtual server instance. Keys will be made available to the
 	// virtual server instance as cloud-init vendor data. For cloud-init enabled images, these keys will also be added as
@@ -74345,9 +74675,6 @@ type InstancePrototypeInstanceBySourceSnapshot struct {
 	//
 	// The system hostname will be based on this name.
 	Name *string `json:"name,omitempty"`
-
-	// The additional network interfaces to create for the virtual server instance.
-	NetworkInterfaces []NetworkInterfacePrototype `json:"network_interfaces,omitempty"`
 
 	// The placement restrictions to use for the virtual server instance.
 	PlacementTarget InstancePlacementTargetPrototypeIntf `json:"placement_target,omitempty"`
@@ -74374,15 +74701,28 @@ type InstancePrototypeInstanceBySourceSnapshot struct {
 	// instance's network interfaces.
 	VPC VPCIdentityIntf `json:"vpc,omitempty"`
 
-	// The boot volume attachment for the virtual server instance.
+	// The boot volume attachment to create for the virtual server instance.
 	BootVolumeAttachment *VolumeAttachmentPrototypeInstanceBySourceSnapshotContext `json:"boot_volume_attachment" validate:"required"`
 
-	// Primary network interface.
+	// The additional network interfaces to create for the virtual server instance.
+	NetworkInterfaces []NetworkInterfacePrototype `json:"network_interfaces,omitempty"`
+
+	// The primary network interface to create for the virtual server instance.
 	PrimaryNetworkInterface *NetworkInterfacePrototype `json:"primary_network_interface" validate:"required"`
 
 	// The zone this virtual server instance will reside in.
 	Zone ZoneIdentityIntf `json:"zone" validate:"required"`
 }
+
+// Constants associated with the InstancePrototypeInstanceBySourceSnapshot.ConfidentialComputeMode property.
+// The confidential compute mode to use for this virtual server instance.
+//
+// If unspecified, the default confidential compute mode from the profile will be used.
+const (
+	InstancePrototypeInstanceBySourceSnapshotConfidentialComputeModeDisabledConst = "disabled"
+	InstancePrototypeInstanceBySourceSnapshotConfidentialComputeModeSgxConst      = "sgx"
+	InstancePrototypeInstanceBySourceSnapshotConfidentialComputeModeTdxConst      = "tdx"
+)
 
 // NewInstancePrototypeInstanceBySourceSnapshot : Instantiate InstancePrototypeInstanceBySourceSnapshot (Generic Model Constructor)
 func (*VpcV1) NewInstancePrototypeInstanceBySourceSnapshot(bootVolumeAttachment *VolumeAttachmentPrototypeInstanceBySourceSnapshotContext, primaryNetworkInterface *NetworkInterfacePrototype, zone ZoneIdentityIntf) (_model *InstancePrototypeInstanceBySourceSnapshot, err error) {
@@ -74406,7 +74746,15 @@ func UnmarshalInstancePrototypeInstanceBySourceSnapshot(m map[string]json.RawMes
 	if err != nil {
 		return
 	}
+	err = core.UnmarshalPrimitive(m, "confidential_compute_mode", &obj.ConfidentialComputeMode)
+	if err != nil {
+		return
+	}
 	err = core.UnmarshalModel(m, "default_trusted_profile", &obj.DefaultTrustedProfile, UnmarshalInstanceDefaultTrustedProfilePrototype)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "enable_secure_boot", &obj.EnableSecureBoot)
 	if err != nil {
 		return
 	}
@@ -74419,10 +74767,6 @@ func UnmarshalInstancePrototypeInstanceBySourceSnapshot(m map[string]json.RawMes
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "network_interfaces", &obj.NetworkInterfaces, UnmarshalNetworkInterfacePrototype)
 	if err != nil {
 		return
 	}
@@ -74458,6 +74802,10 @@ func UnmarshalInstancePrototypeInstanceBySourceSnapshot(m map[string]json.RawMes
 	if err != nil {
 		return
 	}
+	err = core.UnmarshalModel(m, "network_interfaces", &obj.NetworkInterfaces, UnmarshalNetworkInterfacePrototype)
+	if err != nil {
+		return
+	}
 	err = core.UnmarshalModel(m, "primary_network_interface", &obj.PrimaryNetworkInterface, UnmarshalNetworkInterfacePrototype)
 	if err != nil {
 		return
@@ -74476,10 +74824,20 @@ type InstancePrototypeInstanceBySourceTemplate struct {
 	// The availability policy to use for this virtual server instance.
 	AvailabilityPolicy *InstanceAvailabilityPolicyPrototype `json:"availability_policy,omitempty"`
 
+	// The confidential compute mode to use for this virtual server instance.
+	//
+	// If unspecified, the default confidential compute mode from the profile will be used.
+	ConfidentialComputeMode *string `json:"confidential_compute_mode,omitempty"`
+
 	// The default trusted profile configuration to use for this virtual server instance  This property's value is used
 	// when provisioning the virtual server instance, but not subsequently managed. Accordingly, it is reflected as an
 	// [instance initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
 	DefaultTrustedProfile *InstanceDefaultTrustedProfilePrototype `json:"default_trusted_profile,omitempty"`
+
+	// Indicates whether secure boot is enabled for this virtual server instance.
+	//
+	// If unspecified, the default secure boot mode from the profile will be used.
+	EnableSecureBoot *bool `json:"enable_secure_boot,omitempty"`
 
 	// The public SSH keys for the administrative user of the virtual server instance. Keys will be made available to the
 	// virtual server instance as cloud-init vendor data. For cloud-init enabled images, these keys will also be added as
@@ -74502,9 +74860,6 @@ type InstancePrototypeInstanceBySourceTemplate struct {
 	//
 	// The system hostname will be based on this name.
 	Name *string `json:"name,omitempty"`
-
-	// The additional network interfaces to create for the virtual server instance.
-	NetworkInterfaces []NetworkInterfacePrototype `json:"network_interfaces,omitempty"`
 
 	// The placement restrictions to use for the virtual server instance.
 	PlacementTarget InstancePlacementTargetPrototypeIntf `json:"placement_target,omitempty"`
@@ -74531,7 +74886,7 @@ type InstancePrototypeInstanceBySourceTemplate struct {
 	// instance's network interfaces.
 	VPC VPCIdentityIntf `json:"vpc,omitempty"`
 
-	// The boot volume attachment for the virtual server instance.
+	// The boot volume attachment to create for the virtual server instance.
 	BootVolumeAttachment *VolumeAttachmentPrototypeInstanceByImageContext `json:"boot_volume_attachment,omitempty"`
 
 	// The [catalog](https://cloud.ibm.com/docs/account?topic=account-restrict-by-user)
@@ -74548,7 +74903,10 @@ type InstancePrototypeInstanceBySourceTemplate struct {
 	// The image to use when provisioning the virtual server instance.
 	Image ImageIdentityIntf `json:"image,omitempty"`
 
-	// Primary network interface.
+	// The additional network interfaces to create for the virtual server instance.
+	NetworkInterfaces []NetworkInterfacePrototype `json:"network_interfaces,omitempty"`
+
+	// The primary network interface to create for the virtual server instance.
 	PrimaryNetworkInterface *NetworkInterfacePrototype `json:"primary_network_interface,omitempty"`
 
 	// The template to create this virtual server instance from.
@@ -74557,6 +74915,16 @@ type InstancePrototypeInstanceBySourceTemplate struct {
 	// The zone this virtual server instance will reside in.
 	Zone ZoneIdentityIntf `json:"zone,omitempty"`
 }
+
+// Constants associated with the InstancePrototypeInstanceBySourceTemplate.ConfidentialComputeMode property.
+// The confidential compute mode to use for this virtual server instance.
+//
+// If unspecified, the default confidential compute mode from the profile will be used.
+const (
+	InstancePrototypeInstanceBySourceTemplateConfidentialComputeModeDisabledConst = "disabled"
+	InstancePrototypeInstanceBySourceTemplateConfidentialComputeModeSgxConst      = "sgx"
+	InstancePrototypeInstanceBySourceTemplateConfidentialComputeModeTdxConst      = "tdx"
+)
 
 // NewInstancePrototypeInstanceBySourceTemplate : Instantiate InstancePrototypeInstanceBySourceTemplate (Generic Model Constructor)
 func (*VpcV1) NewInstancePrototypeInstanceBySourceTemplate(sourceTemplate InstanceTemplateIdentityIntf) (_model *InstancePrototypeInstanceBySourceTemplate, err error) {
@@ -74578,7 +74946,15 @@ func UnmarshalInstancePrototypeInstanceBySourceTemplate(m map[string]json.RawMes
 	if err != nil {
 		return
 	}
+	err = core.UnmarshalPrimitive(m, "confidential_compute_mode", &obj.ConfidentialComputeMode)
+	if err != nil {
+		return
+	}
 	err = core.UnmarshalModel(m, "default_trusted_profile", &obj.DefaultTrustedProfile, UnmarshalInstanceDefaultTrustedProfilePrototype)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "enable_secure_boot", &obj.EnableSecureBoot)
 	if err != nil {
 		return
 	}
@@ -74591,10 +74967,6 @@ func UnmarshalInstancePrototypeInstanceBySourceTemplate(m map[string]json.RawMes
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "network_interfaces", &obj.NetworkInterfaces, UnmarshalNetworkInterfacePrototype)
 	if err != nil {
 		return
 	}
@@ -74638,6 +75010,10 @@ func UnmarshalInstancePrototypeInstanceBySourceTemplate(m map[string]json.RawMes
 	if err != nil {
 		return
 	}
+	err = core.UnmarshalModel(m, "network_interfaces", &obj.NetworkInterfaces, UnmarshalNetworkInterfacePrototype)
+	if err != nil {
+		return
+	}
 	err = core.UnmarshalModel(m, "primary_network_interface", &obj.PrimaryNetworkInterface, UnmarshalNetworkInterfacePrototype)
 	if err != nil {
 		return
@@ -74660,10 +75036,20 @@ type InstancePrototypeInstanceByVolume struct {
 	// The availability policy to use for this virtual server instance.
 	AvailabilityPolicy *InstanceAvailabilityPolicyPrototype `json:"availability_policy,omitempty"`
 
+	// The confidential compute mode to use for this virtual server instance.
+	//
+	// If unspecified, the default confidential compute mode from the profile will be used.
+	ConfidentialComputeMode *string `json:"confidential_compute_mode,omitempty"`
+
 	// The default trusted profile configuration to use for this virtual server instance  This property's value is used
 	// when provisioning the virtual server instance, but not subsequently managed. Accordingly, it is reflected as an
 	// [instance initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
 	DefaultTrustedProfile *InstanceDefaultTrustedProfilePrototype `json:"default_trusted_profile,omitempty"`
+
+	// Indicates whether secure boot is enabled for this virtual server instance.
+	//
+	// If unspecified, the default secure boot mode from the profile will be used.
+	EnableSecureBoot *bool `json:"enable_secure_boot,omitempty"`
 
 	// The public SSH keys for the administrative user of the virtual server instance. Keys will be made available to the
 	// virtual server instance as cloud-init vendor data. For cloud-init enabled images, these keys will also be added as
@@ -74686,9 +75072,6 @@ type InstancePrototypeInstanceByVolume struct {
 	//
 	// The system hostname will be based on this name.
 	Name *string `json:"name,omitempty"`
-
-	// The additional network interfaces to create for the virtual server instance.
-	NetworkInterfaces []NetworkInterfacePrototype `json:"network_interfaces,omitempty"`
 
 	// The placement restrictions to use for the virtual server instance.
 	PlacementTarget InstancePlacementTargetPrototypeIntf `json:"placement_target,omitempty"`
@@ -74718,12 +75101,25 @@ type InstancePrototypeInstanceByVolume struct {
 	// The boot volume attachment for the virtual server instance.
 	BootVolumeAttachment *VolumeAttachmentPrototypeInstanceByVolumeContext `json:"boot_volume_attachment" validate:"required"`
 
-	// Primary network interface.
+	// The additional network interfaces to create for the virtual server instance.
+	NetworkInterfaces []NetworkInterfacePrototype `json:"network_interfaces,omitempty"`
+
+	// The primary network interface to create for the virtual server instance.
 	PrimaryNetworkInterface *NetworkInterfacePrototype `json:"primary_network_interface" validate:"required"`
 
 	// The zone this virtual server instance will reside in.
 	Zone ZoneIdentityIntf `json:"zone" validate:"required"`
 }
+
+// Constants associated with the InstancePrototypeInstanceByVolume.ConfidentialComputeMode property.
+// The confidential compute mode to use for this virtual server instance.
+//
+// If unspecified, the default confidential compute mode from the profile will be used.
+const (
+	InstancePrototypeInstanceByVolumeConfidentialComputeModeDisabledConst = "disabled"
+	InstancePrototypeInstanceByVolumeConfidentialComputeModeSgxConst      = "sgx"
+	InstancePrototypeInstanceByVolumeConfidentialComputeModeTdxConst      = "tdx"
+)
 
 // NewInstancePrototypeInstanceByVolume : Instantiate InstancePrototypeInstanceByVolume (Generic Model Constructor)
 func (*VpcV1) NewInstancePrototypeInstanceByVolume(bootVolumeAttachment *VolumeAttachmentPrototypeInstanceByVolumeContext, primaryNetworkInterface *NetworkInterfacePrototype, zone ZoneIdentityIntf) (_model *InstancePrototypeInstanceByVolume, err error) {
@@ -74747,7 +75143,15 @@ func UnmarshalInstancePrototypeInstanceByVolume(m map[string]json.RawMessage, re
 	if err != nil {
 		return
 	}
+	err = core.UnmarshalPrimitive(m, "confidential_compute_mode", &obj.ConfidentialComputeMode)
+	if err != nil {
+		return
+	}
 	err = core.UnmarshalModel(m, "default_trusted_profile", &obj.DefaultTrustedProfile, UnmarshalInstanceDefaultTrustedProfilePrototype)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "enable_secure_boot", &obj.EnableSecureBoot)
 	if err != nil {
 		return
 	}
@@ -74760,10 +75164,6 @@ func UnmarshalInstancePrototypeInstanceByVolume(m map[string]json.RawMessage, re
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "network_interfaces", &obj.NetworkInterfaces, UnmarshalNetworkInterfacePrototype)
 	if err != nil {
 		return
 	}
@@ -74796,6 +75196,10 @@ func UnmarshalInstancePrototypeInstanceByVolume(m map[string]json.RawMessage, re
 		return
 	}
 	err = core.UnmarshalModel(m, "boot_volume_attachment", &obj.BootVolumeAttachment, UnmarshalVolumeAttachmentPrototypeInstanceByVolumeContext)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "network_interfaces", &obj.NetworkInterfaces, UnmarshalNetworkInterfacePrototype)
 	if err != nil {
 		return
 	}
@@ -74910,10 +75314,20 @@ type InstanceTemplatePrototypeInstanceByCatalogOfferingInstanceTemplateContext s
 	// The availability policy to use for this virtual server instance.
 	AvailabilityPolicy *InstanceAvailabilityPolicyPrototype `json:"availability_policy,omitempty"`
 
+	// The confidential compute mode to use for this virtual server instance.
+	//
+	// If unspecified, the default confidential compute mode from the profile will be used.
+	ConfidentialComputeMode *string `json:"confidential_compute_mode,omitempty"`
+
 	// The default trusted profile configuration to use for this virtual server instance  This property's value is used
 	// when provisioning the virtual server instance, but not subsequently managed. Accordingly, it is reflected as an
 	// [instance initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
 	DefaultTrustedProfile *InstanceDefaultTrustedProfilePrototype `json:"default_trusted_profile,omitempty"`
+
+	// Indicates whether secure boot is enabled for this virtual server instance.
+	//
+	// If unspecified, the default secure boot mode from the profile will be used.
+	EnableSecureBoot *bool `json:"enable_secure_boot,omitempty"`
 
 	// The public SSH keys for the administrative user of the virtual server instance. Keys will be made available to the
 	// virtual server instance as cloud-init vendor data. For cloud-init enabled images, these keys will also be added as
@@ -74934,9 +75348,6 @@ type InstanceTemplatePrototypeInstanceByCatalogOfferingInstanceTemplateContext s
 	// The name for this instance template. The name must not be used by another instance template in the region. If
 	// unspecified, the name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
-
-	// The additional network interfaces to create for the virtual server instance.
-	NetworkInterfaces []NetworkInterfacePrototype `json:"network_interfaces,omitempty"`
 
 	// The placement restrictions to use for the virtual server instance.
 	PlacementTarget InstancePlacementTargetPrototypeIntf `json:"placement_target,omitempty"`
@@ -74963,7 +75374,7 @@ type InstanceTemplatePrototypeInstanceByCatalogOfferingInstanceTemplateContext s
 	// instance's network interfaces.
 	VPC VPCIdentityIntf `json:"vpc,omitempty"`
 
-	// The boot volume attachment for the virtual server instance.
+	// The boot volume attachment to create for the virtual server instance.
 	BootVolumeAttachment *VolumeAttachmentPrototypeInstanceByImageContext `json:"boot_volume_attachment,omitempty"`
 
 	// The [catalog](https://cloud.ibm.com/docs/account?topic=account-restrict-by-user) offering
@@ -74976,12 +75387,25 @@ type InstanceTemplatePrototypeInstanceByCatalogOfferingInstanceTemplateContext s
 	// to IAM policies.
 	CatalogOffering InstanceCatalogOfferingPrototypeIntf `json:"catalog_offering" validate:"required"`
 
-	// Primary network interface.
+	// The additional network interfaces to create for the virtual server instance.
+	NetworkInterfaces []NetworkInterfacePrototype `json:"network_interfaces,omitempty"`
+
+	// The primary network interface to create for the virtual server instance.
 	PrimaryNetworkInterface *NetworkInterfacePrototype `json:"primary_network_interface,omitempty"`
 
 	// The zone this virtual server instance will reside in.
 	Zone ZoneIdentityIntf `json:"zone" validate:"required"`
 }
+
+// Constants associated with the InstanceTemplatePrototypeInstanceByCatalogOfferingInstanceTemplateContext.ConfidentialComputeMode property.
+// The confidential compute mode to use for this virtual server instance.
+//
+// If unspecified, the default confidential compute mode from the profile will be used.
+const (
+	InstanceTemplatePrototypeInstanceByCatalogOfferingInstanceTemplateContextConfidentialComputeModeDisabledConst = "disabled"
+	InstanceTemplatePrototypeInstanceByCatalogOfferingInstanceTemplateContextConfidentialComputeModeSgxConst      = "sgx"
+	InstanceTemplatePrototypeInstanceByCatalogOfferingInstanceTemplateContextConfidentialComputeModeTdxConst      = "tdx"
+)
 
 // NewInstanceTemplatePrototypeInstanceByCatalogOfferingInstanceTemplateContext : Instantiate InstanceTemplatePrototypeInstanceByCatalogOfferingInstanceTemplateContext (Generic Model Constructor)
 func (*VpcV1) NewInstanceTemplatePrototypeInstanceByCatalogOfferingInstanceTemplateContext(catalogOffering InstanceCatalogOfferingPrototypeIntf, zone ZoneIdentityIntf) (_model *InstanceTemplatePrototypeInstanceByCatalogOfferingInstanceTemplateContext, err error) {
@@ -75004,7 +75428,15 @@ func UnmarshalInstanceTemplatePrototypeInstanceByCatalogOfferingInstanceTemplate
 	if err != nil {
 		return
 	}
+	err = core.UnmarshalPrimitive(m, "confidential_compute_mode", &obj.ConfidentialComputeMode)
+	if err != nil {
+		return
+	}
 	err = core.UnmarshalModel(m, "default_trusted_profile", &obj.DefaultTrustedProfile, UnmarshalInstanceDefaultTrustedProfilePrototype)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "enable_secure_boot", &obj.EnableSecureBoot)
 	if err != nil {
 		return
 	}
@@ -75017,10 +75449,6 @@ func UnmarshalInstanceTemplatePrototypeInstanceByCatalogOfferingInstanceTemplate
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "network_interfaces", &obj.NetworkInterfaces, UnmarshalNetworkInterfacePrototype)
 	if err != nil {
 		return
 	}
@@ -75060,6 +75488,10 @@ func UnmarshalInstanceTemplatePrototypeInstanceByCatalogOfferingInstanceTemplate
 	if err != nil {
 		return
 	}
+	err = core.UnmarshalModel(m, "network_interfaces", &obj.NetworkInterfaces, UnmarshalNetworkInterfacePrototype)
+	if err != nil {
+		return
+	}
 	err = core.UnmarshalModel(m, "primary_network_interface", &obj.PrimaryNetworkInterface, UnmarshalNetworkInterfacePrototype)
 	if err != nil {
 		return
@@ -75078,10 +75510,20 @@ type InstanceTemplatePrototypeInstanceByImageInstanceTemplateContext struct {
 	// The availability policy to use for this virtual server instance.
 	AvailabilityPolicy *InstanceAvailabilityPolicyPrototype `json:"availability_policy,omitempty"`
 
+	// The confidential compute mode to use for this virtual server instance.
+	//
+	// If unspecified, the default confidential compute mode from the profile will be used.
+	ConfidentialComputeMode *string `json:"confidential_compute_mode,omitempty"`
+
 	// The default trusted profile configuration to use for this virtual server instance  This property's value is used
 	// when provisioning the virtual server instance, but not subsequently managed. Accordingly, it is reflected as an
 	// [instance initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
 	DefaultTrustedProfile *InstanceDefaultTrustedProfilePrototype `json:"default_trusted_profile,omitempty"`
+
+	// Indicates whether secure boot is enabled for this virtual server instance.
+	//
+	// If unspecified, the default secure boot mode from the profile will be used.
+	EnableSecureBoot *bool `json:"enable_secure_boot,omitempty"`
 
 	// The public SSH keys for the administrative user of the virtual server instance. Keys will be made available to the
 	// virtual server instance as cloud-init vendor data. For cloud-init enabled images, these keys will also be added as
@@ -75102,9 +75544,6 @@ type InstanceTemplatePrototypeInstanceByImageInstanceTemplateContext struct {
 	// The name for this instance template. The name must not be used by another instance template in the region. If
 	// unspecified, the name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
-
-	// The additional network interfaces to create for the virtual server instance.
-	NetworkInterfaces []NetworkInterfacePrototype `json:"network_interfaces,omitempty"`
 
 	// The placement restrictions to use for the virtual server instance.
 	PlacementTarget InstancePlacementTargetPrototypeIntf `json:"placement_target,omitempty"`
@@ -75131,18 +75570,31 @@ type InstanceTemplatePrototypeInstanceByImageInstanceTemplateContext struct {
 	// instance's network interfaces.
 	VPC VPCIdentityIntf `json:"vpc,omitempty"`
 
-	// The boot volume attachment for the virtual server instance.
+	// The boot volume attachment to create for the virtual server instance.
 	BootVolumeAttachment *VolumeAttachmentPrototypeInstanceByImageContext `json:"boot_volume_attachment,omitempty"`
 
 	// The image to use when provisioning the virtual server instance.
 	Image ImageIdentityIntf `json:"image" validate:"required"`
 
-	// Primary network interface.
+	// The additional network interfaces to create for the virtual server instance.
+	NetworkInterfaces []NetworkInterfacePrototype `json:"network_interfaces,omitempty"`
+
+	// The primary network interface to create for the virtual server instance.
 	PrimaryNetworkInterface *NetworkInterfacePrototype `json:"primary_network_interface,omitempty"`
 
 	// The zone this virtual server instance will reside in.
 	Zone ZoneIdentityIntf `json:"zone" validate:"required"`
 }
+
+// Constants associated with the InstanceTemplatePrototypeInstanceByImageInstanceTemplateContext.ConfidentialComputeMode property.
+// The confidential compute mode to use for this virtual server instance.
+//
+// If unspecified, the default confidential compute mode from the profile will be used.
+const (
+	InstanceTemplatePrototypeInstanceByImageInstanceTemplateContextConfidentialComputeModeDisabledConst = "disabled"
+	InstanceTemplatePrototypeInstanceByImageInstanceTemplateContextConfidentialComputeModeSgxConst      = "sgx"
+	InstanceTemplatePrototypeInstanceByImageInstanceTemplateContextConfidentialComputeModeTdxConst      = "tdx"
+)
 
 // NewInstanceTemplatePrototypeInstanceByImageInstanceTemplateContext : Instantiate InstanceTemplatePrototypeInstanceByImageInstanceTemplateContext (Generic Model Constructor)
 func (*VpcV1) NewInstanceTemplatePrototypeInstanceByImageInstanceTemplateContext(image ImageIdentityIntf, zone ZoneIdentityIntf) (_model *InstanceTemplatePrototypeInstanceByImageInstanceTemplateContext, err error) {
@@ -75165,7 +75617,15 @@ func UnmarshalInstanceTemplatePrototypeInstanceByImageInstanceTemplateContext(m 
 	if err != nil {
 		return
 	}
+	err = core.UnmarshalPrimitive(m, "confidential_compute_mode", &obj.ConfidentialComputeMode)
+	if err != nil {
+		return
+	}
 	err = core.UnmarshalModel(m, "default_trusted_profile", &obj.DefaultTrustedProfile, UnmarshalInstanceDefaultTrustedProfilePrototype)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "enable_secure_boot", &obj.EnableSecureBoot)
 	if err != nil {
 		return
 	}
@@ -75178,10 +75638,6 @@ func UnmarshalInstanceTemplatePrototypeInstanceByImageInstanceTemplateContext(m 
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "network_interfaces", &obj.NetworkInterfaces, UnmarshalNetworkInterfacePrototype)
 	if err != nil {
 		return
 	}
@@ -75221,6 +75677,10 @@ func UnmarshalInstanceTemplatePrototypeInstanceByImageInstanceTemplateContext(m 
 	if err != nil {
 		return
 	}
+	err = core.UnmarshalModel(m, "network_interfaces", &obj.NetworkInterfaces, UnmarshalNetworkInterfacePrototype)
+	if err != nil {
+		return
+	}
 	err = core.UnmarshalModel(m, "primary_network_interface", &obj.PrimaryNetworkInterface, UnmarshalNetworkInterfacePrototype)
 	if err != nil {
 		return
@@ -75239,10 +75699,20 @@ type InstanceTemplatePrototypeInstanceBySourceSnapshotInstanceTemplateContext st
 	// The availability policy to use for this virtual server instance.
 	AvailabilityPolicy *InstanceAvailabilityPolicyPrototype `json:"availability_policy,omitempty"`
 
+	// The confidential compute mode to use for this virtual server instance.
+	//
+	// If unspecified, the default confidential compute mode from the profile will be used.
+	ConfidentialComputeMode *string `json:"confidential_compute_mode,omitempty"`
+
 	// The default trusted profile configuration to use for this virtual server instance  This property's value is used
 	// when provisioning the virtual server instance, but not subsequently managed. Accordingly, it is reflected as an
 	// [instance initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
 	DefaultTrustedProfile *InstanceDefaultTrustedProfilePrototype `json:"default_trusted_profile,omitempty"`
+
+	// Indicates whether secure boot is enabled for this virtual server instance.
+	//
+	// If unspecified, the default secure boot mode from the profile will be used.
+	EnableSecureBoot *bool `json:"enable_secure_boot,omitempty"`
 
 	// The public SSH keys for the administrative user of the virtual server instance. Keys will be made available to the
 	// virtual server instance as cloud-init vendor data. For cloud-init enabled images, these keys will also be added as
@@ -75263,9 +75733,6 @@ type InstanceTemplatePrototypeInstanceBySourceSnapshotInstanceTemplateContext st
 	// The name for this instance template. The name must not be used by another instance template in the region. If
 	// unspecified, the name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
-
-	// The additional network interfaces to create for the virtual server instance.
-	NetworkInterfaces []NetworkInterfacePrototype `json:"network_interfaces,omitempty"`
 
 	// The placement restrictions to use for the virtual server instance.
 	PlacementTarget InstancePlacementTargetPrototypeIntf `json:"placement_target,omitempty"`
@@ -75292,15 +75759,28 @@ type InstanceTemplatePrototypeInstanceBySourceSnapshotInstanceTemplateContext st
 	// instance's network interfaces.
 	VPC VPCIdentityIntf `json:"vpc,omitempty"`
 
-	// The boot volume attachment for the virtual server instance.
+	// The boot volume attachment to create for the virtual server instance.
 	BootVolumeAttachment *VolumeAttachmentPrototypeInstanceBySourceSnapshotContext `json:"boot_volume_attachment" validate:"required"`
 
-	// Primary network interface.
+	// The additional network interfaces to create for the virtual server instance.
+	NetworkInterfaces []NetworkInterfacePrototype `json:"network_interfaces,omitempty"`
+
+	// The primary network interface to create for the virtual server instance.
 	PrimaryNetworkInterface *NetworkInterfacePrototype `json:"primary_network_interface,omitempty"`
 
 	// The zone this virtual server instance will reside in.
 	Zone ZoneIdentityIntf `json:"zone" validate:"required"`
 }
+
+// Constants associated with the InstanceTemplatePrototypeInstanceBySourceSnapshotInstanceTemplateContext.ConfidentialComputeMode property.
+// The confidential compute mode to use for this virtual server instance.
+//
+// If unspecified, the default confidential compute mode from the profile will be used.
+const (
+	InstanceTemplatePrototypeInstanceBySourceSnapshotInstanceTemplateContextConfidentialComputeModeDisabledConst = "disabled"
+	InstanceTemplatePrototypeInstanceBySourceSnapshotInstanceTemplateContextConfidentialComputeModeSgxConst      = "sgx"
+	InstanceTemplatePrototypeInstanceBySourceSnapshotInstanceTemplateContextConfidentialComputeModeTdxConst      = "tdx"
+)
 
 // NewInstanceTemplatePrototypeInstanceBySourceSnapshotInstanceTemplateContext : Instantiate InstanceTemplatePrototypeInstanceBySourceSnapshotInstanceTemplateContext (Generic Model Constructor)
 func (*VpcV1) NewInstanceTemplatePrototypeInstanceBySourceSnapshotInstanceTemplateContext(bootVolumeAttachment *VolumeAttachmentPrototypeInstanceBySourceSnapshotContext, zone ZoneIdentityIntf) (_model *InstanceTemplatePrototypeInstanceBySourceSnapshotInstanceTemplateContext, err error) {
@@ -75323,7 +75803,15 @@ func UnmarshalInstanceTemplatePrototypeInstanceBySourceSnapshotInstanceTemplateC
 	if err != nil {
 		return
 	}
+	err = core.UnmarshalPrimitive(m, "confidential_compute_mode", &obj.ConfidentialComputeMode)
+	if err != nil {
+		return
+	}
 	err = core.UnmarshalModel(m, "default_trusted_profile", &obj.DefaultTrustedProfile, UnmarshalInstanceDefaultTrustedProfilePrototype)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "enable_secure_boot", &obj.EnableSecureBoot)
 	if err != nil {
 		return
 	}
@@ -75336,10 +75824,6 @@ func UnmarshalInstanceTemplatePrototypeInstanceBySourceSnapshotInstanceTemplateC
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "network_interfaces", &obj.NetworkInterfaces, UnmarshalNetworkInterfacePrototype)
 	if err != nil {
 		return
 	}
@@ -75375,6 +75859,10 @@ func UnmarshalInstanceTemplatePrototypeInstanceBySourceSnapshotInstanceTemplateC
 	if err != nil {
 		return
 	}
+	err = core.UnmarshalModel(m, "network_interfaces", &obj.NetworkInterfaces, UnmarshalNetworkInterfacePrototype)
+	if err != nil {
+		return
+	}
 	err = core.UnmarshalModel(m, "primary_network_interface", &obj.PrimaryNetworkInterface, UnmarshalNetworkInterfacePrototype)
 	if err != nil {
 		return
@@ -75393,10 +75881,20 @@ type InstanceTemplatePrototypeInstanceBySourceTemplate struct {
 	// The availability policy to use for this virtual server instance.
 	AvailabilityPolicy *InstanceAvailabilityPolicyPrototype `json:"availability_policy,omitempty"`
 
+	// The confidential compute mode to use for this virtual server instance.
+	//
+	// If unspecified, the default confidential compute mode from the profile will be used.
+	ConfidentialComputeMode *string `json:"confidential_compute_mode,omitempty"`
+
 	// The default trusted profile configuration to use for this virtual server instance  This property's value is used
 	// when provisioning the virtual server instance, but not subsequently managed. Accordingly, it is reflected as an
 	// [instance initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
 	DefaultTrustedProfile *InstanceDefaultTrustedProfilePrototype `json:"default_trusted_profile,omitempty"`
+
+	// Indicates whether secure boot is enabled for this virtual server instance.
+	//
+	// If unspecified, the default secure boot mode from the profile will be used.
+	EnableSecureBoot *bool `json:"enable_secure_boot,omitempty"`
 
 	// The public SSH keys for the administrative user of the virtual server instance. Keys will be made available to the
 	// virtual server instance as cloud-init vendor data. For cloud-init enabled images, these keys will also be added as
@@ -75417,9 +75915,6 @@ type InstanceTemplatePrototypeInstanceBySourceTemplate struct {
 	// The name for this instance template. The name must not be used by another instance template in the region. If
 	// unspecified, the name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
-
-	// The additional network interfaces to create for the virtual server instance.
-	NetworkInterfaces []NetworkInterfacePrototype `json:"network_interfaces,omitempty"`
 
 	// The placement restrictions to use for the virtual server instance.
 	PlacementTarget InstancePlacementTargetPrototypeIntf `json:"placement_target,omitempty"`
@@ -75446,7 +75941,7 @@ type InstanceTemplatePrototypeInstanceBySourceTemplate struct {
 	// instance's network interfaces.
 	VPC VPCIdentityIntf `json:"vpc,omitempty"`
 
-	// The boot volume attachment for the virtual server instance.
+	// The boot volume attachment to create for the virtual server instance.
 	BootVolumeAttachment *VolumeAttachmentPrototypeInstanceByImageContext `json:"boot_volume_attachment,omitempty"`
 
 	// The [catalog](https://cloud.ibm.com/docs/account?topic=account-restrict-by-user)
@@ -75463,7 +75958,10 @@ type InstanceTemplatePrototypeInstanceBySourceTemplate struct {
 	// The image to use when provisioning the virtual server instance.
 	Image ImageIdentityIntf `json:"image,omitempty"`
 
-	// Primary network interface.
+	// The additional network interfaces to create for the virtual server instance.
+	NetworkInterfaces []NetworkInterfacePrototype `json:"network_interfaces,omitempty"`
+
+	// The primary network interface to create for the virtual server instance.
 	PrimaryNetworkInterface *NetworkInterfacePrototype `json:"primary_network_interface,omitempty"`
 
 	// The template to create this virtual server instance from.
@@ -75472,6 +75970,16 @@ type InstanceTemplatePrototypeInstanceBySourceTemplate struct {
 	// The zone this virtual server instance will reside in.
 	Zone ZoneIdentityIntf `json:"zone,omitempty"`
 }
+
+// Constants associated with the InstanceTemplatePrototypeInstanceBySourceTemplate.ConfidentialComputeMode property.
+// The confidential compute mode to use for this virtual server instance.
+//
+// If unspecified, the default confidential compute mode from the profile will be used.
+const (
+	InstanceTemplatePrototypeInstanceBySourceTemplateConfidentialComputeModeDisabledConst = "disabled"
+	InstanceTemplatePrototypeInstanceBySourceTemplateConfidentialComputeModeSgxConst      = "sgx"
+	InstanceTemplatePrototypeInstanceBySourceTemplateConfidentialComputeModeTdxConst      = "tdx"
+)
 
 // NewInstanceTemplatePrototypeInstanceBySourceTemplate : Instantiate InstanceTemplatePrototypeInstanceBySourceTemplate (Generic Model Constructor)
 func (*VpcV1) NewInstanceTemplatePrototypeInstanceBySourceTemplate(sourceTemplate InstanceTemplateIdentityIntf) (_model *InstanceTemplatePrototypeInstanceBySourceTemplate, err error) {
@@ -75493,7 +76001,15 @@ func UnmarshalInstanceTemplatePrototypeInstanceBySourceTemplate(m map[string]jso
 	if err != nil {
 		return
 	}
+	err = core.UnmarshalPrimitive(m, "confidential_compute_mode", &obj.ConfidentialComputeMode)
+	if err != nil {
+		return
+	}
 	err = core.UnmarshalModel(m, "default_trusted_profile", &obj.DefaultTrustedProfile, UnmarshalInstanceDefaultTrustedProfilePrototype)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "enable_secure_boot", &obj.EnableSecureBoot)
 	if err != nil {
 		return
 	}
@@ -75506,10 +76022,6 @@ func UnmarshalInstanceTemplatePrototypeInstanceBySourceTemplate(m map[string]jso
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "network_interfaces", &obj.NetworkInterfaces, UnmarshalNetworkInterfacePrototype)
 	if err != nil {
 		return
 	}
@@ -75550,6 +76062,10 @@ func UnmarshalInstanceTemplatePrototypeInstanceBySourceTemplate(m map[string]jso
 		return
 	}
 	err = core.UnmarshalModel(m, "image", &obj.Image, UnmarshalImageIdentity)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "network_interfaces", &obj.NetworkInterfaces, UnmarshalNetworkInterfacePrototype)
 	if err != nil {
 		return
 	}
@@ -75575,6 +76091,11 @@ type InstanceTemplateInstanceByCatalogOfferingInstanceTemplateContext struct {
 	// The availability policy to use for this virtual server instance.
 	AvailabilityPolicy *InstanceAvailabilityPolicyPrototype `json:"availability_policy,omitempty"`
 
+	// The confidential compute mode to use for this virtual server instance.
+	//
+	// If unspecified, the default confidential compute mode from the profile will be used.
+	ConfidentialComputeMode *string `json:"confidential_compute_mode,omitempty"`
+
 	// The date and time that the instance template was created.
 	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
 
@@ -75585,6 +76106,11 @@ type InstanceTemplateInstanceByCatalogOfferingInstanceTemplateContext struct {
 	// when provisioning the virtual server instance, but not subsequently managed. Accordingly, it is reflected as an
 	// [instance initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
 	DefaultTrustedProfile *InstanceDefaultTrustedProfilePrototype `json:"default_trusted_profile,omitempty"`
+
+	// Indicates whether secure boot is enabled for this virtual server instance.
+	//
+	// If unspecified, the default secure boot mode from the profile will be used.
+	EnableSecureBoot *bool `json:"enable_secure_boot,omitempty"`
 
 	// The URL for this instance template.
 	Href *string `json:"href" validate:"required"`
@@ -75610,9 +76136,6 @@ type InstanceTemplateInstanceByCatalogOfferingInstanceTemplateContext struct {
 
 	// The name for this instance template. The name is unique across all instance templates in the region.
 	Name *string `json:"name" validate:"required"`
-
-	// The additional network interfaces to create for the virtual server instance.
-	NetworkInterfaces []NetworkInterfacePrototype `json:"network_interfaces,omitempty"`
 
 	// The placement restrictions to use for the virtual server instance.
 	PlacementTarget InstancePlacementTargetPrototypeIntf `json:"placement_target,omitempty"`
@@ -75640,7 +76163,7 @@ type InstanceTemplateInstanceByCatalogOfferingInstanceTemplateContext struct {
 	// instance's network interfaces.
 	VPC VPCIdentityIntf `json:"vpc,omitempty"`
 
-	// The boot volume attachment for the virtual server instance.
+	// The boot volume attachment to create for the virtual server instance.
 	BootVolumeAttachment *VolumeAttachmentPrototypeInstanceByImageContext `json:"boot_volume_attachment,omitempty"`
 
 	// The [catalog](https://cloud.ibm.com/docs/account?topic=account-restrict-by-user) offering
@@ -75653,12 +76176,25 @@ type InstanceTemplateInstanceByCatalogOfferingInstanceTemplateContext struct {
 	// to IAM policies.
 	CatalogOffering InstanceCatalogOfferingPrototypeIntf `json:"catalog_offering" validate:"required"`
 
-	// Primary network interface.
+	// The additional network interfaces to create for the virtual server instance.
+	NetworkInterfaces []NetworkInterfacePrototype `json:"network_interfaces,omitempty"`
+
+	// The primary network interface to create for the virtual server instance.
 	PrimaryNetworkInterface *NetworkInterfacePrototype `json:"primary_network_interface,omitempty"`
 
 	// The zone this virtual server instance will reside in.
 	Zone ZoneIdentityIntf `json:"zone" validate:"required"`
 }
+
+// Constants associated with the InstanceTemplateInstanceByCatalogOfferingInstanceTemplateContext.ConfidentialComputeMode property.
+// The confidential compute mode to use for this virtual server instance.
+//
+// If unspecified, the default confidential compute mode from the profile will be used.
+const (
+	InstanceTemplateInstanceByCatalogOfferingInstanceTemplateContextConfidentialComputeModeDisabledConst = "disabled"
+	InstanceTemplateInstanceByCatalogOfferingInstanceTemplateContextConfidentialComputeModeSgxConst      = "sgx"
+	InstanceTemplateInstanceByCatalogOfferingInstanceTemplateContextConfidentialComputeModeTdxConst      = "tdx"
+)
 
 func (*InstanceTemplateInstanceByCatalogOfferingInstanceTemplateContext) isaInstanceTemplate() bool {
 	return true
@@ -75671,6 +76207,10 @@ func UnmarshalInstanceTemplateInstanceByCatalogOfferingInstanceTemplateContext(m
 	if err != nil {
 		return
 	}
+	err = core.UnmarshalPrimitive(m, "confidential_compute_mode", &obj.ConfidentialComputeMode)
+	if err != nil {
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "created_at", &obj.CreatedAt)
 	if err != nil {
 		return
@@ -75680,6 +76220,10 @@ func UnmarshalInstanceTemplateInstanceByCatalogOfferingInstanceTemplateContext(m
 		return
 	}
 	err = core.UnmarshalModel(m, "default_trusted_profile", &obj.DefaultTrustedProfile, UnmarshalInstanceDefaultTrustedProfilePrototype)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "enable_secure_boot", &obj.EnableSecureBoot)
 	if err != nil {
 		return
 	}
@@ -75700,10 +76244,6 @@ func UnmarshalInstanceTemplateInstanceByCatalogOfferingInstanceTemplateContext(m
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "network_interfaces", &obj.NetworkInterfaces, UnmarshalNetworkInterfacePrototype)
 	if err != nil {
 		return
 	}
@@ -75743,6 +76283,10 @@ func UnmarshalInstanceTemplateInstanceByCatalogOfferingInstanceTemplateContext(m
 	if err != nil {
 		return
 	}
+	err = core.UnmarshalModel(m, "network_interfaces", &obj.NetworkInterfaces, UnmarshalNetworkInterfacePrototype)
+	if err != nil {
+		return
+	}
 	err = core.UnmarshalModel(m, "primary_network_interface", &obj.PrimaryNetworkInterface, UnmarshalNetworkInterfacePrototype)
 	if err != nil {
 		return
@@ -75761,6 +76305,11 @@ type InstanceTemplateInstanceByImageInstanceTemplateContext struct {
 	// The availability policy to use for this virtual server instance.
 	AvailabilityPolicy *InstanceAvailabilityPolicyPrototype `json:"availability_policy,omitempty"`
 
+	// The confidential compute mode to use for this virtual server instance.
+	//
+	// If unspecified, the default confidential compute mode from the profile will be used.
+	ConfidentialComputeMode *string `json:"confidential_compute_mode,omitempty"`
+
 	// The date and time that the instance template was created.
 	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
 
@@ -75771,6 +76320,11 @@ type InstanceTemplateInstanceByImageInstanceTemplateContext struct {
 	// when provisioning the virtual server instance, but not subsequently managed. Accordingly, it is reflected as an
 	// [instance initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
 	DefaultTrustedProfile *InstanceDefaultTrustedProfilePrototype `json:"default_trusted_profile,omitempty"`
+
+	// Indicates whether secure boot is enabled for this virtual server instance.
+	//
+	// If unspecified, the default secure boot mode from the profile will be used.
+	EnableSecureBoot *bool `json:"enable_secure_boot,omitempty"`
 
 	// The URL for this instance template.
 	Href *string `json:"href" validate:"required"`
@@ -75796,9 +76350,6 @@ type InstanceTemplateInstanceByImageInstanceTemplateContext struct {
 
 	// The name for this instance template. The name is unique across all instance templates in the region.
 	Name *string `json:"name" validate:"required"`
-
-	// The additional network interfaces to create for the virtual server instance.
-	NetworkInterfaces []NetworkInterfacePrototype `json:"network_interfaces,omitempty"`
 
 	// The placement restrictions to use for the virtual server instance.
 	PlacementTarget InstancePlacementTargetPrototypeIntf `json:"placement_target,omitempty"`
@@ -75826,18 +76377,31 @@ type InstanceTemplateInstanceByImageInstanceTemplateContext struct {
 	// instance's network interfaces.
 	VPC VPCIdentityIntf `json:"vpc,omitempty"`
 
-	// The boot volume attachment for the virtual server instance.
+	// The boot volume attachment to create for the virtual server instance.
 	BootVolumeAttachment *VolumeAttachmentPrototypeInstanceByImageContext `json:"boot_volume_attachment,omitempty"`
 
 	// The image to use when provisioning the virtual server instance.
 	Image ImageIdentityIntf `json:"image" validate:"required"`
 
-	// Primary network interface.
+	// The additional network interfaces to create for the virtual server instance.
+	NetworkInterfaces []NetworkInterfacePrototype `json:"network_interfaces,omitempty"`
+
+	// The primary network interface to create for the virtual server instance.
 	PrimaryNetworkInterface *NetworkInterfacePrototype `json:"primary_network_interface,omitempty"`
 
 	// The zone this virtual server instance will reside in.
 	Zone ZoneIdentityIntf `json:"zone" validate:"required"`
 }
+
+// Constants associated with the InstanceTemplateInstanceByImageInstanceTemplateContext.ConfidentialComputeMode property.
+// The confidential compute mode to use for this virtual server instance.
+//
+// If unspecified, the default confidential compute mode from the profile will be used.
+const (
+	InstanceTemplateInstanceByImageInstanceTemplateContextConfidentialComputeModeDisabledConst = "disabled"
+	InstanceTemplateInstanceByImageInstanceTemplateContextConfidentialComputeModeSgxConst      = "sgx"
+	InstanceTemplateInstanceByImageInstanceTemplateContextConfidentialComputeModeTdxConst      = "tdx"
+)
 
 func (*InstanceTemplateInstanceByImageInstanceTemplateContext) isaInstanceTemplate() bool {
 	return true
@@ -75850,6 +76414,10 @@ func UnmarshalInstanceTemplateInstanceByImageInstanceTemplateContext(m map[strin
 	if err != nil {
 		return
 	}
+	err = core.UnmarshalPrimitive(m, "confidential_compute_mode", &obj.ConfidentialComputeMode)
+	if err != nil {
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "created_at", &obj.CreatedAt)
 	if err != nil {
 		return
@@ -75859,6 +76427,10 @@ func UnmarshalInstanceTemplateInstanceByImageInstanceTemplateContext(m map[strin
 		return
 	}
 	err = core.UnmarshalModel(m, "default_trusted_profile", &obj.DefaultTrustedProfile, UnmarshalInstanceDefaultTrustedProfilePrototype)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "enable_secure_boot", &obj.EnableSecureBoot)
 	if err != nil {
 		return
 	}
@@ -75879,10 +76451,6 @@ func UnmarshalInstanceTemplateInstanceByImageInstanceTemplateContext(m map[strin
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "network_interfaces", &obj.NetworkInterfaces, UnmarshalNetworkInterfacePrototype)
 	if err != nil {
 		return
 	}
@@ -75922,6 +76490,10 @@ func UnmarshalInstanceTemplateInstanceByImageInstanceTemplateContext(m map[strin
 	if err != nil {
 		return
 	}
+	err = core.UnmarshalModel(m, "network_interfaces", &obj.NetworkInterfaces, UnmarshalNetworkInterfacePrototype)
+	if err != nil {
+		return
+	}
 	err = core.UnmarshalModel(m, "primary_network_interface", &obj.PrimaryNetworkInterface, UnmarshalNetworkInterfacePrototype)
 	if err != nil {
 		return
@@ -75940,6 +76512,11 @@ type InstanceTemplateInstanceBySourceSnapshotInstanceTemplateContext struct {
 	// The availability policy to use for this virtual server instance.
 	AvailabilityPolicy *InstanceAvailabilityPolicyPrototype `json:"availability_policy,omitempty"`
 
+	// The confidential compute mode to use for this virtual server instance.
+	//
+	// If unspecified, the default confidential compute mode from the profile will be used.
+	ConfidentialComputeMode *string `json:"confidential_compute_mode,omitempty"`
+
 	// The date and time that the instance template was created.
 	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
 
@@ -75950,6 +76527,11 @@ type InstanceTemplateInstanceBySourceSnapshotInstanceTemplateContext struct {
 	// when provisioning the virtual server instance, but not subsequently managed. Accordingly, it is reflected as an
 	// [instance initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
 	DefaultTrustedProfile *InstanceDefaultTrustedProfilePrototype `json:"default_trusted_profile,omitempty"`
+
+	// Indicates whether secure boot is enabled for this virtual server instance.
+	//
+	// If unspecified, the default secure boot mode from the profile will be used.
+	EnableSecureBoot *bool `json:"enable_secure_boot,omitempty"`
 
 	// The URL for this instance template.
 	Href *string `json:"href" validate:"required"`
@@ -75975,9 +76557,6 @@ type InstanceTemplateInstanceBySourceSnapshotInstanceTemplateContext struct {
 
 	// The name for this instance template. The name is unique across all instance templates in the region.
 	Name *string `json:"name" validate:"required"`
-
-	// The additional network interfaces to create for the virtual server instance.
-	NetworkInterfaces []NetworkInterfacePrototype `json:"network_interfaces,omitempty"`
 
 	// The placement restrictions to use for the virtual server instance.
 	PlacementTarget InstancePlacementTargetPrototypeIntf `json:"placement_target,omitempty"`
@@ -76005,15 +76584,28 @@ type InstanceTemplateInstanceBySourceSnapshotInstanceTemplateContext struct {
 	// instance's network interfaces.
 	VPC VPCIdentityIntf `json:"vpc,omitempty"`
 
-	// The boot volume attachment for the virtual server instance.
+	// The boot volume attachment to create for the virtual server instance.
 	BootVolumeAttachment *VolumeAttachmentPrototypeInstanceBySourceSnapshotContext `json:"boot_volume_attachment" validate:"required"`
 
-	// Primary network interface.
+	// The additional network interfaces to create for the virtual server instance.
+	NetworkInterfaces []NetworkInterfacePrototype `json:"network_interfaces,omitempty"`
+
+	// The primary network interface to create for the virtual server instance.
 	PrimaryNetworkInterface *NetworkInterfacePrototype `json:"primary_network_interface,omitempty"`
 
 	// The zone this virtual server instance will reside in.
 	Zone ZoneIdentityIntf `json:"zone" validate:"required"`
 }
+
+// Constants associated with the InstanceTemplateInstanceBySourceSnapshotInstanceTemplateContext.ConfidentialComputeMode property.
+// The confidential compute mode to use for this virtual server instance.
+//
+// If unspecified, the default confidential compute mode from the profile will be used.
+const (
+	InstanceTemplateInstanceBySourceSnapshotInstanceTemplateContextConfidentialComputeModeDisabledConst = "disabled"
+	InstanceTemplateInstanceBySourceSnapshotInstanceTemplateContextConfidentialComputeModeSgxConst      = "sgx"
+	InstanceTemplateInstanceBySourceSnapshotInstanceTemplateContextConfidentialComputeModeTdxConst      = "tdx"
+)
 
 func (*InstanceTemplateInstanceBySourceSnapshotInstanceTemplateContext) isaInstanceTemplate() bool {
 	return true
@@ -76026,6 +76618,10 @@ func UnmarshalInstanceTemplateInstanceBySourceSnapshotInstanceTemplateContext(m 
 	if err != nil {
 		return
 	}
+	err = core.UnmarshalPrimitive(m, "confidential_compute_mode", &obj.ConfidentialComputeMode)
+	if err != nil {
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "created_at", &obj.CreatedAt)
 	if err != nil {
 		return
@@ -76035,6 +76631,10 @@ func UnmarshalInstanceTemplateInstanceBySourceSnapshotInstanceTemplateContext(m 
 		return
 	}
 	err = core.UnmarshalModel(m, "default_trusted_profile", &obj.DefaultTrustedProfile, UnmarshalInstanceDefaultTrustedProfilePrototype)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "enable_secure_boot", &obj.EnableSecureBoot)
 	if err != nil {
 		return
 	}
@@ -76055,10 +76655,6 @@ func UnmarshalInstanceTemplateInstanceBySourceSnapshotInstanceTemplateContext(m 
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "network_interfaces", &obj.NetworkInterfaces, UnmarshalNetworkInterfacePrototype)
 	if err != nil {
 		return
 	}
@@ -76091,6 +76687,10 @@ func UnmarshalInstanceTemplateInstanceBySourceSnapshotInstanceTemplateContext(m 
 		return
 	}
 	err = core.UnmarshalModel(m, "boot_volume_attachment", &obj.BootVolumeAttachment, UnmarshalVolumeAttachmentPrototypeInstanceBySourceSnapshotContext)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "network_interfaces", &obj.NetworkInterfaces, UnmarshalNetworkInterfacePrototype)
 	if err != nil {
 		return
 	}
