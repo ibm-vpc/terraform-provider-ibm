@@ -544,6 +544,9 @@ func isWaitForVPNServerStable(context context.Context, sess *vpcv1.VpcV1, d *sch
 			vpnServer, response, err := sess.GetVPNServerWithContext(context, getVPNServerOptions)
 			if err != nil {
 				log.Printf("[DEBUG] GetVPNServerWithContext failed %s\n%s", err, response)
+				if strings.Contains(err.Error(), "context deadline exceeded") {
+					return vpnServer, isVPNServerStatusPending, nil
+				}
 				return vpnServer, "", fmt.Errorf("[ERROR] Error Getting VPC Server: %s\n%s", err, response)
 			}
 
