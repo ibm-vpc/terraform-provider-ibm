@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"log"
 	"net"
-	"strconv"
 	"strings"
 	"time"
 
@@ -83,9 +82,9 @@ func ResourceIBMISLBPoolMembers() *schema.Resource {
 				Description: "Load balancer ID",
 			},
 			isLBPoolMembers: {
-				Type:     schema.TypeSet,
+				Type:     schema.TypeList,
 				Required: true,
-				Set:      resourceIBMIsLBPoolMembersHash,
+				//Set:      resourceIBMIsLBPoolMembersHash,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						isLBPoolMembersPort: {
@@ -179,9 +178,9 @@ func resourceIBMISLBPoolMembersCreate(d *schema.ResourceData, meta interface{}) 
 	}
 
 	membersSet := d.Get(isLBPoolMembers)
-	membersList := membersSet.(*schema.Set).List()
+	//membersList := membersSet.(*schema.Set).List()
 	members := []vpcv1.LoadBalancerPoolMemberPrototype{}
-	for i, a := range membersList {
+	for i, a := range membersSet.([]interface{}) {
 		memberItem := a.(map[string]interface{})
 		var member = vpcv1.LoadBalancerPoolMemberPrototype{}
 		port := int64(memberItem["port"].(int))
@@ -249,8 +248,8 @@ func resourceIBMISLBPoolMembersCreate(d *schema.ResourceData, meta interface{}) 
 		log.Println("set data member: ", memberItem["member"].(string))
 		log.Println("set data target: ", memberItem["target"].(string))
 	}
-	if err := d.Set(isLBPoolMembers, schema.NewSet(resourceIBMIsLBPoolMembersHash,
-		membersIntfList)); err != nil {
+	if err := d.Set(isLBPoolMembers,
+		membersIntfList); err != nil {
 		return fmt.Errorf("[ERROR] Error setting members: %s", err)
 	}
 
@@ -347,10 +346,10 @@ func resourceIBMISLBPoolMembersRead(d *schema.ResourceData, meta interface{}) er
 	}
 	//lbPoolMemID := parts[2]
 	membersSet := d.Get(isLBPoolMembers)
-	membersList := membersSet.(*schema.Set).List()
+	//membersList := membersSet.(*schema.Set).List()
 	//members := []vpcv1.LoadBalancerPoolMemberPrototype{}
-	membersIntfList := make([]interface{}, 0, len(membersList))
-	for _, a := range membersList {
+	membersIntfList := make([]interface{}, 0, len(membersSet.([]interface{})))
+	for _, a := range membersSet.([]interface{}) {
 		memberItem := a.(map[string]interface{})
 		//var member = &vpcv1.LoadBalancerPoolMemberPrototype{}
 		memberID := memberItem["member"].(string)
@@ -439,96 +438,88 @@ func lbpmembersUpdate(d *schema.ResourceData, meta interface{}, lbID, lbPoolID s
 
 	if d.HasChanges(isLBPoolMembers) {
 		membersSet := d.Get(isLBPoolMembers)
-		membersList := membersSet.(*schema.Set).List()
+		//membersList := membersSet.(*schema.Set).List()
 
 		//count := len(members.([]interface{}))
 		isLBKey := "load_balancer_key_" + lbID
 		conns.IbmMutexKV.Lock(isLBKey)
 		defer conns.IbmMutexKV.Unlock(isLBKey)
-
-		for i, memberIntf := range membersList {
-			member := memberIntf.(map[string]interface{})
-			hasChange := false
-			memberId := member["member"].(string)
-			port := member["port"].(int)
-			log.Println("Update: member id", memberId)
-			log.Println("Update: port", port)
-			_, err = isWaitForLBPoolActive(sess, lbID, lbPoolID, d.Timeout(schema.TimeoutUpdate))
-			if err != nil {
-				return fmt.Errorf(
-					"Error checking for load balancer pool (%s) is active: %s", lbPoolID, err)
+		replaceLBPoolMembersOptions := &vpcv1.ReplaceLoadBalancerPoolMembersOptions{
+			LoadBalancerID: &lbID,
+			PoolID:         &lbPoolID,
+		}
+		members := []vpcv1.LoadBalancerPoolMemberPrototype{}
+		for i, a := range membersSet.([]interface{}) {
+			memberItem := a.(map[string]interface{})
+			var member = vpcv1.LoadBalancerPoolMemberPrototype{}
+			port := int64(memberItem["port"].(int))
+			target := memberItem["target"].(string)
+			weight := int64(memberItem["weight"].(int))
+			member.Port = &port
+			if net.ParseIP(target) == nil {
+				member.Target = &vpcv1.LoadBalancerPoolMemberTargetPrototypeInstanceIdentity{
+					ID: &target,
+				}
+			} else {
+				member.Target = &vpcv1.LoadBalancerPoolMemberTargetPrototypeIP{
+					Address: &target,
+				}
 			}
+			if w, ok := d.GetOkExists(isLBPoolMembers + "." + fmt.Sprint(i) + "." + isLBPoolMembersWeight); ok {
+				weight = int64(w.(int))
+				member.Weight = &weight
+			}
+			members = append(members, member)
+		}
+		replaceLBPoolMembersOptions.Members = members
 
-			_, err = isWaitForLBPoolMemberAvailable(sess, lbID, lbPoolID, memberId, d.Timeout(schema.TimeoutUpdate))
+		_, err = isWaitForLBPoolActive(sess, lbID, lbPoolID, d.Timeout(schema.TimeoutCreate))
+		if err != nil {
+			return fmt.Errorf("[ERROR] Error checking for load balancer pool (%s) is active: %s", lbPoolID, err)
+		}
+
+		_, err = isWaitForLBAvailable(sess, lbID, d.Timeout(schema.TimeoutCreate))
+		if err != nil {
+			return fmt.Errorf("[ERROR] Error checking for load balancer (%s) is active: %s", lbID, err)
+		}
+		lbPoolMembers, response, err := sess.ReplaceLoadBalancerPoolMembers(replaceLBPoolMembersOptions)
+		if err != nil {
+			return fmt.Errorf("[DEBUG] lbpool members replace err: %s\n%s", err, response)
+		}
+
+		d.SetId(fmt.Sprintf("%s/%s/%s", lbID, lbPoolID, *lbPoolMembers.Members[0].ID))
+		//log.Printf("[INFO] lbpool member : %s", *lbPoolMembers.ID)
+
+		membersIntfList := make([]interface{}, 0, len(lbPoolMembers.Members))
+		for _, member := range lbPoolMembers.Members {
+			log.Println("calling refresh for pool member id ", *member.ID)
+			_, err = isWaitForLBPoolMembersAvailable(sess, lbID, lbPoolID, *member.ID, d.Timeout(schema.TimeoutCreate))
 			if err != nil {
 				return err
 			}
-
-			_, err = isWaitForLBAvailable(sess, lbID, d.Timeout(schema.TimeoutUpdate))
+			log.Println("calling get for pool member id ", *member.ID)
+			memberMap, err := lbpmembersGet(d, meta, lbID, lbPoolID, *member.ID)
 			if err != nil {
-				return fmt.Errorf(
-					"Error checking for load balancer (%s) is active: %s", lbID, err)
+				return err
 			}
-			updatelbpmoptions := &vpcv1.UpdateLoadBalancerPoolMemberOptions{
-				LoadBalancerID: &lbID,
-				PoolID:         &lbPoolID,
-				ID:             &memberId,
-			}
-
-			loadBalancerPoolMembersPatchModel := &vpcv1.LoadBalancerPoolMemberPatch{}
-			if d.HasChanges(isLBPoolMembers + "." + strconv.Itoa(i) + "target") {
-				target := member["target"].(string)
-				if net.ParseIP(target) == nil {
-					loadBalancerPoolMembersPatchModel.Target = &vpcv1.LoadBalancerPoolMemberTargetPrototypeInstanceIdentity{
-						ID: &target,
-					}
-				} else {
-					loadBalancerPoolMembersPatchModel.Target = &vpcv1.LoadBalancerPoolMemberTargetPrototypeIP{
-						Address: &target,
-					}
-				}
-				hasChange = true
-			}
-			if d.HasChanges(isLBPoolMembers + "." + strconv.Itoa(i) + "weight") {
-				weight := int64(member["weight"].(int))
-				loadBalancerPoolMembersPatchModel.Weight = &weight
-				hasChange = true
-			}
-			if d.HasChanges(isLBPoolMembers + "." + strconv.Itoa(i) + "port") {
-				port := int64(member["port"].(int))
-				loadBalancerPoolMembersPatchModel.Port = &port
-				hasChange = true
-			}
-			if hasChange {
-				loadBalancerPoolMembersPatch, err := loadBalancerPoolMembersPatchModel.AsPatch()
-				if err != nil {
-					return fmt.Errorf("[ERROR] Error calling asPatch for LoadBalancerPoolMembersPatch: %s", err)
-				}
-				updatelbpmoptions.LoadBalancerPoolMemberPatch = loadBalancerPoolMembersPatch
-
-				_, response, err := sess.UpdateLoadBalancerPoolMember(updatelbpmoptions)
-				if err != nil {
-					return fmt.Errorf("[ERROR] Error Updating Load Balancer Pool Members: %s\n%s", err, response)
-				}
-				_, err = isWaitForLBPoolMembersAvailable(sess, lbID, lbPoolID, memberId, d.Timeout(schema.TimeoutCreate))
-				if err != nil {
-					return err
-				}
-
-				_, err = isWaitForLBPoolActive(sess, lbID, lbPoolID, d.Timeout(schema.TimeoutUpdate))
-				if err != nil {
-					return fmt.Errorf(
-						"Error checking for load balancer pool (%s) is active: %s", lbPoolID, err)
-				}
-
-				_, err = isWaitForLBAvailable(sess, lbID, d.Timeout(schema.TimeoutUpdate))
-				if err != nil {
-					return fmt.Errorf(
-						"Error checking for load balancer (%s) is active: %s", lbID, err)
-				}
-			}
+			log.Println("after calling get for pool member id ", memberMap["member"].(string))
+			membersIntfList = append(membersIntfList, memberMap)
 		}
 
+		if err := d.Set(isLBPoolMembers,
+			membersIntfList); err != nil {
+			return fmt.Errorf("[ERROR] Error setting members: %s", err)
+		}
+
+		_, err = isWaitForLBPoolActive(sess, lbID, lbPoolID, d.Timeout(schema.TimeoutCreate))
+		if err != nil {
+			return fmt.Errorf("[ERROR] Error checking for load balancer pool (%s) is active: %s", lbPoolID, err)
+		}
+
+		_, err = isWaitForLBAvailable(sess, lbID, d.Timeout(schema.TimeoutCreate))
+		if err != nil {
+			return fmt.Errorf("[ERROR] Error checking for load balancer (%s) is active: %s", lbID, err)
+		}
 	}
 	// 	port := int64(d.Get(isLBPoolMembersPort).(int))
 	// 	weight := int64(d.Get(isLBPoolMembersWeight).(int))
