@@ -88,9 +88,10 @@ func ResourceIBMISLBPoolMembers() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						isLBPoolMembersPort: {
-							Type:        schema.TypeInt,
-							Required:    true,
-							Description: "Load Balancer Pool port",
+							Type:         schema.TypeInt,
+							Required:     true,
+							ValidateFunc: validate.InvokeValidator("ibm_is_lb_pool_members", isLBPoolMembersPort),
+							Description:  "Load Balancer Pool port",
 						},
 						isLBPoolMembersTarget: {
 							Type:        schema.TypeString,
@@ -100,8 +101,8 @@ func ResourceIBMISLBPoolMembers() *schema.Resource {
 						isLBPoolMembersWeight: {
 							Type:         schema.TypeInt,
 							Optional:     true,
-							Computed:     true,
-							ValidateFunc: validate.InvokeValidator("ibm_is_lb_pool_member", isLBPoolMembersWeight),
+							Default:      50,
+							ValidateFunc: validate.InvokeValidator("ibm_is_lb_pool_members", isLBPoolMembersWeight),
 							Description:  "Load balcner pool member weight",
 						},
 						isLBPoolMembersProvisioningStatus: {
@@ -155,8 +156,16 @@ func ResourceIBMISLBPoolMembersValidator() *validate.ResourceValidator {
 			Optional:                   true,
 			MinValue:                   "0",
 			MaxValue:                   "100"})
+	validateSchema = append(validateSchema,
+		validate.ValidateSchema{
+			Identifier:                 isLBPoolMembersPort,
+			ValidateFunctionIdentifier: validate.IntBetween,
+			Type:                       validate.TypeInt,
+			Optional:                   true,
+			MinValue:                   "1",
+			MaxValue:                   "65535"})
 
-	ibmISLBResourceValidator := validate.ResourceValidator{ResourceName: "ibm_is_lb_pool_member", Schema: validateSchema}
+	ibmISLBResourceValidator := validate.ResourceValidator{ResourceName: "ibm_is_lb_pool_members", Schema: validateSchema}
 	return &ibmISLBResourceValidator
 }
 
@@ -180,13 +189,14 @@ func resourceIBMISLBPoolMembersCreate(d *schema.ResourceData, meta interface{}) 
 	membersSet := d.Get(isLBPoolMembers)
 	membersList := membersSet.(*schema.Set).List()
 	members := []vpcv1.LoadBalancerPoolMemberPrototype{}
-	for i, a := range membersList {
+	for _, a := range membersList {
 		memberItem := a.(map[string]interface{})
 		var member = vpcv1.LoadBalancerPoolMemberPrototype{}
 		port := int64(memberItem["port"].(int))
 		target := memberItem["target"].(string)
 		weight := int64(memberItem["weight"].(int))
 		member.Port = &port
+		member.Weight = &weight
 		if net.ParseIP(target) == nil {
 			member.Target = &vpcv1.LoadBalancerPoolMemberTargetPrototypeInstanceIdentity{
 				ID: &target,
@@ -195,10 +205,6 @@ func resourceIBMISLBPoolMembersCreate(d *schema.ResourceData, meta interface{}) 
 			member.Target = &vpcv1.LoadBalancerPoolMemberTargetPrototypeIP{
 				Address: &target,
 			}
-		}
-		if w, ok := d.GetOkExists(isLBPoolMembers + "." + fmt.Sprint(i) + "." + isLBPoolMembersWeight); ok {
-			weight = int64(w.(int))
-			member.Weight = &weight
 		}
 		members = append(members, member)
 	}
