@@ -229,7 +229,6 @@ func resourceIBMISLBPoolMembersCreate(d *schema.ResourceData, meta interface{}) 
 	}
 
 	d.SetId(fmt.Sprintf("%s/%s/%s", lbID, lbPoolID, *lbPoolMembers.Members[0].ID))
-	//log.Printf("[INFO] lbpool member : %s", *lbPoolMembers.ID)
 
 	membersIntfList := make([]interface{}, 0, len(lbPoolMembers.Members))
 	for _, member := range lbPoolMembers.Members {
