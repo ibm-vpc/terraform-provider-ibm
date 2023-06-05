@@ -20,28 +20,29 @@ import (
 )
 
 const (
-	isVirtualEndpointGatewayName               = "name"
-	isVirtualEndpointGatewayResourceType       = "resource_type"
-	isVirtualEndpointGatewayCRN                = "crn"
-	isVirtualEndpointGatewayResourceGroupID    = "resource_group"
-	isVirtualEndpointGatewayCreatedAt          = "created_at"
-	isVirtualEndpointGatewayIPs                = "ips"
-	isVirtualEndpointGatewayIPsID              = "id"
-	isVirtualEndpointGatewayIPsAddress         = "address"
-	isVirtualEndpointGatewayIPsName            = "name"
-	isVirtualEndpointGatewayIPsSubnet          = "subnet"
-	isVirtualEndpointGatewayIPsResourceType    = "resource_type"
-	isVirtualEndpointGatewayHealthState        = "health_state"
-	isVirtualEndpointGatewayLifecycleState     = "lifecycle_state"
-	isVirtualEndpointGatewayTarget             = "target"
-	isVirtualEndpointGatewayTargetName         = "name"
-	isVirtualEndpointGatewayTargetCRN          = "crn"
-	isVirtualEndpointGatewayTargetResourceType = "resource_type"
-	isVirtualEndpointGatewayVpcID              = "vpc"
-	isVirtualEndpointGatewayTags               = "tags"
-	isVirtualEndpointGatewaySecurityGroups     = "security_groups"
-	isVirtualEndpointGatewayServiceEndpoints   = "service_endpoints"
-	isVirtualEndpointGatewayAccessTags         = "access_tags"
+	isVirtualEndpointGatewayName                      = "name"
+	isVirtualEndpointGatewayResourceType              = "resource_type"
+	isVirtualEndpointGatewayCRN                       = "crn"
+	isVirtualEndpointGatewayResourceGroupID           = "resource_group"
+	isVirtualEndpointGatewayCreatedAt                 = "created_at"
+	isVirtualEndpointGatewayIPs                       = "ips"
+	isVirtualEndpointGatewayIPsID                     = "id"
+	isVirtualEndpointGatewayIPsAddress                = "address"
+	isVirtualEndpointGatewayIPsName                   = "name"
+	isVirtualEndpointGatewayIPsSubnet                 = "subnet"
+	isVirtualEndpointGatewayIPsResourceType           = "resource_type"
+	isVirtualEndpointGatewayHealthState               = "health_state"
+	isVirtualEndpointGatewayLifecycleState            = "lifecycle_state"
+	isVirtualEndpointGatewayTarget                    = "target"
+	isVirtualEndpointGatewayTargetName                = "name"
+	isVirtualEndpointGatewayTargetCRN                 = "crn"
+	isVirtualEndpointGatewayTargetResourceType        = "resource_type"
+	isVirtualEndpointGatewayVpcID                     = "vpc"
+	isVirtualEndpointGatewayTags                      = "tags"
+	isVirtualEndpointGatewaySecurityGroups            = "security_groups"
+	isVirtualEndpointGatewayServiceEndpoints          = "service_endpoints"
+	isVirtualEndpointGatewayAccessTags                = "access_tags"
+	isVirtualEndpointGatewayAllowDnsResolutionBinding = "allow_dns_resolution_binding"
 )
 
 func ResourceIBMISEndpointGateway() *schema.Resource {
@@ -210,6 +211,12 @@ func ResourceIBMISEndpointGateway() *schema.Resource {
 				ForceNew:    true,
 				Description: "The VPC id",
 			},
+			isVirtualEndpointGatewayAllowDnsResolutionBinding: {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Computed:    true,
+				Description: "ndicates whether to allow this endpoint gateway to participate in DNS resolution bindings with a VPC that has dns.enable_hub set to true.",
+			},
 			isVirtualEndpointGatewayTags: {
 				Type:        schema.TypeSet,
 				Optional:    true,
@@ -333,6 +340,11 @@ func resourceIBMisVirtualEndpointGatewayCreate(d *schema.ResourceData, meta inte
 		}
 		opt.SetResourceGroup(resourceGroupOpt)
 
+	}
+	// dns resolution binding change
+	if allowDnsResolutionBindingOk, ok = d.GetOk(isVirtualEndpointGatewayAllowDnsResolutionBinding); ok {
+		allowDnsResolutionBinding := allowDnsResolutionBindingOk.(bool)
+		opt.AllowDnsResolutionBinding = &allowDnsResolutionBinding
 	}
 	endpointGateway, response, err := sess.CreateEndpointGateway(opt)
 	if err != nil {
