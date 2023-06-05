@@ -37,7 +37,7 @@ import (
 // VpcV1 : The IBM Cloud Virtual Private Cloud (VPC) API can be used to programmatically provision and manage virtual
 // server instances, along with subnets, volumes, load balancers, and more.
 //
-// API Version: 2022-09-13
+// API Version: today
 type VpcV1 struct {
 	Service *core.BaseService
 
@@ -46,7 +46,7 @@ type VpcV1 struct {
 	generation *int64
 
 	// The API version, in format `YYYY-MM-DD`. For the API behavior documented here, specify any date between `2022-09-13`
-	// and `2023-05-25`.
+	// and `2023-06-01`.
 	Version *string
 }
 
@@ -63,7 +63,7 @@ type VpcV1Options struct {
 	Authenticator core.Authenticator
 
 	// The API version, in format `YYYY-MM-DD`. For the API behavior documented here, specify any date between `2022-09-13`
-	// and `2023-05-25`.
+	// and `2023-06-01`.
 	Version *string
 }
 
@@ -296,6 +296,9 @@ func (vpc *VpcV1) CreateVPCWithContext(ctx context.Context, createVPCOptions *Cr
 	if createVPCOptions.ClassicAccess != nil {
 		body["classic_access"] = createVPCOptions.ClassicAccess
 	}
+	if createVPCOptions.Dns != nil {
+		body["dns"] = createVPCOptions.Dns
+	}
 	if createVPCOptions.Name != nil {
 		body["name"] = createVPCOptions.Name
 	}
@@ -329,10 +332,16 @@ func (vpc *VpcV1) CreateVPCWithContext(ctx context.Context, createVPCOptions *Cr
 }
 
 // DeleteVPC : Delete a VPC
-// This request deletes a VPC. This operation cannot be reversed. For this request to succeed, the VPC must not contain
-// any instances, subnets, public gateways, or endpoint gateways. All security groups and network ACLs associated with
-// the VPC are automatically deleted. All flow log collectors with `auto_delete` set to `true` targeting the VPC or any
-// resource in the VPC are automatically deleted.
+// This request deletes a VPC. This operation cannot be reversed.
+//
+// For this request to succeed:
+//   - Instances, subnets, public gateways, and endpoint gateways must not be associated
+//     with this VPC
+//   - The VPC must not be providing DNS resolution for any other VPCs
+//   - If `dns.enable_hub` is `true`, `dns.resolution_binding_count` must be zero
+//
+// All security groups and network ACLs associated with the VPC are automatically deleted. All flow log collectors with
+// `auto_delete` set to `true` targeting the VPC or any resource in the VPC are automatically deleted.
 func (vpc *VpcV1) DeleteVPC(deleteVPCOptions *DeleteVPCOptions) (response *core.DetailedResponse, err error) {
 	return vpc.DeleteVPCWithContext(context.Background(), deleteVPCOptions)
 }
@@ -367,6 +376,9 @@ func (vpc *VpcV1) DeleteVPCWithContext(ctx context.Context, deleteVPCOptions *De
 	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteVPC")
 	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
+	}
+	if deleteVPCOptions.IfMatch != nil {
+		builder.AddHeader("If-Match", fmt.Sprint(*deleteVPCOptions.IfMatch))
 	}
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
@@ -485,6 +497,9 @@ func (vpc *VpcV1) UpdateVPCWithContext(ctx context.Context, updateVPCOptions *Up
 	}
 	builder.AddHeader("Accept", "application/json")
 	builder.AddHeader("Content-Type", "application/merge-patch+json")
+	if updateVPCOptions.IfMatch != nil {
+		builder.AddHeader("If-Match", fmt.Sprint(*updateVPCOptions.IfMatch))
+	}
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
@@ -1039,6 +1054,365 @@ func (vpc *VpcV1) UpdateVPCAddressPrefixWithContext(ctx context.Context, updateV
 	}
 	if rawResponse != nil {
 		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalAddressPrefix)
+		if err != nil {
+			return
+		}
+		response.Result = result
+	}
+
+	return
+}
+
+// ListVPCDnsResolutionBindings : List all DNS resolution bindings for a VPC
+// This request lists all DNS resolution bindings for a VPC. A DNS resolution binding represents an association with
+// another VPC for centralizing and delegating DNS name resolution.
+func (vpc *VpcV1) ListVPCDnsResolutionBindings(listVPCDnsResolutionBindingsOptions *ListVPCDnsResolutionBindingsOptions) (result *VpcdnsResolutionBindingCollection, response *core.DetailedResponse, err error) {
+	return vpc.ListVPCDnsResolutionBindingsWithContext(context.Background(), listVPCDnsResolutionBindingsOptions)
+}
+
+// ListVPCDnsResolutionBindingsWithContext is an alternate form of the ListVPCDnsResolutionBindings method which supports a Context parameter
+func (vpc *VpcV1) ListVPCDnsResolutionBindingsWithContext(ctx context.Context, listVPCDnsResolutionBindingsOptions *ListVPCDnsResolutionBindingsOptions) (result *VpcdnsResolutionBindingCollection, response *core.DetailedResponse, err error) {
+	err = core.ValidateNotNil(listVPCDnsResolutionBindingsOptions, "listVPCDnsResolutionBindingsOptions cannot be nil")
+	if err != nil {
+		return
+	}
+	err = core.ValidateStruct(listVPCDnsResolutionBindingsOptions, "listVPCDnsResolutionBindingsOptions")
+	if err != nil {
+		return
+	}
+
+	pathParamsMap := map[string]string{
+		"vpc_identifier": *listVPCDnsResolutionBindingsOptions.VPCIdentifier,
+	}
+
+	builder := core.NewRequestBuilder(core.GET)
+	builder = builder.WithContext(ctx)
+	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
+	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/vpcs/{vpc_id}/dns_resolution_bindings`, pathParamsMap)
+	if err != nil {
+		return
+	}
+
+	for headerName, headerValue := range listVPCDnsResolutionBindingsOptions.Headers {
+		builder.AddHeader(headerName, headerValue)
+	}
+
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVPCDnsResolutionBindings")
+	for headerName, headerValue := range sdkHeaders {
+		builder.AddHeader(headerName, headerValue)
+	}
+	builder.AddHeader("Accept", "application/json")
+
+	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
+	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
+	if listVPCDnsResolutionBindingsOptions.Sort != nil {
+		builder.AddQuery("sort", fmt.Sprint(*listVPCDnsResolutionBindingsOptions.Sort))
+	}
+	if listVPCDnsResolutionBindingsOptions.Start != nil {
+		builder.AddQuery("start", fmt.Sprint(*listVPCDnsResolutionBindingsOptions.Start))
+	}
+	if listVPCDnsResolutionBindingsOptions.Limit != nil {
+		builder.AddQuery("limit", fmt.Sprint(*listVPCDnsResolutionBindingsOptions.Limit))
+	}
+	if listVPCDnsResolutionBindingsOptions.Name != nil {
+		builder.AddQuery("name", fmt.Sprint(*listVPCDnsResolutionBindingsOptions.Name))
+	}
+	if listVPCDnsResolutionBindingsOptions.VPCID != nil {
+		builder.AddQuery("vpc.id", fmt.Sprint(*listVPCDnsResolutionBindingsOptions.VPCID))
+	}
+	if listVPCDnsResolutionBindingsOptions.VPCCRN != nil {
+		builder.AddQuery("vpc.crn", fmt.Sprint(*listVPCDnsResolutionBindingsOptions.VPCCRN))
+	}
+	if listVPCDnsResolutionBindingsOptions.VPCName != nil {
+		builder.AddQuery("vpc.name", fmt.Sprint(*listVPCDnsResolutionBindingsOptions.VPCName))
+	}
+	if listVPCDnsResolutionBindingsOptions.AccountID != nil {
+		builder.AddQuery("account.id", fmt.Sprint(*listVPCDnsResolutionBindingsOptions.AccountID))
+	}
+
+	request, err := builder.Build()
+	if err != nil {
+		return
+	}
+
+	var rawResponse map[string]json.RawMessage
+	response, err = vpc.Service.Request(request, &rawResponse)
+	if err != nil {
+		return
+	}
+	if rawResponse != nil {
+		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalVpcdnsResolutionBindingCollection)
+		if err != nil {
+			return
+		}
+		response.Result = result
+	}
+
+	return
+}
+
+// CreateVPCDnsResolutionBinding : Create a DNS resolution binding
+// This request creates a new DNS resolution binding from a DNS resolution binding prototype object. The prototype
+// object is structured in the same way as a retrieved DNS resolution binding, and contains the information necessary to
+// create the new DNS resolution binding.
+//
+// For this request to succeed, `dns.enable_hub` must be `false` for the VPC specified by the identifier in the URL. See
+// [Configuring DNS](https://cloud.ibm.com/docs/vpc?topic=vpc-dns-configuration#__TBD__) for more information.
+func (vpc *VpcV1) CreateVPCDnsResolutionBinding(createVPCDnsResolutionBindingOptions *CreateVPCDnsResolutionBindingOptions) (result *VpcdnsResolutionBinding, response *core.DetailedResponse, err error) {
+	return vpc.CreateVPCDnsResolutionBindingWithContext(context.Background(), createVPCDnsResolutionBindingOptions)
+}
+
+// CreateVPCDnsResolutionBindingWithContext is an alternate form of the CreateVPCDnsResolutionBinding method which supports a Context parameter
+func (vpc *VpcV1) CreateVPCDnsResolutionBindingWithContext(ctx context.Context, createVPCDnsResolutionBindingOptions *CreateVPCDnsResolutionBindingOptions) (result *VpcdnsResolutionBinding, response *core.DetailedResponse, err error) {
+	err = core.ValidateNotNil(createVPCDnsResolutionBindingOptions, "createVPCDnsResolutionBindingOptions cannot be nil")
+	if err != nil {
+		return
+	}
+	err = core.ValidateStruct(createVPCDnsResolutionBindingOptions, "createVPCDnsResolutionBindingOptions")
+	if err != nil {
+		return
+	}
+
+	pathParamsMap := map[string]string{
+		"vpc_identifier": *createVPCDnsResolutionBindingOptions.VPCIdentifier,
+	}
+
+	builder := core.NewRequestBuilder(core.POST)
+	builder = builder.WithContext(ctx)
+	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
+	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/vpcs/{vpc_id}/dns_resolution_bindings`, pathParamsMap)
+	if err != nil {
+		return
+	}
+
+	for headerName, headerValue := range createVPCDnsResolutionBindingOptions.Headers {
+		builder.AddHeader(headerName, headerValue)
+	}
+
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateVPCDnsResolutionBinding")
+	for headerName, headerValue := range sdkHeaders {
+		builder.AddHeader(headerName, headerValue)
+	}
+	builder.AddHeader("Accept", "application/json")
+	builder.AddHeader("Content-Type", "application/json")
+
+	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
+	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
+
+	body := make(map[string]interface{})
+	if createVPCDnsResolutionBindingOptions.VPC != nil {
+		body["vpc"] = createVPCDnsResolutionBindingOptions.VPC
+	}
+	if createVPCDnsResolutionBindingOptions.Name != nil {
+		body["name"] = createVPCDnsResolutionBindingOptions.Name
+	}
+	_, err = builder.SetBodyContentJSON(body)
+	if err != nil {
+		return
+	}
+
+	request, err := builder.Build()
+	if err != nil {
+		return
+	}
+
+	var rawResponse map[string]json.RawMessage
+	response, err = vpc.Service.Request(request, &rawResponse)
+	if err != nil {
+		return
+	}
+	if rawResponse != nil {
+		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalVpcdnsResolutionBinding)
+		if err != nil {
+			return
+		}
+		response.Result = result
+	}
+
+	return
+}
+
+// DeleteVPCDnsResolutionBinding : Delete a DNS resolution binding
+// This request deletes a DNS resolution binding. This operation cannot be reversed.
+//
+// A DNS resolution binding for a VPC with `dns.enable_hub` set to `true` cannot be deleted.
+func (vpc *VpcV1) DeleteVPCDnsResolutionBinding(deleteVPCDnsResolutionBindingOptions *DeleteVPCDnsResolutionBindingOptions) (response *core.DetailedResponse, err error) {
+	return vpc.DeleteVPCDnsResolutionBindingWithContext(context.Background(), deleteVPCDnsResolutionBindingOptions)
+}
+
+// DeleteVPCDnsResolutionBindingWithContext is an alternate form of the DeleteVPCDnsResolutionBinding method which supports a Context parameter
+func (vpc *VpcV1) DeleteVPCDnsResolutionBindingWithContext(ctx context.Context, deleteVPCDnsResolutionBindingOptions *DeleteVPCDnsResolutionBindingOptions) (response *core.DetailedResponse, err error) {
+	err = core.ValidateNotNil(deleteVPCDnsResolutionBindingOptions, "deleteVPCDnsResolutionBindingOptions cannot be nil")
+	if err != nil {
+		return
+	}
+	err = core.ValidateStruct(deleteVPCDnsResolutionBindingOptions, "deleteVPCDnsResolutionBindingOptions")
+	if err != nil {
+		return
+	}
+
+	pathParamsMap := map[string]string{
+		"vpc_identifier": *deleteVPCDnsResolutionBindingOptions.VPCIdentifier,
+		"id":             *deleteVPCDnsResolutionBindingOptions.ID,
+	}
+
+	builder := core.NewRequestBuilder(core.DELETE)
+	builder = builder.WithContext(ctx)
+	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
+	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/vpcs/{vpc_id}/dns_resolution_bindings/{id}`, pathParamsMap)
+	if err != nil {
+		return
+	}
+
+	for headerName, headerValue := range deleteVPCDnsResolutionBindingOptions.Headers {
+		builder.AddHeader(headerName, headerValue)
+	}
+
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteVPCDnsResolutionBinding")
+	for headerName, headerValue := range sdkHeaders {
+		builder.AddHeader(headerName, headerValue)
+	}
+
+	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
+	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
+
+	request, err := builder.Build()
+	if err != nil {
+		return
+	}
+
+	response, err = vpc.Service.Request(request, nil)
+
+	return
+}
+
+// GetVPCDnsResolutionBinding : Retrieve a DNS resolution binding
+// This request retrieves a single DNS resolution binding specified by the identifier in the URL.
+func (vpc *VpcV1) GetVPCDnsResolutionBinding(getVPCDnsResolutionBindingOptions *GetVPCDnsResolutionBindingOptions) (result *VpcdnsResolutionBinding, response *core.DetailedResponse, err error) {
+	return vpc.GetVPCDnsResolutionBindingWithContext(context.Background(), getVPCDnsResolutionBindingOptions)
+}
+
+// GetVPCDnsResolutionBindingWithContext is an alternate form of the GetVPCDnsResolutionBinding method which supports a Context parameter
+func (vpc *VpcV1) GetVPCDnsResolutionBindingWithContext(ctx context.Context, getVPCDnsResolutionBindingOptions *GetVPCDnsResolutionBindingOptions) (result *VpcdnsResolutionBinding, response *core.DetailedResponse, err error) {
+	err = core.ValidateNotNil(getVPCDnsResolutionBindingOptions, "getVPCDnsResolutionBindingOptions cannot be nil")
+	if err != nil {
+		return
+	}
+	err = core.ValidateStruct(getVPCDnsResolutionBindingOptions, "getVPCDnsResolutionBindingOptions")
+	if err != nil {
+		return
+	}
+
+	pathParamsMap := map[string]string{
+		"vpc_identifier": *getVPCDnsResolutionBindingOptions.VPCIdentifier,
+		"id":             *getVPCDnsResolutionBindingOptions.ID,
+	}
+
+	builder := core.NewRequestBuilder(core.GET)
+	builder = builder.WithContext(ctx)
+	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
+	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/vpcs/{vpc_id}/dns_resolution_bindings/{id}`, pathParamsMap)
+	if err != nil {
+		return
+	}
+
+	for headerName, headerValue := range getVPCDnsResolutionBindingOptions.Headers {
+		builder.AddHeader(headerName, headerValue)
+	}
+
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVPCDnsResolutionBinding")
+	for headerName, headerValue := range sdkHeaders {
+		builder.AddHeader(headerName, headerValue)
+	}
+	builder.AddHeader("Accept", "application/json")
+
+	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
+	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
+
+	request, err := builder.Build()
+	if err != nil {
+		return
+	}
+
+	var rawResponse map[string]json.RawMessage
+	response, err = vpc.Service.Request(request, &rawResponse)
+	if err != nil {
+		return
+	}
+	if rawResponse != nil {
+		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalVpcdnsResolutionBinding)
+		if err != nil {
+			return
+		}
+		response.Result = result
+	}
+
+	return
+}
+
+// UpdateVPCDnsResolutionBinding : Update a DNS resolution binding
+// This request updates a DNS resolution binding with the information in a provided DNS resolution binding patch. The
+// DNS resolution binding patch object is structured in the same way as a retrieved DNS resolution binding and contains
+// only the information to be updated.
+func (vpc *VpcV1) UpdateVPCDnsResolutionBinding(updateVPCDnsResolutionBindingOptions *UpdateVPCDnsResolutionBindingOptions) (result *VpcdnsResolutionBinding, response *core.DetailedResponse, err error) {
+	return vpc.UpdateVPCDnsResolutionBindingWithContext(context.Background(), updateVPCDnsResolutionBindingOptions)
+}
+
+// UpdateVPCDnsResolutionBindingWithContext is an alternate form of the UpdateVPCDnsResolutionBinding method which supports a Context parameter
+func (vpc *VpcV1) UpdateVPCDnsResolutionBindingWithContext(ctx context.Context, updateVPCDnsResolutionBindingOptions *UpdateVPCDnsResolutionBindingOptions) (result *VpcdnsResolutionBinding, response *core.DetailedResponse, err error) {
+	err = core.ValidateNotNil(updateVPCDnsResolutionBindingOptions, "updateVPCDnsResolutionBindingOptions cannot be nil")
+	if err != nil {
+		return
+	}
+	err = core.ValidateStruct(updateVPCDnsResolutionBindingOptions, "updateVPCDnsResolutionBindingOptions")
+	if err != nil {
+		return
+	}
+
+	pathParamsMap := map[string]string{
+		"vpc_identifier": *updateVPCDnsResolutionBindingOptions.VPCIdentifier,
+		"id":             *updateVPCDnsResolutionBindingOptions.ID,
+	}
+
+	builder := core.NewRequestBuilder(core.PATCH)
+	builder = builder.WithContext(ctx)
+	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
+	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/vpcs/{vpc_id}/dns_resolution_bindings/{id}`, pathParamsMap)
+	if err != nil {
+		return
+	}
+
+	for headerName, headerValue := range updateVPCDnsResolutionBindingOptions.Headers {
+		builder.AddHeader(headerName, headerValue)
+	}
+
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateVPCDnsResolutionBinding")
+	for headerName, headerValue := range sdkHeaders {
+		builder.AddHeader(headerName, headerValue)
+	}
+	builder.AddHeader("Accept", "application/json")
+	builder.AddHeader("Content-Type", "application/merge-patch+json")
+
+	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
+	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
+
+	_, err = builder.SetBodyContentJSON(updateVPCDnsResolutionBindingOptions.VpcdnsResolutionBindingPatch)
+	if err != nil {
+		return
+	}
+
+	request, err := builder.Build()
+	if err != nil {
+		return
+	}
+
+	var rawResponse map[string]json.RawMessage
+	response, err = vpc.Service.Request(request, &rawResponse)
+	if err != nil {
+		return
+	}
+	if rawResponse != nil {
+		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalVpcdnsResolutionBinding)
 		if err != nil {
 			return
 		}
@@ -13462,13 +13836,13 @@ func (vpc *VpcV1) ListRegionZonesWithContext(ctx context.Context, listRegionZone
 	}
 
 	pathParamsMap := map[string]string{
-		"region_name": *listRegionZonesOptions.RegionName,
+		"name": *listRegionZonesOptions.Name,
 	}
 
 	builder := core.NewRequestBuilder(core.GET)
 	builder = builder.WithContext(ctx)
 	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
-	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/regions/{region_name}/zones`, pathParamsMap)
+	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/regions/{name}/zones`, pathParamsMap)
 	if err != nil {
 		return
 	}
@@ -21087,6 +21461,18 @@ func (vpc *VpcV1) ListEndpointGatewaysWithContext(ctx context.Context, listEndpo
 	if listEndpointGatewaysOptions.ResourceGroupID != nil {
 		builder.AddQuery("resource_group.id", fmt.Sprint(*listEndpointGatewaysOptions.ResourceGroupID))
 	}
+	if listEndpointGatewaysOptions.VPCID != nil {
+		builder.AddQuery("vpc.id", fmt.Sprint(*listEndpointGatewaysOptions.VPCID))
+	}
+	if listEndpointGatewaysOptions.VPCCRN != nil {
+		builder.AddQuery("vpc.crn", fmt.Sprint(*listEndpointGatewaysOptions.VPCCRN))
+	}
+	if listEndpointGatewaysOptions.VPCName != nil {
+		builder.AddQuery("vpc.name", fmt.Sprint(*listEndpointGatewaysOptions.VPCName))
+	}
+	if listEndpointGatewaysOptions.AllowDnsResolutionBinding != nil {
+		builder.AddQuery("allow_dns_resolution_binding", fmt.Sprint(*listEndpointGatewaysOptions.AllowDnsResolutionBinding))
+	}
 
 	request, err := builder.Build()
 	if err != nil {
@@ -21155,6 +21541,9 @@ func (vpc *VpcV1) CreateEndpointGatewayWithContext(ctx context.Context, createEn
 	}
 	if createEndpointGatewayOptions.VPC != nil {
 		body["vpc"] = createEndpointGatewayOptions.VPC
+	}
+	if createEndpointGatewayOptions.AllowDnsResolutionBinding != nil {
+		body["allow_dns_resolution_binding"] = createEndpointGatewayOptions.AllowDnsResolutionBinding
 	}
 	if createEndpointGatewayOptions.Ips != nil {
 		body["ips"] = createEndpointGatewayOptions.Ips
@@ -21986,6 +22375,36 @@ func (vpc *VpcV1) UpdateFlowLogCollectorWithContext(ctx context.Context, updateF
 		response.Result = result
 	}
 
+	return
+}
+
+// AccountReference : AccountReference struct
+type AccountReference struct {
+	// The unique identifier for this account.
+	ID *string `json:"id" validate:"required"`
+
+	// The resource type.
+	ResourceType *string `json:"resource_type" validate:"required"`
+}
+
+// Constants associated with the AccountReference.ResourceType property.
+// The resource type.
+const (
+	AccountReferenceResourceTypeAccountConst = "account"
+)
+
+// UnmarshalAccountReference unmarshals an instance of AccountReference from the specified map of raw messages.
+func UnmarshalAccountReference(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(AccountReference)
+	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
 	return
 }
 
@@ -26948,6 +27367,10 @@ type CreateEndpointGatewayOptions struct {
 	// The VPC this endpoint gateway will reside in.
 	VPC VPCIdentityIntf `json:"vpc" validate:"required"`
 
+	// Indicates whether to allow this endpoint gateway to participate in DNS resolution bindings with a VPC that has
+	// `dns.enable_hub` set to `true`.
+	AllowDnsResolutionBinding *bool `json:"allow_dns_resolution_binding,omitempty"`
+
 	// The reserved IPs to bind to this endpoint gateway. At most one reserved IP per zone is allowed.
 	Ips []EndpointGatewayReservedIPIntf `json:"ips,omitempty"`
 
@@ -26983,6 +27406,12 @@ func (_options *CreateEndpointGatewayOptions) SetTarget(target EndpointGatewayTa
 // SetVPC : Allow user to set VPC
 func (_options *CreateEndpointGatewayOptions) SetVPC(vpc VPCIdentityIntf) *CreateEndpointGatewayOptions {
 	_options.VPC = vpc
+	return _options
+}
+
+// SetAllowDnsResolutionBinding : Allow user to set AllowDnsResolutionBinding
+func (_options *CreateEndpointGatewayOptions) SetAllowDnsResolutionBinding(allowDnsResolutionBinding bool) *CreateEndpointGatewayOptions {
+	_options.AllowDnsResolutionBinding = core.BoolPtr(allowDnsResolutionBinding)
 	return _options
 }
 
@@ -29435,6 +29864,59 @@ func (options *CreateVPCAddressPrefixOptions) SetHeaders(param map[string]string
 	return options
 }
 
+// CreateVPCDnsResolutionBindingOptions : The CreateVPCDnsResolutionBinding options.
+type CreateVPCDnsResolutionBindingOptions struct {
+	// The VPC identifier.
+	VPCIdentifier *string `json:"vpc_identifier" validate:"required,ne="`
+
+	// Another VPC to bind this VPC to for DNS resolution. The VPC must have
+	// `dns.enable_hub` set to `true`, and may be in a different account (subject to
+	// IAM policies).
+	//
+	// Additionally, the VPC specified in the URL (this VPC) must have `dns.enable_hub`
+	// set to `false` and a `dns.resolution_binding_count` of zero.
+	VPC VPCIdentityIntf `json:"vpc" validate:"required"`
+
+	// The name for this DNS resolution binding. The name must not be used by another DNS resolution binding for the VPC.
+	// If unspecified, the name will be a hyphenated list of randomly-selected words.
+	Name *string `json:"name,omitempty"`
+
+	// Allows users to set headers on API requests
+	Headers map[string]string
+}
+
+// NewCreateVPCDnsResolutionBindingOptions : Instantiate CreateVPCDnsResolutionBindingOptions
+func (*VpcV1) NewCreateVPCDnsResolutionBindingOptions(vpcIdentifier string, vpc VPCIdentityIntf) *CreateVPCDnsResolutionBindingOptions {
+	return &CreateVPCDnsResolutionBindingOptions{
+		VPCIdentifier: core.StringPtr(vpcIdentifier),
+		VPC:           vpc,
+	}
+}
+
+// SetVPCIdentifier : Allow user to set VPCIdentifier
+func (_options *CreateVPCDnsResolutionBindingOptions) SetVPCIdentifier(vpcIdentifier string) *CreateVPCDnsResolutionBindingOptions {
+	_options.VPCIdentifier = core.StringPtr(vpcIdentifier)
+	return _options
+}
+
+// SetVPC : Allow user to set VPC
+func (_options *CreateVPCDnsResolutionBindingOptions) SetVPC(vpc VPCIdentityIntf) *CreateVPCDnsResolutionBindingOptions {
+	_options.VPC = vpc
+	return _options
+}
+
+// SetName : Allow user to set Name
+func (_options *CreateVPCDnsResolutionBindingOptions) SetName(name string) *CreateVPCDnsResolutionBindingOptions {
+	_options.Name = core.StringPtr(name)
+	return _options
+}
+
+// SetHeaders : Allow user to set Headers
+func (options *CreateVPCDnsResolutionBindingOptions) SetHeaders(param map[string]string) *CreateVPCDnsResolutionBindingOptions {
+	options.Headers = param
+	return options
+}
+
 // CreateVPCOptions : The CreateVPC options.
 type CreateVPCOptions struct {
 	// Indicates whether a [default address prefix](https://cloud.ibm.com/docs/vpc?topic=vpc-configuring-address-prefixes)
@@ -29449,6 +29931,12 @@ type CreateVPCOptions struct {
 	// private network connectivity to the account's Classic Infrastructure resources. Only one VPC, per region, may be
 	// connected in this way. This value is set at creation and subsequently immutable.
 	ClassicAccess *bool `json:"classic_access,omitempty"`
+
+	// The DNS configuration for this VPC.
+	//
+	// If unspecified, the system will assign DNS servers capable of resolving hosts and endpoint
+	// gateways within this VPC, and hosts on the internet.
+	Dns *VpcdnsPrototype `json:"dns,omitempty"`
 
 	// The name for this VPC. The name must not be used by another VPC in the region. If unspecified, the name will be a
 	// hyphenated list of randomly-selected words.
@@ -29488,6 +29976,12 @@ func (_options *CreateVPCOptions) SetAddressPrefixManagement(addressPrefixManage
 // SetClassicAccess : Allow user to set ClassicAccess
 func (_options *CreateVPCOptions) SetClassicAccess(classicAccess bool) *CreateVPCOptions {
 	_options.ClassicAccess = core.BoolPtr(classicAccess)
+	return _options
+}
+
+// SetDns : Allow user to set Dns
+func (_options *CreateVPCOptions) SetDns(dns *VpcdnsPrototype) *CreateVPCOptions {
+	_options.Dns = dns
 	return _options
 }
 
@@ -30210,6 +30704,102 @@ type DnsInstanceReference struct {
 func UnmarshalDnsInstanceReference(m map[string]json.RawMessage, result interface{}) (err error) {
 	obj := new(DnsInstanceReference)
 	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// DnsServer : A DNS server.
+type DnsServer struct {
+	// The IP address.
+	//
+	// This property may add support for IPv6 addresses in the future. When processing a value in this property, verify
+	// that the address is in an expected format. If it is not, log an error. Optionally halt processing and surface the
+	// error, or bypass the resource on which the unexpected IP address format was encountered.
+	Address *string `json:"address" validate:"required"`
+
+	// If present, DHCP configuration for this zone will have this DNS server listed first.
+	ZoneAffinity *ZoneReference `json:"zone_affinity,omitempty"`
+}
+
+// UnmarshalDnsServer unmarshals an instance of DnsServer from the specified map of raw messages.
+func UnmarshalDnsServer(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(DnsServer)
+	err = core.UnmarshalPrimitive(m, "address", &obj.Address)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "zone_affinity", &obj.ZoneAffinity, UnmarshalZoneReference)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// DnsServerPrototype : DnsServerPrototype struct
+type DnsServerPrototype struct {
+	// The IP address.
+	//
+	// This property may add support for IPv6 addresses in the future. When processing a value in this property, verify
+	// that the address is in an expected format. If it is not, log an error. Optionally halt processing and surface the
+	// error, or bypass the resource on which the unexpected IP address format was encountered.
+	Address *string `json:"address" validate:"required"`
+}
+
+// NewDnsServerPrototype : Instantiate DnsServerPrototype (Generic Model Constructor)
+func (*VpcV1) NewDnsServerPrototype(address string) (_model *DnsServerPrototype, err error) {
+	_model = &DnsServerPrototype{
+		Address: core.StringPtr(address),
+	}
+	err = core.ValidateStruct(_model, "required parameters")
+	return
+}
+
+// UnmarshalDnsServerPrototype unmarshals an instance of DnsServerPrototype from the specified map of raw messages.
+func UnmarshalDnsServerPrototype(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(DnsServerPrototype)
+	err = core.UnmarshalPrimitive(m, "address", &obj.Address)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// DnsServerWithZoneAffinityPrototype : DnsServerWithZoneAffinityPrototype struct
+type DnsServerWithZoneAffinityPrototype struct {
+	// The IP address.
+	//
+	// This property may add support for IPv6 addresses in the future. When processing a value in this property, verify
+	// that the address is in an expected format. If it is not, log an error. Optionally halt processing and surface the
+	// error, or bypass the resource on which the unexpected IP address format was encountered.
+	Address *string `json:"address" validate:"required"`
+
+	// DHCP configuration for the specified zone will have this DNS server listed first.
+	ZoneAffinity ZoneIdentityIntf `json:"zone_affinity" validate:"required"`
+}
+
+// NewDnsServerWithZoneAffinityPrototype : Instantiate DnsServerWithZoneAffinityPrototype (Generic Model Constructor)
+func (*VpcV1) NewDnsServerWithZoneAffinityPrototype(address string, zoneAffinity ZoneIdentityIntf) (_model *DnsServerWithZoneAffinityPrototype, err error) {
+	_model = &DnsServerWithZoneAffinityPrototype{
+		Address:      core.StringPtr(address),
+		ZoneAffinity: zoneAffinity,
+	}
+	err = core.ValidateStruct(_model, "required parameters")
+	return
+}
+
+// UnmarshalDnsServerWithZoneAffinityPrototype unmarshals an instance of DnsServerWithZoneAffinityPrototype from the specified map of raw messages.
+func UnmarshalDnsServerWithZoneAffinityPrototype(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(DnsServerWithZoneAffinityPrototype)
+	err = core.UnmarshalPrimitive(m, "address", &obj.Address)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "zone_affinity", &obj.ZoneAffinity, UnmarshalZoneIdentity)
 	if err != nil {
 		return
 	}
@@ -33879,10 +34469,51 @@ func (options *DeleteVPCAddressPrefixOptions) SetHeaders(param map[string]string
 	return options
 }
 
+// DeleteVPCDnsResolutionBindingOptions : The DeleteVPCDnsResolutionBinding options.
+type DeleteVPCDnsResolutionBindingOptions struct {
+	// The VPC identifier.
+	VPCIdentifier *string `json:"vpc_identifier" validate:"required,ne="`
+
+	// The DNS resolution binding identifier.
+	ID *string `json:"id" validate:"required,ne="`
+
+	// Allows users to set headers on API requests
+	Headers map[string]string
+}
+
+// NewDeleteVPCDnsResolutionBindingOptions : Instantiate DeleteVPCDnsResolutionBindingOptions
+func (*VpcV1) NewDeleteVPCDnsResolutionBindingOptions(vpcIdentifier string, id string) *DeleteVPCDnsResolutionBindingOptions {
+	return &DeleteVPCDnsResolutionBindingOptions{
+		VPCIdentifier: core.StringPtr(vpcIdentifier),
+		ID:            core.StringPtr(id),
+	}
+}
+
+// SetVPCIdentifier : Allow user to set VPCIdentifier
+func (_options *DeleteVPCDnsResolutionBindingOptions) SetVPCIdentifier(vpcIdentifier string) *DeleteVPCDnsResolutionBindingOptions {
+	_options.VPCIdentifier = core.StringPtr(vpcIdentifier)
+	return _options
+}
+
+// SetID : Allow user to set ID
+func (_options *DeleteVPCDnsResolutionBindingOptions) SetID(id string) *DeleteVPCDnsResolutionBindingOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
+}
+
+// SetHeaders : Allow user to set Headers
+func (options *DeleteVPCDnsResolutionBindingOptions) SetHeaders(param map[string]string) *DeleteVPCDnsResolutionBindingOptions {
+	options.Headers = param
+	return options
+}
+
 // DeleteVPCOptions : The DeleteVPC options.
 type DeleteVPCOptions struct {
 	// The VPC identifier.
 	ID *string `json:"id" validate:"required,ne="`
+
+	// If present, the request will fail if the specified ETag value does not match the resource's current ETag value.
+	IfMatch *string `json:"If-Match,omitempty"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -33898,6 +34529,12 @@ func (*VpcV1) NewDeleteVPCOptions(id string) *DeleteVPCOptions {
 // SetID : Allow user to set ID
 func (_options *DeleteVPCOptions) SetID(id string) *DeleteVPCOptions {
 	_options.ID = core.StringPtr(id)
+	return _options
+}
+
+// SetIfMatch : Allow user to set IfMatch
+func (_options *DeleteVPCOptions) SetIfMatch(ifMatch string) *DeleteVPCOptions {
+	_options.IfMatch = core.StringPtr(ifMatch)
 	return _options
 }
 
@@ -34307,6 +34944,10 @@ func UnmarshalEncryptionKeyReference(m map[string]json.RawMessage, result interf
 
 // EndpointGateway : EndpointGateway struct
 type EndpointGateway struct {
+	// Indicates whether to allow this endpoint gateway to participate in DNS resolution bindings with a VPC that has
+	// `dns.enable_hub` set to `true`.
+	AllowDnsResolutionBinding *bool `json:"allow_dns_resolution_binding" validate:"required"`
+
 	// The date and time that the endpoint gateway was created.
 	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
 
@@ -34396,6 +35037,10 @@ const (
 // UnmarshalEndpointGateway unmarshals an instance of EndpointGateway from the specified map of raw messages.
 func UnmarshalEndpointGateway(m map[string]json.RawMessage, result interface{}) (err error) {
 	obj := new(EndpointGateway)
+	err = core.UnmarshalPrimitive(m, "allow_dns_resolution_binding", &obj.AllowDnsResolutionBinding)
+	if err != nil {
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "created_at", &obj.CreatedAt)
 	if err != nil {
 		return
@@ -34554,6 +35199,10 @@ func UnmarshalEndpointGatewayCollectionNext(m map[string]json.RawMessage, result
 
 // EndpointGatewayPatch : EndpointGatewayPatch struct
 type EndpointGatewayPatch struct {
+	// Indicates whether to allow this endpoint gateway to participate in DNS resolution bindings with a VPC that has
+	// `dns.enable_hub` set to `true`.
+	AllowDnsResolutionBinding *bool `json:"allow_dns_resolution_binding,omitempty"`
+
 	// The name for this endpoint gateway. The name must not be used by another endpoint gateway in the VPC.
 	Name *string `json:"name,omitempty"`
 }
@@ -34561,6 +35210,10 @@ type EndpointGatewayPatch struct {
 // UnmarshalEndpointGatewayPatch unmarshals an instance of EndpointGatewayPatch from the specified map of raw messages.
 func UnmarshalEndpointGatewayPatch(m map[string]json.RawMessage, result interface{}) (err error) {
 	obj := new(EndpointGatewayPatch)
+	err = core.UnmarshalPrimitive(m, "allow_dns_resolution_binding", &obj.AllowDnsResolutionBinding)
+	if err != nil {
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
 	if err != nil {
 		return
@@ -34590,6 +35243,92 @@ type EndpointGatewayReferenceDeleted struct {
 func UnmarshalEndpointGatewayReferenceDeleted(m map[string]json.RawMessage, result interface{}) (err error) {
 	obj := new(EndpointGatewayReferenceDeleted)
 	err = core.UnmarshalPrimitive(m, "more_info", &obj.MoreInfo)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// EndpointGatewayReferenceRemote : EndpointGatewayReferenceRemote struct
+type EndpointGatewayReferenceRemote struct {
+	// The CRN for this endpoint gateway.
+	CRN *string `json:"crn" validate:"required"`
+
+	// The URL for this endpoint gateway.
+	Href *string `json:"href" validate:"required"`
+
+	// The unique identifier for this endpoint gateway.
+	ID *string `json:"id" validate:"required"`
+
+	// The name for this endpoint gateway. The name is unique across all endpoint gateways in the VPC.
+	Name *string `json:"name" validate:"required"`
+
+	// If present, this property indicates that the resource associated with this reference
+	// is remote and therefore may not be directly retrievable.
+	Remote *EndpointGatewayRemote `json:"remote,omitempty"`
+
+	// The resource type.
+	ResourceType *string `json:"resource_type" validate:"required"`
+}
+
+// Constants associated with the EndpointGatewayReferenceRemote.ResourceType property.
+// The resource type.
+const (
+	EndpointGatewayReferenceRemoteResourceTypeEndpointGatewayConst = "endpoint_gateway"
+)
+
+// UnmarshalEndpointGatewayReferenceRemote unmarshals an instance of EndpointGatewayReferenceRemote from the specified map of raw messages.
+func UnmarshalEndpointGatewayReferenceRemote(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(EndpointGatewayReferenceRemote)
+	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "remote", &obj.Remote, UnmarshalEndpointGatewayRemote)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// EndpointGatewayRemote : If present, this property indicates that the resource associated with this reference is remote and therefore may not
+// be directly retrievable.
+type EndpointGatewayRemote struct {
+	// If present, this property indicates that the referenced resource is remote to this
+	// account, and identifies the owning account.
+	Account *AccountReference `json:"account,omitempty"`
+
+	// If present, this property indicates that the referenced resource is remote to this
+	// region, and identifies the native region.
+	Region *RegionReference `json:"region,omitempty"`
+}
+
+// UnmarshalEndpointGatewayRemote unmarshals an instance of EndpointGatewayRemote from the specified map of raw messages.
+func UnmarshalEndpointGatewayRemote(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(EndpointGatewayRemote)
+	err = core.UnmarshalModel(m, "account", &obj.Account, UnmarshalAccountReference)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "region", &obj.Region, UnmarshalRegionReference)
 	if err != nil {
 		return
 	}
@@ -37984,6 +38723,44 @@ func (_options *GetVPCDefaultSecurityGroupOptions) SetID(id string) *GetVPCDefau
 
 // SetHeaders : Allow user to set Headers
 func (options *GetVPCDefaultSecurityGroupOptions) SetHeaders(param map[string]string) *GetVPCDefaultSecurityGroupOptions {
+	options.Headers = param
+	return options
+}
+
+// GetVPCDnsResolutionBindingOptions : The GetVPCDnsResolutionBinding options.
+type GetVPCDnsResolutionBindingOptions struct {
+	// The VPC identifier.
+	VPCIdentifier *string `json:"vpc_identifier" validate:"required,ne="`
+
+	// The DNS resolution binding identifier.
+	ID *string `json:"id" validate:"required,ne="`
+
+	// Allows users to set headers on API requests
+	Headers map[string]string
+}
+
+// NewGetVPCDnsResolutionBindingOptions : Instantiate GetVPCDnsResolutionBindingOptions
+func (*VpcV1) NewGetVPCDnsResolutionBindingOptions(vpcIdentifier string, id string) *GetVPCDnsResolutionBindingOptions {
+	return &GetVPCDnsResolutionBindingOptions{
+		VPCIdentifier: core.StringPtr(vpcIdentifier),
+		ID:            core.StringPtr(id),
+	}
+}
+
+// SetVPCIdentifier : Allow user to set VPCIdentifier
+func (_options *GetVPCDnsResolutionBindingOptions) SetVPCIdentifier(vpcIdentifier string) *GetVPCDnsResolutionBindingOptions {
+	_options.VPCIdentifier = core.StringPtr(vpcIdentifier)
+	return _options
+}
+
+// SetID : Allow user to set ID
+func (_options *GetVPCDnsResolutionBindingOptions) SetID(id string) *GetVPCDnsResolutionBindingOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
+}
+
+// SetHeaders : Allow user to set Headers
+func (options *GetVPCDnsResolutionBindingOptions) SetHeaders(param map[string]string) *GetVPCDnsResolutionBindingOptions {
 	options.Headers = param
 	return options
 }
@@ -46865,6 +47642,19 @@ type ListEndpointGatewaysOptions struct {
 	// Filters the collection to resources with a `resource_group.id` property matching the specified identifier.
 	ResourceGroupID *string `json:"resource_group.id,omitempty"`
 
+	// Filters the collection to resources with a `vpc.id` property matching the specified identifier.
+	VPCID *string `json:"vpc.id,omitempty"`
+
+	// Filters the collection to resources with a `vpc.crn` property matching the specified CRN.
+	VPCCRN *string `json:"vpc.crn,omitempty"`
+
+	// Filters the collection to resources with a `vpc.name` property matching the exact specified name.
+	VPCName *string `json:"vpc.name,omitempty"`
+
+	// Filters the collection to endpoint gateways with an `allow_dns_resolution_binding` property matching the specified
+	// value.
+	AllowDnsResolutionBinding *bool `json:"allow_dns_resolution_binding,omitempty"`
+
 	// Allows users to set headers on API requests
 	Headers map[string]string
 }
@@ -46895,6 +47685,30 @@ func (_options *ListEndpointGatewaysOptions) SetLimit(limit int64) *ListEndpoint
 // SetResourceGroupID : Allow user to set ResourceGroupID
 func (_options *ListEndpointGatewaysOptions) SetResourceGroupID(resourceGroupID string) *ListEndpointGatewaysOptions {
 	_options.ResourceGroupID = core.StringPtr(resourceGroupID)
+	return _options
+}
+
+// SetVPCID : Allow user to set VPCID
+func (_options *ListEndpointGatewaysOptions) SetVPCID(vpcID string) *ListEndpointGatewaysOptions {
+	_options.VPCID = core.StringPtr(vpcID)
+	return _options
+}
+
+// SetVPCCRN : Allow user to set VPCCRN
+func (_options *ListEndpointGatewaysOptions) SetVPCCRN(vpcCRN string) *ListEndpointGatewaysOptions {
+	_options.VPCCRN = core.StringPtr(vpcCRN)
+	return _options
+}
+
+// SetVPCName : Allow user to set VPCName
+func (_options *ListEndpointGatewaysOptions) SetVPCName(vpcName string) *ListEndpointGatewaysOptions {
+	_options.VPCName = core.StringPtr(vpcName)
+	return _options
+}
+
+// SetAllowDnsResolutionBinding : Allow user to set AllowDnsResolutionBinding
+func (_options *ListEndpointGatewaysOptions) SetAllowDnsResolutionBinding(allowDnsResolutionBinding bool) *ListEndpointGatewaysOptions {
+	_options.AllowDnsResolutionBinding = core.BoolPtr(allowDnsResolutionBinding)
 	return _options
 }
 
@@ -48396,22 +49210,22 @@ func (options *ListPublicGatewaysOptions) SetHeaders(param map[string]string) *L
 // ListRegionZonesOptions : The ListRegionZones options.
 type ListRegionZonesOptions struct {
 	// The region name.
-	RegionName *string `json:"region_name" validate:"required,ne="`
+	Name *string `json:"name" validate:"required,ne="`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
 }
 
 // NewListRegionZonesOptions : Instantiate ListRegionZonesOptions
-func (*VpcV1) NewListRegionZonesOptions(regionName string) *ListRegionZonesOptions {
+func (*VpcV1) NewListRegionZonesOptions(name string) *ListRegionZonesOptions {
 	return &ListRegionZonesOptions{
-		RegionName: core.StringPtr(regionName),
+		Name: core.StringPtr(name),
 	}
 }
 
-// SetRegionName : Allow user to set RegionName
-func (_options *ListRegionZonesOptions) SetRegionName(regionName string) *ListRegionZonesOptions {
-	_options.RegionName = core.StringPtr(regionName)
+// SetName : Allow user to set Name
+func (_options *ListRegionZonesOptions) SetName(name string) *ListRegionZonesOptions {
+	_options.Name = core.StringPtr(name)
 	return _options
 }
 
@@ -49074,6 +49888,118 @@ func (_options *ListVPCAddressPrefixesOptions) SetLimit(limit int64) *ListVPCAdd
 
 // SetHeaders : Allow user to set Headers
 func (options *ListVPCAddressPrefixesOptions) SetHeaders(param map[string]string) *ListVPCAddressPrefixesOptions {
+	options.Headers = param
+	return options
+}
+
+// ListVPCDnsResolutionBindingsOptions : The ListVPCDnsResolutionBindings options.
+type ListVPCDnsResolutionBindingsOptions struct {
+	// The VPC identifier.
+	VPCIdentifier *string `json:"vpc_identifier" validate:"required,ne="`
+
+	// Sorts the returned collection by the specified property name in ascending order. A `-` may be prepended to the name
+	// to sort in descending order. For example, the value `-created_at` sorts the collection by the `created_at` property
+	// in descending order, and the value `name` sorts it by the `name` property in ascending order.
+	Sort *string `json:"sort,omitempty"`
+
+	// A server-provided token determining what resource to start the page on.
+	Start *string `json:"start,omitempty"`
+
+	// The number of resources to return on a page.
+	Limit *int64 `json:"limit,omitempty"`
+
+	// Filters the collection to resources with a `name` property matching the exact specified name.
+	Name *string `json:"name,omitempty"`
+
+	// Filters the collection to resources with a `vpc.id` property matching the specified identifier.
+	VPCID *string `json:"vpc.id,omitempty"`
+
+	// Filters the collection to resources with a `vpc.crn` property matching the specified CRN.
+	VPCCRN *string `json:"vpc.crn,omitempty"`
+
+	// Filters the collection to resources with a `vpc.name` property matching the exact specified name.
+	VPCName *string `json:"vpc.name,omitempty"`
+
+	// Filters the collection to resources with a `vpc.remote.account.id` property matching the specified account
+	// identifier.
+	AccountID *string `json:"account.id,omitempty"`
+
+	// Allows users to set headers on API requests
+	Headers map[string]string
+}
+
+// Constants associated with the ListVPCDnsResolutionBindingsOptions.Sort property.
+// Sorts the returned collection by the specified property name in ascending order. A `-` may be prepended to the name
+// to sort in descending order. For example, the value `-created_at` sorts the collection by the `created_at` property
+// in descending order, and the value `name` sorts it by the `name` property in ascending order.
+const (
+	ListVPCDnsResolutionBindingsOptionsSortCreatedAtConst = "created_at"
+	ListVPCDnsResolutionBindingsOptionsSortNameConst      = "name"
+)
+
+// NewListVPCDnsResolutionBindingsOptions : Instantiate ListVPCDnsResolutionBindingsOptions
+func (*VpcV1) NewListVPCDnsResolutionBindingsOptions(vpcIdentifier string) *ListVPCDnsResolutionBindingsOptions {
+	return &ListVPCDnsResolutionBindingsOptions{
+		VPCIdentifier: core.StringPtr(vpcIdentifier),
+	}
+}
+
+// SetVPCIdentifier : Allow user to set VPCIdentifier
+func (_options *ListVPCDnsResolutionBindingsOptions) SetVPCIdentifier(vpcIdentifier string) *ListVPCDnsResolutionBindingsOptions {
+	_options.VPCIdentifier = core.StringPtr(vpcIdentifier)
+	return _options
+}
+
+// SetSort : Allow user to set Sort
+func (_options *ListVPCDnsResolutionBindingsOptions) SetSort(sort string) *ListVPCDnsResolutionBindingsOptions {
+	_options.Sort = core.StringPtr(sort)
+	return _options
+}
+
+// SetStart : Allow user to set Start
+func (_options *ListVPCDnsResolutionBindingsOptions) SetStart(start string) *ListVPCDnsResolutionBindingsOptions {
+	_options.Start = core.StringPtr(start)
+	return _options
+}
+
+// SetLimit : Allow user to set Limit
+func (_options *ListVPCDnsResolutionBindingsOptions) SetLimit(limit int64) *ListVPCDnsResolutionBindingsOptions {
+	_options.Limit = core.Int64Ptr(limit)
+	return _options
+}
+
+// SetName : Allow user to set Name
+func (_options *ListVPCDnsResolutionBindingsOptions) SetName(name string) *ListVPCDnsResolutionBindingsOptions {
+	_options.Name = core.StringPtr(name)
+	return _options
+}
+
+// SetVPCID : Allow user to set VPCID
+func (_options *ListVPCDnsResolutionBindingsOptions) SetVPCID(vpcID string) *ListVPCDnsResolutionBindingsOptions {
+	_options.VPCID = core.StringPtr(vpcID)
+	return _options
+}
+
+// SetVPCCRN : Allow user to set VPCCRN
+func (_options *ListVPCDnsResolutionBindingsOptions) SetVPCCRN(vpcCRN string) *ListVPCDnsResolutionBindingsOptions {
+	_options.VPCCRN = core.StringPtr(vpcCRN)
+	return _options
+}
+
+// SetVPCName : Allow user to set VPCName
+func (_options *ListVPCDnsResolutionBindingsOptions) SetVPCName(vpcName string) *ListVPCDnsResolutionBindingsOptions {
+	_options.VPCName = core.StringPtr(vpcName)
+	return _options
+}
+
+// SetAccountID : Allow user to set AccountID
+func (_options *ListVPCDnsResolutionBindingsOptions) SetAccountID(accountID string) *ListVPCDnsResolutionBindingsOptions {
+	_options.AccountID = core.StringPtr(accountID)
+	return _options
+}
+
+// SetHeaders : Allow user to set Headers
+func (options *ListVPCDnsResolutionBindingsOptions) SetHeaders(param map[string]string) *ListVPCDnsResolutionBindingsOptions {
 	options.Headers = param
 	return options
 }
@@ -62873,6 +63799,54 @@ func (options *UpdateVPCAddressPrefixOptions) SetHeaders(param map[string]string
 	return options
 }
 
+// UpdateVPCDnsResolutionBindingOptions : The UpdateVPCDnsResolutionBinding options.
+type UpdateVPCDnsResolutionBindingOptions struct {
+	// The VPC identifier.
+	VPCIdentifier *string `json:"vpc_identifier" validate:"required,ne="`
+
+	// The DNS resolution binding identifier.
+	ID *string `json:"id" validate:"required,ne="`
+
+	// The DNS resolution binding patch.
+	VpcdnsResolutionBindingPatch map[string]interface{} `json:"VPCDNSResolutionBinding_patch" validate:"required"`
+
+	// Allows users to set headers on API requests
+	Headers map[string]string
+}
+
+// NewUpdateVPCDnsResolutionBindingOptions : Instantiate UpdateVPCDnsResolutionBindingOptions
+func (*VpcV1) NewUpdateVPCDnsResolutionBindingOptions(vpcIdentifier string, id string, vpcdnsResolutionBindingPatch map[string]interface{}) *UpdateVPCDnsResolutionBindingOptions {
+	return &UpdateVPCDnsResolutionBindingOptions{
+		VPCIdentifier:                core.StringPtr(vpcIdentifier),
+		ID:                           core.StringPtr(id),
+		VpcdnsResolutionBindingPatch: vpcdnsResolutionBindingPatch,
+	}
+}
+
+// SetVPCIdentifier : Allow user to set VPCIdentifier
+func (_options *UpdateVPCDnsResolutionBindingOptions) SetVPCIdentifier(vpcIdentifier string) *UpdateVPCDnsResolutionBindingOptions {
+	_options.VPCIdentifier = core.StringPtr(vpcIdentifier)
+	return _options
+}
+
+// SetID : Allow user to set ID
+func (_options *UpdateVPCDnsResolutionBindingOptions) SetID(id string) *UpdateVPCDnsResolutionBindingOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
+}
+
+// SetVpcdnsResolutionBindingPatch : Allow user to set VpcdnsResolutionBindingPatch
+func (_options *UpdateVPCDnsResolutionBindingOptions) SetVpcdnsResolutionBindingPatch(vpcdnsResolutionBindingPatch map[string]interface{}) *UpdateVPCDnsResolutionBindingOptions {
+	_options.VpcdnsResolutionBindingPatch = vpcdnsResolutionBindingPatch
+	return _options
+}
+
+// SetHeaders : Allow user to set Headers
+func (options *UpdateVPCDnsResolutionBindingOptions) SetHeaders(param map[string]string) *UpdateVPCDnsResolutionBindingOptions {
+	options.Headers = param
+	return options
+}
+
 // UpdateVPCOptions : The UpdateVPC options.
 type UpdateVPCOptions struct {
 	// The VPC identifier.
@@ -62880,6 +63854,9 @@ type UpdateVPCOptions struct {
 
 	// The VPC patch.
 	VPCPatch map[string]interface{} `json:"VPC_patch" validate:"required"`
+
+	// If present, the request will fail if the specified ETag value does not match the resource's current ETag value.
+	IfMatch *string `json:"If-Match,omitempty"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -62902,6 +63879,12 @@ func (_options *UpdateVPCOptions) SetID(id string) *UpdateVPCOptions {
 // SetVPCPatch : Allow user to set VPCPatch
 func (_options *UpdateVPCOptions) SetVPCPatch(vpcPatch map[string]interface{}) *UpdateVPCOptions {
 	_options.VPCPatch = vpcPatch
+	return _options
+}
+
+// SetIfMatch : Allow user to set IfMatch
+func (_options *UpdateVPCOptions) SetIfMatch(ifMatch string) *UpdateVPCOptions {
+	_options.IfMatch = core.StringPtr(ifMatch)
 	return _options
 }
 
@@ -63316,6 +64299,25 @@ type VPC struct {
 	// default.
 	DefaultSecurityGroup *SecurityGroupReference `json:"default_security_group" validate:"required"`
 
+	// The DNS configuration for this VPC.
+	Dns *Vpcdns `json:"dns" validate:"required"`
+
+	// The reasons for the current `health_state` (if any).
+	//
+	// The enumerated reason code values for this property will expand in the future. When processing this property, check
+	// for and log unknown values. Optionally halt processing and surface the error, or bypass the resource on which the
+	// unexpected reason code was encountered.
+	HealthReasons []VPCHealthReason `json:"health_reasons" validate:"required"`
+
+	// The health of this resource.
+	// - `ok`: No abnormal behavior detected
+	// - `degraded`: Experiencing compromised performance, capacity, or connectivity
+	// - `faulted`: Completely unreachable, inoperative, or otherwise entirely incapacitated
+	// - `inapplicable`: The health state does not apply because of the current lifecycle state. A resource with a
+	// lifecycle state of `failed` or `deleting` will have a health state of `inapplicable`. A `pending` resource may also
+	// have this state.
+	HealthState *string `json:"health_state" validate:"required"`
+
 	// The URL for this VPC.
 	Href *string `json:"href" validate:"required"`
 
@@ -63334,6 +64336,21 @@ type VPC struct {
 	// The status of this VPC.
 	Status *string `json:"status" validate:"required"`
 }
+
+// Constants associated with the VPC.HealthState property.
+// The health of this resource.
+// - `ok`: No abnormal behavior detected
+// - `degraded`: Experiencing compromised performance, capacity, or connectivity
+// - `faulted`: Completely unreachable, inoperative, or otherwise entirely incapacitated
+// - `inapplicable`: The health state does not apply because of the current lifecycle state. A resource with a lifecycle
+// state of `failed` or `deleting` will have a health state of `inapplicable`. A `pending` resource may also have this
+// state.
+const (
+	VPCHealthStateDegradedConst     = "degraded"
+	VPCHealthStateFaultedConst      = "faulted"
+	VPCHealthStateInapplicableConst = "inapplicable"
+	VPCHealthStateOkConst           = "ok"
+)
 
 // Constants associated with the VPC.ResourceType property.
 // The resource type.
@@ -63378,6 +64395,18 @@ func UnmarshalVPC(m map[string]json.RawMessage, result interface{}) (err error) 
 		return
 	}
 	err = core.UnmarshalModel(m, "default_security_group", &obj.DefaultSecurityGroup, UnmarshalSecurityGroupReference)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "dns", &obj.Dns, UnmarshalVpcdns)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "health_reasons", &obj.HealthReasons, UnmarshalVPCHealthReason)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "health_state", &obj.HealthState)
 	if err != nil {
 		return
 	}
@@ -63525,6 +64554,526 @@ func UnmarshalVPCCollectionNext(m map[string]json.RawMessage, result interface{}
 	return
 }
 
+// Vpcdns : The DNS configuration for this VPC.
+type Vpcdns struct {
+	// Indicates whether this VPC is enabled as a DNS name resolution hub.
+	EnableHub *bool `json:"enable_hub" validate:"required"`
+
+	// The number of DNS resolution bindings for this VPC.
+	ResolutionBindingCount *int64 `json:"resolution_binding_count" validate:"required"`
+
+	// The DNS resolver configuration for the VPC.
+	Resolver VpcdnsResolverIntf `json:"resolver" validate:"required"`
+}
+
+// UnmarshalVpcdns unmarshals an instance of Vpcdns from the specified map of raw messages.
+func UnmarshalVpcdns(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(Vpcdns)
+	err = core.UnmarshalPrimitive(m, "enable_hub", &obj.EnableHub)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "resolution_binding_count", &obj.ResolutionBindingCount)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "resolver", &obj.Resolver, UnmarshalVpcdnsResolver)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// VpcdnsPatch : The DNS configuration for this VPC.
+type VpcdnsPatch struct {
+	// Indicates whether this VPC is enabled as a DNS name resolution hub.
+	//
+	// Changing the value requires `dns.resolution_binding_count` to be zero.
+	EnableHub *bool `json:"enable_hub,omitempty"`
+
+	Resolver VpcdnsPatchResolverIntf `json:"resolver,omitempty"`
+}
+
+// UnmarshalVpcdnsPatch unmarshals an instance of VpcdnsPatch from the specified map of raw messages.
+func UnmarshalVpcdnsPatch(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(VpcdnsPatch)
+	err = core.UnmarshalPrimitive(m, "enable_hub", &obj.EnableHub)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "resolver", &obj.Resolver, UnmarshalVpcdnsPatchResolver)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// VpcdnsPrototype : The DNS configuration for this VPC.
+//
+// If unspecified, the system will assign DNS servers capable of resolving hosts and endpoint gateways within this VPC,
+// and hosts on the internet.
+type VpcdnsPrototype struct {
+	// Indicates whether this VPC is enabled as a DNS name resolution hub.
+	EnableHub *bool `json:"enable_hub,omitempty"`
+
+	Resolver VpcdnsResolverPrototypeIntf `json:"resolver,omitempty"`
+}
+
+// UnmarshalVpcdnsPrototype unmarshals an instance of VpcdnsPrototype from the specified map of raw messages.
+func UnmarshalVpcdnsPrototype(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(VpcdnsPrototype)
+	err = core.UnmarshalPrimitive(m, "enable_hub", &obj.EnableHub)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "resolver", &obj.Resolver, UnmarshalVpcdnsResolverPrototype)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// VpcdnsResolutionBinding : VpcdnsResolutionBinding struct
+type VpcdnsResolutionBinding struct {
+	// The date and time that the DNS resolution binding was created.
+	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
+
+	// The endpoint gateways in the bound to VPC that are allowed to participate in this DNS resolution binding.
+	//
+	// The endpoint gateways may be remote and therefore may not be directly retrievable.
+	EndpointGateways []EndpointGatewayReferenceRemote `json:"endpoint_gateways" validate:"required"`
+
+	// The URL for this DNS resolution binding.
+	Href *string `json:"href" validate:"required"`
+
+	// The unique identifier for this DNS resolution binding.
+	ID *string `json:"id" validate:"required"`
+
+	// The lifecycle state of the DNS resolution binding.
+	LifecycleState *string `json:"lifecycle_state" validate:"required"`
+
+	// The name for this DNS resolution binding. The name is unique across all DNS resolution bindings for the VPC.
+	Name *string `json:"name" validate:"required"`
+
+	// The resource type.
+	ResourceType *string `json:"resource_type" validate:"required"`
+
+	// The VPC bound to for DNS resolution.
+	//
+	// The VPC may be remote and therefore may not be directly retrievable.
+	VPC *VPCReferenceRemote `json:"vpc" validate:"required"`
+}
+
+// Constants associated with the VpcdnsResolutionBinding.LifecycleState property.
+// The lifecycle state of the DNS resolution binding.
+const (
+	VpcdnsResolutionBindingLifecycleStateDeletingConst  = "deleting"
+	VpcdnsResolutionBindingLifecycleStateFailedConst    = "failed"
+	VpcdnsResolutionBindingLifecycleStatePendingConst   = "pending"
+	VpcdnsResolutionBindingLifecycleStateStableConst    = "stable"
+	VpcdnsResolutionBindingLifecycleStateSuspendedConst = "suspended"
+	VpcdnsResolutionBindingLifecycleStateUpdatingConst  = "updating"
+	VpcdnsResolutionBindingLifecycleStateWaitingConst   = "waiting"
+)
+
+// Constants associated with the VpcdnsResolutionBinding.ResourceType property.
+// The resource type.
+const (
+	VpcdnsResolutionBindingResourceTypeVPCDnsResolutionBindingConst = "vpc_dns_resolution_binding"
+)
+
+// UnmarshalVpcdnsResolutionBinding unmarshals an instance of VpcdnsResolutionBinding from the specified map of raw messages.
+func UnmarshalVpcdnsResolutionBinding(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(VpcdnsResolutionBinding)
+	err = core.UnmarshalPrimitive(m, "created_at", &obj.CreatedAt)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "endpoint_gateways", &obj.EndpointGateways, UnmarshalEndpointGatewayReferenceRemote)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "lifecycle_state", &obj.LifecycleState)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "vpc", &obj.VPC, UnmarshalVPCReferenceRemote)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// VpcdnsResolutionBindingCollection : VpcdnsResolutionBindingCollection struct
+type VpcdnsResolutionBindingCollection struct {
+	// Collection of DNS resolution bindings for this VPC.
+	DnsResolutionBindings []VpcdnsResolutionBinding `json:"dns_resolution_bindings" validate:"required"`
+
+	// A link to the first page of resources.
+	First *VpcdnsResolutionBindingCollectionFirst `json:"first" validate:"required"`
+
+	// The maximum number of resources that can be returned by the request.
+	Limit *int64 `json:"limit" validate:"required"`
+
+	// A link to the next page of resources. This property is present for all pages
+	// except the last page.
+	Next *VpcdnsResolutionBindingCollectionNext `json:"next,omitempty"`
+
+	// The total number of resources across all pages.
+	TotalCount *int64 `json:"total_count" validate:"required"`
+}
+
+// UnmarshalVpcdnsResolutionBindingCollection unmarshals an instance of VpcdnsResolutionBindingCollection from the specified map of raw messages.
+func UnmarshalVpcdnsResolutionBindingCollection(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(VpcdnsResolutionBindingCollection)
+	err = core.UnmarshalModel(m, "dns_resolution_bindings", &obj.DnsResolutionBindings, UnmarshalVpcdnsResolutionBinding)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "first", &obj.First, UnmarshalVpcdnsResolutionBindingCollectionFirst)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "limit", &obj.Limit)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "next", &obj.Next, UnmarshalVpcdnsResolutionBindingCollectionNext)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "total_count", &obj.TotalCount)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// Retrieve the value to be passed to a request to access the next page of results
+func (resp *VpcdnsResolutionBindingCollection) GetNextStart() (*string, error) {
+	if core.IsNil(resp.Next) {
+		return nil, nil
+	}
+	start, err := core.GetQueryParam(resp.Next.Href, "start")
+	if err != nil || start == nil {
+		return nil, err
+	}
+	return start, nil
+}
+
+// VpcdnsResolutionBindingPatch : VpcdnsResolutionBindingPatch struct
+type VpcdnsResolutionBindingPatch struct {
+	// The name for this DNS resolution binding. The name must not be used by another DNS resolution binding for the VPC.
+	Name *string `json:"name,omitempty"`
+}
+
+// UnmarshalVpcdnsResolutionBindingPatch unmarshals an instance of VpcdnsResolutionBindingPatch from the specified map of raw messages.
+func UnmarshalVpcdnsResolutionBindingPatch(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(VpcdnsResolutionBindingPatch)
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// AsPatch returns a generic map representation of the VpcdnsResolutionBindingPatch
+func (vpcdnsResolutionBindingPatch *VpcdnsResolutionBindingPatch) AsPatch() (_patch map[string]interface{}, err error) {
+	var jsonData []byte
+	jsonData, err = json.Marshal(vpcdnsResolutionBindingPatch)
+	if err == nil {
+		err = json.Unmarshal(jsonData, &_patch)
+	}
+	return
+}
+
+// VpcdnsResolver : VpcdnsResolver struct
+// Models which "extend" this model:
+// - VpcdnsResolverTypeDelegated
+// - VpcdnsResolverTypeManual
+// - VpcdnsResolverTypeSystem
+type VpcdnsResolver struct {
+	// The DNS servers for this VPC. The servers are populated:
+	//
+	// - by the system when `dns.resolver.type` is `system`
+	// - using the DNS servers in `dns.resolver.vpc` when `dns.resolver.type` is `delegated`
+	// - using `dns.resolver.manual_servers` when the `dns.resolver.type` is `manual`.
+	Servers []DnsServer `json:"servers" validate:"required"`
+
+	// The type of the DNS resolver used for the VPC.
+	//
+	// - `delegated`: DNS server addresses are provided by the DNS resolver of the VPC
+	//                specified in `dns.resolver.vpc`.
+	// - `manual`: DNS server addresses are specified in `dns.resolver.manual_servers`.
+	// - `system`: DNS server addresses are provided by the system.
+	Type *string `json:"type" validate:"required"`
+
+	// The VPC whose DNS resolver provides the DNS server addresses for this VPC.
+	//
+	// The VPC may be remote and therefore may not be directly retrievable.
+	VPC *VPCReferenceDnsResolverContext `json:"vpc,omitempty"`
+
+	// The manually specified DNS servers for this VPC.
+	ManualServers []DnsServer `json:"manual_servers,omitempty"`
+
+	// The configuration of the system DNS resolver for this VPC.
+	//
+	// - `dns_services`: DNS resolvers provided by [DNS
+	//   Services](https://cloud.ibm.com/docs/dns-svcs) are configured for this VPC.
+	//
+	//   This system DNS resolver configuration is used when the VPC has:
+	//
+	//   - any endpoint gateways residing in it, or
+	//   - a [DNS Services](https://cloud.ibm.com/docs/dns-svcs) private zone or custom resolver
+	//     configured for it.
+	//
+	// - `default`: The provider default DNS resolvers are configured for this VPC.
+	//
+	//   This system DNS resolver configuration is used when the VPC has:
+	//
+	//   - no endpoint gateways residing in it, and
+	//   - no [DNS Services](https://cloud.ibm.com/docs/dns-svcs) private zone or custom resolver
+	//     configured for it.
+	Configuration *string `json:"configuration,omitempty"`
+}
+
+// Constants associated with the VpcdnsResolver.Type property.
+// The type of the DNS resolver used for the VPC.
+//
+//   - `delegated`: DNS server addresses are provided by the DNS resolver of the VPC
+//     specified in `dns.resolver.vpc`.
+//   - `manual`: DNS server addresses are specified in `dns.resolver.manual_servers`.
+//   - `system`: DNS server addresses are provided by the system.
+const (
+	VpcdnsResolverTypeDelegatedConst = "delegated"
+	VpcdnsResolverTypeManualConst    = "manual"
+	VpcdnsResolverTypeSystemConst    = "system"
+)
+
+// Constants associated with the VpcdnsResolver.Configuration property.
+// The configuration of the system DNS resolver for this VPC.
+//
+//   - `dns_services`: DNS resolvers provided by [DNS
+//     Services](https://cloud.ibm.com/docs/dns-svcs) are configured for this VPC.
+//
+//     This system DNS resolver configuration is used when the VPC has:
+//
+//   - any endpoint gateways residing in it, or
+//
+//   - a [DNS Services](https://cloud.ibm.com/docs/dns-svcs) private zone or custom resolver
+//     configured for it.
+//
+// - `default`: The provider default DNS resolvers are configured for this VPC.
+//
+//	This system DNS resolver configuration is used when the VPC has:
+//
+//	- no endpoint gateways residing in it, and
+//	- no [DNS Services](https://cloud.ibm.com/docs/dns-svcs) private zone or custom resolver
+//	  configured for it.
+const (
+	VpcdnsResolverConfigurationDefaultConst     = "default"
+	VpcdnsResolverConfigurationDnsServicesConst = "dns_services"
+)
+
+func (*VpcdnsResolver) isaVpcdnsResolver() bool {
+	return true
+}
+
+type VpcdnsResolverIntf interface {
+	isaVpcdnsResolver() bool
+}
+
+// UnmarshalVpcdnsResolver unmarshals an instance of VpcdnsResolver from the specified map of raw messages.
+func UnmarshalVpcdnsResolver(m map[string]json.RawMessage, result interface{}) (err error) {
+	// Retrieve discriminator value to determine correct "subclass".
+	var discValue string
+	err = core.UnmarshalPrimitive(m, "type", &discValue)
+	if err != nil {
+		err = fmt.Errorf("error unmarshalling discriminator property 'type': %s", err.Error())
+		return
+	}
+	if discValue == "" {
+		err = fmt.Errorf("required discriminator property 'type' not found in JSON object")
+		return
+	}
+	if discValue == "delegated" {
+		err = core.UnmarshalModel(m, "", result, UnmarshalVpcdnsResolverTypeDelegated)
+	} else if discValue == "manual" {
+		err = core.UnmarshalModel(m, "", result, UnmarshalVpcdnsResolverTypeManual)
+	} else if discValue == "system" {
+		err = core.UnmarshalModel(m, "", result, UnmarshalVpcdnsResolverTypeSystem)
+	} else {
+		err = fmt.Errorf("unrecognized value for discriminator property 'type': %s", discValue)
+	}
+	return
+}
+
+// VpcdnsResolverPrototype : VpcdnsResolverPrototype struct
+// Models which "extend" this model:
+// - VpcdnsResolverPrototypeVpcdnsResolverTypeManualPrototype
+// - VpcdnsResolverPrototypeVpcdnsResolverTypeSystemPrototype
+type VpcdnsResolverPrototype struct {
+	// The type of the DNS resolver to use.
+	//
+	// - `manual`: DNS server addresses are specified in `dns.resolver.manual_servers`.
+	// - `system`: DNS server addresses will be provided by the system and depend on the
+	//             configuration.
+	Type *string `json:"type,omitempty"`
+
+	// The DNS servers to use for this VPC.
+	ManualServers []DnsServerWithZoneAffinityPrototype `json:"manual_servers,omitempty"`
+}
+
+// Constants associated with the VpcdnsResolverPrototype.Type property.
+// The type of the DNS resolver to use.
+//
+//   - `manual`: DNS server addresses are specified in `dns.resolver.manual_servers`.
+//   - `system`: DNS server addresses will be provided by the system and depend on the
+//     configuration.
+const (
+	VpcdnsResolverPrototypeTypeManualConst = "manual"
+	VpcdnsResolverPrototypeTypeSystemConst = "system"
+)
+
+func (*VpcdnsResolverPrototype) isaVpcdnsResolverPrototype() bool {
+	return true
+}
+
+type VpcdnsResolverPrototypeIntf interface {
+	isaVpcdnsResolverPrototype() bool
+}
+
+// UnmarshalVpcdnsResolverPrototype unmarshals an instance of VpcdnsResolverPrototype from the specified map of raw messages.
+func UnmarshalVpcdnsResolverPrototype(m map[string]json.RawMessage, result interface{}) (err error) {
+	// Retrieve discriminator value to determine correct "subclass".
+	var discValue string
+	err = core.UnmarshalPrimitive(m, "type", &discValue)
+	if err != nil {
+		err = fmt.Errorf("error unmarshalling discriminator property 'type': %s", err.Error())
+		return
+	}
+	if discValue == "" {
+		err = fmt.Errorf("required discriminator property 'type' not found in JSON object")
+		return
+	}
+	if discValue == "manual" {
+		err = core.UnmarshalModel(m, "", result, UnmarshalVpcdnsResolverPrototypeVpcdnsResolverTypeManualPrototype)
+	} else if discValue == "system" {
+		err = core.UnmarshalModel(m, "", result, UnmarshalVpcdnsResolverPrototypeVpcdnsResolverTypeSystemPrototype)
+	} else {
+		err = fmt.Errorf("unrecognized value for discriminator property 'type': %s", discValue)
+	}
+	return
+}
+
+// VpcdnsResolverVPCPatch : The VPC to provide DNS server addresses for this VPC.  The specified VPC must be configured with a [DNS
+// Services](https://cloud.ibm.com/docs/dns-svcs) custom resolver and must be in one of this VPC's DNS resolution
+// bindings.
+//
+// Specify `null` to remove an existing VPC.
+//
+// This property must be set if and only if `dns.resolver.type` is `delegated`.
+// Models which "extend" this model:
+// - VpcdnsResolverVPCPatchVPCIdentityByID
+// - VpcdnsResolverVPCPatchVPCIdentityByCRN
+// - VpcdnsResolverVPCPatchVPCIdentityByHref
+type VpcdnsResolverVPCPatch struct {
+	// The unique identifier for this VPC.
+	ID *string `json:"id,omitempty"`
+
+	// The CRN for this VPC.
+	CRN *string `json:"crn,omitempty"`
+
+	// The URL for this VPC.
+	Href *string `json:"href,omitempty"`
+}
+
+func (*VpcdnsResolverVPCPatch) isaVpcdnsResolverVPCPatch() bool {
+	return true
+}
+
+type VpcdnsResolverVPCPatchIntf interface {
+	isaVpcdnsResolverVPCPatch() bool
+}
+
+// UnmarshalVpcdnsResolverVPCPatch unmarshals an instance of VpcdnsResolverVPCPatch from the specified map of raw messages.
+func UnmarshalVpcdnsResolverVPCPatch(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(VpcdnsResolverVPCPatch)
+	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// VPCHealthReason : VPCHealthReason struct
+type VPCHealthReason struct {
+	// A snake case string succinctly identifying the reason for this health state.
+	Code *string `json:"code" validate:"required"`
+
+	// An explanation of the reason for this health state.
+	Message *string `json:"message" validate:"required"`
+
+	// Link to documentation about the reason for this health state.
+	MoreInfo *string `json:"more_info,omitempty"`
+}
+
+// Constants associated with the VPCHealthReason.Code property.
+// A snake case string succinctly identifying the reason for this health state.
+const (
+	VPCHealthReasonCodeDnsNameResolutionDegradedConst = "dns_name_resolution_degraded"
+)
+
+// UnmarshalVPCHealthReason unmarshals an instance of VPCHealthReason from the specified map of raw messages.
+func UnmarshalVPCHealthReason(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(VPCHealthReason)
+	err = core.UnmarshalPrimitive(m, "code", &obj.Code)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "message", &obj.Message)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "more_info", &obj.MoreInfo)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
 // VPCIdentity : Identifies a VPC by a unique property.
 // Models which "extend" this model:
 // - VPCIdentityByID
@@ -63570,6 +65119,9 @@ func UnmarshalVPCIdentity(m map[string]json.RawMessage, result interface{}) (err
 
 // VPCPatch : VPCPatch struct
 type VPCPatch struct {
+	// The DNS configuration for this VPC.
+	Dns *VpcdnsPatch `json:"dns,omitempty"`
+
 	// The name for this VPC. The name must not be used by another VPC in the region.
 	Name *string `json:"name,omitempty"`
 }
@@ -63577,6 +65129,10 @@ type VPCPatch struct {
 // UnmarshalVPCPatch unmarshals an instance of VPCPatch from the specified map of raw messages.
 func UnmarshalVPCPatch(m map[string]json.RawMessage, result interface{}) (err error) {
 	obj := new(VPCPatch)
+	err = core.UnmarshalModel(m, "dns", &obj.Dns, UnmarshalVpcdnsPatch)
+	if err != nil {
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
 	if err != nil {
 		return
@@ -63654,6 +65210,75 @@ func UnmarshalVPCReference(m map[string]json.RawMessage, result interface{}) (er
 	return
 }
 
+// VPCReferenceDnsResolverContext : A VPC whose DNS resolver is delegated to provide DNS servers for this VPC.
+//
+// The VPC may be remote and therefore may not be directly retrievable.
+type VPCReferenceDnsResolverContext struct {
+	// The CRN for this VPC.
+	CRN *string `json:"crn" validate:"required"`
+
+	// If present, this property indicates the referenced resource has been deleted, and provides
+	// some supplementary information.
+	Deleted *VPCReferenceDnsResolverContextDeleted `json:"deleted,omitempty"`
+
+	// The URL for this VPC.
+	Href *string `json:"href" validate:"required"`
+
+	// The unique identifier for this VPC.
+	ID *string `json:"id" validate:"required"`
+
+	// The name for this VPC. The name is unique across all VPCs in the region.
+	Name *string `json:"name" validate:"required"`
+
+	// If present, this property indicates that the resource associated with this reference
+	// is remote and therefore may not be directly retrievable.
+	Remote *VPCRemote `json:"remote,omitempty"`
+
+	// The resource type.
+	ResourceType *string `json:"resource_type" validate:"required"`
+}
+
+// Constants associated with the VPCReferenceDnsResolverContext.ResourceType property.
+// The resource type.
+const (
+	VPCReferenceDnsResolverContextResourceTypeVPCConst = "vpc"
+)
+
+// UnmarshalVPCReferenceDnsResolverContext unmarshals an instance of VPCReferenceDnsResolverContext from the specified map of raw messages.
+func UnmarshalVPCReferenceDnsResolverContext(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(VPCReferenceDnsResolverContext)
+	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "deleted", &obj.Deleted, UnmarshalVPCReferenceDnsResolverContextDeleted)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "remote", &obj.Remote, UnmarshalVPCRemote)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
 // VPCReferenceDeleted : If present, this property indicates the referenced resource has been deleted, and provides some supplementary
 // information.
 type VPCReferenceDeleted struct {
@@ -63665,6 +65290,110 @@ type VPCReferenceDeleted struct {
 func UnmarshalVPCReferenceDeleted(m map[string]json.RawMessage, result interface{}) (err error) {
 	obj := new(VPCReferenceDeleted)
 	err = core.UnmarshalPrimitive(m, "more_info", &obj.MoreInfo)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// VPCReferenceDnsResolverContextDeleted : If present, this property indicates the referenced resource has been deleted, and provides some supplementary
+// information.
+type VPCReferenceDnsResolverContextDeleted struct {
+	// Link to documentation about deleted resources.
+	MoreInfo *string `json:"more_info" validate:"required"`
+}
+
+// UnmarshalVPCReferenceDnsResolverContextDeleted unmarshals an instance of VPCReferenceDnsResolverContextDeleted from the specified map of raw messages.
+func UnmarshalVPCReferenceDnsResolverContextDeleted(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(VPCReferenceDnsResolverContextDeleted)
+	err = core.UnmarshalPrimitive(m, "more_info", &obj.MoreInfo)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// VPCReferenceRemote : VPCReferenceRemote struct
+type VPCReferenceRemote struct {
+	// The CRN for this VPC.
+	CRN *string `json:"crn" validate:"required"`
+
+	// The URL for this VPC.
+	Href *string `json:"href" validate:"required"`
+
+	// The unique identifier for this VPC.
+	ID *string `json:"id" validate:"required"`
+
+	// The name for this VPC. The name is unique across all VPCs in the region.
+	Name *string `json:"name" validate:"required"`
+
+	// If present, this property indicates that the resource associated with this reference
+	// is remote and therefore may not be directly retrievable.
+	Remote *VPCRemote `json:"remote,omitempty"`
+
+	// The resource type.
+	ResourceType *string `json:"resource_type" validate:"required"`
+}
+
+// Constants associated with the VPCReferenceRemote.ResourceType property.
+// The resource type.
+const (
+	VPCReferenceRemoteResourceTypeVPCConst = "vpc"
+)
+
+// UnmarshalVPCReferenceRemote unmarshals an instance of VPCReferenceRemote from the specified map of raw messages.
+func UnmarshalVPCReferenceRemote(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(VPCReferenceRemote)
+	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "remote", &obj.Remote, UnmarshalVPCRemote)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// VPCRemote : If present, this property indicates that the resource associated with this reference is remote and therefore may not
+// be directly retrievable.
+type VPCRemote struct {
+	// If present, this property indicates that the referenced resource is remote to this
+	// account, and identifies the owning account.
+	Account *AccountReference `json:"account,omitempty"`
+
+	// If present, this property indicates that the referenced resource is remote to this
+	// region, and identifies the native region.
+	Region *RegionReference `json:"region,omitempty"`
+}
+
+// UnmarshalVPCRemote unmarshals an instance of VPCRemote from the specified map of raw messages.
+func UnmarshalVPCRemote(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(VPCRemote)
+	err = core.UnmarshalModel(m, "account", &obj.Account, UnmarshalAccountReference)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "region", &obj.Region, UnmarshalRegionReference)
 	if err != nil {
 		return
 	}
@@ -67567,6 +69296,123 @@ func UnmarshalVolumeStatusReason(m map[string]json.RawMessage, result interface{
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "more_info", &obj.MoreInfo)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// VpcdnsPatchResolver : VpcdnsPatchResolver struct
+// Models which "extend" this model:
+// - VpcdnsPatchResolverVpcdnsResolverPatchPrototype
+// - VpcdnsPatchResolverVpcdnsResolverPatchWithZoneAffinityPrototype
+type VpcdnsPatchResolver struct {
+	ManualServers []DnsServerPrototype `json:"manual_servers,omitempty"`
+
+	// The type of the DNS resolver to use.
+	//
+	// - `delegated`: DNS server addresses will be provided by the resolver for the VPC
+	//                specified in `dns.resolver.vpc`. Requires `dns.enable_hub` to be
+	//                `false`.
+	// - `manual`: DNS server addresses are specified in `dns.resolver.manual_servers`.
+	// - `system`: DNS server addresses will be provided by the system and depend on the
+	//             configuration.
+	//
+	// Updating from `manual` requires `dns.resolver.manual_servers` to be specified as
+	// `null`.
+	//
+	// Updating to `manual` requires `dns.resolver.manual_servers` to be specified and not empty.
+	//
+	// Updating from `delegated` requires `dns.resolver.vpc` to be specified as `null`.
+	Type *string `json:"type,omitempty"`
+
+	// The VPC to provide DNS server addresses for this VPC.  The specified VPC must be configured
+	// with a [DNS Services](https://cloud.ibm.com/docs/dns-svcs) custom resolver and must be in
+	// one of this VPC's DNS resolution bindings.
+	//
+	// Specify `null` to remove an existing VPC.
+	//
+	// This property must be set if and only if `dns.resolver.type` is `delegated`.
+	VPC VpcdnsResolverVPCPatchIntf `json:"vpc,omitempty"`
+}
+
+// Constants associated with the VpcdnsPatchResolver.Type property.
+// The type of the DNS resolver to use.
+//
+//   - `delegated`: DNS server addresses will be provided by the resolver for the VPC
+//     specified in `dns.resolver.vpc`. Requires `dns.enable_hub` to be
+//     `false`.
+//   - `manual`: DNS server addresses are specified in `dns.resolver.manual_servers`.
+//   - `system`: DNS server addresses will be provided by the system and depend on the
+//     configuration.
+//
+// Updating from `manual` requires `dns.resolver.manual_servers` to be specified as
+// `null`.
+//
+// Updating to `manual` requires `dns.resolver.manual_servers` to be specified and not empty.
+//
+// Updating from `delegated` requires `dns.resolver.vpc` to be specified as `null`.
+const (
+	VpcdnsPatchResolverTypeDelegatedConst = "delegated"
+	VpcdnsPatchResolverTypeManualConst    = "manual"
+	VpcdnsPatchResolverTypeSystemConst    = "system"
+)
+
+func (*VpcdnsPatchResolver) isaVpcdnsPatchResolver() bool {
+	return true
+}
+
+type VpcdnsPatchResolverIntf interface {
+	isaVpcdnsPatchResolver() bool
+}
+
+// UnmarshalVpcdnsPatchResolver unmarshals an instance of VpcdnsPatchResolver from the specified map of raw messages.
+func UnmarshalVpcdnsPatchResolver(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(VpcdnsPatchResolver)
+	err = core.UnmarshalModel(m, "manual_servers", &obj.ManualServers, UnmarshalDnsServerPrototype)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "vpc", &obj.VPC, UnmarshalVpcdnsResolverVPCPatch)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// VpcdnsResolutionBindingCollectionFirst : A link to the first page of resources.
+type VpcdnsResolutionBindingCollectionFirst struct {
+	// The URL for a page of resources.
+	Href *string `json:"href" validate:"required"`
+}
+
+// UnmarshalVpcdnsResolutionBindingCollectionFirst unmarshals an instance of VpcdnsResolutionBindingCollectionFirst from the specified map of raw messages.
+func UnmarshalVpcdnsResolutionBindingCollectionFirst(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(VpcdnsResolutionBindingCollectionFirst)
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// VpcdnsResolutionBindingCollectionNext : A link to the next page of resources. This property is present for all pages except the last page.
+type VpcdnsResolutionBindingCollectionNext struct {
+	// The URL for a page of resources.
+	Href *string `json:"href" validate:"required"`
+}
+
+// UnmarshalVpcdnsResolutionBindingCollectionNext unmarshals an instance of VpcdnsResolutionBindingCollectionNext from the specified map of raw messages.
+func UnmarshalVpcdnsResolutionBindingCollectionNext(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(VpcdnsResolutionBindingCollectionNext)
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
 	if err != nil {
 		return
 	}
@@ -83076,6 +84922,358 @@ func UnmarshalTrustedProfileIdentityTrustedProfileByID(m map[string]json.RawMess
 	return
 }
 
+// VpcdnsResolverPrototypeVpcdnsResolverTypeManualPrototype : Manual prototypes.
+// Models which "extend" this model:
+// - VpcdnsResolverPrototypeVpcdnsResolverTypeManualPrototypeVpcdnsResolverTypeManualPrototypeVpcdnsResolverTypeManualDnsServersWithZoneAffinityPrototype
+// - VpcdnsResolverPrototypeVpcdnsResolverTypeManualPrototypeVpcdnsResolverTypeManualPrototypeVpcdnsResolverTypeManualDnsServersPrototype
+// This model "extends" VpcdnsResolverPrototype
+type VpcdnsResolverPrototypeVpcdnsResolverTypeManualPrototype struct {
+	// The DNS servers to use for this VPC.
+	ManualServers []DnsServerWithZoneAffinityPrototype `json:"manual_servers,omitempty"`
+
+	// The type of the DNS resolver to use.
+	Type *string `json:"type,omitempty"`
+}
+
+// Constants associated with the VpcdnsResolverPrototypeVpcdnsResolverTypeManualPrototype.Type property.
+// The type of the DNS resolver to use.
+const (
+	VpcdnsResolverPrototypeVpcdnsResolverTypeManualPrototypeTypeManualConst = "manual"
+)
+
+func (*VpcdnsResolverPrototypeVpcdnsResolverTypeManualPrototype) isaVpcdnsResolverPrototypeVpcdnsResolverTypeManualPrototype() bool {
+	return true
+}
+
+type VpcdnsResolverPrototypeVpcdnsResolverTypeManualPrototypeIntf interface {
+	VpcdnsResolverPrototypeIntf
+	isaVpcdnsResolverPrototypeVpcdnsResolverTypeManualPrototype() bool
+}
+
+func (*VpcdnsResolverPrototypeVpcdnsResolverTypeManualPrototype) isaVpcdnsResolverPrototype() bool {
+	return true
+}
+
+// UnmarshalVpcdnsResolverPrototypeVpcdnsResolverTypeManualPrototype unmarshals an instance of VpcdnsResolverPrototypeVpcdnsResolverTypeManualPrototype from the specified map of raw messages.
+func UnmarshalVpcdnsResolverPrototypeVpcdnsResolverTypeManualPrototype(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(VpcdnsResolverPrototypeVpcdnsResolverTypeManualPrototype)
+	err = core.UnmarshalModel(m, "manual_servers", &obj.ManualServers, UnmarshalDnsServerWithZoneAffinityPrototype)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// VpcdnsResolverPrototypeVpcdnsResolverTypeSystemPrototype : The system will provide DNS server addresses for this VPC. The system-provided DNS server addresses depend on whether
+// any endpoint gateways reside in the VPC, and whether a
+// [DNS Services](https://cloud.ibm.com/docs/dns-svcs) instance is configured for the VPC.
+// This model "extends" VpcdnsResolverPrototype
+type VpcdnsResolverPrototypeVpcdnsResolverTypeSystemPrototype struct {
+	// The type of the DNS resolver to use.
+	Type *string `json:"type,omitempty"`
+}
+
+// Constants associated with the VpcdnsResolverPrototypeVpcdnsResolverTypeSystemPrototype.Type property.
+// The type of the DNS resolver to use.
+const (
+	VpcdnsResolverPrototypeVpcdnsResolverTypeSystemPrototypeTypeSystemConst = "system"
+)
+
+func (*VpcdnsResolverPrototypeVpcdnsResolverTypeSystemPrototype) isaVpcdnsResolverPrototype() bool {
+	return true
+}
+
+// UnmarshalVpcdnsResolverPrototypeVpcdnsResolverTypeSystemPrototype unmarshals an instance of VpcdnsResolverPrototypeVpcdnsResolverTypeSystemPrototype from the specified map of raw messages.
+func UnmarshalVpcdnsResolverPrototypeVpcdnsResolverTypeSystemPrototype(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(VpcdnsResolverPrototypeVpcdnsResolverTypeSystemPrototype)
+	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// VpcdnsResolverTypeDelegated : The DNS server addresses are delegated to the DNS resolver of another VPC.
+// This model "extends" VpcdnsResolver
+type VpcdnsResolverTypeDelegated struct {
+	// The DNS servers for this VPC. The servers are populated:
+	//
+	// - by the system when `dns.resolver.type` is `system`
+	// - using the DNS servers in `dns.resolver.vpc` when `dns.resolver.type` is `delegated`
+	// - using `dns.resolver.manual_servers` when the `dns.resolver.type` is `manual`.
+	Servers []DnsServer `json:"servers" validate:"required"`
+
+	// The type of the DNS resolver used for the VPC.
+	Type *string `json:"type" validate:"required"`
+
+	// The VPC whose DNS resolver provides the DNS server addresses for this VPC.
+	//
+	// The VPC may be remote and therefore may not be directly retrievable.
+	VPC *VPCReferenceDnsResolverContext `json:"vpc" validate:"required"`
+}
+
+// Constants associated with the VpcdnsResolverTypeDelegated.Type property.
+// The type of the DNS resolver used for the VPC.
+const (
+	VpcdnsResolverTypeDelegatedTypeDelegatedConst = "delegated"
+)
+
+func (*VpcdnsResolverTypeDelegated) isaVpcdnsResolver() bool {
+	return true
+}
+
+// UnmarshalVpcdnsResolverTypeDelegated unmarshals an instance of VpcdnsResolverTypeDelegated from the specified map of raw messages.
+func UnmarshalVpcdnsResolverTypeDelegated(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(VpcdnsResolverTypeDelegated)
+	err = core.UnmarshalModel(m, "servers", &obj.Servers, UnmarshalDnsServer)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "vpc", &obj.VPC, UnmarshalVPCReferenceDnsResolverContext)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// VpcdnsResolverTypeManual : The DNS server addresses are manually specified.
+// This model "extends" VpcdnsResolver
+type VpcdnsResolverTypeManual struct {
+	// The DNS servers for this VPC. The servers are populated:
+	//
+	// - by the system when `dns.resolver.type` is `system`
+	// - using the DNS servers in `dns.resolver.vpc` when `dns.resolver.type` is `delegated`
+	// - using `dns.resolver.manual_servers` when the `dns.resolver.type` is `manual`.
+	Servers []DnsServer `json:"servers" validate:"required"`
+
+	// The manually specified DNS servers for this VPC.
+	ManualServers []DnsServer `json:"manual_servers" validate:"required"`
+
+	// The type of the DNS resolver used for the VPC.
+	Type *string `json:"type" validate:"required"`
+}
+
+// Constants associated with the VpcdnsResolverTypeManual.Type property.
+// The type of the DNS resolver used for the VPC.
+const (
+	VpcdnsResolverTypeManualTypeManualConst = "manual"
+)
+
+func (*VpcdnsResolverTypeManual) isaVpcdnsResolver() bool {
+	return true
+}
+
+// UnmarshalVpcdnsResolverTypeManual unmarshals an instance of VpcdnsResolverTypeManual from the specified map of raw messages.
+func UnmarshalVpcdnsResolverTypeManual(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(VpcdnsResolverTypeManual)
+	err = core.UnmarshalModel(m, "servers", &obj.Servers, UnmarshalDnsServer)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "manual_servers", &obj.ManualServers, UnmarshalDnsServer)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// VpcdnsResolverTypeSystem : The DNS server addresses are provided by the system and depend on the configuration.
+// This model "extends" VpcdnsResolver
+type VpcdnsResolverTypeSystem struct {
+	// The DNS servers for this VPC. The servers are populated:
+	//
+	// - by the system when `dns.resolver.type` is `system`
+	// - using the DNS servers in `dns.resolver.vpc` when `dns.resolver.type` is `delegated`
+	// - using `dns.resolver.manual_servers` when the `dns.resolver.type` is `manual`.
+	Servers []DnsServer `json:"servers" validate:"required"`
+
+	// The configuration of the system DNS resolver for this VPC.
+	//
+	// - `dns_services`: DNS resolvers provided by [DNS
+	//   Services](https://cloud.ibm.com/docs/dns-svcs) are configured for this VPC.
+	//
+	//   This system DNS resolver configuration is used when the VPC has:
+	//
+	//   - any endpoint gateways residing in it, or
+	//   - a [DNS Services](https://cloud.ibm.com/docs/dns-svcs) private zone or custom resolver
+	//     configured for it.
+	//
+	// - `default`: The provider default DNS resolvers are configured for this VPC.
+	//
+	//   This system DNS resolver configuration is used when the VPC has:
+	//
+	//   - no endpoint gateways residing in it, and
+	//   - no [DNS Services](https://cloud.ibm.com/docs/dns-svcs) private zone or custom resolver
+	//     configured for it.
+	Configuration *string `json:"configuration" validate:"required"`
+
+	// The type of the DNS resolver used for the VPC.
+	Type *string `json:"type" validate:"required"`
+}
+
+// Constants associated with the VpcdnsResolverTypeSystem.Configuration property.
+// The configuration of the system DNS resolver for this VPC.
+//
+//   - `dns_services`: DNS resolvers provided by [DNS
+//     Services](https://cloud.ibm.com/docs/dns-svcs) are configured for this VPC.
+//
+//     This system DNS resolver configuration is used when the VPC has:
+//
+//   - any endpoint gateways residing in it, or
+//
+//   - a [DNS Services](https://cloud.ibm.com/docs/dns-svcs) private zone or custom resolver
+//     configured for it.
+//
+// - `default`: The provider default DNS resolvers are configured for this VPC.
+//
+//	This system DNS resolver configuration is used when the VPC has:
+//
+//	- no endpoint gateways residing in it, and
+//	- no [DNS Services](https://cloud.ibm.com/docs/dns-svcs) private zone or custom resolver
+//	  configured for it.
+const (
+	VpcdnsResolverTypeSystemConfigurationDefaultConst     = "default"
+	VpcdnsResolverTypeSystemConfigurationDnsServicesConst = "dns_services"
+)
+
+// Constants associated with the VpcdnsResolverTypeSystem.Type property.
+// The type of the DNS resolver used for the VPC.
+const (
+	VpcdnsResolverTypeSystemTypeSystemConst = "system"
+)
+
+func (*VpcdnsResolverTypeSystem) isaVpcdnsResolver() bool {
+	return true
+}
+
+// UnmarshalVpcdnsResolverTypeSystem unmarshals an instance of VpcdnsResolverTypeSystem from the specified map of raw messages.
+func UnmarshalVpcdnsResolverTypeSystem(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(VpcdnsResolverTypeSystem)
+	err = core.UnmarshalModel(m, "servers", &obj.Servers, UnmarshalDnsServer)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "configuration", &obj.Configuration)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// VpcdnsResolverVPCPatchVPCIdentityByCRN : VpcdnsResolverVPCPatchVPCIdentityByCRN struct
+// This model "extends" VpcdnsResolverVPCPatch
+type VpcdnsResolverVPCPatchVPCIdentityByCRN struct {
+	// The CRN for this VPC.
+	CRN *string `json:"crn" validate:"required"`
+}
+
+// NewVpcdnsResolverVPCPatchVPCIdentityByCRN : Instantiate VpcdnsResolverVPCPatchVPCIdentityByCRN (Generic Model Constructor)
+func (*VpcV1) NewVpcdnsResolverVPCPatchVPCIdentityByCRN(crn string) (_model *VpcdnsResolverVPCPatchVPCIdentityByCRN, err error) {
+	_model = &VpcdnsResolverVPCPatchVPCIdentityByCRN{
+		CRN: core.StringPtr(crn),
+	}
+	err = core.ValidateStruct(_model, "required parameters")
+	return
+}
+
+func (*VpcdnsResolverVPCPatchVPCIdentityByCRN) isaVpcdnsResolverVPCPatch() bool {
+	return true
+}
+
+// UnmarshalVpcdnsResolverVPCPatchVPCIdentityByCRN unmarshals an instance of VpcdnsResolverVPCPatchVPCIdentityByCRN from the specified map of raw messages.
+func UnmarshalVpcdnsResolverVPCPatchVPCIdentityByCRN(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(VpcdnsResolverVPCPatchVPCIdentityByCRN)
+	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// VpcdnsResolverVPCPatchVPCIdentityByHref : VpcdnsResolverVPCPatchVPCIdentityByHref struct
+// This model "extends" VpcdnsResolverVPCPatch
+type VpcdnsResolverVPCPatchVPCIdentityByHref struct {
+	// The URL for this VPC.
+	Href *string `json:"href" validate:"required"`
+}
+
+// NewVpcdnsResolverVPCPatchVPCIdentityByHref : Instantiate VpcdnsResolverVPCPatchVPCIdentityByHref (Generic Model Constructor)
+func (*VpcV1) NewVpcdnsResolverVPCPatchVPCIdentityByHref(href string) (_model *VpcdnsResolverVPCPatchVPCIdentityByHref, err error) {
+	_model = &VpcdnsResolverVPCPatchVPCIdentityByHref{
+		Href: core.StringPtr(href),
+	}
+	err = core.ValidateStruct(_model, "required parameters")
+	return
+}
+
+func (*VpcdnsResolverVPCPatchVPCIdentityByHref) isaVpcdnsResolverVPCPatch() bool {
+	return true
+}
+
+// UnmarshalVpcdnsResolverVPCPatchVPCIdentityByHref unmarshals an instance of VpcdnsResolverVPCPatchVPCIdentityByHref from the specified map of raw messages.
+func UnmarshalVpcdnsResolverVPCPatchVPCIdentityByHref(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(VpcdnsResolverVPCPatchVPCIdentityByHref)
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// VpcdnsResolverVPCPatchVPCIdentityByID : VpcdnsResolverVPCPatchVPCIdentityByID struct
+// This model "extends" VpcdnsResolverVPCPatch
+type VpcdnsResolverVPCPatchVPCIdentityByID struct {
+	// The unique identifier for this VPC.
+	ID *string `json:"id" validate:"required"`
+}
+
+// NewVpcdnsResolverVPCPatchVPCIdentityByID : Instantiate VpcdnsResolverVPCPatchVPCIdentityByID (Generic Model Constructor)
+func (*VpcV1) NewVpcdnsResolverVPCPatchVPCIdentityByID(id string) (_model *VpcdnsResolverVPCPatchVPCIdentityByID, err error) {
+	_model = &VpcdnsResolverVPCPatchVPCIdentityByID{
+		ID: core.StringPtr(id),
+	}
+	err = core.ValidateStruct(_model, "required parameters")
+	return
+}
+
+func (*VpcdnsResolverVPCPatchVPCIdentityByID) isaVpcdnsResolverVPCPatch() bool {
+	return true
+}
+
+// UnmarshalVpcdnsResolverVPCPatchVPCIdentityByID unmarshals an instance of VpcdnsResolverVPCPatchVPCIdentityByID from the specified map of raw messages.
+func UnmarshalVpcdnsResolverVPCPatchVPCIdentityByID(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(VpcdnsResolverVPCPatchVPCIdentityByID)
+	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
 // VPCIdentityByCRN : VPCIdentityByCRN struct
 // This model "extends" VPCIdentity
 type VPCIdentityByCRN struct {
@@ -85039,6 +87237,160 @@ func UnmarshalVolumePrototypeVolumeBySourceSnapshot(m map[string]json.RawMessage
 		return
 	}
 	err = core.UnmarshalModel(m, "source_snapshot", &obj.SourceSnapshot, UnmarshalSnapshotIdentity)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// VpcdnsPatchResolverVpcdnsResolverPatchPrototype : VpcdnsPatchResolverVpcdnsResolverPatchPrototype struct
+// This model "extends" VpcdnsPatchResolver
+type VpcdnsPatchResolverVpcdnsResolverPatchPrototype struct {
+	ManualServers []DnsServerPrototype `json:"manual_servers,omitempty"`
+
+	// The type of the DNS resolver to use.
+	//
+	// - `delegated`: DNS server addresses will be provided by the resolver for the VPC
+	//                specified in `dns.resolver.vpc`. Requires `dns.enable_hub` to be
+	//                `false`.
+	// - `manual`: DNS server addresses are specified in `dns.resolver.manual_servers`.
+	// - `system`: DNS server addresses will be provided by the system and depend on the
+	//             configuration.
+	//
+	// Updating from `manual` requires `dns.resolver.manual_servers` to be specified as
+	// `null`.
+	//
+	// Updating to `manual` requires `dns.resolver.manual_servers` to be specified and not empty.
+	//
+	// Updating from `delegated` requires `dns.resolver.vpc` to be specified as `null`.
+	Type *string `json:"type,omitempty"`
+
+	// The VPC to provide DNS server addresses for this VPC.  The specified VPC must be configured
+	// with a [DNS Services](https://cloud.ibm.com/docs/dns-svcs) custom resolver and must be in
+	// one of this VPC's DNS resolution bindings.
+	//
+	// Specify `null` to remove an existing VPC.
+	//
+	// This property must be set if and only if `dns.resolver.type` is `delegated`.
+	VPC VpcdnsResolverVPCPatchIntf `json:"vpc,omitempty"`
+}
+
+// Constants associated with the VpcdnsPatchResolverVpcdnsResolverPatchPrototype.Type property.
+// The type of the DNS resolver to use.
+//
+//   - `delegated`: DNS server addresses will be provided by the resolver for the VPC
+//     specified in `dns.resolver.vpc`. Requires `dns.enable_hub` to be
+//     `false`.
+//   - `manual`: DNS server addresses are specified in `dns.resolver.manual_servers`.
+//   - `system`: DNS server addresses will be provided by the system and depend on the
+//     configuration.
+//
+// Updating from `manual` requires `dns.resolver.manual_servers` to be specified as
+// `null`.
+//
+// Updating to `manual` requires `dns.resolver.manual_servers` to be specified and not empty.
+//
+// Updating from `delegated` requires `dns.resolver.vpc` to be specified as `null`.
+const (
+	VpcdnsPatchResolverVpcdnsResolverPatchPrototypeTypeDelegatedConst = "delegated"
+	VpcdnsPatchResolverVpcdnsResolverPatchPrototypeTypeManualConst    = "manual"
+	VpcdnsPatchResolverVpcdnsResolverPatchPrototypeTypeSystemConst    = "system"
+)
+
+func (*VpcdnsPatchResolverVpcdnsResolverPatchPrototype) isaVpcdnsPatchResolver() bool {
+	return true
+}
+
+// UnmarshalVpcdnsPatchResolverVpcdnsResolverPatchPrototype unmarshals an instance of VpcdnsPatchResolverVpcdnsResolverPatchPrototype from the specified map of raw messages.
+func UnmarshalVpcdnsPatchResolverVpcdnsResolverPatchPrototype(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(VpcdnsPatchResolverVpcdnsResolverPatchPrototype)
+	err = core.UnmarshalModel(m, "manual_servers", &obj.ManualServers, UnmarshalDnsServerPrototype)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "vpc", &obj.VPC, UnmarshalVpcdnsResolverVPCPatch)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// VpcdnsPatchResolverVpcdnsResolverPatchWithZoneAffinityPrototype : VpcdnsPatchResolverVpcdnsResolverPatchWithZoneAffinityPrototype struct
+// This model "extends" VpcdnsPatchResolver
+type VpcdnsPatchResolverVpcdnsResolverPatchWithZoneAffinityPrototype struct {
+	ManualServers []DnsServerWithZoneAffinityPrototype `json:"manual_servers,omitempty"`
+
+	// The type of the DNS resolver to use.
+	//
+	// - `delegated`: DNS server addresses will be provided by the resolver for the VPC
+	//                specified in `dns.resolver.vpc`. Requires `dns.enable_hub` to be
+	//                `false`.
+	// - `manual`: DNS server addresses are specified in `dns.resolver.manual_servers`.
+	// - `system`: DNS server addresses will be provided by the system and depend on the
+	//             configuration.
+	//
+	// Updating from `manual` requires `dns.resolver.manual_servers` to be specified as
+	// `null`.
+	//
+	// Updating to `manual` requires `dns.resolver.manual_servers` to be specified and not empty.
+	//
+	// Updating from `delegated` requires `dns.resolver.vpc` to be specified as `null`.
+	Type *string `json:"type,omitempty"`
+
+	// The VPC to provide DNS server addresses for this VPC.  The specified VPC must be configured
+	// with a [DNS Services](https://cloud.ibm.com/docs/dns-svcs) custom resolver and must be in
+	// one of this VPC's DNS resolution bindings.
+	//
+	// Specify `null` to remove an existing VPC.
+	//
+	// This property must be set if and only if `dns.resolver.type` is `delegated`.
+	VPC VpcdnsResolverVPCPatchIntf `json:"vpc,omitempty"`
+}
+
+// Constants associated with the VpcdnsPatchResolverVpcdnsResolverPatchWithZoneAffinityPrototype.Type property.
+// The type of the DNS resolver to use.
+//
+//   - `delegated`: DNS server addresses will be provided by the resolver for the VPC
+//     specified in `dns.resolver.vpc`. Requires `dns.enable_hub` to be
+//     `false`.
+//   - `manual`: DNS server addresses are specified in `dns.resolver.manual_servers`.
+//   - `system`: DNS server addresses will be provided by the system and depend on the
+//     configuration.
+//
+// Updating from `manual` requires `dns.resolver.manual_servers` to be specified as
+// `null`.
+//
+// Updating to `manual` requires `dns.resolver.manual_servers` to be specified and not empty.
+//
+// Updating from `delegated` requires `dns.resolver.vpc` to be specified as `null`.
+const (
+	VpcdnsPatchResolverVpcdnsResolverPatchWithZoneAffinityPrototypeTypeDelegatedConst = "delegated"
+	VpcdnsPatchResolverVpcdnsResolverPatchWithZoneAffinityPrototypeTypeManualConst    = "manual"
+	VpcdnsPatchResolverVpcdnsResolverPatchWithZoneAffinityPrototypeTypeSystemConst    = "system"
+)
+
+func (*VpcdnsPatchResolverVpcdnsResolverPatchWithZoneAffinityPrototype) isaVpcdnsPatchResolver() bool {
+	return true
+}
+
+// UnmarshalVpcdnsPatchResolverVpcdnsResolverPatchWithZoneAffinityPrototype unmarshals an instance of VpcdnsPatchResolverVpcdnsResolverPatchWithZoneAffinityPrototype from the specified map of raw messages.
+func UnmarshalVpcdnsPatchResolverVpcdnsResolverPatchWithZoneAffinityPrototype(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(VpcdnsPatchResolverVpcdnsResolverPatchWithZoneAffinityPrototype)
+	err = core.UnmarshalModel(m, "manual_servers", &obj.ManualServers, UnmarshalDnsServerWithZoneAffinityPrototype)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "vpc", &obj.VPC, UnmarshalVpcdnsResolverVPCPatch)
 	if err != nil {
 		return
 	}
@@ -87928,6 +90280,104 @@ func UnmarshalSecurityGroupRuleRemotePrototypeSecurityGroupIdentitySecurityGroup
 	return
 }
 
+// VpcdnsResolverPrototypeVpcdnsResolverTypeManualPrototypeVpcdnsResolverTypeManualPrototypeVpcdnsResolverTypeManualDnsServersPrototype : Manually specify the DNS server addresses for this VPC.
+// This model "extends" VpcdnsResolverPrototypeVpcdnsResolverTypeManualPrototype
+type VpcdnsResolverPrototypeVpcdnsResolverTypeManualPrototypeVpcdnsResolverTypeManualPrototypeVpcdnsResolverTypeManualDnsServersPrototype struct {
+	// The DNS servers to use for this VPC.
+	ManualServers []DnsServerPrototype `json:"manual_servers" validate:"required"`
+
+	// The type of the DNS resolver to use.
+	Type *string `json:"type" validate:"required"`
+}
+
+// Constants associated with the VpcdnsResolverPrototypeVpcdnsResolverTypeManualPrototypeVpcdnsResolverTypeManualPrototypeVpcdnsResolverTypeManualDnsServersPrototype.Type property.
+// The type of the DNS resolver to use.
+const (
+	VpcdnsResolverPrototypeVpcdnsResolverTypeManualPrototypeVpcdnsResolverTypeManualPrototypeVpcdnsResolverTypeManualDnsServersPrototypeTypeManualConst = "manual"
+)
+
+// NewVpcdnsResolverPrototypeVpcdnsResolverTypeManualPrototypeVpcdnsResolverTypeManualPrototypeVpcdnsResolverTypeManualDnsServersPrototype : Instantiate VpcdnsResolverPrototypeVpcdnsResolverTypeManualPrototypeVpcdnsResolverTypeManualPrototypeVpcdnsResolverTypeManualDnsServersPrototype (Generic Model Constructor)
+func (*VpcV1) NewVpcdnsResolverPrototypeVpcdnsResolverTypeManualPrototypeVpcdnsResolverTypeManualPrototypeVpcdnsResolverTypeManualDnsServersPrototype(manualServers []DnsServerPrototype, typeVar string) (_model *VpcdnsResolverPrototypeVpcdnsResolverTypeManualPrototypeVpcdnsResolverTypeManualPrototypeVpcdnsResolverTypeManualDnsServersPrototype, err error) {
+	_model = &VpcdnsResolverPrototypeVpcdnsResolverTypeManualPrototypeVpcdnsResolverTypeManualPrototypeVpcdnsResolverTypeManualDnsServersPrototype{
+		ManualServers: manualServers,
+		Type:          core.StringPtr(typeVar),
+	}
+	err = core.ValidateStruct(_model, "required parameters")
+	return
+}
+
+func (*VpcdnsResolverPrototypeVpcdnsResolverTypeManualPrototypeVpcdnsResolverTypeManualPrototypeVpcdnsResolverTypeManualDnsServersPrototype) isaVpcdnsResolverPrototypeVpcdnsResolverTypeManualPrototype() bool {
+	return true
+}
+
+func (*VpcdnsResolverPrototypeVpcdnsResolverTypeManualPrototypeVpcdnsResolverTypeManualPrototypeVpcdnsResolverTypeManualDnsServersPrototype) isaVpcdnsResolverPrototype() bool {
+	return true
+}
+
+// UnmarshalVpcdnsResolverPrototypeVpcdnsResolverTypeManualPrototypeVpcdnsResolverTypeManualPrototypeVpcdnsResolverTypeManualDnsServersPrototype unmarshals an instance of VpcdnsResolverPrototypeVpcdnsResolverTypeManualPrototypeVpcdnsResolverTypeManualPrototypeVpcdnsResolverTypeManualDnsServersPrototype from the specified map of raw messages.
+func UnmarshalVpcdnsResolverPrototypeVpcdnsResolverTypeManualPrototypeVpcdnsResolverTypeManualPrototypeVpcdnsResolverTypeManualDnsServersPrototype(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(VpcdnsResolverPrototypeVpcdnsResolverTypeManualPrototypeVpcdnsResolverTypeManualPrototypeVpcdnsResolverTypeManualDnsServersPrototype)
+	err = core.UnmarshalModel(m, "manual_servers", &obj.ManualServers, UnmarshalDnsServerPrototype)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// VpcdnsResolverPrototypeVpcdnsResolverTypeManualPrototypeVpcdnsResolverTypeManualPrototypeVpcdnsResolverTypeManualDnsServersWithZoneAffinityPrototype : Manually specify the DNS server addresses for this VPC.
+// This model "extends" VpcdnsResolverPrototypeVpcdnsResolverTypeManualPrototype
+type VpcdnsResolverPrototypeVpcdnsResolverTypeManualPrototypeVpcdnsResolverTypeManualPrototypeVpcdnsResolverTypeManualDnsServersWithZoneAffinityPrototype struct {
+	// The DNS servers to use for this VPC.
+	ManualServers []DnsServerWithZoneAffinityPrototype `json:"manual_servers" validate:"required"`
+
+	// The type of the DNS resolver to use.
+	Type *string `json:"type" validate:"required"`
+}
+
+// Constants associated with the VpcdnsResolverPrototypeVpcdnsResolverTypeManualPrototypeVpcdnsResolverTypeManualPrototypeVpcdnsResolverTypeManualDnsServersWithZoneAffinityPrototype.Type property.
+// The type of the DNS resolver to use.
+const (
+	VpcdnsResolverPrototypeVpcdnsResolverTypeManualPrototypeVpcdnsResolverTypeManualPrototypeVpcdnsResolverTypeManualDnsServersWithZoneAffinityPrototypeTypeManualConst = "manual"
+)
+
+// NewVpcdnsResolverPrototypeVpcdnsResolverTypeManualPrototypeVpcdnsResolverTypeManualPrototypeVpcdnsResolverTypeManualDnsServersWithZoneAffinityPrototype : Instantiate VpcdnsResolverPrototypeVpcdnsResolverTypeManualPrototypeVpcdnsResolverTypeManualPrototypeVpcdnsResolverTypeManualDnsServersWithZoneAffinityPrototype (Generic Model Constructor)
+func (*VpcV1) NewVpcdnsResolverPrototypeVpcdnsResolverTypeManualPrototypeVpcdnsResolverTypeManualPrototypeVpcdnsResolverTypeManualDnsServersWithZoneAffinityPrototype(manualServers []DnsServerWithZoneAffinityPrototype, typeVar string) (_model *VpcdnsResolverPrototypeVpcdnsResolverTypeManualPrototypeVpcdnsResolverTypeManualPrototypeVpcdnsResolverTypeManualDnsServersWithZoneAffinityPrototype, err error) {
+	_model = &VpcdnsResolverPrototypeVpcdnsResolverTypeManualPrototypeVpcdnsResolverTypeManualPrototypeVpcdnsResolverTypeManualDnsServersWithZoneAffinityPrototype{
+		ManualServers: manualServers,
+		Type:          core.StringPtr(typeVar),
+	}
+	err = core.ValidateStruct(_model, "required parameters")
+	return
+}
+
+func (*VpcdnsResolverPrototypeVpcdnsResolverTypeManualPrototypeVpcdnsResolverTypeManualPrototypeVpcdnsResolverTypeManualDnsServersWithZoneAffinityPrototype) isaVpcdnsResolverPrototypeVpcdnsResolverTypeManualPrototype() bool {
+	return true
+}
+
+func (*VpcdnsResolverPrototypeVpcdnsResolverTypeManualPrototypeVpcdnsResolverTypeManualPrototypeVpcdnsResolverTypeManualDnsServersWithZoneAffinityPrototype) isaVpcdnsResolverPrototype() bool {
+	return true
+}
+
+// UnmarshalVpcdnsResolverPrototypeVpcdnsResolverTypeManualPrototypeVpcdnsResolverTypeManualPrototypeVpcdnsResolverTypeManualDnsServersWithZoneAffinityPrototype unmarshals an instance of VpcdnsResolverPrototypeVpcdnsResolverTypeManualPrototypeVpcdnsResolverTypeManualPrototypeVpcdnsResolverTypeManualDnsServersWithZoneAffinityPrototype from the specified map of raw messages.
+func UnmarshalVpcdnsResolverPrototypeVpcdnsResolverTypeManualPrototypeVpcdnsResolverTypeManualPrototypeVpcdnsResolverTypeManualDnsServersWithZoneAffinityPrototype(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(VpcdnsResolverPrototypeVpcdnsResolverTypeManualPrototypeVpcdnsResolverTypeManualPrototypeVpcdnsResolverTypeManualDnsServersWithZoneAffinityPrototype)
+	err = core.UnmarshalModel(m, "manual_servers", &obj.ManualServers, UnmarshalDnsServerWithZoneAffinityPrototype)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
 // VolumeAttachmentPrototypeVolumeVolumeIdentityVolumeIdentityByCRN : VolumeAttachmentPrototypeVolumeVolumeIdentityVolumeIdentityByCRN struct
 // This model "extends" VolumeAttachmentPrototypeVolumeVolumeIdentity
 type VolumeAttachmentPrototypeVolumeVolumeIdentityVolumeIdentityByCRN struct {
@@ -88575,6 +91025,91 @@ func (pager *VPCAddressPrefixesPager) GetNext() (page []AddressPrefix, err error
 
 // GetAll invokes GetAllWithContext() using context.Background() as the Context parameter.
 func (pager *VPCAddressPrefixesPager) GetAll() (allItems []AddressPrefix, err error) {
+	return pager.GetAllWithContext(context.Background())
+}
+
+// VPCDnsResolutionBindingsPager can be used to simplify the use of the "ListVPCDnsResolutionBindings" method.
+type VPCDnsResolutionBindingsPager struct {
+	hasNext     bool
+	options     *ListVPCDnsResolutionBindingsOptions
+	client      *VpcV1
+	pageContext struct {
+		next *string
+	}
+}
+
+// NewVPCDnsResolutionBindingsPager returns a new VPCDnsResolutionBindingsPager instance.
+func (vpc *VpcV1) NewVPCDnsResolutionBindingsPager(options *ListVPCDnsResolutionBindingsOptions) (pager *VPCDnsResolutionBindingsPager, err error) {
+	if options.Start != nil && *options.Start != "" {
+		err = fmt.Errorf("the 'options.Start' field should not be set")
+		return
+	}
+
+	var optionsCopy ListVPCDnsResolutionBindingsOptions = *options
+	pager = &VPCDnsResolutionBindingsPager{
+		hasNext: true,
+		options: &optionsCopy,
+		client:  vpc,
+	}
+	return
+}
+
+// HasNext returns true if there are potentially more results to be retrieved.
+func (pager *VPCDnsResolutionBindingsPager) HasNext() bool {
+	return pager.hasNext
+}
+
+// GetNextWithContext returns the next page of results using the specified Context.
+func (pager *VPCDnsResolutionBindingsPager) GetNextWithContext(ctx context.Context) (page []VpcdnsResolutionBinding, err error) {
+	if !pager.HasNext() {
+		return nil, fmt.Errorf("no more results available")
+	}
+
+	pager.options.Start = pager.pageContext.next
+
+	result, _, err := pager.client.ListVPCDnsResolutionBindingsWithContext(ctx, pager.options)
+	if err != nil {
+		return
+	}
+
+	var next *string
+	if result.Next != nil {
+		var start *string
+		start, err = core.GetQueryParam(result.Next.Href, "start")
+		if err != nil {
+			err = fmt.Errorf("error retrieving 'start' query parameter from URL '%s': %s", *result.Next.Href, err.Error())
+			return
+		}
+		next = start
+	}
+	pager.pageContext.next = next
+	pager.hasNext = (pager.pageContext.next != nil)
+	page = result.DnsResolutionBindings
+
+	return
+}
+
+// GetAllWithContext returns all results by invoking GetNextWithContext() repeatedly
+// until all pages of results have been retrieved.
+func (pager *VPCDnsResolutionBindingsPager) GetAllWithContext(ctx context.Context) (allItems []VpcdnsResolutionBinding, err error) {
+	for pager.HasNext() {
+		var nextPage []VpcdnsResolutionBinding
+		nextPage, err = pager.GetNextWithContext(ctx)
+		if err != nil {
+			return
+		}
+		allItems = append(allItems, nextPage...)
+	}
+	return
+}
+
+// GetNext invokes GetNextWithContext() using context.Background() as the Context parameter.
+func (pager *VPCDnsResolutionBindingsPager) GetNext() (page []VpcdnsResolutionBinding, err error) {
+	return pager.GetNextWithContext(context.Background())
+}
+
+// GetAll invokes GetAllWithContext() using context.Background() as the Context parameter.
+func (pager *VPCDnsResolutionBindingsPager) GetAll() (allItems []VpcdnsResolutionBinding, err error) {
 	return pager.GetAllWithContext(context.Background())
 }
 
