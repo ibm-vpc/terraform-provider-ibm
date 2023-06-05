@@ -492,7 +492,7 @@ func resourceIBMisVirtualEndpointGatewayRead(d *schema.ResourceData, meta interf
 			return nil
 		}
 		log.Printf("Get Endpoint Gateway failed: %v", response)
-		return fmt.Errorf("Get Endpoint Gateway failed %s\n%s", err, response)
+		return fmt.Errorf("[ERROR] Get Endpoint Gateway failed %s\n%s", err, response)
 	}
 	d.Set(isVirtualEndpointGatewayName, endpointGateway.Name)
 	d.Set(isVirtualEndpointGatewayHealthState, endpointGateway.HealthState)
