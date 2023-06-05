@@ -215,7 +215,7 @@ func ResourceIBMISEndpointGateway() *schema.Resource {
 				Type:        schema.TypeBool,
 				Optional:    true,
 				Computed:    true,
-				Description: "ndicates whether to allow this endpoint gateway to participate in DNS resolution bindings with a VPC that has dns.enable_hub set to true.",
+				Description: "Indicates whether to allow this endpoint gateway to participate in DNS resolution bindings with a VPC that has dns.enable_hub set to true.",
 			},
 			isVirtualEndpointGatewayTags: {
 				Type:        schema.TypeSet,
@@ -349,7 +349,7 @@ func resourceIBMisVirtualEndpointGatewayCreate(d *schema.ResourceData, meta inte
 	endpointGateway, response, err := sess.CreateEndpointGateway(opt)
 	if err != nil {
 		log.Printf("Create Endpoint Gateway failed: %v", response)
-		return fmt.Errorf("Create Endpoint Gateway failed %s\n%s", err, response)
+		return fmt.Errorf("[ERROR] Create Endpoint Gateway failed %s\n%s", err, response)
 	}
 
 	d.SetId(*endpointGateway.ID)
@@ -385,21 +385,22 @@ func resourceIBMisVirtualEndpointGatewayUpdate(d *schema.ResourceData, meta inte
 	if err != nil {
 		return err
 	}
-
+	// create option
+	endpointGatewayPatchModel := new(vpcv1.EndpointGatewayPatch)
 	if d.HasChange(isVirtualEndpointGatewayName) {
 		name := d.Get(isVirtualEndpointGatewayName).(string)
-
-		// create option
-		endpointGatewayPatchModel := new(vpcv1.EndpointGatewayPatch)
 		endpointGatewayPatchModel.Name = core.StringPtr(name)
-		endpointGatewayPatchModelAsPatch, _ := endpointGatewayPatchModel.AsPatch()
-		opt := sess.NewUpdateEndpointGatewayOptions(d.Id(), endpointGatewayPatchModelAsPatch)
-		_, response, err := sess.UpdateEndpointGateway(opt)
-		if err != nil {
-			log.Printf("Update Endpoint Gateway failed: %v", response)
-			return fmt.Errorf("Update Endpoint Gateway failed : %s\n%s", err, response)
-		}
-
+	}
+	if d.HasChange(isVirtualEndpointGatewayAllowDnsResolutionBinding) {
+		name := d.Get(isVirtualEndpointGatewayName).(string)
+		endpointGatewayPatchModel.Name = core.StringPtr(name)
+	}
+	endpointGatewayPatchModelAsPatch, _ := endpointGatewayPatchModel.AsPatch()
+	opt := sess.NewUpdateEndpointGatewayOptions(d.Id(), endpointGatewayPatchModelAsPatch)
+	_, response, err := sess.UpdateEndpointGateway(opt)
+	if err != nil {
+		log.Printf("Update Endpoint Gateway failed: %v", response)
+		return fmt.Errorf("Update Endpoint Gateway failed : %s\n%s", err, response)
 	}
 	id := d.Id()
 	var remove, add []string
@@ -497,6 +498,7 @@ func resourceIBMisVirtualEndpointGatewayRead(d *schema.ResourceData, meta interf
 	d.Set(isVirtualEndpointGatewayHealthState, endpointGateway.HealthState)
 	d.Set(isVirtualEndpointGatewayCreatedAt, endpointGateway.CreatedAt.String())
 	d.Set(isVirtualEndpointGatewayLifecycleState, endpointGateway.LifecycleState)
+	d.Set(isVirtualEndpointGatewayAllowDnsResolutionBinding, endpointGateway.AllowDnsResolutionBinding)
 	d.Set(isVirtualEndpointGatewayResourceType, endpointGateway.ResourceType)
 	d.Set(isVirtualEndpointGatewayCRN, endpointGateway.CRN)
 	d.Set(isVirtualEndpointGatewayIPs, flattenIPs(endpointGateway.Ips))
