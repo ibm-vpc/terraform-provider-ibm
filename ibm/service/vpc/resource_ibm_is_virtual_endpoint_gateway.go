@@ -342,7 +342,7 @@ func resourceIBMisVirtualEndpointGatewayCreate(d *schema.ResourceData, meta inte
 
 	}
 	// dns resolution binding change
-	if allowDnsResolutionBindingOk, ok = d.GetOk(isVirtualEndpointGatewayAllowDnsResolutionBinding); ok {
+	if allowDnsResolutionBindingOk, ok := d.GetOk(isVirtualEndpointGatewayAllowDnsResolutionBinding); ok {
 		allowDnsResolutionBinding := allowDnsResolutionBindingOk.(bool)
 		opt.AllowDnsResolutionBinding = &allowDnsResolutionBinding
 	}
