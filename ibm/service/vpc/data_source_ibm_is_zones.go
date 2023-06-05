@@ -51,7 +51,7 @@ func zonesList(d *schema.ResourceData, meta interface{}, regionName string) erro
 		return err
 	}
 	listRegionZonesOptions := &vpcv1.ListRegionZonesOptions{
-		RegionName: &regionName,
+		Name: &regionName,
 	}
 	availableZones, _, err := sess.ListRegionZones(listRegionZonesOptions)
 	if err != nil {
