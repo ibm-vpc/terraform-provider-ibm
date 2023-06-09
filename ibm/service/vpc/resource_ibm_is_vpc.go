@@ -21,46 +21,58 @@ import (
 )
 
 const (
-	isVPCDefaultNetworkACL          = "default_network_acl"
-	isVPCDefaultSecurityGroup       = "default_security_group"
-	isVPCDefaultRoutingTable        = "default_routing_table"
-	isVPCName                       = "name"
-	isVPCDefaultNetworkACLName      = "default_network_acl_name"
-	isVPCDefaultNetworkACLCRN       = "default_network_acl_crn"
-	isVPCDefaultSecurityGroupName   = "default_security_group_name"
-	isVPCDefaultSecurityGroupCRN    = "default_security_group_crn"
-	isVPCDefaultRoutingTableName    = "default_routing_table_name"
-	isVPCResourceGroup              = "resource_group"
-	isVPCStatus                     = "status"
-	isVPCDeleting                   = "deleting"
-	isVPCDeleted                    = "done"
-	isVPCTags                       = "tags"
-	isVPCClassicAccess              = "classic_access"
-	isVPCAvailable                  = "available"
-	isVPCFailed                     = "failed"
-	isVPCPending                    = "pending"
-	isVPCAddressPrefixManagement    = "address_prefix_management"
-	cseSourceAddresses              = "cse_source_addresses"
-	subnetsList                     = "subnets"
-	totalIPV4AddressCount           = "total_ipv4_address_count"
-	availableIPV4AddressCount       = "available_ipv4_address_count"
-	isVPCCRN                        = "crn"
-	isVPCSecurityGroupList          = "security_group"
-	isVPCSecurityGroupName          = "group_name"
-	isVPCSgRules                    = "rules"
-	isVPCSecurityGroupRuleID        = "rule_id"
-	isVPCSecurityGroupRuleDirection = "direction"
-	isVPCSecurityGroupRuleIPVersion = "ip_version"
-	isVPCSecurityGroupRuleRemote    = "remote"
-	isVPCSecurityGroupRuleType      = "type"
-	isVPCSecurityGroupRuleCode      = "code"
-	isVPCSecurityGroupRulePortMax   = "port_max"
-	isVPCSecurityGroupRulePortMin   = "port_min"
-	isVPCSecurityGroupRuleProtocol  = "protocol"
-	isVPCSecurityGroupID            = "group_id"
-	isVPCAccessTags                 = "access_tags"
-	isVPCUserTagType                = "user"
-	isVPCAccessTagType              = "access"
+	isVPCDefaultNetworkACL                    = "default_network_acl"
+	isVPCDefaultSecurityGroup                 = "default_security_group"
+	isVPCDefaultRoutingTable                  = "default_routing_table"
+	isVPCName                                 = "name"
+	isVPCDefaultNetworkACLName                = "default_network_acl_name"
+	isVPCDefaultNetworkACLCRN                 = "default_network_acl_crn"
+	isVPCDefaultSecurityGroupName             = "default_security_group_name"
+	isVPCDefaultSecurityGroupCRN              = "default_security_group_crn"
+	isVPCDefaultRoutingTableName              = "default_routing_table_name"
+	isVPCResourceGroup                        = "resource_group"
+	isVPCStatus                               = "status"
+	isVPCDeleting                             = "deleting"
+	isVPCDeleted                              = "done"
+	isVPCTags                                 = "tags"
+	isVPCClassicAccess                        = "classic_access"
+	isVPCAvailable                            = "available"
+	isVPCFailed                               = "failed"
+	isVPCPending                              = "pending"
+	isVPCAddressPrefixManagement              = "address_prefix_management"
+	cseSourceAddresses                        = "cse_source_addresses"
+	subnetsList                               = "subnets"
+	totalIPV4AddressCount                     = "total_ipv4_address_count"
+	availableIPV4AddressCount                 = "available_ipv4_address_count"
+	isVPCCRN                                  = "crn"
+	isVPCSecurityGroupList                    = "security_group"
+	isVPCSecurityGroupName                    = "group_name"
+	isVPCSgRules                              = "rules"
+	isVPCSecurityGroupRuleID                  = "rule_id"
+	isVPCSecurityGroupRuleDirection           = "direction"
+	isVPCSecurityGroupRuleIPVersion           = "ip_version"
+	isVPCSecurityGroupRuleRemote              = "remote"
+	isVPCSecurityGroupRuleType                = "type"
+	isVPCSecurityGroupRuleCode                = "code"
+	isVPCSecurityGroupRulePortMax             = "port_max"
+	isVPCSecurityGroupRulePortMin             = "port_min"
+	isVPCSecurityGroupRuleProtocol            = "protocol"
+	isVPCSecurityGroupID                      = "group_id"
+	isVPCAccessTags                           = "access_tags"
+	isVPCAccessTagType                        = "access"
+	isVPCUserTagType                          = "dns"
+	isVPCDns                                  = "access"
+	isVPCDnsEnableHub                         = "enable_hub"
+	isVPCDnsResolutionBindingCount            = "resolution_binding_count"
+	isVPCDnsResolver                          = "resolver"
+	isVPCDnsResolverManualServers             = "manual_servers"
+	isVPCDnsResolverManualServersAddress      = "address"
+	isVPCDnsResolverManualServersZoneAffinity = "zone_affinity"
+	isVPCDnsResolverType                      = "type"
+	isVPCDnsResolverVpc                       = "vpc"
+	isVPCDnsResolverVpcId                     = "id"
+	isVPCDnsResolverVpcHref                   = "href"
+	isVPCDnsResolverVpcCrn                    = "crn"
 )
 
 func ResourceIBMISVPC() *schema.Resource {
@@ -110,6 +122,61 @@ func ResourceIBMISVPC() *schema.Resource {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "Default routing table associated with VPC",
+			},
+			isVPCDns: &schema.Schema{
+				Type:        schema.TypeList,
+				MaxItems:    1,
+				Optional:    true,
+				Description: "The DNS configuration for this VPC.If unspecified, the system will assign DNS servers capable of resolving hosts and endpointgateways within this VPC, and hosts on the internet.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						isVPCDnsEnableHub: &schema.Schema{
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: "Indicates whether this VPC is enabled as a DNS name resolution hub.",
+						},
+						isVPCDnsResolutionBindingCount: &schema.Schema{
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Computed:    true,
+							Description: "The number of DNS resolution bindings for this VPC.",
+						},
+						isVPCDnsResolver: &schema.Schema{
+							Type:     schema.TypeList,
+							MaxItems: 1,
+							Optional: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									isVPCDnsResolverType: &schema.Schema{
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: "The type of the DNS resolver to use.- `manual`: DNS server addresses are specified in `dns.resolver.manual_servers`.- `system`: DNS server addresses will be provided by the system and depend on the configuration.",
+									},
+									isVPCDnsResolverManualServers: &schema.Schema{
+										Type:        schema.TypeList,
+										MaxItems:    1,
+										Optional:    true,
+										Description: "The manually specified DNS servers for this VPC.",
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												isVPCDnsResolverManualServersAddress: &schema.Schema{
+													Type:        schema.TypeString,
+													Optional:    true,
+													Description: "The IP address. This property may add support for IPv6 addresses in the future. When processing a value in this property, verify that the address is in an expected format. If it is not, log an error. Optionally halt processing and surface the error, or bypass the resource on which the unexpected IP address format was encountered.",
+												},
+												isVPCDnsResolverManualServersZoneAffinity: &schema.Schema{
+													Type:        schema.TypeString,
+													Optional:    true,
+													Description: "If present, DHCP configuration for this zone will have this DNS server listed first.",
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
 			},
 
 			isVPCClassicAccess: {
@@ -493,6 +560,29 @@ func vpcCreate(d *schema.ResourceData, meta interface{}, name, apm, rg string, i
 	options := &vpcv1.CreateVPCOptions{
 		Name: &name,
 	}
+	if vpcDnsOk, ok := d.GetOk(isVPCDns); ok {
+		vpcDns := vpcDnsOk.([]interface{})[0].(map[string]interface{})
+		vpcDnsEnableHub, _ := vpcDns[isVPCDnsEnableHub].(bool)
+		vpcdnsPrototype := &vpcv1.VpcdnsPrototype{
+			EnableHub: &vpcDnsEnableHub,
+		}
+		vpcDnsManualServers, _ := vpcDns[isVPCDnsResolverManualServers].([]interface{})[0].(map[string]interface{})
+		if len(vpcDnsManualServers) > 0 {
+			resolverType := "manual"
+			resolver := &vpcv1.VpcdnsResolverPrototypeVpcdnsResolverTypeSystemPrototype{
+				Type: &resolverType,
+			}
+			vpcdnsPrototype.Resolver = resolver
+
+		} else {
+			resolverType := "system"
+			resolver := &vpcv1.VpcdnsResolverPrototypeVpcdnsResolverTypeSystemPrototype{
+				Type: &resolverType,
+			}
+			vpcdnsPrototype.Resolver = resolver
+		}
+		options.Dns = vpcdnsPrototype
+	}
 	if rg != "" {
 		options.ResourceGroup = &vpcv1.ResourceGroupIdentity{
 			ID: &rg,
@@ -643,6 +733,47 @@ func vpcGet(d *schema.ResourceData, meta interface{}, id string) error {
 	controller, err := flex.GetBaseController(meta)
 	if err != nil {
 		return err
+	}
+	if vpc.Dns != nil {
+		dnsList := make([]map[string]interface{}, 0)
+		currentDns := map[string]interface{}{}
+		if vpc.Dns.EnableHub != nil {
+			currentDns[isVPCDnsEnableHub] = vpc.Dns.EnableHub
+		}
+		if vpc.Dns.ResolutionBindingCount != nil {
+			currentDns[isVPCDnsResolutionBindingCount] = vpc.Dns.ResolutionBindingCount
+		}
+		if vpc.Dns.Resolver != nil {
+			switch reflect.TypeOf(vpc.Dns.Resolver).String() {
+			case "*vpcv1.VpcdnsResolverTypeDelegated":
+				{
+					resolver := vpc.Dns.Resolver.(*vpcv1.VpcdnsResolverTypeDelegated)
+					currentDnsResolver := map[string]interface{}{}
+					currentDnsResolver[isVPCDnsResolverType] = resolver.Type
+
+					currentDnsResolver[isVPCDnsResolverVpc] = setDnsResolverVpc(resolver.VPC)
+					currentDns[isVPCDnsResolver] = resolver
+				}
+			case "*vpcv1.VpcdnsResolverTypeManual":
+				{
+					resolver := vpc.Dns.Resolver.(*vpcv1.VpcdnsResolverTypeDelegated)
+					currentDnsResolver := map[string]interface{}{}
+					currentDnsResolver[isVPCDnsResolverType] = resolver.Type
+					currentDnsResolver[isVPCDnsResolverVpc] = setDnsResolverVpc(resolver.VPC)
+					currentDns[isVPCDnsResolver] = resolver
+				}
+			case "*vpcv1.VpcdnsResolverTypeSystem":
+				{
+					resolver := vpc.Dns.Resolver.(*vpcv1.VpcdnsResolverTypeDelegated)
+					currentDnsResolver := map[string]interface{}{}
+					currentDnsResolver[isVPCDnsResolverType] = resolver.Type
+					currentDnsResolver[isVPCDnsResolverVpc] = setDnsResolverVpc(resolver.VPC)
+					currentDns[isVPCDnsResolver] = resolver
+				}
+			}
+		}
+		dnsList = append(dnsList, currentDns)
+		d.Set(isVPCDns, dnsList)
 	}
 	d.Set(isVPCCRN, *vpc.CRN)
 	d.Set(flex.ResourceControllerURL, controller+"/vpc-ext/network/vpcs")
@@ -1080,4 +1211,11 @@ func suppressNullAddPrefix(k, old, new string, d *schema.ResourceData) bool {
 		return true
 	}
 	return false
+}
+func setDnsResolverVpc(model *vpcv1.VPCReferenceDnsResolverContext) map[string]interface{} {
+	outVpc := map[string]interface{}{}
+	outVpc[isVPCDnsResolverVpcId] = model.ID
+	outVpc[isVPCDnsResolverVpcHref] = model.Href
+	outVpc[isVPCDnsResolverVpcCrn] = model.CRN
+	return outVpc
 }
