@@ -1082,7 +1082,7 @@ func (vpc *VpcV1) ListVPCDnsResolutionBindingsWithContext(ctx context.Context, l
 	}
 
 	pathParamsMap := map[string]string{
-		"vpc_identifier": *listVPCDnsResolutionBindingsOptions.VPCIdentifier,
+		"vpc_id": *listVPCDnsResolutionBindingsOptions.VPCIdentifier,
 	}
 
 	builder := core.NewRequestBuilder(core.GET)
@@ -1174,7 +1174,7 @@ func (vpc *VpcV1) CreateVPCDnsResolutionBindingWithContext(ctx context.Context, 
 	}
 
 	pathParamsMap := map[string]string{
-		"vpc_identifier": *createVPCDnsResolutionBindingOptions.VPCIdentifier,
+		"vpc_id": *createVPCDnsResolutionBindingOptions.VPCIdentifier,
 	}
 
 	builder := core.NewRequestBuilder(core.POST)
@@ -1252,8 +1252,8 @@ func (vpc *VpcV1) DeleteVPCDnsResolutionBindingWithContext(ctx context.Context, 
 	}
 
 	pathParamsMap := map[string]string{
-		"vpc_identifier": *deleteVPCDnsResolutionBindingOptions.VPCIdentifier,
-		"id":             *deleteVPCDnsResolutionBindingOptions.ID,
+		"vpc_id": *deleteVPCDnsResolutionBindingOptions.VPCIdentifier,
+		"id":     *deleteVPCDnsResolutionBindingOptions.ID,
 	}
 
 	builder := core.NewRequestBuilder(core.DELETE)
@@ -1304,8 +1304,8 @@ func (vpc *VpcV1) GetVPCDnsResolutionBindingWithContext(ctx context.Context, get
 	}
 
 	pathParamsMap := map[string]string{
-		"vpc_identifier": *getVPCDnsResolutionBindingOptions.VPCIdentifier,
-		"id":             *getVPCDnsResolutionBindingOptions.ID,
+		"vpc_id": *getVPCDnsResolutionBindingOptions.VPCIdentifier,
+		"id":     *getVPCDnsResolutionBindingOptions.ID,
 	}
 
 	builder := core.NewRequestBuilder(core.GET)
@@ -1370,8 +1370,8 @@ func (vpc *VpcV1) UpdateVPCDnsResolutionBindingWithContext(ctx context.Context, 
 	}
 
 	pathParamsMap := map[string]string{
-		"vpc_identifier": *updateVPCDnsResolutionBindingOptions.VPCIdentifier,
-		"id":             *updateVPCDnsResolutionBindingOptions.ID,
+		"vpc_id": *updateVPCDnsResolutionBindingOptions.VPCIdentifier,
+		"id":     *updateVPCDnsResolutionBindingOptions.ID,
 	}
 
 	builder := core.NewRequestBuilder(core.PATCH)
@@ -29867,7 +29867,7 @@ func (options *CreateVPCAddressPrefixOptions) SetHeaders(param map[string]string
 // CreateVPCDnsResolutionBindingOptions : The CreateVPCDnsResolutionBinding options.
 type CreateVPCDnsResolutionBindingOptions struct {
 	// The VPC identifier.
-	VPCIdentifier *string `json:"vpc_identifier" validate:"required,ne="`
+	VPCIdentifier *string `json:"vpc_id" validate:"required,ne="`
 
 	// Another VPC to bind this VPC to for DNS resolution. The VPC must have
 	// `dns.enable_hub` set to `true`, and may be in a different account (subject to
@@ -34472,7 +34472,7 @@ func (options *DeleteVPCAddressPrefixOptions) SetHeaders(param map[string]string
 // DeleteVPCDnsResolutionBindingOptions : The DeleteVPCDnsResolutionBinding options.
 type DeleteVPCDnsResolutionBindingOptions struct {
 	// The VPC identifier.
-	VPCIdentifier *string `json:"vpc_identifier" validate:"required,ne="`
+	VPCIdentifier *string `json:"vpc_id" validate:"required,ne="`
 
 	// The DNS resolution binding identifier.
 	ID *string `json:"id" validate:"required,ne="`
@@ -38730,7 +38730,7 @@ func (options *GetVPCDefaultSecurityGroupOptions) SetHeaders(param map[string]st
 // GetVPCDnsResolutionBindingOptions : The GetVPCDnsResolutionBinding options.
 type GetVPCDnsResolutionBindingOptions struct {
 	// The VPC identifier.
-	VPCIdentifier *string `json:"vpc_identifier" validate:"required,ne="`
+	VPCIdentifier *string `json:"vpc_id" validate:"required,ne="`
 
 	// The DNS resolution binding identifier.
 	ID *string `json:"id" validate:"required,ne="`
@@ -49895,7 +49895,7 @@ func (options *ListVPCAddressPrefixesOptions) SetHeaders(param map[string]string
 // ListVPCDnsResolutionBindingsOptions : The ListVPCDnsResolutionBindings options.
 type ListVPCDnsResolutionBindingsOptions struct {
 	// The VPC identifier.
-	VPCIdentifier *string `json:"vpc_identifier" validate:"required,ne="`
+	VPCIdentifier *string `json:"vpc_id" validate:"required,ne="`
 
 	// Sorts the returned collection by the specified property name in ascending order. A `-` may be prepended to the name
 	// to sort in descending order. For example, the value `-created_at` sorts the collection by the `created_at` property
@@ -63802,7 +63802,7 @@ func (options *UpdateVPCAddressPrefixOptions) SetHeaders(param map[string]string
 // UpdateVPCDnsResolutionBindingOptions : The UpdateVPCDnsResolutionBinding options.
 type UpdateVPCDnsResolutionBindingOptions struct {
 	// The VPC identifier.
-	VPCIdentifier *string `json:"vpc_identifier" validate:"required,ne="`
+	VPCIdentifier *string `json:"vpc_id" validate:"required,ne="`
 
 	// The DNS resolution binding identifier.
 	ID *string `json:"id" validate:"required,ne="`
