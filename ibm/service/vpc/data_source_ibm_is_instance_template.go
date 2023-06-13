@@ -6,7 +6,6 @@ package vpc
 import (
 	"context"
 	"fmt"
-	"log"
 	"reflect"
 
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/conns"
@@ -508,7 +507,6 @@ func dataSourceIBMISInstanceTemplateRead(context context.Context, d *schema.Reso
 		}
 
 		if instance.PrimaryNetworkInterface != nil {
-			log.Printf("[INFO] UJJK PNI")
 			interfaceList := make([]map[string]interface{}, 0)
 			currentPrimNic := map[string]interface{}{}
 			currentPrimNic[isInstanceTemplateNicName] = *instance.PrimaryNetworkInterface.Name
@@ -519,7 +517,6 @@ func dataSourceIBMISInstanceTemplateRead(context context.Context, d *schema.Reso
 				switch reflect.TypeOf(primaryipIntf).String() {
 				case "*vpcv1.NetworkInterfaceIPPrototype":
 					{
-						log.Printf("[INFO] UJJK NetworkInterfaceIPPrototype")
 						primaryip := primaryipIntf.(*vpcv1.NetworkInterfaceIPPrototype)
 						if primaryip.Address != nil {
 							currentPrimNic[isInstanceTemplateNicPrimaryIpv4Address] = *primaryip.Address
@@ -531,7 +528,6 @@ func dataSourceIBMISInstanceTemplateRead(context context.Context, d *schema.Reso
 					}
 				case "*vpcv1.NetworkInterfaceIPPrototypeReservedIPPrototypeNetworkInterfaceContext":
 					{
-						log.Printf("[INFO] UJJK NetworkInterfaceIPPrototypeReservedIPPrototypeNetworkInterfaceContext")
 						primaryip := primaryipIntf.(*vpcv1.NetworkInterfaceIPPrototypeReservedIPPrototypeNetworkInterfaceContext)
 						if primaryip.Address != nil {
 							currentPrimNic[isInstanceTemplateNicPrimaryIpv4Address] = *primaryip.Address
@@ -540,7 +536,6 @@ func dataSourceIBMISInstanceTemplateRead(context context.Context, d *schema.Reso
 					}
 				case "*vpcv1.NetworkInterfaceIPPrototypeReservedIPIdentity":
 					{
-						log.Printf("[INFO] UJJK NetworkInterfaceIPPrototypeReservedIPIdentity")
 						primaryip := primaryipIntf.(*vpcv1.NetworkInterfaceIPPrototypeReservedIPIdentity)
 						if primaryip.ID != nil {
 							currentPrimIp[isInstanceTemplateNicReservedIpId] = *primaryip.ID

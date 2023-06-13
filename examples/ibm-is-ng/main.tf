@@ -1272,3 +1272,12 @@ data "ibm_is_share" "is_share" {
 
 data "ibm_is_shares" "is_shares" {
 }
+
+
+// vsi boot volume
+
+resource "ibm_is_instance_boot_volume_manager" "vol1" {
+  volume_id  = ibm_is_instance.boot_volume.0.volume_id
+  name    = "vol1"
+  profile = "10iops-tier"
+}
