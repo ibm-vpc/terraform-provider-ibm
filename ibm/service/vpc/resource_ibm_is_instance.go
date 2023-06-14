@@ -55,6 +55,7 @@ const (
 	isInstanceCPUArch                 = "architecture"
 	isInstanceCPUCores                = "cores"
 	isInstanceCPUCount                = "count"
+	isInstanceCPUManufacturer         = "manufacturer"
 	isInstanceGpu                     = "gpu"
 	isInstanceGpuCores                = "cores"
 	isInstanceGpuCount                = "count"
