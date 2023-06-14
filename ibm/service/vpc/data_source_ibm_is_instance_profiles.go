@@ -714,7 +714,6 @@ func instanceProfilesList(d *schema.ResourceData, meta interface{}) error {
 			vcpuManufacturerMap := dataSourceInstanceProfileVcpuManufacturerToMap(*profile.VcpuManufacturer)
 			vcpuManufacturerList = append(vcpuManufacturerList, vcpuManufacturerMap)
 			l["vcpu_manufacturer"] = vcpuManufacturerList
-			// l["vcpu_manufacturer"] = dataSourceInstanceProfileFlattenVcpuManufacture(*profile.VcpuManufacturer)
 		}
 
 		if profile.Disks != nil {
