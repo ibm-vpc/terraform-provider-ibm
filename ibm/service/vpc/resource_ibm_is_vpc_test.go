@@ -73,7 +73,6 @@ func TestAccIBMISVPC_dns(t *testing.T) {
 	var vpc string
 	name1 := fmt.Sprintf("terraformvpcuat-%d", acctest.RandIntRange(10, 100))
 	name2 := fmt.Sprintf("terraformvpcuat-%d", acctest.RandIntRange(10, 100))
-	apm := "manual"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { acc.TestAccPreCheck(t) },
@@ -107,7 +106,7 @@ func TestAccIBMISVPC_dns(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccCheckIBMISVPCDnsConfig(name2, apm),
+				Config: testAccCheckIBMISVPCDnsConfig(name2),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckIBMISVPCExists("ibm_is_vpc.testacc_vpc1", vpc),
 					resource.TestCheckResourceAttr(
