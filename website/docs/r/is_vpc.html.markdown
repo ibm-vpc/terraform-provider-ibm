@@ -53,6 +53,34 @@ Review the argument references that you can specify for your resource.
 - `default_network_acl_name` - (Optional, String) Enter the name of the default network access control list (ACL).
 - `default_security_group_name` - (Optional, String) Enter the name of the default security group.
 - `default_routing_table_name` - (Optional, String) Enter the name of the default routing table.
+- `dns` - (Optional, List) The DNS configuration for this VPC.
+  
+  Nested scheme for `dns`:
+  - `enable_hub` - (Optional, Boolean) Indicates whether this VPC is enabled as a DNS name resolution hub.
+  - `resolver` - (Optional, List) The zone list this backup policy plan will create snapshot clones in.
+    Nested scheme for `resolver`:
+      - `manual_servers` - (Optional, Integer) The DNS servers to use for this VPC, replacing any existing servers. All the DNS servers must either: **have a unique zone_affinity**, or **not have a zone_affinity**.
+
+        ~> **Note:** 
+          `manual_servers` must be set if and only if `dns.resolver.type` is manual.
+          
+      - `type` - (Optional, String) The type of the DNS resolver to use.
+
+        ~> **Note:** 
+          `delegated`: DNS server addresses will be provided by the resolver for the VPC specified in dns.resolver.vpc. Requires dns.enable_hub to be false.<br/>
+          `manual`: DNS server addresses are specified in `manual_servers`.<br/>
+          `system`: DNS server addresses will be provided by the system and depend on the configuration.
+
+        ~> **Note:** 
+              Updating from `manual` requires dns resolver `manual_servers` to be specified as null.<br/>
+              Updating to `manual` requires dns resolver `manual_servers` to be specified and not empty.<br/>
+              Updating from `delegated` requires `dns.resolver.vpc` to be specified as null.
+      - `vpc` - (Optional, String) The VPC to provide DNS server addresses for this VPC. The specified VPC must be configured with a DNS Services custom resolver and must be in one of this VPC's DNS resolution bindings.
+
+        ~> **Note:** 
+          Specify null to remove an existing VPC.<br/>
+          This property must be set if and only if dns resolver type is `delegated`.
+
 - `name` - (Required, String) Enter a name for your VPC. No.
 - `resource_group` - (Optional, Forces new resource, String) Enter the ID of the resource group where you want to create the VPC. To list available resource groups, run `ibmcloud resource groups`. If you do not specify a resource group, the VPC is created in the `default` resource group. 
 - `tags` - (Optional, Array of Strings) Enter any tags that you want to associate with your VPC. Tags might help you find your VPC more easily after it is created. Separate multiple tags with a comma (`,`).
