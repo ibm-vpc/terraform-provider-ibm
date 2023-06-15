@@ -54,6 +54,16 @@ In addition to all argument reference list, you can access the following attribu
 - `default_security_group_name` - (String) The name of the default security group.
 - `default_routing_table`-  (String) The unique identifier of the VPC default routing table.
 - `default_routing_table_name` - (String) The name of the default routing table.
+- `dns` - (List) The DNS configuration for this VPC.
+  
+  Nested scheme for `dns`:
+  - `enable_hub` - (Boolean) Indicates whether this VPC is enabled as a DNS name resolution hub.
+  - `resolver` - (List) The zone list this backup policy plan will create snapshot clones in.
+    
+    Nested scheme for `resolver`:
+      - `manual_servers` - (Integer) The DNS servers to use for this VPC, replacing any existing servers. All the DNS servers must either: **have a unique zone_affinity**, or **not have a zone_affinity**.  
+      - `type` - (String) The type of the DNS resolver to use.
+      - `vpc` - (String) The VPC to provide DNS server addresses for this VPC. The specified VPC must be configured with a DNS Services custom resolver and must be in one of this VPC's DNS resolution bindings.
 - `resource_group` - (String) The resource group ID where the VPC created.
 - `security_group` - (String) A list of security groups attached to VPC. The nested security group block has the following structure:
 
