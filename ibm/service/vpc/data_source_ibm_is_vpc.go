@@ -163,6 +163,58 @@ func DataSourceIBMISVPC() *schema.Resource {
 				},
 			},
 
+			isVPCDns: &schema.Schema{
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "The DNS configuration for this VPC.If unspecified, the system will assign DNS servers capable of resolving hosts and endpointgateways within this VPC, and hosts on the internet.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						isVPCDnsEnableHub: &schema.Schema{
+							Type:        schema.TypeBool,
+							Computed:    true,
+							Description: "Indicates whether this VPC is enabled as a DNS name resolution hub.",
+						},
+						isVPCDnsResolutionBindingCount: &schema.Schema{
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: "The number of DNS resolution bindings for this VPC.",
+						},
+						isVPCDnsResolver: &schema.Schema{
+							Type:     schema.TypeList,
+							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									isVPCDnsResolverType: &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The type of the DNS resolver to use.- `manual`: DNS server addresses are specified in `dns.resolver.manual_servers`.- `system`: DNS server addresses will be provided by the system and depend on the configuration.",
+									},
+									isVPCDnsResolverManualServers: &schema.Schema{
+										Type:        schema.TypeList,
+										Computed:    true,
+										Description: "The manually specified DNS servers for this VPC.",
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												isVPCDnsResolverManualServersAddress: &schema.Schema{
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "The IP address. This property may add support for IPv6 addresses in the future. When processing a value in this property, verify that the address is in an expected format. If it is not, log an error. Optionally halt processing and surface the error, or bypass the resource on which the unexpected IP address format was encountered.",
+												},
+												isVPCDnsResolverManualServersZoneAffinity: &schema.Schema{
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "If present, DHCP configuration for this zone will have this DNS server listed first.",
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+
 			isVPCSecurityGroupList: {
 				Type:     schema.TypeList,
 				Computed: true,
@@ -601,6 +653,48 @@ func setVpcDetails(d *schema.ResourceData, vpc *vpcv1.VPC, meta interface{}, ses
 			}
 			g[isVPCSgRules] = rules
 			securityGroupList = append(securityGroupList, g)
+		}
+
+		if vpc.Dns != nil {
+			dnsList := make([]map[string]interface{}, 0)
+			currentDns := map[string]interface{}{}
+			if vpc.Dns.EnableHub != nil {
+				currentDns[isVPCDnsEnableHub] = vpc.Dns.EnableHub
+			}
+			if vpc.Dns.ResolutionBindingCount != nil {
+				currentDns[isVPCDnsResolutionBindingCount] = vpc.Dns.ResolutionBindingCount
+			}
+			if vpc.Dns.Resolver != nil {
+				switch reflect.TypeOf(vpc.Dns.Resolver).String() {
+				case "*vpcv1.VpcdnsResolverTypeDelegated":
+					{
+						resolver := vpc.Dns.Resolver.(*vpcv1.VpcdnsResolverTypeDelegated)
+						currentDnsResolver := map[string]interface{}{}
+						currentDnsResolver[isVPCDnsResolverType] = resolver.Type
+
+						currentDnsResolver[isVPCDnsResolverVpc] = setDnsResolverVpc(resolver.VPC)
+						currentDns[isVPCDnsResolver] = resolver
+					}
+				case "*vpcv1.VpcdnsResolverTypeManual":
+					{
+						resolver := vpc.Dns.Resolver.(*vpcv1.VpcdnsResolverTypeDelegated)
+						currentDnsResolver := map[string]interface{}{}
+						currentDnsResolver[isVPCDnsResolverType] = resolver.Type
+						currentDnsResolver[isVPCDnsResolverVpc] = setDnsResolverVpc(resolver.VPC)
+						currentDns[isVPCDnsResolver] = resolver
+					}
+				case "*vpcv1.VpcdnsResolverTypeSystem":
+					{
+						resolver := vpc.Dns.Resolver.(*vpcv1.VpcdnsResolverTypeDelegated)
+						currentDnsResolver := map[string]interface{}{}
+						currentDnsResolver[isVPCDnsResolverType] = resolver.Type
+						currentDnsResolver[isVPCDnsResolverVpc] = setDnsResolverVpc(resolver.VPC)
+						currentDns[isVPCDnsResolver] = resolver
+					}
+				}
+			}
+			dnsList = append(dnsList, currentDns)
+			d.Set(isVPCDns, dnsList)
 		}
 
 		d.Set(isVPCSecurityGroupList, securityGroupList)
