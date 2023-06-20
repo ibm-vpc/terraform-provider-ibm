@@ -193,6 +193,12 @@ func resourceIBMISInstanceGroupManagerPolicyUpdate(d *schema.ResourceData, meta 
 		updateInstanceGroupManagerPolicyOptions.InstanceGroupID = &instanceGroupID
 		updateInstanceGroupManagerPolicyOptions.InstanceGroupManagerID = &instanceGroupManagerID
 
+		instanceGroupManagerPolicyAsPatch, asPatchErr := instanceGroupManagerPolicyPatchModel.AsPatch()
+		if asPatchErr != nil {
+			return fmt.Errorf("[ERROR] Error calling asPatch for RoutingTablePatchModel: %s", asPatchErr)
+		}
+		updateInstanceGroupManagerPolicyOptions.InstanceGroupManagerPolicyPatch = instanceGroupManagerPolicyAsPatch
+
 		isInsGrpKey := "Instance_Group_Key_" + instanceGroupID
 		conns.IbmMutexKV.Lock(isInsGrpKey)
 		defer conns.IbmMutexKV.Unlock(isInsGrpKey)
@@ -245,7 +251,6 @@ func resourceIBMISInstanceGroupManagerPolicyRead(d *schema.ResourceData, meta in
 	d.Set("policy_id", instanceGroupManagerPolicyID)
 	d.Set("instance_group", instanceGroupID)
 	d.Set("instance_group_manager", instanceGroupManagerID)
-
 	return nil
 }
 
@@ -261,6 +266,21 @@ func resourceIBMISInstanceGroupManagerPolicyDelete(d *schema.ResourceData, meta 
 	instanceGroupID := parts[0]
 	instanceGroupManagerID := parts[1]
 	instanceGroupManagerPolicyID := parts[2]
+
+	// getInstanceGroupManagerPolicyOptions := vpcv1.GetInstanceGroupManagerPolicyOptions{
+	// 	ID:                     &instanceGroupManagerPolicyID,
+	// 	InstanceGroupID:        &instanceGroupID,
+	// 	InstanceGroupManagerID: &instanceGroupManagerID,
+	// }
+	// _, response, err := sess.GetInstanceGroupManagerPolicy(&getInstanceGroupManagerPolicyOptions)
+	// if err != nil {
+	// 	if response != nil && response.StatusCode == 404 {
+	// 		d.SetId("")
+	// 		return nil
+	// 	}
+	// 	return fmt.Errorf("[ERROR] Error Getting InstanceGroup Manager Policy: %s\n%s", err, response)
+	// }
+	// eTag := response.Headers.Get("ETag")
 
 	deleteInstanceGroupManagerPolicyOptions := vpcv1.DeleteInstanceGroupManagerPolicyOptions{
 		ID:                     &instanceGroupManagerPolicyID,
