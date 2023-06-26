@@ -15,7 +15,7 @@
  */
 
 /*
- * IBM OpenAPI SDK Code Generator Version: 3.69.0-370d6400-20230329-174648
+ * IBM OpenAPI SDK Code Generator Version: 3.70.0-7df966bf-20230419-195904
  */
 
 // Package vpcv1 : Operations and models for the VpcV1 service
@@ -46,7 +46,7 @@ type VpcV1 struct {
 	generation *int64
 
 	// The API version, in format `YYYY-MM-DD`. For the API behavior documented here, specify any date between `2022-09-13`
-	// and `2023-06-15`.
+	// and `2023-06-26`.
 	Version *string
 }
 
@@ -63,7 +63,7 @@ type VpcV1Options struct {
 	Authenticator core.Authenticator
 
 	// The API version, in format `YYYY-MM-DD`. For the API behavior documented here, specify any date between `2022-09-13`
-	// and `2023-06-15`.
+	// and `2023-06-26`.
 	Version *string
 }
 
@@ -121,7 +121,7 @@ func NewVpcV1(options *VpcV1Options) (service *VpcV1, err error) {
 	}
 
 	if options.Version == nil {
-		options.Version = core.StringPtr("2023-05-23")
+		options.Version = core.StringPtr("2023-06-23")
 	}
 
 	service = &VpcV1{
@@ -10113,6 +10113,9 @@ func (vpc *VpcV1) CreateBackupPolicyPlanWithContext(ctx context.Context, createB
 	if createBackupPolicyPlanOptions.Name != nil {
 		body["name"] = createBackupPolicyPlanOptions.Name
 	}
+	if createBackupPolicyPlanOptions.RemoteRegionPolicies != nil {
+		body["remote_region_policies"] = createBackupPolicyPlanOptions.RemoteRegionPolicies
+	}
 	_, err = builder.SetBodyContentJSON(body)
 	if err != nil {
 		return
@@ -13166,6 +13169,30 @@ func (vpc *VpcV1) ListSnapshotsWithContext(ctx context.Context, listSnapshotsOpt
 	}
 	if listSnapshotsOptions.BackupPolicyPlanID != nil {
 		builder.AddQuery("backup_policy_plan.id", fmt.Sprint(*listSnapshotsOptions.BackupPolicyPlanID))
+	}
+	if listSnapshotsOptions.CopiesID != nil {
+		builder.AddQuery("copies[].id", fmt.Sprint(*listSnapshotsOptions.CopiesID))
+	}
+	if listSnapshotsOptions.CopiesName != nil {
+		builder.AddQuery("copies[].name", fmt.Sprint(*listSnapshotsOptions.CopiesName))
+	}
+	if listSnapshotsOptions.CopiesCRN != nil {
+		builder.AddQuery("copies[].crn", fmt.Sprint(*listSnapshotsOptions.CopiesCRN))
+	}
+	if listSnapshotsOptions.CopiesRemoteRegionName != nil {
+		builder.AddQuery("copies[].remote.region.name", fmt.Sprint(*listSnapshotsOptions.CopiesRemoteRegionName))
+	}
+	if listSnapshotsOptions.SourceSnapshotID != nil {
+		builder.AddQuery("source_snapshot.id", fmt.Sprint(*listSnapshotsOptions.SourceSnapshotID))
+	}
+	if listSnapshotsOptions.SourceSnapshotRemoteRegionName != nil {
+		builder.AddQuery("source_snapshot.remote.region.name", fmt.Sprint(*listSnapshotsOptions.SourceSnapshotRemoteRegionName))
+	}
+	if listSnapshotsOptions.SourceVolumeRemoteRegionName != nil {
+		builder.AddQuery("source_volume.remote.region.name", fmt.Sprint(*listSnapshotsOptions.SourceVolumeRemoteRegionName))
+	}
+	if listSnapshotsOptions.SourceImageRemoteRegionName != nil {
+		builder.AddQuery("source_image.remote.region.name", fmt.Sprint(*listSnapshotsOptions.SourceImageRemoteRegionName))
 	}
 	if listSnapshotsOptions.ClonesZoneName != nil {
 		builder.AddQuery("clones[].zone.name", fmt.Sprint(*listSnapshotsOptions.ClonesZoneName))
@@ -23330,7 +23357,20 @@ type BackupPolicyJobSource struct {
 
 	// The name for this volume. The name is unique across all volumes in the region.
 	Name *string `json:"name,omitempty"`
+
+	// If present, this property indicates that the resource associated with this reference
+	// is remote and therefore may not be directly retrievable.
+	Remote *VolumeRemote `json:"remote,omitempty"`
+
+	// The resource type.
+	ResourceType *string `json:"resource_type,omitempty"`
 }
+
+// Constants associated with the BackupPolicyJobSource.ResourceType property.
+// The resource type.
+const (
+	BackupPolicyJobSourceResourceTypeVolumeConst = "volume"
+)
 
 func (*BackupPolicyJobSource) isaBackupPolicyJobSource() bool {
 	return true
@@ -23360,6 +23400,14 @@ func UnmarshalBackupPolicyJobSource(m map[string]json.RawMessage, result interfa
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "remote", &obj.Remote, UnmarshalVolumeRemote)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
 	if err != nil {
 		return
 	}
@@ -23487,6 +23535,9 @@ type BackupPolicyPlan struct {
 	// The name for this backup policy plan. The name is unique across all plans in the backup policy.
 	Name *string `json:"name" validate:"required"`
 
+	// The policies for additional backups in remote regions.
+	RemoteRegionPolicies []BackupPolicyPlanRemoteRegionPolicy `json:"remote_region_policies" validate:"required"`
+
 	// The resource type.
 	ResourceType *string `json:"resource_type" validate:"required"`
 }
@@ -23553,6 +23604,10 @@ func UnmarshalBackupPolicyPlan(m map[string]json.RawMessage, result interface{})
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "remote_region_policies", &obj.RemoteRegionPolicies, UnmarshalBackupPolicyPlanRemoteRegionPolicy)
 	if err != nil {
 		return
 	}
@@ -23760,6 +23815,9 @@ type BackupPolicyPlanPatch struct {
 
 	// The name for this backup policy plan. The name must not be used by another plan for the backup policy.
 	Name *string `json:"name,omitempty"`
+
+	// The policies for additional backups in remote regions (replacing any existing policies).
+	RemoteRegionPolicies []BackupPolicyPlanRemoteRegionPolicyPrototype `json:"remote_region_policies,omitempty"`
 }
 
 // UnmarshalBackupPolicyPlanPatch unmarshals an instance of BackupPolicyPlanPatch from the specified map of raw messages.
@@ -23790,6 +23848,10 @@ func UnmarshalBackupPolicyPlanPatch(m map[string]json.RawMessage, result interfa
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "remote_region_policies", &obj.RemoteRegionPolicies, UnmarshalBackupPolicyPlanRemoteRegionPolicyPrototype)
 	if err != nil {
 		return
 	}
@@ -23832,6 +23894,9 @@ type BackupPolicyPlanPrototype struct {
 	// The name for this backup policy plan. The name must not be used by another plan for the backup policy. If
 	// unspecified, the name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
+
+	// The policies for additional backups in remote regions.
+	RemoteRegionPolicies []BackupPolicyPlanRemoteRegionPolicyPrototype `json:"remote_region_policies,omitempty"`
 }
 
 // NewBackupPolicyPlanPrototype : Instantiate BackupPolicyPlanPrototype (Generic Model Constructor)
@@ -23874,6 +23939,10 @@ func UnmarshalBackupPolicyPlanPrototype(m map[string]json.RawMessage, result int
 	if err != nil {
 		return
 	}
+	err = core.UnmarshalModel(m, "remote_region_policies", &obj.RemoteRegionPolicies, UnmarshalBackupPolicyPlanRemoteRegionPolicyPrototype)
+	if err != nil {
+		return
+	}
 	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
 	return
 }
@@ -23892,6 +23961,10 @@ type BackupPolicyPlanReference struct {
 
 	// The name for this backup policy plan. The name is unique across all plans in the backup policy.
 	Name *string `json:"name" validate:"required"`
+
+	// If present, this property indicates that the resource associated with this reference
+	// is remote and therefore may not be directly retrievable.
+	Remote *BackupPolicyPlanRemote `json:"remote,omitempty"`
 
 	// The resource type.
 	ResourceType *string `json:"resource_type" validate:"required"`
@@ -23922,6 +23995,10 @@ func UnmarshalBackupPolicyPlanReference(m map[string]json.RawMessage, result int
 	if err != nil {
 		return
 	}
+	err = core.UnmarshalModel(m, "remote", &obj.Remote, UnmarshalBackupPolicyPlanRemote)
+	if err != nil {
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
 	if err != nil {
 		return
@@ -23941,6 +24018,99 @@ type BackupPolicyPlanReferenceDeleted struct {
 func UnmarshalBackupPolicyPlanReferenceDeleted(m map[string]json.RawMessage, result interface{}) (err error) {
 	obj := new(BackupPolicyPlanReferenceDeleted)
 	err = core.UnmarshalPrimitive(m, "more_info", &obj.MoreInfo)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// BackupPolicyPlanRemote : If present, this property indicates that the resource associated with this reference is remote and therefore may not
+// be directly retrievable.
+type BackupPolicyPlanRemote struct {
+	// If present, this property indicates that the referenced resource is remote to this
+	// region, and identifies the native region.
+	Region *RegionReference `json:"region,omitempty"`
+}
+
+// UnmarshalBackupPolicyPlanRemote unmarshals an instance of BackupPolicyPlanRemote from the specified map of raw messages.
+func UnmarshalBackupPolicyPlanRemote(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(BackupPolicyPlanRemote)
+	err = core.UnmarshalModel(m, "region", &obj.Region, UnmarshalRegionReference)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// BackupPolicyPlanRemoteRegionPolicy : BackupPolicyPlanRemoteRegionPolicy struct
+type BackupPolicyPlanRemoteRegionPolicy struct {
+	// The region this backup policy plan will create backups in.
+	DeleteOverCount *int64 `json:"delete_over_count" validate:"required"`
+
+	// The root key used to rewrap the data encryption key for the backup (snapshot).
+	EncryptionKey *EncryptionKeyReference `json:"encryption_key" validate:"required"`
+
+	// The region this backup policy plan will create backups in.
+	Region *RegionReference `json:"region" validate:"required"`
+}
+
+// UnmarshalBackupPolicyPlanRemoteRegionPolicy unmarshals an instance of BackupPolicyPlanRemoteRegionPolicy from the specified map of raw messages.
+func UnmarshalBackupPolicyPlanRemoteRegionPolicy(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(BackupPolicyPlanRemoteRegionPolicy)
+	err = core.UnmarshalPrimitive(m, "delete_over_count", &obj.DeleteOverCount)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "encryption_key", &obj.EncryptionKey, UnmarshalEncryptionKeyReference)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "region", &obj.Region, UnmarshalRegionReference)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// BackupPolicyPlanRemoteRegionPolicyPrototype : BackupPolicyPlanRemoteRegionPolicyPrototype struct
+type BackupPolicyPlanRemoteRegionPolicyPrototype struct {
+	// The region this backup policy plan will create backups in.
+	DeleteOverCount *int64 `json:"delete_over_count,omitempty"`
+
+	// The root key to use to rewrap the data encryption key for the backup (snapshot).
+	//
+	// If unspecified, the source's `encryption_key` will be used.
+	// The specified key may be in a different account, subject to IAM policies.
+	EncryptionKey EncryptionKeyIdentityIntf `json:"encryption_key,omitempty"`
+
+	// The region this backup policy plan will create backups in.
+	Region RegionIdentityIntf `json:"region" validate:"required"`
+}
+
+// NewBackupPolicyPlanRemoteRegionPolicyPrototype : Instantiate BackupPolicyPlanRemoteRegionPolicyPrototype (Generic Model Constructor)
+func (*VpcV1) NewBackupPolicyPlanRemoteRegionPolicyPrototype(region RegionIdentityIntf) (_model *BackupPolicyPlanRemoteRegionPolicyPrototype, err error) {
+	_model = &BackupPolicyPlanRemoteRegionPolicyPrototype{
+		Region: region,
+	}
+	err = core.ValidateStruct(_model, "required parameters")
+	return
+}
+
+// UnmarshalBackupPolicyPlanRemoteRegionPolicyPrototype unmarshals an instance of BackupPolicyPlanRemoteRegionPolicyPrototype from the specified map of raw messages.
+func UnmarshalBackupPolicyPlanRemoteRegionPolicyPrototype(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(BackupPolicyPlanRemoteRegionPolicyPrototype)
+	err = core.UnmarshalPrimitive(m, "delete_over_count", &obj.DeleteOverCount)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "encryption_key", &obj.EncryptionKey, UnmarshalEncryptionKeyIdentity)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "region", &obj.Region, UnmarshalRegionIdentity)
 	if err != nil {
 		return
 	}
@@ -26969,6 +27139,9 @@ type CreateBackupPolicyPlanOptions struct {
 	// unspecified, the name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
+	// The policies for additional backups in remote regions.
+	RemoteRegionPolicies []BackupPolicyPlanRemoteRegionPolicyPrototype `json:"remote_region_policies,omitempty"`
+
 	// Allows users to set headers on API requests
 	Headers map[string]string
 }
@@ -27026,6 +27199,12 @@ func (_options *CreateBackupPolicyPlanOptions) SetDeletionTrigger(deletionTrigge
 // SetName : Allow user to set Name
 func (_options *CreateBackupPolicyPlanOptions) SetName(name string) *CreateBackupPolicyPlanOptions {
 	_options.Name = core.StringPtr(name)
+	return _options
+}
+
+// SetRemoteRegionPolicies : Allow user to set RemoteRegionPolicies
+func (_options *CreateBackupPolicyPlanOptions) SetRemoteRegionPolicies(remoteRegionPolicies []BackupPolicyPlanRemoteRegionPolicyPrototype) *CreateBackupPolicyPlanOptions {
+	_options.RemoteRegionPolicies = remoteRegionPolicies
 	return _options
 }
 
@@ -27998,19 +28177,24 @@ type CreateInstanceGroupOptions struct {
 	// The subnets to use when creating new instances.
 	Subnets []SubnetIdentityIntf `json:"subnets" validate:"required"`
 
-	// The port to use for new load balancer pool members created by this instance group.
+	// The port to use for new load balancer pool members created by this instance group. The load balancer pool member
+	// will receive load balancer traffic on this port, unless the load balancer listener is using a port range. (Traffic
+	// received on a listener using a port range will be sent to members using the same port the listener received it on.)
+	//
+	// This port will also be used for health checks unless the port property of
+	// `health_monitor` property is specified.
 	//
 	// This property must be specified if and only if `load_balancer_pool` has been specified.
 	ApplicationPort *int64 `json:"application_port,omitempty"`
 
 	// The load balancer associated with the specified load balancer pool.
-	// Required if `load_balancer_pool` is specified.
-	//
-	// At present, only load balancers in the `application` family are supported.
+	// Required if `load_balancer_pool` is specified. The load balancer must have
+	// `instance_groups_supported` set to `true`.
 	LoadBalancer LoadBalancerIdentityIntf `json:"load_balancer,omitempty"`
 
-	// If specified, the load balancer pool this instance group will manage. A pool member
-	// will be created for each instance created by this group.
+	// If specified, this instance group will manage the load balancer pool. A pool member
+	// will be created for each instance created by this group.  The specified load
+	// balancer pool must not be used by another instance group in the VPC.
 	//
 	// If specified, `load_balancer` and `application_port` must also be specified.
 	LoadBalancerPool LoadBalancerPoolIdentityIntf `json:"load_balancer_pool,omitempty"`
@@ -28420,7 +28604,10 @@ type CreateKeyOptions struct {
 	// A unique public SSH key to import, in OpenSSH format (consisting of three space-separated fields: the algorithm
 	// name, base64-encoded key, and a comment). The algorithm and comment fields may be omitted, as only the key field is
 	// imported.
-	PublicKey *string `json:"public_key" validate:"required"`
+	//
+	// Keys of type `rsa` may be 2048 or 4096 bits in length, however 4096 is recommended. Keys of type `ed25519` are 256
+	// bits in length.
+	PublicKey interface{} `json:"public_key" validate:"required"`
 
 	// The name for this key. The name must not be used by another key in the region. If unspecified, the name will be a
 	// hyphenated list of randomly-selected words.
@@ -28440,19 +28627,20 @@ type CreateKeyOptions struct {
 // Constants associated with the CreateKeyOptions.Type property.
 // The crypto-system used by this key.
 const (
-	CreateKeyOptionsTypeRsaConst = "rsa"
+	CreateKeyOptionsTypeEd25519Const = "ed25519"
+	CreateKeyOptionsTypeRsaConst     = "rsa"
 )
 
 // NewCreateKeyOptions : Instantiate CreateKeyOptions
-func (*VpcV1) NewCreateKeyOptions(publicKey string) *CreateKeyOptions {
+func (*VpcV1) NewCreateKeyOptions(publicKey interface{}) *CreateKeyOptions {
 	return &CreateKeyOptions{
-		PublicKey: core.StringPtr(publicKey),
+		PublicKey: publicKey,
 	}
 }
 
 // SetPublicKey : Allow user to set PublicKey
-func (_options *CreateKeyOptions) SetPublicKey(publicKey string) *CreateKeyOptions {
-	_options.PublicKey = core.StringPtr(publicKey)
+func (_options *CreateKeyOptions) SetPublicKey(publicKey interface{}) *CreateKeyOptions {
+	_options.PublicKey = publicKey
 	return _options
 }
 
@@ -40292,6 +40480,9 @@ type Image struct {
 	// The resource group for this image.
 	ResourceGroup *ResourceGroupReference `json:"resource_group" validate:"required"`
 
+	// The resource type.
+	ResourceType *string `json:"resource_type" validate:"required"`
+
 	// The volume used to create this image (this may be
 	// [deleted](https://cloud.ibm.com/apidocs/vpc#deleted-resources)).
 	// If absent, this image was not created from a volume.
@@ -40340,6 +40531,12 @@ type Image struct {
 const (
 	ImageEncryptionNoneConst        = "none"
 	ImageEncryptionUserManagedConst = "user_managed"
+)
+
+// Constants associated with the Image.ResourceType property.
+// The resource type.
+const (
+	ImageResourceTypeImageConst = "image"
 )
 
 // Constants associated with the Image.Status property.
@@ -40421,6 +40618,10 @@ func UnmarshalImage(m map[string]json.RawMessage, result interface{}) (err error
 		return
 	}
 	err = core.UnmarshalModel(m, "resource_group", &obj.ResourceGroup, UnmarshalResourceGroupReference)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
 	if err != nil {
 		return
 	}
@@ -41070,7 +41271,20 @@ type ImageReference struct {
 
 	// The name for this image. The name is unique across all images in the region.
 	Name *string `json:"name" validate:"required"`
+
+	// If present, this property indicates that the resource associated with this reference
+	// is remote and therefore may not be directly retrievable.
+	Remote *ImageRemote `json:"remote,omitempty"`
+
+	// The resource type.
+	ResourceType *string `json:"resource_type" validate:"required"`
 }
+
+// Constants associated with the ImageReference.ResourceType property.
+// The resource type.
+const (
+	ImageReferenceResourceTypeImageConst = "image"
+)
 
 // UnmarshalImageReference unmarshals an instance of ImageReference from the specified map of raw messages.
 func UnmarshalImageReference(m map[string]json.RawMessage, result interface{}) (err error) {
@@ -41095,6 +41309,14 @@ func UnmarshalImageReference(m map[string]json.RawMessage, result interface{}) (
 	if err != nil {
 		return
 	}
+	err = core.UnmarshalModel(m, "remote", &obj.Remote, UnmarshalImageRemote)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
+	if err != nil {
+		return
+	}
 	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
 	return
 }
@@ -41110,6 +41332,33 @@ type ImageReferenceDeleted struct {
 func UnmarshalImageReferenceDeleted(m map[string]json.RawMessage, result interface{}) (err error) {
 	obj := new(ImageReferenceDeleted)
 	err = core.UnmarshalPrimitive(m, "more_info", &obj.MoreInfo)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// ImageRemote : If present, this property indicates that the resource associated with this reference is remote and therefore may not
+// be directly retrievable.
+type ImageRemote struct {
+	// If present, this property indicates that the referenced resource is remote to this
+	// account, and identifies the owning account.
+	Account *AccountReference `json:"account,omitempty"`
+
+	// If present, this property indicates that the referenced resource is remote to this
+	// region, and identifies the native region.
+	Region *RegionReference `json:"region,omitempty"`
+}
+
+// UnmarshalImageRemote unmarshals an instance of ImageRemote from the specified map of raw messages.
+func UnmarshalImageRemote(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(ImageRemote)
+	err = core.UnmarshalModel(m, "account", &obj.Account, UnmarshalAccountReference)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "region", &obj.Region, UnmarshalRegionReference)
 	if err != nil {
 		return
 	}
@@ -43962,14 +44211,15 @@ type InstanceGroupPatch struct {
 	// `default_trusted_profile.auto_link`.
 	InstanceTemplate InstanceTemplateIdentityIntf `json:"instance_template,omitempty"`
 
-	// The load balancer associated with the specified load balancer pool.
-	// Required if `load_balancer_pool` is specified.
+	// The load balancer associated with `load_balancer_pool`.
+	// The load balancer must have `instance_groups_supported` set to `true`.
 	//
-	// At present, only load balancers in the `application` family are supported.
+	// This property must be set if and only if `load_balancer_pool` has been set.
 	LoadBalancer LoadBalancerIdentityIntf `json:"load_balancer,omitempty"`
 
-	// If set, the load balancer pool this instance group will manage. A pool member will
-	// be created for each instance created by this group.
+	// If specified, this instance group will manage the load balancer pool. A pool member
+	// will be created for each instance created by this group.  The specified load
+	// balancer pool must not be used by another instance group in the VPC.
 	//
 	// If set, `load_balancer` and `application_port` must also be set.
 	LoadBalancerPool LoadBalancerPoolIdentityIntf `json:"load_balancer_pool,omitempty"`
@@ -45813,7 +46063,7 @@ type InstancePrototype struct {
 	// virtual server instance as cloud-init vendor data. For cloud-init enabled images, these keys will also be added as
 	// SSH authorized keys for the administrative user.
 	//
-	// For Windows images, at least one key must be specified, and one will be chosen to encrypt [the administrator
+	// For Windows images, the keys of type `rsa` must be specified, and one will be chosen to encrypt [the administrator
 	// password](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization). Keys are optional for other images, but if
 	// no keys are specified, the instance will be inaccessible unless the specified image provides another means of
 	// access.
@@ -46127,7 +46377,7 @@ type InstanceTemplate struct {
 	// virtual server instance as cloud-init vendor data. For cloud-init enabled images, these keys will also be added as
 	// SSH authorized keys for the administrative user.
 	//
-	// For Windows images, at least one key must be specified, and one will be chosen to encrypt [the administrator
+	// For Windows images, the keys of type `rsa` must be specified, and one will be chosen to encrypt [the administrator
 	// password](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization). Keys are optional for other images, but if
 	// no keys are specified, the instance will be inaccessible unless the specified image provides another means of
 	// access.
@@ -46475,7 +46725,7 @@ type InstanceTemplatePrototype struct {
 	// virtual server instance as cloud-init vendor data. For cloud-init enabled images, these keys will also be added as
 	// SSH authorized keys for the administrative user.
 	//
-	// For Windows images, at least one key must be specified, and one will be chosen to encrypt [the administrator
+	// For Windows images, the keys of type `rsa` must be specified, and one will be chosen to encrypt [the administrator
 	// password](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization). Keys are optional for other images, but if
 	// no keys are specified, the instance will be inaccessible unless the specified image provides another means of
 	// access.
@@ -46778,7 +47028,8 @@ type Key struct {
 // Constants associated with the Key.Type property.
 // The crypto-system used by this key.
 const (
-	KeyTypeRsaConst = "rsa"
+	KeyTypeEd25519Const = "ed25519"
+	KeyTypeRsaConst     = "rsa"
 )
 
 // UnmarshalKey unmarshals an instance of Key from the specified map of raw messages.
@@ -49736,6 +49987,37 @@ type ListSnapshotsOptions struct {
 	// identifier.
 	BackupPolicyPlanID *string `json:"backup_policy_plan.id,omitempty"`
 
+	// Filters the collection to snapshots with an item in the `copies` property with an `id` property matching the
+	// specified identifier.
+	CopiesID *string `json:"copies[].id,omitempty"`
+
+	// Filters the collection to snapshots with an item in the `copies` property with a `name` property matching the exact
+	// specified name.
+	CopiesName *string `json:"copies[].name,omitempty"`
+
+	// Filters the collection to snapshots with an item in the `copies` property with an `id` property matching the
+	// specified CRN.
+	CopiesCRN *string `json:"copies[].crn,omitempty"`
+
+	// Filters the collection to snapshots with an item in the `copies` property with a
+	// `remote.region.name` property matching the exact specified name.
+	CopiesRemoteRegionName *string `json:"copies[].remote.region.name,omitempty"`
+
+	// Filters the collection to resources with a `source_snapshot.id` property matching the specified identifier.
+	SourceSnapshotID *string `json:"source_snapshot.id,omitempty"`
+
+	// Filters the collection to resources with a `source_snapshot.remote.region.name` property matching the exact
+	// specified name.
+	SourceSnapshotRemoteRegionName *string `json:"source_snapshot.remote.region.name,omitempty"`
+
+	// Filters the collection to resources with a `source_volume.remote.region.name` property matching the exact specified
+	// name.
+	SourceVolumeRemoteRegionName *string `json:"source_volume.remote.region.name,omitempty"`
+
+	// Filters the collection to resources with a `source_image.remote.region.name` property matching the exact specified
+	// name.
+	SourceImageRemoteRegionName *string `json:"source_image.remote.region.name,omitempty"`
+
 	// Filters the collection to snapshots with an item in the `clones` property with a `zone.name` property matching the
 	// exact specified name.
 	ClonesZoneName *string `json:"clones[].zone.name,omitempty"`
@@ -49821,6 +50103,54 @@ func (_options *ListSnapshotsOptions) SetSort(sort string) *ListSnapshotsOptions
 // SetBackupPolicyPlanID : Allow user to set BackupPolicyPlanID
 func (_options *ListSnapshotsOptions) SetBackupPolicyPlanID(backupPolicyPlanID string) *ListSnapshotsOptions {
 	_options.BackupPolicyPlanID = core.StringPtr(backupPolicyPlanID)
+	return _options
+}
+
+// SetCopiesID : Allow user to set CopiesID
+func (_options *ListSnapshotsOptions) SetCopiesID(copiesID string) *ListSnapshotsOptions {
+	_options.CopiesID = core.StringPtr(copiesID)
+	return _options
+}
+
+// SetCopiesName : Allow user to set CopiesName
+func (_options *ListSnapshotsOptions) SetCopiesName(copiesName string) *ListSnapshotsOptions {
+	_options.CopiesName = core.StringPtr(copiesName)
+	return _options
+}
+
+// SetCopiesCRN : Allow user to set CopiesCRN
+func (_options *ListSnapshotsOptions) SetCopiesCRN(copiesCRN string) *ListSnapshotsOptions {
+	_options.CopiesCRN = core.StringPtr(copiesCRN)
+	return _options
+}
+
+// SetCopiesRemoteRegionName : Allow user to set CopiesRemoteRegionName
+func (_options *ListSnapshotsOptions) SetCopiesRemoteRegionName(copiesRemoteRegionName string) *ListSnapshotsOptions {
+	_options.CopiesRemoteRegionName = core.StringPtr(copiesRemoteRegionName)
+	return _options
+}
+
+// SetSourceSnapshotID : Allow user to set SourceSnapshotID
+func (_options *ListSnapshotsOptions) SetSourceSnapshotID(sourceSnapshotID string) *ListSnapshotsOptions {
+	_options.SourceSnapshotID = core.StringPtr(sourceSnapshotID)
+	return _options
+}
+
+// SetSourceSnapshotRemoteRegionName : Allow user to set SourceSnapshotRemoteRegionName
+func (_options *ListSnapshotsOptions) SetSourceSnapshotRemoteRegionName(sourceSnapshotRemoteRegionName string) *ListSnapshotsOptions {
+	_options.SourceSnapshotRemoteRegionName = core.StringPtr(sourceSnapshotRemoteRegionName)
+	return _options
+}
+
+// SetSourceVolumeRemoteRegionName : Allow user to set SourceVolumeRemoteRegionName
+func (_options *ListSnapshotsOptions) SetSourceVolumeRemoteRegionName(sourceVolumeRemoteRegionName string) *ListSnapshotsOptions {
+	_options.SourceVolumeRemoteRegionName = core.StringPtr(sourceVolumeRemoteRegionName)
+	return _options
+}
+
+// SetSourceImageRemoteRegionName : Allow user to set SourceImageRemoteRegionName
+func (_options *ListSnapshotsOptions) SetSourceImageRemoteRegionName(sourceImageRemoteRegionName string) *ListSnapshotsOptions {
+	_options.SourceImageRemoteRegionName = core.StringPtr(sourceImageRemoteRegionName)
 	return _options
 }
 
@@ -50907,6 +51237,9 @@ type LoadBalancer struct {
 	// The unique identifier for this load balancer.
 	ID *string `json:"id" validate:"required"`
 
+	// Indicates whether this load balancer supports instance groups.
+	InstanceGroupsSupported *bool `json:"instance_groups_supported" validate:"required"`
+
 	// The type of this load balancer, public or private.
 	IsPublic *bool `json:"is_public" validate:"required"`
 
@@ -51052,6 +51385,10 @@ func UnmarshalLoadBalancer(m map[string]json.RawMessage, result interface{}) (er
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "instance_groups_supported", &obj.InstanceGroupsSupported)
 	if err != nil {
 		return
 	}
@@ -54380,6 +54717,8 @@ type LoadBalancerProfile struct {
 	// The URL for this load balancer profile.
 	Href *string `json:"href" validate:"required"`
 
+	InstanceGroupsSupported LoadBalancerProfileInstanceGroupsSupportedIntf `json:"instance_groups_supported" validate:"required"`
+
 	// Indicates which logging type(s) are supported for a load balancer with this profile.
 	LoggingSupported *LoadBalancerProfileLoggingSupported `json:"logging_supported" validate:"required"`
 
@@ -54401,6 +54740,10 @@ func UnmarshalLoadBalancerProfile(m map[string]json.RawMessage, result interface
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "instance_groups_supported", &obj.InstanceGroupsSupported, UnmarshalLoadBalancerProfileInstanceGroupsSupported)
 	if err != nil {
 		return
 	}
@@ -54548,6 +54891,47 @@ func UnmarshalLoadBalancerProfileIdentity(m map[string]json.RawMessage, result i
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// LoadBalancerProfileInstanceGroupsSupported : LoadBalancerProfileInstanceGroupsSupported struct
+// Models which "extend" this model:
+// - LoadBalancerProfileInstanceGroupsSupportedFixed
+// - LoadBalancerProfileInstanceGroupsSupportedDependent
+type LoadBalancerProfileInstanceGroupsSupported struct {
+	// The type for this profile field.
+	Type *string `json:"type,omitempty"`
+
+	// The value for this profile field.
+	Value *bool `json:"value,omitempty"`
+}
+
+// Constants associated with the LoadBalancerProfileInstanceGroupsSupported.Type property.
+// The type for this profile field.
+const (
+	LoadBalancerProfileInstanceGroupsSupportedTypeFixedConst = "fixed"
+)
+
+func (*LoadBalancerProfileInstanceGroupsSupported) isaLoadBalancerProfileInstanceGroupsSupported() bool {
+	return true
+}
+
+type LoadBalancerProfileInstanceGroupsSupportedIntf interface {
+	isaLoadBalancerProfileInstanceGroupsSupported() bool
+}
+
+// UnmarshalLoadBalancerProfileInstanceGroupsSupported unmarshals an instance of LoadBalancerProfileInstanceGroupsSupported from the specified map of raw messages.
+func UnmarshalLoadBalancerProfileInstanceGroupsSupported(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(LoadBalancerProfileInstanceGroupsSupported)
+	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "value", &obj.Value)
 	if err != nil {
 		return
 	}
@@ -57458,6 +57842,41 @@ type RegionCollection struct {
 func UnmarshalRegionCollection(m map[string]json.RawMessage, result interface{}) (err error) {
 	obj := new(RegionCollection)
 	err = core.UnmarshalModel(m, "regions", &obj.Regions, UnmarshalRegion)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// RegionIdentity : Identifies a region by a unique property.
+// Models which "extend" this model:
+// - RegionIdentityByName
+// - RegionIdentityByHref
+type RegionIdentity struct {
+	// The globally unique name for this region.
+	Name *string `json:"name,omitempty"`
+
+	// The URL for this region.
+	Href *string `json:"href,omitempty"`
+}
+
+func (*RegionIdentity) isaRegionIdentity() bool {
+	return true
+}
+
+type RegionIdentityIntf interface {
+	isaRegionIdentity() bool
+}
+
+// UnmarshalRegionIdentity unmarshals an instance of RegionIdentity from the specified map of raw messages.
+func UnmarshalRegionIdentity(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(RegionIdentity)
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
 	if err != nil {
 		return
 	}
@@ -61039,6 +61458,9 @@ type Snapshot struct {
 	// Clones for this snapshot.
 	Clones []SnapshotClone `json:"clones" validate:"required"`
 
+	// The copies of this snapshot.
+	Copies []SnapshotCopiesItem `json:"copies" validate:"required"`
+
 	// The date and time that this snapshot was created.
 	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
 
@@ -61094,6 +61516,9 @@ type Snapshot struct {
 	// provisioned.
 	SourceImage *ImageReference `json:"source_image,omitempty"`
 
+	// If present, the source snapshot this snapshot was created from.
+	SourceSnapshot *SnapshotSourceSnapshot `json:"source_snapshot,omitempty"`
+
 	// The source volume this snapshot was created from (may be
 	// [deleted](https://cloud.ibm.com/apidocs/vpc#deleted-resources)).
 	SourceVolume *VolumeReference `json:"source_volume" validate:"required"`
@@ -61143,6 +61568,10 @@ func UnmarshalSnapshot(m map[string]json.RawMessage, result interface{}) (err er
 		return
 	}
 	err = core.UnmarshalModel(m, "clones", &obj.Clones, UnmarshalSnapshotClone)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "copies", &obj.Copies, UnmarshalSnapshotCopiesItem)
 	if err != nil {
 		return
 	}
@@ -61207,6 +61636,10 @@ func UnmarshalSnapshot(m map[string]json.RawMessage, result interface{}) (err er
 		return
 	}
 	err = core.UnmarshalModel(m, "source_image", &obj.SourceImage, UnmarshalImageReference)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "source_snapshot", &obj.SourceSnapshot, UnmarshalSnapshotSourceSnapshot)
 	if err != nil {
 		return
 	}
@@ -61389,6 +61822,73 @@ func UnmarshalSnapshotCollectionNext(m map[string]json.RawMessage, result interf
 	return
 }
 
+// SnapshotCopiesItem : SnapshotCopiesItem struct
+type SnapshotCopiesItem struct {
+	// The CRN for the copied snapshot.
+	CRN *string `json:"crn" validate:"required"`
+
+	// If present, this property indicates the referenced resource has been deleted, and provides
+	// some supplementary information.
+	Deleted *SnapshotReferenceDeleted `json:"deleted,omitempty"`
+
+	// The URL for the copied snapshot.
+	Href *string `json:"href" validate:"required"`
+
+	// The unique identifier for the copied snapshot.
+	ID *string `json:"id" validate:"required"`
+
+	// The name for the copied snapshot.
+	Name *string `json:"name" validate:"required"`
+
+	// If present, this property indicates that the resource associated with this reference
+	// is remote and therefore may not be directly retrievable.
+	Remote *SnapshotRemote `json:"remote,omitempty"`
+
+	// The resource type.
+	ResourceType *string `json:"resource_type" validate:"required"`
+}
+
+// Constants associated with the SnapshotCopiesItem.ResourceType property.
+// The resource type.
+const (
+	SnapshotCopiesItemResourceTypeSnapshotConst = "snapshot"
+)
+
+// UnmarshalSnapshotCopiesItem unmarshals an instance of SnapshotCopiesItem from the specified map of raw messages.
+func UnmarshalSnapshotCopiesItem(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(SnapshotCopiesItem)
+	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "deleted", &obj.Deleted, UnmarshalSnapshotReferenceDeleted)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "remote", &obj.Remote, UnmarshalSnapshotRemote)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
 // SnapshotIdentity : Identifies a snapshot by a unique property.
 // Models which "extend" this model:
 // - SnapshotIdentityByID
@@ -61469,6 +61969,7 @@ func (snapshotPatch *SnapshotPatch) AsPatch() (_patch map[string]interface{}, er
 // SnapshotPrototype : SnapshotPrototype struct
 // Models which "extend" this model:
 // - SnapshotPrototypeSnapshotBySourceVolume
+// - SnapshotPrototypeSnapshotBySourceSnapshot
 type SnapshotPrototype struct {
 	// Clones to create for this snapshot.
 	Clones []SnapshotClonePrototype `json:"clones,omitempty"`
@@ -61486,6 +61987,21 @@ type SnapshotPrototype struct {
 
 	// The volume to create this snapshot from.
 	SourceVolume VolumeIdentityIntf `json:"source_volume,omitempty"`
+
+	// The root key to use to wrap the data encryption key for this snapshot.
+	//
+	// A key must be specified if and only if the source snapshot has an `encryption` type of
+	// `user_managed`. To maximize snapshot availability and sharing of snapshot data, specify
+	// a key in the same region as the new snapshot, and use the same encryption key for all
+	// snapshots using the same source volume.
+	//
+	// The specified key may be in a different account, subject to IAM policies.
+	EncryptionKey EncryptionKeyIdentityIntf `json:"encryption_key,omitempty"`
+
+	// The source snapshot (in another region) to create this snapshot from.
+	// The specified snapshot must not already be the source of another snapshot in this
+	// region.
+	SourceSnapshot *SnapshotIdentityByCRN `json:"source_snapshot,omitempty"`
 }
 
 func (*SnapshotPrototype) isaSnapshotPrototype() bool {
@@ -61519,6 +62035,14 @@ func UnmarshalSnapshotPrototype(m map[string]json.RawMessage, result interface{}
 	if err != nil {
 		return
 	}
+	err = core.UnmarshalModel(m, "encryption_key", &obj.EncryptionKey, UnmarshalEncryptionKeyIdentity)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "source_snapshot", &obj.SourceSnapshot, UnmarshalSnapshotIdentityByCRN)
+	if err != nil {
+		return
+	}
 	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
 	return
 }
@@ -61540,6 +62064,10 @@ type SnapshotReference struct {
 
 	// The name for this snapshot. The name is unique across all snapshots in the region.
 	Name *string `json:"name" validate:"required"`
+
+	// If present, this property indicates that the resource associated with this reference
+	// is remote and therefore may not be directly retrievable.
+	Remote *SnapshotRemote `json:"remote,omitempty"`
 
 	// The resource type.
 	ResourceType *string `json:"resource_type" validate:"required"`
@@ -61574,6 +62102,10 @@ func UnmarshalSnapshotReference(m map[string]json.RawMessage, result interface{}
 	if err != nil {
 		return
 	}
+	err = core.UnmarshalModel(m, "remote", &obj.Remote, UnmarshalSnapshotRemote)
+	if err != nil {
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
 	if err != nil {
 		return
@@ -61593,6 +62125,92 @@ type SnapshotReferenceDeleted struct {
 func UnmarshalSnapshotReferenceDeleted(m map[string]json.RawMessage, result interface{}) (err error) {
 	obj := new(SnapshotReferenceDeleted)
 	err = core.UnmarshalPrimitive(m, "more_info", &obj.MoreInfo)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// SnapshotRemote : If present, this property indicates that the resource associated with this reference is remote and therefore may not
+// be directly retrievable.
+type SnapshotRemote struct {
+	// If present, this property indicates that the referenced resource is remote to this
+	// region, and identifies the native region.
+	Region *RegionReference `json:"region,omitempty"`
+}
+
+// UnmarshalSnapshotRemote unmarshals an instance of SnapshotRemote from the specified map of raw messages.
+func UnmarshalSnapshotRemote(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(SnapshotRemote)
+	err = core.UnmarshalModel(m, "region", &obj.Region, UnmarshalRegionReference)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// SnapshotSourceSnapshot : If present, the source snapshot this snapshot was created from.
+type SnapshotSourceSnapshot struct {
+	// The CRN of the source snapshot.
+	CRN *string `json:"crn" validate:"required"`
+
+	// If present, this property indicates the referenced resource has been deleted, and provides
+	// some supplementary information.
+	Deleted *SnapshotReferenceDeleted `json:"deleted,omitempty"`
+
+	// The URL for the source snapshot.
+	Href *string `json:"href" validate:"required"`
+
+	// The unique identifier for the source snapshot.
+	ID *string `json:"id" validate:"required"`
+
+	// The name for the source snapshot. The name is unique across all snapshots in the source snapshot's native region.
+	Name *string `json:"name" validate:"required"`
+
+	// If present, this property indicates that the resource associated with this reference
+	// is remote and therefore may not be directly retrievable.
+	Remote *SnapshotRemote `json:"remote,omitempty"`
+
+	// The resource type.
+	ResourceType *string `json:"resource_type" validate:"required"`
+}
+
+// Constants associated with the SnapshotSourceSnapshot.ResourceType property.
+// The resource type.
+const (
+	SnapshotSourceSnapshotResourceTypeSnapshotConst = "snapshot"
+)
+
+// UnmarshalSnapshotSourceSnapshot unmarshals an instance of SnapshotSourceSnapshot from the specified map of raw messages.
+func UnmarshalSnapshotSourceSnapshot(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(SnapshotSourceSnapshot)
+	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "deleted", &obj.Deleted, UnmarshalSnapshotReferenceDeleted)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "remote", &obj.Remote, UnmarshalSnapshotRemote)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
 	if err != nil {
 		return
 	}
@@ -65591,7 +66209,7 @@ type VpcdnsResolverPatch struct {
 	//
 	// `dns.resolver.manual_servers` must be set if and only if `dns.resolver.type` is
 	// `manual`.
-	ManualServers *VpcdnsResolverManualServersPatch `json:"manual_servers,omitempty"`
+	ManualServers []DnsServerPrototype `json:"manual_servers,omitempty"`
 
 	// The type of the DNS resolver to use.
 	//
@@ -65677,7 +66295,7 @@ type VpcdnsResolverPrototype struct {
 	//
 	// - have a unique `zone_affinity`, or
 	// - not have a `zone_affinity`.
-	ManualServers *VpcdnsResolverTypeManualPrototypeManualServers `json:"manual_servers,omitempty"`
+	ManualServers []DnsServerPrototype `json:"manual_servers,omitempty"`
 }
 
 // Constants associated with the VpcdnsResolverPrototype.Type property.
@@ -68416,6 +69034,9 @@ type Volume struct {
 	// The resource group for this volume.
 	ResourceGroup *ResourceGroupReference `json:"resource_group" validate:"required"`
 
+	// The resource type.
+	ResourceType *string `json:"resource_type" validate:"required"`
+
 	// The image from which this volume was created (this may be
 	// [deleted](https://cloud.ibm.com/apidocs/vpc#deleted-resources)).
 	// If absent, this volume was not created from an image.
@@ -68479,6 +69100,12 @@ const (
 	VolumeHealthStateFaultedConst      = "faulted"
 	VolumeHealthStateInapplicableConst = "inapplicable"
 	VolumeHealthStateOkConst           = "ok"
+)
+
+// Constants associated with the Volume.ResourceType property.
+// The resource type.
+const (
+	VolumeResourceTypeVolumeConst = "volume"
 )
 
 // Constants associated with the Volume.Status property.
@@ -68568,6 +69195,10 @@ func UnmarshalVolume(m map[string]json.RawMessage, result interface{}) (err erro
 		return
 	}
 	err = core.UnmarshalModel(m, "resource_group", &obj.ResourceGroup, UnmarshalResourceGroupReference)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
 	if err != nil {
 		return
 	}
@@ -69214,6 +69845,9 @@ type VolumeCollection struct {
 	// except the last page.
 	Next *VolumeCollectionNext `json:"next,omitempty"`
 
+	// The total number of resources across all pages.
+	TotalCount *int64 `json:"total_count" validate:"required"`
+
 	// Collection of volumes.
 	Volumes []Volume `json:"volumes" validate:"required"`
 }
@@ -69230,6 +69864,10 @@ func UnmarshalVolumeCollection(m map[string]json.RawMessage, result interface{})
 		return
 	}
 	err = core.UnmarshalModel(m, "next", &obj.Next, UnmarshalVolumeCollectionNext)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "total_count", &obj.TotalCount)
 	if err != nil {
 		return
 	}
@@ -69881,7 +70519,20 @@ type VolumeReference struct {
 
 	// The name for this volume. The name is unique across all volumes in the region.
 	Name *string `json:"name" validate:"required"`
+
+	// If present, this property indicates that the resource associated with this reference
+	// is remote and therefore may not be directly retrievable.
+	Remote *VolumeRemote `json:"remote,omitempty"`
+
+	// The resource type.
+	ResourceType *string `json:"resource_type" validate:"required"`
 }
+
+// Constants associated with the VolumeReference.ResourceType property.
+// The resource type.
+const (
+	VolumeReferenceResourceTypeVolumeConst = "volume"
+)
 
 // UnmarshalVolumeReference unmarshals an instance of VolumeReference from the specified map of raw messages.
 func UnmarshalVolumeReference(m map[string]json.RawMessage, result interface{}) (err error) {
@@ -69903,6 +70554,14 @@ func UnmarshalVolumeReference(m map[string]json.RawMessage, result interface{}) 
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "remote", &obj.Remote, UnmarshalVolumeRemote)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
 	if err != nil {
 		return
 	}
@@ -69945,7 +70604,16 @@ type VolumeReferenceVolumeAttachmentContext struct {
 
 	// The name for this volume. The name is unique across all volumes in the region.
 	Name *string `json:"name" validate:"required"`
+
+	// The resource type.
+	ResourceType *string `json:"resource_type" validate:"required"`
 }
+
+// Constants associated with the VolumeReferenceVolumeAttachmentContext.ResourceType property.
+// The resource type.
+const (
+	VolumeReferenceVolumeAttachmentContextResourceTypeVolumeConst = "volume"
+)
 
 // UnmarshalVolumeReferenceVolumeAttachmentContext unmarshals an instance of VolumeReferenceVolumeAttachmentContext from the specified map of raw messages.
 func UnmarshalVolumeReferenceVolumeAttachmentContext(m map[string]json.RawMessage, result interface{}) (err error) {
@@ -69970,6 +70638,10 @@ func UnmarshalVolumeReferenceVolumeAttachmentContext(m map[string]json.RawMessag
 	if err != nil {
 		return
 	}
+	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
+	if err != nil {
+		return
+	}
 	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
 	return
 }
@@ -69985,6 +70657,25 @@ type VolumeReferenceVolumeAttachmentContextDeleted struct {
 func UnmarshalVolumeReferenceVolumeAttachmentContextDeleted(m map[string]json.RawMessage, result interface{}) (err error) {
 	obj := new(VolumeReferenceVolumeAttachmentContextDeleted)
 	err = core.UnmarshalPrimitive(m, "more_info", &obj.MoreInfo)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// VolumeRemote : If present, this property indicates that the resource associated with this reference is remote and therefore may not
+// be directly retrievable.
+type VolumeRemote struct {
+	// If present, this property indicates that the referenced resource is remote to this
+	// region, and identifies the native region.
+	Region *RegionReference `json:"region,omitempty"`
+}
+
+// UnmarshalVolumeRemote unmarshals an instance of VolumeRemote from the specified map of raw messages.
+func UnmarshalVolumeRemote(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(VolumeRemote)
+	err = core.UnmarshalModel(m, "region", &obj.Region, UnmarshalRegionReference)
 	if err != nil {
 		return
 	}
@@ -70203,7 +70894,20 @@ type BackupPolicyJobSourceVolumeReference struct {
 
 	// The name for this volume. The name is unique across all volumes in the region.
 	Name *string `json:"name" validate:"required"`
+
+	// If present, this property indicates that the resource associated with this reference
+	// is remote and therefore may not be directly retrievable.
+	Remote *VolumeRemote `json:"remote,omitempty"`
+
+	// The resource type.
+	ResourceType *string `json:"resource_type" validate:"required"`
 }
+
+// Constants associated with the BackupPolicyJobSourceVolumeReference.ResourceType property.
+// The resource type.
+const (
+	BackupPolicyJobSourceVolumeReferenceResourceTypeVolumeConst = "volume"
+)
 
 func (*BackupPolicyJobSourceVolumeReference) isaBackupPolicyJobSource() bool {
 	return true
@@ -70229,6 +70933,14 @@ func UnmarshalBackupPolicyJobSourceVolumeReference(m map[string]json.RawMessage,
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "remote", &obj.Remote, UnmarshalVolumeRemote)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
 	if err != nil {
 		return
 	}
@@ -77438,7 +78150,7 @@ type InstancePrototypeInstanceByCatalogOffering struct {
 	// virtual server instance as cloud-init vendor data. For cloud-init enabled images, these keys will also be added as
 	// SSH authorized keys for the administrative user.
 	//
-	// For Windows images, at least one key must be specified, and one will be chosen to encrypt [the administrator
+	// For Windows images, the keys of type `rsa` must be specified, and one will be chosen to encrypt [the administrator
 	// password](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization). Keys are optional for other images, but if
 	// no keys are specified, the instance will be inaccessible unless the specified image provides another means of
 	// access.
@@ -77609,7 +78321,7 @@ type InstancePrototypeInstanceByImage struct {
 	// virtual server instance as cloud-init vendor data. For cloud-init enabled images, these keys will also be added as
 	// SSH authorized keys for the administrative user.
 	//
-	// For Windows images, at least one key must be specified, and one will be chosen to encrypt [the administrator
+	// For Windows images, the keys of type `rsa` must be specified, and one will be chosen to encrypt [the administrator
 	// password](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization). Keys are optional for other images, but if
 	// no keys are specified, the instance will be inaccessible unless the specified image provides another means of
 	// access.
@@ -77773,7 +78485,7 @@ type InstancePrototypeInstanceBySourceSnapshot struct {
 	// virtual server instance as cloud-init vendor data. For cloud-init enabled images, these keys will also be added as
 	// SSH authorized keys for the administrative user.
 	//
-	// For Windows images, at least one key must be specified, and one will be chosen to encrypt [the administrator
+	// For Windows images, the keys of type `rsa` must be specified, and one will be chosen to encrypt [the administrator
 	// password](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization). Keys are optional for other images, but if
 	// no keys are specified, the instance will be inaccessible unless the specified image provides another means of
 	// access.
@@ -77933,7 +78645,7 @@ type InstancePrototypeInstanceBySourceTemplate struct {
 	// virtual server instance as cloud-init vendor data. For cloud-init enabled images, these keys will also be added as
 	// SSH authorized keys for the administrative user.
 	//
-	// For Windows images, at least one key must be specified, and one will be chosen to encrypt [the administrator
+	// For Windows images, the keys of type `rsa` must be specified, and one will be chosen to encrypt [the administrator
 	// password](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization). Keys are optional for other images, but if
 	// no keys are specified, the instance will be inaccessible unless the specified image provides another means of
 	// access.
@@ -78117,7 +78829,7 @@ type InstancePrototypeInstanceByVolume struct {
 	// virtual server instance as cloud-init vendor data. For cloud-init enabled images, these keys will also be added as
 	// SSH authorized keys for the administrative user.
 	//
-	// For Windows images, at least one key must be specified, and one will be chosen to encrypt [the administrator
+	// For Windows images, the keys of type `rsa` must be specified, and one will be chosen to encrypt [the administrator
 	// password](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization). Keys are optional for other images, but if
 	// no keys are specified, the instance will be inaccessible unless the specified image provides another means of
 	// access.
@@ -78367,7 +79079,7 @@ type InstanceTemplatePrototypeInstanceTemplateByCatalogOffering struct {
 	// virtual server instance as cloud-init vendor data. For cloud-init enabled images, these keys will also be added as
 	// SSH authorized keys for the administrative user.
 	//
-	// For Windows images, at least one key must be specified, and one will be chosen to encrypt [the administrator
+	// For Windows images, the keys of type `rsa` must be specified, and one will be chosen to encrypt [the administrator
 	// password](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization). Keys are optional for other images, but if
 	// no keys are specified, the instance will be inaccessible unless the specified image provides another means of
 	// access.
@@ -78536,7 +79248,7 @@ type InstanceTemplatePrototypeInstanceTemplateByImage struct {
 	// virtual server instance as cloud-init vendor data. For cloud-init enabled images, these keys will also be added as
 	// SSH authorized keys for the administrative user.
 	//
-	// For Windows images, at least one key must be specified, and one will be chosen to encrypt [the administrator
+	// For Windows images, the keys of type `rsa` must be specified, and one will be chosen to encrypt [the administrator
 	// password](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization). Keys are optional for other images, but if
 	// no keys are specified, the instance will be inaccessible unless the specified image provides another means of
 	// access.
@@ -78698,7 +79410,7 @@ type InstanceTemplatePrototypeInstanceTemplateBySourceSnapshot struct {
 	// virtual server instance as cloud-init vendor data. For cloud-init enabled images, these keys will also be added as
 	// SSH authorized keys for the administrative user.
 	//
-	// For Windows images, at least one key must be specified, and one will be chosen to encrypt [the administrator
+	// For Windows images, the keys of type `rsa` must be specified, and one will be chosen to encrypt [the administrator
 	// password](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization). Keys are optional for other images, but if
 	// no keys are specified, the instance will be inaccessible unless the specified image provides another means of
 	// access.
@@ -78853,7 +79565,7 @@ type InstanceTemplatePrototypeInstanceTemplateBySourceTemplate struct {
 	// virtual server instance as cloud-init vendor data. For cloud-init enabled images, these keys will also be added as
 	// SSH authorized keys for the administrative user.
 	//
-	// For Windows images, at least one key must be specified, and one will be chosen to encrypt [the administrator
+	// For Windows images, the keys of type `rsa` must be specified, and one will be chosen to encrypt [the administrator
 	// password](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization). Keys are optional for other images, but if
 	// no keys are specified, the instance will be inaccessible unless the specified image provides another means of
 	// access.
@@ -79047,7 +79759,7 @@ type InstanceTemplateInstanceByCatalogOffering struct {
 	// virtual server instance as cloud-init vendor data. For cloud-init enabled images, these keys will also be added as
 	// SSH authorized keys for the administrative user.
 	//
-	// For Windows images, at least one key must be specified, and one will be chosen to encrypt [the administrator
+	// For Windows images, the keys of type `rsa` must be specified, and one will be chosen to encrypt [the administrator
 	// password](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization). Keys are optional for other images, but if
 	// no keys are specified, the instance will be inaccessible unless the specified image provides another means of
 	// access.
@@ -79233,7 +79945,7 @@ type InstanceTemplateInstanceByImage struct {
 	// virtual server instance as cloud-init vendor data. For cloud-init enabled images, these keys will also be added as
 	// SSH authorized keys for the administrative user.
 	//
-	// For Windows images, at least one key must be specified, and one will be chosen to encrypt [the administrator
+	// For Windows images, the keys of type `rsa` must be specified, and one will be chosen to encrypt [the administrator
 	// password](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization). Keys are optional for other images, but if
 	// no keys are specified, the instance will be inaccessible unless the specified image provides another means of
 	// access.
@@ -79412,7 +80124,7 @@ type InstanceTemplateInstanceBySourceSnapshot struct {
 	// virtual server instance as cloud-init vendor data. For cloud-init enabled images, these keys will also be added as
 	// SSH authorized keys for the administrative user.
 	//
-	// For Windows images, at least one key must be specified, and one will be chosen to encrypt [the administrator
+	// For Windows images, the keys of type `rsa` must be specified, and one will be chosen to encrypt [the administrator
 	// password](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization). Keys are optional for other images, but if
 	// no keys are specified, the instance will be inaccessible unless the specified image provides another means of
 	// access.
@@ -80486,6 +81198,69 @@ func (*LoadBalancerProfileIdentityByName) isaLoadBalancerProfileIdentity() bool 
 func UnmarshalLoadBalancerProfileIdentityByName(m map[string]json.RawMessage, result interface{}) (err error) {
 	obj := new(LoadBalancerProfileIdentityByName)
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// LoadBalancerProfileInstanceGroupsSupportedDependent : The instance groups support for a load balancer with this profile depends on its configuration.
+// This model "extends" LoadBalancerProfileInstanceGroupsSupported
+type LoadBalancerProfileInstanceGroupsSupportedDependent struct {
+	// The type for this profile field.
+	Type *string `json:"type" validate:"required"`
+}
+
+// Constants associated with the LoadBalancerProfileInstanceGroupsSupportedDependent.Type property.
+// The type for this profile field.
+const (
+	LoadBalancerProfileInstanceGroupsSupportedDependentTypeDependentConst = "dependent"
+)
+
+func (*LoadBalancerProfileInstanceGroupsSupportedDependent) isaLoadBalancerProfileInstanceGroupsSupported() bool {
+	return true
+}
+
+// UnmarshalLoadBalancerProfileInstanceGroupsSupportedDependent unmarshals an instance of LoadBalancerProfileInstanceGroupsSupportedDependent from the specified map of raw messages.
+func UnmarshalLoadBalancerProfileInstanceGroupsSupportedDependent(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(LoadBalancerProfileInstanceGroupsSupportedDependent)
+	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// LoadBalancerProfileInstanceGroupsSupportedFixed : The instance groups support for a load balancer with this profile.
+// This model "extends" LoadBalancerProfileInstanceGroupsSupported
+type LoadBalancerProfileInstanceGroupsSupportedFixed struct {
+	// The type for this profile field.
+	Type *string `json:"type" validate:"required"`
+
+	// The value for this profile field.
+	Value *bool `json:"value" validate:"required"`
+}
+
+// Constants associated with the LoadBalancerProfileInstanceGroupsSupportedFixed.Type property.
+// The type for this profile field.
+const (
+	LoadBalancerProfileInstanceGroupsSupportedFixedTypeFixedConst = "fixed"
+)
+
+func (*LoadBalancerProfileInstanceGroupsSupportedFixed) isaLoadBalancerProfileInstanceGroupsSupported() bool {
+	return true
+}
+
+// UnmarshalLoadBalancerProfileInstanceGroupsSupportedFixed unmarshals an instance of LoadBalancerProfileInstanceGroupsSupportedFixed from the specified map of raw messages.
+func UnmarshalLoadBalancerProfileInstanceGroupsSupportedFixed(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(LoadBalancerProfileInstanceGroupsSupportedFixed)
+	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "value", &obj.Value)
 	if err != nil {
 		return
 	}
@@ -82871,6 +83646,68 @@ func UnmarshalPublicGatewayIdentityPublicGatewayIdentityByID(m map[string]json.R
 	return
 }
 
+// RegionIdentityByHref : RegionIdentityByHref struct
+// This model "extends" RegionIdentity
+type RegionIdentityByHref struct {
+	// The URL for this region.
+	Href *string `json:"href" validate:"required"`
+}
+
+// NewRegionIdentityByHref : Instantiate RegionIdentityByHref (Generic Model Constructor)
+func (*VpcV1) NewRegionIdentityByHref(href string) (_model *RegionIdentityByHref, err error) {
+	_model = &RegionIdentityByHref{
+		Href: core.StringPtr(href),
+	}
+	err = core.ValidateStruct(_model, "required parameters")
+	return
+}
+
+func (*RegionIdentityByHref) isaRegionIdentity() bool {
+	return true
+}
+
+// UnmarshalRegionIdentityByHref unmarshals an instance of RegionIdentityByHref from the specified map of raw messages.
+func UnmarshalRegionIdentityByHref(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(RegionIdentityByHref)
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// RegionIdentityByName : RegionIdentityByName struct
+// This model "extends" RegionIdentity
+type RegionIdentityByName struct {
+	// The globally unique name for this region.
+	Name *string `json:"name" validate:"required"`
+}
+
+// NewRegionIdentityByName : Instantiate RegionIdentityByName (Generic Model Constructor)
+func (*VpcV1) NewRegionIdentityByName(name string) (_model *RegionIdentityByName, err error) {
+	_model = &RegionIdentityByName{
+		Name: core.StringPtr(name),
+	}
+	err = core.ValidateStruct(_model, "required parameters")
+	return
+}
+
+func (*RegionIdentityByName) isaRegionIdentity() bool {
+	return true
+}
+
+// UnmarshalRegionIdentityByName unmarshals an instance of RegionIdentityByName from the specified map of raw messages.
+func UnmarshalRegionIdentityByName(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(RegionIdentityByName)
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
 // ReservedIPTargetPrototypeEndpointGatewayIdentity : ReservedIPTargetPrototypeEndpointGatewayIdentity struct
 // Models which "extend" this model:
 // - ReservedIPTargetPrototypeEndpointGatewayIdentityEndpointGatewayIdentityByID
@@ -85055,6 +85892,81 @@ func (*SnapshotIdentityByID) isaSnapshotIdentity() bool {
 func UnmarshalSnapshotIdentityByID(m map[string]json.RawMessage, result interface{}) (err error) {
 	obj := new(SnapshotIdentityByID)
 	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// SnapshotPrototypeSnapshotBySourceSnapshot : SnapshotPrototypeSnapshotBySourceSnapshot struct
+// This model "extends" SnapshotPrototype
+type SnapshotPrototypeSnapshotBySourceSnapshot struct {
+	// Clones to create for this snapshot.
+	Clones []SnapshotClonePrototype `json:"clones,omitempty"`
+
+	// The name for this snapshot. The name must not be used by another snapshot in the region. If unspecified, the name
+	// will be a hyphenated list of randomly-selected words.
+	Name *string `json:"name,omitempty"`
+
+	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
+
+	// The [user tags](https://cloud.ibm.com/apidocs/tagging#types-of-tags) associated with this snapshot.
+	UserTags []string `json:"user_tags,omitempty"`
+
+	// The root key to use to wrap the data encryption key for this snapshot.
+	//
+	// A key must be specified if and only if the source snapshot has an `encryption` type of
+	// `user_managed`. To maximize snapshot availability and sharing of snapshot data, specify
+	// a key in the same region as the new snapshot, and use the same encryption key for all
+	// snapshots using the same source volume.
+	//
+	// The specified key may be in a different account, subject to IAM policies.
+	EncryptionKey EncryptionKeyIdentityIntf `json:"encryption_key,omitempty"`
+
+	// The source snapshot (in another region) to create this snapshot from.
+	// The specified snapshot must not already be the source of another snapshot in this
+	// region.
+	SourceSnapshot *SnapshotIdentityByCRN `json:"source_snapshot" validate:"required"`
+}
+
+// NewSnapshotPrototypeSnapshotBySourceSnapshot : Instantiate SnapshotPrototypeSnapshotBySourceSnapshot (Generic Model Constructor)
+func (*VpcV1) NewSnapshotPrototypeSnapshotBySourceSnapshot(sourceSnapshot *SnapshotIdentityByCRN) (_model *SnapshotPrototypeSnapshotBySourceSnapshot, err error) {
+	_model = &SnapshotPrototypeSnapshotBySourceSnapshot{
+		SourceSnapshot: sourceSnapshot,
+	}
+	err = core.ValidateStruct(_model, "required parameters")
+	return
+}
+
+func (*SnapshotPrototypeSnapshotBySourceSnapshot) isaSnapshotPrototype() bool {
+	return true
+}
+
+// UnmarshalSnapshotPrototypeSnapshotBySourceSnapshot unmarshals an instance of SnapshotPrototypeSnapshotBySourceSnapshot from the specified map of raw messages.
+func UnmarshalSnapshotPrototypeSnapshotBySourceSnapshot(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(SnapshotPrototypeSnapshotBySourceSnapshot)
+	err = core.UnmarshalModel(m, "clones", &obj.Clones, UnmarshalSnapshotClonePrototype)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "resource_group", &obj.ResourceGroup, UnmarshalResourceGroupIdentity)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "user_tags", &obj.UserTags)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "encryption_key", &obj.EncryptionKey, UnmarshalEncryptionKeyIdentity)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "source_snapshot", &obj.SourceSnapshot, UnmarshalSnapshotIdentityByCRN)
 	if err != nil {
 		return
 	}
