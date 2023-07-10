@@ -55,6 +55,7 @@ const (
 	isInstanceCPUArch                 = "architecture"
 	isInstanceCPUCores                = "cores"
 	isInstanceCPUCount                = "count"
+	isInstanceCPUManufacturer         = "manufacturer"
 	isInstanceGpu                     = "gpu"
 	isInstanceGpuCores                = "cores"
 	isInstanceGpuCount                = "count"
@@ -687,13 +688,11 @@ func ResourceIBMISInstance() *schema.Resource {
 			},
 
 			isInstanceVolumes: {
-				Type:        schema.TypeSet,
+				Type:        schema.TypeList,
 				Optional:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
-				Set:         schema.HashString,
 				Description: "List of volumes",
 			},
-
 			isInstanceVolAttVolAutoDelete: {
 				Type:        schema.TypeBool,
 				Optional:    true,
@@ -720,6 +719,11 @@ func ResourceIBMISInstance() *schema.Resource {
 						isInstanceCPUCount: {
 							Type:     schema.TypeInt,
 							Computed: true,
+						},
+						isInstanceCPUManufacturer: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The VCPU manufacturer",
 						},
 					},
 				},
@@ -3139,6 +3143,7 @@ func instanceGet(d *schema.ResourceData, meta interface{}, id string) error {
 		currentCPU := map[string]interface{}{}
 		currentCPU[isInstanceCPUArch] = *instance.Vcpu.Architecture
 		currentCPU[isInstanceCPUCount] = *instance.Vcpu.Count
+		currentCPU[isInstanceCPUManufacturer] = instance.Vcpu.Manufacturer
 		cpuList = append(cpuList, currentCPU)
 	}
 	d.Set(isInstanceCPU, cpuList)
@@ -3689,12 +3694,20 @@ func instanceUpdate(d *schema.ResourceData, meta interface{}) error {
 		}
 	}
 	if d.HasChange(isInstanceVolumes) {
-		ovs, nvs := d.GetChange(isInstanceVolumes)
-		ov := ovs.(*schema.Set)
-		nv := nvs.(*schema.Set)
-
-		remove := flex.ExpandStringList(ov.Difference(nv).List())
-		add := flex.ExpandStringList(nv.Difference(ov).List())
+		old, new := d.GetChange(isInstanceVolumes)
+		oldaddons := old.([]interface{})
+		newaddons := new.([]interface{})
+		var oldaddon, newaddon, add []string
+		for _, v := range oldaddons {
+			oldaddon = append(oldaddon, v.(string))
+		}
+		for _, v := range newaddons {
+			newaddon = append(newaddon, v.(string))
+		}
+		// 1. Remove old addons no longer appearing in the new set
+		// 2. Add new addons not already provisioned
+		remove := flex.Listdifference(oldaddon, newaddon)
+		add = flex.Listdifference(newaddon, oldaddon)
 		var volautoDelete bool
 		if volumeautodeleteIntf, ok := d.GetOk(isInstanceVolAttVolAutoDelete); ok && volumeautodeleteIntf != nil {
 			volautoDelete = volumeautodeleteIntf.(bool)
