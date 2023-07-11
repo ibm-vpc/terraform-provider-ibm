@@ -372,6 +372,8 @@ func Provider() *schema.Provider {
 			"ibm_is_bare_metal_server_disk":                           vpc.DataSourceIBMIsBareMetalServerDisk(),
 			"ibm_is_bare_metal_server_disks":                          vpc.DataSourceIBMIsBareMetalServerDisks(),
 			"ibm_is_bare_metal_server_initialization":                 vpc.DataSourceIBMIsBareMetalServerInitialization(),
+			"ibm_is_bare_metal_server_network_attachment":             vpc.DataSourceIBMIsBareMetalServerNetworkAttachment(),
+			"ibm_is_bare_metal_server_network_attachments":            vpc.DataSourceIBMIsBareMetalServerNetworkAttachments(),
 			"ibm_is_bare_metal_server_network_interface_floating_ip":  vpc.DataSourceIBMIsBareMetalServerNetworkInterfaceFloatingIP(),
 			"ibm_is_bare_metal_server_network_interface_floating_ips": vpc.DataSourceIBMIsBareMetalServerNetworkInterfaceFloatingIPs(),
 			"ibm_is_bare_metal_server_network_interface_reserved_ip":  vpc.DataSourceIBMISBareMetalServerNICReservedIP(),
@@ -975,6 +977,7 @@ func Provider() *schema.Provider {
 			// bare_metal_server
 			"ibm_is_bare_metal_server_action":                        vpc.ResourceIBMIsBareMetalServerAction(),
 			"ibm_is_bare_metal_server_disk":                          vpc.ResourceIBMIsBareMetalServerDisk(),
+			"ibm_is_bare_metal_server_network_attachment":            vpc.ResourceIBMIsBareMetalServerNetworkAttachment(),
 			"ibm_is_bare_metal_server_network_interface_allow_float": vpc.ResourceIBMIsBareMetalServerNetworkInterfaceAllowFloat(),
 			"ibm_is_bare_metal_server_network_interface_floating_ip": vpc.ResourceIBMIsBareMetalServerNetworkInterfaceFloatingIp(),
 			"ibm_is_bare_metal_server_network_interface":             vpc.ResourceIBMIsBareMetalServerNetworkInterface(),
@@ -1386,9 +1389,10 @@ func Validator() validate.ValidatorDict {
 				"ibm_is_backup_policy_plan": vpc.ResourceIBMIsBackupPolicyPlanValidator(),
 
 				// bare_metal_server
-				"ibm_is_bare_metal_server_disk":              vpc.ResourceIBMIsBareMetalServerDiskValidator(),
-				"ibm_is_bare_metal_server_network_interface": vpc.ResourceIBMIsBareMetalServerNetworkInterfaceValidator(),
-				"ibm_is_bare_metal_server":                   vpc.ResourceIBMIsBareMetalServerValidator(),
+				"ibm_is_bare_metal_server_disk":               vpc.ResourceIBMIsBareMetalServerDiskValidator(),
+				"ibm_is_bare_metal_server_network_attachment": vpc.ResourceIBMIsBareMetalServerNetworkAttachmentValidator(),
+				"ibm_is_bare_metal_server_network_interface":  vpc.ResourceIBMIsBareMetalServerNetworkInterfaceValidator(),
+				"ibm_is_bare_metal_server":                    vpc.ResourceIBMIsBareMetalServerValidator(),
 
 				"ibm_is_dedicated_host_group":              vpc.ResourceIbmIsDedicatedHostGroupValidator(),
 				"ibm_is_dedicated_host":                    vpc.ResourceIbmIsDedicatedHostValidator(),
