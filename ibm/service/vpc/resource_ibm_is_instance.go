@@ -404,12 +404,14 @@ func ResourceIBMISInstance() *schema.Resource {
 			},
 
 			isInstancePrimaryNetworkInterface: {
-				Type:        schema.TypeList,
-				MinItems:    1,
-				MaxItems:    1,
-				Optional:    true,
-				Computed:    true,
-				Description: "Primary Network interface info",
+				Type:          schema.TypeList,
+				MinItems:      1,
+				MaxItems:      1,
+				Optional:      true,
+				Computed:      true,
+				ExactlyOneOf:  []string{"primary_network_interface", "primary_network_attachment"},
+				ConflictsWith: []string{"primary_network_attachment", "network_attachments"},
+				Description:   "Primary Network interface info",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"id": {
@@ -509,10 +511,12 @@ func ResourceIBMISInstance() *schema.Resource {
 			},
 
 			"primary_network_attachment": &schema.Schema{
-				Type:        schema.TypeList,
-				MaxItems:    1,
-				Optional:    true,
-				Description: "The primary network attachment for this virtual server instance.",
+				Type:          schema.TypeList,
+				MaxItems:      1,
+				Optional:      true,
+				Description:   "The primary network attachment for this virtual server instance.",
+				ExactlyOneOf:  []string{"primary_network_attachment", "primary_network_interface"},
+				ConflictsWith: []string{"primary_network_interface", "network_interfaces"},
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"deleted": &schema.Schema{
@@ -656,9 +660,11 @@ func ResourceIBMISInstance() *schema.Resource {
 			},
 
 			isInstanceNetworkInterfaces: {
-				Type:     schema.TypeList,
-				Optional: true,
-				Computed: true,
+				Type:          schema.TypeList,
+				Optional:      true,
+				Computed:      true,
+				ExactlyOneOf:  []string{"network_attachments", "network_interfaces"},
+				ConflictsWith: []string{"primary_network_attachment", "network_attachments"},
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"id": {
@@ -747,9 +753,11 @@ func ResourceIBMISInstance() *schema.Resource {
 			},
 
 			"network_attachments": &schema.Schema{
-				Type:        schema.TypeList,
-				Optional:    true,
-				Description: "The network attachments for this virtual server instance, including the primary network attachment.",
+				Type:          schema.TypeList,
+				Optional:      true,
+				ExactlyOneOf:  []string{"network_attachments", "network_interfaces"},
+				ConflictsWith: []string{"primary_network_attachment", "network_attachments"},
+				Description:   "The network attachments for this virtual server instance, including the primary network attachment.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"deleted": &schema.Schema{
@@ -1506,6 +1514,25 @@ func instanceCreateByImage(d *schema.ResourceData, meta interface{}, profile, na
 
 	}
 
+	if networkattachmentsintf, ok := d.GetOk("network_attachments"); ok {
+		networkAttachments := []vpcv1.InstanceNetworkAttachmentPrototype{}
+		for _, networkAttachmentsItem := range networkattachmentsintf.([]interface{}) {
+			networkAttachmentsItemModel, err := resourceIBMIsInstanceMapToInstanceNetworkAttachmentPrototype(networkAttachmentsItem.(map[string]interface{}))
+			if err != nil {
+				return err
+			}
+			networkAttachments = append(networkAttachments, *networkAttachmentsItemModel)
+		}
+		instanceproto.NetworkAttachments = networkAttachments
+	}
+	if primnetworkattachmentintf, ok := d.GetOk("primary_network_attachment"); ok && len(primnetworkattachmentintf.([]interface{})) > 0 {
+		primaryNetworkAttachmentModel, err := resourceIBMIsInstanceMapToInstanceNetworkAttachmentPrototype(primnetworkattachmentintf.([]interface{})[0].(map[string]interface{}))
+		if err != nil {
+			return err
+		}
+		instanceproto.PrimaryNetworkAttachment = primaryNetworkAttachmentModel
+	}
+
 	if primnicintf, ok := d.GetOk(isInstancePrimaryNetworkInterface); ok {
 		primnic := primnicintf.([]interface{})[0].(map[string]interface{})
 		subnetintf, _ := primnic[isInstanceNicSubnet]
@@ -1776,6 +1803,24 @@ func instanceCreateByCatalogOffering(d *schema.ResourceData, meta interface{}, p
 		VPC: &vpcv1.VPCIdentity{
 			ID: &vpcID,
 		},
+	}
+	if networkattachmentsintf, ok := d.GetOk("network_attachments"); ok {
+		networkAttachments := []vpcv1.InstanceNetworkAttachmentPrototype{}
+		for _, networkAttachmentsItem := range networkattachmentsintf.([]interface{}) {
+			networkAttachmentsItemModel, err := resourceIBMIsInstanceMapToInstanceNetworkAttachmentPrototype(networkAttachmentsItem.(map[string]interface{}))
+			if err != nil {
+				return err
+			}
+			networkAttachments = append(networkAttachments, *networkAttachmentsItemModel)
+		}
+		instanceproto.NetworkAttachments = networkAttachments
+	}
+	if primnetworkattachmentintf, ok := d.GetOk("primary_network_attachment"); ok && len(primnetworkattachmentintf.([]interface{})) > 0 {
+		primaryNetworkAttachmentModel, err := resourceIBMIsInstanceMapToInstanceNetworkAttachmentPrototype(primnetworkattachmentintf.([]interface{})[0].(map[string]interface{}))
+		if err != nil {
+			return err
+		}
+		instanceproto.PrimaryNetworkAttachment = primaryNetworkAttachmentModel
 	}
 	if offerringCrn != "" {
 		catalogOffering := &vpcv1.CatalogOfferingIdentityCatalogOfferingByCRN{
@@ -2250,6 +2295,25 @@ func instanceCreateByTemplate(d *schema.ResourceData, meta interface{}, profile,
 		}
 	}
 
+	if networkattachmentsintf, ok := d.GetOk("network_attachments"); ok {
+		networkAttachments := []vpcv1.InstanceNetworkAttachmentPrototype{}
+		for _, networkAttachmentsItem := range networkattachmentsintf.([]interface{}) {
+			networkAttachmentsItemModel, err := resourceIBMIsInstanceMapToInstanceNetworkAttachmentPrototype(networkAttachmentsItem.(map[string]interface{}))
+			if err != nil {
+				return err
+			}
+			networkAttachments = append(networkAttachments, *networkAttachmentsItemModel)
+		}
+		instanceproto.NetworkAttachments = networkAttachments
+	}
+	if primnetworkattachmentintf, ok := d.GetOk("primary_network_attachment"); ok && len(primnetworkattachmentintf.([]interface{})) > 0 {
+		primaryNetworkAttachmentModel, err := resourceIBMIsInstanceMapToInstanceNetworkAttachmentPrototype(primnetworkattachmentintf.([]interface{})[0].(map[string]interface{}))
+		if err != nil {
+			return err
+		}
+		instanceproto.PrimaryNetworkAttachment = primaryNetworkAttachmentModel
+	}
+
 	if primnicintf, ok := d.GetOk(isInstancePrimaryNetworkInterface); ok {
 		primnic := primnicintf.([]interface{})[0].(map[string]interface{})
 		subnetintf, _ := primnic[isInstanceNicSubnet]
@@ -2616,6 +2680,25 @@ func instanceCreateBySnapshot(d *schema.ResourceData, meta interface{}, profile,
 	if totalVolBandwidthIntf, ok := d.GetOk(isInstanceTotalVolumeBandwidth); ok {
 		totalVolBandwidthStr := int64(totalVolBandwidthIntf.(int))
 		instanceproto.TotalVolumeBandwidth = &totalVolBandwidthStr
+	}
+
+	if networkattachmentsintf, ok := d.GetOk("network_attachments"); ok {
+		networkAttachments := []vpcv1.InstanceNetworkAttachmentPrototype{}
+		for _, networkAttachmentsItem := range networkattachmentsintf.([]interface{}) {
+			networkAttachmentsItemModel, err := resourceIBMIsInstanceMapToInstanceNetworkAttachmentPrototype(networkAttachmentsItem.(map[string]interface{}))
+			if err != nil {
+				return err
+			}
+			networkAttachments = append(networkAttachments, *networkAttachmentsItemModel)
+		}
+		instanceproto.NetworkAttachments = networkAttachments
+	}
+	if primnetworkattachmentintf, ok := d.GetOk("primary_network_attachment"); ok && len(primnetworkattachmentintf.([]interface{})) > 0 {
+		primaryNetworkAttachmentModel, err := resourceIBMIsInstanceMapToInstanceNetworkAttachmentPrototype(primnetworkattachmentintf.([]interface{})[0].(map[string]interface{}))
+		if err != nil {
+			return err
+		}
+		instanceproto.PrimaryNetworkAttachment = primaryNetworkAttachmentModel
 	}
 
 	if primnicintf, ok := d.GetOk(isInstancePrimaryNetworkInterface); ok {
@@ -5009,4 +5092,157 @@ func resourceIBMIsInstanceSubnetReferenceDeletedToMap(model *vpcv1.SubnetReferen
 	modelMap := make(map[string]interface{})
 	modelMap["more_info"] = model.MoreInfo
 	return modelMap, nil
+}
+
+func resourceIBMIsInstanceMapToInstanceNetworkAttachmentPrototype(modelMap map[string]interface{}) (*vpcv1.InstanceNetworkAttachmentPrototype, error) {
+	model := &vpcv1.InstanceNetworkAttachmentPrototype{}
+	if modelMap["name"] != nil && modelMap["name"].(string) != "" {
+		model.Name = core.StringPtr(modelMap["name"].(string))
+	}
+	VirtualNetworkInterfaceModel, err := resourceIBMIsInstanceMapToVirtualNetworkInterfacePrototypeAttachmentContext(modelMap["virtual_network_interface"].([]interface{})[0].(map[string]interface{}))
+	if err != nil {
+		return model, err
+	}
+	model.VirtualNetworkInterface = VirtualNetworkInterfaceModel
+	return model, nil
+}
+func resourceIBMIsInstanceMapToVirtualNetworkInterfacePrototypeAttachmentContext(modelMap map[string]interface{}) (vpcv1.VirtualNetworkInterfacePrototypeAttachmentContextIntf, error) {
+	model := &vpcv1.VirtualNetworkInterfacePrototypeAttachmentContext{}
+	if modelMap["allow_ip_spoofing"] != nil {
+		model.AllowIPSpoofing = core.BoolPtr(modelMap["allow_ip_spoofing"].(bool))
+	}
+	if modelMap["auto_delete"] != nil {
+		model.AutoDelete = core.BoolPtr(modelMap["auto_delete"].(bool))
+	}
+	if modelMap["enable_infrastructure_nat"] != nil {
+		model.EnableInfrastructureNat = core.BoolPtr(modelMap["enable_infrastructure_nat"].(bool))
+	}
+	if modelMap["ips"] != nil {
+		ips := []vpcv1.VirtualNetworkInterfaceIPsReservedIPPrototypeIntf{}
+		for _, ipsItem := range modelMap["ips"].([]interface{}) {
+			ipsItemModel, err := resourceIBMIsInstanceMapToVirtualNetworkInterfaceIPsReservedIPPrototype(ipsItem.(map[string]interface{}))
+			if err != nil {
+				return model, err
+			}
+			ips = append(ips, ipsItemModel)
+		}
+		model.Ips = ips
+	}
+	if modelMap["name"] != nil && modelMap["name"].(string) != "" {
+		model.Name = core.StringPtr(modelMap["name"].(string))
+	}
+	if modelMap["primary_ip"] != nil && len(modelMap["primary_ip"].([]interface{})) > 0 {
+		PrimaryIPModel, err := resourceIBMIsInstanceMapToVirtualNetworkInterfacePrimaryIPReservedIPPrototype(modelMap["primary_ip"].([]interface{})[0].(map[string]interface{}))
+		if err != nil {
+			return model, err
+		}
+		model.PrimaryIP = PrimaryIPModel
+	}
+	if modelMap["resource_group"] != nil && len(modelMap["resource_group"].([]interface{})) > 0 {
+		ResourceGroupModel, err := resourceIBMIsInstanceMapToVirtualNetworkInterfacePrototypeTargetContextResourceGroup(modelMap["resource_group"].([]interface{})[0].(map[string]interface{}))
+		if err != nil {
+			return model, err
+		}
+		model.ResourceGroup = ResourceGroupModel
+	}
+	if modelMap["security_groups"] != nil {
+		securityGroups := []vpcv1.SecurityGroupIdentityIntf{}
+		for _, securityGroupsItem := range modelMap["security_groups"].([]interface{}) {
+			securityGroupsItemModel, err := resourceIBMIsInstanceMapToSecurityGroupIdentity(securityGroupsItem.(map[string]interface{}))
+			if err != nil {
+				return model, err
+			}
+			securityGroups = append(securityGroups, securityGroupsItemModel)
+		}
+		model.SecurityGroups = securityGroups
+	}
+	if modelMap["subnet"] != nil && len(modelMap["subnet"].([]interface{})) > 0 {
+		SubnetModel, err := resourceIBMIsInstanceMapToSubnetIdentity(modelMap["subnet"].([]interface{})[0].(map[string]interface{}))
+		if err != nil {
+			return model, err
+		}
+		model.Subnet = SubnetModel
+	}
+	if modelMap["id"] != nil && modelMap["id"].(string) != "" {
+		model.ID = core.StringPtr(modelMap["id"].(string))
+	}
+	if modelMap["href"] != nil && modelMap["href"].(string) != "" {
+		model.Href = core.StringPtr(modelMap["href"].(string))
+	}
+	if modelMap["crn"] != nil && modelMap["crn"].(string) != "" {
+		model.CRN = core.StringPtr(modelMap["crn"].(string))
+	}
+	return model, nil
+}
+
+func resourceIBMIsInstanceMapToVirtualNetworkInterfaceIPsReservedIPPrototype(modelMap map[string]interface{}) (vpcv1.VirtualNetworkInterfaceIPsReservedIPPrototypeIntf, error) {
+	model := &vpcv1.VirtualNetworkInterfaceIPsReservedIPPrototype{}
+	if modelMap["id"] != nil && modelMap["id"].(string) != "" {
+		model.ID = core.StringPtr(modelMap["id"].(string))
+	}
+	if modelMap["href"] != nil && modelMap["href"].(string) != "" {
+		model.Href = core.StringPtr(modelMap["href"].(string))
+	}
+	if modelMap["address"] != nil && modelMap["address"].(string) != "" {
+		model.Address = core.StringPtr(modelMap["address"].(string))
+	}
+	if modelMap["auto_delete"] != nil {
+		model.AutoDelete = core.BoolPtr(modelMap["auto_delete"].(bool))
+	}
+	if modelMap["name"] != nil && modelMap["name"].(string) != "" {
+		model.Name = core.StringPtr(modelMap["name"].(string))
+	}
+	return model, nil
+}
+func resourceIBMIsInstanceMapToVirtualNetworkInterfacePrimaryIPReservedIPPrototype(modelMap map[string]interface{}) (vpcv1.VirtualNetworkInterfacePrimaryIPReservedIPPrototypeIntf, error) {
+	model := &vpcv1.VirtualNetworkInterfacePrimaryIPReservedIPPrototype{}
+	if modelMap["id"] != nil && modelMap["id"].(string) != "" {
+		model.ID = core.StringPtr(modelMap["id"].(string))
+	}
+	if modelMap["href"] != nil && modelMap["href"].(string) != "" {
+		model.Href = core.StringPtr(modelMap["href"].(string))
+	}
+	if modelMap["address"] != nil && modelMap["address"].(string) != "" {
+		model.Address = core.StringPtr(modelMap["address"].(string))
+	}
+	if modelMap["auto_delete"] != nil {
+		model.AutoDelete = core.BoolPtr(modelMap["auto_delete"].(bool))
+	}
+	if modelMap["name"] != nil && modelMap["name"].(string) != "" {
+		model.Name = core.StringPtr(modelMap["name"].(string))
+	}
+	return model, nil
+}
+func resourceIBMIsInstanceMapToVirtualNetworkInterfacePrototypeTargetContextResourceGroup(modelMap map[string]interface{}) (vpcv1.VirtualNetworkInterfacePrototypeTargetContextResourceGroupIntf, error) {
+	model := &vpcv1.VirtualNetworkInterfacePrototypeTargetContextResourceGroup{}
+	if modelMap["id"] != nil && modelMap["id"].(string) != "" {
+		model.ID = core.StringPtr(modelMap["id"].(string))
+	}
+	return model, nil
+}
+func resourceIBMIsInstanceMapToSecurityGroupIdentity(modelMap map[string]interface{}) (vpcv1.SecurityGroupIdentityIntf, error) {
+	model := &vpcv1.SecurityGroupIdentity{}
+	if modelMap["id"] != nil && modelMap["id"].(string) != "" {
+		model.ID = core.StringPtr(modelMap["id"].(string))
+	}
+	if modelMap["crn"] != nil && modelMap["crn"].(string) != "" {
+		model.CRN = core.StringPtr(modelMap["crn"].(string))
+	}
+	if modelMap["href"] != nil && modelMap["href"].(string) != "" {
+		model.Href = core.StringPtr(modelMap["href"].(string))
+	}
+	return model, nil
+}
+func resourceIBMIsInstanceMapToSubnetIdentity(modelMap map[string]interface{}) (vpcv1.SubnetIdentityIntf, error) {
+	model := &vpcv1.SubnetIdentity{}
+	if modelMap["id"] != nil && modelMap["id"].(string) != "" {
+		model.ID = core.StringPtr(modelMap["id"].(string))
+	}
+	if modelMap["crn"] != nil && modelMap["crn"].(string) != "" {
+		model.CRN = core.StringPtr(modelMap["crn"].(string))
+	}
+	if modelMap["href"] != nil && modelMap["href"].(string) != "" {
+		model.Href = core.StringPtr(modelMap["href"].(string))
+	}
+	return model, nil
 }
