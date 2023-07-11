@@ -48,6 +48,51 @@ func DataSourceIBMIsBareMetalServerProfiles() *schema.Resource {
 							Computed:    true,
 							Description: "The URL for this bare metal server profile",
 						},
+						"network_interface_count": &schema.Schema{
+							Type:     schema.TypeList,
+							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"max": &schema.Schema{
+										Type:        schema.TypeInt,
+										Computed:    true,
+										Description: "The maximum value for this profile field.",
+									},
+									"min": &schema.Schema{
+										Type:        schema.TypeInt,
+										Computed:    true,
+										Description: "The minimum value for this profile field.",
+									},
+									"type": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The type for this profile field.",
+									},
+								},
+							},
+						},
+						"console_types": &schema.Schema{
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "The console type configuration for a bare metal server with this profile.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"type": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The type for this profile field.",
+									},
+									"values": &schema.Schema{
+										Type:        schema.TypeList,
+										Computed:    true,
+										Description: "The console types for a bare metal server with this profile.",
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+								},
+							},
+						},
 						isBareMetalServerProfileBandwidth: {
 							Type:        schema.TypeList,
 							Computed:    true,
@@ -349,6 +394,26 @@ func dataSourceIBMIsBareMetalServerProfilesRead(context context.Context, d *sche
 			ccList = append(ccList, coreCount)
 			l[isBareMetalServerProfileCPUCoreCount] = ccList
 		}
+		consoleTypes := []map[string]interface{}{}
+		if profile.ConsoleTypes != nil {
+			modelMap, err := dataSourceIBMIsBareMetalServerProfileBareMetalServerProfileConsoleTypesToMap(profile.ConsoleTypes)
+			if err != nil {
+				return diag.FromErr(err)
+			}
+			consoleTypes = append(consoleTypes, modelMap)
+		}
+		l["console_types"] = consoleTypes
+
+		networkInterfaceCount := []map[string]interface{}{}
+		if profile.NetworkInterfaceCount != nil {
+			modelMap, err := dataSourceIBMIsBareMetalServerProfileBareMetalServerProfileNetworkInterfaceCountToMap(profile.NetworkInterfaceCount)
+			if err != nil {
+				return diag.FromErr(err)
+			}
+			networkInterfaceCount = append(networkInterfaceCount, modelMap)
+		}
+		l["network_interface_count"] = networkInterfaceCount
+
 		if profile.CpuSocketCount != nil {
 			scList := make([]map[string]interface{}, 0)
 			sc := profile.CpuSocketCount.(*vpcv1.BareMetalServerProfileCpuSocketCount)
