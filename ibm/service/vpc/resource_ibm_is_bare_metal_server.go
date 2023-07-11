@@ -272,12 +272,13 @@ func ResourceIBMIsBareMetalServer() *schema.Resource {
 				Description: "Enables stopping type of the bare metal server before deleting",
 			},
 			isBareMetalServerPrimaryNetworkInterface: {
-				Type:         schema.TypeList,
-				MinItems:     1,
-				MaxItems:     1,
-				Required:     true,
-				ExactlyOneOf: []string{"primary_network_attachment", "primary_network_interface"},
-				Description:  "Primary Network interface info",
+				Type:          schema.TypeList,
+				MinItems:      1,
+				MaxItems:      1,
+				Required:      true,
+				ExactlyOneOf:  []string{"primary_network_attachment", "primary_network_interface"},
+				ConflictsWith: []string{"primary_network_attachment", "network_attachments"},
+				Description:   "Primary Network interface info",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"id": {
