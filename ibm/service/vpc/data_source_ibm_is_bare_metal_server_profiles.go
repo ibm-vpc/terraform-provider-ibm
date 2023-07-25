@@ -37,6 +37,11 @@ func DataSourceIBMIsBareMetalServerProfiles() *schema.Resource {
 							Computed:    true,
 							Description: "The name for this bare metal server profile",
 						},
+						"id": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The name for this bare metal server profile",
+						},
 
 						isBareMetalServerProfileFamily: {
 							Type:        schema.TypeString,
@@ -361,6 +366,7 @@ func dataSourceIBMIsBareMetalServerProfilesRead(context context.Context, d *sche
 
 		l := map[string]interface{}{
 			isBareMetalServerProfileName:   *profile.Name,
+			"id":                           *profile.Name,
 			isBareMetalServerProfileFamily: *profile.Family,
 		}
 		l[isBareMetalServerProfileHref] = *profile.Href

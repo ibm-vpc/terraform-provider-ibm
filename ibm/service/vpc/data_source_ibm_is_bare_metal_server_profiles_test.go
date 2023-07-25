@@ -23,6 +23,7 @@ func TestAccIBMISBMSProfilesDataSource_basic(t *testing.T) {
 				Config: testAccCheckIBMISBMSProfilesDataSourceConfig(),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet(resName, "profiles.0.name"),
+					resource.TestCheckResourceAttrSet(resName, "profiles.0.id"),
 					resource.TestCheckResourceAttrSet(resName, "profiles.0.family"),
 					resource.TestCheckResourceAttrSet(resName, "profiles.0.bandwidth.#"),
 					resource.TestCheckResourceAttrSet(resName, "profiles.0.console_types.#"),
@@ -33,8 +34,7 @@ func TestAccIBMISBMSProfilesDataSource_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(resName, "profiles.0.cpu_socket_count.#"),
 					resource.TestCheckResourceAttrSet(resName, "profiles.0.disks.#"),
 					resource.TestCheckResourceAttrSet(resName, "profiles.0.href"),
-					resource.TestCheckResourceAttrSet(resName, "profiles.0.id"),
-					resource.TestCheckResourceAttrSet(resName, "profiles.0.memory"),
+					resource.TestCheckResourceAttrSet(resName, "profiles.0.memory.#"),
 					resource.TestCheckResourceAttrSet(resName, "profiles.0.network_interface_count.#"),
 					resource.TestCheckResourceAttrSet(resName, "profiles.0.network_interface_count.0.max"),
 					resource.TestCheckResourceAttrSet(resName, "profiles.0.network_interface_count.0.min"),
