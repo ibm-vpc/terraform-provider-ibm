@@ -12,6 +12,7 @@ import (
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/conns"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/validate"
+	"github.com/IBM/go-sdk-core/v5/core"
 	"github.com/IBM/vpc-beta-go-sdk/vpcbetav1"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -667,6 +668,33 @@ func ShareMountTargetMapToShareMountTargetPrototype(d *schema.ResourceData, vniM
 		}
 		vniPrototype.PrimaryIP = primaryIpPrototype
 	}
+	allowIPSpoofing, ok := vniMap["allow_ip_spoofing"]
+	if ok {
+		allowIPSpoofingBool := allowIPSpoofing.(bool)
+		vniPrototype.AllowIPSpoofing = &allowIPSpoofingBool
+	}
+	autoDelete, ok := vniMap["auto_delete"]
+	if ok {
+		autoDeleteBool := autoDelete.(bool)
+		vniPrototype.AutoDelete = &autoDeleteBool
+	}
+	enableInfraNat, ok := vniMap["enable_infrastructure_nat"]
+	if ok {
+		enableInfraNatBool := enableInfraNat.(bool)
+		vniPrototype.EnableInfrastructureNat = &enableInfraNatBool
+	}
+	if _, ok := d.GetOk("ips"); ok {
+		var ips []vpcbetav1.VirtualNetworkInterfaceIPPrototypeIntf
+		for _, v := range d.Get("ips").([]interface{}) {
+			value := v.(map[string]interface{})
+			ipsItem, err := virtualNetworkInterfaceIPsReservedIPPrototypeMapToModel(value)
+			if err != nil {
+				return nil, err
+			}
+			ips = append(ips, ipsItem)
+		}
+		vniPrototype.Ips = ips
+	}
 	if subnet := vniMap["subnet"].(string); subnet != "" {
 		vniPrototype.Subnet = &vpcbetav1.SubnetIdentity{
 			ID: &subnet,
@@ -691,6 +719,33 @@ func ShareMountTargetMapToShareMountTargetPrototype(d *schema.ResourceData, vniM
 		}
 	}
 	return vniPrototype, nil
+}
+
+func virtualNetworkInterfaceIPsReservedIPPrototypeMapToModel(modelMap map[string]interface{}) (vpcbetav1.VirtualNetworkInterfaceIPPrototypeIntf, error) {
+	model := &vpcbetav1.VirtualNetworkInterfaceIPPrototype{}
+
+	reservedIp := modelMap["reserved_ip"].(string)
+	reservedIpAddress := modelMap["address"].(string)
+	reservedIpName := modelMap["name"].(string)
+	if reservedIp != "" && (reservedIpAddress != "" || reservedIpName != "") {
+		return model, fmt.Errorf("[ERROR] Error creating instance, virtual_network_interface error, reserved_ip(%s) is mutually exclusive with other primary_ip attributes", reservedIp)
+	}
+	if modelMap["id"] != nil && modelMap["id"].(string) != "" {
+		model.ID = core.StringPtr(modelMap["id"].(string))
+	}
+	if modelMap["href"] != nil && modelMap["href"].(string) != "" {
+		model.Href = core.StringPtr(modelMap["href"].(string))
+	}
+	if modelMap["address"] != nil && modelMap["address"].(string) != "" {
+		model.Address = core.StringPtr(modelMap["address"].(string))
+	}
+	if modelMap["auto_delete"] != nil {
+		model.AutoDelete = core.BoolPtr(modelMap["auto_delete"].(bool))
+	}
+	if modelMap["name"] != nil && modelMap["name"].(string) != "" {
+		model.Name = core.StringPtr(modelMap["name"].(string))
+	}
+	return model, nil
 }
 
 func ShareMountTargetVirtualNetworkInterfaceToMap(context context.Context, vpcClient *vpcbetav1.VpcbetaV1, d *schema.ResourceData, vniId string) ([]map[string]interface{}, error) {
