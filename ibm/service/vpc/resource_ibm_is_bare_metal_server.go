@@ -696,7 +696,8 @@ func resourceIBMISBareMetalServerCreate(context context.Context, d *schema.Resou
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	options := &vpcv1.CreateBareMetalServerOptions{}
+	createoptions := &vpcv1.CreateBareMetalServerOptions{}
+	options := &vpcv1.BareMetalServerPrototype{}
 	var imageStr string
 	if image, ok := d.GetOk(isBareMetalServerImage); ok {
 		imageStr = image.(string)
@@ -704,19 +705,19 @@ func resourceIBMISBareMetalServerCreate(context context.Context, d *schema.Resou
 
 	// enable secure boot
 
-	if _, ok := d.GetOkExists(isBareMetalServerEnableSecureBoot); ok {
-		options.SetEnableSecureBoot(d.Get(isBareMetalServerEnableSecureBoot).(bool))
-	}
+	// if _, ok := d.GetOkExists(isBareMetalServerEnableSecureBoot); ok {
+	// 	options.SetEnableSecureBoot(d.Get(isBareMetalServerEnableSecureBoot).(bool))
+	// }
 
 	// trusted_platform_module
 
-	if _, ok := d.GetOk(isBareMetalServerTrustedPlatformModule); ok {
-		trustedPlatformModuleModel, err := resourceIBMIsBareMetalServerMapToBareMetalServerTrustedPlatformModulePrototype(d.Get("trusted_platform_module.0").(map[string]interface{}))
-		if err != nil {
-			return diag.FromErr(err)
-		}
-		options.SetTrustedPlatformModule(trustedPlatformModuleModel)
-	}
+	// if _, ok := d.GetOk(isBareMetalServerTrustedPlatformModule); ok {
+	// 	trustedPlatformModuleModel, err := resourceIBMIsBareMetalServerMapToBareMetalServerTrustedPlatformModulePrototype(d.Get("trusted_platform_module.0").(map[string]interface{}))
+	// 	if err != nil {
+	// 		return diag.FromErr(err)
+	// 	}
+	// 	options.SetTrustedPlatformModule(trustedPlatformModuleModel)
+	// }
 
 	keySet := d.Get(isBareMetalServerKeys).(*schema.Set)
 	if keySet.Len() != 0 {
@@ -1301,7 +1302,9 @@ func resourceIBMISBareMetalServerCreate(context context.Context, d *schema.Resou
 		}
 	}
 
-	bms, response, err := sess.CreateBareMetalServerWithContext(context, options)
+	createoptions.BareMetalServerPrototype = options
+
+	bms, response, err := sess.CreateBareMetalServerWithContext(context, createoptions)
 	if err != nil {
 		return diag.FromErr(fmt.Errorf("[DEBUG] Create bare metal server err %s\n%s", err, response))
 	}
