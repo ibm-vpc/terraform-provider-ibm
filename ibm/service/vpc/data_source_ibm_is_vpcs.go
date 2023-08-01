@@ -14,6 +14,7 @@ import (
 
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/conns"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
+	"github.com/IBM/go-sdk-core/v5/core"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -141,7 +142,7 @@ func DataSourceIBMISVPCs() *schema.Resource {
 						isVPCDns: &schema.Schema{
 							Type:        schema.TypeList,
 							Computed:    true,
-							Description: "The DNS configuration for this VPC.If unspecified, the system will assign DNS servers capable of resolving hosts and endpointgateways within this VPC, and hosts on the internet.",
+							Description: "The DNS configuration for this VPC.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									isVPCDnsEnableHub: &schema.Schema{
@@ -155,14 +156,115 @@ func DataSourceIBMISVPCs() *schema.Resource {
 										Description: "The number of DNS resolution bindings for this VPC.",
 									},
 									isVPCDnsResolver: &schema.Schema{
-										Type:     schema.TypeList,
-										Computed: true,
+										Type:        schema.TypeList,
+										Computed:    true,
+										Description: "The DNS resolver configuration for the VPC.",
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
+												isVPCDnsResolverServers: &schema.Schema{
+													Type:        schema.TypeList,
+													Computed:    true,
+													Description: "The DNS servers for this VPC. The servers are populated:- by the system when `dns.resolver.type` is `system`- using the DNS servers in `dns.resolver.vpc` when `dns.resolver.type` is `delegated`- using `dns.resolver.manual_servers` when the `dns.resolver.type` is `manual`.",
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															isVPCDnsResolverManualServersAddress: &schema.Schema{
+																Type:        schema.TypeString,
+																Computed:    true,
+																Description: "The IP address.This property may add support for IPv6 addresses in the future. When processing a value in this property, verify that the address is in an expected format. If it is not, log an error. Optionally halt processing and surface the error, or bypass the resource on which the unexpected IP address format was encountered.",
+															},
+															isVPCDnsResolverManualServersZoneAffinity: &schema.Schema{
+																Type:        schema.TypeString,
+																Computed:    true,
+																Description: "Zone name, if present, DHCP configuration for this zone will have this DNS server listed first.",
+															},
+														},
+													},
+												},
 												isVPCDnsResolverType: &schema.Schema{
 													Type:        schema.TypeString,
 													Computed:    true,
-													Description: "The type of the DNS resolver to use.- `manual`: DNS server addresses are specified in `dns.resolver.manual_servers`.- `system`: DNS server addresses will be provided by the system and depend on the configuration.",
+													Description: "The type of the DNS resolver used for the VPC.- `delegated`: DNS server addresses are provided by the DNS resolver of the VPC               specified in `dns.resolver.vpc`.- `manual`: DNS server addresses are specified in `dns.resolver.manual_servers`.- `system`: DNS server addresses are provided by the system.",
+												},
+												isVPCDnsResolverVpc: &schema.Schema{
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "The VPC whose DNS resolver provides the DNS server addresses for this VPC.The VPC may be remote and therefore may not be directly retrievable.",
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															isVPCDnsResolverVpcCrn: &schema.Schema{
+																Type:        schema.TypeString,
+																Computed:    true,
+																Description: "The CRN for this VPC.",
+															},
+															isVPCDnsResolverVpcDeleted: &schema.Schema{
+																Type:        schema.TypeList,
+																Computed:    true,
+																Description: "If present, this property indicates the referenced resource has been deleted, and providessome supplementary information.",
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		isVPCDnsResolverVpcDeletedMoreInfo: &schema.Schema{
+																			Type:        schema.TypeString,
+																			Computed:    true,
+																			Description: "Link to documentation about deleted resources.",
+																		},
+																	},
+																},
+															},
+															isVPCDnsResolverVpcHref: &schema.Schema{
+																Type:        schema.TypeString,
+																Computed:    true,
+																Description: "The URL for this VPC.",
+															},
+															isVPCDnsResolverVpcId: &schema.Schema{
+																Type:        schema.TypeString,
+																Computed:    true,
+																Description: "The unique identifier for this VPC.",
+															},
+															isVPCDnsResolverVpcName: &schema.Schema{
+																Type:        schema.TypeString,
+																Computed:    true,
+																Description: "The name for this VPC. The name is unique across all VPCs in the region.",
+															},
+															isVPCDnsResolverVpcRemote: &schema.Schema{
+																Type:        schema.TypeList,
+																Computed:    true,
+																Description: "If present, this property indicates that the resource associated with this referenceis remote and therefore may not be directly retrievable.",
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		isVPCDnsResolverVpcRemoteAccount: &schema.Schema{
+																			Type:        schema.TypeList,
+																			Computed:    true,
+																			Description: "If present, this property indicates that the referenced resource is remote to thisaccount, and identifies the owning account.",
+																			Elem: &schema.Resource{
+																				Schema: map[string]*schema.Schema{
+																					"id": &schema.Schema{
+																						Type:        schema.TypeString,
+																						Computed:    true,
+																						Description: "The unique identifier for this account.",
+																					},
+																					isVPCDnsResolverResourceType: &schema.Schema{
+																						Type:        schema.TypeString,
+																						Computed:    true,
+																						Description: "The resource type.",
+																					},
+																				},
+																			},
+																		},
+																		isVPCDnsResolverVpcRemoteRegion: &schema.Schema{
+																			Type:        schema.TypeString,
+																			Computed:    true,
+																			Description: "Region name. If present, this property indicates that the referenced resource is remote to this region, and identifies the native region.",
+																		},
+																	},
+																},
+															},
+															isVPCDnsResolverResourceType: &schema.Schema{
+																Type:        schema.TypeString,
+																Computed:    true,
+																Description: "The resource type.",
+															},
+														},
+													},
 												},
 												isVPCDnsResolverManualServers: &schema.Schema{
 													Type:        schema.TypeList,
@@ -173,15 +275,20 @@ func DataSourceIBMISVPCs() *schema.Resource {
 															isVPCDnsResolverManualServersAddress: &schema.Schema{
 																Type:        schema.TypeString,
 																Computed:    true,
-																Description: "The IP address. This property may add support for IPv6 addresses in the future. When processing a value in this property, verify that the address is in an expected format. If it is not, log an error. Optionally halt processing and surface the error, or bypass the resource on which the unexpected IP address format was encountered.",
+																Description: "The IP address.This property may add support for IPv6 addresses in the future. When processing a value in this property, verify that the address is in an expected format. If it is not, log an error. Optionally halt processing and surface the error, or bypass the resource on which the unexpected IP address format was encountered.",
 															},
 															isVPCDnsResolverManualServersZoneAffinity: &schema.Schema{
 																Type:        schema.TypeString,
 																Computed:    true,
-																Description: "If present, DHCP configuration for this zone will have this DNS server listed first.",
+																Description: "The name of the zone. If present, DHCP configuration for this zone will have this DNS server listed first.",
 															},
 														},
 													},
+												},
+												isVPCDnsResolverConfiguration: &schema.Schema{
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "The configuration of the system DNS resolver for this VPC.- `custom_resolver`: A custom DNS resolver is configured for this VPC.- `private_resolver`: A private DNS resolver is configured for this VPC. Applicable when  the VPC has either or both of the following:    - at least one endpoint gateway residing in it    - a [DNS Services](https://cloud.ibm.com/docs/dns-svcs) private zone configured for it- `default`: The provider default DNS resolvers are configured for this VPC.  This system DNS resolver configuration is used when the VPC has:  - no custom DNS resolver configured for it, and  - no endpoint gateways residing in it, and  - no [DNS Services](https://cloud.ibm.com/docs/dns-svcs) private zone configured for it.",
 												},
 											},
 										},
@@ -431,6 +538,13 @@ func dataSourceIBMISVPCListRead(context context.Context, d *schema.ResourceData,
 			l[isVPCDefaultSecurityGroupName] = *vpc.DefaultSecurityGroup.Name
 			l[isVPCDefaultSecurityGroupCRN] = vpc.DefaultSecurityGroup.CRN
 		}
+		if !core.IsNil(vpc.Dns) {
+			dnsMap, err := resourceIBMIsVPCVpcdnsToMap(vpc.Dns)
+			if err != nil {
+				return diag.FromErr(err)
+			}
+			l[isVPCDns] = []map[string]interface{}{dnsMap}
+		}
 		tags, err := flex.GetGlobalTagsUsingCRN(meta, *vpc.CRN, "", isVPCUserTagType)
 		if err != nil {
 			log.Printf(
@@ -640,49 +754,6 @@ func dataSourceIBMISVPCListRead(context context.Context, d *schema.ResourceData,
 			}
 		}
 		l[isVPCSecurityGroupList] = securityGroupList
-		if vpc.Dns != nil {
-			dnsList := make([]map[string]interface{}, 0)
-			currentDns := map[string]interface{}{}
-			if vpc.Dns.EnableHub != nil {
-				currentDns[isVPCDnsEnableHub] = vpc.Dns.EnableHub
-			}
-			if vpc.Dns.ResolutionBindingCount != nil {
-				currentDns[isVPCDnsResolutionBindingCount] = vpc.Dns.ResolutionBindingCount
-			}
-			if vpc.Dns.Resolver != nil {
-				switch reflect.TypeOf(vpc.Dns.Resolver).String() {
-				case "*vpcv1.VpcdnsResolverTypeDelegated":
-					{
-						resolver := vpc.Dns.Resolver.(*vpcv1.VpcdnsResolverTypeDelegated)
-						currentDnsResolver := map[string]interface{}{}
-						currentDnsResolver[isVPCDnsResolverType] = resolver.Type
-
-						currentDnsResolver[isVPCDnsResolverVpc] = setDnsResolverVpc(resolver.VPC)
-						currentDns[isVPCDnsResolver] = resolver
-					}
-				case "*vpcv1.VpcdnsResolverTypeManual":
-					{
-						resolver := vpc.Dns.Resolver.(*vpcv1.VpcdnsResolverTypeDelegated)
-						currentDnsResolver := map[string]interface{}{}
-						currentDnsResolver[isVPCDnsResolverType] = resolver.Type
-						currentDnsResolver[isVPCDnsResolverVpc] = setDnsResolverVpc(resolver.VPC)
-						currentDns[isVPCDnsResolver] = resolver
-					}
-				case "*vpcv1.VpcdnsResolverTypeSystem":
-					{
-						resolver := vpc.Dns.Resolver.(*vpcv1.VpcdnsResolverTypeDelegated)
-						currentDnsResolver := map[string]interface{}{}
-						currentDnsResolver[isVPCDnsResolverType] = resolver.Type
-						currentDnsResolver[isVPCDnsResolverVpc] = setDnsResolverVpc(resolver.VPC)
-						currentDns[isVPCDnsResolver] = resolver
-					}
-				}
-			}
-			dnsList = append(dnsList, currentDns)
-			l[isVPCDns] = securityGroupList
-
-			d.Set(isVPCDns, dnsList)
-		}
 	}
 	d.SetId(dataSourceIBMISVPCsID(d))
 	d.Set(isVPCs, vpcs)
