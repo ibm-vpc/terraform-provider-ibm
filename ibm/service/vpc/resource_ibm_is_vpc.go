@@ -11,6 +11,7 @@ import (
 	"reflect"
 	"time"
 
+	"github.com/IBM/go-sdk-core/v5/core"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -66,13 +67,22 @@ const (
 	isVPCDnsResolutionBindingCount            = "resolution_binding_count"
 	isVPCDnsResolver                          = "resolver"
 	isVPCDnsResolverManualServers             = "manual_servers"
+	isVPCDnsResolverServers                   = "servers"
 	isVPCDnsResolverManualServersAddress      = "address"
 	isVPCDnsResolverManualServersZoneAffinity = "zone_affinity"
 	isVPCDnsResolverType                      = "type"
 	isVPCDnsResolverVpc                       = "vpc"
+	isVPCDnsResolverResourceType              = "resource_type"
+	isVPCDnsResolverConfiguration             = "configuration"
 	isVPCDnsResolverVpcId                     = "id"
 	isVPCDnsResolverVpcHref                   = "href"
 	isVPCDnsResolverVpcCrn                    = "crn"
+	isVPCDnsResolverVpcName                   = "name"
+	isVPCDnsResolverVpcDeleted                = "deleted"
+	isVPCDnsResolverVpcDeletedMoreInfo        = "more_info"
+	isVPCDnsResolverVpcRemote                 = "remote"
+	isVPCDnsResolverVpcRemoteAccount          = "account"
+	isVPCDnsResolverVpcRemoteRegion           = "region"
 )
 
 func ResourceIBMISVPC() *schema.Resource {
@@ -127,50 +137,162 @@ func ResourceIBMISVPC() *schema.Resource {
 				Type:        schema.TypeList,
 				MaxItems:    1,
 				Optional:    true,
-				Description: "The DNS configuration for this VPC.If unspecified, the system will assign DNS servers capable of resolving hosts and endpointgateways within this VPC, and hosts on the internet.",
+				Computed:    true,
+				Description: "The DNS configuration for this VPC.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						isVPCDnsEnableHub: &schema.Schema{
 							Type:        schema.TypeBool,
 							Optional:    true,
+							Computed:    true,
 							Description: "Indicates whether this VPC is enabled as a DNS name resolution hub.",
 						},
 						isVPCDnsResolutionBindingCount: &schema.Schema{
 							Type:        schema.TypeInt,
-							Optional:    true,
 							Computed:    true,
 							Description: "The number of DNS resolution bindings for this VPC.",
 						},
 						isVPCDnsResolver: &schema.Schema{
-							Type:     schema.TypeList,
-							MaxItems: 1,
-							Optional: true,
+							Type:        schema.TypeList,
+							MinItems:    1,
+							MaxItems:    1,
+							Optional:    true,
+							Computed:    true,
+							Description: "The DNS resolver configuration for the VPC.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
+									isVPCDnsResolverServers: &schema.Schema{
+										Type:        schema.TypeList,
+										Computed:    true,
+										Description: "The DNS servers for this VPC. The servers are populated:- by the system when `dns.resolver.type` is `system`- using the DNS servers in `dns.resolver.vpc` when `dns.resolver.type` is `delegated`- using `dns.resolver.manual_servers` when the `dns.resolver.type` is `manual`.",
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												isVPCDnsResolverManualServersAddress: &schema.Schema{
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "The IP address.This property may add support for IPv6 addresses in the future. When processing a value in this property, verify that the address is in an expected format. If it is not, log an error. Optionally halt processing and surface the error, or bypass the resource on which the unexpected IP address format was encountered.",
+												},
+												isVPCDnsResolverManualServersZoneAffinity: &schema.Schema{
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "Zone name, if present, DHCP configuration for this zone will have this DNS server listed first.",
+												},
+											},
+										},
+									},
 									isVPCDnsResolverType: &schema.Schema{
 										Type:        schema.TypeString,
 										Optional:    true,
-										Description: "The type of the DNS resolver to use.- `manual`: DNS server addresses are specified in `dns.resolver.manual_servers`.- `system`: DNS server addresses will be provided by the system and depend on the configuration.",
+										Computed:    true,
+										Description: "The type of the DNS resolver used for the VPC.- `delegated`: DNS server addresses are provided by the DNS resolver of the VPC               specified in `dns.resolver.vpc`.- `manual`: DNS server addresses are specified in `dns.resolver.manual_servers`.- `system`: DNS server addresses are provided by the system.",
+									},
+									isVPCDnsResolverVpc: &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The VPC whose DNS resolver provides the DNS server addresses for this VPC.The VPC may be remote and therefore may not be directly retrievable.",
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												isVPCDnsResolverVpcCrn: &schema.Schema{
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "The CRN for this VPC.",
+												},
+												isVPCDnsResolverVpcDeleted: &schema.Schema{
+													Type:        schema.TypeList,
+													Computed:    true,
+													Description: "If present, this property indicates the referenced resource has been deleted, and providessome supplementary information.",
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															isVPCDnsResolverVpcDeletedMoreInfo: &schema.Schema{
+																Type:        schema.TypeString,
+																Computed:    true,
+																Description: "Link to documentation about deleted resources.",
+															},
+														},
+													},
+												},
+												isVPCDnsResolverVpcHref: &schema.Schema{
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "The URL for this VPC.",
+												},
+												isVPCDnsResolverVpcId: &schema.Schema{
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "The unique identifier for this VPC.",
+												},
+												isVPCDnsResolverVpcName: &schema.Schema{
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "The name for this VPC. The name is unique across all VPCs in the region.",
+												},
+												isVPCDnsResolverVpcRemote: &schema.Schema{
+													Type:        schema.TypeList,
+													Computed:    true,
+													Description: "If present, this property indicates that the resource associated with this referenceis remote and therefore may not be directly retrievable.",
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															isVPCDnsResolverVpcRemoteAccount: &schema.Schema{
+																Type:        schema.TypeList,
+																Computed:    true,
+																Description: "If present, this property indicates that the referenced resource is remote to thisaccount, and identifies the owning account.",
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"id": &schema.Schema{
+																			Type:        schema.TypeString,
+																			Computed:    true,
+																			Description: "The unique identifier for this account.",
+																		},
+																		isVPCDnsResolverResourceType: &schema.Schema{
+																			Type:        schema.TypeString,
+																			Computed:    true,
+																			Description: "The resource type.",
+																		},
+																	},
+																},
+															},
+															isVPCDnsResolverVpcRemoteRegion: &schema.Schema{
+																Type:        schema.TypeString,
+																Computed:    true,
+																Description: "Region name. If present, this property indicates that the referenced resource is remote to this region, and identifies the native region.",
+															},
+														},
+													},
+												},
+												isVPCDnsResolverResourceType: &schema.Schema{
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "The resource type.",
+												},
+											},
+										},
 									},
 									isVPCDnsResolverManualServers: &schema.Schema{
 										Type:        schema.TypeList,
-										MaxItems:    1,
 										Optional:    true,
+										Computed:    true,
 										Description: "The manually specified DNS servers for this VPC.",
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												isVPCDnsResolverManualServersAddress: &schema.Schema{
 													Type:        schema.TypeString,
 													Optional:    true,
-													Description: "The IP address. This property may add support for IPv6 addresses in the future. When processing a value in this property, verify that the address is in an expected format. If it is not, log an error. Optionally halt processing and surface the error, or bypass the resource on which the unexpected IP address format was encountered.",
+													Computed:    true,
+													Description: "The IP address.This property may add support for IPv6 addresses in the future. When processing a value in this property, verify that the address is in an expected format. If it is not, log an error. Optionally halt processing and surface the error, or bypass the resource on which the unexpected IP address format was encountered.",
 												},
 												isVPCDnsResolverManualServersZoneAffinity: &schema.Schema{
 													Type:        schema.TypeString,
 													Optional:    true,
-													Description: "If present, DHCP configuration for this zone will have this DNS server listed first.",
+													Computed:    true,
+													Description: "The name of the zone. If present, DHCP configuration for this zone will have this DNS server listed first.",
 												},
 											},
 										},
+									},
+									isVPCDnsResolverConfiguration: &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The configuration of the system DNS resolver for this VPC.- `custom_resolver`: A custom DNS resolver is configured for this VPC.- `private_resolver`: A private DNS resolver is configured for this VPC. Applicable when  the VPC has either or both of the following:    - at least one endpoint gateway residing in it    - a [DNS Services](https://cloud.ibm.com/docs/dns-svcs) private zone configured for it- `default`: The provider default DNS resolvers are configured for this VPC.  This system DNS resolver configuration is used when the VPC has:  - no custom DNS resolver configured for it, and  - no endpoint gateways residing in it, and  - no [DNS Services](https://cloud.ibm.com/docs/dns-svcs) private zone configured for it.",
 									},
 								},
 							},
@@ -178,7 +300,6 @@ func ResourceIBMISVPC() *schema.Resource {
 					},
 				},
 			},
-
 			isVPCClassicAccess: {
 				Type:        schema.TypeBool,
 				ForceNew:    true,
@@ -566,13 +687,15 @@ func vpcCreate(d *schema.ResourceData, meta interface{}, name, apm, rg string, i
 		vpcdnsPrototype := &vpcv1.VpcdnsPrototype{
 			EnableHub: &vpcDnsEnableHub,
 		}
-		vpcDnsManualServers, _ := vpcDns[isVPCDnsResolverManualServers].([]interface{})[0].(map[string]interface{})
-		if len(vpcDnsManualServers) > 0 {
+		if vpcDnsManualServersBody, ok := vpcDns[isVPCDnsResolverManualServers]; ok {
+			vpcDnsManualServers := vpcDnsManualServersBody.([]interface{})[0].(map[string]interface{})
 			resolverType := "manual"
-			resolver := &vpcv1.VpcdnsResolverPrototypeVpcdnsResolverTypeSystemPrototype{
-				Type: &resolverType,
+			if len(vpcDnsManualServers) > 0 {
+				resolver := &vpcv1.VpcdnsResolverPrototypeVpcdnsResolverTypeSystemPrototype{
+					Type: &resolverType,
+				}
+				vpcdnsPrototype.Resolver = resolver
 			}
-			vpcdnsPrototype.Resolver = resolver
 
 		} else {
 			resolverType := "system"
@@ -718,6 +841,15 @@ func vpcGet(d *schema.ResourceData, meta interface{}, id string) error {
 		d.Set(isVPCDefaultRoutingTable, *vpc.DefaultRoutingTable.ID)
 		d.Set(isVPCDefaultRoutingTableName, *vpc.DefaultRoutingTable.Name)
 	}
+	if !core.IsNil(vpc.Dns) {
+		dnsMap, err := resourceIBMIsVPCVpcdnsToMap(vpc.Dns)
+		if err != nil {
+			return err
+		}
+		if err = d.Set(isVPCDns, []map[string]interface{}{dnsMap}); err != nil {
+			return fmt.Errorf("Error setting dns: %s", err)
+		}
+	}
 	tags, err := flex.GetGlobalTagsUsingCRN(meta, *vpc.CRN, "", isVPCUserTagType)
 	if err != nil {
 		log.Printf(
@@ -734,47 +866,7 @@ func vpcGet(d *schema.ResourceData, meta interface{}, id string) error {
 	if err != nil {
 		return err
 	}
-	if vpc.Dns != nil {
-		dnsList := make([]map[string]interface{}, 0)
-		currentDns := map[string]interface{}{}
-		if vpc.Dns.EnableHub != nil {
-			currentDns[isVPCDnsEnableHub] = vpc.Dns.EnableHub
-		}
-		if vpc.Dns.ResolutionBindingCount != nil {
-			currentDns[isVPCDnsResolutionBindingCount] = vpc.Dns.ResolutionBindingCount
-		}
-		if vpc.Dns.Resolver != nil {
-			switch reflect.TypeOf(vpc.Dns.Resolver).String() {
-			case "*vpcv1.VpcdnsResolverTypeDelegated":
-				{
-					resolver := vpc.Dns.Resolver.(*vpcv1.VpcdnsResolverTypeDelegated)
-					currentDnsResolver := map[string]interface{}{}
-					currentDnsResolver[isVPCDnsResolverType] = resolver.Type
 
-					currentDnsResolver[isVPCDnsResolverVpc] = setDnsResolverVpc(resolver.VPC)
-					currentDns[isVPCDnsResolver] = resolver
-				}
-			case "*vpcv1.VpcdnsResolverTypeManual":
-				{
-					resolver := vpc.Dns.Resolver.(*vpcv1.VpcdnsResolverTypeDelegated)
-					currentDnsResolver := map[string]interface{}{}
-					currentDnsResolver[isVPCDnsResolverType] = resolver.Type
-					currentDnsResolver[isVPCDnsResolverVpc] = setDnsResolverVpc(resolver.VPC)
-					currentDns[isVPCDnsResolver] = resolver
-				}
-			case "*vpcv1.VpcdnsResolverTypeSystem":
-				{
-					resolver := vpc.Dns.Resolver.(*vpcv1.VpcdnsResolverTypeDelegated)
-					currentDnsResolver := map[string]interface{}{}
-					currentDnsResolver[isVPCDnsResolverType] = resolver.Type
-					currentDnsResolver[isVPCDnsResolverVpc] = setDnsResolverVpc(resolver.VPC)
-					currentDns[isVPCDnsResolver] = resolver
-				}
-			}
-		}
-		dnsList = append(dnsList, currentDns)
-		d.Set(isVPCDns, dnsList)
-	}
 	d.Set(isVPCCRN, *vpc.CRN)
 	d.Set(flex.ResourceControllerURL, controller+"/vpc-ext/network/vpcs")
 	d.Set(flex.ResourceName, *vpc.Name)
@@ -1218,4 +1310,183 @@ func setDnsResolverVpc(model *vpcv1.VPCReferenceDnsResolverContext) map[string]i
 	outVpc[isVPCDnsResolverVpcHref] = model.Href
 	outVpc[isVPCDnsResolverVpcCrn] = model.CRN
 	return outVpc
+}
+func resourceIBMIsVPCVpcdnsToMap(model *vpcv1.Vpcdns) (map[string]interface{}, error) {
+	modelMap := make(map[string]interface{})
+	modelMap[isVPCDnsEnableHub] = model.EnableHub
+	modelMap[isVPCDnsResolutionBindingCount] = *model.ResolutionBindingCount
+	resolverMap, err := resourceIBMIsVPCVpcdnsResolverToMap(model.Resolver)
+	if err != nil {
+		return modelMap, err
+	}
+	modelMap[isVPCDnsResolver] = []map[string]interface{}{resolverMap}
+	return modelMap, nil
+}
+
+func resourceIBMIsVPCVpcdnsResolverToMap(model vpcv1.VpcdnsResolverIntf) (map[string]interface{}, error) {
+	if _, ok := model.(*vpcv1.VpcdnsResolverTypeDelegated); ok {
+		return resourceIBMIsVPCVpcdnsResolverTypeDelegatedToMap(model.(*vpcv1.VpcdnsResolverTypeDelegated))
+	} else if _, ok := model.(*vpcv1.VpcdnsResolverTypeManual); ok {
+		return resourceIBMIsVPCVpcdnsResolverTypeManualToMap(model.(*vpcv1.VpcdnsResolverTypeManual))
+	} else if _, ok := model.(*vpcv1.VpcdnsResolverTypeSystem); ok {
+		return resourceIBMIsVPCVpcdnsResolverTypeSystemToMap(model.(*vpcv1.VpcdnsResolverTypeSystem))
+	} else if _, ok := model.(*vpcv1.VpcdnsResolver); ok {
+		modelMap := make(map[string]interface{})
+		model := model.(*vpcv1.VpcdnsResolver)
+		servers := []map[string]interface{}{}
+		for _, serversItem := range model.Servers {
+			serversItemMap, err := resourceIBMIsVPCDnsServerToMap(&serversItem)
+			if err != nil {
+				return modelMap, err
+			}
+			servers = append(servers, serversItemMap)
+		}
+		modelMap[isVPCDnsResolverServers] = servers
+		modelMap[isVPCDnsResolverType] = model.Type
+		if model.VPC != nil {
+			vpcMap, err := resourceIBMIsVPCVPCReferenceDnsResolverContextToMap(model.VPC)
+			if err != nil {
+				return modelMap, err
+			}
+			modelMap[isVPCDnsResolverVpc] = []map[string]interface{}{vpcMap}
+		}
+		if model.ManualServers != nil {
+			manualServers := []map[string]interface{}{}
+			for _, manualServersItem := range model.ManualServers {
+				manualServersItemMap, err := resourceIBMIsVPCDnsServerToMap(&manualServersItem)
+				if err != nil {
+					return modelMap, err
+				}
+				manualServers = append(manualServers, manualServersItemMap)
+			}
+			modelMap[isVPCDnsResolverManualServers] = manualServers
+		}
+		if model.Configuration != nil {
+			modelMap[isVPCDnsResolverConfiguration] = model.Configuration
+		}
+		return modelMap, nil
+	} else {
+		return nil, fmt.Errorf("Unrecognized vpcv1.VpcdnsResolverIntf subtype encountered")
+	}
+}
+
+func resourceIBMIsVPCDnsServerToMap(model *vpcv1.DnsServer) (map[string]interface{}, error) {
+	modelMap := make(map[string]interface{})
+	modelMap[isVPCDnsResolverManualServersAddress] = model.Address
+	if model.ZoneAffinity != nil && model.ZoneAffinity.Name != nil {
+		modelMap[isVPCDnsResolverManualServersZoneAffinity] = model.ZoneAffinity.Name
+	}
+	return modelMap, nil
+}
+
+func resourceIBMIsVPCVPCReferenceDnsResolverContextToMap(model *vpcv1.VPCReferenceDnsResolverContext) (map[string]interface{}, error) {
+	modelMap := make(map[string]interface{})
+	modelMap[isVPCDnsResolverVpcCrn] = model.CRN
+	if model.Deleted != nil {
+		deletedMap, err := resourceIBMIsVPCVPCReferenceDnsResolverContextDeletedToMap(model.Deleted)
+		if err != nil {
+			return modelMap, err
+		}
+		modelMap[isVPCDnsResolverVpcDeleted] = []map[string]interface{}{deletedMap}
+	}
+	modelMap[isVPCDnsResolverVpcHref] = model.Href
+	modelMap[isVPCDnsResolverVpcId] = model.ID
+	modelMap[isVPCDnsResolverVpcName] = model.Name
+	if model.Remote != nil {
+		remoteMap, err := resourceIBMIsVPCVPCRemoteToMap(model.Remote)
+		if err != nil {
+			return modelMap, err
+		}
+		modelMap[isVPCDnsResolverVpcRemote] = []map[string]interface{}{remoteMap}
+	}
+	modelMap[isVPCDnsResolverResourceType] = model.ResourceType
+	return modelMap, nil
+}
+
+func resourceIBMIsVPCVPCReferenceDnsResolverContextDeletedToMap(model *vpcv1.VPCReferenceDnsResolverContextDeleted) (map[string]interface{}, error) {
+	modelMap := make(map[string]interface{})
+	modelMap[isVPCDnsResolverVpcDeletedMoreInfo] = model.MoreInfo
+	return modelMap, nil
+}
+
+func resourceIBMIsVPCVPCRemoteToMap(model *vpcv1.VPCRemote) (map[string]interface{}, error) {
+	modelMap := make(map[string]interface{})
+	if model.Account != nil {
+		accountMap, err := resourceIBMIsVPCAccountReferenceToMap(model.Account)
+		if err != nil {
+			return modelMap, err
+		}
+		modelMap[isVPCDnsResolverVpcRemoteAccount] = []map[string]interface{}{accountMap}
+	}
+	if model.Region != nil {
+		modelMap[isVPCDnsResolverVpcRemoteRegion] = model.Region.Name
+	}
+	return modelMap, nil
+}
+
+func resourceIBMIsVPCAccountReferenceToMap(model *vpcv1.AccountReference) (map[string]interface{}, error) {
+	modelMap := make(map[string]interface{})
+	modelMap[isVPCDnsResolverVpcId] = model.ID
+	modelMap[isVPCDnsResolverResourceType] = model.ResourceType
+	return modelMap, nil
+}
+
+func resourceIBMIsVPCVpcdnsResolverTypeDelegatedToMap(model *vpcv1.VpcdnsResolverTypeDelegated) (map[string]interface{}, error) {
+	modelMap := make(map[string]interface{})
+	servers := []map[string]interface{}{}
+	for _, serversItem := range model.Servers {
+		serversItemMap, err := resourceIBMIsVPCDnsServerToMap(&serversItem)
+		if err != nil {
+			return modelMap, err
+		}
+		servers = append(servers, serversItemMap)
+	}
+	modelMap[isVPCDnsResolverServers] = servers
+	modelMap[isVPCDnsResolverType] = model.Type
+	vpcMap, err := resourceIBMIsVPCVPCReferenceDnsResolverContextToMap(model.VPC)
+	if err != nil {
+		return modelMap, err
+	}
+	modelMap[isVPCDnsResolverVpc] = []map[string]interface{}{vpcMap}
+	return modelMap, nil
+}
+
+func resourceIBMIsVPCVpcdnsResolverTypeManualToMap(model *vpcv1.VpcdnsResolverTypeManual) (map[string]interface{}, error) {
+	modelMap := make(map[string]interface{})
+	servers := []map[string]interface{}{}
+	for _, serversItem := range model.Servers {
+		serversItemMap, err := resourceIBMIsVPCDnsServerToMap(&serversItem)
+		if err != nil {
+			return modelMap, err
+		}
+		servers = append(servers, serversItemMap)
+	}
+	modelMap[isVPCDnsResolverServers] = servers
+	manualServers := []map[string]interface{}{}
+	for _, manualServersItem := range model.ManualServers {
+		manualServersItemMap, err := resourceIBMIsVPCDnsServerToMap(&manualServersItem)
+		if err != nil {
+			return modelMap, err
+		}
+		manualServers = append(manualServers, manualServersItemMap)
+	}
+	modelMap[isVPCDnsResolverManualServers] = manualServers
+	modelMap[isVPCDnsResolverType] = model.Type
+	return modelMap, nil
+}
+
+func resourceIBMIsVPCVpcdnsResolverTypeSystemToMap(model *vpcv1.VpcdnsResolverTypeSystem) (map[string]interface{}, error) {
+	modelMap := make(map[string]interface{})
+	servers := []map[string]interface{}{}
+	for _, serversItem := range model.Servers {
+		serversItemMap, err := resourceIBMIsVPCDnsServerToMap(&serversItem)
+		if err != nil {
+			return modelMap, err
+		}
+		servers = append(servers, serversItemMap)
+	}
+	modelMap[isVPCDnsResolverServers] = servers
+	modelMap[isVPCDnsResolverConfiguration] = model.Configuration
+	modelMap[isVPCDnsResolverType] = model.Type
+	return modelMap, nil
 }
