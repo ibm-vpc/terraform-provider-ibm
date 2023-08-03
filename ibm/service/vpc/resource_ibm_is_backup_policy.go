@@ -88,6 +88,44 @@ func ResourceIBMIsBackupPolicy() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"health_reasons": &schema.Schema{
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "The reasons for the current health_state (if any).",
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
+			"health_state": &schema.Schema{
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The health of this resource",
+			},
+			"scope": &schema.Schema{
+				Type:        schema.TypeList,
+				Computed:    true,
+				Optional:    true,
+				Description: "The scope for this backup policy.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"crn": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The CRN for this enterprise.",
+						},
+						"id": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The unique identifier for this enterprise or account.",
+						},
+						"resource_type": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The resource type.",
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -127,6 +165,17 @@ func ResourceIBMIsBackupPolicyValidator() *validate.ResourceValidator {
 			MaxValueLength:             128,
 		},
 	)
+	validateSchema = append(validateSchema,
+		validate.ValidateSchema{
+			Identifier:                 "scope",
+			ValidateFunctionIdentifier: validate.ValidateRegexpLen,
+			Type:                       validate.TypeString,
+			Optional:                   true,
+			Regexp:                     `^.*$`,
+			MinValueLength:             9,
+			MaxValueLength:             512,
+		},
+	)
 	resourceValidator := validate.ResourceValidator{ResourceName: "ibm_is_backup_policy", Schema: validateSchema}
 	return &resourceValidator
 }
@@ -154,6 +203,14 @@ func resourceIBMIsBackupPolicyCreate(context context.Context, d *schema.Resource
 			ID: &resourceGroupStr,
 		}
 		createBackupPolicyOptions.SetResourceGroup(&resourceGroup)
+	}
+
+	if scopeIntf, ok := d.GetOk("scope"); ok {
+		scopeStr := scopeIntf.(string)
+		scope := vpcv1.BackupPolicyScopePrototype{
+			CRN: &scopeStr,
+		}
+		createBackupPolicyOptions.SetScope(&scope)
 	}
 
 	backupPolicy, response, err := vpcClient.CreateBackupPolicyWithContext(context, createBackupPolicyOptions)
@@ -243,12 +300,43 @@ func resourceIBMIsBackupPolicyRead(context context.Context, d *schema.ResourceDa
 			return diag.FromErr(fmt.Errorf("[ERROR] Error setting resource_type: %s", err))
 		}
 	}
+	if backupPolicy.HealthReasons != nil {
+		healthReasonCodes := make([]string, 0)
+		for _, healthReason := range backupPolicy.HealthReasons {
+			healthReasonCodes = append(healthReasonCodes, *healthReason.Code)
+		}
+		d.Set("health_reasons", healthReasonCodes)
+	}
+
+	if err = d.Set("health_state", backupPolicy.HealthState); err != nil {
+		return diag.FromErr(fmt.Errorf("[ERROR] Error setting health_state: %s", err))
+	}
+
+	if backupPolicy.Scope != nil {
+		scope := []map[string]interface{}{}
+		scopeMap := resourceIbmIsBackupPolicyScopeToMap(*backupPolicy.Scope.(*vpcv1.BackupPolicyScope))
+		scope = append(scope, scopeMap)
+
+		if err = d.Set("scope", scope); err != nil {
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting scope: %s", err))
+		}
+	}
 
 	if err = d.Set("version", response.Headers.Get("Etag")); err != nil {
 		return diag.FromErr(fmt.Errorf("[ERROR] Error setting version: %s", err))
 	}
 
 	return nil
+}
+
+func resourceIbmIsBackupPolicyScopeToMap(scope vpcv1.BackupPolicyScope) map[string]interface{} {
+	scopeMap := map[string]interface{}{}
+
+	scopeMap["crn"] = scope.CRN
+	scopeMap["id"] = scope.ID
+	scopeMap["resource_type"] = scope.ResourceType
+
+	return scopeMap
 }
 
 func resourceIBMIsBackupPolicyUpdate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {

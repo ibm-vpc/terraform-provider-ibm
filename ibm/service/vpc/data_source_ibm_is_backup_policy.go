@@ -149,6 +149,43 @@ func DataSourceIBMIsBackupPolicy() *schema.Resource {
 				Computed:    true,
 				Description: "The type of resource referenced.",
 			},
+			"health_reasons": &schema.Schema{
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "The reasons for the current health_state (if any).",
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
+			"health_state": &schema.Schema{
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The health of this resource",
+			},
+			"scope": &schema.Schema{
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "The scope for this backup policy.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"crn": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The CRN for this enterprise.",
+						},
+						"id": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The unique identifier for this enterprise or account.",
+						},
+						"resource_type": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The resource type.",
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -237,6 +274,25 @@ func dataSourceIBMIsBackupPolicyRead(context context.Context, d *schema.Resource
 		}
 	}
 
+	if backupPolicy.HealthReasons != nil {
+		healthReasonCodes := make([]string, 0)
+		for _, healthReason := range backupPolicy.HealthReasons {
+			healthReasonCodes = append(healthReasonCodes, *healthReason.Code)
+		}
+		d.Set("health_reasons", healthReasonCodes)
+	}
+
+	if err = d.Set("health_state", backupPolicy.HealthState); err != nil {
+		return diag.FromErr(fmt.Errorf("[ERROR] Error setting health_state: %s", err))
+	}
+
+	if backupPolicy.Scope != nil {
+		err = d.Set("scope", dataSourceBackupPolicyFlattenScope(*backupPolicy.Scope.(*vpcv1.BackupPolicyScope)))
+		if err != nil {
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting scope: %s", err))
+		}
+	}
+
 	matchResourceType := make([]string, 0)
 	if backupPolicy.MatchResourceTypes != nil {
 		for _, matchResourceTyp := range backupPolicy.MatchResourceTypes {
@@ -264,6 +320,29 @@ func dataSourceIBMIsBackupPolicyRead(context context.Context, d *schema.Resource
 	}
 
 	return nil
+}
+
+func dataSourceBackupPolicyFlattenScope(result vpcv1.BackupPolicyScope) (finalList []map[string]interface{}) {
+	finalList = []map[string]interface{}{}
+	finalMap := dataSourceBackupPolicyScopeToMap(result)
+	finalList = append(finalList, finalMap)
+
+	return finalList
+}
+func dataSourceBackupPolicyScopeToMap(scopeItem vpcv1.BackupPolicyScope) (scopeMap map[string]interface{}) {
+	scopeMap = map[string]interface{}{}
+
+	if scopeItem.CRN != nil {
+		scopeMap["crn"] = scopeItem.CRN
+	}
+	if scopeItem.ID != nil {
+		scopeMap["id"] = scopeItem.ID
+	}
+	if scopeItem.ResourceType != nil {
+		scopeMap["resource_type"] = scopeItem.ResourceType
+	}
+
+	return scopeMap
 }
 
 func dataSourceBackupPolicyFlattenPlans(result []vpcv1.BackupPolicyPlanReference) (plans []map[string]interface{}) {
