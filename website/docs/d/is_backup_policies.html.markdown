@@ -69,5 +69,11 @@ In addition to all argument reference list, you can access the following attribu
         - `href` - (String) The URL for this resource group.
         - `id` - (String) The unique identifier for this resource group.
         - `name` - (String) The user-defined name for this resource group.
+    - `scope` - (List) If present, the scope for this backup policy.
+
+      Nested `scope` blocks have the following structure:
+        - `crn` - (String) The CRN for this enterprise.
+        - `id` - (String) The unique identifier for this enterprise or account.
+        - `resource_type` - (String) The resource type.
 
 
