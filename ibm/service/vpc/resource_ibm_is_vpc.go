@@ -882,7 +882,7 @@ func vpcGet(d *schema.ResourceData, meta interface{}, id string) error {
 		for _, sourceIP := range vpc.CseSourceIps {
 			currentCseSourceIp := map[string]interface{}{}
 			if sourceIP.IP != nil {
-				currentCseSourceIp["address"] = *sourceIP.IP.Address
+				currentCseSourceIp[isVPCDnsResolverManualServersAddress] = *sourceIP.IP.Address
 				currentCseSourceIp["zone_name"] = *sourceIP.Zone.Name
 				cseSourceIpsList = append(cseSourceIpsList, currentCseSourceIp)
 			}
@@ -1067,6 +1067,7 @@ func vpcUpdate(d *schema.ResourceData, meta interface{}, id, name string, hasCha
 	if err != nil {
 		return err
 	}
+
 	if d.HasChange(isVPCTags) {
 		getvpcOptions := &vpcv1.GetVPCOptions{
 			ID: &id,
@@ -1113,14 +1114,27 @@ func vpcUpdate(d *schema.ResourceData, meta interface{}, id, name string, hasCha
 			nwaclNameUpdate(sess, d.Get(isVPCDefaultNetworkACL).(string), defaultACLName.(string))
 		}
 	}
-
-	if hasChanged {
+	hasDnsChanged := false
+	var dnsPatch *vpcv1.VpcdnsPatch
+	if d.HasChange("dns") {
+		dnsPatch, err = resourceIBMIsVPCMapToVpcdnsPatch(d.Get("dns.0").(map[string]interface{}))
+		if err != nil {
+			return err
+		}
+		hasDnsChanged = true
+	}
+	if hasChanged || hasDnsChanged {
 		updateVpcOptions := &vpcv1.UpdateVPCOptions{
 			ID: &id,
 		}
-		vpcPatchModel := &vpcv1.VPCPatch{
-			Name: &name,
+		vpcPatchModel := &vpcv1.VPCPatch{}
+		if hasChanged {
+			vpcPatchModel.Name = &name
 		}
+		if hasDnsChanged {
+			vpcPatchModel.Dns = dnsPatch
+		}
+
 		vpcPatch, err := vpcPatchModel.AsPatch()
 		if err != nil {
 			return fmt.Errorf("[ERROR] Error calling asPatch for VPCPatch: %s", err)
@@ -1489,4 +1503,56 @@ func resourceIBMIsVPCVpcdnsResolverTypeSystemToMap(model *vpcv1.VpcdnsResolverTy
 	modelMap[isVPCDnsResolverConfiguration] = model.Configuration
 	modelMap[isVPCDnsResolverType] = model.Type
 	return modelMap, nil
+}
+
+func resourceIBMIsVPCMapToVpcdnsPatch(modelMap map[string]interface{}) (*vpcv1.VpcdnsPatch, error) {
+	model := &vpcv1.VpcdnsPatch{}
+	if modelMap[isVPCDnsEnableHub] != nil {
+		model.EnableHub = core.BoolPtr(modelMap[isVPCDnsEnableHub].(bool))
+	}
+	if modelMap["resolver"] != nil && len(modelMap["resolver"].([]interface{})) > 0 {
+		ResolverModel, err := resourceIBMIsVPCMapToVpcdnsResolverPatch(modelMap["resolver"].([]interface{})[0].(map[string]interface{}))
+		if err != nil {
+			return model, err
+		}
+		model.Resolver = ResolverModel
+	}
+	return model, nil
+}
+
+func resourceIBMIsVPCMapToVpcdnsResolverPatch(modelMap map[string]interface{}) (*vpcv1.VpcdnsResolverPatch, error) {
+	model := &vpcv1.VpcdnsResolverPatch{}
+	if modelMap["manual_servers"] != nil {
+		manualServers := []vpcv1.DnsServerPrototype{}
+		for _, manualServersItem := range modelMap["manual_servers"].([]interface{}) {
+			manualServersItemModel, err := resourceIBMIsVPCMapToDnsServerPrototype(manualServersItem.(map[string]interface{}))
+			if err != nil {
+				return model, err
+			}
+			manualServers = append(manualServers, *manualServersItemModel)
+		}
+		model.ManualServers = manualServers
+	}
+	if modelMap["type"] != nil && modelMap["type"].(string) != "" {
+		model.Type = core.StringPtr(modelMap["type"].(string))
+	}
+	if modelMap["vpc"] != nil && modelMap["vpc"] != "" {
+		vpc := modelMap["vpc"].(string)
+		vpcModel := &vpcv1.VpcdnsResolverVPCPatch{
+			ID: &vpc,
+		}
+		model.VPC = vpcModel
+	}
+	return model, nil
+}
+
+func resourceIBMIsVPCMapToDnsServerPrototype(modelMap map[string]interface{}) (*vpcv1.DnsServerPrototype, error) {
+	model := &vpcv1.DnsServerPrototype{}
+	model.Address = core.StringPtr(modelMap[isVPCDnsResolverManualServersAddress].(string))
+	if modelMap[isVPCDnsResolverManualServersZoneAffinity] != nil && modelMap[isVPCDnsResolverManualServersZoneAffinity].(string) != "" {
+		model.ZoneAffinity = &vpcv1.ZoneIdentity{
+			Name: core.StringPtr(modelMap[isVPCDnsResolverManualServersZoneAffinity].(string)),
+		}
+	}
+	return model, nil
 }
