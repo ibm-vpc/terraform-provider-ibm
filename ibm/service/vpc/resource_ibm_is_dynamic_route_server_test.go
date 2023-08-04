@@ -162,7 +162,7 @@ func testAccCheckIBMIsDynamicRouteServerExists(n string, obj vpcv1.DynamicRouteS
 			return fmt.Errorf("Not found: %s", n)
 		}
 
-		vpcClient, err := acc.TestAccProvider.Meta().(conns.ClientSession).VpcV1()
+		vpcClient, err := acc.TestAccProvider.Meta().(conns.ClientSession).VpcV1API()
 		if err != nil {
 			return err
 		}
@@ -182,7 +182,7 @@ func testAccCheckIBMIsDynamicRouteServerExists(n string, obj vpcv1.DynamicRouteS
 }
 
 func testAccCheckIBMIsDynamicRouteServerDestroy(s *terraform.State) error {
-	vpcClient, err := acc.TestAccProvider.Meta().(conns.ClientSession).VpcV1()
+	vpcClient, err := acc.TestAccProvider.Meta().(conns.ClientSession).VpcV1API()
 	if err != nil {
 		return err
 	}
