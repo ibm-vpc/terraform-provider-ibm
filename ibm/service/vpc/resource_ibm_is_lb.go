@@ -389,8 +389,8 @@ func lbCreate(d *schema.ResourceData, meta interface{}, name, lbType, rg string,
 	}
 
 	options := &vpcv1.CreateLoadBalancerOptions{
-		IsPublic: &isPublic,
-		Name:     &name,
+		IsPrivatePath: &isPublic,
+		Name:          &name,
 	}
 
 	if dnsIntf, ok := d.GetOk("dns"); ok {
