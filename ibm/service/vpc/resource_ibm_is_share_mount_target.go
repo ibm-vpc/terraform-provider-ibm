@@ -16,6 +16,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
+	"github.com/IBM/go-sdk-core/v5/core"
 	"github.com/IBM/vpc-beta-go-sdk/vpcbetav1"
 )
 
@@ -116,7 +117,7 @@ func ResourceIBMIsShareMountTarget() *schema.Resource {
 									"auto_delete": &schema.Schema{
 										Type:        schema.TypeBool,
 										Optional:    true,
-										Default:     true,
+										Computed:    true,
 										Description: "Indicates whether this reserved IP member will be automatically deleted when either target is deleted, or the reserved IP is unbound.",
 									},
 									"deleted": &schema.Schema{
@@ -147,7 +148,8 @@ func ResourceIBMIsShareMountTarget() *schema.Resource {
 									},
 									"name": &schema.Schema{
 										Type:        schema.TypeString,
-										Required:    true,
+										Optional:    true,
+										Computed:    true,
 										Description: "The name for this reserved IP. The name is unique across all reserved IPs in a subnet.",
 									},
 									"resource_type": &schema.Schema{
@@ -822,6 +824,33 @@ func ShareMountTargetMapToShareMountTargetPrototype(d *schema.ResourceData, vniM
 		}
 		vniPrototype.PrimaryIP = primaryIpPrototype
 	}
+	allowIPSpoofing, ok := vniMap["allow_ip_spoofing"]
+	if ok {
+		allowIPSpoofingBool := allowIPSpoofing.(bool)
+		vniPrototype.AllowIPSpoofing = &allowIPSpoofingBool
+	}
+	autoDelete, ok := vniMap["auto_delete"]
+	if ok {
+		autoDeleteBool := autoDelete.(bool)
+		vniPrototype.AutoDelete = &autoDeleteBool
+	}
+	enableInfraNat, ok := vniMap["enable_infrastructure_nat"]
+	if ok {
+		enableInfraNatBool := enableInfraNat.(bool)
+		vniPrototype.EnableInfrastructureNat = &enableInfraNatBool
+	}
+	if _, ok := d.GetOk("ips"); ok {
+		var ips []vpcbetav1.VirtualNetworkInterfaceIPPrototypeIntf
+		for _, v := range d.Get("ips").([]interface{}) {
+			value := v.(map[string]interface{})
+			ipsItem, err := virtualNetworkInterfaceIPsReservedIPPrototypeMapToModel(value)
+			if err != nil {
+				return vniPrototype, err
+			}
+			ips = append(ips, ipsItem)
+		}
+		vniPrototype.Ips = ips
+	}
 	if subnet := vniMap["subnet"].(string); subnet != "" {
 		vniPrototype.Subnet = &vpcbetav1.SubnetIdentity{
 			ID: &subnet,
@@ -945,4 +974,31 @@ func mountTargetRefreshFunc(context context.Context, vpcClient *vpcbetav1.Vpcbet
 		}
 		return target, "pending", nil
 	}
+}
+func virtualNetworkInterfaceIPsReservedIPPrototypeMapToModel(modelMap map[string]interface{}) (vpcbetav1.VirtualNetworkInterfaceIPPrototypeIntf, error) {
+	model := &vpcbetav1.VirtualNetworkInterfaceIPPrototype{}
+
+	reservedIp := modelMap["reserved_ip"].(string)
+	reservedIpAddress := modelMap["address"].(string)
+	reservedIpName := modelMap["name"].(string)
+	reservedIpAutoDelete, autoDeleteOk := modelMap["auto_delete"]
+	if reservedIp != "" && (reservedIpAddress != "" || reservedIpName != "" || autoDeleteOk) {
+		return model, fmt.Errorf("[ERROR] Error creating mount target, virtual_network_interface, reserved_ip(%s) is mutually exclusive with other primary_ip attributes", reservedIp)
+	}
+	if reservedIp != "" {
+		model.ID = core.StringPtr(modelMap["id"].(string))
+	} else {
+		if reservedIpAddress != "" {
+			model.Address = &reservedIpAddress
+		}
+		if reservedIpName != "" {
+			model.Name = &reservedIpName
+		}
+		if autoDeleteOk {
+			reservedIpAutoDeleteBool := reservedIpAutoDelete.(bool)
+			model.AutoDelete = &reservedIpAutoDeleteBool
+		}
+	}
+
+	return model, nil
 }
