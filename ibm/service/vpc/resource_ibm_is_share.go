@@ -169,6 +169,82 @@ func ResourceIbmIsShare() *schema.Resource {
 										Computed:    true,
 										Description: "Name of this VNI",
 									},
+									"allow_ip_spoofing": &schema.Schema{
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Default:     false,
+										Description: "Indicates whether source IP spoofing is allowed on this interface. If `false`, source IP spoofing is prevented on this interface. If `true`, source IP spoofing is allowed on this interface.",
+									},
+									"auto_delete": &schema.Schema{
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Default:     true,
+										Description: "Indicates whether this virtual network interface will be automatically deleted when`target` is deleted.",
+									},
+									"enable_infrastructure_nat": &schema.Schema{
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Default:     true,
+										Description: "If `true`:- The VPC infrastructure performs any needed NAT operations.- `floating_ips` must not have more than one floating IP.If `false`:- Packets are passed unchanged to/from the network interface,  allowing the workload to perform any needed NAT operations.- `allow_ip_spoofing` must be `false`.- If the virtual network interface is attached:  - The target `resource_type` must be `bare_metal_server_network_attachment`.  - The target `interface_type` must not be `hipersocket`.",
+									},
+									"ips": &schema.Schema{
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: "The reserved IPs bound to this virtual network interface.May be empty when `lifecycle_state` is `pending`.",
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"address": &schema.Schema{
+													Type:        schema.TypeString,
+													Optional:    true,
+													Computed:    true,
+													Description: "The IP address.If the address has not yet been selected, the value will be `0.0.0.0`.This property may add support for IPv6 addresses in the future. When processing a value in this property, verify that the address is in an expected format. If it is not, log an error. Optionally halt processing and surface the error, or bypass the resource on which the unexpected IP address format was encountered.",
+												},
+												"auto_delete": &schema.Schema{
+													Type:        schema.TypeBool,
+													Optional:    true,
+													Computed:    true,
+													Description: "Indicates whether this reserved IP member will be automatically deleted when either target is deleted, or the reserved IP is unbound.",
+												},
+												"deleted": &schema.Schema{
+													Type:        schema.TypeList,
+													MaxItems:    1,
+													Computed:    true,
+													Description: "If present, this property indicates the referenced resource has been deleted, and providessome supplementary information.",
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"more_info": &schema.Schema{
+																Type:        schema.TypeString,
+																Computed:    true,
+																Description: "Link to documentation about deleted resources.",
+															},
+														},
+													},
+												},
+												"href": &schema.Schema{
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "The URL for this reserved IP.",
+												},
+												"reserved_ip": &schema.Schema{
+													Type:        schema.TypeString,
+													Optional:    true,
+													Computed:    true,
+													Description: "The unique identifier for this reserved IP.",
+												},
+												"name": &schema.Schema{
+													Type:        schema.TypeString,
+													Optional:    true,
+													Computed:    true,
+													Description: "The name for this reserved IP. The name is unique across all reserved IPs in a subnet.",
+												},
+												"resource_type": &schema.Schema{
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "The resource type.",
+												},
+											},
+										},
+									},
 									"primary_ip": {
 										Type:        schema.TypeList,
 										Optional:    true,
@@ -401,6 +477,82 @@ func ResourceIbmIsShare() *schema.Resource {
 													Optional:    true,
 													Computed:    true,
 													Description: "Name of this VNI",
+												},
+												"allow_ip_spoofing": &schema.Schema{
+													Type:        schema.TypeBool,
+													Optional:    true,
+													Default:     false,
+													Description: "Indicates whether source IP spoofing is allowed on this interface. If `false`, source IP spoofing is prevented on this interface. If `true`, source IP spoofing is allowed on this interface.",
+												},
+												"auto_delete": &schema.Schema{
+													Type:        schema.TypeBool,
+													Optional:    true,
+													Default:     true,
+													Description: "Indicates whether this virtual network interface will be automatically deleted when`target` is deleted.",
+												},
+												"enable_infrastructure_nat": &schema.Schema{
+													Type:        schema.TypeBool,
+													Optional:    true,
+													Default:     true,
+													Description: "If `true`:- The VPC infrastructure performs any needed NAT operations.- `floating_ips` must not have more than one floating IP.If `false`:- Packets are passed unchanged to/from the network interface,  allowing the workload to perform any needed NAT operations.- `allow_ip_spoofing` must be `false`.- If the virtual network interface is attached:  - The target `resource_type` must be `bare_metal_server_network_attachment`.  - The target `interface_type` must not be `hipersocket`.",
+												},
+												"ips": &schema.Schema{
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: "The reserved IPs bound to this virtual network interface.May be empty when `lifecycle_state` is `pending`.",
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"address": &schema.Schema{
+																Type:        schema.TypeString,
+																Optional:    true,
+																Computed:    true,
+																Description: "The IP address.If the address has not yet been selected, the value will be `0.0.0.0`.This property may add support for IPv6 addresses in the future. When processing a value in this property, verify that the address is in an expected format. If it is not, log an error. Optionally halt processing and surface the error, or bypass the resource on which the unexpected IP address format was encountered.",
+															},
+															"auto_delete": &schema.Schema{
+																Type:        schema.TypeBool,
+																Optional:    true,
+																Computed:    true,
+																Description: "Indicates whether this reserved IP member will be automatically deleted when either target is deleted, or the reserved IP is unbound.",
+															},
+															"deleted": &schema.Schema{
+																Type:        schema.TypeList,
+																MaxItems:    1,
+																Computed:    true,
+																Description: "If present, this property indicates the referenced resource has been deleted, and providessome supplementary information.",
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"more_info": &schema.Schema{
+																			Type:        schema.TypeString,
+																			Computed:    true,
+																			Description: "Link to documentation about deleted resources.",
+																		},
+																	},
+																},
+															},
+															"href": &schema.Schema{
+																Type:        schema.TypeString,
+																Computed:    true,
+																Description: "The URL for this reserved IP.",
+															},
+															"reserved_ip": &schema.Schema{
+																Type:        schema.TypeString,
+																Optional:    true,
+																Computed:    true,
+																Description: "The unique identifier for this reserved IP.",
+															},
+															"name": &schema.Schema{
+																Type:        schema.TypeString,
+																Optional:    true,
+																Computed:    true,
+																Description: "The name for this reserved IP. The name is unique across all reserved IPs in a subnet.",
+															},
+															"resource_type": &schema.Schema{
+																Type:        schema.TypeString,
+																Computed:    true,
+																Description: "The resource type.",
+															},
+														},
+													},
 												},
 												"primary_ip": {
 													Type:        schema.TypeList,
