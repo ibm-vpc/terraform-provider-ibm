@@ -394,10 +394,11 @@ func Provider() *schema.Provider {
 			"ibm_is_dedicated_host_disk":     vpc.DataSourceIbmIsDedicatedHostDisk(),
 			"ibm_is_dedicated_host_disks":    vpc.DataSourceIbmIsDedicatedHostDisks(),
 			// dynamic route server
-			"ibm_is_dynamic_route_server":       vpc.DataSourceIBMIsDynamicRouteServer(),
-			"ibm_is_dynamic_route_servers":      vpc.DataSourceIBMIsDynamicRouteServers(),
-			"ibm_is_dynamic_route_server_peer":  vpc.DataSourceIBMIsDynamicRouteServerPeer(),
-			"ibm_is_dynamic_route_server_peers": vpc.DataSourceIBMIsDynamicRouteServerPeers(),
+			"ibm_is_dynamic_route_server":        vpc.DataSourceIBMIsDynamicRouteServer(),
+			"ibm_is_dynamic_route_servers":       vpc.DataSourceIBMIsDynamicRouteServers(),
+			"ibm_is_dynamic_route_server_peer":   vpc.DataSourceIBMIsDynamicRouteServerPeer(),
+			"ibm_is_dynamic_route_server_peers":  vpc.DataSourceIBMIsDynamicRouteServerPeers(),
+			"ibm_is_dynamic_route_server_routes": vpc.DataSourceIBMIsDynamicRouteServerRoutes(),
 
 			"ibm_is_placement_group":                 vpc.DataSourceIbmIsPlacementGroup(),
 			"ibm_is_placement_groups":                vpc.DataSourceIbmIsPlacementGroups(),
