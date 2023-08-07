@@ -63,7 +63,7 @@ In addition to all argument reference list, you can access the following attribu
   - `resource_group` - (String) The unique identifier of the resource group for this dedicated host group.
   - `resource_type` - (String) The type of resource referenced.
   - `supported_instance_profiles` - (List) Array of instance profiles that can be used by instances placed on this dedicated host group. 
-  - `vcpu` -  (List) If present, the VCPU configuration for this dedicated host group
+  - `vcpu` -  The VCPU configuration for this dedicated host group
 
     Nested scheme for `vcpu`:
     - `architecture` -  (String) The VCPU architecture.
