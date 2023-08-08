@@ -722,6 +722,38 @@ func isWaitForMountTargetDelete(context context.Context, vpcClient *vpcbetav1.Vp
 	return stateConf.WaitForState()
 }
 
+func ShareMountTargetVNIReservedIPInterfaceToMap(context context.Context, vpcClient *vpcbetav1.VpcbetaV1, d *schema.ResourceData, ripRef *vpcbetav1.ReservedIPReference, subnetId string) (map[string]interface{}, error) {
+
+	currentPrimIp := map[string]interface{}{}
+	if ripRef.Address != nil {
+		currentPrimIp["address"] = ripRef.Address
+	}
+	if ripRef.Name != nil {
+		currentPrimIp["name"] = *ripRef.Name
+	}
+	if ripRef.ID != nil {
+		currentPrimIp["reserved_ip"] = *ripRef.ID
+	}
+	if ripRef.Href != nil {
+		currentPrimIp["href"] = *ripRef.Href
+	}
+
+	if ripRef.ResourceType != nil {
+		currentPrimIp["resource_type"] = *ripRef.ResourceType
+	}
+
+	rIpOptions := &vpcbetav1.GetSubnetReservedIPOptions{
+		SubnetID: &subnetId,
+		ID:       ripRef.ID,
+	}
+	rIp, response, err := vpcClient.GetSubnetReservedIP(rIpOptions)
+	if err != nil {
+		return nil, fmt.Errorf("[ERROR] Error getting network interface reserved ip(%s) from the subnet(%s): %s\n%s", *ripRef.ID, *&subnetId, err, response)
+	}
+	currentPrimIp["auto_delete"] = rIp.AutoDelete
+
+	return currentPrimIp, nil
+}
 func ShareMountTargetVirtualNetworkInterfaceToMap(context context.Context, vpcClient *vpcbetav1.VpcbetaV1, d *schema.ResourceData, vniId string) ([]map[string]interface{}, error) {
 
 	vniSlice := make([]map[string]interface{}, 0)
@@ -743,38 +775,37 @@ func ShareMountTargetVirtualNetworkInterfaceToMap(context context.Context, vpcCl
 	vniMap["name"] = vni.Name
 	vniMap["href"] = vni.Href
 
-	primaryIpList := make([]map[string]interface{}, 0)
-	currentPrimIp := map[string]interface{}{}
+	if vni.AllowIPSpoofing != nil {
+		vniMap["allow_ip_spoofing"] = *vni.AllowIPSpoofing
+	}
+	if vni.AutoDelete != nil {
+		vniMap["auto_delete"] = *vni.AutoDelete
+	}
+	if vni.EnableInfrastructureNat != nil {
+		vniMap["enable_infrastructure_nat"] = *vni.EnableInfrastructureNat
+	}
+
 	if vni.PrimaryIP != nil {
-		if vni.PrimaryIP.Address != nil {
-			currentPrimIp["address"] = vni.PrimaryIP.Address
-		}
-		if vni.PrimaryIP.Name != nil {
-			currentPrimIp["name"] = *vni.PrimaryIP.Name
-		}
-		if vni.PrimaryIP.ID != nil {
-			currentPrimIp["reserved_ip"] = *vni.PrimaryIP.ID
-		}
-		if vni.PrimaryIP.Href != nil {
-			currentPrimIp["href"] = *vni.PrimaryIP.Href
-		}
+		primaryIpList := make([]map[string]interface{}, 0)
 
-		if vni.PrimaryIP.ResourceType != nil {
-			currentPrimIp["resource_type"] = *vni.PrimaryIP.ResourceType
-		}
-
-		rIpOptions := &vpcbetav1.GetSubnetReservedIPOptions{
-			SubnetID: vni.Subnet.ID,
-			ID:       vni.PrimaryIP.ID,
-		}
-		rIp, response, err := vpcClient.GetSubnetReservedIP(rIpOptions)
+		currentPrimIp, err := ShareMountTargetVNIReservedIPInterfaceToMap(context, vpcClient, d, vni.PrimaryIP, *vni.Subnet.ID)
 		if err != nil {
-			return nil, fmt.Errorf("[ERROR] Error getting network interface reserved ip(%s) attached to the virtual instance network interface(%s): %s\n%s", *vni.PrimaryIP.ID, *vni.ID, err, response)
+			return nil, err
 		}
-		currentPrimIp["auto_delete"] = rIp.AutoDelete
-
 		primaryIpList = append(primaryIpList, currentPrimIp)
 		vniMap["primary_ip"] = primaryIpList
+	}
+
+	if len(vni.Ips) > 0 {
+		ipList := make([]map[string]interface{}, 0)
+		for _, ipsItem := range vni.Ips {
+			ipsItemMap, err := ShareMountTargetVNIReservedIPInterfaceToMap(context, vpcClient, d, &ipsItem, *vni.Subnet.ID)
+			if err != nil {
+				return nil, err
+			}
+			ipList = append(ipList, ipsItemMap)
+		}
+		vniMap["ips"] = ipList
 	}
 	vniMap["subnet"] = vni.Subnet.ID
 	vniMap["resource_type"] = vni.ResourceType
