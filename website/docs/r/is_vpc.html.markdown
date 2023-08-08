@@ -31,6 +31,24 @@ resource "ibm_is_vpc" "example" {
 
 ```
 
+## Example usage
+The following example to create a VPC with dns:
+
+```terraform
+resource "ibm_is_vpc" "example" {
+  name = "example-vpc"
+  dns {
+		enable_hub = true
+		resolver {
+			manual_servers {
+				address = "192.168.3.4"
+			}
+		}
+	}
+}
+
+```
+
 ## Timeouts
 The `ibm_is_vpc` resource provides the following [[Timeouts](https://www.terraform.io/docs/language/resources/syntax.html) configuration options:
 

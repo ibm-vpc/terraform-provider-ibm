@@ -681,30 +681,12 @@ func vpcCreate(d *schema.ResourceData, meta interface{}, name, apm, rg string, i
 	options := &vpcv1.CreateVPCOptions{
 		Name: &name,
 	}
-	if vpcDnsOk, ok := d.GetOk(isVPCDns); ok {
-		vpcDns := vpcDnsOk.([]interface{})[0].(map[string]interface{})
-		vpcDnsEnableHub, _ := vpcDns[isVPCDnsEnableHub].(bool)
-		vpcdnsPrototype := &vpcv1.VpcdnsPrototype{
-			EnableHub: &vpcDnsEnableHub,
+	if _, ok := d.GetOk(isVPCDns); ok {
+		dnsModel, err := resourceIBMIsVPCMapToVpcdnsPrototype(d.Get("dns.0").(map[string]interface{}))
+		if err != nil {
+			return err
 		}
-		if vpcDnsManualServersBody, ok := vpcDns[isVPCDnsResolverManualServers]; ok {
-			vpcDnsManualServers := vpcDnsManualServersBody.([]interface{})[0].(map[string]interface{})
-			resolverType := "manual"
-			if len(vpcDnsManualServers) > 0 {
-				resolver := &vpcv1.VpcdnsResolverPrototypeVpcdnsResolverTypeSystemPrototype{
-					Type: &resolverType,
-				}
-				vpcdnsPrototype.Resolver = resolver
-			}
-
-		} else {
-			resolverType := "system"
-			resolver := &vpcv1.VpcdnsResolverPrototypeVpcdnsResolverTypeSystemPrototype{
-				Type: &resolverType,
-			}
-			vpcdnsPrototype.Resolver = resolver
-		}
-		options.Dns = vpcdnsPrototype
+		options.SetDns(dnsModel)
 	}
 	if rg != "" {
 		options.ResourceGroup = &vpcv1.ResourceGroupIdentity{
@@ -1116,7 +1098,7 @@ func vpcUpdate(d *schema.ResourceData, meta interface{}, id, name string, hasCha
 	}
 	hasDnsChanged := false
 	var dnsPatch *vpcv1.VpcdnsPatch
-	if d.HasChange("dns") {
+	if d.HasChange(isVPCDns) {
 		dnsPatch, err = resourceIBMIsVPCMapToVpcdnsPatch(d.Get("dns.0").(map[string]interface{}))
 		if err != nil {
 			return err
@@ -1318,197 +1300,61 @@ func suppressNullAddPrefix(k, old, new string, d *schema.ResourceData) bool {
 	}
 	return false
 }
-func setDnsResolverVpc(model *vpcv1.VPCReferenceDnsResolverContext) map[string]interface{} {
-	outVpc := map[string]interface{}{}
-	outVpc[isVPCDnsResolverVpcId] = model.ID
-	outVpc[isVPCDnsResolverVpcHref] = model.Href
-	outVpc[isVPCDnsResolverVpcCrn] = model.CRN
-	return outVpc
-}
-func resourceIBMIsVPCVpcdnsToMap(model *vpcv1.Vpcdns) (map[string]interface{}, error) {
-	modelMap := make(map[string]interface{})
-	modelMap[isVPCDnsEnableHub] = model.EnableHub
-	modelMap[isVPCDnsResolutionBindingCount] = *model.ResolutionBindingCount
-	resolverMap, err := resourceIBMIsVPCVpcdnsResolverToMap(model.Resolver)
-	if err != nil {
-		return modelMap, err
+
+// for create dns
+func resourceIBMIsVPCMapToVpcdnsPrototype(modelMap map[string]interface{}) (*vpcv1.VpcdnsPrototype, error) {
+	model := &vpcv1.VpcdnsPrototype{}
+	if modelMap["enable_hub"] != nil {
+		model.EnableHub = core.BoolPtr(modelMap["enable_hub"].(bool))
 	}
-	modelMap[isVPCDnsResolver] = []map[string]interface{}{resolverMap}
-	return modelMap, nil
+	if modelMap["resolver"] != nil && len(modelMap["resolver"].([]interface{})) > 0 {
+		ResolverModel, err := resourceIBMIsVPCMapToVpcdnsResolverPrototype(modelMap["resolver"].([]interface{})[0].(map[string]interface{}))
+		if err != nil {
+			return model, err
+		}
+		model.Resolver = ResolverModel
+	}
+	return model, nil
 }
 
-func resourceIBMIsVPCVpcdnsResolverToMap(model vpcv1.VpcdnsResolverIntf) (map[string]interface{}, error) {
-	if _, ok := model.(*vpcv1.VpcdnsResolverTypeDelegated); ok {
-		return resourceIBMIsVPCVpcdnsResolverTypeDelegatedToMap(model.(*vpcv1.VpcdnsResolverTypeDelegated))
-	} else if _, ok := model.(*vpcv1.VpcdnsResolverTypeManual); ok {
-		return resourceIBMIsVPCVpcdnsResolverTypeManualToMap(model.(*vpcv1.VpcdnsResolverTypeManual))
-	} else if _, ok := model.(*vpcv1.VpcdnsResolverTypeSystem); ok {
-		return resourceIBMIsVPCVpcdnsResolverTypeSystemToMap(model.(*vpcv1.VpcdnsResolverTypeSystem))
-	} else if _, ok := model.(*vpcv1.VpcdnsResolver); ok {
-		modelMap := make(map[string]interface{})
-		model := model.(*vpcv1.VpcdnsResolver)
-		servers := []map[string]interface{}{}
-		for _, serversItem := range model.Servers {
-			serversItemMap, err := resourceIBMIsVPCDnsServerToMap(&serversItem)
+func resourceIBMIsVPCMapToVpcdnsResolverPrototype(modelMap map[string]interface{}) (vpcv1.VpcdnsResolverPrototypeIntf, error) {
+	model := &vpcv1.VpcdnsResolverPrototype{}
+	if modelMap["type"] != nil && modelMap["type"].(string) != "" {
+		model.Type = core.StringPtr(modelMap["type"].(string))
+	}
+	if modelMap["manual_servers"] != nil {
+		model.Type = core.StringPtr("manual")
+		manualServers := []vpcv1.DnsServerPrototype{}
+		for _, manualServersItem := range modelMap["manual_servers"].([]interface{}) {
+			manualServersItemModel, err := resourceIBMIsVPCMapToDnsServerPrototype(manualServersItem.(map[string]interface{}))
 			if err != nil {
-				return modelMap, err
+				return model, err
 			}
-			servers = append(servers, serversItemMap)
+			manualServers = append(manualServers, *manualServersItemModel)
 		}
-		modelMap[isVPCDnsResolverServers] = servers
-		modelMap[isVPCDnsResolverType] = model.Type
-		if model.VPC != nil {
-			vpcMap, err := resourceIBMIsVPCVPCReferenceDnsResolverContextToMap(model.VPC)
-			if err != nil {
-				return modelMap, err
-			}
-			modelMap[isVPCDnsResolverVpc] = []map[string]interface{}{vpcMap}
-		}
-		if model.ManualServers != nil {
-			manualServers := []map[string]interface{}{}
-			for _, manualServersItem := range model.ManualServers {
-				manualServersItemMap, err := resourceIBMIsVPCDnsServerToMap(&manualServersItem)
-				if err != nil {
-					return modelMap, err
-				}
-				manualServers = append(manualServers, manualServersItemMap)
-			}
-			modelMap[isVPCDnsResolverManualServers] = manualServers
-		}
-		if model.Configuration != nil {
-			modelMap[isVPCDnsResolverConfiguration] = model.Configuration
-		}
-		return modelMap, nil
-	} else {
-		return nil, fmt.Errorf("Unrecognized vpcv1.VpcdnsResolverIntf subtype encountered")
+		model.ManualServers = manualServers
 	}
+	return model, nil
 }
 
-func resourceIBMIsVPCDnsServerToMap(model *vpcv1.DnsServer) (map[string]interface{}, error) {
-	modelMap := make(map[string]interface{})
-	modelMap[isVPCDnsResolverManualServersAddress] = model.Address
-	if model.ZoneAffinity != nil && model.ZoneAffinity.Name != nil {
-		modelMap[isVPCDnsResolverManualServersZoneAffinity] = model.ZoneAffinity.Name
+func resourceIBMIsVPCMapToDnsServerPrototype(modelMap map[string]interface{}) (*vpcv1.DnsServerPrototype, error) {
+	model := &vpcv1.DnsServerPrototype{}
+	model.Address = core.StringPtr(modelMap["address"].(string))
+	if modelMap[isVPCDnsResolverManualServersZoneAffinity] != nil && modelMap[isVPCDnsResolverManualServersZoneAffinity].(string) != "" {
+		ZoneAffinityModel := &vpcv1.ZoneIdentity{
+			Name: core.StringPtr(modelMap[isVPCDnsResolverManualServersZoneAffinity].(string)),
+		}
+		model.ZoneAffinity = ZoneAffinityModel
 	}
-	return modelMap, nil
+	return model, nil
 }
 
-func resourceIBMIsVPCVPCReferenceDnsResolverContextToMap(model *vpcv1.VPCReferenceDnsResolverContext) (map[string]interface{}, error) {
-	modelMap := make(map[string]interface{})
-	modelMap[isVPCDnsResolverVpcCrn] = model.CRN
-	if model.Deleted != nil {
-		deletedMap, err := resourceIBMIsVPCVPCReferenceDnsResolverContextDeletedToMap(model.Deleted)
-		if err != nil {
-			return modelMap, err
-		}
-		modelMap[isVPCDnsResolverVpcDeleted] = []map[string]interface{}{deletedMap}
-	}
-	modelMap[isVPCDnsResolverVpcHref] = model.Href
-	modelMap[isVPCDnsResolverVpcId] = model.ID
-	modelMap[isVPCDnsResolverVpcName] = model.Name
-	if model.Remote != nil {
-		remoteMap, err := resourceIBMIsVPCVPCRemoteToMap(model.Remote)
-		if err != nil {
-			return modelMap, err
-		}
-		modelMap[isVPCDnsResolverVpcRemote] = []map[string]interface{}{remoteMap}
-	}
-	modelMap[isVPCDnsResolverResourceType] = model.ResourceType
-	return modelMap, nil
-}
-
-func resourceIBMIsVPCVPCReferenceDnsResolverContextDeletedToMap(model *vpcv1.VPCReferenceDnsResolverContextDeleted) (map[string]interface{}, error) {
-	modelMap := make(map[string]interface{})
-	modelMap[isVPCDnsResolverVpcDeletedMoreInfo] = model.MoreInfo
-	return modelMap, nil
-}
-
-func resourceIBMIsVPCVPCRemoteToMap(model *vpcv1.VPCRemote) (map[string]interface{}, error) {
-	modelMap := make(map[string]interface{})
-	if model.Account != nil {
-		accountMap, err := resourceIBMIsVPCAccountReferenceToMap(model.Account)
-		if err != nil {
-			return modelMap, err
-		}
-		modelMap[isVPCDnsResolverVpcRemoteAccount] = []map[string]interface{}{accountMap}
-	}
-	if model.Region != nil {
-		modelMap[isVPCDnsResolverVpcRemoteRegion] = model.Region.Name
-	}
-	return modelMap, nil
-}
-
-func resourceIBMIsVPCAccountReferenceToMap(model *vpcv1.AccountReference) (map[string]interface{}, error) {
-	modelMap := make(map[string]interface{})
-	modelMap[isVPCDnsResolverVpcId] = model.ID
-	modelMap[isVPCDnsResolverResourceType] = model.ResourceType
-	return modelMap, nil
-}
-
-func resourceIBMIsVPCVpcdnsResolverTypeDelegatedToMap(model *vpcv1.VpcdnsResolverTypeDelegated) (map[string]interface{}, error) {
-	modelMap := make(map[string]interface{})
-	servers := []map[string]interface{}{}
-	for _, serversItem := range model.Servers {
-		serversItemMap, err := resourceIBMIsVPCDnsServerToMap(&serversItem)
-		if err != nil {
-			return modelMap, err
-		}
-		servers = append(servers, serversItemMap)
-	}
-	modelMap[isVPCDnsResolverServers] = servers
-	modelMap[isVPCDnsResolverType] = model.Type
-	vpcMap, err := resourceIBMIsVPCVPCReferenceDnsResolverContextToMap(model.VPC)
-	if err != nil {
-		return modelMap, err
-	}
-	modelMap[isVPCDnsResolverVpc] = []map[string]interface{}{vpcMap}
-	return modelMap, nil
-}
-
-func resourceIBMIsVPCVpcdnsResolverTypeManualToMap(model *vpcv1.VpcdnsResolverTypeManual) (map[string]interface{}, error) {
-	modelMap := make(map[string]interface{})
-	servers := []map[string]interface{}{}
-	for _, serversItem := range model.Servers {
-		serversItemMap, err := resourceIBMIsVPCDnsServerToMap(&serversItem)
-		if err != nil {
-			return modelMap, err
-		}
-		servers = append(servers, serversItemMap)
-	}
-	modelMap[isVPCDnsResolverServers] = servers
-	manualServers := []map[string]interface{}{}
-	for _, manualServersItem := range model.ManualServers {
-		manualServersItemMap, err := resourceIBMIsVPCDnsServerToMap(&manualServersItem)
-		if err != nil {
-			return modelMap, err
-		}
-		manualServers = append(manualServers, manualServersItemMap)
-	}
-	modelMap[isVPCDnsResolverManualServers] = manualServers
-	modelMap[isVPCDnsResolverType] = model.Type
-	return modelMap, nil
-}
-
-func resourceIBMIsVPCVpcdnsResolverTypeSystemToMap(model *vpcv1.VpcdnsResolverTypeSystem) (map[string]interface{}, error) {
-	modelMap := make(map[string]interface{})
-	servers := []map[string]interface{}{}
-	for _, serversItem := range model.Servers {
-		serversItemMap, err := resourceIBMIsVPCDnsServerToMap(&serversItem)
-		if err != nil {
-			return modelMap, err
-		}
-		servers = append(servers, serversItemMap)
-	}
-	modelMap[isVPCDnsResolverServers] = servers
-	modelMap[isVPCDnsResolverConfiguration] = model.Configuration
-	modelMap[isVPCDnsResolverType] = model.Type
-	return modelMap, nil
-}
+// for dns patch
 
 func resourceIBMIsVPCMapToVpcdnsPatch(modelMap map[string]interface{}) (*vpcv1.VpcdnsPatch, error) {
 	model := &vpcv1.VpcdnsPatch{}
-	if modelMap[isVPCDnsEnableHub] != nil {
-		model.EnableHub = core.BoolPtr(modelMap[isVPCDnsEnableHub].(bool))
+	if modelMap["enable_hub"] != nil {
+		model.EnableHub = core.BoolPtr(modelMap["enable_hub"].(bool))
 	}
 	if modelMap["resolver"] != nil && len(modelMap["resolver"].([]interface{})) > 0 {
 		ResolverModel, err := resourceIBMIsVPCMapToVpcdnsResolverPatch(modelMap["resolver"].([]interface{})[0].(map[string]interface{}))
@@ -1536,23 +1382,208 @@ func resourceIBMIsVPCMapToVpcdnsResolverPatch(modelMap map[string]interface{}) (
 	if modelMap["type"] != nil && modelMap["type"].(string) != "" {
 		model.Type = core.StringPtr(modelMap["type"].(string))
 	}
-	if modelMap["vpc"] != nil && modelMap["vpc"] != "" {
-		vpc := modelMap["vpc"].(string)
-		vpcModel := &vpcv1.VpcdnsResolverVPCPatch{
-			ID: &vpc,
+	if modelMap["vpc"] != nil && len(modelMap["vpc"].([]interface{})) > 0 {
+		VPCModel, err := resourceIBMIsVPCMapToVpcdnsResolverVPCPatch(modelMap["vpc"].([]interface{})[0].(map[string]interface{}))
+		if err != nil {
+			return model, err
 		}
-		model.VPC = vpcModel
+		model.VPC = VPCModel
 	}
 	return model, nil
 }
 
-func resourceIBMIsVPCMapToDnsServerPrototype(modelMap map[string]interface{}) (*vpcv1.DnsServerPrototype, error) {
-	model := &vpcv1.DnsServerPrototype{}
-	model.Address = core.StringPtr(modelMap[isVPCDnsResolverManualServersAddress].(string))
-	if modelMap[isVPCDnsResolverManualServersZoneAffinity] != nil && modelMap[isVPCDnsResolverManualServersZoneAffinity].(string) != "" {
-		model.ZoneAffinity = &vpcv1.ZoneIdentity{
-			Name: core.StringPtr(modelMap[isVPCDnsResolverManualServersZoneAffinity].(string)),
-		}
+func resourceIBMIsVPCMapToVpcdnsResolverVPCPatch(modelMap map[string]interface{}) (vpcv1.VpcdnsResolverVPCPatchIntf, error) {
+	model := &vpcv1.VpcdnsResolverVPCPatch{}
+	if modelMap["id"] != nil && modelMap["id"].(string) != "" {
+		model.ID = core.StringPtr(modelMap["id"].(string))
+	}
+	if modelMap["crn"] != nil && modelMap["crn"].(string) != "" {
+		model.CRN = core.StringPtr(modelMap["crn"].(string))
+	}
+	if modelMap["href"] != nil && modelMap["href"].(string) != "" {
+		model.Href = core.StringPtr(modelMap["href"].(string))
 	}
 	return model, nil
+}
+
+// for dns read
+
+func resourceIBMIsVPCVpcdnsToMap(model *vpcv1.Vpcdns) (map[string]interface{}, error) {
+	modelMap := make(map[string]interface{})
+	modelMap["enable_hub"] = model.EnableHub
+	modelMap["resolution_binding_count"] = flex.IntValue(model.ResolutionBindingCount)
+	resolverMap, err := resourceIBMIsVPCVpcdnsResolverToMap(model.Resolver)
+	if err != nil {
+		return modelMap, err
+	}
+	modelMap["resolver"] = []map[string]interface{}{resolverMap}
+	return modelMap, nil
+}
+
+func resourceIBMIsVPCVpcdnsResolverToMap(model vpcv1.VpcdnsResolverIntf) (map[string]interface{}, error) {
+	if _, ok := model.(*vpcv1.VpcdnsResolverTypeDelegated); ok {
+		return resourceIBMIsVPCVpcdnsResolverTypeDelegatedToMap(model.(*vpcv1.VpcdnsResolverTypeDelegated))
+	} else if _, ok := model.(*vpcv1.VpcdnsResolverTypeManual); ok {
+		return resourceIBMIsVPCVpcdnsResolverTypeManualToMap(model.(*vpcv1.VpcdnsResolverTypeManual))
+	} else if _, ok := model.(*vpcv1.VpcdnsResolverTypeSystem); ok {
+		return resourceIBMIsVPCVpcdnsResolverTypeSystemToMap(model.(*vpcv1.VpcdnsResolverTypeSystem))
+	} else if _, ok := model.(*vpcv1.VpcdnsResolver); ok {
+		modelMap := make(map[string]interface{})
+		model := model.(*vpcv1.VpcdnsResolver)
+		servers := []map[string]interface{}{}
+		for _, serversItem := range model.Servers {
+			serversItemMap, err := resourceIBMIsVPCDnsServerToMap(&serversItem)
+			if err != nil {
+				return modelMap, err
+			}
+			servers = append(servers, serversItemMap)
+		}
+		modelMap["servers"] = servers
+		modelMap["type"] = model.Type
+		if model.VPC != nil {
+			vpcMap, err := resourceIBMIsVPCVPCReferenceDnsResolverContextToMap(model.VPC)
+			if err != nil {
+				return modelMap, err
+			}
+			modelMap["vpc"] = []map[string]interface{}{vpcMap}
+		}
+		if model.ManualServers != nil {
+			manualServers := []map[string]interface{}{}
+			for _, manualServersItem := range model.ManualServers {
+				manualServersItemMap, err := resourceIBMIsVPCDnsServerToMap(&manualServersItem)
+				if err != nil {
+					return modelMap, err
+				}
+				manualServers = append(manualServers, manualServersItemMap)
+			}
+			modelMap["manual_servers"] = manualServers
+		}
+		if model.Configuration != nil {
+			modelMap["configuration"] = model.Configuration
+		}
+		return modelMap, nil
+	} else {
+		return nil, fmt.Errorf("Unrecognized vpcv1.VpcdnsResolverIntf subtype encountered")
+	}
+}
+
+func resourceIBMIsVPCDnsServerToMap(model *vpcv1.DnsServer) (map[string]interface{}, error) {
+	modelMap := make(map[string]interface{})
+	modelMap["address"] = model.Address
+	if model.ZoneAffinity != nil {
+		zoneAffinity := *model.ZoneAffinity.Name
+		modelMap["zone_affinity"] = zoneAffinity
+	}
+	return modelMap, nil
+}
+
+func resourceIBMIsVPCVpcdnsResolverTypeDelegatedToMap(model *vpcv1.VpcdnsResolverTypeDelegated) (map[string]interface{}, error) {
+	modelMap := make(map[string]interface{})
+	servers := []map[string]interface{}{}
+	for _, serversItem := range model.Servers {
+		serversItemMap, err := resourceIBMIsVPCDnsServerToMap(&serversItem)
+		if err != nil {
+			return modelMap, err
+		}
+		servers = append(servers, serversItemMap)
+	}
+	modelMap["servers"] = servers
+	modelMap["type"] = model.Type
+	vpcMap, err := resourceIBMIsVPCVPCReferenceDnsResolverContextToMap(model.VPC)
+	if err != nil {
+		return modelMap, err
+	}
+	modelMap["vpc"] = []map[string]interface{}{vpcMap}
+	return modelMap, nil
+}
+
+func resourceIBMIsVPCVpcdnsResolverTypeManualToMap(model *vpcv1.VpcdnsResolverTypeManual) (map[string]interface{}, error) {
+	modelMap := make(map[string]interface{})
+	servers := []map[string]interface{}{}
+	for _, serversItem := range model.Servers {
+		serversItemMap, err := resourceIBMIsVPCDnsServerToMap(&serversItem)
+		if err != nil {
+			return modelMap, err
+		}
+		servers = append(servers, serversItemMap)
+	}
+	modelMap["servers"] = servers
+	manualServers := []map[string]interface{}{}
+	for _, manualServersItem := range model.ManualServers {
+		manualServersItemMap, err := resourceIBMIsVPCDnsServerToMap(&manualServersItem)
+		if err != nil {
+			return modelMap, err
+		}
+		manualServers = append(manualServers, manualServersItemMap)
+	}
+	modelMap["manual_servers"] = manualServers
+	modelMap["type"] = model.Type
+	return modelMap, nil
+}
+
+func resourceIBMIsVPCVpcdnsResolverTypeSystemToMap(model *vpcv1.VpcdnsResolverTypeSystem) (map[string]interface{}, error) {
+	modelMap := make(map[string]interface{})
+	servers := []map[string]interface{}{}
+	for _, serversItem := range model.Servers {
+		serversItemMap, err := resourceIBMIsVPCDnsServerToMap(&serversItem)
+		if err != nil {
+			return modelMap, err
+		}
+		servers = append(servers, serversItemMap)
+	}
+	modelMap["servers"] = servers
+	modelMap["configuration"] = model.Configuration
+	modelMap["type"] = model.Type
+	return modelMap, nil
+}
+
+func resourceIBMIsVPCVPCReferenceDnsResolverContextToMap(model *vpcv1.VPCReferenceDnsResolverContext) (map[string]interface{}, error) {
+	modelMap := make(map[string]interface{})
+	modelMap["crn"] = model.CRN
+	if model.Deleted != nil {
+		deletedMap, err := resourceIBMIsVPCVPCReferenceDnsResolverContextDeletedToMap(model.Deleted)
+		if err != nil {
+			return modelMap, err
+		}
+		modelMap["deleted"] = []map[string]interface{}{deletedMap}
+	}
+	modelMap["href"] = model.Href
+	modelMap["id"] = model.ID
+	modelMap["name"] = model.Name
+	if model.Remote != nil {
+		remoteMap, err := resourceIBMIsVPCVPCRemoteToMap(model.Remote)
+		if err != nil {
+			return modelMap, err
+		}
+		modelMap["remote"] = []map[string]interface{}{remoteMap}
+	}
+	modelMap["resource_type"] = model.ResourceType
+	return modelMap, nil
+}
+
+func resourceIBMIsVPCVPCReferenceDnsResolverContextDeletedToMap(model *vpcv1.VPCReferenceDnsResolverContextDeleted) (map[string]interface{}, error) {
+	modelMap := make(map[string]interface{})
+	modelMap["more_info"] = model.MoreInfo
+	return modelMap, nil
+}
+
+func resourceIBMIsVPCVPCRemoteToMap(model *vpcv1.VPCRemote) (map[string]interface{}, error) {
+	modelMap := make(map[string]interface{})
+	if model.Account != nil {
+		accountMap, err := resourceIBMIsVPCAccountReferenceToMap(model.Account)
+		if err != nil {
+			return modelMap, err
+		}
+		modelMap["account"] = []map[string]interface{}{accountMap}
+	}
+	if model.Region != nil {
+		modelMap["region"] = model.Region.Name
+	}
+	return modelMap, nil
+}
+func resourceIBMIsVPCAccountReferenceToMap(model *vpcv1.AccountReference) (map[string]interface{}, error) {
+	modelMap := make(map[string]interface{})
+	modelMap["id"] = model.ID
+	modelMap["resource_type"] = model.ResourceType
+	return modelMap, nil
 }
