@@ -30,9 +30,16 @@ func ResourceIBMIsBackupPolicy() *schema.Resource {
 				Type:        schema.TypeSet,
 				Optional:    true,
 				Computed:    true,
+				Deprecated:  "match_resource_types is being deprecated. Use match_resource_type instead",
 				Set:         schema.HashString,
 				Description: "A resource type this backup policy applies to. Resources that have both a matching type and a matching user tag will be subject to the backup policy.",
 				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+			"match_resource_type": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: "A resource type this backup policy applies to. Resources that have both a matching type and a matching user tag will be subject to the backup policy.",
 			},
 			"match_user_tags": &schema.Schema{
 				Type:        schema.TypeSet,
@@ -141,6 +148,11 @@ func resourceIBMIsBackupPolicyCreate(context context.Context, d *schema.Resource
 
 	if _, ok := d.GetOk("match_resource_types"); ok {
 		createBackupPolicyOptions.SetMatchResourceTypes(flex.ExpandStringList((d.Get("match_resource_types").(*schema.Set)).List()))
+	}
+	if typesIntf, ok := d.GetOk("match_resource_type"); ok {
+		types := typesIntf.(string)
+		typesList := []string{types}
+		createBackupPolicyOptions.SetMatchResourceTypes(typesList)
 	}
 	if _, ok := d.GetOk("match_user_tags"); ok {
 		createBackupPolicyOptions.SetMatchUserTags((flex.ExpandStringList((d.Get("match_user_tags").(*schema.Set)).List())))
