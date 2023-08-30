@@ -105,6 +105,7 @@ func ResourceIBMIsBackupPolicy() *schema.Resource {
 				Type:        schema.TypeList,
 				Computed:    true,
 				Optional:    true,
+				MaxItems:    1,
 				Description: "The scope for this backup policy.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -206,10 +207,13 @@ func resourceIBMIsBackupPolicyCreate(context context.Context, d *schema.Resource
 		}
 		createBackupPolicyOptions.SetResourceGroup(&resourceGroup)
 	}
-
-	if scopeIntf, ok := d.GetOk("scope"); ok {
-		scope := scopeIntf.(vpcv1.BackupPolicyScopePrototype)
-		createBackupPolicyOptions.SetScope(&scope)
+	if _, ok := d.GetOk("scope"); ok {
+		bkpPolicyScopePrototypeMap := d.Get("scope.0").(map[string]interface{})
+		bkpPolicyScopePrototype := vpcv1.BackupPolicyScopePrototype{}
+		if bkpPolicyScopePrototypeMap["crn"] != nil {
+			bkpPolicyScopePrototype.CRN = core.StringPtr(string(bkpPolicyScopePrototypeMap["crn"].(string)))
+		}
+		createBackupPolicyOptions.SetScope(&bkpPolicyScopePrototype)
 	}
 
 	backupPolicy, response, err := vpcClient.CreateBackupPolicyWithContext(context, createBackupPolicyOptions)
