@@ -53,12 +53,23 @@ In addition to all argument references listed, you can access the following attr
 - `id` - The unique identifier of the BackupPolicy.
 - `created_at` - (String) The date and time that the backup policy was created.
 - `crn` - (String) The CRN for this backup policy.
+- `health_reasons` - (List) The reasons for the current health_state (if any).
+
+  Nested scheme for `health_reasons`:
+  - `code` - (String) A snake case string succinctly identifying the reason for this health state.
+  - `message` - (String) An explanation of the reason for this health state.
+  - `more_info` - (String) Link to documentation about the reason for this health state.
+- `health_state` - (String) The health of this resource.
 - `href` - (String) The URL for this backup policy.
 - `last_job_completed_at` - (String) The date and time that the most recent job for this backup policy completed.
 - `lifecycle_state` - (String) The lifecycle state of the backup policy.
 - `resource_type` - (String) The resource type.
 - `version` - Version of the BackupPolicy.
 - `scope` - Scope of this backup policy
+  Nested `scope`:
+    - `crn` - (String) The CRN for this enterprise.
+    - `id` - (String) The unique identifier for this enterprise.
+    - `resource_type` - (String) The resource type.
 
 ## Import
 

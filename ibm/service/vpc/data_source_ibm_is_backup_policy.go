@@ -149,12 +149,28 @@ func DataSourceIBMIsBackupPolicy() *schema.Resource {
 				Computed:    true,
 				Description: "The type of resource referenced.",
 			},
-			"health_reasons": &schema.Schema{
+			"health_reasons": {
 				Type:        schema.TypeList,
 				Computed:    true,
 				Description: "The reasons for the current health_state (if any).",
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"code": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "A snake case string succinctly identifying the reason for this health state.",
+						},
+						"message": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "An explanation of the reason for this health state.",
+						},
+						"more_info": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "Link to documentation about the reason for this health state.",
+						},
+					},
 				},
 			},
 			"health_state": &schema.Schema{
@@ -273,15 +289,21 @@ func dataSourceIBMIsBackupPolicyRead(context context.Context, d *schema.Resource
 			return diag.FromErr(fmt.Errorf("[ERROR] Error setting plans %s", err))
 		}
 	}
-
 	if backupPolicy.HealthReasons != nil {
-		healthReasonCodes := make([]string, 0)
-		for _, healthReason := range backupPolicy.HealthReasons {
-			healthReasonCodes = append(healthReasonCodes, *healthReason.Code)
+		healthReasonsList := make([]map[string]interface{}, 0)
+		for _, sr := range backupPolicy.HealthReasons {
+			currentSR := map[string]interface{}{}
+			if sr.Code != nil && sr.Message != nil {
+				currentSR["code"] = *sr.Code
+				currentSR["message"] = *sr.Message
+				if sr.MoreInfo != nil {
+					currentSR["more_info"] = *sr.Message
+				}
+				healthReasonsList = append(healthReasonsList, currentSR)
+			}
 		}
-		d.Set("health_reasons", healthReasonCodes)
+		d.Set("health_reasons", healthReasonsList)
 	}
-
 	if err = d.Set("health_state", backupPolicy.HealthState); err != nil {
 		return diag.FromErr(fmt.Errorf("[ERROR] Error setting health_state: %s", err))
 	}

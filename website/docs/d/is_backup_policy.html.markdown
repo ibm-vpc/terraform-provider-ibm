@@ -55,7 +55,12 @@ In addition to all argument reference list, you can access the following attribu
     
     Nested `deleted` blocks have the following structure:
     - `more_info` - (String) Link to documentation about deleted resources.
-  - `health_reasons` - (String) The reasons for the current health_state (if any).
+  - `health_reasons` - (List) The reasons for the current health_state (if any).
+
+    Nested scheme for `health_reasons`:
+    - `code` - (String) A snake case string succinctly identifying the reason for this health state.
+    - `message` - (String) An explanation of the reason for this health state.
+    - `more_info` - (String) Link to documentation about the reason for this health state.
   - `health_state` - (String) The health of this resource.
   - `href` - (String) The URL for this backup policy plan.
   - `id` - (String) The unique identifier for this backup policy plan.
