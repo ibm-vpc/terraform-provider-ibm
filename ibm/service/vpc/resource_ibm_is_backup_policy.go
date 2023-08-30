@@ -110,17 +110,19 @@ func ResourceIBMIsBackupPolicy() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"crn": &schema.Schema{
 							Type:        schema.TypeString,
-							Computed:    true,
+							Optional:    true,
 							Description: "The CRN for this enterprise.",
 						},
 						"id": &schema.Schema{
 							Type:        schema.TypeString,
 							Computed:    true,
+							Optional:    true,
 							Description: "The unique identifier for this enterprise or account.",
 						},
 						"resource_type": &schema.Schema{
 							Type:        schema.TypeString,
 							Computed:    true,
+							Optional:    true,
 							Description: "The resource type.",
 						},
 					},
@@ -206,10 +208,7 @@ func resourceIBMIsBackupPolicyCreate(context context.Context, d *schema.Resource
 	}
 
 	if scopeIntf, ok := d.GetOk("scope"); ok {
-		scopeStr := scopeIntf.(string)
-		scope := vpcv1.BackupPolicyScopePrototype{
-			CRN: &scopeStr,
-		}
+		scope := scopeIntf.(vpcv1.BackupPolicyScopePrototype)
 		createBackupPolicyOptions.SetScope(&scope)
 	}
 
