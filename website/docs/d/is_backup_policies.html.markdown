@@ -45,6 +45,8 @@ In addition to all argument reference list, you can access the following attribu
   Nested `backup_policies` blocks have the following structure:
   - `created_at` -  (String) The date and time that the backup policy was created.
   - `crn` - (String) The CRN for this backup policy.
+  - `health_reasons` - (String) The reasons for the current health_state (if any).
+  - `health_state` - (String) The health of this resource.
   - `href` - (String) The URL for this backup policy.
   - `id` - (String) The unique identifier for this backup policy.
   - `last_job_completed_at` - (String) he date and time that the most recent job for this backup policy completed.
