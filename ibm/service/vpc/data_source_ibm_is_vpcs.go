@@ -186,7 +186,7 @@ func DataSourceIBMISVPCs() *schema.Resource {
 													Description: "The type of the DNS resolver used for the VPC.- `delegated`: DNS server addresses are provided by the DNS resolver of the VPC               specified in `dns.resolver.vpc`.- `manual`: DNS server addresses are specified in `dns.resolver.manual_servers`.- `system`: DNS server addresses are provided by the system.",
 												},
 												isVPCDnsResolverVpc: &schema.Schema{
-													Type:        schema.TypeString,
+													Type:        schema.TypeList,
 													Computed:    true,
 													Description: "The VPC whose DNS resolver provides the DNS server addresses for this VPC.The VPC may be remote and therefore may not be directly retrievable.",
 													Elem: &schema.Resource{
