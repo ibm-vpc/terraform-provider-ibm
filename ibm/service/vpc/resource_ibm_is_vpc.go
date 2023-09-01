@@ -155,7 +155,7 @@ func ResourceIBMISVPC() *schema.Resource {
 						},
 						isVPCDnsResolver: &schema.Schema{
 							Type:        schema.TypeList,
-							MinItems:    1,
+							MinItems:    0,
 							MaxItems:    1,
 							Optional:    true,
 							Computed:    true,
@@ -187,95 +187,100 @@ func ResourceIBMISVPC() *schema.Resource {
 										Computed:    true,
 										Description: "The type of the DNS resolver used for the VPC.- `delegated`: DNS server addresses are provided by the DNS resolver of the VPC               specified in `dns.resolver.vpc`.- `manual`: DNS server addresses are specified in `dns.resolver.manual_servers`.- `system`: DNS server addresses are provided by the system.",
 									},
-									isVPCDnsResolverVpc: &schema.Schema{
-										Type:        schema.TypeList,
-										Optional:    true,
-										Computed:    true,
-										MaxItems:    1,
-										Description: "The VPC whose DNS resolver provides the DNS server addresses for this VPC.The VPC may be remote and therefore may not be directly retrievable.",
-										Elem: &schema.Resource{
-											Schema: map[string]*schema.Schema{
-												isVPCDnsResolverVpcCrn: &schema.Schema{
-													Type:          schema.TypeString,
-													Optional:      true,
-													ConflictsWith: []string{"dns.0.resolver.0.vpc.0.id", "dns.0.resolver.0.vpc.0.href"},
-													Computed:      true,
-													Description:   "The CRN for this VPC.",
-												},
-												isVPCDnsResolverVpcDeleted: &schema.Schema{
-													Type:        schema.TypeList,
-													Computed:    true,
-													Description: "If present, this property indicates the referenced resource has been deleted, and providessome supplementary information.",
-													Elem: &schema.Resource{
-														Schema: map[string]*schema.Schema{
-															isVPCDnsResolverVpcDeletedMoreInfo: &schema.Schema{
-																Type:        schema.TypeString,
-																Computed:    true,
-																Description: "Link to documentation about deleted resources.",
-															},
-														},
-													},
-												},
-												isVPCDnsResolverVpcHref: &schema.Schema{
-													Type:          schema.TypeString,
-													Optional:      true,
-													ConflictsWith: []string{"dns.0.resolver.0.vpc.0.id", "dns.0.resolver.0.vpc.0.crn"},
-													Computed:      true,
-													Description:   "The URL for this VPC.",
-												},
-												isVPCDnsResolverVpcId: &schema.Schema{
-													Type:          schema.TypeString,
-													Optional:      true,
-													ConflictsWith: []string{"dns.0.resolver.0.vpc.0.crn", "dns.0.resolver.0.vpc.0.href"},
-													Computed:      true,
-													Description:   "The unique identifier for this VPC.",
-												},
-												isVPCDnsResolverVpcName: &schema.Schema{
-													Type:        schema.TypeString,
-													Computed:    true,
-													Description: "The name for this VPC. The name is unique across all VPCs in the region.",
-												},
-												isVPCDnsResolverVpcRemote: &schema.Schema{
-													Type:        schema.TypeList,
-													Computed:    true,
-													Description: "If present, this property indicates that the resource associated with this referenceis remote and therefore may not be directly retrievable.",
-													Elem: &schema.Resource{
-														Schema: map[string]*schema.Schema{
-															isVPCDnsResolverVpcRemoteAccount: &schema.Schema{
-																Type:        schema.TypeList,
-																Computed:    true,
-																Description: "If present, this property indicates that the referenced resource is remote to thisaccount, and identifies the owning account.",
-																Elem: &schema.Resource{
-																	Schema: map[string]*schema.Schema{
-																		"id": &schema.Schema{
-																			Type:        schema.TypeString,
-																			Computed:    true,
-																			Description: "The unique identifier for this account.",
-																		},
-																		isVPCDnsResolverResourceType: &schema.Schema{
-																			Type:        schema.TypeString,
-																			Computed:    true,
-																			Description: "The resource type.",
-																		},
-																	},
-																},
-															},
-															isVPCDnsResolverVpcRemoteRegion: &schema.Schema{
-																Type:        schema.TypeString,
-																Computed:    true,
-																Description: "Region name. If present, this property indicates that the referenced resource is remote to this region, and identifies the native region.",
-															},
-														},
-													},
-												},
-												isVPCDnsResolverResourceType: &schema.Schema{
-													Type:        schema.TypeString,
-													Computed:    true,
-													Description: "The resource type.",
-												},
-											},
-										},
-									},
+									// "dynamic_parameters": {
+									// 	Type:     schema.TypeMap,
+									// 	Optional: true,
+									// 	Elem:     &schema.Schema{Type: schema.TypeString},
+									// },
+									// isVPCDnsResolverVpc: &schema.Schema{
+									// 	Type: schema.TypeList,
+									// 	// Optional: true,
+									// 	Computed: true,
+									// 	// MaxItems:    1,
+									// 	Description: "The VPC whose DNS resolver provides the DNS server addresses for this VPC.The VPC may be remote and therefore may not be directly retrievable.",
+									// 	Elem: &schema.Resource{
+									// 		Schema: map[string]*schema.Schema{
+									// 			isVPCDnsResolverVpcCrn: &schema.Schema{
+									// 				Type: schema.TypeString,
+									// 				// Optional: true,
+									// 				// ConflictsWith: []string{"dns.0.resolver.0.vpc.0.id", "dns.0.resolver.0.vpc.0.href"},
+									// 				Computed:    true,
+									// 				Description: "The CRN for this VPC.",
+									// 			},
+									// 			// isVPCDnsResolverVpcDeleted: &schema.Schema{
+									// 			// 	Type:        schema.TypeList,
+									// 			// 	Computed:    true,
+									// 			// 	Description: "If present, this property indicates the referenced resource has been deleted, and providessome supplementary information.",
+									// 			// 	Elem: &schema.Resource{
+									// 			// 		Schema: map[string]*schema.Schema{
+									// 			// 			isVPCDnsResolverVpcDeletedMoreInfo: &schema.Schema{
+									// 			// 				Type:        schema.TypeString,
+									// 			// 				Computed:    true,
+									// 			// 				Description: "Link to documentation about deleted resources.",
+									// 			// 			},
+									// 			// 		},
+									// 			// 	},
+									// 			// },
+									// 			isVPCDnsResolverVpcHref: &schema.Schema{
+									// 				Type: schema.TypeString,
+									// 				// Optional: true,
+									// 				// ConflictsWith: []string{"dns.0.resolver.0.vpc.0.id", "dns.0.resolver.0.vpc.0.crn"},
+									// 				Computed:    true,
+									// 				Description: "The URL for this VPC.",
+									// 			},
+									// 			isVPCDnsResolverVpcId: &schema.Schema{
+									// 				Type: schema.TypeString,
+									// 				// Optional: true,
+									// 				// ConflictsWith: []string{"dns.0.resolver.0.vpc.0.crn", "dns.0.resolver.0.vpc.0.href"},
+									// 				Computed:    true,
+									// 				Description: "The unique identifier for this VPC.",
+									// 			},
+									// 			isVPCDnsResolverVpcName: &schema.Schema{
+									// 				Type:        schema.TypeString,
+									// 				Computed:    true,
+									// 				Description: "The name for this VPC. The name is unique across all VPCs in the region.",
+									// 			},
+									// 			// isVPCDnsResolverVpcRemote: &schema.Schema{
+									// 			// 	Type:        schema.TypeList,
+									// 			// 	Computed:    true,
+									// 			// 	Description: "If present, this property indicates that the resource associated with this referenceis remote and therefore may not be directly retrievable.",
+									// 			// 	Elem: &schema.Resource{
+									// 			// 		Schema: map[string]*schema.Schema{
+									// 			// 			isVPCDnsResolverVpcRemoteAccount: &schema.Schema{
+									// 			// 				Type:        schema.TypeList,
+									// 			// 				Computed:    true,
+									// 			// 				Description: "If present, this property indicates that the referenced resource is remote to thisaccount, and identifies the owning account.",
+									// 			// 				Elem: &schema.Resource{
+									// 			// 					Schema: map[string]*schema.Schema{
+									// 			// 						"id": &schema.Schema{
+									// 			// 							Type:        schema.TypeString,
+									// 			// 							Computed:    true,
+									// 			// 							Description: "The unique identifier for this account.",
+									// 			// 						},
+									// 			// 						isVPCDnsResolverResourceType: &schema.Schema{
+									// 			// 							Type:        schema.TypeString,
+									// 			// 							Computed:    true,
+									// 			// 							Description: "The resource type.",
+									// 			// 						},
+									// 			// 					},
+									// 			// 				},
+									// 			// 			},
+									// 			// 			isVPCDnsResolverVpcRemoteRegion: &schema.Schema{
+									// 			// 				Type:        schema.TypeString,
+									// 			// 				Computed:    true,
+									// 			// 				Description: "Region name. If present, this property indicates that the referenced resource is remote to this region, and identifies the native region.",
+									// 			// 			},
+									// 			// 		},
+									// 			// 	},
+									// 			// },
+									// 			isVPCDnsResolverResourceType: &schema.Schema{
+									// 				Type:        schema.TypeString,
+									// 				Computed:    true,
+									// 				Description: "The resource type.",
+									// 			},
+									// 		},
+									// 	},
+									// },
 									isVPCDnsResolverManualServers: &schema.Schema{
 										Type:        schema.TypeList,
 										Optional:    true,
