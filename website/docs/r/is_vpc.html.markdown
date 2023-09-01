@@ -77,7 +77,7 @@ Review the argument references that you can specify for your resource.
   - `enable_hub` - (Optional, Boolean) Indicates whether this VPC is enabled as a DNS name resolution hub.
   - `resolver` - (Optional, List) The zone list this backup policy plan will create snapshot clones in.
     Nested scheme for `resolver`:
-      - `manual_servers` - (Optional, Integer) The DNS servers to use for this VPC, replacing any existing servers. All the DNS servers must either: **have a unique zone_affinity**, or **not have a zone_affinity**.
+      - `manual_servers` - (Optional, List) The DNS servers to use for this VPC, replacing any existing servers. All the DNS servers must either: **have a unique zone_affinity**, or **not have a zone_affinity**.
 
         ~> **Note:** 
           `manual_servers` must be set if and only if `dns.resolver.type` is manual.
@@ -93,11 +93,16 @@ Review the argument references that you can specify for your resource.
               Updating from `manual` requires dns resolver `manual_servers` to be specified as null.<br/>
               Updating to `manual` requires dns resolver `manual_servers` to be specified and not empty.<br/>
               Updating from `delegated` requires `dns.resolver.vpc` to be specified as null.
-      - `vpc` - (Optional, String) The VPC to provide DNS server addresses for this VPC. The specified VPC must be configured with a DNS Services custom resolver and must be in one of this VPC's DNS resolution bindings.
+      - `vpc` - (Optional, List) The VPC to provide DNS server addresses for this VPC. The specified VPC must be configured with a DNS Services custom resolver and must be in one of this VPC's DNS resolution bindings.
 
         ~> **Note:** 
           Specify null to remove an existing VPC.<br/>
           This property must be set if and only if dns resolver type is `delegated`.
+
+        Nested scheme for `vpc`:
+        - `id` - (String) The vpc ID. Mutually exclusive with `href` and `crn`.
+        - `href` - (String) The vpc href. Mutually exclusive with `id` and `crn`.
+        - `crn` - (String) The vpc crn. Mutually exclusive with `id` and `href`.
 
 - `name` - (Required, String) Enter a name for your VPC. No.
 - `no_sg_acl_rules` - (Optional, Bool) If set to true, delete all rules attached to default security group and default network ACL for a new VPC. This attribute has no impact on update. default false.

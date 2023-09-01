@@ -189,14 +189,17 @@ func ResourceIBMISVPC() *schema.Resource {
 									},
 									isVPCDnsResolverVpc: &schema.Schema{
 										Type:        schema.TypeString,
+										Optional:    true,
 										Computed:    true,
 										Description: "The VPC whose DNS resolver provides the DNS server addresses for this VPC.The VPC may be remote and therefore may not be directly retrievable.",
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												isVPCDnsResolverVpcCrn: &schema.Schema{
-													Type:        schema.TypeString,
-													Computed:    true,
-													Description: "The CRN for this VPC.",
+													Type:         schema.TypeString,
+													Optional:     true,
+													ExactlyOneOf: []string{"dns.0.resolver.0.id", "dns.0.resolver.0.crn", "dns.0.resolver.0.href"},
+													Computed:     true,
+													Description:  "The CRN for this VPC.",
 												},
 												isVPCDnsResolverVpcDeleted: &schema.Schema{
 													Type:        schema.TypeList,
@@ -213,14 +216,18 @@ func ResourceIBMISVPC() *schema.Resource {
 													},
 												},
 												isVPCDnsResolverVpcHref: &schema.Schema{
-													Type:        schema.TypeString,
-													Computed:    true,
-													Description: "The URL for this VPC.",
+													Type:         schema.TypeString,
+													Optional:     true,
+													ExactlyOneOf: []string{"dns.0.resolver.0.id", "dns.0.resolver.0.crn", "dns.0.resolver.0.href"},
+													Computed:     true,
+													Description:  "The URL for this VPC.",
 												},
 												isVPCDnsResolverVpcId: &schema.Schema{
-													Type:        schema.TypeString,
-													Computed:    true,
-													Description: "The unique identifier for this VPC.",
+													Type:         schema.TypeString,
+													Optional:     true,
+													ExactlyOneOf: []string{"dns.0.resolver.0.id", "dns.0.resolver.0.crn", "dns.0.resolver.0.href"},
+													Computed:     true,
+													Description:  "The unique identifier for this VPC.",
 												},
 												isVPCDnsResolverVpcName: &schema.Schema{
 													Type:        schema.TypeString,
@@ -1483,14 +1490,27 @@ func resourceIBMIsVPCMapToVpcdnsResolverPatch(modelMap map[string]interface{}) (
 
 func resourceIBMIsVPCMapToVpcdnsResolverVPCPatch(modelMap map[string]interface{}) (vpcv1.VpcdnsResolverVPCPatchIntf, error) {
 	model := &vpcv1.VpcdnsResolverVPCPatch{}
+	var nullString *string
 	if modelMap["id"] != nil && modelMap["id"].(string) != "" {
-		model.ID = core.StringPtr(modelMap["id"].(string))
+		if modelMap["id"].(string) == "null" {
+			model.ID = nullString
+		} else {
+			model.ID = core.StringPtr(modelMap["id"].(string))
+		}
 	}
 	if modelMap["crn"] != nil && modelMap["crn"].(string) != "" {
-		model.CRN = core.StringPtr(modelMap["crn"].(string))
+		if modelMap["crn"].(string) == "null" {
+			model.ID = nullString
+		} else {
+			model.CRN = core.StringPtr(modelMap["crn"].(string))
+		}
 	}
 	if modelMap["href"] != nil && modelMap["href"].(string) != "" {
-		model.Href = core.StringPtr(modelMap["href"].(string))
+		if modelMap["href"].(string) == "null" {
+			model.ID = nullString
+		} else {
+			model.Href = core.StringPtr(modelMap["href"].(string))
+		}
 	}
 	return model, nil
 }
