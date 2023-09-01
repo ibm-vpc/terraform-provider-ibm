@@ -392,8 +392,8 @@ func resourceIBMisVirtualEndpointGatewayUpdate(d *schema.ResourceData, meta inte
 		endpointGatewayPatchModel.Name = core.StringPtr(name)
 	}
 	if d.HasChange(isVirtualEndpointGatewayAllowDnsResolutionBinding) {
-		name := d.Get(isVirtualEndpointGatewayName).(string)
-		endpointGatewayPatchModel.Name = core.StringPtr(name)
+		allowDnsResolutionBinding := d.Get(isVirtualEndpointGatewayAllowDnsResolutionBinding).(bool)
+		endpointGatewayPatchModel.AllowDnsResolutionBinding = &allowDnsResolutionBinding
 	}
 	endpointGatewayPatchModelAsPatch, _ := endpointGatewayPatchModel.AsPatch()
 	opt := sess.NewUpdateEndpointGatewayOptions(d.Id(), endpointGatewayPatchModelAsPatch)
