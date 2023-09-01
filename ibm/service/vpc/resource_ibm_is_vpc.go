@@ -197,7 +197,7 @@ func ResourceIBMISVPC() *schema.Resource {
 												isVPCDnsResolverVpcCrn: &schema.Schema{
 													Type:         schema.TypeString,
 													Optional:     true,
-													ExactlyOneOf: []string{"dns.0.resolver.0.id", "dns.0.resolver.0.crn", "dns.0.resolver.0.href"},
+													ExactlyOneOf: []string{"dns.0.resolver.0.vpc.0.id", "dns.0.resolver.0.vpc.0.crn", "dns.0.resolver.0.vpc.0.href"},
 													Computed:     true,
 													Description:  "The CRN for this VPC.",
 												},
@@ -218,14 +218,14 @@ func ResourceIBMISVPC() *schema.Resource {
 												isVPCDnsResolverVpcHref: &schema.Schema{
 													Type:         schema.TypeString,
 													Optional:     true,
-													ExactlyOneOf: []string{"dns.0.resolver.0.id", "dns.0.resolver.0.crn", "dns.0.resolver.0.href"},
+													ExactlyOneOf: []string{"dns.0.resolver.0.vpc.0.id", "dns.0.resolver.0.vpc.0.crn", "dns.0.resolver.0.vpc.0.href"},
 													Computed:     true,
 													Description:  "The URL for this VPC.",
 												},
 												isVPCDnsResolverVpcId: &schema.Schema{
 													Type:         schema.TypeString,
 													Optional:     true,
-													ExactlyOneOf: []string{"dns.0.resolver.0.id", "dns.0.resolver.0.crn", "dns.0.resolver.0.href"},
+													ExactlyOneOf: []string{"dns.0.resolver.0.vpc.0.id", "dns.0.resolver.0.vpc.0.crn", "dns.0.resolver.0.vpc.0.href"},
 													Computed:     true,
 													Description:  "The unique identifier for this VPC.",
 												},
