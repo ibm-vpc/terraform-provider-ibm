@@ -67,6 +67,7 @@ var CertCRN string
 var UpdatedCertCRN string
 var SecretCRN string
 var SecretCRN2 string
+var EnterpriseCRN string
 var InstanceCRN string
 var SecretGroupID string
 var RegionName string
@@ -1405,6 +1406,11 @@ func init() {
 	if IesApiKey == "" {
 		IesApiKey = "xxxxxxxxxxxx" // pragma: allowlist secret
 		fmt.Println("[WARN] Set the environment variable IES_API_KEY for testing Event streams targets, the tests will fail if this is not set")
+	}
+
+	EnterpriseCRN = os.Getenv("ENTERPRISE_CRN")
+	if EnterpriseCRN == "" {
+		fmt.Println("[WARN] Set the environment variable ENTERPRISE_CRN for testing enterprise backup policy, the tests will fail if this is not set")
 	}
 
 	CeResourceGroupID = os.Getenv("IBM_CODE_ENGINE_RESOURCE_GROUP_ID")

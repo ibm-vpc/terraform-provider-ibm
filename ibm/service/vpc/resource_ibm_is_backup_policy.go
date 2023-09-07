@@ -182,17 +182,6 @@ func ResourceIBMIsBackupPolicyValidator() *validate.ResourceValidator {
 			MaxValueLength:             128,
 		},
 	)
-	validateSchema = append(validateSchema,
-		validate.ValidateSchema{
-			Identifier:                 "scope",
-			ValidateFunctionIdentifier: validate.ValidateRegexpLen,
-			Type:                       validate.TypeString,
-			Optional:                   true,
-			Regexp:                     `^.*$`,
-			MinValueLength:             9,
-			MaxValueLength:             512,
-		},
-	)
 	resourceValidator := validate.ResourceValidator{ResourceName: "ibm_is_backup_policy", Schema: validateSchema}
 	return &resourceValidator
 }
