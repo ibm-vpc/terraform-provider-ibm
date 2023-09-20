@@ -31,6 +31,18 @@ resource "ibm_is_backup_policy" "example" {
 }
 ```
 
+## Example Usage (enterprise baas)
+
+```terraform
+resource "ibm_is_backup_policy" "ent-baas-example1" {
+  match_user_tags = ["tag1"]
+  name            = "example-backup-policy"
+  scope {
+    crn = "crn:v1:bluemix:public:is:us-south:a/123456::reservation:7187-ba49df72-37b8-43ac-98da-f8e029de0e63"
+  }
+}
+```
+
 ## Argument Reference
 
 Review the argument reference that you can specify for your resource.
