@@ -43,6 +43,44 @@ func TestAccIBMISVPCDatasource_basic(t *testing.T) {
 		},
 	})
 }
+func TestAccIBMISVPCDatasource_dns(t *testing.T) {
+	var vpc string
+	name := acc.ISDelegegatedVPC
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { acc.TestAccPreCheck(t) },
+		Providers:    acc.TestAccProviders,
+		CheckDestroy: testAccCheckIBMISVPCDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testDSCheckIBMISVPCDnsConfig(name),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckIBMISVPCExists("ibm_is_vpc.testacc_vpc", vpc),
+					resource.TestCheckResourceAttr(
+						"data.ibm_is_vpc.ds_vpc", "name", name),
+					resource.TestCheckResourceAttrSet("data.ibm_is_vpc.ds_vpc", "cse_source_addresses.#"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_vpc.ds_vpc", "default_network_acl_name"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_vpc.ds_vpc", "default_security_group_name"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_vpc.ds_vpc", "default_routing_table_name"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_vpc.ds_vpc", "cse_source_addresses.#"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_vpc.ds_vpc", "default_network_acl_name"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_vpc.ds_vpc", "default_security_group_name"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_vpc.ds_vpc", "default_routing_table_name"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_vpc.ds_vpc", "dns.#"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_vpc.ds_vpc", "dns.0.enable_hub"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_vpc.ds_vpc", "dns.0.resolution_binding_count"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_vpc.ds_vpc", "dns.0.resolver.#"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_vpc.ds_vpc", "dns.0.resolver.0.servers.#"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_vpc.ds_vpc", "dns.0.resolver.0.type"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_vpc.ds_vpc", "dns.0.resolver.0.vpc.#"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_vpc.ds_vpc", "dns.0.resolver.0.vpc.0.crn"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_vpc.ds_vpc", "dns.0.resolver.0.vpc.0.id"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_vpc.ds_vpc", "dns.0.resolver.0.vpc.0.resource_type"),
+				),
+			},
+		},
+	})
+}
 
 func TestAccIBMISVPCDatasource_securityGroup(t *testing.T) {
 	var vpc string
@@ -79,6 +117,15 @@ func testDSCheckIBMISVPCConfig(name string) string {
 		}
 		data "ibm_is_vpc" "ds_vpc_by_id" {
 		    identifier = "${ibm_is_vpc.testacc_vpc.id}"
+		}`, name)
+}
+func testDSCheckIBMISVPCDnsConfig(name string) string {
+	return fmt.Sprintf(`
+		resource "ibm_is_vpc" "testacc_vpc" {
+			name = "for-test"
+		}
+		data "ibm_is_vpc" "ds_vpc" {
+		    name = "%s"
 		}`, name)
 }
 
