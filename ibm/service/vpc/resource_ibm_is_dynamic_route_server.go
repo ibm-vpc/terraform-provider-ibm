@@ -542,17 +542,17 @@ func resourceIBMIsDynamicRouteServerMapToReservedIPIdentity(modelMap map[string]
 	return model, nil
 }
 
-func resourceIBMIsDynamicRouteServerMapToReservedIPIdentityReservedIPIdentityByID(modelMap map[string]interface{}) (*vpcv1.ReservedIPIdentityReservedIPIdentityByID, error) {
-	model := &vpcv1.ReservedIPIdentityReservedIPIdentityByID{}
-	model.ID = core.StringPtr(modelMap["id"].(string))
-	return model, nil
-}
+// func resourceIBMIsDynamicRouteServerMapToReservedIPIdentityReservedIPIdentityByID(modelMap map[string]interface{}) (*vpcv1.ReservedIPIdentityReservedIPIdentityByID, error) {
+// 	model := &vpcv1.ReservedIPIdentityReservedIPIdentityByID{}
+// 	model.ID = core.StringPtr(modelMap["id"].(string))
+// 	return model, nil
+// }
 
-func resourceIBMIsDynamicRouteServerMapToReservedIPIdentityReservedIPIdentityByHref(modelMap map[string]interface{}) (*vpcv1.ReservedIPIdentityReservedIPIdentityByHref, error) {
-	model := &vpcv1.ReservedIPIdentityReservedIPIdentityByHref{}
-	model.Href = core.StringPtr(modelMap["href"].(string))
-	return model, nil
-}
+// func resourceIBMIsDynamicRouteServerMapToReservedIPIdentityReservedIPIdentityByHref(modelMap map[string]interface{}) (*vpcv1.ReservedIPIdentityReservedIPIdentityByHref, error) {
+// 	model := &vpcv1.ReservedIPIdentityReservedIPIdentityByHref{}
+// 	model.Href = core.StringPtr(modelMap["href"].(string))
+// 	return model, nil
+// }
 
 func resourceIBMIsDynamicRouteServerMapToVPCIdentity(modelMap map[string]interface{}) (vpcv1.VPCIdentityIntf, error) {
 	model := &vpcv1.VPCIdentity{}
