@@ -38,7 +38,7 @@ import (
 // VpcV1 : The IBM Cloud Virtual Private Cloud (VPC) API can be used to programmatically provision and manage virtual
 // server instances, along with subnets, volumes, load balancers, and more.
 //
-// API Version: 2022-09-20
+// API Version: 2022-09-13
 type VpcV1 struct {
 	Service *core.BaseService
 
@@ -47,7 +47,7 @@ type VpcV1 struct {
 	generation *int64
 
 	// The API version, in format `YYYY-MM-DD`. For the API behavior documented here, specify any date between `2022-09-13`
-	// and `2023-09-20`.
+	// and `2023-09-25`.
 	Version *string
 }
 
@@ -64,7 +64,7 @@ type VpcV1Options struct {
 	Authenticator core.Authenticator
 
 	// The API version, in format `YYYY-MM-DD`. For the API behavior documented here, specify any date between `2022-09-13`
-	// and `2023-09-20`.
+	// and `2023-09-25`.
 	Version *string
 }
 
@@ -6691,8 +6691,8 @@ func (vpc *VpcV1) AddInstanceNetworkInterfaceFloatingIPWithContext(ctx context.C
 	return
 }
 
-// ListInstanceNetworkInterfaceIps : List all reserved IPs bound to an instance network interface
-// This request lists all reserved IPs bound to an instance network interface.
+// ListInstanceNetworkInterfaceIps : List the primary reserved IP for an instance network interface
+// This request lists the primary reserved IP for an instance network interface.
 func (vpc *VpcV1) ListInstanceNetworkInterfaceIps(listInstanceNetworkInterfaceIpsOptions *ListInstanceNetworkInterfaceIpsOptions) (result *ReservedIPCollectionInstanceNetworkInterfaceContext, response *core.DetailedResponse, err error) {
 	return vpc.ListInstanceNetworkInterfaceIpsWithContext(context.Background(), listInstanceNetworkInterfaceIpsOptions)
 }
@@ -6761,9 +6761,8 @@ func (vpc *VpcV1) ListInstanceNetworkInterfaceIpsWithContext(ctx context.Context
 	return
 }
 
-// GetInstanceNetworkInterfaceIP : Retrieve bound reserved IP
-// This request retrieves the specified reserved IP address if it is bound to the network interface and instance
-// specified in the URL.
+// GetInstanceNetworkInterfaceIP : Retrieve the primary reserved IP
+// This request retrieves the primary reserved IP for an instance network interface.
 func (vpc *VpcV1) GetInstanceNetworkInterfaceIP(getInstanceNetworkInterfaceIPOptions *GetInstanceNetworkInterfaceIPOptions) (result *ReservedIP, response *core.DetailedResponse, err error) {
 	return vpc.GetInstanceNetworkInterfaceIPWithContext(context.Background(), getInstanceNetworkInterfaceIPOptions)
 }
@@ -11212,15 +11211,6 @@ func (vpc *VpcV1) ListBareMetalServersWithContext(ctx context.Context, listBareM
 	if listBareMetalServersOptions.VPCName != nil {
 		builder.AddQuery("vpc.name", fmt.Sprint(*listBareMetalServersOptions.VPCName))
 	}
-	if listBareMetalServersOptions.NetworkInterfacesSubnetID != nil {
-		builder.AddQuery("network_interfaces.subnet.id", fmt.Sprint(*listBareMetalServersOptions.NetworkInterfacesSubnetID))
-	}
-	if listBareMetalServersOptions.NetworkInterfacesSubnetCRN != nil {
-		builder.AddQuery("network_interfaces.subnet.crn", fmt.Sprint(*listBareMetalServersOptions.NetworkInterfacesSubnetCRN))
-	}
-	if listBareMetalServersOptions.NetworkInterfacesSubnetName != nil {
-		builder.AddQuery("network_interfaces.subnet.name", fmt.Sprint(*listBareMetalServersOptions.NetworkInterfacesSubnetName))
-	}
 
 	request, err := builder.Build()
 	if err != nil {
@@ -12205,8 +12195,8 @@ func (vpc *VpcV1) AddBareMetalServerNetworkInterfaceFloatingIPWithContext(ctx co
 	return
 }
 
-// ListBareMetalServerNetworkInterfaceIps : List all reserved IPs bound to a bare metal server network interface
-// This request lists all reserved IPs bound to a bare metal server network interface.
+// ListBareMetalServerNetworkInterfaceIps : List the primary reserved IP for a bare metal server network interface
+// This request lists the primary reserved IP for a bare metal server network interface.
 func (vpc *VpcV1) ListBareMetalServerNetworkInterfaceIps(listBareMetalServerNetworkInterfaceIpsOptions *ListBareMetalServerNetworkInterfaceIpsOptions) (result *ReservedIPCollectionBareMetalServerNetworkInterfaceContext, response *core.DetailedResponse, err error) {
 	return vpc.ListBareMetalServerNetworkInterfaceIpsWithContext(context.Background(), listBareMetalServerNetworkInterfaceIpsOptions)
 }
@@ -12269,9 +12259,8 @@ func (vpc *VpcV1) ListBareMetalServerNetworkInterfaceIpsWithContext(ctx context.
 	return
 }
 
-// GetBareMetalServerNetworkInterfaceIP : Retrieve bound reserved IP
-// This request retrieves the specified reserved IP address if it is bound to the network interface for the bare metal
-// server specified in the URL.
+// GetBareMetalServerNetworkInterfaceIP : Retrieve the primary reserved IP
+// This request retrieves the primary reserved IP for a bare metal server network interface.
 func (vpc *VpcV1) GetBareMetalServerNetworkInterfaceIP(getBareMetalServerNetworkInterfaceIPOptions *GetBareMetalServerNetworkInterfaceIPOptions) (result *ReservedIP, response *core.DetailedResponse, err error) {
 	return vpc.GetBareMetalServerNetworkInterfaceIPWithContext(context.Background(), getBareMetalServerNetworkInterfaceIPOptions)
 }
@@ -17394,9 +17383,10 @@ func (vpc *VpcV1) ListSecurityGroupTargetsWithContext(ctx context.Context, listS
 // least one other security group.  The specified target identifier can be:
 //
 // - A bare metal server network interface identifier
+// - A dynamic route server identifier
 // - A virtual network interface identifier
 // - A VPN server identifier
-// - An application load balancer identifier
+// - A load balancer identifier
 // - An endpoint gateway identifier
 // - An instance network interface identifier
 //
@@ -17521,9 +17511,10 @@ func (vpc *VpcV1) GetSecurityGroupTargetWithContext(ctx context.Context, getSecu
 // This request adds a resource to an existing security group. The specified target identifier can be:
 //
 // - A bare metal server network interface identifier
+// - A dynamic route server identifier
 // - A virtual network interface identifier
 // - A VPN server identifier
-// - An application load balancer identifier
+// - A load balancer identifier
 // - An endpoint gateway identifier
 // - An instance network interface identifier
 //
@@ -17582,6 +17573,1143 @@ func (vpc *VpcV1) CreateSecurityGroupTargetBindingWithContext(ctx context.Contex
 	}
 	if rawResponse != nil {
 		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalSecurityGroupTargetReference)
+		if err != nil {
+			return
+		}
+		response.Result = result
+	}
+
+	return
+}
+
+// ListDynamicRouteServers : List all dynamic route servers
+// This request lists all dynamic route servers in the region. A dynamic route server is a logical abstraction of a BGP
+// router with multiple bounded reserved IPs. The dynamic route server uses all bound reserved IPs to establish BGP
+// sessions with the configured peers.
+func (vpc *VpcV1) ListDynamicRouteServers(listDynamicRouteServersOptions *ListDynamicRouteServersOptions) (result *DynamicRouteServerCollection, response *core.DetailedResponse, err error) {
+	return vpc.ListDynamicRouteServersWithContext(context.Background(), listDynamicRouteServersOptions)
+}
+
+// ListDynamicRouteServersWithContext is an alternate form of the ListDynamicRouteServers method which supports a Context parameter
+func (vpc *VpcV1) ListDynamicRouteServersWithContext(ctx context.Context, listDynamicRouteServersOptions *ListDynamicRouteServersOptions) (result *DynamicRouteServerCollection, response *core.DetailedResponse, err error) {
+	err = core.ValidateStruct(listDynamicRouteServersOptions, "listDynamicRouteServersOptions")
+	if err != nil {
+		return
+	}
+
+	builder := core.NewRequestBuilder(core.GET)
+	builder = builder.WithContext(ctx)
+	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
+	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/dynamic_route_servers`, nil)
+	if err != nil {
+		return
+	}
+
+	for headerName, headerValue := range listDynamicRouteServersOptions.Headers {
+		builder.AddHeader(headerName, headerValue)
+	}
+
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListDynamicRouteServers")
+	for headerName, headerValue := range sdkHeaders {
+		builder.AddHeader(headerName, headerValue)
+	}
+	builder.AddHeader("Accept", "application/json")
+
+	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
+	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
+	if listDynamicRouteServersOptions.Name != nil {
+		builder.AddQuery("name", fmt.Sprint(*listDynamicRouteServersOptions.Name))
+	}
+	if listDynamicRouteServersOptions.Start != nil {
+		builder.AddQuery("start", fmt.Sprint(*listDynamicRouteServersOptions.Start))
+	}
+	if listDynamicRouteServersOptions.Limit != nil {
+		builder.AddQuery("limit", fmt.Sprint(*listDynamicRouteServersOptions.Limit))
+	}
+	if listDynamicRouteServersOptions.ResourceGroupID != nil {
+		builder.AddQuery("resource_group.id", fmt.Sprint(*listDynamicRouteServersOptions.ResourceGroupID))
+	}
+	if listDynamicRouteServersOptions.Sort != nil {
+		builder.AddQuery("sort", fmt.Sprint(*listDynamicRouteServersOptions.Sort))
+	}
+
+	request, err := builder.Build()
+	if err != nil {
+		return
+	}
+
+	var rawResponse map[string]json.RawMessage
+	response, err = vpc.Service.Request(request, &rawResponse)
+	if err != nil {
+		return
+	}
+	if rawResponse != nil {
+		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalDynamicRouteServerCollection)
+		if err != nil {
+			return
+		}
+		response.Result = result
+	}
+
+	return
+}
+
+// CreateDynamicRouteServer : Create a dynamic route server
+// This request creates a new dynamic route server. The prototype object is structured in the same way as a retrieved
+// dynamic route server, and contains the information necessary to create the new dynamic route server.
+func (vpc *VpcV1) CreateDynamicRouteServer(createDynamicRouteServerOptions *CreateDynamicRouteServerOptions) (result *DynamicRouteServer, response *core.DetailedResponse, err error) {
+	return vpc.CreateDynamicRouteServerWithContext(context.Background(), createDynamicRouteServerOptions)
+}
+
+// CreateDynamicRouteServerWithContext is an alternate form of the CreateDynamicRouteServer method which supports a Context parameter
+func (vpc *VpcV1) CreateDynamicRouteServerWithContext(ctx context.Context, createDynamicRouteServerOptions *CreateDynamicRouteServerOptions) (result *DynamicRouteServer, response *core.DetailedResponse, err error) {
+	err = core.ValidateNotNil(createDynamicRouteServerOptions, "createDynamicRouteServerOptions cannot be nil")
+	if err != nil {
+		return
+	}
+	err = core.ValidateStruct(createDynamicRouteServerOptions, "createDynamicRouteServerOptions")
+	if err != nil {
+		return
+	}
+
+	builder := core.NewRequestBuilder(core.POST)
+	builder = builder.WithContext(ctx)
+	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
+	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/dynamic_route_servers`, nil)
+	if err != nil {
+		return
+	}
+
+	for headerName, headerValue := range createDynamicRouteServerOptions.Headers {
+		builder.AddHeader(headerName, headerValue)
+	}
+
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateDynamicRouteServer")
+	for headerName, headerValue := range sdkHeaders {
+		builder.AddHeader(headerName, headerValue)
+	}
+	builder.AddHeader("Accept", "application/json")
+	builder.AddHeader("Content-Type", "application/json")
+
+	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
+	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
+
+	body := make(map[string]interface{})
+	if createDynamicRouteServerOptions.Asn != nil {
+		body["asn"] = createDynamicRouteServerOptions.Asn
+	}
+	if createDynamicRouteServerOptions.Ips != nil {
+		body["ips"] = createDynamicRouteServerOptions.Ips
+	}
+	if createDynamicRouteServerOptions.VPC != nil {
+		body["vpc"] = createDynamicRouteServerOptions.VPC
+	}
+	if createDynamicRouteServerOptions.Name != nil {
+		body["name"] = createDynamicRouteServerOptions.Name
+	}
+	if createDynamicRouteServerOptions.RedistributeServiceRoutes != nil {
+		body["redistribute_service_routes"] = createDynamicRouteServerOptions.RedistributeServiceRoutes
+	}
+	if createDynamicRouteServerOptions.RedistributeSubnets != nil {
+		body["redistribute_subnets"] = createDynamicRouteServerOptions.RedistributeSubnets
+	}
+	if createDynamicRouteServerOptions.RedistributeUserRoutes != nil {
+		body["redistribute_user_routes"] = createDynamicRouteServerOptions.RedistributeUserRoutes
+	}
+	if createDynamicRouteServerOptions.ResourceGroup != nil {
+		body["resource_group"] = createDynamicRouteServerOptions.ResourceGroup
+	}
+	if createDynamicRouteServerOptions.SecurityGroups != nil {
+		body["security_groups"] = createDynamicRouteServerOptions.SecurityGroups
+	}
+	_, err = builder.SetBodyContentJSON(body)
+	if err != nil {
+		return
+	}
+
+	request, err := builder.Build()
+	if err != nil {
+		return
+	}
+
+	var rawResponse map[string]json.RawMessage
+	response, err = vpc.Service.Request(request, &rawResponse)
+	if err != nil {
+		return
+	}
+	if rawResponse != nil {
+		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalDynamicRouteServer)
+		if err != nil {
+			return
+		}
+		response.Result = result
+	}
+
+	return
+}
+
+// ListDynamicRouteServerIps : List all reserved IPs bound to a dynamic route server
+// This request lists all reserved IPs bound to a dynamic route server.
+func (vpc *VpcV1) ListDynamicRouteServerIps(listDynamicRouteServerIpsOptions *ListDynamicRouteServerIpsOptions) (result *ReservedIPCollectionDynamicRouteServerContext, response *core.DetailedResponse, err error) {
+	return vpc.ListDynamicRouteServerIpsWithContext(context.Background(), listDynamicRouteServerIpsOptions)
+}
+
+// ListDynamicRouteServerIpsWithContext is an alternate form of the ListDynamicRouteServerIps method which supports a Context parameter
+func (vpc *VpcV1) ListDynamicRouteServerIpsWithContext(ctx context.Context, listDynamicRouteServerIpsOptions *ListDynamicRouteServerIpsOptions) (result *ReservedIPCollectionDynamicRouteServerContext, response *core.DetailedResponse, err error) {
+	err = core.ValidateNotNil(listDynamicRouteServerIpsOptions, "listDynamicRouteServerIpsOptions cannot be nil")
+	if err != nil {
+		return
+	}
+	err = core.ValidateStruct(listDynamicRouteServerIpsOptions, "listDynamicRouteServerIpsOptions")
+	if err != nil {
+		return
+	}
+
+	pathParamsMap := map[string]string{
+		"dynamic_route_server_id": *listDynamicRouteServerIpsOptions.DynamicRouteServerID,
+	}
+
+	builder := core.NewRequestBuilder(core.GET)
+	builder = builder.WithContext(ctx)
+	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
+	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/dynamic_route_servers/{dynamic_route_server_id}/ips`, pathParamsMap)
+	if err != nil {
+		return
+	}
+
+	for headerName, headerValue := range listDynamicRouteServerIpsOptions.Headers {
+		builder.AddHeader(headerName, headerValue)
+	}
+
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListDynamicRouteServerIps")
+	for headerName, headerValue := range sdkHeaders {
+		builder.AddHeader(headerName, headerValue)
+	}
+	builder.AddHeader("Accept", "application/json")
+
+	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
+	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
+	if listDynamicRouteServerIpsOptions.Start != nil {
+		builder.AddQuery("start", fmt.Sprint(*listDynamicRouteServerIpsOptions.Start))
+	}
+	if listDynamicRouteServerIpsOptions.Limit != nil {
+		builder.AddQuery("limit", fmt.Sprint(*listDynamicRouteServerIpsOptions.Limit))
+	}
+	if listDynamicRouteServerIpsOptions.Sort != nil {
+		builder.AddQuery("sort", fmt.Sprint(*listDynamicRouteServerIpsOptions.Sort))
+	}
+
+	request, err := builder.Build()
+	if err != nil {
+		return
+	}
+
+	var rawResponse map[string]json.RawMessage
+	response, err = vpc.Service.Request(request, &rawResponse)
+	if err != nil {
+		return
+	}
+	if rawResponse != nil {
+		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalReservedIPCollectionDynamicRouteServerContext)
+		if err != nil {
+			return
+		}
+		response.Result = result
+	}
+
+	return
+}
+
+// RemoveDynamicRouteServerIP : Unbind a reserved IP from a dynamic route server
+// This request unbinds the specified reserved IP from the specified dynamic route server. If the reserved IP has
+// `auto_delete` set to `true`, the reserved IP will be deleted.
+func (vpc *VpcV1) RemoveDynamicRouteServerIP(removeDynamicRouteServerIPOptions *RemoveDynamicRouteServerIPOptions) (response *core.DetailedResponse, err error) {
+	return vpc.RemoveDynamicRouteServerIPWithContext(context.Background(), removeDynamicRouteServerIPOptions)
+}
+
+// RemoveDynamicRouteServerIPWithContext is an alternate form of the RemoveDynamicRouteServerIP method which supports a Context parameter
+func (vpc *VpcV1) RemoveDynamicRouteServerIPWithContext(ctx context.Context, removeDynamicRouteServerIPOptions *RemoveDynamicRouteServerIPOptions) (response *core.DetailedResponse, err error) {
+	err = core.ValidateNotNil(removeDynamicRouteServerIPOptions, "removeDynamicRouteServerIPOptions cannot be nil")
+	if err != nil {
+		return
+	}
+	err = core.ValidateStruct(removeDynamicRouteServerIPOptions, "removeDynamicRouteServerIPOptions")
+	if err != nil {
+		return
+	}
+
+	pathParamsMap := map[string]string{
+		"dynamic_route_server_id": *removeDynamicRouteServerIPOptions.DynamicRouteServerID,
+		"id":                      *removeDynamicRouteServerIPOptions.ID,
+	}
+
+	builder := core.NewRequestBuilder(core.DELETE)
+	builder = builder.WithContext(ctx)
+	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
+	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/dynamic_route_servers/{dynamic_route_server_id}/ips/{id}`, pathParamsMap)
+	if err != nil {
+		return
+	}
+
+	for headerName, headerValue := range removeDynamicRouteServerIPOptions.Headers {
+		builder.AddHeader(headerName, headerValue)
+	}
+
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "RemoveDynamicRouteServerIP")
+	for headerName, headerValue := range sdkHeaders {
+		builder.AddHeader(headerName, headerValue)
+	}
+
+	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
+	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
+
+	request, err := builder.Build()
+	if err != nil {
+		return
+	}
+
+	response, err = vpc.Service.Request(request, nil)
+
+	return
+}
+
+// GetDynamicRouteServerIP : Retrieve a reserved IP bound to a dynamic route server
+// This request retrieves the specified reserved IP address if it is bound to the dynamic route server specified in the
+// URL.
+func (vpc *VpcV1) GetDynamicRouteServerIP(getDynamicRouteServerIPOptions *GetDynamicRouteServerIPOptions) (result *ReservedIPReference, response *core.DetailedResponse, err error) {
+	return vpc.GetDynamicRouteServerIPWithContext(context.Background(), getDynamicRouteServerIPOptions)
+}
+
+// GetDynamicRouteServerIPWithContext is an alternate form of the GetDynamicRouteServerIP method which supports a Context parameter
+func (vpc *VpcV1) GetDynamicRouteServerIPWithContext(ctx context.Context, getDynamicRouteServerIPOptions *GetDynamicRouteServerIPOptions) (result *ReservedIPReference, response *core.DetailedResponse, err error) {
+	err = core.ValidateNotNil(getDynamicRouteServerIPOptions, "getDynamicRouteServerIPOptions cannot be nil")
+	if err != nil {
+		return
+	}
+	err = core.ValidateStruct(getDynamicRouteServerIPOptions, "getDynamicRouteServerIPOptions")
+	if err != nil {
+		return
+	}
+
+	pathParamsMap := map[string]string{
+		"dynamic_route_server_id": *getDynamicRouteServerIPOptions.DynamicRouteServerID,
+		"id":                      *getDynamicRouteServerIPOptions.ID,
+	}
+
+	builder := core.NewRequestBuilder(core.GET)
+	builder = builder.WithContext(ctx)
+	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
+	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/dynamic_route_servers/{dynamic_route_server_id}/ips/{id}`, pathParamsMap)
+	if err != nil {
+		return
+	}
+
+	for headerName, headerValue := range getDynamicRouteServerIPOptions.Headers {
+		builder.AddHeader(headerName, headerValue)
+	}
+
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetDynamicRouteServerIP")
+	for headerName, headerValue := range sdkHeaders {
+		builder.AddHeader(headerName, headerValue)
+	}
+	builder.AddHeader("Accept", "application/json")
+
+	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
+	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
+
+	request, err := builder.Build()
+	if err != nil {
+		return
+	}
+
+	var rawResponse map[string]json.RawMessage
+	response, err = vpc.Service.Request(request, &rawResponse)
+	if err != nil {
+		return
+	}
+	if rawResponse != nil {
+		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalReservedIPReference)
+		if err != nil {
+			return
+		}
+		response.Result = result
+	}
+
+	return
+}
+
+// AddDynamicRouteServerIP : Bind a reserved IP to a dynamic route server
+// This request binds the specified reserved IP to the specified dynamic route server. The reserved IP must currently be
+// unbound.
+func (vpc *VpcV1) AddDynamicRouteServerIP(addDynamicRouteServerIPOptions *AddDynamicRouteServerIPOptions) (result *ReservedIPReference, response *core.DetailedResponse, err error) {
+	return vpc.AddDynamicRouteServerIPWithContext(context.Background(), addDynamicRouteServerIPOptions)
+}
+
+// AddDynamicRouteServerIPWithContext is an alternate form of the AddDynamicRouteServerIP method which supports a Context parameter
+func (vpc *VpcV1) AddDynamicRouteServerIPWithContext(ctx context.Context, addDynamicRouteServerIPOptions *AddDynamicRouteServerIPOptions) (result *ReservedIPReference, response *core.DetailedResponse, err error) {
+	err = core.ValidateNotNil(addDynamicRouteServerIPOptions, "addDynamicRouteServerIPOptions cannot be nil")
+	if err != nil {
+		return
+	}
+	err = core.ValidateStruct(addDynamicRouteServerIPOptions, "addDynamicRouteServerIPOptions")
+	if err != nil {
+		return
+	}
+
+	pathParamsMap := map[string]string{
+		"dynamic_route_server_id": *addDynamicRouteServerIPOptions.DynamicRouteServerID,
+		"id":                      *addDynamicRouteServerIPOptions.ID,
+	}
+
+	builder := core.NewRequestBuilder(core.PUT)
+	builder = builder.WithContext(ctx)
+	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
+	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/dynamic_route_servers/{dynamic_route_server_id}/ips/{id}`, pathParamsMap)
+	if err != nil {
+		return
+	}
+
+	for headerName, headerValue := range addDynamicRouteServerIPOptions.Headers {
+		builder.AddHeader(headerName, headerValue)
+	}
+
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "AddDynamicRouteServerIP")
+	for headerName, headerValue := range sdkHeaders {
+		builder.AddHeader(headerName, headerValue)
+	}
+	builder.AddHeader("Accept", "application/json")
+
+	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
+	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
+
+	request, err := builder.Build()
+	if err != nil {
+		return
+	}
+
+	var rawResponse map[string]json.RawMessage
+	response, err = vpc.Service.Request(request, &rawResponse)
+	if err != nil {
+		return
+	}
+	if rawResponse != nil {
+		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalReservedIPReference)
+		if err != nil {
+			return
+		}
+		response.Result = result
+	}
+
+	return
+}
+
+// ListDynamicRouteServerPeers : List all peers for a dynamic route server
+// This request lists all peers for the dynamic route server. A peer refers to the BGP configuration and sessions
+// established between the dynamic route server and peer router to exchange route information.
+func (vpc *VpcV1) ListDynamicRouteServerPeers(listDynamicRouteServerPeersOptions *ListDynamicRouteServerPeersOptions) (result *DynamicRouteServerPeerCollection, response *core.DetailedResponse, err error) {
+	return vpc.ListDynamicRouteServerPeersWithContext(context.Background(), listDynamicRouteServerPeersOptions)
+}
+
+// ListDynamicRouteServerPeersWithContext is an alternate form of the ListDynamicRouteServerPeers method which supports a Context parameter
+func (vpc *VpcV1) ListDynamicRouteServerPeersWithContext(ctx context.Context, listDynamicRouteServerPeersOptions *ListDynamicRouteServerPeersOptions) (result *DynamicRouteServerPeerCollection, response *core.DetailedResponse, err error) {
+	err = core.ValidateNotNil(listDynamicRouteServerPeersOptions, "listDynamicRouteServerPeersOptions cannot be nil")
+	if err != nil {
+		return
+	}
+	err = core.ValidateStruct(listDynamicRouteServerPeersOptions, "listDynamicRouteServerPeersOptions")
+	if err != nil {
+		return
+	}
+
+	pathParamsMap := map[string]string{
+		"dynamic_route_server_id": *listDynamicRouteServerPeersOptions.DynamicRouteServerID,
+	}
+
+	builder := core.NewRequestBuilder(core.GET)
+	builder = builder.WithContext(ctx)
+	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
+	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/dynamic_route_servers/{dynamic_route_server_id}/peers`, pathParamsMap)
+	if err != nil {
+		return
+	}
+
+	for headerName, headerValue := range listDynamicRouteServerPeersOptions.Headers {
+		builder.AddHeader(headerName, headerValue)
+	}
+
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListDynamicRouteServerPeers")
+	for headerName, headerValue := range sdkHeaders {
+		builder.AddHeader(headerName, headerValue)
+	}
+	builder.AddHeader("Accept", "application/json")
+
+	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
+	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
+	if listDynamicRouteServerPeersOptions.Start != nil {
+		builder.AddQuery("start", fmt.Sprint(*listDynamicRouteServerPeersOptions.Start))
+	}
+	if listDynamicRouteServerPeersOptions.Limit != nil {
+		builder.AddQuery("limit", fmt.Sprint(*listDynamicRouteServerPeersOptions.Limit))
+	}
+	if listDynamicRouteServerPeersOptions.Sort != nil {
+		builder.AddQuery("sort", fmt.Sprint(*listDynamicRouteServerPeersOptions.Sort))
+	}
+
+	request, err := builder.Build()
+	if err != nil {
+		return
+	}
+
+	var rawResponse map[string]json.RawMessage
+	response, err = vpc.Service.Request(request, &rawResponse)
+	if err != nil {
+		return
+	}
+	if rawResponse != nil {
+		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalDynamicRouteServerPeerCollection)
+		if err != nil {
+			return
+		}
+		response.Result = result
+	}
+
+	return
+}
+
+// CreateDynamicRouteServerPeer : Create a peer for a dynamic route server
+// This request creates a new dynamic route server peer. The prototype object is structured in the same way as a
+// retrieved dynamic route server peer, and contains the information necessary to create the new dynamic route server
+// peer.
+func (vpc *VpcV1) CreateDynamicRouteServerPeer(createDynamicRouteServerPeerOptions *CreateDynamicRouteServerPeerOptions) (result *DynamicRouteServerPeer, response *core.DetailedResponse, err error) {
+	return vpc.CreateDynamicRouteServerPeerWithContext(context.Background(), createDynamicRouteServerPeerOptions)
+}
+
+// CreateDynamicRouteServerPeerWithContext is an alternate form of the CreateDynamicRouteServerPeer method which supports a Context parameter
+func (vpc *VpcV1) CreateDynamicRouteServerPeerWithContext(ctx context.Context, createDynamicRouteServerPeerOptions *CreateDynamicRouteServerPeerOptions) (result *DynamicRouteServerPeer, response *core.DetailedResponse, err error) {
+	err = core.ValidateNotNil(createDynamicRouteServerPeerOptions, "createDynamicRouteServerPeerOptions cannot be nil")
+	if err != nil {
+		return
+	}
+	err = core.ValidateStruct(createDynamicRouteServerPeerOptions, "createDynamicRouteServerPeerOptions")
+	if err != nil {
+		return
+	}
+
+	pathParamsMap := map[string]string{
+		"dynamic_route_server_id": *createDynamicRouteServerPeerOptions.DynamicRouteServerID,
+	}
+
+	builder := core.NewRequestBuilder(core.POST)
+	builder = builder.WithContext(ctx)
+	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
+	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/dynamic_route_servers/{dynamic_route_server_id}/peers`, pathParamsMap)
+	if err != nil {
+		return
+	}
+
+	for headerName, headerValue := range createDynamicRouteServerPeerOptions.Headers {
+		builder.AddHeader(headerName, headerValue)
+	}
+
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateDynamicRouteServerPeer")
+	for headerName, headerValue := range sdkHeaders {
+		builder.AddHeader(headerName, headerValue)
+	}
+	builder.AddHeader("Accept", "application/json")
+	builder.AddHeader("Content-Type", "application/json")
+
+	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
+	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
+
+	body := make(map[string]interface{})
+	if createDynamicRouteServerPeerOptions.Asn != nil {
+		body["asn"] = createDynamicRouteServerPeerOptions.Asn
+	}
+	if createDynamicRouteServerPeerOptions.IP != nil {
+		body["ip"] = createDynamicRouteServerPeerOptions.IP
+	}
+	if createDynamicRouteServerPeerOptions.Bfd != nil {
+		body["bfd"] = createDynamicRouteServerPeerOptions.Bfd
+	}
+	if createDynamicRouteServerPeerOptions.Md5AuthenticationKey != nil {
+		body["md5_authentication_key"] = createDynamicRouteServerPeerOptions.Md5AuthenticationKey
+	}
+	if createDynamicRouteServerPeerOptions.Name != nil {
+		body["name"] = createDynamicRouteServerPeerOptions.Name
+	}
+	_, err = builder.SetBodyContentJSON(body)
+	if err != nil {
+		return
+	}
+
+	request, err := builder.Build()
+	if err != nil {
+		return
+	}
+
+	var rawResponse map[string]json.RawMessage
+	response, err = vpc.Service.Request(request, &rawResponse)
+	if err != nil {
+		return
+	}
+	if rawResponse != nil {
+		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalDynamicRouteServerPeer)
+		if err != nil {
+			return
+		}
+		response.Result = result
+	}
+
+	return
+}
+
+// DeleteDynamicRouteServerPeer : Delete a dynamic route server peer
+// This request deletes a dynamic route server peer. This operation cannot be reversed.
+//
+// All routes that were learned from the dynamic route server peer will be removed.
+func (vpc *VpcV1) DeleteDynamicRouteServerPeer(deleteDynamicRouteServerPeerOptions *DeleteDynamicRouteServerPeerOptions) (result *DynamicRouteServerPeer, response *core.DetailedResponse, err error) {
+	return vpc.DeleteDynamicRouteServerPeerWithContext(context.Background(), deleteDynamicRouteServerPeerOptions)
+}
+
+// DeleteDynamicRouteServerPeerWithContext is an alternate form of the DeleteDynamicRouteServerPeer method which supports a Context parameter
+func (vpc *VpcV1) DeleteDynamicRouteServerPeerWithContext(ctx context.Context, deleteDynamicRouteServerPeerOptions *DeleteDynamicRouteServerPeerOptions) (result *DynamicRouteServerPeer, response *core.DetailedResponse, err error) {
+	err = core.ValidateNotNil(deleteDynamicRouteServerPeerOptions, "deleteDynamicRouteServerPeerOptions cannot be nil")
+	if err != nil {
+		return
+	}
+	err = core.ValidateStruct(deleteDynamicRouteServerPeerOptions, "deleteDynamicRouteServerPeerOptions")
+	if err != nil {
+		return
+	}
+
+	pathParamsMap := map[string]string{
+		"dynamic_route_server_id": *deleteDynamicRouteServerPeerOptions.DynamicRouteServerID,
+		"id":                      *deleteDynamicRouteServerPeerOptions.ID,
+	}
+
+	builder := core.NewRequestBuilder(core.DELETE)
+	builder = builder.WithContext(ctx)
+	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
+	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/dynamic_route_servers/{dynamic_route_server_id}/peers/{id}`, pathParamsMap)
+	if err != nil {
+		return
+	}
+
+	for headerName, headerValue := range deleteDynamicRouteServerPeerOptions.Headers {
+		builder.AddHeader(headerName, headerValue)
+	}
+
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteDynamicRouteServerPeer")
+	for headerName, headerValue := range sdkHeaders {
+		builder.AddHeader(headerName, headerValue)
+	}
+	builder.AddHeader("Accept", "application/json")
+	if deleteDynamicRouteServerPeerOptions.IfMatch != nil {
+		builder.AddHeader("If-Match", fmt.Sprint(*deleteDynamicRouteServerPeerOptions.IfMatch))
+	}
+
+	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
+	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
+
+	request, err := builder.Build()
+	if err != nil {
+		return
+	}
+
+	var rawResponse map[string]json.RawMessage
+	response, err = vpc.Service.Request(request, &rawResponse)
+	if err != nil {
+		return
+	}
+	if rawResponse != nil {
+		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalDynamicRouteServerPeer)
+		if err != nil {
+			return
+		}
+		response.Result = result
+	}
+
+	return
+}
+
+// GetDynamicRouteServerPeer : Retrieve a dynamic route server peer
+// This request retrieves a single dynamic route server peer specified by the identifier in the URL.
+func (vpc *VpcV1) GetDynamicRouteServerPeer(getDynamicRouteServerPeerOptions *GetDynamicRouteServerPeerOptions) (result *DynamicRouteServerPeer, response *core.DetailedResponse, err error) {
+	return vpc.GetDynamicRouteServerPeerWithContext(context.Background(), getDynamicRouteServerPeerOptions)
+}
+
+// GetDynamicRouteServerPeerWithContext is an alternate form of the GetDynamicRouteServerPeer method which supports a Context parameter
+func (vpc *VpcV1) GetDynamicRouteServerPeerWithContext(ctx context.Context, getDynamicRouteServerPeerOptions *GetDynamicRouteServerPeerOptions) (result *DynamicRouteServerPeer, response *core.DetailedResponse, err error) {
+	err = core.ValidateNotNil(getDynamicRouteServerPeerOptions, "getDynamicRouteServerPeerOptions cannot be nil")
+	if err != nil {
+		return
+	}
+	err = core.ValidateStruct(getDynamicRouteServerPeerOptions, "getDynamicRouteServerPeerOptions")
+	if err != nil {
+		return
+	}
+
+	pathParamsMap := map[string]string{
+		"dynamic_route_server_id": *getDynamicRouteServerPeerOptions.DynamicRouteServerID,
+		"id":                      *getDynamicRouteServerPeerOptions.ID,
+	}
+
+	builder := core.NewRequestBuilder(core.GET)
+	builder = builder.WithContext(ctx)
+	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
+	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/dynamic_route_servers/{dynamic_route_server_id}/peers/{id}`, pathParamsMap)
+	if err != nil {
+		return
+	}
+
+	for headerName, headerValue := range getDynamicRouteServerPeerOptions.Headers {
+		builder.AddHeader(headerName, headerValue)
+	}
+
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetDynamicRouteServerPeer")
+	for headerName, headerValue := range sdkHeaders {
+		builder.AddHeader(headerName, headerValue)
+	}
+	builder.AddHeader("Accept", "application/json")
+
+	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
+	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
+
+	request, err := builder.Build()
+	if err != nil {
+		return
+	}
+
+	var rawResponse map[string]json.RawMessage
+	response, err = vpc.Service.Request(request, &rawResponse)
+	if err != nil {
+		return
+	}
+	if rawResponse != nil {
+		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalDynamicRouteServerPeer)
+		if err != nil {
+			return
+		}
+		response.Result = result
+	}
+
+	return
+}
+
+// UpdateDynamicRouteServerPeer : Update a dynamic route server peer
+// This request updates a dynamic route server peer with the information in a provided dynamic route server peer patch.
+// The dynamic route server peer patch object is structured in the same way as a retrieved dynamic route server peer and
+// contains only the information to be updated.
+func (vpc *VpcV1) UpdateDynamicRouteServerPeer(updateDynamicRouteServerPeerOptions *UpdateDynamicRouteServerPeerOptions) (result *DynamicRouteServerPeer, response *core.DetailedResponse, err error) {
+	return vpc.UpdateDynamicRouteServerPeerWithContext(context.Background(), updateDynamicRouteServerPeerOptions)
+}
+
+// UpdateDynamicRouteServerPeerWithContext is an alternate form of the UpdateDynamicRouteServerPeer method which supports a Context parameter
+func (vpc *VpcV1) UpdateDynamicRouteServerPeerWithContext(ctx context.Context, updateDynamicRouteServerPeerOptions *UpdateDynamicRouteServerPeerOptions) (result *DynamicRouteServerPeer, response *core.DetailedResponse, err error) {
+	err = core.ValidateNotNil(updateDynamicRouteServerPeerOptions, "updateDynamicRouteServerPeerOptions cannot be nil")
+	if err != nil {
+		return
+	}
+	err = core.ValidateStruct(updateDynamicRouteServerPeerOptions, "updateDynamicRouteServerPeerOptions")
+	if err != nil {
+		return
+	}
+
+	pathParamsMap := map[string]string{
+		"dynamic_route_server_id": *updateDynamicRouteServerPeerOptions.DynamicRouteServerID,
+		"id":                      *updateDynamicRouteServerPeerOptions.ID,
+	}
+
+	builder := core.NewRequestBuilder(core.PATCH)
+	builder = builder.WithContext(ctx)
+	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
+	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/dynamic_route_servers/{dynamic_route_server_id}/peers/{id}`, pathParamsMap)
+	if err != nil {
+		return
+	}
+
+	for headerName, headerValue := range updateDynamicRouteServerPeerOptions.Headers {
+		builder.AddHeader(headerName, headerValue)
+	}
+
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateDynamicRouteServerPeer")
+	for headerName, headerValue := range sdkHeaders {
+		builder.AddHeader(headerName, headerValue)
+	}
+	builder.AddHeader("Accept", "application/json")
+	builder.AddHeader("Content-Type", "application/merge-patch+json")
+	if updateDynamicRouteServerPeerOptions.IfMatch != nil {
+		builder.AddHeader("If-Match", fmt.Sprint(*updateDynamicRouteServerPeerOptions.IfMatch))
+	}
+
+	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
+	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
+
+	_, err = builder.SetBodyContentJSON(updateDynamicRouteServerPeerOptions.DynamicRouteServerPeerPatch)
+	if err != nil {
+		return
+	}
+
+	request, err := builder.Build()
+	if err != nil {
+		return
+	}
+
+	var rawResponse map[string]json.RawMessage
+	response, err = vpc.Service.Request(request, &rawResponse)
+	if err != nil {
+		return
+	}
+	if rawResponse != nil {
+		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalDynamicRouteServerPeer)
+		if err != nil {
+			return
+		}
+		response.Result = result
+	}
+
+	return
+}
+
+// ListDynamicRouteServerRoutes : List all routes in a dynamic route server
+// This request lists all routes in the dynamic route server. A route is destination CIDR block with the BGP attributes
+// of a path to this destination.
+func (vpc *VpcV1) ListDynamicRouteServerRoutes(listDynamicRouteServerRoutesOptions *ListDynamicRouteServerRoutesOptions) (result *DynamicRouteServerRouteCollection, response *core.DetailedResponse, err error) {
+	return vpc.ListDynamicRouteServerRoutesWithContext(context.Background(), listDynamicRouteServerRoutesOptions)
+}
+
+// ListDynamicRouteServerRoutesWithContext is an alternate form of the ListDynamicRouteServerRoutes method which supports a Context parameter
+func (vpc *VpcV1) ListDynamicRouteServerRoutesWithContext(ctx context.Context, listDynamicRouteServerRoutesOptions *ListDynamicRouteServerRoutesOptions) (result *DynamicRouteServerRouteCollection, response *core.DetailedResponse, err error) {
+	err = core.ValidateNotNil(listDynamicRouteServerRoutesOptions, "listDynamicRouteServerRoutesOptions cannot be nil")
+	if err != nil {
+		return
+	}
+	err = core.ValidateStruct(listDynamicRouteServerRoutesOptions, "listDynamicRouteServerRoutesOptions")
+	if err != nil {
+		return
+	}
+
+	pathParamsMap := map[string]string{
+		"dynamic_route_server_id": *listDynamicRouteServerRoutesOptions.DynamicRouteServerID,
+	}
+
+	builder := core.NewRequestBuilder(core.GET)
+	builder = builder.WithContext(ctx)
+	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
+	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/dynamic_route_servers/{dynamic_route_server_id}/routes`, pathParamsMap)
+	if err != nil {
+		return
+	}
+
+	for headerName, headerValue := range listDynamicRouteServerRoutesOptions.Headers {
+		builder.AddHeader(headerName, headerValue)
+	}
+
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListDynamicRouteServerRoutes")
+	for headerName, headerValue := range sdkHeaders {
+		builder.AddHeader(headerName, headerValue)
+	}
+	builder.AddHeader("Accept", "application/json")
+
+	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
+	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
+	if listDynamicRouteServerRoutesOptions.Start != nil {
+		builder.AddQuery("start", fmt.Sprint(*listDynamicRouteServerRoutesOptions.Start))
+	}
+	if listDynamicRouteServerRoutesOptions.Limit != nil {
+		builder.AddQuery("limit", fmt.Sprint(*listDynamicRouteServerRoutesOptions.Limit))
+	}
+	if listDynamicRouteServerRoutesOptions.Sort != nil {
+		builder.AddQuery("sort", fmt.Sprint(*listDynamicRouteServerRoutesOptions.Sort))
+	}
+	if listDynamicRouteServerRoutesOptions.PeerID != nil {
+		builder.AddQuery("peer.id", fmt.Sprint(*listDynamicRouteServerRoutesOptions.PeerID))
+	}
+	if listDynamicRouteServerRoutesOptions.Type != nil {
+		builder.AddQuery("type", fmt.Sprint(*listDynamicRouteServerRoutesOptions.Type))
+	}
+
+	request, err := builder.Build()
+	if err != nil {
+		return
+	}
+
+	var rawResponse map[string]json.RawMessage
+	response, err = vpc.Service.Request(request, &rawResponse)
+	if err != nil {
+		return
+	}
+	if rawResponse != nil {
+		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalDynamicRouteServerRouteCollection)
+		if err != nil {
+			return
+		}
+		response.Result = result
+	}
+
+	return
+}
+
+// GetDynamicRouteServerRoute : Retrieve a dynamic route server route
+// This request retrieves a single dynamic route server route specified by the identifier in the URL path.
+func (vpc *VpcV1) GetDynamicRouteServerRoute(getDynamicRouteServerRouteOptions *GetDynamicRouteServerRouteOptions) (result *DynamicRouteServerRoute, response *core.DetailedResponse, err error) {
+	return vpc.GetDynamicRouteServerRouteWithContext(context.Background(), getDynamicRouteServerRouteOptions)
+}
+
+// GetDynamicRouteServerRouteWithContext is an alternate form of the GetDynamicRouteServerRoute method which supports a Context parameter
+func (vpc *VpcV1) GetDynamicRouteServerRouteWithContext(ctx context.Context, getDynamicRouteServerRouteOptions *GetDynamicRouteServerRouteOptions) (result *DynamicRouteServerRoute, response *core.DetailedResponse, err error) {
+	err = core.ValidateNotNil(getDynamicRouteServerRouteOptions, "getDynamicRouteServerRouteOptions cannot be nil")
+	if err != nil {
+		return
+	}
+	err = core.ValidateStruct(getDynamicRouteServerRouteOptions, "getDynamicRouteServerRouteOptions")
+	if err != nil {
+		return
+	}
+
+	pathParamsMap := map[string]string{
+		"dynamic_route_server_id": *getDynamicRouteServerRouteOptions.DynamicRouteServerID,
+		"id":                      *getDynamicRouteServerRouteOptions.ID,
+	}
+
+	builder := core.NewRequestBuilder(core.GET)
+	builder = builder.WithContext(ctx)
+	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
+	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/dynamic_route_servers/{dynamic_route_server_id}/routes/{id}`, pathParamsMap)
+	if err != nil {
+		return
+	}
+
+	for headerName, headerValue := range getDynamicRouteServerRouteOptions.Headers {
+		builder.AddHeader(headerName, headerValue)
+	}
+
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetDynamicRouteServerRoute")
+	for headerName, headerValue := range sdkHeaders {
+		builder.AddHeader(headerName, headerValue)
+	}
+	builder.AddHeader("Accept", "application/json")
+
+	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
+	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
+
+	request, err := builder.Build()
+	if err != nil {
+		return
+	}
+
+	var rawResponse map[string]json.RawMessage
+	response, err = vpc.Service.Request(request, &rawResponse)
+	if err != nil {
+		return
+	}
+	if rawResponse != nil {
+		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalDynamicRouteServerRoute)
+		if err != nil {
+			return
+		}
+		response.Result = result
+	}
+
+	return
+}
+
+// DeleteDynamicRouteServer : Delete a dynamic route server
+// This request deletes a dynamic route server. This operation cannot be reversed. For this request to succeed, the
+// dynamic route server must not have any peers.
+//
+// Reserved IPs that were bound to the dynamic route server will be released if their
+// `auto_delete` property is set to true.
+func (vpc *VpcV1) DeleteDynamicRouteServer(deleteDynamicRouteServerOptions *DeleteDynamicRouteServerOptions) (result *DynamicRouteServer, response *core.DetailedResponse, err error) {
+	return vpc.DeleteDynamicRouteServerWithContext(context.Background(), deleteDynamicRouteServerOptions)
+}
+
+// DeleteDynamicRouteServerWithContext is an alternate form of the DeleteDynamicRouteServer method which supports a Context parameter
+func (vpc *VpcV1) DeleteDynamicRouteServerWithContext(ctx context.Context, deleteDynamicRouteServerOptions *DeleteDynamicRouteServerOptions) (result *DynamicRouteServer, response *core.DetailedResponse, err error) {
+	err = core.ValidateNotNil(deleteDynamicRouteServerOptions, "deleteDynamicRouteServerOptions cannot be nil")
+	if err != nil {
+		return
+	}
+	err = core.ValidateStruct(deleteDynamicRouteServerOptions, "deleteDynamicRouteServerOptions")
+	if err != nil {
+		return
+	}
+
+	pathParamsMap := map[string]string{
+		"id": *deleteDynamicRouteServerOptions.ID,
+	}
+
+	builder := core.NewRequestBuilder(core.DELETE)
+	builder = builder.WithContext(ctx)
+	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
+	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/dynamic_route_servers/{id}`, pathParamsMap)
+	if err != nil {
+		return
+	}
+
+	for headerName, headerValue := range deleteDynamicRouteServerOptions.Headers {
+		builder.AddHeader(headerName, headerValue)
+	}
+
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteDynamicRouteServer")
+	for headerName, headerValue := range sdkHeaders {
+		builder.AddHeader(headerName, headerValue)
+	}
+	builder.AddHeader("Accept", "application/json")
+	if deleteDynamicRouteServerOptions.IfMatch != nil {
+		builder.AddHeader("If-Match", fmt.Sprint(*deleteDynamicRouteServerOptions.IfMatch))
+	}
+
+	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
+	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
+
+	request, err := builder.Build()
+	if err != nil {
+		return
+	}
+
+	var rawResponse map[string]json.RawMessage
+	response, err = vpc.Service.Request(request, &rawResponse)
+	if err != nil {
+		return
+	}
+	if rawResponse != nil {
+		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalDynamicRouteServer)
+		if err != nil {
+			return
+		}
+		response.Result = result
+	}
+
+	return
+}
+
+// GetDynamicRouteServer : Retrieve a dynamic route server
+// This request retrieves a single dynamic route server specified by the identifier in the URL.
+func (vpc *VpcV1) GetDynamicRouteServer(getDynamicRouteServerOptions *GetDynamicRouteServerOptions) (result *DynamicRouteServer, response *core.DetailedResponse, err error) {
+	return vpc.GetDynamicRouteServerWithContext(context.Background(), getDynamicRouteServerOptions)
+}
+
+// GetDynamicRouteServerWithContext is an alternate form of the GetDynamicRouteServer method which supports a Context parameter
+func (vpc *VpcV1) GetDynamicRouteServerWithContext(ctx context.Context, getDynamicRouteServerOptions *GetDynamicRouteServerOptions) (result *DynamicRouteServer, response *core.DetailedResponse, err error) {
+	err = core.ValidateNotNil(getDynamicRouteServerOptions, "getDynamicRouteServerOptions cannot be nil")
+	if err != nil {
+		return
+	}
+	err = core.ValidateStruct(getDynamicRouteServerOptions, "getDynamicRouteServerOptions")
+	if err != nil {
+		return
+	}
+
+	pathParamsMap := map[string]string{
+		"id": *getDynamicRouteServerOptions.ID,
+	}
+
+	builder := core.NewRequestBuilder(core.GET)
+	builder = builder.WithContext(ctx)
+	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
+	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/dynamic_route_servers/{id}`, pathParamsMap)
+	if err != nil {
+		return
+	}
+
+	for headerName, headerValue := range getDynamicRouteServerOptions.Headers {
+		builder.AddHeader(headerName, headerValue)
+	}
+
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetDynamicRouteServer")
+	for headerName, headerValue := range sdkHeaders {
+		builder.AddHeader(headerName, headerValue)
+	}
+	builder.AddHeader("Accept", "application/json")
+
+	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
+	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
+
+	request, err := builder.Build()
+	if err != nil {
+		return
+	}
+
+	var rawResponse map[string]json.RawMessage
+	response, err = vpc.Service.Request(request, &rawResponse)
+	if err != nil {
+		return
+	}
+	if rawResponse != nil {
+		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalDynamicRouteServer)
+		if err != nil {
+			return
+		}
+		response.Result = result
+	}
+
+	return
+}
+
+// UpdateDynamicRouteServer : Update a dynamic route server
+// This request updates the properties of an existing dynamic route server.
+func (vpc *VpcV1) UpdateDynamicRouteServer(updateDynamicRouteServerOptions *UpdateDynamicRouteServerOptions) (result *DynamicRouteServer, response *core.DetailedResponse, err error) {
+	return vpc.UpdateDynamicRouteServerWithContext(context.Background(), updateDynamicRouteServerOptions)
+}
+
+// UpdateDynamicRouteServerWithContext is an alternate form of the UpdateDynamicRouteServer method which supports a Context parameter
+func (vpc *VpcV1) UpdateDynamicRouteServerWithContext(ctx context.Context, updateDynamicRouteServerOptions *UpdateDynamicRouteServerOptions) (result *DynamicRouteServer, response *core.DetailedResponse, err error) {
+	err = core.ValidateNotNil(updateDynamicRouteServerOptions, "updateDynamicRouteServerOptions cannot be nil")
+	if err != nil {
+		return
+	}
+	err = core.ValidateStruct(updateDynamicRouteServerOptions, "updateDynamicRouteServerOptions")
+	if err != nil {
+		return
+	}
+
+	pathParamsMap := map[string]string{
+		"id": *updateDynamicRouteServerOptions.ID,
+	}
+
+	builder := core.NewRequestBuilder(core.PATCH)
+	builder = builder.WithContext(ctx)
+	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
+	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/dynamic_route_servers/{id}`, pathParamsMap)
+	if err != nil {
+		return
+	}
+
+	for headerName, headerValue := range updateDynamicRouteServerOptions.Headers {
+		builder.AddHeader(headerName, headerValue)
+	}
+
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateDynamicRouteServer")
+	for headerName, headerValue := range sdkHeaders {
+		builder.AddHeader(headerName, headerValue)
+	}
+	builder.AddHeader("Accept", "application/json")
+	builder.AddHeader("Content-Type", "application/merge-patch+json")
+	if updateDynamicRouteServerOptions.IfMatch != nil {
+		builder.AddHeader("If-Match", fmt.Sprint(*updateDynamicRouteServerOptions.IfMatch))
+	}
+
+	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
+	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
+
+	_, err = builder.SetBodyContentJSON(updateDynamicRouteServerOptions.DynamicRouteServerPatch)
+	if err != nil {
+		return
+	}
+
+	request, err := builder.Build()
+	if err != nil {
+		return
+	}
+
+	var rawResponse map[string]json.RawMessage
+	response, err = vpc.Service.Request(request, &rawResponse)
+	if err != nil {
+		return
+	}
+	if rawResponse != nil {
+		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalDynamicRouteServer)
 		if err != nil {
 			return
 		}
@@ -23859,6 +24987,44 @@ func (options *AddBareMetalServerNetworkInterfaceFloatingIPOptions) SetHeaders(p
 	return options
 }
 
+// AddDynamicRouteServerIPOptions : The AddDynamicRouteServerIP options.
+type AddDynamicRouteServerIPOptions struct {
+	// The dynamic route server identifier.
+	DynamicRouteServerID *string `json:"dynamic_route_server_id" validate:"required,ne="`
+
+	// The reserved IP identifier.
+	ID *string `json:"id" validate:"required,ne="`
+
+	// Allows users to set headers on API requests
+	Headers map[string]string
+}
+
+// NewAddDynamicRouteServerIPOptions : Instantiate AddDynamicRouteServerIPOptions
+func (*VpcV1) NewAddDynamicRouteServerIPOptions(dynamicRouteServerID string, id string) *AddDynamicRouteServerIPOptions {
+	return &AddDynamicRouteServerIPOptions{
+		DynamicRouteServerID: core.StringPtr(dynamicRouteServerID),
+		ID:                   core.StringPtr(id),
+	}
+}
+
+// SetDynamicRouteServerID : Allow user to set DynamicRouteServerID
+func (_options *AddDynamicRouteServerIPOptions) SetDynamicRouteServerID(dynamicRouteServerID string) *AddDynamicRouteServerIPOptions {
+	_options.DynamicRouteServerID = core.StringPtr(dynamicRouteServerID)
+	return _options
+}
+
+// SetID : Allow user to set ID
+func (_options *AddDynamicRouteServerIPOptions) SetID(id string) *AddDynamicRouteServerIPOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
+}
+
+// SetHeaders : Allow user to set Headers
+func (options *AddDynamicRouteServerIPOptions) SetHeaders(param map[string]string) *AddDynamicRouteServerIPOptions {
+	options.Headers = param
+	return options
+}
+
 // AddEndpointGatewayIPOptions : The AddEndpointGatewayIP options.
 type AddEndpointGatewayIPOptions struct {
 	// The endpoint gateway identifier.
@@ -28468,7 +29634,7 @@ type CreateBackupPolicyOptions struct {
 	Plans []BackupPolicyPlanPrototype `json:"plans,omitempty"`
 
 	// The resource group to use. If unspecified, the account's [default resource
-	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) is used.
+	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) will be used.
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
 
 	// Allows users to set headers on API requests
@@ -28753,7 +29919,7 @@ type CreateBareMetalServerOptions struct {
 	NetworkInterfaces []BareMetalServerNetworkInterfacePrototypeIntf `json:"network_interfaces,omitempty"`
 
 	// The resource group to use. If unspecified, the account's [default resource
-	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) is used.
+	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) will be used.
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
 
 	TrustedPlatformModule *BareMetalServerTrustedPlatformModulePrototype `json:"trusted_platform_module,omitempty"`
@@ -28860,7 +30026,7 @@ type CreateDedicatedHostGroupOptions struct {
 	Name *string `json:"name,omitempty"`
 
 	// The resource group to use. If unspecified, the account's [default resource
-	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) is used.
+	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) will be used.
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
 
 	// Allows users to set headers on API requests
@@ -28948,6 +30114,218 @@ func (options *CreateDedicatedHostOptions) SetHeaders(param map[string]string) *
 	return options
 }
 
+// CreateDynamicRouteServerOptions : The CreateDynamicRouteServer options.
+type CreateDynamicRouteServerOptions struct {
+	// The local autonomous system number (ASN) for this dynamic route server.
+	Asn *int64 `json:"asn" validate:"required"`
+
+	// The reserved IPs to bind to this dynamic route server.
+	Ips []ReservedIPIdentityIntf `json:"ips" validate:"required"`
+
+	// The VPC this dynamic route server will serve. The VPC must not already be served by
+	// another dynamic router server.
+	VPC VPCIdentityIntf `json:"vpc" validate:"required"`
+
+	// The name for this dynamic route server. The name must not be used by another dynamic route server in the region. If
+	// unspecified, the name will be a hyphenated list of randomly-selected words.
+	Name *string `json:"name,omitempty"`
+
+	// If set to `true`, routes that meet the following conditions will be redistributed through the routing protocol to
+	// all peers:
+	//
+	// - The route's property origin is `service`
+	// - The route is in a routing table in the VPC that this dynamic route server is serving
+	// - The dynamic route server's peer IP is in a subnet that is attached to the routing
+	//   table with the route
+	// - The dynamic route server's peer IP is in a subnet with the same zone as the route
+	//
+	// Additionally, the CIDRs `161.26.0.0/16` (IBM services) and `166.8.0.0/14` (Cloud Service Endpoints) will also be
+	// redistributed to all peers through the routing protocol.
+	RedistributeServiceRoutes *bool `json:"redistribute_service_routes,omitempty"`
+
+	// If set to `true`, subnets that meet the following conditions will be redistributed through the routing protocol to
+	// all peers:
+	//
+	// - The subnet is attached to a routing table in the VPC this dynamic route server
+	//    is serving.
+	// - The routing table's `accept_routes_from` property includes the value
+	//   `dynamic_route_server`
+	//
+	// The routing protocol will redistribute routes with these subnets as route destinations.
+	RedistributeSubnets *bool `json:"redistribute_subnets,omitempty"`
+
+	// If set to `true`, routes that meet the following conditions will be redistributed through the routing protocol to
+	// all peers:
+	//
+	// - The route's property origin is `user`
+	// - The route is in a routing table in the VPC that this dynamic route server is serving
+	// - The dynamic route server's peer IP is in a subnet that is attached to the routing
+	//   table with the route
+	// - The dynamic route server's peer IP is in a subnet with the same zone as the route.
+	RedistributeUserRoutes *bool `json:"redistribute_user_routes,omitempty"`
+
+	// The resource group to use. If unspecified, the account's [default resource
+	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) will be used.
+	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
+
+	// The security groups to use for this dynamic route server. If unspecified, the VPC's default security group is used.
+	SecurityGroups []SecurityGroupIdentityIntf `json:"security_groups,omitempty"`
+
+	// Allows users to set headers on API requests
+	Headers map[string]string
+}
+
+// NewCreateDynamicRouteServerOptions : Instantiate CreateDynamicRouteServerOptions
+func (*VpcV1) NewCreateDynamicRouteServerOptions(asn int64, ips []ReservedIPIdentityIntf, vpc VPCIdentityIntf) *CreateDynamicRouteServerOptions {
+	return &CreateDynamicRouteServerOptions{
+		Asn: core.Int64Ptr(asn),
+		Ips: ips,
+		VPC: vpc,
+	}
+}
+
+// SetAsn : Allow user to set Asn
+func (_options *CreateDynamicRouteServerOptions) SetAsn(asn int64) *CreateDynamicRouteServerOptions {
+	_options.Asn = core.Int64Ptr(asn)
+	return _options
+}
+
+// SetIps : Allow user to set Ips
+func (_options *CreateDynamicRouteServerOptions) SetIps(ips []ReservedIPIdentityIntf) *CreateDynamicRouteServerOptions {
+	_options.Ips = ips
+	return _options
+}
+
+// SetVPC : Allow user to set VPC
+func (_options *CreateDynamicRouteServerOptions) SetVPC(vpc VPCIdentityIntf) *CreateDynamicRouteServerOptions {
+	_options.VPC = vpc
+	return _options
+}
+
+// SetName : Allow user to set Name
+func (_options *CreateDynamicRouteServerOptions) SetName(name string) *CreateDynamicRouteServerOptions {
+	_options.Name = core.StringPtr(name)
+	return _options
+}
+
+// SetRedistributeServiceRoutes : Allow user to set RedistributeServiceRoutes
+func (_options *CreateDynamicRouteServerOptions) SetRedistributeServiceRoutes(redistributeServiceRoutes bool) *CreateDynamicRouteServerOptions {
+	_options.RedistributeServiceRoutes = core.BoolPtr(redistributeServiceRoutes)
+	return _options
+}
+
+// SetRedistributeSubnets : Allow user to set RedistributeSubnets
+func (_options *CreateDynamicRouteServerOptions) SetRedistributeSubnets(redistributeSubnets bool) *CreateDynamicRouteServerOptions {
+	_options.RedistributeSubnets = core.BoolPtr(redistributeSubnets)
+	return _options
+}
+
+// SetRedistributeUserRoutes : Allow user to set RedistributeUserRoutes
+func (_options *CreateDynamicRouteServerOptions) SetRedistributeUserRoutes(redistributeUserRoutes bool) *CreateDynamicRouteServerOptions {
+	_options.RedistributeUserRoutes = core.BoolPtr(redistributeUserRoutes)
+	return _options
+}
+
+// SetResourceGroup : Allow user to set ResourceGroup
+func (_options *CreateDynamicRouteServerOptions) SetResourceGroup(resourceGroup ResourceGroupIdentityIntf) *CreateDynamicRouteServerOptions {
+	_options.ResourceGroup = resourceGroup
+	return _options
+}
+
+// SetSecurityGroups : Allow user to set SecurityGroups
+func (_options *CreateDynamicRouteServerOptions) SetSecurityGroups(securityGroups []SecurityGroupIdentityIntf) *CreateDynamicRouteServerOptions {
+	_options.SecurityGroups = securityGroups
+	return _options
+}
+
+// SetHeaders : Allow user to set Headers
+func (options *CreateDynamicRouteServerOptions) SetHeaders(param map[string]string) *CreateDynamicRouteServerOptions {
+	options.Headers = param
+	return options
+}
+
+// CreateDynamicRouteServerPeerOptions : The CreateDynamicRouteServerPeer options.
+type CreateDynamicRouteServerPeerOptions struct {
+	// The dynamic route server identifier.
+	DynamicRouteServerID *string `json:"dynamic_route_server_id" validate:"required,ne="`
+
+	// The autonomous system number (ASN) for this dynamic route server peer.
+	Asn *int64 `json:"asn" validate:"required"`
+
+	// The IP address of this dynamic route server peer.
+	//
+	// The peer IP must be in a subnet in the VPC this dynamic route server is serving.
+	IP *IP `json:"ip" validate:"required"`
+
+	// The bidirectional forwarding detection (BFD) configuration for this dynamic route server
+	// peer.
+	Bfd *DynamicRouteServerPeerBfdPrototype `json:"bfd,omitempty"`
+
+	// The TCP MD5 authentication key between BGP peers.
+	//
+	// The MD5 algorithm is used for authentication if the authentication key is specified. The value must be the same on
+	// both BGP peers for the session to be established.
+	Md5AuthenticationKey *string `json:"md5_authentication_key,omitempty"`
+
+	// The name for this dynamic route server peer. The name must not be used by another peer for this dynamic route
+	// server. If unspecified, the name will be a hyphenated list of randomly-selected words.
+	Name *string `json:"name,omitempty"`
+
+	// Allows users to set headers on API requests
+	Headers map[string]string
+}
+
+// NewCreateDynamicRouteServerPeerOptions : Instantiate CreateDynamicRouteServerPeerOptions
+func (*VpcV1) NewCreateDynamicRouteServerPeerOptions(dynamicRouteServerID string, asn int64, ip *IP) *CreateDynamicRouteServerPeerOptions {
+	return &CreateDynamicRouteServerPeerOptions{
+		DynamicRouteServerID: core.StringPtr(dynamicRouteServerID),
+		Asn:                  core.Int64Ptr(asn),
+		IP:                   ip,
+	}
+}
+
+// SetDynamicRouteServerID : Allow user to set DynamicRouteServerID
+func (_options *CreateDynamicRouteServerPeerOptions) SetDynamicRouteServerID(dynamicRouteServerID string) *CreateDynamicRouteServerPeerOptions {
+	_options.DynamicRouteServerID = core.StringPtr(dynamicRouteServerID)
+	return _options
+}
+
+// SetAsn : Allow user to set Asn
+func (_options *CreateDynamicRouteServerPeerOptions) SetAsn(asn int64) *CreateDynamicRouteServerPeerOptions {
+	_options.Asn = core.Int64Ptr(asn)
+	return _options
+}
+
+// SetIP : Allow user to set IP
+func (_options *CreateDynamicRouteServerPeerOptions) SetIP(ip *IP) *CreateDynamicRouteServerPeerOptions {
+	_options.IP = ip
+	return _options
+}
+
+// SetBfd : Allow user to set Bfd
+func (_options *CreateDynamicRouteServerPeerOptions) SetBfd(bfd *DynamicRouteServerPeerBfdPrototype) *CreateDynamicRouteServerPeerOptions {
+	_options.Bfd = bfd
+	return _options
+}
+
+// SetMd5AuthenticationKey : Allow user to set Md5AuthenticationKey
+func (_options *CreateDynamicRouteServerPeerOptions) SetMd5AuthenticationKey(md5AuthenticationKey string) *CreateDynamicRouteServerPeerOptions {
+	_options.Md5AuthenticationKey = core.StringPtr(md5AuthenticationKey)
+	return _options
+}
+
+// SetName : Allow user to set Name
+func (_options *CreateDynamicRouteServerPeerOptions) SetName(name string) *CreateDynamicRouteServerPeerOptions {
+	_options.Name = core.StringPtr(name)
+	return _options
+}
+
+// SetHeaders : Allow user to set Headers
+func (options *CreateDynamicRouteServerPeerOptions) SetHeaders(param map[string]string) *CreateDynamicRouteServerPeerOptions {
+	options.Headers = param
+	return options
+}
+
 // CreateEndpointGatewayOptions : The CreateEndpointGateway options.
 type CreateEndpointGatewayOptions struct {
 	// The target to use for this endpoint gateway. Must not already be the target of another
@@ -28972,7 +30350,7 @@ type CreateEndpointGatewayOptions struct {
 	Name *string `json:"name,omitempty"`
 
 	// The resource group to use. If unspecified, the account's [default resource
-	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) is used.
+	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) will be used.
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
 
 	// The security groups to use for this endpoint gateway. If unspecified, the VPC's default security group is used.
@@ -29087,7 +30465,7 @@ type CreateFlowLogCollectorOptions struct {
 	Name *string `json:"name,omitempty"`
 
 	// The resource group to use. If unspecified, the account's [default resource
-	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) is used.
+	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) will be used.
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
 
 	// Allows users to set headers on API requests
@@ -29160,7 +30538,7 @@ type CreateIkePolicyOptions struct {
 	Name *string `json:"name,omitempty"`
 
 	// The resource group to use. If unspecified, the account's [default resource
-	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) is used.
+	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) will be used.
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
 
 	// Allows users to set headers on API requests
@@ -29624,7 +31002,7 @@ type CreateInstanceGroupOptions struct {
 	Name *string `json:"name,omitempty"`
 
 	// The resource group to use. If unspecified, the account's [default resource
-	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) is used.
+	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) will be used.
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
 
 	// Allows users to set headers on API requests
@@ -29913,7 +31291,7 @@ type CreateIpsecPolicyOptions struct {
 	Name *string `json:"name,omitempty"`
 
 	// The resource group to use. If unspecified, the account's [default resource
-	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) is used.
+	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) will be used.
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
 
 	// Allows users to set headers on API requests
@@ -30031,7 +31409,7 @@ type CreateKeyOptions struct {
 	Name *string `json:"name,omitempty"`
 
 	// The resource group to use. If unspecified, the account's [default resource
-	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) is used.
+	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) will be used.
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
 
 	// The crypto-system used by this key.
@@ -30544,7 +31922,7 @@ type CreateLoadBalancerOptions struct {
 	Profile LoadBalancerProfileIdentityIntf `json:"profile,omitempty"`
 
 	// The resource group to use. If unspecified, the account's [default resource
-	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) is used.
+	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) will be used.
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
 
 	// Indicates whether route mode is enabled for this load balancer.
@@ -30942,7 +32320,7 @@ type CreatePlacementGroupOptions struct {
 	Name *string `json:"name,omitempty"`
 
 	// The resource group to use. If unspecified, the account's [default resource
-	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) is used.
+	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) will be used.
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
 
 	// Allows users to set headers on API requests
@@ -31008,7 +32386,7 @@ type CreatePublicGatewayOptions struct {
 	Name *string `json:"name,omitempty"`
 
 	// The resource group to use. If unspecified, the account's [default resource
-	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) is used.
+	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) will be used.
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
 
 	// Allows users to set headers on API requests
@@ -31069,7 +32447,7 @@ type CreateSecurityGroupOptions struct {
 	Name *string `json:"name,omitempty"`
 
 	// The resource group to use. If unspecified, the account's [default resource
-	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) is used.
+	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) will be used.
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
 
 	// The prototype objects for rules to be created for this security group. If unspecified, no rules will be created,
@@ -31611,7 +32989,7 @@ type CreateVPCOptions struct {
 	Name *string `json:"name,omitempty"`
 
 	// The resource group to use. If unspecified, the account's [default resource
-	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) is used.
+	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) will be used.
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
 
 	// Allows users to set headers on API requests
@@ -31793,8 +33171,8 @@ type CreateVPCRoutingTableOptions struct {
 
 	// The filters specifying the resources that may create routes in this routing table.
 	//
-	// At present, only the `resource_type` filter is permitted, and only the `vpn_server` value is supported, but filter
-	// support is expected to expand in the future.
+	// At present, only the `resource_type` filter is permitted, and only the values
+	// `dynamic_route_server` and `vpn_server` are supported, but filter support is expected to expand in the future.
 	AcceptRoutesFrom []ResourceFilter `json:"accept_routes_from,omitempty"`
 
 	// The name for this routing table. The name must not be used by another routing table in the VPC. If unspecified, the
@@ -32152,7 +33530,7 @@ type CreateVPNServerOptions struct {
 	Protocol *string `json:"protocol,omitempty"`
 
 	// The resource group to use. If unspecified, the account's [default resource
-	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) is used.
+	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) will be used.
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
 
 	// The security groups to use for this VPN server. If unspecified, the VPC's default security group is used.
@@ -34110,7 +35488,7 @@ type DedicatedHostPrototype struct {
 	Profile DedicatedHostProfileIdentityIntf `json:"profile" validate:"required"`
 
 	// The resource group to use. If unspecified, the account's [default resource
-	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) is used.
+	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) will be used.
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
 
 	// The dedicated host group for this dedicated host.
@@ -34316,8 +35694,8 @@ func UnmarshalDefaultNetworkACL(m map[string]json.RawMessage, result interface{}
 type DefaultRoutingTable struct {
 	// The filters specifying the resources that may create routes in this routing table.
 	//
-	// At present, only the `resource_type` filter is permitted, and only the `vpn_server` value is supported, but filter
-	// support is expected to expand in the future.
+	// At present, only the `resource_type` filter is permitted, and only the values
+	// `dynamic_route_server` and `vpn_server` are supported, but filter support is expected to expand in the future.
 	AcceptRoutesFrom []ResourceFilter `json:"accept_routes_from" validate:"required"`
 
 	// The date and time that this routing table was created.
@@ -34747,6 +36125,90 @@ func (_options *DeleteDedicatedHostOptions) SetID(id string) *DeleteDedicatedHos
 
 // SetHeaders : Allow user to set Headers
 func (options *DeleteDedicatedHostOptions) SetHeaders(param map[string]string) *DeleteDedicatedHostOptions {
+	options.Headers = param
+	return options
+}
+
+// DeleteDynamicRouteServerOptions : The DeleteDynamicRouteServer options.
+type DeleteDynamicRouteServerOptions struct {
+	// The dynamic route server identifier.
+	ID *string `json:"id" validate:"required,ne="`
+
+	// If present, the request will fail if the specified ETag value does not match the resource's current ETag value.
+	IfMatch *string `json:"If-Match,omitempty"`
+
+	// Allows users to set headers on API requests
+	Headers map[string]string
+}
+
+// NewDeleteDynamicRouteServerOptions : Instantiate DeleteDynamicRouteServerOptions
+func (*VpcV1) NewDeleteDynamicRouteServerOptions(id string) *DeleteDynamicRouteServerOptions {
+	return &DeleteDynamicRouteServerOptions{
+		ID: core.StringPtr(id),
+	}
+}
+
+// SetID : Allow user to set ID
+func (_options *DeleteDynamicRouteServerOptions) SetID(id string) *DeleteDynamicRouteServerOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
+}
+
+// SetIfMatch : Allow user to set IfMatch
+func (_options *DeleteDynamicRouteServerOptions) SetIfMatch(ifMatch string) *DeleteDynamicRouteServerOptions {
+	_options.IfMatch = core.StringPtr(ifMatch)
+	return _options
+}
+
+// SetHeaders : Allow user to set Headers
+func (options *DeleteDynamicRouteServerOptions) SetHeaders(param map[string]string) *DeleteDynamicRouteServerOptions {
+	options.Headers = param
+	return options
+}
+
+// DeleteDynamicRouteServerPeerOptions : The DeleteDynamicRouteServerPeer options.
+type DeleteDynamicRouteServerPeerOptions struct {
+	// The dynamic route server identifier.
+	DynamicRouteServerID *string `json:"dynamic_route_server_id" validate:"required,ne="`
+
+	// The dynamic route server peer identifier.
+	ID *string `json:"id" validate:"required,ne="`
+
+	// If present, the request will fail if the specified ETag value does not match the resource's current ETag value.
+	IfMatch *string `json:"If-Match,omitempty"`
+
+	// Allows users to set headers on API requests
+	Headers map[string]string
+}
+
+// NewDeleteDynamicRouteServerPeerOptions : Instantiate DeleteDynamicRouteServerPeerOptions
+func (*VpcV1) NewDeleteDynamicRouteServerPeerOptions(dynamicRouteServerID string, id string) *DeleteDynamicRouteServerPeerOptions {
+	return &DeleteDynamicRouteServerPeerOptions{
+		DynamicRouteServerID: core.StringPtr(dynamicRouteServerID),
+		ID:                   core.StringPtr(id),
+	}
+}
+
+// SetDynamicRouteServerID : Allow user to set DynamicRouteServerID
+func (_options *DeleteDynamicRouteServerPeerOptions) SetDynamicRouteServerID(dynamicRouteServerID string) *DeleteDynamicRouteServerPeerOptions {
+	_options.DynamicRouteServerID = core.StringPtr(dynamicRouteServerID)
+	return _options
+}
+
+// SetID : Allow user to set ID
+func (_options *DeleteDynamicRouteServerPeerOptions) SetID(id string) *DeleteDynamicRouteServerPeerOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
+}
+
+// SetIfMatch : Allow user to set IfMatch
+func (_options *DeleteDynamicRouteServerPeerOptions) SetIfMatch(ifMatch string) *DeleteDynamicRouteServerPeerOptions {
+	_options.IfMatch = core.StringPtr(ifMatch)
+	return _options
+}
+
+// SetHeaders : Allow user to set Headers
+func (options *DeleteDynamicRouteServerPeerOptions) SetHeaders(param map[string]string) *DeleteDynamicRouteServerPeerOptions {
 	options.Headers = param
 	return options
 }
@@ -36666,6 +38128,1137 @@ func (options *DisconnectVPNClientOptions) SetHeaders(param map[string]string) *
 	return options
 }
 
+// DynamicRouteServer : DynamicRouteServer struct
+type DynamicRouteServer struct {
+	// The local autonomous system number (ASN) for this dynamic route server.
+	Asn *int64 `json:"asn" validate:"required"`
+
+	// The date and time that the dynamic route server was created.
+	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
+
+	// The CRN for this dynamic route server.
+	CRN *string `json:"crn" validate:"required"`
+
+	// The health of this resource.
+	// - `ok`: No abnormal behavior detected
+	// - `degraded`: Experiencing compromised performance, capacity, or connectivity
+	// - `faulted`: Completely unreachable, inoperative, or otherwise entirely incapacitated
+	// - `inapplicable`: The health state does not apply because of the current lifecycle state. A resource with a
+	// lifecycle state of `failed` or `deleting` will have a health state of `inapplicable`. A `pending` resource may also
+	// have this state.
+	HealthState *string `json:"health_state" validate:"required"`
+
+	// The URL for this dynamic route server.
+	Href *string `json:"href" validate:"required"`
+
+	// The unique identifier for this dynamic route server.
+	ID *string `json:"id" validate:"required"`
+
+	// The reserved IPs bound to this dynamic route server.
+	Ips []ReservedIPReference `json:"ips" validate:"required"`
+
+	// The lifecycle state of the dynamic route server.
+	LifecycleState *string `json:"lifecycle_state" validate:"required"`
+
+	// The name for this dynamic route server. The name is unique across all dynamic route servers in the region.
+	Name *string `json:"name" validate:"required"`
+
+	// Indicates whether all service routes are redistributed through the routing protocol.
+	//
+	// All routes will be redistributed to all peers through the routing protocol that meet the following conditions:
+	//
+	// - The route's property origin is `service`
+	// - The route is in a routing table in the VPC that this dynamic route server is serving
+	// - The dynamic route server's peer IP is in a subnet that is attached to the routing
+	//   table with the route
+	// - The dynamic route server's peer IP is in a subnet with the same zone as the route
+	//
+	// Additionally, the CIDRs `161.26.0.0/16` (IBM services) and `166.8.0.0/14` (Cloud Service Endpoints) will also be
+	// redistributed to all peers through the routing protocol.
+	RedistributeServiceRoutes *bool `json:"redistribute_service_routes" validate:"required"`
+
+	// Indicates whether subnets meet the following conditions will be redistributed through the routing protocol to all
+	// peers as route destinations:
+	//
+	// - The subnet is attached to a routing table in the VPC this dynamic route server is
+	//   serving.
+	// - The routing table's `accept_routes_from` property includes the value
+	//   `dynamic_route_server`
+	//
+	// The routing protocol will redistribute routes with these subnets as route destinations.
+	RedistributeSubnets *bool `json:"redistribute_subnets" validate:"required"`
+
+	// Indicates whether all user routes are redistributed through the routing protocol.
+	//
+	// All routes will be redistributed to all peers through the routing protocol that meet the following conditions:
+	//
+	// - The route's property origin is `user`
+	// - The route is in a routing table in the VPC that this dynamic route server is serving
+	// - The dynamic route server's peer IP is in a subnet that is attached to the routing
+	//   table with the route
+	// - The dynamic route server's peer IP is in a subnet with the same zone as the route.
+	RedistributeUserRoutes *bool `json:"redistribute_user_routes" validate:"required"`
+
+	// The resource group for this dynamic route server.
+	ResourceGroup *ResourceGroupReference `json:"resource_group" validate:"required"`
+
+	// The resource type.
+	ResourceType *string `json:"resource_type" validate:"required"`
+
+	// The security groups targeting this dynamic route server.
+	SecurityGroups []SecurityGroupReference `json:"security_groups" validate:"required"`
+
+	// The VPC this dynamic route server resides in.
+	VPC *VPCReference `json:"vpc" validate:"required"`
+}
+
+// Constants associated with the DynamicRouteServer.HealthState property.
+// The health of this resource.
+// - `ok`: No abnormal behavior detected
+// - `degraded`: Experiencing compromised performance, capacity, or connectivity
+// - `faulted`: Completely unreachable, inoperative, or otherwise entirely incapacitated
+// - `inapplicable`: The health state does not apply because of the current lifecycle state. A resource with a lifecycle
+// state of `failed` or `deleting` will have a health state of `inapplicable`. A `pending` resource may also have this
+// state.
+const (
+	DynamicRouteServerHealthStateDegradedConst     = "degraded"
+	DynamicRouteServerHealthStateFaultedConst      = "faulted"
+	DynamicRouteServerHealthStateInapplicableConst = "inapplicable"
+	DynamicRouteServerHealthStateOkConst           = "ok"
+)
+
+// Constants associated with the DynamicRouteServer.LifecycleState property.
+// The lifecycle state of the dynamic route server.
+const (
+	DynamicRouteServerLifecycleStateDeletingConst  = "deleting"
+	DynamicRouteServerLifecycleStateFailedConst    = "failed"
+	DynamicRouteServerLifecycleStatePendingConst   = "pending"
+	DynamicRouteServerLifecycleStateStableConst    = "stable"
+	DynamicRouteServerLifecycleStateSuspendedConst = "suspended"
+	DynamicRouteServerLifecycleStateUpdatingConst  = "updating"
+	DynamicRouteServerLifecycleStateWaitingConst   = "waiting"
+)
+
+// Constants associated with the DynamicRouteServer.ResourceType property.
+// The resource type.
+const (
+	DynamicRouteServerResourceTypeDynamicRouteServerConst = "dynamic_route_server"
+)
+
+// UnmarshalDynamicRouteServer unmarshals an instance of DynamicRouteServer from the specified map of raw messages.
+func UnmarshalDynamicRouteServer(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(DynamicRouteServer)
+	err = core.UnmarshalPrimitive(m, "asn", &obj.Asn)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "created_at", &obj.CreatedAt)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "health_state", &obj.HealthState)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "ips", &obj.Ips, UnmarshalReservedIPReference)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "lifecycle_state", &obj.LifecycleState)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "redistribute_service_routes", &obj.RedistributeServiceRoutes)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "redistribute_subnets", &obj.RedistributeSubnets)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "redistribute_user_routes", &obj.RedistributeUserRoutes)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "resource_group", &obj.ResourceGroup, UnmarshalResourceGroupReference)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "security_groups", &obj.SecurityGroups, UnmarshalSecurityGroupReference)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "vpc", &obj.VPC, UnmarshalVPCReference)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// DynamicRouteServerCollection : DynamicRouteServerCollection struct
+type DynamicRouteServerCollection struct {
+	// Collection of dynamic route servers.
+	DynamicRouteServers []DynamicRouteServer `json:"dynamic_route_servers" validate:"required"`
+
+	// A link to the first page of resources.
+	First *DynamicRouteServerCollectionFirst `json:"first" validate:"required"`
+
+	// The maximum number of resources that can be returned by the request.
+	Limit *int64 `json:"limit" validate:"required"`
+
+	// A link to the next page of resources. This property is present for all pages
+	// except the last page.
+	Next *DynamicRouteServerCollectionNext `json:"next,omitempty"`
+
+	// The total number of resources across all pages.
+	TotalCount *int64 `json:"total_count" validate:"required"`
+}
+
+// UnmarshalDynamicRouteServerCollection unmarshals an instance of DynamicRouteServerCollection from the specified map of raw messages.
+func UnmarshalDynamicRouteServerCollection(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(DynamicRouteServerCollection)
+	err = core.UnmarshalModel(m, "dynamic_route_servers", &obj.DynamicRouteServers, UnmarshalDynamicRouteServer)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "first", &obj.First, UnmarshalDynamicRouteServerCollectionFirst)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "limit", &obj.Limit)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "next", &obj.Next, UnmarshalDynamicRouteServerCollectionNext)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "total_count", &obj.TotalCount)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// Retrieve the value to be passed to a request to access the next page of results
+func (resp *DynamicRouteServerCollection) GetNextStart() (*string, error) {
+	if core.IsNil(resp.Next) {
+		return nil, nil
+	}
+	start, err := core.GetQueryParam(resp.Next.Href, "start")
+	if err != nil || start == nil {
+		return nil, err
+	}
+	return start, nil
+}
+
+// DynamicRouteServerCollectionFirst : A link to the first page of resources.
+type DynamicRouteServerCollectionFirst struct {
+	// The URL for a page of resources.
+	Href *string `json:"href" validate:"required"`
+}
+
+// UnmarshalDynamicRouteServerCollectionFirst unmarshals an instance of DynamicRouteServerCollectionFirst from the specified map of raw messages.
+func UnmarshalDynamicRouteServerCollectionFirst(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(DynamicRouteServerCollectionFirst)
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// DynamicRouteServerCollectionNext : A link to the next page of resources. This property is present for all pages except the last page.
+type DynamicRouteServerCollectionNext struct {
+	// The URL for a page of resources.
+	Href *string `json:"href" validate:"required"`
+}
+
+// UnmarshalDynamicRouteServerCollectionNext unmarshals an instance of DynamicRouteServerCollectionNext from the specified map of raw messages.
+func UnmarshalDynamicRouteServerCollectionNext(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(DynamicRouteServerCollectionNext)
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// DynamicRouteServerPatch : DynamicRouteServerPatch struct
+type DynamicRouteServerPatch struct {
+	// The local autonomous system number (ASN) for this dynamic route server.
+	Asn *int64 `json:"asn,omitempty"`
+
+	// The name for this dynamic route server. The name must not be used by another dynamic route server in the region.
+	Name *string `json:"name,omitempty"`
+
+	// If set to `true`, routes that meet the following conditions will be redistributed through the routing protocol to
+	// all peers:
+	//
+	// - The route's property origin is `service`
+	// - The route is in a routing table in the VPC that this dynamic route server is serving
+	// - The dynamic route server's peer IP is in a subnet that is attached to the routing
+	//   table with the route
+	// - The dynamic route server's peer IP is in a subnet with the same zone as the route
+	//
+	// Additionally, the CIDRs `161.26.0.0/16` (IBM services) and `166.8.0.0/14` (Cloud Service Endpoints) will also be
+	// redistributed to all peers through the routing protocol.
+	//
+	// If set to `false`, all `service` routes, CIDRs `161.26.0.0/16` (IBM services) and
+	// `166.8.0.0/14` (Cloud Service Endpoints) will be withdrawn from all peers through the routing protocol.
+	RedistributeServiceRoutes *bool `json:"redistribute_service_routes,omitempty"`
+
+	// If set to `true`, subnets that meet the following conditions will be redistributed through the routing protocol to
+	// all peers:
+	//
+	// - The subnet is attached to a routing table in the VPC this dynamic route server is
+	//   serving.
+	// - The routing table's `accept_routes_from` property includes the value
+	//   `dynamic_route_server`
+	//
+	// If set to `false`, all subnets will be withdrawn from all peers through the routing protocol.
+	RedistributeSubnets *bool `json:"redistribute_subnets,omitempty"`
+
+	// If set to `true`, routes that meet the following conditions will be redistributed through the routing protocol to
+	// all peers:
+	//
+	// - The route's property origin is `user`
+	// - The route is in a routing table in the VPC that this dynamic route server is serving
+	// - The dynamic route server's peer IP is in a subnet that is attached to the routing
+	//   table with the route
+	// - The dynamic route server's peer IP is in a subnet with the same zone as the route
+	//
+	// If set to `false`, all `user` routes will be withdrawn from all peers through the routing protocol.
+	RedistributeUserRoutes *bool `json:"redistribute_user_routes,omitempty"`
+}
+
+// UnmarshalDynamicRouteServerPatch unmarshals an instance of DynamicRouteServerPatch from the specified map of raw messages.
+func UnmarshalDynamicRouteServerPatch(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(DynamicRouteServerPatch)
+	err = core.UnmarshalPrimitive(m, "asn", &obj.Asn)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "redistribute_service_routes", &obj.RedistributeServiceRoutes)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "redistribute_subnets", &obj.RedistributeSubnets)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "redistribute_user_routes", &obj.RedistributeUserRoutes)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// AsPatch returns a generic map representation of the DynamicRouteServerPatch
+func (dynamicRouteServerPatch *DynamicRouteServerPatch) AsPatch() (_patch map[string]interface{}, err error) {
+	var jsonData []byte
+	jsonData, err = json.Marshal(dynamicRouteServerPatch)
+	if err == nil {
+		err = json.Unmarshal(jsonData, &_patch)
+	}
+	return
+}
+
+// DynamicRouteServerPeer : DynamicRouteServerPeer struct
+type DynamicRouteServerPeer struct {
+	// The autonomous system number (ASN) for this dynamic route server peer.
+	Asn *int64 `json:"asn" validate:"required"`
+
+	// Indicates whether TCP MD5 authentication key is configured and enabled in this dynamic route server peer.
+	AuthenticationEnabled *bool `json:"authentication_enabled" validate:"required"`
+
+	// The bidirectional forwarding detection (BFD) configuration for this dynamic route server
+	// peer.
+	Bfd *DynamicRouteServerPeerBfd `json:"bfd" validate:"required"`
+
+	// The date and time that the dynamic route server peer was created.
+	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
+
+	// The URL for this dynamic route server peer.
+	Href *string `json:"href" validate:"required"`
+
+	// The unique identifier for this dynamic route server peer.
+	ID *string `json:"id" validate:"required"`
+
+	// The IP address of this dynamic route server peer.
+	//
+	// The peer IP must be in a subnet in the VPC this dynamic route server is serving.
+	IP *IP `json:"ip" validate:"required"`
+
+	// The lifecycle state of the dynamic route server peer.
+	LifecycleState *string `json:"lifecycle_state" validate:"required"`
+
+	// The name for this dynamic route server peer. The name is unique across all peers for the dynamic route server.
+	Name *string `json:"name" validate:"required"`
+
+	// The resource type.
+	ResourceType *string `json:"resource_type" validate:"required"`
+
+	// The sessions for this dynamic route server peer.
+	Sessions []DynamicRouteServerPeerBgpSession `json:"sessions" validate:"required"`
+}
+
+// Constants associated with the DynamicRouteServerPeer.LifecycleState property.
+// The lifecycle state of the dynamic route server peer.
+const (
+	DynamicRouteServerPeerLifecycleStateDeletingConst  = "deleting"
+	DynamicRouteServerPeerLifecycleStateFailedConst    = "failed"
+	DynamicRouteServerPeerLifecycleStatePendingConst   = "pending"
+	DynamicRouteServerPeerLifecycleStateStableConst    = "stable"
+	DynamicRouteServerPeerLifecycleStateSuspendedConst = "suspended"
+	DynamicRouteServerPeerLifecycleStateUpdatingConst  = "updating"
+	DynamicRouteServerPeerLifecycleStateWaitingConst   = "waiting"
+)
+
+// Constants associated with the DynamicRouteServerPeer.ResourceType property.
+// The resource type.
+const (
+	DynamicRouteServerPeerResourceTypeDynamicRouteServerPeerConst = "dynamic_route_server_peer"
+)
+
+// UnmarshalDynamicRouteServerPeer unmarshals an instance of DynamicRouteServerPeer from the specified map of raw messages.
+func UnmarshalDynamicRouteServerPeer(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(DynamicRouteServerPeer)
+	err = core.UnmarshalPrimitive(m, "asn", &obj.Asn)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "authentication_enabled", &obj.AuthenticationEnabled)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "bfd", &obj.Bfd, UnmarshalDynamicRouteServerPeerBfd)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "created_at", &obj.CreatedAt)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "ip", &obj.IP, UnmarshalIP)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "lifecycle_state", &obj.LifecycleState)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "sessions", &obj.Sessions, UnmarshalDynamicRouteServerPeerBgpSession)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// DynamicRouteServerPeerBfd : The bidirectional forwarding detection (BFD) configuration for this dynamic route server peer.
+type DynamicRouteServerPeerBfd struct {
+	// The bidirectional forwarding detection operating mode on this peer.
+	Mode *string `json:"mode" validate:"required"`
+
+	// The bidirectional forwarding detection role in session initialization.
+	Role *string `json:"role" validate:"required"`
+
+	// The sessions for this bidirectional forwarding detection for this peer.
+	Sessions []DynamicRouteServerPeerBfdSession `json:"sessions" validate:"required"`
+}
+
+// Constants associated with the DynamicRouteServerPeerBfd.Mode property.
+// The bidirectional forwarding detection operating mode on this peer.
+const (
+	DynamicRouteServerPeerBfdModeAsynchronousConst = "asynchronous"
+)
+
+// Constants associated with the DynamicRouteServerPeerBfd.Role property.
+// The bidirectional forwarding detection role in session initialization.
+const (
+	DynamicRouteServerPeerBfdRoleActiveConst   = "active"
+	DynamicRouteServerPeerBfdRoleDisabledConst = "disabled"
+	DynamicRouteServerPeerBfdRolePassiveConst  = "passive"
+)
+
+// UnmarshalDynamicRouteServerPeerBfd unmarshals an instance of DynamicRouteServerPeerBfd from the specified map of raw messages.
+func UnmarshalDynamicRouteServerPeerBfd(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(DynamicRouteServerPeerBfd)
+	err = core.UnmarshalPrimitive(m, "mode", &obj.Mode)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "role", &obj.Role)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "sessions", &obj.Sessions, UnmarshalDynamicRouteServerPeerBfdSession)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// DynamicRouteServerPeerBfdPatch : The bidirectional forwarding detection (BFD) configuration for this dynamic route server peer.
+type DynamicRouteServerPeerBfdPatch struct {
+	// The bidirectional forwarding detection role in session initialization.
+	Role *string `json:"role,omitempty"`
+}
+
+// Constants associated with the DynamicRouteServerPeerBfdPatch.Role property.
+// The bidirectional forwarding detection role in session initialization.
+const (
+	DynamicRouteServerPeerBfdPatchRoleActiveConst   = "active"
+	DynamicRouteServerPeerBfdPatchRoleDisabledConst = "disabled"
+	DynamicRouteServerPeerBfdPatchRolePassiveConst  = "passive"
+)
+
+// UnmarshalDynamicRouteServerPeerBfdPatch unmarshals an instance of DynamicRouteServerPeerBfdPatch from the specified map of raw messages.
+func UnmarshalDynamicRouteServerPeerBfdPatch(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(DynamicRouteServerPeerBfdPatch)
+	err = core.UnmarshalPrimitive(m, "role", &obj.Role)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// DynamicRouteServerPeerBfdPrototype : The bidirectional forwarding detection (BFD) configuration for this dynamic route server peer.
+type DynamicRouteServerPeerBfdPrototype struct {
+	// The bidirectional forwarding detection role in session initialization.
+	Role *string `json:"role,omitempty"`
+}
+
+// Constants associated with the DynamicRouteServerPeerBfdPrototype.Role property.
+// The bidirectional forwarding detection role in session initialization.
+const (
+	DynamicRouteServerPeerBfdPrototypeRoleActiveConst   = "active"
+	DynamicRouteServerPeerBfdPrototypeRoleDisabledConst = "disabled"
+	DynamicRouteServerPeerBfdPrototypeRolePassiveConst  = "passive"
+)
+
+// UnmarshalDynamicRouteServerPeerBfdPrototype unmarshals an instance of DynamicRouteServerPeerBfdPrototype from the specified map of raw messages.
+func UnmarshalDynamicRouteServerPeerBfdPrototype(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(DynamicRouteServerPeerBfdPrototype)
+	err = core.UnmarshalPrimitive(m, "role", &obj.Role)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// DynamicRouteServerPeerBfdSession : A bidirectional forwarding detection session for this dynamic route server peer.
+type DynamicRouteServerPeerBfdSession struct {
+	// The source IP of the dynamic route server used to establish bidirectional forwarding
+	// detection session with this dynamic route server peer.
+	SourceIP *ReservedIPReference `json:"source_ip" validate:"required"`
+
+	// The current bidirectional forwarding detection session state as seen by this dynamic route server.
+	State *string `json:"state" validate:"required"`
+}
+
+// Constants associated with the DynamicRouteServerPeerBfdSession.State property.
+// The current bidirectional forwarding detection session state as seen by this dynamic route server.
+const (
+	DynamicRouteServerPeerBfdSessionStateAdminDownConst = "admin_down"
+	DynamicRouteServerPeerBfdSessionStateDownConst      = "down"
+	DynamicRouteServerPeerBfdSessionStateInitConst      = "init"
+	DynamicRouteServerPeerBfdSessionStateUpConst        = "up"
+)
+
+// UnmarshalDynamicRouteServerPeerBfdSession unmarshals an instance of DynamicRouteServerPeerBfdSession from the specified map of raw messages.
+func UnmarshalDynamicRouteServerPeerBfdSession(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(DynamicRouteServerPeerBfdSession)
+	err = core.UnmarshalModel(m, "source_ip", &obj.SourceIP, UnmarshalReservedIPReference)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "state", &obj.State)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// DynamicRouteServerPeerBgpSession : DynamicRouteServerPeerBgpSession struct
+type DynamicRouteServerPeerBgpSession struct {
+	// The date and time that the BGP session was established.
+	//
+	// This property will be present only when the session `state` is `established`.
+	EstablishedAt *strfmt.DateTime `json:"established_at,omitempty"`
+
+	// The source IP of the dynamic route server used to establish routing protocol with this
+	// dynamic route server peer.
+	SourceIP *ReservedIPReference `json:"source_ip" validate:"required"`
+
+	// The state of the routing protocol with this dynamic route server peer.
+	State *string `json:"state,omitempty"`
+}
+
+// Constants associated with the DynamicRouteServerPeerBgpSession.State property.
+// The state of the routing protocol with this dynamic route server peer.
+const (
+	DynamicRouteServerPeerBgpSessionStateActiveConst       = "active"
+	DynamicRouteServerPeerBgpSessionStateConnectConst      = "connect"
+	DynamicRouteServerPeerBgpSessionStateEstablishedConst  = "established"
+	DynamicRouteServerPeerBgpSessionStateIdleConst         = "idle"
+	DynamicRouteServerPeerBgpSessionStateInitializingConst = "initializing"
+	DynamicRouteServerPeerBgpSessionStateOpenConfirmConst  = "open_confirm"
+	DynamicRouteServerPeerBgpSessionStateOpenSentConst     = "open_sent"
+)
+
+// UnmarshalDynamicRouteServerPeerBgpSession unmarshals an instance of DynamicRouteServerPeerBgpSession from the specified map of raw messages.
+func UnmarshalDynamicRouteServerPeerBgpSession(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(DynamicRouteServerPeerBgpSession)
+	err = core.UnmarshalPrimitive(m, "established_at", &obj.EstablishedAt)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "source_ip", &obj.SourceIP, UnmarshalReservedIPReference)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "state", &obj.State)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// DynamicRouteServerPeerCollection : DynamicRouteServerPeerCollection struct
+type DynamicRouteServerPeerCollection struct {
+	// A link to the first page of resources.
+	First *DynamicRouteServerPeerCollectionFirst `json:"first" validate:"required"`
+
+	// The maximum number of resources that can be returned by the request.
+	Limit *int64 `json:"limit" validate:"required"`
+
+	// A link to the next page of resources. This property is present for all pages
+	// except the last page.
+	Next *DynamicRouteServerPeerCollectionNext `json:"next,omitempty"`
+
+	// Collection of dynamic route server peers.
+	Peers []DynamicRouteServerPeer `json:"peers" validate:"required"`
+
+	// The total number of resources across all pages.
+	TotalCount *int64 `json:"total_count" validate:"required"`
+}
+
+// UnmarshalDynamicRouteServerPeerCollection unmarshals an instance of DynamicRouteServerPeerCollection from the specified map of raw messages.
+func UnmarshalDynamicRouteServerPeerCollection(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(DynamicRouteServerPeerCollection)
+	err = core.UnmarshalModel(m, "first", &obj.First, UnmarshalDynamicRouteServerPeerCollectionFirst)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "limit", &obj.Limit)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "next", &obj.Next, UnmarshalDynamicRouteServerPeerCollectionNext)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "peers", &obj.Peers, UnmarshalDynamicRouteServerPeer)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "total_count", &obj.TotalCount)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// Retrieve the value to be passed to a request to access the next page of results
+func (resp *DynamicRouteServerPeerCollection) GetNextStart() (*string, error) {
+	if core.IsNil(resp.Next) {
+		return nil, nil
+	}
+	start, err := core.GetQueryParam(resp.Next.Href, "start")
+	if err != nil || start == nil {
+		return nil, err
+	}
+	return start, nil
+}
+
+// DynamicRouteServerPeerCollectionFirst : A link to the first page of resources.
+type DynamicRouteServerPeerCollectionFirst struct {
+	// The URL for a page of resources.
+	Href *string `json:"href" validate:"required"`
+}
+
+// UnmarshalDynamicRouteServerPeerCollectionFirst unmarshals an instance of DynamicRouteServerPeerCollectionFirst from the specified map of raw messages.
+func UnmarshalDynamicRouteServerPeerCollectionFirst(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(DynamicRouteServerPeerCollectionFirst)
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// DynamicRouteServerPeerCollectionNext : A link to the next page of resources. This property is present for all pages except the last page.
+type DynamicRouteServerPeerCollectionNext struct {
+	// The URL for a page of resources.
+	Href *string `json:"href" validate:"required"`
+}
+
+// UnmarshalDynamicRouteServerPeerCollectionNext unmarshals an instance of DynamicRouteServerPeerCollectionNext from the specified map of raw messages.
+func UnmarshalDynamicRouteServerPeerCollectionNext(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(DynamicRouteServerPeerCollectionNext)
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// DynamicRouteServerPeerPatch : DynamicRouteServerPeerPatch struct
+type DynamicRouteServerPeerPatch struct {
+	// The autonomous system number (ASN) for this dynamic route server peer.
+	Asn *int64 `json:"asn,omitempty"`
+
+	// The bidirectional forwarding detection (BFD) configuration for this dynamic route server
+	// peer.
+	Bfd *DynamicRouteServerPeerBfdPatch `json:"bfd,omitempty"`
+
+	// The TCP MD5 authentication key between BGP peers. Specify `null` to remove any existing authentication key.
+	//
+	// The MD5 algorithm is used for authentication if the authentication key is set. The value must be the same on both
+	// BGP peers for the session to be established.
+	Md5AuthenticationKey *string `json:"md5_authentication_key,omitempty"`
+
+	// The name for this dynamic route server peer. The name must not be used by another dynamic route server peer in the
+	// dynamic route server.
+	Name *string `json:"name,omitempty"`
+}
+
+// UnmarshalDynamicRouteServerPeerPatch unmarshals an instance of DynamicRouteServerPeerPatch from the specified map of raw messages.
+func UnmarshalDynamicRouteServerPeerPatch(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(DynamicRouteServerPeerPatch)
+	err = core.UnmarshalPrimitive(m, "asn", &obj.Asn)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "bfd", &obj.Bfd, UnmarshalDynamicRouteServerPeerBfdPatch)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "md5_authentication_key", &obj.Md5AuthenticationKey)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// AsPatch returns a generic map representation of the DynamicRouteServerPeerPatch
+func (dynamicRouteServerPeerPatch *DynamicRouteServerPeerPatch) AsPatch() (_patch map[string]interface{}, err error) {
+	var jsonData []byte
+	jsonData, err = json.Marshal(dynamicRouteServerPeerPatch)
+	if err == nil {
+		err = json.Unmarshal(jsonData, &_patch)
+	}
+	return
+}
+
+// DynamicRouteServerPeerReference : DynamicRouteServerPeerReference struct
+type DynamicRouteServerPeerReference struct {
+	// If present, this property indicates the referenced resource has been deleted, and provides
+	// some supplementary information.
+	Deleted *DynamicRouteServerPeerReferenceDeleted `json:"deleted,omitempty"`
+
+	// The URL for this dynamic route server peer.
+	Href *string `json:"href" validate:"required"`
+
+	// The unique identifier for this dynamic route server peer.
+	ID *string `json:"id" validate:"required"`
+
+	// The name for this dynamic route server peer. The name is unique across all peers for the dynamic route server.
+	Name *string `json:"name" validate:"required"`
+
+	// The resource type.
+	ResourceType *string `json:"resource_type" validate:"required"`
+}
+
+// Constants associated with the DynamicRouteServerPeerReference.ResourceType property.
+// The resource type.
+const (
+	DynamicRouteServerPeerReferenceResourceTypeDynamicRouteServerPeerConst = "dynamic_route_server_peer"
+)
+
+// UnmarshalDynamicRouteServerPeerReference unmarshals an instance of DynamicRouteServerPeerReference from the specified map of raw messages.
+func UnmarshalDynamicRouteServerPeerReference(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(DynamicRouteServerPeerReference)
+	err = core.UnmarshalModel(m, "deleted", &obj.Deleted, UnmarshalDynamicRouteServerPeerReferenceDeleted)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// DynamicRouteServerPeerReferenceDeleted : If present, this property indicates the referenced resource has been deleted, and provides some supplementary
+// information.
+type DynamicRouteServerPeerReferenceDeleted struct {
+	// Link to documentation about deleted resources.
+	MoreInfo *string `json:"more_info" validate:"required"`
+}
+
+// UnmarshalDynamicRouteServerPeerReferenceDeleted unmarshals an instance of DynamicRouteServerPeerReferenceDeleted from the specified map of raw messages.
+func UnmarshalDynamicRouteServerPeerReferenceDeleted(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(DynamicRouteServerPeerReferenceDeleted)
+	err = core.UnmarshalPrimitive(m, "more_info", &obj.MoreInfo)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// DynamicRouteServerReferenceDeleted : If present, this property indicates the referenced resource has been deleted, and provides some supplementary
+// information.
+type DynamicRouteServerReferenceDeleted struct {
+	// Link to documentation about deleted resources.
+	MoreInfo *string `json:"more_info" validate:"required"`
+}
+
+// UnmarshalDynamicRouteServerReferenceDeleted unmarshals an instance of DynamicRouteServerReferenceDeleted from the specified map of raw messages.
+func UnmarshalDynamicRouteServerReferenceDeleted(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(DynamicRouteServerReferenceDeleted)
+	err = core.UnmarshalPrimitive(m, "more_info", &obj.MoreInfo)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// DynamicRouteServerRoute : DynamicRouteServerRoute struct
+type DynamicRouteServerRoute struct {
+	// The ordered sequence of autonomous systems that network packets will traverse to get to this dynamic route server,
+	// per the rules defined in [RFC 4271](https://www.rfc-editor.org/rfc/rfc4271).
+	AsPath []int64 `json:"as_path" validate:"required"`
+
+	// The date and time that the route was created.
+	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
+
+	// The destination of the route. Each learned route must have a unique combination of
+	// `destination`, `source_ip`, and `next_hop`. Similarly, each redistributed route must have a unique combination of
+	// `destination` and `next_hop`. The learned route is not added to the VPC routing table if its `destination` is the
+	// same as the redistributed route.
+	Destination *string `json:"destination" validate:"required"`
+
+	// The URL for this dynamic route server route.
+	Href *string `json:"href" validate:"required"`
+
+	// The unique identifier for this dynamic route server route.
+	ID *string `json:"id" validate:"required"`
+
+	// The next hop packets will be routed to.
+	NextHop *DynamicRouteServerRouteNextHop `json:"next_hop" validate:"required"`
+
+	Peer *DynamicRouteServerPeerReference `json:"peer" validate:"required"`
+
+	// The resource type.
+	ResourceType *string `json:"resource_type" validate:"required"`
+
+	// The source IP of the dynamic route server used to establish routing protocol with
+	// this dynamic route server peer.
+	//
+	// This property will be present only when the route `type` is `learned`.
+	SourceIP *ReservedIPReference `json:"source_ip,omitempty"`
+
+	// The type of this route:
+	//
+	// - `learned`: route was learned from the dynamic route server peer via the routing
+	//   protocol. The learned route was evaluated based on [the best route selection
+	//   algorithm](https://cloud.ibm.com/docs/vpc?topic=drs-best-route-selection) to determine if
+	//   it was added to the VPC routing table
+	// - `redistributed_subnets`: route was redistributed to the dynamic route
+	//   server peer via the routing protocol, and route's destination is a subnet IP CIDR
+	//   block
+	// - `redistributed_user_routes`: route was redistributed to the dynamic route server
+	//   peer via the routing protocol, and it is from a VPC routing table with the `origin`
+	//   set as `user`
+	// - `redistributed_service_routes`: route was redistributed to the dynamic route server
+	//   peer via the routing protocol, and it is from a VPC routing table with the `origin`
+	//   set as `service`
+	//
+	// The enumerated values for this property are expected to expand in the future. When processing this property, check
+	// for and log unknown values. Optionally halt processing and surface the error, or bypass the route on which the
+	// unexpected property value was encountered.
+	Type *string `json:"type" validate:"required"`
+}
+
+// Constants associated with the DynamicRouteServerRoute.ResourceType property.
+// The resource type.
+const (
+	DynamicRouteServerRouteResourceTypeDynamicRouteServerRouteConst = "dynamic_route_server_route"
+)
+
+// Constants associated with the DynamicRouteServerRoute.Type property.
+// The type of this route:
+//
+//   - `learned`: route was learned from the dynamic route server peer via the routing
+//     protocol. The learned route was evaluated based on [the best route selection
+//     algorithm](https://cloud.ibm.com/docs/vpc?topic=drs-best-route-selection) to determine if
+//     it was added to the VPC routing table
+//   - `redistributed_subnets`: route was redistributed to the dynamic route
+//     server peer via the routing protocol, and route's destination is a subnet IP CIDR
+//     block
+//   - `redistributed_user_routes`: route was redistributed to the dynamic route server
+//     peer via the routing protocol, and it is from a VPC routing table with the `origin`
+//     set as `user`
+//   - `redistributed_service_routes`: route was redistributed to the dynamic route server
+//     peer via the routing protocol, and it is from a VPC routing table with the `origin`
+//     set as `service`
+//
+// The enumerated values for this property are expected to expand in the future. When processing this property, check
+// for and log unknown values. Optionally halt processing and surface the error, or bypass the route on which the
+// unexpected property value was encountered.
+const (
+	DynamicRouteServerRouteTypeLearnedConst                    = "learned"
+	DynamicRouteServerRouteTypeRedistributedServiceRoutesConst = "redistributed_service_routes"
+	DynamicRouteServerRouteTypeRedistributedSubnetsConst       = "redistributed_subnets"
+	DynamicRouteServerRouteTypeRedistributedUserRoutesConst    = "redistributed_user_routes"
+)
+
+// UnmarshalDynamicRouteServerRoute unmarshals an instance of DynamicRouteServerRoute from the specified map of raw messages.
+func UnmarshalDynamicRouteServerRoute(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(DynamicRouteServerRoute)
+	err = core.UnmarshalPrimitive(m, "as_path", &obj.AsPath)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "created_at", &obj.CreatedAt)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "destination", &obj.Destination)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "next_hop", &obj.NextHop, UnmarshalDynamicRouteServerRouteNextHop)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "peer", &obj.Peer, UnmarshalDynamicRouteServerPeerReference)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "source_ip", &obj.SourceIP, UnmarshalReservedIPReference)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// DynamicRouteServerRouteCollection : DynamicRouteServerRouteCollection struct
+type DynamicRouteServerRouteCollection struct {
+	// A link to the first page of resources.
+	First *DynamicRouteServerRouteCollectionFirst `json:"first" validate:"required"`
+
+	// The maximum number of resources that can be returned by the request.
+	Limit *int64 `json:"limit" validate:"required"`
+
+	// A link to the next page of resources. This property is present for all pages
+	// except the last page.
+	Next *DynamicRouteServerRouteCollectionNext `json:"next,omitempty"`
+
+	// Collection of dynamic route server routes.
+	Routes []DynamicRouteServerRoute `json:"routes" validate:"required"`
+
+	// The total number of resources across all pages.
+	TotalCount *int64 `json:"total_count" validate:"required"`
+}
+
+// UnmarshalDynamicRouteServerRouteCollection unmarshals an instance of DynamicRouteServerRouteCollection from the specified map of raw messages.
+func UnmarshalDynamicRouteServerRouteCollection(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(DynamicRouteServerRouteCollection)
+	err = core.UnmarshalModel(m, "first", &obj.First, UnmarshalDynamicRouteServerRouteCollectionFirst)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "limit", &obj.Limit)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "next", &obj.Next, UnmarshalDynamicRouteServerRouteCollectionNext)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "routes", &obj.Routes, UnmarshalDynamicRouteServerRoute)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "total_count", &obj.TotalCount)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// Retrieve the value to be passed to a request to access the next page of results
+func (resp *DynamicRouteServerRouteCollection) GetNextStart() (*string, error) {
+	if core.IsNil(resp.Next) {
+		return nil, nil
+	}
+	start, err := core.GetQueryParam(resp.Next.Href, "start")
+	if err != nil || start == nil {
+		return nil, err
+	}
+	return start, nil
+}
+
+// DynamicRouteServerRouteCollectionFirst : A link to the first page of resources.
+type DynamicRouteServerRouteCollectionFirst struct {
+	// The URL for a page of resources.
+	Href *string `json:"href" validate:"required"`
+}
+
+// UnmarshalDynamicRouteServerRouteCollectionFirst unmarshals an instance of DynamicRouteServerRouteCollectionFirst from the specified map of raw messages.
+func UnmarshalDynamicRouteServerRouteCollectionFirst(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(DynamicRouteServerRouteCollectionFirst)
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// DynamicRouteServerRouteCollectionNext : A link to the next page of resources. This property is present for all pages except the last page.
+type DynamicRouteServerRouteCollectionNext struct {
+	// The URL for a page of resources.
+	Href *string `json:"href" validate:"required"`
+}
+
+// UnmarshalDynamicRouteServerRouteCollectionNext unmarshals an instance of DynamicRouteServerRouteCollectionNext from the specified map of raw messages.
+func UnmarshalDynamicRouteServerRouteCollectionNext(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(DynamicRouteServerRouteCollectionNext)
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// DynamicRouteServerRouteNextHop : The next hop packets will be routed to.
+type DynamicRouteServerRouteNextHop struct {
+	// The IP address.
+	//
+	// This property may add support for IPv6 addresses in the future. When processing a value in this property, verify
+	// that the address is in an expected format. If it is not, log an error. Optionally halt processing and surface the
+	// error, or bypass the resource on which the unexpected IP address format was encountered.
+	Address *string `json:"address" validate:"required"`
+}
+
+// UnmarshalDynamicRouteServerRouteNextHop unmarshals an instance of DynamicRouteServerRouteNextHop from the specified map of raw messages.
+func UnmarshalDynamicRouteServerRouteNextHop(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(DynamicRouteServerRouteNextHop)
+	err = core.UnmarshalPrimitive(m, "address", &obj.Address)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
 // EncryptionKeyIdentity : Identifies an encryption key by a unique property.
 // Models which "extend" this model:
 // - EncryptionKeyIdentityByCRN
@@ -37581,7 +40174,7 @@ type FloatingIPPrototype struct {
 	Name *string `json:"name,omitempty"`
 
 	// The resource group to use. If unspecified, the account's [default resource
-	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) is used.
+	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) will be used.
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
 
 	// The zone this floating IP will reside in.
@@ -38744,6 +41337,148 @@ func (_options *GetDedicatedHostProfileOptions) SetName(name string) *GetDedicat
 
 // SetHeaders : Allow user to set Headers
 func (options *GetDedicatedHostProfileOptions) SetHeaders(param map[string]string) *GetDedicatedHostProfileOptions {
+	options.Headers = param
+	return options
+}
+
+// GetDynamicRouteServerIPOptions : The GetDynamicRouteServerIP options.
+type GetDynamicRouteServerIPOptions struct {
+	// The dynamic route server identifier.
+	DynamicRouteServerID *string `json:"dynamic_route_server_id" validate:"required,ne="`
+
+	// The reserved IP identifier.
+	ID *string `json:"id" validate:"required,ne="`
+
+	// Allows users to set headers on API requests
+	Headers map[string]string
+}
+
+// NewGetDynamicRouteServerIPOptions : Instantiate GetDynamicRouteServerIPOptions
+func (*VpcV1) NewGetDynamicRouteServerIPOptions(dynamicRouteServerID string, id string) *GetDynamicRouteServerIPOptions {
+	return &GetDynamicRouteServerIPOptions{
+		DynamicRouteServerID: core.StringPtr(dynamicRouteServerID),
+		ID:                   core.StringPtr(id),
+	}
+}
+
+// SetDynamicRouteServerID : Allow user to set DynamicRouteServerID
+func (_options *GetDynamicRouteServerIPOptions) SetDynamicRouteServerID(dynamicRouteServerID string) *GetDynamicRouteServerIPOptions {
+	_options.DynamicRouteServerID = core.StringPtr(dynamicRouteServerID)
+	return _options
+}
+
+// SetID : Allow user to set ID
+func (_options *GetDynamicRouteServerIPOptions) SetID(id string) *GetDynamicRouteServerIPOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
+}
+
+// SetHeaders : Allow user to set Headers
+func (options *GetDynamicRouteServerIPOptions) SetHeaders(param map[string]string) *GetDynamicRouteServerIPOptions {
+	options.Headers = param
+	return options
+}
+
+// GetDynamicRouteServerOptions : The GetDynamicRouteServer options.
+type GetDynamicRouteServerOptions struct {
+	// The dynamic route server identifier.
+	ID *string `json:"id" validate:"required,ne="`
+
+	// Allows users to set headers on API requests
+	Headers map[string]string
+}
+
+// NewGetDynamicRouteServerOptions : Instantiate GetDynamicRouteServerOptions
+func (*VpcV1) NewGetDynamicRouteServerOptions(id string) *GetDynamicRouteServerOptions {
+	return &GetDynamicRouteServerOptions{
+		ID: core.StringPtr(id),
+	}
+}
+
+// SetID : Allow user to set ID
+func (_options *GetDynamicRouteServerOptions) SetID(id string) *GetDynamicRouteServerOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
+}
+
+// SetHeaders : Allow user to set Headers
+func (options *GetDynamicRouteServerOptions) SetHeaders(param map[string]string) *GetDynamicRouteServerOptions {
+	options.Headers = param
+	return options
+}
+
+// GetDynamicRouteServerPeerOptions : The GetDynamicRouteServerPeer options.
+type GetDynamicRouteServerPeerOptions struct {
+	// The dynamic route server identifier.
+	DynamicRouteServerID *string `json:"dynamic_route_server_id" validate:"required,ne="`
+
+	// The dynamic route server peer identifier.
+	ID *string `json:"id" validate:"required,ne="`
+
+	// Allows users to set headers on API requests
+	Headers map[string]string
+}
+
+// NewGetDynamicRouteServerPeerOptions : Instantiate GetDynamicRouteServerPeerOptions
+func (*VpcV1) NewGetDynamicRouteServerPeerOptions(dynamicRouteServerID string, id string) *GetDynamicRouteServerPeerOptions {
+	return &GetDynamicRouteServerPeerOptions{
+		DynamicRouteServerID: core.StringPtr(dynamicRouteServerID),
+		ID:                   core.StringPtr(id),
+	}
+}
+
+// SetDynamicRouteServerID : Allow user to set DynamicRouteServerID
+func (_options *GetDynamicRouteServerPeerOptions) SetDynamicRouteServerID(dynamicRouteServerID string) *GetDynamicRouteServerPeerOptions {
+	_options.DynamicRouteServerID = core.StringPtr(dynamicRouteServerID)
+	return _options
+}
+
+// SetID : Allow user to set ID
+func (_options *GetDynamicRouteServerPeerOptions) SetID(id string) *GetDynamicRouteServerPeerOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
+}
+
+// SetHeaders : Allow user to set Headers
+func (options *GetDynamicRouteServerPeerOptions) SetHeaders(param map[string]string) *GetDynamicRouteServerPeerOptions {
+	options.Headers = param
+	return options
+}
+
+// GetDynamicRouteServerRouteOptions : The GetDynamicRouteServerRoute options.
+type GetDynamicRouteServerRouteOptions struct {
+	// The dynamic route server identifier.
+	DynamicRouteServerID *string `json:"dynamic_route_server_id" validate:"required,ne="`
+
+	// The dynamic route server route identifier.
+	ID *string `json:"id" validate:"required,ne="`
+
+	// Allows users to set headers on API requests
+	Headers map[string]string
+}
+
+// NewGetDynamicRouteServerRouteOptions : Instantiate GetDynamicRouteServerRouteOptions
+func (*VpcV1) NewGetDynamicRouteServerRouteOptions(dynamicRouteServerID string, id string) *GetDynamicRouteServerRouteOptions {
+	return &GetDynamicRouteServerRouteOptions{
+		DynamicRouteServerID: core.StringPtr(dynamicRouteServerID),
+		ID:                   core.StringPtr(id),
+	}
+}
+
+// SetDynamicRouteServerID : Allow user to set DynamicRouteServerID
+func (_options *GetDynamicRouteServerRouteOptions) SetDynamicRouteServerID(dynamicRouteServerID string) *GetDynamicRouteServerRouteOptions {
+	_options.DynamicRouteServerID = core.StringPtr(dynamicRouteServerID)
+	return _options
+}
+
+// SetID : Allow user to set ID
+func (_options *GetDynamicRouteServerRouteOptions) SetID(id string) *GetDynamicRouteServerRouteOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
+}
+
+// SetHeaders : Allow user to set Headers
+func (options *GetDynamicRouteServerRouteOptions) SetHeaders(param map[string]string) *GetDynamicRouteServerRouteOptions {
 	options.Headers = param
 	return options
 }
@@ -42798,7 +45533,7 @@ type ImagePrototype struct {
 	ObsolescenceAt *strfmt.DateTime `json:"obsolescence_at,omitempty"`
 
 	// The resource group to use. If unspecified, the account's [default resource
-	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) is used.
+	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) will be used.
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
 
 	// A base64-encoded, encrypted representation of the key that was used to encrypt the data for this image.
@@ -46032,6 +48767,7 @@ func UnmarshalInstanceInitializationDefaultTrustedProfile(m map[string]json.RawM
 	return
 }
 
+// InstanceInitializationPassword : InstanceInitializationPassword struct
 type InstanceInitializationPassword struct {
 	// The administrator password at initialization, encrypted using `encryption_key`, and returned base64-encoded.
 	EncryptedPassword *[]byte `json:"encrypted_password" validate:"required"`
@@ -47724,7 +50460,7 @@ type InstancePrototype struct {
 	Profile InstanceProfileIdentityIntf `json:"profile,omitempty"`
 
 	// The resource group to use. If unspecified, the account's [default resource
-	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) is used.
+	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) will be used.
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
 
 	// The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes. An increase in
@@ -48384,7 +51120,7 @@ type InstanceTemplatePrototype struct {
 	Profile InstanceProfileIdentityIntf `json:"profile,omitempty"`
 
 	// The resource group to use. If unspecified, the account's [default resource
-	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) is used.
+	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) will be used.
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
 
 	// The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes. An increase in
@@ -49426,18 +52162,6 @@ type ListBareMetalServersOptions struct {
 	// Filters the collection to resources with a `vpc.name` property matching the exact specified name.
 	VPCName *string `json:"vpc.name,omitempty"`
 
-	// Filters the collection to bare metal servers with an item in the `network_interfaces` property with a `subnet.id`
-	// property matching the specified identifier.
-	NetworkInterfacesSubnetID *string `json:"network_interfaces.subnet.id,omitempty"`
-
-	// Filters the collection to bare metal servers with an item in the `network_interfaces` property with a `subnet.crn`
-	// property matching the specified CRN.
-	NetworkInterfacesSubnetCRN *string `json:"network_interfaces.subnet.crn,omitempty"`
-
-	// Filters the collection to bare metal servers with an item in the `network_interfaces` property with a `subnet.name`
-	// property matching the exact specified name.
-	NetworkInterfacesSubnetName *string `json:"network_interfaces.subnet.name,omitempty"`
-
 	// Allows users to set headers on API requests
 	Headers map[string]string
 }
@@ -49486,24 +52210,6 @@ func (_options *ListBareMetalServersOptions) SetVPCCRN(vpcCRN string) *ListBareM
 // SetVPCName : Allow user to set VPCName
 func (_options *ListBareMetalServersOptions) SetVPCName(vpcName string) *ListBareMetalServersOptions {
 	_options.VPCName = core.StringPtr(vpcName)
-	return _options
-}
-
-// SetNetworkInterfacesSubnetID : Allow user to set NetworkInterfacesSubnetID
-func (_options *ListBareMetalServersOptions) SetNetworkInterfacesSubnetID(networkInterfacesSubnetID string) *ListBareMetalServersOptions {
-	_options.NetworkInterfacesSubnetID = core.StringPtr(networkInterfacesSubnetID)
-	return _options
-}
-
-// SetNetworkInterfacesSubnetCRN : Allow user to set NetworkInterfacesSubnetCRN
-func (_options *ListBareMetalServersOptions) SetNetworkInterfacesSubnetCRN(networkInterfacesSubnetCRN string) *ListBareMetalServersOptions {
-	_options.NetworkInterfacesSubnetCRN = core.StringPtr(networkInterfacesSubnetCRN)
-	return _options
-}
-
-// SetNetworkInterfacesSubnetName : Allow user to set NetworkInterfacesSubnetName
-func (_options *ListBareMetalServersOptions) SetNetworkInterfacesSubnetName(networkInterfacesSubnetName string) *ListBareMetalServersOptions {
-	_options.NetworkInterfacesSubnetName = core.StringPtr(networkInterfacesSubnetName)
 	return _options
 }
 
@@ -49705,6 +52411,306 @@ func (_options *ListDedicatedHostsOptions) SetName(name string) *ListDedicatedHo
 
 // SetHeaders : Allow user to set Headers
 func (options *ListDedicatedHostsOptions) SetHeaders(param map[string]string) *ListDedicatedHostsOptions {
+	options.Headers = param
+	return options
+}
+
+// ListDynamicRouteServerIpsOptions : The ListDynamicRouteServerIps options.
+type ListDynamicRouteServerIpsOptions struct {
+	// The dynamic route server identifier.
+	DynamicRouteServerID *string `json:"dynamic_route_server_id" validate:"required,ne="`
+
+	// A server-provided token determining what resource to start the page on.
+	Start *string `json:"start,omitempty"`
+
+	// The number of resources to return on a page.
+	Limit *int64 `json:"limit,omitempty"`
+
+	// Sorts the returned collection by the specified property name in ascending order. A `-` may be prepended to the name
+	// to sort in descending order. For example, the value
+	// `-name` sorts the collection by the `name` property in descending order, and the value `name` sorts it by the `name`
+	// property in ascending order.
+	Sort *string `json:"sort,omitempty"`
+
+	// Allows users to set headers on API requests
+	Headers map[string]string
+}
+
+// Constants associated with the ListDynamicRouteServerIpsOptions.Sort property.
+// Sorts the returned collection by the specified property name in ascending order. A `-` may be prepended to the name
+// to sort in descending order. For example, the value
+// `-name` sorts the collection by the `name` property in descending order, and the value `name` sorts it by the `name`
+// property in ascending order.
+const (
+	ListDynamicRouteServerIpsOptionsSortAddressConst = "address"
+	ListDynamicRouteServerIpsOptionsSortNameConst    = "name"
+)
+
+// NewListDynamicRouteServerIpsOptions : Instantiate ListDynamicRouteServerIpsOptions
+func (*VpcV1) NewListDynamicRouteServerIpsOptions(dynamicRouteServerID string) *ListDynamicRouteServerIpsOptions {
+	return &ListDynamicRouteServerIpsOptions{
+		DynamicRouteServerID: core.StringPtr(dynamicRouteServerID),
+	}
+}
+
+// SetDynamicRouteServerID : Allow user to set DynamicRouteServerID
+func (_options *ListDynamicRouteServerIpsOptions) SetDynamicRouteServerID(dynamicRouteServerID string) *ListDynamicRouteServerIpsOptions {
+	_options.DynamicRouteServerID = core.StringPtr(dynamicRouteServerID)
+	return _options
+}
+
+// SetStart : Allow user to set Start
+func (_options *ListDynamicRouteServerIpsOptions) SetStart(start string) *ListDynamicRouteServerIpsOptions {
+	_options.Start = core.StringPtr(start)
+	return _options
+}
+
+// SetLimit : Allow user to set Limit
+func (_options *ListDynamicRouteServerIpsOptions) SetLimit(limit int64) *ListDynamicRouteServerIpsOptions {
+	_options.Limit = core.Int64Ptr(limit)
+	return _options
+}
+
+// SetSort : Allow user to set Sort
+func (_options *ListDynamicRouteServerIpsOptions) SetSort(sort string) *ListDynamicRouteServerIpsOptions {
+	_options.Sort = core.StringPtr(sort)
+	return _options
+}
+
+// SetHeaders : Allow user to set Headers
+func (options *ListDynamicRouteServerIpsOptions) SetHeaders(param map[string]string) *ListDynamicRouteServerIpsOptions {
+	options.Headers = param
+	return options
+}
+
+// ListDynamicRouteServerPeersOptions : The ListDynamicRouteServerPeers options.
+type ListDynamicRouteServerPeersOptions struct {
+	// The dynamic route server identifier.
+	DynamicRouteServerID *string `json:"dynamic_route_server_id" validate:"required,ne="`
+
+	// A server-provided token determining what resource to start the page on.
+	Start *string `json:"start,omitempty"`
+
+	// The number of resources to return on a page.
+	Limit *int64 `json:"limit,omitempty"`
+
+	// Sorts the returned collection by the specified property name in ascending order. A `-` may be prepended to the name
+	// to sort in descending order. For example, the value `-created_at` sorts the collection by the `created_at` property
+	// in descending order, and the value `name` sorts it by the `name` property in ascending order.
+	Sort *string `json:"sort,omitempty"`
+
+	// Allows users to set headers on API requests
+	Headers map[string]string
+}
+
+// Constants associated with the ListDynamicRouteServerPeersOptions.Sort property.
+// Sorts the returned collection by the specified property name in ascending order. A `-` may be prepended to the name
+// to sort in descending order. For example, the value `-created_at` sorts the collection by the `created_at` property
+// in descending order, and the value `name` sorts it by the `name` property in ascending order.
+const (
+	ListDynamicRouteServerPeersOptionsSortCreatedAtConst = "created_at"
+	ListDynamicRouteServerPeersOptionsSortNameConst      = "name"
+)
+
+// NewListDynamicRouteServerPeersOptions : Instantiate ListDynamicRouteServerPeersOptions
+func (*VpcV1) NewListDynamicRouteServerPeersOptions(dynamicRouteServerID string) *ListDynamicRouteServerPeersOptions {
+	return &ListDynamicRouteServerPeersOptions{
+		DynamicRouteServerID: core.StringPtr(dynamicRouteServerID),
+	}
+}
+
+// SetDynamicRouteServerID : Allow user to set DynamicRouteServerID
+func (_options *ListDynamicRouteServerPeersOptions) SetDynamicRouteServerID(dynamicRouteServerID string) *ListDynamicRouteServerPeersOptions {
+	_options.DynamicRouteServerID = core.StringPtr(dynamicRouteServerID)
+	return _options
+}
+
+// SetStart : Allow user to set Start
+func (_options *ListDynamicRouteServerPeersOptions) SetStart(start string) *ListDynamicRouteServerPeersOptions {
+	_options.Start = core.StringPtr(start)
+	return _options
+}
+
+// SetLimit : Allow user to set Limit
+func (_options *ListDynamicRouteServerPeersOptions) SetLimit(limit int64) *ListDynamicRouteServerPeersOptions {
+	_options.Limit = core.Int64Ptr(limit)
+	return _options
+}
+
+// SetSort : Allow user to set Sort
+func (_options *ListDynamicRouteServerPeersOptions) SetSort(sort string) *ListDynamicRouteServerPeersOptions {
+	_options.Sort = core.StringPtr(sort)
+	return _options
+}
+
+// SetHeaders : Allow user to set Headers
+func (options *ListDynamicRouteServerPeersOptions) SetHeaders(param map[string]string) *ListDynamicRouteServerPeersOptions {
+	options.Headers = param
+	return options
+}
+
+// ListDynamicRouteServerRoutesOptions : The ListDynamicRouteServerRoutes options.
+type ListDynamicRouteServerRoutesOptions struct {
+	// The dynamic route server identifier.
+	DynamicRouteServerID *string `json:"dynamic_route_server_id" validate:"required,ne="`
+
+	// A server-provided token determining what resource to start the page on.
+	Start *string `json:"start,omitempty"`
+
+	// The number of resources to return on a page.
+	Limit *int64 `json:"limit,omitempty"`
+
+	// Sorts the returned collection by the specified property name in ascending order. A `-` may be prepended to the name
+	// to sort in descending order. For example, the value `-destination` sorts the collection by the `destination`
+	// property in descending order.
+	Sort *string `json:"sort,omitempty"`
+
+	// Filters the collection to dynamic route server routes with `peer.id` matching the specified value.
+	PeerID *string `json:"peer.id,omitempty"`
+
+	// Filters the collection to dynamic route server routes with `type` matching the specified value.
+	Type *string `json:"type,omitempty"`
+
+	// Allows users to set headers on API requests
+	Headers map[string]string
+}
+
+// Constants associated with the ListDynamicRouteServerRoutesOptions.Sort property.
+// Sorts the returned collection by the specified property name in ascending order. A `-` may be prepended to the name
+// to sort in descending order. For example, the value `-destination` sorts the collection by the `destination` property
+// in descending order.
+const (
+	ListDynamicRouteServerRoutesOptionsSortCreatedAtConst   = "created_at"
+	ListDynamicRouteServerRoutesOptionsSortDestinationConst = "destination"
+)
+
+// Constants associated with the ListDynamicRouteServerRoutesOptions.Type property.
+// Filters the collection to dynamic route server routes with `type` matching the specified value.
+const (
+	ListDynamicRouteServerRoutesOptionsTypeLearnedConst                    = "learned"
+	ListDynamicRouteServerRoutesOptionsTypeRedistributedServiceRoutesConst = "redistributed_service_routes"
+	ListDynamicRouteServerRoutesOptionsTypeRedistributedSubnetsConst       = "redistributed_subnets"
+	ListDynamicRouteServerRoutesOptionsTypeRedistributedUserRoutesConst    = "redistributed_user_routes"
+)
+
+// NewListDynamicRouteServerRoutesOptions : Instantiate ListDynamicRouteServerRoutesOptions
+func (*VpcV1) NewListDynamicRouteServerRoutesOptions(dynamicRouteServerID string) *ListDynamicRouteServerRoutesOptions {
+	return &ListDynamicRouteServerRoutesOptions{
+		DynamicRouteServerID: core.StringPtr(dynamicRouteServerID),
+	}
+}
+
+// SetDynamicRouteServerID : Allow user to set DynamicRouteServerID
+func (_options *ListDynamicRouteServerRoutesOptions) SetDynamicRouteServerID(dynamicRouteServerID string) *ListDynamicRouteServerRoutesOptions {
+	_options.DynamicRouteServerID = core.StringPtr(dynamicRouteServerID)
+	return _options
+}
+
+// SetStart : Allow user to set Start
+func (_options *ListDynamicRouteServerRoutesOptions) SetStart(start string) *ListDynamicRouteServerRoutesOptions {
+	_options.Start = core.StringPtr(start)
+	return _options
+}
+
+// SetLimit : Allow user to set Limit
+func (_options *ListDynamicRouteServerRoutesOptions) SetLimit(limit int64) *ListDynamicRouteServerRoutesOptions {
+	_options.Limit = core.Int64Ptr(limit)
+	return _options
+}
+
+// SetSort : Allow user to set Sort
+func (_options *ListDynamicRouteServerRoutesOptions) SetSort(sort string) *ListDynamicRouteServerRoutesOptions {
+	_options.Sort = core.StringPtr(sort)
+	return _options
+}
+
+// SetPeerID : Allow user to set PeerID
+func (_options *ListDynamicRouteServerRoutesOptions) SetPeerID(peerID string) *ListDynamicRouteServerRoutesOptions {
+	_options.PeerID = core.StringPtr(peerID)
+	return _options
+}
+
+// SetType : Allow user to set Type
+func (_options *ListDynamicRouteServerRoutesOptions) SetType(typeVar string) *ListDynamicRouteServerRoutesOptions {
+	_options.Type = core.StringPtr(typeVar)
+	return _options
+}
+
+// SetHeaders : Allow user to set Headers
+func (options *ListDynamicRouteServerRoutesOptions) SetHeaders(param map[string]string) *ListDynamicRouteServerRoutesOptions {
+	options.Headers = param
+	return options
+}
+
+// ListDynamicRouteServersOptions : The ListDynamicRouteServers options.
+type ListDynamicRouteServersOptions struct {
+	// Filters the collection to resources with a `name` property matching the exact specified name.
+	Name *string `json:"name,omitempty"`
+
+	// A server-provided token determining what resource to start the page on.
+	Start *string `json:"start,omitempty"`
+
+	// The number of resources to return on a page.
+	Limit *int64 `json:"limit,omitempty"`
+
+	// Filters the collection to resources with a `resource_group.id` property matching the specified identifier.
+	ResourceGroupID *string `json:"resource_group.id,omitempty"`
+
+	// Sorts the returned collection by the specified property name in ascending order. A `-` may be prepended to the name
+	// to sort in descending order. For example, the value `-created_at` sorts the collection by the `created_at` property
+	// in descending order, and the value `name` sorts it by the `name` property in ascending order.
+	Sort *string `json:"sort,omitempty"`
+
+	// Allows users to set headers on API requests
+	Headers map[string]string
+}
+
+// Constants associated with the ListDynamicRouteServersOptions.Sort property.
+// Sorts the returned collection by the specified property name in ascending order. A `-` may be prepended to the name
+// to sort in descending order. For example, the value `-created_at` sorts the collection by the `created_at` property
+// in descending order, and the value `name` sorts it by the `name` property in ascending order.
+const (
+	ListDynamicRouteServersOptionsSortCreatedAtConst = "created_at"
+	ListDynamicRouteServersOptionsSortNameConst      = "name"
+)
+
+// NewListDynamicRouteServersOptions : Instantiate ListDynamicRouteServersOptions
+func (*VpcV1) NewListDynamicRouteServersOptions() *ListDynamicRouteServersOptions {
+	return &ListDynamicRouteServersOptions{}
+}
+
+// SetName : Allow user to set Name
+func (_options *ListDynamicRouteServersOptions) SetName(name string) *ListDynamicRouteServersOptions {
+	_options.Name = core.StringPtr(name)
+	return _options
+}
+
+// SetStart : Allow user to set Start
+func (_options *ListDynamicRouteServersOptions) SetStart(start string) *ListDynamicRouteServersOptions {
+	_options.Start = core.StringPtr(start)
+	return _options
+}
+
+// SetLimit : Allow user to set Limit
+func (_options *ListDynamicRouteServersOptions) SetLimit(limit int64) *ListDynamicRouteServersOptions {
+	_options.Limit = core.Int64Ptr(limit)
+	return _options
+}
+
+// SetResourceGroupID : Allow user to set ResourceGroupID
+func (_options *ListDynamicRouteServersOptions) SetResourceGroupID(resourceGroupID string) *ListDynamicRouteServersOptions {
+	_options.ResourceGroupID = core.StringPtr(resourceGroupID)
+	return _options
+}
+
+// SetSort : Allow user to set Sort
+func (_options *ListDynamicRouteServersOptions) SetSort(sort string) *ListDynamicRouteServersOptions {
+	_options.Sort = core.StringPtr(sort)
+	return _options
+}
+
+// SetHeaders : Allow user to set Headers
+func (options *ListDynamicRouteServersOptions) SetHeaders(param map[string]string) *ListDynamicRouteServersOptions {
 	options.Headers = param
 	return options
 }
@@ -57355,7 +60361,7 @@ type NetworkACLPrototype struct {
 	Name *string `json:"name,omitempty"`
 
 	// The resource group to use. If unspecified, the account's [default resource
-	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) is used.
+	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) will be used.
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
 
 	// The VPC this network ACL will reside in.
@@ -59554,7 +62560,7 @@ type PublicGatewayFloatingIPPrototype struct {
 	Name *string `json:"name,omitempty"`
 
 	// The resource group to use. If unspecified, the account's [default resource
-	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) is used.
+	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) will be used.
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
 }
 
@@ -59909,6 +62915,44 @@ func (_options *RemoveBareMetalServerNetworkInterfaceFloatingIPOptions) SetID(id
 
 // SetHeaders : Allow user to set Headers
 func (options *RemoveBareMetalServerNetworkInterfaceFloatingIPOptions) SetHeaders(param map[string]string) *RemoveBareMetalServerNetworkInterfaceFloatingIPOptions {
+	options.Headers = param
+	return options
+}
+
+// RemoveDynamicRouteServerIPOptions : The RemoveDynamicRouteServerIP options.
+type RemoveDynamicRouteServerIPOptions struct {
+	// The dynamic route server identifier.
+	DynamicRouteServerID *string `json:"dynamic_route_server_id" validate:"required,ne="`
+
+	// The reserved IP identifier.
+	ID *string `json:"id" validate:"required,ne="`
+
+	// Allows users to set headers on API requests
+	Headers map[string]string
+}
+
+// NewRemoveDynamicRouteServerIPOptions : Instantiate RemoveDynamicRouteServerIPOptions
+func (*VpcV1) NewRemoveDynamicRouteServerIPOptions(dynamicRouteServerID string, id string) *RemoveDynamicRouteServerIPOptions {
+	return &RemoveDynamicRouteServerIPOptions{
+		DynamicRouteServerID: core.StringPtr(dynamicRouteServerID),
+		ID:                   core.StringPtr(id),
+	}
+}
+
+// SetDynamicRouteServerID : Allow user to set DynamicRouteServerID
+func (_options *RemoveDynamicRouteServerIPOptions) SetDynamicRouteServerID(dynamicRouteServerID string) *RemoveDynamicRouteServerIPOptions {
+	_options.DynamicRouteServerID = core.StringPtr(dynamicRouteServerID)
+	return _options
+}
+
+// SetID : Allow user to set ID
+func (_options *RemoveDynamicRouteServerIPOptions) SetID(id string) *RemoveDynamicRouteServerIPOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
+}
+
+// SetHeaders : Allow user to set Headers
+func (options *RemoveDynamicRouteServerIPOptions) SetHeaders(param map[string]string) *RemoveDynamicRouteServerIPOptions {
 	options.Headers = param
 	return options
 }
@@ -60491,6 +63535,98 @@ func UnmarshalReservedIPCollectionBareMetalServerNetworkInterfaceContextNext(m m
 	return
 }
 
+// ReservedIPCollectionDynamicRouteServerContext : ReservedIPCollectionDynamicRouteServerContext struct
+type ReservedIPCollectionDynamicRouteServerContext struct {
+	// A link to the first page of resources.
+	First *ReservedIPCollectionDynamicRouteServerContextFirst `json:"first" validate:"required"`
+
+	// Collection of reserved IPs bound to a dynamic route server.
+	Ips []ReservedIPReference `json:"ips" validate:"required"`
+
+	// The maximum number of resources that can be returned by the request.
+	Limit *int64 `json:"limit" validate:"required"`
+
+	// A link to the next page of resources. This property is present for all pages
+	// except the last page.
+	Next *ReservedIPCollectionDynamicRouteServerContextNext `json:"next,omitempty"`
+
+	// The total number of resources across all pages.
+	TotalCount *int64 `json:"total_count" validate:"required"`
+}
+
+// UnmarshalReservedIPCollectionDynamicRouteServerContext unmarshals an instance of ReservedIPCollectionDynamicRouteServerContext from the specified map of raw messages.
+func UnmarshalReservedIPCollectionDynamicRouteServerContext(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(ReservedIPCollectionDynamicRouteServerContext)
+	err = core.UnmarshalModel(m, "first", &obj.First, UnmarshalReservedIPCollectionDynamicRouteServerContextFirst)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "ips", &obj.Ips, UnmarshalReservedIPReference)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "limit", &obj.Limit)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "next", &obj.Next, UnmarshalReservedIPCollectionDynamicRouteServerContextNext)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "total_count", &obj.TotalCount)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// Retrieve the value to be passed to a request to access the next page of results
+func (resp *ReservedIPCollectionDynamicRouteServerContext) GetNextStart() (*string, error) {
+	if core.IsNil(resp.Next) {
+		return nil, nil
+	}
+	start, err := core.GetQueryParam(resp.Next.Href, "start")
+	if err != nil || start == nil {
+		return nil, err
+	}
+	return start, nil
+}
+
+// ReservedIPCollectionDynamicRouteServerContextFirst : A link to the first page of resources.
+type ReservedIPCollectionDynamicRouteServerContextFirst struct {
+	// The URL for a page of resources.
+	Href *string `json:"href" validate:"required"`
+}
+
+// UnmarshalReservedIPCollectionDynamicRouteServerContextFirst unmarshals an instance of ReservedIPCollectionDynamicRouteServerContextFirst from the specified map of raw messages.
+func UnmarshalReservedIPCollectionDynamicRouteServerContextFirst(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(ReservedIPCollectionDynamicRouteServerContextFirst)
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// ReservedIPCollectionDynamicRouteServerContextNext : A link to the next page of resources. This property is present for all pages except the last page.
+type ReservedIPCollectionDynamicRouteServerContextNext struct {
+	// The URL for a page of resources.
+	Href *string `json:"href" validate:"required"`
+}
+
+// UnmarshalReservedIPCollectionDynamicRouteServerContextNext unmarshals an instance of ReservedIPCollectionDynamicRouteServerContextNext from the specified map of raw messages.
+func UnmarshalReservedIPCollectionDynamicRouteServerContextNext(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(ReservedIPCollectionDynamicRouteServerContextNext)
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
 // ReservedIPCollectionEndpointGatewayContext : ReservedIPCollectionEndpointGatewayContext struct
 type ReservedIPCollectionEndpointGatewayContext struct {
 	// A link to the first page of resources.
@@ -60709,6 +63845,41 @@ func UnmarshalReservedIPCollectionNext(m map[string]json.RawMessage, result inte
 	return
 }
 
+// ReservedIPIdentity : Identifies a reserved IP by a unique property.
+// Models which "extend" this model:
+// - ReservedIPIdentityByID
+// - ReservedIPIdentityByHref
+type ReservedIPIdentity struct {
+	// The unique identifier for this reserved IP.
+	ID *string `json:"id,omitempty"`
+
+	// The URL for this reserved IP.
+	Href *string `json:"href,omitempty"`
+}
+
+func (*ReservedIPIdentity) isaReservedIPIdentity() bool {
+	return true
+}
+
+type ReservedIPIdentityIntf interface {
+	isaReservedIPIdentity() bool
+}
+
+// UnmarshalReservedIPIdentity unmarshals an instance of ReservedIPIdentity from the specified map of raw messages.
+func UnmarshalReservedIPIdentity(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(ReservedIPIdentity)
+	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
 // ReservedIPPatch : ReservedIPPatch struct
 type ReservedIPPatch struct {
 	// Indicates whether this reserved IP member will be automatically deleted when either
@@ -60840,6 +64011,7 @@ func UnmarshalReservedIPReferenceDeleted(m map[string]json.RawMessage, result in
 // - ReservedIPTargetVPNGatewayReference
 // - ReservedIPTargetVPNServerReference
 // - ReservedIPTargetGenericResourceReference
+// - ReservedIPTargetDynamicRouteServerReference
 type ReservedIPTarget struct {
 	// The CRN for this endpoint gateway.
 	CRN *string `json:"crn,omitempty"`
@@ -60970,7 +64142,7 @@ func UnmarshalResourceFilter(m map[string]json.RawMessage, result interface{}) (
 }
 
 // ResourceGroupIdentity : The resource group to use. If unspecified, the account's [default resource
-// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) is used.
+// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) will be used.
 // Models which "extend" this model:
 // - ResourceGroupIdentityByID
 type ResourceGroupIdentity struct {
@@ -61069,8 +64241,8 @@ type Route struct {
 	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
 
 	// If present, the resource that created the route. Routes with this property present cannot
-	// be directly deleted. All routes with an `origin` of `service` will have this property set,
-	// and future `origin` values may also have this property set.
+	// be directly deleted. All routes with an `origin` of `learned` or `service` will have this
+	// property set, and future `origin` values may also have this property set.
 	Creator RouteCreatorIntf `json:"creator,omitempty"`
 
 	// The destination CIDR of the route.
@@ -61093,6 +64265,8 @@ type Route struct {
 	NextHop RouteNextHopIntf `json:"next_hop" validate:"required"`
 
 	// The origin of this route:
+	// - `learned`: route was created by a service after learning it via a dynamic routing
+	//    protocol
 	// - `service`: route was directly created by a service
 	// - `user`: route was directly created by a user
 	//
@@ -61140,13 +64314,16 @@ const (
 
 // Constants associated with the Route.Origin property.
 // The origin of this route:
-// - `service`: route was directly created by a service
-// - `user`: route was directly created by a user
+//   - `learned`: route was created by a service after learning it via a dynamic routing
+//     protocol
+//   - `service`: route was directly created by a service
+//   - `user`: route was directly created by a user
 //
 // The enumerated values for this property are expected to expand in the future. When processing this property, check
 // for and log unknown values. Optionally halt processing and surface the error, or bypass the route on which the
 // unexpected property value was encountered.
 const (
+	RouteOriginLearnedConst = "learned"
 	RouteOriginServiceConst = "service"
 	RouteOriginUserConst    = "user"
 )
@@ -61403,8 +64580,8 @@ type RouteCollectionVPCContextRoutesItem struct {
 	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
 
 	// If present, the resource that created the route. Routes with this property present cannot
-	// be directly deleted. All routes with an `origin` of `service` will have this property set,
-	// and future `origin` values may also have this property set.
+	// be directly deleted. All routes with an `origin` of `learned` or `service` will have this
+	// property set, and future `origin` values may also have this property set.
 	Creator RouteCreatorIntf `json:"creator,omitempty"`
 
 	// The destination CIDR of the route.
@@ -61427,6 +64604,8 @@ type RouteCollectionVPCContextRoutesItem struct {
 	NextHop RouteNextHopIntf `json:"next_hop" validate:"required"`
 
 	// The origin of this route:
+	// - `learned`: route was created by a service after learning it via a dynamic routing
+	//    protocol
 	// - `service`: route was directly created by a service
 	// - `user`: route was directly created by a user
 	//
@@ -61474,13 +64653,16 @@ const (
 
 // Constants associated with the RouteCollectionVPCContextRoutesItem.Origin property.
 // The origin of this route:
-// - `service`: route was directly created by a service
-// - `user`: route was directly created by a user
+//   - `learned`: route was created by a service after learning it via a dynamic routing
+//     protocol
+//   - `service`: route was directly created by a service
+//   - `user`: route was directly created by a user
 //
 // The enumerated values for this property are expected to expand in the future. When processing this property, check
 // for and log unknown values. Optionally halt processing and surface the error, or bypass the route on which the
 // unexpected property value was encountered.
 const (
+	RouteCollectionVPCContextRoutesItemOriginLearnedConst = "learned"
 	RouteCollectionVPCContextRoutesItemOriginServiceConst = "service"
 	RouteCollectionVPCContextRoutesItemOriginUserConst    = "user"
 )
@@ -61541,11 +64723,12 @@ func UnmarshalRouteCollectionVPCContextRoutesItem(m map[string]json.RawMessage, 
 }
 
 // RouteCreator : If present, the resource that created the route. Routes with this property present cannot be directly deleted. All
-// routes with an `origin` of `service` will have this property set, and future `origin` values may also have this
-// property set.
+// routes with an `origin` of `learned` or `service` will have this property set, and future `origin` values may also
+// have this property set.
 // Models which "extend" this model:
 // - RouteCreatorVPNGatewayReference
 // - RouteCreatorVPNServerReference
+// - RouteCreatorDynamicRouteServerReference
 type RouteCreator struct {
 	// The VPN gateway's CRN.
 	CRN *string `json:"crn,omitempty"`
@@ -61990,8 +65173,8 @@ func UnmarshalRouteReferenceDeleted(m map[string]json.RawMessage, result interfa
 type RoutingTable struct {
 	// The filters specifying the resources that may create routes in this routing table.
 	//
-	// At present, only the `resource_type` filter is permitted, and only the `vpn_server` value is supported, but filter
-	// support is expected to expand in the future.
+	// At present, only the `resource_type` filter is permitted, and only the values
+	// `dynamic_route_server` and `vpn_server` are supported, but filter support is expected to expand in the future.
 	AcceptRoutesFrom []ResourceFilter `json:"accept_routes_from" validate:"required"`
 
 	// The date and time that this routing table was created.
@@ -62275,8 +65458,8 @@ type RoutingTablePatch struct {
 	// existing filter is removed. Therefore, if an empty array is specified, all filters will be removed, resulting in all
 	// routes not directly created by the user being removed.
 	//
-	// At present, only the `resource_type` filter is permitted, and only the `vpn_server` value is supported, but filter
-	// support is expected to expand in the future.
+	// At present, only the `resource_type` filter is permitted, and only the values
+	// `dynamic_route_server` and `vpn_server` are supported, but filter support is expected to expand in the future.
 	AcceptRoutesFrom []ResourceFilter `json:"accept_routes_from,omitempty"`
 
 	// The name for this routing table. The name must not be used by another routing table in the VPC.
@@ -63381,6 +66564,7 @@ func UnmarshalSecurityGroupTargetCollectionNext(m map[string]json.RawMessage, re
 // - SecurityGroupTargetReferenceEndpointGatewayReference
 // - SecurityGroupTargetReferenceVPNServerReference
 // - SecurityGroupTargetReferenceVirtualNetworkInterfaceReference
+// - SecurityGroupTargetReferenceDynamicRouteServerReference
 type SecurityGroupTargetReference struct {
 	// If present, this property indicates the referenced resource has been deleted, and provides
 	// some supplementary information.
@@ -64525,16 +67709,11 @@ type ShareMountTargetVirtualNetworkInterfacePrototype struct {
 	// an available address on the subnet will be automatically selected and reserved.
 	PrimaryIP VirtualNetworkInterfacePrimaryIPPrototypeIntf `json:"primary_ip,omitempty"`
 
-	// The resource group to use. If unspecified, the account's [default resource
-	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) is used.
-	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
-
 	// The security groups to use for this virtual network interface. If unspecified, the default security group of the VPC
 	// for the subnet is used.
 	SecurityGroups []SecurityGroupIdentityIntf `json:"security_groups,omitempty"`
 
-	// The associated subnet. Required if `primary_ip` does not specify a reserved IP and
-	// `primary_ip.address` is not specified.
+	// The associated subnet. Required if `primary_ip` does not specify a reserved IP.
 	Subnet SubnetIdentityIntf `json:"subnet,omitempty"`
 }
 
@@ -64554,10 +67733,6 @@ func UnmarshalShareMountTargetVirtualNetworkInterfacePrototype(m map[string]json
 		return
 	}
 	err = core.UnmarshalModel(m, "primary_ip", &obj.PrimaryIP, UnmarshalVirtualNetworkInterfacePrimaryIPPrototype)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "resource_group", &obj.ResourceGroup, UnmarshalResourceGroupIdentity)
 	if err != nil {
 		return
 	}
@@ -65114,7 +68289,7 @@ type SharePrototype struct {
 	InitialOwner *ShareInitialOwner `json:"initial_owner,omitempty"`
 
 	// The resource group to use. If unspecified, the account's [default resource
-	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) is used.
+	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) will be used.
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
 
 	// The size of the file share rounded up to the next gigabyte.
@@ -65961,7 +69136,7 @@ type SnapshotPrototype struct {
 	Name *string `json:"name,omitempty"`
 
 	// The resource group to use. If unspecified, the account's [default resource
-	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) is used.
+	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) will be used.
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
 
 	// The [user tags](https://cloud.ibm.com/apidocs/tagging#types-of-tags) associated with this snapshot.
@@ -66636,7 +69811,7 @@ type SubnetPrototype struct {
 	PublicGateway PublicGatewayIdentityIntf `json:"public_gateway,omitempty"`
 
 	// The resource group to use. If unspecified, the account's [default resource
-	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) is used.
+	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) will be used.
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
 
 	// The routing table to use for this subnet. If unspecified, the default routing table
@@ -67304,6 +70479,112 @@ func (_options *UpdateDedicatedHostOptions) SetDedicatedHostPatch(dedicatedHostP
 
 // SetHeaders : Allow user to set Headers
 func (options *UpdateDedicatedHostOptions) SetHeaders(param map[string]string) *UpdateDedicatedHostOptions {
+	options.Headers = param
+	return options
+}
+
+// UpdateDynamicRouteServerOptions : The UpdateDynamicRouteServer options.
+type UpdateDynamicRouteServerOptions struct {
+	// The dynamic route server identifier.
+	ID *string `json:"id" validate:"required,ne="`
+
+	// The dynamic route server patch.
+	DynamicRouteServerPatch map[string]interface{} `json:"DynamicRouteServer_patch" validate:"required"`
+
+	// If present, the request will fail if the specified ETag value does not match the resource's current ETag value.
+	// Required if the request body includes an array.
+	IfMatch *string `json:"If-Match,omitempty"`
+
+	// Allows users to set headers on API requests
+	Headers map[string]string
+}
+
+// NewUpdateDynamicRouteServerOptions : Instantiate UpdateDynamicRouteServerOptions
+func (*VpcV1) NewUpdateDynamicRouteServerOptions(id string, dynamicRouteServerPatch map[string]interface{}) *UpdateDynamicRouteServerOptions {
+	return &UpdateDynamicRouteServerOptions{
+		ID:                      core.StringPtr(id),
+		DynamicRouteServerPatch: dynamicRouteServerPatch,
+	}
+}
+
+// SetID : Allow user to set ID
+func (_options *UpdateDynamicRouteServerOptions) SetID(id string) *UpdateDynamicRouteServerOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
+}
+
+// SetDynamicRouteServerPatch : Allow user to set DynamicRouteServerPatch
+func (_options *UpdateDynamicRouteServerOptions) SetDynamicRouteServerPatch(dynamicRouteServerPatch map[string]interface{}) *UpdateDynamicRouteServerOptions {
+	_options.DynamicRouteServerPatch = dynamicRouteServerPatch
+	return _options
+}
+
+// SetIfMatch : Allow user to set IfMatch
+func (_options *UpdateDynamicRouteServerOptions) SetIfMatch(ifMatch string) *UpdateDynamicRouteServerOptions {
+	_options.IfMatch = core.StringPtr(ifMatch)
+	return _options
+}
+
+// SetHeaders : Allow user to set Headers
+func (options *UpdateDynamicRouteServerOptions) SetHeaders(param map[string]string) *UpdateDynamicRouteServerOptions {
+	options.Headers = param
+	return options
+}
+
+// UpdateDynamicRouteServerPeerOptions : The UpdateDynamicRouteServerPeer options.
+type UpdateDynamicRouteServerPeerOptions struct {
+	// The dynamic route server identifier.
+	DynamicRouteServerID *string `json:"dynamic_route_server_id" validate:"required,ne="`
+
+	// The dynamic route server peer identifier.
+	ID *string `json:"id" validate:"required,ne="`
+
+	// The dynamic route server peer patch.
+	DynamicRouteServerPeerPatch map[string]interface{} `json:"DynamicRouteServerPeer_patch" validate:"required"`
+
+	// If present, the request will fail if the specified ETag value does not match the resource's current ETag value.
+	// Required if the request body includes an array.
+	IfMatch *string `json:"If-Match,omitempty"`
+
+	// Allows users to set headers on API requests
+	Headers map[string]string
+}
+
+// NewUpdateDynamicRouteServerPeerOptions : Instantiate UpdateDynamicRouteServerPeerOptions
+func (*VpcV1) NewUpdateDynamicRouteServerPeerOptions(dynamicRouteServerID string, id string, dynamicRouteServerPeerPatch map[string]interface{}) *UpdateDynamicRouteServerPeerOptions {
+	return &UpdateDynamicRouteServerPeerOptions{
+		DynamicRouteServerID:        core.StringPtr(dynamicRouteServerID),
+		ID:                          core.StringPtr(id),
+		DynamicRouteServerPeerPatch: dynamicRouteServerPeerPatch,
+	}
+}
+
+// SetDynamicRouteServerID : Allow user to set DynamicRouteServerID
+func (_options *UpdateDynamicRouteServerPeerOptions) SetDynamicRouteServerID(dynamicRouteServerID string) *UpdateDynamicRouteServerPeerOptions {
+	_options.DynamicRouteServerID = core.StringPtr(dynamicRouteServerID)
+	return _options
+}
+
+// SetID : Allow user to set ID
+func (_options *UpdateDynamicRouteServerPeerOptions) SetID(id string) *UpdateDynamicRouteServerPeerOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
+}
+
+// SetDynamicRouteServerPeerPatch : Allow user to set DynamicRouteServerPeerPatch
+func (_options *UpdateDynamicRouteServerPeerOptions) SetDynamicRouteServerPeerPatch(dynamicRouteServerPeerPatch map[string]interface{}) *UpdateDynamicRouteServerPeerOptions {
+	_options.DynamicRouteServerPeerPatch = dynamicRouteServerPeerPatch
+	return _options
+}
+
+// SetIfMatch : Allow user to set IfMatch
+func (_options *UpdateDynamicRouteServerPeerOptions) SetIfMatch(ifMatch string) *UpdateDynamicRouteServerPeerOptions {
+	_options.IfMatch = core.StringPtr(ifMatch)
+	return _options
+}
+
+// SetHeaders : Allow user to set Headers
+func (options *UpdateDynamicRouteServerPeerOptions) SetHeaders(param map[string]string) *UpdateDynamicRouteServerPeerOptions {
 	options.Headers = param
 	return options
 }
@@ -71820,7 +75101,7 @@ type VPNGatewayPrototype struct {
 	Name *string `json:"name,omitempty"`
 
 	// The resource group to use. If unspecified, the account's [default resource
-	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) is used.
+	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) will be used.
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
 
 	// Identifies a subnet by a unique property.
@@ -73246,10 +76527,6 @@ type VirtualNetworkInterfaceReferenceAttachmentContext struct {
 	// The CRN for this virtual network interface.
 	CRN *string `json:"crn" validate:"required"`
 
-	// If present, this property indicates the referenced resource has been deleted, and provides
-	// some supplementary information.
-	Deleted *VirtualNetworkInterfaceReferenceAttachmentContextDeleted `json:"deleted,omitempty"`
-
 	// The URL for this virtual network interface.
 	Href *string `json:"href" validate:"required"`
 
@@ -73276,10 +76553,6 @@ func UnmarshalVirtualNetworkInterfaceReferenceAttachmentContext(m map[string]jso
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalModel(m, "deleted", &obj.Deleted, UnmarshalVirtualNetworkInterfaceReferenceAttachmentContextDeleted)
-	if err != nil {
-		return
-	}
 	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
 	if err != nil {
 		return
@@ -73300,24 +76573,6 @@ func UnmarshalVirtualNetworkInterfaceReferenceAttachmentContext(m map[string]jso
 	return
 }
 
-// VirtualNetworkInterfaceReferenceAttachmentContextDeleted : If present, this property indicates the referenced resource has been deleted, and provides some supplementary
-// information.
-type VirtualNetworkInterfaceReferenceAttachmentContextDeleted struct {
-	// Link to documentation about deleted resources.
-	MoreInfo *string `json:"more_info" validate:"required"`
-}
-
-// UnmarshalVirtualNetworkInterfaceReferenceAttachmentContextDeleted unmarshals an instance of VirtualNetworkInterfaceReferenceAttachmentContextDeleted from the specified map of raw messages.
-func UnmarshalVirtualNetworkInterfaceReferenceAttachmentContextDeleted(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(VirtualNetworkInterfaceReferenceAttachmentContextDeleted)
-	err = core.UnmarshalPrimitive(m, "more_info", &obj.MoreInfo)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
 // VirtualNetworkInterfaceReferenceDeleted : If present, this property indicates the referenced resource has been deleted, and provides some supplementary
 // information.
 type VirtualNetworkInterfaceReferenceDeleted struct {
@@ -73328,24 +76583,6 @@ type VirtualNetworkInterfaceReferenceDeleted struct {
 // UnmarshalVirtualNetworkInterfaceReferenceDeleted unmarshals an instance of VirtualNetworkInterfaceReferenceDeleted from the specified map of raw messages.
 func UnmarshalVirtualNetworkInterfaceReferenceDeleted(m map[string]json.RawMessage, result interface{}) (err error) {
 	obj := new(VirtualNetworkInterfaceReferenceDeleted)
-	err = core.UnmarshalPrimitive(m, "more_info", &obj.MoreInfo)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// VirtualNetworkInterfaceReferenceReservedIPTargetContextDeleted : If present, this property indicates the referenced resource has been deleted, and provides some supplementary
-// information.
-type VirtualNetworkInterfaceReferenceReservedIPTargetContextDeleted struct {
-	// Link to documentation about deleted resources.
-	MoreInfo *string `json:"more_info" validate:"required"`
-}
-
-// UnmarshalVirtualNetworkInterfaceReferenceReservedIPTargetContextDeleted unmarshals an instance of VirtualNetworkInterfaceReferenceReservedIPTargetContextDeleted from the specified map of raw messages.
-func UnmarshalVirtualNetworkInterfaceReferenceReservedIPTargetContextDeleted(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(VirtualNetworkInterfaceReferenceReservedIPTargetContextDeleted)
 	err = core.UnmarshalPrimitive(m, "more_info", &obj.MoreInfo)
 	if err != nil {
 		return
@@ -74753,7 +77990,7 @@ type VolumePrototype struct {
 	Profile VolumeProfileIdentityIntf `json:"profile" validate:"required"`
 
 	// The resource group to use. If unspecified, the account's [default resource
-	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) is used.
+	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) will be used.
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
 
 	// The [user tags](https://cloud.ibm.com/apidocs/tagging#types-of-tags) associated with this volume.
@@ -88274,7 +91511,7 @@ type PublicGatewayFloatingIPPrototypeFloatingIPPrototypeTargetContext struct {
 	Name *string `json:"name,omitempty"`
 
 	// The resource group to use. If unspecified, the account's [default resource
-	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) is used.
+	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) will be used.
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
 }
 
@@ -88452,6 +91689,68 @@ func UnmarshalRegionIdentityByName(m map[string]json.RawMessage, result interfac
 	return
 }
 
+// ReservedIPIdentityByHref : ReservedIPIdentityByHref struct
+// This model "extends" ReservedIPIdentity
+type ReservedIPIdentityByHref struct {
+	// The URL for this reserved IP.
+	Href *string `json:"href" validate:"required"`
+}
+
+// NewReservedIPIdentityByHref : Instantiate ReservedIPIdentityByHref (Generic Model Constructor)
+func (*VpcV1) NewReservedIPIdentityByHref(href string) (_model *ReservedIPIdentityByHref, err error) {
+	_model = &ReservedIPIdentityByHref{
+		Href: core.StringPtr(href),
+	}
+	err = core.ValidateStruct(_model, "required parameters")
+	return
+}
+
+func (*ReservedIPIdentityByHref) isaReservedIPIdentity() bool {
+	return true
+}
+
+// UnmarshalReservedIPIdentityByHref unmarshals an instance of ReservedIPIdentityByHref from the specified map of raw messages.
+func UnmarshalReservedIPIdentityByHref(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(ReservedIPIdentityByHref)
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// ReservedIPIdentityByID : ReservedIPIdentityByID struct
+// This model "extends" ReservedIPIdentity
+type ReservedIPIdentityByID struct {
+	// The unique identifier for this reserved IP.
+	ID *string `json:"id" validate:"required"`
+}
+
+// NewReservedIPIdentityByID : Instantiate ReservedIPIdentityByID (Generic Model Constructor)
+func (*VpcV1) NewReservedIPIdentityByID(id string) (_model *ReservedIPIdentityByID, err error) {
+	_model = &ReservedIPIdentityByID{
+		ID: core.StringPtr(id),
+	}
+	err = core.ValidateStruct(_model, "required parameters")
+	return
+}
+
+func (*ReservedIPIdentityByID) isaReservedIPIdentity() bool {
+	return true
+}
+
+// UnmarshalReservedIPIdentityByID unmarshals an instance of ReservedIPIdentityByID from the specified map of raw messages.
+func UnmarshalReservedIPIdentityByID(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(ReservedIPIdentityByID)
+	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
 // ReservedIPTargetPrototypeEndpointGatewayIdentity : ReservedIPTargetPrototypeEndpointGatewayIdentity struct
 // Models which "extend" this model:
 // - ReservedIPTargetPrototypeEndpointGatewayIdentityEndpointGatewayIdentityByID
@@ -88535,6 +91834,70 @@ func (*ReservedIPTargetBareMetalServerNetworkInterfaceReferenceTargetContext) is
 func UnmarshalReservedIPTargetBareMetalServerNetworkInterfaceReferenceTargetContext(m map[string]json.RawMessage, result interface{}) (err error) {
 	obj := new(ReservedIPTargetBareMetalServerNetworkInterfaceReferenceTargetContext)
 	err = core.UnmarshalModel(m, "deleted", &obj.Deleted, UnmarshalBareMetalServerNetworkInterfaceReferenceTargetContextDeleted)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// ReservedIPTargetDynamicRouteServerReference : ReservedIPTargetDynamicRouteServerReference struct
+// This model "extends" ReservedIPTarget
+type ReservedIPTargetDynamicRouteServerReference struct {
+	// The CRN for this dynamic route server.
+	CRN *string `json:"crn" validate:"required"`
+
+	// If present, this property indicates the referenced resource has been deleted, and provides
+	// some supplementary information.
+	Deleted *DynamicRouteServerReferenceDeleted `json:"deleted,omitempty"`
+
+	// The URL for this dynamic route server.
+	Href *string `json:"href" validate:"required"`
+
+	// The unique identifier for this dynamic route server.
+	ID *string `json:"id" validate:"required"`
+
+	// The name for this dynamic route server. The name is unique across all dynamic route servers in the region.
+	Name *string `json:"name" validate:"required"`
+
+	// The resource type.
+	ResourceType *string `json:"resource_type" validate:"required"`
+}
+
+// Constants associated with the ReservedIPTargetDynamicRouteServerReference.ResourceType property.
+// The resource type.
+const (
+	ReservedIPTargetDynamicRouteServerReferenceResourceTypeDynamicRouteServerConst = "dynamic_route_server"
+)
+
+func (*ReservedIPTargetDynamicRouteServerReference) isaReservedIPTarget() bool {
+	return true
+}
+
+// UnmarshalReservedIPTargetDynamicRouteServerReference unmarshals an instance of ReservedIPTargetDynamicRouteServerReference from the specified map of raw messages.
+func UnmarshalReservedIPTargetDynamicRouteServerReference(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(ReservedIPTargetDynamicRouteServerReference)
+	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "deleted", &obj.Deleted, UnmarshalDynamicRouteServerReferenceDeleted)
 	if err != nil {
 		return
 	}
@@ -88920,10 +92283,6 @@ type ReservedIPTargetVirtualNetworkInterfaceReferenceReservedIPTargetContext str
 	// The CRN for this virtual network interface.
 	CRN *string `json:"crn" validate:"required"`
 
-	// If present, this property indicates the referenced resource has been deleted, and provides
-	// some supplementary information.
-	Deleted *VirtualNetworkInterfaceReferenceReservedIPTargetContextDeleted `json:"deleted,omitempty"`
-
 	// The URL for this virtual network interface.
 	Href *string `json:"href" validate:"required"`
 
@@ -88951,10 +92310,6 @@ func (*ReservedIPTargetVirtualNetworkInterfaceReferenceReservedIPTargetContext) 
 func UnmarshalReservedIPTargetVirtualNetworkInterfaceReferenceReservedIPTargetContext(m map[string]json.RawMessage, result interface{}) (err error) {
 	obj := new(ReservedIPTargetVirtualNetworkInterfaceReferenceReservedIPTargetContext)
 	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "deleted", &obj.Deleted, UnmarshalVirtualNetworkInterfaceReferenceReservedIPTargetContextDeleted)
 	if err != nil {
 		return
 	}
@@ -89002,6 +92357,70 @@ func (*ResourceGroupIdentityByID) isaResourceGroupIdentity() bool {
 func UnmarshalResourceGroupIdentityByID(m map[string]json.RawMessage, result interface{}) (err error) {
 	obj := new(ResourceGroupIdentityByID)
 	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// RouteCreatorDynamicRouteServerReference : RouteCreatorDynamicRouteServerReference struct
+// This model "extends" RouteCreator
+type RouteCreatorDynamicRouteServerReference struct {
+	// The CRN for this dynamic route server.
+	CRN *string `json:"crn" validate:"required"`
+
+	// If present, this property indicates the referenced resource has been deleted, and provides
+	// some supplementary information.
+	Deleted *DynamicRouteServerReferenceDeleted `json:"deleted,omitempty"`
+
+	// The URL for this dynamic route server.
+	Href *string `json:"href" validate:"required"`
+
+	// The unique identifier for this dynamic route server.
+	ID *string `json:"id" validate:"required"`
+
+	// The name for this dynamic route server. The name is unique across all dynamic route servers in the region.
+	Name *string `json:"name" validate:"required"`
+
+	// The resource type.
+	ResourceType *string `json:"resource_type" validate:"required"`
+}
+
+// Constants associated with the RouteCreatorDynamicRouteServerReference.ResourceType property.
+// The resource type.
+const (
+	RouteCreatorDynamicRouteServerReferenceResourceTypeDynamicRouteServerConst = "dynamic_route_server"
+)
+
+func (*RouteCreatorDynamicRouteServerReference) isaRouteCreator() bool {
+	return true
+}
+
+// UnmarshalRouteCreatorDynamicRouteServerReference unmarshals an instance of RouteCreatorDynamicRouteServerReference from the specified map of raw messages.
+func UnmarshalRouteCreatorDynamicRouteServerReference(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(RouteCreatorDynamicRouteServerReference)
+	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "deleted", &obj.Deleted, UnmarshalDynamicRouteServerReferenceDeleted)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
 	if err != nil {
 		return
 	}
@@ -90479,6 +93898,70 @@ func UnmarshalSecurityGroupTargetReferenceBareMetalServerNetworkInterfaceReferen
 	return
 }
 
+// SecurityGroupTargetReferenceDynamicRouteServerReference : SecurityGroupTargetReferenceDynamicRouteServerReference struct
+// This model "extends" SecurityGroupTargetReference
+type SecurityGroupTargetReferenceDynamicRouteServerReference struct {
+	// The CRN for this dynamic route server.
+	CRN *string `json:"crn" validate:"required"`
+
+	// If present, this property indicates the referenced resource has been deleted, and provides
+	// some supplementary information.
+	Deleted *DynamicRouteServerReferenceDeleted `json:"deleted,omitempty"`
+
+	// The URL for this dynamic route server.
+	Href *string `json:"href" validate:"required"`
+
+	// The unique identifier for this dynamic route server.
+	ID *string `json:"id" validate:"required"`
+
+	// The name for this dynamic route server. The name is unique across all dynamic route servers in the region.
+	Name *string `json:"name" validate:"required"`
+
+	// The resource type.
+	ResourceType *string `json:"resource_type" validate:"required"`
+}
+
+// Constants associated with the SecurityGroupTargetReferenceDynamicRouteServerReference.ResourceType property.
+// The resource type.
+const (
+	SecurityGroupTargetReferenceDynamicRouteServerReferenceResourceTypeDynamicRouteServerConst = "dynamic_route_server"
+)
+
+func (*SecurityGroupTargetReferenceDynamicRouteServerReference) isaSecurityGroupTargetReference() bool {
+	return true
+}
+
+// UnmarshalSecurityGroupTargetReferenceDynamicRouteServerReference unmarshals an instance of SecurityGroupTargetReferenceDynamicRouteServerReference from the specified map of raw messages.
+func UnmarshalSecurityGroupTargetReferenceDynamicRouteServerReference(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(SecurityGroupTargetReferenceDynamicRouteServerReference)
+	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "deleted", &obj.Deleted, UnmarshalDynamicRouteServerReferenceDeleted)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
 // SecurityGroupTargetReferenceEndpointGatewayReference : SecurityGroupTargetReferenceEndpointGatewayReference struct
 // This model "extends" SecurityGroupTargetReference
 type SecurityGroupTargetReferenceEndpointGatewayReference struct {
@@ -91039,16 +94522,11 @@ type ShareMountTargetVirtualNetworkInterfacePrototypeVirtualNetworkInterfaceProt
 	// an available address on the subnet will be automatically selected and reserved.
 	PrimaryIP VirtualNetworkInterfacePrimaryIPPrototypeIntf `json:"primary_ip,omitempty"`
 
-	// The resource group to use. If unspecified, the account's [default resource
-	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) is used.
-	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
-
 	// The security groups to use for this virtual network interface. If unspecified, the default security group of the VPC
 	// for the subnet is used.
 	SecurityGroups []SecurityGroupIdentityIntf `json:"security_groups,omitempty"`
 
-	// The associated subnet. Required if `primary_ip` does not specify a reserved IP and
-	// `primary_ip.address` is not specified.
+	// The associated subnet. Required if `primary_ip` does not specify a reserved IP.
 	Subnet SubnetIdentityIntf `json:"subnet,omitempty"`
 }
 
@@ -91064,10 +94542,6 @@ func UnmarshalShareMountTargetVirtualNetworkInterfacePrototypeVirtualNetworkInte
 		return
 	}
 	err = core.UnmarshalModel(m, "primary_ip", &obj.PrimaryIP, UnmarshalVirtualNetworkInterfacePrimaryIPPrototype)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "resource_group", &obj.ResourceGroup, UnmarshalResourceGroupIdentity)
 	if err != nil {
 		return
 	}
@@ -91561,7 +95035,7 @@ type SharePrototypeShareBySize struct {
 	InitialOwner *ShareInitialOwner `json:"initial_owner,omitempty"`
 
 	// The resource group to use. If unspecified, the account's [default resource
-	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) is used.
+	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) will be used.
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
 
 	// The size of the file share rounded up to the next gigabyte.
@@ -101890,6 +105364,346 @@ func (pager *SecurityGroupTargetsPager) GetNext() (page []SecurityGroupTargetRef
 
 // GetAll invokes GetAllWithContext() using context.Background() as the Context parameter.
 func (pager *SecurityGroupTargetsPager) GetAll() (allItems []SecurityGroupTargetReferenceIntf, err error) {
+	return pager.GetAllWithContext(context.Background())
+}
+
+// DynamicRouteServersPager can be used to simplify the use of the "ListDynamicRouteServers" method.
+type DynamicRouteServersPager struct {
+	hasNext     bool
+	options     *ListDynamicRouteServersOptions
+	client      *VpcV1
+	pageContext struct {
+		next *string
+	}
+}
+
+// NewDynamicRouteServersPager returns a new DynamicRouteServersPager instance.
+func (vpc *VpcV1) NewDynamicRouteServersPager(options *ListDynamicRouteServersOptions) (pager *DynamicRouteServersPager, err error) {
+	if options.Start != nil && *options.Start != "" {
+		err = fmt.Errorf("the 'options.Start' field should not be set")
+		return
+	}
+
+	var optionsCopy ListDynamicRouteServersOptions = *options
+	pager = &DynamicRouteServersPager{
+		hasNext: true,
+		options: &optionsCopy,
+		client:  vpc,
+	}
+	return
+}
+
+// HasNext returns true if there are potentially more results to be retrieved.
+func (pager *DynamicRouteServersPager) HasNext() bool {
+	return pager.hasNext
+}
+
+// GetNextWithContext returns the next page of results using the specified Context.
+func (pager *DynamicRouteServersPager) GetNextWithContext(ctx context.Context) (page []DynamicRouteServer, err error) {
+	if !pager.HasNext() {
+		return nil, fmt.Errorf("no more results available")
+	}
+
+	pager.options.Start = pager.pageContext.next
+
+	result, _, err := pager.client.ListDynamicRouteServersWithContext(ctx, pager.options)
+	if err != nil {
+		return
+	}
+
+	var next *string
+	if result.Next != nil {
+		var start *string
+		start, err = core.GetQueryParam(result.Next.Href, "start")
+		if err != nil {
+			err = fmt.Errorf("error retrieving 'start' query parameter from URL '%s': %s", *result.Next.Href, err.Error())
+			return
+		}
+		next = start
+	}
+	pager.pageContext.next = next
+	pager.hasNext = (pager.pageContext.next != nil)
+	page = result.DynamicRouteServers
+
+	return
+}
+
+// GetAllWithContext returns all results by invoking GetNextWithContext() repeatedly
+// until all pages of results have been retrieved.
+func (pager *DynamicRouteServersPager) GetAllWithContext(ctx context.Context) (allItems []DynamicRouteServer, err error) {
+	for pager.HasNext() {
+		var nextPage []DynamicRouteServer
+		nextPage, err = pager.GetNextWithContext(ctx)
+		if err != nil {
+			return
+		}
+		allItems = append(allItems, nextPage...)
+	}
+	return
+}
+
+// GetNext invokes GetNextWithContext() using context.Background() as the Context parameter.
+func (pager *DynamicRouteServersPager) GetNext() (page []DynamicRouteServer, err error) {
+	return pager.GetNextWithContext(context.Background())
+}
+
+// GetAll invokes GetAllWithContext() using context.Background() as the Context parameter.
+func (pager *DynamicRouteServersPager) GetAll() (allItems []DynamicRouteServer, err error) {
+	return pager.GetAllWithContext(context.Background())
+}
+
+// DynamicRouteServerIpsPager can be used to simplify the use of the "ListDynamicRouteServerIps" method.
+type DynamicRouteServerIpsPager struct {
+	hasNext     bool
+	options     *ListDynamicRouteServerIpsOptions
+	client      *VpcV1
+	pageContext struct {
+		next *string
+	}
+}
+
+// NewDynamicRouteServerIpsPager returns a new DynamicRouteServerIpsPager instance.
+func (vpc *VpcV1) NewDynamicRouteServerIpsPager(options *ListDynamicRouteServerIpsOptions) (pager *DynamicRouteServerIpsPager, err error) {
+	if options.Start != nil && *options.Start != "" {
+		err = fmt.Errorf("the 'options.Start' field should not be set")
+		return
+	}
+
+	var optionsCopy ListDynamicRouteServerIpsOptions = *options
+	pager = &DynamicRouteServerIpsPager{
+		hasNext: true,
+		options: &optionsCopy,
+		client:  vpc,
+	}
+	return
+}
+
+// HasNext returns true if there are potentially more results to be retrieved.
+func (pager *DynamicRouteServerIpsPager) HasNext() bool {
+	return pager.hasNext
+}
+
+// GetNextWithContext returns the next page of results using the specified Context.
+func (pager *DynamicRouteServerIpsPager) GetNextWithContext(ctx context.Context) (page []ReservedIPReference, err error) {
+	if !pager.HasNext() {
+		return nil, fmt.Errorf("no more results available")
+	}
+
+	pager.options.Start = pager.pageContext.next
+
+	result, _, err := pager.client.ListDynamicRouteServerIpsWithContext(ctx, pager.options)
+	if err != nil {
+		return
+	}
+
+	var next *string
+	if result.Next != nil {
+		var start *string
+		start, err = core.GetQueryParam(result.Next.Href, "start")
+		if err != nil {
+			err = fmt.Errorf("error retrieving 'start' query parameter from URL '%s': %s", *result.Next.Href, err.Error())
+			return
+		}
+		next = start
+	}
+	pager.pageContext.next = next
+	pager.hasNext = (pager.pageContext.next != nil)
+	page = result.Ips
+
+	return
+}
+
+// GetAllWithContext returns all results by invoking GetNextWithContext() repeatedly
+// until all pages of results have been retrieved.
+func (pager *DynamicRouteServerIpsPager) GetAllWithContext(ctx context.Context) (allItems []ReservedIPReference, err error) {
+	for pager.HasNext() {
+		var nextPage []ReservedIPReference
+		nextPage, err = pager.GetNextWithContext(ctx)
+		if err != nil {
+			return
+		}
+		allItems = append(allItems, nextPage...)
+	}
+	return
+}
+
+// GetNext invokes GetNextWithContext() using context.Background() as the Context parameter.
+func (pager *DynamicRouteServerIpsPager) GetNext() (page []ReservedIPReference, err error) {
+	return pager.GetNextWithContext(context.Background())
+}
+
+// GetAll invokes GetAllWithContext() using context.Background() as the Context parameter.
+func (pager *DynamicRouteServerIpsPager) GetAll() (allItems []ReservedIPReference, err error) {
+	return pager.GetAllWithContext(context.Background())
+}
+
+// DynamicRouteServerPeersPager can be used to simplify the use of the "ListDynamicRouteServerPeers" method.
+type DynamicRouteServerPeersPager struct {
+	hasNext     bool
+	options     *ListDynamicRouteServerPeersOptions
+	client      *VpcV1
+	pageContext struct {
+		next *string
+	}
+}
+
+// NewDynamicRouteServerPeersPager returns a new DynamicRouteServerPeersPager instance.
+func (vpc *VpcV1) NewDynamicRouteServerPeersPager(options *ListDynamicRouteServerPeersOptions) (pager *DynamicRouteServerPeersPager, err error) {
+	if options.Start != nil && *options.Start != "" {
+		err = fmt.Errorf("the 'options.Start' field should not be set")
+		return
+	}
+
+	var optionsCopy ListDynamicRouteServerPeersOptions = *options
+	pager = &DynamicRouteServerPeersPager{
+		hasNext: true,
+		options: &optionsCopy,
+		client:  vpc,
+	}
+	return
+}
+
+// HasNext returns true if there are potentially more results to be retrieved.
+func (pager *DynamicRouteServerPeersPager) HasNext() bool {
+	return pager.hasNext
+}
+
+// GetNextWithContext returns the next page of results using the specified Context.
+func (pager *DynamicRouteServerPeersPager) GetNextWithContext(ctx context.Context) (page []DynamicRouteServerPeer, err error) {
+	if !pager.HasNext() {
+		return nil, fmt.Errorf("no more results available")
+	}
+
+	pager.options.Start = pager.pageContext.next
+
+	result, _, err := pager.client.ListDynamicRouteServerPeersWithContext(ctx, pager.options)
+	if err != nil {
+		return
+	}
+
+	var next *string
+	if result.Next != nil {
+		var start *string
+		start, err = core.GetQueryParam(result.Next.Href, "start")
+		if err != nil {
+			err = fmt.Errorf("error retrieving 'start' query parameter from URL '%s': %s", *result.Next.Href, err.Error())
+			return
+		}
+		next = start
+	}
+	pager.pageContext.next = next
+	pager.hasNext = (pager.pageContext.next != nil)
+	page = result.Peers
+
+	return
+}
+
+// GetAllWithContext returns all results by invoking GetNextWithContext() repeatedly
+// until all pages of results have been retrieved.
+func (pager *DynamicRouteServerPeersPager) GetAllWithContext(ctx context.Context) (allItems []DynamicRouteServerPeer, err error) {
+	for pager.HasNext() {
+		var nextPage []DynamicRouteServerPeer
+		nextPage, err = pager.GetNextWithContext(ctx)
+		if err != nil {
+			return
+		}
+		allItems = append(allItems, nextPage...)
+	}
+	return
+}
+
+// GetNext invokes GetNextWithContext() using context.Background() as the Context parameter.
+func (pager *DynamicRouteServerPeersPager) GetNext() (page []DynamicRouteServerPeer, err error) {
+	return pager.GetNextWithContext(context.Background())
+}
+
+// GetAll invokes GetAllWithContext() using context.Background() as the Context parameter.
+func (pager *DynamicRouteServerPeersPager) GetAll() (allItems []DynamicRouteServerPeer, err error) {
+	return pager.GetAllWithContext(context.Background())
+}
+
+// DynamicRouteServerRoutesPager can be used to simplify the use of the "ListDynamicRouteServerRoutes" method.
+type DynamicRouteServerRoutesPager struct {
+	hasNext     bool
+	options     *ListDynamicRouteServerRoutesOptions
+	client      *VpcV1
+	pageContext struct {
+		next *string
+	}
+}
+
+// NewDynamicRouteServerRoutesPager returns a new DynamicRouteServerRoutesPager instance.
+func (vpc *VpcV1) NewDynamicRouteServerRoutesPager(options *ListDynamicRouteServerRoutesOptions) (pager *DynamicRouteServerRoutesPager, err error) {
+	if options.Start != nil && *options.Start != "" {
+		err = fmt.Errorf("the 'options.Start' field should not be set")
+		return
+	}
+
+	var optionsCopy ListDynamicRouteServerRoutesOptions = *options
+	pager = &DynamicRouteServerRoutesPager{
+		hasNext: true,
+		options: &optionsCopy,
+		client:  vpc,
+	}
+	return
+}
+
+// HasNext returns true if there are potentially more results to be retrieved.
+func (pager *DynamicRouteServerRoutesPager) HasNext() bool {
+	return pager.hasNext
+}
+
+// GetNextWithContext returns the next page of results using the specified Context.
+func (pager *DynamicRouteServerRoutesPager) GetNextWithContext(ctx context.Context) (page []DynamicRouteServerRoute, err error) {
+	if !pager.HasNext() {
+		return nil, fmt.Errorf("no more results available")
+	}
+
+	pager.options.Start = pager.pageContext.next
+
+	result, _, err := pager.client.ListDynamicRouteServerRoutesWithContext(ctx, pager.options)
+	if err != nil {
+		return
+	}
+
+	var next *string
+	if result.Next != nil {
+		var start *string
+		start, err = core.GetQueryParam(result.Next.Href, "start")
+		if err != nil {
+			err = fmt.Errorf("error retrieving 'start' query parameter from URL '%s': %s", *result.Next.Href, err.Error())
+			return
+		}
+		next = start
+	}
+	pager.pageContext.next = next
+	pager.hasNext = (pager.pageContext.next != nil)
+	page = result.Routes
+
+	return
+}
+
+// GetAllWithContext returns all results by invoking GetNextWithContext() repeatedly
+// until all pages of results have been retrieved.
+func (pager *DynamicRouteServerRoutesPager) GetAllWithContext(ctx context.Context) (allItems []DynamicRouteServerRoute, err error) {
+	for pager.HasNext() {
+		var nextPage []DynamicRouteServerRoute
+		nextPage, err = pager.GetNextWithContext(ctx)
+		if err != nil {
+			return
+		}
+		allItems = append(allItems, nextPage...)
+	}
+	return
+}
+
+// GetNext invokes GetNextWithContext() using context.Background() as the Context parameter.
+func (pager *DynamicRouteServerRoutesPager) GetNext() (page []DynamicRouteServerRoute, err error) {
+	return pager.GetNextWithContext(context.Background())
+}
+
+// GetAll invokes GetAllWithContext() using context.Background() as the Context parameter.
+func (pager *DynamicRouteServerRoutesPager) GetAll() (allItems []DynamicRouteServerRoute, err error) {
 	return pager.GetAllWithContext(context.Background())
 }
 
