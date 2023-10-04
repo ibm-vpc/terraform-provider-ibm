@@ -275,7 +275,7 @@ func ResourceIBMIsBareMetalServer() *schema.Resource {
 				Type:         schema.TypeList,
 				MinItems:     1,
 				MaxItems:     1,
-				Required:     true,
+				Optional:     true,
 				ExactlyOneOf: []string{"primary_network_attachment", "primary_network_interface"},
 				Description:  "Primary Network interface info",
 				Elem: &schema.Resource{
@@ -402,14 +402,13 @@ func ResourceIBMIsBareMetalServer() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"deleted": &schema.Schema{
 							Type:        schema.TypeList,
-							MaxItems:    1,
 							Computed:    true,
 							Description: "If present, this property indicates the referenced resource has been deleted, and providessome supplementary information.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"more_info": &schema.Schema{
 										Type:        schema.TypeString,
-										Required:    true,
+										Computed:    true,
 										Description: "Link to documentation about deleted resources.",
 									},
 								},
@@ -431,8 +430,6 @@ func ResourceIBMIsBareMetalServer() *schema.Resource {
 						},
 						"primary_ip": &schema.Schema{
 							Type:        schema.TypeList,
-							MinItems:    1,
-							MaxItems:    1,
 							Computed:    true,
 							Description: "The primary IP address of the virtual network interface for the network attachment.",
 							Elem: &schema.Resource{
@@ -444,14 +441,13 @@ func ResourceIBMIsBareMetalServer() *schema.Resource {
 									},
 									"deleted": &schema.Schema{
 										Type:        schema.TypeList,
-										MaxItems:    1,
 										Computed:    true,
 										Description: "If present, this property indicates the referenced resource has been deleted, and providessome supplementary information.",
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"more_info": &schema.Schema{
 													Type:        schema.TypeString,
-													Required:    true,
+													Computed:    true,
 													Description: "Link to documentation about deleted resources.",
 												},
 											},
@@ -487,8 +483,6 @@ func ResourceIBMIsBareMetalServer() *schema.Resource {
 						},
 						"subnet": &schema.Schema{
 							Type:        schema.TypeList,
-							MinItems:    1,
-							MaxItems:    1,
 							Computed:    true,
 							Description: "The subnet of the virtual network interface for the network attachment.",
 							Elem: &schema.Resource{
@@ -500,14 +494,13 @@ func ResourceIBMIsBareMetalServer() *schema.Resource {
 									},
 									"deleted": &schema.Schema{
 										Type:        schema.TypeList,
-										MaxItems:    1,
 										Computed:    true,
 										Description: "If present, this property indicates the referenced resource has been deleted, and providessome supplementary information.",
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"more_info": &schema.Schema{
 													Type:        schema.TypeString,
-													Required:    true,
+													Computed:    true,
 													Description: "Link to documentation about deleted resources.",
 												},
 											},
@@ -545,7 +538,7 @@ func ResourceIBMIsBareMetalServer() *schema.Resource {
 				Optional:      true,
 				Set:           resourceIBMBMSNicSet,
 				ExactlyOneOf:  []string{"network_attachments", "network_interfaces"},
-				ConflictsWith: []string{"primary_network_attachments", "network_attachments"},
+				ConflictsWith: []string{"primary_network_attachment", "network_attachments"},
 				Computed:      true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -682,14 +675,13 @@ func ResourceIBMIsBareMetalServer() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"deleted": &schema.Schema{
 							Type:        schema.TypeList,
-							MaxItems:    1,
 							Computed:    true,
 							Description: "If present, this property indicates the referenced resource has been deleted, and providessome supplementary information.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"more_info": &schema.Schema{
 										Type:        schema.TypeString,
-										Required:    true,
+										Computed:    true,
 										Description: "Link to documentation about deleted resources.",
 									},
 								},
@@ -711,8 +703,6 @@ func ResourceIBMIsBareMetalServer() *schema.Resource {
 						},
 						"primary_ip": &schema.Schema{
 							Type:        schema.TypeList,
-							MinItems:    1,
-							MaxItems:    1,
 							Computed:    true,
 							Description: "The primary IP address of the virtual network interface for the network attachment.",
 							Elem: &schema.Resource{
@@ -724,14 +714,13 @@ func ResourceIBMIsBareMetalServer() *schema.Resource {
 									},
 									"deleted": &schema.Schema{
 										Type:        schema.TypeList,
-										MaxItems:    1,
 										Computed:    true,
 										Description: "If present, this property indicates the referenced resource has been deleted, and providessome supplementary information.",
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"more_info": &schema.Schema{
 													Type:        schema.TypeString,
-													Required:    true,
+													Computed:    true,
 													Description: "Link to documentation about deleted resources.",
 												},
 											},
@@ -767,8 +756,6 @@ func ResourceIBMIsBareMetalServer() *schema.Resource {
 						},
 						"subnet": &schema.Schema{
 							Type:        schema.TypeList,
-							MinItems:    1,
-							MaxItems:    1,
 							Computed:    true,
 							Description: "The subnet of the virtual network interface for the network attachment.",
 							Elem: &schema.Resource{
@@ -780,14 +767,13 @@ func ResourceIBMIsBareMetalServer() *schema.Resource {
 									},
 									"deleted": &schema.Schema{
 										Type:        schema.TypeList,
-										MaxItems:    1,
 										Computed:    true,
 										Description: "If present, this property indicates the referenced resource has been deleted, and providessome supplementary information.",
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"more_info": &schema.Schema{
 													Type:        schema.TypeString,
-													Required:    true,
+													Computed:    true,
 													Description: "Link to documentation about deleted resources.",
 												},
 											},
@@ -3325,8 +3311,8 @@ func resourceIBMIsBareMetalServerMapToBareMetalServerPrimaryNetworkAttachmentPro
 	model.VirtualNetworkInterface = VirtualNetworkInterfaceModel
 	return model, nil
 }
-func resourceIBMIsBareMetalServerMapToVirtualNetworkInterfaceIPsReservedIPPrototype(modelMap map[string]interface{}) (vpcv1.VirtualNetworkInterfaceIPsReservedIPPrototypeIntf, error) {
-	model := &vpcv1.VirtualNetworkInterfaceIPsReservedIPPrototype{}
+func resourceIBMIsBareMetalServerMapToVirtualNetworkInterfaceIPsReservedIPPrototype(modelMap map[string]interface{}) (vpcv1.VirtualNetworkInterfaceIPPrototypeIntf, error) {
+	model := &vpcv1.VirtualNetworkInterfaceIPPrototype{}
 	if modelMap["id"] != nil && modelMap["id"].(string) != "" {
 		model.ID = core.StringPtr(modelMap["id"].(string))
 	}
@@ -3344,8 +3330,8 @@ func resourceIBMIsBareMetalServerMapToVirtualNetworkInterfaceIPsReservedIPProtot
 	}
 	return model, nil
 }
-func resourceIBMIsBareMetalServerMapToVirtualNetworkInterfacePrimaryIPReservedIPPrototype(modelMap map[string]interface{}) (vpcv1.VirtualNetworkInterfacePrimaryIPReservedIPPrototypeIntf, error) {
-	model := &vpcv1.VirtualNetworkInterfacePrimaryIPReservedIPPrototype{}
+func resourceIBMIsBareMetalServerMapToVirtualNetworkInterfacePrimaryIPReservedIPPrototype(modelMap map[string]interface{}) (vpcv1.VirtualNetworkInterfacePrimaryIPPrototypeIntf, error) {
+	model := &vpcv1.VirtualNetworkInterfacePrimaryIPPrototype{}
 	if modelMap["id"] != nil && modelMap["id"].(string) != "" {
 		model.ID = core.StringPtr(modelMap["id"].(string))
 	}
@@ -3363,16 +3349,16 @@ func resourceIBMIsBareMetalServerMapToVirtualNetworkInterfacePrimaryIPReservedIP
 	}
 	return model, nil
 }
-func resourceIBMIsBareMetalServerMapToVirtualNetworkInterfacePrototypeTargetContextResourceGroup(modelMap map[string]interface{}) (vpcv1.VirtualNetworkInterfacePrototypeTargetContextResourceGroupIntf, error) {
-	model := &vpcv1.VirtualNetworkInterfacePrototypeTargetContextResourceGroup{}
+func resourceIBMIsBareMetalServerMapToVirtualNetworkInterfacePrototypeTargetContextResourceGroup(modelMap map[string]interface{}) (vpcv1.ResourceGroupIdentityIntf, error) {
+	model := &vpcv1.ResourceGroupIdentity{}
 	if modelMap["id"] != nil && modelMap["id"].(string) != "" {
 		model.ID = core.StringPtr(modelMap["id"].(string))
 	}
 	return model, nil
 }
 
-func resourceIBMIsBareMetalServerMapToVirtualNetworkInterfacePrototypeAttachmentContext(modelMap map[string]interface{}) (vpcv1.VirtualNetworkInterfacePrototypeAttachmentContextIntf, error) {
-	model := &vpcv1.VirtualNetworkInterfacePrototypeAttachmentContext{}
+func resourceIBMIsBareMetalServerMapToVirtualNetworkInterfacePrototypeAttachmentContext(modelMap map[string]interface{}) (vpcv1.BareMetalServerNetworkAttachmentPrototypeVirtualNetworkInterfaceIntf, error) {
+	model := &vpcv1.BareMetalServerNetworkAttachmentPrototypeVirtualNetworkInterface{}
 	if modelMap["allow_ip_spoofing"] != nil {
 		model.AllowIPSpoofing = core.BoolPtr(modelMap["allow_ip_spoofing"].(bool))
 	}
@@ -3383,7 +3369,7 @@ func resourceIBMIsBareMetalServerMapToVirtualNetworkInterfacePrototypeAttachment
 		model.EnableInfrastructureNat = core.BoolPtr(modelMap["enable_infrastructure_nat"].(bool))
 	}
 	if modelMap["ips"] != nil {
-		ips := []vpcv1.VirtualNetworkInterfaceIPsReservedIPPrototypeIntf{}
+		ips := []vpcv1.VirtualNetworkInterfaceIPPrototypeIntf{}
 		for _, ipsItem := range modelMap["ips"].([]interface{}) {
 			ipsItemModel, err := resourceIBMIsBareMetalServerMapToVirtualNetworkInterfaceIPsReservedIPPrototype(ipsItem.(map[string]interface{}))
 			if err != nil {
@@ -3469,9 +3455,7 @@ func resourceIBMIsBareMetalServerMapToSecurityGroupIdentity(modelMap map[string]
 func resourceIBMIsBareMetalServerMapToBareMetalServerNetworkAttachmentPrototype(modelMap map[string]interface{}) (vpcv1.BareMetalServerNetworkAttachmentPrototypeIntf, error) {
 	discValue, ok := modelMap["interface_type"]
 	if ok {
-		if discValue == "hipersocket" {
-			return resourceIBMIsBareMetalServerMapToBareMetalServerNetworkAttachmentPrototypeBareMetalServerNetworkAttachmentByHiperSocketPrototype(modelMap)
-		} else if discValue == "pci" {
+		if discValue == "pci" {
 			return resourceIBMIsBareMetalServerMapToBareMetalServerNetworkAttachmentPrototypeBareMetalServerNetworkAttachmentByPciPrototype(modelMap)
 		} else if discValue == "vlan" {
 			return resourceIBMIsBareMetalServerMapToBareMetalServerNetworkAttachmentPrototypeBareMetalServerNetworkAttachmentByVlanPrototype(modelMap)
@@ -3481,19 +3465,6 @@ func resourceIBMIsBareMetalServerMapToBareMetalServerNetworkAttachmentPrototype(
 	} else {
 		return nil, fmt.Errorf("discriminator property 'interface_type' not found in map")
 	}
-}
-func resourceIBMIsBareMetalServerMapToBareMetalServerNetworkAttachmentPrototypeBareMetalServerNetworkAttachmentByHiperSocketPrototype(modelMap map[string]interface{}) (*vpcv1.BareMetalServerNetworkAttachmentPrototypeBareMetalServerNetworkAttachmentByHiperSocketPrototype, error) {
-	model := &vpcv1.BareMetalServerNetworkAttachmentPrototypeBareMetalServerNetworkAttachmentByHiperSocketPrototype{}
-	if modelMap["name"] != nil && modelMap["name"].(string) != "" {
-		model.Name = core.StringPtr(modelMap["name"].(string))
-	}
-	VirtualNetworkInterfaceModel, err := resourceIBMIsBareMetalServerMapToVirtualNetworkInterfacePrototypeAttachmentContext(modelMap["virtual_network_interface"].([]interface{})[0].(map[string]interface{}))
-	if err != nil {
-		return model, err
-	}
-	model.VirtualNetworkInterface = VirtualNetworkInterfaceModel
-	model.InterfaceType = core.StringPtr(modelMap["interface_type"].(string))
-	return model, nil
 }
 
 func resourceIBMIsBareMetalServerMapToBareMetalServerNetworkAttachmentPrototypeBareMetalServerNetworkAttachmentByVlanPrototype(modelMap map[string]interface{}) (*vpcv1.BareMetalServerNetworkAttachmentPrototypeBareMetalServerNetworkAttachmentByVlanPrototype, error) {

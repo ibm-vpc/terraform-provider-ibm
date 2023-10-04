@@ -515,16 +515,26 @@ func ResourceIBMISInstance() *schema.Resource {
 				ConflictsWith: []string{"primary_network_interface", "network_interfaces"},
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+
+						// pna can accept either vni id or prototype
+						"name": &schema.Schema{
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"virtual_network_interface": &schema.Schema{
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "The unique identifier for this virtual_network_interface.",
+						},
 						"deleted": &schema.Schema{
 							Type:        schema.TypeList,
-							MaxItems:    1,
 							Computed:    true,
 							Description: "If present, this property indicates the referenced resource has been deleted, and providessome supplementary information.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"more_info": &schema.Schema{
 										Type:        schema.TypeString,
-										Required:    true,
+										Computed:    true,
 										Description: "Link to documentation about deleted resources.",
 									},
 								},
@@ -540,15 +550,10 @@ func ResourceIBMISInstance() *schema.Resource {
 							Computed:    true,
 							Description: "The unique identifier for this network attachment.",
 						},
-						"name": &schema.Schema{
-							Type:     schema.TypeString,
-							Required: true,
-						},
 						"primary_ip": &schema.Schema{
 							Type:        schema.TypeList,
-							MinItems:    1,
 							MaxItems:    1,
-							Computed:    true,
+							Optional:    true,
 							Description: "The primary IP address of the virtual network interface for the network attachment.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -559,14 +564,13 @@ func ResourceIBMISInstance() *schema.Resource {
 									},
 									"deleted": &schema.Schema{
 										Type:        schema.TypeList,
-										MaxItems:    1,
 										Computed:    true,
 										Description: "If present, this property indicates the referenced resource has been deleted, and providessome supplementary information.",
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"more_info": &schema.Schema{
 													Type:        schema.TypeString,
-													Required:    true,
+													Computed:    true,
 													Description: "Link to documentation about deleted resources.",
 												},
 											},
@@ -601,55 +605,9 @@ func ResourceIBMISInstance() *schema.Resource {
 							Description: "The resource type.",
 						},
 						"subnet": &schema.Schema{
-							Type:        schema.TypeList,
-							MinItems:    1,
-							MaxItems:    1,
+							Type:        schema.TypeString,
 							Computed:    true,
 							Description: "The subnet of the virtual network interface for the network attachment.",
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"crn": &schema.Schema{
-										Type:        schema.TypeString,
-										Required:    true,
-										Description: "The CRN for this subnet.",
-									},
-									"deleted": &schema.Schema{
-										Type:        schema.TypeList,
-										MaxItems:    1,
-										Computed:    true,
-										Description: "If present, this property indicates the referenced resource has been deleted, and providessome supplementary information.",
-										Elem: &schema.Resource{
-											Schema: map[string]*schema.Schema{
-												"more_info": &schema.Schema{
-													Type:        schema.TypeString,
-													Required:    true,
-													Description: "Link to documentation about deleted resources.",
-												},
-											},
-										},
-									},
-									"href": &schema.Schema{
-										Type:        schema.TypeString,
-										Required:    true,
-										Description: "The URL for this subnet.",
-									},
-									"id": &schema.Schema{
-										Type:        schema.TypeString,
-										Required:    true,
-										Description: "The unique identifier for this subnet.",
-									},
-									"name": &schema.Schema{
-										Type:        schema.TypeString,
-										Computed:    true,
-										Description: "The name for this subnet. The name is unique across all subnets in the VPC.",
-									},
-									"resource_type": &schema.Schema{
-										Type:        schema.TypeString,
-										Computed:    true,
-										Description: "The resource type.",
-									},
-								},
-							},
 						},
 					},
 				},
@@ -752,20 +710,19 @@ func ResourceIBMISInstance() *schema.Resource {
 				Type:          schema.TypeList,
 				Optional:      true,
 				ExactlyOneOf:  []string{"network_attachments", "network_interfaces"},
-				ConflictsWith: []string{"primary_network_attachment", "network_attachments"},
+				ConflictsWith: []string{"primary_network_interface", "network_interfaces"},
 				Description:   "The network attachments for this virtual server instance, including the primary network attachment.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"deleted": &schema.Schema{
 							Type:        schema.TypeList,
-							MaxItems:    1,
 							Computed:    true,
 							Description: "If present, this property indicates the referenced resource has been deleted, and providessome supplementary information.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"more_info": &schema.Schema{
 										Type:        schema.TypeString,
-										Required:    true,
+										Computed:    true,
 										Description: "Link to documentation about deleted resources.",
 									},
 								},
@@ -787,9 +744,8 @@ func ResourceIBMISInstance() *schema.Resource {
 						},
 						"primary_ip": &schema.Schema{
 							Type:        schema.TypeList,
-							MinItems:    1,
 							MaxItems:    1,
-							Computed:    true,
+							Optional:    true,
 							Description: "The primary IP address of the virtual network interface for the network attachment.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -800,14 +756,13 @@ func ResourceIBMISInstance() *schema.Resource {
 									},
 									"deleted": &schema.Schema{
 										Type:        schema.TypeList,
-										MaxItems:    1,
 										Computed:    true,
 										Description: "If present, this property indicates the referenced resource has been deleted, and providessome supplementary information.",
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"more_info": &schema.Schema{
 													Type:        schema.TypeString,
-													Required:    true,
+													Computed:    true,
 													Description: "Link to documentation about deleted resources.",
 												},
 											},
@@ -843,8 +798,6 @@ func ResourceIBMISInstance() *schema.Resource {
 						},
 						"subnet": &schema.Schema{
 							Type:        schema.TypeList,
-							MinItems:    1,
-							MaxItems:    1,
 							Computed:    true,
 							Description: "The subnet of the virtual network interface for the network attachment.",
 							Elem: &schema.Resource{
@@ -856,14 +809,13 @@ func ResourceIBMISInstance() *schema.Resource {
 									},
 									"deleted": &schema.Schema{
 										Type:        schema.TypeList,
-										MaxItems:    1,
 										Computed:    true,
 										Description: "If present, this property indicates the referenced resource has been deleted, and providessome supplementary information.",
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"more_info": &schema.Schema{
 													Type:        schema.TypeString,
-													Required:    true,
+													Computed:    true,
 													Description: "Link to documentation about deleted resources.",
 												},
 											},
@@ -5102,8 +5054,8 @@ func resourceIBMIsInstanceMapToInstanceNetworkAttachmentPrototype(modelMap map[s
 	model.VirtualNetworkInterface = VirtualNetworkInterfaceModel
 	return model, nil
 }
-func resourceIBMIsInstanceMapToVirtualNetworkInterfacePrototypeAttachmentContext(modelMap map[string]interface{}) (vpcv1.VirtualNetworkInterfacePrototypeAttachmentContextIntf, error) {
-	model := &vpcv1.VirtualNetworkInterfacePrototypeAttachmentContext{}
+func resourceIBMIsInstanceMapToVirtualNetworkInterfacePrototypeAttachmentContext(modelMap map[string]interface{}) (vpcv1.InstanceNetworkAttachmentPrototypeVirtualNetworkInterfaceIntf, error) {
+	model := &vpcv1.InstanceNetworkAttachmentPrototypeVirtualNetworkInterface{}
 	if modelMap["allow_ip_spoofing"] != nil {
 		model.AllowIPSpoofing = core.BoolPtr(modelMap["allow_ip_spoofing"].(bool))
 	}
@@ -5114,7 +5066,7 @@ func resourceIBMIsInstanceMapToVirtualNetworkInterfacePrototypeAttachmentContext
 		model.EnableInfrastructureNat = core.BoolPtr(modelMap["enable_infrastructure_nat"].(bool))
 	}
 	if modelMap["ips"] != nil {
-		ips := []vpcv1.VirtualNetworkInterfaceIPsReservedIPPrototypeIntf{}
+		ips := []vpcv1.VirtualNetworkInterfaceIPPrototypeIntf{}
 		for _, ipsItem := range modelMap["ips"].([]interface{}) {
 			ipsItemModel, err := resourceIBMIsInstanceMapToVirtualNetworkInterfaceIPsReservedIPPrototype(ipsItem.(map[string]interface{}))
 			if err != nil {
@@ -5171,8 +5123,8 @@ func resourceIBMIsInstanceMapToVirtualNetworkInterfacePrototypeAttachmentContext
 	return model, nil
 }
 
-func resourceIBMIsInstanceMapToVirtualNetworkInterfaceIPsReservedIPPrototype(modelMap map[string]interface{}) (vpcv1.VirtualNetworkInterfaceIPsReservedIPPrototypeIntf, error) {
-	model := &vpcv1.VirtualNetworkInterfaceIPsReservedIPPrototype{}
+func resourceIBMIsInstanceMapToVirtualNetworkInterfaceIPsReservedIPPrototype(modelMap map[string]interface{}) (vpcv1.VirtualNetworkInterfaceIPPrototypeIntf, error) {
+	model := &vpcv1.VirtualNetworkInterfaceIPPrototype{}
 	if modelMap["id"] != nil && modelMap["id"].(string) != "" {
 		model.ID = core.StringPtr(modelMap["id"].(string))
 	}
@@ -5190,8 +5142,8 @@ func resourceIBMIsInstanceMapToVirtualNetworkInterfaceIPsReservedIPPrototype(mod
 	}
 	return model, nil
 }
-func resourceIBMIsInstanceMapToVirtualNetworkInterfacePrimaryIPReservedIPPrototype(modelMap map[string]interface{}) (vpcv1.VirtualNetworkInterfacePrimaryIPReservedIPPrototypeIntf, error) {
-	model := &vpcv1.VirtualNetworkInterfacePrimaryIPReservedIPPrototype{}
+func resourceIBMIsInstanceMapToVirtualNetworkInterfacePrimaryIPReservedIPPrototype(modelMap map[string]interface{}) (vpcv1.VirtualNetworkInterfacePrimaryIPPrototypeIntf, error) {
+	model := &vpcv1.VirtualNetworkInterfacePrimaryIPPrototype{}
 	if modelMap["id"] != nil && modelMap["id"].(string) != "" {
 		model.ID = core.StringPtr(modelMap["id"].(string))
 	}
@@ -5209,8 +5161,8 @@ func resourceIBMIsInstanceMapToVirtualNetworkInterfacePrimaryIPReservedIPPrototy
 	}
 	return model, nil
 }
-func resourceIBMIsInstanceMapToVirtualNetworkInterfacePrototypeTargetContextResourceGroup(modelMap map[string]interface{}) (vpcv1.VirtualNetworkInterfacePrototypeTargetContextResourceGroupIntf, error) {
-	model := &vpcv1.VirtualNetworkInterfacePrototypeTargetContextResourceGroup{}
+func resourceIBMIsInstanceMapToVirtualNetworkInterfacePrototypeTargetContextResourceGroup(modelMap map[string]interface{}) (vpcv1.ResourceGroupIdentityIntf, error) {
+	model := &vpcv1.ResourceGroupIdentity{}
 	if modelMap["id"] != nil && modelMap["id"].(string) != "" {
 		model.ID = core.StringPtr(modelMap["id"].(string))
 	}
