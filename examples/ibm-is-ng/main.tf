@@ -1385,3 +1385,62 @@ resource "ibm_is_image_deprecate" "example" {
 resource "ibm_is_image_obsolete" "example" {
   image     = ibm_is_image.image1.id
 }
+
+
+// vni
+
+resource "ibm_is_vpc" "testacc_vpc" {
+	name = "${var.name}-vpc"
+}
+
+resource "ibm_is_subnet" "testacc_subnet" {
+	name = "${var.name}-subnet"
+	vpc = ibm_is_vpc.testacc_vpc.id
+	zone = "${var.region}-2"
+	total_ipv4_address_count = 16
+
+}
+
+resource "ibm_is_virtual_network_interface" "testacc_vni"{
+	name = "${var.name}"
+    subnet = ibm_is_subnet.testacc_subnet.id
+	enable_infrastructure_nat = true
+	allow_ip_spoofing = true
+}
+
+resource "ibm_is_floating_ip" "testacc_floatingip" {
+	name = "${var.name}-floating"
+	zone = ibm_is_subnet.testacc_subnet.zone
+}
+resource "ibm_is_virtual_network_interface_floating_ip" "testacc_vni_floatingip" {
+	virtual_network_interface = ibm_is_virtual_network_interface.testacc_vni.id
+	floating_ip = ibm_is_floating_ip.testacc_floatingip.id
+}
+data "ibm_is_virtual_network_interface_floating_ip" "is_vni_floating_ip" {
+    depends_on = [ ibm_is_virtual_network_interface_floating_ip.testacc_vni_floatingip ]
+	virtual_network_interface = ibm_is_virtual_network_interface.testacc_vni.id
+	floating_ip = ibm_is_floating_ip.testacc_floatingip.id
+}
+data "ibm_is_virtual_network_interface_floating_ips" "is_vni_floating_ips" {
+    depends_on = [ ibm_is_virtual_network_interface_floating_ip.testacc_vni_floatingip ]
+	virtual_network_interface = ibm_is_virtual_network_interface.testacc_vni.id
+}
+
+data "ibm_is_virtual_network_interface_ips" "is_vni_reservedips" {
+    depends_on = [ ibm_is_virtual_network_interface_ip.testacc_vni_reservedip ]
+	virtual_network_interface = ibm_is_virtual_network_interface.testacc_vni.id
+}
+data "ibm_is_virtual_network_interface_ip" "is_vni_reservedip" {
+    depends_on = [ ibm_is_virtual_network_interface_ip.testacc_vni_reservedip ]
+	virtual_network_interface = ibm_is_virtual_network_interface.testacc_vni.id
+	reserved_ip = ibm_is_subnet_reserved_ip.testacc_reservedip.reserved_ip
+}
+
+resource "ibm_is_subnet_reserved_ip" "testacc_reservedip" {
+	subnet = ibm_is_subnet.testacc_subnet.id
+	name = "${var.name}-reserved-ip"
+}
+resource "ibm_is_virtual_network_interface_ip" "testacc_vni_reservedip" {
+	virtual_network_interface = ibm_is_virtual_network_interface.testacc_vni.id
+	reserved_ip = ibm_is_subnet_reserved_ip.testacc_reservedip.reserved_ip
+}
