@@ -17,7 +17,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/IBM/go-sdk-core/v5/core"
-	"github.com/IBM/vpc-beta-go-sdk/vpcbetav1"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
 )
 
@@ -723,7 +722,7 @@ func isWaitForMountTargetDelete(context context.Context, vpcClient *vpcv1.VpcV1,
 	return stateConf.WaitForState()
 }
 
-func ShareMountTargetVNIReservedIPInterfaceToMap(context context.Context, vpcClient *vpcbetav1.VpcbetaV1, d *schema.ResourceData, ripRef *vpcbetav1.ReservedIPReference, subnetId string) (map[string]interface{}, error) {
+func ShareMountTargetVNIReservedIPInterfaceToMap(context context.Context, vpcClient *vpcv1.VpcV1, d *schema.ResourceData, ripRef *vpcv1.ReservedIPReference, subnetId string) (map[string]interface{}, error) {
 
 	currentPrimIp := map[string]interface{}{}
 	if ripRef.Address != nil {
@@ -743,7 +742,7 @@ func ShareMountTargetVNIReservedIPInterfaceToMap(context context.Context, vpcCli
 		currentPrimIp["resource_type"] = *ripRef.ResourceType
 	}
 
-	rIpOptions := &vpcbetav1.GetSubnetReservedIPOptions{
+	rIpOptions := &vpcv1.GetSubnetReservedIPOptions{
 		SubnetID: &subnetId,
 		ID:       ripRef.ID,
 	}
@@ -873,7 +872,7 @@ func ShareMountTargetMapToShareMountTargetPrototype(d *schema.ResourceData, vniM
 		vniPrototype.EnableInfrastructureNat = &enableInfraNatBool
 	}
 	if _, ok := d.GetOk("ips"); ok {
-		var ips []vpcbetav1.VirtualNetworkInterfaceIPPrototypeIntf
+		var ips []vpcv1.VirtualNetworkInterfaceIPPrototypeIntf
 		for _, v := range d.Get("ips").([]interface{}) {
 			value := v.(map[string]interface{})
 			ipsItem, err := virtualNetworkInterfaceIPsReservedIPPrototypeMapToModel(value)
@@ -885,7 +884,7 @@ func ShareMountTargetMapToShareMountTargetPrototype(d *schema.ResourceData, vniM
 		vniPrototype.Ips = ips
 	}
 	if subnet := vniMap["subnet"].(string); subnet != "" {
-		vniPrototype.Subnet = &vpcbetav1.SubnetIdentity{
+		vniPrototype.Subnet = &vpcv1.SubnetIdentity{
 			ID: &subnet,
 		}
 	}
