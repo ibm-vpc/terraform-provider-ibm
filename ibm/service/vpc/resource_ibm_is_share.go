@@ -1088,11 +1088,20 @@ func resourceIbmIsShareMapToShareMountTargetPrototype(d *schema.ResourceData, sh
 	} else if vniIntf, ok := shareTargetPrototypeMap["virtual_network_interface"]; ok {
 		vniPrototype := vpcv1.ShareMountTargetVirtualNetworkInterfacePrototype{}
 		vniMap := vniIntf.([]interface{})[0].(map[string]interface{})
-		vniPrototype, err := ShareMountTargetMapToShareMountTargetPrototype(d, vniMap)
-		if err != nil {
-			return shareTargetPrototype, err
+
+		VNIIdIntf, ok := vniMap["id"]
+		VNIId := VNIIdIntf.(string)
+		if ok && VNIId != "" {
+			vniPrototype.ID = &VNIId
+			shareTargetPrototype.VirtualNetworkInterface = &vniPrototype
+		} else {
+			vniPrototype, err := ShareMountTargetMapToShareMountTargetPrototype(d, vniMap)
+			if err != nil {
+				return shareTargetPrototype, err
+			}
+			shareTargetPrototype.VirtualNetworkInterface = &vniPrototype
 		}
-		shareTargetPrototype.VirtualNetworkInterface = &vniPrototype
+
 	}
 	if transitEncryptionIntf, ok := shareTargetPrototypeMap["transit_encryption"]; ok && transitEncryptionIntf != "" {
 		transitEncryption := transitEncryptionIntf.(string)

@@ -70,9 +70,11 @@ func ResourceIBMIsShareMountTarget() *schema.Resource {
 							Description: "href of virtual network interface",
 						},
 						"id": {
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: "ID of this VNI",
+							Type:          schema.TypeString,
+							Optional:      true,
+							ConflictsWith: []string{"virtual_network_interface.0.primary_ip", "virtual_network_interface.0.subnet"},
+							Computed:      true,
+							Description:   "ID of this VNI",
 						},
 						"crn": {
 							Type:        schema.TypeString,
@@ -216,6 +218,31 @@ func ResourceIBMIsShareMountTarget() *schema.Resource {
 								},
 							},
 						},
+						"resource_group": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Computed:    true,
+							Description: "Resource group id",
+						},
+						"resource_type": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "Resource type of VNI",
+						},
+						"security_groups": {
+							Type:        schema.TypeSet,
+							Computed:    true,
+							Optional:    true,
+							Elem:        &schema.Schema{Type: schema.TypeString},
+							Set:         schema.HashString,
+							Description: "The security groups to use for this virtual network interface.",
+						},
+						"subnet": {
+							Type:     schema.TypeString,
+							Optional: true,
+							//ConflictsWith: []string{"virtual_network_interface.0.primary_ip"},
+							Description: "The associated subnet. Required if primary_ip is not specified.",
+						},
 					},
 				},
 			},
@@ -347,9 +374,16 @@ func resourceIBMIsShareMountTargetCreate(context context.Context, d *schema.Reso
 	} else if vniIntf, ok := d.GetOk("virtual_network_interface"); ok {
 		vniPrototype := vpcv1.ShareMountTargetVirtualNetworkInterfacePrototype{}
 		vniMap := vniIntf.([]interface{})[0].(map[string]interface{})
-		vniPrototype, err = ShareMountTargetMapToShareMountTargetPrototype(d, vniMap)
-		if err != nil {
-			return diag.FromErr(err)
+
+		VNIIdIntf, ok := vniMap["id"]
+		VNIId := VNIIdIntf.(string)
+		if ok && VNIId != "" {
+			vniPrototype.ID = &VNIId
+		} else {
+			vniPrototype, err = ShareMountTargetMapToShareMountTargetPrototype(d, vniMap)
+			if err != nil {
+				return diag.FromErr(err)
+			}
 		}
 		shareMountTargetPrototype.VirtualNetworkInterface = &vniPrototype
 	}
