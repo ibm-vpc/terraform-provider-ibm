@@ -1257,6 +1257,110 @@ data "ibm_is_share" "is_share" {
 
 data "ibm_is_shares" "is_shares" {
 }
+// vpc dns resolution bindings
+
+  // list all dns resolution bindings on a vpc
+data "ibm_is_vpc_dns_resolution_bindings" "is_vpc_dns_resolution_bindings" {
+	vpc_id = ibm_is_vpc.vpc1.id
+}
+  // get a dns resolution bindings on a vpc
+data "ibm_is_vpc_dns_resolution_binding" "is_vpc_dns_resolution_binding" {
+	vpc_id  = ibm_is_vpc.vpc1.id
+  id      = ibm_is_vpc.vpc2.id
+}
+data "ibm_resource_group" "rg" {
+	is_default	   =  true
+}
+  // creating a hub enabled vpc, hub disabled vpc, creating custom resolvers for both then
+  // delegating the vpc by uncommenting the configuration in hub_false_delegated vpc
+resource ibm_is_vpc hub_true {
+  name = "${var.name}-vpc-hub-true"
+  dns {
+    enable_hub = true
+  }
+}
+
+resource ibm_is_vpc hub_false_delegated {
+  name = "${var.name}-vpc-hub-false-del"
+  dns {
+    enable_hub = false
+    # resolver {
+    # 	type = "delegated"
+    # 	vpc_id = ibm_is_vpc.hub_true.id
+    # }
+  }
+}
+
+resource "ibm_is_subnet" "hub_true_sub1" {
+  name		   				        =  "hub-true-subnet1"
+  vpc      	   				      =  ibm_is_vpc.hub_true.id
+  zone		   				        =  "${var.region}-2"
+  total_ipv4_address_count 	= 16
+}
+resource "ibm_is_subnet" "hub_true_sub2" {
+  name		   				        =  "hub-true-subnet2"
+  vpc      	   				      =  ibm_is_vpc.hub_true.id
+  zone		   				        =  "${var.region}-2"
+  total_ipv4_address_count 	= 16
+}
+resource "ibm_is_subnet" "hub_false_delegated_sub1" {
+  name		   				        =  "hub-false-delegated-subnet1"
+  vpc      	   				      =  ibm_is_vpc.hub_false_delegated.id
+  zone		   				        =  "${var.region}-2"
+  total_ipv4_address_count 	= 16
+}
+resource "ibm_is_subnet" "hub_false_delegated_sub2" {
+  name		   				        =  "hub-false-delegated-subnet2"
+  vpc      	   				      =  ibm_is_vpc.hub_false_delegated.id
+  zone		   				        =  "${var.region}-2"
+  total_ipv4_address_count 	= 16
+}
+resource "ibm_resource_instance" "dns-cr-instance" {
+  name		   		      =  "dns-cr-instance"
+  resource_group_id  	=  data.ibm_resource_group.rg.id
+  location           	=  "global"
+  service		   		    =  "dns-svcs"
+  plan		   		      =  "standard-dns"
+}
+resource "ibm_dns_custom_resolver" "test_hub_true" {
+  name		   		    =  "test-hub-true-customresolver"
+  instance_id 	   	=  ibm_resource_instance.dns-cr-instance.guid
+  description	   		=  "new test CR - TF"
+  high_availability =  true
+  enabled 	   		  =  true
+  locations {
+    subnet_crn  = ibm_is_subnet.hub_true_sub1.crn
+    enabled	    = true
+  }
+  locations {
+    subnet_crn  = ibm_is_subnet.hub_true_sub2.crn
+    enabled	    = true
+  }
+}
+resource "ibm_dns_custom_resolver" "test_hub_false_delegated" {
+  name		   		    =  "test-hub-false-customresolver"
+  instance_id 	   	=  ibm_resource_instance.dns-cr-instance.guid
+  description	   		=  "new test CR - TF"
+  high_availability =  true
+  enabled 	   		  =  true
+  locations {
+    subnet_crn  = ibm_is_subnet.hub_false_delegated_sub1.crn
+    enabled	    = true
+  }
+  locations {
+    subnet_crn  = ibm_is_subnet.hub_false_delegated_sub2.crn
+    enabled	    = true
+  }
+}
+
+resource ibm_is_vpc_dns_resolution_binding dnstrue {
+  name    = "hub-spoke-binding"
+  vpc_id  =  ibm_is_vpc.hub_false_delegated.id
+  vpc {
+    id = ibm_is_vpc.hub_true.id
+  }
+}
+
 
 // snapshot cross region
 
@@ -1280,18 +1384,20 @@ resource "ibm_is_image_deprecate" "example" {
 resource "ibm_is_image_obsolete" "example" {
   image     = ibm_is_image.image1.id
 }
+
+
 // vni
 resource "ibm_is_virtual_network_interface" "is_virtual_network_interface_instance" {
-  allow_ip_spoofing = var.is_virtual_network_interface_allow_ip_spoofing
-  auto_delete = var.is_virtual_network_interface_auto_delete
-  enable_infrastructure_nat = var.is_virtual_network_interface_enable_infrastructure_nat
+  allow_ip_spoofing = true
+  auto_delete       = true
+  enable_infrastructure_nat = true
   ips {
     address = "192.168.3.4"
     href = "https://us-south.iaas.cloud.ibm.com/v1/subnets/7ec86020-1c6e-4889-b3f0-a15f2e50f87e/reserved_ips/6d353a0f-aeb1-4ae1-832e-1110d10981bb"
     id = "6d353a0f-aeb1-4ae1-832e-1110d10981bb"
     name = "my-reserved-ip"
   }
-  name = var.is_virtual_network_interface_name
+  name = "my-virtual-network-interface"
   primary_ip {
     address = "192.168.3.4"
     href = "https://us-south.iaas.cloud.ibm.com/v1/subnets/7ec86020-1c6e-4889-b3f0-a15f2e50f87e/reserved_ips/6d353a0f-aeb1-4ae1-832e-1110d10981bb"
@@ -1315,4 +1421,17 @@ resource "ibm_is_virtual_network_interface" "is_virtual_network_interface_instan
     href = "https://us-south.iaas.cloud.ibm.com/v1/subnets/7ec86020-1c6e-4889-b3f0-a15f2e50f87e"
     id = "7ec86020-1c6e-4889-b3f0-a15f2e50f87e"
   }
+}
+resource "ibm_is_virtual_network_interface_floating_ip" "vni_fip" {
+  virtual_network_interface = <vni_id>
+  floating_ip 				= <fip_id>
+}
+
+data "ibm_is_virtual_network_interface_floating_ip" "vni_fip" {
+  virtual_network_interface = <vni_id>
+  floating_ip 				= <fip_id>
+}
+
+data "ibm_is_virtual_network_interface_floating_ips" "vni_fips" {
+  virtual_network_interface = <vni_id>
 }
