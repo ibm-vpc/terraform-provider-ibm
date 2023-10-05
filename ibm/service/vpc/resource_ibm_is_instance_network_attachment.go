@@ -23,7 +23,17 @@ func ResourceIBMIsInstanceNetworkAttachment() *schema.Resource {
 		ReadContext:   resourceIBMIsInstanceNetworkAttachmentRead,
 		UpdateContext: resourceIBMIsInstanceNetworkAttachmentUpdate,
 		DeleteContext: resourceIBMIsInstanceNetworkAttachmentDelete,
-		Importer:      &schema.ResourceImporter{},
+		Importer: &schema.ResourceImporter{
+			State: func(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+				parts, err := flex.SepIdParts(d.Id(), "/")
+				if err != nil {
+					return nil, err
+				}
+				d.Set("instance", parts[0])
+				d.Set("virtual_network_interface", parts[1])
+				return []*schema.ResourceData{d}, nil
+			},
+		},
 
 		Schema: map[string]*schema.Schema{
 			"instance": &schema.Schema{
@@ -36,14 +46,9 @@ func ResourceIBMIsInstanceNetworkAttachment() *schema.Resource {
 			"name": &schema.Schema{
 				Type:         schema.TypeString,
 				Optional:     true,
+				Computed:     true,
 				ValidateFunc: validate.InvokeValidator("ibm_is_instance_network_attachment", "name"),
 				Description:  "The name for this instance network attachment. The name is unique across all network attachments for the instance.",
-			},
-			"virtual_network_interface": &schema.Schema{
-				Type:          schema.TypeString,
-				Optional:      true,
-				ConflictsWith: []string{"primary_ip"},
-				Description:   "The virtual network interface id for this instance network attachment.",
 			},
 			"created_at": &schema.Schema{
 				Type:        schema.TypeString,
@@ -65,15 +70,123 @@ func ResourceIBMIsInstanceNetworkAttachment() *schema.Resource {
 				Computed:    true,
 				Description: "The port speed for this instance network attachment in Mbps.",
 			},
+
+			"resource_type": &schema.Schema{
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The resource type.",
+			},
+			"type": &schema.Schema{
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The instance network attachment type.",
+			},
+			"instance_network_attachment_id": &schema.Schema{
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The unique identifier for this instance network attachment.",
+			},
+
+			// vni properties
+			"virtual_network_interface": &schema.Schema{
+				Type:          schema.TypeString,
+				Optional:      true,
+				ConflictsWith: []string{"primary_ip"},
+				Description:   "The virtual network interface id for this instance network attachment.",
+			},
+			"allow_ip_spoofing": &schema.Schema{
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Computed:    true,
+				Description: "Indicates whether source IP spoofing is allowed on this interface. If `false`, source IP spoofing is prevented on this interface. If `true`, source IP spoofing is allowed on this interface.",
+			},
+			"auto_delete": &schema.Schema{
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Computed:    true,
+				Description: "Indicates whether this virtual network interface will be automatically deleted when`target` is deleted.",
+			},
+			"enable_infrastructure_nat": &schema.Schema{
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Computed:    true,
+				Description: "If `true`:- The VPC infrastructure performs any needed NAT operations.- `floating_ips` must not have more than one floating IP.If `false`:- Packets are passed unchanged to/from the network interface,  allowing the workload to perform any needed NAT operations.- `allow_ip_spoofing` must be `false`.- If the virtual network interface is attached:  - The target `resource_type` must be `bare_metal_server_network_attachment`.  - The target `interface_type` must not be `hipersocket`.",
+			},
+			"ips": &schema.Schema{
+				Type:        schema.TypeList,
+				Optional:    true,
+				Computed:    true,
+				Description: "The reserved IPs bound to this virtual network interface.May be empty when `lifecycle_state` is `pending`.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"address": &schema.Schema{
+							Type:        schema.TypeString,
+							Optional:    true,
+							Computed:    true,
+							Description: "The IP address.If the address has not yet been selected, the value will be `0.0.0.0`.This property may add support for IPv6 addresses in the future. When processing a value in this property, verify that the address is in an expected format. If it is not, log an error. Optionally halt processing and surface the error, or bypass the resource on which the unexpected IP address format was encountered.",
+						},
+						"deleted": &schema.Schema{
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "If present, this property indicates the referenced resource has been deleted, and providessome supplementary information.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"more_info": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "Link to documentation about deleted resources.",
+									},
+								},
+							},
+						},
+						"auto_delete": &schema.Schema{
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Computed:    true,
+							Description: "Indicates whether this reserved IP member will be automatically deleted when either target is deleted, or the reserved IP is unbound.",
+						},
+						"href": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The URL for this reserved IP.",
+						},
+						"reserved_ip": &schema.Schema{
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "The unique identifier for this reserved IP.",
+						},
+						"name": &schema.Schema{
+							Type:        schema.TypeString,
+							Optional:    true,
+							Computed:    true,
+							Description: "The name for this reserved IP. The name is unique across all reserved IPs in a subnet.",
+						},
+						"resource_type": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The resource type.",
+						},
+					},
+				},
+			},
+			"vni_name": &schema.Schema{
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: validate.InvokeValidator("ibm_is_virtual_network_interface", "vni_name"),
+				Description:  "The name for this virtual network interface. The name is unique across all virtual network interfaces in the VPC.",
+			},
 			"primary_ip": &schema.Schema{
 				Type:        schema.TypeList,
+				Optional:    true,
 				Computed:    true,
 				Description: "The primary IP address of the virtual network interface for the instance networkattachment.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"address": &schema.Schema{
 							Type:        schema.TypeString,
-							Required:    true,
+							Optional:    true,
+							Computed:    true,
 							Description: "The IP address.If the address has not yet been selected, the value will be `0.0.0.0`.This property may add support for IPv6 addresses in the future. When processing a value in this property, verify that the address is in an expected format. If it is not, log an error. Optionally halt processing and surface the error, or bypass the resource on which the unexpected IP address format was encountered.",
 						},
 						"deleted": &schema.Schema{
@@ -92,17 +205,19 @@ func ResourceIBMIsInstanceNetworkAttachment() *schema.Resource {
 						},
 						"href": &schema.Schema{
 							Type:        schema.TypeString,
-							Required:    true,
+							Computed:    true,
 							Description: "The URL for this reserved IP.",
 						},
-						"id": &schema.Schema{
+						"reserved_ip": &schema.Schema{
 							Type:        schema.TypeString,
-							Required:    true,
+							Optional:    true,
+							Computed:    true,
 							Description: "The unique identifier for this reserved IP.",
 						},
 						"name": &schema.Schema{
 							Type:        schema.TypeString,
-							Required:    true,
+							Optional:    true,
+							Computed:    true,
 							Description: "The name for this reserved IP. The name is unique across all reserved IPs in a subnet.",
 						},
 						"resource_type": &schema.Schema{
@@ -113,25 +228,32 @@ func ResourceIBMIsInstanceNetworkAttachment() *schema.Resource {
 					},
 				},
 			},
-			"resource_type": &schema.Schema{
+			"resource_group": &schema.Schema{
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: "The resource group id for this virtual network interface.",
+			},
+			"vni_resource_type": &schema.Schema{
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "The resource type.",
 			},
+			"security_groups": {
+				Type:        schema.TypeSet,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
+				Description: "The security groups for this virtual network interface.",
+			},
 			"subnet": &schema.Schema{
 				Type:        schema.TypeString,
+				Optional:    true,
 				Computed:    true,
-				Description: "The subnet id of the virtual network interface for the instance network attachment.",
-			},
-			"type": &schema.Schema{
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: "The instance network attachment type.",
-			},
-			"instance_by_network_attachment_id": &schema.Schema{
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: "The unique identifier for this instance network attachment.",
+				ForceNew:    true,
+				Description: "The associated subnet id.",
 			},
 		},
 	}
@@ -218,53 +340,111 @@ func resourceIBMIsInstanceNetworkAttachmentRead(context context.Context, d *sche
 		log.Printf("[DEBUG] GetInstanceNetworkAttachmentWithContext failed %s\n%s", err, response)
 		return diag.FromErr(fmt.Errorf("GetInstanceNetworkAttachmentWithContext failed %s\n%s", err, response))
 	}
-
+	// attachment details
 	if !core.IsNil(instanceNetworkAttachment.Name) {
 		if err = d.Set("name", instanceNetworkAttachment.Name); err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting name: %s", err))
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting name: %s", err))
 		}
 	}
-	virtualNetworkInterfaceMap, err := resourceIBMIsInstanceNetworkAttachmentVirtualNetworkInterfaceReferenceAttachmentContextToMap(instanceNetworkAttachment.VirtualNetworkInterface)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-	if err = d.Set("virtual_network_interface", []map[string]interface{}{virtualNetworkInterfaceMap}); err != nil {
-		return diag.FromErr(fmt.Errorf("Error setting virtual_network_interface: %s", err))
-	}
 	if err = d.Set("created_at", flex.DateTimeToString(instanceNetworkAttachment.CreatedAt)); err != nil {
-		return diag.FromErr(fmt.Errorf("Error setting created_at: %s", err))
+		return diag.FromErr(fmt.Errorf("[ERROR] Error setting created_at: %s", err))
 	}
+
 	if err = d.Set("href", instanceNetworkAttachment.Href); err != nil {
-		return diag.FromErr(fmt.Errorf("Error setting href: %s", err))
+		return diag.FromErr(fmt.Errorf("[ERROR] Error setting href: %s", err))
 	}
 	if err = d.Set("lifecycle_state", instanceNetworkAttachment.LifecycleState); err != nil {
-		return diag.FromErr(fmt.Errorf("Error setting lifecycle_state: %s", err))
+		return diag.FromErr(fmt.Errorf("[ERROR] Error setting lifecycle_state: %s", err))
 	}
 	if err = d.Set("port_speed", flex.IntValue(instanceNetworkAttachment.PortSpeed)); err != nil {
-		return diag.FromErr(fmt.Errorf("Error setting port_speed: %s", err))
+		return diag.FromErr(fmt.Errorf("[ERROR] Error setting port_speed: %s", err))
 	}
+	if err = d.Set("resource_type", instanceNetworkAttachment.ResourceType); err != nil {
+		return diag.FromErr(fmt.Errorf("[ERROR] Error setting resource_type: %s", err))
+	}
+	if err = d.Set("type", instanceNetworkAttachment.Type); err != nil {
+		return diag.FromErr(fmt.Errorf("[ERROR] Error setting type: %s", err))
+	}
+	if err = d.Set("instance_network_attachment_id", instanceNetworkAttachment.ID); err != nil {
+		return diag.FromErr(fmt.Errorf("[ERROR] Error setting instance_network_attachment_id: %s", err))
+	}
+	// vni details
+	vniId := *instanceNetworkAttachment.VirtualNetworkInterface.ID
+	if err = d.Set("virtual_network_interface", vniId); err != nil {
+		return diag.FromErr(fmt.Errorf("[ERROR] Error setting virtual_network_interface: %s", err))
+	}
+	getVniOptions := &vpcv1.GetVirtualNetworkInterfaceOptions{
+		ID: &vniId,
+	}
+	vniDetails, response, err := vpcClient.GetVirtualNetworkInterface(getVniOptions)
+	if err != nil {
+		if response != nil && response.StatusCode == 404 {
+			d.SetId("")
+			return nil
+		}
+		log.Printf("[DEBUG] GetVirtualNetworkInterface failed %s\n%s", err, response)
+		return diag.FromErr(fmt.Errorf("GetVirtualNetworkInterface failed %s\n%s", err, response))
+	}
+	if err = d.Set("allow_ip_spoofing", vniDetails.AllowIPSpoofing); err != nil {
+		return diag.FromErr(fmt.Errorf("[ERROR] Error setting allow_ip_spoofing: %s", err))
+	}
+	if err = d.Set("auto_delete", vniDetails.AutoDelete); err != nil {
+		return diag.FromErr(fmt.Errorf("[ERROR] Error setting auto_delete: %s", err))
+	}
+	if err = d.Set("enable_infrastructure_nat", vniDetails.EnableInfrastructureNat); err != nil {
+		return diag.FromErr(fmt.Errorf("[ERROR] Error setting enable_infrastructure_nat: %s", err))
+	}
+	if err = d.Set("vni_name", vniDetails.Name); err != nil {
+		return diag.FromErr(fmt.Errorf("[ERROR] Error setting vni_name: %s", err))
+	}
+	if err = d.Set("resource_group", vniDetails.ResourceGroup.ID); err != nil {
+		return diag.FromErr(fmt.Errorf("[ERROR] Error setting resource_group: %s", err))
+	}
+	if err = d.Set("vni_resource_type", vniDetails.ResourceType); err != nil {
+		return diag.FromErr(fmt.Errorf("[ERROR] Error setting vni_resource_type: %s", err))
+	}
+	primaryipId := *instanceNetworkAttachment.PrimaryIP.ID
+	if !core.IsNil(vniDetails.Ips) {
+		ips := []map[string]interface{}{}
+		for _, ipsItem := range vniDetails.Ips {
+			if *ipsItem.ID != primaryipId {
+				ipsItemMap, err := resourceIBMIsVirtualNetworkInterfaceReservedIPReferenceToMap(&ipsItem)
+				if err != nil {
+					return diag.FromErr(err)
+				}
+				ips = append(ips, ipsItemMap)
+			}
+		}
+		if err = d.Set("ips", ips); err != nil {
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting ips: %s", err))
+		}
+	}
+
+	if !core.IsNil(vniDetails.SecurityGroups) {
+		securityGroups := make([]string, 0)
+		for _, securityGroupsItem := range vniDetails.SecurityGroups {
+			if securityGroupsItem.ID != nil {
+				securityGroups = append(securityGroups, *securityGroupsItem.ID)
+			}
+		}
+		if err = d.Set("security_groups", securityGroups); err != nil {
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting security_groups for vni: %s", err))
+		}
+	}
+
 	primaryIPMap, err := resourceIBMIsInstanceNetworkAttachmentReservedIPReferenceToMap(instanceNetworkAttachment.PrimaryIP)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 	if err = d.Set("primary_ip", []map[string]interface{}{primaryIPMap}); err != nil {
-		return diag.FromErr(fmt.Errorf("Error setting primary_ip: %s", err))
+		return diag.FromErr(fmt.Errorf("[ERROR] Error setting primary_ip: %s", err))
 	}
-	if err = d.Set("resource_type", instanceNetworkAttachment.ResourceType); err != nil {
-		return diag.FromErr(fmt.Errorf("Error setting resource_type: %s", err))
+
+	if err = d.Set("subnet", *instanceNetworkAttachment.Subnet.ID); err != nil {
+		return diag.FromErr(fmt.Errorf("[ERROR] Error setting subnet: %s", err))
 	}
-	subnetMap, err := resourceIBMIsInstanceNetworkAttachmentSubnetReferenceToMap(instanceNetworkAttachment.Subnet)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-	if err = d.Set("subnet", []map[string]interface{}{subnetMap}); err != nil {
-		return diag.FromErr(fmt.Errorf("Error setting subnet: %s", err))
-	}
-	if err = d.Set("type", instanceNetworkAttachment.Type); err != nil {
-		return diag.FromErr(fmt.Errorf("Error setting type: %s", err))
-	}
-	if err = d.Set("instance_by_network_attachment_id", instanceNetworkAttachment.ID); err != nil {
-		return diag.FromErr(fmt.Errorf("Error setting instance_by_network_attachment_id: %s", err))
+	if err = d.Set("instance", parts[0]); err != nil {
+		return diag.FromErr(fmt.Errorf("[ERROR] Error setting instance: %s", err))
 	}
 
 	return nil
@@ -659,48 +839,6 @@ func resourceIBMIsInstanceNetworkAttachmentMapToInstanceNetworkAttachmentPrototy
 	return model, nil
 }
 
-func resourceIBMIsInstanceNetworkAttachmentMapToInstanceNetworkAttachmentPrototypeVirtualNetworkInterfaceVirtualNetworkInterfaceIdentity(modelMap map[string]interface{}) (vpcv1.InstanceNetworkAttachmentPrototypeVirtualNetworkInterfaceVirtualNetworkInterfaceIdentityIntf, error) {
-	model := &vpcv1.InstanceNetworkAttachmentPrototypeVirtualNetworkInterfaceVirtualNetworkInterfaceIdentity{}
-	if modelMap["id"] != nil && modelMap["id"].(string) != "" {
-		model.ID = core.StringPtr(modelMap["id"].(string))
-	}
-	if modelMap["href"] != nil && modelMap["href"].(string) != "" {
-		model.Href = core.StringPtr(modelMap["href"].(string))
-	}
-	if modelMap["crn"] != nil && modelMap["crn"].(string) != "" {
-		model.CRN = core.StringPtr(modelMap["crn"].(string))
-	}
-	return model, nil
-}
-
-func resourceIBMIsInstanceNetworkAttachmentMapToInstanceNetworkAttachmentPrototypeVirtualNetworkInterfaceVirtualNetworkInterfaceIdentityVirtualNetworkInterfaceIdentityByID(modelMap map[string]interface{}) (*vpcv1.InstanceNetworkAttachmentPrototypeVirtualNetworkInterfaceVirtualNetworkInterfaceIdentityVirtualNetworkInterfaceIdentityByID, error) {
-	model := &vpcv1.InstanceNetworkAttachmentPrototypeVirtualNetworkInterfaceVirtualNetworkInterfaceIdentityVirtualNetworkInterfaceIdentityByID{}
-	model.ID = core.StringPtr(modelMap["id"].(string))
-	return model, nil
-}
-
-func resourceIBMIsInstanceNetworkAttachmentMapToInstanceNetworkAttachmentPrototypeVirtualNetworkInterfaceVirtualNetworkInterfaceIdentityVirtualNetworkInterfaceIdentityByHref(modelMap map[string]interface{}) (*vpcv1.InstanceNetworkAttachmentPrototypeVirtualNetworkInterfaceVirtualNetworkInterfaceIdentityVirtualNetworkInterfaceIdentityByHref, error) {
-	model := &vpcv1.InstanceNetworkAttachmentPrototypeVirtualNetworkInterfaceVirtualNetworkInterfaceIdentityVirtualNetworkInterfaceIdentityByHref{}
-	model.Href = core.StringPtr(modelMap["href"].(string))
-	return model, nil
-}
-
-func resourceIBMIsInstanceNetworkAttachmentMapToInstanceNetworkAttachmentPrototypeVirtualNetworkInterfaceVirtualNetworkInterfaceIdentityVirtualNetworkInterfaceIdentityByCRN(modelMap map[string]interface{}) (*vpcv1.InstanceNetworkAttachmentPrototypeVirtualNetworkInterfaceVirtualNetworkInterfaceIdentityVirtualNetworkInterfaceIdentityByCRN, error) {
-	model := &vpcv1.InstanceNetworkAttachmentPrototypeVirtualNetworkInterfaceVirtualNetworkInterfaceIdentityVirtualNetworkInterfaceIdentityByCRN{}
-	model.CRN = core.StringPtr(modelMap["crn"].(string))
-	return model, nil
-}
-
-func resourceIBMIsInstanceNetworkAttachmentVirtualNetworkInterfaceReferenceAttachmentContextToMap(model *vpcv1.VirtualNetworkInterfaceReferenceAttachmentContext) (map[string]interface{}, error) {
-	modelMap := make(map[string]interface{})
-	modelMap["crn"] = model.CRN
-	modelMap["href"] = model.Href
-	modelMap["id"] = model.ID
-	modelMap["name"] = model.Name
-	modelMap["resource_type"] = model.ResourceType
-	return modelMap, nil
-}
-
 func resourceIBMIsInstanceNetworkAttachmentReservedIPReferenceToMap(model *vpcv1.ReservedIPReference) (map[string]interface{}, error) {
 	modelMap := make(map[string]interface{})
 	modelMap["address"] = model.Address
@@ -712,7 +850,7 @@ func resourceIBMIsInstanceNetworkAttachmentReservedIPReferenceToMap(model *vpcv1
 		modelMap["deleted"] = []map[string]interface{}{deletedMap}
 	}
 	modelMap["href"] = model.Href
-	modelMap["id"] = model.ID
+	modelMap["reserved_ip"] = model.ID
 	modelMap["name"] = model.Name
 	modelMap["resource_type"] = model.ResourceType
 	return modelMap, nil

@@ -160,7 +160,7 @@ func testAccCheckIBMIsInstanceNetworkAttachmentDestroy(s *terraform.State) error
 		if err == nil {
 			return fmt.Errorf("InstanceByNetworkAttachment still exists: %s", rs.Primary.ID)
 		} else if response.StatusCode != 404 {
-			return fmt.Errorf("Error checking for InstanceByNetworkAttachment (%s) has been destroyed: %s", rs.Primary.ID, err)
+			return fmt.Errorf("[ERROR] Error checking for InstanceByNetworkAttachment (%s) has been destroyed: %s", rs.Primary.ID, err)
 		}
 	}
 

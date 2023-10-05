@@ -405,7 +405,7 @@ func ResourceIBMISInstance() *schema.Resource {
 				MaxItems:      1,
 				Optional:      true,
 				Computed:      true,
-				ExactlyOneOf:  []string{"primary_network_interface", "primary_network_attachment"},
+				ExactlyOneOf:  []string{"primary_network_attachment", "primary_network_interface"},
 				ConflictsWith: []string{"primary_network_attachment", "network_attachments"},
 				Description:   "Primary Network interface info",
 				Elem: &schema.Resource{
@@ -518,13 +518,26 @@ func ResourceIBMISInstance() *schema.Resource {
 
 						// pna can accept either vni id or prototype
 						"name": &schema.Schema{
-							Type:     schema.TypeString,
-							Required: true,
+							Type:         schema.TypeString,
+							Optional:     true,
+							Computed:     true,
+							ValidateFunc: validate.InvokeValidator("ibm_is_instance_network_attachment", "name"),
+							Description:  "The name for this instance network attachment. The name is unique across all network attachments for the instance.",
 						},
-						"virtual_network_interface": &schema.Schema{
+						"href": &schema.Schema{
 							Type:        schema.TypeString,
-							Optional:    true,
-							Description: "The unique identifier for this virtual_network_interface.",
+							Computed:    true,
+							Description: "The URL for this instance network attachment.",
+						},
+						"resource_type": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The resource type.",
+						},
+						"id": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The unique identifier for this instance network attachment.",
 						},
 						"deleted": &schema.Schema{
 							Type:        schema.TypeList,
@@ -540,26 +553,106 @@ func ResourceIBMISInstance() *schema.Resource {
 								},
 							},
 						},
-						"href": &schema.Schema{
+
+						// vni properties
+						"virtual_network_interface": &schema.Schema{
 							Type:        schema.TypeString,
-							Computed:    true,
-							Description: "The URL for this network attachment.",
-						},
-						"id": &schema.Schema{
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: "The unique identifier for this network attachment.",
-						},
-						"primary_ip": &schema.Schema{
-							Type:        schema.TypeList,
-							MaxItems:    1,
 							Optional:    true,
-							Description: "The primary IP address of the virtual network interface for the network attachment.",
+							Description: "The virtual network interface id for this instance network attachment.",
+						},
+						"allow_ip_spoofing": &schema.Schema{
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Computed:    true,
+							Description: "Indicates whether source IP spoofing is allowed on this interface. If `false`, source IP spoofing is prevented on this interface. If `true`, source IP spoofing is allowed on this interface.",
+						},
+						"auto_delete": &schema.Schema{
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Computed:    true,
+							Description: "Indicates whether this virtual network interface will be automatically deleted when`target` is deleted.",
+						},
+						"enable_infrastructure_nat": &schema.Schema{
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Computed:    true,
+							Description: "If `true`:- The VPC infrastructure performs any needed NAT operations.- `floating_ips` must not have more than one floating IP.If `false`:- Packets are passed unchanged to/from the network interface,  allowing the workload to perform any needed NAT operations.- `allow_ip_spoofing` must be `false`.- If the virtual network interface is attached:  - The target `resource_type` must be `bare_metal_server_network_attachment`.  - The target `interface_type` must not be `hipersocket`.",
+						},
+						"ips": &schema.Schema{
+							Type:        schema.TypeList,
+							Optional:    true,
+							Computed:    true,
+							Description: "The reserved IPs bound to this virtual network interface.May be empty when `lifecycle_state` is `pending`.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"address": &schema.Schema{
 										Type:        schema.TypeString,
-										Required:    true,
+										Optional:    true,
+										Computed:    true,
+										Description: "The IP address.If the address has not yet been selected, the value will be `0.0.0.0`.This property may add support for IPv6 addresses in the future. When processing a value in this property, verify that the address is in an expected format. If it is not, log an error. Optionally halt processing and surface the error, or bypass the resource on which the unexpected IP address format was encountered.",
+									},
+									"deleted": &schema.Schema{
+										Type:        schema.TypeList,
+										Computed:    true,
+										Description: "If present, this property indicates the referenced resource has been deleted, and providessome supplementary information.",
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"more_info": &schema.Schema{
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "Link to documentation about deleted resources.",
+												},
+											},
+										},
+									},
+									"auto_delete": &schema.Schema{
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Computed:    true,
+										Description: "Indicates whether this reserved IP member will be automatically deleted when either target is deleted, or the reserved IP is unbound.",
+									},
+									"href": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The URL for this reserved IP.",
+									},
+									"reserved_ip": &schema.Schema{
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: "The unique identifier for this reserved IP.",
+									},
+									"name": &schema.Schema{
+										Type:        schema.TypeString,
+										Optional:    true,
+										Computed:    true,
+										Description: "The name for this reserved IP. The name is unique across all reserved IPs in a subnet.",
+									},
+									"resource_type": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The resource type.",
+									},
+								},
+							},
+						},
+						"vni_name": &schema.Schema{
+							Type:         schema.TypeString,
+							Optional:     true,
+							Computed:     true,
+							ValidateFunc: validate.InvokeValidator("ibm_is_virtual_network_interface", "vni_name"),
+							Description:  "The name for this virtual network interface. The name is unique across all virtual network interfaces in the VPC.",
+						},
+						"primary_ip": &schema.Schema{
+							Type:        schema.TypeList,
+							Optional:    true,
+							Computed:    true,
+							Description: "The primary IP address of the virtual network interface for the instance networkattachment.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"address": &schema.Schema{
+										Type:        schema.TypeString,
+										Optional:    true,
+										Computed:    true,
 										Description: "The IP address.If the address has not yet been selected, the value will be `0.0.0.0`.This property may add support for IPv6 addresses in the future. When processing a value in this property, verify that the address is in an expected format. If it is not, log an error. Optionally halt processing and surface the error, or bypass the resource on which the unexpected IP address format was encountered.",
 									},
 									"deleted": &schema.Schema{
@@ -578,17 +671,19 @@ func ResourceIBMISInstance() *schema.Resource {
 									},
 									"href": &schema.Schema{
 										Type:        schema.TypeString,
-										Required:    true,
+										Computed:    true,
 										Description: "The URL for this reserved IP.",
 									},
-									"id": &schema.Schema{
+									"reserved_ip": &schema.Schema{
 										Type:        schema.TypeString,
-										Required:    true,
+										Optional:    true,
+										Computed:    true,
 										Description: "The unique identifier for this reserved IP.",
 									},
 									"name": &schema.Schema{
 										Type:        schema.TypeString,
-										Required:    true,
+										Optional:    true,
+										Computed:    true,
 										Description: "The name for this reserved IP. The name is unique across all reserved IPs in a subnet.",
 									},
 									"resource_type": &schema.Schema{
@@ -599,15 +694,32 @@ func ResourceIBMISInstance() *schema.Resource {
 								},
 							},
 						},
-						"resource_type": &schema.Schema{
+						"resource_group": &schema.Schema{
+							Type:        schema.TypeString,
+							Optional:    true,
+							Computed:    true,
+							Description: "The resource group id for this virtual network interface.",
+						},
+						"vni_resource_type": &schema.Schema{
 							Type:        schema.TypeString,
 							Computed:    true,
 							Description: "The resource type.",
 						},
+						"security_groups": {
+							Type:        schema.TypeSet,
+							Optional:    true,
+							Computed:    true,
+							ForceNew:    true,
+							Elem:        &schema.Schema{Type: schema.TypeString},
+							Set:         schema.HashString,
+							Description: "The security groups for this virtual network interface.",
+						},
 						"subnet": &schema.Schema{
 							Type:        schema.TypeString,
+							Optional:    true,
 							Computed:    true,
-							Description: "The subnet of the virtual network interface for the network attachment.",
+							ForceNew:    true,
+							Description: "The associated subnet id.",
 						},
 					},
 				},
@@ -617,7 +729,6 @@ func ResourceIBMISInstance() *schema.Resource {
 				Type:          schema.TypeList,
 				Optional:      true,
 				Computed:      true,
-				ExactlyOneOf:  []string{"network_attachments", "network_interfaces"},
 				ConflictsWith: []string{"primary_network_attachment", "network_attachments"},
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -709,11 +820,34 @@ func ResourceIBMISInstance() *schema.Resource {
 			"network_attachments": &schema.Schema{
 				Type:          schema.TypeList,
 				Optional:      true,
-				ExactlyOneOf:  []string{"network_attachments", "network_interfaces"},
 				ConflictsWith: []string{"primary_network_interface", "network_interfaces"},
 				Description:   "The network attachments for this virtual server instance, including the primary network attachment.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+
+						// pna can accept either vni id or prototype
+						"name": &schema.Schema{
+							Type:         schema.TypeString,
+							Optional:     true,
+							Computed:     true,
+							ValidateFunc: validate.InvokeValidator("ibm_is_instance_network_attachment", "name"),
+							Description:  "The name for this instance network attachment. The name is unique across all network attachments for the instance.",
+						},
+						"href": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The URL for this instance network attachment.",
+						},
+						"resource_type": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The resource type.",
+						},
+						"id": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The unique identifier for this instance network attachment.",
+						},
 						"deleted": &schema.Schema{
 							Type:        schema.TypeList,
 							Computed:    true,
@@ -728,30 +862,106 @@ func ResourceIBMISInstance() *schema.Resource {
 								},
 							},
 						},
-						"href": &schema.Schema{
+
+						// vni properties
+						"virtual_network_interface": &schema.Schema{
 							Type:        schema.TypeString,
-							Computed:    true,
-							Description: "The URL for this network attachment.",
-						},
-						"id": &schema.Schema{
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: "The unique identifier for this network attachment.",
-						},
-						"name": &schema.Schema{
-							Type:     schema.TypeString,
-							Required: true,
-						},
-						"primary_ip": &schema.Schema{
-							Type:        schema.TypeList,
-							MaxItems:    1,
 							Optional:    true,
-							Description: "The primary IP address of the virtual network interface for the network attachment.",
+							Description: "The virtual network interface id for this instance network attachment.",
+						},
+						"allow_ip_spoofing": &schema.Schema{
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Computed:    true,
+							Description: "Indicates whether source IP spoofing is allowed on this interface. If `false`, source IP spoofing is prevented on this interface. If `true`, source IP spoofing is allowed on this interface.",
+						},
+						"auto_delete": &schema.Schema{
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Computed:    true,
+							Description: "Indicates whether this virtual network interface will be automatically deleted when`target` is deleted.",
+						},
+						"enable_infrastructure_nat": &schema.Schema{
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Computed:    true,
+							Description: "If `true`:- The VPC infrastructure performs any needed NAT operations.- `floating_ips` must not have more than one floating IP.If `false`:- Packets are passed unchanged to/from the network interface,  allowing the workload to perform any needed NAT operations.- `allow_ip_spoofing` must be `false`.- If the virtual network interface is attached:  - The target `resource_type` must be `bare_metal_server_network_attachment`.  - The target `interface_type` must not be `hipersocket`.",
+						},
+						"ips": &schema.Schema{
+							Type:        schema.TypeList,
+							Optional:    true,
+							Computed:    true,
+							Description: "The reserved IPs bound to this virtual network interface.May be empty when `lifecycle_state` is `pending`.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"address": &schema.Schema{
 										Type:        schema.TypeString,
-										Required:    true,
+										Optional:    true,
+										Computed:    true,
+										Description: "The IP address.If the address has not yet been selected, the value will be `0.0.0.0`.This property may add support for IPv6 addresses in the future. When processing a value in this property, verify that the address is in an expected format. If it is not, log an error. Optionally halt processing and surface the error, or bypass the resource on which the unexpected IP address format was encountered.",
+									},
+									"deleted": &schema.Schema{
+										Type:        schema.TypeList,
+										Computed:    true,
+										Description: "If present, this property indicates the referenced resource has been deleted, and providessome supplementary information.",
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"more_info": &schema.Schema{
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "Link to documentation about deleted resources.",
+												},
+											},
+										},
+									},
+									"auto_delete": &schema.Schema{
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Computed:    true,
+										Description: "Indicates whether this reserved IP member will be automatically deleted when either target is deleted, or the reserved IP is unbound.",
+									},
+									"href": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The URL for this reserved IP.",
+									},
+									"reserved_ip": &schema.Schema{
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: "The unique identifier for this reserved IP.",
+									},
+									"name": &schema.Schema{
+										Type:        schema.TypeString,
+										Optional:    true,
+										Computed:    true,
+										Description: "The name for this reserved IP. The name is unique across all reserved IPs in a subnet.",
+									},
+									"resource_type": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The resource type.",
+									},
+								},
+							},
+						},
+						"vni_name": &schema.Schema{
+							Type:         schema.TypeString,
+							Optional:     true,
+							Computed:     true,
+							ValidateFunc: validate.InvokeValidator("ibm_is_virtual_network_interface", "vni_name"),
+							Description:  "The name for this virtual network interface. The name is unique across all virtual network interfaces in the VPC.",
+						},
+						"primary_ip": &schema.Schema{
+							Type:        schema.TypeList,
+							Optional:    true,
+							Computed:    true,
+							Description: "The primary IP address of the virtual network interface for the instance networkattachment.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"address": &schema.Schema{
+										Type:        schema.TypeString,
+										Optional:    true,
+										Computed:    true,
 										Description: "The IP address.If the address has not yet been selected, the value will be `0.0.0.0`.This property may add support for IPv6 addresses in the future. When processing a value in this property, verify that the address is in an expected format. If it is not, log an error. Optionally halt processing and surface the error, or bypass the resource on which the unexpected IP address format was encountered.",
 									},
 									"deleted": &schema.Schema{
@@ -770,17 +980,19 @@ func ResourceIBMISInstance() *schema.Resource {
 									},
 									"href": &schema.Schema{
 										Type:        schema.TypeString,
-										Required:    true,
+										Computed:    true,
 										Description: "The URL for this reserved IP.",
 									},
-									"id": &schema.Schema{
+									"reserved_ip": &schema.Schema{
 										Type:        schema.TypeString,
-										Required:    true,
+										Optional:    true,
+										Computed:    true,
 										Description: "The unique identifier for this reserved IP.",
 									},
 									"name": &schema.Schema{
 										Type:        schema.TypeString,
-										Required:    true,
+										Optional:    true,
+										Computed:    true,
 										Description: "The name for this reserved IP. The name is unique across all reserved IPs in a subnet.",
 									},
 									"resource_type": &schema.Schema{
@@ -791,58 +1003,32 @@ func ResourceIBMISInstance() *schema.Resource {
 								},
 							},
 						},
-						"resource_type": &schema.Schema{
+						"resource_group": &schema.Schema{
+							Type:        schema.TypeString,
+							Optional:    true,
+							Computed:    true,
+							Description: "The resource group id for this virtual network interface.",
+						},
+						"vni_resource_type": &schema.Schema{
 							Type:        schema.TypeString,
 							Computed:    true,
 							Description: "The resource type.",
 						},
-						"subnet": &schema.Schema{
-							Type:        schema.TypeList,
+						"security_groups": {
+							Type:        schema.TypeSet,
+							Optional:    true,
 							Computed:    true,
-							Description: "The subnet of the virtual network interface for the network attachment.",
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"crn": &schema.Schema{
-										Type:        schema.TypeString,
-										Required:    true,
-										Description: "The CRN for this subnet.",
-									},
-									"deleted": &schema.Schema{
-										Type:        schema.TypeList,
-										Computed:    true,
-										Description: "If present, this property indicates the referenced resource has been deleted, and providessome supplementary information.",
-										Elem: &schema.Resource{
-											Schema: map[string]*schema.Schema{
-												"more_info": &schema.Schema{
-													Type:        schema.TypeString,
-													Computed:    true,
-													Description: "Link to documentation about deleted resources.",
-												},
-											},
-										},
-									},
-									"href": &schema.Schema{
-										Type:        schema.TypeString,
-										Required:    true,
-										Description: "The URL for this subnet.",
-									},
-									"id": &schema.Schema{
-										Type:        schema.TypeString,
-										Required:    true,
-										Description: "The unique identifier for this subnet.",
-									},
-									"name": &schema.Schema{
-										Type:        schema.TypeString,
-										Computed:    true,
-										Description: "The name for this subnet. The name is unique across all subnets in the VPC.",
-									},
-									"resource_type": &schema.Schema{
-										Type:        schema.TypeString,
-										Computed:    true,
-										Description: "The resource type.",
-									},
-								},
-							},
+							ForceNew:    true,
+							Elem:        &schema.Schema{Type: schema.TypeString},
+							Set:         schema.HashString,
+							Description: "The security groups for this virtual network interface.",
+						},
+						"subnet": &schema.Schema{
+							Type:        schema.TypeString,
+							Optional:    true,
+							Computed:    true,
+							ForceNew:    true,
+							Description: "The associated subnet id.",
 						},
 					},
 				},
@@ -862,7 +1048,7 @@ func ResourceIBMISInstance() *schema.Resource {
 				Optional:      true,
 				ConflictsWith: []string{"boot_volume.0.snapshot", "catalog_offering.0.offering_crn", "catalog_offering.0.version_crn", "boot_volume.0.volume_id"},
 				AtLeastOneOf:  []string{isInstanceImage, isInstanceSourceTemplate, "boot_volume.0.snapshot", "catalog_offering.0.offering_crn", "catalog_offering.0.version_crn", "boot_volume.0.volume_id"},
-				RequiredWith:  []string{isInstanceZone, isInstancePrimaryNetworkInterface, isInstanceKeys, isInstanceVPC, isInstanceProfile},
+				RequiredWith:  []string{isInstanceZone, isInstanceKeys, isInstanceVPC, isInstanceProfile},
 				Description:   "image id",
 			},
 
@@ -878,7 +1064,7 @@ func ResourceIBMISInstance() *schema.Resource {
 							Optional:      true,
 							ForceNew:      true,
 							Computed:      true,
-							RequiredWith:  []string{isInstanceZone, isInstancePrimaryNetworkInterface, isInstanceProfile, isInstanceKeys, isInstanceVPC},
+							RequiredWith:  []string{isInstanceZone, isInstanceProfile, isInstanceKeys, isInstanceVPC},
 							AtLeastOneOf:  []string{isInstanceImage, isInstanceSourceTemplate, "boot_volume.0.volume_id", "boot_volume.0.snapshot"},
 							ConflictsWith: []string{isInstanceImage, isInstanceSourceTemplate, "boot_volume.0.snapshot", "boot_volume.0.name", "boot_volume.0.encryption", "catalog_offering.0.offering_crn", "catalog_offering.0.version_crn"},
 							Description:   "The unique identifier for this volume",
@@ -898,7 +1084,7 @@ func ResourceIBMISInstance() *schema.Resource {
 
 						isInstanceVolumeSnapshot: {
 							Type:          schema.TypeString,
-							RequiredWith:  []string{isInstanceZone, isInstancePrimaryNetworkInterface, isInstanceProfile, isInstanceKeys, isInstanceVPC},
+							RequiredWith:  []string{isInstanceZone, isInstanceProfile, isInstanceKeys, isInstanceVPC},
 							AtLeastOneOf:  []string{isInstanceImage, isInstanceSourceTemplate, "boot_volume.0.snapshot", "catalog_offering.0.offering_crn", "catalog_offering.0.version_crn", "boot_volume.0.volume_id"},
 							ConflictsWith: []string{isInstanceImage, isInstanceSourceTemplate, "catalog_offering.0.offering_crn", "catalog_offering.0.version_crn", "boot_volume.0.volume_id"},
 							Optional:      true,
@@ -3561,7 +3747,17 @@ func instanceGet(d *schema.ResourceData, meta interface{}, id string) error {
 	}
 
 	if !core.IsNil(instance.PrimaryNetworkAttachment) {
-		primaryNetworkAttachmentMap, err := resourceIBMIsInstanceInstanceNetworkAttachmentReferenceToMap(instance.PrimaryNetworkAttachment)
+
+		pnaId := *instance.PrimaryNetworkAttachment.ID
+		getInstanceNetworkAttachment := &vpcv1.GetInstanceNetworkAttachmentOptions{
+			InstanceID: &id,
+			ID:         &pnaId,
+		}
+		pna, response, err := instanceC.GetInstanceNetworkAttachment(getInstanceNetworkAttachment)
+		if err != nil {
+			return fmt.Errorf("[ERROR] Error on GetInstanceNetworkAttachment in instance : %s\n%s", err, response)
+		}
+		primaryNetworkAttachmentMap, err := resourceIBMIsInstanceInstanceNetworkAttachmentReferenceToMap(instance.PrimaryNetworkAttachment, pna, instanceC)
 		if err != nil {
 			return err
 		}
@@ -3640,11 +3836,22 @@ func instanceGet(d *schema.ResourceData, meta interface{}, id string) error {
 	if !core.IsNil(instance.NetworkAttachments) {
 		networkAttachments := []map[string]interface{}{}
 		for _, networkAttachmentsItem := range instance.NetworkAttachments {
-			networkAttachmentsItemMap, err := resourceIBMIsInstanceInstanceNetworkAttachmentReferenceToMap(&networkAttachmentsItem)
-			if err != nil {
-				return err
+			naId := *networkAttachmentsItem.ID
+			if *instance.PrimaryNetworkAttachment.ID != naId {
+				getInstanceNetworkAttachment := &vpcv1.GetInstanceNetworkAttachmentOptions{
+					InstanceID: &id,
+					ID:         &naId,
+				}
+				na, response, err := instanceC.GetInstanceNetworkAttachment(getInstanceNetworkAttachment)
+				if err != nil {
+					return fmt.Errorf("[ERROR] Error on GetInstanceNetworkAttachment in instance : %s\n%s", err, response)
+				}
+				networkAttachmentsItemMap, err := resourceIBMIsInstanceInstanceNetworkAttachmentReferenceToMap(&networkAttachmentsItem, na, instanceC)
+				if err != nil {
+					return err
+				}
+				networkAttachments = append(networkAttachments, networkAttachmentsItemMap)
 			}
-			networkAttachments = append(networkAttachments, networkAttachmentsItemMap)
 		}
 		if err = d.Set("network_attachments", networkAttachments); err != nil {
 			return fmt.Errorf("Error setting network_attachments: %s", err)
@@ -4964,7 +5171,7 @@ func GetInstanceMetadataServiceOptions(d *schema.ResourceData) (metadataService 
 	return nil
 }
 
-func resourceIBMIsInstanceInstanceNetworkAttachmentReferenceToMap(model *vpcv1.InstanceNetworkAttachmentReference) (map[string]interface{}, error) {
+func resourceIBMIsInstanceInstanceNetworkAttachmentReferenceToMap(model *vpcv1.InstanceNetworkAttachmentReference, pna *vpcv1.InstanceNetworkAttachment, instanceC *vpcv1.VpcV1) (map[string]interface{}, error) {
 	modelMap := make(map[string]interface{})
 	if model.Deleted != nil {
 		deletedMap, err := resourceIBMIsInstanceInstanceNetworkAttachmentReferenceDeletedToMap(model.Deleted)
@@ -4973,20 +5180,66 @@ func resourceIBMIsInstanceInstanceNetworkAttachmentReferenceToMap(model *vpcv1.I
 		}
 		modelMap["deleted"] = []map[string]interface{}{deletedMap}
 	}
-	modelMap["href"] = model.Href
-	modelMap["id"] = model.ID
-	modelMap["name"] = model.Name
+	if model.Href != nil {
+		modelMap["href"] = model.Href
+	}
+	if model.ID != nil {
+		modelMap["id"] = model.ID
+	}
+	if model.Name != nil {
+		modelMap["name"] = model.Name
+	}
+	if pna.VirtualNetworkInterface != nil {
+		modelMap["virtual_network_interface"] = *pna.VirtualNetworkInterface.ID
+		modelMap["vni_name"] = pna.VirtualNetworkInterface.Name
+		modelMap["vni_resource_type"] = pna.VirtualNetworkInterface.ResourceType
+	}
+	getVirtualNetworkInterfaceOptions := &vpcv1.GetVirtualNetworkInterfaceOptions{
+		ID: pna.VirtualNetworkInterface.ID,
+	}
+	vniDetails, response, err := instanceC.GetVirtualNetworkInterface(getVirtualNetworkInterfaceOptions)
+	if err != nil {
+		return nil, fmt.Errorf("[ERROR] Error on GetInstanceNetworkAttachment in instance : %s\n%s", err, response)
+	}
+	modelMap["allow_ip_spoofing"] = vniDetails.AllowIPSpoofing
+	modelMap["auto_delete"] = vniDetails.AutoDelete
+	modelMap["enable_infrastructure_nat"] = vniDetails.EnableInfrastructureNat
+	modelMap["resource_group"] = vniDetails.ResourceGroup.ID
+	primaryipId := *vniDetails.PrimaryIP.ID
+	if !core.IsNil(vniDetails.Ips) {
+		ips := []map[string]interface{}{}
+		for _, ipsItem := range vniDetails.Ips {
+			if *ipsItem.ID != primaryipId {
+				ipsItemMap, err := resourceIBMIsVirtualNetworkInterfaceReservedIPReferenceToMap(&ipsItem)
+				if err != nil {
+					return nil, err
+				}
+				ips = append(ips, ipsItemMap)
+			}
+		}
+		modelMap["ips"] = ips
+	}
+
+	if !core.IsNil(vniDetails.SecurityGroups) {
+		securityGroups := make([]string, 0)
+		for _, securityGroupsItem := range vniDetails.SecurityGroups {
+			if securityGroupsItem.ID != nil {
+				securityGroups = append(securityGroups, *securityGroupsItem.ID)
+			}
+		}
+		modelMap["security_groups"] = securityGroups
+	}
 	primaryIPMap, err := resourceIBMIsInstanceReservedIPReferenceToMap(model.PrimaryIP)
 	if err != nil {
 		return modelMap, err
 	}
 	modelMap["primary_ip"] = []map[string]interface{}{primaryIPMap}
-	modelMap["resource_type"] = model.ResourceType
-	subnetMap, err := resourceIBMIsInstanceSubnetReferenceToMap(model.Subnet)
-	if err != nil {
-		return modelMap, err
+	if model.ResourceType != nil {
+		modelMap["resource_type"] = *model.ResourceType
 	}
-	modelMap["subnet"] = []map[string]interface{}{subnetMap}
+	if model.Subnet != nil {
+		modelMap["subnet"] = *model.Subnet.ID
+	}
 	return modelMap, nil
 }
 
@@ -5007,36 +5260,15 @@ func resourceIBMIsInstanceReservedIPReferenceToMap(model *vpcv1.ReservedIPRefere
 		modelMap["deleted"] = []map[string]interface{}{deletedMap}
 	}
 	modelMap["href"] = model.Href
-	modelMap["id"] = model.ID
+	modelMap["reserved_ip"] = model.ID
 	modelMap["name"] = model.Name
-	modelMap["resource_type"] = model.ResourceType
+	if model.ResourceType != nil {
+		modelMap["resource_type"] = *model.ResourceType
+	}
 	return modelMap, nil
 }
 
 func resourceIBMIsInstanceReservedIPReferenceDeletedToMap(model *vpcv1.ReservedIPReferenceDeleted) (map[string]interface{}, error) {
-	modelMap := make(map[string]interface{})
-	modelMap["more_info"] = model.MoreInfo
-	return modelMap, nil
-}
-
-func resourceIBMIsInstanceSubnetReferenceToMap(model *vpcv1.SubnetReference) (map[string]interface{}, error) {
-	modelMap := make(map[string]interface{})
-	modelMap["crn"] = model.CRN
-	if model.Deleted != nil {
-		deletedMap, err := resourceIBMIsInstanceSubnetReferenceDeletedToMap(model.Deleted)
-		if err != nil {
-			return modelMap, err
-		}
-		modelMap["deleted"] = []map[string]interface{}{deletedMap}
-	}
-	modelMap["href"] = model.Href
-	modelMap["id"] = model.ID
-	modelMap["name"] = model.Name
-	modelMap["resource_type"] = model.ResourceType
-	return modelMap, nil
-}
-
-func resourceIBMIsInstanceSubnetReferenceDeletedToMap(model *vpcv1.SubnetReferenceDeleted) (map[string]interface{}, error) {
 	modelMap := make(map[string]interface{})
 	modelMap["more_info"] = model.MoreInfo
 	return modelMap, nil
@@ -5086,47 +5318,40 @@ func resourceIBMIsInstanceMapToVirtualNetworkInterfacePrototypeAttachmentContext
 		}
 		model.PrimaryIP = PrimaryIPModel
 	}
-	if modelMap["resource_group"] != nil && len(modelMap["resource_group"].([]interface{})) > 0 {
-		ResourceGroupModel, err := resourceIBMIsInstanceMapToVirtualNetworkInterfacePrototypeTargetContextResourceGroup(modelMap["resource_group"].([]interface{})[0].(map[string]interface{}))
-		if err != nil {
-			return model, err
+	if modelMap["resource_group"] != nil && modelMap["resource_group"].(string) != "" {
+		resourcegroupid := modelMap["resource_group"].(string)
+		model.ResourceGroup = &vpcv1.ResourceGroupIdentity{
+			ID: &resourcegroupid,
 		}
-		model.ResourceGroup = ResourceGroupModel
 	}
 	if modelMap["security_groups"] != nil {
 		securityGroups := []vpcv1.SecurityGroupIdentityIntf{}
-		for _, securityGroupsItem := range modelMap["security_groups"].([]interface{}) {
-			securityGroupsItemModel, err := resourceIBMIsInstanceMapToSecurityGroupIdentity(securityGroupsItem.(map[string]interface{}))
-			if err != nil {
-				return model, err
+		sg := modelMap["security_groups"].(*schema.Set)
+		for _, v := range sg.List() {
+			value := v.(string)
+			securityGroupsItem := &vpcv1.SecurityGroupIdentity{
+				ID: &value,
 			}
-			securityGroups = append(securityGroups, securityGroupsItemModel)
+			securityGroups = append(securityGroups, securityGroupsItem)
 		}
 		model.SecurityGroups = securityGroups
 	}
-	if modelMap["subnet"] != nil && len(modelMap["subnet"].([]interface{})) > 0 {
-		SubnetModel, err := resourceIBMIsInstanceMapToSubnetIdentity(modelMap["subnet"].([]interface{})[0].(map[string]interface{}))
-		if err != nil {
-			return model, err
+	if modelMap["subnet"] != nil && modelMap["subnet"].(string) != "" {
+		subnetId := modelMap["subnet"].(string)
+		model.Subnet = &vpcv1.SubnetIdentityByID{
+			ID: &subnetId,
 		}
-		model.Subnet = SubnetModel
 	}
-	if modelMap["id"] != nil && modelMap["id"].(string) != "" {
-		model.ID = core.StringPtr(modelMap["id"].(string))
-	}
-	if modelMap["href"] != nil && modelMap["href"].(string) != "" {
-		model.Href = core.StringPtr(modelMap["href"].(string))
-	}
-	if modelMap["crn"] != nil && modelMap["crn"].(string) != "" {
-		model.CRN = core.StringPtr(modelMap["crn"].(string))
+	if modelMap["virtual_network_interface"] != nil && modelMap["virtual_network_interface"].(string) != "" {
+		model.ID = core.StringPtr(modelMap["virtual_network_interface"].(string))
 	}
 	return model, nil
 }
 
 func resourceIBMIsInstanceMapToVirtualNetworkInterfaceIPsReservedIPPrototype(modelMap map[string]interface{}) (vpcv1.VirtualNetworkInterfaceIPPrototypeIntf, error) {
 	model := &vpcv1.VirtualNetworkInterfaceIPPrototype{}
-	if modelMap["id"] != nil && modelMap["id"].(string) != "" {
-		model.ID = core.StringPtr(modelMap["id"].(string))
+	if modelMap["reserved_ip"] != nil && modelMap["reserved_ip"].(string) != "" {
+		model.ID = core.StringPtr(modelMap["reserved_ip"].(string))
 	}
 	if modelMap["href"] != nil && modelMap["href"].(string) != "" {
 		model.Href = core.StringPtr(modelMap["href"].(string))
@@ -5144,8 +5369,8 @@ func resourceIBMIsInstanceMapToVirtualNetworkInterfaceIPsReservedIPPrototype(mod
 }
 func resourceIBMIsInstanceMapToVirtualNetworkInterfacePrimaryIPReservedIPPrototype(modelMap map[string]interface{}) (vpcv1.VirtualNetworkInterfacePrimaryIPPrototypeIntf, error) {
 	model := &vpcv1.VirtualNetworkInterfacePrimaryIPPrototype{}
-	if modelMap["id"] != nil && modelMap["id"].(string) != "" {
-		model.ID = core.StringPtr(modelMap["id"].(string))
+	if modelMap["reserved_ip"] != nil && modelMap["reserved_ip"].(string) != "" {
+		model.ID = core.StringPtr(modelMap["reserved_ip"].(string))
 	}
 	if modelMap["href"] != nil && modelMap["href"].(string) != "" {
 		model.Href = core.StringPtr(modelMap["href"].(string))
@@ -5158,39 +5383,6 @@ func resourceIBMIsInstanceMapToVirtualNetworkInterfacePrimaryIPReservedIPPrototy
 	}
 	if modelMap["name"] != nil && modelMap["name"].(string) != "" {
 		model.Name = core.StringPtr(modelMap["name"].(string))
-	}
-	return model, nil
-}
-func resourceIBMIsInstanceMapToVirtualNetworkInterfacePrototypeTargetContextResourceGroup(modelMap map[string]interface{}) (vpcv1.ResourceGroupIdentityIntf, error) {
-	model := &vpcv1.ResourceGroupIdentity{}
-	if modelMap["id"] != nil && modelMap["id"].(string) != "" {
-		model.ID = core.StringPtr(modelMap["id"].(string))
-	}
-	return model, nil
-}
-func resourceIBMIsInstanceMapToSecurityGroupIdentity(modelMap map[string]interface{}) (vpcv1.SecurityGroupIdentityIntf, error) {
-	model := &vpcv1.SecurityGroupIdentity{}
-	if modelMap["id"] != nil && modelMap["id"].(string) != "" {
-		model.ID = core.StringPtr(modelMap["id"].(string))
-	}
-	if modelMap["crn"] != nil && modelMap["crn"].(string) != "" {
-		model.CRN = core.StringPtr(modelMap["crn"].(string))
-	}
-	if modelMap["href"] != nil && modelMap["href"].(string) != "" {
-		model.Href = core.StringPtr(modelMap["href"].(string))
-	}
-	return model, nil
-}
-func resourceIBMIsInstanceMapToSubnetIdentity(modelMap map[string]interface{}) (vpcv1.SubnetIdentityIntf, error) {
-	model := &vpcv1.SubnetIdentity{}
-	if modelMap["id"] != nil && modelMap["id"].(string) != "" {
-		model.ID = core.StringPtr(modelMap["id"].(string))
-	}
-	if modelMap["crn"] != nil && modelMap["crn"].(string) != "" {
-		model.CRN = core.StringPtr(modelMap["crn"].(string))
-	}
-	if modelMap["href"] != nil && modelMap["href"].(string) != "" {
-		model.Href = core.StringPtr(modelMap["href"].(string))
 	}
 	return model, nil
 }
