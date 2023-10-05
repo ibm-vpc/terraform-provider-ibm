@@ -5,6 +5,7 @@ package vpc_test
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
@@ -18,18 +19,24 @@ import (
 
 func TestAccIBMIsInstanceNetworkAttachmentBasic(t *testing.T) {
 	var conf vpcv1.InstanceNetworkAttachment
-	instanceID := fmt.Sprintf("tf_instance_id_%d", acctest.RandIntRange(10, 100))
-
+	vpcname := fmt.Sprintf("tf-vpc-%d", acctest.RandIntRange(10, 100))
+	name := fmt.Sprintf("tf-vsi-%d", acctest.RandIntRange(10, 100))
+	vniname := fmt.Sprintf("tf-vni-%d", acctest.RandIntRange(10, 100))
+	subnetname := fmt.Sprintf("tvni-subnet-%d", acctest.RandIntRange(10, 100))
+	publicKey := strings.TrimSpace(`
+ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCKVmnMOlHKcZK8tpt3MP1lqOLAcqcJzhsvJcjscgVERRN7/9484SOBJ3HSKxxNG5JN8owAjy5f9yYwcUg+JaUVuytn5Pv3aeYROHGGg+5G346xaq3DAwX6Y5ykr2fvjObgncQBnuU5KHWCECO/4h8uWuwh/kfniXPVjFToc+gnkqA+3RKpAecZhFXwfalQ9mMuYGFxn+fwn8cYEApsJbsEmb0iJwPiZ5hjFC8wREuiTlhPHDgkBLOiycd20op2nXzDbHfCHInquEe/gYxEitALONxm0swBOwJZwlTDOB7C6y2dzlrtxr1L59m7pCkWI4EtTRLvleehBoj3u7jB4usR
+`)
+	sshname := fmt.Sprintf("tf-sshname-%d", acctest.RandIntRange(10, 100))
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { acc.TestAccPreCheck(t) },
 		Providers:    acc.TestAccProviders,
 		CheckDestroy: testAccCheckIBMIsInstanceNetworkAttachmentDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccCheckIBMIsInstanceNetworkAttachmentConfigBasic(instanceID),
+				Config: testAccCheckIBMIsInstanceNetworkAttachmentConfigBasic(vpcname, subnetname, sshname, publicKey, vniname, name),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					testAccCheckIBMIsInstanceNetworkAttachmentExists("ibm_is_instance_network_attachment.is_instance_network_attachment", conf),
-					resource.TestCheckResourceAttr("ibm_is_instance_network_attachment.is_instance_network_attachment", "instance_id", instanceID),
+					resource.TestCheckResourceAttr("ibm_is_instance_network_attachment.is_instance_network_attachment", "instance_id", "instanceID"),
 				),
 			},
 		},
@@ -71,15 +78,57 @@ func TestAccIBMIsInstanceNetworkAttachmentAllArgs(t *testing.T) {
 	})
 }
 
-func testAccCheckIBMIsInstanceNetworkAttachmentConfigBasic(instanceID string) string {
+func testAccCheckIBMIsInstanceNetworkAttachmentConfigBasic(vpcname, subnetname, sshname, publicKey, vniname, name string) string {
 	return fmt.Sprintf(`
-		resource "ibm_is_instance_network_attachment" "is_instance_network_attachment_instance" {
-			instance = "%s"
-			virtual_network_interface {
-				id = "0767-fa41aecb-4f21-423d-8082-630bfba1e1d9"
-			}
+
+	resource "ibm_is_vpc" "testacc_vpc" {
+		name = "%s"
+	}
+  
+	resource "ibm_is_subnet" "testacc_subnet" {
+		name            			= "%s"
+		vpc             			= ibm_is_vpc.testacc_vpc.id
+		zone            			= "%s"
+		total_ipv4_address_count 	= 16
+	}
+  
+	resource "ibm_is_ssh_key" "testacc_sshkey" {
+		name       			= "%s"
+		public_key 			= "%s"
+	}
+	resource "ibm_is_virtual_network_interface" "testacc_vni" {
+		name = "%s"
+		subnet = ibm_is_subnet.testacc_subnet.id
+		enable_infrastructure_nat = false
+		allow_ip_spoofing = %t
+	}
+	resource "ibm_is_virtual_network_interface" "testacc_vni2" {
+		name = "%s2"
+		subnet = ibm_is_subnet.testacc_subnet.id
+		enable_infrastructure_nat = false
+		allow_ip_spoofing = %t
+	}
+	resource "ibm_is_instance" "testacc_vsi" {
+		profile 			= "%s"
+		name 				= "%s"
+		image 				= "%s"
+		zone 				= "%s"
+		keys 				= [ibm_is_ssh_key.testacc_sshkey.id]
+		primary_network_attachment {
+		         name = "vni-2"
+		         virtual_network_interface = ibm_is_virtual_network_interface.testacc_vni.id
 		}
-	`, instanceID)
+		vpc 				= ibm_is_vpc.testacc_vpc.id
+	}
+
+	resource "ibm_is_instance_network_attachment" "is_instance_network_attachment_instance" {
+		instance_id = ibm_is_instance.testacc_vsi.id
+		name = "%s"
+		virtual_network_interface {
+			id =ibm_is_virtual_network_interface.testacc_vni2.id
+		}
+	}
+	`, vpcname, subnetname, acc.ISZoneName, sshname, publicKey, vniname, true, vniname, true, acc.InstanceProfileName, name, acc.IsImage, "", acc.ISZoneName)
 }
 
 func testAccCheckIBMIsInstanceNetworkAttachmentConfig(instanceID string, name string) string {

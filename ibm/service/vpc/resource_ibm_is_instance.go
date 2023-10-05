@@ -830,6 +830,7 @@ func ResourceIBMISInstance() *schema.Resource {
 			"network_attachments": &schema.Schema{
 				Type:          schema.TypeList,
 				Optional:      true,
+				Computed:      true,
 				ConflictsWith: []string{"primary_network_interface", "network_interfaces"},
 				Description:   "The network attachments for this virtual server instance, including the primary network attachment.",
 				Elem: &schema.Resource{
@@ -1669,8 +1670,14 @@ func instanceCreateByImage(d *schema.ResourceData, meta interface{}, profile, na
 
 	if networkattachmentsintf, ok := d.GetOk("network_attachments"); ok {
 		networkAttachments := []vpcv1.InstanceNetworkAttachmentPrototype{}
-		for _, networkAttachmentsItem := range networkattachmentsintf.([]interface{}) {
-			networkAttachmentsItemModel, err := resourceIBMIsInstanceMapToInstanceNetworkAttachmentPrototype(networkAttachmentsItem.(map[string]interface{}))
+		for i, networkAttachmentsItem := range networkattachmentsintf.([]interface{}) {
+			allowipspoofing := fmt.Sprintf("network_attachments.%d.allow_ip_spoofing", i)
+			autodelete := fmt.Sprintf("network_attachments.%d.autodelete", i)
+			enablenat := fmt.Sprintf("network_attachments.%d.enable_infrastructure_nat", i)
+			// allowipspoofing := "primary_network_attachment.0.allow_ip_spoofing"
+			// autodelete := "primary_network_attachment.0.autodelete"
+			// enablenat := "primary_network_attachment.0.enable_infrastructure_nat"
+			networkAttachmentsItemModel, err := resourceIBMIsInstanceMapToInstanceNetworkAttachmentPrototype(allowipspoofing, autodelete, enablenat, d, networkAttachmentsItem.(map[string]interface{}))
 			if err != nil {
 				return err
 			}
@@ -1679,7 +1686,11 @@ func instanceCreateByImage(d *schema.ResourceData, meta interface{}, profile, na
 		instanceproto.NetworkAttachments = networkAttachments
 	}
 	if primnetworkattachmentintf, ok := d.GetOk("primary_network_attachment"); ok && len(primnetworkattachmentintf.([]interface{})) > 0 {
-		primaryNetworkAttachmentModel, err := resourceIBMIsInstanceMapToInstanceNetworkAttachmentPrototype(primnetworkattachmentintf.([]interface{})[0].(map[string]interface{}))
+		i := 0
+		allowipspoofing := fmt.Sprintf("primary_network_attachment.%d.allow_ip_spoofing", i)
+		autodelete := fmt.Sprintf("primary_network_attachment.%d.autodelete", i)
+		enablenat := fmt.Sprintf("primary_network_attachment.%d.enable_infrastructure_nat", i)
+		primaryNetworkAttachmentModel, err := resourceIBMIsInstanceMapToInstanceNetworkAttachmentPrototype(allowipspoofing, autodelete, enablenat, d, primnetworkattachmentintf.([]interface{})[0].(map[string]interface{}))
 		if err != nil {
 			return err
 		}
@@ -1959,8 +1970,11 @@ func instanceCreateByCatalogOffering(d *schema.ResourceData, meta interface{}, p
 	}
 	if networkattachmentsintf, ok := d.GetOk("network_attachments"); ok {
 		networkAttachments := []vpcv1.InstanceNetworkAttachmentPrototype{}
-		for _, networkAttachmentsItem := range networkattachmentsintf.([]interface{}) {
-			networkAttachmentsItemModel, err := resourceIBMIsInstanceMapToInstanceNetworkAttachmentPrototype(networkAttachmentsItem.(map[string]interface{}))
+		for i, networkAttachmentsItem := range networkattachmentsintf.([]interface{}) {
+			allowipspoofing := fmt.Sprintf("network_attachments.%d.allow_ip_spoofing", i)
+			autodelete := fmt.Sprintf("network_attachments.%d.autodelete", i)
+			enablenat := fmt.Sprintf("network_attachments.%d.enable_infrastructure_nat", i)
+			networkAttachmentsItemModel, err := resourceIBMIsInstanceMapToInstanceNetworkAttachmentPrototype(allowipspoofing, autodelete, enablenat, d, networkAttachmentsItem.(map[string]interface{}))
 			if err != nil {
 				return err
 			}
@@ -1969,7 +1983,11 @@ func instanceCreateByCatalogOffering(d *schema.ResourceData, meta interface{}, p
 		instanceproto.NetworkAttachments = networkAttachments
 	}
 	if primnetworkattachmentintf, ok := d.GetOk("primary_network_attachment"); ok && len(primnetworkattachmentintf.([]interface{})) > 0 {
-		primaryNetworkAttachmentModel, err := resourceIBMIsInstanceMapToInstanceNetworkAttachmentPrototype(primnetworkattachmentintf.([]interface{})[0].(map[string]interface{}))
+		i := 0
+		allowipspoofing := fmt.Sprintf("primary_network_attachment.%d.allow_ip_spoofing", i)
+		autodelete := fmt.Sprintf("primary_network_attachment.%d.autodelete", i)
+		enablenat := fmt.Sprintf("primary_network_attachment.%d.enable_infrastructure_nat", i)
+		primaryNetworkAttachmentModel, err := resourceIBMIsInstanceMapToInstanceNetworkAttachmentPrototype(allowipspoofing, autodelete, enablenat, d, primnetworkattachmentintf.([]interface{})[0].(map[string]interface{}))
 		if err != nil {
 			return err
 		}
@@ -2450,8 +2468,11 @@ func instanceCreateByTemplate(d *schema.ResourceData, meta interface{}, profile,
 
 	if networkattachmentsintf, ok := d.GetOk("network_attachments"); ok {
 		networkAttachments := []vpcv1.InstanceNetworkAttachmentPrototype{}
-		for _, networkAttachmentsItem := range networkattachmentsintf.([]interface{}) {
-			networkAttachmentsItemModel, err := resourceIBMIsInstanceMapToInstanceNetworkAttachmentPrototype(networkAttachmentsItem.(map[string]interface{}))
+		for i, networkAttachmentsItem := range networkattachmentsintf.([]interface{}) {
+			allowipspoofing := fmt.Sprintf("network_attachments.%d.allow_ip_spoofing", i)
+			autodelete := fmt.Sprintf("network_attachments.%d.autodelete", i)
+			enablenat := fmt.Sprintf("network_attachments.%d.enable_infrastructure_nat", i)
+			networkAttachmentsItemModel, err := resourceIBMIsInstanceMapToInstanceNetworkAttachmentPrototype(allowipspoofing, autodelete, enablenat, d, networkAttachmentsItem.(map[string]interface{}))
 			if err != nil {
 				return err
 			}
@@ -2460,7 +2481,11 @@ func instanceCreateByTemplate(d *schema.ResourceData, meta interface{}, profile,
 		instanceproto.NetworkAttachments = networkAttachments
 	}
 	if primnetworkattachmentintf, ok := d.GetOk("primary_network_attachment"); ok && len(primnetworkattachmentintf.([]interface{})) > 0 {
-		primaryNetworkAttachmentModel, err := resourceIBMIsInstanceMapToInstanceNetworkAttachmentPrototype(primnetworkattachmentintf.([]interface{})[0].(map[string]interface{}))
+		i := 0
+		allowipspoofing := fmt.Sprintf("primary_network_attachment.%d.allow_ip_spoofing", i)
+		autodelete := fmt.Sprintf("primary_network_attachment.%d.autodelete", i)
+		enablenat := fmt.Sprintf("primary_network_attachment.%d.enable_infrastructure_nat", i)
+		primaryNetworkAttachmentModel, err := resourceIBMIsInstanceMapToInstanceNetworkAttachmentPrototype(allowipspoofing, autodelete, enablenat, d, primnetworkattachmentintf.([]interface{})[0].(map[string]interface{}))
 		if err != nil {
 			return err
 		}
@@ -2837,8 +2862,11 @@ func instanceCreateBySnapshot(d *schema.ResourceData, meta interface{}, profile,
 
 	if networkattachmentsintf, ok := d.GetOk("network_attachments"); ok {
 		networkAttachments := []vpcv1.InstanceNetworkAttachmentPrototype{}
-		for _, networkAttachmentsItem := range networkattachmentsintf.([]interface{}) {
-			networkAttachmentsItemModel, err := resourceIBMIsInstanceMapToInstanceNetworkAttachmentPrototype(networkAttachmentsItem.(map[string]interface{}))
+		for i, networkAttachmentsItem := range networkattachmentsintf.([]interface{}) {
+			allowipspoofing := fmt.Sprintf("network_attachments.%d.allow_ip_spoofing", i)
+			autodelete := fmt.Sprintf("network_attachments.%d.autodelete", i)
+			enablenat := fmt.Sprintf("network_attachments.%d.enable_infrastructure_nat", i)
+			networkAttachmentsItemModel, err := resourceIBMIsInstanceMapToInstanceNetworkAttachmentPrototype(allowipspoofing, autodelete, enablenat, d, networkAttachmentsItem.(map[string]interface{}))
 			if err != nil {
 				return err
 			}
@@ -2847,7 +2875,11 @@ func instanceCreateBySnapshot(d *schema.ResourceData, meta interface{}, profile,
 		instanceproto.NetworkAttachments = networkAttachments
 	}
 	if primnetworkattachmentintf, ok := d.GetOk("primary_network_attachment"); ok && len(primnetworkattachmentintf.([]interface{})) > 0 {
-		primaryNetworkAttachmentModel, err := resourceIBMIsInstanceMapToInstanceNetworkAttachmentPrototype(primnetworkattachmentintf.([]interface{})[0].(map[string]interface{}))
+		i := 0
+		allowipspoofing := fmt.Sprintf("primary_network_attachment.%d.allow_ip_spoofing", i)
+		autodelete := fmt.Sprintf("primary_network_attachment.%d.autodelete", i)
+		enablenat := fmt.Sprintf("primary_network_attachment.%d.enable_infrastructure_nat", i)
+		primaryNetworkAttachmentModel, err := resourceIBMIsInstanceMapToInstanceNetworkAttachmentPrototype(allowipspoofing, autodelete, enablenat, d, primnetworkattachmentintf.([]interface{})[0].(map[string]interface{}))
 		if err != nil {
 			return err
 		}
@@ -5295,27 +5327,27 @@ func resourceIBMIsInstanceReservedIPReferenceDeletedToMap(model *vpcv1.ReservedI
 	return modelMap, nil
 }
 
-func resourceIBMIsInstanceMapToInstanceNetworkAttachmentPrototype(modelMap map[string]interface{}) (*vpcv1.InstanceNetworkAttachmentPrototype, error) {
+func resourceIBMIsInstanceMapToInstanceNetworkAttachmentPrototype(allowipspoofing, autodelete, enablenat string, d *schema.ResourceData, modelMap map[string]interface{}) (*vpcv1.InstanceNetworkAttachmentPrototype, error) {
 	model := &vpcv1.InstanceNetworkAttachmentPrototype{}
 	if modelMap["name"] != nil && modelMap["name"].(string) != "" {
 		model.Name = core.StringPtr(modelMap["name"].(string))
 	}
-	VirtualNetworkInterfaceModel, err := resourceIBMIsInstanceMapToVirtualNetworkInterfacePrototypeAttachmentContext(modelMap["virtual_network_interface"].([]interface{})[0].(map[string]interface{}))
+	VirtualNetworkInterfaceModel, err := resourceIBMIsInstanceMapToVirtualNetworkInterfacePrototypeAttachmentContext(allowipspoofing, autodelete, enablenat, d, modelMap["virtual_network_interface"].([]interface{})[0].(map[string]interface{}))
 	if err != nil {
 		return model, err
 	}
 	model.VirtualNetworkInterface = VirtualNetworkInterfaceModel
 	return model, nil
 }
-func resourceIBMIsInstanceMapToVirtualNetworkInterfacePrototypeAttachmentContext(modelMap map[string]interface{}) (vpcv1.InstanceNetworkAttachmentPrototypeVirtualNetworkInterfaceIntf, error) {
+func resourceIBMIsInstanceMapToVirtualNetworkInterfacePrototypeAttachmentContext(allowipspoofing, autodelete, enablenat string, d *schema.ResourceData, modelMap map[string]interface{}) (vpcv1.InstanceNetworkAttachmentPrototypeVirtualNetworkInterfaceIntf, error) {
 	model := &vpcv1.InstanceNetworkAttachmentPrototypeVirtualNetworkInterface{}
-	if modelMap["allow_ip_spoofing"] != nil {
+	if _, ok := d.GetOkExists(allowipspoofing); ok && modelMap["allow_ip_spoofing"] != nil {
 		model.AllowIPSpoofing = core.BoolPtr(modelMap["allow_ip_spoofing"].(bool))
 	}
-	if modelMap["auto_delete"] != nil {
+	if _, ok := d.GetOkExists(autodelete); ok && modelMap["auto_delete"] != nil {
 		model.AutoDelete = core.BoolPtr(modelMap["auto_delete"].(bool))
 	}
-	if modelMap["enable_infrastructure_nat"] != nil {
+	if _, ok := d.GetOkExists(enablenat); ok && modelMap["enable_infrastructure_nat"] != nil {
 		model.EnableInfrastructureNat = core.BoolPtr(modelMap["enable_infrastructure_nat"].(bool))
 	}
 	if modelMap["ips"] != nil {
@@ -5363,8 +5395,8 @@ func resourceIBMIsInstanceMapToVirtualNetworkInterfacePrototypeAttachmentContext
 			ID: &subnetId,
 		}
 	}
-	if modelMap["virtual_network_interface"] != nil && modelMap["virtual_network_interface"].(string) != "" {
-		model.ID = core.StringPtr(modelMap["virtual_network_interface"].(string))
+	if modelMap["id"] != nil && modelMap["id"].(string) != "" {
+		model.ID = core.StringPtr(modelMap["id"].(string))
 	}
 	return model, nil
 }
