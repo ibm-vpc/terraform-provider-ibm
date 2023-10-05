@@ -83,7 +83,7 @@ func ResourceIBMIsShareMountTarget() *schema.Resource {
 						},
 						"name": {
 							Type:        schema.TypeString,
-							Required:    true,
+							Optional:    true,
 							Description: "Name of this VNI",
 						},
 						"allow_ip_spoofing": &schema.Schema{
@@ -107,6 +107,7 @@ func ResourceIBMIsShareMountTarget() *schema.Resource {
 						"ips": &schema.Schema{
 							Type:        schema.TypeList,
 							Optional:    true,
+							Computed:    true,
 							Description: "The reserved IPs bound to this virtual network interface.May be empty when `lifecycle_state` is `pending`.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
