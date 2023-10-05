@@ -26,6 +26,7 @@ func DataSourceIBMIsBareMetalServerNetworkInterfaceFloatingIPs() *schema.Resourc
 		Schema: map[string]*schema.Schema{
 			isBareMetalServerID: {
 				Type:        schema.TypeString,
+				Deprecated:  "This `ibm_is_bare_metal_server_network_interface_floating_ip` datasource is deprecated.`",
 				Required:    true,
 				Description: "The bare metal server identifier",
 			},

@@ -45,7 +45,7 @@ func ResourceIBMIsBareMetalServerNetworkInterfaceFloatingIp() *schema.Resource {
 			isBareMetalServerID: {
 				Type:        schema.TypeString,
 				Required:    true,
-				Deprecated:  "This `ibm_is_bare_metal_server_network_interface_floating_ip` argument is deprecated.`",
+				Deprecated:  "This `ibm_is_bare_metal_server_network_interface_floating_ip` resource is deprecated.`",
 				Description: "Bare metal server identifier",
 			},
 			isBareMetalServerNetworkInterface: {

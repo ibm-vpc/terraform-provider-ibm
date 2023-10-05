@@ -40,7 +40,7 @@ func ResourceIBMIsBareMetalServerNetworkInterfaceAllowFloat() *schema.Resource {
 			isBareMetalServerID: {
 				Type:             schema.TypeString,
 				Required:         true,
-				Deprecated:       "This `ibm_is_bare_metal_server_network_interface_allow_float` argument is deprecated.`",
+				Deprecated:       "This `ibm_is_bare_metal_server_network_interface_allow_float` resource is deprecated.`",
 				DiffSuppressFunc: flex.ApplyOnce,
 				Description:      "Bare metal server identifier",
 			},

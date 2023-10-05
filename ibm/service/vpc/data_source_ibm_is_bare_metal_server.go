@@ -172,6 +172,7 @@ func DataSourceIBMIsBareMetalServer() *schema.Resource {
 
 			isBareMetalServerPrimaryNetworkInterface: {
 				Type:        schema.TypeList,
+				Deprecated:  "This `primary_network_interface` datasource is deprecated. Please use `primary_network_attachment` `",
 				Computed:    true,
 				Description: "Primary Network interface info",
 				Elem: &schema.Resource{
@@ -387,8 +388,9 @@ func DataSourceIBMIsBareMetalServer() *schema.Resource {
 			},
 
 			isBareMetalServerNetworkInterfaces: {
-				Type:     schema.TypeList,
-				Computed: true,
+				Type:       schema.TypeList,
+				Deprecated: "This `network_interfaces` datasource is deprecated. Please use `network_attachments` `",
+				Computed:   true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"id": {

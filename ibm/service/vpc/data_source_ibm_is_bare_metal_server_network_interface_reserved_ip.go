@@ -36,6 +36,7 @@ func DataSourceIBMISBareMetalServerNICReservedIP() *schema.Resource {
 			*/
 			isBareMetalServerID: {
 				Type:        schema.TypeString,
+				Deprecated:  "This `ibm_is_bare_metal_server_network_interface_reserved_ip` datasource is deprecated.`",
 				Required:    true,
 				Description: "The Bare Metal Server identifier.",
 			},
