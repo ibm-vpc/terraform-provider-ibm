@@ -3491,6 +3491,15 @@ func resourceIBMIsBareMetalServerBareMetalServerNetworkAttachmentReferenceToMap(
 				vniid = *vna.VirtualNetworkInterface.ID
 				vniMap["id"] = vniid
 				vniMap["name"] = vna.VirtualNetworkInterface.Name
+
+				if vna.AllowedVlans != nil {
+					var out = make([]interface{}, len(vna.AllowedVlans), len(vna.AllowedVlans))
+					for i, v := range vna.AllowedVlans {
+						out[i] = int(v)
+					}
+					modelMap["allowed_vlans"] = schema.NewSet(schema.HashInt, out)
+				}
+
 				vniMap["resource_type"] = vna.VirtualNetworkInterface.ResourceType
 			}
 		}
