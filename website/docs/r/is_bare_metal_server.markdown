@@ -78,6 +78,25 @@ resource "ibm_is_bare_metal_server" "bms" {
 }
 
 ```
+### VNI example
+```terraform
+resource "ibm_is_bare_metal_server" "bms" {
+  profile = "mx2d-metal-32x192"
+  name    = "example-bms"
+  image   = "r134-31c8ca90-2623-48d7-8cf7-737be6fc4c3e"
+  zone    = "us-south-3"
+  keys    = [ibm_is_ssh_key.example.id]
+  primary_network_attachment {
+    name = "test-vni-100-102"
+    virtual_network_interface { 
+      id = ibm_is_virtual_network_interface.testacc_vni.id
+    }
+    allowed_vlans = [100, 102]
+  }
+  vpc   = ibm_is_vpc.example.id
+}
+
+```
 
 ## Timeouts
 
