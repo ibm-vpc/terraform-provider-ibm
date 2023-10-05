@@ -742,12 +742,6 @@ func resourceIBMIsBareMetalServerNetworkAttachmentMapToBareMetalServerNetworkAtt
 	if modelMap["id"] != nil && modelMap["id"].(string) != "" {
 		model.ID = core.StringPtr(modelMap["id"].(string))
 	}
-	if modelMap["href"] != nil && modelMap["href"].(string) != "" {
-		model.Href = core.StringPtr(modelMap["href"].(string))
-	}
-	if modelMap["crn"] != nil && modelMap["crn"].(string) != "" {
-		model.CRN = core.StringPtr(modelMap["crn"].(string))
-	}
 	return model, nil
 }
 
@@ -1150,8 +1144,6 @@ func resourceIBMIsBareMetalServerNetworkAttachmentVirtualNetworkInterfaceReferen
 	if vniDetails.Subnet != nil {
 		modelMap["subnet"] = *vniDetails.Subnet.ID
 	}
-	modelMap["crn"] = model.CRN
-	modelMap["href"] = model.Href
 	modelMap["id"] = model.ID
 	modelMap["name"] = model.Name
 	modelMap["resource_type"] = model.ResourceType
