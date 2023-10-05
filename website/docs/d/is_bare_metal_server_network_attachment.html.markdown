@@ -12,10 +12,10 @@ Provides a read-only data source to retrieve information about an is_bare_metal_
 
 ## Example Usage
 
-```hcl
+```terraform
 data "ibm_is_bare_metal_server_network_attachment" "is_bare_metal_server_network_attachment" {
 	bare_metal_server_id = ibm_is_bare_metal_server_network_attachment.is_bare_metal_server_network_attachment.bare_metal_server_id
-	id = "id"
+	network_attachment = "id"
 }
 ```
 
@@ -23,7 +23,7 @@ data "ibm_is_bare_metal_server_network_attachment" "is_bare_metal_server_network
 
 You can specify the following arguments for this data source.
 
-* `bare_metal_server_id` - (Required, Forces new resource, String) The bare metal server identifier.
+* `bare_metal_server` - (Required, Forces new resource, String) The bare metal server identifier.
   * Constraints: The maximum length is `64` characters. The minimum length is `1` character. The value must match regular expression `/^[-0-9a-z_]+$/`.
 * `id` - (Required, Forces new resource, String) The bare metal server network attachment identifier.
   * Constraints: The maximum length is `64` characters. The minimum length is `1` character. The value must match regular expression `/^[-0-9a-z_]+$/`.
