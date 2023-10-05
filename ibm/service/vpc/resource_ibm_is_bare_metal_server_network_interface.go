@@ -49,6 +49,7 @@ func ResourceIBMIsBareMetalServerNetworkInterface() *schema.Resource {
 			isBareMetalServerID: {
 				Type:        schema.TypeString,
 				Required:    true,
+				Deprecated:  "This `ibm_is_bare_metal_server_network_interface` argument is deprecated, please use ibm_is_bare_metal_server_network_attachment`",
 				Description: "Bare metal server identifier",
 			},
 			isBareMetalServerNicID: {
