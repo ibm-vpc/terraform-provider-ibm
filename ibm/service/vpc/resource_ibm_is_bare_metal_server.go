@@ -3583,7 +3583,7 @@ func resourceIBMIsBareMetalServerReservedIPReferenceToMap(model *vpcv1.ReservedI
 		modelMap["deleted"] = []map[string]interface{}{deletedMap}
 	}
 	modelMap["href"] = model.Href
-	modelMap["id"] = model.ID
+	modelMap["reserved_ip"] = model.ID
 	modelMap["name"] = model.Name
 	modelMap["resource_type"] = model.ResourceType
 	return modelMap, nil
