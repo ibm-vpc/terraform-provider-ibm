@@ -30,8 +30,15 @@ func ResourceIBMIsBareMetalServerNetworkAttachment() *schema.Resource {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
-				ValidateFunc: validate.InvokeValidator("ibm_is_bare_metal_server_network_attachment", "bare_metal_server_id"),
+				ValidateFunc: validate.InvokeValidator("ibm_is_bare_metal_server_network_attachment", "bare_metal_server"),
 				Description:  "The bare metal server identifier.",
+			},
+
+			"network_attachment": &schema.Schema{
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: "The network attachment's id.",
 			},
 			"interface_type": &schema.Schema{
 				Type:         schema.TypeString,
@@ -47,35 +54,176 @@ func ResourceIBMIsBareMetalServerNetworkAttachment() *schema.Resource {
 			},
 			"virtual_network_interface": &schema.Schema{
 				Type:        schema.TypeList,
-				MaxItems:    1,
-				Required:    true,
-				Description: "The virtual network interface for this bare metal server network attachment.",
+				Optional:    true,
+				Computed:    true,
+				Description: "A virtual network interface for the bare metal server network attachment. This can be specified using an existing virtual network interface, or a prototype object for a new virtual network interface.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"crn": &schema.Schema{
-							Type:        schema.TypeString,
-							Required:    true,
-							Description: "The CRN for this virtual network interface.",
-						},
-						"href": &schema.Schema{
-							Type:        schema.TypeString,
-							Required:    true,
-							Description: "The URL for this virtual network interface.",
-						},
 						"id": &schema.Schema{
 							Type:        schema.TypeString,
-							Required:    true,
-							Description: "The unique identifier for this virtual network interface.",
+							Optional:    true,
+							Description: "The virtual network interface id for this bare metal server network attachment.",
+						},
+						"allow_ip_spoofing": &schema.Schema{
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Computed:    true,
+							Description: "Indicates whether source IP spoofing is allowed on this interface. If `false`, source IP spoofing is prevented on this interface. If `true`, source IP spoofing is allowed on this interface.",
+						},
+						"auto_delete": &schema.Schema{
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Computed:    true,
+							Description: "Indicates whether this virtual network interface will be automatically deleted when`target` is deleted.",
+						},
+						"enable_infrastructure_nat": &schema.Schema{
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Computed:    true,
+							Description: "If `true`:- The VPC infrastructure performs any needed NAT operations.- `floating_ips` must not have more than one floating IP.If `false`:- Packets are passed unchanged to/from the network interface,  allowing the workload to perform any needed NAT operations.- `allow_ip_spoofing` must be `false`.- If the virtual network interface is attached:  - The target `resource_type` must be `bare_metal_server_network_attachment`.  - The target `interface_type` must not be `hipersocket`.",
+						},
+						"ips": &schema.Schema{
+							Type:        schema.TypeList,
+							Optional:    true,
+							Computed:    true,
+							Description: "The reserved IPs bound to this virtual network interface.May be empty when `lifecycle_state` is `pending`.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"address": &schema.Schema{
+										Type:        schema.TypeString,
+										Optional:    true,
+										Computed:    true,
+										Description: "The IP address.If the address has not yet been selected, the value will be `0.0.0.0`.This property may add support for IPv6 addresses in the future. When processing a value in this property, verify that the address is in an expected format. If it is not, log an error. Optionally halt processing and surface the error, or bypass the resource on which the unexpected IP address format was encountered.",
+									},
+									"deleted": &schema.Schema{
+										Type:        schema.TypeList,
+										Computed:    true,
+										Description: "If present, this property indicates the referenced resource has been deleted, and providessome supplementary information.",
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"more_info": &schema.Schema{
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "Link to documentation about deleted resources.",
+												},
+											},
+										},
+									},
+									"auto_delete": &schema.Schema{
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Computed:    true,
+										Description: "Indicates whether this reserved IP member will be automatically deleted when either target is deleted, or the reserved IP is unbound.",
+									},
+									"href": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The URL for this reserved IP.",
+									},
+									"reserved_ip": &schema.Schema{
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: "The unique identifier for this reserved IP.",
+									},
+									"name": &schema.Schema{
+										Type:        schema.TypeString,
+										Optional:    true,
+										Computed:    true,
+										Description: "The name for this reserved IP. The name is unique across all reserved IPs in a subnet.",
+									},
+									"resource_type": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The resource type.",
+									},
+								},
+							},
 						},
 						"name": &schema.Schema{
+							Type:         schema.TypeString,
+							Optional:     true,
+							Computed:     true,
+							ValidateFunc: validate.InvokeValidator("ibm_is_virtual_network_interface", "vni_name"),
+							Description:  "The name for this virtual network interface. The name is unique across all virtual network interfaces in the VPC.",
+						},
+						"primary_ip": &schema.Schema{
+							Type:        schema.TypeList,
+							Optional:    true,
+							Computed:    true,
+							Description: "The primary IP address of the virtual network interface for the bare metal server networkattachment.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"address": &schema.Schema{
+										Type:        schema.TypeString,
+										Optional:    true,
+										Computed:    true,
+										Description: "The IP address.If the address has not yet been selected, the value will be `0.0.0.0`.This property may add support for IPv6 addresses in the future. When processing a value in this property, verify that the address is in an expected format. If it is not, log an error. Optionally halt processing and surface the error, or bypass the resource on which the unexpected IP address format was encountered.",
+									},
+									"deleted": &schema.Schema{
+										Type:        schema.TypeList,
+										Computed:    true,
+										Description: "If present, this property indicates the referenced resource has been deleted, and providessome supplementary information.",
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"more_info": &schema.Schema{
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "Link to documentation about deleted resources.",
+												},
+											},
+										},
+									},
+									"href": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The URL for this reserved IP.",
+									},
+									"reserved_ip": &schema.Schema{
+										Type:        schema.TypeString,
+										Optional:    true,
+										Computed:    true,
+										Description: "The unique identifier for this reserved IP.",
+									},
+									"name": &schema.Schema{
+										Type:        schema.TypeString,
+										Optional:    true,
+										Computed:    true,
+										Description: "The name for this reserved IP. The name is unique across all reserved IPs in a subnet.",
+									},
+									"resource_type": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The resource type.",
+									},
+								},
+							},
+						},
+						"resource_group": &schema.Schema{
 							Type:        schema.TypeString,
-							Required:    true,
-							Description: "The name for this virtual network interface. The name is unique across all virtual network interfaces in the VPC.",
+							Optional:    true,
+							Computed:    true,
+							Description: "The resource group id for this virtual network interface.",
 						},
 						"resource_type": &schema.Schema{
 							Type:        schema.TypeString,
 							Computed:    true,
 							Description: "The resource type.",
+						},
+						"security_groups": {
+							Type:        schema.TypeSet,
+							Optional:    true,
+							Computed:    true,
+							ForceNew:    true,
+							Elem:        &schema.Schema{Type: schema.TypeString},
+							Set:         schema.HashString,
+							Description: "The security groups for this virtual network interface.",
+						},
+						"subnet": &schema.Schema{
+							Type:        schema.TypeString,
+							Optional:    true,
+							Computed:    true,
+							ForceNew:    true,
+							Description: "The associated subnet id.",
 						},
 					},
 				},
@@ -118,116 +266,15 @@ func ResourceIBMIsBareMetalServerNetworkAttachment() *schema.Resource {
 				Computed:    true,
 				Description: "The port speed for this bare metal server network attachment in Mbps.",
 			},
-			"primary_ip": &schema.Schema{
-				Type:        schema.TypeList,
-				Computed:    true,
-				Description: "The primary IP address of the virtual network interface for the bare metal servernetwork attachment.",
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"address": &schema.Schema{
-							Type:        schema.TypeString,
-							Required:    true,
-							Description: "The IP address.If the address has not yet been selected, the value will be `0.0.0.0`.This property may add support for IPv6 addresses in the future. When processing a value in this property, verify that the address is in an expected format. If it is not, log an error. Optionally halt processing and surface the error, or bypass the resource on which the unexpected IP address format was encountered.",
-						},
-						"deleted": &schema.Schema{
-							Type:        schema.TypeList,
-							Computed:    true,
-							Description: "If present, this property indicates the referenced resource has been deleted, and providessome supplementary information.",
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"more_info": &schema.Schema{
-										Type:        schema.TypeString,
-										Computed:    true,
-										Description: "Link to documentation about deleted resources.",
-									},
-								},
-							},
-						},
-						"href": &schema.Schema{
-							Type:        schema.TypeString,
-							Required:    true,
-							Description: "The URL for this reserved IP.",
-						},
-						"id": &schema.Schema{
-							Type:        schema.TypeString,
-							Required:    true,
-							Description: "The unique identifier for this reserved IP.",
-						},
-						"name": &schema.Schema{
-							Type:        schema.TypeString,
-							Required:    true,
-							Description: "The name for this reserved IP. The name is unique across all reserved IPs in a subnet.",
-						},
-						"resource_type": &schema.Schema{
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: "The resource type.",
-						},
-					},
-				},
-			},
 			"resource_type": &schema.Schema{
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "The resource type.",
 			},
-			"subnet": &schema.Schema{
-				Type:        schema.TypeList,
-				Computed:    true,
-				Description: "The subnet of the virtual network interface for the bare metal server networkattachment.",
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"crn": &schema.Schema{
-							Type:        schema.TypeString,
-							Required:    true,
-							Description: "The CRN for this subnet.",
-						},
-						"deleted": &schema.Schema{
-							Type:        schema.TypeList,
-							Computed:    true,
-							Description: "If present, this property indicates the referenced resource has been deleted, and providessome supplementary information.",
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"more_info": &schema.Schema{
-										Type:        schema.TypeString,
-										Computed:    true,
-										Description: "Link to documentation about deleted resources.",
-									},
-								},
-							},
-						},
-						"href": &schema.Schema{
-							Type:        schema.TypeString,
-							Required:    true,
-							Description: "The URL for this subnet.",
-						},
-						"id": &schema.Schema{
-							Type:        schema.TypeString,
-							Required:    true,
-							Description: "The unique identifier for this subnet.",
-						},
-						"name": &schema.Schema{
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: "The name for this subnet. The name is unique across all subnets in the VPC.",
-						},
-						"resource_type": &schema.Schema{
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: "The resource type.",
-						},
-					},
-				},
-			},
 			"type": &schema.Schema{
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "The bare metal server network attachment type.",
-			},
-			"bare_metal_server_network_attachment_id": &schema.Schema{
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: "The unique identifier for this bare metal server network attachment.",
 			},
 		},
 	}
@@ -237,7 +284,7 @@ func ResourceIBMIsBareMetalServerNetworkAttachmentValidator() *validate.Resource
 	validateSchema := make([]validate.ValidateSchema, 0)
 	validateSchema = append(validateSchema,
 		validate.ValidateSchema{
-			Identifier:                 "bare_metal_server_id",
+			Identifier:                 "bare_metal_server",
 			ValidateFunctionIdentifier: validate.ValidateRegexpLen,
 			Type:                       validate.TypeString,
 			Required:                   true,
@@ -298,7 +345,7 @@ func resourceIBMIsBareMetalServerNetworkAttachmentCreate(context context.Context
 	if _, ok := d.GetOk("vlan"); ok {
 		bodyModelMap["vlan"] = d.Get("vlan")
 	}
-	createBareMetalServerNetworkAttachmentOptions.SetBareMetalServerID(d.Get("bare_metal_server_id").(string))
+	createBareMetalServerNetworkAttachmentOptions.SetBareMetalServerID(d.Get("bare_metal_server").(string))
 	convertedModel, err := resourceIBMIsBareMetalServerNetworkAttachmentMapToBareMetalServerNetworkAttachmentPrototype(bodyModelMap)
 	if err != nil {
 		return diag.FromErr(err)
@@ -356,78 +403,78 @@ func resourceIBMIsBareMetalServerNetworkAttachmentRead(context context.Context, 
 	if _, ok := bareMetalServerNetworkAttachmentIntf.(*vpcv1.BareMetalServerNetworkAttachmentByVlan); ok {
 		bareMetalServerNetworkAttachment := bareMetalServerNetworkAttachmentIntf.(*vpcv1.BareMetalServerNetworkAttachmentByVlan)
 		if err = d.Set("interface_type", bareMetalServerNetworkAttachment.InterfaceType); err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting interface_type: %s", err))
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting interface_type: %s", err))
 		}
 		if !core.IsNil(bareMetalServerNetworkAttachment.Name) {
 			if err = d.Set("name", bareMetalServerNetworkAttachment.Name); err != nil {
-				return diag.FromErr(fmt.Errorf("Error setting name: %s", err))
+				return diag.FromErr(fmt.Errorf("[ERROR] Error setting name: %s", err))
 			}
 		}
-		virtualNetworkInterfaceMap, err := resourceIBMIsBareMetalServerNetworkAttachmentVirtualNetworkInterfaceReferenceAttachmentContextToMap(bareMetalServerNetworkAttachment.VirtualNetworkInterface)
+		virtualNetworkInterfaceMap, err := resourceIBMIsBareMetalServerNetworkAttachmentVirtualNetworkInterfaceReferenceAttachmentContextToMap(bareMetalServerNetworkAttachment.VirtualNetworkInterface, vpcClient)
 		if err != nil {
 			return diag.FromErr(err)
 		}
 		if err = d.Set("virtual_network_interface", []map[string]interface{}{virtualNetworkInterfaceMap}); err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting virtual_network_interface: %s", err))
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting virtual_network_interface: %s", err))
 		}
 		if !core.IsNil(bareMetalServerNetworkAttachment.AllowToFloat) {
 			if err = d.Set("allow_to_float", bareMetalServerNetworkAttachment.AllowToFloat); err != nil {
-				return diag.FromErr(fmt.Errorf("Error setting allow_to_float: %s", err))
+				return diag.FromErr(fmt.Errorf("[ERROR] Error setting allow_to_float: %s", err))
 			}
 		}
 		if !core.IsNil(bareMetalServerNetworkAttachment.Vlan) {
 			if err = d.Set("vlan", flex.IntValue(bareMetalServerNetworkAttachment.Vlan)); err != nil {
-				return diag.FromErr(fmt.Errorf("Error setting vlan: %s", err))
+				return diag.FromErr(fmt.Errorf("[ERROR] Error setting vlan: %s", err))
 			}
 		}
 		if err = d.Set("created_at", flex.DateTimeToString(bareMetalServerNetworkAttachment.CreatedAt)); err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting created_at: %s", err))
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting created_at: %s", err))
 		}
 		if err = d.Set("href", bareMetalServerNetworkAttachment.Href); err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting href: %s", err))
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting href: %s", err))
 		}
 		if err = d.Set("lifecycle_state", bareMetalServerNetworkAttachment.LifecycleState); err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting lifecycle_state: %s", err))
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting lifecycle_state: %s", err))
 		}
 		if err = d.Set("port_speed", flex.IntValue(bareMetalServerNetworkAttachment.PortSpeed)); err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting port_speed: %s", err))
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting port_speed: %s", err))
 		}
 		primaryIPMap, err := resourceIBMIsBareMetalServerNetworkAttachmentReservedIPReferenceToMap(bareMetalServerNetworkAttachment.PrimaryIP)
 		if err != nil {
 			return diag.FromErr(err)
 		}
 		if err = d.Set("primary_ip", []map[string]interface{}{primaryIPMap}); err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting primary_ip: %s", err))
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting primary_ip: %s", err))
 		}
 		if err = d.Set("resource_type", bareMetalServerNetworkAttachment.ResourceType); err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting resource_type: %s", err))
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting resource_type: %s", err))
 		}
 		subnetMap, err := resourceIBMIsBareMetalServerNetworkAttachmentSubnetReferenceToMap(bareMetalServerNetworkAttachment.Subnet)
 		if err != nil {
 			return diag.FromErr(err)
 		}
 		if err = d.Set("subnet", []map[string]interface{}{subnetMap}); err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting subnet: %s", err))
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting subnet: %s", err))
 		}
 		if err = d.Set("type", bareMetalServerNetworkAttachment.Type); err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting type: %s", err))
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting type: %s", err))
 		}
 	} else if _, ok := bareMetalServerNetworkAttachmentIntf.(*vpcv1.BareMetalServerNetworkAttachmentByPci); ok {
 		bareMetalServerNetworkAttachment := bareMetalServerNetworkAttachmentIntf.(*vpcv1.BareMetalServerNetworkAttachmentByPci)
 		if err = d.Set("interface_type", bareMetalServerNetworkAttachment.InterfaceType); err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting interface_type: %s", err))
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting interface_type: %s", err))
 		}
 		if !core.IsNil(bareMetalServerNetworkAttachment.Name) {
 			if err = d.Set("name", bareMetalServerNetworkAttachment.Name); err != nil {
-				return diag.FromErr(fmt.Errorf("Error setting name: %s", err))
+				return diag.FromErr(fmt.Errorf("[ERROR] Error setting name: %s", err))
 			}
 		}
-		virtualNetworkInterfaceMap, err := resourceIBMIsBareMetalServerNetworkAttachmentVirtualNetworkInterfaceReferenceAttachmentContextToMap(bareMetalServerNetworkAttachment.VirtualNetworkInterface)
+		virtualNetworkInterfaceMap, err := resourceIBMIsBareMetalServerNetworkAttachmentVirtualNetworkInterfaceReferenceAttachmentContextToMap(bareMetalServerNetworkAttachment.VirtualNetworkInterface, vpcClient)
 		if err != nil {
 			return diag.FromErr(err)
 		}
 		if err = d.Set("virtual_network_interface", []map[string]interface{}{virtualNetworkInterfaceMap}); err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting virtual_network_interface: %s", err))
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting virtual_network_interface: %s", err))
 		}
 		if !core.IsNil(bareMetalServerNetworkAttachment.AllowedVlans) {
 			allowedVlans := []interface{}{}
@@ -435,46 +482,46 @@ func resourceIBMIsBareMetalServerNetworkAttachmentRead(context context.Context, 
 				allowedVlans = append(allowedVlans, int64(allowedVlansItem))
 			}
 			if err = d.Set("allowed_vlans", allowedVlans); err != nil {
-				return diag.FromErr(fmt.Errorf("Error setting allowed_vlans: %s", err))
+				return diag.FromErr(fmt.Errorf("[ERROR] Error setting allowed_vlans: %s", err))
 			}
 		}
 		if err = d.Set("created_at", flex.DateTimeToString(bareMetalServerNetworkAttachment.CreatedAt)); err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting created_at: %s", err))
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting created_at: %s", err))
 		}
 		if err = d.Set("href", bareMetalServerNetworkAttachment.Href); err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting href: %s", err))
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting href: %s", err))
 		}
 		if err = d.Set("lifecycle_state", bareMetalServerNetworkAttachment.LifecycleState); err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting lifecycle_state: %s", err))
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting lifecycle_state: %s", err))
 		}
 		if err = d.Set("port_speed", flex.IntValue(bareMetalServerNetworkAttachment.PortSpeed)); err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting port_speed: %s", err))
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting port_speed: %s", err))
 		}
 		primaryIPMap, err := resourceIBMIsBareMetalServerNetworkAttachmentReservedIPReferenceToMap(bareMetalServerNetworkAttachment.PrimaryIP)
 		if err != nil {
 			return diag.FromErr(err)
 		}
 		if err = d.Set("primary_ip", []map[string]interface{}{primaryIPMap}); err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting primary_ip: %s", err))
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting primary_ip: %s", err))
 		}
 		if err = d.Set("resource_type", bareMetalServerNetworkAttachment.ResourceType); err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting resource_type: %s", err))
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting resource_type: %s", err))
 		}
 		subnetMap, err := resourceIBMIsBareMetalServerNetworkAttachmentSubnetReferenceToMap(bareMetalServerNetworkAttachment.Subnet)
 		if err != nil {
 			return diag.FromErr(err)
 		}
 		if err = d.Set("subnet", []map[string]interface{}{subnetMap}); err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting subnet: %s", err))
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting subnet: %s", err))
 		}
 		if err = d.Set("type", bareMetalServerNetworkAttachment.Type); err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting type: %s", err))
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting type: %s", err))
 		}
 	} else if _, ok := bareMetalServerNetworkAttachmentIntf.(*vpcv1.BareMetalServerNetworkAttachment); ok {
 		bareMetalServerNetworkAttachment := bareMetalServerNetworkAttachmentIntf.(*vpcv1.BareMetalServerNetworkAttachment)
-		// parent class argument: bare_metal_server_id string
-		if err = d.Set("bare_metal_server_id", getBareMetalServerNetworkAttachmentOptions.BareMetalServerID); err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting bare_metal_server_id: %s", err))
+		// parent class argument: bare_metal_server string
+		if err = d.Set("bare_metal_server", getBareMetalServerNetworkAttachmentOptions.BareMetalServerID); err != nil {
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting bare_metal_server: %s", err))
 		}
 		// parent class argument: interface_type string
 		// parent class argument: name string
@@ -483,19 +530,19 @@ func resourceIBMIsBareMetalServerNetworkAttachmentRead(context context.Context, 
 		// parent class argument: allow_to_float bool
 		// parent class argument: vlan int64
 		if err = d.Set("interface_type", bareMetalServerNetworkAttachment.InterfaceType); err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting interface_type: %s", err))
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting interface_type: %s", err))
 		}
 		if !core.IsNil(bareMetalServerNetworkAttachment.Name) {
 			if err = d.Set("name", bareMetalServerNetworkAttachment.Name); err != nil {
-				return diag.FromErr(fmt.Errorf("Error setting name: %s", err))
+				return diag.FromErr(fmt.Errorf("[ERROR] Error setting name: %s", err))
 			}
 		}
-		virtualNetworkInterfaceMap, err := resourceIBMIsBareMetalServerNetworkAttachmentVirtualNetworkInterfaceReferenceAttachmentContextToMap(bareMetalServerNetworkAttachment.VirtualNetworkInterface)
+		virtualNetworkInterfaceMap, err := resourceIBMIsBareMetalServerNetworkAttachmentVirtualNetworkInterfaceReferenceAttachmentContextToMap(bareMetalServerNetworkAttachment.VirtualNetworkInterface, vpcClient)
 		if err != nil {
 			return diag.FromErr(err)
 		}
 		if err = d.Set("virtual_network_interface", []map[string]interface{}{virtualNetworkInterfaceMap}); err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting virtual_network_interface: %s", err))
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting virtual_network_interface: %s", err))
 		}
 		if !core.IsNil(bareMetalServerNetworkAttachment.AllowedVlans) {
 			allowedVlans := []interface{}{}
@@ -503,53 +550,53 @@ func resourceIBMIsBareMetalServerNetworkAttachmentRead(context context.Context, 
 				allowedVlans = append(allowedVlans, int64(allowedVlansItem))
 			}
 			if err = d.Set("allowed_vlans", allowedVlans); err != nil {
-				return diag.FromErr(fmt.Errorf("Error setting allowed_vlans: %s", err))
+				return diag.FromErr(fmt.Errorf("[ERROR] Error setting allowed_vlans: %s", err))
 			}
 		}
 		if !core.IsNil(bareMetalServerNetworkAttachment.AllowToFloat) {
 			if err = d.Set("allow_to_float", bareMetalServerNetworkAttachment.AllowToFloat); err != nil {
-				return diag.FromErr(fmt.Errorf("Error setting allow_to_float: %s", err))
+				return diag.FromErr(fmt.Errorf("[ERROR] Error setting allow_to_float: %s", err))
 			}
 		}
 		if !core.IsNil(bareMetalServerNetworkAttachment.Vlan) {
 			if err = d.Set("vlan", flex.IntValue(bareMetalServerNetworkAttachment.Vlan)); err != nil {
-				return diag.FromErr(fmt.Errorf("Error setting vlan: %s", err))
+				return diag.FromErr(fmt.Errorf("[ERROR] Error setting vlan: %s", err))
 			}
 		}
 		if err = d.Set("created_at", flex.DateTimeToString(bareMetalServerNetworkAttachment.CreatedAt)); err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting created_at: %s", err))
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting created_at: %s", err))
 		}
 		if err = d.Set("href", bareMetalServerNetworkAttachment.Href); err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting href: %s", err))
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting href: %s", err))
 		}
 		if err = d.Set("lifecycle_state", bareMetalServerNetworkAttachment.LifecycleState); err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting lifecycle_state: %s", err))
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting lifecycle_state: %s", err))
 		}
 		if err = d.Set("port_speed", flex.IntValue(bareMetalServerNetworkAttachment.PortSpeed)); err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting port_speed: %s", err))
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting port_speed: %s", err))
 		}
 		primaryIPMap, err := resourceIBMIsBareMetalServerNetworkAttachmentReservedIPReferenceToMap(bareMetalServerNetworkAttachment.PrimaryIP)
 		if err != nil {
 			return diag.FromErr(err)
 		}
 		if err = d.Set("primary_ip", []map[string]interface{}{primaryIPMap}); err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting primary_ip: %s", err))
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting primary_ip: %s", err))
 		}
 		if err = d.Set("resource_type", bareMetalServerNetworkAttachment.ResourceType); err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting resource_type: %s", err))
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting resource_type: %s", err))
 		}
 		subnetMap, err := resourceIBMIsBareMetalServerNetworkAttachmentSubnetReferenceToMap(bareMetalServerNetworkAttachment.Subnet)
 		if err != nil {
 			return diag.FromErr(err)
 		}
 		if err = d.Set("subnet", []map[string]interface{}{subnetMap}); err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting subnet: %s", err))
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting subnet: %s", err))
 		}
 		if err = d.Set("type", bareMetalServerNetworkAttachment.Type); err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting type: %s", err))
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting type: %s", err))
 		}
-		if err = d.Set("bare_metal_server_network_attachment_id", bareMetalServerNetworkAttachment.ID); err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting bare_metal_server_network_attachment_id: %s", err))
+		if err = d.Set("network_attachment", bareMetalServerNetworkAttachment.ID); err != nil {
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting network_attachment: %s", err))
 		}
 	} else {
 		return diag.FromErr(fmt.Errorf("Unrecognized vpcv1.BareMetalServerNetworkAttachmentIntf subtype encountered"))
@@ -577,9 +624,9 @@ func resourceIBMIsBareMetalServerNetworkAttachmentUpdate(context context.Context
 	hasChange := false
 
 	patchVals := &vpcv1.BareMetalServerNetworkAttachmentPatch{}
-	if d.HasChange("bare_metal_server_id") {
+	if d.HasChange("bare_metal_server") {
 		return diag.FromErr(fmt.Errorf("Cannot update resource property \"%s\" with the ForceNew annotation."+
-			" The resource must be re-created to update this property.", "bare_metal_server_id"))
+			" The resource must be re-created to update this property.", "bare_metal_server"))
 	}
 	if d.HasChange("allowed_vlans") {
 		var allowedVlans []int64
@@ -1054,8 +1101,55 @@ func resourceIBMIsBareMetalServerNetworkAttachmentMapToBareMetalServerNetworkAtt
 	return model, nil
 }
 
-func resourceIBMIsBareMetalServerNetworkAttachmentVirtualNetworkInterfaceReferenceAttachmentContextToMap(model *vpcv1.VirtualNetworkInterfaceReferenceAttachmentContext) (map[string]interface{}, error) {
+func resourceIBMIsBareMetalServerNetworkAttachmentVirtualNetworkInterfaceReferenceAttachmentContextToMap(model *vpcv1.VirtualNetworkInterfaceReferenceAttachmentContext, sess *vpcv1.VpcV1) (map[string]interface{}, error) {
 	modelMap := make(map[string]interface{})
+	vniid := *model.ID
+	getVirtualNetworkInterfaceOptions := &vpcv1.GetVirtualNetworkInterfaceOptions{
+		ID: &vniid,
+	}
+	vniDetails, response, err := sess.GetVirtualNetworkInterface(getVirtualNetworkInterfaceOptions)
+	if err != nil {
+		return nil, fmt.Errorf("[ERROR] Error on GetInstanceNetworkAttachment in instance : %s\n%s", err, response)
+	}
+	modelMap["allow_ip_spoofing"] = vniDetails.AllowIPSpoofing
+	modelMap["auto_delete"] = vniDetails.AutoDelete
+	modelMap["enable_infrastructure_nat"] = vniDetails.EnableInfrastructureNat
+	modelMap["resource_group"] = vniDetails.ResourceGroup.ID
+	primaryipId := *vniDetails.PrimaryIP.ID
+	if !core.IsNil(vniDetails.Ips) {
+		ips := []map[string]interface{}{}
+		for _, ipsItem := range vniDetails.Ips {
+			if *ipsItem.ID != primaryipId {
+				ipsItemMap, err := resourceIBMIsVirtualNetworkInterfaceReservedIPReferenceToMap(&ipsItem)
+				if err != nil {
+					return nil, err
+				}
+				ips = append(ips, ipsItemMap)
+			}
+		}
+		modelMap["ips"] = ips
+	}
+	primaryIPMap, err := resourceIBMIsBareMetalServerReservedIPReferenceToMap(vniDetails.PrimaryIP)
+	if err != nil {
+		return modelMap, err
+	}
+	modelMap["primary_ip"] = []map[string]interface{}{primaryIPMap}
+
+	if !core.IsNil(vniDetails.SecurityGroups) {
+		securityGroups := make([]string, 0)
+		for _, securityGroupsItem := range vniDetails.SecurityGroups {
+			if securityGroupsItem.ID != nil {
+				securityGroups = append(securityGroups, *securityGroupsItem.ID)
+			}
+		}
+		modelMap["security_groups"] = securityGroups
+	}
+	if model.ResourceType != nil {
+		modelMap["resource_type"] = *model.ResourceType
+	}
+	if vniDetails.Subnet != nil {
+		modelMap["subnet"] = *vniDetails.Subnet.ID
+	}
 	modelMap["crn"] = model.CRN
 	modelMap["href"] = model.Href
 	modelMap["id"] = model.ID

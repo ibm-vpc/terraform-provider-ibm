@@ -276,6 +276,7 @@ func ResourceIBMIsBareMetalServer() *schema.Resource {
 				MinItems:      1,
 				MaxItems:      1,
 				Optional:      true,
+				Computed:      true,
 				ExactlyOneOf:  []string{"primary_network_attachment", "primary_network_interface"},
 				ConflictsWith: []string{"primary_network_attachment", "network_attachments"},
 				Description:   "Primary Network interface info",
