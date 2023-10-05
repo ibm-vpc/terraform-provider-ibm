@@ -90,6 +90,27 @@ resource "ibm_is_share_mount_target" "mtarget1" {
   }
   name  = "my-example-mount-target"
 }
+
+//Create mount target with VNI that has addiotional IPs
+resource "ibm_is_subnet_reserved_ip" "example" {
+  subnet = ibm_is_subnet.example.id
+  name = "my-example-resip"
+}
+resource "ibm_is_share_mount_target" "mtarget1" {
+  share = ibm_is_share.share.id
+  virtual_network_interface {
+    primary_ip {
+      reserved_ip = ibm_is_subnet_reserved_ip.example.reserved_ip
+    }
+    ips {
+      address = "192.168.3.4"
+      name = "my-example-ips"
+      auto_delete = false
+    }
+    name = "my-example-vni"
+  }
+  name  = "my-example-mount-target"
+}
 ```
 ## Argument Reference
 

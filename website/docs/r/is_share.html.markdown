@@ -120,7 +120,18 @@ The following arguments are supported:
     - `virtual_network_interface` (Optional, List) The virtual network interface for this share mount target. Required if the share's `access_control_mode` is `security_group`.
       Nested scheme for `virtual_network_interface`:
       - `name` - (Required, String) Name for this virtual network interface.
+      - `id` - (Optional) The ID for virtual network interface. Mutually exclusive with other `virtual_network_interface` arguments.
+      - `allow_ip_spoofing` - (Optional, Bool) Indicates whether source IP spoofing is allowed on this interface. If false, source IP spoofing is prevented on this interface. If true, source IP spoofing is allowed on this interface.
+      - `auto_delete` - (Optional, Bool) Indicates whether this virtual network interface will be automatically deleted when target is deleted
+      - `enable_infrastructure_nat` - (Optional, Bool) If `true`:- The VPC infrastructure performs any needed NAT operations.- `floating_ips` must not have more than one floating IP.If `false`:- Packets are passed unchanged to/from the network interface,  allowing the workload to perform any needed NAT operations.- `allow_ip_spoofing` must be `false`.- If the virtual network interface is attached:  - The target `resource_type` must be `bare_metal_server_network_attachment`.  - The target `interface_type` must not be `hipersocket`.
       - `primary_ip` - (Optional, List) The primary IP address to bind to the virtual network interface. May be either a reserved IP identity, or a reserved IP prototype object which will be used to create a new reserved IP.
+        Nested scheme for `primary_ip`:
+        - `auto_delete` - (Optional, Bool) Indicates whether this reserved IP member will be automatically deleted when either target is deleted, or the reserved IP is unbound. Defaults to `true`
+        - `address` - (Optional, Forces new resource, String) The IP address to reserve. If unspecified, an available address on the subnet will automatically be selected.
+        - `name`- (Optional, String) The name for this reserved IP. The name must not be used by another reserved IP in the subnet. Names starting with ibm- are reserved for provider-owned resources, and are not allowed.
+        - `reserved_ip`- (Optional, String) The unique identifier for this reserved IP
+      - `ips` - (Optional, List) Additional IP addresses to bind to the virtual network interface.  May be either a reserved IP identity, or a reserved IP prototype object which will be used to create a new reserved IP.
+
         Nested scheme for `primary_ip`:
         - `auto_delete` - (Optional, Bool) Indicates whether this reserved IP member will be automatically deleted when either target is deleted, or the reserved IP is unbound. Defaults to `true`
         - `address` - (Optional, Forces new resource, String) The IP address to reserve. If unspecified, an available address on the subnet will automatically be selected.
