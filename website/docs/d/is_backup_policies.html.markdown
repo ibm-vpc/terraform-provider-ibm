@@ -70,17 +70,17 @@ In addition to all argument reference list, you can access the following attribu
       - `id` - (String) The unique identifier for this backup policy plan.
       - `name` - (String) The unique user-defined name for this backup policy plan.
       - `resource_type` - (String) The type of resource referenced.
-    - `resource_group` - (List) The resource group object, for this backup policy. 
+  - `resource_group` - (List) The resource group object, for this backup policy. 
     
-      Nested `resource_group` blocks have the following structure:
-        - `href` - (String) The URL for this resource group.
-        - `id` - (String) The unique identifier for this resource group.
-        - `name` - (String) The user-defined name for this resource group.
-    - `scope` - (List) If present, the scope for this backup policy.
+    Nested `resource_group` blocks have the following structure:
+    - `href` - (String) The URL for this resource group.
+    - `id` - (String) The unique identifier for this resource group.
+    - `name` - (String) The user-defined name for this resource group.
+  - `scope` - (List) If present, the scope for this backup policy.
 
-      Nested `scope` blocks have the following structure:
-        - `crn` - (String) The CRN for this enterprise.
-        - `id` - (String) The unique identifier for this enterprise or account.
-        - `resource_type` - (String) The resource type.
+    Nested `scope` blocks have the following structure:
+    - `crn` - (String) The CRN for this enterprise.
+    - `id` - (String) The unique identifier for this enterprise or account.
+    - `resource_type` - (String) The resource type.
 
 
