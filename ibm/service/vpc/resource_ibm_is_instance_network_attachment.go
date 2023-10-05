@@ -527,30 +527,29 @@ func resourceIBMIsInstanceNetworkAttachmentMapToInstanceNetworkAttachmentPrototy
 		}
 		model.PrimaryIP = PrimaryIPModel
 	}
-	if modelMap["resource_group"] != nil && len(modelMap["resource_group"].([]interface{})) > 0 {
-		ResourceGroupModel, err := resourceIBMIsInstanceNetworkAttachmentMapToResourceGroupIdentity(modelMap["resource_group"].([]interface{})[0].(map[string]interface{}))
-		if err != nil {
-			return model, err
+	if modelMap["resource_group"] != nil && modelMap["resource_group"].(string) != "" {
+		rgId := modelMap["resource_group"].(string)
+		model.ResourceGroup = &vpcv1.ResourceGroupIdentity{
+			ID: &rgId,
 		}
-		model.ResourceGroup = ResourceGroupModel
 	}
-	if modelMap["security_groups"] != nil {
+	if modelMap["security_groups"] != nil && modelMap["security_groups"].(*schema.Set).Len() > 0 {
 		securityGroups := []vpcv1.SecurityGroupIdentityIntf{}
-		for _, securityGroupsItem := range modelMap["security_groups"].([]interface{}) {
-			securityGroupsItemModel, err := resourceIBMIsInstanceNetworkAttachmentMapToSecurityGroupIdentity(securityGroupsItem.(map[string]interface{}))
-			if err != nil {
-				return model, err
+		sg := modelMap["security_groups"].(*schema.Set)
+		for _, v := range sg.List() {
+			value := v.(string)
+			securityGroupsItem := &vpcv1.SecurityGroupIdentity{
+				ID: &value,
 			}
-			securityGroups = append(securityGroups, securityGroupsItemModel)
+			securityGroups = append(securityGroups, securityGroupsItem)
 		}
 		model.SecurityGroups = securityGroups
 	}
-	if modelMap["subnet"] != nil && len(modelMap["subnet"].([]interface{})) > 0 {
-		SubnetModel, err := resourceIBMIsInstanceNetworkAttachmentMapToSubnetIdentity(modelMap["subnet"].([]interface{})[0].(map[string]interface{}))
-		if err != nil {
-			return model, err
+	if modelMap["subnet"] != nil && modelMap["subnet"].(string) != "" {
+		subnetid := modelMap["subnet"].(string)
+		model.Subnet = &vpcv1.SubnetIdentity{
+			ID: &subnetid,
 		}
-		model.Subnet = SubnetModel
 	}
 	if modelMap["id"] != nil && modelMap["id"].(string) != "" {
 		model.ID = core.StringPtr(modelMap["id"].(string))
@@ -671,67 +670,6 @@ func resourceIBMIsInstanceNetworkAttachmentMapToVirtualNetworkInterfacePrimaryIP
 	}
 	return model, nil
 }
-
-func resourceIBMIsInstanceNetworkAttachmentMapToResourceGroupIdentity(modelMap map[string]interface{}) (vpcv1.ResourceGroupIdentityIntf, error) {
-	model := &vpcv1.ResourceGroupIdentity{}
-	if modelMap["id"] != nil && modelMap["id"].(string) != "" {
-		model.ID = core.StringPtr(modelMap["id"].(string))
-	}
-	return model, nil
-}
-
-func resourceIBMIsInstanceNetworkAttachmentMapToResourceGroupIdentityByID(modelMap map[string]interface{}) (*vpcv1.ResourceGroupIdentityByID, error) {
-	model := &vpcv1.ResourceGroupIdentityByID{}
-	model.ID = core.StringPtr(modelMap["id"].(string))
-	return model, nil
-}
-
-func resourceIBMIsInstanceNetworkAttachmentMapToSecurityGroupIdentity(modelMap map[string]interface{}) (vpcv1.SecurityGroupIdentityIntf, error) {
-	model := &vpcv1.SecurityGroupIdentity{}
-	if modelMap["id"] != nil && modelMap["id"].(string) != "" {
-		model.ID = core.StringPtr(modelMap["id"].(string))
-	}
-	if modelMap["crn"] != nil && modelMap["crn"].(string) != "" {
-		model.CRN = core.StringPtr(modelMap["crn"].(string))
-	}
-	if modelMap["href"] != nil && modelMap["href"].(string) != "" {
-		model.Href = core.StringPtr(modelMap["href"].(string))
-	}
-	return model, nil
-}
-
-func resourceIBMIsInstanceNetworkAttachmentMapToSecurityGroupIdentityByID(modelMap map[string]interface{}) (*vpcv1.SecurityGroupIdentityByID, error) {
-	model := &vpcv1.SecurityGroupIdentityByID{}
-	model.ID = core.StringPtr(modelMap["id"].(string))
-	return model, nil
-}
-
-func resourceIBMIsInstanceNetworkAttachmentMapToSecurityGroupIdentityByCRN(modelMap map[string]interface{}) (*vpcv1.SecurityGroupIdentityByCRN, error) {
-	model := &vpcv1.SecurityGroupIdentityByCRN{}
-	model.CRN = core.StringPtr(modelMap["crn"].(string))
-	return model, nil
-}
-
-func resourceIBMIsInstanceNetworkAttachmentMapToSecurityGroupIdentityByHref(modelMap map[string]interface{}) (*vpcv1.SecurityGroupIdentityByHref, error) {
-	model := &vpcv1.SecurityGroupIdentityByHref{}
-	model.Href = core.StringPtr(modelMap["href"].(string))
-	return model, nil
-}
-
-func resourceIBMIsInstanceNetworkAttachmentMapToSubnetIdentity(modelMap map[string]interface{}) (vpcv1.SubnetIdentityIntf, error) {
-	model := &vpcv1.SubnetIdentity{}
-	if modelMap["id"] != nil && modelMap["id"].(string) != "" {
-		model.ID = core.StringPtr(modelMap["id"].(string))
-	}
-	if modelMap["crn"] != nil && modelMap["crn"].(string) != "" {
-		model.CRN = core.StringPtr(modelMap["crn"].(string))
-	}
-	if modelMap["href"] != nil && modelMap["href"].(string) != "" {
-		model.Href = core.StringPtr(modelMap["href"].(string))
-	}
-	return model, nil
-}
-
 func resourceIBMIsInstanceNetworkAttachmentMapToSubnetIdentityByID(modelMap map[string]interface{}) (*vpcv1.SubnetIdentityByID, error) {
 	model := &vpcv1.SubnetIdentityByID{}
 	model.ID = core.StringPtr(modelMap["id"].(string))
@@ -782,30 +720,29 @@ func resourceIBMIsInstanceNetworkAttachmentMapToInstanceNetworkAttachmentPrototy
 		}
 		model.PrimaryIP = PrimaryIPModel
 	}
-	if modelMap["resource_group"] != nil && len(modelMap["resource_group"].([]interface{})) > 0 {
-		ResourceGroupModel, err := resourceIBMIsInstanceNetworkAttachmentMapToResourceGroupIdentity(modelMap["resource_group"].([]interface{})[0].(map[string]interface{}))
-		if err != nil {
-			return model, err
+	if modelMap["resource_group"] != nil && modelMap["resource_group"].(string) != "" {
+		rgId := modelMap["resource_group"].(string)
+		model.ResourceGroup = &vpcv1.ResourceGroupIdentity{
+			ID: &rgId,
 		}
-		model.ResourceGroup = ResourceGroupModel
 	}
-	if modelMap["security_groups"] != nil {
+	if modelMap["security_groups"] != nil && modelMap["security_groups"].(*schema.Set).Len() > 0 {
 		securityGroups := []vpcv1.SecurityGroupIdentityIntf{}
-		for _, securityGroupsItem := range modelMap["security_groups"].([]interface{}) {
-			securityGroupsItemModel, err := resourceIBMIsInstanceNetworkAttachmentMapToSecurityGroupIdentity(securityGroupsItem.(map[string]interface{}))
-			if err != nil {
-				return model, err
+		sg := modelMap["security_groups"].(*schema.Set)
+		for _, v := range sg.List() {
+			value := v.(string)
+			securityGroupsItem := &vpcv1.SecurityGroupIdentity{
+				ID: &value,
 			}
-			securityGroups = append(securityGroups, securityGroupsItemModel)
+			securityGroups = append(securityGroups, securityGroupsItem)
 		}
 		model.SecurityGroups = securityGroups
 	}
-	if modelMap["subnet"] != nil && len(modelMap["subnet"].([]interface{})) > 0 {
-		SubnetModel, err := resourceIBMIsInstanceNetworkAttachmentMapToSubnetIdentity(modelMap["subnet"].([]interface{})[0].(map[string]interface{}))
-		if err != nil {
-			return model, err
+	if modelMap["subnet"] != nil && modelMap["subnet"].(string) != "" {
+		subnetid := modelMap["subnet"].(string)
+		model.Subnet = &vpcv1.SubnetIdentity{
+			ID: &subnetid,
 		}
-		model.Subnet = SubnetModel
 	}
 	return model, nil
 }
