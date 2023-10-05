@@ -230,8 +230,9 @@ func ResourceIBMIsBareMetalServerNetworkAttachment() *schema.Resource {
 				},
 			},
 			"allowed_vlans": &schema.Schema{
-				Type:        schema.TypeList,
+				Type:        schema.TypeSet,
 				Optional:    true,
+				Set:         schema.HashInt,
 				Description: "Indicates what VLAN IDs (for VLAN type only) can use this physical (PCI type) attachment.",
 				Elem:        &schema.Schema{Type: schema.TypeInt},
 			},
@@ -590,7 +591,7 @@ func resourceIBMIsBareMetalServerNetworkAttachmentUpdate(context context.Context
 	}
 	if d.HasChange("allowed_vlans") {
 		var allowedVlans []int64
-		for _, v := range d.Get("allowed_vlans").([]interface{}) {
+		for _, v := range d.Get("allowed_vlans").(*schema.Set).List() {
 			allowedVlansItem := int64(v.(int))
 			allowedVlans = append(allowedVlans, allowedVlansItem)
 		}
@@ -1002,7 +1003,7 @@ func resourceIBMIsBareMetalServerNetworkAttachmentMapToBareMetalServerNetworkAtt
 	model.VirtualNetworkInterface = VirtualNetworkInterfaceModel
 	if modelMap["allowed_vlans"] != nil {
 		allowedVlans := []int64{}
-		for _, allowedVlansItem := range modelMap["allowed_vlans"].([]interface{}) {
+		for _, allowedVlansItem := range modelMap["allowed_vlans"].(*schema.Set).List() {
 			allowedVlans = append(allowedVlans, int64(allowedVlansItem.(int)))
 		}
 		model.AllowedVlans = allowedVlans
