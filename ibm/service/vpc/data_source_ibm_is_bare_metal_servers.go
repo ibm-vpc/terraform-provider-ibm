@@ -1035,11 +1035,13 @@ func dataSourceIBMISBareMetalServersRead(context context.Context, d *schema.Reso
 		networkAttachments := []map[string]interface{}{}
 		if bms.NetworkAttachments != nil {
 			for _, modelItem := range bms.NetworkAttachments {
-				modelMap, err := dataSourceIBMIsBareMetalServerBareMetalServerNetworkAttachmentReferenceToMap(&modelItem)
-				if err != nil {
-					return diag.FromErr(err)
+				if *&modelItem.ID != *bms.PrimaryNetworkAttachment.ID {
+					modelMap, err := dataSourceIBMIsBareMetalServerBareMetalServerNetworkAttachmentReferenceToMap(&modelItem)
+					if err != nil {
+						return diag.FromErr(err)
+					}
+					networkAttachments = append(networkAttachments, modelMap)
 				}
-				networkAttachments = append(networkAttachments, modelMap)
 			}
 		}
 		l["network_attachments"] = networkAttachments

@@ -5,6 +5,7 @@ package vpc_test
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
@@ -18,9 +19,14 @@ import (
 
 func TestAccIBMIsBareMetalServerNetworkAttachmentBasic(t *testing.T) {
 	var conf vpcv1.BareMetalServerNetworkAttachment
-	bareMetalServerID := fmt.Sprintf("tf_bare_metal_server_id_%d", acctest.RandIntRange(10, 100))
-	interfaceType := "hipersocket"
-	interfaceTypeUpdate := "vlan"
+	vpcname := fmt.Sprintf("tf-vpc-%d", acctest.RandIntRange(10, 100))
+	name := fmt.Sprintf("tf-server-%d", acctest.RandIntRange(10, 100))
+	subnetname := fmt.Sprintf("tfip-subnet-%d", acctest.RandIntRange(10, 100))
+	publicKey := strings.TrimSpace(`
+ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCKVmnMOlHKcZK8tpt3MP1lqOLAcqcJzhsvJcjscgVERRN7/9484SOBJ3HSKxxNG5JN8owAjy5f9yYwcUg+JaUVuytn5Pv3aeYROHGGg+5G346xaq3DAwX6Y5ykr2fvjObgncQBnuU5KHWCECO/4h8uWuwh/kfniXPVjFToc+gnkqA+3RKpAecZhFXwfalQ9mMuYGFxn+fwn8cYEApsJbsEmb0iJwPiZ5hjFC8wREuiTlhPHDgkBLOiycd20op2nXzDbHfCHInquEe/gYxEitALONxm0swBOwJZwlTDOB7C6y2dzlrtxr1L59m7pCkWI4EtTRLvleehBoj3u7jB4usR
+`)
+	sshname := fmt.Sprintf("tf-sshname-%d", acctest.RandIntRange(10, 100))
+	vniname := fmt.Sprintf("tf-vni-%d", acctest.RandIntRange(10, 100))
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { acc.TestAccPreCheck(t) },
@@ -28,104 +34,32 @@ func TestAccIBMIsBareMetalServerNetworkAttachmentBasic(t *testing.T) {
 		CheckDestroy: testAccCheckIBMIsBareMetalServerNetworkAttachmentDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccCheckIBMIsBareMetalServerNetworkAttachmentConfigBasic(bareMetalServerID, interfaceType),
+				Config: testAccCheckIBMIsBareMetalServerNetworkAttachmentConfigBasic(vpcname, subnetname, sshname, publicKey, vniname, name),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					testAccCheckIBMIsBareMetalServerNetworkAttachmentExists("ibm_is_bare_metal_server_network_attachment.is_bare_metal_server_network_attachment", conf),
-					resource.TestCheckResourceAttr("ibm_is_bare_metal_server_network_attachment.is_bare_metal_server_network_attachment", "bare_metal_server_id", bareMetalServerID),
-					resource.TestCheckResourceAttr("ibm_is_bare_metal_server_network_attachment.is_bare_metal_server_network_attachment", "interface_type", interfaceType),
-				),
-			},
-			resource.TestStep{
-				Config: testAccCheckIBMIsBareMetalServerNetworkAttachmentConfigBasic(bareMetalServerID, interfaceTypeUpdate),
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("ibm_is_bare_metal_server_network_attachment.is_bare_metal_server_network_attachment", "bare_metal_server_id", bareMetalServerID),
-					resource.TestCheckResourceAttr("ibm_is_bare_metal_server_network_attachment.is_bare_metal_server_network_attachment", "interface_type", interfaceTypeUpdate),
+					resource.TestCheckResourceAttr("ibm_is_bare_metal_server_network_attachment.is_bare_metal_server_network_attachment", "resource_type", "bare_metal_server_network_attachment"),
 				),
 			},
 		},
 	})
 }
 
-func TestAccIBMIsBareMetalServerNetworkAttachmentAllArgs(t *testing.T) {
-	var conf vpcv1.BareMetalServerNetworkAttachment
-	bareMetalServerID := fmt.Sprintf("tf_bare_metal_server_id_%d", acctest.RandIntRange(10, 100))
-	interfaceType := "hipersocket"
-	name := fmt.Sprintf("tf_name_%d", acctest.RandIntRange(10, 100))
-	allowToFloat := "true"
-	vlan := fmt.Sprintf("%d", acctest.RandIntRange(1, 4094))
-	interfaceTypeUpdate := "vlan"
-	nameUpdate := fmt.Sprintf("tf_name_%d", acctest.RandIntRange(10, 100))
-	allowToFloatUpdate := "false"
-	vlanUpdate := fmt.Sprintf("%d", acctest.RandIntRange(1, 4094))
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { acc.TestAccPreCheck(t) },
-		Providers:    acc.TestAccProviders,
-		CheckDestroy: testAccCheckIBMIsBareMetalServerNetworkAttachmentDestroy,
-		Steps: []resource.TestStep{
-			resource.TestStep{
-				Config: testAccCheckIBMIsBareMetalServerNetworkAttachmentConfig(bareMetalServerID, interfaceType, name, allowToFloat, vlan),
-				Check: resource.ComposeAggregateTestCheckFunc(
-					testAccCheckIBMIsBareMetalServerNetworkAttachmentExists("ibm_is_bare_metal_server_network_attachment.is_bare_metal_server_network_attachment", conf),
-					resource.TestCheckResourceAttr("ibm_is_bare_metal_server_network_attachment.is_bare_metal_server_network_attachment", "bare_metal_server_id", bareMetalServerID),
-					resource.TestCheckResourceAttr("ibm_is_bare_metal_server_network_attachment.is_bare_metal_server_network_attachment", "interface_type", interfaceType),
-					resource.TestCheckResourceAttr("ibm_is_bare_metal_server_network_attachment.is_bare_metal_server_network_attachment", "name", name),
-					resource.TestCheckResourceAttr("ibm_is_bare_metal_server_network_attachment.is_bare_metal_server_network_attachment", "allow_to_float", allowToFloat),
-					resource.TestCheckResourceAttr("ibm_is_bare_metal_server_network_attachment.is_bare_metal_server_network_attachment", "vlan", vlan),
-				),
-			},
-			resource.TestStep{
-				Config: testAccCheckIBMIsBareMetalServerNetworkAttachmentConfig(bareMetalServerID, interfaceTypeUpdate, nameUpdate, allowToFloatUpdate, vlanUpdate),
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("ibm_is_bare_metal_server_network_attachment.is_bare_metal_server_network_attachment", "bare_metal_server_id", bareMetalServerID),
-					resource.TestCheckResourceAttr("ibm_is_bare_metal_server_network_attachment.is_bare_metal_server_network_attachment", "interface_type", interfaceTypeUpdate),
-					resource.TestCheckResourceAttr("ibm_is_bare_metal_server_network_attachment.is_bare_metal_server_network_attachment", "name", nameUpdate),
-					resource.TestCheckResourceAttr("ibm_is_bare_metal_server_network_attachment.is_bare_metal_server_network_attachment", "allow_to_float", allowToFloatUpdate),
-					resource.TestCheckResourceAttr("ibm_is_bare_metal_server_network_attachment.is_bare_metal_server_network_attachment", "vlan", vlanUpdate),
-				),
-			},
-			resource.TestStep{
-				ResourceName:      "ibm_is_bare_metal_server_network_attachment.is_bare_metal_server_network_attachment",
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-		},
-	})
-}
-
-func testAccCheckIBMIsBareMetalServerNetworkAttachmentConfigBasic(bareMetalServerID string, interfaceType string) string {
-	return fmt.Sprintf(`
-		resource "ibm_is_bare_metal_server_network_attachment" "is_bare_metal_server_network_attachment_instance" {
-			bare_metal_server_id = "%s"
-			interface_type = "%s"
-			virtual_network_interface {
-				crn = "crn:v1:bluemix:public:is:us-south-1:a/123456::virtual-network-interface:0767-fa41aecb-4f21-423d-8082-630bfba1e1d9"
-				href = "https://us-south.iaas.cloud.ibm.com/v1/virtual_network_interfaces/0767-fa41aecb-4f21-423d-8082-630bfba1e1d9"
-				id = "0767-fa41aecb-4f21-423d-8082-630bfba1e1d9"
-				name = "my-virtual-network-interface"
+func testAccCheckIBMIsBareMetalServerNetworkAttachmentConfigBasic(vpcname, subnetname, sshname, publicKey, vniname, name string) string {
+	return testAccCheckIBMISBareMetalServerVNIConfig(vpcname, subnetname, sshname, publicKey, vniname, name) + fmt.Sprintf(`
+	resource "ibm_is_virtual_network_interface" "testacc_vni2"{
+		name = "test-vni-na"
+		subnet = ibm_is_subnet.testacc_subnet.id
+		enable_infrastructure_nat = true
+		allow_ip_spoofing = true
+	}	
+	resource "ibm_is_bare_metal_server_network_attachment" "is_bare_metal_server_network_attachment" {
+			bare_metal_server = ibm_is_bare_metal_server.testacc_bms.id
+			allowed_vlans = [200, 202, 203]
+			virtual_network_interface { 
+				id = ibm_is_virtual_network_interface.testacc_vni2.id
 			}
-		}
-	`, bareMetalServerID, interfaceType)
-}
-
-func testAccCheckIBMIsBareMetalServerNetworkAttachmentConfig(bareMetalServerID string, interfaceType string, name string, allowToFloat string, vlan string) string {
-	return fmt.Sprintf(`
-
-		resource "ibm_is_bare_metal_server_network_attachment" "is_bare_metal_server_network_attachment_instance" {
-			bare_metal_server_id = "%s"
-			interface_type = "%s"
-			name = "%s"
-			virtual_network_interface {
-				crn = "crn:v1:bluemix:public:is:us-south-1:a/123456::virtual-network-interface:0767-fa41aecb-4f21-423d-8082-630bfba1e1d9"
-				href = "https://us-south.iaas.cloud.ibm.com/v1/virtual_network_interfaces/0767-fa41aecb-4f21-423d-8082-630bfba1e1d9"
-				id = "0767-fa41aecb-4f21-423d-8082-630bfba1e1d9"
-				name = "my-virtual-network-interface"
-			}
-			allowed_vlans = "FIXME"
-			allow_to_float = %s
-			vlan = %s
-		}
-	`, bareMetalServerID, interfaceType, name, allowToFloat, vlan)
+	}
+	`)
 }
 
 func testAccCheckIBMIsBareMetalServerNetworkAttachmentExists(n string, obj vpcv1.BareMetalServerNetworkAttachment) resource.TestCheckFunc {

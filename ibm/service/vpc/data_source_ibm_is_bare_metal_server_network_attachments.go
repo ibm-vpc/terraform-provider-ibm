@@ -21,29 +21,10 @@ func DataSourceIBMIsBareMetalServerNetworkAttachments() *schema.Resource {
 		ReadContext: dataSourceIBMIsBareMetalServerNetworkAttachmentsRead,
 
 		Schema: map[string]*schema.Schema{
-			"bare_metal_server_id": &schema.Schema{
+			"bare_metal_server": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "The bare metal server identifier.",
-			},
-			"first": &schema.Schema{
-				Type:        schema.TypeList,
-				Computed:    true,
-				Description: "A link to the first page of resources.",
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"href": &schema.Schema{
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: "The URL for a page of resources.",
-						},
-					},
-				},
-			},
-			"limit": &schema.Schema{
-				Type:        schema.TypeInt,
-				Computed:    true,
-				Description: "The maximum number of resources that can be returned by the request.",
 			},
 			"network_attachments": &schema.Schema{
 				Type:        schema.TypeList,
@@ -246,25 +227,6 @@ func DataSourceIBMIsBareMetalServerNetworkAttachments() *schema.Resource {
 					},
 				},
 			},
-			"next": &schema.Schema{
-				Type:        schema.TypeList,
-				Computed:    true,
-				Description: "A link to the next page of resources. This property is present for all pagesexcept the last page.",
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"href": &schema.Schema{
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: "The URL for a page of resources.",
-						},
-					},
-				},
-			},
-			"total_count": &schema.Schema{
-				Type:        schema.TypeInt,
-				Computed:    true,
-				Description: "The total number of resources across all pages.",
-			},
 		},
 	}
 }
@@ -277,7 +239,7 @@ func dataSourceIBMIsBareMetalServerNetworkAttachmentsRead(context context.Contex
 
 	listBareMetalServerNetworkAttachmentsOptions := &vpcv1.ListBareMetalServerNetworkAttachmentsOptions{}
 
-	listBareMetalServerNetworkAttachmentsOptions.SetBareMetalServerID(d.Get("bare_metal_server_id").(string))
+	listBareMetalServerNetworkAttachmentsOptions.SetBareMetalServerID(d.Get("bare_metal_server").(string))
 
 	var pager *vpcv1.BareMetalServerNetworkAttachmentsPager
 	pager, err = vpcClient.NewBareMetalServerNetworkAttachmentsPager(listBareMetalServerNetworkAttachmentsOptions)

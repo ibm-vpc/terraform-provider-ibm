@@ -20,12 +20,12 @@ func DataSourceIBMIsBareMetalServerNetworkAttachment() *schema.Resource {
 		ReadContext: dataSourceIBMIsBareMetalServerNetworkAttachmentRead,
 
 		Schema: map[string]*schema.Schema{
-			"bare_metal_server_id": &schema.Schema{
+			"bare_metal_server": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "The bare metal server identifier.",
 			},
-			"id": &schema.Schema{
+			"network_attachment": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "The bare metal server network attachment identifier.",
@@ -234,8 +234,8 @@ func dataSourceIBMIsBareMetalServerNetworkAttachmentRead(context context.Context
 
 	getBareMetalServerNetworkAttachmentOptions := &vpcv1.GetBareMetalServerNetworkAttachmentOptions{}
 
-	getBareMetalServerNetworkAttachmentOptions.SetBareMetalServerID(d.Get("bare_metal_server_id").(string))
-	getBareMetalServerNetworkAttachmentOptions.SetID(d.Get("id").(string))
+	getBareMetalServerNetworkAttachmentOptions.SetBareMetalServerID(d.Get("bare_metal_server").(string))
+	getBareMetalServerNetworkAttachmentOptions.SetID(d.Get("network_attachment").(string))
 
 	bareMetalServerNetworkAttachmentIntf, response, err := vpcClient.GetBareMetalServerNetworkAttachmentWithContext(context, getBareMetalServerNetworkAttachmentOptions)
 	if err != nil {

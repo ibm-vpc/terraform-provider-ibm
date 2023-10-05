@@ -930,7 +930,7 @@ func dataSourceIBMISBareMetalServerRead(context context.Context, d *schema.Resou
 		primaryNetworkAttachment = append(primaryNetworkAttachment, modelMap)
 	}
 	if err = d.Set("primary_network_attachment", primaryNetworkAttachment); err != nil {
-		return diag.FromErr(fmt.Errorf("Error setting primary_network_attachment %s", err))
+		return diag.FromErr(fmt.Errorf("[ERROR] Error setting primary_network_attachment %s", err))
 	}
 
 	//ni
@@ -1021,15 +1021,17 @@ func dataSourceIBMISBareMetalServerRead(context context.Context, d *schema.Resou
 	networkAttachments := []map[string]interface{}{}
 	if bms.NetworkAttachments != nil {
 		for _, modelItem := range bms.NetworkAttachments {
-			modelMap, err := dataSourceIBMIsBareMetalServerBareMetalServerNetworkAttachmentReferenceToMap(&modelItem)
-			if err != nil {
-				return diag.FromErr(err)
+			if *bms.PrimaryNetworkAttachment.ID != *modelItem.ID {
+				modelMap, err := dataSourceIBMIsBareMetalServerBareMetalServerNetworkAttachmentReferenceToMap(&modelItem)
+				if err != nil {
+					return diag.FromErr(err)
+				}
+				networkAttachments = append(networkAttachments, modelMap)
 			}
-			networkAttachments = append(networkAttachments, modelMap)
 		}
 	}
 	if err = d.Set("network_attachments", networkAttachments); err != nil {
-		return diag.FromErr(fmt.Errorf("Error setting network_attachments %s", err))
+		return diag.FromErr(fmt.Errorf("[ERROR] Error setting network_attachments %s", err))
 	}
 
 	if err = d.Set(isBareMetalServerProfile, *bms.Profile.Name); err != nil {
