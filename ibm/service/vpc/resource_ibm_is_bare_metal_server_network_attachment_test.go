@@ -12,7 +12,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	acc "github.com/IBM-Cloud/terraform-provider-ibm/ibm/acctest"
-	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/conns"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
 )
@@ -137,7 +136,7 @@ func testAccCheckIBMIsBareMetalServerNetworkAttachmentExists(n string, obj vpcv1
 			return fmt.Errorf("Not found: %s", n)
 		}
 
-		sess, err := acc.TestAccProvider.Meta().(conns.ClientSession).VpcV1API()
+		vpcClient, err := vpcClient(acc.TestAccProvider.Meta())
 		if err != nil {
 			return err
 		}
@@ -152,7 +151,7 @@ func testAccCheckIBMIsBareMetalServerNetworkAttachmentExists(n string, obj vpcv1
 		getBareMetalServerNetworkAttachmentOptions.SetBareMetalServerID(parts[0])
 		getBareMetalServerNetworkAttachmentOptions.SetID(parts[1])
 
-		bareMetalServerNetworkAttachmentIntf, _, err := sess.GetBareMetalServerNetworkAttachment(getBareMetalServerNetworkAttachmentOptions)
+		bareMetalServerNetworkAttachmentIntf, _, err := vpcClient.GetBareMetalServerNetworkAttachment(getBareMetalServerNetworkAttachmentOptions)
 		if err != nil {
 			return err
 		}
@@ -164,7 +163,7 @@ func testAccCheckIBMIsBareMetalServerNetworkAttachmentExists(n string, obj vpcv1
 }
 
 func testAccCheckIBMIsBareMetalServerNetworkAttachmentDestroy(s *terraform.State) error {
-	vpcClient, err := acc.TestAccProvider.Meta().(conns.ClientSession).VpcV1API()
+	vpcClient, err := vpcClient(acc.TestAccProvider.Meta())
 	if err != nil {
 		return err
 	}

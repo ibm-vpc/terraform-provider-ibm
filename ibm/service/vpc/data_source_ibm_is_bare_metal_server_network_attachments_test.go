@@ -22,23 +22,15 @@ func TestAccIBMIsBareMetalServerNetworkAttachmentsDataSourceBasic(t *testing.T) 
 		Providers: acc.TestAccProviders,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccCheckIBMIsBareMetalServerNetworkAttachmentDataSourceConfigBasic(bareMetalServerNetworkAttachmentBareMetalServerID, bareMetalServerNetworkAttachmentInterfaceType),
+				Config: testAccCheckIBMIsBareMetalServerNetworkAttachmentsDataSourceConfigBasic(bareMetalServerNetworkAttachmentBareMetalServerID, bareMetalServerNetworkAttachmentInterfaceType),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttrSet("data.ibm_is_bare_metal_server_network_attachment.is_bare_metal_server_network_attachment", "id"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_bare_metal_server_network_attachment.is_bare_metal_server_network_attachment", "bare_metal_server_id"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_bare_metal_server_network_attachment.is_bare_metal_server_network_attachment", "id"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_bare_metal_server_network_attachment.is_bare_metal_server_network_attachment", "created_at"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_bare_metal_server_network_attachment.is_bare_metal_server_network_attachment", "href"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_bare_metal_server_network_attachment.is_bare_metal_server_network_attachment", "bare_metal_server_network_attachment_id"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_bare_metal_server_network_attachment.is_bare_metal_server_network_attachment", "interface_type"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_bare_metal_server_network_attachment.is_bare_metal_server_network_attachment", "lifecycle_state"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_bare_metal_server_network_attachment.is_bare_metal_server_network_attachment", "name"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_bare_metal_server_network_attachment.is_bare_metal_server_network_attachment", "port_speed"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_bare_metal_server_network_attachment.is_bare_metal_server_network_attachment", "primary_ip.#"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_bare_metal_server_network_attachment.is_bare_metal_server_network_attachment", "resource_type"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_bare_metal_server_network_attachment.is_bare_metal_server_network_attachment", "subnet.#"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_bare_metal_server_network_attachment.is_bare_metal_server_network_attachment", "type"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_bare_metal_server_network_attachment.is_bare_metal_server_network_attachment", "virtual_network_interface.#"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_bare_metal_server_network_attachments.is_bare_metal_server_network_attachments", "id"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_bare_metal_server_network_attachments.is_bare_metal_server_network_attachments", "bare_metal_server_id"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_bare_metal_server_network_attachments.is_bare_metal_server_network_attachments", "first.#"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_bare_metal_server_network_attachments.is_bare_metal_server_network_attachments", "limit"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_bare_metal_server_network_attachments.is_bare_metal_server_network_attachments", "network_attachments.#"),
+					resource.TestCheckResourceAttr("data.ibm_is_bare_metal_server_network_attachments.is_bare_metal_server_network_attachments", "network_attachments.0.interface_type", bareMetalServerNetworkAttachmentInterfaceType),
+					resource.TestCheckResourceAttrSet("data.ibm_is_bare_metal_server_network_attachments.is_bare_metal_server_network_attachments", "total_count"),
 				),
 			},
 		},
@@ -57,26 +49,26 @@ func TestAccIBMIsBareMetalServerNetworkAttachmentsDataSourceAllArgs(t *testing.T
 		Providers: acc.TestAccProviders,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccCheckIBMIsBareMetalServerNetworkAttachmentDataSourceConfig(bareMetalServerNetworkAttachmentBareMetalServerID, bareMetalServerNetworkAttachmentInterfaceType, bareMetalServerNetworkAttachmentName, bareMetalServerNetworkAttachmentAllowToFloat, bareMetalServerNetworkAttachmentVlan),
+				Config: testAccCheckIBMIsBareMetalServerNetworkAttachmentsDataSourceConfig(bareMetalServerNetworkAttachmentBareMetalServerID, bareMetalServerNetworkAttachmentInterfaceType, bareMetalServerNetworkAttachmentName, bareMetalServerNetworkAttachmentAllowToFloat, bareMetalServerNetworkAttachmentVlan),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttrSet("data.ibm_is_bare_metal_server_network_attachment.is_bare_metal_server_network_attachment", "id"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_bare_metal_server_network_attachment.is_bare_metal_server_network_attachment", "bare_metal_server_id"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_bare_metal_server_network_attachment.is_bare_metal_server_network_attachment", "id"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_bare_metal_server_network_attachment.is_bare_metal_server_network_attachment", "created_at"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_bare_metal_server_network_attachment.is_bare_metal_server_network_attachment", "href"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_bare_metal_server_network_attachment.is_bare_metal_server_network_attachment", "bare_metal_server_network_attachment_id"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_bare_metal_server_network_attachment.is_bare_metal_server_network_attachment", "interface_type"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_bare_metal_server_network_attachment.is_bare_metal_server_network_attachment", "lifecycle_state"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_bare_metal_server_network_attachment.is_bare_metal_server_network_attachment", "name"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_bare_metal_server_network_attachment.is_bare_metal_server_network_attachment", "port_speed"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_bare_metal_server_network_attachment.is_bare_metal_server_network_attachment", "primary_ip.#"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_bare_metal_server_network_attachment.is_bare_metal_server_network_attachment", "resource_type"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_bare_metal_server_network_attachment.is_bare_metal_server_network_attachment", "subnet.#"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_bare_metal_server_network_attachment.is_bare_metal_server_network_attachment", "type"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_bare_metal_server_network_attachment.is_bare_metal_server_network_attachment", "virtual_network_interface.#"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_bare_metal_server_network_attachment.is_bare_metal_server_network_attachment", "allowed_vlans.#"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_bare_metal_server_network_attachment.is_bare_metal_server_network_attachment", "allow_to_float"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_bare_metal_server_network_attachment.is_bare_metal_server_network_attachment", "vlan"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_bare_metal_server_network_attachments.is_bare_metal_server_network_attachments", "id"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_bare_metal_server_network_attachments.is_bare_metal_server_network_attachments", "bare_metal_server_id"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_bare_metal_server_network_attachments.is_bare_metal_server_network_attachments", "first.#"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_bare_metal_server_network_attachments.is_bare_metal_server_network_attachments", "limit"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_bare_metal_server_network_attachments.is_bare_metal_server_network_attachments", "network_attachments.#"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_bare_metal_server_network_attachments.is_bare_metal_server_network_attachments", "network_attachments.0.created_at"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_bare_metal_server_network_attachments.is_bare_metal_server_network_attachments", "network_attachments.0.href"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_bare_metal_server_network_attachments.is_bare_metal_server_network_attachments", "network_attachments.0.id"),
+					resource.TestCheckResourceAttr("data.ibm_is_bare_metal_server_network_attachments.is_bare_metal_server_network_attachments", "network_attachments.0.interface_type", bareMetalServerNetworkAttachmentInterfaceType),
+					resource.TestCheckResourceAttrSet("data.ibm_is_bare_metal_server_network_attachments.is_bare_metal_server_network_attachments", "network_attachments.0.lifecycle_state"),
+					resource.TestCheckResourceAttr("data.ibm_is_bare_metal_server_network_attachments.is_bare_metal_server_network_attachments", "network_attachments.0.name", bareMetalServerNetworkAttachmentName),
+					resource.TestCheckResourceAttrSet("data.ibm_is_bare_metal_server_network_attachments.is_bare_metal_server_network_attachments", "network_attachments.0.port_speed"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_bare_metal_server_network_attachments.is_bare_metal_server_network_attachments", "network_attachments.0.resource_type"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_bare_metal_server_network_attachments.is_bare_metal_server_network_attachments", "network_attachments.0.type"),
+					resource.TestCheckResourceAttr("data.ibm_is_bare_metal_server_network_attachments.is_bare_metal_server_network_attachments", "network_attachments.0.allow_to_float", bareMetalServerNetworkAttachmentAllowToFloat),
+					resource.TestCheckResourceAttr("data.ibm_is_bare_metal_server_network_attachments.is_bare_metal_server_network_attachments", "network_attachments.0.vlan", bareMetalServerNetworkAttachmentVlan),
+					resource.TestCheckResourceAttrSet("data.ibm_is_bare_metal_server_network_attachments.is_bare_metal_server_network_attachments", "next.#"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_bare_metal_server_network_attachments.is_bare_metal_server_network_attachments", "total_count"),
 				),
 			},
 		},
@@ -90,9 +82,6 @@ func testAccCheckIBMIsBareMetalServerNetworkAttachmentsDataSourceConfigBasic(bar
 			interface_type = "%s"
 			virtual_network_interface {
 				crn = "crn:v1:bluemix:public:is:us-south-1:a/123456::virtual-network-interface:0767-fa41aecb-4f21-423d-8082-630bfba1e1d9"
-				deleted {
-					more_info = "https://cloud.ibm.com/apidocs/vpc#deleted-resources"
-				}
 				href = "https://us-south.iaas.cloud.ibm.com/v1/virtual_network_interfaces/0767-fa41aecb-4f21-423d-8082-630bfba1e1d9"
 				id = "0767-fa41aecb-4f21-423d-8082-630bfba1e1d9"
 				name = "my-virtual-network-interface"
@@ -100,9 +89,8 @@ func testAccCheckIBMIsBareMetalServerNetworkAttachmentsDataSourceConfigBasic(bar
 			}
 		}
 
-		data "ibm_is_bare_metal_server_network_attachment" "is_bare_metal_server_network_attachment_instance" {
+		data "ibm_is_bare_metal_server_network_attachments" "is_bare_metal_server_network_attachments_instance" {
 			bare_metal_server_id = ibm_is_bare_metal_server_network_attachment.is_bare_metal_server_network_attachment.bare_metal_server_id
-			id = "id"
 		}
 	`, bareMetalServerNetworkAttachmentBareMetalServerID, bareMetalServerNetworkAttachmentInterfaceType)
 }
@@ -115,9 +103,6 @@ func testAccCheckIBMIsBareMetalServerNetworkAttachmentsDataSourceConfig(bareMeta
 			name = "%s"
 			virtual_network_interface {
 				crn = "crn:v1:bluemix:public:is:us-south-1:a/123456::virtual-network-interface:0767-fa41aecb-4f21-423d-8082-630bfba1e1d9"
-				deleted {
-					more_info = "https://cloud.ibm.com/apidocs/vpc#deleted-resources"
-				}
 				href = "https://us-south.iaas.cloud.ibm.com/v1/virtual_network_interfaces/0767-fa41aecb-4f21-423d-8082-630bfba1e1d9"
 				id = "0767-fa41aecb-4f21-423d-8082-630bfba1e1d9"
 				name = "my-virtual-network-interface"
@@ -128,9 +113,8 @@ func testAccCheckIBMIsBareMetalServerNetworkAttachmentsDataSourceConfig(bareMeta
 			vlan = %s
 		}
 
-		data "ibm_is_bare_metal_server_network_attachment" "is_bare_metal_server_network_attachment_instance" {
+		data "ibm_is_bare_metal_server_network_attachments" "is_bare_metal_server_network_attachments_instance" {
 			bare_metal_server_id = ibm_is_bare_metal_server_network_attachment.is_bare_metal_server_network_attachment.bare_metal_server_id
-			id = "id"
 		}
 	`, bareMetalServerNetworkAttachmentBareMetalServerID, bareMetalServerNetworkAttachmentInterfaceType, bareMetalServerNetworkAttachmentName, bareMetalServerNetworkAttachmentAllowToFloat, bareMetalServerNetworkAttachmentVlan)
 }

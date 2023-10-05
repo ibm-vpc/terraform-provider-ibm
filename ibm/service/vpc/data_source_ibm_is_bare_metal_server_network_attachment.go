@@ -11,7 +11,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
-	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/conns"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
 )
@@ -29,22 +28,22 @@ func DataSourceIBMIsBareMetalServerNetworkAttachment() *schema.Resource {
 			"id": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: "The network attachment identifier.",
+				Description: "The bare metal server network attachment identifier.",
 			},
 			"created_at": &schema.Schema{
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: "The date and time that the network attachment was created.",
+				Description: "The date and time that the bare metal server network attachment was created.",
 			},
 			"href": &schema.Schema{
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: "The URL for this network attachment.",
+				Description: "The URL for this bare metal server network attachment.",
 			},
 			"bare_metal_server_network_attachment_id": &schema.Schema{
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: "The unique identifier for this network attachment.",
+				Description: "The unique identifier for this bare metal server network attachment.",
 			},
 			"interface_type": &schema.Schema{
 				Type:        schema.TypeString,
@@ -54,21 +53,22 @@ func DataSourceIBMIsBareMetalServerNetworkAttachment() *schema.Resource {
 			"lifecycle_state": &schema.Schema{
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: "The lifecycle state of the network attachment.",
+				Description: "The lifecycle state of the bare metal server network attachment.",
 			},
 			"name": &schema.Schema{
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The name for this bare metal server network attachment. The name is unique across all network attachments for the bare metal server.",
 			},
 			"port_speed": &schema.Schema{
 				Type:        schema.TypeInt,
 				Computed:    true,
-				Description: "The port speed for this network attachment in Mbps.",
+				Description: "The port speed for this bare metal server network attachment in Mbps.",
 			},
 			"primary_ip": &schema.Schema{
 				Type:        schema.TypeList,
 				Computed:    true,
-				Description: "The primary IP address of the virtual network interface for the network attachment.",
+				Description: "The primary IP address of the virtual network interface for the bare metal servernetwork attachment.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"address": &schema.Schema{
@@ -121,7 +121,7 @@ func DataSourceIBMIsBareMetalServerNetworkAttachment() *schema.Resource {
 			"subnet": &schema.Schema{
 				Type:        schema.TypeList,
 				Computed:    true,
-				Description: "The subnet of the virtual network interface for the network attachment.",
+				Description: "The subnet of the virtual network interface for the bare metal server networkattachment.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"crn": &schema.Schema{
@@ -169,32 +169,18 @@ func DataSourceIBMIsBareMetalServerNetworkAttachment() *schema.Resource {
 			"type": &schema.Schema{
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: "This bare metal server network attachment's interface type.",
+				Description: "The bare metal server network attachment type.",
 			},
 			"virtual_network_interface": &schema.Schema{
 				Type:        schema.TypeList,
 				Computed:    true,
-				Description: "The virtual network interface for this network attachment.",
+				Description: "The virtual network interface for this bare metal server network attachment.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"crn": &schema.Schema{
 							Type:        schema.TypeString,
 							Computed:    true,
 							Description: "The CRN for this virtual network interface.",
-						},
-						"deleted": &schema.Schema{
-							Type:        schema.TypeList,
-							Computed:    true,
-							Description: "If present, this property indicates the referenced resource has been deleted, and providessome supplementary information.",
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"more_info": &schema.Schema{
-										Type:        schema.TypeString,
-										Computed:    true,
-										Description: "Link to documentation about deleted resources.",
-									},
-								},
-							},
 						},
 						"href": &schema.Schema{
 							Type:        schema.TypeString,
@@ -229,7 +215,7 @@ func DataSourceIBMIsBareMetalServerNetworkAttachment() *schema.Resource {
 			"allow_to_float": &schema.Schema{
 				Type:        schema.TypeBool,
 				Computed:    true,
-				Description: "Indicates if the network attachment can automatically float to any other server within the same `resource_group`. The network attachment will float automatically if the network detects a GARP or RARP on another bare metal server in the resource group. Applies only to network attachments with `vlan` interface type.",
+				Description: "Indicates if the bare metal server network attachment can automatically float to any other server within the same `resource_group`. The bare metal server network attachment will float automatically if the network detects a GARP or RARP on another bare metal server in the resource group. Applies only to bare metal server network attachments with `vlan` interface type.",
 			},
 			"vlan": &schema.Schema{
 				Type:        schema.TypeInt,
@@ -241,16 +227,17 @@ func DataSourceIBMIsBareMetalServerNetworkAttachment() *schema.Resource {
 }
 
 func dataSourceIBMIsBareMetalServerNetworkAttachmentRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	sess, err := meta.(conns.ClientSession).VpcV1API()
+	vpcClient, err := vpcClient(meta)
 	if err != nil {
 		return diag.FromErr(err)
 	}
+
 	getBareMetalServerNetworkAttachmentOptions := &vpcv1.GetBareMetalServerNetworkAttachmentOptions{}
 
 	getBareMetalServerNetworkAttachmentOptions.SetBareMetalServerID(d.Get("bare_metal_server_id").(string))
 	getBareMetalServerNetworkAttachmentOptions.SetID(d.Get("id").(string))
 
-	bareMetalServerNetworkAttachmentIntf, response, err := sess.GetBareMetalServerNetworkAttachmentWithContext(context, getBareMetalServerNetworkAttachmentOptions)
+	bareMetalServerNetworkAttachmentIntf, response, err := vpcClient.GetBareMetalServerNetworkAttachmentWithContext(context, getBareMetalServerNetworkAttachmentOptions)
 	if err != nil {
 		log.Printf("[DEBUG] GetBareMetalServerNetworkAttachmentWithContext failed %s\n%s", err, response)
 		return diag.FromErr(fmt.Errorf("GetBareMetalServerNetworkAttachmentWithContext failed %s\n%s", err, response))
@@ -330,22 +317,13 @@ func dataSourceIBMIsBareMetalServerNetworkAttachmentRead(context context.Context
 	if err = d.Set("virtual_network_interface", virtualNetworkInterface); err != nil {
 		return diag.FromErr(fmt.Errorf("Error setting virtual_network_interface %s", err))
 	}
-	if bareMetalServerNetworkAttachment.AllowedVlans != nil {
-		var out = make([]interface{}, len(bareMetalServerNetworkAttachment.AllowedVlans), len(bareMetalServerNetworkAttachment.AllowedVlans))
-		for i, v := range bareMetalServerNetworkAttachment.AllowedVlans {
-			out[i] = int(v)
-		}
-		d.Set("allowed_vlans", schema.NewSet(schema.HashInt, out))
+
+	if err = d.Set("allow_to_float", bareMetalServerNetworkAttachment.AllowToFloat); err != nil {
+		return diag.FromErr(fmt.Errorf("Error setting allow_to_float: %s", err))
 	}
-	if bareMetalServerNetworkAttachment.AllowToFloat != nil {
-		if err = d.Set("allow_to_float", bareMetalServerNetworkAttachment.AllowToFloat); err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting allow_to_float: %s", err))
-		}
-	}
-	if bareMetalServerNetworkAttachment.Vlan != nil {
-		if err = d.Set("vlan", flex.IntValue(bareMetalServerNetworkAttachment.Vlan)); err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting vlan: %s", err))
-		}
+
+	if err = d.Set("vlan", flex.IntValue(bareMetalServerNetworkAttachment.Vlan)); err != nil {
+		return diag.FromErr(fmt.Errorf("Error setting vlan: %s", err))
 	}
 
 	return nil
@@ -400,22 +378,9 @@ func dataSourceIBMIsBareMetalServerNetworkAttachmentSubnetReferenceDeletedToMap(
 func dataSourceIBMIsBareMetalServerNetworkAttachmentVirtualNetworkInterfaceReferenceAttachmentContextToMap(model *vpcv1.VirtualNetworkInterfaceReferenceAttachmentContext) (map[string]interface{}, error) {
 	modelMap := make(map[string]interface{})
 	modelMap["crn"] = model.CRN
-	if model.Deleted != nil {
-		deletedMap, err := dataSourceIBMIsBareMetalServerNetworkAttachmentVirtualNetworkInterfaceReferenceAttachmentContextDeletedToMap(model.Deleted)
-		if err != nil {
-			return modelMap, err
-		}
-		modelMap["deleted"] = []map[string]interface{}{deletedMap}
-	}
 	modelMap["href"] = model.Href
 	modelMap["id"] = model.ID
 	modelMap["name"] = model.Name
 	modelMap["resource_type"] = model.ResourceType
-	return modelMap, nil
-}
-
-func dataSourceIBMIsBareMetalServerNetworkAttachmentVirtualNetworkInterfaceReferenceAttachmentContextDeletedToMap(model *vpcv1.VirtualNetworkInterfaceReferenceAttachmentContextDeleted) (map[string]interface{}, error) {
-	modelMap := make(map[string]interface{})
-	modelMap["more_info"] = model.MoreInfo
 	return modelMap, nil
 }
