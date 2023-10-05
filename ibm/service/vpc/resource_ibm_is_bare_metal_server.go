@@ -1007,8 +1007,8 @@ func resourceIBMISBareMetalServerCreate(context context.Context, d *schema.Resou
 	// enable secure boot
 
 	if _, ok := d.GetOkExists(isBareMetalServerEnableSecureBoot); ok {
-		enableSecureBoot := d.Get(isBareMetalServerEnableSecureBoot).(bool)
-		options.EnableSecureBoot = &enableSecureBoot
+		enablesecureboot := d.Get(isBareMetalServerEnableSecureBoot).(bool)
+		options.EnableSecureBoot = &enablesecureboot
 	}
 
 	// trusted_platform_module
