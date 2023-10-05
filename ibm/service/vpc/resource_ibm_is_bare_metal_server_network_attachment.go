@@ -36,8 +36,7 @@ func ResourceIBMIsBareMetalServerNetworkAttachment() *schema.Resource {
 
 			"network_attachment": &schema.Schema{
 				Type:        schema.TypeString,
-				Required:    true,
-				ForceNew:    true,
+				Computed:    true,
 				Description: "The network attachment's id.",
 			},
 			"interface_type": &schema.Schema{
@@ -439,22 +438,8 @@ func resourceIBMIsBareMetalServerNetworkAttachmentRead(context context.Context, 
 		if err = d.Set("port_speed", flex.IntValue(bareMetalServerNetworkAttachment.PortSpeed)); err != nil {
 			return diag.FromErr(fmt.Errorf("[ERROR] Error setting port_speed: %s", err))
 		}
-		primaryIPMap, err := resourceIBMIsBareMetalServerNetworkAttachmentReservedIPReferenceToMap(bareMetalServerNetworkAttachment.PrimaryIP)
-		if err != nil {
-			return diag.FromErr(err)
-		}
-		if err = d.Set("primary_ip", []map[string]interface{}{primaryIPMap}); err != nil {
-			return diag.FromErr(fmt.Errorf("[ERROR] Error setting primary_ip: %s", err))
-		}
 		if err = d.Set("resource_type", bareMetalServerNetworkAttachment.ResourceType); err != nil {
 			return diag.FromErr(fmt.Errorf("[ERROR] Error setting resource_type: %s", err))
-		}
-		subnetMap, err := resourceIBMIsBareMetalServerNetworkAttachmentSubnetReferenceToMap(bareMetalServerNetworkAttachment.Subnet)
-		if err != nil {
-			return diag.FromErr(err)
-		}
-		if err = d.Set("subnet", []map[string]interface{}{subnetMap}); err != nil {
-			return diag.FromErr(fmt.Errorf("[ERROR] Error setting subnet: %s", err))
 		}
 		if err = d.Set("type", bareMetalServerNetworkAttachment.Type); err != nil {
 			return diag.FromErr(fmt.Errorf("[ERROR] Error setting type: %s", err))
@@ -497,23 +482,10 @@ func resourceIBMIsBareMetalServerNetworkAttachmentRead(context context.Context, 
 		if err = d.Set("port_speed", flex.IntValue(bareMetalServerNetworkAttachment.PortSpeed)); err != nil {
 			return diag.FromErr(fmt.Errorf("[ERROR] Error setting port_speed: %s", err))
 		}
-		primaryIPMap, err := resourceIBMIsBareMetalServerNetworkAttachmentReservedIPReferenceToMap(bareMetalServerNetworkAttachment.PrimaryIP)
-		if err != nil {
-			return diag.FromErr(err)
-		}
-		if err = d.Set("primary_ip", []map[string]interface{}{primaryIPMap}); err != nil {
-			return diag.FromErr(fmt.Errorf("[ERROR] Error setting primary_ip: %s", err))
-		}
 		if err = d.Set("resource_type", bareMetalServerNetworkAttachment.ResourceType); err != nil {
 			return diag.FromErr(fmt.Errorf("[ERROR] Error setting resource_type: %s", err))
 		}
-		subnetMap, err := resourceIBMIsBareMetalServerNetworkAttachmentSubnetReferenceToMap(bareMetalServerNetworkAttachment.Subnet)
-		if err != nil {
-			return diag.FromErr(err)
-		}
-		if err = d.Set("subnet", []map[string]interface{}{subnetMap}); err != nil {
-			return diag.FromErr(fmt.Errorf("[ERROR] Error setting subnet: %s", err))
-		}
+
 		if err = d.Set("type", bareMetalServerNetworkAttachment.Type); err != nil {
 			return diag.FromErr(fmt.Errorf("[ERROR] Error setting type: %s", err))
 		}
@@ -575,22 +547,8 @@ func resourceIBMIsBareMetalServerNetworkAttachmentRead(context context.Context, 
 		if err = d.Set("port_speed", flex.IntValue(bareMetalServerNetworkAttachment.PortSpeed)); err != nil {
 			return diag.FromErr(fmt.Errorf("[ERROR] Error setting port_speed: %s", err))
 		}
-		primaryIPMap, err := resourceIBMIsBareMetalServerNetworkAttachmentReservedIPReferenceToMap(bareMetalServerNetworkAttachment.PrimaryIP)
-		if err != nil {
-			return diag.FromErr(err)
-		}
-		if err = d.Set("primary_ip", []map[string]interface{}{primaryIPMap}); err != nil {
-			return diag.FromErr(fmt.Errorf("[ERROR] Error setting primary_ip: %s", err))
-		}
 		if err = d.Set("resource_type", bareMetalServerNetworkAttachment.ResourceType); err != nil {
 			return diag.FromErr(fmt.Errorf("[ERROR] Error setting resource_type: %s", err))
-		}
-		subnetMap, err := resourceIBMIsBareMetalServerNetworkAttachmentSubnetReferenceToMap(bareMetalServerNetworkAttachment.Subnet)
-		if err != nil {
-			return diag.FromErr(err)
-		}
-		if err = d.Set("subnet", []map[string]interface{}{subnetMap}); err != nil {
-			return diag.FromErr(fmt.Errorf("[ERROR] Error setting subnet: %s", err))
 		}
 		if err = d.Set("type", bareMetalServerNetworkAttachment.Type); err != nil {
 			return diag.FromErr(fmt.Errorf("[ERROR] Error setting type: %s", err))
