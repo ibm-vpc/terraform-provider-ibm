@@ -307,6 +307,7 @@ func DataSourceIBMISInstance() *schema.Resource {
 			isInstancePrimaryNetworkInterface: {
 				Type:        schema.TypeList,
 				Computed:    true,
+				Deprecated:  "This `primary_network_interface` attribute is deprecated`",
 				Description: "Primary Network interface info",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -522,6 +523,7 @@ func DataSourceIBMISInstance() *schema.Resource {
 			isInstanceNetworkInterfaces: {
 				Type:        schema.TypeList,
 				Computed:    true,
+				Deprecated:  "This `network_interfaces` attribute is deprecated`",
 				Description: "Instance Network interface info",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{

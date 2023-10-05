@@ -400,12 +400,12 @@ func ResourceIBMISInstance() *schema.Resource {
 			},
 
 			isInstancePrimaryNetworkInterface: {
-				Type:          schema.TypeList,
-				MinItems:      1,
-				MaxItems:      1,
-				Optional:      true,
-				Computed:      true,
-				ExactlyOneOf:  []string{"primary_network_attachment", "primary_network_interface"},
+				Type:       schema.TypeList,
+				MinItems:   1,
+				MaxItems:   1,
+				Optional:   true,
+				Computed:   true,
+				Deprecated: "This `primary_network_interface` argument is deprecated, please use primary_network_attachment`", ExactlyOneOf: []string{"primary_network_attachment", "primary_network_interface"},
 				ConflictsWith: []string{"primary_network_attachment", "network_attachments"},
 				Description:   "Primary Network interface info",
 				Elem: &schema.Resource{
@@ -739,6 +739,7 @@ func ResourceIBMISInstance() *schema.Resource {
 				Type:          schema.TypeList,
 				Optional:      true,
 				Computed:      true,
+				Deprecated:    "This `network_interfaces` argument is deprecated, please use network_attachments`",
 				ConflictsWith: []string{"primary_network_attachment", "network_attachments"},
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
