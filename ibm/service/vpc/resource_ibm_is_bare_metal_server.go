@@ -2095,12 +2095,21 @@ func bareMetalServerGet(context context.Context, d *schema.ResourceData, meta in
 	}
 
 	if !core.IsNil(bms.PrimaryNetworkAttachment) {
-		primaryNetworkAttachmentMap, err := resourceIBMIsBareMetalServerBareMetalServerNetworkAttachmentReferenceToMap(bms.PrimaryNetworkAttachment)
+		pnaId := *bms.PrimaryNetworkAttachment.ID
+		getBareMetalServerNetworkAttachment := &vpcv1.GetBareMetalServerNetworkAttachmentOptions{
+			BareMetalServerID: &id,
+			ID:                &pnaId,
+		}
+		pna, response, err := sess.GetBareMetalServerNetworkAttachment(getBareMetalServerNetworkAttachment)
+		if err != nil {
+			return fmt.Errorf("[ERROR] Error on GetBareMetalServerNetworkAttachment in bms : %s\n%s", err, response)
+		}
+		primaryNetworkAttachmentMap, err := resourceIBMIsBareMetalServerBareMetalServerNetworkAttachmentReferenceToMap(bms.PrimaryNetworkAttachment, pna, sess)
 		if err != nil {
 			return err
 		}
 		if err = d.Set("primary_network_attachment", []map[string]interface{}{primaryNetworkAttachmentMap}); err != nil {
-			return fmt.Errorf("Error setting primary_network_attachment: %s", err)
+			return fmt.Errorf("[ERROR] Error setting primary_network_attachment: %s", err)
 		}
 	}
 
@@ -2232,14 +2241,25 @@ func bareMetalServerGet(context context.Context, d *schema.ResourceData, meta in
 	if !core.IsNil(bms.NetworkAttachments) {
 		networkAttachments := []map[string]interface{}{}
 		for _, networkAttachmentsItem := range bms.NetworkAttachments {
-			networkAttachmentsItemMap, err := resourceIBMIsBareMetalServerBareMetalServerNetworkAttachmentReferenceToMap(&networkAttachmentsItem)
-			if err != nil {
-				return err
+			naId := *networkAttachmentsItem.ID
+			if *bms.PrimaryNetworkAttachment.ID != naId {
+				getBareMetalServerNetworkAttachment := &vpcv1.GetBareMetalServerNetworkAttachmentOptions{
+					BareMetalServerID: &id,
+					ID:                &naId,
+				}
+				na, response, err := sess.GetBareMetalServerNetworkAttachment(getBareMetalServerNetworkAttachment)
+				if err != nil {
+					return fmt.Errorf("[ERROR] Error on GetBareMetalServerNetworkAttachment in baremetal server : %s\n%s", err, response)
+				}
+				networkAttachmentsItemMap, err := resourceIBMIsBareMetalServerBareMetalServerNetworkAttachmentReferenceToMap(&networkAttachmentsItem, na, sess)
+				if err != nil {
+					return err
+				}
+				networkAttachments = append(networkAttachments, networkAttachmentsItemMap)
 			}
-			networkAttachments = append(networkAttachments, networkAttachmentsItemMap)
 		}
 		if err = d.Set("network_attachments", networkAttachments); err != nil {
-			return fmt.Errorf("Error setting network_attachments: %s", err)
+			return fmt.Errorf("[ERROR] Error setting network_attachments: %s", err)
 		}
 	}
 
@@ -3449,7 +3469,7 @@ func resourceIBMIsBareMetalServerBareMetalServerTrustedPlatformModulePrototypeTo
 	return modelMap, nil
 }
 
-func resourceIBMIsBareMetalServerBareMetalServerNetworkAttachmentReferenceToMap(model *vpcv1.BareMetalServerNetworkAttachmentReference) (map[string]interface{}, error) {
+func resourceIBMIsBareMetalServerBareMetalServerNetworkAttachmentReferenceToMap(model *vpcv1.BareMetalServerNetworkAttachmentReference, na vpcv1.BareMetalServerNetworkAttachmentIntf, instanceC *vpcv1.VpcV1) (map[string]interface{}, error) {
 	modelMap := make(map[string]interface{})
 	if model.Deleted != nil {
 		deletedMap, err := resourceIBMIsBareMetalServerBareMetalServerNetworkAttachmentReferenceDeletedToMap(model.Deleted)
@@ -3461,17 +3481,88 @@ func resourceIBMIsBareMetalServerBareMetalServerNetworkAttachmentReferenceToMap(
 	modelMap["href"] = model.Href
 	modelMap["id"] = model.ID
 	modelMap["name"] = model.Name
+	vniMap := make(map[string]interface{})
+	vniid := ""
+	switch reflect.TypeOf(na).String() {
+	case "*vpcv1.BareMetalServerNetworkAttachmentByPci":
+		{
+			vna := na.(*vpcv1.BareMetalServerNetworkAttachmentByPci)
+			if vna.VirtualNetworkInterface != nil {
+				vniid = *vna.VirtualNetworkInterface.ID
+				vniMap["id"] = vniid
+				vniMap["name"] = vna.VirtualNetworkInterface.Name
+				vniMap["resource_type"] = vna.VirtualNetworkInterface.ResourceType
+			}
+		}
+	case "*vpcv1.BareMetalServerNetworkAttachmentByVlan":
+		{
+			vna := na.(*vpcv1.BareMetalServerNetworkAttachmentByVlan)
+			if vna.VirtualNetworkInterface != nil {
+				vniid = *vna.VirtualNetworkInterface.ID
+				vniMap["id"] = vniid
+				vniMap["name"] = vna.VirtualNetworkInterface.Name
+				vniMap["resource_type"] = vna.VirtualNetworkInterface.ResourceType
+			}
+		}
+	default:
+		{
+			vna := na.(*vpcv1.BareMetalServerNetworkAttachment)
+			if vna.VirtualNetworkInterface != nil {
+				vniid = *vna.VirtualNetworkInterface.ID
+				vniMap["id"] = vniid
+				vniMap["name"] = vna.VirtualNetworkInterface.Name
+				vniMap["resource_type"] = vna.VirtualNetworkInterface.ResourceType
+			}
+		}
+	}
+
+	getVirtualNetworkInterfaceOptions := &vpcv1.GetVirtualNetworkInterfaceOptions{
+		ID: &vniid,
+	}
+	vniDetails, response, err := instanceC.GetVirtualNetworkInterface(getVirtualNetworkInterfaceOptions)
+	if err != nil {
+		return nil, fmt.Errorf("[ERROR] Error on GetInstanceNetworkAttachment in instance : %s\n%s", err, response)
+	}
+	vniMap["allow_ip_spoofing"] = vniDetails.AllowIPSpoofing
+	vniMap["auto_delete"] = vniDetails.AutoDelete
+	vniMap["enable_infrastructure_nat"] = vniDetails.EnableInfrastructureNat
+	vniMap["resource_group"] = vniDetails.ResourceGroup.ID
+	primaryipId := *vniDetails.PrimaryIP.ID
+	if !core.IsNil(vniDetails.Ips) {
+		ips := []map[string]interface{}{}
+		for _, ipsItem := range vniDetails.Ips {
+			if *ipsItem.ID != primaryipId {
+				ipsItemMap, err := resourceIBMIsVirtualNetworkInterfaceReservedIPReferenceToMap(&ipsItem)
+				if err != nil {
+					return nil, err
+				}
+				ips = append(ips, ipsItemMap)
+			}
+		}
+		vniMap["ips"] = ips
+	}
 	primaryIPMap, err := resourceIBMIsBareMetalServerReservedIPReferenceToMap(model.PrimaryIP)
 	if err != nil {
 		return modelMap, err
 	}
-	modelMap["primary_ip"] = []map[string]interface{}{primaryIPMap}
-	modelMap["resource_type"] = model.ResourceType
-	subnetMap, err := resourceIBMIsBareMetalServerSubnetReferenceToMap(model.Subnet)
-	if err != nil {
-		return modelMap, err
+	vniMap["primary_ip"] = []map[string]interface{}{primaryIPMap}
+
+	if !core.IsNil(vniDetails.SecurityGroups) {
+		securityGroups := make([]string, 0)
+		for _, securityGroupsItem := range vniDetails.SecurityGroups {
+			if securityGroupsItem.ID != nil {
+				securityGroups = append(securityGroups, *securityGroupsItem.ID)
+			}
+		}
+		vniMap["security_groups"] = securityGroups
 	}
-	modelMap["subnet"] = []map[string]interface{}{subnetMap}
+	if model.ResourceType != nil {
+		modelMap["resource_type"] = *model.ResourceType
+	}
+	if model.Subnet != nil {
+		vniMap["subnet"] = *model.Subnet.ID
+	}
+	modelMap["virtual_network_interface"] = []map[string]interface{}{vniMap}
 	return modelMap, nil
 }
 
@@ -3504,35 +3595,12 @@ func resourceIBMIsBareMetalServerReservedIPReferenceDeletedToMap(model *vpcv1.Re
 	return modelMap, nil
 }
 
-func resourceIBMIsBareMetalServerSubnetReferenceToMap(model *vpcv1.SubnetReference) (map[string]interface{}, error) {
-	modelMap := make(map[string]interface{})
-	modelMap["crn"] = model.CRN
-	if model.Deleted != nil {
-		deletedMap, err := resourceIBMIsBareMetalServerSubnetReferenceDeletedToMap(model.Deleted)
-		if err != nil {
-			return modelMap, err
-		}
-		modelMap["deleted"] = []map[string]interface{}{deletedMap}
-	}
-	modelMap["href"] = model.Href
-	modelMap["id"] = model.ID
-	modelMap["name"] = model.Name
-	modelMap["resource_type"] = model.ResourceType
-	return modelMap, nil
-}
-
-func resourceIBMIsBareMetalServerSubnetReferenceDeletedToMap(model *vpcv1.SubnetReferenceDeleted) (map[string]interface{}, error) {
-	modelMap := make(map[string]interface{})
-	modelMap["more_info"] = model.MoreInfo
-	return modelMap, nil
-}
-
 func resourceIBMIsBareMetalServerMapToBareMetalServerPrimaryNetworkAttachmentPrototype(allowipspoofing, autodelete, enablenat string, d *schema.ResourceData, modelMap map[string]interface{}) (*vpcv1.BareMetalServerPrimaryNetworkAttachmentPrototype, error) {
 	model := &vpcv1.BareMetalServerPrimaryNetworkAttachmentPrototype{}
 	interface_type := "pci"
-	if modelMap["allowed_vlans"] != nil && len(modelMap["allowed_vlans"].([]interface{})) > 0 {
+	if modelMap["allowed_vlans"] != nil && modelMap["allowed_vlans"].(*schema.Set).Len() > 0 {
 		allowedVlans := []int64{}
-		for _, allowedVlansItem := range modelMap["allowed_vlans"].([]interface{}) {
+		for _, allowedVlansItem := range modelMap["allowed_vlans"].(*schema.Set).List() {
 			allowedVlans = append(allowedVlans, int64(allowedVlansItem.(int)))
 		}
 		model.AllowedVlans = allowedVlans
@@ -3730,7 +3798,7 @@ func resourceIBMIsBareMetalServerMapToBareMetalServerNetworkAttachmentPrototypeB
 	model.VirtualNetworkInterface = VirtualNetworkInterfaceModel
 	if modelMap["allowed_vlans"] != nil {
 		allowedVlans := []int64{}
-		for _, allowedVlansItem := range modelMap["allowed_vlans"].([]interface{}) {
+		for _, allowedVlansItem := range modelMap["allowed_vlans"].(*schema.Set).List() {
 			allowedVlans = append(allowedVlans, int64(allowedVlansItem.(int)))
 		}
 		model.AllowedVlans = allowedVlans
