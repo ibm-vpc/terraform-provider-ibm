@@ -74,12 +74,9 @@ func TestAccIBMIsInstanceNetworkAttachmentAllArgs(t *testing.T) {
 func testAccCheckIBMIsInstanceNetworkAttachmentConfigBasic(instanceID string) string {
 	return fmt.Sprintf(`
 		resource "ibm_is_instance_network_attachment" "is_instance_network_attachment_instance" {
-			instance_id = "%s"
+			instance = "%s"
 			virtual_network_interface {
-				crn = "crn:v1:bluemix:public:is:us-south-1:a/123456::virtual-network-interface:0767-fa41aecb-4f21-423d-8082-630bfba1e1d9"
-				href = "https://us-south.iaas.cloud.ibm.com/v1/virtual_network_interfaces/0767-fa41aecb-4f21-423d-8082-630bfba1e1d9"
 				id = "0767-fa41aecb-4f21-423d-8082-630bfba1e1d9"
-				name = "my-virtual-network-interface"
 			}
 		}
 	`, instanceID)

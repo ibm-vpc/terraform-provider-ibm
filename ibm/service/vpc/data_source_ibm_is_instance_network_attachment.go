@@ -20,12 +20,12 @@ func DataSourceIBMIsInstanceNetworkAttachment() *schema.Resource {
 		ReadContext: dataSourceIBMIsInstanceNetworkAttachmentRead,
 
 		Schema: map[string]*schema.Schema{
-			"instance_id": &schema.Schema{
+			"instance": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "The virtual server instance identifier.",
 			},
-			"id": &schema.Schema{
+			"instance_network_attachment": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "The instance network attachment identifier.",
@@ -39,11 +39,6 @@ func DataSourceIBMIsInstanceNetworkAttachment() *schema.Resource {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "The URL for this instance network attachment.",
-			},
-			"instance_by_network_attachment_id": &schema.Schema{
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: "The unique identifier for this instance network attachment.",
 			},
 			"lifecycle_state": &schema.Schema{
 				Type:        schema.TypeString,
@@ -212,8 +207,8 @@ func dataSourceIBMIsInstanceNetworkAttachmentRead(context context.Context, d *sc
 
 	getInstanceNetworkAttachmentOptions := &vpcv1.GetInstanceNetworkAttachmentOptions{}
 
-	getInstanceNetworkAttachmentOptions.SetInstanceID(d.Get("instance_id").(string))
-	getInstanceNetworkAttachmentOptions.SetID(d.Get("id").(string))
+	getInstanceNetworkAttachmentOptions.SetInstanceID(d.Get("instance").(string))
+	getInstanceNetworkAttachmentOptions.SetID(d.Get("instance_network_attachment").(string))
 
 	instanceByNetworkAttachment, response, err := vpcClient.GetInstanceNetworkAttachmentWithContext(context, getInstanceNetworkAttachmentOptions)
 	if err != nil {
@@ -224,27 +219,23 @@ func dataSourceIBMIsInstanceNetworkAttachmentRead(context context.Context, d *sc
 	d.SetId(fmt.Sprintf("%s/%s", *getInstanceNetworkAttachmentOptions.InstanceID, *getInstanceNetworkAttachmentOptions.ID))
 
 	if err = d.Set("created_at", flex.DateTimeToString(instanceByNetworkAttachment.CreatedAt)); err != nil {
-		return diag.FromErr(fmt.Errorf("Error setting created_at: %s", err))
+		return diag.FromErr(fmt.Errorf("[ERROR] Error setting created_at: %s", err))
 	}
 
 	if err = d.Set("href", instanceByNetworkAttachment.Href); err != nil {
-		return diag.FromErr(fmt.Errorf("Error setting href: %s", err))
-	}
-
-	if err = d.Set("instance_by_network_attachment_id", instanceByNetworkAttachment.ID); err != nil {
-		return diag.FromErr(fmt.Errorf("Error setting instance_by_network_attachment_id: %s", err))
+		return diag.FromErr(fmt.Errorf("[ERROR] Error setting href: %s", err))
 	}
 
 	if err = d.Set("lifecycle_state", instanceByNetworkAttachment.LifecycleState); err != nil {
-		return diag.FromErr(fmt.Errorf("Error setting lifecycle_state: %s", err))
+		return diag.FromErr(fmt.Errorf("[ERROR] Error setting lifecycle_state: %s", err))
 	}
 
 	if err = d.Set("name", instanceByNetworkAttachment.Name); err != nil {
-		return diag.FromErr(fmt.Errorf("Error setting name: %s", err))
+		return diag.FromErr(fmt.Errorf("[ERROR] Error setting name: %s", err))
 	}
 
 	if err = d.Set("port_speed", flex.IntValue(instanceByNetworkAttachment.PortSpeed)); err != nil {
-		return diag.FromErr(fmt.Errorf("Error setting port_speed: %s", err))
+		return diag.FromErr(fmt.Errorf("[ERROR] Error setting port_speed: %s", err))
 	}
 
 	primaryIP := []map[string]interface{}{}
@@ -256,11 +247,11 @@ func dataSourceIBMIsInstanceNetworkAttachmentRead(context context.Context, d *sc
 		primaryIP = append(primaryIP, modelMap)
 	}
 	if err = d.Set("primary_ip", primaryIP); err != nil {
-		return diag.FromErr(fmt.Errorf("Error setting primary_ip %s", err))
+		return diag.FromErr(fmt.Errorf("[ERROR] Error setting primary_ip %s", err))
 	}
 
 	if err = d.Set("resource_type", instanceByNetworkAttachment.ResourceType); err != nil {
-		return diag.FromErr(fmt.Errorf("Error setting resource_type: %s", err))
+		return diag.FromErr(fmt.Errorf("[ERROR] Error setting resource_type: %s", err))
 	}
 
 	subnet := []map[string]interface{}{}
@@ -272,11 +263,11 @@ func dataSourceIBMIsInstanceNetworkAttachmentRead(context context.Context, d *sc
 		subnet = append(subnet, modelMap)
 	}
 	if err = d.Set("subnet", subnet); err != nil {
-		return diag.FromErr(fmt.Errorf("Error setting subnet %s", err))
+		return diag.FromErr(fmt.Errorf("[ERROR] Error setting subnet %s", err))
 	}
 
 	if err = d.Set("type", instanceByNetworkAttachment.Type); err != nil {
-		return diag.FromErr(fmt.Errorf("Error setting type: %s", err))
+		return diag.FromErr(fmt.Errorf("[ERROR] Error setting type: %s", err))
 	}
 
 	virtualNetworkInterface := []map[string]interface{}{}
@@ -288,7 +279,7 @@ func dataSourceIBMIsInstanceNetworkAttachmentRead(context context.Context, d *sc
 		virtualNetworkInterface = append(virtualNetworkInterface, modelMap)
 	}
 	if err = d.Set("virtual_network_interface", virtualNetworkInterface); err != nil {
-		return diag.FromErr(fmt.Errorf("Error setting virtual_network_interface %s", err))
+		return diag.FromErr(fmt.Errorf("[ERROR] Error setting virtual_network_interface %s", err))
 	}
 
 	return nil

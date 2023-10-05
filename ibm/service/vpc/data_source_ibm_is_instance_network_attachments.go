@@ -21,7 +21,7 @@ func DataSourceIBMIsInstanceNetworkAttachments() *schema.Resource {
 		ReadContext: dataSourceIBMIsInstanceNetworkAttachmentsRead,
 
 		Schema: map[string]*schema.Schema{
-			"instance_id": &schema.Schema{
+			"instance": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "The virtual server instance identifier.",
@@ -217,7 +217,7 @@ func dataSourceIBMIsInstanceNetworkAttachmentsRead(context context.Context, d *s
 
 	listInstanceNetworkAttachmentsOptions := &vpcv1.ListInstanceNetworkAttachmentsOptions{}
 
-	listInstanceNetworkAttachmentsOptions.SetInstanceID(d.Get("instance_id").(string))
+	listInstanceNetworkAttachmentsOptions.SetInstanceID(d.Get("instance").(string))
 
 	instanceNetworkAttachmentCollection, response, err := vpcClient.ListInstanceNetworkAttachmentsWithContext(context, listInstanceNetworkAttachmentsOptions)
 	if err != nil {
@@ -238,7 +238,7 @@ func dataSourceIBMIsInstanceNetworkAttachmentsRead(context context.Context, d *s
 		}
 	}
 	if err = d.Set("network_attachments", networkAttachments); err != nil {
-		return diag.FromErr(fmt.Errorf("Error setting network_attachments %s", err))
+		return diag.FromErr(fmt.Errorf("[ERROR] Error setting network_attachments %s", err))
 	}
 
 	return nil
