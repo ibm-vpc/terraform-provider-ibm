@@ -1444,3 +1444,48 @@ resource "ibm_is_virtual_network_interface_ip" "testacc_vni_reservedip" {
 	virtual_network_interface = ibm_is_virtual_network_interface.testacc_vni.id
 	reserved_ip = ibm_is_subnet_reserved_ip.testacc_reservedip.reserved_ip
 }
+
+resource "ibm_is_virtual_network_interface" "testacc_vni2"{
+	name = "${var.name}-2"
+    subnet = ibm_is_subnet.testacc_subnet.id
+	enable_infrastructure_nat = true
+	allow_ip_spoofing = true
+}
+resource "ibm_is_virtual_network_interface" "testacc_vni3"{
+	name = "${var.name}-3"
+    subnet = ibm_is_subnet.testacc_subnet.id
+	enable_infrastructure_nat = true
+	allow_ip_spoofing = true
+}
+resource "ibm_is_ssh_key" "testacc_sshkey" {
+	name       			= "${var.name}-ssh"
+	public_key 			= file("~/.ssh/id_rsa.pub")
+}
+
+
+resource "ibm_is_bare_metal_server" "testacc_bms" {
+    profile 			= "cx2-metal-96x192"
+    name 				= "${var.name}-bms"
+    image 			= "r134-f47cc24c-e020-4db5-ad96-1e5be8b5853b"
+    zone 				= "${var.region}-2"
+    keys 				= [ibm_is_ssh_key.testacc_sshkey.id]
+    primary_network_attachment {
+        name = "vni-221"
+        virtual_network_interface { 
+            id = ibm_is_virtual_network_interface.testacc_vni.id
+        }
+        allowed_vlans = [100, 102]
+    }
+    vpc 				= ibm_is_vpc.testacc_vpc.id
+}
+
+resource "ibm_is_bare_metal_server_network_attachment" "na" {
+	bare_metal_server = ibm_is_bare_metal_server.testacc_bms.id
+	# interface_type = "vlan"
+  vlan = 100
+}
+resource "ibm_is_bare_metal_server_network_attachment" "na2" {
+	bare_metal_server = ibm_is_bare_metal_server.testacc_bms.id
+	# interface_type = "pci"
+  allowed_vlans = [200, 202]
+}
