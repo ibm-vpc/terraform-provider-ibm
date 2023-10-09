@@ -593,8 +593,8 @@ func ResourceIBMISInstance() *schema.Resource {
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"address": &schema.Schema{
-													Type:        schema.TypeString,
-													Optional:    true,
+													Type: schema.TypeString,
+													// Optional:    true,
 													Computed:    true,
 													Description: "The IP address.If the address has not yet been selected, the value will be `0.0.0.0`.This property may add support for IPv6 addresses in the future. When processing a value in this property, verify that the address is in an expected format. If it is not, log an error. Optionally halt processing and surface the error, or bypass the resource on which the unexpected IP address format was encountered.",
 												},
@@ -613,8 +613,8 @@ func ResourceIBMISInstance() *schema.Resource {
 													},
 												},
 												"auto_delete": &schema.Schema{
-													Type:        schema.TypeBool,
-													Optional:    true,
+													Type: schema.TypeBool,
+													// Optional:    true,
 													Computed:    true,
 													Description: "Indicates whether this reserved IP member will be automatically deleted when either target is deleted, or the reserved IP is unbound.",
 												},
@@ -625,12 +625,12 @@ func ResourceIBMISInstance() *schema.Resource {
 												},
 												"reserved_ip": &schema.Schema{
 													Type:        schema.TypeString,
-													Optional:    true,
+													Required:    true,
 													Description: "The unique identifier for this reserved IP.",
 												},
 												"name": &schema.Schema{
-													Type:        schema.TypeString,
-													Optional:    true,
+													Type: schema.TypeString,
+													// Optional:    true,
 													Computed:    true,
 													Description: "The name for this reserved IP. The name is unique across all reserved IPs in a subnet.",
 												},
@@ -913,8 +913,8 @@ func ResourceIBMISInstance() *schema.Resource {
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"address": &schema.Schema{
-													Type:        schema.TypeString,
-													Optional:    true,
+													Type: schema.TypeString,
+													// Optional:    true,
 													Computed:    true,
 													Description: "The IP address.If the address has not yet been selected, the value will be `0.0.0.0`.This property may add support for IPv6 addresses in the future. When processing a value in this property, verify that the address is in an expected format. If it is not, log an error. Optionally halt processing and surface the error, or bypass the resource on which the unexpected IP address format was encountered.",
 												},
@@ -933,8 +933,8 @@ func ResourceIBMISInstance() *schema.Resource {
 													},
 												},
 												"auto_delete": &schema.Schema{
-													Type:        schema.TypeBool,
-													Optional:    true,
+													Type: schema.TypeBool,
+													// Optional:    true,
 													Computed:    true,
 													Description: "Indicates whether this reserved IP member will be automatically deleted when either target is deleted, or the reserved IP is unbound.",
 												},
@@ -945,12 +945,12 @@ func ResourceIBMISInstance() *schema.Resource {
 												},
 												"reserved_ip": &schema.Schema{
 													Type:        schema.TypeString,
-													Optional:    true,
+													Required:    true,
 													Description: "The unique identifier for this reserved IP.",
 												},
 												"name": &schema.Schema{
-													Type:        schema.TypeString,
-													Optional:    true,
+													Type: schema.TypeString,
+													// Optional:    true,
 													Computed:    true,
 													Description: "The name for this reserved IP. The name is unique across all reserved IPs in a subnet.",
 												},
@@ -1969,31 +1969,6 @@ func instanceCreateByCatalogOffering(d *schema.ResourceData, meta interface{}, p
 			ID: &vpcID,
 		},
 	}
-	if networkattachmentsintf, ok := d.GetOk("network_attachments"); ok {
-		networkAttachments := []vpcv1.InstanceNetworkAttachmentPrototype{}
-		for i, networkAttachmentsItem := range networkattachmentsintf.([]interface{}) {
-			allowipspoofing := fmt.Sprintf("network_attachments.%d.allow_ip_spoofing", i)
-			autodelete := fmt.Sprintf("network_attachments.%d.autodelete", i)
-			enablenat := fmt.Sprintf("network_attachments.%d.enable_infrastructure_nat", i)
-			networkAttachmentsItemModel, err := resourceIBMIsInstanceMapToInstanceNetworkAttachmentPrototype(allowipspoofing, autodelete, enablenat, d, networkAttachmentsItem.(map[string]interface{}))
-			if err != nil {
-				return err
-			}
-			networkAttachments = append(networkAttachments, *networkAttachmentsItemModel)
-		}
-		instanceproto.NetworkAttachments = networkAttachments
-	}
-	if primnetworkattachmentintf, ok := d.GetOk("primary_network_attachment"); ok && len(primnetworkattachmentintf.([]interface{})) > 0 {
-		i := 0
-		allowipspoofing := fmt.Sprintf("primary_network_attachment.%d.allow_ip_spoofing", i)
-		autodelete := fmt.Sprintf("primary_network_attachment.%d.autodelete", i)
-		enablenat := fmt.Sprintf("primary_network_attachment.%d.enable_infrastructure_nat", i)
-		primaryNetworkAttachmentModel, err := resourceIBMIsInstanceMapToInstanceNetworkAttachmentPrototype(allowipspoofing, autodelete, enablenat, d, primnetworkattachmentintf.([]interface{})[0].(map[string]interface{}))
-		if err != nil {
-			return err
-		}
-		instanceproto.PrimaryNetworkAttachment = primaryNetworkAttachmentModel
-	}
 	if offerringCrn != "" {
 		catalogOffering := &vpcv1.CatalogOfferingIdentityCatalogOfferingByCRN{
 			CRN: &offerringCrn,
@@ -2094,6 +2069,35 @@ func instanceCreateByCatalogOffering(d *schema.ResourceData, meta interface{}, p
 			Volume:                       volTemplate,
 		}
 
+	}
+
+	if networkattachmentsintf, ok := d.GetOk("network_attachments"); ok {
+		networkAttachments := []vpcv1.InstanceNetworkAttachmentPrototype{}
+		for i, networkAttachmentsItem := range networkattachmentsintf.([]interface{}) {
+			allowipspoofing := fmt.Sprintf("network_attachments.%d.allow_ip_spoofing", i)
+			autodelete := fmt.Sprintf("network_attachments.%d.autodelete", i)
+			enablenat := fmt.Sprintf("network_attachments.%d.enable_infrastructure_nat", i)
+			// allowipspoofing := "primary_network_attachment.0.allow_ip_spoofing"
+			// autodelete := "primary_network_attachment.0.autodelete"
+			// enablenat := "primary_network_attachment.0.enable_infrastructure_nat"
+			networkAttachmentsItemModel, err := resourceIBMIsInstanceMapToInstanceNetworkAttachmentPrototype(allowipspoofing, autodelete, enablenat, d, networkAttachmentsItem.(map[string]interface{}))
+			if err != nil {
+				return err
+			}
+			networkAttachments = append(networkAttachments, *networkAttachmentsItemModel)
+		}
+		instanceproto.NetworkAttachments = networkAttachments
+	}
+	if primnetworkattachmentintf, ok := d.GetOk("primary_network_attachment"); ok && len(primnetworkattachmentintf.([]interface{})) > 0 {
+		i := 0
+		allowipspoofing := fmt.Sprintf("primary_network_attachment.%d.allow_ip_spoofing", i)
+		autodelete := fmt.Sprintf("primary_network_attachment.%d.autodelete", i)
+		enablenat := fmt.Sprintf("primary_network_attachment.%d.enable_infrastructure_nat", i)
+		primaryNetworkAttachmentModel, err := resourceIBMIsInstanceMapToInstanceNetworkAttachmentPrototype(allowipspoofing, autodelete, enablenat, d, primnetworkattachmentintf.([]interface{})[0].(map[string]interface{}))
+		if err != nil {
+			return err
+		}
+		instanceproto.PrimaryNetworkAttachment = primaryNetworkAttachmentModel
 	}
 
 	if primnicintf, ok := d.GetOk(isInstancePrimaryNetworkInterface); ok {
@@ -3224,6 +3228,34 @@ func instanceCreateByVolume(d *schema.ResourceData, meta interface{}, profile, n
 	if totalVolBandwidthIntf, ok := d.GetOk(isInstanceTotalVolumeBandwidth); ok {
 		totalVolBandwidthStr := int64(totalVolBandwidthIntf.(int))
 		instanceproto.TotalVolumeBandwidth = &totalVolBandwidthStr
+	}
+	if networkattachmentsintf, ok := d.GetOk("network_attachments"); ok {
+		networkAttachments := []vpcv1.InstanceNetworkAttachmentPrototype{}
+		for i, networkAttachmentsItem := range networkattachmentsintf.([]interface{}) {
+			allowipspoofing := fmt.Sprintf("network_attachments.%d.allow_ip_spoofing", i)
+			autodelete := fmt.Sprintf("network_attachments.%d.autodelete", i)
+			enablenat := fmt.Sprintf("network_attachments.%d.enable_infrastructure_nat", i)
+			// allowipspoofing := "primary_network_attachment.0.allow_ip_spoofing"
+			// autodelete := "primary_network_attachment.0.autodelete"
+			// enablenat := "primary_network_attachment.0.enable_infrastructure_nat"
+			networkAttachmentsItemModel, err := resourceIBMIsInstanceMapToInstanceNetworkAttachmentPrototype(allowipspoofing, autodelete, enablenat, d, networkAttachmentsItem.(map[string]interface{}))
+			if err != nil {
+				return err
+			}
+			networkAttachments = append(networkAttachments, *networkAttachmentsItemModel)
+		}
+		instanceproto.NetworkAttachments = networkAttachments
+	}
+	if primnetworkattachmentintf, ok := d.GetOk("primary_network_attachment"); ok && len(primnetworkattachmentintf.([]interface{})) > 0 {
+		i := 0
+		allowipspoofing := fmt.Sprintf("primary_network_attachment.%d.allow_ip_spoofing", i)
+		autodelete := fmt.Sprintf("primary_network_attachment.%d.autodelete", i)
+		enablenat := fmt.Sprintf("primary_network_attachment.%d.enable_infrastructure_nat", i)
+		primaryNetworkAttachmentModel, err := resourceIBMIsInstanceMapToInstanceNetworkAttachmentPrototype(allowipspoofing, autodelete, enablenat, d, primnetworkattachmentintf.([]interface{})[0].(map[string]interface{}))
+		if err != nil {
+			return err
+		}
+		instanceproto.PrimaryNetworkAttachment = primaryNetworkAttachmentModel
 	}
 
 	if primnicintf, ok := d.GetOk(isInstancePrimaryNetworkInterface); ok {
@@ -5263,7 +5295,7 @@ func resourceIBMIsInstanceInstanceNetworkAttachmentReferenceToMap(model *vpcv1.I
 		ips := []map[string]interface{}{}
 		for _, ipsItem := range vniDetails.Ips {
 			if *ipsItem.ID != primaryipId {
-				ipsItemMap, err := resourceIBMIsVirtualNetworkInterfaceReservedIPReferenceToMap(&ipsItem)
+				ipsItemMap, err := resourceIBMIsVirtualNetworkInterfaceReservedIPReferenceToMap(&ipsItem, false)
 				if err != nil {
 					return nil, err
 				}
