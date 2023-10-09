@@ -115,8 +115,8 @@ func ResourceIBMIsInstanceNetworkAttachment() *schema.Resource {
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"address": &schema.Schema{
-										Type:        schema.TypeString,
-										Optional:    true,
+										Type: schema.TypeString,
+										// Optional:    true,
 										Computed:    true,
 										Description: "The IP address.If the address has not yet been selected, the value will be `0.0.0.0`.This property may add support for IPv6 addresses in the future. When processing a value in this property, verify that the address is in an expected format. If it is not, log an error. Optionally halt processing and surface the error, or bypass the resource on which the unexpected IP address format was encountered.",
 									},
@@ -135,8 +135,8 @@ func ResourceIBMIsInstanceNetworkAttachment() *schema.Resource {
 										},
 									},
 									"auto_delete": &schema.Schema{
-										Type:        schema.TypeBool,
-										Optional:    true,
+										Type: schema.TypeBool,
+										// Optional:    true,
 										Computed:    true,
 										Description: "Indicates whether this reserved IP member will be automatically deleted when either target is deleted, or the reserved IP is unbound.",
 									},
@@ -147,12 +147,12 @@ func ResourceIBMIsInstanceNetworkAttachment() *schema.Resource {
 									},
 									"reserved_ip": &schema.Schema{
 										Type:        schema.TypeString,
-										Optional:    true,
+										Required:    true,
 										Description: "The unique identifier for this reserved IP.",
 									},
 									"name": &schema.Schema{
-										Type:        schema.TypeString,
-										Optional:    true,
+										Type: schema.TypeString,
+										// Optional:    true,
 										Computed:    true,
 										Description: "The name for this reserved IP. The name is unique across all reserved IPs in a subnet.",
 									},
