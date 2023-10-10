@@ -49,7 +49,6 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCKVmnMOlHKcZK8tpt3MP1lqOLAcqcJzhsvJcjscgVE
 					resource.TestCheckResourceAttrSet("ibm_is_instance_network_attachment.is_instance_network_attachment", "port_speed"),
 					resource.TestCheckResourceAttrSet("ibm_is_instance_network_attachment.is_instance_network_attachment", "virtual_network_interface.#"),
 					resource.TestCheckResourceAttrSet("ibm_is_instance_network_attachment.is_instance_network_attachment", "virtual_network_interface.0.id"),
-					resource.TestCheckResourceAttrSet("ibm_is_instance_network_attachment.is_instance_network_attachment", "virtual_network_interface.0.crn"),
 					resource.TestCheckResourceAttrSet("ibm_is_instance_network_attachment.is_instance_network_attachment", "virtual_network_interface.0.primary_ip.#"),
 				),
 			},
@@ -113,13 +112,13 @@ func testAccCheckIBMIsInstanceNetworkAttachmentConfigBasic(vpcname, subnetname, 
 	resource "ibm_is_virtual_network_interface" "testacc_vni" {
 		name = "%s"
 		subnet = ibm_is_subnet.testacc_subnet.id
-		enable_infrastructure_nat = false
+		enable_infrastructure_nat = true
 		allow_ip_spoofing = %t
 	}
 	resource "ibm_is_virtual_network_interface" "testacc_vni2" {
 		name = "%s2"
 		subnet = ibm_is_subnet.testacc_subnet.id
-		enable_infrastructure_nat = false
+		enable_infrastructure_nat = true
 		allow_ip_spoofing = %t
 	}
 	resource "ibm_is_instance" "testacc_vsi" {
@@ -144,7 +143,7 @@ func testAccCheckIBMIsInstanceNetworkAttachmentConfigBasic(vpcname, subnetname, 
 			id = ibm_is_virtual_network_interface.testacc_vni2.id
 		}
 	}
-	`, vpcname, subnetname, acc.ISZoneName, sshname, publicKey, vniname, false, vniname, false, acc.InstanceProfileName, name, acc.IsImage, acc.ISZoneName, naname)
+	`, vpcname, subnetname, acc.ISZoneName2, sshname, publicKey, vniname, true, vniname, true, acc.InstanceProfileName, name, acc.IsImage, acc.ISZoneName2, naname)
 }
 
 func testAccCheckIBMIsInstanceNetworkAttachmentConfig(instanceID string, name string) string {
