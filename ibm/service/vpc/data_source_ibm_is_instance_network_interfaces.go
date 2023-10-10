@@ -25,7 +25,6 @@ func DataSourceIBMIsInstanceNetworkInterfaces() *schema.Resource {
 			"instance_name": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Deprecated:  "This `ibm_is_instance_network_interfaces` datasource is deprecated`",
 				Description: "The instance name.",
 			},
 			"network_interfaces": {
