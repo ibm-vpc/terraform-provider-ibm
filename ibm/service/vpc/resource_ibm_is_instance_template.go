@@ -329,11 +329,13 @@ func ResourceIBMISInstanceTemplate() *schema.Resource {
 			},
 
 			isInstanceTemplatePrimaryNetworkInterface: {
-				Type:        schema.TypeList,
-				MinItems:    1,
-				MaxItems:    1,
-				Required:    true,
-				Description: "Primary Network interface info",
+				Type:          schema.TypeList,
+				MinItems:      1,
+				MaxItems:      1,
+				Optional:      true,
+				ExactlyOneOf:  []string{"primary_network_attachment", "primary_network_interface"},
+				ConflictsWith: []string{"primary_network_interface", "network_interfaces"},
+				Description:   "Primary Network interface info",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						isInstanceTemplateNicAllowIPSpoofing: {
@@ -411,8 +413,9 @@ func ResourceIBMISInstanceTemplate() *schema.Resource {
 			},
 
 			isInstanceTemplateNetworkInterfaces: {
-				Type:     schema.TypeList,
-				Optional: true,
+				Type:          schema.TypeList,
+				Optional:      true,
+				ConflictsWith: []string{"primary_network_attachment", "network_attachments"},
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						isInstanceTemplateNicAllowIPSpoofing: {
