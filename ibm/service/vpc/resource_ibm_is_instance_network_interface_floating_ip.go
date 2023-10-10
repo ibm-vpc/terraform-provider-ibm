@@ -45,7 +45,6 @@ func ResourceIBMIsInstanceNetworkInterfaceFloatingIp() *schema.Resource {
 			isInstanceID: {
 				Type:        schema.TypeString,
 				Required:    true,
-				Deprecated:  "This `ibm_is_instance_network_interface_floating_ip` resource is deprecated`",
 				ForceNew:    true,
 				Description: "Instance identifier",
 			},
