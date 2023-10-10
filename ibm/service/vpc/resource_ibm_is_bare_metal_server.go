@@ -3544,7 +3544,7 @@ func resourceIBMIsBareMetalServerBareMetalServerNetworkAttachmentReferenceToMap(
 		ips := []map[string]interface{}{}
 		for _, ipsItem := range vniDetails.Ips {
 			if *ipsItem.ID != primaryipId {
-				ipsItemMap, err := resourceIBMIsVirtualNetworkInterfaceReservedIPReferenceToMap(&ipsItem)
+				ipsItemMap, err := resourceIBMIsVirtualNetworkInterfaceReservedIPReferenceToMap(&ipsItem, true)
 				if err != nil {
 					return nil, err
 				}
