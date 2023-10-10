@@ -36,7 +36,20 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCKVmnMOlHKcZK8tpt3MP1lqOLAcqcJzhsvJcjscgVE
 				Config: testAccCheckIBMIsInstanceNetworkAttachmentConfigBasic(vpcname, subnetname, sshname, publicKey, vniname, name),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					testAccCheckIBMIsInstanceNetworkAttachmentExists("ibm_is_instance_network_attachment.is_instance_network_attachment", conf),
-					resource.TestCheckResourceAttr("ibm_is_instance_network_attachment.is_instance_network_attachment", "instance_id", "instanceID"),
+					resource.TestCheckResourceAttr("ibm_is_instance_network_attachment.is_instance_network_attachment", "resource_type", "instance_network_attachment"),
+					resource.TestCheckResourceAttr("ibm_is_instance_network_attachment.is_instance_network_attachment", "type", "secondary"),
+					resource.TestCheckResourceAttr("ibm_is_instance_network_attachment.is_instance_network_attachment", "lifecycle_state", "stable"),
+					resource.TestCheckResourceAttrSet("ibm_is_instance_network_attachment.is_instance_network_attachment", "created_at"),
+					resource.TestCheckResourceAttrSet("ibm_is_instance_network_attachment.is_instance_network_attachment", "href"),
+					resource.TestCheckResourceAttrSet("ibm_is_instance_network_attachment.is_instance_network_attachment", "id"),
+					resource.TestCheckResourceAttrSet("ibm_is_instance_network_attachment.is_instance_network_attachment", "instance"),
+					resource.TestCheckResourceAttrSet("ibm_is_instance_network_attachment.is_instance_network_attachment", "network_attachment"),
+					resource.TestCheckResourceAttrSet("ibm_is_instance_network_attachment.is_instance_network_attachment", "name"),
+					resource.TestCheckResourceAttrSet("ibm_is_instance_network_attachment.is_instance_network_attachment", "port_speed"),
+					resource.TestCheckResourceAttrSet("ibm_is_instance_network_attachment.is_instance_network_attachment", "virtual_network_interface.#"),
+					resource.TestCheckResourceAttrSet("ibm_is_instance_network_attachment.is_instance_network_attachment", "virtual_network_interface.0.id"),
+					resource.TestCheckResourceAttrSet("ibm_is_instance_network_attachment.is_instance_network_attachment", "virtual_network_interface.0.crn"),
+					resource.TestCheckResourceAttrSet("ibm_is_instance_network_attachment.is_instance_network_attachment", "virtual_network_interface.0.primary_ip.#"),
 				),
 			},
 		},
@@ -116,19 +129,21 @@ func testAccCheckIBMIsInstanceNetworkAttachmentConfigBasic(vpcname, subnetname, 
 		keys 				= [ibm_is_ssh_key.testacc_sshkey.id]
 		primary_network_attachment {
 		         name = "vni-2"
-		         virtual_network_interface = ibm_is_virtual_network_interface.testacc_vni.id
+		         virtual_network_interface {
+					id = ibm_is_virtual_network_interface.testacc_vni.id
+				 }
 		}
 		vpc 				= ibm_is_vpc.testacc_vpc.id
 	}
 
-	resource "ibm_is_instance_network_attachment" "is_instance_network_attachment_instance" {
-		instance_id = ibm_is_instance.testacc_vsi.id
+	resource "ibm_is_instance_network_attachment" "is_instance_network_attachment" {
+		instance = ibm_is_instance.testacc_vsi.id
 		name = "%s"
 		virtual_network_interface {
-			id =ibm_is_virtual_network_interface.testacc_vni2.id
+			id = ibm_is_virtual_network_interface.testacc_vni2.id
 		}
 	}
-	`, vpcname, subnetname, acc.ISZoneName, sshname, publicKey, vniname, true, vniname, true, acc.InstanceProfileName, name, acc.IsImage, "", acc.ISZoneName)
+	`, vpcname, subnetname, acc.ISZoneName, sshname, publicKey, vniname, false, vniname, false, acc.InstanceProfileName, name, acc.IsImage, "", acc.ISZoneName)
 }
 
 func testAccCheckIBMIsInstanceNetworkAttachmentConfig(instanceID string, name string) string {

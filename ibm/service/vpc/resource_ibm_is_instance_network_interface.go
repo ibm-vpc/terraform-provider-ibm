@@ -40,7 +40,6 @@ func ResourceIBMIsInstanceNetworkInterface() *schema.Resource {
 			"instance": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Deprecated:  "This `ibm_is_instance_network_interface` resource is deprecated`",
 				ForceNew:    true,
 				Description: "The unique identifier of the instance.",
 			},

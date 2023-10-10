@@ -2,20 +2,20 @@
 layout: "ibm"
 page_title: "IBM : ibm_is_instance_network_attachment"
 description: |-
-  Get information about InstanceByNetworkAttachment
+  Get information about InstanceNetworkAttachment
 subcategory: "Virtual Private Cloud API"
 ---
 
 # ibm_is_instance_network_attachment
 
-Provides a read-only data source to retrieve information about an InstanceByNetworkAttachment. You can then reference the fields of the data source in other resources within the same configuration by using interpolation syntax.
+Provides a read-only data source to retrieve information about an Instance NetworkAttachment. You can then reference the fields of the data source in other resources within the same configuration by using interpolation syntax.
 
 ## Example Usage
 
 ```terraform
-data "ibm_is_instance_network_attachment" "is_instance_network_attachment" {
-	id = "id"
-	instance_id = ibm_is_instance_network_attachment.is_instance_network_attachment.instance_id
+data "ibm_is_instance_network_attachment" "example" {
+	instance 			= ibm_is_instance.example.id
+	network_attachment 	= ibm_is_instance.example.primary_network_attachment.0.id
 }
 ```
 
@@ -23,14 +23,14 @@ data "ibm_is_instance_network_attachment" "is_instance_network_attachment" {
 
 You can specify the following arguments for this data source.
 
-- `instance_network_attachment` - (Required, Forces new resource, String) The instance network attachment identifier.
 - `instance` - (Required, Forces new resource, String) The virtual server instance identifier.
+- `network_attachment` - (Required, Forces new resource, String) The instance network attachment identifier.
 
 ## Attribute Reference
 
 After your data source is created, you can read values from the following attributes.
 
-- `id` - The unique identifier of the InstanceByNetworkAttachment.
+- `id` - The unique identifier of the Instance NetworkAttachment.`<instance>/<network_attachment>`
 - `created_at` - (String) The date and time that the instance network attachment was created.
 - `href` - (String) The URL for this instance network attachment.
 - `lifecycle_state` - (String) The lifecycle state of the instance network attachment. Allowable values are: `deleting`, `failed`, `pending`, `stable`, `suspended`, `updating`, `waiting`.

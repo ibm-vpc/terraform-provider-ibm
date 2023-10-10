@@ -71,7 +71,7 @@ func ResourceIBMIsInstanceNetworkAttachment() *schema.Resource {
 				Computed:    true,
 				Description: "The instance network attachment type.",
 			},
-			"instance_network_attachment_id": &schema.Schema{
+			"network_attachment": &schema.Schema{
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "The unique identifier for this instance network attachment.",
@@ -363,8 +363,8 @@ func resourceIBMIsInstanceNetworkAttachmentRead(context context.Context, d *sche
 	if err = d.Set("type", instanceNetworkAttachment.Type); err != nil {
 		return diag.FromErr(fmt.Errorf("[ERROR] Error setting type: %s", err))
 	}
-	if err = d.Set("instance_network_attachment_id", instanceNetworkAttachment.ID); err != nil {
-		return diag.FromErr(fmt.Errorf("[ERROR] Error setting instance_network_attachment_id: %s", err))
+	if err = d.Set("network_attachment", instanceNetworkAttachment.ID); err != nil {
+		return diag.FromErr(fmt.Errorf("[ERROR] Error setting network_attachment: %s", err))
 	}
 	// vni details
 	vniId := *instanceNetworkAttachment.VirtualNetworkInterface.ID

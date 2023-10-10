@@ -2,19 +2,19 @@
 layout: "ibm"
 page_title: "IBM : ibm_is_instance_network_attachments"
 description: |-
-  Get information about InstanceNetworkAttachmentCollection
+  Get information about InstanceNetworkAttachment Collection
 subcategory: "Virtual Private Cloud API"
 ---
 
 # ibm_is_instance_network_attachments
 
-Provides a read-only data source to retrieve information about an InstanceNetworkAttachmentCollection. You can then reference the fields of the data source in other resources within the same configuration by using interpolation syntax.
+Provides a read-only data source to retrieve information about an InstanceNetworkAttachment Collection. You can then reference the fields of the data source in other resources within the same configuration by using interpolation syntax.
 
 ## Example Usage
 
 ```terraform
-data "ibm_is_instance_network_attachments" "is_instance_network_attachments" {
-	instance_id = ibm_is_instance_network_attachment.is_instance_network_attachment.instance_id
+data "ibm_is_instance_network_attachments" "example" {
+	instance = ibm_is_instance.example.id
 }
 ```
 

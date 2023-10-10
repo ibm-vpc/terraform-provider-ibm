@@ -2,21 +2,21 @@
 layout: "ibm"
 page_title: "IBM : ibm_is_instance_network_attachment"
 description: |-
-  Manages InstanceByNetworkAttachment.
+  Manages Instance NetworkAttachment.
 subcategory: "Virtual Private Cloud API"
 ---
 
 # ibm_is_instance_network_attachment
 
-Create, update, and delete InstanceByNetworkAttachments with this resource.
+Create, update, and delete Instance NetworkAttachment with this resource.
 
 ## Example Usage
 
 ```terraform
-resource "ibm_is_instance_network_attachment" "is_instance_network_attachment_instance" {
-  instance = "instance_id"
+resource "ibm_is_instance_network_attachment" "example" {
+  instance = "<instance_id>"
   virtual_network_interface {
-		id = "0767-fa41aecb-4f21-423d-8082-630bfba1e1d9"
+		id = "<virtual_network_interface_id>"
   }
 }
 ```
@@ -39,11 +39,12 @@ You can specify the following arguments for this resource.
 
 After your resource is created, you can read values from the listed arguments and the following attributes.
 
-- `id` - The unique identifier of the InstanceByNetworkAttachment.
+- `id` - The unique identifier of the Instance NetworkAttachment.
 - `created_at` - (String) The date and time that the instance network attachment was created.
 - `href` - (String) The URL for this instance network attachment.
 - `lifecycle_state` - (String) The lifecycle state of the instance network attachment.
   * Allowable values are: `deleting`, `failed`, `pending`, `stable`, `suspended`, `updating`, `waiting`.
+- `network_attachment` - (String) The id of the network attachment.
 - `port_speed` - (Integer) The port speed for this instance network attachment in Mbps.
 - `primary_ip` - (List) The primary IP address of the virtual network interface for the instance networkattachment.
 	Nested schema for **primary_ip**:
