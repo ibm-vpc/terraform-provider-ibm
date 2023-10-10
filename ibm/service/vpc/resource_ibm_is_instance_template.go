@@ -334,7 +334,7 @@ func ResourceIBMISInstanceTemplate() *schema.Resource {
 				MaxItems:      1,
 				Optional:      true,
 				ExactlyOneOf:  []string{"primary_network_attachment", "primary_network_interface"},
-				ConflictsWith: []string{"primary_network_interface", "network_interfaces"},
+				ConflictsWith: []string{"primary_network_attachment", "network_interfaces"},
 				Description:   "Primary Network interface info",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
