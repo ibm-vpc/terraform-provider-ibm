@@ -41,7 +41,6 @@ func DataSourceIBMISInstanceNICReservedIP() *schema.Resource {
 			*/
 			isInstanceID: {
 				Type:        schema.TypeString,
-				Deprecated:  "This `ibm_is_instance_network_interface_reserved_ip` datasource is deprecated`",
 				Required:    true,
 				Description: "The instance identifier.",
 			},
