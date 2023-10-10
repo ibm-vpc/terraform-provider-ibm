@@ -64,32 +64,22 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCKVmnMOlHKcZK8tpt3MP1lqOLAcqcJzhsvJcjscgVE
 	})
 }
 func TestAccIBMISInstancesDataSource_vni(t *testing.T) {
-	var instance string
-	vpcname := fmt.Sprintf("tfins-vpc-%d", acctest.RandIntRange(10, 100))
-	subnetname := fmt.Sprintf("tfins-subnet-%d", acctest.RandIntRange(10, 100))
+	vpcname := fmt.Sprintf("tf-vpc-%d", acctest.RandIntRange(10, 100))
+	name := fmt.Sprintf("tf-instnace-%d", acctest.RandIntRange(10, 100))
+	subnetname := fmt.Sprintf("tf-subnet-%d", acctest.RandIntRange(10, 100))
 	publicKey := strings.TrimSpace(`
-	ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCKVmnMOlHKcZK8tpt3MP1lqOLAcqcJzhsvJcjscgVERRN7/9484SOBJ3HSKxxNG5JN8owAjy5f9yYwcUg+JaUVuytn5Pv3aeYROHGGg+5G346xaq3DAwX6Y5ykr2fvjObgncQBnuU5KHWCECO/4h8uWuwh/kfniXPVjFToc+gnkqA+3RKpAecZhFXwfalQ9mMuYGFxn+fwn8cYEApsJbsEmb0iJwPiZ5hjFC8wREuiTlhPHDgkBLOiycd20op2nXzDbHfCHInquEe/gYxEitALONxm0swBOwJZwlTDOB7C6y2dzlrtxr1L59m7pCkWI4EtTRLvleehBoj3u7jB4usR
-	`)
-	sshname := fmt.Sprintf("tfins-ssh-%d", acctest.RandIntRange(10, 100))
-	instanceName := fmt.Sprintf("tfins-name-%d", acctest.RandIntRange(10, 100))
+ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCKVmnMOlHKcZK8tpt3MP1lqOLAcqcJzhsvJcjscgVERRN7/9484SOBJ3HSKxxNG5JN8owAjy5f9yYwcUg+JaUVuytn5Pv3aeYROHGGg+5G346xaq3DAwX6Y5ykr2fvjObgncQBnuU5KHWCECO/4h8uWuwh/kfniXPVjFToc+gnkqA+3RKpAecZhFXwfalQ9mMuYGFxn+fwn8cYEApsJbsEmb0iJwPiZ5hjFC8wREuiTlhPHDgkBLOiycd20op2nXzDbHfCHInquEe/gYxEitALONxm0swBOwJZwlTDOB7C6y2dzlrtxr1L59m7pCkWI4EtTRLvleehBoj3u7jB4usR
+`)
+	vniname := fmt.Sprintf("tf-vni-%d", acctest.RandIntRange(10, 100))
+	sshname := fmt.Sprintf("tf-ssh-%d", acctest.RandIntRange(10, 100))
+	userData1 := "a"
 	resName := "data.ibm_is_instances.ds_instances"
-	userData := "a"
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { acc.TestAccPreCheck(t) },
 		Providers: acc.TestAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckIBMISInstanceConfig(vpcname, subnetname, sshname, publicKey, instanceName, userData),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckIBMISInstanceExists("ibm_is_instance.testacc_instance", instance),
-					resource.TestCheckResourceAttr(
-						"ibm_is_instance.testacc_instance", "name", instanceName),
-					resource.TestCheckResourceAttr(
-						"ibm_is_instance.testacc_instance", "zone", acc.ISZoneName),
-				),
-			},
-			{
-				Config: testAccCheckIBMISInstancesVniDataSourceConfig(),
+				Config: testAccCheckIBMISInstancesVniDataSourceConfig(vpcname, subnetname, sshname, publicKey, name, vniname, userData1),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet(resName, "instances.0.name"),
 					resource.TestCheckResourceAttrSet(resName, "instances.0.memory"),
@@ -107,7 +97,7 @@ func TestAccIBMISInstancesDataSource_vni(t *testing.T) {
 					resource.TestCheckResourceAttrSet(resName, "instances.0.lifecycle_state"),
 					resource.TestCheckResourceAttr(resName, "instances.0.lifecycle_reasons.#", "0"),
 					resource.TestCheckResourceAttrSet(resName, "instances.0.vcpu.0.manufacturer"),
-					resource.TestCheckResourceAttrSet(resName, "instances.0.network_attachments.#"),
+					resource.TestCheckResourceAttrSet(resName, "instances.0.primary_network_attachment.#"),
 					resource.TestCheckResourceAttr(resName, "instances.0.primary_network_attachment.#", "1"),
 				),
 			},
@@ -240,10 +230,11 @@ func testAccCheckIBMISInstancesDataSourceConfig() string {
 	data "ibm_is_instances" "ds_instances" {
 	}`)
 }
-func testAccCheckIBMISInstancesVniDataSourceConfig() string {
-	return fmt.Sprintf(`
+func testAccCheckIBMISInstancesVniDataSourceConfig(vpcname, subnetname, sshname, publicKey, name, vniname, userData string) string {
+	return testAccCheckIBMISInstanceVniConfig(vpcname, subnetname, sshname, publicKey, name, vniname, userData) + fmt.Sprintf(`
 	data "ibm_is_instances" "ds_instances" {
-		vpc_name = "tfp-vni-vpc"
+		vpc_name = ibm_is_vpc.testacc_vpc.name
+		depends_on = [ ibm_is_instance.testacc_instance ]
 	}`)
 }
 
