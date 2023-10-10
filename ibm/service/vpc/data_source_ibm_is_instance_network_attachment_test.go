@@ -5,6 +5,7 @@ package vpc_test
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
@@ -14,20 +15,26 @@ import (
 )
 
 func TestAccIBMIsInstanceNetworkAttachmentDataSourceBasic(t *testing.T) {
-	instanceByNetworkAttachmentInstanceID := fmt.Sprintf("tf_instance_id_%d", acctest.RandIntRange(10, 100))
+	vpcname := fmt.Sprintf("tf-vpc-%d", acctest.RandIntRange(10, 100))
+	name := fmt.Sprintf("tf-instnace-%d", acctest.RandIntRange(10, 100))
+	subnetname := fmt.Sprintf("tf-subnet-%d", acctest.RandIntRange(10, 100))
+	publicKey := strings.TrimSpace(`ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCKVmnMOlHKcZK8tpt3MP1lqOLAcqcJzhsvJcjscgVERRN7/9484SOBJ3HSKxxNG5JN8owAjy5f9yYwcUg+JaUVuytn5Pv3aeYROHGGg+5G346xaq3DAwX6Y5ykr2fvjObgncQBnuU5KHWCECO/4h8uWuwh/kfniXPVjFToc+gnkqA+3RKpAecZhFXwfalQ9mMuYGFxn+fwn8cYEApsJbsEmb0iJwPiZ5hjFC8wREuiTlhPHDgkBLOiycd20op2nXzDbHfCHInquEe/gYxEitALONxm0swBOwJZwlTDOB7C6y2dzlrtxr1L59m7pCkWI4EtTRLvleehBoj3u7jB4usR`)
+	vniname := fmt.Sprintf("tf-vni-%d", acctest.RandIntRange(10, 100))
+	sshname := fmt.Sprintf("tf-ssh-%d", acctest.RandIntRange(10, 100))
+	userData1 := "a"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { acc.TestAccPreCheck(t) },
 		Providers: acc.TestAccProviders,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccCheckIBMIsInstanceNetworkAttachmentDataSourceConfigBasic(instanceByNetworkAttachmentInstanceID),
+				Config: testAccCheckIBMIsInstanceNetworkAttachmentDataSourceConfigBasic(vpcname, subnetname, sshname, publicKey, name, vniname, userData1),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet("data.ibm_is_instance_network_attachment.is_instance_network_attachment", "id"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_instance_network_attachment.is_instance_network_attachment", "instance"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_instance_network_attachment.is_instance_network_attachment", "created_at"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_instance_network_attachment.is_instance_network_attachment", "href"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_instance_network_attachment.is_instance_network_attachment", "instance_network_attachment"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_instance_network_attachment.is_instance_network_attachment", "network_attachment"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_instance_network_attachment.is_instance_network_attachment", "lifecycle_state"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_instance_network_attachment.is_instance_network_attachment", "name"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_instance_network_attachment.is_instance_network_attachment", "port_speed"),
@@ -36,69 +43,19 @@ func TestAccIBMIsInstanceNetworkAttachmentDataSourceBasic(t *testing.T) {
 					resource.TestCheckResourceAttrSet("data.ibm_is_instance_network_attachment.is_instance_network_attachment", "subnet.#"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_instance_network_attachment.is_instance_network_attachment", "type"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_instance_network_attachment.is_instance_network_attachment", "virtual_network_interface.#"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_instance_network_attachment.is_instance_network_attachment", "virtual_network_interface.0.crn"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_instance_network_attachment.is_instance_network_attachment", "virtual_network_interface.0.id"),
 				),
 			},
 		},
 	})
 }
 
-func TestAccIBMIsInstanceNetworkAttachmentDataSourceAllArgs(t *testing.T) {
-	instanceByNetworkAttachmentInstanceID := fmt.Sprintf("tf_instance_id_%d", acctest.RandIntRange(10, 100))
-	instanceByNetworkAttachmentName := fmt.Sprintf("tf_name_%d", acctest.RandIntRange(10, 100))
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { acc.TestAccPreCheck(t) },
-		Providers: acc.TestAccProviders,
-		Steps: []resource.TestStep{
-			resource.TestStep{
-				Config: testAccCheckIBMIsInstanceNetworkAttachmentDataSourceConfig(instanceByNetworkAttachmentInstanceID, instanceByNetworkAttachmentName),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttrSet("data.ibm_is_instance_network_attachment.is_instance_network_attachment", "id"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_instance_network_attachment.is_instance_network_attachment", "instance_id"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_instance_network_attachment.is_instance_network_attachment", "id"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_instance_network_attachment.is_instance_network_attachment", "created_at"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_instance_network_attachment.is_instance_network_attachment", "href"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_instance_network_attachment.is_instance_network_attachment", "instance_by_network_attachment_id"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_instance_network_attachment.is_instance_network_attachment", "lifecycle_state"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_instance_network_attachment.is_instance_network_attachment", "name"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_instance_network_attachment.is_instance_network_attachment", "port_speed"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_instance_network_attachment.is_instance_network_attachment", "primary_ip.#"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_instance_network_attachment.is_instance_network_attachment", "resource_type"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_instance_network_attachment.is_instance_network_attachment", "subnet.#"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_instance_network_attachment.is_instance_network_attachment", "type"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_instance_network_attachment.is_instance_network_attachment", "virtual_network_interface.#"),
-				),
-			},
-		},
-	})
-}
-
-func testAccCheckIBMIsInstanceNetworkAttachmentDataSourceConfigBasic(instanceByNetworkAttachmentInstanceID string) string {
-	return fmt.Sprintf(`
+func testAccCheckIBMIsInstanceNetworkAttachmentDataSourceConfigBasic(vpcname, subnetname, sshname, publicKey, name, vniname, userData1 string) string {
+	return testAccCheckIBMISInstanceVniConfig(vpcname, subnetname, sshname, publicKey, name, vniname, userData1) + fmt.Sprintf(`
 		data "ibm_is_instance_network_attachment" "is_instance_network_attachment" {
-			instance = "0726_e7df689f-ed0c-4df2-9768-106a190f59bc"
-			instance_network_attachment = "0726-c4a88385-0363-4789-84db-bdab039a4cc6"
+			instance 			= ibm_is_instance.testacc_instance.id
+			network_attachment 	= ibm_is_instance.testacc_instance.primary_network_attachment.0.id
 		}
 	`)
-}
-
-func testAccCheckIBMIsInstanceNetworkAttachmentDataSourceConfig(instanceByNetworkAttachmentInstanceID string, instanceByNetworkAttachmentName string) string {
-	return fmt.Sprintf(`
-		resource "ibm_is_instance_network_attachment" "is_instance_network_attachment_instance" {
-			instance_id = "%s"
-			name = "%s"
-			virtual_network_interface {
-				crn = "crn:v1:bluemix:public:is:us-south-1:a/123456::virtual-network-interface:0767-fa41aecb-4f21-423d-8082-630bfba1e1d9"
-				href = "https://us-south.iaas.cloud.ibm.com/v1/virtual_network_interfaces/0767-fa41aecb-4f21-423d-8082-630bfba1e1d9"
-				id = "0767-fa41aecb-4f21-423d-8082-630bfba1e1d9"
-				name = "my-virtual-network-interface"
-				resource_type = "virtual_network_interface"
-			}
-		}
-
-		data "ibm_is_instance_network_attachment" "is_instance_network_attachment_instance" {
-			instance_id = ibm_is_instance_network_attachment.is_instance_network_attachment.instance_id
-			id = "id"
-		}
-	`, instanceByNetworkAttachmentInstanceID, instanceByNetworkAttachmentName)
 }

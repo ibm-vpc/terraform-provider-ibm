@@ -25,7 +25,7 @@ func DataSourceIBMIsInstanceNetworkAttachment() *schema.Resource {
 				Required:    true,
 				Description: "The virtual server instance identifier.",
 			},
-			"instance_network_attachment": &schema.Schema{
+			"network_attachment": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "The instance network attachment identifier.",
@@ -208,7 +208,7 @@ func dataSourceIBMIsInstanceNetworkAttachmentRead(context context.Context, d *sc
 	getInstanceNetworkAttachmentOptions := &vpcv1.GetInstanceNetworkAttachmentOptions{}
 
 	getInstanceNetworkAttachmentOptions.SetInstanceID(d.Get("instance").(string))
-	getInstanceNetworkAttachmentOptions.SetID(d.Get("instance_network_attachment").(string))
+	getInstanceNetworkAttachmentOptions.SetID(d.Get("network_attachment").(string))
 
 	instanceByNetworkAttachment, response, err := vpcClient.GetInstanceNetworkAttachmentWithContext(context, getInstanceNetworkAttachmentOptions)
 	if err != nil {
