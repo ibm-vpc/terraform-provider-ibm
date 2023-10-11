@@ -32,6 +32,7 @@ You can specify the following arguments for this resource.
 	- `crn` - (Required, String) The CRN for this virtual network interface.
 	- `href` - (Required, String) The URL for this virtual network interface.
 	- `id` - (Required, String) The unique identifier for this virtual network interface.
+	~> **NOTE** to add `ips` only existing `reserved_ip` is supported, new reserved_ip creation is not supported as it leads to unmanaged(dangling) reserved ips. Use `ibm_is_subnet_reserved_ip` to create a reserved_ip
 	- `name` - (Required, String) The name for this virtual network interface. The name is unique across all virtual network interfaces in the VPC.
 	- `resource_type` - (Computed, String) The resource type.
 

@@ -157,52 +157,34 @@ In addition to all argument reference list, you can access the following attribu
      - `response_hop_limit` - (Integer) The hop limit (IP time to live) for IP response packets from the metadata service.
 
 - `network_attachments` - (List) The network attachments for this virtual server instance, including the primary network attachment.
-  - Constraints: The minimum length is `1` item.
   Nested schema for **network_attachments**:
 	- `deleted` - (List) If present, this property indicates the referenced resource has been deleted, and providessome supplementary information.
 	Nested schema for **deleted**:
 		- `more_info` - (String) Link to documentation about deleted resources.
-		  - Constraints: The maximum length is `8000` characters. The minimum length is `10` characters. The value must match regular expression `/^http(s)?:\/\/([^\/?#]*)([^?#]*)(\\?([^#]*))?(#(.*))?$/`.
 	- `href` - (String) The URL for this network attachment.
-	  - Constraints: The maximum length is `8000` characters. The minimum length is `10` characters. The value must match regular expression `/^http(s)?:\/\/([^\/?#]*)([^?#]*)(\\?([^#]*))?(#(.*))?$/`.
 	- `id` - (String) The unique identifier for this network attachment.
-	  - Constraints: The maximum length is `64` characters. The minimum length is `1` character. The value must match regular expression `/^[-0-9a-z_]+$/`.
 	- `name` - (String)
-	  - Constraints: The maximum length is `63` characters. The minimum length is `1` character. The value must match regular expression `/^-?([a-z]|[a-z][-a-z0-9]*[a-z0-9]|[0-9][-a-z0-9]*([a-z]|[-a-z][-a-z0-9]*[a-z0-9]))$/`.
 	- `primary_ip` - (List) The primary IP address of the virtual network interface for the network attachment.
 	  Nested schema for **primary_ip**:
 		- `address` - (String) The IP address.If the address has not yet been selected, the value will be `0.0.0.0`.This property may add support for IPv6 addresses in the future. When processing a value in this property, verify that the address is in an expected format. If it is not, log an error. Optionally halt processing and surface the error, or bypass the resource on which the unexpected IP address format was encountered.
-		  - Constraints: The maximum length is `15` characters. The minimum length is `7` characters. The value must match regular expression `/^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$/`.
 		- `deleted` - (List) If present, this property indicates the referenced resource has been deleted, and providessome supplementary information.
 		  Nested schema for **deleted**:
 			- `more_info` - (String) Link to documentation about deleted resources.
-			  - Constraints: The maximum length is `8000` characters. The minimum length is `10` characters. The value must match regular expression `/^http(s)?:\/\/([^\/?#]*)([^?#]*)(\\?([^#]*))?(#(.*))?$/`.
 		- `href` - (String) The URL for this reserved IP.
-		  - Constraints: The maximum length is `8000` characters. The minimum length is `10` characters. The value must match regular expression `/^http(s)?:\/\/([^\/?#]*)([^?#]*)(\\?([^#]*))?(#(.*))?$/`.
 		- `id` - (String) The unique identifier for this reserved IP.
-		  - Constraints: The maximum length is `64` characters. The minimum length is `1` character. The value must match regular expression `/^[-0-9a-z_]+$/`.
 		- `name` - (String) The name for this reserved IP. The name is unique across all reserved IPs in a subnet.
-		  - Constraints: The maximum length is `63` characters. The minimum length is `1` character. The value must match regular expression `/^-?([a-z]|[a-z][-a-z0-9]*[a-z0-9]|[0-9][-a-z0-9]*([a-z]|[-a-z][-a-z0-9]*[a-z0-9]))$/`.
 		- `resource_type` - (String) The resource type.
-		  - Constraints: Allowable values are: `subnet_reserved_ip`. The maximum length is `128` characters. The minimum length is `1` character. The value must match regular expression `/^[a-z][a-z0-9]*(_[a-z0-9]+)*$/`.
 	- `resource_type` - (String) The resource type.
-	  - Constraints: Allowable values are: `instance_network_attachment`. The maximum length is `128` characters. The minimum length is `1` character. The value must match regular expression `/^[a-z][a-z0-9]*(_[a-z0-9]+)*$/`.
 	- `subnet` - (List) The subnet of the virtual network interface for the network attachment.
 	  Nested schema for **subnet**:
 		- `crn` - (String) The CRN for this subnet.
-		  - Constraints: The maximum length is `512` characters. The minimum length is `9` characters.
 		- `deleted` - (List) If present, this property indicates the referenced resource has been deleted, and providessome supplementary information.
 		  Nested schema for **deleted**:
 			- `more_info` - (String) Link to documentation about deleted resources.
-			  - Constraints: The maximum length is `8000` characters. The minimum length is `10` characters. The value must match regular expression `/^http(s)?:\/\/([^\/?#]*)([^?#]*)(\\?([^#]*))?(#(.*))?$/`.
 		- `href` - (String) The URL for this subnet.
-		  - Constraints: The maximum length is `8000` characters. The minimum length is `10` characters. The value must match regular expression `/^http(s)?:\/\/([^\/?#]*)([^?#]*)(\\?([^#]*))?(#(.*))?$/`.
 		- `id` - (String) The unique identifier for this subnet.
-		  - Constraints: The maximum length is `64` characters. The minimum length is `1` character. The value must match regular expression `/^[-0-9a-z_]+$/`.
 		- `name` - (String) The name for this subnet. The name is unique across all subnets in the VPC.
-		  - Constraints: The maximum length is `63` characters. The minimum length is `1` character. The value must match regular expression `/^-?([a-z]|[a-z][-a-z0-9]*[a-z0-9]|[0-9][-a-z0-9]*([a-z]|[-a-z][-a-z0-9]*[a-z0-9]))$/`.
 		- `resource_type` - (String) The resource type.
-		  - Constraints: Allowable values are: `subnet`. The maximum length is `128` characters. The minimum length is `1` character. The value must match regular expression `/^[a-z][a-z0-9]*(_[a-z0-9]+)*$/`.
     
 - `network_interfaces`- (List) A list of more network interfaces that the instance uses.
 
@@ -236,47 +218,30 @@ In addition to all argument reference list, you can access the following attribu
 	- `deleted` - (List) If present, this property indicates the referenced resource has been deleted, and providessome supplementary information.
 	  Nested schema for **deleted**:
 		- `more_info` - (String) Link to documentation about deleted resources.
-		  - Constraints: The maximum length is `8000` characters. The minimum length is `10` characters. The value must match regular expression `/^http(s)?:\/\/([^\/?#]*)([^?#]*)(\\?([^#]*))?(#(.*))?$/`.
 	- `href` - (String) The URL for this network attachment.
-	  - Constraints: The maximum length is `8000` characters. The minimum length is `10` characters. The value must match regular expression `/^http(s)?:\/\/([^\/?#]*)([^?#]*)(\\?([^#]*))?(#(.*))?$/`.
 	- `id` - (String) The unique identifier for this network attachment.
-	  - Constraints: The maximum length is `64` characters. The minimum length is `1` character. The value must match regular expression `/^[-0-9a-z_]+$/`.
 	- `name` - (String)
-	  - Constraints: The maximum length is `63` characters. The minimum length is `1` character. The value must match regular expression `/^-?([a-z]|[a-z][-a-z0-9]*[a-z0-9]|[0-9][-a-z0-9]*([a-z]|[-a-z][-a-z0-9]*[a-z0-9]))$/`.
 	- `primary_ip` - (List) The primary IP address of the virtual network interface for the network attachment.
 	  Nested schema for **primary_ip**:
 		- `address` - (String) The IP address.If the address has not yet been selected, the value will be `0.0.0.0`.This property may add support for IPv6 addresses in the future. When processing a value in this property, verify that the address is in an expected format. If it is not, log an error. Optionally halt processing and surface the error, or bypass the resource on which the unexpected IP address format was encountered.
-		  - Constraints: The maximum length is `15` characters. The minimum length is `7` characters. The value must match regular expression `/^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$/`.
 		- `deleted` - (List) If present, this property indicates the referenced resource has been deleted, and providessome supplementary information.
 		  Nested schema for **deleted**:
 			- `more_info` - (String) Link to documentation about deleted resources.
-			  - Constraints: The maximum length is `8000` characters. The minimum length is `10` characters. The value must match regular expression `/^http(s)?:\/\/([^\/?#]*)([^?#]*)(\\?([^#]*))?(#(.*))?$/`.
 		- `href` - (String) The URL for this reserved IP.
-		  - Constraints: The maximum length is `8000` characters. The minimum length is `10` characters. The value must match regular expression `/^http(s)?:\/\/([^\/?#]*)([^?#]*)(\\?([^#]*))?(#(.*))?$/`.
 		- `id` - (String) The unique identifier for this reserved IP.
-		  - Constraints: The maximum length is `64` characters. The minimum length is `1` character. The value must match regular expression `/^[-0-9a-z_]+$/`.
 		- `name` - (String) The name for this reserved IP. The name is unique across all reserved IPs in a subnet.
-		  - Constraints: The maximum length is `63` characters. The minimum length is `1` character. The value must match regular expression `/^-?([a-z]|[a-z][-a-z0-9]*[a-z0-9]|[0-9][-a-z0-9]*([a-z]|[-a-z][-a-z0-9]*[a-z0-9]))$/`.
 		- `resource_type` - (String) The resource type.
-		  - Constraints: Allowable values are: `subnet_reserved_ip`. The maximum length is `128` characters. The minimum length is `1` character. The value must match regular expression `/^[a-z][a-z0-9]*(_[a-z0-9]+)*$/`.
 	- `resource_type` - (String) The resource type.
-	  - Constraints: Allowable values are: `instance_network_attachment`. The maximum length is `128` characters. The minimum length is `1` character. The value must match regular expression `/^[a-z][a-z0-9]*(_[a-z0-9]+)*$/`.
 	- `subnet` - (List) The subnet of the virtual network interface for the network attachment.
 	  Nested schema for **subnet**:
 		- `crn` - (String) The CRN for this subnet.
-		  - Constraints: The maximum length is `512` characters. The minimum length is `9` characters.
 		- `deleted` - (List) If present, this property indicates the referenced resource has been deleted, and providessome supplementary information.
 		  Nested schema for **deleted**:
 			- `more_info` - (String) Link to documentation about deleted resources.
-			  - Constraints: The maximum length is `8000` characters. The minimum length is `10` characters. The value must match regular expression `/^http(s)?:\/\/([^\/?#]*)([^?#]*)(\\?([^#]*))?(#(.*))?$/`.
 		- `href` - (String) The URL for this subnet.
-		  - Constraints: The maximum length is `8000` characters. The minimum length is `10` characters. The value must match regular expression `/^http(s)?:\/\/([^\/?#]*)([^?#]*)(\\?([^#]*))?(#(.*))?$/`.
 		- `id` - (String) The unique identifier for this subnet.
-		  - Constraints: The maximum length is `64` characters. The minimum length is `1` character. The value must match regular expression `/^[-0-9a-z_]+$/`.
 		- `name` - (String) The name for this subnet. The name is unique across all subnets in the VPC.
-		  - Constraints: The maximum length is `63` characters. The minimum length is `1` character. The value must match regular expression `/^-?([a-z]|[a-z][-a-z0-9]*[a-z0-9]|[0-9][-a-z0-9]*([a-z]|[-a-z][-a-z0-9]*[a-z0-9]))$/`.
 		- `resource_type` - (String) The resource type.
-		  - Constraints: Allowable values are: `subnet`. The maximum length is `128` characters. The minimum length is `1` character. The value must match regular expression `/^[a-z][a-z0-9]*(_[a-z0-9]+)*$/`.
 
 - `primary_network_interface`- (List) A list of primary network interfaces that were created for the instance. 
 

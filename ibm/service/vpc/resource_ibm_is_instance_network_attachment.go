@@ -85,33 +85,38 @@ func ResourceIBMIsInstanceNetworkAttachment() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"id": &schema.Schema{
-							Type:        schema.TypeString,
-							Optional:    true,
-							Description: "The virtual network interface id for this instance network attachment.",
+							Type:          schema.TypeString,
+							Optional:      true,
+							ConflictsWith: []string{"virtual_network_interface.0.allow_ip_spoofing", "virtual_network_interface.0.auto_delete", "virtual_network_interface.0.enable_infrastructure_nat", "virtual_network_interface.0.ips", "virtual_network_interface.0.name", "virtual_network_interface.0.primary_ip", "virtual_network_interface.0.resource_group", "virtual_network_interface.0.security_groups", "virtual_network_interface.0.security_groups"},
+							Description:   "The virtual network interface id for this instance network attachment.",
 						},
 						"allow_ip_spoofing": &schema.Schema{
-							Type:        schema.TypeBool,
-							Optional:    true,
-							Computed:    true,
-							Description: "Indicates whether source IP spoofing is allowed on this interface. If `false`, source IP spoofing is prevented on this interface. If `true`, source IP spoofing is allowed on this interface.",
+							Type:          schema.TypeBool,
+							Optional:      true,
+							Computed:      true,
+							ConflictsWith: []string{"virtual_network_interface.0.id"},
+							Description:   "Indicates whether source IP spoofing is allowed on this interface. If `false`, source IP spoofing is prevented on this interface. If `true`, source IP spoofing is allowed on this interface.",
 						},
 						"auto_delete": &schema.Schema{
-							Type:        schema.TypeBool,
-							Optional:    true,
-							Computed:    true,
-							Description: "Indicates whether this virtual network interface will be automatically deleted when`target` is deleted.",
+							Type:          schema.TypeBool,
+							Optional:      true,
+							Computed:      true,
+							ConflictsWith: []string{"virtual_network_interface.0.id"},
+							Description:   "Indicates whether this virtual network interface will be automatically deleted when`target` is deleted.",
 						},
 						"enable_infrastructure_nat": &schema.Schema{
-							Type:        schema.TypeBool,
-							Optional:    true,
-							Computed:    true,
-							Description: "If `true`:- The VPC infrastructure performs any needed NAT operations.- `floating_ips` must not have more than one floating IP.If `false`:- Packets are passed unchanged to/from the network interface,  allowing the workload to perform any needed NAT operations.- `allow_ip_spoofing` must be `false`.- If the virtual network interface is attached:  - The target `resource_type` must be `bare_metal_server_network_attachment`.  - The target `interface_type` must not be `hipersocket`.",
+							Type:          schema.TypeBool,
+							Optional:      true,
+							Computed:      true,
+							ConflictsWith: []string{"virtual_network_interface.0.id"},
+							Description:   "If `true`:- The VPC infrastructure performs any needed NAT operations.- `floating_ips` must not have more than one floating IP.If `false`:- Packets are passed unchanged to/from the network interface,  allowing the workload to perform any needed NAT operations.- `allow_ip_spoofing` must be `false`.- If the virtual network interface is attached:  - The target `resource_type` must be `bare_metal_server_network_attachment`.  - The target `interface_type` must not be `hipersocket`.",
 						},
 						"ips": &schema.Schema{
-							Type:        schema.TypeList,
-							Optional:    true,
-							Computed:    true,
-							Description: "The reserved IPs bound to this virtual network interface.May be empty when `lifecycle_state` is `pending`.",
+							Type:          schema.TypeList,
+							Optional:      true,
+							Computed:      true,
+							ConflictsWith: []string{"virtual_network_interface.0.id"},
+							Description:   "The reserved IPs bound to this virtual network interface.May be empty when `lifecycle_state` is `pending`.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"address": &schema.Schema{
@@ -165,17 +170,19 @@ func ResourceIBMIsInstanceNetworkAttachment() *schema.Resource {
 							},
 						},
 						"name": &schema.Schema{
-							Type:         schema.TypeString,
-							Optional:     true,
-							Computed:     true,
-							ValidateFunc: validate.InvokeValidator("ibm_is_virtual_network_interface", "name"),
-							Description:  "The name for this virtual network interface. The name is unique across all virtual network interfaces in the VPC.",
+							Type:          schema.TypeString,
+							Optional:      true,
+							Computed:      true,
+							ConflictsWith: []string{"virtual_network_interface.0.id"},
+							ValidateFunc:  validate.InvokeValidator("ibm_is_virtual_network_interface", "name"),
+							Description:   "The name for this virtual network interface. The name is unique across all virtual network interfaces in the VPC.",
 						},
 						"primary_ip": &schema.Schema{
-							Type:        schema.TypeList,
-							Optional:    true,
-							Computed:    true,
-							Description: "The primary IP address of the virtual network interface for the instance networkattachment.",
+							Type:          schema.TypeList,
+							Optional:      true,
+							ConflictsWith: []string{"virtual_network_interface.0.id"},
+							Computed:      true,
+							Description:   "The primary IP address of the virtual network interface for the instance networkattachment.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"address": &schema.Schema{
@@ -224,10 +231,11 @@ func ResourceIBMIsInstanceNetworkAttachment() *schema.Resource {
 							},
 						},
 						"resource_group": &schema.Schema{
-							Type:        schema.TypeString,
-							Optional:    true,
-							Computed:    true,
-							Description: "The resource group id for this virtual network interface.",
+							Type:          schema.TypeString,
+							Optional:      true,
+							ConflictsWith: []string{"virtual_network_interface.0.id"},
+							Computed:      true,
+							Description:   "The resource group id for this virtual network interface.",
 						},
 						"resource_type": &schema.Schema{
 							Type:        schema.TypeString,
@@ -235,20 +243,22 @@ func ResourceIBMIsInstanceNetworkAttachment() *schema.Resource {
 							Description: "The resource type.",
 						},
 						"security_groups": {
-							Type:        schema.TypeSet,
-							Optional:    true,
-							Computed:    true,
-							ForceNew:    true,
-							Elem:        &schema.Schema{Type: schema.TypeString},
-							Set:         schema.HashString,
-							Description: "The security groups for this virtual network interface.",
+							Type:          schema.TypeSet,
+							Optional:      true,
+							Computed:      true,
+							ConflictsWith: []string{"virtual_network_interface.0.id"},
+							ForceNew:      true,
+							Elem:          &schema.Schema{Type: schema.TypeString},
+							Set:           schema.HashString,
+							Description:   "The security groups for this virtual network interface.",
 						},
 						"subnet": &schema.Schema{
-							Type:        schema.TypeString,
-							Optional:    true,
-							Computed:    true,
-							ForceNew:    true,
-							Description: "The associated subnet id.",
+							Type:          schema.TypeString,
+							Optional:      true,
+							Computed:      true,
+							ConflictsWith: []string{"virtual_network_interface.0.id"},
+							ForceNew:      true,
+							Description:   "The associated subnet id.",
 						},
 					},
 				},
@@ -446,9 +456,9 @@ func resourceIBMIsInstanceNetworkAttachmentUpdate(context context.Context, d *sc
 	hasChange := false
 
 	patchVals := &vpcv1.InstanceNetworkAttachmentPatch{}
-	if d.HasChange("instance_id") {
+	if d.HasChange("instance") {
 		return diag.FromErr(fmt.Errorf("Cannot update resource property \"%s\" with the ForceNew annotation."+
-			" The resource must be re-created to update this property.", "instance_id"))
+			" The resource must be re-created to update this property.", "instance"))
 	}
 	if d.HasChange("name") {
 		newName := d.Get("name").(string)
