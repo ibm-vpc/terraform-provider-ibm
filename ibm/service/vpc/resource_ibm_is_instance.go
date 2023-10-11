@@ -400,12 +400,11 @@ func ResourceIBMISInstance() *schema.Resource {
 			},
 
 			isInstancePrimaryNetworkInterface: {
-				Type:       schema.TypeList,
-				MinItems:   1,
-				MaxItems:   1,
-				Optional:   true,
-				Computed:   true,
-				Deprecated: "This `primary_network_interface` argument is deprecated, please use primary_network_attachment`", ExactlyOneOf: []string{"primary_network_attachment", "primary_network_interface"},
+				Type:          schema.TypeList,
+				MinItems:      1,
+				MaxItems:      1,
+				Optional:      true,
+				Computed:      true,
 				ConflictsWith: []string{"primary_network_attachment", "network_attachments"},
 				Description:   "Primary Network interface info",
 				Elem: &schema.Resource{
@@ -558,6 +557,7 @@ func ResourceIBMISInstance() *schema.Resource {
 						"virtual_network_interface": &schema.Schema{
 							Type:        schema.TypeList,
 							Optional:    true,
+							MaxItems:    1,
 							Computed:    true,
 							Description: "A virtual network interface for the instance network attachment. This can be specified using an existing virtual network interface, or a prototype object for a new virtual network interface.",
 							Elem: &schema.Resource{
@@ -739,7 +739,6 @@ func ResourceIBMISInstance() *schema.Resource {
 				Type:          schema.TypeList,
 				Optional:      true,
 				Computed:      true,
-				Deprecated:    "This `network_interfaces` argument is deprecated, please use network_attachments`",
 				ConflictsWith: []string{"primary_network_attachment", "network_attachments"},
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -877,6 +876,7 @@ func ResourceIBMISInstance() *schema.Resource {
 
 						"virtual_network_interface": &schema.Schema{
 							Type:        schema.TypeList,
+							MaxItems:    1,
 							Optional:    true,
 							Computed:    true,
 							Description: "A virtual network interface for the instance network attachment. This can be specified using an existing virtual network interface, or a prototype object for a new virtual network interface.",

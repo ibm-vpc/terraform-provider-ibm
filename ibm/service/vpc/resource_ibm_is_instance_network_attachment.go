@@ -79,6 +79,7 @@ func ResourceIBMIsInstanceNetworkAttachment() *schema.Resource {
 			// vni properties
 			"virtual_network_interface": &schema.Schema{
 				Type:        schema.TypeList,
+				MaxItems:    1,
 				Optional:    true,
 				Computed:    true,
 				Description: "A virtual network interface for the instance network attachment. This can be specified using an existing virtual network interface, or a prototype object for a new virtual network interface.",
@@ -246,8 +247,8 @@ func ResourceIBMIsInstanceNetworkAttachment() *schema.Resource {
 							Type:          schema.TypeSet,
 							Optional:      true,
 							Computed:      true,
-							ConflictsWith: []string{"virtual_network_interface.0.id"},
 							ForceNew:      true,
+							ConflictsWith: []string{"virtual_network_interface.0.id"},
 							Elem:          &schema.Schema{Type: schema.TypeString},
 							Set:           schema.HashString,
 							Description:   "The security groups for this virtual network interface.",
