@@ -105,21 +105,20 @@ func ResourceIBMIsShareMountTarget() *schema.Resource {
 							Description: "If `true`:- The VPC infrastructure performs any needed NAT operations.- `floating_ips` must not have more than one floating IP.If `false`:- Packets are passed unchanged to/from the network interface,  allowing the workload to perform any needed NAT operations.- `allow_ip_spoofing` must be `false`.- If the virtual network interface is attached:  - The target `resource_type` must be `bare_metal_server_network_attachment`.  - The target `interface_type` must not be `hipersocket`.",
 						},
 						"ips": &schema.Schema{
-							Type:        schema.TypeList,
+							Type:        schema.TypeSet,
 							Optional:    true,
 							Computed:    true,
+							Set:         hashIpsList,
 							Description: "The reserved IPs bound to this virtual network interface.May be empty when `lifecycle_state` is `pending`.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"address": &schema.Schema{
 										Type:        schema.TypeString,
-										Optional:    true,
 										Computed:    true,
 										Description: "The IP address.If the address has not yet been selected, the value will be `0.0.0.0`.This property may add support for IPv6 addresses in the future. When processing a value in this property, verify that the address is in an expected format. If it is not, log an error. Optionally halt processing and surface the error, or bypass the resource on which the unexpected IP address format was encountered.",
 									},
 									"auto_delete": &schema.Schema{
 										Type:        schema.TypeBool,
-										Optional:    true,
 										Computed:    true,
 										Description: "Indicates whether this reserved IP member will be automatically deleted when either target is deleted, or the reserved IP is unbound.",
 									},
@@ -145,13 +144,11 @@ func ResourceIBMIsShareMountTarget() *schema.Resource {
 									},
 									"reserved_ip": &schema.Schema{
 										Type:        schema.TypeString,
-										Optional:    true,
-										Computed:    true,
+										Required:    true,
 										Description: "The unique identifier for this reserved IP.",
 									},
 									"name": &schema.Schema{
 										Type:        schema.TypeString,
-										Optional:    true,
 										Computed:    true,
 										Description: "The name for this reserved IP. The name is unique across all reserved IPs in a subnet.",
 									},
@@ -908,9 +905,9 @@ func ShareMountTargetMapToShareMountTargetPrototype(d *schema.ResourceData, vniM
 	}
 	if _, ok := d.GetOk("ips"); ok {
 		var ips []vpcv1.VirtualNetworkInterfaceIPPrototypeIntf
-		for _, v := range d.Get("ips").([]interface{}) {
+		for _, v := range d.Get("ips").(*schema.Set).List() {
 			value := v.(map[string]interface{})
-			ipsItem, err := virtualNetworkInterfaceIPsReservedIPPrototypeMapToModel(value)
+			ipsItem, err := resourceIBMIsVirtualNetworkInterfaceMapToVirtualNetworkInterfaceIPsReservedIPPrototype(value)
 			if err != nil {
 				return vniPrototype, err
 			}
