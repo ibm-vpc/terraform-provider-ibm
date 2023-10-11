@@ -472,7 +472,7 @@ func isVpnGatewayRefreshFunc(vpnGateway *vpcv1.VpcV1, id string) resource.StateR
 		}
 		vpnGateway := vpnGatewayIntf.(*vpcv1.VPNGateway)
 
-		if *vpnGateway.Status == "available" || *vpnGateway.Status == "failed" || *vpnGateway.Status == "running" {
+		if *vpnGateway.LifecycleState == "stable" || *vpnGateway.LifecycleState == "failed" || *vpnGateway.LifecycleState == "suspended" {
 			return vpnGateway, isVPNGatewayProvisioningDone, nil
 		}
 
@@ -510,7 +510,6 @@ func vpngwGet(d *schema.ResourceData, meta interface{}, id string) error {
 
 	d.Set(isVPNGatewayName, *vpnGateway.Name)
 	d.Set(isVPNGatewaySubnet, *vpnGateway.Subnet.ID)
-	d.Set(isVPNGatewayStatus, *vpnGateway.Status)
 	if err = d.Set("health_state", vpnGateway.HealthState); err != nil {
 		return fmt.Errorf("[ERROR] Error setting health_state: %s", err)
 	}
@@ -562,7 +561,6 @@ func vpngwGet(d *schema.ResourceData, meta interface{}, id string) error {
 	d.Set(flex.ResourceName, *vpnGateway.Name)
 	d.Set(flex.ResourceCRN, *vpnGateway.CRN)
 	d.Set(isVPNGatewayCRN, *vpnGateway.CRN)
-	d.Set(flex.ResourceStatus, *vpnGateway.Status)
 	if vpnGateway.ResourceGroup != nil {
 		d.Set(flex.ResourceGroupName, *vpnGateway.ResourceGroup.Name)
 		d.Set(isVPNGatewayResourceGroup, *vpnGateway.ResourceGroup.ID)
@@ -575,7 +573,6 @@ func vpngwGet(d *schema.ResourceData, meta interface{}, id string) error {
 			if memberIP.PublicIP != nil {
 				currentMemberIP["address"] = *memberIP.PublicIP.Address
 				currentMemberIP["role"] = *memberIP.Role
-				currentMemberIP["status"] = *memberIP.Status
 				vpcMembersIpsList = append(vpcMembersIpsList, currentMemberIP)
 			}
 			if memberIP.PrivateIP != nil && memberIP.PrivateIP.Address != nil {
