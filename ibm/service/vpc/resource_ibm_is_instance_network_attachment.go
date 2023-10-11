@@ -88,6 +88,7 @@ func ResourceIBMIsInstanceNetworkAttachment() *schema.Resource {
 						"id": &schema.Schema{
 							Type:          schema.TypeString,
 							Optional:      true,
+							Computed:      true,
 							ConflictsWith: []string{"virtual_network_interface.0.allow_ip_spoofing", "virtual_network_interface.0.auto_delete", "virtual_network_interface.0.enable_infrastructure_nat", "virtual_network_interface.0.ips", "virtual_network_interface.0.name", "virtual_network_interface.0.primary_ip", "virtual_network_interface.0.resource_group", "virtual_network_interface.0.security_groups", "virtual_network_interface.0.security_groups"},
 							Description:   "The virtual network interface id for this instance network attachment.",
 						},
@@ -101,7 +102,7 @@ func ResourceIBMIsInstanceNetworkAttachment() *schema.Resource {
 						"auto_delete": &schema.Schema{
 							Type:          schema.TypeBool,
 							Optional:      true,
-							Computed:      true,
+							Default:       true,
 							ConflictsWith: []string{"virtual_network_interface.0.id"},
 							Description:   "Indicates whether this virtual network interface will be automatically deleted when`target` is deleted.",
 						},
@@ -191,6 +192,12 @@ func ResourceIBMIsInstanceNetworkAttachment() *schema.Resource {
 										Optional:    true,
 										Computed:    true,
 										Description: "The IP address.If the address has not yet been selected, the value will be `0.0.0.0`.This property may add support for IPv6 addresses in the future. When processing a value in this property, verify that the address is in an expected format. If it is not, log an error. Optionally halt processing and surface the error, or bypass the resource on which the unexpected IP address format was encountered.",
+									},
+									"auto_delete": &schema.Schema{
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Default:     true,
+										Description: "Indicates whether this primary_ip will be automatically deleted when `vni` is deleted.",
 									},
 									"deleted": &schema.Schema{
 										Type:        schema.TypeList,
@@ -404,7 +411,7 @@ func resourceIBMIsInstanceNetworkAttachmentRead(context context.Context, d *sche
 		ips := []map[string]interface{}{}
 		for _, ipsItem := range vniDetails.Ips {
 			if *ipsItem.ID != primaryipId {
-				ipsItemMap, err := resourceIBMIsVirtualNetworkInterfaceReservedIPReferenceToMap(&ipsItem, false)
+				ipsItemMap, err := resourceIBMIsVirtualNetworkInterfaceReservedIPReferenceToMap(&ipsItem, true)
 				if err != nil {
 					return diag.FromErr(err)
 				}
