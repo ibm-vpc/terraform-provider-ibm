@@ -698,6 +698,12 @@ func ResourceIBMISInstance() *schema.Resource {
 													Computed:    true,
 													Description: "The resource type.",
 												},
+												"auto_delete": &schema.Schema{
+													Type:        schema.TypeBool,
+													Optional:    true,
+													Default:     true,
+													Description: "Indicates whether this reserved ip will be automatically deleted when `target` is deleted.",
+												},
 											},
 										},
 									},
@@ -1945,7 +1951,7 @@ func instanceCreateByImage(d *schema.ResourceData, meta interface{}, profile, na
 		err = flex.UpdateGlobalTagsUsingCRN(oldList, newList, meta, *instance.CRN, "", isInstanceUserTagType)
 		if err != nil {
 			log.Printf(
-				"Error on create of resource instance (%s) tags: %s", d.Id(), err)
+				"[ERROR] Error on create of resource instance (%s) tags: %s", d.Id(), err)
 		}
 	}
 	if _, ok := d.GetOk(isInstanceAccessTags); ok {
@@ -1953,7 +1959,7 @@ func instanceCreateByImage(d *schema.ResourceData, meta interface{}, profile, na
 		err = flex.UpdateGlobalTagsUsingCRN(oldList, newList, meta, *instance.CRN, "", isInstanceAccessTagType)
 		if err != nil {
 			log.Printf(
-				"Error on create of resource instance (%s) access tags: %s", d.Id(), err)
+				"[ERROR] Error on create of resource instance (%s) access tags: %s", d.Id(), err)
 		}
 	}
 	return nil
@@ -2347,7 +2353,7 @@ func instanceCreateByCatalogOffering(d *schema.ResourceData, meta interface{}, p
 		err = flex.UpdateTagsUsingCRN(oldList, newList, meta, *instance.CRN)
 		if err != nil {
 			log.Printf(
-				"Error on create of resource instance (%s) tags: %s", d.Id(), err)
+				"[ERROR] Error on create of resource instance (%s) tags: %s", d.Id(), err)
 		}
 	}
 	return nil
@@ -2743,7 +2749,7 @@ func instanceCreateByTemplate(d *schema.ResourceData, meta interface{}, profile,
 		err = flex.UpdateTagsUsingCRN(oldList, newList, meta, *instance.CRN)
 		if err != nil {
 			log.Printf(
-				"Error on create of resource instance (%s) tags: %s", d.Id(), err)
+				"[ERROR] Error on create of resource instance (%s) tags: %s", d.Id(), err)
 		}
 	}
 	if _, ok := d.GetOk(isInstanceAccessTags); ok {
@@ -2751,7 +2757,7 @@ func instanceCreateByTemplate(d *schema.ResourceData, meta interface{}, profile,
 		err = flex.UpdateGlobalTagsUsingCRN(oldList, newList, meta, *instance.CRN, "", isInstanceAccessTagType)
 		if err != nil {
 			log.Printf(
-				"Error on create of resource instance (%s) access tags: %s", d.Id(), err)
+				"[ERROR] Error on create of resource instance (%s) access tags: %s", d.Id(), err)
 		}
 	}
 	return nil
@@ -3142,7 +3148,7 @@ func instanceCreateBySnapshot(d *schema.ResourceData, meta interface{}, profile,
 		err = flex.UpdateGlobalTagsUsingCRN(oldList, newList, meta, *instance.CRN, "", isInstanceUserTagType)
 		if err != nil {
 			log.Printf(
-				"Error on create of resource instance (%s) tags: %s", d.Id(), err)
+				"[ERROR] Error on create of resource instance (%s) tags: %s", d.Id(), err)
 		}
 	}
 	if _, ok := d.GetOk(isInstanceAccessTags); ok {
@@ -3150,7 +3156,7 @@ func instanceCreateBySnapshot(d *schema.ResourceData, meta interface{}, profile,
 		err = flex.UpdateGlobalTagsUsingCRN(oldList, newList, meta, *instance.CRN, "", isInstanceAccessTagType)
 		if err != nil {
 			log.Printf(
-				"Error on create of resource instance (%s) access tags: %s", d.Id(), err)
+				"[ERROR] Error on create of resource instance (%s) access tags: %s", d.Id(), err)
 		}
 	}
 	return nil
@@ -3508,7 +3514,7 @@ func instanceCreateByVolume(d *schema.ResourceData, meta interface{}, profile, n
 		err = flex.UpdateTagsUsingCRN(oldList, newList, meta, *instance.CRN)
 		if err != nil {
 			log.Printf(
-				"Error on create of resource instance (%s) tags: %s", d.Id(), err)
+				"[ERROR] Error on create of resource instance (%s) tags: %s", d.Id(), err)
 		}
 	}
 	if _, ok := d.GetOk(isInstanceAccessTags); ok {
@@ -3516,7 +3522,7 @@ func instanceCreateByVolume(d *schema.ResourceData, meta interface{}, profile, n
 		err = flex.UpdateGlobalTagsUsingCRN(oldList, newList, meta, *instance.CRN, "", isInstanceAccessTagType)
 		if err != nil {
 			log.Printf(
-				"Error on create of resource instance (%s) access tags: %s", d.Id(), err)
+				"[ERROR] Error on create of resource instance (%s) access tags: %s", d.Id(), err)
 		}
 	}
 	return nil
@@ -3843,16 +3849,20 @@ func instanceGet(d *schema.ResourceData, meta interface{}, id string) error {
 			InstanceID: &id,
 			ID:         &pnaId,
 		}
+		autoDelete := true
+		if autoDeleteOk, ok := d.GetOkExists("primary_network_attachment.0.virtual_network_interface.0.primary_ip.0.auto_delete"); ok {
+			autoDelete = autoDeleteOk.(bool)
+		}
 		pna, response, err := instanceC.GetInstanceNetworkAttachment(getInstanceNetworkAttachment)
 		if err != nil {
 			return fmt.Errorf("[ERROR] Error on GetInstanceNetworkAttachment in instance : %s\n%s", err, response)
 		}
-		primaryNetworkAttachmentMap, err := resourceIBMIsInstanceInstanceNetworkAttachmentReferenceToMap(instance.PrimaryNetworkAttachment, pna, instanceC)
+		primaryNetworkAttachmentMap, err := resourceIBMIsInstanceInstanceNetworkAttachmentReferenceToMap(instance.PrimaryNetworkAttachment, pna, instanceC, autoDelete)
 		if err != nil {
 			return err
 		}
 		if err = d.Set("primary_network_attachment", []map[string]interface{}{primaryNetworkAttachmentMap}); err != nil {
-			return fmt.Errorf("Error setting primary_network_attachment: %s", err)
+			return fmt.Errorf("[ERROR] Error setting primary_network_attachment: %s", err)
 		}
 	}
 
@@ -3925,9 +3935,13 @@ func instanceGet(d *schema.ResourceData, meta interface{}, id string) error {
 
 	if !core.IsNil(instance.NetworkAttachments) {
 		networkAttachments := []map[string]interface{}{}
-		for _, networkAttachmentsItem := range instance.NetworkAttachments {
+		for i, networkAttachmentsItem := range instance.NetworkAttachments {
 			naId := *networkAttachmentsItem.ID
 			if *instance.PrimaryNetworkAttachment.ID != naId {
+				autoDelete := true
+				if autoDeleteOk, ok := d.GetOkExists(fmt.Sprintf("network_attachments.%d.virtual_network_interface.0.primary_ip.0.auto_delete", i)); ok {
+					autoDelete = autoDeleteOk.(bool)
+				}
 				getInstanceNetworkAttachment := &vpcv1.GetInstanceNetworkAttachmentOptions{
 					InstanceID: &id,
 					ID:         &naId,
@@ -3936,7 +3950,7 @@ func instanceGet(d *schema.ResourceData, meta interface{}, id string) error {
 				if err != nil {
 					return fmt.Errorf("[ERROR] Error on GetInstanceNetworkAttachment in instance : %s\n%s", err, response)
 				}
-				networkAttachmentsItemMap, err := resourceIBMIsInstanceInstanceNetworkAttachmentReferenceToMap(&networkAttachmentsItem, na, instanceC)
+				networkAttachmentsItemMap, err := resourceIBMIsInstanceInstanceNetworkAttachmentReferenceToMap(&networkAttachmentsItem, na, instanceC, autoDelete)
 				if err != nil {
 					return err
 				}
@@ -3944,7 +3958,7 @@ func instanceGet(d *schema.ResourceData, meta interface{}, id string) error {
 			}
 		}
 		if err = d.Set("network_attachments", networkAttachments); err != nil {
-			return fmt.Errorf("Error setting network_attachments: %s", err)
+			return fmt.Errorf("[ERROR] Error setting network_attachments: %s", err)
 		}
 	}
 	if instance.Image != nil {
@@ -4021,7 +4035,7 @@ func instanceGet(d *schema.ResourceData, meta interface{}, id string) error {
 			}
 			vol, response, err := instanceC.GetVolume(options)
 			if err != nil {
-				log.Printf("Error Getting Boot Volume (%s): %s\n%s", id, err, response)
+				log.Printf("[ERROR] Error Getting Boot Volume (%s): %s\n%s", id, err, response)
 			}
 			if vol != nil {
 				bootVol[isInstanceBootSize] = *vol.Capacity
@@ -4044,13 +4058,13 @@ func instanceGet(d *schema.ResourceData, meta interface{}, id string) error {
 	tags, err := flex.GetGlobalTagsUsingCRN(meta, *instance.CRN, "", isInstanceUserTagType)
 	if err != nil {
 		log.Printf(
-			"Error on get of resource Instance (%s) tags: %s", d.Id(), err)
+			"[ERROR] Error on get of resource Instance (%s) tags: %s", d.Id(), err)
 	}
 	d.Set(isInstanceTags, tags)
 	accesstags, err := flex.GetGlobalTagsUsingCRN(meta, *instance.CRN, "", isInstanceAccessTagType)
 	if err != nil {
 		log.Printf(
-			"Error on get of resource Instance (%s) access tags: %s", d.Id(), err)
+			"[ERROR] Error on get of resource Instance (%s) access tags: %s", d.Id(), err)
 	}
 	d.Set(isInstanceAccessTags, accesstags)
 	controller, err := flex.GetBaseController(meta)
@@ -4676,7 +4690,7 @@ func instanceUpdate(d *schema.ResourceData, meta interface{}) error {
 		}
 		instancePatch, err := instancePatchModel.AsPatch()
 		if err != nil {
-			return fmt.Errorf("Error calling asPatch for InstancePatch: %s", err)
+			return fmt.Errorf("[ERROR] Error calling asPatch for InstancePatch: %s", err)
 		}
 		updatedoptions.InstancePatch = instancePatch
 
@@ -4719,7 +4733,7 @@ func instanceUpdate(d *schema.ResourceData, meta interface{}) error {
 
 		instancePatch, err := instancePatchModel.AsPatch()
 		if err != nil {
-			return fmt.Errorf("Error calling asPatch for InstancePatch: %s", err)
+			return fmt.Errorf("[ERROR] Error calling asPatch for InstancePatch: %s", err)
 		}
 		updatedoptions.InstancePatch = instancePatch
 
@@ -4742,7 +4756,7 @@ func instanceUpdate(d *schema.ResourceData, meta interface{}) error {
 		}
 		instancePatch, err := instancePatchModel.AsPatch()
 		if err != nil {
-			return fmt.Errorf("Error calling asPatch for InstancePatch: %s", err)
+			return fmt.Errorf("[ERROR] Error calling asPatch for InstancePatch: %s", err)
 		}
 		updatedoptions.InstancePatch = instancePatch
 
@@ -4838,7 +4852,7 @@ func instanceUpdate(d *schema.ResourceData, meta interface{}) error {
 		err = flex.UpdateTagsUsingCRN(oldList, newList, meta, *instance.CRN)
 		if err != nil {
 			log.Printf(
-				"Error on update of resource Instance (%s) tags: %s", d.Id(), err)
+				"[ERROR] Error on update of resource Instance (%s) tags: %s", d.Id(), err)
 		}
 	}
 	if d.HasChange(isInstanceAccessTags) {
@@ -4846,7 +4860,7 @@ func instanceUpdate(d *schema.ResourceData, meta interface{}) error {
 		err = flex.UpdateGlobalTagsUsingCRN(oldList, newList, meta, *instance.CRN, "", isInstanceAccessTagType)
 		if err != nil {
 			log.Printf(
-				"Error on update of resource Instance (%s) access tags: %s", d.Id(), err)
+				"[ERROR] Error on update of resource Instance (%s) access tags: %s", d.Id(), err)
 		}
 	}
 	return nil
@@ -5261,7 +5275,7 @@ func GetInstanceMetadataServiceOptions(d *schema.ResourceData) (metadataService 
 	return nil
 }
 
-func resourceIBMIsInstanceInstanceNetworkAttachmentReferenceToMap(model *vpcv1.InstanceNetworkAttachmentReference, pna *vpcv1.InstanceNetworkAttachment, instanceC *vpcv1.VpcV1) (map[string]interface{}, error) {
+func resourceIBMIsInstanceInstanceNetworkAttachmentReferenceToMap(model *vpcv1.InstanceNetworkAttachmentReference, pna *vpcv1.InstanceNetworkAttachment, instanceC *vpcv1.VpcV1, autoDelete bool) (map[string]interface{}, error) {
 	modelMap := make(map[string]interface{})
 	if model.Deleted != nil {
 		deletedMap, err := resourceIBMIsInstanceInstanceNetworkAttachmentReferenceDeletedToMap(model.Deleted)
@@ -5301,7 +5315,7 @@ func resourceIBMIsInstanceInstanceNetworkAttachmentReferenceToMap(model *vpcv1.I
 		ips := []map[string]interface{}{}
 		for _, ipsItem := range vniDetails.Ips {
 			if *ipsItem.ID != primaryipId {
-				ipsItemMap, err := resourceIBMIsVirtualNetworkInterfaceReservedIPReferenceToMap(&ipsItem, false)
+				ipsItemMap, err := resourceIBMIsVirtualNetworkInterfaceReservedIPReferenceToMap(&ipsItem, autoDelete)
 				if err != nil {
 					return nil, err
 				}
@@ -5320,7 +5334,7 @@ func resourceIBMIsInstanceInstanceNetworkAttachmentReferenceToMap(model *vpcv1.I
 		}
 		vniMap["security_groups"] = securityGroups
 	}
-	primaryIPMap, err := resourceIBMIsInstanceReservedIPReferenceToMap(model.PrimaryIP)
+	primaryIPMap, err := resourceIBMIsInstanceReservedIPReferenceToMap(model.PrimaryIP, autoDelete)
 	if err != nil {
 		return modelMap, err
 	}
@@ -5341,7 +5355,7 @@ func resourceIBMIsInstanceInstanceNetworkAttachmentReferenceDeletedToMap(model *
 	return modelMap, nil
 }
 
-func resourceIBMIsInstanceReservedIPReferenceToMap(model *vpcv1.ReservedIPReference) (map[string]interface{}, error) {
+func resourceIBMIsInstanceReservedIPReferenceToMap(model *vpcv1.ReservedIPReference, autoDelete bool) (map[string]interface{}, error) {
 	modelMap := make(map[string]interface{})
 	modelMap["address"] = model.Address
 	if model.Deleted != nil {
@@ -5352,6 +5366,7 @@ func resourceIBMIsInstanceReservedIPReferenceToMap(model *vpcv1.ReservedIPRefere
 		modelMap["deleted"] = []map[string]interface{}{deletedMap}
 	}
 	modelMap["href"] = model.Href
+	modelMap["auto_delete"] = autoDelete
 	modelMap["reserved_ip"] = model.ID
 	modelMap["name"] = model.Name
 	if model.ResourceType != nil {

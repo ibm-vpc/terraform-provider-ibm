@@ -7,8 +7,10 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
@@ -327,7 +329,10 @@ func resourceIBMIsInstanceNetworkAttachmentCreate(context context.Context, d *sc
 	}
 
 	d.SetId(fmt.Sprintf("%s/%s", *createInstanceNetworkAttachmentOptions.InstanceID, *instanceNetworkAttachment.ID))
-
+	_, err = isWaitForInstanceNetworkAttachmentStable(vpcClient, *createInstanceNetworkAttachmentOptions.InstanceID, *instanceNetworkAttachment.ID, d.Timeout(schema.TimeoutCreate))
+	if err != nil {
+		return diag.FromErr(fmt.Errorf("isWaitForInstanceNetworkAttachmentStable failed %s", err))
+	}
 	return resourceIBMIsInstanceNetworkAttachmentRead(context, d, meta)
 }
 
@@ -430,8 +435,11 @@ func resourceIBMIsInstanceNetworkAttachmentRead(context context.Context, d *sche
 		}
 		vniMap["security_groups"] = securityGroups
 	}
-
-	primaryIPMap, err := resourceIBMIsInstanceNetworkAttachmentReservedIPReferenceToMap(instanceNetworkAttachment.PrimaryIP)
+	autoDelete := true
+	if autoDeleteOk, ok := d.GetOkExists("virtual_network_interface.0.primary_ip.0.auto_delete"); ok {
+		autoDelete = autoDeleteOk.(bool)
+	}
+	primaryIPMap, err := resourceIBMIsInstanceNetworkAttachmentReservedIPReferenceToMap(instanceNetworkAttachment.PrimaryIP, autoDelete)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -492,20 +500,36 @@ func resourceIBMIsInstanceNetworkAttachmentDelete(context context.Context, d *sc
 		return diag.FromErr(err)
 	}
 
-	deleteInstanceNetworkAttachmentOptions := &vpcv1.DeleteInstanceNetworkAttachmentOptions{}
-
 	parts, err := flex.SepIdParts(d.Id(), "/")
 	if err != nil {
 		return diag.FromErr(err)
 	}
+	getInstanceNetworkAttachmentOptions := &vpcv1.GetInstanceNetworkAttachmentOptions{}
+	getInstanceNetworkAttachmentOptions.SetInstanceID(parts[0])
+	getInstanceNetworkAttachmentOptions.SetID(parts[1])
 
+	ina, response, err := vpcClient.GetInstanceNetworkAttachmentWithContext(context, getInstanceNetworkAttachmentOptions)
+	if err != nil {
+		if response != nil && response.StatusCode == 404 {
+			d.SetId("")
+			return nil
+		}
+		log.Printf("[DEBUG] GetInstanceNetworkAttachmentWithContext failed while deleting %s\n%s", err, response)
+		return diag.FromErr(fmt.Errorf("GetInstanceNetworkAttachmentWithContext failed %s\n%s", err, response))
+	}
+
+	deleteInstanceNetworkAttachmentOptions := &vpcv1.DeleteInstanceNetworkAttachmentOptions{}
 	deleteInstanceNetworkAttachmentOptions.SetInstanceID(parts[0])
 	deleteInstanceNetworkAttachmentOptions.SetID(parts[1])
 
-	response, err := vpcClient.DeleteInstanceNetworkAttachmentWithContext(context, deleteInstanceNetworkAttachmentOptions)
+	response, err = vpcClient.DeleteInstanceNetworkAttachmentWithContext(context, deleteInstanceNetworkAttachmentOptions)
 	if err != nil {
 		log.Printf("[DEBUG] DeleteInstanceNetworkAttachmentWithContext failed %s\n%s", err, response)
 		return diag.FromErr(fmt.Errorf("DeleteInstanceNetworkAttachmentWithContext failed %s\n%s", err, response))
+	}
+	_, err = isWaitForInstanceNetworkAttachmentDeleted(vpcClient, parts[0], parts[1], ina, d.Timeout(schema.TimeoutDelete))
+	if err != nil {
+		return diag.FromErr(fmt.Errorf("isWaitForInstanceNetworkAttachmentDeleted failed %s", err))
 	}
 
 	d.SetId("")
@@ -765,7 +789,7 @@ func resourceIBMIsInstanceNetworkAttachmentMapToInstanceNetworkAttachmentPrototy
 	return model, nil
 }
 
-func resourceIBMIsInstanceNetworkAttachmentReservedIPReferenceToMap(model *vpcv1.ReservedIPReference) (map[string]interface{}, error) {
+func resourceIBMIsInstanceNetworkAttachmentReservedIPReferenceToMap(model *vpcv1.ReservedIPReference, autodelete bool) (map[string]interface{}, error) {
 	modelMap := make(map[string]interface{})
 	modelMap["address"] = model.Address
 	if model.Deleted != nil {
@@ -776,6 +800,7 @@ func resourceIBMIsInstanceNetworkAttachmentReservedIPReferenceToMap(model *vpcv1
 		modelMap["deleted"] = []map[string]interface{}{deletedMap}
 	}
 	modelMap["href"] = model.Href
+	modelMap["auto_delete"] = autodelete
 	modelMap["reserved_ip"] = model.ID
 	modelMap["name"] = model.Name
 	modelMap["resource_type"] = model.ResourceType
@@ -809,4 +834,72 @@ func resourceIBMIsInstanceNetworkAttachmentSubnetReferenceDeletedToMap(model *vp
 	modelMap := make(map[string]interface{})
 	modelMap["more_info"] = model.MoreInfo
 	return modelMap, nil
+}
+
+func isWaitForInstanceNetworkAttachmentStable(instanceC *vpcv1.VpcV1, instanceId, id string, timeout time.Duration) (interface{}, error) {
+	log.Printf("Waiting for instance network attachment (%s) to be stable.", id)
+
+	stateConf := &resource.StateChangeConf{
+		Pending:    []string{"deleting", "waiting", "updating", "pending"},
+		Target:     []string{"stable", "failed", "suspended", ""},
+		Refresh:    isInstanceNetworkAttachmentRefreshFunc(instanceC, instanceId, id),
+		Timeout:    timeout,
+		Delay:      10 * time.Second,
+		MinTimeout: 10 * time.Second,
+	}
+
+	return stateConf.WaitForState()
+}
+func isInstanceNetworkAttachmentRefreshFunc(instanceC *vpcv1.VpcV1, instanceId, id string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		getInstanceNetworkAttachmentOptions := &vpcv1.GetInstanceNetworkAttachmentOptions{
+			InstanceID: &instanceId,
+			ID:         &id,
+		}
+		networkAttachment, response, err := instanceC.GetInstanceNetworkAttachment(getInstanceNetworkAttachmentOptions)
+		if err != nil {
+			return nil, "", fmt.Errorf("[ERROR] Error getting network attachment: %s\n%s", err, response)
+		}
+
+		if *networkAttachment.LifecycleState == "failed" || *networkAttachment.LifecycleState == "suspended" {
+			return networkAttachment, *networkAttachment.LifecycleState, fmt.Errorf("[ERROR] Error network attachment(%s) in (%s) state", id, *networkAttachment.LifecycleState)
+		}
+
+		return networkAttachment, *networkAttachment.LifecycleState, nil
+	}
+}
+func isWaitForInstanceNetworkAttachmentDeleted(instanceC *vpcv1.VpcV1, instanceId, id string, ina *vpcv1.InstanceNetworkAttachment, timeout time.Duration) (interface{}, error) {
+	log.Printf("Waiting for instance network attachment (%s) to be deleted.", id)
+
+	stateConf := &resource.StateChangeConf{
+		Pending:    []string{"deleting", "waiting", "updating", "pending"},
+		Target:     []string{"deleted", "failed", "suspended", ""},
+		Refresh:    isInstanceNetworkAttachmentDeleteRefreshFunc(instanceC, instanceId, id, ina),
+		Timeout:    timeout,
+		Delay:      10 * time.Second,
+		MinTimeout: 10 * time.Second,
+	}
+
+	return stateConf.WaitForState()
+}
+func isInstanceNetworkAttachmentDeleteRefreshFunc(instanceC *vpcv1.VpcV1, instanceId, id string, ina *vpcv1.InstanceNetworkAttachment) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		getInstanceNetworkAttachmentOptions := &vpcv1.GetInstanceNetworkAttachmentOptions{
+			InstanceID: &instanceId,
+			ID:         &id,
+		}
+		networkAttachment, response, err := instanceC.GetInstanceNetworkAttachment(getInstanceNetworkAttachmentOptions)
+		if err != nil {
+			if response != nil && response.StatusCode == 404 {
+				return ina, "deleted", nil
+			}
+			return ina, "", fmt.Errorf("[ERROR] Error deleting network attachment: %s\n%s", err, response)
+		}
+
+		if *networkAttachment.LifecycleState == "failed" || *networkAttachment.LifecycleState == "suspended" {
+			return networkAttachment, *networkAttachment.LifecycleState, fmt.Errorf("[ERROR] Error network attachment(%s) in (%s) state", id, *networkAttachment.LifecycleState)
+		}
+
+		return networkAttachment, *networkAttachment.LifecycleState, nil
+	}
 }
