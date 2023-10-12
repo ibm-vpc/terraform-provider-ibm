@@ -42,7 +42,21 @@ func DataSourceIBMISSecurityGroup() *schema.Resource {
 				Required:    true,
 				Description: "Security group name",
 			},
-
+			"vpc_id": &schema.Schema{
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "vpc identifier.",
+			},
+			"vpc_crn": &schema.Schema{
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "vpc crn",
+			},
+			"vpc_name": &schema.Schema{
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "vpc name.",
+			},
 			isSecurityGroupVPC: {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -173,13 +187,24 @@ func securityGroupGet(d *schema.ResourceData, meta interface{}, name string) err
 	if err != nil {
 		return err
 	}
-
+	vpcId := d.Get("vpc_id").(string)
 	// Support for pagination
 	start := ""
 	allrecs := []vpcv1.SecurityGroup{}
 
+	listSgOptions := &vpcv1.ListSecurityGroupsOptions{}
+	if vpcId != "" {
+		listSgOptions.VPCID = &vpcId
+	}
+	vpcCrn := d.Get("vpc_crn").(string)
+	vpcName := d.Get("vpc_name").(string)
+	if vpcCrn != "" {
+		listSgOptions.VPCCRN = &vpcCrn
+	}
+	if vpcName != "" {
+		listSgOptions.VPCName = &vpcName
+	}
 	for {
-		listSgOptions := &vpcv1.ListSecurityGroupsOptions{}
 		if start != "" {
 			listSgOptions.Start = &start
 		}
