@@ -689,12 +689,40 @@ func resourceIBMISBareMetalServerNetworkInterfaceAllowFloatUpdate(context contex
 }
 
 func resourceIBMISBareMetalServerNetworkInterfaceAllowFloatDelete(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	bareMetalServerId, nicId, err := ParseNICTerraformID(d.Id())
+	bareMetalServerId, nicID, err := ParseNICTerraformID(d.Id())
 	if err != nil {
 		return diag.FromErr(err)
 	}
+	sess, err := vpcClient(meta)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	options := &vpcv1.GetBareMetalServerNetworkInterfaceOptions{
+		BareMetalServerID: &bareMetalServerId,
+		ID:                &nicID,
+	}
+	var nicIntf vpcv1.BareMetalServerNetworkInterfaceIntf
+	// try to fetch original nic
+	nicIntf, response, err := sess.GetBareMetalServerNetworkInterfaceWithContext(context, options)
+	if (err != nil || nicIntf == nil) && response != nil {
+		//if original nic is not present, try fetching nic without server id
+		nicIntf, response, err = findNicsWithoutBMS(context, d, sess, nicID)
+		// response here can be either nil or not nil and if it returns 404 means nic is deleted
+		if response != nil && response.StatusCode == 404 {
+			d.SetId("")
+			return nil
+		}
+		// if response returns an error
+		if err != nil || nicIntf == nil {
+			if response != nil {
+				return diag.FromErr(fmt.Errorf("[ERROR] Error getting Bare Metal Server (%s) network interface on delete (%s): %s\n%s", bareMetalServerId, nicID, err, response))
+			} else {
+				return diag.FromErr(fmt.Errorf("[ERROR] Error getting Bare Metal Server (%s) network interface on delete (%s): %s", bareMetalServerId, nicID, err))
+			}
+		}
+	}
 
-	err = bareMetalServerNetworkInterfaceAllowFloatDelete(context, d, meta, bareMetalServerId, nicId)
+	err = bareMetalServerNetworkInterfaceAllowFloatDelete(context, d, meta, bareMetalServerId, nicID)
 	if err != nil {
 		return diag.FromErr(err)
 	}
