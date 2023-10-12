@@ -565,6 +565,7 @@ func ResourceIBMISInstance() *schema.Resource {
 									"id": &schema.Schema{
 										Type:        schema.TypeString,
 										Optional:    true,
+										Computed:    true,
 										Description: "The virtual network interface id for this instance network attachment.",
 									},
 									"allow_ip_spoofing": &schema.Schema{
@@ -891,6 +892,7 @@ func ResourceIBMISInstance() *schema.Resource {
 									"id": &schema.Schema{
 										Type:        schema.TypeString,
 										Optional:    true,
+										Computed:    true,
 										Description: "The virtual network interface id for this instance network attachment.",
 									},
 									"allow_ip_spoofing": &schema.Schema{
