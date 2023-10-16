@@ -89,7 +89,6 @@ func ResourceIBMIsShareMountTarget() *schema.Resource {
 						},
 						"allow_ip_spoofing": &schema.Schema{
 							Type:        schema.TypeBool,
-							Optional:    true,
 							Computed:    true,
 							Description: "Indicates whether source IP spoofing is allowed on this interface. If `false`, source IP spoofing is prevented on this interface. If `true`, source IP spoofing is allowed on this interface.",
 						},
@@ -101,64 +100,8 @@ func ResourceIBMIsShareMountTarget() *schema.Resource {
 						},
 						"enable_infrastructure_nat": &schema.Schema{
 							Type:        schema.TypeBool,
-							Optional:    true,
 							Computed:    true,
 							Description: "If `true`:- The VPC infrastructure performs any needed NAT operations.- `floating_ips` must not have more than one floating IP.If `false`:- Packets are passed unchanged to/from the network interface,  allowing the workload to perform any needed NAT operations.- `allow_ip_spoofing` must be `false`.- If the virtual network interface is attached:  - The target `resource_type` must be `bare_metal_server_network_attachment`.  - The target `interface_type` must not be `hipersocket`.",
-						},
-						"ips": &schema.Schema{
-							Type:        schema.TypeSet,
-							Optional:    true,
-							Computed:    true,
-							Set:         hashIpsList,
-							Description: "The reserved IPs bound to this virtual network interface.May be empty when `lifecycle_state` is `pending`.",
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"address": &schema.Schema{
-										Type:        schema.TypeString,
-										Computed:    true,
-										Description: "The IP address.If the address has not yet been selected, the value will be `0.0.0.0`.This property may add support for IPv6 addresses in the future. When processing a value in this property, verify that the address is in an expected format. If it is not, log an error. Optionally halt processing and surface the error, or bypass the resource on which the unexpected IP address format was encountered.",
-									},
-									"auto_delete": &schema.Schema{
-										Type:        schema.TypeBool,
-										Computed:    true,
-										Description: "Indicates whether this reserved IP member will be automatically deleted when either target is deleted, or the reserved IP is unbound.",
-									},
-									"deleted": &schema.Schema{
-										Type:        schema.TypeList,
-										Computed:    true,
-										Description: "If present, this property indicates the referenced resource has been deleted, and providessome supplementary information.",
-										Elem: &schema.Resource{
-											Schema: map[string]*schema.Schema{
-												"more_info": &schema.Schema{
-													Type:        schema.TypeString,
-													Computed:    true,
-													Description: "Link to documentation about deleted resources.",
-												},
-											},
-										},
-									},
-									"href": &schema.Schema{
-										Type:        schema.TypeString,
-										Computed:    true,
-										Description: "The URL for this reserved IP.",
-									},
-									"reserved_ip": &schema.Schema{
-										Type:        schema.TypeString,
-										Required:    true,
-										Description: "The unique identifier for this reserved IP.",
-									},
-									"name": &schema.Schema{
-										Type:        schema.TypeString,
-										Computed:    true,
-										Description: "The name for this reserved IP. The name is unique across all reserved IPs in a subnet.",
-									},
-									"resource_type": &schema.Schema{
-										Type:        schema.TypeString,
-										Computed:    true,
-										Description: "The resource type.",
-									},
-								},
-							},
 						},
 						"primary_ip": {
 							Type:        schema.TypeList,
@@ -379,7 +322,7 @@ func resourceIBMIsShareMountTargetCreate(context context.Context, d *schema.Reso
 		if ok && VNIId != "" {
 			vniPrototype.ID = &VNIId
 		} else {
-			vniPrototype, err = ShareMountTargetMapToShareMountTargetPrototype(d, vniMap, "virtual_network_interface.0.allow_ip_spoofing", "virtual_network_interface.0.auto_delete", "virtual_network_interface.0.enable_infrastructure_nat", "virtual_network_interface.0.ips")
+			vniPrototype, err = ShareMountTargetMapToShareMountTargetPrototype(d, vniMap, "virtual_network_interface.0.auto_delete")
 			if err != nil {
 				return diag.FromErr(err)
 			}
@@ -830,19 +773,6 @@ func ShareMountTargetVirtualNetworkInterfaceToMap(context context.Context, vpcCl
 		vniMap["primary_ip"] = primaryIpList
 	}
 
-	if len(vni.Ips) > 0 {
-		ipList := make([]map[string]interface{}, 0)
-		for _, ipsItem := range vni.Ips {
-			if *vni.PrimaryIP.ID != *ipsItem.ID {
-				ipsItemMap, err := ShareMountTargetVNIReservedIPInterfaceToMap(context, vpcClient, d, &ipsItem, *vni.Subnet.ID)
-				if err != nil {
-					return nil, err
-				}
-				ipList = append(ipList, ipsItemMap)
-			}
-		}
-		vniMap["ips"] = ipList
-	}
 	vniMap["subnet"] = vni.Subnet.ID
 	vniMap["resource_type"] = vni.ResourceType
 	vniMap["resource_group"] = vni.ResourceGroup.ID
@@ -857,7 +787,7 @@ func ShareMountTargetVirtualNetworkInterfaceToMap(context context.Context, vpcCl
 	return vniSlice, nil
 }
 
-func ShareMountTargetMapToShareMountTargetPrototype(d *schema.ResourceData, vniMap map[string]interface{}, allowIpSpoofingSchema, autoDeleteSchema, enableInfraNATSchema, ipsSchema string) (vpcv1.ShareMountTargetVirtualNetworkInterfacePrototype, error) {
+func ShareMountTargetMapToShareMountTargetPrototype(d *schema.ResourceData, vniMap map[string]interface{}, autoDeleteSchema string) (vpcv1.ShareMountTargetVirtualNetworkInterfacePrototype, error) {
 	vniPrototype := vpcv1.ShareMountTargetVirtualNetworkInterfacePrototype{}
 	name, _ := vniMap["name"].(string)
 	if name != "" {
@@ -891,33 +821,12 @@ func ShareMountTargetMapToShareMountTargetPrototype(d *schema.ResourceData, vniM
 		}
 		vniPrototype.PrimaryIP = primaryIpPrototype
 	}
-	if allowIPSpoofingIntf, ok := d.GetOkExists(allowIpSpoofingSchema); ok {
-		allowIPSpoofingBool := allowIPSpoofingIntf.(bool)
-		vniPrototype.AllowIPSpoofing = &allowIPSpoofingBool
-	}
+
 	if autoDeleteIntf, ok := d.GetOkExists(autoDeleteSchema); ok {
 		autoDeleteBool := autoDeleteIntf.(bool)
 		vniPrototype.AutoDelete = &autoDeleteBool
 	}
-	if enableInfraNatIntf, ok := d.GetOkExists(enableInfraNATSchema); ok {
-		enableInfraNatBool := enableInfraNatIntf.(bool)
-		vniPrototype.EnableInfrastructureNat = &enableInfraNatBool
-	}
 
-	if _, ok := d.GetOk(ipsSchema); ok {
-		var ips []vpcv1.VirtualNetworkInterfaceIPPrototypeIntf
-		fmt.Println("mount target ips in get ok")
-		for _, v := range d.Get(ipsSchema).(*schema.Set).List() {
-			value := v.(map[string]interface{})
-			fmt.Println("mount target ips in for loop")
-			ipsItem, err := virtualNetworkInterfaceIPsToReservedIPPrototype(value)
-			if err != nil {
-				return vniPrototype, err
-			}
-			ips = append(ips, ipsItem)
-		}
-		vniPrototype.Ips = ips
-	}
 	if subnet := vniMap["subnet"].(string); subnet != "" {
 		vniPrototype.Subnet = &vpcv1.SubnetIdentity{
 			ID: &subnet,

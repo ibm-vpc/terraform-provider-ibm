@@ -168,7 +168,6 @@ func ResourceIbmIsShare() *schema.Resource {
 									},
 									"allow_ip_spoofing": &schema.Schema{
 										Type:        schema.TypeBool,
-										Optional:    true,
 										Computed:    true,
 										Description: "Indicates whether source IP spoofing is allowed on this interface. If `false`, source IP spoofing is prevented on this interface. If `true`, source IP spoofing is allowed on this interface.",
 									},
@@ -180,68 +179,8 @@ func ResourceIbmIsShare() *schema.Resource {
 									},
 									"enable_infrastructure_nat": &schema.Schema{
 										Type:        schema.TypeBool,
-										Optional:    true,
 										Computed:    true,
 										Description: "If `true`:- The VPC infrastructure performs any needed NAT operations.- `floating_ips` must not have more than one floating IP.If `false`:- Packets are passed unchanged to/from the network interface,  allowing the workload to perform any needed NAT operations.- `allow_ip_spoofing` must be `false`.- If the virtual network interface is attached:  - The target `resource_type` must be `bare_metal_server_network_attachment`.  - The target `interface_type` must not be `hipersocket`.",
-									},
-									"ips": &schema.Schema{
-										Type:        schema.TypeSet,
-										Optional:    true,
-										Computed:    true,
-										Set:         hashIpsList,
-										Description: "The reserved IPs bound to this virtual network interface.May be empty when `lifecycle_state` is `pending`.",
-										Elem: &schema.Resource{
-											Schema: map[string]*schema.Schema{
-												"address": &schema.Schema{
-													Type:        schema.TypeString,
-													Optional:    true,
-													Computed:    true,
-													Description: "The IP address.If the address has not yet been selected, the value will be `0.0.0.0`.This property may add support for IPv6 addresses in the future. When processing a value in this property, verify that the address is in an expected format. If it is not, log an error. Optionally halt processing and surface the error, or bypass the resource on which the unexpected IP address format was encountered.",
-												},
-												"auto_delete": &schema.Schema{
-													Type:        schema.TypeBool,
-													Optional:    true,
-													Computed:    true,
-													Description: "Indicates whether this reserved IP member will be automatically deleted when either target is deleted, or the reserved IP is unbound.",
-												},
-												"deleted": &schema.Schema{
-													Type:        schema.TypeList,
-													Computed:    true,
-													Description: "If present, this property indicates the referenced resource has been deleted, and providessome supplementary information.",
-													Elem: &schema.Resource{
-														Schema: map[string]*schema.Schema{
-															"more_info": &schema.Schema{
-																Type:        schema.TypeString,
-																Computed:    true,
-																Description: "Link to documentation about deleted resources.",
-															},
-														},
-													},
-												},
-												"href": &schema.Schema{
-													Type:        schema.TypeString,
-													Computed:    true,
-													Description: "The URL for this reserved IP.",
-												},
-												"reserved_ip": &schema.Schema{
-													Type:        schema.TypeString,
-													Optional:    true,
-													Computed:    true,
-													Description: "The unique identifier for this reserved IP.",
-												},
-												"name": &schema.Schema{
-													Type:        schema.TypeString,
-													Optional:    true,
-													Computed:    true,
-													Description: "The name for this reserved IP. The name is unique across all reserved IPs in a subnet.",
-												},
-												"resource_type": &schema.Schema{
-													Type:        schema.TypeString,
-													Computed:    true,
-													Description: "The resource type.",
-												},
-											},
-										},
 									},
 									"primary_ip": {
 										Type:        schema.TypeList,
@@ -309,6 +248,7 @@ func ResourceIbmIsShare() *schema.Resource {
 									"subnet": {
 										Type:        schema.TypeString,
 										Optional:    true,
+										Computed:    true,
 										Description: "The associated subnet. Required if primary_ip is not specified.",
 									},
 								},
@@ -479,7 +419,6 @@ func ResourceIbmIsShare() *schema.Resource {
 												},
 												"allow_ip_spoofing": &schema.Schema{
 													Type:        schema.TypeBool,
-													Optional:    true,
 													Computed:    true,
 													Description: "Indicates whether source IP spoofing is allowed on this interface. If `false`, source IP spoofing is prevented on this interface. If `true`, source IP spoofing is allowed on this interface.",
 												},
@@ -491,68 +430,8 @@ func ResourceIbmIsShare() *schema.Resource {
 												},
 												"enable_infrastructure_nat": &schema.Schema{
 													Type:        schema.TypeBool,
-													Optional:    true,
 													Computed:    true,
 													Description: "If `true`:- The VPC infrastructure performs any needed NAT operations.- `floating_ips` must not have more than one floating IP.If `false`:- Packets are passed unchanged to/from the network interface,  allowing the workload to perform any needed NAT operations.- `allow_ip_spoofing` must be `false`.- If the virtual network interface is attached:  - The target `resource_type` must be `bare_metal_server_network_attachment`.  - The target `interface_type` must not be `hipersocket`.",
-												},
-												"ips": &schema.Schema{
-													Type:        schema.TypeSet,
-													Optional:    true,
-													Computed:    true,
-													Set:         hashIpsList,
-													Description: "The reserved IPs bound to this virtual network interface.May be empty when `lifecycle_state` is `pending`.",
-													Elem: &schema.Resource{
-														Schema: map[string]*schema.Schema{
-															"address": &schema.Schema{
-																Type:        schema.TypeString,
-																Optional:    true,
-																Computed:    true,
-																Description: "The IP address.If the address has not yet been selected, the value will be `0.0.0.0`.This property may add support for IPv6 addresses in the future. When processing a value in this property, verify that the address is in an expected format. If it is not, log an error. Optionally halt processing and surface the error, or bypass the resource on which the unexpected IP address format was encountered.",
-															},
-															"auto_delete": &schema.Schema{
-																Type:        schema.TypeBool,
-																Optional:    true,
-																Computed:    true,
-																Description: "Indicates whether this reserved IP member will be automatically deleted when either target is deleted, or the reserved IP is unbound.",
-															},
-															"deleted": &schema.Schema{
-																Type:        schema.TypeList,
-																Computed:    true,
-																Description: "If present, this property indicates the referenced resource has been deleted, and providessome supplementary information.",
-																Elem: &schema.Resource{
-																	Schema: map[string]*schema.Schema{
-																		"more_info": &schema.Schema{
-																			Type:        schema.TypeString,
-																			Computed:    true,
-																			Description: "Link to documentation about deleted resources.",
-																		},
-																	},
-																},
-															},
-															"href": &schema.Schema{
-																Type:        schema.TypeString,
-																Computed:    true,
-																Description: "The URL for this reserved IP.",
-															},
-															"reserved_ip": &schema.Schema{
-																Type:        schema.TypeString,
-																Optional:    true,
-																Computed:    true,
-																Description: "The unique identifier for this reserved IP.",
-															},
-															"name": &schema.Schema{
-																Type:        schema.TypeString,
-																Optional:    true,
-																Computed:    true,
-																Description: "The name for this reserved IP. The name is unique across all reserved IPs in a subnet.",
-															},
-															"resource_type": &schema.Schema{
-																Type:        schema.TypeString,
-																Computed:    true,
-																Description: "The resource type.",
-															},
-														},
-													},
 												},
 												"primary_ip": {
 													Type:        schema.TypeList,
@@ -620,6 +499,7 @@ func ResourceIbmIsShare() *schema.Resource {
 												"subnet": {
 													Type:        schema.TypeString,
 													Optional:    true,
+													Computed:    true,
 													Description: "The associated subnet. Required if primary_ip is not specified.",
 												},
 											},
@@ -944,11 +824,8 @@ func resourceIbmIsShareCreate(context context.Context, d *schema.ResourceData, m
 				targetsIntf := replicaTargets.([]interface{})
 				for tergetIdx, targetIntf := range targetsIntf {
 					target := targetIntf.(map[string]interface{})
-					allowIpSpoofingSchema := fmt.Sprintf("replica_share.0.mount_targets.%d.virtual_network_interface.0.allow_ip_spoofing", tergetIdx)
 					autoDeleteSchema := fmt.Sprintf("replica_share.0.mount_targets.%d.virtual_network_interface.0.auto_delete", tergetIdx)
-					enableInfraNATSchema := fmt.Sprintf("replica_share.0.mount_targets.%d.virtual_network_interface.0.enable_infrastructure_nat", tergetIdx)
-					ipsSchema := fmt.Sprintf("replica_share.0.mount_targets.%d.virtual_network_interface.0.ips", tergetIdx)
-					targetsItem, err := resourceIbmIsShareMapToShareMountTargetPrototype(d, target, allowIpSpoofingSchema, autoDeleteSchema, enableInfraNATSchema, ipsSchema)
+					targetsItem, err := resourceIbmIsShareMapToShareMountTargetPrototype(d, target, autoDeleteSchema)
 					if err != nil {
 						return diag.FromErr(err)
 					}
@@ -1008,11 +885,8 @@ func resourceIbmIsShareCreate(context context.Context, d *schema.ResourceData, m
 		var targets []vpcv1.ShareMountTargetPrototypeIntf
 		for targetIdx, e := range shareTargetPrototypeIntf.([]interface{}) {
 			value := e.(map[string]interface{})
-			allowIpSpoofingSchema := fmt.Sprintf("mount_targets.%d.virtual_network_interface.0.allow_ip_spoofing", targetIdx)
 			autoDeleteSchema := fmt.Sprintf("mount_targets.%d.virtual_network_interface.0.auto_delete", targetIdx)
-			enableInfraNATSchema := fmt.Sprintf("mount_targets.%d.virtual_network_interface.0.enable_infrastructure_nat", targetIdx)
-			ipsSchema := fmt.Sprintf("mount_targets.%d.virtual_network_interface.0.ips", targetIdx)
-			targetsItem, err := resourceIbmIsShareMapToShareMountTargetPrototype(d, value, allowIpSpoofingSchema, autoDeleteSchema, enableInfraNATSchema, ipsSchema)
+			targetsItem, err := resourceIbmIsShareMapToShareMountTargetPrototype(d, value, autoDeleteSchema)
 			if err != nil {
 				return diag.FromErr(err)
 			}
@@ -1085,7 +959,7 @@ func resourceIbmIsShareCreate(context context.Context, d *schema.ResourceData, m
 	return resourceIbmIsShareRead(context, d, meta)
 }
 
-func resourceIbmIsShareMapToShareMountTargetPrototype(d *schema.ResourceData, shareTargetPrototypeMap map[string]interface{}, allowIpSpoofingSchema, autoDeleteSchema, enableInfraNATSchema, ipsSchema string) (vpcv1.ShareMountTargetPrototype, error) {
+func resourceIbmIsShareMapToShareMountTargetPrototype(d *schema.ResourceData, shareTargetPrototypeMap map[string]interface{}, autoDeleteSchema string) (vpcv1.ShareMountTargetPrototype, error) {
 	shareTargetPrototype := vpcv1.ShareMountTargetPrototype{}
 
 	if nameIntf, ok := shareTargetPrototypeMap["name"]; ok && nameIntf != "" {
@@ -1107,7 +981,7 @@ func resourceIbmIsShareMapToShareMountTargetPrototype(d *schema.ResourceData, sh
 			vniPrototype.ID = &VNIId
 			shareTargetPrototype.VirtualNetworkInterface = &vniPrototype
 		} else {
-			vniPrototype, err := ShareMountTargetMapToShareMountTargetPrototype(d, vniMap, allowIpSpoofingSchema, autoDeleteSchema, enableInfraNATSchema, ipsSchema)
+			vniPrototype, err := ShareMountTargetMapToShareMountTargetPrototype(d, vniMap, autoDeleteSchema)
 			if err != nil {
 				return shareTargetPrototype, err
 			}
