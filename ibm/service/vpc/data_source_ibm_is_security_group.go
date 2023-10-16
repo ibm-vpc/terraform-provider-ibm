@@ -189,9 +189,6 @@ func securityGroupGet(d *schema.ResourceData, meta interface{}, name string) err
 	}
 	vpcId := d.Get("vpc_id").(string)
 	// Support for pagination
-	start := ""
-	allrecs := []vpcv1.SecurityGroup{}
-
 	listSgOptions := &vpcv1.ListSecurityGroupsOptions{}
 	if vpcId != "" {
 		listSgOptions.VPCID = &vpcId
@@ -204,24 +201,17 @@ func securityGroupGet(d *schema.ResourceData, meta interface{}, name string) err
 	if vpcName != "" {
 		listSgOptions.VPCName = &vpcName
 	}
-	for {
-		if start != "" {
-			listSgOptions.Start = &start
-		}
-		sgs, response, err := sess.ListSecurityGroups(listSgOptions)
-		if err != nil || sgs == nil {
-			return fmt.Errorf("[ERROR] Error Getting Security Groups %s\n%s", err, response)
-		}
-		if *sgs.TotalCount == int64(0) {
-			break
-		}
-		start = flex.GetNext(sgs.Next)
-		allrecs = append(allrecs, sgs.SecurityGroups...)
 
-		if start == "" {
-			break
-		}
+	var pager *vpcv1.SecurityGroupsPager
+	pager, err = sess.NewSecurityGroupsPager(listSgOptions)
+	if err != nil {
+		return err
+	}
 
+	allrecs, err := pager.GetAll()
+	if err != nil {
+		log.Printf("[DEBUG] Getting Security Groups.GetAll() failed %s", err)
+		return fmt.Errorf("[ERROR] Getting Security Groups.GetAll() failed %s", err)
 	}
 
 	for _, group := range allrecs {
