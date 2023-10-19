@@ -43,6 +43,7 @@ resource "ibm_is_vpc_dns_resolution_binding" "is_vpc_dns_resolution_binding_href
 Review the argument reference that you can specify for your data source.
 
 - `name` - (Optional, String) The DNS resolution binding name.
+- `force_delete` - (Optional, Bool) If you want to forcefully delete the dns binding when dns.resolver.type is set to delegated on the vpc. This will produce changes on the vpc.
 - `vpc_id` - (Required, Forces new resource, String) The VPC identifier of the source vpc.
 - `vpc` - (Required, Forces new resource, String) The VPC identifier/href/crn of the target.
 	Nested scheme for **vpc**:

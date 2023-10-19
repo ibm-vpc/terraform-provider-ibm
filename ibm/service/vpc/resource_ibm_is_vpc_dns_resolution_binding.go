@@ -121,6 +121,12 @@ func ResourceIBMIsVPCDnsResolutionBinding() *schema.Resource {
 				Computed:    true,
 				Description: "The URL for this DNS resolution binding.",
 			},
+			"force_delete": &schema.Schema{
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     false,
+				Description: "The URL for this DNS resolution binding.",
+			},
 			"lifecycle_state": &schema.Schema{
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -395,9 +401,43 @@ func resourceIBMIsVPCDnsResolutionBindingDelete(context context.Context, d *sche
 	if err != nil {
 		return diag.FromErr(err)
 	}
+
 	vpcId, id, err := ParseVPCDNSTerraformID(d.Id())
 	if err != nil {
 		return diag.FromErr(err)
+	}
+
+	if d.Get("force_delete").(bool) {
+		updateVpcOptions := &vpcv1.UpdateVPCOptions{
+			ID: &vpcId,
+		}
+		vpcPatchModel := &vpcv1.VPCPatch{}
+		vpcPatch, err := vpcPatchModel.AsPatch()
+		if err != nil {
+			return diag.FromErr(fmt.Errorf("[ERROR] Error calling asPatch for VPCPatch during dns binding delete: %s", err))
+		}
+		dnsMap := make(map[string]interface{})
+		resolverMap := make(map[string]interface{})
+		resolverMap["vpc"] = nil
+		resolverMap["type"] = "system"
+		dnsMap["resolver"] = resolverMap
+		vpcPatch["dns"] = dnsMap
+		updateVpcOptions.VPCPatch = vpcPatch
+
+		_, response, err := sess.UpdateVPC(updateVpcOptions)
+		if err != nil {
+			responsestring := strings.ToLower(response.String())
+			if strings.Contains(strings.ToLower(err.Error()), strings.ToLower("The supplied header is not supported for this request")) && strings.Contains(responsestring, "bad_header") && strings.Contains(responsestring, strings.ToLower("If-Match")) {
+				log.Printf("[DEBUG] retrying update vpc without If-Match during dns binding delete")
+				updateVpcOptions.IfMatch = nil
+				_, nestedresponse, nestederr := sess.UpdateVPC(updateVpcOptions)
+				if nestederr != nil {
+					return diag.FromErr(fmt.Errorf("[ERROR] Error Updating VPC on retry during dns binding delete : %s\n%s", nestederr, nestedresponse))
+				}
+			} else {
+				return diag.FromErr(fmt.Errorf("[ERROR] Error Updating VPC during dns binding delete : %s\n%s", err, response))
+			}
+		}
 	}
 	deleteVPCDnsResolutionBindingOptions := &vpcv1.DeleteVPCDnsResolutionBindingOptions{}
 
