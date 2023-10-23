@@ -457,10 +457,15 @@ func resourceIBMIsShareMountTargetUpdate(context context.Context, d *schema.Reso
 		hasChange = true
 	}
 
-	if d.HasChange("virtual_network_interface.0.name") {
-		vniName := d.Get("virtual_network_interface.0.name").(string)
-		vniPatchModel := &vpcv1.VirtualNetworkInterfacePatch{
-			Name: &vniName,
+	if d.HasChange("virtual_network_interface.0.name") || d.HasChange("virtual_network_interface.0.auto_delete") {
+		vniPatchModel := &vpcv1.VirtualNetworkInterfacePatch{}
+		if d.HasChange("virtual_network_interface.0.name") {
+			vniName := d.Get("virtual_network_interface.0.name").(string)
+			vniPatchModel.Name = &vniName
+		}
+		if d.HasChange("virtual_network_interface.0.auto_delete") {
+			autoDelete := d.Get("virtual_network_interface.0.auto_delete").(bool)
+			vniPatchModel.AutoDelete = &autoDelete
 		}
 		vniPatch, err := vniPatchModel.AsPatch()
 		if err != nil {
