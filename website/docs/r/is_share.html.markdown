@@ -98,6 +98,9 @@ The following arguments are supported:
     Nested scheme for `virtual_network_interface`:
     - `name` - (Required, String) Name for this virtual network interface.
     - `id` - (Optional) The ID for virtual network interface. Mutually exclusive with other `virtual_network_interface` arguments.
+    
+    ~> **Note**
+    `id` is mutually exclusive with other `virtual_network_interface` prototype arguments
     - `allow_ip_spoofing` - (Optional, Bool) Indicates whether source IP spoofing is allowed on this interface. If false, source IP spoofing is prevented on this interface. If true, source IP spoofing is allowed on this interface.
     - `auto_delete` - (Optional, Bool) Indicates whether this virtual network interface will be automatically deleted when target is deleted
     - `enable_infrastructure_nat` - (Optional, Bool) If `true`:- The VPC infrastructure performs any needed NAT operations.- `floating_ips` must not have more than one floating IP.If `false`:- Packets are passed unchanged to/from the network interface,  allowing the workload to perform any needed NAT operations.- `allow_ip_spoofing` must be `false`.- If the virtual network interface is attached:  - The target `resource_type` must be `bare_metal_server_network_attachment`.  - The target `interface_type` must not be `hipersocket`.
@@ -138,6 +141,9 @@ The following arguments are supported:
       Nested scheme for `virtual_network_interface`:
       - `name` - (Required, String) Name for this virtual network interface.
       - `id` - (Optional) The ID for virtual network interface. Mutually exclusive with other `virtual_network_interface` arguments.
+      
+      ~> **Note**
+        `id` is mutually exclusive with other `virtual_network_interface` prototype arguments
       - `allow_ip_spoofing` - (Optional, Bool) Indicates whether source IP spoofing is allowed on this interface. If false, source IP spoofing is prevented on this interface. If true, source IP spoofing is allowed on this interface.
       - `auto_delete` - (Optional, Bool) Indicates whether this virtual network interface will be automatically deleted when target is deleted
       - `enable_infrastructure_nat` - (Optional, Bool) If `true`:- The VPC infrastructure performs any needed NAT operations.- `floating_ips` must not have more than one floating IP.If `false`:- Packets are passed unchanged to/from the network interface,  allowing the workload to perform any needed NAT operations.- `allow_ip_spoofing` must be `false`.- If the virtual network interface is attached:  - The target `resource_type` must be `bare_metal_server_network_attachment`.  - The target `interface_type` must not be `hipersocket`.

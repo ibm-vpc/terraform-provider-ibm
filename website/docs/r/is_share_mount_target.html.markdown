@@ -119,6 +119,9 @@ The following arguments are supported:
   - `name` - (Required, String) Name for this virtual network interface.
   Nested scheme for `virtual_network_interface`:
   - `id` - (Optional) The ID for virtual network interface. Mutually exclusive with other `virtual_network_interface` arguments.
+  
+  ~> **Note**
+    `id` is mutually exclusive with other `virtual_network_interface` prototype arguments
   - `primary_ip` - (Optional, List) The primary IP address to bind to the virtual network interface. May be either a reserved IP identity, or a reserved IP prototype object which will be used to create a new reserved IP.
 
       Nested scheme for `primary_ip`:
