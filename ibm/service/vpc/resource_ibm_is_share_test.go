@@ -166,11 +166,9 @@ func TestAccIbmIsShareVNIID(t *testing.T) {
 				Check: resource.ComposeAggregateTestCheckFunc(
 					testAccCheckIbmIsShareExists("ibm_is_share.is_share", conf),
 					resource.TestCheckResourceAttr("ibm_is_share.is_share", "name", name),
-					resource.TestCheckResourceAttr("ibm_is_share.is_share", "replica_share.0.replication_role", "replica"),
-					resource.TestCheckResourceAttr("ibm_is_share.is_share", "replication_role", "source"),
 					resource.TestCheckResourceAttrSet("ibm_is_share.is_share", "id"),
-					resource.TestCheckResourceAttr("ibm_is_share.is_share", "tags.0", "sr01"),
-					resource.TestCheckResourceAttr("ibm_is_share.is_share", "tags.1", "sr02"),
+					resource.TestCheckResourceAttrSet("ibm_is_share.is_share", "mount_targets.0.virtual_network_interface.0.id"),
+					resource.TestCheckResourceAttrSet("ibm_is_share.is_share", "mount_targets.0.virtual_network_interface.0.name"),
 				),
 			},
 		},
@@ -195,7 +193,7 @@ func testAccCheckIbmIsShareConfigVNIID(vpcName, sname, targetName, vniName, shar
 		name = "%s"
 		subnet = ibm_is_subnet.testacc_subnet.id
 	}
-	resource "ibm_is_share" "example-3" {
+	resource "ibm_is_share" "is_share" {
 		zone    = "us-south-1"
 		size    = 220
 		name    = "%s"
