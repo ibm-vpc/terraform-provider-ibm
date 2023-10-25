@@ -98,8 +98,8 @@ resource "ibm_is_subnet" "example" {
   zone                     = "br-sao-2"
   total_ipv4_address_count = 16
 }
-resource "ibm_is_virtual_network_interface" "example"{
-	name = "my-example-vni"
+resource "ibm_is_virtual_network_interface" "example" {
+  name   = "my-example-vni"
   subnet = ibm_is_subnet.example.id
 }
 resource "ibm_is_share_mount_target" "mtarget1" {
@@ -107,7 +107,7 @@ resource "ibm_is_share_mount_target" "mtarget1" {
   virtual_network_interface {
     id = ibm_is_virtual_network_interface.example.id
   }
-  name  = "my-example-mount-target"
+  name = "my-example-mount-target"
 }
 ```
 ## Argument Reference

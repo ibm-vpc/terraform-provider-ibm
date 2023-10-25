@@ -1661,6 +1661,7 @@ func shareUpdate(vpcClient *vpcv1.VpcV1, context context.Context, d *schema.Reso
 		for targetIdx := range target_prototype {
 			targetName := fmt.Sprintf("%s.%d.name", shareMountTargetSchema, targetIdx)
 			vniName := fmt.Sprintf("%s.%d.virtual_network_interface.0.name", shareMountTargetSchema, targetIdx)
+			vniAutoDelete := fmt.Sprintf("%s.%d.virtual_network_interface.0.auto_delete", shareMountTargetSchema, targetIdx)
 			vniId := fmt.Sprintf("%s.%d.virtual_network_interface.0.id", shareMountTargetSchema, targetIdx)
 			targetId := fmt.Sprintf("%s.%d.id", shareMountTargetSchema, targetIdx)
 			securityGroups := fmt.Sprintf("%s.%d.virtual_network_interface.0.security_groups", shareMountTargetSchema, targetIdx)
@@ -1697,10 +1698,15 @@ func shareUpdate(vpcClient *vpcv1.VpcV1, context context.Context, d *schema.Reso
 				}
 			}
 
-			if d.HasChange(vniName) {
-				vniNameStr := d.Get(vniName).(string)
-				vniPatchModel := &vpcv1.VirtualNetworkInterfacePatch{
-					Name: &vniNameStr,
+			if d.HasChange(vniName) || d.HasChange(vniAutoDelete) {
+				vniPatchModel := &vpcv1.VirtualNetworkInterfacePatch{}
+				if d.HasChange(vniName) {
+					vniNameStr := d.Get(vniName).(string)
+					vniPatchModel.Name = &vniNameStr
+				}
+				if d.HasChange(vniAutoDelete) {
+					autoDelete := d.Get(vniAutoDelete).(bool)
+					vniPatchModel.AutoDelete = &autoDelete
 				}
 				vniPatch, err := vniPatchModel.AsPatch()
 				if err != nil {
