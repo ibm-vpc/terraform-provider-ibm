@@ -14,8 +14,8 @@ Provides a read-only data source to retrieve information about an Instance Netwo
 
 ```terraform
 data "ibm_is_instance_network_attachment" "example" {
-	instance 			= ibm_is_instance.example.id
-	network_attachment 	= ibm_is_instance.example.primary_network_attachment.0.id
+	instance				= ibm_is_instance.example.id
+	network_attachment		= ibm_is_instance.example.primary_network_attachment.0.id
 }
 ```
 

@@ -1476,11 +1476,11 @@ resource "ibm_is_ssh_key" "testacc_sshkey" {
 	public_key 			= file("~/.ssh/id_rsa.pub")
 }
 resource "ibm_is_instance_network_attachment" "ina" {
-    instance = ibm_is_instance.ins.id
-    name = "viability-undecided-jalapeno-unbuilt"
-    virtual_network_interface {
-        id = ibm_is_virtual_network_interface.testacc_vni2.id
-    }
+  instance = ibm_is_instance.ins.id
+  name = "viability-undecided-jalapeno-unbuilt"
+  virtual_network_interface {
+    id = ibm_is_virtual_network_interface.testacc_vni2.id
+  }
 }
 resource "ibm_is_instance" "ins" {
 	name   				= "${var.name}-vsi2"
