@@ -3254,24 +3254,35 @@ func FlattenSatelliteZones(zones *schema.Set) []string {
 
 // error object
 type ServiceErrorResponse struct {
-	Message    string
-	StatusCode int
-	Result     interface{}
+	Message        string
+	StatusCode     int
+	XRequestId     string `json:"X-Request-Id,omitempty"`
+	XCorrelationId string `json:"X-Correlation-Id,omitempty"`
+	Result         interface{}
 }
 
 func BeautifyError(err error, response *core.DetailedResponse) *ServiceErrorResponse {
 	var (
-		statusCode int
-		result     interface{}
+		statusCode     int
+		result         interface{}
+		xRequestId     string
+		xCorrelationId string
 	)
 	if response != nil {
 		statusCode = response.StatusCode
 		result = response.Result
 	}
+	if err != nil {
+		xRequestId = response.Headers["X-Request-Id"][0]
+		xCorrelationId = response.Headers["X-Correlation-Id"][0]
+	}
+
 	return &ServiceErrorResponse{
-		Message:    err.Error(),
-		StatusCode: statusCode,
-		Result:     result,
+		Message:        err.Error(),
+		StatusCode:     statusCode,
+		XRequestId:     xRequestId,
+		XCorrelationId: xCorrelationId,
+		Result:         result,
 	}
 }
 
