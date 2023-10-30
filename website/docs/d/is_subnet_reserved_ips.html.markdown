@@ -50,7 +50,7 @@ In addition to the argument reference list, you can access the following attribu
   - `resource_type` -  (String) The resource type.
   - `target` - (String) The ID of the target for the reserved IP.
   - `target_crn` - (String) The crn of the target for the reserved IP.
-	- `target_reference` - (List) The target this reserved IP is bound to. If absent, this reserved IP is provider-owned or unbound.
+  - `target_reference` - (List) The target this reserved IP is bound to. If absent, this reserved IP is provider-owned or unbound.
 	  
       Nested schema for **target_reference**:
       - `crn` - (String) The CRN for this endpoint gateway.
