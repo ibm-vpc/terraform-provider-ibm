@@ -104,7 +104,7 @@ func ResourceIBMIsInstanceNetworkAttachment() *schema.Resource {
 						"auto_delete": &schema.Schema{
 							Type:          schema.TypeBool,
 							Optional:      true,
-							Default:       true,
+							Computed:      true,
 							ConflictsWith: []string{"virtual_network_interface.0.id"},
 							Description:   "Indicates whether this virtual network interface will be automatically deleted when`target` is deleted.",
 						},
