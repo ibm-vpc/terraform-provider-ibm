@@ -714,6 +714,47 @@ func vpcCreate(d *schema.ResourceData, meta interface{}, name, apm, rg string, i
 		return err
 	}
 
+	if dnsresolvertpeOk, ok := d.GetOk("dns.0.resolver.0.type"); ok {
+		if dnsresolvertpeOk.(string) == "delegated" && d.Get("dns.0.resolver.0.vpc_id").(string) != "" {
+			vpcId := d.Get("dns.0.resolver.0.vpc_id").(string)
+			createDnsBindings := &vpcv1.CreateVPCDnsResolutionBindingOptions{
+				VPCID: vpc.ID,
+				VPC: &vpcv1.VPCIdentity{
+					ID: &vpcId,
+				},
+			}
+			_, response, err := sess.CreateVPCDnsResolutionBinding(createDnsBindings)
+			if err != nil {
+				log.Printf("[DEBUG] CreateVPCDnsResolutionBindingWithContext failed %s\n%s", err, response)
+				return fmt.Errorf("[ERROR] CreateVPCDnsResolutionBinding failed in vpc resource %s\n%s", err, response)
+			}
+			resolverType := "delegated"
+			dnsPatch := &vpcv1.VpcdnsPatch{
+				Resolver: &vpcv1.VpcdnsResolverPatch{
+					Type: &resolverType,
+					VPC: &vpcv1.VpcdnsResolverVPCPatch{
+						ID: &vpcId,
+					},
+				},
+			}
+			vpcPatchModel := &vpcv1.VPCPatch{}
+			vpcPatchModel.Dns = dnsPatch
+			vpcPatchModelAsPatch, err := vpcPatchModel.AsPatch()
+			if err != nil {
+				return fmt.Errorf("[ERROR] CreateVPCDnsResolutionBinding failed in vpcpatch as patch %s", err)
+			}
+			updateVpcOptions := &vpcv1.UpdateVPCOptions{
+				ID: vpc.ID,
+			}
+			updateVpcOptions.VPCPatch = vpcPatchModelAsPatch
+			_, response, err = sess.UpdateVPC(updateVpcOptions)
+			if err != nil {
+				log.Printf("[DEBUG] Update vpc with delegated failed %s\n%s", err, response)
+				return fmt.Errorf("[ERROR] Update vpc with delegated failed in vpc resource %s\n%s", err, response)
+			}
+		}
+	}
+
 	if sgAclRules, ok := d.GetOk(isVPCNoSgAclRules); ok {
 		sgAclRules := sgAclRules.(bool)
 		if sgAclRules {
@@ -1543,7 +1584,11 @@ func resourceIBMIsVPCMapToVpcdnsPrototype(modelMap map[string]interface{}) (*vpc
 func resourceIBMIsVPCMapToVpcdnsResolverPrototype(modelMap map[string]interface{}) (vpcv1.VpcdnsResolverPrototypeIntf, error) {
 	model := &vpcv1.VpcdnsResolverPrototype{}
 	if modelMap["type"] != nil && modelMap["type"].(string) != "" {
-		model.Type = core.StringPtr(modelMap["type"].(string))
+		if modelMap["type"].(string) == "delegated" {
+			model.Type = core.StringPtr("system")
+		} else {
+			model.Type = core.StringPtr(modelMap["type"].(string))
+		}
 	}
 	if modelMap["manual_servers"] != nil && modelMap["manual_servers"].(*schema.Set).Len() > 0 {
 		model.Type = core.StringPtr("manual")
