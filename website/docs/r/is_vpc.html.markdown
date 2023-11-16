@@ -139,7 +139,7 @@ Review the argument references that you can specify for your resource.
         ~> **Note:** 
               Updating from `manual` requires dns resolver `manual_servers` to be specified as null.<br/>
               Updating to `manual` requires dns resolver `manual_servers` to be specified and not empty.<br/>
-              Updating from `delegated` requires `dns.resolver.vpc` to be specified as null.
+              Updating from `delegated` requires `dns.resolver.vpc` to be specified as null. If type is `delegated` while creation then `vpc_id` is required
       - `vpc_id` - (Optional, List) (update only) The VPC ID to provide DNS server addresses for this VPC. The specified VPC must be configured with a DNS Services custom resolver and must be in one of this VPC's DNS resolution bindings. Mutually exclusive with `vpc_crn`
 
         ~> **Note:** 
