@@ -459,7 +459,7 @@ func lbCreate(d *schema.ResourceData, meta interface{}, name, lbType, rg string,
 
 	lb, response, err := sess.CreateLoadBalancer(options)
 	if err != nil {
-		return fmt.Errorf("[ERROR] Error while creating Load Balancer err %s\n%s", err, response)
+		return fmt.Errorf("[ERROR] Error while creating Load Balancer err %s\n%s", flex.BeautifyError(err, response), response)
 	}
 	d.SetId(*lb.ID)
 	log.Printf("[INFO] Load Balancer : %s", *lb.ID)
