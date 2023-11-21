@@ -776,11 +776,11 @@ func ShareMountTargetMapToShareMountTargetPrototype(d *schema.ResourceData, vniM
 			ID: &subnet,
 		}
 	}
-	if resourceGroup := vniMap["resource_group"].(string); resourceGroup != "" {
-		vniPrototype.ResourceGroup = &vpcv1.ResourceGroupIdentity{
-			ID: &resourceGroup,
-		}
-	}
+	// if resourceGroup := vniMap["resource_group"].(string); resourceGroup != "" {
+	// 	vniPrototype.ResourceGroup = &vpcv1.ResourceGroupIdentity{
+	// 		ID: &resourceGroup,
+	// 	}
+	// }
 	if secGrpIntf, ok := vniMap["security_groups"]; ok {
 		secGrpSet := secGrpIntf.(*schema.Set)
 		if secGrpSet.Len() != 0 {

@@ -398,14 +398,21 @@ func Provider() *schema.Provider {
 			"ibm_is_bare_metal_server":                                vpc.DataSourceIBMIsBareMetalServer(),
 			"ibm_is_bare_metal_servers":                               vpc.DataSourceIBMIsBareMetalServers(),
 
-			"ibm_is_dedicated_host":                  vpc.DataSourceIbmIsDedicatedHost(),
-			"ibm_is_dedicated_hosts":                 vpc.DataSourceIbmIsDedicatedHosts(),
-			"ibm_is_dedicated_host_profile":          vpc.DataSourceIbmIsDedicatedHostProfile(),
-			"ibm_is_dedicated_host_profiles":         vpc.DataSourceIbmIsDedicatedHostProfiles(),
-			"ibm_is_dedicated_host_group":            vpc.DataSourceIbmIsDedicatedHostGroup(),
-			"ibm_is_dedicated_host_groups":           vpc.DataSourceIbmIsDedicatedHostGroups(),
-			"ibm_is_dedicated_host_disk":             vpc.DataSourceIbmIsDedicatedHostDisk(),
-			"ibm_is_dedicated_host_disks":            vpc.DataSourceIbmIsDedicatedHostDisks(),
+			"ibm_is_dedicated_host":          vpc.DataSourceIbmIsDedicatedHost(),
+			"ibm_is_dedicated_hosts":         vpc.DataSourceIbmIsDedicatedHosts(),
+			"ibm_is_dedicated_host_profile":  vpc.DataSourceIbmIsDedicatedHostProfile(),
+			"ibm_is_dedicated_host_profiles": vpc.DataSourceIbmIsDedicatedHostProfiles(),
+			"ibm_is_dedicated_host_group":    vpc.DataSourceIbmIsDedicatedHostGroup(),
+			"ibm_is_dedicated_host_groups":   vpc.DataSourceIbmIsDedicatedHostGroups(),
+			"ibm_is_dedicated_host_disk":     vpc.DataSourceIbmIsDedicatedHostDisk(),
+			"ibm_is_dedicated_host_disks":    vpc.DataSourceIbmIsDedicatedHostDisks(),
+			// dynamic route server
+			"ibm_is_dynamic_route_server":        vpc.DataSourceIBMIsDynamicRouteServer(),
+			"ibm_is_dynamic_route_servers":       vpc.DataSourceIBMIsDynamicRouteServers(),
+			"ibm_is_dynamic_route_server_peer":   vpc.DataSourceIBMIsDynamicRouteServerPeer(),
+			"ibm_is_dynamic_route_server_peers":  vpc.DataSourceIBMIsDynamicRouteServerPeers(),
+			"ibm_is_dynamic_route_server_routes": vpc.DataSourceIBMIsDynamicRouteServerRoutes(),
+
 			"ibm_is_placement_group":                 vpc.DataSourceIbmIsPlacementGroup(),
 			"ibm_is_placement_groups":                vpc.DataSourceIbmIsPlacementGroups(),
 			"ibm_is_floating_ip":                     vpc.DataSourceIBMISFloatingIP(),
@@ -1035,9 +1042,13 @@ func Provider() *schema.Provider {
 			"ibm_is_bare_metal_server_network_interface":             vpc.ResourceIBMIsBareMetalServerNetworkInterface(),
 			"ibm_is_bare_metal_server":                               vpc.ResourceIBMIsBareMetalServer(),
 
-			"ibm_is_dedicated_host":                         vpc.ResourceIbmIsDedicatedHost(),
-			"ibm_is_dedicated_host_group":                   vpc.ResourceIbmIsDedicatedHostGroup(),
-			"ibm_is_dedicated_host_disk_management":         vpc.ResourceIBMISDedicatedHostDiskManagement(),
+			"ibm_is_dedicated_host":                 vpc.ResourceIbmIsDedicatedHost(),
+			"ibm_is_dedicated_host_group":           vpc.ResourceIbmIsDedicatedHostGroup(),
+			"ibm_is_dedicated_host_disk_management": vpc.ResourceIBMISDedicatedHostDiskManagement(),
+
+			"ibm_is_dynamic_route_server":      vpc.ResourceIBMIsDynamicRouteServer(),
+			"ibm_is_dynamic_route_server_peer": vpc.ResourceIBMIsDynamicRouteServerPeer(),
+
 			"ibm_is_placement_group":                        vpc.ResourceIbmIsPlacementGroup(),
 			"ibm_is_floating_ip":                            vpc.ResourceIBMISFloatingIP(),
 			"ibm_is_flow_log":                               vpc.ResourceIBMISFlowLog(),
@@ -1466,9 +1477,13 @@ func Validator() validate.ValidatorDict {
 				"ibm_is_bare_metal_server_network_interface": vpc.ResourceIBMIsBareMetalServerNetworkInterfaceValidator(),
 				"ibm_is_bare_metal_server":                   vpc.ResourceIBMIsBareMetalServerValidator(),
 
-				"ibm_is_dedicated_host_group":             vpc.ResourceIbmIsDedicatedHostGroupValidator(),
-				"ibm_is_dedicated_host":                   vpc.ResourceIbmIsDedicatedHostValidator(),
-				"ibm_is_dedicated_host_disk_management":   vpc.ResourceIBMISDedicatedHostDiskManagementValidator(),
+				"ibm_is_dedicated_host_group":           vpc.ResourceIbmIsDedicatedHostGroupValidator(),
+				"ibm_is_dedicated_host":                 vpc.ResourceIbmIsDedicatedHostValidator(),
+				"ibm_is_dedicated_host_disk_management": vpc.ResourceIBMISDedicatedHostDiskManagementValidator(),
+
+				"ibm_is_dynamic_route_server":      vpc.ResourceIBMIsDynamicRouteServerValidator(),
+				"ibm_is_dynamic_route_server_peer": vpc.ResourceIBMIsDynamicRouteServerPeerValidator(),
+
 				"ibm_is_flow_log":                         vpc.ResourceIBMISFlowLogValidator(),
 				"ibm_is_instance_group":                   vpc.ResourceIBMISInstanceGroupValidator(),
 				"ibm_is_instance_group_membership":        vpc.ResourceIBMISInstanceGroupMembershipValidator(),

@@ -70,6 +70,7 @@ require (
 require (
 	cloud.google.com/go/kms v1.10.1 // indirect
 	cloud.google.com/go/monitoring v1.13.0 // indirect
+	github.com/Bowery/prompt v0.0.0-20190916142128-fa8279994f75 // indirect
 	github.com/Logicalis/asn1 v0.0.0-20190312173541-d60463189a56 // indirect
 	github.com/PromonLogicalis/asn1 v0.0.0-20190312173541-d60463189a56 // indirect
 	github.com/agext/levenshtein v1.2.2 // indirect
@@ -86,6 +87,7 @@ require (
 	github.com/coreos/pkg v0.0.0-20220810130054-c7d1c02cb6cf // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/dchest/bcrypt_pbkdf v0.0.0-20150205184540-83f37f9c154a // indirect
+	github.com/dchest/safefile v0.0.0-20151022103144-855e8d98f185 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
 	github.com/eapache/go-resiliency v1.4.0 // indirect
 	github.com/eapache/go-xerial-snappy v0.0.0-20230731223053-c322873962e3 // indirect
@@ -118,6 +120,7 @@ require (
 	github.com/google/gnostic v0.6.9 // indirect
 	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/google/gofuzz v1.2.0 // indirect
+	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-checkpoint v0.5.0 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
@@ -169,6 +172,8 @@ require (
 	github.com/mitchellh/copystructure v1.2.0 // indirect
 	github.com/mitchellh/go-testing-interface v1.14.1 // indirect
 	github.com/mitchellh/go-wordwrap v1.0.0 // indirect
+	github.com/mitchellh/gox v1.0.1 // indirect
+	github.com/mitchellh/iochan v1.0.0 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/mitchellh/reflectwalk v1.0.2 // indirect
 	github.com/moby/spdystream v0.2.0 // indirect
@@ -209,6 +214,8 @@ require (
 	golang.org/x/term v0.13.0 // indirect
 	golang.org/x/text v0.13.0 // indirect
 	golang.org/x/time v0.3.0 // indirect
+	golang.org/x/tools v0.7.0 // indirect
+	golang.org/x/tools/cmd/cover v0.1.0-deprecated // indirect
 	gomodules.xyz/jsonpatch/v2 v2.2.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20230525234030-28d5490b6b19 // indirect
@@ -230,6 +237,8 @@ replace github.com/softlayer/softlayer-go v1.0.3 => github.com/IBM-Cloud/softlay
 replace github.com/dgrijalva/jwt-go v3.2.0+incompatible => github.com/golang-jwt/jwt v3.2.1+incompatible
 
 replace github.com/portworx/sched-ops v0.0.0-20200831185134-3e8010dc7056 => github.com/portworx/sched-ops v0.20.4-openstorage-rc3 // required by rook v1.7
+
+replace github.com/IBM/vpc-go-sdk v0.43.0 => ./common/github.com/IBM/vpc-go-sdk
 
 exclude (
 	github.com/kubernetes-incubator/external-storage v0.20.4-openstorage-rc2

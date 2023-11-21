@@ -1399,3 +1399,75 @@ resource "ibm_is_image_deprecate" "example" {
 resource "ibm_is_image_obsolete" "example" {
   image     = ibm_is_image.image1.id
 }
+
+// dynamic route server
+
+resource "ibm_is_dynamic_route_server" "is_dynamic_route_server_instance" {
+  asn = var.is_dynamic_route_server_asn
+  ips {
+    address = "192.168.3.4"
+    deleted {
+      more_info = "https://cloud.ibm.com/apidocs/vpc#deleted-resources"
+    }
+    href = "https://us-south.iaas.cloud.ibm.com/v1/subnets/7ec86020-1c6e-4889-b3f0-a15f2e50f87e/reserved_ips/6d353a0f-aeb1-4ae1-832e-1110d10981bb"
+    id = "6d353a0f-aeb1-4ae1-832e-1110d10981bb"
+    name = "my-reserved-ip"
+    resource_type = "subnet_reserved_ip"
+  }
+  name = var.is_dynamic_route_server_name
+  redistribute_service_routes = var.is_dynamic_route_server_redistribute_service_routes
+  redistribute_subnets = var.is_dynamic_route_server_redistribute_subnets
+  redistribute_user_routes = var.is_dynamic_route_server_redistribute_user_routes
+  resource_group {
+    id = "fee82deba12e4c0fb69c3b09d1f12345"
+  }
+  security_groups {
+    crn = "crn:v1:bluemix:public:is:us-south:a/123456::security-group:be5df5ca-12a0-494b-907e-aa6ec2bfa271"
+    deleted {
+      more_info = "https://cloud.ibm.com/apidocs/vpc#deleted-resources"
+    }
+    href = "https://us-south.iaas.cloud.ibm.com/v1/security_groups/be5df5ca-12a0-494b-907e-aa6ec2bfa271"
+    id = "be5df5ca-12a0-494b-907e-aa6ec2bfa271"
+    name = "my-security-group"
+  }
+  vpc {
+    crn = "crn:v1:bluemix:public:is:us-south:a/123456::vpc:4727d842-f94f-4a2d-824a-9bc9b02c523b"
+    href = "https://us-south.iaas.cloud.ibm.com/v1/vpcs/4727d842-f94f-4a2d-824a-9bc9b02c523b"
+    id = "4727d842-f94f-4a2d-824a-9bc9b02c523b"
+  }
+}
+
+// Provision is_dynamic_route_server_peer resource instance
+resource "ibm_is_dynamic_route_server_peer" "is_dynamic_route_server_peer_instance" {
+  dynamic_route_server = var.is_dynamic_route_server_peer_dynamic_route_server_id
+  asn = var.is_dynamic_route_server_peer_asn
+  bfd {
+    role = "active"
+  }
+  ip {
+    address = "192.168.3.4"
+  }
+  name = var.is_dynamic_route_server_peer_name
+}
+data "ibm_is_dynamic_route_server" "is_dynamic_route_server_instance" {
+  id = var.is_dynamic_route_server_id
+}
+
+data "ibm_is_dynamic_route_servers" "is_dynamic_route_servers_instance" {
+  name = var.is_dynamic_route_servers_name
+  resource_group = var.is_dynamic_route_servers_resource_group_id
+  sort = var.is_dynamic_route_servers_sort
+}
+
+
+data "ibm_is_dynamic_route_server_peer" "is_dynamic_route_server_peer_instance" {
+  dynamic_route_server = var.is_dynamic_route_server_peer_dynamic_route_server_id
+  id = var.is_dynamic_route_server_peer_id
+}
+
+
+data "ibm_is_dynamic_route_server_peers" "is_dynamic_route_server_peers_instance" {
+  dynamic_route_server = var.is_dynamic_route_server_peers_dynamic_route_server_id
+  sort = var.is_dynamic_route_server_peers_sort
+}
+
