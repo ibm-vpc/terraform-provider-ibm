@@ -275,7 +275,10 @@ func resourceIBMIsVPCDnsResolutionBindingCreate(context context.Context, d *sche
 		return diag.FromErr(fmt.Errorf("CreateVPCDnsResolutionBindingWithContext failed %s\n%s", err, response))
 	}
 	d.SetId(MakeTerraformVPCDNSID(spokeVPCID, *vpcdnsResolutionBinding.ID))
-
+	_, err = isWaitForVpcDnsCreated(sess, *vpcdnsResolutionBinding.VPC.ID, *vpcdnsResolutionBinding.ID, d.Timeout(schema.TimeoutCreate))
+	if err != nil {
+		return diag.FromErr(err)
+	}
 	err = resourceIBMIsVPCDnsResolutionBindingGet(vpcdnsResolutionBinding, d)
 	if err != nil {
 		return diag.FromErr(err)
@@ -446,8 +449,8 @@ func isWaitForVpcDnsDeleted(sess *vpcv1.VpcV1, vpcid, id string, timeout time.Du
 	log.Printf("Waiting for vpc dns (%s) to be deleted.", id)
 
 	stateConf := &resource.StateChangeConf{
-		Pending:    []string{"retry", isVolumeDeleting},
-		Target:     []string{"done", ""},
+		Pending:    []string{"deleting", "pending", "updating", "waiting"},
+		Target:     []string{"stable", "failed", "suspended", ""},
 		Refresh:    isVpcDnsDeleteRefreshFunc(sess, vpcid, id, dns),
 		Timeout:    timeout,
 		Delay:      10 * time.Second,
@@ -470,10 +473,46 @@ func isVpcDnsDeleteRefreshFunc(sess *vpcv1.VpcV1, vpcid, id string, dns *vpcv1.V
 		}
 		if err != nil {
 			if response != nil && response.StatusCode == 404 {
-				return vpcdnsResolutionBinding, isVolumeDeleted, nil
+				return vpcdnsResolutionBinding, "", nil
 			}
 			return vpcdnsResolutionBinding, "", fmt.Errorf("[ERROR] Error getting vpcdnsResolutionBinding: %s\n%s", err, response)
 		}
-		return vpcdnsResolutionBinding, isVolumeDeleting, err
+		return vpcdnsResolutionBinding, *vpcdnsResolutionBinding.LifecycleState, err
+	}
+}
+
+func isWaitForVpcDnsCreated(sess *vpcv1.VpcV1, vpcid, id string, timeout time.Duration) (interface{}, error) {
+	log.Printf("Waiting for vpc dns (%s) to be deleted.", id)
+
+	stateConf := &resource.StateChangeConf{
+		Pending:    []string{"deleting", "pending", "updating", "waiting"},
+		Target:     []string{"stable", "failed", "suspended", ""},
+		Refresh:    isVpcDnsCreateRefreshFunc(sess, vpcid, id),
+		Timeout:    timeout,
+		Delay:      10 * time.Second,
+		MinTimeout: 10 * time.Second,
+	}
+
+	return stateConf.WaitForState()
+}
+
+func isVpcDnsCreateRefreshFunc(sess *vpcv1.VpcV1, vpcid, id string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		getVPCDnsResolutionBindingOptions := &vpcv1.GetVPCDnsResolutionBindingOptions{}
+
+		getVPCDnsResolutionBindingOptions.SetVPCID(vpcid)
+		getVPCDnsResolutionBindingOptions.SetID(id)
+
+		vpcdnsResolutionBinding, response, err := sess.GetVPCDnsResolutionBinding(getVPCDnsResolutionBindingOptions)
+		if err != nil {
+			if response != nil && response.StatusCode == 404 {
+				return vpcdnsResolutionBinding, "", nil
+			}
+			return vpcdnsResolutionBinding, "", fmt.Errorf("[ERROR] Error getting vpcdnsResolutionBinding: %s\n%s", err, response)
+		}
+		if *vpcdnsResolutionBinding.LifecycleState == "failed" || *vpcdnsResolutionBinding.LifecycleState == "suspended" {
+			return vpcdnsResolutionBinding, "", fmt.Errorf("[ERROR] DnsResolutionBinding in %s state", *vpcdnsResolutionBinding.LifecycleState)
+		}
+		return vpcdnsResolutionBinding, *vpcdnsResolutionBinding.LifecycleState, err
 	}
 }
