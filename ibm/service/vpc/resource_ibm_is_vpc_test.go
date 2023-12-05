@@ -659,6 +659,7 @@ func testAccCheckIBMISVPCDnsDelegatedFirstConfig(vpcname, vpcname2, subnetname1,
 	}
 	
 	resource ibm_is_vpc hub_false_delegated {
+		depends_on = [ ibm_dns_custom_resolver.test_hub_true ]
 		name = "%s"
 		dns {
 			enable_hub = %t
