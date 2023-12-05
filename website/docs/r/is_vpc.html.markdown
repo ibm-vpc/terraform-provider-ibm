@@ -86,7 +86,7 @@ resource "ibm_is_vpc" "example-system" {
 // delegated type resolver
 
 resource "ibm_is_vpc" "example-delegated" {
-  // add a dependency on custom resolver for the hub vpc
+  // add a dependency on custom resolver for the hub vpc to have the resolver created first
 	depends_on = [ ibm_dns_custom_resolver.example-hub ]
 	name = "example-hub-false-delegated"
 	dns {
