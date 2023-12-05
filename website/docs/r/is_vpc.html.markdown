@@ -83,6 +83,22 @@ resource "ibm_is_vpc" "example-system" {
 	}
 }
 
+// delegated type resolver
+
+resource "ibm_is_vpc" "example-delegated" {
+  // add a dependency on custom resolver for the hub vpc
+	depends_on = [ ibm_dns_custom_resolver.example-hub ]
+	name = "example-hub-false-delegated"
+	dns {
+		enable_hub = false
+		resolver {
+			type = "delegated"
+			vpc_id = ibm_is_vpc.example.id
+			dns_binding_name = "example-vpc-binding"
+		}
+	}
+}
+
 ```
 
 ## Timeouts
