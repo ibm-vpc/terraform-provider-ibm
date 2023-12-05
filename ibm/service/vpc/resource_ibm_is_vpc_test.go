@@ -331,15 +331,15 @@ func TestAccIBMISVPC_dns_delegated_first(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"ibm_is_vpc.hub_false_delegated", "dns.0.resolver.0.type", "delegated"),
 					resource.TestCheckResourceAttr(
-						"ibm_is_vpc.hub_false_delegated", "resolution_binding_count", "1"),
+						"ibm_is_vpc.hub_false_delegated", "dns.0.resolution_binding_count", "1"),
 					resource.TestCheckResourceAttr(
-						"ibm_is_vpc.hub_false_delegated", "dns_binding_name", binding),
+						"ibm_is_vpc.hub_false_delegated", "dns.0.resolver.0.dns_binding_name", binding),
 					resource.TestCheckResourceAttrSet(
-						"ibm_is_vpc.hub_false_delegated", "dns_binding_id"),
+						"ibm_is_vpc.hub_false_delegated", "dns.0.resolver.0.dns_binding_id"),
 					resource.TestCheckResourceAttrSet(
-						"ibm_is_vpc.hub_false_delegated", "vpc_id"),
+						"ibm_is_vpc.hub_false_delegated", "dns.0.resolver.0.vpc_id"),
 					resource.TestCheckResourceAttrSet(
-						"ibm_is_vpc.hub_false_delegated", "vpc_name"),
+						"ibm_is_vpc.hub_false_delegated", "dns.0.resolver.0.vpc_name"),
 				),
 			},
 		},
