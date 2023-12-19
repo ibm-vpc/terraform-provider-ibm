@@ -82,6 +82,7 @@ import (
 	project "github.com/IBM/project-go-sdk/projectv1"
 	"github.com/IBM/push-notifications-go-sdk/pushservicev1"
 	schematicsv1 "github.com/IBM/schematics-go-sdk/schematicsv1"
+	ontap "github.com/IBM/vpc-beta-go-sdk/ontapv1"
 	vpcbeta "github.com/IBM/vpc-beta-go-sdk/vpcbetav1"
 	"github.com/IBM/vpc-go-sdk/common"
 	vpc "github.com/IBM/vpc-go-sdk/vpcv1"
@@ -239,6 +240,7 @@ type ClientSession interface {
 	KeyManagementAPI() (*kp.Client, error)
 	VpcV1API() (*vpc.VpcV1, error)
 	VpcV1BetaAPI() (*vpcbeta.VpcbetaV1, error)
+	OntapAPI() (*ontap.OntapV1, error)
 	APIGateway() (*apigateway.ApiGatewayControllerApiV1, error)
 	PrivateDNSClientSession() (*dns.DnsSvcsV1, error)
 	CosConfigV1API() (*cosconfig.ResourceConfigurationV1, error)
@@ -408,6 +410,8 @@ type clientSession struct {
 	vpcAPI     *vpc.VpcV1
 	vpcbetaErr error
 	vpcBetaAPI *vpcbeta.VpcbetaV1
+	ontapErr   error
+	ontapAPI   *ontap.OntapV1
 
 	directlinkAPI *dl.DirectLinkV1
 	directlinkErr error
@@ -841,6 +845,10 @@ func (sess clientSession) VpcV1BetaAPI() (*vpcbeta.VpcbetaV1, error) {
 	return sess.vpcBetaAPI, sess.vpcbetaErr
 }
 
+func (sess clientSession) OntapAPI() (*ontap.OntapV1, error) {
+	return sess.ontapAPI, sess.ontapErr
+}
+
 func (sess clientSession) DirectlinkV1API() (*dl.DirectLinkV1, error) {
 	return sess.directlinkAPI, sess.directlinkErr
 }
@@ -1260,6 +1268,7 @@ func (c *Config) ClientSession() (interface{}, error) {
 		session.userManagementErr = errEmptyBluemixCredentials
 		session.vpcErr = errEmptyBluemixCredentials
 		session.vpcbetaErr = errEmptyBluemixCredentials
+		session.ontapErr = errEmptyBluemixCredentials
 		session.apigatewayErr = errEmptyBluemixCredentials
 		session.pDNSErr = errEmptyBluemixCredentials
 		session.bmxUserFetchErr = errEmptyBluemixCredentials
@@ -1856,6 +1865,22 @@ func (c *Config) ClientSession() (interface{}, error) {
 		})
 	}
 	session.vpcBetaAPI = vpcbetaclient
+
+	ontapoptions := &ontap.OntapV1Options{
+		URL:           EnvFallBack([]string{"IBMCLOUD_IS_NG_API_ENDPOINT"}, vpcurl),
+		Authenticator: authenticator,
+	}
+	ontapclient, err := ontap.NewOntapV1(ontapoptions)
+	if err != nil {
+		session.ontapErr = fmt.Errorf("[ERROR] Error occured while configuring vpc beta service: %q", err)
+	}
+	if ontapclient != nil && ontapclient.Service != nil {
+		ontapclient.Service.EnableRetries(c.RetryCount, c.RetryDelay)
+		ontapclient.SetDefaultHeaders(gohttp.Header{
+			"X-Original-User-Agent": {fmt.Sprintf("terraform-provider-ibm/%s", version.Version)},
+		})
+	}
+	session.ontapAPI = ontapclient
 
 	// PUSH NOTIFICATIONS Service
 	pnurl := fmt.Sprintf("https://%s.imfpush.cloud.ibm.com/imfpush/v1", c.Region)
