@@ -16,9 +16,9 @@ import (
 	"github.com/IBM/vpc-beta-go-sdk/ontapv1"
 )
 
-func DataSourceIbmIsStorageOntapInstanceVirtualMachines() *schema.Resource {
+func DataSourceIbmIsStorageOntapInstanceStorageVirtualMachines() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceIbmIsStorageOntapInstanceVirtualMachinesRead,
+		ReadContext: dataSourceIbmIsStorageOntapInstanceStorageVirtualMachinesRead,
 
 		Schema: map[string]*schema.Schema{
 			"storage_ontap_instance_id": &schema.Schema{
@@ -328,7 +328,7 @@ func DataSourceIbmIsStorageOntapInstanceVirtualMachines() *schema.Resource {
 	}
 }
 
-func dataSourceIbmIsStorageOntapInstanceVirtualMachinesRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataSourceIbmIsStorageOntapInstanceStorageVirtualMachinesRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	ontapClient, err := meta.(conns.ClientSession).OntapAPI()
 	if err != nil {
 		return diag.FromErr(err)
@@ -353,11 +353,11 @@ func dataSourceIbmIsStorageOntapInstanceVirtualMachinesRead(context context.Cont
 		return diag.FromErr(fmt.Errorf("StorageOntapInstanceStorageVirtualMachinesPager.GetAll() failed %s", err))
 	}
 
-	d.SetId(dataSourceIbmIsStorageOntapInstanceVirtualMachinesID(d))
+	d.SetId(dataSourceIbmIsStorageOntapInstanceStorageVirtualMachinesID(d))
 
 	mapSlice := []map[string]interface{}{}
 	for _, modelItem := range allItems {
-		modelMap, err := dataSourceIbmIsStorageOntapInstanceVirtualMachinesStorageOntapInstanceStorageVirtualMachineToMap(&modelItem)
+		modelMap, err := dataSourceIbmIsStorageOntapInstanceStorageVirtualMachinesStorageOntapInstanceStorageVirtualMachineToMap(&modelItem)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -371,48 +371,48 @@ func dataSourceIbmIsStorageOntapInstanceVirtualMachinesRead(context context.Cont
 	return nil
 }
 
-// dataSourceIbmIsStorageOntapInstanceVirtualMachinesID returns a reasonable ID for the list.
-func dataSourceIbmIsStorageOntapInstanceVirtualMachinesID(d *schema.ResourceData) string {
+// dataSourceIbmIsStorageOntapInstanceStorageVirtualMachinesID returns a reasonable ID for the list.
+func dataSourceIbmIsStorageOntapInstanceStorageVirtualMachinesID(d *schema.ResourceData) string {
 	return time.Now().UTC().String()
 }
 
-func dataSourceIbmIsStorageOntapInstanceVirtualMachinesStorageOntapInstanceStorageVirtualMachineCollectionFirstToMap(model *ontapv1.StorageOntapInstanceStorageVirtualMachineCollectionFirst) (map[string]interface{}, error) {
+func dataSourceIbmIsStorageOntapInstanceStorageVirtualMachinesStorageOntapInstanceStorageVirtualMachineCollectionFirstToMap(model *ontapv1.StorageOntapInstanceStorageVirtualMachineCollectionFirst) (map[string]interface{}, error) {
 	modelMap := make(map[string]interface{})
 	modelMap["href"] = model.Href
 	return modelMap, nil
 }
 
-func dataSourceIbmIsStorageOntapInstanceVirtualMachinesStorageOntapInstanceStorageVirtualMachineCollectionNextToMap(model *ontapv1.StorageOntapInstanceStorageVirtualMachineCollectionNext) (map[string]interface{}, error) {
+func dataSourceIbmIsStorageOntapInstanceStorageVirtualMachinesStorageOntapInstanceStorageVirtualMachineCollectionNextToMap(model *ontapv1.StorageOntapInstanceStorageVirtualMachineCollectionNext) (map[string]interface{}, error) {
 	modelMap := make(map[string]interface{})
 	modelMap["href"] = model.Href
 	return modelMap, nil
 }
 
-func dataSourceIbmIsStorageOntapInstanceVirtualMachinesStorageOntapInstanceStorageVirtualMachineToMap(model *ontapv1.StorageOntapInstanceStorageVirtualMachine) (map[string]interface{}, error) {
+func dataSourceIbmIsStorageOntapInstanceStorageVirtualMachinesStorageOntapInstanceStorageVirtualMachineToMap(model *ontapv1.StorageOntapInstanceStorageVirtualMachine) (map[string]interface{}, error) {
 	modelMap := make(map[string]interface{})
 	if model.ActiveDirectory != nil {
-		activeDirectoryMap, err := dataSourceIbmIsStorageOntapInstanceVirtualMachinesStorageOntapInstanceStorageVirtualMachineActiveDirectoryToMap(model.ActiveDirectory)
+		activeDirectoryMap, err := dataSourceIbmIsStorageOntapInstanceStorageVirtualMachinesStorageOntapInstanceStorageVirtualMachineActiveDirectoryToMap(model.ActiveDirectory)
 		if err != nil {
 			return modelMap, err
 		}
 		modelMap["active_directory"] = []map[string]interface{}{activeDirectoryMap}
 	}
 	if model.AdminCredentials != nil {
-		adminCredentialsMap, err := dataSourceIbmIsStorageOntapInstanceVirtualMachinesStorageOntapInstanceStorageVirtualMachineAdminCredentialsToMap(model.AdminCredentials)
+		adminCredentialsMap, err := dataSourceIbmIsStorageOntapInstanceStorageVirtualMachinesStorageOntapInstanceStorageVirtualMachineAdminCredentialsToMap(model.AdminCredentials)
 		if err != nil {
 			return modelMap, err
 		}
 		modelMap["admin_credentials"] = []map[string]interface{}{adminCredentialsMap}
 	}
 	if model.AdminPassword != nil {
-		adminPasswordMap, err := dataSourceIbmIsStorageOntapInstanceVirtualMachinesCredentialReferenceToMap(model.AdminPassword)
+		adminPasswordMap, err := dataSourceIbmIsStorageOntapInstanceStorageVirtualMachinesCredentialReferenceToMap(model.AdminPassword)
 		if err != nil {
 			return modelMap, err
 		}
 		modelMap["admin_password"] = []map[string]interface{}{adminPasswordMap}
 	}
 	modelMap["created_at"] = model.CreatedAt.String()
-	endpointsMap, err := dataSourceIbmIsStorageOntapInstanceVirtualMachinesStorageOntapInstanceStorageVirtualMachineEndpointsToMap(model.Endpoints)
+	endpointsMap, err := dataSourceIbmIsStorageOntapInstanceStorageVirtualMachinesStorageOntapInstanceStorageVirtualMachineEndpointsToMap(model.Endpoints)
 	if err != nil {
 		return modelMap, err
 	}
@@ -425,20 +425,20 @@ func dataSourceIbmIsStorageOntapInstanceVirtualMachinesStorageOntapInstanceStora
 	return modelMap, nil
 }
 
-func dataSourceIbmIsStorageOntapInstanceVirtualMachinesStorageOntapInstanceStorageVirtualMachineActiveDirectoryToMap(model *ontapv1.StorageOntapInstanceStorageVirtualMachineActiveDirectory) (map[string]interface{}, error) {
+func dataSourceIbmIsStorageOntapInstanceStorageVirtualMachinesStorageOntapInstanceStorageVirtualMachineActiveDirectoryToMap(model *ontapv1.StorageOntapInstanceStorageVirtualMachineActiveDirectory) (map[string]interface{}, error) {
 	modelMap := make(map[string]interface{})
 	modelMap["administrators_group"] = model.AdministratorsGroup
 	modelMap["dns_ips"] = model.DnsIps
 	modelMap["domain_name"] = model.DomainName
 	if model.DomainPassword != nil {
-		domainPasswordMap, err := dataSourceIbmIsStorageOntapInstanceVirtualMachinesCredentialReferenceToMap(model.DomainPassword)
+		domainPasswordMap, err := dataSourceIbmIsStorageOntapInstanceStorageVirtualMachinesCredentialReferenceToMap(model.DomainPassword)
 		if err != nil {
 			return modelMap, err
 		}
 		modelMap["domain_password"] = []map[string]interface{}{domainPasswordMap}
 	}
 	if model.DomainPasswordCredential != nil {
-		domainPasswordCredentialMap, err := dataSourceIbmIsStorageOntapInstanceVirtualMachinesCredentialReferenceToMap(model.DomainPasswordCredential)
+		domainPasswordCredentialMap, err := dataSourceIbmIsStorageOntapInstanceStorageVirtualMachinesCredentialReferenceToMap(model.DomainPasswordCredential)
 		if err != nil {
 			return modelMap, err
 		}
@@ -450,31 +450,31 @@ func dataSourceIbmIsStorageOntapInstanceVirtualMachinesStorageOntapInstanceStora
 	return modelMap, nil
 }
 
-func dataSourceIbmIsStorageOntapInstanceVirtualMachinesCredentialReferenceToMap(model *ontapv1.CredentialReference) (map[string]interface{}, error) {
+func dataSourceIbmIsStorageOntapInstanceStorageVirtualMachinesCredentialReferenceToMap(model *ontapv1.CredentialReference) (map[string]interface{}, error) {
 	modelMap := make(map[string]interface{})
 	modelMap["crn"] = model.Crn
 	modelMap["resource_type"] = model.ResourceType
 	return modelMap, nil
 }
 
-func dataSourceIbmIsStorageOntapInstanceVirtualMachinesStorageOntapInstanceStorageVirtualMachineAdminCredentialsToMap(model *ontapv1.StorageOntapInstanceStorageVirtualMachineAdminCredentials) (map[string]interface{}, error) {
+func dataSourceIbmIsStorageOntapInstanceStorageVirtualMachinesStorageOntapInstanceStorageVirtualMachineAdminCredentialsToMap(model *ontapv1.StorageOntapInstanceStorageVirtualMachineAdminCredentials) (map[string]interface{}, error) {
 	modelMap := make(map[string]interface{})
 	if model.Http != nil {
-		httpMap, err := dataSourceIbmIsStorageOntapInstanceVirtualMachinesCredentialReferenceToMap(model.Http)
+		httpMap, err := dataSourceIbmIsStorageOntapInstanceStorageVirtualMachinesCredentialReferenceToMap(model.Http)
 		if err != nil {
 			return modelMap, err
 		}
 		modelMap["http"] = []map[string]interface{}{httpMap}
 	}
 	if model.Password != nil {
-		passwordMap, err := dataSourceIbmIsStorageOntapInstanceVirtualMachinesCredentialReferenceToMap(model.Password)
+		passwordMap, err := dataSourceIbmIsStorageOntapInstanceStorageVirtualMachinesCredentialReferenceToMap(model.Password)
 		if err != nil {
 			return modelMap, err
 		}
 		modelMap["password"] = []map[string]interface{}{passwordMap}
 	}
 	if model.Ssh != nil {
-		sshMap, err := dataSourceIbmIsStorageOntapInstanceVirtualMachinesCredentialReferenceToMap(model.Ssh)
+		sshMap, err := dataSourceIbmIsStorageOntapInstanceStorageVirtualMachinesCredentialReferenceToMap(model.Ssh)
 		if err != nil {
 			return modelMap, err
 		}
@@ -483,22 +483,22 @@ func dataSourceIbmIsStorageOntapInstanceVirtualMachinesStorageOntapInstanceStora
 	return modelMap, nil
 }
 
-func dataSourceIbmIsStorageOntapInstanceVirtualMachinesStorageOntapInstanceStorageVirtualMachineEndpointsToMap(model *ontapv1.StorageOntapInstanceStorageVirtualMachineEndpoints) (map[string]interface{}, error) {
+func dataSourceIbmIsStorageOntapInstanceStorageVirtualMachinesStorageOntapInstanceStorageVirtualMachineEndpointsToMap(model *ontapv1.StorageOntapInstanceStorageVirtualMachineEndpoints) (map[string]interface{}, error) {
 	modelMap := make(map[string]interface{})
-	managementMap, err := dataSourceIbmIsStorageOntapInstanceVirtualMachinesStorageOntapInstanceEndpointToMap(model.Management)
+	managementMap, err := dataSourceIbmIsStorageOntapInstanceStorageVirtualMachinesStorageOntapInstanceEndpointToMap(model.Management)
 	if err != nil {
 		return modelMap, err
 	}
 	modelMap["management"] = []map[string]interface{}{managementMap}
 	if model.Nfs != nil {
-		nfsMap, err := dataSourceIbmIsStorageOntapInstanceVirtualMachinesStorageOntapInstanceEndpointToMap(model.Nfs)
+		nfsMap, err := dataSourceIbmIsStorageOntapInstanceStorageVirtualMachinesStorageOntapInstanceEndpointToMap(model.Nfs)
 		if err != nil {
 			return modelMap, err
 		}
 		modelMap["nfs"] = []map[string]interface{}{nfsMap}
 	}
 	if model.Smb != nil {
-		smbMap, err := dataSourceIbmIsStorageOntapInstanceVirtualMachinesStorageOntapInstanceEndpointToMap(model.Smb)
+		smbMap, err := dataSourceIbmIsStorageOntapInstanceStorageVirtualMachinesStorageOntapInstanceEndpointToMap(model.Smb)
 		if err != nil {
 			return modelMap, err
 		}
@@ -507,7 +507,7 @@ func dataSourceIbmIsStorageOntapInstanceVirtualMachinesStorageOntapInstanceStora
 	return modelMap, nil
 }
 
-func dataSourceIbmIsStorageOntapInstanceVirtualMachinesStorageOntapInstanceEndpointToMap(model *ontapv1.StorageOntapInstanceEndpoint) (map[string]interface{}, error) {
+func dataSourceIbmIsStorageOntapInstanceStorageVirtualMachinesStorageOntapInstanceEndpointToMap(model *ontapv1.StorageOntapInstanceEndpoint) (map[string]interface{}, error) {
 	modelMap := make(map[string]interface{})
 	modelMap["ipv4_address"] = model.Ipv4Address
 	return modelMap, nil

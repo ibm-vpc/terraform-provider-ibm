@@ -1,19 +1,19 @@
 ---
 layout: "ibm"
-page_title: "IBM : ibm_is_storage_ontap_instance_virtual_machines"
+page_title: "IBM : ibm_is_storage_ontap_instance_storage_virtual_machines"
 description: |-
   Get information about StorageOntapInstanceStorageVirtualMachineCollection
 subcategory: "ontap"
 ---
 
-# ibm_is_storage_ontap_instance_virtual_machines
+# ibm_is_storage_ontap_instance_storage_virtual_machines
 
 Provides a read-only data source to retrieve information about a StorageOntapInstanceStorageVirtualMachineCollection. You can then reference the fields of the data source in other resources within the same configuration by using interpolation syntax.
 
 ## Example Usage
 
 ```hcl
-data "ibm_is_storage_ontap_instance_virtual_machines" "is_storage_ontap_instance_virtual_machines" {
+data "ibm_is_storage_ontap_instance_storage_virtual_machines" "is_storage_ontap_instance_storage_virtual_machines" {
 	storage_ontap_instance_id = "storage_ontap_instance_id"
 }
 ```

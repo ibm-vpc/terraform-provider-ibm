@@ -16,9 +16,9 @@ import (
 	"github.com/IBM/vpc-beta-go-sdk/ontapv1"
 )
 
-func DataSourceIbmIsStorageOntapInstanceVirtualMachineVolume() *schema.Resource {
+func DataSourceIbmIsStorageOntapInstanceStorageVirtualMachineVolume() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceIbmIsStorageOntapInstanceVirtualMachineVolumeRead,
+		ReadContext: dataSourceIbmIsStorageOntapInstanceStorageVirtualMachineVolumeRead,
 
 		Schema: map[string]*schema.Schema{
 			"storage_ontap_instance_id": &schema.Schema{
@@ -246,7 +246,7 @@ func DataSourceIbmIsStorageOntapInstanceVirtualMachineVolume() *schema.Resource 
 	}
 }
 
-func dataSourceIbmIsStorageOntapInstanceVirtualMachineVolumeRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataSourceIbmIsStorageOntapInstanceStorageVirtualMachineVolumeRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	ontapClient, err := meta.(conns.ClientSession).OntapAPI()
 	if err != nil {
 		return diag.FromErr(err)
@@ -272,7 +272,7 @@ func dataSourceIbmIsStorageOntapInstanceVirtualMachineVolumeRead(context context
 
 	cifsShare := []map[string]interface{}{}
 	if storageOntapInstanceStorageVirtualMachineVolume.CifsShare != nil {
-		modelMap, err := dataSourceIbmIsStorageOntapInstanceVirtualMachineVolumeStorageOntapInstanceStorageVirtualMachineVolumeCIFSShareToMap(storageOntapInstanceStorageVirtualMachineVolume.CifsShare)
+		modelMap, err := dataSourceIbmIsStorageOntapInstanceStorageVirtualMachineVolumeStorageOntapInstanceStorageVirtualMachineVolumeCIFSShareToMap(storageOntapInstanceStorageVirtualMachineVolume.CifsShare)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -292,7 +292,7 @@ func dataSourceIbmIsStorageOntapInstanceVirtualMachineVolumeRead(context context
 
 	exportPolicy := []map[string]interface{}{}
 	if storageOntapInstanceStorageVirtualMachineVolume.ExportPolicy != nil {
-		modelMap, err := dataSourceIbmIsStorageOntapInstanceVirtualMachineVolumeStorageOntapInstanceStorageVirtualMachineVolumeExportPolicyToMap(storageOntapInstanceStorageVirtualMachineVolume.ExportPolicy)
+		modelMap, err := dataSourceIbmIsStorageOntapInstanceStorageVirtualMachineVolumeStorageOntapInstanceStorageVirtualMachineVolumeExportPolicyToMap(storageOntapInstanceStorageVirtualMachineVolume.ExportPolicy)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -305,7 +305,7 @@ func dataSourceIbmIsStorageOntapInstanceVirtualMachineVolumeRead(context context
 	healthReasons := []map[string]interface{}{}
 	if storageOntapInstanceStorageVirtualMachineVolume.HealthReasons != nil {
 		for _, modelItem := range storageOntapInstanceStorageVirtualMachineVolume.HealthReasons {
-			modelMap, err := dataSourceIbmIsStorageOntapInstanceVirtualMachineVolumeStorageOntapInstanceStorageVirtualMachineVolumeHealthReasonToMap(&modelItem)
+			modelMap, err := dataSourceIbmIsStorageOntapInstanceStorageVirtualMachineVolumeStorageOntapInstanceStorageVirtualMachineVolumeHealthReasonToMap(&modelItem)
 			if err != nil {
 				return diag.FromErr(err)
 			}
@@ -359,11 +359,11 @@ func dataSourceIbmIsStorageOntapInstanceVirtualMachineVolumeRead(context context
 	return nil
 }
 
-func dataSourceIbmIsStorageOntapInstanceVirtualMachineVolumeStorageOntapInstanceStorageVirtualMachineVolumeCIFSShareToMap(model *ontapv1.StorageOntapInstanceStorageVirtualMachineVolumeCIFSShare) (map[string]interface{}, error) {
+func dataSourceIbmIsStorageOntapInstanceStorageVirtualMachineVolumeStorageOntapInstanceStorageVirtualMachineVolumeCIFSShareToMap(model *ontapv1.StorageOntapInstanceStorageVirtualMachineVolumeCIFSShare) (map[string]interface{}, error) {
 	modelMap := make(map[string]interface{})
 	accessControlList := []map[string]interface{}{}
 	for _, accessControlListItem := range model.AccessControlList {
-		accessControlListItemMap, err := dataSourceIbmIsStorageOntapInstanceVirtualMachineVolumeStorageOntapInstanceStorageVirtualMachineVolumeCIFSShareAccessControlToMap(&accessControlListItem)
+		accessControlListItemMap, err := dataSourceIbmIsStorageOntapInstanceStorageVirtualMachineVolumeStorageOntapInstanceStorageVirtualMachineVolumeCIFSShareAccessControlToMap(&accessControlListItem)
 		if err != nil {
 			return modelMap, err
 		}
@@ -375,20 +375,20 @@ func dataSourceIbmIsStorageOntapInstanceVirtualMachineVolumeStorageOntapInstance
 	return modelMap, nil
 }
 
-func dataSourceIbmIsStorageOntapInstanceVirtualMachineVolumeStorageOntapInstanceStorageVirtualMachineVolumeCIFSShareAccessControlToMap(model *ontapv1.StorageOntapInstanceStorageVirtualMachineVolumeCIFSShareAccessControl) (map[string]interface{}, error) {
+func dataSourceIbmIsStorageOntapInstanceStorageVirtualMachineVolumeStorageOntapInstanceStorageVirtualMachineVolumeCIFSShareAccessControlToMap(model *ontapv1.StorageOntapInstanceStorageVirtualMachineVolumeCIFSShareAccessControl) (map[string]interface{}, error) {
 	modelMap := make(map[string]interface{})
 	modelMap["permission"] = model.Permission
 	modelMap["users"] = model.Users
 	return modelMap, nil
 }
 
-func dataSourceIbmIsStorageOntapInstanceVirtualMachineVolumeStorageOntapInstanceStorageVirtualMachineVolumeExportPolicyToMap(model *ontapv1.StorageOntapInstanceStorageVirtualMachineVolumeExportPolicy) (map[string]interface{}, error) {
+func dataSourceIbmIsStorageOntapInstanceStorageVirtualMachineVolumeStorageOntapInstanceStorageVirtualMachineVolumeExportPolicyToMap(model *ontapv1.StorageOntapInstanceStorageVirtualMachineVolumeExportPolicy) (map[string]interface{}, error) {
 	modelMap := make(map[string]interface{})
 	modelMap["mount_path"] = model.MountPath
 	if model.Rules != nil {
 		rules := []map[string]interface{}{}
 		for _, rulesItem := range model.Rules {
-			rulesItemMap, err := dataSourceIbmIsStorageOntapInstanceVirtualMachineVolumeStorageOntapInstanceStorageVirtualMachineVolumeExportPolicyRuleToMap(&rulesItem)
+			rulesItemMap, err := dataSourceIbmIsStorageOntapInstanceStorageVirtualMachineVolumeStorageOntapInstanceStorageVirtualMachineVolumeExportPolicyRuleToMap(&rulesItem)
 			if err != nil {
 				return modelMap, err
 			}
@@ -399,12 +399,12 @@ func dataSourceIbmIsStorageOntapInstanceVirtualMachineVolumeStorageOntapInstance
 	return modelMap, nil
 }
 
-func dataSourceIbmIsStorageOntapInstanceVirtualMachineVolumeStorageOntapInstanceStorageVirtualMachineVolumeExportPolicyRuleToMap(model *ontapv1.StorageOntapInstanceStorageVirtualMachineVolumeExportPolicyRule) (map[string]interface{}, error) {
+func dataSourceIbmIsStorageOntapInstanceStorageVirtualMachineVolumeStorageOntapInstanceStorageVirtualMachineVolumeExportPolicyRuleToMap(model *ontapv1.StorageOntapInstanceStorageVirtualMachineVolumeExportPolicyRule) (map[string]interface{}, error) {
 	modelMap := make(map[string]interface{})
 	modelMap["access_control"] = model.AccessControl
 	clients := []map[string]interface{}{}
 	for _, clientsItem := range model.Clients {
-		clientsItemMap, err := dataSourceIbmIsStorageOntapInstanceVirtualMachineVolumeStorageOntapInstanceStorageVirtualMachineVolumeExportPolicyRuleClientToMap(clientsItem)
+		clientsItemMap, err := dataSourceIbmIsStorageOntapInstanceStorageVirtualMachineVolumeStorageOntapInstanceStorageVirtualMachineVolumeExportPolicyRuleClientToMap(clientsItem)
 		if err != nil {
 			return modelMap, err
 		}
@@ -417,15 +417,15 @@ func dataSourceIbmIsStorageOntapInstanceVirtualMachineVolumeStorageOntapInstance
 	return modelMap, nil
 }
 
-func dataSourceIbmIsStorageOntapInstanceVirtualMachineVolumeStorageOntapInstanceStorageVirtualMachineVolumeExportPolicyRuleClientToMap(model ontapv1.StorageOntapInstanceStorageVirtualMachineVolumeExportPolicyRuleClientIntf) (map[string]interface{}, error) {
+func dataSourceIbmIsStorageOntapInstanceStorageVirtualMachineVolumeStorageOntapInstanceStorageVirtualMachineVolumeExportPolicyRuleClientToMap(model ontapv1.StorageOntapInstanceStorageVirtualMachineVolumeExportPolicyRuleClientIntf) (map[string]interface{}, error) {
 	if _, ok := model.(*ontapv1.StorageOntapInstanceStorageVirtualMachineVolumeExportPolicyRuleClientByHostname); ok {
-		return dataSourceIbmIsStorageOntapInstanceVirtualMachineVolumeStorageOntapInstanceStorageVirtualMachineVolumeExportPolicyRuleClientByHostnameToMap(model.(*ontapv1.StorageOntapInstanceStorageVirtualMachineVolumeExportPolicyRuleClientByHostname))
+		return dataSourceIbmIsStorageOntapInstanceStorageVirtualMachineVolumeStorageOntapInstanceStorageVirtualMachineVolumeExportPolicyRuleClientByHostnameToMap(model.(*ontapv1.StorageOntapInstanceStorageVirtualMachineVolumeExportPolicyRuleClientByHostname))
 	} else if _, ok := model.(*ontapv1.StorageOntapInstanceStorageVirtualMachineVolumeExportPolicyRuleClientByIP); ok {
-		return dataSourceIbmIsStorageOntapInstanceVirtualMachineVolumeStorageOntapInstanceStorageVirtualMachineVolumeExportPolicyRuleClientByIPToMap(model.(*ontapv1.StorageOntapInstanceStorageVirtualMachineVolumeExportPolicyRuleClientByIP))
+		return dataSourceIbmIsStorageOntapInstanceStorageVirtualMachineVolumeStorageOntapInstanceStorageVirtualMachineVolumeExportPolicyRuleClientByIPToMap(model.(*ontapv1.StorageOntapInstanceStorageVirtualMachineVolumeExportPolicyRuleClientByIP))
 	} else if _, ok := model.(*ontapv1.StorageOntapInstanceStorageVirtualMachineVolumeExportPolicyRuleClientByCIDR); ok {
-		return dataSourceIbmIsStorageOntapInstanceVirtualMachineVolumeStorageOntapInstanceStorageVirtualMachineVolumeExportPolicyRuleClientByCIDRToMap(model.(*ontapv1.StorageOntapInstanceStorageVirtualMachineVolumeExportPolicyRuleClientByCIDR))
+		return dataSourceIbmIsStorageOntapInstanceStorageVirtualMachineVolumeStorageOntapInstanceStorageVirtualMachineVolumeExportPolicyRuleClientByCIDRToMap(model.(*ontapv1.StorageOntapInstanceStorageVirtualMachineVolumeExportPolicyRuleClientByCIDR))
 	} else if _, ok := model.(*ontapv1.StorageOntapInstanceStorageVirtualMachineVolumeExportPolicyRuleClientByDomainName); ok {
-		return dataSourceIbmIsStorageOntapInstanceVirtualMachineVolumeStorageOntapInstanceStorageVirtualMachineVolumeExportPolicyRuleClientByDomainNameToMap(model.(*ontapv1.StorageOntapInstanceStorageVirtualMachineVolumeExportPolicyRuleClientByDomainName))
+		return dataSourceIbmIsStorageOntapInstanceStorageVirtualMachineVolumeStorageOntapInstanceStorageVirtualMachineVolumeExportPolicyRuleClientByDomainNameToMap(model.(*ontapv1.StorageOntapInstanceStorageVirtualMachineVolumeExportPolicyRuleClientByDomainName))
 	} else if _, ok := model.(*ontapv1.StorageOntapInstanceStorageVirtualMachineVolumeExportPolicyRuleClient); ok {
 		modelMap := make(map[string]interface{})
 		model := model.(*ontapv1.StorageOntapInstanceStorageVirtualMachineVolumeExportPolicyRuleClient)
@@ -447,31 +447,31 @@ func dataSourceIbmIsStorageOntapInstanceVirtualMachineVolumeStorageOntapInstance
 	}
 }
 
-func dataSourceIbmIsStorageOntapInstanceVirtualMachineVolumeStorageOntapInstanceStorageVirtualMachineVolumeExportPolicyRuleClientByHostnameToMap(model *ontapv1.StorageOntapInstanceStorageVirtualMachineVolumeExportPolicyRuleClientByHostname) (map[string]interface{}, error) {
+func dataSourceIbmIsStorageOntapInstanceStorageVirtualMachineVolumeStorageOntapInstanceStorageVirtualMachineVolumeExportPolicyRuleClientByHostnameToMap(model *ontapv1.StorageOntapInstanceStorageVirtualMachineVolumeExportPolicyRuleClientByHostname) (map[string]interface{}, error) {
 	modelMap := make(map[string]interface{})
 	modelMap["hostname"] = model.Hostname
 	return modelMap, nil
 }
 
-func dataSourceIbmIsStorageOntapInstanceVirtualMachineVolumeStorageOntapInstanceStorageVirtualMachineVolumeExportPolicyRuleClientByIPToMap(model *ontapv1.StorageOntapInstanceStorageVirtualMachineVolumeExportPolicyRuleClientByIP) (map[string]interface{}, error) {
+func dataSourceIbmIsStorageOntapInstanceStorageVirtualMachineVolumeStorageOntapInstanceStorageVirtualMachineVolumeExportPolicyRuleClientByIPToMap(model *ontapv1.StorageOntapInstanceStorageVirtualMachineVolumeExportPolicyRuleClientByIP) (map[string]interface{}, error) {
 	modelMap := make(map[string]interface{})
 	modelMap["address"] = model.Address
 	return modelMap, nil
 }
 
-func dataSourceIbmIsStorageOntapInstanceVirtualMachineVolumeStorageOntapInstanceStorageVirtualMachineVolumeExportPolicyRuleClientByCIDRToMap(model *ontapv1.StorageOntapInstanceStorageVirtualMachineVolumeExportPolicyRuleClientByCIDR) (map[string]interface{}, error) {
+func dataSourceIbmIsStorageOntapInstanceStorageVirtualMachineVolumeStorageOntapInstanceStorageVirtualMachineVolumeExportPolicyRuleClientByCIDRToMap(model *ontapv1.StorageOntapInstanceStorageVirtualMachineVolumeExportPolicyRuleClientByCIDR) (map[string]interface{}, error) {
 	modelMap := make(map[string]interface{})
 	modelMap["cidr_block"] = model.CidrBlock
 	return modelMap, nil
 }
 
-func dataSourceIbmIsStorageOntapInstanceVirtualMachineVolumeStorageOntapInstanceStorageVirtualMachineVolumeExportPolicyRuleClientByDomainNameToMap(model *ontapv1.StorageOntapInstanceStorageVirtualMachineVolumeExportPolicyRuleClientByDomainName) (map[string]interface{}, error) {
+func dataSourceIbmIsStorageOntapInstanceStorageVirtualMachineVolumeStorageOntapInstanceStorageVirtualMachineVolumeExportPolicyRuleClientByDomainNameToMap(model *ontapv1.StorageOntapInstanceStorageVirtualMachineVolumeExportPolicyRuleClientByDomainName) (map[string]interface{}, error) {
 	modelMap := make(map[string]interface{})
 	modelMap["domain_suffix"] = model.DomainSuffix
 	return modelMap, nil
 }
 
-func dataSourceIbmIsStorageOntapInstanceVirtualMachineVolumeStorageOntapInstanceStorageVirtualMachineVolumeHealthReasonToMap(model *ontapv1.StorageOntapInstanceStorageVirtualMachineVolumeHealthReason) (map[string]interface{}, error) {
+func dataSourceIbmIsStorageOntapInstanceStorageVirtualMachineVolumeStorageOntapInstanceStorageVirtualMachineVolumeHealthReasonToMap(model *ontapv1.StorageOntapInstanceStorageVirtualMachineVolumeHealthReason) (map[string]interface{}, error) {
 	modelMap := make(map[string]interface{})
 	modelMap["code"] = model.Code
 	modelMap["message"] = model.Message

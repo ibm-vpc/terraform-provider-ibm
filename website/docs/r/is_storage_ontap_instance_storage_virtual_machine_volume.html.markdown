@@ -1,19 +1,19 @@
 ---
 layout: "ibm"
-page_title: "IBM : ibm_is_storage_ontap_instance_virtual_machine_volume"
+page_title: "IBM : ibm_is_storage_ontap_instance_storage_virtual_machine_volume"
 description: |-
   Manages StorageOntapInstanceStorageVirtualMachineVolume.
 subcategory: "ontap"
 ---
 
-# ibm_is_storage_ontap_instance_virtual_machine_volume
+# ibm_is_storage_ontap_instance_storage_virtual_machine_volume
 
 Create, update, and delete StorageOntapInstanceStorageVirtualMachineVolumes with this resource.
 
 ## Example Usage
 
 ```hcl
-resource "ibm_is_storage_ontap_instance_virtual_machine_volume" "is_storage_ontap_instance_virtual_machine_volume_instance" {
+resource "ibm_is_storage_ontap_instance_storage_virtual_machine_volume" "is_storage_ontap_instance_storage_virtual_machine_volume_instance" {
   capacity = 10
   cifs_share {
 		access_control_list {
@@ -131,7 +131,7 @@ Nested schema for **health_reasons**:
 
 ## Import
 
-You can import the `ibm_is_storage_ontap_instance_virtual_machine_volume` resource by using `id`.
+You can import the `ibm_is_storage_ontap_instance_storage_virtual_machine_volume` resource by using `id`.
 The `id` property can be formed from `storage_ontap_instance_id`, `storage_virtual_machine_id`, and `id` in the following format:
 
 ```
@@ -143,5 +143,5 @@ The `id` property can be formed from `storage_ontap_instance_id`, `storage_virtu
 
 # Syntax
 ```
-$ terraform import ibm_is_storage_ontap_instance_virtual_machine_volume.is_storage_ontap_instance_virtual_machine_volume <storage_ontap_instance_id>/<storage_virtual_machine_id>/<id>
+$ terraform import ibm_is_storage_ontap_instance_storage_virtual_machine_volume.is_storage_ontap_instance_storage_virtual_machine_volume <storage_ontap_instance_id>/<storage_virtual_machine_id>/<id>
 ```
