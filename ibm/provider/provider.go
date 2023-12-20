@@ -376,6 +376,14 @@ func Provider() *schema.Provider {
 			"ibm_iam_policy_assignments":                   iampolicy.DataSourceIBMIAMPolicyAssignments(),
 			"ibm_iam_policy_assignment":                    iampolicy.DataSourceIBMIAMPolicyAssignment(),
 
+			// ontap
+			"ibm_is_storage_ontap_instance":  vpc.DataSourceIbmIsStorageOntapInstance(),
+			"ibm_is_storage_ontap_instances": vpc.DataSourceIbmIsStorageOntapInstances(),
+			// "ibm_is_storage_ontap_instance_virtual_machine":         vpc.DataSourceIbmIsStorageOntapInstanceVirtualMachine(),
+			"ibm_is_storage_ontap_instance_virtual_machines":        vpc.DataSourceIbmIsStorageOntapInstanceVirtualMachines(),
+			"ibm_is_storage_ontap_instance_virtual_machine_volume":  vpc.DataSourceIbmIsStorageOntapInstanceVirtualMachineVolume(),
+			"ibm_is_storage_ontap_instance_virtual_machine_volumes": vpc.DataSourceIbmIsStorageOntapInstanceVirtualMachineVolumes(),
+
 			// backup as Service
 			"ibm_is_backup_policy":       vpc.DataSourceIBMIsBackupPolicy(),
 			"ibm_is_backup_policies":     vpc.DataSourceIBMIsBackupPolicies(),
@@ -1038,6 +1046,11 @@ func Provider() *schema.Provider {
 			"ibm_iam_policy_template":                      iampolicy.ResourceIBMIAMPolicyTemplate(),
 			"ibm_iam_policy_template_version":              iampolicy.ResourceIBMIAMPolicyTemplateVersion(),
 
+			// ontap
+			"ibm_is_storage_ontap_instance": vpc.ResourceIbmIsStorageOntapInstance(),
+			// "ibm_is_storage_ontap_instance_virtual_machine":         vpc.DataSourceIbmIsStorageOntapInstanceVirtualMachine(),
+			"ibm_is_storage_ontap_instance_virtual_machine_volume": vpc.ResourceIbmIsStorageOntapInstanceVirtualMachineVolume(),
+
 			"ibm_is_backup_policy":      vpc.ResourceIBMIsBackupPolicy(),
 			"ibm_is_backup_policy_plan": vpc.ResourceIBMIsBackupPolicyPlan(),
 
@@ -1489,6 +1502,10 @@ func Validator() validate.ValidatorDict {
 				"ibm_mqcloud_user":                   mqcloud.ResourceIbmMqcloudUserValidator(),
 				"ibm_mqcloud_keystore_certificate":   mqcloud.ResourceIbmMqcloudKeystoreCertificateValidator(),
 				"ibm_mqcloud_truststore_certificate": mqcloud.ResourceIbmMqcloudTruststoreCertificateValidator(),
+
+				// ontap
+				"ibm_is_storage_ontap_instance":                        vpc.ResourceIbmIsStorageOntapInstanceValidator(),
+				"ibm_is_storage_ontap_instance_virtual_machine_volume": vpc.ResourceIbmIsStorageOntapInstanceVirtualMachineVolumeValidator(),
 
 				"ibm_is_backup_policy":      vpc.ResourceIBMIsBackupPolicyValidator(),
 				"ibm_is_backup_policy_plan": vpc.ResourceIBMIsBackupPolicyPlanValidator(),
