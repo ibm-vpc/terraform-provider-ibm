@@ -41,12 +41,6 @@ Nested schema for **active_directory**:
 	  * Constraints: The list items must match regular expression `/^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$/`. The maximum length is `3` items. The minimum length is `1` item.
 	* `domain_name` - (String) The fully qualified domain name of the self-managed Active Directory.
 	  * Constraints: The maximum length is `255` characters. The minimum length is `4` characters. The value must match regular expression `/^((?=[A-Za-z0-9-]{1,63}\\.)[A-Za-z0-9-]*\\.)+[A-Za-z]{2,63}\\.?$/`.
-	* `domain_password` - (List) The password credential for the Active Directory domain.
-	Nested schema for **domain_password**:
-		* `crn` - (String) The CRN for this credential.
-		  * Constraints: The maximum length is `512` characters. The minimum length is `9` characters.
-		* `resource_type` - (String) The resource type.
-		  * Constraints: Allowable values are: `credential`. The maximum length is `128` characters. The minimum length is `1` character. The value must match regular expression `/^[a-z][a-z0-9]*(_[a-z0-9]+)*$/`.
 	* `domain_password_credential` - (List) The password credential for the Active Directory domain.
 	Nested schema for **domain_password_credential**:
 		* `crn` - (String) The CRN for this credential.
@@ -80,13 +74,6 @@ Nested schema for **admin_credentials**:
 		  * Constraints: The maximum length is `512` characters. The minimum length is `9` characters.
 		* `resource_type` - (String) The resource type.
 		  * Constraints: Allowable values are: `credential`. The maximum length is `128` characters. The minimum length is `1` character. The value must match regular expression `/^[a-z][a-z0-9]*(_[a-z0-9]+)*$/`.
-
-* `admin_password` - (List) The password credential for the storage virtual machine administrator.
-Nested schema for **admin_password**:
-	* `crn` - (String) The CRN for this credential.
-	  * Constraints: The maximum length is `512` characters. The minimum length is `9` characters.
-	* `resource_type` - (String) The resource type.
-	  * Constraints: Allowable values are: `credential`. The maximum length is `128` characters. The minimum length is `1` character. The value must match regular expression `/^[a-z][a-z0-9]*(_[a-z0-9]+)*$/`.
 
 * `created_at` - (String) The date and time that the storage virtual machine was created.
 

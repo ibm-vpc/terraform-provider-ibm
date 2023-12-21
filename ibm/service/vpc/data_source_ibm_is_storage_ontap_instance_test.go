@@ -62,10 +62,8 @@ func TestAccIbmIsStorageOntapInstanceDataSourceAllArgs(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet("data.ibm_is_storage_ontap_instance.is_storage_ontap_instance", "id"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_storage_ontap_instance.is_storage_ontap_instance", "id"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_storage_ontap_instance.is_storage_ontap_instance", "active_subnet.#"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_storage_ontap_instance.is_storage_ontap_instance", "address_prefix.#"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_storage_ontap_instance.is_storage_ontap_instance", "admin_credentials.#"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_storage_ontap_instance.is_storage_ontap_instance", "admin_password.#"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_storage_ontap_instance.is_storage_ontap_instance", "capacity"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_storage_ontap_instance.is_storage_ontap_instance", "created_at"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_storage_ontap_instance.is_storage_ontap_instance", "crn"),
@@ -97,7 +95,6 @@ func TestAccIbmIsStorageOntapInstanceDataSourceAllArgs(t *testing.T) {
 					resource.TestCheckResourceAttrSet("data.ibm_is_storage_ontap_instance.is_storage_ontap_instance", "security_groups.0.crn"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_storage_ontap_instance.is_storage_ontap_instance", "security_groups.0.id"),
 					resource.TestCheckResourceAttr("data.ibm_is_storage_ontap_instance.is_storage_ontap_instance", "security_groups.0.name", storageOntapInstanceName),
-					resource.TestCheckResourceAttrSet("data.ibm_is_storage_ontap_instance.is_storage_ontap_instance", "standby_subnet.#"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_storage_ontap_instance.is_storage_ontap_instance", "storage_virtual_machines.#"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_storage_ontap_instance.is_storage_ontap_instance", "storage_virtual_machines.0.href"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_storage_ontap_instance.is_storage_ontap_instance", "storage_virtual_machines.0.id"),
@@ -142,15 +139,6 @@ func testAccCheckIbmIsStorageOntapInstanceDataSourceConfigBasic(storageOntapInst
 func testAccCheckIbmIsStorageOntapInstanceDataSourceConfig(storageOntapInstanceCapacity string, storageOntapInstanceName string) string {
 	return fmt.Sprintf(`
 		resource "ibm_is_storage_ontap_instance" "is_storage_ontap_instance_instance" {
-			active_subnet {
-				crn = "crn:v1:bluemix:public:is:us-south-1:a/123456::subnet:7ec86020-1c6e-4889-b3f0-a15f2e50f87e"
-				deleted {
-					more_info = "https://cloud.ibm.com/apidocs/vpc#deleted-resources"
-				}
-				id = "7ec86020-1c6e-4889-b3f0-a15f2e50f87e"
-				name = "my-subnet"
-				resource_type = "subnet"
-			}
 			address_prefix {
 				deleted {
 					more_info = "https://cloud.ibm.com/apidocs/vpc#deleted-resources"
@@ -172,10 +160,6 @@ func testAccCheckIbmIsStorageOntapInstanceDataSourceConfig(storageOntapInstanceC
 					crn = "crn:v1:bluemix:public:secrets-manager:eu-gb:a/123456:43af9a51-2dca-4947-b36b-8c41363537b7:secret:0736e7b6-7fa7-1524-a370-44f09894866e"
 					resource_type = "credential"
 				}
-			}
-			admin_password {
-				crn = "crn:v1:bluemix:public:secrets-manager:eu-gb:a/123456:43af9a51-2dca-4947-b36b-8c41363537b7:secret:0736e7b6-7fa7-1524-a370-44f09894866e"
-				resource_type = "credential"
 			}
 			capacity = %s
 			encryption_key {
@@ -220,15 +204,6 @@ func testAccCheckIbmIsStorageOntapInstanceDataSourceConfig(storageOntapInstanceC
 				}
 				id = "be5df5ca-12a0-494b-907e-aa6ec2bfa271"
 				name = "my-security-group"
-			}
-			standby_subnet {
-				crn = "crn:v1:bluemix:public:is:us-south-1:a/123456::subnet:7ec86020-1c6e-4889-b3f0-a15f2e50f87e"
-				deleted {
-					more_info = "https://cloud.ibm.com/apidocs/vpc#deleted-resources"
-				}
-				id = "7ec86020-1c6e-4889-b3f0-a15f2e50f87e"
-				name = "my-subnet"
-				resource_type = "subnet"
 			}
 			storage_virtual_machines {
 				deleted {

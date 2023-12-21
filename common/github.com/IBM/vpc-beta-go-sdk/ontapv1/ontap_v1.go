@@ -300,14 +300,8 @@ func (ontap *OntapV1) CreateStorageOntapInstanceWithContext(ctx context.Context,
 	if createStorageOntapInstanceOptions.StorageVirtualMachines != nil {
 		body["storage_virtual_machines"] = createStorageOntapInstanceOptions.StorageVirtualMachines
 	}
-	if createStorageOntapInstanceOptions.ActiveSubnet != nil {
-		body["active_subnet"] = createStorageOntapInstanceOptions.ActiveSubnet
-	}
 	if createStorageOntapInstanceOptions.AdminCredentials != nil {
 		body["admin_credentials"] = createStorageOntapInstanceOptions.AdminCredentials
-	}
-	if createStorageOntapInstanceOptions.AdminPassword != nil {
-		body["admin_password"] = createStorageOntapInstanceOptions.AdminPassword
 	}
 	if createStorageOntapInstanceOptions.EncryptionKey != nil {
 		body["encryption_key"] = createStorageOntapInstanceOptions.EncryptionKey
@@ -329,9 +323,6 @@ func (ontap *OntapV1) CreateStorageOntapInstanceWithContext(ctx context.Context,
 	}
 	if createStorageOntapInstanceOptions.SecurityGroups != nil {
 		body["security_groups"] = createStorageOntapInstanceOptions.SecurityGroups
-	}
-	if createStorageOntapInstanceOptions.StandbySubnet != nil {
-		body["standby_subnet"] = createStorageOntapInstanceOptions.StandbySubnet
 	}
 	_, err = builder.SetBodyContentJSON(body)
 	if err != nil {
@@ -1287,21 +1278,9 @@ type CreateStorageOntapInstanceOptions struct {
 	// The storage virtual machines to create for this storage ontap instance.
 	StorageVirtualMachines []StorageOntapInstanceStorageVirtualMachinePrototype `json:"storage_virtual_machines" validate:"required"`
 
-	// The active subnet to provision this storage ontap instance in.
-	// The specified subnet must be in a different zone from the `standby_subnet`.
-	//
-	// If specified, `standby_subnet` must also be specified.
-	// If `active_subnet` and `standby_subnet` are specified, then `primary_subnet` and
-	// `secondary_subnet` must not be specified.
-	ActiveSubnet StorageOntapInstancePrototypeActiveSubnetIntf `json:"active_subnet,omitempty"`
-
 	// The credentials to use (from Secrets Manager) for the cluster administrator to access the
 	// storage ontap instance. At least one of `password`, `ssh`, or `http` must be specified.
 	AdminCredentials *StorageOntapInstanceAdminCredentialsPrototype `json:"admin_credentials,omitempty"`
-
-	// The password credential to use (from Secrets Manager) for the cluster administrator
-	// of the storage ontap instance.
-	AdminPassword CredentialIdentityIntf `json:"admin_password,omitempty"`
 
 	// The root key to use to wrap the data encryption key for the storage ontap instance.
 	//
@@ -1318,8 +1297,8 @@ type CreateStorageOntapInstanceOptions struct {
 	// The specified subnet must be in a different zone from the `secondary_subnet`.
 	//
 	// If specified, `secondary_subnet` must also be specified.
-	// If `primary_subnet` and `secondary_subnet` are specified, then `active_subnet` and
-	// `standby_subnet` must not be specified.
+	// If `primary_subnet` and `secondary_subnet` are specified, then `primary_subnet` and
+	// `secondary_subnet` must not be specified.
 	PrimarySubnet SubnetIdentityIntf `json:"primary_subnet,omitempty"`
 
 	// The resource group to use. If unspecified, the account's [default resource
@@ -1336,22 +1315,14 @@ type CreateStorageOntapInstanceOptions struct {
 	// The specified subnet must be in a different zone from the `primary_subnet`.
 	//
 	// If specified, `primary_subnet` must also be specified.
-	// If `primary_subnet` and `secondary_subnet` are specified, then `active_subnet` and
-	// `standby_subnet` must not be specified.
+	// If `primary_subnet` and `secondary_subnet` are specified, then `primary_subnet` and
+	// `secondary_subnet` must not be specified.
 	SecondarySubnet SubnetIdentityIntf `json:"secondary_subnet,omitempty"`
 
 	// The security groups to use for this storage ontap instance.
 	//
 	// If unspecified, the VPC's default security group is used.
 	SecurityGroups []SecurityGroupIdentityIntf `json:"security_groups,omitempty"`
-
-	// The standby subnet to provision this storage ontap instance in.
-	// The specified subnet must be in a different zone from the `active_subnet`
-	//
-	// If specified, `active_subnet` must also be specified.
-	// If `active_subnet` and `standby_subnet` are specified, then `primary_subnet` and
-	// `secondary_subnet` must not be specified.
-	StandbySubnet StorageOntapInstancePrototypeStandbySubnetIntf `json:"standby_subnet,omitempty"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -1384,21 +1355,9 @@ func (_options *CreateStorageOntapInstanceOptions) SetStorageVirtualMachines(sto
 	return _options
 }
 
-// SetActiveSubnet : Allow user to set ActiveSubnet
-func (_options *CreateStorageOntapInstanceOptions) SetActiveSubnet(activeSubnet StorageOntapInstancePrototypeActiveSubnetIntf) *CreateStorageOntapInstanceOptions {
-	_options.ActiveSubnet = activeSubnet
-	return _options
-}
-
 // SetAdminCredentials : Allow user to set AdminCredentials
 func (_options *CreateStorageOntapInstanceOptions) SetAdminCredentials(adminCredentials *StorageOntapInstanceAdminCredentialsPrototype) *CreateStorageOntapInstanceOptions {
 	_options.AdminCredentials = adminCredentials
-	return _options
-}
-
-// SetAdminPassword : Allow user to set AdminPassword
-func (_options *CreateStorageOntapInstanceOptions) SetAdminPassword(adminPassword CredentialIdentityIntf) *CreateStorageOntapInstanceOptions {
-	_options.AdminPassword = adminPassword
 	return _options
 }
 
@@ -1441,12 +1400,6 @@ func (_options *CreateStorageOntapInstanceOptions) SetSecondarySubnet(secondaryS
 // SetSecurityGroups : Allow user to set SecurityGroups
 func (_options *CreateStorageOntapInstanceOptions) SetSecurityGroups(securityGroups []SecurityGroupIdentityIntf) *CreateStorageOntapInstanceOptions {
 	_options.SecurityGroups = securityGroups
-	return _options
-}
-
-// SetStandbySubnet : Allow user to set StandbySubnet
-func (_options *CreateStorageOntapInstanceOptions) SetStandbySubnet(standbySubnet StorageOntapInstancePrototypeStandbySubnetIntf) *CreateStorageOntapInstanceOptions {
-	_options.StandbySubnet = standbySubnet
 	return _options
 }
 
@@ -2289,9 +2242,6 @@ func UnmarshalSecurityGroupReferenceDeleted(m map[string]json.RawMessage, result
 
 // StorageOntapInstance : StorageOntapInstance struct
 type StorageOntapInstance struct {
-	// The subnet where the primary Cloud Volumes ONTAP node is provisioned in.
-	ActiveSubnet *StorageOntapInstanceActiveSubnet `json:"active_subnet,omitempty"`
-
 	// An address prefix in the VPC which will be used to allocate `endpoints` for this
 	// storage ontap instance and its storage virtual machines.
 	AddressPrefix *AddressPrefixReference `json:"address_prefix" validate:"required"`
@@ -2299,9 +2249,6 @@ type StorageOntapInstance struct {
 	// The credentials used (from Secrets Manager) for the cluster administrator to access the
 	// storage ontap instance. At least one of `password`, `ssh`, or `http` will be present.
 	AdminCredentials *StorageOntapInstanceAdminCredentials `json:"admin_credentials,omitempty"`
-
-	// The password credential for the cluster administrator of the storage ontap instance.
-	AdminPassword *CredentialReference `json:"admin_password,omitempty"`
 
 	// The capacity to use for the storage ontap instance (in terabytes). Volumes in this storage ontap instance will be
 	// allocated from this capacity.
@@ -2387,9 +2334,6 @@ type StorageOntapInstance struct {
 	// The security groups for this storage ontap instance.
 	SecurityGroups []SecurityGroupReference `json:"security_groups" validate:"required"`
 
-	// The subnet where the secondary Cloud Volumes ONTAP node is provisioned in.
-	StandbySubnet *StorageOntapInstanceStandbySubnet `json:"standby_subnet,omitempty"`
-
 	// The storage virtual machines for this storage ontap instance.
 	StorageVirtualMachines []StorageOntapInstanceStorageVirtualMachineReference `json:"storage_virtual_machines" validate:"required"`
 
@@ -2440,19 +2384,11 @@ const (
 // UnmarshalStorageOntapInstance unmarshals an instance of StorageOntapInstance from the specified map of raw messages.
 func UnmarshalStorageOntapInstance(m map[string]json.RawMessage, result interface{}) (err error) {
 	obj := new(StorageOntapInstance)
-	err = core.UnmarshalModel(m, "active_subnet", &obj.ActiveSubnet, UnmarshalStorageOntapInstanceActiveSubnet)
-	if err != nil {
-		return
-	}
 	err = core.UnmarshalModel(m, "address_prefix", &obj.AddressPrefix, UnmarshalAddressPrefixReference)
 	if err != nil {
 		return
 	}
 	err = core.UnmarshalModel(m, "admin_credentials", &obj.AdminCredentials, UnmarshalStorageOntapInstanceAdminCredentials)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "admin_password", &obj.AdminPassword, UnmarshalCredentialReference)
 	if err != nil {
 		return
 	}
@@ -2532,67 +2468,11 @@ func UnmarshalStorageOntapInstance(m map[string]json.RawMessage, result interfac
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalModel(m, "standby_subnet", &obj.StandbySubnet, UnmarshalStorageOntapInstanceStandbySubnet)
-	if err != nil {
-		return
-	}
 	err = core.UnmarshalModel(m, "storage_virtual_machines", &obj.StorageVirtualMachines, UnmarshalStorageOntapInstanceStorageVirtualMachineReference)
 	if err != nil {
 		return
 	}
 	err = core.UnmarshalModel(m, "vpc", &obj.Vpc, UnmarshalVPCReference)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// StorageOntapInstanceActiveSubnet : The subnet where the primary Cloud Volumes ONTAP node is provisioned in.
-type StorageOntapInstanceActiveSubnet struct {
-	// The CRN for this subnet.
-	Crn *string `json:"crn" validate:"required"`
-
-	// If present, this property indicates the referenced resource has been deleted, and provides
-	// some supplementary information.
-	Deleted *SubnetReferenceDeleted `json:"deleted,omitempty"`
-
-	// The unique identifier for this subnet.
-	ID *string `json:"id" validate:"required"`
-
-	// The name for this subnet. The name is unique across all subnets in the VPC.
-	Name *string `json:"name" validate:"required"`
-
-	// The resource type.
-	ResourceType *string `json:"resource_type" validate:"required"`
-}
-
-// Constants associated with the StorageOntapInstanceActiveSubnet.ResourceType property.
-// The resource type.
-const (
-	StorageOntapInstanceActiveSubnet_ResourceType_Subnet = "subnet"
-)
-
-// UnmarshalStorageOntapInstanceActiveSubnet unmarshals an instance of StorageOntapInstanceActiveSubnet from the specified map of raw messages.
-func UnmarshalStorageOntapInstanceActiveSubnet(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(StorageOntapInstanceActiveSubnet)
-	err = core.UnmarshalPrimitive(m, "crn", &obj.Crn)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "deleted", &obj.Deleted, UnmarshalSubnetReferenceDeleted)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
 	if err != nil {
 		return
 	}
@@ -2945,10 +2825,6 @@ type StorageOntapInstancePatch struct {
 	// ontap instance. At least one of `password`, `ssh`, or `http` must be set.
 	AdminCredentials *StorageOntapInstanceAdminCredentialsPatch `json:"admin_credentials,omitempty"`
 
-	// The password credential to use (from Secrets Manager) for the cluster administrator
-	// of the storage ontap instance.
-	AdminPassword CredentialIdentityIntf `json:"admin_password,omitempty"`
-
 	// The capacity to use for the storage ontap instance (in terabytes). The specified value must not be less than the
 	// current capacity.
 	Capacity *int64 `json:"capacity,omitempty"`
@@ -2965,10 +2841,6 @@ type StorageOntapInstancePatch struct {
 func UnmarshalStorageOntapInstancePatch(m map[string]json.RawMessage, result interface{}) (err error) {
 	obj := new(StorageOntapInstancePatch)
 	err = core.UnmarshalModel(m, "admin_credentials", &obj.AdminCredentials, UnmarshalStorageOntapInstanceAdminCredentialsPatch)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "admin_password", &obj.AdminPassword, UnmarshalCredentialIdentity)
 	if err != nil {
 		return
 	}
@@ -2998,154 +2870,6 @@ func (storageOntapInstancePatch *StorageOntapInstancePatch) AsPatch() (_patch ma
 	return
 }
 
-// StorageOntapInstancePrototypeActiveSubnet : The active subnet to provision this storage ontap instance in. The specified subnet must be in a different zone from
-// the `standby_subnet`.
-//
-// If specified, `standby_subnet` must also be specified. If `active_subnet` and `standby_subnet` are specified, then
-// `primary_subnet` and
-// `secondary_subnet` must not be specified.
-// Models which "extend" this model:
-// - StorageOntapInstancePrototypeActiveSubnetSubnetIdentityByID
-// - StorageOntapInstancePrototypeActiveSubnetSubnetIdentityByCRN
-// - StorageOntapInstancePrototypeActiveSubnetSubnetIdentityByHref
-type StorageOntapInstancePrototypeActiveSubnet struct {
-	// The unique identifier for this subnet.
-	ID *string `json:"id,omitempty"`
-
-	// The CRN for this subnet.
-	Crn *string `json:"crn,omitempty"`
-
-	// The URL for this subnet.
-	Href *string `json:"href,omitempty"`
-}
-
-func (*StorageOntapInstancePrototypeActiveSubnet) isaStorageOntapInstancePrototypeActiveSubnet() bool {
-	return true
-}
-
-type StorageOntapInstancePrototypeActiveSubnetIntf interface {
-	isaStorageOntapInstancePrototypeActiveSubnet() bool
-}
-
-// UnmarshalStorageOntapInstancePrototypeActiveSubnet unmarshals an instance of StorageOntapInstancePrototypeActiveSubnet from the specified map of raw messages.
-func UnmarshalStorageOntapInstancePrototypeActiveSubnet(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(StorageOntapInstancePrototypeActiveSubnet)
-	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "crn", &obj.Crn)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// StorageOntapInstancePrototypeStandbySubnet : The standby subnet to provision this storage ontap instance in. The specified subnet must be in a different zone from
-// the `active_subnet`
-//
-// If specified, `active_subnet` must also be specified. If `active_subnet` and `standby_subnet` are specified, then
-// `primary_subnet` and
-// `secondary_subnet` must not be specified.
-// Models which "extend" this model:
-// - StorageOntapInstancePrototypeStandbySubnetSubnetIdentityByID
-// - StorageOntapInstancePrototypeStandbySubnetSubnetIdentityByCRN
-// - StorageOntapInstancePrototypeStandbySubnetSubnetIdentityByHref
-type StorageOntapInstancePrototypeStandbySubnet struct {
-	// The unique identifier for this subnet.
-	ID *string `json:"id,omitempty"`
-
-	// The CRN for this subnet.
-	Crn *string `json:"crn,omitempty"`
-
-	// The URL for this subnet.
-	Href *string `json:"href,omitempty"`
-}
-
-func (*StorageOntapInstancePrototypeStandbySubnet) isaStorageOntapInstancePrototypeStandbySubnet() bool {
-	return true
-}
-
-type StorageOntapInstancePrototypeStandbySubnetIntf interface {
-	isaStorageOntapInstancePrototypeStandbySubnet() bool
-}
-
-// UnmarshalStorageOntapInstancePrototypeStandbySubnet unmarshals an instance of StorageOntapInstancePrototypeStandbySubnet from the specified map of raw messages.
-func UnmarshalStorageOntapInstancePrototypeStandbySubnet(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(StorageOntapInstancePrototypeStandbySubnet)
-	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "crn", &obj.Crn)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// StorageOntapInstanceStandbySubnet : The subnet where the secondary Cloud Volumes ONTAP node is provisioned in.
-type StorageOntapInstanceStandbySubnet struct {
-	// The CRN for this subnet.
-	Crn *string `json:"crn" validate:"required"`
-
-	// If present, this property indicates the referenced resource has been deleted, and provides
-	// some supplementary information.
-	Deleted *SubnetReferenceDeleted `json:"deleted,omitempty"`
-
-	// The unique identifier for this subnet.
-	ID *string `json:"id" validate:"required"`
-
-	// The name for this subnet. The name is unique across all subnets in the VPC.
-	Name *string `json:"name" validate:"required"`
-
-	// The resource type.
-	ResourceType *string `json:"resource_type" validate:"required"`
-}
-
-// Constants associated with the StorageOntapInstanceStandbySubnet.ResourceType property.
-// The resource type.
-const (
-	StorageOntapInstanceStandbySubnet_ResourceType_Subnet = "subnet"
-)
-
-// UnmarshalStorageOntapInstanceStandbySubnet unmarshals an instance of StorageOntapInstanceStandbySubnet from the specified map of raw messages.
-func UnmarshalStorageOntapInstanceStandbySubnet(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(StorageOntapInstanceStandbySubnet)
-	err = core.UnmarshalPrimitive(m, "crn", &obj.Crn)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "deleted", &obj.Deleted, UnmarshalSubnetReferenceDeleted)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
 // StorageOntapInstanceStorageVirtualMachine : StorageOntapInstanceStorageVirtualMachine struct
 type StorageOntapInstanceStorageVirtualMachine struct {
 	// The Active Directory service this storage virtual machine is joined to.
@@ -3156,9 +2880,6 @@ type StorageOntapInstanceStorageVirtualMachine struct {
 	// The credentials used for the administrator to access the storage virtual machine of the
 	// storage ontap instance. At least one of `password`, `ssh`, or `http` will be present.
 	AdminCredentials *StorageOntapInstanceStorageVirtualMachineAdminCredentials `json:"admin_credentials,omitempty"`
-
-	// The password credential for the storage virtual machine administrator.
-	AdminPassword *CredentialReference `json:"admin_password,omitempty"`
 
 	// The date and time that the storage virtual machine was created.
 	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
@@ -3212,10 +2933,6 @@ func UnmarshalStorageOntapInstanceStorageVirtualMachine(m map[string]json.RawMes
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalModel(m, "admin_password", &obj.AdminPassword, UnmarshalCredentialReference)
-	if err != nil {
-		return
-	}
 	err = core.UnmarshalPrimitive(m, "created_at", &obj.CreatedAt)
 	if err != nil {
 		return
@@ -3261,9 +2978,6 @@ type StorageOntapInstanceStorageVirtualMachineActiveDirectory struct {
 	DomainName *string `json:"domain_name" validate:"required"`
 
 	// The password credential for the Active Directory domain.
-	DomainPassword *CredentialReference `json:"domain_password,omitempty"`
-
-	// The password credential for the Active Directory domain.
 	DomainPasswordCredential *CredentialReference `json:"domain_password_credential,omitempty"`
 
 	// The name of the Active Directory computer object that will be created for the storage virtual machine.
@@ -3289,10 +3003,6 @@ func UnmarshalStorageOntapInstanceStorageVirtualMachineActiveDirectory(m map[str
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "domain_name", &obj.DomainName)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "domain_password", &obj.DomainPassword, UnmarshalCredentialReference)
 	if err != nil {
 		return
 	}
@@ -3329,9 +3039,6 @@ type StorageOntapInstanceStorageVirtualMachineActiveDirectoryPatch struct {
 	DomainName *string `json:"domain_name,omitempty"`
 
 	// The password credential to use (from Secrets Manager) for the Active Directory domain.
-	DomainPassword CredentialIdentityIntf `json:"domain_password,omitempty"`
-
-	// The password credential to use (from Secrets Manager) for the Active Directory domain.
 	// The secret must be of type `username_password`. The username credential specified in
 	// Secrets Manager must be the same as `username`.
 	DomainPasswordCredential CredentialIdentityIntf `json:"domain_password_credential,omitempty"`
@@ -3359,10 +3066,6 @@ func UnmarshalStorageOntapInstanceStorageVirtualMachineActiveDirectoryPatch(m ma
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "domain_name", &obj.DomainName)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "domain_password", &obj.DomainPassword, UnmarshalCredentialIdentity)
 	if err != nil {
 		return
 	}
@@ -3397,9 +3100,6 @@ type StorageOntapInstanceStorageVirtualMachineActiveDirectoryPrototype struct {
 
 	// The fully qualified domain name of the self-managed Active Directory.
 	DomainName *string `json:"domain_name" validate:"required"`
-
-	// The password credential to use (from Secrets Manager) for the Active Directory domain.
-	DomainPassword CredentialIdentityIntf `json:"domain_password,omitempty"`
 
 	// The password credential to use (from Secrets Manager) for the Active Directory domain.
 	// The secret must be of type `username_password`. The username credential specified in
@@ -3443,10 +3143,6 @@ func UnmarshalStorageOntapInstanceStorageVirtualMachineActiveDirectoryPrototype(
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "domain_name", &obj.DomainName)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "domain_password", &obj.DomainPassword, UnmarshalCredentialIdentity)
 	if err != nil {
 		return
 	}
@@ -3738,10 +3434,6 @@ type StorageOntapInstanceStorageVirtualMachinePatch struct {
 	// `http` must be set.
 	AdminCredentials *StorageOntapInstanceStorageVirtualMachineAdminCredentialsPatch `json:"admin_credentials,omitempty"`
 
-	// The password credential to use (from Secrets Manager) for the storage virtual machine
-	// administrator.
-	AdminPassword CredentialIdentityIntf `json:"admin_password,omitempty"`
-
 	// The name for this storage virtual machine. The name must be unique across all storage virtual machines in the
 	// storage ontap instance.
 	Name *string `json:"name,omitempty"`
@@ -3755,10 +3447,6 @@ func UnmarshalStorageOntapInstanceStorageVirtualMachinePatch(m map[string]json.R
 		return
 	}
 	err = core.UnmarshalModel(m, "admin_credentials", &obj.AdminCredentials, UnmarshalStorageOntapInstanceStorageVirtualMachineAdminCredentialsPatch)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "admin_password", &obj.AdminPassword, UnmarshalCredentialIdentity)
 	if err != nil {
 		return
 	}
@@ -3792,10 +3480,6 @@ type StorageOntapInstanceStorageVirtualMachinePrototype struct {
 	// `http` must be specified.
 	AdminCredentials *StorageOntapInstanceStorageVirtualMachineAdminCredentialsPrototype `json:"admin_credentials,omitempty"`
 
-	// The password credential to use (from Secrets Manager) for the storage virtual machine
-	// administrator.
-	AdminPassword CredentialIdentityIntf `json:"admin_password,omitempty"`
-
 	// The name for this storage virtual machine. The name must be unique across all storage virtual machines in the
 	// storage ontap instance.
 	//
@@ -3811,10 +3495,6 @@ func UnmarshalStorageOntapInstanceStorageVirtualMachinePrototype(m map[string]js
 		return
 	}
 	err = core.UnmarshalModel(m, "admin_credentials", &obj.AdminCredentials, UnmarshalStorageOntapInstanceStorageVirtualMachineAdminCredentialsPrototype)
-	if err != nil {
-		return
-	}
-	err = core.UnmarshalModel(m, "admin_password", &obj.AdminPassword, UnmarshalCredentialIdentity)
 	if err != nil {
 		return
 	}
@@ -5518,192 +5198,6 @@ func (*SecurityGroupIdentityByID) isaSecurityGroupIdentity() bool {
 // UnmarshalSecurityGroupIdentityByID unmarshals an instance of SecurityGroupIdentityByID from the specified map of raw messages.
 func UnmarshalSecurityGroupIdentityByID(m map[string]json.RawMessage, result interface{}) (err error) {
 	obj := new(SecurityGroupIdentityByID)
-	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// StorageOntapInstancePrototypeActiveSubnetSubnetIdentityByCRN : StorageOntapInstancePrototypeActiveSubnetSubnetIdentityByCRN struct
-// This model "extends" StorageOntapInstancePrototypeActiveSubnet
-type StorageOntapInstancePrototypeActiveSubnetSubnetIdentityByCRN struct {
-	// The CRN for this subnet.
-	Crn *string `json:"crn" validate:"required"`
-}
-
-// NewStorageOntapInstancePrototypeActiveSubnetSubnetIdentityByCRN : Instantiate StorageOntapInstancePrototypeActiveSubnetSubnetIdentityByCRN (Generic Model Constructor)
-func (*OntapV1) NewStorageOntapInstancePrototypeActiveSubnetSubnetIdentityByCRN(crn string) (_model *StorageOntapInstancePrototypeActiveSubnetSubnetIdentityByCRN, err error) {
-	_model = &StorageOntapInstancePrototypeActiveSubnetSubnetIdentityByCRN{
-		Crn: core.StringPtr(crn),
-	}
-	err = core.ValidateStruct(_model, "required parameters")
-	return
-}
-
-func (*StorageOntapInstancePrototypeActiveSubnetSubnetIdentityByCRN) isaStorageOntapInstancePrototypeActiveSubnet() bool {
-	return true
-}
-
-// UnmarshalStorageOntapInstancePrototypeActiveSubnetSubnetIdentityByCRN unmarshals an instance of StorageOntapInstancePrototypeActiveSubnetSubnetIdentityByCRN from the specified map of raw messages.
-func UnmarshalStorageOntapInstancePrototypeActiveSubnetSubnetIdentityByCRN(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(StorageOntapInstancePrototypeActiveSubnetSubnetIdentityByCRN)
-	err = core.UnmarshalPrimitive(m, "crn", &obj.Crn)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// StorageOntapInstancePrototypeActiveSubnetSubnetIdentityByHref : StorageOntapInstancePrototypeActiveSubnetSubnetIdentityByHref struct
-// This model "extends" StorageOntapInstancePrototypeActiveSubnet
-type StorageOntapInstancePrototypeActiveSubnetSubnetIdentityByHref struct {
-	// The URL for this subnet.
-	Href *string `json:"href" validate:"required"`
-}
-
-// NewStorageOntapInstancePrototypeActiveSubnetSubnetIdentityByHref : Instantiate StorageOntapInstancePrototypeActiveSubnetSubnetIdentityByHref (Generic Model Constructor)
-func (*OntapV1) NewStorageOntapInstancePrototypeActiveSubnetSubnetIdentityByHref(href string) (_model *StorageOntapInstancePrototypeActiveSubnetSubnetIdentityByHref, err error) {
-	_model = &StorageOntapInstancePrototypeActiveSubnetSubnetIdentityByHref{
-		Href: core.StringPtr(href),
-	}
-	err = core.ValidateStruct(_model, "required parameters")
-	return
-}
-
-func (*StorageOntapInstancePrototypeActiveSubnetSubnetIdentityByHref) isaStorageOntapInstancePrototypeActiveSubnet() bool {
-	return true
-}
-
-// UnmarshalStorageOntapInstancePrototypeActiveSubnetSubnetIdentityByHref unmarshals an instance of StorageOntapInstancePrototypeActiveSubnetSubnetIdentityByHref from the specified map of raw messages.
-func UnmarshalStorageOntapInstancePrototypeActiveSubnetSubnetIdentityByHref(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(StorageOntapInstancePrototypeActiveSubnetSubnetIdentityByHref)
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// StorageOntapInstancePrototypeActiveSubnetSubnetIdentityByID : StorageOntapInstancePrototypeActiveSubnetSubnetIdentityByID struct
-// This model "extends" StorageOntapInstancePrototypeActiveSubnet
-type StorageOntapInstancePrototypeActiveSubnetSubnetIdentityByID struct {
-	// The unique identifier for this subnet.
-	ID *string `json:"id" validate:"required"`
-}
-
-// NewStorageOntapInstancePrototypeActiveSubnetSubnetIdentityByID : Instantiate StorageOntapInstancePrototypeActiveSubnetSubnetIdentityByID (Generic Model Constructor)
-func (*OntapV1) NewStorageOntapInstancePrototypeActiveSubnetSubnetIdentityByID(id string) (_model *StorageOntapInstancePrototypeActiveSubnetSubnetIdentityByID, err error) {
-	_model = &StorageOntapInstancePrototypeActiveSubnetSubnetIdentityByID{
-		ID: core.StringPtr(id),
-	}
-	err = core.ValidateStruct(_model, "required parameters")
-	return
-}
-
-func (*StorageOntapInstancePrototypeActiveSubnetSubnetIdentityByID) isaStorageOntapInstancePrototypeActiveSubnet() bool {
-	return true
-}
-
-// UnmarshalStorageOntapInstancePrototypeActiveSubnetSubnetIdentityByID unmarshals an instance of StorageOntapInstancePrototypeActiveSubnetSubnetIdentityByID from the specified map of raw messages.
-func UnmarshalStorageOntapInstancePrototypeActiveSubnetSubnetIdentityByID(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(StorageOntapInstancePrototypeActiveSubnetSubnetIdentityByID)
-	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// StorageOntapInstancePrototypeStandbySubnetSubnetIdentityByCRN : StorageOntapInstancePrototypeStandbySubnetSubnetIdentityByCRN struct
-// This model "extends" StorageOntapInstancePrototypeStandbySubnet
-type StorageOntapInstancePrototypeStandbySubnetSubnetIdentityByCRN struct {
-	// The CRN for this subnet.
-	Crn *string `json:"crn" validate:"required"`
-}
-
-// NewStorageOntapInstancePrototypeStandbySubnetSubnetIdentityByCRN : Instantiate StorageOntapInstancePrototypeStandbySubnetSubnetIdentityByCRN (Generic Model Constructor)
-func (*OntapV1) NewStorageOntapInstancePrototypeStandbySubnetSubnetIdentityByCRN(crn string) (_model *StorageOntapInstancePrototypeStandbySubnetSubnetIdentityByCRN, err error) {
-	_model = &StorageOntapInstancePrototypeStandbySubnetSubnetIdentityByCRN{
-		Crn: core.StringPtr(crn),
-	}
-	err = core.ValidateStruct(_model, "required parameters")
-	return
-}
-
-func (*StorageOntapInstancePrototypeStandbySubnetSubnetIdentityByCRN) isaStorageOntapInstancePrototypeStandbySubnet() bool {
-	return true
-}
-
-// UnmarshalStorageOntapInstancePrototypeStandbySubnetSubnetIdentityByCRN unmarshals an instance of StorageOntapInstancePrototypeStandbySubnetSubnetIdentityByCRN from the specified map of raw messages.
-func UnmarshalStorageOntapInstancePrototypeStandbySubnetSubnetIdentityByCRN(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(StorageOntapInstancePrototypeStandbySubnetSubnetIdentityByCRN)
-	err = core.UnmarshalPrimitive(m, "crn", &obj.Crn)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// StorageOntapInstancePrototypeStandbySubnetSubnetIdentityByHref : StorageOntapInstancePrototypeStandbySubnetSubnetIdentityByHref struct
-// This model "extends" StorageOntapInstancePrototypeStandbySubnet
-type StorageOntapInstancePrototypeStandbySubnetSubnetIdentityByHref struct {
-	// The URL for this subnet.
-	Href *string `json:"href" validate:"required"`
-}
-
-// NewStorageOntapInstancePrototypeStandbySubnetSubnetIdentityByHref : Instantiate StorageOntapInstancePrototypeStandbySubnetSubnetIdentityByHref (Generic Model Constructor)
-func (*OntapV1) NewStorageOntapInstancePrototypeStandbySubnetSubnetIdentityByHref(href string) (_model *StorageOntapInstancePrototypeStandbySubnetSubnetIdentityByHref, err error) {
-	_model = &StorageOntapInstancePrototypeStandbySubnetSubnetIdentityByHref{
-		Href: core.StringPtr(href),
-	}
-	err = core.ValidateStruct(_model, "required parameters")
-	return
-}
-
-func (*StorageOntapInstancePrototypeStandbySubnetSubnetIdentityByHref) isaStorageOntapInstancePrototypeStandbySubnet() bool {
-	return true
-}
-
-// UnmarshalStorageOntapInstancePrototypeStandbySubnetSubnetIdentityByHref unmarshals an instance of StorageOntapInstancePrototypeStandbySubnetSubnetIdentityByHref from the specified map of raw messages.
-func UnmarshalStorageOntapInstancePrototypeStandbySubnetSubnetIdentityByHref(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(StorageOntapInstancePrototypeStandbySubnetSubnetIdentityByHref)
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// StorageOntapInstancePrototypeStandbySubnetSubnetIdentityByID : StorageOntapInstancePrototypeStandbySubnetSubnetIdentityByID struct
-// This model "extends" StorageOntapInstancePrototypeStandbySubnet
-type StorageOntapInstancePrototypeStandbySubnetSubnetIdentityByID struct {
-	// The unique identifier for this subnet.
-	ID *string `json:"id" validate:"required"`
-}
-
-// NewStorageOntapInstancePrototypeStandbySubnetSubnetIdentityByID : Instantiate StorageOntapInstancePrototypeStandbySubnetSubnetIdentityByID (Generic Model Constructor)
-func (*OntapV1) NewStorageOntapInstancePrototypeStandbySubnetSubnetIdentityByID(id string) (_model *StorageOntapInstancePrototypeStandbySubnetSubnetIdentityByID, err error) {
-	_model = &StorageOntapInstancePrototypeStandbySubnetSubnetIdentityByID{
-		ID: core.StringPtr(id),
-	}
-	err = core.ValidateStruct(_model, "required parameters")
-	return
-}
-
-func (*StorageOntapInstancePrototypeStandbySubnetSubnetIdentityByID) isaStorageOntapInstancePrototypeStandbySubnet() bool {
-	return true
-}
-
-// UnmarshalStorageOntapInstancePrototypeStandbySubnetSubnetIdentityByID unmarshals an instance of StorageOntapInstancePrototypeStandbySubnetSubnetIdentityByID from the specified map of raw messages.
-func UnmarshalStorageOntapInstancePrototypeStandbySubnetSubnetIdentityByID(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(StorageOntapInstancePrototypeStandbySubnetSubnetIdentityByID)
 	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
 	if err != nil {
 		return

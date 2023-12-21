@@ -27,51 +27,6 @@ func ResourceIbmIsStorageOntapInstance() *schema.Resource {
 		Importer:      &schema.ResourceImporter{},
 
 		Schema: map[string]*schema.Schema{
-			"active_subnet": &schema.Schema{
-				Type:        schema.TypeList,
-				MaxItems:    1,
-				Optional:    true,
-				Description: "The subnet where the primary Cloud Volumes ONTAP node is provisioned in.",
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"crn": &schema.Schema{
-							Type:        schema.TypeString,
-							Required:    true,
-							Description: "The CRN for this subnet.",
-						},
-						"deleted": &schema.Schema{
-							Type:        schema.TypeList,
-							MaxItems:    1,
-							Computed:    true,
-							Description: "If present, this property indicates the referenced resource has been deleted, and providessome supplementary information.",
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"more_info": &schema.Schema{
-										Type:        schema.TypeString,
-										Required:    true,
-										Description: "Link to documentation about deleted resources.",
-									},
-								},
-							},
-						},
-						"id": &schema.Schema{
-							Type:        schema.TypeString,
-							Required:    true,
-							Description: "The unique identifier for this subnet.",
-						},
-						"name": &schema.Schema{
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: "The name for this subnet. The name is unique across all subnets in the VPC.",
-						},
-						"resource_type": &schema.Schema{
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: "The resource type.",
-						},
-					},
-				},
-			},
 			"address_prefix": &schema.Schema{
 				Type:        schema.TypeList,
 				MinItems:    1,
@@ -82,7 +37,6 @@ func ResourceIbmIsStorageOntapInstance() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"deleted": &schema.Schema{
 							Type:        schema.TypeList,
-							MaxItems:    1,
 							Computed:    true,
 							Description: "If present, this property indicates the referenced resource has been deleted, and providessome supplementary information.",
 							Elem: &schema.Resource{
@@ -183,26 +137,6 @@ func ResourceIbmIsStorageOntapInstance() *schema.Resource {
 					},
 				},
 			},
-			"admin_password": &schema.Schema{
-				Type:        schema.TypeList,
-				MaxItems:    1,
-				Optional:    true,
-				Description: "The password credential for the cluster administrator of the storage ontap instance.",
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"crn": &schema.Schema{
-							Type:        schema.TypeString,
-							Required:    true,
-							Description: "The CRN for this credential.",
-						},
-						"resource_type": &schema.Schema{
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: "The resource type.",
-						},
-					},
-				},
-			},
 			"capacity": &schema.Schema{
 				Type:         schema.TypeInt,
 				Required:     true,
@@ -244,7 +178,6 @@ func ResourceIbmIsStorageOntapInstance() *schema.Resource {
 						},
 						"deleted": &schema.Schema{
 							Type:        schema.TypeList,
-							MaxItems:    1,
 							Computed:    true,
 							Description: "If present, this property indicates the referenced resource has been deleted, and providessome supplementary information.",
 							Elem: &schema.Resource{
@@ -353,7 +286,6 @@ func ResourceIbmIsStorageOntapInstance() *schema.Resource {
 						},
 						"deleted": &schema.Schema{
 							Type:        schema.TypeList,
-							MaxItems:    1,
 							Computed:    true,
 							Description: "If present, this property indicates the referenced resource has been deleted, and providessome supplementary information.",
 							Elem: &schema.Resource{
@@ -419,51 +351,6 @@ func ResourceIbmIsStorageOntapInstance() *schema.Resource {
 							Type:        schema.TypeString,
 							Required:    true,
 							Description: "The name for this security group. The name is unique across all security groups for the VPC.",
-						},
-					},
-				},
-			},
-			"standby_subnet": &schema.Schema{
-				Type:        schema.TypeList,
-				MaxItems:    1,
-				Optional:    true,
-				Description: "The subnet where the secondary Cloud Volumes ONTAP node is provisioned in.",
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"crn": &schema.Schema{
-							Type:        schema.TypeString,
-							Required:    true,
-							Description: "The CRN for this subnet.",
-						},
-						"deleted": &schema.Schema{
-							Type:        schema.TypeList,
-							MaxItems:    1,
-							Computed:    true,
-							Description: "If present, this property indicates the referenced resource has been deleted, and providessome supplementary information.",
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"more_info": &schema.Schema{
-										Type:        schema.TypeString,
-										Required:    true,
-										Description: "Link to documentation about deleted resources.",
-									},
-								},
-							},
-						},
-						"id": &schema.Schema{
-							Type:        schema.TypeString,
-							Required:    true,
-							Description: "The unique identifier for this subnet.",
-						},
-						"name": &schema.Schema{
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: "The name for this subnet. The name is unique across all subnets in the VPC.",
-						},
-						"resource_type": &schema.Schema{
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: "The resource type.",
 						},
 					},
 				},
@@ -738,26 +625,12 @@ func resourceIbmIsStorageOntapInstanceCreate(context context.Context, d *schema.
 		storageVirtualMachines = append(storageVirtualMachines, *storageVirtualMachinesItem)
 	}
 	createStorageOntapInstanceOptions.SetStorageVirtualMachines(storageVirtualMachines)
-	if _, ok := d.GetOk("active_subnet"); ok {
-		activeSubnetModel, err := resourceIbmIsStorageOntapInstanceMapToStorageOntapInstancePrototypeActiveSubnet(d.Get("active_subnet.0").(map[string]interface{}))
-		if err != nil {
-			return diag.FromErr(err)
-		}
-		createStorageOntapInstanceOptions.SetActiveSubnet(activeSubnetModel)
-	}
 	if _, ok := d.GetOk("admin_credentials"); ok {
 		adminCredentialsModel, err := resourceIbmIsStorageOntapInstanceMapToStorageOntapInstanceAdminCredentialsPrototype(d.Get("admin_credentials.0").(map[string]interface{}))
 		if err != nil {
 			return diag.FromErr(err)
 		}
 		createStorageOntapInstanceOptions.SetAdminCredentials(adminCredentialsModel)
-	}
-	if _, ok := d.GetOk("admin_password"); ok {
-		adminPasswordModel, err := resourceIbmIsStorageOntapInstanceMapToCredentialIdentity(d.Get("admin_password.0").(map[string]interface{}))
-		if err != nil {
-			return diag.FromErr(err)
-		}
-		createStorageOntapInstanceOptions.SetAdminPassword(adminPasswordModel)
 	}
 	if _, ok := d.GetOk("encryption_key"); ok {
 		encryptionKeyModel, err := resourceIbmIsStorageOntapInstanceMapToEncryptionKeyIdentity(d.Get("encryption_key.0").(map[string]interface{}))
@@ -814,13 +687,6 @@ func resourceIbmIsStorageOntapInstanceCreate(context context.Context, d *schema.
 		}
 		createStorageOntapInstanceOptions.SetSecurityGroups(securityGroups)
 	}
-	if _, ok := d.GetOk("standby_subnet"); ok {
-		standbySubnetModel, err := resourceIbmIsStorageOntapInstanceMapToStorageOntapInstancePrototypeStandbySubnet(d.Get("standby_subnet.0").(map[string]interface{}))
-		if err != nil {
-			return diag.FromErr(err)
-		}
-		createStorageOntapInstanceOptions.SetStandbySubnet(standbySubnetModel)
-	}
 
 	storageOntapInstance, response, err := ontapClient.CreateStorageOntapInstanceWithContext(context, createStorageOntapInstanceOptions)
 	if err != nil {
@@ -853,15 +719,6 @@ func resourceIbmIsStorageOntapInstanceRead(context context.Context, d *schema.Re
 		return diag.FromErr(fmt.Errorf("GetStorageOntapInstanceWithContext failed %s\n%s", err, response))
 	}
 
-	if !core.IsNil(storageOntapInstance.ActiveSubnet) {
-		activeSubnetMap, err := resourceIbmIsStorageOntapInstanceStorageOntapInstanceActiveSubnetToMap(storageOntapInstance.ActiveSubnet)
-		if err != nil {
-			return diag.FromErr(err)
-		}
-		if err = d.Set("active_subnet", []map[string]interface{}{activeSubnetMap}); err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting active_subnet: %s", err))
-		}
-	}
 	addressPrefixMap, err := resourceIbmIsStorageOntapInstanceAddressPrefixReferenceToMap(storageOntapInstance.AddressPrefix)
 	if err != nil {
 		return diag.FromErr(err)
@@ -876,15 +733,6 @@ func resourceIbmIsStorageOntapInstanceRead(context context.Context, d *schema.Re
 		}
 		if err = d.Set("admin_credentials", []map[string]interface{}{adminCredentialsMap}); err != nil {
 			return diag.FromErr(fmt.Errorf("Error setting admin_credentials: %s", err))
-		}
-	}
-	if !core.IsNil(storageOntapInstance.AdminPassword) {
-		adminPasswordMap, err := resourceIbmIsStorageOntapInstanceCredentialReferenceToMap(storageOntapInstance.AdminPassword)
-		if err != nil {
-			return diag.FromErr(err)
-		}
-		if err = d.Set("admin_password", []map[string]interface{}{adminPasswordMap}); err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting admin_password: %s", err))
 		}
 	}
 	if err = d.Set("capacity", flex.IntValue(storageOntapInstance.Capacity)); err != nil {
@@ -955,15 +803,6 @@ func resourceIbmIsStorageOntapInstanceRead(context context.Context, d *schema.Re
 		}
 		if err = d.Set("security_groups", securityGroups); err != nil {
 			return diag.FromErr(fmt.Errorf("Error setting security_groups: %s", err))
-		}
-	}
-	if !core.IsNil(storageOntapInstance.StandbySubnet) {
-		standbySubnetMap, err := resourceIbmIsStorageOntapInstanceStorageOntapInstanceStandbySubnetToMap(storageOntapInstance.StandbySubnet)
-		if err != nil {
-			return diag.FromErr(err)
-		}
-		if err = d.Set("standby_subnet", []map[string]interface{}{standbySubnetMap}); err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting standby_subnet: %s", err))
 		}
 	}
 	storageVirtualMachines := []map[string]interface{}{}
@@ -1060,14 +899,6 @@ func resourceIbmIsStorageOntapInstanceUpdate(context context.Context, d *schema.
 			return diag.FromErr(err)
 		}
 		patchVals.AdminCredentials = adminCredentials
-		hasChange = true
-	}
-	if d.HasChange("admin_password") {
-		adminPassword, err := resourceIbmIsStorageOntapInstanceMapToCredentialIdentity(d.Get("admin_password.0").(map[string]interface{}))
-		if err != nil {
-			return diag.FromErr(err)
-		}
-		patchVals.AdminPassword = adminPassword
 		hasChange = true
 	}
 	if d.HasChange("capacity") {
@@ -1167,13 +998,6 @@ func resourceIbmIsStorageOntapInstanceMapToStorageOntapInstanceStorageVirtualMac
 		}
 		model.AdminCredentials = AdminCredentialsModel
 	}
-	if modelMap["admin_password"] != nil && len(modelMap["admin_password"].([]interface{})) > 0 {
-		AdminPasswordModel, err := resourceIbmIsStorageOntapInstanceMapToCredentialIdentity(modelMap["admin_password"].([]interface{})[0].(map[string]interface{}))
-		if err != nil {
-			return model, err
-		}
-		model.AdminPassword = AdminPasswordModel
-	}
 	if modelMap["name"] != nil && modelMap["name"].(string) != "" {
 		model.Name = core.StringPtr(modelMap["name"].(string))
 	}
@@ -1189,13 +1013,6 @@ func resourceIbmIsStorageOntapInstanceMapToStorageOntapInstanceStorageVirtualMac
 	}
 	model.DnsIps = dnsIps
 	model.DomainName = core.StringPtr(modelMap["domain_name"].(string))
-	if modelMap["domain_password"] != nil && len(modelMap["domain_password"].([]interface{})) > 0 {
-		DomainPasswordModel, err := resourceIbmIsStorageOntapInstanceMapToCredentialIdentity(modelMap["domain_password"].([]interface{})[0].(map[string]interface{}))
-		if err != nil {
-			return model, err
-		}
-		model.DomainPassword = DomainPasswordModel
-	}
 	if modelMap["domain_password_credential"] != nil && len(modelMap["domain_password_credential"].([]interface{})) > 0 {
 		DomainPasswordCredentialModel, err := resourceIbmIsStorageOntapInstanceMapToCredentialIdentity(modelMap["domain_password_credential"].([]interface{})[0].(map[string]interface{}))
 		if err != nil {
@@ -1246,38 +1063,6 @@ func resourceIbmIsStorageOntapInstanceMapToStorageOntapInstanceStorageVirtualMac
 		}
 		model.Ssh = SshModel
 	}
-	return model, nil
-}
-
-func resourceIbmIsStorageOntapInstanceMapToStorageOntapInstancePrototypeActiveSubnet(modelMap map[string]interface{}) (ontapv1.StorageOntapInstancePrototypeActiveSubnetIntf, error) {
-	model := &ontapv1.StorageOntapInstancePrototypeActiveSubnet{}
-	if modelMap["id"] != nil && modelMap["id"].(string) != "" {
-		model.ID = core.StringPtr(modelMap["id"].(string))
-	}
-	if modelMap["crn"] != nil && modelMap["crn"].(string) != "" {
-		model.Crn = core.StringPtr(modelMap["crn"].(string))
-	}
-	if modelMap["href"] != nil && modelMap["href"].(string) != "" {
-		model.Href = core.StringPtr(modelMap["href"].(string))
-	}
-	return model, nil
-}
-
-func resourceIbmIsStorageOntapInstanceMapToStorageOntapInstancePrototypeActiveSubnetSubnetIdentityByID(modelMap map[string]interface{}) (*ontapv1.StorageOntapInstancePrototypeActiveSubnetSubnetIdentityByID, error) {
-	model := &ontapv1.StorageOntapInstancePrototypeActiveSubnetSubnetIdentityByID{}
-	model.ID = core.StringPtr(modelMap["id"].(string))
-	return model, nil
-}
-
-func resourceIbmIsStorageOntapInstanceMapToStorageOntapInstancePrototypeActiveSubnetSubnetIdentityByCRN(modelMap map[string]interface{}) (*ontapv1.StorageOntapInstancePrototypeActiveSubnetSubnetIdentityByCRN, error) {
-	model := &ontapv1.StorageOntapInstancePrototypeActiveSubnetSubnetIdentityByCRN{}
-	model.Crn = core.StringPtr(modelMap["crn"].(string))
-	return model, nil
-}
-
-func resourceIbmIsStorageOntapInstanceMapToStorageOntapInstancePrototypeActiveSubnetSubnetIdentityByHref(modelMap map[string]interface{}) (*ontapv1.StorageOntapInstancePrototypeActiveSubnetSubnetIdentityByHref, error) {
-	model := &ontapv1.StorageOntapInstancePrototypeActiveSubnetSubnetIdentityByHref{}
-	model.Href = core.StringPtr(modelMap["href"].(string))
 	return model, nil
 }
 
@@ -1422,38 +1207,6 @@ func resourceIbmIsStorageOntapInstanceMapToSecurityGroupIdentityByHref(modelMap 
 	return model, nil
 }
 
-func resourceIbmIsStorageOntapInstanceMapToStorageOntapInstancePrototypeStandbySubnet(modelMap map[string]interface{}) (ontapv1.StorageOntapInstancePrototypeStandbySubnetIntf, error) {
-	model := &ontapv1.StorageOntapInstancePrototypeStandbySubnet{}
-	if modelMap["id"] != nil && modelMap["id"].(string) != "" {
-		model.ID = core.StringPtr(modelMap["id"].(string))
-	}
-	if modelMap["crn"] != nil && modelMap["crn"].(string) != "" {
-		model.Crn = core.StringPtr(modelMap["crn"].(string))
-	}
-	if modelMap["href"] != nil && modelMap["href"].(string) != "" {
-		model.Href = core.StringPtr(modelMap["href"].(string))
-	}
-	return model, nil
-}
-
-func resourceIbmIsStorageOntapInstanceMapToStorageOntapInstancePrototypeStandbySubnetSubnetIdentityByID(modelMap map[string]interface{}) (*ontapv1.StorageOntapInstancePrototypeStandbySubnetSubnetIdentityByID, error) {
-	model := &ontapv1.StorageOntapInstancePrototypeStandbySubnetSubnetIdentityByID{}
-	model.ID = core.StringPtr(modelMap["id"].(string))
-	return model, nil
-}
-
-func resourceIbmIsStorageOntapInstanceMapToStorageOntapInstancePrototypeStandbySubnetSubnetIdentityByCRN(modelMap map[string]interface{}) (*ontapv1.StorageOntapInstancePrototypeStandbySubnetSubnetIdentityByCRN, error) {
-	model := &ontapv1.StorageOntapInstancePrototypeStandbySubnetSubnetIdentityByCRN{}
-	model.Crn = core.StringPtr(modelMap["crn"].(string))
-	return model, nil
-}
-
-func resourceIbmIsStorageOntapInstanceMapToStorageOntapInstancePrototypeStandbySubnetSubnetIdentityByHref(modelMap map[string]interface{}) (*ontapv1.StorageOntapInstancePrototypeStandbySubnetSubnetIdentityByHref, error) {
-	model := &ontapv1.StorageOntapInstancePrototypeStandbySubnetSubnetIdentityByHref{}
-	model.Href = core.StringPtr(modelMap["href"].(string))
-	return model, nil
-}
-
 func resourceIbmIsStorageOntapInstanceMapToStorageOntapInstanceAdminCredentialsPatch(modelMap map[string]interface{}) (*ontapv1.StorageOntapInstanceAdminCredentialsPatch, error) {
 	model := &ontapv1.StorageOntapInstanceAdminCredentialsPatch{}
 	if modelMap["http"] != nil && len(modelMap["http"].([]interface{})) > 0 {
@@ -1478,28 +1231,6 @@ func resourceIbmIsStorageOntapInstanceMapToStorageOntapInstanceAdminCredentialsP
 		model.Ssh = SshModel
 	}
 	return model, nil
-}
-
-func resourceIbmIsStorageOntapInstanceStorageOntapInstanceActiveSubnetToMap(model *ontapv1.StorageOntapInstanceActiveSubnet) (map[string]interface{}, error) {
-	modelMap := make(map[string]interface{})
-	modelMap["crn"] = model.Crn
-	if model.Deleted != nil {
-		deletedMap, err := resourceIbmIsStorageOntapInstanceSubnetReferenceDeletedToMap(model.Deleted)
-		if err != nil {
-			return modelMap, err
-		}
-		modelMap["deleted"] = []map[string]interface{}{deletedMap}
-	}
-	modelMap["id"] = model.ID
-	modelMap["name"] = model.Name
-	modelMap["resource_type"] = model.ResourceType
-	return modelMap, nil
-}
-
-func resourceIbmIsStorageOntapInstanceSubnetReferenceDeletedToMap(model *ontapv1.SubnetReferenceDeleted) (map[string]interface{}, error) {
-	modelMap := make(map[string]interface{})
-	modelMap["more_info"] = model.MoreInfo
-	return modelMap, nil
 }
 
 func resourceIbmIsStorageOntapInstanceAddressPrefixReferenceToMap(model *ontapv1.AddressPrefixReference) (map[string]interface{}, error) {
@@ -1578,6 +1309,12 @@ func resourceIbmIsStorageOntapInstanceSubnetReferenceToMap(model *ontapv1.Subnet
 	return modelMap, nil
 }
 
+func resourceIbmIsStorageOntapInstanceSubnetReferenceDeletedToMap(model *ontapv1.SubnetReferenceDeleted) (map[string]interface{}, error) {
+	modelMap := make(map[string]interface{})
+	modelMap["more_info"] = model.MoreInfo
+	return modelMap, nil
+}
+
 func resourceIbmIsStorageOntapInstanceResourceGroupReferenceToMap(model *ontapv1.ResourceGroupReference) (map[string]interface{}, error) {
 	modelMap := make(map[string]interface{})
 	modelMap["id"] = model.ID
@@ -1625,22 +1362,6 @@ func resourceIbmIsStorageOntapInstanceSecurityGroupReferenceToMap(model *ontapv1
 func resourceIbmIsStorageOntapInstanceSecurityGroupReferenceDeletedToMap(model *ontapv1.SecurityGroupReferenceDeleted) (map[string]interface{}, error) {
 	modelMap := make(map[string]interface{})
 	modelMap["more_info"] = model.MoreInfo
-	return modelMap, nil
-}
-
-func resourceIbmIsStorageOntapInstanceStorageOntapInstanceStandbySubnetToMap(model *ontapv1.StorageOntapInstanceStandbySubnet) (map[string]interface{}, error) {
-	modelMap := make(map[string]interface{})
-	modelMap["crn"] = model.Crn
-	if model.Deleted != nil {
-		deletedMap, err := resourceIbmIsStorageOntapInstanceSubnetReferenceDeletedToMap(model.Deleted)
-		if err != nil {
-			return modelMap, err
-		}
-		modelMap["deleted"] = []map[string]interface{}{deletedMap}
-	}
-	modelMap["id"] = model.ID
-	modelMap["name"] = model.Name
-	modelMap["resource_type"] = model.ResourceType
 	return modelMap, nil
 }
 

@@ -14,15 +14,6 @@ Create, update, and delete StorageOntapInstances with this resource.
 
 ```hcl
 resource "ibm_is_storage_ontap_instance" "is_storage_ontap_instance_instance" {
-  active_subnet {
-		crn = "crn:v1:bluemix:public:is:us-south-1:a/123456::subnet:7ec86020-1c6e-4889-b3f0-a15f2e50f87e"
-		deleted {
-			more_info = "https://cloud.ibm.com/apidocs/vpc#deleted-resources"
-		}
-		id = "7ec86020-1c6e-4889-b3f0-a15f2e50f87e"
-		name = "my-subnet"
-		resource_type = "subnet"
-  }
   address_prefix {
 		deleted {
 			more_info = "https://cloud.ibm.com/apidocs/vpc#deleted-resources"
@@ -44,10 +35,6 @@ resource "ibm_is_storage_ontap_instance" "is_storage_ontap_instance_instance" {
 			crn = "crn:v1:bluemix:public:secrets-manager:eu-gb:a/123456:43af9a51-2dca-4947-b36b-8c41363537b7:secret:0736e7b6-7fa7-1524-a370-44f09894866e"
 			resource_type = "credential"
 		}
-  }
-  admin_password {
-		crn = "crn:v1:bluemix:public:secrets-manager:eu-gb:a/123456:43af9a51-2dca-4947-b36b-8c41363537b7:secret:0736e7b6-7fa7-1524-a370-44f09894866e"
-		resource_type = "credential"
   }
   capacity = 10
   encryption_key {
@@ -93,15 +80,6 @@ resource "ibm_is_storage_ontap_instance" "is_storage_ontap_instance_instance" {
 		id = "be5df5ca-12a0-494b-907e-aa6ec2bfa271"
 		name = "my-security-group"
   }
-  standby_subnet {
-		crn = "crn:v1:bluemix:public:is:us-south-1:a/123456::subnet:7ec86020-1c6e-4889-b3f0-a15f2e50f87e"
-		deleted {
-			more_info = "https://cloud.ibm.com/apidocs/vpc#deleted-resources"
-		}
-		id = "7ec86020-1c6e-4889-b3f0-a15f2e50f87e"
-		name = "my-subnet"
-		resource_type = "subnet"
-  }
   storage_virtual_machines {
 		deleted {
 			more_info = "https://cloud.ibm.com/apidocs/vpc#deleted-resources"
@@ -118,20 +96,6 @@ resource "ibm_is_storage_ontap_instance" "is_storage_ontap_instance_instance" {
 
 You can specify the following arguments for this resource.
 
-* `active_subnet` - (Optional, List) The subnet where the primary Cloud Volumes ONTAP node is provisioned in.
-Nested schema for **active_subnet**:
-	* `crn` - (Required, String) The CRN for this subnet.
-	  * Constraints: The maximum length is `512` characters. The minimum length is `9` characters.
-	* `deleted` - (Optional, List) If present, this property indicates the referenced resource has been deleted, and providessome supplementary information.
-	Nested schema for **deleted**:
-		* `more_info` - (Required, String) Link to documentation about deleted resources.
-		  * Constraints: The maximum length is `8000` characters. The minimum length is `10` characters. The value must match regular expression `/^http(s)?:\/\/([^\/?#]*)([^?#]*)(\\?([^#]*))?(#(.*))?$/`.
-	* `id` - (Required, String) The unique identifier for this subnet.
-	  * Constraints: The maximum length is `64` characters. The minimum length is `1` character. The value must match regular expression `/^[-0-9a-z_]+$/`.
-	* `name` - (Computed, String) The name for this subnet. The name is unique across all subnets in the VPC.
-	  * Constraints: The maximum length is `63` characters. The minimum length is `1` character. The value must match regular expression `/^-?([a-z]|[a-z][-a-z0-9]*[a-z0-9]|[0-9][-a-z0-9]*([a-z]|[-a-z][-a-z0-9]*[a-z0-9]))$/`.
-	* `resource_type` - (Computed, String) The resource type.
-	  * Constraints: Allowable values are: `subnet`. The maximum length is `128` characters. The minimum length is `1` character. The value must match regular expression `/^[a-z][a-z0-9]*(_[a-z0-9]+)*$/`.
 * `address_prefix` - (Required, List) An address prefix in the VPC which will be used to allocate `endpoints` for thisstorage ontap instance and its storage virtual machines.
 Nested schema for **address_prefix**:
 	* `deleted` - (Optional, List) If present, this property indicates the referenced resource has been deleted, and providessome supplementary information.
@@ -164,12 +128,6 @@ Nested schema for **admin_credentials**:
 		  * Constraints: The maximum length is `512` characters. The minimum length is `9` characters.
 		* `resource_type` - (Computed, String) The resource type.
 		  * Constraints: Allowable values are: `credential`. The maximum length is `128` characters. The minimum length is `1` character. The value must match regular expression `/^[a-z][a-z0-9]*(_[a-z0-9]+)*$/`.
-* `admin_password` - (Optional, List) The password credential for the cluster administrator of the storage ontap instance.
-Nested schema for **admin_password**:
-	* `crn` - (Required, String) The CRN for this credential.
-	  * Constraints: The maximum length is `512` characters. The minimum length is `9` characters.
-	* `resource_type` - (Computed, String) The resource type.
-	  * Constraints: Allowable values are: `credential`. The maximum length is `128` characters. The minimum length is `1` character. The value must match regular expression `/^[a-z][a-z0-9]*(_[a-z0-9]+)*$/`.
 * `capacity` - (Required, Integer) The capacity to use for the storage ontap instance (in terabytes). Volumes in this storage ontap instance will be allocated from this capacity.
   * Constraints: The maximum value is `64`. The minimum value is `1`.
 * `encryption_key` - (Optional, List) The root key used to wrap the data encryption key for the storage ontap instance.This property will be present for storage ontap instance with an `encryption` type of`user_managed`.
@@ -240,20 +198,6 @@ Nested schema for **security_groups**:
 	  * Constraints: The maximum length is `64` characters. The minimum length is `1` character. The value must match regular expression `/^[-0-9a-z_]+$/`.
 	* `name` - (Required, String) The name for this security group. The name is unique across all security groups for the VPC.
 	  * Constraints: The maximum length is `63` characters. The minimum length is `1` character. The value must match regular expression `/^-?([a-z]|[a-z][-a-z0-9]*[a-z0-9]|[0-9][-a-z0-9]*([a-z]|[-a-z][-a-z0-9]*[a-z0-9]))$/`.
-* `standby_subnet` - (Optional, List) The subnet where the secondary Cloud Volumes ONTAP node is provisioned in.
-Nested schema for **standby_subnet**:
-	* `crn` - (Required, String) The CRN for this subnet.
-	  * Constraints: The maximum length is `512` characters. The minimum length is `9` characters.
-	* `deleted` - (Optional, List) If present, this property indicates the referenced resource has been deleted, and providessome supplementary information.
-	Nested schema for **deleted**:
-		* `more_info` - (Required, String) Link to documentation about deleted resources.
-		  * Constraints: The maximum length is `8000` characters. The minimum length is `10` characters. The value must match regular expression `/^http(s)?:\/\/([^\/?#]*)([^?#]*)(\\?([^#]*))?(#(.*))?$/`.
-	* `id` - (Required, String) The unique identifier for this subnet.
-	  * Constraints: The maximum length is `64` characters. The minimum length is `1` character. The value must match regular expression `/^[-0-9a-z_]+$/`.
-	* `name` - (Computed, String) The name for this subnet. The name is unique across all subnets in the VPC.
-	  * Constraints: The maximum length is `63` characters. The minimum length is `1` character. The value must match regular expression `/^-?([a-z]|[a-z][-a-z0-9]*[a-z0-9]|[0-9][-a-z0-9]*([a-z]|[-a-z][-a-z0-9]*[a-z0-9]))$/`.
-	* `resource_type` - (Computed, String) The resource type.
-	  * Constraints: Allowable values are: `subnet`. The maximum length is `128` characters. The minimum length is `1` character. The value must match regular expression `/^[a-z][a-z0-9]*(_[a-z0-9]+)*$/`.
 * `storage_virtual_machines` - (Required, List) The storage virtual machines for this storage ontap instance.
   * Constraints: The minimum length is `1` item.
 Nested schema for **storage_virtual_machines**:

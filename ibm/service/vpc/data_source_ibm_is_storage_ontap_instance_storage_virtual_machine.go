@@ -55,25 +55,6 @@ func DataSourceIbmIsStorageOntapInstanceStorageVirtualMachine() *schema.Resource
 							Computed:    true,
 							Description: "The fully qualified domain name of the self-managed Active Directory.",
 						},
-						"domain_password": &schema.Schema{
-							Type:        schema.TypeList,
-							Computed:    true,
-							Description: "The password credential for the Active Directory domain.",
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"crn": &schema.Schema{
-										Type:        schema.TypeString,
-										Computed:    true,
-										Description: "The CRN for this credential.",
-									},
-									"resource_type": &schema.Schema{
-										Type:        schema.TypeString,
-										Computed:    true,
-										Description: "The resource type.",
-									},
-								},
-							},
-						},
 						"domain_password_credential": &schema.Schema{
 							Type:        schema.TypeList,
 							Computed:    true,
@@ -173,25 +154,6 @@ func DataSourceIbmIsStorageOntapInstanceStorageVirtualMachine() *schema.Resource
 									},
 								},
 							},
-						},
-					},
-				},
-			},
-			"admin_password": &schema.Schema{
-				Type:        schema.TypeList,
-				Computed:    true,
-				Description: "The password credential for the storage virtual machine administrator.",
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"crn": &schema.Schema{
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: "The CRN for this credential.",
-						},
-						"resource_type": &schema.Schema{
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: "The resource type.",
 						},
 					},
 				},
@@ -319,18 +281,6 @@ func dataSourceIbmIsStorageOntapInstanceStorageVirtualMachineRead(context contex
 		return diag.FromErr(fmt.Errorf("Error setting admin_credentials %s", err))
 	}
 
-	adminPassword := []map[string]interface{}{}
-	if storageOntapInstanceStorageVirtualMachine.AdminPassword != nil {
-		modelMap, err := dataSourceIbmIsStorageOntapInstanceStorageVirtualMachineCredentialReferenceToMap(storageOntapInstanceStorageVirtualMachine.AdminPassword)
-		if err != nil {
-			return diag.FromErr(err)
-		}
-		adminPassword = append(adminPassword, modelMap)
-	}
-	if err = d.Set("admin_password", adminPassword); err != nil {
-		return diag.FromErr(fmt.Errorf("Error setting admin_password %s", err))
-	}
-
 	if err = d.Set("created_at", flex.DateTimeToString(storageOntapInstanceStorageVirtualMachine.CreatedAt)); err != nil {
 		return diag.FromErr(fmt.Errorf("Error setting created_at: %s", err))
 	}
@@ -371,13 +321,6 @@ func dataSourceIbmIsStorageOntapInstanceStorageVirtualMachineStorageOntapInstanc
 	modelMap["administrators_group"] = model.AdministratorsGroup
 	modelMap["dns_ips"] = model.DnsIps
 	modelMap["domain_name"] = model.DomainName
-	if model.DomainPassword != nil {
-		domainPasswordMap, err := dataSourceIbmIsStorageOntapInstanceStorageVirtualMachineCredentialReferenceToMap(model.DomainPassword)
-		if err != nil {
-			return modelMap, err
-		}
-		modelMap["domain_password"] = []map[string]interface{}{domainPasswordMap}
-	}
 	if model.DomainPasswordCredential != nil {
 		domainPasswordCredentialMap, err := dataSourceIbmIsStorageOntapInstanceStorageVirtualMachineCredentialReferenceToMap(model.DomainPasswordCredential)
 		if err != nil {

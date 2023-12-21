@@ -104,10 +104,6 @@ func testAccCheckIbmIsStorageOntapInstanceConfig(capacity string, name string) s
 	return fmt.Sprintf(`
 
 		resource "ibm_is_storage_ontap_instance" "is_storage_ontap_instance_instance" {
-			active_subnet {
-				crn = "crn:v1:bluemix:public:is:us-south-1:a/123456::subnet:7ec86020-1c6e-4889-b3f0-a15f2e50f87e"
-				id = "7ec86020-1c6e-4889-b3f0-a15f2e50f87e"
-			}
 			address_prefix {
 				href = "https://us-south.iaas.cloud.ibm.com/ontap/v1/vpcs/8e454ead-0db7-48ac-9a8b-2698d8c470a7/address_prefixes/1a15dca5-7e33-45e1-b7c5-bc690e569531"
 				id = "1a15dca5-7e33-45e1-b7c5-bc690e569531"
@@ -125,9 +121,6 @@ func testAccCheckIbmIsStorageOntapInstanceConfig(capacity string, name string) s
 					crn = "crn:v1:bluemix:public:secrets-manager:eu-gb:a/123456:43af9a51-2dca-4947-b36b-8c41363537b7:secret:0736e7b6-7fa7-1524-a370-44f09894866e"
 					resource_type = "credential"
 				}
-			}
-			admin_password {
-				crn = "crn:v1:bluemix:public:secrets-manager:eu-gb:a/123456:43af9a51-2dca-4947-b36b-8c41363537b7:secret:0736e7b6-7fa7-1524-a370-44f09894866e"
 			}
 			capacity = %s
 			encryption_key {
@@ -161,10 +154,6 @@ func testAccCheckIbmIsStorageOntapInstanceConfig(capacity string, name string) s
 				}
 				id = "be5df5ca-12a0-494b-907e-aa6ec2bfa271"
 				name = "my-security-group"
-			}
-			standby_subnet {
-				crn = "crn:v1:bluemix:public:is:us-south-1:a/123456::subnet:7ec86020-1c6e-4889-b3f0-a15f2e50f87e"
-				id = "7ec86020-1c6e-4889-b3f0-a15f2e50f87e"
 			}
 			storage_virtual_machines {
 				deleted {
