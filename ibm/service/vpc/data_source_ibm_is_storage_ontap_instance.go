@@ -21,7 +21,7 @@ func DataSourceIbmIsStorageOntapInstance() *schema.Resource {
 		ReadContext: dataSourceIbmIsStorageOntapInstanceRead,
 
 		Schema: map[string]*schema.Schema{
-			"id": &schema.Schema{
+			"identifier": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "The storage ontap instance identifier.",
@@ -558,7 +558,7 @@ func dataSourceIbmIsStorageOntapInstanceRead(context context.Context, d *schema.
 
 	getStorageOntapInstanceOptions := &ontapv1.GetStorageOntapInstanceOptions{}
 
-	getStorageOntapInstanceOptions.SetID(d.Get("id").(string))
+	getStorageOntapInstanceOptions.SetID(d.Get("identifier").(string))
 
 	storageOntapInstance, response, err := ontapClient.GetStorageOntapInstanceWithContext(context, getStorageOntapInstanceOptions)
 	if err != nil {
