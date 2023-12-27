@@ -37,6 +37,21 @@ func DataSourceIBMIsVirtualNetworkInterface() *schema.Resource {
 				Computed:    true,
 				Description: "If `true`:- The VPC infrastructure performs any needed NAT operations.- `floating_ips` must not have more than one floating IP.If `false`:- Packets are passed unchanged to/from the virtual network interface,  allowing the workload to perform any needed NAT operations.- `allow_ip_spoofing` must be `false`.- If the virtual network interface is attached:  - The target `resource_type` must be `bare_metal_server_network_attachment`.  - The target `interface_type` must not be `hipersocket`.",
 			},
+			"tags": {
+				Type:        schema.TypeSet,
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         flex.ResourceIBMVPCHash,
+				Description: "UserTags for the vni instance",
+			},
+			"access_tags": {
+				Type:        schema.TypeSet,
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         flex.ResourceIBMVPCHash,
+				Description: "Access management tags for the vni instance",
+			},
+
 			"ips": &schema.Schema{
 				Type:        schema.TypeList,
 				Computed:    true,
@@ -404,7 +419,7 @@ func DataSourceIBMIsVirtualNetworkInterface() *schema.Resource {
 }
 
 func dataSourceIBMIsVirtualNetworkInterfaceRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	vpcbetaClient, err := meta.(conns.ClientSession).VpcV1API()
+	vpcClient, err := meta.(conns.ClientSession).VpcV1API()
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -413,7 +428,7 @@ func dataSourceIBMIsVirtualNetworkInterfaceRead(context context.Context, d *sche
 
 	getVirtualNetworkInterfaceOptions.SetID(d.Get("virtual_network_interface").(string))
 
-	virtualNetworkInterface, response, err := vpcbetaClient.GetVirtualNetworkInterfaceWithContext(context, getVirtualNetworkInterfaceOptions)
+	virtualNetworkInterface, response, err := vpcClient.GetVirtualNetworkInterfaceWithContext(context, getVirtualNetworkInterfaceOptions)
 	if err != nil {
 		log.Printf("[DEBUG] GetVirtualNetworkInterfaceWithContext failed %s\n%s", err, response)
 		return diag.FromErr(fmt.Errorf("GetVirtualNetworkInterfaceWithContext failed %s\n%s", err, response))
@@ -536,6 +551,21 @@ func dataSourceIBMIsVirtualNetworkInterfaceRead(context context.Context, d *sche
 	}
 
 	// vni p2 changes
+
+	tags, err := flex.GetGlobalTagsUsingCRN(meta, *virtualNetworkInterface.CRN, "", isUserTagType)
+	if err != nil {
+		log.Printf(
+			"Error on get of datasource vni (%s) tags: %s", *virtualNetworkInterface.ID, err)
+	}
+
+	accesstags, err := flex.GetGlobalTagsUsingCRN(meta, *virtualNetworkInterface.CRN, "", isAccessTagType)
+	if err != nil {
+		log.Printf(
+			"Error on get of datasource vni (%s) access tags: %s", *virtualNetworkInterface.ID, err)
+	}
+
+	d.Set("tags", tags)
+	d.Set("access_tags", accesstags)
 
 	if err = d.Set("mac_address", virtualNetworkInterface.MacAddress); err != nil {
 		return diag.FromErr(fmt.Errorf("Error setting mac_address: %s", err))

@@ -29,6 +29,7 @@ import (
 	"github.com/IBM/go-sdk-core/v5/core"
 	cosconfig "github.com/IBM/ibm-cos-sdk-go-config/resourceconfigurationv1"
 	kp "github.com/IBM/keyprotect-go-client"
+	"github.com/IBM/mqcloud-go-sdk/mqcloudv1"
 	cisalertsv1 "github.com/IBM/networking-go-sdk/alertsv1"
 	cisoriginpull "github.com/IBM/networking-go-sdk/authenticatedoriginpullapiv1"
 	cisbotanalyticsv1 "github.com/IBM/networking-go-sdk/botanalyticsv1"
@@ -77,6 +78,7 @@ import (
 	"github.com/IBM/platform-services-go-sdk/metricsrouterv3"
 	resourcecontroller "github.com/IBM/platform-services-go-sdk/resourcecontrollerv2"
 	resourcemanager "github.com/IBM/platform-services-go-sdk/resourcemanagerv2"
+	"github.com/IBM/platform-services-go-sdk/usagereportsv4"
 	project "github.com/IBM/project-go-sdk/projectv1"
 	"github.com/IBM/push-notifications-go-sdk/pushservicev1"
 	schematicsv1 "github.com/IBM/schematics-go-sdk/schematicsv1"
@@ -297,6 +299,8 @@ type ClientSession interface {
 	CdTektonPipelineV2() (*cdtektonpipelinev2.CdTektonPipelineV2, error)
 	CodeEngineV2() (*codeengine.CodeEngineV2, error)
 	ProjectV1() (*project.ProjectV1, error)
+	UsageReportsV4() (*usagereportsv4.UsageReportsV4, error)
+	MqcloudV1() (*mqcloudv1.MqcloudV1, error)
 }
 
 type clientSession struct {
@@ -618,6 +622,18 @@ type clientSession struct {
 	// Project options
 	projectClient    *project.ProjectV1
 	projectClientErr error
+
+	// Usage Reports options
+	usageReportsClient    *usagereportsv4.UsageReportsV4
+	usageReportsClientErr error
+
+	mqcloudClient    *mqcloudv1.MqcloudV1
+	mqcloudClientErr error
+}
+
+// Usage Reports
+func (session clientSession) UsageReportsV4() (*usagereportsv4.UsageReportsV4, error) {
+	return session.usageReportsClient, session.usageReportsClientErr
 }
 
 // AppIDAPI provides AppID Service APIs ...
@@ -1192,6 +1208,13 @@ func (session clientSession) ProjectV1() (*project.ProjectV1, error) {
 	return session.projectClient, session.projectClientErr
 }
 
+// MQ on Cloud
+func (session clientSession) MqcloudV1() (*mqcloudv1.MqcloudV1, error) {
+	sessionMqcloudClient := session.mqcloudClient
+	sessionMqcloudClient.EnableRetries(0, 0)
+	return session.mqcloudClient, session.mqcloudClientErr
+}
+
 // ClientSession configures and returns a fully initialized ClientSession
 func (c *Config) ClientSession() (interface{}, error) {
 	sess, err := newSession(c)
@@ -1285,6 +1308,7 @@ func (c *Config) ClientSession() (interface{}, error) {
 		session.cdToolchainClientErr = errEmptyBluemixCredentials
 		session.codeEngineClientErr = errEmptyBluemixCredentials
 		session.projectClientErr = errEmptyBluemixCredentials
+		session.mqcloudClientErr = errEmptyBluemixCredentials
 
 		return session, nil
 	}
@@ -1603,6 +1627,43 @@ func (c *Config) ClientSession() (interface{}, error) {
 	} else {
 		session.contextBasedRestrictionsClientErr = fmt.Errorf("[ERROR] Error occurred while configuring Context Based Restrictions service: %q", err)
 	}
+
+	// // Usage Reports Service Client
+	usageReportsURL := usagereportsv4.DefaultServiceURL
+	if c.Visibility == "private" {
+		if c.Region == "us-south" || c.Region == "us-east" {
+			usageReportsURL = ContructEndpoint(fmt.Sprintf("private.%s.usagereports", c.Region), fmt.Sprintf("%s/v1", cloudEndpoint))
+		} else {
+			fmt.Println("Private Endpint supports only us-south and us-east region specific endpoint")
+			usageReportsURL = ContructEndpoint("private.us-south.usagereports", fmt.Sprintf("%s/v1", cloudEndpoint))
+		}
+	}
+	if c.Visibility == "public-and-private" {
+		if c.Region == "us-south" || c.Region == "us-east" {
+			usageReportsURL = ContructEndpoint(fmt.Sprintf("private.%s.usagereports", c.Region),
+				fmt.Sprintf("%s/v1", cloudEndpoint))
+		} else {
+			usageReportsURL = usagereportsv4.DefaultServiceURL
+		}
+	}
+	if fileMap != nil && c.Visibility != "public-and-private" {
+		usageReportsURL = fileFallBack(fileMap, c.Visibility, "IBMCLOUD_USAGE_REPORTS_API_ENDPOINT", c.Region, usageReportsURL)
+	}
+	usageReportsClientOptions := &usagereportsv4.UsageReportsV4Options{
+		Authenticator: authenticator,
+		URL:           EnvFallBack([]string{"IBMCLOUD_USAGE_REPORTS_API_ENDPOINT"}, usageReportsURL),
+	}
+	usageReportsClient, err := usagereportsv4.NewUsageReportsV4(usageReportsClientOptions)
+	if err != nil {
+		session.usageReportsClientErr = fmt.Errorf("[ERROR] Error occurred while configuring IBM Cloud Usage Reports API service: %q", err)
+	}
+	if usageReportsClient != nil && usageReportsClient.Service != nil {
+		usageReportsClient.Service.EnableRetries(c.RetryCount, c.RetryDelay)
+		usageReportsClient.SetDefaultHeaders(gohttp.Header{
+			"X-Original-User-Agent": {fmt.Sprintf("terraform-provider-ibm/%s", version.Version)},
+		})
+	}
+	session.usageReportsClient = usageReportsClient
 
 	// CATALOG MANAGEMENT Service
 	catalogManagementURL := "https://cm.globalcatalog.cloud.ibm.com/api/v1-beta"
@@ -3195,6 +3256,33 @@ func (c *Config) ClientSession() (interface{}, error) {
 		})
 	} else {
 		session.cdTektonPipelineClientErr = fmt.Errorf("Error occurred while configuring CD Tekton Pipeline service: %q", err)
+	}
+
+	// MQ Cloud Service Configuration
+	mqCloudURL := ContructEndpoint(fmt.Sprintf("api.%s.mq2", c.Region), cloudEndpoint)
+	if c.Visibility == "private" || c.Visibility == "public-and-private" {
+		mqCloudURL = ContructEndpoint(fmt.Sprintf("api.private.%s.mq2", c.Region), cloudEndpoint)
+	}
+	if fileMap != nil && c.Visibility != "public-and-private" {
+		mqCloudURL = fileFallBack(fileMap, c.Visibility, "IBMCLOUD_MQCLOUD_CONFIG_ENDPOINT", c.Region, mqCloudURL)
+	}
+
+	mqcloudClientOptions := &mqcloudv1.MqcloudV1Options{
+		Authenticator: authenticator,
+		URL:           EnvFallBack([]string{"IBMCLOUD_MQCLOUD_CONFIG_ENDPOINT"}, mqCloudURL),
+	}
+
+	// Construct the service client for MQ Cloud.
+	session.mqcloudClient, err = mqcloudv1.NewMqcloudV1(mqcloudClientOptions)
+	if err != nil {
+		session.mqcloudClientErr = fmt.Errorf("Error occurred while configuring MQ Cloud service: %q", err)
+	} else {
+		// Enable retries for API calls
+		session.mqcloudClient.Service.EnableRetries(c.RetryCount, c.RetryDelay)
+		// Add custom header for analytics
+		session.mqcloudClient.SetDefaultHeaders(gohttp.Header{
+			"X-Original-User-Agent": {fmt.Sprintf("terraform-provider-ibm/%s", version.Version)},
+		})
 	}
 
 	// Construct the service options.

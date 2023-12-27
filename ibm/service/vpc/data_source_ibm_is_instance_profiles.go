@@ -464,6 +464,29 @@ func DataSourceIBMISInstanceProfiles() *schema.Resource {
 								},
 							},
 						},
+						"network_attachment_count": {
+							Type:     schema.TypeSet,
+							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"max": {
+										Type:        schema.TypeInt,
+										Computed:    true,
+										Description: "The maximum value for this profile field",
+									},
+									"min": {
+										Type:        schema.TypeInt,
+										Computed:    true,
+										Description: "The minimum value for this profile field",
+									},
+									"type": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The type for this profile field.",
+									},
+								},
+							},
+						},
 						"network_interface_count": {
 							Type:     schema.TypeList,
 							Computed: true,
@@ -487,6 +510,24 @@ func DataSourceIBMISInstanceProfiles() *schema.Resource {
 								},
 							},
 						},
+						"numa_count": {
+							Type:     schema.TypeList,
+							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"type": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The type for this profile field.",
+									},
+									"value": {
+										Type:        schema.TypeInt,
+										Computed:    true,
+										Description: "The value for this profile field.",
+									},
+								},
+							},
+						},
 						"port_speed": {
 							Type:     schema.TypeList,
 							Computed: true,
@@ -504,6 +545,11 @@ func DataSourceIBMISInstanceProfiles() *schema.Resource {
 									},
 								},
 							},
+						},
+						"status": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The status of the instance profile.",
 						},
 						"vcpu_architecture": {
 							Type:     schema.TypeList,
@@ -640,6 +686,9 @@ func instanceProfilesList(d *schema.ResourceData, meta interface{}) error {
 				l["architecture_values"] = profile.OsArchitecture.Values
 			}
 		}
+		if profile.Status != nil {
+			l["status"] = *profile.Status
+		}
 		if profile.Bandwidth != nil {
 			bandwidthList := []map[string]interface{}{}
 			bandwidthMap := dataSourceInstanceProfileBandwidthToMap(*profile.Bandwidth.(*vpcv1.InstanceProfileBandwidth))
@@ -688,6 +737,18 @@ func instanceProfilesList(d *schema.ResourceData, meta interface{}) error {
 			networkInterfaceCountMap := dataSourceInstanceProfileNetworkInterfaceCount(*profile.NetworkInterfaceCount.(*vpcv1.InstanceProfileNetworkInterfaceCount))
 			networkInterfaceCountList = append(networkInterfaceCountList, networkInterfaceCountMap)
 			l["network_interface_count"] = networkInterfaceCountList
+		}
+		if profile.NetworkAttachmentCount != nil {
+			networkAttachmentCountList := []map[string]interface{}{}
+			networkAttachmentCountMap := dataSourceInstanceProfileNetworkAttachmentCount(*profile.NetworkAttachmentCount.(*vpcv1.InstanceProfileNetworkAttachmentCount))
+			networkAttachmentCountList = append(networkAttachmentCountList, networkAttachmentCountMap)
+			l["network_attachment_count"] = networkAttachmentCountList
+		}
+		if profile.NumaCount != nil {
+			numaCountList := []map[string]interface{}{}
+			numaCountMap := dataSourceInstanceProfileNumaCountToMap(*profile.NumaCount.(*vpcv1.InstanceProfileNumaCount))
+			numaCountList = append(numaCountList, numaCountMap)
+			l["numa_count"] = numaCountList
 		}
 		if profile.PortSpeed != nil {
 			portSpeedList := []map[string]interface{}{}
