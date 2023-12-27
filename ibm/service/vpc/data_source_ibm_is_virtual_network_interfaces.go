@@ -35,6 +35,20 @@ func DataSourceIBMIsVirtualNetworkInterfaces() *schema.Resource {
 							Computed:    true,
 							Description: "Indicates whether source IP spoofing is allowed on this interface. If `false`, source IP spoofing is prevented on this interface. If `true`, source IP spoofing is allowed on this interface.",
 						},
+						"tags": {
+							Type:        schema.TypeSet,
+							Computed:    true,
+							Elem:        &schema.Schema{Type: schema.TypeString},
+							Set:         flex.ResourceIBMVPCHash,
+							Description: "UserTags for the vni instance",
+						},
+						"access_tags": {
+							Type:        schema.TypeSet,
+							Computed:    true,
+							Elem:        &schema.Schema{Type: schema.TypeString},
+							Set:         flex.ResourceIBMVPCHash,
+							Description: "Access management tags for the vni instance",
+						},
 						"enable_infrastructure_nat": &schema.Schema{
 							Type:        schema.TypeBool,
 							Computed:    true,
@@ -411,44 +425,61 @@ func DataSourceIBMIsVirtualNetworkInterfaces() *schema.Resource {
 					},
 				},
 			},
+			"resource_group": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The unique identifier of the resource group these virtual network interfaces belong to",
+			},
 		},
 	}
 }
 
 func dataSourceIBMIsVirtualNetworkInterfacesRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	vpcbetaClient, err := meta.(conns.ClientSession).VpcV1API()
+	vpcClient, err := meta.(conns.ClientSession).VpcV1API()
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
 	listVirtualNetworkInterfacesOptions := &vpcv1.ListVirtualNetworkInterfacesOptions{}
-
-	vniCollection, response, err := vpcbetaClient.ListVirtualNetworkInterfacesWithContext(context, listVirtualNetworkInterfacesOptions)
-	//log.Printf(len(vniCollection.VirtualNetworkInterfaces))
-	if err != nil {
-		log.Printf("[DEBUG] VirtualNetworkInterfacesPager.GetAll() failed %s\n%s", err, response)
-		return diag.FromErr(fmt.Errorf("VirtualNetworkInterfacesPager.GetAll() failed %s\n%s", err, response))
+	if resgroupintf, ok := d.GetOk("resource_group"); ok {
+		resGroup := resgroupintf.(string)
+		listVirtualNetworkInterfacesOptions.ResourceGroupID = &resGroup
 	}
-	// var pager *vpcv1.VirtualNetworkInterfacesPager
-	// pager, err = vpcbetaClient.NewVirtualNetworkInterfacesPager(listVirtualNetworkInterfacesOptions)
-	// if err != nil {
-	// 	return diag.FromErr(err)
-	// }
+	var pager *vpcv1.VirtualNetworkInterfacesPager
+	pager, err = vpcClient.NewVirtualNetworkInterfacesPager(listVirtualNetworkInterfacesOptions)
+	if err != nil {
+		return diag.FromErr(err)
+	}
 
-	// allItems, err := pager.GetAll()
-	// if err != nil {
-	// 	log.Printf("[DEBUG] VirtualNetworkInterfacesPager.GetAll() failed %s", err)
-	// 	return diag.FromErr(fmt.Errorf("VirtualNetworkInterfacesPager.GetAll() failed %s", err))
-	// }
+	allItems, err := pager.GetAll()
+	if err != nil {
+		log.Printf("[DEBUG] VirtualNetworkInterfacesPager.GetAll() failed %s", err)
+		return diag.FromErr(fmt.Errorf("VirtualNetworkInterfacesPager.GetAll() failed %s", err))
+	}
 
 	d.SetId(dataSourceIBMIsVirtualNetworkInterfacesID(d))
 
 	mapSlice := []map[string]interface{}{}
-	for _, modelItem := range vniCollection.VirtualNetworkInterfaces {
+	for _, modelItem := range allItems {
 		modelMap, err := dataSourceIBMIsVirtualNetworkInterfacesVirtualNetworkInterfaceToMap(&modelItem)
 		if err != nil {
 			return diag.FromErr(err)
 		}
+
+		tags, err := flex.GetGlobalTagsUsingCRN(meta, *modelItem.CRN, "", isUserTagType)
+		if err != nil {
+			log.Printf(
+				"Error on get of datasources vni (%s) tags: %s", *modelItem.ID, err)
+		}
+
+		accesstags, err := flex.GetGlobalTagsUsingCRN(meta, *modelItem.CRN, "", isAccessTagType)
+		if err != nil {
+			log.Printf(
+				"Error on get of datasources vni (%s) access tags: %s", *modelItem.ID, err)
+		}
+
+		modelMap["tags"] = tags
+		modelMap["access_tags"] = accesstags
 		mapSlice = append(mapSlice, modelMap)
 	}
 

@@ -1094,8 +1094,16 @@ data "ibm_is_volumes" "example" {
 
 ## Backup Policy
 resource "ibm_is_backup_policy" "is_backup_policy" {
-  match_user_tags = ["tag1"]
-  name            = "my-backup-policy"
+  match_user_tags     = ["tag1"]
+  name                = "my-backup-policy"
+  match_resource_type = "volume"
+}
+
+resource "ibm_is_backup_policy" "is_backup_policy" {
+  match_user_tags     = ["tag1"]
+  name                = "my-backup-policy-instance"
+  match_resource_type = "instance"
+  included_content    = ["boot_volume", "data_volumes"]
 }
 
 resource "ibm_is_backup_policy_plan" "is_backup_policy_plan" {
@@ -1141,6 +1149,20 @@ data "ibm_is_backup_policy_plans" "is_backup_policy_plans" {
 data "ibm_is_backup_policy_plan" "is_backup_policy_plan" {
   backup_policy_id = ibm_is_backup_policy.is_backup_policy.id
   name             = "my-backup-policy-plan"
+}
+
+//backup policies for enterprise
+
+resource "ibm_is_backup_policy" "ent-baas-example" {
+  match_user_tags = ["tag1"]
+  name            = "example-enterprise-backup-policy"
+  scope {
+    crn = "crn:v1:bluemix:public:is:us-south:a/123456::reservation:7187-ba49df72-37b8-43ac-98da-f8e029de0e63"
+  }
+}
+
+data "ibm_is_backup_policy" "enterprise_backup" {
+  name = ibm_is_backup_policy.ent-baas-example.name
 }
 
 // Vpn Server
@@ -1488,4 +1510,59 @@ resource "ibm_is_bare_metal_server_network_attachment" "na2" {
 	bare_metal_server = ibm_is_bare_metal_server.testacc_bms.id
 	# interface_type = "pci"
   allowed_vlans = [200, 202]
+}
+
+resource "ibm_is_instance_network_attachment" "ina" {
+  instance = ibm_is_instance.ins.id
+  name = "viability-undecided-jalapeno-unbuilt"
+  virtual_network_interface {
+    id = ibm_is_virtual_network_interface.testacc_vni2.id
+  }
+}
+resource "ibm_is_instance" "ins" {
+	name   				= "${var.name}-vsi2"
+	profile 			= "bx2-2x8"
+  image = "r134-f47cc24c-e020-4db5-ad96-1e5be8b5853b"
+	primary_network_attachment {
+        name = "vni-test"
+        virtual_network_interface { 
+            id = ibm_is_virtual_network_interface.testacc_vni3.id
+        }
+	}
+	vpc     = ibm_is_vpc.testacc_vpc.id
+	zone    = "${var.region}-2"
+	keys    = [ibm_is_ssh_key.testacc_sshkey.id]
+}
+resource "ibm_is_share" "share" {
+  zone    = "us-east-1"
+  source_share_crn = "crn:v1:staging:public:is:us-south-1:a/efe5afc483594adaa8325e2b4d1290df::share:r134-d8c8821c-a227-451d-a9ed-0c0cd2358829"
+  encryption_key = "crn:v1:staging:public:kms:us-south:a/efe5afc483594adaa8325e2b4d1290df:1be45161-6dae-44ca-b248-837f98004057:key:3dd21cc5-cc20-4f7c-bc62-8ec9a8a3d1bd"
+  replication_cron_spec = "5 * * * *"
+  name    = "tfp-temp-crr"
+  profile = "dp2"
+}
+//snapshot consistency group
+
+resource "ibm_is_snapshot_consistency_group" "is_snapshot_consistency_group_instance" {
+  delete_snapshots_on_delete = true
+  snapshots {
+    name          = "exmaple-snapshot"
+    source_volume = ibm_is_instance.instance.volume_attachments[0].volume_id
+  }
+  snapshots {
+    name          = "example-snapshot-1"
+    source_volume = ibm_is_instance.instance.volume_attachments[1].volume_id
+  }
+  name = "example-snapshot-consistency-group"
+}
+
+data "ibm_is_snapshot_consistency_group" "is_snapshot_consistency_group_instance" {
+  identifier = ibm_is_snapshot_consistency_group.is_snapshot_consistency_group_instance.id
+}
+data "ibm_is_snapshot_consistency_group" "is_snapshot_consistency_group_instance" {
+  name = "example-snapshot-consistency-group"
+}
+data "ibm_is_snapshot_consistency_groups" "is_snapshot_consistency_group_instance" {
+  depends_on = [ibm_is_snapshot_consistency_group.is_snapshot_consistency_group_instance]
+  name       = "example-snapshot-consistency-group"
 }
