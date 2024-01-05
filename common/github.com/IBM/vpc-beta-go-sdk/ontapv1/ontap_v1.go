@@ -216,6 +216,7 @@ func (ontap *OntapV1) ListStorageOntapInstancesWithContext(ctx context.Context, 
 	builder.AddHeader("Accept", "application/json")
 
 	builder.AddQuery("version", fmt.Sprint(*ontap.Version))
+	builder.AddQuery("generation", "2")
 	if listStorageOntapInstancesOptions.Start != nil {
 		builder.AddQuery("start", fmt.Sprint(*listStorageOntapInstancesOptions.Start))
 	}
@@ -289,6 +290,7 @@ func (ontap *OntapV1) CreateStorageOntapInstanceWithContext(ctx context.Context,
 	builder.AddHeader("Content-Type", "application/json")
 
 	builder.AddQuery("version", fmt.Sprint(*ontap.Version))
+	builder.AddQuery("generation", "2")
 
 	body := make(map[string]interface{})
 	if createStorageOntapInstanceOptions.AddressPrefix != nil {
@@ -393,6 +395,7 @@ func (ontap *OntapV1) DeleteStorageOntapInstanceWithContext(ctx context.Context,
 	}
 
 	builder.AddQuery("version", fmt.Sprint(*ontap.Version))
+	builder.AddQuery("generation", "2")
 
 	request, err := builder.Build()
 	if err != nil {
@@ -455,6 +458,7 @@ func (ontap *OntapV1) GetStorageOntapInstanceWithContext(ctx context.Context, ge
 	builder.AddHeader("Accept", "application/json")
 
 	builder.AddQuery("version", fmt.Sprint(*ontap.Version))
+	builder.AddQuery("generation", "2")
 
 	request, err := builder.Build()
 	if err != nil {
@@ -523,6 +527,7 @@ func (ontap *OntapV1) UpdateStorageOntapInstanceWithContext(ctx context.Context,
 	}
 
 	builder.AddQuery("version", fmt.Sprint(*ontap.Version))
+	builder.AddQuery("generation", "2")
 
 	_, err = builder.SetBodyContentJSON(updateStorageOntapInstanceOptions.StorageOntapInstancePatch)
 	if err != nil {
@@ -590,6 +595,7 @@ func (ontap *OntapV1) RefreshCredentialsStorageOntapInstanceWithContext(ctx cont
 	}
 
 	builder.AddQuery("version", fmt.Sprint(*ontap.Version))
+	builder.AddQuery("generation", "2")
 
 	request, err := builder.Build()
 	if err != nil {
@@ -647,6 +653,7 @@ func (ontap *OntapV1) ListStorageOntapInstanceStorageVirtualMachinesWithContext(
 	builder.AddHeader("Accept", "application/json")
 
 	builder.AddQuery("version", fmt.Sprint(*ontap.Version))
+	builder.AddQuery("generation", "2")
 	if listStorageOntapInstanceStorageVirtualMachinesOptions.Start != nil {
 		builder.AddQuery("start", fmt.Sprint(*listStorageOntapInstanceStorageVirtualMachinesOptions.Start))
 	}
@@ -719,6 +726,7 @@ func (ontap *OntapV1) GetStorageOntapInstanceStorageVirtualMachineWithContext(ct
 	builder.AddHeader("Accept", "application/json")
 
 	builder.AddQuery("version", fmt.Sprint(*ontap.Version))
+	builder.AddQuery("generation", "2")
 
 	request, err := builder.Build()
 	if err != nil {
@@ -788,6 +796,7 @@ func (ontap *OntapV1) UpdateStorageOntapInstanceStorageVirtualMachineWithContext
 	}
 
 	builder.AddQuery("version", fmt.Sprint(*ontap.Version))
+	builder.AddQuery("generation", "2")
 
 	_, err = builder.SetBodyContentJSON(updateStorageOntapInstanceStorageVirtualMachineOptions.StorageOntapInstanceStorageVirtualMachinePatch)
 	if err != nil {
@@ -861,6 +870,7 @@ func (ontap *OntapV1) ListStorageOntapInstanceStorageVirtualMachineVolumesWithCo
 	builder.AddHeader("Accept", "application/json")
 
 	builder.AddQuery("version", fmt.Sprint(*ontap.Version))
+	builder.AddQuery("generation", "2")
 	if listStorageOntapInstanceStorageVirtualMachineVolumesOptions.Start != nil {
 		builder.AddQuery("start", fmt.Sprint(*listStorageOntapInstanceStorageVirtualMachineVolumesOptions.Start))
 	}
@@ -935,6 +945,7 @@ func (ontap *OntapV1) CreateStorageOntapInstanceStorageVirtualMachineVolumeWithC
 	builder.AddHeader("Content-Type", "application/json")
 
 	builder.AddQuery("version", fmt.Sprint(*ontap.Version))
+	builder.AddQuery("generation", "2")
 
 	_, err = builder.SetBodyContentJSON(createStorageOntapInstanceStorageVirtualMachineVolumeOptions.StorageOntapInstanceStorageVirtualMachineVolumePrototype)
 	if err != nil {
@@ -1007,6 +1018,7 @@ func (ontap *OntapV1) DeleteStorageOntapInstanceStorageVirtualMachineVolumeWithC
 	}
 
 	builder.AddQuery("version", fmt.Sprint(*ontap.Version))
+	builder.AddQuery("generation", "2")
 
 	request, err := builder.Build()
 	if err != nil {
@@ -1071,6 +1083,7 @@ func (ontap *OntapV1) GetStorageOntapInstanceStorageVirtualMachineVolumeWithCont
 	builder.AddHeader("Accept", "application/json")
 
 	builder.AddQuery("version", fmt.Sprint(*ontap.Version))
+	builder.AddQuery("generation", "2")
 
 	request, err := builder.Build()
 	if err != nil {
@@ -1141,6 +1154,7 @@ func (ontap *OntapV1) UpdateStorageOntapInstanceStorageVirtualMachineVolumeWithC
 	}
 
 	builder.AddQuery("version", fmt.Sprint(*ontap.Version))
+	builder.AddQuery("generation", "2")
 
 	_, err = builder.SetBodyContentJSON(updateStorageOntapInstanceStorageVirtualMachineVolumeOptions.StorageOntapInstanceStorageVirtualMachineVolumePatch)
 	if err != nil {
