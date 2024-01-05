@@ -50,14 +50,16 @@ func ResourceIbmIsStorageOntapInstance() *schema.Resource {
 							},
 						},
 						"href": &schema.Schema{
-							Type:        schema.TypeString,
-							Required:    true,
-							Description: "The URL for this address prefix.",
+							Type:         schema.TypeString,
+							Required:     true,
+							ExactlyOneOf: []string{"address_prefix.0.id", "address_prefix.0.href"},
+							Description:  "The URL for this address prefix.",
 						},
 						"id": &schema.Schema{
-							Type:        schema.TypeString,
-							Required:    true,
-							Description: "The unique identifier for this address prefix.",
+							Type:         schema.TypeString,
+							ExactlyOneOf: []string{"address_prefix.0.id", "address_prefix.0.href"},
+							Required:     true,
+							Description:  "The unique identifier for this address prefix.",
 						},
 						"name": &schema.Schema{
 							Type:        schema.TypeString,
@@ -172,9 +174,10 @@ func ResourceIbmIsStorageOntapInstance() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"crn": &schema.Schema{
-							Type:        schema.TypeString,
-							Required:    true,
-							Description: "The CRN for this subnet.",
+							Type:         schema.TypeString,
+							Required:     true,
+							ExactlyOneOf: []string{"primary_subnet.0.id", "primary_subnet.0.crn"},
+							Description:  "The CRN for this subnet.",
 						},
 						"deleted": &schema.Schema{
 							Type:        schema.TypeList,
@@ -191,9 +194,10 @@ func ResourceIbmIsStorageOntapInstance() *schema.Resource {
 							},
 						},
 						"id": &schema.Schema{
-							Type:        schema.TypeString,
-							Required:    true,
-							Description: "The unique identifier for this subnet.",
+							Type:         schema.TypeString,
+							Required:     true,
+							ExactlyOneOf: []string{"primary_subnet.0.id", "primary_subnet.0.crn"},
+							Description:  "The unique identifier for this subnet.",
 						},
 						"name": &schema.Schema{
 							Type:        schema.TypeString,
@@ -280,9 +284,10 @@ func ResourceIbmIsStorageOntapInstance() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"crn": &schema.Schema{
-							Type:        schema.TypeString,
-							Required:    true,
-							Description: "The CRN for this subnet.",
+							Type:         schema.TypeString,
+							Required:     true,
+							ExactlyOneOf: []string{"secondary_subnet.0.id", "secondary_subnet.0.crn"},
+							Description:  "The CRN for this subnet.",
 						},
 						"deleted": &schema.Schema{
 							Type:        schema.TypeList,
@@ -299,9 +304,10 @@ func ResourceIbmIsStorageOntapInstance() *schema.Resource {
 							},
 						},
 						"id": &schema.Schema{
-							Type:        schema.TypeString,
-							Required:    true,
-							Description: "The unique identifier for this subnet.",
+							Type:         schema.TypeString,
+							Required:     true,
+							ExactlyOneOf: []string{"secondary_subnet.0.id", "secondary_subnet.0.crn"},
+							Description:  "The unique identifier for this subnet.",
 						},
 						"name": &schema.Schema{
 							Type:        schema.TypeString,
@@ -324,19 +330,18 @@ func ResourceIbmIsStorageOntapInstance() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"crn": &schema.Schema{
 							Type:        schema.TypeString,
-							Required:    true,
+							Optional:    true,
 							Description: "The security group's CRN.",
 						},
 						"deleted": &schema.Schema{
 							Type:        schema.TypeList,
-							MaxItems:    1,
-							Optional:    true,
+							Computed:    true,
 							Description: "If present, this property indicates the referenced resource has been deleted, and providessome supplementary information.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"more_info": &schema.Schema{
 										Type:        schema.TypeString,
-										Required:    true,
+										Computed:    true,
 										Description: "Link to documentation about deleted resources.",
 									},
 								},
@@ -344,12 +349,12 @@ func ResourceIbmIsStorageOntapInstance() *schema.Resource {
 						},
 						"id": &schema.Schema{
 							Type:        schema.TypeString,
-							Required:    true,
+							Optional:    true,
 							Description: "The unique identifier for this security group.",
 						},
 						"name": &schema.Schema{
 							Type:        schema.TypeString,
-							Required:    true,
+							Computed:    true,
 							Description: "The name for this security group. The name is unique across all security groups for the VPC.",
 						},
 					},
@@ -363,14 +368,13 @@ func ResourceIbmIsStorageOntapInstance() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"deleted": &schema.Schema{
 							Type:        schema.TypeList,
-							MaxItems:    1,
-							Optional:    true,
+							Computed:    true,
 							Description: "If present, this property indicates the referenced resource has been deleted, and providessome supplementary information.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"more_info": &schema.Schema{
 										Type:        schema.TypeString,
-										Required:    true,
+										Computed:    true,
 										Description: "Link to documentation about deleted resources.",
 									},
 								},
@@ -378,17 +382,147 @@ func ResourceIbmIsStorageOntapInstance() *schema.Resource {
 						},
 						"href": &schema.Schema{
 							Type:        schema.TypeString,
-							Required:    true,
+							Computed:    true,
 							Description: "The URL for this storage virtual machine.",
 						},
 						"id": &schema.Schema{
 							Type:        schema.TypeString,
-							Required:    true,
+							Computed:    true,
 							Description: "The unique identifier for this storage virtual machine.",
+						},
+						"active_directory": &schema.Schema{
+							Type:        schema.TypeList,
+							Optional:    true,
+							MaxItems:    1,
+							Description: "The Active Directory service this storage virtual machine is joined to.If absent, this storage virtual machine is not joined to an Active Directory service.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"administrators_group": &schema.Schema{
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: "The name of the domain group whose members have been granted administrative privileges for this storage virtual machine.",
+									},
+									"dns_ips": &schema.Schema{
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: "The IP addresses of the Active Directory DNS servers or domain controllers.",
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+									"domain_name": &schema.Schema{
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: "The fully qualified domain name of the self-managed Active Directory.",
+									},
+									"domain_password_credential": &schema.Schema{
+										Type:        schema.TypeList,
+										Optional:    true,
+										MaxItems:    1,
+										Description: "The password credential for the Active Directory domain.",
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"crn": &schema.Schema{
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "The CRN for this credential.",
+												},
+												"resource_type": &schema.Schema{
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "The resource type.",
+												},
+											},
+										},
+									},
+									"netbios_name": &schema.Schema{
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: "The name of the Active Directory computer object that will be created for the storage virtual machine.",
+									},
+									"organizational_unit_distinguished_name": &schema.Schema{
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: "The distinguished name of the organizational unit within the self-managed Active Directory.",
+									},
+									"username": &schema.Schema{
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: "The username that this storage virtual machine will use when joining the Active Directory domain. This username will be the same as the username credential used in `domain_password_credential`.",
+									},
+								},
+							},
+						},
+						"admin_credentials": &schema.Schema{
+							Type:        schema.TypeList,
+							Optional:    true,
+							MaxItems:    1,
+							Description: "The credentials used for the administrator to access the storage virtual machine of thestorage ontap instance. At least one of `password`, `ssh`, or `http` will be present.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"http": &schema.Schema{
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: "The security certificate credential for ONTAP REST API access for the storage virtualmachine administrator.",
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"crn": &schema.Schema{
+													Type:        schema.TypeString,
+													Optional:    true,
+													Description: "The CRN for this credential.",
+												},
+												"resource_type": &schema.Schema{
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "The resource type.",
+												},
+											},
+										},
+									},
+									"password": &schema.Schema{
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: "The password credential for the storage virtual machine administrator.If present, this password credential is used by the storage virtual machineadministrator for both ONTAP CLI SSH access and ONTAP REST API access.If absent, the storage virtual machine is not accessible through either the ONTAP CLIor ONTAP REST API using password-based authentication.",
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"crn": &schema.Schema{
+													Type:        schema.TypeString,
+													Optional:    true,
+													Description: "The CRN for this credential.",
+												},
+												"resource_type": &schema.Schema{
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "The resource type.",
+												},
+											},
+										},
+									},
+									"ssh": &schema.Schema{
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: "The public key credential for ONTAP CLI based ssh login for the storage virtualmachine administrator.",
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"crn": &schema.Schema{
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "The CRN for this credential.",
+												},
+												"resource_type": &schema.Schema{
+													Type:        schema.TypeString,
+													Optional:    true,
+													Description: "The resource type.",
+												},
+											},
+										},
+									},
+								},
+							},
 						},
 						"name": &schema.Schema{
 							Type:        schema.TypeString,
-							Required:    true,
+							Optional:    true,
 							Description: "The name for this storage virtual machine. The name is unique across all storage virtual machines in the storage ontap instance.",
 						},
 						"resource_type": &schema.Schema{
