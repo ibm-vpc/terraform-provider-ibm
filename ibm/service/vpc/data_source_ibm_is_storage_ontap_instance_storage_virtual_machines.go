@@ -21,7 +21,7 @@ func DataSourceIbmIsStorageOntapInstanceStorageVirtualMachines() *schema.Resourc
 		ReadContext: dataSourceIbmIsStorageOntapInstanceStorageVirtualMachinesRead,
 
 		Schema: map[string]*schema.Schema{
-			"storage_ontap_instance_id": &schema.Schema{
+			"storage_ontap_instance": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "The storage ontap instance identifier.",
@@ -298,7 +298,7 @@ func dataSourceIbmIsStorageOntapInstanceStorageVirtualMachinesRead(context conte
 
 	listStorageOntapInstanceStorageVirtualMachinesOptions := &ontapv1.ListStorageOntapInstanceStorageVirtualMachinesOptions{}
 
-	listStorageOntapInstanceStorageVirtualMachinesOptions.SetStorageOntapInstanceID(d.Get("storage_ontap_instance_id").(string))
+	listStorageOntapInstanceStorageVirtualMachinesOptions.SetStorageOntapInstanceID(d.Get("storage_ontap_instance").(string))
 	if _, ok := d.GetOk("name"); ok {
 		listStorageOntapInstanceStorageVirtualMachinesOptions.SetName(d.Get("name").(string))
 	}
