@@ -51,14 +51,14 @@ func ResourceIbmIsStorageOntapInstance() *schema.Resource {
 						},
 						"href": &schema.Schema{
 							Type:         schema.TypeString,
-							Required:     true,
+							Optional:     true,
 							ExactlyOneOf: []string{"address_prefix.0.id", "address_prefix.0.href"},
 							Description:  "The URL for this address prefix.",
 						},
 						"id": &schema.Schema{
 							Type:         schema.TypeString,
 							ExactlyOneOf: []string{"address_prefix.0.id", "address_prefix.0.href"},
-							Required:     true,
+							Optional:     true,
 							Description:  "The unique identifier for this address prefix.",
 						},
 						"name": &schema.Schema{
@@ -175,7 +175,7 @@ func ResourceIbmIsStorageOntapInstance() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"crn": &schema.Schema{
 							Type:         schema.TypeString,
-							Required:     true,
+							Optional:     true,
 							ExactlyOneOf: []string{"primary_subnet.0.id", "primary_subnet.0.crn"},
 							Description:  "The CRN for this subnet.",
 						},
@@ -195,7 +195,7 @@ func ResourceIbmIsStorageOntapInstance() *schema.Resource {
 						},
 						"id": &schema.Schema{
 							Type:         schema.TypeString,
-							Required:     true,
+							Optional:     true,
 							ExactlyOneOf: []string{"primary_subnet.0.id", "primary_subnet.0.crn"},
 							Description:  "The unique identifier for this subnet.",
 						},
@@ -285,7 +285,7 @@ func ResourceIbmIsStorageOntapInstance() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"crn": &schema.Schema{
 							Type:         schema.TypeString,
-							Required:     true,
+							Optional:     true,
 							ExactlyOneOf: []string{"secondary_subnet.0.id", "secondary_subnet.0.crn"},
 							Description:  "The CRN for this subnet.",
 						},
@@ -305,7 +305,7 @@ func ResourceIbmIsStorageOntapInstance() *schema.Resource {
 						},
 						"id": &schema.Schema{
 							Type:         schema.TypeString,
-							Required:     true,
+							Optional:     true,
 							ExactlyOneOf: []string{"secondary_subnet.0.id", "secondary_subnet.0.crn"},
 							Description:  "The unique identifier for this subnet.",
 						},

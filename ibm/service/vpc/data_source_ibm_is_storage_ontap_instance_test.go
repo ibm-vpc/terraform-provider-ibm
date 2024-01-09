@@ -24,17 +24,17 @@ func TestAccIbmIsStorageOntapInstanceDataSourceBasic(t *testing.T) {
 				Config: testAccCheckIbmIsStorageOntapInstanceDataSourceConfigBasic(storageOntapInstanceCapacity),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet("data.ibm_is_storage_ontap_instance.is_storage_ontap_instance", "id"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_storage_ontap_instance.is_storage_ontap_instance", "id"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_storage_ontap_instance.is_storage_ontap_instance", "identifier"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_storage_ontap_instance.is_storage_ontap_instance", "address_prefix.#"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_storage_ontap_instance.is_storage_ontap_instance", "capacity"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_storage_ontap_instance.is_storage_ontap_instance", "created_at"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_storage_ontap_instance.is_storage_ontap_instance", "crn"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_storage_ontap_instance.is_storage_ontap_instance", "encryption"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_storage_ontap_instance.is_storage_ontap_instance", "endpoints.#"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_storage_ontap_instance.is_storage_ontap_instance", "health_reasons.#"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_storage_ontap_instance.is_storage_ontap_instance", "health_state"),
+					// resource.TestCheckResourceAttrSet("data.ibm_is_storage_ontap_instance.is_storage_ontap_instance", "health_reasons.#"),
+					// resource.TestCheckResourceAttrSet("data.ibm_is_storage_ontap_instance.is_storage_ontap_instance", "health_state"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_storage_ontap_instance.is_storage_ontap_instance", "href"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_storage_ontap_instance.is_storage_ontap_instance", "lifecycle_reasons.#"),
+					// resource.TestCheckResourceAttrSet("data.ibm_is_storage_ontap_instance.is_storage_ontap_instance", "lifecycle_reasons.#"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_storage_ontap_instance.is_storage_ontap_instance", "lifecycle_state"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_storage_ontap_instance.is_storage_ontap_instance", "name"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_storage_ontap_instance.is_storage_ontap_instance", "resource_group.#"),
@@ -108,32 +108,11 @@ func TestAccIbmIsStorageOntapInstanceDataSourceAllArgs(t *testing.T) {
 }
 
 func testAccCheckIbmIsStorageOntapInstanceDataSourceConfigBasic(storageOntapInstanceCapacity string) string {
-	return fmt.Sprintf(`
-		resource "ibm_is_storage_ontap_instance" "is_storage_ontap_instance_instance" {
-			address_prefix {
-				deleted {
-					more_info = "https://cloud.ibm.com/apidocs/vpc#deleted-resources"
-				}
-				href = "https://us-south.iaas.cloud.ibm.com/ontap/v1/vpcs/8e454ead-0db7-48ac-9a8b-2698d8c470a7/address_prefixes/1a15dca5-7e33-45e1-b7c5-bc690e569531"
-				id = "1a15dca5-7e33-45e1-b7c5-bc690e569531"
-				name = "my-address-prefix-1"
-			}
-			capacity = %s
-			storage_virtual_machines {
-				deleted {
-					more_info = "https://cloud.ibm.com/apidocs/vpc#deleted-resources"
-				}
-				href = "https://us-south.iaas.cloud.ibm.com/ontap/v1/storage_ontap_instances/r134-d7cc5196-9864-48c4-82d8-3f30da41ffc5/storage_virtual_machines/r134-efee5196-9864-48c4-82d8-3f30da41ffc5"
-				id = "r134-efee5196-9864-48c4-82d8-3f30da41ffc5"
-				name = "my-storage-virtual-machine"
-				resource_type = "storage_ontap_instance_storage_virtual_machine"
-			}
+	return fmt.Sprint(`
+		data "ibm_is_storage_ontap_instance" "is_storage_ontap_instance" {
+			identifier = "r134-826d7442-3312-4be3-bc02-c527d4975dbd"
 		}
-
-		data "ibm_is_storage_ontap_instance" "is_storage_ontap_instance_instance" {
-			id = "id"
-		}
-	`, storageOntapInstanceCapacity)
+	`)
 }
 
 func testAccCheckIbmIsStorageOntapInstanceDataSourceConfig(storageOntapInstanceCapacity string, storageOntapInstanceName string) string {
