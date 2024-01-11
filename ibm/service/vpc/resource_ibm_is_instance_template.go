@@ -334,7 +334,7 @@ func ResourceIBMISInstanceTemplate() *schema.Resource {
 				MaxItems:      1,
 				Optional:      true,
 				ExactlyOneOf:  []string{"primary_network_attachment", "primary_network_interface"},
-				ConflictsWith: []string{"primary_network_attachment", "network_interfaces"},
+				ConflictsWith: []string{"primary_network_attachment", "network_attachments"},
 				Description:   "Primary Network interface info",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -544,6 +544,7 @@ func ResourceIBMISInstanceTemplate() *schema.Resource {
 						"virtual_network_interface": &schema.Schema{
 							Type:        schema.TypeList,
 							Optional:    true,
+							MaxItems:    1,
 							Computed:    true,
 							Description: "A virtual network interface for the instance network attachment. This can be specified using an existing virtual network interface, or a prototype object for a new virtual network interface.",
 							Elem: &schema.Resource{
@@ -551,6 +552,7 @@ func ResourceIBMISInstanceTemplate() *schema.Resource {
 									"id": &schema.Schema{
 										Type:        schema.TypeString,
 										Optional:    true,
+										Computed:    true,
 										Description: "The virtual network interface id for this instance network attachment.",
 									},
 									"allow_ip_spoofing": &schema.Schema{
@@ -572,9 +574,10 @@ func ResourceIBMISInstanceTemplate() *schema.Resource {
 										Description: "If `true`:- The VPC infrastructure performs any needed NAT operations.- `floating_ips` must not have more than one floating IP.If `false`:- Packets are passed unchanged to/from the network interface,  allowing the workload to perform any needed NAT operations.- `allow_ip_spoofing` must be `false`.- If the virtual network interface is attached:  - The target `resource_type` must be `bare_metal_server_network_attachment`.  - The target `interface_type` must not be `hipersocket`.",
 									},
 									"ips": &schema.Schema{
-										Type:        schema.TypeList,
+										Type:        schema.TypeSet,
 										Optional:    true,
 										Computed:    true,
+										Set:         hashIpsList,
 										Description: "The reserved IPs bound to this virtual network interface.May be empty when `lifecycle_state` is `pending`.",
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
@@ -683,6 +686,12 @@ func ResourceIBMISInstanceTemplate() *schema.Resource {
 													Type:        schema.TypeString,
 													Computed:    true,
 													Description: "The resource type.",
+												},
+												"auto_delete": &schema.Schema{
+													Type:        schema.TypeBool,
+													Optional:    true,
+													Default:     true,
+													Description: "Indicates whether this reserved ip will be automatically deleted when `target` is deleted.",
 												},
 											},
 										},
@@ -770,6 +779,7 @@ func ResourceIBMISInstanceTemplate() *schema.Resource {
 
 						"virtual_network_interface": &schema.Schema{
 							Type:        schema.TypeList,
+							MaxItems:    1,
 							Optional:    true,
 							Computed:    true,
 							Description: "A virtual network interface for the instance network attachment. This can be specified using an existing virtual network interface, or a prototype object for a new virtual network interface.",
@@ -778,6 +788,7 @@ func ResourceIBMISInstanceTemplate() *schema.Resource {
 									"id": &schema.Schema{
 										Type:        schema.TypeString,
 										Optional:    true,
+										Computed:    true,
 										Description: "The virtual network interface id for this instance network attachment.",
 									},
 									"allow_ip_spoofing": &schema.Schema{
@@ -799,9 +810,10 @@ func ResourceIBMISInstanceTemplate() *schema.Resource {
 										Description: "If `true`:- The VPC infrastructure performs any needed NAT operations.- `floating_ips` must not have more than one floating IP.If `false`:- Packets are passed unchanged to/from the network interface,  allowing the workload to perform any needed NAT operations.- `allow_ip_spoofing` must be `false`.- If the virtual network interface is attached:  - The target `resource_type` must be `bare_metal_server_network_attachment`.  - The target `interface_type` must not be `hipersocket`.",
 									},
 									"ips": &schema.Schema{
-										Type:        schema.TypeList,
+										Type:        schema.TypeSet,
 										Optional:    true,
 										Computed:    true,
+										Set:         hashIpsList,
 										Description: "The reserved IPs bound to this virtual network interface.May be empty when `lifecycle_state` is `pending`.",
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
@@ -875,6 +887,12 @@ func ResourceIBMISInstanceTemplate() *schema.Resource {
 													Computed:    true,
 													Description: "The IP address.If the address has not yet been selected, the value will be `0.0.0.0`.This property may add support for IPv6 addresses in the future. When processing a value in this property, verify that the address is in an expected format. If it is not, log an error. Optionally halt processing and surface the error, or bypass the resource on which the unexpected IP address format was encountered.",
 												},
+												"auto_delete": &schema.Schema{
+													Type:        schema.TypeBool,
+													Optional:    true,
+													Default:     true,
+													Description: "Indicates whether this reserved IP member will be automatically deleted when either target is deleted, or the reserved IP is unbound.",
+												},
 												"deleted": &schema.Schema{
 													Type:        schema.TypeList,
 													Computed:    true,
@@ -929,7 +947,6 @@ func ResourceIBMISInstanceTemplate() *schema.Resource {
 										Type:        schema.TypeSet,
 										Optional:    true,
 										Computed:    true,
-										ForceNew:    true,
 										Elem:        &schema.Schema{Type: schema.TypeString},
 										Set:         schema.HashString,
 										Description: "The security groups for this virtual network interface.",
@@ -938,7 +955,6 @@ func ResourceIBMISInstanceTemplate() *schema.Resource {
 										Type:        schema.TypeString,
 										Optional:    true,
 										Computed:    true,
-										ForceNew:    true,
 										Description: "The associated subnet id.",
 									},
 								},
@@ -1208,9 +1224,9 @@ func instanceTemplateCreateByCatalogOffering(d *schema.ResourceData, meta interf
 	}
 	if primnetworkattachmentintf, ok := d.GetOk("primary_network_attachment"); ok && len(primnetworkattachmentintf.([]interface{})) > 0 {
 		i := 0
-		allowipspoofing := fmt.Sprintf("primary_network_attachment.%d.allow_ip_spoofing", i)
-		autodelete := fmt.Sprintf("primary_network_attachment.%d.autodelete", i)
-		enablenat := fmt.Sprintf("primary_network_attachment.%d.enable_infrastructure_nat", i)
+		allowipspoofing := fmt.Sprintf("primary_network_attachment.%d.virtual_network_interface.0.allow_ip_spoofing", i)
+		autodelete := fmt.Sprintf("primary_network_attachment.%d.virtual_network_interface.0.auto_delete", i)
+		enablenat := fmt.Sprintf("primary_network_attachment.%d.virtual_network_interface.0.enable_infrastructure_nat", i)
 		primaryNetworkAttachmentModel, err := resourceIBMIsInstanceMapToInstanceNetworkAttachmentPrototype(allowipspoofing, autodelete, enablenat, d, primnetworkattachmentintf.([]interface{})[0].(map[string]interface{}))
 		if err != nil {
 			return err
@@ -1657,9 +1673,9 @@ func instanceTemplateCreate(d *schema.ResourceData, meta interface{}, profile, n
 	if networkattachmentsintf, ok := d.GetOk("network_attachments"); ok {
 		networkAttachments := []vpcv1.InstanceNetworkAttachmentPrototype{}
 		for i, networkAttachmentsItem := range networkattachmentsintf.([]interface{}) {
-			allowipspoofing := fmt.Sprintf("network_attachments.%d.allow_ip_spoofing", i)
-			autodelete := fmt.Sprintf("network_attachments.%d.autodelete", i)
-			enablenat := fmt.Sprintf("network_attachments.%d.enable_infrastructure_nat", i)
+			allowipspoofing := fmt.Sprintf("network_attachments.%d.virtual_network_interface.0.allow_ip_spoofing", i)
+			autodelete := fmt.Sprintf("network_attachments.%d.virtual_network_interface.0.auto_delete", i)
+			enablenat := fmt.Sprintf("network_attachments.%d.virtual_network_interface.0.enable_infrastructure_nat", i)
 			// allowipspoofing := "primary_network_attachment.0.allow_ip_spoofing"
 			// autodelete := "primary_network_attachment.0.autodelete"
 			// enablenat := "primary_network_attachment.0.enable_infrastructure_nat"
@@ -2531,7 +2547,7 @@ func resourceIBMIsInstanceTemplateNetworkAttachmentReferenceToMap(model *vpcv1.I
 			}
 			vniMap["security_groups"] = securityGroups
 		}
-		primaryIPMap, err := resourceIBMIsInstanceReservedIPReferenceToMap(vniDetails.PrimaryIP)
+		primaryIPMap, err := resourceIBMIsInstanceReservedIPReferenceToMap(vniDetails.PrimaryIP, true)
 		if err != nil {
 			return modelMap, err
 		}
