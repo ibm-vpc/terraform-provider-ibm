@@ -22,12 +22,12 @@ func DataSourceIbmIsStorageOntapInstanceStorageVirtualMachineVolumes() *schema.R
 		ReadContext: dataSourceIbmIsStorageOntapInstanceStorageVirtualMachineVolumesRead,
 
 		Schema: map[string]*schema.Schema{
-			"storage_ontap_instance_id": &schema.Schema{
+			"storage_ontap_instance": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "The storage ontap instance identifier.",
 			},
-			"storage_virtual_machine_id": &schema.Schema{
+			"storage_virtual_machine": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "The storage virtual machine identifier.",
@@ -302,8 +302,8 @@ func dataSourceIbmIsStorageOntapInstanceStorageVirtualMachineVolumesRead(context
 
 	listStorageOntapInstanceStorageVirtualMachineVolumesOptions := &ontapv1.ListStorageOntapInstanceStorageVirtualMachineVolumesOptions{}
 
-	listStorageOntapInstanceStorageVirtualMachineVolumesOptions.SetStorageOntapInstanceID(d.Get("storage_ontap_instance_id").(string))
-	listStorageOntapInstanceStorageVirtualMachineVolumesOptions.SetStorageVirtualMachineID(d.Get("storage_virtual_machine_id").(string))
+	listStorageOntapInstanceStorageVirtualMachineVolumesOptions.SetStorageOntapInstanceID(d.Get("storage_ontap_instance").(string))
+	listStorageOntapInstanceStorageVirtualMachineVolumesOptions.SetStorageVirtualMachineID(d.Get("storage_virtual_machine").(string))
 	if _, ok := d.GetOk("name"); ok {
 		listStorageOntapInstanceStorageVirtualMachineVolumesOptions.SetName(d.Get("name").(string))
 	}

@@ -52,6 +52,7 @@ func ResourceIbmIsStorageOntapInstance() *schema.Resource {
 						"href": &schema.Schema{
 							Type:         schema.TypeString,
 							Optional:     true,
+							Computed:     true,
 							ExactlyOneOf: []string{"address_prefix.0.id", "address_prefix.0.href"},
 							Description:  "The URL for this address prefix.",
 						},
@@ -59,6 +60,7 @@ func ResourceIbmIsStorageOntapInstance() *schema.Resource {
 							Type:         schema.TypeString,
 							ExactlyOneOf: []string{"address_prefix.0.id", "address_prefix.0.href"},
 							Optional:     true,
+							Computed:     true,
 							Description:  "The unique identifier for this address prefix.",
 						},
 						"name": &schema.Schema{
@@ -149,12 +151,14 @@ func ResourceIbmIsStorageOntapInstance() *schema.Resource {
 				Type:        schema.TypeList,
 				MaxItems:    1,
 				Optional:    true,
+				Computed:    true,
 				Description: "The root key used to wrap the data encryption key for the storage ontap instance.This property will be present for storage ontap instance with an `encryption` type of`user_managed`.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"crn": &schema.Schema{
 							Type:        schema.TypeString,
-							Required:    true,
+							Optional:    true,
+							Computed:    true,
 							Description: "The CRN of the [Key Protect Root Key](https://cloud.ibm.com/docs/key-protect?topic=key-protect-getting-started-tutorial) or [Hyper Protect Crypto Services Root Key](https://cloud.ibm.com/docs/hs-crypto?topic=hs-crypto-get-started) for this resource.",
 						},
 					},
@@ -163,6 +167,7 @@ func ResourceIbmIsStorageOntapInstance() *schema.Resource {
 			"name": &schema.Schema{
 				Type:         schema.TypeString,
 				Optional:     true,
+				Computed:     true,
 				ValidateFunc: validate.InvokeValidator("ibm_is_storage_ontap_instance", "name"),
 				Description:  "The name for this storage ontap instance. The name is unique across all storage ontap instances in the region.",
 			},
@@ -170,12 +175,14 @@ func ResourceIbmIsStorageOntapInstance() *schema.Resource {
 				Type:        schema.TypeList,
 				MaxItems:    1,
 				Optional:    true,
+				Computed:    true,
 				Description: "The subnet where the primary Cloud Volumes ONTAP node is provisioned in.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"crn": &schema.Schema{
 							Type:         schema.TypeString,
 							Optional:     true,
+							Computed:     true,
 							ExactlyOneOf: []string{"primary_subnet.0.id", "primary_subnet.0.crn"},
 							Description:  "The CRN for this subnet.",
 						},
@@ -196,6 +203,7 @@ func ResourceIbmIsStorageOntapInstance() *schema.Resource {
 						"id": &schema.Schema{
 							Type:         schema.TypeString,
 							Optional:     true,
+							Computed:     true,
 							ExactlyOneOf: []string{"primary_subnet.0.id", "primary_subnet.0.crn"},
 							Description:  "The unique identifier for this subnet.",
 						},
@@ -216,12 +224,14 @@ func ResourceIbmIsStorageOntapInstance() *schema.Resource {
 				Type:        schema.TypeList,
 				MaxItems:    1,
 				Optional:    true,
+				Computed:    true,
 				Description: "The resource group for this storage ontap instance.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"id": &schema.Schema{
 							Type:        schema.TypeString,
-							Required:    true,
+							Optional:    true,
+							Computed:    true,
 							Description: "The unique identifier for this resource group.",
 						},
 						"name": &schema.Schema{
@@ -235,6 +245,7 @@ func ResourceIbmIsStorageOntapInstance() *schema.Resource {
 			"routing_tables": &schema.Schema{
 				Type:        schema.TypeList,
 				Optional:    true,
+				Computed:    true,
 				Description: "The VPC routing tables for this storage ontap instance.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -255,22 +266,24 @@ func ResourceIbmIsStorageOntapInstance() *schema.Resource {
 						},
 						"href": &schema.Schema{
 							Type:        schema.TypeString,
-							Required:    true,
+							Optional:    true,
+							Computed:    true,
 							Description: "The URL for this routing table.",
 						},
 						"id": &schema.Schema{
 							Type:        schema.TypeString,
-							Required:    true,
+							Optional:    true,
+							Computed:    true,
 							Description: "The unique identifier for this routing table.",
 						},
 						"name": &schema.Schema{
 							Type:        schema.TypeString,
-							Required:    true,
+							Computed:    true,
 							Description: "The name for this routing table. The name is unique across all routing tables for the VPC.",
 						},
 						"resource_type": &schema.Schema{
 							Type:        schema.TypeString,
-							Required:    true,
+							Computed:    true,
 							Description: "The resource type.",
 						},
 					},
@@ -280,12 +293,14 @@ func ResourceIbmIsStorageOntapInstance() *schema.Resource {
 				Type:        schema.TypeList,
 				MaxItems:    1,
 				Optional:    true,
+				Computed:    true,
 				Description: "The subnet where the secondary Cloud Volumes ONTAP node is provisioned in.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"crn": &schema.Schema{
 							Type:         schema.TypeString,
 							Optional:     true,
+							Computed:     true,
 							ExactlyOneOf: []string{"secondary_subnet.0.id", "secondary_subnet.0.crn"},
 							Description:  "The CRN for this subnet.",
 						},
@@ -297,7 +312,7 @@ func ResourceIbmIsStorageOntapInstance() *schema.Resource {
 								Schema: map[string]*schema.Schema{
 									"more_info": &schema.Schema{
 										Type:        schema.TypeString,
-										Required:    true,
+										Computed:    true,
 										Description: "Link to documentation about deleted resources.",
 									},
 								},
@@ -306,6 +321,7 @@ func ResourceIbmIsStorageOntapInstance() *schema.Resource {
 						"id": &schema.Schema{
 							Type:         schema.TypeString,
 							Optional:     true,
+							Computed:     true,
 							ExactlyOneOf: []string{"secondary_subnet.0.id", "secondary_subnet.0.crn"},
 							Description:  "The unique identifier for this subnet.",
 						},
@@ -325,12 +341,14 @@ func ResourceIbmIsStorageOntapInstance() *schema.Resource {
 			"security_groups": &schema.Schema{
 				Type:        schema.TypeList,
 				Optional:    true,
+				Computed:    true,
 				Description: "The security groups for this storage ontap instance.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"crn": &schema.Schema{
 							Type:        schema.TypeString,
 							Optional:    true,
+							Computed:    true,
 							Description: "The security group's CRN.",
 						},
 						"deleted": &schema.Schema{
@@ -350,6 +368,7 @@ func ResourceIbmIsStorageOntapInstance() *schema.Resource {
 						"id": &schema.Schema{
 							Type:        schema.TypeString,
 							Optional:    true,
+							Computed:    true,
 							Description: "The unique identifier for this security group.",
 						},
 						"name": &schema.Schema{
@@ -523,11 +542,12 @@ func ResourceIbmIsStorageOntapInstance() *schema.Resource {
 						"name": &schema.Schema{
 							Type:        schema.TypeString,
 							Optional:    true,
+							Computed:    true,
 							Description: "The name for this storage virtual machine. The name is unique across all storage virtual machines in the storage ontap instance.",
 						},
 						"resource_type": &schema.Schema{
 							Type:        schema.TypeString,
-							Required:    true,
+							Computed:    true,
 							Description: "The resource type.",
 						},
 					},
@@ -725,7 +745,7 @@ func ResourceIbmIsStorageOntapInstanceValidator() *validate.ResourceValidator {
 			ValidateFunctionIdentifier: validate.ValidateRegexpLen,
 			Type:                       validate.TypeString,
 			Optional:                   true,
-			Regexp:                     `^(ibmss)-([a-z]|[a-z][-a-z0-9]*[a-z0-9])$`,
+			Regexp:                     `^([a-z]|[a-z][-a-z0-9]*[a-z0-9])$`,
 			MinValueLength:             7,
 			MaxValueLength:             40,
 		},
@@ -858,7 +878,7 @@ func resourceIbmIsStorageOntapInstanceRead(context context.Context, d *schema.Re
 		return diag.FromErr(err)
 	}
 	if err = d.Set("address_prefix", []map[string]interface{}{addressPrefixMap}); err != nil {
-		return diag.FromErr(fmt.Errorf("Error setting address_prefix: %s", err))
+		return diag.FromErr(fmt.Errorf("[ERROR] Error setting address_prefix: %s", err))
 	}
 	if !core.IsNil(storageOntapInstance.AdminCredentials) {
 		adminCredentialsMap, err := resourceIbmIsStorageOntapInstanceStorageOntapInstanceAdminCredentialsToMap(storageOntapInstance.AdminCredentials)
@@ -866,11 +886,11 @@ func resourceIbmIsStorageOntapInstanceRead(context context.Context, d *schema.Re
 			return diag.FromErr(err)
 		}
 		if err = d.Set("admin_credentials", []map[string]interface{}{adminCredentialsMap}); err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting admin_credentials: %s", err))
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting admin_credentials: %s", err))
 		}
 	}
 	if err = d.Set("capacity", flex.IntValue(storageOntapInstance.Capacity)); err != nil {
-		return diag.FromErr(fmt.Errorf("Error setting capacity: %s", err))
+		return diag.FromErr(fmt.Errorf("[ERROR] Error setting capacity: %s", err))
 	}
 	if !core.IsNil(storageOntapInstance.EncryptionKey) {
 		encryptionKeyMap, err := resourceIbmIsStorageOntapInstanceEncryptionKeyReferenceToMap(storageOntapInstance.EncryptionKey)
@@ -878,12 +898,12 @@ func resourceIbmIsStorageOntapInstanceRead(context context.Context, d *schema.Re
 			return diag.FromErr(err)
 		}
 		if err = d.Set("encryption_key", []map[string]interface{}{encryptionKeyMap}); err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting encryption_key: %s", err))
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting encryption_key: %s", err))
 		}
 	}
 	if !core.IsNil(storageOntapInstance.Name) {
 		if err = d.Set("name", storageOntapInstance.Name); err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting name: %s", err))
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting name: %s", err))
 		}
 	}
 	if !core.IsNil(storageOntapInstance.PrimarySubnet) {
@@ -892,7 +912,7 @@ func resourceIbmIsStorageOntapInstanceRead(context context.Context, d *schema.Re
 			return diag.FromErr(err)
 		}
 		if err = d.Set("primary_subnet", []map[string]interface{}{primarySubnetMap}); err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting primary_subnet: %s", err))
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting primary_subnet: %s", err))
 		}
 	}
 	if !core.IsNil(storageOntapInstance.ResourceGroup) {
@@ -901,7 +921,7 @@ func resourceIbmIsStorageOntapInstanceRead(context context.Context, d *schema.Re
 			return diag.FromErr(err)
 		}
 		if err = d.Set("resource_group", []map[string]interface{}{resourceGroupMap}); err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting resource_group: %s", err))
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting resource_group: %s", err))
 		}
 	}
 	if !core.IsNil(storageOntapInstance.RoutingTables) {
@@ -914,7 +934,7 @@ func resourceIbmIsStorageOntapInstanceRead(context context.Context, d *schema.Re
 			routingTables = append(routingTables, routingTablesItemMap)
 		}
 		if err = d.Set("routing_tables", routingTables); err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting routing_tables: %s", err))
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting routing_tables: %s", err))
 		}
 	}
 	if !core.IsNil(storageOntapInstance.SecondarySubnet) {
@@ -923,7 +943,7 @@ func resourceIbmIsStorageOntapInstanceRead(context context.Context, d *schema.Re
 			return diag.FromErr(err)
 		}
 		if err = d.Set("secondary_subnet", []map[string]interface{}{secondarySubnetMap}); err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting secondary_subnet: %s", err))
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting secondary_subnet: %s", err))
 		}
 	}
 	if !core.IsNil(storageOntapInstance.SecurityGroups) {
@@ -936,35 +956,46 @@ func resourceIbmIsStorageOntapInstanceRead(context context.Context, d *schema.Re
 			securityGroups = append(securityGroups, securityGroupsItemMap)
 		}
 		if err = d.Set("security_groups", securityGroups); err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting security_groups: %s", err))
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting security_groups: %s", err))
 		}
 	}
 	storageVirtualMachines := []map[string]interface{}{}
 	for _, storageVirtualMachinesItem := range storageOntapInstance.StorageVirtualMachines {
-		storageVirtualMachinesItemMap, err := resourceIbmIsStorageOntapInstanceStorageOntapInstanceStorageVirtualMachineReferenceToMap(&storageVirtualMachinesItem)
+		storageVirtualMachinesId := *storageVirtualMachinesItem.ID
+		getStorageOntapInstanceStorageVirtualMachineOptions := &ontapv1.GetStorageOntapInstanceStorageVirtualMachineOptions{}
+
+		getStorageOntapInstanceStorageVirtualMachineOptions.SetStorageOntapInstanceID(d.Id())
+		getStorageOntapInstanceStorageVirtualMachineOptions.SetID(storageVirtualMachinesId)
+
+		storageOntapInstanceStorageVirtualMachine, response, err := ontapClient.GetStorageOntapInstanceStorageVirtualMachineWithContext(context, getStorageOntapInstanceStorageVirtualMachineOptions)
+		if err != nil {
+			log.Printf("[DEBUG] GetStorageOntapInstanceStorageVirtualMachineWithContext failed %s\n%s", err, response)
+			return diag.FromErr(fmt.Errorf("GetStorageOntapInstanceStorageVirtualMachineWithContext failed %s\n%s", err, response))
+		}
+		storageVirtualMachinesItemMap, err := resourceIbmIsStorageOntapInstanceStorageOntapInstanceStorageVirtualMachineReferenceToMap(&storageVirtualMachinesItem, storageOntapInstanceStorageVirtualMachine)
 		if err != nil {
 			return diag.FromErr(err)
 		}
 		storageVirtualMachines = append(storageVirtualMachines, storageVirtualMachinesItemMap)
 	}
 	if err = d.Set("storage_virtual_machines", storageVirtualMachines); err != nil {
-		return diag.FromErr(fmt.Errorf("Error setting storage_virtual_machines: %s", err))
+		return diag.FromErr(fmt.Errorf("[ERROR] Error setting storage_virtual_machines: %s", err))
 	}
 	if err = d.Set("created_at", flex.DateTimeToString(storageOntapInstance.CreatedAt)); err != nil {
-		return diag.FromErr(fmt.Errorf("Error setting created_at: %s", err))
+		return diag.FromErr(fmt.Errorf("[ERROR] Error setting created_at: %s", err))
 	}
 	if err = d.Set("crn", storageOntapInstance.Crn); err != nil {
-		return diag.FromErr(fmt.Errorf("Error setting crn: %s", err))
+		return diag.FromErr(fmt.Errorf("[ERROR] Error setting crn: %s", err))
 	}
 	if err = d.Set("encryption", storageOntapInstance.Encryption); err != nil {
-		return diag.FromErr(fmt.Errorf("Error setting encryption: %s", err))
+		return diag.FromErr(fmt.Errorf("[ERROR] Error setting encryption: %s", err))
 	}
 	endpointsMap, err := resourceIbmIsStorageOntapInstanceStorageOntapInstanceEndpointsToMap(storageOntapInstance.Endpoints)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 	if err = d.Set("endpoints", []map[string]interface{}{endpointsMap}); err != nil {
-		return diag.FromErr(fmt.Errorf("Error setting endpoints: %s", err))
+		return diag.FromErr(fmt.Errorf("[ERROR] Error setting endpoints: %s", err))
 	}
 	healthReasons := []map[string]interface{}{}
 	for _, healthReasonsItem := range storageOntapInstance.HealthReasons {
@@ -975,13 +1006,13 @@ func resourceIbmIsStorageOntapInstanceRead(context context.Context, d *schema.Re
 		healthReasons = append(healthReasons, healthReasonsItemMap)
 	}
 	if err = d.Set("health_reasons", healthReasons); err != nil {
-		return diag.FromErr(fmt.Errorf("Error setting health_reasons: %s", err))
+		return diag.FromErr(fmt.Errorf("[ERROR] Error setting health_reasons: %s", err))
 	}
 	if err = d.Set("health_state", storageOntapInstance.HealthState); err != nil {
-		return diag.FromErr(fmt.Errorf("Error setting health_state: %s", err))
+		return diag.FromErr(fmt.Errorf("[ERROR] Error setting health_state: %s", err))
 	}
 	if err = d.Set("href", storageOntapInstance.Href); err != nil {
-		return diag.FromErr(fmt.Errorf("Error setting href: %s", err))
+		return diag.FromErr(fmt.Errorf("[ERROR] Error setting href: %s", err))
 	}
 	lifecycleReasons := []map[string]interface{}{}
 	for _, lifecycleReasonsItem := range storageOntapInstance.LifecycleReasons {
@@ -992,23 +1023,23 @@ func resourceIbmIsStorageOntapInstanceRead(context context.Context, d *schema.Re
 		lifecycleReasons = append(lifecycleReasons, lifecycleReasonsItemMap)
 	}
 	if err = d.Set("lifecycle_reasons", lifecycleReasons); err != nil {
-		return diag.FromErr(fmt.Errorf("Error setting lifecycle_reasons: %s", err))
+		return diag.FromErr(fmt.Errorf("[ERROR] Error setting lifecycle_reasons: %s", err))
 	}
 	if err = d.Set("lifecycle_state", storageOntapInstance.LifecycleState); err != nil {
-		return diag.FromErr(fmt.Errorf("Error setting lifecycle_state: %s", err))
+		return diag.FromErr(fmt.Errorf("[ERROR] Error setting lifecycle_state: %s", err))
 	}
 	if err = d.Set("resource_type", storageOntapInstance.ResourceType); err != nil {
-		return diag.FromErr(fmt.Errorf("Error setting resource_type: %s", err))
+		return diag.FromErr(fmt.Errorf("[ERROR] Error setting resource_type: %s", err))
 	}
 	vpcMap, err := resourceIbmIsStorageOntapInstanceVPCReferenceToMap(storageOntapInstance.Vpc)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 	if err = d.Set("vpc", []map[string]interface{}{vpcMap}); err != nil {
-		return diag.FromErr(fmt.Errorf("Error setting vpc: %s", err))
+		return diag.FromErr(fmt.Errorf("[ERROR] Error setting vpc: %s", err))
 	}
 	if err = d.Set("etag", response.Headers.Get("Etag")); err != nil {
-		return diag.FromErr(fmt.Errorf("Error setting etag: %s", err))
+		return diag.FromErr(fmt.Errorf("[ERROR] Error setting etag: %s", err))
 	}
 
 	return nil
@@ -1058,7 +1089,7 @@ func resourceIbmIsStorageOntapInstanceUpdate(context context.Context, d *schema.
 		patchVals.RoutingTables = routingTables
 		hasChange = true
 	}
-	updateStorageOntapInstanceOptions.SetIfMatch(d.Get("etag").(string))
+	// updateStorageOntapInstanceOptions.SetIfMatch(d.Get("etag").(string))
 
 	if hasChange {
 		updateStorageOntapInstanceOptions.StorageOntapInstancePatch, _ = patchVals.AsPatch()
@@ -1499,7 +1530,7 @@ func resourceIbmIsStorageOntapInstanceSecurityGroupReferenceDeletedToMap(model *
 	return modelMap, nil
 }
 
-func resourceIbmIsStorageOntapInstanceStorageOntapInstanceStorageVirtualMachineReferenceToMap(model *ontapv1.StorageOntapInstanceStorageVirtualMachineReference) (map[string]interface{}, error) {
+func resourceIbmIsStorageOntapInstanceStorageOntapInstanceStorageVirtualMachineReferenceToMap(model *ontapv1.StorageOntapInstanceStorageVirtualMachineReference, storageOntapInstanceStorageVirtualMachine *ontapv1.StorageOntapInstanceStorageVirtualMachine) (map[string]interface{}, error) {
 	modelMap := make(map[string]interface{})
 	if model.Deleted != nil {
 		deletedMap, err := resourceIbmIsStorageOntapInstanceStorageOntapInstanceStorageVirtualMachineReferenceDeletedToMap(model.Deleted)
@@ -1512,6 +1543,25 @@ func resourceIbmIsStorageOntapInstanceStorageOntapInstanceStorageVirtualMachineR
 	modelMap["id"] = model.ID
 	modelMap["name"] = model.Name
 	modelMap["resource_type"] = model.ResourceType
+	activeDirectory := []map[string]interface{}{}
+	if storageOntapInstanceStorageVirtualMachine.ActiveDirectory != nil {
+		modelMap, err := dataSourceIbmIsStorageOntapInstanceStorageVirtualMachineStorageOntapInstanceStorageVirtualMachineActiveDirectoryToMap(storageOntapInstanceStorageVirtualMachine.ActiveDirectory)
+		if err != nil {
+			return modelMap, err
+		}
+		activeDirectory = append(activeDirectory, modelMap)
+	}
+	modelMap["active_directory"] = activeDirectory
+
+	adminCredentials := []map[string]interface{}{}
+	if storageOntapInstanceStorageVirtualMachine.AdminCredentials != nil {
+		modelMap, err := dataSourceIbmIsStorageOntapInstanceStorageVirtualMachineStorageOntapInstanceStorageVirtualMachineAdminCredentialsToMap(storageOntapInstanceStorageVirtualMachine.AdminCredentials)
+		if err != nil {
+			return modelMap, err
+		}
+		adminCredentials = append(adminCredentials, modelMap)
+	}
+	modelMap["admin_credentials"] = adminCredentials
 	return modelMap, nil
 }
 

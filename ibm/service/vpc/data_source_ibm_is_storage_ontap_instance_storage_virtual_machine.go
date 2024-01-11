@@ -21,12 +21,12 @@ func DataSourceIbmIsStorageOntapInstanceStorageVirtualMachine() *schema.Resource
 		ReadContext: dataSourceIbmIsStorageOntapInstanceStorageVirtualMachineRead,
 
 		Schema: map[string]*schema.Schema{
-			"storage_ontap_instance_id": &schema.Schema{
+			"storage_ontap_instance": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "The storage ontap instance identifier.",
 			},
-			"id": &schema.Schema{
+			"identifier": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "The storage virtual machine identifier.",
@@ -246,8 +246,8 @@ func dataSourceIbmIsStorageOntapInstanceStorageVirtualMachineRead(context contex
 
 	getStorageOntapInstanceStorageVirtualMachineOptions := &ontapv1.GetStorageOntapInstanceStorageVirtualMachineOptions{}
 
-	getStorageOntapInstanceStorageVirtualMachineOptions.SetStorageOntapInstanceID(d.Get("storage_ontap_instance_id").(string))
-	getStorageOntapInstanceStorageVirtualMachineOptions.SetID(d.Get("id").(string))
+	getStorageOntapInstanceStorageVirtualMachineOptions.SetStorageOntapInstanceID(d.Get("storage_ontap_instance").(string))
+	getStorageOntapInstanceStorageVirtualMachineOptions.SetID(d.Get("identifier").(string))
 
 	storageOntapInstanceStorageVirtualMachine, response, err := ontapClient.GetStorageOntapInstanceStorageVirtualMachineWithContext(context, getStorageOntapInstanceStorageVirtualMachineOptions)
 	if err != nil {

@@ -27,18 +27,18 @@ func ResourceIbmIsStorageOntapInstanceStorageVirtualMachineVolume() *schema.Reso
 		Importer:      &schema.ResourceImporter{},
 
 		Schema: map[string]*schema.Schema{
-			"storage_ontap_instance_id": &schema.Schema{
+			"storage_ontap_instance": &schema.Schema{
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
-				ValidateFunc: validate.InvokeValidator("ibm_is_storage_ontap_instance_storage_virtual_machine_volume", "storage_ontap_instance_id"),
+				ValidateFunc: validate.InvokeValidator("ibm_is_storage_ontap_instance_storage_virtual_machine_volume", "storage_ontap_instance"),
 				Description:  "The storage ontap instance identifier.",
 			},
-			"storage_virtual_machine_id": &schema.Schema{
+			"storage_virtual_machine": &schema.Schema{
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
-				ValidateFunc: validate.InvokeValidator("ibm_is_storage_ontap_instance_storage_virtual_machine_volume", "storage_virtual_machine_id"),
+				ValidateFunc: validate.InvokeValidator("ibm_is_storage_ontap_instance_storage_virtual_machine_volume", "storage_virtual_machine"),
 				Description:  "The storage virtual machine identifier.",
 			},
 			"capacity": &schema.Schema{
@@ -169,10 +169,10 @@ func ResourceIbmIsStorageOntapInstanceStorageVirtualMachineVolume() *schema.Reso
 				},
 			},
 			"name": &schema.Schema{
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: validate.InvokeValidator("ibm_is_storage_ontap_instance_storage_virtual_machine_volume", "name"),
-				Description:  "The name for this storage volume. The name is unique across all storage volumes in the storage virtual machine.",
+				Type:     schema.TypeString,
+				Optional: true,
+				// ValidateFunc: validate.InvokeValidator("ibm_is_storage_ontap_instance_storage_virtual_machine_volume", "name"),
+				Description: "The name for this storage volume. The name is unique across all storage volumes in the storage virtual machine.",
 			},
 			"security_style": &schema.Schema{
 				Type:         schema.TypeString,
@@ -182,16 +182,16 @@ func ResourceIbmIsStorageOntapInstanceStorageVirtualMachineVolume() *schema.Reso
 				Description:  "The security style for the storage volume:- `unix`: NFS clients can access the storage volume.- `windows`: SMB/CIFS clients can access the storage volume.- `mixed`: Both SMB/CIFS and NFS clients can access the storage volume.- `none`: No clients can access the volume.",
 			},
 			"storage_efficiency": &schema.Schema{
-				Type:         schema.TypeString,
-				Optional:     true,
-				Default:      "enabled",
+				Type:     schema.TypeString,
+				Optional: true,
+				// Default:      "enabled",
 				ValidateFunc: validate.InvokeValidator("ibm_is_storage_ontap_instance_storage_virtual_machine_volume", "storage_efficiency"),
 				Description:  "The storage efficiency mode used for this storage volume.- `disabled`: storage efficiency methods will not be used- `enabled`: data-deduplication, compression and other methods will be used.",
 			},
 			"type": &schema.Schema{
-				Type:         schema.TypeString,
-				Optional:     true,
-				Default:      "read_write",
+				Type:     schema.TypeString,
+				Optional: true,
+				// Default:      "read_write",
 				ValidateFunc: validate.InvokeValidator("ibm_is_storage_ontap_instance_storage_virtual_machine_volume", "type"),
 				Description:  "The type of the storage volume.",
 			},
@@ -266,7 +266,7 @@ func ResourceIbmIsStorageOntapInstanceStorageVirtualMachineVolumeValidator() *va
 	validateSchema := make([]validate.ValidateSchema, 0)
 	validateSchema = append(validateSchema,
 		validate.ValidateSchema{
-			Identifier:                 "storage_ontap_instance_id",
+			Identifier:                 "storage_ontap_instance",
 			ValidateFunctionIdentifier: validate.ValidateRegexpLen,
 			Type:                       validate.TypeString,
 			Required:                   true,
@@ -275,7 +275,7 @@ func ResourceIbmIsStorageOntapInstanceStorageVirtualMachineVolumeValidator() *va
 			MaxValueLength:             64,
 		},
 		validate.ValidateSchema{
-			Identifier:                 "storage_virtual_machine_id",
+			Identifier:                 "storage_virtual_machine",
 			ValidateFunctionIdentifier: validate.ValidateRegexpLen,
 			Type:                       validate.TypeString,
 			Required:                   true,
@@ -369,8 +369,8 @@ func resourceIbmIsStorageOntapInstanceStorageVirtualMachineVolumeCreate(context 
 	if _, ok := d.GetOk("type"); ok {
 		bodyModelMap["type"] = d.Get("type")
 	}
-	createStorageOntapInstanceStorageVirtualMachineVolumeOptions.SetStorageOntapInstanceID(d.Get("storage_ontap_instance_id").(string))
-	createStorageOntapInstanceStorageVirtualMachineVolumeOptions.SetStorageVirtualMachineID(d.Get("storage_virtual_machine_id").(string))
+	createStorageOntapInstanceStorageVirtualMachineVolumeOptions.SetStorageOntapInstanceID(d.Get("storage_ontap_instance").(string))
+	createStorageOntapInstanceStorageVirtualMachineVolumeOptions.SetStorageVirtualMachineID(d.Get("storage_virtual_machine").(string))
 	convertedModel, err := resourceIbmIsStorageOntapInstanceStorageVirtualMachineVolumeMapToStorageOntapInstanceStorageVirtualMachineVolumePrototype(bodyModelMap)
 	if err != nil {
 		return diag.FromErr(err)
@@ -402,7 +402,9 @@ func resourceIbmIsStorageOntapInstanceStorageVirtualMachineVolumeRead(context co
 	}
 
 	getStorageOntapInstanceStorageVirtualMachineVolumeOptions.SetStorageOntapInstanceID(parts[0])
+	d.Set("storage_ontap_instance", parts[0])
 	getStorageOntapInstanceStorageVirtualMachineVolumeOptions.SetStorageVirtualMachineID(parts[1])
+	d.Set("storage_virtual_machine", parts[1])
 	getStorageOntapInstanceStorageVirtualMachineVolumeOptions.SetID(parts[2])
 
 	storageOntapInstanceStorageVirtualMachineVolume, response, err := ontapClient.GetStorageOntapInstanceStorageVirtualMachineVolumeWithContext(context, getStorageOntapInstanceStorageVirtualMachineVolumeOptions)
@@ -417,7 +419,7 @@ func resourceIbmIsStorageOntapInstanceStorageVirtualMachineVolumeRead(context co
 
 	if !core.IsNil(storageOntapInstanceStorageVirtualMachineVolume.Capacity) {
 		if err = d.Set("capacity", flex.IntValue(storageOntapInstanceStorageVirtualMachineVolume.Capacity)); err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting capacity: %s", err))
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting capacity: %s", err))
 		}
 	}
 	if !core.IsNil(storageOntapInstanceStorageVirtualMachineVolume.CifsShare) {
@@ -426,12 +428,12 @@ func resourceIbmIsStorageOntapInstanceStorageVirtualMachineVolumeRead(context co
 			return diag.FromErr(err)
 		}
 		if err = d.Set("cifs_share", []map[string]interface{}{cifsShareMap}); err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting cifs_share: %s", err))
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting cifs_share: %s", err))
 		}
 	}
 	if !core.IsNil(storageOntapInstanceStorageVirtualMachineVolume.EnableStorageEfficiency) {
 		if err = d.Set("enable_storage_efficiency", storageOntapInstanceStorageVirtualMachineVolume.EnableStorageEfficiency); err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting enable_storage_efficiency: %s", err))
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting enable_storage_efficiency: %s", err))
 		}
 	}
 	if !core.IsNil(storageOntapInstanceStorageVirtualMachineVolume.ExportPolicy) {
@@ -440,31 +442,31 @@ func resourceIbmIsStorageOntapInstanceStorageVirtualMachineVolumeRead(context co
 			return diag.FromErr(err)
 		}
 		if err = d.Set("export_policy", []map[string]interface{}{exportPolicyMap}); err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting export_policy: %s", err))
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting export_policy: %s", err))
 		}
 	}
 	if !core.IsNil(storageOntapInstanceStorageVirtualMachineVolume.Name) {
 		if err = d.Set("name", storageOntapInstanceStorageVirtualMachineVolume.Name); err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting name: %s", err))
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting name: %s", err))
 		}
 	}
 	if !core.IsNil(storageOntapInstanceStorageVirtualMachineVolume.SecurityStyle) {
 		if err = d.Set("security_style", storageOntapInstanceStorageVirtualMachineVolume.SecurityStyle); err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting security_style: %s", err))
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting security_style: %s", err))
 		}
 	}
 	if !core.IsNil(storageOntapInstanceStorageVirtualMachineVolume.StorageEfficiency) {
 		if err = d.Set("storage_efficiency", storageOntapInstanceStorageVirtualMachineVolume.StorageEfficiency); err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting storage_efficiency: %s", err))
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting storage_efficiency: %s", err))
 		}
 	}
 	if !core.IsNil(storageOntapInstanceStorageVirtualMachineVolume.Type) {
 		if err = d.Set("type", storageOntapInstanceStorageVirtualMachineVolume.Type); err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting type: %s", err))
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting type: %s", err))
 		}
 	}
 	if err = d.Set("created_at", flex.DateTimeToString(storageOntapInstanceStorageVirtualMachineVolume.CreatedAt)); err != nil {
-		return diag.FromErr(fmt.Errorf("Error setting created_at: %s", err))
+		return diag.FromErr(fmt.Errorf("[ERROR] Error setting created_at: %s", err))
 	}
 	healthReasons := []map[string]interface{}{}
 	for _, healthReasonsItem := range storageOntapInstanceStorageVirtualMachineVolume.HealthReasons {
@@ -475,28 +477,28 @@ func resourceIbmIsStorageOntapInstanceStorageVirtualMachineVolumeRead(context co
 		healthReasons = append(healthReasons, healthReasonsItemMap)
 	}
 	if err = d.Set("health_reasons", healthReasons); err != nil {
-		return diag.FromErr(fmt.Errorf("Error setting health_reasons: %s", err))
+		return diag.FromErr(fmt.Errorf("[ERROR] Error setting health_reasons: %s", err))
 	}
 	if err = d.Set("health_state", storageOntapInstanceStorageVirtualMachineVolume.HealthState); err != nil {
-		return diag.FromErr(fmt.Errorf("Error setting health_state: %s", err))
+		return diag.FromErr(fmt.Errorf("[ERROR] Error setting health_state: %s", err))
 	}
 	if err = d.Set("href", storageOntapInstanceStorageVirtualMachineVolume.Href); err != nil {
-		return diag.FromErr(fmt.Errorf("Error setting href: %s", err))
+		return diag.FromErr(fmt.Errorf("[ERROR] Error setting href: %s", err))
 	}
 	if err = d.Set("junction_path", storageOntapInstanceStorageVirtualMachineVolume.JunctionPath); err != nil {
-		return diag.FromErr(fmt.Errorf("Error setting junction_path: %s", err))
+		return diag.FromErr(fmt.Errorf("[ERROR] Error setting junction_path: %s", err))
 	}
 	if err = d.Set("lifecycle_state", storageOntapInstanceStorageVirtualMachineVolume.LifecycleState); err != nil {
-		return diag.FromErr(fmt.Errorf("Error setting lifecycle_state: %s", err))
+		return diag.FromErr(fmt.Errorf("[ERROR] Error setting lifecycle_state: %s", err))
 	}
 	if err = d.Set("resource_type", storageOntapInstanceStorageVirtualMachineVolume.ResourceType); err != nil {
-		return diag.FromErr(fmt.Errorf("Error setting resource_type: %s", err))
+		return diag.FromErr(fmt.Errorf("[ERROR] Error setting resource_type: %s", err))
 	}
 	if err = d.Set("storage_ontap_instance_storage_virtual_machine_volume_id", storageOntapInstanceStorageVirtualMachineVolume.ID); err != nil {
-		return diag.FromErr(fmt.Errorf("Error setting storage_ontap_instance_storage_virtual_machine_volume_id: %s", err))
+		return diag.FromErr(fmt.Errorf("[ERROR] Error setting storage_ontap_instance_storage_virtual_machine_volume_id: %s", err))
 	}
 	if err = d.Set("etag", response.Headers.Get("Etag")); err != nil {
-		return diag.FromErr(fmt.Errorf("Error setting etag: %s", err))
+		return diag.FromErr(fmt.Errorf("[ERROR] Error setting etag: %s", err))
 	}
 
 	return nil
@@ -522,13 +524,13 @@ func resourceIbmIsStorageOntapInstanceStorageVirtualMachineVolumeUpdate(context 
 	hasChange := false
 
 	patchVals := &ontapv1.StorageOntapInstanceStorageVirtualMachineVolumePatch{}
-	if d.HasChange("storage_ontap_instance_id") {
+	if d.HasChange("storage_ontap_instance") {
 		return diag.FromErr(fmt.Errorf("Cannot update resource property \"%s\" with the ForceNew annotation."+
-			" The resource must be re-created to update this property.", "storage_ontap_instance_id"))
+			" The resource must be re-created to update this property.", "storage_ontap_instance"))
 	}
-	if d.HasChange("storage_virtual_machine_id") {
+	if d.HasChange("storage_virtual_machine") {
 		return diag.FromErr(fmt.Errorf("Cannot update resource property \"%s\" with the ForceNew annotation."+
-			" The resource must be re-created to update this property.", "storage_virtual_machine_id"))
+			" The resource must be re-created to update this property.", "storage_virtual_machine"))
 	}
 	if d.HasChange("capacity") {
 		newCapacity := int64(d.Get("capacity").(int))

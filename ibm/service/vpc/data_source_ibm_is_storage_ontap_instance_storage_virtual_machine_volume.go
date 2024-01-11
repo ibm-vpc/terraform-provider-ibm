@@ -21,17 +21,17 @@ func DataSourceIbmIsStorageOntapInstanceStorageVirtualMachineVolume() *schema.Re
 		ReadContext: dataSourceIbmIsStorageOntapInstanceStorageVirtualMachineVolumeRead,
 
 		Schema: map[string]*schema.Schema{
-			"storage_ontap_instance_id": &schema.Schema{
+			"storage_ontap_instance": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "The storage ontap instance identifier.",
 			},
-			"storage_virtual_machine_id": &schema.Schema{
+			"storage_virtual_machine": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "The storage virtual machine identifier.",
 			},
-			"id": &schema.Schema{
+			"identifier": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "The storage volume identifier.",
@@ -254,9 +254,9 @@ func dataSourceIbmIsStorageOntapInstanceStorageVirtualMachineVolumeRead(context 
 
 	getStorageOntapInstanceStorageVirtualMachineVolumeOptions := &ontapv1.GetStorageOntapInstanceStorageVirtualMachineVolumeOptions{}
 
-	getStorageOntapInstanceStorageVirtualMachineVolumeOptions.SetStorageOntapInstanceID(d.Get("storage_ontap_instance_id").(string))
-	getStorageOntapInstanceStorageVirtualMachineVolumeOptions.SetStorageVirtualMachineID(d.Get("storage_virtual_machine_id").(string))
-	getStorageOntapInstanceStorageVirtualMachineVolumeOptions.SetID(d.Get("id").(string))
+	getStorageOntapInstanceStorageVirtualMachineVolumeOptions.SetStorageOntapInstanceID(d.Get("storage_ontap_instance").(string))
+	getStorageOntapInstanceStorageVirtualMachineVolumeOptions.SetStorageVirtualMachineID(d.Get("storage_virtual_machine").(string))
+	getStorageOntapInstanceStorageVirtualMachineVolumeOptions.SetID(d.Get("identifier").(string))
 
 	storageOntapInstanceStorageVirtualMachineVolume, response, err := ontapClient.GetStorageOntapInstanceStorageVirtualMachineVolumeWithContext(context, getStorageOntapInstanceStorageVirtualMachineVolumeOptions)
 	if err != nil {
