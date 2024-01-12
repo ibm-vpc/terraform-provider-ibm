@@ -1689,9 +1689,9 @@ func instanceTemplateCreate(d *schema.ResourceData, meta interface{}, profile, n
 	}
 	if primnetworkattachmentintf, ok := d.GetOk("primary_network_attachment"); ok && len(primnetworkattachmentintf.([]interface{})) > 0 {
 		i := 0
-		allowipspoofing := fmt.Sprintf("primary_network_attachment.%d.allow_ip_spoofing", i)
-		autodelete := fmt.Sprintf("primary_network_attachment.%d.autodelete", i)
-		enablenat := fmt.Sprintf("primary_network_attachment.%d.enable_infrastructure_nat", i)
+		allowipspoofing := fmt.Sprintf("primary_network_attachment.%d.virtual_network_interface.0.allow_ip_spoofing", i)
+		autodelete := fmt.Sprintf("primary_network_attachment.%d.virtual_network_interface.0.autodelete", i)
+		enablenat := fmt.Sprintf("primary_network_attachment.%d.virtual_network_interface.0.enable_infrastructure_nat", i)
 		primaryNetworkAttachmentModel, err := resourceIBMIsInstanceMapToInstanceNetworkAttachmentPrototype(allowipspoofing, autodelete, enablenat, d, primnetworkattachmentintf.([]interface{})[0].(map[string]interface{}))
 		if err != nil {
 			return err
