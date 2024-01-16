@@ -2118,7 +2118,7 @@ func instanceTemplateGet(d *schema.ResourceData, meta interface{}, ID string) er
 			networkAttachments = append(networkAttachments, networkAttachmentsItemMap)
 		}
 		if err = d.Set("network_attachments", networkAttachments); err != nil {
-			return fmt.Errorf("Error setting network_attachments: %s", err)
+			return fmt.Errorf("[ERROR] Error  setting network_attachments: %s", err)
 		}
 	}
 
@@ -2128,7 +2128,7 @@ func instanceTemplateGet(d *schema.ResourceData, meta interface{}, ID string) er
 			return err
 		}
 		if err = d.Set("primary_network_attachment", []map[string]interface{}{primaryNetworkAttachmentMap}); err != nil {
-			return fmt.Errorf("Error setting primary_network_attachment: %s", err)
+			return fmt.Errorf("[ERROR] Error  setting primary_network_attachment: %s", err)
 		}
 	}
 
@@ -2510,56 +2510,81 @@ func resourceIBMIsInstanceTemplateNetworkAttachmentReferenceToMap(model *vpcv1.I
 	vniMap := make(map[string]interface{})
 	if model.VirtualNetworkInterface != nil {
 		pna := model.VirtualNetworkInterface.(*vpcv1.InstanceNetworkAttachmentPrototypeVirtualNetworkInterface)
-		vniMap["id"] = *pna.ID
+		// vniMap["id"] = *pna.ID
 		vniMap["name"] = pna.Name
-		getVirtualNetworkInterfaceOptions := &vpcv1.GetVirtualNetworkInterfaceOptions{
-			ID: pna.ID,
+		if pna.ID != nil && *pna.ID != "" {
+			getVirtualNetworkInterfaceOptions := &vpcv1.GetVirtualNetworkInterfaceOptions{
+				ID: pna.ID,
+			}
+			vniDetails, response, err := instanceC.GetVirtualNetworkInterface(getVirtualNetworkInterfaceOptions)
+			if err != nil {
+				return nil, fmt.Errorf("[ERROR] Error on GetInstanceNetworkAttachment in instance : %s\n%s", err, response)
+			}
+			vniMap["resource_group"] = vniDetails.ResourceGroup.ID
 		}
-		vniDetails, response, err := instanceC.GetVirtualNetworkInterface(getVirtualNetworkInterfaceOptions)
-		if err != nil {
-			return nil, fmt.Errorf("[ERROR] Error on GetInstanceNetworkAttachment in instance : %s\n%s", err, response)
-		}
-		vniMap["allow_ip_spoofing"] = vniDetails.AllowIPSpoofing
-		vniMap["auto_delete"] = vniDetails.AutoDelete
-		vniMap["enable_infrastructure_nat"] = vniDetails.EnableInfrastructureNat
-		vniMap["resource_group"] = vniDetails.ResourceGroup.ID
-		primaryipId := *vniDetails.PrimaryIP.ID
-		if !core.IsNil(vniDetails.Ips) {
+		vniMap["allow_ip_spoofing"] = pna.AllowIPSpoofing
+		vniMap["auto_delete"] = pna.AutoDelete
+		vniMap["enable_infrastructure_nat"] = pna.EnableInfrastructureNat
+		// primaryipId := *vniDetails.PrimaryIP.ID
+		if !core.IsNil(pna.Ips) {
 			ips := []map[string]interface{}{}
-			for _, ipsItem := range vniDetails.Ips {
-				if *ipsItem.ID != primaryipId {
-					ipsItemMap, err := resourceIBMIsVirtualNetworkInterfaceReservedIPReferenceToMap(&ipsItem, false)
-					if err != nil {
-						return nil, err
-					}
-					ips = append(ips, ipsItemMap)
+			for _, ipsItem := range pna.Ips {
+				// if *ipsItem.ID != primaryipId {
+				ipsItemMap, err := resourceIBMIsInstanceTemplateVirtualNetworkInterfaceReservedIPReferenceToMap(ipsItem, false)
+				if err != nil {
+					return nil, err
 				}
+				ips = append(ips, ipsItemMap)
+				// }
 			}
 			vniMap["ips"] = ips
 		}
 
-		if !core.IsNil(vniDetails.SecurityGroups) {
+		if !core.IsNil(pna.SecurityGroups) {
 			securityGroups := make([]string, 0)
-			for _, securityGroupsItem := range vniDetails.SecurityGroups {
+			for _, securityGroup := range pna.SecurityGroups {
+				securityGroupsItem := securityGroup.(*vpcv1.SecurityGroupIdentity)
 				if securityGroupsItem.ID != nil {
 					securityGroups = append(securityGroups, *securityGroupsItem.ID)
 				}
 			}
 			vniMap["security_groups"] = securityGroups
 		}
-		primaryIPMap, err := resourceIBMIsInstanceReservedIPReferenceToMap(vniDetails.PrimaryIP, true)
+		primaryIPMap, err := resourceIBMIsInstanceTemplateReservedIPReferenceToMap(pna.PrimaryIP, true)
 		if err != nil {
 			return modelMap, err
 		}
 		vniMap["primary_ip"] = []map[string]interface{}{primaryIPMap}
-		if vniDetails.ResourceType != nil {
-			vniMap["resource_type"] = *vniDetails.ResourceType
+		if pna.Subnet != nil {
+			subnet := pna.Subnet.(*vpcv1.SubnetIdentity)
+			vniMap["subnet"] = subnet.ID
 		}
-		if vniDetails.Subnet != nil {
-			vniMap["subnet"] = *vniDetails.Subnet.ID
-		}
+
 		modelMap["virtual_network_interface"] = []map[string]interface{}{vniMap}
 	}
 
+	return modelMap, nil
+}
+
+func resourceIBMIsInstanceTemplateVirtualNetworkInterfaceReservedIPReferenceToMap(modelIntf vpcv1.VirtualNetworkInterfaceIPPrototypeIntf, autodelete bool) (map[string]interface{}, error) {
+	model := modelIntf.(*vpcv1.VirtualNetworkInterfaceIPPrototype)
+	modelMap := make(map[string]interface{})
+	modelMap["address"] = model.Address
+	modelMap["auto_delete"] = autodelete
+	modelMap["href"] = model.Href
+	modelMap["reserved_ip"] = model.ID
+	modelMap["name"] = model.Name
+
+	return modelMap, nil
+}
+
+func resourceIBMIsInstanceTemplateReservedIPReferenceToMap(modelIntf vpcv1.VirtualNetworkInterfacePrimaryIPPrototypeIntf, autoDelete bool) (map[string]interface{}, error) {
+	modelMap := make(map[string]interface{})
+	model := modelIntf.(*vpcv1.VirtualNetworkInterfacePrimaryIPPrototype)
+	modelMap["address"] = model.Address
+	modelMap["href"] = model.Href
+	modelMap["auto_delete"] = autoDelete
+	modelMap["reserved_ip"] = model.ID
+	modelMap["name"] = model.Name
 	return modelMap, nil
 }
