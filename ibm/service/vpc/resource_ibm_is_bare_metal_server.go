@@ -277,7 +277,6 @@ func ResourceIBMIsBareMetalServer() *schema.Resource {
 				MaxItems:      1,
 				Optional:      true,
 				Computed:      true,
-				Deprecated:    "This `primary_network_interface` argument is deprecated, please use primary_network_attachment`",
 				ExactlyOneOf:  []string{"primary_network_attachment", "primary_network_interface"},
 				ConflictsWith: []string{"primary_network_attachment", "network_attachments"},
 				Description:   "Primary Network interface info",
@@ -655,7 +654,6 @@ func ResourceIBMIsBareMetalServer() *schema.Resource {
 				Type:          schema.TypeSet,
 				Optional:      true,
 				Set:           resourceIBMBMSNicSet,
-				Deprecated:    "This `network_interfaces` argument is deprecated, please use network_attachments`",
 				ConflictsWith: []string{"primary_network_attachment", "network_attachments"},
 				Computed:      true,
 				Elem: &schema.Resource{
@@ -1372,10 +1370,10 @@ func resourceIBMISBareMetalServerCreate(context context.Context, d *schema.Resou
 		options.PrimaryNetworkAttachment = primaryNetworkAttachmentModel
 	}
 	if i, ok := d.GetOk("network_attachments"); ok {
-		allowipspoofing := fmt.Sprintf("network_attachments.%d.allow_ip_spoofing", i)
-		autodelete := fmt.Sprintf("network_attachments.%d.autodelete", i)
-		enablenat := fmt.Sprintf("network_attachments.%d.enable_infrastructure_nat", i)
-		allowfloat := fmt.Sprintf("network_attachments.%d.allow_to_float", i)
+		allowipspoofing := fmt.Sprintf("network_attachments.%d.virtual_network_interface.0.allow_ip_spoofing", i)
+		autodelete := fmt.Sprintf("network_attachments.%d.virtual_network_interface.0.autodelete", i)
+		enablenat := fmt.Sprintf("network_attachments.%d.virtual_network_interface.0.enable_infrastructure_nat", i)
+		allowfloat := fmt.Sprintf("network_attachments.%d.virtual_network_interface.0.allow_to_float", i)
 		networkAttachmentsIntf := d.Get("network_interfaces")
 		networkAttachments := []vpcv1.BareMetalServerNetworkAttachmentPrototypeIntf{}
 		for _, networkAttachmentsItem := range networkAttachmentsIntf.([]interface{}) {
