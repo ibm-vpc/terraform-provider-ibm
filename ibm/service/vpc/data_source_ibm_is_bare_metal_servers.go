@@ -1036,7 +1036,7 @@ func dataSourceIBMISBareMetalServersRead(context context.Context, d *schema.Reso
 		networkAttachments := []map[string]interface{}{}
 		if bms.NetworkAttachments != nil {
 			for _, modelItem := range bms.NetworkAttachments {
-				if *&modelItem.ID != *bms.PrimaryNetworkAttachment.ID {
+				if *modelItem.ID != *bms.PrimaryNetworkAttachment.ID {
 					modelMap, err := dataSourceIBMIsBareMetalServerBareMetalServerNetworkAttachmentReferenceToMap(&modelItem)
 					if err != nil {
 						return diag.FromErr(err)
