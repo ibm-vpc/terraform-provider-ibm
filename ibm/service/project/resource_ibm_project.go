@@ -5,6 +5,7 @@ package project
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 
@@ -51,7 +52,7 @@ func ResourceIbmProject() *schema.Resource {
 						"name": &schema.Schema{
 							Type:        schema.TypeString,
 							Required:    true,
-							Description: "The name of the project.",
+							Description: "The name of the project.  It is unique within the account across regions.",
 						},
 						"description": &schema.Schema{
 							Type:        schema.TypeString,
@@ -84,22 +85,22 @@ func ResourceIbmProject() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"event": &schema.Schema{
 							Type:        schema.TypeString,
-							Optional:    true,
+							Computed:    true,
 							Description: "The event name.",
 						},
 						"event_id": &schema.Schema{
 							Type:        schema.TypeString,
-							Optional:    true,
+							Computed:    true,
 							Description: "A unique ID for that individual event.",
 						},
 						"config_id": &schema.Schema{
 							Type:        schema.TypeString,
-							Optional:    true,
+							Computed:    true,
 							Description: "A unique ID for the configuration.",
 						},
 						"config_version": &schema.Schema{
 							Type:        schema.TypeInt,
-							Optional:    true,
+							Computed:    true,
 							Description: "The version number of the configuration.",
 						},
 					},
@@ -110,10 +111,20 @@ func ResourceIbmProject() *schema.Resource {
 				Computed:    true,
 				Description: "True indicates that the fetch of the needs attention items failed. It only exists if there was an error while retrieving the cumulative needs attention view.",
 			},
+			"resource_group_id": &schema.Schema{
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The resource group id where the project's data and tools are created.",
+			},
 			"state": &schema.Schema{
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "The project status value.",
+			},
+			"href": &schema.Schema{
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "A URL.",
 			},
 			"event_notifications_crn": &schema.Schema{
 				Type:        schema.TypeString,
@@ -128,17 +139,17 @@ func ResourceIbmProject() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"id": &schema.Schema{
 							Type:        schema.TypeString,
-							Required:    true,
+							Computed:    true,
 							Description: "The ID of the configuration. If this parameter is empty, an ID is automatically created for the configuration.",
 						},
 						"version": &schema.Schema{
 							Type:        schema.TypeInt,
-							Required:    true,
+							Computed:    true,
 							Description: "The version of the configuration.",
 						},
 						"state": &schema.Schema{
 							Type:        schema.TypeString,
-							Required:    true,
+							Computed:    true,
 							Description: "The state of the configuration.",
 						},
 						"created_at": &schema.Schema{
@@ -153,25 +164,23 @@ func ResourceIbmProject() *schema.Resource {
 						},
 						"href": &schema.Schema{
 							Type:        schema.TypeString,
-							Required:    true,
+							Computed:    true,
 							Description: "A URL.",
 						},
 						"definition": &schema.Schema{
 							Type:        schema.TypeList,
-							MinItems:    1,
-							MaxItems:    1,
-							Required:    true,
+							Computed:    true,
 							Description: "The name and description of a project configuration.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"name": &schema.Schema{
 										Type:        schema.TypeString,
-										Optional:    true,
-										Description: "The configuration name.",
+										Computed:    true,
+										Description: "The configuration name. It is unique within the account across projects and regions.",
 									},
 									"description": &schema.Schema{
 										Type:        schema.TypeString,
-										Optional:    true,
+										Computed:    true,
 										Description: "A project configuration description.",
 									},
 								},
@@ -179,28 +188,24 @@ func ResourceIbmProject() *schema.Resource {
 						},
 						"project": &schema.Schema{
 							Type:        schema.TypeList,
-							MinItems:    1,
-							MaxItems:    1,
-							Required:    true,
+							Computed:    true,
 							Description: "The project referenced by this resource.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"id": &schema.Schema{
 										Type:        schema.TypeString,
-										Required:    true,
+										Computed:    true,
 										Description: "The unique ID.",
 									},
 									"definition": &schema.Schema{
 										Type:        schema.TypeList,
-										MinItems:    1,
-										MaxItems:    1,
-										Required:    true,
+										Computed:    true,
 										Description: "The definition of the project reference.",
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"name": &schema.Schema{
 													Type:        schema.TypeString,
-													Required:    true,
+													Computed:    true,
 													Description: "The name of the project.",
 												},
 											},
@@ -208,16 +213,21 @@ func ResourceIbmProject() *schema.Resource {
 									},
 									"crn": &schema.Schema{
 										Type:        schema.TypeString,
-										Required:    true,
+										Computed:    true,
 										Description: "An IBM Cloud resource name, which uniquely identifies a resource.",
 									},
 									"href": &schema.Schema{
 										Type:        schema.TypeString,
-										Required:    true,
+										Computed:    true,
 										Description: "A URL.",
 									},
 								},
 							},
+						},
+						"deployment_model": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The configuration type.",
 						},
 					},
 				},
@@ -230,33 +240,29 @@ func ResourceIbmProject() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"id": &schema.Schema{
 							Type:        schema.TypeString,
-							Required:    true,
+							Computed:    true,
 							Description: "The environment id as a friendly name.",
 						},
 						"project": &schema.Schema{
 							Type:        schema.TypeList,
-							MinItems:    1,
-							MaxItems:    1,
-							Required:    true,
+							Computed:    true,
 							Description: "The project referenced by this resource.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"id": &schema.Schema{
 										Type:        schema.TypeString,
-										Required:    true,
+										Computed:    true,
 										Description: "The unique ID.",
 									},
 									"definition": &schema.Schema{
 										Type:        schema.TypeList,
-										MinItems:    1,
-										MaxItems:    1,
-										Required:    true,
+										Computed:    true,
 										Description: "The definition of the project reference.",
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"name": &schema.Schema{
 													Type:        schema.TypeString,
-													Required:    true,
+													Computed:    true,
 													Description: "The name of the project.",
 												},
 											},
@@ -264,12 +270,12 @@ func ResourceIbmProject() *schema.Resource {
 									},
 									"crn": &schema.Schema{
 										Type:        schema.TypeString,
-										Required:    true,
+										Computed:    true,
 										Description: "An IBM Cloud resource name, which uniquely identifies a resource.",
 									},
 									"href": &schema.Schema{
 										Type:        schema.TypeString,
-										Required:    true,
+										Computed:    true,
 										Description: "A URL.",
 									},
 								},
@@ -282,25 +288,23 @@ func ResourceIbmProject() *schema.Resource {
 						},
 						"href": &schema.Schema{
 							Type:        schema.TypeString,
-							Required:    true,
+							Computed:    true,
 							Description: "A URL.",
 						},
 						"definition": &schema.Schema{
 							Type:        schema.TypeList,
-							MinItems:    1,
-							MaxItems:    1,
-							Required:    true,
+							Computed:    true,
 							Description: "The environment definition used in the project collection.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"name": &schema.Schema{
 										Type:        schema.TypeString,
-										Optional:    true,
-										Description: "The name of the environment.",
+										Computed:    true,
+										Description: "The name of the environment.  It is unique within the account across projects and regions.",
 									},
 									"description": &schema.Schema{
 										Type:        schema.TypeString,
-										Optional:    true,
+										Computed:    true,
 										Description: "The description of the environment.",
 									},
 								},
@@ -355,6 +359,30 @@ func resourceIbmProjectCreate(context context.Context, d *schema.ResourceData, m
 	createProjectOptions.SetDefinition(definitionModel)
 	createProjectOptions.SetLocation(d.Get("location").(string))
 	createProjectOptions.SetResourceGroup(d.Get("resource_group").(string))
+	if _, ok := d.GetOk("configs"); ok {
+		var configs []projectv1.ProjectConfigPrototype
+		for _, v := range d.Get("configs").([]interface{}) {
+			value := v.(map[string]interface{})
+			configsItem, err := resourceIbmProjectMapToProjectConfigPrototype(value)
+			if err != nil {
+				return diag.FromErr(err)
+			}
+			configs = append(configs, *configsItem)
+		}
+		createProjectOptions.SetConfigs(configs)
+	}
+	if _, ok := d.GetOk("environments"); ok {
+		var environments []projectv1.EnvironmentPrototype
+		for _, v := range d.Get("environments").([]interface{}) {
+			value := v.(map[string]interface{})
+			environmentsItem, err := resourceIbmProjectMapToEnvironmentPrototype(value)
+			if err != nil {
+				return diag.FromErr(err)
+			}
+			environments = append(environments, *environmentsItem)
+		}
+		createProjectOptions.SetEnvironments(environments)
+	}
 
 	project, response, err := projectClient.CreateProjectWithContext(context, createProjectOptions)
 	if err != nil {
@@ -424,8 +452,14 @@ func resourceIbmProjectRead(context context.Context, d *schema.ResourceData, met
 			return diag.FromErr(fmt.Errorf("Error setting cumulative_needs_attention_view_error: %s", err))
 		}
 	}
+	if err = d.Set("resource_group_id", project.ResourceGroupID); err != nil {
+		return diag.FromErr(fmt.Errorf("Error setting resource_group_id: %s", err))
+	}
 	if err = d.Set("state", project.State); err != nil {
 		return diag.FromErr(fmt.Errorf("Error setting state: %s", err))
+	}
+	if err = d.Set("href", project.Href); err != nil {
+		return diag.FromErr(fmt.Errorf("Error setting href: %s", err))
 	}
 	if !core.IsNil(project.EventNotificationsCrn) {
 		if err = d.Set("event_notifications_crn", project.EventNotificationsCrn); err != nil {
@@ -435,7 +469,7 @@ func resourceIbmProjectRead(context context.Context, d *schema.ResourceData, met
 	if !core.IsNil(project.Configs) {
 		configs := []map[string]interface{}{}
 		for _, configsItem := range project.Configs {
-			configsItemMap, err := resourceIbmProjectProjectConfigCollectionMemberToMap(&configsItem)
+			configsItemMap, err := resourceIbmProjectProjectConfigSummaryToMap(&configsItem)
 			if err != nil {
 				return diag.FromErr(err)
 			}
@@ -448,7 +482,7 @@ func resourceIbmProjectRead(context context.Context, d *schema.ResourceData, met
 	if !core.IsNil(project.Environments) {
 		environments := []map[string]interface{}{}
 		for _, environmentsItem := range project.Environments {
-			environmentsItemMap, err := resourceIbmProjectProjectEnvironmentCollectionMemberToMap(&environmentsItem)
+			environmentsItemMap, err := resourceIbmProjectProjectEnvironmentSummaryToMap(&environmentsItem)
 			if err != nil {
 				return diag.FromErr(err)
 			}
@@ -475,7 +509,7 @@ func resourceIbmProjectUpdate(context context.Context, d *schema.ResourceData, m
 	hasChange := false
 
 	if d.HasChange("definition") {
-		definition, err := resourceIbmProjectMapToProjectPrototypePatchDefinitionBlock(d.Get("definition.0").(map[string]interface{}))
+		definition, err := resourceIbmProjectMapToProjectPatchDefinitionBlock(d.Get("definition.0").(map[string]interface{}))
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -544,14 +578,14 @@ func resourceIbmProjectMapToProjectConfigPrototype(modelMap map[string]interface
 	return model, nil
 }
 
-func resourceIbmProjectMapToProjectConfigPrototypeDefinitionBlock(modelMap map[string]interface{}) (*projectv1.ProjectConfigPrototypeDefinitionBlock, error) {
+func resourceIbmProjectMapToProjectConfigPrototypeDefinitionBlock(modelMap map[string]interface{}) (projectv1.ProjectConfigPrototypeDefinitionBlockIntf, error) {
 	model := &projectv1.ProjectConfigPrototypeDefinitionBlock{}
 	model.Name = core.StringPtr(modelMap["name"].(string))
 	if modelMap["description"] != nil && modelMap["description"].(string) != "" {
 		model.Description = core.StringPtr(modelMap["description"].(string))
 	}
-	if modelMap["environment"] != nil && modelMap["environment"].(string) != "" {
-		model.Environment = core.StringPtr(modelMap["environment"].(string))
+	if modelMap["environment_id"] != nil && modelMap["environment_id"].(string) != "" {
+		model.EnvironmentID = core.StringPtr(modelMap["environment_id"].(string))
 	}
 	if modelMap["authorizations"] != nil && len(modelMap["authorizations"].([]interface{})) > 0 {
 		AuthorizationsModel, err := resourceIbmProjectMapToProjectConfigAuth(modelMap["authorizations"].([]interface{})[0].(map[string]interface{}))
@@ -559,6 +593,22 @@ func resourceIbmProjectMapToProjectConfigPrototypeDefinitionBlock(modelMap map[s
 			return model, err
 		}
 		model.Authorizations = AuthorizationsModel
+	}
+	if modelMap["inputs"] != nil {
+		bytes, _ := json.Marshal(modelMap["inputs"].(map[string]interface{}))
+		newMap := make(map[string]interface{})
+		json.Unmarshal(bytes, &newMap)
+		if len(newMap) > 0 {
+			model.Inputs = newMap
+		}
+	}
+	if modelMap["settings"] != nil {
+		bytes, _ := json.Marshal(modelMap["settings"].(map[string]interface{}))
+		newMap := make(map[string]interface{})
+		json.Unmarshal(bytes, &newMap)
+		if len(newMap) > 0 {
+			model.Settings = newMap
+		}
 	}
 	if modelMap["compliance_profile"] != nil && len(modelMap["compliance_profile"].([]interface{})) > 0 {
 		ComplianceProfileModel, err := resourceIbmProjectMapToProjectComplianceProfile(modelMap["compliance_profile"].([]interface{})[0].(map[string]interface{}))
@@ -570,19 +620,12 @@ func resourceIbmProjectMapToProjectConfigPrototypeDefinitionBlock(modelMap map[s
 	if modelMap["locator_id"] != nil && modelMap["locator_id"].(string) != "" {
 		model.LocatorID = core.StringPtr(modelMap["locator_id"].(string))
 	}
-	if modelMap["inputs"] != nil && len(modelMap["inputs"].([]interface{})) > 0 {
-		InputsModel, err := resourceIbmProjectMapToInputVariable(modelMap["inputs"].([]interface{})[0].(map[string]interface{}))
-		if err != nil {
-			return model, err
+	if modelMap["resource_crns"] != nil && len(modelMap["resource_crns"].([]interface{})) > 0 {
+		resourceCrns := []string{}
+		for _, resourceCrnsItem := range modelMap["resource_crns"].([]interface{}) {
+			resourceCrns = append(resourceCrns, resourceCrnsItem.(string))
 		}
-		model.Inputs = InputsModel
-	}
-	if modelMap["settings"] != nil && len(modelMap["settings"].([]interface{})) > 0 {
-		SettingsModel, err := resourceIbmProjectMapToProjectConfigSetting(modelMap["settings"].([]interface{})[0].(map[string]interface{}))
-		if err != nil {
-			return model, err
-		}
-		model.Settings = SettingsModel
+		model.ResourceCrns = resourceCrns
 	}
 	return model, nil
 }
@@ -621,13 +664,94 @@ func resourceIbmProjectMapToProjectComplianceProfile(modelMap map[string]interfa
 	return model, nil
 }
 
-func resourceIbmProjectMapToInputVariable(modelMap map[string]interface{}) (*projectv1.InputVariable, error) {
-	model := &projectv1.InputVariable{}
+func resourceIbmProjectMapToProjectConfigPrototypeDefinitionBlockDAConfigDefinitionProperties(modelMap map[string]interface{}) (*projectv1.ProjectConfigPrototypeDefinitionBlockDAConfigDefinitionProperties, error) {
+	model := &projectv1.ProjectConfigPrototypeDefinitionBlockDAConfigDefinitionProperties{}
+	if modelMap["name"] != nil && modelMap["name"].(string) != "" {
+		model.Name = core.StringPtr(modelMap["name"].(string))
+	}
+	if modelMap["description"] != nil && modelMap["description"].(string) != "" {
+		model.Description = core.StringPtr(modelMap["description"].(string))
+	}
+	if modelMap["environment_id"] != nil && modelMap["environment_id"].(string) != "" {
+		model.EnvironmentID = core.StringPtr(modelMap["environment_id"].(string))
+	}
+	if modelMap["authorizations"] != nil && len(modelMap["authorizations"].([]interface{})) > 0 {
+		AuthorizationsModel, err := resourceIbmProjectMapToProjectConfigAuth(modelMap["authorizations"].([]interface{})[0].(map[string]interface{}))
+		if err != nil {
+			return model, err
+		}
+		model.Authorizations = AuthorizationsModel
+	}
+	if modelMap["inputs"] != nil {
+		bytes, _ := json.Marshal(modelMap["inputs"].(map[string]interface{}))
+		newMap := make(map[string]interface{})
+		json.Unmarshal(bytes, &newMap)
+		if len(newMap) > 0 {
+			model.Inputs = newMap
+		}
+	}
+	if modelMap["settings"] != nil {
+		bytes, _ := json.Marshal(modelMap["settings"].(map[string]interface{}))
+		newMap := make(map[string]interface{})
+		json.Unmarshal(bytes, &newMap)
+		if len(newMap) > 0 {
+			model.Settings = newMap
+		}
+	}
+	if modelMap["compliance_profile"] != nil && len(modelMap["compliance_profile"].([]interface{})) > 0 {
+		ComplianceProfileModel, err := resourceIbmProjectMapToProjectComplianceProfile(modelMap["compliance_profile"].([]interface{})[0].(map[string]interface{}))
+		if err != nil {
+			return model, err
+		}
+		model.ComplianceProfile = ComplianceProfileModel
+	}
+	if modelMap["locator_id"] != nil && modelMap["locator_id"].(string) != "" {
+		model.LocatorID = core.StringPtr(modelMap["locator_id"].(string))
+	}
 	return model, nil
 }
 
-func resourceIbmProjectMapToProjectConfigSetting(modelMap map[string]interface{}) (*projectv1.ProjectConfigSetting, error) {
-	model := &projectv1.ProjectConfigSetting{}
+func resourceIbmProjectMapToProjectConfigPrototypeDefinitionBlockResourceConfigDefinitionProperties(modelMap map[string]interface{}) (*projectv1.ProjectConfigPrototypeDefinitionBlockResourceConfigDefinitionProperties, error) {
+	model := &projectv1.ProjectConfigPrototypeDefinitionBlockResourceConfigDefinitionProperties{}
+	if modelMap["name"] != nil && modelMap["name"].(string) != "" {
+		model.Name = core.StringPtr(modelMap["name"].(string))
+	}
+	if modelMap["description"] != nil && modelMap["description"].(string) != "" {
+		model.Description = core.StringPtr(modelMap["description"].(string))
+	}
+	if modelMap["environment_id"] != nil && modelMap["environment_id"].(string) != "" {
+		model.EnvironmentID = core.StringPtr(modelMap["environment_id"].(string))
+	}
+	if modelMap["authorizations"] != nil && len(modelMap["authorizations"].([]interface{})) > 0 {
+		AuthorizationsModel, err := resourceIbmProjectMapToProjectConfigAuth(modelMap["authorizations"].([]interface{})[0].(map[string]interface{}))
+		if err != nil {
+			return model, err
+		}
+		model.Authorizations = AuthorizationsModel
+	}
+	if modelMap["inputs"] != nil {
+		bytes, _ := json.Marshal(modelMap["inputs"].(map[string]interface{}))
+		newMap := make(map[string]interface{})
+		json.Unmarshal(bytes, &newMap)
+		if len(newMap) > 0 {
+			model.Inputs = newMap
+		}
+	}
+	if modelMap["settings"] != nil {
+		bytes, _ := json.Marshal(modelMap["settings"].(map[string]interface{}))
+		newMap := make(map[string]interface{})
+		json.Unmarshal(bytes, &newMap)
+		if len(newMap) > 0 {
+			model.Settings = newMap
+		}
+	}
+	if modelMap["resource_crns"] != nil && len(modelMap["resource_crns"].([]interface{})) > 0 {
+		resourceCrns := []string{}
+		for _, resourceCrnsItem := range modelMap["resource_crns"].([]interface{}) {
+			resourceCrns = append(resourceCrns, resourceCrnsItem.(string))
+		}
+		model.ResourceCrns = resourceCrns
+	}
 	return model, nil
 }
 
@@ -639,8 +763,49 @@ func resourceIbmProjectMapToSchematicsWorkspace(modelMap map[string]interface{})
 	return model, nil
 }
 
-func resourceIbmProjectMapToProjectPrototypePatchDefinitionBlock(modelMap map[string]interface{}) (*projectv1.ProjectPrototypePatchDefinitionBlock, error) {
-	model := &projectv1.ProjectPrototypePatchDefinitionBlock{}
+func resourceIbmProjectMapToEnvironmentPrototype(modelMap map[string]interface{}) (*projectv1.EnvironmentPrototype, error) {
+	model := &projectv1.EnvironmentPrototype{}
+	DefinitionModel, err := resourceIbmProjectMapToEnvironmentDefinitionRequiredProperties(modelMap["definition"].([]interface{})[0].(map[string]interface{}))
+	if err != nil {
+		return model, err
+	}
+	model.Definition = DefinitionModel
+	return model, nil
+}
+
+func resourceIbmProjectMapToEnvironmentDefinitionRequiredProperties(modelMap map[string]interface{}) (*projectv1.EnvironmentDefinitionRequiredProperties, error) {
+	model := &projectv1.EnvironmentDefinitionRequiredProperties{}
+	model.Name = core.StringPtr(modelMap["name"].(string))
+	if modelMap["description"] != nil && modelMap["description"].(string) != "" {
+		model.Description = core.StringPtr(modelMap["description"].(string))
+	}
+	if modelMap["authorizations"] != nil && len(modelMap["authorizations"].([]interface{})) > 0 {
+		AuthorizationsModel, err := resourceIbmProjectMapToProjectConfigAuth(modelMap["authorizations"].([]interface{})[0].(map[string]interface{}))
+		if err != nil {
+			return model, err
+		}
+		model.Authorizations = AuthorizationsModel
+	}
+	if modelMap["inputs"] != nil {
+		bytes, _ := json.Marshal(modelMap["inputs"].(map[string]interface{}))
+		newMap := make(map[string]interface{})
+		json.Unmarshal(bytes, &newMap)
+		if len(newMap) > 0 {
+			model.Inputs = newMap
+		}
+	}
+	if modelMap["compliance_profile"] != nil && len(modelMap["compliance_profile"].([]interface{})) > 0 {
+		ComplianceProfileModel, err := resourceIbmProjectMapToProjectComplianceProfile(modelMap["compliance_profile"].([]interface{})[0].(map[string]interface{}))
+		if err != nil {
+			return model, err
+		}
+		model.ComplianceProfile = ComplianceProfileModel
+	}
+	return model, nil
+}
+
+func resourceIbmProjectMapToProjectPatchDefinitionBlock(modelMap map[string]interface{}) (*projectv1.ProjectPatchDefinitionBlock, error) {
+	model := &projectv1.ProjectPatchDefinitionBlock{}
 	if modelMap["name"] != nil && modelMap["name"].(string) != "" {
 		model.Name = core.StringPtr(modelMap["name"].(string))
 	}
@@ -680,7 +845,7 @@ func resourceIbmProjectCumulativeNeedsAttentionToMap(model *projectv1.Cumulative
 	return modelMap, nil
 }
 
-func resourceIbmProjectProjectConfigCollectionMemberToMap(model *projectv1.ProjectConfigCollectionMember) (map[string]interface{}, error) {
+func resourceIbmProjectProjectConfigSummaryToMap(model *projectv1.ProjectConfigSummary) (map[string]interface{}, error) {
 	modelMap := make(map[string]interface{})
 	if model.ApprovedVersion != nil {
 		approvedVersionMap, err := resourceIbmProjectProjectConfigVersionSummaryToMap(model.ApprovedVersion)
@@ -699,12 +864,8 @@ func resourceIbmProjectProjectConfigCollectionMemberToMap(model *projectv1.Proje
 	modelMap["id"] = model.ID
 	modelMap["version"] = flex.IntValue(model.Version)
 	modelMap["state"] = model.State
-	if model.CreatedAt != nil {
-		modelMap["created_at"] = model.CreatedAt.String()
-	}
-	if model.ModifiedAt != nil {
-		modelMap["modified_at"] = model.ModifiedAt.String()
-	}
+	modelMap["created_at"] = model.CreatedAt.String()
+	modelMap["modified_at"] = model.ModifiedAt.String()
 	modelMap["href"] = model.Href
 	definitionMap, err := resourceIbmProjectProjectConfigDefinitionNameDescriptionToMap(model.Definition)
 	if err != nil {
@@ -716,6 +877,9 @@ func resourceIbmProjectProjectConfigCollectionMemberToMap(model *projectv1.Proje
 		return modelMap, err
 	}
 	modelMap["project"] = []map[string]interface{}{projectMap}
+	if model.DeploymentModel != nil {
+		modelMap["deployment_model"] = model.DeploymentModel
+	}
 	return modelMap, nil
 }
 
@@ -757,7 +921,7 @@ func resourceIbmProjectProjectDefinitionReferenceToMap(model *projectv1.ProjectD
 	return modelMap, nil
 }
 
-func resourceIbmProjectProjectEnvironmentCollectionMemberToMap(model *projectv1.ProjectEnvironmentCollectionMember) (map[string]interface{}, error) {
+func resourceIbmProjectProjectEnvironmentSummaryToMap(model *projectv1.ProjectEnvironmentSummary) (map[string]interface{}, error) {
 	modelMap := make(map[string]interface{})
 	modelMap["id"] = model.ID
 	projectMap, err := resourceIbmProjectProjectReferenceToMap(model.Project)
