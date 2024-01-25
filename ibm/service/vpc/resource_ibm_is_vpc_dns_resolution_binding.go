@@ -41,6 +41,35 @@ func ResourceIBMIsVPCDnsResolutionBinding() *schema.Resource {
 				Computed:    true,
 				Description: "The date and time that the DNS resolution binding was created.",
 			},
+			"health_reasons": &schema.Schema{
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "The reasons for the current `health_state` (if any).The enumerated reason code values for this property will expand in the future. When processing this property, check for and log unknown values. Optionally halt processing and surface the error, or bypass the resource on which the unexpected reason code was encountered.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"code": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "A snake case string succinctly identifying the reason for this health state.",
+						},
+						"message": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "An explanation of the reason for this health state.",
+						},
+						"more_info": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "Link to documentation about the reason for this health state.",
+						},
+					},
+				},
+			},
+			"health_state": &schema.Schema{
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The health of this resource.- `ok`: No abnormal behavior detected- `degraded`: Experiencing compromised performance, capacity, or connectivity- `faulted`: Completely unreachable, inoperative, or otherwise entirely incapacitated- `inapplicable`: The health state does not apply because of the current lifecycle state. A resource with a lifecycle state of `failed` or `deleting` will have a health state of `inapplicable`. A `pending` resource may also have this state.",
+			},
 			"endpoint_gateways": &schema.Schema{
 				Type:        schema.TypeList,
 				Computed:    true,
@@ -340,7 +369,20 @@ func resourceIBMIsVPCDnsResolutionBindingGet(vpcdnsResolutionBinding *vpcv1.Vpcd
 	if err := d.Set("lifecycle_state", vpcdnsResolutionBinding.LifecycleState); err != nil {
 		return fmt.Errorf("[ERROR] Error setting lifecycle_state: %s", err)
 	}
-
+	healthReasons := []map[string]interface{}{}
+	for _, healthReasonsItem := range vpcdnsResolutionBinding.HealthReasons {
+		healthReasonsItemMap, err := resourceIBMIsVPCDnsResolutionBindingVpcdnsResolutionBindingHealthReasonToMap(&healthReasonsItem)
+		if err != nil {
+			return err
+		}
+		healthReasons = append(healthReasons, healthReasonsItemMap)
+	}
+	if err := d.Set("health_reasons", healthReasons); err != nil {
+		return fmt.Errorf("[ERROR] Error setting health_reasons: %s", err)
+	}
+	if err := d.Set("health_state", vpcdnsResolutionBinding.HealthState); err != nil {
+		return fmt.Errorf("[ERROR] Error setting health_state: %s", err)
+	}
 	if err := d.Set("name", vpcdnsResolutionBinding.Name); err != nil {
 		return fmt.Errorf("[ERROR] Error setting name: %s", err)
 	}
@@ -514,4 +556,14 @@ func isVpcDnsCreateRefreshFunc(sess *vpcv1.VpcV1, vpcid, id string) resource.Sta
 		}
 		return vpcdnsResolutionBinding, *vpcdnsResolutionBinding.LifecycleState, err
 	}
+}
+
+func resourceIBMIsVPCDnsResolutionBindingVpcdnsResolutionBindingHealthReasonToMap(model *vpcv1.VpcdnsResolutionBindingHealthReason) (map[string]interface{}, error) {
+	modelMap := make(map[string]interface{})
+	modelMap["code"] = model.Code
+	modelMap["message"] = model.Message
+	if model.MoreInfo != nil {
+		modelMap["more_info"] = model.MoreInfo
+	}
+	return modelMap, nil
 }
