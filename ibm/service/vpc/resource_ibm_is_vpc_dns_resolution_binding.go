@@ -25,6 +25,10 @@ func ResourceIBMIsVPCDnsResolutionBinding() *schema.Resource {
 		UpdateContext: resourceIBMIsVPCDnsResolutionBindingUpdate,
 		DeleteContext: resourceIBMIsVPCDnsResolutionBindingDelete,
 		Importer:      &schema.ResourceImporter{},
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(10 * time.Minute),
+			Delete: schema.DefaultTimeout(10 * time.Minute),
+		},
 
 		Schema: map[string]*schema.Schema{
 			"vpc_id": &schema.Schema{
@@ -415,6 +419,10 @@ func resourceIBMIsVPCDnsResolutionBindingDelete(context context.Context, d *sche
 		if response.StatusCode != 404 {
 			return diag.FromErr(fmt.Errorf("DeleteVPCDnsResolutionBindingWithContext failed %s\n%s", err, response))
 		}
+	}
+	_, err = isWaitForVpcDnsDeleted(sess, vpcId, id, d.Timeout(schema.TimeoutDelete), dns)
+	if err != nil {
+		return diag.FromErr(err)
 	}
 	d.SetId("")
 	return nil
