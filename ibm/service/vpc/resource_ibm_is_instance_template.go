@@ -12,6 +12,7 @@ import (
 
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/validate"
+	"github.com/IBM/go-sdk-core/v5/core"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -328,11 +329,13 @@ func ResourceIBMISInstanceTemplate() *schema.Resource {
 			},
 
 			isInstanceTemplatePrimaryNetworkInterface: {
-				Type:        schema.TypeList,
-				MinItems:    1,
-				MaxItems:    1,
-				Required:    true,
-				Description: "Primary Network interface info",
+				Type:          schema.TypeList,
+				MinItems:      1,
+				MaxItems:      1,
+				Optional:      true,
+				ExactlyOneOf:  []string{"primary_network_attachment", "primary_network_interface"},
+				ConflictsWith: []string{"primary_network_attachment", "network_attachments"},
+				Description:   "Primary Network interface info",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						isInstanceTemplateNicAllowIPSpoofing: {
@@ -410,8 +413,9 @@ func ResourceIBMISInstanceTemplate() *schema.Resource {
 			},
 
 			isInstanceTemplateNetworkInterfaces: {
-				Type:     schema.TypeList,
-				Optional: true,
+				Type:          schema.TypeList,
+				Optional:      true,
+				ConflictsWith: []string{"primary_network_attachment", "network_attachments"},
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						isInstanceTemplateNicAllowIPSpoofing: {
@@ -480,6 +484,481 @@ func ResourceIBMISInstanceTemplate() *schema.Resource {
 							Type:     schema.TypeString,
 							Required: true,
 							ForceNew: true,
+						},
+					},
+				},
+			},
+
+			// vni
+
+			"primary_network_attachment": &schema.Schema{
+				Type:          schema.TypeList,
+				MaxItems:      1,
+				Optional:      true,
+				ForceNew:      true,
+				Description:   "The primary network attachment for this virtual server instance.",
+				ExactlyOneOf:  []string{"primary_network_attachment", "primary_network_interface"},
+				ConflictsWith: []string{"primary_network_interface", "network_interfaces"},
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+
+						// pna can accept either vni id or prototype
+						"name": &schema.Schema{
+							Type:         schema.TypeString,
+							Optional:     true,
+							Computed:     true,
+							ValidateFunc: validate.InvokeValidator("ibm_is_instance_network_attachment", "name"),
+							Description:  "The name for this instance network attachment. The name is unique across all network attachments for the instance.",
+						},
+						"href": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The URL for this instance network attachment.",
+						},
+						"resource_type": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The resource type.",
+						},
+						"id": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The unique identifier for this instance network attachment.",
+						},
+						"deleted": &schema.Schema{
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "If present, this property indicates the referenced resource has been deleted, and providessome supplementary information.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"more_info": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "Link to documentation about deleted resources.",
+									},
+								},
+							},
+						},
+
+						// vni properties
+						"virtual_network_interface": &schema.Schema{
+							Type:        schema.TypeList,
+							Optional:    true,
+							MaxItems:    1,
+							Computed:    true,
+							Description: "A virtual network interface for the instance network attachment. This can be specified using an existing virtual network interface, or a prototype object for a new virtual network interface.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"id": &schema.Schema{
+										Type:        schema.TypeString,
+										Optional:    true,
+										Computed:    true,
+										Description: "The virtual network interface id for this instance network attachment.",
+									},
+									"allow_ip_spoofing": &schema.Schema{
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Computed:    true,
+										Description: "Indicates whether source IP spoofing is allowed on this interface. If `false`, source IP spoofing is prevented on this interface. If `true`, source IP spoofing is allowed on this interface.",
+									},
+									"auto_delete": &schema.Schema{
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Computed:    true,
+										Description: "Indicates whether this virtual network interface will be automatically deleted when`target` is deleted.",
+									},
+									"enable_infrastructure_nat": &schema.Schema{
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Computed:    true,
+										Description: "If `true`:- The VPC infrastructure performs any needed NAT operations.- `floating_ips` must not have more than one floating IP.If `false`:- Packets are passed unchanged to/from the network interface,  allowing the workload to perform any needed NAT operations.- `allow_ip_spoofing` must be `false`.- If the virtual network interface is attached:  - The target `resource_type` must be `bare_metal_server_network_attachment`.  - The target `interface_type` must not be `hipersocket`.",
+									},
+									"ips": &schema.Schema{
+										Type:        schema.TypeSet,
+										Optional:    true,
+										Computed:    true,
+										Set:         hashIpsList,
+										Description: "The reserved IPs bound to this virtual network interface.May be empty when `lifecycle_state` is `pending`.",
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"address": &schema.Schema{
+													Type: schema.TypeString,
+													// Optional:    true,
+													Computed:    true,
+													Description: "The IP address.If the address has not yet been selected, the value will be `0.0.0.0`.This property may add support for IPv6 addresses in the future. When processing a value in this property, verify that the address is in an expected format. If it is not, log an error. Optionally halt processing and surface the error, or bypass the resource on which the unexpected IP address format was encountered.",
+												},
+												"deleted": &schema.Schema{
+													Type:        schema.TypeList,
+													Computed:    true,
+													Description: "If present, this property indicates the referenced resource has been deleted, and providessome supplementary information.",
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"more_info": &schema.Schema{
+																Type:        schema.TypeString,
+																Computed:    true,
+																Description: "Link to documentation about deleted resources.",
+															},
+														},
+													},
+												},
+												"auto_delete": &schema.Schema{
+													Type: schema.TypeBool,
+													// Optional:    true,
+													Computed:    true,
+													Description: "Indicates whether this reserved IP member will be automatically deleted when either target is deleted, or the reserved IP is unbound.",
+												},
+												"href": &schema.Schema{
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "The URL for this reserved IP.",
+												},
+												"reserved_ip": &schema.Schema{
+													Type:        schema.TypeString,
+													Required:    true,
+													Description: "The unique identifier for this reserved IP.",
+												},
+												"name": &schema.Schema{
+													Type: schema.TypeString,
+													// Optional:    true,
+													Computed:    true,
+													Description: "The name for this reserved IP. The name is unique across all reserved IPs in a subnet.",
+												},
+												"resource_type": &schema.Schema{
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "The resource type.",
+												},
+											},
+										},
+									},
+									"name": &schema.Schema{
+										Type:         schema.TypeString,
+										Optional:     true,
+										Computed:     true,
+										ValidateFunc: validate.InvokeValidator("ibm_is_virtual_network_interface", "vni_name"),
+										Description:  "The name for this virtual network interface. The name is unique across all virtual network interfaces in the VPC.",
+									},
+									"primary_ip": &schema.Schema{
+										Type:        schema.TypeList,
+										Optional:    true,
+										Computed:    true,
+										Description: "The primary IP address of the virtual network interface for the instance networkattachment.",
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"address": &schema.Schema{
+													Type:        schema.TypeString,
+													Optional:    true,
+													Computed:    true,
+													Description: "The IP address.If the address has not yet been selected, the value will be `0.0.0.0`.This property may add support for IPv6 addresses in the future. When processing a value in this property, verify that the address is in an expected format. If it is not, log an error. Optionally halt processing and surface the error, or bypass the resource on which the unexpected IP address format was encountered.",
+												},
+												"deleted": &schema.Schema{
+													Type:        schema.TypeList,
+													Computed:    true,
+													Description: "If present, this property indicates the referenced resource has been deleted, and providessome supplementary information.",
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"more_info": &schema.Schema{
+																Type:        schema.TypeString,
+																Computed:    true,
+																Description: "Link to documentation about deleted resources.",
+															},
+														},
+													},
+												},
+												"href": &schema.Schema{
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "The URL for this reserved IP.",
+												},
+												"reserved_ip": &schema.Schema{
+													Type:        schema.TypeString,
+													Optional:    true,
+													Computed:    true,
+													Description: "The unique identifier for this reserved IP.",
+												},
+												"name": &schema.Schema{
+													Type:        schema.TypeString,
+													Optional:    true,
+													Computed:    true,
+													Description: "The name for this reserved IP. The name is unique across all reserved IPs in a subnet.",
+												},
+												"resource_type": &schema.Schema{
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "The resource type.",
+												},
+												"auto_delete": &schema.Schema{
+													Type:        schema.TypeBool,
+													Optional:    true,
+													Default:     true,
+													Description: "Indicates whether this reserved ip will be automatically deleted when `target` is deleted.",
+												},
+											},
+										},
+									},
+									"resource_group": &schema.Schema{
+										Type:        schema.TypeString,
+										Optional:    true,
+										Computed:    true,
+										Description: "The resource group id for this virtual network interface.",
+									},
+									"resource_type": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The resource type.",
+									},
+									"security_groups": {
+										Type:        schema.TypeSet,
+										Optional:    true,
+										Computed:    true,
+										ForceNew:    true,
+										Elem:        &schema.Schema{Type: schema.TypeString},
+										Set:         schema.HashString,
+										Description: "The security groups for this virtual network interface.",
+									},
+									"subnet": &schema.Schema{
+										Type:        schema.TypeString,
+										Optional:    true,
+										Computed:    true,
+										ForceNew:    true,
+										Description: "The associated subnet id.",
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+
+			"network_attachments": &schema.Schema{
+				Type:          schema.TypeList,
+				Optional:      true,
+				ForceNew:      true,
+				ConflictsWith: []string{"primary_network_interface", "network_interfaces"},
+				Description:   "The network attachments for this virtual server instance, including the primary network attachment.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+
+						// pna can accept either vni id or prototype
+						"name": &schema.Schema{
+							Type:         schema.TypeString,
+							Optional:     true,
+							Computed:     true,
+							ValidateFunc: validate.InvokeValidator("ibm_is_instance_network_attachment", "name"),
+							Description:  "The name for this instance network attachment. The name is unique across all network attachments for the instance.",
+						},
+						"href": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The URL for this instance network attachment.",
+						},
+						"resource_type": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The resource type.",
+						},
+						"id": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The unique identifier for this instance network attachment.",
+						},
+						"deleted": &schema.Schema{
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "If present, this property indicates the referenced resource has been deleted, and providessome supplementary information.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"more_info": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "Link to documentation about deleted resources.",
+									},
+								},
+							},
+						},
+
+						"virtual_network_interface": &schema.Schema{
+							Type:        schema.TypeList,
+							MaxItems:    1,
+							Optional:    true,
+							Computed:    true,
+							Description: "A virtual network interface for the instance network attachment. This can be specified using an existing virtual network interface, or a prototype object for a new virtual network interface.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"id": &schema.Schema{
+										Type:        schema.TypeString,
+										Optional:    true,
+										Computed:    true,
+										Description: "The virtual network interface id for this instance network attachment.",
+									},
+									"allow_ip_spoofing": &schema.Schema{
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Computed:    true,
+										Description: "Indicates whether source IP spoofing is allowed on this interface. If `false`, source IP spoofing is prevented on this interface. If `true`, source IP spoofing is allowed on this interface.",
+									},
+									"auto_delete": &schema.Schema{
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Computed:    true,
+										Description: "Indicates whether this virtual network interface will be automatically deleted when`target` is deleted.",
+									},
+									"enable_infrastructure_nat": &schema.Schema{
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Computed:    true,
+										Description: "If `true`:- The VPC infrastructure performs any needed NAT operations.- `floating_ips` must not have more than one floating IP.If `false`:- Packets are passed unchanged to/from the network interface,  allowing the workload to perform any needed NAT operations.- `allow_ip_spoofing` must be `false`.- If the virtual network interface is attached:  - The target `resource_type` must be `bare_metal_server_network_attachment`.  - The target `interface_type` must not be `hipersocket`.",
+									},
+									"ips": &schema.Schema{
+										Type:        schema.TypeSet,
+										Optional:    true,
+										Computed:    true,
+										Set:         hashIpsList,
+										Description: "The reserved IPs bound to this virtual network interface.May be empty when `lifecycle_state` is `pending`.",
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"address": &schema.Schema{
+													Type: schema.TypeString,
+													// Optional:    true,
+													Computed:    true,
+													Description: "The IP address.If the address has not yet been selected, the value will be `0.0.0.0`.This property may add support for IPv6 addresses in the future. When processing a value in this property, verify that the address is in an expected format. If it is not, log an error. Optionally halt processing and surface the error, or bypass the resource on which the unexpected IP address format was encountered.",
+												},
+												"deleted": &schema.Schema{
+													Type:        schema.TypeList,
+													Computed:    true,
+													Description: "If present, this property indicates the referenced resource has been deleted, and providessome supplementary information.",
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"more_info": &schema.Schema{
+																Type:        schema.TypeString,
+																Computed:    true,
+																Description: "Link to documentation about deleted resources.",
+															},
+														},
+													},
+												},
+												"auto_delete": &schema.Schema{
+													Type: schema.TypeBool,
+													// Optional:    true,
+													Computed:    true,
+													Description: "Indicates whether this reserved IP member will be automatically deleted when either target is deleted, or the reserved IP is unbound.",
+												},
+												"href": &schema.Schema{
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "The URL for this reserved IP.",
+												},
+												"reserved_ip": &schema.Schema{
+													Type:        schema.TypeString,
+													Required:    true,
+													Description: "The unique identifier for this reserved IP.",
+												},
+												"name": &schema.Schema{
+													Type: schema.TypeString,
+													// Optional:    true,
+													Computed:    true,
+													Description: "The name for this reserved IP. The name is unique across all reserved IPs in a subnet.",
+												},
+												"resource_type": &schema.Schema{
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "The resource type.",
+												},
+											},
+										},
+									},
+									"name": &schema.Schema{
+										Type:         schema.TypeString,
+										Optional:     true,
+										Computed:     true,
+										ValidateFunc: validate.InvokeValidator("ibm_is_virtual_network_interface", "vni_name"),
+										Description:  "The name for this virtual network interface. The name is unique across all virtual network interfaces in the VPC.",
+									},
+									"primary_ip": &schema.Schema{
+										Type:        schema.TypeList,
+										Optional:    true,
+										Computed:    true,
+										Description: "The primary IP address of the virtual network interface for the instance networkattachment.",
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"address": &schema.Schema{
+													Type:        schema.TypeString,
+													Optional:    true,
+													Computed:    true,
+													Description: "The IP address.If the address has not yet been selected, the value will be `0.0.0.0`.This property may add support for IPv6 addresses in the future. When processing a value in this property, verify that the address is in an expected format. If it is not, log an error. Optionally halt processing and surface the error, or bypass the resource on which the unexpected IP address format was encountered.",
+												},
+												"auto_delete": &schema.Schema{
+													Type:        schema.TypeBool,
+													Optional:    true,
+													Default:     true,
+													Description: "Indicates whether this reserved IP member will be automatically deleted when either target is deleted, or the reserved IP is unbound.",
+												},
+												"deleted": &schema.Schema{
+													Type:        schema.TypeList,
+													Computed:    true,
+													Description: "If present, this property indicates the referenced resource has been deleted, and providessome supplementary information.",
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"more_info": &schema.Schema{
+																Type:        schema.TypeString,
+																Computed:    true,
+																Description: "Link to documentation about deleted resources.",
+															},
+														},
+													},
+												},
+												"href": &schema.Schema{
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "The URL for this reserved IP.",
+												},
+												"reserved_ip": &schema.Schema{
+													Type:        schema.TypeString,
+													Optional:    true,
+													Computed:    true,
+													Description: "The unique identifier for this reserved IP.",
+												},
+												"name": &schema.Schema{
+													Type:        schema.TypeString,
+													Optional:    true,
+													Computed:    true,
+													Description: "The name for this reserved IP. The name is unique across all reserved IPs in a subnet.",
+												},
+												"resource_type": &schema.Schema{
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "The resource type.",
+												},
+											},
+										},
+									},
+									"resource_group": &schema.Schema{
+										Type:        schema.TypeString,
+										Optional:    true,
+										Computed:    true,
+										Description: "The resource group id for this virtual network interface.",
+									},
+									"resource_type": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The resource type.",
+									},
+									"security_groups": {
+										Type:        schema.TypeSet,
+										Optional:    true,
+										Computed:    true,
+										Elem:        &schema.Schema{Type: schema.TypeString},
+										Set:         schema.HashString,
+										Description: "The security groups for this virtual network interface.",
+									},
+									"subnet": &schema.Schema{
+										Type:        schema.TypeString,
+										Optional:    true,
+										Computed:    true,
+										Description: "The associated subnet id.",
+									},
+								},
+							},
 						},
 					},
 				},
@@ -723,6 +1202,36 @@ func instanceTemplateCreateByCatalogOffering(d *schema.ResourceData, meta interf
 
 	if name != "" {
 		instanceproto.Name = &name
+	}
+
+	// vni
+	if networkattachmentsintf, ok := d.GetOk("network_attachments"); ok {
+		networkAttachments := []vpcv1.InstanceNetworkAttachmentPrototype{}
+		for i, networkAttachmentsItem := range networkattachmentsintf.([]interface{}) {
+			allowipspoofing := fmt.Sprintf("network_attachments.%d.allow_ip_spoofing", i)
+			autodelete := fmt.Sprintf("network_attachments.%d.autodelete", i)
+			enablenat := fmt.Sprintf("network_attachments.%d.enable_infrastructure_nat", i)
+			// allowipspoofing := "primary_network_attachment.0.allow_ip_spoofing"
+			// autodelete := "primary_network_attachment.0.autodelete"
+			// enablenat := "primary_network_attachment.0.enable_infrastructure_nat"
+			networkAttachmentsItemModel, err := resourceIBMIsInstanceMapToInstanceNetworkAttachmentPrototype(allowipspoofing, autodelete, enablenat, d, networkAttachmentsItem.(map[string]interface{}))
+			if err != nil {
+				return err
+			}
+			networkAttachments = append(networkAttachments, *networkAttachmentsItemModel)
+		}
+		instanceproto.NetworkAttachments = networkAttachments
+	}
+	if primnetworkattachmentintf, ok := d.GetOk("primary_network_attachment"); ok && len(primnetworkattachmentintf.([]interface{})) > 0 {
+		i := 0
+		allowipspoofing := fmt.Sprintf("primary_network_attachment.%d.virtual_network_interface.0.allow_ip_spoofing", i)
+		autodelete := fmt.Sprintf("primary_network_attachment.%d.virtual_network_interface.0.auto_delete", i)
+		enablenat := fmt.Sprintf("primary_network_attachment.%d.virtual_network_interface.0.enable_infrastructure_nat", i)
+		primaryNetworkAttachmentModel, err := resourceIBMIsInstanceMapToInstanceNetworkAttachmentPrototype(allowipspoofing, autodelete, enablenat, d, primnetworkattachmentintf.([]interface{})[0].(map[string]interface{}))
+		if err != nil {
+			return err
+		}
+		instanceproto.PrimaryNetworkAttachment = primaryNetworkAttachmentModel
 	}
 
 	metadataServiceEnabled := d.Get(isInstanceTemplateMetadataServiceEnabled).(bool)
@@ -1159,6 +1668,37 @@ func instanceTemplateCreate(d *schema.ResourceData, meta interface{}, profile, n
 		instanceproto.MetadataService = metadataService
 	}
 
+	// vni
+
+	if networkattachmentsintf, ok := d.GetOk("network_attachments"); ok {
+		networkAttachments := []vpcv1.InstanceNetworkAttachmentPrototype{}
+		for i, networkAttachmentsItem := range networkattachmentsintf.([]interface{}) {
+			allowipspoofing := fmt.Sprintf("network_attachments.%d.virtual_network_interface.0.allow_ip_spoofing", i)
+			autodelete := fmt.Sprintf("network_attachments.%d.virtual_network_interface.0.auto_delete", i)
+			enablenat := fmt.Sprintf("network_attachments.%d.virtual_network_interface.0.enable_infrastructure_nat", i)
+			// allowipspoofing := "primary_network_attachment.0.allow_ip_spoofing"
+			// autodelete := "primary_network_attachment.0.autodelete"
+			// enablenat := "primary_network_attachment.0.enable_infrastructure_nat"
+			networkAttachmentsItemModel, err := resourceIBMIsInstanceMapToInstanceNetworkAttachmentPrototype(allowipspoofing, autodelete, enablenat, d, networkAttachmentsItem.(map[string]interface{}))
+			if err != nil {
+				return err
+			}
+			networkAttachments = append(networkAttachments, *networkAttachmentsItemModel)
+		}
+		instanceproto.NetworkAttachments = networkAttachments
+	}
+	if primnetworkattachmentintf, ok := d.GetOk("primary_network_attachment"); ok && len(primnetworkattachmentintf.([]interface{})) > 0 {
+		i := 0
+		allowipspoofing := fmt.Sprintf("primary_network_attachment.%d.virtual_network_interface.0.allow_ip_spoofing", i)
+		autodelete := fmt.Sprintf("primary_network_attachment.%d.virtual_network_interface.0.autodelete", i)
+		enablenat := fmt.Sprintf("primary_network_attachment.%d.virtual_network_interface.0.enable_infrastructure_nat", i)
+		primaryNetworkAttachmentModel, err := resourceIBMIsInstanceMapToInstanceNetworkAttachmentPrototype(allowipspoofing, autodelete, enablenat, d, primnetworkattachmentintf.([]interface{})[0].(map[string]interface{}))
+		if err != nil {
+			return err
+		}
+		instanceproto.PrimaryNetworkAttachment = primaryNetworkAttachmentModel
+	}
+
 	if defaultTrustedProfileTargetIntf, ok := d.GetOk(isInstanceDefaultTrustedProfileTarget); ok {
 		defaultTrustedProfiletarget := defaultTrustedProfileTargetIntf.(string)
 
@@ -1567,6 +2107,31 @@ func instanceTemplateGet(d *schema.ResourceData, meta interface{}, ID string) er
 		d.Set(isInstanceTemplateAvailablePolicyHostFailure, instance.AvailabilityPolicy.HostFailure)
 	}
 
+	// vni if any
+	if !core.IsNil(instance.NetworkAttachments) {
+		networkAttachments := []map[string]interface{}{}
+		for _, networkAttachmentsItem := range instance.NetworkAttachments {
+			networkAttachmentsItemMap, err := resourceIBMIsInstanceTemplateNetworkAttachmentReferenceToMap(&networkAttachmentsItem, instanceC)
+			if err != nil {
+				return err
+			}
+			networkAttachments = append(networkAttachments, networkAttachmentsItemMap)
+		}
+		if err = d.Set("network_attachments", networkAttachments); err != nil {
+			return fmt.Errorf("[ERROR] Error  setting network_attachments: %s", err)
+		}
+	}
+
+	if !core.IsNil(instance.PrimaryNetworkAttachment) {
+		primaryNetworkAttachmentMap, err := resourceIBMIsInstanceTemplateNetworkAttachmentReferenceToMap(instance.PrimaryNetworkAttachment, instanceC)
+		if err != nil {
+			return err
+		}
+		if err = d.Set("primary_network_attachment", []map[string]interface{}{primaryNetworkAttachmentMap}); err != nil {
+			return fmt.Errorf("[ERROR] Error  setting primary_network_attachment: %s", err)
+		}
+	}
+
 	// catalog offering if any
 
 	if instance.CatalogOffering != nil {
@@ -1935,4 +2500,91 @@ func GetInstanceTemplateMetadataServiceOptions(d *schema.ResourceData) (metadata
 		return
 	}
 	return nil
+}
+
+func resourceIBMIsInstanceTemplateNetworkAttachmentReferenceToMap(model *vpcv1.InstanceNetworkAttachmentPrototype, instanceC *vpcv1.VpcV1) (map[string]interface{}, error) {
+	modelMap := make(map[string]interface{})
+	if model.Name != nil {
+		modelMap["name"] = model.Name
+	}
+	vniMap := make(map[string]interface{})
+	if model.VirtualNetworkInterface != nil {
+		pna := model.VirtualNetworkInterface.(*vpcv1.InstanceNetworkAttachmentPrototypeVirtualNetworkInterface)
+		// vniMap["id"] = *pna.ID
+		vniMap["name"] = pna.Name
+		if pna.ID != nil && *pna.ID != "" {
+			getVirtualNetworkInterfaceOptions := &vpcv1.GetVirtualNetworkInterfaceOptions{
+				ID: pna.ID,
+			}
+			vniDetails, response, err := instanceC.GetVirtualNetworkInterface(getVirtualNetworkInterfaceOptions)
+			if err != nil {
+				return nil, fmt.Errorf("[ERROR] Error on GetInstanceNetworkAttachment in instance : %s\n%s", err, response)
+			}
+			vniMap["resource_group"] = vniDetails.ResourceGroup.ID
+		}
+		vniMap["allow_ip_spoofing"] = pna.AllowIPSpoofing
+		vniMap["auto_delete"] = pna.AutoDelete
+		vniMap["enable_infrastructure_nat"] = pna.EnableInfrastructureNat
+		// primaryipId := *vniDetails.PrimaryIP.ID
+		if !core.IsNil(pna.Ips) {
+			ips := []map[string]interface{}{}
+			for _, ipsItem := range pna.Ips {
+				// if *ipsItem.ID != primaryipId {
+				ipsItemMap, err := resourceIBMIsInstanceTemplateVirtualNetworkInterfaceReservedIPReferenceToMap(ipsItem, false)
+				if err != nil {
+					return nil, err
+				}
+				ips = append(ips, ipsItemMap)
+				// }
+			}
+			vniMap["ips"] = ips
+		}
+
+		if !core.IsNil(pna.SecurityGroups) {
+			securityGroups := make([]string, 0)
+			for _, securityGroup := range pna.SecurityGroups {
+				securityGroupsItem := securityGroup.(*vpcv1.SecurityGroupIdentity)
+				if securityGroupsItem.ID != nil {
+					securityGroups = append(securityGroups, *securityGroupsItem.ID)
+				}
+			}
+			vniMap["security_groups"] = securityGroups
+		}
+		primaryIPMap, err := resourceIBMIsInstanceTemplateReservedIPReferenceToMap(pna.PrimaryIP, true)
+		if err != nil {
+			return modelMap, err
+		}
+		vniMap["primary_ip"] = []map[string]interface{}{primaryIPMap}
+		if pna.Subnet != nil {
+			subnet := pna.Subnet.(*vpcv1.SubnetIdentity)
+			vniMap["subnet"] = subnet.ID
+		}
+
+		modelMap["virtual_network_interface"] = []map[string]interface{}{vniMap}
+	}
+
+	return modelMap, nil
+}
+
+func resourceIBMIsInstanceTemplateVirtualNetworkInterfaceReservedIPReferenceToMap(modelIntf vpcv1.VirtualNetworkInterfaceIPPrototypeIntf, autodelete bool) (map[string]interface{}, error) {
+	model := modelIntf.(*vpcv1.VirtualNetworkInterfaceIPPrototype)
+	modelMap := make(map[string]interface{})
+	modelMap["address"] = model.Address
+	modelMap["auto_delete"] = autodelete
+	modelMap["href"] = model.Href
+	modelMap["reserved_ip"] = model.ID
+	modelMap["name"] = model.Name
+
+	return modelMap, nil
+}
+
+func resourceIBMIsInstanceTemplateReservedIPReferenceToMap(modelIntf vpcv1.VirtualNetworkInterfacePrimaryIPPrototypeIntf, autoDelete bool) (map[string]interface{}, error) {
+	modelMap := make(map[string]interface{})
+	model := modelIntf.(*vpcv1.VirtualNetworkInterfacePrimaryIPPrototype)
+	modelMap["address"] = model.Address
+	modelMap["href"] = model.Href
+	modelMap["auto_delete"] = autoDelete
+	modelMap["reserved_ip"] = model.ID
+	modelMap["name"] = model.Name
+	return modelMap, nil
 }
