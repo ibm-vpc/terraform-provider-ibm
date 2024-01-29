@@ -798,7 +798,6 @@ func dataSourceIBMISInstanceTemplateRead(context context.Context, d *schema.Reso
 		d.Set(isInstanceTemplateCrn, instance.CRN)
 		d.Set(isInstanceTemplateName, instance.Name)
 		d.Set(isInstanceTemplateUserData, instance.UserData)
-
 		// vni
 
 		networkAttachments := []map[string]interface{}{}
@@ -812,7 +811,7 @@ func dataSourceIBMISInstanceTemplateRead(context context.Context, d *schema.Reso
 			}
 		}
 		if err = d.Set("network_attachments", networkAttachments); err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting network_attachments %s", err))
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting network_attachments %s", err))
 		}
 
 		primaryNetworkAttachment := []map[string]interface{}{}
@@ -824,7 +823,7 @@ func dataSourceIBMISInstanceTemplateRead(context context.Context, d *schema.Reso
 			primaryNetworkAttachment = append(primaryNetworkAttachment, modelMap)
 		}
 		if err = d.Set("primary_network_attachment", primaryNetworkAttachment); err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting primary_network_attachment %s", err))
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting primary_network_attachment %s", err))
 		}
 
 		if instance.DefaultTrustedProfile != nil {
@@ -1141,6 +1140,34 @@ func dataSourceIBMISInstanceTemplateRead(context context.Context, d *schema.Reso
 					}
 					catOfferingList = append(catOfferingList, currentOffering)
 					d.Set(isInstanceTemplateCatalogOffering, catOfferingList)
+				}
+
+				// vni
+
+				networkAttachments := []map[string]interface{}{}
+				if instance.NetworkAttachments != nil {
+					for _, modelItem := range instance.NetworkAttachments {
+						modelMap, err := dataSourceIBMIsInstanceTemplateInstanceNetworkAttachmentPrototypeToMap(&modelItem)
+						if err != nil {
+							return diag.FromErr(err)
+						}
+						networkAttachments = append(networkAttachments, modelMap)
+					}
+				}
+				if err = d.Set("network_attachments", networkAttachments); err != nil {
+					return diag.FromErr(fmt.Errorf("[ERROR] Error setting network_attachments %s", err))
+				}
+
+				primaryNetworkAttachment := []map[string]interface{}{}
+				if instance.PrimaryNetworkAttachment != nil {
+					modelMap, err := dataSourceIBMIsInstanceTemplateInstanceNetworkAttachmentPrototypeToMap(instance.PrimaryNetworkAttachment)
+					if err != nil {
+						return diag.FromErr(err)
+					}
+					primaryNetworkAttachment = append(primaryNetworkAttachment, modelMap)
+				}
+				if err = d.Set("primary_network_attachment", primaryNetworkAttachment); err != nil {
+					return diag.FromErr(fmt.Errorf("[ERROR] Error setting primary_network_attachment %s", err))
 				}
 
 				if instance.DefaultTrustedProfile != nil {
