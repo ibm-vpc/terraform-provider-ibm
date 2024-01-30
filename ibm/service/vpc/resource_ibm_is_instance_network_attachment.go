@@ -728,7 +728,7 @@ func resourceIBMIsInstanceNetworkAttachmentMapToInstanceNetworkAttachmentPrototy
 		model.Name = core.StringPtr(modelMap["name"].(string))
 	}
 	if pStateFilteringInt, ok := modelMap["protocol_state_filtering_mode"]; ok {
-		model.Name = core.StringPtr(pStateFilteringInt.(string))
+		model.ProtocolStateFilteringMode = core.StringPtr(pStateFilteringInt.(string))
 	}
 	if modelMap["primary_ip"] != nil && len(modelMap["primary_ip"].([]interface{})) > 0 {
 		PrimaryIPModel, err := resourceIBMIsInstanceNetworkAttachmentMapToVirtualNetworkInterfacePrimaryIPPrototype(modelMap["primary_ip"].([]interface{})[0].(map[string]interface{}))

@@ -564,6 +564,13 @@ func ResourceIBMIsBareMetalServer() *schema.Resource {
 										ValidateFunc: validate.InvokeValidator("ibm_is_virtual_network_interface", "vni_name"),
 										Description:  "The name for this virtual network interface. The name is unique across all virtual network interfaces in the VPC.",
 									},
+									"protocol_state_filtering_mode": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										Computed:     true,
+										ValidateFunc: validate.InvokeValidator("ibm_is_virtual_network_interface", "protocol_state_filtering_mode"),
+										Description:  "The protocol state filtering mode used for this virtual network interface.",
+									},
 									"primary_ip": &schema.Schema{
 										Type:        schema.TypeList,
 										Optional:    true,
@@ -949,6 +956,13 @@ func ResourceIBMIsBareMetalServer() *schema.Resource {
 										Computed:     true,
 										ValidateFunc: validate.InvokeValidator("ibm_is_virtual_network_interface", "vni_name"),
 										Description:  "The name for this virtual network interface. The name is unique across all virtual network interfaces in the VPC.",
+									},
+									"protocol_state_filtering_mode": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										Computed:     true,
+										ValidateFunc: validate.InvokeValidator("ibm_is_virtual_network_interface", "protocol_state_filtering_mode"),
+										Description:  "The protocol state filtering mode used for this virtual network interface.",
 									},
 									"primary_ip": &schema.Schema{
 										Type:        schema.TypeList,
@@ -3679,6 +3693,9 @@ func resourceIBMIsBareMetalServerMapToVirtualNetworkInterfacePrototypeAttachment
 	}
 	if _, ok := d.GetOkExists(enablenat); ok && modelMap["enable_infrastructure_nat"] != nil {
 		model.EnableInfrastructureNat = core.BoolPtr(modelMap["enable_infrastructure_nat"].(bool))
+	}
+	if pStateFilteringInt, ok := modelMap["protocol_state_filtering_mode"]; ok {
+		model.ProtocolStateFilteringMode = core.StringPtr(pStateFilteringInt.(string))
 	}
 	if modelMap["ips"] != nil {
 		ips := []vpcv1.VirtualNetworkInterfaceIPPrototypeIntf{}

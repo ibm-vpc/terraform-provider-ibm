@@ -147,6 +147,13 @@ func ResourceIBMIsBareMetalServerNetworkAttachment() *schema.Resource {
 							ValidateFunc: validate.InvokeValidator("ibm_is_virtual_network_interface", "vni_name"),
 							Description:  "The name for this virtual network interface. The name is unique across all virtual network interfaces in the VPC.",
 						},
+						"protocol_state_filtering_mode": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Computed:     true,
+							ValidateFunc: validate.InvokeValidator("ibm_is_virtual_network_interface", "protocol_state_filtering_mode"),
+							Description:  "The protocol state filtering mode used for this virtual network interface.",
+						},
 						"primary_ip": &schema.Schema{
 							Type:        schema.TypeList,
 							Optional:    true,
@@ -667,6 +674,9 @@ func resourceIBMIsBareMetalServerNetworkAttachmentMapToBareMetalServerNetworkAtt
 	}
 	if modelMap["name"] != nil && modelMap["name"].(string) != "" {
 		model.Name = core.StringPtr(modelMap["name"].(string))
+	}
+	if pStateFilteringInt, ok := modelMap["protocol_state_filtering_mode"]; ok {
+		model.ProtocolStateFilteringMode = core.StringPtr(pStateFilteringInt.(string))
 	}
 	if modelMap["primary_ip"] != nil && len(modelMap["primary_ip"].([]interface{})) > 0 {
 		PrimaryIPModel, err := resourceIBMIsBareMetalServerNetworkAttachmentMapToVirtualNetworkInterfacePrimaryIPPrototype(modelMap["primary_ip"].([]interface{})[0].(map[string]interface{}))
