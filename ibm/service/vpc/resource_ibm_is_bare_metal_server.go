@@ -800,7 +800,7 @@ func ResourceIBMIsBareMetalServer() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 
-						// pna can accept either vni id or prototype
+						// sna can accept either vni id or prototype
 						isBareMetalServerNicAllowedVlans: {
 							Type:        schema.TypeSet,
 							Optional:    true,
@@ -877,6 +877,7 @@ func ResourceIBMIsBareMetalServer() *schema.Resource {
 									"id": &schema.Schema{
 										Type:        schema.TypeString,
 										Optional:    true,
+										Computed:    true,
 										Description: "The virtual network interface id for this bare metal server network attachment.",
 									},
 									"allow_ip_spoofing": &schema.Schema{
