@@ -1384,9 +1384,9 @@ func resourceIBMISBareMetalServerCreate(context context.Context, d *schema.Resou
 		autodelete := fmt.Sprintf("network_attachments.%d.virtual_network_interface.0.autodelete", i)
 		enablenat := fmt.Sprintf("network_attachments.%d.virtual_network_interface.0.enable_infrastructure_nat", i)
 		allowfloat := fmt.Sprintf("network_attachments.%d.virtual_network_interface.0.allow_to_float", i)
-		networkAttachmentsIntf := d.Get("network_interfaces")
+		networkAttachmentsIntf := d.Get("network_attachments")
 		networkAttachments := []vpcv1.BareMetalServerNetworkAttachmentPrototypeIntf{}
-		for _, networkAttachmentsItem := range networkAttachmentsIntf.(*schema.Set).List() {
+		for _, networkAttachmentsItem := range networkAttachmentsIntf.([]interface{}) {
 			networkAttachmentsItemModel, err := resourceIBMIsBareMetalServerMapToBareMetalServerNetworkAttachmentPrototype(allowipspoofing, allowfloat, autodelete, enablenat, d, networkAttachmentsItem.(map[string]interface{}))
 			if err != nil {
 				return diag.FromErr(err)
@@ -3775,17 +3775,10 @@ func resourceIBMIsBareMetalServerMapToSecurityGroupIdentity(modelMap map[string]
 }
 
 func resourceIBMIsBareMetalServerMapToBareMetalServerNetworkAttachmentPrototype(allowipspoofing, allowfloat, autodelete, enablenat string, d *schema.ResourceData, modelMap map[string]interface{}) (vpcv1.BareMetalServerNetworkAttachmentPrototypeIntf, error) {
-	discValue, ok := modelMap["interface_type"]
-	if ok {
-		if discValue == "pci" {
-			return resourceIBMIsBareMetalServerMapToBareMetalServerNetworkAttachmentPrototypeBareMetalServerNetworkAttachmentByPciPrototype(allowipspoofing, autodelete, enablenat, d, modelMap)
-		} else if discValue == "vlan" {
-			return resourceIBMIsBareMetalServerMapToBareMetalServerNetworkAttachmentPrototypeBareMetalServerNetworkAttachmentByVlanPrototype(allowipspoofing, allowfloat, autodelete, enablenat, d, modelMap)
-		} else {
-			return nil, fmt.Errorf("unexpected value for discriminator property 'interface_type' found in map: '%s'", discValue)
-		}
+	if modelMap["vlan"] != nil && int64(modelMap["vlan"].(int)) != 0 {
+		return resourceIBMIsBareMetalServerMapToBareMetalServerNetworkAttachmentPrototypeBareMetalServerNetworkAttachmentByVlanPrototype(allowipspoofing, allowfloat, autodelete, enablenat, d, modelMap)
 	} else {
-		return nil, fmt.Errorf("discriminator property 'interface_type' not found in map")
+		return resourceIBMIsBareMetalServerMapToBareMetalServerNetworkAttachmentPrototypeBareMetalServerNetworkAttachmentByPciPrototype(allowipspoofing, autodelete, enablenat, d, modelMap)
 	}
 }
 
@@ -3803,7 +3796,7 @@ func resourceIBMIsBareMetalServerMapToBareMetalServerNetworkAttachmentPrototypeB
 	if _, ok := d.GetOkExists(allowfloat); ok && modelMap["allow_to_float"] != nil {
 		model.AllowToFloat = core.BoolPtr(modelMap["allow_to_float"].(bool))
 	}
-	model.InterfaceType = core.StringPtr(modelMap["interface_type"].(string))
+	model.InterfaceType = core.StringPtr("vlan")
 	model.Vlan = core.Int64Ptr(int64(modelMap["vlan"].(int)))
 	return model, nil
 }
@@ -3825,6 +3818,6 @@ func resourceIBMIsBareMetalServerMapToBareMetalServerNetworkAttachmentPrototypeB
 		}
 		model.AllowedVlans = allowedVlans
 	}
-	model.InterfaceType = core.StringPtr(modelMap["interface_type"].(string))
+	model.InterfaceType = core.StringPtr("pci")
 	return model, nil
 }
