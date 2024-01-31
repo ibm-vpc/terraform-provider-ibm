@@ -1386,7 +1386,7 @@ func resourceIBMISBareMetalServerCreate(context context.Context, d *schema.Resou
 		allowfloat := fmt.Sprintf("network_attachments.%d.virtual_network_interface.0.allow_to_float", i)
 		networkAttachmentsIntf := d.Get("network_interfaces")
 		networkAttachments := []vpcv1.BareMetalServerNetworkAttachmentPrototypeIntf{}
-		for _, networkAttachmentsItem := range networkAttachmentsIntf.([]interface{}) {
+		for _, networkAttachmentsItem := range networkAttachmentsIntf.(*schema.Set).List() {
 			networkAttachmentsItemModel, err := resourceIBMIsBareMetalServerMapToBareMetalServerNetworkAttachmentPrototype(allowipspoofing, allowfloat, autodelete, enablenat, d, networkAttachmentsItem.(map[string]interface{}))
 			if err != nil {
 				return diag.FromErr(err)
