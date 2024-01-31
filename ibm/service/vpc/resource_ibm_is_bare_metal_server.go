@@ -3501,25 +3501,29 @@ func resourceIBMIsBareMetalServerBareMetalServerNetworkAttachmentReferenceToMap(
 	case "*vpcv1.BareMetalServerNetworkAttachmentByPci":
 		{
 			vna := na.(*vpcv1.BareMetalServerNetworkAttachmentByPci)
+			if vna.AllowedVlans != nil {
+				var out = make([]interface{}, len(vna.AllowedVlans))
+				for i, v := range vna.AllowedVlans {
+					out[i] = int(v)
+				}
+				modelMap["allowed_vlans"] = schema.NewSet(schema.HashInt, out)
+			}
 			if vna.VirtualNetworkInterface != nil {
 				vniid = *vna.VirtualNetworkInterface.ID
 				vniMap["id"] = vniid
 				vniMap["name"] = vna.VirtualNetworkInterface.Name
-
-				if vna.AllowedVlans != nil {
-					var out = make([]interface{}, len(vna.AllowedVlans), len(vna.AllowedVlans))
-					for i, v := range vna.AllowedVlans {
-						out[i] = int(v)
-					}
-					modelMap["allowed_vlans"] = schema.NewSet(schema.HashInt, out)
-				}
-
 				vniMap["resource_type"] = vna.VirtualNetworkInterface.ResourceType
 			}
 		}
 	case "*vpcv1.BareMetalServerNetworkAttachmentByVlan":
 		{
 			vna := na.(*vpcv1.BareMetalServerNetworkAttachmentByVlan)
+			if vna.Vlan != nil {
+				modelMap["vlan"] = *vna.Vlan
+			}
+			if vna.AllowToFloat != nil {
+				modelMap["allow_interface_to_float"] = *vna.AllowToFloat
+			}
 			if vna.VirtualNetworkInterface != nil {
 				vniid = *vna.VirtualNetworkInterface.ID
 				vniMap["id"] = vniid
@@ -3536,6 +3540,20 @@ func resourceIBMIsBareMetalServerBareMetalServerNetworkAttachmentReferenceToMap(
 				vniMap["name"] = vna.VirtualNetworkInterface.Name
 				vniMap["resource_type"] = vna.VirtualNetworkInterface.ResourceType
 			}
+			if vna.AllowedVlans != nil {
+				var out = make([]interface{}, len(vna.AllowedVlans))
+				for i, v := range vna.AllowedVlans {
+					out[i] = int(v)
+				}
+				modelMap["allowed_vlans"] = schema.NewSet(schema.HashInt, out)
+			}
+			if vna.Vlan != nil {
+				modelMap["vlan"] = *vna.Vlan
+			}
+			if vna.AllowToFloat != nil {
+				modelMap["allow_interface_to_float"] = *vna.AllowToFloat
+			}
+
 		}
 	}
 
