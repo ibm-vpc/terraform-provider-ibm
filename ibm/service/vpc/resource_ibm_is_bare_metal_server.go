@@ -809,7 +809,7 @@ func ResourceIBMIsBareMetalServer() *schema.Resource {
 							Description: "Indicates what VLAN IDs (for VLAN type only) can use this physical (PCI type) interface. A given VLAN can only be in the allowed_vlans array for one PCI type adapter per bare metal server.",
 						},
 
-						isBareMetalServerNicAllowInterfaceToFloat: {
+						"allow_to_float": {
 							Type:        schema.TypeBool,
 							Optional:    true,
 							Computed:    true,
@@ -3522,7 +3522,7 @@ func resourceIBMIsBareMetalServerBareMetalServerNetworkAttachmentReferenceToMap(
 				modelMap["vlan"] = *vna.Vlan
 			}
 			if vna.AllowToFloat != nil {
-				modelMap["allow_interface_to_float"] = *vna.AllowToFloat
+				modelMap["allow_to_float"] = *vna.AllowToFloat
 			}
 			if vna.VirtualNetworkInterface != nil {
 				vniid = *vna.VirtualNetworkInterface.ID
@@ -3551,7 +3551,7 @@ func resourceIBMIsBareMetalServerBareMetalServerNetworkAttachmentReferenceToMap(
 				modelMap["vlan"] = *vna.Vlan
 			}
 			if vna.AllowToFloat != nil {
-				modelMap["allow_interface_to_float"] = *vna.AllowToFloat
+				modelMap["allow_to_float"] = *vna.AllowToFloat
 			}
 
 		}
