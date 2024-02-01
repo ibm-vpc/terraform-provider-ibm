@@ -1831,6 +1831,10 @@ func (c *Config) ClientSession() (interface{}, error) {
 	if c.Visibility == "private" || c.Visibility == "public-and-private" {
 		vpcurl = ContructEndpoint(fmt.Sprintf("%s.private.iaas", c.Region), fmt.Sprintf("%s/v1", cloudEndpoint))
 	}
+	ontapurl := ContructEndpoint(fmt.Sprintf("%s.iaas", c.Region), fmt.Sprintf("%s/ontap/v1", cloudEndpoint))
+	if c.Visibility == "private" || c.Visibility == "public-and-private" {
+		vpcurl = ContructEndpoint(fmt.Sprintf("%s.private.iaas", c.Region), fmt.Sprintf("%s/v1", cloudEndpoint))
+	}
 	if fileMap != nil && c.Visibility != "public-and-private" {
 		vpcurl = fileFallBack(fileMap, c.Visibility, "IBMCLOUD_IS_NG_API_ENDPOINT", c.Region, vpcurl)
 	}
@@ -1867,7 +1871,7 @@ func (c *Config) ClientSession() (interface{}, error) {
 	session.vpcBetaAPI = vpcbetaclient
 
 	ontapoptions := &ontap.OntapV1Options{
-		URL:           EnvFallBack([]string{"IBMCLOUD_IS_NG_API_ENDPOINT"}, vpcurl),
+		URL:           EnvFallBack([]string{"IBMCLOUD_IS_ONTAP_API_ENDPOINT"}, ontapurl),
 		Authenticator: authenticator,
 	}
 	ontapclient, err := ontap.NewOntapV1(ontapoptions)
