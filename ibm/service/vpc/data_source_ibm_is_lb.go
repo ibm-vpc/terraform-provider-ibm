@@ -74,7 +74,21 @@ func DataSourceIBMISLB() *schema.Resource {
 				Computed:    true,
 				Description: "Load Balancer type",
 			},
-
+			isLBAvailability: {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The availability of this load balancer",
+			},
+			isLBInstanceGroupsSupported: {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: "Indicates whether this load balancer supports instance groups.",
+			},
+			isLBSourceIPPersistenceSupported: {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: "Indicates whether this load balancer supports source IP session persistence.",
+			},
 			isLBUdpSupported: {
 				Type:        schema.TypeBool,
 				Computed:    true,
@@ -354,6 +368,15 @@ func lbGetByName(d *schema.ResourceData, meta interface{}, name string) error {
 	for _, lb := range allrecs {
 		if *lb.Name == name {
 			d.SetId(*lb.ID)
+			if lb.Availability != nil {
+				d.Set(isLBAvailability, *lb.Availability)
+			}
+			if lb.InstanceGroupsSupported != nil {
+				d.Set(isLBInstanceGroupsSupported, *lb.InstanceGroupsSupported)
+			}
+			if lb.SourceIPSessionPersistenceSupported != nil {
+				d.Set(isLBSourceIPPersistenceSupported, *lb.SourceIPSessionPersistenceSupported)
+			}
 			dnsList := make([]map[string]interface{}, 0)
 			if lb.Dns != nil {
 				dns := map[string]interface{}{}
