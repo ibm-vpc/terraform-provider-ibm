@@ -473,6 +473,7 @@ func ResourceIBMIsBareMetalServer() *schema.Resource {
 						"virtual_network_interface": &schema.Schema{
 							Type:        schema.TypeList,
 							Optional:    true,
+							MaxItems:    1,
 							Computed:    true,
 							Description: "A virtual network interface for the bare metal server network attachment. This can be specified using an existing virtual network interface, or a prototype object for a new virtual network interface.",
 							Elem: &schema.Resource{
@@ -480,13 +481,15 @@ func ResourceIBMIsBareMetalServer() *schema.Resource {
 									"id": &schema.Schema{
 										Type:        schema.TypeString,
 										Optional:    true,
+										Computed:    true,
 										Description: "The virtual network interface id for this bare metal server network attachment.",
 									},
 									"allow_ip_spoofing": &schema.Schema{
-										Type:        schema.TypeBool,
-										Optional:    true,
-										Computed:    true,
-										Description: "Indicates whether source IP spoofing is allowed on this interface. If `false`, source IP spoofing is prevented on this interface. If `true`, source IP spoofing is allowed on this interface.",
+										Type:          schema.TypeBool,
+										Optional:      true,
+										ConflictsWith: []string{"primary_network_attachment.0.virtual_network_interface.0.id"},
+										Computed:      true,
+										Description:   "Indicates whether source IP spoofing is allowed on this interface. If `false`, source IP spoofing is prevented on this interface. If `true`, source IP spoofing is allowed on this interface.",
 									},
 									"auto_delete": &schema.Schema{
 										Type:        schema.TypeBool,
@@ -495,16 +498,18 @@ func ResourceIBMIsBareMetalServer() *schema.Resource {
 										Description: "Indicates whether this virtual network interface will be automatically deleted when`target` is deleted.",
 									},
 									"enable_infrastructure_nat": &schema.Schema{
-										Type:        schema.TypeBool,
-										Optional:    true,
-										Computed:    true,
-										Description: "If `true`:- The VPC infrastructure performs any needed NAT operations.- `floating_ips` must not have more than one floating IP.If `false`:- Packets are passed unchanged to/from the network interface,  allowing the workload to perform any needed NAT operations.- `allow_ip_spoofing` must be `false`.- If the virtual network interface is attached:  - The target `resource_type` must be `bare_metal_server_network_attachment`.  - The target `interface_type` must not be `hipersocket`.",
+										Type:          schema.TypeBool,
+										Optional:      true,
+										ConflictsWith: []string{"primary_network_attachment.0.virtual_network_interface.0.id"},
+										Computed:      true,
+										Description:   "If `true`:- The VPC infrastructure performs any needed NAT operations.- `floating_ips` must not have more than one floating IP.If `false`:- Packets are passed unchanged to/from the network interface,  allowing the workload to perform any needed NAT operations.- `allow_ip_spoofing` must be `false`.- If the virtual network interface is attached:  - The target `resource_type` must be `bare_metal_server_network_attachment`.  - The target `interface_type` must not be `hipersocket`.",
 									},
 									"ips": &schema.Schema{
-										Type:        schema.TypeList,
-										Optional:    true,
-										Computed:    true,
-										Description: "The reserved IPs bound to this virtual network interface.May be empty when `lifecycle_state` is `pending`.",
+										Type:          schema.TypeList,
+										Optional:      true,
+										ConflictsWith: []string{"primary_network_attachment.0.virtual_network_interface.0.id"},
+										Computed:      true,
+										Description:   "The reserved IPs bound to this virtual network interface.May be empty when `lifecycle_state` is `pending`.",
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"address": &schema.Schema{
@@ -558,11 +563,12 @@ func ResourceIBMIsBareMetalServer() *schema.Resource {
 										},
 									},
 									"name": &schema.Schema{
-										Type:         schema.TypeString,
-										Optional:     true,
-										Computed:     true,
-										ValidateFunc: validate.InvokeValidator("ibm_is_virtual_network_interface", "vni_name"),
-										Description:  "The name for this virtual network interface. The name is unique across all virtual network interfaces in the VPC.",
+										Type:          schema.TypeString,
+										Optional:      true,
+										ConflictsWith: []string{"primary_network_attachment.0.virtual_network_interface.0.id"},
+										Computed:      true,
+										ValidateFunc:  validate.InvokeValidator("ibm_is_virtual_network_interface", "vni_name"),
+										Description:   "The name for this virtual network interface. The name is unique across all virtual network interfaces in the VPC.",
 									},
 									"protocol_state_filtering_mode": {
 										Type:         schema.TypeString,
@@ -572,10 +578,12 @@ func ResourceIBMIsBareMetalServer() *schema.Resource {
 										Description:  "The protocol state filtering mode used for this virtual network interface.",
 									},
 									"primary_ip": &schema.Schema{
-										Type:        schema.TypeList,
-										Optional:    true,
-										Computed:    true,
-										Description: "The primary IP address of the virtual network interface for the bare metal server networkattachment.",
+										Type:          schema.TypeList,
+										Optional:      true,
+										MaxItems:      1,
+										ConflictsWith: []string{"primary_network_attachment.0.virtual_network_interface.0.id"},
+										Computed:      true,
+										Description:   "The primary IP address of the virtual network interface for the bare metal server networkattachment.",
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"address": &schema.Schema{
@@ -624,10 +632,11 @@ func ResourceIBMIsBareMetalServer() *schema.Resource {
 										},
 									},
 									"resource_group": &schema.Schema{
-										Type:        schema.TypeString,
-										Optional:    true,
-										Computed:    true,
-										Description: "The resource group id for this virtual network interface.",
+										Type:          schema.TypeString,
+										Optional:      true,
+										ConflictsWith: []string{"primary_network_attachment.0.virtual_network_interface.0.id"},
+										Computed:      true,
+										Description:   "The resource group id for this virtual network interface.",
 									},
 									"resource_type": &schema.Schema{
 										Type:        schema.TypeString,
@@ -635,20 +644,22 @@ func ResourceIBMIsBareMetalServer() *schema.Resource {
 										Description: "The resource type.",
 									},
 									"security_groups": {
-										Type:        schema.TypeSet,
-										Optional:    true,
-										Computed:    true,
-										ForceNew:    true,
-										Elem:        &schema.Schema{Type: schema.TypeString},
-										Set:         schema.HashString,
-										Description: "The security groups for this virtual network interface.",
+										Type:          schema.TypeSet,
+										Optional:      true,
+										Computed:      true,
+										ConflictsWith: []string{"primary_network_attachment.0.virtual_network_interface.0.id"},
+										ForceNew:      true,
+										Elem:          &schema.Schema{Type: schema.TypeString},
+										Set:           schema.HashString,
+										Description:   "The security groups for this virtual network interface.",
 									},
 									"subnet": &schema.Schema{
-										Type:        schema.TypeString,
-										Optional:    true,
-										Computed:    true,
-										ForceNew:    true,
-										Description: "The associated subnet id.",
+										Type:          schema.TypeString,
+										Optional:      true,
+										ConflictsWith: []string{"primary_network_attachment.0.virtual_network_interface.0.id"},
+										Computed:      true,
+										ForceNew:      true,
+										Description:   "The associated subnet id.",
 									},
 								},
 							},
@@ -796,7 +807,7 @@ func ResourceIBMIsBareMetalServer() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 
-						// pna can accept either vni id or prototype
+						// sna can accept either vni id or prototype
 						isBareMetalServerNicAllowedVlans: {
 							Type:        schema.TypeSet,
 							Optional:    true,
@@ -805,7 +816,7 @@ func ResourceIBMIsBareMetalServer() *schema.Resource {
 							Description: "Indicates what VLAN IDs (for VLAN type only) can use this physical (PCI type) interface. A given VLAN can only be in the allowed_vlans array for one PCI type adapter per bare metal server.",
 						},
 
-						isBareMetalServerNicAllowInterfaceToFloat: {
+						"allow_to_float": {
 							Type:        schema.TypeBool,
 							Optional:    true,
 							Computed:    true,
@@ -873,6 +884,7 @@ func ResourceIBMIsBareMetalServer() *schema.Resource {
 									"id": &schema.Schema{
 										Type:        schema.TypeString,
 										Optional:    true,
+										Computed:    true,
 										Description: "The virtual network interface id for this bare metal server network attachment.",
 									},
 									"allow_ip_spoofing": &schema.Schema{
@@ -1387,7 +1399,7 @@ func resourceIBMISBareMetalServerCreate(context context.Context, d *schema.Resou
 		autodelete := fmt.Sprintf("network_attachments.%d.virtual_network_interface.0.autodelete", i)
 		enablenat := fmt.Sprintf("network_attachments.%d.virtual_network_interface.0.enable_infrastructure_nat", i)
 		allowfloat := fmt.Sprintf("network_attachments.%d.virtual_network_interface.0.allow_to_float", i)
-		networkAttachmentsIntf := d.Get("network_interfaces")
+		networkAttachmentsIntf := d.Get("network_attachments")
 		networkAttachments := []vpcv1.BareMetalServerNetworkAttachmentPrototypeIntf{}
 		for _, networkAttachmentsItem := range networkAttachmentsIntf.([]interface{}) {
 			networkAttachmentsItemModel, err := resourceIBMIsBareMetalServerMapToBareMetalServerNetworkAttachmentPrototype(allowipspoofing, allowfloat, autodelete, enablenat, d, networkAttachmentsItem.(map[string]interface{}))
@@ -3503,25 +3515,29 @@ func resourceIBMIsBareMetalServerBareMetalServerNetworkAttachmentReferenceToMap(
 	case "*vpcv1.BareMetalServerNetworkAttachmentByPci":
 		{
 			vna := na.(*vpcv1.BareMetalServerNetworkAttachmentByPci)
+			if vna.AllowedVlans != nil {
+				var out = make([]interface{}, len(vna.AllowedVlans))
+				for i, v := range vna.AllowedVlans {
+					out[i] = int(v)
+				}
+				modelMap["allowed_vlans"] = schema.NewSet(schema.HashInt, out)
+			}
 			if vna.VirtualNetworkInterface != nil {
 				vniid = *vna.VirtualNetworkInterface.ID
 				vniMap["id"] = vniid
 				vniMap["name"] = vna.VirtualNetworkInterface.Name
-
-				if vna.AllowedVlans != nil {
-					var out = make([]interface{}, len(vna.AllowedVlans), len(vna.AllowedVlans))
-					for i, v := range vna.AllowedVlans {
-						out[i] = int(v)
-					}
-					modelMap["allowed_vlans"] = schema.NewSet(schema.HashInt, out)
-				}
-
 				vniMap["resource_type"] = vna.VirtualNetworkInterface.ResourceType
 			}
 		}
 	case "*vpcv1.BareMetalServerNetworkAttachmentByVlan":
 		{
 			vna := na.(*vpcv1.BareMetalServerNetworkAttachmentByVlan)
+			if vna.Vlan != nil {
+				modelMap["vlan"] = *vna.Vlan
+			}
+			if vna.AllowToFloat != nil {
+				modelMap["allow_to_float"] = *vna.AllowToFloat
+			}
 			if vna.VirtualNetworkInterface != nil {
 				vniid = *vna.VirtualNetworkInterface.ID
 				vniMap["id"] = vniid
@@ -3538,6 +3554,20 @@ func resourceIBMIsBareMetalServerBareMetalServerNetworkAttachmentReferenceToMap(
 				vniMap["name"] = vna.VirtualNetworkInterface.Name
 				vniMap["resource_type"] = vna.VirtualNetworkInterface.ResourceType
 			}
+			if vna.AllowedVlans != nil {
+				var out = make([]interface{}, len(vna.AllowedVlans))
+				for i, v := range vna.AllowedVlans {
+					out[i] = int(v)
+				}
+				modelMap["allowed_vlans"] = schema.NewSet(schema.HashInt, out)
+			}
+			if vna.Vlan != nil {
+				modelMap["vlan"] = *vna.Vlan
+			}
+			if vna.AllowToFloat != nil {
+				modelMap["allow_to_float"] = *vna.AllowToFloat
+			}
+
 		}
 	}
 
@@ -3781,17 +3811,10 @@ func resourceIBMIsBareMetalServerMapToSecurityGroupIdentity(modelMap map[string]
 }
 
 func resourceIBMIsBareMetalServerMapToBareMetalServerNetworkAttachmentPrototype(allowipspoofing, allowfloat, autodelete, enablenat string, d *schema.ResourceData, modelMap map[string]interface{}) (vpcv1.BareMetalServerNetworkAttachmentPrototypeIntf, error) {
-	discValue, ok := modelMap["interface_type"]
-	if ok {
-		if discValue == "pci" {
-			return resourceIBMIsBareMetalServerMapToBareMetalServerNetworkAttachmentPrototypeBareMetalServerNetworkAttachmentByPciPrototype(allowipspoofing, autodelete, enablenat, d, modelMap)
-		} else if discValue == "vlan" {
-			return resourceIBMIsBareMetalServerMapToBareMetalServerNetworkAttachmentPrototypeBareMetalServerNetworkAttachmentByVlanPrototype(allowipspoofing, allowfloat, autodelete, enablenat, d, modelMap)
-		} else {
-			return nil, fmt.Errorf("unexpected value for discriminator property 'interface_type' found in map: '%s'", discValue)
-		}
+	if modelMap["vlan"] != nil && int64(modelMap["vlan"].(int)) != 0 {
+		return resourceIBMIsBareMetalServerMapToBareMetalServerNetworkAttachmentPrototypeBareMetalServerNetworkAttachmentByVlanPrototype(allowipspoofing, allowfloat, autodelete, enablenat, d, modelMap)
 	} else {
-		return nil, fmt.Errorf("discriminator property 'interface_type' not found in map")
+		return resourceIBMIsBareMetalServerMapToBareMetalServerNetworkAttachmentPrototypeBareMetalServerNetworkAttachmentByPciPrototype(allowipspoofing, autodelete, enablenat, d, modelMap)
 	}
 }
 
@@ -3809,7 +3832,7 @@ func resourceIBMIsBareMetalServerMapToBareMetalServerNetworkAttachmentPrototypeB
 	if _, ok := d.GetOkExists(allowfloat); ok && modelMap["allow_to_float"] != nil {
 		model.AllowToFloat = core.BoolPtr(modelMap["allow_to_float"].(bool))
 	}
-	model.InterfaceType = core.StringPtr(modelMap["interface_type"].(string))
+	model.InterfaceType = core.StringPtr("vlan")
 	model.Vlan = core.Int64Ptr(int64(modelMap["vlan"].(int)))
 	return model, nil
 }
@@ -3831,6 +3854,6 @@ func resourceIBMIsBareMetalServerMapToBareMetalServerNetworkAttachmentPrototypeB
 		}
 		model.AllowedVlans = allowedVlans
 	}
-	model.InterfaceType = core.StringPtr(modelMap["interface_type"].(string))
+	model.InterfaceType = core.StringPtr("pci")
 	return model, nil
 }
