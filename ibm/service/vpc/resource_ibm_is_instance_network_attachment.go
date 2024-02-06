@@ -506,6 +506,10 @@ func resourceIBMIsInstanceNetworkAttachmentUpdate(context context.Context, d *sc
 			allIpSpoofing := d.Get("virtual_network_interface.0.allow_ip_spoofing").(bool)
 			virtualNetworkInterfacePatch.AllowIPSpoofing = &allIpSpoofing
 		}
+		if d.HasChange("virtual_network_interface.0.protocol_state_filtering_mode") {
+			pStateFilteringMode := d.Get("virtual_network_interface.0.protocol_state_filtering_mode").(string)
+			virtualNetworkInterfacePatch.ProtocolStateFilteringMode = &pStateFilteringMode
+		}
 		virtualNetworkInterfacePatchAsPatch, err := virtualNetworkInterfacePatch.AsPatch()
 		if err != nil {
 			return diag.FromErr(fmt.Errorf("[ERROR] Error encountered while apply as patch for virtualNetworkInterfacePatch of instance(%s) vni (%s) %s", d.Id(), vniId, err))

@@ -4264,6 +4264,7 @@ func instanceUpdate(d *schema.ResourceData, meta interface{}) error {
 					ipsName := fmt.Sprintf("%s.%s", nacVniName, "0.ips")
 					enableNatName := fmt.Sprintf("%s.%s", nacVniName, "0.enable_infrastructure_nat")
 					allowIpSpoofingName := fmt.Sprintf("%s.%s", nacVniName, "0.allow_ip_spoofing")
+					pStateFilteringModeSchemaName := fmt.Sprintf("%s.%s", nacVniName, "0.protocol_state_filtering_mode")
 					if d.HasChange(autoDeleteName) {
 						autodelete := d.Get(autoDeleteName).(bool)
 						virtualNetworkInterfacePatch.AutoDelete = &autodelete
@@ -4279,6 +4280,10 @@ func instanceUpdate(d *schema.ResourceData, meta interface{}) error {
 					if d.HasChange(allowIpSpoofingName) {
 						allIpSpoofing := d.Get(allowIpSpoofingName).(bool)
 						virtualNetworkInterfacePatch.AllowIPSpoofing = &allIpSpoofing
+					}
+					if d.HasChange(pStateFilteringModeSchemaName) {
+						pStateFilteringMode := d.Get(pStateFilteringModeSchemaName).(string)
+						virtualNetworkInterfacePatch.ProtocolStateFilteringMode = &pStateFilteringMode
 					}
 					virtualNetworkInterfacePatchAsPatch, err := virtualNetworkInterfacePatch.AsPatch()
 					if err != nil {
@@ -4460,6 +4465,7 @@ func instanceUpdate(d *schema.ResourceData, meta interface{}) error {
 			sgName := fmt.Sprintf("%s.%s", nacVniName, "0.security_groups")
 			enableNatName := fmt.Sprintf("%s.%s", nacVniName, "0.enable_infrastructure_nat")
 			allowIpSpoofingName := fmt.Sprintf("%s.%s", nacVniName, "0.allow_ip_spoofing")
+			pStateFilteringModeSchemaName := fmt.Sprintf("%s.%s", nacVniName, "0.protocol_state_filtering_mode")
 			if d.HasChange(autoDeleteName) {
 				autodelete := d.Get(autoDeleteName).(bool)
 				virtualNetworkInterfacePatch.AutoDelete = &autodelete
@@ -4475,6 +4481,10 @@ func instanceUpdate(d *schema.ResourceData, meta interface{}) error {
 			if d.HasChange(allowIpSpoofingName) {
 				allIpSpoofing := d.Get(allowIpSpoofingName).(bool)
 				virtualNetworkInterfacePatch.AllowIPSpoofing = &allIpSpoofing
+			}
+			if d.HasChange(pStateFilteringModeSchemaName) {
+				pStateFilteringMode := d.Get(pStateFilteringModeSchemaName).(string)
+				virtualNetworkInterfacePatch.ProtocolStateFilteringMode = &pStateFilteringMode
 			}
 			virtualNetworkInterfacePatchAsPatch, err := virtualNetworkInterfacePatch.AsPatch()
 			if err != nil {
