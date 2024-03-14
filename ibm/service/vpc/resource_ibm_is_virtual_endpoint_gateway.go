@@ -162,6 +162,7 @@ func ResourceIBMISEndpointGateway() *schema.Resource {
 						},
 						isVirtualEndpointGatewayIPsAddress: {
 							Type:        schema.TypeString,
+							Optional:    true,
 							Computed:    true,
 							Description: "The IP Address",
 						},
@@ -613,6 +614,7 @@ func expandIPs(ipsSet []interface{}) (ipsOptions []vpcv1.EndpointGatewayReserved
 		// IPs option
 		ipsID := ips[isVirtualEndpointGatewayIPsID].(string)
 		ipsName := ips[isVirtualEndpointGatewayIPsName].(string)
+		ipsAddress := ips[isVirtualEndpointGatewayIPsAddress].(string)
 
 		// IPs subnet option
 		ipsSubnetID := ips[isVirtualEndpointGatewayIPsSubnet].(string)
@@ -629,6 +631,9 @@ func expandIPs(ipsSet []interface{}) (ipsOptions []vpcv1.EndpointGatewayReserved
 		}
 		if ipsName != "" {
 			ipsOpt.Name = &ipsName
+		}
+		if ipsAddress != "" {
+			ipsOpt.Address = &ipsAddress
 		}
 		ipsOptions = append(ipsOptions, ipsOpt)
 	}
