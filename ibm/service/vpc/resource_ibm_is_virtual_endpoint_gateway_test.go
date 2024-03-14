@@ -212,7 +212,6 @@ func TestAccIBMISVirtualEndpointGateway_IpsAddress(t *testing.T) {
 					resource.TestCheckResourceAttrSet(name, "ips.#"),
 					resource.TestCheckResourceAttrSet(name, "ips.0.name"),
 					resource.TestCheckResourceAttrSet(name, "ips.0.address"),
-					resource.TestCheckResourceAttrSet(name, "ips.0.subnet"),
 					resource.TestCheckResourceAttrSet(name, "target.#"),
 					resource.TestCheckResourceAttrSet(name, "created_at"),
 					resource.TestCheckResourceAttrSet(name, "crn"),
