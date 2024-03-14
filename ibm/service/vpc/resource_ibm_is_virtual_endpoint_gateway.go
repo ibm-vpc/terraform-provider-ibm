@@ -508,6 +508,8 @@ func resourceIBMisVirtualEndpointGatewayRead(d *schema.ResourceData, meta interf
 		flattenEndpointGatewayTarget(endpointGateway.Target.(*vpcv1.EndpointGatewayTarget)))
 	if len(endpointGateway.ServiceEndpoints) > 0 {
 		d.Set(isVirtualEndpointGatewayServiceEndpoints, endpointGateway.ServiceEndpoints)
+	} else {
+		d.Set(isVirtualEndpointGatewayServiceEndpoints, []string{})
 	}
 	d.Set(isVirtualEndpointGatewayVpcID, endpointGateway.VPC.ID)
 	if endpointGateway.SecurityGroups != nil {
