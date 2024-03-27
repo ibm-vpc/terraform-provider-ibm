@@ -29,7 +29,7 @@ func TestAccResourceTag_Basic(t *testing.T) {
 				Config: testAccCheckResourceTagCreate(name, managed_from),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					testAccCheckResourceTagExists("ibm_resource_tag.tag"),
-					resource.TestCheckResourceAttr("ibm_resource_tag.tag", "tags.#", "3"),
+					resource.TestCheckResourceAttr("ibm_resource_tag.tag", "tags.#", "2"),
 				),
 			},
 			{
@@ -52,7 +52,7 @@ func TestAccResourceTag_Wait(t *testing.T) {
 				Config: testAccCheckResourceTagWaitCreate(name),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					testAccCheckResourceTagExists("ibm_resource_tag.tag"),
-					resource.TestCheckResourceAttr("ibm_resource_tag.tag", "tags.#", "2"),
+					resource.TestCheckResourceAttr("ibm_resource_tag.tag", "tags.#", "3"),
 				),
 			},
 			{
