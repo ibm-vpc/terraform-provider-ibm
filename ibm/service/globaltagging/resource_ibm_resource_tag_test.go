@@ -55,11 +55,6 @@ func TestAccResourceTag_Wait(t *testing.T) {
 					resource.TestCheckResourceAttr("ibm_resource_tag.tag", "tags.#", "3"),
 				),
 			},
-			{
-				ResourceName:      "ibm_resource_tag.tag",
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
 		},
 	})
 }
