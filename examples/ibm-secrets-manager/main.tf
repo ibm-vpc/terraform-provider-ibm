@@ -42,6 +42,13 @@ resource "ibm_sm_public_certificate" "sm_public_certificate_instance" {
   }
 }
 
+resource "ibm_sm_public_certificate_action_validate_manual_dns" "sm_public_certificate_action_validate_manual_dns_instance" {
+  instance_id      = var.secrets_manager_instance_id
+  region           = var.region
+  endpoint_type    = var.endpoint_type
+  secret_id 	   = var.sm_public_certificate_action_validate_manual_dns_secret_id
+}
+
 // Provision sm_kv_secret resource instance
 resource "ibm_sm_kv_secret" "sm_kv_secret_instance" {
   instance_id   = var.secrets_manager_instance_id
@@ -72,6 +79,33 @@ resource "ibm_sm_iam_credentials_secret"  "sm_iam_credentials_secret_instance" {
     interval = 1
     unit = "day"
   }
+}
+
+// Provision sm_service_credentials_secret resource instance
+resource "ibm_sm_service_credentials_secret" "sm_service_credentials_secret" {
+  instance_id   = var.secrets_manager_instance_id
+  region        = var.region
+  endpoint_type    = var.endpoint_type
+  name 			= var.sm_service_credentials_secret_name
+  custom_metadata = { my_key = jsonencode(var.sm_service_credentials_secret_custom_metadata) }
+  description = var.sm_service_credentials_secret_description
+  labels = var.sm_service_credentials_secret_labels
+  rotation {
+		auto_rotate = true
+		interval = 1
+		unit = "day"
+  }
+  secret_group_id = var.sm_service_credentials_secret_secret_group_id
+  source_service {
+	instance {
+		crn = var.sm_service_credentials_secret_source_service_instance_crn
+	}
+	role {
+		crn = var.sm_service_credentials_secret_source_service_role_crn
+	}
+	parameters = var.sm_service_credentials_secret_source_service_parameters
+  }
+  ttl = var.sm_service_credentials_secret_ttl
 }
 
 // Provision sm_arbitrary_secret resource instance
@@ -184,6 +218,24 @@ resource "ibm_sm_private_certificate_configuration_template" "sm_private_certifi
   basic_constraints_valid_for_non_ca = var.sm_private_certificate_configuration_template_basic_constraints_valid_for_non_ca
 }
 
+// Provision ibm_sm_private_certificate_configuration_action_sign_csr resource instance
+resource "ibm_sm_private_certificate_configuration_action_sign_csr" "sm_private_certificate_configuration_action_sign_csr_instance" {
+  instance_id           = var.secrets_manager_instance_id
+  region                = var.region
+  endpoint_type         = var.endpoint_type
+  name                  = var.sm_private_certificate_configuration_action_sign_csr_name
+  csr                   = var.sm_private_certificate_configuration_action_sign_csr_csr
+}
+
+// Provision ibm_sm_private_certificate_configuration_action_set_signed resource instance
+resource "ibm_sm_private_certificate_configuration_action_set_signed" "sm_private_certificate_configuration_action_set_signed_instance" {
+  instance_id           = var.secrets_manager_instance_id
+  region                = var.region
+  endpoint_type         = var.endpoint_type
+  name                  = var.sm_private_certificate_configuration_action_set_signed_name
+  certificate           = var.sm_private_certificate_configuration_action_set_signed_certificate
+}
+
 // Provision sm_public_certificate_configuration_ca_lets_encrypt resource instance
 resource "ibm_sm_public_certificate_configuration_ca_lets_encrypt" "sm_public_certificate_configuration_ca_lets_encrypt_instance" {
   instance_id   = var.secrets_manager_instance_id
@@ -279,6 +331,14 @@ data "ibm_sm_iam_credentials_secret_metadata" "sm_iam_credentials_secret_metadat
   secret_id = var.sm_iam_credentials_secret_metadata_id
 }
 
+// Create sm_service_credentials_secret_metadata data source
+data "ibm_sm_service_credentials_secret_metadata" "sm_service_credentials_secret_metadata_instance" {
+  instance_id   = var.secrets_manager_instance_id
+  region        = var.region
+  endpoint_type    = var.endpoint_type
+  secret_id = var.sm_service_credentials_secret_metadata_id
+}
+
 // Create sm_arbitrary_secret_metadata data source
 data "ibm_sm_arbitrary_secret_metadata" "sm_arbitrary_secret_metadata_instance" {
   instance_id   = var.secrets_manager_instance_id
@@ -325,6 +385,14 @@ data "ibm_sm_iam_credentials_secret" "sm_iam_credentials_secret_instance" {
   region        = var.region
   endpoint_type    = var.endpoint_type
   secret_id = var.sm_iam_credentials_secret_id
+}
+
+// Create sm_service_credentials_secret data source
+data "ibm_sm_service_credentials_secret" "sm_service_credentials_secret_instance" {
+  instance_id   = var.secrets_manager_instance_id
+  region        = var.region
+  endpoint_type    = var.endpoint_type
+  secret_id = var.sm_service_credentials_secret_id
 }
 
 // Create sm_arbitrary_secret data source
@@ -419,18 +487,4 @@ data "ibm_sm_en_registration" "sm_en_registration_instance" {
   instance_id   = var.secrets_manager_instance_id
   region        = var.region
   endpoint_type    = var.endpoint_type
-}
-
-
-// Create secrets_manager_secrets data source
-data "ibm_secrets_manager_secrets" "secrets_manager_secrets_instance" {
-  instance_id = var.secrets_manager_instance_id
-  secret_type = var.secrets_manager_secrets_secret_type
-}
-
-// Create secrets_manager_secret data source
-data "ibm_secrets_manager_secret" "secrets_manager_secret_instance" {
-  instance_id = var.secrets_manager_instance_id
-  secret_type = var.secrets_manager_secret_secret_type
-  secret_id   = var.secrets_manager_secret_id
 }

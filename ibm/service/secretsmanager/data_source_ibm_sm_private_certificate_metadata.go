@@ -13,7 +13,7 @@ import (
 
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/conns"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
-	"github.com/IBM/secrets-manager-go-sdk/secretsmanagerv2"
+	"github.com/IBM/secrets-manager-go-sdk/v2/secretsmanagerv2"
 )
 
 func DataSourceIbmSmPrivateCertificateMetadata() *schema.Resource {
@@ -176,11 +176,6 @@ func DataSourceIbmSmPrivateCertificateMetadata() *schema.Resource {
 							Computed:    true,
 							Description: "The units for the secret rotation time interval.",
 						},
-						"rotate_keys": &schema.Schema{
-							Type:        schema.TypeBool,
-							Computed:    true,
-							Description: "Determines whether Secrets Manager rotates the private key for your public certificate automatically.Default is `false`. If it is set to `true`, the service generates and stores a new private key for your rotated certificate.",
-						},
 					},
 				},
 			},
@@ -255,7 +250,7 @@ func dataSourceIbmSmPrivateCertificateMetadataRead(context context.Context, d *s
 		return diag.FromErr(fmt.Errorf("Error setting created_by: %s", err))
 	}
 
-	if err = d.Set("created_at", flex.DateTimeToString(privateCertificateMetadata.CreatedAt)); err != nil {
+	if err = d.Set("created_at", DateTimeToRFC3339(privateCertificateMetadata.CreatedAt)); err != nil {
 		return diag.FromErr(fmt.Errorf("Error setting created_at: %s", err))
 	}
 
@@ -309,7 +304,7 @@ func dataSourceIbmSmPrivateCertificateMetadataRead(context context.Context, d *s
 		return diag.FromErr(fmt.Errorf("Error setting state_description: %s", err))
 	}
 
-	if err = d.Set("updated_at", flex.DateTimeToString(privateCertificateMetadata.UpdatedAt)); err != nil {
+	if err = d.Set("updated_at", DateTimeToRFC3339(privateCertificateMetadata.UpdatedAt)); err != nil {
 		return diag.FromErr(fmt.Errorf("Error setting updated_at: %s", err))
 	}
 
@@ -333,7 +328,7 @@ func dataSourceIbmSmPrivateCertificateMetadataRead(context context.Context, d *s
 		return diag.FromErr(fmt.Errorf("Error setting common_name: %s", err))
 	}
 
-	if err = d.Set("expiration_date", flex.DateTimeToString(privateCertificateMetadata.ExpirationDate)); err != nil {
+	if err = d.Set("expiration_date", DateTimeToRFC3339(privateCertificateMetadata.ExpirationDate)); err != nil {
 		return diag.FromErr(fmt.Errorf("Error setting expiration_date: %s", err))
 	}
 
@@ -345,7 +340,7 @@ func dataSourceIbmSmPrivateCertificateMetadataRead(context context.Context, d *s
 		return diag.FromErr(fmt.Errorf("Error setting key_algorithm: %s", err))
 	}
 
-	if err = d.Set("next_rotation_date", flex.DateTimeToString(privateCertificateMetadata.NextRotationDate)); err != nil {
+	if err = d.Set("next_rotation_date", DateTimeToRFC3339(privateCertificateMetadata.NextRotationDate)); err != nil {
 		return diag.FromErr(fmt.Errorf("Error setting next_rotation_date: %s", err))
 	}
 
@@ -381,7 +376,7 @@ func dataSourceIbmSmPrivateCertificateMetadataRead(context context.Context, d *s
 		return diag.FromErr(fmt.Errorf("Error setting revocation_time_seconds: %s", err))
 	}
 
-	if err = d.Set("revocation_time_rfc3339", flex.DateTimeToString(privateCertificateMetadata.RevocationTimeRfc3339)); err != nil {
+	if err = d.Set("revocation_time_rfc3339", DateTimeToRFC3339(privateCertificateMetadata.RevocationTimeRfc3339)); err != nil {
 		return diag.FromErr(fmt.Errorf("Error setting revocation_time_rfc3339: %s", err))
 	}
 
@@ -402,9 +397,6 @@ func dataSourceIbmSmPrivateCertificateMetadataRotationPolicyToMap(model secretsm
 		}
 		if model.Unit != nil {
 			modelMap["unit"] = *model.Unit
-		}
-		if model.RotateKeys != nil {
-			modelMap["rotate_keys"] = *model.RotateKeys
 		}
 		return modelMap, nil
 	} else {

@@ -14,10 +14,14 @@ The IBM Cloud Provider plug-in for Terraform can be configured to use non-defaul
 
 <!-- TOC depthFrom:2 -->
 
-- [Getting Started with custom service endpoints](#getting-started-with-custom-service-endpoints)
-- [Supported endpoint customizations](#supported-endpoint-customizations)
-- [File structure for endpoints file](#file-structure-for-endpoints-file)
-- [Prioritisation of endpoints](#prioritisation-of-endpoints)
+- [Customizing default cloud service endpoints](#customizing-default-cloud-service-endpoints)
+  - [Getting started with custom service endpoints](#getting-started-with-custom-service-endpoints)
+  - [Supported endpoint customizations](#supported-endpoint-customizations)
+  - [File structure for endpoints file](#file-structure-for-endpoints-file)
+  - [Prioritisation of endpoints](#prioritisation-of-endpoints)
+    - [1. Define service endpoints by using environment variables](#1-define-service-endpoints-by-using-environment-variables)
+    - [2. Define service endpoints by using an endpoints file](#2-define-service-endpoints-by-using-an-endpoints-file)
+    - [3. Use the default private or public service endpoint based on the `visibility` setting in the provider block](#3-use-the-default-private-or-public-service-endpoint-based-on-the-visibility-setting-in-the-provider-block)
 <!-- /TOC -->
 
 ## Getting started with custom service endpoints
@@ -45,7 +49,6 @@ provider "ibm" {
 |App Id|IBMCLOUD_APPID_MANAGEMENT_API_ENDPOINT|
 |Atracker|IBMCLOUD_ATRACKER_API_ENDPOINT|
 |Catalog Management|IBMCLOUD_CATALOG_MANAGEMENT_API_ENDPOINT|
-|Certificate Manager|IBMCLOUD_CERTIFICATE_MANAGER_API_ENDPOINT|
 |Cloud Object Storage|IBMCLOUD_COS_CONFIG_ENDPOINT|
 |Context-based Restrictions|IBMCLOUD_CONTEXT_BASED_RESTRICTIONS_ENDPOINT|
 |Internet Services|IBMCLOUD_CIS_API_ENDPOINT|
@@ -53,6 +56,8 @@ provider "ibm" {
 |Compilance (Posture Management)|IBMCLOUD_COMPLIANCE_API_ENDPOINT|
 |Container Registry|IBMCLOUD_CR_API_ENDPOINT|
 |Kubernetes Service|IBMCLOUD_CS_API_ENDPOINT|
+|Metrics Router| IBMCLOUD_METRICS_ROUTING_API_ENDPOINT|
+|MQ on Cloud| IBMCLOUD_MQCLOUD_CONFIG_ENDPOINT|
 |Direct Link|IBMCLOUD_DL_API_ENDPOINT|
 |Direct Link Provider|IBMCLOUD_DL_PROVIDER_API_ENDPOINT|
 |Enterprise Management|IBMCLOUD_ENTERPRISE_API_ENDPOINT|

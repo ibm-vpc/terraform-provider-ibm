@@ -528,6 +528,7 @@ func ResourceIBMCmVersion() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				ForceNew:    true,
+				Sensitive:   true,
 				Description: "Authentication token used to access the specified zip file.",
 			},
 			"rev": &schema.Schema{
@@ -1839,7 +1840,6 @@ func resourceIBMCmVersionCreate(context context.Context, d *schema.ResourceData,
 	updateOfferingOptions.IfMatch = &ifMatch
 
 	hasChange := false
-	method := "replace"
 
 	// find kind and version index
 	var kindIndex int
@@ -1861,6 +1861,7 @@ func resourceIBMCmVersionCreate(context context.Context, d *schema.ResourceData,
 	pathToVersion := fmt.Sprintf("/kinds/%d/versions/%d", kindIndex, versionIndex)
 
 	if _, ok := d.GetOk("tags"); ok {
+		var method string
 		if activeVersion.Tags == nil {
 			method = "add"
 		} else {
@@ -1876,6 +1877,7 @@ func resourceIBMCmVersionCreate(context context.Context, d *schema.ResourceData,
 		hasChange = true
 	}
 	if _, ok := d.GetOk("configuration"); ok {
+		var method string
 		if activeVersion.Configuration == nil {
 			method = "add"
 		} else {
@@ -1895,6 +1897,7 @@ func resourceIBMCmVersionCreate(context context.Context, d *schema.ResourceData,
 		hasChange = true
 	}
 	if _, ok := d.GetOk("iam_permissions"); ok {
+		var method string
 		if activeVersion.IamPermissions == nil {
 			method = "add"
 		} else {
@@ -1910,6 +1913,7 @@ func resourceIBMCmVersionCreate(context context.Context, d *schema.ResourceData,
 		hasChange = true
 	}
 	if _, ok := d.GetOk("install"); ok {
+		var method string
 		if activeVersion.Install == nil {
 			method = "add"
 		} else {
@@ -1925,6 +1929,7 @@ func resourceIBMCmVersionCreate(context context.Context, d *schema.ResourceData,
 		hasChange = true
 	}
 	if _, ok := d.GetOk("pre_install"); ok {
+		var method string
 		if activeVersion.PreInstall == nil {
 			method = "add"
 		} else {
@@ -1940,6 +1945,7 @@ func resourceIBMCmVersionCreate(context context.Context, d *schema.ResourceData,
 		hasChange = true
 	}
 	if _, ok := d.GetOk("licenses"); ok {
+		var method string
 		if activeVersion.Licenses == nil {
 			method = "add"
 		} else {
@@ -1955,6 +1961,7 @@ func resourceIBMCmVersionCreate(context context.Context, d *schema.ResourceData,
 		hasChange = true
 	}
 	if _, ok := d.GetOk("solution_info"); ok {
+		var method string
 		if activeVersion.SolutionInfo == nil {
 			method = "add"
 		} else {
@@ -1974,6 +1981,7 @@ func resourceIBMCmVersionCreate(context context.Context, d *schema.ResourceData,
 		hasChange = true
 	}
 	if _, ok := d.GetOk("usage"); ok {
+		var method string
 		if activeVersion.Metadata["usage"] == nil {
 			method = "add"
 		} else {
@@ -1989,6 +1997,7 @@ func resourceIBMCmVersionCreate(context context.Context, d *schema.ResourceData,
 		hasChange = true
 	}
 	if _, ok := d.GetOk("terraform_version"); ok {
+		var method string
 		if activeVersion.Metadata["terraform_version"] == nil {
 			method = "add"
 		} else {
@@ -2323,7 +2332,6 @@ func resourceIBMCmVersionUpdate(context context.Context, d *schema.ResourceData,
 	updateOfferingOptions.IfMatch = &ifMatch
 
 	hasChange := false
-	method := "replace"
 
 	// find kind and version index
 	var kindIndex int
@@ -2345,6 +2353,7 @@ func resourceIBMCmVersionUpdate(context context.Context, d *schema.ResourceData,
 	pathToVersion := fmt.Sprintf("/kinds/%d/versions/%d", kindIndex, versionIndex)
 
 	if d.HasChange("flavor") {
+		var method string
 		if activeVersion.Flavor == nil {
 			method = "add"
 		} else {
@@ -2360,6 +2369,7 @@ func resourceIBMCmVersionUpdate(context context.Context, d *schema.ResourceData,
 		hasChange = true
 	}
 	if d.HasChange("tags") {
+		var method string
 		if activeVersion.Tags == nil {
 			method = "add"
 		} else {
@@ -2375,6 +2385,7 @@ func resourceIBMCmVersionUpdate(context context.Context, d *schema.ResourceData,
 		hasChange = true
 	}
 	if d.HasChange("configuration") {
+		var method string
 		if activeVersion.Configuration == nil {
 			method = "add"
 		} else {
@@ -2394,6 +2405,7 @@ func resourceIBMCmVersionUpdate(context context.Context, d *schema.ResourceData,
 		hasChange = true
 	}
 	if d.HasChange("iam_permissions") {
+		var method string
 		if activeVersion.IamPermissions == nil {
 			method = "add"
 		} else {
@@ -2409,6 +2421,7 @@ func resourceIBMCmVersionUpdate(context context.Context, d *schema.ResourceData,
 		hasChange = true
 	}
 	if d.HasChange("install") {
+		var method string
 		if activeVersion.Install == nil {
 			method = "add"
 		} else {
@@ -2424,6 +2437,7 @@ func resourceIBMCmVersionUpdate(context context.Context, d *schema.ResourceData,
 		hasChange = true
 	}
 	if d.HasChange("pre_install") {
+		var method string
 		if activeVersion.PreInstall == nil {
 			method = "add"
 		} else {
@@ -2439,6 +2453,7 @@ func resourceIBMCmVersionUpdate(context context.Context, d *schema.ResourceData,
 		hasChange = true
 	}
 	if d.HasChange("licenses") {
+		var method string
 		if activeVersion.Licenses == nil {
 			method = "add"
 		} else {
@@ -2454,6 +2469,7 @@ func resourceIBMCmVersionUpdate(context context.Context, d *schema.ResourceData,
 		hasChange = true
 	}
 	if d.HasChange("solution_info") {
+		var method string
 		if activeVersion.SolutionInfo == nil {
 			method = "add"
 		} else {
@@ -2473,6 +2489,7 @@ func resourceIBMCmVersionUpdate(context context.Context, d *schema.ResourceData,
 		hasChange = true
 	}
 	if d.HasChange("terraform_version") {
+		var method string
 		if activeVersion.Metadata["terraform_version"] == nil {
 			method = "add"
 		} else {

@@ -9,6 +9,7 @@ import (
 	"github.com/IBM-Cloud/bluemix-go/bmxerror"
 	"github.com/go-openapi/strfmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/pkg/errors"
 	"log"
 	"strings"
 	"time"
@@ -19,7 +20,7 @@ import (
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/conns"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM/go-sdk-core/v5/core"
-	"github.com/IBM/secrets-manager-go-sdk/secretsmanagerv2"
+	"github.com/IBM/secrets-manager-go-sdk/v2/secretsmanagerv2"
 )
 
 func ResourceIbmSmUsernamePasswordSecret() *schema.Resource {
@@ -46,7 +47,6 @@ func ResourceIbmSmUsernamePasswordSecret() *schema.Resource {
 			"expiration_date": &schema.Schema{
 				Type:        schema.TypeString,
 				Optional:    true,
-				ForceNew:    true,
 				Description: "The date a secret is expired. The date format follows RFC 3339.",
 			},
 			"labels": &schema.Schema{
@@ -81,7 +81,6 @@ func ResourceIbmSmUsernamePasswordSecret() *schema.Resource {
 			"version_custom_metadata": &schema.Schema{
 				Type:        schema.TypeMap,
 				Optional:    true,
-				ForceNew:    true,
 				Description: "The secret version metadata that a user can customize.",
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
@@ -99,16 +98,18 @@ func ResourceIbmSmUsernamePasswordSecret() *schema.Resource {
 							Description: "Determines whether Secrets Manager rotates your secret automatically.Default is `false`. If `auto_rotate` is set to `true` the service rotates your secret based on the defined interval.",
 						},
 						"interval": &schema.Schema{
-							Type:        schema.TypeInt,
-							Optional:    true,
-							Computed:    true,
-							Description: "The length of the secret rotation time interval.",
+							Type:             schema.TypeInt,
+							Optional:         true,
+							Computed:         true,
+							Description:      "The length of the secret rotation time interval.",
+							DiffSuppressFunc: rotationAttributesDiffSuppress,
 						},
 						"unit": &schema.Schema{
-							Type:        schema.TypeString,
-							Optional:    true,
-							Computed:    true,
-							Description: "The units for the secret rotation time interval.",
+							Type:             schema.TypeString,
+							Optional:         true,
+							Computed:         true,
+							Description:      "The units for the secret rotation time interval.",
+							DiffSuppressFunc: rotationAttributesDiffSuppress,
 						},
 					},
 				},
@@ -121,10 +122,45 @@ func ResourceIbmSmUsernamePasswordSecret() *schema.Resource {
 			},
 			"password": &schema.Schema{
 				Type:        schema.TypeString,
-				Required:    true,
-				ForceNew:    true,
+				Optional:    true,
+				Computed:    true,
 				Sensitive:   true,
 				Description: "The password that is assigned to the secret.",
+			},
+			"password_generation_policy": &schema.Schema{
+				Type:        schema.TypeList,
+				MaxItems:    1,
+				Optional:    true,
+				Computed:    true,
+				Description: "Policy for auto-generated passwords.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"length": &schema.Schema{
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Default:     32,
+							Description: "The length of auto-generated passwords.",
+						},
+						"include_digits": &schema.Schema{
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Default:     true,
+							Description: "Include digits in auto-generated passwords.",
+						},
+						"include_symbols": &schema.Schema{
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Default:     true,
+							Description: "Include symbols in auto-generated passwords.",
+						},
+						"include_uppercase": &schema.Schema{
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Default:     true,
+							Description: "Include uppercase letters in auto-generated passwords.",
+						},
+					},
+				},
 			},
 			"created_by": &schema.Schema{
 				Type:        schema.TypeString,
@@ -290,7 +326,7 @@ func resourceIbmSmUsernamePasswordSecretRead(context context.Context, d *schema.
 	if err = d.Set("created_by", secret.CreatedBy); err != nil {
 		return diag.FromErr(fmt.Errorf("Error setting created_by: %s", err))
 	}
-	if err = d.Set("created_at", flex.DateTimeToString(secret.CreatedAt)); err != nil {
+	if err = d.Set("created_at", DateTimeToRFC3339(secret.CreatedAt)); err != nil {
 		return diag.FromErr(fmt.Errorf("Error setting created_at: %s", err))
 	}
 	if err = d.Set("crn", secret.Crn); err != nil {
@@ -328,7 +364,7 @@ func resourceIbmSmUsernamePasswordSecretRead(context context.Context, d *schema.
 	if err = d.Set("state_description", secret.StateDescription); err != nil {
 		return diag.FromErr(fmt.Errorf("Error setting state_description: %s", err))
 	}
-	if err = d.Set("updated_at", flex.DateTimeToString(secret.UpdatedAt)); err != nil {
+	if err = d.Set("updated_at", DateTimeToRFC3339(secret.UpdatedAt)); err != nil {
 		return diag.FromErr(fmt.Errorf("Error setting updated_at: %s", err))
 	}
 	if err = d.Set("versions_total", flex.IntValue(secret.VersionsTotal)); err != nil {
@@ -341,10 +377,10 @@ func resourceIbmSmUsernamePasswordSecretRead(context context.Context, d *schema.
 	if err = d.Set("rotation", []map[string]interface{}{rotationMap}); err != nil {
 		return diag.FromErr(fmt.Errorf("Error setting rotation: %s", err))
 	}
-	if err = d.Set("expiration_date", flex.DateTimeToString(secret.ExpirationDate)); err != nil {
+	if err = d.Set("expiration_date", DateTimeToRFC3339(secret.ExpirationDate)); err != nil {
 		return diag.FromErr(fmt.Errorf("Error setting expiration_date: %s", err))
 	}
-	if err = d.Set("next_rotation_date", flex.DateTimeToString(secret.NextRotationDate)); err != nil {
+	if err = d.Set("next_rotation_date", DateTimeToRFC3339(secret.NextRotationDate)); err != nil {
 		return diag.FromErr(fmt.Errorf("Error setting next_rotation_date: %s", err))
 	}
 	if err = d.Set("username", secret.Username); err != nil {
@@ -352,6 +388,32 @@ func resourceIbmSmUsernamePasswordSecretRead(context context.Context, d *schema.
 	}
 	if err = d.Set("password", secret.Password); err != nil {
 		return diag.FromErr(fmt.Errorf("Error setting password: %s", err))
+	}
+
+	passwordPolicyMap, err := passwordGenerationPolicyToMap(secret.PasswordGenerationPolicy)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	if err = d.Set("password_generation_policy", []map[string]interface{}{passwordPolicyMap}); err != nil {
+		return diag.FromErr(fmt.Errorf("Error setting password generation policy: %s", err))
+	}
+
+	// Call get version metadata API to get the current version_custom_metadata
+	getVersionMetdataOptions := &secretsmanagerv2.GetSecretVersionMetadataOptions{}
+	getVersionMetdataOptions.SetSecretID(secretId)
+	getVersionMetdataOptions.SetID("current")
+
+	versionMetadataIntf, response, err := secretsManagerClient.GetSecretVersionMetadataWithContext(context, getVersionMetdataOptions)
+	if err != nil {
+		log.Printf("[DEBUG] GetSecretVersionMetadataWithContext failed %s\n%s", err, response)
+		return diag.FromErr(fmt.Errorf("GetSecretVersionMetadataWithContext failed %s\n%s", err, response))
+	}
+
+	versionMetadata := versionMetadataIntf.(*secretsmanagerv2.UsernamePasswordSecretVersionMetadata)
+	if versionMetadata.VersionCustomMetadata != nil {
+		if err = d.Set("version_custom_metadata", versionMetadata.VersionCustomMetadata); err != nil {
+			return diag.FromErr(fmt.Errorf("Error setting version_custom_metadata: %s", err))
+		}
 	}
 
 	return nil
@@ -408,12 +470,82 @@ func resourceIbmSmUsernamePasswordSecretUpdate(context context.Context, d *schem
 		hasChange = true
 	}
 
+	if d.HasChange("expiration_date") {
+		if _, ok := d.GetOk("expiration_date"); ok {
+			layout := time.RFC3339
+			parseToTime, err := time.Parse(layout, d.Get("expiration_date").(string))
+			if err != nil {
+				return diag.FromErr(errors.New(`Failed to get "expiration_date". Error: ` + err.Error()))
+			}
+			parseToDateTime := strfmt.DateTime(parseToTime)
+			patchVals.ExpirationDate = &parseToDateTime
+			hasChange = true
+		} else {
+			return diag.FromErr(errors.New(`The "expiration_date" field cannot be removed. To disable expiration set expiration date to a far future date'`))
+		}
+	}
+
+	if d.HasChange("password_generation_policy") {
+		passwordPolicyModel, err := mapToPasswordGenerationPolicyPatch(d.Get("password_generation_policy").([]interface{})[0].(map[string]interface{}))
+		if err != nil {
+			log.Printf("[DEBUG] UpdateSecretMetadataWithContext failed: Reading password_generation_policy parameter failed: %s", err)
+			return diag.FromErr(fmt.Errorf("UpdateSecretMetadataWithContext failed: Reading password_generation_policy parameter failed: %s", err))
+		}
+		patchVals.PasswordGenerationPolicy = passwordPolicyModel
+		hasChange = true
+	}
+
 	if hasChange {
 		updateSecretMetadataOptions.SecretMetadataPatch, _ = patchVals.AsPatch()
 		_, response, err := secretsManagerClient.UpdateSecretMetadataWithContext(context, updateSecretMetadataOptions)
 		if err != nil {
 			log.Printf("[DEBUG] UpdateSecretMetadataWithContext failed %s\n%s", err, response)
 			return diag.FromErr(fmt.Errorf("UpdateSecretMetadataWithContext failed %s\n%s", err, response))
+		}
+	}
+
+	// Apply change in payload (if changed)
+	if d.HasChange("password") {
+		versionModel := &secretsmanagerv2.UsernamePasswordSecretVersionPrototype{}
+		versionModel.Password = core.StringPtr(d.Get("password").(string))
+		if _, ok := d.GetOk("version_custom_metadata"); ok {
+			versionModel.VersionCustomMetadata = d.Get("version_custom_metadata").(map[string]interface{})
+		}
+		if _, ok := d.GetOk("custom_metadata"); ok {
+			versionModel.CustomMetadata = d.Get("custom_metadata").(map[string]interface{})
+		}
+
+		createSecretVersionOptions := &secretsmanagerv2.CreateSecretVersionOptions{}
+		createSecretVersionOptions.SetSecretID(secretId)
+		createSecretVersionOptions.SetSecretVersionPrototype(versionModel)
+		_, response, err := secretsManagerClient.CreateSecretVersionWithContext(context, createSecretVersionOptions)
+		if err != nil {
+			if hasChange {
+				// Before returning an error, call the read function to update the Terraform state with the change
+				// that was already applied to the metadata
+				resourceIbmSmUsernamePasswordSecretRead(context, d, meta)
+			}
+			log.Printf("[DEBUG] CreateSecretVersionWithContext failed %s\n%s", err, response)
+			return diag.FromErr(fmt.Errorf("CreateSecretVersionWithContext failed %s\n%s", err, response))
+		}
+	} else if d.HasChange("version_custom_metadata") {
+		// Apply change to version_custom_metadata in current version
+		secretVersionMetadataPatchModel := new(secretsmanagerv2.SecretVersionMetadataPatch)
+		secretVersionMetadataPatchModel.VersionCustomMetadata = d.Get("version_custom_metadata").(map[string]interface{})
+		secretVersionMetadataPatchModelAsPatch, _ := secretVersionMetadataAsPatchFunction(secretVersionMetadataPatchModel)
+
+		updateSecretVersionOptions := &secretsmanagerv2.UpdateSecretVersionMetadataOptions{}
+		updateSecretVersionOptions.SetSecretID(secretId)
+		updateSecretVersionOptions.SetID("current")
+		updateSecretVersionOptions.SetSecretVersionMetadataPatch(secretVersionMetadataPatchModelAsPatch)
+		_, response, err := secretsManagerClient.UpdateSecretVersionMetadataWithContext(context, updateSecretVersionOptions)
+		if err != nil {
+			if hasChange {
+				// Call the read function to update the Terraform state with the change already applied to the metadata
+				resourceIbmSmUsernamePasswordSecretRead(context, d, meta)
+			}
+			log.Printf("[DEBUG] UpdateSecretVersionMetadataWithContext failed %s\n%s", err, response)
+			return diag.FromErr(fmt.Errorf("UpdateSecretVersionMetadataWithContext failed %s\n%s", err, response))
 		}
 	}
 
@@ -496,6 +628,13 @@ func resourceIbmSmUsernamePasswordSecretMapToSecretPrototype(d *schema.ResourceD
 		}
 		model.Rotation = RotationModel
 	}
+	if _, ok := d.GetOk("password_generation_policy"); ok {
+		passwordPolicyModel, err := mapToPasswordGenerationPolicy(d.Get("password_generation_policy").([]interface{})[0].(map[string]interface{}))
+		if err != nil {
+			return model, err
+		}
+		model.PasswordGenerationPolicy = passwordPolicyModel
+	}
 
 	return model, nil
 }
@@ -505,7 +644,9 @@ func resourceIbmSmUsernamePasswordSecretMapToRotationPolicy(modelMap map[string]
 	if modelMap["auto_rotate"] != nil {
 		model.AutoRotate = core.BoolPtr(modelMap["auto_rotate"].(bool))
 	}
-	if modelMap["interval"] != nil {
+	if modelMap["interval"].(int) == 0 {
+		model.Interval = nil
+	} else {
 		model.Interval = core.Int64Ptr(int64(modelMap["interval"].(int)))
 	}
 	if modelMap["unit"] != nil && modelMap["unit"].(string) != "" {
@@ -545,4 +686,68 @@ func resourceIbmSmUsernamePasswordSecretCommonRotationPolicyToMap(model *secrets
 		modelMap["unit"] = model.Unit
 	}
 	return modelMap, nil
+}
+
+func rotationAttributesDiffSuppress(key, oldValue, newValue string, d *schema.ResourceData) bool {
+	autoRotate := d.Get("rotation").([]interface{})[0].(map[string]interface{})["auto_rotate"].(bool)
+	if autoRotate == false {
+		return true
+	}
+
+	return oldValue == newValue
+}
+
+func passwordGenerationPolicyToMap(model *secretsmanagerv2.PasswordGenerationPolicyRO) (map[string]interface{}, error) {
+	modelMap := make(map[string]interface{})
+	if model.Length != nil {
+		modelMap["length"] = model.Length
+	}
+	if model.IncludeDigits != nil {
+		modelMap["include_digits"] = model.IncludeDigits
+	}
+	if model.IncludeSymbols != nil {
+		modelMap["include_symbols"] = model.IncludeSymbols
+	}
+	if model.IncludeUppercase != nil {
+		modelMap["include_uppercase"] = model.IncludeUppercase
+	}
+	return modelMap, nil
+}
+
+func mapToPasswordGenerationPolicy(modelMap map[string]interface{}) (*secretsmanagerv2.PasswordGenerationPolicy, error) {
+	model := &secretsmanagerv2.PasswordGenerationPolicy{}
+	if modelMap["length"].(int) == 0 {
+		model.Length = nil
+	} else {
+		model.Length = core.Int64Ptr(int64(modelMap["length"].(int)))
+	}
+	if modelMap["include_digits"] != nil {
+		model.IncludeDigits = core.BoolPtr(modelMap["include_digits"].(bool))
+	}
+	if modelMap["include_symbols"] != nil {
+		model.IncludeSymbols = core.BoolPtr(modelMap["include_symbols"].(bool))
+	}
+	if modelMap["include_uppercase"] != nil {
+		model.IncludeUppercase = core.BoolPtr(modelMap["include_uppercase"].(bool))
+	}
+	return model, nil
+}
+
+func mapToPasswordGenerationPolicyPatch(modelMap map[string]interface{}) (*secretsmanagerv2.PasswordGenerationPolicyPatch, error) {
+	model := &secretsmanagerv2.PasswordGenerationPolicyPatch{}
+	if modelMap["length"].(int) == 0 {
+		model.Length = nil
+	} else {
+		model.Length = core.Int64Ptr(int64(modelMap["length"].(int)))
+	}
+	if modelMap["include_digits"] != nil {
+		model.IncludeDigits = core.BoolPtr(modelMap["include_digits"].(bool))
+	}
+	if modelMap["include_symbols"] != nil {
+		model.IncludeSymbols = core.BoolPtr(modelMap["include_symbols"].(bool))
+	}
+	if modelMap["include_uppercase"] != nil {
+		model.IncludeUppercase = core.BoolPtr(modelMap["include_uppercase"].(bool))
+	}
+	return model, nil
 }

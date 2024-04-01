@@ -57,6 +57,11 @@ func DataSourceIBMIBMIsVPCRoutingTableRoute() *schema.Resource {
 				Computed:    true,
 				Description: "The action to perform with a packet matching the route:- `delegate`: delegate to the system's built-in routes- `delegate_vpc`: delegate to the system's built-in routes, ignoring Internet-bound  routes- `deliver`: deliver the packet to the specified `next_hop`- `drop`: drop the packet.",
 			},
+			"advertise": &schema.Schema{
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: "Indicates whether this route will be advertised to the ingress sources specified by the `advertise_routes_to` routing table property.",
+			},
 			rtCreateAt: &schema.Schema{
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -178,6 +183,11 @@ func DataSourceIBMIBMIsVPCRoutingTableRoute() *schema.Resource {
 				Computed:    true,
 				Description: "The origin of this route:- `service`: route was directly created by a service- `user`: route was directly created by a userThe enumerated values for this property are expected to expand in the future. When processing this property, check for and log unknown values. Optionally halt processing and surface the error, or bypass the route on which the unexpected property value was encountered.",
 			},
+			"priority": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: "The route's priority. Smaller values have higher priority. If a routing table contains routes with the same destination, the route with the highest priority (smallest value) is selected.",
+			},
 			rZone: &schema.Schema{
 				Type:        schema.TypeList,
 				Computed:    true,
@@ -266,6 +276,10 @@ func dataSourceIBMIBMIsVPCRoutingTableRouteRead(context context.Context, d *sche
 		return diag.FromErr(fmt.Errorf("[ERROR] Error setting action: %s", err))
 	}
 
+	if err = d.Set("advertise", route.Advertise); err != nil {
+		return diag.FromErr(fmt.Errorf("[ERROR] Error setting advertise: %s", err))
+	}
+
 	if err = d.Set(rtCreateAt, flex.DateTimeToString(route.CreatedAt)); err != nil {
 		return diag.FromErr(fmt.Errorf("[ERROR] Error setting created_at: %s", err))
 	}
@@ -321,7 +335,10 @@ func dataSourceIBMIBMIsVPCRoutingTableRouteRead(context context.Context, d *sche
 	if err = d.Set("origin", route.Origin); err != nil {
 		return diag.FromErr(fmt.Errorf("[ERROR] Error setting origin %s", err))
 	}
-
+	// priority
+	if err = d.Set("priority", route.Priority); err != nil {
+		return diag.FromErr(fmt.Errorf("[ERROR] Error setting priority, :%s", err))
+	}
 	zone := []map[string]interface{}{}
 	if route.Zone != nil {
 		modelMap, err := dataSourceIBMIBMIsVPCRoutingTableRouteZoneReferenceToMap(route.Zone)

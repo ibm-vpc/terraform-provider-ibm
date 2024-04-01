@@ -6,14 +6,11 @@ package secretsmanager
 import (
 	"context"
 	"fmt"
-	"log"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
-	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/conns"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
-	"github.com/IBM/secrets-manager-go-sdk/secretsmanagerv2"
+	"github.com/IBM/secrets-manager-go-sdk/v2/secretsmanagerv2"
 )
 
 func DataSourceIbmSmImportedCertificate() *schema.Resource {
@@ -22,9 +19,11 @@ func DataSourceIbmSmImportedCertificate() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"secret_id": &schema.Schema{
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: "The ID of the secret.",
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ExactlyOneOf: []string{"secret_id", "name"},
+				Description:  "The ID of the secret.",
 			},
 			"created_by": &schema.Schema{
 				Type:        schema.TypeString,
@@ -73,14 +72,23 @@ func DataSourceIbmSmImportedCertificate() *schema.Resource {
 				Description: "The number of locks of the secret.",
 			},
 			"name": &schema.Schema{
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: "The human-readable name of your secret.",
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ExactlyOneOf: []string{"secret_id", "name"},
+				RequiredWith: []string{"secret_group_name"},
+				Description:  "The human-readable name of your secret.",
 			},
 			"secret_group_id": &schema.Schema{
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "A v4 UUID identifier, or `default` secret group.",
+			},
+			"secret_group_name": &schema.Schema{
+				Type:         schema.TypeString,
+				Optional:     true,
+				RequiredWith: []string{"name"},
+				Description:  "The human-readable name of your secret group.",
 			},
 			"secret_type": &schema.Schema{
 				Type:        schema.TypeString,
@@ -197,29 +205,15 @@ func DataSourceIbmSmImportedCertificate() *schema.Resource {
 }
 
 func dataSourceIbmSmImportedCertificateRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	secretsManagerClient, err := meta.(conns.ClientSession).SecretsManagerV2()
-	if err != nil {
-		return diag.FromErr(err)
-	}
-
-	region := getRegion(secretsManagerClient, d)
-	instanceId := d.Get("instance_id").(string)
-	secretsManagerClient = getClientWithInstanceEndpoint(secretsManagerClient, instanceId, region, getEndpointType(secretsManagerClient, d))
-
-	getSecretOptions := &secretsmanagerv2.GetSecretOptions{}
-
-	secretId := d.Get("secret_id").(string)
-	getSecretOptions.SetID(secretId)
-
-	importedCertificateIntf, response, err := secretsManagerClient.GetSecretWithContext(context, getSecretOptions)
-	if err != nil {
-		log.Printf("[DEBUG] GetSecretWithContext failed %s\n%s", err, response)
-		return diag.FromErr(fmt.Errorf("GetSecretWithContext failed %s\n%s", err, response))
+	importedCertificateIntf, region, instanceId, diagError := getSecretByIdOrByName(context, d, meta, ImportedCertSecretType)
+	if diagError != nil {
+		return diagError
 	}
 
 	importedCertificate := importedCertificateIntf.(*secretsmanagerv2.ImportedCertificate)
-	d.SetId(fmt.Sprintf("%s/%s/%s", region, instanceId, secretId))
+	d.SetId(fmt.Sprintf("%s/%s/%s", region, instanceId, *importedCertificate.ID))
 
+	var err error
 	if err = d.Set("region", region); err != nil {
 		return diag.FromErr(fmt.Errorf("Error setting region: %s", err))
 	}
@@ -227,7 +221,7 @@ func dataSourceIbmSmImportedCertificateRead(context context.Context, d *schema.R
 		return diag.FromErr(fmt.Errorf("Error setting created_by: %s", err))
 	}
 
-	if err = d.Set("created_at", flex.DateTimeToString(importedCertificate.CreatedAt)); err != nil {
+	if err = d.Set("created_at", DateTimeToRFC3339(importedCertificate.CreatedAt)); err != nil {
 		return diag.FromErr(fmt.Errorf("Error setting created_at: %s", err))
 	}
 
@@ -281,7 +275,7 @@ func dataSourceIbmSmImportedCertificateRead(context context.Context, d *schema.R
 		return diag.FromErr(fmt.Errorf("Error setting state_description: %s", err))
 	}
 
-	if err = d.Set("updated_at", flex.DateTimeToString(importedCertificate.UpdatedAt)); err != nil {
+	if err = d.Set("updated_at", DateTimeToRFC3339(importedCertificate.UpdatedAt)); err != nil {
 		return diag.FromErr(fmt.Errorf("Error setting updated_at: %s", err))
 	}
 
@@ -297,7 +291,7 @@ func dataSourceIbmSmImportedCertificateRead(context context.Context, d *schema.R
 		return diag.FromErr(fmt.Errorf("Error setting common_name: %s", err))
 	}
 
-	if err = d.Set("expiration_date", flex.DateTimeToString(importedCertificate.ExpirationDate)); err != nil {
+	if err = d.Set("expiration_date", DateTimeToRFC3339(importedCertificate.ExpirationDate)); err != nil {
 		return diag.FromErr(fmt.Errorf("Error setting expiration_date: %s", err))
 	}
 

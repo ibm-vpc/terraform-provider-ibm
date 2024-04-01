@@ -45,6 +45,11 @@ func DataSourceIBMEnFCMDestination() *schema.Resource {
 				Computed:    true,
 				Description: "Destination type push_android.",
 			},
+			"collect_failed_events": {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: "Whether to collect the failed event in Cloud Object Storage bucket",
+			},
 			"config": {
 				Type:        schema.TypeList,
 				Computed:    true,
@@ -56,20 +61,25 @@ func DataSourceIBMEnFCMDestination() *schema.Resource {
 							Computed: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
-									"sender_id": {
-										Type:        schema.TypeString,
-										Computed:    true,
-										Description: "The Sender_id value for FCM project.",
-									},
-									"server_key": {
-										Type:        schema.TypeString,
-										Computed:    true,
-										Description: "The Server_key value for FCM project.",
-									},
 									"pre_prod": {
 										Type:        schema.TypeBool,
 										Computed:    true,
 										Description: "The flag to enable destination as pre-prod or prod",
+									},
+									"project_id": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The FCM project_id.",
+									},
+									"private_key": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The FCM private_key.",
+									},
+									"client_email": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The FCM client_email.",
 									},
 								},
 							},
@@ -131,6 +141,10 @@ func dataSourceIBMEnFCMDestinationRead(context context.Context, d *schema.Resour
 		return diag.FromErr(fmt.Errorf("[ERROR] Error setting type: %s", err))
 	}
 
+	if err = d.Set("collect_failed_events", result.CollectFailedEvents); err != nil {
+		return diag.FromErr(fmt.Errorf("[ERROR] Error setting CollectFailedEvents: %s", err))
+	}
+
 	if result.Config != nil {
 		err = d.Set("config", enFCMDestinationFlattenConfig(*result.Config))
 		if err != nil {
@@ -182,14 +196,20 @@ func enFCMDestinationConfigParamsToMap(paramsItem en.DestinationConfigOneOfIntf)
 
 	params := paramsItem.(*en.DestinationConfigOneOf)
 
-	if params.SenderID != nil {
-		paramsMap["sender_id"] = params.SenderID
-	}
-	if params.ServerKey != nil {
-		paramsMap["server_key"] = params.ServerKey
-	}
 	if params.PreProd != nil {
 		paramsMap["pre_prod"] = params.PreProd
+	}
+
+	if params.ProjectID != nil {
+		paramsMap["project_id"] = params.ProjectID
+	}
+
+	if params.PrivateKey != nil {
+		paramsMap["private_key"] = params.PrivateKey
+	}
+
+	if params.ClientEmail != nil {
+		paramsMap["client_email"] = params.ClientEmail
 	}
 
 	return paramsMap

@@ -239,6 +239,28 @@ func DataSourceIBMISInstanceProfiles() *schema.Resource {
 								},
 							},
 						},
+						"reservation_terms": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "The type for this profile field",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"type": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The type for this profile field.",
+									},
+									"values": {
+										Type:        schema.TypeList,
+										Computed:    true,
+										Description: "The supported committed use terms for a reservation using this profile",
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+								},
+							},
+						},
 						"total_volume_bandwidth": {
 							Type:        schema.TypeList,
 							Computed:    true,
@@ -464,6 +486,70 @@ func DataSourceIBMISInstanceProfiles() *schema.Resource {
 								},
 							},
 						},
+						"network_attachment_count": {
+							Type:     schema.TypeSet,
+							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"max": {
+										Type:        schema.TypeInt,
+										Computed:    true,
+										Description: "The maximum value for this profile field",
+									},
+									"min": {
+										Type:        schema.TypeInt,
+										Computed:    true,
+										Description: "The minimum value for this profile field",
+									},
+									"type": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The type for this profile field.",
+									},
+								},
+							},
+						},
+						"network_interface_count": {
+							Type:     schema.TypeList,
+							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"max": {
+										Type:        schema.TypeInt,
+										Computed:    true,
+										Description: "The maximum value for this profile field",
+									},
+									"min": {
+										Type:        schema.TypeInt,
+										Computed:    true,
+										Description: "The minimum value for this profile field",
+									},
+									"type": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The type for this profile field.",
+									},
+								},
+							},
+						},
+						"numa_count": {
+							Type:     schema.TypeList,
+							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"type": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The type for this profile field.",
+									},
+									"value": {
+										Type:        schema.TypeInt,
+										Computed:    true,
+										Description: "The value for this profile field.",
+									},
+								},
+							},
+						},
 						"port_speed": {
 							Type:     schema.TypeList,
 							Computed: true,
@@ -481,6 +567,11 @@ func DataSourceIBMISInstanceProfiles() *schema.Resource {
 									},
 								},
 							},
+						},
+						"status": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The status of the instance profile.",
 						},
 						"vcpu_architecture": {
 							Type:     schema.TypeList,
@@ -551,6 +642,29 @@ func DataSourceIBMISInstanceProfiles() *schema.Resource {
 								},
 							},
 						},
+						"vcpu_manufacturer": &schema.Schema{
+							Type:     schema.TypeList,
+							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"default": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The default VCPU manufacturer for an instance with this profile.",
+									},
+									"type": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The type for this profile field.",
+									},
+									"value": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The VCPU manufacturer for an instance with this profile.",
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -594,6 +708,9 @@ func instanceProfilesList(d *schema.ResourceData, meta interface{}) error {
 				l["architecture_values"] = profile.OsArchitecture.Values
 			}
 		}
+		if profile.Status != nil {
+			l["status"] = *profile.Status
+		}
 		if profile.Bandwidth != nil {
 			bandwidthList := []map[string]interface{}{}
 			bandwidthMap := dataSourceInstanceProfileBandwidthToMap(*profile.Bandwidth.(*vpcv1.InstanceProfileBandwidth))
@@ -617,6 +734,10 @@ func instanceProfilesList(d *schema.ResourceData, meta interface{}) error {
 			l["gpu_model"] = dataSourceInstanceProfileFlattenGPUModel(*profile.GpuModel)
 		}
 
+		if profile.ReservationTerms != nil {
+			l["reservation_terms"] = dataSourceInstanceProfileFlattenReservationTerms(*profile.ReservationTerms)
+		}
+
 		if profile.TotalVolumeBandwidth != nil {
 			l["total_volume_bandwidth"] = dataSourceInstanceProfileFlattenTotalVolumeBandwidth(*profile.TotalVolumeBandwidth.(*vpcv1.InstanceProfileVolumeBandwidth))
 		}
@@ -637,6 +758,24 @@ func instanceProfilesList(d *schema.ResourceData, meta interface{}) error {
 			memoryList = append(memoryList, memoryMap)
 			l["memory"] = memoryList
 		}
+		if profile.NetworkInterfaceCount != nil {
+			networkInterfaceCountList := []map[string]interface{}{}
+			networkInterfaceCountMap := dataSourceInstanceProfileNetworkInterfaceCount(*profile.NetworkInterfaceCount.(*vpcv1.InstanceProfileNetworkInterfaceCount))
+			networkInterfaceCountList = append(networkInterfaceCountList, networkInterfaceCountMap)
+			l["network_interface_count"] = networkInterfaceCountList
+		}
+		if profile.NetworkAttachmentCount != nil {
+			networkAttachmentCountList := []map[string]interface{}{}
+			networkAttachmentCountMap := dataSourceInstanceProfileNetworkAttachmentCount(*profile.NetworkAttachmentCount.(*vpcv1.InstanceProfileNetworkAttachmentCount))
+			networkAttachmentCountList = append(networkAttachmentCountList, networkAttachmentCountMap)
+			l["network_attachment_count"] = networkAttachmentCountList
+		}
+		if profile.NumaCount != nil {
+			numaCountList := []map[string]interface{}{}
+			numaCountMap := dataSourceInstanceProfileNumaCountToMap(*profile.NumaCount.(*vpcv1.InstanceProfileNumaCount))
+			numaCountList = append(numaCountList, numaCountMap)
+			l["numa_count"] = numaCountList
+		}
 		if profile.PortSpeed != nil {
 			portSpeedList := []map[string]interface{}{}
 			portSpeedMap := dataSourceInstanceProfilePortSpeedToMap(*profile.PortSpeed.(*vpcv1.InstanceProfilePortSpeed))
@@ -655,6 +794,15 @@ func instanceProfilesList(d *schema.ResourceData, meta interface{}) error {
 			vcpuCountList = append(vcpuCountList, vcpuCountMap)
 			l["vcpu_count"] = vcpuCountList
 		}
+		// Changes for manufacturer for AMD Support.
+		// reduce the line of code here. - sumit's suggestions
+		if profile.VcpuManufacturer != nil {
+			vcpuManufacturerList := []map[string]interface{}{}
+			vcpuManufacturerMap := dataSourceInstanceProfileVcpuManufacturerToMap(*profile.VcpuManufacturer)
+			vcpuManufacturerList = append(vcpuManufacturerList, vcpuManufacturerMap)
+			l["vcpu_manufacturer"] = vcpuManufacturerList
+		}
+
 		if profile.Disks != nil {
 			l[isInstanceDisks] = dataSourceInstanceProfileFlattenDisks(profile.Disks)
 			if err != nil {

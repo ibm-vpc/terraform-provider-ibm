@@ -126,6 +126,11 @@ func DataSourceIBMISVPCRoutingTableRoutes() *schema.Resource {
 							Computed:    true,
 							Description: "Routing Table Route Action",
 						},
+						"advertise": &schema.Schema{
+							Type:        schema.TypeBool,
+							Computed:    true,
+							Description: "Indicates whether this route will be advertised to the ingress sources specified by the `advertise_routes_to` routing table property.",
+						},
 						isRoutingTableRouteDestination: {
 							Type:        schema.TypeString,
 							Computed:    true,
@@ -140,6 +145,11 @@ func DataSourceIBMISVPCRoutingTableRoutes() *schema.Resource {
 							Type:        schema.TypeString,
 							Computed:    true,
 							Description: "The origin of this route:- `service`: route was directly created by a service- `user`: route was directly created by a userThe enumerated values for this property are expected to expand in the future. When processing this property, check for and log unknown values. Optionally halt processing and surface the error, or bypass the route on which the unexpected property value was encountered.",
+						},
+						"priority": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: "The route's priority. Smaller values have higher priority. If a routing table contains routes with the same destination, the route with the highest priority (smallest value) is selected.",
 						},
 						isRoutingTableRouteZoneName: {
 							Type:        schema.TypeString,
@@ -211,6 +221,12 @@ func dataSourceIBMISVPCRoutingTableRoutesList(d *schema.ResourceData, meta inter
 		if instance.LifecycleState != nil {
 			route[isRoutingTableRouteLifecycleState] = *instance.LifecycleState
 		}
+		if instance.Action != nil {
+			route[isRoutingTableRouteAction] = *instance.Action
+		}
+		if instance.Advertise != nil {
+			route["advertise"] = *instance.Advertise
+		}
 		if instance.Destination != nil {
 			route[isRoutingTableRouteDestination] = *instance.Destination
 		}
@@ -228,6 +244,10 @@ func dataSourceIBMISVPCRoutingTableRoutesList(d *schema.ResourceData, meta inter
 		//orgin
 		if instance.Origin != nil {
 			route["origin"] = *instance.Origin
+		}
+		// priority
+		if instance.Priority != nil {
+			route["priority"] = *instance.Priority
 		}
 
 		vpcRoutingTableRoutes = append(vpcRoutingTableRoutes, route)

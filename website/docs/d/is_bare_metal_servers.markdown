@@ -36,9 +36,6 @@ Review the argument references that you can specify for your data source.
 - `vpc_name` (Optional, String) The name of the vpc this bare metal server is in
 - `vpc_crn` (Optional, String) The CRN of the vpc this bare metal server is in
 - `name` - (Optional, String) The name of the dedicated host group
-- `network_interfaces_subnet` - (Optional, String) The ID of the subnet of the bare metal server network interfaces
-- `network_interfaces_subnet_crn` - (Optional, String) The CRN of the subnet of the bare metal server network interfaces
-- `network_interfaces_subnet_name` - (Optional, String) The name of the subnet of the bare metal server network interfaces
 
 ## Attribute Reference
 
@@ -71,14 +68,46 @@ Review the attribute references that you can access after you retrieve your data
   - `keys` - (String) Image used in the bare metal server.
   - `memory` - (Integer) The amount of memory, truncated to whole gibibytes
   - `name` - (String) The name of the bare metal server.
+  - `network_attachments` - (List) The network attachments for this bare metal server, including the primary network attachment.
+      Nested schema for **network_attachments**:
+      - `deleted` - (List) If present, this property indicates the referenced resource has been deleted, and providessome supplementary information.
+          Nested schema for **deleted**:
+          - `more_info` - (String) Link to documentation about deleted resources.
+      - `href` - (String) The URL for this network attachment.
+      - `id` - (String) The unique identifier for this network attachment.
+      - `name` - (String)
+      - `primary_ip` - (List) The primary IP address of the virtual network interface for the network attachment.
+          Nested schema for **primary_ip**:
+          - `address` - (String) The IP address.If the address has not yet been selected, the value will be `0.0.0.0`.This property may add support for IPv6 addresses in the future. When processing a value in this property, verify that the address is in an expected format. If it is not, log an error. Optionally halt processing and surface the error, or bypass the resource on which the unexpected IP address format was encountered.
+          - `deleted` - (List) If present, this property indicates the referenced resource has been deleted, and providessome supplementary information.
+            Nested schema for **deleted**:
+            - `more_info` - (String) Link to documentation about deleted resources.
+          - `href` - (String) The URL for this reserved IP.
+          - `id` - (String) The unique identifier for this reserved IP.
+          - `name` - (String) The name for this reserved IP. The name is unique across all reserved IPs in a subnet.
+          - `resource_type` - (String) The resource type.
+      - `resource_type` - (String) The resource type.
+      - `subnet` - (List) The subnet of the virtual network interface for the network attachment.
+          Nested schema for **subnet**:
+          - `crn` - (String) The CRN for this subnet.
+          - `deleted` - (List) If present, this property indicates the referenced resource has been deleted, and providessome supplementary information.
+              Nested schema for **deleted**:
+              - `more_info` - (String) Link to documentation about deleted resources.
+          - `href` - (String) The URL for this subnet.
+          - `id` - (String) The unique identifier for this subnet.
+          - `name` - (String) The name for this subnet. The name is unique across all subnets in the VPC.
+          - `resource_type` - (String) The resource type.
+
   - `network_interfaces` - (List) A nested block describing the additional network interface of this instance.
-    Nested scheme for `network_interfaces`:
+
+      Nested scheme for `network_interfaces`:
       - `allow_ip_spoofing` - (Bool) Indicates whether source IP spoofing is allowed on this interface. If false, source IP spoofing is prevented on this interface. If true, source IP spoofing is allowed on this interface.
       - `href` - (String) The href of the network interface.
       - `id` - (String) The id of the network interface.
       - `name` - (String) The name of the network interface.
       - `primary_ip` - (List) The primary IP address to bind to the network interface. This can be specified using an existing reserved IP, or a prototype object for a new reserved IP.
-        Nested scheme for `primary_ip`:
+
+          Nested scheme for `primary_ip`:
           - `address` - (String) title: IPv4 The IP address. This property may add support for IPv6 addresses in the future. When processing a value in this property, verify that the address is in an expected format. If it is not, log an error. Optionally halt processing and surface the error, or bypass the resource on which the unexpected IP address format was encountered.
           - `href`- (String) The URL for this reserved IP
           - `reserved_ip`- (String) The unique identifier for this reserved IP
@@ -87,14 +116,45 @@ Review the attribute references that you can access after you retrieve your data
 
       - `security_groups` -  (Array) List of security groups.
       - `subnet` -  (String) ID of the subnet.
+  - `primary_network_attachment` - (List) The primary network attachment.
+    Nested schema for **primary_network_attachment**:
+      - `deleted` - (List) If present, this property indicates the referenced resource has been deleted, and providessome supplementary information.
+          Nested schema for **deleted**:
+          - `more_info` - (String) Link to documentation about deleted resources.
+      - `href` - (String) The URL for this network attachment.
+      - `id` - (String) The unique identifier for this network attachment.
+      - `name` - (String)
+      - `primary_ip` - (List) The primary IP address of the virtual network interface for the network attachment.
+          Nested schema for **primary_ip**:
+          - `address` - (String) The IP address.If the address has not yet been selected, the value will be `0.0.0.0`.This property may add support for IPv6 addresses in the future. When processing a value in this property, verify that the address is in an expected format. If it is not, log an error. Optionally halt processing and surface the error, or bypass the resource on which the unexpected IP address format was encountered.
+          - `deleted` - (List) If present, this property indicates the referenced resource has been deleted, and providessome supplementary information.
+            Nested schema for **deleted**:
+            - `more_info` - (String) Link to documentation about deleted resources.
+          - `href` - (String) The URL for this reserved IP.
+          - `id` - (String) The unique identifier for this reserved IP.
+          - `name` - (String) The name for this reserved IP. The name is unique across all reserved IPs in a subnet.
+          - `resource_type` - (String) The resource type.
+      - `resource_type` - (String) The resource type.
+      - `subnet` - (List) The subnet of the virtual network interface for the network attachment.
+          Nested schema for **subnet**:
+          - `crn` - (String) The CRN for this subnet.
+          - `deleted` - (List) If present, this property indicates the referenced resource has been deleted, and providessome supplementary information.
+            Nested schema for **deleted**:
+            - `more_info` - (String) Link to documentation about deleted resources.
+          - `href` - (String) The URL for this subnet.
+          - `id` - (String) The unique identifier for this subnet.
+          - `name` - (String) The name for this subnet. The name is unique across all subnets in the VPC.
+          - `resource_type` - (String) The resource type.
   - `primary_network_interface` - (List) A nested block describing the primary network interface of this bare metal server.
-    Nested scheme for `primary_network_interface`:
+
+      Nested scheme for `primary_network_interface`:
       - `allow_ip_spoofing` - (Bool) Indicates whether source IP spoofing is allowed on this interface. If false, source IP spoofing is prevented on this interface. If true, source IP spoofing is allowed on this interface.
       - `href` - (String) The href of the network interface.
       - `id` - (String) The id of the network interface.
       - `name` - (String) The name of the network interface.
       - `primary_ip` - (List) The primary IP address to bind to the network interface. This can be specified using an existing reserved IP, or a prototype object for a new reserved IP.
-        Nested scheme for `primary_ip`:
+
+          Nested scheme for `primary_ip`:
           - `address` - (String) title: IPv4 The IP address. This property may add support for IPv6 addresses in the future. When processing a value in this property, verify that the address is in an expected format. If it is not, log an error. Optionally halt processing and surface the error, or bypass the resource on which the unexpected IP address format was encountered.
           - `href`- (String) The URL for this reserved IP
           - `reserved_ip`- (String) The unique identifier for this reserved IP
@@ -106,7 +166,17 @@ Review the attribute references that you can access after you retrieve your data
   - `profile` - (String) The name for this bare metal server profile
   - `resource_group` - (String) resource group id of the bare metal server.
   - `resource_type` - (String) The type of resource referenced
-  - `status` - (String) The status of the bare metal server [ **failed**, **pending**, **restarting**, **running**, **starting**, **stopped**, **stopping** ]
+  - `status` - (String) The status of the bare metal server.
+
+      ->**Supported Status:** 
+        </br>&#x2022; failed 
+        </br>&#x2022; pending
+        </br>&#x2022; restarting
+        </br>&#x2022; running
+        </br>&#x2022; starting
+        </br>&#x2022; stopped
+        </br>&#x2022; stopping
+
   - `status_reasons` - (List) Array of reasons for the current status (if any).  
     Nested scheme for `status_reasons`:
       - `code` - (String) The status reason code
@@ -121,8 +191,8 @@ Review the attribute references that you can access after you retrieve your data
       - `mode` - (String) The trusted platform module mode to use. The specified value must be listed in the bare metal server profile's supported_trusted_platform_module_modes. Updating trusted_platform_module mode would require the server to be stopped then started again.
         - Constraints: Allowable values are: `disabled`, `tpm_2`.
       - `supported_modes` - (Array) The trusted platform module (TPM) mode:
-        - **disabled: No TPM functionality**
-        - **tpm_2: TPM 2.0**
-        - The enumerated values for this property are expected to expand in the future. When processing this property, check for and log unknown values. Optionally halt processing and surface the error, or bypass the resource on which the unexpected property value was encountered.
+          - **disabled: No TPM functionality**
+          - **tpm_2: TPM 2.0**
+          - The enumerated values for this property are expected to expand in the future. When processing this property, check for and log unknown values. Optionally halt processing and surface the error, or bypass the resource on which the unexpected property value was encountered.
   - `vpc` - (String) The VPC this bare metal server resides in.
   - `zone` - (String) The zone this bare metal server resides in.

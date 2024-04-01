@@ -57,10 +57,11 @@ func ResourceIBMContainerWorkerPool() *schema.Resource {
 			},
 
 			"size_per_zone": {
-				Type:         schema.TypeInt,
-				Required:     true,
-				ValidateFunc: validate.ValidateSizePerZone,
-				Description:  "Number of nodes per zone",
+				Type:             schema.TypeInt,
+				Required:         true,
+				ValidateFunc:     validate.ValidateSizePerZone,
+				Description:      "Number of nodes per zone",
+				DiffSuppressFunc: SuppressResizeForAutoscaledWorkerpool,
 			},
 
 			"entitlement": {
@@ -184,10 +185,24 @@ func ResourceIBMContainerWorkerPool() *schema.Resource {
 				ForceNew:         true,
 				DiffSuppressFunc: flex.ApplyOnce,
 			},
+
 			flex.ResourceControllerURL: {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "The URL of the IBM Cloud dashboard that can be used to explore and view details about this cluster",
+			},
+
+			"import_on_create": {
+				Type:             schema.TypeBool,
+				Optional:         true,
+				DiffSuppressFunc: flex.ApplyOnce,
+				Description:      "Import a workerpool from a cluster",
+			},
+
+			"autoscale_enabled": {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: "Autoscaling is enabled on the workerpool",
 			},
 		},
 	}
@@ -223,6 +238,25 @@ func resourceIBMContainerWorkerPoolCreate(d *schema.ResourceData, meta interface
 	}
 
 	clusterNameorID := d.Get("cluster").(string)
+
+	if ioc, ok := d.GetOk("import_on_create"); ok && ioc.(bool) {
+
+		workerPoolsAPI := csClient.WorkerPools()
+		targetEnv, err := getWorkerPoolTargetHeader(d, meta)
+		if err != nil {
+			return err
+		}
+
+		res, err := workerPoolsAPI.GetWorkerPool(clusterNameorID, "default", targetEnv)
+		if err != nil {
+			return err
+		}
+
+		d.SetId(fmt.Sprintf("%s/%s", clusterNameorID, res.ID))
+
+		return resourceIBMContainerWorkerPoolRead(d, meta)
+
+	}
 
 	workerPoolConfig := v1.WorkerPoolConfig{
 		Name:        d.Get("worker_pool_name").(string),
@@ -332,6 +366,7 @@ func resourceIBMContainerWorkerPoolRead(d *schema.ResourceData, meta interface{}
 	} else {
 		d.Set("disk_encryption", false)
 	}
+	d.Set("autoscale_enabled", workerPool.AutoscaleEnabled)
 	controller, err := flex.GetBaseController(meta)
 	if err != nil {
 		return err

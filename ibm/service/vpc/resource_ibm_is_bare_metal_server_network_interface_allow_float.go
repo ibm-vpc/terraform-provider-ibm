@@ -370,10 +370,12 @@ func resourceIBMISBareMetalServerNetworkInterfaceAllowFloatRead(context context.
 		// if response returns an error
 		if err != nil || nicIntf == nil {
 			if response != nil {
-				return diag.FromErr(fmt.Errorf("[ERROR] Error getting Bare Metal Server (%s) network interface (%s): %s\n%s", bareMetalServerId, nicID, err, response))
+				return diag.FromErr(fmt.Errorf("[ERROR] Error getting Bare Metal Server (%s) network interface during read (%s): %s\n%s", bareMetalServerId, nicID, err, response))
 			} else {
-				return diag.FromErr(fmt.Errorf("[ERROR] Error getting Bare Metal Server (%s) network interface (%s): %s", bareMetalServerId, nicID, err))
-			}
+				d.SetId("")
+				return nil
+				// return diag.FromErr(fmt.Errorf("[ERROR] Error getting Bare Metal Server2 (%s) network interface (%s): %s", bareMetalServerId, nicID, err))
+			} // else is returning that the nic is not found anywhere
 		}
 	}
 	err = bareMetalServerNICAllowFloatGet(d, meta, sess, nicIntf, bareMetalServerId)
@@ -573,7 +575,46 @@ func resourceIBMISBareMetalServerNetworkInterfaceAllowFloatUpdate(context contex
 	if err != nil {
 		return diag.FromErr(err)
 	}
+	if d.HasChange("security_groups") && !d.IsNewResource() {
+		ovs, nvs := d.GetChange("security_groups")
+		ov := ovs.(*schema.Set)
+		nv := nvs.(*schema.Set)
+		remove := flex.ExpandStringList(ov.Difference(nv).List())
+		add := flex.ExpandStringList(nv.Difference(ov).List())
+		if len(add) > 0 {
+			for i := range add {
+				createsgnicoptions := &vpcv1.CreateSecurityGroupTargetBindingOptions{
+					SecurityGroupID: &add[i],
+					ID:              &nicId,
+				}
+				_, response, err := sess.CreateSecurityGroupTargetBinding(createsgnicoptions)
+				if err != nil {
+					return diag.FromErr(fmt.Errorf("[ERROR] Error while creating security group %q for network interface of bare metal server %s\n%s: %q", add[i], d.Id(), err, response))
+				}
+				_, err = isWaitForBareMetalServerAvailableForNIC(sess, bareMetalServerId, d.Timeout(schema.TimeoutUpdate), d)
+				if err != nil {
+					return diag.FromErr(err)
+				}
+			}
 
+		}
+		if len(remove) > 0 {
+			for i := range remove {
+				deletesgnicoptions := &vpcv1.DeleteSecurityGroupTargetBindingOptions{
+					SecurityGroupID: &remove[i],
+					ID:              &nicId,
+				}
+				response, err := sess.DeleteSecurityGroupTargetBinding(deletesgnicoptions)
+				if err != nil {
+					return diag.FromErr(fmt.Errorf("[ERROR] Error while removing security group %q for network interface of bare metal server %s\n%s: %q", remove[i], d.Id(), err, response))
+				}
+				_, err = isWaitForBareMetalServerAvailableForNIC(sess, bareMetalServerId, d.Timeout(schema.TimeoutUpdate), d)
+				if err != nil {
+					return diag.FromErr(err)
+				}
+			}
+		}
+	}
 	if d.HasChange("primary_ip.0.name") || d.HasChange("primary_ip.0.auto_delete") {
 		subnetId := d.Get(isBareMetalServerNicSubnet).(string)
 		ripId := d.Get("primary_ip.0.reserved_ip").(string)
@@ -678,7 +719,7 @@ func bareMetalServerNetworkInterfaceAllowFloatDelete(context context.Context, d 
 		if response != nil && response.StatusCode == 404 {
 			return nil
 		}
-		return fmt.Errorf("[ERROR] Error getting Bare Metal Server (%s) network interface(%s) : %s\n%s", bareMetalServerId, nicId, err, response)
+		return fmt.Errorf("[ERROR] Error getting Bare Metal Server (%s) network interface(%s) during delete : %s\n%s", bareMetalServerId, nicId, err, response)
 	}
 	nicType := ""
 	switch reflect.TypeOf(nicIntf).String() {

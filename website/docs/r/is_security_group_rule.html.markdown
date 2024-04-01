@@ -101,12 +101,13 @@ Review the argument references that you can specify for your resource.
 
 - `direction` - (Required, String) The direction of the traffic either `inbound` or `outbound`.
 - `group` - (Required, Forces new resource, String) The security group ID.
+- `local` - (String) 	The local IP address or range of local IP addresses to which this rule will allow inbound traffic (or from which, for outbound traffic). A CIDR block of 0.0.0.0/0 allows traffic to all local IP addresses (or from all local IP addresses, for outbound rules). an IP address, a `CIDR` block.
 - `ip_version` - (Optional, String) The IP version either `IPv4` or `IPv6`. Default `IPv4`.
 - `icmp` - (Optional, List) A nested block describes the `icmp` protocol of this security group rule.
 
   Nested scheme for `icmp`:
-  - `type`- (Required, Integer) The ICMP traffic type to allow. Valid values from 0 to 254.
-  - `code` - (Optional, Integer) The ICMP traffic code to allow. Valid values from 0 to 255.
+  - `type`- (Optional, Integer) The ICMP traffic type to allow. Valid values from 0 to 254. If unspecified, all codes are allowed.
+  - `code` - (Optional, Integer) The ICMP traffic code to allow. Valid values from 0 to 255. If unspecified, all codes are allowed.
 - `remote` - (Optional, String) Security group ID, an IP address, a CIDR block, or a single security group identifier.
 - `tcp` - (Optional, List) A nested block describes the `tcp` protocol of this security group rule.
 
@@ -119,9 +120,7 @@ Review the argument references that you can specify for your resource.
   - `port_min`- (Required, Integer) The UDP port range that includes minimum bound. Valid values are from 1 to 65535.
   - `port_max`- (Required, Integer) The UDP port range that includes maximum bound. Valid values are from 1 to 65535.
 
-~> **Note:** 
-
-If any of the `icmp` , `tcp`, or `udp` is not specified it creates a rule with protocol `ALL`.
+~> **Note:** If any of the `icmp` , `tcp`, or `udp` is not specified it creates a rule with protocol `ALL`.
 
 ## Attribute reference
 In addition to all argument reference list, you can access the following attribute reference after your resource is created.

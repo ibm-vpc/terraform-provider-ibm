@@ -43,6 +43,8 @@ In addition to all argument references listed, you can access the following attr
 
 - `type` - (String) Destination type push_android.
 
+- `collect_failed_events` - (boolean) Toggle switch to enable collect failed event in Cloud Object Storage bucket.
+
 - `config` - (List) Payload describing a destination configuration.
   Nested scheme for **config**:
 
@@ -50,9 +52,11 @@ In addition to all argument references listed, you can access the following attr
 
   Nested scheme for **params**:
 
-  - `sender_id` - (String) Sender ID for your FCM Destination Configured.
+  - `project_id` - (String) Project Id value for FCM project.
 
-  - `server_key` - (String) Server Key for FCM Destination configured.
+  - `private_key` - (String) Private Key value for FCM project.
+
+  - `client_email` - (String) FCM client email address
 
   - `pre_prod` - (Optional, bool) The flag to set your destination as pre prod destination or Prod Destination. The option is only available with Standard plan
 

@@ -17,7 +17,7 @@ import (
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/conns"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM/go-sdk-core/v5/core"
-	"github.com/IBM/secrets-manager-go-sdk/secretsmanagerv2"
+	"github.com/IBM/secrets-manager-go-sdk/v2/secretsmanagerv2"
 )
 
 func ResourceIbmSmPrivateCertificate() *schema.Resource {
@@ -143,16 +143,18 @@ func ResourceIbmSmPrivateCertificate() *schema.Resource {
 							Description: "Determines whether Secrets Manager rotates your secret automatically.Default is `false`. If `auto_rotate` is set to `true` the service rotates your secret based on the defined interval.",
 						},
 						"interval": &schema.Schema{
-							Type:        schema.TypeInt,
-							Optional:    true,
-							Computed:    true,
-							Description: "The length of the secret rotation time interval.",
+							Type:             schema.TypeInt,
+							Optional:         true,
+							Computed:         true,
+							Description:      "The length of the secret rotation time interval.",
+							DiffSuppressFunc: rotationAttributesDiffSuppress,
 						},
 						"unit": &schema.Schema{
-							Type:        schema.TypeString,
-							Optional:    true,
-							Computed:    true,
-							Description: "The units for the secret rotation time interval.",
+							Type:             schema.TypeString,
+							Optional:         true,
+							Computed:         true,
+							Description:      "The units for the secret rotation time interval.",
+							DiffSuppressFunc: rotationAttributesDiffSuppress,
 						},
 					},
 				},
@@ -166,7 +168,6 @@ func ResourceIbmSmPrivateCertificate() *schema.Resource {
 			},
 			"version_custom_metadata": &schema.Schema{
 				Type:        schema.TypeMap,
-				ForceNew:    true,
 				Optional:    true,
 				Description: "The secret version metadata that a user can customize.",
 				Elem:        &schema.Schema{Type: schema.TypeString},
@@ -243,9 +244,8 @@ func ResourceIbmSmPrivateCertificate() *schema.Resource {
 			},
 			"key_algorithm": &schema.Schema{
 				Type:        schema.TypeString,
-				Optional:    true,
+				Computed:    true,
 				ForceNew:    true,
-				Default:     "RSA2048",
 				Description: "The identifier for the cryptographic algorithm to be used to generate the public key that is associated with the certificate.The algorithm that you select determines the encryption algorithm (`RSA` or `ECDSA`) and key size to be used to generate keys and sign certificates. For longer living certificates, it is recommended to use longer keys to provide more encryption protection. Allowed values:  RSA2048, RSA4096, EC256, EC384.",
 			},
 			"next_rotation_date": &schema.Schema{
@@ -266,12 +266,12 @@ func ResourceIbmSmPrivateCertificate() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"not_before": &schema.Schema{
 							Type:        schema.TypeString,
-							Required:    true,
+							Computed:    true,
 							Description: "The date-time format follows RFC 3339.",
 						},
 						"not_after": &schema.Schema{
 							Type:        schema.TypeString,
-							Required:    true,
+							Computed:    true,
 							Description: "The date-time format follows RFC 3339.",
 						},
 					},
@@ -430,7 +430,7 @@ func resourceIbmSmPrivateCertificateRead(context context.Context, d *schema.Reso
 	if err = d.Set("created_by", secret.CreatedBy); err != nil {
 		return diag.FromErr(fmt.Errorf("Error setting created_by: %s", err))
 	}
-	if err = d.Set("created_at", flex.DateTimeToString(secret.CreatedAt)); err != nil {
+	if err = d.Set("created_at", DateTimeToRFC3339(secret.CreatedAt)); err != nil {
 		return diag.FromErr(fmt.Errorf("Error setting created_at: %s", err))
 	}
 	if err = d.Set("crn", secret.Crn); err != nil {
@@ -468,7 +468,7 @@ func resourceIbmSmPrivateCertificateRead(context context.Context, d *schema.Reso
 	if err = d.Set("state_description", secret.StateDescription); err != nil {
 		return diag.FromErr(fmt.Errorf("Error setting state_description: %s", err))
 	}
-	if err = d.Set("updated_at", flex.DateTimeToString(secret.UpdatedAt)); err != nil {
+	if err = d.Set("updated_at", DateTimeToRFC3339(secret.UpdatedAt)); err != nil {
 		return diag.FromErr(fmt.Errorf("Error setting updated_at: %s", err))
 	}
 	if err = d.Set("versions_total", flex.IntValue(secret.VersionsTotal)); err != nil {
@@ -491,7 +491,7 @@ func resourceIbmSmPrivateCertificateRead(context context.Context, d *schema.Reso
 	if err = d.Set("common_name", secret.CommonName); err != nil {
 		return diag.FromErr(fmt.Errorf("Error setting common_name: %s", err))
 	}
-	if err = d.Set("expiration_date", flex.DateTimeToString(secret.ExpirationDate)); err != nil {
+	if err = d.Set("expiration_date", DateTimeToRFC3339(secret.ExpirationDate)); err != nil {
 		return diag.FromErr(fmt.Errorf("Error setting expiration_date: %s", err))
 	}
 	if err = d.Set("issuer", secret.Issuer); err != nil {
@@ -500,7 +500,7 @@ func resourceIbmSmPrivateCertificateRead(context context.Context, d *schema.Reso
 	if err = d.Set("key_algorithm", secret.KeyAlgorithm); err != nil {
 		return diag.FromErr(fmt.Errorf("Error setting key_algorithm: %s", err))
 	}
-	if err = d.Set("next_rotation_date", flex.DateTimeToString(secret.NextRotationDate)); err != nil {
+	if err = d.Set("next_rotation_date", DateTimeToRFC3339(secret.NextRotationDate)); err != nil {
 		return diag.FromErr(fmt.Errorf("Error setting next_rotation_date: %s", err))
 	}
 	rotationMap, err := resourceIbmSmPrivateCertificateRotationPolicyToMap(secret.Rotation)
@@ -527,7 +527,7 @@ func resourceIbmSmPrivateCertificateRead(context context.Context, d *schema.Reso
 	if err = d.Set("revocation_time_seconds", flex.IntValue(secret.RevocationTimeSeconds)); err != nil {
 		return diag.FromErr(fmt.Errorf("Error setting revocation_time_seconds: %s", err))
 	}
-	if err = d.Set("revocation_time_rfc3339", flex.DateTimeToString(secret.RevocationTimeRfc3339)); err != nil {
+	if err = d.Set("revocation_time_rfc3339", DateTimeToRFC3339(secret.RevocationTimeRfc3339)); err != nil {
 		return diag.FromErr(fmt.Errorf("Error setting revocation_time_rfc3339: %s", err))
 	}
 	if err = d.Set("certificate", secret.Certificate); err != nil {
@@ -542,6 +542,24 @@ func resourceIbmSmPrivateCertificateRead(context context.Context, d *schema.Reso
 	if secret.CaChain != nil {
 		if err = d.Set("ca_chain", secret.CaChain); err != nil {
 			return diag.FromErr(fmt.Errorf("Error setting ca_chain: %s", err))
+		}
+	}
+
+	// Call get version metadata API to get the current version_custom_metadata
+	getVersionMetdataOptions := &secretsmanagerv2.GetSecretVersionMetadataOptions{}
+	getVersionMetdataOptions.SetSecretID(secretId)
+	getVersionMetdataOptions.SetID("current")
+
+	versionMetadataIntf, response, err := secretsManagerClient.GetSecretVersionMetadataWithContext(context, getVersionMetdataOptions)
+	if err != nil {
+		log.Printf("[DEBUG] GetSecretVersionMetadataWithContext failed %s\n%s", err, response)
+		return diag.FromErr(fmt.Errorf("GetSecretVersionMetadataWithContext failed %s\n%s", err, response))
+	}
+
+	versionMetadata := versionMetadataIntf.(*secretsmanagerv2.PrivateCertificateVersionMetadata)
+	if versionMetadata.VersionCustomMetadata != nil {
+		if err = d.Set("version_custom_metadata", versionMetadata.VersionCustomMetadata); err != nil {
+			return diag.FromErr(fmt.Errorf("Error setting version_custom_metadata: %s", err))
 		}
 	}
 	return nil
@@ -604,6 +622,27 @@ func resourceIbmSmPrivateCertificateUpdate(context context.Context, d *schema.Re
 		if err != nil {
 			log.Printf("[DEBUG] UpdateSecretMetadataWithContext failed %s\n%s", err, response)
 			return diag.FromErr(fmt.Errorf("UpdateSecretMetadataWithContext failed %s\n%s", err, response))
+		}
+	}
+
+	if d.HasChange("version_custom_metadata") {
+		// Apply change to version_custom_metadata in current version
+		secretVersionMetadataPatchModel := new(secretsmanagerv2.SecretVersionMetadataPatch)
+		secretVersionMetadataPatchModel.VersionCustomMetadata = d.Get("version_custom_metadata").(map[string]interface{})
+		secretVersionMetadataPatchModelAsPatch, _ := secretVersionMetadataAsPatchFunction(secretVersionMetadataPatchModel)
+
+		updateSecretVersionOptions := &secretsmanagerv2.UpdateSecretVersionMetadataOptions{}
+		updateSecretVersionOptions.SetSecretID(secretId)
+		updateSecretVersionOptions.SetID("current")
+		updateSecretVersionOptions.SetSecretVersionMetadataPatch(secretVersionMetadataPatchModelAsPatch)
+		_, response, err := secretsManagerClient.UpdateSecretVersionMetadataWithContext(context, updateSecretVersionOptions)
+		if err != nil {
+			if hasChange {
+				// Call the read function to update the Terraform state with the change already applied to the metadata
+				resourceIbmSmPrivateCertificateRead(context, d, meta)
+			}
+			log.Printf("[DEBUG] UpdateSecretVersionMetadataWithContext failed %s\n%s", err, response)
+			return diag.FromErr(fmt.Errorf("UpdateSecretVersionMetadataWithContext failed %s\n%s", err, response))
 		}
 	}
 
@@ -723,7 +762,9 @@ func resourceIbmSmPrivateCertificateMapToRotationPolicy(modelMap map[string]inte
 	if modelMap["auto_rotate"] != nil {
 		model.AutoRotate = core.BoolPtr(modelMap["auto_rotate"].(bool))
 	}
-	if modelMap["interval"] != nil {
+	if modelMap["interval"].(int) == 0 {
+		model.Interval = nil
+	} else {
 		model.Interval = core.Int64Ptr(int64(modelMap["interval"].(int)))
 	}
 	if modelMap["unit"] != nil && modelMap["unit"].(string) != "" {

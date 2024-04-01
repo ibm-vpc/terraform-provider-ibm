@@ -78,6 +78,25 @@ resource "ibm_is_bare_metal_server" "bms" {
 }
 
 ```
+### VNI example
+```terraform
+resource "ibm_is_bare_metal_server" "bms" {
+  profile = "mx2d-metal-32x192"
+  name    = "example-bms"
+  image   = "r134-31c8ca90-2623-48d7-8cf7-737be6fc4c3e"
+  zone    = "us-south-3"
+  keys    = [ibm_is_ssh_key.example.id]
+  primary_network_attachment {
+    name = "test-vni-100-102"
+    virtual_network_interface { 
+      id = ibm_is_virtual_network_interface.testacc_vni.id
+    }
+    allowed_vlans = [100, 102]
+  }
+  vpc   = ibm_is_vpc.example.id
+}
+
+```
 
 ## Timeouts
 
@@ -102,11 +121,50 @@ Review the argument references that you can specify for your resource.
 - `enable_secure_boot` - (Optional, Boolean) Indicates whether secure boot is enabled. If enabled, the image must support secure boot or the server will fail to boot. Updating `enable_secure_boot` requires the server to be stopped and then it would be started.
 - `image` - (Required, String) ID of the image.
 - `keys` - (Required, List) Comma separated IDs of ssh keys.  
+
+  ~> **Note:**
+  **&#x2022;** `ed25519` can only be used if the operating system supports this key type.</br>
+  **&#x2022;** `ed25519` can't be used with Windows or VMware images.</br>
 - `name` - (Optional, String) The bare metal server name.
 
   -> **NOTE:**
     a bare metal server can take up to 30 mins to clean up on delete, replacement/re-creation using the same name may return error
 
+- `network_attachments` - (Optional, List) The network attachments for this bare metal server, including the primary network attachment.
+  Nested schema for **network_attachments**:
+  - `allowed_vlans` - (Optional, Array) Comma separated VLANs, Indicates what VLAN IDs (for VLAN type only) can use this physical (`PCI`, `VLAN` type) interface. A given VLAN can only be in the allowed_vlans array for one PCI type adapter per bare metal server.
+  - `interface_type` - (Optional, String) The type of the network interface.[**pci**, **vlan**].
+	- `name` - (Required, String) Name for this network attachment.
+  - `virtual_network_interface` - (Optional, List) The virtual network interface details for this target.
+    Nested schema for **virtual_network_interface**:
+    - `allow_ip_spoofing` - (Optional, Boolean) Indicates whether source IP spoofing is allowed on this interface. If `false`, source IP spoofing is prevented on this interface. If `true`, source IP spoofing is allowed on this interface.
+    - `auto_delete` - (Optional, Boolean) Indicates whether this virtual network interface will be automatically deleted when`target` is deleted.
+    - `enable_infrastructure_nat` - (Optional, Boolean) If `true`:- The VPC infrastructure performs any needed NAT operations.- `floating_ips` must not have more than one floating IP.If `false`:- Packets are passed unchanged to/from the network interface,  allowing the workload to perform any needed NAT operations.- `allow_ip_spoofing` must be `false`.- If the virtual network interface is attached:  - The target `resource_type` must be `bare_metal_server_network_attachment`.  - The target `interface_type` must not be `hipersocket`.
+    - `ips` - (Optional, List) The reserved IPs bound to this virtual network interface.May be empty when `lifecycle_state` is `pending`.
+      Nested schema for **ips**:
+      - `address` - (Required, String) The IP address.If the address has not yet been selected, the value will be `0.0.0.0`.This property may add support for IPv6 addresses in the future. When processing a value in this property, verify that the address is in an expected format. If it is not, log an error. Optionally halt processing and surface the error, or bypass the resource on which the unexpected IP address format was encountered.
+      - `deleted` - (Optional, List) If present, this property indicates the referenced resource has been deleted, and providessome supplementary information.
+      Nested schema for **deleted**:
+        - `more_info` - (String) Link to documentation about deleted resources.
+      - `href` - (String) The URL for this reserved IP.
+      - `reserved_ip` - (Required, String) The unique identifier for this reserved IP.
+      - `name` - (Required, String) The name for this reserved IP. The name is unique across all reserved IPs in a subnet.
+      - `resource_type` - (Computed, String) The resource type.
+    - `name` - (Optional, String) The name for this virtual network interface. The name is unique across all virtual network interfaces in the VPC.
+    - `primary_ip` - (Optional, List) The reserved IP for this virtual network interface.
+      Nested schema for **primary_ip**:
+      - `address` - (Required, String) The IP address.If the address has not yet been selected, the value will be `0.0.0.0`.This property may add support for IPv6 addresses in the future. When processing a value in this property, verify that the address is in an expected format. If it is not, log an error. Optionally halt processing and surface the error, or bypass the resource on which the unexpected IP address format was encountered.
+      - `deleted` - (Optional, List) If present, this property indicates the referenced resource has been deleted, and providessome supplementary information.
+      Nested schema for **deleted**:
+        - `more_info` - (Required, String) Link to documentation about deleted resources.
+      - `href` - (Required, String) The URL for this reserved IP.
+      - `reserved_ip` - (Required, String) The unique identifier for this reserved IP.
+      - `name` - (Required, String) The name for this reserved IP. The name is unique across all reserved IPs in a subnet.
+      - `resource_type` - (Computed, String) The resource type.
+    - `resource_group` - (Optional, List) The resource group id for this virtual network interface.
+    - `security_groups` - (Optional, Array of string) The security group ids list for this virtual network interface.
+    - `subnet` - (Optional, List) The associated subnet id.
+  - `vlan` -  (Optional, Integer) Indicates the 802.1Q VLAN ID tag that must be used for all traffic on this interface. [ conflicts with `allowed_vlans`]
 - `network_interfaces` - (Optional, List) The additional network interfaces to create for the bare metal server to this bare metal server. Use `ibm_is_bare_metal_server_network_interface` &  `ibm_is_bare_metal_server_network_interface_allow_float` resource for network interfaces.
 
   ~> **NOTE:**
@@ -128,6 +186,40 @@ Review the argument references that you can specify for your resource.
     - `subnet` -  (Required, String) ID of the subnet to associate with.
     - `vlan` -  (Optional, Integer) Indicates the 802.1Q VLAN ID tag that must be used for all traffic on this interface. [ conflicts with `allowed_vlans`]
 
+- `primary_network_attachment` - (Optional, List) The primary network attachment.
+  Nested schema for **primary_network_attachment**:
+  - `allowed_vlans` - (Optional, Array) Comma separated VLANs, Indicates what VLAN IDs (for VLAN type only) can use this physical (`PCI` type) interface. A given VLAN can only be in the allowed_vlans array for one PCI type adapter per bare metal server.
+  - `interface_type` - (String) The type of the network interface.[**pci**]. 
+	- `name` - (Required, String) Name for this primary network attachment.
+  - `virtual_network_interface` - (Optional, List) The virtual network interface details for this target.
+    Nested schema for **virtual_network_interface**:
+    - `allow_ip_spoofing` - (Optional, Boolean) Indicates whether source IP spoofing is allowed on this interface. If `false`, source IP spoofing is prevented on this interface. If `true`, source IP spoofing is allowed on this interface.
+    - `auto_delete` - (Optional, Boolean) Indicates whether this virtual network interface will be automatically deleted when`target` is deleted.
+    - `enable_infrastructure_nat` - (Optional, Boolean) If `true`:- The VPC infrastructure performs any needed NAT operations.- `floating_ips` must not have more than one floating IP.If `false`:- Packets are passed unchanged to/from the network interface,  allowing the workload to perform any needed NAT operations.- `allow_ip_spoofing` must be `false`.- If the virtual network interface is attached:  - The target `resource_type` must be `bare_metal_server_network_attachment`.  - The target `interface_type` must not be `hipersocket`.
+    - `ips` - (Optional, List) The reserved IPs bound to this virtual network interface.May be empty when `lifecycle_state` is `pending`.
+      Nested schema for **ips**:
+      - `address` - (Required, String) The IP address.If the address has not yet been selected, the value will be `0.0.0.0`.This property may add support for IPv6 addresses in the future. When processing a value in this property, verify that the address is in an expected format. If it is not, log an error. Optionally halt processing and surface the error, or bypass the resource on which the unexpected IP address format was encountered.
+      - `deleted` - (Optional, List) If present, this property indicates the referenced resource has been deleted, and providessome supplementary information.
+      Nested schema for **deleted**:
+        - `more_info` - (String) Link to documentation about deleted resources.
+      - `href` - (String) The URL for this reserved IP.
+      - `reserved_ip` - (Required, String) The unique identifier for this reserved IP.
+      - `name` - (Required, String) The name for this reserved IP. The name is unique across all reserved IPs in a subnet.
+      - `resource_type` - (Computed, String) The resource type.
+    - `name` - (Optional, String) The name for this virtual network interface. The name is unique across all virtual network interfaces in the VPC.
+    - `primary_ip` - (Optional, List) The reserved IP for this virtual network interface.
+      Nested schema for **primary_ip**:
+      - `address` - (Required, String) The IP address.If the address has not yet been selected, the value will be `0.0.0.0`.This property may add support for IPv6 addresses in the future. When processing a value in this property, verify that the address is in an expected format. If it is not, log an error. Optionally halt processing and surface the error, or bypass the resource on which the unexpected IP address format was encountered.
+      - `deleted` - (Optional, List) If present, this property indicates the referenced resource has been deleted, and providessome supplementary information.
+      Nested schema for **deleted**:
+        - `more_info` - (Required, String) Link to documentation about deleted resources.
+      - `href` - (Required, String) The URL for this reserved IP.
+      - `reserved_ip` - (Required, String) The unique identifier for this reserved IP.
+      - `name` - (Required, String) The name for this reserved IP. The name is unique across all reserved IPs in a subnet.
+      - `resource_type` - (Computed, String) The resource type.
+    - `resource_group` - (Optional, List) The resource group id for this virtual network interface.
+    - `security_groups` - (Optional, Array of string) The security group ids list for this virtual network interface.
+    - `subnet` - (Optional, List) The associated subnet id.
 - `primary_network_interface` - (Required, List) A nested block describing the primary network interface of this bare metal server. We can have only one primary network interface.
   
   Nested scheme for `primary_network_interface`:
@@ -136,11 +228,10 @@ Review the argument references that you can specify for your resource.
     - `enable_infrastructure_nat` - (Optional, Boolean) If true, the VPC infrastructure performs any needed NAT operations. If false, the packet is passed unmodified to/from the network interface, allowing the workload to perform any needed NAT operations. [default : `true`]
 
     - `name` - (Optional, String) The name of the network interface.
-    - `interface_type` - (Optional, String) The type of the network interface.[**pci**, **hipersocket**]. `allowed_vlans` is required for `pci` type.
+    - `interface_type` - (Optional, String) The type of the network interface.[**pci**]. `allowed_vlans` is required for `pci` type.
 
       The network interface type:
 
-          - `hipersocket`: a virtual network device that provides high-speed TCP/IP connectivity within a s390x based system. Not supported on bare metal servers with a cpu architecture of amd64
           - `pci`: a physical PCI device which can only be created or deleted when the bare metal server is stopped. Has an allowed_vlans property which controls the VLANs that will be permitted to use the PCI interface. Cannot directly use an IEEE 802.1q VLAN tag. Not supported on bare metal servers with a cpu architecture of s390x
 
     - `primary_ip` - (Optional, List) The primary IP address to bind to the network interface. This can be specified using an existing reserved IP, or a prototype object for a new reserved IP.
@@ -203,7 +294,9 @@ In addition to all argument reference list, you can access the following attribu
     - `vlan` -  (Integer) Indicates the 802.1Q VLAN ID tag that must be used for all traffic on this interface. [ conflicts with `allowed_vlans`]
 
 - `resource_type` - (String) The type of resource.
-- `status` - (String) The status of the bare metal server :[ **failed**, **pending**, **restarting**, **running**, **starting**, **stopped**, **stopping** ]
+- `status` - (String) The status of the bare metal server.
+
+  -> **Supported Status** &#x2022; failed </br>&#x2022; pending </br>&#x2022; restarting </br>&#x2022; running </br>&#x2022; starting </br>&#x2022; stopped </br>&#x2022; stopping
 - `status_reasons` - (List) Array of reasons for the current status (if any).
 
   Nested `status_reasons`:

@@ -5,9 +5,7 @@ package vpc
 
 import (
 	"fmt"
-	"reflect"
 
-	"github.com/IBM/vpc-go-sdk/vpcv1"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -99,6 +97,59 @@ func DataSourceIBMISReservedIP() *schema.Resource {
 				Computed:    true,
 				Description: "Reserved IP target id.",
 			},
+			isReservedIPTargetCrn: {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The crn for target.",
+			},
+			"target_reference": &schema.Schema{
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "The target this reserved IP is bound to.If absent, this reserved IP is provider-owned or unbound.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"crn": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The CRN for this endpoint gateway.",
+						},
+						"deleted": &schema.Schema{
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "If present, this property indicates the referenced resource has been deleted, and providessome supplementary information.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"more_info": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "Link to documentation about deleted resources.",
+									},
+								},
+							},
+						},
+						"href": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The URL for this endpoint gateway.",
+						},
+						"id": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The unique identifier for this endpoint gateway.",
+						},
+						"name": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The name for this endpoint gateway. The name is unique across all endpoint gateways in the VPC.",
+						},
+						"resource_type": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The resource type.",
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -132,35 +183,18 @@ func dataSdataSourceIBMISReservedIPRead(d *schema.ResourceData, meta interface{}
 		d.Set(isReservedIPLifecycleState, *reserveIP.LifecycleState)
 	}
 	d.Set(isReservedIPType, *reserveIP.ResourceType)
+	target := []map[string]interface{}{}
 	if reserveIP.Target != nil {
-		targetIntf := reserveIP.Target
-		switch reflect.TypeOf(targetIntf).String() {
-		case "*vpcv1.ReservedIPTargetEndpointGatewayReference":
-			{
-				target := targetIntf.(*vpcv1.ReservedIPTargetEndpointGatewayReference)
-				d.Set(isReservedIPTarget, target.ID)
-			}
-		case "*vpcv1.ReservedIPTargetNetworkInterfaceReferenceTargetContext":
-			{
-				target := targetIntf.(*vpcv1.ReservedIPTargetNetworkInterfaceReferenceTargetContext)
-				d.Set(isReservedIPTarget, target.ID)
-			}
-		case "*vpcv1.ReservedIPTargetLoadBalancerReference":
-			{
-				target := targetIntf.(*vpcv1.ReservedIPTargetLoadBalancerReference)
-				d.Set(isReservedIPTarget, target.ID)
-			}
-		case "*vpcv1.ReservedIPTargetVPNGatewayReference":
-			{
-				target := targetIntf.(*vpcv1.ReservedIPTargetVPNGatewayReference)
-				d.Set(isReservedIPTarget, target.ID)
-			}
-		case "*vpcv1.ReservedIPTarget":
-			{
-				target := targetIntf.(*vpcv1.ReservedIPTarget)
-				d.Set(isReservedIPTarget, target.ID)
-			}
+		modelMap, err := dataSourceIBMIsReservedIPReservedIPTargetToMap(reserveIP.Target)
+		if err != nil {
+			return err
 		}
+		target = append(target, modelMap)
+	}
+	d.Set("target_reference", target)
+	if len(target) > 0 {
+		d.Set(isReservedIPTarget, target[0]["id"])
+		d.Set(isReservedIPTargetCrn, target[0]["crn"])
 	}
 	return nil // By default there should be no error
 }

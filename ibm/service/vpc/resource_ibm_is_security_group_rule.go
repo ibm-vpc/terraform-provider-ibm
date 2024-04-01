@@ -27,6 +27,7 @@ const (
 	isSecurityGroupRuleProtocolUDP      = "udp"
 	isSecurityGroupRuleProtocol         = "protocol"
 	isSecurityGroupRuleRemote           = "remote"
+	isSecurityGroupRuleLocal            = "local"
 	isSecurityGroupRuleType             = "type"
 	isSecurityGroupID                   = "group"
 	isSecurityGroupRuleID               = "rule_id"
@@ -73,6 +74,13 @@ func ResourceIBMISSecurityGroupRule() *schema.Resource {
 			},
 
 			isSecurityGroupRuleRemote: {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: "Security group local ip: an IP address, a CIDR block",
+			},
+
+			isSecurityGroupRuleLocal: {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
@@ -340,6 +348,16 @@ func resourceIBMISSecurityGroupRuleRead(d *schema.ResourceData, meta interface{}
 					}
 				}
 			}
+			local, ok := rule.Local.(*vpcv1.SecurityGroupRuleLocal)
+			if ok {
+				if local != nil && reflect.ValueOf(local).IsNil() == false {
+					if local.Address != nil {
+						d.Set(isSecurityGroupRuleLocal, local.Address)
+					} else if local.CIDRBlock != nil {
+						d.Set(isSecurityGroupRuleLocal, local.CIDRBlock)
+					}
+				}
+			}
 		}
 	case "*vpcv1.SecurityGroupRuleSecurityGroupRuleProtocolAll":
 		{
@@ -359,6 +377,16 @@ func resourceIBMISSecurityGroupRuleRead(d *schema.ResourceData, meta interface{}
 						d.Set(isSecurityGroupRuleRemote, remote.Address)
 					} else if remote.CIDRBlock != nil {
 						d.Set(isSecurityGroupRuleRemote, remote.CIDRBlock)
+					}
+				}
+			}
+			local, ok := rule.Local.(*vpcv1.SecurityGroupRuleLocal)
+			if ok {
+				if local != nil && reflect.ValueOf(local).IsNil() == false {
+					if local.Address != nil {
+						d.Set(isSecurityGroupRuleLocal, local.Address)
+					} else if local.CIDRBlock != nil {
+						d.Set(isSecurityGroupRuleLocal, local.CIDRBlock)
 					}
 				}
 			}
@@ -396,6 +424,16 @@ func resourceIBMISSecurityGroupRuleRead(d *schema.ResourceData, meta interface{}
 						d.Set(isSecurityGroupRuleRemote, remote.Address)
 					} else if remote.CIDRBlock != nil {
 						d.Set(isSecurityGroupRuleRemote, remote.CIDRBlock)
+					}
+				}
+			}
+			local, ok := rule.Local.(*vpcv1.SecurityGroupRuleLocal)
+			if ok {
+				if local != nil && reflect.ValueOf(local).IsNil() == false {
+					if local.Address != nil {
+						d.Set(isSecurityGroupRuleLocal, local.Address)
+					} else if local.CIDRBlock != nil {
+						d.Set(isSecurityGroupRuleLocal, local.CIDRBlock)
 					}
 				}
 			}
@@ -514,6 +552,9 @@ type parsedIBMISSecurityGroupRuleDictionary struct {
 	remoteAddress  string
 	remoteCIDR     string
 	remoteSecGrpID string
+	local          string
+	localAddress   string
+	localCIDR      string
 	protocol       string
 	icmpType       int64
 	icmpCode       int64
@@ -532,6 +573,17 @@ func inferRemoteSecurityGroup(s string) (address, cidr, id string, err error) {
 		id = s
 		return
 	}
+}
+
+func inferLocalSecurityGroup(s string) (address, cidr string, err error) {
+	if validate.IsSecurityGroupAddress(s) {
+		address = s
+		return
+	} else if validate.IsSecurityGroupCIDR(s) {
+		cidr = s
+		return
+	}
+	return
 }
 
 func parseIBMISSecurityGroupRuleDictionary(d *schema.ResourceData, tag string, sess *vpcv1.VpcV1) (*parsedIBMISSecurityGroupRuleDictionary, *vpcv1.SecurityGroupRulePrototype, *vpcv1.UpdateSecurityGroupRuleOptions, error) {
@@ -605,37 +657,59 @@ func parseIBMISSecurityGroupRuleDictionary(d *schema.ResourceData, tag string, s
 		sgTemplate.Remote = remoteTemplate
 		securityGroupRulePatchModel.Remote = remoteTemplateUpdate
 	}
+
 	if err != nil {
 		return nil, nil, nil, err
 	}
+
+	//Local
+	parsed.local = ""
+	if pl, ok := d.GetOk(isSecurityGroupRuleLocal); ok {
+		parsed.local = pl.(string)
+	}
+	parsed.localAddress = ""
+	parsed.localCIDR = ""
+	err = nil
+	if parsed.local != "" {
+		parsed.localAddress, parsed.localCIDR, err = inferLocalSecurityGroup(parsed.local)
+		localTemplate := &vpcv1.SecurityGroupRuleLocalPrototype{}
+		localTemplateUpdate := &vpcv1.SecurityGroupRuleLocalPatch{}
+		if parsed.localAddress != "" {
+			localTemplate.Address = &parsed.localAddress
+			localTemplateUpdate.Address = &parsed.localAddress
+		} else if parsed.localCIDR != "" {
+			localTemplate.CIDRBlock = &parsed.localCIDR
+			localTemplateUpdate.CIDRBlock = &parsed.localCIDR
+		}
+		sgTemplate.Local = localTemplate
+		securityGroupRulePatchModel.Local = localTemplateUpdate
+	}
+	if err != nil {
+		return nil, nil, nil, err
+	}
+
 	parsed.protocol = "all"
 
 	if icmpInterface, ok := d.GetOk("icmp"); ok {
 		if icmpInterface.([]interface{})[0] != nil {
 			haveType := false
-			icmp := icmpInterface.([]interface{})[0].(map[string]interface{})
-			if value, ok := icmp["type"]; ok {
+			if value, ok := d.GetOk("icmp.0.type"); ok {
 				parsed.icmpType = int64(value.(int))
 				haveType = true
+				sgTemplate.Type = &parsed.icmpType
+				securityGroupRulePatchModel.Type = &parsed.icmpType
 			}
-			if value, ok := icmp["code"]; ok {
+			if value, ok := d.GetOk("icmp.0.code"); ok {
 				if !haveType {
 					return nil, nil, nil, fmt.Errorf("icmp code requires icmp type")
 				}
 				parsed.icmpCode = int64(value.(int))
+				sgTemplate.Code = &parsed.icmpCode
+				securityGroupRulePatchModel.Code = &parsed.icmpCode
 			}
 		}
 		parsed.protocol = "icmp"
-		if icmpInterface.([]interface{})[0] == nil {
-			parsed.icmpType = 0
-			parsed.icmpCode = 0
-		} else {
-			sgTemplate.Type = &parsed.icmpType
-			sgTemplate.Code = &parsed.icmpCode
-		}
 		sgTemplate.Protocol = &parsed.protocol
-		securityGroupRulePatchModel.Type = &parsed.icmpType
-		securityGroupRulePatchModel.Code = &parsed.icmpCode
 	}
 	for _, prot := range []string{"tcp", "udp"} {
 		if tcpInterface, ok := d.GetOk(prot); ok {
@@ -678,6 +752,15 @@ func parseIBMISSecurityGroupRuleDictionary(d *schema.ResourceData, tag string, s
 	securityGroupRulePatch, err := securityGroupRulePatchModel.AsPatch()
 	if err != nil {
 		return nil, nil, nil, fmt.Errorf("[ERROR] Error calling asPatch for SecurityGroupRulePatch: %s", err)
+	}
+	if _, ok := d.GetOk("icmp"); ok {
+
+		if parsed.icmpType == -1 {
+			securityGroupRulePatch["type"] = nil
+		}
+		if parsed.icmpCode == -1 {
+			securityGroupRulePatch["code"] = nil
+		}
 	}
 	sgTemplateUpdate.SecurityGroupRulePatch = securityGroupRulePatch
 	//	log.Printf("[DEBUG] parse tag=%s\n\t%v  \n\t%v  \n\t%v  \n\t%v  \n\t%v \n\t%v \n\t%v \n\t%v  \n\t%v  \n\t%v  \n\t%v  \n\t%v ",

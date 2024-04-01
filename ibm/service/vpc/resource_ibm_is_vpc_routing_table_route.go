@@ -68,7 +68,6 @@ func ResourceIBMISVPCRoutingTableRoute() *schema.Resource {
 			rNextHop: {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: "If action is deliver, the next hop that packets will be delivered to. For other action values, its address will be 0.0.0.0.",
 			},
 			rAction: {
@@ -78,6 +77,12 @@ func ResourceIBMISVPCRoutingTableRoute() *schema.Resource {
 				Default:      "deliver",
 				Description:  "The action to perform with a packet matching the route.",
 				ValidateFunc: validate.InvokeValidator("ibm_is_vpc_routing_table_route", rAction),
+			},
+			"advertise": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     false,
+				Description: "Indicates whether this route will be advertised to the ingress sources specified by the `advertise_routes_to` routing table property.",
 			},
 			rName: {
 				Type:         schema.TypeString,
@@ -110,19 +115,18 @@ func ResourceIBMISVPCRoutingTableRoute() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"crn": &schema.Schema{
 							Type:        schema.TypeString,
-							Optional:    true,
+							Computed:    true,
 							Description: "The VPN gateway's CRN.",
 						},
 						"deleted": &schema.Schema{
 							Type:        schema.TypeList,
-							MaxItems:    1,
-							Optional:    true,
+							Computed:    true,
 							Description: "If present, this property indicates the referenced resource has been deleted and providessome supplementary information.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"more_info": &schema.Schema{
 										Type:        schema.TypeString,
-										Required:    true,
+										Computed:    true,
 										Description: "Link to documentation about deleted resources.",
 									},
 								},
@@ -130,22 +134,22 @@ func ResourceIBMISVPCRoutingTableRoute() *schema.Resource {
 						},
 						"href": &schema.Schema{
 							Type:        schema.TypeString,
-							Optional:    true,
+							Computed:    true,
 							Description: "The VPN gateway's canonical URL.",
 						},
 						"id": &schema.Schema{
 							Type:        schema.TypeString,
-							Optional:    true,
+							Computed:    true,
 							Description: "The unique identifier for this VPN gateway.",
 						},
 						"name": &schema.Schema{
 							Type:        schema.TypeString,
-							Optional:    true,
+							Computed:    true,
 							Description: "The user-defined name for this VPN gateway.",
 						},
 						"resource_type": &schema.Schema{
 							Type:        schema.TypeString,
-							Optional:    true,
+							Computed:    true,
 							Description: "The resource type.",
 						},
 					},
@@ -155,6 +159,13 @@ func ResourceIBMISVPCRoutingTableRoute() *schema.Resource {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "Routing table route Lifecycle State",
+			},
+			"priority": {
+				Type:         schema.TypeInt,
+				Computed:     true,
+				Optional:     true,
+				Description:  "The route's priority. Smaller values have higher priority.",
+				ValidateFunc: validate.InvokeValidator("ibm_is_vpc_routing_table_route", "priority"),
 			},
 			rtOrigin: {
 				Type:        schema.TypeString,
@@ -188,6 +199,13 @@ func ResourceIBMISVPCRoutingTableRouteValidator() *validate.ResourceValidator {
 			Required:                   false,
 			AllowedValues:              actionAllowedValues})
 
+	validateSchema = append(validateSchema,
+		validate.ValidateSchema{
+			Identifier:                 "priority",
+			ValidateFunctionIdentifier: validate.IntBetween,
+			Type:                       validate.TypeInt,
+			MinValue:                   "0",
+			MaxValue:                   "4"})
 	ibmVPCRoutingTableRouteValidator := validate.ResourceValidator{ResourceName: "ibm_is_vpc_routing_table_route", Schema: validateSchema}
 	return &ibmVPCRoutingTableRouteValidator
 }
@@ -230,9 +248,20 @@ func resourceIBMISVPCRoutingTableRouteCreate(d *schema.ResourceData, meta interf
 		createVpcRoutingTableRouteOptions.SetAction(routeAction)
 	}
 
+	if advertiseVal, ok := d.GetOk("advertise"); ok {
+		advertise := advertiseVal.(bool)
+		createVpcRoutingTableRouteOptions.SetAdvertise(advertise)
+	}
+
 	if name, ok := d.GetOk(rName); ok {
 		routeName := name.(string)
 		createVpcRoutingTableRouteOptions.SetName(routeName)
+	}
+
+	// Using GetOkExists to detet 0 as the possible values.
+	if priority, ok := d.GetOkExists("priority"); ok {
+		routePriority := priority.(int)
+		createVpcRoutingTableRouteOptions.SetPriority(int64(routePriority))
 	}
 
 	route, response, err := sess.CreateVPCRoutingTableRoute(createVpcRoutingTableRouteOptions)
@@ -264,6 +293,9 @@ func resourceIBMISVPCRoutingTableRouteRead(d *schema.ResourceData, meta interfac
 	}
 
 	d.Set(rID, *route.ID)
+	if route.Advertise != nil {
+		d.Set("Advertise", route.Advertise)
+	}
 	d.Set(rName, *route.Name)
 	d.Set(rDestination, *route.Destination)
 	if route.NextHop != nil {
@@ -292,9 +324,9 @@ func resourceIBMISVPCRoutingTableRouteRead(d *schema.ResourceData, meta interfac
 			return err
 		}
 		creator = append(creator, mm)
-
-		d.Set("creator", creator)
 	}
+	d.Set("creator", creator)
+	d.Set("priority", route.Priority)
 	return nil
 }
 
@@ -305,20 +337,51 @@ func resourceIBMISVPCRoutingTableRouteUpdate(d *schema.ResourceData, meta interf
 	}
 
 	idSet := strings.Split(d.Id(), "/")
-	if d.HasChange(rName) {
-		routePatch := make(map[string]interface{})
-		updateVpcRoutingTableRouteOptions := sess.NewUpdateVPCRoutingTableRouteOptions(idSet[0], idSet[1], idSet[2], routePatch)
+	hasChange := false
+	routePatch := make(map[string]interface{})
+	updateVpcRoutingTableRouteOptions := sess.NewUpdateVPCRoutingTableRouteOptions(idSet[0], idSet[1], idSet[2], routePatch)
 
-		// Construct an instance of the RoutePatch model
-		routePatchModel := new(vpcv1.RoutePatch)
+	// Construct an instance of the RoutePatch model
+	routePatchModel := new(vpcv1.RoutePatch)
+	if d.HasChange("advertise") {
+		advertiseVal := d.Get("advertise").(bool)
+		routePatchModel.Advertise = &advertiseVal
+		hasChange = true
+
+	}
+	if d.HasChange(rName) {
 		name := d.Get(rName).(string)
 		routePatchModel.Name = &name
-		routePatchModelAsPatch, patchErr := routePatchModel.AsPatch()
+		hasChange = true
+	}
+	if d.HasChange("priority") {
+		rp := d.Get("priority").(int)
+		routePriority := int64(rp)
+		routePatchModel.Priority = &routePriority
+		hasChange = true
+	}
 
+	if d.HasChange(rNextHop) {
+		if add, ok := d.GetOk(rNextHop); ok {
+			item := add.(string)
+			if net.ParseIP(item) == nil {
+				routePatchModel.NextHop = &vpcv1.RouteNextHopPatch{
+					ID: core.StringPtr(item),
+				}
+				hasChange = true
+			} else {
+				routePatchModel.NextHop = &vpcv1.RouteNextHopPatch{
+					Address: core.StringPtr(item),
+				}
+				hasChange = true
+			}
+		}
+	}
+	if hasChange {
+		routePatchModelAsPatch, patchErr := routePatchModel.AsPatch()
 		if patchErr != nil {
 			return fmt.Errorf("[ERROR] Error calling asPatch for VPC Routing Table Route Patch: %s", patchErr)
 		}
-
 		updateVpcRoutingTableRouteOptions.RoutePatch = routePatchModelAsPatch
 		_, response, err := sess.UpdateVPCRoutingTableRoute(updateVpcRoutingTableRouteOptions)
 		if err != nil {
@@ -326,7 +389,6 @@ func resourceIBMISVPCRoutingTableRouteUpdate(d *schema.ResourceData, meta interf
 			return err
 		}
 	}
-
 	return resourceIBMISVPCRoutingTableRouteRead(d, meta)
 }
 

@@ -14,10 +14,11 @@ Create, update, or delete a pagerduty destination by using IBM Cloud™ Event No
 
 ```terraform
 resource "ibm_en_destination_pagerduty" "pagerduty_en_destination" {
-  instance_guid = ibm_resource_instance.en_terraform_test_resource.guid
-  name          = "Pagerduty Destination"
-  type          = "pagerduty"
-  description   = "Destination pagerduty for event notification"
+  instance_guid         = ibm_resource_instance.en_terraform_test_resource.guid
+  name                  = "Pagerduty Destination"
+  type                  = "pagerduty"
+  collect_failed_events = false
+  description           = "Destination pagerduty for event notification"
   config {
     params {
       api_key     = "user token for assigned group"
@@ -40,6 +41,8 @@ Review the argument reference that you can specify for your resource.
 
 - `type` - (Required, String) pagerduty.
 
+- `collect_failed_events` - (boolean) Toggle switch to enable collect failed event in Cloud Object Storage bucket.
+
 - `config` - (Optional, List) Payload describing a destination configuration.
 
   Nested scheme for **config**:
@@ -54,7 +57,7 @@ Review the argument reference that you can specify for your resource.
 
 In addition to all argument references listed, you can access the following attribute references after your resource is created.
 
-- `id` - (String) The unique identifier of the `chrome_en_destination`.
+- `id` - (String) The unique identifier of the `pagerduty_en_destination`.
 - `destination_id` - (String) The unique identifier of the created destination.
 - `subscription_count` - (Integer) Number of subscriptions.
   - Constraints: The minimum value is `0`.

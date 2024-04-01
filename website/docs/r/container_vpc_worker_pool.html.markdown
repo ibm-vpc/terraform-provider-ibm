@@ -104,12 +104,14 @@ Review the argument references that you can specify for your resource.
 - `crk` - Root Key ID for boot volume encryption.
 - `kms_instance_id` - Instance ID for boot volume encryption. 
 - `kms_account_id` - Account ID for boot volume encryption, if other account is providing the kms.
+- `security_groups` - (Optional, List) Enables users to define specific security groups for their workers.
 
 ## Attribute reference
 In addition to all argument reference list, you can access the following attribute reference after your resource is created.
 
 - `id` - (String) The unique identifier of the worker pool. The ID is composed of `<cluster_name_id>/<worker_pool_id>`.
 - `worker_pool_id` -  (String) The unique identifier of the worker pool.
+- `autoscale_enabled` - (Bool) Autoscaling is enabled on the workerpool
 
 ## Import
 
