@@ -55,9 +55,13 @@ func resourceIBMISBareMetalServerReloadCreate(context context.Context, d *schema
 	if err != nil {
 		return diag.FromErr(err)
 	}
-
+	stopServerIfStartingForInitialization := false
 	options := &vpcv1.GetBareMetalServerInitializationOptions{
 		ID: &bareMetalServerId,
+	}
+	stopServerIfStartingForInitialization, err = resourceStopServerIfRunning(bareMetalServerId, "hard", d, context, sess, stopServerIfStartingForInitialization)
+	if err != nil {
+		return diag.FromErr(err)
 	}
 	init, response, err := sess.GetBareMetalServerInitializationWithContext(context, options)
 	if err != nil || init == nil {
@@ -83,6 +87,12 @@ func resourceIBMISBareMetalServerReloadCreate(context context.Context, d *schema
 	if err != nil || initReload == nil {
 		return diag.FromErr(fmt.Errorf("[ERROR] Error reloading bare metal server (%s) err %s\n%s", bareMetalServerId, err, response))
 	}
+	if stopServerIfStartingForInitialization {
+		stopServerIfStartingForInitialization, err = resourceStartServerIfStopped(bareMetalServerId, "hard", d, context, sess, stopServerIfStartingForInitialization)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
 	err = BareMetalServerReloadGet(d, sess, bareMetalServerId)
 	if err != nil {
 		return diag.FromErr(err)
@@ -92,23 +102,19 @@ func resourceIBMISBareMetalServerReloadCreate(context context.Context, d *schema
 
 func BareMetalServerReloadGet(d *schema.ResourceData, sess *vpcv1.VpcV1, bareMetalServerId string) error {
 
-	options := &vpcv1.GetBareMetalServerOptions{
-		BareMetalServerID: &bareMetalServerId,
-		ID:                &diskId,
+	options := &vpcv1.GetBareMetalServerInitializationOptions{
+		ID: &bareMetalServerId,
 	}
-	disk, response, err := sess.GetBareMetalServerReloadWithContext(context, options)
-	if err != nil || disk == nil {
+	init, response, err := sess.GetBareMetalServerInitialization(options)
+	if err != nil || init == nil {
 		if response != nil && response.StatusCode == 404 {
 			d.SetId("")
 			return nil
 		}
-		return fmt.Errorf("[ERROR] Error fetching bare metal server (%s)  disk (%s) err %s\n%s", bareMetalServerId, diskId, err, response)
+		return fmt.Errorf("[ERROR] Error fetching bare metal server (%s)  initialization err %s\n%s", bareMetalServerId, err, response)
 	}
 
 	d.Set(isBareMetalServerID, bareMetalServerId)
-	d.Set(isBareMetalServerReload, *disk.ID)
-	d.Set(isBareMetalServerReloadName, *disk.Name)
-
 	return nil
 }
 
