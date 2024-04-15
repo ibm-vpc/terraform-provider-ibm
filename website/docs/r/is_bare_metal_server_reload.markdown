@@ -9,7 +9,7 @@ description: |-
 
 # ibm\_is_bare_metal_server_disk
 
-Reload a Bare Metal Server with the existing image, keys and user data. This is a one time action resource, which would reload the OS on the bare metal server(with/without user_data). For multiple reload, multiple resources need to be used.  For more information, about managing VPC Bare Metal Server, see [About Bare Metal Servers for VPC](https://cloud.ibm.com/docs/vpc?topic=vpc-about-bare-metal-servers).
+Reload a Bare Metal Server with the existing image, keys and user data. This is a one time action resource, which would reload the OS on the bare metal server(with/without user_data). For multiple reload, multiple `ibm_is_bare_metal_server_reload` resource need to be used. For more information, about managing VPC Bare Metal Server, see [About Bare Metal Servers for VPC](https://cloud.ibm.com/docs/vpc?topic=vpc-about-bare-metal-servers).
 
 **Note:** 
 VPC infrastructure services are a regional specific based endpoint, by default targets to `us-south`. Please make sure to target right region in the provider block as shown in the `provider.tf` file, if VPC service is created in region other than `us-south`.
