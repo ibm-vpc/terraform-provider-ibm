@@ -39,4 +39,4 @@ Review the argument references that you can specify for your resource.
 
 
 - `bare_metal_server` - (Required, String) Bare metal server identifier. 
-- `user_data` - (Required, String) User data to transfer to the server bare metal server. (For reload provide the same user data as at the time of provisioning)
+- `user_data` - (Optional, String) User data to transfer to the server bare metal server. (For reload provide the same user data as at the time of provisioning)

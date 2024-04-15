@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -33,9 +34,10 @@ func ResourceIBMIsBareMetalServerReload() *schema.Resource {
 				Description: "Bare metal server identifier",
 			},
 			"user_data": {
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: "Bare metal server user data to reload",
+				Type:             schema.TypeString,
+				Optional:         true,
+				DiffSuppressFunc: flex.ApplyOnce,
+				Description:      "Bare metal server user data to reload",
 			},
 		},
 	}
