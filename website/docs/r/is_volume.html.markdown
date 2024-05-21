@@ -71,9 +71,9 @@ Review the argument references that you can specify for your resource.
   **&#x2022;** For more information, about creating access tags, see [working with tags](https://cloud.ibm.com/docs/account?topic=account-tag&interface=ui#create-access-console).</br>
   **&#x2022;** You must have the access listed in the [Granting users access to tag resources](https://cloud.ibm.com/docs/account?topic=account-access) for `access_tags`</br>
   **&#x2022;** `access_tags` must be in the format `key:value`.
-- `capacity` - (Optional, Integer) (The capacity of the volume in gigabytes. This defaults to `100`, minimum to `10 ` and maximum to `16000`.
+- `capacity` - (Optional, Integer) The capacity of the volume in gigabytes. This defaults to `100`, minimum to `10 ` and maximum to `16000`.
 
-  ~> **NOTE:** Supports only expansion on update (must be attached to a running instance and must not be less than the current volume capacity). Can be updated only if volume is attached to an running virtual server instance. Stopped instance will be started on update of capacity of the volume.If `source_snapshot` is provided `capacity` must be at least the snapshot's minimum_capacity. The maximum value may increase in the future and If unspecified, the capacity will be the source snapshot's minimum_capacity.
+  ~> **NOTE:** Supports only expansion on update (must be attached to a running instance and must not be less than the current volume capacity). Can be updated only if volume is attached to an running virtual server instance. Stopped instance will be started on update of capacity of the volume. If `source_snapshot` is provided `capacity` must be at least the snapshot's minimum_capacity. The maximum value may increase in the future and if unspecified or lesser capacity is specified than the snapshot's minimum capacity, the capacity will be the source snapshot's minimum_capacity.
 
 - `bandwidth` - (Integer) The maximum bandwidth (in megabits per second) for the volume
 - `delete_all_snapshots` - (Optional, Bool) Deletes all snapshots created from this volume.

@@ -413,7 +413,6 @@ func volCreate(d *schema.ResourceData, meta interface{}, volName, profile, zone 
 	if err != nil {
 		return err
 	}
-	log.Println("I AM INSIDE func volCreate(d *schema.ResourceData, meta interface{}, volName, profile, zone string)")
 	options := &vpcv1.CreateVolumeOptions{
 		VolumePrototype: &vpcv1.VolumePrototype{
 			Name: &volName,
