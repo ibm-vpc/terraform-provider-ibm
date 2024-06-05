@@ -414,6 +414,19 @@ func Provider() *schema.Provider {
 			"ibm_is_bare_metal_server":                                vpc.DataSourceIBMIsBareMetalServer(),
 			"ibm_is_bare_metal_servers":                               vpc.DataSourceIBMIsBareMetalServers(),
 
+			// cluster
+			"ibm_is_cluster_network":                      vpc.DataSourceIBMIsClusterNetwork(),
+			"ibm_is_cluster_network_interface":            vpc.DataSourceIBMIsClusterNetworkInterface(),
+			"ibm_is_cluster_network_interfaces":           vpc.DataSourceIBMIsClusterNetworkInterfaces(),
+			"ibm_is_cluster_network_profile":              vpc.DataSourceIBMIsClusterNetworkProfile(),
+			"ibm_is_cluster_network_profiles":             vpc.DataSourceIBMIsClusterNetworkProfiles(),
+			"ibm_is_cluster_network_subnet":               vpc.DataSourceIBMIsClusterNetworkSubnet(),
+			"ibm_is_cluster_network_subnets":              vpc.DataSourceIBMIsClusterNetworkSubnets(),
+			"ibm_is_cluster_network_subnet_reserved_ip":   vpc.DataSourceIBMIsClusterNetworkSubnetReservedIP(),
+			"ibm_is_cluster_network_subnet_reserved_ips":  vpc.DataSourceIBMIsClusterNetworkSubnetReservedIps(),
+			"ibm_is_instance_cluster_network_attachment":  vpc.DataSourceIBMIsInstanceClusterNetworkAttachment(),
+			"ibm_is_instance_cluster_network_attachments": vpc.DataSourceIBMIsInstanceClusterNetworkAttachments(),
+
 			"ibm_is_dedicated_host":                  vpc.DataSourceIbmIsDedicatedHost(),
 			"ibm_is_dedicated_hosts":                 vpc.DataSourceIbmIsDedicatedHosts(),
 			"ibm_is_dedicated_host_profile":          vpc.DataSourceIbmIsDedicatedHostProfile(),
@@ -522,22 +535,26 @@ func Provider() *schema.Provider {
 			"ibm_is_virtual_network_interface_ip":           vpc.DataSourceIBMIsVirtualNetworkInterfaceIP(),
 			"ibm_is_virtual_network_interface_ips":          vpc.DataSourceIBMIsVirtualNetworkInterfaceIPs(),
 
-			"ibm_is_share_mount_target":              vpc.DataSourceIBMIsShareTarget(),
-			"ibm_is_share_mount_targets":             vpc.DataSourceIBMIsShareTargets(),
-			"ibm_is_volume":                          vpc.DataSourceIBMISVolume(),
-			"ibm_is_volumes":                         vpc.DataSourceIBMIsVolumes(),
-			"ibm_is_volume_profile":                  vpc.DataSourceIBMISVolumeProfile(),
-			"ibm_is_volume_profiles":                 vpc.DataSourceIBMISVolumeProfiles(),
-			"ibm_is_vpc":                             vpc.DataSourceIBMISVPC(),
-			"ibm_is_vpc_dns_resolution_binding":      vpc.DataSourceIBMIsVPCDnsResolutionBinding(),
-			"ibm_is_vpc_dns_resolution_bindings":     vpc.DataSourceIBMIsVPCDnsResolutionBindings(),
-			"ibm_is_vpcs":                            vpc.DataSourceIBMISVPCs(),
-			"ibm_is_vpn_gateway":                     vpc.DataSourceIBMISVPNGateway(),
-			"ibm_is_vpn_gateways":                    vpc.DataSourceIBMISVPNGateways(),
-			"ibm_is_vpc_address_prefixes":            vpc.DataSourceIbmIsVpcAddressPrefixes(),
-			"ibm_is_vpc_address_prefix":              vpc.DataSourceIBMIsVPCAddressPrefix(),
-			"ibm_is_vpn_gateway_connection":          vpc.DataSourceIBMISVPNGatewayConnection(),
-			"ibm_is_vpn_gateway_connections":         vpc.DataSourceIBMISVPNGatewayConnections(),
+			"ibm_is_share_mount_target":          vpc.DataSourceIBMIsShareTarget(),
+			"ibm_is_share_mount_targets":         vpc.DataSourceIBMIsShareTargets(),
+			"ibm_is_volume":                      vpc.DataSourceIBMISVolume(),
+			"ibm_is_volumes":                     vpc.DataSourceIBMIsVolumes(),
+			"ibm_is_volume_profile":              vpc.DataSourceIBMISVolumeProfile(),
+			"ibm_is_volume_profiles":             vpc.DataSourceIBMISVolumeProfiles(),
+			"ibm_is_vpc":                         vpc.DataSourceIBMISVPC(),
+			"ibm_is_vpc_dns_resolution_binding":  vpc.DataSourceIBMIsVPCDnsResolutionBinding(),
+			"ibm_is_vpc_dns_resolution_bindings": vpc.DataSourceIBMIsVPCDnsResolutionBindings(),
+			"ibm_is_vpcs":                        vpc.DataSourceIBMISVPCs(),
+			"ibm_is_vpn_gateway":                 vpc.DataSourceIBMISVPNGateway(),
+			"ibm_is_vpn_gateways":                vpc.DataSourceIBMISVPNGateways(),
+			"ibm_is_vpc_address_prefixes":        vpc.DataSourceIbmIsVpcAddressPrefixes(),
+			"ibm_is_vpc_address_prefix":          vpc.DataSourceIBMIsVPCAddressPrefix(),
+			"ibm_is_vpn_gateway_connection":      vpc.DataSourceIBMISVPNGatewayConnection(),
+			"ibm_is_vpn_gateway_connections":     vpc.DataSourceIBMISVPNGatewayConnections(),
+
+			"ibm_is_vpn_gateway_connection_local_cidrs": vpc.DataSourceIBMIsVPNGatewayConnectionLocalCidrs(),
+			"ibm_is_vpn_gateway_connection_peer_cidrs":  vpc.DataSourceIBMIsVPNGatewayConnectionPeerCidrs(),
+
 			"ibm_is_vpc_default_routing_table":       vpc.DataSourceIBMISVPCDefaultRoutingTable(),
 			"ibm_is_vpc_routing_table":               vpc.DataSourceIBMIBMIsVPCRoutingTable(),
 			"ibm_is_vpc_routing_tables":              vpc.DataSourceIBMISVPCRoutingTables(),
@@ -1113,6 +1130,10 @@ func Provider() *schema.Provider {
 
 			"ibm_is_backup_policy":      vpc.ResourceIBMIsBackupPolicy(),
 			"ibm_is_backup_policy_plan": vpc.ResourceIBMIsBackupPolicyPlan(),
+
+			// cluster
+			"ibm_is_cluster_network":           vpc.ResourceIBMIsClusterNetwork(),
+			"ibm_is_cluster_network_interface": vpc.ResourceIBMIsClusterNetworkInterface(),
 
 			// bare_metal_server
 			"ibm_is_bare_metal_server_action":                        vpc.ResourceIBMIsBareMetalServerAction(),
@@ -1753,6 +1774,10 @@ func Validator() validate.ValidatorDict {
 				"ibm_is_bare_metal_server_network_attachment": vpc.ResourceIBMIsBareMetalServerNetworkAttachmentValidator(),
 				"ibm_is_bare_metal_server_network_interface":  vpc.ResourceIBMIsBareMetalServerNetworkInterfaceValidator(),
 				"ibm_is_bare_metal_server":                    vpc.ResourceIBMIsBareMetalServerValidator(),
+
+				// cluster
+				"ibm_is_cluster_network":           vpc.ResourceIBMIsClusterNetworkValidator(),
+				"ibm_is_cluster_network_interface": vpc.ResourceIBMIsClusterNetworkInterfaceValidator(),
 
 				"ibm_is_dedicated_host_group":             vpc.ResourceIbmIsDedicatedHostGroupValidator(),
 				"ibm_is_dedicated_host":                   vpc.ResourceIbmIsDedicatedHostValidator(),
