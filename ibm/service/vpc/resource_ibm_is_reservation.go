@@ -264,7 +264,7 @@ func ResourceIBMISReservation() *schema.Resource {
 func ResourceIBMISReservationValidator() *validate.ResourceValidator {
 
 	validateSchema := make([]validate.ValidateSchema, 0)
-	affinityPolicy := "restricted"
+	affinityPolicy := "automatic,restricted"
 	term := "one_year,three_year"
 	resourceType := "bare_metal_server_profile,instance_profile"
 
@@ -576,12 +576,20 @@ func resourceIBMISReservationUpdate(d *schema.ResourceData, meta interface{}) er
 	}
 	hasChanged := false
 	name := ""
+	affPol := ""
 
 	reservationPatchModel := &vpcv1.ReservationPatch{}
 	if d.HasChange(isReservationName) {
 		name = d.Get(isReservationName).(string)
 		if name != "" {
 			reservationPatchModel.Name = &name
+			hasChanged = true
+		}
+	}
+	if d.HasChange(isReservationAffinityPolicy) {
+		affPol = d.Get(isReservationAffinityPolicy).(string)
+		if affPol != "" {
+			reservationPatchModel.AffinityPolicy = &affPol
 			hasChanged = true
 		}
 	}
