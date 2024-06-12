@@ -264,9 +264,9 @@ func ResourceIBMISReservation() *schema.Resource {
 func ResourceIBMISReservationValidator() *validate.ResourceValidator {
 
 	validateSchema := make([]validate.ValidateSchema, 0)
-	affinityPolicy := "restricted"
+	affinityPolicy := "automatic,restricted"
 	term := "one_year,three_year"
-	resourceType := "instance_profile"
+	resourceType := "bare_metal_server_profile,instance_profile"
 
 	validateSchema = append(validateSchema,
 		validate.ValidateSchema{
@@ -504,7 +504,7 @@ func resourceIBMISReservationRead(d *schema.ResourceData, meta interface{}) erro
 		profileMap := []map[string]interface{}{}
 		finalList := map[string]interface{}{}
 
-		profileItem := reservation.Profile
+		profileItem := reservation.Profile.(*vpcv1.ReservationProfile)
 
 		if profileItem.Href != nil {
 			finalList[isReservationProfileHref] = profileItem.Href
@@ -576,12 +576,20 @@ func resourceIBMISReservationUpdate(d *schema.ResourceData, meta interface{}) er
 	}
 	hasChanged := false
 	name := ""
+	affPol := ""
 
 	reservationPatchModel := &vpcv1.ReservationPatch{}
 	if d.HasChange(isReservationName) {
 		name = d.Get(isReservationName).(string)
 		if name != "" {
 			reservationPatchModel.Name = &name
+			hasChanged = true
+		}
+	}
+	if d.HasChange(isReservationAffinityPolicy) {
+		affPol = d.Get(isReservationAffinityPolicy).(string)
+		if affPol != "" {
+			reservationPatchModel.AffinityPolicy = &affPol
 			hasChanged = true
 		}
 	}
@@ -593,6 +601,7 @@ func resourceIBMISReservationUpdate(d *schema.ResourceData, meta interface{}) er
 				reservationPatchModel.Capacity = &vpcv1.ReservationCapacityPatch{
 					Total: core.Int64Ptr(int64(totalIntf.(int))),
 				}
+				hasChanged = true
 			}
 		}
 	}
@@ -604,12 +613,14 @@ func resourceIBMISReservationUpdate(d *schema.ResourceData, meta interface{}) er
 			if expPolIntf, ok := committedUseMap[isReservationComittedUseExpirationPolicy]; ok {
 				if expPolIntf.(string) != "" {
 					cuPatch.ExpirationPolicy = core.StringPtr(string(expPolIntf.(string)))
+					hasChanged = true
 				}
 			}
 		}
 		if d.HasChange(isReservationCommittedUse + ".0." + isReservationComittedUseTerm) {
 			if termIntf, ok := committedUseMap[isReservationComittedUseTerm]; ok {
 				cuPatch.Term = core.StringPtr(string(termIntf.(string)))
+				hasChanged = true
 			}
 		}
 		reservationPatchModel.CommittedUse = cuPatch
@@ -622,6 +633,7 @@ func resourceIBMISReservationUpdate(d *schema.ResourceData, meta interface{}) er
 			if profNameIntf, ok := profileMap[isReservationProfileName]; ok {
 				if profNameIntf.(string) != "" {
 					profPatch.Name = core.StringPtr(string(profNameIntf.(string)))
+					hasChanged = true
 				}
 			}
 		}
@@ -629,6 +641,7 @@ func resourceIBMISReservationUpdate(d *schema.ResourceData, meta interface{}) er
 			if resTypeIntf, ok := profileMap[isReservationProfileResourceType]; ok {
 				if resTypeIntf.(string) != "" {
 					profPatch.ResourceType = core.StringPtr(string(resTypeIntf.(string)))
+					hasChanged = true
 				}
 			}
 		}

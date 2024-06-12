@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -215,15 +214,15 @@ func dataSourceIBMVPNGatewayConnectionsRead(d *schema.ResourceData, meta interfa
 			if data.IpsecPolicy != nil {
 				gatewayconnection[isVPNGatewayConnectionIPSECPolicy] = *data.IpsecPolicy.ID
 			}
-			if data.LocalCIDRs != nil {
-				gatewayconnection[isVPNGatewayConnectionLocalCIDRS] = flex.FlattenStringList(data.LocalCIDRs)
-			}
-			if data.PeerCIDRs != nil {
-				gatewayconnection[isVPNGatewayConnectionPeerCIDRS] = flex.FlattenStringList(data.PeerCIDRs)
-			}
+			// if data.LocalCIDRs != nil {
+			// 	gatewayconnection[isVPNGatewayConnectionLocalCIDRS] = flex.FlattenStringList(data.LocalCIDRs)
+			// }
+			// if data.PeerCIDRs != nil {
+			// 	gatewayconnection[isVPNGatewayConnectionPeerCIDRS] = flex.FlattenStringList(data.PeerCIDRs)
+			// }
 			gatewayconnection[isVPNGatewayConnectionMode] = *data.Mode
 			gatewayconnection[isVPNGatewayConnectionName] = *data.Name
-			gatewayconnection[isVPNGatewayConnectionPeerAddress] = *data.PeerAddress
+			// gatewayconnection[isVPNGatewayConnectionPeerAddress] = *data.PeerAddress
 			gatewayconnection[isVPNGatewayConnectionResourcetype] = *data.ResourceType
 			gatewayconnection[isVPNGatewayConnectionStatus] = *data.Status
 			gatewayconnection[isVPNGatewayConnectionStatusreasons] = resourceVPNGatewayConnectionFlattenLifecycleReasons(data.StatusReasons)
@@ -245,7 +244,7 @@ func dataSourceIBMVPNGatewayConnectionsRead(d *schema.ResourceData, meta interfa
 			}
 			gatewayconnection[isVPNGatewayConnectionMode] = *data.Mode
 			gatewayconnection[isVPNGatewayConnectionName] = *data.Name
-			gatewayconnection[isVPNGatewayConnectionPeerAddress] = *data.PeerAddress
+			// gatewayconnection[isVPNGatewayConnectionPeerAddress] = *data.PeerAddress
 			gatewayconnection[isVPNGatewayConnectionResourcetype] = *data.ResourceType
 			gatewayconnection[isVPNGatewayConnectionStatus] = *data.Status
 			gatewayconnection[isVPNGatewayConnectionStatusreasons] = resourceVPNGatewayConnectionFlattenLifecycleReasons(data.StatusReasons)
@@ -284,7 +283,7 @@ func dataSourceIBMVPNGatewayConnectionsRead(d *schema.ResourceData, meta interfa
 			}
 			gatewayconnection[isVPNGatewayConnectionMode] = *data.Mode
 			gatewayconnection[isVPNGatewayConnectionName] = *data.Name
-			gatewayconnection[isVPNGatewayConnectionPeerAddress] = *data.PeerAddress
+			// gatewayconnection[isVPNGatewayConnectionPeerAddress] = *data.PeerAddress
 			gatewayconnection[isVPNGatewayConnectionResourcetype] = *data.ResourceType
 			gatewayconnection[isVPNGatewayConnectionStatus] = *data.Status
 			gatewayconnection[isVPNGatewayConnectionStatusreasons] = resourceVPNGatewayConnectionFlattenLifecycleReasons(data.StatusReasons)
@@ -321,15 +320,15 @@ func dataSourceIBMVPNGatewayConnectionsRead(d *schema.ResourceData, meta interfa
 			if data.IpsecPolicy != nil {
 				gatewayconnection[isVPNGatewayConnectionIPSECPolicy] = *data.IpsecPolicy.ID
 			}
-			if data.LocalCIDRs != nil {
-				gatewayconnection[isVPNGatewayConnectionLocalCIDRS] = flex.FlattenStringList(data.LocalCIDRs)
-			}
-			if data.PeerCIDRs != nil {
-				gatewayconnection[isVPNGatewayConnectionPeerCIDRS] = flex.FlattenStringList(data.PeerCIDRs)
-			}
+			// if data.LocalCIDRs != nil {
+			// 	gatewayconnection[isVPNGatewayConnectionLocalCIDRS] = flex.FlattenStringList(data.LocalCIDRs)
+			// }
+			// if data.PeerCIDRs != nil {
+			// 	gatewayconnection[isVPNGatewayConnectionPeerCIDRS] = flex.FlattenStringList(data.PeerCIDRs)
+			// }
 			gatewayconnection[isVPNGatewayConnectionMode] = *data.Mode
 			gatewayconnection[isVPNGatewayConnectionName] = *data.Name
-			gatewayconnection[isVPNGatewayConnectionPeerAddress] = *data.PeerAddress
+			// gatewayconnection[isVPNGatewayConnectionPeerAddress] = *data.PeerAddress
 			gatewayconnection[isVPNGatewayConnectionResourcetype] = *data.ResourceType
 			gatewayconnection[isVPNGatewayConnectionStatus] = *data.Status
 			gatewayconnection[isVPNGatewayConnectionStatusreasons] = resourceVPNGatewayConnectionFlattenLifecycleReasons(data.StatusReasons)
