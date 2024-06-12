@@ -123,7 +123,7 @@ In addition to all argument reference list, you can access the following attribu
   Nested scheme for `catalog_offering`:
     - `offering_crn` - (String) The CRN for this catalog offering. Identifies a catalog offering by this unique property
     - `version_crn` - (String) The CRN for this version of a catalog offering. Identifies a version of a catalog offering by this unique property
-   
+- `confidential_compute_mode` - (String) The confidential compute mode to use for this virtual server instance.If unspecified, the default confidential compute mode from the profile will be used. 
 - `crn` - (String) The CRN of the instance.
 - `disks` - (List) Collection of the instance's disks. Nested `disks` blocks has the following structure:
 
@@ -135,6 +135,7 @@ In addition to all argument reference list, you can access the following attribu
   - `name` - (String) The user-defined name for this disk.
   - `resource_type` - (String) The resource type.
   - `size` - (String) The size of the disk in GB.
+- `enable_secure_boot` - (Boolean) Indicates whether secure boot is enabled for this virtual server instance.If unspecified, the default secure boot mode from the profile will be used.
 - `gpu`- (List) A list of graphics processing units that are allocated to the instance.
 
   Nested scheme for `gpu`:
