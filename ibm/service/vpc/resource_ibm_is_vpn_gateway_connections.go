@@ -316,7 +316,7 @@ func vpngwconCreate(d *schema.ResourceData, meta interface{}, name, gatewayID, p
 	}
 
 	vpnGatewayConnectionPrototypeModel := &vpcv1.VPNGatewayConnectionPrototype{
-		PeerAddress:  &peerAddress,
+		// PeerAddress:  &peerAddress,
 		Psk:          &prephasedKey,
 		AdminStateUp: &stateUp,
 		DeadPeerDetection: &vpcv1.VPNGatewayConnectionDpdPrototype{
@@ -331,14 +331,14 @@ func vpngwconCreate(d *schema.ResourceData, meta interface{}, name, gatewayID, p
 		VPNGatewayConnectionPrototype: vpnGatewayConnectionPrototypeModel,
 	}
 
-	if _, ok := d.GetOk(isVPNGatewayConnectionLocalCIDRS); ok {
-		localCidrs := flex.ExpandStringList((d.Get(isVPNGatewayConnectionLocalCIDRS).(*schema.Set)).List())
-		vpnGatewayConnectionPrototypeModel.LocalCIDRs = localCidrs
-	}
-	if _, ok := d.GetOk(isVPNGatewayConnectionPeerCIDRS); ok {
-		peerCidrs := flex.ExpandStringList((d.Get(isVPNGatewayConnectionPeerCIDRS).(*schema.Set)).List())
-		vpnGatewayConnectionPrototypeModel.PeerCIDRs = peerCidrs
-	}
+	// if _, ok := d.GetOk(isVPNGatewayConnectionLocalCIDRS); ok {
+	// 	localCidrs := flex.ExpandStringList((d.Get(isVPNGatewayConnectionLocalCIDRS).(*schema.Set)).List())
+	// 	vpnGatewayConnectionPrototypeModel.LocalCIDRs = localCidrs
+	// }
+	// if _, ok := d.GetOk(isVPNGatewayConnectionPeerCIDRS); ok {
+	// 	peerCidrs := flex.ExpandStringList((d.Get(isVPNGatewayConnectionPeerCIDRS).(*schema.Set)).List())
+	// 	vpnGatewayConnectionPrototypeModel.PeerCIDRs = peerCidrs
+	// }
 
 	var ikePolicyIdentity, ipsecPolicyIdentity string
 
@@ -428,14 +428,14 @@ func vpngwconGet(d *schema.ResourceData, meta interface{}, gID, gConnID string) 
 
 		d.Set(isVPNGatewayConnectionName, *vpnGatewayConnection.Name)
 		d.Set(isVPNGatewayConnectionAdminStateup, *vpnGatewayConnection.AdminStateUp)
-		d.Set(isVPNGatewayConnectionPeerAddress, *vpnGatewayConnection.PeerAddress)
+		// d.Set(isVPNGatewayConnectionPeerAddress, *vpnGatewayConnection.PeerAddress)
 		d.Set(isVPNGatewayConnectionPreSharedKey, *vpnGatewayConnection.Psk)
-		if vpnGatewayConnection.LocalCIDRs != nil {
-			d.Set(isVPNGatewayConnectionLocalCIDRS, flex.FlattenStringList(vpnGatewayConnection.LocalCIDRs))
-		}
-		if vpnGatewayConnection.PeerCIDRs != nil {
-			d.Set(isVPNGatewayConnectionPeerCIDRS, flex.FlattenStringList(vpnGatewayConnection.PeerCIDRs))
-		}
+		// if vpnGatewayConnection.LocalCIDRs != nil {
+		// 	d.Set(isVPNGatewayConnectionLocalCIDRS, flex.FlattenStringList(vpnGatewayConnection.LocalCIDRs))
+		// }
+		// if vpnGatewayConnection.PeerCIDRs != nil {
+		// 	d.Set(isVPNGatewayConnectionPeerCIDRS, flex.FlattenStringList(vpnGatewayConnection.PeerCIDRs))
+		// }
 		if vpnGatewayConnection.IkePolicy != nil {
 			d.Set(isVPNGatewayConnectionIKEPolicy, *vpnGatewayConnection.IkePolicy.ID)
 		}
@@ -472,7 +472,7 @@ func vpngwconGet(d *schema.ResourceData, meta interface{}, gID, gConnID string) 
 		vpnGatewayConnection := vpnGatewayConnectionIntf.(*vpcv1.VPNGatewayConnectionRouteMode)
 		d.Set(isVPNGatewayConnectionName, *vpnGatewayConnection.Name)
 		d.Set(isVPNGatewayConnectionAdminStateup, *vpnGatewayConnection.AdminStateUp)
-		d.Set(isVPNGatewayConnectionPeerAddress, *vpnGatewayConnection.PeerAddress)
+		// d.Set(isVPNGatewayConnectionPeerAddress, *vpnGatewayConnection.PeerAddress)
 		d.Set(isVPNGatewayConnectionPreSharedKey, *vpnGatewayConnection.Psk)
 		if vpnGatewayConnection.IkePolicy != nil {
 			d.Set(isVPNGatewayConnectionIKEPolicy, *vpnGatewayConnection.IkePolicy.ID)
@@ -523,7 +523,7 @@ func vpngwconGet(d *schema.ResourceData, meta interface{}, gID, gConnID string) 
 		vpnGatewayConnection := vpnGatewayConnectionIntf.(*vpcv1.VPNGatewayConnectionRouteModeVPNGatewayConnectionStaticRouteMode)
 		d.Set(isVPNGatewayConnectionName, *vpnGatewayConnection.Name)
 		d.Set(isVPNGatewayConnectionAdminStateup, *vpnGatewayConnection.AdminStateUp)
-		d.Set(isVPNGatewayConnectionPeerAddress, *vpnGatewayConnection.PeerAddress)
+		// d.Set(isVPNGatewayConnectionPeerAddress, *vpnGatewayConnection.PeerAddress)
 		d.Set(isVPNGatewayConnectionPreSharedKey, *vpnGatewayConnection.Psk)
 		if vpnGatewayConnection.IkePolicy != nil {
 			d.Set(isVPNGatewayConnectionIKEPolicy, *vpnGatewayConnection.IkePolicy.ID)
@@ -574,14 +574,14 @@ func vpngwconGet(d *schema.ResourceData, meta interface{}, gID, gConnID string) 
 		vpnGatewayConnection := vpnGatewayConnectionIntf.(*vpcv1.VPNGatewayConnection)
 		d.Set(isVPNGatewayConnectionName, *vpnGatewayConnection.Name)
 		d.Set(isVPNGatewayConnectionAdminStateup, *vpnGatewayConnection.AdminStateUp)
-		d.Set(isVPNGatewayConnectionPeerAddress, *vpnGatewayConnection.PeerAddress)
+		// d.Set(isVPNGatewayConnectionPeerAddress, *vpnGatewayConnection.PeerAddress)
 		d.Set(isVPNGatewayConnectionPreSharedKey, *vpnGatewayConnection.Psk)
-		if vpnGatewayConnection.LocalCIDRs != nil {
-			d.Set(isVPNGatewayConnectionLocalCIDRS, flex.FlattenStringList(vpnGatewayConnection.LocalCIDRs))
-		}
-		if vpnGatewayConnection.PeerCIDRs != nil {
-			d.Set(isVPNGatewayConnectionPeerCIDRS, flex.FlattenStringList(vpnGatewayConnection.PeerCIDRs))
-		}
+		// if vpnGatewayConnection.LocalCIDRs != nil {
+		// 	d.Set(isVPNGatewayConnectionLocalCIDRS, flex.FlattenStringList(vpnGatewayConnection.LocalCIDRs))
+		// }
+		// if vpnGatewayConnection.PeerCIDRs != nil {
+		// 	d.Set(isVPNGatewayConnectionPeerCIDRS, flex.FlattenStringList(vpnGatewayConnection.PeerCIDRs))
+		// }
 		if vpnGatewayConnection.IkePolicy != nil {
 			d.Set(isVPNGatewayConnectionIKEPolicy, *vpnGatewayConnection.IkePolicy.ID)
 		}
@@ -677,11 +677,11 @@ func vpngwconUpdate(d *schema.ResourceData, meta interface{}, gID, gConnID strin
 		hasChanged = true
 	}
 
-	if d.HasChange(isVPNGatewayConnectionPeerAddress) {
-		peerAddress := d.Get(isVPNGatewayConnectionPeerAddress).(string)
-		vpnGatewayConnectionPatchModel.PeerAddress = &peerAddress
-		hasChanged = true
-	}
+	// if d.HasChange(isVPNGatewayConnectionPeerAddress) {
+	// 	peerAddress := d.Get(isVPNGatewayConnectionPeerAddress).(string)
+	// 	vpnGatewayConnectionPatchModel.PeerAddress = &peerAddress
+	// 	hasChanged = true
+	// }
 
 	if d.HasChange(isVPNGatewayConnectionPreSharedKey) {
 		psk := d.Get(isVPNGatewayConnectionPreSharedKey).(string)

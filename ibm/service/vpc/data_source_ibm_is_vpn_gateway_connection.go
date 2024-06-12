@@ -421,9 +421,9 @@ func dataSourceIBMIsVPNGatewayConnectionRead(context context.Context, d *schema.
 		if err = d.Set("name", vpnGatewayConnection.Name); err != nil {
 			return diag.FromErr(fmt.Errorf("Error setting name: %s", err))
 		}
-		if err = d.Set("peer_address", vpnGatewayConnection.PeerAddress); err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting peer_address: %s", err))
-		}
+		// if err = d.Set("peer_address", vpnGatewayConnection.PeerAddress); err != nil {
+		// 	return diag.FromErr(fmt.Errorf("Error setting peer_address: %s", err))
+		// }
 		if err = d.Set("psk", vpnGatewayConnection.Psk); err != nil {
 			return diag.FromErr(fmt.Errorf("Error setting psk: %s", err))
 		}
@@ -436,19 +436,19 @@ func dataSourceIBMIsVPNGatewayConnectionRead(context context.Context, d *schema.
 		if err := d.Set("status_reasons", resourceVPNGatewayConnectionFlattenLifecycleReasons(vpnGatewayConnection.StatusReasons)); err != nil {
 			return diag.FromErr(fmt.Errorf("[ERROR] Error setting status_reasons: %s", err))
 		}
-		if len(vpnGatewayConnection.LocalCIDRs) > 0 {
-			err = d.Set("local_cidrs", vpnGatewayConnection.LocalCIDRs)
-			if err != nil {
-				return diag.FromErr(fmt.Errorf("Error setting local CIDRs %s", err))
-			}
-		}
+		// if len(vpnGatewayConnection.LocalCIDRs) > 0 {
+		// 	err = d.Set("local_cidrs", vpnGatewayConnection.LocalCIDRs)
+		// 	if err != nil {
+		// 		return diag.FromErr(fmt.Errorf("Error setting local CIDRs %s", err))
+		// 	}
+		// }
 
-		if len(vpnGatewayConnection.PeerCIDRs) > 0 {
-			err = d.Set("peer_cidrs", vpnGatewayConnection.PeerCIDRs)
-			if err != nil {
-				return diag.FromErr(fmt.Errorf("Error setting Peer CIDRs %s", err))
-			}
-		}
+		// if len(vpnGatewayConnection.PeerCIDRs) > 0 {
+		// 	err = d.Set("peer_cidrs", vpnGatewayConnection.PeerCIDRs)
+		// 	if err != nil {
+		// 		return diag.FromErr(fmt.Errorf("Error setting Peer CIDRs %s", err))
+		// 	}
+		// }
 	} else if _, ok := (*vpnGatewayConnectionInterface).(*vpcv1.VPNGatewayConnectionRouteMode); ok {
 		vpnGatewayConnection := (*vpnGatewayConnectionInterface).(*vpcv1.VPNGatewayConnectionRouteMode)
 		d.SetId(fmt.Sprintf("%s/%s", vpn_gateway_id, *vpnGatewayConnection.ID))
@@ -492,9 +492,9 @@ func dataSourceIBMIsVPNGatewayConnectionRead(context context.Context, d *schema.
 		if err = d.Set("name", vpnGatewayConnection.Name); err != nil {
 			return diag.FromErr(fmt.Errorf("Error setting name: %s", err))
 		}
-		if err = d.Set("peer_address", vpnGatewayConnection.PeerAddress); err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting peer_address: %s", err))
-		}
+		// if err = d.Set("peer_address", vpnGatewayConnection.PeerAddress); err != nil {
+		// 	return diag.FromErr(fmt.Errorf("Error setting peer_address: %s", err))
+		// }
 		if err = d.Set("psk", vpnGatewayConnection.Psk); err != nil {
 			return diag.FromErr(fmt.Errorf("Error setting psk: %s", err))
 		}
@@ -560,9 +560,9 @@ func dataSourceIBMIsVPNGatewayConnectionRead(context context.Context, d *schema.
 		if err = d.Set("name", vpnGatewayConnection.Name); err != nil {
 			return diag.FromErr(fmt.Errorf("Error setting name: %s", err))
 		}
-		if err = d.Set("peer_address", vpnGatewayConnection.PeerAddress); err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting peer_address: %s", err))
-		}
+		// if err = d.Set("peer_address", vpnGatewayConnection.PeerAddress); err != nil {
+		// 	return diag.FromErr(fmt.Errorf("Error setting peer_address: %s", err))
+		// }
 		if err = d.Set("psk", vpnGatewayConnection.Psk); err != nil {
 			return diag.FromErr(fmt.Errorf("Error setting psk: %s", err))
 		}
@@ -628,9 +628,9 @@ func dataSourceIBMIsVPNGatewayConnectionRead(context context.Context, d *schema.
 		if err = d.Set("name", vpnGatewayConnection.Name); err != nil {
 			return diag.FromErr(fmt.Errorf("Error setting name: %s", err))
 		}
-		if err = d.Set("peer_address", vpnGatewayConnection.PeerAddress); err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting peer_address: %s", err))
-		}
+		// if err = d.Set("peer_address", vpnGatewayConnection.PeerAddress); err != nil {
+		// 	return diag.FromErr(fmt.Errorf("Error setting peer_address: %s", err))
+		// }
 		if err = d.Set("psk", vpnGatewayConnection.Psk); err != nil {
 			return diag.FromErr(fmt.Errorf("Error setting psk: %s", err))
 		}
@@ -654,19 +654,19 @@ func dataSourceIBMIsVPNGatewayConnectionRead(context context.Context, d *schema.
 			}
 		}
 
-		if len(vpnGatewayConnection.LocalCIDRs) > 0 {
-			err = d.Set("local_cidrs", vpnGatewayConnection.LocalCIDRs)
-			if err != nil {
-				return diag.FromErr(fmt.Errorf("Error setting local CIDRs %s", err))
-			}
-		}
+		// if len(vpnGatewayConnection.LocalCIDRs) > 0 {
+		// 	err = d.Set("local_cidrs", vpnGatewayConnection.LocalCIDRs)
+		// 	if err != nil {
+		// 		return diag.FromErr(fmt.Errorf("Error setting local CIDRs %s", err))
+		// 	}
+		// }
 
-		if len(vpnGatewayConnection.PeerCIDRs) > 0 {
-			err = d.Set("peer_cidrs", vpnGatewayConnection.PeerCIDRs)
-			if err != nil {
-				return diag.FromErr(fmt.Errorf("Error setting Peer CIDRs %s", err))
-			}
-		}
+		// if len(vpnGatewayConnection.PeerCIDRs) > 0 {
+		// 	err = d.Set("peer_cidrs", vpnGatewayConnection.PeerCIDRs)
+		// 	if err != nil {
+		// 		return diag.FromErr(fmt.Errorf("Error setting Peer CIDRs %s", err))
+		// 	}
+		// }
 	} else {
 		return diag.FromErr(fmt.Errorf("[ERROR] Unrecognized vpcv1.vpnGatewayConnectionIntf subtype encountered"))
 	}
