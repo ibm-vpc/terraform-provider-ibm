@@ -62,5 +62,10 @@ In addition to the argument reference list, you can access the following attribu
   - `href` -  (String) The URL for this virtual server instance profile.
   - `name` -  (String) The unique name for this virtual server instance profile.
 - `zone` -  (String) The zone this dedicated host group resides in.
+- `vcpu` -  The VCPU configuration for this dedicated host group
+
+  Nested scheme for `vcpu`:
+  - `architecture` -  (String) The VCPU architecture.
+  - `manufacturer` -  (String) The VCPU manufacturer.
 
 
