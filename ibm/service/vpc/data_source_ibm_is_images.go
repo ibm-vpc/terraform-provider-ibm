@@ -6,6 +6,7 @@ package vpc
 import (
 	"fmt"
 	"log"
+	"sync"
 	"time"
 
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
@@ -281,7 +282,6 @@ func DataSourceIBMISImagesValidator() *validate.ResourceValidator {
 }
 
 func dataSourceIBMISImagesRead(d *schema.ResourceData, meta interface{}) error {
-
 	err := imageList(d, meta)
 	if err != nil {
 		return err
@@ -294,6 +294,8 @@ func imageList(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return err
 	}
+	var wg sync.WaitGroup
+	var mu sync.Mutex
 	start := ""
 	allrecs := []vpcv1.Image{}
 
@@ -331,7 +333,6 @@ func imageList(d *schema.ResourceData, meta interface{}) error {
 	if visibility != "" {
 		listImagesOptions.SetVisibility(visibility)
 	}
-
 	for {
 		if start != "" {
 			listImagesOptions.Start = &start
@@ -368,58 +369,21 @@ func imageList(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	imagesInfo := make([]map[string]interface{}, 0)
-	for _, image := range allrecs {
 
-		l := map[string]interface{}{
-			"name":         *image.Name,
-			"id":           *image.ID,
-			"status":       *image.Status,
-			"crn":          *image.CRN,
-			"visibility":   *image.Visibility,
-			"os":           *image.OperatingSystem.Name,
-			"architecture": *image.OperatingSystem.Architecture,
-		}
-		if len(image.StatusReasons) > 0 {
-			l["status_reasons"] = dataSourceIBMIsImageFlattenStatusReasons(image.StatusReasons)
-		}
-		if image.ResourceGroup != nil {
-			resourceGroupList := []map[string]interface{}{}
-			resourceGroupMap := dataSourceImageResourceGroupToMap(*image.ResourceGroup)
-			resourceGroupList = append(resourceGroupList, resourceGroupMap)
-			l["resource_group"] = resourceGroupList
-		}
-		if image.OperatingSystem != nil {
-			operatingSystemList := []map[string]interface{}{}
-			operatingSystemMap := dataSourceIBMISImageOperatingSystemToMap(*image.OperatingSystem)
-			operatingSystemList = append(operatingSystemList, operatingSystemMap)
-			l["operating_system"] = operatingSystemList
-		}
-		if image.File != nil && image.File.Checksums != nil {
-			l[isImageCheckSum] = *image.File.Checksums.Sha256
-		}
-		if image.Encryption != nil {
-			l["encryption"] = *image.Encryption
-		}
-		if image.EncryptionKey != nil {
-			l["encryption_key"] = *image.EncryptionKey.CRN
-		}
-		if image.SourceVolume != nil {
-			l["source_volume"] = *image.SourceVolume.ID
-		}
-		if image.CatalogOffering != nil {
-			catalogOfferingList := []map[string]interface{}{}
-			catalogOfferingMap := dataSourceImageCollectionCatalogOfferingToMap(*image.CatalogOffering)
-			catalogOfferingList = append(catalogOfferingList, catalogOfferingMap)
-			l[isImageCatalogOffering] = catalogOfferingList
-		}
-		accesstags, err := flex.GetGlobalTagsUsingCRN(meta, *image.CRN, "", isImageAccessTagType)
-		if err != nil {
-			log.Printf(
-				"Error on get of resource image (%s) access tags: %s", d.Id(), err)
-		}
-		l[isImageAccessTags] = accesstags
-		imagesInfo = append(imagesInfo, l)
+	for _, image := range allrecs {
+		wg.Add(1)
+		go func(image vpcv1.Image) {
+			defer wg.Done()
+			obj := getimageMapFromImageObject(meta, image)
+			mu.Lock()
+			imagesInfo = append(imagesInfo, obj)
+			mu.Unlock()
+		}(image)
 	}
+
+	// Wait for all goroutines to finish
+	wg.Wait()
+
 	d.SetId(dataSourceIBMISImagesID(d))
 	d.Set(isImages, imagesInfo)
 	return nil
@@ -428,4 +392,56 @@ func imageList(d *schema.ResourceData, meta interface{}) error {
 // dataSourceIBMISImagesId returns a reasonable ID for a image list.
 func dataSourceIBMISImagesID(d *schema.ResourceData) string {
 	return time.Now().UTC().String()
+}
+
+func getimageMapFromImageObject(meta interface{}, image vpcv1.Image) map[string]interface{} {
+	l := map[string]interface{}{
+		"name":         *image.Name,
+		"id":           *image.ID,
+		"status":       *image.Status,
+		"crn":          *image.CRN,
+		"visibility":   *image.Visibility,
+		"os":           *image.OperatingSystem.Name,
+		"architecture": *image.OperatingSystem.Architecture,
+	}
+	if len(image.StatusReasons) > 0 {
+		l["status_reasons"] = dataSourceIBMIsImageFlattenStatusReasons(image.StatusReasons)
+	}
+	if image.ResourceGroup != nil {
+		resourceGroupList := []map[string]interface{}{}
+		resourceGroupMap := dataSourceImageResourceGroupToMap(*image.ResourceGroup)
+		resourceGroupList = append(resourceGroupList, resourceGroupMap)
+		l["resource_group"] = resourceGroupList
+	}
+	if image.OperatingSystem != nil {
+		operatingSystemList := []map[string]interface{}{}
+		operatingSystemMap := dataSourceIBMISImageOperatingSystemToMap(*image.OperatingSystem)
+		operatingSystemList = append(operatingSystemList, operatingSystemMap)
+		l["operating_system"] = operatingSystemList
+	}
+	if image.File != nil && image.File.Checksums != nil {
+		l[isImageCheckSum] = *image.File.Checksums.Sha256
+	}
+	if image.Encryption != nil {
+		l["encryption"] = *image.Encryption
+	}
+	if image.EncryptionKey != nil {
+		l["encryption_key"] = *image.EncryptionKey.CRN
+	}
+	if image.SourceVolume != nil {
+		l["source_volume"] = *image.SourceVolume.ID
+	}
+	if image.CatalogOffering != nil {
+		catalogOfferingList := []map[string]interface{}{}
+		catalogOfferingMap := dataSourceImageCollectionCatalogOfferingToMap(*image.CatalogOffering)
+		catalogOfferingList = append(catalogOfferingList, catalogOfferingMap)
+		l[isImageCatalogOffering] = catalogOfferingList
+	}
+	accesstags, err := flex.GetGlobalTagsUsingCRN(meta, *image.CRN, "", isImageAccessTagType)
+	if err != nil {
+		log.Printf(
+			"Error on get of resource image (%s) access tags: %s", *image.ID, err)
+	}
+	l[isImageAccessTags] = accesstags
+	return l
 }
