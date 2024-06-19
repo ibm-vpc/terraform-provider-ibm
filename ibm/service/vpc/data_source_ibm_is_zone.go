@@ -42,12 +42,10 @@ func DataSourceIBMISZone() *schema.Resource {
 			isZoneDataCenter: {
 				Type:     schema.TypeString,
 				Computed: true,
-				Optional: true,
 			},
 			isZoneUniversalName: {
 				Type:     schema.TypeString,
 				Computed: true,
-				Optional: true,
 			},
 		},
 	}
