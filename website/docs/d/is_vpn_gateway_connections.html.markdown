@@ -43,6 +43,7 @@ In addition to all argument reference list, you can access the following attribu
 - `admin_state_up` - (String) The VPN gateway connection admin state. Default value is **true**.
 - `authentication_mode` - (String) The authentication mode.
 - `created_at`- (Timestamp) The date and time the VPN gateway connection was created.
+- `distribute_traffic` - (Boolean) Indicates whether the traffic is distributed between the `up` tunnels of the VPN gateway connection when the VPC route's next hop is a VPN connection. If `false`, the traffic is only routed through the `up` tunnel with the lower `public_ip` address.
 - `establish_mode` - (String) The establish mode of the VPN gateway connection:- `bidirectional`: Either side of the VPN gateway can initiate IKE protocol   negotiations or rekeying processes.- `peer_only`: Only the peer can initiate IKE protocol negotiations for this VPN gateway   connection. Additionally, the peer is responsible for initiating the rekeying process   after the connection is established. If rekeying does not occur, the VPN gateway   connection will be brought down after its lifetime expires.
 - `id` - (String) The ID of the VPN gateway connection.
 - `ike_policy` - (String) The VPN gateway connection IKE Policy.
