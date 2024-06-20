@@ -69,6 +69,18 @@ func DataSourceIBMISLbProfiles() *schema.Resource {
 							Computed:    true,
 							Description: "The UDP support type for a load balancer with this profile",
 						},
+						"logging_supported": {
+							Type:        schema.TypeSet,
+							Computed:    true,
+							Elem:        &schema.Schema{Type: schema.TypeString},
+							Set:         flex.ResourceIBMVPCHash,
+							Description: "Indicates which logging type(s) are supported for a load balancer with this profile. The type for this profile field",
+						},
+						"logging_supported_type": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The supported logging type(s) for a load balancer with this profile. A supported logging type. The values correspond to the property names under the logging load balancer property.",
+						},
 					},
 				},
 			},
@@ -174,6 +186,18 @@ func dataSourceIBMISLbProfilesRead(d *schema.ResourceData, meta interface{}) err
 					}
 				}
 			}
+		}
+		if profileCollector.LoggingSupported != nil {
+			if profileCollector.LoggingSupported.Type != nil {
+				l["logging_supported_type"] = *profileCollector.LoggingSupported.Type
+			}
+			valueList := []string{}
+			if profileCollector.LoggingSupported.Value != nil && len(profileCollector.LoggingSupported.Value) != 0 {
+				for i := 0; i < len(profileCollector.LoggingSupported.Value); i++ {
+					valueList = append(valueList, string(*(&profileCollector.LoggingSupported.Value[i])))
+				}
+			}
+			l["logging_supported"] = valueList
 		}
 		lbprofilesInfo = append(lbprofilesInfo, l)
 	}
