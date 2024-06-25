@@ -1058,17 +1058,16 @@ func ResourceIBMIsBareMetalServer() *schema.Resource {
 			},
 
 			isBareMetalServerKeys: {
-				Type:             schema.TypeSet,
-				Required:         true,
-				Elem:             &schema.Schema{Type: schema.TypeString},
-				Set:              schema.HashString,
-				DiffSuppressFunc: flex.ApplyOnce,
-				Description:      "SSH key Ids for the bare metal server",
+				Type:        schema.TypeSet,
+				Required:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
+				Description: "SSH key Ids for the bare metal server",
 			},
 
 			isBareMetalServerImage: {
 				Type:        schema.TypeString,
-				ForceNew:    true,
+				ForceNew:    false,
 				Required:    true,
 				Description: "image id",
 			},
@@ -1081,7 +1080,7 @@ func ResourceIBMIsBareMetalServer() *schema.Resource {
 
 			isBareMetalServerUserData: {
 				Type:        schema.TypeString,
-				ForceNew:    true,
+				ForceNew:    false,
 				Optional:    true,
 				Description: "User data given for the bare metal server",
 			},
@@ -2343,6 +2342,46 @@ func bareMetalServerUpdate(context context.Context, d *schema.ResourceData, meta
 	sess, err := vpcClient(meta)
 	if err != nil {
 		return err
+	}
+
+	if d.HasChange("image") {
+		stopServerIfStartingForInitialization := false
+		newImageId := d.Get("image").(string)
+		initializationPatch := &vpcv1.ReplaceBareMetalServerInitializationOptions{
+			Image: &vpcv1.ImageIdentityByID{
+				ID: &newImageId,
+			},
+		}
+		// apply the user data file, if its not updated use the existing
+		newUserData := d.Get("user_data").(string)
+		initializationPatch.UserData = &newUserData
+		// apply the keys, if its not updated use the existing
+		keySet := d.Get(isBareMetalServerKeys).(*schema.Set)
+		if keySet.Len() != 0 {
+			keyobjs := make([]vpcv1.KeyIdentityIntf, keySet.Len())
+			for i, key := range keySet.List() {
+				keystr := key.(string)
+				keyobjs[i] = &vpcv1.KeyIdentity{
+					ID: &keystr,
+				}
+			}
+			initializationPatch.Keys = keyobjs
+		}
+
+		stopServerIfStartingForInitialization, err = resourceStopServerIfRunning(id, "hard", d, context, sess, stopServerIfStartingForInitialization)
+		if err != nil {
+			return err
+		}
+		_, res, err := sess.ReplaceBareMetalServerInitialization(initializationPatch)
+		if err != nil {
+			return fmt.Errorf("ReplaceBareMetalServerInitialization failed %s\n%s", err, res)
+		}
+		if stopServerIfStartingForInitialization {
+			stopServerIfStartingForInitialization, err = resourceStartServerIfStopped(id, "hard", d, context, sess, stopServerIfStartingForInitialization)
+			if err != nil {
+				return err
+			}
+		}
 	}
 	isServerStopped := false
 

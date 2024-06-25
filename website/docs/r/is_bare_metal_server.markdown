@@ -119,8 +119,8 @@ Review the argument references that you can specify for your resource.
   **&#x2022;** `access_tags` must be in the format `key:value`.
 - `delete_type` - (Optional, String) Type of deletion on destroy. **soft** signals running operating system to quiesce and shutdown cleanly, **hard** immediately stop the server. By default its `hard`.
 - `enable_secure_boot` - (Optional, Boolean) Indicates whether secure boot is enabled. If enabled, the image must support secure boot or the server will fail to boot. Updating `enable_secure_boot` requires the server to be stopped and then it would be started.
-- `image` - (Required, String) ID of the image.
-- `keys` - (Required, List) Comma separated IDs of ssh keys.  
+- `image` - (Required, String) ID of the image. (Update/OS reload is possible for servers in stopped state)
+- `keys` - (Required, List) Comma separated IDs of ssh keys. (Update/keys reload is possible for servers in stopped state)
 
   ~> **Note:**
   **&#x2022;** `ed25519` can only be used if the operating system supports this key type.</br>
@@ -265,7 +265,7 @@ Review the argument references that you can specify for your resource.
   
     - `mode` - (Optional, String) The trusted platform module mode to use. The specified value must be listed in the bare metal server profile's supported_trusted_platform_module_modes. Updating trusted_platform_module mode would require the server to be stopped then started again.
       - Constraints: Allowable values are: `disabled`, `tpm_2`.
-- `user_data` - (Optional, String) User data to transfer to the server bare metal server.
+- `user_data` - (Optional, String) User data to transfer to the server bare metal server. (Update/user data reload is possible for servers in stopped state)
 - `vpc` - (Required, Forces new resource, String) The VPC ID of the bare metal server is to be a part of. It must match the VPC tied to the subnets of the server's network interfaces.
 - `zone` - (Required, Forces new resource, String) Name of the zone in which this bare metal server will reside in.
 
