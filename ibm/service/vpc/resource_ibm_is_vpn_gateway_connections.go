@@ -131,12 +131,13 @@ func ResourceIBMISVPNGatewayConnection() *schema.Resource {
 							},
 						},
 						"cidrs": {
-							Type:        schema.TypeSet,
-							Optional:    true,
-							ForceNew:    true,
-							Elem:        &schema.Schema{Type: schema.TypeString},
-							Set:         schema.HashString,
-							Description: "VPN gateway connection local CIDRs",
+							Type:          schema.TypeSet,
+							Optional:      true,
+							Computed:      true,
+							ConflictsWith: []string{"local_cidrs"},
+							Elem:          &schema.Schema{Type: schema.TypeString},
+							Set:           schema.HashString,
+							Description:   "VPN gateway connection local CIDRs",
 						},
 					},
 				},
@@ -176,10 +177,11 @@ func ResourceIBMISVPNGatewayConnection() *schema.Resource {
 							Description: "Indicates whether `peer.address` or `peer.fqdn` is used.",
 						},
 						"address": &schema.Schema{
-							Type:        schema.TypeString,
-							Optional:    true,
-							Computed:    true,
-							Description: "The IP address of the peer VPN gateway for this connection.",
+							Type:          schema.TypeString,
+							Optional:      true,
+							Computed:      true,
+							ConflictsWith: []string{"peer_address"},
+							Description:   "The IP address of the peer VPN gateway for this connection.",
 						},
 						"fqdn": &schema.Schema{
 							Type:        schema.TypeString,
@@ -188,12 +190,13 @@ func ResourceIBMISVPNGatewayConnection() *schema.Resource {
 							Description: "The FQDN of the peer VPN gateway for this connection.",
 						},
 						"cidrs": {
-							Type:        schema.TypeSet,
-							Optional:    true,
-							ForceNew:    true,
-							Elem:        &schema.Schema{Type: schema.TypeString},
-							Set:         schema.HashString,
-							Description: "VPN gateway connection peer CIDRs",
+							Type:          schema.TypeSet,
+							Optional:      true,
+							Computed:      true,
+							ConflictsWith: []string{"peer_cidrs"},
+							Elem:          &schema.Schema{Type: schema.TypeString},
+							Set:           schema.HashString,
+							Description:   "VPN gateway connection peer CIDRs",
 						},
 					},
 				},
@@ -538,6 +541,11 @@ func vpngwconCreate(d *schema.ResourceData, meta interface{}, name, gatewayID, p
 			VPNGatewayConnectionPrototype: vpnGatewayConnectionPrototypeModel,
 		}
 
+		options := &vpcv1.CreateVPNGatewayConnectionOptions{
+			VPNGatewayID:                  &gatewayID,
+			VPNGatewayConnectionPrototype: vpnGatewayConnectionPrototypeModel,
+		}
+
 		vpnGatewayConnectionIntf, response, err := sess.CreateVPNGatewayConnection(options)
 		if err != nil {
 			return fmt.Errorf("[DEBUG] Create VPN Gateway Connection err %s\n%s", err, response)
@@ -621,6 +629,11 @@ func vpngwconCreate(d *schema.ResourceData, meta interface{}, name, gatewayID, p
 		if distributeTrafficOk, ok := d.GetOkExists("distribute_traffic"); ok {
 			vpnGatewayConnectionPrototypeModel.DistributeTraffic = core.BoolPtr(distributeTrafficOk.(bool))
 		}
+		options := &vpcv1.CreateVPNGatewayConnectionOptions{
+			VPNGatewayID:                  &gatewayID,
+			VPNGatewayConnectionPrototype: vpnGatewayConnectionPrototypeModel,
+		}
+
 		options := &vpcv1.CreateVPNGatewayConnectionOptions{
 			VPNGatewayID:                  &gatewayID,
 			VPNGatewayConnectionPrototype: vpnGatewayConnectionPrototypeModel,
