@@ -536,10 +536,6 @@ func vpngwconCreate(d *schema.ResourceData, meta interface{}, name, gatewayID, p
 		} else {
 			vpnGatewayConnectionPrototypeModel.IpsecPolicy = nil
 		}
-		options := &vpcv1.CreateVPNGatewayConnectionOptions{
-			VPNGatewayID:                  &gatewayID,
-			VPNGatewayConnectionPrototype: vpnGatewayConnectionPrototypeModel,
-		}
 
 		options := &vpcv1.CreateVPNGatewayConnectionOptions{
 			VPNGatewayID:                  &gatewayID,
@@ -629,11 +625,6 @@ func vpngwconCreate(d *schema.ResourceData, meta interface{}, name, gatewayID, p
 		if distributeTrafficOk, ok := d.GetOkExists("distribute_traffic"); ok {
 			vpnGatewayConnectionPrototypeModel.DistributeTraffic = core.BoolPtr(distributeTrafficOk.(bool))
 		}
-		options := &vpcv1.CreateVPNGatewayConnectionOptions{
-			VPNGatewayID:                  &gatewayID,
-			VPNGatewayConnectionPrototype: vpnGatewayConnectionPrototypeModel,
-		}
-
 		options := &vpcv1.CreateVPNGatewayConnectionOptions{
 			VPNGatewayID:                  &gatewayID,
 			VPNGatewayConnectionPrototype: vpnGatewayConnectionPrototypeModel,
