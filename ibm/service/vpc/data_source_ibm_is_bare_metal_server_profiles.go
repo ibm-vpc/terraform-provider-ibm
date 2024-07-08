@@ -401,6 +401,28 @@ func DataSourceIBMIsBareMetalServerProfiles() *schema.Resource {
 								},
 							},
 						},
+						"reservation_terms": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "The type for this profile field",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"type": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The type for this profile field.",
+									},
+									"values": {
+										Type:        schema.TypeList,
+										Computed:    true,
+										Description: "The supported committed use terms for a reservation using this profile",
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -615,6 +637,9 @@ func dataSourceIBMIsBareMetalServerProfilesRead(context context.Context, d *sche
 				list = append(list, sz)
 			}
 			l[isBareMetalServerProfileDisks] = list
+		}
+		if profile.ReservationTerms != nil {
+			l["reservation_terms"] = dataSourceBaremetalServerProfileFlattenReservationTerms(*profile.ReservationTerms)
 		}
 
 		profilesInfo = append(profilesInfo, l)
