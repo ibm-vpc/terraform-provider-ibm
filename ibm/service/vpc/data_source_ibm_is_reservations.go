@@ -370,13 +370,14 @@ func dataSourceReservationCollectionReservationsToMap(reservationsItem vpcv1.Res
 	return reservationsMap
 }
 
-func dataSourceReservationCollectionReservationsProfileToMap(profileItem vpcv1.ReservationProfileIntf) (profileMap map[string]interface{}) {
+func dataSourceReservationCollectionReservationsProfileToMap(profileItem vpcv1.ReservationProfileIntf) map[string]interface{} {
+	profileMap := make(map[string]interface{})
 	if profileItem == nil {
-		return
+		return profileMap
 	}
 	var profile *vpcv1.ReservationProfile
 	if profile = profileItem.(*vpcv1.ReservationProfile); profile == nil {
-		return
+		return profileMap
 	}
 
 	if profile.Href != nil {
