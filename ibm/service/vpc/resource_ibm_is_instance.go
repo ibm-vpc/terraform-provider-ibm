@@ -359,8 +359,10 @@ func ResourceIBMISInstance() *schema.Resource {
 			},
 
 			isInstanceVolumeAttachments: {
-				Type:     schema.TypeList,
-				Computed: true,
+				Type:          schema.TypeList,
+				Optional:      true,
+				ConflictsWith: []string{isInstanceVolumes},
+				Computed:      true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"id": {
@@ -377,11 +379,44 @@ func ResourceIBMISInstance() *schema.Resource {
 						},
 						"volume_name": {
 							Type:     schema.TypeString,
+							Optional: true,
 							Computed: true,
 						},
 						"volume_crn": {
 							Type:     schema.TypeString,
 							Computed: true,
+						},
+						"volume_iops": {
+							Type:        schema.TypeInt,
+							Optional:    true,
+							ForceNew:    true,
+							Description: "The maximum I/O operations per second (IOPS) for the volume.",
+						},
+						"volume_profile": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							ForceNew:    true,
+							Description: "The  globally unique name for the volume profile to use for this volume.",
+						},
+						"volume_capacity": {
+							Type:        schema.TypeInt,
+							Optional:    true,
+							ForceNew:    true,
+							Description: "The capacity of the volume in gigabytes. The specified minimum and maximum capacity values for creating or updating volumes may expand in the future.",
+						},
+						"volume_encryption_key": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							ForceNew:    true,
+							Description: "The CRN of the [Key Protect Root Key](https://cloud.ibm.com/docs/key-protect?topic=key-protect-getting-started-tutorial) or [Hyper Protect Crypto Service Root Key](https://cloud.ibm.com/docs/hs-crypto?topic=hs-crypto-get-started) for this resource.",
+						},
+						"volume_tags": {
+							Type:        schema.TypeSet,
+							Optional:    true,
+							ForceNew:    true,
+							Elem:        &schema.Schema{Type: schema.TypeString, ValidateFunc: validate.InvokeValidator("ibm_is_instance_template", "tags")},
+							Set:         flex.ResourceIBMVPCHash,
+							Description: "UserTags for the volume instance",
 						},
 					},
 				},
@@ -1228,10 +1263,11 @@ func ResourceIBMISInstance() *schema.Resource {
 			},
 
 			isInstanceVolumes: {
-				Type:        schema.TypeList,
-				Optional:    true,
-				Elem:        &schema.Schema{Type: schema.TypeString},
-				Description: "List of volumes",
+				Type:          schema.TypeList,
+				Optional:      true,
+				ConflictsWith: []string{isInstanceVolumeAttachments},
+				Elem:          &schema.Schema{Type: schema.TypeString},
+				Description:   "List of volumes",
 			},
 			isInstanceVolAttVolAutoDelete: {
 				Type:        schema.TypeBool,
@@ -1887,6 +1923,52 @@ func instanceCreateByImage(d *schema.ResourceData, meta interface{}, profile, na
 
 	}
 
+	if volumeattintf, ok := d.GetOk("volume_attachments"); ok {
+		volumeatt := []vpcv1.VolumeAttachmentPrototype{}
+		for i, _ := range volumeattintf.([]interface{}) {
+			volName := d.Get(fmt.Sprintf("volume_attachments.%d.volume_name", i)).(string)
+			volIops := d.Get(fmt.Sprintf("volume_attachments.%d.volume_iops", i)).(int)
+			volCapacity := d.Get(fmt.Sprintf("volume_attachments.%d.volume_capacity", i)).(int)
+			volEncKey := d.Get(fmt.Sprintf("volume_attachments.%d.volume_encryption_key", i)).(string)
+			volProfile := d.Get(fmt.Sprintf("volume_attachments.%d.volume_profile", i)).(string)
+			volTags := d.Get(fmt.Sprintf("volume_attachments.%d.volume_tags", i)).(*schema.Set)
+
+			volumeattItemModel := &vpcv1.VolumeAttachmentPrototype{}
+			volumeattItemPrototypeModel := &vpcv1.VolumeAttachmentPrototypeVolume{}
+
+			if volName != "" {
+				volumeattItemPrototypeModel.Name = &volName
+			}
+
+			if volTags != nil && volTags.Len() != 0 {
+				userTagsArray := make([]string, volTags.Len())
+				for i, userTag := range volTags.List() {
+					userTagStr := userTag.(string)
+					userTagsArray[i] = userTagStr
+				}
+				volumeattItemPrototypeModel.UserTags = userTagsArray
+			}
+			if volEncKey != "" {
+				volumeattItemPrototypeModel.EncryptionKey = &vpcv1.EncryptionKeyIdentity{
+					CRN: &volEncKey,
+				}
+			}
+			if volProfile != "" {
+				volumeattItemPrototypeModel.Profile = &vpcv1.VolumeProfileIdentity{
+					Name: &volProfile,
+				}
+			}
+			if volIops != 0 {
+				volumeattItemPrototypeModel.Iops = core.Int64Ptr(int64(volIops))
+			}
+			if volCapacity != 0 {
+				volumeattItemPrototypeModel.Capacity = core.Int64Ptr(int64(volCapacity))
+			}
+
+			volumeatt = append(volumeatt, *volumeattItemModel)
+		}
+		instanceproto.VolumeAttachments = volumeatt
+	}
 	if networkattachmentsintf, ok := d.GetOk("network_attachments"); ok {
 		networkAttachments := []vpcv1.InstanceNetworkAttachmentPrototype{}
 		for i, networkAttachmentsItem := range networkattachmentsintf.([]interface{}) {
@@ -2251,6 +2333,52 @@ func instanceCreateByCatalogOffering(d *schema.ResourceData, meta interface{}, p
 			versionPrototype.Plan = planOffering
 		}
 		instanceproto.CatalogOffering = versionPrototype
+	}
+	if volumeattintf, ok := d.GetOk("volume_attachments"); ok {
+		volumeatt := []vpcv1.VolumeAttachmentPrototype{}
+		for i, _ := range volumeattintf.([]interface{}) {
+			volName := d.Get(fmt.Sprintf("volume_attachments.%d.volume_name", i)).(string)
+			volIops := d.Get(fmt.Sprintf("volume_attachments.%d.volume_iops", i)).(int)
+			volCapacity := d.Get(fmt.Sprintf("volume_attachments.%d.volume_capacity", i)).(int)
+			volEncKey := d.Get(fmt.Sprintf("volume_attachments.%d.volume_encryption_key", i)).(string)
+			volProfile := d.Get(fmt.Sprintf("volume_attachments.%d.volume_profile", i)).(string)
+			volTags := d.Get(fmt.Sprintf("volume_attachments.%d.volume_tags", i)).(*schema.Set)
+
+			volumeattItemModel := &vpcv1.VolumeAttachmentPrototype{}
+			volumeattItemPrototypeModel := &vpcv1.VolumeAttachmentPrototypeVolume{}
+
+			if volName != "" {
+				volumeattItemPrototypeModel.Name = &volName
+			}
+
+			if volTags != nil && volTags.Len() != 0 {
+				userTagsArray := make([]string, volTags.Len())
+				for i, userTag := range volTags.List() {
+					userTagStr := userTag.(string)
+					userTagsArray[i] = userTagStr
+				}
+				volumeattItemPrototypeModel.UserTags = userTagsArray
+			}
+			if volEncKey != "" {
+				volumeattItemPrototypeModel.EncryptionKey = &vpcv1.EncryptionKeyIdentity{
+					CRN: &volEncKey,
+				}
+			}
+			if volProfile != "" {
+				volumeattItemPrototypeModel.Profile = &vpcv1.VolumeProfileIdentity{
+					Name: &volProfile,
+				}
+			}
+			if volIops != 0 {
+				volumeattItemPrototypeModel.Iops = core.Int64Ptr(int64(volIops))
+			}
+			if volCapacity != 0 {
+				volumeattItemPrototypeModel.Capacity = core.Int64Ptr(int64(volCapacity))
+			}
+
+			volumeatt = append(volumeatt, *volumeattItemModel)
+		}
+		instanceproto.VolumeAttachments = volumeatt
 	}
 	if defaultTrustedProfileTargetIntf, ok := d.GetOk(isInstanceDefaultTrustedProfileTarget); ok {
 		defaultTrustedProfiletarget := defaultTrustedProfileTargetIntf.(string)
@@ -2678,6 +2806,52 @@ func instanceCreateByTemplate(d *schema.ResourceData, meta interface{}, profile,
 		instanceproto.Profile = &vpcv1.InstanceProfileIdentity{
 			Name: &profile,
 		}
+	}
+	if volumeattintf, ok := d.GetOk("volume_attachments"); ok {
+		volumeatt := []vpcv1.VolumeAttachmentPrototype{}
+		for i, _ := range volumeattintf.([]interface{}) {
+			volName := d.Get(fmt.Sprintf("volume_attachments.%d.volume_name", i)).(string)
+			volIops := d.Get(fmt.Sprintf("volume_attachments.%d.volume_iops", i)).(int)
+			volCapacity := d.Get(fmt.Sprintf("volume_attachments.%d.volume_capacity", i)).(int)
+			volEncKey := d.Get(fmt.Sprintf("volume_attachments.%d.volume_encryption_key", i)).(string)
+			volProfile := d.Get(fmt.Sprintf("volume_attachments.%d.volume_profile", i)).(string)
+			volTags := d.Get(fmt.Sprintf("volume_attachments.%d.volume_tags", i)).(*schema.Set)
+
+			volumeattItemModel := &vpcv1.VolumeAttachmentPrototype{}
+			volumeattItemPrototypeModel := &vpcv1.VolumeAttachmentPrototypeVolume{}
+
+			if volName != "" {
+				volumeattItemPrototypeModel.Name = &volName
+			}
+
+			if volTags != nil && volTags.Len() != 0 {
+				userTagsArray := make([]string, volTags.Len())
+				for i, userTag := range volTags.List() {
+					userTagStr := userTag.(string)
+					userTagsArray[i] = userTagStr
+				}
+				volumeattItemPrototypeModel.UserTags = userTagsArray
+			}
+			if volEncKey != "" {
+				volumeattItemPrototypeModel.EncryptionKey = &vpcv1.EncryptionKeyIdentity{
+					CRN: &volEncKey,
+				}
+			}
+			if volProfile != "" {
+				volumeattItemPrototypeModel.Profile = &vpcv1.VolumeProfileIdentity{
+					Name: &volProfile,
+				}
+			}
+			if volIops != 0 {
+				volumeattItemPrototypeModel.Iops = core.Int64Ptr(int64(volIops))
+			}
+			if volCapacity != 0 {
+				volumeattItemPrototypeModel.Capacity = core.Int64Ptr(int64(volCapacity))
+			}
+
+			volumeatt = append(volumeatt, *volumeattItemModel)
+		}
+		instanceproto.VolumeAttachments = volumeatt
 	}
 	if totalVolBandwidthIntf, ok := d.GetOk(isInstanceTotalVolumeBandwidth); ok {
 		totalVolBandwidthStr := int64(totalVolBandwidthIntf.(int))
@@ -3116,7 +3290,52 @@ func instanceCreateBySnapshot(d *schema.ResourceData, meta interface{}, profile,
 			instanceproto.DefaultTrustedProfile.AutoLink = &defaultTrustedProfileAutoLink
 		}
 	}
+	if volumeattintf, ok := d.GetOk("volume_attachments"); ok {
+		volumeatt := []vpcv1.VolumeAttachmentPrototype{}
+		for i, _ := range volumeattintf.([]interface{}) {
+			volName := d.Get(fmt.Sprintf("volume_attachments.%d.volume_name", i)).(string)
+			volIops := d.Get(fmt.Sprintf("volume_attachments.%d.volume_iops", i)).(int)
+			volCapacity := d.Get(fmt.Sprintf("volume_attachments.%d.volume_capacity", i)).(int)
+			volEncKey := d.Get(fmt.Sprintf("volume_attachments.%d.volume_encryption_key", i)).(string)
+			volProfile := d.Get(fmt.Sprintf("volume_attachments.%d.volume_profile", i)).(string)
+			volTags := d.Get(fmt.Sprintf("volume_attachments.%d.volume_tags", i)).(*schema.Set)
 
+			volumeattItemModel := &vpcv1.VolumeAttachmentPrototype{}
+			volumeattItemPrototypeModel := &vpcv1.VolumeAttachmentPrototypeVolume{}
+
+			if volName != "" {
+				volumeattItemPrototypeModel.Name = &volName
+			}
+
+			if volTags != nil && volTags.Len() != 0 {
+				userTagsArray := make([]string, volTags.Len())
+				for i, userTag := range volTags.List() {
+					userTagStr := userTag.(string)
+					userTagsArray[i] = userTagStr
+				}
+				volumeattItemPrototypeModel.UserTags = userTagsArray
+			}
+			if volEncKey != "" {
+				volumeattItemPrototypeModel.EncryptionKey = &vpcv1.EncryptionKeyIdentity{
+					CRN: &volEncKey,
+				}
+			}
+			if volProfile != "" {
+				volumeattItemPrototypeModel.Profile = &vpcv1.VolumeProfileIdentity{
+					Name: &volProfile,
+				}
+			}
+			if volIops != 0 {
+				volumeattItemPrototypeModel.Iops = core.Int64Ptr(int64(volIops))
+			}
+			if volCapacity != 0 {
+				volumeattItemPrototypeModel.Capacity = core.Int64Ptr(int64(volCapacity))
+			}
+
+			volumeatt = append(volumeatt, *volumeattItemModel)
+		}
+		instanceproto.VolumeAttachments = volumeatt
+	}
 	if dHostIdInf, ok := d.GetOk(isPlacementTargetDedicatedHost); ok {
 		dHostIdStr := dHostIdInf.(string)
 		dHostPlaementTarget := &vpcv1.InstancePlacementTargetPrototypeDedicatedHostIdentity{
@@ -3556,7 +3775,52 @@ func instanceCreateByVolume(d *schema.ResourceData, meta interface{}, profile, n
 			instanceproto.DefaultTrustedProfile.AutoLink = &defaultTrustedProfileAutoLink
 		}
 	}
+	if volumeattintf, ok := d.GetOk("volume_attachments"); ok {
+		volumeatt := []vpcv1.VolumeAttachmentPrototype{}
+		for i, _ := range volumeattintf.([]interface{}) {
+			volName := d.Get(fmt.Sprintf("volume_attachments.%d.volume_name", i)).(string)
+			volIops := d.Get(fmt.Sprintf("volume_attachments.%d.volume_iops", i)).(int)
+			volCapacity := d.Get(fmt.Sprintf("volume_attachments.%d.volume_capacity", i)).(int)
+			volEncKey := d.Get(fmt.Sprintf("volume_attachments.%d.volume_encryption_key", i)).(string)
+			volProfile := d.Get(fmt.Sprintf("volume_attachments.%d.volume_profile", i)).(string)
+			volTags := d.Get(fmt.Sprintf("volume_attachments.%d.volume_tags", i)).(*schema.Set)
 
+			volumeattItemModel := &vpcv1.VolumeAttachmentPrototype{}
+			volumeattItemPrototypeModel := &vpcv1.VolumeAttachmentPrototypeVolume{}
+
+			if volName != "" {
+				volumeattItemPrototypeModel.Name = &volName
+			}
+
+			if volTags != nil && volTags.Len() != 0 {
+				userTagsArray := make([]string, volTags.Len())
+				for i, userTag := range volTags.List() {
+					userTagStr := userTag.(string)
+					userTagsArray[i] = userTagStr
+				}
+				volumeattItemPrototypeModel.UserTags = userTagsArray
+			}
+			if volEncKey != "" {
+				volumeattItemPrototypeModel.EncryptionKey = &vpcv1.EncryptionKeyIdentity{
+					CRN: &volEncKey,
+				}
+			}
+			if volProfile != "" {
+				volumeattItemPrototypeModel.Profile = &vpcv1.VolumeProfileIdentity{
+					Name: &volProfile,
+				}
+			}
+			if volIops != 0 {
+				volumeattItemPrototypeModel.Iops = core.Int64Ptr(int64(volIops))
+			}
+			if volCapacity != 0 {
+				volumeattItemPrototypeModel.Capacity = core.Int64Ptr(int64(volCapacity))
+			}
+
+			volumeatt = append(volumeatt, *volumeattItemModel)
+		}
+		instanceproto.VolumeAttachments = volumeatt
+	}
 	if dHostIdInf, ok := d.GetOk(isPlacementTargetDedicatedHost); ok {
 		dHostIdStr := dHostIdInf.(string)
 		dHostPlaementTarget := &vpcv1.InstancePlacementTargetPrototypeDedicatedHostIdentity{
