@@ -7142,19 +7142,33 @@ func ResourceValidateInstanceVolumePrototypes(diff *schema.ResourceDiff, meta in
 			var wg sync.WaitGroup
 			errChan := make(chan error, len(newVolProtoList)+len(oldVolProtoList))
 
-			// Check for changes in the existing volumes
-			for i := range newVolProtoList {
-				wg.Add(1)
-				go func(i int) {
-					defer wg.Done()
-					newVolMap := newVolProtoList[i].(map[string]interface{})
-					if i < len(oldVolProtoList) {
-						oldVolMap := oldVolProtoList[i].(map[string]interface{})
+			// Create a map to track volume changes based on a unique identifier that does not change, if available
+			oldVolMap := make(map[string]map[string]interface{})
+			newVolMap := make(map[string]map[string]interface{})
+			oldNameToNewName := make(map[string]string)
 
-						newVolumeCapacity := newVolMap["volume_capacity"].(int)
-						oldVolumeCapacity := oldVolMap["volume_capacity"].(int)
-						newVolumeProfile := newVolMap["volume_profile"].(string)
-						oldVolumeProfile := oldVolMap["volume_profile"].(string)
+			for _, vol := range oldVolProtoList {
+				volMap := vol.(map[string]interface{})
+				oldVolMap[volMap["volume_name"].(string)] = volMap
+			}
+
+			for _, vol := range newVolProtoList {
+				volMap := vol.(map[string]interface{})
+				newVolMap[volMap["volume_name"].(string)] = volMap
+			}
+
+			// Check for changes, new volumes, and renames
+			for newName, newVol := range newVolMap {
+				wg.Add(1)
+				go func(newName string, newVol map[string]interface{}) {
+					defer wg.Done()
+					oldVol, exists := oldVolMap[newName]
+					if exists {
+						// Volume exists in both old and new lists, check for changes
+						newVolumeCapacity := newVol["volume_capacity"].(int)
+						oldVolumeCapacity := oldVol["volume_capacity"].(int)
+						newVolumeProfile := newVol["volume_profile"].(string)
+						oldVolumeProfile := oldVol["volume_profile"].(string)
 
 						if newVolumeCapacity > oldVolumeCapacity && newVolumeProfile != oldVolumeProfile {
 							if newVolumeProfile == "custom" && oldVolumeProfile == "custom" {
@@ -7162,30 +7176,60 @@ func ResourceValidateInstanceVolumePrototypes(diff *schema.ResourceDiff, meta in
 							} else if (newVolumeProfile == "general-purpose" || newVolumeProfile == "10iops-tier" || newVolumeProfile == "5iops-tier") && (oldVolumeProfile == "general-purpose" || oldVolumeProfile == "10iops-tier" || oldVolumeProfile == "5iops-tier") {
 								return
 							} else {
-								errChan <- fmt.Errorf("volume_profile can only be changed between custom to custom or general-purpose, 10iops-tier, 5iops-tier to each other. (%v / %v / %v / %v)", newVolMap["volume_name"], newVolumeProfile, oldVolumeProfile, newVolumeCapacity)
+								errChan <- fmt.Errorf("volume_profile can only be changed between custom to custom or general-purpose, 10iops-tier, 5iops-tier to each other. (%v / %v / %v / %v)", newName, newVolumeProfile, oldVolumeProfile, newVolumeCapacity)
 							}
 						}
 					} else {
-						// New volume added
-						newVolumeProfile := newVolMap["volume_profile"].(string)
-						newVolumeCapacity := newVolMap["volume_capacity"].(int)
-						errChan <- fmt.Errorf("new volume added: %v / %v / %v", newVolMap["volume_name"], newVolumeProfile, newVolumeCapacity)
+						// Check if this is a renamed volume
+						renamed := false
+						for oldName, oldVol := range oldVolMap {
+							if oldVol["unique_identifier"] == newVol["unique_identifier"] { // Assuming `unique_identifier` is a unique, immutable field
+								oldNameToNewName[oldName] = newName
+								delete(oldVolMap, oldName)
+								oldVolMap[newName] = oldVol
+								renamed = true
+								break
+							}
+						}
+						if !renamed {
+							// New volume added
+							newVolumeProfile := newVol["volume_profile"].(string)
+							newVolumeCapacity := newVol["volume_capacity"].(int)
+							errChan <- fmt.Errorf("new volume added: %v / %v / %v", newName, newVolumeProfile, newVolumeCapacity)
+						}
 					}
-				}(i)
+				}(newName, newVol)
 			}
 
-			// Check for old volumes that are no longer present
-			for i := range oldVolProtoList {
+			// Check for old volumes that are no longer present or renamed
+			for oldName, oldVol := range oldVolMap {
 				wg.Add(1)
-				go func(i int) {
+				go func(oldName string, oldVol map[string]interface{}) {
 					defer wg.Done()
-					if i >= len(newVolProtoList) {
-						oldVolMap := oldVolProtoList[i].(map[string]interface{})
-						oldVolumeProfile := oldVolMap["volume_profile"].(string)
-						oldVolumeCapacity := oldVolMap["volume_capacity"].(int)
-						errChan <- fmt.Errorf("old volume removed: %v / %v / %v", oldVolMap["volume_name"], oldVolumeProfile, oldVolumeCapacity)
+					if _, exists := newVolMap[oldName]; !exists {
+						if newName, renamed := oldNameToNewName[oldName]; renamed {
+							oldVolumeProfile := oldVol["volume_profile"].(string)
+							newVolumeProfile := newVolMap[newName]["volume_profile"].(string)
+							oldVolumeCapacity := oldVol["volume_capacity"].(int)
+							newVolumeCapacity := newVolMap[newName]["volume_capacity"].(int)
+
+							if newVolumeCapacity > oldVolumeCapacity && newVolumeProfile != oldVolumeProfile {
+								if newVolumeProfile == "custom" && oldVolumeProfile == "custom" {
+									return
+								} else if (newVolumeProfile == "general-purpose" || newVolumeProfile == "10iops-tier" || newVolumeProfile == "5iops-tier") && (oldVolumeProfile == "general-purpose" || oldVolumeProfile == "10iops-tier" || oldVolumeProfile == "5iops-tier") {
+									return
+								} else {
+									errChan <- fmt.Errorf("volume_profile can only be changed between custom to custom or general-purpose, 10iops-tier, 5iops-tier to each other. (%v / %v / %v / %v)", newName, newVolumeProfile, oldVolumeProfile, newVolumeCapacity)
+								}
+							}
+						} else {
+							// Old volume removed
+							oldVolumeProfile := oldVol["volume_profile"].(string)
+							oldVolumeCapacity := oldVol["volume_capacity"].(int)
+							errChan <- fmt.Errorf("old volume removed: %v / %v / %v", oldName, oldVolumeProfile, oldVolumeCapacity)
+						}
 					}
-				}(i)
+				}(oldName, oldVol)
 			}
 
 			wg.Wait()
