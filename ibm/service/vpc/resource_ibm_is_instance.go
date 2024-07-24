@@ -7140,29 +7140,52 @@ func ResourceValidateInstanceVolumePrototypes(diff *schema.ResourceDiff, meta in
 			newVolProtoList := newVolProtoListIntf.([]interface{})
 
 			var wg sync.WaitGroup
-			errChan := make(chan error, len(volProtoList))
+			errChan := make(chan error, len(newVolProtoList)+len(oldVolProtoList))
 
-			for _, vol := range volProtoList {
+			// Check for changes in the existing volumes
+			for i := range newVolProtoList {
 				wg.Add(1)
-				go func(vol interface{}) {
+				go func(i int) {
 					defer wg.Done()
-					volMap := vol.(map[string]interface{})
+					newVolMap := newVolProtoList[i].(map[string]interface{})
+					if i < len(oldVolProtoList) {
+						oldVolMap := oldVolProtoList[i].(map[string]interface{})
 
-					newVolumeCapacity := volMap["volume_capacity"].(int)
-					oldVolumeCapacity := diff.GetChange("volume_capacity").(int)
-					newVolumeProfile := volMap["volume_profile"].(string)
-					oldVolumeProfile := diff.GetChange("volume_profile").(string)
+						newVolumeCapacity := newVolMap["volume_capacity"].(int)
+						oldVolumeCapacity := oldVolMap["volume_capacity"].(int)
+						newVolumeProfile := newVolMap["volume_profile"].(string)
+						oldVolumeProfile := oldVolMap["volume_profile"].(string)
 
-					if newVolumeCapacity > oldVolumeCapacity && newVolumeProfile != oldVolumeProfile {
-						if newVolumeProfile == "custom" && oldVolumeProfile == "custom" {
-							return
-						} else if (newVolumeProfile == "general-purpose" || newVolumeProfile == "10iops-tier" || newVolumeProfile == "5iops-tier") && (oldVolumeProfile == "general-purpose" || oldVolumeProfile == "10iops-tier" || oldVolumeProfile == "5iops-tier") {
-							return
-						} else {
-							errChan <- fmt.Errorf("volume_profile can only be changed between custom to custom or general-purpose, 10iops-tier, 5iops-tier to each other. (%v / %v / %v / %v)", volMap["volume_name"], newVolumeProfile, oldVolumeProfile, newVolumeCapacity)
+						if newVolumeCapacity > oldVolumeCapacity && newVolumeProfile != oldVolumeProfile {
+							if newVolumeProfile == "custom" && oldVolumeProfile == "custom" {
+								return
+							} else if (newVolumeProfile == "general-purpose" || newVolumeProfile == "10iops-tier" || newVolumeProfile == "5iops-tier") && (oldVolumeProfile == "general-purpose" || oldVolumeProfile == "10iops-tier" || oldVolumeProfile == "5iops-tier") {
+								return
+							} else {
+								errChan <- fmt.Errorf("volume_profile can only be changed between custom to custom or general-purpose, 10iops-tier, 5iops-tier to each other. (%v / %v / %v / %v)", newVolMap["volume_name"], newVolumeProfile, oldVolumeProfile, newVolumeCapacity)
+							}
 						}
+					} else {
+						// New volume added
+						newVolumeProfile := newVolMap["volume_profile"].(string)
+						newVolumeCapacity := newVolMap["volume_capacity"].(int)
+						errChan <- fmt.Errorf("new volume added: %v / %v / %v", newVolMap["volume_name"], newVolumeProfile, newVolumeCapacity)
 					}
-				}(vol)
+				}(i)
+			}
+
+			// Check for old volumes that are no longer present
+			for i := range oldVolProtoList {
+				wg.Add(1)
+				go func(i int) {
+					defer wg.Done()
+					if i >= len(newVolProtoList) {
+						oldVolMap := oldVolProtoList[i].(map[string]interface{})
+						oldVolumeProfile := oldVolMap["volume_profile"].(string)
+						oldVolumeCapacity := oldVolMap["volume_capacity"].(int)
+						errChan <- fmt.Errorf("old volume removed: %v / %v / %v", oldVolMap["volume_name"], oldVolumeProfile, oldVolumeCapacity)
+					}
+				}(i)
 			}
 
 			wg.Wait()
