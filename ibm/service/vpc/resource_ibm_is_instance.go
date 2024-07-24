@@ -9,7 +9,9 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"sort"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
@@ -89,23 +91,24 @@ const (
 	isInstanceStatusFailed               = "failed"
 	isInstanceAvailablePolicyHostFailure = "availability_policy_host_failure"
 
-	isInstanceBootAttachmentName       = "name"
-	isInstanceBootVolumeId             = "volume_id"
-	isInstanceBootSize                 = "size"
-	isInstanceBootIOPS                 = "iops"
-	isInstanceBootEncryption           = "encryption"
-	isInstanceBootProfile              = "profile"
-	isInstanceAction                   = "action"
-	isInstanceVolumeAttachments        = "volume_attachments"
-	isInstanceVolumeAttaching          = "attaching"
-	isInstanceVolumeAttached           = "attached"
-	isInstanceVolumeDetaching          = "detaching"
-	isInstanceResourceGroup            = "resource_group"
-	isInstanceLifecycleReasons         = "lifecycle_reasons"
-	isInstanceLifecycleState           = "lifecycle_state"
-	isInstanceLifecycleReasonsCode     = "code"
-	isInstanceLifecycleReasonsMessage  = "message"
-	isInstanceLifecycleReasonsMoreInfo = "more_info"
+	isInstanceBootAttachmentName         = "name"
+	isInstanceBootVolumeId               = "volume_id"
+	isInstanceBootSize                   = "size"
+	isInstanceBootIOPS                   = "iops"
+	isInstanceBootEncryption             = "encryption"
+	isInstanceBootProfile                = "profile"
+	isInstanceAction                     = "action"
+	isInstanceVolumeAttachments          = "volume_attachments"
+	isInstanceVolumeAttachmentsPrototype = "volume_prototypes"
+	isInstanceVolumeAttaching            = "attaching"
+	isInstanceVolumeAttached             = "attached"
+	isInstanceVolumeDetaching            = "detaching"
+	isInstanceResourceGroup              = "resource_group"
+	isInstanceLifecycleReasons           = "lifecycle_reasons"
+	isInstanceLifecycleState             = "lifecycle_state"
+	isInstanceLifecycleReasonsCode       = "code"
+	isInstanceLifecycleReasonsMessage    = "message"
+	isInstanceLifecycleReasonsMoreInfo   = "more_info"
 
 	isInstanceCatalogOffering            = "catalog_offering"
 	isInstanceCatalogOfferingOfferingCrn = "offering_crn"
@@ -184,6 +187,10 @@ func ResourceIBMISInstance() *schema.Resource {
 			customdiff.Sequence(
 				func(_ context.Context, diff *schema.ResourceDiff, v interface{}) error {
 					return flex.ResourceValidateAccessTags(diff, v)
+				}),
+			customdiff.Sequence(
+				func(_ context.Context, diff *schema.ResourceDiff, v interface{}) error {
+					return ResourceValidateInstanceVolumePrototypes(diff, v)
 				}),
 		),
 
@@ -359,10 +366,8 @@ func ResourceIBMISInstance() *schema.Resource {
 			},
 
 			isInstanceVolumeAttachments: {
-				Type:          schema.TypeList,
-				Optional:      true,
-				ConflictsWith: []string{isInstanceVolumes},
-				Computed:      true,
+				Type:     schema.TypeList,
+				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"id": {
@@ -372,6 +377,41 @@ func ResourceIBMISInstance() *schema.Resource {
 						"name": {
 							Type:     schema.TypeString,
 							Computed: true,
+						},
+						"volume_id": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"volume_name": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"volume_crn": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+					},
+				},
+			},
+			isInstanceVolumeAttachmentsPrototype: {
+				Type:             schema.TypeList,
+				Optional:         true,
+				DiffSuppressFunc: diffsupp,
+				ConflictsWith:    []string{isInstanceVolumes},
+				Computed:         true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"id": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"name": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"delete_volume_on_instance_delete": {
+							Type:     schema.TypeBool,
+							Optional: true,
 						},
 						"volume_id": {
 							Type:     schema.TypeString,
@@ -1265,7 +1305,7 @@ func ResourceIBMISInstance() *schema.Resource {
 			isInstanceVolumes: {
 				Type:          schema.TypeList,
 				Optional:      true,
-				ConflictsWith: []string{isInstanceVolumeAttachments},
+				ConflictsWith: []string{isInstanceVolumeAttachmentsPrototype},
 				Elem:          &schema.Schema{Type: schema.TypeString},
 				Description:   "List of volumes",
 			},
@@ -1923,21 +1963,25 @@ func instanceCreateByImage(d *schema.ResourceData, meta interface{}, profile, na
 
 	}
 
-	if volumeattintf, ok := d.GetOk("volume_attachments"); ok {
+	if volumeattintf, ok := d.GetOk("volume_prototypes"); ok {
 		volumeatt := []vpcv1.VolumeAttachmentPrototype{}
 		for i, _ := range volumeattintf.([]interface{}) {
-			volName := d.Get(fmt.Sprintf("volume_attachments.%d.volume_name", i)).(string)
-			volIops := d.Get(fmt.Sprintf("volume_attachments.%d.volume_iops", i)).(int)
-			volCapacity := d.Get(fmt.Sprintf("volume_attachments.%d.volume_capacity", i)).(int)
-			volEncKey := d.Get(fmt.Sprintf("volume_attachments.%d.volume_encryption_key", i)).(string)
-			volProfile := d.Get(fmt.Sprintf("volume_attachments.%d.volume_profile", i)).(string)
-			volTags := d.Get(fmt.Sprintf("volume_attachments.%d.volume_tags", i)).(*schema.Set)
+			volName := d.Get(fmt.Sprintf("volume_prototypes.%d.volume_name", i)).(string)
+			volAutoDelete, ok := d.GetOkExists(fmt.Sprintf("volume_prototypes.%d.delete_volume_on_instance_delete", i))
+			volIops := d.Get(fmt.Sprintf("volume_prototypes.%d.volume_iops", i)).(int)
+			volCapacity := d.Get(fmt.Sprintf("volume_prototypes.%d.volume_capacity", i)).(int)
+			volEncKey := d.Get(fmt.Sprintf("volume_prototypes.%d.volume_encryption_key", i)).(string)
+			volProfile := d.Get(fmt.Sprintf("volume_prototypes.%d.volume_profile", i)).(string)
+			volTags := d.Get(fmt.Sprintf("volume_prototypes.%d.volume_tags", i)).(*schema.Set)
 
 			volumeattItemModel := &vpcv1.VolumeAttachmentPrototype{}
 			volumeattItemPrototypeModel := &vpcv1.VolumeAttachmentPrototypeVolume{}
 
 			if volName != "" {
 				volumeattItemPrototypeModel.Name = &volName
+			}
+			if ok {
+				volumeattItemModel.DeleteVolumeOnInstanceDelete = core.BoolPtr(volAutoDelete.(bool))
 			}
 
 			if volTags != nil && volTags.Len() != 0 {
@@ -1964,6 +2008,7 @@ func instanceCreateByImage(d *schema.ResourceData, meta interface{}, profile, na
 			if volCapacity != 0 {
 				volumeattItemPrototypeModel.Capacity = core.Int64Ptr(int64(volCapacity))
 			}
+			volumeattItemModel.Volume = volumeattItemPrototypeModel
 
 			volumeatt = append(volumeatt, *volumeattItemModel)
 		}
@@ -2334,15 +2379,15 @@ func instanceCreateByCatalogOffering(d *schema.ResourceData, meta interface{}, p
 		}
 		instanceproto.CatalogOffering = versionPrototype
 	}
-	if volumeattintf, ok := d.GetOk("volume_attachments"); ok {
+	if volumeattintf, ok := d.GetOk("volume_prototypes"); ok {
 		volumeatt := []vpcv1.VolumeAttachmentPrototype{}
 		for i, _ := range volumeattintf.([]interface{}) {
-			volName := d.Get(fmt.Sprintf("volume_attachments.%d.volume_name", i)).(string)
-			volIops := d.Get(fmt.Sprintf("volume_attachments.%d.volume_iops", i)).(int)
-			volCapacity := d.Get(fmt.Sprintf("volume_attachments.%d.volume_capacity", i)).(int)
-			volEncKey := d.Get(fmt.Sprintf("volume_attachments.%d.volume_encryption_key", i)).(string)
-			volProfile := d.Get(fmt.Sprintf("volume_attachments.%d.volume_profile", i)).(string)
-			volTags := d.Get(fmt.Sprintf("volume_attachments.%d.volume_tags", i)).(*schema.Set)
+			volName := d.Get(fmt.Sprintf("volume_prototypes.%d.volume_name", i)).(string)
+			volIops := d.Get(fmt.Sprintf("volume_prototypes.%d.volume_iops", i)).(int)
+			volCapacity := d.Get(fmt.Sprintf("volume_prototypes.%d.volume_capacity", i)).(int)
+			volEncKey := d.Get(fmt.Sprintf("volume_prototypes.%d.volume_encryption_key", i)).(string)
+			volProfile := d.Get(fmt.Sprintf("volume_prototypes.%d.volume_profile", i)).(string)
+			volTags := d.Get(fmt.Sprintf("volume_prototypes.%d.volume_tags", i)).(*schema.Set)
 
 			volumeattItemModel := &vpcv1.VolumeAttachmentPrototype{}
 			volumeattItemPrototypeModel := &vpcv1.VolumeAttachmentPrototypeVolume{}
@@ -2807,15 +2852,15 @@ func instanceCreateByTemplate(d *schema.ResourceData, meta interface{}, profile,
 			Name: &profile,
 		}
 	}
-	if volumeattintf, ok := d.GetOk("volume_attachments"); ok {
+	if volumeattintf, ok := d.GetOk("volume_prototypes"); ok {
 		volumeatt := []vpcv1.VolumeAttachmentPrototype{}
 		for i, _ := range volumeattintf.([]interface{}) {
-			volName := d.Get(fmt.Sprintf("volume_attachments.%d.volume_name", i)).(string)
-			volIops := d.Get(fmt.Sprintf("volume_attachments.%d.volume_iops", i)).(int)
-			volCapacity := d.Get(fmt.Sprintf("volume_attachments.%d.volume_capacity", i)).(int)
-			volEncKey := d.Get(fmt.Sprintf("volume_attachments.%d.volume_encryption_key", i)).(string)
-			volProfile := d.Get(fmt.Sprintf("volume_attachments.%d.volume_profile", i)).(string)
-			volTags := d.Get(fmt.Sprintf("volume_attachments.%d.volume_tags", i)).(*schema.Set)
+			volName := d.Get(fmt.Sprintf("volume_prototypes.%d.volume_name", i)).(string)
+			volIops := d.Get(fmt.Sprintf("volume_prototypes.%d.volume_iops", i)).(int)
+			volCapacity := d.Get(fmt.Sprintf("volume_prototypes.%d.volume_capacity", i)).(int)
+			volEncKey := d.Get(fmt.Sprintf("volume_prototypes.%d.volume_encryption_key", i)).(string)
+			volProfile := d.Get(fmt.Sprintf("volume_prototypes.%d.volume_profile", i)).(string)
+			volTags := d.Get(fmt.Sprintf("volume_prototypes.%d.volume_tags", i)).(*schema.Set)
 
 			volumeattItemModel := &vpcv1.VolumeAttachmentPrototype{}
 			volumeattItemPrototypeModel := &vpcv1.VolumeAttachmentPrototypeVolume{}
@@ -3290,15 +3335,15 @@ func instanceCreateBySnapshot(d *schema.ResourceData, meta interface{}, profile,
 			instanceproto.DefaultTrustedProfile.AutoLink = &defaultTrustedProfileAutoLink
 		}
 	}
-	if volumeattintf, ok := d.GetOk("volume_attachments"); ok {
+	if volumeattintf, ok := d.GetOk("volume_prototypes"); ok {
 		volumeatt := []vpcv1.VolumeAttachmentPrototype{}
 		for i, _ := range volumeattintf.([]interface{}) {
-			volName := d.Get(fmt.Sprintf("volume_attachments.%d.volume_name", i)).(string)
-			volIops := d.Get(fmt.Sprintf("volume_attachments.%d.volume_iops", i)).(int)
-			volCapacity := d.Get(fmt.Sprintf("volume_attachments.%d.volume_capacity", i)).(int)
-			volEncKey := d.Get(fmt.Sprintf("volume_attachments.%d.volume_encryption_key", i)).(string)
-			volProfile := d.Get(fmt.Sprintf("volume_attachments.%d.volume_profile", i)).(string)
-			volTags := d.Get(fmt.Sprintf("volume_attachments.%d.volume_tags", i)).(*schema.Set)
+			volName := d.Get(fmt.Sprintf("volume_prototypes.%d.volume_name", i)).(string)
+			volIops := d.Get(fmt.Sprintf("volume_prototypes.%d.volume_iops", i)).(int)
+			volCapacity := d.Get(fmt.Sprintf("volume_prototypes.%d.volume_capacity", i)).(int)
+			volEncKey := d.Get(fmt.Sprintf("volume_prototypes.%d.volume_encryption_key", i)).(string)
+			volProfile := d.Get(fmt.Sprintf("volume_prototypes.%d.volume_profile", i)).(string)
+			volTags := d.Get(fmt.Sprintf("volume_prototypes.%d.volume_tags", i)).(*schema.Set)
 
 			volumeattItemModel := &vpcv1.VolumeAttachmentPrototype{}
 			volumeattItemPrototypeModel := &vpcv1.VolumeAttachmentPrototypeVolume{}
@@ -3775,15 +3820,15 @@ func instanceCreateByVolume(d *schema.ResourceData, meta interface{}, profile, n
 			instanceproto.DefaultTrustedProfile.AutoLink = &defaultTrustedProfileAutoLink
 		}
 	}
-	if volumeattintf, ok := d.GetOk("volume_attachments"); ok {
+	if volumeattintf, ok := d.GetOk("volume_prototypes"); ok {
 		volumeatt := []vpcv1.VolumeAttachmentPrototype{}
 		for i, _ := range volumeattintf.([]interface{}) {
-			volName := d.Get(fmt.Sprintf("volume_attachments.%d.volume_name", i)).(string)
-			volIops := d.Get(fmt.Sprintf("volume_attachments.%d.volume_iops", i)).(int)
-			volCapacity := d.Get(fmt.Sprintf("volume_attachments.%d.volume_capacity", i)).(int)
-			volEncKey := d.Get(fmt.Sprintf("volume_attachments.%d.volume_encryption_key", i)).(string)
-			volProfile := d.Get(fmt.Sprintf("volume_attachments.%d.volume_profile", i)).(string)
-			volTags := d.Get(fmt.Sprintf("volume_attachments.%d.volume_tags", i)).(*schema.Set)
+			volName := d.Get(fmt.Sprintf("volume_prototypes.%d.volume_name", i)).(string)
+			volIops := d.Get(fmt.Sprintf("volume_prototypes.%d.volume_iops", i)).(int)
+			volCapacity := d.Get(fmt.Sprintf("volume_prototypes.%d.volume_capacity", i)).(int)
+			volEncKey := d.Get(fmt.Sprintf("volume_prototypes.%d.volume_encryption_key", i)).(string)
+			volProfile := d.Get(fmt.Sprintf("volume_prototypes.%d.volume_profile", i)).(string)
+			volTags := d.Get(fmt.Sprintf("volume_prototypes.%d.volume_tags", i)).(*schema.Set)
 
 			volumeattItemModel := &vpcv1.VolumeAttachmentPrototype{}
 			volumeattItemPrototypeModel := &vpcv1.VolumeAttachmentPrototypeVolume{}
@@ -4775,6 +4820,41 @@ func instanceGet(d *schema.ResourceData, meta interface{}, id string) error {
 		}
 		bootVolList = append(bootVolList, bootVol)
 		d.Set(isInstanceBootVolume, bootVolList)
+	}
+
+	if instance.VolumeAttachments != nil {
+		volList := make([]map[string]interface{}, 0)
+		for _, volume := range instance.VolumeAttachments {
+			vol := map[string]interface{}{}
+			if volume.Volume != nil {
+				vol["id"] = *volume.ID
+				vol["volume_id"] = *volume.Volume.ID
+				vol["name"] = *volume.Name
+				vol["volume_name"] = *volume.Volume.Name
+				vol["volume_crn"] = *volume.Volume.CRN
+				volList = append(volList, vol)
+			}
+		}
+		d.Set(isInstanceVolumeAttachments, volList)
+	}
+	if instance.VolumeAttachments != nil {
+		volList := make([]map[string]interface{}, 0)
+		for _, volume := range instance.VolumeAttachments {
+			if *volume.ID != *instance.BootVolumeAttachment.ID {
+				vol := map[string]interface{}{}
+				if volume.Volume != nil {
+					vol["id"] = *volume.ID
+					vol["volume_id"] = *volume.Volume.ID
+					vol["name"] = *volume.Name
+					vol["volume_name"] = *volume.Volume.Name
+					vol["volume_crn"] = *volume.Volume.CRN
+					vol["volume_iops"] = *volume.Volume.CRN
+					vol["volume_crn"] = *volume.Volume.CRN
+					volList = append(volList, vol)
+				}
+			}
+		}
+		d.Set(isInstanceVolumeAttachmentsPrototype, volList)
 	}
 	tags, err := flex.GetGlobalTagsUsingCRN(meta, *instance.CRN, "", isInstanceUserTagType)
 	if err != nil {
@@ -6261,7 +6341,7 @@ func instanceDelete(d *schema.ResourceData, meta interface{}, id string) error {
 			return fmt.Errorf("[ERROR] Error Listing volume attachments to the instance: %s\n%s", err, response)
 		}
 		for _, vol := range vols.VolumeAttachments {
-			if *vol.Type == "data" {
+			if *vol.Type == "data" && !*vol.DeleteVolumeOnInstanceDelete {
 				delvolattoptions := &vpcv1.DeleteInstanceVolumeAttachmentOptions{
 					InstanceID: &id,
 					ID:         vol.ID,
@@ -6856,3 +6936,272 @@ func containsNacId(s []string, e string) bool {
 	}
 	return false
 }
+
+func suppressVolumeDiff(k, old, new string, d *schema.ResourceData) bool {
+	var oldVolumes, newVolumes []interface{}
+
+	// Unmarshal old and new volumes from strings to interfaces
+	if err := json.Unmarshal([]byte(old), &oldVolumes); err != nil {
+		return false
+	}
+	if err := json.Unmarshal([]byte(new), &newVolumes); err != nil {
+		return false
+	}
+
+	// Compare the volumes
+	if compareVolumeLists(oldVolumes, newVolumes) {
+		return true
+	}
+	return false
+}
+
+func compareVolumeLists(oldVolumes, newVolumes []interface{}) bool {
+	oldVolumeMap := make(map[string]map[string]interface{})
+	newVolumeMap := make(map[string]map[string]interface{})
+
+	for _, vol := range oldVolumes {
+		volMap := vol.(map[string]interface{})
+		name := volMap["volume_name"].(string)
+		oldVolumeMap[name] = volMap
+	}
+	for _, vol := range newVolumes {
+		volMap := vol.(map[string]interface{})
+		name := volMap["volume_name"].(string)
+		newVolumeMap[name] = volMap
+	}
+
+	// Check for additions, deletions, and updates
+	for name, oldVol := range oldVolumeMap {
+		newVol, exists := newVolumeMap[name]
+		if !exists {
+			return false // Volume removed
+		}
+		if !compareVolumes(oldVol, newVol) {
+			return false // Volume updated
+		}
+	}
+
+	for name := range newVolumeMap {
+		if _, exists := oldVolumeMap[name]; !exists {
+			return false // Volume added
+		}
+	}
+
+	return true
+}
+
+func compareVolumes(oldVol, newVol map[string]interface{}) bool {
+	return int64(oldVol["volume_capacity"].(float64)) == int64(newVol["volume_capacity"].(float64)) &&
+		int64(oldVol["volume_iops"].(float64)) == int64(newVol["volume_iops"].(float64)) &&
+		oldVol["volume_key"].(string) == newVol["volume_key"].(string) &&
+		oldVol["volume_profile"].(string) == newVol["volume_profile"].(string) &&
+		compareStringSlices(oldVol["volume_tags"].([]interface{}), newVol["volume_tags"].([]interface{}))
+}
+
+func compareStringSlices(slice1, slice2 []interface{}) bool {
+	if len(slice1) != len(slice2) {
+		return false
+	}
+
+	s1 := make([]string, len(slice1))
+	s2 := make([]string, len(slice2))
+
+	for i := range slice1 {
+		s1[i] = slice1[i].(string)
+		s2[i] = slice2[i].(string)
+	}
+
+	sort.Strings(s1)
+	sort.Strings(s2)
+	for i := range s1 {
+		if s1[i] != s2[i] {
+			return false
+		}
+	}
+	return true
+}
+
+func getVolumeDifferences(oldVolumes, newVolumes []interface{}) (added, removed, updated []map[string]interface{}) {
+	oldVolumeMap := make(map[string]map[string]interface{})
+	newVolumeMap := make(map[string]map[string]interface{})
+
+	for _, vol := range oldVolumes {
+		volMap := vol.(map[string]interface{})
+		name := volMap["volume_name"].(string)
+		oldVolumeMap[name] = volMap
+	}
+	for _, vol := range newVolumes {
+		volMap := vol.(map[string]interface{})
+		name := volMap["volume_name"].(string)
+		newVolumeMap[name] = volMap
+	}
+
+	for name, oldVol := range oldVolumeMap {
+		newVol, exists := newVolumeMap[name]
+		if !exists {
+			removed = append(removed, oldVol)
+		} else if !compareVolumes(oldVol, newVol) {
+			updated = append(updated, newVol)
+		}
+	}
+
+	for name, newVol := range newVolumeMap {
+		if _, exists := oldVolumeMap[name]; !exists {
+			added = append(added, newVol)
+		}
+	}
+
+	log.Printf("[INFO] UJJK added is %s", prettifyResponse(added))
+	log.Printf("[INFO] UJJK removed is %s", prettifyResponse(removed))
+	log.Printf("[INFO] UJJK updated is %s", prettifyResponse(updated))
+
+	return added, removed, updated
+}
+
+func diffsupp(k string, o string, n string, d *schema.ResourceData) bool {
+	oldVolumesIntf, newVolumesIntf := d.GetChange("volume_prototypes")
+	oldVolumes := oldVolumesIntf.([]interface{})
+	newVolumes := newVolumesIntf.([]interface{})
+	log.Printf("[INFO] UJJK old volumes is %s", prettifyResponse(oldVolumes))
+	log.Printf("[INFO] UJJK new volumes is %s", prettifyResponse(newVolumes))
+	// if err := json.Unmarshal([]byte(old), &oldVolumes); err != nil {
+	// 	return false
+	// }
+	// if err := json.Unmarshal([]byte(new), &newVolumes); err != nil {
+	// 	return false
+	// }
+
+	// Compare the volumes
+	return compareVolumeLists(oldVolumes, newVolumes)
+	// Compare the lists
+	// log.Printf("[INFO] UJJK Are volumes the same? %v", compareVolumeLists(oldVolumes, newVolumes))
+
+	// // Get differences
+	// added, removed, updated := getVolumeDifferences(oldVolumes, newVolumes)
+	// log.Printf("[INFO] UJJK Added volumes: %v", added)
+	// log.Printf("[INFO] UJJK Removed volumes: %v", removed)
+	// log.Printf("[INFO] UJJK Updated volumes: %v", updated)
+
+	// // Example JSON marshalling
+	// oldJSON, _ := json.Marshal(oldVolumes)
+	// newJSON, _ := json.Marshal(newVolumes)
+	// log.Printf("[INFO] UJJK Old Volumes JSON: %s", string(oldJSON))
+	// log.Printf("[INFO] UJJK New Volumes JSON: %s", string(newJSON))
+
+	// // Example diff suppress function usage
+	// suppress := suppressVolumeDiff("volumes", string(oldJSON), string(newJSON), nil)
+	// log.Printf("[INFO] UJJK Suppress diff: %t", suppress)
+	// return suppress
+}
+
+func prettifyResponse(response interface{}) string {
+	output, err := json.MarshalIndent(response, "", "    ")
+	if err == nil {
+		return fmt.Sprintf("%+v\n", string(output))
+	}
+	return fmt.Sprintf("Error : %#v", response)
+}
+func ResourceValidateInstanceVolumePrototypes(diff *schema.ResourceDiff, meta interface{}) error {
+	if diff.Id() == "" {
+		volProtoListIntf := diff.Get("volume_prototypes")
+		if volProtoListIntf != nil && len(volProtoListIntf.([]interface{})) > 0 {
+			volProtoList := volProtoListIntf.([]interface{})
+
+			var wg sync.WaitGroup
+			errChan := make(chan error, len(volProtoList))
+
+			for _, vol := range volProtoList {
+				wg.Add(1)
+				go func(vol interface{}) {
+					defer wg.Done()
+					volMap := vol.(map[string]interface{})
+					if ((volMap["volume_profile"] == "general-purpose") || (volMap["volume_profile"] == "10iops-tier") || (volMap["volume_profile"] == "5iops-tier")) && int64(volMap["volume_iops"].(int)) != int64(0) {
+						errChan <- fmt.Errorf("iops is only applicable to volumes using a profile family of custom. (%v / %v / %v) ", volMap["volume_name"], volMap["volume_profile"], volMap["volume_iops"])
+					}
+				}(vol)
+			}
+
+			wg.Wait()
+			close(errChan)
+
+			var errList []error
+			for err := range errChan {
+				errList = append(errList, err)
+			}
+
+			if len(errList) > 0 {
+				return fmt.Errorf("validation errors: %v", errList)
+			}
+		}
+	} else {
+		oldVolProtoListIntf, newVolProtoListIntf := diff.GetChange("volume_prototypes")
+		if oldVolProtoListIntf != nil && len(oldVolProtoListIntf.([]interface{})) > 0 && newVolProtoListIntf != nil && len(newVolProtoListIntf.([]interface{})) > 0 {
+			oldVolProtoList := oldVolProtoListIntf.([]interface{})
+			newVolProtoList := newVolProtoListIntf.([]interface{})
+
+			var wg sync.WaitGroup
+			errChan := make(chan error, len(volProtoList))
+
+			for _, vol := range volProtoList {
+				wg.Add(1)
+				go func(vol interface{}) {
+					defer wg.Done()
+					volMap := vol.(map[string]interface{})
+
+					newVolumeCapacity := volMap["volume_capacity"].(int)
+					oldVolumeCapacity := diff.GetChange("volume_capacity").(int)
+					newVolumeProfile := volMap["volume_profile"].(string)
+					oldVolumeProfile := diff.GetChange("volume_profile").(string)
+
+					if newVolumeCapacity > oldVolumeCapacity && newVolumeProfile != oldVolumeProfile {
+						if newVolumeProfile == "custom" && oldVolumeProfile == "custom" {
+							return
+						} else if (newVolumeProfile == "general-purpose" || newVolumeProfile == "10iops-tier" || newVolumeProfile == "5iops-tier") && (oldVolumeProfile == "general-purpose" || oldVolumeProfile == "10iops-tier" || oldVolumeProfile == "5iops-tier") {
+							return
+						} else {
+							errChan <- fmt.Errorf("volume_profile can only be changed between custom to custom or general-purpose, 10iops-tier, 5iops-tier to each other. (%v / %v / %v / %v)", volMap["volume_name"], newVolumeProfile, oldVolumeProfile, newVolumeCapacity)
+						}
+					}
+				}(vol)
+			}
+
+			wg.Wait()
+			close(errChan)
+
+			var errList []error
+			for err := range errChan {
+				errList = append(errList, err)
+			}
+
+			if len(errList) > 0 {
+				return fmt.Errorf("validation errors: %v", errList)
+			}
+		}
+	}
+	return nil
+}
+
+// func ResourceValidateInstanceVolumePrototypes(diff *schema.ResourceDiff, meta interface{}) error {
+// 	if diff.Id() == "" {
+// 		volProtoListIntf := diff.Get("volume_prototypes")
+// 		if volProtoListIntf != nil && len(volProtoListIntf.([]interface{})) > 0 {
+// 			volProtoList := volProtoListIntf.([]interface{})
+// 			for _, vol := range volProtoList {
+// 				volMap := vol.(map[string]interface{})
+// 				if ((volMap["volume_profile"] == "general-purpose") || (volMap["volume_profile"] == "10iops-tier") || (volMap["volume_profile"] == "5iops-tier")) && int64(volMap["volume_iops"].(int)) != int64(0) {
+// 					return fmt.Errorf("iops is only applicable only to volumes using a profile family of custom. (%v / %v / %v) ", volMap["volume_name"], volMap["volume_profile"], volMap["volume_iops"])
+// 				}
+// 			}
+// 		}
+// 	}
+
+// 	// if diff.Id() != "" && diff.HasChange("volume_prototypes") {
+// 	// 	o, n := diff.GetChange("capacity")
+// 	// 	old := int64(o.(int))
+// 	// 	new := int64(n.(int))
+// 	// 	if new < old {
+// 	// 		return fmt.Errorf("'%s' attribute has a constraint, it supports only expansion and can't be changed from %d to %d.", "capacity", old, new)
+// 	// 	}
+// 	// }
+// 	return nil
+// }
