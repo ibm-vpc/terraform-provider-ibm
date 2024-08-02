@@ -92,6 +92,7 @@ func DataSourceIBMIsClusterNetworkProfile() *schema.Resource {
 func dataSourceIBMIsClusterNetworkProfileRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	vpcClient, err := meta.(conns.ClientSession).VpcV1API()
 	if err != nil {
+		// Error is coming from SDK client, so it doesn't need to be discriminated.
 		tfErr := flex.TerraformErrorf(err, err.Error(), "(Data) ibm_is_cluster_network_profile", "read")
 		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
 		return tfErr.GetDiag()
@@ -111,18 +112,15 @@ func dataSourceIBMIsClusterNetworkProfileRead(context context.Context, d *schema
 	d.SetId(dataSourceIBMIsClusterNetworkProfileID(d))
 
 	if err = d.Set("family", clusterNetworkProfile.Family); err != nil {
-		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting family: %s", err), "(Data) ibm_is_cluster_network_profile", "read")
-		return tfErr.GetDiag()
+		return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting family: %s", err), "(Data) ibm_is_cluster_network_profile", "read", "set-family").GetDiag()
 	}
 
 	if err = d.Set("href", clusterNetworkProfile.Href); err != nil {
-		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting href: %s", err), "(Data) ibm_is_cluster_network_profile", "read")
-		return tfErr.GetDiag()
+		return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting href: %s", err), "(Data) ibm_is_cluster_network_profile", "read", "set-href").GetDiag()
 	}
 
 	if err = d.Set("resource_type", clusterNetworkProfile.ResourceType); err != nil {
-		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting resource_type: %s", err), "(Data) ibm_is_cluster_network_profile", "read")
-		return tfErr.GetDiag()
+		return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting resource_type: %s", err), "(Data) ibm_is_cluster_network_profile", "read", "set-resource_type").GetDiag()
 	}
 
 	supportedInstanceProfiles := []map[string]interface{}{}
@@ -130,15 +128,13 @@ func dataSourceIBMIsClusterNetworkProfileRead(context context.Context, d *schema
 		for _, modelItem := range clusterNetworkProfile.SupportedInstanceProfiles {
 			modelMap, err := DataSourceIBMIsClusterNetworkProfileInstanceProfileReferenceToMap(&modelItem)
 			if err != nil {
-				tfErr := flex.TerraformErrorf(err, err.Error(), "(Data) ibm_is_cluster_network_profile", "read")
-				return tfErr.GetDiag()
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_cluster_network_profile", "read", "supported_instance_profiles-to-map").GetDiag()
 			}
 			supportedInstanceProfiles = append(supportedInstanceProfiles, modelMap)
 		}
 	}
 	if err = d.Set("supported_instance_profiles", supportedInstanceProfiles); err != nil {
-		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting supported_instance_profiles: %s", err), "(Data) ibm_is_cluster_network_profile", "read")
-		return tfErr.GetDiag()
+		return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting supported_instance_profiles: %s", err), "(Data) ibm_is_cluster_network_profile", "read", "set-supported_instance_profiles").GetDiag()
 	}
 
 	zones := []map[string]interface{}{}
@@ -146,15 +142,13 @@ func dataSourceIBMIsClusterNetworkProfileRead(context context.Context, d *schema
 		for _, modelItem := range clusterNetworkProfile.Zones {
 			modelMap, err := DataSourceIBMIsClusterNetworkProfileZoneReferenceToMap(&modelItem)
 			if err != nil {
-				tfErr := flex.TerraformErrorf(err, err.Error(), "(Data) ibm_is_cluster_network_profile", "read")
-				return tfErr.GetDiag()
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_cluster_network_profile", "read", "zones-to-map").GetDiag()
 			}
 			zones = append(zones, modelMap)
 		}
 	}
 	if err = d.Set("zones", zones); err != nil {
-		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting zones: %s", err), "(Data) ibm_is_cluster_network_profile", "read")
-		return tfErr.GetDiag()
+		return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting zones: %s", err), "(Data) ibm_is_cluster_network_profile", "read", "set-zones").GetDiag()
 	}
 
 	return nil

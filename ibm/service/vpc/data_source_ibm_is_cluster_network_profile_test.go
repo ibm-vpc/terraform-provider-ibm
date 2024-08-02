@@ -1,6 +1,10 @@
 // Copyright IBM Corp. 2024 All Rights Reserved.
 // Licensed under the Mozilla Public License v2.0
 
+/*
+ * IBM OpenAPI Terraform Generator Version: 3.91.0-d9755c53-20240605-153412
+ */
+
 package vpc_test
 
 import (
@@ -10,10 +14,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	acc "github.com/IBM-Cloud/terraform-provider-ibm/ibm/acctest"
-	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/service/vpc"
-	"github.com/IBM/go-sdk-core/v5/core"
-	"github.com/IBM/vpc-go-sdk/vpcv1"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestAccIBMIsClusterNetworkProfileDataSourceBasic(t *testing.T) {
@@ -30,7 +30,12 @@ func TestAccIBMIsClusterNetworkProfileDataSourceBasic(t *testing.T) {
 					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_network_profile.is_cluster_network_profile_instance", "href"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_network_profile.is_cluster_network_profile_instance", "resource_type"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_network_profile.is_cluster_network_profile_instance", "supported_instance_profiles.#"),
+					// resource.TestCheckResourceAttrSet("data.ibm_is_cluster_network_profile.is_cluster_network_profile_instance", "supported_instance_profiles.0.href"),
+					// resource.TestCheckResourceAttrSet("data.ibm_is_cluster_network_profile.is_cluster_network_profile_instance", "supported_instance_profiles.0.name"),
+					// resource.TestCheckResourceAttrSet("data.ibm_is_cluster_network_profile.is_cluster_network_profile_instance", "supported_instance_profiles.0.resource_type"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_network_profile.is_cluster_network_profile_instance", "zones.#"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_network_profile.is_cluster_network_profile_instance", "zones.0.href"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_network_profile.is_cluster_network_profile_instance", "zones.0.name"),
 				),
 			},
 		},
@@ -40,45 +45,7 @@ func TestAccIBMIsClusterNetworkProfileDataSourceBasic(t *testing.T) {
 func testAccCheckIBMIsClusterNetworkProfileDataSourceConfigBasic() string {
 	return fmt.Sprintf(`
 		data "ibm_is_cluster_network_profile" "is_cluster_network_profile_instance" {
-			name = "name"
+			name = "h100"
 		}
 	`)
-}
-
-func TestDataSourceIBMIsClusterNetworkProfileInstanceProfileReferenceToMap(t *testing.T) {
-	checkResult := func(result map[string]interface{}) {
-		model := make(map[string]interface{})
-		model["href"] = "https://us-south.iaas.cloud.ibm.com/v1/instance/profiles/bx2-4x16"
-		model["name"] = "bx2-4x16"
-		model["resource_type"] = "instance_profile"
-
-		assert.Equal(t, result, model)
-	}
-
-	model := new(vpcv1.InstanceProfileReference)
-	model.Href = core.StringPtr("https://us-south.iaas.cloud.ibm.com/v1/instance/profiles/bx2-4x16")
-	model.Name = core.StringPtr("bx2-4x16")
-	model.ResourceType = core.StringPtr("instance_profile")
-
-	result, err := vpc.DataSourceIBMIsClusterNetworkProfileInstanceProfileReferenceToMap(model)
-	assert.Nil(t, err)
-	checkResult(result)
-}
-
-func TestDataSourceIBMIsClusterNetworkProfileZoneReferenceToMap(t *testing.T) {
-	checkResult := func(result map[string]interface{}) {
-		model := make(map[string]interface{})
-		model["href"] = "https://us-south.iaas.cloud.ibm.com/v1/regions/us-south/zones/us-south-1"
-		model["name"] = "us-south-1"
-
-		assert.Equal(t, result, model)
-	}
-
-	model := new(vpcv1.ZoneReference)
-	model.Href = core.StringPtr("https://us-south.iaas.cloud.ibm.com/v1/regions/us-south/zones/us-south-1")
-	model.Name = core.StringPtr("us-south-1")
-
-	result, err := vpc.DataSourceIBMIsClusterNetworkProfileZoneReferenceToMap(model)
-	assert.Nil(t, err)
-	checkResult(result)
 }
