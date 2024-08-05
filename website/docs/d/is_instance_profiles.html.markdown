@@ -50,6 +50,16 @@ You can access the following attribute references after your data source is crea
       - `type` - (String) The type for this profile field.
       - `value` - (String) The value for this profile field.
       - `values` - (String) The permitted values for this profile field.
+      
+  - `cluster_network_attachment_count` - (List) The collection of cluster network attachment count information.
+  
+      Nested schema for `cluster_network_attachment_count`:
+      - `max` - (Integer) The maximum value for this profile field.
+      - `min` - (Integer) The minimum value for this profile field.
+      - `step` - (Integer)
+      - `type` - (String) The type for this profile field. Allowable values are: `dependent`.
+      - `values` - (List) The permitted values for this profile field.
+    
   - `confidential_compute_modes` - (List) 
 
       Nested schema for **confidential_compute_modes**:
