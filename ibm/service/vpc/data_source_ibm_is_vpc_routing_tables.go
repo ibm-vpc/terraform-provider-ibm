@@ -17,6 +17,7 @@ import (
 const (
 	isRoutingTableAcceptRoutesFrom      = "accept_routes_from"
 	isRoutingTableID                    = "routing_table"
+	isRoutingTableCrn                   = "routing_table_crn"
 	isRoutingTableHref                  = "href"
 	isRoutingTableName                  = "name"
 	isRoutingTableResourceType          = "resource_type"
@@ -71,6 +72,11 @@ func DataSourceIBMISVPCRoutingTables() *schema.Resource {
 							Type:        schema.TypeString,
 							Computed:    true,
 							Description: "Routing Table ID",
+						},
+						isRoutingTableCrn: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The crn of routing table",
 						},
 						"advertise_routes_to": &schema.Schema{
 							Type:        schema.TypeList,
@@ -221,6 +227,9 @@ func dataSourceIBMISVPCRoutingTablesList(d *schema.ResourceData, meta interface{
 		rtable[isRoutingTableAcceptRoutesFrom] = acceptRoutesFromInfo
 		if routingTable.ID != nil {
 			rtable[isRoutingTableID] = *routingTable.ID
+		}
+		if routingTable.CRN != nil {
+			rtable[isRoutingTableCrn] = *routingTable.CRN
 		}
 		if routingTable.Href != nil {
 			rtable[isRoutingTableHref] = *routingTable.Href
