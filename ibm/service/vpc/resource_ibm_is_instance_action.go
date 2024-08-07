@@ -6,8 +6,10 @@ package vpc
 import (
 	"context"
 	"fmt"
+	"log"
 	"time"
 
+	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/validate"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -111,7 +113,9 @@ func ResourceIBMISInstanceActionValidator() *validate.ResourceValidator {
 func resourceIBMISInstanceActionCreate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return diag.FromErr(err)
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	instanceId := ""
 	if insId, ok := d.GetOk(isInstanceID); ok {
@@ -169,7 +173,9 @@ func resourceIBMISInstanceActionCreate(context context.Context, d *schema.Resour
 func resourceIBMISInstanceActionRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return diag.FromErr(err)
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	id := d.Id()
 
@@ -207,7 +213,9 @@ func resourceIBMISInstanceActionRead(context context.Context, d *schema.Resource
 func resourceIBMISInstanceActionUpdate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return diag.FromErr(err)
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	_, actiontypeIntf := d.GetChange(isInstanceAction)
 	actiontype := actiontypeIntf.(string)

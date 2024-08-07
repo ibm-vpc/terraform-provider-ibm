@@ -192,7 +192,9 @@ func ResourceIBMIsVPNServerRouteValidator() *validate.ResourceValidator {
 func resourceIBMIsVPNServerRouteCreate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return diag.FromErr(err)
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	createVPNServerRouteOptions := &vpcv1.CreateVPNServerRouteOptions{}
@@ -260,7 +262,9 @@ func isWaitForVPNServerRouteStable(context context.Context, sess *vpcv1.VpcV1, d
 func resourceIBMIsVPNServerRouteRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return diag.FromErr(err)
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	getVPNServerRouteOptions := &vpcv1.GetVPNServerRouteOptions{}
@@ -331,7 +335,9 @@ func resourceIBMIsVPNServerRouteRead(context context.Context, d *schema.Resource
 func resourceIBMIsVPNServerRouteUpdate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return diag.FromErr(err)
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	updateVPNServerRouteOptions := &vpcv1.UpdateVPNServerRouteOptions{}
@@ -372,7 +378,9 @@ func resourceIBMIsVPNServerRouteUpdate(context context.Context, d *schema.Resour
 func resourceIBMIsVPNServerRouteDelete(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return diag.FromErr(err)
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	deleteVPNServerRouteOptions := &vpcv1.DeleteVPNServerRouteOptions{}

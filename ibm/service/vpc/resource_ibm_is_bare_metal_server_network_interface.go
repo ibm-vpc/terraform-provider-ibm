@@ -691,7 +691,9 @@ func resourceIBMISBareMetalServerNetworkInterfaceRead(context context.Context, d
 	}
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return diag.FromErr(err)
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	options := &vpcv1.GetBareMetalServerNetworkInterfaceOptions{
 		BareMetalServerID: &bareMetalServerId,
@@ -955,7 +957,9 @@ func resourceIBMISBareMetalServerNetworkInterfaceUpdate(context context.Context,
 	}
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return diag.FromErr(err)
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	if d.HasChange("security_groups") && !d.IsNewResource() {

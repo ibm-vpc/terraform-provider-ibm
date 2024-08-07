@@ -443,7 +443,9 @@ func ResourceIBMIsVPNServerValidator() *validate.ResourceValidator {
 func resourceIBMIsVPNServerCreate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return diag.FromErr(err)
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	createVPNServerOptions := &vpcv1.CreateVPNServerOptions{}
@@ -609,7 +611,9 @@ func isWaitForVPNServerStable(context context.Context, sess *vpcv1.VpcV1, d *sch
 func resourceIBMIsVPNServerRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return diag.FromErr(err)
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	getVPNServerOptions := &vpcv1.GetVPNServerOptions{}
@@ -826,7 +830,9 @@ func resourceIBMIsVPNServerVPCReferenceDeletedToMap(vpcRefDeleted vpcv1.VPCRefer
 func resourceIBMIsVPNServerUpdate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return diag.FromErr(err)
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	updateVPNServerOptions := &vpcv1.UpdateVPNServerOptions{}
@@ -978,7 +984,9 @@ func resourceIBMIsVPNServerUpdate(context context.Context, d *schema.ResourceDat
 func resourceIBMIsVPNServerDelete(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return diag.FromErr(err)
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	getVPNServerOptions := &vpcv1.GetVPNServerOptions{}

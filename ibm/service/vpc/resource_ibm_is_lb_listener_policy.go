@@ -6,6 +6,7 @@ package vpc
 import (
 	"context"
 	"fmt"
+	"log"
 	"reflect"
 	"strings"
 	"time"
@@ -440,7 +441,9 @@ func lbListenerPolicyCreate(d *schema.ResourceData, meta interface{}, lbID, list
 
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return diag.FromErr(err)
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	// When `action` is `forward`, `LoadBalancerPoolIdentity` is required to specify which
@@ -761,7 +764,9 @@ func resourceIBMISLBListenerPolicyUpdate(context context.Context, d *schema.Reso
 func lbListenerPolicyUpdate(d *schema.ResourceData, meta interface{}, lbID, listenerID, ID string) diag.Diagnostics {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return diag.FromErr(err)
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	hasChanged := false
 	updatePolicyOptions := vpcv1.UpdateLoadBalancerListenerPolicyOptions{}
@@ -1026,7 +1031,9 @@ func lbListenerPolicyGet(d *schema.ResourceData, meta interface{}, lbID, listene
 
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return diag.FromErr(err)
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	//Getting policy optins
