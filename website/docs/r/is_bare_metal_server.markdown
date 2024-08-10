@@ -172,13 +172,6 @@ Review the argument references that you can specify for your resource.
   **&#x2022;** `access_tags` must be in the format `key:value`.
 - `delete_type` - (Optional, String) Type of deletion on destroy. **soft** signals running operating system to quiesce and shutdown cleanly, **hard** immediately stop the server. By default its `hard`.
 - `enable_secure_boot` - (Optional, Boolean) Indicates whether secure boot is enabled. If enabled, the image must support secure boot or the server will fail to boot. Updating `enable_secure_boot` requires the server to be stopped and then it would be started.
-- `health_reasons` - (List) The reasons for the current health_state (if any).
-
-    Nested scheme for `health_reasons`:
-    - `code` - (String) A snake case string succinctly identifying the reason for this health state.
-    - `message` - (String) An explanation of the reason for this health state.
-    - `more_info` - (String) Link to documentation about the reason for this health state.
-- `health_state` - (String) The health of this resource.
 - `image` - (Required, String) ID of the image.
 - `keys` - (Required, List) Comma separated IDs of ssh keys.  
 
@@ -318,17 +311,6 @@ Review the argument references that you can specify for your resource.
     - `subnet` -  (Required, String) ID of the subnet to associate with.
 
 - `profile` - (Required, Forces new resource, String) The name the profile to use for this bare metal server. 
-- `reservation`- (List) The reservation used by this bare metal server. 
-  Nested scheme for `reservation`:
-  - `crn` - (String) The CRN for this reservation.
-  - `deleted` - (List) If present, this property indicates the referenced resource has been deleted, and provides some supplementary information.
-        
-    Nested `deleted` blocks have the following structure: 
-    - `more_info` - (String) Link to documentation about deleted resources.
-  - `href` - (String) The URL for this reservation.
-  - `id` - (String) The unique identifier for this reservation.
-  - `name` - (string) The name for this reservation. The name is unique across all reservations in the region.
-  - `resource_type` - (string) The resource type.
 - `reservation_affinity`- (List) The bare metal server reservation affinity.
 
   Nested scheme for `reservation_affinity`:
@@ -369,6 +351,13 @@ In addition to all argument reference list, you can access the following attribu
     - `core_count` - (Integer) The total number of cores
     - `socket_count` - (Integer) The total number of CPU sockets
     - `threads_per_core` - (Integer) The total number of hardware threads per core
+- `health_reasons` - (List) The reasons for the current health_state (if any).
+
+    Nested scheme for `health_reasons`:
+    - `code` - (String) A snake case string succinctly identifying the reason for this health state.
+    - `message` - (String) An explanation of the reason for this health state.
+    - `more_info` - (String) Link to documentation about the reason for this health state.
+- `health_state` - (String) The health of this resource.
 - `href` - (String) The URL for this bare metal server
 - `id` - (String) The unique identifier for this bare metal server
 - `memory` - (Integer) The amount of memory, truncated to whole gibibytes
@@ -389,7 +378,17 @@ In addition to all argument reference list, you can access the following attribu
     - `security_groups` - (Array) Comma separated IDs of security groups.
     - `subnet` -  (String) ID of the subnet to associate with.
     - `vlan` -  (Integer) Indicates the 802.1Q VLAN ID tag that must be used for all traffic on this interface. [ conflicts with `allowed_vlans`]
-
+- `reservation`- (List) The reservation used by this bare metal server. 
+  Nested scheme for `reservation`:
+  - `crn` - (String) The CRN for this reservation.
+  - `deleted` - (List) If present, this property indicates the referenced resource has been deleted, and provides some supplementary information.
+        
+    Nested `deleted` blocks have the following structure: 
+    - `more_info` - (String) Link to documentation about deleted resources.
+  - `href` - (String) The URL for this reservation.
+  - `id` - (String) The unique identifier for this reservation.
+  - `name` - (string) The name for this reservation. The name is unique across all reservations in the region.
+  - `resource_type` - (string) The resource type.
 - `reservation_affinity` - (Optional, List) The reservation affinity for the bare metal server
   Nested scheme for `reservation_affinity`:
   - `policy` - (Optional, String) The reservation affinity policy to use for this bare metal server.

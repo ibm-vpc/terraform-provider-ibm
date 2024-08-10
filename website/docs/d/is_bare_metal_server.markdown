@@ -148,17 +148,6 @@ In addition to all argument reference list, you can access the following attribu
 		- `name` - (String) The name for this reserved IP. The name is unique across all reserved IPs in a subnet.
 		- `resource_type` - (String) The resource type.
 
-  - `reservation`- (List) The reservation used by this bare metal server. 
-    Nested scheme for `reservation`:
-    - `crn` - (String) The CRN for this reservation.
-    - `deleted` - (List) If present, this property indicates the referenced resource has been deleted, and provides some supplementary information.
-        
-      Nested `deleted` blocks have the following structure: 
-      - `more_info` - (String) Link to documentation about deleted resources.
-    - `href` - (String) The URL for this reservation.
-    - `id` - (String) The unique identifier for this reservation.
-    - `name` - (string) The name for this reservation. The name is unique across all reservations in the region.
-    - `resource_type` - (string) The resource type.
   - `reservation_affinity`- (List) The bare metal server reservation affinity. 
 
     Nested scheme for `reservation_affinity`:
