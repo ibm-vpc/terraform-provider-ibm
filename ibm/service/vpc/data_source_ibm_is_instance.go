@@ -1825,11 +1825,11 @@ func dataSourceIBMIsInstanceInstanceNetworkAttachmentReferenceToMap(model *vpcv1
 
 func dataSourceIBMIsInstanceVirtualNetworkInterfaceReferenceAttachmentContextToMap(model *vpcv1.VirtualNetworkInterfaceReferenceAttachmentContext) (map[string]interface{}, error) {
 	modelMap := make(map[string]interface{})
-	modelMap["crn"] = *model.CRN
-	modelMap["href"] = *model.Href
-	modelMap["id"] = *model.ID
-	modelMap["name"] = *model.Name
-	modelMap["resource_type"] = *model.ResourceType
+	modelMap["crn"] = model.CRN
+	modelMap["href"] = model.Href
+	modelMap["id"] = model.ID
+	modelMap["name"] = model.Name
+	modelMap["resource_type"] = model.ResourceType
 	return modelMap, nil
 }
 func dataSourceIBMIsInstanceInstanceNetworkAttachmentReferenceDeletedToMap(model *vpcv1.InstanceNetworkAttachmentReferenceDeleted) (map[string]interface{}, error) {

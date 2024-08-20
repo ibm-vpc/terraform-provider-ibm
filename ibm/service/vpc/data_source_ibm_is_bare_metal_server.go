@@ -1197,11 +1197,11 @@ func dataSourceIBMIsBareMetalServerBareMetalServerNetworkAttachmentReferenceToMa
 
 func dataSourceIBMIsBareMetalServerVirtualNetworkInterfaceReferenceAttachmentContextToMap(model *vpcv1.VirtualNetworkInterfaceReferenceAttachmentContext) (map[string]interface{}, error) {
 	modelMap := make(map[string]interface{})
-	modelMap["crn"] = *model.CRN
-	modelMap["href"] = *model.Href
-	modelMap["id"] = *model.ID
-	modelMap["name"] = *model.Name
-	modelMap["resource_type"] = *model.ResourceType
+	modelMap["crn"] = model.CRN
+	modelMap["href"] = model.Href
+	modelMap["id"] = model.ID
+	modelMap["name"] = model.Name
+	modelMap["resource_type"] = model.ResourceType
 	return modelMap, nil
 }
 
