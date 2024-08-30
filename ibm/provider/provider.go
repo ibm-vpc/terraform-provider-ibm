@@ -519,7 +519,7 @@ func Provider() *schema.Provider {
 			"ibm_is_share_accessor_binding":      vpc.DataSourceIBMIsShareAccessorBinding(),
 			"ibm_is_virtual_network_interface":   vpc.DataSourceIBMIsVirtualNetworkInterface(),
 			"ibm_is_virtual_network_interfaces":  vpc.DataSourceIBMIsVirtualNetworkInterfaces(),
-
+			"ibm_is_public_address_range":        vpc.DataSourceIBMIsPublicAddressRange(),
 			// vni
 
 			"ibm_is_virtual_network_interface_floating_ip":  vpc.DataSourceIBMIsVirtualNetworkInterfaceFloatingIP(),

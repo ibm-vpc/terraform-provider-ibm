@@ -19,11 +19,21 @@ func DataSourceIBMIsPublicAddressRange() *schema.Resource {
 		ReadContext: dataSourceIBMIsPublicAddressRangeRead,
 
 		Schema: map[string]*schema.Schema{
-			"public_address_range": &schema.Schema{
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: "The public address range identifier.",
+			"identifier": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ExactlyOneOf: []string{"name", "identifier"},
+				Description:  "The public address range identifier.",
 			},
+
+			"name": {
+				Type:         schema.TypeString,
+				Computed:     true,
+				Optional:     true,
+				ExactlyOneOf: []string{"name", "identifier"},
+				Description:  "The unique user-defined name for this public-address-range",
+			},
+
 			"cidr": &schema.Schema{
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -53,11 +63,6 @@ func DataSourceIBMIsPublicAddressRange() *schema.Resource {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "The lifecycle state of the public address range.",
-			},
-			"name": &schema.Schema{
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: "The name for this public address range. The name is unique across all public address ranges in the region.",
 			},
 			"resource_group": &schema.Schema{
 				Type:        schema.TypeList,
@@ -174,15 +179,56 @@ func dataSourceIBMIsPublicAddressRangeRead(context context.Context, d *schema.Re
 		return diag.FromErr(err)
 	}
 
-	getPublicAddressRangeOptions := &vpcv1.GetPublicAddressRangeOptions{}
+	var publicAddressRange *vpcv1.PublicAddressRange
 
-	getPublicAddressRangeOptions.SetID(d.Get("public_address_range").(string))
+	if v, ok := d.GetOk("identifier"); ok {
+		getPublicAddressRangeOptions := &vpcv1.GetPublicAddressRangeOptions{}
 
-	publicAddressRange, _, err := vpcClient.GetPublicAddressRangeWithContext(context, getPublicAddressRangeOptions)
-	if err != nil {
-		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("[ERROR] GetPublicAddressRangeWithContext failed: %s", err.Error()), "(Data) ibm_is_public_address_range", "read")
-		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
-		return tfErr.GetDiag()
+		getPublicAddressRangeOptions.SetID(v.(string))
+
+		publicAddressRangeinfo, _, err := vpcClient.GetPublicAddressRangeWithContext(context, getPublicAddressRangeOptions)
+		if err != nil {
+			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("[ERROR] GetPublicAddressRangeWithContext failed: %s", err.Error()), "(Data) ibm_is_public_address_range", "read")
+			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+			return tfErr.GetDiag()
+		}
+		publicAddressRange = publicAddressRangeinfo
+	} else if v, ok := d.GetOk("name"); ok {
+		name := v.(string)
+		start := ""
+		allrecs := []vpcv1.PublicAddressRange{}
+
+		for {
+			listVPNServersOptions := &vpcv1.ListPublicAddressRangesOptions{}
+			if start != "" {
+				listVPNServersOptions.Start = &start
+			}
+			publicAddressRangeCollection, response, err := vpcClient.ListPublicAddressRangesWithContext(context, listVPNServersOptions)
+			if err != nil {
+				log.Printf("[DEBUG] ListPublicAddressRangesWithContext failed %s\n%s", err, response)
+				return diag.FromErr(fmt.Errorf("[ERROR] ListPublicAddressRangesWithContext failed %s\n%s", err, response))
+			}
+			start = flex.GetNext(publicAddressRangeCollection.Next)
+			allrecs = append(allrecs, publicAddressRangeCollection.PublicAddressRanges...)
+			if start == "" {
+				break
+			}
+		}
+
+		for _, publicAddressRangeInfo := range allrecs {
+			if *publicAddressRangeInfo.Name == name {
+				publicAddressRange = &publicAddressRangeInfo
+				break
+			}
+		}
+		if publicAddressRange == nil {
+			log.Printf("[DEBUG] No publicAddressRange found with name %s", name)
+			return diag.FromErr(fmt.Errorf("[ERROR] No Public Address Range found with name %s", name))
+		}
+	}
+	if publicAddressRange == nil {
+		log.Printf("[DEBUG] No publicAddressRange found")
+		return diag.FromErr(fmt.Errorf("[ERROR] No Public Address Range found"))
 	}
 
 	d.SetId(*publicAddressRange.ID)
@@ -232,12 +278,12 @@ func dataSourceIBMIsPublicAddressRangeRead(context context.Context, d *schema.Re
 		resourceGroup = append(resourceGroup, modelMap)
 	}
 	if err = d.Set("resource_group", resourceGroup); err != nil {
-		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting resource_group: %s", err), "(Data) ibm_is_public_address_range", "read")
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("[ERROR] Error setting resource_group: %s", err), "(Data) ibm_is_public_address_range", "read")
 		return tfErr.GetDiag()
 	}
 
 	if err = d.Set("resource_type", publicAddressRange.ResourceType); err != nil {
-		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting resource_type: %s", err), "(Data) ibm_is_public_address_range", "read")
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("[ERROR] Error setting resource_type: %s", err), "(Data) ibm_is_public_address_range", "read")
 		return tfErr.GetDiag()
 	}
 
@@ -251,7 +297,7 @@ func dataSourceIBMIsPublicAddressRangeRead(context context.Context, d *schema.Re
 		target = append(target, modelMap)
 	}
 	if err = d.Set("target", target); err != nil {
-		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting target: %s", err), "(Data) ibm_is_public_address_range", "read")
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("[ERROR] Error setting target: %s", err), "(Data) ibm_is_public_address_range", "read")
 		return tfErr.GetDiag()
 	}
 
