@@ -1,0 +1,106 @@
+// Copyright IBM Corp. 2024 All Rights Reserved.
+// Licensed under the Mozilla Public License v2.0
+
+package vpc_test
+
+import (
+	"fmt"
+	"testing"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
+	acc "github.com/IBM-Cloud/terraform-provider-ibm/ibm/acctest"
+	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/conns"
+	"github.com/IBM/vpc-go-sdk/vpcv1"
+)
+
+func TestAccIBMPublicAddressRangeBasic(t *testing.T) {
+	var conf vpcv1.PublicAddressRange
+	ipv4AddressCount := fmt.Sprintf("%d", acctest.RandIntRange(1, 100))
+	ipv4AddressCountUpdate := fmt.Sprintf("%d", acctest.RandIntRange(1, 100))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { acc.TestAccPreCheck(t) },
+		Providers:    acc.TestAccProviders,
+		CheckDestroy: testAccCheckIBMPublicAddressRangeDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccCheckIBMPublicAddressRangeConfigBasic(ipv4AddressCount),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					testAccCheckIBMPublicAddressRangeExists("ibm_public_address_range.public_address_range_instance", conf),
+					resource.TestCheckResourceAttr("ibm_public_address_range.public_address_range_instance", "ipv4_address_count", ipv4AddressCount),
+				),
+			},
+			resource.TestStep{
+				Config: testAccCheckIBMPublicAddressRangeConfigBasic(ipv4AddressCountUpdate),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("ibm_public_address_range.public_address_range_instance", "ipv4_address_count", ipv4AddressCountUpdate),
+				),
+			},
+		},
+	})
+}
+
+func testAccCheckIBMPublicAddressRangeConfigBasic(ipv4AddressCount string) string {
+	return fmt.Sprintf(`
+		resource "ibm_public_address_range" "public_address_range_instance" {
+			ipv4_address_count = %s
+		}
+	`, ipv4AddressCount)
+}
+
+func testAccCheckIBMPublicAddressRangeExists(n string, obj vpcv1.PublicAddressRange) resource.TestCheckFunc {
+
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[n]
+		if !ok {
+			return fmt.Errorf("Not found: %s", n)
+		}
+
+		vpcClient, err := acc.TestAccProvider.Meta().(conns.ClientSession).VpcV1API()
+		if err != nil {
+			return err
+		}
+
+		getPublicAddressRangeOptions := &vpcv1.GetPublicAddressRangeOptions{}
+
+		getPublicAddressRangeOptions.SetID(rs.Primary.ID)
+
+		publicAddressRange, _, err := vpcClient.GetPublicAddressRange(getPublicAddressRangeOptions)
+		if err != nil {
+			return err
+		}
+
+		obj = *publicAddressRange
+		return nil
+	}
+}
+
+func testAccCheckIBMPublicAddressRangeDestroy(s *terraform.State) error {
+	vpcClient, err := acc.TestAccProvider.Meta().(conns.ClientSession).VpcV1API()
+	if err != nil {
+		return err
+	}
+	for _, rs := range s.RootModule().Resources {
+		if rs.Type != "ibm_public_address_range" {
+			continue
+		}
+
+		getPublicAddressRangeOptions := &vpcv1.GetPublicAddressRangeOptions{}
+
+		getPublicAddressRangeOptions.SetID(rs.Primary.ID)
+
+		// Try to find the key
+		_, response, err := vpcClient.GetPublicAddressRange(getPublicAddressRangeOptions)
+
+		if err == nil {
+			return fmt.Errorf("PublicAddressRange still exists: %s", rs.Primary.ID)
+		} else if response.StatusCode != 404 {
+			return fmt.Errorf("Error checking for PublicAddressRange (%s) has been destroyed: %s", rs.Primary.ID, err)
+		}
+	}
+
+	return nil
+}
