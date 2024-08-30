@@ -326,7 +326,7 @@ func resourceIBMPublicAddressRangeUpdate(context context.Context, d *schema.Reso
 		hasChange = true
 	}
 	if d.HasChange("target") {
-		target, err := ResourceIBMPublicAddressRangeMapToPublicAddressRangeTargetPatch(d.Get("target.0").(map[string]interface{}))
+		target, err := ResourceIBMPublicAddressRangeMapToPublicAddressRangeTargetPatch(d.Get("target.0").(map[string]interface{}), d)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -406,6 +406,27 @@ func ResourceIBMPublicAddressRangeMapToVPCIdentity(modelMap map[string]interface
 	return model, nil
 }
 
+func ResourceIBMPublicAddressRangeMapToVPCIdentityPatch(modelMap map[string]interface{}, d *schema.ResourceData) (vpcv1.VPCIdentityIntf, error) {
+	model := &vpcv1.VPCIdentity{}
+
+	if d.HasChange("target.0.vpc.0.id") && modelMap["id"] != nil && modelMap["id"].(string) != "" {
+		log.Println("d.HasChange('target.0.vpc.0.id')")
+		log.Println(d.HasChange("target.0.vpc.0.id"))
+		model.ID = core.StringPtr(modelMap["id"].(string))
+	}
+	if d.HasChange("target.0.vpc.0.crn") && modelMap["crn"] != nil && modelMap["crn"].(string) != "" {
+		log.Println("d.HasChange('target.0.vpc.0.crn')")
+		log.Println(d.HasChange("target.0.vpc.0.crn"))
+		model.CRN = core.StringPtr(modelMap["crn"].(string))
+	}
+	if d.HasChange("target.0.vpc.0.href") && modelMap["href"] != nil && modelMap["href"].(string) != "" {
+		log.Println("d.HasChange('target.0.vpc.0.href')")
+		log.Println(d.HasChange("target.0.vpc.0.href"))
+		model.Href = core.StringPtr(modelMap["href"].(string))
+	}
+	return model, nil
+}
+
 func ResourceIBMPublicAddressRangeMapToZoneIdentity(modelMap map[string]interface{}) (vpcv1.ZoneIdentityIntf, error) {
 	model := &vpcv1.ZoneIdentity{}
 	if modelMap["name"] != nil && modelMap["name"].(string) != "" {
@@ -417,17 +438,28 @@ func ResourceIBMPublicAddressRangeMapToZoneIdentity(modelMap map[string]interfac
 	return model, nil
 }
 
-func ResourceIBMPublicAddressRangeMapToPublicAddressRangeTargetPatch(modelMap map[string]interface{}) (*vpcv1.PublicAddressRangeTargetPatch, error) {
+func ResourceIBMPublicAddressRangeMapToZoneIdentityPatch(modelMap map[string]interface{}, d *schema.ResourceData) (vpcv1.ZoneIdentityIntf, error) {
+	model := &vpcv1.ZoneIdentity{}
+	if d.HasChange("target.0.zone.0.name") && modelMap["name"] != nil && modelMap["name"].(string) != "" {
+		model.Name = core.StringPtr(modelMap["name"].(string))
+	}
+	if d.HasChange("target.0.zone.0.href") && modelMap["href"] != nil && modelMap["href"].(string) != "" {
+		model.Href = core.StringPtr(modelMap["href"].(string))
+	}
+	return model, nil
+}
+
+func ResourceIBMPublicAddressRangeMapToPublicAddressRangeTargetPatch(modelMap map[string]interface{}, d *schema.ResourceData) (*vpcv1.PublicAddressRangeTargetPatch, error) {
 	model := &vpcv1.PublicAddressRangeTargetPatch{}
-	if modelMap["vpc"] != nil && len(modelMap["vpc"].([]interface{})) > 0 {
-		VPCModel, err := ResourceIBMPublicAddressRangeMapToVPCIdentity(modelMap["vpc"].([]interface{})[0].(map[string]interface{}))
+	if d.HasChange("target.0.vpc") && modelMap["vpc"] != nil && len(modelMap["vpc"].([]interface{})) > 0 {
+		VPCModel, err := ResourceIBMPublicAddressRangeMapToVPCIdentityPatch(modelMap["vpc"].([]interface{})[0].(map[string]interface{}), d)
 		if err != nil {
 			return model, err
 		}
 		model.VPC = VPCModel
 	}
-	if modelMap["zone"] != nil && len(modelMap["zone"].([]interface{})) > 0 {
-		ZoneModel, err := ResourceIBMPublicAddressRangeMapToZoneIdentity(modelMap["zone"].([]interface{})[0].(map[string]interface{}))
+	if d.HasChange("target.0.zone") && modelMap["zone"] != nil && len(modelMap["zone"].([]interface{})) > 0 {
+		ZoneModel, err := ResourceIBMPublicAddressRangeMapToZoneIdentityPatch(modelMap["zone"].([]interface{})[0].(map[string]interface{}), d)
 		if err != nil {
 			return model, err
 		}

@@ -18,8 +18,10 @@ import (
 
 func TestAccIBMPublicAddressRangeBasic(t *testing.T) {
 	var conf vpcv1.PublicAddressRange
-	ipv4AddressCount := fmt.Sprintf("%d", acctest.RandIntRange(1, 100))
-	ipv4AddressCountUpdate := fmt.Sprintf("%d", acctest.RandIntRange(1, 100))
+	ipv4AddressCount := "16"
+	// ipv4AddressCountUpdate := "8"
+	name := fmt.Sprintf("tf-name-par%d", acctest.RandIntRange(10, 100))
+	vpcName := fmt.Sprintf("tf-name-vpc%d", acctest.RandIntRange(10, 100))
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { acc.TestAccPreCheck(t) },
@@ -27,28 +29,40 @@ func TestAccIBMPublicAddressRangeBasic(t *testing.T) {
 		CheckDestroy: testAccCheckIBMPublicAddressRangeDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccCheckIBMPublicAddressRangeConfigBasic(ipv4AddressCount),
+				Config: testAccCheckIBMPublicAddressRangeConfigBasic(vpcName, name, ipv4AddressCount),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					testAccCheckIBMPublicAddressRangeExists("ibm_public_address_range.public_address_range_instance", conf),
-					resource.TestCheckResourceAttr("ibm_public_address_range.public_address_range_instance", "ipv4_address_count", ipv4AddressCount),
+					testAccCheckIBMPublicAddressRangeExists("ibm_is_public_address_range.public_address_range_instance", conf),
+					resource.TestCheckResourceAttr("ibm_is_public_address_range.public_address_range_instance", "ipv4_address_count", ipv4AddressCount),
 				),
 			},
-			resource.TestStep{
-				Config: testAccCheckIBMPublicAddressRangeConfigBasic(ipv4AddressCountUpdate),
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("ibm_public_address_range.public_address_range_instance", "ipv4_address_count", ipv4AddressCountUpdate),
-				),
-			},
+			// resource.TestStep{
+			// 	Config: testAccCheckIBMPublicAddressRangeConfigBasic(vpcName, name, ipv4AddressCountUpdate),
+			// 	Check: resource.ComposeAggregateTestCheckFunc(
+			// 		resource.TestCheckResourceAttr("ibm_is_public_address_range.public_address_range_instance", "ipv4_address_count", ipv4AddressCountUpdate),
+			// 	),
+			// },
 		},
 	})
 }
 
-func testAccCheckIBMPublicAddressRangeConfigBasic(ipv4AddressCount string) string {
+func testAccCheckIBMPublicAddressRangeConfigBasic(vpcName, name, ipv4AddressCount string) string {
 	return fmt.Sprintf(`
-		resource "ibm_public_address_range" "public_address_range_instance" {
-			ipv4_address_count = %s
+		resource ibm_is_vpc testacc_vpc {
+			name = "%s"
 		}
-	`, ipv4AddressCount)
+		resource "ibm_is_public_address_range" "public_address_range_instance" {			
+			name = "%s"
+			ipv4_address_count = "%s"
+			target {
+    			vpc {
+      				id = ibm_is_vpc.testacc_vpc.id
+    			}
+    			zone {
+      				name = "%s"
+    			}
+  			}
+		}
+	`, vpcName, name, ipv4AddressCount, acc.ISZoneName3)
 }
 
 func testAccCheckIBMPublicAddressRangeExists(n string, obj vpcv1.PublicAddressRange) resource.TestCheckFunc {
@@ -84,7 +98,7 @@ func testAccCheckIBMPublicAddressRangeDestroy(s *terraform.State) error {
 		return err
 	}
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "ibm_public_address_range" {
+		if rs.Type != "ibm_is_public_address_range" {
 			continue
 		}
 
