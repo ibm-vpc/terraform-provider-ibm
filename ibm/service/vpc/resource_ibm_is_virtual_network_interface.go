@@ -916,24 +916,24 @@ func resourceIBMIsVirtualNetworkInterfaceUpdate(context context.Context, d *sche
 }
 
 func resourceIBMIsVirtualNetworkInterfaceDelete(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	sess, err := vpcClient(meta)
-	if err != nil {
-		return diag.FromErr(err)
-	}
+	// sess, err := vpcClient(meta)
+	// if err != nil {
+	// 	return diag.FromErr(err)
+	// }
 
 	deleteVirtualNetworkInterfacesOptions := &vpcv1.DeleteVirtualNetworkInterfacesOptions{}
 
 	deleteVirtualNetworkInterfacesOptions.SetID(d.Id())
 
-	vni, response, err := sess.DeleteVirtualNetworkInterfacesWithContext(context, deleteVirtualNetworkInterfacesOptions)
-	if err != nil {
-		log.Printf("[DEBUG] DeleteVirtualNetworkInterfacesWithContext failed %s\n%s", err, response)
-		return diag.FromErr(fmt.Errorf("DeleteVirtualNetworkInterfacesWithContext failed %s\n%s", err, response))
-	}
-	_, err = isWaitForVirtualNetworkInterfaceDeleted(sess, d.Id(), d.Timeout(schema.TimeoutDelete), vni)
-	if err != nil {
-		return diag.FromErr(err)
-	}
+	// vni, response, err := sess.DeleteVirtualNetworkInterfacesWithContext(context, deleteVirtualNetworkInterfacesOptions)
+	// if err != nil {
+	// 	log.Printf("[DEBUG] DeleteVirtualNetworkInterfacesWithContext failed %s\n%s", err, response)
+	// 	return diag.FromErr(fmt.Errorf("DeleteVirtualNetworkInterfacesWithContext failed %s\n%s", err, response))
+	// }
+	// _, err = isWaitForVirtualNetworkInterfaceDeleted(sess, d.Id(), d.Timeout(schema.TimeoutDelete), vni)
+	// if err != nil {
+	// 	return diag.FromErr(err)
+	// }
 
 	d.SetId("")
 

@@ -1815,11 +1815,11 @@ func dataSourceIBMIsInstanceInstanceNetworkAttachmentReferenceToMap(model *vpcv1
 		return modelMap, err
 	}
 	modelMap["subnet"] = []map[string]interface{}{subnetMap}
-	virtualNetworkInterfaceMap, err := dataSourceIBMIsInstanceVirtualNetworkInterfaceReferenceAttachmentContextToMap(model.VirtualNetworkInterface)
-	if err != nil {
-		return modelMap, err
-	}
-	modelMap["virtual_network_interface"] = []map[string]interface{}{virtualNetworkInterfaceMap}
+	// virtualNetworkInterfaceMap, err := dataSourceIBMIsInstanceVirtualNetworkInterfaceReferenceAttachmentContextToMap(model.VirtualNetworkInterface)
+	// if err != nil {
+	// 	return modelMap, err
+	// }
+	// modelMap["virtual_network_interface"] = []map[string]interface{}{virtualNetworkInterfaceMap}
 	return modelMap, nil
 }
 
