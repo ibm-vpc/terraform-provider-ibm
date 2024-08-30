@@ -21,10 +21,10 @@ func DataSourceIBMIsPublicAddressRanges() *schema.Resource {
 		ReadContext: dataSourceIBMIsPublicAddressRangesRead,
 
 		Schema: map[string]*schema.Schema{
-			"resource_group_id": &schema.Schema{
+			"resource_group": &schema.Schema{
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: "Filters the collection to resources with a `resource_group.id` property matching the specified identifier.",
+				Description: "Filters the collection to resources with a `resource_group` property matching the specified identifier.",
 			},
 			"public_address_ranges": &schema.Schema{
 				Type:        schema.TypeList,
@@ -194,7 +194,7 @@ func dataSourceIBMIsPublicAddressRangesRead(context context.Context, d *schema.R
 	allrecs := []vpcv1.PublicAddressRange{}
 	rgroup := ""
 
-	if rg, ok := d.GetOk(isPublicGatewayResourceGroup); ok {
+	if rg, ok := d.GetOk("resource_group"); ok {
 		rgroup = rg.(string)
 	}
 
