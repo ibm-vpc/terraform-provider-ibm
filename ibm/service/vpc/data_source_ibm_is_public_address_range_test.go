@@ -44,8 +44,8 @@ func TestAccIBMIsPublicAddressRangeDataSourceBasic(t *testing.T) {
 
 func testAccCheckIBMIsPublicAddressRangeDataSourceConfigBasic(vpcName, name, ipv4AddressCount string) string {
 	return testAccCheckIBMPublicAddressRangeConfigBasic(vpcName, name, ipv4AddressCount) + fmt.Sprintf(`
-	data "ibm_is_vpn_server" "is_vpn_server" {
-		identifier = ibm_is_vpn_server.is_vpn_server.id
+	data "ibm_is_public_address_range" "is_public_address_range_instance" {
+		identifier = ibm_is_public_address_range.public_address_range_instance.id
 	}
 `)
 }

@@ -199,11 +199,11 @@ func dataSourceIBMIsPublicAddressRangeRead(context context.Context, d *schema.Re
 		allrecs := []vpcv1.PublicAddressRange{}
 
 		for {
-			listVPNServersOptions := &vpcv1.ListPublicAddressRangesOptions{}
+			listPublicAddressRanges := &vpcv1.ListPublicAddressRangesOptions{}
 			if start != "" {
-				listVPNServersOptions.Start = &start
+				listPublicAddressRanges.Start = &start
 			}
-			publicAddressRangeCollection, response, err := vpcClient.ListPublicAddressRangesWithContext(context, listVPNServersOptions)
+			publicAddressRangeCollection, response, err := vpcClient.ListPublicAddressRangesWithContext(context, listPublicAddressRanges)
 			if err != nil {
 				log.Printf("[DEBUG] ListPublicAddressRangesWithContext failed %s\n%s", err, response)
 				return diag.FromErr(fmt.Errorf("[ERROR] ListPublicAddressRangesWithContext failed %s\n%s", err, response))
