@@ -32,7 +32,7 @@ data "ibm_is_public_address_ranges" "is_public_address_ranges" {
 
 You can specify the following arguments for this data source.
 
-- `resource_group_id` - (String) The ID of the Resource group this public gateway belongs to.
+- `resource_group` - (Optional, String) The ID of the Resource group this public gateway belongs to.
 
 ## Attribute Reference
 

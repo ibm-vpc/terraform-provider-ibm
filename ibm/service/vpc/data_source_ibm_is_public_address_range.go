@@ -176,7 +176,9 @@ func DataSourceIBMIsPublicAddressRange() *schema.Resource {
 func dataSourceIBMIsPublicAddressRangeRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	vpcClient, err := vpcClient(meta)
 	if err != nil {
-		return diag.FromErr(err)
+		tfErr := flex.TerraformErrorf(err, err.Error(), "(Data) ibm_is_public_address_range", "read")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	var publicAddressRange *vpcv1.PublicAddressRange

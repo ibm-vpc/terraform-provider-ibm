@@ -203,7 +203,9 @@ func ResourceIBMPublicAddressRangeValidator() *validate.ResourceValidator {
 func resourceIBMPublicAddressRangeCreate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	vpcClient, err := vpcClient(meta)
 	if err != nil {
-		return diag.FromErr(err)
+		tfErr := flex.TerraformErrorf(err, err.Error(), "(Data) ibm_is_public_address_range", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	createPublicAddressRangeOptions := &vpcv1.CreatePublicAddressRangeOptions{}
@@ -242,7 +244,9 @@ func resourceIBMPublicAddressRangeCreate(context context.Context, d *schema.Reso
 func resourceIBMPublicAddressRangeRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	vpcClient, err := vpcClient(meta)
 	if err != nil {
-		return diag.FromErr(err)
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_public_address_range", "read")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	getPublicAddressRangeOptions := &vpcv1.GetPublicAddressRangeOptions{}
@@ -311,7 +315,9 @@ func resourceIBMPublicAddressRangeRead(context context.Context, d *schema.Resour
 func resourceIBMPublicAddressRangeUpdate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	vpcClient, err := vpcClient(meta)
 	if err != nil {
-		return diag.FromErr(err)
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_public_address_range", "update")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	updatePublicAddressRangeOptions := &vpcv1.UpdatePublicAddressRangeOptions{}
 
@@ -350,7 +356,9 @@ func resourceIBMPublicAddressRangeUpdate(context context.Context, d *schema.Reso
 func resourceIBMPublicAddressRangeDelete(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	vpcClient, err := vpcClient(meta)
 	if err != nil {
-		return diag.FromErr(err)
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_public_address_range", "delete")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	deletePublicAddressRangeOptions := &vpcv1.DeletePublicAddressRangeOptions{}
