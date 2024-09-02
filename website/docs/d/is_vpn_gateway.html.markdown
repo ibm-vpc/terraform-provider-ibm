@@ -36,6 +36,7 @@ In addition to all argument references listed, you can access the following attr
 
 - `id` - The unique identifier of the is_vpn_gateway.
 - `access_tags`  - (List) Access management tags associated for the vpn gateway.
+- `advertised_cidrs` - (List) The additional CIDRs advertised through any enabled routing protocol (for example, BGP). The routing protocol will advertise routes with these CIDRs and VPC prefixes as route destinations. Applicable for **route** mode only.
 - `connections` - (List) Connections for this VPN gateway.
   Nested scheme for **connections**:
 	- `deleted` - (List) If present, this property indicates the referenced resource has been deleted and provides some supplementary information.
@@ -65,7 +66,7 @@ In addition to all argument references listed, you can access the following attr
 	- `private_ip_address` - (String) The private IP address assigned to the VPN gateway member. This property will be present only when the VPN gateway status is `available`. This property may add support for IPv6 addresses in the future. When processing a value in this property, verify that the address is in an expected format. If it is not, log an error. Optionally halt processing and surface the error, or bypass the resource on which the unexpected IP address format was encountered. Same as `primary_ip.0.address`
 	- `public_ip_address` - (String) The public IP address assigned to the VPN gateway member. This property may add support for IPv6 addresses in the future. When processing a value in this property, verify that the address is in an expected format. If it is not, log an error. Optionally halt processing and surface the error, or bypass the resource on which the unexpected IP address format was encountered.
 	- `role` - (String) The high availability role assigned to the VPN gateway member.
-
+- `local_asn` - (Integer) The local autonomous system number (ASN) for this VPN gateway and its connections. Applicable for **route** mode only.
 - `mode` - (String) Route mode VPN gateway.
 
 - `name` - (String) The user-defined name for this VPN gateway.

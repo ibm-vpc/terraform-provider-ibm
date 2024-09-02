@@ -316,6 +316,7 @@ func ResourceIBMISVPNGatewayConnection() *schema.Resource {
 			},
 			"routing_protocol": {
 				Type:        schema.TypeString,
+				Optional:    true,
 				Computed:    true,
 				Description: "Routing protocols for this VPN gateway connection.",
 			},
@@ -558,96 +559,219 @@ func vpngwconCreate(d *schema.ResourceData, meta interface{}, name, gatewayID, p
 			return (fmt.Errorf("Unrecognized vpcv1.vpnGatewayConnectionIntf subtype encountered"))
 		}
 	} else if *vpngateway.(*vpcv1.VPNGateway).Mode == "route" {
+		if routingProtocol, ok := d.GetOk("routing_protocol"); ok && routingProtocol.(string) != "none" {
+			vpnGatewayConnectionPrototypeModel := &vpcv1.VPNGatewayConnectionPrototypeVPNGatewayConnectionDynamicRouteModePrototype{
+				Psk: &prephasedKey,
+				DeadPeerDetection: &vpcv1.VPNGatewayConnectionDpdPrototype{
+					Action:   &action,
+					Interval: &interval,
+					Timeout:  &timeout,
+				},
+				Name: &name,
+			}
+			if _, ok := d.GetOkExists(isVPNGatewayConnectionAdminStateup); ok {
+				stateUp := d.Get(isVPNGatewayConnectionAdminStateup).(bool)
+				vpnGatewayConnectionPrototypeModel.AdminStateUp = core.BoolPtr(stateUp)
+			}
+			var ikePolicyIdentity, ipsecPolicyIdentity string
+			// new breaking changes
+			if establishModeOk, ok := d.GetOk("establish_mode"); ok {
+				vpnGatewayConnectionPrototypeModel.EstablishMode = core.StringPtr(establishModeOk.(string))
+			}
 
-		vpnGatewayConnectionPrototypeModel := &vpcv1.VPNGatewayConnectionPrototypeVPNGatewayConnectionStaticRouteModePrototype{
-			Psk: &prephasedKey,
-			DeadPeerDetection: &vpcv1.VPNGatewayConnectionDpdPrototype{
-				Action:   &action,
-				Interval: &interval,
-				Timeout:  &timeout,
-			},
-			Name: &name,
-		}
-		if _, ok := d.GetOkExists(isVPNGatewayConnectionAdminStateup); ok {
-			stateUp := d.Get(isVPNGatewayConnectionAdminStateup).(bool)
-			vpnGatewayConnectionPrototypeModel.AdminStateUp = core.BoolPtr(stateUp)
-		}
-		var ikePolicyIdentity, ipsecPolicyIdentity string
-		// new breaking changes
-		if establishModeOk, ok := d.GetOk("establish_mode"); ok {
-			vpnGatewayConnectionPrototypeModel.EstablishMode = core.StringPtr(establishModeOk.(string))
-		}
+			if localOk, ok := d.GetOk("local"); ok && len(localOk.([]interface{})) > 0 {
+				log.Println("[INFO] inside local block")
+				LocalModel, err := resourceIBMIsVPNGatewayConnectionMapToVPNGatewayConnectionDynamicRouteModeLocalPrototype(localOk.([]interface{})[0].(map[string]interface{}))
+				if err != nil {
+					return err
+				}
+				vpnGatewayConnectionPrototypeModel.Local = LocalModel
+			}
+			if peerOk, ok := d.GetOk("peer"); ok && len(peerOk.([]interface{})) > 0 {
+				PeerModel, err := resourceIBMIsVPNGatewayConnectionMapToVPNGatewayConnectionDynamicRouteModePeerPrototype(peerOk.([]interface{})[0].(map[string]interface{}))
+				if err != nil {
+					return err
+				}
+				vpnGatewayConnectionPrototypeModel.Peer = PeerModel
+			} else if peerAddress != "" {
+				model := &vpcv1.VPNGatewayConnectionDynamicRouteModePeerPrototype{}
+				if peerAddress != "" {
+					model.Address = &peerAddress
+				}
+				vpnGatewayConnectionPrototypeModel.Peer = model
+			}
 
-		if localOk, ok := d.GetOk("local"); ok && len(localOk.([]interface{})) > 0 {
-			log.Println("[INFO] inside local block")
-			LocalModel, err := resourceIBMIsVPNGatewayConnectionMapToVPNGatewayConnectionStaticRouteModeLocalPrototype(localOk.([]interface{})[0].(map[string]interface{}))
+			if ikePolicy, ok := d.GetOk(isVPNGatewayConnectionIKEPolicy); ok {
+				ikePolicyIdentity = ikePolicy.(string)
+				vpnGatewayConnectionPrototypeModel.IkePolicy = &vpcv1.VPNGatewayConnectionIkePolicyPrototype{
+					ID: &ikePolicyIdentity,
+				}
+			} else {
+				vpnGatewayConnectionPrototypeModel.IkePolicy = nil
+			}
+			if ipsecPolicy, ok := d.GetOk(isVPNGatewayConnectionIPSECPolicy); ok {
+				ipsecPolicyIdentity = ipsecPolicy.(string)
+				vpnGatewayConnectionPrototypeModel.IpsecPolicy = &vpcv1.VPNGatewayConnectionIPsecPolicyPrototype{
+					ID: &ipsecPolicyIdentity,
+				}
+			} else {
+				vpnGatewayConnectionPrototypeModel.IpsecPolicy = nil
+			}
+
+			vpnGatewayConnectionPrototypeModel.RoutingProtocol = core.StringPtr(routingProtocol.(string))
+			if tunnelsOk, ok := d.GetOk("tunnels"); ok {
+				tunnels := []vpcv1.VPNGatewayConnectionTunnelPrototype{}
+				for _, tunnelsItem := range tunnelsOk.([]interface{}) {
+					tunnelsItemModel, err := resourceIBMIsVPNGatewayConnectionMapToVPNGatewayConnectionTunnelPrototype(tunnelsItem.(map[string]interface{}))
+					if err != nil {
+						return err
+					}
+					tunnels = append(tunnels, *tunnelsItemModel)
+				}
+				vpnGatewayConnectionPrototypeModel.Tunnels = tunnels
+			}
+			options := &vpcv1.CreateVPNGatewayConnectionOptions{
+				VPNGatewayID:                  &gatewayID,
+				VPNGatewayConnectionPrototype: vpnGatewayConnectionPrototypeModel,
+			}
+
+			vpnGatewayConnectionIntf, response, err := sess.CreateVPNGatewayConnection(options)
 			if err != nil {
-				return err
+				return fmt.Errorf("[DEBUG] Create VPN Gateway Connection err %s\n%s", err, response)
 			}
-			vpnGatewayConnectionPrototypeModel.Local = LocalModel
-		}
-		if peerOk, ok := d.GetOk("peer"); ok && len(peerOk.([]interface{})) > 0 {
-			PeerModel, err := resourceIBMIsVPNGatewayConnectionMapToVPNGatewayConnectionStaticRouteModePeerPrototype(peerOk.([]interface{})[0].(map[string]interface{}))
+			if _, ok := vpnGatewayConnectionIntf.(*vpcv1.VPNGatewayConnection); ok {
+				vpnGatewayConnection := vpnGatewayConnectionIntf.(*vpcv1.VPNGatewayConnection)
+				d.SetId(fmt.Sprintf("%s/%s", gatewayID, *vpnGatewayConnection.ID))
+				log.Printf("[INFO] VPNGatewayConnection : %s/%s", gatewayID, *vpnGatewayConnection.ID)
+			} else if _, ok := vpnGatewayConnectionIntf.(*vpcv1.VPNGatewayConnectionRouteMode); ok {
+				vpnGatewayConnection := vpnGatewayConnectionIntf.(*vpcv1.VPNGatewayConnectionRouteMode)
+				d.SetId(fmt.Sprintf("%s/%s", gatewayID, *vpnGatewayConnection.ID))
+				log.Printf("[INFO] VPNGatewayConnection : %s/%s", gatewayID, *vpnGatewayConnection.ID)
+			} else if _, ok := vpnGatewayConnectionIntf.(*vpcv1.VPNGatewayConnectionPolicyMode); ok {
+				vpnGatewayConnection := vpnGatewayConnectionIntf.(*vpcv1.VPNGatewayConnectionPolicyMode)
+				d.SetId(fmt.Sprintf("%s/%s", gatewayID, *vpnGatewayConnection.ID))
+				log.Printf("[INFO] VPNGatewayConnection : %s/%s", gatewayID, *vpnGatewayConnection.ID)
+			} else if _, ok := vpnGatewayConnectionIntf.(*vpcv1.VPNGatewayConnectionRouteModeVPNGatewayConnectionStaticRouteMode); ok {
+				vpnGatewayConnection := vpnGatewayConnectionIntf.(*vpcv1.VPNGatewayConnectionRouteModeVPNGatewayConnectionStaticRouteMode)
+				d.SetId(fmt.Sprintf("%s/%s", gatewayID, *vpnGatewayConnection.ID))
+				log.Printf("[INFO] VPNGatewayConnection : %s/%s", gatewayID, *vpnGatewayConnection.ID)
+			} else {
+				return (fmt.Errorf("Unrecognized vpcv1.vpnGatewayConnectionIntf subtype encountered"))
+			}
+		} else {
+
+			vpnGatewayConnectionPrototypeModel := &vpcv1.VPNGatewayConnectionPrototypeVPNGatewayConnectionStaticRouteModePrototype{
+				Psk: &prephasedKey,
+				DeadPeerDetection: &vpcv1.VPNGatewayConnectionDpdPrototype{
+					Action:   &action,
+					Interval: &interval,
+					Timeout:  &timeout,
+				},
+				Name: &name,
+			}
+			if _, ok := d.GetOkExists(isVPNGatewayConnectionAdminStateup); ok {
+				stateUp := d.Get(isVPNGatewayConnectionAdminStateup).(bool)
+				vpnGatewayConnectionPrototypeModel.AdminStateUp = core.BoolPtr(stateUp)
+			}
+			var ikePolicyIdentity, ipsecPolicyIdentity string
+			// new breaking changes
+			if establishModeOk, ok := d.GetOk("establish_mode"); ok {
+				vpnGatewayConnectionPrototypeModel.EstablishMode = core.StringPtr(establishModeOk.(string))
+			}
+
+			if localOk, ok := d.GetOk("local"); ok && len(localOk.([]interface{})) > 0 {
+				log.Println("[INFO] inside local block")
+				LocalModel, err := resourceIBMIsVPNGatewayConnectionMapToVPNGatewayConnectionStaticRouteModeLocalPrototype(localOk.([]interface{})[0].(map[string]interface{}))
+				if err != nil {
+					return err
+				}
+				vpnGatewayConnectionPrototypeModel.Local = LocalModel
+			}
+			if peerOk, ok := d.GetOk("peer"); ok && len(peerOk.([]interface{})) > 0 {
+				PeerModel, err := resourceIBMIsVPNGatewayConnectionMapToVPNGatewayConnectionStaticRouteModePeerPrototype(peerOk.([]interface{})[0].(map[string]interface{}))
+				if err != nil {
+					return err
+				}
+				vpnGatewayConnectionPrototypeModel.Peer = PeerModel
+			} else if peerAddress != "" {
+				model := &vpcv1.VPNGatewayConnectionStaticRouteModePeerPrototype{}
+				if peerAddress != "" {
+					model.Address = &peerAddress
+				}
+				vpnGatewayConnectionPrototypeModel.Peer = model
+			}
+
+			if ikePolicy, ok := d.GetOk(isVPNGatewayConnectionIKEPolicy); ok {
+				ikePolicyIdentity = ikePolicy.(string)
+				vpnGatewayConnectionPrototypeModel.IkePolicy = &vpcv1.VPNGatewayConnectionIkePolicyPrototype{
+					ID: &ikePolicyIdentity,
+				}
+			} else {
+				vpnGatewayConnectionPrototypeModel.IkePolicy = nil
+			}
+			if ipsecPolicy, ok := d.GetOk(isVPNGatewayConnectionIPSECPolicy); ok {
+				ipsecPolicyIdentity = ipsecPolicy.(string)
+				vpnGatewayConnectionPrototypeModel.IpsecPolicy = &vpcv1.VPNGatewayConnectionIPsecPolicyPrototype{
+					ID: &ipsecPolicyIdentity,
+				}
+			} else {
+				vpnGatewayConnectionPrototypeModel.IpsecPolicy = nil
+			}
+
+			options := &vpcv1.CreateVPNGatewayConnectionOptions{
+				VPNGatewayID:                  &gatewayID,
+				VPNGatewayConnectionPrototype: vpnGatewayConnectionPrototypeModel,
+			}
+
+			vpnGatewayConnectionIntf, response, err := sess.CreateVPNGatewayConnection(options)
 			if err != nil {
-				return err
+				return fmt.Errorf("[DEBUG] Create VPN Gateway Connection err %s\n%s", err, response)
 			}
-			vpnGatewayConnectionPrototypeModel.Peer = PeerModel
-		} else if peerAddress != "" {
-			model := &vpcv1.VPNGatewayConnectionStaticRouteModePeerPrototype{}
-			if peerAddress != "" {
-				model.Address = &peerAddress
+			if _, ok := vpnGatewayConnectionIntf.(*vpcv1.VPNGatewayConnection); ok {
+				vpnGatewayConnection := vpnGatewayConnectionIntf.(*vpcv1.VPNGatewayConnection)
+				d.SetId(fmt.Sprintf("%s/%s", gatewayID, *vpnGatewayConnection.ID))
+				log.Printf("[INFO] VPNGatewayConnection : %s/%s", gatewayID, *vpnGatewayConnection.ID)
+			} else if _, ok := vpnGatewayConnectionIntf.(*vpcv1.VPNGatewayConnectionRouteMode); ok {
+				vpnGatewayConnection := vpnGatewayConnectionIntf.(*vpcv1.VPNGatewayConnectionRouteMode)
+				d.SetId(fmt.Sprintf("%s/%s", gatewayID, *vpnGatewayConnection.ID))
+				log.Printf("[INFO] VPNGatewayConnection : %s/%s", gatewayID, *vpnGatewayConnection.ID)
+			} else if _, ok := vpnGatewayConnectionIntf.(*vpcv1.VPNGatewayConnectionPolicyMode); ok {
+				vpnGatewayConnection := vpnGatewayConnectionIntf.(*vpcv1.VPNGatewayConnectionPolicyMode)
+				d.SetId(fmt.Sprintf("%s/%s", gatewayID, *vpnGatewayConnection.ID))
+				log.Printf("[INFO] VPNGatewayConnection : %s/%s", gatewayID, *vpnGatewayConnection.ID)
+			} else if _, ok := vpnGatewayConnectionIntf.(*vpcv1.VPNGatewayConnectionRouteModeVPNGatewayConnectionStaticRouteMode); ok {
+				vpnGatewayConnection := vpnGatewayConnectionIntf.(*vpcv1.VPNGatewayConnectionRouteModeVPNGatewayConnectionStaticRouteMode)
+				d.SetId(fmt.Sprintf("%s/%s", gatewayID, *vpnGatewayConnection.ID))
+				log.Printf("[INFO] VPNGatewayConnection : %s/%s", gatewayID, *vpnGatewayConnection.ID)
+			} else {
+				return (fmt.Errorf("Unrecognized vpcv1.vpnGatewayConnectionIntf subtype encountered"))
 			}
-			vpnGatewayConnectionPrototypeModel.Peer = model
 		}
 
-		if ikePolicy, ok := d.GetOk(isVPNGatewayConnectionIKEPolicy); ok {
-			ikePolicyIdentity = ikePolicy.(string)
-			vpnGatewayConnectionPrototypeModel.IkePolicy = &vpcv1.VPNGatewayConnectionIkePolicyPrototype{
-				ID: &ikePolicyIdentity,
-			}
-		} else {
-			vpnGatewayConnectionPrototypeModel.IkePolicy = nil
-		}
-		if ipsecPolicy, ok := d.GetOk(isVPNGatewayConnectionIPSECPolicy); ok {
-			ipsecPolicyIdentity = ipsecPolicy.(string)
-			vpnGatewayConnectionPrototypeModel.IpsecPolicy = &vpcv1.VPNGatewayConnectionIPsecPolicyPrototype{
-				ID: &ipsecPolicyIdentity,
-			}
-		} else {
-			vpnGatewayConnectionPrototypeModel.IpsecPolicy = nil
-		}
-
-		options := &vpcv1.CreateVPNGatewayConnectionOptions{
-			VPNGatewayID:                  &gatewayID,
-			VPNGatewayConnectionPrototype: vpnGatewayConnectionPrototypeModel,
-		}
-
-		vpnGatewayConnectionIntf, response, err := sess.CreateVPNGatewayConnection(options)
-		if err != nil {
-			return fmt.Errorf("[DEBUG] Create VPN Gateway Connection err %s\n%s", err, response)
-		}
-		if _, ok := vpnGatewayConnectionIntf.(*vpcv1.VPNGatewayConnection); ok {
-			vpnGatewayConnection := vpnGatewayConnectionIntf.(*vpcv1.VPNGatewayConnection)
-			d.SetId(fmt.Sprintf("%s/%s", gatewayID, *vpnGatewayConnection.ID))
-			log.Printf("[INFO] VPNGatewayConnection : %s/%s", gatewayID, *vpnGatewayConnection.ID)
-		} else if _, ok := vpnGatewayConnectionIntf.(*vpcv1.VPNGatewayConnectionRouteMode); ok {
-			vpnGatewayConnection := vpnGatewayConnectionIntf.(*vpcv1.VPNGatewayConnectionRouteMode)
-			d.SetId(fmt.Sprintf("%s/%s", gatewayID, *vpnGatewayConnection.ID))
-			log.Printf("[INFO] VPNGatewayConnection : %s/%s", gatewayID, *vpnGatewayConnection.ID)
-		} else if _, ok := vpnGatewayConnectionIntf.(*vpcv1.VPNGatewayConnectionPolicyMode); ok {
-			vpnGatewayConnection := vpnGatewayConnectionIntf.(*vpcv1.VPNGatewayConnectionPolicyMode)
-			d.SetId(fmt.Sprintf("%s/%s", gatewayID, *vpnGatewayConnection.ID))
-			log.Printf("[INFO] VPNGatewayConnection : %s/%s", gatewayID, *vpnGatewayConnection.ID)
-		} else if _, ok := vpnGatewayConnectionIntf.(*vpcv1.VPNGatewayConnectionRouteModeVPNGatewayConnectionStaticRouteMode); ok {
-			vpnGatewayConnection := vpnGatewayConnectionIntf.(*vpcv1.VPNGatewayConnectionRouteModeVPNGatewayConnectionStaticRouteMode)
-			d.SetId(fmt.Sprintf("%s/%s", gatewayID, *vpnGatewayConnection.ID))
-			log.Printf("[INFO] VPNGatewayConnection : %s/%s", gatewayID, *vpnGatewayConnection.ID)
-		} else {
-			return (fmt.Errorf("Unrecognized vpcv1.vpnGatewayConnectionIntf subtype encountered"))
-		}
 	}
 
 	return nil
+}
+
+func resourceIBMIsVPNGatewayConnectionMapToVPNGatewayConnectionTunnelPrototype(modelMap map[string]interface{}) (*vpcv1.VPNGatewayConnectionTunnelPrototype, error) {
+	model := &vpcv1.VPNGatewayConnectionTunnelPrototype{}
+	NeighborIPModel, err := resourceIBMIsVPNGatewayConnectionMapToIP(modelMap["neighbor_ip"].([]interface{})[0].(map[string]interface{}))
+	if err != nil {
+		return model, err
+	}
+	model.NeighborIP = NeighborIPModel
+	TunnelInterfaceIPModel, err := resourceIBMIsVPNGatewayConnectionMapToIP(modelMap["tunnel_interface_ip"].([]interface{})[0].(map[string]interface{}))
+	if err != nil {
+		return model, err
+	}
+	model.TunnelInterfaceIP = TunnelInterfaceIPModel
+	return model, nil
+}
+
+func resourceIBMIsVPNGatewayConnectionMapToIP(modelMap map[string]interface{}) (*vpcv1.IP, error) {
+	model := &vpcv1.IP{}
+	model.Address = core.StringPtr(modelMap["address"].(string))
+	return model, nil
 }
 
 func resourceIBMISVPNGatewayConnectionRead(d *schema.ResourceData, meta interface{}) error {
@@ -997,6 +1121,22 @@ func resourceIBMIsVPNGatewayConnectionMapToVPNGatewayConnectionStaticRouteModeLo
 	return model, nil
 }
 
+func resourceIBMIsVPNGatewayConnectionMapToVPNGatewayConnectionDynamicRouteModeLocalPrototype(modelMap map[string]interface{}) (*vpcv1.VPNGatewayConnectionDynamicRouteModeLocalPrototype, error) {
+	model := &vpcv1.VPNGatewayConnectionDynamicRouteModeLocalPrototype{}
+	if modelMap["ike_identities"] != nil {
+		ikeIdentities := []vpcv1.VPNGatewayConnectionIkeIdentityPrototypeIntf{}
+		for _, ikeIdentitiesItem := range modelMap["ike_identities"].([]interface{}) {
+			ikeIdentitiesItemModel, err := resourceIBMIsVPNGatewayConnectionMapToVPNGatewayConnectionIkeIdentityPrototype(ikeIdentitiesItem.(map[string]interface{}))
+			if err != nil {
+				return model, err
+			}
+			ikeIdentities = append(ikeIdentities, ikeIdentitiesItemModel)
+		}
+		model.IkeIdentities = ikeIdentities
+	}
+	return model, nil
+}
+
 func resourceIBMIsVPNGatewayConnectionMapToVPNGatewayConnectionIkeIdentityPrototype(modelMap map[string]interface{}) (vpcv1.VPNGatewayConnectionIkeIdentityPrototypeIntf, error) {
 	model := &vpcv1.VPNGatewayConnectionIkeIdentityPrototype{}
 	model.Type = core.StringPtr(modelMap["type"].(string))
@@ -1024,6 +1164,24 @@ func resourceIBMIsVPNGatewayConnectionMapToVPNGatewayConnectionPolicyModePeerPro
 	if modelMap["cidrs"] != nil && modelMap["cidrs"].(*schema.Set).Len() > 0 {
 		peerCidrs := flex.ExpandStringList((modelMap["cidrs"].(*schema.Set)).List())
 		model.CIDRs = peerCidrs
+	}
+	return model, nil
+}
+func resourceIBMIsVPNGatewayConnectionMapToVPNGatewayConnectionDynamicRouteModePeerPrototype(modelMap map[string]interface{}) (vpcv1.VPNGatewayConnectionDynamicRouteModePeerPrototypeIntf, error) {
+	model := &vpcv1.VPNGatewayConnectionDynamicRouteModePeerPrototype{}
+	model.Asn = core.Int64Ptr(int64(modelMap["asn"].(int)))
+	if modelMap["ike_identity"] != nil && len(modelMap["ike_identity"].([]interface{})) > 0 {
+		IkeIdentityModel, err := resourceIBMIsVPNGatewayConnectionMapToVPNGatewayConnectionIkeIdentityPrototype(modelMap["ike_identity"].([]interface{})[0].(map[string]interface{}))
+		if err != nil {
+			return model, err
+		}
+		model.IkeIdentity = IkeIdentityModel
+	}
+	if modelMap["address"] != nil && modelMap["address"].(string) != "" {
+		model.Address = core.StringPtr(modelMap["address"].(string))
+	}
+	if modelMap["fqdn"] != nil && modelMap["fqdn"].(string) != "" {
+		model.Fqdn = core.StringPtr(modelMap["fqdn"].(string))
 	}
 	return model, nil
 }
@@ -1461,6 +1619,102 @@ func setvpnGatewayConnectionIntfResource(d *schema.ResourceData, vpn_gateway_id 
 				d.Set("tunnels", []map[string]interface{}{})
 			}
 		}
+	case "*vpcv1.VPNGatewayConnectionRouteModeVPNGatewayConnectionDynamicRouteMode":
+		{
+			vpnGatewayConnection := vpnGatewayConnectionIntf.(*vpcv1.VPNGatewayConnectionRouteModeVPNGatewayConnectionDynamicRouteMode)
+			d.SetId(fmt.Sprintf("%s/%s", vpn_gateway_id, *vpnGatewayConnection.ID))
+			if err = d.Set("admin_state_up", vpnGatewayConnection.AdminStateUp); err != nil {
+				return fmt.Errorf("[ERROR] Error setting admin_state_up: %s", err)
+			}
+			if err = d.Set("authentication_mode", vpnGatewayConnection.AuthenticationMode); err != nil {
+				return fmt.Errorf("[ERROR] Error setting authentication_mode: %s", err)
+			}
+			if err = d.Set("created_at", flex.DateTimeToString(vpnGatewayConnection.CreatedAt)); err != nil {
+				return fmt.Errorf("[ERROR] Error setting created_at: %s", err)
+			}
+
+			if vpnGatewayConnection.DeadPeerDetection != nil {
+				d.Set(isVPNGatewayConnectionDeadPeerDetectionAction, vpnGatewayConnection.DeadPeerDetection.Action)
+				d.Set(isVPNGatewayConnectionDeadPeerDetectionInterval, vpnGatewayConnection.DeadPeerDetection.Interval)
+				d.Set(isVPNGatewayConnectionDeadPeerDetectionTimeout, vpnGatewayConnection.DeadPeerDetection.Timeout)
+			}
+			if err = d.Set("href", vpnGatewayConnection.Href); err != nil {
+				return fmt.Errorf("[ERROR] Error setting href: %s", err)
+			}
+
+			if vpnGatewayConnection.IkePolicy != nil {
+				d.Set("ike_policy", vpnGatewayConnection.IkePolicy.ID)
+			}
+
+			if vpnGatewayConnection.IpsecPolicy != nil {
+				d.Set("ipsec_policy", vpnGatewayConnection.IpsecPolicy.ID)
+			}
+			if err = d.Set("mode", vpnGatewayConnection.Mode); err != nil {
+				return fmt.Errorf("[ERROR] Error setting mode: %s", err)
+			}
+			if err = d.Set("name", vpnGatewayConnection.Name); err != nil {
+				return fmt.Errorf("[ERROR] Error setting name: %s", err)
+			}
+
+			// breaking changes
+			if err = d.Set("establish_mode", vpnGatewayConnection.EstablishMode); err != nil {
+				return fmt.Errorf("[ERROR] Error setting establish_mode: %s", err)
+			}
+			local := []map[string]interface{}{}
+			if vpnGatewayConnection.Local != nil {
+				modelMap, err := dataSourceIBMIsVPNGatewayConnectionVPNGatewayConnectionDynamicRouteModeLocalToMap(vpnGatewayConnection.Local)
+				if err != nil {
+					return err
+				}
+				local = append(local, modelMap)
+			}
+			if err = d.Set("local", local); err != nil {
+				return fmt.Errorf("[ERROR] Error setting local %s", err)
+			}
+
+			peer := []map[string]interface{}{}
+			if vpnGatewayConnection.Peer != nil {
+				modelMap, err := dataSourceIBMIsVPNGatewayConnectionVPNGatewayConnectionDynamicRouteModePeerToMap(vpnGatewayConnection.Peer)
+				if err != nil {
+					return err
+				}
+				peer = append(peer, modelMap)
+			}
+			if err = d.Set("peer", peer); err != nil {
+				return fmt.Errorf("[ERROR] Error setting peer %s", err)
+			}
+			// Deprecated
+			if vpnGatewayConnection.Peer != nil {
+				peer := vpnGatewayConnection.Peer.(*vpcv1.VPNGatewayConnectionDynamicRouteModePeer)
+				if err = d.Set("peer_address", peer.Address); err != nil {
+					return fmt.Errorf("[ERROR] Error setting peer_address: %s", err)
+				}
+			}
+			if err = d.Set("preshared_key", vpnGatewayConnection.Psk); err != nil {
+				return fmt.Errorf("[ERROR] Error setting psk: %s", err)
+			}
+			if err = d.Set("resource_type", vpnGatewayConnection.ResourceType); err != nil {
+				return fmt.Errorf("[ERROR] Error setting resource_type: %s", err)
+			}
+			if err = d.Set("status", vpnGatewayConnection.Status); err != nil {
+				return fmt.Errorf("[ERROR] Error setting status: %s", err)
+			}
+			if err := d.Set("status_reasons", resourceVPNGatewayConnectionFlattenLifecycleReasons(vpnGatewayConnection.StatusReasons)); err != nil {
+				return fmt.Errorf("[ERROR] Error setting status_reasons: %s", err)
+			}
+			if err = d.Set("routing_protocol", vpnGatewayConnection.RoutingProtocol); err != nil {
+				return fmt.Errorf("[ERROR] Error setting routing_protocol: %s", err)
+			}
+
+			if vpnGatewayConnection.Tunnels != nil {
+				err = d.Set("tunnels", resourceVPNGatewayConnectionFlattenDynamicTunnels(vpnGatewayConnection.Tunnels))
+				if err != nil {
+					return fmt.Errorf("[ERROR] Error setting tunnels %s", err)
+				}
+			} else {
+				d.Set("tunnels", []map[string]interface{}{})
+			}
+		}
 	case "*vpcv1.VPNGatewayConnectionPolicyMode":
 		{
 			vpnGatewayConnection := vpnGatewayConnectionIntf.(*vpcv1.VPNGatewayConnectionPolicyMode)
@@ -1579,6 +1833,13 @@ func resourceVPNGatewayConnectionFlattenTunnels(result []vpcv1.VPNGatewayConnect
 
 	return tunnels
 }
+func resourceVPNGatewayConnectionFlattenDynamicTunnels(result []vpcv1.VPNGatewayConnectionDynamicRouteModeTunnel) (tunnels []map[string]interface{}) {
+	for _, tunnelsItem := range result {
+		tunnels = append(tunnels, resourceVPNGatewayConnectionDynamicRouteTunnelsToMap(tunnelsItem))
+	}
+
+	return tunnels
+}
 
 func resourceVPNGatewayConnectionTunnelsToMap(tunnelsItem vpcv1.VPNGatewayConnectionStaticRouteModeTunnel) (tunnelsMap map[string]interface{}) {
 	tunnelsMap = map[string]interface{}{}
@@ -1588,6 +1849,24 @@ func resourceVPNGatewayConnectionTunnelsToMap(tunnelsItem vpcv1.VPNGatewayConnec
 	}
 	if tunnelsItem.Status != nil {
 		tunnelsMap["status"] = tunnelsItem.Status
+	}
+
+	return tunnelsMap
+}
+func resourceVPNGatewayConnectionDynamicRouteTunnelsToMap(tunnelsItem vpcv1.VPNGatewayConnectionDynamicRouteModeTunnel) (tunnelsMap map[string]interface{}) {
+	tunnelsMap = map[string]interface{}{}
+
+	if tunnelsItem.PublicIP != nil {
+		tunnelsMap["address"] = tunnelsItem.PublicIP.Address
+	}
+	if tunnelsItem.Status != nil {
+		tunnelsMap["status"] = tunnelsItem.Status
+	}
+	if tunnelsItem.NeighborIP != nil {
+		tunnelsMap["neighbor_ip"] = tunnelsItem.NeighborIP.Address
+	}
+	if tunnelsItem.TunnelInterfaceIP != nil {
+		tunnelsMap["neighbor_ip"] = tunnelsItem.NeighborIP.Address
 	}
 
 	return tunnelsMap

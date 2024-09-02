@@ -12,6 +12,7 @@ import (
 
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/validate"
+	"github.com/IBM/go-sdk-core/v5/core"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -77,6 +78,21 @@ func ResourceIBMISVPNGateway() *schema.Resource {
 				ForceNew:     false,
 				ValidateFunc: validate.InvokeValidator("ibm_is_vpn_gateway", isVPNGatewayName),
 				Description:  "VPN Gateway instance name",
+			},
+
+			// is-vpn-as-spoke changes
+			"advertised_cidrs": &schema.Schema{
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "The additional CIDRs advertised through any enabled routing protocol (for example, BGP). The routing protocol will advertise routes with these CIDRs and VPC prefixes as route destinations.",
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+			"local_asn": &schema.Schema{
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Computed:    true,
+				Description: "The local autonomous system number (ASN) for this VPN gateway and its connections.",
 			},
 
 			isVPNGatewaySubnet: {
@@ -414,6 +430,18 @@ func vpngwCreate(d *schema.ResourceData, meta interface{}, name, subnetID, mode 
 		}
 	}
 
+	// is-vpn-as-spoke changes
+	if _, ok := d.GetOk("advertised_cidrs"); ok {
+		advertisedCidrs := []string{}
+		for _, advertisedCidrsItem := range d.Get("advertised_cidrs").([]interface{}) {
+			advertisedCidrs = append(advertisedCidrs, advertisedCidrsItem.(string))
+		}
+		vpnGatewayPrototype.AdvertisedCIDRs = advertisedCidrs
+	}
+	if _, ok := d.GetOk("local_asn"); ok {
+		vpnGatewayPrototype.LocalAsn = core.Int64Ptr(int64(d.Get("local_asn").(int)))
+	}
+
 	vpnGatewayIntf, response, err := sess.CreateVPNGateway(options)
 	if err != nil {
 		return fmt.Errorf("[DEBUG] Create vpc VPN Gateway %s\n%s", err, response)
@@ -517,6 +545,19 @@ func vpngwGet(d *schema.ResourceData, meta interface{}, id string) error {
 	if err = d.Set(isVPNGatewayHealthState, vpnGateway.HealthState); err != nil {
 		return fmt.Errorf("[ERROR] Error setting health_state: %s", err)
 	}
+	// is-vpn-as-spoke changes
+	if !core.IsNil(vpnGateway.AdvertisedCIDRs) {
+		if err = d.Set("advertised_cidrs", vpnGateway.AdvertisedCIDRs); err != nil {
+			err = fmt.Errorf("Error setting advertised_cidrs: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_vpn_gateway", "read", "set-advertised_cidrs")
+		}
+	}
+	if !core.IsNil(vpnGateway.LocalAsn) {
+		if err = d.Set("local_asn", flex.IntValue(vpnGateway.LocalAsn)); err != nil {
+			err = fmt.Errorf("Error setting local_asn: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_vpn_gateway", "read", "set-local_asn")
+		}
+	}
 	if err := d.Set(isVPNGatewayHealthReasons, resourceVPNGatewayRouteFlattenHealthReasons(vpnGateway.HealthReasons)); err != nil {
 		return fmt.Errorf("[ERROR] Error setting health_reasons: %s", err)
 	}
@@ -602,6 +643,7 @@ func vpngwGet(d *schema.ResourceData, meta interface{}, id string) error {
 func resourceIBMISVPNGatewayUpdate(d *schema.ResourceData, meta interface{}) error {
 	id := d.Id()
 	name := ""
+	localAsn := int64(0)
 	hasChanged := false
 
 	if d.HasChange(isVPNGatewayName) {
@@ -609,14 +651,19 @@ func resourceIBMISVPNGatewayUpdate(d *schema.ResourceData, meta interface{}) err
 		hasChanged = true
 	}
 
-	err := vpngwUpdate(d, meta, id, name, hasChanged)
+	if d.HasChange("local_asn") {
+		localAsn = int64(d.Get("local_asn").(int))
+		hasChanged = true
+	}
+
+	err := vpngwUpdate(d, meta, id, name, localAsn, hasChanged)
 	if err != nil {
 		return err
 	}
 	return resourceIBMISVPNGatewayRead(d, meta)
 }
 
-func vpngwUpdate(d *schema.ResourceData, meta interface{}, id, name string, hasChanged bool) error {
+func vpngwUpdate(d *schema.ResourceData, meta interface{}, id, name string, localAsn int64, hasChanged bool) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
 		return err
@@ -638,6 +685,7 @@ func vpngwUpdate(d *schema.ResourceData, meta interface{}, id, name string, hasC
 				"Error on update of resource vpc Vpn Gateway (%s) tags: %s", id, err)
 		}
 	}
+
 	if d.HasChange(isVPNGatewayAccessTags) {
 		getVpnGatewayOptions := &vpcv1.GetVPNGatewayOptions{
 			ID: &id,
@@ -661,6 +709,9 @@ func vpngwUpdate(d *schema.ResourceData, meta interface{}, id, name string, hasC
 		}
 		vpnGatewayPatchModel := &vpcv1.VPNGatewayPatch{
 			Name: &name,
+		}
+		if localAsn != int64(0) {
+			vpnGatewayPatchModel.LocalAsn = &localAsn
 		}
 		vpnGatewayPatch, err := vpnGatewayPatchModel.AsPatch()
 		if err != nil {
