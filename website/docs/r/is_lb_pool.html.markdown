@@ -129,7 +129,6 @@ Review the argument references that you can specify for your resource.
 		Nested schema for **target**:
 		- `href` - (Optional, String) The URL for this load balancer pool. Mutually exclusive with `id`.
 		- `id` - (Optional, String) The unique identifier for this load balancer pool. Mutually exclusive with `href`.
-
 - `health_delay`- (Required, Integer) The health check interval in seconds. Interval must be greater than `timeout` value.
 - `health_retries`- (Required, Integer) The health check max retries.
 - `health_timeout`- (Required, Integer) The health check timeout in seconds.
