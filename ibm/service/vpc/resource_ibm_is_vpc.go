@@ -568,6 +568,54 @@ func ResourceIBMISVPC() *schema.Resource {
 					},
 				},
 			},
+			"public_address_ranges": &schema.Schema{
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "The public address ranges attached to this VPC.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"crn": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The CRN for this public address range.",
+						},
+						"deleted": &schema.Schema{
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "If present, this property indicates the referenced resource has been deleted, and providessome supplementary information.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"more_info": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "Link to documentation about deleted resources.",
+									},
+								},
+							},
+						},
+						"href": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The URL for this public address range.",
+						},
+						"id": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The unique identifier for this public address range.",
+						},
+						"name": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The name for this public address range. The name is unique across all public address ranges in the region.",
+						},
+						"resource_type": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The resource type.",
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -1039,6 +1087,20 @@ func vpcGet(d *schema.ResourceData, meta interface{}, id string) error {
 		d.Set(isVPCResourceGroup, *vpc.ResourceGroup.ID)
 		d.Set(flex.ResourceGroupName, *vpc.ResourceGroup.Name)
 	}
+
+	//public address range
+	publicAddressRanges := []map[string]interface{}{}
+	for _, publicAddressRangesItem := range vpc.PublicAddressRanges {
+		publicAddressRangesItemMap, err := ResourceIBMIsVPCPublicAddressRangeReferenceToMap(&publicAddressRangesItem)
+		if err != nil {
+			return err
+		}
+		publicAddressRanges = append(publicAddressRanges, publicAddressRangesItemMap)
+	}
+	if err = d.Set("public_address_ranges", publicAddressRanges); err != nil {
+		return fmt.Errorf("Error setting public_address_ranges: %s", err)
+	}
+
 	//set the cse ip addresses info
 	if vpc.CseSourceIps != nil {
 		cseSourceIpsList := make([]map[string]interface{}, 0)
@@ -1873,5 +1935,27 @@ func resourceIBMIsVPCAccountReferenceToMap(model *vpcv1.AccountReference) (map[s
 	modelMap := make(map[string]interface{})
 	modelMap["id"] = model.ID
 	modelMap["resource_type"] = model.ResourceType
+	return modelMap, nil
+}
+
+func ResourceIBMIsVPCPublicAddressRangeReferenceToMap(model *vpcv1.PublicAddressRangeReference) (map[string]interface{}, error) {
+	modelMap := make(map[string]interface{})
+	modelMap["crn"] = *model.CRN
+	if model.Deleted != nil {
+		deletedMap, err := ResourceIBMIsVPCDeletedToMap(model.Deleted)
+		if err != nil {
+			return modelMap, err
+		}
+		modelMap["deleted"] = []map[string]interface{}{deletedMap}
+	}
+	modelMap["href"] = *model.Href
+	modelMap["id"] = *model.ID
+	modelMap["name"] = *model.Name
+	modelMap["resource_type"] = *model.ResourceType
+	return modelMap, nil
+}
+func ResourceIBMIsVPCDeletedToMap(model *vpcv1.Deleted) (map[string]interface{}, error) {
+	modelMap := make(map[string]interface{})
+	modelMap["more_info"] = *model.MoreInfo
 	return modelMap, nil
 }

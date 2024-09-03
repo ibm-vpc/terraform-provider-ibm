@@ -23,7 +23,7 @@ provider "ibm" {
 ```
 
 ## Example Usage
-The following example shows how you can create a public gateway for all the subnets that are located in a specific zone.
+The following example shows how you can create a public address range for a vpc that are located in a specific zone.
 
 ```terraform
 resource "ibm_is_public_address_range" "public_address_range_instance" {
@@ -43,6 +43,18 @@ resource "ibm_is_public_address_range" "public_address_range_instance" {
 }
 ```
 
+An example shows how you can create public address range not attached to vpc and zone
+
+```terraform
+resource "ibm_is_public_address_range" "public_address_range_instance" {
+  ipv4_address_count = "16"
+  name               = "example-public-address-range"
+  resource_group {
+    id = "11caaa983d9c4beb82690daab08717e9"
+  }
+}
+```
+
 ## Argument Reference
 
 You can specify the following arguments for this resource.
@@ -52,7 +64,7 @@ You can specify the following arguments for this resource.
 - `resource_group` - (Optional, List) The resource group for this public address range.
     Nested schema for **resource_group**:
 	- `id` - (Required, String) The unique identifier for this resource group.
-- `target` - (Optional, List) The target this public address range is bound to.If absent, this pubic address range is not bound to a target.
+- `target` - (Optional, List) The target this public address range is bound to.If absent, this public address range is not bound to a target.
     Nested schema for `target`:
 	- `vpc` - (Required, List) The VPC this public address range is bound to. If present, any of the below value must be specified.
 	    Nested schema for **vpc**:
@@ -79,7 +91,7 @@ In addition to all argument reference list, you can access the following attribu
 	- `href` - (String) The URL for this resource group.
 	- `id` - (String) The unique identifier for this resource group.
 	- `name` - (String) The name for this resource group.
-- `target` - (List) The target this public address range is bound to.If absent, this pubic address range is not bound to a target.
+- `target` - (List) The target this public address range is bound to.If absent, this public address range is not bound to a target.
     Nested schema for **target**:
 	- `vpc` - (List) The VPC this public address range is bound to.
 	    Nested schema for **vpc**:

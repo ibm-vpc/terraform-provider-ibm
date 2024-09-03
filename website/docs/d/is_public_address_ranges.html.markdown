@@ -55,7 +55,7 @@ After your data source is created, you can read values from the following attrib
 		- `id` - (String) The unique identifier for this resource group.
 		- `name` - (String) The name for this resource group.
 	- `resource_type` - (String) The resource type.
-	- `target` - (List) The target this public address range is bound to.If absent, this pubic address range is not bound to a target.
+	- `target` - (List) The target this public address range is bound to.If absent, this public address range is not bound to a target.
 		Nested schema for **target**:
 		- `vpc` - (List) The VPC this public address range is bound to.
 			Nested schema for **vpc**:
