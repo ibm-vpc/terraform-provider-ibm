@@ -40,7 +40,8 @@ After your data source is created, you can read values from the following attrib
 
 - `id` - The unique identifier of the PublicAddressRangeCollection.
 - `public_address_ranges` - (List) Collection of public address ranges.
-	Nested schema for **public_address_ranges**:
+	
+	Nested schema for `public_address_ranges`:
 	- `cidr` - (String) The public IPv4 range, expressed in CIDR format.
 	- `created_at` - (String) The date and time that the public address range was created.
 	- `crn` - (String) The CRN for this public address range.
@@ -50,24 +51,29 @@ After your data source is created, you can read values from the following attrib
 	- `lifecycle_state` - (String) The lifecycle state of the public address range.
 	- `name` - (String) The name for this public address range. The name is unique across all public address ranges in the region.
 	- `resource_group` - (List) The resource group for this public address range.
-		Nested schema for **resource_group**:
+		
+		Nested schema for `resource_group`:
 		- `href` - (String) The URL for this resource group.
 		- `id` - (String) The unique identifier for this resource group.
 		- `name` - (String) The name for this resource group.
 	- `resource_type` - (String) The resource type.
 	- `target` - (List) The target this public address range is bound to.If absent, this public address range is not bound to a target.
-		Nested schema for **target**:
+		
+		Nested schema for `target`:
 		- `vpc` - (List) The VPC this public address range is bound to.
-			Nested schema for **vpc**:
+			
+			Nested schema for `vpc`:
 			- `crn` - (String) The CRN for this VPC.
 			- `deleted` - (List) If present, this property indicates the referenced resource has been deleted, and providessome supplementary information.
-				Nested schema for **deleted**:
+				
+				Nested schema for `deleted`:
 				- `more_info` - (String) Link to documentation about deleted resources.
 			- `href` - (String) The URL for this VPC.
 			- `id` - (String) The unique identifier for this VPC.
 			- `name` - (String) The name for this VPC. The name is unique across all VPCs in the region.
 			- `resource_type` - (String) The resource type.
 		- `zone` - (List) The zone this public address range resides in.
-			Nested schema for **zone**:
+			
+			Nested schema for `zone`:
 			- `href` - (String) The URL for this zone.
 			- `name` - (String) The globally unique name for this zone.
