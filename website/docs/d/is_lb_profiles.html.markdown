@@ -40,6 +40,13 @@ You can access the following attribute references after your data source is crea
 - `lb_profiles` - (List) List of all load balancer profiles in the IBM Cloud Infrastructure.
 
   Nested scheme for `lb_profiles`:
+
+
+	- `failsafe_policy_actions` - (List) 
+		Nested schema for **failsafe_policy_actions**:
+		- `default` - (String) The default failsafe policy action for this profile. Allowable values are: `fail`, `forward`.
+		- `type` - (String) The type for this profile field.
+		- `values` - (List) The supported failsafe policy actions. Allowable list items are: `fail`, `forward`.
 	- `family` - (String) The product family this load balancer profile belongs to.
 	- `href` - (String) The URL for this load balancer profile.
 	- `name` - (String) The name for this load balancer profile.
