@@ -92,12 +92,14 @@ func ResourceIBMISLBPool() *schema.Resource {
 				Type:        schema.TypeList,
 				MaxItems:    1,
 				Optional:    true,
+				Computed:    true,
 				Description: "The failsafe policy to use for this pool.If unspecified, the default failsafe policy action from the profile will be used.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"action": &schema.Schema{
 							Type:        schema.TypeString,
-							Required:    true,
+							Optional:    true,
+							Computed:    true,
 							Description: "A load balancer failsafe policy action:- `forward`: Forwards requests to the `target` pool.- `fail`: Rejects requests with an HTTP `503` status code.The enumerated values for this property may[expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.",
 						},
 						"healthy_member_threshold_count": &schema.Schema{
@@ -128,12 +130,14 @@ func ResourceIBMISLBPool() *schema.Resource {
 									},
 									"href": &schema.Schema{
 										Type:        schema.TypeString,
-										Required:    true,
+										Optional:    true,
+										Computed:    true,
 										Description: "The URL for this load balancer pool.",
 									},
 									"id": &schema.Schema{
 										Type:        schema.TypeString,
-										Required:    true,
+										Optional:    true,
+										Computed:    true,
 										Description: "The unique identifier for this load balancer pool.",
 									},
 									"name": &schema.Schema{
