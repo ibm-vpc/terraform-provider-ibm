@@ -136,7 +136,7 @@ func TestAccIBMISLBPool_failsafe_policy(t *testing.T) {
 	healthType1 := "http"
 
 	alg2 := "least_connections"
-	protocol2 := "tcp"
+	protocol2 := "http"
 	proxyProtocol2 := "v2"
 	delay2 := "60"
 	retries2 := "3"
