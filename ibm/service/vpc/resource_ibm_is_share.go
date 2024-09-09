@@ -1109,9 +1109,10 @@ func resourceIbmIsShareCreate(context context.Context, d *schema.ResourceData, m
 		sharePrototype.ReplicationCronSpec = &replicationCronSpec
 	} else {
 		originShare := d.Get("origin_share")
-		OriginShareModel := ResourceIBMIsShareMapToShareIdentity(originShare.([]interface{})[0].(map[string]interface{}))
-
-		sharePrototype.OriginShare = OriginShareModel
+		if len(originShare.([]interface{})) > 0 {
+			OriginShareModel := ResourceIBMIsShareMapToShareIdentity(originShare.([]interface{})[0].(map[string]interface{}))
+			sharePrototype.OriginShare = OriginShareModel
+		}
 
 	}
 
