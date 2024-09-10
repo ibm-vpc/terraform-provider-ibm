@@ -871,7 +871,7 @@ func dataSourceVolumeCollectionVolumesToMap(volumesItem vpcv1.Volume, meta inter
 		usageConstraintList := []map[string]interface{}{}
 		modelMap, err := DataSourceIBMIsVolumeUsageConstraintsToMap(volumesItem.UsageConstraints)
 		if err != nil {
-			tfErr := flex.TerraformErrorf(err, err.Error(), "(Data) ibm_is_image", "read")
+			tfErr := flex.TerraformErrorf(err, err.Error(), "(Data) ibm_is_volumes", "read")
 			log.Println(tfErr.GetDiag())
 		}
 		usageConstraintList = append(usageConstraintList, modelMap)

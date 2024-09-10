@@ -714,7 +714,7 @@ func volGet(d *schema.ResourceData, meta interface{}, id string) error {
 		usageConstraints = append(usageConstraints, modelMap)
 	}
 	if err = d.Set("usage_constraints", usageConstraints); err != nil {
-		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting usage_constraints: %s", err), "(Data) ibm_is_image", "read")
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting usage_constraints: %s", err), "(Data) ibm_is_volume", "read")
 		log.Println(tfErr.GetDiag())
 	}
 	// catalog
