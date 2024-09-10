@@ -1104,7 +1104,6 @@ func resourceIbmIsShareCreate(context context.Context, d *schema.ResourceData, m
 				}
 			}
 		}
-
 		replicationCronSpec := d.Get("replication_cron_spec").(string)
 		sharePrototype.ReplicationCronSpec = &replicationCronSpec
 	} else {
@@ -1113,7 +1112,6 @@ func resourceIbmIsShareCreate(context context.Context, d *schema.ResourceData, m
 			OriginShareModel := ResourceIBMIsShareMapToShareIdentity(originShare.([]interface{})[0].(map[string]interface{}))
 			sharePrototype.OriginShare = OriginShareModel
 		}
-
 	}
 
 	if iopsIntf, ok := d.GetOk("iops"); ok {
