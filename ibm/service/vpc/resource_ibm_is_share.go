@@ -1097,11 +1097,16 @@ func resourceIbmIsShareCreate(context context.Context, d *schema.ResourceData, m
 				ID: &sourceShare,
 			}
 		} else {
-			sourceShareCRN := d.Get("source_share_crn").(string)
-			if sourceShareCRN != "" {
-				sharePrototype.SourceShare = &vpcv1.ShareIdentity{
-					CRN: &sourceShareCRN,
-				}
+
+		}
+
+		replicationCronSpec := d.Get("replication_cron_spec").(string)
+		sharePrototype.ReplicationCronSpec = &replicationCronSpec
+	} else if sourceShareCrnIntf, sShareCrnok := d.GetOk("source_share_crn"); sShareCrnok {
+		sourceShareCRN := sourceShareCrnIntf.(string)
+		if sourceShareCRN != "" {
+			sharePrototype.SourceShare = &vpcv1.ShareIdentity{
+				CRN: &sourceShareCRN,
 			}
 		}
 		replicationCronSpec := d.Get("replication_cron_spec").(string)
