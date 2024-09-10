@@ -153,7 +153,7 @@ func TestAccIbmIsShareAllArgs_EmptyCheck(t *testing.T) {
 			{
 				Config: testAccCheckIbmIsShareAllConfigEmptyCheckConfig(name, name2, name3, name4),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					testAccCheckIbmIsShareExists("ibm_is_share.is_share", conf),
+					testAccCheckIbmIsShareExists("ibm_is_share.test-share", conf),
 					resource.TestCheckResourceAttr("ibm_is_share.test-share", "name", name),
 					resource.TestCheckResourceAttr("ibm_is_share.test-share2", "name", name2),
 					resource.TestCheckResourceAttr("ibm_is_share.test-share-replica", "name", name3),
@@ -475,16 +475,16 @@ func testAccCheckIbmIsShareAllConfigEmptyCheckConfig(sharename1, sharename2, sha
 	}
 	resource "ibm_is_share" "test-share-replica" {
 		name                  = "%s"
+		profile               = "%s"
 		zone                  = "%s"
 		source_share          = ibm_is_share.test-share.id
-		profile               = "%s"
 		replication_cron_spec = "0 */6 * * *"
 	}
 	resource "ibm_is_share" "test-share2-replica-crn" {
 		name                  = "%s"
+		profile               = "%s"
 		zone                  = "%s"
 		source_share_crn      = ibm_is_share.test-share2.crn
-		profile               = "%s"
 		replication_cron_spec = "0 */5 * * *"
 	}
 	`, sharename1, acc.ShareProfileName, acc.ISZoneName, sharename2, acc.ShareProfileName, acc.ISZoneName, sharename3, acc.ShareProfileName, acc.ISZoneName2, sharename4, acc.ShareProfileName, acc.ISZoneName3)
