@@ -472,7 +472,7 @@ func imageList(d *schema.ResourceData, meta interface{}) error {
 		}
 		if image.UsageConstraints != nil {
 			usageConstraintList := []map[string]interface{}{}
-			modelMap, err := DataSourceIBMIsImageImageUsageConstraintsToMap(image.UsageConstraints)
+			modelMap, err := DataSourceIBMIsImageUsageConstraintsToMap(image.UsageConstraints)
 			if err != nil {
 				tfErr := flex.TerraformErrorf(err, err.Error(), "(Data) ibm_is_image", "read")
 				log.Println(tfErr.GetDiag())

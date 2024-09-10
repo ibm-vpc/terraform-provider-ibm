@@ -392,7 +392,7 @@ func imageGetByName(d *schema.ResourceData, meta interface{}, name, visibility s
 	}
 	usageConstraints := []map[string]interface{}{}
 	if image.UsageConstraints != nil {
-		modelMap, err := DataSourceIBMIsImageImageUsageConstraintsToMap(image.UsageConstraints)
+		modelMap, err := DataSourceIBMIsImageUsageConstraintsToMap(image.UsageConstraints)
 		if err != nil {
 			tfErr := flex.TerraformErrorf(err, err.Error(), "(Data) ibm_is_image", "read")
 			log.Println(tfErr.GetDiag())
@@ -470,7 +470,7 @@ func imageGetById(d *schema.ResourceData, meta interface{}, identifier string) e
 	}
 	usageConstraints := []map[string]interface{}{}
 	if image.UsageConstraints != nil {
-		modelMap, err := DataSourceIBMIsImageImageUsageConstraintsToMap(image.UsageConstraints)
+		modelMap, err := DataSourceIBMIsImageUsageConstraintsToMap(image.UsageConstraints)
 		if err != nil {
 			tfErr := flex.TerraformErrorf(err, err.Error(), "(Data) ibm_is_image", "read")
 			log.Println(tfErr.GetDiag())
@@ -580,7 +580,7 @@ func dataSourceImageResourceGroupToMap(resourceGroupItem vpcv1.ResourceGroupRefe
 	return resourceGroupMap
 }
 
-func DataSourceIBMIsImageImageUsageConstraintsToMap(model *vpcv1.ImageUsageConstraints) (map[string]interface{}, error) {
+func DataSourceIBMIsImageUsageConstraintsToMap(model *vpcv1.ImageUsageConstraints) (map[string]interface{}, error) {
 	modelMap := make(map[string]interface{})
 	if model.BareMetalServer != nil {
 		modelMap["bare_metal_server"] = *model.BareMetalServer
