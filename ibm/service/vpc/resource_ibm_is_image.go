@@ -12,6 +12,7 @@ import (
 
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/validate"
+	"github.com/IBM/go-sdk-core/v5/core"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
 	"github.com/go-openapi/strfmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
@@ -255,6 +256,32 @@ func ResourceIBMISImage() *schema.Resource {
 				Computed:    true,
 				Description: "The user data format for this image",
 			},
+			"usage_constraints": &schema.Schema{
+				Type:        schema.TypeList,
+				MaxItems:    1,
+				ForceNew:    true,
+				Optional:    true,
+				Computed:    true,
+				Description: "The usage constraints for this image.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"bare_metal_server": &schema.Schema{
+							Type:        schema.TypeString,
+							ForceNew:    true,
+							Optional:    true,
+							Computed:    true,
+							Description: "An image can only be used for bare metal instantiation if this expression resolves to true.The expression follows [Common Expression Language](https://github.com/google/cel-spec/blob/master/doc/langdef.md), but does not support built-in functions and macros. In addition, the following property is supported:- `enable_secure_boot` - (boolean) Indicates whether secure boot is enabled for this bare metal server.",
+						},
+						"virtual_server_instance": &schema.Schema{
+							Type:        schema.TypeString,
+							ForceNew:    true,
+							Optional:    true,
+							Computed:    true,
+							Description: "This image can only be used to provision a virtual server instance if the resulting instance would have property values that satisfy this expression.The expression follows [Common Expression Language](https://github.com/google/cel-spec/blob/master/doc/langdef.md), but does not support built-in functions and macros. In addition, the following variables are supported, corresponding to `Instance` properties:- `gpu.count` - (integer) The number of GPUs assigned to the instance- `gpu.manufacturer` - (string) The GPU manufacturer- `gpu.memory` - (integer) The overall amount of GPU memory in GiB (gibibytes)- `gpu.model` - (string) The GPU model- `enable_secure_boot` - (boolean) Indicates whether secure boot is enabled.",
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -329,6 +356,13 @@ func imgCreateByFile(d *schema.ResourceData, meta interface{}, href, name, opera
 		OperatingSystem: &vpcv1.OperatingSystemIdentity{
 			Name: &operatingSystem,
 		},
+	}
+	if usageConstraint, ok := d.GetOk("usage_constraints"); ok {
+		usageConstraintModel, err := ResourceIBMUsageConstraintsMapToImageUsageConstraintsPrototype(usageConstraint.(map[string]interface{}))
+		if err != nil {
+			return err
+		}
+		imagePrototype.UsageConstraints = usageConstraintModel
 	}
 	if obsoleteAtOk, ok := d.GetOk(isImageObsolescenceAt); ok {
 		obsoleteAt, err := strfmt.ParseDateTime(obsoleteAtOk.(string))
@@ -751,6 +785,15 @@ func imgGet(d *schema.ResourceData, meta interface{}, id string) error {
 	if image.File != nil && image.File.Checksums != nil {
 		d.Set(isImageCheckSum, *image.File.Checksums.Sha256)
 	}
+	if !core.IsNil(image.UsageConstraints) {
+		usageConstraintsMap, err := ResourceIBMIsImageImageUsageConstraintsToMap(image.UsageConstraints)
+		if err != nil {
+			return err
+		}
+		if err = d.Set("usage_constraints", []map[string]interface{}{usageConstraintsMap}); err != nil {
+			log.Printf("Error setting usage_constraints: %s", err)
+		}
+	}
 	tags, err := flex.GetGlobalTagsUsingCRN(meta, *image.CRN, "", isImageUserTagType)
 	if err != nil {
 		log.Printf(
@@ -872,4 +915,26 @@ func imgExists(d *schema.ResourceData, meta interface{}, id string) (bool, error
 		return false, fmt.Errorf("[ERROR] Error getting Image: %s\n%s", err, response)
 	}
 	return true, nil
+}
+
+func ResourceIBMUsageConstraintsMapToImageUsageConstraintsPrototype(modelMap map[string]interface{}) (*vpcv1.ImageUsageConstraintsPrototype, error) {
+	model := &vpcv1.ImageUsageConstraintsPrototype{}
+	if modelMap["bare_metal_server"] != nil && modelMap["bare_metal_server"].(string) != "" {
+		model.BareMetalServer = core.StringPtr(modelMap["bare_metal_server"].(string))
+	}
+	if modelMap["virtual_server_instance"] != nil && modelMap["virtual_server_instance"].(string) != "" {
+		model.BareMetalServer = core.StringPtr(modelMap["virtual_server_instance"].(string))
+	}
+	return model, nil
+}
+
+func ResourceIBMIsImageImageUsageConstraintsToMap(model *vpcv1.ImageUsageConstraints) (map[string]interface{}, error) {
+	modelMap := make(map[string]interface{})
+	if model.BareMetalServer != nil {
+		modelMap["bare_metal_server"] = *model.BareMetalServer
+	}
+	if model.VirtualServerInstance != nil {
+		modelMap["virtual_server_instance"] = *model.VirtualServerInstance
+	}
+	return modelMap, nil
 }
