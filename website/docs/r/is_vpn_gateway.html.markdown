@@ -55,6 +55,8 @@ The `ibm_is_vpn_gateway` resource provides the following [Timeouts](https://www.
 ## Argument reference
 Review the argument references that you can specify for your resource. 
 
+- `advertised_cidrs` - (Optional, Force new resource,  List) The additional CIDRs advertised through any enabled routing protocol (for example, BGP). The routing protocol will advertise routes with these CIDRs and VPC prefixes as route destinations. Applicable for **route** mode only.
+- `local_asn` - (Optional, Integer) The local autonomous system number (ASN) for this VPN gateway and its connections. Applicable for **route** mode only.
 - `mode`- (Optional, String) Mode in VPN gateway. Supported values are `route` or `policy`. The default value is `route`.
 - `name` - (Required, String) The name of the VPN gateway.
 - `resource_group` - (Optional, Forces new resource, String) The resource group (id), where the VPN gateway to be created.

@@ -42,9 +42,11 @@ In addition to all argument reference list, you can access the following attribu
 
   Nested scheme for `vpn_gateways`:
   - `access_tags`  - (List) Access management tags associated for the vpn gateway.
+  - `advertised_cidrs` - (List) The additional CIDRs advertised through any enabled routing protocol (for example, BGP). The routing protocol will advertise routes with these CIDRs and VPC prefixes as route destinations. Applicable for **route** mode only.
   - `crn` - (String) The VPN gateway's CRN.
   - `created_at`- (Timestamp) The date and time the VPN gateway was created.
   - `id` - (String) The ID of the VPN gateway.
+  - `local_asn` - (Integer) The local autonomous system number (ASN) for this VPN gateway and its connections. Applicable for **route** mode only.
   - `name`-  (String) The VPN gateway instance name.
   - `members` - (List) Collection of VPN gateway members.</n>
   
