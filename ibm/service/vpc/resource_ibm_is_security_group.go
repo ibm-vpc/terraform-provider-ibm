@@ -14,6 +14,7 @@ import (
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/validate"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -32,12 +33,12 @@ const (
 func ResourceIBMISSecurityGroup() *schema.Resource {
 
 	return &schema.Resource{
-		Create:   resourceIBMISSecurityGroupCreate,
-		Read:     resourceIBMISSecurityGroupRead,
-		Update:   resourceIBMISSecurityGroupUpdate,
-		Delete:   resourceIBMISSecurityGroupDelete,
-		Exists:   resourceIBMISSecurityGroupExists,
-		Importer: &schema.ResourceImporter{},
+		CreateContext: resourceIBMISSecurityGroupCreate,
+		ReadContext:   resourceIBMISSecurityGroupRead,
+		UpdateContext: resourceIBMISSecurityGroupUpdate,
+		DeleteContext: resourceIBMISSecurityGroupDelete,
+		Exists:        resourceIBMISSecurityGroupExists,
+		Importer:      &schema.ResourceImporter{},
 
 		CustomizeDiff: customdiff.All(
 			customdiff.Sequence(
@@ -177,10 +178,12 @@ func ResourceIBMISSecurityGroupValidator() *validate.ResourceValidator {
 	return &ibmISSecurityGroupResourceValidator
 }
 
-func resourceIBMISSecurityGroupCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISSecurityGroupCreate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	vpc := d.Get(isSecurityGroupVPC).(string)
 
@@ -225,10 +228,12 @@ func resourceIBMISSecurityGroupCreate(d *schema.ResourceData, meta interface{}) 
 	return resourceIBMISSecurityGroupRead(d, meta)
 }
 
-func resourceIBMISSecurityGroupRead(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISSecurityGroupRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	id := d.Id()
 
@@ -392,10 +397,12 @@ func resourceIBMISSecurityGroupRead(d *schema.ResourceData, meta interface{}) er
 	return nil
 }
 
-func resourceIBMISSecurityGroupUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISSecurityGroupUpdate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	id := d.Id()
 	name := ""
@@ -444,10 +451,12 @@ func resourceIBMISSecurityGroupUpdate(d *schema.ResourceData, meta interface{}) 
 	return resourceIBMISSecurityGroupRead(d, meta)
 }
 
-func resourceIBMISSecurityGroupDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISSecurityGroupDelete(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	id := d.Id()
 

@@ -13,6 +13,7 @@ import (
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/validate"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -37,12 +38,12 @@ const (
 
 func ResourceIBMISFlowLog() *schema.Resource {
 	return &schema.Resource{
-		Create:   resourceIBMISFlowLogCreate,
-		Read:     resourceIBMISFlowLogRead,
-		Update:   resourceIBMISFlowLogUpdate,
-		Delete:   resourceIBMISFlowLogDelete,
-		Exists:   resourceIBMISFlowLogExists,
-		Importer: &schema.ResourceImporter{},
+		CreateContext: resourceIBMISFlowLogCreate,
+		ReadContext:   resourceIBMISFlowLogRead,
+		UpdateContext: resourceIBMISFlowLogUpdate,
+		DeleteContext: resourceIBMISFlowLogDelete,
+		Exists:        resourceIBMISFlowLogExists,
+		Importer:      &schema.ResourceImporter{},
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(30 * time.Minute),
@@ -223,10 +224,12 @@ func ResourceIBMISFlowLogValidator() *validate.ResourceValidator {
 	return &ibmISFlowLogValidator
 }
 
-func resourceIBMISFlowLogCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISFlowLogCreate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	createFlowLogCollectorOptionsModel := &vpcv1.CreateFlowLogCollectorOptions{}
@@ -282,11 +285,13 @@ func resourceIBMISFlowLogCreate(d *schema.ResourceData, meta interface{}) error 
 	return resourceIBMISFlowLogRead(d, meta)
 }
 
-func resourceIBMISFlowLogRead(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISFlowLogRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	ID := d.Id()
@@ -369,11 +374,13 @@ func resourceIBMISFlowLogRead(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 
-func resourceIBMISFlowLogUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISFlowLogUpdate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	ID := d.Id()
@@ -428,11 +435,13 @@ func resourceIBMISFlowLogUpdate(d *schema.ResourceData, meta interface{}) error 
 	return resourceIBMISFlowLogRead(d, meta)
 }
 
-func resourceIBMISFlowLogDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISFlowLogDelete(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	ID := d.Id()
 	delOptions := &vpcv1.DeleteFlowLogCollectorOptions{

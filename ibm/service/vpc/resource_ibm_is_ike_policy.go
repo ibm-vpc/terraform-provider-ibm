@@ -4,12 +4,14 @@
 package vpc
 
 import (
+	"context"
 	"fmt"
 	"log"
 
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/validate"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -31,12 +33,12 @@ const (
 
 func ResourceIBMISIKEPolicy() *schema.Resource {
 	return &schema.Resource{
-		Create:   resourceIBMISIKEPolicyCreate,
-		Read:     resourceIBMISIKEPolicyRead,
-		Update:   resourceIBMISIKEPolicyUpdate,
-		Delete:   resourceIBMISIKEPolicyDelete,
-		Exists:   resourceIBMISIKEPolicyExists,
-		Importer: &schema.ResourceImporter{},
+		CreateContext: resourceIBMISIKEPolicyCreate,
+		ReadContext:   resourceIBMISIKEPolicyRead,
+		UpdateContext: resourceIBMISIKEPolicyUpdate,
+		DeleteContext: resourceIBMISIKEPolicyDelete,
+		Exists:        resourceIBMISIKEPolicyExists,
+		Importer:      &schema.ResourceImporter{},
 
 		Schema: map[string]*schema.Schema{
 			isIKEName: {
@@ -191,7 +193,7 @@ func ResourceIBMISIKEValidator() *validate.ResourceValidator {
 	return &ibmISIKEResourceValidator
 }
 
-func resourceIBMISIKEPolicyCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISIKEPolicyCreate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	log.Printf("[DEBUG] IKE Policy create")
 	name := d.Get(isIKEName).(string)
@@ -209,7 +211,9 @@ func resourceIBMISIKEPolicyCreate(d *schema.ResourceData, meta interface{}) erro
 func ikepCreate(d *schema.ResourceData, meta interface{}, authenticationAlg, encryptionAlg, name string, dhGroup int64) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	options := &vpcv1.CreateIkePolicyOptions{
 		AuthenticationAlgorithm: &authenticationAlg,
@@ -246,7 +250,7 @@ func ikepCreate(d *schema.ResourceData, meta interface{}, authenticationAlg, enc
 	return nil
 }
 
-func resourceIBMISIKEPolicyRead(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISIKEPolicyRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	id := d.Id()
 	return ikepGet(d, meta, id)
@@ -255,7 +259,9 @@ func resourceIBMISIKEPolicyRead(d *schema.ResourceData, meta interface{}) error 
 func ikepGet(d *schema.ResourceData, meta interface{}, id string) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	getikepoptions := &vpcv1.GetIkePolicyOptions{
 		ID: &id,
@@ -305,7 +311,7 @@ func ikepGet(d *schema.ResourceData, meta interface{}, id string) error {
 	return nil
 }
 
-func resourceIBMISIKEPolicyUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISIKEPolicyUpdate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	id := d.Id()
 	err := ikepUpdate(d, meta, id)
@@ -318,7 +324,9 @@ func resourceIBMISIKEPolicyUpdate(d *schema.ResourceData, meta interface{}) erro
 func ikepUpdate(d *schema.ResourceData, meta interface{}, id string) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	options := &vpcv1.UpdateIkePolicyOptions{
 		ID: &id,
@@ -352,7 +360,7 @@ func ikepUpdate(d *schema.ResourceData, meta interface{}, id string) error {
 	return nil
 }
 
-func resourceIBMISIKEPolicyDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISIKEPolicyDelete(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	id := d.Id()
 	return ikepDelete(d, meta, id)
@@ -361,7 +369,9 @@ func resourceIBMISIKEPolicyDelete(d *schema.ResourceData, meta interface{}) erro
 func ikepDelete(d *schema.ResourceData, meta interface{}, id string) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	getikepoptions := &vpcv1.GetIkePolicyOptions{
 		ID: &id,

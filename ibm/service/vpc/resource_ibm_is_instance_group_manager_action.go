@@ -4,24 +4,27 @@
 package vpc
 
 import (
+	"context"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/validate"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
 	"github.com/go-openapi/strfmt"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func ResourceIBMISInstanceGroupManagerAction() *schema.Resource {
 	return &schema.Resource{
-		Create:   resourceIBMISInstanceGroupManagerActionCreate,
-		Read:     resourceIBMISInstanceGroupManagerActionRead,
-		Update:   resourceIBMISInstanceGroupManagerActionUpdate,
-		Delete:   resourceIBMISInstanceGroupManagerActionDelete,
-		Exists:   resourceIBMISInstanceGroupManagerActionExists,
-		Importer: &schema.ResourceImporter{},
+		CreateContext: resourceIBMISInstanceGroupManagerActionCreate,
+		ReadContext:   resourceIBMISInstanceGroupManagerActionRead,
+		UpdateContext: resourceIBMISInstanceGroupManagerActionUpdate,
+		DeleteContext: resourceIBMISInstanceGroupManagerActionDelete,
+		Exists:        resourceIBMISInstanceGroupManagerActionExists,
+		Importer:      &schema.ResourceImporter{},
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(10 * time.Minute),
@@ -208,13 +211,15 @@ func ResourceIBMISInstanceGroupManagerActionValidator() *validate.ResourceValida
 	return &ibmISInstanceGroupManagerResourceValidator
 }
 
-func resourceIBMISInstanceGroupManagerActionCreate(d *schema.ResourceData, meta interface{}) error { // CreateInstanceGroupManagerAction
+func resourceIBMISInstanceGroupManagerActionCreate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics { // CreateInstanceGroupManagerAction
 	instanceGroupID := d.Get("instance_group").(string)
 	instancegroupmanagerscheduledID := d.Get("instance_group_manager").(string)
 
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	instanceGroupManagerActionOptions := vpcv1.CreateInstanceGroupManagerActionOptions{}
@@ -284,11 +289,13 @@ func resourceIBMISInstanceGroupManagerActionCreate(d *schema.ResourceData, meta 
 
 }
 
-func resourceIBMISInstanceGroupManagerActionUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISInstanceGroupManagerActionUpdate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	var changed bool
@@ -373,10 +380,12 @@ func resourceIBMISInstanceGroupManagerActionUpdate(d *schema.ResourceData, meta 
 	return resourceIBMISInstanceGroupManagerRead(d, meta)
 }
 
-func resourceIBMISInstanceGroupManagerActionRead(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISInstanceGroupManagerActionRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	parts, err := flex.IdParts(d.Id())
@@ -472,10 +481,12 @@ func resourceIBMISInstanceGroupManagerActionRead(d *schema.ResourceData, meta in
 	return nil
 }
 
-func resourceIBMISInstanceGroupManagerActionDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISInstanceGroupManagerActionDelete(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	parts, err := flex.IdParts(d.Id())

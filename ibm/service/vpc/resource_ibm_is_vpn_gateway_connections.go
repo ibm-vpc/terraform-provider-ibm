@@ -4,6 +4,7 @@
 package vpc
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"reflect"
@@ -13,6 +14,7 @@ import (
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/validate"
 	"github.com/IBM/go-sdk-core/v5/core"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -46,12 +48,12 @@ const (
 
 func ResourceIBMISVPNGatewayConnection() *schema.Resource {
 	return &schema.Resource{
-		Create:   resourceIBMISVPNGatewayConnectionCreate,
-		Read:     resourceIBMISVPNGatewayConnectionRead,
-		Update:   resourceIBMISVPNGatewayConnectionUpdate,
-		Delete:   resourceIBMISVPNGatewayConnectionDelete,
-		Exists:   resourceIBMISVPNGatewayConnectionExists,
-		Importer: &schema.ResourceImporter{},
+		CreateContext: resourceIBMISVPNGatewayConnectionCreate,
+		ReadContext:   resourceIBMISVPNGatewayConnectionRead,
+		UpdateContext: resourceIBMISVPNGatewayConnectionUpdate,
+		DeleteContext: resourceIBMISVPNGatewayConnectionDelete,
+		Exists:        resourceIBMISVPNGatewayConnectionExists,
+		Importer:      &schema.ResourceImporter{},
 
 		Timeouts: &schema.ResourceTimeout{
 			Delete: schema.DefaultTimeout(10 * time.Minute),
@@ -408,7 +410,7 @@ func ResourceIBMISVPNGatewayConnectionValidator() *validate.ResourceValidator {
 	return &ibmISVPNGatewayConnectionResourceValidator
 }
 
-func resourceIBMISVPNGatewayConnectionCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISVPNGatewayConnectionCreate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	log.Printf("[DEBUG] VPNGatewayConnection create")
 	name := d.Get(isVPNGatewayConnectionName).(string)
@@ -445,7 +447,9 @@ func resourceIBMISVPNGatewayConnectionCreate(d *schema.ResourceData, meta interf
 func vpngwconCreate(d *schema.ResourceData, meta interface{}, name, gatewayID, peerAddress, prephasedKey, action string, interval, timeout int64) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	vpngateway, response, err := sess.GetVPNGateway(&vpcv1.GetVPNGatewayOptions{
 		ID: &gatewayID,
@@ -650,7 +654,7 @@ func vpngwconCreate(d *schema.ResourceData, meta interface{}, name, gatewayID, p
 	return nil
 }
 
-func resourceIBMISVPNGatewayConnectionRead(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISVPNGatewayConnectionRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	parts, err := flex.IdParts(d.Id())
 	if err != nil {
@@ -670,7 +674,9 @@ func resourceIBMISVPNGatewayConnectionRead(d *schema.ResourceData, meta interfac
 func vpngwconGet(d *schema.ResourceData, meta interface{}, gID, gConnID string) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	options := &vpcv1.GetVPNGatewayConnectionOptions{
 		VPNGatewayID: &gID,
@@ -698,7 +704,7 @@ func vpngwconGet(d *schema.ResourceData, meta interface{}, gID, gConnID string) 
 	return nil
 }
 
-func resourceIBMISVPNGatewayConnectionUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISVPNGatewayConnectionUpdate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	hasChanged := false
 
 	parts, err := flex.IdParts(d.Id())
@@ -718,7 +724,9 @@ func resourceIBMISVPNGatewayConnectionUpdate(d *schema.ResourceData, meta interf
 func vpngwconUpdate(d *schema.ResourceData, meta interface{}, gID, gConnID string, hasChanged bool) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	updateVpnGatewayConnectionOptions := &vpcv1.UpdateVPNGatewayConnectionOptions{
@@ -822,7 +830,7 @@ func vpngwconUpdate(d *schema.ResourceData, meta interface{}, gID, gConnID strin
 	return nil
 }
 
-func resourceIBMISVPNGatewayConnectionDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISVPNGatewayConnectionDelete(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	parts, err := flex.IdParts(d.Id())
 	if err != nil {
@@ -842,7 +850,9 @@ func resourceIBMISVPNGatewayConnectionDelete(d *schema.ResourceData, meta interf
 func vpngwconDelete(d *schema.ResourceData, meta interface{}, gID, gConnID string) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	getVpnGatewayConnectionOptions := &vpcv1.GetVPNGatewayConnectionOptions{
 		VPNGatewayID: &gID,

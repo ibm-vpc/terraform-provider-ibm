@@ -1924,7 +1924,9 @@ func resourceIBMISBareMetalServerRead(context context.Context, d *schema.Resourc
 func bareMetalServerGet(context context.Context, d *schema.ResourceData, meta interface{}, id string) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	options := &vpcv1.GetBareMetalServerOptions{
 		ID: &id,
@@ -2357,7 +2359,9 @@ func resourceIBMISBareMetalServerUpdate(context context.Context, d *schema.Resou
 func bareMetalServerUpdate(context context.Context, d *schema.ResourceData, meta interface{}, id string) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	if d.HasChange("image") || d.HasChange("keys") || d.HasChange("user_data") {
 		stopServerIfStartingForInitialization := false
@@ -3703,7 +3707,9 @@ func resourceIBMISBareMetalServerDelete(context context.Context, d *schema.Resou
 func bareMetalServerDelete(context context.Context, d *schema.ResourceData, meta interface{}, id, deleteType string) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	getBmsOptions := &vpcv1.GetBareMetalServerOptions{

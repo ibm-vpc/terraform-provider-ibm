@@ -4,12 +4,14 @@
 package vpc
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"time"
 
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -29,11 +31,11 @@ const (
 
 func ResourceIBMISEndpointGatewayIP() *schema.Resource {
 	return &schema.Resource{
-		Create:   resourceIBMisVirtualEndpointGatewayIPCreate,
-		Read:     resourceIBMisVirtualEndpointGatewayIPRead,
-		Delete:   resourceIBMisVirtualEndpointGatewayIPDelete,
-		Exists:   resourceIBMisVirtualEndpointGatewayIPExists,
-		Importer: &schema.ResourceImporter{},
+		CreateContext: resourceIBMisVirtualEndpointGatewayIPCreate,
+		ReadContext:   resourceIBMisVirtualEndpointGatewayIPRead,
+		DeleteContext: resourceIBMisVirtualEndpointGatewayIPDelete,
+		Exists:        resourceIBMisVirtualEndpointGatewayIPExists,
+		Importer:      &schema.ResourceImporter{},
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(30 * time.Minute),
@@ -107,10 +109,12 @@ func ResourceIBMISEndpointGatewayIP() *schema.Resource {
 	}
 }
 
-func resourceIBMisVirtualEndpointGatewayIPCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMisVirtualEndpointGatewayIPCreate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	gatewayID := d.Get(isVirtualEndpointGatewayID).(string)
 	ipID := d.Get(isVirtualEndpointGatewayIPID).(string)
@@ -124,10 +128,12 @@ func resourceIBMisVirtualEndpointGatewayIPCreate(d *schema.ResourceData, meta in
 	return resourceIBMisVirtualEndpointGatewayIPRead(d, meta)
 }
 
-func resourceIBMisVirtualEndpointGatewayIPRead(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMisVirtualEndpointGatewayIPRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	parts, err := flex.IdParts(d.Id())
 	if err != nil {
@@ -152,10 +158,12 @@ func resourceIBMisVirtualEndpointGatewayIPRead(d *schema.ResourceData, meta inte
 	return nil
 }
 
-func resourceIBMisVirtualEndpointGatewayIPDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMisVirtualEndpointGatewayIPDelete(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	parts, err := flex.IdParts(d.Id())
 	if err != nil {

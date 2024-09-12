@@ -4,7 +4,9 @@
 package vpc
 
 import (
+	"context"
 	"fmt"
+	"log"
 	"reflect"
 	"strings"
 
@@ -12,6 +14,7 @@ import (
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/validate"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -36,12 +39,12 @@ const (
 func ResourceIBMISSecurityGroupRule() *schema.Resource {
 
 	return &schema.Resource{
-		Create:   resourceIBMISSecurityGroupRuleCreate,
-		Read:     resourceIBMISSecurityGroupRuleRead,
-		Update:   resourceIBMISSecurityGroupRuleUpdate,
-		Delete:   resourceIBMISSecurityGroupRuleDelete,
-		Exists:   resourceIBMISSecurityGroupRuleExists,
-		Importer: &schema.ResourceImporter{},
+		CreateContext: resourceIBMISSecurityGroupRuleCreate,
+		ReadContext:   resourceIBMISSecurityGroupRuleRead,
+		UpdateContext: resourceIBMISSecurityGroupRuleUpdate,
+		DeleteContext: resourceIBMISSecurityGroupRuleDelete,
+		Exists:        resourceIBMISSecurityGroupRuleExists,
+		Importer:      &schema.ResourceImporter{},
 
 		Schema: map[string]*schema.Schema{
 
@@ -235,10 +238,12 @@ func ResourceIBMISSecurityGroupRuleValidator() *validate.ResourceValidator {
 	return &ibmISSecurityGroupRuleResourceValidator
 }
 
-func resourceIBMISSecurityGroupRuleCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISSecurityGroupRuleCreate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	parsed, sgTemplate, _, err := parseIBMISSecurityGroupRuleDictionary(d, "create", sess)
@@ -284,10 +289,12 @@ func resourceIBMISSecurityGroupRuleCreate(d *schema.ResourceData, meta interface
 	return resourceIBMISSecurityGroupRuleRead(d, meta)
 }
 
-func resourceIBMISSecurityGroupRuleRead(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISSecurityGroupRuleRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	secgrpID, ruleID, err := parseISTerraformID(d.Id())
 	if err != nil {
@@ -442,10 +449,12 @@ func resourceIBMISSecurityGroupRuleRead(d *schema.ResourceData, meta interface{}
 	return nil
 }
 
-func resourceIBMISSecurityGroupRuleUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISSecurityGroupRuleUpdate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	parsed, _, sgTemplate, err := parseIBMISSecurityGroupRuleDictionary(d, "update", sess)
@@ -464,10 +473,12 @@ func resourceIBMISSecurityGroupRuleUpdate(d *schema.ResourceData, meta interface
 	return resourceIBMISSecurityGroupRuleRead(d, meta)
 }
 
-func resourceIBMISSecurityGroupRuleDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISSecurityGroupRuleDelete(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	secgrpID, ruleID, err := parseISTerraformID(d.Id())
 	if err != nil {

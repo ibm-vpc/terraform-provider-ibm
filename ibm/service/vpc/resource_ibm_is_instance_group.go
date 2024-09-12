@@ -14,6 +14,7 @@ import (
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/validate"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -33,12 +34,12 @@ const (
 
 func ResourceIBMISInstanceGroup() *schema.Resource {
 	return &schema.Resource{
-		Create:   resourceIBMISInstanceGroupCreate,
-		Read:     resourceIBMISInstanceGroupRead,
-		Update:   resourceIBMISInstanceGroupUpdate,
-		Delete:   resourceIBMISInstanceGroupDelete,
-		Exists:   resourceIBMISInstanceGroupExists,
-		Importer: &schema.ResourceImporter{},
+		CreateContext: resourceIBMISInstanceGroupCreate,
+		ReadContext:   resourceIBMISInstanceGroupRead,
+		UpdateContext: resourceIBMISInstanceGroupUpdate,
+		DeleteContext: resourceIBMISInstanceGroupDelete,
+		Exists:        resourceIBMISInstanceGroupExists,
+		Importer:      &schema.ResourceImporter{},
 
 		CustomizeDiff: customdiff.All(
 			customdiff.Sequence(
@@ -218,7 +219,7 @@ func ResourceIBMISInstanceGroupValidator() *validate.ResourceValidator {
 	return &ibmISInstanceGroupResourceValidator
 }
 
-func resourceIBMISInstanceGroupCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISInstanceGroupCreate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	name := d.Get("name").(string)
 	instanceTemplate := d.Get("instance_template").(string)
@@ -227,7 +228,9 @@ func resourceIBMISInstanceGroupCreate(d *schema.ResourceData, meta interface{}) 
 
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	var subnetIDs []vpcv1.SubnetIdentityIntf
@@ -305,10 +308,12 @@ func resourceIBMISInstanceGroupCreate(d *schema.ResourceData, meta interface{}) 
 
 }
 
-func resourceIBMISInstanceGroupUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISInstanceGroupUpdate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	var changed bool
@@ -394,10 +399,12 @@ func resourceIBMISInstanceGroupUpdate(d *schema.ResourceData, meta interface{}) 
 	return resourceIBMISInstanceGroupRead(d, meta)
 }
 
-func resourceIBMISInstanceGroupRead(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISInstanceGroupRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	instanceGroupID := d.Id()
@@ -458,10 +465,12 @@ func getLBStatus(sess *vpcv1.VpcV1, lbId string) (string, error) {
 	return *lb.ProvisioningStatus, nil
 }
 
-func resourceIBMISInstanceGroupDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISInstanceGroupDelete(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	instanceGroupID := d.Id()
 

@@ -15,6 +15,7 @@ import (
 
 	"github.com/IBM/go-sdk-core/v5/core"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -91,12 +92,12 @@ const (
 
 func ResourceIBMISVPC() *schema.Resource {
 	return &schema.Resource{
-		Create:   resourceIBMISVPCCreate,
-		Read:     resourceIBMISVPCRead,
-		Update:   resourceIBMISVPCUpdate,
-		Delete:   resourceIBMISVPCDelete,
-		Exists:   resourceIBMISVPCExists,
-		Importer: &schema.ResourceImporter{},
+		CreateContext: resourceIBMISVPCCreate,
+		ReadContext:   resourceIBMISVPCRead,
+		UpdateContext: resourceIBMISVPCUpdate,
+		DeleteContext: resourceIBMISVPCDelete,
+		Exists:        resourceIBMISVPCExists,
+		Importer:      &schema.ResourceImporter{},
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(10 * time.Minute),
@@ -652,7 +653,7 @@ func ResourceIBMISVPCValidator() *validate.ResourceValidator {
 	return &ibmISVPCResourceValidator
 }
 
-func resourceIBMISVPCCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISVPCCreate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	log.Printf("[DEBUG] VPC create")
 	name := d.Get(isVPCName).(string)
@@ -680,7 +681,9 @@ func resourceIBMISVPCCreate(d *schema.ResourceData, meta interface{}) error {
 func vpcCreate(d *schema.ResourceData, meta interface{}, name, apm, rg string, isClassic bool) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	options := &vpcv1.CreateVPCOptions{
 		Name: &name,
@@ -903,7 +906,7 @@ func isVPCRefreshFunc(vpc *vpcv1.VpcV1, id string) resource.StateRefreshFunc {
 	}
 }
 
-func resourceIBMISVPCRead(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISVPCRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	id := d.Id()
 	err := vpcGet(d, meta, id)
 	if err != nil {
@@ -915,7 +918,9 @@ func resourceIBMISVPCRead(d *schema.ResourceData, meta interface{}) error {
 func vpcGet(d *schema.ResourceData, meta interface{}, id string) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	getvpcOptions := &vpcv1.GetVPCOptions{
 		ID: &id,
@@ -1208,7 +1213,7 @@ func vpcGet(d *schema.ResourceData, meta interface{}, id string) error {
 	return nil
 }
 
-func resourceIBMISVPCUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISVPCUpdate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	id := d.Id()
 
 	name := ""
@@ -1228,7 +1233,9 @@ func resourceIBMISVPCUpdate(d *schema.ResourceData, meta interface{}) error {
 func vpcUpdate(d *schema.ResourceData, meta interface{}, id, name string, hasChanged bool) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	if d.HasChange(isVPCTags) {
@@ -1427,7 +1434,7 @@ func vpcUpdate(d *schema.ResourceData, meta interface{}, id, name string, hasCha
 	return nil
 }
 
-func resourceIBMISVPCDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISVPCDelete(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	id := d.Id()
 	err := vpcDelete(d, meta, id)
 	if err != nil {
@@ -1440,7 +1447,9 @@ func resourceIBMISVPCDelete(d *schema.ResourceData, meta interface{}) error {
 func vpcDelete(d *schema.ResourceData, meta interface{}, id string) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	getVpcOptions := &vpcv1.GetVPCOptions{

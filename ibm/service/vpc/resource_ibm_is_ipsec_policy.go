@@ -11,6 +11,7 @@ import (
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/validate"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -32,12 +33,12 @@ const (
 
 func ResourceIBMISIPSecPolicy() *schema.Resource {
 	return &schema.Resource{
-		Create:   resourceIBMISIPSecPolicyCreate,
-		Read:     resourceIBMISIPSecPolicyRead,
-		Update:   resourceIBMISIPSecPolicyUpdate,
-		Delete:   resourceIBMISIPSecPolicyDelete,
-		Exists:   resourceIBMISIPSecPolicyExists,
-		Importer: &schema.ResourceImporter{},
+		CreateContext: resourceIBMISIPSecPolicyCreate,
+		ReadContext:   resourceIBMISIPSecPolicyRead,
+		UpdateContext: resourceIBMISIPSecPolicyUpdate,
+		DeleteContext: resourceIBMISIPSecPolicyDelete,
+		Exists:        resourceIBMISIPSecPolicyExists,
+		Importer:      &schema.ResourceImporter{},
 
 		CustomizeDiff: customdiff.All(
 			customdiff.Sequence(
@@ -191,7 +192,7 @@ func ResourceIBMISIPSECValidator() *validate.ResourceValidator {
 	return &ibmISIPSECResourceValidator
 }
 
-func resourceIBMISIPSecPolicyCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISIPSecPolicyCreate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	log.Printf("[DEBUG] Ip Sec create")
 	name := d.Get(isIpSecName).(string)
@@ -209,7 +210,9 @@ func resourceIBMISIPSecPolicyCreate(d *schema.ResourceData, meta interface{}) er
 func ipsecpCreate(d *schema.ResourceData, meta interface{}, authenticationAlg, encryptionAlg, name, pfs string) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	options := &vpcv1.CreateIpsecPolicyOptions{
 		AuthenticationAlgorithm: &authenticationAlg,
@@ -241,7 +244,7 @@ func ipsecpCreate(d *schema.ResourceData, meta interface{}, authenticationAlg, e
 	return nil
 }
 
-func resourceIBMISIPSecPolicyRead(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISIPSecPolicyRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	id := d.Id()
 	return ipsecpGet(d, meta, id)
@@ -250,7 +253,9 @@ func resourceIBMISIPSecPolicyRead(d *schema.ResourceData, meta interface{}) erro
 func ipsecpGet(d *schema.ResourceData, meta interface{}, id string) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	getIpsecPolicyOptions := &vpcv1.GetIpsecPolicyOptions{
 		ID: &id,
@@ -300,7 +305,7 @@ func ipsecpGet(d *schema.ResourceData, meta interface{}, id string) error {
 	return nil
 }
 
-func resourceIBMISIPSecPolicyUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISIPSecPolicyUpdate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	id := d.Id()
 	err := ipsecpUpdate(d, meta, id)
@@ -314,7 +319,9 @@ func resourceIBMISIPSecPolicyUpdate(d *schema.ResourceData, meta interface{}) er
 func ipsecpUpdate(d *schema.ResourceData, meta interface{}, id string) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	options := &vpcv1.UpdateIpsecPolicyOptions{
@@ -348,7 +355,7 @@ func ipsecpUpdate(d *schema.ResourceData, meta interface{}, id string) error {
 	return nil
 }
 
-func resourceIBMISIPSecPolicyDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISIPSecPolicyDelete(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	id := d.Id()
 	return ipsecpDelete(d, meta, id)
@@ -357,7 +364,9 @@ func resourceIBMISIPSecPolicyDelete(d *schema.ResourceData, meta interface{}) er
 func ipsecpDelete(d *schema.ResourceData, meta interface{}, id string) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	getIpsecPolicyOptions := &vpcv1.GetIpsecPolicyOptions{
 		ID: &id,

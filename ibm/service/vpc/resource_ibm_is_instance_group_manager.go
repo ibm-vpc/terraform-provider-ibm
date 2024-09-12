@@ -4,22 +4,25 @@
 package vpc
 
 import (
+	"context"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/validate"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func ResourceIBMISInstanceGroupManager() *schema.Resource {
 	return &schema.Resource{
-		Create:   resourceIBMISInstanceGroupManagerCreate,
-		Read:     resourceIBMISInstanceGroupManagerRead,
-		Update:   resourceIBMISInstanceGroupManagerUpdate,
-		Delete:   resourceIBMISInstanceGroupManagerDelete,
-		Importer: &schema.ResourceImporter{},
+		CreateContext: resourceIBMISInstanceGroupManagerCreate,
+		ReadContext:   resourceIBMISInstanceGroupManagerRead,
+		UpdateContext: resourceIBMISInstanceGroupManagerUpdate,
+		DeleteContext: resourceIBMISInstanceGroupManagerDelete,
+		Importer:      &schema.ResourceImporter{},
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(10 * time.Minute),
@@ -179,14 +182,16 @@ func ResourceIBMISInstanceGroupManagerValidator() *validate.ResourceValidator {
 	return &ibmISInstanceGroupManagerResourceValidator
 }
 
-func resourceIBMISInstanceGroupManagerCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISInstanceGroupManagerCreate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	instanceGroupID := d.Get("instance_group").(string)
 	managerType := d.Get("manager_type").(string)
 
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	if managerType == "scheduled" {
@@ -273,10 +278,12 @@ func resourceIBMISInstanceGroupManagerCreate(d *schema.ResourceData, meta interf
 
 }
 
-func resourceIBMISInstanceGroupManagerUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISInstanceGroupManagerUpdate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	managerType := d.Get("manager_type").(string)
@@ -350,10 +357,12 @@ func resourceIBMISInstanceGroupManagerUpdate(d *schema.ResourceData, meta interf
 	return resourceIBMISInstanceGroupManagerRead(d, meta)
 }
 
-func resourceIBMISInstanceGroupManagerRead(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISInstanceGroupManagerRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	parts, err := flex.IdParts(d.Id())
@@ -422,10 +431,12 @@ func resourceIBMISInstanceGroupManagerRead(d *schema.ResourceData, meta interfac
 	return nil
 }
 
-func resourceIBMISInstanceGroupManagerDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISInstanceGroupManagerDelete(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	parts, err := flex.IdParts(d.Id())

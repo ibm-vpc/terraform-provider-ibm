@@ -4,6 +4,7 @@
 package vpc
 
 import (
+	"context"
 	"fmt"
 	"strings"
 	"time"
@@ -11,6 +12,7 @@ import (
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/conns"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/validate"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -39,12 +41,12 @@ const (
 
 func ResourceIBMISLBListenerPolicyRule() *schema.Resource {
 	return &schema.Resource{
-		Create:   resourceIBMISLBListenerPolicyRuleCreate,
-		Read:     resourceIBMISLBListenerPolicyRuleRead,
-		Update:   resourceIBMISLBListenerPolicyRuleUpdate,
-		Delete:   resourceIBMISLBListenerPolicyRuleDelete,
-		Exists:   resourceIBMISLBListenerPolicyRuleExists,
-		Importer: &schema.ResourceImporter{},
+		CreateContext: resourceIBMISLBListenerPolicyRuleCreate,
+		ReadContext:   resourceIBMISLBListenerPolicyRuleRead,
+		UpdateContext: resourceIBMISLBListenerPolicyRuleUpdate,
+		DeleteContext: resourceIBMISLBListenerPolicyRuleDelete,
+		Exists:        resourceIBMISLBListenerPolicyRuleExists,
+		Importer:      &schema.ResourceImporter{},
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(10 * time.Minute),
@@ -183,7 +185,7 @@ func ResourceIBMISLBListenerPolicyRuleValidator() *validate.ResourceValidator {
 	return &ibmISLBListenerPolicyRuleResourceValidator
 }
 
-func resourceIBMISLBListenerPolicyRuleCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISLBListenerPolicyRuleCreate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	//Read lb, listerner, policy IDs
 	var field string
@@ -368,7 +370,7 @@ func isLbListenerPolicyRuleRefreshFunc(vpc *vpcv1.VpcV1, id string) resource.Sta
 	}
 }
 
-func resourceIBMISLBListenerPolicyRuleRead(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISLBListenerPolicyRuleRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	ID := d.Id()
 	parts, err := flex.IdParts(ID)
@@ -433,7 +435,7 @@ func lbListenerPolicyRuleExists(d *schema.ResourceData, meta interface{}, ID str
 	}
 	return true, nil
 }
-func resourceIBMISLBListenerPolicyRuleUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISLBListenerPolicyRuleUpdate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	parts, err := flex.IdParts(d.Id())
 	if err != nil {
@@ -521,7 +523,7 @@ func lbListenerPolicyRuleUpdate(d *schema.ResourceData, meta interface{}, lbID, 
 	return nil
 }
 
-func resourceIBMISLBListenerPolicyRuleDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISLBListenerPolicyRuleDelete(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	//Retrieve lbId, listenerId and policyID
 	parts, err := flex.IdParts(d.Id())

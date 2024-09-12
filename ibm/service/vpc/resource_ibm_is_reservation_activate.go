@@ -4,6 +4,7 @@
 package vpc
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"runtime/debug"
@@ -12,15 +13,16 @@ import (
 
 	"github.com/IBM/go-sdk-core/v5/core"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func ResourceIBMISReservationActivate() *schema.Resource {
 	return &schema.Resource{
-		Create:   resourceIBMISReservationActivateCreate,
-		Read:     resourceIBMISReservationActivateRead,
-		Delete:   resourceIBMISReservationActivateDelete,
-		Importer: &schema.ResourceImporter{},
+		CreateContext: resourceIBMISReservationActivateCreate,
+		ReadContext:   resourceIBMISReservationActivateRead,
+		DeleteContext: resourceIBMISReservationActivateDelete,
+		Importer:      &schema.ResourceImporter{},
 
 		Schema: map[string]*schema.Schema{
 			isReservation: &schema.Schema{
@@ -216,7 +218,7 @@ func ResourceIBMISReservationActivate() *schema.Resource {
 		},
 	}
 }
-func resourceIBMISReservationActivateCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISReservationActivateCreate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	id := d.Get(isReservation).(string)
 	activateReservationOptions := &vpcv1.ActivateReservationOptions{
@@ -225,7 +227,9 @@ func resourceIBMISReservationActivateCreate(d *schema.ResourceData, meta interfa
 
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	response, err := sess.ActivateReservation(activateReservationOptions)
@@ -239,7 +243,7 @@ func resourceIBMISReservationActivateCreate(d *schema.ResourceData, meta interfa
 	return resourceIBMISReservationActivateRead(d, meta)
 }
 
-func resourceIBMISReservationActivateRead(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISReservationActivateRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	id := d.Id()
 
@@ -415,7 +419,7 @@ func resourceIBMISReservationActivateRead(d *schema.ResourceData, meta interface
 	return nil
 }
 
-func resourceIBMISReservationActivateDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISReservationActivateDelete(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	d.SetId("")
 	return nil
 }

@@ -941,7 +941,9 @@ func lbListenerPolicyDelete(d *schema.ResourceData, meta interface{}, lbID, list
 
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	//Getting policy optins
 	getLbListenerPolicyOptions := &vpcv1.GetLoadBalancerListenerPolicyOptions{

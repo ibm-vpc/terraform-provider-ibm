@@ -4,23 +4,26 @@
 package vpc
 
 import (
+	"context"
 	"fmt"
+	"log"
 
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/conns"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/validate"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func ResourceIBMISInstanceGroupManagerPolicy() *schema.Resource {
 	return &schema.Resource{
-		Create:   resourceIBMISInstanceGroupManagerPolicyCreate,
-		Read:     resourceIBMISInstanceGroupManagerPolicyRead,
-		Update:   resourceIBMISInstanceGroupManagerPolicyUpdate,
-		Delete:   resourceIBMISInstanceGroupManagerPolicyDelete,
-		Exists:   resourceIBMISInstanceGroupManagerPolicyExists,
-		Importer: &schema.ResourceImporter{},
+		CreateContext: resourceIBMISInstanceGroupManagerPolicyCreate,
+		ReadContext:   resourceIBMISInstanceGroupManagerPolicyRead,
+		UpdateContext: resourceIBMISInstanceGroupManagerPolicyUpdate,
+		DeleteContext: resourceIBMISInstanceGroupManagerPolicyDelete,
+		Exists:        resourceIBMISInstanceGroupManagerPolicyExists,
+		Importer:      &schema.ResourceImporter{},
 
 		Schema: map[string]*schema.Schema{
 
@@ -105,13 +108,15 @@ func ResourceIBMISInstanceGroupManagerPolicyValidator() *validate.ResourceValida
 	return &ibmISInstanceGroupManagerPolicyResourceValidator
 }
 
-func resourceIBMISInstanceGroupManagerPolicyCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISInstanceGroupManagerPolicyCreate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	instanceGroupID := d.Get("instance_group").(string)
 	instanceGroupManagerID := d.Get("instance_group_manager").(string)
 
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	instanceGroupManagerPolicyPrototype := vpcv1.InstanceGroupManagerPolicyPrototype{}
@@ -153,10 +158,12 @@ func resourceIBMISInstanceGroupManagerPolicyCreate(d *schema.ResourceData, meta 
 
 }
 
-func resourceIBMISInstanceGroupManagerPolicyUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISInstanceGroupManagerPolicyUpdate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	var changed bool
@@ -216,10 +223,12 @@ func resourceIBMISInstanceGroupManagerPolicyUpdate(d *schema.ResourceData, meta 
 	return resourceIBMISInstanceGroupManagerPolicyRead(d, meta)
 }
 
-func resourceIBMISInstanceGroupManagerPolicyRead(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISInstanceGroupManagerPolicyRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	parts, err := flex.IdParts(d.Id())
@@ -255,10 +264,12 @@ func resourceIBMISInstanceGroupManagerPolicyRead(d *schema.ResourceData, meta in
 	return nil
 }
 
-func resourceIBMISInstanceGroupManagerPolicyDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISInstanceGroupManagerPolicyDelete(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	parts, err := flex.IdParts(d.Id())
 	if err != nil {

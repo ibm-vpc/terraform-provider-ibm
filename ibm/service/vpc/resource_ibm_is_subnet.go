@@ -14,6 +14,7 @@ import (
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/conns"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/validate"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 
 	"github.com/IBM/vpc-go-sdk/vpcv1"
@@ -50,12 +51,12 @@ const (
 
 func ResourceIBMISSubnet() *schema.Resource {
 	return &schema.Resource{
-		Create:   resourceIBMISSubnetCreate,
-		Read:     resourceIBMISSubnetRead,
-		Update:   resourceIBMISSubnetUpdate,
-		Delete:   resourceIBMISSubnetDelete,
-		Exists:   resourceIBMISSubnetExists,
-		Importer: &schema.ResourceImporter{},
+		CreateContext: resourceIBMISSubnetCreate,
+		ReadContext:   resourceIBMISSubnetRead,
+		UpdateContext: resourceIBMISSubnetUpdate,
+		DeleteContext: resourceIBMISSubnetDelete,
+		Exists:        resourceIBMISSubnetExists,
+		Importer:      &schema.ResourceImporter{},
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(10 * time.Minute),
 			Update: schema.DefaultTimeout(10 * time.Minute),
@@ -266,7 +267,7 @@ func ResourceIBMISSubnetValidator() *validate.ResourceValidator {
 	return &ibmISSubnetResourceValidator
 }
 
-func resourceIBMISSubnetCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISSubnetCreate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	name := d.Get(isSubnetName).(string)
 	vpc := d.Get(isSubnetVPC).(string)
@@ -321,7 +322,9 @@ func subnetCreate(d *schema.ResourceData, meta interface{}, name, vpc, zone, ipv
 
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	subnetTemplate := &vpcv1.SubnetPrototype{
 		Name: &name,
@@ -432,7 +435,7 @@ func isSubnetRefreshFunc(subnetC *vpcv1.VpcV1, id string) resource.StateRefreshF
 	}
 }
 
-func resourceIBMISSubnetRead(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISSubnetRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	id := d.Id()
 
@@ -446,7 +449,9 @@ func resourceIBMISSubnetRead(d *schema.ResourceData, meta interface{}) error {
 func subnetGet(d *schema.ResourceData, meta interface{}, id string) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	getSubnetOptions := &vpcv1.GetSubnetOptions{
 		ID: &id,
@@ -512,7 +517,7 @@ func subnetGet(d *schema.ResourceData, meta interface{}, id string) error {
 	return nil
 }
 
-func resourceIBMISSubnetUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISSubnetUpdate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	id := d.Id()
 
 	if d.HasChange(isSubnetTags) {
@@ -544,7 +549,9 @@ func resourceIBMISSubnetUpdate(d *schema.ResourceData, meta interface{}) error {
 func subnetUpdate(d *schema.ResourceData, meta interface{}, id string) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	hasChanged := false
 	name := ""
@@ -628,7 +635,7 @@ func subnetUpdate(d *schema.ResourceData, meta interface{}, id string) error {
 	return nil
 }
 
-func resourceIBMISSubnetDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISSubnetDelete(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	id := d.Id()
 	err := subnetDelete(d, meta, id)
@@ -643,7 +650,9 @@ func resourceIBMISSubnetDelete(d *schema.ResourceData, meta interface{}) error {
 func subnetDelete(d *schema.ResourceData, meta interface{}, id string) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	getSubnetOptions := &vpcv1.GetSubnetOptions{
 		ID: &id,

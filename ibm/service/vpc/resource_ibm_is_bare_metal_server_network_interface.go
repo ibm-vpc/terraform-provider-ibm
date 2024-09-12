@@ -463,7 +463,9 @@ func resourceIBMISBareMetalServerNetworkInterfaceCreate(context context.Context,
 func createVlanTypeNetworkInterface(context context.Context, d *schema.ResourceData, meta interface{}, bareMetalServerId string) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	options := &vpcv1.CreateBareMetalServerNetworkInterfaceOptions{}
 	interfaceType := "vlan"
@@ -584,7 +586,9 @@ func createVlanTypeNetworkInterface(context context.Context, d *schema.ResourceD
 func createHiperSocketTypeNetworkInterface(context context.Context, d *schema.ResourceData, meta interface{}, interfaceType, bareMetalServerId string) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	options := &vpcv1.CreateBareMetalServerNetworkInterfaceOptions{}
 	nicOptions := &vpcv1.BareMetalServerNetworkInterfacePrototypeBareMetalServerNetworkInterfaceByHiperSocketPrototype{}
@@ -1108,7 +1112,9 @@ func resourceIBMISBareMetalServerNetworkInterfaceDelete(context context.Context,
 func bareMetalServerNetworkInterfaceDelete(context context.Context, d *schema.ResourceData, meta interface{}, bareMetalServerId, nicId string) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	getBmsNicOptions := &vpcv1.GetBareMetalServerNetworkInterfaceOptions{

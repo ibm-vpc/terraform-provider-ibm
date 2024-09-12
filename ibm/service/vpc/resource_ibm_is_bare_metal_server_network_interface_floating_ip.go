@@ -246,7 +246,9 @@ func resourceIBMISBareMetalServerNetworkInterfaceFloatingIpDelete(context contex
 func bareMetalServerNetworkInterfaceFipDelete(context context.Context, d *schema.ResourceData, meta interface{}, bareMetalServerId, nicId, fipId string) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	getBmsNicFipOptions := &vpcv1.GetBareMetalServerNetworkInterfaceFloatingIPOptions{

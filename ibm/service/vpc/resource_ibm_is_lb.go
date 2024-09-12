@@ -13,6 +13,7 @@ import (
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/validate"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -48,12 +49,12 @@ const (
 
 func ResourceIBMISLB() *schema.Resource {
 	return &schema.Resource{
-		Create:   resourceIBMISLBCreate,
-		Read:     resourceIBMISLBRead,
-		Update:   resourceIBMISLBUpdate,
-		Delete:   resourceIBMISLBDelete,
-		Exists:   resourceIBMISLBExists,
-		Importer: &schema.ResourceImporter{},
+		CreateContext: resourceIBMISLBCreate,
+		ReadContext:   resourceIBMISLBRead,
+		UpdateContext: resourceIBMISLBUpdate,
+		DeleteContext: resourceIBMISLBDelete,
+		Exists:        resourceIBMISLBExists,
+		Importer:      &schema.ResourceImporter{},
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(30 * time.Minute),
@@ -343,7 +344,7 @@ func ResourceIBMISLBValidator() *validate.ResourceValidator {
 	return &ibmISLBResourceValidator
 }
 
-func resourceIBMISLBCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISLBCreate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	name := d.Get(isLBName).(string)
 	subnets := d.Get(isLBSubnets).(*schema.Set)
@@ -384,7 +385,9 @@ func resourceIBMISLBCreate(d *schema.ResourceData, meta interface{}) error {
 func lbCreate(d *schema.ResourceData, meta interface{}, name, lbType, rg string, subnets *schema.Set, isPublic, isLogging bool, securityGroups *schema.Set) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	options := &vpcv1.CreateLoadBalancerOptions{
@@ -488,7 +491,7 @@ func lbCreate(d *schema.ResourceData, meta interface{}, name, lbType, rg string,
 	return nil
 }
 
-func resourceIBMISLBRead(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISLBRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	id := d.Id()
 
 	err := lbGet(d, meta, id)
@@ -502,7 +505,9 @@ func resourceIBMISLBRead(d *schema.ResourceData, meta interface{}) error {
 func lbGet(d *schema.ResourceData, meta interface{}, id string) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	getLoadBalancerOptions := &vpcv1.GetLoadBalancerOptions{
 		ID: &id,
@@ -644,7 +649,7 @@ func lbGet(d *schema.ResourceData, meta interface{}, id string) error {
 	return nil
 }
 
-func resourceIBMISLBUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISLBUpdate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	id := d.Id()
 	name := ""
@@ -682,7 +687,9 @@ func resourceIBMISLBUpdate(d *schema.ResourceData, meta interface{}) error {
 func lbUpdate(d *schema.ResourceData, meta interface{}, id, name string, hasChanged bool, isLogging bool, hasChangedLog bool, hasChangedSecurityGroups bool, remove, add []string) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	if d.HasChange(isLBTags) || d.HasChange(isLBAccessTags) {
 		getLoadBalancerOptions := &vpcv1.GetLoadBalancerOptions{
@@ -876,7 +883,7 @@ func lbUpdate(d *schema.ResourceData, meta interface{}, id, name string, hasChan
 	return nil
 }
 
-func resourceIBMISLBDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISLBDelete(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	id := d.Id()
 
 	err := lbDelete(d, meta, id)
@@ -891,7 +898,9 @@ func resourceIBMISLBDelete(d *schema.ResourceData, meta interface{}) error {
 func lbDelete(d *schema.ResourceData, meta interface{}, id string) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	getLoadBalancerOptions := &vpcv1.GetLoadBalancerOptions{

@@ -14,6 +14,7 @@ import (
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/validate"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -57,12 +58,12 @@ const (
 
 func ResourceIBMSnapshot() *schema.Resource {
 	return &schema.Resource{
-		Create:   resourceIBMISSnapshotCreate,
-		Read:     resourceIBMISSnapshotRead,
-		Update:   resourceIBMISSnapshotUpdate,
-		Delete:   resourceIBMISSnapshotDelete,
-		Exists:   resourceIBMISSnapshotExists,
-		Importer: &schema.ResourceImporter{},
+		CreateContext: resourceIBMISSnapshotCreate,
+		ReadContext:   resourceIBMISSnapshotRead,
+		UpdateContext: resourceIBMISSnapshotUpdate,
+		DeleteContext: resourceIBMISSnapshotDelete,
+		Exists:        resourceIBMISSnapshotExists,
+		Importer:      &schema.ResourceImporter{},
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(10 * time.Minute),
@@ -510,10 +511,12 @@ func ResourceIBMISSnapshotValidator() *validate.ResourceValidator {
 	return &ibmISSnapshotResourceValidator
 }
 
-func resourceIBMISSnapshotCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISSnapshotCreate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	snapbyVolFlag := false
 	options := &vpcv1.CreateSnapshotOptions{}
@@ -676,7 +679,7 @@ func isSnapshotRefreshFunc(sess *vpcv1.VpcV1, id string) resource.StateRefreshFu
 	}
 }
 
-func resourceIBMISSnapshotRead(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISSnapshotRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	id := d.Id()
 	err := snapshotGet(d, meta, id)
 	if err != nil {
@@ -688,7 +691,9 @@ func resourceIBMISSnapshotRead(d *schema.ResourceData, meta interface{}) error {
 func snapshotGet(d *schema.ResourceData, meta interface{}, id string) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	getSnapshotOptions := &vpcv1.GetSnapshotOptions{
 		ID: &id,
@@ -847,7 +852,7 @@ func snapshotGet(d *schema.ResourceData, meta interface{}, id string) error {
 	return nil
 }
 
-func resourceIBMISSnapshotUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISSnapshotUpdate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	id := d.Id()
 
 	name := ""
@@ -867,7 +872,9 @@ func resourceIBMISSnapshotUpdate(d *schema.ResourceData, meta interface{}) error
 func snapshotUpdate(d *schema.ResourceData, meta interface{}, id, name string, hasChanged bool) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	getSnapshotOptions := &vpcv1.GetSnapshotOptions{
@@ -1102,7 +1109,7 @@ func isWaitForCloneDeleted(sess *vpcv1.VpcV1, d *schema.ResourceData, id, zoneNa
 	return stateConf.WaitForState()
 }
 
-func resourceIBMISSnapshotDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISSnapshotDelete(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	id := d.Id()
 	err := snapshotDelete(d, meta, id)
 	if err != nil {
@@ -1115,7 +1122,9 @@ func resourceIBMISSnapshotDelete(d *schema.ResourceData, meta interface{}) error
 func snapshotDelete(d *schema.ResourceData, meta interface{}, id string) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	getSnapshotOptions := &vpcv1.GetSnapshotOptions{

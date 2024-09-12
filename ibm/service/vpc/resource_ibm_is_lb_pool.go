@@ -13,6 +13,7 @@ import (
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/validate"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -46,12 +47,12 @@ const (
 
 func ResourceIBMISLBPool() *schema.Resource {
 	return &schema.Resource{
-		Create:   resourceIBMISLBPoolCreate,
-		Read:     resourceIBMISLBPoolRead,
-		Update:   resourceIBMISLBPoolUpdate,
-		Delete:   resourceIBMISLBPoolDelete,
-		Exists:   resourceIBMISLBPoolExists,
-		Importer: &schema.ResourceImporter{},
+		CreateContext: resourceIBMISLBPoolCreate,
+		ReadContext:   resourceIBMISLBPoolRead,
+		UpdateContext: resourceIBMISLBPoolUpdate,
+		DeleteContext: resourceIBMISLBPoolDelete,
+		Exists:        resourceIBMISLBPoolExists,
+		Importer:      &schema.ResourceImporter{},
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(10 * time.Minute),
@@ -247,7 +248,7 @@ func ResourceIBMISLBPoolValidator() *validate.ResourceValidator {
 	return &ibmISLBPoolResourceValidator
 }
 
-func resourceIBMISLBPoolCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISLBPoolCreate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	log.Printf("[DEBUG] LB Pool create")
 	name := d.Get(isLBPoolName).(string)
@@ -294,7 +295,9 @@ func resourceIBMISLBPoolCreate(d *schema.ResourceData, meta interface{}) error {
 func lbPoolCreate(d *schema.ResourceData, meta interface{}, name, lbID, algorithm, protocol, healthType, spType, cName, healthMonitorURL, pProtocol string, healthDelay, maxRetries, healthTimeOut, healthMonitorPort int64) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	_, err = isWaitForLBAvailable(sess, lbID, d.Timeout(schema.TimeoutCreate))
@@ -352,7 +355,7 @@ func lbPoolCreate(d *schema.ResourceData, meta interface{}, name, lbID, algorith
 	return nil
 }
 
-func resourceIBMISLBPoolRead(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISLBPoolRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	parts, err := flex.IdParts(d.Id())
 	if err != nil {
@@ -373,7 +376,9 @@ func resourceIBMISLBPoolRead(d *schema.ResourceData, meta interface{}) error {
 func lbPoolGet(d *schema.ResourceData, meta interface{}, lbID, lbPoolID string) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	getLoadBalancerPoolOptions := &vpcv1.GetLoadBalancerPoolOptions{
 		LoadBalancerID: &lbID,
@@ -435,7 +440,7 @@ func lbPoolGet(d *schema.ResourceData, meta interface{}, lbID, lbPoolID string) 
 	return nil
 }
 
-func resourceIBMISLBPoolUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISLBPoolUpdate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	parts, err := flex.IdParts(d.Id())
 	if err != nil {
@@ -456,7 +461,9 @@ func resourceIBMISLBPoolUpdate(d *schema.ResourceData, meta interface{}) error {
 func lbPoolUpdate(d *schema.ResourceData, meta interface{}, lbID, lbPoolID string) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	hasChanged := false
@@ -576,7 +583,7 @@ func lbPoolUpdate(d *schema.ResourceData, meta interface{}, lbID, lbPoolID strin
 	return nil
 }
 
-func resourceIBMISLBPoolDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISLBPoolDelete(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	parts, err := flex.IdParts(d.Id())
 	if err != nil {
@@ -601,7 +608,9 @@ func resourceIBMISLBPoolDelete(d *schema.ResourceData, meta interface{}) error {
 func lbPoolDelete(d *schema.ResourceData, meta interface{}, lbID, lbPoolID string) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	getLoadBalancerPoolOptions := &vpcv1.GetLoadBalancerPoolOptions{
 		LoadBalancerID: &lbID,

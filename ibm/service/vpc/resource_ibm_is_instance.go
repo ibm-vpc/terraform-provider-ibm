@@ -16,6 +16,7 @@ import (
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/validate"
 	"github.com/IBM/go-sdk-core/v5/core"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -132,11 +133,11 @@ const (
 
 func ResourceIBMISInstance() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceIBMisInstanceCreate,
-		Read:   resourceIBMisInstanceRead,
-		Update: resourceIBMisInstanceUpdate,
-		Delete: resourceIBMisInstanceDelete,
-		Exists: resourceIBMisInstanceExists,
+		CreateContext: resourceIBMisInstanceCreate,
+		ReadContext:   resourceIBMisInstanceRead,
+		UpdateContext: resourceIBMisInstanceUpdate,
+		DeleteContext: resourceIBMisInstanceDelete,
+		Exists:        resourceIBMisInstanceExists,
 		Importer: &schema.ResourceImporter{
 			State: func(d *schema.ResourceData, meta interface{}) (result []*schema.ResourceData, err error) {
 				log.Printf("[INFO] Instance (%s) importing", d.Id())
@@ -1768,7 +1769,9 @@ func ResourceIBMISInstanceValidator() *validate.ResourceValidator {
 func instanceCreateByImage(d *schema.ResourceData, meta interface{}, profile, name, vpcID, zone, image string) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	instanceproto := &vpcv1.InstancePrototype{
 		Image: &vpcv1.ImageIdentity{
@@ -2200,7 +2203,9 @@ func instanceCreateByImage(d *schema.ResourceData, meta interface{}, profile, na
 func instanceCreateByCatalogOffering(d *schema.ResourceData, meta interface{}, profile, name, vpcID, zone, image, offerringCrn, versionCrn, planCrn string) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	instanceproto := &vpcv1.InstancePrototypeInstanceByCatalogOffering{
 		Zone: &vpcv1.ZoneIdentity{
@@ -2642,7 +2647,9 @@ func instanceCreateByCatalogOffering(d *schema.ResourceData, meta interface{}, p
 func instanceCreateByTemplate(d *schema.ResourceData, meta interface{}, profile, name, vpcID, zone, image, template string) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	instanceproto := &vpcv1.InstancePrototypeInstanceBySourceTemplate{
 		SourceTemplate: &vpcv1.InstanceTemplateIdentity{
@@ -3078,7 +3085,9 @@ func instanceCreateByTemplate(d *schema.ResourceData, meta interface{}, profile,
 func instanceCreateBySnapshot(d *schema.ResourceData, meta interface{}, profile, name, vpcID, zone string) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	instanceproto := &vpcv1.InstancePrototypeInstanceBySourceSnapshot{
 		Zone: &vpcv1.ZoneIdentity{
@@ -3518,7 +3527,9 @@ func instanceCreateBySnapshot(d *schema.ResourceData, meta interface{}, profile,
 func instanceCreateByVolume(d *schema.ResourceData, meta interface{}, profile, name, vpcID, zone string) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	instanceproto := &vpcv1.InstancePrototypeInstanceByVolume{
 		Zone: &vpcv1.ZoneIdentity{
@@ -3915,7 +3926,7 @@ func instanceCreateByVolume(d *schema.ResourceData, meta interface{}, profile, n
 	return nil
 }
 
-func resourceIBMisInstanceCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMisInstanceCreate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	profile := d.Get(isInstanceProfile).(string)
 	name := d.Get(isInstanceName).(string)
@@ -4076,7 +4087,7 @@ func isRestartStartAction(instanceC *vpcv1.VpcV1, id string, d *schema.ResourceD
 		}
 	}
 }
-func resourceIBMisInstanceRead(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMisInstanceRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	ID := d.Id()
 
@@ -4575,7 +4586,7 @@ func instanceGet(d *schema.ResourceData, meta interface{}, id string) error {
 	return nil
 }
 
-func instanceUpdate(d *schema.ResourceData, meta interface{}) error {
+func instanceUpdate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	instanceC, err := vpcClient(meta)
 	if err != nil {
 		return err
@@ -5941,7 +5952,7 @@ func instanceUpdate(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 
-func resourceIBMisInstanceUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMisInstanceUpdate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	err := instanceUpdate(d, meta)
 	if err != nil {
@@ -6041,7 +6052,7 @@ func instanceDelete(d *schema.ResourceData, meta interface{}, id string) error {
 	return nil
 }
 
-func resourceIBMisInstanceDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMisInstanceDelete(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	id := d.Id()
 	err := instanceDelete(d, meta, id)

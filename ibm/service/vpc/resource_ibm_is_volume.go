@@ -14,6 +14,7 @@ import (
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/validate"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -59,12 +60,12 @@ const (
 
 func ResourceIBMISVolume() *schema.Resource {
 	return &schema.Resource{
-		Create:   resourceIBMISVolumeCreate,
-		Read:     resourceIBMISVolumeRead,
-		Update:   resourceIBMISVolumeUpdate,
-		Delete:   resourceIBMISVolumeDelete,
-		Exists:   resourceIBMISVolumeExists,
-		Importer: &schema.ResourceImporter{},
+		CreateContext: resourceIBMISVolumeCreate,
+		ReadContext:   resourceIBMISVolumeRead,
+		UpdateContext: resourceIBMISVolumeUpdate,
+		DeleteContext: resourceIBMISVolumeDelete,
+		Exists:        resourceIBMISVolumeExists,
+		Importer:      &schema.ResourceImporter{},
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(10 * time.Minute),
@@ -440,7 +441,7 @@ func ResourceIBMISVolumeValidator() *validate.ResourceValidator {
 	return &ibmISVolumeResourceValidator
 }
 
-func resourceIBMISVolumeCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISVolumeCreate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	volName := d.Get(isVolumeName).(string)
 	profile := d.Get(isVolumeProfileName).(string)
@@ -457,7 +458,9 @@ func resourceIBMISVolumeCreate(d *schema.ResourceData, meta interface{}) error {
 func volCreate(d *schema.ResourceData, meta interface{}, volName, profile, zone string) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	options := &vpcv1.CreateVolumeOptions{
 		VolumePrototype: &vpcv1.VolumePrototype{
@@ -595,7 +598,7 @@ func volCreate(d *schema.ResourceData, meta interface{}, volName, profile, zone 
 	return nil
 }
 
-func resourceIBMISVolumeRead(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISVolumeRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	id := d.Id()
 	err := volGet(d, meta, id)
@@ -608,7 +611,9 @@ func resourceIBMISVolumeRead(d *schema.ResourceData, meta interface{}) error {
 func volGet(d *schema.ResourceData, meta interface{}, id string) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	options := &vpcv1.GetVolumeOptions{
 		ID: &id,
@@ -733,7 +738,7 @@ func volGet(d *schema.ResourceData, meta interface{}, id string) error {
 	return nil
 }
 
-func resourceIBMISVolumeUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISVolumeUpdate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	id := d.Id()
 	name := ""
@@ -759,7 +764,9 @@ func resourceIBMISVolumeUpdate(d *schema.ResourceData, meta interface{}) error {
 func volUpdate(d *schema.ResourceData, meta interface{}, id, name string, hasNameChanged, delete bool) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	var capacity int64
 	if delete {
@@ -979,7 +986,7 @@ func volUpdate(d *schema.ResourceData, meta interface{}, id, name string, hasNam
 	return nil
 }
 
-func resourceIBMISVolumeDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISVolumeDelete(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	id := d.Id()
 
 	err := volDelete(d, meta, id)
@@ -992,7 +999,9 @@ func resourceIBMISVolumeDelete(d *schema.ResourceData, meta interface{}) error {
 func volDelete(d *schema.ResourceData, meta interface{}, id string) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	getvoloptions := &vpcv1.GetVolumeOptions{

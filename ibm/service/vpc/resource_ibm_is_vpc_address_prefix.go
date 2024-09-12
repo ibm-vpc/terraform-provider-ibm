@@ -4,12 +4,15 @@
 package vpc
 
 import (
+	"context"
 	"fmt"
+	"log"
 
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/conns"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/validate"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -25,12 +28,12 @@ const (
 
 func ResourceIBMISVpcAddressPrefix() *schema.Resource {
 	return &schema.Resource{
-		Create:   resourceIBMISVpcAddressPrefixCreate,
-		Read:     resourceIBMISVpcAddressPrefixRead,
-		Update:   resourceIBMISVpcAddressPrefixUpdate,
-		Delete:   resourceIBMISVpcAddressPrefixDelete,
-		Exists:   resourceIBMISVpcAddressPrefixExists,
-		Importer: &schema.ResourceImporter{},
+		CreateContext: resourceIBMISVpcAddressPrefixCreate,
+		ReadContext:   resourceIBMISVpcAddressPrefixRead,
+		UpdateContext: resourceIBMISVpcAddressPrefixUpdate,
+		DeleteContext: resourceIBMISVpcAddressPrefixDelete,
+		Exists:        resourceIBMISVpcAddressPrefixExists,
+		Importer:      &schema.ResourceImporter{},
 
 		Schema: map[string]*schema.Schema{
 			isVPCAddressPrefixPrefixName: {
@@ -113,7 +116,7 @@ func ResourceIBMISAddressPrefixValidator() *validate.ResourceValidator {
 	return &ibmISAddressPrefixResourceValidator
 }
 
-func resourceIBMISVpcAddressPrefixCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISVpcAddressPrefixCreate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	isDefault := false
 	prefixName := d.Get(isVPCAddressPrefixPrefixName).(string)
@@ -138,7 +141,9 @@ func resourceIBMISVpcAddressPrefixCreate(d *schema.ResourceData, meta interface{
 func vpcAddressPrefixCreate(d *schema.ResourceData, meta interface{}, name, zone, cidr, vpcID string, isDefault bool) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	options := &vpcv1.CreateVPCAddressPrefixOptions{
 		Name:      &name,
@@ -160,7 +165,7 @@ func vpcAddressPrefixCreate(d *schema.ResourceData, meta interface{}, name, zone
 	return nil
 }
 
-func resourceIBMISVpcAddressPrefixRead(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISVpcAddressPrefixRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	parts, err := flex.IdParts(d.Id())
 	if err != nil {
 		return err
@@ -179,7 +184,9 @@ func resourceIBMISVpcAddressPrefixRead(d *schema.ResourceData, meta interface{})
 func vpcAddressPrefixGet(d *schema.ResourceData, meta interface{}, vpcID, addrPrefixID string) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	getvpcAddressPrefixOptions := &vpcv1.GetVPCAddressPrefixOptions{
 		VPCID: &vpcID,
@@ -214,7 +221,7 @@ func vpcAddressPrefixGet(d *schema.ResourceData, meta interface{}, vpcID, addrPr
 	return nil
 }
 
-func resourceIBMISVpcAddressPrefixUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISVpcAddressPrefixUpdate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	name := ""
 	isDefault := false
@@ -251,7 +258,9 @@ func resourceIBMISVpcAddressPrefixUpdate(d *schema.ResourceData, meta interface{
 func vpcAddressPrefixUpdate(d *schema.ResourceData, meta interface{}, vpcID, addrPrefixID, name string, isDefault, hasNameChanged, hasIsDefaultChanged bool) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	if hasNameChanged || hasIsDefaultChanged {
 		updatevpcAddressPrefixoptions := &vpcv1.UpdateVPCAddressPrefixOptions{
@@ -279,7 +288,7 @@ func vpcAddressPrefixUpdate(d *schema.ResourceData, meta interface{}, vpcID, add
 	return nil
 }
 
-func resourceIBMISVpcAddressPrefixDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISVpcAddressPrefixDelete(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	parts, err := flex.IdParts(d.Id())
 	if err != nil {
@@ -304,7 +313,9 @@ func resourceIBMISVpcAddressPrefixDelete(d *schema.ResourceData, meta interface{
 func vpcAddressPrefixDelete(d *schema.ResourceData, meta interface{}, vpcID, addrPrefixID string) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	getvpcAddressPrefixOptions := &vpcv1.GetVPCAddressPrefixOptions{

@@ -14,6 +14,7 @@ import (
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/validate"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
 	"github.com/go-openapi/strfmt"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -53,12 +54,12 @@ const (
 
 func ResourceIBMISImage() *schema.Resource {
 	return &schema.Resource{
-		Create:   resourceIBMISImageCreate,
-		Read:     resourceIBMISImageRead,
-		Update:   resourceIBMISImageUpdate,
-		Delete:   resourceIBMISImageDelete,
-		Exists:   resourceIBMISImageExists,
-		Importer: &schema.ResourceImporter{},
+		CreateContext: resourceIBMISImageCreate,
+		ReadContext:   resourceIBMISImageRead,
+		UpdateContext: resourceIBMISImageUpdate,
+		DeleteContext: resourceIBMISImageDelete,
+		Exists:        resourceIBMISImageExists,
+		Importer:      &schema.ResourceImporter{},
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(10 * time.Minute),
@@ -293,7 +294,7 @@ func ResourceIBMISImageValidator() *validate.ResourceValidator {
 	return &ibmISImageResourceValidator
 }
 
-func resourceIBMISImageCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISImageCreate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	log.Printf("[DEBUG] Image create")
 	href := d.Get(isImageHref).(string)
@@ -319,7 +320,9 @@ func resourceIBMISImageCreate(d *schema.ResourceData, meta interface{}) error {
 func imgCreateByFile(d *schema.ResourceData, meta interface{}, href, name, operatingSystem string) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr
 	}
 	imagePrototype := &vpcv1.ImagePrototypeImageByFile{
 		Name: &name,
@@ -396,7 +399,9 @@ func imgCreateByFile(d *schema.ResourceData, meta interface{}, href, name, opera
 func imgCreateByVolume(d *schema.ResourceData, meta interface{}, name, volume string) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	imagePrototype := &vpcv1.ImagePrototypeImageBySourceVolume{
 		Name: &name,
@@ -541,7 +546,7 @@ func isImageRefreshFunc(imageC *vpcv1.VpcV1, id string) resource.StateRefreshFun
 	}
 }
 
-func resourceIBMISImageUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISImageUpdate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	id := d.Id()
 	name := ""
@@ -562,7 +567,9 @@ func resourceIBMISImageUpdate(d *schema.ResourceData, meta interface{}) error {
 func imgUpdate(d *schema.ResourceData, meta interface{}, id, name string, hasNameChanged bool) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	if d.HasChange(isImageDeprecate) && !d.IsNewResource() {
 		deprecateTrue := d.Get(isImageDeprecate).(bool)
@@ -680,7 +687,7 @@ func imgUpdate(d *schema.ResourceData, meta interface{}, id, name string, hasNam
 	return nil
 }
 
-func resourceIBMISImageRead(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISImageRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	id := d.Id()
 	err := imgGet(d, meta, id)
@@ -693,7 +700,9 @@ func resourceIBMISImageRead(d *schema.ResourceData, meta interface{}) error {
 func imgGet(d *schema.ResourceData, meta interface{}, id string) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	options := &vpcv1.GetImageOptions{
 		ID: &id,
@@ -778,7 +787,7 @@ func imgGet(d *schema.ResourceData, meta interface{}, id string) error {
 	return nil
 }
 
-func resourceIBMISImageDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISImageDelete(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	id := d.Id()
 	err := imgDelete(d, meta, id)
@@ -791,7 +800,9 @@ func resourceIBMISImageDelete(d *schema.ResourceData, meta interface{}) error {
 func imgDelete(d *schema.ResourceData, meta interface{}, id string) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	getImageOptions := &vpcv1.GetImageOptions{
 		ID: &id,

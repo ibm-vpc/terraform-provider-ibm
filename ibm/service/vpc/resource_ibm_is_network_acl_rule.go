@@ -13,6 +13,7 @@ import (
 
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/validate"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 
 	"github.com/IBM/vpc-go-sdk/vpcv1"
@@ -27,11 +28,11 @@ const (
 
 func ResourceIBMISNetworkACLRule() *schema.Resource {
 	return &schema.Resource{
-		Create:   resourceIBMISNetworkACLRuleCreate,
-		Read:     resourceIBMISNetworkACLRuleRead,
-		Update:   resourceIBMISNetworkACLRuleUpdate,
-		Delete:   resourceIBMISNetworkACLRuleDelete,
-		Importer: &schema.ResourceImporter{},
+		CreateContext: resourceIBMISNetworkACLRuleCreate,
+		ReadContext:   resourceIBMISNetworkACLRuleRead,
+		UpdateContext: resourceIBMISNetworkACLRuleUpdate,
+		DeleteContext: resourceIBMISNetworkACLRuleDelete,
+		Importer:      &schema.ResourceImporter{},
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(10 * time.Minute),
@@ -328,7 +329,7 @@ func ResourceIBMISNetworkACLRuleValidator() *validate.ResourceValidator {
 	return &ibmISNetworkACLRuleResourceValidator
 }
 
-func resourceIBMISNetworkACLRuleCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISNetworkACLRuleCreate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	nwACLID := d.Get(isNwACLID).(string)
 
 	err := nwaclRuleCreate(d, meta, nwACLID)
@@ -342,7 +343,9 @@ func resourceIBMISNetworkACLRuleCreate(d *schema.ResourceData, meta interface{})
 func nwaclRuleCreate(d *schema.ResourceData, meta interface{}, nwACLID string) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	action := d.Get(isNetworkACLRuleAction).(string)
@@ -452,14 +455,16 @@ func nwaclRuleCreate(d *schema.ResourceData, meta interface{}, nwACLID string) e
 	return nil
 }
 
-func resourceIBMISNetworkACLRuleRead(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISNetworkACLRuleRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	nwACLID, ruleId, err := parseNwACLTerraformID(d.Id())
 	if err != nil {
 		return err
 	}
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	getNetworkAclRuleOptions := &vpcv1.GetNetworkACLRuleOptions{
 		NetworkACLID: &nwACLID,
@@ -576,7 +581,7 @@ func nwaclRuleGet(d *schema.ResourceData, meta interface{}, nwACLID string, nwac
 	return nil
 }
 
-func resourceIBMISNetworkACLRuleUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISNetworkACLRuleUpdate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	id := d.Id()
 	nwACLId, ruleId, err := parseNwACLTerraformID(id)
 
@@ -590,7 +595,9 @@ func resourceIBMISNetworkACLRuleUpdate(d *schema.ResourceData, meta interface{})
 func nwaclRuleUpdate(d *schema.ResourceData, meta interface{}, id, nwACLId string) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	updateNetworkACLRuleOptions := &vpcv1.UpdateNetworkACLRuleOptions{
 		NetworkACLID: &nwACLId,
@@ -758,7 +765,7 @@ func nwaclRuleUpdate(d *schema.ResourceData, meta interface{}, id, nwACLId strin
 	return nil
 }
 
-func resourceIBMISNetworkACLRuleDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISNetworkACLRuleDelete(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	nwACLID, ruleId, err := parseNwACLTerraformID(d.Id())
 	if err != nil {
 		return err
@@ -775,7 +782,9 @@ func resourceIBMISNetworkACLRuleDelete(d *schema.ResourceData, meta interface{})
 func nwaclRuleDelete(d *schema.ResourceData, meta interface{}, id, nwACLId string) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	getNetworkAclRuleOptions := &vpcv1.GetNetworkACLRuleOptions{

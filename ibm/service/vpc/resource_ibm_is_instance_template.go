@@ -16,6 +16,7 @@ import (
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/validate"
 	"github.com/IBM/go-sdk-core/v5/core"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -73,12 +74,12 @@ const (
 
 func ResourceIBMISInstanceTemplate() *schema.Resource {
 	return &schema.Resource{
-		Create:   resourceIBMisInstanceTemplateCreate,
-		Read:     resourceIBMisInstanceTemplateRead,
-		Update:   resourceIBMisInstanceTemplateUpdate,
-		Delete:   resourceIBMisInstanceTemplateDelete,
-		Exists:   resourceIBMisInstanceTemplateExists,
-		Importer: &schema.ResourceImporter{},
+		CreateContext: resourceIBMisInstanceTemplateCreate,
+		ReadContext:   resourceIBMisInstanceTemplateRead,
+		UpdateContext: resourceIBMisInstanceTemplateUpdate,
+		DeleteContext: resourceIBMisInstanceTemplateDelete,
+		Exists:        resourceIBMisInstanceTemplateExists,
+		Importer:      &schema.ResourceImporter{},
 
 		CustomizeDiff: customdiff.All(
 			customdiff.Sequence(
@@ -1197,7 +1198,7 @@ func ResourceIBMISInstanceTemplateValidator() *validate.ResourceValidator {
 	return &ibmISInstanceTemplateValidator
 }
 
-func resourceIBMisInstanceTemplateCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMisInstanceTemplateCreate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	profile := d.Get(isInstanceTemplateProfile).(string)
 	name := d.Get(isInstanceTemplateName).(string)
 	vpcID := d.Get(isInstanceTemplateVPC).(string)
@@ -1223,7 +1224,7 @@ func resourceIBMisInstanceTemplateCreate(d *schema.ResourceData, meta interface{
 	return resourceIBMisInstanceTemplateRead(d, meta)
 }
 
-func resourceIBMisInstanceTemplateRead(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMisInstanceTemplateRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	ID := d.Id()
 	err := instanceTemplateGet(d, meta, ID)
 	if err != nil {
@@ -1232,7 +1233,7 @@ func resourceIBMisInstanceTemplateRead(d *schema.ResourceData, meta interface{})
 	return nil
 }
 
-func resourceIBMisInstanceTemplateDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMisInstanceTemplateDelete(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	ID := d.Id()
 
@@ -1243,7 +1244,7 @@ func resourceIBMisInstanceTemplateDelete(d *schema.ResourceData, meta interface{
 	return nil
 }
 
-func resourceIBMisInstanceTemplateUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMisInstanceTemplateUpdate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	err := instanceTemplateUpdate(d, meta)
 	if err != nil {
@@ -1264,7 +1265,9 @@ func resourceIBMisInstanceTemplateExists(d *schema.ResourceData, meta interface{
 func instanceTemplateCreateByCatalogOffering(d *schema.ResourceData, meta interface{}, profile, name, vpcID, zone, offeringCrn, versionCrn, planCrn string) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	instanceproto := &vpcv1.InstanceTemplatePrototypeInstanceTemplateByCatalogOffering{
@@ -1748,7 +1751,9 @@ func instanceTemplateCreateByCatalogOffering(d *schema.ResourceData, meta interf
 func instanceTemplateCreate(d *schema.ResourceData, meta interface{}, profile, name, vpcID, zone, image string) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	instanceproto := &vpcv1.InstanceTemplatePrototype{
 		Image: &vpcv1.ImageIdentity{
@@ -2588,7 +2593,7 @@ func resourceIbmIsInstanceTemplateInstancePlacementTargetPrototypeToMap(instance
 	return instancePlacementTargetPrototypeMap
 }
 
-func instanceTemplateUpdate(d *schema.ResourceData, meta interface{}) error {
+func instanceTemplateUpdate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	instanceC, err := vpcClient(meta)
 	if err != nil {
 		return err

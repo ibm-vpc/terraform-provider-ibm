@@ -15,6 +15,7 @@ import (
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/validate"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -38,12 +39,12 @@ const (
 
 func ResourceIBMISInstanceVolumeAttachment() *schema.Resource {
 	return &schema.Resource{
-		Create:   resourceIBMisInstanceVolumeAttachmentCreate,
-		Read:     resourceIBMisInstanceVolumeAttachmentRead,
-		Update:   resourceIBMisInstanceVolumeAttachmentUpdate,
-		Delete:   resourceIBMisInstanceVolumeAttachmentDelete,
-		Exists:   resourceIBMisInstanceVolumeAttachmentExists,
-		Importer: &schema.ResourceImporter{},
+		CreateContext: resourceIBMisInstanceVolumeAttachmentCreate,
+		ReadContext:   resourceIBMisInstanceVolumeAttachmentRead,
+		UpdateContext: resourceIBMisInstanceVolumeAttachmentUpdate,
+		DeleteContext: resourceIBMisInstanceVolumeAttachmentDelete,
+		Exists:        resourceIBMisInstanceVolumeAttachmentExists,
+		Importer:      &schema.ResourceImporter{},
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(10 * time.Minute),
@@ -282,7 +283,9 @@ func ResourceIBMISInstanceVolumeAttachmentValidator() *validate.ResourceValidato
 func instanceVolAttachmentCreate(d *schema.ResourceData, meta interface{}, instanceId string) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	instanceVolAttproto := &vpcv1.CreateInstanceVolumeAttachmentOptions{
@@ -426,7 +429,7 @@ func instanceVolAttachmentCreate(d *schema.ResourceData, meta interface{}, insta
 	return nil
 }
 
-func resourceIBMisInstanceVolumeAttachmentCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMisInstanceVolumeAttachmentCreate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	instanceId := d.Get(isInstanceId).(string)
 	err := instanceVolAttachmentCreate(d, meta, instanceId)
 	if err != nil {
@@ -435,7 +438,7 @@ func resourceIBMisInstanceVolumeAttachmentCreate(d *schema.ResourceData, meta in
 	return resourceIBMisInstanceVolumeAttachmentRead(d, meta)
 }
 
-func resourceIBMisInstanceVolumeAttachmentRead(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMisInstanceVolumeAttachmentRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	instanceID, id, err := parseVolAttTerraformID(d.Id())
 	if err != nil {
 		return err
@@ -516,7 +519,7 @@ func instanceVolumeAttachmentGet(d *schema.ResourceData, meta interface{}, insta
 	return nil
 }
 
-func instanceVolAttUpdate(d *schema.ResourceData, meta interface{}) error {
+func instanceVolAttUpdate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	instanceC, err := vpcClient(meta)
 	if err != nil {
 		return err
@@ -739,7 +742,7 @@ func instanceVolAttUpdate(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 
-func resourceIBMisInstanceVolumeAttachmentUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMisInstanceVolumeAttachmentUpdate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	err := instanceVolAttUpdate(d, meta)
 	if err != nil {
@@ -788,7 +791,7 @@ func instanceVolAttDelete(d *schema.ResourceData, meta interface{}, instanceId, 
 	return nil
 }
 
-func resourceIBMisInstanceVolumeAttachmentDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMisInstanceVolumeAttachmentDelete(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	instanceId, id, err := parseVolAttTerraformID(d.Id())
 	if err != nil {
 		return err
