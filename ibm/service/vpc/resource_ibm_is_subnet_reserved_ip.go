@@ -195,7 +195,9 @@ func resourceIBMISReservedIPCreate(context context.Context, d *schema.ResourceDa
 func resourceIBMISReservedIPRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	rip, err := get(d, meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_subnet_reserved_ip", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	allIDs, err := flex.IdParts(d.Id())
@@ -269,12 +271,16 @@ func resourceIBMISReservedIPUpdate(context context.Context, d *schema.ResourceDa
 	if nameChanged || autoDeleteChanged {
 		sess, err := vpcClient(meta)
 		if err != nil {
-			return err
+			tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_subnet_reserved_ip", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 		}
 
 		allIDs, err := flex.IdParts(d.Id())
 		if err != nil {
-			return err
+			tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_subnet_reserved_ip", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 		}
 		subnetID := allIDs[0]
 		reservedIPID := allIDs[1]
@@ -320,7 +326,9 @@ func resourceIBMISReservedIPDelete(context context.Context, d *schema.ResourceDa
 
 	rip, err := get(d, meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_subnet_reserved_ip", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	if err == nil && rip == nil {
 		// If there is no such reserved IP, it can not be deleted
@@ -335,7 +343,9 @@ func resourceIBMISReservedIPDelete(context context.Context, d *schema.ResourceDa
 	}
 	allIDs, err := flex.IdParts(d.Id())
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_subnet_reserved_ip", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	subnetID := allIDs[0]
 	reservedIPID := allIDs[1]

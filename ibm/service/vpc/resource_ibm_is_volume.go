@@ -449,7 +449,9 @@ func resourceIBMISVolumeCreate(context context.Context, d *schema.ResourceData, 
 
 	err := volCreate(d, meta, volName, profile, zone)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_volume", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	return resourceIBMISVolumeRead(d, meta)
@@ -584,7 +586,9 @@ func volCreate(d *schema.ResourceData, meta interface{}, volName, profile, zone 
 	log.Printf("[INFO] Volume : %s", *vol.ID)
 	_, err = isWaitForVolumeAvailable(sess, d.Id(), d.Timeout(schema.TimeoutCreate))
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_volume", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	if _, ok := d.GetOk(isVolumeAccessTags); ok {
@@ -603,7 +607,9 @@ func resourceIBMISVolumeRead(context context.Context, d *schema.ResourceData, me
 	id := d.Id()
 	err := volGet(d, meta, id)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_volume", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	return nil
 }
@@ -719,7 +725,9 @@ func volGet(d *schema.ResourceData, meta interface{}, id string) error {
 	d.Set(isVolumeCatalogOffering, catalogList)
 	controller, err := flex.GetBaseController(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_volume", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	d.Set(flex.ResourceControllerURL, controller+"/vpc-ext/storage/storageVolumes")
 	d.Set(flex.ResourceName, *vol.Name)
@@ -756,7 +764,9 @@ func resourceIBMISVolumeUpdate(context context.Context, d *schema.ResourceData, 
 
 	err := volUpdate(d, meta, id, name, hasNameChanged, delete)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_volume", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	return resourceIBMISVolumeRead(d, meta)
 }
@@ -819,7 +829,9 @@ func volUpdate(d *schema.ResourceData, meta interface{}, id, name string, hasNam
 		_, _, err = sess.UpdateVolume(options)
 		_, err = isWaitForVolumeAvailable(sess, d.Id(), d.Timeout(schema.TimeoutCreate))
 		if err != nil {
-			return err
+			tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_volume", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 		}
 	}
 
@@ -858,7 +870,9 @@ func volUpdate(d *schema.ResourceData, meta interface{}, id, name string, hasNam
 			}
 			_, err = isWaitForInstanceAvailable(sess, insId, d.Timeout(schema.TimeoutCreate), d)
 			if err != nil {
-				return err
+				tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_volume", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 			}
 		}
 		if d.HasChange(isVolumeProfileName) {
@@ -883,7 +897,9 @@ func volUpdate(d *schema.ResourceData, meta interface{}, id, name string, hasNam
 		_, response, err = sess.UpdateVolume(options)
 		_, err = isWaitForVolumeAvailable(sess, d.Id(), d.Timeout(schema.TimeoutCreate))
 		if err != nil {
-			return err
+			tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_volume", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 		}
 	}
 
@@ -924,7 +940,9 @@ func volUpdate(d *schema.ResourceData, meta interface{}, id, name string, hasNam
 			}
 			_, err = isWaitForInstanceAvailable(sess, *insId, d.Timeout(schema.TimeoutCreate), d)
 			if err != nil {
-				return err
+				tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_volume", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 			}
 		}
 		capacity = int64(d.Get(isVolumeCapacity).(int))
@@ -942,7 +960,9 @@ func volUpdate(d *schema.ResourceData, meta interface{}, id, name string, hasNam
 		}
 		_, err = isWaitForVolumeAvailable(sess, d.Id(), d.Timeout(schema.TimeoutCreate))
 		if err != nil {
-			return err
+			tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_volume", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 		}
 	}
 
@@ -977,7 +997,9 @@ func volUpdate(d *schema.ResourceData, meta interface{}, id, name string, hasNam
 				}
 				_, err = isWaitForVolumeAvailable(sess, d.Id(), d.Timeout(schema.TimeoutCreate))
 				if err != nil {
-					return err
+					tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_volume", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 				}
 			}
 		}
@@ -991,7 +1013,9 @@ func resourceIBMISVolumeDelete(context context.Context, d *schema.ResourceData, 
 
 	err := volDelete(d, meta, id)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_volume", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	return nil
 }
@@ -1027,7 +1051,9 @@ func volDelete(d *schema.ResourceData, meta interface{}, id string) error {
 			}
 			_, err = isWaitForInstanceVolumeDetached(sess, d, d.Id(), *volAtt.ID)
 			if err != nil {
-				return err
+				tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_volume", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 			}
 
 		}
@@ -1042,7 +1068,9 @@ func volDelete(d *schema.ResourceData, meta interface{}, id string) error {
 	}
 	_, err = isWaitForVolumeDeleted(sess, id, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_volume", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	d.SetId("")
 	return nil

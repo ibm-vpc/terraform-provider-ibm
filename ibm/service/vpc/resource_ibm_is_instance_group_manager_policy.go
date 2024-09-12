@@ -190,7 +190,9 @@ func resourceIBMISInstanceGroupManagerPolicyUpdate(context context.Context, d *s
 	if changed {
 		parts, err := flex.IdParts(d.Id())
 		if err != nil {
-			return err
+			tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance_group_manager_policy", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 		}
 		instanceGroupID := parts[0]
 		instanceGroupManagerID := parts[1]
@@ -233,7 +235,9 @@ func resourceIBMISInstanceGroupManagerPolicyRead(context context.Context, d *sch
 
 	parts, err := flex.IdParts(d.Id())
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance_group_manager_policy", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	instanceGroupID := parts[0]
 	instanceGroupManagerID := parts[1]
@@ -273,7 +277,9 @@ func resourceIBMISInstanceGroupManagerPolicyDelete(context context.Context, d *s
 	}
 	parts, err := flex.IdParts(d.Id())
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance_group_manager_policy", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	instanceGroupID := parts[0]
 	instanceGroupManagerID := parts[1]

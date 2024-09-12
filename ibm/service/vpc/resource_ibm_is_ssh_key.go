@@ -196,7 +196,9 @@ func resourceIBMISSSHKeyCreate(context context.Context, d *schema.ResourceData, 
 
 	err := keyCreate(d, meta, name, publickey)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_ssh_key", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	return resourceIBMISSSHKeyRead(d, meta)
 }
@@ -259,7 +261,9 @@ func resourceIBMISSSHKeyRead(context context.Context, d *schema.ResourceData, me
 
 	err := keyGet(d, meta, id)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_ssh_key", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	return nil
 }
@@ -301,7 +305,9 @@ func keyGet(d *schema.ResourceData, meta interface{}, id string) error {
 	d.Set(isKeyAccessTags, accesstags)
 	controller, err := flex.GetBaseController(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_ssh_key", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	d.Set(flex.ResourceControllerURL, controller+"/vpc-ext/compute/sshKeys")
 	d.Set(flex.ResourceName, *key.Name)
@@ -327,7 +333,9 @@ func resourceIBMISSSHKeyUpdate(context context.Context, d *schema.ResourceData, 
 
 	err := keyUpdate(d, meta, id, name, hasChanged)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_ssh_key", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	return resourceIBMISSSHKeyRead(d, meta)
 }
@@ -394,7 +402,9 @@ func resourceIBMISSSHKeyDelete(context context.Context, d *schema.ResourceData, 
 
 	err := keyDelete(d, meta, id)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_ssh_key", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	return nil
 }

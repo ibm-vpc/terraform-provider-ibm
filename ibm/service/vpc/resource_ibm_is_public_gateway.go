@@ -253,7 +253,9 @@ func resourceIBMISPublicGatewayCreate(context context.Context, d *schema.Resourc
 
 	_, err = isWaitForPublicGatewayAvailable(sess, d.Id(), d.Timeout(schema.TimeoutCreate))
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_public_gateway", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	v := os.Getenv("IC_ENV_TAGS")
@@ -359,7 +361,9 @@ func resourceIBMISPublicGatewayRead(context context.Context, d *schema.ResourceD
 
 	controller, err := flex.GetBaseController(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_public_gateway", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	d.Set(flex.ResourceControllerURL, controller+"/vpc-ext/network/publicGateways")
 	d.Set(flex.ResourceName, *publicgw.Name)
@@ -479,7 +483,9 @@ func resourceIBMISPublicGatewayDelete(context context.Context, d *schema.Resourc
 					if res.StatusCode == 204 {
 						_, err = isWaitForSubnetPublicGatewayUnset(sess, *s.ID, d.Timeout(schema.TimeoutDelete))
 						if err != nil {
-							return err
+							tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_public_gateway", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 						}
 						response, err = sess.DeletePublicGateway(deletePublicGatewayOptions)
 						if err != nil {
@@ -496,7 +502,9 @@ func resourceIBMISPublicGatewayDelete(context context.Context, d *schema.Resourc
 	}
 	_, err = isWaitForPublicGatewayDeleted(sess, id, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_public_gateway", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	d.SetId("")
 	return nil

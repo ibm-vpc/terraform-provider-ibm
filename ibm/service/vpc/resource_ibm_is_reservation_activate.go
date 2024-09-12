@@ -254,7 +254,9 @@ func resourceIBMISReservationActivateRead(context context.Context, d *schema.Res
 
 	}()
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_reservation_activate", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	getReservationOptions := &vpcv1.GetReservationOptions{
 		ID: &id,

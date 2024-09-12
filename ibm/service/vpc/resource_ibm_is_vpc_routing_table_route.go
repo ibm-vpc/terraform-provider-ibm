@@ -272,7 +272,9 @@ func resourceIBMISVPCRoutingTableRouteCreate(context context.Context, d *schema.
 	route, response, err := sess.CreateVPCRoutingTableRoute(createVpcRoutingTableRouteOptions)
 	if err != nil {
 		log.Printf("[DEBUG] Create VPC Routing table route err %s\n%s", err, response)
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_vpc_routing_table_route", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	d.SetId(fmt.Sprintf("%s/%s/%s", vpcID, tableID, *route.ID))
@@ -328,7 +330,9 @@ func resourceIBMISVPCRoutingTableRouteRead(context context.Context, d *schema.Re
 		mm, err := dataSourceIBMIsRouteCreatorToMap(route.Creator)
 		if err != nil {
 			log.Printf("Error reading VPC Routing Table Routes' creator:%s", err)
-			return err
+			tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_vpc_routing_table_route", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 		}
 		creator = append(creator, mm)
 	}
@@ -395,7 +399,9 @@ func resourceIBMISVPCRoutingTableRouteUpdate(context context.Context, d *schema.
 		_, response, err := sess.UpdateVPCRoutingTableRoute(updateVpcRoutingTableRouteOptions)
 		if err != nil {
 			log.Printf("[DEBUG] Update VPC Routing table route err %s\n%s", err, response)
-			return err
+			tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_vpc_routing_table_route", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 		}
 	}
 	return resourceIBMISVPCRoutingTableRouteRead(d, meta)
@@ -414,7 +420,9 @@ func resourceIBMISVPCRoutingTableRouteDelete(context context.Context, d *schema.
 	response, err := sess.DeleteVPCRoutingTableRoute(deleteVpcRoutingTableRouteOptions)
 	if err != nil && response.StatusCode != 404 {
 		log.Printf("Error deleting VPC Routing table route : %s", response)
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_vpc_routing_table_route", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	d.SetId("")

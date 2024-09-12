@@ -569,16 +569,22 @@ func createVlanTypeNetworkInterface(context context.Context, d *schema.ResourceD
 
 	_, nicId, err := ParseNICTerraformID(d.Id())
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_bare_metal_server_network_interface", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	log.Printf("[INFO] Bare Metal Server Network Interface : %s", d.Id())
 	nicAfterWait, err := isWaitForBareMetalServerNetworkInterfaceAvailable(sess, bareMetalServerId, nicId, d.Timeout(schema.TimeoutCreate), d)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_bare_metal_server_network_interface", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	err = bareMetalServerNICGet(d, meta, sess, nicAfterWait, bareMetalServerId)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_bare_metal_server_network_interface", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	return nil
 }
@@ -674,16 +680,22 @@ func createHiperSocketTypeNetworkInterface(context context.Context, d *schema.Re
 	}
 	err = bareMetalServerNICGet(d, meta, sess, nic, bareMetalServerId)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_bare_metal_server_network_interface", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	_, nicId, err := ParseNICTerraformID(d.Id())
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_bare_metal_server_network_interface", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	log.Printf("[INFO] Bare Metal Server Network Interface : %s", d.Id())
 	_, err = isWaitForBareMetalServerNetworkInterfaceAvailable(sess, bareMetalServerId, nicId, d.Timeout(schema.TimeoutCreate), d)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_bare_metal_server_network_interface", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	return nil
 }
@@ -1164,7 +1176,9 @@ func bareMetalServerNetworkInterfaceDelete(context context.Context, d *schema.Re
 				}
 				_, err = isWaitForBareMetalServerStoppedForNIC(sess, bareMetalServerId, d.Timeout(schema.TimeoutDelete), d)
 				if err != nil || res.StatusCode != 204 {
-					return err
+					tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_bare_metal_server_network_interface", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 				}
 			} else if *bms.Status != "stopped" {
 				return fmt.Errorf("[ERROR] Error bare metal server in %s state, please try after some time", *bms.Status)
@@ -1186,7 +1200,9 @@ func bareMetalServerNetworkInterfaceDelete(context context.Context, d *schema.Re
 	}
 	_, err = isWaitForBareMetalServerNetworkInterfaceDeleted(sess, bareMetalServerId, nicId, nicType, nicIntf, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_bare_metal_server_network_interface", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	if nicType == "pci" {
 		// restarting the server after PCI deletion
@@ -1200,7 +1216,9 @@ func bareMetalServerNetworkInterfaceDelete(context context.Context, d *schema.Re
 		}
 		_, err = isWaitForBareMetalServerAvailableForNIC(sess, bareMetalServerId, d.Timeout(schema.TimeoutCreate), d)
 		if err != nil {
-			return err
+			tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_bare_metal_server_network_interface", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 		}
 	}
 	d.SetId("")

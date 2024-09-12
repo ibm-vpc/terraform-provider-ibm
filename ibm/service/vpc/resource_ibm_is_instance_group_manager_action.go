@@ -350,7 +350,9 @@ func resourceIBMISInstanceGroupManagerActionUpdate(context context.Context, d *s
 
 		parts, err := flex.IdParts(d.Id())
 		if err != nil {
-			return err
+			tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance_group_manager_action", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 		}
 
 		instanceGroupID := parts[0]
@@ -390,7 +392,9 @@ func resourceIBMISInstanceGroupManagerActionRead(context context.Context, d *sch
 
 	parts, err := flex.IdParts(d.Id())
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance_group_manager_action", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	instanceGroupID := parts[0]
 	instancegroupmanagerscheduledID := parts[1]
@@ -491,7 +495,9 @@ func resourceIBMISInstanceGroupManagerActionDelete(context context.Context, d *s
 
 	parts, err := flex.IdParts(d.Id())
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance_group_manager_action", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	instanceGroupID := parts[0]
 	instancegroupmanagerscheduledID := parts[1]

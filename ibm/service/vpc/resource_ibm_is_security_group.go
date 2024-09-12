@@ -389,7 +389,9 @@ func resourceIBMISSecurityGroupRead(context context.Context, d *schema.ResourceD
 	}
 	controller, err := flex.GetBaseController(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_security_group", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	d.Set(flex.ResourceControllerURL, controller+"/vpc-ext/network/securityGroups")
 	d.Set(flex.ResourceName, *group.Name)
@@ -510,7 +512,9 @@ func resourceIBMISSecurityGroupDelete(context context.Context, d *schema.Resourc
 							log.Printf("[DEBUG] Security group target(%s) binding is in deleting status, waiting till target is removed", *securityGroupTargetReference.ID)
 							_, err = isWaitForTargetDeleted(sess, id, *securityGroupTargetReference.ID, securityGroupTargetReferenceIntf, d.Timeout(schema.TimeoutDelete))
 							if err != nil {
-								return err
+								tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_security_group", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 							}
 						}
 					} else {
@@ -535,7 +539,9 @@ func resourceIBMISSecurityGroupDelete(context context.Context, d *schema.Resourc
 				log.Printf("[DEBUG] Security group(%s) has target bindings is in deleting, will wait till target is removed", id)
 				_, err = isWaitForSgCleanup(sess, id, allrecs, d.Timeout(schema.TimeoutDelete))
 				if err != nil {
-					return err
+					tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_security_group", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 				}
 			}
 		} else {

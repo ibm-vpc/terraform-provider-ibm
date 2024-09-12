@@ -405,7 +405,9 @@ func resourceIBMISLBListenerPolicyCreate(context context.Context, d *schema.Reso
 
 	errDiag := lbListenerPolicyCreate(d, meta, lbID, listenerID, action, name, priority)
 	if errDiag != nil {
-		return errDiag
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_lb_listener_policy", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()Diag
 	}
 
 	return resourceIBMISLBListenerPolicyRead(context, d, meta)
@@ -979,7 +981,9 @@ func lbListenerPolicyDelete(d *schema.ResourceData, meta interface{}, lbID, list
 	}
 	_, err = isWaitForLbListnerPolicyDeleted(sess, d.Id(), d.Timeout(schema.TimeoutDelete))
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_lb_listener_policy", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	return nil
 }

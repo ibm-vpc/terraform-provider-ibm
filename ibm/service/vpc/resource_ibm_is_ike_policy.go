@@ -203,7 +203,9 @@ func resourceIBMISIKEPolicyCreate(context context.Context, d *schema.ResourceDat
 
 	err := ikepCreate(d, meta, authenticationAlg, encryptionAlg, name, dhGroup)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_ike_policy", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	return resourceIBMISIKEPolicyRead(d, meta)
 }
@@ -304,7 +306,9 @@ func ikepGet(d *schema.ResourceData, meta interface{}, id string) error {
 	d.Set(isIKEVPNConnections, connList)
 	controller, err := flex.GetBaseController(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_ike_policy", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	d.Set(flex.ResourceControllerURL, controller+"/vpc-ext/network/ikepolicies")
 	d.Set(flex.ResourceName, *ike.Name)
@@ -316,7 +320,9 @@ func resourceIBMISIKEPolicyUpdate(context context.Context, d *schema.ResourceDat
 	id := d.Id()
 	err := ikepUpdate(d, meta, id)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_ike_policy", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	return resourceIBMISIKEPolicyRead(d, meta)
 }

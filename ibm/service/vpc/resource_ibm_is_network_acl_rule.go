@@ -334,7 +334,9 @@ func resourceIBMISNetworkACLRuleCreate(context context.Context, d *schema.Resour
 
 	err := nwaclRuleCreate(d, meta, nwACLID)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_network_acl_rule", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	return resourceIBMISNetworkACLRuleRead(d, meta)
 
@@ -450,7 +452,9 @@ func nwaclRuleCreate(d *schema.ResourceData, meta interface{}, nwACLID string) e
 	}
 	err = nwaclRuleGet(d, meta, nwACLID, nwaclRule)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_network_acl_rule", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	return nil
 }
@@ -458,7 +462,9 @@ func nwaclRuleCreate(d *schema.ResourceData, meta interface{}, nwACLID string) e
 func resourceIBMISNetworkACLRuleRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	nwACLID, ruleId, err := parseNwACLTerraformID(d.Id())
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_network_acl_rule", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	sess, err := vpcClient(meta)
 	if err != nil {
@@ -480,7 +486,9 @@ func resourceIBMISNetworkACLRuleRead(context context.Context, d *schema.Resource
 	}
 	err = nwaclRuleGet(d, meta, nwACLID, nwaclRule)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_network_acl_rule", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	return nil
 }
@@ -587,7 +595,9 @@ func resourceIBMISNetworkACLRuleUpdate(context context.Context, d *schema.Resour
 
 	err = nwaclRuleUpdate(d, meta, ruleId, nwACLId)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_network_acl_rule", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	return resourceIBMISNetworkACLRuleRead(d, meta)
 }
@@ -768,12 +778,16 @@ func nwaclRuleUpdate(d *schema.ResourceData, meta interface{}, id, nwACLId strin
 func resourceIBMISNetworkACLRuleDelete(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	nwACLID, ruleId, err := parseNwACLTerraformID(d.Id())
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_network_acl_rule", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	err = nwaclRuleDelete(d, meta, ruleId, nwACLID)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_network_acl_rule", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	d.SetId("")
 	return nil

@@ -363,7 +363,9 @@ func resourceIBMIsVPCDnsResolutionBindingGet(vpcdnsResolutionBinding *vpcv1.Vpcd
 		for _, modelItem := range vpcdnsResolutionBinding.EndpointGateways {
 			modelMap, err := dataSourceIBMIsVPCDnsResolutionBindingEndpointGatewayReferenceRemoteToMap(&modelItem)
 			if err != nil {
-				return err
+				tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_vpc_dns_resolution_binding", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 			}
 			endpointGateways = append(endpointGateways, modelMap)
 		}
@@ -383,7 +385,9 @@ func resourceIBMIsVPCDnsResolutionBindingGet(vpcdnsResolutionBinding *vpcv1.Vpcd
 	for _, healthReasonsItem := range vpcdnsResolutionBinding.HealthReasons {
 		healthReasonsItemMap, err := resourceIBMIsVPCDnsResolutionBindingVpcdnsResolutionBindingHealthReasonToMap(&healthReasonsItem)
 		if err != nil {
-			return err
+			tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_vpc_dns_resolution_binding", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 		}
 		healthReasons = append(healthReasons, healthReasonsItemMap)
 	}
@@ -405,7 +409,9 @@ func resourceIBMIsVPCDnsResolutionBindingGet(vpcdnsResolutionBinding *vpcv1.Vpcd
 	if vpcdnsResolutionBinding.VPC != nil {
 		modelMap, err := dataSourceIBMIsVPCDnsResolutionBindingVPCReferenceRemoteToMap(vpcdnsResolutionBinding.VPC)
 		if err != nil {
-			return err
+			tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_vpc_dns_resolution_binding", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 		}
 		vpc = append(vpc, modelMap)
 	}

@@ -358,7 +358,9 @@ func resourceIBMISFlowLogRead(context context.Context, d *schema.ResourceData, m
 
 	controller, err := flex.GetBaseController(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_flow_log", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	d.Set(flex.ResourceControllerURL, controller+"/vpc-ext/network/flowLogs")

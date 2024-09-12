@@ -192,12 +192,16 @@ func resourceIBMISLBListenerPolicyRuleCreate(context context.Context, d *schema.
 	lbID := d.Get(isLBListenerPolicyRuleLBID).(string)
 	listenerID, err := getLbListenerID(d.Get(isLBListenerPolicyRuleListenerID).(string))
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_lb_listener_policy_rule", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	policyID, err := getLbPolicyID(d.Get(isLBListenerPolicyRulePolicyID).(string))
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_lb_listener_policy_rule", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	condition := d.Get(isLBListenerPolicyRulecondition).(string)
@@ -209,7 +213,9 @@ func resourceIBMISLBListenerPolicyRuleCreate(context context.Context, d *schema.
 
 	err = lbListenerPolicyRuleCreate(d, meta, lbID, listenerID, policyID, condition, ty, value, field)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_lb_listener_policy_rule", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	return resourceIBMISLBListenerPolicyRuleRead(d, meta)
@@ -250,7 +256,9 @@ func lbListenerPolicyRuleCreate(d *schema.ResourceData, meta interface{}, lbID, 
 
 	sess, err := vpcSdkClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_lb_listener_policy_rule", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	options := &vpcv1.CreateLoadBalancerListenerPolicyRuleOptions{
@@ -282,7 +290,9 @@ func lbListenerPolicyRuleCreate(d *schema.ResourceData, meta interface{}, lbID, 
 
 	_, err = isWaitForLbListenerPolicyRuleAvailable(sess, d.Id(), d.Timeout(schema.TimeoutCreate))
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_lb_listener_policy_rule", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	return nil
@@ -375,7 +385,9 @@ func resourceIBMISLBListenerPolicyRuleRead(context context.Context, d *schema.Re
 	ID := d.Id()
 	parts, err := flex.IdParts(ID)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_lb_listener_policy_rule", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	lbID := parts[0]
@@ -385,7 +397,9 @@ func resourceIBMISLBListenerPolicyRuleRead(context context.Context, d *schema.Re
 
 	err = lbListenerPolicyRuleGet(d, meta, lbID, listenerID, policyID, ruleID)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_lb_listener_policy_rule", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	return nil
@@ -439,7 +453,9 @@ func resourceIBMISLBListenerPolicyRuleUpdate(context context.Context, d *schema.
 
 	parts, err := flex.IdParts(d.Id())
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_lb_listener_policy_rule", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	lbID := parts[0]
@@ -449,7 +465,9 @@ func resourceIBMISLBListenerPolicyRuleUpdate(context context.Context, d *schema.
 
 	err = lbListenerPolicyRuleUpdate(d, meta, lbID, listenerID, policyID, ruleID)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_lb_listener_policy_rule", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	return resourceIBMISLBListenerPolicyRuleRead(d, meta)
@@ -458,7 +476,9 @@ func resourceIBMISLBListenerPolicyRuleUpdate(context context.Context, d *schema.
 func lbListenerPolicyRuleUpdate(d *schema.ResourceData, meta interface{}, lbID, listenerID, policyID, ID string) error {
 	sess, err := vpcSdkClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_lb_listener_policy_rule", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	hasChanged := false
 	updatePolicyRuleOptions := vpcv1.UpdateLoadBalancerListenerPolicyRuleOptions{}
@@ -517,7 +537,9 @@ func lbListenerPolicyRuleUpdate(d *schema.ResourceData, meta interface{}, lbID, 
 
 		_, err = isWaitForLbListenerPolicyRuleAvailable(sess, d.Id(), d.Timeout(schema.TimeoutCreate))
 		if err != nil {
-			return err
+			tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_lb_listener_policy_rule", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 		}
 	}
 	return nil
@@ -528,7 +550,9 @@ func resourceIBMISLBListenerPolicyRuleDelete(context context.Context, d *schema.
 	//Retrieve lbId, listenerId and policyID
 	parts, err := flex.IdParts(d.Id())
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_lb_listener_policy_rule", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	lbID := parts[0]
@@ -542,7 +566,9 @@ func resourceIBMISLBListenerPolicyRuleDelete(context context.Context, d *schema.
 
 	err = lbListenerPolicyRuleDelete(d, meta, lbID, listenerID, policyID, ruleID)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_lb_listener_policy_rule", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	d.SetId("")
@@ -554,7 +580,9 @@ func lbListenerPolicyRuleDelete(d *schema.ResourceData, meta interface{}, lbID, 
 
 	sess, err := vpcSdkClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_lb_listener_policy_rule", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	//Getting rule optins
@@ -587,7 +615,9 @@ func lbListenerPolicyRuleDelete(d *schema.ResourceData, meta interface{}, lbID, 
 	}
 	_, err = isWaitForLbListnerPolicyRuleDeleted(sess, d.Id(), d.Timeout(schema.TimeoutDelete))
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_lb_listener_policy_rule", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	return nil
 }
@@ -643,7 +673,9 @@ func lbListenerPolicyRuleGet(d *schema.ResourceData, meta interface{}, lbID, lis
 
 	sess, err := vpcSdkClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_lb_listener_policy_rule", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	//Getting rule optins
@@ -661,7 +693,9 @@ func lbListenerPolicyRuleGet(d *schema.ResourceData, meta interface{}, lbID, lis
 			d.SetId("")
 			return nil
 		}
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_lb_listener_policy_rule", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	//set the argument values

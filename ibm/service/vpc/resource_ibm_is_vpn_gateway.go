@@ -387,7 +387,9 @@ func resourceIBMISVPNGatewayCreate(context context.Context, d *schema.ResourceDa
 
 	err := vpngwCreate(d, meta, name, subnetID, mode)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_vpn_gateway", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	return resourceIBMISVPNGatewayRead(d, meta)
 }
@@ -428,7 +430,9 @@ func vpngwCreate(d *schema.ResourceData, meta interface{}, name, subnetID, mode 
 
 	_, err = isWaitForVpnGatewayAvailable(sess, *vpnGateway.ID, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_vpn_gateway", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	v := os.Getenv("IC_ENV_TAGS")
@@ -492,7 +496,9 @@ func resourceIBMISVPNGatewayRead(context context.Context, d *schema.ResourceData
 
 	err := vpngwGet(d, meta, id)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_vpn_gateway", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	return nil
 }
@@ -564,7 +570,9 @@ func vpngwGet(d *schema.ResourceData, meta interface{}, id string) error {
 
 	controller, err := flex.GetBaseController(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_vpn_gateway", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	d.Set(flex.ResourceControllerURL, controller+"/vpc/network/vpngateways")
 	d.Set(flex.ResourceName, *vpnGateway.Name)
@@ -616,7 +624,9 @@ func resourceIBMISVPNGatewayUpdate(context context.Context, d *schema.ResourceDa
 
 	err := vpngwUpdate(d, meta, id, name, hasChanged)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_vpn_gateway", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	return resourceIBMISVPNGatewayRead(d, meta)
 }
@@ -688,7 +698,9 @@ func resourceIBMISVPNGatewayDelete(context context.Context, d *schema.ResourceDa
 
 	err := vpngwDelete(d, meta, id)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_vpn_gateway", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	return nil
 }
@@ -721,7 +733,9 @@ func vpngwDelete(d *schema.ResourceData, meta interface{}, id string) error {
 	}
 	_, err = isWaitForVpnGatewayDeleted(sess, id, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_vpn_gateway", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	d.SetId("")
 	return nil

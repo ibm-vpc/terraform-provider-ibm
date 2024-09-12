@@ -630,7 +630,9 @@ func resourceIBMISSnapshotCreate(context context.Context, d *schema.ResourceData
 	_, err = isWaitForSnapshotAvailable(sess, d.Id(), d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_snapshot", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	if _, ok := d.GetOk(isSnapshotAccessTags); ok {
@@ -683,7 +685,9 @@ func resourceIBMISSnapshotRead(context context.Context, d *schema.ResourceData, 
 	id := d.Id()
 	err := snapshotGet(d, meta, id)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_snapshot", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	return nil
 }
@@ -864,7 +868,9 @@ func resourceIBMISSnapshotUpdate(context context.Context, d *schema.ResourceData
 	}
 	err := snapshotUpdate(d, meta, id, name, hasChanged)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_snapshot", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	return resourceIBMISSnapshotRead(d, meta)
 }
@@ -926,7 +932,9 @@ func snapshotUpdate(d *schema.ResourceData, meta interface{}, id, name string, h
 				}
 				_, err = isWaitForSnapshotUpdate(sess, d.Id(), d.Timeout(schema.TimeoutCreate))
 				if err != nil {
-					return err
+					tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_snapshot", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 				}
 			}
 		}
@@ -950,7 +958,9 @@ func snapshotUpdate(d *schema.ResourceData, meta interface{}, id, name string, h
 		}
 		_, err = isWaitForSnapshotUpdate(sess, d.Id(), d.Timeout(schema.TimeoutCreate))
 		if err != nil {
-			return err
+			tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_snapshot", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 		}
 
 	}
@@ -974,7 +984,9 @@ func snapshotUpdate(d *schema.ResourceData, meta interface{}, id, name string, h
 				}
 				_, err = isWaitForCloneAvailable(sess, d, id, add[i])
 				if err != nil {
-					return err
+					tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_snapshot", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 				}
 			}
 
@@ -991,7 +1003,9 @@ func snapshotUpdate(d *schema.ResourceData, meta interface{}, id, name string, h
 				}
 				_, err = isWaitForCloneDeleted(sess, d, d.Id(), remove[i])
 				if err != nil {
-					return err
+					tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_snapshot", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 				}
 			}
 		}
@@ -1113,7 +1127,9 @@ func resourceIBMISSnapshotDelete(context context.Context, d *schema.ResourceData
 	id := d.Id()
 	err := snapshotDelete(d, meta, id)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_snapshot", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	d.SetId("")
 	return nil
@@ -1148,7 +1164,9 @@ func snapshotDelete(d *schema.ResourceData, meta interface{}, id string) error {
 	}
 	_, err = isWaitForSnapshotDeleted(sess, id, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_snapshot", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	d.SetId("")
 	return nil

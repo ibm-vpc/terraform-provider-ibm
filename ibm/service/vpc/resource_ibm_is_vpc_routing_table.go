@@ -247,7 +247,9 @@ func resourceIBMISVPCRoutingTableCreate(context context.Context, d *schema.Resou
 	routeTable, response, err := sess.CreateVPCRoutingTable(createVpcRoutingTableOptions)
 	if err != nil {
 		log.Printf("[DEBUG] Create VPC Routing table err %s\n%s", err, response)
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_vpc_routing_table", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	d.SetId(fmt.Sprintf("%s/%s", vpcID, *routeTable.ID))
@@ -415,7 +417,9 @@ func resourceIBMISVPCRoutingTableUpdate(context context.Context, d *schema.Resou
 	_, response, err := sess.UpdateVPCRoutingTable(updateVpcRoutingTableOptions)
 	if err != nil {
 		log.Printf("[DEBUG] Update VPC Routing table err %s\n%s", err, response)
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_vpc_routing_table", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	return resourceIBMISVPCRoutingTableRead(d, meta)
 }
@@ -434,7 +438,9 @@ func resourceIBMISVPCRoutingTableDelete(context context.Context, d *schema.Resou
 	response, err := sess.DeleteVPCRoutingTable(deleteTableOptions)
 	if err != nil && response.StatusCode != 404 {
 		log.Printf("Error deleting VPC Routing table : %s", response)
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_vpc_routing_table", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	d.SetId("")

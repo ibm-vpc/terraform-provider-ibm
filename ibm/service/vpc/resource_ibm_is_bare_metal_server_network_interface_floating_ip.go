@@ -275,7 +275,9 @@ func bareMetalServerNetworkInterfaceFipDelete(context context.Context, d *schema
 	}
 	_, err = isWaitForBareMetalServerNetworkInterfaceFloatingIpDeleted(sess, bareMetalServerId, nicId, fipId, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_bare_metal_server_network_interface_floating_ip", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	d.SetId("")
 	return nil

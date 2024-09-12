@@ -2146,7 +2146,9 @@ func bareMetalServerGet(context context.Context, d *schema.ResourceData, meta in
 		}
 		primaryNetworkAttachmentMap, err := resourceIBMIsBareMetalServerBareMetalServerNetworkAttachmentReferenceToMap(bms.PrimaryNetworkAttachment, pna, sess)
 		if err != nil {
-			return err
+			tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_bare_metal_server", "create")
+			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+			return tfErr.GetDiag()
 		}
 		if err = d.Set("primary_network_attachment", []map[string]interface{}{primaryNetworkAttachmentMap}); err != nil {
 			return fmt.Errorf("[ERROR] Error setting primary_network_attachment: %s", err)
@@ -2293,7 +2295,9 @@ func bareMetalServerGet(context context.Context, d *schema.ResourceData, meta in
 				}
 				networkAttachmentsItemMap, err := resourceIBMIsBareMetalServerBareMetalServerNetworkAttachmentReferenceToMap(&networkAttachmentsItem, na, sess)
 				if err != nil {
-					return err
+					tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_bare_metal_server", "create")
+					log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+					return tfErr.GetDiag()
 				}
 				networkAttachments = append(networkAttachments, networkAttachmentsItemMap)
 			}
@@ -2390,7 +2394,9 @@ func bareMetalServerUpdate(context context.Context, d *schema.ResourceData, meta
 
 		stopServerIfStartingForInitialization, err = resourceStopServerIfRunning(id, "hard", d, context, sess, stopServerIfStartingForInitialization)
 		if err != nil {
-			return err
+			tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_bare_metal_server", "create")
+			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+			return tfErr.GetDiag()
 		}
 		_, res, err := sess.ReplaceBareMetalServerInitialization(initializationPatch)
 		if err != nil {
@@ -2398,12 +2404,16 @@ func bareMetalServerUpdate(context context.Context, d *schema.ResourceData, meta
 		}
 		_, err = isWaitForBareMetalServerStoppedOnReload(sess, d.Id(), d.Timeout(schema.TimeoutUpdate), d)
 		if err != nil {
-			return err
+			tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_bare_metal_server", "create")
+			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+			return tfErr.GetDiag()
 		}
 		if stopServerIfStartingForInitialization {
 			_, err = resourceStartServerIfStopped(id, "hard", d, context, sess, stopServerIfStartingForInitialization)
 			if err != nil {
-				return err
+				tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_bare_metal_server", "create")
+				log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+				return tfErr.GetDiag()
 			}
 		}
 	}
@@ -2624,7 +2634,9 @@ func bareMetalServerUpdate(context context.Context, d *schema.ResourceData, meta
 			serverStopped = true
 			isServerStopped, err = resourceStopServerIfRunning(id, "hard", d, context, sess, isServerStopped)
 			if err != nil {
-				return err
+				tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_bare_metal_server", "create")
+				log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+				return tfErr.GetDiag()
 			}
 		}
 		for _, removeItem := range listToRemove {
@@ -2643,7 +2655,9 @@ func bareMetalServerUpdate(context context.Context, d *schema.ResourceData, meta
 			// retstart ther server
 			isServerStopped, err = resourceStartServerIfStopped(id, "hard", d, context, sess, isServerStopped)
 			if err != nil {
-				return err
+				tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_bare_metal_server", "create")
+				log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+				return tfErr.GetDiag()
 			}
 		}
 		// j := 0
@@ -2691,7 +2705,9 @@ func bareMetalServerUpdate(context context.Context, d *schema.ResourceData, meta
 		// 		nacMap := nac.(map[string]interface{})
 		// 		VirtualNetworkInterfaceModel, err := resourceIBMIsBareMetalServerMapToVirtualNetworkInterfacePrototypeAttachmentContext(allowipspoofing, autodelete, enablenat, d, nacMap["virtual_network_interface"].([]interface{})[0].(map[string]interface{}))
 		// 		if err != nil {
-		// 			return err
+		// 			tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_bare_metal_server", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 		// 		}
 		// 		nacNameStr := nacMap["name"].(string)
 		// 		createBareMetalServerNetworkAttachmentOptions := &vpcv1.CreateBareMetalServerNetworkAttachmentOptions{
@@ -2876,7 +2892,9 @@ func bareMetalServerUpdate(context context.Context, d *schema.ResourceData, meta
 		// 						}
 		// 						_, err = isWaitForVirtualNetworkInterfaceAvailable(sess, vniId, d.Timeout(schema.TimeoutUpdate))
 		// 						if err != nil {
-		// 							return err
+		// 							tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_bare_metal_server", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 		// 						}
 		// 					}
 
@@ -2893,7 +2911,9 @@ func bareMetalServerUpdate(context context.Context, d *schema.ResourceData, meta
 		// 						}
 		// 						_, err = isWaitForVirtualNetworkInterfaceAvailable(sess, vniId, d.Timeout(schema.TimeoutUpdate))
 		// 						if err != nil {
-		// 							return err
+		// 							tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_bare_metal_server", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 		// 						}
 		// 					}
 		// 				}
@@ -3024,7 +3044,9 @@ func bareMetalServerUpdate(context context.Context, d *schema.ResourceData, meta
 			if flag {
 				isServerStopped, err = resourceStopServerIfRunning(id, "hard", d, context, sess, isServerStopped)
 				if err != nil {
-					return err
+					tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_bare_metal_server", "create")
+					log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+					return tfErr.GetDiag()
 				}
 			}
 			for _, rem := range remove {
@@ -3036,7 +3058,9 @@ func bareMetalServerUpdate(context context.Context, d *schema.ResourceData, meta
 				}
 				_, err = sess.DeleteBareMetalServerNetworkInterface(removeBMSNic)
 				if err != nil {
-					return err
+					tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_bare_metal_server", "create")
+					log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+					return tfErr.GetDiag()
 				}
 			}
 
@@ -3055,7 +3079,9 @@ func bareMetalServerUpdate(context context.Context, d *schema.ResourceData, meta
 			if flag {
 				isServerStopped, err = resourceStopServerIfRunning(id, "hard", d, context, sess, isServerStopped)
 				if err != nil {
-					return err
+					tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_bare_metal_server", "create")
+					log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+					return tfErr.GetDiag()
 				}
 			}
 			for _, a := range add {
@@ -3398,7 +3424,9 @@ func bareMetalServerUpdate(context context.Context, d *schema.ResourceData, meta
 				}
 				_, _, err := sess.CreateBareMetalServerNetworkInterface(addNicOptions)
 				if err != nil {
-					return err
+					tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_bare_metal_server", "create")
+					log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+					return tfErr.GetDiag()
 				}
 			}
 
@@ -3502,7 +3530,9 @@ func bareMetalServerUpdate(context context.Context, d *schema.ResourceData, meta
 		flag = true
 		isServerStopped, err = resourceStopServerIfRunning(id, "hard", d, context, sess, isServerStopped)
 		if err != nil {
-			return err
+			tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_bare_metal_server", "create")
+			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+			return tfErr.GetDiag()
 		}
 	}
 
@@ -3515,7 +3545,9 @@ func bareMetalServerUpdate(context context.Context, d *schema.ResourceData, meta
 		flag = true
 		isServerStopped, err = resourceStopServerIfRunning(id, "hard", d, context, sess, isServerStopped)
 		if err != nil {
-			return err
+			tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_bare_metal_server", "create")
+			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+			return tfErr.GetDiag()
 		}
 	}
 
@@ -3600,7 +3632,9 @@ func bareMetalServerUpdate(context context.Context, d *schema.ResourceData, meta
 					}
 					_, err = isWaitForBareMetalServerAvailable(sess, id, d.Timeout(schema.TimeoutUpdate), d)
 					if err != nil {
-						return err
+						tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_bare_metal_server", "create")
+						log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+						return tfErr.GetDiag()
 					}
 				}
 
@@ -3618,7 +3652,9 @@ func bareMetalServerUpdate(context context.Context, d *schema.ResourceData, meta
 					}
 					_, err = isWaitForBareMetalServerAvailable(sess, id, d.Timeout(schema.TimeoutUpdate), d)
 					if err != nil {
-						return err
+						tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_bare_metal_server", "create")
+						log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+						return tfErr.GetDiag()
 					}
 				}
 			}
@@ -3633,16 +3669,22 @@ func bareMetalServerUpdate(context context.Context, d *schema.ResourceData, meta
 		if nicflag {
 			bmsNicPatch, err := bmsNicPatchModel.AsPatch()
 			if err != nil {
-				return err
+				tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_bare_metal_server", "create")
+				log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+				return tfErr.GetDiag()
 			}
 			bmsNicUpdateOptions.BareMetalServerNetworkInterfacePatch = bmsNicPatch
 			_, _, err = sess.UpdateBareMetalServerNetworkInterfaceWithContext(context, bmsNicUpdateOptions)
 			if err != nil {
-				return err
+				tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_bare_metal_server", "create")
+				log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+				return tfErr.GetDiag()
 			}
 			_, err = isWaitForBareMetalServerAvailable(sess, id, d.Timeout(schema.TimeoutUpdate), d)
 			if err != nil {
-				return err
+				tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_bare_metal_server", "create")
+				log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+				return tfErr.GetDiag()
 			}
 		}
 	}
@@ -3683,7 +3725,9 @@ func bareMetalServerUpdate(context context.Context, d *schema.ResourceData, meta
 	if flag || isServerStopped {
 		isServerStopped, err = resourceStartServerIfStopped(id, "hard", d, context, sess, isServerStopped)
 		if err != nil {
-			return err
+			tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_bare_metal_server", "create")
+			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+			return tfErr.GetDiag()
 		}
 	}
 
@@ -3745,7 +3789,9 @@ func bareMetalServerDelete(context context.Context, d *schema.ResourceData, meta
 	}
 	_, err = isWaitForBareMetalServerDeleted(sess, id, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_bare_metal_server", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	d.SetId("")
 	return nil

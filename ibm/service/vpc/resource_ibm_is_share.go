@@ -1937,23 +1937,31 @@ func shareUpdate(vpcClient *vpcv1.VpcV1, context context.Context, d *schema.Reso
 
 		if err != nil {
 			log.Printf("[DEBUG] SharePatch AsPatch failed %s", err)
-			return err
+			tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_share", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 		}
 		updateShareOptions.SetSharePatch(sharePatch)
 		if hasSizeChanged {
 			_, err = isWaitForShareAvailable(context, vpcClient, d.Id(), d, d.Timeout(schema.TimeoutCreate))
 			if err != nil {
-				return err
+				tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_share", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 			}
 		}
 		_, response, err := vpcClient.UpdateShareWithContext(context, updateShareOptions)
 		if err != nil {
 			log.Printf("[DEBUG] UpdateShareWithContext failed %s\n%s", err, response)
-			return err
+			tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_share", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 		}
 		_, err = isWaitForShareAvailable(context, vpcClient, d.Id(), d, d.Timeout(schema.TimeoutCreate))
 		if err != nil {
-			return err
+			tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_share", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 		}
 	}
 	if d.HasChange(shareMountTargetSchema) && !d.IsNewResource() {
@@ -1985,17 +1993,23 @@ func shareUpdate(vpcClient *vpcv1.VpcV1, context context.Context, d *schema.Reso
 				shareTargetPatch, err := shareTargetPatchModel.AsPatch()
 				if err != nil {
 					log.Printf("[DEBUG] ShareTargetPatch AsPatch failed %s", err)
-					return err
+					tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_share", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 				}
 				updateShareTargetOptions.SetShareMountTargetPatch(shareTargetPatch)
 				_, response, err := vpcClient.UpdateShareMountTargetWithContext(context, updateShareTargetOptions)
 				if err != nil {
 					log.Printf("[DEBUG] UpdateShareTargetWithContext failed %s\n%s", err, response)
-					return err
+					tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_share", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 				}
 				_, err = WaitForTargetAvailable(context, vpcClient, shareId, mountTargetId, d, d.Timeout(schema.TimeoutUpdate))
 				if err != nil {
-					return err
+					tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_share", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 				}
 			}
 
@@ -2016,7 +2030,9 @@ func shareUpdate(vpcClient *vpcv1.VpcV1, context context.Context, d *schema.Reso
 				vniPatch, err := vniPatchModel.AsPatch()
 				if err != nil {
 					log.Printf("[DEBUG] Virtual network interface AsPatch failed %s", err)
-					return err
+					tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_share", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 				}
 				shareTargetOptions := &vpcv1.GetShareMountTargetOptions{}
 
@@ -2025,7 +2041,9 @@ func shareUpdate(vpcClient *vpcv1.VpcV1, context context.Context, d *schema.Reso
 				shareTarget, response, err := vpcClient.GetShareMountTargetWithContext(context, shareTargetOptions)
 				if err != nil {
 					log.Printf("[DEBUG] GetShareMountTargetWithContext failed %s\n%s", err, response)
-					return err
+					tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_share", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 				}
 				vniId := *shareTarget.VirtualNetworkInterface.ID
 				updateVNIOptions := &vpcv1.UpdateVirtualNetworkInterfaceOptions{
@@ -2035,11 +2053,15 @@ func shareUpdate(vpcClient *vpcv1.VpcV1, context context.Context, d *schema.Reso
 				_, response, err = vpcClient.UpdateVirtualNetworkInterfaceWithContext(context, updateVNIOptions)
 				if err != nil {
 					log.Printf("[DEBUG] UpdateShareTargetWithContext failed %s\n%s", err, response)
-					return err
+					tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_share", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 				}
 				_, err = WaitForVNIAvailable(vpcClient, *shareTarget.VirtualNetworkInterface.ID, d, d.Timeout(schema.TimeoutCreate))
 				if err != nil {
-					return err
+					tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_share", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 				}
 			}
 
@@ -2063,12 +2085,16 @@ func shareUpdate(vpcClient *vpcv1.VpcV1, context context.Context, d *schema.Reso
 						}
 						_, err = WaitForVNIAvailable(vpcClient, networkID, d, d.Timeout(schema.TimeoutUpdate))
 						if err != nil {
-							return err
+							tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_share", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 						}
 
 						_, err = WaitForTargetAvailable(context, vpcClient, shareId, mountTargetId, d, d.Timeout(schema.TimeoutUpdate))
 						if err != nil {
-							return err
+							tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_share", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 						}
 					}
 
@@ -2085,12 +2111,16 @@ func shareUpdate(vpcClient *vpcv1.VpcV1, context context.Context, d *schema.Reso
 						}
 						_, err = WaitForVNIAvailable(vpcClient, networkID, d, d.Timeout(schema.TimeoutUpdate))
 						if err != nil {
-							return err
+							tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_share", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 						}
 
 						_, err = WaitForTargetAvailable(context, vpcClient, shareId, mountTargetId, d, d.Timeout(schema.TimeoutUpdate))
 						if err != nil {
-							return err
+							tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_share", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 						}
 					}
 				}
@@ -2099,7 +2129,9 @@ func shareUpdate(vpcClient *vpcv1.VpcV1, context context.Context, d *schema.Reso
 			if !d.IsNewResource() && (d.HasChange(vniPrimaryIpName) || d.HasChange(vniPrimaryIpAutoDelete)) {
 				sess, err := meta.(conns.ClientSession).VpcV1API()
 				if err != nil {
-					return err
+					tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_share", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 				}
 				subnetId := d.Get(vniSubnet).(string)
 				ripId := d.Get(vniResvedIp).(string)

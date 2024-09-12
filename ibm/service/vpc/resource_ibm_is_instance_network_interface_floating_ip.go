@@ -270,7 +270,9 @@ func instanceNetworkInterfaceFipDelete(context context.Context, d *schema.Resour
 	}
 	_, err = isWaitForInstanceNetworkInterfaceFloatingIpDeleted(sess, instanceId, nicId, fipId, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance_network_interface_floating_ip", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	d.SetId("")
 	return nil

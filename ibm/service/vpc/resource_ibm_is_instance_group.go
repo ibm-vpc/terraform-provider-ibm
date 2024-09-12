@@ -517,17 +517,23 @@ func resourceIBMISInstanceGroupDelete(context context.Context, d *schema.Resourc
 		// Now check if the load balancer is in active state or not
 		lbStatus, err := getLBStatus(sess, loadBalancerID)
 		if err != nil {
-			return err
+			tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance_group", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 		}
 		if lbStatus != "active" {
 			log.Printf("Load Balancer [%s] is not active....Waiting it to be active!\n", loadBalancerID)
 			_, err := isWaitForLBAvailable(sess, loadBalancerID, d.Timeout(schema.TimeoutDelete))
 			if err != nil {
-				return err
+				tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance_group", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 			}
 			lbStatus, err = getLBStatus(sess, loadBalancerID)
 			if err != nil {
-				return err
+				tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance_group", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 			}
 			if lbStatus != "active" {
 				return fmt.Errorf("LoadBalancer [%s] is not active yet! Current Load Balancer status is [%s]", loadBalancerID, lbStatus)

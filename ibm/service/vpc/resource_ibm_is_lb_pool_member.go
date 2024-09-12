@@ -160,7 +160,9 @@ func resourceIBMISLBPoolMemberCreate(context context.Context, d *schema.Resource
 	log.Printf("[DEBUG] LB Pool create")
 	lbPoolID, err := getPoolId(d.Get(isLBPoolID).(string))
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_lb_pool_member", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	lbID := d.Get(isLBID).(string)
@@ -175,7 +177,9 @@ func resourceIBMISLBPoolMemberCreate(context context.Context, d *schema.Resource
 
 	err = lbpMemberCreate(d, meta, lbID, lbPoolID, port64, weight)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_lb_pool_member", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	return resourceIBMISLBPoolMemberRead(d, meta)
@@ -232,7 +236,9 @@ func lbpMemberCreate(d *schema.ResourceData, meta interface{}, lbID, lbPoolID st
 
 	_, err = isWaitForLBPoolMemberAvailable(sess, lbID, lbPoolID, *lbPoolMember.ID, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_lb_pool_member", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	_, err = isWaitForLBPoolActive(sess, lbID, lbPoolID, d.Timeout(schema.TimeoutCreate))
@@ -288,7 +294,9 @@ func resourceIBMISLBPoolMemberRead(context context.Context, d *schema.ResourceDa
 
 	parts, err := flex.IdParts(d.Id())
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_lb_pool_member", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	if len(parts) < 3 {
@@ -302,7 +310,9 @@ func resourceIBMISLBPoolMemberRead(context context.Context, d *schema.ResourceDa
 
 	err = lbpmemberGet(d, meta, lbID, lbPoolID, lbPoolMemID)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_lb_pool_member", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	return nil
@@ -358,7 +368,9 @@ func resourceIBMISLBPoolMemberUpdate(context context.Context, d *schema.Resource
 
 	parts, err := flex.IdParts(d.Id())
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_lb_pool_member", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	lbID := parts[0]
@@ -367,7 +379,9 @@ func resourceIBMISLBPoolMemberUpdate(context context.Context, d *schema.Resource
 
 	err = lbpmemberUpdate(d, meta, lbID, lbPoolID, lbPoolMemID)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_lb_pool_member", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	return resourceIBMISLBPoolMemberRead(d, meta)
@@ -398,7 +412,9 @@ func lbpmemberUpdate(d *schema.ResourceData, meta interface{}, lbID, lbPoolID, l
 
 		_, err = isWaitForLBPoolMemberAvailable(sess, lbID, lbPoolID, lbPoolMemID, d.Timeout(schema.TimeoutCreate))
 		if err != nil {
-			return err
+			tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_lb_pool_member", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 		}
 
 		_, err = isWaitForLBAvailable(sess, lbID, d.Timeout(schema.TimeoutUpdate))
@@ -444,7 +460,9 @@ func lbpmemberUpdate(d *schema.ResourceData, meta interface{}, lbID, lbPoolID, l
 		}
 		_, err = isWaitForLBPoolMemberAvailable(sess, lbID, lbPoolID, lbPoolMemID, d.Timeout(schema.TimeoutCreate))
 		if err != nil {
-			return err
+			tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_lb_pool_member", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 		}
 
 		_, err = isWaitForLBPoolActive(sess, lbID, lbPoolID, d.Timeout(schema.TimeoutUpdate))
@@ -466,7 +484,9 @@ func resourceIBMISLBPoolMemberDelete(context context.Context, d *schema.Resource
 
 	parts, err := flex.IdParts(d.Id())
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_lb_pool_member", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	lbID := parts[0]
@@ -479,7 +499,9 @@ func resourceIBMISLBPoolMemberDelete(context context.Context, d *schema.Resource
 
 	err = lbpmemberDelete(d, meta, lbID, lbPoolID, lbPoolMemID)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_lb_pool_member", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	return nil
@@ -508,7 +530,9 @@ func lbpmemberDelete(d *schema.ResourceData, meta interface{}, lbID, lbPoolID, l
 	}
 	_, err = isWaitForLBPoolMemberAvailable(sess, lbID, lbPoolID, lbPoolMemID, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_lb_pool_member", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	_, err = isWaitForLBPoolActive(sess, lbID, lbPoolID, d.Timeout(schema.TimeoutDelete))
@@ -533,7 +557,9 @@ func lbpmemberDelete(d *schema.ResourceData, meta interface{}, lbID, lbPoolID, l
 
 	_, err = isWaitForLBPoolMemberDeleted(sess, lbID, lbPoolID, lbPoolMemID, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_lb_pool_member", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	_, err = isWaitForLBPoolActive(sess, lbID, lbPoolID, d.Timeout(schema.TimeoutDelete))

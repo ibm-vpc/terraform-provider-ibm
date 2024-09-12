@@ -127,17 +127,23 @@ func resourceIBMISSecurityGroupTargetCreate(context context.Context, d *schema.R
 		lbid := sgtarget.ID
 		_, errsgt := isWaitForLbSgTargetCreateAvailable(sess, *lbid, d.Timeout(schema.TimeoutCreate))
 		if errsgt != nil {
-			return errsgt
+			tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_security_group_target", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()sgt
 		}
 	} else if crn != nil && *crn != "" && strings.Contains(*crn, "virtual_network_interfaces") {
 		vpcClient, err := meta.(conns.ClientSession).VpcV1API()
 		if err != nil {
-			return err
+			tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_security_group_target", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 		}
 		vniId := sgtarget.ID
 		_, errsgt := isWaitForVNISgTargetCreateAvailable(vpcClient, *vniId, d.Timeout(schema.TimeoutCreate))
 		if errsgt != nil {
-			return errsgt
+			tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_security_group_target", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()sgt
 		}
 	}
 
@@ -155,7 +161,9 @@ func resourceIBMISSecurityGroupTargetRead(context context.Context, d *schema.Res
 
 	parts, err := flex.IdParts(d.Id())
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_security_group_target", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	securityGroupID := parts[0]
 	securityGroupTargetID := parts[1]
@@ -197,7 +205,9 @@ func resourceIBMISSecurityGroupTargetDelete(context context.Context, d *schema.R
 
 	parts, err := flex.IdParts(d.Id())
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_security_group_target", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	securityGroupID := parts[0]
 	securityGroupTargetID := parts[1]
@@ -226,7 +236,9 @@ func resourceIBMISSecurityGroupTargetDelete(context context.Context, d *schema.R
 		lbid := securityGroupTargetReference.ID
 		_, errsgt := isWaitForLBRemoveAvailable(sess, sgt, *lbid, securityGroupID, securityGroupTargetID, d.Timeout(schema.TimeoutDelete))
 		if errsgt != nil {
-			return errsgt
+			tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_security_group_target", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()sgt
 		}
 	}
 	d.SetId("")

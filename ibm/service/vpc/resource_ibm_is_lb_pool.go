@@ -286,7 +286,9 @@ func resourceIBMISLBPoolCreate(context context.Context, d *schema.ResourceData, 
 
 	err := lbPoolCreate(d, meta, name, lbID, algorithm, protocol, healthType, spType, cName, healthMonitorURL, pProtocol, healthDelay, maxRetries, healthTimeOut, healthMonitorPort)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_lb_pool", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	return resourceIBMISLBPoolRead(d, meta)
@@ -359,7 +361,9 @@ func resourceIBMISLBPoolRead(context context.Context, d *schema.ResourceData, me
 
 	parts, err := flex.IdParts(d.Id())
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_lb_pool", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	lbID := parts[0]
@@ -367,7 +371,9 @@ func resourceIBMISLBPoolRead(context context.Context, d *schema.ResourceData, me
 
 	err = lbPoolGet(d, meta, lbID, lbPoolID)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_lb_pool", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	return nil
@@ -444,7 +450,9 @@ func resourceIBMISLBPoolUpdate(context context.Context, d *schema.ResourceData, 
 
 	parts, err := flex.IdParts(d.Id())
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_lb_pool", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	lbID := parts[0]
@@ -452,7 +460,9 @@ func resourceIBMISLBPoolUpdate(context context.Context, d *schema.ResourceData, 
 
 	err = lbPoolUpdate(d, meta, lbID, lbPoolID)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_lb_pool", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	return resourceIBMISLBPoolRead(d, meta)
@@ -587,7 +597,9 @@ func resourceIBMISLBPoolDelete(context context.Context, d *schema.ResourceData, 
 
 	parts, err := flex.IdParts(d.Id())
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_lb_pool", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	lbID := parts[0]
@@ -599,7 +611,9 @@ func resourceIBMISLBPoolDelete(context context.Context, d *schema.ResourceData, 
 
 	err = lbPoolDelete(d, meta, lbID, lbPoolID)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_lb_pool", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	return nil

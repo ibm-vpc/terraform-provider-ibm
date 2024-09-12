@@ -305,12 +305,16 @@ func resourceIBMISImageCreate(context context.Context, d *schema.ResourceData, m
 	if volume != "" {
 		err := imgCreateByVolume(d, meta, name, volume)
 		if err != nil {
-			return err
+			tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_image", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 		}
 	} else {
 		err := imgCreateByFile(d, meta, href, name, operatingSystem)
 		if err != nil {
-			return err
+			tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_image", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 		}
 	}
 
@@ -336,14 +340,18 @@ func imgCreateByFile(d *schema.ResourceData, meta interface{}, href, name, opera
 	if obsoleteAtOk, ok := d.GetOk(isImageObsolescenceAt); ok {
 		obsoleteAt, err := strfmt.ParseDateTime(obsoleteAtOk.(string))
 		if err != nil {
-			return err
+			tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_image", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 		}
 		imagePrototype.ObsolescenceAt = &obsoleteAt
 	}
 	if deprecateAtOk, ok := d.GetOk(isImageDeprecationAt); ok {
 		deprecateAt, err := strfmt.ParseDateTime(deprecateAtOk.(string))
 		if err != nil {
-			return err
+			tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_image", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 		}
 		imagePrototype.DeprecationAt = &deprecateAt
 	}
@@ -375,7 +383,9 @@ func imgCreateByFile(d *schema.ResourceData, meta interface{}, href, name, opera
 	log.Printf("[INFO] Image ID : %s", *image.ID)
 	_, err = isWaitForImageAvailable(sess, d.Id(), d.Timeout(schema.TimeoutCreate))
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_image", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	v := os.Getenv("IC_ENV_TAGS")
 	if _, ok := d.GetOk(isImageTags); ok || v != "" {
@@ -444,26 +454,34 @@ func imgCreateByVolume(d *schema.ResourceData, meta interface{}, name, volume st
 		}
 		_, err = isWaitForInstanceActionStop(sess, d.Timeout(schema.TimeoutCreate), insId, d)
 		if err != nil {
-			return err
+			tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_image", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 		}
 	} else if *instance.Status != "stopped" {
 		_, err = isWaitForInstanceActionStop(sess, d.Timeout(schema.TimeoutCreate), insId, d)
 		if err != nil {
-			return err
+			tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_image", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 		}
 	}
 
 	if obsoleteAtOk, ok := d.GetOk(isImageObsolescenceAt); ok {
 		obsoleteAt, err := strfmt.ParseDateTime(obsoleteAtOk.(string))
 		if err != nil {
-			return err
+			tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_image", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 		}
 		imagePrototype.ObsolescenceAt = &obsoleteAt
 	}
 	if deprecateAtOk, ok := d.GetOk(isImageDeprecationAt); ok {
 		deprecateAt, err := strfmt.ParseDateTime(deprecateAtOk.(string))
 		if err != nil {
-			return err
+			tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_image", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 		}
 		imagePrototype.DeprecationAt = &deprecateAt
 	}
@@ -492,7 +510,9 @@ func imgCreateByVolume(d *schema.ResourceData, meta interface{}, name, volume st
 	log.Printf("[INFO] Image ID : %s", *image.ID)
 	_, err = isWaitForImageAvailable(sess, d.Id(), d.Timeout(schema.TimeoutCreate))
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_image", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	v := os.Getenv("IC_ENV_TAGS")
 	if _, ok := d.GetOk(isImageTags); ok || v != "" {
@@ -558,7 +578,9 @@ func resourceIBMISImageUpdate(context context.Context, d *schema.ResourceData, m
 	}
 	err := imgUpdate(d, meta, id, name, hasChanged)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_image", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	return resourceIBMISImageRead(d, meta)
@@ -583,7 +605,9 @@ func imgUpdate(d *schema.ResourceData, meta interface{}, id, name string, hasNam
 			}
 			_, err = isWaitForImageDeprecate(sess, d.Id(), d.Timeout(schema.TimeoutCreate))
 			if err != nil {
-				return err
+				tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_image", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 			}
 		}
 	}
@@ -599,7 +623,9 @@ func imgUpdate(d *schema.ResourceData, meta interface{}, id, name string, hasNam
 			}
 			_, err = isWaitForImageObsolete(sess, d.Id(), d.Timeout(schema.TimeoutCreate))
 			if err != nil {
-				return err
+				tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_image", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 			}
 		}
 	}
@@ -650,7 +676,9 @@ func imgUpdate(d *schema.ResourceData, meta interface{}, id, name string, hasNam
 		} else {
 			obsoleteAt, err := strfmt.ParseDateTime(obsolescenceAt)
 			if err != nil {
-				return err
+				tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_image", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 			}
 			imagePatchModel.ObsolescenceAt = &obsoleteAt
 		}
@@ -663,7 +691,9 @@ func imgUpdate(d *schema.ResourceData, meta interface{}, id, name string, hasNam
 		} else {
 			deprecateAt, err := strfmt.ParseDateTime(deprecationAt)
 			if err != nil {
-				return err
+				tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_image", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 			}
 			imagePatchModel.DeprecationAt = &deprecateAt
 		}
@@ -692,7 +722,9 @@ func resourceIBMISImageRead(context context.Context, d *schema.ResourceData, met
 	id := d.Id()
 	err := imgGet(d, meta, id)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_image", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	return nil
 }
@@ -774,7 +806,9 @@ func imgGet(d *schema.ResourceData, meta interface{}, id string) error {
 	d.Set(isImageAccessTags, accesstags)
 	controller, err := flex.GetBaseController(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_image", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	d.Set(flex.ResourceControllerURL, controller+"/vpc-ext/compute/image")
 	d.Set(flex.ResourceName, *image.Name)
@@ -792,7 +826,9 @@ func resourceIBMISImageDelete(context context.Context, d *schema.ResourceData, m
 	id := d.Id()
 	err := imgDelete(d, meta, id)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_image", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	return nil
 }
@@ -824,7 +860,9 @@ func imgDelete(d *schema.ResourceData, meta interface{}, id string) error {
 	}
 	_, err = isWaitForImageDeleted(sess, id, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_image", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	d.SetId("")
 	return nil

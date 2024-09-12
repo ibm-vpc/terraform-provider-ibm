@@ -248,7 +248,9 @@ func resourceIBMISSecurityGroupRuleCreate(context context.Context, d *schema.Res
 
 	parsed, sgTemplate, _, err := parseIBMISSecurityGroupRuleDictionary(d, "create", sess)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_security_group_rule", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	isSecurityGroupRuleKey := "security_group_rule_key_" + parsed.secgrpID
 	conns.IbmMutexKV.Lock(isSecurityGroupRuleKey)
@@ -298,7 +300,9 @@ func resourceIBMISSecurityGroupRuleRead(context context.Context, d *schema.Resou
 	}
 	secgrpID, ruleID, err := parseISTerraformID(d.Id())
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_security_group_rule", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	getSecurityGroupRuleOptions := &vpcv1.GetSecurityGroupRuleOptions{
@@ -459,7 +463,9 @@ func resourceIBMISSecurityGroupRuleUpdate(context context.Context, d *schema.Res
 
 	parsed, _, sgTemplate, err := parseIBMISSecurityGroupRuleDictionary(d, "update", sess)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_security_group_rule", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	isSecurityGroupRuleKey := "security_group_rule_key_" + parsed.secgrpID
 	conns.IbmMutexKV.Lock(isSecurityGroupRuleKey)
@@ -482,7 +488,9 @@ func resourceIBMISSecurityGroupRuleDelete(context context.Context, d *schema.Res
 	}
 	secgrpID, ruleID, err := parseISTerraformID(d.Id())
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_security_group_rule", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	isSecurityGroupRuleKey := "security_group_rule_key_" + secgrpID

@@ -202,7 +202,9 @@ func resourceIBMISIPSecPolicyCreate(context context.Context, d *schema.ResourceD
 
 	err := ipsecpCreate(d, meta, authenticationAlg, encryptionAlg, name, pfs)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_ipsec_policy", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	return resourceIBMISIPSecPolicyRead(d, meta)
 }
@@ -297,7 +299,9 @@ func ipsecpGet(d *schema.ResourceData, meta interface{}, id string) error {
 	d.Set(isIPSecVPNConnections, connList)
 	controller, err := flex.GetBaseController(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_ipsec_policy", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	d.Set(flex.ResourceControllerURL, controller+"/vpc-ext/network/ipsecpolicies")
 	d.Set(flex.ResourceName, *ipSec.Name)
@@ -310,7 +314,9 @@ func resourceIBMISIPSecPolicyUpdate(context context.Context, d *schema.ResourceD
 	id := d.Id()
 	err := ipsecpUpdate(d, meta, id)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_ipsec_policy", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	return resourceIBMISIPSecPolicyRead(d, meta)

@@ -76,7 +76,9 @@ func ResourceIBMISFloatingIP() *schema.Resource {
 						if old != "" || new != "" {
 							sess, err := vpcClient(v)
 							if err != nil {
-								return err
+								tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_floating_ip", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 							}
 							if checkIfZoneChanged(old.(string), new.(string), diff.Get(isFloatingIPZone).(string), sess) {
 								diff.ForceNew(isFloatingIPTarget)
@@ -321,7 +323,9 @@ func resourceIBMISFloatingIPCreate(context context.Context, d *schema.ResourceDa
 	name := d.Get(isFloatingIPName).(string)
 	err := fipCreate(d, meta, name)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_floating_ip", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	return resourceIBMISFloatingIPRead(d, meta)
@@ -376,7 +380,9 @@ func fipCreate(d *schema.ResourceData, meta interface{}, name string) error {
 	log.Printf("[INFO] Floating IP : %s[%s]", *floatingip.ID, *floatingip.Address)
 	_, err = isWaitForInstanceFloatingIP(sess, d.Id(), d)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_floating_ip", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	v := os.Getenv("IC_ENV_TAGS")
 	if _, ok := d.GetOk(isFloatingIPTags); ok || v != "" {
@@ -403,7 +409,9 @@ func resourceIBMISFloatingIPRead(context context.Context, d *schema.ResourceData
 	id := d.Id()
 	err := fipGet(d, meta, id)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_floating_ip", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	return nil
@@ -458,7 +466,9 @@ func fipGet(d *schema.ResourceData, meta interface{}, id string) error {
 
 	controller, err := flex.GetBaseController(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_floating_ip", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	d.Set(flex.ResourceControllerURL, controller+"/vpc-ext/network/floatingIPs")
 	d.Set(flex.ResourceName, *floatingip.Name)
@@ -476,7 +486,9 @@ func resourceIBMISFloatingIPUpdate(context context.Context, d *schema.ResourceDa
 	id := d.Id()
 	err := fipUpdate(d, meta, id)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_floating_ip", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	return resourceIBMISFloatingIPRead(d, meta)
 }
@@ -563,7 +575,9 @@ func resourceIBMISFloatingIPDelete(context context.Context, d *schema.ResourceDa
 	id := d.Id()
 	err := fipDelete(d, meta, id)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_floating_ip", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	return nil
 }
@@ -596,7 +610,9 @@ func fipDelete(d *schema.ResourceData, meta interface{}, id string) error {
 	}
 	_, err = isWaitForFloatingIPDeleted(sess, id, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_floating_ip", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	d.SetId("")
 	return nil

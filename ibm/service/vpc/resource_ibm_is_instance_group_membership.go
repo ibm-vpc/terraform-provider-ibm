@@ -228,7 +228,9 @@ func resourceIBMISInstanceGroupMembershipRead(context context.Context, d *schema
 
 	parts, err := flex.IdParts(d.Id())
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance_group_membership", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	instanceGroupID := parts[0]
 	instanceGroupMembershipID := parts[1]
@@ -287,7 +289,9 @@ func resourceIBMISInstanceGroupMembershipDelete(context context.Context, d *sche
 
 	parts, err := flex.IdParts(d.Id())
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance_group_membership", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	instanceGroupID := parts[0]
 	instanceGroupMembershipID := parts[1]

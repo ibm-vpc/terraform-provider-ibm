@@ -204,7 +204,9 @@ func imgObsoleteCreate(context context.Context, d *schema.ResourceData, meta int
 	log.Printf("[INFO] Image ID : %s", id)
 	_, err = isWaitForImageObsolete(sess, d.Id(), d.Timeout(schema.TimeoutCreate))
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_image_obsolete", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	return nil

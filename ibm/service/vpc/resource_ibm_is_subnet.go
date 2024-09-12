@@ -312,7 +312,9 @@ func resourceIBMISSubnetCreate(context context.Context, d *schema.ResourceData, 
 
 	err := subnetCreate(d, meta, name, vpc, zone, ipv4cidr, acl, gw, rtID, ipv4addrcount64)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_subnet", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	return resourceIBMISSubnetRead(d, meta)
@@ -378,7 +380,9 @@ func subnetCreate(d *schema.ResourceData, meta interface{}, name, vpc, zone, ipv
 	log.Printf("[INFO] Subnet : %s", *subnet.ID)
 	_, err = isWaitForSubnetAvailable(sess, d.Id(), d.Timeout(schema.TimeoutCreate))
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_subnet", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	v := os.Getenv("IC_ENV_TAGS")
 	if _, ok := d.GetOk(isSubnetTags); ok || v != "" {
@@ -441,7 +445,9 @@ func resourceIBMISSubnetRead(context context.Context, d *schema.ResourceData, me
 
 	err := subnetGet(d, meta, id)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_subnet", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	return nil
 }
@@ -488,7 +494,9 @@ func subnetGet(d *schema.ResourceData, meta interface{}, id string) error {
 
 	controller, err := flex.GetBaseController(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_subnet", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	tags, err := flex.GetGlobalTagsUsingCRN(meta, *subnet.CRN, "", isUserTagType)
@@ -540,7 +548,9 @@ func resourceIBMISSubnetUpdate(context context.Context, d *schema.ResourceData, 
 
 	err := subnetUpdate(d, meta, id)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_subnet", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	return resourceIBMISSubnetRead(d, meta)
@@ -582,7 +592,9 @@ func subnetUpdate(d *schema.ResourceData, meta interface{}, id string) error {
 			}
 			_, err = isWaitForSubnetAvailable(sess, d.Id(), d.Timeout(schema.TimeoutUpdate))
 			if err != nil {
-				return err
+				tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_subnet", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 			}
 		} else {
 			setSubnetPublicGatewayOptions := &vpcv1.SetSubnetPublicGatewayOptions{
@@ -597,7 +609,9 @@ func subnetUpdate(d *schema.ResourceData, meta interface{}, id string) error {
 			}
 			_, err = isWaitForSubnetAvailable(sess, d.Id(), d.Timeout(schema.TimeoutUpdate))
 			if err != nil {
-				return err
+				tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_subnet", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 			}
 		}
 	}
@@ -617,7 +631,9 @@ func subnetUpdate(d *schema.ResourceData, meta interface{}, id string) error {
 		_, _, err = sess.ReplaceSubnetRoutingTable(setSubnetRoutingTableBindingOptions)
 		if err != nil {
 			log.Printf("SetSubnetRoutingTableBinding eroor: %s", err)
-			return err
+			tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_subnet", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 		}*/
 	}
 	if hasChanged {
@@ -640,7 +656,9 @@ func resourceIBMISSubnetDelete(context context.Context, d *schema.ResourceData, 
 	id := d.Id()
 	err := subnetDelete(d, meta, id)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_subnet", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	d.SetId("")
@@ -670,11 +688,15 @@ func subnetDelete(d *schema.ResourceData, meta interface{}, id string) error {
 		}
 		_, err = sess.UnsetSubnetPublicGateway(unsetSubnetPublicGatewayOptions)
 		if err != nil {
-			return err
+			tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_subnet", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 		}
 		_, err = isWaitForSubnetAvailable(sess, d.Id(), d.Timeout(schema.TimeoutDelete))
 		if err != nil {
-			return err
+			tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_subnet", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 		}
 	}
 	deleteSubnetOptions := &vpcv1.DeleteSubnetOptions{
@@ -694,7 +716,9 @@ func subnetDelete(d *schema.ResourceData, meta interface{}, id string) error {
 	}
 	_, err = isWaitForSubnetDeleted(sess, d.Id(), d.Timeout(schema.TimeoutDelete))
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_subnet", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	d.SetId("")
 	return nil

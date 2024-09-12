@@ -122,7 +122,9 @@ func resourceIBMisVirtualEndpointGatewayIPCreate(context context.Context, d *sch
 	_, response, err := sess.AddEndpointGatewayIP(opt)
 	if err != nil {
 		log.Printf("Add Endpoint Gateway failed: %v", response)
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_virtual_endpoint_gateway_ip", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	d.SetId(fmt.Sprintf("%s/%s", gatewayID, ipID))
 	return resourceIBMisVirtualEndpointGatewayIPRead(d, meta)
@@ -137,7 +139,9 @@ func resourceIBMisVirtualEndpointGatewayIPRead(context context.Context, d *schem
 	}
 	parts, err := flex.IdParts(d.Id())
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_virtual_endpoint_gateway_ip", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	gatewayID := parts[0]
 	ipID := parts[1]
@@ -145,7 +149,9 @@ func resourceIBMisVirtualEndpointGatewayIPRead(context context.Context, d *schem
 	result, response, err := sess.GetEndpointGatewayIP(opt)
 	if err != nil {
 		log.Printf("Get Endpoint Gateway IP failed: %v", response)
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_virtual_endpoint_gateway_ip", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	d.Set(isVirtualEndpointGatewayIPID, result.ID)
 	d.Set(isVirtualEndpointGatewayIPName, result.Name)
@@ -167,7 +173,9 @@ func resourceIBMisVirtualEndpointGatewayIPDelete(context context.Context, d *sch
 	}
 	parts, err := flex.IdParts(d.Id())
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_virtual_endpoint_gateway_ip", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	gatewayID := parts[0]
 	ipID := parts[1]
@@ -175,7 +183,9 @@ func resourceIBMisVirtualEndpointGatewayIPDelete(context context.Context, d *sch
 	response, err := sess.RemoveEndpointGatewayIP(opt)
 	if err != nil && response.StatusCode != 404 {
 		log.Printf("Remove Endpoint Gateway IP failed: %v", response)
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_virtual_endpoint_gateway_ip", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	d.SetId("")
 	return nil

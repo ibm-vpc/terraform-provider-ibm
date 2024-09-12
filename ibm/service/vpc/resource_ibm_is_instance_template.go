@@ -1212,12 +1212,16 @@ func resourceIBMisInstanceTemplateCreate(context context.Context, d *schema.Reso
 		planCrn, _ := catalogOffering[isInstanceTemplateCatalogOfferingPlanCrn].(string)
 		err := instanceTemplateCreateByCatalogOffering(d, meta, profile, name, vpcID, zone, offeringCrn, versionCrn, planCrn)
 		if err != nil {
-			return err
+			tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance_template", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 		}
 	} else {
 		err := instanceTemplateCreate(d, meta, profile, name, vpcID, zone, image)
 		if err != nil {
-			return err
+			tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance_template", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 		}
 	}
 
@@ -1228,7 +1232,9 @@ func resourceIBMisInstanceTemplateRead(context context.Context, d *schema.Resour
 	ID := d.Id()
 	err := instanceTemplateGet(d, meta, ID)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance_template", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	return nil
 }
@@ -1239,7 +1245,9 @@ func resourceIBMisInstanceTemplateDelete(context context.Context, d *schema.Reso
 
 	err := instanceTemplateDelete(d, meta, ID)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance_template", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	return nil
 }
@@ -1248,7 +1256,9 @@ func resourceIBMisInstanceTemplateUpdate(context context.Context, d *schema.Reso
 
 	err := instanceTemplateUpdate(d, meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance_template", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	return resourceIBMisInstanceTemplateRead(d, meta)
 }
@@ -1330,7 +1340,9 @@ func instanceTemplateCreateByCatalogOffering(d *schema.ResourceData, meta interf
 			enablenat := fmt.Sprintf("network_attachments.%d.enable_infrastructure_nat", i)
 			networkAttachmentsItemModel, err := resourceIBMIsInstanceTemplateMapToInstanceNetworkAttachmentPrototype(allowipspoofing, autodelete, enablenat, d, networkAttachmentsItem.(map[string]interface{}))
 			if err != nil {
-				return err
+				tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance_template", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 			}
 			networkAttachments = append(networkAttachments, *networkAttachmentsItemModel)
 		}
@@ -1343,7 +1355,9 @@ func instanceTemplateCreateByCatalogOffering(d *schema.ResourceData, meta interf
 		enablenat := fmt.Sprintf("primary_network_attachment.%d.virtual_network_interface.0.enable_infrastructure_nat", i)
 		primaryNetworkAttachmentModel, err := resourceIBMIsInstanceTemplateMapToInstanceNetworkAttachmentPrototype(allowipspoofing, autodelete, enablenat, d, primnetworkattachmentintf.([]interface{})[0].(map[string]interface{}))
 		if err != nil {
-			return err
+			tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance_template", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 		}
 		instanceproto.PrimaryNetworkAttachment = primaryNetworkAttachmentModel
 	}
@@ -1799,7 +1813,9 @@ func instanceTemplateCreate(d *schema.ResourceData, meta interface{}, profile, n
 			enablenat := fmt.Sprintf("network_attachments.%d.virtual_network_interface.0.enable_infrastructure_nat", i)
 			networkAttachmentsItemModel, err := resourceIBMIsInstanceTemplateMapToInstanceNetworkAttachmentPrototype(allowipspoofing, autodelete, enablenat, d, networkAttachmentsItem.(map[string]interface{}))
 			if err != nil {
-				return err
+				tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance_template", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 			}
 			networkAttachments = append(networkAttachments, *networkAttachmentsItemModel)
 		}
@@ -1812,7 +1828,9 @@ func instanceTemplateCreate(d *schema.ResourceData, meta interface{}, profile, n
 		enablenat := fmt.Sprintf("primary_network_attachment.%d.virtual_network_interface.0.enable_infrastructure_nat", i)
 		primaryNetworkAttachmentModel, err := resourceIBMIsInstanceTemplateMapToInstanceNetworkAttachmentPrototype(allowipspoofing, autodelete, enablenat, d, primnetworkattachmentintf.([]interface{})[0].(map[string]interface{}))
 		if err != nil {
-			return err
+			tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance_template", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 		}
 		instanceproto.PrimaryNetworkAttachment = primaryNetworkAttachmentModel
 	}
@@ -2234,7 +2252,9 @@ func instanceTemplateCreate(d *schema.ResourceData, meta interface{}, profile, n
 func instanceTemplateGet(d *schema.ResourceData, meta interface{}, ID string) error {
 	instanceC, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance_template", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	getinsOptions := &vpcv1.GetInstanceTemplateOptions{
 		ID: &ID,
@@ -2266,7 +2286,9 @@ func instanceTemplateGet(d *schema.ResourceData, meta interface{}, ID string) er
 		for _, networkAttachmentsItem := range instance.NetworkAttachments {
 			networkAttachmentsItemMap, err := resourceIBMIsInstanceTemplateNetworkAttachmentReferenceToMap(&networkAttachmentsItem, instanceC)
 			if err != nil {
-				return err
+				tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance_template", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 			}
 			networkAttachments = append(networkAttachments, networkAttachmentsItemMap)
 		}
@@ -2278,7 +2300,9 @@ func instanceTemplateGet(d *schema.ResourceData, meta interface{}, ID string) er
 	if !core.IsNil(instance.PrimaryNetworkAttachment) {
 		primaryNetworkAttachmentMap, err := resourceIBMIsInstanceTemplateNetworkAttachmentReferenceToMap(instance.PrimaryNetworkAttachment, instanceC)
 		if err != nil {
-			return err
+			tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance_template", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 		}
 		if err = d.Set("primary_network_attachment", []map[string]interface{}{primaryNetworkAttachmentMap}); err != nil {
 			return fmt.Errorf("[ERROR] Error  setting primary_network_attachment: %s", err)
@@ -2596,7 +2620,9 @@ func resourceIbmIsInstanceTemplateInstancePlacementTargetPrototypeToMap(instance
 func instanceTemplateUpdate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	instanceC, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance_template", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	ID := d.Id()
 
@@ -2617,7 +2643,9 @@ func instanceTemplateUpdate(context context.Context, d *schema.ResourceData, met
 
 		_, _, err = instanceC.UpdateInstanceTemplate(updnetoptions)
 		if err != nil {
-			return err
+			tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance_template", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 		}
 	}
 	return nil
@@ -2626,7 +2654,9 @@ func instanceTemplateUpdate(context context.Context, d *schema.ResourceData, met
 func instanceTemplateDelete(d *schema.ResourceData, meta interface{}, ID string) error {
 	instanceC, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance_template", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	deleteinstanceTemplateOptions := &vpcv1.DeleteInstanceTemplateOptions{
@@ -2634,7 +2664,9 @@ func instanceTemplateDelete(d *schema.ResourceData, meta interface{}, ID string)
 	}
 	_, err = instanceC.DeleteInstanceTemplate(deleteinstanceTemplateOptions)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance_template", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	return nil
 }
