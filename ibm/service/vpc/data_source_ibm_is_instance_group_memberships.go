@@ -4,10 +4,13 @@
 package vpc
 
 import (
+	"context"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/IBM/vpc-go-sdk/vpcv1"
@@ -19,7 +22,7 @@ const (
 
 func DataSourceIBMISInstanceGroupMemberships() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceIBMISInstanceGroupMembershipsRead,
+		ReadContext: dataSourceIBMISInstanceGroupMembershipsRead,
 
 		Schema: map[string]*schema.Schema{
 			isInstanceGroup: {
@@ -112,10 +115,12 @@ func DataSourceIBMISInstanceGroupMemberships() *schema.Resource {
 	}
 }
 
-func dataSourceIBMISInstanceGroupMembershipsRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceIBMISInstanceGroupMembershipsRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "read")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	instanceGroupID := d.Get(isInstanceGroup).(string)
 	// Support for pagination

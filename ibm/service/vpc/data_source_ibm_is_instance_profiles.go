@@ -4,10 +4,14 @@
 package vpc
 
 import (
+	"context"
 	"fmt"
+	"log"
 	"time"
 
+	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -17,7 +21,7 @@ const (
 
 func DataSourceIBMISInstanceProfiles() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceIBMISInstanceProfilesRead,
+		ReadContext: dataSourceIBMISInstanceProfilesRead,
 
 		Schema: map[string]*schema.Schema{
 
@@ -725,7 +729,7 @@ func DataSourceIBMISInstanceProfiles() *schema.Resource {
 	}
 }
 
-func dataSourceIBMISInstanceProfilesRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceIBMISInstanceProfilesRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	err := instanceProfilesList(d, meta)
 	if err != nil {
 		return err
@@ -736,7 +740,9 @@ func dataSourceIBMISInstanceProfilesRead(d *schema.ResourceData, meta interface{
 func instanceProfilesList(d *schema.ResourceData, meta interface{}) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "read")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	listInstanceProfilesOptions := &vpcv1.ListInstanceProfilesOptions{}
 	availableProfiles, response, err := sess.ListInstanceProfiles(listInstanceProfilesOptions)

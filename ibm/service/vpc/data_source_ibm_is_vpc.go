@@ -4,6 +4,7 @@
 package vpc
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"reflect"
@@ -12,12 +13,13 @@ import (
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/validate"
 	"github.com/IBM/go-sdk-core/v5/core"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func DataSourceIBMISVPC() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceIBMISVPCRead,
+		ReadContext: dataSourceIBMISVPCRead,
 
 		Schema: map[string]*schema.Schema{
 			isVPCDefaultNetworkACL: {
@@ -496,7 +498,7 @@ func DataSourceIBMISVpcValidator() *validate.ResourceValidator {
 	return &ibmISVpcDataSourceValidator
 }
 
-func dataSourceIBMISVPCRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceIBMISVPCRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	name := d.Get(isVPCName).(string)
 	id := d.Get("identifier").(string)
 	err := vpcGetByNameOrId(d, meta, name, id)
@@ -509,7 +511,9 @@ func dataSourceIBMISVPCRead(d *schema.ResourceData, meta interface{}) error {
 func vpcGetByNameOrId(d *schema.ResourceData, meta interface{}, name, id string) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "read")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	flag := false
 	if id != "" {

@@ -4,12 +4,15 @@
 package vpc
 
 import (
+	"context"
 	"fmt"
+	"log"
 	"reflect"
 	"time"
 
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -21,7 +24,7 @@ const (
 
 func DataSourceIBMISVPNGatewayConnections() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceIBMVPNGatewayConnectionsRead,
+		ReadContext: dataSourceIBMVPNGatewayConnectionsRead,
 
 		Schema: map[string]*schema.Schema{
 			"status": {
@@ -288,11 +291,13 @@ func DataSourceIBMISVPNGatewayConnections() *schema.Resource {
 	}
 }
 
-func dataSourceIBMVPNGatewayConnectionsRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceIBMVPNGatewayConnectionsRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "read")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	vpngatewayID := d.Get(isVPNGatewayID).(string)
 	listvpnGWConnectionOptions := sess.NewListVPNGatewayConnectionsOptions(vpngatewayID)

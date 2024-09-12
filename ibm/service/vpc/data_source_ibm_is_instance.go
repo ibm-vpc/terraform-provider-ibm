@@ -1137,30 +1137,28 @@ func dataSourceIBMISInstanceRead(context context.Context, d *schema.ResourceData
 
 	name := d.Get(isInstanceName).(string)
 
-	err := instanceGetByName(d, meta, name)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-	return nil
-}
-
-func instanceGetByName(d *schema.ResourceData, meta interface{}, name string) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "read")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	listInstancesOptions := &vpcv1.ListInstancesOptions{
 		Name: &name,
 	}
 
-	instances, response, err := sess.ListInstances(listInstancesOptions)
+	instances, response, err := sess.ListInstancesWithContext(context, listInstancesOptions)
 	if err != nil {
-		return fmt.Errorf("[ERROR] Error Fetching Instances %s\n%s", err, response)
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("ListInstancesWithContext failed: %s\n%s", err.Error(), response), "ibm_cloud", "list")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	allrecs := instances.Instances
 
 	if len(allrecs) == 0 {
-		return fmt.Errorf("[ERROR] No Instance found with name %s", name)
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("No instance found with name : %s", name), "ibm_cloud", "datasource")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	instance := allrecs[0]
 	d.SetId(*instance.ID)
@@ -1288,9 +1286,11 @@ func instanceGetByName(d *schema.ResourceData, meta interface{}, name string) er
 			InstanceID: &id,
 			ID:         instance.PrimaryNetworkInterface.ID,
 		}
-		insnic, response, err := sess.GetInstanceNetworkInterface(getnicoptions)
+		insnic, response, err := sess.GetInstanceNetworkInterfaceWithContext(context, getnicoptions)
 		if err != nil {
-			return fmt.Errorf("[ERROR] Error getting network interfaces attached to the instance %s\n%s", err, response)
+			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("GetInstanceNetworkInterfaceWithContext failed: %s\n%s", err.Error(), response), "ibm_cloud", "get")
+			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+			return tfErr.GetDiag()
 		}
 		if insnic.PortSpeed != nil {
 			currentPrimNic[isInstanceNicPortSpeed] = *insnic.PortSpeed
@@ -1308,22 +1308,30 @@ func instanceGetByName(d *schema.ResourceData, meta interface{}, name string) er
 		d.Set(isInstancePrimaryNetworkInterface, primaryNicList)
 	}
 	if err = d.Set("confidential_compute_mode", instance.ConfidentialComputeMode); err != nil {
-		return fmt.Errorf("Error setting confidential_compute_mode: %s", err)
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting confidential_compute_mode : %s", err.Error()), "ibm_cloud", "set")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	primaryNetworkAttachment := []map[string]interface{}{}
 	if instance.PrimaryNetworkAttachment != nil {
 		modelMap, err := dataSourceIBMIsInstanceInstanceNetworkAttachmentReferenceToMap(instance.PrimaryNetworkAttachment)
 		if err != nil {
-			return err
+			tfErr := flex.TerraformErrorf(err, fmt.Sprintf(err.Error()), "ibm_cloud", "set")
+			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+			return tfErr.GetDiag()
 		}
 		primaryNetworkAttachment = append(primaryNetworkAttachment, modelMap)
 	}
 	if err = d.Set("primary_network_attachment", primaryNetworkAttachment); err != nil {
-		return fmt.Errorf("Error setting primary_network_attachment %s", err)
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting primary_network_attachment : %s", err.Error()), "ibm_cloud", "set")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	if err = d.Set("enable_secure_boot", instance.EnableSecureBoot); err != nil {
-		return fmt.Errorf("Error setting enable_secure_boot: %s", err)
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting enable_secure_boot : %s", err.Error()), "ibm_cloud", "set")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	if instance.NetworkInterfaces != nil {
 		interfacesList := make([]map[string]interface{}, 0)
@@ -1359,9 +1367,11 @@ func instanceGetByName(d *schema.ResourceData, meta interface{}, name string) er
 					InstanceID: &id,
 					ID:         intfc.ID,
 				}
-				insnic, response, err := sess.GetInstanceNetworkInterface(getnicoptions)
+				insnic, response, err := sess.GetInstanceNetworkInterfaceWithContext(context, getnicoptions)
 				if err != nil {
-					return fmt.Errorf("[ERROR] Error getting network interfaces attached to the instance %s\n%s", err, response)
+					tfErr := flex.TerraformErrorf(err, fmt.Sprintf("GetInstanceNetworkInterfaceWithContext failed: %s\n%s", err.Error(), response), "ibm_cloud", "get")
+					log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+					return tfErr.GetDiag()
 				}
 				currentNic[isInstanceNicSubnet] = *insnic.Subnet.ID
 				if len(insnic.SecurityGroups) != 0 {
@@ -1383,13 +1393,18 @@ func instanceGetByName(d *schema.ResourceData, meta interface{}, name string) er
 		for _, modelItem := range instance.NetworkAttachments {
 			modelMap, err := dataSourceIBMIsInstanceInstanceNetworkAttachmentReferenceToMap(&modelItem)
 			if err != nil {
-				return err
+				tfErr := flex.TerraformErrorf(err, fmt.Sprintf(err.Error()), "ibm_cloud", "set")
+				log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+				return tfErr.GetDiag()
 			}
 			networkAttachments = append(networkAttachments, modelMap)
 		}
 	}
 	if err = d.Set("network_attachments", networkAttachments); err != nil {
-		return fmt.Errorf("Error setting network_attachments %s", err)
+		errobj := fmt.Errorf("Error setting network_attachments %s", err)
+		tfErr := flex.TerraformErrorf(errobj, fmt.Sprintf(errobj.Error()), "ibm_cloud", "set")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	var rsaKey *rsa.PrivateKey
@@ -1405,14 +1420,19 @@ func instanceGetByName(d *schema.ResourceData, meta interface{}, name string) er
 				if keyFlag != "" {
 					block, err := pem.Decode(keybytes)
 					if block == nil {
-						return fmt.Errorf("[ERROR] Failed to load the private key from the given key contents. Instead of the key file path, please make sure the private key is pem format (%v)", err)
+						errobj := fmt.Errorf("[ERROR] Failed to load the private key from the given key contents. Instead of the key file path, please make sure the private key is pem format (%v)", err)
+						tfErr := flex.TerraformErrorf(errobj, fmt.Sprintf(errobj.Error()), "ibm_cloud", "load")
+						log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+						return tfErr.GetDiag()
 					}
 					isEncrypted := false
 					if block.Type == "OPENSSH PRIVATE KEY" {
 						var err error
 						isEncrypted, err = isOpenSSHPrivKeyEncrypted(block.Bytes)
 						if err != nil {
-							return fmt.Errorf("[ERROR] Failed to check if the provided open ssh key is encrypted or not %s", err)
+							tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Failed to check if the provided open ssh key is encrypted or not: %s", err.Error()), "ibm_cloud", "check")
+							log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+							return tfErr.GetDiag()
 						}
 					} else {
 						isEncrypted = x509.IsEncryptedPEMBlock(block)
@@ -1423,24 +1443,34 @@ func instanceGetByName(d *schema.ResourceData, meta interface{}, name string) er
 						if pass, ok := d.GetOk(isInstancePassphrase); ok {
 							passphrase = pass.(string)
 						} else {
-							return fmt.Errorf("[ERROR] Mandatory field 'passphrase' not provided")
+							err := fmt.Errorf("[ERROR] Mandatory field 'passphrase' not provided")
+							tfErr := flex.TerraformErrorf(err, fmt.Sprintf(err.Error()), "ibm_cloud", "missing")
+							log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+							return tfErr.GetDiag()
 						}
 						var err error
 						privateKey, err = sshkeys.ParseEncryptedRawPrivateKey(keybytes, []byte(passphrase))
 						if err != nil {
-							return fmt.Errorf("[ERROR] Fail to decrypting the private key: %s", err)
+							tfErr := flex.TerraformErrorf(err, fmt.Sprintf("ParseEncryptedRawPrivateKey failed: %s", err.Error()), "ibm_cloud", "parse")
+							log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+							return tfErr.GetDiag()
 						}
 					} else {
 						var err error
 						privateKey, err = sshkeys.ParseEncryptedRawPrivateKey(keybytes, nil)
 						if err != nil {
-							return fmt.Errorf("[ERROR] Fail to decrypting the private key: %s", err)
+							tfErr := flex.TerraformErrorf(err, fmt.Sprintf("ParseEncryptedRawPrivateKey failed: %s", err.Error()), "ibm_cloud", "parse")
+							log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+							return tfErr.GetDiag()
 						}
 					}
 					var ok bool
 					rsaKey, ok = privateKey.(*rsa.PrivateKey)
 					if !ok {
-						return fmt.Errorf("[ERROR] Failed to convert to RSA private key")
+						err := fmt.Errorf("[ERROR] Failed to convert to RSA private key")
+						tfErr := flex.TerraformErrorf(err, fmt.Sprintf(err.Error()), "ibm_cloud", "conversion")
+						log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+						return tfErr.GetDiag()
 					}
 				}
 			}
@@ -1450,9 +1480,11 @@ func instanceGetByName(d *schema.ResourceData, meta interface{}, name string) er
 	getInstanceInitializationOptions := &vpcv1.GetInstanceInitializationOptions{
 		ID: &id,
 	}
-	initParms, response, err := sess.GetInstanceInitialization(getInstanceInitializationOptions)
+	initParms, response, err := sess.GetInstanceInitializationWithContext(context, getInstanceInitializationOptions)
 	if err != nil {
-		return fmt.Errorf("[ERROR] Error Getting instance Initialization: %s\n%s", err, response)
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("GetInstanceInitializationWithContext failed: %s\n%s", err.Error(), response), "ibm_cloud", "get")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	if initParms.Keys != nil {
 		initKeyList := make([]map[string]interface{}, 0)
@@ -1489,7 +1521,9 @@ func instanceGetByName(d *schema.ResourceData, meta interface{}, name string) er
 			rng := rand.Reader
 			clearPassword, err := rsa.DecryptPKCS1v15(rng, rsaKey, ciphertext)
 			if err != nil {
-				return fmt.Errorf("[ERROR] Can not decrypt the password with the given key, %s", err)
+				tfErr := flex.TerraformErrorf(err, fmt.Sprintf("DecryptPKCS1v15 failed: %s", err.Error()), "ibm_cloud", "decrypt")
+				log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+				return tfErr.GetDiag()
 			}
 			password = string(clearPassword)
 		}
@@ -1572,7 +1606,9 @@ func instanceGetByName(d *schema.ResourceData, meta interface{}, name string) er
 
 	controller, err := flex.GetBaseController(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("GetBaseController failed: %s", err.Error()), "ibm_cloud", "get")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	d.Set(flex.ResourceControllerURL, controller+"/vpc-ext/compute/vs")
 	d.Set(flex.ResourceName, instance.Name)
@@ -1630,7 +1666,6 @@ func instanceGetByName(d *schema.ResourceData, meta interface{}, name string) er
 		d.Set(isInstanceReservation, resList)
 	}
 	return nil
-
 }
 
 func dataSourceInstanceReservationDeletedToMap(deletedItem vpcv1.ReservationReferenceDeleted) (deletedMap map[string]interface{}) {

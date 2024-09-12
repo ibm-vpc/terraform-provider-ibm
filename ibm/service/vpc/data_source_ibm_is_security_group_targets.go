@@ -4,17 +4,20 @@
 package vpc
 
 import (
+	"context"
 	"fmt"
+	"log"
 
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func DataSourceIBMISSecurityGroupTargets() *schema.Resource {
 	return &schema.Resource{
 
-		Read: dataSourceIBMISSecurityGroupTargetsRead,
+		ReadContext: dataSourceIBMISSecurityGroupTargetsRead,
 
 		Schema: map[string]*schema.Schema{
 
@@ -67,11 +70,13 @@ func DataSourceIBMISSecurityGroupTargets() *schema.Resource {
 	}
 }
 
-func dataSourceIBMISSecurityGroupTargetsRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceIBMISSecurityGroupTargetsRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "read")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	securityGroupID := d.Get("security_group").(string)

@@ -4,9 +4,13 @@
 package vpc
 
 import (
+	"context"
 	"fmt"
+	"log"
 
+	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -18,7 +22,7 @@ const (
 
 func DataSourceIBMISZone() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceIBMISZoneRead,
+		ReadContext: dataSourceIBMISZoneRead,
 
 		Schema: map[string]*schema.Schema{
 
@@ -40,24 +44,28 @@ func DataSourceIBMISZone() *schema.Resource {
 	}
 }
 
-func dataSourceIBMISZoneRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceIBMISZoneRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	regionName := d.Get(isZoneRegion).(string)
 	zoneName := d.Get(isZoneName).(string)
-	return zoneGet(d, meta, regionName, zoneName)
+	return zoneGet(d, context, meta, regionName, zoneName)
 }
 
-func zoneGet(d *schema.ResourceData, meta interface{}, regionName, zoneName string) error {
+func zoneGet(d *schema.ResourceData, context context.Context, meta interface{}, regionName, zoneName string) diag.Diagnostics {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "(Data) ibm_is_zone", "read")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	getRegionZoneOptions := &vpcv1.GetRegionZoneOptions{
 		RegionName: &regionName,
 		Name:       &zoneName,
 	}
-	zone, _, err := sess.GetRegionZone(getRegionZoneOptions)
+	zone, _, err := sess.GetRegionZoneWithContext(context, getRegionZoneOptions)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("GetRegionZoneWithContext failed: %s", err.Error()), "(Data) ibm_is_zone", "read")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	// For lack of anything better, compose our id from region name + zone name.
 	id := fmt.Sprintf("%s.%s", *zone.Region.Name, *zone.Name)

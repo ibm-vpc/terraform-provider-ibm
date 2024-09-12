@@ -4,12 +4,14 @@
 package vpc
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"reflect"
 
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -39,7 +41,7 @@ const (
 
 func DataSourceIBMISFloatingIP() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceIBMISFloatingIPRead,
+		ReadContext: dataSourceIBMISFloatingIPRead,
 
 		Schema: map[string]*schema.Schema{
 
@@ -181,19 +183,13 @@ func DataSourceIBMISFloatingIP() *schema.Resource {
 	}
 }
 
-func dataSourceIBMISFloatingIPRead(d *schema.ResourceData, meta interface{}) error {
-	floatingIPName := d.Get(isFloatingIPName).(string)
-	err := floatingIPGet(d, meta, floatingIPName)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func floatingIPGet(d *schema.ResourceData, meta interface{}, name string) error {
+func dataSourceIBMISFloatingIPRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	name := d.Get(isFloatingIPName).(string)
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "read")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	start := ""
@@ -203,9 +199,11 @@ func floatingIPGet(d *schema.ResourceData, meta interface{}, name string) error 
 		if start != "" {
 			floatingIPOptions.Start = &start
 		}
-		floatingIPs, response, err := sess.ListFloatingIps(floatingIPOptions)
+		floatingIPs, response, err := sess.ListFloatingIpsWithContext(context, floatingIPOptions)
 		if err != nil {
-			return fmt.Errorf("[ERROR] Error Fetching floating IPs %s\n%s", err, response)
+			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("ListFloatingIpsWithContext failed: %s\n%s", err.Error(), response), "ibm_cloud", "list")
+			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+			return tfErr.GetDiag()
 		}
 		start = flex.GetNext(floatingIPs.Next)
 		allFloatingIPs = append(allFloatingIPs, floatingIPs.FloatingIps...)
@@ -240,7 +238,7 @@ func floatingIPGet(d *schema.ResourceData, meta interface{}, name string) error 
 			accesstags, err := flex.GetGlobalTagsUsingCRN(meta, *ip.CRN, "", isAccessTagType)
 			if err != nil {
 				log.Printf(
-					"Error on get of resource floating ip (%s) access tags: %s", d.Id(), err)
+					"[ERROR] Error on get of resource floating ip (%s) access tags: %s", d.Id(), err)
 			}
 			d.Set(isFloatingIPAccessTags, accesstags)
 			d.SetId(*ip.ID)
@@ -248,9 +246,9 @@ func floatingIPGet(d *schema.ResourceData, meta interface{}, name string) error 
 			return nil
 		}
 	}
-
-	return fmt.Errorf("[ERROR] No floatingIP found with name  %s", name)
-
+	tfErr := flex.TerraformErrorf(err, fmt.Sprintf("No Floating IP found with name : %s", name), "ibm_cloud", "datasource")
+	log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+	return tfErr.GetDiag()
 }
 
 func dataSourceFloatingIPCollectionFloatingIpTargetToMap(targetItemIntf vpcv1.FloatingIPTargetIntf) (targetId string, targetMap map[string]interface{}) {

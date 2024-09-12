@@ -4,12 +4,14 @@
 package vpc
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"time"
 
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -20,7 +22,7 @@ const (
 
 func DataSourceIBMISInstances() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceIBMISInstancesRead,
+		ReadContext: dataSourceIBMISInstancesRead,
 
 		Schema: map[string]*schema.Schema{
 			isInstanceGroup: {
@@ -1081,7 +1083,7 @@ func DataSourceIBMISInstances() *schema.Resource {
 	}
 }
 
-func dataSourceIBMISInstancesRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceIBMISInstancesRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	err := instancesList(d, meta)
 	if err != nil {
@@ -1093,7 +1095,9 @@ func dataSourceIBMISInstancesRead(d *schema.ResourceData, meta interface{}) erro
 func instancesList(d *schema.ResourceData, meta interface{}) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "read")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	var vpcName, vpcID, vpcCrn, resourceGroup, insGrp, dHostNameStr, dHostIdStr, placementGrpNameStr, placementGrpIdStr string

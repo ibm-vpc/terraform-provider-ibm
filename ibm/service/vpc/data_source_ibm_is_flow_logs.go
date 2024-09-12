@@ -4,12 +4,14 @@
 package vpc
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"time"
 
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -19,7 +21,7 @@ const (
 
 func DataSourceIBMISFlowLogs() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceIBMISFlowLogsRead,
+		ReadContext: dataSourceIBMISFlowLogsRead,
 
 		Schema: map[string]*schema.Schema{
 			"resource_group": {
@@ -140,10 +142,12 @@ func DataSourceIBMISFlowLogs() *schema.Resource {
 	}
 }
 
-func dataSourceIBMISFlowLogsRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceIBMISFlowLogsRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "read")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	start := ""
@@ -182,9 +186,11 @@ func dataSourceIBMISFlowLogsRead(d *schema.ResourceData, meta interface{}) error
 		if start != "" {
 			listOptions.Start = &start
 		}
-		flowlogCollectors, response, err := sess.ListFlowLogCollectors(listOptions)
+		flowlogCollectors, response, err := sess.ListFlowLogCollectorsWithContext(context, listOptions)
 		if err != nil {
-			return fmt.Errorf("[ERROR] Error Fetching Flow Logs for VPC %s\n%s", err, response)
+			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("ListFlowLogCollectorsWithContext failed: %s\n%s", err.Error(), response), "ibm_cloud", "list")
+			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+			return tfErr.GetDiag()
 		}
 		start = flex.GetNext(flowlogCollectors.Next)
 		allrecs = append(allrecs, flowlogCollectors.FlowLogCollectors...)

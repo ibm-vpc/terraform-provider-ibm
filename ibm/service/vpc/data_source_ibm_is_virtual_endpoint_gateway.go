@@ -14,8 +14,8 @@ import (
 
 func DataSourceIBMISEndpointGateway() *schema.Resource {
 	return &schema.Resource{
-		Read:     dataSourceIBMISEndpointGatewayRead,
-		Importer: &schema.ResourceImporter{},
+		ReadContext: dataSourceIBMISEndpointGatewayRead,
+		Importer:    &schema.ResourceImporter{},
 
 		Schema: map[string]*schema.Schema{
 			isVirtualEndpointGatewayName: {
@@ -148,7 +148,9 @@ func dataSourceIBMISEndpointGatewayRead(
 	d *schema.ResourceData, meta interface{}) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "read")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	name := d.Get(isVirtualEndpointGatewayName).(string)

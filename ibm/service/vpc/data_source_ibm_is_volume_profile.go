@@ -4,7 +4,13 @@
 package vpc
 
 import (
+	"context"
+	"fmt"
+	"log"
+
+	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -15,7 +21,7 @@ const (
 
 func DataSourceIBMISVolumeProfile() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceIBMISVolumeProfileRead,
+		ReadContext: dataSourceIBMISVolumeProfileRead,
 
 		Schema: map[string]*schema.Schema{
 
@@ -34,7 +40,7 @@ func DataSourceIBMISVolumeProfile() *schema.Resource {
 	}
 }
 
-func dataSourceIBMISVolumeProfileRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceIBMISVolumeProfileRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	name := d.Get(isVolumeProfile).(string)
 
@@ -48,7 +54,9 @@ func dataSourceIBMISVolumeProfileRead(d *schema.ResourceData, meta interface{}) 
 func volumeProfileGet(d *schema.ResourceData, meta interface{}, name string) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "read")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	getVolumeProfileOptions := &vpcv1.GetVolumeProfileOptions{
 		Name: &name,

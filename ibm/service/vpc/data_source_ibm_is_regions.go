@@ -4,9 +4,14 @@
 package vpc
 
 import (
+	"context"
+	"fmt"
+	"log"
 	"time"
 
+	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -17,7 +22,7 @@ const (
 
 func DataSourceIBMISRegions() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceIBMISRegionsRead,
+		ReadContext: dataSourceIBMISRegionsRead,
 		Schema: map[string]*schema.Schema{
 
 			isRegions: {
@@ -52,10 +57,12 @@ func DataSourceIBMISRegions() *schema.Resource {
 	}
 }
 
-func dataSourceIBMISRegionsRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceIBMISRegionsRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "read")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	listRegionOptions := &vpcv1.ListRegionsOptions{}
 	regioncollection, _, err := sess.ListRegions(listRegionOptions)

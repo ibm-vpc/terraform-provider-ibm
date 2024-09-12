@@ -4,9 +4,13 @@
 package vpc
 
 import (
+	"context"
 	"fmt"
+	"log"
 
+	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -25,7 +29,7 @@ const (
 
 func DataSourceIBMISInstanceVolumeAttachment() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceIBMISInstanceVolumeAttachmentRead,
+		ReadContext: dataSourceIBMISInstanceVolumeAttachmentRead,
 
 		Schema: map[string]*schema.Schema{
 
@@ -114,7 +118,7 @@ func DataSourceIBMISInstanceVolumeAttachment() *schema.Resource {
 	}
 }
 
-func dataSourceIBMISInstanceVolumeAttachmentRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceIBMISInstanceVolumeAttachmentRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	instanceId := d.Get(isInstanceId).(string)
 	name := d.Get(isInstanceName).(string)
 	err := instanceVolumeAttachmentGetByName(d, meta, instanceId, name)
@@ -127,7 +131,9 @@ func dataSourceIBMISInstanceVolumeAttachmentRead(d *schema.ResourceData, meta in
 func instanceVolumeAttachmentGetByName(d *schema.ResourceData, meta interface{}, instanceId, name string) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "read")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	allrecs := []vpcv1.VolumeAttachment{}
 	listInstanceVolumeAttOptions := &vpcv1.ListInstanceVolumeAttachmentsOptions{

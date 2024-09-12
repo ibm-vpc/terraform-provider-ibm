@@ -4,9 +4,14 @@
 package vpc
 
 import (
+	"context"
+	"fmt"
+	"log"
 	"time"
 
+	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -16,7 +21,7 @@ const (
 
 func DataSourceIBMISZones() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceIBMISZonesRead,
+		ReadContext: dataSourceIBMISZonesRead,
 
 		Schema: map[string]*schema.Schema{
 
@@ -39,23 +44,27 @@ func DataSourceIBMISZones() *schema.Resource {
 	}
 }
 
-func dataSourceIBMISZonesRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceIBMISZonesRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	regionName := d.Get(isZoneRegion).(string)
-	return zonesList(d, meta, regionName)
+	return zonesList(d, context, meta, regionName)
 }
 
-func zonesList(d *schema.ResourceData, meta interface{}, regionName string) error {
+func zonesList(d *schema.ResourceData, context context.Context, meta interface{}, regionName string) diag.Diagnostics {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "(Data) ibm_is_zones", "read")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	listRegionZonesOptions := &vpcv1.ListRegionZonesOptions{
 		RegionName: &regionName,
 	}
-	availableZones, _, err := sess.ListRegionZones(listRegionZonesOptions)
+	availableZones, _, err := sess.ListRegionZonesWithContext(context, listRegionZonesOptions)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("ListRegionZonesWithContext failed: %s", err.Error()), "(Data) ibm_is_zones", "read")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	names := make([]string, 0)
 	status := d.Get(isZoneStatus).(string)

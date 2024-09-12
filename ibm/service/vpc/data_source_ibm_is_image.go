@@ -4,12 +4,14 @@
 package vpc
 
 import (
+	"context"
 	"fmt"
 	"log"
 
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/validate"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -24,7 +26,7 @@ const (
 
 func DataSourceIBMISImage() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceIBMISImageRead,
+		ReadContext: dataSourceIBMISImageRead,
 
 		Schema: map[string]*schema.Schema{
 
@@ -266,7 +268,7 @@ func DataSourceIBMISImage() *schema.Resource {
 	}
 }
 
-func dataSourceIBMISImageRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceIBMISImageRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	name := d.Get("name").(string)
 	identifier := d.Get("identifier").(string)
@@ -275,24 +277,26 @@ func dataSourceIBMISImageRead(d *schema.ResourceData, meta interface{}) error {
 		visibility = v.(string)
 	}
 	if name != "" {
-		err := imageGetByName(d, meta, name, visibility)
+		err := imageGetByName(context, d, meta, name, visibility)
 		if err != nil {
-			return err
+			return err.GetDiag()
 		}
 	} else if identifier != "" {
-		err := imageGetById(d, meta, identifier)
+		err := imageGetById(context, d, meta, identifier)
 		if err != nil {
-			return err
+			return err.GetDiag()
 		}
 	}
 
 	return nil
 }
 
-func imageGetByName(d *schema.ResourceData, meta interface{}, name, visibility string) error {
+func imageGetByName(context context.Context, d *schema.ResourceData, meta interface{}, name, visibility string) *flex.TerraformProblem {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "read")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr
 	}
 	listImagesOptions := &vpcv1.ListImagesOptions{
 		Name: &name,
@@ -301,14 +305,18 @@ func imageGetByName(d *schema.ResourceData, meta interface{}, name, visibility s
 	if visibility != "" {
 		listImagesOptions.Visibility = &visibility
 	}
-	availableImages, response, err := sess.ListImages(listImagesOptions)
+	availableImages, response, err := sess.ListImagesWithContext(context, listImagesOptions)
 	if err != nil {
-		return fmt.Errorf("[ERROR] Error Fetching Images %s\n%s", err, response)
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("ListImagesWithContext failed: %s\n%s", err.Error(), response), "ibm_cloud", "list")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr
 	}
 	allrecs := availableImages.Images
 
 	if len(allrecs) == 0 {
-		return fmt.Errorf("[ERROR] No image found with name  %s", name)
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("No image found with name : %s", name), "ibm_cloud", "datasource")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr
 	}
 	image := allrecs[0]
 	d.SetId(*image.ID)
@@ -372,24 +380,29 @@ func imageGetByName(d *schema.ResourceData, meta interface{}, name, visibility s
 		d.Set(isImageCatalogOffering, catalogOfferingList)
 	}
 	return nil
-
 }
-func imageGetById(d *schema.ResourceData, meta interface{}, identifier string) error {
+func imageGetById(context context.Context, d *schema.ResourceData, meta interface{}, identifier string) *flex.TerraformProblem {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "read")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr
 	}
 
 	getImageOptions := &vpcv1.GetImageOptions{
 		ID: &identifier,
 	}
 
-	image, response, err := sess.GetImage(getImageOptions)
+	image, response, err := sess.GetImageWithContext(context, getImageOptions)
 	if err != nil {
 		if response.StatusCode == 404 {
-			return fmt.Errorf("[ERROR] No image found with id  %s", identifier)
+			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("No image found with id : %s", identifier), "ibm_cloud", "datasource")
+			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+			return tfErr
 		}
-		return fmt.Errorf("[ERROR] Error Fetching Images %s\n%s", err, response)
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("GetImageWithContext failed: %s\n%s", err.Error(), response), "ibm_cloud", "get")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr
 	}
 
 	d.SetId(*image.ID)

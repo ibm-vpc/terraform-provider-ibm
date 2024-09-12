@@ -4,17 +4,19 @@
 package vpc
 
 import (
+	"context"
 	"fmt"
 	"log"
 
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func DataSourceIBMISSSHKey() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceIBMISSSHKeyRead,
+		ReadContext: dataSourceIBMISSSHKeyRead,
 
 		Schema: map[string]*schema.Schema{
 			"resource_group": {
@@ -102,7 +104,7 @@ func DataSourceIBMISSSHKey() *schema.Resource {
 	}
 }
 
-func dataSourceIBMISSSHKeyRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceIBMISSSHKeyRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	name := d.Get(isKeyName).(string)
 
 	err := keyGetByName(d, meta, name)
@@ -115,7 +117,9 @@ func dataSourceIBMISSSHKeyRead(d *schema.ResourceData, meta interface{}) error {
 func keyGetByName(d *schema.ResourceData, meta interface{}, name string) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "read")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	listKeysOptions := &vpcv1.ListKeysOptions{}
 

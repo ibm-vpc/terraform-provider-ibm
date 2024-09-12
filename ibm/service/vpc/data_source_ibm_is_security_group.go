@@ -4,12 +4,14 @@
 package vpc
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"reflect"
 
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -35,7 +37,7 @@ const (
 func DataSourceIBMISSecurityGroup() *schema.Resource {
 	return &schema.Resource{
 
-		Read: dataSourceIBMISSecurityGroupRuleRead,
+		ReadContext: dataSourceIBMISSecurityGroupRuleRead,
 
 		Schema: map[string]*schema.Schema{
 
@@ -193,7 +195,7 @@ func DataSourceIBMISSecurityGroup() *schema.Resource {
 	}
 }
 
-func dataSourceIBMISSecurityGroupRuleRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceIBMISSecurityGroupRuleRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	sgName := d.Get(isSgName).(string)
 	vpcId := ""
@@ -218,7 +220,9 @@ func dataSourceIBMISSecurityGroupRuleRead(d *schema.ResourceData, meta interface
 func securityGroupGet(d *schema.ResourceData, meta interface{}, name, vpcId, vpcName, rgId string) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "read")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	// Support for pagination

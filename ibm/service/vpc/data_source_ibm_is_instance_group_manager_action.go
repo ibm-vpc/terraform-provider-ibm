@@ -4,16 +4,19 @@
 package vpc
 
 import (
+	"context"
 	"fmt"
+	"log"
 
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func DataSourceIBMISInstanceGroupManagerAction() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceIBMISInstanceGroupManagerActionRead,
+		ReadContext: dataSourceIBMISInstanceGroupManagerActionRead,
 
 		Schema: map[string]*schema.Schema{
 
@@ -131,10 +134,12 @@ func DataSourceIBMISInstanceGroupManagerAction() *schema.Resource {
 	}
 }
 
-func dataSourceIBMISInstanceGroupManagerActionRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceIBMISInstanceGroupManagerActionRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "read")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	instanceGroupManagerID := d.Get("instance_group_manager").(string)
@@ -153,9 +158,11 @@ func dataSourceIBMISInstanceGroupManagerActionRead(d *schema.ResourceData, meta 
 		if start != "" {
 			listInstanceGroupManagerActionsOptions.Start = &start
 		}
-		instanceGroupManagerActionsCollection, response, err := sess.ListInstanceGroupManagerActions(&listInstanceGroupManagerActionsOptions)
+		instanceGroupManagerActionsCollection, response, err := sess.ListInstanceGroupManagerActionsWithContext(context, &listInstanceGroupManagerActionsOptions)
 		if err != nil {
-			return fmt.Errorf("[ERROR] Error Getting InstanceGroup Manager Actions %s\n%s", err, response)
+			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("ListInstanceGroupManagerActionsWithContext failed: %s\n%s", err.Error(), response), "ibm_cloud", "list")
+			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+			return tfErr.GetDiag()
 		}
 		if instanceGroupManagerActionsCollection != nil && *instanceGroupManagerActionsCollection.TotalCount == int64(0) {
 			break
@@ -173,25 +180,41 @@ func dataSourceIBMISInstanceGroupManagerActionRead(d *schema.ResourceData, meta 
 			d.SetId(fmt.Sprintf("%s/%s/%s", instanceGroupID, instanceGroupManagerID, *instanceGroupManagerAction.ID))
 
 			if err = d.Set("auto_delete", *instanceGroupManagerAction.AutoDelete); err != nil {
-				return fmt.Errorf("[ERROR] Error setting auto_delete: %s", err)
+				tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting auto_delete : %s", err.Error()), "ibm_cloud", "set")
+				log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+				return tfErr.GetDiag()
 			}
 
 			if err = d.Set("auto_delete_timeout", flex.IntValue(instanceGroupManagerAction.AutoDeleteTimeout)); err != nil {
-				return fmt.Errorf("[ERROR] Error setting auto_delete_timeout: %s", err)
+				tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting auto_delete_timeout : %s", err.Error()), "ibm_cloud", "set")
+				log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+				return tfErr.GetDiag()
 			}
 			if err = d.Set("created_at", instanceGroupManagerAction.CreatedAt.String()); err != nil {
 				return fmt.Errorf("[ERROR] Error setting created_at: %s", err)
+				tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting auto_delete_timeout : %s", err.Error()), "ibm_cloud", "set")
+				log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+				return tfErr.GetDiag()
 			}
 
 			if err = d.Set("action_id", *instanceGroupManagerAction.ID); err != nil {
 				return fmt.Errorf("[ERROR] Error setting instance_group_manager_action : %s", err)
+				tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting auto_delete_timeout : %s", err.Error()), "ibm_cloud", "set")
+				log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+				return tfErr.GetDiag()
 			}
 
 			if err = d.Set("resource_type", *instanceGroupManagerAction.ResourceType); err != nil {
 				return fmt.Errorf("[ERROR] Error setting resource_type: %s", err)
+				tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting auto_delete_timeout : %s", err.Error()), "ibm_cloud", "set")
+				log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+				return tfErr.GetDiag()
 			}
 			if err = d.Set("status", *instanceGroupManagerAction.Status); err != nil {
 				return fmt.Errorf("[ERROR] Error setting status: %s", err)
+				tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting auto_delete_timeout : %s", err.Error()), "ibm_cloud", "set")
+				log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+				return tfErr.GetDiag()
 			}
 			if err = d.Set("updated_at", instanceGroupManagerAction.UpdatedAt.String()); err != nil {
 				return fmt.Errorf("[ERROR] Error setting updated_at: %s", err)
@@ -237,5 +260,7 @@ func dataSourceIBMISInstanceGroupManagerActionRead(d *schema.ResourceData, meta 
 			return nil
 		}
 	}
-	return fmt.Errorf("instance group manager action %s not found", actionName)
+	tfErr := flex.TerraformErrorf(err, fmt.Sprintf("No Instance group manager action found with name : %s", actionName), "ibm_cloud", "datasource")
+	log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+	return tfErr.GetDiag()
 }

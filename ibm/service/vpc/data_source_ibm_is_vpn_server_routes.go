@@ -138,7 +138,7 @@ func DataSourceIBMIsVPNServerRoutes() *schema.Resource {
 func dataSourceIBMIsVPNServerRoutesRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "(Data) ibm_is_vpn_server_routes", "read")
 		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
 		return tfErr.GetDiag()
 	}
@@ -155,8 +155,9 @@ func dataSourceIBMIsVPNServerRoutesRead(context context.Context, d *schema.Resou
 		}
 		vpnServerRouteCollection, response, err := sess.ListVPNServerRoutesWithContext(context, listVPNServerRoutesOptions)
 		if err != nil {
-			log.Printf("[DEBUG] ListVPNServerRoutesWithContext failed %s\n%s", err, response)
-			return diag.FromErr(fmt.Errorf("[ERROR] ListVPNServerRoutesWithContext failed %s\n%s", err, response))
+			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("ListVPNServerRoutesWithContext failed:  %s\n%s", err.Error(), response), "(Data) ibm_is_vpn_server_routes", "read")
+			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+			return tfErr.GetDiag()
 		}
 		start = flex.GetNext(vpnServerRouteCollection.Next)
 		allrecs = append(allrecs, vpnServerRouteCollection.Routes...)
@@ -170,7 +171,8 @@ func dataSourceIBMIsVPNServerRoutesRead(context context.Context, d *schema.Resou
 	if allrecs != nil {
 		err = d.Set("routes", dataSourceVPNServerRouteCollectionFlattenRoutes(allrecs))
 		if err != nil {
-			return diag.FromErr(fmt.Errorf("[ERROR] Error setting routes %s", err))
+			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting routes %s", err), "(Data) ibm_is_vpn_server_routes", "read")
+			return tfErr.GetDiag()
 		}
 	}
 
