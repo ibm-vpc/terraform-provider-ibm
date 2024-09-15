@@ -1164,6 +1164,29 @@ func ResourceIBMISInstance() *schema.Resource {
 							ConflictsWith: []string{isInstanceImage, isInstanceSourceTemplate, "boot_volume.0.snapshot", "boot_volume.0.snapshot_crn", "boot_volume.0.name", "boot_volume.0.encryption", "catalog_offering.0.offering_crn", "catalog_offering.0.version_crn"},
 							Description:   "The unique identifier for this volume",
 						},
+						"usage_constraints": &schema.Schema{
+							Type:        schema.TypeList,
+							MaxItems:    1,
+							Optional:    true,
+							Computed:    true,
+							Description: "The usage constraints for this image.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"bare_metal_server": &schema.Schema{
+										Type:        schema.TypeString,
+										Optional:    true,
+										Computed:    true,
+										Description: "An image can only be used for bare metal instantiation if this expression resolves to true.The expression follows [Common Expression Language](https://github.com/google/cel-spec/blob/master/doc/langdef.md), but does not support built-in functions and macros. In addition, the following property is supported:- `enable_secure_boot` - (boolean) Indicates whether secure boot is enabled for this bare metal server.",
+									},
+									"virtual_server_instance": &schema.Schema{
+										Type:        schema.TypeString,
+										Optional:    true,
+										Computed:    true,
+										Description: "This image can only be used to provision a virtual server instance if the resulting instance would have property values that satisfy this expression.The expression follows [Common Expression Language](https://github.com/google/cel-spec/blob/master/doc/langdef.md), but does not support built-in functions and macros. In addition, the following variables are supported, corresponding to `Instance` properties:- `gpu.count` - (integer) The number of GPUs assigned to the instance- `gpu.manufacturer` - (string) The GPU manufacturer- `gpu.memory` - (integer) The overall amount of GPU memory in GiB (gibibytes)- `gpu.model` - (string) The GPU model- `enable_secure_boot` - (boolean) Indicates whether secure boot is enabled.",
+									},
+								},
+							},
+						},
 						isInstanceVolAttVolAutoDelete: {
 							Type:        schema.TypeBool,
 							Optional:    true,
@@ -2177,6 +2200,8 @@ func instanceCreateByImage(d *schema.ResourceData, meta interface{}, profile, na
 	if err != nil {
 		return err
 	}
+
+	//Update usage constraints
 
 	v := os.Getenv("IC_ENV_TAGS")
 	if _, ok := d.GetOk(isInstanceTags); ok || v != "" {
@@ -4507,6 +4532,19 @@ func instanceGet(d *schema.ResourceData, meta interface{}, id string) error {
 				if vol.UserTags != nil {
 					bootVol[isInstanceBootVolumeTags] = vol.UserTags
 				}
+				usageConstraints := []map[string]interface{}{}
+				if vol.UsageConstraints != nil {
+					modelMap, err := DataSourceIBMIsVolumeUsageConstraintsToMap(vol.UsageConstraints)
+					if err != nil {
+						tfErr := flex.TerraformErrorf(err, err.Error(), "(Data) ibm_is_instances", "read")
+						log.Println(tfErr.GetDiag())
+					}
+					usageConstraints = append(usageConstraints, modelMap)
+				}
+				if err = d.Set("usage_constraints", usageConstraints); err != nil {
+					tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting usage_constraints: %s", err), "(resource) ibm_is_instances", "read")
+					log.Println(tfErr.GetDiag())
+				}
 			}
 		}
 		bootVolList = append(bootVolList, bootVol)
@@ -5149,6 +5187,44 @@ func instanceUpdate(d *schema.ResourceData, meta interface{}) error {
 			return err
 		}
 	}
+
+	bootVolUsageConstraints := "boot_volume.0.usage_constraints"
+	if d.HasChange(bootVolUsageConstraints) {
+		id := d.Get("boot_volume.0.volume_id").(string)
+		usageConstraintModel, err := ResourceIBMUsageConstraintsMapToVolumeUsageConstraintsPrototype(d.Get(bootVolUsageConstraints).(map[string]interface{}))
+		if err != nil {
+			return err
+		}
+		optionsget := &vpcv1.GetVolumeOptions{
+			ID: &id,
+		}
+		_, response, err := instanceC.GetVolume(optionsget)
+		if err != nil {
+			if response != nil && response.StatusCode == 404 {
+				d.SetId("")
+				return nil
+			}
+			return fmt.Errorf("Error getting Volume (%s): %s\n%s", id, err, response)
+		}
+		eTag := response.Headers.Get("ETag")
+		options := &vpcv1.UpdateVolumeOptions{
+			ID: &id,
+		}
+		options.IfMatch = &eTag
+		volumeNamePatchModel := &vpcv1.VolumePatch{}
+		volumeNamePatchModel.UsageConstraints = usageConstraintModel
+		volumeNamePatch, err := volumeNamePatchModel.AsPatch()
+		if err != nil {
+			return fmt.Errorf("[ERROR] Error calling asPatch for volumeNamePatch: %s", err)
+		}
+		options.VolumePatch = volumeNamePatch
+		_, _, err = instanceC.UpdateVolume(options)
+		_, err = isWaitForVolumeAvailable(instanceC, d.Id(), d.Timeout(schema.TimeoutCreate))
+		if err != nil {
+			return err
+		}
+	}
+
 	bootVolTags := "boot_volume.0.tags"
 	if d.HasChange(bootVolTags) && !d.IsNewResource() {
 		var userTags *schema.Set
