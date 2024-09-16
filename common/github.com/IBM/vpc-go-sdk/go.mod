@@ -1,12 +1,16 @@
-module github.ibm.com/ibmcloud/vpc-go-sdk
+module github.com/IBM/vpc-go-sdk
 
 go 1.16
 
 require (
-	github.com/IBM/go-sdk-core/v5 v5.10.2
-	github.com/IBM/vpc-go-sdk v0.31.0
-	github.com/go-openapi/strfmt v0.21.3
-	github.com/onsi/ginkgo v1.16.5
-	github.com/onsi/gomega v1.20.0
-	github.com/stretchr/testify v1.8.0
+	github.com/IBM/go-sdk-core/v5 v5.17.3
+	github.com/go-openapi/strfmt v0.22.1
+	github.com/google/uuid v1.6.0
+	github.com/stretchr/testify v1.8.4
+)
+
+retract (
+	v1.0.2
+	v1.0.1
+	v1.0.0
 )
