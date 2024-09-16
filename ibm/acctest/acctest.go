@@ -97,6 +97,7 @@ var (
 	InstanceProfileNameUpdate       string
 	IsBareMetalServerProfileName    string
 	IsBareMetalServerImage          string
+	IsBareMetalServerImage2         string
 	DNSInstanceCRN                  string
 	DNSZoneID                       string
 	DNSInstanceCRN1                 string
@@ -149,23 +150,27 @@ var (
 
 // Secrets Manager
 var (
-	SecretsManagerInstanceID                                     string
-	SecretsManagerInstanceRegion                                 string
-	SecretsManagerENInstanceCrn                                  string
-	SecretsManagerIamCredentialsConfigurationApiKey              string
-	SecretsManagerIamCredentialsSecretServiceId                  string
-	SecretsManagerIamCredentialsSecretServiceAccessGroup         string
-	SecretsManagerPublicCertificateLetsEncryptEnvironment        string
-	SecretsManagerPublicCertificateLetsEncryptPrivateKey         string
-	SecretsManagerPublicCertificateCisCrn                        string
-	SecretsManagerPublicCertificateClassicInfrastructureUsername string
-	SecretsManagerPublicCertificateClassicInfrastructurePassword string
-	SecretsManagerPublicCertificateCommonName                    string
-	SecretsManagerValidateManualDnsCisZoneId                     string
-	SecretsManagerImportedCertificatePathToCertificate           string
-	SecretsManagerServiceCredentialsCosCrn                       string
-	SecretsManagerSecretType                                     string
-	SecretsManagerSecretID                                       string
+	SecretsManagerInstanceID                                                        string
+	SecretsManagerInstanceRegion                                                    string
+	SecretsManagerENInstanceCrn                                                     string
+	SecretsManagerIamCredentialsConfigurationApiKey                                 string
+	SecretsManagerIamCredentialsSecretServiceId                                     string
+	SecretsManagerIamCredentialsSecretServiceAccessGroup                            string
+	SecretsManagerPublicCertificateLetsEncryptEnvironment                           string
+	SecretsManagerPublicCertificateLetsEncryptPrivateKey                            string
+	SecretsManagerPublicCertificateCisCrn                                           string
+	SecretsManagerPublicCertificateClassicInfrastructureUsername                    string
+	SecretsManagerPublicCertificateClassicInfrastructurePassword                    string
+	SecretsManagerPublicCertificateCommonName                                       string
+	SecretsManagerValidateManualDnsCisZoneId                                        string
+	SecretsManagerImportedCertificatePathToCertificate                              string
+	SecretsManagerServiceCredentialsCosCrn                                          string
+	SecretsManagerPrivateCertificateConfigurationCryptoKeyIAMSecretServiceId        string
+	SecretsManagerPrivateCertificateConfigurationCryptoKeyProviderType              string
+	SecretsManagerPrivateCertificateConfigurationCryptoKeyProviderInstanceCrn       string
+	SecretsManagerPrivateCertificateConfigurationCryptoKeyProviderPrivateKeystoreId string
+	SecretsManagerSecretType                                                        string
+	SecretsManagerSecretID                                                          string
 )
 
 var (
@@ -198,37 +203,39 @@ var (
 // For Power Colo
 
 var (
-	Pi_image                        string
-	Pi_sap_image                    string
-	Pi_image_bucket_name            string
-	Pi_image_bucket_file_name       string
-	Pi_image_bucket_access_key      string
-	Pi_image_bucket_secret_key      string
-	Pi_image_bucket_region          string
-	Pi_key_name                     string
-	Pi_volume_name                  string
-	Pi_volume_id                    string
-	Pi_replication_volume_name      string
-	Pi_volume_onboarding_source_crn string
 	Pi_auxiliary_volume_name        string
-	Pi_volume_group_name            string
-	Pi_volume_group_id              string
-	Pi_volume_onboarding_id         string
-	Pi_network_name                 string
 	Pi_cloud_instance_id            string
-	Pi_snapshot_id                  string
-	Pi_instance_name                string
 	Pi_dhcp_id                      string
-	PiCloudConnectionName           string
-	PiSAPProfileID                  string
+	Pi_host_group_id                string
+	Pi_host_id                      string
+	Pi_image                        string
+	Pi_image_bucket_access_key      string
+	Pi_image_bucket_file_name       string
+	Pi_image_bucket_name            string
+	Pi_image_bucket_region          string
+	Pi_image_bucket_secret_key      string
+	Pi_instance_name                string
+	Pi_key_name                     string
+	Pi_network_name                 string
 	Pi_placement_group_name         string
-	Pi_spp_placement_group_id       string
-	PiStoragePool                   string
-	PiStorageType                   string
+	Pi_replication_volume_name      string
+	Pi_resource_group_id            string
+	Pi_sap_image                    string
 	Pi_shared_processor_pool_id     string
+	Pi_snapshot_id                  string
+	Pi_spp_placement_group_id       string
 	Pi_target_storage_tier          string
 	Pi_volume_clone_task_id         string
-	Pi_resource_group_id            string
+	Pi_volume_group_id              string
+	Pi_volume_group_name            string
+	Pi_volume_id                    string
+	Pi_volume_name                  string
+	Pi_volume_onboarding_id         string
+	Pi_volume_onboarding_source_crn string
+	PiCloudConnectionName           string
+	PiSAPProfileID                  string
+	PiStoragePool                   string
+	PiStorageType                   string
 )
 
 var (
@@ -243,6 +250,7 @@ var ISDelegegatedVPC string
 
 var (
 	IsImageName             string
+	IsImageName2            string
 	IsImage                 string
 	IsImage2                string
 	IsImageEncryptedDataKey string
@@ -349,6 +357,8 @@ var (
 	CeDomainMappingName string
 	CeTLSCert           string
 	CeTLSKey            string
+	CeTLSKeyFilePath    string
+	CeTLSCertFilePath   string
 )
 
 // Satellite tests
@@ -384,6 +394,18 @@ var (
 // For IAM Access Management
 var (
 	TargetAccountId string
+)
+
+// For Partner Center Sell
+var (
+	PcsRegistrationAccountId                         string
+	PcsOnboardingProductWithApprovedProgrammaticName string
+	// one Onboarding product can only have one catalog product ever
+	PcsOnboardingProductWithApprovedProgrammaticName2 string
+	PcsOnboardingProductWithCatalogProduct            string
+	PcsOnboardingCatalogProductId                     string
+	PcsOnboardingCatalogPlanId                        string
+	PcsIamServiceRegistrationId                       string
 )
 
 func init() {
@@ -851,6 +873,12 @@ func init() {
 		fmt.Println("[INFO] Set the environment variable IsBareMetalServerImage for testing ibm_is_bare_metal_server resource else it is set to default value 'r006-2d1f36b0-df65-4570-82eb-df7ae5f778b1'")
 	}
 
+	IsBareMetalServerImage2 = os.Getenv("IS_BARE_METAL_SERVER_IMAGE2")
+	if IsBareMetalServerImage2 == "" {
+		IsBareMetalServerImage2 = "r006-2d1f36b0-df65-4570-82eb-df7ae5f778b1" // for next gen infrastructure
+		fmt.Println("[INFO] Set the environment variable IsBareMetalServerImage2 for testing ibm_is_bare_metal_server resource else it is set to default value 'r006-2d1f36b0-df65-4570-82eb-df7ae5f778b1'")
+	}
+
 	DNSInstanceCRN = os.Getenv("IS_DNS_INSTANCE_CRN")
 	if DNSInstanceCRN == "" {
 		DNSInstanceCRN = "crn:v1:bluemix:public:dns-svcs:global:a/7f75c7b025e54bc5635f754b2f888665:fa78ce08-a161-4703-98e5-35ed2bfe0e7c::" // for next gen infrastructure
@@ -1179,7 +1207,17 @@ func init() {
 		Pi_resource_group_id = ""
 		fmt.Println("[WARN] Set the environment variable PI_RESOURCE_GROUP_ID for testing ibm_pi_workspace resource else it is set to default value ''")
 	}
+	Pi_host_group_id = os.Getenv("PI_HOST_GROUP_ID")
+	if Pi_host_group_id == "" {
+		Pi_host_group_id = ""
+		fmt.Println("[WARN] Set the environment variable PI_HOST_GROUP_ID for testing ibm_pi_host resource else it is set to default value ''")
+	}
 
+	Pi_host_id = os.Getenv("PI_HOST_ID")
+	if Pi_host_id == "" {
+		Pi_host_id = ""
+		fmt.Println("[WARN] Set the environment variable PI_HOST_ID for testing ibm_pi_host resource else it is set to default value ''")
+	}
 	WorkspaceID = os.Getenv("SCHEMATICS_WORKSPACE_ID")
 	if WorkspaceID == "" {
 		WorkspaceID = "us-south.workspace.tf-acc-test-schematics-state-test.392cd99f"
@@ -1237,6 +1275,12 @@ func init() {
 		// IsImageName = "ibm-ubuntu-18-04-2-minimal-amd64-1" // for classic infrastructure
 		IsImageName = "ibm-ubuntu-22-04-1-minimal-amd64-4" // for next gen infrastructure
 		fmt.Println("[INFO] Set the environment variable IS_IMAGE_NAME for testing data source ibm_is_image else it is set to default value `ibm-ubuntu-18-04-1-minimal-amd64-2`")
+	}
+
+	IsImageName2 = os.Getenv("IS_IMAGE_NAME2")
+	if IsImageName2 == "" {
+		IsImageName2 = "ibm-ubuntu-20-04-6-minimal-amd64-5" // for next gen infrastructure
+		fmt.Println("[INFO] Set the environment variable IS_IMAGE_NAME2 for testing data source ibm_is_image else it is set to default value `ibm-ubuntu-20-04-6-minimal-amd64-5`")
 	}
 	IsImageEncryptedDataKey = os.Getenv("IS_IMAGE_ENCRYPTED_DATA_KEY")
 	if IsImageEncryptedDataKey == "" {
@@ -1331,6 +1375,26 @@ func init() {
 	SecretsManagerServiceCredentialsCosCrn = os.Getenv("SECRETS_MANAGER_SERVICE_CREDENTIALS_COS_CRN")
 	if SecretsManagerServiceCredentialsCosCrn == "" {
 		fmt.Println("[INFO] Set the environment variable SECRETS_MANAGER_SERVICE_CREDENTIALS_COS_CRN for testing service credentials' tests, else tests fail if not set correctly")
+	}
+
+	SecretsManagerPrivateCertificateConfigurationCryptoKeyIAMSecretServiceId = os.Getenv("SECRETS_MANAGER_PRIVATE_CERTIFICATE_CONFIGURATION_CRYPTO_KEY_IAM_SECRET_SERVICE_ID")
+	if SecretsManagerPrivateCertificateConfigurationCryptoKeyIAMSecretServiceId == "" {
+		fmt.Println("[INFO] Set the environment variable SECRETS_MANAGER_PRIVATE_CERTIFICATE_CONFIGURATION_CRYPTO_KEY_IAM_SECRET_SERVICE_ID for testing private certificate's configuration with crypto key tests, else tests fail if not set correctly")
+	}
+
+	SecretsManagerPrivateCertificateConfigurationCryptoKeyProviderType = os.Getenv("SECRETS_MANAGER_PRIVATE_CERTIFICATE_CONFIGURATION_CRYPTO_KEY_PROVIDER_TYPE")
+	if SecretsManagerPrivateCertificateConfigurationCryptoKeyProviderType == "" {
+		fmt.Println("[INFO] Set the environment variable SECRETS_MANAGER_PRIVATE_CERTIFICATE_CONFIGURATION_CRYPTO_KEY_PROVIDER_TYPE for testing private certificate's configuration with crypto key tests, else tests fail if not set correctly")
+	}
+
+	SecretsManagerPrivateCertificateConfigurationCryptoKeyProviderInstanceCrn = os.Getenv("SECRETS_MANAGER_PRIVATE_CERTIFICATE_CONFIGURATION_CRYPTO_KEY_PROVIDER_INSTANCE_CRN")
+	if SecretsManagerPrivateCertificateConfigurationCryptoKeyProviderInstanceCrn == "" {
+		fmt.Println("[INFO] Set the environment variable SECRETS_MANAGER_PRIVATE_CERTIFICATE_CONFIGURATION_CRYPTO_KEY_PROVIDER_INSTANCE_CRN for testing private certificate's configuration with crypto key tests, else tests fail if not set correctly")
+	}
+
+	SecretsManagerPrivateCertificateConfigurationCryptoKeyProviderPrivateKeystoreId = os.Getenv("SECRETS_MANAGER_PRIVATE_CERTIFICATE_CONFIGURATION_CRYPTO_KEY_PROVIDER_PRIVATE_KEYSTORE_ID")
+	if SecretsManagerPrivateCertificateConfigurationCryptoKeyProviderPrivateKeystoreId == "" {
+		fmt.Println("[INFO] Set the environment variable SECRETS_MANAGER_PRIVATE_CERTIFICATE_CONFIGURATION_CRYPTO_KEY_PROVIDER_PRIVATE_KEYSTORE_ID for testing private certificate's configuration with crypto key tests, else tests fail if not set correctly")
 	}
 
 	Tg_cross_network_account_api_key = os.Getenv("IBM_TG_CROSS_ACCOUNT_API_KEY")
@@ -1680,6 +1744,18 @@ func init() {
 		fmt.Println("[WARN] Set the environment variable IBM_CODE_ENGINE_TLS_KEY with a TLS key in base64 format")
 	}
 
+	CeTLSKeyFilePath = os.Getenv("IBM_CODE_ENGINE_TLS_CERT_KEY_PATH")
+	if CeTLSKeyFilePath == "" {
+		CeTLSKeyFilePath = ""
+		fmt.Println("[WARN] Set the environment variable IBM_CODE_ENGINE_TLS_CERT_KEY_PATH to point to CERT KEY file path")
+	}
+
+	CeTLSCertFilePath = os.Getenv("IBM_CODE_ENGINE_TLS_CERT_PATH")
+	if CeTLSCertFilePath == "" {
+		CeTLSCertFilePath = ""
+		fmt.Println("[WARN] Set the environment variable IBM_CODE_ENGINE_TLS_CERT_PATH to point to CERT file path")
+	}
+
 	SatelliteSSHPubKey = os.Getenv("IBM_SATELLITE_SSH_PUB_KEY")
 	if SatelliteSSHPubKey == "" {
 		fmt.Println("[WARN] Set the environment variable IBM_SATELLITE_SSH_PUB_KEY with a ssh public key or ibm_satellite_* tests may fail")
@@ -1792,6 +1868,41 @@ func init() {
 	TargetAccountId = os.Getenv("IBM_POLICY_ASSIGNMENT_TARGET_ACCOUNT_ID")
 	if TargetAccountId == "" {
 		fmt.Println("[INFO] Set the environment variable IBM_POLICY_ASSIGNMENT_TARGET_ACCOUNT_ID for testing ibm_iam_policy_assignment resource else tests will fail if this is not set correctly")
+	}
+
+	PcsRegistrationAccountId = os.Getenv("PCS_REGISTRATION_ACCOUNT_ID")
+	if PcsRegistrationAccountId == "" {
+		fmt.Println("[WARN] Set the environment variable PCS_REGISTRATION_ACCOUNT_ID for testing iam_onboarding resource else tests will fail if this is not set correctly")
+	}
+
+	PcsOnboardingProductWithApprovedProgrammaticName = os.Getenv("PCS_PRODUCT_WITH_APPROVED_PROGRAMMATIC_NAME")
+	if PcsOnboardingProductWithApprovedProgrammaticName == "" {
+		fmt.Println("[WARN] Set the environment variable PCS_PRODUCT_WITH_APPROVED_PROGRAMMATIC_NAME for testing iam_onboarding resource else tests will fail if this is not set correctly")
+	}
+
+	PcsOnboardingProductWithApprovedProgrammaticName2 = os.Getenv("PCS_PRODUCT_WITH_APPROVED_PROGRAMMATIC_NAME_2")
+	if PcsOnboardingProductWithApprovedProgrammaticName2 == "" {
+		fmt.Println("[WARN] Set the environment variable PCS_PRODUCT_WITH_APPROVED_PROGRAMMATIC_NAME_2 for testing iam_onboarding resource else tests will fail if this is not set correctly")
+	}
+
+	PcsOnboardingProductWithCatalogProduct = os.Getenv("PCS_PRODUCT_WITH_CATALOG_PRODUCT")
+	if PcsOnboardingProductWithCatalogProduct == "" {
+		fmt.Println("[WARN] Set the environment variable PCS_PRODUCT_WITH_CATALOG_PRODUCT for testing iam_onboarding resource else tests will fail if this is not set correctly")
+	}
+
+	PcsOnboardingCatalogProductId = os.Getenv("PCS_CATALOG_PRODUCT")
+	if PcsOnboardingCatalogProductId == "" {
+		fmt.Println("[WARN] Set the environment variable PCS_CATALOG_PRODUCT for testing iam_onboarding resource else tests will fail if this is not set correctly")
+	}
+
+	PcsOnboardingCatalogPlanId = os.Getenv("PCS_CATALOG_PLAN")
+	if PcsIamServiceRegistrationId == "" {
+		fmt.Println("[WARN] Set the environment variable PCS_CATALOG_PLAN for testing iam_onboarding resource else tests will fail if this is not set correctly")
+	}
+
+	PcsIamServiceRegistrationId = os.Getenv("PCS_IAM_REGISTRATION_ID")
+	if PcsIamServiceRegistrationId == "" {
+		fmt.Println("[WARN] Set the environment variable PCS_IAM_TEGISTRATION_ID for testing iam_onboarding resource else tests will fail if this is not set correctly")
 	}
 }
 
@@ -1988,11 +2099,11 @@ func TestAccPreCheckCodeEngine(t *testing.T) {
 	if CeDomainMappingName == "" {
 		t.Fatal("IBM_CODE_ENGINE_DOMAIN_MAPPING_NAME must be set for acceptance tests")
 	}
-	if CeTLSCert == "" {
-		t.Fatal("IBM_CODE_ENGINE_DOMAIN_MAPPING_TLS_CERT must be set for acceptance tests")
+	if CeTLSKeyFilePath == "" {
+		t.Fatal("IBM_CODE_ENGINE_TLS_CERT_KEY_PATH must be set for acceptance tests")
 	}
-	if CeTLSKey == "" {
-		t.Fatal("IBM_CODE_ENGINE_DOMAIN_MAPPING_TLS_KEY must be set for acceptance tests")
+	if CeTLSCertFilePath == "" {
+		t.Fatal("IBM_CODE_ENGINE_TLS_CERT_PATH must be set for acceptance tests")
 	}
 }
 
@@ -2093,6 +2204,31 @@ func TestAccPreCheckVMwareService(t *testing.T) {
 	}
 	if Vmaas_Directorsite_pvdc_id == "" {
 		t.Fatal("IBM_VMAAS_DS_PVDC_ID must be set for acceptance tests")
+	}
+}
+
+func TestAccPreCheckPartnerCenterSell(t *testing.T) {
+	TestAccPreCheck(t)
+	if PcsRegistrationAccountId == "" {
+		t.Fatal("PCS_REGISTRATION_ACCOUNT_ID must be set for acceptance tests")
+	}
+	if PcsOnboardingProductWithApprovedProgrammaticName == "" {
+		t.Fatal("PCS_PRODUCT_WITH_APPROVED_PROGRAMMATIC_NAME must be set for acceptance tests")
+	}
+	if PcsOnboardingProductWithApprovedProgrammaticName2 == "" {
+		t.Fatal("PCS_PRODUCT_WITH_APPROVED_PROGRAMMATIC_NAME_2 must be set for acceptance tests")
+	}
+	if PcsOnboardingProductWithCatalogProduct == "" {
+		t.Fatal("PCS_PRODUCT_WITH_CATALOG_PRODUCT must be set for acceptance tests")
+	}
+	if PcsOnboardingCatalogProductId == "" {
+		t.Fatal("PCS_CATALOG_PRODUCT must be set for acceptance tests")
+	}
+	if PcsOnboardingCatalogPlanId == "" {
+		t.Fatal("PCS_CATALOG_PLAN must be set for acceptance tests")
+	}
+	if PcsIamServiceRegistrationId == "" {
+		t.Fatal("PCS_IAM_REGISTRATION_ID must be set for acceptance tests")
 	}
 }
 
