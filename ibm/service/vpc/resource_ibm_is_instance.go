@@ -2200,9 +2200,6 @@ func instanceCreateByImage(d *schema.ResourceData, meta interface{}, profile, na
 	if err != nil {
 		return err
 	}
-
-	//Update usage constraints
-
 	v := os.Getenv("IC_ENV_TAGS")
 	if _, ok := d.GetOk(isInstanceTags); ok || v != "" {
 		oldList, newList := d.GetChange(isInstanceTags)
