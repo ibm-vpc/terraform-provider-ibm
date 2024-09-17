@@ -323,24 +323,10 @@ func resourceIBMPublicAddressRangeUpdate(context context.Context, d *schema.Reso
 
 	updatePublicAddressRangeOptions.SetID(d.Id())
 
-	hasChange := false
-
 	patchVals := &vpcv1.PublicAddressRangePatch{}
 	if d.HasChange("name") {
 		newName := d.Get("name").(string)
 		patchVals.Name = &newName
-		hasChange = true
-	}
-	if d.HasChange("target") {
-		target, err := ResourceIBMPublicAddressRangeMapToPublicAddressRangeTargetPatch(d.Get("target.0").(map[string]interface{}), d)
-		if err != nil {
-			return diag.FromErr(err)
-		}
-		patchVals.Target = target
-		hasChange = true
-	}
-
-	if hasChange {
 		updatePublicAddressRangeOptions.PublicAddressRangePatch, _ = patchVals.AsPatch()
 		_, _, err = vpcClient.UpdatePublicAddressRangeWithContext(context, updatePublicAddressRangeOptions)
 		if err != nil {
@@ -349,7 +335,27 @@ func resourceIBMPublicAddressRangeUpdate(context context.Context, d *schema.Reso
 			return tfErr.GetDiag()
 		}
 	}
-
+	if d.HasChange("target") {
+		targetRemoved := false
+		if _, ok := d.GetOk("target"); !ok {
+			targetRemoved = true
+		}
+		target, err := ResourceIBMPublicAddressRangeMapToPublicAddressRangeTargetPatch(d.Get("target.0").(map[string]interface{}), d)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		patchVals.Target = target
+		updatePublicAddressRangeOptions.PublicAddressRangePatch, _ = patchVals.AsPatch()
+		if targetRemoved {
+			updatePublicAddressRangeOptions.PublicAddressRangePatch["target"] = nil
+		}
+		_, _, err = vpcClient.UpdatePublicAddressRangeWithContext(context, updatePublicAddressRangeOptions)
+		if err != nil {
+			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("[ERROR] UpdatePublicAddressRangeWithContext failed: %s", err.Error()), "ibm_is_public_address_range", "update")
+			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+			return tfErr.GetDiag()
+		}
+	}
 	return resourceIBMPublicAddressRangeRead(context, d, meta)
 }
 
