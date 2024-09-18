@@ -520,7 +520,8 @@ func Provider() *schema.Provider {
 			"ibm_is_share_accessor_binding":      vpc.DataSourceIBMIsShareAccessorBinding(),
 			"ibm_is_virtual_network_interface":   vpc.DataSourceIBMIsVirtualNetworkInterface(),
 			"ibm_is_virtual_network_interfaces":  vpc.DataSourceIBMIsVirtualNetworkInterfaces(),
-
+			"ibm_is_public_address_range":        vpc.DataSourceIBMIsPublicAddressRange(),
+			"ibm_is_public_address_ranges":       vpc.DataSourceIBMIsPublicAddressRanges(),
 			// vni
 
 			"ibm_is_virtual_network_interface_floating_ip":  vpc.DataSourceIBMIsVirtualNetworkInterfaceFloatingIP(),
@@ -1222,6 +1223,7 @@ func Provider() *schema.Provider {
 			"ibm_is_image_deprecate":                        vpc.ResourceIBMISImageDeprecate(),
 			"ibm_is_image_export_job":                       vpc.ResourceIBMIsImageExportJob(),
 			"ibm_is_image_obsolete":                         vpc.ResourceIBMISImageObsolete(),
+			"ibm_is_public_address_range":                   vpc.ResourceIBMPublicAddressRange(),
 			"ibm_lb":                                        classicinfrastructure.ResourceIBMLb(),
 			"ibm_lbaas":                                     classicinfrastructure.ResourceIBMLbaas(),
 			"ibm_lbaas_health_monitor":                      classicinfrastructure.ResourceIBMLbaasHealthMonitor(),
@@ -1867,6 +1869,7 @@ func Validator() validate.ValidatorDict {
 				"ibm_is_vpn_server":                       vpc.ResourceIBMIsVPNServerValidator(),
 				"ibm_is_vpn_server_route":                 vpc.ResourceIBMIsVPNServerRouteValidator(),
 				"ibm_is_reservation":                      vpc.ResourceIBMISReservationValidator(),
+				"ibm_is_public_address_range":             vpc.ResourceIBMPublicAddressRangeValidator(),
 				"ibm_kms_key_rings":                       kms.ResourceIBMKeyRingValidator(),
 				"ibm_dns_glb_monitor":                     dnsservices.ResourceIBMPrivateDNSGLBMonitorValidator(),
 				"ibm_dns_custom_resolver_forwarding_rule": dnsservices.ResourceIBMPrivateDNSForwardingRuleValidator(),
