@@ -106,6 +106,19 @@ Review the argument references that you can specify for your resource.
 - `source_snapshot` - The ID of snapshot from which to clone the volume.
 - `source_snapshot_crn` - The CRN of snapshot from which to clone the volume.
 - `tags`- (Optional, Array of Strings) A list of user tags that you want to add to your volume. (https://cloud.ibm.com/apidocs/tagging#types-of-tags)
+- `usage_constraints` - (Optional, List) The usage constraints for this volume.
+    
+    Nested schema for `usage_constraints`:
+	  - `bare_metal_server` - (Optional, String) An image can only be used for bare metal instantiation if this expression resolves to true.The expression follows [Common Expression Language](https://github.com/google/cel-spec/blob/master/doc/langdef.md), but does not support built-in functions and macros. 
+    ~> **NOTE** </br> In addition, the following property is supported: </br>
+      **&#x2022;** `enable_secure_boot` - (boolean) Indicates whether secure boot is enabled for this bare metal server.
+	  - `virtual_server_instance` - (Optional, String) This image can only be used to provision a virtual server instance if the resulting instance would have property values that satisfy this expression.The expression follows [Common Expression Language](https://github.com/google/cel-spec/blob/master/doc/langdef.md), but does not support built-in functions and macros. 
+    ~> **NOTE** </br> In addition, the following variables are supported, corresponding to `Instance` </br>
+       **&#x2022;** `gpu.count` - (integer) The number of GPUs assigned to the instance
+       **&#x2022;** `gpu.manufacturer` - (string) The GPU manufacturer
+       **&#x2022;** `gpu.memory` - (integer) The overall amount of GPU memory in GiB (gibibytes)
+       **&#x2022;** `gpu.model` - (string) The GPU model
+       **&#x2022;** `enable_secure_boot` - (boolean) Indicates whether secure boot is enabled.
 - `zone` - (Required, Forces new resource, String) The location of the volume.
 
 ## Attribute reference

@@ -124,6 +124,19 @@ In addition to all argument references listed, you can access the following attr
 		- `message` - (String) An explanation of the status reason.
 		- `more_info` - (Optional, String) Link to documentation about this status reason.
 	- `tags` - (String) User Tags associated with the volume. (https://cloud.ibm.com/apidocs/tagging#types-of-tags)
+	- `usage_constraints` - (Optional, List) The usage constraints for this volume.
+    
+    Nested schema for `usage_constraints`:
+	  - `bare_metal_server` - (Optional, String) An image can only be used for bare metal instantiation if this expression resolves to true.The expression follows [Common Expression Language](https://github.com/google/cel-spec/blob/master/doc/langdef.md), but does not support built-in functions and macros. 
+    ~> **NOTE** </br> In addition, the following property is supported: </br>
+      **&#x2022;** `enable_secure_boot` - (boolean) Indicates whether secure boot is enabled for this bare metal server.
+	  - `virtual_server_instance` - (Optional, String) This image can only be used to provision a virtual server instance if the resulting instance would have property values that satisfy this expression.The expression follows [Common Expression Language](https://github.com/google/cel-spec/blob/master/doc/langdef.md), but does not support built-in functions and macros. 
+    ~> **NOTE** </br> In addition, the following variables are supported, corresponding to `Instance` </br>
+       **&#x2022;** `gpu.count` - (integer) The number of GPUs assigned to the instance
+       **&#x2022;** `gpu.manufacturer` - (string) The GPU manufacturer
+       **&#x2022;** `gpu.memory` - (integer) The overall amount of GPU memory in GiB (gibibytes)
+       **&#x2022;** `gpu.model` - (string) The GPU model
+       **&#x2022;** `enable_secure_boot` - (boolean) Indicates whether secure boot is enabled.
 	- `volume_attachments` - (List) The volume attachments for this volume.
 		Nested scheme for **volume_attachments**:
 		- `delete_volume_on_instance_delete` - (Boolean) If set to true, when deleting the instance the volume will also be deleted.
