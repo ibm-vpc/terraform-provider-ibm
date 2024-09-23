@@ -4300,7 +4300,7 @@ func resourceIBMIsBareMetalServerBareMetalServerNetworkAttachmentReferenceToMap(
 	return modelMap, nil
 }
 
-func resourceIBMIsBareMetalServerBareMetalServerNetworkAttachmentReferenceDeletedToMap(model *vpcv1.BareMetalServerNetworkAttachmentReferenceDeleted) (map[string]interface{}, error) {
+func resourceIBMIsBareMetalServerBareMetalServerNetworkAttachmentReferenceDeletedToMap(model *vpcv1.Deleted) (map[string]interface{}, error) {
 	modelMap := make(map[string]interface{})
 	modelMap["more_info"] = model.MoreInfo
 	return modelMap, nil
@@ -4323,7 +4323,7 @@ func resourceIBMIsBareMetalServerReservedIPReferenceToMap(model *vpcv1.ReservedI
 	return modelMap, nil
 }
 
-func resourceIBMIsBareMetalServerReservedIPReferenceDeletedToMap(model *vpcv1.ReservedIPReferenceDeleted) (map[string]interface{}, error) {
+func resourceIBMIsBareMetalServerReservedIPReferenceDeletedToMap(model *vpcv1.Deleted) (map[string]interface{}, error) {
 	modelMap := make(map[string]interface{})
 	modelMap["more_info"] = model.MoreInfo
 	return modelMap, nil

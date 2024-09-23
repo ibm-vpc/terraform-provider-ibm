@@ -371,7 +371,7 @@ func dataSourceLoadBalancerListenerCollectionListenersDefaultPoolToMap(defaultPo
 	return defaultPoolMap
 }
 
-func dataSourceLoadBalancerListenerCollectionDefaultPoolDeletedToMap(deletedItem vpcv1.LoadBalancerPoolReferenceDeleted) (deletedMap map[string]interface{}) {
+func dataSourceLoadBalancerListenerCollectionDefaultPoolDeletedToMap(deletedItem vpcv1.Deleted) (deletedMap map[string]interface{}) {
 	deletedMap = map[string]interface{}{}
 
 	if deletedItem.MoreInfo != nil {
@@ -419,7 +419,7 @@ func dataSourceLoadBalancerListenerCollectionHTTPSRedirectListenerToMap(listener
 	return listenerMap
 }
 
-func dataSourceLoadBalancerListenerCollectionListenerDeletedToMap(deletedItem vpcv1.LoadBalancerListenerReferenceDeleted) (deletedMap map[string]interface{}) {
+func dataSourceLoadBalancerListenerCollectionListenerDeletedToMap(deletedItem vpcv1.Deleted) (deletedMap map[string]interface{}) {
 	deletedMap = map[string]interface{}{}
 
 	if deletedItem.MoreInfo != nil {
@@ -448,7 +448,7 @@ func dataSourceLoadBalancerListenerCollectionListenersPoliciesToMap(policiesItem
 	return policiesMap
 }
 
-func dataSourceLoadBalancerListenerCollectionPoliciesDeletedToMap(deletedItem vpcv1.LoadBalancerListenerPolicyReferenceDeleted) (deletedMap map[string]interface{}) {
+func dataSourceLoadBalancerListenerCollectionPoliciesDeletedToMap(deletedItem vpcv1.Deleted) (deletedMap map[string]interface{}) {
 	deletedMap = map[string]interface{}{}
 
 	if deletedItem.MoreInfo != nil {

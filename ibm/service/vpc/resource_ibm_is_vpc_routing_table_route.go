@@ -236,12 +236,12 @@ func resourceIBMISVPCRoutingTableRouteCreate(context context.Context, d *schema.
 	if add, ok := d.GetOk(rNextHop); ok {
 		item := add.(string)
 		if net.ParseIP(item) == nil {
-			nhConnectionID := &vpcv1.RoutePrototypeNextHopRouteNextHopPrototypeVPNGatewayConnectionIdentity{
+			nhConnectionID := &vpcv1.RouteNextHopPrototype{
 				ID: core.StringPtr(item),
 			}
 			createVpcRoutingTableRouteOptions.SetNextHop(nhConnectionID)
 		} else {
-			nh := &vpcv1.RoutePrototypeNextHopRouteNextHopPrototypeRouteNextHopIP{
+			nh := &vpcv1.RouteNextHopPrototype{
 				Address: core.StringPtr(item),
 			}
 			createVpcRoutingTableRouteOptions.SetNextHop(nh)

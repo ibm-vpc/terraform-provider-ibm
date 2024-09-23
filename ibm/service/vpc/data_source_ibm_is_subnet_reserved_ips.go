@@ -282,7 +282,7 @@ func dataSourceIBMIsReservedIPReservedIPTargetToMap(model vpcv1.ReservedIPTarget
 	}
 }
 
-func dataSourceIBMIsReservedIPEndpointGatewayReferenceDeletedToMap(model *vpcv1.EndpointGatewayReferenceDeleted) (map[string]interface{}, error) {
+func dataSourceIBMIsReservedIPEndpointGatewayReferenceDeletedToMap(model *vpcv1.Deleted) (map[string]interface{}, error) {
 	modelMap := make(map[string]interface{})
 	modelMap["more_info"] = model.MoreInfo
 	return modelMap, nil
@@ -331,7 +331,7 @@ func dataSourceIBMIsReservedIPReservedIPTargetNetworkInterfaceReferenceTargetCon
 	return modelMap, nil
 }
 
-func dataSourceIBMIsReservedIPNetworkInterfaceReferenceTargetContextDeletedToMap(model *vpcv1.NetworkInterfaceReferenceTargetContextDeleted) (map[string]interface{}, error) {
+func dataSourceIBMIsReservedIPNetworkInterfaceReferenceTargetContextDeletedToMap(model *vpcv1.Deleted) (map[string]interface{}, error) {
 	modelMap := make(map[string]interface{})
 	modelMap["more_info"] = model.MoreInfo
 	return modelMap, nil
@@ -353,7 +353,7 @@ func dataSourceIBMIsReservedIPReservedIPTargetBareMetalServerNetworkInterfaceRef
 	return modelMap, nil
 }
 
-func dataSourceIBMIsReservedIPBareMetalServerNetworkInterfaceReferenceTargetContextDeletedToMap(model *vpcv1.BareMetalServerNetworkInterfaceReferenceTargetContextDeleted) (map[string]interface{}, error) {
+func dataSourceIBMIsReservedIPBareMetalServerNetworkInterfaceReferenceTargetContextDeletedToMap(model *vpcv1.Deleted) (map[string]interface{}, error) {
 	modelMap := make(map[string]interface{})
 	modelMap["more_info"] = model.MoreInfo
 	return modelMap, nil
@@ -376,7 +376,7 @@ func dataSourceIBMIsReservedIPReservedIPTargetLoadBalancerReferenceToMap(model *
 	return modelMap, nil
 }
 
-func dataSourceIBMIsReservedIPLoadBalancerReferenceDeletedToMap(model *vpcv1.LoadBalancerReferenceDeleted) (map[string]interface{}, error) {
+func dataSourceIBMIsReservedIPLoadBalancerReferenceDeletedToMap(model *vpcv1.Deleted) (map[string]interface{}, error) {
 	modelMap := make(map[string]interface{})
 	modelMap["more_info"] = model.MoreInfo
 	return modelMap, nil
@@ -399,7 +399,7 @@ func dataSourceIBMIsReservedIPReservedIPTargetVPNGatewayReferenceToMap(model *vp
 	return modelMap, nil
 }
 
-func dataSourceIBMIsReservedIPVPNGatewayReferenceDeletedToMap(model *vpcv1.VPNGatewayReferenceDeleted) (map[string]interface{}, error) {
+func dataSourceIBMIsReservedIPVPNGatewayReferenceDeletedToMap(model *vpcv1.Deleted) (map[string]interface{}, error) {
 	modelMap := make(map[string]interface{})
 	modelMap["more_info"] = model.MoreInfo
 	return modelMap, nil
@@ -422,7 +422,7 @@ func dataSourceIBMIsReservedIPReservedIPTargetVPNServerReferenceToMap(model *vpc
 	return modelMap, nil
 }
 
-func dataSourceIBMIsReservedIPVPNServerReferenceDeletedToMap(model *vpcv1.VPNServerReferenceDeleted) (map[string]interface{}, error) {
+func dataSourceIBMIsReservedIPVPNServerReferenceDeletedToMap(model *vpcv1.Deleted) (map[string]interface{}, error) {
 	modelMap := make(map[string]interface{})
 	modelMap["more_info"] = model.MoreInfo
 	return modelMap, nil
@@ -442,7 +442,7 @@ func dataSourceIBMIsReservedIPReservedIPTargetGenericResourceReferenceToMap(mode
 	return modelMap, nil
 }
 
-func dataSourceIBMIsReservedIPGenericResourceReferenceDeletedToMap(model *vpcv1.GenericResourceReferenceDeleted) (map[string]interface{}, error) {
+func dataSourceIBMIsReservedIPGenericResourceReferenceDeletedToMap(model *vpcv1.Deleted) (map[string]interface{}, error) {
 	modelMap := make(map[string]interface{})
 	modelMap["more_info"] = model.MoreInfo
 	return modelMap, nil

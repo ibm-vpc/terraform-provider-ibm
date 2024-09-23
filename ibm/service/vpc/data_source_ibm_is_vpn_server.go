@@ -709,7 +709,7 @@ func dataSourceVPNServerPrivateIpsToMap(privateIpsItem vpcv1.ReservedIPReference
 	return privateIpsMap
 }
 
-func dataSourceVPNServerPrivateIpsDeletedToMap(deletedItem vpcv1.ReservedIPReferenceDeleted) (deletedMap map[string]interface{}) {
+func dataSourceVPNServerPrivateIpsDeletedToMap(deletedItem vpcv1.Deleted) (deletedMap map[string]interface{}) {
 	deletedMap = map[string]interface{}{}
 
 	if deletedItem.MoreInfo != nil {
@@ -776,7 +776,7 @@ func dataSourceVPNServerSecurityGroupsToMap(securityGroupsItem vpcv1.SecurityGro
 	return securityGroupsMap
 }
 
-func dataSourceVPNServerSecurityGroupsDeletedToMap(deletedItem vpcv1.SecurityGroupReferenceDeleted) (deletedMap map[string]interface{}) {
+func dataSourceVPNServerSecurityGroupsDeletedToMap(deletedItem vpcv1.Deleted) (deletedMap map[string]interface{}) {
 	deletedMap = map[string]interface{}{}
 
 	if deletedItem.MoreInfo != nil {
@@ -819,7 +819,7 @@ func dataSourceVPNServerSubnetsToMap(subnetsItem vpcv1.SubnetReference) (subnets
 	return subnetsMap
 }
 
-func dataSourceVPNServerSubnetsDeletedToMap(deletedItem vpcv1.SubnetReferenceDeleted) (deletedMap map[string]interface{}) {
+func dataSourceVPNServerSubnetsDeletedToMap(deletedItem vpcv1.Deleted) (deletedMap map[string]interface{}) {
 	deletedMap = map[string]interface{}{}
 
 	if deletedItem.MoreInfo != nil {
@@ -859,7 +859,7 @@ func dataSourceVPNServerVpcToMap(vpcItem vpcv1.VPCReference) (vpcsMap map[string
 	return vpcsMap
 }
 
-func dataSourceVPNServerVpcsDeletedToMap(deletedItem vpcv1.VPCReferenceDeleted) (deletedMap map[string]interface{}) {
+func dataSourceVPNServerVpcsDeletedToMap(deletedItem vpcv1.Deleted) (deletedMap map[string]interface{}) {
 	deletedMap = map[string]interface{}{}
 
 	if deletedItem.MoreInfo != nil {

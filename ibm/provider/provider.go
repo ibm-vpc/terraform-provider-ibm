@@ -47,9 +47,11 @@ import (
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/service/kms"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/service/kubernetes"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/service/logs"
+	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/service/logsrouting"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/service/metricsrouter"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/service/mqcloud"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/service/pag"
+	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/service/partnercentersell"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/service/power"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/service/project"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/service/pushnotification"
@@ -888,6 +890,8 @@ func Provider() *schema.Provider {
 			"ibm_en_smtp_user":                 eventnotification.DataSourceIBMEnSMTPUser(),
 			"ibm_en_smtp_users":                eventnotification.DataSourceIBMEnSMTPUsers(),
 			"ibm_en_slack_template":            eventnotification.DataSourceIBMEnSlackTemplate(),
+			"ibm_en_metrics":                   eventnotification.DataSourceIBMEnMetrics(),
+			"ibm_en_smtp_allowed_ips":          eventnotification.DataSourceIBMEnSMTPAllowedIps(),
 
 			// Added for Toolchain
 			"ibm_cd_toolchain":                         cdtoolchain.DataSourceIBMCdToolchain(),
@@ -928,6 +932,7 @@ func Provider() *schema.Provider {
 			"ibm_code_engine_build":          codeengine.DataSourceIbmCodeEngineBuild(),
 			"ibm_code_engine_config_map":     codeengine.DataSourceIbmCodeEngineConfigMap(),
 			"ibm_code_engine_domain_mapping": codeengine.DataSourceIbmCodeEngineDomainMapping(),
+			"ibm_code_engine_function":       codeengine.DataSourceIbmCodeEngineFunction(),
 			"ibm_code_engine_job":            codeengine.DataSourceIbmCodeEngineJob(),
 			"ibm_code_engine_project":        codeengine.DataSourceIbmCodeEngineProject(),
 			"ibm_code_engine_secret":         codeengine.DataSourceIbmCodeEngineSecret(),
@@ -959,6 +964,10 @@ func Provider() *schema.Provider {
 			"ibm_logs_data_usage_metrics": logs.AddLogsInstanceFields(logs.DataSourceIbmLogsDataUsageMetrics()),
 			"ibm_logs_enrichments":        logs.AddLogsInstanceFields(logs.DataSourceIbmLogsEnrichments()),
 			"ibm_logs_data_access_rules":  logs.AddLogsInstanceFields(logs.DataSourceIbmLogsDataAccessRules()),
+
+			// Logs Router Service
+			"ibm_logs_router_tenants": logsrouting.DataSourceIBMLogsRouterTenants(),
+			"ibm_logs_router_targets": logsrouting.DataSourceIBMLogsRouterTargets(),
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
@@ -1188,6 +1197,7 @@ func Provider() *schema.Provider {
 			"ibm_is_reservation":                            vpc.ResourceIBMISReservation(),
 			"ibm_is_reservation_activate":                   vpc.ResourceIBMISReservationActivate(),
 			"ibm_is_subnet_reserved_ip":                     vpc.ResourceIBMISReservedIP(),
+			"ibm_is_subnet_reserved_ip_patch":               vpc.ResourceIBMISReservedIPPatch(),
 			"ibm_is_subnet_network_acl_attachment":          vpc.ResourceIBMISSubnetNetworkACLAttachment(),
 			"ibm_is_subnet_public_gateway_attachment":       vpc.ResourceIBMISSubnetPublicGatewayAttachment(),
 			"ibm_is_subnet_routing_table_attachment":        vpc.ResourceIBMISSubnetRoutingTableAttachment(),
@@ -1263,6 +1273,15 @@ func Provider() *schema.Provider {
 			"ibm_ssl_certificate":                           classicinfrastructure.ResourceIBMSSLCertificate(),
 			"ibm_cdn":                                       classicinfrastructure.ResourceIBMCDN(),
 			"ibm_hardware_firewall_shared":                  classicinfrastructure.ResourceIBMFirewallShared(),
+
+			// Partner Center Sell
+			"ibm_onboarding_registration":       partnercentersell.ResourceIbmOnboardingRegistration(),
+			"ibm_onboarding_product":            partnercentersell.ResourceIbmOnboardingProduct(),
+			"ibm_onboarding_iam_registration":   partnercentersell.ResourceIbmOnboardingIamRegistration(),
+			"ibm_onboarding_catalog_product":    partnercentersell.ResourceIbmOnboardingCatalogProduct(),
+			"ibm_onboarding_catalog_plan":       partnercentersell.ResourceIbmOnboardingCatalogPlan(),
+			"ibm_onboarding_catalog_deployment": partnercentersell.ResourceIbmOnboardingCatalogDeployment(),
+			"ibm_onboarding_resource_broker":    partnercentersell.ResourceIbmOnboardingResourceBroker(),
 
 			// Added for Power Colo
 			"ibm_pi_capture":                         power.ResourceIBMPICapture(),
@@ -1390,6 +1409,9 @@ func Provider() *schema.Provider {
 			"ibm_resource_tag":        globaltagging.ResourceIBMResourceTag(),
 			"ibm_resource_access_tag": globaltagging.ResourceIBMResourceAccessTag(),
 
+			// Added for Iam Access Tag
+			"ibm_iam_access_tag": globaltagging.ResourceIBMIamAccessTag(),
+
 			// Atracker
 			"ibm_atracker_target":   atracker.ResourceIBMAtrackerTarget(),
 			"ibm_atracker_route":    atracker.ResourceIBMAtrackerRoute(),
@@ -1513,6 +1535,7 @@ func Provider() *schema.Provider {
 			"ibm_code_engine_build":          codeengine.ResourceIbmCodeEngineBuild(),
 			"ibm_code_engine_config_map":     codeengine.ResourceIbmCodeEngineConfigMap(),
 			"ibm_code_engine_domain_mapping": codeengine.ResourceIbmCodeEngineDomainMapping(),
+			"ibm_code_engine_function":       codeengine.ResourceIbmCodeEngineFunction(),
 			"ibm_code_engine_job":            codeengine.ResourceIbmCodeEngineJob(),
 			"ibm_code_engine_project":        codeengine.ResourceIbmCodeEngineProject(),
 			"ibm_code_engine_secret":         codeengine.ResourceIbmCodeEngineSecret(),
@@ -1537,6 +1560,9 @@ func Provider() *schema.Provider {
 			"ibm_logs_data_usage_metrics": logs.AddLogsInstanceFields(logs.ResourceIbmLogsDataUsageMetrics()),
 			"ibm_logs_enrichment":         logs.AddLogsInstanceFields(logs.ResourceIbmLogsEnrichment()),
 			"ibm_logs_data_access_rule":   logs.AddLogsInstanceFields(logs.ResourceIbmLogsDataAccessRule()),
+
+			// Logs Router Service
+			"ibm_logs_router_tenant": logsrouting.ResourceIBMLogsRouterTenant(),
 		},
 
 		ConfigureFunc: providerConfigure,
@@ -1855,6 +1881,7 @@ func Validator() validate.ValidatorDict {
 				"ibm_is_virtual_endpoint_gateway":         vpc.ResourceIBMISEndpointGatewayValidator(),
 				"ibm_resource_tag":                        globaltagging.ResourceIBMResourceTagValidator(),
 				"ibm_resource_access_tag":                 globaltagging.ResourceIBMResourceAccessTagValidator(),
+				"ibm_iam_access_tag":                      globaltagging.ResourceIBMIamAccessTagValidator(),
 				"ibm_satellite_location":                  satellite.ResourceIBMSatelliteLocationValidator(),
 				"ibm_satellite_cluster":                   satellite.ResourceIBMSatelliteClusterValidator(),
 				"ibm_pi_volume":                           power.ResourceIBMPIVolumeValidator(),
@@ -1866,6 +1893,15 @@ func Validator() validate.ValidatorDict {
 				"ibm_metrics_router_settings":             metricsrouter.ResourceIBMMetricsRouterSettingsValidator(),
 				"ibm_satellite_endpoint":                  satellite.ResourceIBMSatelliteEndpointValidator(),
 				"ibm_satellite_host":                      satellite.ResourceIBMSatelliteHostValidator(),
+
+				// Partner Center Sell
+				"ibm_onboarding_registration":       partnercentersell.ResourceIbmOnboardingRegistrationValidator(),
+				"ibm_onboarding_product":            partnercentersell.ResourceIbmOnboardingProductValidator(),
+				"ibm_onboarding_iam_registration":   partnercentersell.ResourceIbmOnboardingIamRegistrationValidator(),
+				"ibm_onboarding_catalog_product":    partnercentersell.ResourceIbmOnboardingCatalogProductValidator(),
+				"ibm_onboarding_catalog_plan":       partnercentersell.ResourceIbmOnboardingCatalogPlanValidator(),
+				"ibm_onboarding_catalog_deployment": partnercentersell.ResourceIbmOnboardingCatalogDeploymentValidator(),
+				"ibm_onboarding_resource_broker":    partnercentersell.ResourceIbmOnboardingResourceBrokerValidator(),
 
 				// Added for Context Based Restrictions
 				"ibm_cbr_zone":           contextbasedrestrictions.ResourceIBMCbrZoneValidator(),
@@ -1956,6 +1992,7 @@ func Validator() validate.ValidatorDict {
 				"ibm_code_engine_build":          codeengine.ResourceIbmCodeEngineBuildValidator(),
 				"ibm_code_engine_config_map":     codeengine.ResourceIbmCodeEngineConfigMapValidator(),
 				"ibm_code_engine_domain_mapping": codeengine.ResourceIbmCodeEngineDomainMappingValidator(),
+				"ibm_code_engine_function":       codeengine.ResourceIbmCodeEngineFunctionValidator(),
 				"ibm_code_engine_job":            codeengine.ResourceIbmCodeEngineJobValidator(),
 				"ibm_code_engine_project":        codeengine.ResourceIbmCodeEngineProjectValidator(),
 				"ibm_code_engine_secret":         codeengine.ResourceIbmCodeEngineSecretValidator(),
@@ -1983,6 +2020,9 @@ func Validator() validate.ValidatorDict {
 				"ibm_logs_dashboard_folder": logs.ResourceIbmLogsDashboardFolderValidator(),
 				"ibm_logs_enrichment":       logs.ResourceIbmLogsEnrichmentValidator(),
 				"ibm_logs_data_access_rule": logs.ResourceIbmLogsDataAccessRuleValidator(),
+
+				// Added for Logs Router Service
+				"ibm_logs_router_tenant": logsrouting.ResourceIBMLogsRouterTenantValidator(),
 			},
 			DataSourceValidatorDictionary: map[string]*validate.ResourceValidator{
 				"ibm_is_subnet":                     vpc.DataSourceIBMISSubnetValidator(),

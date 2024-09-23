@@ -504,7 +504,7 @@ func dataSourceFloatingIPCollectionFloatingIpsTargetToMap(targetItemIntf vpcv1.F
 	return targetMap
 }
 
-func dataSourceFloatingIPCollectionTargetNicDeletedToMap(deletedItem vpcv1.NetworkInterfaceReferenceDeleted) (deletedMap map[string]interface{}) {
+func dataSourceFloatingIPCollectionTargetNicDeletedToMap(deletedItem vpcv1.Deleted) (deletedMap map[string]interface{}) {
 	deletedMap = map[string]interface{}{}
 
 	if deletedItem.MoreInfo != nil {
@@ -513,7 +513,7 @@ func dataSourceFloatingIPCollectionTargetNicDeletedToMap(deletedItem vpcv1.Netwo
 
 	return deletedMap
 }
-func dataSourceFloatingIPCollectionTargetPgDeletedToMap(deletedItem vpcv1.PublicGatewayReferenceDeleted) (deletedMap map[string]interface{}) {
+func dataSourceFloatingIPCollectionTargetPgDeletedToMap(deletedItem vpcv1.Deleted) (deletedMap map[string]interface{}) {
 	deletedMap = map[string]interface{}{}
 
 	if deletedItem.MoreInfo != nil {

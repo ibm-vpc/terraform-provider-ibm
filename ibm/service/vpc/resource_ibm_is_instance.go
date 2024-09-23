@@ -401,7 +401,7 @@ func ResourceIBMISInstance() *schema.Resource {
 							Optional:      true,
 							ForceNew:      true,
 							ConflictsWith: []string{"catalog_offering.0.version_crn"},
-							RequiredWith:  []string{isInstanceZone, isInstancePrimaryNetworkInterface, isInstanceVPC, isInstanceProfile},
+							RequiredWith:  []string{isInstanceZone, isInstanceVPC, isInstanceProfile},
 							Description:   "Identifies a catalog offering by a unique CRN property",
 						},
 						isInstanceCatalogOfferingVersionCrn: {
@@ -409,7 +409,7 @@ func ResourceIBMISInstance() *schema.Resource {
 							Optional:      true,
 							ForceNew:      true,
 							ConflictsWith: []string{"catalog_offering.0.offering_crn"},
-							RequiredWith:  []string{isInstanceZone, isInstancePrimaryNetworkInterface, isInstanceVPC, isInstanceProfile},
+							RequiredWith:  []string{isInstanceZone, isInstanceVPC, isInstanceProfile},
 							Description:   "Identifies a version of a catalog offering by a unique CRN property",
 						},
 						isInstanceCatalogOfferingPlanCrn: {
@@ -6480,7 +6480,7 @@ func resourceIbmIsInstanceReservationAffinityPoolToMap(reservationPool vpcv1.Res
 	return resAffPoolMap
 }
 
-func resourceIbmIsInstanceDedicatedHostGroupReferenceDeletedToMap(dedicatedHostGroupReferenceDeleted vpcv1.DedicatedHostGroupReferenceDeleted) map[string]interface{} {
+func resourceIbmIsInstanceDedicatedHostGroupReferenceDeletedToMap(dedicatedHostGroupReferenceDeleted vpcv1.Deleted) map[string]interface{} {
 	dedicatedHostGroupReferenceDeletedMap := map[string]interface{}{}
 
 	dedicatedHostGroupReferenceDeletedMap["more_info"] = dedicatedHostGroupReferenceDeleted.MoreInfo
@@ -6589,7 +6589,7 @@ func resourceIBMIsInstanceInstanceNetworkAttachmentReferenceToMap(model *vpcv1.I
 	return modelMap, nil
 }
 
-func resourceIBMIsInstanceInstanceNetworkAttachmentReferenceDeletedToMap(model *vpcv1.InstanceNetworkAttachmentReferenceDeleted) (map[string]interface{}, error) {
+func resourceIBMIsInstanceInstanceNetworkAttachmentReferenceDeletedToMap(model *vpcv1.Deleted) (map[string]interface{}, error) {
 	modelMap := make(map[string]interface{})
 	modelMap["more_info"] = model.MoreInfo
 	return modelMap, nil
@@ -6615,7 +6615,7 @@ func resourceIBMIsInstanceReservedIPReferenceToMap(model *vpcv1.ReservedIPRefere
 	return modelMap, nil
 }
 
-func resourceIBMIsInstanceReservedIPReferenceDeletedToMap(model *vpcv1.ReservedIPReferenceDeleted) (map[string]interface{}, error) {
+func resourceIBMIsInstanceReservedIPReferenceDeletedToMap(model *vpcv1.Deleted) (map[string]interface{}, error) {
 	modelMap := make(map[string]interface{})
 	modelMap["more_info"] = model.MoreInfo
 	return modelMap, nil

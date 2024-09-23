@@ -280,9 +280,6 @@ func resourceIBMISLBPoolCreate(context context.Context, d *schema.ResourceData, 
 	if hmp, ok := d.GetOk(isLBPoolHealthMonitorPort); ok {
 		healthMonitorPort = int64(hmp.(int))
 	}
-	isLBKey := "load_balancer_key_" + lbID
-	conns.IbmMutexKV.Lock(isLBKey)
-	defer conns.IbmMutexKV.Unlock(isLBKey)
 
 	err := lbPoolCreate(d, meta, name, lbID, algorithm, protocol, healthType, spType, cName, healthMonitorURL, pProtocol, healthDelay, maxRetries, healthTimeOut, healthMonitorPort)
 	if err != nil {

@@ -269,7 +269,7 @@ func dataSourceIBMIsSecurityGroupRulesID(d *schema.ResourceData) string {
 	return time.Now().UTC().String()
 }
 
-func dataSourceSecurityGroupRuleCollectionRemoteDeletedToMap(deletedItem *vpcv1.SecurityGroupReferenceDeleted) (resultMap map[string]interface{}) {
+func dataSourceSecurityGroupRuleCollectionRemoteDeletedToMap(deletedItem *vpcv1.Deleted) (resultMap map[string]interface{}) {
 	resultMap = map[string]interface{}{}
 
 	if deletedItem.MoreInfo != nil {
