@@ -4,8 +4,10 @@
 package vpc
 
 import (
+	"fmt"
 	"log"
 
+	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -28,7 +30,7 @@ const (
 
 func DataSourceIBMISVPCDefaultRoutingTable() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceIBMISVPCDefaultRoutingTableGet,
+		ReadContext: dataSourceIBMISVPCDefaultRoutingTableGet,
 		Schema: map[string]*schema.Schema{
 			isDefaultRTVpcID: {
 				Type:        schema.TypeString,
@@ -136,7 +138,9 @@ func dataSourceIBMISVPCDefaultRoutingTableGet(d *schema.ResourceData, meta inter
 
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "read")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	vpcID := d.Get(isDefaultRTVpcID).(string)

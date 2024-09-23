@@ -16,6 +16,7 @@ import (
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/validate"
 	"github.com/IBM/go-sdk-core/v5/core"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -132,11 +133,11 @@ const (
 
 func ResourceIBMISInstance() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceIBMisInstanceCreate,
-		Read:   resourceIBMisInstanceRead,
-		Update: resourceIBMisInstanceUpdate,
-		Delete: resourceIBMisInstanceDelete,
-		Exists: resourceIBMisInstanceExists,
+		CreateContext: resourceIBMisInstanceCreate,
+		ReadContext:   resourceIBMisInstanceRead,
+		UpdateContext: resourceIBMisInstanceUpdate,
+		DeleteContext: resourceIBMisInstanceDelete,
+		Exists:        resourceIBMisInstanceExists,
 		Importer: &schema.ResourceImporter{
 			State: func(d *schema.ResourceData, meta interface{}) (result []*schema.ResourceData, err error) {
 				log.Printf("[INFO] Instance (%s) importing", d.Id())
@@ -1768,7 +1769,9 @@ func ResourceIBMISInstanceValidator() *validate.ResourceValidator {
 func instanceCreateByImage(d *schema.ResourceData, meta interface{}, profile, name, vpcID, zone, image string) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	instanceproto := &vpcv1.InstancePrototype{
 		Image: &vpcv1.ImageIdentity{
@@ -1898,7 +1901,9 @@ func instanceCreateByImage(d *schema.ResourceData, meta interface{}, profile, na
 			// enablenat := "primary_network_attachment.0.enable_infrastructure_nat"
 			networkAttachmentsItemModel, err := resourceIBMIsInstanceMapToInstanceNetworkAttachmentPrototype(allowipspoofing, autodelete, enablenat, d, networkAttachmentsItem.(map[string]interface{}))
 			if err != nil {
-				return err
+				tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 			}
 			networkAttachments = append(networkAttachments, *networkAttachmentsItemModel)
 		}
@@ -1911,7 +1916,9 @@ func instanceCreateByImage(d *schema.ResourceData, meta interface{}, profile, na
 		enablenat := fmt.Sprintf("primary_network_attachment.%d.virtual_network_interface.0.enable_infrastructure_nat", i)
 		primaryNetworkAttachmentModel, err := resourceIBMIsInstanceMapToInstanceNetworkAttachmentPrototype(allowipspoofing, autodelete, enablenat, d, primnetworkattachmentintf.([]interface{})[0].(map[string]interface{}))
 		if err != nil {
-			return err
+			tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 		}
 		instanceproto.PrimaryNetworkAttachment = primaryNetworkAttachmentModel
 	}
@@ -2166,7 +2173,9 @@ func instanceCreateByImage(d *schema.ResourceData, meta interface{}, profile, na
 	instance, response, err := sess.CreateInstance(options)
 	if err != nil {
 		log.Printf("[DEBUG] Instance err %s\n%s", err, response)
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	d.SetId(*instance.ID)
 
@@ -2175,7 +2184,9 @@ func instanceCreateByImage(d *schema.ResourceData, meta interface{}, profile, na
 
 	_, err = isWaitForInstanceAvailable(sess, d.Id(), d.Timeout(schema.TimeoutCreate), d)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	v := os.Getenv("IC_ENV_TAGS")
@@ -2200,7 +2211,9 @@ func instanceCreateByImage(d *schema.ResourceData, meta interface{}, profile, na
 func instanceCreateByCatalogOffering(d *schema.ResourceData, meta interface{}, profile, name, vpcID, zone, image, offerringCrn, versionCrn, planCrn string) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	instanceproto := &vpcv1.InstancePrototypeInstanceByCatalogOffering{
 		Zone: &vpcv1.ZoneIdentity{
@@ -2347,7 +2360,9 @@ func instanceCreateByCatalogOffering(d *schema.ResourceData, meta interface{}, p
 			// enablenat := "primary_network_attachment.0.enable_infrastructure_nat"
 			networkAttachmentsItemModel, err := resourceIBMIsInstanceMapToInstanceNetworkAttachmentPrototype(allowipspoofing, autodelete, enablenat, d, networkAttachmentsItem.(map[string]interface{}))
 			if err != nil {
-				return err
+				tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 			}
 			networkAttachments = append(networkAttachments, *networkAttachmentsItemModel)
 		}
@@ -2360,7 +2375,9 @@ func instanceCreateByCatalogOffering(d *schema.ResourceData, meta interface{}, p
 		enablenat := fmt.Sprintf("primary_network_attachment.%d.virtual_network_interface.0.enable_infrastructure_nat", i)
 		primaryNetworkAttachmentModel, err := resourceIBMIsInstanceMapToInstanceNetworkAttachmentPrototype(allowipspoofing, autodelete, enablenat, d, primnetworkattachmentintf.([]interface{})[0].(map[string]interface{}))
 		if err != nil {
-			return err
+			tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 		}
 		instanceproto.PrimaryNetworkAttachment = primaryNetworkAttachmentModel
 	}
@@ -2615,7 +2632,9 @@ func instanceCreateByCatalogOffering(d *schema.ResourceData, meta interface{}, p
 	instance, response, err := sess.CreateInstance(options)
 	if err != nil {
 		log.Printf("[DEBUG] Instance err %s\n%s", err, response)
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	d.SetId(*instance.ID)
 
@@ -2624,7 +2643,9 @@ func instanceCreateByCatalogOffering(d *schema.ResourceData, meta interface{}, p
 
 	_, err = isWaitForInstanceAvailable(sess, d.Id(), d.Timeout(schema.TimeoutCreate), d)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	v := os.Getenv("IC_ENV_TAGS")
@@ -2642,7 +2663,9 @@ func instanceCreateByCatalogOffering(d *schema.ResourceData, meta interface{}, p
 func instanceCreateByTemplate(d *schema.ResourceData, meta interface{}, profile, name, vpcID, zone, image, template string) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	instanceproto := &vpcv1.InstancePrototypeInstanceBySourceTemplate{
 		SourceTemplate: &vpcv1.InstanceTemplateIdentity{
@@ -2776,7 +2799,9 @@ func instanceCreateByTemplate(d *schema.ResourceData, meta interface{}, profile,
 			enablenat := fmt.Sprintf("network_attachments.%d.enable_infrastructure_nat", i)
 			networkAttachmentsItemModel, err := resourceIBMIsInstanceMapToInstanceNetworkAttachmentPrototype(allowipspoofing, autodelete, enablenat, d, networkAttachmentsItem.(map[string]interface{}))
 			if err != nil {
-				return err
+				tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 			}
 			networkAttachments = append(networkAttachments, *networkAttachmentsItemModel)
 		}
@@ -2789,7 +2814,9 @@ func instanceCreateByTemplate(d *schema.ResourceData, meta interface{}, profile,
 		enablenat := fmt.Sprintf("primary_network_attachment.%d.virtual_network_interface.0.enable_infrastructure_nat", i)
 		primaryNetworkAttachmentModel, err := resourceIBMIsInstanceMapToInstanceNetworkAttachmentPrototype(allowipspoofing, autodelete, enablenat, d, primnetworkattachmentintf.([]interface{})[0].(map[string]interface{}))
 		if err != nil {
-			return err
+			tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 		}
 		instanceproto.PrimaryNetworkAttachment = primaryNetworkAttachmentModel
 	}
@@ -3043,7 +3070,9 @@ func instanceCreateByTemplate(d *schema.ResourceData, meta interface{}, profile,
 	instance, response, err := sess.CreateInstance(options)
 	if err != nil {
 		log.Printf("[DEBUG] Instance err %s\n%s", err, response)
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	d.SetId(*instance.ID)
 
@@ -3052,7 +3081,9 @@ func instanceCreateByTemplate(d *schema.ResourceData, meta interface{}, profile,
 
 	_, err = isWaitForInstanceAvailable(sess, d.Id(), d.Timeout(schema.TimeoutCreate), d)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	v := os.Getenv("IC_ENV_TAGS")
@@ -3078,7 +3109,9 @@ func instanceCreateByTemplate(d *schema.ResourceData, meta interface{}, profile,
 func instanceCreateBySnapshot(d *schema.ResourceData, meta interface{}, profile, name, vpcID, zone string) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	instanceproto := &vpcv1.InstancePrototypeInstanceBySourceSnapshot{
 		Zone: &vpcv1.ZoneIdentity{
@@ -3236,7 +3269,9 @@ func instanceCreateBySnapshot(d *schema.ResourceData, meta interface{}, profile,
 			enablenat := fmt.Sprintf("network_attachments.%d.enable_infrastructure_nat", i)
 			networkAttachmentsItemModel, err := resourceIBMIsInstanceMapToInstanceNetworkAttachmentPrototype(allowipspoofing, autodelete, enablenat, d, networkAttachmentsItem.(map[string]interface{}))
 			if err != nil {
-				return err
+				tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 			}
 			networkAttachments = append(networkAttachments, *networkAttachmentsItemModel)
 		}
@@ -3249,7 +3284,9 @@ func instanceCreateBySnapshot(d *schema.ResourceData, meta interface{}, profile,
 		enablenat := fmt.Sprintf("primary_network_attachment.%d.virtual_network_interface.0.enable_infrastructure_nat", i)
 		primaryNetworkAttachmentModel, err := resourceIBMIsInstanceMapToInstanceNetworkAttachmentPrototype(allowipspoofing, autodelete, enablenat, d, primnetworkattachmentintf.([]interface{})[0].(map[string]interface{}))
 		if err != nil {
-			return err
+			tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 		}
 		instanceproto.PrimaryNetworkAttachment = primaryNetworkAttachmentModel
 	}
@@ -3483,7 +3520,9 @@ func instanceCreateBySnapshot(d *schema.ResourceData, meta interface{}, profile,
 	instance, response, err := sess.CreateInstance(options)
 	if err != nil {
 		log.Printf("[DEBUG] Instance err %s\n%s", err, response)
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	d.SetId(*instance.ID)
 
@@ -3492,7 +3531,9 @@ func instanceCreateBySnapshot(d *schema.ResourceData, meta interface{}, profile,
 
 	_, err = isWaitForInstanceAvailable(sess, d.Id(), d.Timeout(schema.TimeoutCreate), d)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	v := os.Getenv("IC_ENV_TAGS")
@@ -3518,7 +3559,9 @@ func instanceCreateBySnapshot(d *schema.ResourceData, meta interface{}, profile,
 func instanceCreateByVolume(d *schema.ResourceData, meta interface{}, profile, name, vpcID, zone string) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	instanceproto := &vpcv1.InstancePrototypeInstanceByVolume{
 		Zone: &vpcv1.ZoneIdentity{
@@ -3637,7 +3680,9 @@ func instanceCreateByVolume(d *schema.ResourceData, meta interface{}, profile, n
 			// enablenat := "primary_network_attachment.0.enable_infrastructure_nat"
 			networkAttachmentsItemModel, err := resourceIBMIsInstanceMapToInstanceNetworkAttachmentPrototype(allowipspoofing, autodelete, enablenat, d, networkAttachmentsItem.(map[string]interface{}))
 			if err != nil {
-				return err
+				tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 			}
 			networkAttachments = append(networkAttachments, *networkAttachmentsItemModel)
 		}
@@ -3650,7 +3695,9 @@ func instanceCreateByVolume(d *schema.ResourceData, meta interface{}, profile, n
 		enablenat := fmt.Sprintf("primary_network_attachment.%d.virtual_network_interface.0.enable_infrastructure_nat", i)
 		primaryNetworkAttachmentModel, err := resourceIBMIsInstanceMapToInstanceNetworkAttachmentPrototype(allowipspoofing, autodelete, enablenat, d, primnetworkattachmentintf.([]interface{})[0].(map[string]interface{}))
 		if err != nil {
-			return err
+			tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 		}
 		instanceproto.PrimaryNetworkAttachment = primaryNetworkAttachmentModel
 	}
@@ -3883,7 +3930,9 @@ func instanceCreateByVolume(d *schema.ResourceData, meta interface{}, profile, n
 	instance, response, err := sess.CreateInstance(options)
 	if err != nil {
 		log.Printf("[DEBUG] Instance err %s\n%s", err, response)
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	d.SetId(*instance.ID)
 
@@ -3892,7 +3941,9 @@ func instanceCreateByVolume(d *schema.ResourceData, meta interface{}, profile, n
 
 	_, err = isWaitForInstanceAvailable(sess, d.Id(), d.Timeout(schema.TimeoutCreate), d)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	v := os.Getenv("IC_ENV_TAGS")
@@ -3915,7 +3966,7 @@ func instanceCreateByVolume(d *schema.ResourceData, meta interface{}, profile, n
 	return nil
 }
 
-func resourceIBMisInstanceCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMisInstanceCreate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	profile := d.Get(isInstanceProfile).(string)
 	name := d.Get(isInstanceName).(string)
@@ -3933,28 +3984,38 @@ func resourceIBMisInstanceCreate(d *schema.ResourceData, meta interface{}) error
 		planCrn, _ := catalogOffering[isInstanceCatalogOfferingPlanCrn].(string)
 		err := instanceCreateByCatalogOffering(d, meta, profile, name, vpcID, zone, image, offeringCrn, versionCrn, planCrn)
 		if err != nil {
-			return err
+			tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 		}
 
 	} else if volume != "" {
 		err := instanceCreateByVolume(d, meta, profile, name, vpcID, zone)
 		if err != nil {
-			return err
+			tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 		}
 	} else if snapshot != "" || snapshotcrn != "" {
 		err := instanceCreateBySnapshot(d, meta, profile, name, vpcID, zone)
 		if err != nil {
-			return err
+			tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 		}
 	} else if template != "" {
 		err := instanceCreateByTemplate(d, meta, profile, name, vpcID, zone, image, template)
 		if err != nil {
-			return err
+			tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 		}
 	} else {
 		err := instanceCreateByImage(d, meta, profile, name, vpcID, zone, image)
 		if err != nil {
-			return err
+			tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 		}
 	}
 
@@ -4076,13 +4137,15 @@ func isRestartStartAction(instanceC *vpcv1.VpcV1, id string, d *schema.ResourceD
 		}
 	}
 }
-func resourceIBMisInstanceRead(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMisInstanceRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	ID := d.Id()
 
 	err := instanceGet(d, meta, ID)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	return nil
 }
@@ -4090,7 +4153,9 @@ func resourceIBMisInstanceRead(d *schema.ResourceData, meta interface{}) error {
 func instanceGet(d *schema.ResourceData, meta interface{}, id string) error {
 	instanceC, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	getinsOptions := &vpcv1.GetInstanceOptions{
 		ID: &id,
@@ -4313,7 +4378,9 @@ func instanceGet(d *schema.ResourceData, meta interface{}, id string) error {
 		}
 		primaryNetworkAttachmentMap, err := resourceIBMIsInstanceInstanceNetworkAttachmentReferenceToMap(instance.PrimaryNetworkAttachment, pna, instanceC, autoDelete)
 		if err != nil {
-			return err
+			tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 		}
 		if err = d.Set("primary_network_attachment", []map[string]interface{}{primaryNetworkAttachmentMap}); err != nil {
 			return fmt.Errorf("[ERROR] Error setting primary_network_attachment: %s", err)
@@ -4406,7 +4473,9 @@ func instanceGet(d *schema.ResourceData, meta interface{}, id string) error {
 				}
 				networkAttachmentsItemMap, err := resourceIBMIsInstanceInstanceNetworkAttachmentReferenceToMap(&networkAttachmentsItem, na, instanceC, autoDelete)
 				if err != nil {
-					return err
+					tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 				}
 				networkAttachments = append(networkAttachments, networkAttachmentsItemMap)
 			}
@@ -4526,7 +4595,9 @@ func instanceGet(d *schema.ResourceData, meta interface{}, id string) error {
 	d.Set(isInstanceAccessTags, accesstags)
 	controller, err := flex.GetBaseController(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	d.Set(flex.ResourceControllerURL, controller+"/vpc-ext/compute/vs")
 	d.Set(flex.ResourceName, *instance.Name)
@@ -4575,10 +4646,12 @@ func instanceGet(d *schema.ResourceData, meta interface{}, id string) error {
 	return nil
 }
 
-func instanceUpdate(d *schema.ResourceData, meta interface{}) error {
+func instanceUpdate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	instanceC, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	id := d.Id()
 	// network attachments
@@ -4634,7 +4707,9 @@ func instanceUpdate(d *schema.ResourceData, meta interface{}) error {
 				nacMap := nac.(map[string]interface{})
 				VirtualNetworkInterfaceModel, err := resourceIBMIsInstanceMapToVirtualNetworkInterfacePrototypeAttachmentContext(allowipspoofing, autodelete, enablenat, d, nacMap["virtual_network_interface"].([]interface{})[0].(map[string]interface{}))
 				if err != nil {
-					return err
+					tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 				}
 				nacNameStr := nacMap["name"].(string)
 				createInstanceNetworkAttachmentOptions := &vpcv1.CreateInstanceNetworkAttachmentOptions{
@@ -4821,7 +4896,9 @@ func instanceUpdate(d *schema.ResourceData, meta interface{}) error {
 								}
 								_, err = isWaitForVirtualNetworkInterfaceAvailable(instanceC, vniId, d.Timeout(schema.TimeoutUpdate))
 								if err != nil {
-									return err
+									tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 								}
 							}
 
@@ -4838,7 +4915,9 @@ func instanceUpdate(d *schema.ResourceData, meta interface{}) error {
 								}
 								_, err = isWaitForVirtualNetworkInterfaceAvailable(instanceC, vniId, d.Timeout(schema.TimeoutUpdate))
 								if err != nil {
-									return err
+									tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 								}
 							}
 						}
@@ -5022,7 +5101,9 @@ func instanceUpdate(d *schema.ResourceData, meta interface{}) error {
 						}
 						_, err = isWaitForVirtualNetworkInterfaceAvailable(instanceC, vniId, d.Timeout(schema.TimeoutUpdate))
 						if err != nil {
-							return err
+							tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 						}
 					}
 
@@ -5039,7 +5120,9 @@ func instanceUpdate(d *schema.ResourceData, meta interface{}) error {
 						}
 						_, err = isWaitForVirtualNetworkInterfaceAvailable(instanceC, vniId, d.Timeout(schema.TimeoutUpdate))
 						if err != nil {
-							return err
+							tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 						}
 					}
 				}
@@ -5110,7 +5193,9 @@ func instanceUpdate(d *schema.ResourceData, meta interface{}) error {
 			param.IfMatch = &eTag
 			_, _, err = instanceC.UpdateInstance(param)
 			if err != nil {
-				return err
+				tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 			}
 		}
 	}
@@ -5146,7 +5231,9 @@ func instanceUpdate(d *schema.ResourceData, meta interface{}) error {
 
 		_, err = isWaitForVolumeAvailable(instanceC, volId, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
-			return err
+			tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 		}
 	}
 	bootVolTags := "boot_volume.0.tags"
@@ -5186,7 +5273,9 @@ func instanceUpdate(d *schema.ResourceData, meta interface{}) error {
 				}
 				_, err = isWaitForVolumeAvailable(instanceC, volId, d.Timeout(schema.TimeoutCreate))
 				if err != nil {
-					return err
+					tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 				}
 			}
 		}
@@ -5222,7 +5311,9 @@ func instanceUpdate(d *schema.ResourceData, meta interface{}) error {
 		}
 		vols, _, err := instanceC.ListInstanceVolumeAttachments(listvolattoptions)
 		if err != nil {
-			return err
+			tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 		}
 
 		auto_delete := d.Get(bootVolAutoDel).(bool)
@@ -5245,7 +5336,9 @@ func instanceUpdate(d *schema.ResourceData, meta interface{}) error {
 				instanceVolAttUpdate, response, err := instanceC.UpdateInstanceVolumeAttachment(updateInstanceVolAttOptions)
 				if err != nil || instanceVolAttUpdate == nil {
 					log.Printf("[DEBUG] Instance volume attachment updation err %s\n%s", err, response)
-					return err
+					tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 				}
 			}
 		}
@@ -5272,7 +5365,9 @@ func instanceUpdate(d *schema.ResourceData, meta interface{}) error {
 		}
 		_, err = isWaitForInstanceActionStop(instanceC, d.Timeout(schema.TimeoutUpdate), id, d)
 		if err != nil {
-			return err
+			tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 		}
 
 		updateOptions := &vpcv1.UpdateInstanceOptions{
@@ -5302,7 +5397,9 @@ func instanceUpdate(d *schema.ResourceData, meta interface{}) error {
 
 		_, _, err = instanceC.UpdateInstance(updateOptions)
 		if err != nil {
-			return err
+			tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 		}
 
 		actiontype = "start"
@@ -5319,7 +5416,9 @@ func instanceUpdate(d *schema.ResourceData, meta interface{}) error {
 		}
 		_, err = isWaitForInstanceActionStart(instanceC, d.Timeout(schema.TimeoutUpdate), id, d)
 		if err != nil {
-			return err
+			tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 		}
 	}
 
@@ -5356,12 +5455,16 @@ func instanceUpdate(d *schema.ResourceData, meta interface{}) error {
 			if actiontype == "stop" {
 				_, err = isWaitForInstanceActionStop(instanceC, d.Timeout(schema.TimeoutUpdate), id, d)
 				if err != nil {
-					return err
+					tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 				}
 			} else if actiontype == "start" || actiontype == "reboot" {
 				_, err = isWaitForInstanceActionStart(instanceC, d.Timeout(schema.TimeoutUpdate), id, d)
 				if err != nil {
-					return err
+					tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 				}
 			}
 
@@ -5402,7 +5505,9 @@ func instanceUpdate(d *schema.ResourceData, meta interface{}) error {
 				}
 				_, err = isWaitForInstanceVolumeAttached(instanceC, d, id, *vol.ID)
 				if err != nil {
-					return err
+					tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 				}
 			}
 
@@ -5414,7 +5519,9 @@ func instanceUpdate(d *schema.ResourceData, meta interface{}) error {
 				}
 				vols, _, err := instanceC.ListInstanceVolumeAttachments(listvolattoptions)
 				if err != nil {
-					return err
+					tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 				}
 				for _, vol := range vols.VolumeAttachments {
 					if *vol.Volume.ID == remove[i] {
@@ -5428,7 +5535,9 @@ func instanceUpdate(d *schema.ResourceData, meta interface{}) error {
 						}
 						_, err = isWaitForInstanceVolumeDetached(instanceC, d, d.Id(), *vol.ID)
 						if err != nil {
-							return err
+							tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 						}
 						break
 					}
@@ -5456,7 +5565,9 @@ func instanceUpdate(d *schema.ResourceData, meta interface{}) error {
 				}
 				_, err = isWaitForInstanceAvailable(instanceC, d.Id(), d.Timeout(schema.TimeoutUpdate), d)
 				if err != nil {
-					return err
+					tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 				}
 			}
 
@@ -5474,7 +5585,9 @@ func instanceUpdate(d *schema.ResourceData, meta interface{}) error {
 				}
 				_, err = isWaitForInstanceAvailable(instanceC, d.Id(), d.Timeout(schema.TimeoutUpdate), d)
 				if err != nil {
-					return err
+					tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 				}
 			}
 		}
@@ -5532,7 +5645,9 @@ func instanceUpdate(d *schema.ResourceData, meta interface{}) error {
 		}
 		_, err = isWaitForInstanceAvailable(instanceC, d.Id(), d.Timeout(schema.TimeoutUpdate), d)
 		if err != nil {
-			return err
+			tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 		}
 	}
 
@@ -5593,7 +5708,9 @@ func instanceUpdate(d *schema.ResourceData, meta interface{}) error {
 						}
 						_, err = isWaitForInstanceAvailable(instanceC, d.Id(), d.Timeout(schema.TimeoutUpdate), d)
 						if err != nil {
-							return err
+							tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 						}
 					}
 
@@ -5612,7 +5729,9 @@ func instanceUpdate(d *schema.ResourceData, meta interface{}) error {
 						}
 						_, err = isWaitForInstanceAvailable(instanceC, d.Id(), d.Timeout(schema.TimeoutUpdate), d)
 						if err != nil {
-							return err
+							tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 						}
 					}
 				}
@@ -5644,7 +5763,9 @@ func instanceUpdate(d *schema.ResourceData, meta interface{}) error {
 					return fmt.Errorf("[ERROR] Error while updating name %s for network interface of instance %s\n%s: %q", newName, d.Id(), err, response)
 				}
 				if err != nil {
-					return err
+					tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 				}
 			}
 		}
@@ -5668,7 +5789,9 @@ func instanceUpdate(d *schema.ResourceData, meta interface{}) error {
 
 		_, _, err = instanceC.UpdateInstance(updnetoptions)
 		if err != nil {
-			return err
+			tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 		}
 	}
 
@@ -5724,14 +5847,18 @@ func instanceUpdate(d *schema.ResourceData, meta interface{}) error {
 				}
 				_, err = isWaitForInstanceActionStop(instanceC, d.Timeout(schema.TimeoutUpdate), id, d)
 				if err != nil {
-					return err
+					tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 				}
 				serverstopped = true
 			}
 		}
 		_, _, err = instanceC.UpdateInstance(updnetoptions)
 		if err != nil {
-			return err
+			tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 		}
 		if serverstopped {
 			actiontype := "start"
@@ -5748,7 +5875,9 @@ func instanceUpdate(d *schema.ResourceData, meta interface{}) error {
 			}
 			_, err = isWaitForInstanceAvailable(instanceC, d.Id(), d.Timeout(schema.TimeoutUpdate), d)
 			if err != nil {
-				return err
+				tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 			}
 		}
 	}
@@ -5771,7 +5900,9 @@ func instanceUpdate(d *schema.ResourceData, meta interface{}) error {
 
 		_, _, err = instanceC.UpdateInstance(updatedoptions)
 		if err != nil {
-			return err
+			tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 		}
 	}
 
@@ -5814,7 +5945,9 @@ func instanceUpdate(d *schema.ResourceData, meta interface{}) error {
 
 		_, _, err = instanceC.UpdateInstance(updatedoptions)
 		if err != nil {
-			return err
+			tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 		}
 	}
 
@@ -5837,7 +5970,9 @@ func instanceUpdate(d *schema.ResourceData, meta interface{}) error {
 
 		_, _, err = instanceC.UpdateInstance(updatedoptions)
 		if err != nil {
-			return err
+			tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 		}
 	}
 
@@ -5870,7 +6005,9 @@ func instanceUpdate(d *schema.ResourceData, meta interface{}) error {
 			}
 			_, err = isWaitForInstanceActionStop(instanceC, d.Timeout(schema.TimeoutUpdate), id, d)
 			if err != nil {
-				return err
+				tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 			}
 		}
 
@@ -5910,7 +6047,9 @@ func instanceUpdate(d *schema.ResourceData, meta interface{}) error {
 		}
 		_, err = isWaitForInstanceAvailable(instanceC, d.Id(), d.Timeout(schema.TimeoutUpdate), d)
 		if err != nil {
-			return err
+			tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 		}
 
 	}
@@ -5941,11 +6080,13 @@ func instanceUpdate(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 
-func resourceIBMisInstanceUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMisInstanceUpdate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	err := instanceUpdate(d, meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	return resourceIBMisInstanceRead(d, meta)
@@ -5954,7 +6095,9 @@ func resourceIBMisInstanceUpdate(d *schema.ResourceData, meta interface{}) error
 func instanceDelete(d *schema.ResourceData, meta interface{}, id string) error {
 	instanceC, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	cleanDelete := d.Get(isEnableCleanDelete).(bool)
@@ -5987,7 +6130,9 @@ func instanceDelete(d *schema.ResourceData, meta interface{}, id string) error {
 		}
 		_, err = isWaitForInstanceActionStop(instanceC, d.Timeout(schema.TimeoutDelete), id, d)
 		if err != nil {
-			return err
+			tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 		}
 		listvolattoptions := &vpcv1.ListInstanceVolumeAttachmentsOptions{
 			InstanceID: &id,
@@ -6008,7 +6153,9 @@ func instanceDelete(d *schema.ResourceData, meta interface{}, id string) error {
 				}
 				_, err = isWaitForInstanceVolumeDetached(instanceC, d, d.Id(), *vol.ID)
 				if err != nil {
-					return err
+					tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 				}
 			}
 			if *vol.Type == "boot" {
@@ -6021,19 +6168,25 @@ func instanceDelete(d *schema.ResourceData, meta interface{}, id string) error {
 	}
 	_, err = instanceC.DeleteInstance(deleteinstanceOptions)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	if cleanDelete {
 		_, err = isWaitForInstanceDelete(instanceC, d, d.Id())
 		if err != nil {
-			return err
+			tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 		}
 		if _, ok := d.GetOk(isInstanceBootVolume); ok {
 			autoDel := d.Get("boot_volume.0.auto_delete_volume").(bool)
 			if autoDel {
 				_, err = isWaitForVolumeDeleted(instanceC, bootvolid, d.Timeout(schema.TimeoutDelete))
 				if err != nil {
-					return err
+					tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 				}
 			}
 		}
@@ -6041,12 +6194,14 @@ func instanceDelete(d *schema.ResourceData, meta interface{}, id string) error {
 	return nil
 }
 
-func resourceIBMisInstanceDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMisInstanceDelete(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	id := d.Id()
 	err := instanceDelete(d, meta, id)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	d.SetId("")

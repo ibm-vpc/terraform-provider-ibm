@@ -188,7 +188,9 @@ func resourceIBMISImageObsoleteCreate(context context.Context, d *schema.Resourc
 func imgObsoleteCreate(context context.Context, d *schema.ResourceData, meta interface{}, id string) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	imageObsoletePrototype := &vpcv1.ObsoleteImageOptions{
 		ID: &id,
@@ -202,7 +204,9 @@ func imgObsoleteCreate(context context.Context, d *schema.ResourceData, meta int
 	log.Printf("[INFO] Image ID : %s", id)
 	_, err = isWaitForImageObsolete(sess, d.Id(), d.Timeout(schema.TimeoutCreate))
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_image_obsolete", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	return nil
@@ -256,7 +260,9 @@ func resourceIBMISImageObsoleteRead(context context.Context, d *schema.ResourceD
 func imgObsoleteGet(d *schema.ResourceData, meta interface{}, id string) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	options := &vpcv1.GetImageOptions{
 		ID: &id,

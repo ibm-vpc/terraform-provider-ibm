@@ -4,6 +4,7 @@
 package vpc
 
 import (
+	"context"
 	"fmt"
 	"log"
 
@@ -12,6 +13,7 @@ import (
 
 	"github.com/IBM/go-sdk-core/v5/core"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -56,11 +58,11 @@ const (
 
 func ResourceIBMISReservation() *schema.Resource {
 	return &schema.Resource{
-		Create:   resourceIBMISReservationCreate,
-		Read:     resourceIBMISReservationRead,
-		Update:   resourceIBMISReservationUpdate,
-		Delete:   resourceIBMISReservationDelete,
-		Importer: &schema.ResourceImporter{},
+		CreateContext: resourceIBMISReservationCreate,
+		ReadContext:   resourceIBMISReservationRead,
+		UpdateContext: resourceIBMISReservationUpdate,
+		DeleteContext: resourceIBMISReservationDelete,
+		Importer:      &schema.ResourceImporter{},
 
 		Schema: map[string]*schema.Schema{
 			isReservationAffinityPolicy: &schema.Schema{
@@ -320,7 +322,7 @@ func ResourceIBMISReservationValidator() *validate.ResourceValidator {
 	return &ibmISVPCResourceValidator
 }
 
-func resourceIBMISReservationCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISReservationCreate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	createReservationOptions := &vpcv1.CreateReservationOptions{}
 	if _, ok := d.GetOk(isReservationCapacity); ok {
@@ -398,13 +400,15 @@ func resourceIBMISReservationCreate(d *schema.ResourceData, meta interface{}) er
 	return resourceIBMISReservationRead(d, meta)
 }
 
-func resourceIBMISReservationRead(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISReservationRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	id := d.Id()
 
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	getReservationOptions := &vpcv1.GetReservationOptions{
 		ID: &id,
@@ -569,10 +573,12 @@ func resourceIBMISReservationRead(d *schema.ResourceData, meta interface{}) erro
 	return nil
 }
 
-func resourceIBMISReservationUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISReservationUpdate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	hasChanged := false
 	name := ""
@@ -650,11 +656,13 @@ func resourceIBMISReservationUpdate(d *schema.ResourceData, meta interface{}) er
 	return resourceIBMISReservationRead(d, meta)
 }
 
-func resourceIBMISReservationDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISReservationDelete(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	id := d.Id()
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	deleteReservationOptions := &vpcv1.DeleteReservationOptions{

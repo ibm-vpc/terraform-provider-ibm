@@ -4,11 +4,14 @@
 package vpc
 
 import (
+	"context"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -18,7 +21,7 @@ const (
 
 func DataSourceIBMISOperatingSystems() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceIBMISOperatingSystemsRead,
+		ReadContext: dataSourceIBMISOperatingSystemsRead,
 
 		Schema: map[string]*schema.Schema{
 			isOperatingSystems: {
@@ -87,7 +90,7 @@ func DataSourceIBMISOperatingSystems() *schema.Resource {
 	}
 }
 
-func dataSourceIBMISOperatingSystemsRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceIBMISOperatingSystemsRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	err := osList(d, meta)
 	if err != nil {
 		return err
@@ -98,7 +101,9 @@ func dataSourceIBMISOperatingSystemsRead(d *schema.ResourceData, meta interface{
 func osList(d *schema.ResourceData, meta interface{}) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "read")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	start := ""
 	allrecs := []vpcv1.OperatingSystem{}

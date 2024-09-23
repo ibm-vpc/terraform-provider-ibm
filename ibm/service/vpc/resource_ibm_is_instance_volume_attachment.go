@@ -15,6 +15,7 @@ import (
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/validate"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -38,12 +39,12 @@ const (
 
 func ResourceIBMISInstanceVolumeAttachment() *schema.Resource {
 	return &schema.Resource{
-		Create:   resourceIBMisInstanceVolumeAttachmentCreate,
-		Read:     resourceIBMisInstanceVolumeAttachmentRead,
-		Update:   resourceIBMisInstanceVolumeAttachmentUpdate,
-		Delete:   resourceIBMisInstanceVolumeAttachmentDelete,
-		Exists:   resourceIBMisInstanceVolumeAttachmentExists,
-		Importer: &schema.ResourceImporter{},
+		CreateContext: resourceIBMisInstanceVolumeAttachmentCreate,
+		ReadContext:   resourceIBMisInstanceVolumeAttachmentRead,
+		UpdateContext: resourceIBMisInstanceVolumeAttachmentUpdate,
+		DeleteContext: resourceIBMisInstanceVolumeAttachmentDelete,
+		Exists:        resourceIBMisInstanceVolumeAttachmentExists,
+		Importer:      &schema.ResourceImporter{},
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(10 * time.Minute),
@@ -282,7 +283,9 @@ func ResourceIBMISInstanceVolumeAttachmentValidator() *validate.ResourceValidato
 func instanceVolAttachmentCreate(d *schema.ResourceData, meta interface{}, instanceId string) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	instanceVolAttproto := &vpcv1.CreateInstanceVolumeAttachmentOptions{
@@ -409,7 +412,9 @@ func instanceVolAttachmentCreate(d *schema.ResourceData, meta interface{}, insta
 	d.SetId(makeTerraformVolAttID(instanceId, *instanceVolAtt.ID))
 	volAtt, err := isWaitForInstanceVolumeAttached(sess, d, instanceId, *instanceVolAtt.ID)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance_volume_attachment", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	v := os.Getenv("IC_ENV_TAGS")
@@ -426,23 +431,29 @@ func instanceVolAttachmentCreate(d *schema.ResourceData, meta interface{}, insta
 	return nil
 }
 
-func resourceIBMisInstanceVolumeAttachmentCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMisInstanceVolumeAttachmentCreate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	instanceId := d.Get(isInstanceId).(string)
 	err := instanceVolAttachmentCreate(d, meta, instanceId)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance_volume_attachment", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	return resourceIBMisInstanceVolumeAttachmentRead(d, meta)
 }
 
-func resourceIBMisInstanceVolumeAttachmentRead(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMisInstanceVolumeAttachmentRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	instanceID, id, err := parseVolAttTerraformID(d.Id())
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance_volume_attachment", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	err = instanceVolumeAttachmentGet(d, meta, instanceID, id)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance_volume_attachment", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	return nil
 }
@@ -450,7 +461,9 @@ func resourceIBMisInstanceVolumeAttachmentRead(d *schema.ResourceData, meta inte
 func instanceVolumeAttachmentGet(d *schema.ResourceData, meta interface{}, instanceId, id string) error {
 	instanceC, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance_volume_attachment", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	getinsVolAttOptions := &vpcv1.GetInstanceVolumeAttachmentOptions{
@@ -516,14 +529,18 @@ func instanceVolumeAttachmentGet(d *schema.ResourceData, meta interface{}, insta
 	return nil
 }
 
-func instanceVolAttUpdate(d *schema.ResourceData, meta interface{}) error {
+func instanceVolAttUpdate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	instanceC, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance_volume_attachment", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	instanceId, id, err := parseVolAttTerraformID(d.Id())
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance_volume_attachment", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	if volumecrnok, ok := d.GetOk("volume_crn"); ok {
 		volumecrn := volumecrnok.(string)
@@ -565,7 +582,9 @@ func instanceVolAttUpdate(d *schema.ResourceData, meta interface{}) error {
 		instanceVolAttUpdate, response, err := instanceC.UpdateInstanceVolumeAttachment(updateInstanceVolAttOptions)
 		if err != nil || instanceVolAttUpdate == nil {
 			log.Printf("[DEBUG] Instance volume attachment updation err %s\n%s", err, response)
-			return err
+			tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance_volume_attachment", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 		}
 	}
 
@@ -618,7 +637,9 @@ func instanceVolAttUpdate(d *schema.ResourceData, meta interface{}) error {
 			}
 			_, err = isWaitForInstanceAvailable(instanceC, insId, d.Timeout(schema.TimeoutCreate), d)
 			if err != nil {
-				return err
+				tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance_volume_attachment", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 			}
 		}
 		updateVolumeProfileOptions := &vpcv1.UpdateVolumeOptions{
@@ -733,17 +754,21 @@ func instanceVolAttUpdate(d *schema.ResourceData, meta interface{}) error {
 		}
 		_, err = isWaitForVolumeAvailable(instanceC, volId, d.Timeout(schema.TimeoutCreate))
 		if err != nil {
-			return err
+			tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance_volume_attachment", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 		}
 	}
 	return nil
 }
 
-func resourceIBMisInstanceVolumeAttachmentUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMisInstanceVolumeAttachmentUpdate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	err := instanceVolAttUpdate(d, meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance_volume_attachment", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	return resourceIBMisInstanceVolumeAttachmentRead(d, meta)
 }
@@ -751,7 +776,9 @@ func resourceIBMisInstanceVolumeAttachmentUpdate(d *schema.ResourceData, meta in
 func instanceVolAttDelete(d *schema.ResourceData, meta interface{}, instanceId, id, volId string, volDelete bool) error {
 	instanceC, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance_volume_attachment", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	deleteInstanceVolAttOptions := &vpcv1.DeleteInstanceVolumeAttachmentOptions{
@@ -782,16 +809,20 @@ func instanceVolAttDelete(d *schema.ResourceData, meta interface{}, instanceId, 
 		}
 		_, err = isWaitForVolumeDeleted(instanceC, volId, d.Timeout(schema.TimeoutDelete))
 		if err != nil {
-			return err
+			tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance_volume_attachment", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 		}
 	}
 	return nil
 }
 
-func resourceIBMisInstanceVolumeAttachmentDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMisInstanceVolumeAttachmentDelete(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	instanceId, id, err := parseVolAttTerraformID(d.Id())
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance_volume_attachment", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	volDelete := false
@@ -805,7 +836,9 @@ func resourceIBMisInstanceVolumeAttachmentDelete(d *schema.ResourceData, meta in
 
 	err = instanceVolAttDelete(d, meta, instanceId, id, volId, volDelete)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance_volume_attachment", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	d.SetId("")
 	return nil

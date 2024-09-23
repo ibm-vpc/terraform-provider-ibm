@@ -4,6 +4,7 @@
 package vpc
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"reflect"
@@ -13,6 +14,7 @@ import (
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/validate"
 	"github.com/IBM/go-sdk-core/v5/core"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -46,12 +48,12 @@ const (
 
 func ResourceIBMISVPNGatewayConnection() *schema.Resource {
 	return &schema.Resource{
-		Create:   resourceIBMISVPNGatewayConnectionCreate,
-		Read:     resourceIBMISVPNGatewayConnectionRead,
-		Update:   resourceIBMISVPNGatewayConnectionUpdate,
-		Delete:   resourceIBMISVPNGatewayConnectionDelete,
-		Exists:   resourceIBMISVPNGatewayConnectionExists,
-		Importer: &schema.ResourceImporter{},
+		CreateContext: resourceIBMISVPNGatewayConnectionCreate,
+		ReadContext:   resourceIBMISVPNGatewayConnectionRead,
+		UpdateContext: resourceIBMISVPNGatewayConnectionUpdate,
+		DeleteContext: resourceIBMISVPNGatewayConnectionDelete,
+		Exists:        resourceIBMISVPNGatewayConnectionExists,
+		Importer:      &schema.ResourceImporter{},
 
 		Timeouts: &schema.ResourceTimeout{
 			Delete: schema.DefaultTimeout(10 * time.Minute),
@@ -408,7 +410,7 @@ func ResourceIBMISVPNGatewayConnectionValidator() *validate.ResourceValidator {
 	return &ibmISVPNGatewayConnectionResourceValidator
 }
 
-func resourceIBMISVPNGatewayConnectionCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISVPNGatewayConnectionCreate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	log.Printf("[DEBUG] VPNGatewayConnection create")
 	name := d.Get(isVPNGatewayConnectionName).(string)
@@ -437,7 +439,9 @@ func resourceIBMISVPNGatewayConnectionCreate(d *schema.ResourceData, meta interf
 
 	err := vpngwconCreate(d, meta, name, gatewayID, peerAddress, prephasedKey, action, interval, timeout)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_vpn_gateway_connections", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	return resourceIBMISVPNGatewayConnectionRead(d, meta)
 }
@@ -445,7 +449,9 @@ func resourceIBMISVPNGatewayConnectionCreate(d *schema.ResourceData, meta interf
 func vpngwconCreate(d *schema.ResourceData, meta interface{}, name, gatewayID, peerAddress, prephasedKey, action string, interval, timeout int64) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	vpngateway, response, err := sess.GetVPNGateway(&vpcv1.GetVPNGatewayOptions{
 		ID: &gatewayID,
@@ -484,7 +490,9 @@ func vpngwconCreate(d *schema.ResourceData, meta interface{}, name, gatewayID, p
 			log.Println("[INFO] inside local block")
 			LocalModel, err := resourceIBMIsVPNGatewayConnectionMapToVPNGatewayConnectionPolicyModeLocalPrototype(localOk.([]interface{})[0].(map[string]interface{}))
 			if err != nil {
-				return err
+				tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_vpn_gateway_connections", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 			}
 			vpnGatewayConnectionPrototypeModel.Local = LocalModel
 		} else if _, ok := d.GetOk(isVPNGatewayConnectionLocalCIDRS); ok {
@@ -497,7 +505,9 @@ func vpngwconCreate(d *schema.ResourceData, meta interface{}, name, gatewayID, p
 		if peerOk, ok := d.GetOk("peer"); ok && len(peerOk.([]interface{})) > 0 {
 			PeerModel, err := resourceIBMIsVPNGatewayConnectionMapToVPNGatewayConnectionPolicyModePeerPrototype(peerOk.([]interface{})[0].(map[string]interface{}))
 			if err != nil {
-				return err
+				tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_vpn_gateway_connections", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 			}
 			vpnGatewayConnectionPrototypeModel.Peer = PeerModel
 		} else if _, ok := d.GetOk(isVPNGatewayConnectionPeerCIDRS); ok || peerAddress != "" {
@@ -582,14 +592,18 @@ func vpngwconCreate(d *schema.ResourceData, meta interface{}, name, gatewayID, p
 			log.Println("[INFO] inside local block")
 			LocalModel, err := resourceIBMIsVPNGatewayConnectionMapToVPNGatewayConnectionStaticRouteModeLocalPrototype(localOk.([]interface{})[0].(map[string]interface{}))
 			if err != nil {
-				return err
+				tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_vpn_gateway_connections", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 			}
 			vpnGatewayConnectionPrototypeModel.Local = LocalModel
 		}
 		if peerOk, ok := d.GetOk("peer"); ok && len(peerOk.([]interface{})) > 0 {
 			PeerModel, err := resourceIBMIsVPNGatewayConnectionMapToVPNGatewayConnectionStaticRouteModePeerPrototype(peerOk.([]interface{})[0].(map[string]interface{}))
 			if err != nil {
-				return err
+				tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_vpn_gateway_connections", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 			}
 			vpnGatewayConnectionPrototypeModel.Peer = PeerModel
 		} else if peerAddress != "" {
@@ -650,11 +664,13 @@ func vpngwconCreate(d *schema.ResourceData, meta interface{}, name, gatewayID, p
 	return nil
 }
 
-func resourceIBMISVPNGatewayConnectionRead(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISVPNGatewayConnectionRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	parts, err := flex.IdParts(d.Id())
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_vpn_gateway_connections", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	gID := parts[0]
@@ -662,7 +678,9 @@ func resourceIBMISVPNGatewayConnectionRead(d *schema.ResourceData, meta interfac
 
 	err = vpngwconGet(d, meta, gID, gConnID)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_vpn_gateway_connections", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	return nil
 }
@@ -670,7 +688,9 @@ func resourceIBMISVPNGatewayConnectionRead(d *schema.ResourceData, meta interfac
 func vpngwconGet(d *schema.ResourceData, meta interface{}, gID, gConnID string) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	options := &vpcv1.GetVPNGatewayConnectionOptions{
 		VPNGatewayID: &gID,
@@ -698,19 +718,23 @@ func vpngwconGet(d *schema.ResourceData, meta interface{}, gID, gConnID string) 
 	return nil
 }
 
-func resourceIBMISVPNGatewayConnectionUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISVPNGatewayConnectionUpdate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	hasChanged := false
 
 	parts, err := flex.IdParts(d.Id())
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_vpn_gateway_connections", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	gID := parts[0]
 	gConnID := parts[1]
 	err = vpngwconUpdate(d, meta, gID, gConnID, hasChanged)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_vpn_gateway_connections", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	return resourceIBMISVPNGatewayConnectionRead(d, meta)
 }
@@ -718,7 +742,9 @@ func resourceIBMISVPNGatewayConnectionUpdate(d *schema.ResourceData, meta interf
 func vpngwconUpdate(d *schema.ResourceData, meta interface{}, gID, gConnID string, hasChanged bool) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	updateVpnGatewayConnectionOptions := &vpcv1.UpdateVPNGatewayConnectionOptions{
@@ -739,7 +765,9 @@ func vpngwconUpdate(d *schema.ResourceData, meta interface{}, gID, gConnID strin
 	if d.HasChange("peer") {
 		peer, err := resourceIBMIsVPNGatewayConnectionMapToVPNGatewayConnectionPeerPatch(d.Get("peer.0").(map[string]interface{}))
 		if err != nil {
-			return err
+			tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_vpn_gateway_connections", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 		}
 		vpnGatewayConnectionPatchModel.Peer = peer
 		hasChanged = true
@@ -822,11 +850,13 @@ func vpngwconUpdate(d *schema.ResourceData, meta interface{}, gID, gConnID strin
 	return nil
 }
 
-func resourceIBMISVPNGatewayConnectionDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISVPNGatewayConnectionDelete(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	parts, err := flex.IdParts(d.Id())
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_vpn_gateway_connections", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	gID := parts[0]
@@ -834,7 +864,9 @@ func resourceIBMISVPNGatewayConnectionDelete(d *schema.ResourceData, meta interf
 
 	err = vpngwconDelete(d, meta, gID, gConnID)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_vpn_gateway_connections", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	return nil
 }
@@ -842,7 +874,9 @@ func resourceIBMISVPNGatewayConnectionDelete(d *schema.ResourceData, meta interf
 func vpngwconDelete(d *schema.ResourceData, meta interface{}, gID, gConnID string) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	getVpnGatewayConnectionOptions := &vpcv1.GetVPNGatewayConnectionOptions{
 		VPNGatewayID: &gID,
@@ -1218,7 +1252,9 @@ func setvpnGatewayConnectionIntfResource(d *schema.ResourceData, vpn_gateway_id 
 			if vpnGatewayConnection.Local != nil {
 				modelMap, err := dataSourceIBMIsVPNGatewayConnectionVPNGatewayConnectionStaticRouteModeLocalToMap(vpnGatewayConnection.Local)
 				if err != nil {
-					return err
+					tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_vpn_gateway_connections", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 				}
 				local = append(local, modelMap)
 			}
@@ -1230,7 +1266,9 @@ func setvpnGatewayConnectionIntfResource(d *schema.ResourceData, vpn_gateway_id 
 			if vpnGatewayConnection.Peer != nil {
 				modelMap, err := dataSourceIBMIsVPNGatewayConnectionVPNGatewayConnectionStaticRouteModePeerToMap(vpnGatewayConnection.Peer)
 				if err != nil {
-					return err
+					tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_vpn_gateway_connections", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 				}
 				peer = append(peer, modelMap)
 			}
@@ -1314,7 +1352,9 @@ func setvpnGatewayConnectionIntfResource(d *schema.ResourceData, vpn_gateway_id 
 			if vpnGatewayConnection.Local != nil {
 				modelMap, err := dataSourceIBMIsVPNGatewayConnectionVPNGatewayConnectionStaticRouteModeLocalToMap(vpnGatewayConnection.Local)
 				if err != nil {
-					return err
+					tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_vpn_gateway_connections", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 				}
 				local = append(local, modelMap)
 			}
@@ -1326,7 +1366,9 @@ func setvpnGatewayConnectionIntfResource(d *schema.ResourceData, vpn_gateway_id 
 			if vpnGatewayConnection.Peer != nil {
 				modelMap, err := dataSourceIBMIsVPNGatewayConnectionVPNGatewayConnectionStaticRouteModePeerToMap(vpnGatewayConnection.Peer)
 				if err != nil {
-					return err
+					tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_vpn_gateway_connections", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 				}
 				peer = append(peer, modelMap)
 			}
@@ -1410,7 +1452,9 @@ func setvpnGatewayConnectionIntfResource(d *schema.ResourceData, vpn_gateway_id 
 			if vpnGatewayConnection.Local != nil {
 				modelMap, err := dataSourceIBMIsVPNGatewayConnectionVPNGatewayConnectionStaticRouteModeLocalToMap(vpnGatewayConnection.Local)
 				if err != nil {
-					return err
+					tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_vpn_gateway_connections", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 				}
 				local = append(local, modelMap)
 			}
@@ -1422,7 +1466,9 @@ func setvpnGatewayConnectionIntfResource(d *schema.ResourceData, vpn_gateway_id 
 			if vpnGatewayConnection.Peer != nil {
 				modelMap, err := dataSourceIBMIsVPNGatewayConnectionVPNGatewayConnectionStaticRouteModePeerToMap(vpnGatewayConnection.Peer)
 				if err != nil {
-					return err
+					tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_vpn_gateway_connections", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 				}
 				peer = append(peer, modelMap)
 			}
@@ -1508,7 +1554,9 @@ func setvpnGatewayConnectionIntfResource(d *schema.ResourceData, vpn_gateway_id 
 			if vpnGatewayConnection.Local != nil {
 				modelMap, err := dataSourceIBMIsVPNGatewayConnectionVPNGatewayConnectionPolicyModeLocalToMap(vpnGatewayConnection.Local)
 				if err != nil {
-					return err
+					tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_vpn_gateway_connections", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 				}
 				local = append(local, modelMap)
 			}
@@ -1520,7 +1568,9 @@ func setvpnGatewayConnectionIntfResource(d *schema.ResourceData, vpn_gateway_id 
 			if vpnGatewayConnection.Peer != nil {
 				modelMap, err := dataSourceIBMIsVPNGatewayConnectionVPNGatewayConnectionPolicyModePeerToMap(vpnGatewayConnection.Peer)
 				if err != nil {
-					return err
+					tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_vpn_gateway_connections", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 				}
 				peer = append(peer, modelMap)
 			}

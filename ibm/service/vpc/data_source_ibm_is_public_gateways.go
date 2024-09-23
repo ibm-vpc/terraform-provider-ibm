@@ -4,12 +4,14 @@
 package vpc
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"time"
 
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -19,7 +21,7 @@ const (
 
 func DataSourceIBMISPublicGateways() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceIBMISPublicGatewaysRead,
+		ReadContext: dataSourceIBMISPublicGatewaysRead,
 
 		Schema: map[string]*schema.Schema{
 			isPublicGatewayResourceGroup: {
@@ -132,7 +134,7 @@ func DataSourceIBMISPublicGateways() *schema.Resource {
 	}
 }
 
-func dataSourceIBMISPublicGatewaysRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceIBMISPublicGatewaysRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	err := publicGatewaysGet(d, meta, name)
 	if err != nil {
 		return err
@@ -143,7 +145,9 @@ func dataSourceIBMISPublicGatewaysRead(d *schema.ResourceData, meta interface{})
 func publicGatewaysGet(d *schema.ResourceData, meta interface{}, name string) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "read")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	rgroup := ""
 	if rg, ok := d.GetOk(isPublicGatewayResourceGroup); ok {

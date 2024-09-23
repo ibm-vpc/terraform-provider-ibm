@@ -4,18 +4,20 @@
 package vpc
 
 import (
+	"context"
 	"fmt"
 	"log"
 
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/validate"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func DataSourceIBMISVolume() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceIBMISVolumeRead,
+		ReadContext: dataSourceIBMISVolumeRead,
 
 		Schema: map[string]*schema.Schema{
 
@@ -310,7 +312,7 @@ func DataSourceIBMISVolumeValidator() *validate.ResourceValidator {
 	return &ibmISVoulmeDataSourceValidator
 }
 
-func dataSourceIBMISVolumeRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceIBMISVolumeRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	name := d.Get(isVolumeName).(string)
 
@@ -324,7 +326,9 @@ func dataSourceIBMISVolumeRead(d *schema.ResourceData, meta interface{}) error {
 func volumeGet(d *schema.ResourceData, meta interface{}, name string) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "read")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	zone := ""
 	if zname, ok := d.GetOk(isVolumeZone); ok {

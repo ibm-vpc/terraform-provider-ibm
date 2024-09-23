@@ -30,7 +30,7 @@ const (
 
 func DataSourceIBMISVPCRoutingTableRoutes() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceIBMISVPCRoutingTableRoutesList,
+		ReadContext: dataSourceIBMISVPCRoutingTableRoutesList,
 		Schema: map[string]*schema.Schema{
 			isRoutingTableRouteVpcID: {
 				Type:        schema.TypeString,
@@ -166,7 +166,9 @@ func DataSourceIBMISVPCRoutingTableRoutes() *schema.Resource {
 func dataSourceIBMISVPCRoutingTableRoutesList(d *schema.ResourceData, meta interface{}) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "read")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	vpcID := d.Get(isRoutingTableRouteVpcID).(string)

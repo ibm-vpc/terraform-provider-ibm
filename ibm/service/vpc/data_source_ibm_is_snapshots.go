@@ -4,12 +4,14 @@
 package vpc
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"time"
 
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -30,7 +32,7 @@ const (
 
 func DataSourceSnapshots() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceIBMISSnapshotsRead,
+		ReadContext: dataSourceIBMISSnapshotsRead,
 
 		Schema: map[string]*schema.Schema{
 
@@ -521,7 +523,7 @@ func DataSourceSnapshots() *schema.Resource {
 	}
 }
 
-func dataSourceIBMISSnapshotsRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceIBMISSnapshotsRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	err := getSnapshots(d, meta)
 	if err != nil {
 		return err
@@ -532,7 +534,9 @@ func dataSourceIBMISSnapshotsRead(d *schema.ResourceData, meta interface{}) erro
 func getSnapshots(d *schema.ResourceData, meta interface{}) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "read")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	start := ""
 	allrecs := []vpcv1.Snapshot{}

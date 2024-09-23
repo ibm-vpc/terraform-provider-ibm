@@ -215,7 +215,9 @@ func ResourceIBMIsBackupPolicyValidator() *validate.ResourceValidator {
 func resourceIBMIsBackupPolicyCreate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	vpcClient, err := vpcClient(meta)
 	if err != nil {
-		return diag.FromErr(err)
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	createBackupPolicyOptions := &vpcv1.CreateBackupPolicyOptions{}
@@ -271,7 +273,9 @@ func resourceIBMIsBackupPolicyCreate(context context.Context, d *schema.Resource
 func resourceIBMIsBackupPolicyRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	vpcClient, err := vpcClient(meta)
 	if err != nil {
-		return diag.FromErr(err)
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	getBackupPolicyOptions := &vpcv1.GetBackupPolicyOptions{}
@@ -406,7 +410,9 @@ func resourceIbmIsBackupPolicyScopeToMap(scope vpcv1.BackupPolicyScope) map[stri
 func resourceIBMIsBackupPolicyUpdate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	vpcClient, err := vpcClient(meta)
 	if err != nil {
-		return diag.FromErr(err)
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	updateBackupPolicyOptions := &vpcv1.UpdateBackupPolicyOptions{}
 	updateBackupPolicyOptions.SetID(d.Id())
@@ -440,7 +446,9 @@ func resourceIBMIsBackupPolicyUpdate(context context.Context, d *schema.Resource
 func resourceIBMIsBackupPolicyDelete(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	vpcClient, err := vpcClient(meta)
 	if err != nil {
-		return diag.FromErr(err)
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	deleteBackupPolicyOptions := &vpcv1.DeleteBackupPolicyOptions{}
 	deleteBackupPolicyOptions.SetID(d.Id())

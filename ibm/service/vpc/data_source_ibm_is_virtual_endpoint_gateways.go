@@ -4,12 +4,14 @@
 package vpc
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"time"
 
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -20,8 +22,8 @@ const (
 
 func DataSourceIBMISEndpointGateways() *schema.Resource {
 	return &schema.Resource{
-		Read:     dataSourceIBMISEndpointGatewaysRead,
-		Importer: &schema.ResourceImporter{},
+		ReadContext: dataSourceIBMISEndpointGatewaysRead,
+		Importer:    &schema.ResourceImporter{},
 		Schema: map[string]*schema.Schema{
 			"resource_group": {
 				Type:        schema.TypeString,
@@ -172,10 +174,12 @@ func DataSourceIBMISEndpointGateways() *schema.Resource {
 	}
 }
 
-func dataSourceIBMISEndpointGatewaysRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceIBMISEndpointGatewaysRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "read")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	start := ""

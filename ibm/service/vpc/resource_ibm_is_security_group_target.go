@@ -4,6 +4,7 @@
 package vpc
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"strings"
@@ -13,6 +14,7 @@ import (
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/validate"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -25,11 +27,11 @@ const (
 func ResourceIBMISSecurityGroupTarget() *schema.Resource {
 
 	return &schema.Resource{
-		Create:   resourceIBMISSecurityGroupTargetCreate,
-		Read:     resourceIBMISSecurityGroupTargetRead,
-		Delete:   resourceIBMISSecurityGroupTargetDelete,
-		Exists:   resourceIBMISSecurityGroupTargetExists,
-		Importer: &schema.ResourceImporter{},
+		CreateContext: resourceIBMISSecurityGroupTargetCreate,
+		ReadContext:   resourceIBMISSecurityGroupTargetRead,
+		DeleteContext: resourceIBMISSecurityGroupTargetDelete,
+		Exists:        resourceIBMISSecurityGroupTargetExists,
+		Importer:      &schema.ResourceImporter{},
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(10 * time.Minute),
@@ -98,11 +100,13 @@ func ResourceIBMISSecurityGroupTargetValidator() *validate.ResourceValidator {
 	return &ibmISSecurityGroupResourceValidator
 }
 
-func resourceIBMISSecurityGroupTargetCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISSecurityGroupTargetCreate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	securityGroupID := d.Get("security_group").(string)
@@ -123,33 +127,43 @@ func resourceIBMISSecurityGroupTargetCreate(d *schema.ResourceData, meta interfa
 		lbid := sgtarget.ID
 		_, errsgt := isWaitForLbSgTargetCreateAvailable(sess, *lbid, d.Timeout(schema.TimeoutCreate))
 		if errsgt != nil {
-			return errsgt
+			tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_security_group_target", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()sgt
 		}
 	} else if crn != nil && *crn != "" && strings.Contains(*crn, "virtual_network_interfaces") {
 		vpcClient, err := meta.(conns.ClientSession).VpcV1API()
 		if err != nil {
-			return err
+			tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_security_group_target", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 		}
 		vniId := sgtarget.ID
 		_, errsgt := isWaitForVNISgTargetCreateAvailable(vpcClient, *vniId, d.Timeout(schema.TimeoutCreate))
 		if errsgt != nil {
-			return errsgt
+			tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_security_group_target", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()sgt
 		}
 	}
 
 	return resourceIBMISSecurityGroupTargetRead(d, meta)
 }
 
-func resourceIBMISSecurityGroupTargetRead(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISSecurityGroupTargetRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	parts, err := flex.IdParts(d.Id())
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_security_group_target", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	securityGroupID := parts[0]
 	securityGroupTargetID := parts[1]
@@ -181,15 +195,19 @@ func resourceIBMISSecurityGroupTargetRead(d *schema.ResourceData, meta interface
 	return nil
 }
 
-func resourceIBMISSecurityGroupTargetDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISSecurityGroupTargetDelete(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	parts, err := flex.IdParts(d.Id())
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_security_group_target", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	securityGroupID := parts[0]
 	securityGroupTargetID := parts[1]
@@ -218,7 +236,9 @@ func resourceIBMISSecurityGroupTargetDelete(d *schema.ResourceData, meta interfa
 		lbid := securityGroupTargetReference.ID
 		_, errsgt := isWaitForLBRemoveAvailable(sess, sgt, *lbid, securityGroupID, securityGroupTargetID, d.Timeout(schema.TimeoutDelete))
 		if errsgt != nil {
-			return errsgt
+			tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_security_group_target", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()sgt
 		}
 	}
 	d.SetId("")

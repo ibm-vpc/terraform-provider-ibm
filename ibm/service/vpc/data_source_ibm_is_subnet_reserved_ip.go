@@ -4,8 +4,12 @@
 package vpc
 
 import (
+	"context"
 	"fmt"
+	"log"
 
+	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -27,7 +31,7 @@ const (
 
 func DataSourceIBMISReservedIP() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSdataSourceIBMISReservedIPRead,
+		ReadContext: dataSdataSourceIBMISReservedIPRead,
 		Schema: map[string]*schema.Schema{
 			/*
 				Request Parameters
@@ -155,11 +159,13 @@ func DataSourceIBMISReservedIP() *schema.Resource {
 }
 
 // dataSdataSourceIBMISReservedIPRead is used when the reserved IPs are read from the vpc
-func dataSdataSourceIBMISReservedIPRead(d *schema.ResourceData, meta interface{}) error {
+func dataSdataSourceIBMISReservedIPRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "read")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	subnetID := d.Get(isSubNetID).(string)

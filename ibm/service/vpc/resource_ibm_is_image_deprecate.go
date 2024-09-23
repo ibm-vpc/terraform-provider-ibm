@@ -195,7 +195,9 @@ func resourceIBMISImageDeprecateCreate(context context.Context, d *schema.Resour
 func imgDeprecateCreate(context context.Context, d *schema.ResourceData, meta interface{}, id string) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	imageDeprecatePrototype := &vpcv1.DeprecateImageOptions{
 		ID: &id,
@@ -208,7 +210,9 @@ func imgDeprecateCreate(context context.Context, d *schema.ResourceData, meta in
 	log.Printf("[INFO] Image ID : %s", id)
 	_, err = isWaitForImageDeprecate(sess, d.Id(), d.Timeout(schema.TimeoutCreate))
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_image_deprecate", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	return nil
@@ -263,7 +267,9 @@ func resourceIBMISImageDeprecateRead(context context.Context, d *schema.Resource
 func imgDeprecateGet(d *schema.ResourceData, meta interface{}, id string) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	options := &vpcv1.GetImageOptions{
 		ID: &id,

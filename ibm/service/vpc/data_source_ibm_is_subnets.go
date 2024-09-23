@@ -4,12 +4,15 @@
 package vpc
 
 import (
+	"context"
 	"fmt"
+	"log"
 	"strconv"
 	"time"
 
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -25,7 +28,7 @@ const (
 
 func DataSourceIBMISSubnets() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceIBMISSubnetsRead,
+		ReadContext: dataSourceIBMISSubnetsRead,
 
 		Schema: map[string]*schema.Schema{
 			isSubnetResourceVpc: {
@@ -170,7 +173,7 @@ func DataSourceIBMISSubnets() *schema.Resource {
 	}
 }
 
-func dataSourceIBMISSubnetsRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceIBMISSubnetsRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	err := subnetList(d, meta)
 	if err != nil {
 		return err
@@ -181,7 +184,9 @@ func dataSourceIBMISSubnetsRead(d *schema.ResourceData, meta interface{}) error 
 func subnetList(d *schema.ResourceData, meta interface{}) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "read")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	start := ""
 	allrecs := []vpcv1.Subnet{}

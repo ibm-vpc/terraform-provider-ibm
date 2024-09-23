@@ -4,14 +4,17 @@
 package vpc
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"strings"
 	"time"
 
+	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/validate"
 	"github.com/IBM/go-sdk-core/v5/core"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -38,12 +41,12 @@ const (
 
 func ResourceIBMISVPCRoutingTable() *schema.Resource {
 	return &schema.Resource{
-		Create:   resourceIBMISVPCRoutingTableCreate,
-		Read:     resourceIBMISVPCRoutingTableRead,
-		Update:   resourceIBMISVPCRoutingTableUpdate,
-		Delete:   resourceIBMISVPCRoutingTableDelete,
-		Exists:   resourceIBMISVPCRoutingTableExists,
-		Importer: &schema.ResourceImporter{},
+		CreateContext: resourceIBMISVPCRoutingTableCreate,
+		ReadContext:   resourceIBMISVPCRoutingTableRead,
+		UpdateContext: resourceIBMISVPCRoutingTableUpdate,
+		DeleteContext: resourceIBMISVPCRoutingTableDelete,
+		Exists:        resourceIBMISVPCRoutingTableExists,
+		Importer:      &schema.ResourceImporter{},
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(10 * time.Minute),
@@ -188,10 +191,12 @@ func ResourceIBMISVPCRoutingTableValidator() *validate.ResourceValidator {
 	return &ibmISVPCRoutingTableValidator
 }
 
-func resourceIBMISVPCRoutingTableCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISVPCRoutingTableCreate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	vpcID := d.Get(rtVpcID).(string)
@@ -242,7 +247,9 @@ func resourceIBMISVPCRoutingTableCreate(d *schema.ResourceData, meta interface{}
 	routeTable, response, err := sess.CreateVPCRoutingTable(createVpcRoutingTableOptions)
 	if err != nil {
 		log.Printf("[DEBUG] Create VPC Routing table err %s\n%s", err, response)
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_vpc_routing_table", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	d.SetId(fmt.Sprintf("%s/%s", vpcID, *routeTable.ID))
@@ -250,10 +257,12 @@ func resourceIBMISVPCRoutingTableCreate(d *schema.ResourceData, meta interface{}
 	return resourceIBMISVPCRoutingTableRead(d, meta)
 }
 
-func resourceIBMISVPCRoutingTableRead(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISVPCRoutingTableRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	idSet := strings.Split(d.Id(), "/")
@@ -310,10 +319,12 @@ func resourceIBMISVPCRoutingTableRead(d *schema.ResourceData, meta interface{}) 
 	return nil
 }
 
-func resourceIBMISVPCRoutingTableUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISVPCRoutingTableUpdate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	//Etag
 	idSett := strings.Split(d.Id(), "/")
@@ -406,15 +417,19 @@ func resourceIBMISVPCRoutingTableUpdate(d *schema.ResourceData, meta interface{}
 	_, response, err := sess.UpdateVPCRoutingTable(updateVpcRoutingTableOptions)
 	if err != nil {
 		log.Printf("[DEBUG] Update VPC Routing table err %s\n%s", err, response)
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_vpc_routing_table", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	return resourceIBMISVPCRoutingTableRead(d, meta)
 }
 
-func resourceIBMISVPCRoutingTableDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISVPCRoutingTableDelete(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	idSet := strings.Split(d.Id(), "/")
@@ -423,7 +438,9 @@ func resourceIBMISVPCRoutingTableDelete(d *schema.ResourceData, meta interface{}
 	response, err := sess.DeleteVPCRoutingTable(deleteTableOptions)
 	if err != nil && response.StatusCode != 404 {
 		log.Printf("Error deleting VPC Routing table : %s", response)
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_vpc_routing_table", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	d.SetId("")

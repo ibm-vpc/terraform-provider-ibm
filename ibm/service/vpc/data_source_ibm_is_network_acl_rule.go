@@ -4,12 +4,15 @@
 package vpc
 
 import (
+	"context"
 	"fmt"
+	"log"
 	"reflect"
 
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/validate"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -19,7 +22,7 @@ const (
 
 func DataSourceIBMISNetworkACLRule() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceIBMISNetworkACLRuleRead,
+		ReadContext: dataSourceIBMISNetworkACLRuleRead,
 
 		Schema: map[string]*schema.Schema{
 			isNwACLID: {
@@ -161,7 +164,7 @@ func DataSourceIBMISNetworkACLRule() *schema.Resource {
 	}
 }
 
-func dataSourceIBMISNetworkACLRuleRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceIBMISNetworkACLRuleRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	nwACLID := d.Get(isNwACLID).(string)
 	name := d.Get(isNetworkACLRuleName).(string)
 	err := nawaclRuleDataGet(d, meta, name, nwACLID)
@@ -175,7 +178,9 @@ func dataSourceIBMISNetworkACLRuleRead(d *schema.ResourceData, meta interface{})
 func nawaclRuleDataGet(d *schema.ResourceData, meta interface{}, name, nwACLID string) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "read")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	start := ""
 	allrecs := []vpcv1.NetworkACLRuleItemIntf{}

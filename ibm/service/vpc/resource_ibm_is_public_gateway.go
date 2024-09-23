@@ -14,6 +14,7 @@ import (
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/validate"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -39,12 +40,12 @@ const (
 
 func ResourceIBMISPublicGateway() *schema.Resource {
 	return &schema.Resource{
-		Create:   resourceIBMISPublicGatewayCreate,
-		Read:     resourceIBMISPublicGatewayRead,
-		Update:   resourceIBMISPublicGatewayUpdate,
-		Delete:   resourceIBMISPublicGatewayDelete,
-		Exists:   resourceIBMISPublicGatewayExists,
-		Importer: &schema.ResourceImporter{},
+		CreateContext: resourceIBMISPublicGatewayCreate,
+		ReadContext:   resourceIBMISPublicGatewayRead,
+		UpdateContext: resourceIBMISPublicGatewayUpdate,
+		DeleteContext: resourceIBMISPublicGatewayDelete,
+		Exists:        resourceIBMISPublicGatewayExists,
+		Importer:      &schema.ResourceImporter{},
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(10 * time.Minute),
@@ -200,10 +201,12 @@ func ResourceIBMISPublicGatewayValidator() *validate.ResourceValidator {
 	return &ibmISPublicGatewayResourceValidator
 }
 
-func resourceIBMISPublicGatewayCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISPublicGatewayCreate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	name := d.Get(isPublicGatewayName).(string)
@@ -250,7 +253,9 @@ func resourceIBMISPublicGatewayCreate(d *schema.ResourceData, meta interface{}) 
 
 	_, err = isWaitForPublicGatewayAvailable(sess, d.Id(), d.Timeout(schema.TimeoutCreate))
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_public_gateway", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	v := os.Getenv("IC_ENV_TAGS")
@@ -308,10 +313,12 @@ func isPublicGatewayRefreshFunc(publicgwC *vpcv1.VpcV1, id string) resource.Stat
 	}
 }
 
-func resourceIBMISPublicGatewayRead(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISPublicGatewayRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	id := d.Id()
 	getPublicGatewayOptions := &vpcv1.GetPublicGatewayOptions{
@@ -354,7 +361,9 @@ func resourceIBMISPublicGatewayRead(d *schema.ResourceData, meta interface{}) er
 
 	controller, err := flex.GetBaseController(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_public_gateway", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	d.Set(flex.ResourceControllerURL, controller+"/vpc-ext/network/publicGateways")
 	d.Set(flex.ResourceName, *publicgw.Name)
@@ -368,10 +377,12 @@ func resourceIBMISPublicGatewayRead(d *schema.ResourceData, meta interface{}) er
 	return nil
 }
 
-func resourceIBMISPublicGatewayUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISPublicGatewayUpdate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	id := d.Id()
 
@@ -434,10 +445,12 @@ func resourceIBMISPublicGatewayUpdate(d *schema.ResourceData, meta interface{}) 
 	return resourceIBMISPublicGatewayRead(d, meta)
 }
 
-func resourceIBMISPublicGatewayDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISPublicGatewayDelete(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	id := d.Id()
 
@@ -470,7 +483,9 @@ func resourceIBMISPublicGatewayDelete(d *schema.ResourceData, meta interface{}) 
 					if res.StatusCode == 204 {
 						_, err = isWaitForSubnetPublicGatewayUnset(sess, *s.ID, d.Timeout(schema.TimeoutDelete))
 						if err != nil {
-							return err
+							tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_public_gateway", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 						}
 						response, err = sess.DeletePublicGateway(deletePublicGatewayOptions)
 						if err != nil {
@@ -487,7 +502,9 @@ func resourceIBMISPublicGatewayDelete(d *schema.ResourceData, meta interface{}) 
 	}
 	_, err = isWaitForPublicGatewayDeleted(sess, id, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_public_gateway", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	d.SetId("")
 	return nil

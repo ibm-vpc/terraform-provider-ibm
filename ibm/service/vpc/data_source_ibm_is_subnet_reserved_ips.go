@@ -4,11 +4,14 @@
 package vpc
 
 import (
+	"context"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -23,7 +26,7 @@ const (
 
 func DataSourceIBMISReservedIPs() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSdataSourceIBMISReservedIPsRead,
+		ReadContext: dataSdataSourceIBMISReservedIPsRead,
 		Schema: map[string]*schema.Schema{
 			/*
 				Request Parameters
@@ -163,10 +166,12 @@ func DataSourceIBMISReservedIPs() *schema.Resource {
 	}
 }
 
-func dataSdataSourceIBMISReservedIPsRead(d *schema.ResourceData, meta interface{}) error {
+func dataSdataSourceIBMISReservedIPsRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "read")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	subnetID := d.Get(isSubNetID).(string)

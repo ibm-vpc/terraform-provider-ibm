@@ -4,10 +4,14 @@
 package vpc
 
 import (
+	"context"
 	"fmt"
+	"log"
 
+	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/validate"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -15,11 +19,11 @@ const ()
 
 func ResourceIBMISDedicatedHostDiskManagement() *schema.Resource {
 	return &schema.Resource{
-		Create:   resourceIBMisDedicatedHostDiskManagementCreate,
-		Read:     resourceIBMisDedicatedHostDiskManagementRead,
-		Update:   resourceIBMisDedicatedHostDiskManagementUpdate,
-		Delete:   resourceIBMisDedicatedHostDiskManagementDelete,
-		Importer: &schema.ResourceImporter{},
+		CreateContext: resourceIBMisDedicatedHostDiskManagementCreate,
+		ReadContext:   resourceIBMisDedicatedHostDiskManagementRead,
+		UpdateContext: resourceIBMisDedicatedHostDiskManagementUpdate,
+		DeleteContext: resourceIBMisDedicatedHostDiskManagementDelete,
+		Importer:      &schema.ResourceImporter{},
 
 		Schema: map[string]*schema.Schema{
 			"dedicated_host": {
@@ -69,10 +73,12 @@ func ResourceIBMISDedicatedHostDiskManagementValidator() *validate.ResourceValid
 	return &ibmISDedicatedHostDiskManagementValidator
 }
 
-func resourceIBMisDedicatedHostDiskManagementCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMisDedicatedHostDiskManagementCreate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	dedicatedhost := d.Get("dedicated_host").(string)
 	disks := d.Get("disks")
@@ -106,10 +112,12 @@ func resourceIBMisDedicatedHostDiskManagementCreate(d *schema.ResourceData, meta
 	return resourceIBMisDedicatedHostDiskManagementRead(d, meta)
 }
 
-func resourceIBMisDedicatedHostDiskManagementUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMisDedicatedHostDiskManagementUpdate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	if d.HasChange("disks") && !d.IsNewResource() {
 
@@ -144,13 +152,13 @@ func resourceIBMisDedicatedHostDiskManagementUpdate(d *schema.ResourceData, meta
 	return resourceIBMisDedicatedHostDiskManagementRead(d, meta)
 }
 
-func resourceIBMisDedicatedHostDiskManagementDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMisDedicatedHostDiskManagementDelete(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	d.SetId("")
 	return nil
 }
 
-func resourceIBMisDedicatedHostDiskManagementRead(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMisDedicatedHostDiskManagementRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	d.Set("dedicated_host", d.Id())
 

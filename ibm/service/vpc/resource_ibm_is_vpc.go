@@ -15,6 +15,7 @@ import (
 
 	"github.com/IBM/go-sdk-core/v5/core"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -91,12 +92,12 @@ const (
 
 func ResourceIBMISVPC() *schema.Resource {
 	return &schema.Resource{
-		Create:   resourceIBMISVPCCreate,
-		Read:     resourceIBMISVPCRead,
-		Update:   resourceIBMISVPCUpdate,
-		Delete:   resourceIBMISVPCDelete,
-		Exists:   resourceIBMISVPCExists,
-		Importer: &schema.ResourceImporter{},
+		CreateContext: resourceIBMISVPCCreate,
+		ReadContext:   resourceIBMISVPCRead,
+		UpdateContext: resourceIBMISVPCUpdate,
+		DeleteContext: resourceIBMISVPCDelete,
+		Exists:        resourceIBMISVPCExists,
+		Importer:      &schema.ResourceImporter{},
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(10 * time.Minute),
@@ -652,7 +653,7 @@ func ResourceIBMISVPCValidator() *validate.ResourceValidator {
 	return &ibmISVPCResourceValidator
 }
 
-func resourceIBMISVPCCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISVPCCreate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	log.Printf("[DEBUG] VPC create")
 	name := d.Get(isVPCName).(string)
@@ -672,7 +673,9 @@ func resourceIBMISVPCCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 	err := vpcCreate(d, meta, name, apm, rg, isClassic)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_vpc", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	return resourceIBMISVPCRead(d, meta)
 }
@@ -680,7 +683,9 @@ func resourceIBMISVPCCreate(d *schema.ResourceData, meta interface{}) error {
 func vpcCreate(d *schema.ResourceData, meta interface{}, name, apm, rg string, isClassic bool) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	options := &vpcv1.CreateVPCOptions{
 		Name: &name,
@@ -688,7 +693,9 @@ func vpcCreate(d *schema.ResourceData, meta interface{}, name, apm, rg string, i
 	if _, ok := d.GetOk(isVPCDns); ok {
 		dnsModel, err := resourceIBMIsVPCMapToVpcdnsPrototype(d.Get("dns.0").(map[string]interface{}))
 		if err != nil {
-			return err
+			tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_vpc", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 		}
 		options.SetDns(dnsModel)
 	}
@@ -723,7 +730,9 @@ func vpcCreate(d *schema.ResourceData, meta interface{}, name, apm, rg string, i
 	log.Printf("[INFO] VPC : %s", *vpc.ID)
 	_, err = isWaitForVPCAvailable(sess, d.Id(), d.Timeout(schema.TimeoutCreate))
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_vpc", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	if dnsresolvertpeOk, ok := d.GetOk("dns.0.resolver.0.type"); ok {
@@ -818,7 +827,9 @@ func deleteDefaultNetworkACLRules(sess *vpcv1.VpcV1, vpcID string) error {
 	result, detail, err := sess.GetVPCDefaultNetworkACL(getVPCDefaultNetworkACLOptions)
 	if err != nil || result == nil {
 		log.Printf("Error reading details of VPC Default Network ACL:%s", detail)
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_vpc", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	if result.Rules != nil {
@@ -854,7 +865,9 @@ func deleteDefaultSecurityGroupRules(sess *vpcv1.VpcV1, vpcID string) error {
 	result, detail, err := sess.GetVPCDefaultSecurityGroup(getVPCDefaultSecurityGroupOptions)
 	if err != nil || result == nil {
 		log.Printf("Error reading details of VPC Default Security Group:%s", detail)
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_vpc", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	if result.Rules != nil {
@@ -903,11 +916,13 @@ func isVPCRefreshFunc(vpc *vpcv1.VpcV1, id string) resource.StateRefreshFunc {
 	}
 }
 
-func resourceIBMISVPCRead(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISVPCRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	id := d.Id()
 	err := vpcGet(d, meta, id)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_vpc", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	return nil
 }
@@ -915,7 +930,9 @@ func resourceIBMISVPCRead(d *schema.ResourceData, meta interface{}) error {
 func vpcGet(d *schema.ResourceData, meta interface{}, id string) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	getvpcOptions := &vpcv1.GetVPCOptions{
 		ID: &id,
@@ -957,7 +974,9 @@ func vpcGet(d *schema.ResourceData, meta interface{}, id string) error {
 		for _, modelItem := range vpc.HealthReasons {
 			modelMap, err := dataSourceIBMIsVPCVPCHealthReasonToMap(&modelItem)
 			if err != nil {
-				return err
+				tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_vpc", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 			}
 			healthReasons = append(healthReasons, modelMap)
 		}
@@ -975,7 +994,9 @@ func vpcGet(d *schema.ResourceData, meta interface{}, id string) error {
 
 		dnsMap, err := resourceIBMIsVPCVpcdnsToMap(vpc.Dns, vpcId, vpcCrn)
 		if err != nil {
-			return err
+			tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_vpc", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 		}
 		resolverMapArray := dnsMap["resolver"].([]map[string]interface{})
 		resolverMap := resolverMapArray[0]
@@ -1027,7 +1048,9 @@ func vpcGet(d *schema.ResourceData, meta interface{}, id string) error {
 	d.Set(isVPCAccessTags, accesstags)
 	controller, err := flex.GetBaseController(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_vpc", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	d.Set(isVPCCRN, *vpc.CRN)
@@ -1093,7 +1116,9 @@ func vpcGet(d *schema.ResourceData, meta interface{}, id string) error {
 	}
 	sgs, _, err := sess.ListSecurityGroups(listSgOptions)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_vpc", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	securityGroupList := make([]map[string]interface{}, 0)
@@ -1208,7 +1233,7 @@ func vpcGet(d *schema.ResourceData, meta interface{}, id string) error {
 	return nil
 }
 
-func resourceIBMISVPCUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISVPCUpdate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	id := d.Id()
 
 	name := ""
@@ -1220,7 +1245,9 @@ func resourceIBMISVPCUpdate(d *schema.ResourceData, meta interface{}) error {
 	}
 	err := vpcUpdate(d, meta, id, name, hasChanged)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_vpc", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	return resourceIBMISVPCRead(d, meta)
 }
@@ -1228,7 +1255,9 @@ func resourceIBMISVPCUpdate(d *schema.ResourceData, meta interface{}) error {
 func vpcUpdate(d *schema.ResourceData, meta interface{}, id, name string, hasChanged bool) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	if d.HasChange(isVPCTags) {
@@ -1316,7 +1345,9 @@ func vpcUpdate(d *schema.ResourceData, meta interface{}, id, name string, hasCha
 						for _, manualServersItem := range newResolverManualServers.(*schema.Set).List() {
 							manualServersItemModel, err := resourceIBMIsVPCMapToDnsServerPrototype(manualServersItem.(map[string]interface{}))
 							if err != nil {
-								return err
+								tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_vpc", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 							}
 							manualServers = append(manualServers, *manualServersItemModel)
 						}
@@ -1427,11 +1458,13 @@ func vpcUpdate(d *schema.ResourceData, meta interface{}, id, name string, hasCha
 	return nil
 }
 
-func resourceIBMISVPCDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISVPCDelete(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	id := d.Id()
 	err := vpcDelete(d, meta, id)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_vpc", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	d.SetId("")
 	return nil
@@ -1440,7 +1473,9 @@ func resourceIBMISVPCDelete(d *schema.ResourceData, meta interface{}) error {
 func vpcDelete(d *schema.ResourceData, meta interface{}, id string) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	getVpcOptions := &vpcv1.GetVPCOptions{
@@ -1464,7 +1499,9 @@ func vpcDelete(d *schema.ResourceData, meta interface{}, id string) error {
 	}
 	_, err = isWaitForVPCDeleted(sess, id, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_vpc", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	d.SetId("")
 	return nil

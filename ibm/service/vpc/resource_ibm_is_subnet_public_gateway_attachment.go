@@ -112,7 +112,9 @@ func ResourceIBMISSubnetPublicGatewayAttachment() *schema.Resource {
 func resourceIBMISSubnetPublicGatewayAttachmentCreate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return diag.FromErr(err)
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	subnet := d.Get(isSubnetID).(string)
@@ -149,7 +151,9 @@ func resourceIBMISSubnetPublicGatewayAttachmentRead(context context.Context, d *
 	id := d.Id()
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return diag.FromErr(err)
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	getSubnetPublicGatewayOptionsModel := &vpcv1.GetSubnetPublicGatewayOptions{
@@ -191,7 +195,9 @@ func resourceIBMISSubnetPublicGatewayAttachmentUpdate(context context.Context, d
 
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return diag.FromErr(err)
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	if d.HasChange(isPublicGatewayID) {
 		subnet := d.Get(isSubnetID).(string)
@@ -226,7 +232,9 @@ func resourceIBMISSubnetPublicGatewayAttachmentDelete(context context.Context, d
 	id := d.Id()
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return diag.FromErr(err)
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	// Get subnet details
 	getSubnetOptions := &vpcv1.GetSubnetOptions{

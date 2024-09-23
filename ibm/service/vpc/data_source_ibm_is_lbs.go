@@ -4,12 +4,14 @@
 package vpc
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"time"
 
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -24,7 +26,7 @@ const (
 
 func DataSourceIBMISLBS() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceIBMISLBSRead,
+		ReadContext: dataSourceIBMISLBSRead,
 		Schema: map[string]*schema.Schema{
 			loadBalancers: {
 				Type:        schema.TypeList,
@@ -283,7 +285,7 @@ func DataSourceIBMISLBS() *schema.Resource {
 	}
 }
 
-func dataSourceIBMISLBSRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceIBMISLBSRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	err := getLbs(d, meta)
 	if err != nil {
@@ -295,7 +297,9 @@ func dataSourceIBMISLBSRead(d *schema.ResourceData, meta interface{}) error {
 func getLbs(d *schema.ResourceData, meta interface{}) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "read")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	start := ""
 	allrecs := []vpcv1.LoadBalancer{}

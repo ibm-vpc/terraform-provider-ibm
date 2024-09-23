@@ -4,8 +4,14 @@
 package vpc
 
 import (
+	"context"
+	"fmt"
+	"log"
+
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/conns"
+	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -17,7 +23,7 @@ const (
 
 func DataSourceIBMISRegion() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceIBMISRegionRead,
+		ReadContext: dataSourceIBMISRegionRead,
 
 		Schema: map[string]*schema.Schema{
 
@@ -39,7 +45,7 @@ func DataSourceIBMISRegion() *schema.Resource {
 	}
 }
 
-func dataSourceIBMISRegionRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceIBMISRegionRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	name := d.Get("name").(string)
 
 	if name == "" {
@@ -55,7 +61,9 @@ func dataSourceIBMISRegionRead(d *schema.ResourceData, meta interface{}) error {
 func regionGet(d *schema.ResourceData, meta interface{}, name string) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "read")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	getRegionOptions := &vpcv1.GetRegionOptions{
 		Name: &name,

@@ -4,17 +4,19 @@
 package vpc
 
 import (
+	"context"
 	"fmt"
 	"log"
 
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func DataSourceIBMISInstanceGroup() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceIBMISInstanceGroupRead,
+		ReadContext: dataSourceIBMISInstanceGroupRead,
 
 		Schema: map[string]*schema.Schema{
 
@@ -97,10 +99,12 @@ func DataSourceIBMISInstanceGroup() *schema.Resource {
 	}
 }
 
-func dataSourceIBMISInstanceGroupRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceIBMISInstanceGroupRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "read")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	name := d.Get("name")
@@ -113,9 +117,11 @@ func dataSourceIBMISInstanceGroupRead(d *schema.ResourceData, meta interface{}) 
 		if start != "" {
 			listInstanceGroupOptions.Start = &start
 		}
-		instanceGroupsCollection, response, err := sess.ListInstanceGroups(&listInstanceGroupOptions)
+		instanceGroupsCollection, response, err := sess.ListInstanceGroupsWithContext(context, &listInstanceGroupOptions)
 		if err != nil {
-			return fmt.Errorf("[ERROR] Error Fetching InstanceGroups %s\n%s", err, response)
+			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("ListInstanceGroupsWithContext failed: %s\n%s", err.Error(), response), "ibm_cloud", "list")
+			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+			return tfErr.GetDiag()
 		}
 		start = flex.GetNext(instanceGroupsCollection.Next)
 		allrecs = append(allrecs, instanceGroupsCollection.InstanceGroups...)
@@ -161,5 +167,7 @@ func dataSourceIBMISInstanceGroupRead(d *schema.ResourceData, meta interface{}) 
 			return nil
 		}
 	}
-	return fmt.Errorf("Instance group %s not found", name)
+	tfErr := flex.TerraformErrorf(err, fmt.Sprintf("No Instance group found with name : %s", name), "ibm_cloud", "datasource")
+	log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+	return tfErr.GetDiag()
 }

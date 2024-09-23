@@ -4,12 +4,15 @@
 package vpc
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"reflect"
 	"time"
 
+	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -20,12 +23,12 @@ const (
 
 func ResourceIBMISSubnetNetworkACLAttachment() *schema.Resource {
 	return &schema.Resource{
-		Create:   resourceIBMISSubnetNetworkACLAttachmentCreate,
-		Read:     resourceIBMISSubnetNetworkACLAttachmentRead,
-		Update:   resourceIBMISSubnetNetworkACLAttachmentUpdate,
-		Delete:   resourceIBMISSubnetNetworkACLAttachmentDelete,
-		Exists:   resourceIBMISSubnetNetworkACLAttachmentExists,
-		Importer: &schema.ResourceImporter{},
+		CreateContext: resourceIBMISSubnetNetworkACLAttachmentCreate,
+		ReadContext:   resourceIBMISSubnetNetworkACLAttachmentRead,
+		UpdateContext: resourceIBMISSubnetNetworkACLAttachmentUpdate,
+		DeleteContext: resourceIBMISSubnetNetworkACLAttachmentDelete,
+		Exists:        resourceIBMISSubnetNetworkACLAttachmentExists,
+		Importer:      &schema.ResourceImporter{},
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(10 * time.Minute),
 			Update: schema.DefaultTimeout(10 * time.Minute),
@@ -194,10 +197,12 @@ func ResourceIBMISSubnetNetworkACLAttachment() *schema.Resource {
 	}
 }
 
-func resourceIBMISSubnetNetworkACLAttachmentCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISSubnetNetworkACLAttachmentCreate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	subnet := d.Get(isSubnetID).(string)
@@ -224,11 +229,13 @@ func resourceIBMISSubnetNetworkACLAttachmentCreate(d *schema.ResourceData, meta 
 	return resourceIBMISSubnetNetworkACLAttachmentRead(d, meta)
 }
 
-func resourceIBMISSubnetNetworkACLAttachmentRead(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISSubnetNetworkACLAttachmentRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	id := d.Id()
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	getSubnetNetworkACLOptionsModel := &vpcv1.GetSubnetNetworkACLOptions{
@@ -334,11 +341,13 @@ func resourceIBMISSubnetNetworkACLAttachmentRead(d *schema.ResourceData, meta in
 	return nil
 }
 
-func resourceIBMISSubnetNetworkACLAttachmentUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISSubnetNetworkACLAttachmentUpdate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	if d.HasChange(isNetworkACLID) {
 		subnet := d.Get(isSubnetID).(string)
@@ -367,11 +376,13 @@ func resourceIBMISSubnetNetworkACLAttachmentUpdate(d *schema.ResourceData, meta 
 	return resourceIBMISSubnetNetworkACLAttachmentRead(d, meta)
 }
 
-func resourceIBMISSubnetNetworkACLAttachmentDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISSubnetNetworkACLAttachmentDelete(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	id := d.Id()
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	// Set the subnet with VPC default network ACL
 	getSubnetOptions := &vpcv1.GetSubnetOptions{

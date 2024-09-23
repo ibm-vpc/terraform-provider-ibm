@@ -6,6 +6,7 @@ package vpc
 import (
 	//"encoding/json"
 
+	"fmt"
 	"log"
 	"time"
 
@@ -35,7 +36,7 @@ const (
 
 func DataSourceIBMISVPCRoutingTables() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceIBMISVPCRoutingTablesList,
+		ReadContext: dataSourceIBMISVPCRoutingTablesList,
 		Schema: map[string]*schema.Schema{
 			isVpcID: {
 				Type:        schema.TypeString,
@@ -178,7 +179,9 @@ func DataSourceIBMISVPCRoutingTables() *schema.Resource {
 func dataSourceIBMISVPCRoutingTablesList(d *schema.ResourceData, meta interface{}) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "read")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	vpcID := d.Get(isVpcID).(string)

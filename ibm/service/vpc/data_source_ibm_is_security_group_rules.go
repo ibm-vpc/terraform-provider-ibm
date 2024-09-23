@@ -4,17 +4,21 @@
 package vpc
 
 import (
+	"context"
 	"fmt"
+	"log"
 	"reflect"
 	"time"
 
+	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func DataSourceIBMIsSecurityGroupRules() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceIBMIsSecurityGroupRulesRead,
+		ReadContext: dataSourceIBMIsSecurityGroupRulesRead,
 
 		Schema: map[string]*schema.Schema{
 			"security_group": &schema.Schema{
@@ -152,11 +156,13 @@ func DataSourceIBMIsSecurityGroupRules() *schema.Resource {
 	}
 }
 
-func dataSourceIBMIsSecurityGroupRulesRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceIBMIsSecurityGroupRulesRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	secGrpId := d.Get("security_group").(string)
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "read")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	listSecurityGroupRuleOptions := vpcv1.ListSecurityGroupRulesOptions{

@@ -15,6 +15,7 @@ import (
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/validate"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -37,12 +38,12 @@ const (
 
 func ResourceIBMISSSHKey() *schema.Resource {
 	return &schema.Resource{
-		Create:   resourceIBMISSSHKeyCreate,
-		Read:     resourceIBMISSSHKeyRead,
-		Update:   resourceIBMISSSHKeyUpdate,
-		Delete:   resourceIBMISSSHKeyDelete,
-		Exists:   resourceIBMISSSHKeyExists,
-		Importer: &schema.ResourceImporter{},
+		CreateContext: resourceIBMISSSHKeyCreate,
+		ReadContext:   resourceIBMISSSHKeyRead,
+		UpdateContext: resourceIBMISSSHKeyUpdate,
+		DeleteContext: resourceIBMISSSHKeyDelete,
+		Exists:        resourceIBMISSSHKeyExists,
+		Importer:      &schema.ResourceImporter{},
 
 		CustomizeDiff: customdiff.All(
 			customdiff.Sequence(
@@ -187,7 +188,7 @@ func ResourceIBMISSHKeyValidator() *validate.ResourceValidator {
 	return &ibmISSSHKeyResourceValidator
 }
 
-func resourceIBMISSSHKeyCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISSSHKeyCreate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	log.Printf("[DEBUG] Key create")
 	name := d.Get(isKeyName).(string)
@@ -195,7 +196,9 @@ func resourceIBMISSSHKeyCreate(d *schema.ResourceData, meta interface{}) error {
 
 	err := keyCreate(d, meta, name, publickey)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_ssh_key", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	return resourceIBMISSSHKeyRead(d, meta)
 }
@@ -203,7 +206,9 @@ func resourceIBMISSSHKeyCreate(d *schema.ResourceData, meta interface{}) error {
 func keyCreate(d *schema.ResourceData, meta interface{}, name, publickey string) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	options := &vpcv1.CreateKeyOptions{
 		PublicKey: &publickey,
@@ -250,13 +255,15 @@ func keyCreate(d *schema.ResourceData, meta interface{}, name, publickey string)
 	return nil
 }
 
-func resourceIBMISSSHKeyRead(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISSSHKeyRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	id := d.Id()
 
 	err := keyGet(d, meta, id)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_ssh_key", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	return nil
 }
@@ -264,7 +271,9 @@ func resourceIBMISSSHKeyRead(d *schema.ResourceData, meta interface{}) error {
 func keyGet(d *schema.ResourceData, meta interface{}, id string) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	options := &vpcv1.GetKeyOptions{
 		ID: &id,
@@ -296,7 +305,9 @@ func keyGet(d *schema.ResourceData, meta interface{}, id string) error {
 	d.Set(isKeyAccessTags, accesstags)
 	controller, err := flex.GetBaseController(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_ssh_key", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	d.Set(flex.ResourceControllerURL, controller+"/vpc-ext/compute/sshKeys")
 	d.Set(flex.ResourceName, *key.Name)
@@ -309,7 +320,7 @@ func keyGet(d *schema.ResourceData, meta interface{}, id string) error {
 	return nil
 }
 
-func resourceIBMISSSHKeyUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISSSHKeyUpdate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	id := d.Id()
 	name := ""
@@ -322,7 +333,9 @@ func resourceIBMISSSHKeyUpdate(d *schema.ResourceData, meta interface{}) error {
 
 	err := keyUpdate(d, meta, id, name, hasChanged)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_ssh_key", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	return resourceIBMISSSHKeyRead(d, meta)
 }
@@ -330,7 +343,9 @@ func resourceIBMISSSHKeyUpdate(d *schema.ResourceData, meta interface{}) error {
 func keyUpdate(d *schema.ResourceData, meta interface{}, id, name string, hasChanged bool) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	if d.HasChange(isKeyTags) {
 		options := &vpcv1.GetKeyOptions{
@@ -382,12 +397,14 @@ func keyUpdate(d *schema.ResourceData, meta interface{}, id, name string, hasCha
 	return nil
 }
 
-func resourceIBMISSSHKeyDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISSSHKeyDelete(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	id := d.Id()
 
 	err := keyDelete(d, meta, id)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_ssh_key", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	return nil
 }
@@ -395,7 +412,9 @@ func resourceIBMISSSHKeyDelete(d *schema.ResourceData, meta interface{}) error {
 func keyDelete(d *schema.ResourceData, meta interface{}, id string) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "create")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	getKeyOptions := &vpcv1.GetKeyOptions{
