@@ -215,7 +215,7 @@ func ResourceIBMIsBackupPolicyValidator() *validate.ResourceValidator {
 func resourceIBMIsBackupPolicyCreate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	vpcClient, err := vpcClient(meta)
 	if err != nil {
-		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_backup_policy", "create")
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_is_backup_policy", "create")
 		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
 		return tfErr.GetDiag()
 	}
@@ -273,7 +273,7 @@ func resourceIBMIsBackupPolicyCreate(context context.Context, d *schema.Resource
 func resourceIBMIsBackupPolicyRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	vpcClient, err := vpcClient(meta)
 	if err != nil {
-		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_backup_policy", "read")
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_is_backup_policy", "read")
 		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
 		return tfErr.GetDiag()
 	}
@@ -426,7 +426,7 @@ func resourceIbmIsBackupPolicyScopeToMap(scope vpcv1.BackupPolicyScope) map[stri
 func resourceIBMIsBackupPolicyUpdate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	vpcClient, err := vpcClient(meta)
 	if err != nil {
-		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_backup_policy", "update")
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_is_backup_policy", "update")
 		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
 		return tfErr.GetDiag()
 	}
@@ -463,7 +463,7 @@ func resourceIBMIsBackupPolicyUpdate(context context.Context, d *schema.Resource
 func resourceIBMIsBackupPolicyDelete(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	vpcClient, err := vpcClient(meta)
 	if err != nil {
-		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_backup_policy", "delete")
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_is_backup_policy", "delete")
 		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
 		return tfErr.GetDiag()
 	}
