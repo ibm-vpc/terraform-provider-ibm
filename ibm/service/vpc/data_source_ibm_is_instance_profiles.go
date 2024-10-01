@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -154,6 +155,42 @@ func DataSourceIBMISInstanceProfiles() *schema.Resource {
 								},
 							},
 						},
+						"cluster_network_attachment_count": &schema.Schema{
+							Type:     schema.TypeList,
+							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"type": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The type for this profile field.",
+									},
+									"values": &schema.Schema{
+										Type:        schema.TypeList,
+										Computed:    true,
+										Description: "The permitted values for this profile field.",
+										Elem: &schema.Schema{
+											Type: schema.TypeInt,
+										},
+									},
+									"max": &schema.Schema{
+										Type:        schema.TypeInt,
+										Computed:    true,
+										Description: "The maximum value for this profile field.",
+									},
+									"min": &schema.Schema{
+										Type:        schema.TypeInt,
+										Computed:    true,
+										Description: "The minimum value for this profile field.",
+									},
+									"step": &schema.Schema{
+										Type:     schema.TypeInt,
+										Computed: true,
+									},
+								},
+							},
+						},
+
 						"gpu_count": {
 							Type:        schema.TypeList,
 							Computed:    true,
@@ -775,6 +812,12 @@ func instanceProfilesList(d *schema.ResourceData, meta interface{}) error {
 			l["gpu_count"] = dataSourceInstanceProfileFlattenGPUCount(*profile.GpuCount.(*vpcv1.InstanceProfileGpu))
 		}
 
+		clusterNetworkAttachmentCountMap, err := DataSourceIBMIsInstanceProfilesInstanceProfileClusterNetworkAttachmentCountToMap(profile.ClusterNetworkAttachmentCount)
+		if err != nil {
+			return err
+		}
+		l["cluster_network_attachment_count"] = []map[string]interface{}{clusterNetworkAttachmentCountMap}
+
 		if profile.GpuMemory != nil {
 			l["gpu_memory"] = dataSourceInstanceProfileFlattenGPUMemory(*profile.GpuMemory.(*vpcv1.InstanceProfileGpuMemory))
 		}
@@ -887,6 +930,65 @@ func instanceProfilesList(d *schema.ResourceData, meta interface{}) error {
 	d.SetId(dataSourceIBMISInstanceProfilesID(d))
 	d.Set(isInstanceProfiles, profilesInfo)
 	return nil
+}
+
+func DataSourceIBMIsInstanceProfilesInstanceProfileClusterNetworkAttachmentCountToMap(model vpcv1.InstanceProfileClusterNetworkAttachmentCountIntf) (map[string]interface{}, error) {
+	if _, ok := model.(*vpcv1.InstanceProfileClusterNetworkAttachmentCountDependent); ok {
+		return DataSourceIBMIsInstanceProfilesInstanceProfileClusterNetworkAttachmentCountDependentToMap(model.(*vpcv1.InstanceProfileClusterNetworkAttachmentCountDependent))
+	} else if _, ok := model.(*vpcv1.InstanceProfileClusterNetworkAttachmentCountEnum); ok {
+		return DataSourceIBMIsInstanceProfilesInstanceProfileClusterNetworkAttachmentCountEnumToMap(model.(*vpcv1.InstanceProfileClusterNetworkAttachmentCountEnum))
+	} else if _, ok := model.(*vpcv1.InstanceProfileClusterNetworkAttachmentCountRange); ok {
+		return DataSourceIBMIsInstanceProfilesInstanceProfileClusterNetworkAttachmentCountRangeToMap(model.(*vpcv1.InstanceProfileClusterNetworkAttachmentCountRange))
+	} else if _, ok := model.(*vpcv1.InstanceProfileClusterNetworkAttachmentCount); ok {
+		modelMap := make(map[string]interface{})
+		model := model.(*vpcv1.InstanceProfileClusterNetworkAttachmentCount)
+		if model.Type != nil {
+			modelMap["type"] = *model.Type
+		}
+		if model.Values != nil {
+			modelMap["values"] = model.Values
+		}
+		if model.Max != nil {
+			modelMap["max"] = flex.IntValue(model.Max)
+		}
+		if model.Min != nil {
+			modelMap["min"] = flex.IntValue(model.Min)
+		}
+		if model.Step != nil {
+			modelMap["step"] = flex.IntValue(model.Step)
+		}
+		return modelMap, nil
+	} else {
+		return nil, fmt.Errorf("Unrecognized vpcv1.InstanceProfileClusterNetworkAttachmentCountIntf subtype encountered")
+	}
+}
+
+func DataSourceIBMIsInstanceProfilesInstanceProfileClusterNetworkAttachmentCountDependentToMap(model *vpcv1.InstanceProfileClusterNetworkAttachmentCountDependent) (map[string]interface{}, error) {
+	modelMap := make(map[string]interface{})
+	modelMap["type"] = *model.Type
+	return modelMap, nil
+}
+
+func DataSourceIBMIsInstanceProfilesInstanceProfileClusterNetworkAttachmentCountEnumToMap(model *vpcv1.InstanceProfileClusterNetworkAttachmentCountEnum) (map[string]interface{}, error) {
+	modelMap := make(map[string]interface{})
+	modelMap["type"] = *model.Type
+	modelMap["values"] = model.Values
+	return modelMap, nil
+}
+
+func DataSourceIBMIsInstanceProfilesInstanceProfileClusterNetworkAttachmentCountRangeToMap(model *vpcv1.InstanceProfileClusterNetworkAttachmentCountRange) (map[string]interface{}, error) {
+	modelMap := make(map[string]interface{})
+	if model.Max != nil {
+		modelMap["max"] = flex.IntValue(model.Max)
+	}
+	if model.Min != nil {
+		modelMap["min"] = flex.IntValue(model.Min)
+	}
+	if model.Step != nil {
+		modelMap["step"] = flex.IntValue(model.Step)
+	}
+	modelMap["type"] = *model.Type
+	return modelMap, nil
 }
 
 // dataSourceIBMISInstanceProfilesID returns a reasonable ID for a Instance Profile list.
