@@ -1972,26 +1972,60 @@ func instanceCreateByImage(d *schema.ResourceData, meta interface{}, profile, na
 	if volumeattintf, ok := d.GetOk("volume_prototypes"); ok {
 		volumeatt := []vpcv1.VolumeAttachmentPrototype{}
 		for i, _ := range volumeattintf.([]interface{}) {
-			volName := d.Get(fmt.Sprintf("volume_prototypes.%d.volume_name", i)).(string)
-			volAutoDelete, ok := d.GetOkExists(fmt.Sprintf("volume_prototypes.%d.delete_volume_on_instance_delete", i))
-			volIops := d.Get(fmt.Sprintf("volume_prototypes.%d.volume_iops", i)).(int)
-			volCapacity := d.Get(fmt.Sprintf("volume_prototypes.%d.volume_capacity", i)).(int)
-			volEncKey := d.Get(fmt.Sprintf("volume_prototypes.%d.volume_encryption_key", i)).(string)
-			volProfile := d.Get(fmt.Sprintf("volume_prototypes.%d.volume_profile", i)).(string)
-			volTags := d.Get(fmt.Sprintf("volume_prototypes.%d.volume_tags", i)).(*schema.Set)
-			volRg := d.Get(fmt.Sprintf("volume_prototypes.%d.volume_resource_group", i)).(string)
-			volSnapshot := d.Get(fmt.Sprintf("volume_prototypes.%d.volume_source_snapshot", i)).(string)
-
 			volumeattItemModel := &vpcv1.VolumeAttachmentPrototype{}
 			volumeattItemPrototypeModel := &vpcv1.VolumeAttachmentPrototypeVolume{}
-
-			if volName != "" {
-				volumeattItemPrototypeModel.Name = &volName
+			if vname, ok := d.GetOk(fmt.Sprintf("volume_prototypes.%d.volume_name", i)); ok {
+				volName := vname.(string)
+				if volName != "" {
+					volumeattItemPrototypeModel.Name = &volName
+				}
 			}
-			if ok {
+			if volAutoDelete, ok := d.GetOkExists(fmt.Sprintf("volume_prototypes.%d.delete_volume_on_instance_delete", i)); ok {
 				volumeattItemModel.DeleteVolumeOnInstanceDelete = core.BoolPtr(volAutoDelete.(bool))
 			}
-
+			if volIops, ok := d.GetOk(fmt.Sprintf("volume_prototypes.%d.volume_iops", i)); ok {
+				if volIops.(int) != 0 {
+					volumeattItemPrototypeModel.Iops = core.Int64Ptr(int64(volIops.(int)))
+				}
+			}
+			if volCapacity, ok := d.GetOk(fmt.Sprintf("volume_prototypes.%d.volume_capacity", i)); ok {
+				if volCapacity != 0 {
+					volumeattItemPrototypeModel.Capacity = core.Int64Ptr(int64(volCapacity.(int)))
+				}
+			}
+			if volEncKeyOk, ok := d.GetOk(fmt.Sprintf("volume_prototypes.%d.volume_encryption_key", i)); ok {
+				volEncKey := volEncKeyOk.(string)
+				if volEncKey != "" {
+					volumeattItemPrototypeModel.EncryptionKey = &vpcv1.EncryptionKeyIdentity{
+						CRN: &volEncKey,
+					}
+				}
+			}
+			if volProfileOk, ok := d.GetOk(fmt.Sprintf("volume_prototypes.%d.volume_profile", i)); ok {
+				volProfile := volProfileOk.(string)
+				if volProfile != "" {
+					volumeattItemPrototypeModel.Profile = &vpcv1.VolumeProfileIdentity{
+						Name: &volProfile,
+					}
+				}
+			}
+			if volRgOk, ok := d.GetOk(fmt.Sprintf("volume_prototypes.%d.volume_resource_group", i)); ok {
+				volRg := volRgOk.(string)
+				if volRg != "" {
+					volumeattItemPrototypeModel.ResourceGroup = &vpcv1.ResourceGroupIdentity{
+						ID: &volRg,
+					}
+				}
+			}
+			if volSnapshotok, ok := d.GetOk(fmt.Sprintf("volume_prototypes.%d.volume_source_snapshot", i)); ok {
+				volSnapshot := volSnapshotok.(string)
+				if volSnapshot != "" {
+					volumeattItemPrototypeModel.SourceSnapshot = &vpcv1.SnapshotIdentity{
+						ID: &volSnapshot,
+					}
+				}
+			}
+			volTags := d.Get(fmt.Sprintf("volume_prototypes.%d.volume_tags", i)).(*schema.Set)
 			if volTags != nil && volTags.Len() != 0 {
 				userTagsArray := make([]string, volTags.Len())
 				for i, userTag := range volTags.List() {
@@ -2000,32 +2034,7 @@ func instanceCreateByImage(d *schema.ResourceData, meta interface{}, profile, na
 				}
 				volumeattItemPrototypeModel.UserTags = userTagsArray
 			}
-			if volEncKey != "" {
-				volumeattItemPrototypeModel.EncryptionKey = &vpcv1.EncryptionKeyIdentity{
-					CRN: &volEncKey,
-				}
-			}
-			if volSnapshot != "" {
-				volumeattItemPrototypeModel.SourceSnapshot = &vpcv1.SnapshotIdentity{
-					ID: &volSnapshot,
-				}
-			}
-			if volRg != "" {
-				volumeattItemPrototypeModel.ResourceGroup = &vpcv1.ResourceGroupIdentity{
-					ID: &volRg,
-				}
-			}
-			if volProfile != "" {
-				volumeattItemPrototypeModel.Profile = &vpcv1.VolumeProfileIdentity{
-					Name: &volProfile,
-				}
-			}
-			if volIops != 0 {
-				volumeattItemPrototypeModel.Iops = core.Int64Ptr(int64(volIops))
-			}
-			if volCapacity != 0 {
-				volumeattItemPrototypeModel.Capacity = core.Int64Ptr(int64(volCapacity))
-			}
+
 			volumeattItemModel.Volume = volumeattItemPrototypeModel
 
 			volumeatt = append(volumeatt, *volumeattItemModel)
