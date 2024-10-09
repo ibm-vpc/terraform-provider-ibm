@@ -91,24 +91,23 @@ const (
 	isInstanceStatusFailed               = "failed"
 	isInstanceAvailablePolicyHostFailure = "availability_policy_host_failure"
 
-	isInstanceBootAttachmentName         = "name"
-	isInstanceBootVolumeId               = "volume_id"
-	isInstanceBootSize                   = "size"
-	isInstanceBootIOPS                   = "iops"
-	isInstanceBootEncryption             = "encryption"
-	isInstanceBootProfile                = "profile"
-	isInstanceAction                     = "action"
-	isInstanceVolumeAttachments          = "volume_attachments"
-	isInstanceVolumeAttachmentsPrototype = "volume_prototypes"
-	isInstanceVolumeAttaching            = "attaching"
-	isInstanceVolumeAttached             = "attached"
-	isInstanceVolumeDetaching            = "detaching"
-	isInstanceResourceGroup              = "resource_group"
-	isInstanceLifecycleReasons           = "lifecycle_reasons"
-	isInstanceLifecycleState             = "lifecycle_state"
-	isInstanceLifecycleReasonsCode       = "code"
-	isInstanceLifecycleReasonsMessage    = "message"
-	isInstanceLifecycleReasonsMoreInfo   = "more_info"
+	isInstanceBootAttachmentName       = "name"
+	isInstanceBootVolumeId             = "volume_id"
+	isInstanceBootSize                 = "size"
+	isInstanceBootIOPS                 = "iops"
+	isInstanceBootEncryption           = "encryption"
+	isInstanceBootProfile              = "profile"
+	isInstanceAction                   = "action"
+	isInstanceVolumeAttachments        = "volume_attachments"
+	isInstanceVolumeAttaching          = "attaching"
+	isInstanceVolumeAttached           = "attached"
+	isInstanceVolumeDetaching          = "detaching"
+	isInstanceResourceGroup            = "resource_group"
+	isInstanceLifecycleReasons         = "lifecycle_reasons"
+	isInstanceLifecycleState           = "lifecycle_state"
+	isInstanceLifecycleReasonsCode     = "code"
+	isInstanceLifecycleReasonsMessage  = "message"
+	isInstanceLifecycleReasonsMoreInfo = "more_info"
 
 	isInstanceCatalogOffering            = "catalog_offering"
 	isInstanceCatalogOfferingOfferingCrn = "offering_crn"
@@ -393,7 +392,7 @@ func ResourceIBMISInstance() *schema.Resource {
 					},
 				},
 			},
-			isInstanceVolumeAttachmentsPrototype: {
+			"volume_prototypes": {
 				Type:             schema.TypeList,
 				Optional:         true,
 				DiffSuppressFunc: diffsupp,
@@ -1311,7 +1310,7 @@ func ResourceIBMISInstance() *schema.Resource {
 			isInstanceVolumes: {
 				Type:          schema.TypeList,
 				Optional:      true,
-				ConflictsWith: []string{isInstanceVolumeAttachmentsPrototype},
+				ConflictsWith: []string{"volume_prototypes"},
 				Elem:          &schema.Schema{Type: schema.TypeString},
 				Description:   "List of volumes",
 			},
@@ -4881,7 +4880,7 @@ func instanceGet(d *schema.ResourceData, meta interface{}, id string) error {
 	// 			}
 	// 		}
 	// 	}
-	// 	d.Set(isInstanceVolumeAttachmentsPrototype, volList)
+	// 	d.Set("volume_prototypes", volList)
 	// }
 	tags, err := flex.GetGlobalTagsUsingCRN(meta, *instance.CRN, "", isInstanceUserTagType)
 	if err != nil {
