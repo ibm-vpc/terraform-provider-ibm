@@ -7017,11 +7017,12 @@ func compareVolumeLists(oldVolumes, newVolumes []interface{}) bool {
 }
 
 func compareVolumes(oldVol, newVol map[string]interface{}) bool {
-	return int64(oldVol["volume_capacity"].(float64)) == int64(newVol["volume_capacity"].(float64)) &&
-		int64(oldVol["volume_iops"].(float64)) == int64(newVol["volume_iops"].(float64)) &&
-		oldVol["volume_key"].(string) == newVol["volume_key"].(string) &&
+	return int64(oldVol["volume_capacity"].(int)) == int64(newVol["volume_capacity"].(int)) &&
+		int64(oldVol["volume_iops"].(int)) == int64(newVol["volume_iops"].(int)) &&
+		((oldVol["volume_key"] == nil && newVol["volume_key"] == nil) ||
+			(oldVol["volume_key"].(string) == newVol["volume_key"].(string))) &&
 		oldVol["volume_profile"].(string) == newVol["volume_profile"].(string) &&
-		compareStringSlices(oldVol["volume_tags"].([]interface{}), newVol["volume_tags"].([]interface{}))
+		compareStringSlices(oldVol["volume_tags"].(*schema.Set).List(), newVol["volume_tags"].(*schema.Set).List())
 }
 
 func compareStringSlices(slice1, slice2 []interface{}) bool {
