@@ -264,9 +264,9 @@ func ResourceIBMISReservation() *schema.Resource {
 func ResourceIBMISReservationValidator() *validate.ResourceValidator {
 
 	validateSchema := make([]validate.ValidateSchema, 0)
-	affinityPolicy := "automatic,restricted"
-	term := "one_year,three_year"
-	resourceType := "bare_metal_server_profile,instance_profile"
+	affinityPolicy := "automatic, restricted"
+	term := "one_year, three_year"
+	resourceType := "bare_metal_server_profile, instance_profile"
 
 	validateSchema = append(validateSchema,
 		validate.ValidateSchema{
