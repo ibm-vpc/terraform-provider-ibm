@@ -1774,7 +1774,7 @@ func instanceTemplateCreate(d *schema.ResourceData, meta interface{}, profile, n
 			resAffinity.Policy = &policyStr
 		}
 		poolIntf, okPool := resAff[isReservationAffinityPool]
-		if okPool {
+		if okPool && poolIntf != nil && poolIntf.([]interface{}) != nil && len(poolIntf.([]interface{})) > 0 {
 			pool := poolIntf.([]interface{})[0].(map[string]interface{})
 			id, okId := pool["id"]
 			if okId {

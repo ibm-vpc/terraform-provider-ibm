@@ -2304,7 +2304,7 @@ func instanceCreateByCatalogOffering(d *schema.ResourceData, meta interface{}, p
 			resAffinity.Policy = &policyStr
 		}
 		poolIntf, okPool := resAff[isReservationAffinityPool]
-		if okPool && poolIntf != nil && poolIntf.([]interface{}) != nil {
+		if okPool && poolIntf != nil && poolIntf.([]interface{}) != nil && len(poolIntf.([]interface{})) > 0 {
 			pool := poolIntf.([]interface{})[0].(map[string]interface{})
 			id, okId := pool["id"]
 			if okId {
@@ -2726,7 +2726,7 @@ func instanceCreateByTemplate(d *schema.ResourceData, meta interface{}, profile,
 			resAffinity.Policy = &policyStr
 		}
 		poolIntf, okPool := resAff[isReservationAffinityPool]
-		if okPool && poolIntf != nil && poolIntf.([]interface{}) != nil {
+		if okPool && poolIntf != nil && poolIntf.([]interface{}) != nil && len(poolIntf.([]interface{})) > 0 {
 			pool := poolIntf.([]interface{})[0].(map[string]interface{})
 			id, okId := pool["id"]
 			if okId {
@@ -3116,7 +3116,7 @@ func instanceCreateBySnapshot(d *schema.ResourceData, meta interface{}, profile,
 			resAffinity.Policy = &policyStr
 		}
 		poolIntf, okPool := resAff[isReservationAffinityPool]
-		if okPool && poolIntf != nil && poolIntf.([]interface{}) != nil {
+		if okPool && poolIntf != nil && poolIntf.([]interface{}) != nil && len(poolIntf.([]interface{})) > 0 {
 			pool := poolIntf.([]interface{})[0].(map[string]interface{})
 			id, okId := pool["id"]
 			if okId {
@@ -3508,7 +3508,7 @@ func instanceCreateByVolume(d *schema.ResourceData, meta interface{}, profile, n
 			resAffinity.Policy = &policyStr
 		}
 		poolIntf, okPool := resAff[isReservationAffinityPool]
-		if okPool && poolIntf != nil && poolIntf.([]interface{}) != nil {
+		if okPool && poolIntf != nil && poolIntf.([]interface{}) != nil && len(poolIntf.([]interface{})) > 0 {
 			pool := poolIntf.([]interface{})[0].(map[string]interface{})
 			id, okId := pool["id"]
 			if okId {
@@ -4960,7 +4960,7 @@ func instanceUpdate(d *schema.ResourceData, meta interface{}) error {
 			}
 			if d.HasChange(resPool) {
 				poolIntf, okPool := resAff[isReservationAffinityPool]
-				if okPool && poolIntf != nil && poolIntf.([]interface{}) != nil {
+				if okPool && poolIntf != nil && poolIntf.([]interface{}) != nil && len(poolIntf.([]interface{})) > 0 {
 					pool := poolIntf.([]interface{})[0].(map[string]interface{})
 					id, okId := pool["id"]
 					if okId {

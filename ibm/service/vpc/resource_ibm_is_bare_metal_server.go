@@ -1418,7 +1418,7 @@ func resourceIBMISBareMetalServerCreate(context context.Context, d *schema.Resou
 			resAffinity.Policy = &policyStr
 		}
 		poolIntf, okPool := resAff[isReservationAffinityPool]
-		if okPool {
+		if okPool && poolIntf != nil && poolIntf.([]interface{}) != nil && len(poolIntf.([]interface{})) > 0 {
 			pool := poolIntf.([]interface{})[0].(map[string]interface{})
 			id, okId := pool["id"]
 			if okId {
@@ -3815,7 +3815,7 @@ func bareMetalServerUpdate(context context.Context, d *schema.ResourceData, meta
 			}
 			if d.HasChange(resPool) {
 				poolIntf, okPool := resAff[isReservationAffinityPool]
-				if okPool {
+				if okPool && poolIntf != nil && poolIntf.([]interface{}) != nil && len(poolIntf.([]interface{})) > 0 {
 					pool := poolIntf.([]interface{})[0].(map[string]interface{})
 					id, okId := pool["id"]
 					if okId {
