@@ -97,15 +97,55 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCKVmnMOlHKcZK8tpt3MP1lqOLAcqcJzhsvJcjscgVE
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckIBMISInstanceExists("ibm_is_instance.testacc_instance", instance),
 					resource.TestCheckResourceAttr(
-						"ibm_is_instance.testacc_instance", "name", name),
-					resource.TestCheckResourceAttr(
-						"ibm_is_instance.testacc_instance", "user_data", userData1),
-					resource.TestCheckResourceAttr(
-						"ibm_is_instance.testacc_instance", "zone", acc.ISZoneName),
+						"ibm_is_vpc.testacc_vpc", "name", vpcname),
 					resource.TestCheckResourceAttrSet(
-						"ibm_is_instance.testacc_instance", "vcpu.#"),
+						"ibm_is_vpc.testacc_vpc", "id"),
+					resource.TestCheckResourceAttr(
+						"ibm_is_subnet.testacc_subnet", "name", subnetname),
 					resource.TestCheckResourceAttrSet(
-						"ibm_is_instance.testacc_instance", "vcpu.0.manufacturer"),
+						"ibm_is_subnet.testacc_subnet", "id"),
+					resource.TestCheckResourceAttr(
+						"ibm_is_ssh_key.testacc_sshkey", "name", sshname),
+					resource.TestCheckResourceAttrSet(
+						"ibm_is_ssh_key.testacc_sshkey", "id"),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance_image", "name", fmt.Sprintf("%s-image", name)),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance_snapshot", "name", fmt.Sprintf("%s-snapshot", name)),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance_template", "name", fmt.Sprintf("%s-template", name)),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance_catalog", "name", fmt.Sprintf("%s-catalog", name)),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance_snapshot", "user_data", userData1),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance_snapshot", "zone", acc.ISZoneName),
+					resource.TestCheckResourceAttrSet(
+						"ibm_is_instance.testacc_instance_snapshot", "vcpu.#"),
+					resource.TestCheckResourceAttrSet(
+						"ibm_is_instance.testacc_instance_snapshot", "vcpu.0.manufacturer"),
+					resource.TestCheckResourceAttrSet(
+						"ibm_is_instance.testacc_instance_image", "vcpu.#"),
+					resource.TestCheckResourceAttrSet(
+						"ibm_is_instance.testacc_instance_image", "vcpu.0.manufacturer"),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance_image", "user_data", userData1),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance_image", "zone", acc.ISZoneName),
+					resource.TestCheckResourceAttrSet(
+						"ibm_is_instance.testacc_instance_template", "vcpu.#"),
+					resource.TestCheckResourceAttrSet(
+						"ibm_is_instance.testacc_instance_template", "vcpu.0.manufacturer"),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance_template", "zone", acc.ISZoneName),
+					resource.TestCheckResourceAttrSet(
+						"ibm_is_instance.testacc_instance_catalog", "vcpu.#"),
+					resource.TestCheckResourceAttrSet(
+						"ibm_is_instance.testacc_instance_catalog", "vcpu.0.manufacturer"),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance_catalog", "user_data", userData1),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance_catalog", "zone", acc.ISZoneName),
 				),
 			},
 			{
@@ -1751,8 +1791,12 @@ func testAccCheckIBMISInstanceAllWaysWithVolumeConfig(vpcname, subnetname, sshna
 		name    = "%s-template"
 		image   = "%s"
 		profile = "%s"
-		primary_network_interface {
-		  subnet     = ibm_is_subnet.testacc_subnet.id
+		primary_network_attachment {
+			name = "my-pna"
+			virtual_network_interface {
+			auto_delete = true
+			subnet      = ibm_is_subnet.testacc_subnet.id
+			}
 		}
 		user_data = "%s"
 		vpc  = ibm_is_vpc.testacc_vpc.id
