@@ -562,12 +562,12 @@ func snapshotGetByNameOrID(d *schema.ResourceData, meta interface{}, name, id st
 					d.Set(isSnapshotOperatingSystem, *snapshot.OperatingSystem.Name)
 				}
 				// catalog
+				catalogList := make([]map[string]interface{}, 0)
 				if snapshot.CatalogOffering != nil {
 					versionCrn := ""
 					if snapshot.CatalogOffering.Version != nil && snapshot.CatalogOffering.Version.CRN != nil {
 						versionCrn = *snapshot.CatalogOffering.Version.CRN
 					}
-					catalogList := make([]map[string]interface{}, 0)
 					catalogMap := map[string]interface{}{}
 					if versionCrn != "" {
 						catalogMap[isSnapshotCatalogOfferingVersionCrn] = versionCrn
@@ -586,8 +586,8 @@ func snapshotGetByNameOrID(d *schema.ResourceData, meta interface{}, name, id st
 						}
 					}
 					catalogList = append(catalogList, catalogMap)
-					d.Set(isSnapshotCatalogOffering, catalogList)
 				}
+				d.Set(isSnapshotCatalogOffering, catalogList)
 
 				var clones []string
 				clones = make([]string, 0)
@@ -795,7 +795,7 @@ func snapshotGetByNameOrID(d *schema.ResourceData, meta interface{}, name, id st
 	}
 }
 
-func resourceIbmIsSnapshotCatalogOfferingVersionPlanReferenceDeletedToMap(catalogOfferingVersionPlanReferenceDeleted vpcv1.CatalogOfferingVersionPlanReferenceDeleted) map[string]interface{} {
+func resourceIbmIsSnapshotCatalogOfferingVersionPlanReferenceDeletedToMap(catalogOfferingVersionPlanReferenceDeleted vpcv1.Deleted) map[string]interface{} {
 	catalogOfferingVersionPlanReferenceDeletedMap := map[string]interface{}{}
 
 	catalogOfferingVersionPlanReferenceDeletedMap["more_info"] = catalogOfferingVersionPlanReferenceDeleted.MoreInfo
