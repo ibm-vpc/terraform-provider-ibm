@@ -256,13 +256,13 @@ func ResourceIBMISImage() *schema.Resource {
 				Computed:    true,
 				Description: "The user data format for this image",
 			},
-			"usage_constraints": &schema.Schema{
+			"allowed_use": &schema.Schema{
 				Type:        schema.TypeList,
 				MaxItems:    1,
 				ForceNew:    true,
 				Optional:    true,
 				Computed:    true,
-				Description: "The usage constraints for this image.",
+				Description: "The usage constraints to match against the requested instance or bare metal server properties to determine compatibility.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"bare_metal_server": &schema.Schema{
@@ -272,12 +272,19 @@ func ResourceIBMISImage() *schema.Resource {
 							Computed:    true,
 							Description: "An image can only be used for bare metal instantiation if this expression resolves to true.The expression follows [Common Expression Language](https://github.com/google/cel-spec/blob/master/doc/langdef.md), but does not support built-in functions and macros. In addition, the following property is supported:- `enable_secure_boot` - (boolean) Indicates whether secure boot is enabled for this bare metal server.",
 						},
-						"virtual_server_instance": &schema.Schema{
+						"instance": &schema.Schema{
 							Type:        schema.TypeString,
 							ForceNew:    true,
 							Optional:    true,
 							Computed:    true,
 							Description: "This image can only be used to provision a virtual server instance if the resulting instance would have property values that satisfy this expression.The expression follows [Common Expression Language](https://github.com/google/cel-spec/blob/master/doc/langdef.md), but does not support built-in functions and macros. In addition, the following variables are supported, corresponding to `Instance` properties:- `gpu.count` - (integer) The number of GPUs assigned to the instance- `gpu.manufacturer` - (string) The GPU manufacturer- `gpu.memory` - (integer) The overall amount of GPU memory in GiB (gibibytes)- `gpu.model` - (string) The GPU model- `enable_secure_boot` - (boolean) Indicates whether secure boot is enabled.",
+						},
+						"api_version": &schema.Schema{
+							Type:        schema.TypeString,
+							ForceNew:    true,
+							Optional:    true,
+							Computed:    true,
+							Description: "The API version with which to evaluate the expressions.",
 						},
 					},
 				},
@@ -357,12 +364,12 @@ func imgCreateByFile(d *schema.ResourceData, meta interface{}, href, name, opera
 			Name: &operatingSystem,
 		},
 	}
-	if usageConstraint, ok := d.GetOk("usage_constraints"); ok {
-		usageConstraintModel, err := ResourceIBMUsageConstraintsMapToImageUsageConstraintsPrototype(usageConstraint.(map[string]interface{}))
+	if allowedUse, ok := d.GetOk("allowed_use"); ok {
+		allowedUseModel, err := ResourceIBMUsageConstraintsMapToImageAllowUsePrototype(allowedUse.(map[string]interface{}))
 		if err != nil {
 			return err
 		}
-		imagePrototype.UsageConstraints = usageConstraintModel
+		imagePrototype.AllowedUse = allowedUseModel
 	}
 	if obsoleteAtOk, ok := d.GetOk(isImageObsolescenceAt); ok {
 		obsoleteAt, err := strfmt.ParseDateTime(obsoleteAtOk.(string))
@@ -785,13 +792,13 @@ func imgGet(d *schema.ResourceData, meta interface{}, id string) error {
 	if image.File != nil && image.File.Checksums != nil {
 		d.Set(isImageCheckSum, *image.File.Checksums.Sha256)
 	}
-	if !core.IsNil(image.UsageConstraints) {
-		usageConstraintsMap, err := ResourceIBMIsImageImageUsageConstraintsToMap(image.UsageConstraints)
+	if !core.IsNil(image.AllowedUse) {
+		allowedUseMap, err := ResourceIBMIsImageImageAllowUseToMap(image.AllowedUse)
 		if err != nil {
 			return err
 		}
-		if err = d.Set("usage_constraints", []map[string]interface{}{usageConstraintsMap}); err != nil {
-			log.Printf("Error setting usage_constraints: %s", err)
+		if err = d.Set("allowed_use", []map[string]interface{}{allowedUseMap}); err != nil {
+			log.Printf("Error setting allowed_use: %s", err)
 		}
 	}
 	tags, err := flex.GetGlobalTagsUsingCRN(meta, *image.CRN, "", isImageUserTagType)
@@ -917,24 +924,30 @@ func imgExists(d *schema.ResourceData, meta interface{}, id string) (bool, error
 	return true, nil
 }
 
-func ResourceIBMUsageConstraintsMapToImageUsageConstraintsPrototype(modelMap map[string]interface{}) (*vpcv1.ImageUsageConstraintsPrototype, error) {
-	model := &vpcv1.ImageUsageConstraintsPrototype{}
+func ResourceIBMUsageConstraintsMapToImageAllowUsePrototype(modelMap map[string]interface{}) (*vpcv1.ImageAllowedUsePrototype, error) {
+	model := &vpcv1.ImageAllowedUsePrototype{}
 	if modelMap["bare_metal_server"] != nil && modelMap["bare_metal_server"].(string) != "" {
 		model.BareMetalServer = core.StringPtr(modelMap["bare_metal_server"].(string))
 	}
-	if modelMap["virtual_server_instance"] != nil && modelMap["virtual_server_instance"].(string) != "" {
-		model.BareMetalServer = core.StringPtr(modelMap["virtual_server_instance"].(string))
+	if modelMap["instance"] != nil && modelMap["instance"].(string) != "" {
+		model.BareMetalServer = core.StringPtr(modelMap["instance"].(string))
+	}
+	if modelMap["api_version"] != nil && modelMap["api_version"].(string) != "" {
+		model.BareMetalServer = core.StringPtr(modelMap["api_version"].(string))
 	}
 	return model, nil
 }
 
-func ResourceIBMIsImageImageUsageConstraintsToMap(model *vpcv1.ImageUsageConstraints) (map[string]interface{}, error) {
+func ResourceIBMIsImageImageAllowUseToMap(model *vpcv1.ImageAllowedUse) (map[string]interface{}, error) {
 	modelMap := make(map[string]interface{})
 	if model.BareMetalServer != nil {
 		modelMap["bare_metal_server"] = *model.BareMetalServer
 	}
-	if model.VirtualServerInstance != nil {
-		modelMap["virtual_server_instance"] = *model.VirtualServerInstance
+	if model.Instance != nil {
+		modelMap["instance"] = *model.Instance
+	}
+	if model.Instance != nil {
+		modelMap["api_version"] = *model.ApiVersion
 	}
 	return modelMap, nil
 }

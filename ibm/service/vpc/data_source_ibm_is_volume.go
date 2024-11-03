@@ -321,10 +321,10 @@ func DataSourceIBMISVolume() *schema.Resource {
 				Computed:    true,
 				Description: "The resource group name in which resource is provisioned",
 			},
-			"usage_constraints": &schema.Schema{
+			"allowed_use": &schema.Schema{
 				Type:        schema.TypeList,
 				Computed:    true,
-				Description: "The usage constraints for this image.",
+				Description: "The usage constraints to match against the requested instance or bare metal server properties to determine compatibility.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"bare_metal_server": &schema.Schema{
@@ -332,10 +332,15 @@ func DataSourceIBMISVolume() *schema.Resource {
 							Computed:    true,
 							Description: "An image can only be used for bare metal instantiation if this expression resolves to true.The expression follows [Common Expression Language](https://github.com/google/cel-spec/blob/master/doc/langdef.md), but does not support built-in functions and macros. In addition, the following property is supported:- `enable_secure_boot` - (boolean) Indicates whether secure boot is enabled for this bare metal server.",
 						},
-						"virtual_server_instance": &schema.Schema{
+						"instance": &schema.Schema{
 							Type:        schema.TypeString,
 							Computed:    true,
 							Description: "This image can only be used to provision a virtual server instance if the resulting instance would have property values that satisfy this expression.The expression follows [Common Expression Language](https://github.com/google/cel-spec/blob/master/doc/langdef.md), but does not support built-in functions and macros. In addition, the following variables are supported, corresponding to `Instance` properties:- `gpu.count` - (integer) The number of GPUs assigned to the instance- `gpu.manufacturer` - (string) The GPU manufacturer- `gpu.memory` - (integer) The overall amount of GPU memory in GiB (gibibytes)- `gpu.model` - (string) The GPU model- `enable_secure_boot` - (boolean) Indicates whether secure boot is enabled.",
+						},
+						"api_version": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The API version with which to evaluate the expressions.",
 						},
 					},
 				},
@@ -542,17 +547,17 @@ func volumeGet(d *schema.ResourceData, meta interface{}) error {
 		return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting adjustable_iops_states: %s", err), "(Data) ibm_is_volume", "read", "set-adjustable_iops_states")
 	}
 
-	usageConstraints := []map[string]interface{}{}
-	if vol.UsageConstraints != nil {
-		modelMap, err := DataSourceIBMIsVolumeUsageConstraintsToMap(vol.UsageConstraints)
+	allowedUses := []map[string]interface{}{}
+	if vol.AllowedUse != nil {
+		modelMap, err := DataSourceIBMIsVolumeAllowedUseToMap(vol.AllowedUse)
 		if err != nil {
 			tfErr := flex.TerraformErrorf(err, err.Error(), "(Data) ibm_is_image", "read")
 			log.Println(tfErr.GetDiag())
 		}
-		usageConstraints = append(usageConstraints, modelMap)
+		allowedUses = append(allowedUses, modelMap)
 	}
-	if err = d.Set("usage_constraints", usageConstraints); err != nil {
-		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting usage_constraints: %s", err), "(Data) ibm_is_volume", "read")
+	if err = d.Set("allowed_use", allowedUses); err != nil {
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting allowed_use: %s", err), "(Data) ibm_is_volume", "read")
 		log.Println(tfErr.GetDiag())
 	}
 	return nil
@@ -565,13 +570,16 @@ func resourceIbmIsVolumeCatalogOfferingVersionPlanReferenceDeletedToMap(catalogO
 
 	return catalogOfferingVersionPlanReferenceDeletedMap
 }
-func DataSourceIBMIsVolumeUsageConstraintsToMap(model *vpcv1.VolumeUsageConstraints) (map[string]interface{}, error) {
+func DataSourceIBMIsVolumeAllowedUseToMap(model *vpcv1.VolumeAllowedUse) (map[string]interface{}, error) {
 	modelMap := make(map[string]interface{})
 	if model.BareMetalServer != nil {
 		modelMap["bare_metal_server"] = *model.BareMetalServer
 	}
-	if model.VirtualServerInstance != nil {
-		modelMap["virtual_server_instance"] = *model.VirtualServerInstance
+	if model.Instance != nil {
+		modelMap["instance"] = *model.Instance
+	}
+	if model.ApiVersion != nil {
+		modelMap["api_version"] = *model.ApiVersion
 	}
 	return modelMap, nil
 }

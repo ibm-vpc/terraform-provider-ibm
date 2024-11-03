@@ -232,27 +232,39 @@ func ResourceIBMISVolume() *schema.Resource {
 					},
 				},
 			},
-			"usage_constraints": &schema.Schema{
+			"allowed_use": &schema.Schema{
 				Type:        schema.TypeList,
+				MaxItems:    1,
+				ForceNew:    true,
 				Optional:    true,
 				Computed:    true,
-				Description: "The usage constraints for this image.",
+				Description: "The usage constraints to match against the requested instance or bare metal server properties to determine compatibility.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"bare_metal_server": &schema.Schema{
 							Type:        schema.TypeString,
+							ForceNew:    true,
 							Optional:    true,
 							Computed:    true,
 							Description: "An image can only be used for bare metal instantiation if this expression resolves to true.The expression follows [Common Expression Language](https://github.com/google/cel-spec/blob/master/doc/langdef.md), but does not support built-in functions and macros. In addition, the following property is supported:- `enable_secure_boot` - (boolean) Indicates whether secure boot is enabled for this bare metal server.",
 						},
-						"virtual_server_instance": &schema.Schema{
+						"instance": &schema.Schema{
 							Type:        schema.TypeString,
+							ForceNew:    true,
 							Optional:    true,
 							Computed:    true,
 							Description: "This image can only be used to provision a virtual server instance if the resulting instance would have property values that satisfy this expression.The expression follows [Common Expression Language](https://github.com/google/cel-spec/blob/master/doc/langdef.md), but does not support built-in functions and macros. In addition, the following variables are supported, corresponding to `Instance` properties:- `gpu.count` - (integer) The number of GPUs assigned to the instance- `gpu.manufacturer` - (string) The GPU manufacturer- `gpu.memory` - (integer) The overall amount of GPU memory in GiB (gibibytes)- `gpu.model` - (string) The GPU model- `enable_secure_boot` - (boolean) Indicates whether secure boot is enabled.",
 						},
+						"api_version": &schema.Schema{
+							Type:        schema.TypeString,
+							ForceNew:    true,
+							Optional:    true,
+							Computed:    true,
+							Description: "The API version with which to evaluate the expressions.",
+						},
 					},
 				},
+			},
 			// defined_performance changes
 			"adjustable_capacity_states": &schema.Schema{
 				Type:        schema.TypeList,
@@ -619,7 +631,7 @@ func volCreate(d *schema.ResourceData, meta interface{}, volName, profile, zone 
 
 	if usageConstraint, ok := d.GetOk("usage_constraints"); ok {
 		id := *vol.ID
-		usageConstraintModel, err := ResourceIBMUsageConstraintsMapToVolumeUsageConstraintsPrototype(usageConstraint.(map[string]interface{}))
+		allowedUseModel, err := ResourceIBMUsageConstraintsMapToVolumeAllowedUsePrototype(usageConstraint.(map[string]interface{}))
 		if err != nil {
 			return err
 		}
@@ -640,7 +652,7 @@ func volCreate(d *schema.ResourceData, meta interface{}, volName, profile, zone 
 		}
 		options.IfMatch = &eTag
 		volumeNamePatchModel := &vpcv1.VolumePatch{}
-		volumeNamePatchModel.UsageConstraints = usageConstraintModel
+		volumeNamePatchModel.AllowedUse = allowedUseModel
 		volumeNamePatch, err := volumeNamePatchModel.AsPatch()
 		if err != nil {
 			return fmt.Errorf("[ERROR] Error calling asPatch for volumeNamePatch: %s", err)
@@ -754,17 +766,17 @@ func volGet(d *schema.ResourceData, meta interface{}, id string) error {
 		}
 		d.Set(isVolumeHealthReasons, healthReasonsList)
 	}
-	usageConstraints := []map[string]interface{}{}
-	if vol.UsageConstraints != nil {
-		modelMap, err := DataSourceIBMIsVolumeUsageConstraintsToMap(vol.UsageConstraints)
+	allowedUses := []map[string]interface{}{}
+	if vol.AllowedUse != nil {
+		modelMap, err := DataSourceIBMIsVolumeAllowedUseToMap(vol.AllowedUse)
 		if err != nil {
 			tfErr := flex.TerraformErrorf(err, err.Error(), "(Resource) ibm_is_volume", "read")
 			log.Println(tfErr.GetDiag())
 		}
-		usageConstraints = append(usageConstraints, modelMap)
+		allowedUses = append(allowedUses, modelMap)
 	}
-	if err = d.Set("usage_constraints", usageConstraints); err != nil {
-		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting usage_constraints: %s", err), "(Data) ibm_is_volume", "read")
+	if err = d.Set("allowed_use", allowedUses); err != nil {
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting allowed_use: %s", err), "(Data) ibm_is_volume", "read")
 		log.Println(tfErr.GetDiag())
 	}
 	// catalog
@@ -913,8 +925,8 @@ func volUpdate(d *schema.ResourceData, meta interface{}, id, name string, hasNam
 		options.IfMatch = &eTag
 	}
 
-	if d.HasChange("usage_constraints") {
-		usageConstraintModel, err := ResourceIBMUsageConstraintsMapToVolumeUsageConstraintsPrototype(d.Get("usage_constraints").(map[string]interface{}))
+	if d.HasChange("allowed_use") {
+		allowedUseModel, err := ResourceIBMUsageConstraintsMapToVolumeAllowedUsePrototype(d.Get("allowed_use").(map[string]interface{}))
 		if err != nil {
 			return err
 		}
@@ -935,7 +947,7 @@ func volUpdate(d *schema.ResourceData, meta interface{}, id, name string, hasNam
 		}
 		options.IfMatch = &eTag
 		volumeNamePatchModel := &vpcv1.VolumePatch{}
-		volumeNamePatchModel.UsageConstraints = usageConstraintModel
+		volumeNamePatchModel.AllowedUse = allowedUseModel
 		volumeNamePatch, err := volumeNamePatchModel.AsPatch()
 		if err != nil {
 			return fmt.Errorf("[ERROR] Error calling asPatch for volumeNamePatch: %s", err)
@@ -1300,13 +1312,16 @@ func deleteAllSnapshots(sess *vpcv1.VpcV1, id string) error {
 	return nil
 }
 
-func ResourceIBMUsageConstraintsMapToVolumeUsageConstraintsPrototype(modelMap map[string]interface{}) (*vpcv1.VolumeUsageConstraintsPatch, error) {
-	model := &vpcv1.VolumeUsageConstraintsPatch{}
+func ResourceIBMUsageConstraintsMapToVolumeAllowedUsePrototype(modelMap map[string]interface{}) (*vpcv1.VolumeAllowedUsePatch, error) {
+	model := &vpcv1.VolumeAllowedUsePatch{}
 	if modelMap["bare_metal_server"] != nil && modelMap["bare_metal_server"].(string) != "" {
 		model.BareMetalServer = core.StringPtr(modelMap["bare_metal_server"].(string))
 	}
-	if modelMap["virtual_server_instance"] != nil && modelMap["virtual_server_instance"].(string) != "" {
-		model.BareMetalServer = core.StringPtr(modelMap["virtual_server_instance"].(string))
+	if modelMap["instance"] != nil && modelMap["instance"].(string) != "" {
+		model.Instance = core.StringPtr(modelMap["instance"].(string))
+	}
+	if modelMap["api_version"] != nil && modelMap["api_version"].(string) != "" {
+		model.ApiVersion = core.StringPtr(modelMap["api_version"].(string))
 	}
 	return model, nil
 }
