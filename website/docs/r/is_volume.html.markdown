@@ -73,6 +73,20 @@ Review the argument references that you can specify for your resource.
   **&#x2022;** `access_tags` must be in the format `key:value`.
 - `adjustable_capacity_states` - (List) The attachment states that support adjustable capacity for this volume. Allowable list items are: `attached`, `unattached`, `unusable`. 
 - `adjustable_iops_states` - (List) The attachment states that support adjustable IOPS for this volume. Allowable list items are: `attached`, `unattached`, `unusable`.
+- `allowed_use` - (Optional, List) The usage constraints to be matched against requested instance or bare metal serverproperties to determine compatibility.Only present for boot volumes. The value of this property will be inherited from thesource image or snapshot at volume creation, but can be changed.
+    
+    Nested schema for `allowed_use`:
+    - `api_version` - (Optional, String) The API version with which to evaluate the expressions.
+	  - `bare_metal_server` - (Optional, String) The expression that must be satisfied by a bare metal server provisioned using the image data in this volume.The expression follows [Common Expression Language](https://github.com/google/cel-spec/blob/master/doc/langdef.md), but does not support built-in functions and macros. 
+    ~> **NOTE** </br> In addition, the following property is supported: </br>
+      **&#x2022;** `enable_secure_boot` - (boolean) Indicates whether secure boot is enabled for this bare metal server.
+	  - `instance` - (Optional, String) The expression that must be satisfied by a virtual server instance provisioned using the image data in this volume.The expression follows [Common Expression Language](https://github.com/google/cel-spec/blob/master/doc/langdef.md), but does not support built-in functions and macros.
+    ~> **NOTE** </br> In addition, the following variables are supported, corresponding to `Instance` </br>
+       **&#x2022;** `gpu.count` - (integer) The number of GPUs assigned to the instance
+       **&#x2022;** `gpu.manufacturer` - (string) The GPU manufacturer
+       **&#x2022;** `gpu.memory` - (integer) The overall amount of GPU memory in GiB (gibibytes)
+       **&#x2022;** `gpu.model` - (string) The GPU model
+       **&#x2022;** `enable_secure_boot` - (boolean) Indicates whether secure boot is enabled.
 - `capacity` - (Optional, Integer) (The capacity of the volume in gigabytes. This defaults to `100`, minimum to `10 ` and maximum to `16000`.
 
   ~> **NOTE:** Supports only expansion on update (must be attached to a running instance and must not be less than the current volume capacity). Can be updated only if volume is attached to an running virtual server instance. Stopped instance will be started on update of capacity of the volume.If `source_snapshot` is provided `capacity` must be at least the snapshot's minimum_capacity. The maximum value may increase in the future and If unspecified, the capacity will be the source snapshot's minimum_capacity.
@@ -108,19 +122,6 @@ Review the argument references that you can specify for your resource.
 - `source_snapshot` - The ID of snapshot from which to clone the volume.
 - `source_snapshot_crn` - The CRN of snapshot from which to clone the volume.
 - `tags`- (Optional, Array of Strings) A list of user tags that you want to add to your volume. (https://cloud.ibm.com/apidocs/tagging#types-of-tags)
-- `usage_constraints` - (Optional, List) The usage constraints for this volume.
-    
-    Nested schema for `usage_constraints`:
-	  - `bare_metal_server` - (Optional, String) An image can only be used for bare metal instantiation if this expression resolves to true.The expression follows [Common Expression Language](https://github.com/google/cel-spec/blob/master/doc/langdef.md), but does not support built-in functions and macros. 
-    ~> **NOTE** </br> In addition, the following property is supported: </br>
-      **&#x2022;** `enable_secure_boot` - (boolean) Indicates whether secure boot is enabled for this bare metal server.
-	  - `virtual_server_instance` - (Optional, String) This image can only be used to provision a virtual server instance if the resulting instance would have property values that satisfy this expression.The expression follows [Common Expression Language](https://github.com/google/cel-spec/blob/master/doc/langdef.md), but does not support built-in functions and macros. 
-    ~> **NOTE** </br> In addition, the following variables are supported, corresponding to `Instance` </br>
-       **&#x2022;** `gpu.count` - (integer) The number of GPUs assigned to the instance
-       **&#x2022;** `gpu.manufacturer` - (string) The GPU manufacturer
-       **&#x2022;** `gpu.memory` - (integer) The overall amount of GPU memory in GiB (gibibytes)
-       **&#x2022;** `gpu.model` - (string) The GPU model
-       **&#x2022;** `enable_secure_boot` - (boolean) Indicates whether secure boot is enabled.
 - `zone` - (Required, Forces new resource, String) The location of the volume.
 
 ## Attribute reference
