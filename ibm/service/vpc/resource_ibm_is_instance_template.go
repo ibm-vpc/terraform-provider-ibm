@@ -214,6 +214,14 @@ func ResourceIBMISInstanceTemplate() *schema.Resource {
 				Description:  "The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes",
 			},
 
+			isInstanceVolumeBandwidthQoSMode: {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: validate.InvokeValidator("ibm_is_instance_template", isInstanceVolumeBandwidthQoSMode),
+				Description:  "The volume bandwidth QoS mode for this virtual server instance.",
+			},
+
 			isInstanceTemplateKeys: {
 				Type:             schema.TypeSet,
 				Required:         true,
@@ -1176,6 +1184,17 @@ func ResourceIBMISInstanceTemplateValidator() *validate.ResourceValidator {
 			Type:                       validate.TypeInt,
 			Optional:                   true,
 			MinValue:                   "500"})
+
+	validateSchema = append(validateSchema, validate.ValidateSchema{
+		Identifier:                 isInstanceVolumeBandwidthQoSMode,
+		ValidateFunctionIdentifier: validate.ValidateAllowedStringValue,
+		Type:                       validate.TypeString,
+		Optional:                   true,
+		AllowedValues:              "pooled, weighted",
+		Regexp:                     `^[a-z][a-z0-9]*(_[a-z0-9]+)*$`,
+		MinValueLength:             1,
+		MaxValueLength:             128,
+	})
 	validateSchema = append(validateSchema,
 		validate.ValidateSchema{
 			Identifier:                 isInstanceTemplateAvailablePolicyHostFailure,
@@ -1407,6 +1426,10 @@ func instanceTemplateCreateByCatalogOffering(d *schema.ResourceData, meta interf
 	if totalVolBandwidthIntf, ok := d.GetOk(isInstanceTotalVolumeBandwidth); ok {
 		totalVolBandwidthStr := int64(totalVolBandwidthIntf.(int))
 		instanceproto.TotalVolumeBandwidth = &totalVolBandwidthStr
+	}
+	if volumeBandwidthQoSModeIntf, ok := d.GetOk(isInstanceVolumeBandwidthQoSMode); ok {
+		volumeBandwidthQoSModeStr := volumeBandwidthQoSModeIntf.(string)
+		instanceproto.VolumeBandwidthQosMode = &volumeBandwidthQoSModeStr
 	}
 
 	// BOOT VOLUME ATTACHMENT for instance template
@@ -1889,6 +1912,10 @@ func instanceTemplateCreate(d *schema.ResourceData, meta interface{}, profile, n
 		totalVolBandwidthStr := int64(totalVolBandwidthIntf.(int))
 		instanceproto.TotalVolumeBandwidth = &totalVolBandwidthStr
 	}
+	if volumeBandwidthQoSModeIntf, ok := d.GetOk(isInstanceVolumeBandwidthQoSMode); ok {
+		volumeBandwidthQoSModeStr := volumeBandwidthQoSModeIntf.(string)
+		instanceproto.VolumeBandwidthQosMode = &volumeBandwidthQoSModeStr
+	}
 
 	// BOOT VOLUME ATTACHMENT for instance template
 	if boot, ok := d.GetOk(isInstanceTemplateBootVolume); ok {
@@ -2355,6 +2382,9 @@ func instanceTemplateGet(d *schema.ResourceData, meta interface{}, ID string) er
 
 	if instance.TotalVolumeBandwidth != nil {
 		d.Set(isInstanceTotalVolumeBandwidth, int(*instance.TotalVolumeBandwidth))
+	}
+	if instance.VolumeBandwidthQosMode != nil {
+		d.Set(isInstanceVolumeBandwidthQoSMode, string(*instance.VolumeBandwidthQosMode))
 	}
 	if instance.MetadataService != nil {
 		d.Set(isInstanceTemplateMetadataServiceEnabled, instance.MetadataService.Enabled)
