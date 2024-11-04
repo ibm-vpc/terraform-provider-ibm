@@ -257,33 +257,24 @@ func DataSourceIBMISImage() *schema.Resource {
 			},
 			"allowed_use": &schema.Schema{
 				Type:        schema.TypeList,
-				MaxItems:    1,
-				ForceNew:    true,
-				Optional:    true,
 				Computed:    true,
-				Description: "The usage constraints to match against the requested instance or bare metal server properties to determine compatibility.",
+				Description: "The usage constraints to be matched against requested instance or bare metal serverproperties to determine compatibility.Only present for boot volumes.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"api_version": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The API version with which to evaluate the expressions.",
+						},
 						"bare_metal_server": &schema.Schema{
 							Type:        schema.TypeString,
-							ForceNew:    true,
-							Optional:    true,
 							Computed:    true,
-							Description: "An image can only be used for bare metal instantiation if this expression resolves to true.The expression follows [Common Expression Language](https://github.com/google/cel-spec/blob/master/doc/langdef.md), but does not support built-in functions and macros. In addition, the following property is supported:- `enable_secure_boot` - (boolean) Indicates whether secure boot is enabled for this bare metal server.",
+							Description: "The expression that must be satisfied by a bare metal server provisioned using the image data in this volume.",
 						},
 						"instance": &schema.Schema{
 							Type:        schema.TypeString,
-							ForceNew:    true,
-							Optional:    true,
 							Computed:    true,
-							Description: "This image can only be used to provision a virtual server instance if the resulting instance would have property values that satisfy this expression.The expression follows [Common Expression Language](https://github.com/google/cel-spec/blob/master/doc/langdef.md), but does not support built-in functions and macros. In addition, the following variables are supported, corresponding to `Instance` properties:- `gpu.count` - (integer) The number of GPUs assigned to the instance- `gpu.manufacturer` - (string) The GPU manufacturer- `gpu.memory` - (integer) The overall amount of GPU memory in GiB (gibibytes)- `gpu.model` - (string) The GPU model- `enable_secure_boot` - (boolean) Indicates whether secure boot is enabled.",
-						},
-						"api_version": &schema.Schema{
-							Type:        schema.TypeString,
-							ForceNew:    true,
-							Optional:    true,
-							Computed:    true,
-							Description: "The API version with which to evaluate the expressions.",
+							Description: "The expression that must be satisfied by a virtual server instance provisioned using the image data in this volume.",
 						},
 					},
 				},

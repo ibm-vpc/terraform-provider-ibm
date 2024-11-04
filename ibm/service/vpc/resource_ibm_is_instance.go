@@ -1173,26 +1173,26 @@ func ResourceIBMISInstance() *schema.Resource {
 							Description: "The usage constraints to match against the requested instance or bare metal server properties to determine compatibility.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
-									"bare_metal_server": &schema.Schema{
-										Type:        schema.TypeString,
-										ForceNew:    true,
-										Optional:    true,
-										Computed:    true,
-										Description: "An image can only be used for bare metal instantiation if this expression resolves to true.The expression follows [Common Expression Language](https://github.com/google/cel-spec/blob/master/doc/langdef.md), but does not support built-in functions and macros. In addition, the following property is supported:- `enable_secure_boot` - (boolean) Indicates whether secure boot is enabled for this bare metal server.",
-									},
-									"instance": &schema.Schema{
-										Type:        schema.TypeString,
-										ForceNew:    true,
-										Optional:    true,
-										Computed:    true,
-										Description: "This image can only be used to provision a virtual server instance if the resulting instance would have property values that satisfy this expression.The expression follows [Common Expression Language](https://github.com/google/cel-spec/blob/master/doc/langdef.md), but does not support built-in functions and macros. In addition, the following variables are supported, corresponding to `Instance` properties:- `gpu.count` - (integer) The number of GPUs assigned to the instance- `gpu.manufacturer` - (string) The GPU manufacturer- `gpu.memory` - (integer) The overall amount of GPU memory in GiB (gibibytes)- `gpu.model` - (string) The GPU model- `enable_secure_boot` - (boolean) Indicates whether secure boot is enabled.",
-									},
 									"api_version": &schema.Schema{
 										Type:        schema.TypeString,
 										ForceNew:    true,
 										Optional:    true,
 										Computed:    true,
 										Description: "The API version with which to evaluate the expressions.",
+									},
+									"bare_metal_server": &schema.Schema{
+										Type:        schema.TypeString,
+										ForceNew:    true,
+										Optional:    true,
+										Computed:    true,
+										Description: "The expression that must be satisfied by a bare metal server provisioned using this image.",
+									},
+									"instance": &schema.Schema{
+										Type:        schema.TypeString,
+										ForceNew:    true,
+										Optional:    true,
+										Computed:    true,
+										Description: "The expression that must be satisfied by a virtual server instance provisioned using this image.",
 									},
 								},
 							},
@@ -4571,13 +4571,13 @@ func instanceGet(d *schema.ResourceData, meta interface{}, id string) error {
 				if vol.AllowedUse != nil {
 					modelMap, err := DataSourceIBMIsVolumeAllowedUseToMap(vol.AllowedUse)
 					if err != nil {
-						tfErr := flex.TerraformErrorf(err, err.Error(), "(Data) ibm_is_instances", "read")
+						tfErr := flex.TerraformErrorf(err, err.Error(), "(Resource) ibm_is_instance", "read")
 						log.Println(tfErr.GetDiag())
 					}
 					usageConstraints = append(usageConstraints, modelMap)
 				}
 				if err = d.Set("allowed_use", usageConstraints); err != nil {
-					tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting allowed_use: %s", err), "(resource) ibm_is_instances", "read")
+					tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting allowed_use: %s", err), "(resource) ibm_is_instance", "read")
 					log.Println(tfErr.GetDiag())
 				}
 			}
@@ -5284,8 +5284,14 @@ func instanceUpdate(d *schema.ResourceData, meta interface{}) error {
 			return fmt.Errorf("[ERROR] Error calling asPatch for volumeNamePatch: %s", err)
 		}
 		options.VolumePatch = volumeNamePatch
-		_, _, err = instanceC.UpdateVolume(options)
+		vol, res, err := instanceC.UpdateVolume(options)
+		if vol == nil || err != nil {
+			return (fmt.Errorf("[ERROR] Error encountered while applying allowed use for boot volume of instance %s/n%s", err, res))
+		}
 		_, err = isWaitForVolumeAvailable(instanceC, d.Id(), d.Timeout(schema.TimeoutCreate))
+		if err != nil {
+			return err
+		}
 	}
 
 	bootVolTags := "boot_volume.0.tags"

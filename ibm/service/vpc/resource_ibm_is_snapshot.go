@@ -13,6 +13,7 @@ import (
 
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/validate"
+	"github.com/IBM/go-sdk-core/v5/core"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -476,32 +477,28 @@ func ResourceIBMSnapshot() *schema.Resource {
 			"allowed_use": &schema.Schema{
 				Type:        schema.TypeList,
 				MaxItems:    1,
-				ForceNew:    true,
 				Optional:    true,
 				Computed:    true,
 				Description: "The usage constraints to match against the requested instance or bare metal server properties to determine compatibility.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"bare_metal_server": &schema.Schema{
-							Type:        schema.TypeString,
-							ForceNew:    true,
-							Optional:    true,
-							Computed:    true,
-							Description: "An image can only be used for bare metal instantiation if this expression resolves to true.The expression follows [Common Expression Language](https://github.com/google/cel-spec/blob/master/doc/langdef.md), but does not support built-in functions and macros. In addition, the following property is supported:- `enable_secure_boot` - (boolean) Indicates whether secure boot is enabled for this bare metal server.",
-						},
-						"instance": &schema.Schema{
-							Type:        schema.TypeString,
-							ForceNew:    true,
-							Optional:    true,
-							Computed:    true,
-							Description: "This image can only be used to provision a virtual server instance if the resulting instance would have property values that satisfy this expression.The expression follows [Common Expression Language](https://github.com/google/cel-spec/blob/master/doc/langdef.md), but does not support built-in functions and macros. In addition, the following variables are supported, corresponding to `Instance` properties:- `gpu.count` - (integer) The number of GPUs assigned to the instance- `gpu.manufacturer` - (string) The GPU manufacturer- `gpu.memory` - (integer) The overall amount of GPU memory in GiB (gibibytes)- `gpu.model` - (string) The GPU model- `enable_secure_boot` - (boolean) Indicates whether secure boot is enabled.",
-						},
 						"api_version": &schema.Schema{
 							Type:        schema.TypeString,
-							ForceNew:    true,
 							Optional:    true,
 							Computed:    true,
 							Description: "The API version with which to evaluate the expressions.",
+						},
+						"bare_metal_server": &schema.Schema{
+							Type:        schema.TypeString,
+							Optional:    true,
+							Computed:    true,
+							Description: "The expression that must be satisfied by a bare metal server provisioned using this image.",
+						},
+						"instance": &schema.Schema{
+							Type:        schema.TypeString,
+							Optional:    true,
+							Computed:    true,
+							Description: "The expression that must be satisfied by a virtual server instance provisioned using this image.",
 						},
 					},
 				},
@@ -877,13 +874,13 @@ func snapshotGet(d *schema.ResourceData, meta interface{}, id string) error {
 	if snapshot.AllowedUse != nil {
 		modelMap, err := DataSourceIBMIsSnapshotAllowedUseToMap(snapshot.AllowedUse)
 		if err != nil {
-			tfErr := flex.TerraformErrorf(err, err.Error(), "(Data) ibm_is_image", "read")
+			tfErr := flex.TerraformErrorf(err, err.Error(), "(resource) ibm_is_snapshot", "read")
 			log.Println(tfErr.GetDiag())
 		}
 		allowedUses = append(allowedUses, modelMap)
 	}
 	if err = d.Set("allowed_use", allowedUses); err != nil {
-		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting allowed_use: %s", err), "(Data) ibm_is_snapshot", "read")
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting allowed_use: %s", err), "(resource) ibm_is_snapshot", "read")
 		log.Println(tfErr.GetDiag())
 	}
 
@@ -996,6 +993,33 @@ func snapshotUpdate(d *schema.ResourceData, meta interface{}, id, name string, h
 		}
 
 	}
+
+	if d.HasChange("allowed_use") {
+		updateSnapshotOptions := &vpcv1.UpdateSnapshotOptions{
+			ID: &id,
+		}
+		allowedUse, err := ResourceIBMIsSnapshotMapToSnapshotAllowedUsePatch(d.Get("allowed_use.0").(map[string]interface{}))
+		if err != nil {
+			return fmt.Errorf("[ERROR] Error updating Snapshot : %s", err)
+		}
+		snapshotPatchModel := &vpcv1.SnapshotPatch{
+			AllowedUse: allowedUse,
+		}
+		snapshotPatch, err := snapshotPatchModel.AsPatch()
+		if err != nil {
+			return fmt.Errorf("[ERROR] Error calling asPatch for SnapshotPatch: %s", err)
+		}
+		updateSnapshotOptions.SnapshotPatch = snapshotPatch
+		_, response, err := sess.UpdateSnapshot(updateSnapshotOptions)
+		if err != nil {
+			return fmt.Errorf("[ERROR] Error updating Snapshot : %s\n%s", err, response)
+		}
+		_, err = isWaitForSnapshotUpdate(sess, d.Id(), d.Timeout(schema.TimeoutCreate))
+		if err != nil {
+			return err
+		}
+	}
+
 	if d.HasChange(isSnapshotClones) {
 		ovs, nvs := d.GetChange(isSnapshotClones)
 		ov := ovs.(*schema.Set)
@@ -1062,6 +1086,20 @@ func isWaitForSnapshotUpdate(sess *vpcv1.VpcV1, id string, timeout time.Duration
 		MinTimeout: 10 * time.Second,
 	}
 	return stateConf.WaitForState()
+}
+
+func ResourceIBMIsSnapshotMapToSnapshotAllowedUsePatch(modelMap map[string]interface{}) (*vpcv1.SnapshotAllowedUsePatch, error) {
+	model := &vpcv1.SnapshotAllowedUsePatch{}
+	if modelMap["api_version"] != nil && modelMap["api_version"].(string) != "" {
+		model.ApiVersion = core.StringPtr(modelMap["api_version"].(string))
+	}
+	if modelMap["bare_metal_server"] != nil && modelMap["bare_metal_server"].(string) != "" {
+		model.BareMetalServer = core.StringPtr(modelMap["bare_metal_server"].(string))
+	}
+	if modelMap["instance"] != nil && modelMap["instance"].(string) != "" {
+		model.Instance = core.StringPtr(modelMap["instance"].(string))
+	}
+	return model, nil
 }
 
 func isSnapshotUpdateRefreshFunc(sess *vpcv1.VpcV1, id string) resource.StateRefreshFunc {
