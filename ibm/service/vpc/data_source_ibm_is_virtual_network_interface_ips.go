@@ -112,18 +112,6 @@ func dataSourceVirtualNetworkInterfaceIPsID(d *schema.ResourceData) string {
 	return time.Now().UTC().String()
 }
 
-func dataSourceIBMIsReservedIpsReservedIPCollectionFirstToMap(model *vpcv1.ReservedIPCollectionFirst) (map[string]interface{}, error) {
-	modelMap := make(map[string]interface{})
-	modelMap["href"] = model.Href
-	return modelMap, nil
-}
-
-func dataSourceIBMIsReservedIpsReservedIPCollectionNextToMap(model *vpcv1.ReservedIPCollectionNext) (map[string]interface{}, error) {
-	modelMap := make(map[string]interface{})
-	modelMap["href"] = model.Href
-	return modelMap, nil
-}
-
 func dataSourceIBMIsReservedIpsReservedIPToMap(model *vpcv1.ReservedIPReference) (map[string]interface{}, error) {
 	modelMap := make(map[string]interface{})
 	modelMap["address"] = model.Address

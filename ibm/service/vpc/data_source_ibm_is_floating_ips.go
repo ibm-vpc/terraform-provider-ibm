@@ -283,24 +283,6 @@ func dataSourceIBMIsFloatingIpsID(d *schema.ResourceData) string {
 	return time.Now().UTC().String()
 }
 
-func dataSourceFloatingIPCollectionFlattenFirst(result vpcv1.FloatingIPCollectionFirst) (finalList []map[string]interface{}) {
-	finalList = []map[string]interface{}{}
-	finalMap := dataSourceFloatingIPCollectionFirstToMap(result)
-	finalList = append(finalList, finalMap)
-
-	return finalList
-}
-
-func dataSourceFloatingIPCollectionFirstToMap(firstItem vpcv1.FloatingIPCollectionFirst) (firstMap map[string]interface{}) {
-	firstMap = map[string]interface{}{}
-
-	if firstItem.Href != nil {
-		firstMap["href"] = firstItem.Href
-	}
-
-	return firstMap
-}
-
 func dataSourceFloatingIPCollectionFlattenFloatingIps(result []vpcv1.FloatingIP, d *schema.ResourceData, meta interface{}) (floatingIps []map[string]interface{}) {
 	for _, floatingIpsItem := range result {
 		floatingIps = append(floatingIps, dataSourceFloatingIPCollectionFloatingIpsToMap(floatingIpsItem, d, meta))
@@ -532,22 +514,4 @@ func dataSourceFloatingIPCollectionFloatingIpsZoneToMap(zoneItem vpcv1.ZoneRefer
 	}
 
 	return zoneMap
-}
-
-func dataSourceFloatingIPCollectionFlattenNext(result vpcv1.FloatingIPCollectionNext) (finalList []map[string]interface{}) {
-	finalList = []map[string]interface{}{}
-	finalMap := dataSourceFloatingIPCollectionNextToMap(result)
-	finalList = append(finalList, finalMap)
-
-	return finalList
-}
-
-func dataSourceFloatingIPCollectionNextToMap(nextItem vpcv1.FloatingIPCollectionNext) (nextMap map[string]interface{}) {
-	nextMap = map[string]interface{}{}
-
-	if nextItem.Href != nil {
-		nextMap["href"] = nextItem.Href
-	}
-
-	return nextMap
 }

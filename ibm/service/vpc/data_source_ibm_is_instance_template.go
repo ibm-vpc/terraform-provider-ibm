@@ -881,14 +881,14 @@ func dataSourceIBMISInstanceTemplateRead(context context.Context, d *schema.Reso
 			}
 			if instance.DefaultTrustedProfile.Target != nil {
 				switch reflect.TypeOf(instance.DefaultTrustedProfile.Target).String() {
-				case "*vpcv1.TrustedProfileIdentityTrustedProfileByID":
+				case "*vpcv1.TrustedProfileIdentityByID":
 					{
-						target := instance.DefaultTrustedProfile.Target.(*vpcv1.TrustedProfileIdentityTrustedProfileByID)
+						target := instance.DefaultTrustedProfile.Target.(*vpcv1.TrustedProfileIdentityByID)
 						d.Set(isInstanceDefaultTrustedProfileTarget, target.ID)
 					}
-				case "*vpcv1.TrustedProfileIdentityTrustedProfileByCRN":
+				case "*vpcv1.TrustedProfileIdentityByCRN":
 					{
-						target := instance.DefaultTrustedProfile.Target.(*vpcv1.TrustedProfileIdentityTrustedProfileByCRN)
+						target := instance.DefaultTrustedProfile.Target.(*vpcv1.TrustedProfileIdentityByCRN)
 						d.Set(isInstanceDefaultTrustedProfileTarget, target.CRN)
 					}
 				}
@@ -1263,14 +1263,14 @@ func dataSourceIBMISInstanceTemplateRead(context context.Context, d *schema.Reso
 					}
 					if instance.DefaultTrustedProfile.Target != nil {
 						switch reflect.TypeOf(instance.DefaultTrustedProfile.Target).String() {
-						case "*vpcv1.TrustedProfileIdentityTrustedProfileByID":
+						case "*vpcv1.TrustedProfileIdentityByID":
 							{
-								target := instance.DefaultTrustedProfile.Target.(*vpcv1.TrustedProfileIdentityTrustedProfileByID)
+								target := instance.DefaultTrustedProfile.Target.(*vpcv1.TrustedProfileIdentityByID)
 								d.Set(isInstanceDefaultTrustedProfileTarget, target.ID)
 							}
-						case "*vpcv1.TrustedProfileIdentityTrustedProfileByCRN":
+						case "*vpcv1.TrustedProfileIdentityByCRN":
 							{
-								target := instance.DefaultTrustedProfile.Target.(*vpcv1.TrustedProfileIdentityTrustedProfileByCRN)
+								target := instance.DefaultTrustedProfile.Target.(*vpcv1.TrustedProfileIdentityByCRN)
 								d.Set(isInstanceDefaultTrustedProfileTarget, target.CRN)
 							}
 						}
