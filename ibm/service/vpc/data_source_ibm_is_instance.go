@@ -172,6 +172,11 @@ func DataSourceIBMISInstance() *schema.Resource {
 				Computed:    true,
 				Description: "The total bandwidth (in megabits per second) shared across the instance's network interfaces and storage volumes",
 			},
+			isInstanceVolumeBandwidthQoSMode: {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The volume bandwidth QoS mode for this virtual server instance.",
+			},
 
 			isInstanceTotalNetworkBandwidth: {
 				Type:        schema.TypeInt,
@@ -1310,6 +1315,10 @@ func instanceGetByName(d *schema.ResourceData, meta interface{}, name string) er
 
 	if instance.Bandwidth != nil {
 		d.Set(isInstanceBandwidth, int(*instance.Bandwidth))
+	}
+
+	if instance.VolumeBandwidthQosMode != nil {
+		d.Set(isInstanceVolumeBandwidthQoSMode, string(*instance.VolumeBandwidthQosMode))
 	}
 
 	if instance.TotalNetworkBandwidth != nil {
