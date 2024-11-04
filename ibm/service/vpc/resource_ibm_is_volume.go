@@ -625,7 +625,7 @@ func volCreate(d *schema.ResourceData, meta interface{}, volName, profile, zone 
 		return err
 	}
 
-	if usageConstraint, ok := d.GetOk("usage_constraints"); ok {
+	if usageConstraint, ok := d.GetOk("allowed_use"); ok {
 		id := *vol.ID
 		allowedUseModel, err := ResourceIBMUsageConstraintsMapToVolumeAllowedUsePrototype(usageConstraint.(map[string]interface{}))
 		if err != nil {

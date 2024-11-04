@@ -126,13 +126,14 @@ In addition to all argument references listed, you can access the following attr
 		- `message` - (String) An explanation of the status reason.
 		- `more_info` - (Optional, String) Link to documentation about this status reason.
 	- `tags` - (String) User Tags associated with the volume. (https://cloud.ibm.com/apidocs/tagging#types-of-tags)
-	- `usage_constraints` - (Optional, List) The usage constraints for this volume.
+	- `allowed_use` - (List) The usage constraints to be matched against requested instance or bare metal serverproperties to determine compatibility.Only present for boot volumes. The value of this property will be inherited from thesource image or snapshot at volume creation, but can be changed.
     
-    Nested schema for `usage_constraints`:
-	  - `bare_metal_server` - (Optional, String) An image can only be used for bare metal instantiation if this expression resolves to true.The expression follows [Common Expression Language](https://github.com/google/cel-spec/blob/master/doc/langdef.md), but does not support built-in functions and macros. 
+    Nested schema for `allowed_use`:
+	  - `api_version` - (String) The API version with which to evaluate the expressions.
+	  - `bare_metal_server` - (String) The expression that must be satisfied by a bare metal server provisioned using the image data in this volume.The expression follows [Common Expression Language](https://github.com/google/cel-spec/blob/master/doc/langdef.md), but does not support built-in functions and macros. 
     ~> **NOTE** </br> In addition, the following property is supported: </br>
       **&#x2022;** `enable_secure_boot` - (boolean) Indicates whether secure boot is enabled for this bare metal server.
-	  - `virtual_server_instance` - (Optional, String) This image can only be used to provision a virtual server instance if the resulting instance would have property values that satisfy this expression.The expression follows [Common Expression Language](https://github.com/google/cel-spec/blob/master/doc/langdef.md), but does not support built-in functions and macros. 
+	  - `instance` - (String) The expression that must be satisfied by a virtual server instance provisioned using the image data in this volume.The expression follows [Common Expression Language](https://github.com/google/cel-spec/blob/master/doc/langdef.md), but does not support built-in functions and macros. 
     ~> **NOTE** </br> In addition, the following variables are supported, corresponding to `Instance` </br>
        **&#x2022;** `gpu.count` - (integer) The number of GPUs assigned to the instance
        **&#x2022;** `gpu.manufacturer` - (string) The GPU manufacturer
