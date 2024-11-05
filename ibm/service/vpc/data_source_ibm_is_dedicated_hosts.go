@@ -725,42 +725,6 @@ func dataSourceDedicatedHostCollectionDedicatedHostsVcpuToMap(vcpuItem vpcv1.Vcp
 	return vcpuMap
 }
 
-func dataSourceDedicatedHostCollectionFlattenFirst(result vpcv1.DedicatedHostCollectionFirst) (finalList []map[string]interface{}) {
-	finalList = []map[string]interface{}{}
-	finalMap := dataSourceDedicatedHostCollectionFirstToMap(result)
-	finalList = append(finalList, finalMap)
-
-	return finalList
-}
-
-func dataSourceDedicatedHostCollectionFirstToMap(firstItem vpcv1.DedicatedHostCollectionFirst) (firstMap map[string]interface{}) {
-	firstMap = map[string]interface{}{}
-
-	if firstItem.Href != nil {
-		firstMap["href"] = firstItem.Href
-	}
-
-	return firstMap
-}
-
-func dataSourceDedicatedHostCollectionFlattenNext(result vpcv1.DedicatedHostCollectionNext) (finalList []map[string]interface{}) {
-	finalList = []map[string]interface{}{}
-	finalMap := dataSourceDedicatedHostCollectionNextToMap(result)
-	finalList = append(finalList, finalMap)
-
-	return finalList
-}
-
-func dataSourceDedicatedHostCollectionNextToMap(nextItem vpcv1.DedicatedHostCollectionNext) (nextMap map[string]interface{}) {
-	nextMap = map[string]interface{}{}
-
-	if nextItem.Href != nil {
-		nextMap["href"] = nextItem.Href
-	}
-
-	return nextMap
-}
-
 func dataSourceDedicatedHostCollectionDedicatedHostsDisksToMap(disksItem vpcv1.DedicatedHostDisk) (disksMap map[string]interface{}) {
 	disksMap = map[string]interface{}{}
 

@@ -276,12 +276,6 @@ func dataSourceIBMIsBareMetalServerNetworkAttachmentsID(d *schema.ResourceData) 
 	return time.Now().UTC().String()
 }
 
-func dataSourceIBMIsBareMetalServerNetworkAttachmentsBareMetalServerNetworkAttachmentCollectionFirstToMap(model *vpcv1.BareMetalServerNetworkAttachmentCollectionFirst) (map[string]interface{}, error) {
-	modelMap := make(map[string]interface{})
-	modelMap["href"] = model.Href
-	return modelMap, nil
-}
-
 func dataSourceIBMIsBareMetalServerNetworkAttachmentsBareMetalServerNetworkAttachmentToMap(model vpcv1.BareMetalServerNetworkAttachmentIntf) (map[string]interface{}, error) {
 	if _, ok := model.(*vpcv1.BareMetalServerNetworkAttachmentByPci); ok {
 		return dataSourceIBMIsBareMetalServerNetworkAttachmentsBareMetalServerNetworkAttachmentByPciToMap(model.(*vpcv1.BareMetalServerNetworkAttachmentByPci))
@@ -443,11 +437,5 @@ func dataSourceIBMIsBareMetalServerNetworkAttachmentsBareMetalServerNetworkAttac
 	modelMap["virtual_network_interface"] = []map[string]interface{}{virtualNetworkInterfaceMap}
 	modelMap["allowed_vlans"] = model.AllowedVlans
 	modelMap["interface_type"] = model.InterfaceType
-	return modelMap, nil
-}
-
-func dataSourceIBMIsBareMetalServerNetworkAttachmentsBareMetalServerNetworkAttachmentCollectionNextToMap(model *vpcv1.BareMetalServerNetworkAttachmentCollectionNext) (map[string]interface{}, error) {
-	modelMap := make(map[string]interface{})
-	modelMap["href"] = model.Href
 	return modelMap, nil
 }

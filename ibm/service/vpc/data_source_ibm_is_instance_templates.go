@@ -881,14 +881,14 @@ func dataSourceIBMISInstanceTemplatesRead(d *schema.ResourceData, meta interface
 			}
 			if instance.DefaultTrustedProfile.Target != nil {
 				switch reflect.TypeOf(instance.DefaultTrustedProfile.Target).String() {
-				case "*vpcv1.TrustedProfileIdentityTrustedProfileByID":
+				case "*vpcv1.TrustedProfileIdentityByID":
 					{
-						target := instance.DefaultTrustedProfile.Target.(*vpcv1.TrustedProfileIdentityTrustedProfileByID)
+						target := instance.DefaultTrustedProfile.Target.(*vpcv1.TrustedProfileIdentityByID)
 						template[isInstanceDefaultTrustedProfileTarget] = target.ID
 					}
-				case "*vpcv1.TrustedProfileIdentityTrustedProfileByCRN":
+				case "*vpcv1.TrustedProfileIdentityByCRN":
 					{
-						target := instance.DefaultTrustedProfile.Target.(*vpcv1.TrustedProfileIdentityTrustedProfileByCRN)
+						target := instance.DefaultTrustedProfile.Target.(*vpcv1.TrustedProfileIdentityByCRN)
 						template[isInstanceDefaultTrustedProfileTarget] = target.CRN
 					}
 				}
