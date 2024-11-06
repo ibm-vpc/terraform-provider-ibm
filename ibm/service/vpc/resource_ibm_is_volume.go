@@ -625,22 +625,11 @@ func volCreate(d *schema.ResourceData, meta interface{}, volName, profile, zone 
 		return err
 	}
 
-	if usageConstraint, ok := d.GetOk("allowed_use"); ok {
+	if _, ok := d.GetOk("allowed_use"); ok {
 		id := *vol.ID
-		allowedUseModel, err := ResourceIBMUsageConstraintsMapToVolumeAllowedUsePrototype(usageConstraint.(map[string]interface{}))
+		allowedUseModel, err := ResourceIBMUsageConstraintsMapToVolumeAllowedUsePrototype(d.Get("allowed_use.0").(map[string]interface{}))
 		if err != nil {
 			return err
-		}
-		optionsget := &vpcv1.GetVolumeOptions{
-			ID: &id,
-		}
-		_, response, err := sess.GetVolume(optionsget)
-		if err != nil {
-			if response != nil && response.StatusCode == 404 {
-				d.SetId("")
-				return nil
-			}
-			return fmt.Errorf("Error getting Volume (%s): %s\n%s", id, err, response)
 		}
 		eTag := response.Headers.Get("ETag")
 		options := &vpcv1.UpdateVolumeOptions{

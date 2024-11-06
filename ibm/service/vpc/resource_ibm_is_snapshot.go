@@ -661,6 +661,32 @@ func resourceIBMISSnapshotCreate(d *schema.ResourceData, meta interface{}) error
 		return err
 	}
 
+	if _, ok := d.GetOk("allowed_use"); ok {
+		updateSnapshotOptions := &vpcv1.UpdateSnapshotOptions{
+			ID: snapshot.ID,
+		}
+		allowedUse, err := ResourceIBMIsSnapshotMapToSnapshotAllowedUsePatch(d.Get("allowed_use.0").(map[string]interface{}))
+		if err != nil {
+			return fmt.Errorf("[ERROR] Error updating Snapshot : %s", err)
+		}
+		snapshotPatchModel := &vpcv1.SnapshotPatch{
+			AllowedUse: allowedUse,
+		}
+		snapshotPatch, err := snapshotPatchModel.AsPatch()
+		if err != nil {
+			return fmt.Errorf("[ERROR] Error calling asPatch for SnapshotPatch: %s", err)
+		}
+		updateSnapshotOptions.SnapshotPatch = snapshotPatch
+		_, response, err := sess.UpdateSnapshot(updateSnapshotOptions)
+		if err != nil {
+			return fmt.Errorf("[ERROR] Error updating Snapshot : %s\n%s", err, response)
+		}
+		_, err = isWaitForSnapshotUpdate(sess, d.Id(), d.Timeout(schema.TimeoutCreate))
+		if err != nil {
+			return err
+		}
+	}
+
 	if _, ok := d.GetOk(isSnapshotAccessTags); ok {
 		oldList, newList := d.GetChange(isSubnetAccessTags)
 		err = flex.UpdateGlobalTagsUsingCRN(oldList, newList, meta, *snapshot.CRN, "", isAccessTagType)
