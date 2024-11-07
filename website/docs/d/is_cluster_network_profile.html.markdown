@@ -29,7 +29,7 @@ You can specify the following arguments for this data source.
 
 After your data source is created, you can read values from the following attributes.
 
-- `id` - The unique identifier of the ClusterNetworkProfile.
+- `id` - The unique identifier of the ClusterNetworkProfile.(same as `name`)
 - `family` - (String) The product family this cluster network profile belongs to.The enumerated values for this property may[expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.
   * Constraints: Allowable values are: `vela`. The maximum length is `128` characters. The minimum length is `1` character. The value must match regular expression `/^[a-z][a-z0-9]*(_[a-z0-9]+)*$/`.
 - `href` - (String) The URL for this cluster network profile.

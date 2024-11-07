@@ -30,6 +30,9 @@ func TestAccIBMIsClusterNetworkProfileDataSourceBasic(t *testing.T) {
 					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_network_profile.is_cluster_network_profile_instance", "href"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_network_profile.is_cluster_network_profile_instance", "resource_type"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_network_profile.is_cluster_network_profile_instance", "supported_instance_profiles.#"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_network_profile.is_cluster_network_profile_instance", "supported_instance_profiles.0.href"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_network_profile.is_cluster_network_profile_instance", "supported_instance_profiles.0.name"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_network_profile.is_cluster_network_profile_instance", "supported_instance_profiles.0.resource_type"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_network_profile.is_cluster_network_profile_instance", "zones.#"),
 				),
 			},
@@ -40,9 +43,9 @@ func TestAccIBMIsClusterNetworkProfileDataSourceBasic(t *testing.T) {
 func testAccCheckIBMIsClusterNetworkProfileDataSourceConfigBasic() string {
 	return fmt.Sprintf(`
 		data "ibm_is_cluster_network_profile" "is_cluster_network_profile_instance" {
-			name = "h100"
+			name = "%s"
 		}
-	`)
+	`, acc.ISClusterNetworkProfileName)
 }
 
 func TestDataSourceIBMIsClusterNetworkProfileInstanceProfileReferenceToMap(t *testing.T) {

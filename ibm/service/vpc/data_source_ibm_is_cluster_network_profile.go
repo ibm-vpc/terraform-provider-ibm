@@ -7,7 +7,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -108,7 +107,7 @@ func dataSourceIBMIsClusterNetworkProfileRead(context context.Context, d *schema
 		return tfErr.GetDiag()
 	}
 
-	d.SetId(dataSourceIBMIsClusterNetworkProfileID(d))
+	d.SetId(*clusterNetworkProfile.Name)
 
 	if err = d.Set("family", clusterNetworkProfile.Family); err != nil {
 		return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting family: %s", err), "(Data) ibm_is_cluster_network_profile", "read", "set-family").GetDiag()
@@ -147,11 +146,6 @@ func dataSourceIBMIsClusterNetworkProfileRead(context context.Context, d *schema
 	}
 
 	return nil
-}
-
-// dataSourceIBMIsClusterNetworkProfileID returns a reasonable ID for the list.
-func dataSourceIBMIsClusterNetworkProfileID(d *schema.ResourceData) string {
-	return time.Now().UTC().String()
 }
 
 func DataSourceIBMIsClusterNetworkProfileInstanceProfileReferenceToMap(model *vpcv1.InstanceProfileReference) (map[string]interface{}, error) {
