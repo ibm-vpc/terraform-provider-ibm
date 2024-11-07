@@ -1626,3 +1626,516 @@ data "ibm_is_reservations" "example" {
 data "ibm_is_reservation" "example" {
   identifier = ibm_is_reservation.example.id
 }
+
+
+// cluster
+
+provider "ibm" {
+  ibmcloud_api_key = var.ibmcloud_api_key
+}
+
+// Provision is_cluster_network resource instance
+resource "ibm_is_cluster_network" "is_cluster_network_instance" {
+  name = var.is_cluster_network_name
+  profile {
+    href = "https://us-south.iaas.cloud.ibm.com/v1/cluster_network/profiles/h100"
+    name = "h100"
+  }
+  resource_group {
+    id = "fee82deba12e4c0fb69c3b09d1f12345"
+  }
+  subnet_prefixes {
+    allocation_policy = "auto"
+    cidr = "10.0.0.0/24"
+  }
+  vpc {
+    crn = "crn:v1:bluemix:public:is:us-south:a/aa2432b1fa4d4ace891e9b80fc104e34::vpc:r006-4727d842-f94f-4a2d-824a-9bc9b02c523b"
+    href = "https://us-south.iaas.cloud.ibm.com/v1/vpcs/r006-4727d842-f94f-4a2d-824a-9bc9b02c523b"
+    id = "r006-4727d842-f94f-4a2d-824a-9bc9b02c523b"
+  }
+  zone {
+    href = "https://us-south.iaas.cloud.ibm.com/v1/regions/us-south/zones/us-south-1"
+    name = "us-south-1"
+  }
+}
+
+// Provision is_cluster_network_interface resource instance
+resource "ibm_is_cluster_network_interface" "is_cluster_network_interface_instance" {
+  cluster_network_id = var.is_cluster_network_interface_cluster_network_id
+  name = var.is_cluster_network_interface_name
+  primary_ip {
+    address = "10.1.0.6"
+    href = "https://us-south.iaas.cloud.ibm.com/v1/cluster_networks/3f6241cd-5abc-4afb-aaa2-058661f969d8/subnets/7ec86020-1c6e-4889-b3f0-a15f2e50f87e/reserved_ips/6d353a0f-aeb1-4ae1-832e-1110d10981bb"
+    id = "6d353a0f-aeb1-4ae1-832e-1110d10981bb"
+    name = "my-cluster-network-subnet-reserved-ip"
+  }
+  subnet {
+    href = "https://us-south.iaas.cloud.ibm.com/v1/cluster_networks/0767-da0df18c-7598-4633-a648-fdaac28a5573/subnets/0767-7931845c-65c4-4b0a-80cd-7d9c1a6d7930"
+    id = "0767-7931845c-65c4-4b0a-80cd-7d9c1a6d7930"
+  }
+}
+
+// Provision is_instance resource instance
+resource "ibm_is_instance" "is_instance_instance" {
+  availability_policy {
+    host_failure = "restart"
+  }
+  boot_volume_attachment {
+    name = "my-volume-attachment"
+    volume {
+      name = "my-volume"
+    }
+  }
+  catalog_offering {
+    version {
+      crn = "crn:v1:bluemix:public:globalcatalog-collection:global:a/aa2432b1fa4d4ace891e9b80fc104e34:1082e7d2-5e2f-0a11-a3bc-f88a8e1931fc:version:00111601-0ec5-41ac-b142-96d1e64e6442/ec66bec2-6a33-42d6-9323-26dd4dc8875d"
+    }
+  }
+  cluster_network_attachments {
+    href = "https://us-south.iaas.cloud.ibm.com/v1/instances/5dd61d72-acaa-47c2-a336-3d849660d010/cluster_network_attachments/0767-fb880975-db45-4459-8548-64e3995ac213"
+    id = "0767-fb880975-db45-4459-8548-64e3995ac213"
+    name = "my-instance-network-attachment"
+    resource_type = "instance_cluster_network_attachment"
+  }
+  confidential_compute_mode = var.is_instance_confidential_compute_mode
+  enable_secure_boot = var.is_instance_enable_secure_boot
+  image {
+    crn = "crn:v1:bluemix:public:is:us-south:a/aa2432b1fa4d4ace891e9b80fc104e34::image:r006-72b27b5c-f4b0-48bb-b954-5becc7c1dcb8"
+    href = "https://us-south.iaas.cloud.ibm.com/v1/images/r006-72b27b5c-f4b0-48bb-b954-5becc7c1dcb8"
+    id = "r006-72b27b5c-f4b0-48bb-b954-5becc7c1dcb8"
+  }
+  metadata_service {
+    enabled = true
+    protocol = "http"
+    response_hop_limit = 1
+  }
+  name = var.is_instance_name
+  network_attachments {
+    name = "my-instance-network-attachment"
+  }
+  network_interfaces {
+    name = "my-instance-network-interface"
+    primary_ip {
+      address = "192.168.3.4"
+      href = "https://us-south.iaas.cloud.ibm.com/v1/subnets/0717-bea6a632-5e13-42a4-b4b8-31dc877abfe4/reserved_ips/0717-6d353a0f-aeb1-4ae1-832e-1110d10981bb"
+      id = "0717-6d353a0f-aeb1-4ae1-832e-1110d10981bb"
+      name = "my-reserved-ip"
+    }
+    subnet {
+      crn = "crn:v1:bluemix:public:is:us-south-1:a/aa2432b1fa4d4ace891e9b80fc104e34::subnet:0717-7ec86020-1c6e-4889-b3f0-a15f2e50f87e"
+      href = "https://us-south.iaas.cloud.ibm.com/v1/subnets/0717-7ec86020-1c6e-4889-b3f0-a15f2e50f87e"
+      id = "0717-7ec86020-1c6e-4889-b3f0-a15f2e50f87e"
+    }
+  }
+  placement_target {
+    crn = "crn:v1:bluemix:public:is:us-south-1:a/aa2432b1fa4d4ace891e9b80fc104e34::dedicated-host-group:bcc5b834-1258-4b9c-c3b4-43bc9cf5cde0"
+    deleted {
+      more_info = "https://cloud.ibm.com/apidocs/vpc#deleted-resources"
+    }
+    href = "https://us-south.iaas.cloud.ibm.com/v1/dedicated_host/groups/bcc5b834-1258-4b9c-c3b4-43bc9cf5cde0"
+    id = "bcc5b834-1258-4b9c-c3b4-43bc9cf5cde0"
+    name = "my-host-group"
+    resource_type = "dedicated_host_group"
+  }
+  primary_network_attachment {
+    name = "my-instance-network-attachment"
+  }
+  primary_network_interface {
+    name = "my-instance-network-interface"
+    primary_ip {
+      address = "192.168.3.4"
+      href = "https://us-south.iaas.cloud.ibm.com/v1/subnets/0717-bea6a632-5e13-42a4-b4b8-31dc877abfe4/reserved_ips/0717-6d353a0f-aeb1-4ae1-832e-1110d10981bb"
+      id = "0717-6d353a0f-aeb1-4ae1-832e-1110d10981bb"
+      name = "my-reserved-ip"
+    }
+    subnet {
+      crn = "crn:v1:bluemix:public:is:us-south-1:a/aa2432b1fa4d4ace891e9b80fc104e34::subnet:0717-7ec86020-1c6e-4889-b3f0-a15f2e50f87e"
+      href = "https://us-south.iaas.cloud.ibm.com/v1/subnets/0717-7ec86020-1c6e-4889-b3f0-a15f2e50f87e"
+      id = "0717-7ec86020-1c6e-4889-b3f0-a15f2e50f87e"
+    }
+  }
+  profile {
+    href = "https://us-south.iaas.cloud.ibm.com/v1/instance/profiles/bx2-4x16"
+    name = "bx2-4x16"
+  }
+  reservation_affinity {
+    policy = "disabled"
+    pool {
+      crn = "crn:v1:bluemix:public:is:us-south:a/aa2432b1fa4d4ace891e9b80fc104e34::reservation:7187-ba49df72-37b8-43ac-98da-f8e029de0e63"
+      deleted {
+        more_info = "https://cloud.ibm.com/apidocs/vpc#deleted-resources"
+      }
+      href = "https://us-south.iaas.cloud.ibm.com/v1/reservations/7187-ba49df72-37b8-43ac-98da-f8e029de0e63"
+      id = "7187-ba49df72-37b8-43ac-98da-f8e029de0e63"
+      name = "my-reservation"
+      resource_type = "reservation"
+    }
+  }
+  resource_group {
+    id = "fee82deba12e4c0fb69c3b09d1f12345"
+  }
+  total_volume_bandwidth = var.is_instance_total_volume_bandwidth
+  volume_attachments {
+    name = "my-volume-attachment"
+    volume {
+      name = "my-volume"
+    }
+  }
+  vpc {
+    crn = "crn:v1:bluemix:public:is:us-south:a/aa2432b1fa4d4ace891e9b80fc104e34::vpc:r006-4727d842-f94f-4a2d-824a-9bc9b02c523b"
+    href = "https://us-south.iaas.cloud.ibm.com/v1/vpcs/r006-4727d842-f94f-4a2d-824a-9bc9b02c523b"
+    id = "r006-4727d842-f94f-4a2d-824a-9bc9b02c523b"
+  }
+  zone {
+    href = "https://us-south.iaas.cloud.ibm.com/v1/regions/us-south/zones/us-south-1"
+    name = "us-south-1"
+  }
+}
+
+// Provision is_instance_template resource instance
+resource "ibm_is_instance_template" "is_instance_template_instance" {
+  availability_policy {
+    host_failure = "restart"
+  }
+  cluster_network_attachments {
+    cluster_network_interface {
+      auto_delete = false
+      name = "my-cluster-network-interface"
+      primary_ip {
+        id = "6d353a0f-aeb1-4ae1-832e-1110d10981bb"
+      }
+      subnet {
+        id = "0767-7931845c-65c4-4b0a-80cd-7d9c1a6d7930"
+      }
+    }
+    name = "my-instance-network-attachment"
+  }
+  confidential_compute_mode = var.is_instance_template_confidential_compute_mode
+  default_trusted_profile {
+    auto_link = false
+    target {
+      id = "Profile-9fd84246-7df4-4667-94e4-8ecde51d5ac5"
+    }
+  }
+  enable_secure_boot = var.is_instance_template_enable_secure_boot
+  keys {
+    id = "a6b1a881-2ce8-41a3-80fc-36316a73f803"
+  }
+  metadata_service {
+    enabled = true
+    protocol = "https"
+    response_hop_limit = 2
+  }
+  name = var.is_instance_template_name
+  placement_target {
+    id = "0717-1e09281b-f177-46fb-baf1-bc152b2e391a"
+  }
+  profile {
+    name = "bx2-4x16"
+  }
+  reservation_affinity {
+    policy = "disabled"
+    pool {
+      id = "7187-ba49df72-37b8-43ac-98da-f8e029de0e63"
+    }
+  }
+  resource_group {
+    id = "fee82deba12e4c0fb69c3b09d1f12345"
+  }
+  total_volume_bandwidth = var.is_instance_template_total_volume_bandwidth
+  user_data = var.is_instance_template_user_data
+  volume_attachments {
+    delete_volume_on_instance_delete = true
+    name = "my-volume-attachment"
+    volume {
+      id = "r006-1a6b7274-678d-4dfb-8981-c71dd9d4daa5"
+    }
+  }
+  vpc {
+    id = "r006-4727d842-f94f-4a2d-824a-9bc9b02c523b"
+  }
+  boot_volume_attachment {
+    delete_volume_on_instance_delete = true
+    name = "my-volume-attachment"
+    volume {
+      capacity = 100
+      encryption_key {
+        crn = "crn:v1:bluemix:public:kms:us-south:a/aa2432b1fa4d4ace891e9b80fc104e34:e4a29d1a-2ef0-42a6-8fd2-350deb1c647e:key:5437653b-c4b1-447f-9646-b2a2a4cd6179"
+      }
+      iops = 10000
+      name = "my-volume"
+      profile {
+        name = "general-purpose"
+      }
+      resource_group {
+        id = "fee82deba12e4c0fb69c3b09d1f12345"
+      }
+      user_tags = [ "user_tags" ]
+    }
+  }
+  image {
+    id = "r006-72b27b5c-f4b0-48bb-b954-5becc7c1dcb8"
+  }
+  zone {
+    name = "us-south-1"
+  }
+  network_attachments {
+    name = "my-instance-network-attachment"
+    virtual_network_interface {
+      allow_ip_spoofing = true
+      auto_delete = false
+      enable_infrastructure_nat = true
+      ips {
+        id = "0717-6d353a0f-aeb1-4ae1-832e-1110d10981bb"
+      }
+      name = "my-virtual-network-interface"
+      primary_ip {
+        id = "0717-6d353a0f-aeb1-4ae1-832e-1110d10981bb"
+      }
+      protocol_state_filtering_mode = "auto"
+      resource_group {
+        id = "fee82deba12e4c0fb69c3b09d1f12345"
+      }
+      security_groups {
+        id = "r006-be5df5ca-12a0-494b-907e-aa6ec2bfa271"
+      }
+      subnet {
+        id = "0717-7ec86020-1c6e-4889-b3f0-a15f2e50f87e"
+      }
+    }
+  }
+  primary_network_attachment {
+    name = "my-instance-network-attachment"
+    virtual_network_interface {
+      allow_ip_spoofing = true
+      auto_delete = false
+      enable_infrastructure_nat = true
+      ips {
+        id = "0717-6d353a0f-aeb1-4ae1-832e-1110d10981bb"
+      }
+      name = "my-virtual-network-interface"
+      primary_ip {
+        id = "0717-6d353a0f-aeb1-4ae1-832e-1110d10981bb"
+      }
+      protocol_state_filtering_mode = "auto"
+      resource_group {
+        id = "fee82deba12e4c0fb69c3b09d1f12345"
+      }
+      security_groups {
+        id = "r006-be5df5ca-12a0-494b-907e-aa6ec2bfa271"
+      }
+      subnet {
+        id = "0717-7ec86020-1c6e-4889-b3f0-a15f2e50f87e"
+      }
+    }
+  }
+  network_interfaces {
+    allow_ip_spoofing = true
+    name = "my-instance-network-interface"
+    primary_ip {
+      id = "0717-6d353a0f-aeb1-4ae1-832e-1110d10981bb"
+    }
+    security_groups {
+      id = "r006-be5df5ca-12a0-494b-907e-aa6ec2bfa271"
+    }
+    subnet {
+      id = "0717-7ec86020-1c6e-4889-b3f0-a15f2e50f87e"
+    }
+  }
+  primary_network_interface {
+    allow_ip_spoofing = true
+    name = "my-instance-network-interface"
+    primary_ip {
+      id = "0717-6d353a0f-aeb1-4ae1-832e-1110d10981bb"
+    }
+    security_groups {
+      id = "r006-be5df5ca-12a0-494b-907e-aa6ec2bfa271"
+    }
+    subnet {
+      id = "0717-7ec86020-1c6e-4889-b3f0-a15f2e50f87e"
+    }
+  }
+  catalog_offering {
+    offering {
+      crn = "crn:v1:bluemix:public:globalcatalog-collection:global:a/aa2432b1fa4d4ace891e9b80fc104e34:1082e7d2-5e2f-0a11-a3bc-f88a8e1931fc:offering:00111601-0ec5-41ac-b142-96d1e64e6442"
+    }
+  }
+}
+
+// Data source is not linked to a resource instance
+// Uncomment if an existing data source instance exists
+/*
+// Create is_cluster_network data source
+data "ibm_is_cluster_network" "is_cluster_network_instance" {
+  cluster_network_id = var.data_is_cluster_network_cluster_network_id
+}
+*/
+
+// Data source is not linked to a resource instance
+// Uncomment if an existing data source instance exists
+/*
+// Create is_cluster_network_interface data source
+data "ibm_is_cluster_network_interface" "is_cluster_network_interface_instance" {
+  cluster_network_id = var.data_is_cluster_network_interface_cluster_network_id
+  cluster_network_interface_id = var.data_is_cluster_network_interface_cluster_network_interface_id
+}
+*/
+
+// Data source is not linked to a resource instance
+// Uncomment if an existing data source instance exists
+/*
+// Create is_cluster_network_interfaces data source
+data "ibm_is_cluster_network_interfaces" "is_cluster_network_interfaces_instance" {
+  cluster_network_id = var.is_cluster_network_interfaces_cluster_network_id
+  name = var.is_cluster_network_interfaces_name
+  sort = var.is_cluster_network_interfaces_sort
+}
+*/
+
+// Data source is not linked to a resource instance
+// Uncomment if an existing data source instance exists
+/*
+// Create is_cluster_network_profile data source
+data "ibm_is_cluster_network_profile" "is_cluster_network_profile_instance" {
+  name = var.is_cluster_network_profile_name
+}
+*/
+
+// Data source is not linked to a resource instance
+// Uncomment if an existing data source instance exists
+/*
+// Create is_cluster_network_profiles data source
+data "ibm_is_cluster_network_profiles" "is_cluster_network_profiles_instance" {
+}
+*/
+
+// Data source is not linked to a resource instance
+// Uncomment if an existing data source instance exists
+/*
+// Create is_cluster_network_subnet data source
+data "ibm_is_cluster_network_subnet" "is_cluster_network_subnet_instance" {
+  cluster_network_id = var.is_cluster_network_subnet_cluster_network_id
+  cluster_network_subnet_id = var.is_cluster_network_subnet_cluster_network_subnet_id
+}
+*/
+
+// Data source is not linked to a resource instance
+// Uncomment if an existing data source instance exists
+/*
+// Create is_cluster_network_subnets data source
+data "ibm_is_cluster_network_subnets" "is_cluster_network_subnets_instance" {
+  cluster_network_id = var.is_cluster_network_subnets_cluster_network_id
+  name = var.is_cluster_network_subnets_name
+  sort = var.is_cluster_network_subnets_sort
+}
+*/
+
+// Data source is not linked to a resource instance
+// Uncomment if an existing data source instance exists
+/*
+// Create is_cluster_network_subnet_reserved_ip data source
+data "ibm_is_cluster_network_subnet_reserved_ip" "is_cluster_network_subnet_reserved_ip_instance" {
+  cluster_network_id = var.is_cluster_network_subnet_reserved_ip_cluster_network_id
+  cluster_network_subnet_id = var.is_cluster_network_subnet_reserved_ip_cluster_network_subnet_id
+  cluster_network_subnet_reserved_ip_id = var.is_cluster_network_subnet_reserved_ip_cluster_network_subnet_reserved_ip_id
+}
+*/
+
+// Data source is not linked to a resource instance
+// Uncomment if an existing data source instance exists
+/*
+// Create is_cluster_network_subnet_reserved_ips data source
+data "ibm_is_cluster_network_subnet_reserved_ips" "is_cluster_network_subnet_reserved_ips_instance" {
+  cluster_network_id = var.is_cluster_network_subnet_reserved_ips_cluster_network_id
+  cluster_network_subnet_id = var.is_cluster_network_subnet_reserved_ips_cluster_network_subnet_id
+  name = var.is_cluster_network_subnet_reserved_ips_name
+  sort = var.is_cluster_network_subnet_reserved_ips_sort
+}
+*/
+
+// Data source is not linked to a resource instance
+// Uncomment if an existing data source instance exists
+/*
+// Create is_instance data source
+data "ibm_is_instance" "is_instance_instance" {
+  is_instance_id = var.data_is_instance_is_instance_id
+}
+*/
+
+// Data source is not linked to a resource instance
+// Uncomment if an existing data source instance exists
+/*
+// Create is_instance_cluster_network_attachment data source
+data "ibm_is_instance_cluster_network_attachment" "is_instance_cluster_network_attachment_instance" {
+  instance_id = var.is_instance_cluster_network_attachment_instance_id
+  is_instance_cluster_network_attachment_id = var.is_instance_cluster_network_attachment_is_instance_cluster_network_attachment_id
+}
+*/
+
+// Data source is not linked to a resource instance
+// Uncomment if an existing data source instance exists
+/*
+// Create is_instance_cluster_network_attachments data source
+data "ibm_is_instance_cluster_network_attachments" "is_instance_cluster_network_attachments_instance" {
+  instance_id = var.is_instance_cluster_network_attachments_instance_id
+}
+*/
+
+// Data source is not linked to a resource instance
+// Uncomment if an existing data source instance exists
+/*
+// Create is_instances data source
+data "ibm_is_instances" "is_instances_instance" {
+  resource_group_id = var.is_instances_resource_group_id
+  name = var.is_instances_name
+  cluster_network_id = var.is_instances_cluster_network_id
+  cluster_network_crn = var.is_instances_cluster_network_crn
+  cluster_network_name = var.is_instances_cluster_network_name
+  dedicated_host_id = var.is_instances_dedicated_host_id
+  dedicated_host_crn = var.is_instances_dedicated_host_crn
+  dedicated_host_name = var.is_instances_dedicated_host_name
+  placement_group_id = var.is_instances_placement_group_id
+  placement_group_crn = var.is_instances_placement_group_crn
+  placement_group_name = var.is_instances_placement_group_name
+  reservation_id = var.is_instances_reservation_id
+  reservation_crn = var.is_instances_reservation_crn
+  reservation_name = var.is_instances_reservation_name
+  vpc_id = var.is_instances_vpc_id
+  vpc_crn = var.is_instances_vpc_crn
+  vpc_name = var.is_instances_vpc_name
+}
+*/
+
+// Data source is not linked to a resource instance
+// Uncomment if an existing data source instance exists
+/*
+// Create is_instance_profile data source
+data "ibm_is_instance_profile" "is_instance_profile_instance" {
+  name = var.is_instance_profile_name
+}
+*/
+
+// Data source is not linked to a resource instance
+// Uncomment if an existing data source instance exists
+/*
+// Create is_instance_profiles data source
+data "ibm_is_instance_profiles" "is_instance_profiles_instance" {
+}
+*/
+
+// Data source is not linked to a resource instance
+// Uncomment if an existing data source instance exists
+/*
+// Create is_instance_template data source
+data "ibm_is_instance_template" "is_instance_template_instance" {
+  is_instance_template_id = var.data_is_instance_template_is_instance_template_id
+}
+*/
+
+// Data source is not linked to a resource instance
+// Uncomment if an existing data source instance exists
+/*
+// Create is_instance_templates data source
+data "ibm_is_instance_templates" "is_instance_templates_instance" {
+}
+*/
