@@ -26,7 +26,7 @@ func DataSourceIBMIsClusterNetworkSubnet() *schema.Resource {
 				Required:    true,
 				Description: "The cluster network identifier.",
 			},
-			"is_cluster_network_subnet_id": &schema.Schema{
+			"cluster_network_subnet_id": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "The cluster network subnet identifier.",
@@ -115,7 +115,7 @@ func dataSourceIBMIsClusterNetworkSubnetRead(context context.Context, d *schema.
 	getClusterNetworkSubnetOptions := &vpcv1.GetClusterNetworkSubnetOptions{}
 
 	getClusterNetworkSubnetOptions.SetClusterNetworkID(d.Get("cluster_network_id").(string))
-	getClusterNetworkSubnetOptions.SetID(d.Get("is_cluster_network_subnet_id").(string))
+	getClusterNetworkSubnetOptions.SetID(d.Get("cluster_network_subnet_id").(string))
 
 	clusterNetworkSubnet, _, err := vpcClient.GetClusterNetworkSubnetWithContext(context, getClusterNetworkSubnetOptions)
 	if err != nil {

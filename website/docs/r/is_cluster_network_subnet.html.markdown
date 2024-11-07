@@ -45,7 +45,7 @@ After your resource is created, you can read values from the listed arguments an
 - `created_at` - (String) The date and time that the cluster network subnet was created.
 - `href` - (String) The URL for this cluster network subnet.
   * Constraints: The maximum length is `8000` characters. The minimum length is `10` characters. The value must match regular expression `/^https:\/\/([^\/?#]*)([^?#]*)\/cluster_networks\/[-0-9a-z_]+\/subnets\/[-0-9a-z_]+$/`.
-- `is_cluster_network_subnet_id` - (String) The unique identifier for this cluster network subnet.
+- `cluster_network_subnet_id` - (String) The unique identifier for this cluster network subnet.
   * Constraints: The maximum length is `64` characters. The minimum length is `1` character. The value must match regular expression `/^[-0-9a-z_]+$/`.
 - `lifecycle_reasons` - (List) The reasons for the current `lifecycle_state` (if any).
   * Constraints: The minimum length is `0` items.
@@ -65,15 +65,15 @@ Nested schema for **lifecycle_reasons**:
 ## Import
 
 You can import the `ibm_is_cluster_network_subnet` resource by using `id`.
-The `id` property can be formed from `cluster_network_id`, and `is_cluster_network_subnet_id` in the following format:
+The `id` property can be formed from `cluster_network_id`, and `cluster_network_subnet_id` in the following format:
 
 <pre>
-&lt;cluster_network_id&gt;/&lt;is_cluster_network_subnet_id&gt;
+&lt;cluster_network_id&gt;/&lt;cluster_network_subnet_id&gt;
 </pre>
 - `cluster_network_id`: A string. The cluster network identifier.
-- `is_cluster_network_subnet_id`: A string in the format `0717-7931845c-65c4-4b0a-80cd-7d9c1a6d7930`. The unique identifier for this cluster network subnet.
+- `cluster_network_subnet_id`: A string in the format `0717-7931845c-65c4-4b0a-80cd-7d9c1a6d7930`. The unique identifier for this cluster network subnet.
 
 # Syntax
 <pre>
-$ terraform import ibm_is_cluster_network_subnet.is_cluster_network_subnet &lt;cluster_network_id&gt;/&lt;is_cluster_network_subnet_id&gt;
+$ terraform import ibm_is_cluster_network_subnet.is_cluster_network_subnet &lt;cluster_network_id&gt;/&lt;cluster_network_subnet_id&gt;
 </pre>

@@ -44,17 +44,20 @@ func ResourceIBMIsClusterNetworkSubnetReservedIP() *schema.Resource {
 			"address": &schema.Schema{
 				Type:         schema.TypeString,
 				Optional:     true,
+				ForceNew:     true,
 				ValidateFunc: validate.InvokeValidator("ibm_is_cluster_network_subnet_reserved_ip", "address"),
 				Description:  "The IP address.If the address is pending allocation, the value will be `0.0.0.0`.This property may [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) to support IPv6 addresses in the future.",
 			},
 			"name": &schema.Schema{
 				Type:         schema.TypeString,
 				Optional:     true,
+				Computed:     true,
 				ValidateFunc: validate.InvokeValidator("ibm_is_cluster_network_subnet_reserved_ip", "name"),
 				Description:  "The name for this cluster network subnet reserved IP. The name is unique across all reserved IPs in a cluster network subnet.",
 			},
 			"auto_delete": &schema.Schema{
 				Type:        schema.TypeBool,
+				Optional:    true,
 				Computed:    true,
 				Description: "Indicates whether this cluster network subnet reserved IP member will be automatically deleted when either `target` is deleted, or the cluster network subnet reserved IP is unbound.",
 			},
@@ -156,7 +159,7 @@ func ResourceIBMIsClusterNetworkSubnetReservedIP() *schema.Resource {
 					},
 				},
 			},
-			"is_cluster_network_subnet_reserved_ip_id": &schema.Schema{
+			"cluster_network_subnet_reserved_ip_id": &schema.Schema{
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "The unique identifier for this cluster network subnet reserved IP.",
@@ -323,19 +326,20 @@ func resourceIBMIsClusterNetworkSubnetReservedIPRead(context context.Context, d 
 		err = fmt.Errorf("Error setting resource_type: %s", err)
 		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_cluster_network_subnet_reserved_ip", "read", "set-resource_type").GetDiag()
 	}
+	targetMap := make(map[string]interface{})
 	if !core.IsNil(clusterNetworkSubnetReservedIP.Target) {
-		targetMap, err := ResourceIBMIsClusterNetworkSubnetReservedIPClusterNetworkSubnetReservedIPTargetToMap(clusterNetworkSubnetReservedIP.Target)
+		targetMap, err = ResourceIBMIsClusterNetworkSubnetReservedIPClusterNetworkSubnetReservedIPTargetToMap(clusterNetworkSubnetReservedIP.Target)
 		if err != nil {
 			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_cluster_network_subnet_reserved_ip", "read", "target-to-map").GetDiag()
 		}
-		if err = d.Set("target", []map[string]interface{}{targetMap}); err != nil {
-			err = fmt.Errorf("Error setting target: %s", err)
-			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_cluster_network_subnet_reserved_ip", "read", "set-target").GetDiag()
-		}
 	}
-	if err = d.Set("is_cluster_network_subnet_reserved_ip_id", clusterNetworkSubnetReservedIP.ID); err != nil {
-		err = fmt.Errorf("Error setting is_cluster_network_subnet_reserved_ip_id: %s", err)
-		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_cluster_network_subnet_reserved_ip", "read", "set-is_cluster_network_subnet_reserved_ip_id").GetDiag()
+	if err = d.Set("target", []map[string]interface{}{targetMap}); err != nil {
+		err = fmt.Errorf("Error setting target: %s", err)
+		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_cluster_network_subnet_reserved_ip", "read", "set-target").GetDiag()
+	}
+	if err = d.Set("cluster_network_subnet_reserved_ip_id", clusterNetworkSubnetReservedIP.ID); err != nil {
+		err = fmt.Errorf("Error setting cluster_network_subnet_reserved_ip_id: %s", err)
+		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_cluster_network_subnet_reserved_ip", "read", "set-cluster_network_subnet_reserved_ip_id").GetDiag()
 	}
 	if err = d.Set("etag", response.Headers.Get("Etag")); err != nil {
 		return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting etag: %s", err), "ibm_is_cluster_network_subnet_reserved_ip", "read", "set-etag").GetDiag()
@@ -386,12 +390,9 @@ func resourceIBMIsClusterNetworkSubnetReservedIPUpdate(context context.Context, 
 		patchVals.Name = &newName
 		hasChange = true
 	}
-	updateClusterNetworkSubnetReservedIPOptions.SetIfMatch(d.Get("etag").(string))
+	// updateClusterNetworkSubnetReservedIPOptions.SetIfMatch(d.Get("etag").(string))
 
 	if hasChange {
-		// Fields with `nil` values are omitted from the generic map,
-		// so we need to re-add them to support removing arguments
-		// in merge-patch operations sent to the service.
 		updateClusterNetworkSubnetReservedIPOptions.ClusterNetworkSubnetReservedIPPatch = ResourceIBMIsClusterNetworkSubnetReservedIPClusterNetworkSubnetReservedIPPatchAsPatch(patchVals, d)
 
 		_, _, err = vpcClient.UpdateClusterNetworkSubnetReservedIPWithContext(context, updateClusterNetworkSubnetReservedIPOptions)

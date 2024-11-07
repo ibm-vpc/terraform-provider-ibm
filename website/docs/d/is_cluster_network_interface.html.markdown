@@ -15,7 +15,7 @@ Provides a read-only data source to retrieve information about a ClusterNetworkI
 ```hcl
 data "ibm_is_cluster_network_interface" "is_cluster_network_interface" {
 	cluster_network_id = ibm_is_cluster_network_interface.is_cluster_network_interface_instance.cluster_network_id
-	is_cluster_network_interface_id = ibm_is_cluster_network_interface.is_cluster_network_interface_instance.is_cluster_network_interface_id
+	cluster_network_interface_id = ibm_is_cluster_network_interface.is_cluster_network_interface_instance.cluster_network_interface_id
 }
 ```
 
@@ -25,7 +25,7 @@ You can specify the following arguments for this data source.
 
 - `cluster_network_id` - (Required, Forces new resource, String) The cluster network identifier.
   * Constraints: The maximum length is `64` characters. The minimum length is `1` character. The value must match regular expression `/^[-0-9a-z_]+$/`.
-- `is_cluster_network_interface_id` - (Required, Forces new resource, String) The cluster network interface identifier.
+- `cluster_network_interface_id` - (Required, Forces new resource, String) The cluster network interface identifier.
   * Constraints: The maximum length is `64` characters. The minimum length is `1` character. The value must match regular expression `/^[-0-9a-z_]+$/`.
 
 ## Attribute Reference

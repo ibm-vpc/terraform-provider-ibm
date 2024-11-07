@@ -88,7 +88,7 @@ After your resource is created, you can read values from the listed arguments an
 - `enable_infrastructure_nat` - (Boolean) If `true`:- The VPC infrastructure performs any needed NAT operations.- `floating_ips` must not have more than one floating IP.If `false`:- Packets are passed unchanged to/from the virtual network interface,  allowing the workload to perform any needed NAT operations.
 - `href` - (String) The URL for this cluster network interface.
   * Constraints: The maximum length is `8000` characters. The minimum length is `10` characters. The value must match regular expression `/^http(s)?:\/\/([^\/?#]*)([^?#]*)(\\?([^#]*))?(#(.*))?$/`.
-- `is_cluster_network_interface_id` - (String) The unique identifier for this cluster network interface.
+- `cluster_network_interface_id` - (String) The unique identifier for this cluster network interface.
   * Constraints: The maximum length is `64` characters. The minimum length is `1` character. The value must match regular expression `/^[-0-9a-z_]+$/`.
 - `lifecycle_reasons` - (List) The reasons for the current `lifecycle_state` (if any).
   * Constraints: The minimum length is `0` items.
@@ -144,15 +144,15 @@ Nested schema for **zone**:
 ## Import
 
 You can import the `ibm_is_cluster_network_interface` resource by using `id`.
-The `id` property can be formed from `cluster_network_id`, and `is_cluster_network_interface_id` in the following format:
+The `id` property can be formed from `cluster_network_id`, and `cluster_network_interface_id` in the following format:
 
 <pre>
-&lt;cluster_network_id&gt;/&lt;is_cluster_network_interface_id&gt;
+&lt;cluster_network_id&gt;/&lt;cluster_network_interface_id&gt;
 </pre>
 - `cluster_network_id`: A string. The cluster network identifier.
-- `is_cluster_network_interface_id`: A string in the format `0717-ffc092f7-5d02-4b93-ab69-26860529b9fb`. The unique identifier for this cluster network interface.
+- `cluster_network_interface_id`: A string in the format `0717-ffc092f7-5d02-4b93-ab69-26860529b9fb`. The unique identifier for this cluster network interface.
 
 # Syntax
 <pre>
-$ terraform import ibm_is_cluster_network_interface.is_cluster_network_interface &lt;cluster_network_id&gt;/&lt;is_cluster_network_interface_id&gt;
+$ terraform import ibm_is_cluster_network_interface.is_cluster_network_interface &lt;cluster_network_id&gt;/&lt;cluster_network_interface_id&gt;
 </pre>

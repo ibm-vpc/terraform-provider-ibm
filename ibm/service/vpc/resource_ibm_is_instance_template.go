@@ -114,32 +114,35 @@ func ResourceIBMISInstanceTemplate() *schema.Resource {
 			"cluster_network_attachments": &schema.Schema{
 				Type:        schema.TypeList,
 				Optional:    true,
+				ForceNew:    true,
 				Description: "The cluster network attachments to create for this virtual server instance. A cluster network attachment represents a device that is connected to a cluster network. The number of network attachments must match one of the values from the instance profile's `cluster_network_attachment_count` before the instance can be started.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"cluster_network_interface": &schema.Schema{
 							Type:        schema.TypeList,
-							MinItems:    1,
 							MaxItems:    1,
 							Required:    true,
+							ForceNew:    true,
 							Description: "A cluster network interface for the instance cluster network attachment. This can bespecified using an existing cluster network interface that does not already have a `target`,or a prototype object for a new cluster network interface.This instance must reside in the same VPC as the specified cluster network interface. Thecluster network interface must reside in the same cluster network as the`cluster_network_interface` of any other `cluster_network_attachments` for this instance.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"auto_delete": &schema.Schema{
 										Type:        schema.TypeBool,
 										Optional:    true,
-										Default:     true,
+										Computed:    true,
 										Description: "Indicates whether this cluster network interface will be automatically deleted when `target` is deleted.",
 									},
 									"name": &schema.Schema{
 										Type:        schema.TypeString,
 										Optional:    true,
+										Computed:    true,
 										Description: "The name for this cluster network interface. The name must not be used by another interface in the cluster network. Names beginning with `ibm-` are reserved for provider-owned resources, and are not allowed. If unspecified, the name will be a hyphenated list of randomly-selected words.",
 									},
 									"primary_ip": &schema.Schema{
 										Type:        schema.TypeList,
 										MaxItems:    1,
 										Optional:    true,
+										Computed:    true,
 										Description: "The primary IP address to bind to the cluster network interface. May be eithera cluster network subnet reserved IP identity, or a cluster network subnet reserved IPprototype object which will be used to create a new cluster network subnet reserved IP.If a cluster network subnet reserved IP identity is provided, the specified clusternetwork subnet reserved IP must be unbound.If a cluster network subnet reserved IP prototype object with an address is provided,the address must be available on the cluster network interface's cluster networksubnet. If no address is specified, an available address on the cluster network subnetwill be automatically selected and reserved.",
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
@@ -176,6 +179,7 @@ func ResourceIBMISInstanceTemplate() *schema.Resource {
 										Type:        schema.TypeList,
 										MaxItems:    1,
 										Optional:    true,
+										Computed:    true,
 										Description: "The associated cluster network subnet. Required if `primary_ip` does not specify acluster network subnet reserved IP identity.",
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
@@ -208,6 +212,7 @@ func ResourceIBMISInstanceTemplate() *schema.Resource {
 						"name": &schema.Schema{
 							Type:        schema.TypeString,
 							Optional:    true,
+							ForceNew:    true,
 							Description: "The name for this cluster network attachment. Names must be unique within the instance the cluster network attachment resides in. If unspecified, the name will be a hyphenated list of randomly-selected words. Names starting with `ibm-` are reserved for provider-owned resources, and are not allowed.",
 						},
 					},

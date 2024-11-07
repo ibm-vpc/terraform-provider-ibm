@@ -43,7 +43,7 @@ After your resource is created, you can read values from the listed arguments an
 - `created_at` - (String) The date and time that the cluster network subnet reserved IP was created.
 - `href` - (String) The URL for this cluster network subnet reserved IP.
   * Constraints: The maximum length is `8000` characters. The minimum length is `10` characters. The value must match regular expression `/^http(s)?:\/\/([^\/?#]*)([^?#]*)(\\?([^#]*))?(#(.*))?$/`.
-- `is_cluster_network_subnet_reserved_ip_id` - (String) The unique identifier for this cluster network subnet reserved IP.
+- `cluster_network_subnet_reserved_ip_id` - (String) The unique identifier for this cluster network subnet reserved IP.
   * Constraints: The maximum length is `64` characters. The minimum length is `1` character. The value must match regular expression `/^[-0-9a-z_]+$/`.
 - `lifecycle_reasons` - (List) The reasons for the current `lifecycle_state` (if any).
   * Constraints: The minimum length is `0` items.
@@ -79,16 +79,16 @@ Nested schema for **target**:
 ## Import
 
 You can import the `ibm_is_cluster_network_subnet_reserved_ip` resource by using `id`.
-The `id` property can be formed from `cluster_network_id`, `cluster_network_subnet_id`, and `is_cluster_network_subnet_reserved_ip_id` in the following format:
+The `id` property can be formed from `cluster_network_id`, `cluster_network_subnet_id`, and `cluster_network_subnet_reserved_ip_id` in the following format:
 
 <pre>
-&lt;cluster_network_id&gt;/&lt;cluster_network_subnet_id&gt;/&lt;is_cluster_network_subnet_reserved_ip_id&gt;
+&lt;cluster_network_id&gt;/&lt;cluster_network_subnet_id&gt;/&lt;cluster_network_subnet_reserved_ip_id&gt;
 </pre>
 - `cluster_network_id`: A string. The cluster network identifier.
 - `cluster_network_subnet_id`: A string. The cluster network subnet identifier.
-- `is_cluster_network_subnet_reserved_ip_id`: A string in the format `6d353a0f-aeb1-4ae1-832e-1110d10981bb`. The unique identifier for this cluster network subnet reserved IP.
+- `cluster_network_subnet_reserved_ip_id`: A string in the format `6d353a0f-aeb1-4ae1-832e-1110d10981bb`. The unique identifier for this cluster network subnet reserved IP.
 
 # Syntax
 <pre>
-$ terraform import ibm_is_cluster_network_subnet_reserved_ip.is_cluster_network_subnet_reserved_ip &lt;cluster_network_id&gt;/&lt;cluster_network_subnet_id&gt;/&lt;is_cluster_network_subnet_reserved_ip_id&gt;
+$ terraform import ibm_is_cluster_network_subnet_reserved_ip.is_cluster_network_subnet_reserved_ip &lt;cluster_network_id&gt;/&lt;cluster_network_subnet_id&gt;/&lt;cluster_network_subnet_reserved_ip_id&gt;
 </pre>

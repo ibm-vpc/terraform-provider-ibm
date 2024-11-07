@@ -29,7 +29,7 @@ func TestAccIBMIsClusterNetworkSubnetDataSourceBasic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance", "id"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance", "cluster_network_id"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance", "is_cluster_network_subnet_id"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance", "cluster_network_subnet_id"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance", "available_ipv4_address_count"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance", "created_at"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance", "href"),
@@ -62,7 +62,7 @@ func TestAccIBMIsClusterNetworkSubnetDataSourceAllArgs(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance", "id"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance", "cluster_network_id"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance", "is_cluster_network_subnet_id"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance", "cluster_network_subnet_id"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance", "available_ipv4_address_count"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance", "created_at"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance", "href"),
@@ -90,7 +90,7 @@ func testAccCheckIBMIsClusterNetworkSubnetDataSourceConfigBasic(clusterNetworkSu
 
 		data "ibm_is_cluster_network_subnet" "is_cluster_network_subnet_instance" {
 			cluster_network_id = ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance.cluster_network_id
-			is_cluster_network_subnet_id = ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance.is_cluster_network_subnet_id
+			cluster_network_subnet_id = ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance.cluster_network_subnet_id
 		}
 	`, clusterNetworkSubnetClusterNetworkID)
 }
@@ -107,7 +107,7 @@ func testAccCheckIBMIsClusterNetworkSubnetDataSourceConfig(clusterNetworkSubnetC
 
 		data "ibm_is_cluster_network_subnet" "is_cluster_network_subnet_instance" {
 			cluster_network_id = ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance.cluster_network_id
-			is_cluster_network_subnet_id = ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance.is_cluster_network_subnet_id
+			cluster_network_subnet_id = ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance.cluster_network_subnet_id
 		}
 	`, clusterNetworkSubnetClusterNetworkID, clusterNetworkSubnetIPVersion, clusterNetworkSubnetIpv4CIDRBlock, clusterNetworkSubnetName, clusterNetworkSubnetTotalIpv4AddressCount)
 }

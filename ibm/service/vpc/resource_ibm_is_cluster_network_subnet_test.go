@@ -14,10 +14,7 @@ import (
 	acc "github.com/IBM-Cloud/terraform-provider-ibm/ibm/acctest"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/conns"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
-	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/service/vpc"
-	"github.com/IBM/go-sdk-core/v5/core"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestAccIBMIsClusterNetworkSubnetBasic(t *testing.T) {
@@ -172,86 +169,4 @@ func testAccCheckIBMIsClusterNetworkSubnetDestroy(s *terraform.State) error {
 	}
 
 	return nil
-}
-
-func TestResourceIBMIsClusterNetworkSubnetClusterNetworkSubnetLifecycleReasonToMap(t *testing.T) {
-	checkResult := func(result map[string]interface{}) {
-		model := make(map[string]interface{})
-		model["code"] = "resource_suspended_by_provider"
-		model["message"] = "The resource has been suspended. Contact IBM support with the CRN for next steps."
-		model["more_info"] = "https://cloud.ibm.com/apidocs/vpc#resource-suspension"
-
-		assert.Equal(t, result, model)
-	}
-
-	model := new(vpcv1.ClusterNetworkSubnetLifecycleReason)
-	model.Code = core.StringPtr("resource_suspended_by_provider")
-	model.Message = core.StringPtr("The resource has been suspended. Contact IBM support with the CRN for next steps.")
-	model.MoreInfo = core.StringPtr("https://cloud.ibm.com/apidocs/vpc#resource-suspension")
-
-	result, err := vpc.ResourceIBMIsClusterNetworkSubnetClusterNetworkSubnetLifecycleReasonToMap(model)
-	assert.Nil(t, err)
-	checkResult(result)
-}
-
-func TestResourceIBMIsClusterNetworkSubnetMapToClusterNetworkSubnetPrototype(t *testing.T) {
-	checkResult := func(result vpcv1.ClusterNetworkSubnetPrototypeIntf) {
-		model := new(vpcv1.ClusterNetworkSubnetPrototype)
-		model.IPVersion = core.StringPtr("ipv4")
-		model.Name = core.StringPtr("my-cluster-network-subnet")
-		model.TotalIpv4AddressCount = core.Int64Ptr(int64(256))
-		model.Ipv4CIDRBlock = core.StringPtr("10.0.0.0/24")
-
-		assert.Equal(t, result, model)
-	}
-
-	model := make(map[string]interface{})
-	model["ip_version"] = "ipv4"
-	model["name"] = "my-cluster-network-subnet"
-	model["total_ipv4_address_count"] = int(256)
-	model["ipv4_cidr_block"] = "10.0.0.0/24"
-
-	result, err := vpc.ResourceIBMIsClusterNetworkSubnetMapToClusterNetworkSubnetPrototype(model)
-	assert.Nil(t, err)
-	checkResult(result)
-}
-
-func TestResourceIBMIsClusterNetworkSubnetMapToClusterNetworkSubnetPrototypeClusterNetworkSubnetByTotalCountPrototype(t *testing.T) {
-	checkResult := func(result *vpcv1.ClusterNetworkSubnetPrototypeClusterNetworkSubnetByTotalCountPrototype) {
-		model := new(vpcv1.ClusterNetworkSubnetPrototypeClusterNetworkSubnetByTotalCountPrototype)
-		model.IPVersion = core.StringPtr("ipv4")
-		model.Name = core.StringPtr("my-cluster-network-subnet")
-		model.TotalIpv4AddressCount = core.Int64Ptr(int64(256))
-
-		assert.Equal(t, result, model)
-	}
-
-	model := make(map[string]interface{})
-	model["ip_version"] = "ipv4"
-	model["name"] = "my-cluster-network-subnet"
-	model["total_ipv4_address_count"] = int(256)
-
-	result, err := vpc.ResourceIBMIsClusterNetworkSubnetMapToClusterNetworkSubnetPrototypeClusterNetworkSubnetByTotalCountPrototype(model)
-	assert.Nil(t, err)
-	checkResult(result)
-}
-
-func TestResourceIBMIsClusterNetworkSubnetMapToClusterNetworkSubnetPrototypeClusterNetworkSubnetByIPv4CIDRBlockPrototype(t *testing.T) {
-	checkResult := func(result *vpcv1.ClusterNetworkSubnetPrototypeClusterNetworkSubnetByIPv4CIDRBlockPrototype) {
-		model := new(vpcv1.ClusterNetworkSubnetPrototypeClusterNetworkSubnetByIPv4CIDRBlockPrototype)
-		model.IPVersion = core.StringPtr("ipv4")
-		model.Name = core.StringPtr("my-cluster-network-subnet")
-		model.Ipv4CIDRBlock = core.StringPtr("10.0.0.0/24")
-
-		assert.Equal(t, result, model)
-	}
-
-	model := make(map[string]interface{})
-	model["ip_version"] = "ipv4"
-	model["name"] = "my-cluster-network-subnet"
-	model["ipv4_cidr_block"] = "10.0.0.0/24"
-
-	result, err := vpc.ResourceIBMIsClusterNetworkSubnetMapToClusterNetworkSubnetPrototypeClusterNetworkSubnetByIPv4CIDRBlockPrototype(model)
-	assert.Nil(t, err)
-	checkResult(result)
 }

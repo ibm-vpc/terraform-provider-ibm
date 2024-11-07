@@ -37,6 +37,7 @@ func ResourceIBMIsClusterNetworkInterface() *schema.Resource {
 			"name": &schema.Schema{
 				Type:         schema.TypeString,
 				Optional:     true,
+				Computed:     true,
 				ValidateFunc: validate.InvokeValidator("ibm_is_cluster_network_interface", "name"),
 				Description:  "The name for this cluster network interface. The name is unique across all interfaces in the cluster network.",
 			},
@@ -48,9 +49,11 @@ func ResourceIBMIsClusterNetworkInterface() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"address": &schema.Schema{
-							Type:        schema.TypeString,
-							Required:    true,
-							Description: "The IP address.If the address is pending allocation, the value will be `0.0.0.0`.This property may [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) to support IPv6 addresses in the future.",
+							Type:          schema.TypeString,
+							Optional:      true,
+							Computed:      true,
+							ConflictsWith: []string{"primary_ip.0.id", "primary_ip.0.href"},
+							Description:   "The IP address.If the address is pending allocation, the value will be `0.0.0.0`.This property may [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) to support IPv6 addresses in the future.",
 						},
 						"deleted": &schema.Schema{
 							Type:        schema.TypeList,
@@ -68,18 +71,30 @@ func ResourceIBMIsClusterNetworkInterface() *schema.Resource {
 						},
 						"href": &schema.Schema{
 							Type:        schema.TypeString,
-							Required:    true,
+							Optional:    true,
+							Computed:    true,
 							Description: "The URL for this cluster network subnet reserved IP.",
 						},
 						"id": &schema.Schema{
-							Type:        schema.TypeString,
-							Required:    true,
-							Description: "The unique identifier for this cluster network subnet reserved IP.",
+							Type:          schema.TypeString,
+							Optional:      true,
+							Computed:      true,
+							ConflictsWith: []string{"primary_ip.0.address", "primary_ip.0.href"},
+							Description:   "The unique identifier for this cluster network subnet reserved IP.",
 						},
 						"name": &schema.Schema{
-							Type:        schema.TypeString,
-							Required:    true,
-							Description: "The name for this cluster network subnet reserved IP. The name is unique across all reserved IPs in a cluster network subnet.",
+							Type:          schema.TypeString,
+							Optional:      true,
+							Computed:      true,
+							ConflictsWith: []string{"primary_ip.0.id", "primary_ip.0.href"},
+							Description:   "The name for this cluster network subnet reserved IP. The name is unique across all reserved IPs in a cluster network subnet.",
+						},
+						"auto_delete": &schema.Schema{
+							Type:          schema.TypeBool,
+							Optional:      true,
+							Computed:      true,
+							ConflictsWith: []string{"primary_ip.0.id", "primary_ip.0.href"},
+							Description:   "Indicates whether this cluster network subnet reserved IP member will be automatically deleted when either target is deleted, or the cluster network subnet reserved IP is unbound.",
 						},
 						"resource_type": &schema.Schema{
 							Type:        schema.TypeString,
@@ -90,10 +105,12 @@ func ResourceIBMIsClusterNetworkInterface() *schema.Resource {
 				},
 			},
 			"subnet": &schema.Schema{
-				Type:        schema.TypeList,
-				MaxItems:    1,
-				Optional:    true,
-				Description: "The associated cluster network subnet. Required if `primary_ip` does not specify a clusternetwork subnet reserved IP identity.",
+				Type:         schema.TypeList,
+				MaxItems:     1,
+				AtLeastOneOf: []string{"subnet", "primary_ip.0.id", "primary_ip.0.href"},
+				Optional:     true,
+				Computed:     true,
+				Description:  "The associated cluster network subnet. Required if `primary_ip` does not specify a clusternetwork subnet reserved IP identity.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"deleted": &schema.Schema{
@@ -111,14 +128,18 @@ func ResourceIBMIsClusterNetworkInterface() *schema.Resource {
 							},
 						},
 						"href": &schema.Schema{
-							Type:        schema.TypeString,
-							Required:    true,
-							Description: "The URL for this cluster network subnet.",
+							Type:          schema.TypeString,
+							Optional:      true,
+							ConflictsWith: []string{"subnet.0.id"},
+							Computed:      true,
+							Description:   "The URL for this cluster network subnet.",
 						},
 						"id": &schema.Schema{
-							Type:        schema.TypeString,
-							Required:    true,
-							Description: "The unique identifier for this cluster network subnet.",
+							Type:          schema.TypeString,
+							Optional:      true,
+							Computed:      true,
+							ConflictsWith: []string{"subnet.0.href"},
+							Description:   "The unique identifier for this cluster network subnet.",
 						},
 						"name": &schema.Schema{
 							Type:        schema.TypeString,
@@ -303,7 +324,7 @@ func ResourceIBMIsClusterNetworkInterface() *schema.Resource {
 					},
 				},
 			},
-			"is_cluster_network_interface_id": &schema.Schema{
+			"cluster_network_interface_id": &schema.Schema{
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "The unique identifier for this cluster network interface.",
@@ -491,15 +512,16 @@ func resourceIBMIsClusterNetworkInterfaceRead(context context.Context, d *schema
 		err = fmt.Errorf("Error setting resource_type: %s", err)
 		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_cluster_network_interface", "read", "set-resource_type").GetDiag()
 	}
+	targetMap := make(map[string]interface{})
 	if !core.IsNil(clusterNetworkInterface.Target) {
-		targetMap, err := ResourceIBMIsClusterNetworkInterfaceClusterNetworkInterfaceTargetToMap(clusterNetworkInterface.Target)
+		targetMap, err = ResourceIBMIsClusterNetworkInterfaceClusterNetworkInterfaceTargetToMap(clusterNetworkInterface.Target)
 		if err != nil {
 			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_cluster_network_interface", "read", "target-to-map").GetDiag()
 		}
-		if err = d.Set("target", []map[string]interface{}{targetMap}); err != nil {
-			err = fmt.Errorf("Error setting target: %s", err)
-			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_cluster_network_interface", "read", "set-target").GetDiag()
-		}
+	}
+	if err = d.Set("target", []map[string]interface{}{targetMap}); err != nil {
+		err = fmt.Errorf("Error setting target: %s", err)
+		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_cluster_network_interface", "read", "set-target").GetDiag()
 	}
 	vpcMap, err := ResourceIBMIsClusterNetworkInterfaceVPCReferenceToMap(clusterNetworkInterface.VPC)
 	if err != nil {
@@ -517,9 +539,9 @@ func resourceIBMIsClusterNetworkInterfaceRead(context context.Context, d *schema
 		err = fmt.Errorf("Error setting zone: %s", err)
 		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_cluster_network_interface", "read", "set-zone").GetDiag()
 	}
-	if err = d.Set("is_cluster_network_interface_id", clusterNetworkInterface.ID); err != nil {
-		err = fmt.Errorf("Error setting is_cluster_network_interface_id: %s", err)
-		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_cluster_network_interface", "read", "set-is_cluster_network_interface_id").GetDiag()
+	if err = d.Set("cluster_network_interface_id", clusterNetworkInterface.ID); err != nil {
+		err = fmt.Errorf("Error setting cluster_network_interface_id: %s", err)
+		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_cluster_network_interface", "read", "set-cluster_network_interface_id").GetDiag()
 	}
 	if err = d.Set("etag", response.Headers.Get("Etag")); err != nil {
 		return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting etag: %s", err), "ibm_is_cluster_network_interface", "read", "set-etag").GetDiag()

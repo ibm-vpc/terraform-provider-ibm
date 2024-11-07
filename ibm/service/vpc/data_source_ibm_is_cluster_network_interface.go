@@ -27,7 +27,7 @@ func DataSourceIBMIsClusterNetworkInterface() *schema.Resource {
 				Required:    true,
 				Description: "The cluster network identifier.",
 			},
-			"is_cluster_network_interface_id": &schema.Schema{
+			"cluster_network_interface_id": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "The cluster network interface identifier.",
@@ -307,7 +307,7 @@ func dataSourceIBMIsClusterNetworkInterfaceRead(context context.Context, d *sche
 	getClusterNetworkInterfaceOptions := &vpcv1.GetClusterNetworkInterfaceOptions{}
 
 	getClusterNetworkInterfaceOptions.SetClusterNetworkID(d.Get("cluster_network_id").(string))
-	getClusterNetworkInterfaceOptions.SetID(d.Get("is_cluster_network_interface_id").(string))
+	getClusterNetworkInterfaceOptions.SetID(d.Get("cluster_network_interface_id").(string))
 
 	clusterNetworkInterface, _, err := vpcClient.GetClusterNetworkInterfaceWithContext(context, getClusterNetworkInterfaceOptions)
 	if err != nil {

@@ -37,26 +37,31 @@ func ResourceIBMIsClusterNetworkSubnet() *schema.Resource {
 			"ip_version": &schema.Schema{
 				Type:         schema.TypeString,
 				Optional:     true,
-				Default:      "ipv4",
+				Computed:     true,
 				ValidateFunc: validate.InvokeValidator("ibm_is_cluster_network_subnet", "ip_version"),
 				Description:  "The IP version for this cluster network subnet.The enumerated values for this property may[expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.",
 			},
 			"ipv4_cidr_block": &schema.Schema{
 				Type:         schema.TypeString,
 				Optional:     true,
+				Computed:     true,
+				ExactlyOneOf: []string{"ipv4_cidr_block", "total_ipv4_address_count"},
 				ValidateFunc: validate.InvokeValidator("ibm_is_cluster_network_subnet", "ipv4_cidr_block"),
 				Description:  "The IPv4 range of this cluster network subnet, expressed in CIDR format.",
 			},
 			"name": &schema.Schema{
 				Type:         schema.TypeString,
 				Optional:     true,
+				Computed:     true,
 				ValidateFunc: validate.InvokeValidator("ibm_is_cluster_network_subnet", "name"),
 				Description:  "The name for this cluster network subnet. The name is unique across all cluster network subnets in the cluster network.",
 			},
 			"total_ipv4_address_count": &schema.Schema{
-				Type:        schema.TypeInt,
-				Optional:    true,
-				Description: "The total number of IPv4 addresses in this cluster network subnet.Note: This is calculated as 2<sup>(32 - prefix length)</sup>. For example, the prefix length `/24` gives:<br> 2<sup>(32 - 24)</sup> = 2<sup>8</sup> = 256 addresses.",
+				Type:         schema.TypeInt,
+				Optional:     true,
+				Computed:     true,
+				ExactlyOneOf: []string{"ipv4_cidr_block", "total_ipv4_address_count"},
+				Description:  "The total number of IPv4 addresses in this cluster network subnet.Note: This is calculated as 2<sup>(32 - prefix length)</sup>. For example, the prefix length `/24` gives:<br> 2<sup>(32 - 24)</sup> = 2<sup>8</sup> = 256 addresses.",
 			},
 			"available_ipv4_address_count": &schema.Schema{
 				Type:        schema.TypeInt,
@@ -108,7 +113,7 @@ func ResourceIBMIsClusterNetworkSubnet() *schema.Resource {
 				Computed:    true,
 				Description: "The resource type.",
 			},
-			"is_cluster_network_subnet_id": &schema.Schema{
+			"cluster_network_subnet_id": &schema.Schema{
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "The unique identifier for this cluster network subnet.",
@@ -294,9 +299,9 @@ func resourceIBMIsClusterNetworkSubnetRead(context context.Context, d *schema.Re
 		err = fmt.Errorf("Error setting resource_type: %s", err)
 		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_cluster_network_subnet", "read", "set-resource_type").GetDiag()
 	}
-	if err = d.Set("is_cluster_network_subnet_id", clusterNetworkSubnet.ID); err != nil {
-		err = fmt.Errorf("Error setting is_cluster_network_subnet_id: %s", err)
-		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_cluster_network_subnet", "read", "set-is_cluster_network_subnet_id").GetDiag()
+	if err = d.Set("cluster_network_subnet_id", clusterNetworkSubnet.ID); err != nil {
+		err = fmt.Errorf("Error setting cluster_network_subnet_id: %s", err)
+		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_cluster_network_subnet", "read", "set-cluster_network_subnet_id").GetDiag()
 	}
 	if err = d.Set("etag", response.Headers.Get("Etag")); err != nil {
 		return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting etag: %s", err), "ibm_is_cluster_network_subnet", "read", "set-etag").GetDiag()
@@ -336,7 +341,7 @@ func resourceIBMIsClusterNetworkSubnetUpdate(context context.Context, d *schema.
 		patchVals.Name = &newName
 		hasChange = true
 	}
-	updateClusterNetworkSubnetOptions.SetIfMatch(d.Get("etag").(string))
+	// updateClusterNetworkSubnetOptions.SetIfMatch(d.Get("etag").(string))
 
 	if hasChange {
 		// Fields with `nil` values are omitted from the generic map,

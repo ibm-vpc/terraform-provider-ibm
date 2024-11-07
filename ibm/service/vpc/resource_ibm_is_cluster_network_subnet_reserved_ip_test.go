@@ -14,10 +14,7 @@ import (
 	acc "github.com/IBM-Cloud/terraform-provider-ibm/ibm/acctest"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/conns"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
-	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/service/vpc"
-	"github.com/IBM/go-sdk-core/v5/core"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestAccIBMIsClusterNetworkSubnetReservedIPBasic(t *testing.T) {
@@ -171,100 +168,4 @@ func testAccCheckIBMIsClusterNetworkSubnetReservedIPDestroy(s *terraform.State) 
 	}
 
 	return nil
-}
-
-func TestResourceIBMIsClusterNetworkSubnetReservedIPClusterNetworkSubnetReservedIPLifecycleReasonToMap(t *testing.T) {
-	checkResult := func(result map[string]interface{}) {
-		model := make(map[string]interface{})
-		model["code"] = "resource_suspended_by_provider"
-		model["message"] = "The resource has been suspended. Contact IBM support with the CRN for next steps."
-		model["more_info"] = "https://cloud.ibm.com/apidocs/vpc#resource-suspension"
-
-		assert.Equal(t, result, model)
-	}
-
-	model := new(vpcv1.ClusterNetworkSubnetReservedIPLifecycleReason)
-	model.Code = core.StringPtr("resource_suspended_by_provider")
-	model.Message = core.StringPtr("The resource has been suspended. Contact IBM support with the CRN for next steps.")
-	model.MoreInfo = core.StringPtr("https://cloud.ibm.com/apidocs/vpc#resource-suspension")
-
-	result, err := vpc.ResourceIBMIsClusterNetworkSubnetReservedIPClusterNetworkSubnetReservedIPLifecycleReasonToMap(model)
-	assert.Nil(t, err)
-	checkResult(result)
-}
-
-func TestResourceIBMIsClusterNetworkSubnetReservedIPClusterNetworkSubnetReservedIPTargetToMap(t *testing.T) {
-	checkResult := func(result map[string]interface{}) {
-		deletedModel := make(map[string]interface{})
-		deletedModel["more_info"] = "https://cloud.ibm.com/apidocs/vpc#deleted-resources"
-
-		model := make(map[string]interface{})
-		model["deleted"] = []map[string]interface{}{deletedModel}
-		model["href"] = "https://us-south.iaas.cloud.ibm.com/v1/cluster_networks/0717-da0df18c-7598-4633-a648-fdaac28a5573/interfaces/0717-ffc092f7-5d02-4b93-ab69-26860529b9fb"
-		model["id"] = "0717-ffc092f7-5d02-4b93-ab69-26860529b9fb"
-		model["name"] = "my-cluster-network-interface"
-		model["resource_type"] = "cluster_network_interface"
-
-		assert.Equal(t, result, model)
-	}
-
-	deletedModel := new(vpcv1.Deleted)
-	deletedModel.MoreInfo = core.StringPtr("https://cloud.ibm.com/apidocs/vpc#deleted-resources")
-
-	model := new(vpcv1.ClusterNetworkSubnetReservedIPTarget)
-	model.Deleted = deletedModel
-	model.Href = core.StringPtr("https://us-south.iaas.cloud.ibm.com/v1/cluster_networks/0717-da0df18c-7598-4633-a648-fdaac28a5573/interfaces/0717-ffc092f7-5d02-4b93-ab69-26860529b9fb")
-	model.ID = core.StringPtr("0717-ffc092f7-5d02-4b93-ab69-26860529b9fb")
-	model.Name = core.StringPtr("my-cluster-network-interface")
-	model.ResourceType = core.StringPtr("cluster_network_interface")
-
-	result, err := vpc.ResourceIBMIsClusterNetworkSubnetReservedIPClusterNetworkSubnetReservedIPTargetToMap(model)
-	assert.Nil(t, err)
-	checkResult(result)
-}
-
-func TestResourceIBMIsClusterNetworkSubnetReservedIPDeletedToMap(t *testing.T) {
-	checkResult := func(result map[string]interface{}) {
-		model := make(map[string]interface{})
-		model["more_info"] = "https://cloud.ibm.com/apidocs/vpc#deleted-resources"
-
-		assert.Equal(t, result, model)
-	}
-
-	model := new(vpcv1.Deleted)
-	model.MoreInfo = core.StringPtr("https://cloud.ibm.com/apidocs/vpc#deleted-resources")
-
-	result, err := vpc.ResourceIBMIsClusterNetworkSubnetReservedIPDeletedToMap(model)
-	assert.Nil(t, err)
-	checkResult(result)
-}
-
-func TestResourceIBMIsClusterNetworkSubnetReservedIPClusterNetworkSubnetReservedIPTargetClusterNetworkInterfaceReferenceClusterNetworkSubnetReservedIPTargetContextToMap(t *testing.T) {
-	checkResult := func(result map[string]interface{}) {
-		deletedModel := make(map[string]interface{})
-		deletedModel["more_info"] = "https://cloud.ibm.com/apidocs/vpc#deleted-resources"
-
-		model := make(map[string]interface{})
-		model["deleted"] = []map[string]interface{}{deletedModel}
-		model["href"] = "https://us-south.iaas.cloud.ibm.com/v1/cluster_networks/0717-da0df18c-7598-4633-a648-fdaac28a5573/interfaces/0717-ffc092f7-5d02-4b93-ab69-26860529b9fb"
-		model["id"] = "0717-ffc092f7-5d02-4b93-ab69-26860529b9fb"
-		model["name"] = "my-cluster-network-interface"
-		model["resource_type"] = "cluster_network_interface"
-
-		assert.Equal(t, result, model)
-	}
-
-	deletedModel := new(vpcv1.Deleted)
-	deletedModel.MoreInfo = core.StringPtr("https://cloud.ibm.com/apidocs/vpc#deleted-resources")
-
-	model := new(vpcv1.ClusterNetworkSubnetReservedIPTargetClusterNetworkInterfaceReferenceClusterNetworkSubnetReservedIPTargetContext)
-	model.Deleted = deletedModel
-	model.Href = core.StringPtr("https://us-south.iaas.cloud.ibm.com/v1/cluster_networks/0717-da0df18c-7598-4633-a648-fdaac28a5573/interfaces/0717-ffc092f7-5d02-4b93-ab69-26860529b9fb")
-	model.ID = core.StringPtr("0717-ffc092f7-5d02-4b93-ab69-26860529b9fb")
-	model.Name = core.StringPtr("my-cluster-network-interface")
-	model.ResourceType = core.StringPtr("cluster_network_interface")
-
-	result, err := vpc.ResourceIBMIsClusterNetworkSubnetReservedIPClusterNetworkSubnetReservedIPTargetClusterNetworkInterfaceReferenceClusterNetworkSubnetReservedIPTargetContextToMap(model)
-	assert.Nil(t, err)
-	checkResult(result)
 }

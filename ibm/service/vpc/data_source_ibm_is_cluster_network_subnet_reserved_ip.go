@@ -32,7 +32,7 @@ func DataSourceIBMIsClusterNetworkSubnetReservedIP() *schema.Resource {
 				Required:    true,
 				Description: "The cluster network subnet identifier.",
 			},
-			"is_cluster_network_subnet_reserved_ip_id": &schema.Schema{
+			"cluster_network_subnet_reserved_ip_id": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "The cluster network subnet reserved IP identifier.",
@@ -160,7 +160,7 @@ func dataSourceIBMIsClusterNetworkSubnetReservedIPRead(context context.Context, 
 
 	getClusterNetworkSubnetReservedIPOptions.SetClusterNetworkID(d.Get("cluster_network_id").(string))
 	getClusterNetworkSubnetReservedIPOptions.SetClusterNetworkSubnetID(d.Get("cluster_network_subnet_id").(string))
-	getClusterNetworkSubnetReservedIPOptions.SetID(d.Get("is_cluster_network_subnet_reserved_ip_id").(string))
+	getClusterNetworkSubnetReservedIPOptions.SetID(d.Get("cluster_network_subnet_reserved_ip_id").(string))
 
 	clusterNetworkSubnetReservedIP, _, err := vpcClient.GetClusterNetworkSubnetReservedIPWithContext(context, getClusterNetworkSubnetReservedIPOptions)
 	if err != nil {

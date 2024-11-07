@@ -30,70 +30,33 @@ func ResourceIBMIsClusterNetwork() *schema.Resource {
 			"name": &schema.Schema{
 				Type:         schema.TypeString,
 				Optional:     true,
+				Computed:     true,
 				ValidateFunc: validate.InvokeValidator("ibm_is_cluster_network", "name"),
 				Description:  "The name for this cluster network. The name must not be used by another cluster network in the region.",
 			},
 			"profile": &schema.Schema{
-				Type:        schema.TypeList,
-				MinItems:    1,
-				MaxItems:    1,
+				Type:        schema.TypeString,
 				Required:    true,
-				Description: "The profile for this cluster network.",
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"href": &schema.Schema{
-							Type:        schema.TypeString,
-							Required:    true,
-							Description: "The URL for this cluster network profile.",
-						},
-						"name": &schema.Schema{
-							Type:        schema.TypeString,
-							Required:    true,
-							Description: "The globally unique name for this cluster network profile.",
-						},
-						"resource_type": &schema.Schema{
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: "The resource type.",
-						},
-					},
-				},
+				Description: "The globally unique name for this cluster network profile.",
 			},
 			"resource_group": &schema.Schema{
-				Type:        schema.TypeList,
-				MaxItems:    1,
+				Type:        schema.TypeString,
 				Optional:    true,
-				Description: "The resource group for this cluster network.",
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"href": &schema.Schema{
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: "The URL for this resource group.",
-						},
-						"id": &schema.Schema{
-							Type:        schema.TypeString,
-							Required:    true,
-							Description: "The unique identifier for this resource group.",
-						},
-						"name": &schema.Schema{
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: "The name for this resource group.",
-						},
-					},
-				},
+				Computed:    true,
+				Description: "The unique identifier for this resource group for this cluster network.",
 			},
 			"subnet_prefixes": &schema.Schema{
 				Type:     schema.TypeList,
 				Optional: true,
+				Computed: true,
+				MaxItems: 1,
 				// Default:     [{"cidr":"10.0.0.0/9"}],
 				Description: "The IP address ranges available for subnets for this cluster network.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"allocation_policy": &schema.Schema{
 							Type:        schema.TypeString,
-							Required:    true,
+							Computed:    true,
 							Description: "The allocation policy for this subnet prefix:- `auto`: Subnets created by total count in this cluster network can use this prefix.",
 						},
 						"cidr": &schema.Schema{
@@ -106,7 +69,6 @@ func ResourceIBMIsClusterNetwork() *schema.Resource {
 			},
 			"vpc": &schema.Schema{
 				Type:        schema.TypeList,
-				MinItems:    1,
 				MaxItems:    1,
 				Required:    true,
 				Description: "The VPC this cluster network resides in.",
@@ -114,7 +76,7 @@ func ResourceIBMIsClusterNetwork() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"crn": &schema.Schema{
 							Type:        schema.TypeString,
-							Required:    true,
+							Computed:    true,
 							Description: "The CRN for this VPC.",
 						},
 						"deleted": &schema.Schema{
@@ -133,7 +95,7 @@ func ResourceIBMIsClusterNetwork() *schema.Resource {
 						},
 						"href": &schema.Schema{
 							Type:        schema.TypeString,
-							Required:    true,
+							Computed:    true,
 							Description: "The URL for this VPC.",
 						},
 						"id": &schema.Schema{
@@ -155,25 +117,9 @@ func ResourceIBMIsClusterNetwork() *schema.Resource {
 				},
 			},
 			"zone": &schema.Schema{
-				Type:        schema.TypeList,
-				MinItems:    1,
-				MaxItems:    1,
+				Type:        schema.TypeString,
 				Required:    true,
-				Description: "The zone this cluster network resides in.",
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"href": &schema.Schema{
-							Type:        schema.TypeString,
-							Required:    true,
-							Description: "The URL for this zone.",
-						},
-						"name": &schema.Schema{
-							Type:        schema.TypeString,
-							Required:    true,
-							Description: "The globally unique name for this zone.",
-						},
-					},
-				},
+				Description: "The globally unique name for the zone this cluster network resides in.",
 			},
 			"created_at": &schema.Schema{
 				Type:        schema.TypeString,
@@ -261,30 +207,25 @@ func resourceIBMIsClusterNetworkCreate(context context.Context, d *schema.Resour
 
 	createClusterNetworkOptions := &vpcv1.CreateClusterNetworkOptions{}
 
-	profileModel, err := ResourceIBMIsClusterNetworkMapToClusterNetworkProfileIdentity(d.Get("profile.0").(map[string]interface{}))
-	if err != nil {
-		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_cluster_network", "create", "parse-profile").GetDiag()
+	createClusterNetworkOptions.Profile = &vpcv1.ClusterNetworkProfileIdentity{
+		Name: core.StringPtr(d.Get("profile").(string)),
 	}
-	createClusterNetworkOptions.SetProfile(profileModel)
 	vpcModel, err := ResourceIBMIsClusterNetworkMapToVPCIdentity(d.Get("vpc.0").(map[string]interface{}))
 	if err != nil {
 		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_cluster_network", "create", "parse-vpc").GetDiag()
 	}
 	createClusterNetworkOptions.SetVPC(vpcModel)
-	zoneModel, err := ResourceIBMIsClusterNetworkMapToZoneIdentity(d.Get("zone.0").(map[string]interface{}))
-	if err != nil {
-		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_cluster_network", "create", "parse-zone").GetDiag()
+	createClusterNetworkOptions.Zone = &vpcv1.ZoneIdentity{
+		Name: core.StringPtr(d.Get("zone").(string)),
 	}
-	createClusterNetworkOptions.SetZone(zoneModel)
 	if _, ok := d.GetOk("name"); ok {
 		createClusterNetworkOptions.SetName(d.Get("name").(string))
 	}
-	if _, ok := d.GetOk("resource_group"); ok {
-		resourceGroupModel, err := ResourceIBMIsClusterNetworkMapToResourceGroupIdentity(d.Get("resource_group.0").(map[string]interface{}))
-		if err != nil {
-			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_cluster_network", "create", "parse-resource_group").GetDiag()
+	if rgOk, ok := d.GetOk("resource_group"); ok {
+
+		createClusterNetworkOptions.ResourceGroup = &vpcv1.ResourceGroupIdentity{
+			ID: core.StringPtr(rgOk.(string)),
 		}
-		createClusterNetworkOptions.SetResourceGroup(resourceGroupModel)
 	}
 	if _, ok := d.GetOk("subnet_prefixes"); ok {
 		var subnetPrefixes []vpcv1.ClusterNetworkSubnetPrefixPrototype
@@ -340,20 +281,12 @@ func resourceIBMIsClusterNetworkRead(context context.Context, d *schema.Resource
 			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_cluster_network", "read", "set-name").GetDiag()
 		}
 	}
-	profileMap, err := ResourceIBMIsClusterNetworkClusterNetworkProfileReferenceToMap(clusterNetwork.Profile)
-	if err != nil {
-		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_cluster_network", "read", "profile-to-map").GetDiag()
-	}
-	if err = d.Set("profile", []map[string]interface{}{profileMap}); err != nil {
+	if err = d.Set("profile", clusterNetwork.Profile.Name); err != nil {
 		err = fmt.Errorf("Error setting profile: %s", err)
 		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_cluster_network", "read", "set-profile").GetDiag()
 	}
 	if !core.IsNil(clusterNetwork.ResourceGroup) {
-		resourceGroupMap, err := ResourceIBMIsClusterNetworkResourceGroupReferenceToMap(clusterNetwork.ResourceGroup)
-		if err != nil {
-			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_cluster_network", "read", "resource_group-to-map").GetDiag()
-		}
-		if err = d.Set("resource_group", []map[string]interface{}{resourceGroupMap}); err != nil {
+		if err = d.Set("resource_group", clusterNetwork.ResourceGroup.ID); err != nil {
 			err = fmt.Errorf("Error setting resource_group: %s", err)
 			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_cluster_network", "read", "set-resource_group").GetDiag()
 		}
@@ -380,11 +313,7 @@ func resourceIBMIsClusterNetworkRead(context context.Context, d *schema.Resource
 		err = fmt.Errorf("Error setting vpc: %s", err)
 		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_cluster_network", "read", "set-vpc").GetDiag()
 	}
-	zoneMap, err := ResourceIBMIsClusterNetworkZoneReferenceToMap(clusterNetwork.Zone)
-	if err != nil {
-		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_cluster_network", "read", "zone-to-map").GetDiag()
-	}
-	if err = d.Set("zone", []map[string]interface{}{zoneMap}); err != nil {
+	if err = d.Set("zone", clusterNetwork.Zone.Name); err != nil {
 		err = fmt.Errorf("Error setting zone: %s", err)
 		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_cluster_network", "read", "set-zone").GetDiag()
 	}
@@ -447,19 +376,19 @@ func resourceIBMIsClusterNetworkUpdate(context context.Context, d *schema.Resour
 		patchVals.Name = &newName
 		hasChange = true
 	}
-	updateClusterNetworkOptions.SetIfMatch(d.Get("etag").(string))
+	// updateClusterNetworkOptions.SetIfMatch(d.Get("etag").(string))
 
 	if hasChange {
-		// Fields with `nil` values are omitted from the generic map,
-		// so we need to re-add them to support removing arguments
-		// in merge-patch operations sent to the service.
 		updateClusterNetworkOptions.ClusterNetworkPatch = ResourceIBMIsClusterNetworkClusterNetworkPatchAsPatch(patchVals, d)
 
-		_, _, err = vpcClient.UpdateClusterNetworkWithContext(context, updateClusterNetworkOptions)
+		_, response, err := vpcClient.UpdateClusterNetworkWithContext(context, updateClusterNetworkOptions)
 		if err != nil {
 			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("UpdateClusterNetworkWithContext failed: %s", err.Error()), "ibm_is_cluster_network", "update")
 			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
 			return tfErr.GetDiag()
+		}
+		if err = d.Set("etag", response.Headers.Get("Etag")); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting etag: %s", err), "ibm_is_cluster_network", "update", "set-etag").GetDiag()
 		}
 	}
 
@@ -490,17 +419,6 @@ func resourceIBMIsClusterNetworkDelete(context context.Context, d *schema.Resour
 	return nil
 }
 
-func ResourceIBMIsClusterNetworkMapToClusterNetworkProfileIdentity(modelMap map[string]interface{}) (vpcv1.ClusterNetworkProfileIdentityIntf, error) {
-	model := &vpcv1.ClusterNetworkProfileIdentity{}
-	if modelMap["name"] != nil && modelMap["name"].(string) != "" {
-		model.Name = core.StringPtr(modelMap["name"].(string))
-	}
-	if modelMap["href"] != nil && modelMap["href"].(string) != "" {
-		model.Href = core.StringPtr(modelMap["href"].(string))
-	}
-	return model, nil
-}
-
 func ResourceIBMIsClusterNetworkMapToClusterNetworkProfileIdentityByName(modelMap map[string]interface{}) (*vpcv1.ClusterNetworkProfileIdentityByName, error) {
 	model := &vpcv1.ClusterNetworkProfileIdentityByName{}
 	model.Name = core.StringPtr(modelMap["name"].(string))
@@ -517,12 +435,6 @@ func ResourceIBMIsClusterNetworkMapToVPCIdentity(modelMap map[string]interface{}
 	model := &vpcv1.VPCIdentity{}
 	if modelMap["id"] != nil && modelMap["id"].(string) != "" {
 		model.ID = core.StringPtr(modelMap["id"].(string))
-	}
-	if modelMap["crn"] != nil && modelMap["crn"].(string) != "" {
-		model.CRN = core.StringPtr(modelMap["crn"].(string))
-	}
-	if modelMap["href"] != nil && modelMap["href"].(string) != "" {
-		model.Href = core.StringPtr(modelMap["href"].(string))
 	}
 	return model, nil
 }
@@ -545,17 +457,6 @@ func ResourceIBMIsClusterNetworkMapToVPCIdentityByHref(modelMap map[string]inter
 	return model, nil
 }
 
-func ResourceIBMIsClusterNetworkMapToZoneIdentity(modelMap map[string]interface{}) (vpcv1.ZoneIdentityIntf, error) {
-	model := &vpcv1.ZoneIdentity{}
-	if modelMap["name"] != nil && modelMap["name"].(string) != "" {
-		model.Name = core.StringPtr(modelMap["name"].(string))
-	}
-	if modelMap["href"] != nil && modelMap["href"].(string) != "" {
-		model.Href = core.StringPtr(modelMap["href"].(string))
-	}
-	return model, nil
-}
-
 func ResourceIBMIsClusterNetworkMapToZoneIdentityByName(modelMap map[string]interface{}) (*vpcv1.ZoneIdentityByName, error) {
 	model := &vpcv1.ZoneIdentityByName{}
 	model.Name = core.StringPtr(modelMap["name"].(string))
@@ -565,14 +466,6 @@ func ResourceIBMIsClusterNetworkMapToZoneIdentityByName(modelMap map[string]inte
 func ResourceIBMIsClusterNetworkMapToZoneIdentityByHref(modelMap map[string]interface{}) (*vpcv1.ZoneIdentityByHref, error) {
 	model := &vpcv1.ZoneIdentityByHref{}
 	model.Href = core.StringPtr(modelMap["href"].(string))
-	return model, nil
-}
-
-func ResourceIBMIsClusterNetworkMapToResourceGroupIdentity(modelMap map[string]interface{}) (vpcv1.ResourceGroupIdentityIntf, error) {
-	model := &vpcv1.ResourceGroupIdentity{}
-	if modelMap["id"] != nil && modelMap["id"].(string) != "" {
-		model.ID = core.StringPtr(modelMap["id"].(string))
-	}
 	return model, nil
 }
 
@@ -588,22 +481,6 @@ func ResourceIBMIsClusterNetworkMapToClusterNetworkSubnetPrefixPrototype(modelMa
 		model.CIDR = core.StringPtr(modelMap["cidr"].(string))
 	}
 	return model, nil
-}
-
-func ResourceIBMIsClusterNetworkClusterNetworkProfileReferenceToMap(model *vpcv1.ClusterNetworkProfileReference) (map[string]interface{}, error) {
-	modelMap := make(map[string]interface{})
-	modelMap["href"] = *model.Href
-	modelMap["name"] = *model.Name
-	modelMap["resource_type"] = *model.ResourceType
-	return modelMap, nil
-}
-
-func ResourceIBMIsClusterNetworkResourceGroupReferenceToMap(model *vpcv1.ResourceGroupReference) (map[string]interface{}, error) {
-	modelMap := make(map[string]interface{})
-	modelMap["href"] = *model.Href
-	modelMap["id"] = *model.ID
-	modelMap["name"] = *model.Name
-	return modelMap, nil
 }
 
 func ResourceIBMIsClusterNetworkClusterNetworkSubnetPrefixToMap(model *vpcv1.ClusterNetworkSubnetPrefix) (map[string]interface{}, error) {
