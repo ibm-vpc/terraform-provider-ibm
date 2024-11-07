@@ -31,6 +31,17 @@ func TestAccIBMIsClusterNetworkSubnetsDataSourceBasic(t *testing.T) {
 					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_network_subnets.is_cluster_network_subnets_instance", "id"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_network_subnets.is_cluster_network_subnets_instance", "cluster_network_id"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_network_subnets.is_cluster_network_subnets_instance", "subnets.#"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_network_subnets.is_cluster_network_subnets_instance", "subnets.0.id"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_network_subnets.is_cluster_network_subnets_instance", "subnets.0.available_ipv4_address_count"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_network_subnets.is_cluster_network_subnets_instance", "subnets.0.created_at"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_network_subnets.is_cluster_network_subnets_instance", "subnets.0.href"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_network_subnets.is_cluster_network_subnets_instance", "subnets.0.ip_version"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_network_subnets.is_cluster_network_subnets_instance", "subnets.0.ipv4_cidr_block"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_network_subnets.is_cluster_network_subnets_instance", "subnets.0.lifecycle_reasons.#"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_network_subnets.is_cluster_network_subnets_instance", "subnets.0.lifecycle_state"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_network_subnets.is_cluster_network_subnets_instance", "subnets.0.name"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_network_subnets.is_cluster_network_subnets_instance", "subnets.0.resource_type"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_network_subnets.is_cluster_network_subnets_instance", "subnets.0.total_ipv4_address_count"),
 				),
 			},
 		},
@@ -74,16 +85,11 @@ func TestAccIBMIsClusterNetworkSubnetsDataSourceAllArgs(t *testing.T) {
 
 func testAccCheckIBMIsClusterNetworkSubnetsDataSourceConfigBasic(clusterNetworkSubnetClusterNetworkID string) string {
 	return fmt.Sprintf(`
-		resource "ibm_is_cluster_network_subnet" "is_cluster_network_subnet_instance" {
-			cluster_network_id = "%s"
-		}
 
 		data "ibm_is_cluster_network_subnets" "is_cluster_network_subnets_instance" {
-			cluster_network_id = ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance.cluster_network_id
-			name = ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance.name
-			sort = "name"
+			cluster_network_id =  "02c7-10274052-f495-4920-a67f-870eb3b87003"
 		}
-	`, clusterNetworkSubnetClusterNetworkID)
+	`)
 }
 
 func testAccCheckIBMIsClusterNetworkSubnetsDataSourceConfig(clusterNetworkSubnetClusterNetworkID string, clusterNetworkSubnetIPVersion string, clusterNetworkSubnetIpv4CIDRBlock string, clusterNetworkSubnetName string, clusterNetworkSubnetTotalIpv4AddressCount string) string {

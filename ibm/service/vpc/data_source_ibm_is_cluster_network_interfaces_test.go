@@ -31,6 +31,22 @@ func TestAccIBMIsClusterNetworkInterfacesDataSourceBasic(t *testing.T) {
 					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_network_interfaces.is_cluster_network_interfaces_instance", "id"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_network_interfaces.is_cluster_network_interfaces_instance", "cluster_network_id"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_network_interfaces.is_cluster_network_interfaces_instance", "interfaces.#"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_network_interfaces.is_cluster_network_interfaces_instance", "interfaces.0.id"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_network_interfaces.is_cluster_network_interfaces_instance", "interfaces.0.allow_ip_spoofing"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_network_interfaces.is_cluster_network_interfaces_instance", "interfaces.0.auto_delete"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_network_interfaces.is_cluster_network_interfaces_instance", "interfaces.0.created_at"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_network_interfaces.is_cluster_network_interfaces_instance", "interfaces.0.enable_infrastructure_nat"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_network_interfaces.is_cluster_network_interfaces_instance", "interfaces.0.href"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_network_interfaces.is_cluster_network_interfaces_instance", "interfaces.0.lifecycle_reasons.#"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_network_interfaces.is_cluster_network_interfaces_instance", "interfaces.0.lifecycle_state"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_network_interfaces.is_cluster_network_interfaces_instance", "interfaces.0.mac_address"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_network_interfaces.is_cluster_network_interfaces_instance", "interfaces.0.name"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_network_interfaces.is_cluster_network_interfaces_instance", "interfaces.0.primary_ip.#"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_network_interfaces.is_cluster_network_interfaces_instance", "interfaces.0.resource_type"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_network_interfaces.is_cluster_network_interfaces_instance", "interfaces.0.subnet.#"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_network_interfaces.is_cluster_network_interfaces_instance", "interfaces.0.target.#"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_network_interfaces.is_cluster_network_interfaces_instance", "interfaces.0.vpc.#"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_network_interfaces.is_cluster_network_interfaces_instance", "interfaces.0.zone.#"),
 				),
 			},
 		},
@@ -72,16 +88,11 @@ func TestAccIBMIsClusterNetworkInterfacesDataSourceAllArgs(t *testing.T) {
 
 func testAccCheckIBMIsClusterNetworkInterfacesDataSourceConfigBasic(clusterNetworkInterfaceClusterNetworkID string) string {
 	return fmt.Sprintf(`
-		resource "ibm_is_cluster_network_interface" "is_cluster_network_interface_instance" {
-			cluster_network_id = "%s"
-		}
 
 		data "ibm_is_cluster_network_interfaces" "is_cluster_network_interfaces_instance" {
-			cluster_network_id = ibm_is_cluster_network_interface.is_cluster_network_interface_instance.cluster_network_id
-			name = ibm_is_cluster_network_interface.is_cluster_network_interface_instance.name
-			sort = "name"
+			cluster_network_id = "02c7-10274052-f495-4920-a67f-870eb3b87003"
 		}
-	`, clusterNetworkInterfaceClusterNetworkID)
+	`)
 }
 
 func testAccCheckIBMIsClusterNetworkInterfacesDataSourceConfig(clusterNetworkInterfaceClusterNetworkID string, clusterNetworkInterfaceName string) string {

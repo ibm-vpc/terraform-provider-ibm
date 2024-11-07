@@ -14,7 +14,7 @@ Provides a read-only data source to retrieve information about a ClusterNetwork.
 
 ```hcl
 data "ibm_is_cluster_network" "is_cluster_network" {
-	is_cluster_network_id = "is_cluster_network_id"
+	cluster_network_id = "cluster_network_id"
 }
 ```
 
@@ -22,7 +22,7 @@ data "ibm_is_cluster_network" "is_cluster_network" {
 
 You can specify the following arguments for this data source.
 
-- `is_cluster_network_id` - (Required, Forces new resource, String) The cluster network identifier.
+- `cluster_network_id` - (Required, Forces new resource, String) The cluster network identifier.
   * Constraints: The maximum length is `64` characters. The minimum length is `1` character. The value must match regular expression `/^[-0-9a-z_]+$/`.
 
 ## Attribute Reference

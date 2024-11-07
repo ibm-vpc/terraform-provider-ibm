@@ -37,9 +37,11 @@ func TestAccIBMIsClusterNetworkInterfaceDataSourceBasic(t *testing.T) {
 					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_network_interface.is_cluster_network_interface_instance", "href"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_network_interface.is_cluster_network_interface_instance", "lifecycle_reasons.#"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_network_interface.is_cluster_network_interface_instance", "lifecycle_state"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_network_interface.is_cluster_network_interface_instance", "mac_address"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_network_interface.is_cluster_network_interface_instance", "name"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_network_interface.is_cluster_network_interface_instance", "primary_ip.#"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_network_interface.is_cluster_network_interface_instance", "resource_type"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_network_interface.is_cluster_network_interface_instance", "subnet.#"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_network_interface.is_cluster_network_interface_instance", "vpc.#"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_network_interface.is_cluster_network_interface_instance", "zone.#"),
 				),
@@ -89,15 +91,11 @@ func TestAccIBMIsClusterNetworkInterfaceDataSourceAllArgs(t *testing.T) {
 
 func testAccCheckIBMIsClusterNetworkInterfaceDataSourceConfigBasic(clusterNetworkInterfaceClusterNetworkID string) string {
 	return fmt.Sprintf(`
-		resource "ibm_is_cluster_network_interface" "is_cluster_network_interface_instance" {
-			cluster_network_id = "%s"
-		}
-
 		data "ibm_is_cluster_network_interface" "is_cluster_network_interface_instance" {
-			cluster_network_id = ibm_is_cluster_network_interface.is_cluster_network_interface_instance.cluster_network_id
-			cluster_network_interface_id = ibm_is_cluster_network_interface.is_cluster_network_interface_instance.cluster_network_interface_id
+			cluster_network_id = "02c7-10274052-f495-4920-a67f-870eb3b87003"
+			cluster_network_interface_id = "02c7-fcc6bdf2-56f5-40ad-abce-42950007857c"
 		}
-	`, clusterNetworkInterfaceClusterNetworkID)
+	`)
 }
 
 func testAccCheckIBMIsClusterNetworkInterfaceDataSourceConfig(clusterNetworkInterfaceClusterNetworkID string, clusterNetworkInterfaceName string) string {

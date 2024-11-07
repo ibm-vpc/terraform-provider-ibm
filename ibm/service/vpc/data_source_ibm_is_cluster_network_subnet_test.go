@@ -84,15 +84,12 @@ func TestAccIBMIsClusterNetworkSubnetDataSourceAllArgs(t *testing.T) {
 
 func testAccCheckIBMIsClusterNetworkSubnetDataSourceConfigBasic(clusterNetworkSubnetClusterNetworkID string) string {
 	return fmt.Sprintf(`
-		resource "ibm_is_cluster_network_subnet" "is_cluster_network_subnet_instance" {
-			cluster_network_id = "%s"
-		}
 
 		data "ibm_is_cluster_network_subnet" "is_cluster_network_subnet_instance" {
-			cluster_network_id = ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance.cluster_network_id
-			cluster_network_subnet_id = ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance.cluster_network_subnet_id
+			cluster_network_id = "02c7-10274052-f495-4920-a67f-870eb3b87003"
+			cluster_network_subnet_id = "02c7-27ca8206-f73b-4d8f-b996-913711b98ff0"
 		}
-	`, clusterNetworkSubnetClusterNetworkID)
+	`)
 }
 
 func testAccCheckIBMIsClusterNetworkSubnetDataSourceConfig(clusterNetworkSubnetClusterNetworkID string, clusterNetworkSubnetIPVersion string, clusterNetworkSubnetIpv4CIDRBlock string, clusterNetworkSubnetName string, clusterNetworkSubnetTotalIpv4AddressCount string) string {

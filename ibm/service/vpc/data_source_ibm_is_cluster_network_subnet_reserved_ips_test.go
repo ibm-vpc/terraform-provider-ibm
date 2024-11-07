@@ -33,6 +33,16 @@ func TestAccIBMIsClusterNetworkSubnetReservedIpsDataSourceBasic(t *testing.T) {
 					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_network_subnet_reserved_ips.is_cluster_network_subnet_reserved_ips_instance", "cluster_network_id"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_network_subnet_reserved_ips.is_cluster_network_subnet_reserved_ips_instance", "cluster_network_subnet_id"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_network_subnet_reserved_ips.is_cluster_network_subnet_reserved_ips_instance", "reserved_ips.#"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_network_subnet_reserved_ips.is_cluster_network_subnet_reserved_ips_instance", "reserved_ips.0.id"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_network_subnet_reserved_ips.is_cluster_network_subnet_reserved_ips_instance", "reserved_ips.0.address"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_network_subnet_reserved_ips.is_cluster_network_subnet_reserved_ips_instance", "reserved_ips.0.auto_delete"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_network_subnet_reserved_ips.is_cluster_network_subnet_reserved_ips_instance", "reserved_ips.0.created_at"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_network_subnet_reserved_ips.is_cluster_network_subnet_reserved_ips_instance", "reserved_ips.0.href"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_network_subnet_reserved_ips.is_cluster_network_subnet_reserved_ips_instance", "reserved_ips.0.lifecycle_reasons.#"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_network_subnet_reserved_ips.is_cluster_network_subnet_reserved_ips_instance", "reserved_ips.0.lifecycle_state"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_network_subnet_reserved_ips.is_cluster_network_subnet_reserved_ips_instance", "reserved_ips.0.name"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_network_subnet_reserved_ips.is_cluster_network_subnet_reserved_ips_instance", "reserved_ips.0.owner"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_network_subnet_reserved_ips.is_cluster_network_subnet_reserved_ips_instance", "reserved_ips.0.resource_type"),
 				),
 			},
 		},
@@ -75,18 +85,12 @@ func TestAccIBMIsClusterNetworkSubnetReservedIpsDataSourceAllArgs(t *testing.T) 
 
 func testAccCheckIBMIsClusterNetworkSubnetReservedIpsDataSourceConfigBasic(clusterNetworkSubnetReservedIPClusterNetworkID string, clusterNetworkSubnetReservedIPClusterNetworkSubnetID string) string {
 	return fmt.Sprintf(`
-		resource "ibm_is_cluster_network_subnet_reserved_ip" "is_cluster_network_subnet_reserved_ip_instance" {
-			cluster_network_id = "%s"
-			cluster_network_subnet_id = "%s"
-		}
 
 		data "ibm_is_cluster_network_subnet_reserved_ips" "is_cluster_network_subnet_reserved_ips_instance" {
-			cluster_network_id = ibm_is_cluster_network_subnet_reserved_ip.is_cluster_network_subnet_reserved_ip_instance.cluster_network_id
-			cluster_network_subnet_id = ibm_is_cluster_network_subnet_reserved_ip.is_cluster_network_subnet_reserved_ip_instance.cluster_network_subnet_id
-			name = ibm_is_cluster_network_subnet_reserved_ip.is_cluster_network_subnet_reserved_ip_instance.name
-			sort = "name"
+			cluster_network_id        = "02c7-10274052-f495-4920-a67f-870eb3b87003"
+			cluster_network_subnet_id = "02c7-27ca8206-f73b-4d8f-b996-913711b98ff0"
 		}
-	`, clusterNetworkSubnetReservedIPClusterNetworkID, clusterNetworkSubnetReservedIPClusterNetworkSubnetID)
+	`)
 }
 
 func testAccCheckIBMIsClusterNetworkSubnetReservedIpsDataSourceConfig(clusterNetworkSubnetReservedIPClusterNetworkID string, clusterNetworkSubnetReservedIPClusterNetworkSubnetID string, clusterNetworkSubnetReservedIPAddress string, clusterNetworkSubnetReservedIPName string) string {

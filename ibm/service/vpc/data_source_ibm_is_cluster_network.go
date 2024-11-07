@@ -21,7 +21,7 @@ func DataSourceIBMIsClusterNetwork() *schema.Resource {
 		ReadContext: dataSourceIBMIsClusterNetworkRead,
 
 		Schema: map[string]*schema.Schema{
-			"is_cluster_network_id": &schema.Schema{
+			"cluster_network_id": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "The cluster network identifier.",
@@ -228,7 +228,7 @@ func dataSourceIBMIsClusterNetworkRead(context context.Context, d *schema.Resour
 
 	getClusterNetworkOptions := &vpcv1.GetClusterNetworkOptions{}
 
-	getClusterNetworkOptions.SetID(d.Get("is_cluster_network_id").(string))
+	getClusterNetworkOptions.SetID(d.Get("cluster_network_id").(string))
 
 	clusterNetwork, _, err := vpcClient.GetClusterNetworkWithContext(context, getClusterNetworkOptions)
 	if err != nil {

@@ -85,17 +85,12 @@ func TestAccIBMIsClusterNetworkSubnetReservedIPDataSourceAllArgs(t *testing.T) {
 
 func testAccCheckIBMIsClusterNetworkSubnetReservedIPDataSourceConfigBasic(clusterNetworkSubnetReservedIPClusterNetworkID string, clusterNetworkSubnetReservedIPClusterNetworkSubnetID string) string {
 	return fmt.Sprintf(`
-		resource "ibm_is_cluster_network_subnet_reserved_ip" "is_cluster_network_subnet_reserved_ip_instance" {
-			cluster_network_id = "%s"
-			cluster_network_subnet_id = "%s"
-		}
-
 		data "ibm_is_cluster_network_subnet_reserved_ip" "is_cluster_network_subnet_reserved_ip_instance" {
-			cluster_network_id = ibm_is_cluster_network_subnet_reserved_ip.is_cluster_network_subnet_reserved_ip_instance.cluster_network_id
-			cluster_network_subnet_id = ibm_is_cluster_network_subnet_reserved_ip.is_cluster_network_subnet_reserved_ip_instance.cluster_network_subnet_id
-			cluster_network_subnet_reserved_ip_id = ibm_is_cluster_network_subnet_reserved_ip.is_cluster_network_subnet_reserved_ip_instance.cluster_network_subnet_reserved_ip_id
+			cluster_network_id                    = "02c7-10274052-f495-4920-a67f-870eb3b87003"
+			cluster_network_subnet_id             = "02c7-27ca8206-f73b-4d8f-b996-913711b98ff0"
+			cluster_network_subnet_reserved_ip_id = "02c7-111099cc-39e2-4c2f-9a32-109bb5a2ae7e"
 		}
-	`, clusterNetworkSubnetReservedIPClusterNetworkID, clusterNetworkSubnetReservedIPClusterNetworkSubnetID)
+	`)
 }
 
 func testAccCheckIBMIsClusterNetworkSubnetReservedIPDataSourceConfig(clusterNetworkSubnetReservedIPClusterNetworkID string, clusterNetworkSubnetReservedIPClusterNetworkSubnetID string, clusterNetworkSubnetReservedIPAddress string, clusterNetworkSubnetReservedIPName string) string {

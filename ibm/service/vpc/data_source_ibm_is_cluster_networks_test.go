@@ -28,6 +28,33 @@ func TestAccIBMIsClusterNetworksDataSourceBasic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_networks.is_cluster_networks_instance", "id"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_networks.is_cluster_networks_instance", "cluster_networks.#"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_networks.is_cluster_networks_instance", "cluster_networks.0.id"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_networks.is_cluster_networks_instance", "cluster_networks.0.created_at"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_networks.is_cluster_networks_instance", "cluster_networks.0.crn"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_networks.is_cluster_networks_instance", "cluster_networks.0.href"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_networks.is_cluster_networks_instance", "cluster_networks.0.lifecycle_reasons.#"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_networks.is_cluster_networks_instance", "cluster_networks.0.lifecycle_state"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_networks.is_cluster_networks_instance", "cluster_networks.0.name"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_networks.is_cluster_networks_instance", "cluster_networks.0.profile.#"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_networks.is_cluster_networks_instance", "cluster_networks.0.profile.0.href"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_networks.is_cluster_networks_instance", "cluster_networks.0.profile.0.name"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_networks.is_cluster_networks_instance", "cluster_networks.0.profile.0.resource_type"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_networks.is_cluster_networks_instance", "cluster_networks.0.resource_group.#"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_networks.is_cluster_networks_instance", "cluster_networks.0.resource_group.0.href"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_networks.is_cluster_networks_instance", "cluster_networks.0.resource_group.0.id"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_networks.is_cluster_networks_instance", "cluster_networks.0.resource_group.0.name"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_networks.is_cluster_networks_instance", "cluster_networks.0.resource_type"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_networks.is_cluster_networks_instance", "cluster_networks.0.subnet_prefixes.#"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_networks.is_cluster_networks_instance", "cluster_networks.0.subnet_prefixes.0.allocation_policy"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_networks.is_cluster_networks_instance", "cluster_networks.0.subnet_prefixes.0.cidr"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_networks.is_cluster_networks_instance", "cluster_networks.0.vpc.#"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_networks.is_cluster_networks_instance", "cluster_networks.0.vpc.0.crn"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_networks.is_cluster_networks_instance", "cluster_networks.0.vpc.0.href"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_networks.is_cluster_networks_instance", "cluster_networks.0.vpc.0.id"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_networks.is_cluster_networks_instance", "cluster_networks.0.vpc.0.name"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_networks.is_cluster_networks_instance", "cluster_networks.0.zone.#"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_networks.is_cluster_networks_instance", "cluster_networks.0.zone.0.href"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_networks.is_cluster_networks_instance", "cluster_networks.0.zone.0.name"),
 				),
 			},
 		},
@@ -67,35 +94,8 @@ func TestAccIBMIsClusterNetworksDataSourceAllArgs(t *testing.T) {
 
 func testAccCheckIBMIsClusterNetworksDataSourceConfigBasic() string {
 	return fmt.Sprintf(`
-		resource "ibm_is_cluster_network" "is_cluster_network_instance" {
-			profile {
-				href = "https://us-south.iaas.cloud.ibm.com/v1/cluster_network/profiles/h100"
-				name = "h100"
-				resource_type = "cluster_network_profile"
-			}
-			vpc {
-				crn = "crn:v1:bluemix:public:is:us-south:a/aa2432b1fa4d4ace891e9b80fc104e34::vpc:r006-4727d842-f94f-4a2d-824a-9bc9b02c523b"
-				deleted {
-					more_info = "https://cloud.ibm.com/apidocs/vpc#deleted-resources"
-				}
-				href = "https://us-south.iaas.cloud.ibm.com/v1/vpcs/r006-4727d842-f94f-4a2d-824a-9bc9b02c523b"
-				id = "r006-4727d842-f94f-4a2d-824a-9bc9b02c523b"
-				name = "my-vpc"
-				resource_type = "vpc"
-			}
-			zone {
-				href = "https://us-south.iaas.cloud.ibm.com/v1/regions/us-south/zones/us-south-1"
-				name = "us-south-1"
-			}
-		}
 
 		data "ibm_is_cluster_networks" "is_cluster_networks_instance" {
-			resource_group_id = "resource_group_id"
-			name = ibm_is_cluster_network.is_cluster_network_instance.name
-			sort = "name"
-			vpc_id = "vpc_id"
-			vpc_crn = "crn:v1:bluemix:public:is:us-south:a/aa2432b1fa4d4ace891e9b80fc104e34::vpc:r006-4727d842-f94f-4a2d-824a-9bc9b02c523b"
-			vpc_name = "my-vpc"
 		}
 	`)
 }

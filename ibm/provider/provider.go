@@ -427,6 +427,7 @@ func Provider() *schema.Provider {
 
 			// cluster
 			"ibm_is_cluster_network":                      vpc.DataSourceIBMIsClusterNetwork(),
+			"ibm_is_cluster_networks":                     vpc.DataSourceIBMIsClusterNetworks(),
 			"ibm_is_cluster_network_interface":            vpc.DataSourceIBMIsClusterNetworkInterface(),
 			"ibm_is_cluster_network_interfaces":           vpc.DataSourceIBMIsClusterNetworkInterfaces(),
 			"ibm_is_cluster_network_profile":              vpc.DataSourceIBMIsClusterNetworkProfile(),
