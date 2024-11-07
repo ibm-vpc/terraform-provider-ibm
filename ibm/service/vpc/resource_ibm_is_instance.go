@@ -215,6 +215,86 @@ func ResourceIBMISInstance() *schema.Resource {
 				Description: "Crn for this Instance",
 			},
 
+			// cluster changes
+			"cluster_network_attachments": &schema.Schema{
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "The cluster network attachments for this virtual server instance.The cluster network attachments are ordered for consistent instance configuration.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"href": &schema.Schema{
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: "The URL for this instance cluster network attachment.",
+						},
+						"id": &schema.Schema{
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: "The unique identifier for this instance cluster network attachment.",
+						},
+						"name": &schema.Schema{
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: "The name for this instance cluster network attachment. The name is unique across all network attachments for the instance.",
+						},
+						"resource_type": &schema.Schema{
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: "The resource type.",
+						},
+					},
+				},
+			},
+			"cluster_network": &schema.Schema{
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "If present, the cluster network that this virtual server instance resides in.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"crn": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The CRN for this cluster network.",
+						},
+						"deleted": &schema.Schema{
+							Type:        schema.TypeList,
+							Optional:    true,
+							Computed:    true,
+							Description: "If present, this property indicates the referenced resource has been deleted, and providessome supplementary information.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"more_info": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "Link to documentation about deleted resources.",
+									},
+								},
+							},
+						},
+						"href": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The URL for this cluster network.",
+						},
+						"id": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The unique identifier for this cluster network.",
+						},
+						"name": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The name for this cluster network. The name must not be used by another cluster network in the region.",
+						},
+						"resource_type": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The resource type.",
+						},
+					},
+				},
+			},
+
 			"confidential_compute_mode": &schema.Schema{
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -1787,6 +1867,23 @@ func instanceCreateByImage(d *schema.ResourceData, meta interface{}, profile, na
 			ID: &vpcID,
 		},
 	}
+
+	// cluster changes
+	if clusterNetworkAttachmentOk, ok := d.GetOk("cluster_network_attachments"); ok {
+		clusterNetworkAttachmentList := clusterNetworkAttachmentOk.([]interface{})
+		if len(clusterNetworkAttachmentList) > 0 {
+			clusterNetworkAttachments := []vpcv1.InstanceClusterNetworkAttachmentPrototypeInstanceContext{}
+			for _, clusterNetworkAttachmentsItem := range clusterNetworkAttachmentList {
+				clusterNetworkAttachmentsItemModel, err := ResourceIBMIsInstanceMapToInstanceClusterNetworkAttachmentPrototypeInstanceContext(clusterNetworkAttachmentsItem.(map[string]interface{}))
+				if err != nil {
+					return err
+				}
+				clusterNetworkAttachments = append(clusterNetworkAttachments, *clusterNetworkAttachmentsItemModel)
+			}
+			instanceproto.ClusterNetworkAttachments = clusterNetworkAttachments
+		}
+	}
+
 	if _, ok := d.GetOk("confidential_compute_mode"); ok {
 		instanceproto.ConfidentialComputeMode = core.StringPtr(d.Get("confidential_compute_mode").(string))
 	}
@@ -2222,6 +2319,21 @@ func instanceCreateByCatalogOffering(d *schema.ResourceData, meta interface{}, p
 		VPC: &vpcv1.VPCIdentity{
 			ID: &vpcID,
 		},
+	}
+	// cluster changes
+	if clusterNetworkAttachmentOk, ok := d.GetOk("cluster_network_attachments"); ok {
+		clusterNetworkAttachmentList := clusterNetworkAttachmentOk.([]interface{})
+		if len(clusterNetworkAttachmentList) > 0 {
+			clusterNetworkAttachments := []vpcv1.InstanceClusterNetworkAttachmentPrototypeInstanceContext{}
+			for _, clusterNetworkAttachmentsItem := range clusterNetworkAttachmentList {
+				clusterNetworkAttachmentsItemModel, err := ResourceIBMIsInstanceMapToInstanceClusterNetworkAttachmentPrototypeInstanceContext(clusterNetworkAttachmentsItem.(map[string]interface{}))
+				if err != nil {
+					return err
+				}
+				clusterNetworkAttachments = append(clusterNetworkAttachments, *clusterNetworkAttachmentsItemModel)
+			}
+			instanceproto.ClusterNetworkAttachments = clusterNetworkAttachments
+		}
 	}
 	if _, ok := d.GetOk("confidential_compute_mode"); ok {
 		instanceproto.ConfidentialComputeMode = core.StringPtr(d.Get("confidential_compute_mode").(string))
@@ -2664,6 +2776,21 @@ func instanceCreateByTemplate(d *schema.ResourceData, meta interface{}, profile,
 			ID: &template,
 		},
 		Name: &name,
+	}
+	// cluster changes
+	if clusterNetworkAttachmentOk, ok := d.GetOk("cluster_network_attachments"); ok {
+		clusterNetworkAttachmentList := clusterNetworkAttachmentOk.([]interface{})
+		if len(clusterNetworkAttachmentList) > 0 {
+			clusterNetworkAttachments := []vpcv1.InstanceClusterNetworkAttachmentPrototypeInstanceContext{}
+			for _, clusterNetworkAttachmentsItem := range clusterNetworkAttachmentList {
+				clusterNetworkAttachmentsItemModel, err := ResourceIBMIsInstanceMapToInstanceClusterNetworkAttachmentPrototypeInstanceContext(clusterNetworkAttachmentsItem.(map[string]interface{}))
+				if err != nil {
+					return err
+				}
+				clusterNetworkAttachments = append(clusterNetworkAttachments, *clusterNetworkAttachmentsItemModel)
+			}
+			instanceproto.ClusterNetworkAttachments = clusterNetworkAttachments
+		}
 	}
 	if _, ok := d.GetOk("confidential_compute_mode"); ok {
 		instanceproto.ConfidentialComputeMode = core.StringPtr(d.Get("confidential_compute_mode").(string))
@@ -3113,6 +3240,21 @@ func instanceCreateBySnapshot(d *schema.ResourceData, meta interface{}, profile,
 			ID: &vpcID,
 		},
 	}
+	// cluster changes
+	if clusterNetworkAttachmentOk, ok := d.GetOk("cluster_network_attachments"); ok {
+		clusterNetworkAttachmentList := clusterNetworkAttachmentOk.([]interface{})
+		if len(clusterNetworkAttachmentList) > 0 {
+			clusterNetworkAttachments := []vpcv1.InstanceClusterNetworkAttachmentPrototypeInstanceContext{}
+			for _, clusterNetworkAttachmentsItem := range clusterNetworkAttachmentList {
+				clusterNetworkAttachmentsItemModel, err := ResourceIBMIsInstanceMapToInstanceClusterNetworkAttachmentPrototypeInstanceContext(clusterNetworkAttachmentsItem.(map[string]interface{}))
+				if err != nil {
+					return err
+				}
+				clusterNetworkAttachments = append(clusterNetworkAttachments, *clusterNetworkAttachmentsItemModel)
+			}
+			instanceproto.ClusterNetworkAttachments = clusterNetworkAttachments
+		}
+	}
 	if _, ok := d.GetOk("confidential_compute_mode"); ok {
 		instanceproto.ConfidentialComputeMode = core.StringPtr(d.Get("confidential_compute_mode").(string))
 	}
@@ -3558,6 +3700,21 @@ func instanceCreateByVolume(d *schema.ResourceData, meta interface{}, profile, n
 		VPC: &vpcv1.VPCIdentity{
 			ID: &vpcID,
 		},
+	}
+	// cluster changes
+	if clusterNetworkAttachmentOk, ok := d.GetOk("cluster_network_attachments"); ok {
+		clusterNetworkAttachmentList := clusterNetworkAttachmentOk.([]interface{})
+		if len(clusterNetworkAttachmentList) > 0 {
+			clusterNetworkAttachments := []vpcv1.InstanceClusterNetworkAttachmentPrototypeInstanceContext{}
+			for _, clusterNetworkAttachmentsItem := range clusterNetworkAttachmentList {
+				clusterNetworkAttachmentsItemModel, err := ResourceIBMIsInstanceMapToInstanceClusterNetworkAttachmentPrototypeInstanceContext(clusterNetworkAttachmentsItem.(map[string]interface{}))
+				if err != nil {
+					return err
+				}
+				clusterNetworkAttachments = append(clusterNetworkAttachments, *clusterNetworkAttachmentsItemModel)
+			}
+			instanceproto.ClusterNetworkAttachments = clusterNetworkAttachments
+		}
 	}
 	if _, ok := d.GetOk("confidential_compute_mode"); ok {
 		instanceproto.ConfidentialComputeMode = core.StringPtr(d.Get("confidential_compute_mode").(string))
@@ -4133,6 +4290,31 @@ func instanceGet(d *schema.ResourceData, meta interface{}, id string) error {
 			return nil
 		}
 		return fmt.Errorf("[ERROR] Error getting Instance: %s\n%s", err, response)
+	}
+	// cluster changes
+	if !core.IsNil(instance.ClusterNetworkAttachments) {
+		clusterNetworkAttachments := []map[string]interface{}{}
+		for _, clusterNetworkAttachmentsItem := range instance.ClusterNetworkAttachments {
+			clusterNetworkAttachmentsItemMap, err := ResourceIBMIsInstanceInstanceClusterNetworkAttachmentReferenceToMap(&clusterNetworkAttachmentsItem) // #nosec G601
+			if err != nil {
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_instance", "read", "cluster_network_attachments-to-map")
+			}
+			clusterNetworkAttachments = append(clusterNetworkAttachments, clusterNetworkAttachmentsItemMap)
+		}
+		if err = d.Set("cluster_network_attachments", clusterNetworkAttachments); err != nil {
+			err = fmt.Errorf("Error setting cluster_network_attachments: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_instance", "read", "set-cluster_network_attachments")
+		}
+	}
+	if !core.IsNil(instance.ClusterNetwork) {
+		clusterNetworkMap, err := ResourceIBMIsInstanceClusterNetworkReferenceToMap(instance.ClusterNetwork)
+		if err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_instance", "read", "cluster_network-to-map")
+		}
+		if err = d.Set("cluster_network", []map[string]interface{}{clusterNetworkMap}); err != nil {
+			err = fmt.Errorf("Error setting cluster_network: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_instance", "read", "set-cluster_network")
+		}
 	}
 	if !core.IsNil(instance.ConfidentialComputeMode) {
 		if err = d.Set("confidential_compute_mode", instance.ConfidentialComputeMode); err != nil {
@@ -6650,4 +6832,110 @@ func containsNacId(s []string, e string) bool {
 		}
 	}
 	return false
+}
+
+func ResourceIBMIsInstanceInstanceClusterNetworkAttachmentReferenceToMap(model *vpcv1.InstanceClusterNetworkAttachmentReference) (map[string]interface{}, error) {
+	modelMap := make(map[string]interface{})
+	modelMap["href"] = *model.Href
+	modelMap["id"] = *model.ID
+	modelMap["name"] = *model.Name
+	modelMap["resource_type"] = *model.ResourceType
+	return modelMap, nil
+}
+
+func ResourceIBMIsInstanceClusterNetworkReferenceToMap(model *vpcv1.ClusterNetworkReference) (map[string]interface{}, error) {
+	modelMap := make(map[string]interface{})
+	modelMap["crn"] = *model.CRN
+	if model.Deleted != nil {
+		deletedMap, err := ResourceIBMIsInstanceDeletedToMap(model.Deleted)
+		if err != nil {
+			return modelMap, err
+		}
+		modelMap["deleted"] = []map[string]interface{}{deletedMap}
+	}
+	modelMap["href"] = *model.Href
+	modelMap["id"] = *model.ID
+	modelMap["name"] = *model.Name
+	modelMap["resource_type"] = *model.ResourceType
+	return modelMap, nil
+}
+
+func ResourceIBMIsInstanceDeletedToMap(model *vpcv1.Deleted) (map[string]interface{}, error) {
+	modelMap := make(map[string]interface{})
+	modelMap["more_info"] = *model.MoreInfo
+	return modelMap, nil
+}
+
+func ResourceIBMIsInstanceMapToInstanceClusterNetworkAttachmentPrototypeInstanceContext(modelMap map[string]interface{}) (*vpcv1.InstanceClusterNetworkAttachmentPrototypeInstanceContext, error) {
+	model := &vpcv1.InstanceClusterNetworkAttachmentPrototypeInstanceContext{}
+	ClusterNetworkInterfaceModel, err := ResourceIBMIsInstanceMapToInstanceClusterNetworkAttachmentPrototypeClusterNetworkInterface(modelMap["cluster_network_interface"].([]interface{})[0].(map[string]interface{}))
+	if err != nil {
+		return model, err
+	}
+	model.ClusterNetworkInterface = ClusterNetworkInterfaceModel
+	if modelMap["name"] != nil && modelMap["name"].(string) != "" {
+		model.Name = core.StringPtr(modelMap["name"].(string))
+	}
+	return model, nil
+}
+
+func ResourceIBMIsInstanceMapToInstanceClusterNetworkAttachmentPrototypeClusterNetworkInterface(modelMap map[string]interface{}) (vpcv1.InstanceClusterNetworkAttachmentPrototypeClusterNetworkInterfaceIntf, error) {
+	model := &vpcv1.InstanceClusterNetworkAttachmentPrototypeClusterNetworkInterface{}
+	if modelMap["auto_delete"] != nil {
+		model.AutoDelete = core.BoolPtr(modelMap["auto_delete"].(bool))
+	}
+	if modelMap["name"] != nil && modelMap["name"].(string) != "" {
+		model.Name = core.StringPtr(modelMap["name"].(string))
+	}
+	if modelMap["primary_ip"] != nil && len(modelMap["primary_ip"].([]interface{})) > 0 {
+		PrimaryIPModel, err := ResourceIBMIsInstanceMapToClusterNetworkInterfacePrimaryIPPrototype(modelMap["primary_ip"].([]interface{})[0].(map[string]interface{}))
+		if err != nil {
+			return model, err
+		}
+		model.PrimaryIP = PrimaryIPModel
+	}
+	if modelMap["subnet"] != nil && len(modelMap["subnet"].([]interface{})) > 0 {
+		SubnetModel, err := ResourceIBMIsInstanceMapToClusterNetworkSubnetIdentity(modelMap["subnet"].([]interface{})[0].(map[string]interface{}))
+		if err != nil {
+			return model, err
+		}
+		model.Subnet = SubnetModel
+	}
+	if modelMap["id"] != nil && modelMap["id"].(string) != "" {
+		model.ID = core.StringPtr(modelMap["id"].(string))
+	}
+	if modelMap["href"] != nil && modelMap["href"].(string) != "" {
+		model.Href = core.StringPtr(modelMap["href"].(string))
+	}
+	return model, nil
+}
+
+func ResourceIBMIsInstanceMapToClusterNetworkInterfacePrimaryIPPrototype(modelMap map[string]interface{}) (vpcv1.ClusterNetworkInterfacePrimaryIPPrototypeIntf, error) {
+	model := &vpcv1.ClusterNetworkInterfacePrimaryIPPrototype{}
+	if modelMap["id"] != nil && modelMap["id"].(string) != "" {
+		model.ID = core.StringPtr(modelMap["id"].(string))
+	}
+	if modelMap["href"] != nil && modelMap["href"].(string) != "" {
+		model.Href = core.StringPtr(modelMap["href"].(string))
+	}
+	if modelMap["address"] != nil && modelMap["address"].(string) != "" {
+		model.Address = core.StringPtr(modelMap["address"].(string))
+	}
+	if modelMap["auto_delete"] != nil {
+		model.AutoDelete = core.BoolPtr(modelMap["auto_delete"].(bool))
+	}
+	if modelMap["name"] != nil && modelMap["name"].(string) != "" {
+		model.Name = core.StringPtr(modelMap["name"].(string))
+	}
+	return model, nil
+}
+func ResourceIBMIsInstanceMapToClusterNetworkSubnetIdentity(modelMap map[string]interface{}) (vpcv1.ClusterNetworkSubnetIdentityIntf, error) {
+	model := &vpcv1.ClusterNetworkSubnetIdentity{}
+	if modelMap["id"] != nil && modelMap["id"].(string) != "" {
+		model.ID = core.StringPtr(modelMap["id"].(string))
+	}
+	if modelMap["href"] != nil && modelMap["href"].(string) != "" {
+		model.Href = core.StringPtr(modelMap["href"].(string))
+	}
+	return model, nil
 }

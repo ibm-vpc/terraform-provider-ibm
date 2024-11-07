@@ -77,7 +77,36 @@ In addition to all argument reference list, you can access the following attribu
 		- `deleted` - (List) If present, this property indicates the referenced resource has been deleted, and provides some supplementary information.
 		Nested schema for `deleted`:
 		  - `more_info` - (String) Link to documentation about deleted resources.
- 	
+
+	- `cluster_network` - (List) If present, the cluster network that this virtual server instance resides in.
+		Nested schema for **cluster_network**:
+		- `crn` - (String) The CRN for this cluster network.
+		- Constraints: The maximum length is `512` characters. The minimum length is `9` characters. The value must match regular expression `/^crn:v[0-9]+:[a-z0-9-]+:[a-z0-9-]+:[a-z0-9-]+:[a-z0-9-]*:([a-z]\/[a-z0-9-]+)?:[a-z0-9-]*:[a-z0-9-]*:[a-zA-Z0-9-_\\.\/]*$|^crn:\\[\\.\\.\\.\\]$/`.
+		- `deleted` - (List) If present, this property indicates the referenced resource has been deleted, and providessome supplementary information.
+			Nested schema for **deleted**:
+			- `more_info` - (String) Link to documentation about deleted resources.
+			- Constraints: The maximum length is `8000` characters. The minimum length is `10` characters. The value must match regular expression `/^http(s)?:\/\/([^\/?#]*)([^?#]*)(\\?([^#]*))?(#(.*))?$/`.
+		- `href` - (String) The URL for this cluster network.
+		- Constraints: The maximum length is `8000` characters. The minimum length is `10` characters. The value must match regular expression `/^http(s)?:\/\/([^\/?#]*)([^?#]*)(\\?([^#]*))?(#(.*))?$/`.
+		- `id` - (String) The unique identifier for this cluster network.
+		- Constraints: The maximum length is `64` characters. The minimum length is `1` character. The value must match regular expression `/^[-0-9a-z_]+$/`.
+		- `name` - (String) The name for this cluster network. The name must not be used by another cluster network in the region.
+		- Constraints: The maximum length is `63` characters. The minimum length is `1` character. The value must match regular expression `/^-?([a-z]|[a-z][-a-z0-9]*[a-z0-9]|[0-9][-a-z0-9]*([a-z]|[-a-z][-a-z0-9]*[a-z0-9]))$/`.
+		- `resource_type` - (String) The resource type.
+		- Constraints: Allowable values are: `cluster_network`. The maximum length is `128` characters. The minimum length is `1` character. The value must match regular expression `/^[a-z][a-z0-9]*(_[a-z0-9]+)*$/`.
+	- `cluster_network_attachments` - (List) The cluster network attachments for this virtual server instance.The cluster network attachments are ordered for consistent instance configuration.
+		- Constraints: The maximum length is `128` items. The minimum length is `0` items.
+		Nested schema for **cluster_network_attachments**:
+		- `href` - (String) The URL for this instance cluster network attachment.
+		- Constraints: The maximum length is `8000` characters. The minimum length is `10` characters. The value must match regular expression `/^http(s)?:\/\/([^\/?#]*)([^?#]*)(\\?([^#]*))?(#(.*))?$/`.
+		- `id` - (String) The unique identifier for this instance cluster network attachment.
+		- Constraints: The maximum length is `64` characters. The minimum length is `1` character. The value must match regular expression `/^[-0-9a-z_]+$/`.
+		- `name` - (String) The name for this instance cluster network attachment. The name is unique across all network attachments for the instance.
+		- Constraints: The maximum length is `63` characters. The minimum length is `1` character. The value must match regular expression `/^-?([a-z]|[a-z][-a-z0-9]*[a-z0-9]|[0-9][-a-z0-9]*([a-z]|[-a-z][-a-z0-9]*[a-z0-9]))$/`.
+		- `resource_type` - (String) The resource type.
+		- Constraints: Allowable values are: `instance_cluster_network_attachment`. The maximum length is `128` characters. The minimum length is `1` character. The value must match regular expression `/^[a-z][a-z0-9]*(_[a-z0-9]+)*$/`.
+
+
 	- `confidential_compute_mode` - (String) The confidential compute mode to use for this virtual server instance.If unspecified, the default confidential compute mode from the profile will be used.
 	- `crn` - (String) The CRN of the instance.
 	- `disks` - (List) Collection of the instance's disks. Nested `disks` blocks has the following structure:
