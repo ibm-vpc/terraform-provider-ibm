@@ -15,7 +15,7 @@ Provides a read-only data source to retrieve information about an InstanceCluste
 ```hcl
 data "ibm_is_instance_cluster_network_attachment" "is_instance_cluster_network_attachment" {
 	instance_id = ibm_is_instance_cluster_network_attachment.is_instance_cluster_network_attachment_instance.instance_id
-	is_instance_cluster_network_attachment_id = ibm_is_instance_cluster_network_attachment.is_instance_cluster_network_attachment_instance.is_instance_cluster_network_attachment_id
+	instance_cluster_network_attachment_id = ibm_is_instance_cluster_network_attachment.is_instance_cluster_network_attachment_instance.instance_cluster_network_attachment_id
 }
 ```
 
@@ -25,7 +25,7 @@ You can specify the following arguments for this data source.
 
 - `instance_id` - (Required, Forces new resource, String) The virtual server instance identifier.
   * Constraints: The maximum length is `64` characters. The minimum length is `1` character. The value must match regular expression `/^[-0-9a-z_]+$/`.
-- `is_instance_cluster_network_attachment_id` - (Required, Forces new resource, String) The instance cluster network attachment identifier.
+- `instance_cluster_network_attachment_id` - (Required, Forces new resource, String) The instance cluster network attachment identifier.
   * Constraints: The maximum length is `64` characters. The minimum length is `1` character. The value must match regular expression `/^[-0-9a-z_]+$/`.
 
 ## Attribute Reference

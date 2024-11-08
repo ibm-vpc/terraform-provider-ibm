@@ -315,8 +315,23 @@ func ResourceIBMISInstance() *schema.Resource {
 						"name": &schema.Schema{
 							Type:        schema.TypeString,
 							Optional:    true,
-							ForceNew:    true,
+							Computed:    true,
 							Description: "The name for this cluster network attachment. Names must be unique within the instance the cluster network attachment resides in. If unspecified, the name will be a hyphenated list of randomly-selected words. Names starting with `ibm-` are reserved for provider-owned resources, and are not allowed.",
+						},
+						"href": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The URL for this instance cluster network attachment.",
+						},
+						"id": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The unique identifier for this instance cluster network attachment.",
+						},
+						"resource_type": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The resource type.",
 						},
 					},
 				},

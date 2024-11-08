@@ -2068,7 +2068,7 @@ data "ibm_is_instance" "is_instance_instance" {
 // Create is_instance_cluster_network_attachment data source
 data "ibm_is_instance_cluster_network_attachment" "is_instance_cluster_network_attachment_instance" {
   instance_id = var.is_instance_cluster_network_attachment_instance_id
-  is_instance_cluster_network_attachment_id = var.is_instance_cluster_network_attachment_is_instance_cluster_network_attachment_id
+  instance_cluster_network_attachment_id = var.is_instance_cluster_network_attachment_instance_cluster_network_attachment_id
 }
 */
 
