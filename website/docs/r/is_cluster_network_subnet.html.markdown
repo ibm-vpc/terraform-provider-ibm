@@ -18,7 +18,7 @@ resource "ibm_is_cluster_network_subnet" "is_cluster_network_subnet_instance" {
   ip_version = "ipv4"
   ipv4_cidr_block = "10.0.0.0/24"
   name = "my-cluster-network-subnet"
-  total_ipv4_address_count = 256
+  # total_ipv4_address_count = 256  // either ipv4_cidr_block or total_ipv4_address_count
 }
 ```
 
@@ -27,13 +27,9 @@ resource "ibm_is_cluster_network_subnet" "is_cluster_network_subnet_instance" {
 You can specify the following arguments for this resource.
 
 - `cluster_network_id` - (Required, Forces new resource, String) The cluster network identifier.
-  * Constraints: The maximum length is `64` characters. The minimum length is `1` character. The value must match regular expression `/^[-0-9a-z_]+$/`.
-- `ip_version` - (Optional, String) The IP version for this cluster network subnet.The enumerated values for this property may[expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.
-  * Constraints: Allowable values are: `ipv4`. The maximum length is `128` characters. The minimum length is `1` character. The value must match regular expression `/^[a-z][a-z0-9]*(_[a-z0-9]+)*$/`.
+- `ip_version` - (Optional, String) The IP version for this cluster network subnet.The enumerated values for this property may[expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future. Allowable values are: `ipv4`.
 - `ipv4_cidr_block` - (Optional, String) The IPv4 range of this cluster network subnet, expressed in CIDR format.
-  * Constraints: The maximum length is `18` characters. The minimum length is `9` characters. The value must match regular expression `/^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(3[0-2]|[1-2][0-9]|[0-9]))$/`.
 - `name` - (Optional, String) The name for this cluster network subnet. The name is unique across all cluster network subnets in the cluster network.
-  * Constraints: The maximum length is `63` characters. The minimum length is `1` character. The value must match regular expression `/^-?([a-z]|[a-z][-a-z0-9]*[a-z0-9]|[0-9][-a-z0-9]*([a-z]|[-a-z][-a-z0-9]*[a-z0-9]))$/`.
 - `total_ipv4_address_count` - (Optional, Integer) The total number of IPv4 addresses in this cluster network subnet.Note: This is calculated as 2<sup>(32 - prefix length)</sup>. For example, the prefix length `/24` gives:<br> 2<sup>(32 - 24)</sup> = 2<sup>8</sup> = 256 addresses.
 
 ## Attribute Reference
