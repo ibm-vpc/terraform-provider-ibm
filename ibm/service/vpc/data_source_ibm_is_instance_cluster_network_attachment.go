@@ -27,7 +27,7 @@ func DataSourceIBMIsInstanceClusterNetworkAttachment() *schema.Resource {
 				Required:    true,
 				Description: "The virtual server instance identifier.",
 			},
-			"is_instance_cluster_network_attachment_id": &schema.Schema{
+			"instance_cluster_network_attachment_id": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "The instance cluster network attachment identifier.",
@@ -253,7 +253,7 @@ func dataSourceIBMIsInstanceClusterNetworkAttachmentRead(context context.Context
 	getInstanceClusterNetworkAttachmentOptions := &vpcv1.GetInstanceClusterNetworkAttachmentOptions{}
 
 	getInstanceClusterNetworkAttachmentOptions.SetInstanceID(d.Get("instance_id").(string))
-	getInstanceClusterNetworkAttachmentOptions.SetID(d.Get("is_instance_cluster_network_attachment_id").(string))
+	getInstanceClusterNetworkAttachmentOptions.SetID(d.Get("instance_cluster_network_attachment_id").(string))
 
 	instanceClusterNetworkAttachment, _, err := vpcClient.GetInstanceClusterNetworkAttachmentWithContext(context, getInstanceClusterNetworkAttachmentOptions)
 	if err != nil {

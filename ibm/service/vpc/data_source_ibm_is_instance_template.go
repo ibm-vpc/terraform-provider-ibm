@@ -5,6 +5,7 @@ package vpc
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"reflect"
@@ -920,6 +921,14 @@ func DataSourceIBMISInstanceTemplate() *schema.Resource {
 	}
 }
 
+func prettifyResponse(response interface{}) string {
+	output, err := json.MarshalIndent(response, "", "    ")
+	if err == nil {
+		return fmt.Sprintf("%+v\n", string(output))
+	}
+	return fmt.Sprintf("Error : %#v", response)
+}
+
 func dataSourceIBMISInstanceTemplateRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	instanceC, err := meta.(conns.ClientSession).VpcV1API()
 	if err != nil {
@@ -1319,6 +1328,21 @@ func dataSourceIBMISInstanceTemplateRead(context context.Context, d *schema.Reso
 				if err = d.Set("enable_secure_boot", instance.EnableSecureBoot); err != nil {
 					return diag.FromErr(fmt.Errorf("[ERROR] Error setting enable_secure_boot: %s", err))
 				}
+				// cluster changes
+				if !core.IsNil(instance.ClusterNetworkAttachments) {
+					clusterNetworkAttachments := []map[string]interface{}{}
+					for _, clusterNetworkAttachmentsItem := range instance.ClusterNetworkAttachments {
+						clusterNetworkAttachmentsItemMap, err := DataSourceIBMIsInstanceTemplateInstanceClusterNetworkAttachmentPrototypeInstanceContextToMap(&clusterNetworkAttachmentsItem) // #nosec G601
+						if err != nil {
+							return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_instance_template", "read", "cluster_network_attachments-to-map").GetDiag()
+						}
+						clusterNetworkAttachments = append(clusterNetworkAttachments, clusterNetworkAttachmentsItemMap)
+					}
+					if err = d.Set("cluster_network_attachments", clusterNetworkAttachments); err != nil {
+						return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting cluster_network_attachments: %s", err), "(Data) ibm_is_instance_template", "read", "set-cluster_network_attachments").GetDiag()
+					}
+				}
+
 				// catalog offering if any
 				if instance.CatalogOffering != nil {
 					catOfferingList := make([]map[string]interface{}, 0)

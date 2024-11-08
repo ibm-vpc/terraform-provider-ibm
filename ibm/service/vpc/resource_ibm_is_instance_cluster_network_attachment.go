@@ -249,7 +249,7 @@ func ResourceIBMIsInstanceClusterNetworkAttachment() *schema.Resource {
 				Computed:    true,
 				Description: "The resource type.",
 			},
-			"is_instance_cluster_network_attachment_id": &schema.Schema{
+			"instance_cluster_network_attachment_id": &schema.Schema{
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "The unique identifier for this instance cluster network attachment.",
@@ -401,9 +401,9 @@ func resourceIBMIsInstanceClusterNetworkAttachmentRead(context context.Context, 
 		err = fmt.Errorf("Error setting resource_type: %s", err)
 		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_instance_cluster_network_attachment", "read", "set-resource_type").GetDiag()
 	}
-	if err = d.Set("is_instance_cluster_network_attachment_id", instanceClusterNetworkAttachment.ID); err != nil {
-		err = fmt.Errorf("Error setting is_instance_cluster_network_attachment_id: %s", err)
-		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_instance_cluster_network_attachment", "read", "set-is_instance_cluster_network_attachment_id").GetDiag()
+	if err = d.Set("instance_cluster_network_attachment_id", instanceClusterNetworkAttachment.ID); err != nil {
+		err = fmt.Errorf("Error setting instance_cluster_network_attachment_id: %s", err)
+		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_instance_cluster_network_attachment", "read", "set-instance_cluster_network_attachment_id").GetDiag()
 	}
 
 	return nil
