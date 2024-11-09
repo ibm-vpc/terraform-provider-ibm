@@ -15,37 +15,16 @@ Create, update, and delete InstanceClusterNetworkAttachments with this resource.
 ```hcl
 resource "ibm_is_instance_cluster_network_attachment" "is_instance_cluster_network_attachment_instance" {
   before {
-		href = "https://us-south.iaas.cloud.ibm.com/v1/instances/0717_e21b7391-2ca2-4ab5-84a8-b92157a633b0/cluster_network_attachments/0717-fb880975-db45-4459-8548-64e3995ac213"
 		id = "0717-fb880975-db45-4459-8548-64e3995ac213"
-		name = "my-instance-network-attachment"
-		resource_type = "instance_cluster_network_attachment"
   }
   cluster_network_interface {
-		deleted {
-			more_info = "https://cloud.ibm.com/apidocs/vpc#deleted-resources"
-		}
-		href = "https://us-south.iaas.cloud.ibm.com/v1/cluster_networks/0717-da0df18c-7598-4633-a648-fdaac28a5573/interfaces/0717-ffc092f7-5d02-4b93-ab69-26860529b9fb"
-		id = "0717-ffc092f7-5d02-4b93-ab69-26860529b9fb"
 		name = "my-cluster-network-interface"
 		primary_ip {
 			address = "10.1.0.6"
-			deleted {
-				more_info = "https://cloud.ibm.com/apidocs/vpc#deleted-resources"
-			}
-			href = "https://us-south.iaas.cloud.ibm.com/v1/cluster_networks/0717-da0df18c-7598-4633-a648-fdaac28a5573/subnets/0717-7931845c-65c4-4b0a-80cd-7d9c1a6d7930/reserved_ips/6d353a0f-aeb1-4ae1-832e-1110d10981bb"
-			id = "6d353a0f-aeb1-4ae1-832e-1110d10981bb"
 			name = "my-cluster-network-subnet-reserved-ip"
-			resource_type = "cluster_network_subnet_reserved_ip"
 		}
-		resource_type = "cluster_network_interface"
 		subnet {
-			deleted {
-				more_info = "https://cloud.ibm.com/apidocs/vpc#deleted-resources"
-			}
-			href = "https://us-south.iaas.cloud.ibm.com/v1/cluster_networks/0717-da0df18c-7598-4633-a648-fdaac28a5573/subnets/0717-7931845c-65c4-4b0a-80cd-7d9c1a6d7930"
 			id = "0717-7931845c-65c4-4b0a-80cd-7d9c1a6d7930"
-			name = "my-cluster-network-subnet"
-			resource_type = "cluster_network_subnet"
 		}
   }
   instance_id = "instance_id"
@@ -126,17 +105,12 @@ After your resource is created, you can read values from the listed arguments an
 - `instance_cluster_network_attachment_id` - (String) The unique identifier for this instance cluster network attachment.
   * Constraints: The maximum length is `64` characters. The minimum length is `1` character. The value must match regular expression `/^[-0-9a-z_]+$/`.
 - `lifecycle_reasons` - (List) The reasons for the current `lifecycle_state` (if any).
-  * Constraints: The minimum length is `0` items.
-Nested schema for **lifecycle_reasons**:
-	- `code` - (String) A reason code for this lifecycle state:- `internal_error`: internal error (contact IBM support)- `resource_suspended_by_provider`: The resource has been suspended (contact IBM  support)The enumerated values for this property may[expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.
-	  * Constraints: Allowable values are: `internal_error`, `resource_suspended_by_provider`. The maximum length is `128` characters. The minimum length is `1` character. The value must match regular expression `/^[a-z][a-z0-9]*(_[a-z0-9]+)*$/`.
+	Nested schema for **lifecycle_reasons**:
+	- `code` - (String) A reason code for this lifecycle state:- `internal_error`: internal error (contact IBM support)- `resource_suspended_by_provider`: The resource has been suspended (contact IBM  support)The enumerated values for this property may[expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future. Allowable values are: `internal_error`, `resource_suspended_by_provider`. 
 	- `message` - (String) An explanation of the reason for this lifecycle state.
 	- `more_info` - (String) Link to documentation about the reason for this lifecycle state.
-	  * Constraints: The maximum length is `8000` characters. The minimum length is `10` characters. The value must match regular expression `/^http(s)?:\/\/([^\/?#]*)([^?#]*)(\\?([^#]*))?(#(.*))?$/`.
-- `lifecycle_state` - (String) The lifecycle state of the instance cluster network attachment.
-  * Constraints: Allowable values are: `deleting`, `failed`, `pending`, `stable`, `suspended`, `updating`, `waiting`. The maximum length is `128` characters. The minimum length is `1` character. The value must match regular expression `/^[a-z][a-z0-9]*(_[a-z0-9]+)*$/`.
-- `resource_type` - (String) The resource type.
-  * Constraints: Allowable values are: `instance_cluster_network_attachment`. The maximum length is `128` characters. The minimum length is `1` character. The value must match regular expression `/^[a-z][a-z0-9]*(_[a-z0-9]+)*$/`.
+- `lifecycle_state` - (String) The lifecycle state of the instance cluster network attachment. Allowable values are: `deleting`, `failed`, `pending`, `stable`, `suspended`, `updating`, `waiting`.
+- `resource_type` - (String) The resource type. Allowable values are: `instance_cluster_network_attachment`.
 
 
 ## Import
