@@ -1185,10 +1185,11 @@ func Provider() *schema.Provider {
 			"ibm_is_backup_policy_plan": vpc.ResourceIBMIsBackupPolicyPlan(),
 
 			// cluster
-			"ibm_is_cluster_network_interface":          vpc.ResourceIBMIsClusterNetworkInterface(),
-			"ibm_is_cluster_network_subnet_reserved_ip": vpc.ResourceIBMIsClusterNetworkSubnetReservedIP(),
-			"ibm_is_cluster_network_subnet":             vpc.ResourceIBMIsClusterNetworkSubnet(),
-			"ibm_is_cluster_network":                    vpc.ResourceIBMIsClusterNetwork(),
+			"ibm_is_cluster_network_interface":           vpc.ResourceIBMIsClusterNetworkInterface(),
+			"ibm_is_cluster_network_subnet_reserved_ip":  vpc.ResourceIBMIsClusterNetworkSubnetReservedIP(),
+			"ibm_is_cluster_network_subnet":              vpc.ResourceIBMIsClusterNetworkSubnet(),
+			"ibm_is_cluster_network":                     vpc.ResourceIBMIsClusterNetwork(),
+			"ibm_is_instance_cluster_network_attachment": vpc.ResourceIBMIsInstanceClusterNetworkAttachment(),
 
 			// bare_metal_server
 			"ibm_is_bare_metal_server_action":                        vpc.ResourceIBMIsBareMetalServerAction(),
@@ -1893,10 +1894,12 @@ func Validator() validate.ValidatorDict {
 				"ibm_is_bare_metal_server":                    vpc.ResourceIBMIsBareMetalServerValidator(),
 
 				// cluster
-				"ibm_is_cluster_network_interface":          vpc.ResourceIBMIsClusterNetworkInterfaceValidator(),
-				"ibm_is_cluster_network_subnet":             vpc.ResourceIBMIsClusterNetworkSubnetValidator(),
-				"ibm_is_cluster_network_subnet_reserved_ip": vpc.ResourceIBMIsClusterNetworkSubnetReservedIPValidator(),
-				"ibm_is_cluster_network":                    vpc.ResourceIBMIsClusterNetworkValidator(),
+
+				"ibm_is_cluster_network_interface":           vpc.ResourceIBMIsClusterNetworkInterfaceValidator(),
+				"ibm_is_cluster_network_subnet":              vpc.ResourceIBMIsClusterNetworkSubnetValidator(),
+				"ibm_is_cluster_network_subnet_reserved_ip":  vpc.ResourceIBMIsClusterNetworkSubnetReservedIPValidator(),
+				"ibm_is_cluster_network":                     vpc.ResourceIBMIsClusterNetworkValidator(),
+				"ibm_is_instance_cluster_network_attachment": vpc.ResourceIBMIsInstanceClusterNetworkAttachmentValidator(),
 
 				"ibm_is_dedicated_host_group":                        vpc.ResourceIbmIsDedicatedHostGroupValidator(),
 				"ibm_is_dedicated_host":                              vpc.ResourceIbmIsDedicatedHostValidator(),

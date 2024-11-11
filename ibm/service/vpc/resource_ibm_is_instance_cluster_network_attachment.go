@@ -43,7 +43,7 @@ func ResourceIBMIsInstanceClusterNetworkAttachment() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"href": &schema.Schema{
 							Type:        schema.TypeString,
-							Required:    true,
+							Computed:    true,
 							Description: "The URL for this instance cluster network attachment.",
 						},
 						"id": &schema.Schema{
@@ -66,7 +66,6 @@ func ResourceIBMIsInstanceClusterNetworkAttachment() *schema.Resource {
 			},
 			"cluster_network_interface": &schema.Schema{
 				Type:        schema.TypeList,
-				MinItems:    1,
 				MaxItems:    1,
 				Required:    true,
 				Description: "The cluster network interface for this instance cluster network attachment.",
@@ -88,24 +87,24 @@ func ResourceIBMIsInstanceClusterNetworkAttachment() *schema.Resource {
 						},
 						"href": &schema.Schema{
 							Type:        schema.TypeString,
-							Required:    true,
+							Computed:    true,
 							Description: "The URL for this cluster network interface.",
 						},
 						"id": &schema.Schema{
 							Type:        schema.TypeString,
-							Required:    true,
+							Computed:    true,
 							Description: "The unique identifier for this cluster network interface.",
 						},
 						"name": &schema.Schema{
 							Type:        schema.TypeString,
-							Required:    true,
+							Optional:    true,
 							Description: "The name for this cluster network interface. The name is unique across all interfaces in the cluster network.",
 						},
 						"primary_ip": &schema.Schema{
 							Type:        schema.TypeList,
-							MinItems:    1,
 							MaxItems:    1,
-							Required:    true,
+							Optional:    true,
+							Computed:    true,
 							Description: "The primary IP for this cluster network interface.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -179,7 +178,7 @@ func ResourceIBMIsInstanceClusterNetworkAttachment() *schema.Resource {
 									},
 									"href": &schema.Schema{
 										Type:        schema.TypeString,
-										Required:    true,
+										Computed:    true,
 										Description: "The URL for this cluster network subnet.",
 									},
 									"id": &schema.Schema{

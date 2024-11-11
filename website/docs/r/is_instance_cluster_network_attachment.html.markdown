@@ -37,15 +37,11 @@ resource "ibm_is_instance_cluster_network_attachment" "is_instance_cluster_netwo
 You can specify the following arguments for this resource.
 
 - `before` - (Optional, List) The instance cluster network attachment that is immediately before. If absent, this is thelast instance cluster network attachment.
-Nested schema for **before**:
+	Nested schema for **before**:
 	- `href` - (Required, String) The URL for this instance cluster network attachment.
-	  * Constraints: The maximum length is `8000` characters. The minimum length is `10` characters. The value must match regular expression `/^http(s)?:\/\/([^\/?#]*)([^?#]*)(\\?([^#]*))?(#(.*))?$/`.
 	- `id` - (Required, String) The unique identifier for this instance cluster network attachment.
-	  * Constraints: The maximum length is `64` characters. The minimum length is `1` character. The value must match regular expression `/^[-0-9a-z_]+$/`.
 	- `name` - (Computed, String) The name for this instance cluster network attachment. The name is unique across all network attachments for the instance.
-	  * Constraints: The maximum length is `63` characters. The minimum length is `1` character. The value must match regular expression `/^-?([a-z]|[a-z][-a-z0-9]*[a-z0-9]|[0-9][-a-z0-9]*([a-z]|[-a-z][-a-z0-9]*[a-z0-9]))$/`.
 	- `resource_type` - (Computed, String) The resource type.
-	  * Constraints: Allowable values are: `instance_cluster_network_attachment`. The maximum length is `128` characters. The minimum length is `1` character. The value must match regular expression `/^[a-z][a-z0-9]*(_[a-z0-9]+)*$/`.
 - `cluster_network_interface` - (Required, List) The cluster network interface for this instance cluster network attachment.
 Nested schema for **cluster_network_interface**:
 	- `deleted` - (Optional, List) If present, this property indicates the referenced resource has been deleted, and providessome supplementary information.
