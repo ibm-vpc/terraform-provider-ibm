@@ -161,11 +161,11 @@ func DataSourceIBMIsClusterNetworkInterfaces() *schema.Resource {
 								},
 							},
 						},
-						"protocol_state_filtering_mode": &schema.Schema{
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: "The protocol state filtering mode used for this cluster network interface.Protocol state filtering monitors each network connection flowing over this cluster network interface, and drops any packets that are invalid based on the current connection state and protocol. See [Protocol state filtering mode](https://cloud.ibm.com/docs/vpc?topic=vpc-vni-about#protocol-state-filtering) for more information.The enumerated values for this property may[expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.",
-						},
+						// "protocol_state_filtering_mode": &schema.Schema{
+						// 	Type:        schema.TypeString,
+						// 	Computed:    true,
+						// 	Description: "The protocol state filtering mode used for this cluster network interface.Protocol state filtering monitors each network connection flowing over this cluster network interface, and drops any packets that are invalid based on the current connection state and protocol. See [Protocol state filtering mode](https://cloud.ibm.com/docs/vpc?topic=vpc-vni-about#protocol-state-filtering) for more information.The enumerated values for this property may[expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.",
+						// },
 						"resource_type": &schema.Schema{
 							Type:        schema.TypeString,
 							Computed:    true,
@@ -399,9 +399,9 @@ func DataSourceIBMIsClusterNetworkInterfacesClusterNetworkInterfaceToMap(model *
 		return modelMap, err
 	}
 	modelMap["primary_ip"] = []map[string]interface{}{primaryIPMap}
-	if model.ProtocolStateFilteringMode != nil {
-		modelMap["protocol_state_filtering_mode"] = *model.ProtocolStateFilteringMode
-	}
+	// if model.ProtocolStateFilteringMode != nil {
+	// 	modelMap["protocol_state_filtering_mode"] = *model.ProtocolStateFilteringMode
+	// }
 	modelMap["resource_type"] = *model.ResourceType
 	if model.Subnet != nil {
 		subnetMap, err := DataSourceIBMIsClusterNetworkInterfacesClusterNetworkSubnetReferenceToMap(model.Subnet)

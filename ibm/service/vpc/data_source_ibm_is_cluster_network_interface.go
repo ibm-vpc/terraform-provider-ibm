@@ -144,11 +144,11 @@ func DataSourceIBMIsClusterNetworkInterface() *schema.Resource {
 					},
 				},
 			},
-			"protocol_state_filtering_mode": &schema.Schema{
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: "The protocol state filtering mode used for this cluster network interface.Protocol state filtering monitors each network connection flowing over this cluster network interface, and drops any packets that are invalid based on the current connection state and protocol. See [Protocol state filtering mode](https://cloud.ibm.com/docs/vpc?topic=vpc-vni-about#protocol-state-filtering) for more information.The enumerated values for this property may[expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.",
-			},
+			// "protocol_state_filtering_mode": &schema.Schema{
+			// 	Type:        schema.TypeString,
+			// 	Computed:    true,
+			// 	Description: "The protocol state filtering mode used for this cluster network interface.Protocol state filtering monitors each network connection flowing over this cluster network interface, and drops any packets that are invalid based on the current connection state and protocol. See [Protocol state filtering mode](https://cloud.ibm.com/docs/vpc?topic=vpc-vni-about#protocol-state-filtering) for more information.The enumerated values for this property may[expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.",
+			// },
 			"resource_type": &schema.Schema{
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -374,11 +374,11 @@ func dataSourceIBMIsClusterNetworkInterfaceRead(context context.Context, d *sche
 		return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting primary_ip: %s", err), "(Data) ibm_is_cluster_network_interface", "read", "set-primary_ip").GetDiag()
 	}
 
-	if !core.IsNil(clusterNetworkInterface.ProtocolStateFilteringMode) {
-		if err = d.Set("protocol_state_filtering_mode", clusterNetworkInterface.ProtocolStateFilteringMode); err != nil {
-			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting protocol_state_filtering_mode: %s", err), "(Data) ibm_is_cluster_network_interface", "read", "set-protocol_state_filtering_mode").GetDiag()
-		}
-	}
+	// if !core.IsNil(clusterNetworkInterface.ProtocolStateFilteringMode) {
+	// 	if err = d.Set("protocol_state_filtering_mode", clusterNetworkInterface.ProtocolStateFilteringMode); err != nil {
+	// 		return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting protocol_state_filtering_mode: %s", err), "(Data) ibm_is_cluster_network_interface", "read", "set-protocol_state_filtering_mode").GetDiag()
+	// 	}
+	// }
 
 	if err = d.Set("resource_type", clusterNetworkInterface.ResourceType); err != nil {
 		return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting resource_type: %s", err), "(Data) ibm_is_cluster_network_interface", "read", "set-resource_type").GetDiag()

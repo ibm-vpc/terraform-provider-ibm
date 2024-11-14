@@ -78,7 +78,7 @@ func TestAccIBMIsClusterNetworkInterfacesDataSourceAllArgs(t *testing.T) {
 					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_network_interfaces.is_cluster_network_interfaces_instance", "interfaces.0.lifecycle_state"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_network_interfaces.is_cluster_network_interfaces_instance", "interfaces.0.mac_address"),
 					resource.TestCheckResourceAttr("data.ibm_is_cluster_network_interfaces.is_cluster_network_interfaces_instance", "interfaces.0.name", clusterNetworkInterfaceName),
-					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_network_interfaces.is_cluster_network_interfaces_instance", "interfaces.0.protocol_state_filtering_mode"),
+					// resource.TestCheckResourceAttrSet("data.ibm_is_cluster_network_interfaces.is_cluster_network_interfaces_instance", "interfaces.0.protocol_state_filtering_mode"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_cluster_network_interfaces.is_cluster_network_interfaces_instance", "interfaces.0.resource_type"),
 				),
 			},
@@ -184,7 +184,7 @@ func TestDataSourceIBMIsClusterNetworkInterfacesClusterNetworkInterfaceToMap(t *
 		model["mac_address"] = "02:00:4D:45:45:4D"
 		model["name"] = "my-cluster-network-interface"
 		model["primary_ip"] = []map[string]interface{}{clusterNetworkSubnetReservedIPReferenceModel}
-		model["protocol_state_filtering_mode"] = "enabled"
+		// model["protocol_state_filtering_mode"] = "enabled"
 		model["resource_type"] = "cluster_network_interface"
 		model["subnet"] = []map[string]interface{}{clusterNetworkSubnetReferenceModel}
 		model["target"] = []map[string]interface{}{clusterNetworkInterfaceTargetModel}
@@ -247,7 +247,7 @@ func TestDataSourceIBMIsClusterNetworkInterfacesClusterNetworkInterfaceToMap(t *
 	model.MacAddress = core.StringPtr("02:00:4D:45:45:4D")
 	model.Name = core.StringPtr("my-cluster-network-interface")
 	model.PrimaryIP = clusterNetworkSubnetReservedIPReferenceModel
-	model.ProtocolStateFilteringMode = core.StringPtr("enabled")
+	// model.ProtocolStateFilteringMode = core.StringPtr("enabled")
 	model.ResourceType = core.StringPtr("cluster_network_interface")
 	model.Subnet = clusterNetworkSubnetReferenceModel
 	model.Target = clusterNetworkInterfaceTargetModel
