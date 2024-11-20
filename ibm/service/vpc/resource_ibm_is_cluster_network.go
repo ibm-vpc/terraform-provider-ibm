@@ -37,12 +37,14 @@ func ResourceIBMIsClusterNetwork() *schema.Resource {
 			"profile": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
+				ForceNew:    true,
 				Description: "The globally unique name for this cluster network profile.",
 			},
 			"resource_group": &schema.Schema{
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
+				ForceNew:    true,
 				Description: "The unique identifier for this resource group for this cluster network.",
 			},
 			"subnet_prefixes": &schema.Schema{
@@ -62,6 +64,7 @@ func ResourceIBMIsClusterNetwork() *schema.Resource {
 						"cidr": &schema.Schema{
 							Type:        schema.TypeString,
 							Required:    true,
+							ForceNew:    true,
 							Description: "The CIDR block for this prefix.",
 						},
 					},
@@ -71,6 +74,7 @@ func ResourceIBMIsClusterNetwork() *schema.Resource {
 				Type:        schema.TypeList,
 				MaxItems:    1,
 				Required:    true,
+				ForceNew:    true,
 				Description: "The VPC this cluster network resides in.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -119,6 +123,7 @@ func ResourceIBMIsClusterNetwork() *schema.Resource {
 			"zone": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
+				ForceNew:    true,
 				Description: "The globally unique name for the zone this cluster network resides in.",
 			},
 			"created_at": &schema.Schema{
