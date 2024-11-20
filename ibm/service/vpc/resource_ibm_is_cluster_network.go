@@ -105,6 +105,7 @@ func ResourceIBMIsClusterNetwork() *schema.Resource {
 						"id": &schema.Schema{
 							Type:        schema.TypeString,
 							Required:    true,
+							ForceNew:    true,
 							Description: "The unique identifier for this VPC.",
 						},
 						"name": &schema.Schema{
