@@ -9,6 +9,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -131,22 +132,32 @@ func dataSourceIBMIsLbPoolMembersRead(context context.Context, d *schema.Resourc
 	if err != nil {
 		return diag.FromErr(err)
 	}
-
+	start := ""
+	allrecs := []vpcv1.LoadBalancerPoolMember{}
 	listLoadBalancerPoolMembersOptions := &vpcv1.ListLoadBalancerPoolMembersOptions{}
 
 	listLoadBalancerPoolMembersOptions.SetLoadBalancerID(d.Get("lb").(string))
 	listLoadBalancerPoolMembersOptions.SetPoolID(d.Get("pool").(string))
-
-	loadBalancerPoolMemberCollection, response, err := sess.ListLoadBalancerPoolMembersWithContext(context, listLoadBalancerPoolMembersOptions)
-	if err != nil {
-		log.Printf("[DEBUG] ListLoadBalancerPoolMembersWithContext failed %s\n%s", err, response)
-		return diag.FromErr(fmt.Errorf("ListLoadBalancerPoolMembersWithContext failed %s\n%s", err, response))
+	for {
+		if start != "" {
+			listLoadBalancerPoolMembersOptions.Start = &start
+		}
+		loadBalancerPoolMemberCollection, response, err := sess.ListLoadBalancerPoolMembersWithContext(context, listLoadBalancerPoolMembersOptions)
+		if err != nil {
+			log.Printf("[DEBUG] ListLoadBalancerPoolMembersWithContext failed %s\n%s", err, response)
+			return diag.FromErr(fmt.Errorf("ListLoadBalancerPoolMembersWithContext failed %s\n%s", err, response))
+		}
+		start = flex.GetNext(loadBalancerPoolMemberCollection.Next)
+		allrecs = append(allrecs, loadBalancerPoolMemberCollection.Members...)
+		if start == "" {
+			break
+		}
 	}
 
 	d.SetId(dataSourceIBMIsLbPoolMembersID(d))
 
-	if loadBalancerPoolMemberCollection.Members != nil {
-		err = d.Set("members", dataSourceLoadBalancerPoolMemberCollectionFlattenMembers(loadBalancerPoolMemberCollection.Members))
+	if allrecs != nil && len(allrecs) > 0 {
+		err = d.Set("members", dataSourceLoadBalancerPoolMemberCollectionFlattenMembers(allrecs))
 		if err != nil {
 			return diag.FromErr(fmt.Errorf("Error setting members %s", err))
 		}
