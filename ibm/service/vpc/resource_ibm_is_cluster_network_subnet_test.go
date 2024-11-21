@@ -19,35 +19,46 @@ import (
 
 func TestAccIBMIsClusterNetworkSubnetBasic(t *testing.T) {
 	var conf vpcv1.ClusterNetworkSubnet
-	clusterNetworkID := fmt.Sprintf("tf_cluster_network_id_%d", acctest.RandIntRange(10, 100))
-
+	vpcname := fmt.Sprintf("tf-vpc-%d", acctest.RandIntRange(10, 100))
+	totalipv4addresscount := int64(64)
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { acc.TestAccPreCheck(t) },
 		Providers:    acc.TestAccProviders,
 		CheckDestroy: testAccCheckIBMIsClusterNetworkSubnetDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccCheckIBMIsClusterNetworkSubnetConfigBasic(clusterNetworkID),
+				Config: testAccCheckIBMIsClusterNetworkSubnetConfigBasic(vpcname, totalipv4addresscount),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					testAccCheckIBMIsClusterNetworkSubnetExists("ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance", conf),
-					resource.TestCheckResourceAttr("ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance", "cluster_network_id", clusterNetworkID),
+					resource.TestCheckResourceAttr("ibm_is_vpc.is_vpc", "name", vpcname),
+					resource.TestCheckResourceAttrSet("ibm_is_vpc.is_vpc", "id"),
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network.is_cluster_network_instance", "id"),
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance", "available_ipv4_address_count"),
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance", "cluster_network_subnet_id"),
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance", "created_at"),
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance", "href"),
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance", "id"),
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance", "ip_version"),
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance", "ipv4_cidr_block"),
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance", "lifecycle_state"),
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance", "name"),
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance", "resource_type"),
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance", "total_ipv4_address_count"),
+					resource.TestCheckResourceAttr("ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance", "total_ipv4_address_count", "64"),
 				),
 			},
 		},
 	})
 }
 
-func TestAccIBMIsClusterNetworkSubnetAllArgs(t *testing.T) {
+func TestAccIBMIsClusterNetworkSubnetBasicAllArgs(t *testing.T) {
 	var conf vpcv1.ClusterNetworkSubnet
-	clusterNetworkID := fmt.Sprintf("tf_cluster_network_id_%d", acctest.RandIntRange(10, 100))
-	ipVersion := "ipv4"
-	ipv4CIDRBlock := fmt.Sprintf("tf_ipv4_cidr_block_%d", acctest.RandIntRange(10, 100))
-	name := fmt.Sprintf("tf_name_%d", acctest.RandIntRange(10, 100))
-	totalIpv4AddressCount := fmt.Sprintf("%d", acctest.RandIntRange(8, 16777216))
-	ipVersionUpdate := "ipv4"
-	ipv4CIDRBlockUpdate := fmt.Sprintf("tf_ipv4_cidr_block_%d", acctest.RandIntRange(10, 100))
-	nameUpdate := fmt.Sprintf("tf_name_%d", acctest.RandIntRange(10, 100))
-	totalIpv4AddressCountUpdate := fmt.Sprintf("%d", acctest.RandIntRange(8, 16777216))
+	vpcname := fmt.Sprintf("tf-vpcname-%d", acctest.RandIntRange(10, 100))
+	name1 := fmt.Sprintf("tf-cluster-subnet1-%d", acctest.RandIntRange(10, 100))
+	name1Updated := fmt.Sprintf("tf-cluster-subnet1-updated%d", acctest.RandIntRange(10, 100))
+	name2 := fmt.Sprintf("tf-cluster-subnet2-%d", acctest.RandIntRange(10, 100))
+	name2Updated := fmt.Sprintf("tf-cluster-subnet2-%d", acctest.RandIntRange(10, 100))
+	totalIpv4AddressCount := int64(64)
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { acc.TestAccPreCheck(t) },
@@ -55,54 +66,122 @@ func TestAccIBMIsClusterNetworkSubnetAllArgs(t *testing.T) {
 		CheckDestroy: testAccCheckIBMIsClusterNetworkSubnetDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccCheckIBMIsClusterNetworkSubnetConfig(clusterNetworkID, ipVersion, ipv4CIDRBlock, name, totalIpv4AddressCount),
+				Config: testAccCheckIBMIsClusterNetworkSubnetConfig(vpcname, name1, name2, totalIpv4AddressCount),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					testAccCheckIBMIsClusterNetworkSubnetExists("ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance", conf),
-					resource.TestCheckResourceAttr("ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance", "cluster_network_id", clusterNetworkID),
-					resource.TestCheckResourceAttr("ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance", "ip_version", ipVersion),
-					resource.TestCheckResourceAttr("ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance", "ipv4_cidr_block", ipv4CIDRBlock),
-					resource.TestCheckResourceAttr("ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance", "name", name),
-					resource.TestCheckResourceAttr("ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance", "total_ipv4_address_count", totalIpv4AddressCount),
+					resource.TestCheckResourceAttr("ibm_is_vpc.is_vpc", "name", vpcname),
+					resource.TestCheckResourceAttrSet("ibm_is_vpc.is_vpc", "id"),
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network.is_cluster_network_instance", "id"),
+					resource.TestCheckResourceAttr("ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance", "name", name1),
+					resource.TestCheckResourceAttr("ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance", "total_ipv4_address_count", "64"),
+					resource.TestCheckResourceAttr("ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance_cidr", "name", name2),
+					resource.TestCheckResourceAttr("ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance_cidr", "ipv4_cidr_block", acc.ISCIDR),
+
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance", "available_ipv4_address_count"),
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance", "cluster_network_subnet_id"),
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance", "created_at"),
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance", "href"),
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance", "id"),
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance", "ip_version"),
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance", "ipv4_cidr_block"),
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance", "lifecycle_state"),
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance", "name"),
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance", "resource_type"),
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance", "total_ipv4_address_count"),
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance_cidr", "available_ipv4_address_count"),
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance_cidr", "cluster_network_subnet_id"),
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance_cidr", "created_at"),
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance_cidr", "href"),
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance_cidr", "id"),
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance_cidr", "ip_version"),
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance_cidr", "ipv4_cidr_block"),
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance_cidr", "lifecycle_state"),
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance_cidr", "name"),
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance_cidr", "resource_type"),
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance_cidr", "total_ipv4_address_count"),
 				),
 			},
 			resource.TestStep{
-				Config: testAccCheckIBMIsClusterNetworkSubnetConfig(clusterNetworkID, ipVersionUpdate, ipv4CIDRBlockUpdate, nameUpdate, totalIpv4AddressCountUpdate),
+				Config: testAccCheckIBMIsClusterNetworkSubnetConfig(vpcname, name1Updated, name2Updated, totalIpv4AddressCount),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance", "cluster_network_id", clusterNetworkID),
-					resource.TestCheckResourceAttr("ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance", "ip_version", ipVersionUpdate),
-					resource.TestCheckResourceAttr("ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance", "ipv4_cidr_block", ipv4CIDRBlockUpdate),
-					resource.TestCheckResourceAttr("ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance", "name", nameUpdate),
-					resource.TestCheckResourceAttr("ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance", "total_ipv4_address_count", totalIpv4AddressCountUpdate),
+					resource.TestCheckResourceAttr("ibm_is_vpc.is_vpc", "name", vpcname),
+					resource.TestCheckResourceAttrSet("ibm_is_vpc.is_vpc", "id"),
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network.is_cluster_network_instance", "id"),
+					resource.TestCheckResourceAttr("ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance", "name", name1Updated),
+					resource.TestCheckResourceAttr("ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance", "total_ipv4_address_count", "64"),
+					resource.TestCheckResourceAttr("ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance_cidr", "name", name2Updated),
+					resource.TestCheckResourceAttr("ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance_cidr", "ipv4_cidr_block", acc.ISCIDR),
+
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance", "available_ipv4_address_count"),
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance", "cluster_network_subnet_id"),
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance", "created_at"),
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance", "href"),
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance", "id"),
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance", "ip_version"),
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance", "ipv4_cidr_block"),
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance", "lifecycle_state"),
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance", "name"),
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance", "resource_type"),
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance", "total_ipv4_address_count"),
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance_cidr", "available_ipv4_address_count"),
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance_cidr", "cluster_network_subnet_id"),
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance_cidr", "created_at"),
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance_cidr", "href"),
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance_cidr", "id"),
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance_cidr", "ip_version"),
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance_cidr", "ipv4_cidr_block"),
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance_cidr", "lifecycle_state"),
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance_cidr", "name"),
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance_cidr", "resource_type"),
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance_cidr", "total_ipv4_address_count"),
 				),
-			},
-			resource.TestStep{
-				ResourceName:      "ibm_is_cluster_network_subnet.is_cluster_network_subnet",
-				ImportState:       true,
-				ImportStateVerify: true,
 			},
 		},
 	})
 }
 
-func testAccCheckIBMIsClusterNetworkSubnetConfigBasic(clusterNetworkID string) string {
+func testAccCheckIBMIsClusterNetworkSubnetConfigBasic(vpcname string, totalipv4addresscount int64) string {
 	return fmt.Sprintf(`
-		resource "ibm_is_cluster_network_subnet" "is_cluster_network_subnet_instance" {
-			cluster_network_id = "%s"
+		resource "ibm_is_vpc" "is_vpc" {
+  			name = "%s"
 		}
-	`, clusterNetworkID)
+		resource "ibm_is_cluster_network" "is_cluster_network_instance" {
+			profile = "%s"
+			vpc {
+				id = ibm_is_vpc.is_vpc.id
+			}
+			zone  = "%s"
+		}
+		resource "ibm_is_cluster_network_subnet" "is_cluster_network_subnet_instance" {
+			cluster_network_id = ibm_is_cluster_network.is_cluster_network_instance.id
+			total_ipv4_address_count = %d
+		}
+	`, vpcname, acc.ISClusterNetworkProfileName, acc.ISZoneName, totalipv4addresscount)
 }
 
-func testAccCheckIBMIsClusterNetworkSubnetConfig(clusterNetworkID string, ipVersion string, ipv4CIDRBlock string, name string, totalIpv4AddressCount string) string {
+func testAccCheckIBMIsClusterNetworkSubnetConfig(vpcname, subnetname1, subnetname2 string, totalIpv4AddressCount int64) string {
 	return fmt.Sprintf(`
-
-		resource "ibm_is_cluster_network_subnet" "is_cluster_network_subnet_instance" {
-			cluster_network_id = "%s"
-			ip_version = "%s"
-			ipv4_cidr_block = "%s"
-			name = "%s"
-			total_ipv4_address_count = %s
+		resource "ibm_is_vpc" "is_vpc" {
+  			name = "%s"
 		}
-	`, clusterNetworkID, ipVersion, ipv4CIDRBlock, name, totalIpv4AddressCount)
+		resource "ibm_is_cluster_network" "is_cluster_network_instance" {
+			profile = "%s"
+			vpc {
+				id = ibm_is_vpc.is_vpc.id
+			}
+			zone  = "%s"
+		}
+		resource "ibm_is_cluster_network_subnet" "is_cluster_network_subnet_instance" {
+			cluster_network_id = ibm_is_cluster_network.is_cluster_network_instance.id
+			name = "%s"
+			total_ipv4_address_count = %d
+		}
+		resource "ibm_is_cluster_network_subnet" "is_cluster_network_subnet_instance_cidr" {
+			cluster_network_id = ibm_is_cluster_network.is_cluster_network_instance.id
+			name = "%s"
+			ipv4_cidr_block = "%s"
+		}
+	`, vpcname, acc.ISClusterNetworkProfileName, acc.ISZoneName, subnetname1, totalIpv4AddressCount, subnetname2, acc.ISCIDR)
 }
 
 func testAccCheckIBMIsClusterNetworkSubnetExists(n string, obj vpcv1.ClusterNetworkSubnet) resource.TestCheckFunc {

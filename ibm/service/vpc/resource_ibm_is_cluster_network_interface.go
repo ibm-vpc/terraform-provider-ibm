@@ -45,12 +45,14 @@ func ResourceIBMIsClusterNetworkInterface() *schema.Resource {
 				Type:        schema.TypeList,
 				MaxItems:    1,
 				Optional:    true,
+				Computed:    true,
 				Description: "The cluster network subnet reserved IP for this cluster network interface.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"address": &schema.Schema{
 							Type:          schema.TypeString,
 							Optional:      true,
+							ForceNew:      true,
 							Computed:      true,
 							ConflictsWith: []string{"primary_ip.0.id", "primary_ip.0.href"},
 							Description:   "The IP address.If the address is pending allocation, the value will be `0.0.0.0`.This property may [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) to support IPv6 addresses in the future.",
@@ -77,6 +79,7 @@ func ResourceIBMIsClusterNetworkInterface() *schema.Resource {
 						},
 						"id": &schema.Schema{
 							Type:          schema.TypeString,
+							ForceNew:      true,
 							Optional:      true,
 							Computed:      true,
 							ConflictsWith: []string{"primary_ip.0.address", "primary_ip.0.href"},
@@ -130,12 +133,14 @@ func ResourceIBMIsClusterNetworkInterface() *schema.Resource {
 						"href": &schema.Schema{
 							Type:          schema.TypeString,
 							Optional:      true,
+							ForceNew:      true,
 							ConflictsWith: []string{"subnet.0.id"},
 							Computed:      true,
 							Description:   "The URL for this cluster network subnet.",
 						},
 						"id": &schema.Schema{
 							Type:          schema.TypeString,
+							ForceNew:      true,
 							Optional:      true,
 							Computed:      true,
 							ConflictsWith: []string{"subnet.0.href"},

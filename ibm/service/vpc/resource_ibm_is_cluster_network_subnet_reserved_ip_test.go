@@ -19,8 +19,9 @@ import (
 
 func TestAccIBMIsClusterNetworkSubnetReservedIPBasic(t *testing.T) {
 	var conf vpcv1.ClusterNetworkSubnetReservedIP
-	clusterNetworkID := fmt.Sprintf("tf_cluster_network_id_%d", acctest.RandIntRange(10, 100))
-	clusterNetworkSubnetID := fmt.Sprintf("tf_cluster_network_subnet_id_%d", acctest.RandIntRange(10, 100))
+	vpcname := fmt.Sprintf("tf-vpc-%d", acctest.RandIntRange(10, 100))
+	clustersubnetname := fmt.Sprintf("tf-clustersubnet-%d", acctest.RandIntRange(10, 100))
+	clustersubnetreservedipname := fmt.Sprintf("tf-clustersubnet-reservedip-%d", acctest.RandIntRange(10, 100))
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { acc.TestAccPreCheck(t) },
@@ -28,78 +29,58 @@ func TestAccIBMIsClusterNetworkSubnetReservedIPBasic(t *testing.T) {
 		CheckDestroy: testAccCheckIBMIsClusterNetworkSubnetReservedIPDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccCheckIBMIsClusterNetworkSubnetReservedIPConfigBasic(clusterNetworkID, clusterNetworkSubnetID),
+				Config: testAccCheckIBMIsClusterNetworkSubnetReservedIPConfigBasic(vpcname, clustersubnetname, clustersubnetreservedipname),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					testAccCheckIBMIsClusterNetworkSubnetReservedIPExists("ibm_is_cluster_network_subnet_reserved_ip.is_cluster_network_subnet_reserved_ip_instance", conf),
-					resource.TestCheckResourceAttr("ibm_is_cluster_network_subnet_reserved_ip.is_cluster_network_subnet_reserved_ip_instance", "cluster_network_id", clusterNetworkID),
-					resource.TestCheckResourceAttr("ibm_is_cluster_network_subnet_reserved_ip.is_cluster_network_subnet_reserved_ip_instance", "cluster_network_subnet_id", clusterNetworkSubnetID),
+					resource.TestCheckResourceAttr("ibm_is_vpc.is_vpc", "name", vpcname),
+					resource.TestCheckResourceAttrSet("ibm_is_vpc.is_vpc", "id"),
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network.is_cluster_network_instance", "id"),
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance", "id"),
+					resource.TestCheckResourceAttr("ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance", "name", clustersubnetname),
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network_subnet_reserved_ip.is_cluster_network_subnet_reserved_ip_instance", "id"),
+					resource.TestCheckResourceAttr("ibm_is_cluster_network_subnet_reserved_ip.is_cluster_network_subnet_reserved_ip_instance", "name", clustersubnetreservedipname),
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network_subnet_reserved_ip.is_cluster_network_subnet_reserved_ip_instance", "address"),
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network_subnet_reserved_ip.is_cluster_network_subnet_reserved_ip_instance", "auto_delete"),
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network_subnet_reserved_ip.is_cluster_network_subnet_reserved_ip_instance", "cluster_network_id"),
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network_subnet_reserved_ip.is_cluster_network_subnet_reserved_ip_instance", "cluster_network_subnet_id"),
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network_subnet_reserved_ip.is_cluster_network_subnet_reserved_ip_instance", "cluster_network_subnet_reserved_ip_id"),
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network_subnet_reserved_ip.is_cluster_network_subnet_reserved_ip_instance", "created_at"),
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network_subnet_reserved_ip.is_cluster_network_subnet_reserved_ip_instance", "href"),
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network_subnet_reserved_ip.is_cluster_network_subnet_reserved_ip_instance", "lifecycle_state"),
+					resource.TestCheckResourceAttr("ibm_is_cluster_network_subnet_reserved_ip.is_cluster_network_subnet_reserved_ip_instance", "lifecycle_state", "stable"),
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network_subnet_reserved_ip.is_cluster_network_subnet_reserved_ip_instance", "resource_type"),
+					resource.TestCheckResourceAttr("ibm_is_cluster_network_subnet_reserved_ip.is_cluster_network_subnet_reserved_ip_instance", "resource_type", "cluster_network_subnet_reserved_ip"),
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network_subnet_reserved_ip.is_cluster_network_subnet_reserved_ip_instance", "owner"),
 				),
 			},
 		},
 	})
 }
 
-func TestAccIBMIsClusterNetworkSubnetReservedIPAllArgs(t *testing.T) {
-	var conf vpcv1.ClusterNetworkSubnetReservedIP
-	clusterNetworkID := fmt.Sprintf("tf_cluster_network_id_%d", acctest.RandIntRange(10, 100))
-	clusterNetworkSubnetID := fmt.Sprintf("tf_cluster_network_subnet_id_%d", acctest.RandIntRange(10, 100))
-	address := fmt.Sprintf("tf_address_%d", acctest.RandIntRange(10, 100))
-	name := fmt.Sprintf("tf_name_%d", acctest.RandIntRange(10, 100))
-	addressUpdate := fmt.Sprintf("tf_address_%d", acctest.RandIntRange(10, 100))
-	nameUpdate := fmt.Sprintf("tf_name_%d", acctest.RandIntRange(10, 100))
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { acc.TestAccPreCheck(t) },
-		Providers:    acc.TestAccProviders,
-		CheckDestroy: testAccCheckIBMIsClusterNetworkSubnetReservedIPDestroy,
-		Steps: []resource.TestStep{
-			resource.TestStep{
-				Config: testAccCheckIBMIsClusterNetworkSubnetReservedIPConfig(clusterNetworkID, clusterNetworkSubnetID, address, name),
-				Check: resource.ComposeAggregateTestCheckFunc(
-					testAccCheckIBMIsClusterNetworkSubnetReservedIPExists("ibm_is_cluster_network_subnet_reserved_ip.is_cluster_network_subnet_reserved_ip_instance", conf),
-					resource.TestCheckResourceAttr("ibm_is_cluster_network_subnet_reserved_ip.is_cluster_network_subnet_reserved_ip_instance", "cluster_network_id", clusterNetworkID),
-					resource.TestCheckResourceAttr("ibm_is_cluster_network_subnet_reserved_ip.is_cluster_network_subnet_reserved_ip_instance", "cluster_network_subnet_id", clusterNetworkSubnetID),
-					resource.TestCheckResourceAttr("ibm_is_cluster_network_subnet_reserved_ip.is_cluster_network_subnet_reserved_ip_instance", "address", address),
-					resource.TestCheckResourceAttr("ibm_is_cluster_network_subnet_reserved_ip.is_cluster_network_subnet_reserved_ip_instance", "name", name),
-				),
-			},
-			resource.TestStep{
-				Config: testAccCheckIBMIsClusterNetworkSubnetReservedIPConfig(clusterNetworkID, clusterNetworkSubnetID, addressUpdate, nameUpdate),
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("ibm_is_cluster_network_subnet_reserved_ip.is_cluster_network_subnet_reserved_ip_instance", "cluster_network_id", clusterNetworkID),
-					resource.TestCheckResourceAttr("ibm_is_cluster_network_subnet_reserved_ip.is_cluster_network_subnet_reserved_ip_instance", "cluster_network_subnet_id", clusterNetworkSubnetID),
-					resource.TestCheckResourceAttr("ibm_is_cluster_network_subnet_reserved_ip.is_cluster_network_subnet_reserved_ip_instance", "address", addressUpdate),
-					resource.TestCheckResourceAttr("ibm_is_cluster_network_subnet_reserved_ip.is_cluster_network_subnet_reserved_ip_instance", "name", nameUpdate),
-				),
-			},
-			resource.TestStep{
-				ResourceName:      "ibm_is_cluster_network_subnet_reserved_ip.is_cluster_network_subnet_reserved_ip",
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-		},
-	})
-}
-
-func testAccCheckIBMIsClusterNetworkSubnetReservedIPConfigBasic(clusterNetworkID string, clusterNetworkSubnetID string) string {
+func testAccCheckIBMIsClusterNetworkSubnetReservedIPConfigBasic(vpcname, clustersubnetname, clustersubnetreservedipname string) string {
 	return fmt.Sprintf(`
-		resource "ibm_is_cluster_network_subnet_reserved_ip" "is_cluster_network_subnet_reserved_ip_instance" {
-			cluster_network_id = "%s"
-			cluster_network_subnet_id = "%s"
+		resource "ibm_is_vpc" "is_vpc" {
+  			name = "%s"
 		}
-	`, clusterNetworkID, clusterNetworkSubnetID)
-}
-
-func testAccCheckIBMIsClusterNetworkSubnetReservedIPConfig(clusterNetworkID string, clusterNetworkSubnetID string, address string, name string) string {
-	return fmt.Sprintf(`
-
-		resource "ibm_is_cluster_network_subnet_reserved_ip" "is_cluster_network_subnet_reserved_ip_instance" {
-			cluster_network_id = "%s"
-			cluster_network_subnet_id = "%s"
-			address = "%s"
+		resource "ibm_is_cluster_network" "is_cluster_network_instance" {
+			profile = "%s"
+			vpc {
+				id = ibm_is_vpc.is_vpc.id
+			}
+			zone  = "%s"
+		}
+		resource "ibm_is_cluster_network_subnet" "is_cluster_network_subnet_instance" {
+			cluster_network_id = ibm_is_cluster_network.is_cluster_network_instance.id
 			name = "%s"
+			total_ipv4_address_count = 64
 		}
-	`, clusterNetworkID, clusterNetworkSubnetID, address, name)
+		resource "ibm_is_cluster_network_subnet_reserved_ip" "is_cluster_network_subnet_reserved_ip_instance" {
+			cluster_network_id 			= ibm_is_cluster_network.is_cluster_network_instance.id
+			cluster_network_subnet_id 	= ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance.cluster_network_subnet_id
+			address 					= "${replace(ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance.ipv4_cidr_block, "0/26", "11")}"
+  			name						= "%s"
+		}
+	`, vpcname, acc.ISClusterNetworkProfileName, acc.ISZoneName, clustersubnetname, clustersubnetreservedipname)
 }
 
 func testAccCheckIBMIsClusterNetworkSubnetReservedIPExists(n string, obj vpcv1.ClusterNetworkSubnetReservedIP) resource.TestCheckFunc {
