@@ -3014,3 +3014,167 @@ func testAccCheckIBMISInstanceCatalogImagePNAConfig(vpcname, subnetname, sshname
 		}
 	  }`, vpcname, subnetname, acc.ISZoneName, acc.ISCIDR, sshname, publicKey, name, acc.InstanceProfileName, userData, acc.ISZoneName)
 }
+
+func TestAccIBMISInstanceclusternetworkattachment_basic(t *testing.T) {
+	var instance string
+	randInt := acctest.RandIntRange(10, 100)
+	vpcname := fmt.Sprintf("tf-vpc-%d", acctest.RandIntRange(10, 100))
+	clustersubnetname := fmt.Sprintf("tf-clustersubnet-%d", acctest.RandIntRange(10, 100))
+	clustersubnetreservedipname := fmt.Sprintf("tf-clustersubnet-reservedip-%d", acctest.RandIntRange(10, 100))
+	clusterinterfacename := fmt.Sprintf("tf-clusterinterface-%d", acctest.RandIntRange(10, 100))
+
+	publicKey := strings.TrimSpace(`
+	ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDVtuCfWKVGKaRmaRG6JQZY8YdxnDgGzVOK93IrV9R5Hl0JP1oiLLWlZQS2reAKb8lBqyDVEREpaoRUDjqDqXG8J/kR42FKN51su914pjSBc86wJ02VtT1Wm1zRbSg67kT+g8/T1jCgB5XBODqbcICHVP8Z1lXkgbiHLwlUrbz6OZkGJHo/M/kD1Eme8lctceIYNz/Ilm7ewMXZA4fsidpto9AjyarrJLufrOBl4MRVcZTDSJ7rLP982aHpu9pi5eJAjOZc7Og7n4ns3NFppiCwgVMCVUQbN5GBlWhZ1OsT84ZiTf+Zy8ew+Yg5T7Il8HuC7loWnz+esQPf0s3xhC/kTsGgZreIDoh/rxJfD67wKXetNSh5RH/n5BqjaOuXPFeNXmMhKlhj9nJ8scayx/wsvOGuocEIkbyJSLj3sLUU403OafgatEdnJOwbqg6rUNNF5RIjpJpL7eEWlKIi1j9LyhmPJ+fEO7TmOES82VpCMHpLbe4gf/MhhJ/Xy8DKh9s= root@ffd8363b1226
+	`)
+	subnetName := fmt.Sprintf("tf-testsubnet%d", randInt)
+	templateName := fmt.Sprintf("tf-testtemplate%d", randInt)
+	sshKeyName := fmt.Sprintf("tf-testsshkey%d", randInt)
+	userData1 := "a"
+	userData2 := "b"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { acc.TestAccPreCheck(t) },
+		Providers:    acc.TestAccProviders,
+		CheckDestroy: testAccCheckIBMISInstanceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckIBMISInstanceClusterNetworkAttachmentConfig(vpcname, clustersubnetname, clustersubnetreservedipname, clusterinterfacename, subnetName, sshKeyName, publicKey, templateName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckIBMISInstanceExists("ibm_is_instance.testacc_instance", instance),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance", "name", name),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance", "user_data", userData1),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance", "zone", acc.ISZoneName),
+					resource.TestCheckResourceAttrSet(
+						"ibm_is_instance.testacc_instance", "vcpu.#"),
+					resource.TestCheckResourceAttrSet(
+						"ibm_is_instance.testacc_instance", "vcpu.0.manufacturer"),
+				),
+			},
+			{
+				Config: testAccCheckIBMISInstanceClusterNetworkAttachmentConfig(vpcname, clustersubnetname, clustersubnetreservedipname, clusterinterfacename, subnetName, sshKeyName, publicKey, templateName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckIBMISInstanceExists("ibm_is_instance.testacc_instance", instance),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance", "name", name),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance", "user_data", userData2),
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance.testacc_instance", "zone", acc.ISZoneName),
+					resource.TestCheckResourceAttrSet(
+						"ibm_is_instance.testacc_instance", "primary_network_interface.0.port_speed"),
+					resource.TestCheckResourceAttrSet(
+						"ibm_is_instance.testacc_instance", "vcpu.#"),
+					resource.TestCheckResourceAttrSet(
+						"ibm_is_instance.testacc_instance", "vcpu.0.manufacturer"),
+					resource.TestCheckResourceAttrSet(
+						"ibm_is_instance.testacc_instance", "numa_count"),
+				),
+			},
+		},
+	})
+}
+
+func testAccCheckIBMISInstanceClusterNetworkAttachmentConfig(vpcname, clustersubnetname, clustersubnetreservedipname, clusternetworkinterfacename, subnetName, sshKeyName, publicKey, instanceName string) string {
+	return fmt.Sprintf(`
+		resource "ibm_is_vpc" "is_vpc" {
+  			name = "%s"
+		}
+		resource "ibm_is_cluster_network" "is_cluster_network_instance" {
+			profile = "%s"
+			vpc {
+				id = ibm_is_vpc.is_vpc.id
+			}
+			zone  = "%s"
+		}
+		resource "ibm_is_cluster_network_subnet" "is_cluster_network_subnet_instance" {
+			cluster_network_id = ibm_is_cluster_network.is_cluster_network_instance.id
+			name = "%s"
+			total_ipv4_address_count = 64
+		}
+		resource "ibm_is_cluster_network_subnet_reserved_ip" "is_cluster_network_subnet_reserved_ip_instance" {
+			cluster_network_id 			= ibm_is_cluster_network.is_cluster_network_instance.id
+			cluster_network_subnet_id 	= ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance.cluster_network_subnet_id
+			address 					= "${replace(ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance.ipv4_cidr_block, "0/26", "11")}"
+  			name						= "%s"
+		}
+		resource "ibm_is_cluster_network_interface" "is_cluster_network_interface_instance" {
+			cluster_network_id = ibm_is_cluster_network.is_cluster_network_instance.id
+			name = "%s"
+			primary_ip {
+				id = ibm_is_cluster_network_subnet_reserved_ip.is_cluster_network_subnet_reserved_ip_instance.cluster_network_subnet_reserved_ip_id
+			}
+			subnet {
+				id = ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance.cluster_network_subnet_id
+			}
+		}
+	
+		resource "ibm_is_subnet" "is_subnet" {
+			name            			= "%s"
+			vpc             			= ibm_is_vpc.is_vpc.id
+			zone            			= "%s"
+			total_ipv4_address_count 	= 64
+		}
+		
+		resource "ibm_is_ssh_key" "is_sshkey" {
+			name       = "%s"
+			public_key = "%s"
+		}
+
+		resource "ibm_is_instance_template" "is_instance_template" {
+			name    = "%s"
+			image   = "%s"
+			profile = "%s"
+			
+			primary_network_interface {
+				subnet = ibm_is_subnet.is_subnet.id
+			}
+			cluster_network_attachments {
+				cluster_network_interface{
+					id = ibm_is_cluster_network_interface.is_cluster_network_interface_instance.cluster_network_interface_id
+				}
+			}
+			cluster_network_attachments {
+				cluster_network_interface{
+					id = ibm_is_cluster_network_interface.is_cluster_network_interface_instance.cluster_network_interface_id
+				}
+			}
+			cluster_network_attachments {
+				cluster_network_interface{
+					id = ibm_is_cluster_network_interface.is_cluster_network_interface_instance.cluster_network_interface_id
+				}
+			}
+			cluster_network_attachments {
+				cluster_network_interface{
+					id = ibm_is_cluster_network_interface.is_cluster_network_interface_instance.cluster_network_interface_id
+				}
+			}
+			cluster_network_attachments {
+				cluster_network_interface{
+					id = ibm_is_cluster_network_interface.is_cluster_network_interface_instance.cluster_network_interface_id
+				}
+			}
+			cluster_network_attachments {
+				cluster_network_interface{
+					id = ibm_is_cluster_network_interface.is_cluster_network_interface_instance.cluster_network_interface_id
+				}
+			}
+			cluster_network_attachments {
+				cluster_network_interface{
+					id = ibm_is_cluster_network_interface.is_cluster_network_interface_instance.cluster_network_interface_id
+				}
+			}
+			cluster_network_attachments {
+				cluster_network_interface{
+					id = ibm_is_cluster_network_interface.is_cluster_network_interface_instance.cluster_network_interface_id
+				}
+			}			
+			vpc       = ibm_is_vpc.is_vpc.id
+			zone      = "%s"
+			keys      = [ibm_is_ssh_key.is_sshkey.id]
+		}
+
+	`, vpcname, acc.ISClusterNetworkProfileName, acc.ISZoneName, clustersubnetname, clustersubnetreservedipname, clusternetworkinterfacename, subnetName, acc.ISZoneName, sshKeyName, publicKey, instanceName, acc.IsImage, acc.ISInstanceGPUProfileName, acc.ISZoneName)
+}
