@@ -18,6 +18,7 @@ import (
 
 func TestAccIBMIsClusterNetworkBasic(t *testing.T) {
 	var conf vpcv1.ClusterNetwork
+	vpcname := fmt.Sprintf("tf-vpc-%d", acctest.RandIntRange(10, 100))
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { acc.TestAccPreCheck(t) },
@@ -25,20 +26,36 @@ func TestAccIBMIsClusterNetworkBasic(t *testing.T) {
 		CheckDestroy: testAccCheckIBMIsClusterNetworkDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccCheckIBMIsClusterNetworkConfigBasic(),
+				Config: testAccCheckIBMIsClusterNetworkConfigBasic(vpcname),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					testAccCheckIBMIsClusterNetworkExists("ibm_is_cluster_network.is_cluster_network_instance", conf),
-					resource.TestCheckResourceAttr("ibm_is_cluster_network.is_cluster_network_instance", "cluster_network_id", "clusterNetworkID"),
+					resource.TestCheckResourceAttr("ibm_is_vpc.is_vpc", "name", vpcname),
+					resource.TestCheckResourceAttrSet("ibm_is_vpc.is_vpc", "id"),
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network.is_cluster_network_instance", "id"),
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network.is_cluster_network_instance", "created_at"),
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network.is_cluster_network_instance", "crn"),
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network.is_cluster_network_instance", "href"),
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network.is_cluster_network_instance", "lifecycle_state"),
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network.is_cluster_network_instance", "subnet_prefixes.#"),
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network.is_cluster_network_instance", "vpc.#"),
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network.is_cluster_network_instance", "zone"),
+					resource.TestCheckResourceAttr("ibm_is_cluster_network.is_cluster_network_instance", "vpc.0.name", vpcname),
+					resource.TestCheckResourceAttr("ibm_is_cluster_network.is_cluster_network_instance", "profile", acc.ISClusterNetworkProfileName),
+					resource.TestCheckResourceAttr("ibm_is_cluster_network.is_cluster_network_instance", "lifecycle_state", "stable"),
+					resource.TestCheckResourceAttr("ibm_is_cluster_network.is_cluster_network_instance", "resource_type", "cluster_network"),
+					resource.TestCheckResourceAttr("ibm_is_cluster_network.is_cluster_network_instance", "zone", acc.ISZoneName),
 				),
 			},
 		},
 	})
 }
 
-func TestAccIBMIsClusterNetworkAllArgs(t *testing.T) {
+func TestAccIBMIsClusterNetworkBasicAllArgs(t *testing.T) {
 	var conf vpcv1.ClusterNetwork
-	name := fmt.Sprintf("tf_name_%d", acctest.RandIntRange(10, 100))
-	nameUpdate := fmt.Sprintf("tf_name_%d", acctest.RandIntRange(10, 100))
+	vpcname := fmt.Sprintf("tf-vpc-%d", acctest.RandIntRange(10, 100))
+	subnetPrefixesCidr := acc.ISClusterNetworkSubnetPrefixesCidr
+	name := fmt.Sprintf("tf-clusternetwork-%d", acctest.RandIntRange(10, 100))
+	nameUpdate := fmt.Sprintf("tf-clusternetwork-updated-%d", acctest.RandIntRange(10, 100))
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { acc.TestAccPreCheck(t) },
@@ -46,20 +63,52 @@ func TestAccIBMIsClusterNetworkAllArgs(t *testing.T) {
 		CheckDestroy: testAccCheckIBMIsClusterNetworkDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccCheckIBMIsClusterNetworkConfig(name),
+				Config: testAccCheckIBMIsClusterNetworkConfig(vpcname, name, subnetPrefixesCidr),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					testAccCheckIBMIsClusterNetworkExists("ibm_is_cluster_network.is_cluster_network_instance", conf),
 					resource.TestCheckResourceAttr("ibm_is_cluster_network.is_cluster_network_instance", "name", name),
+					resource.TestCheckResourceAttr("ibm_is_vpc.is_vpc", "name", vpcname),
+					resource.TestCheckResourceAttrSet("ibm_is_vpc.is_vpc", "id"),
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network.is_cluster_network_instance", "id"),
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network.is_cluster_network_instance", "created_at"),
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network.is_cluster_network_instance", "crn"),
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network.is_cluster_network_instance", "href"),
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network.is_cluster_network_instance", "lifecycle_state"),
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network.is_cluster_network_instance", "subnet_prefixes.#"),
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network.is_cluster_network_instance", "vpc.#"),
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network.is_cluster_network_instance", "zone"),
+					resource.TestCheckResourceAttr("ibm_is_cluster_network.is_cluster_network_instance", "vpc.0.name", vpcname),
+					resource.TestCheckResourceAttr("ibm_is_cluster_network.is_cluster_network_instance", "profile", acc.ISClusterNetworkProfileName),
+					resource.TestCheckResourceAttr("ibm_is_cluster_network.is_cluster_network_instance", "lifecycle_state", "stable"),
+					resource.TestCheckResourceAttr("ibm_is_cluster_network.is_cluster_network_instance", "resource_type", "cluster_network"),
+					resource.TestCheckResourceAttr("ibm_is_cluster_network.is_cluster_network_instance", "subnet_prefixes.0.cidr", acc.ISClusterNetworkSubnetPrefixesCidr),
+					resource.TestCheckResourceAttr("ibm_is_cluster_network.is_cluster_network_instance", "zone", acc.ISZoneName),
 				),
 			},
 			resource.TestStep{
-				Config: testAccCheckIBMIsClusterNetworkConfig(nameUpdate),
+				Config: testAccCheckIBMIsClusterNetworkConfig(vpcname, nameUpdate, subnetPrefixesCidr),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("ibm_is_cluster_network.is_cluster_network_instance", "name", nameUpdate),
+					resource.TestCheckResourceAttr("ibm_is_vpc.is_vpc", "name", vpcname),
+					resource.TestCheckResourceAttrSet("ibm_is_vpc.is_vpc", "id"),
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network.is_cluster_network_instance", "id"),
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network.is_cluster_network_instance", "created_at"),
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network.is_cluster_network_instance", "crn"),
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network.is_cluster_network_instance", "href"),
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network.is_cluster_network_instance", "lifecycle_state"),
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network.is_cluster_network_instance", "subnet_prefixes.#"),
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network.is_cluster_network_instance", "vpc.#"),
+					resource.TestCheckResourceAttrSet("ibm_is_cluster_network.is_cluster_network_instance", "zone"),
+					resource.TestCheckResourceAttr("ibm_is_cluster_network.is_cluster_network_instance", "vpc.0.name", vpcname),
+					resource.TestCheckResourceAttr("ibm_is_cluster_network.is_cluster_network_instance", "profile", acc.ISClusterNetworkProfileName),
+					resource.TestCheckResourceAttr("ibm_is_cluster_network.is_cluster_network_instance", "lifecycle_state", "stable"),
+					resource.TestCheckResourceAttr("ibm_is_cluster_network.is_cluster_network_instance", "subnet_prefixes.0.cidr", acc.ISClusterNetworkSubnetPrefixesCidr),
+					resource.TestCheckResourceAttr("ibm_is_cluster_network.is_cluster_network_instance", "resource_type", "cluster_network"),
+					resource.TestCheckResourceAttr("ibm_is_cluster_network.is_cluster_network_instance", "zone", acc.ISZoneName),
 				),
 			},
 			resource.TestStep{
-				ResourceName:      "ibm_is_cluster_network.is_cluster_network",
+				ResourceName:      "ibm_is_cluster_network.is_cluster_network_instance",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -67,45 +116,38 @@ func TestAccIBMIsClusterNetworkAllArgs(t *testing.T) {
 	})
 }
 
-func testAccCheckIBMIsClusterNetworkConfigBasic() string {
+func testAccCheckIBMIsClusterNetworkConfigBasic(vpcname string) string {
 	return fmt.Sprintf(`
-		resource "ibm_is_cluster_network" "is_cluster_network_instance" {
-			profile = "h100"
-			vpc {
-				id = "r006-4727d842-f94f-4a2d-824a-9bc9b02c523b"
-			}
-			zone  = "us-south-1"
+		resource "ibm_is_vpc" "is_vpc" {
+  			name = "%s"
 		}
-	`)
+		resource "ibm_is_cluster_network" "is_cluster_network_instance" {
+			profile = "%s"
+			vpc {
+				id = ibm_is_vpc.is_vpc.id
+			}
+			zone  = "%s"
+		}
+	`, vpcname, acc.ISClusterNetworkProfileName, acc.ISZoneName)
 }
 
-func testAccCheckIBMIsClusterNetworkConfig(name string) string {
+func testAccCheckIBMIsClusterNetworkConfig(vpcname, clusterNetworkName, subnetPrefixesCidr string) string {
 	return fmt.Sprintf(`
-
+		resource "ibm_is_vpc" "is_vpc" {
+  			name = "%s"
+		}
 		resource "ibm_is_cluster_network" "is_cluster_network_instance" {
 			name = "%s"
-			profile {
-				href = "https://us-south.iaas.cloud.ibm.com/v1/cluster_network/profiles/h100"
-				name = "h100"
-			}
-			resource_group {
-				id = "fee82deba12e4c0fb69c3b09d1f12345"
-			}
+			profile = "%s"
 			subnet_prefixes {
-				allocation_policy = "auto"
-				cidr = "10.0.0.0/24"
+				cidr = "%s"
 			}
 			vpc {
-				crn = "crn:v1:bluemix:public:is:us-south:a/aa2432b1fa4d4ace891e9b80fc104e34::vpc:r006-4727d842-f94f-4a2d-824a-9bc9b02c523b"
-				href = "https://us-south.iaas.cloud.ibm.com/v1/vpcs/r006-4727d842-f94f-4a2d-824a-9bc9b02c523b"
-				id = "r006-4727d842-f94f-4a2d-824a-9bc9b02c523b"
+				id = ibm_is_vpc.is_vpc.id
 			}
-			zone {
-				href = "https://us-south.iaas.cloud.ibm.com/v1/regions/us-south/zones/us-south-1"
-				name = "us-south-1"
-			}
+			zone  = "%s"
 		}
-	`, name)
+	`, vpcname, clusterNetworkName, acc.ISClusterNetworkProfileName, subnetPrefixesCidr, acc.ISZoneName)
 }
 
 func testAccCheckIBMIsClusterNetworkExists(n string, obj vpcv1.ClusterNetwork) resource.TestCheckFunc {
