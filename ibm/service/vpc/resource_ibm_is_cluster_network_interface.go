@@ -591,7 +591,7 @@ func resourceIBMIsClusterNetworkInterfaceUpdate(context context.Context, d *sche
 		patchVals.Name = &newName
 		hasChange = true
 	}
-	updateClusterNetworkInterfaceOptions.SetIfMatch(d.Get("etag").(string))
+	// updateClusterNetworkInterfaceOptions.SetIfMatch(d.Get("etag").(string))
 
 	if hasChange {
 		// Fields with `nil` values are omitted from the generic map,
