@@ -94,6 +94,7 @@ var (
 	ISPrivateSSHKeyFilePath            string
 	ISAddressPrefixCIDR                string
 	ISClusterNetworkProfileName        string
+	ISInstanceGPUProfileName           string
 	ISClusterNetworkSubnetPrefixesCidr string
 	InstanceName                       string
 	InstanceProfileName                string
@@ -777,6 +778,11 @@ func init() {
 	if ISClusterNetworkProfileName == "" {
 		ISClusterNetworkProfileName = "h100"
 		fmt.Println("[INFO] Set the environment variable IS_CLUSTER_NETWORK_PROFILE_NAME for testing cluster_network_profile else it is set to default value 'h100'")
+	}
+	ISInstanceGPUProfileName = os.Getenv("IS_INSTANCE_GPU_PROFILE_NAME")
+	if ISInstanceGPUProfileName == "" {
+		ISInstanceGPUProfileName = "gx3d-160x1792x8h100"
+		fmt.Println("[INFO] Set the environment variable IS_INSTANCE_GPU_PROFILE_NAME for testing cluster_network_attachments else it is set to default value 'gx3d-160x1792x8h100'")
 	}
 
 	ISClusterNetworkSubnetPrefixesCidr = os.Getenv("IS_CLUSTER_NETWORK_SUBNET_PREFIXES_CIDR")
