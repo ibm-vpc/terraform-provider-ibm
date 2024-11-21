@@ -46,5 +46,3 @@ vendor/
 !deletecrd.sh
 !updatecrd.sh
 !updateodf.sh
-/website/terraform-h100
-/website/.terraform-h100
