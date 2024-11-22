@@ -3158,48 +3158,80 @@ func testAccCheckIBMISInstanceClusterNetworkAttachmentConfig(vpcname, clustersub
 			}
 			cluster_network_attachments {
 				cluster_network_interface{
-					id = ibm_is_cluster_network_interface.is_cluster_network_interface_instance.cluster_network_interface_id
+					auto_delete = true
+					name = "cna-1"
+					subnet {
+						id = ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance.cluster_network_subnet_id
+					}
 				}
 			}
 			cluster_network_attachments {
 				cluster_network_interface{
-					id = ibm_is_cluster_network_interface.is_cluster_network_interface_instance.cluster_network_interface_id
+					auto_delete = true
+					name = "cna-2"
+					subnet {
+						id = ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance.cluster_network_subnet_id
+					}
 				}
 			}
 			cluster_network_attachments {
 				cluster_network_interface{
-					id = ibm_is_cluster_network_interface.is_cluster_network_interface_instance.cluster_network_interface_id
+					auto_delete = true
+					name = "cna-3"
+					subnet {
+						id = ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance.cluster_network_subnet_id
+					}
 				}
 			}
 			cluster_network_attachments {
 				cluster_network_interface{
-					id = ibm_is_cluster_network_interface.is_cluster_network_interface_instance.cluster_network_interface_id
+					auto_delete = true
+					name = "cna-4"
+					subnet {
+						id = ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance.cluster_network_subnet_id
+					}
 				}
 			}
 			cluster_network_attachments {
 				cluster_network_interface{
-					id = ibm_is_cluster_network_interface.is_cluster_network_interface_instance.cluster_network_interface_id
+					auto_delete = true
+					name = "cna-5"
+					subnet {
+						id = ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance.cluster_network_subnet_id
+					}
 				}
 			}
 			cluster_network_attachments {
 				cluster_network_interface{
-					id = ibm_is_cluster_network_interface.is_cluster_network_interface_instance.cluster_network_interface_id
+					auto_delete = true
+					name = "cna-6"
+					subnet {
+						id = ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance.cluster_network_subnet_id
+					}
 				}
 			}
 			cluster_network_attachments {
 				cluster_network_interface{
-					id = ibm_is_cluster_network_interface.is_cluster_network_interface_instance.cluster_network_interface_id
+					auto_delete = true
+					name = "cna-7"
+					subnet {
+						id = ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance.cluster_network_subnet_id
+					}
 				}
 			}
 			cluster_network_attachments {
 				cluster_network_interface{
-					id = ibm_is_cluster_network_interface.is_cluster_network_interface_instance.cluster_network_interface_id
+					auto_delete = true
+					name = "cna-8"
+					subnet {
+						id = ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance.cluster_network_subnet_id
+					}
 				}
-			}			
+			}
 			vpc       = ibm_is_vpc.is_vpc.id
-			zone      = "%s"
+			zone      = ibm_is_subnet.is_subnet.zone
 			keys      = [ibm_is_ssh_key.is_sshkey.id]
 		}
 
-	`, vpcname, acc.ISClusterNetworkProfileName, acc.ISZoneName, clustersubnetname, clustersubnetreservedipname, clusternetworkinterfacename, subnetName, acc.ISZoneName, sshKeyName, publicKey, instanceName, acc.IsImage, acc.ISInstanceGPUProfileName, acc.ISZoneName)
+	`, vpcname, acc.ISClusterNetworkProfileName, acc.ISZoneName, clustersubnetname, clustersubnetreservedipname, clusternetworkinterfacename, subnetName, acc.ISZoneName, sshKeyName, publicKey, instanceName, acc.IsImage, acc.ISInstanceGPUProfileName)
 }
