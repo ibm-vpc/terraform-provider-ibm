@@ -3148,7 +3148,9 @@ func testAccCheckIBMISInstanceClusterNetworkAttachmentConfig(vpcname, clustersub
 			name    = "%s"
 			image   = "%s"
 			profile = "%s"
-			
+			timeouts {
+				create = "60m"
+  			}
 			primary_network_attachment {
 				name 		= "my-pna"
 				virtual_network_interface {
