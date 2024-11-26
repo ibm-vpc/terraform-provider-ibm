@@ -34,6 +34,7 @@ import (
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/service/contextbasedrestrictions"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/service/cos"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/service/database"
+	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/service/db2"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/service/directlink"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/service/dnsservices"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/service/enterprise"
@@ -319,6 +320,7 @@ func Provider() *schema.Provider {
 			"ibm_database_tasks":                           database.DataSourceIBMDatabaseTasks(),
 			"ibm_database_backup":                          database.DataSourceIBMDatabaseBackup(),
 			"ibm_database_backups":                         database.DataSourceIBMDatabaseBackups(),
+			"ibm_db2":                                      db2.DataSourceIBMDb2Instance(),
 			"ibm_compute_bare_metal":                       classicinfrastructure.DataSourceIBMComputeBareMetal(),
 			"ibm_compute_image_template":                   classicinfrastructure.DataSourceIBMComputeImageTemplate(),
 			"ibm_compute_placement_group":                  classicinfrastructure.DataSourceIBMComputePlacementGroup(),
@@ -371,6 +373,7 @@ func Provider() *schema.Provider {
 			"ibm_iam_access_group_template_versions":       iamaccessgroup.DataSourceIBMIAMAccessGroupTemplateVersions(),
 			"ibm_iam_access_group_template_assignment":     iamaccessgroup.DataSourceIBMIAMAccessGroupTemplateAssignment(),
 			"ibm_iam_account_settings":                     iamidentity.DataSourceIBMIAMAccountSettings(),
+			"ibm_iam_effective_account_settings":           iamidentity.DataSourceIBMIamEffectiveAccountSettings(),
 			"ibm_iam_auth_token":                           iamidentity.DataSourceIBMIAMAuthToken(),
 			"ibm_iam_role_actions":                         iampolicy.DataSourceIBMIAMRoleAction(),
 			"ibm_iam_users":                                iamidentity.DataSourceIBMIAMUsers(),
@@ -1047,6 +1050,7 @@ func Provider() *schema.Provider {
 
 			"ibm_cis":                                 cis.ResourceIBMCISInstance(),
 			"ibm_database":                            database.ResourceIBMDatabaseInstance(),
+			"ibm_db2":                                 db2.ResourceIBMDb2Instance(),
 			"ibm_cis_domain":                          cis.ResourceIBMCISDomain(),
 			"ibm_cis_domain_settings":                 cis.ResourceIBMCISSettings(),
 			"ibm_cis_firewall":                        cis.ResourceIBMCISFirewallRecord(),
