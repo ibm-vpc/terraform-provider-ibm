@@ -230,10 +230,12 @@ func ResourceIBMISInstance() *schema.Resource {
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"auto_delete": &schema.Schema{
-										Type:        schema.TypeBool,
-										Optional:    true,
-										Computed:    true,
-										Description: "Indicates whether this cluster network interface will be automatically deleted when `target` is deleted.",
+										Type:                  schema.TypeBool,
+										Optional:              true,
+										Computed:              true,
+										DiffSuppressOnRefresh: true,
+										DiffSuppressFunc:      flex.ApplyOnce,
+										Description:           "Indicates whether this cluster network interface will be automatically deleted when `target` is deleted.",
 									},
 									"name": &schema.Schema{
 										Type:        schema.TypeString,
@@ -252,27 +254,31 @@ func ResourceIBMISInstance() *schema.Resource {
 												"id": &schema.Schema{
 													Type:        schema.TypeString,
 													Optional:    true,
+													Computed:    true,
 													Description: "The unique identifier for this cluster network subnet reserved IP.",
 												},
 												"href": &schema.Schema{
 													Type:        schema.TypeString,
-													Optional:    true,
+													Computed:    true,
 													Description: "The URL for this cluster network subnet reserved IP.",
 												},
 												"address": &schema.Schema{
 													Type:        schema.TypeString,
 													Optional:    true,
+													Computed:    true,
 													Description: "The IP address to reserve, which must not already be reserved on the subnet.If unspecified, an available address on the subnet will automatically be selected.",
 												},
 												"auto_delete": &schema.Schema{
-													Type:        schema.TypeBool,
-													Optional:    true,
-													Default:     true,
-													Description: "Indicates whether this cluster network subnet reserved IP member will be automatically deleted when either `target` is deleted, or the cluster network subnet reserved IP is unbound.",
+													Type:             schema.TypeBool,
+													Optional:         true,
+													Computed:         true,
+													DiffSuppressFunc: flex.ApplyOnce,
+													Description:      "Indicates whether this cluster network subnet reserved IP member will be automatically deleted when either `target` is deleted, or the cluster network subnet reserved IP is unbound.",
 												},
 												"name": &schema.Schema{
 													Type:        schema.TypeString,
 													Optional:    true,
+													Computed:    true,
 													Description: "The name for this cluster network subnet reserved IP. The name must not be used by another reserved IP in the cluster network subnet. Names starting with `ibm-` are reserved for provider-owned resources, and are not allowed. If unspecified, the name will be a hyphenated list of randomly-selected words.",
 												},
 											},
@@ -289,11 +295,13 @@ func ResourceIBMISInstance() *schema.Resource {
 												"id": &schema.Schema{
 													Type:        schema.TypeString,
 													Optional:    true,
+													Computed:    true,
 													Description: "The unique identifier for this cluster network subnet.",
 												},
 												"href": &schema.Schema{
 													Type:        schema.TypeString,
 													Optional:    true,
+													Computed:    true,
 													Description: "The URL for this cluster network subnet.",
 												},
 											},
@@ -302,11 +310,12 @@ func ResourceIBMISInstance() *schema.Resource {
 									"id": &schema.Schema{
 										Type:        schema.TypeString,
 										Optional:    true,
+										Computed:    true,
 										Description: "The unique identifier for this cluster network interface.",
 									},
 									"href": &schema.Schema{
 										Type:        schema.TypeString,
-										Optional:    true,
+										Computed:    true,
 										Description: "The URL for this cluster network interface.",
 									},
 								},
@@ -4386,7 +4395,7 @@ func instanceGet(d *schema.ResourceData, meta interface{}, id string) error {
 	if !core.IsNil(instance.ClusterNetworkAttachments) {
 		clusterNetworkAttachments := []map[string]interface{}{}
 		for _, clusterNetworkAttachmentsItem := range instance.ClusterNetworkAttachments {
-			clusterNetworkAttachmentsItemMap, err := ResourceIBMIsInstanceInstanceClusterNetworkAttachmentReferenceToMap(&clusterNetworkAttachmentsItem) // #nosec G601
+			clusterNetworkAttachmentsItemMap, err := ResourceIBMIsInstanceInstanceClusterNetworkAttachmentReferenceToMap(instanceC, &clusterNetworkAttachmentsItem, *instance.ID) // #nosec G601
 			if err != nil {
 				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_instance", "read", "cluster_network_attachments-to-map")
 			}
@@ -6925,15 +6934,73 @@ func containsNacId(s []string, e string) bool {
 	return false
 }
 
-func ResourceIBMIsInstanceInstanceClusterNetworkAttachmentReferenceToMap(model *vpcv1.InstanceClusterNetworkAttachmentReference) (map[string]interface{}, error) {
+func ResourceIBMIsInstanceInstanceClusterNetworkAttachmentReferenceToMap(instanceC *vpcv1.VpcV1, model *vpcv1.InstanceClusterNetworkAttachmentReference, id string) (map[string]interface{}, error) {
 	modelMap := make(map[string]interface{})
 	modelMap["href"] = *model.Href
 	modelMap["id"] = *model.ID
 	modelMap["name"] = *model.Name
-	modelMap["resource_type"] = *model.ResourceType
+	getInstanceClusterNetworkAttachment := &vpcv1.GetInstanceClusterNetworkAttachmentOptions{
+		InstanceID: &id,
+		ID:         model.ID,
+	}
+	clusterNetworkAttachment, _, err := instanceC.GetInstanceClusterNetworkAttachment(getInstanceClusterNetworkAttachment)
+	if err != nil {
+		return modelMap, err
+	}
+	if clusterNetworkAttachment.ClusterNetworkInterface != nil {
+		clusterMap, err := ResourceIBMIsInstanceClusterNetworkAttachmentToMap(clusterNetworkAttachment)
+		if err != nil {
+			return modelMap, err
+		}
+		modelMap["cluster_network_interface"] = []map[string]interface{}{clusterMap}
+	}
+
 	return modelMap, nil
 }
 
+func ResourceIBMIsInstanceClusterNetworkAttachmentToMap(cnamodel *vpcv1.InstanceClusterNetworkAttachment) (map[string]interface{}, error) {
+	modelMap := make(map[string]interface{})
+	model := cnamodel.ClusterNetworkInterface
+	if model.Deleted != nil {
+		deletedMap, err := ResourceIBMIsInstanceDeletedToMap(model.Deleted)
+		if err != nil {
+			return modelMap, err
+		}
+		modelMap["deleted"] = []map[string]interface{}{deletedMap}
+	}
+	modelMap["href"] = *model.Href
+	modelMap["id"] = *model.ID
+	modelMap["name"] = *model.Name
+	if model.Subnet != nil {
+		subnetMap, err := ResourceIBMIsInstanceClusterNetworkInterfaceSubnetToMap(model.Subnet)
+		if err != nil {
+			return modelMap, err
+		}
+		modelMap["subnet"] = []map[string]interface{}{subnetMap}
+	}
+	if model.PrimaryIP != nil {
+		primaryipMap, err := ResourceIBMIsInstanceClusterNetworkInterfacePrimaryIPToMap(model.PrimaryIP)
+		if err != nil {
+			return modelMap, err
+		}
+		modelMap["primary_ip"] = []map[string]interface{}{primaryipMap}
+	}
+	return modelMap, nil
+}
+func ResourceIBMIsInstanceClusterNetworkInterfacePrimaryIPToMap(model *vpcv1.ClusterNetworkSubnetReservedIPReference) (map[string]interface{}, error) {
+	modelMap := make(map[string]interface{})
+	modelMap["address"] = *model.Address
+	modelMap["href"] = *model.Href
+	modelMap["id"] = *model.ID
+	modelMap["name"] = *model.Name
+	return modelMap, nil
+}
+func ResourceIBMIsInstanceClusterNetworkInterfaceSubnetToMap(model *vpcv1.ClusterNetworkSubnetReference) (map[string]interface{}, error) {
+	modelMap := make(map[string]interface{})
+	modelMap["href"] = *model.Href
+	modelMap["id"] = *model.ID
+	return modelMap, nil
+}
 func ResourceIBMIsInstanceClusterNetworkReferenceToMap(model *vpcv1.ClusterNetworkReference) (map[string]interface{}, error) {
 	modelMap := make(map[string]interface{})
 	modelMap["crn"] = *model.CRN
