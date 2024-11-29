@@ -3513,7 +3513,7 @@ func (c *Config) ClientSession() (interface{}, error) {
 		session.codeEngineClientErr = fmt.Errorf("Error occurred while configuring Code Engine service: %q", err)
 	}
 
-	if os.Getenv("TF_LOG") != "" {
+	if os.Getenv("TF_LOG") != "" && os.Getenv("TF_LOG") == "TRACE" {
 		logDestination := log.Writer()
 		goLogger := log.New(logDestination, "", log.LstdFlags)
 		core.SetLogger(core.NewLogger(core.LevelDebug, goLogger, goLogger))
