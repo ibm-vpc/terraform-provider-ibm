@@ -1,14 +1,14 @@
 ---
 subcategory: "VPC infrastructure"
 layout: "ibm"
-page_title: "IBM : ibm_is_image_instance_profiles"
+page_title: "IBM : ibm_is_volume_instance_profiles"
 description: |-
-  Get information about ImageInstanceProfiles
+  Get information about VolumeInstanceProfiles
 ---
 
-# ibm_is_image_instance_profiles
+# ibm_is_volume_instance_profiles
 
-Provides a read-only data source to retrieve information about an ImageInstanceProfileCollection.For more information, about infrastructure image instance profiles, see [viewing image instance profiles](WILL UPDATE DURING GA).
+Provides a read-only data source to retrieve information about an VolumeInstanceProfileCollection.For more information, about infrastructure volume instance profiles, see [viewing volume instance profiles](WILL UPDATE DURING GA).
 
 **Note:** 
 VPC infrastructure services are a regional specific based endpoint, by default targets to `us-south`. Please make sure to target right region in the provider block as shown in the `provider.tf` file, if VPC service is created in region other than `us-south`.
@@ -24,8 +24,8 @@ provider "ibm" {
 ## Example Usage
 
 ```terraform
-data "ibm_is_image_instance_profiles" "example" {
-	identifier = "ibm_is_image.isExampleImage.id"
+data "ibm_is_volume_instance_profiles" "example" {
+  identifier = "ibm_is_instance.example.boot_volume.0.volume_id"
 }
 ```
 
@@ -33,14 +33,14 @@ data "ibm_is_image_instance_profiles" "example" {
 
 You can specify the following arguments for this data source.
 
-- `identifier` - (Required, String) The image identifier.
+- `identifier` - (Required, String) The volume identifier.
 
 ## Attribute Reference
 
 After your data source is created, you can read values from the following attributes.
 
-- `id` - The unique identifier of the ImageInstanceProfileCollection.
-- `instance_profiles` - (List) A page of instance profiles compatible with the image.
+- `id` - The unique identifier of the VolumeInstanceProfileCollection.
+- `instance_profiles` - (List) A page of instance profiles compatible with the volume.
     
     Nested schema for **instance_profiles**:
 	- `href` - (String) The URL for this virtual server instance profile.
