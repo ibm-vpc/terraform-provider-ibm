@@ -224,3 +224,39 @@ func dataSourceAddressPrefixCollectionAddressPrefixesZoneToMap(zoneItem vpcv1.Zo
 
 	return zoneMap
 }
+
+func dataSourceAddressPrefixCollectionFlattenFirst(result vpcv1.PageLink) (finalList []map[string]interface{}) {
+	finalList = []map[string]interface{}{}
+	finalMap := dataSourceAddressPrefixCollectionFirstToMap(result)
+	finalList = append(finalList, finalMap)
+
+	return finalList
+}
+
+func dataSourceAddressPrefixCollectionFirstToMap(firstItem vpcv1.PageLink) (firstMap map[string]interface{}) {
+	firstMap = map[string]interface{}{}
+
+	if firstItem.Href != nil {
+		firstMap["href"] = firstItem.Href
+	}
+
+	return firstMap
+}
+
+func dataSourceAddressPrefixCollectionFlattenNext(result vpcv1.PageLink) (finalList []map[string]interface{}) {
+	finalList = []map[string]interface{}{}
+	finalMap := dataSourceAddressPrefixCollectionNextToMap(result)
+	finalList = append(finalList, finalMap)
+
+	return finalList
+}
+
+func dataSourceAddressPrefixCollectionNextToMap(nextItem vpcv1.PageLink) (nextMap map[string]interface{}) {
+	nextMap = map[string]interface{}{}
+
+	if nextItem.Href != nil {
+		nextMap["href"] = nextItem.Href
+	}
+
+	return nextMap
+}

@@ -231,6 +231,16 @@ func dataSourceIbmIsDedicatedHostGroupsID(d *schema.ResourceData) string {
 	return time.Now().UTC().String()
 }
 
+func dataSourceDedicatedHostGroupCollectionFirstToMap(firstItem vpcv1.PageLink) (firstMap map[string]interface{}) {
+	firstMap = map[string]interface{}{}
+
+	if firstItem.Href != nil {
+		firstMap["href"] = firstItem.Href
+	}
+
+	return firstMap
+}
+
 func dataSourceDedicatedHostGroupCollectionFlattenGroups(result []vpcv1.DedicatedHostGroup) (groups []map[string]interface{}) {
 	for _, groupsItem := range result {
 		groups = append(groups, dataSourceDedicatedHostGroupCollectionGroupsToMap(groupsItem))
@@ -339,4 +349,30 @@ func dataSourceDedicatedHostGroupCollectionGroupsSupportedInstanceProfilesToMap(
 	}
 
 	return supportedInstanceProfilesMap
+}
+
+func dataSourceDedicatedHostGroupCollectionFlattenFirst(result vpcv1.PageLink) (finalList []map[string]interface{}) {
+	finalList = []map[string]interface{}{}
+	finalMap := dataSourceDedicatedHostGroupCollectionFirstToMap(result)
+	finalList = append(finalList, finalMap)
+
+	return finalList
+}
+
+func dataSourceDedicatedHostGroupCollectionFlattenNext(result vpcv1.PageLink) (finalList []map[string]interface{}) {
+	finalList = []map[string]interface{}{}
+	finalMap := dataSourceDedicatedHostGroupCollectionNextToMap(result)
+	finalList = append(finalList, finalMap)
+
+	return finalList
+}
+
+func dataSourceDedicatedHostGroupCollectionNextToMap(nextItem vpcv1.PageLink) (nextMap map[string]interface{}) {
+	nextMap = map[string]interface{}{}
+
+	if nextItem.Href != nil {
+		nextMap["href"] = nextItem.Href
+	}
+
+	return nextMap
 }

@@ -176,3 +176,19 @@ func dataSourceIBMIsPrivatePathServiceGatewayAccountPoliciesAccountReferenceToMa
 	}
 	return modelMap, nil
 }
+
+func dataSourceIBMIsPrivatePathServiceGatewayAccountPoliciesPrivatePathServiceGatewayAccountPolicyCollectionFirstToMap(model *vpcv1.PageLink) (map[string]interface{}, error) {
+	modelMap := make(map[string]interface{})
+	if model.Href != nil {
+		modelMap["href"] = *model.Href
+	}
+	return modelMap, nil
+}
+
+func dataSourceIBMIsPrivatePathServiceGatewayAccountPoliciesPrivatePathServiceGatewayAccountPolicyCollectionNextToMap(model *vpcv1.PageLink) (map[string]interface{}, error) {
+	modelMap := make(map[string]interface{})
+	if model.Href != nil {
+		modelMap["href"] = *model.Href
+	}
+	return modelMap, nil
+}

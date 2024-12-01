@@ -711,3 +711,13 @@ func dataSourceBackupPolicyJobCollectionTargetSnapshotDeletedToMap(deletedItem v
 
 	return deletedMap
 }
+
+func dataSourceBackupPolicyJobCollectionNextToMap(nextItem vpcv1.PageLink) (nextMap map[string]interface{}) {
+	nextMap = map[string]interface{}{}
+
+	if nextItem.Href != nil {
+		nextMap["href"] = nextItem.Href
+	}
+
+	return nextMap
+}
