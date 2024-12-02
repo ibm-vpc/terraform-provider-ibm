@@ -223,6 +223,14 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCKVmnMOlHKcZK8tpt3MP1lqOLAcqcJzhsvJcjscgVE
 						resName, "catalog_offering.0.plan_crn"),
 					resource.TestCheckResourceAttrSet(
 						resName, "catalog_offering.0.version_crn"),
+					resource.TestCheckResourceAttrSet(
+						resName, "allowed_use.#"),
+					resource.TestCheckResourceAttrSet(
+						resName, "allowed_use.0.bare_metal_server"),
+					resource.TestCheckResourceAttrSet(
+						resName, "allowed_use.0.instance"),
+					resource.TestCheckResourceAttrSet(
+						resName, "allowed_use.0.api_version"),
 				),
 			},
 		},
