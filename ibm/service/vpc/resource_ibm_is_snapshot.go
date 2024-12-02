@@ -483,22 +483,25 @@ func ResourceIBMSnapshot() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"api_version": &schema.Schema{
-							Type:        schema.TypeString,
-							Optional:    true,
-							Computed:    true,
-							Description: "The API version with which to evaluate the expressions.",
+							Type:         schema.TypeString,
+							Optional:     true,
+							Computed:     true,
+							ValidateFunc: validate.InvokeValidator("ibm_is_snapshot", "allowed_use.api_version"),
+							Description:  "The API version with which to evaluate the expressions.",
 						},
 						"bare_metal_server": &schema.Schema{
-							Type:        schema.TypeString,
-							Optional:    true,
-							Computed:    true,
-							Description: "The expression that must be satisfied by a bare metal server provisioned using this image.",
+							Type:         schema.TypeString,
+							Optional:     true,
+							Computed:     true,
+							ValidateFunc: validate.InvokeValidator("ibm_is_snapshot", "allowed_use.bare_metal_server"),
+							Description:  "The expression that must be satisfied by a bare metal server provisioned using this image.",
 						},
 						"instance": &schema.Schema{
-							Type:        schema.TypeString,
-							Optional:    true,
-							Computed:    true,
-							Description: "The expression that must be satisfied by a virtual server instance provisioned using this image.",
+							Type:         schema.TypeString,
+							Optional:     true,
+							Computed:     true,
+							ValidateFunc: validate.InvokeValidator("ibm_is_snapshot", "allowed_use.instance"),
+							Description:  "The expression that must be satisfied by a virtual server instance provisioned using this image.",
 						},
 					},
 				},
@@ -537,6 +540,27 @@ func ResourceIBMISSnapshotValidator() *validate.ResourceValidator {
 			Regexp:                     `^([A-Za-z0-9_.-]|[A-Za-z0-9_.-][A-Za-z0-9_ .-]*[A-Za-z0-9_.-]):([A-Za-z0-9_.-]|[A-Za-z0-9_.-][A-Za-z0-9_ .-]*[A-Za-z0-9_.-])$`,
 			MinValueLength:             1,
 			MaxValueLength:             128})
+	validateSchema = append(validateSchema,
+		validate.ValidateSchema{
+			Identifier:                 "allowed_use.api_version",
+			ValidateFunctionIdentifier: validate.ValidateRegexpLen,
+			Type:                       validate.TypeString,
+			Optional:                   true,
+			Regexp:                     `^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$`})
+	validateSchema = append(validateSchema,
+		validate.ValidateSchema{
+			Identifier:                 "allowed_use.bare_metal_server",
+			ValidateFunctionIdentifier: validate.ValidateRegexpLen,
+			Type:                       validate.TypeString,
+			Optional:                   true,
+			Regexp:                     `^([a-zA-Z_][a-zA-Z0-9_]*|[-+*/%]|&&|\|\||!|==|!=|<|<=|>|>=|~|\bin\b|\(|\)|\[|\]|,|\.|"|'|"|'|\s+|\d+)+$`})
+	validateSchema = append(validateSchema,
+		validate.ValidateSchema{
+			Identifier:                 "allowed_use.instance",
+			ValidateFunctionIdentifier: validate.ValidateRegexpLen,
+			Type:                       validate.TypeString,
+			Optional:                   true,
+			Regexp:                     `^([a-zA-Z_][a-zA-Z0-9_]*|[-+*/%]|&&|\|\||!|==|!=|<|<=|>|>=|~|\bin\b|\(|\)|\[|\]|,|\.|"|'|"|'|\s+|\d+)+$`})
 	ibmISSnapshotResourceValidator := validate.ResourceValidator{ResourceName: "ibm_is_snapshot", Schema: validateSchema}
 	return &ibmISSnapshotResourceValidator
 }
@@ -665,7 +689,7 @@ func resourceIBMISSnapshotCreate(d *schema.ResourceData, meta interface{}) error
 		updateSnapshotOptions := &vpcv1.UpdateSnapshotOptions{
 			ID: snapshot.ID,
 		}
-		allowedUse, err := ResourceIBMIsSnapshotMapToSnapshotAllowedUsePatch(d.Get("allowed_use.0").(map[string]interface{}))
+		allowedUse, err := ResourceIBMIsSnapshotMapToSnapshotAllowedUsePatch(d)
 		if err != nil {
 			return fmt.Errorf("[ERROR] Error updating Snapshot : %s", err)
 		}
@@ -1024,7 +1048,7 @@ func snapshotUpdate(d *schema.ResourceData, meta interface{}, id, name string, h
 		updateSnapshotOptions := &vpcv1.UpdateSnapshotOptions{
 			ID: &id,
 		}
-		allowedUse, err := ResourceIBMIsSnapshotMapToSnapshotAllowedUsePatch(d.Get("allowed_use.0").(map[string]interface{}))
+		allowedUse, err := ResourceIBMIsSnapshotMapToSnapshotAllowedUsePatch(d)
 		if err != nil {
 			return fmt.Errorf("[ERROR] Error updating Snapshot : %s", err)
 		}
@@ -1114,17 +1138,11 @@ func isWaitForSnapshotUpdate(sess *vpcv1.VpcV1, id string, timeout time.Duration
 	return stateConf.WaitForState()
 }
 
-func ResourceIBMIsSnapshotMapToSnapshotAllowedUsePatch(modelMap map[string]interface{}) (*vpcv1.SnapshotAllowedUsePatch, error) {
+func ResourceIBMIsSnapshotMapToSnapshotAllowedUsePatch(d *schema.ResourceData) (*vpcv1.SnapshotAllowedUsePatch, error) {
 	model := &vpcv1.SnapshotAllowedUsePatch{}
-	if modelMap["api_version"] != nil && modelMap["api_version"].(string) != "" {
-		model.ApiVersion = core.StringPtr(modelMap["api_version"].(string))
-	}
-	if modelMap["bare_metal_server"] != nil && modelMap["bare_metal_server"].(string) != "" {
-		model.BareMetalServer = core.StringPtr(modelMap["bare_metal_server"].(string))
-	}
-	if modelMap["instance"] != nil && modelMap["instance"].(string) != "" {
-		model.Instance = core.StringPtr(modelMap["instance"].(string))
-	}
+	model.ApiVersion = core.StringPtr(d.Get("allowed_use.0.api_version").(string))
+	model.BareMetalServer = core.StringPtr(d.Get("allowed_use.0.bare_metal_server").(string))
+	model.Instance = core.StringPtr(d.Get("allowed_use.0.instance").(string))
 	return model, nil
 }
 

@@ -1427,34 +1427,36 @@ func ResourceIBMISInstance() *schema.Resource {
 							Description:   "The unique identifier for this volume",
 						},
 						"allowed_use": &schema.Schema{
-							Type:     schema.TypeList,
-							MaxItems: 1,
-							// ForceNew:    true,
+							Type:        schema.TypeList,
+							MaxItems:    1,
 							Optional:    true,
 							Computed:    true,
 							Description: "The usage constraints to match against the requested instance or bare metal server properties to determine compatibility.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"api_version": &schema.Schema{
-										Type: schema.TypeString,
-										// ForceNew:    true,
-										Optional:    true,
-										Computed:    true,
-										Description: "The API version with which to evaluate the expressions.",
+										Type:         schema.TypeString,
+										Optional:     true,
+										Computed:     true,
+										RequiredWith: []string{"boot_volume.0.allowed_use.0.bare_metal_server", "boot_volume.0.allowed_use.0.instance"},
+										ValidateFunc: validate.InvokeValidator("ibm_is_volume", "allowed_use.api_version"),
+										Description:  "The API version with which to evaluate the expressions.",
 									},
 									"bare_metal_server": &schema.Schema{
-										Type: schema.TypeString,
-										// ForceNew:    true,
-										Optional:    true,
-										Computed:    true,
-										Description: "The expression that must be satisfied by a bare metal server provisioned using this image.",
+										Type:         schema.TypeString,
+										Optional:     true,
+										Computed:     true,
+										RequiredWith: []string{"boot_volume.0.allowed_use.0.api_version", "boot_volume.0.allowed_use.0.instance"},
+										ValidateFunc: validate.InvokeValidator("ibm_is_volume", "allowed_use.bare_metal_server"),
+										Description:  "The expression that must be satisfied by a bare metal server provisioned using this image.",
 									},
 									"instance": &schema.Schema{
-										Type: schema.TypeString,
-										// ForceNew:    true,
-										Optional:    true,
-										Computed:    true,
-										Description: "The expression that must be satisfied by a virtual server instance provisioned using this image.",
+										Type:         schema.TypeString,
+										Optional:     true,
+										Computed:     true,
+										RequiredWith: []string{"boot_volume.0.allowed_use.0.bare_metal_server", "boot_volume.0.allowed_use.0.api_version"},
+										ValidateFunc: validate.InvokeValidator("ibm_is_volume", "allowed_use.instance"),
+										Description:  "The expression that must be satisfied by a virtual server instance provisioned using this image.",
 									},
 								},
 							},
@@ -6073,7 +6075,7 @@ func instanceUpdate(d *schema.ResourceData, meta interface{}) error {
 	bootVolAllowedUse := "boot_volume.0.allowed_use"
 	if d.HasChange(bootVolAllowedUse) {
 		id := d.Get("boot_volume.0.volume_id").(string)
-		allowedUseModel, err := ResourceIBMUsageConstraintsMapToVolumeAllowedUsePrototype(d.Get(bootVolAllowedUse).(map[string]interface{}))
+		allowedUseModel, err := ResourceIBMUsageConstraintsMapToVolumeAllowedUseInstancePrototype(d)
 		if err != nil {
 			return err
 		}
@@ -6900,6 +6902,14 @@ func instanceUpdate(d *schema.ResourceData, meta interface{}) error {
 		}
 	}
 	return nil
+}
+
+func ResourceIBMUsageConstraintsMapToVolumeAllowedUseInstancePrototype(d *schema.ResourceData) (*vpcv1.VolumeAllowedUsePatch, error) {
+	model := &vpcv1.VolumeAllowedUsePatch{}
+	model.ApiVersion = core.StringPtr(d.Get("boot_volume.0.allowed_use.0.api_version").(string))
+	model.BareMetalServer = core.StringPtr(d.Get("boot_volume.0.allowed_use.0.bare_metal_server").(string))
+	model.Instance = core.StringPtr(d.Get("boot_volume.0.allowed_use.0.instance").(string))
+	return model, nil
 }
 
 func resourceIBMisInstanceUpdate(d *schema.ResourceData, meta interface{}) error {

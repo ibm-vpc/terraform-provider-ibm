@@ -241,22 +241,28 @@ func ResourceIBMISVolume() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"api_version": &schema.Schema{
-							Type:        schema.TypeString,
-							Optional:    true,
-							Computed:    true,
-							Description: "The API version with which to evaluate the expressions.",
+							Type:         schema.TypeString,
+							Optional:     true,
+							Computed:     true,
+							RequiredWith: []string{"allowed_use.0.bare_metal_server", "allowed_use.0.instance"},
+							ValidateFunc: validate.InvokeValidator("ibm_is_volume", "allowed_use.api_version"),
+							Description:  "The API version with which to evaluate the expressions.",
 						},
 						"bare_metal_server": &schema.Schema{
-							Type:        schema.TypeString,
-							Optional:    true,
-							Computed:    true,
-							Description: "The expression that must be satisfied by a bare metal server provisioned using this image.",
+							Type:         schema.TypeString,
+							Optional:     true,
+							Computed:     true,
+							ValidateFunc: validate.InvokeValidator("ibm_is_volume", "allowed_use.bare_metal_server"),
+							RequiredWith: []string{"allowed_use.0.api_version", "allowed_use.0.instance"},
+							Description:  "The expression that must be satisfied by a bare metal server provisioned using this image.",
 						},
 						"instance": &schema.Schema{
-							Type:        schema.TypeString,
-							Optional:    true,
-							Computed:    true,
-							Description: "The expression that must be satisfied by a virtual server instance provisioned using this image.",
+							Type:         schema.TypeString,
+							Optional:     true,
+							Computed:     true,
+							ValidateFunc: validate.InvokeValidator("ibm_is_volume", "allowed_use.instance"),
+							RequiredWith: []string{"allowed_use.0.bare_metal_server", "allowed_use.0.api_version"},
+							Description:  "The expression that must be satisfied by a virtual server instance provisioned using this image.",
 						},
 					},
 				},
@@ -476,6 +482,27 @@ func ResourceIBMISVolumeValidator() *validate.ResourceValidator {
 			Regexp:                     `^([A-Za-z0-9_.-]|[A-Za-z0-9_.-][A-Za-z0-9_ .-]*[A-Za-z0-9_.-]):([A-Za-z0-9_.-]|[A-Za-z0-9_.-][A-Za-z0-9_ .-]*[A-Za-z0-9_.-])$`,
 			MinValueLength:             1,
 			MaxValueLength:             128})
+	validateSchema = append(validateSchema,
+		validate.ValidateSchema{
+			Identifier:                 "allowed_use.api_version",
+			ValidateFunctionIdentifier: validate.ValidateRegexpLen,
+			Type:                       validate.TypeString,
+			Optional:                   true,
+			Regexp:                     `^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$`})
+	validateSchema = append(validateSchema,
+		validate.ValidateSchema{
+			Identifier:                 "allowed_use.bare_metal_server",
+			ValidateFunctionIdentifier: validate.ValidateRegexpLen,
+			Type:                       validate.TypeString,
+			Optional:                   true,
+			Regexp:                     `^([a-zA-Z_][a-zA-Z0-9_]*|[-+*/%]|&&|\|\||!|==|!=|<|<=|>|>=|~|\bin\b|\(|\)|\[|\]|,|\.|"|'|"|'|\s+|\d+)+$`})
+	validateSchema = append(validateSchema,
+		validate.ValidateSchema{
+			Identifier:                 "allowed_use.instance",
+			ValidateFunctionIdentifier: validate.ValidateRegexpLen,
+			Type:                       validate.TypeString,
+			Optional:                   true,
+			Regexp:                     `^([a-zA-Z_][a-zA-Z0-9_]*|[-+*/%]|&&|\|\||!|==|!=|<|<=|>|>=|~|\bin\b|\(|\)|\[|\]|,|\.|"|'|"|'|\s+|\d+)+$`})
 
 	ibmISVolumeResourceValidator := validate.ResourceValidator{ResourceName: "ibm_is_volume", Schema: validateSchema}
 	return &ibmISVolumeResourceValidator
@@ -583,7 +610,7 @@ func volCreate(d *schema.ResourceData, meta interface{}, volName, profile, zone 
 
 	if _, ok := d.GetOk("allowed_use"); ok {
 		id := *vol.ID
-		allowedUseModel, err := ResourceIBMUsageConstraintsMapToVolumeAllowedUsePrototype(d.Get("allowed_use.0").(map[string]interface{}))
+		allowedUseModel, err := ResourceIBMUsageConstraintsMapToVolumeAllowedUsePrototype(d)
 		if err != nil {
 			return err
 		}
@@ -600,6 +627,9 @@ func volCreate(d *schema.ResourceData, meta interface{}, volName, profile, zone 
 		}
 		options.VolumePatch = volumeNamePatch
 		_, _, err = sess.UpdateVolume(options)
+		if err != nil {
+			return fmt.Errorf("[ERROR] Error in UpdateVolume for allowed_use: %s", err)
+		}
 		_, err = isWaitForVolumeAvailable(sess, d.Id(), d.Timeout(schema.TimeoutCreate))
 		if err != nil {
 			return err
@@ -867,7 +897,7 @@ func volUpdate(d *schema.ResourceData, meta interface{}, id, name string, hasNam
 	}
 
 	if d.HasChange("allowed_use") {
-		allowedUseModel, err := ResourceIBMUsageConstraintsMapToVolumeAllowedUsePrototype(d.Get("allowed_use").(map[string]interface{}))
+		allowedUseModel, err := ResourceIBMUsageConstraintsMapToVolumeAllowedUsePrototype(d)
 		if err != nil {
 			return err
 		}
@@ -895,6 +925,9 @@ func volUpdate(d *schema.ResourceData, meta interface{}, id, name string, hasNam
 		}
 		options.VolumePatch = volumeNamePatch
 		_, _, err = sess.UpdateVolume(options)
+		if err != nil {
+			return fmt.Errorf("[ERROR] Error in UpdateVolume: %s", err)
+		}
 		_, err = isWaitForVolumeAvailable(sess, d.Id(), d.Timeout(schema.TimeoutCreate))
 		if err != nil {
 			return err
@@ -1253,16 +1286,10 @@ func deleteAllSnapshots(sess *vpcv1.VpcV1, id string) error {
 	return nil
 }
 
-func ResourceIBMUsageConstraintsMapToVolumeAllowedUsePrototype(modelMap map[string]interface{}) (*vpcv1.VolumeAllowedUsePatch, error) {
+func ResourceIBMUsageConstraintsMapToVolumeAllowedUsePrototype(d *schema.ResourceData) (*vpcv1.VolumeAllowedUsePatch, error) {
 	model := &vpcv1.VolumeAllowedUsePatch{}
-	if modelMap["bare_metal_server"] != nil && modelMap["bare_metal_server"].(string) != "" {
-		model.BareMetalServer = core.StringPtr(modelMap["bare_metal_server"].(string))
-	}
-	if modelMap["instance"] != nil && modelMap["instance"].(string) != "" {
-		model.Instance = core.StringPtr(modelMap["instance"].(string))
-	}
-	if modelMap["api_version"] != nil && modelMap["api_version"].(string) != "" {
-		model.ApiVersion = core.StringPtr(modelMap["api_version"].(string))
-	}
+	model.ApiVersion = core.StringPtr(d.Get("allowed_use.0.api_version").(string))
+	model.BareMetalServer = core.StringPtr(d.Get("allowed_use.0.bare_metal_server").(string))
+	model.Instance = core.StringPtr(d.Get("allowed_use.0.instance").(string))
 	return model, nil
 }
