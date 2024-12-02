@@ -265,22 +265,25 @@ func ResourceIBMISImage() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"api_version": &schema.Schema{
-							Type:        schema.TypeString,
-							Optional:    true,
-							Computed:    true,
-							Description: "The API version with which to evaluate the expressions.",
+							Type:         schema.TypeString,
+							Optional:     true,
+							Computed:     true,
+							ValidateFunc: validate.InvokeValidator("ibm_is_image", "allowed_use.api_version"),
+							Description:  "The API version with which to evaluate the expressions.",
 						},
 						"bare_metal_server": &schema.Schema{
-							Type:        schema.TypeString,
-							Optional:    true,
-							Computed:    true,
-							Description: "The expression that must be satisfied by a bare metal server provisioned using this image.",
+							Type:         schema.TypeString,
+							Optional:     true,
+							Computed:     true,
+							ValidateFunc: validate.InvokeValidator("ibm_is_image", "allowed_use.bare_metal_server"),
+							Description:  "The expression that must be satisfied by a bare metal server provisioned using this image.",
 						},
 						"instance": &schema.Schema{
-							Type:        schema.TypeString,
-							Optional:    true,
-							Computed:    true,
-							Description: "The expression that must be satisfied by a virtual server instance provisioned using this image.",
+							Type:         schema.TypeString,
+							Optional:     true,
+							Computed:     true,
+							ValidateFunc: validate.InvokeValidator("ibm_is_image", "allowed_use.instance"),
+							Description:  "The expression that must be satisfied by a virtual server instance provisioned using this image.",
 						},
 					},
 				},
@@ -319,6 +322,27 @@ func ResourceIBMISImageValidator() *validate.ResourceValidator {
 			Regexp:                     `^([A-Za-z0-9_.-]|[A-Za-z0-9_.-][A-Za-z0-9_ .-]*[A-Za-z0-9_.-]):([A-Za-z0-9_.-]|[A-Za-z0-9_.-][A-Za-z0-9_ .-]*[A-Za-z0-9_.-])$`,
 			MinValueLength:             1,
 			MaxValueLength:             128})
+	validateSchema = append(validateSchema,
+		validate.ValidateSchema{
+			Identifier:                 "allowed_use.api_version",
+			ValidateFunctionIdentifier: validate.ValidateRegexpLen,
+			Type:                       validate.TypeString,
+			Optional:                   true,
+			Regexp:                     `^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$`})
+	validateSchema = append(validateSchema,
+		validate.ValidateSchema{
+			Identifier:                 "allowed_use.bare_metal_server",
+			ValidateFunctionIdentifier: validate.ValidateRegexpLen,
+			Type:                       validate.TypeString,
+			Optional:                   true,
+			Regexp:                     `^([a-zA-Z_][a-zA-Z0-9_]*|[-+*/%]|&&|\|\||!|==|!=|<|<=|>|>=|~|\bin\b|\(|\)|\[|\]|,|\.|"|'|"|'|\s+|\d+)+$`})
+	validateSchema = append(validateSchema,
+		validate.ValidateSchema{
+			Identifier:                 "allowed_use.instance",
+			ValidateFunctionIdentifier: validate.ValidateRegexpLen,
+			Type:                       validate.TypeString,
+			Optional:                   true,
+			Regexp:                     `^([a-zA-Z_][a-zA-Z0-9_]*|[-+*/%]|&&|\|\||!|==|!=|<|<=|>|>=|~|\bin\b|\(|\)|\[|\]|,|\.|"|'|"|'|\s+|\d+)+$`})
 	ibmISImageResourceValidator := validate.ResourceValidator{ResourceName: "ibm_is_image", Schema: validateSchema}
 	return &ibmISImageResourceValidator
 }
@@ -360,8 +384,8 @@ func imgCreateByFile(d *schema.ResourceData, meta interface{}, href, name, opera
 			Name: &operatingSystem,
 		},
 	}
-	if allowedUse, ok := d.GetOk("allowed_use"); ok {
-		allowedUseModel, err := ResourceIBMUsageConstraintsMapToImageAllowUsePrototype(allowedUse.(map[string]interface{}))
+	if _, ok := d.GetOk("allowed_use"); ok {
+		allowedUseModel, err := ResourceIBMUsageConstraintsMapToImageAllowUsePrototype(d)
 		if err != nil {
 			return err
 		}
@@ -699,7 +723,7 @@ func imgUpdate(d *schema.ResourceData, meta interface{}, id, name string, hasNam
 		}
 	}
 	if d.HasChange("allowed_use") {
-		allowedUse, err := ResourceIBMIsImageMapToImageAllowedUsePatch(d.Get("allowed_use.0").(map[string]interface{}))
+		allowedUse, err := ResourceIBMIsImageMapToImageAllowedUsePatch(d)
 		if err != nil {
 			return fmt.Errorf("[ERROR] Error on allowed use patch: %s\n", err)
 		}
@@ -723,17 +747,11 @@ func imgUpdate(d *schema.ResourceData, meta interface{}, id, name string, hasNam
 
 	return nil
 }
-func ResourceIBMIsImageMapToImageAllowedUsePatch(modelMap map[string]interface{}) (*vpcv1.ImageAllowedUsePatch, error) {
+func ResourceIBMIsImageMapToImageAllowedUsePatch(d *schema.ResourceData) (*vpcv1.ImageAllowedUsePatch, error) {
 	model := &vpcv1.ImageAllowedUsePatch{}
-	if modelMap["api_version"] != nil && modelMap["api_version"].(string) != "" {
-		model.ApiVersion = core.StringPtr(modelMap["api_version"].(string))
-	}
-	if modelMap["bare_metal_server"] != nil && modelMap["bare_metal_server"].(string) != "" {
-		model.BareMetalServer = core.StringPtr(modelMap["bare_metal_server"].(string))
-	}
-	if modelMap["instance"] != nil && modelMap["instance"].(string) != "" {
-		model.Instance = core.StringPtr(modelMap["instance"].(string))
-	}
+	model.ApiVersion = core.StringPtr(d.Get("allowed_use.0.api_version").(string))
+	model.BareMetalServer = core.StringPtr(d.Get("allowed_use.0.bare_metal_server").(string))
+	model.Instance = core.StringPtr(d.Get("allowed_use.0.instance").(string))
 	return model, nil
 }
 
@@ -940,17 +958,11 @@ func imgExists(d *schema.ResourceData, meta interface{}, id string) (bool, error
 	return true, nil
 }
 
-func ResourceIBMUsageConstraintsMapToImageAllowUsePrototype(modelMap map[string]interface{}) (*vpcv1.ImageAllowedUsePrototype, error) {
+func ResourceIBMUsageConstraintsMapToImageAllowUsePrototype(d *schema.ResourceData) (*vpcv1.ImageAllowedUsePrototype, error) {
 	model := &vpcv1.ImageAllowedUsePrototype{}
-	if modelMap["bare_metal_server"] != nil && modelMap["bare_metal_server"].(string) != "" {
-		model.BareMetalServer = core.StringPtr(modelMap["bare_metal_server"].(string))
-	}
-	if modelMap["instance"] != nil && modelMap["instance"].(string) != "" {
-		model.BareMetalServer = core.StringPtr(modelMap["instance"].(string))
-	}
-	if modelMap["api_version"] != nil && modelMap["api_version"].(string) != "" {
-		model.BareMetalServer = core.StringPtr(modelMap["api_version"].(string))
-	}
+	model.ApiVersion = core.StringPtr(d.Get("allowed_use.0.api_version").(string))
+	model.BareMetalServer = core.StringPtr(d.Get("allowed_use.0.bare_metal_server").(string))
+	model.Instance = core.StringPtr(d.Get("allowed_use.0.instance").(string))
 	return model, nil
 }
 

@@ -1045,9 +1045,23 @@ func snapshotUpdate(d *schema.ResourceData, meta interface{}, id, name string, h
 	}
 
 	if d.HasChange("allowed_use") {
+		getSnapshotOptions := &vpcv1.GetSnapshotOptions{
+			ID: &id,
+		}
+		_, response, err := sess.GetSnapshot(getSnapshotOptions)
+		if err != nil {
+			if response != nil && response.StatusCode == 404 {
+				d.SetId("")
+				return nil
+			}
+			return fmt.Errorf("[ERROR] Error getting Snapshot : %s\n%s", err, response)
+		}
+		eTag := response.Headers.Get("ETag")
+
 		updateSnapshotOptions := &vpcv1.UpdateSnapshotOptions{
 			ID: &id,
 		}
+		updateSnapshotOptions.IfMatch = &eTag
 		allowedUse, err := ResourceIBMIsSnapshotMapToSnapshotAllowedUsePatch(d)
 		if err != nil {
 			return fmt.Errorf("[ERROR] Error updating Snapshot : %s", err)
@@ -1060,7 +1074,7 @@ func snapshotUpdate(d *schema.ResourceData, meta interface{}, id, name string, h
 			return fmt.Errorf("[ERROR] Error calling asPatch for SnapshotPatch: %s", err)
 		}
 		updateSnapshotOptions.SnapshotPatch = snapshotPatch
-		_, response, err := sess.UpdateSnapshot(updateSnapshotOptions)
+		_, response, err = sess.UpdateSnapshot(updateSnapshotOptions)
 		if err != nil {
 			return fmt.Errorf("[ERROR] Error updating Snapshot : %s\n%s", err, response)
 		}
