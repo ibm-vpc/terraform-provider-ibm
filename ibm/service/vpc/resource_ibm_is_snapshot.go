@@ -13,6 +13,7 @@ import (
 
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/validate"
+	"github.com/IBM/go-sdk-core/v5/core"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -472,6 +473,39 @@ func ResourceIBMSnapshot() *schema.Resource {
 					},
 				},
 			},
+
+			"allowed_use": &schema.Schema{
+				Type:        schema.TypeList,
+				MaxItems:    1,
+				Optional:    true,
+				Computed:    true,
+				Description: "The usage constraints to match against the requested instance or bare metal server properties to determine compatibility.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"api_version": &schema.Schema{
+							Type:         schema.TypeString,
+							Optional:     true,
+							Computed:     true,
+							ValidateFunc: validate.InvokeValidator("ibm_is_snapshot", "allowed_use.api_version"),
+							Description:  "The API version with which to evaluate the expressions.",
+						},
+						"bare_metal_server": &schema.Schema{
+							Type:         schema.TypeString,
+							Optional:     true,
+							Computed:     true,
+							ValidateFunc: validate.InvokeValidator("ibm_is_snapshot", "allowed_use.bare_metal_server"),
+							Description:  "The expression that must be satisfied by a bare metal server provisioned using this image.",
+						},
+						"instance": &schema.Schema{
+							Type:         schema.TypeString,
+							Optional:     true,
+							Computed:     true,
+							ValidateFunc: validate.InvokeValidator("ibm_is_snapshot", "allowed_use.instance"),
+							Description:  "The expression that must be satisfied by a virtual server instance provisioned using this image.",
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -506,6 +540,27 @@ func ResourceIBMISSnapshotValidator() *validate.ResourceValidator {
 			Regexp:                     `^([A-Za-z0-9_.-]|[A-Za-z0-9_.-][A-Za-z0-9_ .-]*[A-Za-z0-9_.-]):([A-Za-z0-9_.-]|[A-Za-z0-9_.-][A-Za-z0-9_ .-]*[A-Za-z0-9_.-])$`,
 			MinValueLength:             1,
 			MaxValueLength:             128})
+	validateSchema = append(validateSchema,
+		validate.ValidateSchema{
+			Identifier:                 "allowed_use.api_version",
+			ValidateFunctionIdentifier: validate.ValidateRegexpLen,
+			Type:                       validate.TypeString,
+			Optional:                   true,
+			Regexp:                     `^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$`})
+	validateSchema = append(validateSchema,
+		validate.ValidateSchema{
+			Identifier:                 "allowed_use.bare_metal_server",
+			ValidateFunctionIdentifier: validate.ValidateRegexpLen,
+			Type:                       validate.TypeString,
+			Optional:                   true,
+			Regexp:                     `^([a-zA-Z_][a-zA-Z0-9_]*|[-+*/%]|&&|\|\||!|==|!=|<|<=|>|>=|~|\bin\b|\(|\)|\[|\]|,|\.|"|'|"|'|\s+|\d+)+$`})
+	validateSchema = append(validateSchema,
+		validate.ValidateSchema{
+			Identifier:                 "allowed_use.instance",
+			ValidateFunctionIdentifier: validate.ValidateRegexpLen,
+			Type:                       validate.TypeString,
+			Optional:                   true,
+			Regexp:                     `^([a-zA-Z_][a-zA-Z0-9_]*|[-+*/%]|&&|\|\||!|==|!=|<|<=|>|>=|~|\bin\b|\(|\)|\[|\]|,|\.|"|'|"|'|\s+|\d+)+$`})
 	ibmISSnapshotResourceValidator := validate.ResourceValidator{ResourceName: "ibm_is_snapshot", Schema: validateSchema}
 	return &ibmISSnapshotResourceValidator
 }
@@ -628,6 +683,32 @@ func resourceIBMISSnapshotCreate(d *schema.ResourceData, meta interface{}) error
 
 	if err != nil {
 		return err
+	}
+
+	if _, ok := d.GetOk("allowed_use"); ok {
+		updateSnapshotOptions := &vpcv1.UpdateSnapshotOptions{
+			ID: snapshot.ID,
+		}
+		allowedUse, err := ResourceIBMIsSnapshotMapToSnapshotAllowedUsePatch(d)
+		if err != nil {
+			return fmt.Errorf("[ERROR] Error updating Snapshot : %s", err)
+		}
+		snapshotPatchModel := &vpcv1.SnapshotPatch{
+			AllowedUse: allowedUse,
+		}
+		snapshotPatch, err := snapshotPatchModel.AsPatch()
+		if err != nil {
+			return fmt.Errorf("[ERROR] Error calling asPatch for SnapshotPatch: %s", err)
+		}
+		updateSnapshotOptions.SnapshotPatch = snapshotPatch
+		_, response, err := sess.UpdateSnapshot(updateSnapshotOptions)
+		if err != nil {
+			return fmt.Errorf("[ERROR] Error updating Snapshot : %s\n%s", err, response)
+		}
+		_, err = isWaitForSnapshotUpdate(sess, d.Id(), d.Timeout(schema.TimeoutCreate))
+		if err != nil {
+			return err
+		}
 	}
 
 	if _, ok := d.GetOk(isSnapshotAccessTags); ok {
@@ -838,6 +919,21 @@ func snapshotGet(d *schema.ResourceData, meta interface{}, id string) error {
 		backupPolicyPlanList = append(backupPolicyPlanList, backupPolicyPlan)
 	}
 	d.Set(isSnapshotBackupPolicyPlan, backupPolicyPlanList)
+
+	allowedUses := []map[string]interface{}{}
+	if snapshot.AllowedUse != nil {
+		modelMap, err := DataSourceIBMIsSnapshotAllowedUseToMap(snapshot.AllowedUse)
+		if err != nil {
+			tfErr := flex.TerraformErrorf(err, err.Error(), "(resource) ibm_is_snapshot", "read")
+			log.Println(tfErr.GetDiag())
+		}
+		allowedUses = append(allowedUses, modelMap)
+	}
+	if err = d.Set("allowed_use", allowedUses); err != nil {
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting allowed_use: %s", err), "(resource) ibm_is_snapshot", "read")
+		log.Println(tfErr.GetDiag())
+	}
+
 	accesstags, err := flex.GetGlobalTagsUsingCRN(meta, *snapshot.CRN, "", isAccessTagType)
 	if err != nil {
 		log.Printf(
@@ -947,6 +1043,47 @@ func snapshotUpdate(d *schema.ResourceData, meta interface{}, id, name string, h
 		}
 
 	}
+
+	if d.HasChange("allowed_use") {
+		getSnapshotOptions := &vpcv1.GetSnapshotOptions{
+			ID: &id,
+		}
+		_, response, err := sess.GetSnapshot(getSnapshotOptions)
+		if err != nil {
+			if response != nil && response.StatusCode == 404 {
+				d.SetId("")
+				return nil
+			}
+			return fmt.Errorf("[ERROR] Error getting Snapshot : %s\n%s", err, response)
+		}
+		eTag := response.Headers.Get("ETag")
+
+		updateSnapshotOptions := &vpcv1.UpdateSnapshotOptions{
+			ID: &id,
+		}
+		updateSnapshotOptions.IfMatch = &eTag
+		allowedUse, err := ResourceIBMIsSnapshotMapToSnapshotAllowedUsePatch(d)
+		if err != nil {
+			return fmt.Errorf("[ERROR] Error updating Snapshot : %s", err)
+		}
+		snapshotPatchModel := &vpcv1.SnapshotPatch{
+			AllowedUse: allowedUse,
+		}
+		snapshotPatch, err := snapshotPatchModel.AsPatch()
+		if err != nil {
+			return fmt.Errorf("[ERROR] Error calling asPatch for SnapshotPatch: %s", err)
+		}
+		updateSnapshotOptions.SnapshotPatch = snapshotPatch
+		_, response, err = sess.UpdateSnapshot(updateSnapshotOptions)
+		if err != nil {
+			return fmt.Errorf("[ERROR] Error updating Snapshot : %s\n%s", err, response)
+		}
+		_, err = isWaitForSnapshotUpdate(sess, d.Id(), d.Timeout(schema.TimeoutCreate))
+		if err != nil {
+			return err
+		}
+	}
+
 	if d.HasChange(isSnapshotClones) {
 		ovs, nvs := d.GetChange(isSnapshotClones)
 		ov := ovs.(*schema.Set)
@@ -1013,6 +1150,14 @@ func isWaitForSnapshotUpdate(sess *vpcv1.VpcV1, id string, timeout time.Duration
 		MinTimeout: 10 * time.Second,
 	}
 	return stateConf.WaitForState()
+}
+
+func ResourceIBMIsSnapshotMapToSnapshotAllowedUsePatch(d *schema.ResourceData) (*vpcv1.SnapshotAllowedUsePatch, error) {
+	model := &vpcv1.SnapshotAllowedUsePatch{}
+	model.ApiVersion = core.StringPtr(d.Get("allowed_use.0.api_version").(string))
+	model.BareMetalServer = core.StringPtr(d.Get("allowed_use.0.bare_metal_server").(string))
+	model.Instance = core.StringPtr(d.Get("allowed_use.0.instance").(string))
+	return model, nil
 }
 
 func isSnapshotUpdateRefreshFunc(sess *vpcv1.VpcV1, id string) resource.StateRefreshFunc {

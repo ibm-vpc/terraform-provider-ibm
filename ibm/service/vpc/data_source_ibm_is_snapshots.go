@@ -514,6 +514,30 @@ func DataSourceSnapshots() *schema.Resource {
 								},
 							},
 						},
+						"allowed_use": &schema.Schema{
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "The usage constraints to match against the requested instance or bare metal server properties to determine compatibility.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"bare_metal_server": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "An image can only be used for bare metal instantiation if this expression resolves to true.",
+									},
+									"instance": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "This image can only be used to provision a virtual server instance if the resulting instance would have property values that satisfy this expression.",
+									},
+									"api_version": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The API version with which to evaluate the expressions.",
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -756,6 +780,16 @@ func getSnapshots(d *schema.ResourceData, meta interface{}) error {
 			backupPolicyPlanList = append(backupPolicyPlanList, backupPolicyPlan)
 		}
 		l[isSnapshotBackupPolicyPlan] = backupPolicyPlanList
+		if snapshot.AllowedUse != nil {
+			allowedUseList := []map[string]interface{}{}
+			modelMap, err := DataSourceIBMIsSnapshotAllowedUseToMap(snapshot.AllowedUse)
+			if err != nil {
+				tfErr := flex.TerraformErrorf(err, err.Error(), "(Data) ibm_is_snapshots", "read")
+				log.Println(tfErr.GetDiag())
+			}
+			allowedUseList = append(allowedUseList, modelMap)
+			l["allowed_use"] = allowedUseList
+		}
 		accesstags, err := flex.GetGlobalTagsUsingCRN(meta, *snapshot.CRN, "", isAccessTagType)
 		if err != nil {
 			log.Printf(

@@ -641,6 +641,30 @@ func DataSourceIBMIsVolumes() *schema.Resource {
 							Computed:    true,
 							Description: "The health of this resource.",
 						},
+						"allowed_use": &schema.Schema{
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "The usage constraints to match against the requested instance or bare metal server properties to determine compatibility.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"bare_metal_server": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "An image can only be used for bare metal instantiation if this expression resolves to true.The expression follows [Common Expression Language](https://github.com/google/cel-spec/blob/master/doc/langdef.md), but does not support built-in functions and macros. In addition, the following property is supported:- `enable_secure_boot` - (boolean) Indicates whether secure boot is enabled for this bare metal server.",
+									},
+									"instance": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "This image can only be used to provision a virtual server instance if the resulting instance would have property values that satisfy this expression.The expression follows [Common Expression Language](https://github.com/google/cel-spec/blob/master/doc/langdef.md), but does not support built-in functions and macros. In addition, the following variables are supported, corresponding to `Instance` properties:- `gpu.count` - (integer) The number of GPUs assigned to the instance- `gpu.manufacturer` - (string) The GPU manufacturer- `gpu.memory` - (integer) The overall amount of GPU memory in GiB (gibibytes)- `gpu.model` - (string) The GPU model- `enable_secure_boot` - (boolean) Indicates whether secure boot is enabled.",
+									},
+									"api_version": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The API version with which to evaluate the expressions.",
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -868,6 +892,16 @@ func dataSourceVolumeCollectionVolumesToMap(volumesItem vpcv1.Volume, meta inter
 	}
 	if volumesItem.UserTags != nil {
 		volumesMap[isVolumeTags] = volumesItem.UserTags
+	}
+	if volumesItem.AllowedUse != nil {
+		usageConstraintList := []map[string]interface{}{}
+		modelMap, err := DataSourceIBMIsVolumeAllowedUseToMap(volumesItem.AllowedUse)
+		if err != nil {
+			tfErr := flex.TerraformErrorf(err, err.Error(), "(Data) ibm_is_volumes", "read")
+			log.Println(tfErr.GetDiag())
+		}
+		usageConstraintList = append(usageConstraintList, modelMap)
+		volumesMap["allowed_use"] = usageConstraintList
 	}
 	accesstags, err := flex.GetGlobalTagsUsingCRN(meta, *volumesItem.CRN, "", isVolumeAccessTagType)
 	if err != nil {

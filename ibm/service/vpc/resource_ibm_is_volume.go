@@ -13,6 +13,7 @@ import (
 
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/validate"
+	"github.com/IBM/go-sdk-core/v5/core"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -227,6 +228,41 @@ func ResourceIBMISVolume() *schema.Resource {
 							Type:        schema.TypeString,
 							Computed:    true,
 							Description: "The CRN for this version of a catalog offering",
+						},
+					},
+				},
+			},
+			"allowed_use": &schema.Schema{
+				Type:        schema.TypeList,
+				MaxItems:    1,
+				Optional:    true,
+				Computed:    true,
+				Description: "The usage constraints to match against the requested instance or bare metal server properties to determine compatibility.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"api_version": &schema.Schema{
+							Type:         schema.TypeString,
+							Optional:     true,
+							Computed:     true,
+							RequiredWith: []string{"allowed_use.0.bare_metal_server", "allowed_use.0.instance"},
+							ValidateFunc: validate.InvokeValidator("ibm_is_volume", "allowed_use.api_version"),
+							Description:  "The API version with which to evaluate the expressions.",
+						},
+						"bare_metal_server": &schema.Schema{
+							Type:         schema.TypeString,
+							Optional:     true,
+							Computed:     true,
+							ValidateFunc: validate.InvokeValidator("ibm_is_volume", "allowed_use.bare_metal_server"),
+							RequiredWith: []string{"allowed_use.0.api_version", "allowed_use.0.instance"},
+							Description:  "The expression that must be satisfied by a bare metal server provisioned using this image.",
+						},
+						"instance": &schema.Schema{
+							Type:         schema.TypeString,
+							Optional:     true,
+							Computed:     true,
+							ValidateFunc: validate.InvokeValidator("ibm_is_volume", "allowed_use.instance"),
+							RequiredWith: []string{"allowed_use.0.bare_metal_server", "allowed_use.0.api_version"},
+							Description:  "The expression that must be satisfied by a virtual server instance provisioned using this image.",
 						},
 					},
 				},
@@ -446,6 +482,27 @@ func ResourceIBMISVolumeValidator() *validate.ResourceValidator {
 			Regexp:                     `^([A-Za-z0-9_.-]|[A-Za-z0-9_.-][A-Za-z0-9_ .-]*[A-Za-z0-9_.-]):([A-Za-z0-9_.-]|[A-Za-z0-9_.-][A-Za-z0-9_ .-]*[A-Za-z0-9_.-])$`,
 			MinValueLength:             1,
 			MaxValueLength:             128})
+	validateSchema = append(validateSchema,
+		validate.ValidateSchema{
+			Identifier:                 "allowed_use.api_version",
+			ValidateFunctionIdentifier: validate.ValidateRegexpLen,
+			Type:                       validate.TypeString,
+			Optional:                   true,
+			Regexp:                     `^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$`})
+	validateSchema = append(validateSchema,
+		validate.ValidateSchema{
+			Identifier:                 "allowed_use.bare_metal_server",
+			ValidateFunctionIdentifier: validate.ValidateRegexpLen,
+			Type:                       validate.TypeString,
+			Optional:                   true,
+			Regexp:                     `^([a-zA-Z_][a-zA-Z0-9_]*|[-+*/%]|&&|\|\||!|==|!=|<|<=|>|>=|~|\bin\b|\(|\)|\[|\]|,|\.|"|'|"|'|\s+|\d+)+$`})
+	validateSchema = append(validateSchema,
+		validate.ValidateSchema{
+			Identifier:                 "allowed_use.instance",
+			ValidateFunctionIdentifier: validate.ValidateRegexpLen,
+			Type:                       validate.TypeString,
+			Optional:                   true,
+			Regexp:                     `^([a-zA-Z_][a-zA-Z0-9_]*|[-+*/%]|&&|\|\||!|==|!=|<|<=|>|>=|~|\bin\b|\(|\)|\[|\]|,|\.|"|'|"|'|\s+|\d+)+$`})
 
 	ibmISVolumeResourceValidator := validate.ResourceValidator{ResourceName: "ibm_is_volume", Schema: validateSchema}
 	return &ibmISVolumeResourceValidator
@@ -551,6 +608,34 @@ func volCreate(d *schema.ResourceData, meta interface{}, volName, profile, zone 
 		return err
 	}
 
+	if _, ok := d.GetOk("allowed_use"); ok {
+		id := *vol.ID
+		allowedUseModel, err := ResourceIBMUsageConstraintsMapToVolumeAllowedUsePrototype(d)
+		if err != nil {
+			return err
+		}
+		eTag := response.Headers.Get("ETag")
+		options := &vpcv1.UpdateVolumeOptions{
+			ID: &id,
+		}
+		options.IfMatch = &eTag
+		volumeNamePatchModel := &vpcv1.VolumePatch{}
+		volumeNamePatchModel.AllowedUse = allowedUseModel
+		volumeNamePatch, err := volumeNamePatchModel.AsPatch()
+		if err != nil {
+			return fmt.Errorf("[ERROR] Error calling asPatch for volumeNamePatch: %s", err)
+		}
+		options.VolumePatch = volumeNamePatch
+		_, _, err = sess.UpdateVolume(options)
+		if err != nil {
+			return fmt.Errorf("[ERROR] Error in UpdateVolume for allowed_use: %s", err)
+		}
+		_, err = isWaitForVolumeAvailable(sess, d.Id(), d.Timeout(schema.TimeoutCreate))
+		if err != nil {
+			return err
+		}
+	}
+
 	if _, ok := d.GetOk(isVolumeAccessTags); ok {
 		oldList, newList := d.GetChange(isVolumeAccessTags)
 		err = flex.UpdateGlobalTagsUsingCRN(oldList, newList, meta, *vol.CRN, "", isVolumeAccessTagType)
@@ -651,6 +736,19 @@ func volGet(d *schema.ResourceData, meta interface{}, id string) error {
 			}
 		}
 		d.Set(isVolumeHealthReasons, healthReasonsList)
+	}
+	allowedUses := []map[string]interface{}{}
+	if vol.AllowedUse != nil {
+		modelMap, err := DataSourceIBMIsVolumeAllowedUseToMap(vol.AllowedUse)
+		if err != nil {
+			tfErr := flex.TerraformErrorf(err, err.Error(), "(Resource) ibm_is_volume", "read")
+			log.Println(tfErr.GetDiag())
+		}
+		allowedUses = append(allowedUses, modelMap)
+	}
+	if err = d.Set("allowed_use", allowedUses); err != nil {
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting allowed_use: %s", err), "(Data) ibm_is_volume", "read")
+		log.Println(tfErr.GetDiag())
 	}
 	// catalog
 	catalogList := make([]map[string]interface{}, 0)
@@ -796,6 +894,44 @@ func volUpdate(d *schema.ResourceData, meta interface{}, id, name string, hasNam
 		}
 		eTag = response.Headers.Get("ETag")
 		options.IfMatch = &eTag
+	}
+
+	if d.HasChange("allowed_use") {
+		allowedUseModel, err := ResourceIBMUsageConstraintsMapToVolumeAllowedUsePrototype(d)
+		if err != nil {
+			return err
+		}
+		optionsget := &vpcv1.GetVolumeOptions{
+			ID: &id,
+		}
+		_, response, err := sess.GetVolume(optionsget)
+		if err != nil {
+			if response != nil && response.StatusCode == 404 {
+				d.SetId("")
+				return nil
+			}
+			return fmt.Errorf("Error getting Volume (%s): %s\n%s", id, err, response)
+		}
+		eTag := response.Headers.Get("ETag")
+		options := &vpcv1.UpdateVolumeOptions{
+			ID: &id,
+		}
+		options.IfMatch = &eTag
+		volumeNamePatchModel := &vpcv1.VolumePatch{}
+		volumeNamePatchModel.AllowedUse = allowedUseModel
+		volumeNamePatch, err := volumeNamePatchModel.AsPatch()
+		if err != nil {
+			return fmt.Errorf("[ERROR] Error calling asPatch for volumeNamePatch: %s", err)
+		}
+		options.VolumePatch = volumeNamePatch
+		_, _, err = sess.UpdateVolume(options)
+		if err != nil {
+			return fmt.Errorf("[ERROR] Error in UpdateVolume: %s", err)
+		}
+		_, err = isWaitForVolumeAvailable(sess, d.Id(), d.Timeout(schema.TimeoutCreate))
+		if err != nil {
+			return err
+		}
 	}
 
 	// profile/ iops update
@@ -1148,4 +1284,12 @@ func deleteAllSnapshots(sess *vpcv1.VpcV1, id string) error {
 		return fmt.Errorf("[ERROR] Error deleting snapshots from volume %s\n%s", err, response)
 	}
 	return nil
+}
+
+func ResourceIBMUsageConstraintsMapToVolumeAllowedUsePrototype(d *schema.ResourceData) (*vpcv1.VolumeAllowedUsePatch, error) {
+	model := &vpcv1.VolumeAllowedUsePatch{}
+	model.ApiVersion = core.StringPtr(d.Get("allowed_use.0.api_version").(string))
+	model.BareMetalServer = core.StringPtr(d.Get("allowed_use.0.bare_metal_server").(string))
+	model.Instance = core.StringPtr(d.Get("allowed_use.0.instance").(string))
+	return model, nil
 }
