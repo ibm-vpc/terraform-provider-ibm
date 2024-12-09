@@ -102,6 +102,20 @@ In addition to all argument reference list, you can access the following attribu
   - `more_info` - (String) Link to documentation about this status reason
 
 - `source_volume` - The source volume id of the image.
+- `allowed_use` - (List) The usage constraints to match against the requested instance or bare metal server properties to determine compatibility.
+    
+    Nested schema for `allowed_use`:
+    - `api_version` - (String) The API version with which to evaluate the expressions.
+	  - `bare_metal_server` - (String) The expression that must be satisfied by a bare metal server provisioned using this image.The expression follows [Common Expression Language](https://github.com/google/cel-spec/blob/master/doc/langdef.md), but does not support built-in functions and macros. 
+    ~> **NOTE** </br> In addition, the following property is supported: </br>
+      **&#x2022;** `enable_secure_boot` - (boolean) Indicates whether secure boot is enabled for this bare metal server.
+	  - `instance` - (String) The expression that must be satisfied by a virtual server instance provisioned using this image.The expression follows [Common Expression Language](https://github.com/google/cel-spec/blob/master/doc/langdef.md), but does not support built-in functions and macros. 
+    ~> **NOTE** </br> In addition, the following variables are supported, corresponding to `Instance` </br>
+       **&#x2022;** `gpu.count` - (integer) The number of GPUs assigned to the instance.
+       **&#x2022;** `gpu.manufacturer` - (string) The GPU manufacturer.
+       **&#x2022;** `gpu.memory` - (integer) The overall amount of GPU memory in GiB (gibibytes).
+       **&#x2022;** `gpu.model` - (string) The GPU model.
+       **&#x2022;** `enable_secure_boot` - (boolean) Indicates whether secure boot is enabled.
 - `user_data_format` - (String) The user data format for this image.
   
   ~> **Note:** </br> Supported values are : </br>

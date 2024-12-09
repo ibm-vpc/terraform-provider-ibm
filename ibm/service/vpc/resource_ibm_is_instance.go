@@ -1525,6 +1525,41 @@ func ResourceIBMISInstance() *schema.Resource {
 							ConflictsWith: []string{isInstanceImage, isInstanceSourceTemplate, "boot_volume.0.snapshot", "boot_volume.0.snapshot_crn", "boot_volume.0.name", "boot_volume.0.encryption", "catalog_offering.0.offering_crn", "catalog_offering.0.version_crn"},
 							Description:   "The unique identifier for this volume",
 						},
+						"allowed_use": &schema.Schema{
+							Type:        schema.TypeList,
+							MaxItems:    1,
+							Optional:    true,
+							Computed:    true,
+							Description: "The usage constraints to match against the requested instance or bare metal server properties to determine compatibility.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"api_version": &schema.Schema{
+										Type:         schema.TypeString,
+										Optional:     true,
+										Computed:     true,
+										RequiredWith: []string{"boot_volume.0.allowed_use.0.bare_metal_server", "boot_volume.0.allowed_use.0.instance"},
+										ValidateFunc: validate.InvokeValidator("ibm_is_volume", "allowed_use.api_version"),
+										Description:  "The API version with which to evaluate the expressions.",
+									},
+									"bare_metal_server": &schema.Schema{
+										Type:         schema.TypeString,
+										Optional:     true,
+										Computed:     true,
+										RequiredWith: []string{"boot_volume.0.allowed_use.0.api_version", "boot_volume.0.allowed_use.0.instance"},
+										ValidateFunc: validate.InvokeValidator("ibm_is_volume", "allowed_use.bare_metal_server"),
+										Description:  "The expression that must be satisfied by a bare metal server provisioned using this image.",
+									},
+									"instance": &schema.Schema{
+										Type:         schema.TypeString,
+										Optional:     true,
+										Computed:     true,
+										RequiredWith: []string{"boot_volume.0.allowed_use.0.bare_metal_server", "boot_volume.0.allowed_use.0.api_version"},
+										ValidateFunc: validate.InvokeValidator("ibm_is_volume", "allowed_use.instance"),
+										Description:  "The expression that must be satisfied by a virtual server instance provisioned using this image.",
+									},
+								},
+							},
+						},
 						isInstanceVolAttVolAutoDelete: {
 							Type:        schema.TypeBool,
 							Optional:    true,
@@ -2673,7 +2708,6 @@ func instanceCreateByImage(d *schema.ResourceData, meta interface{}, profile, na
 	if err != nil {
 		return err
 	}
-
 	v := os.Getenv("IC_ENV_TAGS")
 	if _, ok := d.GetOk(isInstanceTags); ok || v != "" {
 		oldList, newList := d.GetChange(isInstanceTags)
@@ -5447,6 +5481,19 @@ func instanceGet(d *schema.ResourceData, meta interface{}, id string) error {
 				if vol.UserTags != nil {
 					bootVol[isInstanceBootVolumeTags] = vol.UserTags
 				}
+				usageConstraints := []map[string]interface{}{}
+				if vol.AllowedUse != nil {
+					modelMap, err := DataSourceIBMIsVolumeAllowedUseToMap(vol.AllowedUse)
+					if err != nil {
+						tfErr := flex.TerraformErrorf(err, err.Error(), "(Resource) ibm_is_instance", "read")
+						log.Println(tfErr.GetDiag())
+					}
+					usageConstraints = append(usageConstraints, modelMap)
+				}
+				if err = d.Set("allowed_use", usageConstraints); err != nil {
+					tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting allowed_use: %s", err), "(resource) ibm_is_instance", "read")
+					log.Println(tfErr.GetDiag())
+				}
 			}
 		}
 		bootVolList = append(bootVolList, bootVol)
@@ -6129,6 +6176,47 @@ func instanceUpdate(d *schema.ResourceData, meta interface{}) error {
 			return err
 		}
 	}
+
+	bootVolAllowedUse := "boot_volume.0.allowed_use"
+	if d.HasChange(bootVolAllowedUse) {
+		id := d.Get("boot_volume.0.volume_id").(string)
+		allowedUseModel, err := ResourceIBMUsageConstraintsMapToVolumeAllowedUseInstancePrototype(d)
+		if err != nil {
+			return err
+		}
+		optionsget := &vpcv1.GetVolumeOptions{
+			ID: &id,
+		}
+		_, response, err := instanceC.GetVolume(optionsget)
+		if err != nil {
+			if response != nil && response.StatusCode == 404 {
+				d.SetId("")
+				return nil
+			}
+			return fmt.Errorf("Error getting Volume (%s): %s\n%s", id, err, response)
+		}
+		eTag := response.Headers.Get("ETag")
+		options := &vpcv1.UpdateVolumeOptions{
+			ID: &id,
+		}
+		options.IfMatch = &eTag
+		volumeNamePatchModel := &vpcv1.VolumePatch{}
+		volumeNamePatchModel.AllowedUse = allowedUseModel
+		volumeNamePatch, err := volumeNamePatchModel.AsPatch()
+		if err != nil {
+			return fmt.Errorf("[ERROR] Error calling asPatch for volumeNamePatch: %s", err)
+		}
+		options.VolumePatch = volumeNamePatch
+		vol, res, err := instanceC.UpdateVolume(options)
+		if vol == nil || err != nil {
+			return (fmt.Errorf("[ERROR] Error encountered while applying allowed use for boot volume of instance %s/n%s", err, res))
+		}
+		_, err = isWaitForVolumeAvailable(instanceC, d.Id(), d.Timeout(schema.TimeoutCreate))
+		if err != nil {
+			return err
+		}
+	}
+
 	bootVolTags := "boot_volume.0.tags"
 	if d.HasChange(bootVolTags) && !d.IsNewResource() {
 		var userTags *schema.Set
@@ -6919,6 +7007,14 @@ func instanceUpdate(d *schema.ResourceData, meta interface{}) error {
 		}
 	}
 	return nil
+}
+
+func ResourceIBMUsageConstraintsMapToVolumeAllowedUseInstancePrototype(d *schema.ResourceData) (*vpcv1.VolumeAllowedUsePatch, error) {
+	model := &vpcv1.VolumeAllowedUsePatch{}
+	model.ApiVersion = core.StringPtr(d.Get("boot_volume.0.allowed_use.0.api_version").(string))
+	model.BareMetalServer = core.StringPtr(d.Get("boot_volume.0.allowed_use.0.bare_metal_server").(string))
+	model.Instance = core.StringPtr(d.Get("boot_volume.0.allowed_use.0.instance").(string))
+	return model, nil
 }
 
 func resourceIBMisInstanceUpdate(d *schema.ResourceData, meta interface{}) error {
