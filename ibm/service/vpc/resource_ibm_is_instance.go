@@ -802,6 +802,13 @@ func ResourceIBMISInstance() *schema.Resource {
 							Set:         flex.ResourceIBMVPCHash,
 							Description: "UserTags for the volume instance",
 						},
+
+						"volume_bandwidth": {
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Computed:    true,
+							Description: "The maximum bandwidth (in megabits per second) for the volume. For this property to be specified, the volume storage_generation must be 2.",
+						},
 					},
 				},
 			},
@@ -1531,6 +1538,12 @@ func ResourceIBMISInstance() *schema.Resource {
 							Default:     true,
 							Description: "Auto delete boot volume along with instance",
 						},
+						"bandwidth": {
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Computed:    true,
+							Description: "The maximum bandwidth (in megabits per second) for the volume. For this property to be specified, the volume storage_generation must be 2.",
+						},
 						isInstanceBootAttachmentName: {
 							Type:         schema.TypeString,
 							Optional:     true,
@@ -2234,6 +2247,13 @@ func instanceCreateByImage(d *schema.ResourceData, meta interface{}, profile, na
 					}
 				}
 			}
+			// bandwidth changes
+			if volBandwidthOk, ok := d.GetOk(fmt.Sprintf("volume_prototypes.%d.bandwidth", i)); ok {
+				volBandwidth := volBandwidthOk.(int)
+				if volBandwidth != 0 {
+					volumeattItemPrototypeModel.Bandwidth = core.Int64Ptr(int64(volBandwidth))
+				}
+			}
 			if volProfileOk, ok := d.GetOk(fmt.Sprintf("volume_prototypes.%d.volume_profile", i)); ok {
 				volProfile := volProfileOk.(string)
 				if volProfile != "" {
@@ -2342,6 +2362,13 @@ func instanceCreateByImage(d *schema.ResourceData, meta interface{}, profile, na
 		if size != 0 && ok {
 			sizeInt64 := int64(size)
 			volTemplate.Capacity = &sizeInt64
+		}
+		// bandwidth changes
+		bandwidthOk, ok := bootvol["bandwidth"]
+		bandwidth := bandwidthOk.(int)
+		if bandwidth != 0 && ok {
+			bandwidthInt64 := int64(bandwidth)
+			volTemplate.Bandwidth = &bandwidthInt64
 		}
 		iopsOk, ok := bootvol[isInstanceBootIOPS]
 		iops := iopsOk.(int)
@@ -2764,6 +2791,13 @@ func instanceCreateByCatalogOffering(d *schema.ResourceData, meta interface{}, p
 					}
 				}
 			}
+			// bandwidth changes
+			if volBandwidthOk, ok := d.GetOk(fmt.Sprintf("volume_prototypes.%d.bandwidth", i)); ok {
+				volBandwidth := volBandwidthOk.(int)
+				if volBandwidth != 0 {
+					volumeattItemPrototypeModel.Bandwidth = core.Int64Ptr(int64(volBandwidth))
+				}
+			}
 			if volProfileOk, ok := d.GetOk(fmt.Sprintf("volume_prototypes.%d.volume_profile", i)); ok {
 				volProfile := volProfileOk.(string)
 				if volProfile != "" {
@@ -2904,6 +2938,13 @@ func instanceCreateByCatalogOffering(d *schema.ResourceData, meta interface{}, p
 		if size != 0 && ok {
 			sizeInt64 := int64(size)
 			volTemplate.Capacity = &sizeInt64
+		}
+		// bandwidth changes
+		bandwidthOk, ok := bootvol["bandwidth"]
+		bandwidth := bandwidthOk.(int)
+		if bandwidth != 0 && ok {
+			bandwidthInt64 := int64(bandwidth)
+			volTemplate.Bandwidth = &bandwidthInt64
 		}
 		iopsOk, ok := bootvol[isInstanceBootIOPS]
 		iops := iopsOk.(int)
@@ -3300,6 +3341,13 @@ func instanceCreateByTemplate(d *schema.ResourceData, meta interface{}, profile,
 					}
 				}
 			}
+			// bandwidth changes
+			if volBandwidthOk, ok := d.GetOk(fmt.Sprintf("volume_prototypes.%d.bandwidth", i)); ok {
+				volBandwidth := volBandwidthOk.(int)
+				if volBandwidth != 0 {
+					volumeattItemPrototypeModel.Bandwidth = core.Int64Ptr(int64(volBandwidth))
+				}
+			}
 			if volProfileOk, ok := d.GetOk(fmt.Sprintf("volume_prototypes.%d.volume_profile", i)); ok {
 				volProfile := volProfileOk.(string)
 				if volProfile != "" {
@@ -3423,6 +3471,13 @@ func instanceCreateByTemplate(d *schema.ResourceData, meta interface{}, profile,
 		if size != 0 && ok {
 			sizeInt64 := int64(size)
 			volTemplate.Capacity = &sizeInt64
+		}
+		// bandwidth changes
+		bandwidthOk, ok := bootvol["bandwidth"]
+		bandwidth := bandwidthOk.(int)
+		if bandwidth != 0 && ok {
+			bandwidthInt64 := int64(bandwidth)
+			volTemplate.Bandwidth = &bandwidthInt64
 		}
 		iopsOk, ok := bootvol[isInstanceBootIOPS]
 		iops := iopsOk.(int)
@@ -3842,6 +3897,13 @@ func instanceCreateBySnapshot(d *schema.ResourceData, meta interface{}, profile,
 					}
 				}
 			}
+			// bandwidth changes
+			if volBandwidthOk, ok := d.GetOk(fmt.Sprintf("volume_prototypes.%d.bandwidth", i)); ok {
+				volBandwidth := volBandwidthOk.(int)
+				if volBandwidth != 0 {
+					volumeattItemPrototypeModel.Bandwidth = core.Int64Ptr(int64(volBandwidth))
+				}
+			}
 			if volProfileOk, ok := d.GetOk(fmt.Sprintf("volume_prototypes.%d.volume_profile", i)); ok {
 				volProfile := volProfileOk.(string)
 				if volProfile != "" {
@@ -3941,6 +4003,13 @@ func instanceCreateBySnapshot(d *schema.ResourceData, meta interface{}, profile,
 		if size != 0 && ok {
 			sizeInt64 := int64(size)
 			volTemplate.Capacity = &sizeInt64
+		}
+		// bandwidth changes
+		bandwidthOk, ok := bootvol["bandwidth"]
+		bandwidth := bandwidthOk.(int)
+		if bandwidth != 0 && ok {
+			bandwidthInt64 := int64(bandwidth)
+			volTemplate.Bandwidth = &bandwidthInt64
 		}
 		iopsOk, ok := bootvol[isInstanceBootIOPS]
 		iops := iopsOk.(int)
@@ -4380,6 +4449,13 @@ func instanceCreateByVolume(d *schema.ResourceData, meta interface{}, profile, n
 					volumeattItemPrototypeModel.EncryptionKey = &vpcv1.EncryptionKeyIdentity{
 						CRN: &volEncKey,
 					}
+				}
+			}
+			// bandwidth changes
+			if volBandwidthOk, ok := d.GetOk(fmt.Sprintf("volume_prototypes.%d.bandwidth", i)); ok {
+				volBandwidth := volBandwidthOk.(int)
+				if volBandwidth != 0 {
+					volumeattItemPrototypeModel.Bandwidth = core.Int64Ptr(int64(volBandwidth))
 				}
 			}
 			if volProfileOk, ok := d.GetOk(fmt.Sprintf("volume_prototypes.%d.volume_profile", i)); ok {
@@ -5436,6 +5512,7 @@ func instanceGet(d *schema.ResourceData, meta interface{}, id string) error {
 			if vol != nil {
 				bootVol[isInstanceBootSize] = *vol.Capacity
 				bootVol[isInstanceBootIOPS] = *vol.Iops
+				bootVol["bandwidth"] = vol.Bandwidth
 				bootVol[isInstanceBootProfile] = *vol.Profile.Name
 				if vol.EncryptionKey != nil {
 					bootVol[isInstanceBootEncryption] = *vol.EncryptionKey.CRN
@@ -6066,6 +6143,37 @@ func instanceUpdate(d *schema.ResourceData, meta interface{}) error {
 
 	bootVolSize := "boot_volume.0.size"
 	bootIopsSize := "boot_volume.0.iops"
+	bootVolBandwidth := "boot_volume.0.bandwidth"
+
+	// bandwidth changes
+	if d.HasChange(bootVolBandwidth) && !d.IsNewResource() {
+		newBandwidth := int64(d.Get(bootVolBandwidth).(int))
+		volId := d.Get("boot_volume.0.volume_id").(string)
+		updateVolumeOptions := &vpcv1.UpdateVolumeOptions{
+			ID: &volId,
+		}
+		volPatchModel := &vpcv1.VolumePatch{
+			Bandwidth: &newBandwidth,
+		}
+		volPatchModelAsPatch, err := volPatchModel.AsPatch()
+
+		if err != nil {
+			return (fmt.Errorf("[ERROR] Error encountered while apply as patch for boot volume bandwidth of instance %s", err))
+		}
+
+		updateVolumeOptions.VolumePatch = volPatchModelAsPatch
+
+		vol, res, err := instanceC.UpdateVolume(updateVolumeOptions)
+
+		if vol == nil || err != nil {
+			return (fmt.Errorf("[ERROR] Error encountered while expanding boot volume bandwidth of instance %s/n%s", err, res))
+		}
+
+		_, err = isWaitForVolumeAvailable(instanceC, volId, d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return err
+		}
+	}
 
 	if d.HasChange(bootVolSize) && !d.IsNewResource() {
 		old, new := d.GetChange(bootVolSize)
@@ -7801,6 +7909,7 @@ func volumesEqual(oldVol, newVol map[string]interface{}) bool {
 		"volume_source_snapshot",
 		"volume_encryption_key",
 		"volume_tags",
+		"volume_bandwidth",
 	}
 
 	for _, field := range fieldsToCompare {
@@ -7974,6 +8083,9 @@ func handleVolumePrototypesUpdate(d *schema.ResourceData, instanceC *vpcv1.VpcV1
 				if newVol["volume_name"].(string) != oldVol["volume_name"].(string) {
 					volumePatchModel.Name = core.StringPtr(newVol["volume_name"].(string))
 				}
+				if newVol["volume_bandwidth"].(int) != oldVol["volume_bandwidth"].(int) {
+					volumePatchModel.Bandwidth = core.Int64Ptr(int64(newVol["volume_bandwidth"].(int)))
+				}
 				if newVol["volume_tags"] == nil && oldVol["volume_tags"] == nil {
 					// do nothing
 				} else if newVol["volume_tags"] == nil && oldVol["volume_tags"] != nil {
@@ -8039,6 +8151,7 @@ func handleVolumePrototypesUpdate(d *schema.ResourceData, instanceC *vpcv1.VpcV1
 			profile := newVol["volume_profile"].(string)
 			capacity := int64(newVol["volume_capacity"].(int))
 			volumeName := newVol["volume_name"].(string)
+			volumeBandwith := int64(newVol["volume_bandwidth"].(int))
 
 			createvolattoptions := &vpcv1.CreateInstanceVolumeAttachmentOptions{
 				InstanceID: &instanceID,
@@ -8048,7 +8161,8 @@ func handleVolumePrototypesUpdate(d *schema.ResourceData, instanceC *vpcv1.VpcV1
 				Profile: &vpcv1.VolumeProfileIdentity{
 					Name: &profile,
 				},
-				Capacity: &capacity,
+				Capacity:  &capacity,
+				Bandwidth: &volumeBandwith,
 			}
 			// Handle delete_volume_on_instance_delete using GetOkExists only for new volumes
 			if volAutoDelete, ok := d.GetOkExists(fmt.Sprintf("volume_prototypes.%d.delete_volume_on_instance_delete", i)); ok {
