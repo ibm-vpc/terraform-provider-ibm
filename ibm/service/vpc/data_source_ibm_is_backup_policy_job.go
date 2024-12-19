@@ -238,6 +238,49 @@ func DataSourceIBMIsBackupPolicyJob() *schema.Resource {
 					},
 				},
 			},
+			"source_share": &schema.Schema{
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "The source share this backup was created from (may be[deleted](https://cloud.ibm.com/apidocs/vpc#deleted-resources)).",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"crn": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The CRN for this volume.",
+						},
+						"deleted": &schema.Schema{
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "If present, this property indicates the referenced resource has been deleted and providessome supplementary information.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"more_info": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "Link to documentation about deleted resources.",
+									},
+								},
+							},
+						},
+						"href": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The URL for this volume.",
+						},
+						"id": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The unique identifier for this volume.",
+						},
+						"name": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The unique user-defined name for this volume.",
+						},
+					},
+				},
+			},
 			"status": &schema.Schema{
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -266,6 +309,18 @@ func DataSourceIBMIsBackupPolicyJob() *schema.Resource {
 						},
 					},
 				},
+			},
+			"match_resource_type": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "A resource type this backup policy applies to. Resources that have both a matching type and a matching user tag will be subject to the backup policy.",
+			},
+			"included_content": &schema.Schema{
+				Type:        schema.TypeSet,
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
+				Description: "The included content for backups created using this policy",
 			},
 			"target_snapshot": &schema.Schema{
 				Type:        schema.TypeList,
@@ -306,6 +361,53 @@ func DataSourceIBMIsBackupPolicyJob() *schema.Resource {
 							Type:        schema.TypeString,
 							Computed:    true,
 							Description: "The user-defined name for this snapshot.",
+						},
+						"remote": &schema.Schema{
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "If present, this property indicates that the resource associated with this referenceis remote and therefore may not be directly retrievable.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"account": &schema.Schema{
+										Type:        schema.TypeList,
+										Computed:    true,
+										Description: "If present, this property indicates that the referenced resource is remote to thisaccount, and identifies the owning account.",
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"id": &schema.Schema{
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "The unique identifier for this account.",
+												},
+												"resource_type": &schema.Schema{
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "The resource type.",
+												},
+											},
+										},
+									},
+									"region": &schema.Schema{
+										Type:        schema.TypeList,
+										Computed:    true,
+										Description: "If present, this property indicates that the referenced resource is remote to thisregion, and identifies the native region.",
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"href": &schema.Schema{
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "The URL for this region.",
+												},
+												"name": &schema.Schema{
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "The globally unique name for this region.",
+												},
+											},
+										},
+									},
+								},
+							},
 						},
 						"resource_type": &schema.Schema{
 							Type:        schema.TypeString,
@@ -384,9 +486,21 @@ func dataSourceIBMIsBackupPolicyJobRead(context context.Context, d *schema.Resou
 					return diag.FromErr(fmt.Errorf("Error setting source_instance %s", err))
 				}
 			}
+		case "*vpcv1.BackupPolicyJobSourceShareReference":
+			{
+				jobSource := backupPolicyJob.Source.(*vpcv1.BackupPolicyJobSourceShareReference)
+				sourceShareList := []map[string]interface{}{}
+				sourceShareMap := dataShareBackupPolicyJobSourceShareReferenceToMap(jobSource)
+				sourceShareList = append(sourceShareList, sourceShareMap)
+				err = d.Set("source_share", sourceShareList)
+				if err != nil {
+					return diag.FromErr(fmt.Errorf("Error setting source_share %s", err))
+				}
+			}
 		}
 
 	}
+
 	if err = d.Set("status", backupPolicyJob.Status); err != nil {
 		return diag.FromErr(fmt.Errorf("Error setting status: %s", err))
 	}
@@ -612,19 +726,19 @@ func dataSourceBackupPolicyJobStatusReasonsToMap(statusReasonsItem vpcv1.BackupP
 	return statusReasonsMap
 }
 
-func dataSourceBackupPolicyJobFlattenTargetSnapshot(result []vpcv1.SnapshotReference) (finalList []map[string]interface{}) {
+func dataSourceBackupPolicyJobFlattenTargetSnapshot(result []vpcv1.BackupPolicyTargetSnapshotIntf) (finalList []map[string]interface{}) {
 	finalList = []map[string]interface{}{}
 	for _, snapshotReferenceItem := range result {
-		finalMap := dataSourceBackupPolicyJobTargetSnapshotToMap(snapshotReferenceItem)
+		finalMap := dataSourceBackupPolicyJobCollectionJobsTargetSnapshotToMap(snapshotReferenceItem)
 		finalList = append(finalList, finalMap)
 	}
 
 	return finalList
 }
 
-func dataSourceBackupPolicyJobTargetSnapshotToMap(targetSnapshotItem vpcv1.SnapshotReference) (targetSnapshotMap map[string]interface{}) {
+func dataSourceBackupPolicyJobTargetSnapshotToMap(targetSnapshotItemIntf vpcv1.BackupPolicyTargetSnapshotIntf) (targetSnapshotMap map[string]interface{}) {
 	targetSnapshotMap = map[string]interface{}{}
-
+	targetSnapshotItem := targetSnapshotItemIntf.(*vpcv1.BackupPolicyTargetSnapshot)
 	if targetSnapshotItem.CRN != nil {
 		targetSnapshotMap["crn"] = targetSnapshotItem.CRN
 	}
