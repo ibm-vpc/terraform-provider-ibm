@@ -146,7 +146,7 @@ func dataSourceIbmIsShareProfileRead(context context.Context, d *schema.Resource
 	shareProfile, response, err := vpcClient.GetShareProfileWithContext(context, getShareProfileOptions)
 	if err != nil {
 		log.Printf("[DEBUG] GetShareProfileWithContext failed %s\n%s", err, response)
-		return diag.FromErr(err)
+		return diag.FromErr(fmt.Errorf("[ERROR] GetShareProfileWithContext failed %s\n%s", err, response))
 	}
 
 	if shareProfile.Capacity != nil {
