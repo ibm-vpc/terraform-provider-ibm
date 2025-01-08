@@ -341,8 +341,8 @@ func dataSourceIbmIsDedicatedHostProfileRead(context context.Context, d *schema.
 	}
 	dedicatedHostProfile, response, err := vpcClient.GetDedicatedHostProfileWithContext(context, getDedicatedHostProfileOptions)
 	if err != nil {
-		log.Printf("[DEBUG] ListDedicatedHostProfilesWithContext failed %s\n%s", err, response)
-		return diag.FromErr(err)
+		log.Printf("[DEBUG] GetDedicatedHostProfileWithContext failed %s\n%s", err, response)
+		return diag.FromErr(fmt.Errorf("[ERROR] GetDedicatedHostProfileWithContext failed %s\n%s", err, response))
 	}
 	if dedicatedHostProfile == nil {
 		return diag.FromErr(fmt.Errorf("[ERROR] No Dedicated Host Profile found with name %s", name))
