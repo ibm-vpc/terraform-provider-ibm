@@ -244,7 +244,6 @@ func ResourceIBMISVolume() *schema.Resource {
 							Type:         schema.TypeString,
 							Optional:     true,
 							Computed:     true,
-							RequiredWith: []string{"allowed_use.0.bare_metal_server", "allowed_use.0.instance"},
 							ValidateFunc: validate.InvokeValidator("ibm_is_volume", "allowed_use.api_version"),
 							Description:  "The API version with which to evaluate the expressions.",
 						},
@@ -253,7 +252,6 @@ func ResourceIBMISVolume() *schema.Resource {
 							Optional:     true,
 							Computed:     true,
 							ValidateFunc: validate.InvokeValidator("ibm_is_volume", "allowed_use.bare_metal_server"),
-							RequiredWith: []string{"allowed_use.0.api_version", "allowed_use.0.instance"},
 							Description:  "The expression that must be satisfied by a bare metal server provisioned using this image.",
 						},
 						"instance": &schema.Schema{
@@ -261,7 +259,6 @@ func ResourceIBMISVolume() *schema.Resource {
 							Optional:     true,
 							Computed:     true,
 							ValidateFunc: validate.InvokeValidator("ibm_is_volume", "allowed_use.instance"),
-							RequiredWith: []string{"allowed_use.0.bare_metal_server", "allowed_use.0.api_version"},
 							Description:  "The expression that must be satisfied by a virtual server instance provisioned using this image.",
 						},
 					},
