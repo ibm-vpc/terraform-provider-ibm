@@ -321,6 +321,30 @@ func DataSourceIBMISVolume() *schema.Resource {
 				Computed:    true,
 				Description: "The resource group name in which resource is provisioned",
 			},
+			"allowed_use": &schema.Schema{
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "The usage constraints to match against the requested instance or bare metal server properties to determine compatibility.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"bare_metal_server": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "An image can only be used for bare metal instantiation if this expression resolves to true.",
+						},
+						"instance": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "This image can only be used to provision a virtual server instance if the resulting instance would have property values that satisfy this expression.",
+						},
+						"api_version": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The API version with which to evaluate the expressions.",
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -523,6 +547,19 @@ func volumeGet(d *schema.ResourceData, meta interface{}) error {
 		return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting adjustable_iops_states: %s", err), "(Data) ibm_is_volume", "read", "set-adjustable_iops_states")
 	}
 
+	allowedUses := []map[string]interface{}{}
+	if vol.AllowedUse != nil {
+		modelMap, err := DataSourceIBMIsVolumeAllowedUseToMap(vol.AllowedUse)
+		if err != nil {
+			tfErr := flex.TerraformErrorf(err, err.Error(), "(Data) ibm_is_image", "read")
+			log.Println(tfErr.GetDiag())
+		}
+		allowedUses = append(allowedUses, modelMap)
+	}
+	if err = d.Set("allowed_use", allowedUses); err != nil {
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting allowed_use: %s", err), "(Data) ibm_is_volume", "read")
+		log.Println(tfErr.GetDiag())
+	}
 	return nil
 }
 
@@ -532,4 +569,17 @@ func resourceIbmIsVolumeCatalogOfferingVersionPlanReferenceDeletedToMap(catalogO
 	catalogOfferingVersionPlanReferenceDeletedMap["more_info"] = catalogOfferingVersionPlanReferenceDeleted.MoreInfo
 
 	return catalogOfferingVersionPlanReferenceDeletedMap
+}
+func DataSourceIBMIsVolumeAllowedUseToMap(model *vpcv1.VolumeAllowedUse) (map[string]interface{}, error) {
+	modelMap := make(map[string]interface{})
+	if model.BareMetalServer != nil {
+		modelMap["bare_metal_server"] = *model.BareMetalServer
+	}
+	if model.Instance != nil {
+		modelMap["instance"] = *model.Instance
+	}
+	if model.ApiVersion != nil {
+		modelMap["api_version"] = *model.ApiVersion
+	}
+	return modelMap, nil
 }
