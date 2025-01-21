@@ -39,6 +39,8 @@ In addition to all argument references listed, you can access the following attr
 * `access_groups` - (List) Access Groups that you can use for an `iam_credentials` secret.Up to 10 Access Groups can be used for each secret.
   * Constraints: The list items must match regular expression `/^AccessGroupId-[a-z0-9-]+[a-z0-9]$/`. The maximum length is `10` items. The minimum length is `1` item.
 
+* `account_id` - (String) The ID of the account in which the IAM credentials are created. This field is omitted if the target account is the same as the account of the Secrets Manager instance.
+
 * `api_key_id` - (String) The ID of the API key that is generated for this secret.
 
 * `created_at` - (String) The date when a resource was created. The date format follows RFC 3339.
@@ -77,7 +79,7 @@ Nested scheme for **rotation**:
 	* `unit` - (String) The units for the secret rotation time interval.
 	  * Constraints: Allowable values are: `day`, `month`.
 
-* `secret_group_id` - (String) A v4 UUID identifier, or `default` secret group.
+* `secret_group_id` - (String) A UUID identifier, or `default` secret group.
   * Constraints: The maximum length is `36` characters. The minimum length is `7` characters. The value must match regular expression `/^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|default)$/`.
 
 * `secret_type` - (String) The secret type. Supported types are arbitrary, certificates (imported, public, and private), IAM credentials, key-value, and user credentials.

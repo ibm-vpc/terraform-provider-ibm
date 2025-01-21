@@ -12,6 +12,7 @@ import (
 
 	acc "github.com/IBM-Cloud/terraform-provider-ibm/ibm/acctest"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/conns"
+	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM/scc-go-sdk/v5/securityandcompliancecenterapiv3"
 )
 
@@ -23,7 +24,7 @@ func TestAccIbmSccInstanceSettingsBasic(t *testing.T) {
 		Providers:    acc.TestAccProviders,
 		CheckDestroy: testAccCheckIbmSccInstanceSettingsDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccCheckIbmSccInstanceSettingsConfigBasic(acc.SccInstanceID),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					testAccCheckIbmSccInstanceSettingsExists("ibm_scc_instance_settings.scc_instance_settings_instance", conf),
@@ -41,19 +42,19 @@ func TestAccIbmSccInstanceSettingsAllArgs(t *testing.T) {
 		Providers:    acc.TestAccProviders,
 		CheckDestroy: testAccCheckIbmSccInstanceSettingsDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccCheckIbmSccInstanceSettingsConfigBasic(acc.SccInstanceID),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					testAccCheckIbmSccInstanceSettingsExists("ibm_scc_instance_settings.scc_instance_settings_instance", conf),
 				),
 			},
-			resource.TestStep{
+			{
 				Config: testAccCheckIbmSccInstanceSettingsConfig(acc.SccInstanceID, acc.SccEventNotificationsCRN, acc.SccObjectStorageCRN, acc.SccObjectStorageBucket),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					testAccCheckIbmSccInstanceSettingsExists("ibm_scc_instance_settings.scc_instance_settings_instance", conf),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "ibm_scc_instance_settings.scc_instance_settings_instance",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -65,7 +66,7 @@ func TestAccIbmSccInstanceSettingsAllArgs(t *testing.T) {
 func testAccCheckIbmSccInstanceSettingsConfigBasic(instanceID string) string {
 	return fmt.Sprintf(`
 		resource "ibm_scc_instance_settings" "scc_instance_settings_instance" {
-      instance_id = "%s"
+			instance_id = "%s"
 			event_notifications { }
 			object_storage { }
 		}
@@ -78,6 +79,7 @@ func testAccCheckIbmSccInstanceSettingsConfig(instanceID, enInstanceCRN, objStor
 			instance_id = "%s"
 			event_notifications {
 				instance_crn = "%s"
+				source_name = "scc compliance"
 			}
 			object_storage {
 				instance_crn = "%s"
@@ -88,11 +90,10 @@ func testAccCheckIbmSccInstanceSettingsConfig(instanceID, enInstanceCRN, objStor
 }
 
 func testAccCheckIbmSccInstanceSettingsExists(n string, obj securityandcompliancecenterapiv3.Settings) resource.TestCheckFunc {
-
 	return func(s *terraform.State) error {
 		_, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return flex.FmtErrorf("Not found: %s", n)
 		}
 
 		adminClient, err := acc.TestAccProvider.Meta().(conns.ClientSession).SecurityAndComplianceCenterV3()
@@ -131,7 +132,7 @@ func testAccCheckIbmSccInstanceSettingsDestroy(s *terraform.State) error {
 		// Deleting a instance_settings_resource doesn't delete the entity
 		_, response, err := adminClient.GetSettings(getSettingsOptions)
 		if response.StatusCode != 200 {
-			return fmt.Errorf("Error checking for scc_instance_settings (%s) has been destroyed: %s", rs.Primary.ID, err)
+			return flex.FmtErrorf("Error checking for scc_instance_settings (%s) has been destroyed: %s", rs.Primary.ID, err)
 		}
 	}
 

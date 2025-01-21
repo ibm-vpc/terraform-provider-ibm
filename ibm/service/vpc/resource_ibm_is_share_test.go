@@ -137,6 +137,32 @@ func TestAccIbmIsShareAllArgs(t *testing.T) {
 		},
 	})
 }
+func TestAccIbmIsShareAllArgs_EmptyCheck(t *testing.T) {
+	var conf vpcv1.Share
+
+	name := fmt.Sprintf("tf-fs-name-%d", acctest.RandIntRange(10, 100))
+	name2 := fmt.Sprintf("tf-fs-name2-%d", acctest.RandIntRange(10, 100))
+	name3 := fmt.Sprintf("tf-fs-name3-%d", acctest.RandIntRange(10, 100))
+	name4 := fmt.Sprintf("tf-fs-name4-%d", acctest.RandIntRange(10, 100))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { acc.TestAccPreCheck(t) },
+		Providers:    acc.TestAccProviders,
+		CheckDestroy: testAccCheckIbmIsShareDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckIbmIsShareAllConfigEmptyCheckConfig(name, name2, name3, name4),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					testAccCheckIbmIsShareExists("ibm_is_share.test-share", conf),
+					resource.TestCheckResourceAttr("ibm_is_share.test-share", "name", name),
+					resource.TestCheckResourceAttr("ibm_is_share.test-share2", "name", name2),
+					resource.TestCheckResourceAttr("ibm_is_share.test-share-replica", "name", name3),
+					resource.TestCheckResourceAttr("ibm_is_share.test-share2-replica-crn", "name", name4),
+				),
+			},
+		},
+	})
+}
 
 func TestAccIbmIsShareReplicaMain(t *testing.T) {
 	var conf vpcv1.Share
@@ -290,6 +316,53 @@ func TestAccIbmIsShareOriginShare(t *testing.T) {
 	})
 }
 
+func TestAccIbmIsShareFromShareSnapshot(t *testing.T) {
+	var conf vpcv1.Share
+
+	// name := fmt.Sprintf("tf-fs-name-%d", acctest.RandIntRange(10, 100))
+	subnetName := fmt.Sprintf("tf-subnet-%d", acctest.RandIntRange(10, 100))
+	vpcname := fmt.Sprintf("tf-vpc-name-%d", acctest.RandIntRange(10, 100))
+	shareName := fmt.Sprintf("tf-share-%d", acctest.RandIntRange(10, 100))
+	shareName1 := fmt.Sprintf("tf-share1-%d", acctest.RandIntRange(10, 100))
+	shareSnapName := fmt.Sprintf("tf-share-snap-%d", acctest.RandIntRange(10, 100))
+	tEMode1 := "user_managed"
+	// tEMode2 := "none"
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { acc.TestAccPreCheck(t) },
+		Providers:    acc.TestAccProviders,
+		CheckDestroy: testAccCheckIbmIsShareDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckIbmIsShareConfigShareSnapshotConfig(vpcname, subnetName, tEMode1, shareName, shareSnapName, shareName1),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					testAccCheckIbmIsShareExists("ibm_is_share.is_share", conf),
+					resource.TestCheckResourceAttr("ibm_is_share.is_share", "name", shareName),
+					resource.TestCheckResourceAttrSet("ibm_is_share.is_share", "id"),
+					resource.TestCheckResourceAttr("ibm_is_share.is_share", "allowed_transit_encryption_modes.0", tEMode1),
+					resource.TestCheckResourceAttrSet("ibm_is_share.is_share", "accessor_binding_role"),
+					resource.TestCheckResourceAttrSet("ibm_is_share.is_share_from_snapshot", "source_snapshot.0.crn"),
+					resource.TestCheckResourceAttrSet("ibm_is_share.is_share_from_snapshot", "source_snapshot.0.name"),
+				),
+			},
+			{
+				Config: testAccCheckIbmIsShareConfigShareSnapshotConfig(vpcname, subnetName, tEMode1, shareName, shareSnapName, shareName1),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					testAccCheckIbmIsShareExists("ibm_is_share.is_share", conf),
+					resource.TestCheckResourceAttr("ibm_is_share.is_share", "name", shareName),
+					resource.TestCheckResourceAttrSet("ibm_is_share.is_share", "id"),
+					resource.TestCheckResourceAttrSet("ibm_is_share.is_share", "allowed_transit_encryption_modes.#"),
+					resource.TestCheckResourceAttr("ibm_is_share.is_share", "allowed_transit_encryption_modes.0", tEMode1),
+					resource.TestCheckResourceAttr("ibm_is_share.is_share_from_snapshot", "name", shareName1),
+					resource.TestCheckResourceAttrSet("ibm_is_share.is_share", "accessor_binding_role"),
+					resource.TestCheckResourceAttrSet("ibm_is_share.is_share", "accessor_bindings.#"),
+					resource.TestCheckResourceAttrSet("ibm_is_share.is_share_from_snapshot", "source_snapshot.0.crn"),
+					resource.TestCheckResourceAttrSet("ibm_is_share.is_share_from_snapshot", "source_snapshot.0.name"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckIbmIsShareConfigVNIID(vpcName, sname, targetName, vniName, shareName string) string {
 	return fmt.Sprintf(`
 	data "ibm_resource_group" "group" {
@@ -351,6 +424,43 @@ func testAccCheckIbmIsShareConfigOriginShareConfig(vpcName, sname, tEMode, share
 		
 	  }
 	`, vpcName, sname, acc.ISCIDR, tEMode, shareName, shareName1)
+}
+
+func testAccCheckIbmIsShareConfigShareSnapshotConfig(vpcName, sname, tEMode, shareName, shareSnapName, shareName1 string) string {
+	return fmt.Sprintf(`
+	
+	resource "ibm_is_vpc" "testacc_vpc" {
+		name = "%s"
+	}
+	resource "ibm_is_subnet" "testacc_subnet" {
+		name = "%s"
+		vpc = ibm_is_vpc.testacc_vpc.id
+		zone = "us-south-1"
+		ipv4_cidr_block = "%s"
+	}
+	resource "ibm_is_share" "is_share" {
+		allowed_transit_encryption_modes = ["%s"]
+		zone    = "us-south-1"
+		size    = 220
+		name    = "%s"
+		profile = "dp2"
+		tags = ["tfp-acc-test-share-tag-1"]
+	  }
+	
+	resource "ibm_is_share_snapshot" "is_share_snapshot" {
+		share = ibm_is_share.is_share.id
+		name = "%s"
+		tags = ["tfp-acc-test-share-tag-1"]
+	}
+	  resource "ibm_is_share" "is_share_from_snapshot" {
+		source_snapshot{
+			id = ibm_is_share_snapshot.is_share_snapshot.share_snapshot
+		}
+		size    = 220
+		name    = "%s"
+		profile = "dp2"
+	  }
+	`, vpcName, sname, acc.ISCIDR, tEMode, shareName, shareSnapName, shareName1)
 }
 
 func testAccCheckIbmIsShareConfigBasic(name string) string {
@@ -431,6 +541,37 @@ func testAccCheckIbmIsShareConfig(vpcName, name string, size int, shareTergetNam
 		tags = ["sr01", "sr02"]
 	}
 	`, vpcName, name, acc.ShareProfileName, size, shareTergetName)
+}
+func testAccCheckIbmIsShareAllConfigEmptyCheckConfig(sharename1, sharename2, sharename3, sharename4 string) string {
+	return fmt.Sprintf(`
+
+	resource "ibm_is_share" "test-share" {
+		name    = "%s"
+		size    = 200
+		profile = "%s"
+		zone    = "%s"
+	}
+	resource "ibm_is_share" "test-share2" {
+		name    = "%s"
+		size    = 200
+		profile = "%s"
+		zone    = "%s"
+	}
+	resource "ibm_is_share" "test-share-replica" {
+		name                  = "%s"
+		profile               = "%s"
+		zone                  = "%s"
+		source_share          = ibm_is_share.test-share.id
+		replication_cron_spec = "0 */6 * * *"
+	}
+	resource "ibm_is_share" "test-share2-replica-crn" {
+		name                  = "%s"
+		profile               = "%s"
+		zone                  = "%s"
+		source_share_crn      = ibm_is_share.test-share2.crn
+		replication_cron_spec = "0 */5 * * *"
+	}
+	`, sharename1, acc.ShareProfileName, acc.ISZoneName, sharename2, acc.ShareProfileName, acc.ISZoneName, sharename3, acc.ShareProfileName, acc.ISZoneName2, sharename4, acc.ShareProfileName, acc.ISZoneName3)
 }
 
 func testAccCheckIbmIsShareConfigReplica(vpcName, vpcName1, name string, size int, shareTergetName, shareTergetName1, replicaName string) string {

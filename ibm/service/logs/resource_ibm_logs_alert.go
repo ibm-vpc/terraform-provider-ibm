@@ -224,6 +224,7 @@ func ResourceIbmLogsAlert() *schema.Resource {
 													Type:        schema.TypeList,
 													MaxItems:    1,
 													Optional:    true,
+													Computed:    true,
 													Description: "Deadman configuration.",
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
@@ -1250,7 +1251,7 @@ func ResourceIbmLogsAlert() *schema.Resource {
 			},
 			"notification_groups": &schema.Schema{
 				Type:        schema.TypeList,
-				Required:    true,
+				Optional:    true,
 				Description: "Alert notification groups.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -1568,7 +1569,7 @@ func ResourceIbmLogsAlertValidator() *validate.ResourceValidator {
 			ValidateFunctionIdentifier: validate.ValidateRegexpLen,
 			Type:                       validate.TypeString,
 			Required:                   true,
-			Regexp:                     `^[A-Za-z0-9_\.,\-"{}()\[\]=!:#\/$|' ]+$`,
+			Regexp:                     `^[\p{L}\p{N}\p{P}\p{Z}\p{S}\p{M}]+$`,
 			MinValueLength:             1,
 			MaxValueLength:             4096,
 		},
@@ -1618,12 +1619,14 @@ func resourceIbmLogsAlertCreate(context context.Context, d *schema.ResourceData,
 	createAlertOptions.SetCondition(conditionModel)
 	var notificationGroups []logsv0.AlertsV2AlertNotificationGroups
 	for _, v := range d.Get("notification_groups").([]interface{}) {
-		value := v.(map[string]interface{})
-		notificationGroupsItem, err := ResourceIbmLogsAlertMapToAlertsV2AlertNotificationGroups(value)
-		if err != nil {
-			return diag.FromErr(err)
+		if v != nil {
+			value := v.(map[string]interface{})
+			notificationGroupsItem, err := ResourceIbmLogsAlertMapToAlertsV2AlertNotificationGroups(value)
+			if err != nil {
+				return diag.FromErr(err)
+			}
+			notificationGroups = append(notificationGroups, *notificationGroupsItem)
 		}
-		notificationGroups = append(notificationGroups, *notificationGroupsItem)
 	}
 	createAlertOptions.SetNotificationGroups(notificationGroups)
 	filtersModel, err := ResourceIbmLogsAlertMapToAlertsV1AlertFilters(d.Get("filters.0").(map[string]interface{}))
@@ -1774,13 +1777,16 @@ func resourceIbmLogsAlertRead(context context.Context, d *schema.ResourceData, m
 	if err = d.Set("notification_groups", notificationGroups); err != nil {
 		return diag.FromErr(fmt.Errorf("Error setting notification_groups: %s", err))
 	}
-	filtersMap, err := ResourceIbmLogsAlertAlertsV1AlertFiltersToMap(alert.Filters)
-	if err != nil {
-		return diag.FromErr(err)
+	if alert.Filters != nil {
+		filtersMap, err := ResourceIbmLogsAlertAlertsV1AlertFiltersToMap(alert.Filters)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		if err = d.Set("filters", []map[string]interface{}{filtersMap}); err != nil {
+			return diag.FromErr(fmt.Errorf("Error setting filters: %s", err))
+		}
 	}
-	if err = d.Set("filters", []map[string]interface{}{filtersMap}); err != nil {
-		return diag.FromErr(fmt.Errorf("Error setting filters: %s", err))
-	}
+
 	if !core.IsNil(alert.ActiveWhen) {
 		activeWhenMap, err := ResourceIbmLogsAlertAlertsV1AlertActiveWhenToMap(alert.ActiveWhen)
 		if err != nil {
@@ -1875,12 +1881,14 @@ func resourceIbmLogsAlertUpdate(context context.Context, d *schema.ResourceData,
 
 		var notificationGroups []logsv0.AlertsV2AlertNotificationGroups
 		for _, v := range d.Get("notification_groups").([]interface{}) {
-			value := v.(map[string]interface{})
-			notificationGroupsItem, err := ResourceIbmLogsAlertMapToAlertsV2AlertNotificationGroups(value)
-			if err != nil {
-				return diag.FromErr(err)
+			if v != nil {
+				value := v.(map[string]interface{})
+				notificationGroupsItem, err := ResourceIbmLogsAlertMapToAlertsV2AlertNotificationGroups(value)
+				if err != nil {
+					return diag.FromErr(err)
+				}
+				notificationGroups = append(notificationGroups, *notificationGroupsItem)
 			}
-			notificationGroups = append(notificationGroups, *notificationGroupsItem)
 		}
 		updateAlertOptions.SetNotificationGroups(notificationGroups)
 

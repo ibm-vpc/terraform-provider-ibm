@@ -17,7 +17,7 @@ variable "code_engine_project_name" {
 
 // Resource arguments for code_engine_app
 variable "code_engine_app_image_reference" {
-  description = "The name of the image that is used for this job. The format is `REGISTRY/NAMESPACE/REPOSITORY:TAG` where `REGISTRY` and `TAG` are optional. If `REGISTRY` is not specified, the default is `docker.io`. If `TAG` is not specified, the default is `latest`. If the image reference points to a registry that requires authentication, make sure to also specify the property `image_secret`."
+  description = "The name of the image that is used for this app. The format is `REGISTRY/NAMESPACE/REPOSITORY:TAG` where `REGISTRY` and `TAG` are optional. If `REGISTRY` is not specified, the default is `docker.io`. If `TAG` is not specified, the default is `latest`. If the image reference points to a registry that requires authentication, make sure to also specify the property `image_secret`."
   type        = string
   default     = "icr.io/codeengine/helloworld"
 }
@@ -123,6 +123,49 @@ variable "code_engine_binding_prefix" {
 variable "code_engine_domain_mapping_name" {
   description = "The name of the domain mapping."
   type        = string
+}
+
+// Resource arguments for code_engine_function
+variable "code_engine_function_name" {
+  description = "The name of the function."
+  type        = string
+  default     = "my-function"
+}
+variable "code_engine_function_runtime" {
+  description = "The runtime of the function."
+  type        = string
+  default     = "nodejs-20"
+}
+variable "code_engine_function_code_reference_file_path" {
+  description = "The path to a file containing the source code."
+  type        = string
+}
+
+// Resource arguments for code_engine_secret with format tls
+variable "code_engine_secret_tls_name" {
+  description = "The name of the tls secret."
+  type        = string
+  default     = "my-tls-secret"
+}
+variable "code_engine_secret_tls_key_file_path" {
+  description = "The path to the .key file containing the private key of the TLS certificate."
+  type        = string
+}
+variable "code_engine_secret_tls_crt_file_path" {
+  description = "The path to the .crt file containing the signed TLS certificate."
+  type        = string
+}
+
+// Resource arguments for code_engine_allowed_outbound_destination
+variable "code_engine_allowed_outbound_destination_name" {
+  description = "The name of the allowed outbound destination."
+  type        = string
+  default     = "my-allowed-outbound-destination"
+}
+variable "code_engine_allowed_outbound_destination_cidr_block" {
+  description = "The IPv4 address range of the allowed outbound destination."
+  type        = string
+  default     = "192.68.3.0/24"
 }
 
 // Data source arguments for code_engine_project
