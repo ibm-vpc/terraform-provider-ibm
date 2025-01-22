@@ -311,7 +311,7 @@ func DataSourceIBMIsPublicAddressRangesVPCReferenceToMap(model *vpcv1.VPCReferen
 	return modelMap, nil
 }
 
-func DataSourceIBMIsPublicAddressRangesDeletedToMap(model *vpcv1.VPCReferenceDeleted) (map[string]interface{}, error) {
+func DataSourceIBMIsPublicAddressRangesDeletedToMap(model *vpcv1.Deleted) (map[string]interface{}, error) {
 	modelMap := make(map[string]interface{})
 	modelMap["more_info"] = *model.MoreInfo
 	return modelMap, nil

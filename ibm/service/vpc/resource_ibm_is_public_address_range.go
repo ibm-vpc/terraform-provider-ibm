@@ -522,7 +522,7 @@ func ResourceIBMPublicAddressRangeVPCReferenceToMap(model *vpcv1.VPCReference) (
 	return modelMap, nil
 }
 
-func ResourceIBMPublicAddressRangeDeletedToMap(model *vpcv1.VPCReferenceDeleted) (map[string]interface{}, error) {
+func ResourceIBMPublicAddressRangeDeletedToMap(model *vpcv1.Deleted) (map[string]interface{}, error) {
 	modelMap := make(map[string]interface{})
 	modelMap["more_info"] = *model.MoreInfo
 	return modelMap, nil
