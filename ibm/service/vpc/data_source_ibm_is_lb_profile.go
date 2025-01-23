@@ -51,6 +51,30 @@ func DataSourceIBMISLbProfile() *schema.Resource {
 					},
 				},
 			},
+			"targetable_load_balancer_profiles": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "The load balancer profiles that load balancers with this profile can target",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"family": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The product family this load balancer profile belongs to",
+						},
+						"href": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The URL for this load balancer profile",
+						},
+						"name": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The globally unique name for this load balancer profile",
+						},
+					},
+				},
+			},
 			"href": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -115,6 +139,9 @@ func dataSourceIBMISLbProfileRead(context context.Context, d *schema.ResourceDat
 		}
 		AccessModesList = append(AccessModesList, AccessModesMap)
 		d.Set(isLBAccessModes, AccessModesList)
+	}
+	if len(lbProfile.TargetableLoadBalancerProfiles) > 0 {
+		d.Set("targetable_load_balancer_profiles", lbProfile.TargetableLoadBalancerProfiles)
 	}
 	log.Printf("[INFO] lbprofile udp %v", lbProfile.UDPSupported)
 	if lbProfile.UDPSupported != nil {
