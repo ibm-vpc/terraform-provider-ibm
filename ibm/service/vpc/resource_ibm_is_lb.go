@@ -12,6 +12,7 @@ import (
 
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/validate"
+	"github.com/IBM/go-sdk-core/v5/core"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -120,6 +121,142 @@ func ResourceIBMISLB() *schema.Resource {
 				Type:        schema.TypeBool,
 				Computed:    true,
 				Description: "Indicates whether this load balancer supports source IP session persistence.",
+			},
+
+			// pools support
+
+			"pools": &schema.Schema{
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "The pools of this load balancer.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"algorithm": {
+							Type:         schema.TypeString,
+							Required:     true,
+							Description:  "The load balancing algorithm.",
+							ValidateFunc: validate.ValidateAllowedStringValues([]string{"round_robin", "weighted_round_robin", "least_connections"}),
+						},
+						"health_monitor": {
+							Type:        schema.TypeList,
+							Required:    true,
+							MaxItems:    1,
+							Description: "The health monitor for this pool.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"port": {
+										Type:        schema.TypeInt,
+										Optional:    true,
+										Description: "The port used for health checks.",
+									},
+									"type": {
+										Type:         schema.TypeString,
+										Required:     true,
+										Description:  "The protocol type for health checks.",
+										ValidateFunc: validate.ValidateAllowedStringValues([]string{"http", "https", "tcp"}),
+									},
+									"url_path": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: "The URL path for HTTP/HTTPS health checks.",
+									},
+									"delay": {
+										Type:        schema.TypeInt,
+										Optional:    true,
+										Description: "The seconds to wait between health checks.  Must be greater than `timeout`",
+									},
+									"timeout": {
+										Type:        schema.TypeInt,
+										Optional:    true,
+										Description: "The timeout for health checks.",
+									},
+									"max_retries": {
+										Type:        schema.TypeInt,
+										Optional:    true,
+										Description: "The maximum number of retries for health checks.",
+									},
+								},
+							},
+						},
+						"members": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: "The members of this pool.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"port": {
+										Type:        schema.TypeInt,
+										Required:    true,
+										Description: "The port the member will receive traffic on.",
+									},
+									"target": {
+										Type:        schema.TypeList,
+										Required:    true,
+										MaxItems:    1,
+										Description: "The target of this pool member.",
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"id": {
+													Type:        schema.TypeString,
+													Optional:    true,
+													Description: "The unique identifier for this virtual server instance.",
+												},
+												"address": {
+													Type:        schema.TypeString,
+													Optional:    true,
+													Description: "The IP address of the target.",
+												},
+											},
+										},
+									},
+									"weight": {
+										Type:        schema.TypeInt,
+										Optional:    true,
+										Description: "The weight of the server member.",
+									},
+								},
+							},
+						},
+						"name": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "The name for this load balancer pool.",
+						},
+						"protocol": {
+							Type:         schema.TypeString,
+							Required:     true,
+							Description:  "The protocol used for this pool.",
+							ValidateFunc: validate.ValidateAllowedStringValues([]string{"tcp", "http", "https", "udp"}),
+						},
+						"proxy_protocol": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Description:  "The PROXY protocol setting for this pool.",
+							ValidateFunc: validate.ValidateAllowedStringValues([]string{"v1", "v2", "disabled"}),
+						},
+						"session_persistence": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							MaxItems:    1,
+							Description: "The session persistence for this pool.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"cookie_name": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: "The session persistence cookie name. Names starting with `IBM` are not allowed. If specified, the session persistence type must be `app_cookie`.",
+									},
+									"type": {
+										Type:         schema.TypeString,
+										Required:     true,
+										Description:  "The type of session persistence.",
+										ValidateFunc: validate.ValidateAllowedStringValues([]string{"source_ip"}),
+									},
+								},
+							},
+						},
+					},
+				},
 			},
 			"dns": {
 				Type:        schema.TypeList,
@@ -490,6 +627,21 @@ func lbCreate(d *schema.ResourceData, meta interface{}, name, lbType, rg string,
 			Datapath: dataPath,
 		}
 		options.Logging = loadBalancerLogging
+	}
+
+	// pools support
+
+	if _, ok := d.GetOk("pools"); ok {
+		var pools []vpcv1.LoadBalancerPoolPrototype
+		for _, v := range d.Get("pools").([]interface{}) {
+			value := v.(map[string]interface{})
+			poolsItem, err := ResourceIBMIsLbMapToLoadBalancerPoolPrototype(value)
+			if err != nil {
+				return fmt.Errorf(flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_lb", "create", "parse-pools").Error())
+			}
+			pools = append(pools, *poolsItem)
+		}
+		options.SetPools(pools)
 	}
 
 	lb, response, err := sess.CreateLoadBalancer(options)
@@ -1063,4 +1215,106 @@ func isLBRefreshFunc(sess *vpcv1.VpcV1, lbId string) resource.StateRefreshFunc {
 
 		return lb, isLBProvisioning, nil
 	}
+}
+
+// pools helper function
+func ResourceIBMIsLbMapToLoadBalancerPoolPrototype(poolMap map[string]interface{}) (*vpcv1.LoadBalancerPoolPrototype, error) {
+	pool := &vpcv1.LoadBalancerPoolPrototype{}
+
+	if algorithm, ok := poolMap["algorithm"].(string); ok {
+		pool.Algorithm = &algorithm
+	}
+
+	if healthMonitorList, ok := poolMap["health_monitor"].([]interface{}); ok && len(healthMonitorList) > 0 {
+		healthMonitorMap := healthMonitorList[0].(map[string]interface{})
+		healthMonitor := &vpcv1.LoadBalancerPoolHealthMonitorPrototype{}
+
+		if port, ok := healthMonitorMap["port"].(int); ok {
+			healthMonitor.Port = core.Int64Ptr(int64(port))
+		}
+
+		if type_, ok := healthMonitorMap["type"].(string); ok {
+			healthMonitor.Type = &type_
+		}
+
+		if urlPath, ok := healthMonitorMap["url_path"].(string); ok {
+			healthMonitor.URLPath = &urlPath
+		}
+
+		if interval, ok := healthMonitorMap["delay"].(int); ok {
+			healthMonitor.Delay = core.Int64Ptr(int64(interval))
+		}
+
+		if timeout, ok := healthMonitorMap["timeout"].(int); ok {
+			healthMonitor.Timeout = core.Int64Ptr(int64(timeout))
+		}
+
+		if maxRetries, ok := healthMonitorMap["max_retries"].(int); ok {
+			healthMonitor.MaxRetries = core.Int64Ptr(int64(maxRetries))
+		}
+
+		pool.HealthMonitor = healthMonitor
+	}
+
+	if membersList, ok := poolMap["members"].([]interface{}); ok {
+		members := make([]vpcv1.LoadBalancerPoolMemberPrototype, len(membersList))
+		for i, memberItem := range membersList {
+			memberMap := memberItem.(map[string]interface{})
+			member := vpcv1.LoadBalancerPoolMemberPrototype{}
+
+			if port, ok := memberMap["port"].(int); ok {
+				member.Port = core.Int64Ptr(int64(port))
+			}
+
+			if targetList, ok := memberMap["target"].([]interface{}); ok && len(targetList) > 0 {
+				targetMap := targetList[0].(map[string]interface{})
+				target := &vpcv1.LoadBalancerPoolMemberTargetPrototype{}
+
+				if id, ok := targetMap["id"].(string); ok {
+					target.ID = &id
+				}
+
+				if address, ok := targetMap["address"].(string); ok {
+					target.Address = &address
+				}
+
+				member.Target = target
+			}
+
+			if weight, ok := memberMap["weight"].(int); ok {
+				member.Weight = core.Int64Ptr(int64(weight))
+			}
+
+			members[i] = member
+		}
+		pool.Members = members
+	}
+
+	if name, ok := poolMap["name"].(string); ok {
+		pool.Name = &name
+	}
+
+	if protocol, ok := poolMap["protocol"].(string); ok {
+		pool.Protocol = &protocol
+	}
+
+	if proxyProtocol, ok := poolMap["proxy_protocol"].(string); ok {
+		pool.ProxyProtocol = &proxyProtocol
+	}
+
+	if sessionPersistenceList, ok := poolMap["session_persistence"].([]interface{}); ok && len(sessionPersistenceList) > 0 {
+		sessionPersistenceMap := sessionPersistenceList[0].(map[string]interface{})
+		sessionPersistence := &vpcv1.LoadBalancerPoolSessionPersistencePrototype{}
+
+		if type_, ok := sessionPersistenceMap["type"].(string); ok {
+			sessionPersistence.Type = &type_
+		}
+		if cookie_name_, ok := sessionPersistenceMap["cookie_name"].(string); ok {
+			sessionPersistence.CookieName = &cookie_name_
+		}
+
+		pool.SessionPersistence = sessionPersistence
+	}
+
+	return pool, nil
 }
