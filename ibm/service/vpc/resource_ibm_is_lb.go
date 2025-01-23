@@ -84,6 +84,12 @@ func ResourceIBMISLB() *schema.Resource {
 				func(_ context.Context, diff *schema.ResourceDiff, v interface{}) error {
 					return flex.ResourceValidateAccessTags(diff, v)
 				}),
+			customdiff.ForceNewIfChange("pools", func(_ context.Context, old, new, meta interface{}) bool {
+				return len(old.([]interface{})) != len(new.([]interface{}))
+			}),
+			customdiff.ComputedIf("pools", func(_ context.Context, diff *schema.ResourceDiff, meta interface{}) bool {
+				return diff.HasChange("pools")
+			}),
 		),
 
 		Schema: map[string]*schema.Schema{
@@ -918,7 +924,7 @@ func resourceIBMISLBUpdate(d *schema.ResourceData, meta interface{}) error {
 					}
 
 					// Map the new pool to the SDK's LoadBalancerPoolPatch
-					poolPatch, members, err := ResourceIBMIsLbMapToLoadBalancerPoolPatch(newPool)
+					poolPatch, membersMap, err := ResourceIBMIsLbMapToLoadBalancerPoolPatch(newPool)
 					if err != nil {
 						return err
 					}
@@ -931,17 +937,19 @@ func resourceIBMISLBUpdate(d *schema.ResourceData, meta interface{}) error {
 						return fmt.Errorf("[ERROR] Error updating pool %s: %s\n%s", name, err, response)
 					}
 
-					if len(members) > 0 {
-						for _, member := range members {
+					// Update pool members
+					if len(membersMap) > 0 {
+						for memberID, member := range membersMap {
 							updateLoadBalancerPoolMemberOptions := &vpcv1.UpdateLoadBalancerPoolMemberOptions{
 								LoadBalancerID: &id,
 								PoolID:         &poolID,
+								ID:             &memberID,
 							}
 							memberAsPatch, _ := member.AsPatch()
 							updateLoadBalancerPoolMemberOptions.LoadBalancerPoolMemberPatch = memberAsPatch
 							_, response, err := sess.UpdateLoadBalancerPoolMember(updateLoadBalancerPoolMemberOptions)
 							if err != nil {
-								return fmt.Errorf("[ERROR] Error updating pool member %s: %s\n%s", name, err, response)
+								return fmt.Errorf("[ERROR] Error updating pool member %s: %s\n%s", memberID, err, response)
 							}
 						}
 					}
@@ -1349,8 +1357,8 @@ func ResourceIBMIsLbMapToLoadBalancerPoolOptions(poolMap map[string]interface{})
 			healthMonitor.URLPath = &urlPath
 		}
 
-		if interval, ok := healthMonitorMap["delay"].(int); ok {
-			healthMonitor.Delay = core.Int64Ptr(int64(interval))
+		if delay, ok := healthMonitorMap["delay"].(int); ok {
+			healthMonitor.Delay = core.Int64Ptr(int64(delay))
 		}
 
 		if timeout, ok := healthMonitorMap["timeout"].(int); ok {
@@ -1417,8 +1425,9 @@ func ResourceIBMIsLbMapToLoadBalancerPoolOptions(poolMap map[string]interface{})
 		if type_, ok := sessionPersistenceMap["type"].(string); ok {
 			sessionPersistence.Type = &type_
 		}
-		if cookie_name_, ok := sessionPersistenceMap["cookie_name"].(string); ok {
-			sessionPersistence.CookieName = &cookie_name_
+
+		if cookieName, ok := sessionPersistenceMap["cookie_name"].(string); ok {
+			sessionPersistence.CookieName = &cookieName
 		}
 
 		pool.SessionPersistence = sessionPersistence
@@ -1559,7 +1568,7 @@ func DiffSuppressPools(k, old, new string, d *schema.ResourceData) bool {
 	return reflect.DeepEqual(oldPools, newPools)
 }
 
-func ResourceIBMIsLbMapToLoadBalancerPoolPatch(poolMap map[string]interface{}) (*vpcv1.LoadBalancerPoolPatch, []vpcv1.LoadBalancerPoolMemberPatch, error) {
+func ResourceIBMIsLbMapToLoadBalancerPoolPatch(poolMap map[string]interface{}) (*vpcv1.LoadBalancerPoolPatch, map[string]vpcv1.LoadBalancerPoolMemberPatch, error) {
 	poolPatch := &vpcv1.LoadBalancerPoolPatch{}
 
 	if algorithm, ok := poolMap["algorithm"].(string); ok {
@@ -1582,8 +1591,8 @@ func ResourceIBMIsLbMapToLoadBalancerPoolPatch(poolMap map[string]interface{}) (
 			healthMonitor.URLPath = &urlPath
 		}
 
-		if interval, ok := healthMonitorMap["delay"].(int); ok {
-			healthMonitor.Delay = core.Int64Ptr(int64(interval))
+		if delay, ok := healthMonitorMap["delay"].(int); ok {
+			healthMonitor.Delay = core.Int64Ptr(int64(delay))
 		}
 
 		if timeout, ok := healthMonitorMap["timeout"].(int); ok {
@@ -1596,10 +1605,10 @@ func ResourceIBMIsLbMapToLoadBalancerPoolPatch(poolMap map[string]interface{}) (
 
 		poolPatch.HealthMonitor = healthMonitor
 	}
-	var members []vpcv1.LoadBalancerPoolMemberPatch
+
+	membersMap := make(map[string]vpcv1.LoadBalancerPoolMemberPatch)
 	if membersList, ok := poolMap["members"].([]interface{}); ok {
-		members = make([]vpcv1.LoadBalancerPoolMemberPatch, len(membersList))
-		for i, memberItem := range membersList {
+		for _, memberItem := range membersList {
 			memberMap := memberItem.(map[string]interface{})
 			member := vpcv1.LoadBalancerPoolMemberPatch{}
 
@@ -1626,7 +1635,9 @@ func ResourceIBMIsLbMapToLoadBalancerPoolPatch(poolMap map[string]interface{}) (
 				member.Weight = core.Int64Ptr(int64(weight))
 			}
 
-			members[i] = member
+			if memberID, ok := memberMap["id"].(string); ok {
+				membersMap[memberID] = member
+			}
 		}
 	}
 
@@ -1649,5 +1660,5 @@ func ResourceIBMIsLbMapToLoadBalancerPoolPatch(poolMap map[string]interface{}) (
 		poolPatch.SessionPersistence = sessionPersistence
 	}
 
-	return poolPatch, members, nil
+	return poolPatch, membersMap, nil
 }
