@@ -15,6 +15,7 @@ import (
 
 	"github.com/IBM/go-sdk-core/v5/core"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -92,12 +93,12 @@ const (
 
 func ResourceIBMISVPC() *schema.Resource {
 	return &schema.Resource{
-		Create:   resourceIBMISVPCCreate,
-		Read:     resourceIBMISVPCRead,
-		Update:   resourceIBMISVPCUpdate,
-		Delete:   resourceIBMISVPCDelete,
-		Exists:   resourceIBMISVPCExists,
-		Importer: &schema.ResourceImporter{},
+		CreateContext: resourceIBMISVPCCreate,
+		ReadContext:   resourceIBMISVPCRead,
+		UpdateContext: resourceIBMISVPCUpdate,
+		DeleteContext: resourceIBMISVPCDelete,
+		Exists:        resourceIBMISVPCExists,
+		Importer:      &schema.ResourceImporter{},
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(10 * time.Minute),
@@ -126,7 +127,69 @@ func ResourceIBMISVPC() *schema.Resource {
 				ValidateFunc:     validate.InvokeValidator("ibm_is_vpc", isVPCAddressPrefixManagement),
 				Description:      "Address Prefix management value",
 			},
-
+			"address_prefixes": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "Collection of address prefixes.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"cidr": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The CIDR block for this prefix.",
+						},
+						"created_at": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The date and time that the prefix was created.",
+						},
+						"has_subnets": {
+							Type:        schema.TypeBool,
+							Computed:    true,
+							Description: "Indicates whether subnets exist with addresses from this prefix.",
+						},
+						"href": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The URL for this address prefix.",
+						},
+						"id": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The unique identifier for this address prefix.",
+						},
+						"is_default": {
+							Type:        schema.TypeBool,
+							Computed:    true,
+							Description: "Indicates whether this is the default prefix for this zone in this VPC. If a default prefix was automatically created when the VPC was created, the prefix is automatically named using a hyphenated list of randomly-selected words, but may be updated with a user-specified name.",
+						},
+						"name": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The user-defined name for this address prefix. Names must be unique within the VPC the address prefix resides in.",
+						},
+						"zone": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "The zone this address prefix resides in.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"href": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The URL for this zone.",
+									},
+									"name": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The globally unique name for this zone.",
+									},
+								},
+							},
+						},
+					},
+				},
+			},
 			isVPCDefaultNetworkACL: {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -660,7 +723,7 @@ func ResourceIBMISVPCValidator() *validate.ResourceValidator {
 	return &ibmISVPCResourceValidator
 }
 
-func resourceIBMISVPCCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISVPCCreate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	log.Printf("[DEBUG] VPC create")
 	name := d.Get(isVPCName).(string)
@@ -680,9 +743,9 @@ func resourceIBMISVPCCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 	err := vpcCreate(d, meta, name, apm, rg, isClassic)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
-	return resourceIBMISVPCRead(d, meta)
+	return resourceIBMISVPCRead(context, d, meta)
 }
 
 func vpcCreate(d *schema.ResourceData, meta interface{}, name, apm, rg string, isClassic bool) error {
@@ -911,19 +974,19 @@ func isVPCRefreshFunc(vpc *vpcv1.VpcV1, id string) resource.StateRefreshFunc {
 	}
 }
 
-func resourceIBMISVPCRead(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISVPCRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	id := d.Id()
-	err := vpcGet(d, meta, id)
+	err := vpcGet(context, d, meta, id)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func vpcGet(d *schema.ResourceData, meta interface{}, id string) error {
+func vpcGet(context context.Context, d *schema.ResourceData, meta interface{}, id string) diag.Diagnostics {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	getvpcOptions := &vpcv1.GetVPCOptions{
 		ID: &id,
@@ -934,9 +997,16 @@ func vpcGet(d *schema.ResourceData, meta interface{}, id string) error {
 			d.SetId("")
 			return nil
 		}
-		return fmt.Errorf("[ERROR] Error getting VPC : %s\n%s", err, response)
+		return diag.FromErr(fmt.Errorf("[ERROR] Error getting VPC : %s\n%s", err, response))
 	}
-
+	addressPrefixes, diagError := GetAddressPrefixPaginatedList(context, sess, d.Id())
+	if diagError != nil {
+		return diagError
+	}
+	err = d.Set("address_prefixes", dataSourceAddressPrefixCollectionFlattenAddressPrefixes(addressPrefixes))
+	if err != nil {
+		return diag.FromErr(fmt.Errorf("[ERROR] Error setting address_prefixes %s", err))
+	}
 	d.Set(isVPCName, *vpc.Name)
 	d.Set(isVPCClassicAccess, *vpc.ClassicAccess)
 	d.Set(isVPCStatus, *vpc.Status)
@@ -968,17 +1038,17 @@ func vpcGet(d *schema.ResourceData, meta interface{}, id string) error {
 		for _, modelItem := range vpc.HealthReasons {
 			modelMap, err := dataSourceIBMIsVPCVPCHealthReasonToMap(&modelItem)
 			if err != nil {
-				return err
+				return diag.FromErr(err)
 			}
 			healthReasons = append(healthReasons, modelMap)
 		}
 	}
 	if err = d.Set("health_reasons", healthReasons); err != nil {
-		return fmt.Errorf("[ERROR] Error setting health_reasons %s", err)
+		return diag.FromErr(fmt.Errorf("[ERROR] Error setting health_reasons %s", err))
 	}
 
 	if err = d.Set("health_state", vpc.HealthState); err != nil {
-		return fmt.Errorf("[ERROR] Error setting health_state: %s", err)
+		return diag.FromErr(fmt.Errorf("[ERROR] Error setting health_state: %s", err))
 	}
 	if !core.IsNil(vpc.Dns) {
 		vpcCrn := d.Get("dns.0.resolver.0.vpc_crn").(string)
@@ -986,7 +1056,7 @@ func vpcGet(d *schema.ResourceData, meta interface{}, id string) error {
 
 		dnsMap, err := resourceIBMIsVPCVpcdnsToMap(vpc.Dns, vpcId, vpcCrn)
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 		resolverMapArray := dnsMap["resolver"].([]map[string]interface{})
 		resolverMap := resolverMapArray[0]
@@ -1000,13 +1070,13 @@ func vpcGet(d *schema.ResourceData, meta interface{}, id string) error {
 
 				pager, err := sess.NewVPCDnsResolutionBindingsPager(listVPCDnsResolutionBindingOptions)
 				if err != nil {
-					return fmt.Errorf("[ERROR] Error getting VPC dns bindings: %s", err)
+					return diag.FromErr(fmt.Errorf("[ERROR] Error getting VPC dns bindings: %s", err))
 				}
 				var allResults []vpcv1.VpcdnsResolutionBinding
 				for pager.HasNext() {
 					nextPage, err := pager.GetNext()
 					if err != nil {
-						return fmt.Errorf("[ERROR] Error getting VPC dns bindings pager next: %s", err)
+						return diag.FromErr(fmt.Errorf("[ERROR] Error getting VPC dns bindings pager next: %s", err))
 					}
 					allResults = append(allResults, nextPage...)
 				}
@@ -1021,7 +1091,7 @@ func vpcGet(d *schema.ResourceData, meta interface{}, id string) error {
 			}
 		}
 		if err = d.Set(isVPCDns, []map[string]interface{}{dnsMap}); err != nil {
-			return fmt.Errorf("[ERROR] Error setting dns: %s", err)
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting dns: %s", err))
 		}
 	}
 	tags, err := flex.GetGlobalTagsUsingCRN(meta, *vpc.CRN, "", isVPCUserTagType)
@@ -1038,7 +1108,7 @@ func vpcGet(d *schema.ResourceData, meta interface{}, id string) error {
 	d.Set(isVPCAccessTags, accesstags)
 	controller, err := flex.GetBaseController(meta)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	d.Set(isVPCCRN, *vpc.CRN)
@@ -1073,7 +1143,7 @@ func vpcGet(d *schema.ResourceData, meta interface{}, id string) error {
 		}
 		s, response, err := sess.ListSubnets(options)
 		if err != nil {
-			return fmt.Errorf("[ERROR] Error Fetching subnets %s\n%s", err, response)
+			return diag.FromErr(fmt.Errorf("[ERROR] Error Fetching subnets %s\n%s", err, response))
 		}
 		start = flex.GetNext(s.Next)
 		allrecs = append(allrecs, s.Subnets...)
@@ -1104,7 +1174,7 @@ func vpcGet(d *schema.ResourceData, meta interface{}, id string) error {
 	}
 	sgs, _, err := sess.ListSecurityGroups(listSgOptions)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	securityGroupList := make([]map[string]interface{}, 0)
@@ -1219,7 +1289,7 @@ func vpcGet(d *schema.ResourceData, meta interface{}, id string) error {
 	return nil
 }
 
-func resourceIBMISVPCUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISVPCUpdate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	id := d.Id()
 
 	name := ""
@@ -1231,9 +1301,9 @@ func resourceIBMISVPCUpdate(d *schema.ResourceData, meta interface{}) error {
 	}
 	err := vpcUpdate(d, meta, id, name, hasChanged)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
-	return resourceIBMISVPCRead(d, meta)
+	return resourceIBMISVPCRead(context, d, meta)
 }
 
 func vpcUpdate(d *schema.ResourceData, meta interface{}, id, name string, hasChanged bool) error {
@@ -1438,11 +1508,11 @@ func vpcUpdate(d *schema.ResourceData, meta interface{}, id, name string, hasCha
 	return nil
 }
 
-func resourceIBMISVPCDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISVPCDelete(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	id := d.Id()
 	err := vpcDelete(d, meta, id)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	d.SetId("")
 	return nil
