@@ -619,7 +619,7 @@ func dataSourceIBMISVPCListRead(context context.Context, d *schema.ResourceData,
 			flex.ResourceStatus: *vpc.Status,
 			isVPCResourceGroup:  *vpc.ResourceGroup.ID,
 		}
-		addressPrefixes, diagError := GetAddressPrefixPaginatedList(context, sess, d.Get("vpc").(string))
+		addressPrefixes, diagError := GetAddressPrefixPaginatedList(context, sess, *vpc.ID)
 		if diagError != nil {
 			return diagError
 		}
