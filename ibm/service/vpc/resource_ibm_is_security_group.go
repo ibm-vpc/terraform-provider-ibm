@@ -503,6 +503,10 @@ func resourceIBMISSecurityGroupDelete(d *schema.ResourceData, meta interface{}) 
 							if err != nil {
 								return err
 							}
+							_, err := isWaitForSecurityGroupTargetDeleteRetry(sess, deleteSecurityGroupTargetBindingOptions, d.Timeout(schema.TimeoutDelete))
+							if err != nil {
+								return err
+							}
 						}
 					} else {
 						return fmt.Errorf("[ERROR] Error deleting security group target binding while deleting security group : %s\n%s", err, response)
@@ -525,6 +529,10 @@ func resourceIBMISSecurityGroupDelete(d *schema.ResourceData, meta interface{}) 
 			} else if response.StatusCode == 409 {
 				log.Printf("[DEBUG] Security group(%s) has target bindings is in deleting, will wait till target is removed", id)
 				_, err = isWaitForSgCleanup(sess, id, allrecs, d.Timeout(schema.TimeoutDelete))
+				if err != nil {
+					return err
+				}
+				_, err := isWaitForSecurityGroupDeleteRetry(sess, deleteSecurityGroupOptions, d.Timeout(schema.TimeoutDelete))
 				if err != nil {
 					return err
 				}
@@ -681,4 +689,54 @@ func isSgRefreshFunc(client *vpcv1.VpcV1, sgId string, groups []vpcv1.SecurityGr
 		}
 		return allrecs, "deleting", nil
 	}
+}
+
+func isWaitForSecurityGroupDeleteRetry(vpcClient *vpcv1.VpcV1, deleteSecurityGroupOptions *vpcv1.DeleteSecurityGroupOptions, timeout time.Duration) (interface{}, error) {
+	log.Printf("[DEBUG] Retrying security group (%s) delete", *deleteSecurityGroupOptions.ID)
+	stateConf := &resource.StateChangeConf{
+		Pending: []string{"security-group-in-use"},
+		Target:  []string{"deleted", ""},
+		Refresh: func() (interface{}, string, error) {
+			log.Printf("[DEBUG] Retrying security group (%s) delete", *deleteSecurityGroupOptions.ID)
+			response, err := vpcClient.DeleteSecurityGroup(deleteSecurityGroupOptions)
+			if err != nil {
+				if response != nil && response.StatusCode == 409 {
+					return response, "security-group-in-use", nil
+				} else if response != nil && response.StatusCode == 404 {
+					return response, "deleted", nil
+				}
+				return response, "", fmt.Errorf("[ERROR] Error deleting security group: %s\n%s", err, response)
+			}
+			return response, "deleted", nil
+		},
+		Timeout:    timeout,
+		Delay:      10 * time.Second,
+		MinTimeout: 10 * time.Second,
+	}
+	return stateConf.WaitForState()
+}
+
+func isWaitForSecurityGroupTargetDeleteRetry(vpcClient *vpcv1.VpcV1, deleteSecurityGroupTargetBindingOptions *vpcv1.DeleteSecurityGroupTargetBindingOptions, timeout time.Duration) (interface{}, error) {
+	log.Printf("[DEBUG] Retrying security group target (%s) delete", *deleteSecurityGroupTargetBindingOptions.ID)
+	stateConf := &resource.StateChangeConf{
+		Pending: []string{"security-group-target-in-use"},
+		Target:  []string{"deleted", ""},
+		Refresh: func() (interface{}, string, error) {
+			log.Printf("[DEBUG] Retrying security group target(%s) delete", *deleteSecurityGroupTargetBindingOptions.ID)
+			response, err := vpcClient.DeleteSecurityGroupTargetBinding(deleteSecurityGroupTargetBindingOptions)
+			if err != nil {
+				if response != nil && response.StatusCode == 409 {
+					return response, "security-group-target-in-use", nil
+				} else if response != nil && response.StatusCode == 404 {
+					return response, "deleted", nil
+				}
+				return response, "", fmt.Errorf("[ERROR] Error deleting security group target: %s\n%s", err, response)
+			}
+			return response, "deleted", nil
+		},
+		Timeout:    timeout,
+		Delay:      10 * time.Second,
+		MinTimeout: 10 * time.Second,
+	}
+	return stateConf.WaitForState()
 }
