@@ -9,6 +9,7 @@ import (
 	"log"
 
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/conns"
+	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -133,7 +134,10 @@ func DataSourceIbmIsDedicatedHostDisk() *schema.Resource {
 func dataSourceIbmIsDedicatedHostDiskRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	vpcClient, err := meta.(conns.ClientSession).VpcV1API()
 	if err != nil {
-		return diag.FromErr(err)
+		// Error is coming from SDK client, so it doesn't need to be discriminated.
+		tfErr := flex.TerraformErrorf(err, err.Error(), "(Data) ibm_is_dedicated_host_disk", "read")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	getDedicatedHostDiskOptions := &vpcv1.GetDedicatedHostDiskOptions{}
@@ -143,8 +147,9 @@ func dataSourceIbmIsDedicatedHostDiskRead(context context.Context, d *schema.Res
 
 	dedicatedHostDisk, response, err := vpcClient.GetDedicatedHostDiskWithContext(context, getDedicatedHostDiskOptions)
 	if err != nil {
-		log.Printf("[DEBUG] GetDedicatedHostDiskWithContext failed %s\n%s", err, response)
-		return diag.FromErr(err)
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("GetDedicatedHostDiskWithContext failed: %s\n%s", err, response), "(Data) ibm_is_dedicated_host_disk", "read")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	d.SetId(*dedicatedHostDisk.ID)
