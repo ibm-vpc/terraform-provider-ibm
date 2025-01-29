@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
@@ -23,6 +24,7 @@ func TestAccIbmOnboardingCatalogPlanBasic(t *testing.T) {
 	var conf partnercentersellv1.GlobalCatalogPlan
 	productID := acc.PcsOnboardingProductWithCatalogProduct
 	catalogProductID := acc.PcsOnboardingCatalogProductId
+	objectId := fmt.Sprintf("test-object-id-terraform-%d", acctest.RandIntRange(10, 100))
 	name := "test-plan-name-terraform"
 	active := "true"
 	disabled := "false"
@@ -38,7 +40,7 @@ func TestAccIbmOnboardingCatalogPlanBasic(t *testing.T) {
 		CheckDestroy: testAccCheckIbmOnboardingCatalogPlanDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccCheckIbmOnboardingCatalogPlanConfigBasic(productID, catalogProductID, name, active, disabled, kind),
+				Config: testAccCheckIbmOnboardingCatalogPlanConfigBasic(productID, catalogProductID, name, active, disabled, kind, objectId),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					testAccCheckIbmOnboardingCatalogPlanExists("ibm_onboarding_catalog_plan.onboarding_catalog_plan_instance", conf),
 					resource.TestCheckResourceAttr("ibm_onboarding_catalog_plan.onboarding_catalog_plan_instance", "product_id", productID),
@@ -50,7 +52,7 @@ func TestAccIbmOnboardingCatalogPlanBasic(t *testing.T) {
 				),
 			},
 			resource.TestStep{
-				Config: testAccCheckIbmOnboardingCatalogPlanConfigBasic(productID, catalogProductID, nameUpdate, activeUpdate, disabledUpdate, kindUpdate),
+				Config: testAccCheckIbmOnboardingCatalogPlanConfigBasic(productID, catalogProductID, nameUpdate, activeUpdate, disabledUpdate, kindUpdate, objectId),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("ibm_onboarding_catalog_plan.onboarding_catalog_plan_instance", "product_id", productID),
 					resource.TestCheckResourceAttr("ibm_onboarding_catalog_plan.onboarding_catalog_plan_instance", "catalog_product_id", catalogProductID),
@@ -68,6 +70,7 @@ func TestAccIbmOnboardingCatalogPlanAllArgs(t *testing.T) {
 	var conf partnercentersellv1.GlobalCatalogPlan
 	productID := acc.PcsOnboardingProductWithCatalogProduct
 	catalogProductID := acc.PcsOnboardingCatalogProductId
+	objectId := fmt.Sprintf("test-object-id-terraform-%d", acctest.RandIntRange(10, 100))
 	env := "current"
 	name := "test-plan-name-terraform"
 	active := "true"
@@ -78,6 +81,18 @@ func TestAccIbmOnboardingCatalogPlanAllArgs(t *testing.T) {
 	activeUpdate := "false"
 	disabledUpdate := "false"
 	kindUpdate := "plan"
+	overviewUiEn := "display_name"
+	overviewUiEnUpdate := "display_name_2"
+	rcCompatible := "false"
+	rcCompatibleUpdate := "false"
+	allowInternalUsers := "true"
+	allowInternalUsersUpdate := "false"
+	pricingType := "paid"
+	pricingTypeUpdate := "free"
+	bulletTitleName := "title"
+	bulletTitleNameUpdate := "title-2"
+	mediaCaption := "Some random minecraft Video"
+	mediaCaptionUpdate := "Some random minecraft Video 2"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { acc.TestAccPreCheckPartnerCenterSell(t) },
@@ -85,7 +100,7 @@ func TestAccIbmOnboardingCatalogPlanAllArgs(t *testing.T) {
 		CheckDestroy: testAccCheckIbmOnboardingCatalogPlanDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccCheckIbmOnboardingCatalogPlanConfig(productID, catalogProductID, env, name, active, disabled, kind),
+				Config: testAccCheckIbmOnboardingCatalogPlanConfig(productID, catalogProductID, env, name, active, disabled, kind, objectId, overviewUiEn, rcCompatible, pricingType, allowInternalUsers, bulletTitleName, mediaCaption),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					testAccCheckIbmOnboardingCatalogPlanExists("ibm_onboarding_catalog_plan.onboarding_catalog_plan_instance", conf),
 					resource.TestCheckResourceAttr("ibm_onboarding_catalog_plan.onboarding_catalog_plan_instance", "product_id", productID),
@@ -98,7 +113,7 @@ func TestAccIbmOnboardingCatalogPlanAllArgs(t *testing.T) {
 				),
 			},
 			resource.TestStep{
-				Config: testAccCheckIbmOnboardingCatalogPlanConfig(productID, catalogProductID, envUpdate, nameUpdate, activeUpdate, disabledUpdate, kindUpdate),
+				Config: testAccCheckIbmOnboardingCatalogPlanUpdateConfig(productID, catalogProductID, envUpdate, nameUpdate, activeUpdate, disabledUpdate, kindUpdate, objectId, overviewUiEnUpdate, rcCompatibleUpdate, pricingTypeUpdate, allowInternalUsersUpdate, bulletTitleNameUpdate, mediaCaptionUpdate),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("ibm_onboarding_catalog_plan.onboarding_catalog_plan_instance", "product_id", productID),
 					resource.TestCheckResourceAttr("ibm_onboarding_catalog_plan.onboarding_catalog_plan_instance", "catalog_product_id", catalogProductID),
@@ -114,14 +129,14 @@ func TestAccIbmOnboardingCatalogPlanAllArgs(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{
-					"env", "product_id", "catalog_product_id",
+					"env", "product_id", "catalog_product_id", "geo_tags", "object_id",
 				},
 			},
 		},
 	})
 }
 
-func testAccCheckIbmOnboardingCatalogPlanConfigBasic(productID string, catalogProductID string, name string, active string, disabled string, kind string) string {
+func testAccCheckIbmOnboardingCatalogPlanConfigBasic(productID string, catalogProductID string, name string, active string, disabled string, kind string, objectId string) string {
 	return fmt.Sprintf(`
 		resource "ibm_onboarding_catalog_plan" "onboarding_catalog_plan_instance" {
 			product_id = "%s"
@@ -130,6 +145,7 @@ func testAccCheckIbmOnboardingCatalogPlanConfigBasic(productID string, catalogPr
 			active = %s
 			disabled = %s
 			kind = "%s"
+			object_id = "%s"
 			tags = ["tag"]
 			object_provider {
 				name = "name"
@@ -138,15 +154,19 @@ func testAccCheckIbmOnboardingCatalogPlanConfigBasic(productID string, catalogPr
 			metadata {
                 rc_compatible =	 false
                 pricing {
-                    type = "Paid"
+                    type = "paid"
                     origin = "pricing_catalog"
                 }
-            }
+				plan {
+					allow_internal_users = true
+					bindable = false
+				}
+			}
 		}
-	`, productID, catalogProductID, name, active, disabled, kind)
+	`, productID, catalogProductID, name, active, disabled, kind, objectId)
 }
 
-func testAccCheckIbmOnboardingCatalogPlanConfig(productID string, catalogProductID string, env string, name string, active string, disabled string, kind string) string {
+func testAccCheckIbmOnboardingCatalogPlanConfig(productID string, catalogProductID string, env string, name string, active string, disabled string, kind string, objectId string, overviewUiEn string, rcCompatible string, pricingType string, allowInternalUsers string, bulletTitleName string, mediaCaption string) string {
 	return fmt.Sprintf(`
 
 		resource "ibm_onboarding_catalog_plan" "onboarding_catalog_plan_instance" {
@@ -157,9 +177,10 @@ func testAccCheckIbmOnboardingCatalogPlanConfig(productID string, catalogProduct
 			active = %s
 			disabled = %s
 			kind = "%s"
+			object_id = "%s"
 			overview_ui {
 				en {
-					display_name = "display_name"
+					display_name = "%s"
 					description = "description"
 					long_description = "long_description"
 				}
@@ -170,14 +191,96 @@ func testAccCheckIbmOnboardingCatalogPlanConfig(productID string, catalogProduct
 				email = "email@email.com"
 			}
 			metadata {
-				rc_compatible = false
+				rc_compatible = "%s"
 				pricing {
-					type = "paid"
+					type = "%s"
 					origin = "global_catalog"
+				}
+				plan {
+					allow_internal_users = "%s"
+					bindable = false
+				}
+				ui {
+					strings {
+						en {
+							bullets {
+                        		title = "%s"
+                        		description = "some1"
+							}
+							media {
+                        		type = "youtube"
+                        		url = "https://www.youtube.com/embed/HtkpMgNFYtE"
+                        		caption = "%s"
+                    		}
+                		}
+            		}
+        		}
+			}
+		}
+	`, productID, catalogProductID, env, name, active, disabled, kind, objectId, overviewUiEn, rcCompatible, pricingType, allowInternalUsers, bulletTitleName, mediaCaption)
+}
+
+func testAccCheckIbmOnboardingCatalogPlanUpdateConfig(productID string, catalogProductID string, env string, name string, active string, disabled string, kind string, objectId string, overviewUiEn string, rcCompatible string, pricingType string, allowInternalUsers string, bulletTitleName string, mediaCaption string) string {
+	return fmt.Sprintf(`
+
+		resource "ibm_onboarding_catalog_plan" "onboarding_catalog_plan_instance" {
+			product_id = "%s"
+			catalog_product_id = "%s"
+			env = "%s"
+			name = "%s"
+			active = %s
+			disabled = %s
+			kind = "%s"
+			object_id = "%s"
+			overview_ui {
+				en {
+					display_name = "%s"
+					description = "description"
+					long_description = "long_description"
+				}
+			}
+			tags = ["tag"]
+			object_provider {
+				name = "name"
+				email = "email@email.com"
+			}
+			metadata {
+				rc_compatible = "%s"
+				pricing {
+					type = "%s"
+					origin = "global_catalog"
+				}
+				plan {
+					allow_internal_users = "%s"
+					bindable = false
+				}
+				ui {
+            		strings {
+                		en {
+                    		bullets {
+                        		title = "%s"
+                        		description = "some1"
+                    		}
+							bullets {
+                        		title = "newBullet"
+                        		description = "some1"
+                    		}
+							media {
+                        		type = "youtube"
+                        		url = "https://www.youtube.com/embed/HtkpMgNFYtE"
+                        		caption = "%s"
+                    		}
+							media {
+                        		type = "youtube"
+                        		url = "https://www.youtube.com/embed/HtkpMgNFYtE"
+                        		caption = "newMedia"
+                    		}
+                		}
+            		}
 				}
 			}
 		}
-	`, productID, catalogProductID, env, name, active, disabled, kind)
+	`, productID, catalogProductID, env, name, active, disabled, kind, objectId, overviewUiEn, rcCompatible, pricingType, allowInternalUsers, bulletTitleName, mediaCaption)
 }
 
 func testAccCheckIbmOnboardingCatalogPlanExists(n string, obj partnercentersellv1.GlobalCatalogPlan) resource.TestCheckFunc {
@@ -330,13 +433,19 @@ func TestResourceIbmOnboardingCatalogPlanGlobalCatalogPlanMetadataToMap(t *testi
 		globalCatalogMetadataUiStringsContentModel := make(map[string]interface{})
 		globalCatalogMetadataUiStringsContentModel["bullets"] = []map[string]interface{}{catalogHighlightItemModel}
 		globalCatalogMetadataUiStringsContentModel["media"] = []map[string]interface{}{catalogProductMediaItemModel}
+		globalCatalogMetadataUiStringsContentModel["embeddable_dashboard"] = "testString"
 
 		globalCatalogMetadataUiStringsModel := make(map[string]interface{})
 		globalCatalogMetadataUiStringsModel["en"] = []map[string]interface{}{globalCatalogMetadataUiStringsContentModel}
 
 		globalCatalogMetadataUiUrlsModel := make(map[string]interface{})
 		globalCatalogMetadataUiUrlsModel["doc_url"] = "testString"
+		globalCatalogMetadataUiUrlsModel["apidocs_url"] = "testString"
 		globalCatalogMetadataUiUrlsModel["terms_url"] = "testString"
+		globalCatalogMetadataUiUrlsModel["instructions_url"] = "testString"
+		globalCatalogMetadataUiUrlsModel["catalog_details_url"] = "testString"
+		globalCatalogMetadataUiUrlsModel["custom_create_page_url"] = "testString"
+		globalCatalogMetadataUiUrlsModel["dashboard"] = "testString"
 
 		globalCatalogMetadataUiModel := make(map[string]interface{})
 		globalCatalogMetadataUiModel["strings"] = []map[string]interface{}{globalCatalogMetadataUiStringsModel}
@@ -344,14 +453,27 @@ func TestResourceIbmOnboardingCatalogPlanGlobalCatalogPlanMetadataToMap(t *testi
 		globalCatalogMetadataUiModel["hidden"] = true
 		globalCatalogMetadataUiModel["side_by_side_index"] = float64(72.5)
 
+		globalCatalogPlanMetadataServiceModel := make(map[string]interface{})
+		globalCatalogPlanMetadataServiceModel["rc_provisionable"] = true
+		globalCatalogPlanMetadataServiceModel["iam_compatible"] = true
+		globalCatalogPlanMetadataServiceModel["bindable"] = true
+		globalCatalogPlanMetadataServiceModel["plan_updateable"] = true
+		globalCatalogPlanMetadataServiceModel["service_key_supported"] = true
+
 		globalCatalogMetadataPricingModel := make(map[string]interface{})
 		globalCatalogMetadataPricingModel["type"] = "free"
 		globalCatalogMetadataPricingModel["origin"] = "global_catalog"
 
+		globalCatalogPlanMetadataPlanModel := make(map[string]interface{})
+		globalCatalogPlanMetadataPlanModel["allow_internal_users"] = true
+		globalCatalogPlanMetadataPlanModel["bindable"] = true
+
 		model := make(map[string]interface{})
 		model["rc_compatible"] = true
 		model["ui"] = []map[string]interface{}{globalCatalogMetadataUiModel}
+		model["service"] = []map[string]interface{}{globalCatalogPlanMetadataServiceModel}
 		model["pricing"] = []map[string]interface{}{globalCatalogMetadataPricingModel}
+		model["plan"] = []map[string]interface{}{globalCatalogPlanMetadataPlanModel}
 
 		assert.Equal(t, result, model)
 	}
@@ -372,13 +494,19 @@ func TestResourceIbmOnboardingCatalogPlanGlobalCatalogPlanMetadataToMap(t *testi
 	globalCatalogMetadataUiStringsContentModel := new(partnercentersellv1.GlobalCatalogMetadataUIStringsContent)
 	globalCatalogMetadataUiStringsContentModel.Bullets = []partnercentersellv1.CatalogHighlightItem{*catalogHighlightItemModel}
 	globalCatalogMetadataUiStringsContentModel.Media = []partnercentersellv1.CatalogProductMediaItem{*catalogProductMediaItemModel}
+	globalCatalogMetadataUiStringsContentModel.EmbeddableDashboard = core.StringPtr("testString")
 
 	globalCatalogMetadataUiStringsModel := new(partnercentersellv1.GlobalCatalogMetadataUIStrings)
 	globalCatalogMetadataUiStringsModel.En = globalCatalogMetadataUiStringsContentModel
 
 	globalCatalogMetadataUiUrlsModel := new(partnercentersellv1.GlobalCatalogMetadataUIUrls)
 	globalCatalogMetadataUiUrlsModel.DocURL = core.StringPtr("testString")
+	globalCatalogMetadataUiUrlsModel.ApidocsURL = core.StringPtr("testString")
 	globalCatalogMetadataUiUrlsModel.TermsURL = core.StringPtr("testString")
+	globalCatalogMetadataUiUrlsModel.InstructionsURL = core.StringPtr("testString")
+	globalCatalogMetadataUiUrlsModel.CatalogDetailsURL = core.StringPtr("testString")
+	globalCatalogMetadataUiUrlsModel.CustomCreatePageURL = core.StringPtr("testString")
+	globalCatalogMetadataUiUrlsModel.Dashboard = core.StringPtr("testString")
 
 	globalCatalogMetadataUiModel := new(partnercentersellv1.GlobalCatalogMetadataUI)
 	globalCatalogMetadataUiModel.Strings = globalCatalogMetadataUiStringsModel
@@ -386,14 +514,27 @@ func TestResourceIbmOnboardingCatalogPlanGlobalCatalogPlanMetadataToMap(t *testi
 	globalCatalogMetadataUiModel.Hidden = core.BoolPtr(true)
 	globalCatalogMetadataUiModel.SideBySideIndex = core.Float64Ptr(float64(72.5))
 
+	globalCatalogPlanMetadataServiceModel := new(partnercentersellv1.GlobalCatalogPlanMetadataService)
+	globalCatalogPlanMetadataServiceModel.RcProvisionable = core.BoolPtr(true)
+	globalCatalogPlanMetadataServiceModel.IamCompatible = core.BoolPtr(true)
+	globalCatalogPlanMetadataServiceModel.Bindable = core.BoolPtr(true)
+	globalCatalogPlanMetadataServiceModel.PlanUpdateable = core.BoolPtr(true)
+	globalCatalogPlanMetadataServiceModel.ServiceKeySupported = core.BoolPtr(true)
+
 	globalCatalogMetadataPricingModel := new(partnercentersellv1.GlobalCatalogMetadataPricing)
 	globalCatalogMetadataPricingModel.Type = core.StringPtr("free")
 	globalCatalogMetadataPricingModel.Origin = core.StringPtr("global_catalog")
 
+	globalCatalogPlanMetadataPlanModel := new(partnercentersellv1.GlobalCatalogPlanMetadataPlan)
+	globalCatalogPlanMetadataPlanModel.AllowInternalUsers = core.BoolPtr(true)
+	globalCatalogPlanMetadataPlanModel.Bindable = core.BoolPtr(true)
+
 	model := new(partnercentersellv1.GlobalCatalogPlanMetadata)
 	model.RcCompatible = core.BoolPtr(true)
 	model.Ui = globalCatalogMetadataUiModel
+	model.Service = globalCatalogPlanMetadataServiceModel
 	model.Pricing = globalCatalogMetadataPricingModel
+	model.Plan = globalCatalogPlanMetadataPlanModel
 
 	result, err := partnercentersell.ResourceIbmOnboardingCatalogPlanGlobalCatalogPlanMetadataToMap(model)
 	assert.Nil(t, err)
@@ -418,13 +559,19 @@ func TestResourceIbmOnboardingCatalogPlanGlobalCatalogMetadataUIToMap(t *testing
 		globalCatalogMetadataUiStringsContentModel := make(map[string]interface{})
 		globalCatalogMetadataUiStringsContentModel["bullets"] = []map[string]interface{}{catalogHighlightItemModel}
 		globalCatalogMetadataUiStringsContentModel["media"] = []map[string]interface{}{catalogProductMediaItemModel}
+		globalCatalogMetadataUiStringsContentModel["embeddable_dashboard"] = "testString"
 
 		globalCatalogMetadataUiStringsModel := make(map[string]interface{})
 		globalCatalogMetadataUiStringsModel["en"] = []map[string]interface{}{globalCatalogMetadataUiStringsContentModel}
 
 		globalCatalogMetadataUiUrlsModel := make(map[string]interface{})
 		globalCatalogMetadataUiUrlsModel["doc_url"] = "testString"
+		globalCatalogMetadataUiUrlsModel["apidocs_url"] = "testString"
 		globalCatalogMetadataUiUrlsModel["terms_url"] = "testString"
+		globalCatalogMetadataUiUrlsModel["instructions_url"] = "testString"
+		globalCatalogMetadataUiUrlsModel["catalog_details_url"] = "testString"
+		globalCatalogMetadataUiUrlsModel["custom_create_page_url"] = "testString"
+		globalCatalogMetadataUiUrlsModel["dashboard"] = "testString"
 
 		model := make(map[string]interface{})
 		model["strings"] = []map[string]interface{}{globalCatalogMetadataUiStringsModel}
@@ -451,13 +598,19 @@ func TestResourceIbmOnboardingCatalogPlanGlobalCatalogMetadataUIToMap(t *testing
 	globalCatalogMetadataUiStringsContentModel := new(partnercentersellv1.GlobalCatalogMetadataUIStringsContent)
 	globalCatalogMetadataUiStringsContentModel.Bullets = []partnercentersellv1.CatalogHighlightItem{*catalogHighlightItemModel}
 	globalCatalogMetadataUiStringsContentModel.Media = []partnercentersellv1.CatalogProductMediaItem{*catalogProductMediaItemModel}
+	globalCatalogMetadataUiStringsContentModel.EmbeddableDashboard = core.StringPtr("testString")
 
 	globalCatalogMetadataUiStringsModel := new(partnercentersellv1.GlobalCatalogMetadataUIStrings)
 	globalCatalogMetadataUiStringsModel.En = globalCatalogMetadataUiStringsContentModel
 
 	globalCatalogMetadataUiUrlsModel := new(partnercentersellv1.GlobalCatalogMetadataUIUrls)
 	globalCatalogMetadataUiUrlsModel.DocURL = core.StringPtr("testString")
+	globalCatalogMetadataUiUrlsModel.ApidocsURL = core.StringPtr("testString")
 	globalCatalogMetadataUiUrlsModel.TermsURL = core.StringPtr("testString")
+	globalCatalogMetadataUiUrlsModel.InstructionsURL = core.StringPtr("testString")
+	globalCatalogMetadataUiUrlsModel.CatalogDetailsURL = core.StringPtr("testString")
+	globalCatalogMetadataUiUrlsModel.CustomCreatePageURL = core.StringPtr("testString")
+	globalCatalogMetadataUiUrlsModel.Dashboard = core.StringPtr("testString")
 
 	model := new(partnercentersellv1.GlobalCatalogMetadataUI)
 	model.Strings = globalCatalogMetadataUiStringsModel
@@ -488,6 +641,7 @@ func TestResourceIbmOnboardingCatalogPlanGlobalCatalogMetadataUIStringsToMap(t *
 		globalCatalogMetadataUiStringsContentModel := make(map[string]interface{})
 		globalCatalogMetadataUiStringsContentModel["bullets"] = []map[string]interface{}{catalogHighlightItemModel}
 		globalCatalogMetadataUiStringsContentModel["media"] = []map[string]interface{}{catalogProductMediaItemModel}
+		globalCatalogMetadataUiStringsContentModel["embeddable_dashboard"] = "testString"
 
 		model := make(map[string]interface{})
 		model["en"] = []map[string]interface{}{globalCatalogMetadataUiStringsContentModel}
@@ -511,6 +665,7 @@ func TestResourceIbmOnboardingCatalogPlanGlobalCatalogMetadataUIStringsToMap(t *
 	globalCatalogMetadataUiStringsContentModel := new(partnercentersellv1.GlobalCatalogMetadataUIStringsContent)
 	globalCatalogMetadataUiStringsContentModel.Bullets = []partnercentersellv1.CatalogHighlightItem{*catalogHighlightItemModel}
 	globalCatalogMetadataUiStringsContentModel.Media = []partnercentersellv1.CatalogProductMediaItem{*catalogProductMediaItemModel}
+	globalCatalogMetadataUiStringsContentModel.EmbeddableDashboard = core.StringPtr("testString")
 
 	model := new(partnercentersellv1.GlobalCatalogMetadataUIStrings)
 	model.En = globalCatalogMetadataUiStringsContentModel
@@ -538,6 +693,7 @@ func TestResourceIbmOnboardingCatalogPlanGlobalCatalogMetadataUIStringsContentTo
 		model := make(map[string]interface{})
 		model["bullets"] = []map[string]interface{}{catalogHighlightItemModel}
 		model["media"] = []map[string]interface{}{catalogProductMediaItemModel}
+		model["embeddable_dashboard"] = "testString"
 
 		assert.Equal(t, result, model)
 	}
@@ -558,6 +714,7 @@ func TestResourceIbmOnboardingCatalogPlanGlobalCatalogMetadataUIStringsContentTo
 	model := new(partnercentersellv1.GlobalCatalogMetadataUIStringsContent)
 	model.Bullets = []partnercentersellv1.CatalogHighlightItem{*catalogHighlightItemModel}
 	model.Media = []partnercentersellv1.CatalogProductMediaItem{*catalogProductMediaItemModel}
+	model.EmbeddableDashboard = core.StringPtr("testString")
 
 	result, err := partnercentersell.ResourceIbmOnboardingCatalogPlanGlobalCatalogMetadataUIStringsContentToMap(model)
 	assert.Nil(t, err)
@@ -614,16 +771,50 @@ func TestResourceIbmOnboardingCatalogPlanGlobalCatalogMetadataUIUrlsToMap(t *tes
 	checkResult := func(result map[string]interface{}) {
 		model := make(map[string]interface{})
 		model["doc_url"] = "testString"
+		model["apidocs_url"] = "testString"
 		model["terms_url"] = "testString"
+		model["instructions_url"] = "testString"
+		model["catalog_details_url"] = "testString"
+		model["custom_create_page_url"] = "testString"
+		model["dashboard"] = "testString"
 
 		assert.Equal(t, result, model)
 	}
 
 	model := new(partnercentersellv1.GlobalCatalogMetadataUIUrls)
 	model.DocURL = core.StringPtr("testString")
+	model.ApidocsURL = core.StringPtr("testString")
 	model.TermsURL = core.StringPtr("testString")
+	model.InstructionsURL = core.StringPtr("testString")
+	model.CatalogDetailsURL = core.StringPtr("testString")
+	model.CustomCreatePageURL = core.StringPtr("testString")
+	model.Dashboard = core.StringPtr("testString")
 
 	result, err := partnercentersell.ResourceIbmOnboardingCatalogPlanGlobalCatalogMetadataUIUrlsToMap(model)
+	assert.Nil(t, err)
+	checkResult(result)
+}
+
+func TestResourceIbmOnboardingCatalogPlanGlobalCatalogPlanMetadataServiceToMap(t *testing.T) {
+	checkResult := func(result map[string]interface{}) {
+		model := make(map[string]interface{})
+		model["rc_provisionable"] = true
+		model["iam_compatible"] = true
+		model["bindable"] = true
+		model["plan_updateable"] = true
+		model["service_key_supported"] = true
+
+		assert.Equal(t, result, model)
+	}
+
+	model := new(partnercentersellv1.GlobalCatalogPlanMetadataService)
+	model.RcProvisionable = core.BoolPtr(true)
+	model.IamCompatible = core.BoolPtr(true)
+	model.Bindable = core.BoolPtr(true)
+	model.PlanUpdateable = core.BoolPtr(true)
+	model.ServiceKeySupported = core.BoolPtr(true)
+
+	result, err := partnercentersell.ResourceIbmOnboardingCatalogPlanGlobalCatalogPlanMetadataServiceToMap(model)
 	assert.Nil(t, err)
 	checkResult(result)
 }
@@ -642,6 +833,24 @@ func TestResourceIbmOnboardingCatalogPlanGlobalCatalogMetadataPricingToMap(t *te
 	model.Origin = core.StringPtr("global_catalog")
 
 	result, err := partnercentersell.ResourceIbmOnboardingCatalogPlanGlobalCatalogMetadataPricingToMap(model)
+	assert.Nil(t, err)
+	checkResult(result)
+}
+
+func TestResourceIbmOnboardingCatalogPlanGlobalCatalogPlanMetadataPlanToMap(t *testing.T) {
+	checkResult := func(result map[string]interface{}) {
+		model := make(map[string]interface{})
+		model["allow_internal_users"] = true
+		model["bindable"] = true
+
+		assert.Equal(t, result, model)
+	}
+
+	model := new(partnercentersellv1.GlobalCatalogPlanMetadataPlan)
+	model.AllowInternalUsers = core.BoolPtr(true)
+	model.Bindable = core.BoolPtr(true)
+
+	result, err := partnercentersell.ResourceIbmOnboardingCatalogPlanGlobalCatalogPlanMetadataPlanToMap(model)
 	assert.Nil(t, err)
 	checkResult(result)
 }
@@ -728,13 +937,19 @@ func TestResourceIbmOnboardingCatalogPlanMapToGlobalCatalogPlanMetadata(t *testi
 		globalCatalogMetadataUiStringsContentModel := new(partnercentersellv1.GlobalCatalogMetadataUIStringsContent)
 		globalCatalogMetadataUiStringsContentModel.Bullets = []partnercentersellv1.CatalogHighlightItem{*catalogHighlightItemModel}
 		globalCatalogMetadataUiStringsContentModel.Media = []partnercentersellv1.CatalogProductMediaItem{*catalogProductMediaItemModel}
+		globalCatalogMetadataUiStringsContentModel.EmbeddableDashboard = core.StringPtr("testString")
 
 		globalCatalogMetadataUiStringsModel := new(partnercentersellv1.GlobalCatalogMetadataUIStrings)
 		globalCatalogMetadataUiStringsModel.En = globalCatalogMetadataUiStringsContentModel
 
 		globalCatalogMetadataUiUrlsModel := new(partnercentersellv1.GlobalCatalogMetadataUIUrls)
 		globalCatalogMetadataUiUrlsModel.DocURL = core.StringPtr("testString")
+		globalCatalogMetadataUiUrlsModel.ApidocsURL = core.StringPtr("testString")
 		globalCatalogMetadataUiUrlsModel.TermsURL = core.StringPtr("testString")
+		globalCatalogMetadataUiUrlsModel.InstructionsURL = core.StringPtr("testString")
+		globalCatalogMetadataUiUrlsModel.CatalogDetailsURL = core.StringPtr("testString")
+		globalCatalogMetadataUiUrlsModel.CustomCreatePageURL = core.StringPtr("testString")
+		globalCatalogMetadataUiUrlsModel.Dashboard = core.StringPtr("testString")
 
 		globalCatalogMetadataUiModel := new(partnercentersellv1.GlobalCatalogMetadataUI)
 		globalCatalogMetadataUiModel.Strings = globalCatalogMetadataUiStringsModel
@@ -742,14 +957,27 @@ func TestResourceIbmOnboardingCatalogPlanMapToGlobalCatalogPlanMetadata(t *testi
 		globalCatalogMetadataUiModel.Hidden = core.BoolPtr(true)
 		globalCatalogMetadataUiModel.SideBySideIndex = core.Float64Ptr(float64(72.5))
 
+		globalCatalogPlanMetadataServiceModel := new(partnercentersellv1.GlobalCatalogPlanMetadataService)
+		globalCatalogPlanMetadataServiceModel.RcProvisionable = core.BoolPtr(true)
+		globalCatalogPlanMetadataServiceModel.IamCompatible = core.BoolPtr(true)
+		globalCatalogPlanMetadataServiceModel.Bindable = core.BoolPtr(true)
+		globalCatalogPlanMetadataServiceModel.PlanUpdateable = core.BoolPtr(true)
+		globalCatalogPlanMetadataServiceModel.ServiceKeySupported = core.BoolPtr(true)
+
 		globalCatalogMetadataPricingModel := new(partnercentersellv1.GlobalCatalogMetadataPricing)
 		globalCatalogMetadataPricingModel.Type = core.StringPtr("free")
 		globalCatalogMetadataPricingModel.Origin = core.StringPtr("global_catalog")
 
+		globalCatalogPlanMetadataPlanModel := new(partnercentersellv1.GlobalCatalogPlanMetadataPlan)
+		globalCatalogPlanMetadataPlanModel.AllowInternalUsers = core.BoolPtr(true)
+		globalCatalogPlanMetadataPlanModel.Bindable = core.BoolPtr(true)
+
 		model := new(partnercentersellv1.GlobalCatalogPlanMetadata)
 		model.RcCompatible = core.BoolPtr(true)
 		model.Ui = globalCatalogMetadataUiModel
+		model.Service = globalCatalogPlanMetadataServiceModel
 		model.Pricing = globalCatalogMetadataPricingModel
+		model.Plan = globalCatalogPlanMetadataPlanModel
 
 		assert.Equal(t, result, model)
 	}
@@ -770,13 +998,19 @@ func TestResourceIbmOnboardingCatalogPlanMapToGlobalCatalogPlanMetadata(t *testi
 	globalCatalogMetadataUiStringsContentModel := make(map[string]interface{})
 	globalCatalogMetadataUiStringsContentModel["bullets"] = []interface{}{catalogHighlightItemModel}
 	globalCatalogMetadataUiStringsContentModel["media"] = []interface{}{catalogProductMediaItemModel}
+	globalCatalogMetadataUiStringsContentModel["embeddable_dashboard"] = "testString"
 
 	globalCatalogMetadataUiStringsModel := make(map[string]interface{})
 	globalCatalogMetadataUiStringsModel["en"] = []interface{}{globalCatalogMetadataUiStringsContentModel}
 
 	globalCatalogMetadataUiUrlsModel := make(map[string]interface{})
 	globalCatalogMetadataUiUrlsModel["doc_url"] = "testString"
+	globalCatalogMetadataUiUrlsModel["apidocs_url"] = "testString"
 	globalCatalogMetadataUiUrlsModel["terms_url"] = "testString"
+	globalCatalogMetadataUiUrlsModel["instructions_url"] = "testString"
+	globalCatalogMetadataUiUrlsModel["catalog_details_url"] = "testString"
+	globalCatalogMetadataUiUrlsModel["custom_create_page_url"] = "testString"
+	globalCatalogMetadataUiUrlsModel["dashboard"] = "testString"
 
 	globalCatalogMetadataUiModel := make(map[string]interface{})
 	globalCatalogMetadataUiModel["strings"] = []interface{}{globalCatalogMetadataUiStringsModel}
@@ -784,14 +1018,27 @@ func TestResourceIbmOnboardingCatalogPlanMapToGlobalCatalogPlanMetadata(t *testi
 	globalCatalogMetadataUiModel["hidden"] = true
 	globalCatalogMetadataUiModel["side_by_side_index"] = float64(72.5)
 
+	globalCatalogPlanMetadataServiceModel := make(map[string]interface{})
+	globalCatalogPlanMetadataServiceModel["rc_provisionable"] = true
+	globalCatalogPlanMetadataServiceModel["iam_compatible"] = true
+	globalCatalogPlanMetadataServiceModel["bindable"] = true
+	globalCatalogPlanMetadataServiceModel["plan_updateable"] = true
+	globalCatalogPlanMetadataServiceModel["service_key_supported"] = true
+
 	globalCatalogMetadataPricingModel := make(map[string]interface{})
 	globalCatalogMetadataPricingModel["type"] = "free"
 	globalCatalogMetadataPricingModel["origin"] = "global_catalog"
 
+	globalCatalogPlanMetadataPlanModel := make(map[string]interface{})
+	globalCatalogPlanMetadataPlanModel["allow_internal_users"] = true
+	globalCatalogPlanMetadataPlanModel["bindable"] = true
+
 	model := make(map[string]interface{})
 	model["rc_compatible"] = true
 	model["ui"] = []interface{}{globalCatalogMetadataUiModel}
+	model["service"] = []interface{}{globalCatalogPlanMetadataServiceModel}
 	model["pricing"] = []interface{}{globalCatalogMetadataPricingModel}
+	model["plan"] = []interface{}{globalCatalogPlanMetadataPlanModel}
 
 	result, err := partnercentersell.ResourceIbmOnboardingCatalogPlanMapToGlobalCatalogPlanMetadata(model)
 	assert.Nil(t, err)
@@ -816,13 +1063,19 @@ func TestResourceIbmOnboardingCatalogPlanMapToGlobalCatalogMetadataUI(t *testing
 		globalCatalogMetadataUiStringsContentModel := new(partnercentersellv1.GlobalCatalogMetadataUIStringsContent)
 		globalCatalogMetadataUiStringsContentModel.Bullets = []partnercentersellv1.CatalogHighlightItem{*catalogHighlightItemModel}
 		globalCatalogMetadataUiStringsContentModel.Media = []partnercentersellv1.CatalogProductMediaItem{*catalogProductMediaItemModel}
+		globalCatalogMetadataUiStringsContentModel.EmbeddableDashboard = core.StringPtr("testString")
 
 		globalCatalogMetadataUiStringsModel := new(partnercentersellv1.GlobalCatalogMetadataUIStrings)
 		globalCatalogMetadataUiStringsModel.En = globalCatalogMetadataUiStringsContentModel
 
 		globalCatalogMetadataUiUrlsModel := new(partnercentersellv1.GlobalCatalogMetadataUIUrls)
 		globalCatalogMetadataUiUrlsModel.DocURL = core.StringPtr("testString")
+		globalCatalogMetadataUiUrlsModel.ApidocsURL = core.StringPtr("testString")
 		globalCatalogMetadataUiUrlsModel.TermsURL = core.StringPtr("testString")
+		globalCatalogMetadataUiUrlsModel.InstructionsURL = core.StringPtr("testString")
+		globalCatalogMetadataUiUrlsModel.CatalogDetailsURL = core.StringPtr("testString")
+		globalCatalogMetadataUiUrlsModel.CustomCreatePageURL = core.StringPtr("testString")
+		globalCatalogMetadataUiUrlsModel.Dashboard = core.StringPtr("testString")
 
 		model := new(partnercentersellv1.GlobalCatalogMetadataUI)
 		model.Strings = globalCatalogMetadataUiStringsModel
@@ -849,13 +1102,19 @@ func TestResourceIbmOnboardingCatalogPlanMapToGlobalCatalogMetadataUI(t *testing
 	globalCatalogMetadataUiStringsContentModel := make(map[string]interface{})
 	globalCatalogMetadataUiStringsContentModel["bullets"] = []interface{}{catalogHighlightItemModel}
 	globalCatalogMetadataUiStringsContentModel["media"] = []interface{}{catalogProductMediaItemModel}
+	globalCatalogMetadataUiStringsContentModel["embeddable_dashboard"] = "testString"
 
 	globalCatalogMetadataUiStringsModel := make(map[string]interface{})
 	globalCatalogMetadataUiStringsModel["en"] = []interface{}{globalCatalogMetadataUiStringsContentModel}
 
 	globalCatalogMetadataUiUrlsModel := make(map[string]interface{})
 	globalCatalogMetadataUiUrlsModel["doc_url"] = "testString"
+	globalCatalogMetadataUiUrlsModel["apidocs_url"] = "testString"
 	globalCatalogMetadataUiUrlsModel["terms_url"] = "testString"
+	globalCatalogMetadataUiUrlsModel["instructions_url"] = "testString"
+	globalCatalogMetadataUiUrlsModel["catalog_details_url"] = "testString"
+	globalCatalogMetadataUiUrlsModel["custom_create_page_url"] = "testString"
+	globalCatalogMetadataUiUrlsModel["dashboard"] = "testString"
 
 	model := make(map[string]interface{})
 	model["strings"] = []interface{}{globalCatalogMetadataUiStringsModel}
@@ -886,6 +1145,7 @@ func TestResourceIbmOnboardingCatalogPlanMapToGlobalCatalogMetadataUIStrings(t *
 		globalCatalogMetadataUiStringsContentModel := new(partnercentersellv1.GlobalCatalogMetadataUIStringsContent)
 		globalCatalogMetadataUiStringsContentModel.Bullets = []partnercentersellv1.CatalogHighlightItem{*catalogHighlightItemModel}
 		globalCatalogMetadataUiStringsContentModel.Media = []partnercentersellv1.CatalogProductMediaItem{*catalogProductMediaItemModel}
+		globalCatalogMetadataUiStringsContentModel.EmbeddableDashboard = core.StringPtr("testString")
 
 		model := new(partnercentersellv1.GlobalCatalogMetadataUIStrings)
 		model.En = globalCatalogMetadataUiStringsContentModel
@@ -909,6 +1169,7 @@ func TestResourceIbmOnboardingCatalogPlanMapToGlobalCatalogMetadataUIStrings(t *
 	globalCatalogMetadataUiStringsContentModel := make(map[string]interface{})
 	globalCatalogMetadataUiStringsContentModel["bullets"] = []interface{}{catalogHighlightItemModel}
 	globalCatalogMetadataUiStringsContentModel["media"] = []interface{}{catalogProductMediaItemModel}
+	globalCatalogMetadataUiStringsContentModel["embeddable_dashboard"] = "testString"
 
 	model := make(map[string]interface{})
 	model["en"] = []interface{}{globalCatalogMetadataUiStringsContentModel}
@@ -936,6 +1197,7 @@ func TestResourceIbmOnboardingCatalogPlanMapToGlobalCatalogMetadataUIStringsCont
 		model := new(partnercentersellv1.GlobalCatalogMetadataUIStringsContent)
 		model.Bullets = []partnercentersellv1.CatalogHighlightItem{*catalogHighlightItemModel}
 		model.Media = []partnercentersellv1.CatalogProductMediaItem{*catalogProductMediaItemModel}
+		model.EmbeddableDashboard = core.StringPtr("testString")
 
 		assert.Equal(t, result, model)
 	}
@@ -956,6 +1218,7 @@ func TestResourceIbmOnboardingCatalogPlanMapToGlobalCatalogMetadataUIStringsCont
 	model := make(map[string]interface{})
 	model["bullets"] = []interface{}{catalogHighlightItemModel}
 	model["media"] = []interface{}{catalogProductMediaItemModel}
+	model["embeddable_dashboard"] = "testString"
 
 	result, err := partnercentersell.ResourceIbmOnboardingCatalogPlanMapToGlobalCatalogMetadataUIStringsContent(model)
 	assert.Nil(t, err)
@@ -1012,16 +1275,50 @@ func TestResourceIbmOnboardingCatalogPlanMapToGlobalCatalogMetadataUIUrls(t *tes
 	checkResult := func(result *partnercentersellv1.GlobalCatalogMetadataUIUrls) {
 		model := new(partnercentersellv1.GlobalCatalogMetadataUIUrls)
 		model.DocURL = core.StringPtr("testString")
+		model.ApidocsURL = core.StringPtr("testString")
 		model.TermsURL = core.StringPtr("testString")
+		model.InstructionsURL = core.StringPtr("testString")
+		model.CatalogDetailsURL = core.StringPtr("testString")
+		model.CustomCreatePageURL = core.StringPtr("testString")
+		model.Dashboard = core.StringPtr("testString")
 
 		assert.Equal(t, result, model)
 	}
 
 	model := make(map[string]interface{})
 	model["doc_url"] = "testString"
+	model["apidocs_url"] = "testString"
 	model["terms_url"] = "testString"
+	model["instructions_url"] = "testString"
+	model["catalog_details_url"] = "testString"
+	model["custom_create_page_url"] = "testString"
+	model["dashboard"] = "testString"
 
 	result, err := partnercentersell.ResourceIbmOnboardingCatalogPlanMapToGlobalCatalogMetadataUIUrls(model)
+	assert.Nil(t, err)
+	checkResult(result)
+}
+
+func TestResourceIbmOnboardingCatalogPlanMapToGlobalCatalogPlanMetadataService(t *testing.T) {
+	checkResult := func(result *partnercentersellv1.GlobalCatalogPlanMetadataService) {
+		model := new(partnercentersellv1.GlobalCatalogPlanMetadataService)
+		model.RcProvisionable = core.BoolPtr(true)
+		model.IamCompatible = core.BoolPtr(true)
+		model.Bindable = core.BoolPtr(true)
+		model.PlanUpdateable = core.BoolPtr(true)
+		model.ServiceKeySupported = core.BoolPtr(true)
+
+		assert.Equal(t, result, model)
+	}
+
+	model := make(map[string]interface{})
+	model["rc_provisionable"] = true
+	model["iam_compatible"] = true
+	model["bindable"] = true
+	model["plan_updateable"] = true
+	model["service_key_supported"] = true
+
+	result, err := partnercentersell.ResourceIbmOnboardingCatalogPlanMapToGlobalCatalogPlanMetadataService(model)
 	assert.Nil(t, err)
 	checkResult(result)
 }
@@ -1040,6 +1337,24 @@ func TestResourceIbmOnboardingCatalogPlanMapToGlobalCatalogMetadataPricing(t *te
 	model["origin"] = "global_catalog"
 
 	result, err := partnercentersell.ResourceIbmOnboardingCatalogPlanMapToGlobalCatalogMetadataPricing(model)
+	assert.Nil(t, err)
+	checkResult(result)
+}
+
+func TestResourceIbmOnboardingCatalogPlanMapToGlobalCatalogPlanMetadataPlan(t *testing.T) {
+	checkResult := func(result *partnercentersellv1.GlobalCatalogPlanMetadataPlan) {
+		model := new(partnercentersellv1.GlobalCatalogPlanMetadataPlan)
+		model.AllowInternalUsers = core.BoolPtr(true)
+		model.Bindable = core.BoolPtr(true)
+
+		assert.Equal(t, result, model)
+	}
+
+	model := make(map[string]interface{})
+	model["allow_internal_users"] = true
+	model["bindable"] = true
+
+	result, err := partnercentersell.ResourceIbmOnboardingCatalogPlanMapToGlobalCatalogPlanMetadataPlan(model)
 	assert.Nil(t, err)
 	checkResult(result)
 }

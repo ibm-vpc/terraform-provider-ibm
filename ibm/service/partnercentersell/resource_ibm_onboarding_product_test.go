@@ -24,7 +24,7 @@ func TestAccIbmOnboardingProductBasic(t *testing.T) {
 	typeVarUpdate := "service"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { acc.TestAccPreCheckPartnerCenterSell(t) },
+		PreCheck:     func() { acc.TestAccPreCheck(t) },
 		Providers:    acc.TestAccProviders,
 		CheckDestroy: testAccCheckIbmOnboardingProductDestroy,
 		Steps: []resource.TestStep{
@@ -50,19 +50,21 @@ func TestAccIbmOnboardingProductAllArgs(t *testing.T) {
 	typeVar := "service"
 	eccnNumber := "5D002.C.1"
 	eroClass := "A6VR"
+	unspsc := "25191503"
 	taxAssessment := "PAAS"
 	typeVarUpdate := "service"
 	eccnNumberUpdate := "5D002.C.1"
 	eroClassUpdate := "A6VR"
+	unspscUpdate := "43232300"
 	taxAssessmentUpdate := "PAAS"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { acc.TestAccPreCheckPartnerCenterSell(t) },
+		PreCheck:     func() { acc.TestAccPreCheck(t) },
 		Providers:    acc.TestAccProviders,
 		CheckDestroy: testAccCheckIbmOnboardingProductDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccCheckIbmOnboardingProductConfig(typeVar, eccnNumber, eroClass, taxAssessment),
+				Config: testAccCheckIbmOnboardingProductConfig(typeVar, eccnNumber, eroClass, unspsc, taxAssessment),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					testAccCheckIbmOnboardingProductExists("ibm_onboarding_product.onboarding_product_instance", conf),
 					resource.TestCheckResourceAttr("ibm_onboarding_product.onboarding_product_instance", "type", typeVar),
@@ -72,7 +74,7 @@ func TestAccIbmOnboardingProductAllArgs(t *testing.T) {
 				),
 			},
 			resource.TestStep{
-				Config: testAccCheckIbmOnboardingProductConfig(typeVarUpdate, eccnNumberUpdate, eroClassUpdate, taxAssessmentUpdate),
+				Config: testAccCheckIbmOnboardingProductConfig(typeVarUpdate, eccnNumberUpdate, eroClassUpdate, unspscUpdate, taxAssessmentUpdate),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("ibm_onboarding_product.onboarding_product_instance", "type", typeVarUpdate),
 					resource.TestCheckResourceAttr("ibm_onboarding_product.onboarding_product_instance", "eccn_number", eccnNumberUpdate),
@@ -94,28 +96,28 @@ func testAccCheckIbmOnboardingProductConfigBasic(typeVar string) string {
 		resource "ibm_onboarding_product" "onboarding_product_instance" {
 			type = "%s"
 			primary_contact {
-				name = "petra"
-				email = "petra@ibm.com"
+				name = "name"
+				email = "email@email.com"
 			}
 		}
 	`, typeVar)
 }
 
-func testAccCheckIbmOnboardingProductConfig(typeVar string, eccnNumber string, eroClass string, taxAssessment string) string {
+func testAccCheckIbmOnboardingProductConfig(typeVar string, eccnNumber string, eroClass string, unspsc string, taxAssessment string) string {
 	return fmt.Sprintf(`
 
 		resource "ibm_onboarding_product" "onboarding_product_instance" {
 			type = "%s"
 			primary_contact {
 				name = "name"
-				email = "petra@email.com"
+				email = "email@email.com"
 			}
 			eccn_number = "%s"
 			ero_class = "%s"
-			unspsc = "25191503"
+			unspsc = "%s"
 			tax_assessment = "%s"
 		}
-	`, typeVar, eccnNumber, eroClass, taxAssessment)
+	`, typeVar, eccnNumber, eroClass, unspsc, taxAssessment)
 }
 
 func testAccCheckIbmOnboardingProductExists(n string, obj partnercentersellv1.OnboardingProduct) resource.TestCheckFunc {

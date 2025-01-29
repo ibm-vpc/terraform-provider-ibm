@@ -62,7 +62,9 @@ resource "ibm_onboarding_iam_registration" "onboarding_iam_registration_instance
 		zh_tw = "zh_tw"
 		zh_cn = "zh_cn"
   }
-  product_id = "product_id"
+  enabled = true
+  name = "pet-store"
+  product_id = ibm_onboarding_product.onboarding_product_instance.id
   resource_hierarchy_attribute {
 		key = "key"
 		value = "value"
@@ -71,6 +73,7 @@ resource "ibm_onboarding_iam_registration" "onboarding_iam_registration_instance
 		attributes {
 			account_id = "account_id"
 			service_name = "service_name"
+			additional_properties = { "key" = "inner" }
 		}
 		roles = [ "roles" ]
   }
@@ -79,7 +82,7 @@ resource "ibm_onboarding_iam_registration" "onboarding_iam_registration_instance
 		options {
 			operators = [ "stringEquals" ]
 			hidden = true
-			supported_attributes = [ "supported_attributes" ]
+			supported_patterns = [ "supported_patterns" ]
 			policy_types = [ "access" ]
 			is_empty_value_supported = true
 			is_string_exists_false_value_supported = true
@@ -198,7 +201,7 @@ resource "ibm_onboarding_iam_registration" "onboarding_iam_registration_instance
 			zh_cn = "zh_cn"
 		}
 		options {
-			access_policy = { "key" = "inner" }
+			access_policy = true
 			policy_type = [ "access" ]
 			account_type = "enterprise"
 		}
@@ -297,7 +300,7 @@ Nested schema for **display_name**:
 * `enabled` - (Optional, Boolean) Whether the service is enabled or disabled for IAM.
 * `env` - (Optional, String) The environment to fetch this object from.
   * Constraints: The maximum length is `64` characters. The minimum length is `1` character. The value must match regular expression `/^[a-z]+$/`.
-* `name` - (Optional, String) The IAM registration name, which must be the programmatic name of the product.
+* `name` - (Required, String) The IAM registration name, which must be the programmatic name of the product.
   * Constraints: The value must match regular expression `/^[a-z0-9\\-.]+$/`.
 * `parent_ids` - (Optional, List) The list of parent IDs for product access management.
   * Constraints: The list items must match regular expression `/^[a-z0-9\\-.]+$/`. The maximum length is `100` items. The minimum length is `0` items.
@@ -314,8 +317,9 @@ Nested schema for **resource_hierarchy_attribute**:
 Nested schema for **supported_anonymous_accesses**:
 	* `attributes` - (Optional, List) The attributes for anonymous accesses.
 	Nested schema for **attributes**:
-		* `account_id` - (Optional, String) An account id.
-		* `service_name` - (Optional, String) The name of the service.
+		* `account_id` - (Required, String) An account id.
+		* `additional_properties` - (Required, Map) Additional properties the key must come from supported attributes.
+		* `service_name` - (Required, String) The name of the service.
 	* `roles` - (Optional, List) The roles of supported anonymous accesses.
 	  * Constraints: The list items must match regular expression `/^[ -~\\s]*$/`. The maximum length is `100` items. The minimum length is `0` items.
 * `supported_attributes` - (Optional, List) The list of supported attributes.
@@ -390,7 +394,7 @@ Nested schema for **supported_attributes**:
 			* `value` - (Optional, List) Hierarchy description value.
 			Nested schema for **value**:
 				* `key` - (Optional, String) Key.
-		* `supported_attributes` - (Optional, List) The list of supported patterns.
+		* `supported_patterns` - (Optional, List) The list of supported patterns.
 		  * Constraints: The maximum length is `100` items. The minimum length is `0` items.
 	* `ui` - (Optional, List) The user interface.
 	Nested schema for **ui**:
@@ -522,7 +526,7 @@ Nested schema for **supported_roles**:
 	  * Constraints: The maximum length is `256` characters. The minimum length is `0` characters. The value must match regular expression `/^[ -~\\s]*$/`.
 	* `options` - (Optional, List) The supported role options.
 	Nested schema for **options**:
-		* `access_policy` - (Optional, Map) Optional opt-in to require access control on the role.
+		* `access_policy` - (Required, Boolean) Optional opt-in to require access control on the role.
 		* `account_type` - (Optional, String) Optional opt-in to require checking account type when applying the role.
 		  * Constraints: Allowable values are: `enterprise`.
 		* `policy_type` - (Optional, List) Optional opt-in to require checking policy type when applying the role.
@@ -541,12 +545,12 @@ You can import the `ibm_onboarding_iam_registration` resource by using `name`.
 The `name` property can be formed from `product_id`, and `name` in the following format:
 
 <pre>
-&lt;product_id&gt;/&lt;name&gt;
+&lt;product_id/name
 </pre>
 * `product_id`: A string. The unique ID of the product.
-* `name`: A string. The IAM registration name, which must be the programmatic name of the product.
+* `name`: A string in the format `pet-store`. The IAM registration name, which must be the programmatic name of the product.
 
 # Syntax
 <pre>
-$ terraform import ibm_onboarding_iam_registration.onboarding_iam_registration <productid>/<name>;
+$ terraform import ibm_onboarding_iam_registration.onboarding_iam_registration product_id/name;
 </pre>

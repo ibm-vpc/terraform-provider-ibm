@@ -20,10 +20,11 @@ resource "ibm_onboarding_resource_broker" "onboarding_resource_broker_instance" 
 
 // Provision onboarding_catalog_deployment resource instance
 resource "ibm_onboarding_catalog_deployment" "onboarding_catalog_deployment_instance" {
-  product_id = var.onboarding_catalog_deployment_product_id
-  catalog_product_id = var.onboarding_catalog_deployment_catalog_product_id
-  catalog_plan_id = var.onboarding_catalog_deployment_catalog_plan_id
+  product_id = ibm_onboarding_product.onboarding_product_instance.id
+  catalog_product_id = ibm_onboarding_catalog_product.onboarding_catalog_product_instance.onboarding_catalog_product_id
+  catalog_plan_id = ibm_onboarding_catalog_plan.onboarding_catalog_plan_instance.onboarding_catalog_plan_id
   env = var.onboarding_catalog_deployment_env
+  object_id = var.onboarding_catalog_deployment_object_id
   name = var.onboarding_catalog_deployment_name
   active = var.onboarding_catalog_deployment_active
   disabled = var.onboarding_catalog_deployment_disabled
@@ -58,11 +59,17 @@ resource "ibm_onboarding_catalog_deployment" "onboarding_catalog_deployment_inst
             type = "image"
             url = "url"
           }
+          embeddable_dashboard = "embeddable_dashboard"
         }
       }
       urls {
         doc_url = "doc_url"
+        apidocs_url = "apidocs_url"
         terms_url = "terms_url"
+        instructions_url = "instructions_url"
+        catalog_details_url = "catalog_details_url"
+        custom_create_page_url = "custom_create_page_url"
+        dashboard = "dashboard"
       }
       hidden = true
       side_by_side_index = 1.0
@@ -70,15 +77,133 @@ resource "ibm_onboarding_catalog_deployment" "onboarding_catalog_deployment_inst
     service {
       rc_provisionable = true
       iam_compatible = true
+      bindable = true
+      plan_updateable = true
+      service_key_supported = true
+      parameters {
+        displayname = "displayname"
+        name = "name"
+        type = "text"
+        options {
+          displayname = "displayname"
+          value = "value"
+          i18n {
+            en {
+              displayname = "displayname"
+              description = "description"
+            }
+            de {
+              displayname = "displayname"
+              description = "description"
+            }
+            es {
+              displayname = "displayname"
+              description = "description"
+            }
+            fr {
+              displayname = "displayname"
+              description = "description"
+            }
+            it {
+              displayname = "displayname"
+              description = "description"
+            }
+            ja {
+              displayname = "displayname"
+              description = "description"
+            }
+            ko {
+              displayname = "displayname"
+              description = "description"
+            }
+            pt_br {
+              displayname = "displayname"
+              description = "description"
+            }
+            zh_tw {
+              displayname = "displayname"
+              description = "description"
+            }
+            zh_cn {
+              displayname = "displayname"
+              description = "description"
+            }
+          }
+        }
+        value = [ "value" ]
+        layout = "layout"
+        associations = { "key" = "anything as a string" }
+        validation_url = "validation_url"
+        options_url = "options_url"
+        invalidmessage = "invalidmessage"
+        description = "description"
+        required = true
+        pattern = "pattern"
+        placeholder = "placeholder"
+        readonly = true
+        hidden = true
+        i18n {
+          en {
+            displayname = "displayname"
+            description = "description"
+          }
+          de {
+            displayname = "displayname"
+            description = "description"
+          }
+          es {
+            displayname = "displayname"
+            description = "description"
+          }
+          fr {
+            displayname = "displayname"
+            description = "description"
+          }
+          it {
+            displayname = "displayname"
+            description = "description"
+          }
+          ja {
+            displayname = "displayname"
+            description = "description"
+          }
+          ko {
+            displayname = "displayname"
+            description = "description"
+          }
+          pt_br {
+            displayname = "displayname"
+            description = "description"
+          }
+          zh_tw {
+            displayname = "displayname"
+            description = "description"
+          }
+          zh_cn {
+            displayname = "displayname"
+            description = "description"
+          }
+        }
+      }
+    }
+    deployment {
+      broker {
+        name = "name"
+        guid = "guid"
+      }
+      location = "location"
+      location_url = "location_url"
+      target_crn = "target_crn"
     }
   }
 }
 
 // Provision onboarding_catalog_plan resource instance
 resource "ibm_onboarding_catalog_plan" "onboarding_catalog_plan_instance" {
-  product_id = var.onboarding_catalog_plan_product_id
-  catalog_product_id = var.onboarding_catalog_plan_catalog_product_id
+  product_id = ibm_onboarding_product.onboarding_product_instance.id
+  catalog_product_id = ibm_onboarding_catalog_product.onboarding_catalog_product_instance.onboarding_catalog_product_id
   env = var.onboarding_catalog_plan_env
+  object_id = var.onboarding_catalog_plan_object_id
   name = var.onboarding_catalog_plan_name
   active = var.onboarding_catalog_plan_active
   disabled = var.onboarding_catalog_plan_disabled
@@ -113,26 +238,44 @@ resource "ibm_onboarding_catalog_plan" "onboarding_catalog_plan_instance" {
             type = "image"
             url = "url"
           }
+          embeddable_dashboard = "embeddable_dashboard"
         }
       }
       urls {
         doc_url = "doc_url"
+        apidocs_url = "apidocs_url"
         terms_url = "terms_url"
+        instructions_url = "instructions_url"
+        catalog_details_url = "catalog_details_url"
+        custom_create_page_url = "custom_create_page_url"
+        dashboard = "dashboard"
       }
       hidden = true
       side_by_side_index = 1.0
     }
+    service {
+      rc_provisionable = true
+      iam_compatible = true
+      bindable = true
+      plan_updateable = true
+      service_key_supported = true
+    }
     pricing {
       type = "free"
       origin = "global_catalog"
+    }
+    plan {
+      allow_internal_users = true
+      bindable = true
     }
   }
 }
 
 // Provision onboarding_catalog_product resource instance
 resource "ibm_onboarding_catalog_product" "onboarding_catalog_product_instance" {
-  product_id = var.onboarding_catalog_product_product_id
+  product_id = ibm_onboarding_product.onboarding_product_instance.id
   env = var.onboarding_catalog_product_env
+  object_id = var.onboarding_catalog_product_object_id
   name = var.onboarding_catalog_product_name
   active = var.onboarding_catalog_product_active
   disabled = var.onboarding_catalog_product_disabled
@@ -170,11 +313,17 @@ resource "ibm_onboarding_catalog_product" "onboarding_catalog_product_instance" 
             type = "image"
             url = "url"
           }
+          embeddable_dashboard = "embeddable_dashboard"
         }
       }
       urls {
         doc_url = "doc_url"
+        apidocs_url = "apidocs_url"
         terms_url = "terms_url"
+        instructions_url = "instructions_url"
+        catalog_details_url = "catalog_details_url"
+        custom_create_page_url = "custom_create_page_url"
+        dashboard = "dashboard"
       }
       hidden = true
       side_by_side_index = 1.0
@@ -182,6 +331,115 @@ resource "ibm_onboarding_catalog_product" "onboarding_catalog_product_instance" 
     service {
       rc_provisionable = true
       iam_compatible = true
+      bindable = true
+      plan_updateable = true
+      service_key_supported = true
+      unique_api_key = true
+      parameters {
+        displayname = "displayname"
+        name = "name"
+        type = "text"
+        options {
+          displayname = "displayname"
+          value = "value"
+          i18n {
+            en {
+              displayname = "displayname"
+              description = "description"
+            }
+            de {
+              displayname = "displayname"
+              description = "description"
+            }
+            es {
+              displayname = "displayname"
+              description = "description"
+            }
+            fr {
+              displayname = "displayname"
+              description = "description"
+            }
+            it {
+              displayname = "displayname"
+              description = "description"
+            }
+            ja {
+              displayname = "displayname"
+              description = "description"
+            }
+            ko {
+              displayname = "displayname"
+              description = "description"
+            }
+            pt_br {
+              displayname = "displayname"
+              description = "description"
+            }
+            zh_tw {
+              displayname = "displayname"
+              description = "description"
+            }
+            zh_cn {
+              displayname = "displayname"
+              description = "description"
+            }
+          }
+        }
+        value = [ "value" ]
+        layout = "layout"
+        associations = { "key" = "anything as a string" }
+        validation_url = "validation_url"
+        options_url = "options_url"
+        invalidmessage = "invalidmessage"
+        description = "description"
+        required = true
+        pattern = "pattern"
+        placeholder = "placeholder"
+        readonly = true
+        hidden = true
+        i18n {
+          en {
+            displayname = "displayname"
+            description = "description"
+          }
+          de {
+            displayname = "displayname"
+            description = "description"
+          }
+          es {
+            displayname = "displayname"
+            description = "description"
+          }
+          fr {
+            displayname = "displayname"
+            description = "description"
+          }
+          it {
+            displayname = "displayname"
+            description = "description"
+          }
+          ja {
+            displayname = "displayname"
+            description = "description"
+          }
+          ko {
+            displayname = "displayname"
+            description = "description"
+          }
+          pt_br {
+            displayname = "displayname"
+            description = "description"
+          }
+          zh_tw {
+            displayname = "displayname"
+            description = "description"
+          }
+          zh_cn {
+            displayname = "displayname"
+            description = "description"
+          }
+        }
+      }
     }
     other {
       pc {
@@ -223,13 +481,21 @@ resource "ibm_onboarding_catalog_product" "onboarding_catalog_product_instance" 
           }
         }
       }
+      composite {
+        composite_kind = "service"
+        composite_tag = "composite_tag"
+        children {
+          kind = "service"
+          name = "name"
+        }
+      }
     }
   }
 }
 
 // Provision onboarding_iam_registration resource instance
 resource "ibm_onboarding_iam_registration" "onboarding_iam_registration_instance" {
-  product_id = var.onboarding_iam_registration_product_id
+  product_id = ibm_onboarding_product.onboarding_product_instance.id
   env = var.onboarding_iam_registration_env
   name = var.onboarding_iam_registration_name
   enabled = var.onboarding_iam_registration_enabled
@@ -290,6 +556,7 @@ resource "ibm_onboarding_iam_registration" "onboarding_iam_registration_instance
     attributes {
       account_id = "account_id"
       service_name = "service_name"
+      additional_properties = { "key" = "inner" }
     }
     roles = [ "roles" ]
   }
@@ -298,7 +565,7 @@ resource "ibm_onboarding_iam_registration" "onboarding_iam_registration_instance
     options {
       operators = [ "stringEquals" ]
       hidden = true
-      supported_attributes = [ "supported_attributes" ]
+      supported_patterns = [ "supported_patterns" ]
       policy_types = [ "access" ]
       is_empty_value_supported = true
       is_string_exists_false_value_supported = true
@@ -408,7 +675,7 @@ resource "ibm_onboarding_iam_registration" "onboarding_iam_registration_instance
       zh_cn = "zh_cn"
     }
     options {
-      access_policy = { "key" = "inner" }
+      access_policy = true
       policy_type = [ "access" ]
       account_type = "enterprise"
     }
