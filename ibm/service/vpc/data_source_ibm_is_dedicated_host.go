@@ -384,7 +384,9 @@ func DataSourceIbmIsDedicatedHost() *schema.Resource {
 func dataSourceIbmIsDedicatedHostRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	vpcClient, err := meta.(conns.ClientSession).VpcV1API()
 	if err != nil {
-		return diag.FromErr(err)
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("API Client creation failed: %s", err.Error()), "(Data) ibm_is_dedicated_host", "read")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	listDedicatedHostsOptions := &vpcv1.ListDedicatedHostsOptions{}
 	hostgroupid := d.Get("host_group").(string)
