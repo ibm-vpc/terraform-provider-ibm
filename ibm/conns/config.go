@@ -1683,16 +1683,15 @@ func (c *Config) ClientSession() (interface{}, error) {
 	// Construct an "options" struct for creating the service client.
 	logsEndpoint := ContructEndpoint(fmt.Sprintf("api.%s.logs", c.Region), cloudEndpoint)
 
-	if fileMap != nil && c.Visibility != "public-and-private" {
-		logsEndpoint = fileFallBack(fileMap, c.Visibility, "IBMCLOUD_LOGS_API_ENDPOINT", c.Region, logsEndpoint)
-	}
 	if c.Visibility == "private" || c.Visibility == "public-and-private" {
 		logsEndpoint = ContructEndpoint(fmt.Sprintf("api.private.%s.logs", c.Region), cloudEndpoint)
 	}
-
+	if fileMap != nil && c.Visibility != "public-and-private" {
+		logsEndpoint = fileFallBack(fileMap, c.Visibility, "IBMCLOUD_LOGS_API_ENDPOINT", c.Region, logsEndpoint)
+	}
 	logsClientOptions := &logsv0.LogsV0Options{
 		Authenticator: authenticator,
-		URL:           logsEndpoint,
+		URL:           EnvFallBack([]string{"IBMCLOUD_LOGS_API_ENDPOINT"}, logsEndpoint),
 	}
 
 	// Construct the service client.
@@ -1712,11 +1711,10 @@ func (c *Config) ClientSession() (interface{}, error) {
 	var logsrouterClientURL string
 	var logsrouterURLErr error
 
-	if c.Visibility == "private" || c.Visibility == "public-and-private" {
+	if fileMap != nil && c.Visibility != "public-and-private" {
+		logsrouterClientURL = fileFallBack(fileMap, c.Visibility, "IBMCLOUD_LOGS_ROUTING_API_ENDPOINT", c.Region, ibmcloudlogsroutingv0.DefaultServiceURL)
+	} else if c.Visibility == "private" || c.Visibility == "public-and-private" {
 		logsrouterClientURL, logsrouterURLErr = ibmcloudlogsroutingv0.GetServiceURLForRegion("private." + c.Region)
-		if err != nil && c.Visibility == "public-and-private" {
-			logsrouterClientURL, logsrouterURLErr = ibmcloudlogsroutingv0.GetServiceURLForRegion(c.Region)
-		}
 	} else {
 		logsrouterClientURL, logsrouterURLErr = ibmcloudlogsroutingv0.GetServiceURLForRegion(c.Region)
 	}
