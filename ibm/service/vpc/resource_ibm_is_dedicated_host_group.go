@@ -240,7 +240,7 @@ func resourceIbmIsDedicatedHostGroupMapToResourceGroupIdentityByID(resourceGroup
 	return resourceGroupIdentityByID
 }
 
-func resourceIbmIsDedicatedHostGroupRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceIbmIsDedicatedHostGroupRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	vpcClient, err := meta.(conns.ClientSession).VpcV1API()
 	if err != nil {
 		tfErr := flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_dedicated_host_group", "read", "initialize-client")
@@ -252,7 +252,7 @@ func resourceIbmIsDedicatedHostGroupRead(ctx context.Context, d *schema.Resource
 
 	getDedicatedHostGroupOptions.SetID(d.Id())
 
-	dedicatedHostGroup, response, err := vpcClient.GetDedicatedHostGroupWithContext(ctx, getDedicatedHostGroupOptions)
+	dedicatedHostGroup, response, err := vpcClient.GetDedicatedHostGroupWithContext(context, getDedicatedHostGroupOptions)
 	if err != nil {
 		if response != nil && response.StatusCode == 404 {
 			d.SetId("")
@@ -401,7 +401,7 @@ func resourceIbmIsDedicatedHostGroupInstanceProfileReferenceToMap(instanceProfil
 	return instanceProfileReferenceMap
 }
 
-func resourceIbmIsDedicatedHostGroupUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceIbmIsDedicatedHostGroupUpdate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	vpcClient, err := meta.(conns.ClientSession).VpcV1API()
 	if err != nil {
 		tfErr := flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_dedicated_host_group", "update", "initialize-client")
@@ -431,7 +431,7 @@ func resourceIbmIsDedicatedHostGroupUpdate(ctx context.Context, d *schema.Resour
 	}
 
 	if hasChange {
-		_, response, err := vpcClient.UpdateDedicatedHostGroupWithContext(ctx, updateDedicatedHostGroupOptions)
+		_, response, err := vpcClient.UpdateDedicatedHostGroupWithContext(context, updateDedicatedHostGroupOptions)
 		if err != nil {
 			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("UpdateDedicatedHostGroupWithContext failed: %s\n%s", err, response), "ibm_is_dedicated_host_group", "update")
 			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
@@ -439,10 +439,10 @@ func resourceIbmIsDedicatedHostGroupUpdate(ctx context.Context, d *schema.Resour
 		}
 	}
 
-	return resourceIbmIsDedicatedHostGroupRead(ctx, d, meta)
+	return resourceIbmIsDedicatedHostGroupRead(context, d, meta)
 }
 
-func resourceIbmIsDedicatedHostGroupDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceIbmIsDedicatedHostGroupDelete(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	vpcClient, err := meta.(conns.ClientSession).VpcV1API()
 	if err != nil {
 		tfErr := flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_dedicated_host_group", "delete", "initialize-client")
@@ -454,7 +454,7 @@ func resourceIbmIsDedicatedHostGroupDelete(ctx context.Context, d *schema.Resour
 
 	getDedicatedHostGroupOptions.SetID(d.Id())
 
-	_, response, err := vpcClient.GetDedicatedHostGroupWithContext(ctx, getDedicatedHostGroupOptions)
+	_, response, err := vpcClient.GetDedicatedHostGroupWithContext(context, getDedicatedHostGroupOptions)
 	if err != nil {
 		if response != nil && response.StatusCode == 404 {
 			d.SetId("")
@@ -469,7 +469,7 @@ func resourceIbmIsDedicatedHostGroupDelete(ctx context.Context, d *schema.Resour
 
 	deleteDedicatedHostGroupOptions.SetID(d.Id())
 
-	response, err = vpcClient.DeleteDedicatedHostGroupWithContext(ctx, deleteDedicatedHostGroupOptions)
+	response, err = vpcClient.DeleteDedicatedHostGroupWithContext(context, deleteDedicatedHostGroupOptions)
 	if err != nil {
 		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("DeleteDedicatedHostGroupWithContext failed: %s\n%s", err, response), "ibm_is_dedicated_host_group", "delete")
 		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
