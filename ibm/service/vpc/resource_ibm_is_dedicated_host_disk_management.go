@@ -99,7 +99,7 @@ func resourceIBMisDedicatedHostDiskManagementCreate(ctx context.Context, d *sche
 
 		dedicatedHostDiskPatch, err := dedicatedHostDiskPatchModel.AsPatch()
 		if err != nil {
-			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error calling asPatch for DedicatedHostDiskPatch: %s", err), "ibm_is_dedicated_host_disk_management", "create")
+			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("[ERROR] Error calling asPatch for DedicatedHostDiskPatch: %s", err), "ibm_is_dedicated_host_disk_management", "create")
 			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
 			return tfErr.GetDiag()
 		}
@@ -107,7 +107,7 @@ func resourceIBMisDedicatedHostDiskManagementCreate(ctx context.Context, d *sche
 
 		_, _, err = vpcClient.UpdateDedicatedHostDiskWithContext(ctx, updateDedicatedHostDiskOptions)
 		if err != nil {
-			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error calling UpdateDedicatedHostDisk: %s", err), "ibm_is_dedicated_host_disk_management", "create")
+			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("[ERROR] Error calling UpdateDedicatedHostDisk: %s", err), "ibm_is_dedicated_host_disk_management", "create")
 			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
 			return tfErr.GetDiag()
 		}
@@ -142,7 +142,7 @@ func resourceIBMisDedicatedHostDiskManagementUpdate(ctx context.Context, d *sche
 
 			dedicatedHostDiskPatch, err := dedicatedHostDiskPatchModel.AsPatch()
 			if err != nil {
-				tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error calling asPatch for DedicatedHostDiskPatch: %s", err), "ibm_is_dedicated_host_disk_management", "update")
+				tfErr := flex.TerraformErrorf(err, fmt.Sprintf("[ERROR] Error calling asPatch for DedicatedHostDiskPatch: %s", err), "ibm_is_dedicated_host_disk_management", "update")
 				log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
 				return tfErr.GetDiag()
 			}
@@ -150,7 +150,7 @@ func resourceIBMisDedicatedHostDiskManagementUpdate(ctx context.Context, d *sche
 
 			_, response, err := vpcClient.UpdateDedicatedHostDiskWithContext(ctx, updateDedicatedHostDiskOptions)
 			if err != nil {
-				tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error updating dedicated host disk: %s %s", err, response), "ibm_is_dedicated_host_disk_management", "update")
+				tfErr := flex.TerraformErrorf(err, fmt.Sprintf("[ERROR] Error updating dedicated host disk: %s %s", err, response), "ibm_is_dedicated_host_disk_management", "update")
 				log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
 				return tfErr.GetDiag()
 			}
