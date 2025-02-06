@@ -106,7 +106,7 @@ Review the argument references that you can specify for your resource.
   **&#x2022;** For more information, about creating access tags, see [working with tags](https://cloud.ibm.com/docs/account?topic=account-tag&interface=ui#create-access-console).</br>
   **&#x2022;** You must have the access listed in the [Granting users access to tag resources](https://cloud.ibm.com/docs/account?topic=account-access) for `access_tags`</br>
   **&#x2022;** `access_tags` must be in the format `key:value`.
- - `allowed_use` - (Optional, List) The usage constraints to be matched against requested instance properties to determinecompatibility. While snapshots cannot be used directly to provision bare metal servers,an image or volume created from this snapshot will inherit its `allowed_use` value.Only present on bootable snapshots. The value of this property will be inherited fromthe source volume or source snapshot at snapshot creation, but can be changed.
+ - `allowed_use` - (Optional, List) The usage constraints to be matched against requested instance properties to determine compatibility. While snapshots cannot be used directly to provision bare metal servers,an image or volume created from this snapshot will inherit its `allowed_use` value.Only present on bootable snapshots. The value of this property will be inherited fromthe source volume or source snapshot at snapshot creation, but can be changed.
     
     Nested schema for `allowed_use`:
     - `api_version` - (Optional, String) The API version with which to evaluate the expressions.

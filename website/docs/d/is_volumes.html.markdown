@@ -126,7 +126,7 @@ In addition to all argument references listed, you can access the following attr
 		- `message` - (String) An explanation of the status reason.
 		- `more_info` - (Optional, String) Link to documentation about this status reason.
 	- `tags` - (String) User Tags associated with the volume. (https://cloud.ibm.com/apidocs/tagging#types-of-tags)
-	- `allowed_use` - (List) The usage constraints to be matched against requested instance or bare metal serverproperties to determine compatibility.Only present for boot volumes. The value of this property will be inherited from thesource image or snapshot at volume creation, but can be changed.
+	- `allowed_use` - (List) The usage constraints to be matched against requested instance or bare metal server properties to determine compatibility.Only present for boot volumes. The value of this property will be inherited from thesource image or snapshot at volume creation, but can be changed.
     
     Nested schema for `allowed_use`:
 	  - `api_version` - (String) The API version with which to evaluate the expressions.

@@ -169,7 +169,7 @@ In addition to all argument reference list, you can access the following attribu
   - `resource_type` - (String) The resource type.
 - `captured_at` - (String) The date and time that this snapshot was captured.
 - `tags` - (String) Tags associated with the snapshot.
-- `allowed_use` - (List) The usage constraints to be matched against requested instance properties to determinecompatibility. While snapshots cannot be used directly to provision bare metal servers,an image or volume created from this snapshot will inherit its `allowed_use` value.Only present on bootable snapshots. The value of this property will be inherited fromthe source volume or source snapshot at snapshot creation, but can be changed.
+- `allowed_use` - (List) The usage constraints to be matched against requested instance properties to determine compatibility. While snapshots cannot be used directly to provision bare metal servers,an image or volume created from this snapshot will inherit its `allowed_use` value.Only present on bootable snapshots. The value of this property will be inherited fromthe source volume or source snapshot at snapshot creation, but can be changed.
     
     Nested schema for `allowed_use`:
     - `api_version` - (String) The API version with which to evaluate the expressions.

@@ -73,7 +73,7 @@ Review the argument references that you can specify for your resource.
   **&#x2022;** `access_tags` must be in the format `key:value`.
 - `adjustable_capacity_states` - (List) The attachment states that support adjustable capacity for this volume. Allowable list items are: `attached`, `unattached`, `unusable`. 
 - `adjustable_iops_states` - (List) The attachment states that support adjustable IOPS for this volume. Allowable list items are: `attached`, `unattached`, `unusable`.
-- `allowed_use` - (Optional, List) The usage constraints to be matched against requested instance or bare metal serverproperties to determine compatibility.Only present for boot volumes. The value of this property will be inherited from thesource image or snapshot at volume creation, but can be changed.
+- `allowed_use` - (Optional, List) The usage constraints to be matched against requested instance or bare metal server properties to determine compatibility.Only present for boot volumes. The value of this property will be inherited from thesource image or snapshot at volume creation, but can be changed.
     
     Nested schema for `allowed_use`:
     - `api_version` - (Optional, String) The API version with which to evaluate the expressions.

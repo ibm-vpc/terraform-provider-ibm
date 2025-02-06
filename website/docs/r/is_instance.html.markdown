@@ -606,7 +606,7 @@ Review the argument references that you can specify for your resource.
   
   ~> **Note** 
     `action` allows to start, stop and reboot the instance and it is not recommended to manage the instance from terraform and other clients (UI/CLI) simultaneously, as it would cause unknown behaviour. `start` action can be performed only when the instance is in `stopped` state. `stop` and `reboot` actions can be performed only when the instance is in `running` state. It is also recommended to remove the `action` configuration from terraform once it is applied succesfully, to avoid instability in the terraform configuration later.
-- `allowed_use` - (Optional, List) The usage constraints to be matched against requested instance or bare metal serverproperties to determine compatibility.Only present for boot volumes. The value of this property will be inherited from thesource image or snapshot at volume creation, but can be changed.
+- `allowed_use` - (Optional, List) The usage constraints to be matched against requested instance or bare metal server properties to determine compatibility. Only present for boot volumes. The value of this property will be inherited from thesource image or snapshot at volume creation, but can be changed.
     
     Nested schema for `allowed_use`:
     - `api_version` - (Optional, String) The API version with which to evaluate the expressions.

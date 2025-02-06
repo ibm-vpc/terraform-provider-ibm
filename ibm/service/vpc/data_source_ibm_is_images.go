@@ -270,7 +270,6 @@ func DataSourceIBMISImages() *schema.Resource {
 						},
 						"allowed_use": &schema.Schema{
 							Type:        schema.TypeList,
-							MaxItems:    1,
 							Computed:    true,
 							Description: "The usage constraints to match against the requested instance or bare metal server properties to determine compatibility.",
 							Elem: &schema.Resource{
