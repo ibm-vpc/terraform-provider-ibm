@@ -218,12 +218,12 @@ func dataSourceIbmIsDedicatedHostGroupsRead(context context.Context, d *schema.R
 		d.SetId(dataSourceIbmIsDedicatedHostGroupsID(d))
 		err = d.Set("host_groups", dataSourceDedicatedHostGroupCollectionFlattenGroups(allrecs))
 		if err != nil {
-			err = fmt.Errorf("Error setting host_groups: %s", err)
+			err = fmt.Errorf("[ERROR] Error setting host_groups: %s", err)
 			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_dedicated_host_groups", "read", "set-host_groups").GetDiag()
 		}
 
 		if err = d.Set("total_count", len(allrecs)); err != nil {
-			err = fmt.Errorf("Error setting total_count: %s", err)
+			err = fmt.Errorf("[ERROR] Error setting total_count: %s", err)
 			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_dedicated_host_groups", "read", "set-total_count").GetDiag()
 		}
 

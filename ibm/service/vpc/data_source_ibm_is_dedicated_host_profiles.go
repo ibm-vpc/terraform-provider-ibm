@@ -382,12 +382,12 @@ func dataSourceIbmIsDedicatedHostProfilesRead(context context.Context, d *schema
 
 		err = d.Set("profiles", dataSourceDedicatedHostProfileCollectionFlattenProfiles(allrecs))
 		if err != nil {
-			err = fmt.Errorf("Error setting profiles: %s", err)
+			err = fmt.Errorf("[ERROR] Error setting profiles: %s", err)
 			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_dedicated_host_profiles", "read", "set-profiles").GetDiag()
 		}
 
 		if err = d.Set("total_count", len(allrecs)); err != nil {
-			err = fmt.Errorf("Error setting total_count: %s", err)
+			err = fmt.Errorf("[ERROR] Error setting total_count: %s", err)
 			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_dedicated_host_profiles", "read", "set-total_count").GetDiag()
 		}
 	}

@@ -153,53 +153,53 @@ func dataSourceIbmIsDedicatedHostDiskRead(context context.Context, d *schema.Res
 
 	d.SetId(*dedicatedHostDisk.ID)
 	if err = d.Set("available", dedicatedHostDisk.Available); err != nil {
-		err = fmt.Errorf("Error setting available: %s", err)
+		err = fmt.Errorf("[ERROR] Error setting available: %s", err)
 		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_dedicated_host_disk", "read", "set-available").GetDiag()
 	}
 	if err = d.Set("created_at", dedicatedHostDisk.CreatedAt.String()); err != nil {
-		err = fmt.Errorf("Error setting created_at: %s", err)
+		err = fmt.Errorf("[ERROR] Error setting created_at: %s", err)
 		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_dedicated_host_disk", "read", "set-created_at").GetDiag()
 	}
 	if err = d.Set("href", dedicatedHostDisk.Href); err != nil {
-		err = fmt.Errorf("Error setting href: %s", err)
+		err = fmt.Errorf("[ERROR] Error setting href: %s", err)
 		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_dedicated_host_disk", "read", "set-href").GetDiag()
 	}
 
 	if dedicatedHostDisk.InstanceDisks != nil {
 		err = d.Set("instance_disks", dataSourceDedicatedHostDiskFlattenInstanceDisks(dedicatedHostDisk.InstanceDisks))
 		if err != nil {
-			err = fmt.Errorf("Error setting instance_disks: %s", err)
+			err = fmt.Errorf("[ERROR] Error setting instance_disks: %s", err)
 			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_dedicated_host_disk", "read", "set-instance_disks").GetDiag()
 		}
 	}
 	if err = d.Set("interface_type", dedicatedHostDisk.InterfaceType); err != nil {
-		err = fmt.Errorf("Error setting interface_type: %s", err)
+		err = fmt.Errorf("[ERROR] Error setting interface_type: %s", err)
 		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_dedicated_host_disk", "read", "set-interface_type").GetDiag()
 	}
 	if dedicatedHostDisk.LifecycleState != nil {
 		if err = d.Set("lifecycle_state", dedicatedHostDisk.LifecycleState); err != nil {
-			err = fmt.Errorf("Error setting lifecycle_state: %s", err)
+			err = fmt.Errorf("[ERROR] Error setting lifecycle_state: %s", err)
 			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_dedicated_host_disk", "read", "set-lifecycle_state").GetDiag()
 		}
 	}
 	if err = d.Set("name", dedicatedHostDisk.Name); err != nil {
-		err = fmt.Errorf("Error setting name: %s", err)
+		err = fmt.Errorf("[ERROR] Error setting name: %s", err)
 		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_dedicated_host_disk", "read", "set-name").GetDiag()
 	}
 	if err = d.Set("provisionable", dedicatedHostDisk.Provisionable); err != nil {
-		err = fmt.Errorf("Error setting provisionable: %s", err)
+		err = fmt.Errorf("[ERROR] Error setting provisionable: %s", err)
 		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_dedicated_host_disk", "read", "set-provisionable").GetDiag()
 	}
 	if err = d.Set("resource_type", dedicatedHostDisk.ResourceType); err != nil {
-		err = fmt.Errorf("Error setting resource_type: %s", err)
+		err = fmt.Errorf("[ERROR] Error setting resource_type: %s", err)
 		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_dedicated_host_disk", "read", "set-resource_type").GetDiag()
 	}
 	if err = d.Set("size", dedicatedHostDisk.Size); err != nil {
-		err = fmt.Errorf("Error setting size: %s", err)
+		err = fmt.Errorf("[ERROR] Error setting size: %s", err)
 		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_dedicated_host_disk", "read", "set-size").GetDiag()
 	}
 	if err = d.Set("supported_instance_interface_types", dedicatedHostDisk.SupportedInstanceInterfaceTypes); err != nil {
-		err = fmt.Errorf("Error setting supported_instance_interface_types: %s", err)
+		err = fmt.Errorf("[ERROR] Error setting supported_instance_interface_types: %s", err)
 		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_dedicated_host_disk", "read", "set-supported_instance_interface_types").GetDiag()
 	}
 
