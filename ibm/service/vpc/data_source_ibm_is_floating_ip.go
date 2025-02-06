@@ -42,7 +42,7 @@ const (
 
 func DataSourceIBMISFloatingIP() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceIBMISFloatingIPRead,
+		ReadContext: dataSourceIBMISFloatingIPRead,
 
 		Schema: map[string]*schema.Schema{
 
