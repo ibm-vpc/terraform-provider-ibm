@@ -97,7 +97,8 @@ func dataSourceIBMISLbProfileRead(context context.Context, d *schema.ResourceDat
 	}
 	lbProfile, response, err := sess.GetLoadBalancerProfileWithContext(context, getLoadBalancerProfileOptions)
 	if err != nil {
-		return diag.FromErr(fmt.Errorf("[ERROR] Error Fetching Load Balancer Profile(%s) for VPC %s\n%s", lbprofilename, err, response))
+		log.Printf("[DEBUG] GetLoadBalancerProfileWithContext failed %s\n%s", err, response)
+		return diag.FromErr(fmt.Errorf("[ERROR] GetLoadBalancerProfileWithContext failed %s\n%s", err, response))
 	}
 
 	d.Set("name", *lbProfile.Name)
