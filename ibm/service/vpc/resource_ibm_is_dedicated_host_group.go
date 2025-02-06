@@ -264,37 +264,37 @@ func resourceIbmIsDedicatedHostGroupRead(context context.Context, d *schema.Reso
 	}
 
 	if err = d.Set("class", dedicatedHostGroup.Class); err != nil {
-		err = fmt.Errorf("Error setting class: %s", err)
+		err = fmt.Errorf("[ERROR] Error setting class: %s", err)
 		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_dedicated_host_group", "read", "set-class").GetDiag()
 	}
 	if err = d.Set("family", dedicatedHostGroup.Family); err != nil {
-		err = fmt.Errorf("Error setting family: %s", err)
+		err = fmt.Errorf("[ERROR] Error setting family: %s", err)
 		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_dedicated_host_group", "read", "set-family").GetDiag()
 	}
 	if err = d.Set("name", dedicatedHostGroup.Name); err != nil {
-		err = fmt.Errorf("Error setting name: %s", err)
+		err = fmt.Errorf("[ERROR] Error setting name: %s", err)
 		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_dedicated_host_group", "read", "set-name").GetDiag()
 	}
 	if dedicatedHostGroup.ResourceGroup != nil {
 		resourceGroupID := *dedicatedHostGroup.ResourceGroup.ID
 		if err = d.Set("resource_group", resourceGroupID); err != nil {
-			err = fmt.Errorf("Error setting resource_group: %s", err)
+			err = fmt.Errorf("[ERROR] Error setting resource_group: %s", err)
 			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_dedicated_host_group", "read", "set-resource_group").GetDiag()
 		}
 	}
 	if dedicatedHostGroup.Zone != nil {
 		zoneName := *dedicatedHostGroup.Zone.Name
 		if err = d.Set("zone", zoneName); err != nil {
-			err = fmt.Errorf("Error setting zone: %s", err)
+			err = fmt.Errorf("[ERROR] Error setting zone: %s", err)
 			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_dedicated_host_group", "read", "set-zone").GetDiag()
 		}
 	}
 	if err = d.Set("created_at", dedicatedHostGroup.CreatedAt.String()); err != nil {
-		err = fmt.Errorf("Error setting created_at: %s", err)
+		err = fmt.Errorf("[ERROR] Error setting created_at: %s", err)
 		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_dedicated_host_group", "read", "set-created_at").GetDiag()
 	}
 	if err = d.Set("crn", dedicatedHostGroup.CRN); err != nil {
-		err = fmt.Errorf("Error setting crn: %s", err)
+		err = fmt.Errorf("[ERROR] Error setting crn: %s", err)
 		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_dedicated_host_group", "read", "set-crn").GetDiag()
 	}
 	dedicatedHosts := []map[string]interface{}{}
@@ -303,15 +303,15 @@ func resourceIbmIsDedicatedHostGroupRead(context context.Context, d *schema.Reso
 		dedicatedHosts = append(dedicatedHosts, dedicatedHostsItemMap)
 	}
 	if err = d.Set("dedicated_hosts", dedicatedHosts); err != nil {
-		err = fmt.Errorf("Error setting dedicated_hosts: %s", err)
+		err = fmt.Errorf("[ERROR] Error setting dedicated_hosts: %s", err)
 		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_dedicated_host_group", "read", "set-dedicated_hosts").GetDiag()
 	}
 	if err = d.Set("href", dedicatedHostGroup.Href); err != nil {
-		err = fmt.Errorf("Error setting href: %s", err)
+		err = fmt.Errorf("[ERROR] Error setting href: %s", err)
 		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_dedicated_host_group", "read", "set-href").GetDiag()
 	}
 	if err = d.Set("resource_type", dedicatedHostGroup.ResourceType); err != nil {
-		err = fmt.Errorf("Error setting resource_type: %s", err)
+		err = fmt.Errorf("[ERROR] Error setting resource_type: %s", err)
 		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_dedicated_host_group", "read", "set-resource_type").GetDiag()
 	}
 	supportedInstanceProfiles := []map[string]interface{}{}
@@ -320,7 +320,7 @@ func resourceIbmIsDedicatedHostGroupRead(context context.Context, d *schema.Reso
 		supportedInstanceProfiles = append(supportedInstanceProfiles, supportedInstanceProfilesItemMap)
 	}
 	if err = d.Set("supported_instance_profiles", supportedInstanceProfiles); err != nil {
-		err = fmt.Errorf("Error setting supported_instance_profiles: %s", err)
+		err = fmt.Errorf("[ERROR] Error setting supported_instance_profiles: %s", err)
 		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_dedicated_host_group", "read", "set-supported_instance_profiles").GetDiag()
 	}
 
@@ -422,7 +422,7 @@ func resourceIbmIsDedicatedHostGroupUpdate(context context.Context, d *schema.Re
 		}
 		dedicatedHostGroupPatch, err := dedicatedHostGroupPatchModel.AsPatch()
 		if err != nil {
-			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error calling asPatch for DedicatedHostGroupPatch: %s", err), "ibm_is_dedicated_host_group", "update")
+			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("[ERROR] Error calling asPatch for DedicatedHostGroupPatch: %s", err), "ibm_is_dedicated_host_group", "update")
 			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
 			return tfErr.GetDiag()
 		}
