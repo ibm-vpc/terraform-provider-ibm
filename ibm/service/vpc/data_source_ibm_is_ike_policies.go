@@ -160,7 +160,9 @@ func DataSourceIBMIsIkePolicies() *schema.Resource {
 func dataSourceIBMIsIkePoliciesRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	vpcClient, err := meta.(conns.ClientSession).VpcV1API()
 	if err != nil {
-		return diag.FromErr(err)
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "(Data) ibm_is_ike_policies", "read")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	start := ""
@@ -172,8 +174,9 @@ func dataSourceIBMIsIkePoliciesRead(context context.Context, d *schema.ResourceD
 		}
 		ikePolicyCollection, response, err := vpcClient.ListIkePoliciesWithContext(context, listIkePoliciesOptions)
 		if err != nil || ikePolicyCollection == nil {
-			log.Printf("[DEBUG] ListIkePoliciesWithContext failed %s\n%s", err, response)
-			return diag.FromErr(fmt.Errorf("ListIkePoliciesWithContext failed %s\n%s", err, response))
+			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("ListIkePoliciesWithContext failed %s\n%s", err, response), "(Data) ibm_is_ike_policies", "read")
+			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+			return tfErr.GetDiag()
 		}
 		start = flex.GetNext(ikePolicyCollection.Next)
 		allrecs = append(allrecs, ikePolicyCollection.IkePolicies...)
@@ -186,7 +189,9 @@ func dataSourceIBMIsIkePoliciesRead(context context.Context, d *schema.ResourceD
 
 	err = d.Set("ike_policies", dataSourceIkePolicyCollectionFlattenIkePolicies(allrecs))
 	if err != nil {
-		return diag.FromErr(fmt.Errorf("Error setting ike_policies %s", err))
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting ike_policies %s", err), "(Data) ibm_is_ike_policies", "read")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	return nil
