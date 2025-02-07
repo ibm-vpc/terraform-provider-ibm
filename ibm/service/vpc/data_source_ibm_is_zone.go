@@ -4,9 +4,13 @@
 package vpc
 
 import (
+	"context"
 	"fmt"
+	"log"
 
+	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -21,7 +25,7 @@ const (
 
 func DataSourceIBMISZone() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceIBMISZoneRead,
+		ReadContext: dataSourceIBMISZoneRead,
 
 		Schema: map[string]*schema.Schema{
 
@@ -50,37 +54,60 @@ func DataSourceIBMISZone() *schema.Resource {
 		},
 	}
 }
-
-func dataSourceIBMISZoneRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceIBMISZoneRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	regionName := d.Get(isZoneRegion).(string)
 	zoneName := d.Get(isZoneName).(string)
-	return zoneGet(d, meta, regionName, zoneName)
+	return zoneGet(ctx, d, meta, regionName, zoneName)
 }
 
-func zoneGet(d *schema.ResourceData, meta interface{}, regionName, zoneName string) error {
+func zoneGet(ctx context.Context, d *schema.ResourceData, meta interface{}, regionName, zoneName string) diag.Diagnostics {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "(Data) ibm_is_zone", "read")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	getRegionZoneOptions := &vpcv1.GetRegionZoneOptions{
 		RegionName: &regionName,
 		Name:       &zoneName,
 	}
-	zone, _, err := sess.GetRegionZone(getRegionZoneOptions)
+	zone, response, err := sess.GetRegionZoneWithContext(ctx, getRegionZoneOptions)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("GetRegionZoneWithContext failed %s\n%s", err, response), "(Data) ibm_is_zone", "read")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	// For lack of anything better, compose our id from region name + zone name.
 	id := fmt.Sprintf("%s.%s", *zone.Region.Name, *zone.Name)
 	d.SetId(id)
-	d.Set(isZoneName, *zone.Name)
-	d.Set(isZoneRegion, *zone.Region.Name)
-	d.Set(isZoneStatus, *zone.Status)
+	if err = d.Set(isZoneName, *zone.Name); err != nil {
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting %s", isZoneName), "(Data) ibm_is_zone", "read")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
+	}
+	if err = d.Set(isZoneRegion, *zone.Region.Name); err != nil {
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting %s", isZoneRegion), "(Data) ibm_is_zone", "read")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
+	}
+	if err = d.Set(isZoneStatus, *zone.Status); err != nil {
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting %s", isZoneStatus), "(Data) ibm_is_zone", "read")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
+	}
 	if zone.DataCenter != nil {
-		d.Set(isZoneDataCenter, *zone.DataCenter)
+		if err = d.Set(isZoneDataCenter, *zone.DataCenter); err != nil {
+			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting %s", isZoneDataCenter), "(Data) ibm_is_zone", "read")
+			log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+			return tfErr.GetDiag()
+		}
 	}
 	if zone.UniversalName != nil {
-		d.Set(isZoneUniversalName, *zone.UniversalName)
+		if err = d.Set(isZoneUniversalName, *zone.UniversalName); err != nil {
+			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting %s", isZoneUniversalName), "(Data) ibm_is_zone", "read")
+			log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+			return tfErr.GetDiag()
+		}
 	}
 	return nil
 }
