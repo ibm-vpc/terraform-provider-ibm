@@ -45,6 +45,12 @@ You can access the following attribute references after your data source is crea
 		Nested scheme for `access_modes`:
 		- `type` - (String) The type of access mode.
 		- `values` - (List of strings) Access modes for this profile.
+	- `targetable_load_balancer_profiles` - (List) The load balancer profiles that load balancers with this profile can target
+
+		Nested scheme for `targetable_load_balancer_profiles`:
+		- `family` - (String) The product family this load balancer profile belongs to.
+		- `href` - (String) The URL for this load balancer profile.
+		- `name` - (String) The name for this load balancer profile.  	
 	- `availability` - (List) The availability mode for a load balancer with this profile
 
 		Nested scheme for `availability`:
