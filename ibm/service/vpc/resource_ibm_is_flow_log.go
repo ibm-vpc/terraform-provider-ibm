@@ -10,9 +10,11 @@ import (
 	"os"
 	"time"
 
+	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/conns"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/validate"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -37,12 +39,12 @@ const (
 
 func ResourceIBMISFlowLog() *schema.Resource {
 	return &schema.Resource{
-		Create:   resourceIBMISFlowLogCreate,
-		Read:     resourceIBMISFlowLogRead,
-		Update:   resourceIBMISFlowLogUpdate,
-		Delete:   resourceIBMISFlowLogDelete,
-		Exists:   resourceIBMISFlowLogExists,
-		Importer: &schema.ResourceImporter{},
+		CreateContext: resourceIBMISFlowLogCreate,
+		ReadContext:   resourceIBMISFlowLogRead,
+		UpdateContext: resourceIBMISFlowLogUpdate,
+		DeleteContext: resourceIBMISFlowLogDelete,
+		Exists:        resourceIBMISFlowLogExists,
+		Importer:      &schema.ResourceImporter{},
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(30 * time.Minute),
@@ -223,10 +225,12 @@ func ResourceIBMISFlowLogValidator() *validate.ResourceValidator {
 	return &ibmISFlowLogValidator
 }
 
-func resourceIBMISFlowLogCreate(d *schema.ResourceData, meta interface{}) error {
-	sess, err := vpcClient(meta)
+func resourceIBMISFlowLogCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	vpcClient, err := meta.(conns.ClientSession).VpcV1API()
 	if err != nil {
-		return err
+		tfErr := flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_flow_log", "create", "initialize-client")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	createFlowLogCollectorOptionsModel := &vpcv1.CreateFlowLogCollectorOptions{}
@@ -254,13 +258,15 @@ func resourceIBMISFlowLogCreate(d *schema.ResourceData, meta interface{}) error 
 	cloudObjectStorageBucketIdentityModel.Name = &bucketname
 	createFlowLogCollectorOptionsModel.StorageBucket = cloudObjectStorageBucketIdentityModel
 
-	flowlogCollector, response, err := sess.CreateFlowLogCollector(createFlowLogCollectorOptionsModel)
+	flowlogCollector, response, err := vpcClient.CreateFlowLogCollectorWithContext(ctx, createFlowLogCollectorOptionsModel)
 	if err != nil {
-		return fmt.Errorf("Create Flow Log Collector err %s\n%s", err, response)
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("CreateFlowLogCollectorWithContext failed: %s\n%s", err, response), "ibm_is_flow_log", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	d.SetId(*flowlogCollector.ID)
 
-	log.Printf("Flow log collector : %s", *flowlogCollector.ID)
+	log.Printf("[INFO] Flow log collector : %s", *flowlogCollector.ID)
 
 	v := os.Getenv("IC_ENV_TAGS")
 	if _, ok := d.GetOk(isFlowLogTags); ok || v != "" {
@@ -279,14 +285,16 @@ func resourceIBMISFlowLogCreate(d *schema.ResourceData, meta interface{}) error 
 				"Error on create of resource VPC Flow Log (%s) access tags: %s", d.Id(), err)
 		}
 	}
-	return resourceIBMISFlowLogRead(d, meta)
+	return resourceIBMISFlowLogRead(ctx, d, meta)
 }
 
-func resourceIBMISFlowLogRead(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISFlowLogRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
-	sess, err := vpcClient(meta)
+	vpcClient, err := meta.(conns.ClientSession).VpcV1API()
 	if err != nil {
-		return err
+		tfErr := flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_flow_log", "read", "initialize-client")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	ID := d.Id()
@@ -294,48 +302,69 @@ func resourceIBMISFlowLogRead(d *schema.ResourceData, meta interface{}) error {
 	getOptions := &vpcv1.GetFlowLogCollectorOptions{
 		ID: &ID,
 	}
-	flowlogCollector, response, err := sess.GetFlowLogCollector(getOptions)
+	flowlogCollector, response, err := vpcClient.GetFlowLogCollectorWithContext(context, getOptions)
 	if err != nil {
-		return fmt.Errorf("[ERROR] Error Getting Flow Log Collector: %s\n%s", err, response)
+		if response != nil && response.StatusCode == 404 {
+			d.SetId("")
+			return nil
+		}
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("GetFlowLogCollectorWithContext failed: %s\n%s", err, response), "ibm_is_flow_log", "read")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
-	if flowlogCollector.Name != nil {
-		d.Set(isFlowLogName, *flowlogCollector.Name)
+	if err = d.Set(isFlowLogName, *flowlogCollector.Name); err != nil {
+		err = fmt.Errorf("Error setting name: %s", err)
+		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_flow_log", "read", "set-name").GetDiag()
 	}
 
-	if flowlogCollector.Active != nil {
-		d.Set(isFlowLogActive, *flowlogCollector.Active)
+	if err = d.Set(isFlowLogActive, *flowlogCollector.Active); err != nil {
+		err = fmt.Errorf("Error setting active: %s", err)
+		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_flow_log", "read", "set-active").GetDiag()
 	}
 
-	if flowlogCollector.CreatedAt != nil {
-		d.Set(isFlowLogCreatedAt, flowlogCollector.CreatedAt.String())
+	if err = d.Set(isFlowLogCreatedAt, flowlogCollector.CreatedAt.String()); err != nil {
+		err = fmt.Errorf("Error setting created_at: %s", err)
+		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_flow_log", "read", "set-created_at").GetDiag()
 	}
 
-	if flowlogCollector.Href != nil {
-		d.Set(isFlowLogHref, *flowlogCollector.Href)
+	if err = d.Set(isFlowLogHref, *flowlogCollector.Href); err != nil {
+		err = fmt.Errorf("Error setting href: %s", err)
+		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_flow_log", "read", "set-href").GetDiag()
 	}
 
-	if flowlogCollector.CRN != nil {
-		d.Set(isFlowLogCrn, *flowlogCollector.CRN)
+	if err = d.Set(isFlowLogCrn, *flowlogCollector.CRN); err != nil {
+		err = fmt.Errorf("Error setting crn: %s", err)
+		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_flow_log", "read", "set-crn").GetDiag()
 	}
 
-	if flowlogCollector.LifecycleState != nil {
-		d.Set(isFlowLogLifecycleState, *flowlogCollector.LifecycleState)
+	if err = d.Set(isFlowLogLifecycleState, *flowlogCollector.LifecycleState); err != nil {
+		err = fmt.Errorf("Error setting lifecycle_state: %s", err)
+		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_flow_log", "read", "set-lifecycle_state").GetDiag()
 	}
 
 	if flowlogCollector.VPC != nil {
-		d.Set(isFlowLogVpc, *flowlogCollector.VPC.ID)
+		if err = d.Set(isFlowLogVpc, *flowlogCollector.VPC.ID); err != nil {
+			err = fmt.Errorf("Error setting vpc: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_flow_log", "read", "set-vpc").GetDiag()
+		}
 	}
 
 	if flowlogCollector.Target != nil {
 		targetIntf := flowlogCollector.Target
 		target := targetIntf.(*vpcv1.FlowLogCollectorTarget)
-		d.Set(isFlowLogTarget, *target.ID)
+		if err = d.Set(isFlowLogTarget, *target.ID); err != nil {
+			err = fmt.Errorf("Error setting target: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_flow_log", "read", "set-target").GetDiag()
+		}
 	}
 
 	if flowlogCollector.StorageBucket != nil {
 		bucket := flowlogCollector.StorageBucket
-		d.Set(isFlowLogStorageBucket, *bucket.Name)
+		if err = d.Set(isFlowLogStorageBucket, *bucket.Name); err != nil {
+			err = fmt.Errorf("Error setting storage_bucket: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_flow_log", "read", "set-storage_bucket").GetDiag()
+		}
 	}
 
 	tags, err := flex.GetGlobalTagsUsingCRN(meta, *flowlogCollector.CRN, "", isUserTagType)
@@ -343,37 +372,63 @@ func resourceIBMISFlowLogRead(d *schema.ResourceData, meta interface{}) error {
 		log.Printf(
 			"Error on get of resource vpc flow log (%s) tags: %s", d.Id(), err)
 	}
-	d.Set(isFlowLogTags, tags)
+	if err = d.Set(isFlowLogTags, tags); err != nil {
+		err = fmt.Errorf("Error setting tags: %s", err)
+		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_flow_log", "read", "set-tags").GetDiag()
+	}
 	accesstags, err := flex.GetGlobalTagsUsingCRN(meta, *flowlogCollector.CRN, "", isAccessTagType)
 	if err != nil {
 		log.Printf(
 			"Error on get of resource VPC Flow Log (%s) access tags: %s", d.Id(), err)
 	}
-	d.Set(isFlowLogAccessTags, accesstags)
+	if err = d.Set(isFlowLogAccessTags, accesstags); err != nil {
+		err = fmt.Errorf("Error setting access_tags: %s", err)
+		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_flow_log", "read", "set-access_tags").GetDiag()
+	}
 
 	controller, err := flex.GetBaseController(meta)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
-	d.Set(flex.ResourceControllerURL, controller+"/vpc-ext/network/flowLogs")
-	d.Set(flex.ResourceName, *flowlogCollector.Name)
-	d.Set(flex.ResourceCRN, *flowlogCollector.CRN)
-	d.Set(flex.ResourceStatus, *flowlogCollector.LifecycleState)
+	if err = d.Set(flex.ResourceControllerURL, controller+"/vpc-ext/network/flowLogs"); err != nil {
+		err = fmt.Errorf("Error setting controller_url: %s", err)
+		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_flow_log", "read", "set-controller_url").GetDiag()
+	}
+	if err = d.Set(flex.ResourceName, *flowlogCollector.Name); err != nil {
+		err = fmt.Errorf("Error setting name: %s", err)
+		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_flow_log", "read", "set-flex_name").GetDiag()
+	}
+	if err = d.Set(flex.ResourceCRN, *flowlogCollector.CRN); err != nil {
+		err = fmt.Errorf("Error setting crn: %s", err)
+		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_flow_log", "read", "set-flex_crn").GetDiag()
+	}
+	if err = d.Set(flex.ResourceStatus, *flowlogCollector.LifecycleState); err != nil {
+		err = fmt.Errorf("Error setting status: %s", err)
+		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_flow_log", "read", "set-flex_status").GetDiag()
+	}
 
 	if flowlogCollector.ResourceGroup != nil {
-		d.Set(isFlowLogResourceGroup, *flowlogCollector.ResourceGroup.ID)
-		d.Set(flex.ResourceGroupName, *flowlogCollector.ResourceGroup.ID)
+		if err = d.Set(isFlowLogResourceGroup, *flowlogCollector.ResourceGroup.ID); err != nil {
+			err = fmt.Errorf("Error setting resource_group: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_flow_log", "read", "set-resource_group").GetDiag()
+		}
+		if err = d.Set(flex.ResourceGroupName, *flowlogCollector.ResourceGroup.ID); err != nil {
+			err = fmt.Errorf("Error setting resource_group_name: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_flow_log", "read", "set-flex_resource_group_name").GetDiag()
+		}
 	}
 
 	return nil
 }
 
-func resourceIBMISFlowLogUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISFlowLogUpdate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
-	sess, err := vpcClient(meta)
+	vpcClient, err := meta.(conns.ClientSession).VpcV1API()
 	if err != nil {
-		return err
+		tfErr := flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_flow_log", "update", "initialize-client")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	ID := d.Id()
@@ -381,14 +436,16 @@ func resourceIBMISFlowLogUpdate(d *schema.ResourceData, meta interface{}) error 
 	getOptions := &vpcv1.GetFlowLogCollectorOptions{
 		ID: &ID,
 	}
-	flowlogCollector, response, err := sess.GetFlowLogCollector(getOptions)
+	flowlogCollector, response, err := vpcClient.GetFlowLogCollectorWithContext(context, getOptions)
 	if err != nil {
-		return fmt.Errorf("[ERROR] Error Getting Flow Log Collector: %s\n%s", err, response)
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("GetFlowLogCollectorWithContext failed: %s\n%s", err, response), "ibm_is_flow_log", "update")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	if d.HasChange(isFlowLogTags) {
 		oldList, newList := d.GetChange(isFlowLogTags)
-		err := flex.UpdateGlobalTagsUsingCRN(oldList, newList, meta, *flowlogCollector.CRN, "", isUserTagType)
+		err = flex.UpdateGlobalTagsUsingCRN(oldList, newList, meta, *flowlogCollector.CRN, "", isUserTagType)
 		if err != nil {
 			log.Printf(
 				"Error on update of resource flow log (%s) tags: %s", *flowlogCollector.ID, err)
@@ -416,32 +473,40 @@ func resourceIBMISFlowLogUpdate(d *schema.ResourceData, meta interface{}) error 
 		}
 		flowLogCollectorPatch, err := flowLogCollectorPatchModel.AsPatch()
 		if err != nil {
-			return fmt.Errorf("[ERROR] Error calling asPatch for FlowLogCollectorPatch: %s", err)
+			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error calling asPatch for FlowLogCollectorPatch: %s", err), "ibm_is_flow_log", "update")
+			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+			return tfErr.GetDiag()
 		}
 		updoptions.FlowLogCollectorPatch = flowLogCollectorPatch
-		_, response, err = sess.UpdateFlowLogCollector(updoptions)
+		_, response, err = vpcClient.UpdateFlowLogCollectorWithContext(context, updoptions)
 		if err != nil {
-			return fmt.Errorf("[ERROR] Error updating flow log collector:%s\n%s", err, response)
+			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("UpdateFlowLogCollectorWithContext failed: %s\n%s", err, response), "ibm_is_flow_log", "update")
+			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+			return tfErr.GetDiag()
 		}
 	}
 
-	return resourceIBMISFlowLogRead(d, meta)
+	return resourceIBMISFlowLogRead(context, d, meta)
 }
 
-func resourceIBMISFlowLogDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISFlowLogDelete(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
-	sess, err := vpcClient(meta)
+	vpcClient, err := meta.(conns.ClientSession).VpcV1API()
 	if err != nil {
-		return err
+		tfErr := flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_flow_log", "delete", "initialize-client")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	ID := d.Id()
 	delOptions := &vpcv1.DeleteFlowLogCollectorOptions{
 		ID: &ID,
 	}
-	response, err := sess.DeleteFlowLogCollector(delOptions)
+	response, err := vpcClient.DeleteFlowLogCollectorWithContext(context, delOptions)
 
 	if err != nil && response.StatusCode != 404 {
-		return fmt.Errorf("[ERROR] Error deleting flow log collector:%s\n%s", err, response)
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("DeleteFlowLogCollectorWithContext failed: %s\n%s", err, response), "ibm_is_flow_log", "delete")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	d.SetId("")
@@ -449,9 +514,11 @@ func resourceIBMISFlowLogDelete(d *schema.ResourceData, meta interface{}) error 
 }
 
 func resourceIBMISFlowLogExists(d *schema.ResourceData, meta interface{}) (bool, error) {
-	sess, err := vpcClient(meta)
+	vpcClient, err := meta.(conns.ClientSession).VpcV1API()
 	if err != nil {
-		return false, err
+		tfErr := flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_flow_log", "exists", "initialize-client")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return false, fmt.Errorf("[ERROR] Error initializing VPC client: %s", tfErr.GetDiag())
 	}
 
 	ID := d.Id()
@@ -459,9 +526,11 @@ func resourceIBMISFlowLogExists(d *schema.ResourceData, meta interface{}) (bool,
 	getOptions := &vpcv1.GetFlowLogCollectorOptions{
 		ID: &ID,
 	}
-	_, response, err := sess.GetFlowLogCollector(getOptions)
+	_, response, err := vpcClient.GetFlowLogCollector(getOptions)
 	if err != nil && response.StatusCode != 404 {
-		return false, fmt.Errorf("[ERROR] Error Getting Flow Log Collector : %s\n%s", err, response)
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("GetFlowLogCollectorWithContext failed: %s\n%s", err, response), "ibm_is_flow_log", "exists")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return false, fmt.Errorf("[ERROR] Error checking existence of Flow Log Collector: %s", tfErr.GetDiag())
 	}
 	if response.StatusCode == 404 {
 		d.SetId("")
