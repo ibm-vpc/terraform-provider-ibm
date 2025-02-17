@@ -209,7 +209,9 @@ func resourceIBMISIKEPolicyCreate(d *schema.ResourceData, meta interface{}) erro
 func ikepCreate(d *schema.ResourceData, meta interface{}, authenticationAlg, encryptionAlg, name string, dhGroup int64) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_is_ike_policy", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr
 	}
 	options := &vpcv1.CreateIkePolicyOptions{
 		AuthenticationAlgorithm: &authenticationAlg,
@@ -239,7 +241,9 @@ func ikepCreate(d *schema.ResourceData, meta interface{}, authenticationAlg, enc
 	}
 	ike, response, err := sess.CreateIkePolicy(options)
 	if err != nil {
-		return fmt.Errorf("[DEBUG] ike policy err %s\n%s", err, response)
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("ike policy err %s\n%s", err, response), "ibm_is_ike_policy", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr
 	}
 	d.SetId(*ike.ID)
 	log.Printf("[INFO] ike policy : %s", *ike.ID)
@@ -255,7 +259,9 @@ func resourceIBMISIKEPolicyRead(d *schema.ResourceData, meta interface{}) error 
 func ikepGet(d *schema.ResourceData, meta interface{}, id string) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_is_ike_policy", "read")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr
 	}
 	getikepoptions := &vpcv1.GetIkePolicyOptions{
 		ID: &id,
@@ -266,7 +272,9 @@ func ikepGet(d *schema.ResourceData, meta interface{}, id string) error {
 			d.SetId("")
 			return nil
 		}
-		return fmt.Errorf("[ERROR] Error getting IKE Policy(%s): %s\n%s", id, err, response)
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error getting IKE Policy(%s): %s\n%s", id, err, response), "ibm_is_ike_policy", "read")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr
 	}
 
 	d.Set(isIKEName, *ike.Name)
@@ -298,7 +306,9 @@ func ikepGet(d *schema.ResourceData, meta interface{}, id string) error {
 	d.Set(isIKEVPNConnections, connList)
 	controller, err := flex.GetBaseController(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error featching Base Controller URL %s", err), "ibm_is_ike_policy", "read")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr
 	}
 	d.Set(flex.ResourceControllerURL, controller+"/vpc-ext/network/ikepolicies")
 	d.Set(flex.ResourceName, *ike.Name)
@@ -318,7 +328,9 @@ func resourceIBMISIKEPolicyUpdate(d *schema.ResourceData, meta interface{}) erro
 func ikepUpdate(d *schema.ResourceData, meta interface{}, id string) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_is_ike_policy", "update")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr
 	}
 	options := &vpcv1.UpdateIkePolicyOptions{
 		ID: &id,
@@ -340,13 +352,17 @@ func ikepUpdate(d *schema.ResourceData, meta interface{}, id string) error {
 		ikePolicyPatchModel.IkeVersion = &ikeVersion
 		ikePolicyPatch, err := ikePolicyPatchModel.AsPatch()
 		if err != nil {
-			return fmt.Errorf("[ERROR] Error calling asPatch for IkePolicyPatch: %s", err)
+			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error calling asPatch for IkePolicyPatch: %s", err), "ibm_is_ike_policy", "update")
+			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+			return tfErr
 		}
 		options.IkePolicyPatch = ikePolicyPatch
 
 		_, response, err := sess.UpdateIkePolicy(options)
 		if err != nil {
-			return fmt.Errorf("[ERROR] Error on update of IKE Policy(%s): %s\n%s", id, err, response)
+			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error on update of IKE Policy(%s): %s\n%s", id, err, response), "ibm_is_ike_policy", "update")
+			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+			return tfErr
 		}
 	}
 	return nil
@@ -361,7 +377,9 @@ func resourceIBMISIKEPolicyDelete(d *schema.ResourceData, meta interface{}) erro
 func ikepDelete(d *schema.ResourceData, meta interface{}, id string) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_is_ike_policy", "delete")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr
 	}
 	getikepoptions := &vpcv1.GetIkePolicyOptions{
 		ID: &id,
@@ -372,7 +390,9 @@ func ikepDelete(d *schema.ResourceData, meta interface{}, id string) error {
 			d.SetId("")
 			return nil
 		}
-		return fmt.Errorf("[ERROR] Error getting IKE Policy(%s): %s\n%s", id, err, response)
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error getting IKE Policy(%s): %s\n%s", id, err, response), "ibm_is_ike_policy", "delete")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr
 	}
 
 	deleteIkePolicyOptions := &vpcv1.DeleteIkePolicyOptions{
@@ -380,7 +400,9 @@ func ikepDelete(d *schema.ResourceData, meta interface{}, id string) error {
 	}
 	response, err = sess.DeleteIkePolicy(deleteIkePolicyOptions)
 	if err != nil {
-		return fmt.Errorf("[ERROR] Error Deleting IKE Policy(%s): %s\n%s", id, err, response)
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error Deleting IKE Policy(%s): %s\n%s", id, err, response), "ibm_is_ike_policy", "delete")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr
 	}
 	d.SetId("")
 	return nil
@@ -395,7 +417,9 @@ func resourceIBMISIKEPolicyExists(d *schema.ResourceData, meta interface{}) (boo
 func ikepExists(d *schema.ResourceData, meta interface{}, id string) (bool, error) {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return false, err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_is_ike_policy", "exists")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return false, tfErr
 	}
 	options := &vpcv1.GetIkePolicyOptions{
 		ID: &id,
@@ -405,7 +429,9 @@ func ikepExists(d *schema.ResourceData, meta interface{}, id string) (bool, erro
 		if response != nil && response.StatusCode == 404 {
 			return false, nil
 		}
-		return false, fmt.Errorf("[ERROR] Error getting IKE Policy(%s): %s\n%s", id, err, response)
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error getting IKE Policy(%s): %s\n%s", id, err, response), "ibm_is_ike_policy", "exists")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return false, tfErr
 	}
 
 	return true, nil

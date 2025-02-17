@@ -209,7 +209,9 @@ func resourceIBMISIPSecPolicyCreate(d *schema.ResourceData, meta interface{}) er
 func ipsecpCreate(d *schema.ResourceData, meta interface{}, authenticationAlg, encryptionAlg, name, pfs string) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_is_ipsec_policy", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr
 	}
 	options := &vpcv1.CreateIpsecPolicyOptions{
 		AuthenticationAlgorithm: &authenticationAlg,
@@ -234,7 +236,9 @@ func ipsecpCreate(d *schema.ResourceData, meta interface{}, authenticationAlg, e
 	}
 	ipSec, response, err := sess.CreateIpsecPolicy(options)
 	if err != nil {
-		return fmt.Errorf("[DEBUG] ipSec policy err %s\n%s", err, response)
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("ipSec policy err %s\n%s", err, response), "ibm_is_ipsec_policy", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr
 	}
 	d.SetId(*ipSec.ID)
 	log.Printf("[INFO] ipSec policy : %s", *ipSec.ID)
@@ -250,7 +254,9 @@ func resourceIBMISIPSecPolicyRead(d *schema.ResourceData, meta interface{}) erro
 func ipsecpGet(d *schema.ResourceData, meta interface{}, id string) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_is_ipsec_policy", "read")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr
 	}
 	getIpsecPolicyOptions := &vpcv1.GetIpsecPolicyOptions{
 		ID: &id,
@@ -261,7 +267,9 @@ func ipsecpGet(d *schema.ResourceData, meta interface{}, id string) error {
 			d.SetId("")
 			return nil
 		}
-		return fmt.Errorf("[ERROR] Error getting IPSEC Policy(%s): %s\n%s", id, err, response)
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error getting IPSEC Policy(%s): %s\n%s", id, err, response), "ibm_is_ipsec_policy", "read")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr
 	}
 	d.Set(isIpSecName, *ipSec.Name)
 	d.Set(isIpSecAuthenticationAlg, *ipSec.AuthenticationAlgorithm)
@@ -292,7 +300,9 @@ func ipsecpGet(d *schema.ResourceData, meta interface{}, id string) error {
 	d.Set(isIPSecVPNConnections, connList)
 	controller, err := flex.GetBaseController(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error featching Base Controller URL %s", err), "ibm_is_ipsec_policy", "read")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr
 	}
 	d.Set(flex.ResourceControllerURL, controller+"/vpc-ext/network/ipsecpolicies")
 	d.Set(flex.ResourceName, *ipSec.Name)
@@ -314,7 +324,9 @@ func resourceIBMISIPSecPolicyUpdate(d *schema.ResourceData, meta interface{}) er
 func ipsecpUpdate(d *schema.ResourceData, meta interface{}, id string) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_is_ipsec_policy", "update")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr
 	}
 
 	options := &vpcv1.UpdateIpsecPolicyOptions{
@@ -336,13 +348,17 @@ func ipsecpUpdate(d *schema.ResourceData, meta interface{}, id string) error {
 		}
 		ipsecPolicyPatch, err := ipsecPolicyPatchModel.AsPatch()
 		if err != nil {
-			return fmt.Errorf("[ERROR] Error calling asPatch for IPsecPolicyPatch: %s", err)
+			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error calling asPatch for IPsecPolicyPatch: %s", err), "ibm_is_ipsec_policy", "update")
+			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+			return tfErr
 		}
 		options.IPsecPolicyPatch = ipsecPolicyPatch
 
 		_, response, err := sess.UpdateIpsecPolicy(options)
 		if err != nil {
-			return fmt.Errorf("[ERROR] Error on update of IPSEC Policy(%s): %s\n%s", id, err, response)
+			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error on update of IPSEC Policy(%s): %s\n%s", id, err, response), "ibm_is_ipsec_policy", "update")
+			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+			return tfErr
 		}
 	}
 	return nil
@@ -357,7 +373,9 @@ func resourceIBMISIPSecPolicyDelete(d *schema.ResourceData, meta interface{}) er
 func ipsecpDelete(d *schema.ResourceData, meta interface{}, id string) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_is_ipsec_policy", "delete")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr
 	}
 	getIpsecPolicyOptions := &vpcv1.GetIpsecPolicyOptions{
 		ID: &id,
@@ -368,14 +386,18 @@ func ipsecpDelete(d *schema.ResourceData, meta interface{}, id string) error {
 			d.SetId("")
 			return nil
 		}
-		return fmt.Errorf("[ERROR] Error getting IPSEC Policy(%s): %s\n%s", id, err, response)
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error getting IPSEC Policy(%s): %s\n%s", id, err, response), "ibm_is_ipsec_policy", "delete")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr
 	}
 	deleteIpsecPolicyOptions := &vpcv1.DeleteIpsecPolicyOptions{
 		ID: &id,
 	}
 	response, err = sess.DeleteIpsecPolicy(deleteIpsecPolicyOptions)
 	if err != nil {
-		return fmt.Errorf("[ERROR] Error Deleting IPSEC Policy(%s): %s\n%s", id, err, response)
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error Deleting IPSEC Policy(%s): %s\n%s", id, err, response), "ibm_is_ipsec_policy", "delete")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr
 	}
 	d.SetId("")
 	return nil
@@ -390,17 +412,21 @@ func resourceIBMISIPSecPolicyExists(d *schema.ResourceData, meta interface{}) (b
 func ipsecpExists(d *schema.ResourceData, meta interface{}, id string) (bool, error) {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return false, err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_is_ipsec_policy", "exists")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return false, tfErr
 	}
-	getIpsecPolicyOptions := &vpcv1.GetIpsecPolicyOptions{
+	options := &vpcv1.GetIpsecPolicyOptions{
 		ID: &id,
 	}
-	_, response, err := sess.GetIpsecPolicy(getIpsecPolicyOptions)
+	_, response, err := sess.GetIpsecPolicy(options)
 	if err != nil {
 		if response != nil && response.StatusCode == 404 {
 			return false, nil
 		}
-		return false, fmt.Errorf("[ERROR] Error getting IPSEC Policy(%s): %s\n%s", id, err, response)
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error getting IPSEC Policy(%s): %s\n%s", id, err, response), "ibm_is_ipsec_policy", "exists")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return false, tfErr
 	}
 	return true, nil
 }
