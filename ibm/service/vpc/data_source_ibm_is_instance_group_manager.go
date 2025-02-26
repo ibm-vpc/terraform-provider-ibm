@@ -4,16 +4,19 @@
 package vpc
 
 import (
+	"context"
 	"fmt"
+	"log"
 
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func DataSourceIBMISInstanceGroupManager() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceIBMISInstanceGroupManagerRead,
+		ReadContext: dataSourceIBMISInstanceGroupManagerRead,
 
 		Schema: map[string]*schema.Schema{
 
@@ -96,12 +99,13 @@ func DataSourceIBMISInstanceGroupManager() *schema.Resource {
 	}
 }
 
-func dataSourceIBMISInstanceGroupManagerRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceIBMISInstanceGroupManagerRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_cloud", "read")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
-
 	instanceGroupID := d.Get("instance_group").(string)
 
 	// Support for pagination
@@ -115,9 +119,10 @@ func dataSourceIBMISInstanceGroupManagerRead(d *schema.ResourceData, meta interf
 		if start != "" {
 			listInstanceGroupManagerOptions.Start = &start
 		}
-		instanceGroupManagerCollections, response, err := sess.ListInstanceGroupManagers(&listInstanceGroupManagerOptions)
+		instanceGroupManagerCollections, response, err := sess.ListInstanceGroupManagersWithContext(context, &listInstanceGroupManagerOptions)
 		if err != nil {
-			return fmt.Errorf("[ERROR] Error Getting InstanceGroup Managers %s\n%s", err, response)
+			log.Printf("[DEBUG] ListInstanceGroupManagersWithContext failed %s\n%s", err, response)
+			return diag.FromErr(fmt.Errorf("[ERROR] ListInstanceGroupManagersWithContext failed %s\n%s", err, response))
 		}
 		start = flex.GetNext(instanceGroupManagerCollections.Next)
 		allrecs = append(allrecs, instanceGroupManagerCollections.Managers...)
@@ -168,5 +173,6 @@ func dataSourceIBMISInstanceGroupManagerRead(d *schema.ResourceData, meta interf
 			return nil
 		}
 	}
-	return fmt.Errorf("Instance group manager %s not found", instanceGroupManagerName)
+	log.Printf("[DEBUG] Instance group manager %s not found", instanceGroupManagerName)
+	return diag.FromErr(fmt.Errorf("[ERROR] Instance group manager %s not found", instanceGroupManagerName))
 }
