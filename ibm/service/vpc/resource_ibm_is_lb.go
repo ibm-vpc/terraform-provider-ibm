@@ -100,7 +100,14 @@ func ResourceIBMISLB() *schema.Resource {
 				ValidateFunc: validate.InvokeValidator("ibm_is_lb", isLBType),
 				Description:  "Load Balancer type",
 			},
-
+			"attached_load_balancer_pool_members": {
+				Type:        schema.TypeSet,
+				Computed:    true,
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
+				Description: "The load balancer pool members attached to this load balancer.",
+			},
 			isLBAvailability: {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -552,6 +559,16 @@ func lbGet(d *schema.ResourceData, meta interface{}, id string) error {
 	}
 	if lb.Availability != nil {
 		d.Set(isLBAvailability, *lb.Availability)
+	}
+	if lb.AttachedLoadBalancerPoolMembers != nil {
+		attachedLoadBalancerPoolMembersList := make([]string, 0)
+		for _, attachedLoadBalancerPoolMember := range lb.AttachedLoadBalancerPoolMembers {
+			if attachedLoadBalancerPoolMember.ID != nil {
+				attachedLoadBalancerPoolMember := *attachedLoadBalancerPoolMember.ID
+				attachedLoadBalancerPoolMembersList = append(attachedLoadBalancerPoolMembersList, attachedLoadBalancerPoolMember)
+			}
+		}
+		d.Set("attached_load_balancer_pool_members", attachedLoadBalancerPoolMembersList)
 	}
 	if lb.AccessMode != nil {
 		d.Set(isLBAccessMode, *lb.AccessMode)
