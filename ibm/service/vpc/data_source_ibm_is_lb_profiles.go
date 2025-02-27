@@ -297,9 +297,11 @@ func dataSourceIBMISLbProfilesRead(d *schema.ResourceData, meta interface{}) err
 			AccessModesList = append(AccessModesList, AccessModesMap)
 			l[isLBAccessModes] = AccessModesList
 		}
-		if len(profileCollector.TargetableLoadBalancerProfiles) > 0 {
-			l["targetable_load_balancer_profiles"] = profileCollector.TargetableLoadBalancerProfiles
+
+		if profileCollector.TargetableLoadBalancerProfiles != nil {
+			l["targetable_load_balancer_profiles"] = dataSourceLbProfileFlattenTargetableLoadBalancerProfiles(profileCollector.TargetableLoadBalancerProfiles)
 		}
+
 		if profileCollector.Availability != nil {
 			availabilitySupport := profileCollector.Availability.(*vpcv1.LoadBalancerProfileAvailability)
 			availabilitySupportMap := map[string]interface{}{}

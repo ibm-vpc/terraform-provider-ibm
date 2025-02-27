@@ -140,8 +140,9 @@ func dataSourceIBMISLbProfileRead(context context.Context, d *schema.ResourceDat
 		AccessModesList = append(AccessModesList, AccessModesMap)
 		d.Set(isLBAccessModes, AccessModesList)
 	}
-	if len(lbProfile.TargetableLoadBalancerProfiles) > 0 {
-		d.Set("targetable_load_balancer_profiles", lbProfile.TargetableLoadBalancerProfiles)
+
+	if lbProfile.TargetableLoadBalancerProfiles != nil {
+		d.Set("targetable_load_balancer_profiles", dataSourceLbProfileFlattenTargetableLoadBalancerProfiles(lbProfile.TargetableLoadBalancerProfiles))
 	}
 	log.Printf("[INFO] lbprofile udp %v", lbProfile.UDPSupported)
 	if lbProfile.UDPSupported != nil {
@@ -204,4 +205,30 @@ func dataSourceIBMISLbProfileRead(context context.Context, d *schema.ResourceDat
 	}
 	d.SetId(*lbProfile.Name)
 	return nil
+}
+
+func dataSourceLbProfileFlattenTargetableLoadBalancerProfiles(result []vpcv1.LoadBalancerProfileReference) (targetableLoadBalancerProfiles []map[string]interface{}) {
+	for _, targetableLoadBalancerProfileItem := range result {
+		targetableLoadBalancerProfiles = append(targetableLoadBalancerProfiles, dataSourceLbProfileTargetableLoadBalancerProfilesToMap(targetableLoadBalancerProfileItem))
+	}
+
+	return targetableLoadBalancerProfiles
+}
+
+func dataSourceLbProfileTargetableLoadBalancerProfilesToMap(targetableLoadBalancerProfileItem vpcv1.LoadBalancerProfileReference) (targetableLoadBalancerProfileMap map[string]interface{}) {
+	targetableLoadBalancerProfileMap = map[string]interface{}{}
+
+	if targetableLoadBalancerProfileItem.Family != nil {
+		targetableLoadBalancerProfileMap["family"] = targetableLoadBalancerProfileItem.Family
+	}
+
+	if targetableLoadBalancerProfileItem.Href != nil {
+		targetableLoadBalancerProfileMap["href"] = targetableLoadBalancerProfileItem.Href
+	}
+
+	if targetableLoadBalancerProfileItem.Name != nil {
+		targetableLoadBalancerProfileMap["name"] = targetableLoadBalancerProfileItem.Name
+	}
+
+	return targetableLoadBalancerProfileMap
 }
