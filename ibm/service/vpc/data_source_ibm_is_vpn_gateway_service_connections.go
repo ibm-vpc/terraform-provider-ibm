@@ -1,0 +1,234 @@
+// Copyright IBM Corp. 2024 All Rights Reserved.
+// Licensed under the Mozilla Public License v2.0
+
+package vpc
+
+import (
+	"context"
+	"fmt"
+	"time"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
+	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
+	"github.com/IBM/vpc-go-sdk/vpcv1"
+)
+
+const (
+	isVPNGatewayServiceConnectionId               = "id"
+	isVPNGatewayServiceConnectionCreatedAt        = "created_at"
+	isVPNGatewayServiceConnectionResourceGroup    = "resource_group"
+	isVPNGatewayServiceConnections                = "service_connections"
+	isVPNGatewayServiceConnectionCreator          = "creator"
+	isVPNGatewayServiceConnectionStatus           = "status"
+	isVPNGatewayServiceConnectionStatusReasons    = "status_reasons"
+	isVPNGatewayServiceConnectionLifecycleState   = "lifecycle_state"
+	isVPNGatewayServiceConnectionLifecycleReasons = "lifecycle_reasons"
+)
+
+func DataSourceIBMIsVPNGatewayServiceConnections() *schema.Resource {
+	return &schema.Resource{
+		ReadContext: dataSourceIBMIsVPNGatewayServiceConnectionsRead,
+
+		Schema: map[string]*schema.Schema{
+			"vpn_gateway": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ExactlyOneOf: []string{"vpn_gateway_name", "vpn_gateway"},
+				Description:  "The VPN gateway identifier.",
+			},
+			"created_at": &schema.Schema{
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The date and time that this VPN service connection was created.",
+			},
+			"creator": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"crn": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The CRN for transit gateway resource.",
+						},
+						"id": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The unique identifier for transit gateway resource.",
+						},
+						"resource_type": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The resource type.",
+						},
+					},
+				},
+			},
+			"id": &schema.Schema{
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The unique identifier for this VPN gateway service connection",
+			},
+			"lifecycle_reasons": &schema.Schema{
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "The reasons for the current `lifecycle_state` (if any).",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"code": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "A reason code for this lifecycle state:- `internal_error`: internal error (contact IBM support)- `resource_suspended_by_provider`: The resource has been suspended (contact IBM  support)The enumerated values for this property may[expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.",
+						},
+						"message": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "An explanation of the reason for this lifecycle state.",
+						},
+						"more_info": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "Link to documentation about the reason for this lifecycle state.",
+						},
+					},
+				},
+			},
+			"lifecycle_state": &schema.Schema{
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The lifecycle state of the VPN service connection.",
+			},
+			"status": &schema.Schema{
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The status of this service connection:- `up`: operating normally- `degraded`: operating with compromised performance- `down`: not operational.",
+			},
+			"status_reasons": &schema.Schema{
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "The reasons for the current VPN service connection status (if any).",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"code": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "A snake case string succinctly identifying the status reason. The enumerated values for this property may https://cloud.ibm.com/apidocs/vpc#property-value-expansion in the future.",
+						},
+						"message": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "An explanation of the reason for this VPN service connection's status.",
+						},
+						"more_info": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "Link to documentation about this status reason.",
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
+func dataSourceIBMIsVPNGatewayServiceConnectionsRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+
+	sess, err := vpcClient(meta)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	vpnGateway := ""
+	if vpnGatewayIntf, ok := d.GetOk("vpn_gateway"); ok {
+		vpnGateway = vpnGatewayIntf.(string)
+	}
+
+	start := ""
+	allrecs := []vpcv1.VPNServiceConnection{}
+	for {
+		listvpnGWServiceConnectionsOptions := sess.NewListVPNGatewayServiceConnectionsOptions(vpnGateway)
+		listvpnGWServiceConnectionsOptions.VPNGatewayID = &vpnGateway
+		if start != "" {
+			listvpnGWServiceConnectionsOptions.Start = &start
+		}
+		availableVPNGatewayServiceConnections, detail, err := sess.ListVPNGatewayServiceConnections(listvpnGWServiceConnectionsOptions)
+		if err != nil {
+			return diag.FromErr(fmt.Errorf("[ERROR] Error reading list of VPN Gateway service connections:%s\n%s", err, detail))
+		}
+		start = flex.GetNext(availableVPNGatewayServiceConnections.Next)
+		allrecs = append(allrecs, availableVPNGatewayServiceConnections.ServiceConnections...)
+		if start == "" {
+			break
+		}
+	}
+
+	vpngatewayServiceConnections := make([]map[string]interface{}, 0)
+	for _, serviceConnection := range allrecs {
+		connection := map[string]interface{}{}
+		connection[isVPNGatewayServiceConnectionCreatedAt] = serviceConnection.CreatedAt.String()
+		connection[isVPNGatewayServiceConnectionId] = *serviceConnection.ID
+		connection[isVPNGatewayServiceConnectionCreator] = resourceVPNGatewayServiceConnectionFlattenCreator(*serviceConnection.Creator)
+		connection[isVPNGatewayServiceConnectionLifecycleReasons] = resourceVPNGatewayServiceConnectionFlattenLifecycleReasons(serviceConnection.LifecycleReasons)
+		connection[isVPNGatewayServiceConnectionLifecycleState] = *serviceConnection.LifecycleState
+		connection[isVPNGatewayServiceConnectionStatus] = *serviceConnection.Status
+		connection[isVPNGatewayServiceConnectionStatusReasons] = resourceVPNGatewayServiceConnectionFlattenStateReasons(serviceConnection.StatusReasons)
+
+		vpngatewayServiceConnections = append(vpngatewayServiceConnections, connection)
+	}
+
+	d.SetId(dataSourceIBMVPNGatewayServiceConnectionsID(d))
+	d.Set(isVPNGatewayServiceConnections, vpngatewayServiceConnections)
+	return nil
+}
+
+// dataSourceIBMVPNGatewayServiceConnectionsID returns a reasonable ID  list.
+func dataSourceIBMVPNGatewayServiceConnectionsID(d *schema.ResourceData) string {
+	return time.Now().UTC().String()
+}
+
+func resourceVPNGatewayServiceConnectionFlattenLifecycleReasons(lifecycleReasons []vpcv1.VPNServiceConnectionLifecycleReason) (lifecycleReasonsList []map[string]interface{}) {
+	lifecycleReasonsList = make([]map[string]interface{}, 0)
+	for _, lr := range lifecycleReasons {
+		currentLR := map[string]interface{}{}
+		if lr.Code != nil && lr.Message != nil {
+			currentLR[isInstanceLifecycleReasonsCode] = *lr.Code
+			currentLR[isInstanceLifecycleReasonsMessage] = *lr.Message
+			if lr.MoreInfo != nil {
+				currentLR[isInstanceLifecycleReasonsMoreInfo] = *lr.MoreInfo
+			}
+			lifecycleReasonsList = append(lifecycleReasonsList, currentLR)
+		}
+	}
+	return lifecycleReasonsList
+}
+
+func resourceVPNGatewayServiceConnectionFlattenStateReasons(healthReasons []vpcv1.VPNServiceConnectionStatusReason) (statusReasonsList []map[string]interface{}) {
+	statusReasonsList = make([]map[string]interface{}, 0)
+	for _, lr := range healthReasons {
+		currentLR := map[string]interface{}{}
+		if lr.Code != nil && lr.Message != nil {
+			currentLR[isInstanceLifecycleReasonsCode] = *lr.Code
+			currentLR[isInstanceLifecycleReasonsMessage] = *lr.Message
+			if lr.MoreInfo != nil {
+				currentLR[isInstanceLifecycleReasonsMoreInfo] = *lr.MoreInfo
+			}
+			statusReasonsList = append(statusReasonsList, currentLR)
+		}
+	}
+	return statusReasonsList
+}
+
+func resourceVPNGatewayServiceConnectionFlattenCreator(model vpcv1.VPNServiceConnectionCreator) (modelMap map[string]interface{}) {
+	if model.CRN != nil {
+		modelMap["crn"] = *model.CRN
+	}
+	if model.ID != nil {
+		modelMap["id"] = *model.ID
+	}
+	if model.ResourceType != nil {
+		modelMap["resource_type"] = *model.ResourceType
+	}
+	return
+}
