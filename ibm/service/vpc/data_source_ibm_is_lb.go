@@ -517,20 +517,20 @@ func lbGetByName(d *schema.ResourceData, meta interface{}, name string) error {
 					pool[poolProvisioningStatus] = *p.ProvisioningStatus
 					pool["name"] = *p.Name
 					if p.HealthMonitor != nil {
+						lbHealthMonitor := p.HealthMonitor.(*vpcv1.LoadBalancerPoolHealthMonitor)
 						healthMonitorInfo := make(map[string]interface{})
-						delayfinal := strconv.FormatInt(*(p.HealthMonitor.Delay), 10)
+						delayfinal := strconv.FormatInt(*lbHealthMonitor.Delay, 10)
 						healthMonitorInfo[healthMonitorDelay] = delayfinal
-						maxRetriesfinal := strconv.FormatInt(*(p.HealthMonitor.MaxRetries), 10)
-						timeoutfinal := strconv.FormatInt(*(p.HealthMonitor.Timeout), 10)
+						maxRetriesfinal := strconv.FormatInt(*lbHealthMonitor.MaxRetries, 10)
+						timeoutfinal := strconv.FormatInt(*lbHealthMonitor.Timeout, 10)
 						healthMonitorInfo[healthMonitorMaxRetries] = maxRetriesfinal
 						healthMonitorInfo[healthMonitorTimeout] = timeoutfinal
-						if p.HealthMonitor.URLPath != nil {
-							healthMonitorInfo[healthMonitorURLPath] = *(p.HealthMonitor.URLPath)
+						if lbHealthMonitor.URLPath != nil {
+							healthMonitorInfo[healthMonitorURLPath] = *lbHealthMonitor.URLPath
 						}
-						healthMonitorInfo[healthMonitorType] = *(p.HealthMonitor.Type)
+						healthMonitorInfo[healthMonitorType] = *lbHealthMonitor.Type
 						pool[healthMonitor] = healthMonitorInfo
 					}
-
 					if p.SessionPersistence != nil {
 						sessionPersistenceInfo := make(map[string]interface{})
 						sessionPersistenceInfo[sessionType] = *p.SessionPersistence.Type

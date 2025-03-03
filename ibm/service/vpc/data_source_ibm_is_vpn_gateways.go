@@ -174,6 +174,19 @@ func DataSourceIBMISVPNGateways() *schema.Resource {
 							Computed:    true,
 							Description: " VPN gateway mode(policy/route) ",
 						},
+						isVPNGatewayLocalAsn: {
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Description: "The local autonomous system number (ASN) for this VPN gateway and its connections.",
+						},
+						isVPNGatewayAdvertisedCidrs: {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: "The additional CIDRs advertised through any enabled routing protocol (for example, BGP). The routing protocol will advertise routes with these CIDRs and VPC prefixes as route destinations.",
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
 						"vpc": {
 							Type:        schema.TypeList,
 							Computed:    true,
@@ -283,6 +296,8 @@ func dataSourceIBMVPNGatewaysRead(d *schema.ResourceData, meta interface{}) erro
 		gateway[isVPNGatewayLifecycleState] = *data.LifecycleState
 		gateway[isVPNGatewayLifecycleReasons] = resourceVPNGatewayFlattenLifecycleReasons(data.LifecycleReasons)
 		gateway[isVPNGatewayMode] = *data.Mode
+		gateway[isVPNGatewayLocalAsn] = *data.LocalAsn
+		gateway[isVPNGatewayAdvertisedCidrs] = data.AdvertisedCIDRs
 		gateway[isVPNGatewayResourceGroup] = *data.ResourceGroup.ID
 		gateway[isVPNGatewaySubnet] = *data.Subnet.ID
 		gateway[isVPNGatewayCrn] = *data.CRN
