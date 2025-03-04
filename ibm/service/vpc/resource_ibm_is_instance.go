@@ -802,6 +802,38 @@ func ResourceIBMISInstance() *schema.Resource {
 							Set:         flex.ResourceIBMVPCHash,
 							Description: "UserTags for the volume instance",
 						},
+						"allowed_use": &schema.Schema{
+							Type:        schema.TypeList,
+							MaxItems:    1,
+							Optional:    true,
+							Computed:    true,
+							Description: "The usage constraints to match against the requested instance or bare metal server properties to determine compatibility.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"api_version": &schema.Schema{
+										Type:         schema.TypeString,
+										Optional:     true,
+										Computed:     true,
+										ValidateFunc: validate.InvokeValidator("ibm_is_volume", "allowed_use.api_version"),
+										Description:  "The API version with which to evaluate the expressions.",
+									},
+									"bare_metal_server": &schema.Schema{
+										Type:         schema.TypeString,
+										Optional:     true,
+										Computed:     true,
+										ValidateFunc: validate.InvokeValidator("ibm_is_volume", "allowed_use.bare_metal_server"),
+										Description:  "The expression that must be satisfied by a bare metal server provisioned using this image.",
+									},
+									"instance": &schema.Schema{
+										Type:         schema.TypeString,
+										Optional:     true,
+										Computed:     true,
+										ValidateFunc: validate.InvokeValidator("ibm_is_volume", "allowed_use.instance"),
+										Description:  "The expression that must be satisfied by a virtual server instance provisioned using this image.",
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -2299,7 +2331,14 @@ func instanceCreateByImage(d *schema.ResourceData, meta interface{}, profile, na
 				}
 				volumeattItemPrototypeModel.UserTags = userTagsArray
 			}
-
+			//allowed use
+			allowedUseModel, err := ResourceIBMUsageConstraintsMapToVolumeAllowedUse(d)
+			if err != nil {
+				return err
+			}
+			if allowedUseModel != nil {
+				volumeattItemPrototypeModel.AllowedUse = allowedUseModel
+			}
 			volumeattItemModel.Volume = volumeattItemPrototypeModel
 
 			volumeatt = append(volumeatt, *volumeattItemModel)
@@ -2405,6 +2444,14 @@ func instanceCreateByImage(d *schema.ResourceData, meta interface{}, profile, na
 				}
 				volTemplate.UserTags = userTagsArray
 			}
+		}
+		//allowed use
+		allowedUseModel, err := ResourceIBMUsageConstraintsMapToVolumeAllowedUse(d)
+		if err != nil {
+			return err
+		}
+		if allowedUseModel != nil {
+			volTemplate.AllowedUse = allowedUseModel
 		}
 		deleteboolIntf := bootvol[isInstanceVolAttVolAutoDelete]
 		deletebool := deleteboolIntf.(bool)
@@ -2828,7 +2875,14 @@ func instanceCreateByCatalogOffering(d *schema.ResourceData, meta interface{}, p
 				}
 				volumeattItemPrototypeModel.UserTags = userTagsArray
 			}
-
+			//allowed use
+			allowedUseModel, err := ResourceIBMUsageConstraintsMapToVolumeAllowedUse(d)
+			if err != nil {
+				return err
+			}
+			if allowedUseModel != nil {
+				volumeattItemPrototypeModel.AllowedUse = allowedUseModel
+			}
 			volumeattItemModel.Volume = volumeattItemPrototypeModel
 
 			volumeatt = append(volumeatt, *volumeattItemModel)
@@ -2953,6 +3007,13 @@ func instanceCreateByCatalogOffering(d *schema.ResourceData, meta interface{}, p
 		volprof := "general-purpose"
 		volTemplate.Profile = &vpcv1.VolumeProfileIdentity{
 			Name: &volprof,
+		}
+		allowedUseModel, err := ResourceIBMUsageConstraintsMapToVolumeAllowedUse(d)
+		if err != nil {
+			return err
+		}
+		if allowedUseModel != nil {
+			volTemplate.AllowedUse = allowedUseModel
 		}
 		deleteboolIntf := bootvol[isInstanceVolAttVolAutoDelete]
 		deletebool := deleteboolIntf.(bool)
@@ -3364,7 +3425,14 @@ func instanceCreateByTemplate(d *schema.ResourceData, meta interface{}, profile,
 				}
 				volumeattItemPrototypeModel.UserTags = userTagsArray
 			}
-
+			//allowed use
+			allowedUseModel, err := ResourceIBMUsageConstraintsMapToVolumeAllowedUse(d)
+			if err != nil {
+				return err
+			}
+			if allowedUseModel != nil {
+				volumeattItemPrototypeModel.AllowedUse = allowedUseModel
+			}
 			volumeattItemModel.Volume = volumeattItemPrototypeModel
 
 			volumeatt = append(volumeatt, *volumeattItemModel)
@@ -3485,6 +3553,13 @@ func instanceCreateByTemplate(d *schema.ResourceData, meta interface{}, profile,
 				}
 				volTemplate.UserTags = userTagsArray
 			}
+		}
+		allowedUseModel, err := ResourceIBMUsageConstraintsMapToVolumeAllowedUse(d)
+		if err != nil {
+			return err
+		}
+		if allowedUseModel != nil {
+			volTemplate.AllowedUse = allowedUseModel
 		}
 		deleteboolIntf := bootvol[isInstanceVolAttVolAutoDelete]
 		deletebool := deleteboolIntf.(bool)
@@ -3906,7 +3981,14 @@ func instanceCreateBySnapshot(d *schema.ResourceData, meta interface{}, profile,
 				}
 				volumeattItemPrototypeModel.UserTags = userTagsArray
 			}
-
+			//allowed use
+			allowedUseModel, err := ResourceIBMUsageConstraintsMapToVolumeAllowedUse(d)
+			if err != nil {
+				return err
+			}
+			if allowedUseModel != nil {
+				volumeattItemPrototypeModel.AllowedUse = allowedUseModel
+			}
 			volumeattItemModel.Volume = volumeattItemPrototypeModel
 
 			volumeatt = append(volumeatt, *volumeattItemModel)
@@ -4015,6 +4097,13 @@ func instanceCreateBySnapshot(d *schema.ResourceData, meta interface{}, profile,
 			volTemplate.SourceSnapshot = &vpcv1.SnapshotIdentity{
 				CRN: &snapshotCrnStr,
 			}
+		}
+		allowedUseModel, err := ResourceIBMUsageConstraintsMapToVolumeAllowedUse(d)
+		if err != nil {
+			return err
+		}
+		if allowedUseModel != nil {
+			volTemplate.AllowedUse = allowedUseModel
 		}
 		deleteboolIntf := bootvol[isInstanceVolAttVolAutoDelete]
 		deletebool := deleteboolIntf.(bool)
@@ -4446,7 +4535,14 @@ func instanceCreateByVolume(d *schema.ResourceData, meta interface{}, profile, n
 				}
 				volumeattItemPrototypeModel.UserTags = userTagsArray
 			}
-
+			//allowed use
+			allowedUseModel, err := ResourceIBMUsageConstraintsMapToVolumeAllowedUse(d)
+			if err != nil {
+				return err
+			}
+			if allowedUseModel != nil {
+				volumeattItemPrototypeModel.AllowedUse = allowedUseModel
+			}
 			volumeattItemModel.Volume = volumeattItemPrototypeModel
 
 			volumeatt = append(volumeatt, *volumeattItemModel)
@@ -5478,18 +5574,15 @@ func instanceGet(d *schema.ResourceData, meta interface{}, id string) error {
 				if vol.UserTags != nil {
 					bootVol[isInstanceBootVolumeTags] = vol.UserTags
 				}
-				usageConstraints := []map[string]interface{}{}
 				if vol.AllowedUse != nil {
+					usageConstraintList := []map[string]interface{}{}
 					modelMap, err := DataSourceIBMIsVolumeAllowedUseToMap(vol.AllowedUse)
 					if err != nil {
 						tfErr := flex.TerraformErrorf(err, err.Error(), "(Resource) ibm_is_instance", "read")
 						log.Println(tfErr.GetDiag())
 					}
-					usageConstraints = append(usageConstraints, modelMap)
-				}
-				if err = d.Set("allowed_use", usageConstraints); err != nil {
-					tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting allowed_use: %s", err), "(resource) ibm_is_instance", "read")
-					log.Println(tfErr.GetDiag())
+					usageConstraintList = append(usageConstraintList, modelMap)
+					bootVol["allowed_use"] = usageConstraintList
 				}
 			}
 		}
@@ -6175,9 +6268,9 @@ func instanceUpdate(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	bootVolAllowedUse := "boot_volume.0.allowed_use"
-	if d.HasChange(bootVolAllowedUse) {
+	if d.HasChange(bootVolAllowedUse) && !d.IsNewResource() {
 		id := d.Get("boot_volume.0.volume_id").(string)
-		allowedUseModel, err := ResourceIBMUsageConstraintsMapToVolumeAllowedUseInstancePrototype(d)
+		allowedUseModel, err := ResourceIBMUsageConstraintsMapToVolumeAllowedUseInstancePrototype(d, bootVolAllowedUse)
 		if err != nil {
 			return err
 		}
@@ -7006,11 +7099,17 @@ func instanceUpdate(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 
-func ResourceIBMUsageConstraintsMapToVolumeAllowedUseInstancePrototype(d *schema.ResourceData) (*vpcv1.VolumeAllowedUsePatch, error) {
+func ResourceIBMUsageConstraintsMapToVolumeAllowedUseInstancePrototype(d *schema.ResourceData, bootVolAllowedUse string) (*vpcv1.VolumeAllowedUsePatch, error) {
 	model := &vpcv1.VolumeAllowedUsePatch{}
-	model.ApiVersion = core.StringPtr(d.Get("boot_volume.0.allowed_use.0.api_version").(string))
-	model.BareMetalServer = core.StringPtr(d.Get("boot_volume.0.allowed_use.0.bare_metal_server").(string))
-	model.Instance = core.StringPtr(d.Get("boot_volume.0.allowed_use.0.instance").(string))
+	if d.Get("boot_volume.0.allowed_use.0.api_version") != nil && d.Get("boot_volume.0.allowed_use.0.api_version").(string) != "" {
+		model.ApiVersion = core.StringPtr(d.Get("boot_volume.0.allowed_use.0.api_version").(string))
+	}
+	if d.Get("boot_volume.0.allowed_use.0.bare_metal_server") != nil && d.Get("boot_volume.0.allowed_use.0.bare_metal_server").(string) != "" {
+		model.BareMetalServer = core.StringPtr(d.Get("boot_volume.0.allowed_use.0.bare_metal_server").(string))
+	}
+	if d.Get("boot_volume.0.allowed_use.0.instance") != nil && d.Get("boot_volume.0.allowed_use.0.instance").(string) != "" {
+		model.Instance = core.StringPtr(d.Get("boot_volume.0.allowed_use.0.instance").(string))
+	}
 	return model, nil
 }
 
@@ -7894,6 +7993,7 @@ func volumesEqual(oldVol, newVol map[string]interface{}) bool {
 		"volume_source_snapshot",
 		"volume_encryption_key",
 		"volume_tags",
+		"allowed_use",
 	}
 
 	for _, field := range fieldsToCompare {
@@ -8080,6 +8180,14 @@ func handleVolumePrototypesUpdate(d *schema.ResourceData, instanceC *vpcv1.VpcV1
 					}
 					volumePatchModel.UserTags = userTagsArray
 				}
+				if d.HasChange("allowed_use") {
+					//allowed use patch
+					allowedUseModel, err := ResourceIBMUsageConstraintsMapToVolumeAllowedUsePrototype(d)
+					if err != nil {
+						return err
+					}
+					volumePatchModel.AllowedUse = allowedUseModel
+				}
 				volumePatch, err := volumePatchModel.AsPatch()
 				if err != nil {
 					return fmt.Errorf("error creating volume patch for %s: %w", name, err)
@@ -8152,6 +8260,15 @@ func handleVolumePrototypesUpdate(d *schema.ResourceData, instanceC *vpcv1.VpcV1
 			if !isTieredProfile(profile) {
 				iops := int64(newVol["volume_iops"].(int))
 				volAtt.Iops = &iops
+			}
+
+			//allowed use
+			allowedUseModel, err := ResourceIBMUsageConstraintsMapToVolumeAllowedUse(d)
+			if err != nil {
+				return err
+			}
+			if allowedUseModel != nil {
+				volAtt.AllowedUse = allowedUseModel
 			}
 			createvolattoptions.Volume = volAtt
 			newVolume, _, err := instanceC.CreateInstanceVolumeAttachment(createvolattoptions)
@@ -8323,6 +8440,16 @@ func setVolumePrototypesInState(d *schema.ResourceData, instance *vpcv1.Instance
 					vol["volume_capacity"] = *volumeRef.Capacity
 					vol["volume_crn"] = *volume.Volume.CRN
 					vol["volume_resource_type"] = *volume.Volume.ResourceType
+					if volumeRef.AllowedUse != nil {
+						usageConstraintList := []map[string]interface{}{}
+						modelMap, err := DataSourceIBMIsVolumeAllowedUseToMap(volumeRef.AllowedUse)
+						if err != nil {
+							tfErr := flex.TerraformErrorf(err, err.Error(), "(Resource) ibm_is_instance", "read")
+							log.Println(tfErr.GetDiag())
+						}
+						usageConstraintList = append(usageConstraintList, modelMap)
+						vol["allowed_use"] = usageConstraintList
+					}
 				}
 
 				volumeAttRef, _, err := instanceC.GetInstanceVolumeAttachment(getInstanceVolumeAttachmentOptions)

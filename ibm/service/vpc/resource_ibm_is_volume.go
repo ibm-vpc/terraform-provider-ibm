@@ -570,7 +570,9 @@ func volCreate(d *schema.ResourceData, meta interface{}, volName, profile, zone 
 		if err != nil {
 			return err
 		}
-		volTemplate.AllowedUse = allowedUseModel
+		if allowedUseModel != nil {
+			volTemplate.AllowedUse = allowedUseModel
+		}
 	} else if capacity, ok := d.GetOk(isVolumeCapacity); ok {
 		if int64(capacity.(int)) > 0 {
 			volCapacity := int64(capacity.(int))
@@ -741,7 +743,7 @@ func volGet(d *schema.ResourceData, meta interface{}, id string) error {
 		allowedUses = append(allowedUses, modelMap)
 	}
 	if err = d.Set("allowed_use", allowedUses); err != nil {
-		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting allowed_use: %s", err), "(Data) ibm_is_volume", "read")
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting allowed_use: %s", err), "(Resource) ibm_is_volume", "read")
 		log.Println(tfErr.GetDiag())
 	}
 	// catalog
