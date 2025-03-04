@@ -756,9 +756,15 @@ func imgUpdate(d *schema.ResourceData, meta interface{}, id, name string, hasNam
 }
 func ResourceIBMIsImageMapToImageAllowedUsePatch(d *schema.ResourceData) (*vpcv1.ImageAllowedUsePatch, error) {
 	model := &vpcv1.ImageAllowedUsePatch{}
-	model.ApiVersion = core.StringPtr(d.Get("allowed_use.0.api_version").(string))
-	model.BareMetalServer = core.StringPtr(d.Get("allowed_use.0.bare_metal_server").(string))
-	model.Instance = core.StringPtr(d.Get("allowed_use.0.instance").(string))
+	if d.Get("allowed_use.0.api_version") != nil && d.Get("allowed_use.0.api_version").(string) != "" {
+		model.ApiVersion = core.StringPtr(d.Get("allowed_use.0.api_version").(string))
+	}
+	if d.Get("allowed_use.0.bare_metal_server") != nil && d.Get("allowed_use.0.bare_metal_server").(string) != "" {
+		model.BareMetalServer = core.StringPtr(d.Get("allowed_use.0.bare_metal_server").(string))
+	}
+	if d.Get("allowed_use.0.instance") != nil && d.Get("allowed_use.0.instance").(string) != "" {
+		model.Instance = core.StringPtr(d.Get("allowed_use.0.instance").(string))
+	}
 	return model, nil
 }
 
