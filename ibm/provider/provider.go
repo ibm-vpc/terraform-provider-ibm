@@ -64,6 +64,7 @@ import (
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/service/satellite"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/service/scc"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/service/schematics"
+	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/service/sdsaas"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/service/secretsmanager"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/service/transitgateway"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/service/usagereports"
@@ -1391,6 +1392,10 @@ func Provider() *schema.Provider {
 			"ibm_cdn":                                      classicinfrastructure.ResourceIBMCDN(),
 			"ibm_hardware_firewall_shared":                 classicinfrastructure.ResourceIBMFirewallShared(),
 
+			// Software Defined Storage as a Service
+			"ibm_sds_volume": sdsaas.ResourceIBMSdsVolume(),
+			"ibm_sds_host":   sdsaas.ResourceIBMSdsHost(),
+
 			// Partner Center Sell
 			"ibm_onboarding_registration":       partnercentersell.ResourceIbmOnboardingRegistration(),
 			"ibm_onboarding_product":            partnercentersell.ResourceIbmOnboardingProduct(),
@@ -1449,7 +1454,6 @@ func Provider() *schema.Provider {
 
 			// Added for Custom Resolver
 			"ibm_dns_custom_resolver":                 dnsservices.ResourceIBMPrivateDNSCustomResolver(),
-			"ibm_dns_custom_resolver_location":        dnsservices.ResourceIBMPrivateDNSCRLocation(),
 			"ibm_dns_custom_resolver_forwarding_rule": dnsservices.ResourceIBMPrivateDNSForwardingRule(),
 			"ibm_dns_custom_resolver_secondary_zone":  dnsservices.ResourceIBMPrivateDNSSecondaryZone(),
 			"ibm_dns_linked_zone":                     dnsservices.ResourceIBMDNSLinkedZone(),
@@ -1947,6 +1951,9 @@ func Validator() validate.ValidatorDict {
 				"ibm_hpcs_vault":                               hpcs.ResourceIbmVaultValidator(),
 				"ibm_config_aggregator_settings":               configurationaggregator.ResourceIbmConfigAggregatorSettingsValidator(),
 
+				// Cloudshell
+				"ibm_cloud_shell_account_settings": cloudshell.ResourceIBMCloudShellAccountSettingsValidator(),
+
 				// MQ on Cloud
 				"ibm_mqcloud_queue_manager":                    mqcloud.ResourceIbmMqcloudQueueManagerValidator(),
 				"ibm_mqcloud_application":                      mqcloud.ResourceIbmMqcloudApplicationValidator(),
@@ -2030,6 +2037,7 @@ func Validator() validate.ValidatorDict {
 				"ibm_is_reservation":                                 vpc.ResourceIBMISReservationValidator(),
 				"ibm_kms_key_rings":                                  kms.ResourceIBMKeyRingValidator(),
 				"ibm_dns_glb_monitor":                                dnsservices.ResourceIBMPrivateDNSGLBMonitorValidator(),
+				"ibm_dns_custom_resolver":                            dnsservices.ResourceIBMPrivateDNSCustomResolverValidator(),
 				"ibm_dns_custom_resolver_forwarding_rule":            dnsservices.ResourceIBMPrivateDNSForwardingRuleValidator(),
 				"ibm_schematics_action":                              schematics.ResourceIBMSchematicsActionValidator(),
 				"ibm_schematics_job":                                 schematics.ResourceIBMSchematicsJobValidator(),
@@ -2165,8 +2173,9 @@ func Validator() validate.ValidatorDict {
 
 				// Added for Event Notifications
 
-				"ibm_en_smtp_configuration": eventnotification.ResourceIBMEnSMTPConfigurationValidator(),
-				"ibm_en_smtp_user":          eventnotification.ResourceIBMEnSMTPUserValidator(),
+				"ibm_en_smtp_configuration":       eventnotification.ResourceIBMEnSMTPConfigurationValidator(),
+				"ibm_en_smtp_user":                eventnotification.ResourceIBMEnSMTPUserValidator(),
+				"ibm_en_destination_custom_email": eventnotification.ResourceIBMEnEmailDestinationValidator(),
 
 				// Added for VMware as a Service
 				"ibm_vmaas_vdc":             vmware.ResourceIbmVmaasVdcValidator(),
@@ -2185,6 +2194,10 @@ func Validator() validate.ValidatorDict {
 
 				// Added for Logs Router Service
 				"ibm_logs_router_tenant": logsrouting.ResourceIBMLogsRouterTenantValidator(),
+
+				// Added for Software Defined Storage as a Service
+				"ibm_sds_volume": sdsaas.ResourceIBMSdsVolumeValidator(),
+				"ibm_sds_host":   sdsaas.ResourceIBMSdsHostValidator(),
 			},
 			DataSourceValidatorDictionary: map[string]*validate.ResourceValidator{
 				"ibm_is_subnet":                     vpc.DataSourceIBMISSubnetValidator(),
