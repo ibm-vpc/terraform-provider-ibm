@@ -547,6 +547,12 @@ func volCreate(d *schema.ResourceData, meta interface{}, volName, profile, zone 
 				volTemplate.Capacity = &volCapacity
 			}
 		}
+		allowedUseModel, err := ResourceIBMUsageConstraintsMapToVolumeAllowedUse(d)
+		if err != nil {
+			return err
+		}
+		volTemplate.AllowedUse = allowedUseModel
+
 	} else if sourceSnapshtCrn, ok := d.GetOk(isVolumeSourceSnapshotCrn); ok {
 		sourceSnapshot := sourceSnapshtCrn.(string)
 
@@ -560,6 +566,11 @@ func volCreate(d *schema.ResourceData, meta interface{}, volName, profile, zone 
 				volTemplate.Capacity = &volCapacity
 			}
 		}
+		allowedUseModel, err := ResourceIBMUsageConstraintsMapToVolumeAllowedUse(d)
+		if err != nil {
+			return err
+		}
+		volTemplate.AllowedUse = allowedUseModel
 	} else if capacity, ok := d.GetOk(isVolumeCapacity); ok {
 		if int64(capacity.(int)) > 0 {
 			volCapacity := int64(capacity.(int))
@@ -617,34 +628,6 @@ func volCreate(d *schema.ResourceData, meta interface{}, volName, profile, zone 
 	_, err = isWaitForVolumeAvailable(sess, d.Id(), d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return err
-	}
-
-	if _, ok := d.GetOk("allowed_use"); ok {
-		id := *vol.ID
-		allowedUseModel, err := ResourceIBMUsageConstraintsMapToVolumeAllowedUsePrototype(d)
-		if err != nil {
-			return err
-		}
-		eTag := response.Headers.Get("ETag")
-		options := &vpcv1.UpdateVolumeOptions{
-			ID: &id,
-		}
-		options.IfMatch = &eTag
-		volumeNamePatchModel := &vpcv1.VolumePatch{}
-		volumeNamePatchModel.AllowedUse = allowedUseModel
-		volumeNamePatch, err := volumeNamePatchModel.AsPatch()
-		if err != nil {
-			return fmt.Errorf("[ERROR] Error calling asPatch for volumeNamePatch: %s", err)
-		}
-		options.VolumePatch = volumeNamePatch
-		_, _, err = sess.UpdateVolume(options)
-		if err != nil {
-			return fmt.Errorf("[ERROR] Error in UpdateVolume for allowed_use: %s", err)
-		}
-		_, err = isWaitForVolumeAvailable(sess, d.Id(), d.Timeout(schema.TimeoutCreate))
-		if err != nil {
-			return err
-		}
 	}
 
 	if _, ok := d.GetOk(isVolumeAccessTags); ok {
@@ -928,13 +911,13 @@ func volUpdate(d *schema.ResourceData, meta interface{}, id, name string, hasNam
 			ID: &id,
 		}
 		options.IfMatch = &eTag
-		volumeNamePatchModel := &vpcv1.VolumePatch{}
-		volumeNamePatchModel.AllowedUse = allowedUseModel
-		volumeNamePatch, err := volumeNamePatchModel.AsPatch()
+		volumePatchModel := &vpcv1.VolumePatch{}
+		volumePatchModel.AllowedUse = allowedUseModel
+		volumePatch, err := volumePatchModel.AsPatch()
 		if err != nil {
 			return fmt.Errorf("[ERROR] Error calling asPatch for volumeNamePatch: %s", err)
 		}
-		options.VolumePatch = volumeNamePatch
+		options.VolumePatch = volumePatch
 		_, _, err = sess.UpdateVolume(options)
 		if err != nil {
 			return fmt.Errorf("[ERROR] Error in UpdateVolume: %s", err)
@@ -1299,8 +1282,28 @@ func deleteAllSnapshots(sess *vpcv1.VpcV1, id string) error {
 
 func ResourceIBMUsageConstraintsMapToVolumeAllowedUsePrototype(d *schema.ResourceData) (*vpcv1.VolumeAllowedUsePatch, error) {
 	model := &vpcv1.VolumeAllowedUsePatch{}
-	model.ApiVersion = core.StringPtr(d.Get("allowed_use.0.api_version").(string))
-	model.BareMetalServer = core.StringPtr(d.Get("allowed_use.0.bare_metal_server").(string))
-	model.Instance = core.StringPtr(d.Get("allowed_use.0.instance").(string))
+	if d.Get("allowed_use.0.api_version") != nil && d.Get("allowed_use.0.api_version").(string) != "" {
+		model.ApiVersion = core.StringPtr(d.Get("allowed_use.0.api_version").(string))
+	}
+	if d.Get("allowed_use.0.bare_metal_server") != nil && d.Get("allowed_use.0.bare_metal_server").(string) != "" {
+		model.BareMetalServer = core.StringPtr(d.Get("allowed_use.0.bare_metal_server").(string))
+	}
+	if d.Get("allowed_use.0.instance") != nil && d.Get("allowed_use.0.instance").(string) != "" {
+		model.Instance = core.StringPtr(d.Get("allowed_use.0.instance").(string))
+	}
+	return model, nil
+}
+
+func ResourceIBMUsageConstraintsMapToVolumeAllowedUse(d *schema.ResourceData) (*vpcv1.VolumeAllowedUsePrototype, error) {
+	model := &vpcv1.VolumeAllowedUsePrototype{}
+	if d.Get("allowed_use.0.api_version") != nil && d.Get("allowed_use.0.api_version").(string) != "" {
+		model.ApiVersion = core.StringPtr(d.Get("allowed_use.0.api_version").(string))
+	}
+	if d.Get("allowed_use.0.bare_metal_server") != nil && d.Get("allowed_use.0.bare_metal_server").(string) != "" {
+		model.BareMetalServer = core.StringPtr(d.Get("allowed_use.0.bare_metal_server").(string))
+	}
+	if d.Get("allowed_use.0.instance") != nil && d.Get("allowed_use.0.instance").(string) != "" {
+		model.Instance = core.StringPtr(d.Get("allowed_use.0.instance").(string))
+	}
 	return model, nil
 }

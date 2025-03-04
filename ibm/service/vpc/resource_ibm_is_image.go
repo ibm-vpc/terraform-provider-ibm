@@ -466,6 +466,13 @@ func imgCreateByVolume(d *schema.ResourceData, meta interface{}, name, volume st
 	imagePrototype.SourceVolume = &vpcv1.VolumeIdentity{
 		ID: &volume,
 	}
+	if _, ok := d.GetOk("allowed_use"); ok {
+		allowedUseModel, err := ResourceIBMUsageConstraintsMapToImageAllowUsePrototype(d)
+		if err != nil {
+			return err
+		}
+		imagePrototype.AllowedUse = allowedUseModel
+	}
 	options := &vpcv1.GetVolumeOptions{
 		ID: &volume,
 	}
@@ -960,9 +967,15 @@ func imgExists(d *schema.ResourceData, meta interface{}, id string) (bool, error
 
 func ResourceIBMUsageConstraintsMapToImageAllowUsePrototype(d *schema.ResourceData) (*vpcv1.ImageAllowedUsePrototype, error) {
 	model := &vpcv1.ImageAllowedUsePrototype{}
-	model.ApiVersion = core.StringPtr(d.Get("allowed_use.0.api_version").(string))
-	model.BareMetalServer = core.StringPtr(d.Get("allowed_use.0.bare_metal_server").(string))
-	model.Instance = core.StringPtr(d.Get("allowed_use.0.instance").(string))
+	if d.Get("allowed_use.0.api_version") != nil && d.Get("allowed_use.0.api_version").(string) != "" {
+		model.ApiVersion = core.StringPtr(d.Get("allowed_use.0.api_version").(string))
+	}
+	if d.Get("allowed_use.0.bare_metal_server") != nil && d.Get("allowed_use.0.bare_metal_server").(string) != "" {
+		model.BareMetalServer = core.StringPtr(d.Get("allowed_use.0.bare_metal_server").(string))
+	}
+	if d.Get("allowed_use.0.instance") != nil && d.Get("allowed_use.0.instance").(string) != "" {
+		model.Instance = core.StringPtr(d.Get("allowed_use.0.instance").(string))
+	}
 	return model, nil
 }
 
