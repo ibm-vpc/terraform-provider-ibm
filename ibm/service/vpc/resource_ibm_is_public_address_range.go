@@ -7,14 +7,31 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/validate"
 	"github.com/IBM/go-sdk-core/v5/core"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
+)
+
+const (
+	isPublicAddressRangeDeleting   = "deleting"
+	isPublicAddressRangeDeleted    = "deleted"
+	isPublicAddressRangeAvailable  = "stable"
+	isPublicAddressRangeFailed     = "failed"
+	isPublicAddressRangePending    = "pending"
+	isPublicAddressRangeSuspended  = "suspended"
+	isPublicAddressRangeUpdating   = "updating"
+	isPublicAddressRangeWaiting    = "waiting"
+	isPublicAddressRangeUserTags   = "tags"
+	isPublicAddressRangeAccessTags = "access_tags"
 )
 
 func ResourceIBMPublicAddressRange() *schema.Resource {
@@ -24,6 +41,18 @@ func ResourceIBMPublicAddressRange() *schema.Resource {
 		UpdateContext: resourceIBMPublicAddressRangeUpdate,
 		DeleteContext: resourceIBMPublicAddressRangeDelete,
 		Importer:      &schema.ResourceImporter{},
+
+		CustomizeDiff: customdiff.All(
+			customdiff.Sequence(
+				func(_ context.Context, diff *schema.ResourceDiff, v interface{}) error {
+					return flex.ResourceTagsCustomizeDiff(diff)
+				},
+			),
+			customdiff.Sequence(
+				func(_ context.Context, diff *schema.ResourceDiff, v interface{}) error {
+					return flex.ResourceValidateAccessTags(diff, v)
+				}),
+		),
 
 		Schema: map[string]*schema.Schema{
 			"ipv4_address_count": &schema.Schema{
@@ -41,6 +70,8 @@ func ResourceIBMPublicAddressRange() *schema.Resource {
 				Type:        schema.TypeList,
 				MaxItems:    1,
 				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
 				Description: "The resource group for this public address range.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -52,6 +83,7 @@ func ResourceIBMPublicAddressRange() *schema.Resource {
 						"id": &schema.Schema{
 							Type:        schema.TypeString,
 							Required:    true,
+							ForceNew:    true,
 							Description: "The unique identifier for this resource group.",
 						},
 						"name": &schema.Schema{
@@ -178,6 +210,22 @@ func ResourceIBMPublicAddressRange() *schema.Resource {
 				Computed:    true,
 				Description: "The resource type.",
 			},
+			isPublicAddressRangeUserTags: {
+				Type:        schema.TypeSet,
+				Optional:    true,
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString, ValidateFunc: validate.InvokeValidator("ibm_is_public_address_range", isPublicAddressRangeUserTags)},
+				Set:         flex.ResourceIBMVPCHash,
+				Description: "User Tags for the PublicAddressRange",
+			},
+			isPublicAddressRangeAccessTags: {
+				Type:        schema.TypeSet,
+				Optional:    true,
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString, ValidateFunc: validate.InvokeValidator("ibm_is_public_address_range", isPublicAddressRangeAccessTags)},
+				Set:         flex.ResourceIBMVPCHash,
+				Description: "List of access management tags",
+			},
 		},
 	}
 }
@@ -193,6 +241,24 @@ func ResourceIBMPublicAddressRangeValidator() *validate.ResourceValidator {
 			Regexp:                     `^([a-z]|[a-z][-a-z0-9]*[a-z0-9]|[0-9][-a-z0-9]*([a-z]|[-a-z][-a-z0-9]*[a-z0-9]))$`,
 			MinValueLength:             1,
 			MaxValueLength:             63,
+		},
+		validate.ValidateSchema{
+			Identifier:                 isPublicAddressRangeUserTags,
+			ValidateFunctionIdentifier: validate.ValidateRegexpLen,
+			Type:                       validate.TypeString,
+			Optional:                   true,
+			Regexp:                     `^[A-Za-z0-9:_ .-]+$`,
+			MinValueLength:             1,
+			MaxValueLength:             128,
+		},
+		validate.ValidateSchema{
+			Identifier:                 isPublicAddressRangeAccessTags,
+			ValidateFunctionIdentifier: validate.ValidateRegexpLen,
+			Type:                       validate.TypeString,
+			Optional:                   true,
+			Regexp:                     `^([A-Za-z0-9_.-]|[A-Za-z0-9_.-][A-Za-z0-9_ .-]*[A-Za-z0-9_.-]):([A-Za-z0-9_.-]|[A-Za-z0-9_.-][A-Za-z0-9_ .-]*[A-Za-z0-9_.-])$`,
+			MinValueLength:             1,
+			MaxValueLength:             128,
 		},
 	)
 
@@ -237,8 +303,70 @@ func resourceIBMPublicAddressRangeCreate(context context.Context, d *schema.Reso
 	}
 
 	d.SetId(*publicAddressRange.ID)
+	log.Printf("[INFO] PublicAddressRange : %s", *publicAddressRange.ID)
+
+	_, err = isWaitForPublicAddressRangeAvailable(vpcClient, d.Id(), d.Timeout(schema.TimeoutCreate))
+	if err != nil {
+		tfErr := flex.TerraformErrorf(err, err.Error(), "(Data) ibm_is_public_address_range", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
+	}
+
+	v := os.Getenv("IC_ENV_TAGS")
+	if _, ok := d.GetOk(isPublicAddressRangeUserTags); ok || v != "" {
+		oldList, newList := d.GetChange(isPublicAddressRangeUserTags)
+		err = flex.UpdateGlobalTagsUsingCRN(oldList, newList, meta, *publicAddressRange.CRN, "", "user")
+		if err != nil {
+			log.Printf(
+				"Error on create of resource public address range (%s) tags: %s", d.Id(), err)
+		}
+	}
+
+	if _, ok := d.GetOk(isPublicAddressRangeAccessTags); ok {
+		oldList, newList := d.GetChange(isPublicAddressRangeAccessTags)
+		err = flex.UpdateGlobalTagsUsingCRN(oldList, newList, meta, *publicAddressRange.CRN, "", "access")
+		if err != nil {
+			log.Printf(
+				"Error on create of resource public address range (%s) access tags: %s", d.Id(), err)
+		}
+	}
 
 	return resourceIBMPublicAddressRangeRead(context, d, meta)
+}
+
+func isPublicAddressRangeRefreshFunc(sess *vpcv1.VpcV1, id string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		getPublicAddressRangeOptions := &vpcv1.GetPublicAddressRangeOptions{
+			ID: &id,
+		}
+		PublicAddressRange, response, err := sess.GetPublicAddressRange(getPublicAddressRangeOptions)
+		if err != nil {
+			return nil, isPublicAddressRangeFailed, fmt.Errorf("[ERROR] Error getting PublicAddressRange : %s\n%s", err, response)
+		}
+
+		if *PublicAddressRange.LifecycleState == isPublicAddressRangeAvailable {
+			return PublicAddressRange, *PublicAddressRange.LifecycleState, nil
+		} else if *PublicAddressRange.LifecycleState == isPublicAddressRangeFailed {
+			return PublicAddressRange, *PublicAddressRange.LifecycleState, fmt.Errorf("PublicAddressRange (%s) went into failed state during the operation \n [WARNING] Running terraform apply again will remove the tainted PublicAddressRange and attempt to create the PublicAddressRange again replacing the previous configuration", *PublicAddressRange.ID)
+		}
+
+		return PublicAddressRange, isPublicAddressRangePending, nil
+	}
+}
+
+func isWaitForPublicAddressRangeAvailable(sess *vpcv1.VpcV1, id string, timeout time.Duration) (interface{}, error) {
+	log.Printf("Waiting for public address range (%s) to be available.", id)
+
+	stateConf := &resource.StateChangeConf{
+		Pending:    []string{isPublicAddressRangePending},
+		Target:     []string{isPublicAddressRangeAvailable, isPublicAddressRangeFailed},
+		Refresh:    isPublicAddressRangeRefreshFunc(sess, id),
+		Timeout:    timeout,
+		Delay:      10 * time.Second,
+		MinTimeout: 10 * time.Second,
+	}
+
+	return stateConf.WaitForState()
 }
 
 func resourceIBMPublicAddressRangeRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -309,6 +437,20 @@ func resourceIBMPublicAddressRangeRead(context context.Context, d *schema.Resour
 		return diag.FromErr(fmt.Errorf("[ERROR] Error setting resource_type: %s", err))
 	}
 
+	tags, err := flex.GetGlobalTagsUsingCRN(meta, *publicAddressRange.CRN, "", "user")
+	if err != nil {
+		log.Printf(
+			"Error on get of resource public address range (%s) tags: %s", d.Id(), err)
+	}
+	d.Set(isPublicAddressRangeUserTags, tags)
+
+	accesstags, err := flex.GetGlobalTagsUsingCRN(meta, *publicAddressRange.CRN, "", "access")
+	if err != nil {
+		log.Printf(
+			"Error on get of resource public address range (%s) access tags: %s", d.Id(), err)
+	}
+	d.Set(isPublicAddressRangeAccessTags, accesstags)
+
 	return nil
 }
 
@@ -319,6 +461,25 @@ func resourceIBMPublicAddressRangeUpdate(context context.Context, d *schema.Reso
 		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
 		return tfErr.GetDiag()
 	}
+
+	if d.HasChange(isPublicAddressRangeUserTags) {
+		oldList, newList := d.GetChange(isPublicAddressRangeUserTags)
+		err := flex.UpdateGlobalTagsUsingCRN(oldList, newList, meta, d.Get("crn").(string), "", "user")
+		if err != nil {
+			log.Printf(
+				"Error on update of resource public address range (%s) tags: %s", d.Id(), err)
+		}
+	}
+
+	if d.HasChange(isPublicAddressRangeAccessTags) {
+		oldList, newList := d.GetChange(isPublicAddressRangeAccessTags)
+		err := flex.UpdateGlobalTagsUsingCRN(oldList, newList, meta, d.Get("crn").(string), "", "access")
+		if err != nil {
+			log.Printf(
+				"Error on update of resource public address range (%s) access tags: %s", d.Id(), err)
+		}
+	}
+
 	updatePublicAddressRangeOptions := &vpcv1.UpdatePublicAddressRangeOptions{}
 
 	updatePublicAddressRangeOptions.SetID(d.Id())
@@ -355,8 +516,49 @@ func resourceIBMPublicAddressRangeUpdate(context context.Context, d *schema.Reso
 			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
 			return tfErr.GetDiag()
 		}
+
+		_, err = isWaitForPublicAddressRangeUpdate(vpcClient, d.Id(), d.Timeout(schema.TimeoutCreate))
+		if err != nil {
+			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("[ERROR] UpdatePublicAddressRangeWithContext failed: %s", err.Error()), "ibm_is_public_address_range", "update")
+			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+			return tfErr.GetDiag()
+		}
 	}
 	return resourceIBMPublicAddressRangeRead(context, d, meta)
+}
+
+func isWaitForPublicAddressRangeUpdate(sess *vpcv1.VpcV1, id string, timeout time.Duration) (interface{}, error) {
+	log.Printf("Waiting for PublicAddressRange (%s) to be available.", id)
+
+	stateConf := &resource.StateChangeConf{
+		Pending:    []string{isPublicAddressRangeUpdating},
+		Target:     []string{isPublicAddressRangeAvailable, isPublicAddressRangeFailed},
+		Refresh:    isPublicAddressRangeUpdateRefreshFunc(sess, id),
+		Timeout:    timeout,
+		Delay:      10 * time.Second,
+		MinTimeout: 10 * time.Second,
+	}
+	return stateConf.WaitForState()
+}
+
+func isPublicAddressRangeUpdateRefreshFunc(sess *vpcv1.VpcV1, id string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		getPublicAddressRangeOptions := &vpcv1.GetPublicAddressRangeOptions{
+			ID: &id,
+		}
+		publicAddressRange, response, err := sess.GetPublicAddressRange(getPublicAddressRangeOptions)
+		if err != nil {
+			return nil, isPublicAddressRangeFailed, fmt.Errorf("[ERROR] Error getting PublicAddressRange : %s\n%s", err, response)
+		}
+
+		if *publicAddressRange.LifecycleState == isPublicAddressRangeAvailable || *publicAddressRange.LifecycleState == isPublicAddressRangeFailed {
+			return publicAddressRange, *publicAddressRange.LifecycleState, nil
+		} else if *publicAddressRange.LifecycleState == isPublicAddressRangeFailed {
+			return publicAddressRange, *publicAddressRange.LifecycleState, fmt.Errorf("PublicAddressRange (%s) went into failed state during the operation \n [WARNING] Running terraform apply again will remove the tainted PublicAddressRange and attempt to create the PublicAddressRange again replacing the previous configuration", *publicAddressRange.ID)
+		}
+
+		return publicAddressRange, isPublicAddressRangeUpdating, nil
+	}
 }
 
 func resourceIBMPublicAddressRangeDelete(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -377,10 +579,48 @@ func resourceIBMPublicAddressRangeDelete(context context.Context, d *schema.Reso
 		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
 		return tfErr.GetDiag()
 	}
+	_, err = isWaitForPublicAddressRangeDeleted(vpcClient, d.Id(), d.Timeout(schema.TimeoutDelete))
+	if err != nil {
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("[ERROR] UpdatePublicAddressRangeWithContext failed: %s", err.Error()), "ibm_is_public_address_range", "update")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
+	}
 
 	d.SetId("")
 
 	return nil
+}
+
+func isWaitForPublicAddressRangeDeleted(sess *vpcv1.VpcV1, id string, timeout time.Duration) (interface{}, error) {
+	log.Printf("Waiting for PublicAddressRange (%s) to be deleted.", id)
+
+	stateConf := &resource.StateChangeConf{
+		Pending:    []string{isPublicAddressRangeDeleting},
+		Target:     []string{isPublicAddressRangeDeleted, isPublicAddressRangeFailed},
+		Refresh:    isPublicAddressRangeDeleteRefreshFunc(sess, id),
+		Timeout:    timeout,
+		Delay:      10 * time.Second,
+		MinTimeout: 10 * time.Second,
+	}
+
+	return stateConf.WaitForState()
+}
+
+func isPublicAddressRangeDeleteRefreshFunc(sess *vpcv1.VpcV1, id string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		log.Printf("[DEBUG] Refresh function for PublicAddressRange delete.")
+		getPublicAddressRangeOptions := &vpcv1.GetPublicAddressRangeOptions{
+			ID: &id,
+		}
+		publicAddressRange, response, err := sess.GetPublicAddressRange(getPublicAddressRangeOptions)
+		if err != nil {
+			if response != nil && response.StatusCode == 404 {
+				return publicAddressRange, isPublicAddressRangeDeleted, nil
+			}
+			return nil, isPublicAddressRangeFailed, fmt.Errorf("[ERROR] The PublicAddressRange %s failed to delete: %s\n%s", id, err, response)
+		}
+		return publicAddressRange, *publicAddressRange.LifecycleState, nil
+	}
 }
 
 func ResourceIBMPublicAddressRangeMapToResourceGroupIdentity(modelMap map[string]interface{}) (vpcv1.ResourceGroupIdentityIntf, error) {

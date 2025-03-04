@@ -177,6 +177,21 @@ func DataSourceIBMIsPublicAddressRanges() *schema.Resource {
 								},
 							},
 						},
+						isPublicAddressRangeUserTags: {
+							Type:        schema.TypeSet,
+							Computed:    true,
+							Elem:        &schema.Schema{Type: schema.TypeString},
+							Set:         flex.ResourceIBMVPCHash,
+							Description: "List of tags",
+						},
+
+						isPublicAddressRangeAccessTags: {
+							Type:        schema.TypeSet,
+							Computed:    true,
+							Elem:        &schema.Schema{Type: schema.TypeString},
+							Set:         flex.ResourceIBMVPCHash,
+							Description: "List of access tags",
+						},
 					},
 				},
 			},
@@ -224,7 +239,7 @@ func dataSourceIBMIsPublicAddressRangesRead(context context.Context, d *schema.R
 
 	mapSlice := []map[string]interface{}{}
 	for _, modelItem := range allrecs {
-		modelMap, err := DataSourceIBMIsPublicAddressRangesPublicAddressRangeToMap(&modelItem)
+		modelMap, err := DataSourceIBMIsPublicAddressRangesPublicAddressRangeToMap(&modelItem, meta)
 		if err != nil {
 			tfErr := flex.TerraformErrorf(err, err.Error(), "(Data) ibm_is_public_address_ranges", "read")
 			return tfErr.GetDiag()
@@ -245,7 +260,7 @@ func dataSourceIBMIsPublicAddressRangesID(d *schema.ResourceData) string {
 	return time.Now().UTC().String()
 }
 
-func DataSourceIBMIsPublicAddressRangesPublicAddressRangeToMap(model *vpcv1.PublicAddressRange) (map[string]interface{}, error) {
+func DataSourceIBMIsPublicAddressRangesPublicAddressRangeToMap(model *vpcv1.PublicAddressRange, meta interface{}) (map[string]interface{}, error) {
 	modelMap := make(map[string]interface{})
 	modelMap["cidr"] = *model.CIDR
 	modelMap["created_at"] = model.CreatedAt.String()
@@ -268,6 +283,18 @@ func DataSourceIBMIsPublicAddressRangesPublicAddressRangeToMap(model *vpcv1.Publ
 		}
 		modelMap["target"] = []map[string]interface{}{targetMap}
 	}
+	tags, err := flex.GetGlobalTagsUsingCRN(meta, *model.CRN, "", isUserTagType)
+	if err != nil {
+		log.Printf(
+			"Error on get of resource vpc SSH Key (%s) user tags: %s", *model.ID, err)
+	}
+	modelMap[isPublicAddressRangeUserTags] = tags
+	accesstags, err := flex.GetGlobalTagsUsingCRN(meta, *model.CRN, "", isKeyAccessTagType)
+	if err != nil {
+		log.Printf(
+			"Error on get of resource SSH Key (%s) access tags: %s", *model.ID, err)
+	}
+	modelMap[isPublicAddressRangeAccessTags] = accesstags
 	return modelMap, nil
 }
 

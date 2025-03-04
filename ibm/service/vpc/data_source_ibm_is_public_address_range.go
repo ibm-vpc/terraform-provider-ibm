@@ -169,6 +169,22 @@ func DataSourceIBMIsPublicAddressRange() *schema.Resource {
 					},
 				},
 			},
+
+			isPublicAddressRangeUserTags: {
+				Type:        schema.TypeSet,
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         flex.ResourceIBMVPCHash,
+				Description: "List of tags",
+			},
+
+			isPublicAddressRangeAccessTags: {
+				Type:        schema.TypeSet,
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         flex.ResourceIBMVPCHash,
+				Description: "List of access tags",
+			},
 		},
 	}
 }
@@ -302,6 +318,21 @@ func dataSourceIBMIsPublicAddressRangeRead(context context.Context, d *schema.Re
 		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("[ERROR] Error setting target: %s", err), "(Data) ibm_is_public_address_range", "read")
 		return tfErr.GetDiag()
 	}
+
+	tags, err := flex.GetGlobalTagsUsingCRN(meta, *publicAddressRange.CRN, "", isUserTagType)
+	if err != nil {
+		log.Printf(
+			"An error occured during reading of subnet (%s) tags : %s", d.Id(), err)
+	}
+	d.Set(isPublicAddressRangeUserTags, tags)
+
+	accesstags, err := flex.GetGlobalTagsUsingCRN(meta, *publicAddressRange.CRN, "", isAccessTagType)
+	if err != nil {
+		log.Printf(
+			"Error on get of resource subnet (%s) access tags: %s", d.Id(), err)
+	}
+
+	d.Set(isPublicAddressRangeAccessTags, accesstags)
 
 	return nil
 }
