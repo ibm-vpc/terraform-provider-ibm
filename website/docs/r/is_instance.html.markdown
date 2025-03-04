@@ -605,8 +605,13 @@ Review the argument references that you can specify for your resource.
 - `action` - (Optional, String) Action to be taken on the instance. Supported values are `stop`, `start`, or `reboot`.
   
   ~> **Note** 
-    `action` allows to start, stop and reboot the instance and it is not recommended to manage the instance from terraform and other clients (UI/CLI) simultaneously, as it would cause unknown behaviour. `start` action can be performed only when the instance is in `stopped` state. `stop` and `reboot` actions can be performed only when the instance is in `running` state. It is also recommended to remove the `action` configuration from terraform once it is applied succesfully, to avoid instability in the terraform configuration later.
-- `allowed_use` - (Optional, List) The usage constraints to be matched against requested instance or bare metal server properties to determine compatibility. Only present for boot volumes. The value of this property will be inherited from thesource image or snapshot at volume creation, but can be changed.
+    `action` allows to start, stop and reboot the instance and it is not recommended to manage the instance from terraform and other clients (UI/CLI) simultaneously, as it would cause unknown behaviour. `start` action can be performed only when the instance is in `stopped` state. `stop` and `reboot` actions can be performed only when the instance is in `running` state. It is also recommended to remove the `action` configuration from terraform once it is applied succesfully, to avoid instability in the terraform configuration later.    
+- `auto_delete_volume`- (Optional, Bool) If set to **true**, automatically deletes the volumes that are attached to an instance. **Note** Setting this argument can bring some inconsistency in the volume resource, as the volumes is destroyed along with instances.
+- `availability_policy_host_failure` - (Optional, String) The availability policy to use for this virtual server instance. The action to perform if the compute host experiences a failure. Supported values are `restart` and `stop`.
+- `boot_volume`  (Optional, List) A list of boot volumes for an instance.
+
+  Nested scheme for `boot_volume`:
+  - `allowed_use` - (Optional, List) The usage constraints to be matched against requested instance or bare metal server properties to determine compatibility. Only present for boot volumes. The value of this property will be inherited from thesource image or snapshot at volume creation, but can be changed.
     
     Nested schema for `allowed_use`:
     - `api_version` - (Optional, String) The API version with which to evaluate the expressions.
@@ -623,12 +628,7 @@ Review the argument references that you can specify for your resource.
        **&#x2022;** `gpu.manufacturer` - (string) The GPU manufacturer
        **&#x2022;** `gpu.memory` - (integer) The overall amount of GPU memory in GiB (gibibytes)
        **&#x2022;** `gpu.model` - (string) The GPU model
-       **&#x2022;** `enable_secure_boot` - (boolean) Indicates whether secure boot is enabled.    
-- `auto_delete_volume`- (Optional, Bool) If set to **true**, automatically deletes the volumes that are attached to an instance. **Note** Setting this argument can bring some inconsistency in the volume resource, as the volumes is destroyed along with instances.
-- `availability_policy_host_failure` - (Optional, String) The availability policy to use for this virtual server instance. The action to perform if the compute host experiences a failure. Supported values are `restart` and `stop`.
-- `boot_volume`  (Optional, List) A list of boot volumes for an instance.
-
-  Nested scheme for `boot_volume`:
+       **&#x2022;** `enable_secure_boot` - (boolean) Indicates whether secure boot is enabled.
   - `auto_delete_volume` - (Optional, String) If set to **true**, when deleting the instance the volume will also be deleted
   - `encryption` - (Optional, String) The type of encryption to use for the boot volume.
   - `name` - (Optional, String) The name of the boot volume.
@@ -888,6 +888,24 @@ Review the argument references that you can specify for your resource.
   - `name` - (String) The name of the volume prototype.
   - `profile` - (String) The profile of the volume prototype.
   - `size`- (Integer) The capacity of the volume in gigabytes.
+  - `allowed_use` - (Optional, List) The usage constraints to be matched against requested instance or bare metal server properties to determine compatibility. Only present for boot volumes. The value of this property will be inherited from thesource image or snapshot at volume creation, but can be changed.
+    
+    Nested schema for `allowed_use`:
+    - `api_version` - (Optional, String) The API version with which to evaluate the expressions.
+	  
+    - `bare_metal_server` - (Optional, String) The expression that must be satisfied by a bare metal server provisioned using the image data in this volume.The expression follows [Common Expression Language](https://github.com/google/cel-spec/blob/master/doc/langdef.md), but does not support built-in functions and macros. 
+   
+    ~> **NOTE** </br> In addition, the following property is supported: </br>
+      **&#x2022;** `enable_secure_boot` - (boolean) Indicates whether secure boot is enabled for this bare metal server.
+	 
+    - `instance` - (Optional, String) The expression that must be satisfied by a virtual server instance provisioned using the image data in this volume.The expression follows [Common Expression Language](https://github.com/google/cel-spec/blob/master/doc/langdef.md), but does not support built-in functions and macros.
+   
+    ~> **NOTE** </br> In addition, the following variables are supported, corresponding to `Instance` </br>
+       **&#x2022;** `gpu.count` - (integer) The number of GPUs assigned to the instance
+       **&#x2022;** `gpu.manufacturer` - (string) The GPU manufacturer
+       **&#x2022;** `gpu.memory` - (integer) The overall amount of GPU memory in GiB (gibibytes)
+       **&#x2022;** `gpu.model` - (string) The GPU model
+       **&#x2022;** `enable_secure_boot` - (boolean) Indicates whether secure boot is enabled.
 - `vpc` - (Required, Forces new resource, String) The ID of the VPC where you want to create the instance. When using `instance_template`, `vpc` is not required.
 - `zone` - (Required, Forces new resource, String) The name of the VPC zone where you want to create the instance. When using `instance_template`, `zone` is not required.
 
@@ -902,7 +920,7 @@ In addition to all argument reference list, you can access the following attribu
   - `iops`- (Integer) The number of input and output operations per second of the volume.
   - `name` - (String) The name of the boot volume.
   - `profile` - (String) The profile of the volume.
-  - `size`- (Integer) The capacity of the volume in gigabytes.
+  - `size`- (Integer) The capacity of the volume in gigabytes.  
 - `catalog_offering` - (List) The [catalog](https://cloud.ibm.com/docs/account?topic=account-restrict-by-user&interface=ui) offering or offering version to use when provisioning this virtual server instance. If an offering is specified, the latest version of that offering will be used. The specified offering or offering version may be in a different account in the same [enterprise](https://cloud.ibm.com/docs/account?topic=account-what-is-enterprise), subject to IAM policies.
 
   Nested scheme for `catalog_offering`:
