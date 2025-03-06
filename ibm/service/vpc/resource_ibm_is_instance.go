@@ -3659,9 +3659,9 @@ func instanceCreateBySnapshot(d *schema.ResourceData, meta interface{}, profile,
 			}
 		}
 		if _, ok := bootvol["allowed_use"]; ok {
-			allowedUse := bootVolumeAllowedUse(d)
-			if allowedUse != nil {
-				volTemplate.AllowedUse = allowedUse
+			allowedUseModel, _ := ResourceIBMIsInstanceMapToVolumeAllowedUsePrototype(bootvol["allowed_use"].([]interface{})[0].(map[string]interface{}))
+			if allowedUseModel != nil {
+				volTemplate.AllowedUse = allowedUseModel
 			}
 		}
 		deleteboolIntf := bootvol[isInstanceVolAttVolAutoDelete]
@@ -5059,7 +5059,7 @@ func instanceGet(d *schema.ResourceData, meta interface{}, id string) error {
 				}
 				if vol.AllowedUse != nil {
 					usageConstraintList := []map[string]interface{}{}
-					modelMap, err := DataSourceIBMIsVolumeAllowedUseToMap(vol.AllowedUse)
+					modelMap, err := ResourceceIBMIsVolumeAllowedUseToMap(vol.AllowedUse)
 					if err != nil {
 						tfErr := flex.TerraformErrorf(err, err.Error(), "(Resource) ibm_is_instance", "read")
 						log.Println(tfErr.GetDiag())
@@ -5753,7 +5753,7 @@ func instanceUpdate(d *schema.ResourceData, meta interface{}) error {
 	bootVolAllowedUse := "boot_volume.0.allowed_use"
 	if d.HasChange(bootVolAllowedUse) && !d.IsNewResource() {
 		id := d.Get("boot_volume.0.volume_id").(string)
-		allowedUseModel, err := ResourceIBMUsageConstraintsMapToVolumeAllowedUseInstancePrototype(d, bootVolAllowedUse)
+		allowedUseModel, err := ResourceIBMIsInstanceMapToVolumeAllowedUsePatchPrototype(d.Get("boot_volume.0allowed_use").([]interface{})[0].(map[string]interface{}))
 		if err != nil {
 			return err
 		}
@@ -6580,20 +6580,6 @@ func instanceUpdate(d *schema.ResourceData, meta interface{}) error {
 		}
 	}
 	return nil
-}
-
-func ResourceIBMUsageConstraintsMapToVolumeAllowedUseInstancePrototype(d *schema.ResourceData, bootVolAllowedUse string) (*vpcv1.VolumeAllowedUsePatch, error) {
-	model := &vpcv1.VolumeAllowedUsePatch{}
-	if d.Get("boot_volume.0.allowed_use.0.api_version") != nil && d.Get("boot_volume.0.allowed_use.0.api_version").(string) != "" {
-		model.ApiVersion = core.StringPtr(d.Get("boot_volume.0.allowed_use.0.api_version").(string))
-	}
-	if d.Get("boot_volume.0.allowed_use.0.bare_metal_server") != nil && d.Get("boot_volume.0.allowed_use.0.bare_metal_server").(string) != "" {
-		model.BareMetalServer = core.StringPtr(d.Get("boot_volume.0.allowed_use.0.bare_metal_server").(string))
-	}
-	if d.Get("boot_volume.0.allowed_use.0.instance") != nil && d.Get("boot_volume.0.allowed_use.0.instance").(string) != "" {
-		model.Instance = core.StringPtr(d.Get("boot_volume.0.allowed_use.0.instance").(string))
-	}
-	return model, nil
 }
 
 func resourceIBMisInstanceUpdate(d *schema.ResourceData, meta interface{}) error {
@@ -7687,19 +7673,11 @@ func handleVolumePrototypesUpdate(d *schema.ResourceData, instanceC *vpcv1.VpcV1
 
 			//allowed use
 			if _, ok := d.GetOk("volume_prototypes.%d.allowed_use"); ok {
-				allowedUse := &vpcv1.VolumeAllowedUsePrototype{}
-				if d.Get("volume_prototypes.%d.allowed_use.0.api_version") != nil && d.Get("volume_prototypes.%d.allowed_use.0.api_version").(string) != "" {
-					allowedUse.ApiVersion = core.StringPtr(d.Get("volume_prototypes.%d.allowed_use.0.api_version").(string))
+				allowedUseModel, err := ResourceIBMIsInstanceMapToVolumeAllowedUsePrototype(d.Get("volume_prototypes.%d.allowed_use").([]interface{})[0].(map[string]interface{}))
+				if err != nil {
+					return err
 				}
-				if d.Get("volume_prototypes.%d.allowed_use.0.bare_metal_server") != nil && d.Get("volume_prototypes.%d.allowed_use.0.bare_metal_server").(string) != "" {
-					allowedUse.BareMetalServer = core.StringPtr(d.Get("volume_prototypes.%d.allowed_use.0.bare_metal_server").(string))
-				}
-				if d.Get("volume_prototypes.%d.allowed_use.0.instance") != nil && d.Get("volume_prototypes.%d.allowed_use.0.instance").(string) != "" {
-					allowedUse.Instance = core.StringPtr(d.Get("volume_prototypes.%d.allowed_use.0.instance").(string))
-				}
-				if allowedUse != nil {
-					volAtt.AllowedUse = allowedUse
-				}
+				volAtt.AllowedUse = allowedUseModel
 			}
 			createvolattoptions.Volume = volAtt
 			newVolume, _, err := instanceC.CreateInstanceVolumeAttachment(createvolattoptions)
@@ -7873,7 +7851,7 @@ func setVolumePrototypesInState(d *schema.ResourceData, instance *vpcv1.Instance
 					vol["volume_resource_type"] = *volume.Volume.ResourceType
 					if volumeRef.AllowedUse != nil {
 						usageConstraintList := []map[string]interface{}{}
-						modelMap, err := DataSourceIBMIsVolumeAllowedUseToMap(volumeRef.AllowedUse)
+						modelMap, err := ResourceceIBMIsVolumeAllowedUseToMap(volumeRef.AllowedUse)
 						if err != nil {
 							tfErr := flex.TerraformErrorf(err, err.Error(), "(Resource) ibm_is_instance", "read")
 							log.Println(tfErr.GetDiag())
@@ -8273,19 +8251,8 @@ func VolumeAttachmentPrototype(d *schema.ResourceData, volumeattintf interface{}
 		}
 		//allowed use
 		if _, ok := d.GetOk("volume_prototypes.%d.allowed_use"); ok {
-			allowedUse := &vpcv1.VolumeAllowedUsePrototype{}
-			if d.Get("volume_prototypes.%d.allowed_use.0.api_version") != nil && d.Get("volume_prototypes.%d.allowed_use.0.api_version").(string) != "" {
-				allowedUse.ApiVersion = core.StringPtr(d.Get("volume_prototypes.%d.allowed_use.0.api_version").(string))
-			}
-			if d.Get("volume_prototypes.%d.allowed_use.0.bare_metal_server") != nil && d.Get("volume_prototypes.%d.allowed_use.0.bare_metal_server").(string) != "" {
-				allowedUse.BareMetalServer = core.StringPtr(d.Get("volume_prototypes.%d.allowed_use.0.bare_metal_server").(string))
-			}
-			if d.Get("volume_prototypes.%d.allowed_use.0.instance") != nil && d.Get("volume_prototypes.%d.allowed_use.0.instance").(string) != "" {
-				allowedUse.Instance = core.StringPtr(d.Get("volume_prototypes.%d.allowed_use.0.instance").(string))
-			}
-			if allowedUse != nil {
-				volumeattItemPrototypeModel.AllowedUse = allowedUse
-			}
+			allowedUseModel, _ := ResourceIBMIsInstanceMapToVolumeAllowedUsePrototype(d.Get("volume_prototypes.%d.allowed_use").([]interface{})[0].(map[string]interface{}))
+			volumeattItemPrototypeModel.AllowedUse = allowedUseModel
 		}
 		volumeattItemModel.Volume = volumeattItemPrototypeModel
 
@@ -8327,26 +8294,12 @@ func volumePrototypeInstanceByImage(d *schema.ResourceData, bootvol map[string]i
 	}
 	//boot volume allowed use
 	if _, ok := bootvol["allowed_use"]; ok {
-		allowedUse := bootVolumeAllowedUse(d)
-		if allowedUse != nil {
-			volTemplate.AllowedUse = allowedUse
+		allowedUseModel, _ := ResourceIBMIsInstanceMapToVolumeAllowedUsePrototype(bootvol["allowed_use"].([]interface{})[0].(map[string]interface{}))
+		if allowedUseModel != nil {
+			volTemplate.AllowedUse = allowedUseModel
 		}
 	}
 	deleteboolIntf := bootvol[isInstanceVolAttVolAutoDelete]
 	deletebool := deleteboolIntf.(bool)
 	return volTemplate, deletebool, nil
-}
-
-func bootVolumeAllowedUse(d *schema.ResourceData) *vpcv1.VolumeAllowedUsePrototype {
-	allowedUse := &vpcv1.VolumeAllowedUsePrototype{}
-	if d.Get("boot_volume.0.allowed_use.0.api_version") != nil && d.Get("boot_volume.0.allowed_use.0.api_version").(string) != "" {
-		allowedUse.ApiVersion = core.StringPtr(d.Get("boot_volume.0.allowed_use.0.api_version").(string))
-	}
-	if d.Get("boot_volume.0.allowed_use.0.bare_metal_server") != nil && d.Get("boot_volume.0.allowed_use.0.bare_metal_server").(string) != "" {
-		allowedUse.BareMetalServer = core.StringPtr(d.Get("boot_volume.0.allowed_use.0.bare_metal_server").(string))
-	}
-	if d.Get("boot_volume.0.allowed_use.0.instance") != nil && d.Get("boot_volume.0.allowed_use.0.instance").(string) != "" {
-		allowedUse.Instance = core.StringPtr(d.Get("boot_volume.0.allowed_use.0.instance").(string))
-	}
-	return allowedUse
 }

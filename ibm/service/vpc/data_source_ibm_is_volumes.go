@@ -895,7 +895,7 @@ func dataSourceVolumeCollectionVolumesToMap(volumesItem vpcv1.Volume, meta inter
 	}
 	if volumesItem.AllowedUse != nil {
 		usageConstraintList := []map[string]interface{}{}
-		modelMap, err := DataSourceIBMIsVolumeAllowedUseToMap(volumesItem.AllowedUse)
+		modelMap, err := ResourceceIBMIsVolumeAllowedUseToMap(volumesItem.AllowedUse)
 		if err != nil {
 			tfErr := flex.TerraformErrorf(err, err.Error(), "(Data) ibm_is_volumes", "read")
 			log.Println(tfErr.GetDiag())

@@ -415,11 +415,13 @@ func instanceVolAttachmentCreate(d *schema.ResourceData, meta interface{}, insta
 				volProtoVol.Capacity = &volCapacityInt
 			}
 		}
-		allowedUseModel, err := ResourceIBMUsageConstraintsMapToVolumeAllowedUse(d)
-		if err != nil {
-			return err
+		if allowedUse, ok := d.GetOk("allowed_use"); ok {
+			allowedUseModel, err := ResourceIBMIsInstanceMapToVolumeAllowedUsePrototype(allowedUse.([]interface{})[0].(map[string]interface{}))
+			if err != nil {
+				return err
+			}
+			volProtoVol.AllowedUse = allowedUseModel
 		}
-		volProtoVol.AllowedUse = allowedUseModel
 		var iops int64
 		if volIops, ok := d.GetOk(isInstanceVolIops); ok {
 			iops = int64(volIops.(int))
@@ -571,7 +573,7 @@ func instanceVolumeAttachmentGet(d *schema.ResourceData, meta interface{}, insta
 	}
 	allowedUses := []map[string]interface{}{}
 	if volumeDetail.AllowedUse != nil {
-		modelMap, err := DataSourceIBMIsVolumeAllowedUseToMap(volumeDetail.AllowedUse)
+		modelMap, err := ResourceceIBMIsVolumeAllowedUseToMap(volumeDetail.AllowedUse)
 		if err != nil {
 			tfErr := flex.TerraformErrorf(err, err.Error(), "(Resource) ibm_is_instance_volume_attachment", "read")
 			log.Println(tfErr.GetDiag())
@@ -664,12 +666,48 @@ func instanceVolAttUpdate(d *schema.ResourceData, meta interface{}) error {
 		}
 	}
 
+	if d.HasChange("allowed_use") {
+		volId := d.Get(isInstanceVolAttVol).(string)
+		volumeProfilePatchModel := &vpcv1.VolumePatch{}
+		if d.HasChange("allowed_use") {
+			allowedUseModel, err := ResourceIBMIsInstanceMapToVolumeAllowedUsePatchPrototype(d.Get("allowed_use").([]interface{})[0].(map[string]interface{}))
+			if err != nil {
+				return err
+			}
+			volumeProfilePatchModel.AllowedUse = allowedUseModel
+		}
+		volumeProfilePatch, err := volumeProfilePatchModel.AsPatch()
+		if err != nil {
+			return fmt.Errorf("[ERROR] Error calling asPatch for volumeProfilePatch: %s", err)
+		}
+
+		optionsget := &vpcv1.GetVolumeOptions{
+			ID: &volId,
+		}
+		_, response, err := instanceC.GetVolume(optionsget)
+		if err != nil {
+			return fmt.Errorf("[ERROR] Error getting Boot Volume (%s): %s\n%s", id, err, response)
+		}
+		eTag := response.Headers.Get("ETag")
+		updateVolumeProfileOptions := &vpcv1.UpdateVolumeOptions{
+			ID: &volId,
+		}
+		updateVolumeProfileOptions.IfMatch = &eTag
+		updateVolumeProfileOptions.VolumePatch = volumeProfilePatch
+		_, response, err = instanceC.UpdateVolume(updateVolumeProfileOptions)
+		if err != nil {
+			return fmt.Errorf("[ERROR] Error updating volume allowed use: %s\n%s", err, response)
+		}
+		isWaitForVolumeAvailable(instanceC, volId, d.Timeout(schema.TimeoutCreate))
+	}
+
 	// profile/iops update
 
 	volId := ""
 	if volIdOk, ok := d.GetOk(isInstanceVolAttVol); ok {
 		volId = volIdOk.(string)
 	}
+
 	volProfile := ""
 	if volProfileOk, ok := d.GetOk(isInstanceVolProfile); ok {
 		volProfile = volProfileOk.(string)
@@ -702,7 +740,7 @@ func instanceVolAttUpdate(d *schema.ResourceData, meta interface{}) error {
 			return fmt.Errorf("[ERROR] Error updating volume profile/iops/userTags: %s\n%s", err, response)
 		}
 		isWaitForVolumeAvailable(instanceC, volId, d.Timeout(schema.TimeoutCreate))
-	} else if volId != "" && (d.HasChange(isInstanceVolIops) || d.HasChange(isInstanceVolProfile) || d.HasChange("allowed_use")) { // || d.HasChange(isInstanceVolAttTags)
+	} else if volId != "" && (d.HasChange(isInstanceVolIops) || d.HasChange(isInstanceVolProfile)) { // || d.HasChange(isInstanceVolAttTags)
 		insId := d.Get(isInstanceId).(string)
 		getinsOptions := &vpcv1.GetInstanceOptions{
 			ID: &insId,
@@ -743,13 +781,6 @@ func instanceVolAttUpdate(d *schema.ResourceData, meta interface{}) error {
 			}
 			iops := int64(d.Get(isVolumeIops).(int))
 			volumeProfilePatchModel.Iops = &iops
-		}
-		if d.HasChange("allowed_use") {
-			allowedUseModel, err := ResourceIBMUsageConstraintsMapToVolumeAllowedUsePrototype(d)
-			if err != nil {
-				return err
-			}
-			volumeProfilePatchModel.AllowedUse = allowedUseModel
 		}
 		// if d.HasChange(isInstanceVolAttTags) && !d.IsNewResource() {
 		// 	if v, ok := d.GetOk(isInstanceVolAttTags); ok {

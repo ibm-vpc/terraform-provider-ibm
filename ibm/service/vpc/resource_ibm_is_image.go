@@ -384,8 +384,8 @@ func imgCreateByFile(d *schema.ResourceData, meta interface{}, href, name, opera
 			Name: &operatingSystem,
 		},
 	}
-	if _, ok := d.GetOk("allowed_use"); ok {
-		allowedUseModel, err := ResourceIBMUsageConstraintsMapToImageAllowUsePrototype(d)
+	if allowedUse, ok := d.GetOk("allowed_use"); ok {
+		allowedUseModel, err := ResourceIBMUsageConstraintsMapToImageAllowUsePrototype(allowedUse.([]interface{})[0].(map[string]interface{}))
 		if err != nil {
 			return err
 		}
@@ -466,8 +466,8 @@ func imgCreateByVolume(d *schema.ResourceData, meta interface{}, name, volume st
 	imagePrototype.SourceVolume = &vpcv1.VolumeIdentity{
 		ID: &volume,
 	}
-	if _, ok := d.GetOk("allowed_use"); ok {
-		allowedUseModel, err := ResourceIBMUsageConstraintsMapToImageAllowUsePrototype(d)
+	if allowedUse, ok := d.GetOk("allowed_use"); ok {
+		allowedUseModel, err := ResourceIBMUsageConstraintsMapToImageAllowUsePrototype(allowedUse.([]interface{})[0].(map[string]interface{}))
 		if err != nil {
 			return err
 		}
@@ -730,11 +730,11 @@ func imgUpdate(d *schema.ResourceData, meta interface{}, id, name string, hasNam
 		}
 	}
 	if d.HasChange("allowed_use") {
-		allowedUse, err := ResourceIBMIsImageMapToImageAllowedUsePatch(d)
+		allowedUseModel, err := ResourceIBMIsImageMapToImageAllowedUsePatch(d.Get("allowed_use").([]interface{})[0].(map[string]interface{}))
 		if err != nil {
 			return fmt.Errorf("[ERROR] Error on allowed use patch: %s\n", err)
 		}
-		imagePatchModel.AllowedUse = allowedUse
+		imagePatchModel.AllowedUse = allowedUseModel
 	}
 	imagePatch, err := imagePatchModel.AsPatch()
 	if err != nil {
@@ -754,16 +754,17 @@ func imgUpdate(d *schema.ResourceData, meta interface{}, id, name string, hasNam
 
 	return nil
 }
-func ResourceIBMIsImageMapToImageAllowedUsePatch(d *schema.ResourceData) (*vpcv1.ImageAllowedUsePatch, error) {
+
+func ResourceIBMIsImageMapToImageAllowedUsePatch(modelMap map[string]interface{}) (*vpcv1.ImageAllowedUsePatch, error) {
 	model := &vpcv1.ImageAllowedUsePatch{}
-	if d.Get("allowed_use.0.api_version") != nil && d.Get("allowed_use.0.api_version").(string) != "" {
-		model.ApiVersion = core.StringPtr(d.Get("allowed_use.0.api_version").(string))
+	if modelMap["api_version"] != nil && modelMap["api_version"].(string) != "" {
+		model.ApiVersion = core.StringPtr(modelMap["api_version"].(string))
 	}
-	if d.Get("allowed_use.0.bare_metal_server") != nil && d.Get("allowed_use.0.bare_metal_server").(string) != "" {
-		model.BareMetalServer = core.StringPtr(d.Get("allowed_use.0.bare_metal_server").(string))
+	if modelMap["bare_metal_server"] != nil && modelMap["bare_metal_server"].(string) != "" {
+		model.BareMetalServer = core.StringPtr(modelMap["bare_metal_server"].(string))
 	}
-	if d.Get("allowed_use.0.instance") != nil && d.Get("allowed_use.0.instance").(string) != "" {
-		model.Instance = core.StringPtr(d.Get("allowed_use.0.instance").(string))
+	if modelMap["instance"] != nil && modelMap["instance"].(string) != "" {
+		model.Instance = core.StringPtr(modelMap["instance"].(string))
 	}
 	return model, nil
 }
@@ -971,16 +972,16 @@ func imgExists(d *schema.ResourceData, meta interface{}, id string) (bool, error
 	return true, nil
 }
 
-func ResourceIBMUsageConstraintsMapToImageAllowUsePrototype(d *schema.ResourceData) (*vpcv1.ImageAllowedUsePrototype, error) {
+func ResourceIBMUsageConstraintsMapToImageAllowUsePrototype(modelMap map[string]interface{}) (*vpcv1.ImageAllowedUsePrototype, error) {
 	model := &vpcv1.ImageAllowedUsePrototype{}
-	if d.Get("allowed_use.0.api_version") != nil && d.Get("allowed_use.0.api_version").(string) != "" {
-		model.ApiVersion = core.StringPtr(d.Get("allowed_use.0.api_version").(string))
+	if modelMap["api_version"] != nil && modelMap["api_version"].(string) != "" {
+		model.ApiVersion = core.StringPtr(modelMap["api_version"].(string))
 	}
-	if d.Get("allowed_use.0.bare_metal_server") != nil && d.Get("allowed_use.0.bare_metal_server").(string) != "" {
-		model.BareMetalServer = core.StringPtr(d.Get("allowed_use.0.bare_metal_server").(string))
+	if modelMap["bare_metal_server"] != nil && modelMap["bare_metal_server"].(string) != "" {
+		model.BareMetalServer = core.StringPtr(modelMap["bare_metal_server"].(string))
 	}
-	if d.Get("allowed_use.0.instance") != nil && d.Get("allowed_use.0.instance").(string) != "" {
-		model.Instance = core.StringPtr(d.Get("allowed_use.0.instance").(string))
+	if modelMap["instance"] != nil && modelMap["instance"].(string) != "" {
+		model.Instance = core.StringPtr(modelMap["instance"].(string))
 	}
 	return model, nil
 }

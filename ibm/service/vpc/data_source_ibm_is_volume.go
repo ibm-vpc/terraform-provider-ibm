@@ -549,7 +549,7 @@ func volumeGet(d *schema.ResourceData, meta interface{}) error {
 
 	allowedUses := []map[string]interface{}{}
 	if vol.AllowedUse != nil {
-		modelMap, err := DataSourceIBMIsVolumeAllowedUseToMap(vol.AllowedUse)
+		modelMap, err := ResourceceIBMIsVolumeAllowedUseToMap(vol.AllowedUse)
 		if err != nil {
 			tfErr := flex.TerraformErrorf(err, err.Error(), "(Data) ibm_is_image", "read")
 			log.Println(tfErr.GetDiag())
@@ -569,17 +569,4 @@ func resourceIbmIsVolumeCatalogOfferingVersionPlanReferenceDeletedToMap(catalogO
 	catalogOfferingVersionPlanReferenceDeletedMap["more_info"] = catalogOfferingVersionPlanReferenceDeleted.MoreInfo
 
 	return catalogOfferingVersionPlanReferenceDeletedMap
-}
-func DataSourceIBMIsVolumeAllowedUseToMap(model *vpcv1.VolumeAllowedUse) (map[string]interface{}, error) {
-	modelMap := make(map[string]interface{})
-	if model.BareMetalServer != nil {
-		modelMap["bare_metal_server"] = *model.BareMetalServer
-	}
-	if model.Instance != nil {
-		modelMap["instance"] = *model.Instance
-	}
-	if model.ApiVersion != nil {
-		modelMap["api_version"] = *model.ApiVersion
-	}
-	return modelMap, nil
 }

@@ -589,12 +589,12 @@ func resourceIBMISSnapshotCreate(d *schema.ResourceData, meta interface{}) error
 			snapshotprototypeoptions.Name = &name
 		}
 
-		if _, ok := d.GetOk("allowed_use"); ok {
-			allowedUse, err := ResourceIBMIsSnapshotMapToSnapshotAllowedUse(d)
+		if allowedUse, ok := d.GetOk("allowed_use"); ok {
+			allowedUseModel, err := ResourceIBMIsSnapshotMapToSnapshotAllowedUse(allowedUse.([]interface{})[0].(map[string]interface{}))
 			if err != nil {
 				return fmt.Errorf("[ERROR] Error Creating Snapshot: %s", err)
 			}
-			snapshotprototypeoptions.AllowedUse = allowedUse
+			snapshotprototypeoptions.AllowedUse = allowedUseModel
 		}
 
 		if grp, ok := d.GetOk(isVPCResourceGroup); ok {
@@ -621,12 +621,12 @@ func resourceIBMISSnapshotCreate(d *schema.ResourceData, meta interface{}) error
 			}
 		}
 
-		if _, ok := d.GetOk("allowed_use"); ok {
-			allowedUse, err := ResourceIBMIsSnapshotMapToSnapshotAllowedUse(d)
+		if allowedUse, ok := d.GetOk("allowed_use"); ok {
+			allowedUseModel, err := ResourceIBMIsSnapshotMapToSnapshotAllowedUse(allowedUse.([]interface{})[0].(map[string]interface{}))
 			if err != nil {
 				return fmt.Errorf("[ERROR] Error Creating Snapshot: %s", err)
 			}
-			snapshotprototypeoptionsbysourcesnapshot.AllowedUse = allowedUse
+			snapshotprototypeoptionsbysourcesnapshot.AllowedUse = allowedUseModel
 		}
 
 		if grp, ok := d.GetOk(isVPCResourceGroup); ok {
@@ -1051,12 +1051,12 @@ func snapshotUpdate(d *schema.ResourceData, meta interface{}, id, name string, h
 			ID: &id,
 		}
 		updateSnapshotOptions.IfMatch = &eTag
-		allowedUse, err := ResourceIBMIsSnapshotMapToSnapshotAllowedUsePatch(d)
+		allowedUseModel, err := ResourceIBMIsSnapshotMapToSnapshotAllowedUsePatch(d.Get("allowed_use").([]interface{})[0].(map[string]interface{}))
 		if err != nil {
 			return fmt.Errorf("[ERROR] Error updating Snapshot : %s", err)
 		}
 		snapshotPatchModel := &vpcv1.SnapshotPatch{
-			AllowedUse: allowedUse,
+			AllowedUse: allowedUseModel,
 		}
 		snapshotPatch, err := snapshotPatchModel.AsPatch()
 		if err != nil {
@@ -1141,20 +1141,6 @@ func isWaitForSnapshotUpdate(sess *vpcv1.VpcV1, id string, timeout time.Duration
 	return stateConf.WaitForState()
 }
 
-func ResourceIBMIsSnapshotMapToSnapshotAllowedUsePatch(d *schema.ResourceData) (*vpcv1.SnapshotAllowedUsePatch, error) {
-	model := &vpcv1.SnapshotAllowedUsePatch{}
-	if d.Get("allowed_use.0.api_version") != nil && d.Get("allowed_use.0.api_version").(string) != "" {
-		model.ApiVersion = core.StringPtr(d.Get("allowed_use.0.api_version").(string))
-	}
-	if d.Get("allowed_use.0.bare_metal_server") != nil && d.Get("allowed_use.0.bare_metal_server").(string) != "" {
-		model.BareMetalServer = core.StringPtr(d.Get("allowed_use.0.bare_metal_server").(string))
-	}
-	if d.Get("allowed_use.0.instance") != nil && d.Get("allowed_use.0.instance").(string) != "" {
-		model.Instance = core.StringPtr(d.Get("allowed_use.0.instance").(string))
-	}
-	return model, nil
-}
-
 func isSnapshotUpdateRefreshFunc(sess *vpcv1.VpcV1, id string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		getSnapshotOptions := &vpcv1.GetSnapshotOptions{
@@ -1186,20 +1172,6 @@ func isWaitForCloneAvailable(sess *vpcv1.VpcV1, d *schema.ResourceData, id, zone
 		MinTimeout: 10 * time.Second,
 	}
 	return stateConf.WaitForState()
-}
-
-func ResourceIBMIsSnapshotMapToSnapshotAllowedUse(d *schema.ResourceData) (*vpcv1.SnapshotAllowedUsePrototype, error) {
-	model := &vpcv1.SnapshotAllowedUsePrototype{}
-	if d.Get("allowed_use.0.api_version") != nil && d.Get("allowed_use.0.api_version").(string) != "" {
-		model.ApiVersion = core.StringPtr(d.Get("allowed_use.0.api_version").(string))
-	}
-	if d.Get("allowed_use.0.bare_metal_server") != nil && d.Get("allowed_use.0.bare_metal_server").(string) != "" {
-		model.BareMetalServer = core.StringPtr(d.Get("allowed_use.0.bare_metal_server").(string))
-	}
-	if d.Get("allowed_use.0.instance") != nil && d.Get("allowed_use.0.instance").(string) != "" {
-		model.Instance = core.StringPtr(d.Get("allowed_use.0.instance").(string))
-	}
-	return model, nil
 }
 
 func isSnapshotCloneRefreshFunc(sess *vpcv1.VpcV1, id, zoneName string) resource.StateRefreshFunc {
@@ -1353,4 +1325,31 @@ func snapshotExists(d *schema.ResourceData, meta interface{}, id string) (bool, 
 		return false, fmt.Errorf("[ERROR] Error getting Snapshot: %s\n%s", err, response)
 	}
 	return true, nil
+}
+func ResourceIBMIsSnapshotMapToSnapshotAllowedUsePatch(modelMap map[string]interface{}) (*vpcv1.SnapshotAllowedUsePatch, error) {
+	model := &vpcv1.SnapshotAllowedUsePatch{}
+	if modelMap["api_version"] != nil && modelMap["api_version"].(string) != "" {
+		model.ApiVersion = core.StringPtr(modelMap["api_version"].(string))
+	}
+	if modelMap["bare_metal_server"] != nil && modelMap["bare_metal_server"].(string) != "" {
+		model.BareMetalServer = core.StringPtr(modelMap["bare_metal_server"].(string))
+	}
+	if modelMap["instance"] != nil && modelMap["instance"].(string) != "" {
+		model.Instance = core.StringPtr(modelMap["instance"].(string))
+	}
+	return model, nil
+}
+
+func ResourceIBMIsSnapshotMapToSnapshotAllowedUse(modelMap map[string]interface{}) (*vpcv1.SnapshotAllowedUsePrototype, error) {
+	model := &vpcv1.SnapshotAllowedUsePrototype{}
+	if modelMap["api_version"] != nil && modelMap["api_version"].(string) != "" {
+		model.ApiVersion = core.StringPtr(modelMap["api_version"].(string))
+	}
+	if modelMap["bare_metal_server"] != nil && modelMap["bare_metal_server"].(string) != "" {
+		model.BareMetalServer = core.StringPtr(modelMap["bare_metal_server"].(string))
+	}
+	if modelMap["instance"] != nil && modelMap["instance"].(string) != "" {
+		model.Instance = core.StringPtr(modelMap["instance"].(string))
+	}
+	return model, nil
 }

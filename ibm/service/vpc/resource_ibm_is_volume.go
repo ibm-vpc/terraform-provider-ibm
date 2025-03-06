@@ -547,12 +547,13 @@ func volCreate(d *schema.ResourceData, meta interface{}, volName, profile, zone 
 				volTemplate.Capacity = &volCapacity
 			}
 		}
-		allowedUseModel, err := ResourceIBMUsageConstraintsMapToVolumeAllowedUse(d)
-		if err != nil {
-			return err
+		if allowedUse, ok := d.GetOk("allowed_use"); ok {
+			allowedUseModel, err := ResourceIBMIsInstanceMapToVolumeAllowedUsePrototype(allowedUse.([]interface{})[0].(map[string]interface{}))
+			if err != nil {
+				return err
+			}
+			volTemplate.AllowedUse = allowedUseModel
 		}
-		volTemplate.AllowedUse = allowedUseModel
-
 	} else if sourceSnapshtCrn, ok := d.GetOk(isVolumeSourceSnapshotCrn); ok {
 		sourceSnapshot := sourceSnapshtCrn.(string)
 
@@ -566,11 +567,11 @@ func volCreate(d *schema.ResourceData, meta interface{}, volName, profile, zone 
 				volTemplate.Capacity = &volCapacity
 			}
 		}
-		allowedUseModel, err := ResourceIBMUsageConstraintsMapToVolumeAllowedUse(d)
-		if err != nil {
-			return err
-		}
-		if allowedUseModel != nil {
+		if allowedUse, ok := d.GetOk("allowed_use"); ok {
+			allowedUseModel, err := ResourceIBMIsInstanceMapToVolumeAllowedUsePrototype(allowedUse.([]interface{})[0].(map[string]interface{}))
+			if err != nil {
+				return err
+			}
 			volTemplate.AllowedUse = allowedUseModel
 		}
 	} else if capacity, ok := d.GetOk(isVolumeCapacity); ok {
@@ -735,7 +736,7 @@ func volGet(d *schema.ResourceData, meta interface{}, id string) error {
 	}
 	allowedUses := []map[string]interface{}{}
 	if vol.AllowedUse != nil {
-		modelMap, err := DataSourceIBMIsVolumeAllowedUseToMap(vol.AllowedUse)
+		modelMap, err := ResourceceIBMIsVolumeAllowedUseToMap(vol.AllowedUse)
 		if err != nil {
 			tfErr := flex.TerraformErrorf(err, err.Error(), "(Resource) ibm_is_volume", "read")
 			log.Println(tfErr.GetDiag())
@@ -893,7 +894,7 @@ func volUpdate(d *schema.ResourceData, meta interface{}, id, name string, hasNam
 	}
 
 	if d.HasChange("allowed_use") {
-		allowedUseModel, err := ResourceIBMUsageConstraintsMapToVolumeAllowedUsePrototype(d)
+		allowedUseModel, err := ResourceIBMIsInstanceMapToVolumeAllowedUsePatchPrototype(d.Get("allowed_use").([]interface{})[0].(map[string]interface{}))
 		if err != nil {
 			return err
 		}
@@ -1282,30 +1283,58 @@ func deleteAllSnapshots(sess *vpcv1.VpcV1, id string) error {
 	return nil
 }
 
-func ResourceIBMUsageConstraintsMapToVolumeAllowedUsePrototype(d *schema.ResourceData) (*vpcv1.VolumeAllowedUsePatch, error) {
-	model := &vpcv1.VolumeAllowedUsePatch{}
-	if d.Get("allowed_use.0.api_version") != nil && d.Get("allowed_use.0.api_version").(string) != "" {
-		model.ApiVersion = core.StringPtr(d.Get("allowed_use.0.api_version").(string))
+func ResourceIBMIsInstanceMapToVolumeAllowedUsePrototype(modelMap map[string]interface{}) (*vpcv1.VolumeAllowedUsePrototype, error) {
+	model := &vpcv1.VolumeAllowedUsePrototype{}
+	if modelMap["api_version"] != nil && modelMap["api_version"].(string) != "" {
+		model.ApiVersion = core.StringPtr(modelMap["api_version"].(string))
 	}
-	if d.Get("allowed_use.0.bare_metal_server") != nil && d.Get("allowed_use.0.bare_metal_server").(string) != "" {
-		model.BareMetalServer = core.StringPtr(d.Get("allowed_use.0.bare_metal_server").(string))
+	if modelMap["bare_metal_server"] != nil && modelMap["bare_metal_server"].(string) != "" {
+		model.BareMetalServer = core.StringPtr(modelMap["bare_metal_server"].(string))
 	}
-	if d.Get("allowed_use.0.instance") != nil && d.Get("allowed_use.0.instance").(string) != "" {
-		model.Instance = core.StringPtr(d.Get("allowed_use.0.instance").(string))
+	if modelMap["instance"] != nil && modelMap["instance"].(string) != "" {
+		model.Instance = core.StringPtr(modelMap["instance"].(string))
 	}
 	return model, nil
 }
 
-func ResourceIBMUsageConstraintsMapToVolumeAllowedUse(d *schema.ResourceData) (*vpcv1.VolumeAllowedUsePrototype, error) {
-	model := &vpcv1.VolumeAllowedUsePrototype{}
-	if d.Get("allowed_use.0.api_version") != nil && d.Get("allowed_use.0.api_version").(string) != "" {
-		model.ApiVersion = core.StringPtr(d.Get("allowed_use.0.api_version").(string))
+func ResourceIBMIsInstanceMapToVolumeAllowedUsePatchPrototype(modelMap map[string]interface{}) (*vpcv1.VolumeAllowedUsePatch, error) {
+	model := &vpcv1.VolumeAllowedUsePatch{}
+	if modelMap["api_version"] != nil && modelMap["api_version"].(string) != "" {
+		model.ApiVersion = core.StringPtr(modelMap["api_version"].(string))
 	}
-	if d.Get("allowed_use.0.bare_metal_server") != nil && d.Get("allowed_use.0.bare_metal_server").(string) != "" {
-		model.BareMetalServer = core.StringPtr(d.Get("allowed_use.0.bare_metal_server").(string))
+	if modelMap["bare_metal_server"] != nil && modelMap["bare_metal_server"].(string) != "" {
+		model.BareMetalServer = core.StringPtr(modelMap["bare_metal_server"].(string))
 	}
-	if d.Get("allowed_use.0.instance") != nil && d.Get("allowed_use.0.instance").(string) != "" {
-		model.Instance = core.StringPtr(d.Get("allowed_use.0.instance").(string))
+	if modelMap["instance"] != nil && modelMap["instance"].(string) != "" {
+		model.Instance = core.StringPtr(modelMap["instance"].(string))
 	}
 	return model, nil
+}
+
+func ResourceIBMIsVolumeAllowedUseToMap(model *vpcv1.VolumeAllowedUsePrototype) (map[string]interface{}, error) {
+	modelMap := make(map[string]interface{})
+	if model.BareMetalServer != nil {
+		modelMap["bare_metal_server"] = *model.BareMetalServer
+	}
+	if model.Instance != nil {
+		modelMap["instance"] = *model.Instance
+	}
+	if model.ApiVersion != nil {
+		modelMap["api_version"] = *model.ApiVersion
+	}
+	return modelMap, nil
+}
+
+func ResourceceIBMIsVolumeAllowedUseToMap(model *vpcv1.VolumeAllowedUse) (map[string]interface{}, error) {
+	modelMap := make(map[string]interface{})
+	if model.BareMetalServer != nil {
+		modelMap["bare_metal_server"] = *model.BareMetalServer
+	}
+	if model.Instance != nil {
+		modelMap["instance"] = *model.Instance
+	}
+	if model.ApiVersion != nil {
+		modelMap["api_version"] = *model.ApiVersion
+	}
+	return modelMap, nil
 }
