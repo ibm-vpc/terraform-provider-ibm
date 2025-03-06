@@ -48,7 +48,8 @@ const (
 	isLBSecurityGroups               = "security_groups"
 	isLBSecurityGroupsSupported      = "security_group_supported"
 
-	isLBAccessTags = "access_tags"
+	isAttachedLoadBalancerPoolMembers = "attached_load_balancer_pool_members"
+	isLBAccessTags                    = "access_tags"
 )
 
 func ResourceIBMISLB() *schema.Resource {
@@ -100,13 +101,38 @@ func ResourceIBMISLB() *schema.Resource {
 				ValidateFunc: validate.InvokeValidator("ibm_is_lb", isLBType),
 				Description:  "Load Balancer type",
 			},
-			"attached_load_balancer_pool_members": {
-				Type:        schema.TypeSet,
+			isAttachedLoadBalancerPoolMembers: {
+				Type:        schema.TypeList,
 				Computed:    true,
-				Optional:    true,
-				Elem:        &schema.Schema{Type: schema.TypeString},
-				Set:         schema.HashString,
 				Description: "The load balancer pool members attached to this load balancer.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"deleted": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "If present, this property indicates the referenced resource has been deleted and providessome supplementary information.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"more_info": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "Link to documentation about deleted resources.",
+									},
+								},
+							},
+						},
+						"href": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The URL for this load balancer pool member.",
+						},
+						"id": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The unique identifier for this load balancer pool member.",
+						},
+					},
+				},
 			},
 			isLBAvailability: {
 				Type:        schema.TypeString,
@@ -561,14 +587,7 @@ func lbGet(d *schema.ResourceData, meta interface{}, id string) error {
 		d.Set(isLBAvailability, *lb.Availability)
 	}
 	if lb.AttachedLoadBalancerPoolMembers != nil {
-		attachedLoadBalancerPoolMembersList := make([]string, 0)
-		for _, attachedLoadBalancerPoolMember := range lb.AttachedLoadBalancerPoolMembers {
-			if attachedLoadBalancerPoolMember.ID != nil {
-				attachedLoadBalancerPoolMember := *attachedLoadBalancerPoolMember.ID
-				attachedLoadBalancerPoolMembersList = append(attachedLoadBalancerPoolMembersList, attachedLoadBalancerPoolMember)
-			}
-		}
-		d.Set("attached_load_balancer_pool_members", attachedLoadBalancerPoolMembersList)
+		d.Set(isAttachedLoadBalancerPoolMembers, dataSourceAttachedLoadBalancerPoolFlattenMembers(lb.AttachedLoadBalancerPoolMembers))
 	}
 	if lb.AccessMode != nil {
 		d.Set(isLBAccessMode, *lb.AccessMode)
