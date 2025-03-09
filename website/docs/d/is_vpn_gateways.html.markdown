@@ -94,3 +94,5 @@ In addition to all argument reference list, you can access the following attribu
       - `name` - (String) - The unique user-defined name for this VPC.
   - `resource_group` - (String) The resource group ID.
   - `mode` - (String) The VPN gateway mode, supported values are `policy` and `route`.
+  - `local_asn` - (Integer) The local autonomous system number (ASN) for this VPN gateway and its connections.
+  - `advertised_cidrs` - (Optional, List) The additional CIDRs advertised through any enabled routing protocol (for example, BGP). The routing protocol will advertise routes with these CIDRs and VPC prefixes as route destinations.

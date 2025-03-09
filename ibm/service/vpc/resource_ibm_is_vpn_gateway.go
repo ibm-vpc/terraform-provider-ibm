@@ -22,6 +22,8 @@ const (
 	isVPNGatewayName              = "name"
 	isVPNGatewayResourceGroup     = "resource_group"
 	isVPNGatewayMode              = "mode"
+	isVPNGatewayLocalAsn          = "local_asn"
+	isVPNGatewayAdvertisedCidrs   = "advertised_cidrs"
 	isVPNGatewayCRN               = "crn"
 	isVPNGatewayTags              = "tags"
 	isVPNGatewaySubnet            = "subnet"
@@ -253,6 +255,21 @@ func ResourceIBMISVPNGateway() *schema.Resource {
 				Description:  "mode in VPN gateway(route/policy)",
 			},
 
+			isVPNGatewayLocalAsn: {
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Description: "The local autonomous system number (ASN) for this VPN gateway and its connections.",
+			},
+
+			isVPNGatewayAdvertisedCidrs: {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "The additional CIDRs advertised through any enabled routing protocol (for example, BGP). The routing protocol will advertise routes with these CIDRs and VPC prefixes as route destinations.",
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
+
 			isVPNGatewayMembers: {
 				Type:        schema.TypeList,
 				Computed:    true,
@@ -383,15 +400,16 @@ func resourceIBMISVPNGatewayCreate(d *schema.ResourceData, meta interface{}) err
 	name := d.Get(isVPNGatewayName).(string)
 	subnetID := d.Get(isVPNGatewaySubnet).(string)
 	mode := d.Get(isVPNGatewayMode).(string)
+	localAsn := d.Get(isVPNGatewayLocalAsn).(int64)
 
-	err := vpngwCreate(d, meta, name, subnetID, mode)
+	err := vpngwCreate(d, meta, name, subnetID, mode, localAsn)
 	if err != nil {
 		return err
 	}
 	return resourceIBMISVPNGatewayRead(d, meta)
 }
 
-func vpngwCreate(d *schema.ResourceData, meta interface{}, name, subnetID, mode string) error {
+func vpngwCreate(d *schema.ResourceData, meta interface{}, name, subnetID, mode string, localAsn int64) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
 		return err
@@ -400,8 +418,9 @@ func vpngwCreate(d *schema.ResourceData, meta interface{}, name, subnetID, mode 
 		Subnet: &vpcv1.SubnetIdentity{
 			ID: &subnetID,
 		},
-		Name: &name,
-		Mode: &mode,
+		Name:     &name,
+		Mode:     &mode,
+		LocalAsn: &localAsn,
 	}
 	options := &vpcv1.CreateVPNGatewayOptions{
 		VPNGatewayPrototype: vpnGatewayPrototype,
@@ -569,6 +588,8 @@ func vpngwGet(d *schema.ResourceData, meta interface{}, id string) error {
 		d.Set(flex.ResourceGroupName, vpnGateway.ResourceGroup.Name)
 		d.Set(isVPNGatewayResourceGroup, vpnGateway.ResourceGroup.ID)
 	}
+	d.Set(isVPNGatewayAdvertisedCidrs, vpnGateway.AdvertisedCIDRs)
+	d.Set(isVPNGatewayLocalAsn, *vpnGateway.LocalAsn)
 	d.Set(isVPNGatewayMode, *vpnGateway.Mode)
 	if vpnGateway.Members != nil {
 		vpcMembersIpsList := make([]map[string]interface{}, 0)
@@ -601,22 +622,16 @@ func vpngwGet(d *schema.ResourceData, meta interface{}, id string) error {
 
 func resourceIBMISVPNGatewayUpdate(d *schema.ResourceData, meta interface{}) error {
 	id := d.Id()
-	name := ""
 	hasChanged := false
 
-	if d.HasChange(isVPNGatewayName) {
-		name = d.Get(isVPNGatewayName).(string)
-		hasChanged = true
-	}
-
-	err := vpngwUpdate(d, meta, id, name, hasChanged)
+	err := vpngwUpdate(d, meta, id, hasChanged)
 	if err != nil {
 		return err
 	}
 	return resourceIBMISVPNGatewayRead(d, meta)
 }
 
-func vpngwUpdate(d *schema.ResourceData, meta interface{}, id, name string, hasChanged bool) error {
+func vpngwUpdate(d *schema.ResourceData, meta interface{}, id string, hasChanged bool) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
 		return err
@@ -655,13 +670,24 @@ func vpngwUpdate(d *schema.ResourceData, meta interface{}, id, name string, hasC
 				"Error on update of resource VPC VPN Gateway  (%s) access tags: %s", d.Id(), err)
 		}
 	}
+
+	options := &vpcv1.UpdateVPNGatewayOptions{
+		ID: &id,
+	}
+	vpnGatewayPatchModel := &vpcv1.VPNGatewayPatch{}
+	if d.HasChange(isVPNGatewayName) {
+		name := d.Get(isVPNGatewayName).(string)
+		vpnGatewayPatchModel.Name = &name
+		hasChanged = true
+	}
+
+	if d.HasChange(isVPNGatewayLocalAsn) {
+		localAsn := d.Get(isVPNGatewayLocalAsn).(int64)
+		vpnGatewayPatchModel.LocalAsn = &localAsn
+		hasChanged = true
+	}
+
 	if hasChanged {
-		options := &vpcv1.UpdateVPNGatewayOptions{
-			ID: &id,
-		}
-		vpnGatewayPatchModel := &vpcv1.VPNGatewayPatch{
-			Name: &name,
-		}
 		vpnGatewayPatch, err := vpnGatewayPatchModel.AsPatch()
 		if err != nil {
 			return fmt.Errorf("[ERROR] Error calling asPatch for VPNGatewayPatch: %s", err)

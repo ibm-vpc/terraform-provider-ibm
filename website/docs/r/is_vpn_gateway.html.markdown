@@ -38,9 +38,10 @@ resource "ibm_is_subnet" "example" {
 }
 
 resource "ibm_is_vpn_gateway" "example" {
-  name   = "example-vpn-gateway"
-  subnet = ibm_is_subnet.example.id
-  mode   = "route"
+  name      = "example-vpn-gateway"
+  subnet    = ibm_is_subnet.example.id
+  mode      = "route"
+  local_asn = 64520
 }
 
 ```
@@ -60,6 +61,7 @@ Review the argument references that you can specify for your resource.
 - `resource_group` - (Optional, Forces new resource, String) The resource group (id), where the VPN gateway to be created.
 - `subnet` - (Required, Forces new resource, String) The unique identifier for this subnet.
 - `tags`- (Optional, Array of Strings) A list of tags that you want to add to your VPN gateway. Tags can help you find your VPN gateway more easily later.
+- `local_asn` - (Optional, Integer) The local autonomous system number (ASN) for this VPN gateway and its connections.
 
 
 ## Attribute reference
@@ -109,6 +111,7 @@ In addition to all argument reference list, you can access the following attribu
   - `id` - (String) - The unique identifier for this VPC.
   - `name` - (String) - The unique user-defined name for this VPC.
 - `resource_type` - (String) - The resource type.
+-`local_asn` - (Integer) The local autonomous system number (ASN) for this VPN gateway and its connections.
 
 
 

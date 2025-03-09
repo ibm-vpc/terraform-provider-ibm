@@ -67,6 +67,8 @@ In addition to all argument references listed, you can access the following attr
 	- `role` - (String) The high availability role assigned to the VPN gateway member.
 
 - `mode` - (String) Route mode VPN gateway.
+- `local_asn` - (Integer) The local autonomous system number (ASN) for this VPN gateway and its connections.
+- `advertised_cidrs` - (Optional, List) The additional CIDRs advertised through any enabled routing protocol (for example, BGP). The routing protocol will advertise routes with these CIDRs and VPC prefixes as route destinations.
 
 - `name` - (String) The user-defined name for this VPN gateway.
 
