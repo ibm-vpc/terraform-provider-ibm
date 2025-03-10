@@ -74,18 +74,18 @@ func DataSourceIBMIsBareMetalServerDisks() *schema.Resource {
 						"allowed_use": &schema.Schema{
 							Type:        schema.TypeList,
 							Computed:    true,
-							Description: "The usage constraints to match against the requested instance or bare metal server properties to determine compatibility.",
+							Description: "The usage constraints to be matched against the requested bare metal server properties to determine compatibility.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"bare_metal_server": &schema.Schema{
 										Type:        schema.TypeString,
 										Computed:    true,
-										Description: "An image can only be used for bare metal instantiation if this expression resolves to true.The expression follows [Common Expression Language](https://github.com/google/cel-spec/blob/master/doc/langdef.md), but does not support built-in functions and macros. In addition, the following property is supported:- `enable_secure_boot` - (boolean) Indicates whether secure boot is enabled for this bare metal server.",
+										Description: "The expression that must be satisfied by the properties of a bare metal server provisioned using the image data in this disk.",
 									},
 									"instance": &schema.Schema{
 										Type:        schema.TypeString,
 										Computed:    true,
-										Description: "This image can only be used to provision a virtual server instance if the resulting instance would have property values that satisfy this expression.The expression follows [Common Expression Language](https://github.com/google/cel-spec/blob/master/doc/langdef.md), but does not support built-in functions and macros. In addition, the following variables are supported, corresponding to `Instance` properties:- `gpu.count` - (integer) The number of GPUs assigned to the instance- `gpu.manufacturer` - (string) The GPU manufacturer- `gpu.memory` - (integer) The overall amount of GPU memory in GiB (gibibytes)- `gpu.model` - (string) The GPU model- `enable_secure_boot` - (boolean) Indicates whether secure boot is enabled.",
+										Description: "The expression that must be satisfied by the properties of a bare metal server provisioned using the image data in this disk.",
 									},
 									"api_version": &schema.Schema{
 										Type:        schema.TypeString,

@@ -159,18 +159,18 @@ func DataSourceIBMIsBareMetalServer() *schema.Resource {
 						"allowed_use": &schema.Schema{
 							Type:        schema.TypeList,
 							Computed:    true,
-							Description: "The usage constraints to match against the requested instance or bare metal server properties to determine compatibility.",
+							Description: "The usage constraints to be matched against the requested bare metal server properties to determine compatibility.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"bare_metal_server": &schema.Schema{
 										Type:        schema.TypeString,
 										Computed:    true,
-										Description: "An image can only be used for bare metal instantiation if this expression resolves to true.",
+										Description: "The expression that must be satisfied by the properties of a bare metal server provisioned using the image data in this disk.",
 									},
 									"instance": &schema.Schema{
 										Type:        schema.TypeString,
 										Computed:    true,
-										Description: "This image can only be used to provision a virtual server instance if the resulting instance would have property values that satisfy this expression.",
+										Description: "The expression that must be satisfied by the properties of a bare metal server provisioned using the image data in this disk.",
 									},
 									"api_version": &schema.Schema{
 										Type:        schema.TypeString,
