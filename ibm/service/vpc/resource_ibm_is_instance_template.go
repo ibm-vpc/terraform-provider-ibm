@@ -1642,7 +1642,7 @@ func instanceTemplateCreateByCatalogOffering(d *schema.ResourceData, meta interf
 
 		//allowed use
 		if bootvol["allowed_use"] != nil && len(bootvol["allowed_use"].([]interface{})) > 0 {
-			AllowedUseModel, err := ResourceIBMIsInstanceMapToVolumeAllowedUsePrototype(bootvol["allowed_use"].([]interface{})[0].(map[string]interface{}))
+			AllowedUseModel, err := ResourceIBMIsVolumeAllowedUseMapToVolumeAllowedUsePrototype(bootvol["allowed_use"].([]interface{})[0].(map[string]interface{}))
 			if err != nil {
 				return err
 			}
@@ -1710,7 +1710,7 @@ func instanceTemplateCreateByCatalogOffering(d *schema.ResourceData, meta interf
 				}
 				//allowed use
 				if newvol["allowed_use"] != nil && len(newvol["allowed_use"].([]interface{})) > 0 {
-					AllowedUseModel, err := ResourceIBMIsInstanceMapToVolumeAllowedUsePrototype(newvol["allowed_use"].([]interface{})[0].(map[string]interface{}))
+					AllowedUseModel, err := ResourceIBMIsVolumeAllowedUseMapToVolumeAllowedUsePrototype(newvol["allowed_use"].([]interface{})[0].(map[string]interface{}))
 					if err != nil {
 						return err
 					}
@@ -2153,7 +2153,7 @@ func instanceTemplateCreate(d *schema.ResourceData, meta interface{}, profile, n
 
 		//allowed use
 		if bootvol["allowed_use"] != nil && len(bootvol["allowed_use"].([]interface{})) > 0 {
-			AllowedUseModel, err := ResourceIBMIsInstanceMapToVolumeAllowedUsePrototype(bootvol["allowed_use"].([]interface{})[0].(map[string]interface{}))
+			AllowedUseModel, err := ResourceIBMIsVolumeAllowedUseMapToVolumeAllowedUsePrototype(bootvol["allowed_use"].([]interface{})[0].(map[string]interface{}))
 			if err != nil {
 				return err
 			}
@@ -2221,7 +2221,7 @@ func instanceTemplateCreate(d *schema.ResourceData, meta interface{}, profile, n
 				}
 				//allowed use
 				if newvol["allowed_use"] != nil && len(newvol["allowed_use"].([]interface{})) > 0 {
-					AllowedUseModel, err := ResourceIBMIsInstanceMapToVolumeAllowedUsePrototype(newvol["allowed_use"].([]interface{})[0].(map[string]interface{}))
+					AllowedUseModel, err := ResourceIBMIsVolumeAllowedUseMapToVolumeAllowedUsePrototype(newvol["allowed_use"].([]interface{})[0].(map[string]interface{}))
 					if err != nil {
 						return err
 					}

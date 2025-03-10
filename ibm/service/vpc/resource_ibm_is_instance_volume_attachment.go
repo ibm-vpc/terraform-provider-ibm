@@ -416,7 +416,7 @@ func instanceVolAttachmentCreate(d *schema.ResourceData, meta interface{}, insta
 			}
 		}
 		if allowedUse, ok := d.GetOk("allowed_use"); ok {
-			allowedUseModel, err := ResourceIBMIsInstanceMapToVolumeAllowedUsePrototype(allowedUse.([]interface{})[0].(map[string]interface{}))
+			allowedUseModel, err := ResourceIBMIsVolumeAllowedUseMapToVolumeAllowedUsePrototype(allowedUse.([]interface{})[0].(map[string]interface{}))
 			if err != nil {
 				return err
 			}

@@ -3659,7 +3659,7 @@ func instanceCreateBySnapshot(d *schema.ResourceData, meta interface{}, profile,
 			}
 		}
 		if _, ok := bootvol["allowed_use"]; ok {
-			allowedUseModel, _ := ResourceIBMIsInstanceMapToVolumeAllowedUsePrototype(bootvol["allowed_use"].([]interface{})[0].(map[string]interface{}))
+			allowedUseModel, _ := ResourceIBMIsVolumeAllowedUseMapToVolumeAllowedUsePrototype(bootvol["allowed_use"].([]interface{})[0].(map[string]interface{}))
 			if allowedUseModel != nil {
 				volTemplate.AllowedUse = allowedUseModel
 			}
@@ -7673,7 +7673,7 @@ func handleVolumePrototypesUpdate(d *schema.ResourceData, instanceC *vpcv1.VpcV1
 
 			//allowed use
 			if _, ok := d.GetOk("volume_prototypes.%d.allowed_use"); ok {
-				allowedUseModel, err := ResourceIBMIsInstanceMapToVolumeAllowedUsePrototype(d.Get("volume_prototypes.%d.allowed_use").([]interface{})[0].(map[string]interface{}))
+				allowedUseModel, err := ResourceIBMIsVolumeAllowedUseMapToVolumeAllowedUsePrototype(d.Get("volume_prototypes.%d.allowed_use").([]interface{})[0].(map[string]interface{}))
 				if err != nil {
 					return err
 				}
@@ -8251,7 +8251,7 @@ func VolumeAttachmentPrototype(d *schema.ResourceData, volumeattintf interface{}
 		}
 		//allowed use
 		if _, ok := d.GetOk("volume_prototypes.%d.allowed_use"); ok {
-			allowedUseModel, _ := ResourceIBMIsInstanceMapToVolumeAllowedUsePrototype(d.Get("volume_prototypes.%d.allowed_use").([]interface{})[0].(map[string]interface{}))
+			allowedUseModel, _ := ResourceIBMIsVolumeAllowedUseMapToVolumeAllowedUsePrototype(d.Get("volume_prototypes.%d.allowed_use").([]interface{})[0].(map[string]interface{}))
 			volumeattItemPrototypeModel.AllowedUse = allowedUseModel
 		}
 		volumeattItemModel.Volume = volumeattItemPrototypeModel
@@ -8294,7 +8294,7 @@ func volumePrototypeInstanceByImage(d *schema.ResourceData, bootvol map[string]i
 	}
 	//boot volume allowed use
 	if _, ok := bootvol["allowed_use"]; ok {
-		allowedUseModel, _ := ResourceIBMIsInstanceMapToVolumeAllowedUsePrototype(bootvol["allowed_use"].([]interface{})[0].(map[string]interface{}))
+		allowedUseModel, _ := ResourceIBMIsVolumeAllowedUseMapToVolumeAllowedUsePrototype(bootvol["allowed_use"].([]interface{})[0].(map[string]interface{}))
 		if allowedUseModel != nil {
 			volTemplate.AllowedUse = allowedUseModel
 		}

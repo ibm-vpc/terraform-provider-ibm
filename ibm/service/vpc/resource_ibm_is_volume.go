@@ -548,7 +548,7 @@ func volCreate(d *schema.ResourceData, meta interface{}, volName, profile, zone 
 			}
 		}
 		if allowedUse, ok := d.GetOk("allowed_use"); ok {
-			allowedUseModel, err := ResourceIBMIsInstanceMapToVolumeAllowedUsePrototype(allowedUse.([]interface{})[0].(map[string]interface{}))
+			allowedUseModel, err := ResourceIBMIsVolumeAllowedUseMapToVolumeAllowedUsePrototype(allowedUse.([]interface{})[0].(map[string]interface{}))
 			if err != nil {
 				return err
 			}
@@ -568,7 +568,7 @@ func volCreate(d *schema.ResourceData, meta interface{}, volName, profile, zone 
 			}
 		}
 		if allowedUse, ok := d.GetOk("allowed_use"); ok {
-			allowedUseModel, err := ResourceIBMIsInstanceMapToVolumeAllowedUsePrototype(allowedUse.([]interface{})[0].(map[string]interface{}))
+			allowedUseModel, err := ResourceIBMIsVolumeAllowedUseMapToVolumeAllowedUsePrototype(allowedUse.([]interface{})[0].(map[string]interface{}))
 			if err != nil {
 				return err
 			}
@@ -1283,7 +1283,7 @@ func deleteAllSnapshots(sess *vpcv1.VpcV1, id string) error {
 	return nil
 }
 
-func ResourceIBMIsInstanceMapToVolumeAllowedUsePrototype(modelMap map[string]interface{}) (*vpcv1.VolumeAllowedUsePrototype, error) {
+func ResourceIBMIsVolumeAllowedUseMapToVolumeAllowedUsePrototype(modelMap map[string]interface{}) (*vpcv1.VolumeAllowedUsePrototype, error) {
 	model := &vpcv1.VolumeAllowedUsePrototype{}
 	if modelMap["api_version"] != nil && modelMap["api_version"].(string) != "" {
 		model.ApiVersion = core.StringPtr(modelMap["api_version"].(string))
