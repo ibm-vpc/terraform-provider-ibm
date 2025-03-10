@@ -42,6 +42,9 @@ Review the argument references that you can specify for your resource.
 - `bare_metal_server` - (Required, String) Bare metal server identifier. 
 - `disk` - (Required, String) The unique identifier for the disk to be renamed on the  Bare metal server.
 - `name` - (Optional, String) The name for the disk.
+
+
+## Attribute reference
 - `allowed_use` - (List) The usage constraints to be matched against the requested bare metal server properties to determine compatibility.
     
     Nested schema for `allowed_use`:
