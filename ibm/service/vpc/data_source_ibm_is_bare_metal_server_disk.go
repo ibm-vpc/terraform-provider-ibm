@@ -6,8 +6,10 @@ package vpc
 import (
 	"context"
 	"fmt"
+	"log"
 
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/conns"
+	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -65,6 +67,25 @@ func DataSourceIBMIsBareMetalServerDisk() *schema.Resource {
 				Computed:    true,
 				Description: "The size of the disk in GB (gigabytes)",
 			},
+			"allowed_use": &schema.Schema{
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "The usage constraints to match against the requested instance or bare metal server properties to determine compatibility.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"bare_metal_server": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "An image can only be used for bare metal instantiation if this expression resolves to true.",
+						},
+						"api_version": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The API version with which to evaluate the expressions.",
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -91,6 +112,18 @@ func dataSourceIBMISBareMetalServerDiskRead(context context.Context, d *schema.R
 	d.Set(isBareMetalServerDiskName, *disk.Name)
 	d.Set(isBareMetalServerDiskResourceType, *disk.ResourceType)
 	d.Set(isBareMetalServerDiskSize, *disk.Size)
-
+	allowedUses := []map[string]interface{}{}
+	if disk.AllowedUse != nil {
+		modelMap, err := ResourceceIBMIsBareMetalServerDiskAllowedUseToMap(disk.AllowedUse)
+		if err != nil {
+			tfErr := flex.TerraformErrorf(err, err.Error(), "(Data) ibm_is_bare_metal_server_disk", "read")
+			log.Println(tfErr.GetDiag())
+		}
+		allowedUses = append(allowedUses, modelMap)
+	}
+	if err = d.Set("allowed_use", allowedUses); err != nil {
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting allowed_use: %s", err), "(Data) ibm_is_bare_metal_server_disk", "read")
+		log.Println(tfErr.GetDiag())
+	}
 	return nil
 }

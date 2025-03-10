@@ -6,9 +6,11 @@ package vpc
 import (
 	"context"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/conns"
+	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -69,6 +71,30 @@ func DataSourceIBMIsBareMetalServerDisks() *schema.Resource {
 							Computed:    true,
 							Description: "The size of the disk in GB (gigabytes)",
 						},
+						"allowed_use": &schema.Schema{
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "The usage constraints to match against the requested instance or bare metal server properties to determine compatibility.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"bare_metal_server": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "An image can only be used for bare metal instantiation if this expression resolves to true.The expression follows [Common Expression Language](https://github.com/google/cel-spec/blob/master/doc/langdef.md), but does not support built-in functions and macros. In addition, the following property is supported:- `enable_secure_boot` - (boolean) Indicates whether secure boot is enabled for this bare metal server.",
+									},
+									"instance": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "This image can only be used to provision a virtual server instance if the resulting instance would have property values that satisfy this expression.The expression follows [Common Expression Language](https://github.com/google/cel-spec/blob/master/doc/langdef.md), but does not support built-in functions and macros. In addition, the following variables are supported, corresponding to `Instance` properties:- `gpu.count` - (integer) The number of GPUs assigned to the instance- `gpu.manufacturer` - (string) The GPU manufacturer- `gpu.memory` - (integer) The overall amount of GPU memory in GiB (gibibytes)- `gpu.model` - (string) The GPU model- `enable_secure_boot` - (boolean) Indicates whether secure boot is enabled.",
+									},
+									"api_version": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The API version with which to evaluate the expressions.",
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -101,8 +127,19 @@ func dataSourceIBMISBareMetalServerDisksRead(context context.Context, d *schema.
 			isBareMetalServerDiskResourceType:  disk.ResourceType,
 			isBareMetalServerDiskSize:          disk.Size,
 		}
+		if disk.AllowedUse != nil {
+			usageConstraintList := []map[string]interface{}{}
+			modelMap, err := ResourceceIBMIsBareMetalServerDiskAllowedUseToMap(disk.AllowedUse)
+			if err != nil {
+				tfErr := flex.TerraformErrorf(err, err.Error(), "(Data) ibm_is_bare_metal_server_disks", "read")
+				log.Println(tfErr.GetDiag())
+			}
+			usageConstraintList = append(usageConstraintList, modelMap)
+			l["allowed_use"] = usageConstraintList
+		}
 		disksInfo = append(disksInfo, l)
 	}
+
 	d.SetId(dataSourceIBMISBMSDisksID(d))
 	d.Set(isBareMetalServerDisks, disksInfo)
 	return nil

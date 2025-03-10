@@ -551,7 +551,7 @@ func volumeGet(d *schema.ResourceData, meta interface{}) error {
 	if vol.AllowedUse != nil {
 		modelMap, err := ResourceceIBMIsVolumeAllowedUseToMap(vol.AllowedUse)
 		if err != nil {
-			tfErr := flex.TerraformErrorf(err, err.Error(), "(Data) ibm_is_image", "read")
+			tfErr := flex.TerraformErrorf(err, err.Error(), "(Data) ibm_is_volume", "read")
 			log.Println(tfErr.GetDiag())
 		}
 		allowedUses = append(allowedUses, modelMap)
