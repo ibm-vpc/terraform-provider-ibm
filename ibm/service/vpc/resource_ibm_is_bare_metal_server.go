@@ -2032,8 +2032,9 @@ func resourceIBMISBareMetalServerCreate(context context.Context, d *schema.Resou
 		}
 	}
 
+	zone := ""
 	if z, ok := d.GetOk(isBareMetalServerZone); ok {
-		zone := z.(string)
+		zone = z.(string)
 		options.Zone = &vpcv1.ZoneIdentity{
 			Name: &zone,
 		}
@@ -2046,6 +2047,11 @@ func resourceIBMISBareMetalServerCreate(context context.Context, d *schema.Resou
 		}
 	}
 	createbmsoptions.BareMetalServerPrototype = options
+
+	isBMSKey := "bare_metal_server_key_" + *options.Name + zone
+	conns.IbmSequentialExecutionKV.LockSequential(isBMSKey)
+	defer conns.IbmSequentialExecutionKV.UnlockSequential(isBMSKey)
+
 	bms, response, err := sess.CreateBareMetalServerWithContext(context, createbmsoptions)
 	if err != nil {
 		return diag.FromErr(fmt.Errorf("[DEBUG] Create bare metal server err %s\n%s", err, response))
