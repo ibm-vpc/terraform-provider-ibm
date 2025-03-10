@@ -53,6 +53,13 @@ Review the argument references that you can specify for your data source.
 In addition to all argument reference list, you can access the following attribute references after your data source is created. 
 
 - `access_mode` - (String) The access mode for this load balancer. One of **private**, **public**, **private_path**.
+- `attached_load_balancer_pool_members` - (List) The load balancer pool members attached to this load balancer.
+	Nested scheme for `members`:
+	- `deleted` - (List) If present, this property indicates the referenced resource has been deleted and providessome supplementary information.
+		Nested scheme for `deleted`:
+    	- `more_info` - (String) Link to documentation about deleted resources.
+    - `href` - (String) The URL for this load balancer pool member.
+    - `id` - (String) The unique identifier for this load balancer pool member.
 - `access_tags`  - (String) Access management tags associated for the load balancer.
 - `availability` - (String) The availability of this load balancer
 - `crn` - (String) The CRN for this load balancer.
