@@ -82,7 +82,8 @@ func ResourceIBMPublicAddressRange() *schema.Resource {
 						},
 						"id": &schema.Schema{
 							Type:        schema.TypeString,
-							Required:    true,
+							Optional:    true,
+							Computed:    true,
 							ForceNew:    true,
 							Description: "The unique identifier for this resource group.",
 						},
