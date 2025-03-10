@@ -628,7 +628,7 @@ func lbGetByName(d *schema.ResourceData, meta interface{}, name string) error {
 
 func dataSourceAttachedLoadBalancerPoolFlattenMembers(result []vpcv1.LoadBalancerPoolMemberReference) (members []map[string]interface{}) {
 	for _, membersItem := range result {
-		members = append(members, dataSourceLoadBalancerPoolMembersToMap(membersItem))
+		members = append(members, dataSourceAttachedLoadBalancerPoolMembersToMap(membersItem))
 	}
 
 	return members
@@ -639,7 +639,7 @@ func dataSourceAttachedLoadBalancerPoolMembersToMap(membersItem vpcv1.LoadBalanc
 
 	if membersItem.Deleted != nil {
 		deletedList := []map[string]interface{}{}
-		deletedMap := dataSourceLoadBalancerPoolMembersDeletedToMap(*membersItem.Deleted)
+		deletedMap := dataSourceAttachedLoadBalancerPoolMembersDeletedToMap(*membersItem.Deleted)
 		deletedList = append(deletedList, deletedMap)
 		membersMap["deleted"] = deletedList
 	}
@@ -651,4 +651,14 @@ func dataSourceAttachedLoadBalancerPoolMembersToMap(membersItem vpcv1.LoadBalanc
 	}
 
 	return membersMap
+}
+
+func dataSourceAttachedLoadBalancerPoolMembersDeletedToMap(deletedItem vpcv1.Deleted) (deletedMap map[string]interface{}) {
+	deletedMap = map[string]interface{}{}
+
+	if deletedItem.MoreInfo != nil {
+		deletedMap["more_info"] = deletedItem.MoreInfo
+	}
+
+	return deletedMap
 }
