@@ -4,12 +4,14 @@
 package vpc
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"time"
 
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -23,10 +25,11 @@ const (
 
 func ResourceIBMISVPNGatewayAdvertisedCidr() *schema.Resource {
 	return &schema.Resource{
-		Create:   resourceIBMISVPNGatewayAdvertisedCidrCreate,
-		Read:     resourceIBMISVPNGatewayAdvertisedCidrRead,
-		Delete:   resourceIBMISVPNGatewayAdvertisedCidrDelete,
-		Exists:   resourceIBMISVPNGatewayAdvertisedCidrExists,
+		CreateContext: resourceIBMISVPNGatewayAdvertisedCidrCreate,
+		ReadContext:   resourceIBMISVPNGatewayAdvertisedCidrRead,
+		UpdateContext: resourceIBMISVPNGatewayAdvertisedCidrCreate,
+		DeleteContext: resourceIBMISVPNGatewayAdvertisedCidrDelete,
+
 		Importer: &schema.ResourceImporter{},
 
 		Timeouts: &schema.ResourceTimeout{
@@ -47,7 +50,7 @@ func ResourceIBMISVPNGatewayAdvertisedCidr() *schema.Resource {
 	}
 }
 
-func resourceIBMISVPNGatewayAdvertisedCidrCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISVPNGatewayAdvertisedCidrCreate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Printf("[DEBUG] Adding advertised cidr to vpn gateway")
 
 	gatewayID := d.Get(isVPNGatewayAdvertisedCidrVPNGateway).(string)
@@ -60,30 +63,40 @@ func resourceIBMISVPNGatewayAdvertisedCidrCreate(d *schema.ResourceData, meta in
 
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_is_vpn_gateway_advertised_cidr", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return diag.FromErr(tfErr)
 	}
 
 	response, err := sess.AddVPNGatewayAdvertisedCIDR(options)
 	if err != nil {
-		return fmt.Errorf("[DEBUG] Error adding advertised cidr to VPN Gateway err %s\n%s", err, response)
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error adding advertised cidr to VPN Gateway err %s\n%s", err, response), "ibm_is_vpn_gateway_advertised_cidr", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return diag.FromErr(tfErr)
 	}
 
 	return nil
 }
 
-func resourceIBMISVPNGatewayAdvertisedCidrRead(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISVPNGatewayAdvertisedCidrRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_is_vpn_gateway_advertised_cidr", "read")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return diag.FromErr(tfErr)
 	}
 
 	parts, err := flex.IdParts(d.Id())
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_vpn_gateway_advertised_cidr", "read")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return diag.FromErr(tfErr)
 	}
 	if len(parts) != 2 {
-		return fmt.Errorf("[ERROR] Incorrect ID %s: ID should be a combination of gID/gAdvertisedCidr", d.Id())
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Incorrect ID %s: ID should be a combination of gID/gAdvertisedCidr", d.Id()), "ibm_is_vpn_gateway_advertised_cidr", "read")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return diag.FromErr(tfErr)
 	}
 
 	gID := parts[0]
@@ -99,32 +112,40 @@ func resourceIBMISVPNGatewayAdvertisedCidrRead(d *schema.ResourceData, meta inte
 			d.SetId("")
 			return nil
 		}
-		return fmt.Errorf("[ERROR] Error getting advertised cidr : %s\n%s", err, response)
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error getting advertised cidr : %s\n%s", err, response), "ibm_is_vpn_gateway_advertised_cidr", "read")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return diag.FromErr(tfErr)
 	}
 	return nil
 }
 
-func resourceIBMISVPNGatewayAdvertisedCidrDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISVPNGatewayAdvertisedCidrDelete(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	parts, err := flex.IdParts(d.Id())
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_vpn_gateway_advertised_cidr", "read")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return diag.FromErr(tfErr)
 	}
 
 	gID := parts[0]
 	cidr := parts[1]
 
-	err = vpngwAdvertisedCidrDelete(d, meta, gID, cidr)
-	if err != nil {
-		return err
+	deleteErr := vpngwAdvertisedCidrDelete(d, meta, gID, cidr)
+	if deleteErr != nil {
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error deleting advertised cidr err %s", err), "ibm_is_vpn_gateway_advertised_cidr", "delete")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return diag.FromErr(tfErr)
 	}
 	return nil
 }
 
-func vpngwAdvertisedCidrDelete(d *schema.ResourceData, meta interface{}, gID, gCidr string) error {
+func vpngwAdvertisedCidrDelete(d *schema.ResourceData, meta interface{}, gID, gCidr string) diag.Diagnostics {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_is_vpn_gateway_advertised_cidr", "delete")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return diag.FromErr(tfErr)
 	}
 	checkVPNGatewayAdvertisedCIDROptions := &vpcv1.CheckVPNGatewayAdvertisedCIDROptions{
 		VPNGatewayID: &gID,
@@ -137,7 +158,9 @@ func vpngwAdvertisedCidrDelete(d *schema.ResourceData, meta interface{}, gID, gC
 			d.SetId("")
 			return nil
 		}
-		return fmt.Errorf("[ERROR] Error getting Vpn Gateway advertised cidr(%s): %s\n%s", gCidr, err, response)
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error getting Vpn Gateway advertised cidr(%s): %s\n%s", gCidr, err, response), "ibm_is_vpn_gateway_advertised_cidr", "delete")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return diag.FromErr(tfErr)
 	}
 
 	removeVPNGatewayAdvertisedCIDROptions := &vpcv1.RemoveVPNGatewayAdvertisedCIDROptions{
@@ -146,12 +169,16 @@ func vpngwAdvertisedCidrDelete(d *schema.ResourceData, meta interface{}, gID, gC
 	}
 	response, err = sess.RemoveVPNGatewayAdvertisedCIDR(removeVPNGatewayAdvertisedCIDROptions)
 	if err != nil {
-		return fmt.Errorf("[ERROR] Error removing advertised cidr from Vpn Gateway: %s\n%s", err, response)
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error removing advertised cidr from Vpn Gateway: %s\n%s", err, response), "ibm_is_vpn_gateway_advertised_cidr", "delete")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return diag.FromErr(tfErr)
 	}
 
 	_, err = isWaitForVPNGatewayAdvertisedCIDRDeleted(sess, gID, gCidr, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
-		return fmt.Errorf("[ERROR] Error checking for Vpn Gateway advertised cidr (%s) is deleted: %s", gCidr, err)
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error checking for Vpn Gateway advertised cidr (%s) is deleted: %s", gCidr, err), "ibm_is_vpn_gateway_advertised_cidr", "delete")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return diag.FromErr(tfErr)
 	}
 
 	d.SetId("")
@@ -188,40 +215,4 @@ func isVPNGatewayAdvertisedCIDRDeleteRefreshFunc(vpnGatewayAdverisedCidr *vpcv1.
 		}
 		return nil, isVPNGatewayConnectionDeleting, nil
 	}
-}
-
-func resourceIBMISVPNGatewayAdvertisedCidrExists(d *schema.ResourceData, meta interface{}) (bool, error) {
-
-	parts, err := flex.IdParts(d.Id())
-	if err != nil {
-		return false, err
-	}
-	if len(parts) != 2 {
-		return false, fmt.Errorf("[ERROR] Incorrect ID %s: ID should be a combination of gID/gadvertisedCidr", d.Id())
-	}
-
-	gID := parts[0]
-	gAdvertisedCidr := parts[1]
-	exists, err := vpngwadvertisedCidrExists(d, meta, gID, gAdvertisedCidr)
-	return exists, err
-}
-
-func vpngwadvertisedCidrExists(d *schema.ResourceData, meta interface{}, gID, gAdvertisedCidr string) (bool, error) {
-	sess, err := vpcClient(meta)
-	if err != nil {
-		return false, err
-	}
-
-	checkVPNGatewayAdvertisedCIDROptions := &vpcv1.CheckVPNGatewayAdvertisedCIDROptions{
-		VPNGatewayID: &gID,
-		CIDR:         &gAdvertisedCidr,
-	}
-	response, err := sess.CheckVPNGatewayAdvertisedCIDR(checkVPNGatewayAdvertisedCIDROptions)
-	if err != nil {
-		if response != nil && response.StatusCode == 404 {
-			return false, nil
-		}
-		return false, fmt.Errorf("[ERROR] Error checking Vpn Gateway advertised cidr: %s\n%s", err, response)
-	}
-	return true, nil
 }

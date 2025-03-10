@@ -6,6 +6,7 @@ package vpc
 import (
 	"context"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -33,12 +34,11 @@ func DataSourceIBMIsVPNGatewayServiceConnections() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"vpn_gateway": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ExactlyOneOf: []string{"vpn_gateway_name", "vpn_gateway"},
-				Description:  "The VPN gateway identifier.",
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "The VPN gateway identifier.",
 			},
-			"created_at": &schema.Schema{
+			"created_at": {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "The date and time that this VPN service connection was created.",
@@ -66,28 +66,28 @@ func DataSourceIBMIsVPNGatewayServiceConnections() *schema.Resource {
 					},
 				},
 			},
-			"id": &schema.Schema{
+			"id": {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "The unique identifier for this VPN gateway service connection",
 			},
-			"lifecycle_reasons": &schema.Schema{
+			"lifecycle_reasons": {
 				Type:        schema.TypeList,
 				Computed:    true,
 				Description: "The reasons for the current `lifecycle_state` (if any).",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"code": &schema.Schema{
+						"code": {
 							Type:        schema.TypeString,
 							Computed:    true,
 							Description: "A reason code for this lifecycle state:- `internal_error`: internal error (contact IBM support)- `resource_suspended_by_provider`: The resource has been suspended (contact IBM  support)The enumerated values for this property may[expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.",
 						},
-						"message": &schema.Schema{
+						"message": {
 							Type:        schema.TypeString,
 							Computed:    true,
 							Description: "An explanation of the reason for this lifecycle state.",
 						},
-						"more_info": &schema.Schema{
+						"more_info": {
 							Type:        schema.TypeString,
 							Computed:    true,
 							Description: "Link to documentation about the reason for this lifecycle state.",
@@ -95,33 +95,33 @@ func DataSourceIBMIsVPNGatewayServiceConnections() *schema.Resource {
 					},
 				},
 			},
-			"lifecycle_state": &schema.Schema{
+			"lifecycle_state": {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "The lifecycle state of the VPN service connection.",
 			},
-			"status": &schema.Schema{
+			"status": {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "The status of this service connection:- `up`: operating normally- `degraded`: operating with compromised performance- `down`: not operational.",
 			},
-			"status_reasons": &schema.Schema{
+			"status_reasons": {
 				Type:        schema.TypeList,
 				Computed:    true,
 				Description: "The reasons for the current VPN service connection status (if any).",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"code": &schema.Schema{
+						"code": {
 							Type:        schema.TypeString,
 							Computed:    true,
 							Description: "A snake case string succinctly identifying the status reason. The enumerated values for this property may https://cloud.ibm.com/apidocs/vpc#property-value-expansion in the future.",
 						},
-						"message": &schema.Schema{
+						"message": {
 							Type:        schema.TypeString,
 							Computed:    true,
 							Description: "An explanation of the reason for this VPN service connection's status.",
 						},
-						"more_info": &schema.Schema{
+						"more_info": {
 							Type:        schema.TypeString,
 							Computed:    true,
 							Description: "Link to documentation about this status reason.",
@@ -137,7 +137,9 @@ func dataSourceIBMIsVPNGatewayServiceConnectionsRead(ctx context.Context, d *sch
 
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return diag.FromErr(err)
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "(Data) ibm_is_vpn_gateway_service_connections", "read")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return diag.FromErr(tfErr)
 	}
 
 	vpnGateway := ""
@@ -155,7 +157,9 @@ func dataSourceIBMIsVPNGatewayServiceConnectionsRead(ctx context.Context, d *sch
 		}
 		availableVPNGatewayServiceConnections, detail, err := sess.ListVPNGatewayServiceConnections(listvpnGWServiceConnectionsOptions)
 		if err != nil {
-			return diag.FromErr(fmt.Errorf("[ERROR] Error reading list of VPN Gateway service connections:%s\n%s", err, detail))
+			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error reading list of VPN Gateway service connections:%s\n%s", err, detail), "(Data) ibm_is_vpn_gateway_service_connections", "read")
+			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+			return diag.FromErr(tfErr)
 		}
 		start = flex.GetNext(availableVPNGatewayServiceConnections.Next)
 		allrecs = append(allrecs, availableVPNGatewayServiceConnections.ServiceConnections...)

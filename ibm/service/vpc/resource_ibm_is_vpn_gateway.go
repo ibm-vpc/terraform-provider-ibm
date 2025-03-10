@@ -400,16 +400,15 @@ func resourceIBMISVPNGatewayCreate(d *schema.ResourceData, meta interface{}) err
 	name := d.Get(isVPNGatewayName).(string)
 	subnetID := d.Get(isVPNGatewaySubnet).(string)
 	mode := d.Get(isVPNGatewayMode).(string)
-	localAsn := d.Get(isVPNGatewayLocalAsn).(int64)
 
-	err := vpngwCreate(d, meta, name, subnetID, mode, localAsn)
+	err := vpngwCreate(d, meta, name, subnetID, mode)
 	if err != nil {
 		return err
 	}
 	return resourceIBMISVPNGatewayRead(d, meta)
 }
 
-func vpngwCreate(d *schema.ResourceData, meta interface{}, name, subnetID, mode string, localAsn int64) error {
+func vpngwCreate(d *schema.ResourceData, meta interface{}, name, subnetID, mode string) error {
 	sess, err := vpcClient(meta)
 	if err != nil {
 		return err
@@ -418,10 +417,14 @@ func vpngwCreate(d *schema.ResourceData, meta interface{}, name, subnetID, mode 
 		Subnet: &vpcv1.SubnetIdentity{
 			ID: &subnetID,
 		},
-		Name:     &name,
-		Mode:     &mode,
-		LocalAsn: &localAsn,
+		Name: &name,
+		Mode: &mode,
 	}
+	if localAsnIntf, ok := d.GetOk(isVPNGatewayLocalAsn); ok {
+		localAsn := int64(localAsnIntf.(int))
+		vpnGatewayPrototype.LocalAsn = &localAsn
+	}
+
 	options := &vpcv1.CreateVPNGatewayOptions{
 		VPNGatewayPrototype: vpnGatewayPrototype,
 	}
@@ -589,7 +592,9 @@ func vpngwGet(d *schema.ResourceData, meta interface{}, id string) error {
 		d.Set(isVPNGatewayResourceGroup, vpnGateway.ResourceGroup.ID)
 	}
 	d.Set(isVPNGatewayAdvertisedCidrs, vpnGateway.AdvertisedCIDRs)
-	d.Set(isVPNGatewayLocalAsn, *vpnGateway.LocalAsn)
+	if vpnGateway.LocalAsn != nil {
+		d.Set(isVPNGatewayLocalAsn, *vpnGateway.LocalAsn)
+	}
 	d.Set(isVPNGatewayMode, *vpnGateway.Mode)
 	if vpnGateway.Members != nil {
 		vpcMembersIpsList := make([]map[string]interface{}, 0)

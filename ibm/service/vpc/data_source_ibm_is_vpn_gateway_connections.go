@@ -266,6 +266,21 @@ func DataSourceIBMISVPNGatewayConnections() *schema.Resource {
 										Computed:    true,
 										Description: "The status of the VPN Tunnel",
 									},
+									"neighbor_ip": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The IP address of the neighbor on the virtual tunnel interface.",
+									},
+									"tunnel_interface_ip": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The IP address of the virtual tunnel interface.",
+									},
+									"protocol_state": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "BGP routing protocol state.",
+									},
 								},
 							},
 						},
@@ -802,7 +817,7 @@ func dataSourceVPNGatewayConnectionsDynamicTunnelsToMap(tunnelsItem vpcv1.VPNGat
 		tunnelsMap["status"] = tunnelsItem.Status
 	}
 	if tunnelsItem.TunnelInterfaceIP != nil {
-		tunnelsMap["tunnel_interface_ip"] = tunnelsItem.Status
+		tunnelsMap["tunnel_interface_ip"] = tunnelsItem.TunnelInterfaceIP.Address
 	}
 
 	return tunnelsMap

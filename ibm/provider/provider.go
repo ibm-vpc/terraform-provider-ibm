@@ -609,6 +609,7 @@ func Provider() *schema.Provider {
 			"ibm_is_vpn_gateway_connection_local_cidrs": vpc.DataSourceIBMIsVPNGatewayConnectionLocalCidrs(),
 			"ibm_is_vpn_gateway_connection_peer_cidrs":  vpc.DataSourceIBMIsVPNGatewayConnectionPeerCidrs(),
 			"ibm_is_vpn_gateway_advertised_cidrs":       vpc.DataSourceIBMIsVPNGatewayAdvertisedCidrs(),
+			"ibm_is_vpn_gateway_service_connection":     vpc.DataSourceIBMIsVPNGatewayServiceConnection(),
 			"ibm_is_vpn_gateway_service_connections":    vpc.DataSourceIBMIsVPNGatewayServiceConnections(),
 
 			"ibm_is_vpc_default_routing_table":       vpc.DataSourceIBMISVPCDefaultRoutingTable(),

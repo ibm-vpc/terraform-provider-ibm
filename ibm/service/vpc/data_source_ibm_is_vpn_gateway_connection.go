@@ -340,6 +340,16 @@ func DataSourceIBMISVPNGatewayConnection() *schema.Resource {
 				Description: "The VPN tunnel configuration for this VPN gateway connection (in static route mode).",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"neighbor_ip": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The IP address of the neighbor on the virtual tunnel interface.",
+						},
+						"protocol_state": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "BGP routing protocol state.",
+						},
 						"public_ip_address": {
 							Type:        schema.TypeString,
 							Computed:    true,
@@ -349,6 +359,11 @@ func DataSourceIBMISVPNGatewayConnection() *schema.Resource {
 							Type:        schema.TypeString,
 							Computed:    true,
 							Description: "The status of the VPN Tunnel.",
+						},
+						"tunnel_interface_ip": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The IP address of the virtual tunnel interface.",
 						},
 					},
 				},
@@ -914,7 +929,7 @@ func setvpnGatewayConnectionIntfDatasourceData(d *schema.ResourceData, vpn_gatew
 			}
 
 			if vpnGatewayConnection.Tunnels != nil {
-				err = d.Set("tunnels", dataSourceVPNGatewayConnectionsFlattenDynamicTunnels(vpnGatewayConnection.Tunnels))
+				err = d.Set("tunnels", dataSourceVPNGatewayConnectionFlattenDynamicTunnels(vpnGatewayConnection.Tunnels))
 				if err != nil {
 					return fmt.Errorf("[ERROR] Error setting tunnels %s", err)
 				}
@@ -1436,4 +1451,34 @@ func PrettifyPrint(result interface{}) string {
 		return fmt.Sprintf("%v", string(output))
 	}
 	return string(output)
+}
+
+func dataSourceVPNGatewayConnectionFlattenDynamicTunnels(result []vpcv1.VPNGatewayConnectionDynamicRouteModeTunnel) (tunnels []map[string]interface{}) {
+	for _, tunnelsItem := range result {
+		tunnels = append(tunnels, dataSourceVPNGatewayConnectionDynamicTunnelsToMap(tunnelsItem))
+	}
+
+	return tunnels
+}
+
+func dataSourceVPNGatewayConnectionDynamicTunnelsToMap(tunnelsItem vpcv1.VPNGatewayConnectionDynamicRouteModeTunnel) (tunnelsMap map[string]interface{}) {
+	tunnelsMap = map[string]interface{}{}
+
+	if tunnelsItem.NeighborIP != nil {
+		tunnelsMap["neighbor_ip"] = tunnelsItem.NeighborIP.Address
+	}
+	if tunnelsItem.ProtocolState != nil {
+		tunnelsMap["protocol_state"] = tunnelsItem.ProtocolState
+	}
+	if tunnelsItem.PublicIP != nil {
+		tunnelsMap["public_ip_address"] = tunnelsItem.PublicIP.Address
+	}
+	if tunnelsItem.Status != nil {
+		tunnelsMap["status"] = tunnelsItem.Status
+	}
+	if tunnelsItem.TunnelInterfaceIP != nil {
+		tunnelsMap["tunnel_interface_ip"] = tunnelsItem.TunnelInterfaceIP.Address
+	}
+
+	return tunnelsMap
 }

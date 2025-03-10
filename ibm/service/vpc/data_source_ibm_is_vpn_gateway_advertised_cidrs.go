@@ -34,7 +34,7 @@ func DataSourceIBMIsVPNGatewayAdvertisedCidrs() *schema.Resource {
 				ExactlyOneOf: []string{"vpn_gateway_name", "vpn_gateway"},
 				Description:  "The VPN gateway name.",
 			},
-			"advertised_cidrs": &schema.Schema{
+			"advertised_cidrs": {
 				Type:        schema.TypeList,
 				Required:    true,
 				Description: "The additional CIDRs advertised through any enabled routing protocol (for example, BGP). The routing protocol will advertise routes with these CIDRs and VPC prefixes as route destinations.",
@@ -49,7 +49,9 @@ func DataSourceIBMIsVPNGatewayAdvertisedCidrs() *schema.Resource {
 func dataSourceIBMIsVPNGatewayAdvertisedCidrsRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	vpcClient, err := meta.(conns.ClientSession).VpcV1API()
 	if err != nil {
-		return diag.FromErr(err)
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "(Data) ibm_is_vpn_gateway_advertised_cidrs", "read")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return diag.FromErr(tfErr)
 	}
 	vpn_gateway_id := d.Get("vpn_gateway").(string)
 	vpn_gateway_name := d.Get("vpn_gateway_name").(string)
@@ -65,7 +67,11 @@ func dataSourceIBMIsVPNGatewayAdvertisedCidrsRead(context context.Context, d *sc
 			}
 			availableVPNGateways, detail, err := vpcClient.ListVPNGatewaysWithContext(context, listvpnGWOptions)
 			if err != nil || availableVPNGateways == nil {
-				return diag.FromErr(fmt.Errorf("[ERROR] Error reading list of VPN Gateways:%s\n%s", err, detail))
+				if err != nil {
+					tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error reading list of VPN Gateways:%s\n%s", err, detail), "(Data) ibm_is_vpn_gateway_advertised_cidrs", "read")
+					log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+					return diag.FromErr(tfErr)
+				}
 			}
 			start = flex.GetNext(availableVPNGateways.Next)
 			allrecs = append(allrecs, availableVPNGateways.VPNGateways...)
@@ -83,8 +89,9 @@ func dataSourceIBMIsVPNGatewayAdvertisedCidrsRead(context context.Context, d *sc
 			}
 		}
 		if !vpn_gateway_found {
-			log.Printf("[DEBUG] No vpn gateway found with given name %s", vpn_gateway_name)
-			return diag.FromErr(fmt.Errorf("No vpn gateway found with given name %s", vpn_gateway_name))
+			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("No vpn gateway found with given name %s", vpn_gateway_name), "(Data) ibm_is_vpn_gateway_advertised_cidrs", "read")
+			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+			return diag.FromErr(tfErr)
 		}
 	}
 
@@ -94,8 +101,9 @@ func dataSourceIBMIsVPNGatewayAdvertisedCidrsRead(context context.Context, d *sc
 
 	vpnGatewayAdvertisedCidRs, response, err := vpcClient.ListVPNGatewayAdvertisedCIDRsWithContext(context, listVPNGatewayAdvertisedCIDRsOptions)
 	if err != nil {
-		log.Printf("[DEBUG] ListVPNGatewayAdvertisedCIDRsWithContext failed %s\n%s", err, response)
-		return diag.FromErr(fmt.Errorf("ListVPNGatewayAdvertisedCIDRsWithContext failed %s\n%s", err, response))
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("ListVPNGatewayAdvertisedCIDRsWithContext failed %s\n%s", err, response), "(Data) ibm_is_vpn_gateway_advertised_cidrs", "read")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return diag.FromErr(tfErr)
 	}
 	d.SetId(time.Now().UTC().String())
 	d.Set("advertised_cidrs", vpnGatewayAdvertisedCidRs.AdvertisedCIDRs)

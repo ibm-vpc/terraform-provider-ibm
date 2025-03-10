@@ -330,20 +330,30 @@ func ResourceIBMISVPNGatewayConnection() *schema.Resource {
 			},
 			"routing_protocol": {
 				Type:        schema.TypeString,
+				Optional:    true,
 				Computed:    true,
 				Description: "Routing protocols for this VPN gateway connection.",
 			},
-
-			"tunnel_neighbor_address": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: "The IP address of the neighbor on the virtual tunnel interface.",
-			},
-
-			"tunnel_interface_address": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: "The IP address of the virtual tunnel interface.",
+			"tunnel": {
+				Type:     schema.TypeList,
+				MinItems: 2,
+				MaxItems: 2,
+				Optional: true,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"neighbor_ip": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: "The IP address of the neighbor on the virtual tunnel interface.",
+						},
+						"tunnel_interface_ip": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: "The IP address of the virtual tunnel interface.",
+						},
+					},
+				},
 			},
 
 			isVPNGatewayConnectionCreatedat: {
@@ -374,6 +384,21 @@ func ResourceIBMISVPNGatewayConnection() *schema.Resource {
 							Type:        schema.TypeString,
 							Computed:    true,
 							Description: "The status of the VPN Tunnel",
+						},
+						"neighbor_ip": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The IP address of the neighbor on the virtual tunnel interface.",
+						},
+						"tunnel_interface_ip": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The IP address of the virtual tunnel interface.",
+						},
+						"protocol_state": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "BGP routing protocol state.",
 						},
 					},
 				},
@@ -657,19 +682,16 @@ func vpngwconCreate(d *schema.ResourceData, meta interface{}, name, gatewayID, p
 			vpnGatewayConnectionPrototypeModel.RoutingProtocol = core.StringPtr(routingProtocolOk.(string))
 		}
 
-		if len(vpnGatewayConnectionPrototypeModel.Tunnels) == 0 {
-			vpnGatewayConnectionPrototypeModel.Tunnels = []vpcv1.VPNGatewayConnectionTunnelPrototype{{
-				NeighborIP:        &vpcv1.IP{},
-				TunnelInterfaceIP: &vpcv1.IP{},
-			}}
+		if tunnelOk, ok := d.GetOk("tunnel"); ok && len(tunnelOk.([]interface{})) > 0 {
+			log.Println("[INFO] inside tunnel block")
+			tunnelModels := []vpcv1.VPNGatewayConnectionTunnelPrototype{}
+			for _, tunnelItem := range tunnelOk.([]interface{}) {
+				tunnelModel := resourceIBMIsVPNGatewayConnectionMapToVPNGatewayConnectionTunnelPrototype(tunnelItem.(map[string]interface{}))
+				tunnelModels = append(tunnelModels, tunnelModel)
+			}
+			vpnGatewayConnectionPrototypeModel.Tunnels = tunnelModels
 		}
 
-		if neighborIPOk, ok := d.GetOk("tunnel_neighbor_address"); ok {
-			vpnGatewayConnectionPrototypeModel.Tunnels[0].NeighborIP.Address = core.StringPtr(neighborIPOk.(string))
-		}
-		if tunnelInterfaceIPOk, ok := d.GetOk("tunnel_interface_address"); ok {
-			vpnGatewayConnectionPrototypeModel.Tunnels[0].TunnelInterfaceIP.Address = core.StringPtr(tunnelInterfaceIPOk.(string))
-		}
 		options := &vpcv1.CreateVPNGatewayConnectionOptions{
 			VPNGatewayID:                  &gatewayID,
 			VPNGatewayConnectionPrototype: vpnGatewayConnectionPrototypeModel,
@@ -895,6 +917,18 @@ func vpngwconUpdate(d *schema.ResourceData, meta interface{}, gID, gConnID strin
 		vpnGatewayConnectionPatchModel.Tunnels[0].TunnelInterfaceIP.Address = core.StringPtr(d.Get("tunnel_interface_address").(string))
 		hasChanged = true
 	}
+
+	if d.HasChange("tunnel") {
+		log.Println("[INFO] inside tunnel block")
+		tunnelModels := []vpcv1.VPNGatewayConnectionTunnel{}
+		tunnelOk, _ := d.GetOk("tunnel")
+		for _, tunnelItem := range tunnelOk.([]interface{}) {
+			tunnelModel := resourceIBMIsVPNGatewayConnectionMapToVPNGatewayConnectionTunnelPrototypePatch(tunnelItem.(map[string]interface{}))
+			tunnelModels = append(tunnelModels, tunnelModel)
+		}
+		vpnGatewayConnectionPatchModel.Tunnels = tunnelModels
+	}
+
 	if d.HasChange(isVPNGatewayConnectionName) {
 		name := d.Get(isVPNGatewayConnectionName).(string)
 		vpnGatewayConnectionPatchModel.Name = &name
@@ -1182,6 +1216,42 @@ func resourceIBMIsVPNGatewayConnectionMapToVPNGatewayConnectionDynamicRouteModeL
 	return model, nil
 }
 
+func resourceIBMIsVPNGatewayConnectionMapToVPNGatewayConnectionTunnelPrototype(modelMap map[string]interface{}) vpcv1.VPNGatewayConnectionTunnelPrototype {
+	model := vpcv1.VPNGatewayConnectionTunnelPrototype{}
+	if model.NeighborIP == nil {
+		model.NeighborIP = &vpcv1.IP{}
+	}
+	if model.TunnelInterfaceIP == nil {
+		model.TunnelInterfaceIP = &vpcv1.IP{}
+	}
+	if neighborIP, ok := modelMap["neighbor_ip"].(string); ok {
+		model.NeighborIP.Address = core.StringPtr(neighborIP)
+	}
+
+	if tunnelInterfaceIP, ok := modelMap["tunnel_interface_ip"].(string); ok {
+		model.TunnelInterfaceIP.Address = core.StringPtr(tunnelInterfaceIP)
+	}
+	return model
+}
+
+func resourceIBMIsVPNGatewayConnectionMapToVPNGatewayConnectionTunnelPrototypePatch(modelMap map[string]interface{}) vpcv1.VPNGatewayConnectionTunnel {
+	model := vpcv1.VPNGatewayConnectionTunnel{}
+	if model.NeighborIP == nil {
+		model.NeighborIP = &vpcv1.IP{}
+	}
+	if model.TunnelInterfaceIP == nil {
+		model.TunnelInterfaceIP = &vpcv1.IP{}
+	}
+	if neighborIP, ok := modelMap["neighbor_ip"].(string); ok {
+		model.NeighborIP.Address = core.StringPtr(neighborIP)
+	}
+
+	if tunnelInterfaceIP, ok := modelMap["tunnel_interface_ip"].(string); ok {
+		model.TunnelInterfaceIP.Address = core.StringPtr(tunnelInterfaceIP)
+	}
+	return model
+}
+
 func resourceIBMIsVPNGatewayConnectionMapToVPNGatewayConnectionIkeIdentityPrototype(modelMap map[string]interface{}) (vpcv1.VPNGatewayConnectionIkeIdentityPrototypeIntf, error) {
 	model := &vpcv1.VPNGatewayConnectionIkeIdentityPrototype{}
 	model.Type = core.StringPtr(modelMap["type"].(string))
@@ -1232,8 +1302,8 @@ func resourceIBMIsVPNGatewayConnectionMapToVPNGatewayConnectionStaticRouteModePe
 
 func resourceIBMIsVPNGatewayConnectionMapToVPNGatewayConnectionDynamicRouteModePeerPrototype(modelMap map[string]interface{}) (vpcv1.VPNGatewayConnectionDynamicRouteModePeerPrototypeIntf, error) {
 	model := &vpcv1.VPNGatewayConnectionDynamicRouteModePeerPrototype{}
-	if modelMap["asn"] != nil && modelMap["asn"].(string) != "" {
-		model.Asn = core.Int64Ptr(modelMap["asn"].(int64))
+	if modelMap["asn"] != nil && modelMap["asn"].(int) > 0 {
+		model.Asn = core.Int64Ptr(int64(modelMap["asn"].(int)))
 	}
 	if modelMap["ike_identity"] != nil && len(modelMap["ike_identity"].([]interface{})) > 0 {
 		IkeIdentityModel, err := resourceIBMIsVPNGatewayConnectionMapToVPNGatewayConnectionIkeIdentityPrototype(modelMap["ike_identity"].([]interface{})[0].(map[string]interface{}))
@@ -1939,7 +2009,7 @@ func resourceVPNGatewayConnectionsDynamicTunnelsToMap(tunnelsItem vpcv1.VPNGatew
 		tunnelsMap["status"] = tunnelsItem.Status
 	}
 	if tunnelsItem.TunnelInterfaceIP != nil {
-		tunnelsMap["tunnel_interface_ip"] = tunnelsItem.Status
+		tunnelsMap["tunnel_interface_ip"] = tunnelsItem.TunnelInterfaceIP.Address
 	}
 
 	return tunnelsMap

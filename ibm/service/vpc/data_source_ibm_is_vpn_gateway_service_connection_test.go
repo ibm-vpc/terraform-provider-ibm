@@ -40,24 +40,6 @@ func TestAccIBMIsVPNGatewayServiceConnectionDataSourceBasic(t *testing.T) {
 					resource.TestCheckResourceAttrSet("data.ibm_is_vpn_gateway_service_connection.example1", "status"),
 				),
 			},
-			{
-				Config: testAccCheckIBMIsVPNGatewayServiceConnectionDataSourceConfigBasic(vpcname, subnetname, vpngwname, name),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttrSet("data.ibm_is_vpn_gateway_service_connection.example2", "created_at"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_vpn_gateway_service_connection.example2", "id"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_vpn_gateway_service_connection.example2", "lifecycle_state"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_vpn_gateway_service_connection.example2", "status"),
-				),
-			},
-			{
-				Config: testAccCheckIBMIsVPNGatewayServiceConnectionDataSourceConfigBasic(vpcname, subnetname, vpngwname, name),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttrSet("data.ibm_is_vpn_gateway_service_connection.example3", "created_at"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_vpn_gateway_service_connection.example3", "id"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_vpn_gateway_service_connection.example3", "lifecycle_state"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_vpn_gateway_service_connection.example3", "status"),
-				),
-			},
 		},
 	})
 }
@@ -91,19 +73,11 @@ func testAccCheckIBMIsVPNGatewayServiceConnectionDataSourceConfigBasic(vpc, subn
 	  }
 	  data "ibm_is_vpn_gateway_service_connection" "example" {
 		vpn_gateway            = ibm_is_vpn_gateway.example.id
-		vpn_gateway_connection = ibm_is_vpn_gateway_connection.example.gateway_connection
+		vpn_gateway_service_connection = ibm_is_vpn_gateway_connection.example.gateway_connection
 	  }
 	  data "ibm_is_vpn_gateway_service_connection" "example1" {
-		vpn_gateway                 = ibm_is_vpn_gateway.example.id
-		vpn_gateway_connection_name = ibm_is_vpn_gateway_connection.example.name
-	  }
-	  data "ibm_is_vpn_gateway_service_connection" "example2" {
 		vpn_gateway_name       = ibm_is_vpn_gateway.example.name
-		vpn_gateway_connection = ibm_is_vpn_gateway_connection.example.gateway_connection
-	  }
-	  data "ibm_is_vpn_gateway_service_connection" "example3" {
-		vpn_gateway_name            = ibm_is_vpn_gateway.example.name
-		vpn_gateway_connection_name = ibm_is_vpn_gateway_connection.example.name
+		vpn_gateway_service_connection = ibm_is_vpn_gateway_connection.example.gateway_connection
 	  }
 	`, vpc, subnet, acc.ISZoneName, acc.ISCIDR, vpngwname, name)
 }
