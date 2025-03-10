@@ -264,24 +264,24 @@ Review the argument references that you can specify for your resource.
 - `boot_volume` - (Optional, List) A nested block describes the boot volume configuration for the template.
 
   Nested scheme for `boot_volume`:
-  - `allowed_use` - (Optional, List) The usage constraints to be matched against requested instance or bare metal server properties to determine compatibility. Only present for boot volumes. The value of this property will be inherited from thesource image or snapshot at volume creation, but can be changed.
+  - `allowed_use` - (Optional, List) The usage constraints to be matched against requested instance or bare metal server properties to determine compatibility. Can only be specified if `source_snapshot` is bootable.
     
     Nested schema for `allowed_use`:
-    - `api_version` - (Optional, String) The API version with which to evaluate the expressions.
+    - `api_version` - (Optional, String) The API version with which to evaluate the expressions. If specified, the value must be between `2019-01-01` and today's date (in UTC). If unspecified, the version query parameter value will be used.
 	  
-    - `bare_metal_server` - (Optional, String) The expression that must be satisfied by a bare metal server provisioned using the image data in this volume.The expression follows [Common Expression Language](https://github.com/google/cel-spec/blob/master/doc/langdef.md), but does not support built-in functions and macros. 
+    - `bare_metal_server` - (Optional, String) The expression that must be satisfied by the properties of a bare metal server provisioned using the image data in this volume. If unspecified, the expression will be set to true. The expression follows [Common Expression Language](https://github.com/google/cel-spec/blob/master/doc/langdef.md), but does not support built-in functions and macros. 
    
-    ~> **NOTE** </br> In addition, the following property is supported: </br>
-      **&#x2022;** `enable_secure_boot` - (boolean) Indicates whether secure boot is enabled for this bare metal server.
+    ~> **NOTE** </br> In addition, the following property is supported, corresponding to the BareMetalServer property: </br>
+      **&#x2022;** `enable_secure_boot` - (boolean) Indicates whether secure boot is enabled.
 	 
-    - `instance` - (Optional, String) The expression that must be satisfied by a virtual server instance provisioned using the image data in this volume.The expression follows [Common Expression Language](https://github.com/google/cel-spec/blob/master/doc/langdef.md), but does not support built-in functions and macros.
+    - `instance` - (Optional, String) The expression that must be satisfied by the properties of a virtual server instance provisioned using this volume. If unspecified, the expression will be set to true. The expression follows [Common Expression Language](https://github.com/google/cel-spec/blob/master/doc/langdef.md), but does not support built-in functions and macros.
    
     ~> **NOTE** </br> In addition, the following variables are supported, corresponding to `Instance` </br>
-       **&#x2022;** `gpu.count` - (integer) The number of GPUs assigned to the instance
-       **&#x2022;** `gpu.manufacturer` - (string) The GPU manufacturer
-       **&#x2022;** `gpu.memory` - (integer) The overall amount of GPU memory in GiB (gibibytes)
-       **&#x2022;** `gpu.model` - (string) The GPU model
-       **&#x2022;** `enable_secure_boot` - (boolean) Indicates whether secure boot is enabled.  
+      **&#x2022;** `gpu.count` - (integer) The number of GPUs. </br>
+      **&#x2022;** `gpu.manufacturer` - (string) The GPU manufacturer. </br>
+      **&#x2022;** `gpu.memory` - (integer) The overall amount of GPU memory in GiB (gibibytes). </br>
+      **&#x2022;** `gpu.model` - (string) The GPU model. </br>
+      **&#x2022;** `enable_secure_boot` - (boolean) Indicates whether secure boot is enabled. </br>
 	- `delete_volume_on_instance_delete` - (Optional, Bool) You can configure to delete the boot volume based on instance deletion.
 	- `encryption` - (Optional, String) The encryption key CRN to encrypt the boot volume attached.
 	- `name` - (Optional, String) The name of the boot volume.
@@ -471,25 +471,25 @@ Review the argument references that you can specify for your resource.
 	- `volume` - (Optional, Forces new resource, String) The storage volume ID created in VPC.
   - `volume_prototype` - (Optional, Forces new resource, List)
 
-      Nested scheme for `volume_prototype`:
-      - `allowed_use` - (Optional, List) The usage constraints to be matched against requested instance or bare metal server properties to determine compatibility. Only present for boot volumes. The value of this property will be inherited from thesource image or snapshot at volume creation, but can be changed.
-        
-        Nested schema for `allowed_use`:
-        - `api_version` - (Optional, String) The API version with which to evaluate the expressions.
-        
-        - `bare_metal_server` - (Optional, String) The expression that must be satisfied by a bare metal server provisioned using the image data in this volume.The expression follows [Common Expression Language](https://github.com/google/cel-spec/blob/master/doc/langdef.md), but does not support built-in functions and macros. 
+    Nested scheme for `volume_prototype`:
+      - `allowed_use` - (Optional, List) The usage constraints to be matched against requested instance or bare metal server properties to determine compatibility. Can only be specified if `source_snapshot` is bootable.
       
-        ~> **NOTE** </br> In addition, the following property is supported: </br>
-          **&#x2022;** `enable_secure_boot` - (boolean) Indicates whether secure boot is enabled for this bare metal server.
+      Nested schema for `allowed_use`:
+      - `api_version` - (Optional, String) The API version with which to evaluate the expressions. If specified, the value must be between `2019-01-01` and today's date (in UTC). If unspecified, the version query parameter value will be used.
       
-        - `instance` - (Optional, String) The expression that must be satisfied by a virtual server instance provisioned using the image data in this volume.The expression follows [Common Expression Language](https://github.com/google/cel-spec/blob/master/doc/langdef.md), but does not support built-in functions and macros.
-      
-        ~> **NOTE** </br> In addition, the following variables are supported, corresponding to `Instance` </br>
-          **&#x2022;** `gpu.count` - (integer) The number of GPUs assigned to the instance
-          **&#x2022;** `gpu.manufacturer` - (string) The GPU manufacturer
-          **&#x2022;** `gpu.memory` - (integer) The overall amount of GPU memory in GiB (gibibytes)
-          **&#x2022;** `gpu.model` - (string) The GPU model
-          **&#x2022;** `enable_secure_boot` - (boolean) Indicates whether secure boot is enabled.      
+      - `bare_metal_server` - (Optional, String) The expression that must be satisfied by the properties of a bare metal server provisioned using the image data in this volume. If unspecified, the expression will be set to true. The expression follows [Common Expression Language](https://github.com/google/cel-spec/blob/master/doc/langdef.md), but does not support built-in functions and macros. 
+    
+      ~> **NOTE** </br> In addition, the following property is supported, corresponding to the BareMetalServer property: </br>
+        **&#x2022;** `enable_secure_boot` - (boolean) Indicates whether secure boot is enabled.
+    
+      - `instance` - (Optional, String) The expression that must be satisfied by the properties of a virtual server instance provisioned using this volume. If unspecified, the expression will be set to true. The expression follows [Common Expression Language](https://github.com/google/cel-spec/blob/master/doc/langdef.md), but does not support built-in functions and macros.
+    
+      ~> **NOTE** </br> In addition, the following variables are supported, corresponding to `Instance` </br>
+        **&#x2022;** `gpu.count` - (integer) The number of GPUs. </br>
+        **&#x2022;** `gpu.manufacturer` - (string) The GPU manufacturer. </br>
+        **&#x2022;** `gpu.memory` - (integer) The overall amount of GPU memory in GiB (gibibytes). </br>
+        **&#x2022;** `gpu.model` - (string) The GPU model. </br>
+        **&#x2022;** `enable_secure_boot` - (boolean) Indicates whether secure boot is enabled. </br> 
         
       - `capacity` - (Required, Forces new resource, Integer) The capacity of the volume in gigabytes. The specified minimum and maximum capacity values for creating or updating volumes may expand in the future.
       - `encryption_key` - (Optional, Forces new resource, String) The CRN of the [Key Protect Root Key](https://cloud.ibm.com/docs/key-protect?topic=key-protect-getting-started-tutorial) or [Hyper Protect Crypto Service Root Key](https://cloud.ibm.com/docs/hs-crypto?topic=hs-crypto-get-started) for the resource.
