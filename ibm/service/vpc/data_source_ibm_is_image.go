@@ -258,7 +258,7 @@ func DataSourceIBMISImage() *schema.Resource {
 			"allowed_use": &schema.Schema{
 				Type:        schema.TypeList,
 				Computed:    true,
-				Description: "The usage constraints to be matched against requested instance or bare metal serverproperties to determine compatibility.Only present for boot volumes.",
+				Description: "The usage constraints to match against the requested instance or bare metal server properties to determine compatibility.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"api_version": &schema.Schema{
@@ -269,12 +269,12 @@ func DataSourceIBMISImage() *schema.Resource {
 						"bare_metal_server": &schema.Schema{
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: "The expression that must be satisfied by a bare metal server provisioned using the image data in this volume.",
+							Description: "The expression that must be satisfied by the properties of a bare metal server provisioned using this image.",
 						},
 						"instance": &schema.Schema{
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: "The expression that must be satisfied by a virtual server instance provisioned using the image data in this volume.",
+							Description: "The expression that must be satisfied by the properties of a virtual server instance provisioned using this image.",
 						},
 					},
 				},
