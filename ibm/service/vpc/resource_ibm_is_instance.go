@@ -807,7 +807,7 @@ func ResourceIBMISInstance() *schema.Resource {
 							MaxItems:    1,
 							Optional:    true,
 							Computed:    true,
-							Description: "The usage constraints to match against the requested instance or bare metal server properties to determine compatibility.",
+							Description: "The usage constraints to be matched against requested instance or bare metal server properties to determine compatibility.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"api_version": &schema.Schema{
@@ -822,14 +822,14 @@ func ResourceIBMISInstance() *schema.Resource {
 										Optional:     true,
 										Computed:     true,
 										ValidateFunc: validate.InvokeValidator("ibm_is_volume", "allowed_use.bare_metal_server"),
-										Description:  "The expression that must be satisfied by a bare metal server provisioned using this image.",
+										Description:  "The expression that must be satisfied by the properties of a bare metal server provisioned using the image data in this volume.",
 									},
 									"instance": &schema.Schema{
 										Type:         schema.TypeString,
 										Optional:     true,
 										Computed:     true,
 										ValidateFunc: validate.InvokeValidator("ibm_is_volume", "allowed_use.instance"),
-										Description:  "The expression that must be satisfied by a virtual server instance provisioned using this image.",
+										Description:  "The expression that must be satisfied by the properties of a virtual server instance provisioned using this volume.",
 									},
 								},
 							},
@@ -1562,7 +1562,7 @@ func ResourceIBMISInstance() *schema.Resource {
 							MaxItems:    1,
 							Optional:    true,
 							Computed:    true,
-							Description: "The usage constraints to match against the requested instance or bare metal server properties to determine compatibility.",
+							Description: "The usage constraints to be matched against requested instance or bare metal server properties to determine compatibility.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"api_version": &schema.Schema{
@@ -1577,14 +1577,14 @@ func ResourceIBMISInstance() *schema.Resource {
 										Optional:     true,
 										Computed:     true,
 										ValidateFunc: validate.InvokeValidator("ibm_is_volume", "allowed_use.bare_metal_server"),
-										Description:  "The expression that must be satisfied by a bare metal server provisioned using this image.",
+										Description:  "The expression that must be satisfied by the properties of a bare metal server provisioned using the image data in this volume.",
 									},
 									"instance": &schema.Schema{
 										Type:         schema.TypeString,
 										Optional:     true,
 										Computed:     true,
 										ValidateFunc: validate.InvokeValidator("ibm_is_volume", "allowed_use.instance"),
-										Description:  "The expression that must be satisfied by a virtual server instance provisioned using this image.",
+										Description:  "The expression that must be satisfied by the properties of a virtual server instance provisioned using this volume.",
 									},
 								},
 							},
