@@ -2049,8 +2049,10 @@ func resourceIBMISBareMetalServerCreate(context context.Context, d *schema.Resou
 	createbmsoptions.BareMetalServerPrototype = options
 
 	isBMSKey := "bare_metal_server_key_" + *options.Name + zone
-	conns.IbmSequentialExecutionKV.LockSequential(isBMSKey)
-	defer conns.IbmSequentialExecutionKV.UnlockSequential(isBMSKey)
+	// conns.IbmSequentialExecutionKV.LockSequential(isBMSKey)
+	// defer conns.IbmSequentialExecutionKV.UnlockSequential(isBMSKey)
+	conns.BatchIbmMutexKV.LockBatch(isBMSKey)
+	defer conns.BatchIbmMutexKV.UnlockBatch(isBMSKey)
 
 	bms, response, err := sess.CreateBareMetalServerWithContext(context, createbmsoptions)
 	if err != nil {

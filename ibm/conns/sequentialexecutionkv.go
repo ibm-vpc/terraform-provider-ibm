@@ -6,7 +6,6 @@ package conns
 import (
 	"log"
 	"sync"
-	"time"
 )
 
 var IbmSequentialExecutionKV = NewSequentialExecutionKV()
@@ -38,7 +37,6 @@ func (m *SequentialExecutionKV) LockSequential(key string) {
 	// Ensure sequential access
 	cond.L.Lock()
 	log.Printf("[DEBUG] Entering execution for %q", key)
-	time.Sleep(8 * time.Second)
 	cond.Broadcast() // Notify the next one to proceed
 	cond.L.Unlock()
 }
