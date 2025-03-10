@@ -217,6 +217,39 @@ func ResourceIBMISInstanceVolumeAttachment() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+
+			"allowed_use": &schema.Schema{
+				Type:        schema.TypeList,
+				MaxItems:    1,
+				Optional:    true,
+				Computed:    true,
+				Description: "The usage constraints to be matched against requested instance or bare metal server properties to determine compatibility.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"api_version": &schema.Schema{
+							Type:         schema.TypeString,
+							Optional:     true,
+							Computed:     true,
+							ValidateFunc: validate.InvokeValidator("ibm_is_instance_volume_attachment", "allowed_use.api_version"),
+							Description:  "The API version with which to evaluate the expressions.",
+						},
+						"bare_metal_server": &schema.Schema{
+							Type:         schema.TypeString,
+							Optional:     true,
+							Computed:     true,
+							ValidateFunc: validate.InvokeValidator("ibm_is_instance_volume_attachment", "allowed_use.bare_metal_server"),
+							Description:  "The expression that must be satisfied by the properties of a bare metal server provisioned using the image data in this volume.",
+						},
+						"instance": &schema.Schema{
+							Type:         schema.TypeString,
+							Optional:     true,
+							Computed:     true,
+							ValidateFunc: validate.InvokeValidator("ibm_is_instance_volume_attachment", "allowed_use.instance"),
+							Description:  "The expression that must be satisfied by the properties of a virtual server instance provisioned using this volume.",
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -274,6 +307,27 @@ func ResourceIBMISInstanceVolumeAttachmentValidator() *validate.ResourceValidato
 			Regexp:                     `^[A-Za-z0-9:_ .-]+$`,
 			MinValueLength:             1,
 			MaxValueLength:             128})
+	validateSchema = append(validateSchema,
+		validate.ValidateSchema{
+			Identifier:                 "allowed_use.api_version",
+			ValidateFunctionIdentifier: validate.ValidateRegexpLen,
+			Type:                       validate.TypeString,
+			Optional:                   true,
+			Regexp:                     `^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$`})
+	validateSchema = append(validateSchema,
+		validate.ValidateSchema{
+			Identifier:                 "allowed_use.bare_metal_server",
+			ValidateFunctionIdentifier: validate.ValidateRegexpLen,
+			Type:                       validate.TypeString,
+			Optional:                   true,
+			Regexp:                     `^([a-zA-Z_][a-zA-Z0-9_]*|[-+*/%]|&&|\|\||!|==|!=|<|<=|>|>=|~|\bin\b|\(|\)|\[|\]|,|\.|"|'|"|'|\s+|\d+)+$`})
+	validateSchema = append(validateSchema,
+		validate.ValidateSchema{
+			Identifier:                 "allowed_use.instance",
+			ValidateFunctionIdentifier: validate.ValidateRegexpLen,
+			Type:                       validate.TypeString,
+			Optional:                   true,
+			Regexp:                     `^([a-zA-Z_][a-zA-Z0-9_]*|[-+*/%]|&&|\|\||!|==|!=|<|<=|>|>=|~|\bin\b|\(|\)|\[|\]|,|\.|"|'|"|'|\s+|\d+)+$`})
 
 	ibmISInstanceVolumeAttachmentValidator := validate.ResourceValidator{ResourceName: "ibm_is_instance_volume_attachment", Schema: validateSchema}
 	return &ibmISInstanceVolumeAttachmentValidator
@@ -360,6 +414,13 @@ func instanceVolAttachmentCreate(d *schema.ResourceData, meta interface{}, insta
 			if volCapacityInt != 0 && volCapacityInt > snapCapacity {
 				volProtoVol.Capacity = &volCapacityInt
 			}
+		}
+		if allowedUse, ok := d.GetOk("allowed_use"); ok {
+			allowedUseModel, err := ResourceIBMIsVolumeAllowedUseMapToVolumeAllowedUsePrototype(allowedUse.([]interface{})[0].(map[string]interface{}))
+			if err != nil {
+				return err
+			}
+			volProtoVol.AllowedUse = allowedUseModel
 		}
 		var iops int64
 		if volIops, ok := d.GetOk(isInstanceVolIops); ok {
@@ -510,6 +571,19 @@ func instanceVolumeAttachmentGet(d *schema.ResourceData, meta interface{}, insta
 		d.Set(isInstanceVolumeSnapshot, *volumeDetail.SourceSnapshot.ID)
 		d.Set(isInstanceVolumeSnapshotCrn, *volumeDetail.SourceSnapshot.CRN)
 	}
+	allowedUses := []map[string]interface{}{}
+	if volumeDetail.AllowedUse != nil {
+		modelMap, err := ResourceceIBMIsVolumeAllowedUseToMap(volumeDetail.AllowedUse)
+		if err != nil {
+			tfErr := flex.TerraformErrorf(err, err.Error(), "(Resource) ibm_is_instance_volume_attachment", "read")
+			log.Println(tfErr.GetDiag())
+		}
+		allowedUses = append(allowedUses, modelMap)
+	}
+	if err = d.Set("allowed_use", allowedUses); err != nil {
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting allowed_use: %s", err), "(Resource) ibm_is_instance_volume_attachment", "read")
+		log.Println(tfErr.GetDiag())
+	}
 	tags, err := flex.GetGlobalTagsUsingCRN(meta, *volumeDetail.CRN, "", isInstanceUserTagType)
 	if err != nil {
 		log.Printf(
@@ -592,12 +666,48 @@ func instanceVolAttUpdate(d *schema.ResourceData, meta interface{}) error {
 		}
 	}
 
+	if d.HasChange("allowed_use") {
+		volId := d.Get(isInstanceVolAttVol).(string)
+		volumeProfilePatchModel := &vpcv1.VolumePatch{}
+		if d.HasChange("allowed_use") {
+			allowedUseModel, err := ResourceIBMIsInstanceMapToVolumeAllowedUsePatchPrototype(d.Get("allowed_use").([]interface{})[0].(map[string]interface{}))
+			if err != nil {
+				return err
+			}
+			volumeProfilePatchModel.AllowedUse = allowedUseModel
+		}
+		volumeProfilePatch, err := volumeProfilePatchModel.AsPatch()
+		if err != nil {
+			return fmt.Errorf("[ERROR] Error calling asPatch for volumeProfilePatch: %s", err)
+		}
+
+		optionsget := &vpcv1.GetVolumeOptions{
+			ID: &volId,
+		}
+		_, response, err := instanceC.GetVolume(optionsget)
+		if err != nil {
+			return fmt.Errorf("[ERROR] Error getting Boot Volume (%s): %s\n%s", id, err, response)
+		}
+		eTag := response.Headers.Get("ETag")
+		updateVolumeProfileOptions := &vpcv1.UpdateVolumeOptions{
+			ID: &volId,
+		}
+		updateVolumeProfileOptions.IfMatch = &eTag
+		updateVolumeProfileOptions.VolumePatch = volumeProfilePatch
+		_, response, err = instanceC.UpdateVolume(updateVolumeProfileOptions)
+		if err != nil {
+			return fmt.Errorf("[ERROR] Error updating volume allowed use: %s\n%s", err, response)
+		}
+		isWaitForVolumeAvailable(instanceC, volId, d.Timeout(schema.TimeoutCreate))
+	}
+
 	// profile/iops update
 
 	volId := ""
 	if volIdOk, ok := d.GetOk(isInstanceVolAttVol); ok {
 		volId = volIdOk.(string)
 	}
+
 	volProfile := ""
 	if volProfileOk, ok := d.GetOk(isInstanceVolProfile); ok {
 		volProfile = volProfileOk.(string)

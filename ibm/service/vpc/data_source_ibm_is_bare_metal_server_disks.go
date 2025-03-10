@@ -6,9 +6,11 @@ package vpc
 import (
 	"context"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/conns"
+	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -69,6 +71,30 @@ func DataSourceIBMIsBareMetalServerDisks() *schema.Resource {
 							Computed:    true,
 							Description: "The size of the disk in GB (gigabytes)",
 						},
+						"allowed_use": &schema.Schema{
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "The usage constraints to be matched against the requested bare metal server properties to determine compatibility.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"bare_metal_server": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The expression that must be satisfied by the properties of a bare metal server provisioned using the image data in this disk.",
+									},
+									"instance": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The expression that must be satisfied by the properties of a bare metal server provisioned using the image data in this disk.",
+									},
+									"api_version": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The API version with which to evaluate the expressions.",
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -101,8 +127,19 @@ func dataSourceIBMISBareMetalServerDisksRead(context context.Context, d *schema.
 			isBareMetalServerDiskResourceType:  disk.ResourceType,
 			isBareMetalServerDiskSize:          disk.Size,
 		}
+		if disk.AllowedUse != nil {
+			usageConstraintList := []map[string]interface{}{}
+			modelMap, err := ResourceceIBMIsBareMetalServerDiskAllowedUseToMap(disk.AllowedUse)
+			if err != nil {
+				tfErr := flex.TerraformErrorf(err, err.Error(), "(Data) ibm_is_bare_metal_server_disks", "read")
+				log.Println(tfErr.GetDiag())
+			}
+			usageConstraintList = append(usageConstraintList, modelMap)
+			l["allowed_use"] = usageConstraintList
+		}
 		disksInfo = append(disksInfo, l)
 	}
+
 	d.SetId(dataSourceIBMISBMSDisksID(d))
 	d.Set(isBareMetalServerDisks, disksInfo)
 	return nil
