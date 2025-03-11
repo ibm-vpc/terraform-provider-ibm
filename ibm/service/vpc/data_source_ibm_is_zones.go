@@ -22,7 +22,7 @@ const (
 
 func DataSourceIBMISZones() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceIBMISZonesRead,
+		ReadContext: dataSourceIBMISZonesRead,
 
 		Schema: map[string]*schema.Schema{
 
