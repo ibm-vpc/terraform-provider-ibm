@@ -533,6 +533,12 @@ func resourceIBMISSnapshotCreate(d *schema.ResourceData, meta interface{}) error
 			name := snapshotName.(string)
 			snapshotprototypeoptions.Name = &name
 		}
+		if encryptionKey, ok := d.GetOk(isSnapshotEncryptionKey); ok {
+			encryptionKeyString := encryptionKey.(string)
+			snapshotprototypeoptionsbysourcesnapshot.EncryptionKey = &vpcv1.EncryptionKeyIdentity{
+				CRN: &encryptionKeyString,
+			}
+		}
 
 		if grp, ok := d.GetOk(isVPCResourceGroup); ok {
 			rg := grp.(string)
@@ -1133,7 +1139,7 @@ func snapshotDelete(d *schema.ResourceData, meta interface{}, id string) error {
 	deleteSnapshotOptions := &vpcv1.DeleteSnapshotOptions{
 		ID: &id,
 	}
-	response, err = sess.DeleteSnapshot(deleteSnapshotOptions)
+	_, response, err = sess.DeleteSnapshot(deleteSnapshotOptions)
 	if err != nil {
 		return fmt.Errorf("[ERROR] Error deleting Snapshot : %s\n%s", err, response)
 	}

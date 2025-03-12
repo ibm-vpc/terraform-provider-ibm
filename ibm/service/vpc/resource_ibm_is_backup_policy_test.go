@@ -39,6 +39,7 @@ func TestAccIBMIsBackupPolicyBasic(t *testing.T) {
 					resource.TestCheckResourceAttrSet("ibm_is_backup_policy.is_backup_policy", "resource_group"),
 					resource.TestCheckResourceAttrSet("ibm_is_backup_policy.is_backup_policy", "created_at"),
 					resource.TestCheckResourceAttrSet("ibm_is_backup_policy.is_backup_policy", "crn"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_backup_policy.is_backup_policy", "encryption_key"),
 					resource.TestCheckResourceAttrSet("ibm_is_backup_policy.is_backup_policy", "href"),
 					resource.TestCheckResourceAttrSet("ibm_is_backup_policy.is_backup_policy", "lifecycle_state"),
 					resource.TestCheckResourceAttrSet("ibm_is_backup_policy.is_backup_policy", "resource_type"),
@@ -54,6 +55,7 @@ func TestAccIBMIsBackupPolicyBasic(t *testing.T) {
 					resource.TestCheckResourceAttrSet("ibm_is_backup_policy.is_backup_policy", "resource_group"),
 					resource.TestCheckResourceAttrSet("ibm_is_backup_policy.is_backup_policy", "created_at"),
 					resource.TestCheckResourceAttrSet("ibm_is_backup_policy.is_backup_policy", "crn"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_backup_policy.is_backup_policy", "encryption_key"),
 					resource.TestCheckResourceAttrSet("ibm_is_backup_policy.is_backup_policy", "href"),
 					resource.TestCheckResourceAttrSet("ibm_is_backup_policy.is_backup_policy", "lifecycle_state"),
 					resource.TestCheckResourceAttrSet("ibm_is_backup_policy.is_backup_policy", "resource_type"),
@@ -288,4 +290,47 @@ func testAccCheckIBMIsBackupPolicyConfigBasicWithScope(backupPolicyName, entCrn 
 			crn = "%s"
 		}
 	}`, backupPolicyName, entCrn)
+}
+
+func TestAccIBMIsBackupPolicyBasicWithEncryptKey(t *testing.T) {
+	backupPolicyName := fmt.Sprintf("tfbakuppolicyname%d", acctest.RandIntRange(10, 100))
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { acc.TestAccPreCheck(t) },
+		Providers:    acc.TestAccProviders,
+		CheckDestroy: testAccCheckIBMIsBackupPolicyDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccCheckIBMIsBackupPolicyConfigBasicWithScope(backupPolicyName, acc.ShareEncryptionKey),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("ibm_is_backup_policy.is_backup_policy", "name", backupPolicyName),
+					resource.TestCheckResourceAttrSet("ibm_is_backup_policy.is_backup_policy", "match_resource_types.#"),
+					resource.TestCheckResourceAttrSet("ibm_is_backup_policy.is_backup_policy", "match_user_tags.#"),
+					resource.TestCheckResourceAttrSet("ibm_is_backup_policy.is_backup_policy", "resource_group"),
+					resource.TestCheckResourceAttrSet("ibm_is_backup_policy.is_backup_policy", "encryption_key"),
+					resource.TestCheckResourceAttrSet("ibm_is_backup_policy.is_backup_policy", "created_at"),
+					resource.TestCheckResourceAttrSet("ibm_is_backup_policy.is_backup_policy", "crn"),
+					resource.TestCheckResourceAttrSet("ibm_is_backup_policy.is_backup_policy", "href"),
+					resource.TestCheckResourceAttrSet("ibm_is_backup_policy.is_backup_policy", "scope.#"),
+					resource.TestCheckResourceAttrSet("ibm_is_backup_policy.is_backup_policy", "scope.0.id"),
+					resource.TestCheckResourceAttrSet("ibm_is_backup_policy.is_backup_policy", "lifecycle_state"),
+					resource.TestCheckResourceAttrSet("ibm_is_backup_policy.is_backup_policy", "resource_type"),
+					resource.TestCheckResourceAttrSet("ibm_is_backup_policy.is_backup_policy", "version"),
+				),
+			},
+			{
+				ResourceName:      "ibm_is_backup_policy.is_backup_policy",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccCheckIBMIsBackupPolicyConfigBasicWithEncryptKey(backupPolicyName, encryptionKey string) string {
+	return fmt.Sprintf(`
+	  resource "ibm_is_backup_policy" "is_backup_policy" {
+		match_user_tags = ["dev:test"]
+		name            = "%s"
+		encryption_key = "%s"
+	}`, backupPolicyName, encryptionKey)
 }

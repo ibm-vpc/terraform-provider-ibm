@@ -21,6 +21,7 @@ func TestAccIBMIsBackupPolicyDataSourceBasic(t *testing.T) {
 	subnetname := fmt.Sprintf("tf-subnet-%d", acctest.RandIntRange(10, 100))
 	sshname := fmt.Sprintf("tf-ssh-%d", acctest.RandIntRange(10, 100))
 	volname := fmt.Sprintf("tf-vol-%d", acctest.RandIntRange(10, 100))
+	encryptionKey := fmt.Sprintf("tf-vol-%d", acctest.RandIntRange(10, 100))
 	bakupPolicyName := fmt.Sprintf("tfbakuppolicyname%d", acctest.RandIntRange(10, 100))
 	bakupPolicyPlanName := fmt.Sprintf("tfbakuppolicyplanname%d", acctest.RandIntRange(10, 100))
 	cronSpec := strings.TrimSpace(strconv.Itoa(time.Now().UTC().Minute()) + " " + strconv.Itoa(time.Now().UTC().Hour()) + " " + "*" + " " + "*" + " " + "*")
@@ -29,7 +30,7 @@ func TestAccIBMIsBackupPolicyDataSourceBasic(t *testing.T) {
 		Providers: acc.TestAccProviders,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccCheckIBMIsBackupPolicyDataSourceConfigBasic(bakupPolicyName, vpcname, subnetname, sshname, volname, name, cronSpec, bakupPolicyPlanName),
+				Config: testAccCheckIBMIsBackupPolicyDataSourceConfigBasic(bakupPolicyName, vpcname, subnetname, sshname, volname, name, cronSpec, bakupPolicyPlanName, encryptionKey),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet("data.ibm_is_backup_policy.is_backup_policy", "created_at"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_backup_policy.is_backup_policy", "crn"),
@@ -38,6 +39,7 @@ func TestAccIBMIsBackupPolicyDataSourceBasic(t *testing.T) {
 					resource.TestCheckResourceAttrSet("data.ibm_is_backup_policy.is_backup_policy", "match_resource_types.#"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_backup_policy.is_backup_policy", "match_user_tags.#"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_backup_policy.is_backup_policy", "name"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_backup_policy.is_backup_policy", "encryption_key"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_backup_policy.is_backup_policy", "plans.#"),
 					// resource.TestCheckResourceAttrSet("data.ibm_is_backup_policy.is_backup_policy", "plans.0.href"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_backup_policy.is_backup_policy", "plans.0.id"),
@@ -54,7 +56,7 @@ func TestAccIBMIsBackupPolicyDataSourceBasic(t *testing.T) {
 	})
 }
 
-func testAccCheckIBMIsBackupPolicyDataSourceConfigBasic(backupPolicyName, vpcname, subnetname, sshname, volName, name, cronSpec, bakupPolicyPlanName string) string {
+func testAccCheckIBMIsBackupPolicyDataSourceConfigBasic(backupPolicyName, vpcname, subnetname, sshname, volName, name, cronSpec, bakupPolicyPlanName, encryptionKey string) string {
 
 	return testAccCheckIBMIsBackupPolicyPlanConfigBasic(backupPolicyName, vpcname, subnetname, sshname, volName, name, cronSpec, bakupPolicyPlanName) + fmt.Sprintf(`
 		data "ibm_is_backup_policy" "is_backup_policy" {

@@ -61,6 +61,12 @@ func ResourceIBMIsSnapshotConsistencyGroup() *schema.Resource {
 							Optional:    true,
 							Description: "The name for this snapshot. The name is unique across all snapshots in the region.",
 						},
+						"encryption_key": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Computed:    true,
+							Description: "A reference to the root key used to wrap the data encryption key for the source volume.",
+						},
 						"source_volume": {
 							Type:        schema.TypeString,
 							Required:    true,
@@ -329,6 +335,13 @@ func resourceIBMIsSnapshotConsistencyGroupCreate(context context.Context, d *sch
 		name := snapshotVal["name"].(string)
 		if name != "" {
 			snapshotConsistencyGroupPrototypeSnapshotsItem.Name = &name
+		}
+
+		if encryptionKey, ok := d.GetOk(isSnapshotEncryptionKey); ok {
+			encryptionKeyString := encryptionKey.(string)
+			snapshotConsistencyGroupPrototypeSnapshotsItem.EncryptionKey = &vpcv1.EncryptionKeyIdentity{
+				CRN: &encryptionKeyString,
+			}
 		}
 
 		userTags := snapshotVal["tags"].(*schema.Set)

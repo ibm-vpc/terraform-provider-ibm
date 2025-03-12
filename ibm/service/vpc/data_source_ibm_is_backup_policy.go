@@ -46,6 +46,11 @@ func DataSourceIBMIsBackupPolicy() *schema.Resource {
 				Computed:    true,
 				Description: "The CRN for this backup policy.",
 			},
+			"encryption_key": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The encryption_key for this backup policy.",
+			},
 			"href": &schema.Schema{
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -283,6 +288,9 @@ func dataSourceIBMIsBackupPolicyRead(context context.Context, d *schema.Resource
 		return diag.FromErr(fmt.Errorf("[ERROR] Error setting crn: %s", err))
 	}
 	if err = d.Set("href", backupPolicy.Href); err != nil {
+		return diag.FromErr(fmt.Errorf("[ERROR] Error setting href: %s", err))
+	}
+	if err = d.Set("encryption_key", backupPolicy.Href); err != nil {
 		return diag.FromErr(fmt.Errorf("[ERROR] Error setting href: %s", err))
 	}
 	if backupPolicy.LastJobCompletedAt != nil {
