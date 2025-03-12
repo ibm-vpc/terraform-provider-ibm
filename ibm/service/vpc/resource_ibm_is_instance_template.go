@@ -424,6 +424,7 @@ func ResourceIBMISInstanceTemplate() *schema.Resource {
 										MaxItems:    1,
 										Optional:    true,
 										ForceNew:    true,
+										Computed:    true,
 										Description: "The usage constraints to be matched against requested instance or bare metal server properties to determine compatibility.",
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
@@ -431,6 +432,7 @@ func ResourceIBMISInstanceTemplate() *schema.Resource {
 													Type:         schema.TypeString,
 													Optional:     true,
 													ForceNew:     true,
+													Computed:     true,
 													ValidateFunc: validate.InvokeValidator("ibm_is_volume", "allowed_use.api_version"),
 													Description:  "The API version with which to evaluate the expressions.",
 												},
@@ -438,6 +440,7 @@ func ResourceIBMISInstanceTemplate() *schema.Resource {
 													Type:         schema.TypeString,
 													Optional:     true,
 													ForceNew:     true,
+													Computed:     true,
 													ValidateFunc: validate.InvokeValidator("ibm_is_volume", "allowed_use.bare_metal_server"),
 													Description:  "The expression that must be satisfied by the properties of a bare metal server provisioned using the image data in this volume.",
 												},
@@ -445,6 +448,7 @@ func ResourceIBMISInstanceTemplate() *schema.Resource {
 													Type:         schema.TypeString,
 													Optional:     true,
 													ForceNew:     true,
+													Computed:     true,
 													ValidateFunc: validate.InvokeValidator("ibm_is_volume", "allowed_use.instance"),
 													Description:  "The expression that must be satisfied by the properties of a virtual server instance provisioned using this volume.",
 												},
