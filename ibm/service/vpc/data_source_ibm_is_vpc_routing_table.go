@@ -301,7 +301,7 @@ func dataSourceIBMIsVPCRoutingTableRead(ctx context.Context, d *schema.ResourceD
 	d.SetId(*routingTable.ID)
 
 	if err = d.Set(rtCreateAt, flex.DateTimeToString(routingTable.CreatedAt)); err != nil {
-		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting %s", rtCreateAt), "ibm_is_vpc_routing_table", "read")
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting created_at %s", rtCreateAt), "ibm_is_vpc_routing_table", "read")
 		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
 		return tfErr.GetDiag()
 	}
@@ -316,66 +316,66 @@ func dataSourceIBMIsVPCRoutingTableRead(ctx context.Context, d *schema.ResourceD
 		}
 	}
 	if err = d.Set(isRoutingTableAcceptRoutesFrom, acceptRoutesFromInfo); err != nil {
-		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting %s", isRoutingTableAcceptRoutesFrom), "ibm_is_vpc_routing_table", "read")
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting accept_routes_from %s", isRoutingTableAcceptRoutesFrom), "ibm_is_vpc_routing_table", "read")
 		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
 		return tfErr.GetDiag()
 	}
 
 	if err = d.Set(isRoutingTableID, routingTable.ID); err != nil {
-		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting %s", isRoutingTableID), "ibm_is_vpc_routing_table", "read")
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting routing table ID %s", isRoutingTableID), "ibm_is_vpc_routing_table", "read")
 		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
 		return tfErr.GetDiag()
 	}
 
 	if err = d.Set(rtHref, routingTable.Href); err != nil {
-		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting %s", rtHref), "ibm_is_vpc_routing_table", "read")
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting href %s", rtHref), "ibm_is_vpc_routing_table", "read")
 		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
 		return tfErr.GetDiag()
 	}
 
 	if err = d.Set(rtIsDefault, routingTable.IsDefault); err != nil {
-		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting %s", rtIsDefault), "ibm_is_vpc_routing_table", "read")
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting isDefault %s", rtIsDefault), "ibm_is_vpc_routing_table", "read")
 		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
 		return tfErr.GetDiag()
 	}
 
 	if err = d.Set(rtLifecycleState, routingTable.LifecycleState); err != nil {
-		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting %s", rtLifecycleState), "ibm_is_vpc_routing_table", "read")
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting lifecycle state %s", rtLifecycleState), "ibm_is_vpc_routing_table", "read")
 		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
 		return tfErr.GetDiag()
 	}
 
 	if err = d.Set(rName, routingTable.Name); err != nil {
-		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting %s", rName), "ibm_is_vpc_routing_table", "read")
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting name %s", rName), "ibm_is_vpc_routing_table", "read")
 		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
 		return tfErr.GetDiag()
 	}
 
 	if err = d.Set(rtResourceType, routingTable.ResourceType); err != nil {
-		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting %s", rtResourceType), "ibm_is_vpc_routing_table", "read")
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting resource type %s", rtResourceType), "ibm_is_vpc_routing_table", "read")
 		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
 		return tfErr.GetDiag()
 	}
 
 	if err = d.Set(rtRouteDirectLinkIngress, routingTable.RouteDirectLinkIngress); err != nil {
-		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting %s", rtRouteDirectLinkIngress), "ibm_is_vpc_routing_table", "read")
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting direct link ingress %s", rtRouteDirectLinkIngress), "ibm_is_vpc_routing_table", "read")
 		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
 		return tfErr.GetDiag()
 	}
 
 	if err = d.Set(rtRouteInternetIngress, routingTable.RouteInternetIngress); err != nil {
-		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting %s", rtRouteInternetIngress), "ibm_is_vpc_routing_table", "read")
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting internet ingress %s", rtRouteInternetIngress), "ibm_is_vpc_routing_table", "read")
 		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
 		return tfErr.GetDiag()
 	}
 	if err = d.Set(rtRouteTransitGatewayIngress, routingTable.RouteTransitGatewayIngress); err != nil {
-		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting %s", rtRouteTransitGatewayIngress), "ibm_is_vpc_routing_table", "read")
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting transit gateway ingress %s", rtRouteTransitGatewayIngress), "ibm_is_vpc_routing_table", "read")
 		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
 		return tfErr.GetDiag()
 	}
 
 	if err = d.Set(rtRouteVPCZoneIngress, routingTable.RouteVPCZoneIngress); err != nil {
-		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting %s", rtRouteVPCZoneIngress), "ibm_is_vpc_routing_table", "read")
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting zone ingress %s", rtRouteVPCZoneIngress), "ibm_is_vpc_routing_table", "read")
 		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
 		return tfErr.GetDiag()
 	}
@@ -405,7 +405,7 @@ func dataSourceIBMIsVPCRoutingTableRead(ctx context.Context, d *schema.ResourceD
 		}
 	}
 	if err = d.Set(rtRoutes, routes); err != nil {
-		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting %s", rtRoutes), "ibm_is_vpc_routing_table", "read")
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting routes %s", rtRoutes), "ibm_is_vpc_routing_table", "read")
 		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
 		return tfErr.GetDiag()
 	}
@@ -423,7 +423,7 @@ func dataSourceIBMIsVPCRoutingTableRead(ctx context.Context, d *schema.ResourceD
 		}
 	}
 	if err = d.Set(rtSubnets, subnets); err != nil {
-		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting %s", rtSubnets), "ibm_is_vpc_routing_table", "read")
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting subnets %s", rtSubnets), "ibm_is_vpc_routing_table", "read")
 		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
 		return tfErr.GetDiag()
 	}
@@ -434,7 +434,7 @@ func dataSourceIBMIsVPCRoutingTableRead(ctx context.Context, d *schema.ResourceD
 		resourceGroupList = append(resourceGroupList, resourceGroupMap)
 	}
 	if err = d.Set(rtResourceGroup, resourceGroupList); err != nil {
-		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting %s", rtResourceGroup), "ibm_is_vpc_routing_table", "read")
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting resource group %s", rtResourceGroup), "ibm_is_vpc_routing_table", "read")
 		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
 		return tfErr.GetDiag()
 	}
@@ -445,7 +445,7 @@ func dataSourceIBMIsVPCRoutingTableRead(ctx context.Context, d *schema.ResourceD
 			"An error occured during reading of routing table (%s) tags : %s", d.Id(), err)
 	}
 	if err = d.Set(rtTags, tags); err != nil {
-		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting %s", rtTags), "ibm_is_vpc_routing_table", "read")
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting tags %s", rtTags), "ibm_is_vpc_routing_table", "read")
 		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
 		return tfErr.GetDiag()
 	}
@@ -453,10 +453,10 @@ func dataSourceIBMIsVPCRoutingTableRead(ctx context.Context, d *schema.ResourceD
 	accesstags, err := flex.GetGlobalTagsUsingCRN(meta, *routingTable.CRN, "", rtAccessTagType)
 	if err != nil {
 		log.Printf(
-			"An error occured during reading of routing table (%s) access tags: %s", d.Id(), err)
+			"An error occured reading access tags for routing table (%s) : %s", d.Id(), err)
 	}
 	if err = d.Set(rtAccessTags, accesstags); err != nil {
-		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting %s", rtAccessTags), "ibm_is_vpc_routing_table", "read")
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting access tags %s", rtAccessTags), "ibm_is_vpc_routing_table", "read")
 		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
 		return tfErr.GetDiag()
 	}
