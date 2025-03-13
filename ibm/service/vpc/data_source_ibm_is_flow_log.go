@@ -208,7 +208,7 @@ func dataSourceIBMIsFlowLogRead(context context.Context, d *schema.ResourceData,
 	vpcClient, err := meta.(conns.ClientSession).VpcV1API()
 	if err != nil {
 		tfErr := flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_flow_log", "read", "initialize-client")
-		log.Printf("[DEBUG]\n%s", tfErr.GetDiag())
+		log.Printf("[DEBUG]\n%v", tfErr.GetDiag())
 		return tfErr.GetDiag()
 	}
 
@@ -225,7 +225,7 @@ func dataSourceIBMIsFlowLogRead(context context.Context, d *schema.ResourceData,
 		flowlogCollectors, response, err := vpcClient.ListFlowLogCollectorsWithContext(context, listOptions) // Use WithContext
 		if err != nil {
 			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("ListFlowLogCollectorsWithContext failed: %s\n%s", err, response), "ibm_is_flow_log", "read")
-			log.Printf("[DEBUG]\n%s", tfErr.GetDiag())
+			log.Printf("[DEBUG]\n%v", tfErr.GetDiag())
 			return tfErr.GetDiag()
 		}
 
@@ -246,7 +246,7 @@ func dataSourceIBMIsFlowLogRead(context context.Context, d *schema.ResourceData,
 		flowlogCollector, response, err := vpcClient.GetFlowLogCollectorWithContext(context, getFlowLogCollectorOptions)
 		if err != nil {
 			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("GetFlowLogCollectorWithContext failed: %s\n%s", err, response), "ibm_is_flow_log", "read")
-			log.Printf("[DEBUG]\n%s", tfErr.GetDiag())
+			log.Printf("[DEBUG]\n%v", tfErr.GetDiag())
 			return tfErr.GetDiag()
 		}
 		flowLogCollector = flowlogCollector

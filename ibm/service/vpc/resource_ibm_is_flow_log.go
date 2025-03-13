@@ -518,7 +518,7 @@ func resourceIBMISFlowLogExists(d *schema.ResourceData, meta interface{}) (bool,
 	if err != nil {
 		tfErr := flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_flow_log", "exists", "initialize-client")
 		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
-		return false, fmt.Errorf("[ERROR] Error initializing VPC client: %s", tfErr.GetDiag())
+		return false, fmt.Errorf("[ERROR] Error initializing VPC client: %v", tfErr.GetDiag())
 	}
 
 	ID := d.Id()
@@ -530,7 +530,7 @@ func resourceIBMISFlowLogExists(d *schema.ResourceData, meta interface{}) (bool,
 	if err != nil && response.StatusCode != 404 {
 		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("GetFlowLogCollectorWithContext failed: %s\n%s", err, response), "ibm_is_flow_log", "exists")
 		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
-		return false, fmt.Errorf("[ERROR] Error checking existence of Flow Log Collector: %s", tfErr.GetDiag())
+		return false, fmt.Errorf("[ERROR] Error checking existence of Flow Log Collector: %v", tfErr.GetDiag())
 	}
 	if response.StatusCode == 404 {
 		d.SetId("")

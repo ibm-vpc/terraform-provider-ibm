@@ -147,7 +147,7 @@ func dataSourceIBMISFlowLogsRead(context context.Context, d *schema.ResourceData
 	vpcClient, err := meta.(conns.ClientSession).VpcV1API()
 	if err != nil {
 		tfErr := flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_flow_logs", "read", "initialize-client")
-		log.Printf("[DEBUG]\n%s", tfErr.GetDiag())
+		log.Printf("[DEBUG]\n%v", tfErr.GetDiag())
 		return tfErr.GetDiag()
 	}
 
@@ -190,7 +190,7 @@ func dataSourceIBMISFlowLogsRead(context context.Context, d *schema.ResourceData
 		flowlogCollectors, response, err := vpcClient.ListFlowLogCollectorsWithContext(context, listOptions)
 		if err != nil {
 			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("ListFlowLogCollectorsWithContext failed: %s\n%s", err, response), "ibm_is_flow_logs", "read")
-			log.Printf("[DEBUG]\n%s", tfErr.GetDiag())
+			log.Printf("[DEBUG]\n%v", tfErr.GetDiag())
 			return tfErr.GetDiag()
 		}
 		start = flex.GetNext(flowlogCollectors.Next)
