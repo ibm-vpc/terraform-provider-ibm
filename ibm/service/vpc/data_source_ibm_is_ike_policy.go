@@ -152,7 +152,9 @@ func DataSourceIBMIsIkePolicy() *schema.Resource {
 func dataSourceIBMIsIkePolicyRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	vpcClient, err := meta.(conns.ClientSession).VpcV1API()
 	if err != nil {
-		return diag.FromErr(err)
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "(Data) ibm_is_ike_policy", "read")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	name := d.Get("name").(string)
@@ -168,7 +170,9 @@ func dataSourceIBMIsIkePolicyRead(context context.Context, d *schema.ResourceDat
 			}
 			ikePolicies, response, err := vpcClient.ListIkePolicies(listIkePoliciesyOptions)
 			if err != nil {
-				return diag.FromErr(fmt.Errorf("Error Fetching IKE Policies %s\n%s", err, response))
+				tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error Fetching IKE Policies %s\n%s", err, response), "(Data) ibm_is_ike_policy", "read")
+				log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+				return tfErr.GetDiag()
 			}
 			start = flex.GetNext(ikePolicies.Next)
 			allrecs = append(allrecs, ikePolicies.IkePolicies...)
@@ -185,8 +189,10 @@ func dataSourceIBMIsIkePolicyRead(context context.Context, d *schema.ResourceDat
 			}
 		}
 		if !ike_policy_found {
-			log.Printf("[DEBUG] No ike policy found with given name %s", name)
-			return diag.FromErr(fmt.Errorf("No ike policy found with given name %s", name))
+			err = fmt.Errorf("No ike policy found with given name %s", name)
+			tfErr := flex.TerraformErrorf(err, err.Error(), "(Data) ibm_is_ike_policy", "read")
+			log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+			return tfErr.GetDiag()
 		}
 
 	} else {
@@ -196,56 +202,81 @@ func dataSourceIBMIsIkePolicyRead(context context.Context, d *schema.ResourceDat
 
 		ikePolicy1, response, err := vpcClient.GetIkePolicyWithContext(context, getIkePolicyOptions)
 		if err != nil {
-			log.Printf("[DEBUG] GetIkePolicyWithContext failed %s\n%s", err, response)
-			return diag.FromErr(fmt.Errorf("GetIkePolicyWithContext failed %s\n%s", err, response))
+			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("GetIkePolicyWithContext failed %s\n%s", err, response), "(Data) ibm_is_ike_policy", "read")
+			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+			return tfErr.GetDiag()
 		}
 		ikePolicy = ikePolicy1
 	}
 
 	d.SetId(*ikePolicy.ID)
 	if err = d.Set("authentication_algorithm", ikePolicy.AuthenticationAlgorithm); err != nil {
-		return diag.FromErr(fmt.Errorf("Error setting authentication_algorithm: %s", err))
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting authentication_algorithm: %s", err), "(Data) ibm_is_ike_policy", "read")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	if ikePolicy.Connections != nil {
 		err = d.Set("connections", dataSourceIkePolicyFlattenConnections(ikePolicy.Connections))
 		if err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting connections %s", err))
+			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting connections %s", err), "(Data) ibm_is_ike_policy", "read")
+			log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+			return tfErr.GetDiag()
 		}
 	}
 	if err = d.Set("created_at", flex.DateTimeToString(ikePolicy.CreatedAt)); err != nil {
-		return diag.FromErr(fmt.Errorf("Error setting created_at: %s", err))
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting created_at: %s", err), "(Data) ibm_is_ike_policy", "read")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	if err = d.Set("dh_group", flex.IntValue(ikePolicy.DhGroup)); err != nil {
-		return diag.FromErr(fmt.Errorf("Error setting dh_group: %s", err))
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting dh_group: %s", err), "(Data) ibm_is_ike_policy", "read")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	if err = d.Set("encryption_algorithm", ikePolicy.EncryptionAlgorithm); err != nil {
-		return diag.FromErr(fmt.Errorf("Error setting encryption_algorithm: %s", err))
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting encryption_algorithm: %s", err), "(Data) ibm_is_ike_policy", "read")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	if err = d.Set("href", ikePolicy.Href); err != nil {
-		return diag.FromErr(fmt.Errorf("Error setting href: %s", err))
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting href: %s", err), "(Data) ibm_is_ike_policy", "read")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	if err = d.Set("ike_version", flex.IntValue(ikePolicy.IkeVersion)); err != nil {
-		return diag.FromErr(fmt.Errorf("Error setting ike_version: %s", err))
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting ike_version: %s", err), "(Data) ibm_is_ike_policy", "read")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	if err = d.Set("key_lifetime", flex.IntValue(ikePolicy.KeyLifetime)); err != nil {
-		return diag.FromErr(fmt.Errorf("Error setting key_lifetime: %s", err))
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting key_lifetime: %s", err), "(Data) ibm_is_ike_policy", "read")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	if err = d.Set("name", ikePolicy.Name); err != nil {
-		return diag.FromErr(fmt.Errorf("Error setting name: %s", err))
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting name: %s", err), "(Data) ibm_is_ike_policy", "read")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	if err = d.Set("negotiation_mode", ikePolicy.NegotiationMode); err != nil {
-		return diag.FromErr(fmt.Errorf("Error setting negotiation_mode: %s", err))
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting negotiation_mode: %s", err), "(Data) ibm_is_ike_policy", "read")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	if ikePolicy.ResourceGroup != nil {
 		err = d.Set("resource_group", dataSourceIkePolicyFlattenResourceGroup(*ikePolicy.ResourceGroup))
 		if err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting resource_group %s", err))
+			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting resource_group %s", err), "(Data) ibm_is_ike_policy", "read")
+			log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+			return tfErr.GetDiag()
 		}
 	}
 	if err = d.Set("resource_type", ikePolicy.ResourceType); err != nil {
-		return diag.FromErr(fmt.Errorf("Error setting resource_type: %s", err))
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting resource_type: %s", err), "(Data) ibm_is_ike_policy", "read")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	return nil
