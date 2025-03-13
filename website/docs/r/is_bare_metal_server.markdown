@@ -233,6 +233,14 @@ Review the argument references that you can specify for your resource.
   **&#x2022;** You must have the access listed in the [Granting users access to tag resources](https://cloud.ibm.com/docs/account?topic=account-access) for `access_tags`</br>
   **&#x2022;** `access_tags` must be in the format `key:value`.
 - `bandwidth` - (Integer) The total bandwidth (in megabits per second) shared across the bare metal server's network interfaces. The specified value must match one of the bandwidth values in the bare metal server's profile.
+- `default_trusted_profile`- (Optional, List) The default trusted profile to be used when initializing the bare metal server.
+
+  Nested scheme for `default_trusted_profile`:
+  - `auto_link` - (Boolean) If set to true, the system will create a link to the specified target trusted profile during server creation. Regardless of whether a link is created by the system or manually using the IAM Identity service, it will be automatically deleted when the server is deleted.
+  - `target` - (List) The default IAM trusted profile to use for this bare metal server.
+    Nested `target` blocks have the following structure: 
+    - `id` - (String) The unique identifier for this trusted profile
+    - `crn` - (String) The CRN for this trusted profile
 - `delete_type` - (Optional, String) Type of deletion on destroy. **soft** signals running operating system to quiesce and shutdown cleanly, **hard** immediately stop the server. By default its `hard`.
 - `enable_secure_boot` - (Optional, Boolean) Indicates whether secure boot is enabled. If enabled, the image must support secure boot or the server will fail to boot. Updating `enable_secure_boot` requires the server to be stopped and then it would be started.
 - `health_reasons` - (List) The reasons for the current health_state (if any).
@@ -256,6 +264,17 @@ Review the argument references that you can specify for your resource.
   -> **NOTE:**
     To reinitialize a bare metal server, the server status must be stopped, or have failed a previous reinitialization. For more information, see [Managing Bare Metal Servers for VPC](https://cloud.ibm.com/docs/vpc?topic=vpc-managing-bare-metal-servers&interface=api#reinitialize-bare-metal-servers-api).
 
+
+- `default_trusted_profile`- (Optional, List) The default trusted profile to be used when initializing the bare metal server.
+
+  Nested scheme for `default_trusted_profile`:
+  - `auto_link` - (Boolean) If set to true, the system will create a link to the specified target trusted profile during server creation. Regardless of whether a link is created by the system or manually using the IAM Identity service, it will be automatically deleted when the server is deleted.
+  - `target` - (List) The default IAM trusted profile to use for this bare metal server.
+    Nested `target` blocks have the following structure: 
+    - `id` - (String) The unique identifier for this trusted profile
+    - `crn` - (String) The CRN for this trusted profile
+     
+  
 - `default_trusted_profile`- (Optional, List) The default trusted profile to be used when initializing the bare metal server.
 
   Nested scheme for `default_trusted_profile`:

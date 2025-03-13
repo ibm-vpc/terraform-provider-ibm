@@ -1135,6 +1135,7 @@ func ResourceIBMIsBareMetalServer() *schema.Resource {
 									},
 									"crn": {
 										Type:        schema.TypeString,
+										Optional:    true,
 										Computed:    true,
 										Description: "The CRN for this trusted profile",
 									},
