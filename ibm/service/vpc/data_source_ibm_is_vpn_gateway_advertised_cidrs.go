@@ -36,7 +36,7 @@ func DataSourceIBMIsVPNGatewayAdvertisedCidrs() *schema.Resource {
 			},
 			"advertised_cidrs": {
 				Type:        schema.TypeList,
-				Required:    true,
+				Computed:    true,
 				Description: "The additional CIDRs advertised through any enabled routing protocol (for example, BGP). The routing protocol will advertise routes with these CIDRs and VPC prefixes as route destinations.",
 				Elem: &schema.Schema{
 					Type: schema.TypeString,

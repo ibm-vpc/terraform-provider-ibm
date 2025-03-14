@@ -74,8 +74,9 @@ func resourceIBMISVPNGatewayAdvertisedCidrCreate(context context.Context, d *sch
 		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
 		return diag.FromErr(tfErr)
 	}
+	d.SetId(fmt.Sprintf("%s/%s", gatewayID, cidr))
 
-	return nil
+	return resourceIBMISVPNGatewayAdvertisedCidrRead(context, d, meta)
 }
 
 func resourceIBMISVPNGatewayAdvertisedCidrRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -93,14 +94,9 @@ func resourceIBMISVPNGatewayAdvertisedCidrRead(context context.Context, d *schem
 		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
 		return diag.FromErr(tfErr)
 	}
-	if len(parts) != 2 {
-		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Incorrect ID %s: ID should be a combination of gID/gAdvertisedCidr", d.Id()), "ibm_is_vpn_gateway_advertised_cidr", "read")
-		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
-		return diag.FromErr(tfErr)
-	}
 
 	gID := parts[0]
-	gAdvertisedCidr := parts[1]
+	gAdvertisedCidr := parts[1] + "/" + parts[2]
 
 	checkVPNGatewayAdvertisedCIDROptions := &vpcv1.CheckVPNGatewayAdvertisedCIDROptions{
 		VPNGatewayID: &gID,
@@ -129,7 +125,7 @@ func resourceIBMISVPNGatewayAdvertisedCidrDelete(context context.Context, d *sch
 	}
 
 	gID := parts[0]
-	cidr := parts[1]
+	cidr := parts[1] + "/" + parts[2]
 
 	deleteErr := vpngwAdvertisedCidrDelete(d, meta, gID, cidr)
 	if deleteErr != nil {
