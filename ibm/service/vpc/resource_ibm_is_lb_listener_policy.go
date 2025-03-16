@@ -1132,11 +1132,18 @@ func lbListenerPolicyGet(d *schema.ResourceData, meta interface{}, lbID, listene
 				return diag.FromErr(fmt.Errorf("Error setting target: %s", err))
 			}
 		} else {
-			if *(policy.Action) == "forward" {
+			if *(policy.Action) == "forward" || *(policy.Action) == "forward_to_pool" {
 				if reflect.TypeOf(policy.Target).String() == "*vpcv1.LoadBalancerListenerPolicyTargetLoadBalancerPoolReference" {
 					target, ok := policy.Target.(*vpcv1.LoadBalancerListenerPolicyTargetLoadBalancerPoolReference)
 					if ok {
 						d.Set(isLBListenerPolicyTargetID, target.ID)
+					}
+				} else if *(policy.Action) == "forward_to_listener" {
+					if reflect.TypeOf(policy.Target).String() == "*vpcv1.LoadBalancerListenerPolicyTargetLoadBalancerListenerReference" {
+						target, ok := policy.Target.(*vpcv1.LoadBalancerListenerPolicyTargetLoadBalancerListenerReference)
+						if ok {
+							d.Set(isLBListenerPolicyTargetID, target.ID)
+						}
 					}
 				}
 
