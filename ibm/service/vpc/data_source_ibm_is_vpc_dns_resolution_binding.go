@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
+	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/conns"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
 )
@@ -250,8 +251,8 @@ func DataSourceIBMIsVPCDnsResolutionBinding() *schema.Resource {
 	}
 }
 
-func dataSourceIBMIsVPCDnsResolutionBindingRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	sess, err := vpcClient(meta)
+func dataSourceIBMIsVPCDnsResolutionBindingRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	vpcClient, err := meta.(conns.ClientSession).VpcV1API()
 	if err != nil {
 		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "(Data) ibm_is_vpc_dns_resolution_binding", "read")
 		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
@@ -263,7 +264,7 @@ func dataSourceIBMIsVPCDnsResolutionBindingRead(ctx context.Context, d *schema.R
 	getVPCDnsResolutionBindingOptions.SetVPCID(d.Get("vpc_id").(string))
 	getVPCDnsResolutionBindingOptions.SetID(d.Get("identifier").(string))
 
-	vpcdnsResolutionBinding, response, err := sess.GetVPCDnsResolutionBindingWithContext(ctx, getVPCDnsResolutionBindingOptions)
+	vpcdnsResolutionBinding, response, err := vpcClient.GetVPCDnsResolutionBindingWithContext(context, getVPCDnsResolutionBindingOptions)
 	if err != nil {
 		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("GetVPCDnsResolutionBindingWithContext failed %s\n%s", err, response), "ibm_is_vpc_dns_resolution_binding", "read")
 		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())

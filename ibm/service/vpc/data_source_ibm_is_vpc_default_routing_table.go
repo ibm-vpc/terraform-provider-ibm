@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/conns"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -187,9 +188,9 @@ func DataSourceIBMISVPCDefaultRoutingTable() *schema.Resource {
 	}
 }
 
-func dataSourceIBMISVPCDefaultRoutingTableGet(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataSourceIBMISVPCDefaultRoutingTableGet(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
-	sess, err := vpcClient(meta)
+	vpcClient, err := meta.(conns.ClientSession).VpcV1API()
 	if err != nil {
 		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "(Data) ibm_is_vpc_default_routing_table", "read")
 		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
@@ -198,8 +199,8 @@ func dataSourceIBMISVPCDefaultRoutingTableGet(ctx context.Context, d *schema.Res
 
 	vpcID := d.Get(isDefaultRTVpcID).(string)
 
-	getVpcDefaultRoutingTableOptions := sess.NewGetVPCDefaultRoutingTableOptions(vpcID)
-	result, response, err := sess.GetVPCDefaultRoutingTableWithContext(ctx, getVpcDefaultRoutingTableOptions)
+	getVpcDefaultRoutingTableOptions := vpcClient.NewGetVPCDefaultRoutingTableOptions(vpcID)
+	result, response, err := vpcClient.GetVPCDefaultRoutingTableWithContext(context, getVpcDefaultRoutingTableOptions)
 	if err != nil {
 		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("GetVPCDefaultRoutingTableWithContext failed %s\n%s", err, response), "ibm_is_vpc_default_routing_table", "read")
 		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())

@@ -12,6 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
+	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/conns"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
 )
@@ -275,8 +276,8 @@ func DataSourceIBMIsVPCDnsResolutionBindings() *schema.Resource {
 	}
 }
 
-func dataSourceIBMIsVPCDnsResolutionBindingsRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	sess, err := vpcClient(meta)
+func dataSourceIBMIsVPCDnsResolutionBindingsRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	vpcClient, err := meta.(conns.ClientSession).VpcV1API()
 	if err != nil {
 		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "(Data) ibm_is_vpc_dns_resolution_bindings", "read")
 		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
@@ -292,7 +293,7 @@ func dataSourceIBMIsVPCDnsResolutionBindingsRead(ctx context.Context, d *schema.
 		if start != "" {
 			listVPCDnsResolutionBindingOptions.Start = &start
 		}
-		vpcdnsResolutionBindingCollection, response, err := sess.ListVPCDnsResolutionBindingsWithContext(ctx, listVPCDnsResolutionBindingOptions)
+		vpcdnsResolutionBindingCollection, response, err := vpcClient.ListVPCDnsResolutionBindingsWithContext(context, listVPCDnsResolutionBindingOptions)
 		if err != nil {
 			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("ListVPCDnsResolutionBindingsWithContext failed %s\n%s", err, response), "ibm_is_vpc_dns_resolution_bindings", "read")
 			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
@@ -378,7 +379,7 @@ func dataSourceIBMIsVPCDnsResolutionBindingsRead(ctx context.Context, d *schema.
 			if dns.VPC != nil {
 				modelMap, err := dataSourceIBMIsVPCDnsResolutionBindingVPCReferenceRemoteToMap(dns.VPC)
 				if err != nil {
-					tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting vpc"), "ibm_is_vpc_dns_resolution_binding", "read")
+					tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting vpc"), "ibm_is_vpc_dns_resolution_bindings", "read")
 					log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
 					return tfErr.GetDiag()
 				}
