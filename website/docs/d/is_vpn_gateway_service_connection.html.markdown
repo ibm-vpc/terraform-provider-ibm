@@ -18,16 +18,8 @@ data "ibm_is_vpn_gateway_service_connection" "example" {
   vpn_gateway_connection = ibm_is_vpn_gateway_connection.example.gateway_connection
 }
 data "ibm_is_vpn_gateway_service_connection" "example-1" {
-  vpn_gateway = ibm_is_vpn_gateway.example.id
-  vpn_gateway_connection_name = ibm_is_vpn_gateway_connection.example.name
-}
-data "ibm_is_vpn_gateway_service_connection" "example-2" {
   vpn_gateway_name = ibm_is_vpn_gateway.example.name
   vpn_gateway_connection = ibm_is_vpn_gateway_connection.example.gateway_connection
-}
-data "ibm_is_vpn_gateway_service_connection" "example-3" {
-  vpn_gateway_name = ibm_is_vpn_gateway.example.name
-  vpn_gateway_connection_name = ibm_is_vpn_gateway_connection.example.name
 }
 ```
 
@@ -38,9 +30,8 @@ Review the argument reference that you can specify for your data source.
 - `vpn_gateway` - (Optional, String) The VPN gateway identifier.
 - `vpn_gateway_name` - (Optional, String) The VPN gateway name.
 - `vpn_gateway_connection` - (Optional, String) The VPN gateway connection identifier.
-- `vpn_gateway_connection_name` - (Optional, String) The VPN gateway connection name.
 
-  ~> **Note** Provide either one of `vpn_gateway`, `vpn_gateway_name` to identifiy vpn gateway and either one of `vpn_gateway_connection`, `vpn_gateway_connection_name` to identify vpn gateway connection.
+  ~> **Note** Provide either one of `vpn_gateway`, `vpn_gateway_name` to identifiy vpn gateway.
 
 ## Attribute Reference
 

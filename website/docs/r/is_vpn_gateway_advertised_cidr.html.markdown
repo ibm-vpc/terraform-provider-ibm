@@ -66,8 +66,8 @@ The `ibm_is_vpn_gateway_advertised_cidr` resource provides the following [Timeou
 ## Argument reference
 Review the argument references that you can specify for your resource. 
 
-- `vpn_gateway` - (Required, Force new resource, String) The unique identifier of the VPN gateway.
 - `cidr` - (Required, Force new resource, String) The IP address range in CIDR block notation.
+- `vpn_gateway` - (Required, Force new resource, String) The unique identifier of the VPN gateway.
 
 ## Import
 The `ibm_is_vpn_gateway_advertised_cidr` resource can be imported by using the VPN gateway ID and the Advertised Cidr. 
