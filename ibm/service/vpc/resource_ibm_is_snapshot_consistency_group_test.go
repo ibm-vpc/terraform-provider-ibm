@@ -31,6 +31,7 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCKVmnMOlHKcZK8tpt3MP1lqOLAcqcJzhsvJcjscgVE
 	deleteSnapshotsOnDeleteUpdate := "false"
 	snapname := fmt.Sprintf("tf-snap-name-%d", acctest.RandIntRange(10, 100))
 	scgnameUpdate := fmt.Sprintf("tf-snap-cons-grp-name-update-%d", acctest.RandIntRange(10, 100))
+	encryptKey := fmt.Sprintf("tf-snapshot-%d", acctest.RandIntRange(10, 100))
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { acc.TestAccPreCheck(t) },
@@ -38,7 +39,7 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCKVmnMOlHKcZK8tpt3MP1lqOLAcqcJzhsvJcjscgVE
 		CheckDestroy: testAccCheckIBMIsSnapshotConsistencyGroupDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccCheckIBMIsSnapshotConsistencyGroupConfig(vpcname, subnetname, sshname, publicKey, name, scgname, snapname, deleteSnapshotsOnDelete),
+				Config: testAccCheckIBMIsSnapshotConsistencyGroupConfig(vpcname, subnetname, sshname, publicKey, name, scgname, snapname, deleteSnapshotsOnDelete, encryptKey),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					testAccCheckIBMIsSnapshotConsistencyGroupExists("ibm_is_snapshot_consistency_group.is_snapshot_consistency_group", conf),
 					resource.TestCheckResourceAttr("ibm_is_snapshot_consistency_group.is_snapshot_consistency_group", "delete_snapshots_on_delete", deleteSnapshotsOnDelete),
@@ -55,7 +56,7 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCKVmnMOlHKcZK8tpt3MP1lqOLAcqcJzhsvJcjscgVE
 				),
 			},
 			resource.TestStep{
-				Config: testAccCheckIBMIsSnapshotConsistencyGroupConfig(vpcname, subnetname, sshname, publicKey, name, scgnameUpdate, snapname, deleteSnapshotsOnDeleteUpdate),
+				Config: testAccCheckIBMIsSnapshotConsistencyGroupConfig(vpcname, subnetname, sshname, publicKey, name, scgnameUpdate, snapname, deleteSnapshotsOnDeleteUpdate, encryptKey),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("ibm_is_snapshot_consistency_group.is_snapshot_consistency_group", "delete_snapshots_on_delete", deleteSnapshotsOnDeleteUpdate),
 					resource.TestCheckResourceAttr("ibm_is_snapshot_consistency_group.is_snapshot_consistency_group", "name", scgnameUpdate),
@@ -65,7 +66,7 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCKVmnMOlHKcZK8tpt3MP1lqOLAcqcJzhsvJcjscgVE
 	})
 }
 
-func testAccCheckIBMIsSnapshotConsistencyGroupConfig(vpcname, subnetname, sshname, publicKey, name, snapname, scgname, deleteSnapshotsOnDelete string) string {
+func testAccCheckIBMIsSnapshotConsistencyGroupConfig(vpcname, subnetname, sshname, publicKey, name, snapname, scgname, deleteSnapshotsOnDelete, encryptionKey string) string {
 	return fmt.Sprintf(`
 
 	resource "ibm_is_vpc" "testacc_vpc" {
@@ -105,10 +106,12 @@ func testAccCheckIBMIsSnapshotConsistencyGroupConfig(vpcname, subnetname, sshnam
 		snapshots {
 		  name = "%s"
 		  source_volume = ibm_is_instance.testacc_instance.volume_attachments[0].volume_id
+		  encryption_key    = "%s"
 		}
 		name = "%s"
+
 	  }
-	`, vpcname, subnetname, acc.ISZoneName, sshname, publicKey, name, acc.IsImage, acc.InstanceProfileName, acc.ISZoneName, deleteSnapshotsOnDelete, scgname, snapname)
+	`, vpcname, subnetname, acc.ISZoneName, sshname, publicKey, name, acc.IsImage, acc.InstanceProfileName, acc.ISZoneName, deleteSnapshotsOnDelete, scgname, snapname, encryptionKey)
 }
 
 func testAccCheckIBMIsSnapshotConsistencyGroupExists(n string, obj vpcv1.SnapshotConsistencyGroup) resource.TestCheckFunc {

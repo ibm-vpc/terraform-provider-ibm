@@ -515,6 +515,78 @@ func testAccCheckIBMISSnapshotCloneConfig(vpcname, subnetname, sshname, publicKe
 
 }
 
+func TestAccIBMISSnapshotEncrypt_basic(t *testing.T) {
+	var snapshot string
+	vpcname := fmt.Sprintf("tf-vpc-%d", acctest.RandIntRange(10, 100))
+	name := fmt.Sprintf("tf-instance-%d", acctest.RandIntRange(10, 100))
+	subnetname := fmt.Sprintf("tf-subnet-%d", acctest.RandIntRange(10, 100))
+	publicKey := "ssh-rsa AAAAB3..."
+	sshname := fmt.Sprintf("tf-ssh-%d", acctest.RandIntRange(10, 100))
+	sname := fmt.Sprintf("tf-snapshot-%d", acctest.RandIntRange(10, 100))
+	clonedSname := fmt.Sprintf("tf-snapshot-clone-%d", acctest.RandIntRange(10, 100))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { acc.TestAccPreCheck(t) },
+		Providers:    acc.TestAccProviders,
+		CheckDestroy: testAccCheckIBMISSnapshotDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckIBMISSnapshotCloneConfig(vpcname, subnetname, sshname, publicKey, name, sname, clonedSname),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckIBMISSnapshotExists("ibm_is_snapshot.testacc_snapshot", snapshot),
+					resource.TestCheckResourceAttr(
+						"ibm_is_snapshot.testacc_snapshot", "name", sname),
+					resource.TestCheckResourceAttr(
+						"ibm_is_snapshot.testacc_snapshot_clone", "name", clonedSname),
+				),
+			},
+		},
+	})
+}
+
+func testAccCheckIBMISSnapShotEncryption(vpcname, subnetname, sshname, publicKey, name, sname, clonedSname string) string {
+	return fmt.Sprintf(`
+		resource "ibm_is_vpc" "testacc_vpc" {
+			name = "%s"
+		}
+
+		resource "ibm_is_subnet" "testacc_subnet" {
+			name           				= "%s"
+			vpc             			= ibm_is_vpc.testacc_vpc.id
+			zone            			= "%s"
+			total_ipv4_address_count 	= 16
+		}
+
+		resource "ibm_is_ssh_key" "testacc_sshkey" {
+			name       = "%s"
+			public_key = "%s"
+		}
+
+		resource "ibm_is_instance" "testacc_instance" {
+			name    = "%s"
+			image   = "%s"
+			profile = "%s"
+			primary_network_interface {
+			  subnet     = ibm_is_subnet.testacc_subnet.id
+			}
+			vpc  = ibm_is_vpc.testacc_vpc.id
+			zone = "%s"
+			keys = [ibm_is_ssh_key.testacc_sshkey.id]
+		}
+		resource "ibm_is_snapshot" "testacc_snapshot" {
+			name          = "%s"
+			source_volume = ibm_is_instance.testacc_instance.volume_attachments[0].volume_id
+		}
+
+	
+		resource "ibm_is_snapshot" "testacc_snapshot_clone" {
+			name           = "%s"
+			source_snapshot = ibm_is_snapshot.testacc_snapshot.id
+			encryption    = data.ibm_kms_key.testacc_kms.keys.0.crn
+		}
+	`, vpcname, subnetname, acc.ISZoneName, sshname, publicKey, name, acc.IsImage, acc.InstanceProfileName, acc.ISZoneName, sname, clonedSname)
+}
+
 func testAccCheckIBMISSnapshotConfigCRC(copySnapshotName string) string {
 	return fmt.Sprintf(`
 

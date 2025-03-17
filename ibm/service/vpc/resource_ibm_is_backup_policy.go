@@ -17,6 +17,10 @@ import (
 	"github.com/IBM/vpc-go-sdk/vpcv1"
 )
 
+const (
+	isBackupPolicyEncryptionKey = "encryption_key"
+)
+
 func ResourceIBMIsBackupPolicy() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceIBMIsBackupPolicyCreate,
@@ -59,6 +63,12 @@ func ResourceIBMIsBackupPolicy() *schema.Resource {
 				Set:         schema.HashString,
 				Description: "The included content for backups created using this policy",
 				Elem:        &schema.Schema{Type: schema.TypeString, ValidateFunc: validate.InvokeValidator("ibm_is_backup_policy", "included_content")},
+			},
+			isBackupPolicyEncryptionKey: &schema.Schema{
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: "A reference to the root key used to wrap the data encryption key for the source volume.",
 			},
 			"name": &schema.Schema{
 				Type:         schema.TypeString,
@@ -237,6 +247,14 @@ func resourceIBMIsBackupPolicyCreate(context context.Context, d *schema.Resource
 	if _, ok := d.GetOk("name"); ok {
 		backupPolicyPrototype.Name = core.StringPtr(d.Get("name").(string))
 	}
+	//what is core and flex? what if this encryption is nil
+	if encryptionKey, ok := d.GetOk(isBackupPolicyEncryptionKey); ok {
+		encryptionKeyString := encryptionKey.(string)
+		backupPolicyPrototype.EncryptionKey = &vpcv1.BackupPolicyPrototypeEncryptionKey{
+			CRN: &encryptionKeyString,
+		}
+	}
+
 	if resGroup, ok := d.GetOk("resource_group"); ok {
 		resourceGroupStr := resGroup.(string)
 		resourceGroup := vpcv1.ResourceGroupIdentity{
@@ -424,6 +442,19 @@ func resourceIBMIsBackupPolicyUpdate(context context.Context, d *schema.Resource
 		patchVals.IncludedContent = (flex.ExpandStringList((d.Get("included_content").(*schema.Set)).List()))
 		hasChange = true
 	}
+
+	if d.HasChange("encryption_key") {
+		if encryptionKeySet, ok := d.Get("encryption_key").(*schema.Set); ok {
+			if encryptionKeySet.Len() > 0 {
+				encryptstr := encryptionKeySet.List()[0].(string)
+				patchVals.EncryptionKey = &vpcv1.EncryptionKeyIdentity{
+					CRN: &encryptstr,
+				}
+			}
+			hasChange = true
+		}
+	}
+
 	updateBackupPolicyOptions.SetIfMatch(d.Get("version").(string))
 	if hasChange {
 		updateBackupPolicyOptions.BackupPolicyPatch, _ = patchVals.AsPatch()

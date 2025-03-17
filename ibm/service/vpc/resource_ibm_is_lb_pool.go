@@ -304,7 +304,7 @@ func lbPoolCreate(d *schema.ResourceData, meta interface{}, name, lbID, algorith
 		Algorithm:      &algorithm,
 		Protocol:       &protocol,
 		Name:           &name,
-		HealthMonitor: &vpcv1.LoadBalancerPoolHealthMonitorPrototype{
+		HealthMonitor: vpcv1.LoadBalancerPoolHealthMonitorPrototype{
 			Delay:      &healthDelay,
 			MaxRetries: &maxRetries,
 			Timeout:    &healthTimeOut,
