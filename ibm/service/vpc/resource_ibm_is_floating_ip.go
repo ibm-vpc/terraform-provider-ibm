@@ -668,13 +668,13 @@ func fipDelete(context context.Context, d *schema.ResourceData, meta interface{}
 	return nil
 }
 
-func resourceIBMISFloatingIPExists(context context.Context, d *schema.ResourceData, meta interface{}) (bool, error) {
+func resourceIBMISFloatingIPExists(d *schema.ResourceData, meta interface{}) (bool, error) {
 	id := d.Id()
-	exists, err := fipExists(context, d, meta, id)
+	exists, err := fipExists(d, meta, id)
 	return exists, err
 }
 
-func fipExists(context context.Context, d *schema.ResourceData, meta interface{}, id string) (bool, error) {
+func fipExists(d *schema.ResourceData, meta interface{}, id string) (bool, error) {
 	vpcClient, err := meta.(conns.ClientSession).VpcV1API()
 	if err != nil {
 		return false, err
@@ -682,7 +682,7 @@ func fipExists(context context.Context, d *schema.ResourceData, meta interface{}
 	getFloatingIpOptions := &vpcv1.GetFloatingIPOptions{
 		ID: &id,
 	}
-	_, response, err := vpcClient.GetFloatingIPWithContext(context, getFloatingIpOptions)
+	_, response, err := vpcClient.GetFloatingIP(getFloatingIpOptions)
 	if err != nil {
 		if response != nil && response.StatusCode == 404 {
 			return false, nil
