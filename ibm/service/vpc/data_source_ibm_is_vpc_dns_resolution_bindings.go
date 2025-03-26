@@ -275,10 +275,12 @@ func DataSourceIBMIsVPCDnsResolutionBindings() *schema.Resource {
 	}
 }
 
-func dataSourceIBMIsVPCDnsResolutionBindingsRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataSourceIBMIsVPCDnsResolutionBindingsRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return diag.FromErr(err)
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "(Data) ibm_is_vpc_dns_resolution_bindings", "read")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	listVPCDnsResolutionBindingOptions := &vpcv1.ListVPCDnsResolutionBindingsOptions{}
 
@@ -290,10 +292,11 @@ func dataSourceIBMIsVPCDnsResolutionBindingsRead(context context.Context, d *sch
 		if start != "" {
 			listVPCDnsResolutionBindingOptions.Start = &start
 		}
-		vpcdnsResolutionBindingCollection, response, err := sess.ListVPCDnsResolutionBindingsWithContext(context, listVPCDnsResolutionBindingOptions)
+		vpcdnsResolutionBindingCollection, response, err := sess.ListVPCDnsResolutionBindingsWithContext(ctx, listVPCDnsResolutionBindingOptions)
 		if err != nil {
-			log.Printf("[DEBUG] ListVPCDnsResolutionBindingsWithContext failed %s\n%s", err, response)
-			return diag.FromErr(fmt.Errorf("ListVPCDnsResolutionBindingsWithContext failed %s\n%s", err, response))
+			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("ListVPCDnsResolutionBindingsWithContext failed %s\n%s", err, response), "ibm_is_vpc_dns_resolution_bindings", "read")
+			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+			return tfErr.GetDiag()
 		}
 		start = flex.GetNext(vpcdnsResolutionBindingCollection.Next)
 		allrecs = append(allrecs, vpcdnsResolutionBindingCollection.DnsResolutionBindings...)
@@ -307,14 +310,20 @@ func dataSourceIBMIsVPCDnsResolutionBindingsRead(context context.Context, d *sch
 			l := map[string]interface{}{}
 			l[isVPCDnsResolutionBindingId] = *dns.ID
 
-			l[isVPCDnsResolutionBindingCreatedAt] = flex.DateTimeToString(dns.CreatedAt)
+			if err = d.Set(isVPCDnsResolutionBindingCreatedAt, flex.DateTimeToString(dns.CreatedAt)); err != nil {
+				tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting %s", isVPCDnsResolutionBindingCreatedAt), "ibm_is_vpc_dns_resolution_bindings", "read")
+				log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+				return tfErr.GetDiag()
+			}
 
 			endpointGateways := []map[string]interface{}{}
 			if dns.EndpointGateways != nil {
 				for _, modelItem := range dns.EndpointGateways {
 					modelMap, err := dataSourceIBMIsVPCDnsResolutionBindingEndpointGatewayReferenceRemoteToMap(&modelItem)
 					if err != nil {
-						return diag.FromErr(err)
+						tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting %s", isVPCDnsResolutionBindingEndpointGateways), "ibm_is_vpc_dns_resolution_bindings", "read")
+						log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+						return tfErr.GetDiag()
 					}
 					endpointGateways = append(endpointGateways, modelMap)
 				}
@@ -323,38 +332,69 @@ func dataSourceIBMIsVPCDnsResolutionBindingsRead(context context.Context, d *sch
 
 			l[isVPCDnsResolutionBindingId] = dns.ID
 
-			l[isVPCDnsResolutionBindingLifecycleState] = dns.LifecycleState
+			if err = d.Set(isVPCDnsResolutionBindingLifecycleState, dns.LifecycleState); err != nil {
+				tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting %s", isVPCDnsResolutionBindingLifecycleState), "ibm_is_vpc_dns_resolution_bindings", "read")
+				log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+				return tfErr.GetDiag()
+			}
 
-			l[isVPCDnsResolutionBindingName] = dns.Name
-			l[isVPCDnsResolutionBindingHref] = dns.Href
+			if err = d.Set(isVPCDnsResolutionBindingName, dns.Name); err != nil {
+				tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting %s", isVPCDnsResolutionBindingName), "ibm_is_vpc_dns_resolution_bindings", "read")
+				log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+				return tfErr.GetDiag()
+			}
 
-			l[isVPCDnsResolutionBindingResourceType] = dns.ResourceType
+			if err = d.Set(isVPCDnsResolutionBindingHref, dns.Href); err != nil {
+				tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting %s", isVPCDnsResolutionBindingHref), "ibm_is_vpc_dns_resolution_bindings", "read")
+				log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+				return tfErr.GetDiag()
+			}
+
+			if err = d.Set(isVPCDnsResolutionBindingResourceType, dns.ResourceType); err != nil {
+				tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting %s", isVPCDnsResolutionBindingResourceType), "ibm_is_vpc_dns_resolution_bindings", "read")
+				log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+				return tfErr.GetDiag()
+			}
 			healthReasons := []map[string]interface{}{}
 			if dns.HealthReasons != nil {
 				for _, modelItem := range dns.HealthReasons {
 					modelMap, err := dataSourceIBMIsVPCDnsResolutionBindingVpcdnsResolutionBindingHealthReasonToMap(&modelItem)
 					if err != nil {
-						return diag.FromErr(err)
+						tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting health_reasons"), "ibm_is_vpc_dns_resolution_bindings", "read")
+						log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+						return tfErr.GetDiag()
 					}
 					healthReasons = append(healthReasons, modelMap)
 				}
 			}
 			l["health_reasons"] = healthReasons
-			l["health_state"] = dns.HealthState
+			if err = d.Set("health_state", dns.HealthState); err != nil {
+				tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting health_state"), "ibm_is_vpc_dns_resolution_bindings", "read")
+				log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+				return tfErr.GetDiag()
+			}
+
 			vpc := []map[string]interface{}{}
 			if dns.VPC != nil {
 				modelMap, err := dataSourceIBMIsVPCDnsResolutionBindingVPCReferenceRemoteToMap(dns.VPC)
 				if err != nil {
-					return diag.FromErr(err)
+					tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting vpc"), "ibm_is_vpc_dns_resolution_binding", "read")
+					log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+					return tfErr.GetDiag()
 				}
 				vpc = append(vpc, modelMap)
 			}
 			l["vpc"] = vpc
+
 			vpcdnsResolutionBindingsInfo = append(vpcdnsResolutionBindingsInfo, l)
 		}
 	}
 	d.SetId(dataSourceIBMIsVPCDnsResolutionBindingsId(d))
-	d.Set(isVPCDnsResolutionBindings, vpcdnsResolutionBindingsInfo)
+	if err = d.Set(isVPCDnsResolutionBindings, vpcdnsResolutionBindingsInfo); err != nil {
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting %s", isVPCDnsResolutionBindings), "ibm_is_vpc_dns_resolution_bindings", "read")
+		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
+	}
 	return nil
 }
 
