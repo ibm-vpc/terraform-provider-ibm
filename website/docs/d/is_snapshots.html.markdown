@@ -57,6 +57,24 @@ In addition to all argument reference list, you can access the following attribu
   
   Nested scheme for `snapshots`:
   - `access_tags`  - (Array of Strings) Access management tags associated with the snapshot.
+  - `allowed_use` - (List) The usage constraints to match against the requested instance or bare metal server properties to determine compatibility. Can only be specified for bootable snapshots.
+    
+    Nested schema for `allowed_use`:
+    - `api_version` - (String) The API version with which to evaluate the expressions. If specified, the value must be between `2019-01-01` and today's date (in UTC). If unspecified, the version query parameter value will be used.
+	  
+    - `bare_metal_server` - (String) The expression that must be satisfied by the properties of a bare metal server provisioned using the image data in this snapshot. If unspecified, the expression will be set to true. The expression follows [Common Expression Language](https://github.com/google/cel-spec/blob/master/doc/langdef.md), but does not support built-in functions and macros.
+    
+    ~> **NOTE** </br> the following variable is supported, corresponding to the BareMetalServer property: </br>
+      **&#x2022;** `enable_secure_boot` - (boolean) Indicates whether secure boot is enabled.
+	  
+    - `instance` - (String) The expression that must be satisfied by the properties of a virtual server instance provisioned using this snapshot. If unspecified, the expression will be set to true. The expression follows [Common Expression Language](https://github.com/google/cel-spec/blob/master/doc/langdef.md), but does not support built-in functions and macros. 
+    
+    ~> **NOTE** </br> In addition, the following variables are supported, corresponding to `Instance` </br>
+      **&#x2022;** `gpu.count` - (integer) The number of GPUs. </br>
+      **&#x2022;** `gpu.manufacturer` - (string) The GPU manufacturer. </br>
+      **&#x2022;** `gpu.memory` - (integer) The overall amount of GPU memory in GiB (gibibytes). </br>
+      **&#x2022;** `gpu.model` - (string) The GPU. </br>
+      **&#x2022;** `enable_secure_boot` - (boolean) Indicates whether secure boot is enabled. </br>  
   - `id` - (String) The unique identifier for this snapshot.
   - `backup_policy_plan` - (List) If present, the backup policy plan which created this snapshot.
   

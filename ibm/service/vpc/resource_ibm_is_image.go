@@ -12,6 +12,7 @@ import (
 
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/validate"
+	"github.com/IBM/go-sdk-core/v5/core"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
 	"github.com/go-openapi/strfmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
@@ -255,6 +256,38 @@ func ResourceIBMISImage() *schema.Resource {
 				Computed:    true,
 				Description: "The user data format for this image",
 			},
+			"allowed_use": &schema.Schema{
+				Type:        schema.TypeList,
+				MaxItems:    1,
+				Optional:    true,
+				Computed:    true,
+				Description: "The usage constraints to match against the requested instance or bare metal server properties to determine compatibility.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"api_version": &schema.Schema{
+							Type:         schema.TypeString,
+							Optional:     true,
+							Computed:     true,
+							ValidateFunc: validate.InvokeValidator("ibm_is_image", "allowed_use.api_version"),
+							Description:  "The API version with which to evaluate the expressions.",
+						},
+						"bare_metal_server": &schema.Schema{
+							Type:         schema.TypeString,
+							Optional:     true,
+							Computed:     true,
+							ValidateFunc: validate.InvokeValidator("ibm_is_image", "allowed_use.bare_metal_server"),
+							Description:  "The expression that must be satisfied by the properties of a bare metal server provisioned using this image.",
+						},
+						"instance": &schema.Schema{
+							Type:         schema.TypeString,
+							Optional:     true,
+							Computed:     true,
+							ValidateFunc: validate.InvokeValidator("ibm_is_image", "allowed_use.instance"),
+							Description:  "The expression that must be satisfied by the properties of a virtual server instance provisioned using this image.",
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -289,6 +322,27 @@ func ResourceIBMISImageValidator() *validate.ResourceValidator {
 			Regexp:                     `^([A-Za-z0-9_.-]|[A-Za-z0-9_.-][A-Za-z0-9_ .-]*[A-Za-z0-9_.-]):([A-Za-z0-9_.-]|[A-Za-z0-9_.-][A-Za-z0-9_ .-]*[A-Za-z0-9_.-])$`,
 			MinValueLength:             1,
 			MaxValueLength:             128})
+	validateSchema = append(validateSchema,
+		validate.ValidateSchema{
+			Identifier:                 "allowed_use.api_version",
+			ValidateFunctionIdentifier: validate.ValidateRegexpLen,
+			Type:                       validate.TypeString,
+			Optional:                   true,
+			Regexp:                     `^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$`})
+	validateSchema = append(validateSchema,
+		validate.ValidateSchema{
+			Identifier:                 "allowed_use.bare_metal_server",
+			ValidateFunctionIdentifier: validate.ValidateRegexpLen,
+			Type:                       validate.TypeString,
+			Optional:                   true,
+			Regexp:                     `^([a-zA-Z_][a-zA-Z0-9_]*|[-+*/%]|&&|\|\||!|==|!=|<|<=|>|>=|~|\bin\b|\(|\)|\[|\]|,|\.|"|'|"|'|\s+|\d+)+$`})
+	validateSchema = append(validateSchema,
+		validate.ValidateSchema{
+			Identifier:                 "allowed_use.instance",
+			ValidateFunctionIdentifier: validate.ValidateRegexpLen,
+			Type:                       validate.TypeString,
+			Optional:                   true,
+			Regexp:                     `^([a-zA-Z_][a-zA-Z0-9_]*|[-+*/%]|&&|\|\||!|==|!=|<|<=|>|>=|~|\bin\b|\(|\)|\[|\]|,|\.|"|'|"|'|\s+|\d+)+$`})
 	ibmISImageResourceValidator := validate.ResourceValidator{ResourceName: "ibm_is_image", Schema: validateSchema}
 	return &ibmISImageResourceValidator
 }
@@ -329,6 +383,13 @@ func imgCreateByFile(d *schema.ResourceData, meta interface{}, href, name, opera
 		OperatingSystem: &vpcv1.OperatingSystemIdentity{
 			Name: &operatingSystem,
 		},
+	}
+	if allowedUse, ok := d.GetOk("allowed_use"); ok {
+		allowedUseModel, err := ResourceIBMUsageConstraintsMapToImageAllowUsePrototype(allowedUse.([]interface{})[0].(map[string]interface{}))
+		if err != nil {
+			return err
+		}
+		imagePrototype.AllowedUse = allowedUseModel
 	}
 	if obsoleteAtOk, ok := d.GetOk(isImageObsolescenceAt); ok {
 		obsoleteAt, err := strfmt.ParseDateTime(obsoleteAtOk.(string))
@@ -404,6 +465,13 @@ func imgCreateByVolume(d *schema.ResourceData, meta interface{}, name, volume st
 	var insId string
 	imagePrototype.SourceVolume = &vpcv1.VolumeIdentity{
 		ID: &volume,
+	}
+	if allowedUse, ok := d.GetOk("allowed_use"); ok {
+		allowedUseModel, err := ResourceIBMUsageConstraintsMapToImageAllowUsePrototype(allowedUse.([]interface{})[0].(map[string]interface{}))
+		if err != nil {
+			return err
+		}
+		imagePrototype.AllowedUse = allowedUseModel
 	}
 	options := &vpcv1.GetVolumeOptions{
 		ID: &volume,
@@ -661,6 +729,13 @@ func imgUpdate(d *schema.ResourceData, meta interface{}, id, name string, hasNam
 			imagePatchModel.DeprecationAt = &deprecateAt
 		}
 	}
+	if d.HasChange("allowed_use") {
+		allowedUseModel, err := ResourceIBMIsImageMapToImageAllowedUsePatch(d.Get("allowed_use").([]interface{})[0].(map[string]interface{}))
+		if err != nil {
+			return fmt.Errorf("[ERROR] Error on allowed use patch: %s\n", err)
+		}
+		imagePatchModel.AllowedUse = allowedUseModel
+	}
 	imagePatch, err := imagePatchModel.AsPatch()
 	if err != nil {
 		return fmt.Errorf("[ERROR] Error calling asPatch for ImagePatch: %s", err)
@@ -678,6 +753,20 @@ func imgUpdate(d *schema.ResourceData, meta interface{}, id, name string, hasNam
 	}
 
 	return nil
+}
+
+func ResourceIBMIsImageMapToImageAllowedUsePatch(modelMap map[string]interface{}) (*vpcv1.ImageAllowedUsePatch, error) {
+	model := &vpcv1.ImageAllowedUsePatch{}
+	if modelMap["api_version"] != nil && modelMap["api_version"].(string) != "" {
+		model.ApiVersion = core.StringPtr(modelMap["api_version"].(string))
+	}
+	if modelMap["bare_metal_server"] != nil && modelMap["bare_metal_server"].(string) != "" {
+		model.BareMetalServer = core.StringPtr(modelMap["bare_metal_server"].(string))
+	}
+	if modelMap["instance"] != nil && modelMap["instance"].(string) != "" {
+		model.Instance = core.StringPtr(modelMap["instance"].(string))
+	}
+	return model, nil
 }
 
 func resourceIBMISImageRead(d *schema.ResourceData, meta interface{}) error {
@@ -750,6 +839,15 @@ func imgGet(d *schema.ResourceData, meta interface{}, id string) error {
 	}
 	if image.File != nil && image.File.Checksums != nil {
 		d.Set(isImageCheckSum, *image.File.Checksums.Sha256)
+	}
+	if !core.IsNil(image.AllowedUse) {
+		allowedUseMap, err := ResourceIBMIsImageImageAllowUseToMap(image.AllowedUse)
+		if err != nil {
+			return err
+		}
+		if err = d.Set("allowed_use", []map[string]interface{}{allowedUseMap}); err != nil {
+			log.Printf("Error setting allowed_use: %s", err)
+		}
 	}
 	tags, err := flex.GetGlobalTagsUsingCRN(meta, *image.CRN, "", isImageUserTagType)
 	if err != nil {
@@ -872,4 +970,32 @@ func imgExists(d *schema.ResourceData, meta interface{}, id string) (bool, error
 		return false, fmt.Errorf("[ERROR] Error getting Image: %s\n%s", err, response)
 	}
 	return true, nil
+}
+
+func ResourceIBMUsageConstraintsMapToImageAllowUsePrototype(modelMap map[string]interface{}) (*vpcv1.ImageAllowedUsePrototype, error) {
+	model := &vpcv1.ImageAllowedUsePrototype{}
+	if modelMap["api_version"] != nil && modelMap["api_version"].(string) != "" {
+		model.ApiVersion = core.StringPtr(modelMap["api_version"].(string))
+	}
+	if modelMap["bare_metal_server"] != nil && modelMap["bare_metal_server"].(string) != "" {
+		model.BareMetalServer = core.StringPtr(modelMap["bare_metal_server"].(string))
+	}
+	if modelMap["instance"] != nil && modelMap["instance"].(string) != "" {
+		model.Instance = core.StringPtr(modelMap["instance"].(string))
+	}
+	return model, nil
+}
+
+func ResourceIBMIsImageImageAllowUseToMap(model *vpcv1.ImageAllowedUse) (map[string]interface{}, error) {
+	modelMap := make(map[string]interface{})
+	if model.BareMetalServer != nil {
+		modelMap["bare_metal_server"] = *model.BareMetalServer
+	}
+	if model.Instance != nil {
+		modelMap["instance"] = *model.Instance
+	}
+	if model.Instance != nil {
+		modelMap["api_version"] = *model.ApiVersion
+	}
+	return modelMap, nil
 }
