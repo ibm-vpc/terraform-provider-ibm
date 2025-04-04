@@ -363,7 +363,7 @@ func lbPoolCreate(d *schema.ResourceData, meta interface{}, name, lbID, algorith
 	if err != nil {
 		return fmt.Errorf("[ERROR] Error checking for load balancer (%s) is active: %s", lbID, err)
 	}
-	healthMonitor := &vpcv1.LoadBalancerPoolHealthMonitorPrototype{
+	healthMonitor := &vpcv1.LoadBalancerPoolPrototypeHealthMonitor{
 		Delay:      &healthDelay,
 		MaxRetries: &maxRetries,
 		Timeout:    &healthTimeOut,
@@ -598,7 +598,7 @@ func lbPoolUpdate(d *schema.ResourceData, meta interface{}, lbID, lbPoolID strin
 		timeout := int64(d.Get(isLBPoolHealthTimeout).(int))
 		healthtype := d.Get(isLBPoolHealthType).(string)
 		urlpath := d.Get(isLBPoolHealthMonitorURL).(string)
-		healthMonitorTemplate := &vpcv1.LoadBalancerPoolHealthMonitorPatch{
+		healthMonitorTemplate := &vpcv1.LoadBalancerPoolPatchHealthMonitor{
 			Delay:      &delay,
 			MaxRetries: &maxretries,
 			Timeout:    &timeout,
