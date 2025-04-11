@@ -38,9 +38,9 @@ func testAccCheckIBMIsIkePoliciesDataSourceConfigBasic(name string) string {
 	return fmt.Sprintf(`
 		resource "ibm_is_ike_policy" "example" {
 			name = "%s"
-			authentication_algorithm = "sha1"
+			authentication_algorithm = "sha256"
 			encryption_algorithm = "aes128"
-			dh_group = 5
+			dh_group = 14
 			ike_version = 2
 			key_lifetime = 1800
 		}
