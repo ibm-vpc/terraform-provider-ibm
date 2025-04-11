@@ -215,7 +215,7 @@ func ResourceIBMDatabaseInstance() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				ValidateFunc: validation.All(
-					validation.StringLenBetween(15, 32),
+					validation.StringLenBetween(15, 72),
 					DatabaseUserPasswordValidator("database"),
 				),
 				Sensitive: true,
@@ -3122,16 +3122,9 @@ func expandUserChanges(_oldUsers []interface{}, _newUsers []interface{}) (userCh
 func validateRemoteLeaderIDDiff(_ context.Context, diff *schema.ResourceDiff, meta interface{}) (err error) {
 	_, remoteLeaderIdOk := diff.GetOk("remote_leader_id")
 	service := diff.Get("service").(string)
-	crn := diff.Get("resource_crn").(string)
 
 	if remoteLeaderIdOk && (service != "databases-for-postgresql" && service != "databases-for-mysql" && service != "databases-for-enterprisedb") {
 		return fmt.Errorf("[ERROR] remote_leader_id is only supported for databases-for-postgresql, databases-for-enterprisedb and databases-for-mysql")
-	}
-
-	oldValue, newValue := diff.GetChange("remote_leader_id")
-
-	if crn != "" && oldValue == "" && newValue != "" {
-		return fmt.Errorf("[ERROR] You cannot convert an existing instance to a read replica")
 	}
 
 	return nil
@@ -3295,7 +3288,8 @@ func (u *DatabaseUser) ValidatePassword() (err error) {
 
 	var allowedCharacters = regexp.MustCompile(fmt.Sprintf("^(?:[a-zA-Z0-9]|%s)+$", specialCharPattern))
 	var beginWithSpecialChar = regexp.MustCompile(fmt.Sprintf("^(?:%s)", specialCharPattern))
-	var containsLetter = regexp.MustCompile("[a-zA-Z]")
+	var containsLower = regexp.MustCompile("[a-z]")
+	var containsUpper = regexp.MustCompile("[A-Z]")
 	var containsNumber = regexp.MustCompile("[0-9]")
 	var containsSpecialChar = regexp.MustCompile(fmt.Sprintf("(?:%s)", specialCharPattern))
 
@@ -3309,8 +3303,12 @@ func (u *DatabaseUser) ValidatePassword() (err error) {
 			"password must not begin with a special character (%s)", specialChars))
 	}
 
-	if !containsLetter.MatchString(u.Password) {
-		errs = append(errs, errors.New("password must contain at least one letter"))
+	if !containsLower.MatchString(u.Password) {
+		errs = append(errs, errors.New("password must contain at least one lower case letter"))
+	}
+
+	if !containsUpper.MatchString(u.Password) {
+		errs = append(errs, errors.New("password must contain at least one upper case letter"))
 	}
 
 	if !containsNumber.MatchString(u.Password) {

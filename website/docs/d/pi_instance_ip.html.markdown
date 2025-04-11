@@ -10,7 +10,7 @@ description: |-
 
 Retrieve information about a Power Systems Virtual Server instance IP address. For more information, about Power Systems Virtual Server instance IP address, see [configuring and adding a private network subnet](https://cloud.ibm.com/docs/power-iaas?topic=power-iaas-configuring-subnet).
 
-## Example usage
+## Example Usage
 
 ```terraform
 data "ibm_pi_instance_ip" "ds_instance_ip" {
@@ -36,7 +36,7 @@ Example usage:
     }
   ```
   
-## Argument reference
+## Argument Reference
 
 Review the argument references that you can specify for your data source.
 
@@ -44,7 +44,7 @@ Review the argument references that you can specify for your data source.
 - `pi_instance_name` - (Required, String) The unique identifier or name of the instance.
 - `pi_network_name` - (Required, String) The subnet that the instance belongs to.
 
-## Attribute reference
+## Attribute Reference
 
 In addition to all argument reference list, you can access the following attribute references after your data source is created.
 
@@ -53,6 +53,8 @@ In addition to all argument reference list, you can access the following attribu
 - `ip` - (String) The IP address that is attached to this instance from the subnet.
 - `ipoctet` - (String) The IP octet of the network that is attached to this instance.
 - `mac_address` - (String) The MAC address of the network that is attached to this instance.
-- `macaddress` - (String) The MAC address of the network that is attached to this instance. Deprecated please use `mac_address` instead.
 - `network_id` - (String) ID of the network.
+- `network_interface_id` - (String) ID of the network interface.
+- `network_security_group_ids` - (List) IDs of the network necurity groups that the network interface is a member of.
+- `network_security_groups_href` - (List) Links to the network security groups that the network interface is a member of.
 - `type` - (String) The type of the network that is attached to this instance.
