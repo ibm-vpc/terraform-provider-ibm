@@ -40,9 +40,9 @@ func testAccCheckIBMIsIpsecPoliciesDataSourceConfigBasic(name string) string {
 	return fmt.Sprintf(`
 		resource "ibm_is_ipsec_policy" "example" {
 			name = "%s"
-			authentication_algorithm = "sha1"
+			authentication_algorithm = "sha256"
 			encryption_algorithm = "aes128"
-			pfs = "group_2"
+			pfs = "group_14"
 		}
 		data "ibm_is_ipsec_policies" "is_ipsec_policies" {
 			depends_on = [ibm_is_ipsec_policy.example]

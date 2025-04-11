@@ -118,7 +118,7 @@ func testAccCheckIBMISIPSecPolicyConfigUpdate(name string) string {
 			name = "%s"
 			authentication_algorithm = "sha512"
 			encryption_algorithm = "aes256"
-			pfs = "group_2"
+			pfs = "group_14"
 		}
 	`, name)
 }
