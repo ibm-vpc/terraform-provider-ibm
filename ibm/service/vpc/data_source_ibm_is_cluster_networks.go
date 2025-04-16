@@ -315,7 +315,7 @@ func dataSourceIBMIsClusterNetworksRead(context context.Context, d *schema.Resou
 	}
 
 	if err = d.Set("cluster_networks", mapSlice); err != nil {
-		return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting cluster_networks %s", err), "(Data) ibm_is_cluster_networks", "read", "cluster_networks-set").GetDiag()
+		return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("[ERROR] Error setting cluster_networks %s", err), "(Data) ibm_is_cluster_networks", "read", "cluster_networks-set").GetDiag()
 	}
 
 	return nil
