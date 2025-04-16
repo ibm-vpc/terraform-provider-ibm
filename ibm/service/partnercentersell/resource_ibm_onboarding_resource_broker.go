@@ -1,8 +1,8 @@
-// Copyright IBM Corp. 2024 All Rights Reserved.
+// Copyright IBM Corp. 2025 All Rights Reserved.
 // Licensed under the Mozilla Public License v2.0
 
 /*
- * IBM OpenAPI Terraform Generator Version: 3.97.0-0e90eab1-20241120-170029
+ * IBM OpenAPI Terraform Generator Version: 3.102.0-615ec964-20250307-203034
  */
 
 package partnercentersell
@@ -201,7 +201,7 @@ func ResourceIbmOnboardingResourceBrokerValidator() *validate.ResourceValidator 
 			ValidateFunctionIdentifier: validate.ValidateRegexpLen,
 			Type:                       validate.TypeString,
 			Optional:                   true,
-			Regexp:                     `^[a-z]+$`,
+			Regexp:                     `^[a-z_.-]+$`,
 			MinValueLength:             1,
 			MaxValueLength:             64,
 		},

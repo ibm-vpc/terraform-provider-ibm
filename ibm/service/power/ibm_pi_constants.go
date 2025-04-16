@@ -40,6 +40,7 @@ const (
 	Arg_DeploymentTarget                     = "pi_deployment_target"
 	Arg_DeploymentType                       = "pi_deployment_type"
 	Arg_Description                          = "pi_description"
+	Arg_DestinationPort                      = "pi_destination_port"
 	Arg_DestinationPorts                     = "pi_destination_ports"
 	Arg_DhcpID                               = "pi_dhcp_id"
 	Arg_DhcpName                             = "pi_dhcp_name"
@@ -89,6 +90,8 @@ const (
 	Arg_NetworkMTU                           = "pi_network_mtu"
 	Arg_NetworkName                          = "pi_network_name"
 	Arg_NetworkPeer                          = "pi_network_peer"
+	Arg_NetworkPortDescription               = "pi_network_port_description"
+	Arg_NetworkPortIPAddress                 = "pi_network_port_ipaddress"
 	Arg_NetworkSecurityGroupID               = "pi_network_security_group_id"
 	Arg_NetworkSecurityGroupMemberID         = "pi_network_security_group_member_id"
 	Arg_NetworkSecurityGroupRuleID           = "pi_network_security_group_rule_id"
@@ -127,6 +130,7 @@ const (
 	Arg_SnapShotName                         = "pi_snap_shot_name"
 	Arg_SnapshotName                         = "pi_snapshot_name"
 	Arg_SourceCRN                            = "pi_source_crn"
+	Arg_SourcePort                           = "pi_source_port"
 	Arg_SourcePorts                          = "pi_source_ports"
 	Arg_SPPPlacementGroupID                  = "pi_spp_placement_group_id"
 	Arg_SPPPlacementGroupName                = "pi_spp_placement_group_name"
@@ -216,7 +220,9 @@ const (
 	Attr_DatacenterStatus                            = "pi_datacenter_status"
 	Attr_DatacenterType                              = "pi_datacenter_type"
 	Attr_Dedicated                                   = "dedicated"
+	Attr_DedicatedHostID                             = "dedicated_host_id"
 	Attr_Default                                     = "default"
+	Attr_DefaultSystem                               = "default_system"
 	Attr_DeleteOnTermination                         = "delete_on_termination"
 	Attr_DeploymentType                              = "deployment_type"
 	Attr_Description                                 = "description"
@@ -342,11 +348,14 @@ const (
 	Attr_NetworkInterfaceID                          = "network_interface_id"
 	Attr_NetworkName                                 = "network_name"
 	Attr_NetworkPeers                                = "network_peers"
+	Attr_NetworkPortID                               = "network_port_id"
 	Attr_NetworkPorts                                = "network_ports"
 	Attr_Networks                                    = "networks"
 	Attr_NetworkSecurityGroupID                      = "network_security_group_id"
+	Attr_NetworkSecurityGroupIDs                     = "network_security_group_ids"
 	Attr_NetworkSecurityGroupMemberID                = "network_security_group_member_id"
 	Attr_NetworkSecurityGroups                       = "network_security_groups"
+	Attr_NetworkSecurityGroupsHref                   = "network_security_groups_href"
 	Attr_NumberOfVolumes                             = "number_of_volumes"
 	Attr_OnboardingID                                = "onboarding_id"
 	Attr_Onboardings                                 = "onboardings"
@@ -648,22 +657,6 @@ const (
 	Timeout_Warning  = 60 * time.Second
 	vpcRetryCount    = 2
 	vpcRetryDuration = time.Minute
-
-	// TODO: Second Half Cleanup, remove extra variables
-
-	PIConsoleLanguageCode = "pi_language_code"
-	PIInstanceMigratable  = "pi_migratable"
-
-	// Volume Clone
-	PIVolumeCloneName   = "pi_volume_clone_name"
-	PIVolumeCloneTaskID = "pi_volume_clone_task_id"
-	PITargetStorageTier = "pi_target_storage_tier"
-
-	// IBM PI Volume Group
-	PIVolumeGroupID                   = "pi_volume_group_id"
-	PIVolumeGroupName                 = "pi_volume_group_name"
-	PIVolumeGroupConsistencyGroupName = "pi_consistency_group_name"
-	PIVolumeGroupAction               = "pi_volume_group_action"
 
 	// VPN
 	PIVPNConnectionDeadPeerDetection          = "dead_peer_detections"
