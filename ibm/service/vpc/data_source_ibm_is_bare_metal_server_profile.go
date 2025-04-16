@@ -6,6 +6,7 @@ package vpc
 import (
 	"context"
 	"fmt"
+	"log"
 
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/conns"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
@@ -445,7 +446,8 @@ func dataSourceIBMISBMSProfileRead(context context.Context, d *schema.ResourceDa
 	}
 	bmsProfile, response, err := sess.GetBareMetalServerProfileWithContext(context, options)
 	if err != nil || bmsProfile == nil {
-		return diag.FromErr(fmt.Errorf("[ERROR] Error Getting Bare Metal Server Profile (%s): %s\n%s", name, err, response))
+		log.Printf("[DEBUG] GetBareMetalServerProfileWithContext failed %s\n%s", err, response)
+		return diag.FromErr(fmt.Errorf("[ERROR] GetBareMetalServerProfileWithContext failed %s\n%s", err, response))
 	}
 	d.SetId(*bmsProfile.Name)
 	d.Set(isBareMetalServerProfileName, *bmsProfile.Name)
