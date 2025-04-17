@@ -290,8 +290,8 @@ func dataSourceIBMIsBackupPolicyRead(context context.Context, d *schema.Resource
 	if err = d.Set("href", backupPolicy.Href); err != nil {
 		return diag.FromErr(fmt.Errorf("[ERROR] Error setting href: %s", err))
 	}
-	if err = d.Set("encryption_key", backupPolicy.Href); err != nil {
-		return diag.FromErr(fmt.Errorf("[ERROR] Error setting href: %s", err))
+	if err = d.Set("encryption_key", backupPolicy.EncryptionKey); err != nil {
+		return diag.FromErr(fmt.Errorf("[ERROR] Error setting encryption-key: %s", err))
 	}
 	if backupPolicy.LastJobCompletedAt != nil {
 		if err = d.Set("last_job_completed_at", backupPolicy.LastJobCompletedAt.String()); err != nil {
