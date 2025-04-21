@@ -4,6 +4,7 @@
 package vpc
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"strings"
@@ -13,6 +14,7 @@ import (
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/validate"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -25,11 +27,11 @@ const (
 func ResourceIBMISSecurityGroupTarget() *schema.Resource {
 
 	return &schema.Resource{
-		Create:   resourceIBMISSecurityGroupTargetCreate,
-		Read:     resourceIBMISSecurityGroupTargetRead,
-		Delete:   resourceIBMISSecurityGroupTargetDelete,
-		Exists:   resourceIBMISSecurityGroupTargetExists,
-		Importer: &schema.ResourceImporter{},
+		CreateContext: resourceIBMISSecurityGroupTargetCreate,
+		ReadContext:   resourceIBMISSecurityGroupTargetRead,
+		DeleteContext: resourceIBMISSecurityGroupTargetDelete,
+		Exists:        resourceIBMISSecurityGroupTargetExists,
+		Importer:      &schema.ResourceImporter{},
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(10 * time.Minute),
@@ -98,11 +100,13 @@ func ResourceIBMISSecurityGroupTargetValidator() *validate.ResourceValidator {
 	return &ibmISSecurityGroupResourceValidator
 }
 
-func resourceIBMISSecurityGroupTargetCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceIBMISSecurityGroupTargetCreate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return err
+		tfErr := flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_security_group_rule", "create", "initialize-client")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	securityGroupID := d.Get("security_group").(string)
@@ -112,9 +116,11 @@ func resourceIBMISSecurityGroupTargetCreate(d *schema.ResourceData, meta interfa
 	createSecurityGroupTargetBindingOptions.SecurityGroupID = &securityGroupID
 	createSecurityGroupTargetBindingOptions.ID = &targetID
 
-	sg, response, err := sess.CreateSecurityGroupTargetBinding(createSecurityGroupTargetBindingOptions)
+	sg, _, err := sess.CreateSecurityGroupTargetBindingWithContext(context, createSecurityGroupTargetBindingOptions)
 	if err != nil || sg == nil {
-		return fmt.Errorf("[ERROR] Error while creating Security Group Target Binding %s\n%s", err, response)
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("CreateSecurityGroupRuleWithContext failed: %s", err.Error()), "ibm_is_security_group_rule", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	sgtarget := sg.(*vpcv1.SecurityGroupTargetReference)
 	d.SetId(fmt.Sprintf("%s/%s", securityGroupID, *sgtarget.ID))
