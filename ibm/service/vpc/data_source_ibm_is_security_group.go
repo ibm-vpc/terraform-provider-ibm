@@ -282,7 +282,7 @@ func securityGroupGet(context context.Context, d *schema.ResourceData, meta inte
 			tags, err := flex.GetGlobalTagsUsingCRN(meta, *securityGroup.CRN, "", isUserTagType)
 			if err != nil {
 				log.Printf(
-					"An error occured during reading of security group (%s) tags : %s", securityGroup.ID, err)
+					"An error occured during reading of security group (%s) tags : %s", *securityGroup.ID, err)
 			}
 			if err = d.Set(isSgTags, tags); err != nil {
 				return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting tags: %s", err), "(Data) ibm_is_security_group", "read", "set-tags").GetDiag()
