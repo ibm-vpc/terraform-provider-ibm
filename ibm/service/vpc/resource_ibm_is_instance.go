@@ -166,7 +166,7 @@ func ResourceIBMISInstance() *schema.Resource {
 						}
 					}
 				}
-				d.Set(isInstanceVolumes, flex.NewStringSet(schema.HashString, volumes))
+				d.Set(isInstanceVolumes, volumes)
 				return []*schema.ResourceData{d}, nil
 			},
 		},
