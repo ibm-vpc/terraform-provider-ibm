@@ -1070,15 +1070,22 @@ func volDelete(d *schema.ResourceData, meta interface{}, id string) error {
 				InstanceID: volAtt.Instance.ID,
 				ID:         volAtt.ID,
 			}
-			_, err := sess.DeleteInstanceVolumeAttachment(deleteVolumeAttachment)
+			response, err := sess.DeleteInstanceVolumeAttachment(deleteVolumeAttachment)
+			isVolumeAttachmentValid := true
 			if err != nil {
-				return fmt.Errorf("[ERROR] Error while removing volume attachment %q for instance %s: %q", *volAtt.ID, *volAtt.Instance.ID, err)
+				if response != nil && response.StatusCode == 404 {
+					isVolumeAttachmentValid = false
+					log.Printf("Volume attachment or the instance is not found. Ignoring the error to proceed with volume deletion.")
+				} else {
+					return fmt.Errorf("[ERROR] Error while removing volume attachment %q for instance %s: %q", *volAtt.ID, *volAtt.Instance.ID, err)
+				}
 			}
-			_, err = isWaitForInstanceVolumeDetached(sess, d, d.Id(), *volAtt.ID)
-			if err != nil {
-				return err
+			if isVolumeAttachmentValid {
+				_, err = isWaitForInstanceVolumeDetached(sess, d, d.Id(), *volAtt.ID)
+				if err != nil {
+					return err
+				}
 			}
-
 		}
 	}
 
