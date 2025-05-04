@@ -5,6 +5,7 @@ package vpc
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"os"
@@ -25,6 +26,10 @@ const (
 	isImageTags                   = "tags"
 	isImageOperatingSystem        = "operating_system"
 	isImageStatus                 = "status"
+	isImageStatusReasons          = "status_reasons"
+	isImageStatusReasonsCode      = "code"
+	isImageStatusReasonsMessage   = "message"
+	isImageStatusReasonsMoreInfo  = "more_info"
 	isImageVisibility             = "visibility"
 	isImageFile                   = "file"
 	isImageVolume                 = "source_volume"
@@ -165,6 +170,32 @@ func ResourceIBMISImage() *schema.Resource {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "The status of this image",
+			},
+			isImageStatusReasons: {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "The reasons for the current status (if any).",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						isImageStatusReasonsCode: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "A snake case string succinctly identifying the status reason",
+						},
+
+						isImageStatusReasonsMessage: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "An explanation of the status reason",
+						},
+
+						isImageStatusReasonsMoreInfo: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "Link to documentation about this status reason",
+						},
+					},
+				},
 			},
 
 			isImageMinimumProvisionedSize: {
@@ -366,11 +397,11 @@ func imgCreateByFile(d *schema.ResourceData, meta interface{}, href, name, opera
 	}
 	image, response, err := sess.CreateImage(options)
 	if err != nil {
-		return fmt.Errorf("[DEBUG] Image creation err %s\n%s", err, response)
+		return fmt.Errorf("[DEBUG] Image creation err: %s\n%s", err, response)
 	}
 	d.SetId(*image.ID)
 	log.Printf("[INFO] Image ID : %s", *image.ID)
-	_, err = isWaitForImageAvailable(sess, d.Id(), d.Timeout(schema.TimeoutCreate))
+	_, err = isWaitForImageAvailable(d, sess, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return err
 	}
@@ -481,11 +512,11 @@ func imgCreateByVolume(d *schema.ResourceData, meta interface{}, name, volume st
 	}
 	image, response, err := sess.CreateImage(imagOptions)
 	if err != nil {
-		return fmt.Errorf("[DEBUG] Image creation err %s\n%s", err, response)
+		return fmt.Errorf("[DEBUG] Image creation err:  %s\n%s", err, response)
 	}
 	d.SetId(*image.ID)
 	log.Printf("[INFO] Image ID : %s", *image.ID)
-	_, err = isWaitForImageAvailable(sess, d.Id(), d.Timeout(schema.TimeoutCreate))
+	_, err = isWaitForImageAvailable(d, sess, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return err
 	}
@@ -509,13 +540,13 @@ func imgCreateByVolume(d *schema.ResourceData, meta interface{}, name, volume st
 	return nil
 }
 
-func isWaitForImageAvailable(imageC *vpcv1.VpcV1, id string, timeout time.Duration) (interface{}, error) {
-	log.Printf("Waiting for image (%s) to be available.", id)
+func isWaitForImageAvailable(d *schema.ResourceData, imageC *vpcv1.VpcV1, timeout time.Duration) (interface{}, error) {
+	log.Printf("Waiting for image (%s) to be available.", d.Id())
 
 	stateConf := &resource.StateChangeConf{
 		Pending:    []string{"retry", isImageProvisioning},
 		Target:     []string{isImageProvisioningDone, ""},
-		Refresh:    isImageRefreshFunc(imageC, id),
+		Refresh:    isImageRefreshFunc(imageC, d),
 		Timeout:    timeout,
 		Delay:      10 * time.Second,
 		MinTimeout: 10 * time.Second,
@@ -523,7 +554,8 @@ func isWaitForImageAvailable(imageC *vpcv1.VpcV1, id string, timeout time.Durati
 
 	return stateConf.WaitForState()
 }
-func isImageRefreshFunc(imageC *vpcv1.VpcV1, id string) resource.StateRefreshFunc {
+func isImageRefreshFunc(imageC *vpcv1.VpcV1, d *schema.ResourceData) resource.StateRefreshFunc {
+	id := d.Id()
 	return func() (interface{}, string, error) {
 		getimgoptions := &vpcv1.GetImageOptions{
 			ID: &id,
@@ -533,8 +565,35 @@ func isImageRefreshFunc(imageC *vpcv1.VpcV1, id string) resource.StateRefreshFun
 			return nil, "", fmt.Errorf("[ERROR] Error Getting Image: %s\n%s", err, response)
 		}
 
-		if *image.Status == "available" || *image.Status == "failed" {
+		if *image.Status == "available" {
 			return image, isImageProvisioningDone, nil
+		}
+		// taint the image if status is failed
+		if *image.Status == "failed" {
+			imageStatusReason := image.StatusReasons
+
+			//set the status reasons
+			if image.StatusReasons != nil {
+				statusReasonsList := make([]map[string]interface{}, 0)
+				for _, sr := range image.StatusReasons {
+					statusReason := map[string]interface{}{}
+					if sr.Code != nil && sr.Message != nil {
+						statusReason[isImageStatusReasonsCode] = *sr.Code
+						statusReason[isImageStatusReasonsMessage] = *sr.Message
+						if sr.MoreInfo != nil {
+							statusReason[isImageStatusReasonsMoreInfo] = *sr.MoreInfo
+						}
+						statusReasonsList = append(statusReasonsList, statusReason)
+					}
+				}
+				d.Set(isImageStatusReasons, statusReasonsList)
+			}
+
+			out, err := json.MarshalIndent(imageStatusReason, "", "    ")
+			if err != nil {
+				return image, *image.Status, fmt.Errorf("[ERROR] Image (%s) went into failed state during the operation \n [WARNING] Running terraform apply again will remove the tainted image and attempt to create the image again replacing the previous configuration", *image.ID)
+			}
+			return image, *image.Status, fmt.Errorf("[ERROR] Image (%s) went into failed state during the operation \n (%+v) \n [WARNING] Running terraform apply again will remove the tainted image and attempt to create the image again replacing the previous configuration", *image.ID, string(out))
 		}
 
 		return image, isImageProvisioning, nil
