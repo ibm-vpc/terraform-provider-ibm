@@ -1008,7 +1008,7 @@ func lbDelete(d *schema.ResourceData, meta interface{}, id string) error {
 		ID: &id,
 	}
 	response, err = sess.DeleteLoadBalancer(deleteLoadBalancerOptions)
-	if err != nil {
+	if err != nil && response != nil && response.StatusCode == 409 {
 		return fmt.Errorf("[ERROR] Error Deleting vpc load balancer : %s\n%s", err, response)
 	}
 	_, err = isWaitForLBDeleted(sess, id, d.Timeout(schema.TimeoutDelete))
