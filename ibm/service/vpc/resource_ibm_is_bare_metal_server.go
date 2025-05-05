@@ -4155,18 +4155,18 @@ func resourceIBMIsBareMetalServerMapToVirtualNetworkInterfaceIPsReservedIPProtot
 	model := &vpcv1.VirtualNetworkInterfaceIPPrototype{}
 	if modelMap["id"] != nil && modelMap["id"].(string) != "" {
 		model.ID = core.StringPtr(modelMap["id"].(string))
-	}
-	if modelMap["href"] != nil && modelMap["href"].(string) != "" {
+	} else if modelMap["href"] != nil && modelMap["href"].(string) != "" {
 		model.Href = core.StringPtr(modelMap["href"].(string))
-	}
-	if modelMap["address"] != nil && modelMap["address"].(string) != "" {
-		model.Address = core.StringPtr(modelMap["address"].(string))
-	}
-	if modelMap["auto_delete"] != nil {
-		model.AutoDelete = core.BoolPtr(modelMap["auto_delete"].(bool))
-	}
-	if modelMap["name"] != nil && modelMap["name"].(string) != "" {
-		model.Name = core.StringPtr(modelMap["name"].(string))
+	} else {
+		if modelMap["address"] != nil && modelMap["address"].(string) != "" {
+			model.Address = core.StringPtr(modelMap["address"].(string))
+		}
+		if modelMap["auto_delete"] != nil {
+			model.AutoDelete = core.BoolPtr(modelMap["auto_delete"].(bool))
+		}
+		if modelMap["name"] != nil && modelMap["name"].(string) != "" {
+			model.Name = core.StringPtr(modelMap["name"].(string))
+		}
 	}
 	return model, nil
 }
@@ -4174,85 +4174,84 @@ func resourceIBMIsBareMetalServerMapToVirtualNetworkInterfacePrimaryIPReservedIP
 	model := &vpcv1.VirtualNetworkInterfacePrimaryIPPrototype{}
 	if modelMap["id"] != nil && modelMap["id"].(string) != "" {
 		model.ID = core.StringPtr(modelMap["id"].(string))
-	}
-	if modelMap["href"] != nil && modelMap["href"].(string) != "" {
+	} else if modelMap["href"] != nil && modelMap["href"].(string) != "" {
 		model.Href = core.StringPtr(modelMap["href"].(string))
-	}
-	if modelMap["address"] != nil && modelMap["address"].(string) != "" {
-		model.Address = core.StringPtr(modelMap["address"].(string))
-	}
-	if modelMap["auto_delete"] != nil {
-		model.AutoDelete = core.BoolPtr(modelMap["auto_delete"].(bool))
-	}
-	if modelMap["name"] != nil && modelMap["name"].(string) != "" {
-		model.Name = core.StringPtr(modelMap["name"].(string))
+	} else {
+		if modelMap["address"] != nil && modelMap["address"].(string) != "" {
+			model.Address = core.StringPtr(modelMap["address"].(string))
+		}
+		if modelMap["auto_delete"] != nil {
+			model.AutoDelete = core.BoolPtr(modelMap["auto_delete"].(bool))
+		}
+		if modelMap["name"] != nil && modelMap["name"].(string) != "" {
+			model.Name = core.StringPtr(modelMap["name"].(string))
+		}
 	}
 	return model, nil
 }
 func resourceIBMIsBareMetalServerMapToVirtualNetworkInterfacePrototypeAttachmentContext(allowipspoofing, autodelete, enablenat string, d *schema.ResourceData, modelMap map[string]interface{}) (vpcv1.BareMetalServerNetworkAttachmentPrototypeVirtualNetworkInterfaceIntf, error) {
 	model := &vpcv1.BareMetalServerNetworkAttachmentPrototypeVirtualNetworkInterface{}
-	if _, ok := d.GetOkExists(allowipspoofing); ok && modelMap["allow_ip_spoofing"] != nil {
-		model.AllowIPSpoofing = core.BoolPtr(modelMap["allow_ip_spoofing"].(bool))
-	}
-	if _, ok := d.GetOkExists(autodelete); ok && modelMap["auto_delete"] != nil {
-		model.AutoDelete = core.BoolPtr(modelMap["auto_delete"].(bool))
-	}
-	if _, ok := d.GetOkExists(enablenat); ok && modelMap["enable_infrastructure_nat"] != nil {
-		model.EnableInfrastructureNat = core.BoolPtr(modelMap["enable_infrastructure_nat"].(bool))
-	}
-	if modelMap["ips"] != nil && modelMap["ips"].(*schema.Set).Len() > 0 {
-		ips := []vpcv1.VirtualNetworkInterfaceIPPrototypeIntf{}
-		for _, ipsItem := range modelMap["ips"].(*schema.Set).List() {
-			ipsItemModel, err := resourceIBMIsBareMetalServerMapToVirtualNetworkInterfaceIPsReservedIPPrototype(ipsItem.(map[string]interface{}))
+	if modelMap["id"] != nil && modelMap["id"].(string) != "" {
+		model.ID = core.StringPtr(modelMap["id"].(string))
+	} else if modelMap["href"] != nil && modelMap["href"].(string) != "" {
+		model.Href = core.StringPtr(modelMap["href"].(string))
+	} else if modelMap["crn"] != nil && modelMap["crn"].(string) != "" {
+		model.CRN = core.StringPtr(modelMap["crn"].(string))
+	} else {
+		if _, ok := d.GetOkExists(allowipspoofing); ok && modelMap["allow_ip_spoofing"] != nil {
+			model.AllowIPSpoofing = core.BoolPtr(modelMap["allow_ip_spoofing"].(bool))
+		}
+		if _, ok := d.GetOkExists(autodelete); ok && modelMap["auto_delete"] != nil {
+			model.AutoDelete = core.BoolPtr(modelMap["auto_delete"].(bool))
+		}
+		if _, ok := d.GetOkExists(enablenat); ok && modelMap["enable_infrastructure_nat"] != nil {
+			model.EnableInfrastructureNat = core.BoolPtr(modelMap["enable_infrastructure_nat"].(bool))
+		}
+		if modelMap["ips"] != nil && modelMap["ips"].(*schema.Set).Len() > 0 {
+			ips := []vpcv1.VirtualNetworkInterfaceIPPrototypeIntf{}
+			for _, ipsItem := range modelMap["ips"].(*schema.Set).List() {
+				ipsItemModel, err := resourceIBMIsBareMetalServerMapToVirtualNetworkInterfaceIPsReservedIPPrototype(ipsItem.(map[string]interface{}))
+				if err != nil {
+					return model, err
+				}
+				ips = append(ips, ipsItemModel)
+			}
+			model.Ips = ips
+		}
+		if modelMap["name"] != nil && modelMap["name"].(string) != "" {
+			model.Name = core.StringPtr(modelMap["name"].(string))
+		}
+		if modelMap["primary_ip"] != nil && len(modelMap["primary_ip"].([]interface{})) > 0 {
+			PrimaryIPModel, err := resourceIBMIsBareMetalServerMapToVirtualNetworkInterfacePrimaryIPReservedIPPrototype(modelMap["primary_ip"].([]interface{})[0].(map[string]interface{}))
 			if err != nil {
 				return model, err
 			}
-			ips = append(ips, ipsItemModel)
+			model.PrimaryIP = PrimaryIPModel
 		}
-		model.Ips = ips
-	}
-	if modelMap["name"] != nil && modelMap["name"].(string) != "" {
-		model.Name = core.StringPtr(modelMap["name"].(string))
-	}
-	if modelMap["primary_ip"] != nil && len(modelMap["primary_ip"].([]interface{})) > 0 {
-		PrimaryIPModel, err := resourceIBMIsBareMetalServerMapToVirtualNetworkInterfacePrimaryIPReservedIPPrototype(modelMap["primary_ip"].([]interface{})[0].(map[string]interface{}))
-		if err != nil {
-			return model, err
-		}
-		model.PrimaryIP = PrimaryIPModel
-	}
-	if modelMap["resource_group"] != nil && modelMap["resource_group"].(string) != "" {
-		resourceGroupId := modelMap["resource_group"].(string)
-		model.ResourceGroup = &vpcv1.ResourceGroupIdentity{
-			ID: &resourceGroupId,
-		}
-	}
-	if modelMap["security_groups"] != nil {
-		securityGroups := []vpcv1.SecurityGroupIdentityIntf{}
-		sg := modelMap["security_groups"].(*schema.Set)
-		for _, v := range sg.List() {
-			value := v.(string)
-			securityGroupsItem := &vpcv1.SecurityGroupIdentity{
-				ID: &value,
+		if modelMap["resource_group"] != nil && modelMap["resource_group"].(string) != "" {
+			resourceGroupId := modelMap["resource_group"].(string)
+			model.ResourceGroup = &vpcv1.ResourceGroupIdentity{
+				ID: &resourceGroupId,
 			}
-			securityGroups = append(securityGroups, securityGroupsItem)
 		}
-		model.SecurityGroups = securityGroups
-	}
-	if modelMap["subnet"] != nil && modelMap["subnet"].(string) != "" {
-		subnetId := modelMap["subnet"].(string)
-		model.Subnet = &vpcv1.SubnetIdentity{
-			ID: &subnetId,
+		if modelMap["security_groups"] != nil {
+			securityGroups := []vpcv1.SecurityGroupIdentityIntf{}
+			sg := modelMap["security_groups"].(*schema.Set)
+			for _, v := range sg.List() {
+				value := v.(string)
+				securityGroupsItem := &vpcv1.SecurityGroupIdentity{
+					ID: &value,
+				}
+				securityGroups = append(securityGroups, securityGroupsItem)
+			}
+			model.SecurityGroups = securityGroups
 		}
-	}
-	if modelMap["id"] != nil && modelMap["id"].(string) != "" {
-		model.ID = core.StringPtr(modelMap["id"].(string))
-	}
-	if modelMap["href"] != nil && modelMap["href"].(string) != "" {
-		model.Href = core.StringPtr(modelMap["href"].(string))
-	}
-	if modelMap["crn"] != nil && modelMap["crn"].(string) != "" {
-		model.CRN = core.StringPtr(modelMap["crn"].(string))
+		if modelMap["subnet"] != nil && modelMap["subnet"].(string) != "" {
+			subnetId := modelMap["subnet"].(string)
+			model.Subnet = &vpcv1.SubnetIdentity{
+				ID: &subnetId,
+			}
+		}
 	}
 	return model, nil
 }
