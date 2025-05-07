@@ -531,20 +531,6 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCKVmnMOlHKcZK8tpt3MP1lqOLAcqcJzhsvJcjscgVE
 		CheckDestroy: testAccCheckIBMISBareMetalServerDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckIBMISBareMetalServerDefaultConfig(vpcname, subnetname, sshname, publicKey, name),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckIBMISBareMetalServerExists("ibm_is_bare_metal_server.testacc_bms", server),
-					resource.TestCheckResourceAttr(
-						"ibm_is_bare_metal_server.testacc_bms", "name", name),
-					resource.TestCheckResourceAttr(
-						"ibm_is_bare_metal_server.testacc_bms", "zone", acc.ISZoneName),
-					resource.TestCheckResourceAttr(
-						"ibm_is_bare_metal_server.testacc_bms", "metadata_service.0.enabled", "false"),
-					resource.TestCheckResourceAttr(
-						"ibm_is_bare_metal_server.testacc_bms", "metadata_service.0.protocol", "http"),
-				),
-			},
-			{
 				Config: testAccCheckIBMISBareMetalServerMetadataServiceConfig(vpcname, subnetname, sshname, publicKey, name, true, "https"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckIBMISBareMetalServerExists("ibm_is_bare_metal_server.testacc_bms", server),

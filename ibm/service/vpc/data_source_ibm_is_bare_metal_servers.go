@@ -132,9 +132,9 @@ func DataSourceIBMIsBareMetalServers() *schema.Resource {
 									},
 
 									isBareMetalServerMetadataServiceProtocol: {
-										Type:         schema.TypeString,
-										Computed:     true,
-										Description:  "The communication protocol to use for the metadata service endpoint. Applies only when the metadata service is enabled.",
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The communication protocol to use for the metadata service endpoint. Applies only when the metadata service is enabled.",
 									},
 								},
 							},

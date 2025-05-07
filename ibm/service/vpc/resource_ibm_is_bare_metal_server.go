@@ -1512,19 +1512,24 @@ func resourceIBMISBareMetalServerCreate(context context.Context, d *schema.Resou
 				}
 			}
 			if targetIntf, ok := defaultTrustedProfileMap["target"]; ok {
-				var newTarget *vpcv1.TrustedProfileIdentity
 				targetMap := targetIntf.([]interface{})[0].(map[string]interface{})
+				var id, crn *string
 				if idIntf, ok := targetMap["id"]; ok {
-					if id, ok := idIntf.(string); ok {
-						newTarget = &vpcv1.TrustedProfileIdentity{ID: &id}
+					if idStr, ok := idIntf.(string); ok && idStr != "" {
+						id = &idStr
 					}
 				}
+
 				if crnIntf, ok := targetMap["crn"]; ok {
-					if crn, ok := crnIntf.(string); ok {
-						newTarget = &vpcv1.TrustedProfileIdentity{CRN: &crn}
+					if crnStr, ok := crnIntf.(string); ok && crnStr != "" {
+						crn = &crnStr
 					}
-					if newTarget != nil {
-						defaultTrustedProfilePrototype.Target = newTarget
+				}
+
+				if id != nil || crn != nil {
+					defaultTrustedProfilePrototype.Target = &vpcv1.TrustedProfileIdentity{
+						ID:  id,
+						CRN: crn,
 					}
 				}
 			}
@@ -2481,6 +2486,18 @@ func bareMetalServerGet(context context.Context, d *schema.ResourceData, meta in
 		resList = append(resList, res)
 	}
 	d.Set(isReservation, resList)
+
+	if bms.MetadataService != nil {
+		metadataServiceList := make([]map[string]interface{}, 0)
+		metadataServiceMap := map[string]interface{}{}
+
+		metadataServiceMap[isBareMetalServerMetadataServiceEnabled] = *bms.MetadataService.Enabled
+		if bms.MetadataService.Protocol != nil {
+			metadataServiceMap[isBareMetalServerMetadataServiceProtocol] = *bms.MetadataService.Protocol
+		}
+		metadataServiceList = append(metadataServiceList, metadataServiceMap)
+		d.Set(isBareMetalServerMetadataService, metadataServiceList)
+	}
 
 	if !core.IsNil(bms.PrimaryNetworkAttachment) {
 		pnaId := *bms.PrimaryNetworkAttachment.ID

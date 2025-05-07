@@ -40,6 +40,8 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCKVmnMOlHKcZK8tpt3MP1lqOLAcqcJzhsvJcjscgVE
 					resource.TestCheckResourceAttr(
 						"ibm_is_bare_metal_server.testacc_bms", "user_data", userdata),
 					resource.TestCheckResourceAttr(
+						"ibm_is_bare_metal_server.testacc_bms", "metadata_service.0.protocol", "https"),
+					resource.TestCheckResourceAttr(
 						"ibm_is_bare_metal_server.testacc_bms", "image", acc.IsBareMetalServerImage),
 				),
 			},
@@ -53,8 +55,12 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCKVmnMOlHKcZK8tpt3MP1lqOLAcqcJzhsvJcjscgVE
 						"ibm_is_bare_metal_server.testacc_bms", "zone", acc.ISZoneName),
 					resource.TestCheckResourceAttr(
 						"ibm_is_bare_metal_server.testacc_bms", "user_data", userdata),
+					resource.TestCheckResourceAttr(
+						"ibm_is_bare_metal_server.testacc_bms", "metadata_service.0.protocol", "https"),
 					resource.TestCheckResourceAttrSet(
 						"ibm_is_bare_metal_server_initialization.testacc_bms_initialization", "id"),
+					resource.TestCheckResourceAttrSet(
+						"ibm_is_bare_metal_server_initialization.testacc_bms_initialization", "metadata_service"),
 					resource.TestCheckResourceAttr(
 						"ibm_is_bare_metal_server.testacc_bms", "image", acc.IsBareMetalServerImage),
 				),
@@ -92,6 +98,10 @@ func testAccCheckIBMISBareMetalServerInitializationReplaceConfig(vpcname, subnet
 				subnet     		= ibm_is_subnet.testacc_subnet.id
 			}
 			vpc 				= ibm_is_vpc.testacc_vpc.id
+			metadata_service {
+				enabled  = true
+				protocol = "https"
+			}
 		}
 		
 `, vpcname, subnetname, acc.ISZoneName, sshname, publicKey, acc.IsBareMetalServerProfileName, name, acc.IsBareMetalServerImage, acc.ISZoneName, userData1)
@@ -125,8 +135,18 @@ func testAccCheckIBMISBareMetalServerInitializationReplaceConfigUpdate(vpcname, 
 				subnet     		= ibm_is_subnet.testacc_subnet.id
 			}
 			vpc 				= ibm_is_vpc.testacc_vpc.id
+			default_trusted_profile {
+				auto_link = true
+				target {
+					id = "Profile-3a1dd8b4-db34-4281-88b2-42b194da30d6"
+				}
+			}
+			metadata_service {
+				enabled  = true
+				protocol = "https"
+			}
 			lifecycle {
-				ignore_changes = [ image, keys, user_data ]
+				ignore_changes = [ image, keys, user_data, metadata_service ]
 			}
 		}
 		resource "ibm_is_bare_metal_server_initialization" "testacc_bms_initialization" {
@@ -134,6 +154,10 @@ func testAccCheckIBMISBareMetalServerInitializationReplaceConfigUpdate(vpcname, 
 			image				= "%s"
 			keys				= [ibm_is_ssh_key.testacc_sshkey.id]
 			user_data         	= "%s"
+			metadata_service {
+				enabled  = false
+				protocol = "http"
+			}
 		}
 		
 `, vpcname, subnetname, acc.ISZoneName, sshname, publicKey, acc.IsBareMetalServerProfileName, name, acc.IsBareMetalServerImage, acc.ISZoneName, userData1, acc.IsBareMetalServerImage2, userData2)

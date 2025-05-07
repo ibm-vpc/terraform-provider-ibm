@@ -56,6 +56,44 @@ func DataSourceIBMIsBareMetalServerInitialization() *schema.Resource {
 				Description: "Passphrase for Bare Metal Server Private Key file",
 			},
 
+			isBareMetalServerDefaultTrustedProfile: {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"auto_link": {
+							Type:        schema.TypeBool,
+							Computed:    true,
+							Description: "If set to true, the system will create a link to the specified target trusted profile during server creation. Regardless of whether a link is created by the system or manually using the IAM Identity service, it will be automatically deleted when the server is deleted.",
+						},
+						"target": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "The default IAM trusted profile to use for this bare metal server",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"id": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The unique identifier for this trusted profile",
+									},
+									"crn": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The CRN for this trusted profile",
+									},
+									"resource_type": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The resource type",
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+
 			isBareMetalServerImage: {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -131,9 +169,20 @@ func dataSourceIBMISBareMetalServerInitializationRead(context context.Context, d
 		return diag.FromErr(fmt.Errorf("[ERROR] Error getting Bare Metal Server (%s) initialization : %s\n%s", bareMetalServerID, err, response))
 	}
 	d.SetId(bareMetalServerID)
-	if initialization.Image != nil {
-		d.Set(isBareMetalServerImage, initialization.Image.ID)
-		d.Set(isBareMetalServerImageName, initialization.Image.Name)
+	if initialization.DefaultTrustedProfile != nil {
+		defaultTrustedProfileList := make([]map[string]interface{}, 0)
+		defaultTrustedProfileMap := map[string]interface{}{}
+
+		targetMap := map[string]interface{}{}
+		targetMap["id"] = *initialization.DefaultTrustedProfile.Target.ID
+		targetMap["crn"] = *initialization.DefaultTrustedProfile.Target.CRN
+		// targetMap["resource_type"] = *initialization.DefaultTrustedProfile.Target.ResourceType
+
+		defaultTrustedProfileMap["auto_link"] = *initialization.DefaultTrustedProfile.AutoLink
+		defaultTrustedProfileMap["target"] = targetMap
+
+		defaultTrustedProfileList = append(defaultTrustedProfileList, defaultTrustedProfileMap)
+		d.Set(isBareMetalServerDefaultTrustedProfile, defaultTrustedProfileList)
 	}
 
 	var keys []string
