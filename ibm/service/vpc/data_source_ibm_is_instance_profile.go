@@ -430,6 +430,37 @@ func DataSourceIBMISInstanceProfile() *schema.Resource {
 					},
 				},
 			},
+			"network_bandwidth_mode": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"type": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The type for this profile field.",
+						},
+						"value": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The value for this profile field.",
+						},
+						"default": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The default value for this profile field.",
+						},
+						"values": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "The permitted values for this profile field.",
+							Elem: &schema.Schema{
+								Type: schema.TypeInt,
+							},
+						},
+					},
+				},
+			},
 			"disks": {
 				Type:        schema.TypeList,
 				Computed:    true,
@@ -908,6 +939,12 @@ func instanceProfileGet(d *schema.ResourceData, meta interface{}, name string) e
 	}
 	if profile.TotalVolumeBandwidth != nil {
 		err = d.Set("total_volume_bandwidth", dataSourceInstanceProfileFlattenTotalVolumeBandwidth(*profile.TotalVolumeBandwidth.(*vpcv1.InstanceProfileVolumeBandwidth)))
+		if err != nil {
+			return err
+		}
+	}
+	if profile.NetworkBandwidthMode != nil {
+		err = d.Set("network_bandwidth_mode", dataSourceInstanceProfileFlattenTotalVolumeBandwidth(*profile.TotalVolumeBandwidth.(*vpcv1.InstanceProfileVolumeBandwidth)))
 		if err != nil {
 			return err
 		}
@@ -1468,6 +1505,36 @@ func dataSourceInstanceProfileTotalVolumeBandwidthToMap(bandwidthItem vpcv1.Inst
 	}
 
 	return bandwidthMap
+}
+
+func dataSourceInstanceProfileFlattenNetworkBandwidthMode(result vpcv1.InstanceProfileNetworkBandwidthMode) (bandwidthList []map[string]interface{}, err error) {
+	bandwidthList = []map[string]interface{}{}
+	finalMap, err := dataSourceInstanceProfileTotalNetworkBandwidthModeToMap(result)
+	if err != nil {
+		return bandwidthList, err
+	}
+	bandwidthList = append(bandwidthList, finalMap)
+
+	return bandwidthList, err
+}
+
+func dataSourceInstanceProfileTotalNetworkBandwidthModeToMap(bandwidthItem vpcv1.InstanceProfileNetworkBandwidthMode) (bandwidthMap map[string]interface{}, err error) {
+	bandwidthMap = map[string]interface{}{}
+
+	if bandwidthItem.Type != nil {
+		bandwidthMap["type"] = bandwidthItem.Type
+	}
+	if bandwidthItem.Value != nil {
+		bandwidthMap["value"] = bandwidthItem.Value
+	}
+	if bandwidthItem.Default != nil {
+		bandwidthMap["default"] = bandwidthItem.Default
+	}
+	if bandwidthItem.Values != nil {
+		bandwidthMap["values"] = bandwidthItem.Values
+	}
+
+	return bandwidthMap, err
 }
 
 func dataSourceInstanceProfileFlattenNumaCount(result vpcv1.InstanceProfileNumaCount) (finalList []map[string]interface{}) {
