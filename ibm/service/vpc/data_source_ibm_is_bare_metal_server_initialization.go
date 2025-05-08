@@ -82,11 +82,6 @@ func DataSourceIBMIsBareMetalServerInitialization() *schema.Resource {
 										Computed:    true,
 										Description: "The CRN for this trusted profile",
 									},
-									"resource_type": {
-										Type:        schema.TypeString,
-										Computed:    true,
-										Description: "The resource type",
-									},
 								},
 							},
 						},
@@ -176,7 +171,6 @@ func dataSourceIBMISBareMetalServerInitializationRead(context context.Context, d
 		targetMap := map[string]interface{}{}
 		targetMap["id"] = *initialization.DefaultTrustedProfile.Target.ID
 		targetMap["crn"] = *initialization.DefaultTrustedProfile.Target.CRN
-		// targetMap["resource_type"] = *initialization.DefaultTrustedProfile.Target.ResourceType
 
 		defaultTrustedProfileMap["auto_link"] = *initialization.DefaultTrustedProfile.AutoLink
 		defaultTrustedProfileMap["target"] = targetMap

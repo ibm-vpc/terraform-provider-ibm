@@ -109,6 +109,7 @@ func testAccCheckIBMISBMSDataSourceMetadataServiceConfig(vpcname, subnetname, ss
 	// status filter defaults to empty
 	return testAccCheckIBMISBareMetalServerMetadataServiceConfig(vpcname, subnetname, sshname, publicKey, name, enabled, protocol) + fmt.Sprintf(`
       data "ibm_is_bare_metal_server" "test1" {
+	  	depends_on	= [ ibm_is_bare_metal_server.testacc_bms ]
       }`)
 }
 
