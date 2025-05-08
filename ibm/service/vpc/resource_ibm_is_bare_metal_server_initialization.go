@@ -64,7 +64,6 @@ func ResourceIBMIsBareMetalServerInitialization() *schema.Resource {
 									},
 									"crn": {
 										Type:        schema.TypeString,
-										Optional:    true,
 										Computed:    true,
 										Description: "The CRN for this trusted profile",
 									},
@@ -158,23 +157,15 @@ func resourceIBMISBareMetalServerInitializationCreate(context context.Context, d
 
 		if targetIntf, ok := defaultTrustedProfileMap["target"]; ok {
 			targetMap := targetIntf.([]interface{})[0].(map[string]interface{})
-			var id, crn *string
+			var id *string
 			if idIntf, ok := targetMap["id"]; ok {
 				if idStr, ok := idIntf.(string); ok && idStr != "" {
 					id = &idStr
 				}
 			}
-
-			if crnIntf, ok := targetMap["crn"]; ok {
-				if crnStr, ok := crnIntf.(string); ok && crnStr != "" {
-					crn = &crnStr
-				}
-			}
-
-			if id != nil || crn != nil {
+			if id != nil {
 				defaultTrustedProfilePrototype.Target = &vpcv1.TrustedProfileIdentity{
-					ID:  id,
-					CRN: crn,
+					ID: id,
 				}
 			}
 		}

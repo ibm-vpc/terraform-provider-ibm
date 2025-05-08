@@ -35,7 +35,7 @@ resource "ibm_is_bare_metal_server_initialization" "initialization" {
   default_trusted_profile {
     auto_link = true
     target {
-      id = "Profile-3a1dd8b4-db34-4281-88b2-42b194da30d6"
+      id = var.profile_id
     }
   }
 }
@@ -44,7 +44,7 @@ resource "ibm_is_bare_metal_server_initialization" "initialization" {
 resource "ibm_is_bare_metal_server" "bms" {
   ....
   lifecycle{
-    ignore_changes = [ image, keys, user_data ]
+    ignore_changes = [ image, keys, user_data, default_trusted_profile ]
   }
 }
 ```
@@ -60,9 +60,8 @@ Review the argument references that you can specify for your resource.
   Nested scheme for `default_trusted_profile`:
   - `auto_link` - (Boolean) If set to true, the system will create a link to the specified target trusted profile during server creation. Regardless of whether a link is created by the system or manually using the IAM Identity service, it will be automatically deleted when the server is deleted.
   - `target` - (List) The default IAM trusted profile to use for this bare metal server.
-    Nested `target` blocks have the following structure: 
-    - `id` - (String) The unique identifier for this trusted profile
-    - `crn` - (String) The CRN for this trusted profile
+     Nested scheme for `target`: 
+     - `id` - (String) The unique identifier for this trusted profile
 - `image` - (Required, String) Image id to use to reinitialize the bare metal server. 
 - `keys` - (Required, Array) Keys ids to use to reinitialize the bare metal server. 
 - `user_data` - (Optional, String) User data to transfer to the server bare metal server. If unspecified, no user data will be made available. (For reload/reinitialize provide the same user data as at the time of provisioning)

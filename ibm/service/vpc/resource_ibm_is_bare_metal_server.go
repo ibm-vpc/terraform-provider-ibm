@@ -1135,7 +1135,6 @@ func ResourceIBMIsBareMetalServer() *schema.Resource {
 									},
 									"crn": {
 										Type:        schema.TypeString,
-										Optional:    true,
 										Computed:    true,
 										Description: "The CRN for this trusted profile",
 									},
@@ -1513,23 +1512,15 @@ func resourceIBMISBareMetalServerCreate(context context.Context, d *schema.Resou
 			}
 			if targetIntf, ok := defaultTrustedProfileMap["target"]; ok {
 				targetMap := targetIntf.([]interface{})[0].(map[string]interface{})
-				var id, crn *string
+				var id *string
 				if idIntf, ok := targetMap["id"]; ok {
 					if idStr, ok := idIntf.(string); ok && idStr != "" {
 						id = &idStr
 					}
 				}
-
-				if crnIntf, ok := targetMap["crn"]; ok {
-					if crnStr, ok := crnIntf.(string); ok && crnStr != "" {
-						crn = &crnStr
-					}
-				}
-
-				if id != nil || crn != nil {
+				if id != nil {
 					defaultTrustedProfilePrototype.Target = &vpcv1.TrustedProfileIdentity{
 						ID:  id,
-						CRN: crn,
 					}
 				}
 			}
@@ -2761,13 +2752,6 @@ func bareMetalServerUpdate(context context.Context, d *schema.ResourceData, meta
 			newTargetID := d.Get("default_trusted_profile.0.target.0.id").(string)
 			defaultTrustedProfile.Target = &vpcv1.TrustedProfileIdentity{
 				ID: &newTargetID,
-			}
-		}
-
-		if d.HasChange("default_trusted_profile.0.target.0.crn") {
-			newTargetCRN := d.Get("default_trusted_profile.0.target.0.crn").(string)
-			defaultTrustedProfile.Target = &vpcv1.TrustedProfileIdentity{
-				CRN: &newTargetCRN,
 			}
 		}
 
