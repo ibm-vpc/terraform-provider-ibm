@@ -37,6 +37,43 @@ func ResourceIBMIsBareMetalServerInitialization() *schema.Resource {
 				Required:    true,
 				Description: "Bare metal server identifier",
 			},
+			isBareMetalServerDefaultTrustedProfile: {
+				Type:     schema.TypeList,
+				Optional: true,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"auto_link": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Computed:    true,
+							Description: "If set to true, the system will create a link to the specified target trusted profile during server creation. Regardless of whether a link is created by the system or manually using the IAM Identity service, it will be automatically deleted when the server is deleted.",
+						},
+						"target": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Computed:    true,
+							Description: "The default IAM trusted profile to use for this bare metal server",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"id": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Computed:    true,
+										Description: "The unique identifier for this trusted profile",
+									},
+									"crn": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Computed:    true,
+										Description: "The CRN for this trusted profile",
+									},
+								},
+							},
+						},
+					},
+				},
+			},
 			isBareMetalServerImage: {
 				Type:        schema.TypeString,
 				Required:    true,
@@ -110,6 +147,37 @@ func resourceIBMISBareMetalServerInitializationCreate(context context.Context, d
 		}
 		initializationReplaceOptions.Keys = keyobjs
 	}
+	if defaultTrustedProfile, ok := d.GetOk(isBareMetalServerDefaultTrustedProfile); ok {
+		defaultTrustedProfilePrototype := &vpcv1.BareMetalServerInitializationDefaultTrustedProfilePrototype{}
+		defaultTrustedProfileMap := defaultTrustedProfile.([]interface{})[0].(map[string]interface{})
+		if autoLinkIntf, ok := defaultTrustedProfileMap["auto_link"]; ok {
+			if autolink, ok := autoLinkIntf.(bool); ok {
+				defaultTrustedProfilePrototype.AutoLink = &autolink
+			}
+		}
+
+		if targetIntf, ok := defaultTrustedProfileMap["target"]; ok {
+			if targetList, ok := targetIntf.([]interface{}); ok && len(targetList) > 0 {
+				if targetMap, ok := targetList[0].(map[string]interface{}); ok {
+					var id, crn *string
+					if crnStr, ok := targetMap["crn"].(string); ok && crnStr != "" {
+						crn = &crnStr
+					} else if idStr, ok := targetMap["id"].(string); ok && idStr != "" {
+						id = &idStr
+					}
+
+					if crn != nil || id != nil {
+						defaultTrustedProfilePrototype.Target = &vpcv1.TrustedProfileIdentity{
+							CRN: crn,
+							ID:  id,
+						}
+					}
+				}
+			}
+		}
+		initializationReplaceOptions.DefaultTrustedProfile = defaultTrustedProfilePrototype
+	}
+
 	initInitializationReplace, response, err := sess.ReplaceBareMetalServerInitializationWithContext(context, initializationReplaceOptions)
 	if err != nil || initInitializationReplace == nil {
 		return diag.FromErr(fmt.Errorf("[ERROR] Error initialization replacing bare metal server (%s) err %s\n%s", bareMetalServerId, err, response))
