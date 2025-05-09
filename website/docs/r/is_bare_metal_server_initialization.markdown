@@ -62,6 +62,7 @@ Review the argument references that you can specify for your resource.
   - `target` - (List) The default IAM trusted profile to use for this bare metal server.
      Nested scheme for `target`: 
      - `id` - (String) The unique identifier for this trusted profile
+     - `crn`- (String) The CRN for this trusted profile
 - `image` - (Required, String) Image id to use to reinitialize the bare metal server. 
 - `keys` - (Required, Array) Keys ids to use to reinitialize the bare metal server. 
 - `user_data` - (Optional, String) User data to transfer to the server bare metal server. If unspecified, no user data will be made available. (For reload/reinitialize provide the same user data as at the time of provisioning)

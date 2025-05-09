@@ -240,6 +240,7 @@ Review the argument references that you can specify for your resource.
   - `target` - (List) The default IAM trusted profile to use for this bare metal server.
      Nested scheme for `target`: 
      - `id` - (String) The unique identifier for this trusted profile
+     - `crn`- (String) The CRN for this trusted profile
 - `delete_type` - (Optional, String) Type of deletion on destroy. **soft** signals running operating system to quiesce and shutdown cleanly, **hard** immediately stop the server. By default its `hard`.
 - `enable_secure_boot` - (Optional, Boolean) Indicates whether secure boot is enabled. If enabled, the image must support secure boot or the server will fail to boot. Updating `enable_secure_boot` requires the server to be stopped and then it would be started.
 - `health_reasons` - (List) The reasons for the current health_state (if any).
