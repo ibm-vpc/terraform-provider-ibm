@@ -1126,14 +1126,14 @@ func ResourceIBMIsBareMetalServer() *schema.Resource {
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"id": {
-										Type:          schema.TypeString,
-										Optional:      true,
-										Description:   "The unique identifier for this trusted profile",
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: "The unique identifier for this trusted profile",
 									},
 									"crn": {
-										Type:          schema.TypeString,
-										Optional:      true,
-										Description:   "The CRN for this trusted profile",
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: "The CRN for this trusted profile",
 									},
 								},
 							},
@@ -2757,7 +2757,7 @@ func bareMetalServerUpdate(context context.Context, d *schema.ResourceData, meta
 				ID: &newTargetID,
 			}
 		}
-		
+
 		if d.HasChange("default_trusted_profile.0.target.0.crn") {
 			newTargetCRN := d.Get("default_trusted_profile.0.target.0.crn").(string)
 			defaultTrustedProfile.Target = &vpcv1.TrustedProfileIdentity{
