@@ -22,6 +22,7 @@ func TestAccIBMISNetworkACLRulesDataSource_basic(t *testing.T) {
 				Config: testAccCheckIBMISNetworkACLRulesDataSourceConfig(),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet("data.ibm_is_network_acl_rules.testacc_ds_ruleslist", "rules.0.name"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_network_acl_rules.testacc_ds_ruleslist", "rules.0.protocol_number"),
 				),
 			},
 		},

@@ -93,7 +93,7 @@ func ResourceIBMISSecurityGroupRule() *schema.Resource {
 				Optional:      true,
 				ForceNew:      true,
 				MinItems:      1,
-				ConflictsWith: []string{isSecurityGroupRuleProtocolTCP, isSecurityGroupRuleProtocolUDP},
+				ConflictsWith: []string{isSecurityGroupRuleProtocolTCP, isSecurityGroupRuleProtocolUDP, isSecurityGroupRuleProtocol},
 				Description:   "protocol=icmp",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -120,7 +120,7 @@ func ResourceIBMISSecurityGroupRule() *schema.Resource {
 				MinItems:      1,
 				ForceNew:      true,
 				Description:   "protocol=tcp",
-				ConflictsWith: []string{isSecurityGroupRuleProtocolUDP, isSecurityGroupRuleProtocolICMP},
+				ConflictsWith: []string{isSecurityGroupRuleProtocolUDP, isSecurityGroupRuleProtocolICMP, isSecurityGroupRuleProtocol},
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						isSecurityGroupRulePortMin: {
@@ -148,7 +148,7 @@ func ResourceIBMISSecurityGroupRule() *schema.Resource {
 				ForceNew:      true,
 				MinItems:      1,
 				Description:   "protocol=udp",
-				ConflictsWith: []string{isSecurityGroupRuleProtocolTCP, isSecurityGroupRuleProtocolICMP},
+				ConflictsWith: []string{isSecurityGroupRuleProtocolTCP, isSecurityGroupRuleProtocolICMP, isSecurityGroupRuleProtocol},
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						isSecurityGroupRulePortMin: {
@@ -175,9 +175,12 @@ func ResourceIBMISSecurityGroupRule() *schema.Resource {
 				Description: "The crn of the Security Group",
 			},
 			isSecurityGroupRuleProtocol: {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: "The Security Group Rule Protocol",
+				Type:          schema.TypeString,
+				Computed:      true,
+				Optional:      true,
+				Description:   "The name of the network protocol",
+				ConflictsWith: []string{isSecurityGroupRuleProtocolTCP, isSecurityGroupRuleProtocolICMP, isSecurityGroupRuleProtocolUDP},
+				ValidateFunc:  validate.InvokeValidator("ibm_is_security_group_rule", isSecurityGroupRuleProtocol),
 			},
 		},
 	}
@@ -186,6 +189,7 @@ func ResourceIBMISSecurityGroupRule() *schema.Resource {
 func ResourceIBMISSecurityGroupRuleValidator() *validate.ResourceValidator {
 	validateSchema := make([]validate.ValidateSchema, 0)
 	direction := "inbound, outbound"
+	protocol := "ah, any, esp, gre, icmp_tcp_udp, ip_in_ip, l2tp, number_0, number_10, number_100, number_101, number_102, number_103, number_104, number_105, number_106, number_107, number_108, number_109, number_11, number_110, number_111, number_113, number_114, number_116, number_117, number_118, number_119, number_12, number_120, number_121, number_122, number_123, number_124, number_125, number_126, number_127, number_128, number_129, number_13, number_130, number_131, number_133, number_134, number_135, number_136, number_137, number_138, number_139, number_14, number_140, number_141, number_142, number_143, number_144, number_145, number_146, number_147, number_148, number_149, number_15, number_150, number_151, number_152, number_153, number_154, number_155, number_156, number_157, number_158, number_159, number_16, number_160, number_161, number_162, number_163, number_164, number_165, number_166, number_167, number_168, number_169, number_170, number_171, number_172, number_173, number_174, number_175, number_176, number_177, number_178, number_179, number_18, number_180, number_181, number_182, number_183, number_184, number_185, number_186, number_187, number_188, number_189, number_19, number_190, number_191, number_192, number_193, number_194, number_195, number_196, number_197, number_198, number_199, number_2, number_20, number_200, number_201, number_202, number_203, number_204, number_205, number_206, number_207, number_208, number_209, number_21, number_210, number_211, number_212, number_213, number_214, number_215, number_216, number_217, number_218, number_219, number_22, number_220, number_221, number_222, number_223, number_224, number_225, number_226, number_227, number_228, number_229, number_23, number_230, number_231, number_232, number_233, number_234, number_235, number_236, number_237, number_238, number_239, number_24, number_240, number_241, number_242, number_243, number_244, number_245, number_246, number_247, number_248, number_249, number_25, number_250, number_251, number_252, number_253, number_254, number_255, number_26, number_27, number_28, number_29, number_3, number_30, number_31, number_32, number_33, number_34, number_35, number_36, number_37, number_38, number_39, number_40, number_41, number_42, number_43, number_44, number_45, number_48, number_49, number_5, number_52, number_53, number_54, number_55, number_56, number_57, number_58, number_59, number_60, number_61, number_62, number_63, number_64, number_65, number_66, number_67, number_68, number_69, number_7, number_70, number_71, number_72, number_73, number_74, number_75, number_76, number_77, number_78, number_79, number_8, number_80, number_81, number_82, number_83, number_84, number_85, number_86, number_87, number_88, number_89, number_9, number_90, number_91, number_92, number_93, number_94, number_95, number_96, number_97, number_98, number_99, rsvp, sctp, vrrp"
 	ip_version := "ipv4"
 
 	validateSchema = append(validateSchema,
@@ -230,6 +234,12 @@ func ResourceIBMISSecurityGroupRuleValidator() *validate.ResourceValidator {
 			Type:                       validate.TypeInt,
 			MinValue:                   "1",
 			MaxValue:                   "65535"})
+	validateSchema = append(validateSchema,
+		validate.ValidateSchema{
+			Identifier:                 isSecurityGroupRuleProtocol,
+			ValidateFunctionIdentifier: validate.ValidateAllowedStringValue,
+			Type:                       validate.TypeString,
+			AllowedValues:              protocol})
 
 	ibmISSecurityGroupRuleResourceValidator := validate.ResourceValidator{ResourceName: "ibm_is_security_group_rule", Schema: validateSchema}
 	return &ibmISSecurityGroupRuleResourceValidator
@@ -266,9 +276,9 @@ func resourceIBMISSecurityGroupRuleCreate(d *schema.ResourceData, meta interface
 			tfID := makeTerraformRuleID(parsed.secgrpID, *sgrule.ID)
 			d.SetId(tfID)
 		}
-	case "*vpcv1.SecurityGroupRuleSecurityGroupRuleProtocolAll":
+	case "*vpcv1.SecurityGroupRuleProtocolAny":
 		{
-			sgrule := rule.(*vpcv1.SecurityGroupRuleSecurityGroupRuleProtocolAll)
+			sgrule := rule.(*vpcv1.SecurityGroupRuleProtocolAny)
 			d.Set(isSecurityGroupRuleID, *sgrule.ID)
 			tfID := makeTerraformRuleID(parsed.secgrpID, *sgrule.ID)
 			d.SetId(tfID)
@@ -276,6 +286,20 @@ func resourceIBMISSecurityGroupRuleCreate(d *schema.ResourceData, meta interface
 	case "*vpcv1.SecurityGroupRuleSecurityGroupRuleProtocolTcpudp":
 		{
 			sgrule := rule.(*vpcv1.SecurityGroupRuleSecurityGroupRuleProtocolTcpudp)
+			d.Set(isSecurityGroupRuleID, *sgrule.ID)
+			tfID := makeTerraformRuleID(parsed.secgrpID, *sgrule.ID)
+			d.SetId(tfID)
+		}
+	case "*vpcv1.SecurityGroupRuleProtocolIndividual":
+		{
+			sgrule := rule.(*vpcv1.SecurityGroupRuleProtocolIndividual)
+			d.Set(isSecurityGroupRuleID, *sgrule.ID)
+			tfID := makeTerraformRuleID(parsed.secgrpID, *sgrule.ID)
+			d.SetId(tfID)
+		}
+	case "*vpcv1.SecurityGroupRuleProtocolIcmptcpudp":
+		{
+			sgrule := rule.(*vpcv1.SecurityGroupRuleProtocolIcmptcpudp)
 			d.Set(isSecurityGroupRuleID, *sgrule.ID)
 			tfID := makeTerraformRuleID(parsed.secgrpID, *sgrule.ID)
 			d.SetId(tfID)
@@ -315,131 +339,79 @@ func resourceIBMISSecurityGroupRuleRead(d *schema.ResourceData, meta interface{}
 		return fmt.Errorf("[ERROR] Error Getting Security Group : %s\n%s", err, response)
 	}
 	d.Set(flex.RelatedCRN, *sg.CRN)
-	switch reflect.TypeOf(sgrule).String() {
-	case "*vpcv1.SecurityGroupRuleSecurityGroupRuleProtocolIcmp":
+	switch rule := sgrule.(type) {
+	case *vpcv1.SecurityGroupRuleSecurityGroupRuleProtocolIcmp:
 		{
-			rule := sgrule.(*vpcv1.SecurityGroupRuleSecurityGroupRuleProtocolIcmp)
-			d.Set(isSecurityGroupRuleID, *rule.ID)
-			tfID := makeTerraformRuleID(secgrpID, *rule.ID)
-			d.SetId(tfID)
-			d.Set(isSecurityGroupRuleDirection, *rule.Direction)
-			d.Set(isSecurityGroupRuleIPVersion, *rule.IPVersion)
-			d.Set(isSecurityGroupRuleProtocol, *rule.Protocol)
+			setCommonFields(d, rule.ID, rule.Direction, rule.IPVersion, rule.Protocol, secgrpID, rule.Remote, rule.Local)
 			icmpProtocol := map[string]interface{}{}
-
 			if rule.Type != nil {
 				icmpProtocol["type"] = *rule.Type
 			}
 			if rule.Code != nil {
 				icmpProtocol["code"] = *rule.Code
 			}
-			protocolList := make([]map[string]interface{}, 0)
-			protocolList = append(protocolList, icmpProtocol)
-			d.Set(isSecurityGroupRuleProtocolICMP, protocolList)
-			remote, ok := rule.Remote.(*vpcv1.SecurityGroupRuleRemote)
-			if ok {
-				if remote != nil && reflect.ValueOf(remote).IsNil() == false {
-					if remote.ID != nil {
-						d.Set(isSecurityGroupRuleRemote, remote.ID)
-					} else if remote.Address != nil {
-						d.Set(isSecurityGroupRuleRemote, remote.Address)
-					} else if remote.CIDRBlock != nil {
-						d.Set(isSecurityGroupRuleRemote, remote.CIDRBlock)
-					}
-				}
-			}
-			local, ok := rule.Local.(*vpcv1.SecurityGroupRuleLocal)
-			if ok {
-				if local != nil && reflect.ValueOf(local).IsNil() == false {
-					if local.Address != nil {
-						d.Set(isSecurityGroupRuleLocal, local.Address)
-					} else if local.CIDRBlock != nil {
-						d.Set(isSecurityGroupRuleLocal, local.CIDRBlock)
-					}
-				}
-			}
+			d.Set(isSecurityGroupRuleProtocolICMP, []map[string]interface{}{icmpProtocol})
 		}
-	case "*vpcv1.SecurityGroupRuleSecurityGroupRuleProtocolAll":
+	case *vpcv1.SecurityGroupRuleProtocolAny:
 		{
-			rule := sgrule.(*vpcv1.SecurityGroupRuleSecurityGroupRuleProtocolAll)
-			d.Set(isSecurityGroupRuleID, *rule.ID)
-			tfID := makeTerraformRuleID(secgrpID, *rule.ID)
-			d.SetId(tfID)
-			d.Set(isSecurityGroupRuleDirection, *rule.Direction)
-			d.Set(isSecurityGroupRuleIPVersion, *rule.IPVersion)
-			d.Set(isSecurityGroupRuleProtocol, *rule.Protocol)
-			remote, ok := rule.Remote.(*vpcv1.SecurityGroupRuleRemote)
-			if ok {
-				if remote != nil && reflect.ValueOf(remote).IsNil() == false {
-					if remote.ID != nil {
-						d.Set(isSecurityGroupRuleRemote, remote.ID)
-					} else if remote.Address != nil {
-						d.Set(isSecurityGroupRuleRemote, remote.Address)
-					} else if remote.CIDRBlock != nil {
-						d.Set(isSecurityGroupRuleRemote, remote.CIDRBlock)
-					}
-				}
-			}
-			local, ok := rule.Local.(*vpcv1.SecurityGroupRuleLocal)
-			if ok {
-				if local != nil && reflect.ValueOf(local).IsNil() == false {
-					if local.Address != nil {
-						d.Set(isSecurityGroupRuleLocal, local.Address)
-					} else if local.CIDRBlock != nil {
-						d.Set(isSecurityGroupRuleLocal, local.CIDRBlock)
-					}
-				}
-			}
+			setCommonFields(d, rule.ID, rule.Direction, rule.IPVersion, rule.Protocol, secgrpID, rule.Remote, rule.Local)
 		}
-	case "*vpcv1.SecurityGroupRuleSecurityGroupRuleProtocolTcpudp":
+	case *vpcv1.SecurityGroupRuleSecurityGroupRuleProtocolTcpudp:
 		{
-			rule := sgrule.(*vpcv1.SecurityGroupRuleSecurityGroupRuleProtocolTcpudp)
-			d.Set(isSecurityGroupRuleID, *rule.ID)
-			tfID := makeTerraformRuleID(secgrpID, *rule.ID)
-			d.SetId(tfID)
-			d.Set(isSecurityGroupRuleDirection, *rule.Direction)
-			d.Set(isSecurityGroupRuleIPVersion, *rule.IPVersion)
-			d.Set(isSecurityGroupRuleProtocol, *rule.Protocol)
+			setCommonFields(d, rule.ID, rule.Direction, rule.IPVersion, rule.Protocol, secgrpID, rule.Remote, rule.Local)
 			tcpProtocol := map[string]interface{}{}
-
 			if rule.PortMin != nil {
 				tcpProtocol["port_min"] = *rule.PortMin
 			}
 			if rule.PortMax != nil {
 				tcpProtocol["port_max"] = *rule.PortMax
 			}
-			protocolList := make([]map[string]interface{}, 0)
-			protocolList = append(protocolList, tcpProtocol)
 			if *rule.Protocol == isSecurityGroupRuleProtocolTCP {
-				d.Set(isSecurityGroupRuleProtocolTCP, protocolList)
+				d.Set(isSecurityGroupRuleProtocolTCP, []map[string]interface{}{tcpProtocol})
 			} else {
-				d.Set(isSecurityGroupRuleProtocolUDP, protocolList)
+				d.Set(isSecurityGroupRuleProtocolUDP, []map[string]interface{}{tcpProtocol})
 			}
-			remote, ok := rule.Remote.(*vpcv1.SecurityGroupRuleRemote)
-			if ok {
-				if remote != nil && reflect.ValueOf(remote).IsNil() == false {
-					if remote.ID != nil {
-						d.Set(isSecurityGroupRuleRemote, remote.ID)
-					} else if remote.Address != nil {
-						d.Set(isSecurityGroupRuleRemote, remote.Address)
-					} else if remote.CIDRBlock != nil {
-						d.Set(isSecurityGroupRuleRemote, remote.CIDRBlock)
-					}
-				}
-			}
-			local, ok := rule.Local.(*vpcv1.SecurityGroupRuleLocal)
-			if ok {
-				if local != nil && reflect.ValueOf(local).IsNil() == false {
-					if local.Address != nil {
-						d.Set(isSecurityGroupRuleLocal, local.Address)
-					} else if local.CIDRBlock != nil {
-						d.Set(isSecurityGroupRuleLocal, local.CIDRBlock)
-					}
-				}
-			}
+		}
+	case *vpcv1.SecurityGroupRuleProtocolIcmptcpudp:
+		{
+			setCommonFields(d, rule.ID, rule.Direction, rule.IPVersion, rule.Protocol, secgrpID, rule.Remote, rule.Local)
+		}
+	case *vpcv1.SecurityGroupRuleProtocolIndividual:
+		{
+			setCommonFields(d, rule.ID, rule.Direction, rule.IPVersion, rule.Protocol, secgrpID, rule.Remote, rule.Local)
 		}
 	}
 	return nil
+}
+
+func setCommonFields(d *schema.ResourceData, ruleID, direction, ipVersion, protocol *string, secgrpID string, remoteIntf vpcv1.SecurityGroupRuleRemoteIntf, localIntf vpcv1.SecurityGroupRuleLocalIntf) {
+	d.Set(isSecurityGroupRuleID, ruleID)
+	d.SetId(makeTerraformRuleID(secgrpID, *ruleID))
+	d.Set(isSecurityGroupRuleDirection, direction)
+	d.Set(isSecurityGroupRuleIPVersion, ipVersion)
+	d.Set(isSecurityGroupRuleProtocol, protocol)
+	remote, ok := remoteIntf.(*vpcv1.SecurityGroupRuleRemote)
+	if ok {
+		if remote != nil && reflect.ValueOf(remote).IsNil() == false {
+			if remote.ID != nil {
+				d.Set(isSecurityGroupRuleRemote, remote.ID)
+			} else if remote.Address != nil {
+				d.Set(isSecurityGroupRuleRemote, remote.Address)
+			} else if remote.CIDRBlock != nil {
+				d.Set(isSecurityGroupRuleRemote, remote.CIDRBlock)
+			}
+		}
+	}
+	local, ok := localIntf.(*vpcv1.SecurityGroupRuleLocal)
+	if ok {
+		if local != nil && reflect.ValueOf(local).IsNil() == false {
+			if local.Address != nil {
+				d.Set(isSecurityGroupRuleLocal, local.Address)
+			} else if local.CIDRBlock != nil {
+				d.Set(isSecurityGroupRuleLocal, local.CIDRBlock)
+			}
+		}
+	}
 }
 
 func resourceIBMISSecurityGroupRuleUpdate(d *schema.ResourceData, meta interface{}) error {
@@ -688,8 +660,11 @@ func parseIBMISSecurityGroupRuleDictionary(d *schema.ResourceData, tag string, s
 		return nil, nil, nil, err
 	}
 
-	parsed.protocol = "all"
-
+	parsed.protocol = "icmp_tcp_udp"
+	if protocol, ok := d.GetOk(isSecurityGroupRuleProtocol); ok {
+		parsed.protocol = protocol.(string)
+	}
+	sgTemplate.Protocol = &parsed.protocol
 	if icmpInterface, ok := d.GetOk("icmp"); ok {
 		if icmpInterface.([]interface{})[0] != nil {
 			haveType := false
@@ -746,9 +721,7 @@ func parseIBMISSecurityGroupRuleDictionary(d *schema.ResourceData, tag string, s
 			securityGroupRulePatchModel.PortMin = &parsed.portMin
 		}
 	}
-	if parsed.protocol == "all" {
-		sgTemplate.Protocol = &parsed.protocol
-	}
+
 	securityGroupRulePatch, err := securityGroupRulePatchModel.AsPatch()
 	if err != nil {
 		return nil, nil, nil, fmt.Errorf("[ERROR] Error calling asPatch for SecurityGroupRulePatch: %s", err)
