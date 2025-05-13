@@ -485,6 +485,42 @@ func dataSourceIBMIsVPNServersID(d *schema.ResourceData) string {
 	return time.Now().UTC().String()
 }
 
+func dataSourceVPNServerCollectionFlattenFirst(result vpcv1.PageLink) (finalList []map[string]interface{}) {
+	finalList = []map[string]interface{}{}
+	finalMap := dataSourceVPNServerCollectionFirstToMap(result)
+	finalList = append(finalList, finalMap)
+
+	return finalList
+}
+
+func dataSourceVPNServerCollectionFirstToMap(firstItem vpcv1.PageLink) (firstMap map[string]interface{}) {
+	firstMap = map[string]interface{}{}
+
+	if firstItem.Href != nil {
+		firstMap["href"] = firstItem.Href
+	}
+
+	return firstMap
+}
+
+func dataSourceVPNServerCollectionFlattenNext(result vpcv1.PageLink) (finalList []map[string]interface{}) {
+	finalList = []map[string]interface{}{}
+	finalMap := dataSourceVPNServerCollectionNextToMap(result)
+	finalList = append(finalList, finalMap)
+
+	return finalList
+}
+
+func dataSourceVPNServerCollectionNextToMap(nextItem vpcv1.PageLink) (nextMap map[string]interface{}) {
+	nextMap = map[string]interface{}{}
+
+	if nextItem.Href != nil {
+		nextMap["href"] = nextItem.Href
+	}
+
+	return nextMap
+}
+
 func dataSourceVPNServerCollectionFlattenVPNServers(result []vpcv1.VPNServer, meta interface{}) (vpnServers []map[string]interface{}) {
 	for _, vpnServersItem := range result {
 		vpnServers = append(vpnServers, dataSourceVPNServerCollectionVPNServersToMap(vpnServersItem, meta))

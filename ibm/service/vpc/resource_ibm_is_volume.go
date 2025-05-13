@@ -103,6 +103,12 @@ func ResourceIBMISVolume() *schema.Resource {
 				Description:  "Volume profile name",
 			},
 
+			"bandwidth": {
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Computed:    true,
+				Description: "The maximum bandwidth (in megabits per second) for the volume. For this property to be specified, the volume storage_generation must be 2.",
+			},
 			isVolumeZone: {
 				Type:        schema.TypeString,
 				Required:    true,
@@ -327,12 +333,6 @@ func ResourceIBMISVolume() *schema.Resource {
 				Description: "The resource group name in which resource is provisioned",
 			},
 
-			isVolumeBandwidth: {
-				Type:        schema.TypeInt,
-				Computed:    true,
-				Description: "The maximum bandwidth (in megabits per second) for the volume",
-			},
-
 			isVolumesOperatingSystem: &schema.Schema{
 				Type:        schema.TypeList,
 				Computed:    true,
@@ -470,79 +470,49 @@ func volCreate(d *schema.ResourceData, meta interface{}, volName, profile, zone 
 	if err != nil {
 		return err
 	}
-	options := &vpcv1.CreateVolumeOptions{
-		VolumePrototype: &vpcv1.VolumePrototype{
-			Name: &volName,
-			Zone: &vpcv1.ZoneIdentity{
-				Name: &zone,
-			},
-			Profile: &vpcv1.VolumeProfileIdentity{
-				Name: &profile,
-			},
+	options := &vpcv1.CreateVolumeOptions{}
+	volTemplate := &vpcv1.VolumePrototype{
+		Name: &volName,
+		Zone: &vpcv1.ZoneIdentity{
+			Name: &zone,
+		},
+		Profile: &vpcv1.VolumeProfileIdentity{
+			Name: &profile,
 		},
 	}
-	volTemplate := options.VolumePrototype.(*vpcv1.VolumePrototype)
 
-	var volCapacity int64
 	if sourceSnapsht, ok := d.GetOk(isVolumeSourceSnapshot); ok {
 		sourceSnapshot := sourceSnapsht.(string)
 		snapshotIdentity := &vpcv1.SnapshotIdentity{
 			ID: &sourceSnapshot,
 		}
 		volTemplate.SourceSnapshot = snapshotIdentity
-		getSnapshotOptions := &vpcv1.GetSnapshotOptions{
-			ID: &sourceSnapshot,
-		}
-		snapshot, response, err := sess.GetSnapshot(getSnapshotOptions)
-		if err != nil {
-			return fmt.Errorf("[ERROR] Error fetching snapshot %s\n%s", err, response)
-		}
-		if (response != nil && response.StatusCode == 404) || snapshot == nil {
-			return fmt.Errorf("[ERROR] No snapshot found with id %s", sourceSnapshot)
-		}
-		minimumCapacity := *snapshot.MinimumCapacity
 		if capacity, ok := d.GetOk(isVolumeCapacity); ok {
-			if int64(capacity.(int)) > minimumCapacity {
-				volCapacity = int64(capacity.(int))
-			} else {
-				volCapacity = minimumCapacity
+			if int64(capacity.(int)) > 0 {
+				volCapacity := int64(capacity.(int))
+				volTemplate.Capacity = &volCapacity
 			}
-			volTemplate.Capacity = &volCapacity
 		}
-	} else if sourceSnapshtCrn, ok := d.GetOk(isVolumeSourceSnapshot); ok {
+	} else if sourceSnapshtCrn, ok := d.GetOk(isVolumeSourceSnapshotCrn); ok {
 		sourceSnapshot := sourceSnapshtCrn.(string)
 
 		snapshotIdentity := &vpcv1.SnapshotIdentity{
 			CRN: &sourceSnapshot,
 		}
 		volTemplate.SourceSnapshot = snapshotIdentity
-		getSnapshotOptions := &vpcv1.GetSnapshotOptions{
-			ID: &sourceSnapshot,
-		}
-		snapshot, response, err := sess.GetSnapshot(getSnapshotOptions)
-		if err != nil {
-			return fmt.Errorf("[ERROR] Error fetching snapshot %s\n%s", err, response)
-		}
-		if (response != nil && response.StatusCode == 404) || snapshot == nil {
-			return fmt.Errorf("[ERROR] No snapshot found with id %s", sourceSnapshot)
-		}
-		minimumCapacity := *snapshot.MinimumCapacity
 		if capacity, ok := d.GetOk(isVolumeCapacity); ok {
-			if int64(capacity.(int)) > minimumCapacity {
-				volCapacity = int64(capacity.(int))
-			} else {
-				volCapacity = minimumCapacity
+			if int64(capacity.(int)) > 0 {
+				volCapacity := int64(capacity.(int))
+				volTemplate.Capacity = &volCapacity
 			}
+		}
+	} else if capacity, ok := d.GetOk(isVolumeCapacity); ok {
+		if int64(capacity.(int)) > 0 {
+			volCapacity := int64(capacity.(int))
 			volTemplate.Capacity = &volCapacity
 		}
 	} else {
-		if capacity, ok := d.GetOk(isVolumeCapacity); ok {
-			if int64(capacity.(int)) > 0 {
-				volCapacity = int64(capacity.(int))
-			}
-		} else {
-			volCapacity = 100
-		}
+		volCapacity := int64(100)
 		volTemplate.Capacity = &volCapacity
 	}
 
@@ -564,6 +534,11 @@ func volCreate(d *schema.ResourceData, meta interface{}, volName, profile, zone 
 		iops := int64(i.(int))
 		volTemplate.Iops = &iops
 	}
+	// bandwidth changes
+	if b, ok := d.GetOk("bandwidth"); ok {
+		bandwidth := int64(b.(int))
+		volTemplate.Bandwidth = &bandwidth
+	}
 
 	var userTags *schema.Set
 	if v, ok := d.GetOk(isVolumeTags); ok {
@@ -583,7 +558,7 @@ func volCreate(d *schema.ResourceData, meta interface{}, volName, profile, zone 
 			volTemplate.UserTags = userTagsArray
 		}
 	}
-
+	options.VolumePrototype = volTemplate
 	vol, response, err := sess.CreateVolume(options)
 	if err != nil {
 		return fmt.Errorf("[DEBUG] Create volume err %s\n%s", err, response)
@@ -821,25 +796,53 @@ func volUpdate(d *schema.ResourceData, meta interface{}, id, name string, hasNam
 	}
 	options.IfMatch = &eTag
 
-	//name update
+	// bandwidth update
+	hasBandwidthChanged := false
+	if d.HasChange("bandwidth") {
+		hasBandwidthChanged = true
+	}
+
+	//name || bandwidth update
 	volumeNamePatchModel := &vpcv1.VolumePatch{}
-	if hasNameChanged {
-		volumeNamePatchModel.Name = &name
-		volumeNamePatch, err := volumeNamePatchModel.AsPatch()
-		if err != nil {
-			return fmt.Errorf("[ERROR] Error calling asPatch for volumeNamePatch: %s", err)
+	if hasNameChanged || hasBandwidthChanged {
+		if hasNameChanged {
+			volumeNamePatchModel.Name = &name
+			volumeNamePatch, err := volumeNamePatchModel.AsPatch()
+			if err != nil {
+				return fmt.Errorf("[ERROR] Error calling asPatch for volumeNamePatch for name: %s", err)
+			}
+			options.VolumePatch = volumeNamePatch
+			_, response, err = sess.UpdateVolume(options)
+			if err != nil {
+				return err
+			}
+			_, err = isWaitForVolumeAvailable(sess, d.Id(), d.Timeout(schema.TimeoutCreate))
+			if err != nil {
+				return err
+			}
+			eTag = response.Headers.Get("ETag")
+			options.IfMatch = &eTag
 		}
-		options.VolumePatch = volumeNamePatch
-		_, response, err = sess.UpdateVolume(options)
-		if err != nil {
-			return err
+		if hasBandwidthChanged {
+			volumeNamePatchModel = &vpcv1.VolumePatch{}
+			bandwidth := int64(d.Get("bandwidth").(int))
+			volumeNamePatchModel.Bandwidth = &bandwidth
+			volumeNamePatch, err := volumeNamePatchModel.AsPatch()
+			if err != nil {
+				return fmt.Errorf("[ERROR] Error calling asPatch for volumeNamePatch for bandwidth: %s", err)
+			}
+			options.VolumePatch = volumeNamePatch
+			_, response, err = sess.UpdateVolume(options)
+			if err != nil {
+				return err
+			}
+			_, err = isWaitForVolumeAvailable(sess, d.Id(), d.Timeout(schema.TimeoutCreate))
+			if err != nil {
+				return err
+			}
+			eTag = response.Headers.Get("ETag")
+			options.IfMatch = &eTag
 		}
-		_, err = isWaitForVolumeAvailable(sess, d.Id(), d.Timeout(schema.TimeoutCreate))
-		if err != nil {
-			return err
-		}
-		eTag = response.Headers.Get("ETag")
-		options.IfMatch = &eTag
 	}
 
 	// profile/ iops update

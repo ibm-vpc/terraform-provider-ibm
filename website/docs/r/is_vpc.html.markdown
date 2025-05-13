@@ -74,7 +74,7 @@ resource "ibm_is_vpc" "example-system" {
 	name = "example-system-vpc"
 	dns {
 		enable_hub = false
-
+    type = "system"
     // uncommenting/patching vpc with below code would make the resolver type delegated
     # resolver {
 		# 	type = "delegated"
@@ -99,6 +99,21 @@ resource "ibm_is_vpc" "example-delegated" {
 	}
 }
 
+// to change from delegated to system (this removes the binding)
+
+resource "ibm_is_vpc" "example-delegated-to-system" {
+  // required : add a dependency on ibm dns custom resolver of the hub vpc
+	depends_on = [ ibm_dns_custom_resolver.example-hub ]
+	name = "example-hub-false-delegated"
+	dns {
+		enable_hub = false
+		resolver {
+			type = "system"
+			vpc_id = "null"
+			dns_binding_name = "null"
+		}
+	}
+}
 ```
 
 ## Timeouts
@@ -120,6 +135,9 @@ Review the argument references that you can specify for your resource.
   **&#x2022;** `access_tags` must be in the format `key:value`.
 - `address_prefix_management` - (Optional, Forces new resource, String) Indicates whether a default address prefix should be created automatically `auto` or manually `manual` for each zone in this VPC. Default value is `auto`.
 - `classic_access` - (Optional, Bool) Specify if you want to create a VPC that can connect to classic infrastructure resources. Enter **true** to set up private network connectivity from your VPC to classic infrastructure resources that are created in the same IBM Cloud account, and **false** to disable this access. If you choose to not set up this access, you cannot enable it after the VPC is created. Make sure to review the [prerequisites](https://cloud.ibm.com/docs/vpc-on-classic-network?topic=vpc-on-classic-setting-up-access-to-your-classic-infrastructure-from-vpc#vpc-prerequisites) before you create a VPC with classic infrastructure access. Note that you can enable one VPC for classic infrastructure access per IBM Cloud account only.
+
+  ~> **Note:** 
+    `classic_access` is deprecated. Use [Transit Gateway](https://cloud.ibm.com/docs/transit-gateway) with Classic as a spoke/connection.
 - `default_network_acl_name` - (Optional, String) Enter the name of the default network access control list (ACL).
 - `default_security_group_name` - (Optional, String) Enter the name of the default security group.
 - `default_routing_table_name` - (Optional, String) Enter the name of the default routing table.
@@ -132,7 +150,7 @@ Review the argument references that you can specify for your resource.
     Nested scheme for `resolver`:
 
       - `dns_binding_id` - (String) The VPC dns binding id whose DNS resolver provides the DNS server addresses for this VPC. (If any)
-      - `dns_binding_name` - (Optional, String) The VPC dns binding name whose DNS resolver provides the DNS server addresses for this VPC. Only applicable for `delegated`, providing value would create binding with this name.
+      - `dns_binding_name` - (Optional, String) The VPC dns binding name whose DNS resolver provides the DNS server addresses for this VPC. Only applicable for `delegated`, providing value would create binding with this name. Providing "null" as name, would remove the binding.
 
         ~> **Note:** 
           `manual_servers` must be set if and only if `dns.resolver.type` is manual.
@@ -183,6 +201,16 @@ In addition to all argument reference list, you can access the following attribu
 - `cse_source_addresses`- (List) A list of the cloud service endpoints that are associated with your VPC, including their source IP address and zone.
 	- `address` - (String) The IP address of the cloud service endpoint.
 	- `zone_name` - (String) The zone where the cloud service endpoint is located.
+- `default_address_prefixes` - (Map) A map of default address prefixes for each zone in the VPC. The keys are the zone names, and the values are the corresponding address prefixes.
+  Example:
+  ```hcl
+    default_address_prefixes    = {
+        "us-south-1" = "10.240.0.0/18"
+        "us-south-2" = "10.240.64.0/18"
+        "us-south-3" = "10.240.128.0/18"
+        "us-south-4" = "10.240.192.0/18"
+    }
+  ```
 - `default_security_group_crn` - (String) CRN of the default security group created and attached to the VPC. 
 - `default_security_group` - (String) The default security group ID created and attached to the VPC. 
 - `default_network_acl_crn`-  (String) CRN of the default network ACL ID created and attached to the VPC.

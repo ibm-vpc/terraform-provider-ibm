@@ -40,12 +40,25 @@ In addition to all argument reference list, you can access the following attribu
 - `access_tags`  - (List) Access management tags associated for the volume.
 - `available_ipv4_address_count`- (Integer) The number of IPv4 addresses in the subnet that are available for you to be used.
 - `classic_access`- (Bool) Indicates whether this VPC is connected to Classic Infrastructure.
+
+  ~> **Note:** 
+    `classic_access` is deprecated. Use [Transit Gateway](https://cloud.ibm.com/docs/transit-gateway) with Classic as a spoke/connection.
 - `crn` - (String) The CRN of the VPC.
 - `cse_source_addresses`-List of Cloud Service Endpoints-A list of the cloud service endpoints that are associated with your VPC, including their source IP address and zone.
 
   Nested scheme for `cse_source_addresses`:
 	- `address` - (String) The IP address of the cloud service endpoint.
 	- `zone_name` - (String) The zone where the cloud service endpoint is located.
+- `default_address_prefixes` - (Map) A map of default address prefixes for each zone in the VPC. The keys are the zone names, and the values are the corresponding address prefixes.
+  Example:
+  ```hcl
+    default_address_prefixes    = {
+        "us-south-1" = "10.240.0.0/18"
+        "us-south-2" = "10.240.64.0/18"
+        "us-south-3" = "10.240.128.0/18"
+        "us-south-4" = "10.240.192.0/18"
+    }
+  ```
 - `default_network_acl` - (String) The ID of the default network ACL.
 - `default_network_acl_crn` - (String)  The CRN of the default network ACL.
 - `default_network_acl_name` - (String)  The name of the default network ACL.

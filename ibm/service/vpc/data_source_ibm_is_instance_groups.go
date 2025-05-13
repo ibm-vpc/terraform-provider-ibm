@@ -376,6 +376,14 @@ func DataSourceIBMIsInstanceGroupsID(d *schema.ResourceData) string {
 	return time.Now().UTC().String()
 }
 
+func DataSourceIBMIsInstanceGroupsInstanceGroupCollectionFirstToMap(model *vpcv1.PageLink) (map[string]interface{}, error) {
+	modelMap := make(map[string]interface{})
+	if model.Href != nil {
+		modelMap["href"] = *model.Href
+	}
+	return modelMap, nil
+}
+
 func DataSourceIBMIsInstanceGroupsInstanceGroupToMap(model *vpcv1.InstanceGroup, meta interface{}) (map[string]interface{}, error) {
 	modelMap := make(map[string]interface{})
 	if model.ApplicationPort != nil {

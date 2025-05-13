@@ -17,6 +17,7 @@ import (
 	"strings"
 
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
+	"github.com/IBM/go-sdk-core/v5/core"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
 	"github.com/ScaleFT/sshkeys"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -61,6 +62,84 @@ func DataSourceIBMISInstance() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "Instance name",
+			},
+			// cluster changes
+			"cluster_network": &schema.Schema{
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "If present, the cluster network that this virtual server instance resides in.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"crn": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The CRN for this cluster network.",
+						},
+						"deleted": &schema.Schema{
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "If present, this property indicates the referenced resource has been deleted, and providessome supplementary information.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"more_info": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "Link to documentation about deleted resources.",
+									},
+								},
+							},
+						},
+						"href": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The URL for this cluster network.",
+						},
+						"id": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The unique identifier for this cluster network.",
+						},
+						"name": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The name for this cluster network. The name must not be used by another cluster network in the region.",
+						},
+						"resource_type": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The resource type.",
+						},
+					},
+				},
+			},
+			"cluster_network_attachments": &schema.Schema{
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "The cluster network attachments for this virtual server instance.The cluster network attachments are ordered for consistent instance configuration.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"href": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The URL for this instance cluster network attachment.",
+						},
+						"id": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The unique identifier for this instance cluster network attachment.",
+						},
+						"name": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The name for this instance cluster network attachment. The name is unique across all network attachments for the instance.",
+						},
+						"resource_type": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The resource type.",
+						},
+					},
+				},
 			},
 			"confidential_compute_mode": &schema.Schema{
 				Type:        schema.TypeString,
@@ -1085,6 +1164,35 @@ func DataSourceIBMISInstance() *schema.Resource {
 					},
 				},
 			},
+			"health_reasons": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "The reasons for the current health_state (if any).",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"code": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "A snake case string succinctly identifying the reason for this health state.",
+						},
+						"message": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "An explanation of the reason for this health state.",
+						},
+						"more_info": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "Link to documentation about the reason for this health state.",
+						},
+					},
+				},
+			},
+			"health_state": &schema.Schema{
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The health of this resource",
+			},
 			isInstanceReservation: {
 				Type:        schema.TypeList,
 				Computed:    true,
@@ -1238,6 +1346,32 @@ func instanceGetByName(d *schema.ResourceData, meta interface{}, name string) er
 	instance := allrecs[0]
 	d.SetId(*instance.ID)
 	id := *instance.ID
+
+	// cluster changes
+
+	clusterNetwork := []map[string]interface{}{}
+	if !core.IsNil(instance.ClusterNetwork) {
+		clusterNetworkMap, err := DataSourceIBMIsInstanceClusterNetworkReferenceToMap(instance.ClusterNetwork)
+		if err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_instance", "read", "cluster_network-to-map")
+		}
+		clusterNetwork = append(clusterNetwork, clusterNetworkMap)
+	}
+	if err = d.Set("cluster_network", clusterNetwork); err != nil {
+		return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting cluster_network: %s", err), "(Data) ibm_is_instance", "read", "set-cluster_network")
+	}
+
+	clusterNetworkAttachments := []map[string]interface{}{}
+	for _, clusterNetworkAttachmentsItem := range instance.ClusterNetworkAttachments {
+		clusterNetworkAttachmentsItemMap, err := DataSourceIBMIsInstanceInstanceClusterNetworkAttachmentReferenceToMap(&clusterNetworkAttachmentsItem) // #nosec G601
+		if err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_instance", "read", "cluster_network_attachments-to-map")
+		}
+		clusterNetworkAttachments = append(clusterNetworkAttachments, clusterNetworkAttachmentsItemMap)
+	}
+	if err = d.Set("cluster_network_attachments", clusterNetworkAttachments); err != nil {
+		return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting cluster_network_attachments: %s", err), "(Data) ibm_is_instance", "read", "set-cluster_network_attachments")
+	}
 
 	// catalog
 	if instance.CatalogOffering != nil {
@@ -1660,6 +1794,24 @@ func instanceGetByName(d *schema.ResourceData, meta interface{}, name string) er
 		d.Set(isInstanceResourceGroup, instance.ResourceGroup.ID)
 		d.Set(flex.ResourceGroupName, instance.ResourceGroup.Name)
 	}
+	if instance.HealthReasons != nil {
+		healthReasonsList := make([]map[string]interface{}, 0)
+		for _, sr := range instance.HealthReasons {
+			currentSR := map[string]interface{}{}
+			if sr.Code != nil && sr.Message != nil {
+				currentSR["code"] = *sr.Code
+				currentSR["message"] = *sr.Message
+				if sr.MoreInfo != nil {
+					currentSR["more_info"] = *sr.Message
+				}
+				healthReasonsList = append(healthReasonsList, currentSR)
+			}
+		}
+		d.Set("health_reasons", healthReasonsList)
+	}
+	if err = d.Set("health_state", instance.HealthState); err != nil {
+		return err
+	}
 	if instance.ReservationAffinity != nil {
 		reservationAffinity := []map[string]interface{}{}
 		reservationAffinityMap := map[string]interface{}{}
@@ -1677,7 +1829,7 @@ func instanceGetByName(d *schema.ResourceData, meta interface{}, name string) er
 				res[isReservationResourceType] = *pool.ResourceType
 				if pool.Deleted != nil {
 					deletedList := []map[string]interface{}{}
-					deletedMap := dataSourceInstanceReservationDeletedToMap(*pool.Deleted)
+					deletedMap := dataSourceReservationDeletedToMap(*pool.Deleted)
 					deletedList = append(deletedList, deletedMap)
 					res[isReservationDeleted] = deletedList
 				}
@@ -1699,7 +1851,7 @@ func instanceGetByName(d *schema.ResourceData, meta interface{}, name string) er
 		res[isReservationResourceType] = *instance.Reservation.ResourceType
 		if instance.Reservation.Deleted != nil {
 			deletedList := []map[string]interface{}{}
-			deletedMap := dataSourceInstanceReservationDeletedToMap(*instance.Reservation.Deleted)
+			deletedMap := dataSourceReservationDeletedToMap(*instance.Reservation.Deleted)
 			deletedList = append(deletedList, deletedMap)
 			res[isReservationDeleted] = deletedList
 		}
@@ -1710,7 +1862,7 @@ func instanceGetByName(d *schema.ResourceData, meta interface{}, name string) er
 
 }
 
-func dataSourceInstanceReservationDeletedToMap(deletedItem vpcv1.Deleted) (deletedMap map[string]interface{}) {
+func dataSourceReservationDeletedToMap(deletedItem vpcv1.Deleted) (deletedMap map[string]interface{}) {
 	deletedMap = map[string]interface{}{}
 
 	if deletedItem.MoreInfo != nil {
@@ -1887,5 +2039,35 @@ func dataSourceIBMIsInstanceSubnetReferenceDeletedToMap(model *vpcv1.Deleted) (m
 func dataSourceIBMIsInstanceReservedIPReferenceDeletedToMap(model *vpcv1.Deleted) (map[string]interface{}, error) {
 	modelMap := make(map[string]interface{})
 	modelMap["more_info"] = model.MoreInfo
+	return modelMap, nil
+}
+func DataSourceIBMIsInstanceClusterNetworkReferenceToMap(model *vpcv1.ClusterNetworkReference) (map[string]interface{}, error) {
+	modelMap := make(map[string]interface{})
+	modelMap["crn"] = *model.CRN
+	if model.Deleted != nil {
+		deletedMap, err := DataSourceIBMIsInstanceDeletedToMap(model.Deleted)
+		if err != nil {
+			return modelMap, err
+		}
+		modelMap["deleted"] = []map[string]interface{}{deletedMap}
+	}
+	modelMap["href"] = *model.Href
+	modelMap["id"] = *model.ID
+	modelMap["name"] = *model.Name
+	modelMap["resource_type"] = *model.ResourceType
+	return modelMap, nil
+}
+
+func DataSourceIBMIsInstanceInstanceClusterNetworkAttachmentReferenceToMap(model *vpcv1.InstanceClusterNetworkAttachmentReference) (map[string]interface{}, error) {
+	modelMap := make(map[string]interface{})
+	modelMap["href"] = *model.Href
+	modelMap["id"] = *model.ID
+	modelMap["name"] = *model.Name
+	modelMap["resource_type"] = *model.ResourceType
+	return modelMap, nil
+}
+func DataSourceIBMIsInstanceDeletedToMap(model *vpcv1.Deleted) (map[string]interface{}, error) {
+	modelMap := make(map[string]interface{})
+	modelMap["more_info"] = *model.MoreInfo
 	return modelMap, nil
 }

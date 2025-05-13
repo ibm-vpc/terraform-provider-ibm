@@ -180,6 +180,42 @@ func dataSourceIBMIsVPNServerRoutesID(d *schema.ResourceData) string {
 	return time.Now().UTC().String()
 }
 
+func dataSourceVPNServerRouteCollectionFlattenFirst(result vpcv1.PageLink) (finalList []map[string]interface{}) {
+	finalList = []map[string]interface{}{}
+	finalMap := dataSourceVPNServerRouteCollectionFirstToMap(result)
+	finalList = append(finalList, finalMap)
+
+	return finalList
+}
+
+func dataSourceVPNServerRouteCollectionFirstToMap(firstItem vpcv1.PageLink) (firstMap map[string]interface{}) {
+	firstMap = map[string]interface{}{}
+
+	if firstItem.Href != nil {
+		firstMap["href"] = firstItem.Href
+	}
+
+	return firstMap
+}
+
+func dataSourceVPNServerRouteCollectionFlattenNext(result vpcv1.PageLink) (finalList []map[string]interface{}) {
+	finalList = []map[string]interface{}{}
+	finalMap := dataSourceVPNServerRouteCollectionNextToMap(result)
+	finalList = append(finalList, finalMap)
+
+	return finalList
+}
+
+func dataSourceVPNServerRouteCollectionNextToMap(nextItem vpcv1.PageLink) (nextMap map[string]interface{}) {
+	nextMap = map[string]interface{}{}
+
+	if nextItem.Href != nil {
+		nextMap["href"] = nextItem.Href
+	}
+
+	return nextMap
+}
+
 func dataSourceVPNServerRouteCollectionFlattenRoutes(result []vpcv1.VPNServerRoute) (routes []map[string]interface{}) {
 	for _, routesItem := range result {
 		routes = append(routes, dataSourceVPNServerRouteCollectionRoutesToMap(routesItem))

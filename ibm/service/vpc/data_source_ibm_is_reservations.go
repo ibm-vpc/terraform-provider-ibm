@@ -235,7 +235,9 @@ func DataSourceIBMIsReservations() *schema.Resource {
 func dataSourceIBMIsReservationsRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	sess, err := vpcClient(meta)
 	if err != nil {
-		return diag.FromErr(err)
+		tfErr := flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_reservations", "read", "initialize-client")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	zoneName := d.Get("zone_name").(string)
@@ -263,10 +265,11 @@ func dataSourceIBMIsReservationsRead(context context.Context, d *schema.Resource
 		if resourceGroupId != "" {
 			listReservationsOptions.SetResourceGroupID(resourceGroupId)
 		}
-		reservationCollection, response, err := sess.ListReservationsWithContext(context, listReservationsOptions)
+		reservationCollection, _, err := sess.ListReservationsWithContext(context, listReservationsOptions)
 		if err != nil {
-			log.Printf("[DEBUG] ListReservationsWithContext failed %s\n%s", err, response)
-			return diag.FromErr(fmt.Errorf("[ERROR] ListReservationsWithContext failed %s\n%s", err, response))
+			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("ListReservationsWithContext failed %s", err), "(Data) ibm_is_reservations", "read")
+			log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+			return tfErr.GetDiag()
 		}
 		if reservationCollection != nil && *reservationCollection.TotalCount == int64(0) {
 			break
@@ -283,7 +286,7 @@ func dataSourceIBMIsReservationsRead(context context.Context, d *schema.Resource
 	if reservations != nil {
 		err = d.Set("reservations", dataSourceReservationCollectionFlattenReservations(reservations))
 		if err != nil {
-			return diag.FromErr(fmt.Errorf("[ERROR] Error setting reservations %s", err))
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting reservations %s", err), "(Data) ibm_is_reservations", "read", "reservations-set").GetDiag()
 		}
 	}
 
@@ -341,7 +344,7 @@ func dataSourceReservationCollectionReservationsToMap(reservationsItem vpcv1.Res
 	if reservationsItem.Profile != nil {
 		profileList := []map[string]interface{}{}
 		profile := reservationsItem.Profile
-		profileMap := dataSourceReservationCollectionReservationsProfileToMap(*profile)
+		profileMap := dataSourceReservationCollectionReservationsProfileToMap(profile)
 		profileList = append(profileList, profileMap)
 		reservationsMap["profile"] = profileList
 	}
@@ -370,17 +373,23 @@ func dataSourceReservationCollectionReservationsToMap(reservationsItem vpcv1.Res
 	return reservationsMap
 }
 
-func dataSourceReservationCollectionReservationsProfileToMap(profileItem vpcv1.ReservationProfile) (profileMap map[string]interface{}) {
-	profileMap = map[string]interface{}{}
-
-	if profileItem.Href != nil {
-		profileMap["href"] = profileItem.Href
+func dataSourceReservationCollectionReservationsProfileToMap(profileItem vpcv1.ReservationProfileIntf) (profileMap map[string]interface{}) {
+	if profileItem == nil {
+		return
 	}
-	if profileItem.Name != nil {
-		profileMap["name"] = profileItem.Name
+	var profile *vpcv1.ReservationProfile
+	if profile = profileItem.(*vpcv1.ReservationProfile); profile == nil {
+		return
 	}
-	if profileItem.ResourceType != nil {
-		profileMap["resource_type"] = profileItem.ResourceType
+	profileMap = make(map[string]interface{})
+	if profile.Href != nil {
+		profileMap["href"] = profile.Href
+	}
+	if profile.Name != nil {
+		profileMap["name"] = profile.Name
+	}
+	if profile.ResourceType != nil {
+		profileMap["resource_type"] = profile.ResourceType
 	}
 	return profileMap
 }

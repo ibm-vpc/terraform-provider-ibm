@@ -83,9 +83,9 @@ resource "ibm_pag_instance" "pag" {
     }
   )
   timeouts {
-    create = "15m"
-    update = "15m"
-    delete = "15m"
+    create = "1h"
+    update = "1h"
+    delete = "1h"
   }
 }
 
@@ -137,15 +137,15 @@ output "pag-hosts" {
 
 The `ibm_resource_instance` resource provides the following [Timeouts](https://www.terraform.io/docs/language/resources/syntax.html) configuration options:
 
-- **create** - (Default 15 minutes) Used for Creating Instance.
-- **update** - (Default 15 minutes) Used for Updating Instance.
-- **delete** - (Default 15 minutes) Used for Deleting Instance.
+- **create** - (Default 1 hour) Used for Creating Instance.
+- **update** - (Default 1 hour) Used for Updating Instance.
+- **delete** - (Default 1 hour) Used for Deleting Instance.
 
 ## Argument reference
 Review the argument references that you can specify for your resource. 
 
-- `location` - (Required, String) Target location or environment to create the PAG instance.
-- `parameters_json` - (Required, String) Parameters to create PAG instance. The value must be a JSON string.
+- `location` - (Required, Forces new resource, String) Target location or environment to create the PAG instance.
+- `parameters_json` - (Required, Forces new resource, String) Parameters to create PAG instance. The value must be a JSON string.
 
   Nested scheme for `parameters_json`:
   - `cosinstance` - (Required, String) COS instance CRN to use for PAG.
