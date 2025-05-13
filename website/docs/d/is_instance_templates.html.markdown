@@ -224,6 +224,6 @@ You can access the following attribute references after your data source is crea
 		  - `iops` - (String) The maximum input/output operations per second (IOPS) for the volume.
 		  - `profile` - (String) The global unique name for the volume profile to use for the volume.
 		  - `tags` - (String) User Tags associated with the volume. (https://cloud.ibm.com/apidocs/tagging#types-of-tags)
-	- `vpc` - (String) The VPC ID that the instance templates needs to be created.
 	- `volume_bandwidth_qos_mode` - (String) The volume bandwidth QoS mode to use for this virtual server instance.
+	- `vpc` - (String) The VPC ID that the instance templates needs to be created.
 	- `zone` - (String) The name of the zone.
