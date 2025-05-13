@@ -214,6 +214,11 @@ func DataSourceIBMISInstanceTemplate() *schema.Resource {
 				Computed:    true,
 				Description: "The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes",
 			},
+			isInstanceVolumeBandwidthQoSMode: {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The volume bandwidth QoS mode for this virtual server instance.",
+			},
 			isInstanceDefaultTrustedProfileAutoLink: {
 				Type:        schema.TypeBool,
 				Computed:    true,
@@ -988,12 +993,12 @@ func dataSourceIBMISInstanceTemplateRead(context context.Context, d *schema.Reso
 			}
 			if instance.DefaultTrustedProfile.Target != nil {
 				switch reflect.TypeOf(instance.DefaultTrustedProfile.Target).String() {
-				case "*vpcv1.TrustedProfileIdentityTrustedProfileByID":
+				case "*vpcv1.TrustedProfileIdentityByID":
 					{
 						target := instance.DefaultTrustedProfile.Target.(*vpcv1.TrustedProfileIdentityByID)
 						d.Set(isInstanceDefaultTrustedProfileTarget, target.ID)
 					}
-				case "*vpcv1.TrustedProfileIdentityTrustedProfileByCRN":
+				case "*vpcv1.TrustedProfileIdentityByCRN":
 					{
 						target := instance.DefaultTrustedProfile.Target.(*vpcv1.TrustedProfileIdentityByCRN)
 						d.Set(isInstanceDefaultTrustedProfileTarget, target.CRN)
@@ -1107,6 +1112,9 @@ func dataSourceIBMISInstanceTemplateRead(context context.Context, d *schema.Reso
 
 		if instance.TotalVolumeBandwidth != nil {
 			d.Set(isInstanceTotalVolumeBandwidth, int(*instance.TotalVolumeBandwidth))
+		}
+		if instance.VolumeBandwidthQosMode != nil {
+			d.Set(isInstanceVolumeBandwidthQoSMode, string(*instance.VolumeBandwidthQosMode))
 		}
 
 		if instance.PrimaryNetworkInterface != nil {
@@ -1407,12 +1415,12 @@ func dataSourceIBMISInstanceTemplateRead(context context.Context, d *schema.Reso
 					}
 					if instance.DefaultTrustedProfile.Target != nil {
 						switch reflect.TypeOf(instance.DefaultTrustedProfile.Target).String() {
-						case "*vpcv1.TrustedProfileIdentityTrustedProfileByID":
+						case "*vpcv1.TrustedProfileIdentityByID":
 							{
 								target := instance.DefaultTrustedProfile.Target.(*vpcv1.TrustedProfileIdentityByID)
 								d.Set(isInstanceDefaultTrustedProfileTarget, target.ID)
 							}
-						case "*vpcv1.TrustedProfileIdentityTrustedProfileByCRN":
+						case "*vpcv1.TrustedProfileIdentityByCRN":
 							{
 								target := instance.DefaultTrustedProfile.Target.(*vpcv1.TrustedProfileIdentityByCRN)
 								d.Set(isInstanceDefaultTrustedProfileTarget, target.CRN)
@@ -1561,7 +1569,9 @@ func dataSourceIBMISInstanceTemplateRead(context context.Context, d *schema.Reso
 				if instance.TotalVolumeBandwidth != nil {
 					d.Set(isInstanceTotalVolumeBandwidth, int(*instance.TotalVolumeBandwidth))
 				}
-
+				if instance.VolumeBandwidthQosMode != nil {
+					d.Set(isInstanceVolumeBandwidthQoSMode, string(*instance.VolumeBandwidthQosMode))
+				}
 				if instance.Image != nil {
 					imageInf := instance.Image
 					imageIdentity := imageInf.(*vpcv1.ImageIdentity)
