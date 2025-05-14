@@ -41,6 +41,7 @@ func ResourceIBMIsBareMetalServerInitialization() *schema.Resource {
 				Type:     schema.TypeList,
 				Optional: true,
 				Computed: true,
+				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"auto_link": {
@@ -53,20 +54,23 @@ func ResourceIBMIsBareMetalServerInitialization() *schema.Resource {
 							Type:        schema.TypeList,
 							Optional:    true,
 							Computed:    true,
+							MaxItems:    1,
 							Description: "The default IAM trusted profile to use for this bare metal server",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"id": {
-										Type:        schema.TypeString,
-										Optional:    true,
-										Computed:    true,
-										Description: "The unique identifier for this trusted profile",
+										Type:          schema.TypeString,
+										Optional:      true,
+										Computed:      true,
+										Description:   "The unique identifier for this trusted profile",
+										ConflictsWith: []string{"default_trusted_profile.0.target.0.crn"},
 									},
 									"crn": {
-										Type:        schema.TypeString,
-										Optional:    true,
-										Computed:    true,
-										Description: "The CRN for this trusted profile",
+										Type:          schema.TypeString,
+										Optional:      true,
+										Computed:      true,
+										Description:   "The CRN for this trusted profile",
+										ConflictsWith: []string{"default_trusted_profile.0.target.0.id"},
 									},
 								},
 							},
