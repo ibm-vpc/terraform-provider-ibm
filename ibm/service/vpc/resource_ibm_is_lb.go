@@ -5,13 +5,17 @@ package vpc
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"os"
+	"reflect"
+	"sort"
 	"time"
 
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/validate"
+	"github.com/IBM/go-sdk-core/v5/core"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -81,6 +85,12 @@ func ResourceIBMISLB() *schema.Resource {
 				func(_ context.Context, diff *schema.ResourceDiff, v interface{}) error {
 					return flex.ResourceValidateAccessTags(diff, v)
 				}),
+			customdiff.ForceNewIfChange("pools", func(_ context.Context, old, new, meta interface{}) bool {
+				return len(old.([]interface{})) != len(new.([]interface{}))
+			}),
+			customdiff.ComputedIf("pools", func(_ context.Context, diff *schema.ResourceDiff, meta interface{}) bool {
+				return diff.HasChange("pools")
+			}),
 		),
 
 		Schema: map[string]*schema.Schema{
@@ -153,6 +163,143 @@ func ResourceIBMISLB() *schema.Resource {
 				Type:        schema.TypeBool,
 				Computed:    true,
 				Description: "Indicates whether this load balancer supports source IP session persistence.",
+			},
+
+			// pools support
+
+			"pools": &schema.Schema{
+				Type:             schema.TypeList,
+				Optional:         true,
+				Description:      "The pools of this load balancer.",
+				DiffSuppressFunc: DiffSuppressPools,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"algorithm": {
+							Type:         schema.TypeString,
+							Required:     true,
+							Description:  "The load balancing algorithm.",
+							ValidateFunc: validate.ValidateAllowedStringValues([]string{"round_robin", "weighted_round_robin", "least_connections"}),
+						},
+						"health_monitor": {
+							Type:        schema.TypeList,
+							Required:    true,
+							MaxItems:    1,
+							Description: "The health monitor for this pool.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"port": {
+										Type:        schema.TypeInt,
+										Optional:    true,
+										Description: "The port used for health checks.",
+									},
+									"type": {
+										Type:         schema.TypeString,
+										Required:     true,
+										Description:  "The protocol type for health checks.",
+										ValidateFunc: validate.ValidateAllowedStringValues([]string{"http", "https", "tcp"}),
+									},
+									"url_path": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: "The URL path for HTTP/HTTPS health checks.",
+									},
+									"delay": {
+										Type:        schema.TypeInt,
+										Optional:    true,
+										Description: "The seconds to wait between health checks.  Must be greater than `timeout`",
+									},
+									"timeout": {
+										Type:        schema.TypeInt,
+										Optional:    true,
+										Description: "The timeout for health checks.",
+									},
+									"max_retries": {
+										Type:        schema.TypeInt,
+										Optional:    true,
+										Description: "The maximum number of retries for health checks.",
+									},
+								},
+							},
+						},
+						"members": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: "The members of this pool.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"port": {
+										Type:        schema.TypeInt,
+										Required:    true,
+										Description: "The port the member will receive traffic on.",
+									},
+									"target": {
+										Type:        schema.TypeList,
+										Required:    true,
+										MaxItems:    1,
+										Description: "The target of this pool member.",
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"id": {
+													Type:        schema.TypeString,
+													Optional:    true,
+													Description: "The unique identifier for this virtual server instance.",
+												},
+												"address": {
+													Type:        schema.TypeString,
+													Optional:    true,
+													Description: "The IP address of the target.",
+												},
+											},
+										},
+									},
+									"weight": {
+										Type:        schema.TypeInt,
+										Optional:    true,
+										Description: "The weight of the server member.",
+									},
+								},
+							},
+						},
+						"name": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "The name for this load balancer pool.",
+						},
+						"protocol": {
+							Type:         schema.TypeString,
+							Required:     true,
+							Description:  "The protocol used for this pool.",
+							ValidateFunc: validate.ValidateAllowedStringValues([]string{"tcp", "http", "https", "udp"}),
+						},
+						"proxy_protocol": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Description:  "The PROXY protocol setting for this pool.",
+							ValidateFunc: validate.ValidateAllowedStringValues([]string{"v1", "v2", "disabled"}),
+						},
+						"session_persistence": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							MaxItems:    1,
+							Description: "The session persistence for this pool.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"cookie_name": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: "The session persistence cookie name. Names starting with `IBM` are not allowed. If specified, the session persistence type must be `app_cookie`.",
+									},
+									"type": {
+										Type:         schema.TypeString,
+										Required:     true,
+										Description:  "The type of session persistence.",
+										ValidateFunc: validate.ValidateAllowedStringValues([]string{"source_ip"}),
+									},
+								},
+							},
+						},
+					},
+				},
 			},
 			"dns": {
 				Type:        schema.TypeList,
@@ -530,6 +677,21 @@ func lbCreate(d *schema.ResourceData, meta interface{}, name, lbType, rg string,
 		options.Logging = loadBalancerLogging
 	}
 
+	// pools support
+
+	if _, ok := d.GetOk("pools"); ok {
+		var pools []vpcv1.LoadBalancerPoolPrototype
+		for _, v := range d.Get("pools").([]interface{}) {
+			value := v.(map[string]interface{})
+			poolsItem, err := ResourceIBMIsLbMapToLoadBalancerPoolPrototype(value)
+			if err != nil {
+				return fmt.Errorf(flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_lb", "create", "parse-pools").Error())
+			}
+			pools = append(pools, *poolsItem)
+		}
+		options.SetPools(pools)
+	}
+
 	lb, response, err := sess.CreateLoadBalancer(options)
 	if err != nil {
 		return fmt.Errorf("[ERROR] Error while creating Load Balancer err %s\n%s", err, response)
@@ -767,6 +929,112 @@ func resourceIBMISLBUpdate(d *schema.ResourceData, meta interface{}) error {
 		remove = flex.ExpandStringList(oSecurityGroups.Difference(nSecurityGroups).List())
 		add = flex.ExpandStringList(nSecurityGroups.Difference(oSecurityGroups).List())
 		hasChangedSecurityGroups = true
+	}
+
+	// pools update
+	if d.HasChange("pools") {
+		sess, err := vpcClient(meta)
+		if err != nil {
+			return err
+		}
+		oldPools, newPools := d.GetChange("pools")
+		oldPoolList := oldPools.([]interface{})
+		newPoolList := newPools.([]interface{})
+
+		// Create maps for easy lookup
+		oldPoolMap := make(map[string]map[string]interface{})
+		newPoolMap := make(map[string]map[string]interface{})
+
+		for _, pool := range oldPoolList {
+			poolMap := pool.(map[string]interface{})
+			name := poolMap["name"].(string)
+			oldPoolMap[name] = poolMap
+		}
+
+		for _, pool := range newPoolList {
+			poolMap := pool.(map[string]interface{})
+			name := poolMap["name"].(string)
+			newPoolMap[name] = poolMap
+		}
+
+		// Update existing pools
+		for name, newPool := range newPoolMap {
+			if oldPool, exists := oldPoolMap[name]; exists {
+				// Check if the pool has changed
+				if !reflect.DeepEqual(oldPool, newPool) {
+					// Update the pool
+					poolID := oldPool["id"].(string)
+					updatePoolOptions := &vpcv1.UpdateLoadBalancerPoolOptions{
+						LoadBalancerID: &id,
+						ID:             &poolID,
+					}
+
+					// Map the new pool to the SDK's LoadBalancerPoolPatch
+					poolPatch, membersMap, err := ResourceIBMIsLbMapToLoadBalancerPoolPatch(newPool)
+					if err != nil {
+						return err
+					}
+					poolPatchAsPatch, _ := poolPatch.AsPatch()
+
+					updatePoolOptions.LoadBalancerPoolPatch = poolPatchAsPatch
+
+					_, response, err := sess.UpdateLoadBalancerPool(updatePoolOptions)
+					if err != nil {
+						return fmt.Errorf("[ERROR] Error updating pool %s: %s\n%s", name, err, response)
+					}
+
+					// Update pool members
+					if len(membersMap) > 0 {
+						for memberID, member := range membersMap {
+							updateLoadBalancerPoolMemberOptions := &vpcv1.UpdateLoadBalancerPoolMemberOptions{
+								LoadBalancerID: &id,
+								PoolID:         &poolID,
+								ID:             &memberID,
+							}
+							memberAsPatch, _ := member.AsPatch()
+							updateLoadBalancerPoolMemberOptions.LoadBalancerPoolMemberPatch = memberAsPatch
+							_, response, err := sess.UpdateLoadBalancerPoolMember(updateLoadBalancerPoolMemberOptions)
+							if err != nil {
+								return fmt.Errorf("[ERROR] Error updating pool member %s: %s\n%s", memberID, err, response)
+							}
+						}
+					}
+				}
+			}
+		}
+
+		// Add new pools
+		for name, newPool := range newPoolMap {
+			if _, exists := oldPoolMap[name]; !exists {
+				// Create the new pool
+				poolPrototype, err := ResourceIBMIsLbMapToLoadBalancerPoolOptions(newPool)
+				if err != nil {
+					return err
+				}
+				poolPrototype.LoadBalancerID = &id
+				_, response, err := sess.CreateLoadBalancerPool(poolPrototype)
+				if err != nil {
+					return fmt.Errorf("[ERROR] Error creating pool %s: %s\n%s", name, err, response)
+				}
+			}
+		}
+
+		// Delete pools that are no longer present
+		for name, oldPool := range oldPoolMap {
+			if _, exists := newPoolMap[name]; !exists {
+				// Delete the pool
+				poolID := oldPool["id"].(string)
+				deletePoolOptions := &vpcv1.DeleteLoadBalancerPoolOptions{
+					LoadBalancerID: &id,
+					ID:             &poolID,
+				}
+
+				response, err := sess.DeleteLoadBalancerPool(deletePoolOptions)
+				if err != nil {
+					return fmt.Errorf("[ERROR] Error deleting pool %s: %s\n%s", name, err, response)
+				}
+			}
+		}
 	}
 
 	err := lbUpdate(d, meta, id, name, hasChanged, isLogging, hasChangedLog, hasChangedSecurityGroups, remove, add)
@@ -1109,4 +1377,334 @@ func isLBRefreshFunc(sess *vpcv1.VpcV1, lbId string) resource.StateRefreshFunc {
 
 		return lb, isLBProvisioning, nil
 	}
+}
+
+// pools helper function
+func ResourceIBMIsLbMapToLoadBalancerPoolOptions(poolMap map[string]interface{}) (*vpcv1.CreateLoadBalancerPoolOptions, error) {
+	pool := &vpcv1.CreateLoadBalancerPoolOptions{}
+
+	if algorithm, ok := poolMap["algorithm"].(string); ok {
+		pool.Algorithm = &algorithm
+	}
+
+	if healthMonitorList, ok := poolMap["health_monitor"].([]interface{}); ok && len(healthMonitorList) > 0 {
+		healthMonitorMap := healthMonitorList[0].(map[string]interface{})
+		healthMonitor := &vpcv1.LoadBalancerPoolHealthMonitorPrototype{}
+
+		if port, ok := healthMonitorMap["port"].(int); ok {
+			healthMonitor.Port = core.Int64Ptr(int64(port))
+		}
+
+		if type_, ok := healthMonitorMap["type"].(string); ok {
+			healthMonitor.Type = &type_
+		}
+
+		if urlPath, ok := healthMonitorMap["url_path"].(string); ok {
+			healthMonitor.URLPath = &urlPath
+		}
+
+		if delay, ok := healthMonitorMap["delay"].(int); ok {
+			healthMonitor.Delay = core.Int64Ptr(int64(delay))
+		}
+
+		if timeout, ok := healthMonitorMap["timeout"].(int); ok {
+			healthMonitor.Timeout = core.Int64Ptr(int64(timeout))
+		}
+
+		if maxRetries, ok := healthMonitorMap["max_retries"].(int); ok {
+			healthMonitor.MaxRetries = core.Int64Ptr(int64(maxRetries))
+		}
+
+		pool.HealthMonitor = healthMonitor
+	}
+
+	if membersList, ok := poolMap["members"].([]interface{}); ok {
+		members := make([]vpcv1.LoadBalancerPoolMemberPrototype, len(membersList))
+		for i, memberItem := range membersList {
+			memberMap := memberItem.(map[string]interface{})
+			member := vpcv1.LoadBalancerPoolMemberPrototype{}
+
+			if port, ok := memberMap["port"].(int); ok {
+				member.Port = core.Int64Ptr(int64(port))
+			}
+
+			if targetList, ok := memberMap["target"].([]interface{}); ok && len(targetList) > 0 {
+				targetMap := targetList[0].(map[string]interface{})
+				target := &vpcv1.LoadBalancerPoolMemberTargetPrototype{}
+
+				if id, ok := targetMap["id"].(string); ok {
+					target.ID = &id
+				}
+
+				if address, ok := targetMap["address"].(string); ok {
+					target.Address = &address
+				}
+
+				member.Target = target
+			}
+
+			if weight, ok := memberMap["weight"].(int); ok {
+				member.Weight = core.Int64Ptr(int64(weight))
+			}
+
+			members[i] = member
+		}
+		pool.Members = members
+	}
+
+	if name, ok := poolMap["name"].(string); ok {
+		pool.Name = &name
+	}
+
+	if protocol, ok := poolMap["protocol"].(string); ok {
+		pool.Protocol = &protocol
+	}
+
+	if proxyProtocol, ok := poolMap["proxy_protocol"].(string); ok {
+		pool.ProxyProtocol = &proxyProtocol
+	}
+
+	if sessionPersistenceList, ok := poolMap["session_persistence"].([]interface{}); ok && len(sessionPersistenceList) > 0 {
+		sessionPersistenceMap := sessionPersistenceList[0].(map[string]interface{})
+		sessionPersistence := &vpcv1.LoadBalancerPoolSessionPersistencePrototype{}
+
+		if type_, ok := sessionPersistenceMap["type"].(string); ok {
+			sessionPersistence.Type = &type_
+		}
+
+		if cookieName, ok := sessionPersistenceMap["cookie_name"].(string); ok {
+			sessionPersistence.CookieName = &cookieName
+		}
+
+		pool.SessionPersistence = sessionPersistence
+	}
+
+	return pool, nil
+}
+func ResourceIBMIsLbMapToLoadBalancerPoolPrototype(poolMap map[string]interface{}) (*vpcv1.LoadBalancerPoolPrototype, error) {
+	pool := &vpcv1.LoadBalancerPoolPrototype{}
+
+	if algorithm, ok := poolMap["algorithm"].(string); ok {
+		pool.Algorithm = &algorithm
+	}
+
+	if healthMonitorList, ok := poolMap["health_monitor"].([]interface{}); ok && len(healthMonitorList) > 0 {
+		healthMonitorMap := healthMonitorList[0].(map[string]interface{})
+		healthMonitor := &vpcv1.LoadBalancerPoolHealthMonitorPrototype{}
+
+		if port, ok := healthMonitorMap["port"].(int); ok {
+			healthMonitor.Port = core.Int64Ptr(int64(port))
+		}
+
+		if type_, ok := healthMonitorMap["type"].(string); ok {
+			healthMonitor.Type = &type_
+		}
+
+		if urlPath, ok := healthMonitorMap["url_path"].(string); ok {
+			healthMonitor.URLPath = &urlPath
+		}
+
+		if interval, ok := healthMonitorMap["delay"].(int); ok {
+			healthMonitor.Delay = core.Int64Ptr(int64(interval))
+		}
+
+		if timeout, ok := healthMonitorMap["timeout"].(int); ok {
+			healthMonitor.Timeout = core.Int64Ptr(int64(timeout))
+		}
+
+		if maxRetries, ok := healthMonitorMap["max_retries"].(int); ok {
+			healthMonitor.MaxRetries = core.Int64Ptr(int64(maxRetries))
+		}
+
+		pool.HealthMonitor = healthMonitor
+	}
+
+	if membersList, ok := poolMap["members"].([]interface{}); ok {
+		members := make([]vpcv1.LoadBalancerPoolMemberPrototype, len(membersList))
+		for i, memberItem := range membersList {
+			memberMap := memberItem.(map[string]interface{})
+			member := vpcv1.LoadBalancerPoolMemberPrototype{}
+
+			if port, ok := memberMap["port"].(int); ok {
+				member.Port = core.Int64Ptr(int64(port))
+			}
+
+			if targetList, ok := memberMap["target"].([]interface{}); ok && len(targetList) > 0 {
+				targetMap := targetList[0].(map[string]interface{})
+				target := &vpcv1.LoadBalancerPoolMemberTargetPrototype{}
+
+				if id, ok := targetMap["id"].(string); ok {
+					target.ID = &id
+				}
+
+				if address, ok := targetMap["address"].(string); ok {
+					target.Address = &address
+				}
+
+				member.Target = target
+			}
+
+			if weight, ok := memberMap["weight"].(int); ok {
+				member.Weight = core.Int64Ptr(int64(weight))
+			}
+
+			members[i] = member
+		}
+		pool.Members = members
+	}
+
+	if name, ok := poolMap["name"].(string); ok {
+		pool.Name = &name
+	}
+
+	if protocol, ok := poolMap["protocol"].(string); ok {
+		pool.Protocol = &protocol
+	}
+
+	if proxyProtocol, ok := poolMap["proxy_protocol"].(string); ok {
+		pool.ProxyProtocol = &proxyProtocol
+	}
+
+	if sessionPersistenceList, ok := poolMap["session_persistence"].([]interface{}); ok && len(sessionPersistenceList) > 0 {
+		sessionPersistenceMap := sessionPersistenceList[0].(map[string]interface{})
+		sessionPersistence := &vpcv1.LoadBalancerPoolSessionPersistencePrototype{}
+
+		if type_, ok := sessionPersistenceMap["type"].(string); ok {
+			sessionPersistence.Type = &type_
+		}
+		if cookie_name_, ok := sessionPersistenceMap["cookie_name"].(string); ok {
+			sessionPersistence.CookieName = &cookie_name_
+		}
+
+		pool.SessionPersistence = sessionPersistence
+	}
+
+	return pool, nil
+}
+
+func DiffSuppressPools(k, old, new string, d *schema.ResourceData) bool {
+	// Parse the old and new values into lists of pools
+	oldPools := make([]map[string]interface{}, 0)
+	newPools := make([]map[string]interface{}, 0)
+
+	if old != "" {
+		if err := json.Unmarshal([]byte(old), &oldPools); err != nil {
+			log.Printf("[ERROR] Error unmarshalling old pools: %s", err)
+			return false
+		}
+	}
+
+	if new != "" {
+		if err := json.Unmarshal([]byte(new), &newPools); err != nil {
+			log.Printf("[ERROR] Error unmarshalling new pools: %s", err)
+			return false
+		}
+	}
+
+	// Sort the old and new pools by their name
+	sort.Slice(oldPools, func(i, j int) bool {
+		return oldPools[i]["name"].(string) < oldPools[j]["name"].(string)
+	})
+
+	sort.Slice(newPools, func(i, j int) bool {
+		return newPools[i]["name"].(string) < newPools[j]["name"].(string)
+	})
+
+	// Compare the sorted lists
+	return reflect.DeepEqual(oldPools, newPools)
+}
+
+func ResourceIBMIsLbMapToLoadBalancerPoolPatch(poolMap map[string]interface{}) (*vpcv1.LoadBalancerPoolPatch, map[string]vpcv1.LoadBalancerPoolMemberPatch, error) {
+	poolPatch := &vpcv1.LoadBalancerPoolPatch{}
+
+	if algorithm, ok := poolMap["algorithm"].(string); ok {
+		poolPatch.Algorithm = &algorithm
+	}
+
+	if healthMonitorList, ok := poolMap["health_monitor"].([]interface{}); ok && len(healthMonitorList) > 0 {
+		healthMonitorMap := healthMonitorList[0].(map[string]interface{})
+		healthMonitor := &vpcv1.LoadBalancerPoolHealthMonitorPatch{}
+
+		if port, ok := healthMonitorMap["port"].(int); ok {
+			healthMonitor.Port = core.Int64Ptr(int64(port))
+		}
+
+		if type_, ok := healthMonitorMap["type"].(string); ok {
+			healthMonitor.Type = &type_
+		}
+
+		if urlPath, ok := healthMonitorMap["url_path"].(string); ok {
+			healthMonitor.URLPath = &urlPath
+		}
+
+		if delay, ok := healthMonitorMap["delay"].(int); ok {
+			healthMonitor.Delay = core.Int64Ptr(int64(delay))
+		}
+
+		if timeout, ok := healthMonitorMap["timeout"].(int); ok {
+			healthMonitor.Timeout = core.Int64Ptr(int64(timeout))
+		}
+
+		if maxRetries, ok := healthMonitorMap["max_retries"].(int); ok {
+			healthMonitor.MaxRetries = core.Int64Ptr(int64(maxRetries))
+		}
+
+		poolPatch.HealthMonitor = healthMonitor
+	}
+
+	membersMap := make(map[string]vpcv1.LoadBalancerPoolMemberPatch)
+	if membersList, ok := poolMap["members"].([]interface{}); ok {
+		for _, memberItem := range membersList {
+			memberMap := memberItem.(map[string]interface{})
+			member := vpcv1.LoadBalancerPoolMemberPatch{}
+
+			if port, ok := memberMap["port"].(int); ok {
+				member.Port = core.Int64Ptr(int64(port))
+			}
+
+			if targetList, ok := memberMap["target"].([]interface{}); ok && len(targetList) > 0 {
+				targetMap := targetList[0].(map[string]interface{})
+				target := &vpcv1.LoadBalancerPoolMemberTargetPrototype{}
+
+				if id, ok := targetMap["id"].(string); ok {
+					target.ID = &id
+				}
+
+				if address, ok := targetMap["address"].(string); ok {
+					target.Address = &address
+				}
+
+				member.Target = target
+			}
+
+			if weight, ok := memberMap["weight"].(int); ok {
+				member.Weight = core.Int64Ptr(int64(weight))
+			}
+
+			if memberID, ok := memberMap["id"].(string); ok {
+				membersMap[memberID] = member
+			}
+		}
+	}
+
+	if protocol, ok := poolMap["protocol"].(string); ok {
+		poolPatch.Protocol = &protocol
+	}
+
+	if proxyProtocol, ok := poolMap["proxy_protocol"].(string); ok {
+		poolPatch.ProxyProtocol = &proxyProtocol
+	}
+
+	if sessionPersistenceList, ok := poolMap["session_persistence"].([]interface{}); ok && len(sessionPersistenceList) > 0 {
+		sessionPersistenceMap := sessionPersistenceList[0].(map[string]interface{})
+		sessionPersistence := &vpcv1.LoadBalancerPoolSessionPersistencePatch{}
+
+		if type_, ok := sessionPersistenceMap["type"].(string); ok {
+			sessionPersistence.Type = &type_
+		}
+
+		poolPatch.SessionPersistence = sessionPersistence
+	}
+
+	return poolPatch, membersMap, nil
 }
