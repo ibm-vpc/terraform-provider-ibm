@@ -7,7 +7,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"reflect"
 
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/conns"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
@@ -49,7 +48,7 @@ func DataSourceIBMIsSecurityGroupRule() *schema.Resource {
 			"protocol": &schema.Schema{
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: "The protocol to enforce.",
+				Description: "The name of the network protocol.",
 			},
 			"remote": &schema.Schema{
 				Type:        schema.TypeList,
@@ -164,137 +163,81 @@ func dataSourceIBMIsSecurityGroupRuleRead(context context.Context, d *schema.Res
 		return diag.FromErr(fmt.Errorf("GetSecurityGroupRuleWithContext failed %s\n%s", err, response))
 	}
 
-	switch reflect.TypeOf(securityGroupRuleIntf).String() {
-	case "*vpcv1.SecurityGroupRuleSecurityGroupRuleProtocolAll":
+	switch rule := securityGroupRuleIntf.(type) {
+	case *vpcv1.SecurityGroupRuleProtocolAny:
 		{
-			securityGroupRule := securityGroupRuleIntf.(*vpcv1.SecurityGroupRuleSecurityGroupRuleProtocolAll)
-
-			d.SetId(*securityGroupRule.ID)
-			if err = d.Set("direction", securityGroupRule.Direction); err != nil {
-				return diag.FromErr(fmt.Errorf("Error setting direction: %s", err))
-			}
-			if err = d.Set("href", securityGroupRule.Href); err != nil {
-				return diag.FromErr(fmt.Errorf("Error setting href: %s", err))
-			}
-			if err = d.Set("ip_version", securityGroupRule.IPVersion); err != nil {
-				return diag.FromErr(fmt.Errorf("Error setting ip_version: %s", err))
-			}
-			if err = d.Set("protocol", securityGroupRule.Protocol); err != nil {
-				return diag.FromErr(fmt.Errorf("Error setting protocol: %s", err))
-			}
-			if securityGroupRule.Remote != nil {
-				securityGroupRuleRemote, err := dataSourceSecurityGroupRuleFlattenRemote(securityGroupRule.Remote)
-				if err != nil {
-					return diag.FromErr(fmt.Errorf("Error flattening securityGroupRule.Remote %s", err))
-				}
-				err = d.Set("remote", securityGroupRuleRemote)
-				if err != nil {
-					return diag.FromErr(fmt.Errorf("Error setting remote %s", err))
-				}
-			}
-			if securityGroupRule.Local != nil {
-				securityGroupRuleLocal, err := dataSourceSecurityGroupRuleFlattenLocal(securityGroupRule.Local)
-				if err != nil {
-					return diag.FromErr(fmt.Errorf("Error flattening securityGroupRule.Local %s", err))
-				}
-				err = d.Set("local", securityGroupRuleLocal)
-				if err != nil {
-					return diag.FromErr(fmt.Errorf("Error setting local %s", err))
-				}
-			}
-
+			setCommonSecurityGroupRuleFields(d, rule.ID, rule.Direction, rule.Href, rule.IPVersion, rule.Protocol, rule.Remote, rule.Local)
 		}
-	case "*vpcv1.SecurityGroupRuleSecurityGroupRuleProtocolIcmp":
+	case *vpcv1.SecurityGroupRuleSecurityGroupRuleProtocolIcmp:
 		{
-			securityGroupRule := securityGroupRuleIntf.(*vpcv1.SecurityGroupRuleSecurityGroupRuleProtocolIcmp)
+			setCommonSecurityGroupRuleFields(d, rule.ID, rule.Direction, rule.Href, rule.IPVersion, rule.Protocol, rule.Remote, rule.Local)
 
-			d.SetId(*securityGroupRule.ID)
-			if err = d.Set("direction", securityGroupRule.Direction); err != nil {
-				return diag.FromErr(fmt.Errorf("Error setting direction: %s", err))
-			}
-			if err = d.Set("href", securityGroupRule.Href); err != nil {
-				return diag.FromErr(fmt.Errorf("Error setting href: %s", err))
-			}
-			if err = d.Set("ip_version", securityGroupRule.IPVersion); err != nil {
-				return diag.FromErr(fmt.Errorf("Error setting ip_version: %s", err))
-			}
-			if err = d.Set("protocol", securityGroupRule.Protocol); err != nil {
-				return diag.FromErr(fmt.Errorf("Error setting protocol: %s", err))
-			}
-			if securityGroupRule.Remote != nil {
-				securityGroupRuleRemote, err := dataSourceSecurityGroupRuleFlattenRemote(securityGroupRule.Remote)
-				if err != nil {
-					return diag.FromErr(fmt.Errorf("Error flattening securityGroupRule.Remote %s", err))
-				}
-				err = d.Set("remote", securityGroupRuleRemote)
-				if err != nil {
-					return diag.FromErr(fmt.Errorf("Error setting remote %s", err))
-				}
-			}
-			if securityGroupRule.Local != nil {
-				securityGroupRuleLocal, err := dataSourceSecurityGroupRuleFlattenLocal(securityGroupRule.Local)
-				if err != nil {
-					return diag.FromErr(fmt.Errorf("Error flattening securityGroupRule.Local %s", err))
-				}
-				err = d.Set("local", securityGroupRuleLocal)
-				if err != nil {
-					return diag.FromErr(fmt.Errorf("Error setting local %s", err))
-				}
-			}
-
-			if err = d.Set("code", flex.IntValue(securityGroupRule.Code)); err != nil {
+			if err = d.Set("code", flex.IntValue(rule.Code)); err != nil {
 				return diag.FromErr(fmt.Errorf("Error setting code: %s", err))
 			}
-			if err = d.Set("type", flex.IntValue(securityGroupRule.Type)); err != nil {
+			if err = d.Set("type", flex.IntValue(rule.Type)); err != nil {
 				return diag.FromErr(fmt.Errorf("Error setting type: %s", err))
 			}
 		}
-	case "*vpcv1.SecurityGroupRuleSecurityGroupRuleProtocolTcpudp":
+	case *vpcv1.SecurityGroupRuleSecurityGroupRuleProtocolTcpudp:
 		{
-			securityGroupRule := securityGroupRuleIntf.(*vpcv1.SecurityGroupRuleSecurityGroupRuleProtocolTcpudp)
+			setCommonSecurityGroupRuleFields(d, rule.ID, rule.Direction, rule.Href, rule.IPVersion, rule.Protocol, rule.Remote, rule.Local)
 
-			d.SetId(*securityGroupRule.ID)
-			if err = d.Set("direction", securityGroupRule.Direction); err != nil {
-				return diag.FromErr(fmt.Errorf("Error setting direction: %s", err))
-			}
-			if err = d.Set("href", securityGroupRule.Href); err != nil {
-				return diag.FromErr(fmt.Errorf("Error setting href: %s", err))
-			}
-			if err = d.Set("ip_version", securityGroupRule.IPVersion); err != nil {
-				return diag.FromErr(fmt.Errorf("Error setting ip_version: %s", err))
-			}
-			if err = d.Set("protocol", securityGroupRule.Protocol); err != nil {
-				return diag.FromErr(fmt.Errorf("Error setting protocol: %s", err))
-			}
-			if securityGroupRule.Remote != nil {
-				securityGroupRuleRemote, err := dataSourceSecurityGroupRuleFlattenRemote(securityGroupRule.Remote)
-				if err != nil {
-					return diag.FromErr(fmt.Errorf("Error flattening securityGroupRule.Remote %s", err))
-				}
-				err = d.Set("remote", securityGroupRuleRemote)
-				if err != nil {
-					return diag.FromErr(fmt.Errorf("Error setting remote %s", err))
-				}
-			}
-			if securityGroupRule.Local != nil {
-				securityGroupRuleLocal, err := dataSourceSecurityGroupRuleFlattenLocal(securityGroupRule.Local)
-				if err != nil {
-					return diag.FromErr(fmt.Errorf("Error flattening securityGroupRule.Local %s", err))
-				}
-				err = d.Set("local", securityGroupRuleLocal)
-				if err != nil {
-					return diag.FromErr(fmt.Errorf("Error setting local %s", err))
-				}
-			}
-			if err = d.Set("port_max", flex.IntValue(securityGroupRule.PortMax)); err != nil {
+			if err = d.Set("port_max", flex.IntValue(rule.PortMax)); err != nil {
 				return diag.FromErr(fmt.Errorf("Error setting port_max: %s", err))
 			}
-			if err = d.Set("port_min", flex.IntValue(securityGroupRule.PortMin)); err != nil {
+			if err = d.Set("port_min", flex.IntValue(rule.PortMin)); err != nil {
 				return diag.FromErr(fmt.Errorf("Error setting port_min: %s", err))
 			}
 		}
+	case *vpcv1.SecurityGroupRuleProtocolIndividual:
+		{
+			setCommonSecurityGroupRuleFields(d, rule.ID, rule.Direction, rule.Href, rule.IPVersion, rule.Protocol, rule.Remote, rule.Local)
+		}
+	case *vpcv1.SecurityGroupRuleProtocolIcmptcpudp:
+		{
+			setCommonSecurityGroupRuleFields(d, rule.ID, rule.Direction, rule.Href, rule.IPVersion, rule.Protocol, rule.Remote, rule.Local)
+		}
 	}
 
+	return nil
+}
+
+func setCommonSecurityGroupRuleFields(d *schema.ResourceData, ruleID, direction, href, ipVersion, protocol *string, remoteIntf vpcv1.SecurityGroupRuleRemoteIntf, localIntf vpcv1.SecurityGroupRuleLocalIntf) diag.Diagnostics {
+	d.SetId(*ruleID)
+	var err error
+	if err = d.Set("direction", direction); err != nil {
+		return diag.FromErr(fmt.Errorf("Error setting direction: %s", err))
+	}
+	if err = d.Set("href", href); err != nil {
+		return diag.FromErr(fmt.Errorf("Error setting href: %s", err))
+	}
+	if err = d.Set("ip_version", ipVersion); err != nil {
+		return diag.FromErr(fmt.Errorf("Error setting ip_version: %s", err))
+	}
+	if err = d.Set("protocol", protocol); err != nil {
+		return diag.FromErr(fmt.Errorf("Error setting protocol: %s", err))
+	}
+	if remoteIntf != nil {
+		securityGroupRuleRemote, err := dataSourceSecurityGroupRuleFlattenRemote(remoteIntf)
+		if err != nil {
+			return diag.FromErr(fmt.Errorf("Error flattening securityGroupRule.Remote %s", err))
+		}
+		err = d.Set("remote", securityGroupRuleRemote)
+		if err != nil {
+			return diag.FromErr(fmt.Errorf("Error setting remote %s", err))
+		}
+	}
+	if localIntf != nil {
+		securityGroupRuleLocal, err := dataSourceSecurityGroupRuleFlattenLocal(localIntf)
+		if err != nil {
+			return diag.FromErr(fmt.Errorf("Error flattening securityGroupRule.Local %s", err))
+		}
+		err = d.Set("local", securityGroupRuleLocal)
+		if err != nil {
+			return diag.FromErr(fmt.Errorf("Error setting local %s", err))
+		}
+	}
 	return nil
 }
 

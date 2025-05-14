@@ -22,7 +22,7 @@ provider "ibm" {
 ```
 
 ## Example usage
-In the following example, you create a different type of protocol rules `ALL`, `ICMP`, `UDP`, `TCP` and `ANY`.
+In the following example, you create a different type of protocol rules.
 
 ```terraform
 resource "ibm_is_vpc" "example" {
@@ -70,7 +70,14 @@ resource "ibm_is_security_group_rule" "example3" {
   }
 }
 
-resource "ibm_is_security_group_rule" "example_security_group_rule_icmp_any" {
+resource "ibm_is_security_group_rule" "example4" {
+  group      = ibm_is_security_group.example_security_group.id
+  direction  = "inbound"
+  remote     = "127.0.0.1"
+  protocol   = "any
+}
+
+resource "ibm_is_security_group_rule" "example_security_group_rule_icmp" {
   group      = ibm_is_security_group.example_security_group.id
   direction  = "inbound"
   remote     = "127.0.0.1"
@@ -78,7 +85,7 @@ resource "ibm_is_security_group_rule" "example_security_group_rule_icmp_any" {
   }
 }
 
-resource "ibm_is_security_group_rule" "example_security_group_rule_udp_any" {
+resource "ibm_is_security_group_rule" "example_security_group_rule_udp" {
   group      = ibm_is_security_group.example_security_group.id
   direction  = "inbound"
   remote     = "127.0.0.1"
@@ -86,13 +93,12 @@ resource "ibm_is_security_group_rule" "example_security_group_rule_udp_any" {
   }
 }
 
-resource "ibm_is_security_group_rule" "example_security_group_rule_tcp_any" {
+resource "ibm_is_security_group_rule" "example_security_group_rule_tcp" {
   group      = ibm_is_security_group.example_security_group.id
   direction  = "inbound"
   remote     = "127.0.0.1"
   tcp {
   }
-}
 
 ```
 
@@ -108,6 +114,7 @@ Review the argument references that you can specify for your resource.
   Nested scheme for `icmp`:
   - `type`- (Optional, Integer) The ICMP traffic type to allow. Valid values from 0 to 254. If unspecified, all codes are allowed.
   - `code` - (Optional, Integer) The ICMP traffic code to allow. Valid values from 0 to 255. If unspecified, all codes are allowed.
+- `protocol` - (Optional, String) The name of the network protocol.
 - `remote` - (Optional, String) Security group ID, an IP address, a CIDR block, or a single security group identifier.
 - `tcp` - (Optional, List) A nested block describes the `tcp` protocol of this security group rule.
 
@@ -120,7 +127,7 @@ Review the argument references that you can specify for your resource.
   - `port_min`- (Required, Integer) The UDP port range that includes minimum bound. Valid values are from 1 to 65535.
   - `port_max`- (Required, Integer) The UDP port range that includes maximum bound. Valid values are from 1 to 65535.
 
-~> **Note:** If any of the `icmp` , `tcp`, or `udp` is not specified it creates a rule with protocol `ALL`.
+~> **Note:** Note: If no `tcp`, `udp`, or `icmp` block is used, you must specify the `protocol`; otherwise, it creates a rule with protocol `icmp_tcp_udp`.
 
 ## Attribute reference
 In addition to all argument reference list, you can access the following attribute reference after your resource is created.

@@ -106,9 +106,19 @@ func testAccCheckIBMISSecurityGroupRuleExists(n, securityGroupRuleID string) res
 				sgr := foundSecurityGroupRule.(*vpcv1.SecurityGroupRuleSecurityGroupRuleProtocolIcmp)
 				securityGroupRuleID = *sgr.ID
 			}
-		case "*vpcv1.SecurityGroupRuleSecurityGroupRuleProtocolAll":
+		case "*vpcv1.SecurityGroupRuleProtocolAny":
 			{
-				sgr := foundSecurityGroupRule.(*vpcv1.SecurityGroupRuleSecurityGroupRuleProtocolAll)
+				sgr := foundSecurityGroupRule.(*vpcv1.SecurityGroupRuleProtocolAny)
+				securityGroupRuleID = *sgr.ID
+			}
+		case "*vpcv1.SecurityGroupRuleProtocolIcmptcpudp":
+			{
+				sgr := foundSecurityGroupRule.(*vpcv1.SecurityGroupRuleProtocolIcmptcpudp)
+				securityGroupRuleID = *sgr.ID
+			}
+		case "*vpcv1.SecurityGroupRuleProtocolIndividual":
+			{
+				sgr := foundSecurityGroupRule.(*vpcv1.SecurityGroupRuleProtocolIndividual)
 				securityGroupRuleID = *sgr.ID
 			}
 		case "*vpcv1.SecurityGroupRuleSecurityGroupRuleProtocolTcpudp":
@@ -207,6 +217,29 @@ func testAccCheckIBMISsecurityGroupRuleConfig(vpcname, name string) string {
 		local 	   = "192.168.3.4"
 		tcp {
 		}
+
+	  resource "ibm_is_security_group_rule" "testacc_security_group_rule_any" {
+		depends_on = [ibm_is_security_group_rule.testacc_security_group_rule_tcp]
+		group      = ibm_is_security_group.testacc_security_group.id
+		direction  = "inbound"
+		remote     = "127.0.0.1"
+		protocol   = "any"
+	  }
+	  resource "ibm_is_security_group_rule" "testacc_security_group_rule_icmp_tcp_udp" {
+		depends_on = [ibm_is_security_group_rule.testacc_security_group_rule_tcp]
+		group      = ibm_is_security_group.testacc_security_group.id
+		direction  = "inbound"
+		remote     = "127.0.0.1"
+		protocol   = "icmp_tcp_udp"
+	  }
+	  resource "ibm_is_security_group_rule" "testacc_security_group_rule_individual" {
+		depends_on = [ibm_is_security_group_rule.testacc_security_group_rule_tcp]
+		group      = ibm_is_security_group.testacc_security_group.id
+		direction  = "inbound"
+		remote     = "127.0.0.1"
+		protocol   = "number_99"
+	  }		
+
 	  }
  `, vpcname, name)
 

@@ -56,6 +56,35 @@ resource "ibm_is_network_acl" "example" {
 }
 ```
 
+## Example usage (any)
+
+```terraform
+resource "ibm_is_vpc" "example" {
+  name = "example-vpc"
+}
+
+resource "ibm_is_network_acl" "example" {
+  name = "example-acl"
+  vpc  = ibm_is_vpc.example.id
+  rules {
+    name        = "outbound"
+    action      = "allow"
+    source      = "0.0.0.0/0"
+    destination = "0.0.0.0/0"
+    direction   = "outbound"
+    protocol    = "any"
+  }
+  rules {
+    name        = "inbound"
+    action      = "allow"
+    source      = "0.0.0.0/0"
+    destination = "0.0.0.0/0"
+    direction   = "inbound"
+    protocol    = "any" 
+  }
+}
+```
+
 ## Argument reference
 Review the argument references that you can specify for your resource. 
  
@@ -81,6 +110,7 @@ Review the argument references that you can specify for your resource.
     Nested scheme for `icmp`:
     - `code` - (Optional, Integer) The ICMP traffic code to allow. Valid values from 0 to 255. If unspecified, all codes are allowed. This can only be specified if type is also specified.
     - `type` - (Optional, Integer) The ICMP traffic type to allow. Valid values from 0 to 254. If unspecified, all types are allowed by this rule.
+  - `protocol` - (Optional, String) The name of the network protocol.  
   - `tcp`- (Optional, List) The TCP protocol.
 
     Nested scheme for `tcp`:

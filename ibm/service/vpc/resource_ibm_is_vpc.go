@@ -863,7 +863,7 @@ func deleteDefaultNetworkACLRules(sess *vpcv1.VpcV1, vpcID string) error {
 
 	if result.Rules != nil {
 		for _, sourceRule := range result.Rules {
-			sourceRuleVal := sourceRule.(*vpcv1.NetworkACLRuleItemNetworkACLRuleProtocolAll)
+			sourceRuleVal := sourceRule.(*vpcv1.NetworkACLRuleItemNetworkACLRuleProtocolIcmptcpudp)
 			if sourceRuleVal.ID != nil {
 				getNetworkAclRuleOptions := &vpcv1.GetNetworkACLRuleOptions{
 					NetworkACLID: result.ID,
@@ -899,7 +899,7 @@ func deleteDefaultSecurityGroupRules(sess *vpcv1.VpcV1, vpcID string) error {
 
 	if result.Rules != nil {
 		for _, sourceRule := range result.Rules {
-			sourceRuleVal := sourceRule.(*vpcv1.SecurityGroupRuleSecurityGroupRuleProtocolAll)
+			sourceRuleVal := sourceRule.(*vpcv1.SecurityGroupRuleProtocolIcmptcpudp)
 			if sourceRuleVal.ID != nil {
 				getSecurityGroupRuleOptions := &vpcv1.GetSecurityGroupRuleOptions{
 					SecurityGroupID: result.ID,
@@ -1261,97 +1261,36 @@ func vpcGet(context context.Context, d *schema.ResourceData, meta interface{}, i
 
 			rules := make([]map[string]interface{}, 0)
 			for _, sgrule := range group.Rules {
-				switch reflect.TypeOf(sgrule).String() {
-				case "*vpcv1.SecurityGroupRuleSecurityGroupRuleProtocolIcmp":
-					{
-						rule := sgrule.(*vpcv1.SecurityGroupRuleSecurityGroupRuleProtocolIcmp)
-						r := make(map[string]interface{})
-						if rule.Code != nil {
-							r[isVPCSecurityGroupRuleCode] = int(*rule.Code)
-						}
-						if rule.Type != nil {
-							r[isVPCSecurityGroupRuleType] = int(*rule.Type)
-						}
-						r[isVPCSecurityGroupRuleDirection] = *rule.Direction
-						r[isVPCSecurityGroupRuleIPVersion] = *rule.IPVersion
-						if rule.Protocol != nil {
-							r[isVPCSecurityGroupRuleProtocol] = *rule.Protocol
-						}
-						r[isVPCSecurityGroupRuleID] = *rule.ID
-						remote, ok := rule.Remote.(*vpcv1.SecurityGroupRuleRemote)
-						if ok {
-							if remote != nil && reflect.ValueOf(remote).IsNil() == false {
-								if remote.ID != nil {
-									r[isVPCSecurityGroupRuleRemote] = remote.ID
-								} else if remote.Address != nil {
-									r[isVPCSecurityGroupRuleRemote] = remote.Address
-								} else if remote.CIDRBlock != nil {
-									r[isVPCSecurityGroupRuleRemote] = remote.CIDRBlock
-								}
-							}
-						}
-
-						rules = append(rules, r)
+				r := make(map[string]interface{})
+				switch rule := sgrule.(type) {
+				case *vpcv1.SecurityGroupRuleSecurityGroupRuleProtocolIcmp:
+					setSecurityGroupRuleCommonFields(r, rule.ID, rule.Protocol, rule.IPVersion, rule.Direction, rule.Remote)
+					if rule.Code != nil {
+						r[isVPCSecurityGroupRuleCode] = int(*rule.Code)
+					}
+					if rule.Type != nil {
+						r[isVPCSecurityGroupRuleType] = int(*rule.Type)
 					}
 
-				case "*vpcv1.SecurityGroupRuleSecurityGroupRuleProtocolAll":
-					{
-						rule := sgrule.(*vpcv1.SecurityGroupRuleSecurityGroupRuleProtocolAll)
-						r := make(map[string]interface{})
-						r[isVPCSecurityGroupRuleDirection] = *rule.Direction
-						r[isVPCSecurityGroupRuleIPVersion] = *rule.IPVersion
-						if rule.Protocol != nil {
-							r[isVPCSecurityGroupRuleProtocol] = *rule.Protocol
-						}
-						r[isVPCSecurityGroupRuleID] = *rule.ID
-						remote, ok := rule.Remote.(*vpcv1.SecurityGroupRuleRemote)
-						if ok {
-							if remote != nil && reflect.ValueOf(remote).IsNil() == false {
-								if remote.ID != nil {
-									r[isVPCSecurityGroupRuleRemote] = remote.ID
-								} else if remote.Address != nil {
-									r[isVPCSecurityGroupRuleRemote] = remote.Address
-								} else if remote.CIDRBlock != nil {
-									r[isVPCSecurityGroupRuleRemote] = remote.CIDRBlock
-								}
-							}
-						}
-						rules = append(rules, r)
+				case *vpcv1.SecurityGroupRuleProtocolAny:
+					setSecurityGroupRuleCommonFields(r, rule.ID, rule.Protocol, rule.IPVersion, rule.Direction, rule.Remote)
+
+				case *vpcv1.SecurityGroupRuleProtocolIcmptcpudp:
+					setSecurityGroupRuleCommonFields(r, rule.ID, rule.Protocol, rule.IPVersion, rule.Direction, rule.Remote)
+
+				case *vpcv1.SecurityGroupRuleProtocolIndividual:
+					setSecurityGroupRuleCommonFields(r, rule.ID, rule.Protocol, rule.IPVersion, rule.Direction, rule.Remote)
+
+				case *vpcv1.SecurityGroupRuleSecurityGroupRuleProtocolTcpudp:
+					setSecurityGroupRuleCommonFields(r, rule.ID, rule.Protocol, rule.IPVersion, rule.Direction, rule.Remote)
+					if rule.PortMin != nil {
+						r[isVPCSecurityGroupRulePortMin] = int(*rule.PortMin)
 					}
-
-				case "*vpcv1.SecurityGroupRuleSecurityGroupRuleProtocolTcpudp":
-					{
-						rule := sgrule.(*vpcv1.SecurityGroupRuleSecurityGroupRuleProtocolTcpudp)
-						r := make(map[string]interface{})
-						r[isVPCSecurityGroupRuleDirection] = *rule.Direction
-						r[isVPCSecurityGroupRuleIPVersion] = *rule.IPVersion
-						if rule.PortMin != nil {
-							r[isVPCSecurityGroupRulePortMin] = int(*rule.PortMin)
-						}
-						if rule.PortMax != nil {
-							r[isVPCSecurityGroupRulePortMax] = int(*rule.PortMax)
-						}
-
-						if rule.Protocol != nil {
-							r[isVPCSecurityGroupRuleProtocol] = *rule.Protocol
-						}
-
-						r[isVPCSecurityGroupRuleID] = *rule.ID
-						remote, ok := rule.Remote.(*vpcv1.SecurityGroupRuleRemote)
-						if ok {
-							if remote != nil && reflect.ValueOf(remote).IsNil() == false {
-								if remote.ID != nil {
-									r[isVPCSecurityGroupRuleRemote] = remote.ID
-								} else if remote.Address != nil {
-									r[isVPCSecurityGroupRuleRemote] = remote.Address
-								} else if remote.CIDRBlock != nil {
-									r[isVPCSecurityGroupRuleRemote] = remote.CIDRBlock
-								}
-							}
-						}
-						rules = append(rules, r)
+					if rule.PortMax != nil {
+						r[isVPCSecurityGroupRulePortMax] = int(*rule.PortMax)
 					}
 				}
+				rules = append(rules, r)
 			}
 			g[isVPCSgRules] = rules
 			securityGroupList = append(securityGroupList, g)
@@ -1362,6 +1301,25 @@ func vpcGet(context context.Context, d *schema.ResourceData, meta interface{}, i
 		return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting security_group: %s", err), "ibm_is_vpc", "read", "set-security_group").GetDiag()
 	}
 	return nil
+}
+
+func setSecurityGroupRuleCommonFields(r map[string]interface{}, id *string, protocol *string, ipVersion *string, direction *string, remoteIntf vpcv1.SecurityGroupRuleRemoteIntf) {
+	r[isVPCSecurityGroupRuleID] = *id
+	r[isVPCSecurityGroupRuleProtocol] = *protocol
+	r[isVPCSecurityGroupRuleIPVersion] = *ipVersion
+	r[isVPCSecurityGroupRuleDirection] = *direction
+	remote, ok := remoteIntf.(*vpcv1.SecurityGroupRuleRemote)
+	if ok {
+		if remote != nil && reflect.ValueOf(remote).IsNil() == false {
+			if remote.ID != nil {
+				r[isVPCSecurityGroupRuleRemote] = remote.ID
+			} else if remote.Address != nil {
+				r[isVPCSecurityGroupRuleRemote] = remote.Address
+			} else if remote.CIDRBlock != nil {
+				r[isVPCSecurityGroupRuleRemote] = remote.CIDRBlock
+			}
+		}
+	}
 }
 
 func resourceIBMISVPCUpdate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
