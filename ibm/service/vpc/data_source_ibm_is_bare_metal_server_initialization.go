@@ -173,7 +173,7 @@ func dataSourceIBMISBareMetalServerInitializationRead(context context.Context, d
 		targetMap["crn"] = *initialization.DefaultTrustedProfile.Target.CRN
 
 		defaultTrustedProfileMap["auto_link"] = *initialization.DefaultTrustedProfile.AutoLink
-		defaultTrustedProfileMap["target"] = targetMap
+		defaultTrustedProfileMap["target"] = []map[string]interface{}{targetMap}
 
 		defaultTrustedProfileList = append(defaultTrustedProfileList, defaultTrustedProfileMap)
 		d.Set(isBareMetalServerDefaultTrustedProfile, defaultTrustedProfileList)
