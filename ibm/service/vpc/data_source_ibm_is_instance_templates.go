@@ -275,6 +275,11 @@ func DataSourceIBMISInstanceTemplates() *schema.Resource {
 							Computed:    true,
 							Description: "The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes",
 						},
+						isInstanceVolumeBandwidthQoSMode: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The volume bandwidth QoS mode for this virtual server instance.",
+						},
 						isInstanceDefaultTrustedProfileAutoLink: {
 							Type:        schema.TypeBool,
 							Computed:    true,
@@ -987,12 +992,12 @@ func dataSourceIBMISInstanceTemplatesRead(d *schema.ResourceData, meta interface
 			}
 			if instance.DefaultTrustedProfile.Target != nil {
 				switch reflect.TypeOf(instance.DefaultTrustedProfile.Target).String() {
-				case "*vpcv1.TrustedProfileIdentityTrustedProfileByID":
+				case "*vpcv1.TrustedProfileIdentityByID":
 					{
 						target := instance.DefaultTrustedProfile.Target.(*vpcv1.TrustedProfileIdentityByID)
 						template[isInstanceDefaultTrustedProfileTarget] = target.ID
 					}
-				case "*vpcv1.TrustedProfileIdentityTrustedProfileByCRN":
+				case "*vpcv1.TrustedProfileIdentityByCRN":
 					{
 						target := instance.DefaultTrustedProfile.Target.(*vpcv1.TrustedProfileIdentityByCRN)
 						template[isInstanceDefaultTrustedProfileTarget] = target.CRN
@@ -1090,6 +1095,9 @@ func dataSourceIBMISInstanceTemplatesRead(d *schema.ResourceData, meta interface
 			template[isInstanceTotalVolumeBandwidth] = int(*instance.TotalVolumeBandwidth)
 		}
 
+		if instance.VolumeBandwidthQosMode != nil {
+			template[isInstanceVolumeBandwidthQoSMode] = *instance.VolumeBandwidthQosMode
+		}
 		// vni
 
 		networkAttachments := []map[string]interface{}{}
