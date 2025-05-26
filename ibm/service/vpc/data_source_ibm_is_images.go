@@ -52,6 +52,10 @@ func DataSourceIBMISImages() *schema.Resource {
 				Optional:    true,
 				Description: "Whether the image is publicly visible or private to the account",
 			},
+			isImageRemoteAccountId: {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			isImageUserDataFormat: {
 				Type:        schema.TypeSet,
 				Elem:        &schema.Schema{Type: schema.TypeString},
@@ -177,6 +181,34 @@ func DataSourceIBMISImages() *schema.Resource {
 							Type:        schema.TypeString,
 							Computed:    true,
 							Description: "The operating system architecture",
+						},
+						"remote": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "If present, this property indicates that the resource associated with this reference is remote and therefore may not be directly retrievable.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"account": {
+										Type:        schema.TypeList,
+										Computed:    true,
+										Description: "If present, this property indicates that the referenced resource is remote to this account, and identifies the owning account.",
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"id": {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "The unique identifier for this resource group.",
+												},
+												"resource_type": {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "The resource type.",
+												},
+											},
+										},
+									},
+								},
+							},
 						},
 						"resource_group": {
 							Type:        schema.TypeList,
@@ -334,6 +366,11 @@ func imageList(d *schema.ResourceData, meta interface{}) error {
 		visibility = v.(string)
 	}
 
+	var remoteAccountId string
+	if v, ok := d.GetOk(isImageRemoteAccountId); ok {
+		remoteAccountId = v.(string)
+	}
+
 	var status string
 	if v, ok := d.GetOk(isImageStatus); ok {
 		status = v.(string)
@@ -350,6 +387,15 @@ func imageList(d *schema.ResourceData, meta interface{}) error {
 	if imageName != "" {
 		listImagesOptions.SetName(imageName)
 	}
+
+	if remoteAccountId != "" {
+		if remoteAccountId == "null" || remoteAccountId == "not:null" {
+			listImagesOptions.SetRemoteAccountID(remoteAccountId)
+		} else {
+			listImagesOptions.SetRemoteAccountID(remoteAccountId)
+		}
+	}
+
 	if visibility != "" {
 		listImagesOptions.SetVisibility(visibility)
 	}
@@ -448,6 +494,18 @@ func imageList(d *schema.ResourceData, meta interface{}) error {
 			catalogOfferingList = append(catalogOfferingList, catalogOfferingMap)
 			l[isImageCatalogOffering] = catalogOfferingList
 		}
+
+		if image.Remote != nil {
+			imageRemoteMap, err := dataSourceImageRemote(image)
+			if err != nil {
+				return err
+			}
+			if len(imageRemoteMap) > 0 {
+				imageRemoteList := []map[string]interface{}{imageRemoteMap}
+				l["remote"] = imageRemoteList
+			}
+		}
+
 		accesstags, err := flex.GetGlobalTagsUsingCRN(meta, *image.CRN, "", isImageAccessTagType)
 		if err != nil {
 			log.Printf(

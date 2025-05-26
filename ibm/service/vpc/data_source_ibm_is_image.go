@@ -194,6 +194,37 @@ func DataSourceIBMISImage() *schema.Resource {
 				Computed:    true,
 				Description: "The type of encryption used on the image",
 			},
+			"remote": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Computed:    true,
+				Description: "If present, this property indicates that the resource associated with this reference is remote and therefore may not be directly retrievable.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"account": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Computed:    true,
+							Description: "If present, this property indicates that the referenced resource is remote to this account, and identifies the owning account.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"id": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Computed:    true,
+										Description: "The unique identifier for this resource group.",
+									},
+									"resource_type": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The resource type.",
+									},
+								},
+							},
+						},
+					},
+				},
+			},
 			"source_volume": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -341,6 +372,17 @@ func imageGetByName(d *schema.ResourceData, meta interface{}, name, visibility s
 		resourceGroupList = append(resourceGroupList, resourceGroupMap)
 		d.Set("resource_group", resourceGroupList)
 	}
+
+	if image.Remote != nil {
+		imageRemoteList := []map[string]interface{}{}
+		imageRemoteMap, err := dataSourceImageRemote(image)
+		if err != nil {
+			return err
+		}
+		imageRemoteList = append(imageRemoteList, imageRemoteMap)
+		d.Set(isImageRemote, imageRemoteList)
+	}
+
 	d.Set("os", *image.OperatingSystem.Name)
 	d.Set("architecture", *image.OperatingSystem.Architecture)
 	d.Set("crn", *image.CRN)
@@ -394,6 +436,18 @@ func imageGetById(d *schema.ResourceData, meta interface{}, identifier string) e
 	if *image.Status == "deprecated" {
 		fmt.Printf("[WARN] Given image %s is deprecated and soon will be obsolete.", name)
 	}
+
+	if image.Remote != nil {
+		imageRemoteMap, err := dataSourceImageRemote(*image)
+		if err != nil {
+			return err
+		}
+		if len(imageRemoteMap) > 0 {
+			imageRemoteList := []map[string]interface{}{imageRemoteMap}
+			d.Set(isImageRemote, imageRemoteList)
+		}
+	}
+
 	if len(image.StatusReasons) > 0 {
 		d.Set("status_reasons", dataSourceIBMIsImageFlattenStatusReasons(image.StatusReasons))
 	}
@@ -493,6 +547,27 @@ func dataSourceImageCollectionCatalogOfferingToMap(imageCatalogOfferingItem vpcv
 	}
 
 	return imageCatalogOfferingMap
+}
+
+func dataSourceImageRemote(imageRemote vpcv1.Image) (map[string]interface{}, error) {
+	result := map[string]interface{}{}
+
+	if imageRemote.Remote != nil && imageRemote.Remote.Account != nil {
+		accountMap := map[string]interface{}{}
+
+		if imageRemote.Remote.Account.ID != nil {
+			accountMap["id"] = *imageRemote.Remote.Account.ID
+		}
+		if imageRemote.Remote.Account.ResourceType != nil {
+			accountMap["resource_type"] = *imageRemote.Remote.Account.ResourceType
+		}
+
+		result["remote"] = map[string]interface{}{
+			"account": accountMap,
+		}
+	}
+
+	return result, nil
 }
 
 func dataSourceIBMIsImageFlattenStatusReasons(result []vpcv1.ImageStatusReason) (statusReasons []map[string]interface{}) {
