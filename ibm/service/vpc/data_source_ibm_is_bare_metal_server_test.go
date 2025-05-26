@@ -94,11 +94,11 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCKVmnMOlHKcZK8tpt3MP1lqOLAcqcJzhsvJcjscgVE
 		Providers: acc.TestAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckIBMISBMSsDataSourceMetadataServiceConfig(vpcname, subnetname, sshname, publicKey, name, true, "https"),
+				Config: testAccCheckIBMISBMSDataSourceMetadataServiceConfig(vpcname, subnetname, sshname, publicKey, name, true, "https"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckIBMISBareMetalServerExists("ibm_is_bare_metal_server.testacc_bms", server),
-					resource.TestCheckResourceAttrSet(resName, "servers.0.metadata_service.0.enabled"),
-					resource.TestCheckResourceAttrSet(resName, "servers.0.metadata_service.0.protocol"),
+					resource.TestCheckResourceAttrSet(resName, "metadata_service.0.enabled"),
+					resource.TestCheckResourceAttrSet(resName, "metadata_service.0.protocol"),
 				),
 			},
 		},
@@ -110,7 +110,8 @@ func testAccCheckIBMISBMSDataSourceMetadataServiceConfig(vpcname, subnetname, ss
 	return testAccCheckIBMISBareMetalServerMetadataServiceConfig(vpcname, subnetname, sshname, publicKey, name, enabled, protocol) + fmt.Sprintf(`
       data "ibm_is_bare_metal_server" "test1" {
 	  	depends_on	= [ ibm_is_bare_metal_server.testacc_bms ]
-      }`)
+       name 			=	"%s"
+      }`, name)
 }
 
 func TestAccIBMISBMSDataSourceVNI_basic(t *testing.T) {

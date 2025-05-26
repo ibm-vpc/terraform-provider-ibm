@@ -537,7 +537,7 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCKVmnMOlHKcZK8tpt3MP1lqOLAcqcJzhsvJcjscgVE
 					resource.TestCheckResourceAttr(
 						"ibm_is_bare_metal_server.testacc_bms", "name", name),
 					resource.TestCheckResourceAttr(
-						"ibm_is_bare_metal_server.testacc_bms", "zone", acc.ISZoneName),
+						"ibm_is_bare_metal_server.testacc_bms", "zone", acc.ISZoneName2),
 					resource.TestCheckResourceAttr(
 						"ibm_is_bare_metal_server.testacc_bms", "metadata_service.0.enabled", "true"),
 					resource.TestCheckResourceAttr(
@@ -551,7 +551,7 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCKVmnMOlHKcZK8tpt3MP1lqOLAcqcJzhsvJcjscgVE
 					resource.TestCheckResourceAttr(
 						"ibm_is_bare_metal_server.testacc_bms", "name", name),
 					resource.TestCheckResourceAttr(
-						"ibm_is_bare_metal_server.testacc_bms", "zone", acc.ISZoneName),
+						"ibm_is_bare_metal_server.testacc_bms", "zone", acc.ISZoneName2),
 					resource.TestCheckResourceAttr(
 						"ibm_is_bare_metal_server.testacc_bms", "metadata_service.0.enabled", "true"),
 					resource.TestCheckResourceAttr(
@@ -626,7 +626,7 @@ func testAccCheckIBMISBareMetalServerMetadataServiceConfig(vpcname, subnetname, 
 				protocol        = "%s"
 			}
 		}
-`, vpcname, subnetname, acc.ISZoneName, sshname, publicKey, acc.IsBareMetalServerProfileName, name, acc.IsBareMetalServerImage, acc.ISZoneName, enabled, protocol)
+`, vpcname, subnetname, acc.ISZoneName2, sshname, publicKey, acc.IsBareMetalServerProfileName, name, acc.IsBareMetalServerImage, acc.ISZoneName2, enabled, protocol)
 }
 
 func testAccCheckIBMISBareMetalServerReservationConfig(vpcname, subnetname, sshname, publicKey, name string) string {
@@ -707,6 +707,11 @@ func testAccCheckIBMISBareMetalServerExists(n, ip string) resource.TestCheckFunc
 			return err
 		}
 		ip = *bms.ID
+		println()
+		fmt.Printf("%+v", *bms)
+		fmt.Printf("%+v", *bms.MetadataService)
+		fmt.Printf("%+v", *bms.MetadataService.Enabled)
+		fmt.Printf("%+v", *bms.MetadataService.Protocol)
 		return nil
 	}
 }
@@ -1182,13 +1187,13 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCKVmnMOlHKcZK8tpt3MP1lqOLAcqcJzhsvJcjscgVE
 		CheckDestroy: testAccCheckIBMISBareMetalServerDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckIBMISBareMetalServerInitializationConfig(vpcname, subnetname, sshname, publicKey, name, acc.IsBareMetalServerImage, userdata1, acc.IamIdentityAssignmentTargetAccountId, true),
+				Config: testAccCheckIBMISBareMetalServerInitializationConfig(vpcname, subnetname, sshname, publicKey, name, acc.IsBareMetalServerImage, userdata1, true, "https", true),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckIBMISBareMetalServerExists("ibm_is_bare_metal_server.testacc_bms", server),
 					resource.TestCheckResourceAttr(
 						"ibm_is_bare_metal_server.testacc_bms", "name", name),
 					resource.TestCheckResourceAttr(
-						"ibm_is_bare_metal_server.testacc_bms", "zone", acc.ISZoneName),
+						"ibm_is_bare_metal_server.testacc_bms", "zone", acc.ISZoneName2),
 					resource.TestCheckResourceAttr(
 						"ibm_is_bare_metal_server.testacc_bms", "image", acc.IsBareMetalServerImage),
 					resource.TestCheckResourceAttrSet(
@@ -1198,17 +1203,17 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCKVmnMOlHKcZK8tpt3MP1lqOLAcqcJzhsvJcjscgVE
 					resource.TestCheckResourceAttr(
 						"ibm_is_bare_metal_server.testacc_bms", "default_trusted_profile.0.auto_link", "true"),
 					resource.TestCheckResourceAttr(
-						"ibm_is_bare_metal_server.testacc_bms", "default_trusted_profile.0.target", "true"),
+						"ibm_is_bare_metal_server.testacc_bms", "default_trusted_profile.0.target.0.id", acc.IAMTrustedProfileID),
 				),
 			},
 			{
-				Config: testAccCheckIBMISBareMetalServerInitializationConfig(vpcname, subnetname, sshname, publicKey, name, acc.IsBareMetalServerImage2, userdata2, acc.IamIdentityAssignmentTargetAccountId, false),
+				Config: testAccCheckIBMISBareMetalServerInitializationConfig(vpcname, subnetname, sshname, publicKey, name, acc.IsBareMetalServerImage2, userdata2, false, "http", true),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckIBMISBareMetalServerExists("ibm_is_bare_metal_server.testacc_bms", server),
 					resource.TestCheckResourceAttr(
 						"ibm_is_bare_metal_server.testacc_bms", "name", name),
 					resource.TestCheckResourceAttr(
-						"ibm_is_bare_metal_server.testacc_bms", "zone", acc.ISZoneName),
+						"ibm_is_bare_metal_server.testacc_bms", "zone", acc.ISZoneName2),
 					resource.TestCheckResourceAttr(
 						"ibm_is_bare_metal_server.testacc_bms", "image", acc.IsBareMetalServerImage2),
 					resource.TestCheckResourceAttrSet(
@@ -1218,14 +1223,14 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCKVmnMOlHKcZK8tpt3MP1lqOLAcqcJzhsvJcjscgVE
 					resource.TestCheckResourceAttr(
 						"ibm_is_bare_metal_server.testacc_bms", "default_trusted_profile.0.auto_link", "true"),
 					resource.TestCheckResourceAttr(
-						"ibm_is_bare_metal_server.testacc_bms", "default_trusted_profile.0.target", "true"),
+						"ibm_is_bare_metal_server.testacc_bms", "default_trusted_profile.0.target.0.id", acc.IAMTrustedProfileID),
 				),
 			},
 		},
 	})
 }
 
-func testAccCheckIBMISBareMetalServerInitializationConfig(vpcname, subnetname, sshname, publicKey, name, image, userdata, targetId string, autolink bool) string {
+func testAccCheckIBMISBareMetalServerInitializationConfig(vpcname, subnetname, sshname, publicKey, name, image, userdata string, metadataEnabled bool, metadataProtocol string, autolink bool) string {
 	return fmt.Sprintf(`
 		resource "ibm_is_vpc" "testacc_vpc" {
 			name = "%s"
@@ -1249,8 +1254,12 @@ func testAccCheckIBMISBareMetalServerInitializationConfig(vpcname, subnetname, s
 			image 				= "%s"
 			zone 				= "%s"
 			user_data 			= "%s"
+			metadata_service {
+				enabled  = %t
+				protocol = "%s"
+			}
 			default_trusted_profile {
-				target = {
+				target {
 					id = "%s"
 				}
 				auto_link = %t
@@ -1261,5 +1270,5 @@ func testAccCheckIBMISBareMetalServerInitializationConfig(vpcname, subnetname, s
 			}
 			vpc 				= ibm_is_vpc.testacc_vpc.id
 		}
-`, vpcname, subnetname, acc.ISZoneName, sshname, publicKey, acc.IsBareMetalServerProfileName, name, image, acc.ISZoneName, userdata, targetId, autolink)
+`, vpcname, subnetname, acc.ISZoneName2, sshname, publicKey, acc.IsBareMetalServerProfileName, name, image, acc.ISZoneName2, userdata, metadataEnabled, metadataProtocol, acc.IAMTrustedProfileID, autolink)
 }
