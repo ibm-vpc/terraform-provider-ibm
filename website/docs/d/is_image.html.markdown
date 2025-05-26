@@ -34,6 +34,16 @@ data "ibm_is_image" "example" {
 }
 ```
 
+```terraform
+data "ibm_is_image" "example" {
+  remote{
+    account{
+      id = "addgdfdfd"
+    }
+  }
+}
+```
+
 ## Argument reference
 Review the argument references that you can specify for your data source.
 
@@ -46,6 +56,8 @@ Review the argument references that you can specify for your data source.
     ~> **Note:** `name` and `identifier` are mutually exclusive.
 
 - `visibility` - (Optional, String) The visibility of the image. Accepted values are `public` or `private`.
+
+- `remote-account-id` - (Optional, String) Accepted values are `provider` or `user` or valid account_id.
 
 ## Attribute reference
 In addition to all argument reference list, you can access the following attribute references after your data source is created.
