@@ -29,7 +29,6 @@ const (
 	isImageFile                   = "file"
 	isImageVolume                 = "source_volume"
 	isImageMinimumProvisionedSize = "size"
-	isImageRemoteAccountId        = "remote_account_id"
 
 	isImageResourceGroup    = "resource_group"
 	isImageEncryptedDataKey = "encrypted_data_key"
@@ -50,8 +49,6 @@ const (
 	isImageDeprecate      = "deprecate"
 	isImageObsolete       = "obsolete"
 	isImageUserDataFormat = "user_data_format"
-
-	isImageRemote = "remote"
 )
 
 func ResourceIBMISImage() *schema.Resource {
