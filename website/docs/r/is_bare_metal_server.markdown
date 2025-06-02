@@ -107,20 +107,6 @@ resource "ibm_is_bare_metal_server" "example" {
 ```
 ### MetadataService Example
 ```terraform
-resource "ibm_is_reservation" "example" {
-  capacity {
-    total = 5
-  }
-  committed_use {
-    term = "one_year"
-  }
-  profile {
-    name          = "mx2d-metal-32x192"
-    resource_type = "bare_metal_server_profile"
-  }
-  zone = "us-east-3"
-  name = "reservation-name"
-}
 resource "ibm_is_vpc" "example" {
   name = "example-vpc"
 }

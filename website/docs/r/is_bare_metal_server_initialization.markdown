@@ -32,6 +32,27 @@ resource "ibm_is_bare_metal_server_initialization" "initialization" {
   image             = var.image_id
   keys              = [var.keys]
   user_data         = var.userdata
+}
+
+## to avoid changes on the ibm_is_bare_metal_server resource, use lifecycle meta argument ignore_changes
+resource "ibm_is_bare_metal_server" "bms" {
+  ....
+  lifecycle{
+    ignore_changes = [ image, keys, user_data ]
+  }
+}
+```
+
+## Default trusted profile Example
+
+In the following example, you can update default trusted profile of a Bare Metal Server disk:
+
+```terraform
+resource "ibm_is_bare_metal_server_initialization" "initialization" {
+  bare_metal_server = ibm_is_bare_metal_server.bms.id
+  image             = var.image_id
+  keys              = [var.keys]
+  user_data         = var.userdata
   default_trusted_profile {
     auto_link = true
     target {
