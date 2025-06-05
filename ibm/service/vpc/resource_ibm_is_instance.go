@@ -6765,6 +6765,7 @@ func instanceUpdate(d *schema.ResourceData, meta interface{}) error {
 		}
 		if _, ok := d.GetOkExists("enable_secure_boot"); ok && d.HasChange("enable_secure_boot") {
 			instancePatchModel.EnableSecureBoot = core.BoolPtr(d.Get("enable_secure_boot").(bool))
+			restartNeeded = true
 		}
 		if d.HasChange("name") {
 			instancePatchModel.Name = &name
