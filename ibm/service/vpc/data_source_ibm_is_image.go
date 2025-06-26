@@ -437,14 +437,23 @@ func imageGetById(d *schema.ResourceData, meta interface{}, identifier string) e
 		fmt.Printf("[WARN] Given image %s is deprecated and soon will be obsolete.", name)
 	}
 
-	if image.Remote != nil {
-		imageRemoteMap, err := dataSourceImageRemote(*image)
-		if err != nil {
-			return err
+	if image.Remote != nil && image.Remote.Account != nil {
+		accountMap := map[string]interface{}{}
+
+		if image.Remote.Account.ID != nil {
+			accountMap["id"] = *image.Remote.Account.ID
 		}
-		if len(imageRemoteMap) > 0 {
-			imageRemoteList := []map[string]interface{}{imageRemoteMap}
-			d.Set(isImageRemote, imageRemoteList)
+		if image.Remote.Account.ResourceType != nil {
+			accountMap["resource_type"] = *image.Remote.Account.ResourceType
+		}
+
+		remoteMap := map[string]interface{}{
+			"account": []interface{}{accountMap},
+		}
+		remoteList := []interface{}{remoteMap}
+
+		if err := d.Set(isImageRemote, remoteList); err != nil {
+			return fmt.Errorf("error setting image remote: %s", err)
 		}
 	}
 
@@ -550,24 +559,24 @@ func dataSourceImageCollectionCatalogOfferingToMap(imageCatalogOfferingItem vpcv
 }
 
 func dataSourceImageRemote(imageRemote vpcv1.Image) (map[string]interface{}, error) {
-	result := map[string]interface{}{}
-
-	if imageRemote.Remote != nil && imageRemote.Remote.Account != nil {
-		accountMap := map[string]interface{}{}
-
-		if imageRemote.Remote.Account.ID != nil {
-			accountMap["id"] = *imageRemote.Remote.Account.ID
-		}
-		if imageRemote.Remote.Account.ResourceType != nil {
-			accountMap["resource_type"] = *imageRemote.Remote.Account.ResourceType
-		}
-
-		result["remote"] = map[string]interface{}{
-			"account": accountMap,
-		}
+	if imageRemote.Remote == nil || imageRemote.Remote.Account == nil {
+		return nil, nil
 	}
 
-	return result, nil
+	accountMap := map[string]interface{}{}
+
+	if imageRemote.Remote.Account.ID != nil {
+		accountMap["id"] = *imageRemote.Remote.Account.ID
+	}
+	if imageRemote.Remote.Account.ResourceType != nil {
+		accountMap["resource_type"] = *imageRemote.Remote.Account.ResourceType
+	}
+
+	remoteMap := map[string]interface{}{
+		"account": []interface{}{accountMap},
+	}
+
+	return remoteMap, nil
 }
 
 func dataSourceIBMIsImageFlattenStatusReasons(result []vpcv1.ImageStatusReason) (statusReasons []map[string]interface{}) {

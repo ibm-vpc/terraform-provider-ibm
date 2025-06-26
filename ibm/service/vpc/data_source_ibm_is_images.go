@@ -18,6 +18,7 @@ const (
 	isImages                = "images"
 	isImagesResourceGroupID = "resource_group"
 	isImageCatalogManaged   = "catalog_managed"
+	isImageRemoteAccountId  = "remote_account_id"
 )
 
 func DataSourceIBMISImages() *schema.Resource {
@@ -53,8 +54,9 @@ func DataSourceIBMISImages() *schema.Resource {
 				Description: "Whether the image is publicly visible or private to the account",
 			},
 			isImageRemoteAccountId: {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "Filters the collection to images with a remote.account.id property matching the specified account identifier.",
 			},
 			isImageUserDataFormat: {
 				Type:        schema.TypeSet,
@@ -370,7 +372,6 @@ func imageList(d *schema.ResourceData, meta interface{}) error {
 	if v, ok := d.GetOk(isImageRemoteAccountId); ok {
 		remoteAccountId = v.(string)
 	}
-
 	var status string
 	if v, ok := d.GetOk(isImageStatus); ok {
 		status = v.(string)
@@ -389,7 +390,11 @@ func imageList(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	if remoteAccountId != "" {
-		if remoteAccountId == "null" || remoteAccountId == "not:null" {
+		if remoteAccountId == "user" {
+			remoteAccountId = "null"
+			listImagesOptions.SetRemoteAccountID(remoteAccountId)
+		} else if remoteAccountId == "provider" {
+			remoteAccountId = "not:null"
 			listImagesOptions.SetRemoteAccountID(remoteAccountId)
 		} else {
 			listImagesOptions.SetRemoteAccountID(remoteAccountId)
@@ -501,8 +506,7 @@ func imageList(d *schema.ResourceData, meta interface{}) error {
 				return err
 			}
 			if len(imageRemoteMap) > 0 {
-				imageRemoteList := []map[string]interface{}{imageRemoteMap}
-				l["remote"] = imageRemoteList
+				l["remote"] = []interface{}{imageRemoteMap}
 			}
 		}
 
