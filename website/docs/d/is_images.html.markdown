@@ -111,11 +111,15 @@ You can access the following attribute references after your data source is crea
       - `more_info` - (String) Link to documentation about this status reason
   - `visibility` - (String) The visibility of the image public or private.
   - `source_volume` - The source volume id of the image.
-  - `remote` - (Optional, List) If present, this property indicates that the resource associated with this referenceis remote and therefore may not be directly retrievable.
-	            Nested schema for **remote**:
-      - `account` - (Optional, List) If present, this property indicates that the referenced resource is remote to thisaccount, and identifies the owning account.
-				Nested schema for **account**:
-           - `id` - (Computed, String) The unique identifier for this account.
-           - `resource_type` - (Computed, String) The resource type.
+  - `remote` - (Optional, List) If present, this property indicates that the resource associated with this reference is remote and therefore may not be directly retrievable.
+
+      **Nested schema for `remote`:**
+       - `account` - (Optional, List)  Indicates that the referenced resource is remote to this account, and identifies the owning account.
+
+          **Nested schema for `account`:**
+           - `id` – (Computed, String) The unique identifier for this account.  
+           - `resource_type` – (Computed, String) The resource type.
+
+
 
 

@@ -437,24 +437,14 @@ func imageGetById(d *schema.ResourceData, meta interface{}, identifier string) e
 		fmt.Printf("[WARN] Given image %s is deprecated and soon will be obsolete.", name)
 	}
 
-	if image.Remote != nil && image.Remote.Account != nil {
-		accountMap := map[string]interface{}{}
-
-		if image.Remote.Account.ID != nil {
-			accountMap["id"] = *image.Remote.Account.ID
+	if image.Remote != nil {
+		imageRemoteList := []map[string]interface{}{}
+		imageRemoteMap, err := dataSourceImageRemote(*image)
+		if err != nil {
+			return err
 		}
-		if image.Remote.Account.ResourceType != nil {
-			accountMap["resource_type"] = *image.Remote.Account.ResourceType
-		}
-
-		remoteMap := map[string]interface{}{
-			"account": []interface{}{accountMap},
-		}
-		remoteList := []interface{}{remoteMap}
-
-		if err := d.Set(isImageRemote, remoteList); err != nil {
-			return fmt.Errorf("error setting image remote: %s", err)
-		}
+		imageRemoteList = append(imageRemoteList, imageRemoteMap)
+		d.Set(isImageRemote, imageRemoteList)
 	}
 
 	if len(image.StatusReasons) > 0 {
