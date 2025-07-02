@@ -972,7 +972,9 @@ func dataSourceIBMISBareMetalServersRead(context context.Context, d *schema.Reso
 
 	sess, err := meta.(conns.ClientSession).VpcV1API()
 	if err != nil {
-		return diag.FromErr(err)
+		tfErr := flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_bare_metal_servers", "read", "initialize-client")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 	start := ""
 	allrecs := []vpcv1.BareMetalServer{}
@@ -1015,9 +1017,11 @@ func dataSourceIBMISBareMetalServersRead(context context.Context, d *schema.Reso
 		if start != "" {
 			listBareMetalServersOptions.Start = &start
 		}
-		availableServers, response, err := sess.ListBareMetalServersWithContext(context, listBareMetalServersOptions)
+		availableServers, _, err := sess.ListBareMetalServersWithContext(context, listBareMetalServersOptions)
 		if err != nil {
-			return diag.FromErr(fmt.Errorf("[ERROR] Error fetching Bare Metal Servers %s\n%s", err, response))
+			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("ListBareMetalServersWithContext failed %s", err), "(Data) ibm_is_bare_metal_servers", "read")
+			log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
+			return tfErr.GetDiag()
 		}
 		start = flex.GetNext(availableServers.Next)
 		allrecs = append(allrecs, availableServers.BareMetalServers...)
@@ -1093,7 +1097,7 @@ func dataSourceIBMISBareMetalServersRead(context context.Context, d *schema.Reso
 		if bms.TrustedPlatformModule != nil {
 			trustedPlatformModuleMap, err := resourceIBMIsBareMetalServerBareMetalServerTrustedPlatformModulePrototypeToMap(bms.TrustedPlatformModule)
 			if err != nil {
-				return diag.FromErr(err)
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_bare_metal_servers", "read", "trusted_platform_module-to-map").GetDiag()
 			}
 			l[isBareMetalServerTrustedPlatformModule] = []map[string]interface{}{trustedPlatformModuleMap}
 		}
@@ -1187,7 +1191,7 @@ func dataSourceIBMISBareMetalServersRead(context context.Context, d *schema.Reso
 		if bms.PrimaryNetworkAttachment != nil {
 			modelMap, err := dataSourceIBMIsBareMetalServerBareMetalServerNetworkAttachmentReferenceToMap(bms.PrimaryNetworkAttachment)
 			if err != nil {
-				return diag.FromErr(err)
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_bare_metal_servers", "read", "primary_network_attachment-to-map").GetDiag()
 			}
 			primaryNetworkAttachment = append(primaryNetworkAttachment, modelMap)
 		}
@@ -1282,7 +1286,7 @@ func dataSourceIBMISBareMetalServersRead(context context.Context, d *schema.Reso
 				if *modelItem.ID != *bms.PrimaryNetworkAttachment.ID {
 					modelMap, err := dataSourceIBMIsBareMetalServerBareMetalServerNetworkAttachmentReferenceToMap(&modelItem)
 					if err != nil {
-						return diag.FromErr(err)
+						return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_bare_metal_servers", "read", "network_attachments-to-map").GetDiag()
 					}
 					networkAttachments = append(networkAttachments, modelMap)
 				}
@@ -1411,7 +1415,9 @@ func dataSourceIBMISBareMetalServersRead(context context.Context, d *schema.Reso
 		serversInfo = append(serversInfo, l)
 	}
 	d.SetId(dataSourceIBMISBareMetalServersID(d))
-	d.Set(isBareMetalServers, serversInfo)
+	if err = d.Set(isBareMetalServers, serversInfo); err != nil {
+		return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting bare_metal_servers %s", err), "(Data) ibm_is_bare_metal_servers", "read", "bare_metal_servers-set").GetDiag()
+	}
 	return nil
 }
 

@@ -281,10 +281,13 @@ Review the argument references that you can specify for your resource.
       **&#x2022;** `gpu.manufacturer` - (string) The GPU manufacturer. </br>
       **&#x2022;** `gpu.memory` - (integer) The overall amount of GPU memory in GiB (gibibytes). </br>
       **&#x2022;** `gpu.model` - (string) The GPU model. </br>
-      **&#x2022;** `enable_secure_boot` - (boolean) Indicates whether secure boot is enabled. </br>
+      **&#x2022;** `enable_secure_boot` - (boolean) Indicates whether secure boot is enabled. </br>  
+  - `bandwidth` - (Optional, Integer) The maximum bandwidth (in megabits per second) for the volume. For this property to be specified, the volume storage_generation must be 2.
 	- `delete_volume_on_instance_delete` - (Optional, Bool) You can configure to delete the boot volume based on instance deletion.
 	- `encryption` - (Optional, String) The encryption key CRN to encrypt the boot volume attached.
 	- `name` - (Optional, String) The name of the boot volume.
+	- `profile` - (Optional, String) The profile name for this boot volume.
+	- `size` - (Optional, Integer) The size for this boot volume.(in gigabytes)
   - `tags`- (Optional, Array of Strings) A list of user tags that you want to add to your volume. (https://cloud.ibm.com/apidocs/tagging#types-of-tags)
 
 - `catalog_offering` - (Optional, Forces new resource, List) The [catalog](https://cloud.ibm.com/docs/account?topic=account-restrict-by-user&interface=ui) offering or offering version to use when provisioning this virtual server instance. If an offering is specified, the latest version of that offering will be used. The specified offering or offering version may be in a different account in the same [enterprise](https://cloud.ibm.com/docs/account?topic=account-what-is-enterprise), subject to IAM policies.
@@ -317,7 +320,7 @@ Review the argument references that you can specify for your resource.
             - `id` - (Optional, String) The unique identifier for this cluster network subnet.
     - `name` - (Optional, String) The name for this cluster network attachment. Names must be unique within the instance the cluster network attachment resides in. If unspecified, the name will be a hyphenated list of randomly-selected words. Names starting with `ibm-` are reserved for provider-owned resources, and are not allowed.
 
-- `confidential_compute_mode` - (Optional, String) The confidential compute mode to use for this virtual server instance.If unspecified, the default confidential compute mode from the profile will be used. **Constraints: Allowable values are: `disabled`, `sgx`**  {Select Availability}
+- `confidential_compute_mode` - (Optional, String) The confidential compute mode to use for this virtual server instance.If unspecified, the default confidential compute mode from the profile will be used. **Constraints: Allowable values are: `disabled`, `sgx`, `tdx`**  {Select Availability}
 
   ~>**Note:** The confidential_compute_mode is `Select Availability` feature. Confidential computing with Intel SGX for VPC is available only in the US-South (Dallas) region.
    
@@ -471,7 +474,7 @@ Review the argument references that you can specify for your resource.
 	- `volume` - (Optional, Forces new resource, String) The storage volume ID created in VPC.
   - `volume_prototype` - (Optional, Forces new resource, List)
 
-    Nested scheme for `volume_prototype`:
+      Nested scheme for `volume_prototype`:
       - `allowed_use` - (Optional, List) The usage constraints to be matched against requested instance or bare metal server properties to determine compatibility. Can only be specified if `source_snapshot` is bootable.
       
       Nested schema for `allowed_use`:
@@ -489,8 +492,8 @@ Review the argument references that you can specify for your resource.
         **&#x2022;** `gpu.manufacturer` - (string) The GPU manufacturer. </br>
         **&#x2022;** `gpu.memory` - (integer) The overall amount of GPU memory in GiB (gibibytes). </br>
         **&#x2022;** `gpu.model` - (string) The GPU model. </br>
-        **&#x2022;** `enable_secure_boot` - (boolean) Indicates whether secure boot is enabled. </br> 
-        
+        **&#x2022;** `enable_secure_boot` - (boolean) Indicates whether secure boot is enabled. </br>       
+      - `bandwidth` - (Optional, Integer) The maximum bandwidth (in megabits per second) for the volume. For this property to be specified, the volume storage_generation must be 2.
       - `capacity` - (Required, Forces new resource, Integer) The capacity of the volume in gigabytes. The specified minimum and maximum capacity values for creating or updating volumes may expand in the future.
       - `encryption_key` - (Optional, Forces new resource, String) The CRN of the [Key Protect Root Key](https://cloud.ibm.com/docs/key-protect?topic=key-protect-getting-started-tutorial) or [Hyper Protect Crypto Service Root Key](https://cloud.ibm.com/docs/hs-crypto?topic=hs-crypto-get-started) for the resource.
       - `iops` - (Optional, Forces new resource, Integer) The maximum input and output operations per second (IOPS) for the volume.
