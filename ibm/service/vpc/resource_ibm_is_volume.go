@@ -551,10 +551,7 @@ func volCreate(context context.Context, d *schema.ResourceData, meta interface{}
 			}
 		}
 		if allowedUse, ok := d.GetOk("allowed_use"); ok {
-			allowedUseModel, err := ResourceIBMIsVolumeAllowedUseMapToVolumeAllowedUsePrototype(allowedUse.([]interface{})[0].(map[string]interface{}))
-			if err != nil {
-				return err
-			}
+			allowedUseModel, _ := ResourceIBMIsVolumeAllowedUseMapToVolumeAllowedUsePrototype(allowedUse.([]interface{})[0].(map[string]interface{}))
 			volTemplate.AllowedUse = allowedUseModel
 		}
 	} else if sourceSnapshtCrn, ok := d.GetOk(isVolumeSourceSnapshotCrn); ok {
@@ -571,10 +568,7 @@ func volCreate(context context.Context, d *schema.ResourceData, meta interface{}
 			}
 		}
 		if allowedUse, ok := d.GetOk("allowed_use"); ok {
-			allowedUseModel, err := ResourceIBMIsVolumeAllowedUseMapToVolumeAllowedUsePrototype(allowedUse.([]interface{})[0].(map[string]interface{}))
-			if err != nil {
-				return err
-			}
+			allowedUseModel, _ := ResourceIBMIsVolumeAllowedUseMapToVolumeAllowedUsePrototype(allowedUse.([]interface{})[0].(map[string]interface{}))
 			volTemplate.AllowedUse = allowedUseModel
 		}
 	} else if capacity, ok := d.GetOk(isVolumeCapacity); ok {
@@ -808,17 +802,17 @@ func volGet(context context.Context, d *schema.ResourceData, meta interface{}, i
 		}
 	}
 	allowedUses := []map[string]interface{}{}
-	if vol.AllowedUse != nil {
-		modelMap, err := ResourceceIBMIsVolumeAllowedUseToMap(vol.AllowedUse)
+	if volume.AllowedUse != nil {
+		modelMap, err := ResourceceIBMIsVolumeAllowedUseToMap(volume.AllowedUse)
 		if err != nil {
-			tfErr := flex.TerraformErrorf(err, err.Error(), "(Resource) ibm_is_volume", "read")
-			log.Println(tfErr.GetDiag())
+			err = fmt.Errorf("Error setting allowed_use: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_volume", "read", "set-allowed_use").GetDiag()
 		}
 		allowedUses = append(allowedUses, modelMap)
 	}
 	if err = d.Set("allowed_use", allowedUses); err != nil {
-		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting allowed_use: %s", err), "(Resource) ibm_is_volume", "read")
-		log.Println(tfErr.GetDiag())
+		err = fmt.Errorf("Error setting allowed_use: %s", err)
+		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_volume", "read", "set-allowed_use").GetDiag()
 	}
 	// catalog
 	catalogList := make([]map[string]interface{}, 0)
@@ -1041,10 +1035,7 @@ func volUpdate(context context.Context, d *schema.ResourceData, meta interface{}
 	}
 
 	if d.HasChange("allowed_use") {
-		allowedUseModel, err := ResourceIBMIsInstanceMapToVolumeAllowedUsePatchPrototype(d.Get("allowed_use").([]interface{})[0].(map[string]interface{}))
-		if err != nil {
-			return err
-		}
+		allowedUseModel, _ := ResourceIBMIsInstanceMapToVolumeAllowedUsePatchPrototype(d.Get("allowed_use").([]interface{})[0].(map[string]interface{}))
 		optionsget := &vpcv1.GetVolumeOptions{
 			ID: &id,
 		}
@@ -1054,7 +1045,9 @@ func volUpdate(context context.Context, d *schema.ResourceData, meta interface{}
 				d.SetId("")
 				return nil
 			}
-			return fmt.Errorf("Error getting Volume (%s): %s\n%s", id, err, response)
+			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("GetVolumeWithContext failed: %s", err.Error()), "ibm_is_volume", "update")
+			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+			return tfErr.GetDiag()
 		}
 		eTag := response.Headers.Get("ETag")
 		options := &vpcv1.UpdateVolumeOptions{
@@ -1065,16 +1058,22 @@ func volUpdate(context context.Context, d *schema.ResourceData, meta interface{}
 		volumePatchModel.AllowedUse = allowedUseModel
 		volumePatch, err := volumePatchModel.AsPatch()
 		if err != nil {
-			return fmt.Errorf("[ERROR] Error calling asPatch for volumeNamePatch: %s", err)
+			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("volumeProfilePatchModel.AsPatch() for iops failed: %s", err.Error()), "ibm_is_volume", "update")
+			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+			return tfErr.GetDiag()
 		}
 		options.VolumePatch = volumePatch
-		_, _, err = sess.UpdateVolume(options)
+		_, _, err = sess.UpdateVolumeWithContext(context, options)
 		if err != nil {
-			return fmt.Errorf("[ERROR] Error in UpdateVolume: %s", err)
+			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("UpdateVolumeWithContext failed: %s", err.Error()), "ibm_is_volume", "update")
+			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+			return tfErr.GetDiag()
 		}
 		_, err = isWaitForVolumeAvailable(sess, d.Id(), d.Timeout(schema.TimeoutCreate))
 		if err != nil {
-			return err
+			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("isWaitForVolumeAvailable failed: %s", err.Error()), "ibm_is_volume", "update")
+			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+			return tfErr.GetDiag()
 		}
 	}
 

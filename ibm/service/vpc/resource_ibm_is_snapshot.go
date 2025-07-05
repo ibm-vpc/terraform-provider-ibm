@@ -593,10 +593,7 @@ func resourceIBMISSnapshotCreate(context context.Context, d *schema.ResourceData
 		}
 
 		if allowedUse, ok := d.GetOk("allowed_use"); ok {
-			allowedUseModel, err := ResourceIBMIsSnapshotMapToSnapshotAllowedUse(allowedUse.([]interface{})[0].(map[string]interface{}))
-			if err != nil {
-				return fmt.Errorf("[ERROR] Error Creating Snapshot: %s", err)
-			}
+			allowedUseModel, _ := ResourceIBMIsSnapshotMapToSnapshotAllowedUse(allowedUse.([]interface{})[0].(map[string]interface{}))
 			snapshotprototypeoptions.AllowedUse = allowedUseModel
 		}
 
@@ -625,10 +622,7 @@ func resourceIBMISSnapshotCreate(context context.Context, d *schema.ResourceData
 		}
 
 		if allowedUse, ok := d.GetOk("allowed_use"); ok {
-			allowedUseModel, err := ResourceIBMIsSnapshotMapToSnapshotAllowedUse(allowedUse.([]interface{})[0].(map[string]interface{}))
-			if err != nil {
-				return fmt.Errorf("[ERROR] Error Creating Snapshot: %s", err)
-			}
+			allowedUseModel, _ := ResourceIBMIsSnapshotMapToSnapshotAllowedUse(allowedUse.([]interface{})[0].(map[string]interface{}))
 			snapshotprototypeoptionsbysourcesnapshot.AllowedUse = allowedUseModel
 		}
 
@@ -1135,7 +1129,9 @@ func snapshotUpdate(context context.Context, d *schema.ResourceData, meta interf
 				d.SetId("")
 				return nil
 			}
-			return fmt.Errorf("[ERROR] Error getting Snapshot : %s\n%s", err, response)
+			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("GetSnapshotWithContext failed: %s", err.Error()), "ibm_is_snapshot", "update")
+			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+			return tfErr.GetDiag()
 		}
 		eTag := response.Headers.Get("ETag")
 
@@ -1145,23 +1141,31 @@ func snapshotUpdate(context context.Context, d *schema.ResourceData, meta interf
 		updateSnapshotOptions.IfMatch = &eTag
 		allowedUseModel, err := ResourceIBMIsSnapshotMapToSnapshotAllowedUsePatch(d.Get("allowed_use").([]interface{})[0].(map[string]interface{}))
 		if err != nil {
-			return fmt.Errorf("[ERROR] Error updating Snapshot : %s", err)
+			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error in settting allowed_use: %s", err.Error()), "ibm_is_snapshot", "update")
+			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+			return tfErr.GetDiag()
 		}
 		snapshotPatchModel := &vpcv1.SnapshotPatch{
 			AllowedUse: allowedUseModel,
 		}
 		snapshotPatch, err := snapshotPatchModel.AsPatch()
 		if err != nil {
-			return fmt.Errorf("[ERROR] Error calling asPatch for SnapshotPatch: %s", err)
+			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("snapshotPatchModel.AsPatch failed: %s", err.Error()), "ibm_is_snapshot", "update")
+			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+			return tfErr.GetDiag()
 		}
 		updateSnapshotOptions.SnapshotPatch = snapshotPatch
 		_, response, err = sess.UpdateSnapshot(updateSnapshotOptions)
 		if err != nil {
-			return fmt.Errorf("[ERROR] Error updating Snapshot : %s\n%s", err, response)
+			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("UpdateSnapshotWithContext failed: %s", err.Error()), "ibm_is_snapshot", "update")
+			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+			return tfErr.GetDiag()
 		}
 		_, err = isWaitForSnapshotUpdate(sess, d.Id(), d.Timeout(schema.TimeoutCreate))
 		if err != nil {
-			return err
+			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Wait for Snapshot update failed: %s", err.Error()), "ibm_is_snapshot", "update")
+			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+			return tfErr.GetDiag()
 		}
 	}
 

@@ -604,17 +604,15 @@ func volumeGet(context context.Context, d *schema.ResourceData, meta interface{}
 	}
 
 	allowedUses := []map[string]interface{}{}
-	if vol.AllowedUse != nil {
-		modelMap, err := ResourceceIBMIsVolumeAllowedUseToMap(vol.AllowedUse)
+	if volume.AllowedUse != nil {
+		modelMap, err := ResourceceIBMIsVolumeAllowedUseToMap(volume.AllowedUse)
 		if err != nil {
-			tfErr := flex.TerraformErrorf(err, err.Error(), "(Data) ibm_is_volume", "read")
-			log.Println(tfErr.GetDiag())
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting allowed_use: %s", err), "(Data) ibm_is_volume", "read", "set-allowed_use").GetDiag()
 		}
 		allowedUses = append(allowedUses, modelMap)
 	}
 	if err = d.Set("allowed_use", allowedUses); err != nil {
-		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting allowed_use: %s", err), "(Data) ibm_is_volume", "read")
-		log.Println(tfErr.GetDiag())
+		return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting allowed_use: %s", err), "(Data) ibm_is_volume", "read", "set-allowed_use").GetDiag()
 	}
 	return nil
 }

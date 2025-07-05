@@ -435,10 +435,7 @@ func instanceVolAttachmentCreate(context context.Context, d *schema.ResourceData
 			}
 		}
 		if allowedUse, ok := d.GetOk("allowed_use"); ok {
-			allowedUseModel, err := ResourceIBMIsVolumeAllowedUseMapToVolumeAllowedUsePrototype(allowedUse.([]interface{})[0].(map[string]interface{}))
-			if err != nil {
-				return err
-			}
+			allowedUseModel, _ := ResourceIBMIsVolumeAllowedUseMapToVolumeAllowedUsePrototype(allowedUse.([]interface{})[0].(map[string]interface{}))
 			volProtoVol.AllowedUse = allowedUseModel
 		}
 		var iops int64
@@ -792,23 +789,24 @@ func instanceVolAttUpdate(context context.Context, d *schema.ResourceData, meta 
 		volId := d.Get(isInstanceVolAttVol).(string)
 		volumeProfilePatchModel := &vpcv1.VolumePatch{}
 		if d.HasChange("allowed_use") {
-			allowedUseModel, err := ResourceIBMIsInstanceMapToVolumeAllowedUsePatchPrototype(d.Get("allowed_use").([]interface{})[0].(map[string]interface{}))
-			if err != nil {
-				return err
-			}
+			allowedUseModel, _ := ResourceIBMIsInstanceMapToVolumeAllowedUsePatchPrototype(d.Get("allowed_use").([]interface{})[0].(map[string]interface{}))
 			volumeProfilePatchModel.AllowedUse = allowedUseModel
 		}
 		volumeProfilePatch, err := volumeProfilePatchModel.AsPatch()
 		if err != nil {
-			return fmt.Errorf("[ERROR] Error calling asPatch for volumeProfilePatch: %s", err)
+			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("volumeProfilePatchModel.AsPatch() failed: %s", err.Error()), "ibm_is_instance_volume_attachment", "update")
+			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+			return tfErr.GetDiag()
 		}
 
 		optionsget := &vpcv1.GetVolumeOptions{
 			ID: &volId,
 		}
-		_, response, err := instanceC.GetVolume(optionsget)
+		_, response, err := instanceC.GetVolumeWithContext(context, optionsget)
 		if err != nil {
-			return fmt.Errorf("[ERROR] Error getting Boot Volume (%s): %s\n%s", id, err, response)
+			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("GetVolumeWithContext failed: %s", err.Error()), "ibm_is_instance_volume_attachment", "update")
+			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+			return tfErr.GetDiag()
 		}
 		eTag := response.Headers.Get("ETag")
 		updateVolumeProfileOptions := &vpcv1.UpdateVolumeOptions{
@@ -816,11 +814,18 @@ func instanceVolAttUpdate(context context.Context, d *schema.ResourceData, meta 
 		}
 		updateVolumeProfileOptions.IfMatch = &eTag
 		updateVolumeProfileOptions.VolumePatch = volumeProfilePatch
-		_, response, err = instanceC.UpdateVolume(updateVolumeProfileOptions)
+		_, response, err = instanceC.UpdateVolumeWithContext(context, updateVolumeProfileOptions)
 		if err != nil {
-			return fmt.Errorf("[ERROR] Error updating volume allowed use: %s\n%s", err, response)
+			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("UpdateVolumeWithContext failed: %s", err.Error()), "ibm_is_instance_volume_attachment", "update")
+			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+			return tfErr.GetDiag()
 		}
-		isWaitForVolumeAvailable(instanceC, volId, d.Timeout(schema.TimeoutCreate))
+		_, err = isWaitForVolumeAvailable(instanceC, volId, d.Timeout(schema.TimeoutCreate))
+		if err != nil {
+			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("isWaitForVolumeAvailable failed: %s", err.Error()), "ibm_is_instance_volume_attachment", "update")
+			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+			return tfErr.GetDiag()
+		}
 	}
 
 	// profile/iops update

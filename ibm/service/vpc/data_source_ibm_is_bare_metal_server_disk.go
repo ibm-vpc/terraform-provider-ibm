@@ -132,16 +132,15 @@ func dataSourceIBMISBareMetalServerDiskRead(context context.Context, d *schema.R
 		return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting size: %s", err), "(Data) ibm_is_bare_metal_server_disk", "read", "set-size").GetDiag()
 	}
 	allowedUses := []map[string]interface{}{}
-	if disk.AllowedUse != nil {
-		modelMap, err := ResourceceIBMIsBareMetalServerDiskAllowedUseToMap(disk.AllowedUse)
+	if bareMetalServerDisk.AllowedUse != nil {
+		modelMap, err := ResourceceIBMIsBareMetalServerDiskAllowedUseToMap(bareMetalServerDisk.AllowedUse)
 		if err != nil {
-			tfErr := flex.TerraformErrorf(err, err.Error(), "(Data) ibm_is_bare_metal_server_disk", "read")
-			log.Println(tfErr.GetDiag())
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting allowed_use: %s", err), "(Data) ibm_is_bare_metal_server_disk", "read", "set-allowed_use").GetDiag()
 		}
 		allowedUses = append(allowedUses, modelMap)
 	}
 	if err = d.Set("allowed_use", allowedUses); err != nil {
-		return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting allowed_use: %s", err), "(Data) ibm_is_bare_metal_server_disk", "read", "allowed_use").GetDiag()
+		return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting allowed_use: %s", err), "(Data) ibm_is_bare_metal_server_disk", "read", "set-allowed_use").GetDiag()
 	}
 	return nil
 }

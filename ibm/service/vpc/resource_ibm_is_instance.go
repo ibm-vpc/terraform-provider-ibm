@@ -2363,7 +2363,6 @@ func instanceCreateByImage(context context.Context, d *schema.ResourceData, meta
 				}
 				volumeattItemPrototypeModel.UserTags = userTagsArray
 			}
-
 			//allowed use
 			if _, ok := d.GetOk("volume_prototypes.%d.allowed_use"); ok {
 				allowedUseModel, _ := ResourceIBMIsVolumeAllowedUseMapToVolumeAllowedUsePrototype(d.Get("volume_prototypes.%d.allowed_use").([]interface{})[0].(map[string]interface{}))
@@ -2374,6 +2373,7 @@ func instanceCreateByImage(context context.Context, d *schema.ResourceData, meta
 
 			volumeatt = append(volumeatt, *volumeattItemModel)
 		}
+		instanceproto.VolumeAttachments = volumeatt
 	}
 	if _, ok := d.GetOk("confidential_compute_mode"); ok {
 		instanceproto.ConfidentialComputeMode = core.StringPtr(d.Get("confidential_compute_mode").(string))
@@ -2432,9 +2432,11 @@ func instanceCreateByImage(context context.Context, d *schema.ResourceData, meta
 
 	if boot, ok := d.GetOk(isInstanceBootVolume); ok {
 		bootvol := boot.([]interface{})[0].(map[string]interface{})
-		volTemplate, deletebool, err := volumePrototypeInstanceByImage(d, bootvol)
-		if err != nil {
-			return err
+		var volTemplate = &vpcv1.VolumePrototypeInstanceByImageContext{}
+		name, ok := bootvol[isInstanceBootAttachmentName]
+		namestr := name.(string)
+		if namestr != "" && ok {
+			volTemplate.Name = &namestr
 		}
 		sizeOk, ok := bootvol[isInstanceBootSize]
 		size := sizeOk.(int)
@@ -2468,6 +2470,13 @@ func instanceCreateByImage(context context.Context, d *schema.ResourceData, meta
 		volTemplate.Profile = &vpcv1.VolumeProfileIdentity{
 			Name: &bootProfile,
 		}
+		//boot volume allowed use
+		if _, ok := bootvol["allowed_use"]; ok {
+			allowedUseModel, _ := ResourceIBMIsVolumeAllowedUseMapToVolumeAllowedUsePrototype(bootvol["allowed_use"].([]interface{})[0].(map[string]interface{}))
+			if allowedUseModel != nil {
+				volTemplate.AllowedUse = allowedUseModel
+			}
+		}
 		var userTags *schema.Set
 		if v, ok := bootvol[isInstanceBootVolumeTags]; ok {
 			userTags = v.(*schema.Set)
@@ -2486,6 +2495,7 @@ func instanceCreateByImage(context context.Context, d *schema.ResourceData, meta
 			DeleteVolumeOnInstanceDelete: &deletebool,
 			Volume:                       volTemplate,
 		}
+
 	}
 
 	if networkattachmentsintf, ok := d.GetOk("network_attachments"); ok {
@@ -2793,6 +2803,7 @@ func instanceCreateByImage(context context.Context, d *schema.ResourceData, meta
 		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
 		return tfErr.GetDiag()
 	}
+
 	v := os.Getenv("IC_ENV_TAGS")
 	if _, ok := d.GetOk(isInstanceTags); ok || v != "" {
 		oldList, newList := d.GetChange(isInstanceTags)
@@ -2936,6 +2947,7 @@ func instanceCreateByCatalogOffering(context context.Context, d *schema.Resource
 
 			volumeatt = append(volumeatt, *volumeattItemModel)
 		}
+		instanceproto.VolumeAttachments = volumeatt
 	}
 	if _, ok := d.GetOk("confidential_compute_mode"); ok {
 		instanceproto.ConfidentialComputeMode = core.StringPtr(d.Get("confidential_compute_mode").(string))
@@ -3026,9 +3038,11 @@ func instanceCreateByCatalogOffering(context context.Context, d *schema.Resource
 
 	if boot, ok := d.GetOk(isInstanceBootVolume); ok {
 		bootvol := boot.([]interface{})[0].(map[string]interface{})
-		volTemplate, deletebool, err := volumePrototypeInstanceByImage(d, bootvol)
-		if err != nil {
-			return err
+		var volTemplate = &vpcv1.VolumePrototypeInstanceByImageContext{}
+		name, ok := bootvol[isInstanceBootAttachmentName]
+		namestr := name.(string)
+		if namestr != "" && ok {
+			volTemplate.Name = &namestr
 		}
 		sizeOk, ok := bootvol[isInstanceBootSize]
 		size := sizeOk.(int)
@@ -3061,12 +3075,20 @@ func instanceCreateByCatalogOffering(context context.Context, d *schema.Resource
 		volTemplate.Profile = &vpcv1.VolumeProfileIdentity{
 			Name: &volprof,
 		}
+		//boot volume allowed use
+		if _, ok := bootvol["allowed_use"]; ok {
+			allowedUseModel, _ := ResourceIBMIsVolumeAllowedUseMapToVolumeAllowedUsePrototype(bootvol["allowed_use"].([]interface{})[0].(map[string]interface{}))
+			if allowedUseModel != nil {
+				volTemplate.AllowedUse = allowedUseModel
+			}
+		}
 		deleteboolIntf := bootvol[isInstanceVolAttVolAutoDelete]
 		deletebool := deleteboolIntf.(bool)
 		instanceproto.BootVolumeAttachment = &vpcv1.VolumeAttachmentPrototypeInstanceByImageContext{
 			DeleteVolumeOnInstanceDelete: &deletebool,
 			Volume:                       volTemplate,
 		}
+
 	}
 
 	if networkattachmentsintf, ok := d.GetOk("network_attachments"); ok {
@@ -3505,6 +3527,7 @@ func instanceCreateByTemplate(context context.Context, d *schema.ResourceData, m
 
 			volumeatt = append(volumeatt, *volumeattItemModel)
 		}
+		instanceproto.VolumeAttachments = volumeatt
 	}
 	if _, ok := d.GetOk("confidential_compute_mode"); ok {
 		instanceproto.ConfidentialComputeMode = core.StringPtr(d.Get("confidential_compute_mode").(string))
@@ -3578,9 +3601,11 @@ func instanceCreateByTemplate(context context.Context, d *schema.ResourceData, m
 	}
 	if boot, ok := d.GetOk(isInstanceBootVolume); ok {
 		bootvol := boot.([]interface{})[0].(map[string]interface{})
-		volTemplate, deletebool, err := volumePrototypeInstanceByImage(d, bootvol)
-		if err != nil {
-			return err
+		var volTemplate = &vpcv1.VolumePrototypeInstanceByImageContext{}
+		name, ok := bootvol[isInstanceBootAttachmentName]
+		namestr := name.(string)
+		if namestr != "" && ok {
+			volTemplate.Name = &namestr
 		}
 		sizeOk, ok := bootvol[isInstanceBootSize]
 		size := sizeOk.(int)
@@ -3614,6 +3639,13 @@ func instanceCreateByTemplate(context context.Context, d *schema.ResourceData, m
 		volTemplate.Profile = &vpcv1.VolumeProfileIdentity{
 			Name: &volprof,
 		}
+		//boot volume allowed use
+		if _, ok := bootvol["allowed_use"]; ok {
+			allowedUseModel, _ := ResourceIBMIsVolumeAllowedUseMapToVolumeAllowedUsePrototype(bootvol["allowed_use"].([]interface{})[0].(map[string]interface{}))
+			if allowedUseModel != nil {
+				volTemplate.AllowedUse = allowedUseModel
+			}
+		}
 		var userTags *schema.Set
 		if v, ok := bootvol[isInstanceBootVolumeTags]; ok {
 			userTags = v.(*schema.Set)
@@ -3634,6 +3666,7 @@ func instanceCreateByTemplate(context context.Context, d *schema.ResourceData, m
 			Volume:                       volTemplate,
 		}
 	}
+
 	if networkattachmentsintf, ok := d.GetOk("network_attachments"); ok {
 		networkAttachments := []vpcv1.InstanceNetworkAttachmentPrototype{}
 		for i, networkAttachmentsItem := range networkattachmentsintf.([]interface{}) {
@@ -4080,6 +4113,7 @@ func instanceCreateBySnapshot(context context.Context, d *schema.ResourceData, m
 
 			volumeatt = append(volumeatt, *volumeattItemModel)
 		}
+		instanceproto.VolumeAttachments = volumeatt
 	}
 	if _, ok := d.GetOk("confidential_compute_mode"); ok {
 		instanceproto.ConfidentialComputeMode = core.StringPtr(d.Get("confidential_compute_mode").(string))
@@ -4662,6 +4696,7 @@ func instanceCreateByVolume(context context.Context, d *schema.ResourceData, met
 
 			volumeatt = append(volumeatt, *volumeattItemModel)
 		}
+		instanceproto.VolumeAttachments = volumeatt
 	}
 	if _, ok := d.GetOk("confidential_compute_mode"); ok {
 		instanceproto.ConfidentialComputeMode = core.StringPtr(d.Get("confidential_compute_mode").(string))
@@ -6657,41 +6692,42 @@ func instanceUpdate(context context.Context, d *schema.ResourceData, meta interf
 
 	bootVolAllowedUse := "boot_volume.0.allowed_use"
 	if d.HasChange(bootVolAllowedUse) && !d.IsNewResource() {
-		id := d.Get("boot_volume.0.volume_id").(string)
-		allowedUseModel, err := ResourceIBMIsInstanceMapToVolumeAllowedUsePatchPrototype(d.Get("boot_volume.0allowed_use").([]interface{})[0].(map[string]interface{}))
-		if err != nil {
-			return err
-		}
+		volId := d.Get("boot_volume.0.volume_id").(string)
+		allowedUseModel, _ := ResourceIBMIsInstanceMapToVolumeAllowedUsePatchPrototype(d.Get("boot_volume.0allowed_use").([]interface{})[0].(map[string]interface{}))
 		optionsget := &vpcv1.GetVolumeOptions{
-			ID: &id,
+			ID: &volId,
 		}
-		_, response, err := instanceC.GetVolume(optionsget)
+		_, response, err := instanceC.GetVolumeWithContext(context, optionsget)
 		if err != nil {
-			if response != nil && response.StatusCode == 404 {
-				d.SetId("")
-				return nil
-			}
-			return fmt.Errorf("Error getting Volume (%s): %s\n%s", id, err, response)
+			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("GetVolumeWithContext failed: %s", err.Error()), "ibm_is_instance", "update")
+			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+			return tfErr.GetDiag()
 		}
 		eTag := response.Headers.Get("ETag")
 		options := &vpcv1.UpdateVolumeOptions{
-			ID: &id,
+			ID: &volId,
 		}
 		options.IfMatch = &eTag
-		volumeNamePatchModel := &vpcv1.VolumePatch{}
-		volumeNamePatchModel.AllowedUse = allowedUseModel
-		volumeNamePatch, err := volumeNamePatchModel.AsPatch()
+		volumeAllowedUsePatchModel := &vpcv1.VolumePatch{}
+		volumeAllowedUsePatchModel.AllowedUse = allowedUseModel
+		volumeNamePatch, err := volumeAllowedUsePatchModel.AsPatch()
 		if err != nil {
-			return fmt.Errorf("[ERROR] Error calling asPatch for volumeNamePatch: %s", err)
+			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("bootvolumeTagsPatchModel.AsPatch() failed: %s", err.Error()), "ibm_is_instance", "update")
+			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+			return tfErr.GetDiag()
 		}
 		options.VolumePatch = volumeNamePatch
-		vol, res, err := instanceC.UpdateVolume(options)
+		vol, _, err := instanceC.UpdateVolumeWithContext(context, options)
 		if vol == nil || err != nil {
-			return (fmt.Errorf("[ERROR] Error encountered while applying allowed use for boot volume of instance %s/n%s", err, res))
+			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("UpdateVolumeWithContext failed: %s", err.Error()), "ibm_is_instance", "update")
+			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+			return tfErr.GetDiag()
 		}
-		_, err = isWaitForVolumeAvailable(instanceC, d.Id(), d.Timeout(schema.TimeoutCreate))
+		_, err = isWaitForVolumeAvailable(instanceC, volId, d.Timeout(schema.TimeoutCreate))
 		if err != nil {
-			return err
+			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("isWaitForVolumeAvailable failed: %s", err.Error()), "ibm_is_instance", "update")
+			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+			return tfErr.GetDiag()
 		}
 	}
 
@@ -8542,7 +8578,7 @@ func volumesEqual(oldVol, newVol map[string]interface{}) bool {
 				}
 				continue
 			}
-			// Remember if diff is not working then remember to add changes here.
+
 			if !reflect.DeepEqual(oldVal, newVal) {
 				return false
 			}
@@ -8565,6 +8601,81 @@ func volumesEqual(oldVol, newVol map[string]interface{}) bool {
 	}
 
 	return true
+}
+
+// Validation function
+func ResourceValidateInstanceVolumePrototypes(diff *schema.ResourceDiff, meta interface{}) error {
+	// For new resource creation
+	if diff.Id() == "" {
+		volProtoListIntf := diff.Get("volume_prototypes")
+		if volProtoListIntf == nil {
+			return nil
+		}
+
+		volProtoList := volProtoListIntf.([]interface{})
+		for i, vol := range volProtoList {
+			volMap := vol.(map[string]interface{})
+			profile := volMap["volume_profile"].(string)
+
+			// For tiered profiles, validate IOPS not set
+			if isTieredProfile(profile) {
+				if iops, ok := volMap["volume_iops"]; ok && iops.(int) != 0 {
+					return fmt.Errorf("volume prototype %d (%s): iops cannot be set for tiered profile %s",
+						i, volMap["volume_name"].(string), profile)
+				}
+			}
+		}
+		return nil
+	}
+
+	// For updates
+	if !diff.HasChange("volume_prototypes") {
+		return nil
+	}
+
+	oldVolProtoListIntf, newVolProtoListIntf := diff.GetChange("volume_prototypes")
+	if oldVolProtoListIntf == nil || newVolProtoListIntf == nil {
+		return nil
+	}
+
+	oldVolProtoList := oldVolProtoListIntf.([]interface{})
+	newVolProtoList := newVolProtoListIntf.([]interface{})
+
+	oldVolMap := make(map[string]map[string]interface{})
+	for _, v := range oldVolProtoList {
+		volMap := v.(map[string]interface{})
+		oldVolMap[volMap["volume_name"].(string)] = volMap
+	}
+
+	// Validate each volume
+	for _, v := range newVolProtoList {
+		volMap := v.(map[string]interface{})
+		volName := volMap["volume_name"].(string)
+		newProfile := volMap["volume_profile"].(string)
+
+		if oldVol, exists := oldVolMap[volName]; exists {
+			oldProfile := oldVol["volume_profile"].(string)
+
+			// Validate profile transitions
+			if oldProfile != newProfile {
+				if oldProfile == "custom" && newProfile != "custom" {
+					return fmt.Errorf("volume %s: custom profile can only be changed to another custom profile", volName)
+				}
+				if isTieredProfile(oldProfile) && !isTieredProfile(newProfile) {
+					return fmt.Errorf("volume %s: tiered profile can only be changed to another tiered profile", volName)
+				}
+			}
+		}
+
+		// Validate tiered profile constraints
+		if isTieredProfile(newProfile) {
+			if iops, ok := volMap["volume_iops"]; ok && iops.(int) != 0 {
+				return fmt.Errorf("volume %s: iops cannot be set for tiered profile", volName)
+			}
+		}
+	}
+
+	return nil
 }
 
 func handleVolumePrototypesUpdate(d *schema.ResourceData, instanceC *vpcv1.VpcV1) error {
@@ -9275,47 +9386,4 @@ func buildUpdateClusterNetworkAttachmentOptions(instanceID string, attachment ma
 		InstanceClusterNetworkAttachmentPatch: clusterNetworkInterfaceAsPatch,
 	}
 	return updateOptions
-}
-
-func volumePrototypeInstanceByImage(d *schema.ResourceData, bootvol map[string]interface{}) (*vpcv1.VolumePrototypeInstanceByImageContext, bool, error) {
-	var volTemplate = &vpcv1.VolumePrototypeInstanceByImageContext{}
-	name, ok := bootvol[isInstanceBootAttachmentName]
-	namestr := name.(string)
-	if namestr != "" && ok {
-		volTemplate.Name = &namestr
-	}
-	sizeOk, ok := bootvol[isInstanceBootSize]
-	size := sizeOk.(int)
-	if size != 0 && ok {
-		sizeInt64 := int64(size)
-		volTemplate.Capacity = &sizeInt64
-	}
-	iopsOk, ok := bootvol[isInstanceBootIOPS]
-	iops := iopsOk.(int)
-	if iops != 0 && ok {
-		iopsInt64 := int64(iops)
-		volTemplate.Iops = &iopsInt64
-	}
-	enc, ok := bootvol[isInstanceBootEncryption]
-	encstr := enc.(string)
-	if ok && encstr != "" {
-		volTemplate.EncryptionKey = &vpcv1.EncryptionKeyIdentity{
-			CRN: &encstr,
-		}
-	}
-
-	volprof := "general-purpose"
-	volTemplate.Profile = &vpcv1.VolumeProfileIdentity{
-		Name: &volprof,
-	}
-	//boot volume allowed use
-	if _, ok := bootvol["allowed_use"]; ok {
-		allowedUseModel, _ := ResourceIBMIsVolumeAllowedUseMapToVolumeAllowedUsePrototype(bootvol["allowed_use"].([]interface{})[0].(map[string]interface{}))
-		if allowedUseModel != nil {
-			volTemplate.AllowedUse = allowedUseModel
-		}
-	}
-	deleteboolIntf := bootvol[isInstanceVolAttVolAutoDelete]
-	deletebool := deleteboolIntf.(bool)
-	return volTemplate, deletebool, nil
 }

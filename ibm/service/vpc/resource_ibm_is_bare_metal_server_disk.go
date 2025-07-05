@@ -192,9 +192,6 @@ func ResourceceIBMIsBareMetalServerDiskAllowedUseToMap(model *vpcv1.BareMetalSer
 	if model.BareMetalServer != nil {
 		modelMap["bare_metal_server"] = *model.BareMetalServer
 	}
-	if model.Instance != nil {
-		modelMap["instance"] = *model.Instance
-	}
 	if model.ApiVersion != nil {
 		modelMap["api_version"] = *model.ApiVersion
 	}

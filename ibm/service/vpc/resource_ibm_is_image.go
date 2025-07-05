@@ -390,7 +390,7 @@ func imgCreateByFile(context context.Context, d *schema.ResourceData, meta inter
 	if allowedUse, ok := d.GetOk("allowed_use"); ok {
 		allowedUseModel, err := ResourceIBMUsageConstraintsMapToImageAllowUsePrototype(allowedUse.([]interface{})[0].(map[string]interface{}))
 		if err != nil {
-			return err
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_image", "create", "parse-allowed_use").GetDiag()
 		}
 		imagePrototype.AllowedUse = allowedUseModel
 	}
@@ -478,7 +478,7 @@ func imgCreateByVolume(context context.Context, d *schema.ResourceData, meta int
 	if allowedUse, ok := d.GetOk("allowed_use"); ok {
 		allowedUseModel, err := ResourceIBMUsageConstraintsMapToImageAllowUsePrototype(allowedUse.([]interface{})[0].(map[string]interface{}))
 		if err != nil {
-			return err
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_image", "create", "parse-allowed_use").GetDiag()
 		}
 		imagePrototype.AllowedUse = allowedUseModel
 	}
@@ -773,7 +773,7 @@ func imgUpdate(context context.Context, d *schema.ResourceData, meta interface{}
 	if d.HasChange("allowed_use") {
 		allowedUseModel, err := ResourceIBMIsImageMapToImageAllowedUsePatch(d.Get("allowed_use").([]interface{})[0].(map[string]interface{}))
 		if err != nil {
-			return fmt.Errorf("[ERROR] Error on allowed use patch: %s\n", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_image", "update", "parse-allowed_use").GetDiag()
 		}
 		imagePatchModel.AllowedUse = allowedUseModel
 	}
@@ -940,10 +940,12 @@ func imgGet(context context.Context, d *schema.ResourceData, meta interface{}, i
 	if !core.IsNil(image.AllowedUse) {
 		allowedUseMap, err := ResourceIBMIsImageImageAllowUseToMap(image.AllowedUse)
 		if err != nil {
-			return err
+			err = fmt.Errorf("Error setting allowed_use: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_image", "read", "set-allowed_use").GetDiag()
 		}
 		if err = d.Set("allowed_use", []map[string]interface{}{allowedUseMap}); err != nil {
-			log.Printf("Error setting allowed_use: %s", err)
+			err = fmt.Errorf("Error setting allowed_use: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_image", "read", "set-allowed_use").GetDiag()
 		}
 	}
 	tags, err := flex.GetGlobalTagsUsingCRN(meta, *image.CRN, "", isImageUserTagType)

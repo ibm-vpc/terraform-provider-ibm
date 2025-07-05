@@ -1678,10 +1678,7 @@ func instanceTemplateCreateByCatalogOffering(context context.Context, d *schema.
 
 		//allowed use
 		if bootvol["allowed_use"] != nil && len(bootvol["allowed_use"].([]interface{})) > 0 {
-			AllowedUseModel, err := ResourceIBMIsVolumeAllowedUseMapToVolumeAllowedUsePrototype(bootvol["allowed_use"].([]interface{})[0].(map[string]interface{}))
-			if err != nil {
-				return err
-			}
+			AllowedUseModel, _ := ResourceIBMIsVolumeAllowedUseMapToVolumeAllowedUsePrototype(bootvol["allowed_use"].([]interface{})[0].(map[string]interface{}))
 			volTemplate.AllowedUse = AllowedUseModel
 		}
 
@@ -1753,10 +1750,7 @@ func instanceTemplateCreateByCatalogOffering(context context.Context, d *schema.
 				}
 				//allowed use
 				if newvol["allowed_use"] != nil && len(newvol["allowed_use"].([]interface{})) > 0 {
-					AllowedUseModel, err := ResourceIBMIsVolumeAllowedUseMapToVolumeAllowedUsePrototype(newvol["allowed_use"].([]interface{})[0].(map[string]interface{}))
-					if err != nil {
-						return err
-					}
+					AllowedUseModel, _ := ResourceIBMIsVolumeAllowedUseMapToVolumeAllowedUsePrototype(newvol["allowed_use"].([]interface{})[0].(map[string]interface{}))
 					volPrototype.AllowedUse = AllowedUseModel
 				}
 				volInterface.Volume = volPrototype
@@ -2216,10 +2210,7 @@ func instanceTemplateCreate(context context.Context, d *schema.ResourceData, met
 
 		//allowed use
 		if bootvol["allowed_use"] != nil && len(bootvol["allowed_use"].([]interface{})) > 0 {
-			AllowedUseModel, err := ResourceIBMIsVolumeAllowedUseMapToVolumeAllowedUsePrototype(bootvol["allowed_use"].([]interface{})[0].(map[string]interface{}))
-			if err != nil {
-				return err
-			}
+			AllowedUseModel, _ := ResourceIBMIsVolumeAllowedUseMapToVolumeAllowedUsePrototype(bootvol["allowed_use"].([]interface{})[0].(map[string]interface{}))
 			volTemplate.AllowedUse = AllowedUseModel
 		}
 
@@ -2291,10 +2282,7 @@ func instanceTemplateCreate(context context.Context, d *schema.ResourceData, met
 				}
 				//allowed use
 				if newvol["allowed_use"] != nil && len(newvol["allowed_use"].([]interface{})) > 0 {
-					AllowedUseModel, err := ResourceIBMIsVolumeAllowedUseMapToVolumeAllowedUsePrototype(newvol["allowed_use"].([]interface{})[0].(map[string]interface{}))
-					if err != nil {
-						return err
-					}
+					AllowedUseModel, _ := ResourceIBMIsVolumeAllowedUseMapToVolumeAllowedUsePrototype(newvol["allowed_use"].([]interface{})[0].(map[string]interface{}))
 					volPrototype.AllowedUse = AllowedUseModel
 				}
 				volInterface.Volume = volPrototype
