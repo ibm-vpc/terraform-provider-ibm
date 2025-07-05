@@ -426,6 +426,42 @@ func ResourceIBMISInstanceTemplate() *schema.Resource {
 										Set:         flex.ResourceIBMVPCHash,
 										Description: "UserTags for the volume instance",
 									},
+									"allowed_use": &schema.Schema{
+										Type:        schema.TypeList,
+										MaxItems:    1,
+										Optional:    true,
+										ForceNew:    true,
+										Computed:    true,
+										Description: "The usage constraints to be matched against requested instance or bare metal server properties to determine compatibility.",
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"api_version": &schema.Schema{
+													Type:         schema.TypeString,
+													Optional:     true,
+													ForceNew:     true,
+													Computed:     true,
+													ValidateFunc: validate.InvokeValidator("ibm_is_volume", "allowed_use.api_version"),
+													Description:  "The API version with which to evaluate the expressions.",
+												},
+												"bare_metal_server": &schema.Schema{
+													Type:         schema.TypeString,
+													Optional:     true,
+													ForceNew:     true,
+													Computed:     true,
+													ValidateFunc: validate.InvokeValidator("ibm_is_volume", "allowed_use.bare_metal_server"),
+													Description:  "The expression that must be satisfied by the properties of a bare metal server provisioned using the image data in this volume.",
+												},
+												"instance": &schema.Schema{
+													Type:         schema.TypeString,
+													Optional:     true,
+													ForceNew:     true,
+													Computed:     true,
+													ValidateFunc: validate.InvokeValidator("ibm_is_volume", "allowed_use.instance"),
+													Description:  "The expression that must be satisfied by the properties of a virtual server instance provisioned using this volume.",
+												},
+											},
+										},
+									},
 								},
 							},
 						},
@@ -1202,6 +1238,38 @@ func ResourceIBMISInstanceTemplate() *schema.Resource {
 							Optional: true,
 							Computed: true,
 						},
+						"allowed_use": &schema.Schema{
+							Type:        schema.TypeList,
+							MaxItems:    1,
+							Optional:    true,
+							Computed:    true,
+							Description: "The usage constraints to be matched against requested instance or bare metal server properties to determine compatibility.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"api_version": &schema.Schema{
+										Type:         schema.TypeString,
+										Optional:     true,
+										Computed:     true,
+										ValidateFunc: validate.InvokeValidator("ibm_is_volume", "allowed_use.api_version"),
+										Description:  "The API version with which to evaluate the expressions.",
+									},
+									"bare_metal_server": &schema.Schema{
+										Type:         schema.TypeString,
+										Optional:     true,
+										Computed:     true,
+										ValidateFunc: validate.InvokeValidator("ibm_is_volume", "allowed_use.bare_metal_server"),
+										Description:  "The expression that must be satisfied by the properties of a bare metal server provisioned using the image data in this volume.",
+									},
+									"instance": &schema.Schema{
+										Type:         schema.TypeString,
+										Optional:     true,
+										Computed:     true,
+										ValidateFunc: validate.InvokeValidator("ibm_is_volume", "allowed_use.instance"),
+										Description:  "The expression that must be satisfied by the properties of a virtual server instance provisioned using this volume.",
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -1608,6 +1676,12 @@ func instanceTemplateCreateByCatalogOffering(context context.Context, d *schema.
 			deleteVolumeOption = deleteVolume.(bool)
 		}
 
+		//allowed use
+		if bootvol["allowed_use"] != nil && len(bootvol["allowed_use"].([]interface{})) > 0 {
+			AllowedUseModel, _ := ResourceIBMIsVolumeAllowedUseMapToVolumeAllowedUsePrototype(bootvol["allowed_use"].([]interface{})[0].(map[string]interface{}))
+			volTemplate.AllowedUse = AllowedUseModel
+		}
+
 		instanceproto.BootVolumeAttachment = &vpcv1.VolumeAttachmentPrototypeInstanceByImageContext{
 			DeleteVolumeOnInstanceDelete: &deleteVolumeOption,
 			Volume:                       volTemplate,
@@ -1673,6 +1747,11 @@ func instanceTemplateCreateByCatalogOffering(context context.Context, d *schema.
 						}
 						volPrototype.UserTags = userTagsArray
 					}
+				}
+				//allowed use
+				if newvol["allowed_use"] != nil && len(newvol["allowed_use"].([]interface{})) > 0 {
+					AllowedUseModel, _ := ResourceIBMIsVolumeAllowedUseMapToVolumeAllowedUsePrototype(newvol["allowed_use"].([]interface{})[0].(map[string]interface{}))
+					volPrototype.AllowedUse = AllowedUseModel
 				}
 				volInterface.Volume = volPrototype
 			}
@@ -2129,6 +2208,12 @@ func instanceTemplateCreate(context context.Context, d *schema.ResourceData, met
 			deleteVolumeOption = deleteVolume.(bool)
 		}
 
+		//allowed use
+		if bootvol["allowed_use"] != nil && len(bootvol["allowed_use"].([]interface{})) > 0 {
+			AllowedUseModel, _ := ResourceIBMIsVolumeAllowedUseMapToVolumeAllowedUsePrototype(bootvol["allowed_use"].([]interface{})[0].(map[string]interface{}))
+			volTemplate.AllowedUse = AllowedUseModel
+		}
+
 		instanceproto.BootVolumeAttachment = &vpcv1.VolumeAttachmentPrototypeInstanceByImageContext{
 			DeleteVolumeOnInstanceDelete: &deleteVolumeOption,
 			Volume:                       volTemplate,
@@ -2194,6 +2279,11 @@ func instanceTemplateCreate(context context.Context, d *schema.ResourceData, met
 						}
 						volPrototype.UserTags = userTagsArray
 					}
+				}
+				//allowed use
+				if newvol["allowed_use"] != nil && len(newvol["allowed_use"].([]interface{})) > 0 {
+					AllowedUseModel, _ := ResourceIBMIsVolumeAllowedUseMapToVolumeAllowedUsePrototype(newvol["allowed_use"].([]interface{})[0].(map[string]interface{}))
+					volPrototype.AllowedUse = AllowedUseModel
 				}
 				volInterface.Volume = volPrototype
 			}
@@ -2823,6 +2913,17 @@ func instanceTemplateGet(context context.Context, d *schema.ResourceData, meta i
 			if volumeInst.Bandwidth != nil {
 				newVolume["bandwidth"] = volumeInst.Bandwidth
 			}
+			//allowed use
+			allowedUses := []map[string]interface{}{}
+			if volumeInst.AllowedUse != nil {
+				modelMap, err := ResourceIBMIsVolumeAllowedUseToMap(volumeInst.AllowedUse)
+				if err != nil {
+					tfErr := flex.TerraformErrorf(err, err.Error(), "(Resource) ibm_is_instance_template", "read")
+					log.Println(tfErr.GetDiag())
+				}
+				allowedUses = append(allowedUses, modelMap)
+				newVolume["allowed_use"] = allowedUses
+			}
 			if len(newVolume) > 0 {
 				newVolumeArr = append(newVolumeArr, newVolume)
 			}
@@ -2858,6 +2959,17 @@ func instanceTemplateGet(context context.Context, d *schema.ResourceData, meta i
 			if volumeIntf.Bandwidth != nil {
 				bootVol["bandwidth"] = volumeIntf.Bandwidth
 			}
+			//allowed use
+			allowedUses := []map[string]interface{}{}
+			if volumeIntf.AllowedUse != nil {
+				modelMap, err := ResourceIBMIsVolumeAllowedUseToMap(volumeIntf.AllowedUse)
+				if err != nil {
+					tfErr := flex.TerraformErrorf(err, err.Error(), "(Resource) ibm_is_instance_template", "read")
+					log.Println(tfErr.GetDiag())
+				}
+				allowedUses = append(allowedUses, modelMap)
+			}
+			bootVol["allowed_use"] = allowedUses
 		}
 
 		bootVolList = append(bootVolList, bootVol)

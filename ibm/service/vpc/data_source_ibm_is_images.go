@@ -270,6 +270,30 @@ func DataSourceIBMISImages() *schema.Resource {
 								},
 							},
 						},
+						"allowed_use": &schema.Schema{
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "The usage constraints to match against the requested instance or bare metal server properties to determine compatibility.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"api_version": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The API version with which to evaluate the expressions.",
+									},
+									"bare_metal_server": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The expression that must be satisfied by the properties of a bare metal server provisioned using this image.",
+									},
+									"instance": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The expression that must be satisfied by the properties of a virtual server instance provisioned using this image.",
+									},
+								},
+							},
+						},
 						isImageUserDataFormat: {
 							Type:        schema.TypeString,
 							Computed:    true,
@@ -453,6 +477,19 @@ func imageList(context context.Context, d *schema.ResourceData, meta interface{}
 			catalogOfferingMap := dataSourceImageCollectionCatalogOfferingToMap(*image.CatalogOffering)
 			catalogOfferingList = append(catalogOfferingList, catalogOfferingMap)
 			l[isImageCatalogOffering] = catalogOfferingList
+		}
+		if image.UserDataFormat != nil {
+			l["user_data_format"] = *image.UserDataFormat
+		}
+		if image.AllowedUse != nil {
+			usageConstraintList := []map[string]interface{}{}
+			modelMap, err := DataSourceIBMIsImageAllowedUseToMap(image.AllowedUse)
+			if err != nil {
+				tfErr := flex.TerraformErrorf(err, err.Error(), "(Data) ibm_is_image", "read")
+				log.Println(tfErr.GetDiag())
+			}
+			usageConstraintList = append(usageConstraintList, modelMap)
+			l["allowed_use"] = usageConstraintList
 		}
 		accesstags, err := flex.GetGlobalTagsUsingCRN(meta, *image.CRN, "", isImageAccessTagType)
 		if err != nil {
