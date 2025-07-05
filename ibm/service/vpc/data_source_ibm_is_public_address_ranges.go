@@ -202,7 +202,7 @@ func DataSourceIBMIsPublicAddressRanges() *schema.Resource {
 func dataSourceIBMIsPublicAddressRangesRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	vpcClient, err := vpcClient(meta)
 	if err != nil {
-		tfErr := flex.TerraformErrorf(err, err.Error(), "(Data) ibm_is_public_address_ranges", "read")
+		tfErr := flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_public_address_ranges", "read", "initialize-client")
 		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
 		return tfErr.GetDiag()
 	}
@@ -241,15 +241,13 @@ func dataSourceIBMIsPublicAddressRangesRead(context context.Context, d *schema.R
 	for _, modelItem := range allrecs {
 		modelMap, err := DataSourceIBMIsPublicAddressRangesPublicAddressRangeToMap(&modelItem, meta)
 		if err != nil {
-			tfErr := flex.TerraformErrorf(err, err.Error(), "(Data) ibm_is_public_address_ranges", "read")
-			return tfErr.GetDiag()
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_public_address_ranges", "read", "PublicAddressRanges-to-map").GetDiag()
 		}
 		mapSlice = append(mapSlice, modelMap)
 	}
 
 	if err = d.Set("public_address_ranges", mapSlice); err != nil {
-		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting public_address_ranges %s", err), "(Data) ibm_is_public_address_ranges", "read")
-		return tfErr.GetDiag()
+		return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting public_address_ranges %s", err), "(Data) ibm_public_address_ranges", "read", "public_address_ranges-set").GetDiag()
 	}
 
 	return nil

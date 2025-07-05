@@ -284,21 +284,21 @@ func resourceIBMPublicAddressRangeCreate(context context.Context, d *schema.Reso
 	if _, ok := d.GetOk("resource_group"); ok {
 		resourceGroupModel, err := ResourceIBMPublicAddressRangeMapToResourceGroupIdentity(d.Get("resource_group.0").(map[string]interface{}))
 		if err != nil {
-			return diag.FromErr(err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_public_address_range", "create", "parse-resource_group").GetDiag()
 		}
 		createPublicAddressRangeOptions.SetResourceGroup(resourceGroupModel)
 	}
 	if _, ok := d.GetOk("target"); ok {
 		targetModel, err := ResourceIBMPublicAddressRangeMapToPublicAddressRangeTargetPrototype(d.Get("target.0").(map[string]interface{}))
 		if err != nil {
-			return diag.FromErr(err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_public_address_range", "create", "parse-target").GetDiag()
 		}
 		createPublicAddressRangeOptions.SetTarget(targetModel)
 	}
 
 	publicAddressRange, _, err := vpcClient.CreatePublicAddressRangeWithContext(context, createPublicAddressRangeOptions)
 	if err != nil {
-		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("[ERROR] CreatePublicAddressRangeWithContext failed: %s", err.Error()), "ibm_is_public_address_range", "create")
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("CreatePublicAddressRangeWithContext failed: %s", err.Error()), "ibm_public_address_range", "create")
 		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
 		return tfErr.GetDiag()
 	}
@@ -308,7 +308,7 @@ func resourceIBMPublicAddressRangeCreate(context context.Context, d *schema.Reso
 
 	_, err = isWaitForPublicAddressRangeAvailable(vpcClient, d.Id(), d.Timeout(schema.TimeoutCreate))
 	if err != nil {
-		tfErr := flex.TerraformErrorf(err, err.Error(), "(Data) ibm_is_public_address_range", "create")
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("isWaitForPublicAddressRangeAvailable failed: %s", err.Error()), "ibm_public_address_range", "create")
 		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
 		return tfErr.GetDiag()
 	}
@@ -373,7 +373,7 @@ func isWaitForPublicAddressRangeAvailable(sess *vpcv1.VpcV1, id string, timeout 
 func resourceIBMPublicAddressRangeRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	vpcClient, err := vpcClient(meta)
 	if err != nil {
-		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_public_address_range", "read")
+		tfErr := flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_public_address_range", "read", "initialize-client")
 		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
 		return tfErr.GetDiag()
 	}
@@ -388,54 +388,64 @@ func resourceIBMPublicAddressRangeRead(context context.Context, d *schema.Resour
 			d.SetId("")
 			return nil
 		}
-		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("[ERROR] GetPublicAddressRangeWithContext failed: %s", err.Error()), "ibm_is_public_address_range", "read")
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("GetPublicAddressRangeWithContext failed: %s", err.Error()), "ibm_public_address_range", "read")
 		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
 		return tfErr.GetDiag()
 	}
 
 	if err = d.Set("ipv4_address_count", flex.IntValue(publicAddressRange.Ipv4AddressCount)); err != nil {
-		return diag.FromErr(fmt.Errorf("[ERROR] Error setting ipv4_address_count: %s", err))
+		err = fmt.Errorf("Error setting ipv4_address_count: %s", err)
+		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_public_address_range", "read", "set-ipv4_address_count").GetDiag()
 	}
 	if !core.IsNil(publicAddressRange.Name) {
 		if err = d.Set("name", publicAddressRange.Name); err != nil {
-			return diag.FromErr(fmt.Errorf("[ERROR] Error setting name: %s", err))
+			err = fmt.Errorf("Error setting name: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_public_address_range", "read", "set-name").GetDiag()
 		}
 	}
 	if !core.IsNil(publicAddressRange.ResourceGroup) {
 		resourceGroupMap, err := ResourceIBMPublicAddressRangeResourceGroupReferenceToMap(publicAddressRange.ResourceGroup)
 		if err != nil {
-			return diag.FromErr(err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_public_address_range", "read", "resource_group-to-map").GetDiag()
 		}
 		if err = d.Set("resource_group", []map[string]interface{}{resourceGroupMap}); err != nil {
-			return diag.FromErr(fmt.Errorf("[ERROR] Error setting resource_group: %s", err))
+			err = fmt.Errorf("Error setting resource_group: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_public_address_range", "read", "set-resource_group").GetDiag()
 		}
 	}
 	if !core.IsNil(publicAddressRange.Target) {
 		targetMap, err := ResourceIBMPublicAddressRangePublicAddressRangeTargetToMap(publicAddressRange.Target)
 		if err != nil {
-			return diag.FromErr(err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_public_address_range", "read", "target-to-map").GetDiag()
 		}
 		if err = d.Set("target", []map[string]interface{}{targetMap}); err != nil {
-			return diag.FromErr(fmt.Errorf("[ERROR] Error setting target: %s", err))
+			err = fmt.Errorf("Error setting target: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_public_address_range", "read", "set-target").GetDiag()
 		}
 	}
 	if err = d.Set("cidr", publicAddressRange.CIDR); err != nil {
-		return diag.FromErr(fmt.Errorf("[ERROR] Error setting cidr: %s", err))
+		err = fmt.Errorf("Error setting cidr: %s", err)
+		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_public_address_range", "read", "set-cidr").GetDiag()
 	}
 	if err = d.Set("created_at", flex.DateTimeToString(publicAddressRange.CreatedAt)); err != nil {
-		return diag.FromErr(fmt.Errorf("[ERROR] Error setting created_at: %s", err))
+		err = fmt.Errorf("Error setting created_at: %s", err)
+		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_public_address_range", "read", "set-created_at").GetDiag()
 	}
 	if err = d.Set("crn", publicAddressRange.CRN); err != nil {
-		return diag.FromErr(fmt.Errorf("[ERROR] Error setting crn: %s", err))
+		err = fmt.Errorf("Error setting crn: %s", err)
+		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_public_address_range", "read", "set-crn").GetDiag()
 	}
 	if err = d.Set("href", publicAddressRange.Href); err != nil {
-		return diag.FromErr(fmt.Errorf("[ERROR] Error setting href: %s", err))
+		err = fmt.Errorf("Error setting href: %s", err)
+		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_public_address_range", "read", "set-href").GetDiag()
 	}
 	if err = d.Set("lifecycle_state", publicAddressRange.LifecycleState); err != nil {
-		return diag.FromErr(fmt.Errorf("[ERROR] Error setting lifecycle_state: %s", err))
+		err = fmt.Errorf("Error setting lifecycle_state: %s", err)
+		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_public_address_range", "read", "set-lifecycle_state").GetDiag()
 	}
 	if err = d.Set("resource_type", publicAddressRange.ResourceType); err != nil {
-		return diag.FromErr(fmt.Errorf("[ERROR] Error setting resource_type: %s", err))
+		err = fmt.Errorf("Error setting resource_type: %s", err)
+		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_public_address_range", "read", "set-resource_type").GetDiag()
 	}
 
 	tags, err := flex.GetGlobalTagsUsingCRN(meta, *publicAddressRange.CRN, "", "user")
@@ -458,7 +468,7 @@ func resourceIBMPublicAddressRangeRead(context context.Context, d *schema.Resour
 func resourceIBMPublicAddressRangeUpdate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	vpcClient, err := vpcClient(meta)
 	if err != nil {
-		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_public_address_range", "update")
+		tfErr := flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_public_address_range", "update", "initialize-client")
 		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
 		return tfErr.GetDiag()
 	}
@@ -492,7 +502,7 @@ func resourceIBMPublicAddressRangeUpdate(context context.Context, d *schema.Reso
 		updatePublicAddressRangeOptions.PublicAddressRangePatch, _ = patchVals.AsPatch()
 		_, _, err = vpcClient.UpdatePublicAddressRangeWithContext(context, updatePublicAddressRangeOptions)
 		if err != nil {
-			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("[ERROR] UpdatePublicAddressRangeWithContext failed: %s", err.Error()), "ibm_is_public_address_range", "update")
+			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("UpdatePublicAddressRangeWithContext failed: %s", err.Error()), "ibm_public_address_range", "update")
 			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
 			return tfErr.GetDiag()
 		}
@@ -513,14 +523,14 @@ func resourceIBMPublicAddressRangeUpdate(context context.Context, d *schema.Reso
 		}
 		_, _, err = vpcClient.UpdatePublicAddressRangeWithContext(context, updatePublicAddressRangeOptions)
 		if err != nil {
-			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("[ERROR] UpdatePublicAddressRangeWithContext failed: %s", err.Error()), "ibm_is_public_address_range", "update")
+			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("UpdatePublicAddressRangeWithContext failed: %s", err.Error()), "ibm_public_address_range", "update")
 			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
 			return tfErr.GetDiag()
 		}
 
 		_, err = isWaitForPublicAddressRangeUpdate(vpcClient, d.Id(), d.Timeout(schema.TimeoutCreate))
 		if err != nil {
-			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("[ERROR] UpdatePublicAddressRangeWithContext failed: %s", err.Error()), "ibm_is_public_address_range", "update")
+			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("UpdatePublicAddressRangeWithContext failed: %s", err.Error()), "ibm_public_address_range", "update")
 			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
 			return tfErr.GetDiag()
 		}
@@ -565,7 +575,7 @@ func isPublicAddressRangeUpdateRefreshFunc(sess *vpcv1.VpcV1, id string) resourc
 func resourceIBMPublicAddressRangeDelete(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	vpcClient, err := vpcClient(meta)
 	if err != nil {
-		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_public_address_range", "delete")
+		tfErr := flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_public_address_range", "delete", "initialize-client")
 		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
 		return tfErr.GetDiag()
 	}
@@ -576,13 +586,13 @@ func resourceIBMPublicAddressRangeDelete(context context.Context, d *schema.Reso
 
 	_, _, err = vpcClient.DeletePublicAddressRangeWithContext(context, deletePublicAddressRangeOptions)
 	if err != nil {
-		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("[ERROR] DeletePublicAddressRangeWithContext failed: %s", err.Error()), "ibm_is_public_address_range", "delete")
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("DeletePublicAddressRangeWithContext failed: %s", err.Error()), "ibm_public_address_range", "delete")
 		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
 		return tfErr.GetDiag()
 	}
 	_, err = isWaitForPublicAddressRangeDeleted(vpcClient, d.Id(), d.Timeout(schema.TimeoutDelete))
 	if err != nil {
-		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("[ERROR] UpdatePublicAddressRangeWithContext failed: %s", err.Error()), "ibm_is_public_address_range", "update")
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("DeletePublicAddressRangeWithContext failed: %s", err.Error()), "ibm_public_address_range", "delete")
 		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
 		return tfErr.GetDiag()
 	}
