@@ -6693,7 +6693,7 @@ func instanceUpdate(context context.Context, d *schema.ResourceData, meta interf
 	bootVolAllowedUse := "boot_volume.0.allowed_use"
 	if d.HasChange(bootVolAllowedUse) && !d.IsNewResource() {
 		volId := d.Get("boot_volume.0.volume_id").(string)
-		allowedUseModel, _ := ResourceIBMIsInstanceMapToVolumeAllowedUsePatchPrototype(d.Get("boot_volume.0allowed_use").([]interface{})[0].(map[string]interface{}))
+		allowedUseModel, _ := ResourceIBMIsInstanceMapToVolumeAllowedUsePatchPrototype(d.Get("boot_volume.0.allowed_use").([]interface{})[0].(map[string]interface{}))
 		optionsget := &vpcv1.GetVolumeOptions{
 			ID: &volId,
 		}
