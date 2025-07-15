@@ -4095,7 +4095,6 @@ func instanceCreateBySnapshot(context context.Context, d *schema.ResourceData, m
 			}
 			//allowed use
 			if _, ok := d.GetOk(fmt.Sprintf("volume_prototypes.%d.allowed_use", i)); ok {
-				print("Inside if _, ok := d.GetOk(volume_prototypes.allowed_use); ok {")
 				allowedUseModel, _ := ResourceIBMIsVolumeAllowedUseMapToVolumeAllowedUsePrototype(d.Get(fmt.Sprintf("volume_prototypes.%d.allowed_use", i)).([]interface{})[0].(map[string]interface{}))
 				volumeattItemPrototypeModel.AllowedUse = allowedUseModel
 			}
