@@ -2364,8 +2364,8 @@ func instanceCreateByImage(context context.Context, d *schema.ResourceData, meta
 				volumeattItemPrototypeModel.UserTags = userTagsArray
 			}
 			//allowed use
-			if _, ok := d.GetOk("volume_prototypes.%d.allowed_use"); ok {
-				allowedUseModel, _ := ResourceIBMIsVolumeAllowedUseMapToVolumeAllowedUsePrototype(d.Get("volume_prototypes.%d.allowed_use").([]interface{})[0].(map[string]interface{}))
+			if _, ok := d.GetOk(fmt.Sprintf("volume_prototypes.%d.allowed_use", i)); ok {
+				allowedUseModel, _ := ResourceIBMIsVolumeAllowedUseMapToVolumeAllowedUsePrototype(d.Get(fmt.Sprintf("volume_prototypes.%d.allowed_use", i)).([]interface{})[0].(map[string]interface{}))
 				volumeattItemPrototypeModel.AllowedUse = allowedUseModel
 			}
 
@@ -2938,8 +2938,8 @@ func instanceCreateByCatalogOffering(context context.Context, d *schema.Resource
 			}
 
 			//allowed use
-			if _, ok := d.GetOk("volume_prototypes.%d.allowed_use"); ok {
-				allowedUseModel, _ := ResourceIBMIsVolumeAllowedUseMapToVolumeAllowedUsePrototype(d.Get("volume_prototypes.%d.allowed_use").([]interface{})[0].(map[string]interface{}))
+			if _, ok := d.GetOk(fmt.Sprintf("volume_prototypes.%d.allowed_use", i)); ok {
+				allowedUseModel, _ := ResourceIBMIsVolumeAllowedUseMapToVolumeAllowedUsePrototype(d.Get(fmt.Sprintf("volume_prototypes.%d.allowed_use", i)).([]interface{})[0].(map[string]interface{}))
 				volumeattItemPrototypeModel.AllowedUse = allowedUseModel
 			}
 
@@ -3518,8 +3518,8 @@ func instanceCreateByTemplate(context context.Context, d *schema.ResourceData, m
 			}
 
 			//allowed use
-			if _, ok := d.GetOk("volume_prototypes.%d.allowed_use"); ok {
-				allowedUseModel, _ := ResourceIBMIsVolumeAllowedUseMapToVolumeAllowedUsePrototype(d.Get("volume_prototypes.%d.allowed_use").([]interface{})[0].(map[string]interface{}))
+			if _, ok := d.GetOk(fmt.Sprintf("volume_prototypes.%d.allowed_use", i)); ok {
+				allowedUseModel, _ := ResourceIBMIsVolumeAllowedUseMapToVolumeAllowedUsePrototype(d.Get(fmt.Sprintf("volume_prototypes.%d.allowed_use", i)).([]interface{})[0].(map[string]interface{}))
 				volumeattItemPrototypeModel.AllowedUse = allowedUseModel
 			}
 
@@ -4093,6 +4093,13 @@ func instanceCreateBySnapshot(context context.Context, d *schema.ResourceData, m
 					}
 				}
 			}
+			//allowed use
+			if _, ok := d.GetOk(fmt.Sprintf("volume_prototypes.%d.allowed_use", i)); ok {
+				print("Inside if _, ok := d.GetOk(volume_prototypes.allowed_use); ok {")
+				allowedUseModel, _ := ResourceIBMIsVolumeAllowedUseMapToVolumeAllowedUsePrototype(d.Get(fmt.Sprintf("volume_prototypes.%d.allowed_use", i)).([]interface{})[0].(map[string]interface{}))
+				volumeattItemPrototypeModel.AllowedUse = allowedUseModel
+			}
+
 			volTags := d.Get(fmt.Sprintf("volume_prototypes.%d.volume_tags", i)).(*schema.Set)
 			if volTags != nil && volTags.Len() != 0 {
 				userTagsArray := make([]string, volTags.Len())
@@ -4101,12 +4108,6 @@ func instanceCreateBySnapshot(context context.Context, d *schema.ResourceData, m
 					userTagsArray[i] = userTagStr
 				}
 				volumeattItemPrototypeModel.UserTags = userTagsArray
-			}
-
-			//allowed use
-			if _, ok := d.GetOk("volume_prototypes.%d.allowed_use"); ok {
-				allowedUseModel, _ := ResourceIBMIsVolumeAllowedUseMapToVolumeAllowedUsePrototype(d.Get("volume_prototypes.%d.allowed_use").([]interface{})[0].(map[string]interface{}))
-				volumeattItemPrototypeModel.AllowedUse = allowedUseModel
 			}
 
 			volumeattItemModel.Volume = volumeattItemPrototypeModel
@@ -4687,8 +4688,8 @@ func instanceCreateByVolume(context context.Context, d *schema.ResourceData, met
 			}
 
 			//allowed use
-			if _, ok := d.GetOk("volume_prototypes.%d.allowed_use"); ok {
-				allowedUseModel, _ := ResourceIBMIsVolumeAllowedUseMapToVolumeAllowedUsePrototype(d.Get("volume_prototypes.%d.allowed_use").([]interface{})[0].(map[string]interface{}))
+			if _, ok := d.GetOk(fmt.Sprintf("volume_prototypes.%d.allowed_use", i)); ok {
+				allowedUseModel, _ := ResourceIBMIsVolumeAllowedUseMapToVolumeAllowedUsePrototype(d.Get(fmt.Sprintf("volume_prototypes.%d.allowed_use", i)).([]interface{})[0].(map[string]interface{}))
 				volumeattItemPrototypeModel.AllowedUse = allowedUseModel
 			}
 
@@ -5227,7 +5228,6 @@ func isRestartStartAction(instanceC *vpcv1.VpcV1, id string, d *schema.ResourceD
 		select {
 
 		case <-subticker.C:
-			log.Println("Instance is still in starting state, force retry by restarting the instance.")
 			actiontype := "stop"
 			createinsactoptions := &vpcv1.CreateInstanceActionOptions{
 				InstanceID: &id,
@@ -5846,11 +5846,7 @@ func instanceGet(context context.Context, d *schema.ResourceData, meta interface
 				}
 				if vol.AllowedUse != nil {
 					usageConstraintList := []map[string]interface{}{}
-					modelMap, err := ResourceceIBMIsVolumeAllowedUseToMap(vol.AllowedUse)
-					if err != nil {
-						tfErr := flex.TerraformErrorf(err, err.Error(), "(Resource) ibm_is_instance", "read")
-						log.Println(tfErr.GetDiag())
-					}
+					modelMap, _ := ResourceceIBMIsVolumeAllowedUseToMap(vol.AllowedUse)
 					usageConstraintList = append(usageConstraintList, modelMap)
 					bootVol["allowed_use"] = usageConstraintList
 				}
@@ -7933,7 +7929,6 @@ func isRestartStopAction(instanceC *vpcv1.VpcV1, id string, d *schema.ResourceDa
 		select {
 
 		case <-subticker.C:
-			log.Println("Instance is still in stopping state, retrying to stop with -force")
 			actiontype := "stop"
 			createinsactoptions := &vpcv1.CreateInstanceActionOptions{
 				InstanceID: &id,
@@ -8561,6 +8556,7 @@ func volumesEqual(oldVol, newVol map[string]interface{}) bool {
 		"volume_encryption_key",
 		"volume_tags",
 		"volume_bandwidth",
+		"allowed_use",
 	}
 
 	for _, field := range fieldsToCompare {
@@ -8574,6 +8570,12 @@ func volumesEqual(oldVol, newVol map[string]interface{}) bool {
 		if oldOk && newOk {
 			if field == "volume_tags" {
 				if !compareVolumeTags(oldVal, newVal) {
+					return false
+				}
+				continue
+			}
+			if field == "allowed_use" {
+				if !compareAllowedUse(oldVal, newVal) {
 					return false
 				}
 				continue
@@ -8875,8 +8877,8 @@ func handleVolumePrototypesUpdate(d *schema.ResourceData, instanceC *vpcv1.VpcV1
 			}
 
 			//allowed use
-			if _, ok := d.GetOk("volume_prototypes.%d.allowed_use"); ok {
-				allowedUseModel, err := ResourceIBMIsVolumeAllowedUseMapToVolumeAllowedUsePrototype(d.Get("volume_prototypes.%d.allowed_use").([]interface{})[0].(map[string]interface{}))
+			if _, ok := d.GetOk(fmt.Sprintf("volume_prototypes.%d.allowed_use", i)); ok {
+				allowedUseModel, err := ResourceIBMIsVolumeAllowedUseMapToVolumeAllowedUsePrototype(d.Get(fmt.Sprintf("volume_prototypes.%d.allowed_use", i)).([]interface{})[0].(map[string]interface{}))
 				if err != nil {
 					return err
 				}
@@ -8931,15 +8933,30 @@ func hasVolumeChanged(d *schema.ResourceData, newIndex int, oldVol, newVol map[s
 		"volume_capacity",
 		"volume_profile",
 		"volume_bandwidth",
+		"allowed_use",
 	}
 
 	// Compare standard fields
 	for _, field := range fieldsToCompare {
-		oldVal := oldVol[field]
-		newVal := newVol[field]
 
-		if !reflect.DeepEqual(oldVal, newVal) {
+		oldVal, oldOk := oldVol[field]
+		newVal, newOk := newVol[field]
+
+		if oldOk != newOk {
 			return true
+		}
+
+		if oldOk && newOk {
+			if field == "allowed_use" {
+				if !compareAllowedUse(oldVal, newVal) {
+					return true
+				}
+				continue
+			}
+
+			if !reflect.DeepEqual(oldVal, newVal) {
+				return true
+			}
 		}
 	}
 
@@ -8966,6 +8983,36 @@ func hasVolumeChanged(d *schema.ResourceData, newIndex int, oldVol, newVol map[s
 	}
 
 	return false
+}
+
+// Helper function to compare allowed use
+func compareAllowedUse(old, new interface{}) bool {
+	if old == nil && new == nil {
+		return true
+	}
+	if old == nil || new == nil {
+		return false
+	}
+
+	oldSchema, okOld := old.(*map[string]interface{})
+	newSchema, okNew := new.(*map[string]interface{})
+
+	if !okOld || !okNew {
+		// Ensure the old and new are actually maps
+		// fmt.Println("Error: Provided values are not of expected type")
+		return false
+	}
+
+	// Compare each field in the schema
+	// Fields: api_version, bare_metal_server, instance
+	for key := range *oldSchema {
+		if !reflect.DeepEqual((*oldSchema)[key], (*newSchema)[key]) {
+			// If any field differs, return false
+			return false
+		}
+	}
+
+	return true
 }
 
 func isTieredProfile(profile string) bool {
@@ -9061,13 +9108,12 @@ func setVolumePrototypesInState(d *schema.ResourceData, instance *vpcv1.Instance
 					vol["volume_resource_type"] = *volume.Volume.ResourceType
 					if volumeRef.AllowedUse != nil {
 						usageConstraintList := []map[string]interface{}{}
-						modelMap, err := ResourceceIBMIsVolumeAllowedUseToMap(volumeRef.AllowedUse)
-						if err != nil {
-							tfErr := flex.TerraformErrorf(err, err.Error(), "(Resource) ibm_is_instance", "read")
-							log.Println(tfErr.GetDiag())
-						}
+						modelMap, _ := ResourceceIBMIsVolumeAllowedUseToMap(volumeRef.AllowedUse)
 						usageConstraintList = append(usageConstraintList, modelMap)
 						vol["allowed_use"] = usageConstraintList
+					}
+					if volumeRef.SourceSnapshot != nil && volumeRef.SourceSnapshot.ID != nil {
+						vol["volume_source_snapshot"] = *volumeRef.SourceSnapshot.ID
 					}
 				}
 
