@@ -71,12 +71,12 @@ func TestAccIBMISImage_accessTags(t *testing.T) {
 func TestAccIBMISImage_allowedUse(t *testing.T) {
 	var image string
 	name := fmt.Sprintf("tfimg-name-%d", acctest.RandIntRange(10, 100))
-	apiVersion := "2024-10-02"
+	apiVersion := "2025-07-02"
 	bareMetalServer := "enable_secure_boot==true"
 	instance := "enable_secure_boot==true"
-	apiVersionUpdate := "2024-10-05"
-	bareMetalServerUpdate := "gpu.count > 0 && enable_secure_boot == true"
-	instanceUpdate := "gpu.count > 0 && enable_secure_boot == true"
+	apiVersionUpdate := "2025-07-02"
+	bareMetalServerUpdate := "true"
+	instanceUpdate := "true"
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { acc.TestAccPreCheckImage(t) },
 		Providers:    acc.TestAccProviders,
@@ -97,9 +97,9 @@ func TestAccIBMISImage_allowedUse(t *testing.T) {
 						"ibm_is_image.isExampleImage", "allowed_use.0.instance"),
 					resource.TestCheckResourceAttrSet(
 						"ibm_is_image.isExampleImage", "allowed_use.0.api_version"),
-					resource.TestCheckResourceAttr("ibm_is_image.isExampleImage", "bare_metal_server", bareMetalServer),
-					resource.TestCheckResourceAttr("ibm_is_image.isExampleImage", "instance", instance),
-					resource.TestCheckResourceAttr("ibm_is_image.isExampleImage", "api_version", apiVersion),
+					resource.TestCheckResourceAttr("ibm_is_image.isExampleImage", "allowed_use.0.bare_metal_server", bareMetalServer),
+					resource.TestCheckResourceAttr("ibm_is_image.isExampleImage", "allowed_use.0.instance", instance),
+					resource.TestCheckResourceAttr("ibm_is_image.isExampleImage", "allowed_use.0.api_version", apiVersion),
 				),
 			},
 			{
@@ -117,9 +117,9 @@ func TestAccIBMISImage_allowedUse(t *testing.T) {
 						"ibm_is_image.isExampleImage", "allowed_use.0.instance"),
 					resource.TestCheckResourceAttrSet(
 						"ibm_is_image.isExampleImage", "allowed_use.0.api_version"),
-					resource.TestCheckResourceAttr("ibm_is_image.isExampleImage", "bare_metal_server", bareMetalServerUpdate),
-					resource.TestCheckResourceAttr("ibm_is_image.isExampleImage", "instance", instanceUpdate),
-					resource.TestCheckResourceAttr("ibm_is_image.isExampleImage", "api_version", apiVersionUpdate),
+					resource.TestCheckResourceAttr("ibm_is_image.isExampleImage", "allowed_use.0.bare_metal_server", bareMetalServerUpdate),
+					resource.TestCheckResourceAttr("ibm_is_image.isExampleImage", "allowed_use.0.instance", instanceUpdate),
+					resource.TestCheckResourceAttr("ibm_is_image.isExampleImage", "allowed_use.0.api_version", apiVersionUpdate),
 				),
 			},
 		},

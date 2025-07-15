@@ -68,12 +68,12 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCKVmnMOlHKcZK8tpt3MP1lqOLAcqcJzhsvJcjscgVE
 	volname := fmt.Sprintf("tf-vol-%d", acctest.RandIntRange(10, 100))
 	name1 := fmt.Sprintf("tfsnapshotuat-%d", acctest.RandIntRange(10, 100))
 	name2 := fmt.Sprintf("tfsnapshotuat-%d", acctest.RandIntRange(10, 100))
-	apiVersion := "2024-10-02"
-	bareMetalServer := "enable_secure_boot==true"
-	instance := "enable_secure_boot==true"
-	apiVersionUpdate := "2024-10-05"
-	bareMetalServerUpdate := "gpu.count > 0 && enable_secure_boot == true"
-	instanceUpdate := "gpu.count > 0 && enable_secure_boot == true"
+	apiVersion := "2025-07-01"
+	bareMetalServer := "true"
+	instance := "true"
+	apiVersionUpdate := "2025-07-02"
+	bareMetalServerUpdate := "true"
+	instanceUpdate := "true"
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { acc.TestAccPreCheck(t) },
 		Providers:    acc.TestAccProviders,
@@ -93,9 +93,9 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCKVmnMOlHKcZK8tpt3MP1lqOLAcqcJzhsvJcjscgVE
 						"ibm_is_snapshot.testacc_snapshot", "allowed_use.0.instance"),
 					resource.TestCheckResourceAttrSet(
 						"ibm_is_snapshot.testacc_snapshot", "allowed_use.0.api_version"),
-					resource.TestCheckResourceAttr("ibm_is_snapshot.testacc_snapshot", "bare_metal_server", bareMetalServer),
-					resource.TestCheckResourceAttr("ibm_is_snapshot.testacc_snapshot", "instance", instance),
-					resource.TestCheckResourceAttr("ibm_is_snapshot.testacc_snapshot", "api_version", apiVersion),
+					resource.TestCheckResourceAttr("ibm_is_snapshot.testacc_snapshot", "allowed_use.0.bare_metal_server", bareMetalServer),
+					resource.TestCheckResourceAttr("ibm_is_snapshot.testacc_snapshot", "allowed_use.0.instance", instance),
+					resource.TestCheckResourceAttr("ibm_is_snapshot.testacc_snapshot", "allowed_use.0.api_version", apiVersion),
 				),
 			},
 			{
@@ -112,9 +112,9 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCKVmnMOlHKcZK8tpt3MP1lqOLAcqcJzhsvJcjscgVE
 						"ibm_is_snapshot.testacc_snapshot", "allowed_use.0.instance"),
 					resource.TestCheckResourceAttrSet(
 						"ibm_is_snapshot.testacc_snapshot", "allowed_use.0.api_version"),
-					resource.TestCheckResourceAttr("ibm_is_snapshot.testacc_snapshot", "bare_metal_server", bareMetalServerUpdate),
-					resource.TestCheckResourceAttr("ibm_is_snapshot.testacc_snapshot", "instance", instanceUpdate),
-					resource.TestCheckResourceAttr("ibm_is_snapshot.testacc_snapshot", "api_version", apiVersionUpdate),
+					resource.TestCheckResourceAttr("ibm_is_snapshot.testacc_snapshot", "allowed_use.0.bare_metal_server", bareMetalServerUpdate),
+					resource.TestCheckResourceAttr("ibm_is_snapshot.testacc_snapshot", "allowed_use.0.instance", instanceUpdate),
+					resource.TestCheckResourceAttr("ibm_is_snapshot.testacc_snapshot", "allowed_use.0.api_version", apiVersionUpdate),
 				),
 			},
 		},

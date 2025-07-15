@@ -550,10 +550,6 @@ func volCreate(context context.Context, d *schema.ResourceData, meta interface{}
 				volTemplate.Capacity = &volCapacity
 			}
 		}
-		if allowedUse, ok := d.GetOk("allowed_use"); ok {
-			allowedUseModel, _ := ResourceIBMIsVolumeAllowedUseMapToVolumeAllowedUsePrototype(allowedUse.([]interface{})[0].(map[string]interface{}))
-			volTemplate.AllowedUse = allowedUseModel
-		}
 	} else if sourceSnapshtCrn, ok := d.GetOk(isVolumeSourceSnapshotCrn); ok {
 		sourceSnapshot := sourceSnapshtCrn.(string)
 
@@ -566,10 +562,6 @@ func volCreate(context context.Context, d *schema.ResourceData, meta interface{}
 				volCapacity := int64(capacity.(int))
 				volTemplate.Capacity = &volCapacity
 			}
-		}
-		if allowedUse, ok := d.GetOk("allowed_use"); ok {
-			allowedUseModel, _ := ResourceIBMIsVolumeAllowedUseMapToVolumeAllowedUsePrototype(allowedUse.([]interface{})[0].(map[string]interface{}))
-			volTemplate.AllowedUse = allowedUseModel
 		}
 	} else if capacity, ok := d.GetOk(isVolumeCapacity); ok {
 		if int64(capacity.(int)) > 0 {
@@ -623,6 +615,11 @@ func volCreate(context context.Context, d *schema.ResourceData, meta interface{}
 			volTemplate.UserTags = userTagsArray
 		}
 	}
+	if allowedUse, ok := d.GetOk("allowed_use"); ok {
+		allowedUseModel, _ := ResourceIBMIsVolumeAllowedUseMapToVolumeAllowedUsePrototype(allowedUse.([]interface{})[0].(map[string]interface{}))
+		volTemplate.AllowedUse = allowedUseModel
+	}
+
 	options.VolumePrototype = volTemplate
 	vol, _, err := sess.CreateVolumeWithContext(context, options)
 	if err != nil {
