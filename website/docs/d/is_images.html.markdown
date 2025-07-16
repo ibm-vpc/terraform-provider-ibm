@@ -60,12 +60,12 @@ You can access the following attribute references after your data source is crea
     Nested schema for `allowed_use`:
     - `api_version` - (String) The API version with which to evaluate the expressions.
 	  
-    - `bare_metal_server` - (String) The expression that must be satisfied by the properties of a bare metal server provisioned using this image. The expression follows [Common Expression Language](https://github.com/google/cel-spec/blob/master/doc/langdef.md), but does not support built-in functions and macros. 
+    - `bare_metal_server` - (String) The expression that must be satisfied by the properties of a bare metal server provisioned using this image. If unspecified, the expression will be set to true. The expression follows [Common Expression Language](https://github.com/google/cel-spec/blob/master/doc/langdef.md), but does not support built-in functions and macros. 
 
     ~> **NOTE** </br> In addition, the following property is supported, corresponding to `BareMetalServer` properties: </br>
       **&#x2022;** `enable_secure_boot` - (boolean) Indicates whether secure boot is enabled.
 	  
-    - `instance` - (String) The expression that must be satisfied by the properties of a virtual server instance provisioned using this image. The expression follows [Common Expression Language](https://github.com/google/cel-spec/blob/master/doc/langdef.md), but does not support built-in functions and macros. 
+    - `instance` - (String) The expression that must be satisfied by the properties of a virtual server instance provisioned using this image. If unspecified, the expression will be set to true. The expression follows [Common Expression Language](https://github.com/google/cel-spec/blob/master/doc/langdef.md), but does not support built-in functions and macros. 
     
      ~> **NOTE** </br> In addition, the following variables are supported, corresponding to `Instance` properties: </br>
       **&#x2022;** `gpu.count` - (integer) The number of GPUs. </br>

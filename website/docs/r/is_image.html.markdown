@@ -77,7 +77,24 @@ resource "ibm_is_image" "example" {
   ~> **NOTE**
       `obsolescence_at` must be later than `deprecation_at` (if `deprecation_at` is set).
 
+## Example usage (using href, operating_system and allowed_use)
 
+```terraform
+resource "ibm_is_image" "example" {
+  name               = "example-image"
+  href               = "cos://us-south/buckettesttest/livecd.ubuntu-cpc.azure.vhd"
+  operating_system   = "ubuntu-16-04-amd64"
+  encrypted_data_key = "eJxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx0="
+  encryption_key     = "crn:v1:bluemix:public:kms:us-south:a/6xxxxxxxxxxxxxxx:xxxxxxx-xxxx-xxxx-xxxxxxx:key:dxxxxxx-fxxx-4xxx-9xxx-7xxxxxxxx"
+  allowed_use {
+    api_version       = "2025-04-03"
+    bare_metal_server = "enable_secure_boot == true"
+    instance          = "enable_secure_boot == true"
+  }  
+}
+```
+  ~> **NOTE**
+      `operating_system` is required with `href`.
 
 ## Argument reference
 Review the argument references that you can specify for your resource. 
@@ -94,12 +111,12 @@ Review the argument references that you can specify for your resource.
     Nested schema for `allowed_use`:
     - `api_version` - (Optional, String) The API version with which to evaluate the expressions.
 	  
-    - `bare_metal_server` - (Optional, String) The expression that must be satisfied by the properties of a bare metal server provisioned using this image. The expression follows [Common Expression Language](https://github.com/google/cel-spec/blob/master/doc/langdef.md), but does not support built-in functions and macros. 
+    - `bare_metal_server` - (Optional, String) The expression that must be satisfied by the properties of a bare metal server provisioned using this image. If unspecified, the expression will be set to true. The expression follows [Common Expression Language](https://github.com/google/cel-spec/blob/master/doc/langdef.md), but does not support built-in functions and macros. 
     
     ~> **NOTE** </br> In addition, the following property is supported, corresponding to `BareMetalServer` properties: </br>
       **&#x2022;** `enable_secure_boot` - (boolean) Indicates whether secure boot is enabled.
 	  
-    - `instance` - (Optional, String) The expression that must be satisfied by the properties of a virtual server instance provisioned using this image. The expression follows [Common Expression Language](https://github.com/google/cel-spec/blob/master/doc/langdef.md), but does not support built-in functions and macros. 
+    - `instance` - (Optional, String) The expression that must be satisfied by the properties of a virtual server instance provisioned using this image. If unspecified, the expression will be set to true. The expression follows [Common Expression Language](https://github.com/google/cel-spec/blob/master/doc/langdef.md), but does not support built-in functions and macros. 
     
     ~> **NOTE** </br> In addition, the following variables are supported, corresponding to `Instance` properties: </br>
       **&#x2022;** `gpu.count` - (integer) The number of GPUs. </br>
