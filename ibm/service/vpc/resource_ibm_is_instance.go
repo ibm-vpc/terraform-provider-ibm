@@ -9106,10 +9106,10 @@ func setVolumePrototypesInState(d *schema.ResourceData, instance *vpcv1.Instance
 					vol["volume_crn"] = *volume.Volume.CRN
 					vol["volume_resource_type"] = *volume.Volume.ResourceType
 					if volumeRef.AllowedUse != nil {
-						usageConstraintList := []map[string]interface{}{}
+						allowedUseList := []map[string]interface{}{}
 						modelMap, _ := ResourceceIBMIsVolumeAllowedUseToMap(volumeRef.AllowedUse)
-						usageConstraintList = append(usageConstraintList, modelMap)
-						vol["allowed_use"] = usageConstraintList
+						allowedUseList = append(allowedUseList, modelMap)
+						vol["allowed_use"] = allowedUseList
 					}
 					if volumeRef.SourceSnapshot != nil && volumeRef.SourceSnapshot.ID != nil {
 						vol["volume_source_snapshot"] = *volumeRef.SourceSnapshot.ID

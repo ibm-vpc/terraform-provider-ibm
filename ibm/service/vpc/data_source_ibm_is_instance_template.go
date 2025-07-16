@@ -1366,17 +1366,14 @@ func dataSourceIBMISInstanceTemplateRead(context context.Context, d *schema.Reso
 					encryptionKey := volumeInst.EncryptionKey.(*vpcv1.EncryptionKeyIdentity)
 					newVolume[isInstanceTemplateVolAttVolEncryptionKey] = *encryptionKey.CRN
 				}
-				allowedUses := []interface{}{}
 				if volumeInst.AllowedUse != nil {
 					modelMap, err := DataSourceIBMIsVolumeAllowedUseToMap(volumeInst.AllowedUse)
 					if err != nil {
 						return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting allowed_use: %s", err), "(Data) ibm_is_instance_template", "read", "set-allowed_use").GetDiag()
 					}
-					allowedUses = append(allowedUses, modelMap)
+					newVolume["allowed_use"] = []map[string]interface{}{modelMap}
 				}
-				if err = d.Set("allowed_use", allowedUses); err != nil {
-					return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting allowed_use: %s", err), "(Data) ibm_is_instance_template", "read", "set-allowed_use").GetDiag()
-				}
+
 				if volumeInst.UserTags != nil {
 					newVolume[isInstanceTemplateVolAttTags] = instanceTemplate.BootVolumeAttachment.Volume.UserTags
 				}
@@ -1409,15 +1406,14 @@ func dataSourceIBMISInstanceTemplateRead(context context.Context, d *schema.Reso
 					volProfInst := volProfIntf.(*vpcv1.VolumeProfileIdentity)
 					bootVol[isInstanceTemplateBootProfile] = volProfInst.Name
 				}
-				allowedUses := []interface{}{}
 				if instanceTemplate.BootVolumeAttachment.Volume.AllowedUse != nil {
 					modelMap, err := DataSourceIBMIsVolumeAllowedUseToMap(instanceTemplate.BootVolumeAttachment.Volume.AllowedUse)
 					if err != nil {
 						return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting allowed_use: %s", err), "(Data) ibm_is_instance_template", "read", "set-allowed_use").GetDiag()
 					}
-					allowedUses = append(allowedUses, modelMap)
+					bootVol["allowed_use"] = []map[string]interface{}{modelMap}
+
 				}
-				bootVol["allowed_use"] = allowedUses
 				if instanceTemplate.BootVolumeAttachment.Volume.UserTags != nil {
 					bootVol[isInstanceTemplateBootVolumeTags] = instanceTemplate.BootVolumeAttachment.Volume.UserTags
 				}
@@ -1779,16 +1775,12 @@ func dataSourceIBMISInstanceTemplateRead(context context.Context, d *schema.Reso
 						if volumeInst.UserTags != nil {
 							newVolume[isInstanceTemplateVolAttTags] = volumeInst.UserTags
 						}
-						allowedUses := []map[string]interface{}{}
 						if volumeInst.AllowedUse != nil {
 							modelMap, err := DataSourceIBMIsVolumeAllowedUseToMap(volumeInst.AllowedUse)
 							if err != nil {
 								return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting allowed_use: %s", err), "(Data) ibm_is_instance_template", "read", "set-allowed_use").GetDiag()
 							}
-							allowedUses = append(allowedUses, modelMap)
-						}
-						if err = d.Set("allowed_use", allowedUses); err != nil {
-							return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting allowed_use: %s", err), "(Data) ibm_is_instance_template", "read", "set-allowed_use").GetDiag()
+							newVolume["allowed_use"] = []map[string]interface{}{modelMap}
 						}
 						newVolumeArr = append(newVolumeArr, newVolume)
 						volumeAttach[isInstanceTemplateVolAttVolPrototype] = newVolumeArr
@@ -1819,15 +1811,13 @@ func dataSourceIBMISInstanceTemplateRead(context context.Context, d *schema.Reso
 							volProfInst := volProfIntf.(*vpcv1.VolumeProfileIdentity)
 							bootVol[isInstanceTemplateBootProfile] = volProfInst.Name
 						}
-						allowedUses := []map[string]interface{}{}
 						if instanceTemplate.BootVolumeAttachment.Volume.AllowedUse != nil {
 							modelMap, err := DataSourceIBMIsVolumeAllowedUseToMap(instanceTemplate.BootVolumeAttachment.Volume.AllowedUse)
 							if err != nil {
 								return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting allowed_use: %s", err), "(Data) ibm_is_instance_template", "read", "set-allowed_use").GetDiag()
 							}
-							allowedUses = append(allowedUses, modelMap)
+							bootVol["allowed_use"] = []map[string]interface{}{modelMap}
 						}
-						bootVol["allowed_use"] = allowedUses
 						if instanceTemplate.BootVolumeAttachment.Volume.UserTags != nil {
 							bootVol[isInstanceTemplateBootVolumeTags] = instanceTemplate.BootVolumeAttachment.Volume.UserTags
 						}

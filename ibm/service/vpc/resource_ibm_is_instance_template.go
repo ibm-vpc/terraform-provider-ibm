@@ -412,6 +412,12 @@ func ResourceIBMISInstanceTemplate() *schema.Resource {
 										ForceNew:    true,
 										Description: "The maximum bandwidth (in megabits per second) for the volume. For this property to be specified, the volume storage_generation must be 2.",
 									},
+									"source_snapshot": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										ForceNew:    true,
+										Description: "The snapshot to use as a source for the volume's data.",
+									},
 									isInstanceTemplateVolAttVolEncryptionKey: {
 										Type:        schema.TypeString,
 										Optional:    true,
@@ -1221,6 +1227,12 @@ func ResourceIBMISInstanceTemplate() *schema.Resource {
 							ForceNew:    true,
 							Description: "The maximum bandwidth (in megabits per second) for the volume. For this property to be specified, the volume storage_generation must be 2.",
 						},
+						"source_snapshot": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							ForceNew:    true,
+							Description: "The snapshot to use as a source for the volume's data.",
+						},
 						isInstanceTemplateBootSize: {
 							Type:     schema.TypeInt,
 							Optional: true,
@@ -1725,6 +1737,14 @@ func instanceTemplateCreateByCatalogOffering(context context.Context, d *schema.
 				bandwidth := int64(newvol["bandwidth"].(int))
 				if bandwidth != int64(0) {
 					volPrototype.Bandwidth = &bandwidth
+				}
+
+				// source_snapshot
+				sourceSnapshot := newvol["source_snapshot"].(string)
+				if sourceSnapshot != "" {
+					volPrototype.SourceSnapshot = &vpcv1.SnapshotIdentity{
+						ID: &sourceSnapshot,
+					}
 				}
 
 				iops := int64(newvol[isInstanceTemplateVolAttVolIops].(int))
@@ -2260,6 +2280,13 @@ func instanceTemplateCreate(context context.Context, d *schema.ResourceData, met
 					volPrototype.Bandwidth = &bandwidth
 				}
 
+				// source_snapshot
+				sourceSnapshot := newvol["source_snapshot"].(string)
+				if sourceSnapshot != "" {
+					volPrototype.SourceSnapshot = &vpcv1.SnapshotIdentity{
+						ID: &sourceSnapshot,
+					}
+				}
 				iops := int64(newvol[isInstanceTemplateVolAttVolIops].(int))
 				encryptionKey := newvol[isInstanceTemplateVolAttVolEncryptionKey].(string)
 
@@ -2917,6 +2944,13 @@ func instanceTemplateGet(context context.Context, d *schema.ResourceData, meta i
 			if volumeInst.Bandwidth != nil {
 				newVolume["bandwidth"] = volumeInst.Bandwidth
 			}
+
+			// source_snapshot
+			if volumeInst.SourceSnapshot != nil {
+				sourceSnapshot := volumeInst.SourceSnapshot.(*vpcv1.SnapshotIdentity)
+				newVolume["source_snapshot"] = *sourceSnapshot.ID
+			}
+
 			//allowed use
 			allowedUses := []map[string]interface{}{}
 			if volumeInst.AllowedUse != nil {
@@ -2963,6 +2997,11 @@ func instanceTemplateGet(context context.Context, d *schema.ResourceData, meta i
 			if volumeIntf.Bandwidth != nil {
 				bootVol["bandwidth"] = volumeIntf.Bandwidth
 			}
+			// source_snapshot
+			// if volumeIntf.SourceSnapshot != nil {
+			// 	sourceSnapshot := volumeInst.SourceSnapshot.(*vpcv1.SnapshotIdentity)
+			// 	newVolume["source_snapshot"] = *sourceSnapshot.ID
+			// }
 			//allowed use
 			allowedUses := []map[string]interface{}{}
 			if volumeIntf.AllowedUse != nil {
