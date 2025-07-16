@@ -336,6 +336,11 @@ func DataSourceIBMISInstanceTemplates() *schema.Resource {
 													Computed:    true,
 													Description: "The CRN of the [Key Protect Root Key](https://cloud.ibm.com/docs/key-protect?topic=key-protect-getting-started-tutorial) or [Hyper Protect Crypto Service Root Key](https://cloud.ibm.com/docs/hs-crypto?topic=hs-crypto-get-started) for this resource.",
 												},
+												"source_snapshot": {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "The snapshot to use as a source for the volume's data.",
+												},
 												"allowed_use": &schema.Schema{
 													Type:        schema.TypeList,
 													Computed:    true,
@@ -1319,6 +1324,10 @@ func dataSourceIBMISInstanceTemplatesRead(context context.Context, d *schema.Res
 				if volumeInst.EncryptionKey != nil {
 					encryptionKey := volumeInst.EncryptionKey.(*vpcv1.EncryptionKeyIdentity)
 					newVolume[isInstanceTemplateVolAttVolEncryptionKey] = *encryptionKey.CRN
+				}
+				if volumeInst.SourceSnapshot != nil {
+					sourceSnapshot := volumeInst.SourceSnapshot.(*vpcv1.SnapshotIdentity)
+					newVolume["source_snapshot"] = *sourceSnapshot.ID
 				}
 				allowedUses := []interface{}{}
 				if volumeInst.AllowedUse != nil {

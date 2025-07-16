@@ -306,6 +306,11 @@ func DataSourceIBMISInstanceTemplate() *schema.Resource {
 										Computed:    true,
 										Description: "The CRN of the [Key Protect Root Key](https://cloud.ibm.com/docs/key-protect?topic=key-protect-getting-started-tutorial) or [Hyper Protect Crypto Service Root Key](https://cloud.ibm.com/docs/hs-crypto?topic=hs-crypto-get-started) for this resource.",
 									},
+									"source_snapshot": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The snapshot to use as a source for the volume's data.",
+									},
 									"allowed_use": &schema.Schema{
 										Type:        schema.TypeList,
 										Computed:    true,
@@ -1374,6 +1379,11 @@ func dataSourceIBMISInstanceTemplateRead(context context.Context, d *schema.Reso
 					newVolume["allowed_use"] = []map[string]interface{}{modelMap}
 				}
 
+				if volumeInst.SourceSnapshot != nil {
+					sourceSnapshot := volumeInst.SourceSnapshot.(*vpcv1.SnapshotIdentity)
+					newVolume["source_snapshot"] = *sourceSnapshot.ID
+				}
+
 				if volumeInst.UserTags != nil {
 					newVolume[isInstanceTemplateVolAttTags] = instanceTemplate.BootVolumeAttachment.Volume.UserTags
 				}
@@ -1781,6 +1791,10 @@ func dataSourceIBMISInstanceTemplateRead(context context.Context, d *schema.Reso
 								return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting allowed_use: %s", err), "(Data) ibm_is_instance_template", "read", "set-allowed_use").GetDiag()
 							}
 							newVolume["allowed_use"] = []map[string]interface{}{modelMap}
+						}
+						if volumeInst.SourceSnapshot != nil {
+							sourceSnapshot := volumeInst.SourceSnapshot.(*vpcv1.SnapshotIdentity)
+							newVolume["source_snapshot"] = *sourceSnapshot.ID
 						}
 						newVolumeArr = append(newVolumeArr, newVolume)
 						volumeAttach[isInstanceTemplateVolAttVolPrototype] = newVolumeArr
