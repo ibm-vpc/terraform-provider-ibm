@@ -7,20 +7,18 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	acc "github.com/IBM-Cloud/terraform-provider-ibm/ibm/acctest"
 )
 
 func TestAccIBMIsImageInstanceProfilesDataSourceBasic(t *testing.T) {
-	name := fmt.Sprintf("tfimg-name-%d", acctest.RandIntRange(10, 100))
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { acc.TestAccPreCheck(t) },
 		Providers: acc.TestAccProviders,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccCheckIBMIsImageInstanceProfilesDataSourceConfigBasic(name),
+				Config: testAccCheckIBMIsImageInstanceProfilesDataSourceConfigBasic(),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet("data.ibm_is_image_instance_profiles.is_image_instance_profiles_instance", "id"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_image_instance_profiles.is_image_instance_profiles_instance", "instance_profiles.#"),
@@ -33,10 +31,10 @@ func TestAccIBMIsImageInstanceProfilesDataSourceBasic(t *testing.T) {
 	})
 }
 
-func testAccCheckIBMIsImageInstanceProfilesDataSourceConfigBasic(name string) string {
-	return testAccCheckIBMISImageConfig(name) + fmt.Sprintf(` 
+func testAccCheckIBMIsImageInstanceProfilesDataSourceConfigBasic() string {
+	return fmt.Sprintf(` 
 		data "ibm_is_image_instance_profiles" "is_image_instance_profiles_instance" {
-			identifier = "ibm_is_image.isExampleImage.id"
+			identifier = "%s"
 		}
-	`)
+	`, acc.IsImage)
 }

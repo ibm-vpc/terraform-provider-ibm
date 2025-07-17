@@ -8,7 +8,7 @@ description: |-
 
 # ibm_is_volume_instance_profiles
 
-Provides a read-only data source to retrieve information about an VolumeInstanceProfileCollection.For more information, about infrastructure volume instance profiles, see [viewing volume instance profiles](WILL UPDATE DURING GA).
+Provides a read-only data source to retrieve information about an VolumeInstanceProfileCollection.For more information, about the volume concepts, see [expandable volume concepts for VPC](https://cloud.ibm.com/docs/vpc?topic=vpc-expanding-block-storage-volumes#expandable-volume-concepts)..
 
 **Note:** 
 VPC infrastructure services are a regional specific based endpoint, by default targets to `us-south`. Please make sure to target right region in the provider block as shown in the `provider.tf` file, if VPC service is created in region other than `us-south`.

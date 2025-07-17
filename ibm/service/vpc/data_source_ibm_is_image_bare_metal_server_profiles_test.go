@@ -21,8 +21,10 @@ func TestAccIBMIsImageBareMetalServerProfilesDataSourceBasic(t *testing.T) {
 				Config: testAccCheckIBMIsImageBareMetalServerProfilesDataSourceConfigBasic(),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet("data.ibm_is_image_bare_metal_server_profiles.is_image_bare_metal_server_profiles_instance", "id"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_image_bare_metal_server_profiles.is_image_bare_metal_server_profiles_instance", "is_image_bare_metal_server_profiles_id"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_image_bare_metal_server_profiles.is_image_bare_metal_server_profiles_instance", "bare_metal_server_profiles.#"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_image_bare_metal_server_profiles.is_image_bare_metal_server_profiles_instance", "bare_metal_server_profiles.0.href"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_image_bare_metal_server_profiles.is_image_bare_metal_server_profiles_instance", "bare_metal_server_profiles.0.name"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_image_bare_metal_server_profiles.is_image_bare_metal_server_profiles_instance", "bare_metal_server_profiles.0.resource_type"),
 				),
 			},
 		},
@@ -32,7 +34,7 @@ func TestAccIBMIsImageBareMetalServerProfilesDataSourceBasic(t *testing.T) {
 func testAccCheckIBMIsImageBareMetalServerProfilesDataSourceConfigBasic() string {
 	return fmt.Sprintf(`
 		data "ibm_is_image_bare_metal_server_profiles" "is_image_bare_metal_server_profiles_instance" {
-			identifier = "id"
+			identifier = "%s"
 		}
-	`)
+	`, acc.IsImage)
 }

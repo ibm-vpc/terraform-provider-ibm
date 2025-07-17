@@ -32,11 +32,11 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCKVmnMOlHKcZK8tpt3MP1lqOLAcqcJzhsvJcjscgVE
 			resource.TestStep{
 				Config: testAccCheckIBMIsSnapshotInstanceProfilesDataSourceConfigBasic(vpcname, subnetname, sshname, publicKey, volname, name, name1),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttrSet("data.ibm_is_snapshot_instance_profiles.is_snapshot_instance_profiles_instance", "id"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_snapshot_instance_profiles.is_snapshot_instance_profiles_instance", "instance_profiles.#"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_snapshot_instance_profiles.is_snapshot_instance_profiles_instance", "instance_profiles.0.href"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_snapshot_instance_profiles.is_snapshot_instance_profiles_instance", "instance_profiles.0.name"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_snapshot_instance_profiles.is_snapshot_instance_profiles_instance", "instance_profiles.0.resource_type"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_snapshot_instance_profiles.is_snapshot_instance_profiles", "id"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_snapshot_instance_profiles.is_snapshot_instance_profiles", "instance_profiles.#"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_snapshot_instance_profiles.is_snapshot_instance_profiles", "instance_profiles.0.href"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_snapshot_instance_profiles.is_snapshot_instance_profiles", "instance_profiles.0.name"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_snapshot_instance_profiles.is_snapshot_instance_profiles", "instance_profiles.0.resource_type"),
 				),
 			},
 		},
@@ -45,8 +45,8 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCKVmnMOlHKcZK8tpt3MP1lqOLAcqcJzhsvJcjscgVE
 
 func testAccCheckIBMIsSnapshotInstanceProfilesDataSourceConfigBasic(vpcname, subnetname, sshname, publicKey, volname, name, name1 string) string {
 	return testAccCheckIBMISSnapshotConfig(vpcname, subnetname, sshname, publicKey, volname, name, name1) + fmt.Sprintf(` 
-	data "ibm_is_volume_instance_profiles" "is_volume_instance_profiles_instance" {
-			identifier = "ibm_is_snapshot.testacc_snapshot.id"
+	data "ibm_is_snapshot_instance_profiles" "is_snapshot_instance_profiles" {
+			identifier = ibm_is_snapshot.testacc_snapshot.id
 	}
 	`)
 }

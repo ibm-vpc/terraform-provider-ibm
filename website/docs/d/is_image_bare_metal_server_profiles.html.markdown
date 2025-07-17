@@ -8,7 +8,7 @@ description: |-
 
 # ibm_is_image_bare_metal_server_profiles
 
-Provides a read-only data source to retrieve information about an ImageBareMetalServerProfileCollection.For more information, about infrastructure image bare metal server profiles, see [viewing image bare metal server profiles](WILL UPDATE DURING GA).
+Provides a read-only data source to retrieve information about an ImageBareMetalServerProfileCollection.For more information, about infrastructure image bare metal server profiles, see [IBM Cloud Importing and managing custom images](https://cloud.ibm.com/docs/vpc?topic=vpc-managing-images).
 
 **Note:** 
 VPC infrastructure services are a regional specific based endpoint, by default targets to `us-south`. Please make sure to target right region in the provider block as shown in the `provider.tf` file, if VPC service is created in region other than `us-south`.
