@@ -295,7 +295,7 @@ Review the argument references that you can specify for your resource.
 - `boot_volume` - (Optional, List) A nested block describes the boot volume configuration for the template.
 
   Nested scheme for `boot_volume`:
-  - `allowed_use` - (Optional, List) The usage constraints to be matched against requested instance or bare metal server properties to determine compatibility. Can only be specified if `source_snapshot` is bootable. If not specified, the value of this property will be inherited from the `source_image`
+  - `allowed_use` - (Optional, List) The usage constraints to be matched against requested instance or bare metal server properties to determine compatibility. Can only be specified if `source_snapshot`  present and bootable. If not specified, the value of this property will be inherited from the `source_image`
     
     Nested schema for `allowed_use`:
     - `api_version` - (Optional, String) The API version with which to evaluate the expressions.
@@ -506,7 +506,7 @@ Review the argument references that you can specify for your resource.
   - `volume_prototype` - (Optional, Forces new resource, List)
 
       Nested scheme for `volume_prototype`:
-      - `allowed_use` - (Optional, List) The usage constraints to be matched against requested instance or bare metal server properties to determine compatibility. Can only be specified if source_snapshot is bootable. If not specified, the value of this property will be inherited from the source_snapshot.
+      - `allowed_use` - (Optional, List) The usage constraints to be matched against requested instance or bare metal server properties to determine compatibility. Can only be specified if `source_snapshot` is present and bootable. If not specified, the value of this property will be inherited from the `source_snapshot`.
       
       Nested schema for `allowed_use`:
       - `api_version` - (Optional, String) The API version with which to evaluate the expressions.

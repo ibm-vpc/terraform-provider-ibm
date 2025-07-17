@@ -605,13 +605,13 @@ Review the argument references that you can specify for your resource.
 - `action` - (Optional, String) Action to be taken on the instance. Supported values are `stop`, `start`, or `reboot`.
   
   ~> **Note** 
-    `action` allows to start, stop and reboot the instance and it is not recommended to manage the instance from terraform and other clients (UI/CLI) simultaneously, as it would cause unknown behaviour. `start` action can be performed only when the instance is in `stopped` state. `stop` and `reboot` actions can be performed only when the instance is in `running` state. It is also recommended to remove the `action` configuration from terraform once it is applied succesfully, to avoid instability in the terraform configuration later.    
+    `action` allows to start, stop and reboot the instance and it is not recommended to manage the instance from terraform and other clients (UI/CLI) simultaneously, as it would cause unknown behaviour. `start` action can be performed only when the instance is in `stopped` state. `stop` and `reboot` actions can be performed only when the instance is in `running` state. It is also recommended to remove the `action` configuration from terraform once it is applied succesfully, to avoid instability in the terraform configuration later.
 - `auto_delete_volume`- (Optional, Bool) If set to **true**, automatically deletes the volumes that are attached to an instance. **Note** Setting this argument can bring some inconsistency in the volume resource, as the volumes is destroyed along with instances.
 - `availability_policy_host_failure` - (Optional, String) The availability policy to use for this virtual server instance. The action to perform if the compute host experiences a failure. Supported values are `restart` and `stop`.
 - `boot_volume`  (Optional, List) A list of boot volumes for an instance.
 
   Nested scheme for `boot_volume`:
-  - `allowed_use` - (Optional, List) The usage constraints to be matched against requested instance or bare metal server properties to determine compatibility. Can only be specified if source_snapshot is bootable. If not specified, the value of this property will be inherited from the source_image.
+  - `allowed_use` - (Optional, List) The usage constraints to be matched against requested instance or bare metal server properties to determine compatibility. Can only be specified if `source_snapshot` is bootable. If not specified, the value of this property will be inherited from the `source_image`.
     
     Nested schema for `allowed_use`:
     - `api_version` - (Optional, String) The API version with which to evaluate the expressions.
