@@ -3380,13 +3380,6 @@ func instanceTemplateGet(context context.Context, d *schema.ResourceData, meta i
 				err = fmt.Errorf("Error setting primary_network_interface: %s", err)
 				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_instance_template", "read", "set-primary_network_interface").GetDiag()
 			}
-			//allowed use
-			allowedUses := []map[string]interface{}{}
-			if volumeIntf.AllowedUse != nil {
-				modelMap, _ := ResourceIBMIsVolumeAllowedUseToMap(volumeIntf.AllowedUse)
-				allowedUses = append(allowedUses, modelMap)
-			}
-			bootVol["allowed_use"] = allowedUses
 		}
 
 		// catalog offering if any
@@ -3533,6 +3526,24 @@ func instanceTemplateGet(context context.Context, d *schema.ResourceData, meta i
 				if volumeInst.Bandwidth != nil {
 					newVolume["bandwidth"] = volumeInst.Bandwidth
 				}
+				// source_snapshot
+				if volumeInst.SourceSnapshot != nil {
+					sourceSnapshot := volumeInst.SourceSnapshot.(*vpcv1.SnapshotIdentity)
+					newVolume["source_snapshot"] = *sourceSnapshot.ID
+				}
+
+				//allowed use
+				allowedUses := []map[string]interface{}{}
+				if volumeInst.AllowedUse != nil {
+					modelMap, err := ResourceIBMIsVolumeAllowedUseToMap(volumeInst.AllowedUse)
+					if err != nil {
+						tfErr := flex.TerraformErrorf(err, err.Error(), "(Resource) ibm_is_instance_template", "read")
+						log.Println(tfErr.GetDiag())
+					}
+					allowedUses = append(allowedUses, modelMap)
+					newVolume["allowed_use"] = allowedUses
+				}
+
 				if len(newVolume) > 0 {
 					newVolumeArr = append(newVolumeArr, newVolume)
 				}
@@ -3568,6 +3579,13 @@ func instanceTemplateGet(context context.Context, d *schema.ResourceData, meta i
 				if volumeIntf.Bandwidth != nil {
 					bootVol["bandwidth"] = volumeIntf.Bandwidth
 				}
+
+				allowedUses := []map[string]interface{}{}
+				if volumeIntf.AllowedUse != nil {
+					modelMap, _ := ResourceIBMIsVolumeAllowedUseToMap(volumeIntf.AllowedUse)
+					allowedUses = append(allowedUses, modelMap)
+				}
+				bootVol["allowed_use"] = allowedUses
 			}
 
 			bootVolList = append(bootVolList, bootVol)
@@ -3923,6 +3941,23 @@ func instanceTemplateGet(context context.Context, d *schema.ResourceData, meta i
 				if volumeInst.Bandwidth != nil {
 					newVolume["bandwidth"] = volumeInst.Bandwidth
 				}
+				// source_snapshot
+				if volumeInst.SourceSnapshot != nil {
+					sourceSnapshot := volumeInst.SourceSnapshot.(*vpcv1.SnapshotIdentity)
+					newVolume["source_snapshot"] = *sourceSnapshot.ID
+				}
+
+				//allowed use
+				allowedUses := []map[string]interface{}{}
+				if volumeInst.AllowedUse != nil {
+					modelMap, err := ResourceIBMIsVolumeAllowedUseToMap(volumeInst.AllowedUse)
+					if err != nil {
+						tfErr := flex.TerraformErrorf(err, err.Error(), "(Resource) ibm_is_instance_template", "read")
+						log.Println(tfErr.GetDiag())
+					}
+					allowedUses = append(allowedUses, modelMap)
+					newVolume["allowed_use"] = allowedUses
+				}
 				if len(newVolume) > 0 {
 					newVolumeArr = append(newVolumeArr, newVolume)
 				}
@@ -3959,6 +3994,12 @@ func instanceTemplateGet(context context.Context, d *schema.ResourceData, meta i
 				}
 				if volumeIntf.Bandwidth != nil {
 					bootVol["bandwidth"] = volumeIntf.Bandwidth
+				}
+				allowedUses := []map[string]interface{}{}
+				if volumeIntf.AllowedUse != nil {
+					modelMap, _ := ResourceIBMIsVolumeAllowedUseToMap(volumeIntf.AllowedUse)
+					allowedUses = append(allowedUses, modelMap)
+					bootVol["allowed_use"] = allowedUses
 				}
 			}
 

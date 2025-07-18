@@ -1346,7 +1346,7 @@ func TestAccIBMISInstanceTemplate_comprehensive(t *testing.T) {
 	})
 }
 
-func TestAccIBMISInstanceTemplate_WithAllowedUse(t *testing.T) {
+func TestAccIBMISInstanceTemplateBoot_WithAllowedUse(t *testing.T) {
 	randInt := acctest.RandIntRange(10, 100)
 
 	publicKey := strings.TrimSpace(`
@@ -1434,5 +1434,101 @@ func testAccCheckIBMISInstanceTemplateWithBoot_AllowedUse(vpcName, subnetName, s
 		
 	
 	`, vpcName, subnetName, acc.ISZoneName, sshKeyName, publicKey, templateName, acc.IsImage, userTag, bandwidth, apiVersion, bareMetalServer, instanceval, acc.ISZoneName)
+
+}
+
+func TestAccIBMISInstanceTemplate_WithAllowedUse(t *testing.T) {
+	vpcname := fmt.Sprintf("tf-vpc-%d", acctest.RandIntRange(10, 100))
+	name := fmt.Sprintf("tf-instnace-%d", acctest.RandIntRange(10, 100))
+	subnetname := fmt.Sprintf("tf-subnet-%d", acctest.RandIntRange(10, 100))
+	templateName := fmt.Sprintf("tf-instance-template-%d", acctest.RandIntRange(10, 100))
+	publicKey := strings.TrimSpace(`
+ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCKVmnMOlHKcZK8tpt3MP1lqOLAcqcJzhsvJcjscgVERRN7/9484SOBJ3HSKxxNG5JN8owAjy5f9yYwcUg+JaUVuytn5Pv3aeYROHGGg+5G346xaq3DAwX6Y5ykr2fvjObgncQBnuU5KHWCECO/4h8uWuwh/kfniXPVjFToc+gnkqA+3RKpAecZhFXwfalQ9mMuYGFxn+fwn8cYEApsJbsEmb0iJwPiZ5hjFC8wREuiTlhPHDgkBLOiycd20op2nXzDbHfCHInquEe/gYxEitALONxm0swBOwJZwlTDOB7C6y2dzlrtxr1L59m7pCkWI4EtTRLvleehBoj3u7jB4usR
+`)
+	sshname := fmt.Sprintf("tf-ssh-%d", acctest.RandIntRange(10, 100))
+	volname := fmt.Sprintf("tf-vol-%d", acctest.RandIntRange(10, 100))
+	name1 := fmt.Sprintf("tfsnapshotuat-%d", acctest.RandIntRange(10, 100))
+	apiVersion := "2025-07-01"
+	bareMetalServer := "true"
+	instanceVal := "true"
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { acc.TestAccPreCheck(t) },
+		Providers:    acc.TestAccProviders,
+		CheckDestroy: testAccCheckIBMISInstanceTemplateDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckIBMISInstanceTemplateWith_AllowedUse(vpcname, subnetname, sshname, publicKey, volname, name, name1, apiVersion, bareMetalServer, instanceVal, templateName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"ibm_is_instance_template.instancetemplate1", "name", templateName),
+					// boot volume allowed use
+					resource.TestCheckResourceAttrSet(
+						"ibm_is_instance_template.instancetemplate1", "boot_volume.0.allowed_use.#"),
+					resource.TestCheckResourceAttrSet(
+						"ibm_is_instance_template.instancetemplate1", "boot_volume.0.allowed_use.0.bare_metal_server"),
+					resource.TestCheckResourceAttrSet(
+						"ibm_is_instance_template.instancetemplate1", "boot_volume.0.allowed_use.0.instance"),
+					resource.TestCheckResourceAttrSet(
+						"ibm_is_instance_template.instancetemplate1", "boot_volume.0.allowed_use.0.api_version"),
+					resource.TestCheckResourceAttr("ibm_is_instance_template.instancetemplate1", "boot_volume.0.allowed_use.0.bare_metal_server", bareMetalServer),
+					resource.TestCheckResourceAttr("ibm_is_instance_template.instancetemplate1", "boot_volume.0.allowed_use.0.instance", instanceVal),
+					resource.TestCheckResourceAttr("ibm_is_instance_template.instancetemplate1", "boot_volume.0.allowed_use.0.api_version", apiVersion),
+
+					// volume attchment volume_prototype allowed use
+					resource.TestCheckResourceAttrSet(
+						"ibm_is_instance_template.instancetemplate1", "volume_attachments.0.volume_prototype.0.allowed_use.#"),
+					resource.TestCheckResourceAttrSet(
+						"ibm_is_instance_template.instancetemplate1", "volume_attachments.0.volume_prototype.0.allowed_use.0.bare_metal_server"),
+					resource.TestCheckResourceAttrSet(
+						"ibm_is_instance_template.instancetemplate1", "volume_attachments.0.volume_prototype.0.allowed_use.0.instance"),
+					resource.TestCheckResourceAttrSet(
+						"ibm_is_instance_template.instancetemplate1", "volume_attachments.0.volume_prototype.0.allowed_use.0.api_version"),
+					resource.TestCheckResourceAttr("ibm_is_instance_template.instancetemplate1", "volume_attachments.0.volume_prototype.0.allowed_use.0.bare_metal_server", bareMetalServer),
+					resource.TestCheckResourceAttr("ibm_is_instance_template.instancetemplate1", "volume_attachments.0.volume_prototype.0.allowed_use.0.instance", instanceVal),
+					resource.TestCheckResourceAttr("ibm_is_instance_template.instancetemplate1", "volume_attachments.0.volume_prototype.0.allowed_use.0.api_version", apiVersion),
+				),
+			},
+		},
+	})
+}
+
+func testAccCheckIBMISInstanceTemplateWith_AllowedUse(vpcname, subnetname, sshname, publicKey, volname, name, sname, apiVersion, bareMetalServer, instanceVal, templateName string) string {
+	return testAccCheckIBMISSnapshotConfigAllowedUse(vpcname, subnetname, sshname, publicKey, volname, name, sname, apiVersion, bareMetalServer, instanceVal) + fmt.Sprintf(`
+		resource "ibm_is_instance_template" "instancetemplate1" {
+		name    = "%s"
+		profile = "bx2-8x32"
+		primary_network_interface {
+			subnet = ibm_is_subnet.testacc_subnet.id
+		}
+		boot_volume {
+			profile         = "general-purpose"
+			size            = 250
+			source_snapshot = ibm_is_snapshot.testacc_snapshot.id
+			allowed_use {
+			api_version       = "%s"
+			bare_metal_server = "%s"
+			instance          = "%s"
+			}
+		}
+		volume_attachments {
+			delete_volume_on_instance_delete = true
+			name                             = "volume-attachment-tfp"
+			volume_prototype {
+			iops            = 6000
+			profile         = "custom"
+			capacity        = 100
+			source_snapshot = ibm_is_snapshot.testacc_snapshot.id
+			allowed_use {
+				api_version       = "%s"
+				bare_metal_server = "%s"
+				instance          = "%s"
+			}
+		  }
+		}
+		vpc  = ibm_is_vpc.testacc_vpc.id
+		zone = "%s"
+		keys = [ibm_is_ssh_key.testacc_sshkey.id]	
+	}
+	`, templateName, apiVersion, bareMetalServer, instanceVal, apiVersion, bareMetalServer, instanceVal, acc.ISZoneName)
 
 }
