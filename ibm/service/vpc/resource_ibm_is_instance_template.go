@@ -1230,12 +1230,6 @@ func ResourceIBMISInstanceTemplate() *schema.Resource {
 							ForceNew:    true,
 							Description: "The maximum bandwidth (in megabits per second) for the volume. For this property to be specified, the volume storage_generation must be 2.",
 						},
-						"source_snapshot": {
-							Type:        schema.TypeString,
-							Optional:    true,
-							ForceNew:    true,
-							Description: "The snapshot to use as a source for the volume's data.",
-						},
 						isInstanceTemplateBootSize: {
 							Type:     schema.TypeInt,
 							Optional: true,
