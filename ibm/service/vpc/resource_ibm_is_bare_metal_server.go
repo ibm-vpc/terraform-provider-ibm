@@ -270,11 +270,6 @@ func ResourceIBMIsBareMetalServer() *schema.Resource {
 										Computed:    true,
 										Description: "An image can only be used for bare metal instantiation if this expression resolves to true.",
 									},
-									"instance": &schema.Schema{
-										Type:        schema.TypeString,
-										Computed:    true,
-										Description: "This image can only be used to provision a virtual server instance if the resulting instance would have property values that satisfy this expression.",
-									},
 									"api_version": &schema.Schema{
 										Type:        schema.TypeString,
 										Computed:    true,

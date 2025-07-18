@@ -50,6 +50,33 @@ func ResourceIBMIsBareMetalServerDisk() *schema.Resource {
 				Description:  "Bare metal server disk name",
 				ValidateFunc: validate.InvokeValidator("ibm_is_bare_metal_server_disk", isBareMetalServerDiskName),
 			},
+
+			"created_at": &schema.Schema{
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The date and time that the disk was created.",
+			},
+			"href": &schema.Schema{
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The URL for this bare metal server disk.",
+			},
+			"interface_type": &schema.Schema{
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The disk attachment interface used:- `fcp`: Fiber Channel Protocol- `sata`: Serial Advanced Technology Attachment- `nvme`: Non-Volatile Memory ExpressThe enumerated values for this property may[expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.",
+			},
+			"resource_type": &schema.Schema{
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The resource type.",
+			},
+			"size": &schema.Schema{
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: "The size of the disk in GB (gigabytes).",
+			},
+
 			"allowed_use": &schema.Schema{
 				Type:        schema.TypeList,
 				Computed:    true,
@@ -60,11 +87,6 @@ func ResourceIBMIsBareMetalServerDisk() *schema.Resource {
 							Type:        schema.TypeString,
 							Computed:    true,
 							Description: "An image can only be used for bare metal instantiation if this expression resolves to true.",
-						},
-						"instance": &schema.Schema{
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: "This image can only be used to provision a virtual server instance if the resulting instance would have property values that satisfy this expression.",
 						},
 						"api_version": &schema.Schema{
 							Type:        schema.TypeString,
@@ -171,6 +193,32 @@ func bareMetalServerDiskGet(context context.Context, d *schema.ResourceData, ses
 		err = fmt.Errorf("Error setting name: %s", err)
 		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_bare_metal_server_disk", "read", "set-name").GetDiag()
 	}
+
+	if err = d.Set("created_at", disk.CreatedAt.String()); err != nil {
+		err = fmt.Errorf("Error setting created_at: %s", err)
+		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_bare_metal_server_disk", "read", "set-created_at").GetDiag()
+	}
+
+	if err = d.Set("href", *disk.Href); err != nil {
+		err = fmt.Errorf("Error setting href: %s", err)
+		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_bare_metal_server_disk", "read", "set-href").GetDiag()
+	}
+
+	if err = d.Set("interface_type", *disk.InterfaceType); err != nil {
+		err = fmt.Errorf("Error setting interface_type: %s", err)
+		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_bare_metal_server_disk", "read", "set-interface_type").GetDiag()
+	}
+
+	if err = d.Set("resource_type", *disk.ResourceType); err != nil {
+		err = fmt.Errorf("Error setting resource_type: %s", err)
+		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_bare_metal_server_disk", "read", "set-resource_type").GetDiag()
+	}
+
+	if err = d.Set("size", *disk.Size); err != nil {
+		err = fmt.Errorf("Error setting size: %s", err)
+		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_bare_metal_server_disk", "read", "set-interface_type").GetDiag()
+	}
+
 	allowedUses := []map[string]interface{}{}
 	if disk.AllowedUse != nil {
 		modelMap, err := ResourceceIBMIsBareMetalServerDiskAllowedUseToMap(disk.AllowedUse)

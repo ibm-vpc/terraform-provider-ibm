@@ -82,11 +82,6 @@ func DataSourceIBMIsBareMetalServerDisks() *schema.Resource {
 										Computed:    true,
 										Description: "The expression that must be satisfied by the properties of a bare metal server provisioned using the image data in this disk.",
 									},
-									"instance": &schema.Schema{
-										Type:        schema.TypeString,
-										Computed:    true,
-										Description: "The expression that must be satisfied by the properties of a bare metal server provisioned using the image data in this disk.",
-									},
 									"api_version": &schema.Schema{
 										Type:        schema.TypeString,
 										Computed:    true,

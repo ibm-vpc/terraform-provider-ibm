@@ -53,4 +53,9 @@ Review the argument references that you can specify for your resource.
     - `bare_metal_server` - (String) The expression that must be satisfied by the properties of a bare metal server provisioned using the image data in this disk..The expression follows [Common Expression Language](https://github.com/google/cel-spec/blob/master/doc/langdef.md), but does not support built-in functions and macros. 
     ~> **NOTE** </br> In addition, the following property is supported: </br>
       **&#x2022;** `enable_secure_boot` - (boolean) Indicates whether secure boot is enabled for this bare metal server.
-
+- `href` - (String) The URL for this bare metal server disk.
+- `id` - (String) The unique identifier for this bare metal server disk.
+- `interface_type` - (String) The disk interface used for attaching the disk. Supported values are [ **nvme**, **sata** ].
+- `name` - (String) The user-defined name for this disk.
+- `resource_type` - (String) The resource type.
+- `size` - (String) The size of the disk in GB (gigabytes).
