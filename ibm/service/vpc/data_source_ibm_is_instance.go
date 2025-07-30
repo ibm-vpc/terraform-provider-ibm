@@ -1479,7 +1479,9 @@ func instanceGetByName(context context.Context, d *schema.ResourceData, meta int
 	}
 
 	if instance.VolumeBandwidthQosMode != nil {
-		d.Set(isInstanceVolumeBandwidthQoSMode, string(*instance.VolumeBandwidthQosMode))
+		if err = d.Set(isInstanceVolumeBandwidthQoSMode, string(*instance.VolumeBandwidthQosMode)); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting volume_bandwidth_qos_mode: %s", err), "(Data) ibm_is_instance", "read", "set-volume_bandwidth_qos_mode").GetDiag()
+		}
 	}
 
 	if instance.TotalNetworkBandwidth != nil {

@@ -5478,7 +5478,10 @@ func instanceGet(context context.Context, d *schema.ResourceData, meta interface
 		}
 	}
 	if instance.VolumeBandwidthQosMode != nil {
-		d.Set(isInstanceVolumeBandwidthQoSMode, string(*instance.VolumeBandwidthQosMode))
+		if err = d.Set(isInstanceVolumeBandwidthQoSMode, string(*instance.VolumeBandwidthQosMode)); err != nil {
+			err = fmt.Errorf("Error setting volume_bandwidth_qos_mode: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_instance", "read", "set-volume_bandwidth_qos_mode").GetDiag()
+		}
 	}
 
 	if err = d.Set("memory", flex.IntValue(instance.Memory)); err != nil {

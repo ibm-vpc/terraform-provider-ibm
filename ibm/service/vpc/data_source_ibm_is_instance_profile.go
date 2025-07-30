@@ -1021,7 +1021,7 @@ func instanceProfileGet(context context.Context, d *schema.ResourceData, meta in
 	if profile.VolumeBandwidthQosModes != nil {
 		err = d.Set("volume_bandwidth_qos_modes", dataSourceInstanceProfileFlattenVolumeBandwidthQoSMode(*profile.VolumeBandwidthQosModes.(*vpcv1.InstanceProfileVolumeBandwidthQoSModes)))
 		if err != nil {
-			return err
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting volume_bandwidth_qos_modes: %s", err), "(Data) ibm_is_instance_profile", "read", "set-volume_bandwidth_qos_modes").GetDiag()
 		}
 	}
 	return nil
