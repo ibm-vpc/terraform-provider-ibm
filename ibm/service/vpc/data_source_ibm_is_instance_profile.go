@@ -988,7 +988,7 @@ func instanceProfileGet(d *schema.ResourceData, meta interface{}, name string) e
 
 	// Manufacturer details added.
 	if profile.VcpuManufacturer != nil {
-		err = d.Set(isInstanceVCPUManufacturer, dataSourceInstanceProfileFlattenVcpuManufacture(*profile.VcpuManufacturer))
+		err = d.Set(isInstanceVCPUManufacturer, dataSourceInstanceProfileFlattenVcpuManufacture(*profile.VcpuManufacturer.(*vpcv1.InstanceProfileVcpuManufacturer)))
 		if err != nil {
 			return err
 		}

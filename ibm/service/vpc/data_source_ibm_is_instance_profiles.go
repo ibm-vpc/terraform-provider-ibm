@@ -977,7 +977,7 @@ func instanceProfilesList(d *schema.ResourceData, meta interface{}) error {
 		// reduce the line of code here. - sumit's suggestions
 		if profile.VcpuManufacturer != nil {
 			vcpuManufacturerList := []map[string]interface{}{}
-			vcpuManufacturerMap := dataSourceInstanceProfileVcpuManufacturerToMap(*profile.VcpuManufacturer)
+			vcpuManufacturerMap := dataSourceInstanceProfileVcpuManufacturerToMap(*profile.VcpuManufacturer.(*vpcv1.InstanceProfileVcpuManufacturer))
 			vcpuManufacturerList = append(vcpuManufacturerList, vcpuManufacturerMap)
 			l["vcpu_manufacturer"] = vcpuManufacturerList
 		}
