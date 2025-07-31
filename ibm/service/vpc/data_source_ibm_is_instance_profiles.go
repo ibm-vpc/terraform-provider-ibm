@@ -770,7 +770,7 @@ func DataSourceIBMISInstanceProfiles() *schema.Resource {
 										Description: "The type for this profile field.",
 									},
 									"default": {
-										Type:        schema.TypeInt,
+										Type:        schema.TypeString,
 										Computed:    true,
 										Description: "The default volume bandwidth QoS mode for this profile.",
 									},
@@ -779,7 +779,7 @@ func DataSourceIBMISInstanceProfiles() *schema.Resource {
 										Computed:    true,
 										Description: "The permitted volume bandwidth QoS modes for an instance using this profile.",
 										Elem: &schema.Schema{
-											Type: schema.TypeInt,
+											Type: schema.TypeString,
 										},
 									},
 								},
