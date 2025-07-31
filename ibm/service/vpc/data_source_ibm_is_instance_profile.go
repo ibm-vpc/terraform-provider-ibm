@@ -15,11 +15,12 @@ import (
 )
 
 const (
-	isInstanceProfileName         = "name"
-	isInstanceProfileFamily       = "family"
-	isInstanceProfileArchitecture = "architecture"
-	isInstanceVCPUArchitecture    = "vcpu_architecture"
-	isInstanceVCPUManufacturer    = "vcpu_manufacturer"
+	isInstanceProfileName                     = "name"
+	isInstanceProfileFamily                   = "family"
+	isInstanceProfileArchitecture             = "architecture"
+	isInstanceVCPUArchitecture                = "vcpu_architecture"
+	isInstanceVCPUManufacturer                = "vcpu_manufacturer"
+	isClusterNetworkAttachmentIsolationPolicy = "cluster_network_attachment_isolation_policy"
 )
 
 func DataSourceIBMISInstanceProfile() *schema.Resource {
@@ -125,7 +126,7 @@ func DataSourceIBMISInstanceProfile() *schema.Resource {
 					},
 				},
 			},
-			"cluster_network_attachment_isolation_policy": {
+			isClusterNetworkAttachmentIsolationPolicy: {
 				Type:     schema.TypeList,
 				Computed: true,
 				Elem: &schema.Resource{
@@ -1005,7 +1006,7 @@ func instanceProfileGet(context context.Context, d *schema.ResourceData, meta in
 	}
 
 	if profile.ClusterNetworkAttachmentIsolationPolicy != nil {
-		err = d.Set(isInstanceVCPUManufacturer, dataSourceInstanceProfileFlattenClusterNetworkAttachmentIsolationPolicy(*profile.ClusterNetworkAttachmentIsolationPolicy.(*vpcv1.InstanceProfileClusterNetworkAttachmentIsolationPolicy)))
+		err = d.Set(isClusterNetworkAttachmentIsolationPolicy, dataSourceInstanceProfileFlattenClusterNetworkAttachmentIsolationPolicy(*profile.ClusterNetworkAttachmentIsolationPolicy.(*vpcv1.InstanceProfileClusterNetworkAttachmentIsolationPolicy)))
 		if err != nil {
 			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting cluster_network_attachment_isolation_policy: %s", err), "(Data) ibm_is_instance_profile", "read", "set-cluster_network_attachment_isolation_policy").GetDiag()
 		}

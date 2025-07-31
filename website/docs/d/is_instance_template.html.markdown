@@ -58,7 +58,8 @@ You can access the following attribute references after your data source is crea
 	- `profile` - (String) The profile for the boot volume configuration.
 	- `size` - (String) The boot volume size to configure in giga bytes.
 	- `tags` - (String) User Tags associated with the boot_volume. (https://cloud.ibm.com/apidocs/tagging#types-of-tags)
-- `cluster_network_attachments` - (List) The cluster network attachments to create for this virtual server instance. A cluster network attachment represents a device that is connected to a cluster network. The number of network attachments must match one of the values from the instance profile's `cluster_network_attachment_count` before the instance can be started.
+- `cluster_network_attachments` - (List) The cluster network attachments to create for this virtual server instance. A cluster network attachment represents a device that is connected to a cluster network. The number of network attachments must match one of the values from the instance profile's .Each cluster network attachment's calculated isolation_group must match the isolation_group on the cluster network attachment's subnet, as determined by the cluster_network_attachment_isolation_policy in the instance profile.
+`cluster_network_attachment_count` before the instance can be started.
 	Nested schema for **cluster_network_attachments**:
 	- `cluster_network_interface` - (List) A cluster network interface for the instance cluster network attachment. This can bespecified using an existing cluster network interface that does not already have a `target`,or a prototype object for a new cluster network interface.This instance must reside in the same VPC as the specified cluster network interface. Thecluster network interface must reside in the same cluster network as the`cluster_network_interface` of any other `cluster_network_attachments` for this instance.
 		Nested schema for **cluster_network_interface**:
