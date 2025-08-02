@@ -20,6 +20,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/IBM/go-sdk-core/v5/core"
+	"github.com/IBM/vpc-beta-go-sdk/vpcbetav1"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
 )
 
@@ -1059,277 +1060,534 @@ func ResourceIbmIsShareValidator() *validate.ResourceValidator {
 
 func resourceIbmIsShareCreate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	vpcClient, err := meta.(conns.ClientSession).VpcV1API()
-
 	if err != nil {
 		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcClient creation failed: %s", err.Error()), "ibm_is_share", "create")
 		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
 		return tfErr.GetDiag()
 	}
 
+	vpcBetaClient, err := meta.(conns.ClientSession).VpcV1BetaAPI()
+	if err != nil {
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcBetaClient creation failed: %s", err.Error()), "ibm_is_share", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
+	}
+	isBetaEnabled := false
+	if profileIntf, ok := d.GetOk("profile"); ok {
+		profile := profileIntf.(string)
+		if profile == "rfs" {
+			isBetaEnabled = true
+		}
+	}
+	createShareOptionsBeta := &vpcbetav1.CreateShareOptions{}
 	createShareOptions := &vpcv1.CreateShareOptions{}
 
 	sharePrototype := &vpcv1.SharePrototype{}
-	if accessControlModeIntf, ok := d.GetOk("access_control_mode"); ok {
-		accessControlMode := accessControlModeIntf.(string)
-		sharePrototype.AccessControlMode = &accessControlMode
-	}
-	if allowedAccessProtocols, ok := d.GetOk("allowed_access_protocols"); ok {
-		allowedAccessProtocolsList := []string{}
-		for _, allowedAccessProtocolsIntf := range allowedAccessProtocols.([]interface{}) {
-			allowedAccessProtocolsList = append(allowedAccessProtocolsList, allowedAccessProtocolsIntf.(string))
+	sharePrototypeBeta := &vpcbetav1.SharePrototype{}
+	if !isBetaEnabled {
+		if accessControlModeIntf, ok := d.GetOk("access_control_mode"); ok {
+			accessControlMode := accessControlModeIntf.(string)
+			sharePrototype.AccessControlMode = &accessControlMode
 		}
-		sharePrototype.AllowedAccessProtocols = allowedAccessProtocolsList
-	} else {
-		allowedAccessProtocols := []string{"nfs4"}
-		sharePrototype.AllowedAccessProtocols = allowedAccessProtocols
-	}
-	if bandwidthIntf, bandwidthOk := d.GetOk("bandwidth"); bandwidthOk {
-		bandwidth := int64(bandwidthIntf.(int))
-		sharePrototype.Bandwidth = &bandwidth
-	}
-	if allowedTransitEncryptionModesIntf, ok := d.GetOk("allowed_transit_encryption_modes"); ok {
-		allowedTransitEncryptionModes := []string{}
-		for _, allowedTransitEncryptionModesItemIntf := range allowedTransitEncryptionModesIntf.([]interface{}) {
-			allowedTransitEncryptionModesItem := allowedTransitEncryptionModesItemIntf.(string)
-			if allowedTransitEncryptionModesItem == "user_managed" {
-				allowedTransitEncryptionModesItem = "ipsec"
+		if allowedAccessProtocols, ok := d.GetOk("allowed_access_protocols"); ok {
+			allowedAccessProtocolsList := []string{}
+			for _, allowedAccessProtocolsIntf := range allowedAccessProtocols.([]interface{}) {
+				allowedAccessProtocolsList = append(allowedAccessProtocolsList, allowedAccessProtocolsIntf.(string))
 			}
-			allowedTransitEncryptionModes = append(allowedTransitEncryptionModes, allowedTransitEncryptionModesItem)
+			sharePrototype.AllowedAccessProtocols = allowedAccessProtocolsList
+		} else {
+			allowedAccessProtocols := []string{"nfs4"}
+			sharePrototype.AllowedAccessProtocols = allowedAccessProtocols
 		}
-		sharePrototype.AllowedTransitEncryptionModes = allowedTransitEncryptionModes
-	}
-
-	if encryptionKeyIntf, ok := d.GetOk("encryption_key"); ok {
-		encryptionKey := encryptionKeyIntf.(string)
-		encryptionKeyIdentity := &vpcv1.EncryptionKeyIdentity{
-			CRN: &encryptionKey,
+		if bandwidthIntf, bandwidthOk := d.GetOk("bandwidth"); bandwidthOk {
+			bandwidth := int64(bandwidthIntf.(int))
+			sharePrototype.Bandwidth = &bandwidth
 		}
-		sharePrototype.EncryptionKey = encryptionKeyIdentity
-	}
-	if resgrp, ok := d.GetOk("resource_group"); ok {
-		resgrpstr := resgrp.(string)
-		resourceGroup := &vpcv1.ResourceGroupIdentity{
-			ID: &resgrpstr,
-		}
-		sharePrototype.ResourceGroup = resourceGroup
-	}
-	_, snapshotOk := d.GetOk("source_snapshot")
-	_, sizeOk := d.GetOk("size")
-	if snapshotOk || sizeOk {
-		if sourceSnapshotIntf, snapOk := d.GetOk("source_snapshot"); snapOk {
-			if len(sourceSnapshotIntf.([]interface{})) > 0 {
-				SourceSnapshotModel := ResourceIBMIsShareMapToShareSourceSnapshotPrototype(sourceSnapshotIntf.([]interface{})[0].(map[string]interface{}))
-				sharePrototype.SourceSnapshot = SourceSnapshotModel
+		if allowedTransitEncryptionModesIntf, ok := d.GetOk("allowed_transit_encryption_modes"); ok {
+			allowedTransitEncryptionModes := []string{}
+			for _, allowedTransitEncryptionModesItemIntf := range allowedTransitEncryptionModesIntf.([]interface{}) {
+				allowedTransitEncryptionModesItem := allowedTransitEncryptionModesItemIntf.(string)
+				if allowedTransitEncryptionModesItem == "user_managed" {
+					allowedTransitEncryptionModesItem = "ipsec"
+				}
+				allowedTransitEncryptionModes = append(allowedTransitEncryptionModes, allowedTransitEncryptionModesItem)
 			}
-		}
-		if sizeIntf, sizeIntfOk := d.GetOk("size"); sizeIntfOk {
-			size := int64(sizeIntf.(int))
-			sharePrototype.Size = &size
+			sharePrototype.AllowedTransitEncryptionModes = allowedTransitEncryptionModes
 		}
 
-		initial_owner := &vpcv1.ShareInitialOwner{}
-		if initialOwnerIntf, ok := d.GetOk("initial_owner"); ok {
-			initialOwnerMap := initialOwnerIntf.([]interface{})[0].(map[string]interface{})
-			if initialOwnerGIDIntf, ok := initialOwnerMap["gid"]; ok {
-				initialOwnerGID := int64(initialOwnerGIDIntf.(int))
-				initial_owner.Gid = &initialOwnerGID
+		if encryptionKeyIntf, ok := d.GetOk("encryption_key"); ok {
+			encryptionKey := encryptionKeyIntf.(string)
+			encryptionKeyIdentity := &vpcv1.EncryptionKeyIdentity{
+				CRN: &encryptionKey,
 			}
-			if initialOwnerUIDIntf, ok := initialOwnerMap["uid"]; ok {
-				initialOwnerUID := int64(initialOwnerUIDIntf.(int))
-				initial_owner.Uid = &initialOwnerUID
-			}
+			sharePrototype.EncryptionKey = encryptionKeyIdentity
 		}
-
-		if replicaShareIntf, ok := d.GetOk("replica_share"); ok {
-			replicaShareMap := replicaShareIntf.([]interface{})[0].(map[string]interface{})
-			replicaShare := &vpcv1.SharePrototypeShareContext{}
-			iopsIntf, ok := replicaShareMap["iops"]
-			iops := iopsIntf.(int)
-			if ok && iops != 0 {
-				replicaShare.Iops = core.Int64Ptr(int64(iops))
+		if resgrp, ok := d.GetOk("resource_group"); ok {
+			resgrpstr := resgrp.(string)
+			resourceGroup := &vpcv1.ResourceGroupIdentity{
+				ID: &resgrpstr,
 			}
-			if replicaShareMap["name"] != nil {
-				replicaShare.Name = core.StringPtr(replicaShareMap["name"].(string))
-			}
-			if replicaShareMap["profile"] != nil {
-				replicaShare.Profile = &vpcv1.ShareProfileIdentity{
-					Name: core.StringPtr(replicaShareMap["profile"].(string)),
+			sharePrototype.ResourceGroup = resourceGroup
+		}
+		_, snapshotOk := d.GetOk("source_snapshot")
+		_, sizeOk := d.GetOk("size")
+		if snapshotOk || sizeOk {
+			if sourceSnapshotIntf, snapOk := d.GetOk("source_snapshot"); snapOk {
+				if len(sourceSnapshotIntf.([]interface{})) > 0 {
+					SourceSnapshotModel := ResourceIBMIsShareMapToShareSourceSnapshotPrototype(sourceSnapshotIntf.([]interface{})[0].(map[string]interface{}))
+					sharePrototype.SourceSnapshot = SourceSnapshotModel
 				}
 			}
-			if replicaShareMap["replication_cron_spec"] != nil {
-				replicaShare.ReplicationCronSpec = core.StringPtr(replicaShareMap["replication_cron_spec"].(string))
+			if sizeIntf, sizeIntfOk := d.GetOk("size"); sizeIntfOk {
+				size := int64(sizeIntf.(int))
+				sharePrototype.Size = &size
 			}
-			if replicaShareMap["zone"] != nil {
-				replicaShare.Zone = &vpcv1.ZoneIdentity{
-					Name: core.StringPtr(replicaShareMap["zone"].(string)),
+
+			initial_owner := &vpcv1.ShareInitialOwner{}
+			if initialOwnerIntf, ok := d.GetOk("initial_owner"); ok {
+				initialOwnerMap := initialOwnerIntf.([]interface{})[0].(map[string]interface{})
+				if initialOwnerGIDIntf, ok := initialOwnerMap["gid"]; ok {
+					initialOwnerGID := int64(initialOwnerGIDIntf.(int))
+					initial_owner.Gid = &initialOwnerGID
+				}
+				if initialOwnerUIDIntf, ok := initialOwnerMap["uid"]; ok {
+					initialOwnerUID := int64(initialOwnerUIDIntf.(int))
+					initial_owner.Uid = &initialOwnerUID
 				}
 			}
 
-			replicaTargets, ok := replicaShareMap["mount_targets"]
-			if ok {
-				var targets []vpcv1.ShareMountTargetPrototypeIntf
-				targetsIntf := replicaTargets.([]interface{})
-				for tergetIdx, targetIntf := range targetsIntf {
-					target := targetIntf.(map[string]interface{})
-					autoDeleteSchema := fmt.Sprintf("replica_share.0.mount_targets.%d.virtual_network_interface.0.auto_delete", tergetIdx)
-					targetsItem, err := resourceIbmIsShareMapToShareMountTargetPrototype(d, target, autoDeleteSchema)
-					if err != nil {
-						tfErr := flex.TerraformErrorf(err, fmt.Sprintf("resourceIbmIsShareMapToShareMountTargetPrototype failed: %s", err.Error()), "ibm_is_share", "create")
-						log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
-						return tfErr.GetDiag()
+			if replicaShareIntf, ok := d.GetOk("replica_share"); ok {
+				replicaShareMap := replicaShareIntf.([]interface{})[0].(map[string]interface{})
+				replicaShare := &vpcv1.SharePrototypeShareContext{}
+				iopsIntf, ok := replicaShareMap["iops"]
+				iops := iopsIntf.(int)
+				if ok && iops != 0 {
+					replicaShare.Iops = core.Int64Ptr(int64(iops))
+				}
+				if replicaShareMap["name"] != nil {
+					replicaShare.Name = core.StringPtr(replicaShareMap["name"].(string))
+				}
+				if replicaShareMap["profile"] != nil {
+					replicaShare.Profile = &vpcv1.ShareProfileIdentity{
+						Name: core.StringPtr(replicaShareMap["profile"].(string)),
 					}
-					targets = append(targets, &targetsItem)
 				}
-				replicaShare.MountTargets = targets
-			}
+				if replicaShareMap["replication_cron_spec"] != nil {
+					replicaShare.ReplicationCronSpec = core.StringPtr(replicaShareMap["replication_cron_spec"].(string))
+				}
+				if replicaShareMap["zone"] != nil {
+					replicaShare.Zone = &vpcv1.ZoneIdentity{
+						Name: core.StringPtr(replicaShareMap["zone"].(string)),
+					}
+				}
 
-			var userTags *schema.Set
-			if v, ok := replicaShareMap[isFileShareTags]; ok {
-				userTags = v.(*schema.Set)
-				if userTags != nil && userTags.Len() != 0 {
-					userTagsArray := make([]string, userTags.Len())
-					for i, userTag := range userTags.List() {
-						userTagStr := userTag.(string)
-						userTagsArray[i] = userTagStr
+				replicaTargets, ok := replicaShareMap["mount_targets"]
+				if ok {
+					var targets []vpcv1.ShareMountTargetPrototypeIntf
+					targetsIntf := replicaTargets.([]interface{})
+					for tergetIdx, targetIntf := range targetsIntf {
+						target := targetIntf.(map[string]interface{})
+						autoDeleteSchema := fmt.Sprintf("replica_share.0.mount_targets.%d.virtual_network_interface.0.auto_delete", tergetIdx)
+						targetsItem, err := resourceIbmIsShareMapToShareMountTargetPrototype(d, target, autoDeleteSchema)
+						if err != nil {
+							tfErr := flex.TerraformErrorf(err, fmt.Sprintf("resourceIbmIsShareMapToShareMountTargetPrototype failed: %s", err.Error()), "ibm_is_share", "create")
+							log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+							return tfErr.GetDiag()
+						}
+						targets = append(targets, &targetsItem)
 					}
-					schematicTags := os.Getenv("IC_ENV_TAGS")
-					var envTags []string
-					if schematicTags != "" {
-						envTags = strings.Split(schematicTags, ",")
-						userTagsArray = append(userTagsArray, envTags...)
+					replicaShare.MountTargets = targets
+				}
+
+				var userTags *schema.Set
+				if v, ok := replicaShareMap[isFileShareTags]; ok {
+					userTags = v.(*schema.Set)
+					if userTags != nil && userTags.Len() != 0 {
+						userTagsArray := make([]string, userTags.Len())
+						for i, userTag := range userTags.List() {
+							userTagStr := userTag.(string)
+							userTagsArray[i] = userTagStr
+						}
+						schematicTags := os.Getenv("IC_ENV_TAGS")
+						var envTags []string
+						if schematicTags != "" {
+							envTags = strings.Split(schematicTags, ",")
+							userTagsArray = append(userTagsArray, envTags...)
+						}
+						replicaShare.UserTags = userTagsArray
 					}
-					replicaShare.UserTags = userTagsArray
+				}
+				sharePrototype.ReplicaShare = replicaShare
+			}
+		} else if sourceShareIntf, sShareok := d.GetOk("source_share"); sShareok {
+			sourceShare := sourceShareIntf.(string)
+			if sourceShare != "" {
+				sharePrototype.SourceShare = &vpcv1.ShareIdentity{
+					ID: &sourceShare,
 				}
 			}
-			sharePrototype.ReplicaShare = replicaShare
-		}
-	} else if sourceShareIntf, sShareok := d.GetOk("source_share"); sShareok {
-		sourceShare := sourceShareIntf.(string)
-		if sourceShare != "" {
-			sharePrototype.SourceShare = &vpcv1.ShareIdentity{
-				ID: &sourceShare,
+			replicationCronSpec := d.Get("replication_cron_spec").(string)
+			sharePrototype.ReplicationCronSpec = &replicationCronSpec
+		} else if sourceShareCrnIntf, sShareCrnok := d.GetOk("source_share_crn"); sShareCrnok {
+			sourceShareCRN := sourceShareCrnIntf.(string)
+			if sourceShareCRN != "" {
+				sharePrototype.SourceShare = &vpcv1.ShareIdentity{
+					CRN: &sourceShareCRN,
+				}
+			}
+			replicationCronSpec := d.Get("replication_cron_spec").(string)
+			sharePrototype.ReplicationCronSpec = &replicationCronSpec
+		} else if _, originShareOk := d.GetOk("origin_share"); originShareOk {
+			originShare := d.Get("origin_share")
+			if len(originShare.([]interface{})) > 0 {
+				OriginShareModel := ResourceIBMIsShareMapToShareIdentity(originShare.([]interface{})[0].(map[string]interface{}))
+				sharePrototype.OriginShare = OriginShareModel
 			}
 		}
-		replicationCronSpec := d.Get("replication_cron_spec").(string)
-		sharePrototype.ReplicationCronSpec = &replicationCronSpec
-	} else if sourceShareCrnIntf, sShareCrnok := d.GetOk("source_share_crn"); sShareCrnok {
-		sourceShareCRN := sourceShareCrnIntf.(string)
-		if sourceShareCRN != "" {
-			sharePrototype.SourceShare = &vpcv1.ShareIdentity{
-				CRN: &sourceShareCRN,
+		if iopsIntf, ok := d.GetOk("iops"); ok {
+			iops := int64(iopsIntf.(int))
+			sharePrototype.Iops = &iops
+		}
+		if nameIntf, ok := d.GetOk("name"); ok {
+			name := nameIntf.(string)
+			sharePrototype.Name = &name
+		}
+		if profileIntf, ok := d.GetOk("profile"); ok {
+			profileStr := profileIntf.(string)
+			profile := &vpcv1.ShareProfileIdentity{
+				Name: &profileStr,
 			}
+			sharePrototype.Profile = profile
 		}
-		replicationCronSpec := d.Get("replication_cron_spec").(string)
-		sharePrototype.ReplicationCronSpec = &replicationCronSpec
-	} else if _, originShareOk := d.GetOk("origin_share"); originShareOk {
-		originShare := d.Get("origin_share")
-		if len(originShare.([]interface{})) > 0 {
-			OriginShareModel := ResourceIBMIsShareMapToShareIdentity(originShare.([]interface{})[0].(map[string]interface{}))
-			sharePrototype.OriginShare = OriginShareModel
-		}
-	}
-	if iopsIntf, ok := d.GetOk("iops"); ok {
-		iops := int64(iopsIntf.(int))
-		sharePrototype.Iops = &iops
-	}
-	if nameIntf, ok := d.GetOk("name"); ok {
-		name := nameIntf.(string)
-		sharePrototype.Name = &name
-	}
-	if profileIntf, ok := d.GetOk("profile"); ok {
-		profileStr := profileIntf.(string)
-		profile := &vpcv1.ShareProfileIdentity{
-			Name: &profileStr,
-		}
-		sharePrototype.Profile = profile
-	}
 
-	if shareTargetPrototypeIntf, ok := d.GetOk("mount_targets"); ok {
-		var targets []vpcv1.ShareMountTargetPrototypeIntf
-		for targetIdx, e := range shareTargetPrototypeIntf.([]interface{}) {
-			value := e.(map[string]interface{})
-			autoDeleteSchema := fmt.Sprintf("mount_targets.%d.virtual_network_interface.0.auto_delete", targetIdx)
-			targetsItem, err := resourceIbmIsShareMapToShareMountTargetPrototype(d, value, autoDeleteSchema)
-			if err != nil {
-				tfErr := flex.TerraformErrorf(err, fmt.Sprintf("resourceIbmIsShareMapToShareMountTargetPrototype failed: %s", err.Error()), "ibm_is_share", "create")
-				log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
-				return tfErr.GetDiag()
+		if shareTargetPrototypeIntf, ok := d.GetOk("mount_targets"); ok {
+			var targets []vpcv1.ShareMountTargetPrototypeIntf
+			for targetIdx, e := range shareTargetPrototypeIntf.([]interface{}) {
+				value := e.(map[string]interface{})
+				autoDeleteSchema := fmt.Sprintf("mount_targets.%d.virtual_network_interface.0.auto_delete", targetIdx)
+				targetsItem, err := resourceIbmIsShareMapToShareMountTargetPrototype(d, value, autoDeleteSchema)
+				if err != nil {
+					tfErr := flex.TerraformErrorf(err, fmt.Sprintf("resourceIbmIsShareMapToShareMountTargetPrototype failed: %s", err.Error()), "ibm_is_share", "create")
+					log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+					return tfErr.GetDiag()
+				}
+				targets = append(targets, &targetsItem)
 			}
-			targets = append(targets, &targetsItem)
+			sharePrototype.MountTargets = targets
 		}
-		sharePrototype.MountTargets = targets
-	}
-	if zone, ok := d.GetOk("zone"); ok {
-		zonestr := zone.(string)
-		zone := &vpcv1.ZoneIdentity{
-			Name: &zonestr,
-		}
-		sharePrototype.Zone = zone
-	}
-	var userTags *schema.Set
-	if v, ok := d.GetOk(isFileShareTags); ok {
-		userTags = v.(*schema.Set)
-		if userTags != nil && userTags.Len() != 0 {
-			userTagsArray := make([]string, userTags.Len())
-			for i, userTag := range userTags.List() {
-				userTagStr := userTag.(string)
-				userTagsArray[i] = userTagStr
+		if zone, ok := d.GetOk("zone"); ok {
+			zonestr := zone.(string)
+			zone := &vpcv1.ZoneIdentity{
+				Name: &zonestr,
 			}
-			schematicTags := os.Getenv("IC_ENV_TAGS")
-			var envTags []string
-			if schematicTags != "" {
-				envTags = strings.Split(schematicTags, ",")
-				userTagsArray = append(userTagsArray, envTags...)
-			}
-			sharePrototype.UserTags = userTagsArray
+			sharePrototype.Zone = zone
 		}
-	}
-	createShareOptions.SetSharePrototype(sharePrototype)
-	share, response, err := vpcClient.CreateShareWithContext(context, createShareOptions)
-	if err != nil {
-		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("create share failed: %s\n%s", err.Error(), response), "ibm_is_share", "create")
-		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
-		return tfErr.GetDiag()
-	}
-
-	_, err = isWaitForShareAvailable(context, vpcClient, *share.ID, d, d.Timeout(schema.TimeoutCreate))
-	if err != nil {
-		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("wait for share available failed: %s\n%s", err.Error(), response), "ibm_is_share", "create")
-		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
-		return tfErr.GetDiag()
-	}
-
-	if share.ReplicaShare != nil && share.ReplicaShare.ID != nil {
-		_, err = isWaitForShareAvailable(context, vpcClient, *share.ReplicaShare.ID, d, d.Timeout(schema.TimeoutCreate))
+		var userTags *schema.Set
+		if v, ok := d.GetOk(isFileShareTags); ok {
+			userTags = v.(*schema.Set)
+			if userTags != nil && userTags.Len() != 0 {
+				userTagsArray := make([]string, userTags.Len())
+				for i, userTag := range userTags.List() {
+					userTagStr := userTag.(string)
+					userTagsArray[i] = userTagStr
+				}
+				schematicTags := os.Getenv("IC_ENV_TAGS")
+				var envTags []string
+				if schematicTags != "" {
+					envTags = strings.Split(schematicTags, ",")
+					userTagsArray = append(userTagsArray, envTags...)
+				}
+				sharePrototype.UserTags = userTagsArray
+			}
+		}
+		createShareOptions.SetSharePrototype(sharePrototype)
+		share, response, err := vpcClient.CreateShareWithContext(context, createShareOptions)
 		if err != nil {
-			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("wait for share available  failed: %s\n%s", err.Error(), response), "ibm_is_share", "create")
+			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("create share failed: %s\n%s", err.Error(), response), "ibm_is_share", "create")
 			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
 			return tfErr.GetDiag()
 		}
-		replicaShareAccessTagsSchema := "replica_share.0.access_tags"
-		if _, ok := d.GetOk(replicaShareAccessTagsSchema); ok {
-			oldList, newList := d.GetChange(replicaShareAccessTagsSchema)
-			err = flex.UpdateGlobalTagsUsingCRN(oldList, newList, meta, *share.ReplicaShare.CRN, "", isAccessTagType)
+		d.SetId(*share.ID)
+
+		_, err = isWaitForShareAvailable(context, vpcClient, d.Id(), d, d.Timeout(schema.TimeoutCreate))
+		if err != nil {
+			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("wait for share available failed: %s\n%s", err.Error(), response), "ibm_is_share", "create")
+			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+			return tfErr.GetDiag()
+		}
+
+		if share.ReplicaShare != nil && share.ReplicaShare.ID != nil {
+			_, err = isWaitForShareAvailable(context, vpcClient, *share.ReplicaShare.ID, d, d.Timeout(schema.TimeoutCreate))
+			if err != nil {
+				tfErr := flex.TerraformErrorf(err, fmt.Sprintf("wait for share available  failed: %s\n%s", err.Error(), response), "ibm_is_share", "create")
+				log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+				return tfErr.GetDiag()
+			}
+			replicaShareAccessTagsSchema := "replica_share.0.access_tags"
+			if _, ok := d.GetOk(replicaShareAccessTagsSchema); ok {
+				oldList, newList := d.GetChange(replicaShareAccessTagsSchema)
+				err = flex.UpdateGlobalTagsUsingCRN(oldList, newList, meta, *share.ReplicaShare.CRN, "", isAccessTagType)
+				if err != nil {
+					log.Printf(
+						"Error creating replica file share (%s) access tags: %s", d.Id(), err)
+				}
+			}
+		}
+
+		if _, ok := d.GetOk(isFileShareAccessTags); ok {
+			oldList, newList := d.GetChange(isFileShareAccessTags)
+			err = flex.UpdateGlobalTagsUsingCRN(oldList, newList, meta, *share.CRN, "", isAccessTagType)
 			if err != nil {
 				log.Printf(
-					"Error creating replica file share (%s) access tags: %s", d.Id(), err)
+					"Error creating file share (%s) access tags: %s", d.Id(), err)
+			}
+		}
+	} else {
+		if accessControlModeIntf, ok := d.GetOk("access_control_mode"); ok {
+			accessControlMode := accessControlModeIntf.(string)
+			sharePrototypeBeta.AccessControlMode = &accessControlMode
+		}
+		if allowedAccessProtocols, ok := d.GetOk("allowed_access_protocols"); ok {
+			allowedAccessProtocolsList := []string{}
+			for _, allowedAccessProtocolsIntf := range allowedAccessProtocols.([]interface{}) {
+				allowedAccessProtocolsList = append(allowedAccessProtocolsList, allowedAccessProtocolsIntf.(string))
+			}
+			sharePrototypeBeta.AllowedAccessProtocols = allowedAccessProtocolsList
+		} else {
+			allowedAccessProtocols := []string{"nfs4"}
+			sharePrototypeBeta.AllowedAccessProtocols = allowedAccessProtocols
+		}
+		if bandwidthIntf, bandwidthOk := d.GetOk("bandwidth"); bandwidthOk {
+			bandwidth := int64(bandwidthIntf.(int))
+			sharePrototypeBeta.Bandwidth = &bandwidth
+		}
+		if allowedTransitEncryptionModesIntf, ok := d.GetOk("allowed_transit_encryption_modes"); ok {
+			allowedTransitEncryptionModes := []string{}
+			for _, allowedTransitEncryptionModesItemIntf := range allowedTransitEncryptionModesIntf.([]interface{}) {
+				allowedTransitEncryptionModesItem := allowedTransitEncryptionModesItemIntf.(string)
+				if allowedTransitEncryptionModesItem == "user_managed" {
+					allowedTransitEncryptionModesItem = "ipsec"
+				}
+				allowedTransitEncryptionModes = append(allowedTransitEncryptionModes, allowedTransitEncryptionModesItem)
+			}
+			sharePrototypeBeta.AllowedTransitEncryptionModes = allowedTransitEncryptionModes
+		}
+
+		if encryptionKeyIntf, ok := d.GetOk("encryption_key"); ok {
+			encryptionKey := encryptionKeyIntf.(string)
+			encryptionKeyIdentity := &vpcbetav1.EncryptionKeyIdentity{
+				CRN: &encryptionKey,
+			}
+			sharePrototypeBeta.EncryptionKey = encryptionKeyIdentity
+		}
+		if resgrp, ok := d.GetOk("resource_group"); ok {
+			resgrpstr := resgrp.(string)
+			resourceGroup := &vpcbetav1.ResourceGroupIdentity{
+				ID: &resgrpstr,
+			}
+			sharePrototypeBeta.ResourceGroup = resourceGroup
+		}
+		_, snapshotOk := d.GetOk("source_snapshot")
+		_, sizeOk := d.GetOk("size")
+		if snapshotOk || sizeOk {
+			if sourceSnapshotIntf, snapOk := d.GetOk("source_snapshot"); snapOk {
+				if len(sourceSnapshotIntf.([]interface{})) > 0 {
+					SourceSnapshotModel := ResourceIBMIsShareMapToShareSourceSnapshotPrototypeBeta(sourceSnapshotIntf.([]interface{})[0].(map[string]interface{}))
+					sharePrototypeBeta.SourceSnapshot = SourceSnapshotModel
+				}
+			}
+			if sizeIntf, sizeIntfOk := d.GetOk("size"); sizeIntfOk {
+				size := int64(sizeIntf.(int))
+				sharePrototypeBeta.Size = &size
+			}
+
+			initial_owner := &vpcbetav1.ShareInitialOwner{}
+			if initialOwnerIntf, ok := d.GetOk("initial_owner"); ok {
+				initialOwnerMap := initialOwnerIntf.([]interface{})[0].(map[string]interface{})
+				if initialOwnerGIDIntf, ok := initialOwnerMap["gid"]; ok {
+					initialOwnerGID := int64(initialOwnerGIDIntf.(int))
+					initial_owner.Gid = &initialOwnerGID
+				}
+				if initialOwnerUIDIntf, ok := initialOwnerMap["uid"]; ok {
+					initialOwnerUID := int64(initialOwnerUIDIntf.(int))
+					initial_owner.Uid = &initialOwnerUID
+				}
+			}
+
+			if replicaShareIntf, ok := d.GetOk("replica_share"); ok {
+				replicaShareMap := replicaShareIntf.([]interface{})[0].(map[string]interface{})
+				replicaShare := &vpcbetav1.SharePrototypeShareContext{}
+				iopsIntf, ok := replicaShareMap["iops"]
+				iops := iopsIntf.(int)
+				if ok && iops != 0 {
+					replicaShare.Iops = core.Int64Ptr(int64(iops))
+				}
+				if replicaShareMap["name"] != nil {
+					replicaShare.Name = core.StringPtr(replicaShareMap["name"].(string))
+				}
+				if replicaShareMap["profile"] != nil {
+					replicaShare.Profile = &vpcbetav1.ShareProfileIdentity{
+						Name: core.StringPtr(replicaShareMap["profile"].(string)),
+					}
+				}
+				if replicaShareMap["replication_cron_spec"] != nil {
+					replicaShare.ReplicationCronSpec = core.StringPtr(replicaShareMap["replication_cron_spec"].(string))
+				}
+				if replicaShareMap["zone"] != nil {
+					replicaShare.Zone = &vpcbetav1.ZoneIdentity{
+						Name: core.StringPtr(replicaShareMap["zone"].(string)),
+					}
+				}
+
+				replicaTargets, ok := replicaShareMap["mount_targets"]
+				if ok {
+					var targets []vpcbetav1.ShareMountTargetPrototypeIntf
+					targetsIntf := replicaTargets.([]interface{})
+					for tergetIdx, targetIntf := range targetsIntf {
+						target := targetIntf.(map[string]interface{})
+						autoDeleteSchema := fmt.Sprintf("replica_share.0.mount_targets.%d.virtual_network_interface.0.auto_delete", tergetIdx)
+						targetsItem, err := resourceIbmIsShareMapToShareMountTargetPrototypeBeta(d, target, autoDeleteSchema)
+						if err != nil {
+							tfErr := flex.TerraformErrorf(err, fmt.Sprintf("resourceIbmIsShareMapToShareMountTargetPrototype failed: %s", err.Error()), "ibm_is_share", "create")
+							log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+							return tfErr.GetDiag()
+						}
+						targets = append(targets, &targetsItem)
+					}
+					replicaShare.MountTargets = targets
+				}
+
+				var userTags *schema.Set
+				if v, ok := replicaShareMap[isFileShareTags]; ok {
+					userTags = v.(*schema.Set)
+					if userTags != nil && userTags.Len() != 0 {
+						userTagsArray := make([]string, userTags.Len())
+						for i, userTag := range userTags.List() {
+							userTagStr := userTag.(string)
+							userTagsArray[i] = userTagStr
+						}
+						schematicTags := os.Getenv("IC_ENV_TAGS")
+						var envTags []string
+						if schematicTags != "" {
+							envTags = strings.Split(schematicTags, ",")
+							userTagsArray = append(userTagsArray, envTags...)
+						}
+						replicaShare.UserTags = userTagsArray
+					}
+				}
+				sharePrototypeBeta.ReplicaShare = replicaShare
+			}
+		} else if sourceShareIntf, sShareok := d.GetOk("source_share"); sShareok {
+			sourceShare := sourceShareIntf.(string)
+			if sourceShare != "" {
+				sharePrototypeBeta.SourceShare = &vpcbetav1.ShareIdentity{
+					ID: &sourceShare,
+				}
+			}
+			replicationCronSpec := d.Get("replication_cron_spec").(string)
+			sharePrototypeBeta.ReplicationCronSpec = &replicationCronSpec
+		} else if sourceShareCrnIntf, sShareCrnok := d.GetOk("source_share_crn"); sShareCrnok {
+			sourceShareCRN := sourceShareCrnIntf.(string)
+			if sourceShareCRN != "" {
+				sharePrototypeBeta.SourceShare = &vpcbetav1.ShareIdentity{
+					CRN: &sourceShareCRN,
+				}
+			}
+			replicationCronSpec := d.Get("replication_cron_spec").(string)
+			sharePrototypeBeta.ReplicationCronSpec = &replicationCronSpec
+		} else if _, originShareOk := d.GetOk("origin_share"); originShareOk {
+			originShare := d.Get("origin_share")
+			if len(originShare.([]interface{})) > 0 {
+				OriginShareModel := ResourceIBMIsShareMapToShareIdentityBeta(originShare.([]interface{})[0].(map[string]interface{}))
+				sharePrototypeBeta.OriginShare = OriginShareModel
+			}
+		}
+		if iopsIntf, ok := d.GetOk("iops"); ok {
+			iops := int64(iopsIntf.(int))
+			sharePrototypeBeta.Iops = &iops
+		}
+		if nameIntf, ok := d.GetOk("name"); ok {
+			name := nameIntf.(string)
+			sharePrototypeBeta.Name = &name
+		}
+		if profileIntf, ok := d.GetOk("profile"); ok {
+			profileStr := profileIntf.(string)
+			profile := &vpcbetav1.ShareProfileIdentity{
+				Name: &profileStr,
+			}
+			sharePrototypeBeta.Profile = profile
+		}
+
+		if shareTargetPrototypeIntf, ok := d.GetOk("mount_targets"); ok {
+			var targets []vpcbetav1.ShareMountTargetPrototypeIntf
+			for targetIdx, e := range shareTargetPrototypeIntf.([]interface{}) {
+				value := e.(map[string]interface{})
+				autoDeleteSchema := fmt.Sprintf("mount_targets.%d.virtual_network_interface.0.auto_delete", targetIdx)
+				targetsItem, err := resourceIbmIsShareMapToShareMountTargetPrototypeBeta(d, value, autoDeleteSchema)
+				if err != nil {
+					tfErr := flex.TerraformErrorf(err, fmt.Sprintf("resourceIbmIsShareMapToShareMountTargetPrototype failed: %s", err.Error()), "ibm_is_share", "create")
+					log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+					return tfErr.GetDiag()
+				}
+				targets = append(targets, &targetsItem)
+			}
+			sharePrototypeBeta.MountTargets = targets
+		}
+		if zone, ok := d.GetOk("zone"); ok {
+			zonestr := zone.(string)
+			zone := &vpcbetav1.ZoneIdentity{
+				Name: &zonestr,
+			}
+			sharePrototypeBeta.Zone = zone
+		}
+		var userTags *schema.Set
+		if v, ok := d.GetOk(isFileShareTags); ok {
+			userTags = v.(*schema.Set)
+			if userTags != nil && userTags.Len() != 0 {
+				userTagsArray := make([]string, userTags.Len())
+				for i, userTag := range userTags.List() {
+					userTagStr := userTag.(string)
+					userTagsArray[i] = userTagStr
+				}
+				schematicTags := os.Getenv("IC_ENV_TAGS")
+				var envTags []string
+				if schematicTags != "" {
+					envTags = strings.Split(schematicTags, ",")
+					userTagsArray = append(userTagsArray, envTags...)
+				}
+				sharePrototypeBeta.UserTags = userTagsArray
+			}
+		}
+		createShareOptionsBeta.SetSharePrototype(sharePrototypeBeta)
+		shareBeta, response, err := vpcBetaClient.CreateShareWithContext(context, createShareOptionsBeta)
+		if err != nil {
+			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("create share failed: %s\n%s", err.Error(), response), "ibm_is_share", "create")
+			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+			return tfErr.GetDiag()
+		}
+		d.SetId(*shareBeta.ID)
+		_, err = isWaitForShareAvailable(context, vpcClient, *shareBeta.ID, d, d.Timeout(schema.TimeoutCreate))
+		if err != nil {
+			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("wait for share available failed: %s\n%s", err.Error(), response), "ibm_is_share", "create")
+			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+			return tfErr.GetDiag()
+		}
+
+		if _, ok := d.GetOk(isFileShareAccessTags); ok {
+			oldList, newList := d.GetChange(isFileShareAccessTags)
+			err = flex.UpdateGlobalTagsUsingCRN(oldList, newList, meta, *shareBeta.CRN, "", isAccessTagType)
+			if err != nil {
+				log.Printf(
+					"Error creating file share (%s) access tags: %s", d.Id(), err)
 			}
 		}
 	}
-	d.SetId(*share.ID)
 
-	if _, ok := d.GetOk(isFileShareAccessTags); ok {
-		oldList, newList := d.GetChange(isFileShareAccessTags)
-		err = flex.UpdateGlobalTagsUsingCRN(oldList, newList, meta, *share.CRN, "", isAccessTagType)
-		if err != nil {
-			log.Printf(
-				"Error creating file share (%s) access tags: %s", d.Id(), err)
-		}
-	}
 	return resourceIbmIsShareRead(context, d, meta)
 }
 
 func resourceIbmIsShareMapToShareMountTargetPrototype(d *schema.ResourceData, shareTargetPrototypeMap map[string]interface{}, autoDeleteSchema string) (vpcv1.ShareMountTargetPrototype, error) {
+
 	shareTargetPrototype := vpcv1.ShareMountTargetPrototype{}
 
 	if nameIntf, ok := shareTargetPrototypeMap["name"]; ok && nameIntf != "" {
@@ -1366,6 +1624,43 @@ func resourceIbmIsShareMapToShareMountTargetPrototype(d *schema.ResourceData, sh
 	return shareTargetPrototype, nil
 }
 
+func resourceIbmIsShareMapToShareMountTargetPrototypeBeta(d *schema.ResourceData, shareTargetPrototypeMap map[string]interface{}, autoDeleteSchema string) (vpcbetav1.ShareMountTargetPrototype, error) {
+	shareTargetPrototypeBeta := vpcbetav1.ShareMountTargetPrototype{}
+
+	if nameIntf, ok := shareTargetPrototypeMap["name"]; ok && nameIntf != "" {
+		shareTargetPrototypeBeta.Name = core.StringPtr(nameIntf.(string))
+	}
+
+	if vpcIntf, ok := shareTargetPrototypeMap["vpc"]; ok && vpcIntf != "" {
+		vpc := vpcIntf.(string)
+		shareTargetPrototypeBeta.VPC = &vpcbetav1.VPCIdentity{
+			ID: &vpc,
+		}
+	} else if vniIntf, ok := shareTargetPrototypeMap["virtual_network_interface"]; ok {
+		vniPrototype := vpcbetav1.ShareMountTargetVirtualNetworkInterfacePrototype{}
+		vniMap := vniIntf.([]interface{})[0].(map[string]interface{})
+
+		VNIIdIntf, ok := vniMap["id"]
+		VNIId := VNIIdIntf.(string)
+		if ok && VNIId != "" {
+			vniPrototype.ID = &VNIId
+			shareTargetPrototypeBeta.VirtualNetworkInterface = &vniPrototype
+		} else {
+			vniPrototype, err := ShareMountTargetMapToShareMountTargetPrototypeBeta(d, vniMap, autoDeleteSchema)
+			if err != nil {
+				return shareTargetPrototypeBeta, err
+			}
+			shareTargetPrototypeBeta.VirtualNetworkInterface = &vniPrototype
+		}
+
+	}
+	if transitEncryptionIntf, ok := shareTargetPrototypeMap["transit_encryption"]; ok && transitEncryptionIntf != "" {
+		transitEncryption := transitEncryptionIntf.(string)
+		shareTargetPrototypeBeta.TransitEncryption = &transitEncryption
+	}
+	return shareTargetPrototypeBeta, nil
+}
+
 func resourceIbmIsShareRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	vpcClient, err := meta.(conns.ClientSession).VpcV1API()
 	if err != nil {
@@ -1373,210 +1668,173 @@ func resourceIbmIsShareRead(context context.Context, d *schema.ResourceData, met
 		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
 		return tfErr.GetDiag()
 	}
-
-	getShareOptions := &vpcv1.GetShareOptions{}
-
-	getShareOptions.SetID(d.Id())
-
-	share, response, err := vpcClient.GetShareWithContext(context, getShareOptions)
+	vpcBetaClient, err := meta.(conns.ClientSession).VpcV1BetaAPI()
 	if err != nil {
-		if response != nil && response.StatusCode == 404 {
-			d.SetId("")
-			return nil
-		}
-		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Get share failed: %s\n%s", err.Error(), response), "ibm_is_share", "read")
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcBetaClient creation failed: %s", err.Error()), "ibm_is_share", "read")
 		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
 		return tfErr.GetDiag()
 	}
 
-	if share.EncryptionKey != nil {
-		if err = d.Set("encryption_key", *share.EncryptionKey.CRN); err != nil {
-			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "set-encryption_key").GetDiag()
+	isBetaEnabled := false
+	if shareprofile, ok := d.GetOk("profile"); ok {
+		if shareprofile.(string) == "rfs" {
+			isBetaEnabled = true
 		}
 	}
-	if share.AccessControlMode != nil {
-		if err = d.Set("access_control_mode", *share.AccessControlMode); err != nil {
-			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "set-access_control_mode").GetDiag()
-		}
-	}
-	if share.AllowedAccessProtocols != nil && len(share.AllowedAccessProtocols) > 0 {
-		if err = d.Set("allowed_access_protocols", *&share.AllowedAccessProtocols); err != nil {
-			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "set-allowed_access_protocols").GetDiag()
-		}
-	}
-	if err = d.Set("bandwidth", flex.IntValue(share.Bandwidth)); err != nil {
-		return diag.FromErr(fmt.Errorf("Error setting bandwidth: %s", err))
-	}
-	if !core.IsNil(share.AllowedTransitEncryptionModes) {
-		if err = d.Set("allowed_transit_encryption_modes", share.AllowedTransitEncryptionModes); err != nil {
-			err = fmt.Errorf("Error setting allowed_transit_encryption_modes: %s", err)
-			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "set-allowed_transit_encryption_modes").GetDiag()
-		}
-	}
-	if !core.IsNil(share.OriginShare) {
-		originShareMap := ResourceIBMIsShareShareReferenceToMap(share.OriginShare)
-		if err = d.Set("origin_share", []map[string]interface{}{originShareMap}); err != nil {
-			err = fmt.Errorf("Error setting origin_share: %s", err)
-			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "set-origin_share").GetDiag()
-		}
-	}
-	if err = d.Set("iops", flex.IntValue(share.Iops)); err != nil {
-		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "set-iops").GetDiag()
-	}
-	if err = d.Set("name", share.Name); err != nil {
-		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "set-name").GetDiag()
-	}
-	if share.Profile != nil {
-		if err = d.Set("profile", *share.Profile.Name); err != nil {
-			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "set-profile").GetDiag()
-		}
-	}
-	if share.ResourceGroup != nil {
-		if err = d.Set("resource_group", *share.ResourceGroup.ID); err != nil {
-			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "set-resource_group").GetDiag()
-		}
-	}
-	if err = d.Set("size", flex.IntValue(share.Size)); err != nil {
-		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "set-size").GetDiag()
-	}
-	if err = d.Set("accessor_binding_role", share.AccessorBindingRole); err != nil {
-		err = fmt.Errorf("Error setting accessor_binding_role: %s", err)
-		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "set-accessor_binding_role").GetDiag()
-	}
-	accessorBindings := []map[string]interface{}{}
-	for _, accessorBindingsItem := range share.AccessorBindings {
+	if isBetaEnabled {
+		getShareOptionsBeta := &vpcbetav1.GetShareOptions{}
 
-		accessorBindingsItemMap := ResourceIBMIsShareShareAccessorBindingReferenceToMap(&accessorBindingsItem)
-		accessorBindings = append(accessorBindings, accessorBindingsItemMap)
+		getShareOptionsBeta.SetID(d.Id())
 
-	}
-	if err = d.Set("accessor_bindings", accessorBindings); err != nil {
-		err = fmt.Errorf("Error setting accessor_bindings: %s", err)
-		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "set-accessor_bindings").GetDiag()
-	}
-	targets := make([]map[string]interface{}, 0)
-	if share.MountTargets != nil {
-		for _, targetsItem := range share.MountTargets {
-			GetShareMountTargetOptions := &vpcv1.GetShareMountTargetOptions{}
-			GetShareMountTargetOptions.SetShareID(d.Id())
-			GetShareMountTargetOptions.SetID(*targetsItem.ID)
-
-			shareTarget, response, err := vpcClient.GetShareMountTargetWithContext(context, GetShareMountTargetOptions)
-			if err != nil {
-				if response != nil && response.StatusCode == 404 {
-					d.SetId("")
-					return nil
-				}
-				log.Printf("[DEBUG] GetShareMountTargetWithContext failed %s\n%s", err, response)
-				tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Get share mount target failed: %s\n%s", err.Error(), response), "ibm_is_share", "read")
-				log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
-				return tfErr.GetDiag()
-			}
-
-			targetsItemMap, err := ShareMountTargetToMap(context, vpcClient, d, *shareTarget)
-			if err != nil {
-				tfErr := flex.TerraformErrorf(err, fmt.Sprintf("ShareMountTargetToMap failed: %s", err.Error()), "ibm_is_share", "read")
-				log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
-				return tfErr.GetDiag()
-			}
-			targets = append(targets, targetsItemMap)
-		}
-	}
-	if err = d.Set("mount_targets", targets); err != nil {
-		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "set-mount_targets").GetDiag()
-	}
-
-	replicaShare := []map[string]interface{}{}
-	if share.ReplicaShare != nil && share.ReplicaShare.ID != nil {
-		if _, ok := d.GetOk("replica_share"); ok {
-			getShareOptions := &vpcv1.GetShareOptions{}
-
-			getShareOptions.SetID(*share.ReplicaShare.ID)
-
-			share, response, err := vpcClient.GetShareWithContext(context, getShareOptions)
-			if err != nil {
-				if response != nil && response.StatusCode == 404 {
-					d.SetId("")
-					return nil
-				}
-				tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Get share failed: %s\n%s", err.Error(), response), "ibm_is_share", "read")
-				log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
-				return tfErr.GetDiag()
-			}
-			replicaShareItem, err := ShareReplicaToMap(context, vpcClient, d, meta, *share)
-			if err != nil {
-				tfErr := flex.TerraformErrorf(err, fmt.Sprintf("ShareReplicaToMap failed: %s", err.Error()), "ibm_is_share", "read")
-				log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
-				return tfErr.GetDiag()
-			}
-			replicaShare = append(replicaShare, replicaShareItem)
-			d.Set("replica_share", replicaShare)
-		}
-	}
-
-	if share.Zone != nil {
-		if err = d.Set("zone", *share.Zone.Name); err != nil {
-			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "set-zone").GetDiag()
-		}
-	}
-	if err = d.Set("created_at", share.CreatedAt.String()); err != nil {
-		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "set-created_at").GetDiag()
-	}
-	if err = d.Set("crn", share.CRN); err != nil {
-		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "set-crn").GetDiag()
-	}
-	if err = d.Set("encryption", share.Encryption); err != nil {
-		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "set-encryption").GetDiag()
-	}
-	if err = d.Set("href", share.Href); err != nil {
-		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "set-href").GetDiag()
-	}
-	if share.LifecycleReasons != nil {
-		if err := d.Set("lifecycle_reasons", resourceShareLifecycleReasons(share.LifecycleReasons)); err != nil {
-			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "set-lifecycle_reasons").GetDiag()
-		}
-	}
-	if err = d.Set("lifecycle_state", share.LifecycleState); err != nil {
-		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "set-lifecycle_state").GetDiag()
-	}
-	if err = d.Set("resource_type", share.ResourceType); err != nil {
-		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "set-resource_type").GetDiag()
-	}
-	if err = d.Set("snapshot_count", flex.IntValue(share.SnapshotCount)); err != nil {
-		err = fmt.Errorf("Error setting snapshot_count: %s", err)
-		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "set-snapshot_count").GetDiag()
-	}
-	if err = d.Set("snapshot_size", flex.IntValue(share.SnapshotSize)); err != nil {
-		err = fmt.Errorf("Error setting snapshot_size: %s", err)
-		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "set-snapshot_size").GetDiag()
-	}
-	if !core.IsNil(share.SourceSnapshot) {
-		sourceSnapshotMap, err := ResourceIBMIsShareShareSourceSnapshotToMap(share.SourceSnapshot)
+		shareBeta, response, err := vpcBetaClient.GetShareWithContext(context, getShareOptionsBeta)
 		if err != nil {
-			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "source_snapshot-to-map").GetDiag()
+			if response != nil && response.StatusCode == 404 {
+				d.SetId("")
+				return nil
+			}
+			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Get share failed: %s\n%s", err.Error(), response), "ibm_is_share", "read")
+			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+			return tfErr.GetDiag()
 		}
-		if err = d.Set("source_snapshot", []map[string]interface{}{sourceSnapshotMap}); err != nil {
-			err = fmt.Errorf("Error setting source_snapshot: %s", err)
-			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "set-source_snapshot").GetDiag()
+
+		if shareBeta.EncryptionKey != nil {
+			if err = d.Set("encryption_key", *shareBeta.EncryptionKey.CRN); err != nil {
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "set-encryption_key").GetDiag()
+			}
 		}
-	}
-	latest_syncs := []map[string]interface{}{}
-	if share.LatestSync != nil {
-		latest_sync := make(map[string]interface{})
-		latest_sync["completed_at"] = flex.DateTimeToString(share.LatestSync.CompletedAt)
-		if share.LatestSync.DataTransferred != nil {
-			latest_sync["data_transferred"] = *share.LatestSync.DataTransferred
+		if shareBeta.AccessControlMode != nil {
+			if err = d.Set("access_control_mode", *shareBeta.AccessControlMode); err != nil {
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "set-access_control_mode").GetDiag()
+			}
 		}
-		latest_sync["started_at"] = flex.DateTimeToString(share.LatestSync.CompletedAt)
-		latest_syncs = append(latest_syncs, latest_sync)
-	}
-	d.Set("latest_sync", latest_syncs)
-	latest_jobs := []map[string]interface{}{}
-	if share.LatestJob != nil {
-		latest_job := make(map[string]interface{})
-		latest_job["status"] = share.LatestJob.Status
+		if shareBeta.AllowedAccessProtocols != nil && len(shareBeta.AllowedAccessProtocols) > 0 {
+			if err = d.Set("allowed_access_protocols", *&shareBeta.AllowedAccessProtocols); err != nil {
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "set-allowed_access_protocols").GetDiag()
+			}
+		}
+		if err = d.Set("bandwidth", flex.IntValue(shareBeta.Bandwidth)); err != nil {
+			return diag.FromErr(fmt.Errorf("Error setting bandwidth: %s", err))
+		}
+		if !core.IsNil(shareBeta.AllowedTransitEncryptionModes) {
+			if err = d.Set("allowed_transit_encryption_modes", shareBeta.AllowedTransitEncryptionModes); err != nil {
+				err = fmt.Errorf("Error setting allowed_transit_encryption_modes: %s", err)
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "set-allowed_transit_encryption_modes").GetDiag()
+			}
+		}
+		if !core.IsNil(shareBeta.OriginShare) {
+			originShareMap := ResourceIBMIsShareShareReferenceToMapBeta(shareBeta.OriginShare)
+			if err = d.Set("origin_share", []map[string]interface{}{originShareMap}); err != nil {
+				err = fmt.Errorf("Error setting origin_share: %s", err)
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "set-origin_share").GetDiag()
+			}
+		}
+		if err = d.Set("iops", flex.IntValue(shareBeta.Iops)); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "set-iops").GetDiag()
+		}
+		if err = d.Set("name", shareBeta.Name); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "set-name").GetDiag()
+		}
+		if shareBeta.Profile != nil {
+			if err = d.Set("profile", *shareBeta.Profile.Name); err != nil {
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "set-profile").GetDiag()
+			}
+		}
+		if shareBeta.ResourceGroup != nil {
+			if err = d.Set("resource_group", *shareBeta.ResourceGroup.ID); err != nil {
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "set-resource_group").GetDiag()
+			}
+		}
+		if err = d.Set("size", flex.IntValue(shareBeta.Size)); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "set-size").GetDiag()
+		}
+		if err = d.Set("accessor_binding_role", shareBeta.AccessorBindingRole); err != nil {
+			err = fmt.Errorf("Error setting accessor_binding_role: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "set-accessor_binding_role").GetDiag()
+		}
+		accessorBindings := []map[string]interface{}{}
+		for _, accessorBindingsItem := range shareBeta.AccessorBindings {
+
+			accessorBindingsItemMap := ResourceIBMIsShareShareAccessorBindingReferenceToMapBeta(&accessorBindingsItem)
+			accessorBindings = append(accessorBindings, accessorBindingsItemMap)
+
+		}
+		if err = d.Set("accessor_bindings", accessorBindings); err != nil {
+			err = fmt.Errorf("Error setting accessor_bindings: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "set-accessor_bindings").GetDiag()
+		}
+		targets := make([]map[string]interface{}, 0)
+		if shareBeta.MountTargets != nil {
+			for _, targetsItem := range shareBeta.MountTargets {
+				GetShareMountTargetOptions := &vpcv1.GetShareMountTargetOptions{}
+				GetShareMountTargetOptions.SetShareID(d.Id())
+				GetShareMountTargetOptions.SetID(*targetsItem.ID)
+
+				shareTarget, response, err := vpcClient.GetShareMountTargetWithContext(context, GetShareMountTargetOptions)
+				if err != nil {
+					if response != nil && response.StatusCode == 404 {
+						d.SetId("")
+						return nil
+					}
+					log.Printf("[DEBUG] GetShareMountTargetWithContext failed %s\n%s", err, response)
+					tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Get share mount target failed: %s\n%s", err.Error(), response), "ibm_is_share", "read")
+					log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+					return tfErr.GetDiag()
+				}
+
+				targetsItemMap, err := ShareMountTargetToMap(context, vpcClient, d, *shareTarget)
+				if err != nil {
+					tfErr := flex.TerraformErrorf(err, fmt.Sprintf("ShareMountTargetToMap failed: %s", err.Error()), "ibm_is_share", "read")
+					log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+					return tfErr.GetDiag()
+				}
+				targets = append(targets, targetsItemMap)
+			}
+		}
+		if err = d.Set("mount_targets", targets); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "set-mount_targets").GetDiag()
+		}
+
+		if shareBeta.Zone != nil {
+			if err = d.Set("zone", *shareBeta.Zone.Name); err != nil {
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "set-zone").GetDiag()
+			}
+		}
+		if err = d.Set("created_at", shareBeta.CreatedAt.String()); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "set-created_at").GetDiag()
+		}
+		if err = d.Set("crn", shareBeta.CRN); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "set-crn").GetDiag()
+		}
+		if err = d.Set("encryption", shareBeta.Encryption); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "set-encryption").GetDiag()
+		}
+		if err = d.Set("href", shareBeta.Href); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "set-href").GetDiag()
+		}
+		if shareBeta.LifecycleReasons != nil {
+			if err := d.Set("lifecycle_reasons", resourceShareLifecycleReasonsBeta(shareBeta.LifecycleReasons)); err != nil {
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "set-lifecycle_reasons").GetDiag()
+			}
+		}
+		if err = d.Set("lifecycle_state", shareBeta.LifecycleState); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "set-lifecycle_state").GetDiag()
+		}
+		if err = d.Set("resource_type", shareBeta.ResourceType); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "set-resource_type").GetDiag()
+		}
+		if err = d.Set("snapshot_count", flex.IntValue(shareBeta.SnapshotCount)); err != nil {
+			err = fmt.Errorf("Error setting snapshot_count: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "set-snapshot_count").GetDiag()
+		}
+		if err = d.Set("snapshot_size", flex.IntValue(shareBeta.SnapshotSize)); err != nil {
+			err = fmt.Errorf("Error setting snapshot_size: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "set-snapshot_size").GetDiag()
+		}
+
+		d.Set("replication_role", shareBeta.ReplicationRole)
+		d.Set("replication_status", shareBeta.ReplicationStatus)
 		status_reasons := []map[string]interface{}{}
-		for _, status_reason_item := range share.LatestJob.StatusReasons {
+		for _, status_reason_item := range shareBeta.ReplicationStatusReasons {
 			status_reason := make(map[string]interface{})
 			status_reason["code"] = status_reason_item.Code
 			status_reason["message"] = status_reason_item.Message
@@ -1585,43 +1843,271 @@ func resourceIbmIsShareRead(context context.Context, d *schema.ResourceData, met
 			}
 			status_reasons = append(status_reasons, status_reason)
 		}
-		latest_job["status_reasons"] = status_reasons
-		latest_job["type"] = share.LatestJob.Type
-		latest_jobs = append(latest_jobs, latest_job)
-	}
-	d.Set("latest_job", latest_jobs)
+		d.Set("replication_status_reasons", status_reasons)
 
-	if share.ReplicationCronSpec != nil {
-		d.Set("replication_cron_spec", share.ReplicationCronSpec)
-	}
-	d.Set("replication_role", share.ReplicationRole)
-	d.Set("replication_status", share.ReplicationStatus)
-	status_reasons := []map[string]interface{}{}
-	for _, status_reason_item := range share.ReplicationStatusReasons {
-		status_reason := make(map[string]interface{})
-		status_reason["code"] = status_reason_item.Code
-		status_reason["message"] = status_reason_item.Message
-		if status_reason_item.MoreInfo != nil {
-			status_reason["more_info"] = status_reason_item.MoreInfo
-		}
-		status_reasons = append(status_reasons, status_reason)
-	}
-	d.Set("replication_status_reasons", status_reasons)
-
-	accesstags, err := flex.GetGlobalTagsUsingCRN(meta, *share.CRN, "", isAccessTagType)
-	if err != nil {
-		log.Printf(
-			"Error getting shares (%s) access tags: %s", d.Id(), err)
-	}
-	d.Set(isFileShareAccessTags, accesstags)
-	// d.Set(isFileShareTags, tags)
-	if share.UserTags != nil {
-		if err = d.Set(isFileShareTags, share.UserTags); err != nil {
+		accesstags, err := flex.GetGlobalTagsUsingCRN(meta, *shareBeta.CRN, "", isAccessTagType)
+		if err != nil {
 			log.Printf(
-				"Error setting shares (%s) user tags: %s", d.Id(), err)
+				"Error getting shares (%s) access tags: %s", d.Id(), err)
+		}
+		d.Set(isFileShareAccessTags, accesstags)
+		// d.Set(isFileShareTags, tags)
+		if shareBeta.UserTags != nil {
+			if err = d.Set(isFileShareTags, shareBeta.UserTags); err != nil {
+				log.Printf(
+					"Error setting shares (%s) user tags: %s", d.Id(), err)
+			}
+		}
+	} else {
+
+		getShareOptions := &vpcv1.GetShareOptions{}
+
+		getShareOptions.SetID(d.Id())
+
+		share, response, err := vpcClient.GetShareWithContext(context, getShareOptions)
+		if err != nil {
+			if response != nil && response.StatusCode == 404 {
+				d.SetId("")
+				return nil
+			}
+			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Get share failed: %s\n%s", err.Error(), response), "ibm_is_share", "read")
+			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+			return tfErr.GetDiag()
+		}
+
+		if share.EncryptionKey != nil {
+			if err = d.Set("encryption_key", *share.EncryptionKey.CRN); err != nil {
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "set-encryption_key").GetDiag()
+			}
+		}
+		if share.AccessControlMode != nil {
+			if err = d.Set("access_control_mode", *share.AccessControlMode); err != nil {
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "set-access_control_mode").GetDiag()
+			}
+		}
+		if share.AllowedAccessProtocols != nil && len(share.AllowedAccessProtocols) > 0 {
+			if err = d.Set("allowed_access_protocols", *&share.AllowedAccessProtocols); err != nil {
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "set-allowed_access_protocols").GetDiag()
+			}
+		}
+		if err = d.Set("bandwidth", flex.IntValue(share.Bandwidth)); err != nil {
+			return diag.FromErr(fmt.Errorf("Error setting bandwidth: %s", err))
+		}
+		if !core.IsNil(share.AllowedTransitEncryptionModes) {
+			if err = d.Set("allowed_transit_encryption_modes", share.AllowedTransitEncryptionModes); err != nil {
+				err = fmt.Errorf("Error setting allowed_transit_encryption_modes: %s", err)
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "set-allowed_transit_encryption_modes").GetDiag()
+			}
+		}
+		if !core.IsNil(share.OriginShare) {
+			originShareMap := ResourceIBMIsShareShareReferenceToMap(share.OriginShare)
+			if err = d.Set("origin_share", []map[string]interface{}{originShareMap}); err != nil {
+				err = fmt.Errorf("Error setting origin_share: %s", err)
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "set-origin_share").GetDiag()
+			}
+		}
+		if err = d.Set("iops", flex.IntValue(share.Iops)); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "set-iops").GetDiag()
+		}
+		if err = d.Set("name", share.Name); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "set-name").GetDiag()
+		}
+		if share.Profile != nil {
+			if err = d.Set("profile", *share.Profile.Name); err != nil {
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "set-profile").GetDiag()
+			}
+		}
+		if share.ResourceGroup != nil {
+			if err = d.Set("resource_group", *share.ResourceGroup.ID); err != nil {
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "set-resource_group").GetDiag()
+			}
+		}
+		if err = d.Set("size", flex.IntValue(share.Size)); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "set-size").GetDiag()
+		}
+		if err = d.Set("accessor_binding_role", share.AccessorBindingRole); err != nil {
+			err = fmt.Errorf("Error setting accessor_binding_role: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "set-accessor_binding_role").GetDiag()
+		}
+		accessorBindings := []map[string]interface{}{}
+		for _, accessorBindingsItem := range share.AccessorBindings {
+
+			accessorBindingsItemMap := ResourceIBMIsShareShareAccessorBindingReferenceToMap(&accessorBindingsItem)
+			accessorBindings = append(accessorBindings, accessorBindingsItemMap)
+
+		}
+		if err = d.Set("accessor_bindings", accessorBindings); err != nil {
+			err = fmt.Errorf("Error setting accessor_bindings: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "set-accessor_bindings").GetDiag()
+		}
+		targets := make([]map[string]interface{}, 0)
+		if share.MountTargets != nil {
+			for _, targetsItem := range share.MountTargets {
+				GetShareMountTargetOptions := &vpcv1.GetShareMountTargetOptions{}
+				GetShareMountTargetOptions.SetShareID(d.Id())
+				GetShareMountTargetOptions.SetID(*targetsItem.ID)
+
+				shareTarget, response, err := vpcClient.GetShareMountTargetWithContext(context, GetShareMountTargetOptions)
+				if err != nil {
+					if response != nil && response.StatusCode == 404 {
+						d.SetId("")
+						return nil
+					}
+					log.Printf("[DEBUG] GetShareMountTargetWithContext failed %s\n%s", err, response)
+					tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Get share mount target failed: %s\n%s", err.Error(), response), "ibm_is_share", "read")
+					log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+					return tfErr.GetDiag()
+				}
+
+				targetsItemMap, err := ShareMountTargetToMap(context, vpcClient, d, *shareTarget)
+				if err != nil {
+					tfErr := flex.TerraformErrorf(err, fmt.Sprintf("ShareMountTargetToMap failed: %s", err.Error()), "ibm_is_share", "read")
+					log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+					return tfErr.GetDiag()
+				}
+				targets = append(targets, targetsItemMap)
+			}
+		}
+		if err = d.Set("mount_targets", targets); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "set-mount_targets").GetDiag()
+		}
+
+		replicaShare := []map[string]interface{}{}
+		if share.ReplicaShare != nil && share.ReplicaShare.ID != nil {
+			if _, ok := d.GetOk("replica_share"); ok {
+				getShareOptions := &vpcv1.GetShareOptions{}
+
+				getShareOptions.SetID(*share.ReplicaShare.ID)
+
+				share, response, err := vpcClient.GetShareWithContext(context, getShareOptions)
+				if err != nil {
+					if response != nil && response.StatusCode == 404 {
+						d.SetId("")
+						return nil
+					}
+					tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Get share failed: %s\n%s", err.Error(), response), "ibm_is_share", "read")
+					log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+					return tfErr.GetDiag()
+				}
+				replicaShareItem, err := ShareReplicaToMap(context, vpcClient, d, meta, *share)
+				if err != nil {
+					tfErr := flex.TerraformErrorf(err, fmt.Sprintf("ShareReplicaToMap failed: %s", err.Error()), "ibm_is_share", "read")
+					log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+					return tfErr.GetDiag()
+				}
+				replicaShare = append(replicaShare, replicaShareItem)
+				d.Set("replica_share", replicaShare)
+			}
+		}
+
+		if share.Zone != nil {
+			if err = d.Set("zone", *share.Zone.Name); err != nil {
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "set-zone").GetDiag()
+			}
+		}
+		if err = d.Set("created_at", share.CreatedAt.String()); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "set-created_at").GetDiag()
+		}
+		if err = d.Set("crn", share.CRN); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "set-crn").GetDiag()
+		}
+		if err = d.Set("encryption", share.Encryption); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "set-encryption").GetDiag()
+		}
+		if err = d.Set("href", share.Href); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "set-href").GetDiag()
+		}
+		if share.LifecycleReasons != nil {
+			if err := d.Set("lifecycle_reasons", resourceShareLifecycleReasons(share.LifecycleReasons)); err != nil {
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "set-lifecycle_reasons").GetDiag()
+			}
+		}
+		if err = d.Set("lifecycle_state", share.LifecycleState); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "set-lifecycle_state").GetDiag()
+		}
+		if err = d.Set("resource_type", share.ResourceType); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "set-resource_type").GetDiag()
+		}
+		if err = d.Set("snapshot_count", flex.IntValue(share.SnapshotCount)); err != nil {
+			err = fmt.Errorf("Error setting snapshot_count: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "set-snapshot_count").GetDiag()
+		}
+		if err = d.Set("snapshot_size", flex.IntValue(share.SnapshotSize)); err != nil {
+			err = fmt.Errorf("Error setting snapshot_size: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "set-snapshot_size").GetDiag()
+		}
+		if !core.IsNil(share.SourceSnapshot) {
+			sourceSnapshotMap, err := ResourceIBMIsShareShareSourceSnapshotToMap(share.SourceSnapshot)
+			if err != nil {
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "source_snapshot-to-map").GetDiag()
+			}
+			if err = d.Set("source_snapshot", []map[string]interface{}{sourceSnapshotMap}); err != nil {
+				err = fmt.Errorf("Error setting source_snapshot: %s", err)
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "set-source_snapshot").GetDiag()
+			}
+		}
+		latest_syncs := []map[string]interface{}{}
+		if share.LatestSync != nil {
+			latest_sync := make(map[string]interface{})
+			latest_sync["completed_at"] = flex.DateTimeToString(share.LatestSync.CompletedAt)
+			if share.LatestSync.DataTransferred != nil {
+				latest_sync["data_transferred"] = *share.LatestSync.DataTransferred
+			}
+			latest_sync["started_at"] = flex.DateTimeToString(share.LatestSync.CompletedAt)
+			latest_syncs = append(latest_syncs, latest_sync)
+		}
+		d.Set("latest_sync", latest_syncs)
+		latest_jobs := []map[string]interface{}{}
+		if share.LatestJob != nil {
+			latest_job := make(map[string]interface{})
+			latest_job["status"] = share.LatestJob.Status
+			status_reasons := []map[string]interface{}{}
+			for _, status_reason_item := range share.LatestJob.StatusReasons {
+				status_reason := make(map[string]interface{})
+				status_reason["code"] = status_reason_item.Code
+				status_reason["message"] = status_reason_item.Message
+				if status_reason_item.MoreInfo != nil {
+					status_reason["more_info"] = status_reason_item.MoreInfo
+				}
+				status_reasons = append(status_reasons, status_reason)
+			}
+			latest_job["status_reasons"] = status_reasons
+			latest_job["type"] = share.LatestJob.Type
+			latest_jobs = append(latest_jobs, latest_job)
+		}
+		d.Set("latest_job", latest_jobs)
+
+		if share.ReplicationCronSpec != nil {
+			d.Set("replication_cron_spec", share.ReplicationCronSpec)
+		}
+		d.Set("replication_role", share.ReplicationRole)
+		d.Set("replication_status", share.ReplicationStatus)
+		status_reasons := []map[string]interface{}{}
+		for _, status_reason_item := range share.ReplicationStatusReasons {
+			status_reason := make(map[string]interface{})
+			status_reason["code"] = status_reason_item.Code
+			status_reason["message"] = status_reason_item.Message
+			if status_reason_item.MoreInfo != nil {
+				status_reason["more_info"] = status_reason_item.MoreInfo
+			}
+			status_reasons = append(status_reasons, status_reason)
+		}
+		d.Set("replication_status_reasons", status_reasons)
+
+		accesstags, err := flex.GetGlobalTagsUsingCRN(meta, *share.CRN, "", isAccessTagType)
+		if err != nil {
+			log.Printf(
+				"Error getting shares (%s) access tags: %s", d.Id(), err)
+		}
+		d.Set(isFileShareAccessTags, accesstags)
+		// d.Set(isFileShareTags, tags)
+		if share.UserTags != nil {
+			if err = d.Set(isFileShareTags, share.UserTags); err != nil {
+				log.Printf(
+					"Error setting shares (%s) user tags: %s", d.Id(), err)
+			}
 		}
 	}
-
 	return nil
 }
 
@@ -1632,12 +2118,24 @@ func resourceIbmIsShareUpdate(context context.Context, d *schema.ResourceData, m
 		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
 		return tfErr.GetDiag()
 	}
+	vpcBetaClient, err := meta.(conns.ClientSession).VpcV1BetaAPI()
+	if err != nil {
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcBetaClient creation failed: %s", err.Error()), "ibm_is_share", "read")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
+	}
 
-	getShareOptions := &vpcv1.GetShareOptions{}
+	isBetaEnabled := false
+	if shareprofile, ok := d.GetOk("profile"); ok {
+		if shareprofile.(string) == "rfs" {
+			isBetaEnabled = true
+		}
+	}
 
-	getShareOptions.SetID(d.Id())
+	getShareOptionsBeta := &vpcbetav1.GetShareOptions{}
 
-	share, response, err := vpcClient.GetShareWithContext(context, getShareOptions)
+	getShareOptionsBeta.SetID(d.Id())
+	_, response, err := vpcBetaClient.GetShareWithContext(context, getShareOptionsBeta)
 	if err != nil {
 		if response != nil && response.StatusCode == 404 {
 			d.SetId("")
@@ -1648,46 +2146,79 @@ func resourceIbmIsShareUpdate(context context.Context, d *schema.ResourceData, m
 		return tfErr.GetDiag()
 	}
 	eTag := response.Headers.Get("ETag")
+	if isBetaEnabled {
 
-	err = shareUpdate(vpcClient, context, d, meta, "share", d.Id(), eTag)
-	if err != nil {
-		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("shareUpdate failed: %s", err.Error()), "ibm_is_share", "update")
-		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
-		return tfErr.GetDiag()
-	}
-	if d.HasChange("replica_share") {
-		if share.ReplicaShare != nil && share.ReplicaShare.ID != nil {
-			getShareOptions := &vpcv1.GetShareOptions{}
-			getShareOptions.SetID(*share.ReplicaShare.ID)
-
-			replicaShare, response, err := vpcClient.GetShareWithContext(context, getShareOptions)
-			if err != nil {
-				if response != nil && response.StatusCode == 404 {
-					d.SetId("")
-					return nil
-				}
-				tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Get share failed: %s\n%s", err.Error(), response), "ibm_is_share", "update")
-				log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
-				return tfErr.GetDiag()
-			}
-			eTag := response.Headers.Get("ETag")
-			err = shareUpdate(vpcClient, context, d, meta, "replica_share", *replicaShare.ID, eTag)
-			if err != nil {
-				tfErr := flex.TerraformErrorf(err, fmt.Sprintf("shareUpdate failed: %s", err.Error()), "ibm_is_share", "update")
-				log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
-				return tfErr.GetDiag()
-			}
-		}
-	}
-	if d.HasChange(isFileShareAccessTags) {
-		oldList, newList := d.GetChange(isFileShareAccessTags)
-		err := flex.UpdateGlobalTagsUsingCRN(oldList, newList, meta, d.Get("crn").(string), "", isAccessTagType)
+		err = shareUpdate(isBetaEnabled, vpcClient, vpcBetaClient, context, d, meta, "share", d.Id(), eTag)
 		if err != nil {
-			log.Printf(
-				"Error updating shares (%s) access tags: %s", d.Id(), err)
+			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("shareUpdate failed: %s", err.Error()), "ibm_is_share", "update")
+			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+			return tfErr.GetDiag()
+		}
+		if d.HasChange(isFileShareAccessTags) {
+			oldList, newList := d.GetChange(isFileShareAccessTags)
+			err := flex.UpdateGlobalTagsUsingCRN(oldList, newList, meta, d.Get("crn").(string), "", isAccessTagType)
+			if err != nil {
+				log.Printf(
+					"Error updating shares (%s) access tags: %s", d.Id(), err)
+			}
+		}
+	} else {
+
+		getShareOptions := &vpcv1.GetShareOptions{}
+
+		getShareOptions.SetID(d.Id())
+
+		share, response, err := vpcClient.GetShareWithContext(context, getShareOptions)
+		if err != nil {
+			if response != nil && response.StatusCode == 404 {
+				d.SetId("")
+				return nil
+			}
+			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Get share failed: %s\n%s", err.Error(), response), "ibm_is_share", "update")
+			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+			return tfErr.GetDiag()
+		}
+		eTag := response.Headers.Get("ETag")
+
+		err = shareUpdate(isBetaEnabled, vpcClient, vpcBetaClient, context, d, meta, "share", d.Id(), eTag)
+		if err != nil {
+			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("shareUpdate failed: %s", err.Error()), "ibm_is_share", "update")
+			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+			return tfErr.GetDiag()
+		}
+		if d.HasChange("replica_share") {
+			if share.ReplicaShare != nil && share.ReplicaShare.ID != nil {
+				getShareOptions := &vpcv1.GetShareOptions{}
+				getShareOptions.SetID(*share.ReplicaShare.ID)
+
+				replicaShare, response, err := vpcClient.GetShareWithContext(context, getShareOptions)
+				if err != nil {
+					if response != nil && response.StatusCode == 404 {
+						d.SetId("")
+						return nil
+					}
+					tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Get share failed: %s\n%s", err.Error(), response), "ibm_is_share", "update")
+					log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+					return tfErr.GetDiag()
+				}
+				eTag := response.Headers.Get("ETag")
+				err = shareUpdate(isBetaEnabled, vpcClient, vpcBetaClient, context, d, meta, "replica_share", *replicaShare.ID, eTag)
+				if err != nil {
+					tfErr := flex.TerraformErrorf(err, fmt.Sprintf("shareUpdate failed: %s", err.Error()), "ibm_is_share", "update")
+					log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+					return tfErr.GetDiag()
+				}
+			}
+		}
+		if d.HasChange(isFileShareAccessTags) {
+			oldList, newList := d.GetChange(isFileShareAccessTags)
+			err := flex.UpdateGlobalTagsUsingCRN(oldList, newList, meta, d.Get("crn").(string), "", isAccessTagType)
+			if err != nil {
+				log.Printf(
+					"Error updating shares (%s) access tags: %s", d.Id(), err)
+			}
 		}
 	}
-
 	return resourceIbmIsShareRead(context, d, meta)
 }
 
@@ -1998,16 +2529,18 @@ func ShareMountTargetToMap(context context.Context, vpcClient *vpcv1.VpcV1, d *s
 	return mountTarget, nil
 }
 
-func shareUpdate(vpcClient *vpcv1.VpcV1, context context.Context, d *schema.ResourceData, meta interface{}, shareType, shareId, eTag string) error {
+func shareUpdate(isBetaEnabled bool, vpcClient *vpcv1.VpcV1, vpcBetaClient *vpcbetav1.VpcbetaV1, context context.Context, d *schema.ResourceData, meta interface{}, shareType, shareId, eTag string) error {
 	updateShareOptions := &vpcv1.UpdateShareOptions{}
+	updateShareOptionsBeta := &vpcbetav1.UpdateShareOptions{}
 
 	updateShareOptions.SetID(shareId)
 	updateShareOptions.IfMatch = &eTag
-
+	sharePatchModel := &vpcv1.SharePatch{}
+	sharePatchModelBeta := &vpcbetav1.SharePatch{}
 	hasChange := false
 	hasSizeChanged := false
 	hasBandwidthChanged := false
-	sharePatchModel := &vpcv1.SharePatch{}
+
 	shareNameSchema := ""
 	shareIopsSchema := ""
 	shareProfileSchema := ""
@@ -2037,111 +2570,214 @@ func shareUpdate(vpcClient *vpcv1.VpcV1, context context.Context, d *schema.Reso
 		replicationCronSpec = "replica_share.0.replication_cron_spec"
 	}
 
-	if d.HasChange(shareNameSchema) {
-		name := d.Get(shareNameSchema).(string)
-		sharePatchModel.Name = &name
-		hasChange = true
-	}
-	if shareType == "share" {
-		if d.HasChange("size") {
-			size := int64(d.Get("size").(int))
-			hasSizeChanged = true
-			sharePatchModel.Size = &size
+	if isBetaEnabled {
+		if d.HasChange(shareNameSchema) {
+			name := d.Get(shareNameSchema).(string)
+			sharePatchModelBeta.Name = &name
 			hasChange = true
 		}
-		if d.HasChange("bandwidth") {
-			bandwidth := int64(d.Get("bandwidth").(int))
-			hasBandwidthChanged = true
-			sharePatchModel.Bandwidth = &bandwidth
-			hasChange = true
-		}
-		if d.HasChange("access_control_mode") {
-			accessControlMode := d.Get("access_control_mode").(string)
-			if accessControlMode != "" {
-				sharePatchModel.AccessControlMode = &accessControlMode
+		if shareType == "share" {
+			if d.HasChange("size") {
+				size := int64(d.Get("size").(int))
+				hasSizeChanged = true
+				sharePatchModelBeta.Size = &size
+				hasChange = true
+			}
+			if d.HasChange("bandwidth") {
+				bandwidth := int64(d.Get("bandwidth").(int))
+				hasBandwidthChanged = true
+				sharePatchModelBeta.Bandwidth = &bandwidth
+				hasChange = true
+			}
+			if d.HasChange("access_control_mode") {
+				accessControlMode := d.Get("access_control_mode").(string)
+				if accessControlMode != "" {
+					sharePatchModelBeta.AccessControlMode = &accessControlMode
+					hasChange = true
+				}
+			}
+			if d.HasChange("allowed_transit_encryption_modes") {
+				var allowedTransitEncryptionModes []string
+				for _, v := range d.Get("allowed_transit_encryption_modes").([]interface{}) {
+					allowedTransitEncryptionModesItem := v.(string)
+					allowedTransitEncryptionModes = append(allowedTransitEncryptionModes, allowedTransitEncryptionModesItem)
+				}
+				sharePatchModelBeta.AllowedTransitEncryptionModes = allowedTransitEncryptionModes
 				hasChange = true
 			}
 		}
-		if d.HasChange("allowed_transit_encryption_modes") {
-			var allowedTransitEncryptionModes []string
-			for _, v := range d.Get("allowed_transit_encryption_modes").([]interface{}) {
-				allowedTransitEncryptionModesItem := v.(string)
-				allowedTransitEncryptionModes = append(allowedTransitEncryptionModes, allowedTransitEncryptionModesItem)
-			}
-			sharePatchModel.AllowedTransitEncryptionModes = allowedTransitEncryptionModes
-			hasChange = true
-		}
-	}
-	if d.HasChange(replicationCronSpec) {
-		replicationCronSpecStr := d.Get(replicationCronSpec).(string)
-		if replicationCronSpecStr != "" {
-			sharePatchModel.ReplicationCronSpec = &replicationCronSpecStr
+
+		if d.HasChange(shareIopsSchema) {
+			iops := int64(d.Get(shareIopsSchema).(int))
+			sharePatchModelBeta.Iops = &iops
 			hasChange = true
 		}
 
-	}
-
-	if d.HasChange(shareIopsSchema) {
-		iops := int64(d.Get(shareIopsSchema).(int))
-		sharePatchModel.Iops = &iops
-		hasChange = true
-	}
-
-	if d.HasChange(shareProfileSchema) {
-		_, new := d.GetChange(shareProfileSchema)
-		profile := new.(string)
-		sharePatchModel.Profile = &vpcv1.ShareProfileIdentity{
-			Name: &profile,
-		}
-		hasChange = true
-	}
-
-	if d.HasChange(shareTagsSchema) {
-		var userTags *schema.Set
-		if v, ok := d.GetOk(shareTagsSchema); ok {
-
-			userTags = v.(*schema.Set)
-			if userTags != nil && userTags.Len() != 0 {
-				userTagsArray := make([]string, userTags.Len())
-				for i, userTag := range userTags.List() {
-					userTagStr := userTag.(string)
-					userTagsArray[i] = userTagStr
-				}
-				schematicTags := os.Getenv("IC_ENV_TAGS")
-				var envTags []string
-				if schematicTags != "" {
-					envTags = strings.Split(schematicTags, ",")
-					userTagsArray = append(userTagsArray, envTags...)
-				}
-
-				sharePatchModel.UserTags = userTagsArray
+		if d.HasChange(shareProfileSchema) {
+			_, new := d.GetChange(shareProfileSchema)
+			profile := new.(string)
+			sharePatchModelBeta.Profile = &vpcbetav1.ShareProfileIdentity{
+				Name: &profile,
 			}
+			hasChange = true
 		}
-		hasChange = true
-	}
-	if hasChange {
 
-		sharePatch, err := sharePatchModel.AsPatch()
+		if d.HasChange(shareTagsSchema) {
+			var userTags *schema.Set
+			if v, ok := d.GetOk(shareTagsSchema); ok {
 
-		if err != nil {
-			log.Printf("[DEBUG] SharePatch AsPatch failed %s", err)
-			return err
+				userTags = v.(*schema.Set)
+				if userTags != nil && userTags.Len() != 0 {
+					userTagsArray := make([]string, userTags.Len())
+					for i, userTag := range userTags.List() {
+						userTagStr := userTag.(string)
+						userTagsArray[i] = userTagStr
+					}
+					schematicTags := os.Getenv("IC_ENV_TAGS")
+					var envTags []string
+					if schematicTags != "" {
+						envTags = strings.Split(schematicTags, ",")
+						userTagsArray = append(userTagsArray, envTags...)
+					}
+
+					sharePatchModelBeta.UserTags = userTagsArray
+				}
+			}
+			hasChange = true
 		}
-		updateShareOptions.SetSharePatch(sharePatch)
-		if hasSizeChanged || hasBandwidthChanged {
+		if hasChange {
+
+			sharePatchBeta, err := sharePatchModelBeta.AsPatch()
+
+			if err != nil {
+				log.Printf("[DEBUG] SharePatch AsPatch failed %s", err)
+				return err
+			}
+			updateShareOptionsBeta.SetSharePatch(sharePatchBeta)
+			if hasSizeChanged || hasBandwidthChanged {
+				_, err = isWaitForShareAvailable(context, vpcClient, d.Id(), d, d.Timeout(schema.TimeoutCreate))
+				if err != nil {
+					return err
+				}
+			}
+			_, response, err := vpcBetaClient.UpdateShareWithContext(context, updateShareOptionsBeta)
+			if err != nil {
+				log.Printf("[DEBUG] UpdateShareWithContext Beta failed %s\n%s", err, response)
+				return err
+			}
 			_, err = isWaitForShareAvailable(context, vpcClient, d.Id(), d, d.Timeout(schema.TimeoutCreate))
 			if err != nil {
 				return err
 			}
 		}
-		_, response, err := vpcClient.UpdateShareWithContext(context, updateShareOptions)
-		if err != nil {
-			log.Printf("[DEBUG] UpdateShareWithContext failed %s\n%s", err, response)
-			return err
+	} else {
+
+		if d.HasChange(shareNameSchema) {
+			name := d.Get(shareNameSchema).(string)
+			sharePatchModel.Name = &name
+			hasChange = true
 		}
-		_, err = isWaitForShareAvailable(context, vpcClient, d.Id(), d, d.Timeout(schema.TimeoutCreate))
-		if err != nil {
-			return err
+		if shareType == "share" {
+			if d.HasChange("size") {
+				size := int64(d.Get("size").(int))
+				hasSizeChanged = true
+				sharePatchModel.Size = &size
+				hasChange = true
+			}
+			if d.HasChange("bandwidth") {
+				bandwidth := int64(d.Get("bandwidth").(int))
+				hasBandwidthChanged = true
+				sharePatchModel.Bandwidth = &bandwidth
+				hasChange = true
+			}
+			if d.HasChange("access_control_mode") {
+				accessControlMode := d.Get("access_control_mode").(string)
+				if accessControlMode != "" {
+					sharePatchModel.AccessControlMode = &accessControlMode
+					hasChange = true
+				}
+			}
+			if d.HasChange("allowed_transit_encryption_modes") {
+				var allowedTransitEncryptionModes []string
+				for _, v := range d.Get("allowed_transit_encryption_modes").([]interface{}) {
+					allowedTransitEncryptionModesItem := v.(string)
+					allowedTransitEncryptionModes = append(allowedTransitEncryptionModes, allowedTransitEncryptionModesItem)
+				}
+				sharePatchModel.AllowedTransitEncryptionModes = allowedTransitEncryptionModes
+				hasChange = true
+			}
+		}
+		if d.HasChange(replicationCronSpec) {
+			replicationCronSpecStr := d.Get(replicationCronSpec).(string)
+			if replicationCronSpecStr != "" {
+				sharePatchModel.ReplicationCronSpec = &replicationCronSpecStr
+				hasChange = true
+			}
+
+		}
+
+		if d.HasChange(shareIopsSchema) {
+			iops := int64(d.Get(shareIopsSchema).(int))
+			sharePatchModel.Iops = &iops
+			hasChange = true
+		}
+
+		if d.HasChange(shareProfileSchema) {
+			_, new := d.GetChange(shareProfileSchema)
+			profile := new.(string)
+			sharePatchModel.Profile = &vpcv1.ShareProfileIdentity{
+				Name: &profile,
+			}
+			hasChange = true
+		}
+
+		if d.HasChange(shareTagsSchema) {
+			var userTags *schema.Set
+			if v, ok := d.GetOk(shareTagsSchema); ok {
+
+				userTags = v.(*schema.Set)
+				if userTags != nil && userTags.Len() != 0 {
+					userTagsArray := make([]string, userTags.Len())
+					for i, userTag := range userTags.List() {
+						userTagStr := userTag.(string)
+						userTagsArray[i] = userTagStr
+					}
+					schematicTags := os.Getenv("IC_ENV_TAGS")
+					var envTags []string
+					if schematicTags != "" {
+						envTags = strings.Split(schematicTags, ",")
+						userTagsArray = append(userTagsArray, envTags...)
+					}
+
+					sharePatchModel.UserTags = userTagsArray
+				}
+			}
+			hasChange = true
+		}
+		if hasChange {
+
+			sharePatch, err := sharePatchModel.AsPatch()
+
+			if err != nil {
+				log.Printf("[DEBUG] SharePatch AsPatch failed %s", err)
+				return err
+			}
+			updateShareOptions.SetSharePatch(sharePatch)
+			if hasSizeChanged || hasBandwidthChanged {
+				_, err = isWaitForShareAvailable(context, vpcClient, d.Id(), d, d.Timeout(schema.TimeoutCreate))
+				if err != nil {
+					return err
+				}
+			}
+			_, response, err := vpcClient.UpdateShareWithContext(context, updateShareOptions)
+			if err != nil {
+				log.Printf("[DEBUG] UpdateShareWithContext failed %s\n%s", err, response)
+				return err
+			}
+			_, err = isWaitForShareAvailable(context, vpcClient, d.Id(), d, d.Timeout(schema.TimeoutCreate))
+			if err != nil {
+				return err
+			}
 		}
 	}
 	if d.HasChange(shareMountTargetSchema) && !d.IsNewResource() {
@@ -2337,6 +2973,13 @@ func ResourceIBMIsShareShareAccessorBindingReferenceToMap(model *vpcv1.ShareAcce
 	modelMap["resource_type"] = *model.ResourceType
 	return modelMap
 }
+func ResourceIBMIsShareShareAccessorBindingReferenceToMapBeta(model *vpcbetav1.ShareAccessorBindingReference) map[string]interface{} {
+	modelMap := make(map[string]interface{})
+	modelMap["href"] = *model.Href
+	modelMap["id"] = *model.ID
+	modelMap["resource_type"] = *model.ResourceType
+	return modelMap
+}
 func ResourceIBMIsShareMapToShareIdentity(modelMap map[string]interface{}) vpcv1.ShareIdentityIntf {
 	model := &vpcv1.ShareIdentity{}
 	if modelMap["id"] != nil && modelMap["id"].(string) != "" {
@@ -2347,6 +2990,18 @@ func ResourceIBMIsShareMapToShareIdentity(modelMap map[string]interface{}) vpcv1
 	}
 	return model
 }
+
+func ResourceIBMIsShareMapToShareIdentityBeta(modelMap map[string]interface{}) vpcbetav1.ShareIdentityIntf {
+	model := &vpcbetav1.ShareIdentity{}
+	if modelMap["id"] != nil && modelMap["id"].(string) != "" {
+		model.ID = core.StringPtr(modelMap["id"].(string))
+	}
+	if modelMap["crn"] != nil && modelMap["crn"].(string) != "" {
+		model.CRN = core.StringPtr(modelMap["crn"].(string))
+	}
+	return model
+}
+
 func ResourceIBMIsShareMapToShareSourceSnapshotPrototype(modelMap map[string]interface{}) vpcv1.ShareSourceSnapshotPrototypeIntf {
 	model := &vpcv1.ShareSourceSnapshotPrototype{}
 	if modelMap["id"] != nil && modelMap["id"].(string) != "" {
@@ -2357,6 +3012,18 @@ func ResourceIBMIsShareMapToShareSourceSnapshotPrototype(modelMap map[string]int
 	}
 	return model
 }
+
+func ResourceIBMIsShareMapToShareSourceSnapshotPrototypeBeta(modelMap map[string]interface{}) vpcbetav1.ShareSourceSnapshotPrototypeIntf {
+	model := &vpcbetav1.ShareSourceSnapshotPrototype{}
+	if modelMap["id"] != nil && modelMap["id"].(string) != "" {
+		model.ID = core.StringPtr(modelMap["id"].(string))
+	}
+	if modelMap["crn"] != nil && modelMap["crn"].(string) != "" {
+		model.CRN = core.StringPtr(modelMap["crn"].(string))
+	}
+	return model
+}
+
 func ResourceIBMIsShareShareReferenceToMap(model *vpcv1.ShareReference) map[string]interface{} {
 	modelMap := make(map[string]interface{})
 	modelMap["crn"] = *model.CRN
@@ -2374,6 +3041,25 @@ func ResourceIBMIsShareShareReferenceToMap(model *vpcv1.ShareReference) map[stri
 	modelMap["resource_type"] = *model.ResourceType
 	return modelMap
 }
+
+func ResourceIBMIsShareShareReferenceToMapBeta(model *vpcbetav1.ShareReference) map[string]interface{} {
+	modelMap := make(map[string]interface{})
+	modelMap["crn"] = *model.CRN
+	if model.Deleted != nil {
+		deletedMap := ResourceIBMIsShareShareReferenceDeletedToMapBeta(model.Deleted)
+		modelMap["deleted"] = []map[string]interface{}{deletedMap}
+	}
+	modelMap["href"] = *model.Href
+	modelMap["id"] = *model.ID
+	modelMap["name"] = *model.Name
+	if model.Remote != nil {
+		remoteMap := ResourceIBMIsShareShareRemoteToMapBeta(model.Remote)
+		modelMap["remote"] = []map[string]interface{}{remoteMap}
+	}
+	modelMap["resource_type"] = *model.ResourceType
+	return modelMap
+}
+
 func ResourceIBMIsShareShareRemoteToMap(model *vpcv1.ShareRemote) map[string]interface{} {
 	modelMap := make(map[string]interface{})
 	if model.Account != nil {
@@ -2407,7 +3093,58 @@ func ResourceIBMIsShareShareReferenceDeletedToMap(model *vpcv1.Deleted) map[stri
 	modelMap["more_info"] = *model.MoreInfo
 	return modelMap
 }
+
+func ResourceIBMIsShareShareRemoteToMapBeta(model *vpcbetav1.ShareRemote) map[string]interface{} {
+	modelMap := make(map[string]interface{})
+	if model.Account != nil {
+		accountMap := ResourceIBMIsShareAccountReferenceToMapBeta(model.Account)
+
+		modelMap["account"] = []map[string]interface{}{accountMap}
+	}
+	if model.Region != nil {
+		regionMap := ResourceIBMIsShareRegionReferenceToMapBeta(model.Region)
+
+		modelMap["region"] = []map[string]interface{}{regionMap}
+	}
+	return modelMap
+}
+
+func ResourceIBMIsShareAccountReferenceToMapBeta(model *vpcbetav1.AccountReference) map[string]interface{} {
+	modelMap := make(map[string]interface{})
+	modelMap["id"] = *model.ID
+	modelMap["resource_type"] = *model.ResourceType
+	return modelMap
+}
+
+func ResourceIBMIsShareRegionReferenceToMapBeta(model *vpcbetav1.RegionReference) map[string]interface{} {
+	modelMap := make(map[string]interface{})
+	modelMap["href"] = *model.Href
+	modelMap["name"] = *model.Name
+	return modelMap
+}
+func ResourceIBMIsShareShareReferenceDeletedToMapBeta(model *vpcbetav1.Deleted) map[string]interface{} {
+	modelMap := make(map[string]interface{})
+	modelMap["more_info"] = *model.MoreInfo
+	return modelMap
+}
+
 func resourceShareLifecycleReasons(lifecycleReasons []vpcv1.ShareLifecycleReason) (lifecycleReasonsList []map[string]interface{}) {
+	lifecycleReasonsList = make([]map[string]interface{}, 0)
+	for _, lr := range lifecycleReasons {
+		currentLR := map[string]interface{}{}
+		if lr.Code != nil && lr.Message != nil {
+			currentLR["code"] = *lr.Code
+			currentLR["message"] = *lr.Message
+			if lr.MoreInfo != nil {
+				currentLR["more_info"] = *lr.MoreInfo
+			}
+			lifecycleReasonsList = append(lifecycleReasonsList, currentLR)
+		}
+	}
+	return lifecycleReasonsList
+}
+
+func resourceShareLifecycleReasonsBeta(lifecycleReasons []vpcbetav1.ShareLifecycleReason) (lifecycleReasonsList []map[string]interface{}) {
 	lifecycleReasonsList = make([]map[string]interface{}, 0)
 	for _, lr := range lifecycleReasons {
 		currentLR := map[string]interface{}{}

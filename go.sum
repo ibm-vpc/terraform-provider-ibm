@@ -143,8 +143,6 @@ github.com/IBM/keyprotect-go-client v0.15.1 h1:m4qzqF5zOumRxKZ8s7vtK7A/UV/D278L8
 github.com/IBM/keyprotect-go-client v0.15.1/go.mod h1:asXtHwL/4uCHA221Vd/7SkXEi2pcRHDzPyyksc1DthE=
 github.com/IBM/logs-go-sdk v0.4.0 h1:CyUjm19EUtcJjf4mxsj6Rc7gkZDT8JEY5rLUIz8Eoag=
 github.com/IBM/logs-go-sdk v0.4.0/go.mod h1:yv/GCXC4/p+MZEeXl4xjZAOMvDAVRwu61WyHZFKFXQM=
-github.com/IBM/logs-router-go-sdk v1.0.7 h1:uQjQAAcQdo3XvhY6MC7HakhZaXIUsGfUmKj2d5vkjnY=
-github.com/IBM/logs-router-go-sdk v1.0.7/go.mod h1:tCN2vFgu5xG0ob9iJcxi5M4bJ6mWmu3nhmRPnvlwev0=
 github.com/IBM/logs-router-go-sdk v1.0.8 h1:MU1TdYNdVbvVTUXeqeYPItu6BoiSV/NMN49ySqE7WIY=
 github.com/IBM/logs-router-go-sdk v1.0.8/go.mod h1:tCN2vFgu5xG0ob9iJcxi5M4bJ6mWmu3nhmRPnvlwev0=
 github.com/IBM/mqcloud-go-sdk v0.2.0 h1:QOWk8ZGk0QfIL0MOGTKzNdM3Qe0Hk+ifAFtNSFQo5HU=
@@ -169,10 +167,8 @@ github.com/IBM/secrets-manager-go-sdk/v2 v2.0.11 h1:RG/hnKvKSMrG3X5Jm/P/itg+y/FG
 github.com/IBM/secrets-manager-go-sdk/v2 v2.0.11/go.mod h1:7r0LOxg+K/y2fVbh2Uopu5r+VE76p1VTk/3gHAs5MQk=
 github.com/IBM/vmware-go-sdk v0.1.3 h1:uJL3kwzM0jAKsT6Gj9tE5xT9SZBVXVaJvZdxrSMx8b8=
 github.com/IBM/vmware-go-sdk v0.1.3/go.mod h1:OyQKRInGGsBaOyE5LIZCqH7b1DZ01BvIYa8BgGy+wWo=
-github.com/IBM/vpc-beta-go-sdk v0.8.0 h1:cEPpv4iw3Ba5W2d0AWg3TIbKeJ8y1nPuUuibR5Jt9eE=
-github.com/IBM/vpc-beta-go-sdk v0.8.0/go.mod h1:hORgIyTFRzXrZIK9IohaWmCRBBlYiDRagsufi7M6akE=
-github.com/IBM/vpc-go-sdk v0.67.1 h1:z0q1af1iItV4kHgreM21vzZtw6XQ13og2GBkX7WCJ8c=
-github.com/IBM/vpc-go-sdk v0.67.1/go.mod h1:VL7sy61ybg6tvA60SepoQx7TFe20m7JyNUt+se2tHP4=
+github.com/IBM/vpc-beta-go-sdk v0.9.0 h1:f8t/Nmrs9M7KleWGuKgJmnQVYxil08znbB6hneCkT5Y=
+github.com/IBM/vpc-beta-go-sdk v0.9.0/go.mod h1:xd7q9NN+u3mvKvo/9OSncwzmHQt8Wc2z79FLHUfAs+Y=
 github.com/Logicalis/asn1 v0.0.0-20190312173541-d60463189a56 h1:vuquMR410psHNax14XKNWa0Ae/kYgWJcXi0IFuX60N0=
 github.com/Logicalis/asn1 v0.0.0-20190312173541-d60463189a56/go.mod h1:Zb3OT4l0mf7P/GOs2w2Ilj5sdm5Whoq3pa24dAEBHFc=
 github.com/Microsoft/go-winio v0.6.1 h1:9/kr64B9VUZrLm5YYwbGtUJnMgqWVOdUAXu6Migciow=

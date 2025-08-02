@@ -17,6 +17,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/IBM/go-sdk-core/v5/core"
+	"github.com/IBM/vpc-beta-go-sdk/vpcbetav1"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
 )
 
@@ -39,7 +40,6 @@ func ResourceIBMIsShareMountTarget() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
-				Default:     "nfs4",
 				Description: "The protocol to use to access the share for this share mount target.",
 			},
 			"name": {
@@ -301,7 +301,12 @@ func resourceIBMIsShareMountTargetCreate(context context.Context, d *schema.Reso
 		return tfErr.GetDiag()
 
 	}
-
+	vpcBetaClient, err := meta.(conns.ClientSession).VpcV1BetaAPI()
+	if err != nil {
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcBetaClient creation failed: %s", err.Error()), "ibm_is_share_mount_target", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
+	}
 	//Temporary code to fix concurrent mount target issues.
 	listShareMountTargetOptions := &vpcv1.ListShareMountTargetsOptions{}
 	shareId := d.Get("share").(string)
@@ -329,85 +334,168 @@ func resourceIBMIsShareMountTargetCreate(context context.Context, d *schema.Reso
 			}
 		}
 	}
-
-	createShareMountTargetOptions := &vpcv1.CreateShareMountTargetOptions{}
-
-	createShareMountTargetOptions.SetShareID(d.Get("share").(string))
-	shareMountTargetPrototype := &vpcv1.ShareMountTargetPrototype{}
-	if vpcIdIntf, ok := d.GetOk("vpc"); ok {
-		vpcId := vpcIdIntf.(string)
-		vpc := &vpcv1.VPCIdentity{
-			ID: &vpcId,
-		}
-		shareMountTargetPrototype.VPC = vpc
-	} else if vniIntf, ok := d.GetOk("virtual_network_interface"); ok {
-		vniPrototype := vpcv1.ShareMountTargetVirtualNetworkInterfacePrototype{}
-		vniMap := vniIntf.([]interface{})[0].(map[string]interface{})
-
-		VNIIdIntf, ok := vniMap["id"]
-		VNIId := VNIIdIntf.(string)
-		if ok && VNIId != "" {
-			vniPrototype.ID = &VNIId
-		} else {
-			vniPrototype, err = ShareMountTargetMapToShareMountTargetPrototype(d, vniMap, "virtual_network_interface.0.auto_delete")
-			if err != nil {
-				return flex.TerraformErrorf(err, fmt.Sprintf("ShareMountTargetMapToShareMountTargetPrototype failed: %s", err.Error()), "ibm_is_share_mount_target", "create").GetDiag()
-			}
-		}
-		shareMountTargetPrototype.VirtualNetworkInterface = &vniPrototype
+	getShareOptions := &vpcv1.GetShareOptions{
+		ID: &shareId,
 	}
-	if nameIntf, ok := d.GetOk("name"); ok {
-		name := nameIntf.(string)
-		shareMountTargetPrototype.Name = &name
-	}
-	if accessProtocolIntf, ok := d.GetOk("access_protocol"); ok {
-		accessProtocol := accessProtocolIntf.(string)
-		shareMountTargetPrototype.AccessProtocol = &accessProtocol
-	}
-	if transitEncryptionIntf, ok := d.GetOk("transit_encryption"); ok {
-		transitEncryption := transitEncryptionIntf.(string)
-		if transitEncryption == "user_managed" {
-			transitEncryption = "ipsec"
-		}
-		shareMountTargetPrototype.TransitEncryption = &transitEncryption
-	} else {
-		getShareOptions := &vpcv1.GetShareOptions{
-			ID: &shareId,
-		}
-		share, _, err := vpcClient.GetShareWithContext(context, getShareOptions)
-		if err != nil || share == nil {
-			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("GetShareWithContext failed: %s", err.Error()), "ibm_is_share_mount_target", "create")
-			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
-			return tfErr.GetDiag()
-		}
-		if share != nil && share.Profile != nil && share.Profile.Name != nil {
-			if *share.Profile.Name == "dp2" {
-				shareMountTargetPrototype.TransitEncryption = &[]string{"ipsec"}[0]
-			} else if *share.Profile.Name == "rfs" {
-				shareMountTargetPrototype.TransitEncryption = &[]string{"stunnel"}[0]
-			}
-		}
-	}
-	createShareMountTargetOptions.ShareMountTargetPrototype = shareMountTargetPrototype
-	shareTarget, response, err := vpcClient.CreateShareMountTargetWithContext(context, createShareMountTargetOptions)
-	if err != nil || shareTarget == nil {
-		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("CreateShareMountTargetWithContext failed: %s\n%s", err.Error(), response), "ibm_is_share_mount_target", "create")
+	share, _, err := vpcClient.GetShareWithContext(context, getShareOptions)
+	if err != nil || share == nil {
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("GetShareWithContext failed: %s", err.Error()), "ibm_is_share_mount_target", "create")
 		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
 		return tfErr.GetDiag()
 	}
-	d.SetId(fmt.Sprintf("%s/%s", *createShareMountTargetOptions.ShareID, *shareTarget.ID))
-	if shareTarget.VirtualNetworkInterface != nil {
-		_, err = WaitForVNIAvailable(vpcClient, *shareTarget.VirtualNetworkInterface.ID, d, d.Timeout(schema.TimeoutCreate))
-		if err != nil {
-			return flex.TerraformErrorf(err, fmt.Sprintf("WaitForVNIAvailable failed: %s", err.Error()), "ibm_is_share_mount_target", "create").GetDiag()
-		}
-	}
-	_, err = WaitForMountTargetAvailable(context, vpcClient, *createShareMountTargetOptions.ShareID, *shareTarget.ID, d, d.Timeout(schema.TimeoutCreate))
-	if err != nil {
-		return flex.TerraformErrorf(err, fmt.Sprintf("WaitForMountTargetAvailable failed: %s", err.Error()), "ibm_is_share_mount_target", "create").GetDiag()
+	isBetaEnabled := false
+	if share != nil && share.Profile != nil && share.Profile.Name != nil && *share.Profile.Name == "rfs" {
+		isBetaEnabled = true
 	}
 
-	d.Set("mount_target", *shareTarget.ID)
+	if isBetaEnabled {
+		createShareMountTargetOptions := &vpcbetav1.CreateShareMountTargetOptions{}
+
+		createShareMountTargetOptions.SetShareID(d.Get("share").(string))
+		shareMountTargetPrototype := &vpcbetav1.ShareMountTargetPrototype{}
+		if vpcIdIntf, ok := d.GetOk("vpc"); ok {
+			vpcId := vpcIdIntf.(string)
+			vpc := &vpcbetav1.VPCIdentity{
+				ID: &vpcId,
+			}
+			shareMountTargetPrototype.VPC = vpc
+		} else if vniIntf, ok := d.GetOk("virtual_network_interface"); ok {
+			vniPrototype := vpcbetav1.ShareMountTargetVirtualNetworkInterfacePrototype{}
+			vniMap := vniIntf.([]interface{})[0].(map[string]interface{})
+
+			VNIIdIntf, ok := vniMap["id"]
+			VNIId := VNIIdIntf.(string)
+			if ok && VNIId != "" {
+				vniPrototype.ID = &VNIId
+			} else {
+				vniPrototype, err = ShareMountTargetMapToShareMountTargetPrototypeBeta(d, vniMap, "virtual_network_interface.0.auto_delete")
+				if err != nil {
+					return flex.TerraformErrorf(err, fmt.Sprintf("ShareMountTargetMapToShareMountTargetPrototype failed: %s", err.Error()), "ibm_is_share_mount_target", "create").GetDiag()
+				}
+			}
+			shareMountTargetPrototype.VirtualNetworkInterface = &vniPrototype
+		}
+		if nameIntf, ok := d.GetOk("name"); ok {
+			name := nameIntf.(string)
+			shareMountTargetPrototype.Name = &name
+		}
+		if accessProtocolIntf, ok := d.GetOk("access_protocol"); ok {
+			accessProtocol := accessProtocolIntf.(string)
+			shareMountTargetPrototype.AccessProtocol = &accessProtocol
+		} else {
+			shareMountTargetPrototype.AccessProtocol = &[]string{"nfs4"}[0]
+		}
+		if transitEncryptionIntf, ok := d.GetOk("transit_encryption"); ok {
+			transitEncryption := transitEncryptionIntf.(string)
+			if transitEncryption == "user_managed" {
+				transitEncryption = "ipsec"
+			}
+			shareMountTargetPrototype.TransitEncryption = &transitEncryption
+		} else {
+
+			if share != nil && share.Profile != nil && share.Profile.Name != nil {
+				if *share.Profile.Name == "dp2" {
+					shareMountTargetPrototype.TransitEncryption = &[]string{"ipsec"}[0]
+				} else if *share.Profile.Name == "rfs" {
+					shareMountTargetPrototype.TransitEncryption = &[]string{"stunnel"}[0]
+				}
+			}
+		}
+		createShareMountTargetOptions.ShareMountTargetPrototype = shareMountTargetPrototype
+		shareTarget, response, err := vpcBetaClient.CreateShareMountTargetWithContext(context, createShareMountTargetOptions)
+		if err != nil || shareTarget == nil {
+			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("CreateShareMountTargetWithContext beta failed: %s\n%s", err.Error(), response), "ibm_is_share_mount_target", "create")
+			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+			return tfErr.GetDiag()
+		}
+		d.SetId(fmt.Sprintf("%s/%s", *createShareMountTargetOptions.ShareID, *shareTarget.ID))
+		if shareTarget.VirtualNetworkInterface != nil {
+			_, err = WaitForVNIAvailable(vpcClient, *shareTarget.VirtualNetworkInterface.ID, d, d.Timeout(schema.TimeoutCreate))
+			if err != nil {
+				return flex.TerraformErrorf(err, fmt.Sprintf("WaitForVNIAvailable failed: %s", err.Error()), "ibm_is_share_mount_target", "create").GetDiag()
+			}
+		}
+		_, err = WaitForMountTargetAvailable(context, vpcClient, *createShareMountTargetOptions.ShareID, *shareTarget.ID, d, d.Timeout(schema.TimeoutCreate))
+		if err != nil {
+			return flex.TerraformErrorf(err, fmt.Sprintf("WaitForMountTargetAvailable failed: %s", err.Error()), "ibm_is_share_mount_target", "create").GetDiag()
+		}
+
+		d.Set("mount_target", *shareTarget.ID)
+	} else {
+
+		createShareMountTargetOptions := &vpcv1.CreateShareMountTargetOptions{}
+
+		createShareMountTargetOptions.SetShareID(d.Get("share").(string))
+		shareMountTargetPrototype := &vpcv1.ShareMountTargetPrototype{}
+		if vpcIdIntf, ok := d.GetOk("vpc"); ok {
+			vpcId := vpcIdIntf.(string)
+			vpc := &vpcv1.VPCIdentity{
+				ID: &vpcId,
+			}
+			shareMountTargetPrototype.VPC = vpc
+		} else if vniIntf, ok := d.GetOk("virtual_network_interface"); ok {
+			vniPrototype := vpcv1.ShareMountTargetVirtualNetworkInterfacePrototype{}
+			vniMap := vniIntf.([]interface{})[0].(map[string]interface{})
+
+			VNIIdIntf, ok := vniMap["id"]
+			VNIId := VNIIdIntf.(string)
+			if ok && VNIId != "" {
+				vniPrototype.ID = &VNIId
+			} else {
+				vniPrototype, err = ShareMountTargetMapToShareMountTargetPrototype(d, vniMap, "virtual_network_interface.0.auto_delete")
+				if err != nil {
+					return flex.TerraformErrorf(err, fmt.Sprintf("ShareMountTargetMapToShareMountTargetPrototype failed: %s", err.Error()), "ibm_is_share_mount_target", "create").GetDiag()
+				}
+			}
+			shareMountTargetPrototype.VirtualNetworkInterface = &vniPrototype
+		}
+		if nameIntf, ok := d.GetOk("name"); ok {
+			name := nameIntf.(string)
+			shareMountTargetPrototype.Name = &name
+		}
+		if accessProtocolIntf, ok := d.GetOk("access_protocol"); ok {
+			accessProtocol := accessProtocolIntf.(string)
+			shareMountTargetPrototype.AccessProtocol = &accessProtocol
+		} else {
+			shareMountTargetPrototype.AccessProtocol = &[]string{"nfs4"}[0]
+		}
+		if transitEncryptionIntf, ok := d.GetOk("transit_encryption"); ok {
+			transitEncryption := transitEncryptionIntf.(string)
+			if transitEncryption == "user_managed" {
+				transitEncryption = "ipsec"
+			}
+			shareMountTargetPrototype.TransitEncryption = &transitEncryption
+		} else {
+
+			if share != nil && share.Profile != nil && share.Profile.Name != nil {
+				if *share.Profile.Name == "dp2" {
+					shareMountTargetPrototype.TransitEncryption = &[]string{"ipsec"}[0]
+				} else if *share.Profile.Name == "rfs" {
+					shareMountTargetPrototype.TransitEncryption = &[]string{"stunnel"}[0]
+				}
+			}
+		}
+		createShareMountTargetOptions.ShareMountTargetPrototype = shareMountTargetPrototype
+		shareTarget, response, err := vpcClient.CreateShareMountTargetWithContext(context, createShareMountTargetOptions)
+		if err != nil || shareTarget == nil {
+			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("CreateShareMountTargetWithContext failed: %s\n%s", err.Error(), response), "ibm_is_share_mount_target", "create")
+			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+			return tfErr.GetDiag()
+		}
+		d.SetId(fmt.Sprintf("%s/%s", *createShareMountTargetOptions.ShareID, *shareTarget.ID))
+		if shareTarget.VirtualNetworkInterface != nil {
+			_, err = WaitForVNIAvailable(vpcClient, *shareTarget.VirtualNetworkInterface.ID, d, d.Timeout(schema.TimeoutCreate))
+			if err != nil {
+				return flex.TerraformErrorf(err, fmt.Sprintf("WaitForVNIAvailable failed: %s", err.Error()), "ibm_is_share_mount_target", "create").GetDiag()
+			}
+		}
+		_, err = WaitForMountTargetAvailable(context, vpcClient, *createShareMountTargetOptions.ShareID, *shareTarget.ID, d, d.Timeout(schema.TimeoutCreate))
+		if err != nil {
+			return flex.TerraformErrorf(err, fmt.Sprintf("WaitForMountTargetAvailable failed: %s", err.Error()), "ibm_is_share_mount_target", "create").GetDiag()
+		}
+
+		d.Set("mount_target", *shareTarget.ID)
+	}
 	return resourceIBMIsShareMountTargetRead(context, d, meta)
 }
 
@@ -418,74 +506,162 @@ func resourceIBMIsShareMountTargetRead(context context.Context, d *schema.Resour
 		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
 		return tfErr.GetDiag()
 	}
-
-	getShareMountTargetOptions := &vpcv1.GetShareMountTargetOptions{}
-
-	parts, err := flex.IdParts(d.Id())
+	vpcBetaClient, err := meta.(conns.ClientSession).VpcV1BetaAPI()
 	if err != nil {
-		return flex.TerraformErrorf(err, fmt.Sprintf("Split ID parts failed: %s", err.Error()), "ibm_is_share_mount_target", "read").GetDiag()
-	}
-
-	getShareMountTargetOptions.SetShareID(parts[0])
-	getShareMountTargetOptions.SetID(parts[1])
-
-	shareTarget, response, err := vpcClient.GetShareMountTargetWithContext(context, getShareMountTargetOptions)
-	if err != nil || shareTarget == nil {
-		if response != nil && response.StatusCode == 404 {
-			d.SetId("")
-			return nil
-		}
-		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("share mount target err %s\n%s", err, response), "ibm_is_share_mount_target", "read")
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcBetaClient creation failed: %s", err.Error()), "ibm_is_share_mount_target", "create")
 		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
-		return diag.FromErr(tfErr)
+		return tfErr.GetDiag()
 	}
-	if shareTarget.AccessControlMode != nil {
-		d.Set("access_control_mode", *shareTarget.AccessControlMode)
+	shareId := d.Get("share").(string)
+	getShareOptions := &vpcv1.GetShareOptions{
+		ID: &shareId,
 	}
-	d.Set("mount_target", *shareTarget.ID)
-	if shareTarget.VPC != nil && shareTarget.VPC.ID != nil {
-		if err = d.Set("vpc", *shareTarget.VPC.ID); err != nil {
-			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("[ERROR] Error setting vpc: %s", err), "ibm_is_share_mount_target", "read", "set-vpc").GetDiag()
-		}
+	share, _, err := vpcClient.GetShareWithContext(context, getShareOptions)
+	if err != nil || share == nil {
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("GetShareWithContext failed: %s", err.Error()), "ibm_is_share_mount_target", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
-	if shareTarget.VirtualNetworkInterface != nil {
-		vniList, err := ShareMountTargetVirtualNetworkInterfaceToMap(context, vpcClient, d, *shareTarget.VirtualNetworkInterface.ID)
+	isBetaEnabled := false
+	if share != nil && share.Profile != nil && share.Profile.Name != nil && *share.Profile.Name == "rfs" {
+		isBetaEnabled = true
+	}
+	if isBetaEnabled {
+		getShareMountTargetOptions := &vpcbetav1.GetShareMountTargetOptions{}
+
+		parts, err := flex.IdParts(d.Id())
 		if err != nil {
-			return flex.TerraformErrorf(err, fmt.Sprintf("ShareMountTargetVirtualNetworkInterfaceToMap failed: %s", err.Error()), "ibm_is_share_mount_target", "read").GetDiag()
-
+			return flex.TerraformErrorf(err, fmt.Sprintf("Split ID parts failed: %s", err.Error()), "ibm_is_share_mount_target", "read").GetDiag()
 		}
-		d.Set("virtual_network_interface", vniList)
-	}
-	if err = d.Set("name", *shareTarget.Name); err != nil {
-		return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("[ERROR] Error setting name: %s", err), "ibm_is_share_mount_target", "read", "set-name").GetDiag()
-	}
 
-	if shareTarget.TransitEncryption != nil {
-		if err = d.Set("transit_encryption", *shareTarget.TransitEncryption); err != nil {
-			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("[ERROR] Error setting transit_encryption: %s", err), "ibm_is_share_mount_target", "read", "set-transit_encryption").GetDiag()
+		getShareMountTargetOptions.SetShareID(parts[0])
+		getShareMountTargetOptions.SetID(parts[1])
+
+		shareTarget, response, err := vpcBetaClient.GetShareMountTargetWithContext(context, getShareMountTargetOptions)
+		if err != nil || shareTarget == nil {
+			if response != nil && response.StatusCode == 404 {
+				d.SetId("")
+				return nil
+			}
+			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("share mount target err %s\n%s", err, response), "ibm_is_share_mount_target", "read")
+			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+			return diag.FromErr(tfErr)
+		}
+		if shareTarget.AccessControlMode != nil {
+			d.Set("access_control_mode", *shareTarget.AccessControlMode)
+		}
+		d.Set("mount_target", *shareTarget.ID)
+		if shareTarget.VPC != nil && shareTarget.VPC.ID != nil {
+			if err = d.Set("vpc", *shareTarget.VPC.ID); err != nil {
+				return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("[ERROR] Error setting vpc: %s", err), "ibm_is_share_mount_target", "read", "set-vpc").GetDiag()
+			}
+		}
+		if shareTarget.VirtualNetworkInterface != nil {
+			vniList, err := ShareMountTargetVirtualNetworkInterfaceToMap(context, vpcClient, d, *shareTarget.VirtualNetworkInterface.ID)
+			if err != nil {
+				return flex.TerraformErrorf(err, fmt.Sprintf("ShareMountTargetVirtualNetworkInterfaceToMap failed: %s", err.Error()), "ibm_is_share_mount_target", "read").GetDiag()
+
+			}
+			d.Set("virtual_network_interface", vniList)
+		}
+		if err = d.Set("name", *shareTarget.Name); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("[ERROR] Error setting name: %s", err), "ibm_is_share_mount_target", "read", "set-name").GetDiag()
+		}
+
+		if shareTarget.TransitEncryption != nil {
+			if err = d.Set("transit_encryption", *shareTarget.TransitEncryption); err != nil {
+				return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("[ERROR] Error setting transit_encryption: %s", err), "ibm_is_share_mount_target", "read", "set-transit_encryption").GetDiag()
+			}
+		}
+		if shareTarget.AccessProtocol != nil {
+			if err = d.Set("access_protocol", *shareTarget.AccessProtocol); err != nil {
+				return diag.FromErr(fmt.Errorf("Error setting access_protocol: %s", err))
+			}
+		}
+		if err = d.Set("created_at", shareTarget.CreatedAt.String()); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("[ERROR] Error setting created_at: %s", err), "ibm_is_share_mount_target", "read", "set-created_at").GetDiag()
+		}
+		if err = d.Set("href", shareTarget.Href); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("[ERROR] Error setting href: %s", err), "ibm_is_share_mount_target", "read", "set-href").GetDiag()
+		}
+		if err = d.Set("lifecycle_state", shareTarget.LifecycleState); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("[ERROR] Error setting lifecycle_state: %s", err), "ibm_is_share_mount_target", "read", "set-lifecycle_state").GetDiag()
+		}
+		if err = d.Set("mount_path", shareTarget.MountPath); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("[ERROR] Error setting mount_path: %s", err), "ibm_is_share_mount_target", "read", "set-mount_path").GetDiag()
+		}
+		if err = d.Set("resource_type", shareTarget.ResourceType); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("[ERROR] Error setting resource_type: %s", err), "ibm_is_share_mount_target", "read", "set-resource_type").GetDiag()
+		}
+	} else {
+
+		getShareMountTargetOptions := &vpcv1.GetShareMountTargetOptions{}
+
+		parts, err := flex.IdParts(d.Id())
+		if err != nil {
+			return flex.TerraformErrorf(err, fmt.Sprintf("Split ID parts failed: %s", err.Error()), "ibm_is_share_mount_target", "read").GetDiag()
+		}
+
+		getShareMountTargetOptions.SetShareID(parts[0])
+		getShareMountTargetOptions.SetID(parts[1])
+
+		shareTarget, response, err := vpcClient.GetShareMountTargetWithContext(context, getShareMountTargetOptions)
+		if err != nil || shareTarget == nil {
+			if response != nil && response.StatusCode == 404 {
+				d.SetId("")
+				return nil
+			}
+			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("share mount target err %s\n%s", err, response), "ibm_is_share_mount_target", "read")
+			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+			return diag.FromErr(tfErr)
+		}
+		if shareTarget.AccessControlMode != nil {
+			d.Set("access_control_mode", *shareTarget.AccessControlMode)
+		}
+		d.Set("mount_target", *shareTarget.ID)
+		if shareTarget.VPC != nil && shareTarget.VPC.ID != nil {
+			if err = d.Set("vpc", *shareTarget.VPC.ID); err != nil {
+				return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("[ERROR] Error setting vpc: %s", err), "ibm_is_share_mount_target", "read", "set-vpc").GetDiag()
+			}
+		}
+		if shareTarget.VirtualNetworkInterface != nil {
+			vniList, err := ShareMountTargetVirtualNetworkInterfaceToMap(context, vpcClient, d, *shareTarget.VirtualNetworkInterface.ID)
+			if err != nil {
+				return flex.TerraformErrorf(err, fmt.Sprintf("ShareMountTargetVirtualNetworkInterfaceToMap failed: %s", err.Error()), "ibm_is_share_mount_target", "read").GetDiag()
+
+			}
+			d.Set("virtual_network_interface", vniList)
+		}
+		if err = d.Set("name", *shareTarget.Name); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("[ERROR] Error setting name: %s", err), "ibm_is_share_mount_target", "read", "set-name").GetDiag()
+		}
+
+		if shareTarget.TransitEncryption != nil {
+			if err = d.Set("transit_encryption", *shareTarget.TransitEncryption); err != nil {
+				return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("[ERROR] Error setting transit_encryption: %s", err), "ibm_is_share_mount_target", "read", "set-transit_encryption").GetDiag()
+			}
+		}
+		if shareTarget.AccessProtocol != nil {
+			if err = d.Set("access_protocol", *shareTarget.AccessProtocol); err != nil {
+				return diag.FromErr(fmt.Errorf("Error setting access_protocol: %s", err))
+			}
+		}
+		if err = d.Set("created_at", shareTarget.CreatedAt.String()); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("[ERROR] Error setting created_at: %s", err), "ibm_is_share_mount_target", "read", "set-created_at").GetDiag()
+		}
+		if err = d.Set("href", shareTarget.Href); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("[ERROR] Error setting href: %s", err), "ibm_is_share_mount_target", "read", "set-href").GetDiag()
+		}
+		if err = d.Set("lifecycle_state", shareTarget.LifecycleState); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("[ERROR] Error setting lifecycle_state: %s", err), "ibm_is_share_mount_target", "read", "set-lifecycle_state").GetDiag()
+		}
+		if err = d.Set("mount_path", shareTarget.MountPath); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("[ERROR] Error setting mount_path: %s", err), "ibm_is_share_mount_target", "read", "set-mount_path").GetDiag()
+		}
+		if err = d.Set("resource_type", shareTarget.ResourceType); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("[ERROR] Error setting resource_type: %s", err), "ibm_is_share_mount_target", "read", "set-resource_type").GetDiag()
 		}
 	}
-	if shareTarget.AccessProtocol != nil {
-		if err = d.Set("access_protocol", *shareTarget.AccessProtocol); err != nil {
-			return diag.FromErr(fmt.Errorf("Error setting access_protocol: %s", err))
-		}
-	}
-	if err = d.Set("created_at", shareTarget.CreatedAt.String()); err != nil {
-		return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("[ERROR] Error setting created_at: %s", err), "ibm_is_share_mount_target", "read", "set-created_at").GetDiag()
-	}
-	if err = d.Set("href", shareTarget.Href); err != nil {
-		return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("[ERROR] Error setting href: %s", err), "ibm_is_share_mount_target", "read", "set-href").GetDiag()
-	}
-	if err = d.Set("lifecycle_state", shareTarget.LifecycleState); err != nil {
-		return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("[ERROR] Error setting lifecycle_state: %s", err), "ibm_is_share_mount_target", "read", "set-lifecycle_state").GetDiag()
-	}
-	if err = d.Set("mount_path", shareTarget.MountPath); err != nil {
-		return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("[ERROR] Error setting mount_path: %s", err), "ibm_is_share_mount_target", "read", "set-mount_path").GetDiag()
-	}
-	if err = d.Set("resource_type", shareTarget.ResourceType); err != nil {
-		return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("[ERROR] Error setting resource_type: %s", err), "ibm_is_share_mount_target", "read", "set-resource_type").GetDiag()
-	}
-
 	return nil
 }
 
@@ -498,9 +674,12 @@ func resourceIBMIsShareMountTargetUpdate(context context.Context, d *schema.Reso
 			return tfErr.GetDiag()
 		}
 	}
-
-	updateShareMountTargetOptions := &vpcv1.UpdateShareMountTargetOptions{}
-
+	vpcBetaClient, err := meta.(conns.ClientSession).VpcV1BetaAPI()
+	if err != nil {
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcBetaClient creation failed: %s", err.Error()), "ibm_is_share_mount_target", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
+	}
 	parts, err := flex.IdParts(d.Id())
 	shareId := parts[0]
 	mountTargetId := parts[1]
@@ -508,17 +687,18 @@ func resourceIBMIsShareMountTargetUpdate(context context.Context, d *schema.Reso
 		return flex.TerraformErrorf(err, fmt.Sprintf("Split ID parts failed: %s", err.Error()), "ibm_is_share_mount_target", "update").GetDiag()
 	}
 
-	updateShareMountTargetOptions.SetShareID(shareId)
-	updateShareMountTargetOptions.SetID(mountTargetId)
-
-	hasChange := false
-
-	shareTargetPatchModel := &vpcv1.ShareMountTargetPatch{}
-
-	if d.HasChange("name") {
-		name := d.Get("name").(string)
-		shareTargetPatchModel.Name = &name
-		hasChange = true
+	getShareOptions := &vpcv1.GetShareOptions{
+		ID: &shareId,
+	}
+	share, _, err := vpcClient.GetShareWithContext(context, getShareOptions)
+	if err != nil || share == nil {
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("GetShareWithContext failed: %s", err.Error()), "ibm_is_share_mount_target", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
+	}
+	isBetaEnabled := false
+	if share != nil && share.Profile != nil && share.Profile.Name != nil && *share.Profile.Name == "rfs" {
+		isBetaEnabled = true
 	}
 
 	if d.HasChange("virtual_network_interface.0.name") || d.HasChange("virtual_network_interface.0.auto_delete") || d.HasChange("virtual_network_interface.0.protocol_state_filtering_mode") {
@@ -662,21 +842,69 @@ func resourceIBMIsShareMountTargetUpdate(context context.Context, d *schema.Reso
 		}
 	}
 
-	if hasChange {
-		shareTargetPatch, err := shareTargetPatchModel.AsPatch()
-		if err != nil {
-			return flex.TerraformErrorf(err, fmt.Sprintf("shareTargetPatch AsPatch failed: %s", err.Error()), "ibm_is_share_mount_target", "update").GetDiag()
+	if isBetaEnabled {
+		updateShareMountTargetOptions := &vpcbetav1.UpdateShareMountTargetOptions{}
+
+		updateShareMountTargetOptions.SetShareID(shareId)
+		updateShareMountTargetOptions.SetID(mountTargetId)
+
+		hasChange := false
+
+		shareTargetPatchModel := &vpcbetav1.ShareMountTargetPatch{}
+
+		if d.HasChange("name") {
+			name := d.Get("name").(string)
+			shareTargetPatchModel.Name = &name
+			hasChange = true
 		}
-		updateShareMountTargetOptions.SetShareMountTargetPatch(shareTargetPatch)
-		_, response, err := vpcClient.UpdateShareMountTargetWithContext(context, updateShareMountTargetOptions)
-		if err != nil {
-			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error updating share mount target %s\n%s", err, response), "ibm_is_share_mount_target", "update")
-			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
-			return tfErr.GetDiag()
+		if hasChange {
+			shareTargetPatch, err := shareTargetPatchModel.AsPatch()
+			if err != nil {
+				return flex.TerraformErrorf(err, fmt.Sprintf("shareTargetPatch AsPatch failed: %s", err.Error()), "ibm_is_share_mount_target", "update").GetDiag()
+			}
+			updateShareMountTargetOptions.SetShareMountTargetPatch(shareTargetPatch)
+			_, response, err := vpcBetaClient.UpdateShareMountTargetWithContext(context, updateShareMountTargetOptions)
+			if err != nil {
+				tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error updating share mount target beta %s\n%s", err, response), "ibm_is_share_mount_target", "update")
+				log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+				return tfErr.GetDiag()
+			}
+			_, err = WaitForMountTargetAvailable(context, vpcClient, shareId, mountTargetId, d, d.Timeout(schema.TimeoutUpdate))
+			if err != nil {
+				return flex.TerraformErrorf(err, fmt.Sprintf("WaitForMountTargetAvailable failed: %s", err.Error()), "ibm_is_share_mount_target", "update").GetDiag()
+			}
 		}
-		_, err = WaitForMountTargetAvailable(context, vpcClient, shareId, mountTargetId, d, d.Timeout(schema.TimeoutUpdate))
-		if err != nil {
-			return flex.TerraformErrorf(err, fmt.Sprintf("WaitForMountTargetAvailable failed: %s", err.Error()), "ibm_is_share_mount_target", "update").GetDiag()
+	} else {
+		updateShareMountTargetOptions := &vpcv1.UpdateShareMountTargetOptions{}
+
+		updateShareMountTargetOptions.SetShareID(shareId)
+		updateShareMountTargetOptions.SetID(mountTargetId)
+
+		hasChange := false
+
+		shareTargetPatchModel := &vpcv1.ShareMountTargetPatch{}
+
+		if d.HasChange("name") {
+			name := d.Get("name").(string)
+			shareTargetPatchModel.Name = &name
+			hasChange = true
+		}
+		if hasChange {
+			shareTargetPatch, err := shareTargetPatchModel.AsPatch()
+			if err != nil {
+				return flex.TerraformErrorf(err, fmt.Sprintf("shareTargetPatch AsPatch failed: %s", err.Error()), "ibm_is_share_mount_target", "update").GetDiag()
+			}
+			updateShareMountTargetOptions.SetShareMountTargetPatch(shareTargetPatch)
+			_, response, err := vpcClient.UpdateShareMountTargetWithContext(context, updateShareMountTargetOptions)
+			if err != nil {
+				tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error updating share mount target %s\n%s", err, response), "ibm_is_share_mount_target", "update")
+				log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+				return tfErr.GetDiag()
+			}
+			_, err = WaitForMountTargetAvailable(context, vpcClient, shareId, mountTargetId, d, d.Timeout(schema.TimeoutUpdate))
+			if err != nil {
+				return flex.TerraformErrorf(err, fmt.Sprintf("WaitForMountTargetAvailable failed: %s", err.Error()), "ibm_is_share_mount_target", "update").GetDiag()
+			}
 		}
 	}
 
@@ -878,6 +1106,7 @@ func ShareMountTargetVirtualNetworkInterfaceToMap(context context.Context, vpcCl
 
 func ShareMountTargetMapToShareMountTargetPrototype(d *schema.ResourceData, vniMap map[string]interface{}, autoDeleteSchema string) (vpcv1.ShareMountTargetVirtualNetworkInterfacePrototype, error) {
 	vniPrototype := vpcv1.ShareMountTargetVirtualNetworkInterfacePrototype{}
+
 	name, _ := vniMap["name"].(string)
 	if name != "" {
 		vniPrototype.Name = &name
@@ -946,6 +1175,81 @@ func ShareMountTargetMapToShareMountTargetPrototype(d *schema.ResourceData, vniM
 		}
 	}
 	return vniPrototype, nil
+
+}
+
+func ShareMountTargetMapToShareMountTargetPrototypeBeta(d *schema.ResourceData, vniMap map[string]interface{}, autoDeleteSchema string) (vpcbetav1.ShareMountTargetVirtualNetworkInterfacePrototype, error) {
+
+	vniPrototypeBeta := vpcbetav1.ShareMountTargetVirtualNetworkInterfacePrototype{}
+
+	name, _ := vniMap["name"].(string)
+	if name != "" {
+		vniPrototypeBeta.Name = &name
+	}
+	if vniMap["protocol_state_filtering_mode"] != nil {
+		if pStateFilteringInt, ok := vniMap["protocol_state_filtering_mode"]; ok && pStateFilteringInt.(string) != "" {
+			vniPrototypeBeta.ProtocolStateFilteringMode = core.StringPtr(pStateFilteringInt.(string))
+		}
+	}
+	primaryIp, ok := vniMap["primary_ip"]
+	if ok && len(primaryIp.([]interface{})) > 0 {
+		primaryIpPrototype := &vpcbetav1.VirtualNetworkInterfacePrimaryIPPrototype{}
+		primaryIpMap := primaryIp.([]interface{})[0].(map[string]interface{})
+
+		reservedIp := primaryIpMap["reserved_ip"].(string)
+		reservedIpAddress := primaryIpMap["address"].(string)
+		reservedIpName := primaryIpMap["name"].(string)
+
+		if reservedIp != "" && (reservedIpAddress != "" || reservedIpName != "") {
+			return vniPrototypeBeta, fmt.Errorf("[ERROR] Error creating instance, virtual_network_interface error, reserved_ip(%s) is mutually exclusive with other primary_ip attributes", reservedIp)
+		}
+		if reservedIp != "" {
+			primaryIpPrototype.ID = &reservedIp
+		} else {
+			if reservedIpAddress != "" {
+				primaryIpPrototype.Address = &reservedIpAddress
+			}
+
+			if reservedIpName != "" {
+				primaryIpPrototype.Name = &reservedIpName
+			}
+			if autoDeleteIntf, ok := d.GetOkExists("mount_targets.0.virtual_network_interface.0.primary_ip.0.auto_delete"); ok {
+				reservedIpAutoDelete := autoDeleteIntf.(bool)
+				primaryIpPrototype.AutoDelete = &reservedIpAutoDelete
+			}
+		}
+		vniPrototypeBeta.PrimaryIP = primaryIpPrototype
+	}
+
+	if autoDeleteIntf, ok := d.GetOkExists(autoDeleteSchema); ok {
+		autoDeleteBool := autoDeleteIntf.(bool)
+		vniPrototypeBeta.AutoDelete = &autoDeleteBool
+	}
+
+	if subnet := vniMap["subnet"].(string); subnet != "" {
+		vniPrototypeBeta.Subnet = &vpcbetav1.SubnetIdentity{
+			ID: &subnet,
+		}
+	}
+	if resourceGroup := vniMap["resource_group"].(string); resourceGroup != "" {
+		vniPrototypeBeta.ResourceGroup = &vpcbetav1.ResourceGroupIdentity{
+			ID: &resourceGroup,
+		}
+	}
+	if secGrpIntf, ok := vniMap["security_groups"]; ok {
+		secGrpSet := secGrpIntf.(*schema.Set)
+		if secGrpSet.Len() != 0 {
+			var secGroups = make([]vpcbetav1.SecurityGroupIdentityIntf, secGrpSet.Len())
+			for i, secGrpIntf := range secGrpSet.List() {
+				secGrp := secGrpIntf.(string)
+				secGroups[i] = &vpcbetav1.SecurityGroupIdentity{
+					ID: &secGrp,
+				}
+			}
+			vniPrototypeBeta.SecurityGroups = secGroups
+		}
+	}
+	return vniPrototypeBeta, nil
 }
 
 func isWaitForTargetDelete(context context.Context, vpcClient *vpcv1.VpcV1, d *schema.ResourceData, shareid, targetid string) (interface{}, error) {
