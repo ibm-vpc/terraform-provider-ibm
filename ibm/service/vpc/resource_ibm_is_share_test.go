@@ -445,7 +445,6 @@ func testAccCheckIbmIsRegionalShareConfig(vpcName, sname, targetName, vniName, s
 	}
 	resource "ibm_is_share" "is_share" {
 		access_control_mode = "security_group"
-		allowed_access_protocols = "nfs4"
 		zone    = "us-south-1"
 		size    = 220
 		name    = "%s"

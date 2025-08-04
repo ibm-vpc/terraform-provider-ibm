@@ -27,7 +27,6 @@ resource "ibm_is_share" "example" {
 }
 
 resource "ibm_is_share_mount_target" "example" {
-  access_protocol = "nfs4"
   share = ibm_is_share.example.id
   vpc = ibm_is_vpc.example.id
   name = "my-share-target"
@@ -56,7 +55,6 @@ resource "ibm_is_subnet" "example1" {
 }
 
 resource "ibm_is_share_mount_target" "example1" {
-  access_protocol = "nfs4"
   share = ibm_is_share.example1.id
   virtual_network_interface {
     primary_ip {
@@ -71,7 +69,6 @@ resource "ibm_is_share_mount_target" "example1" {
 
 //Create a mount target with subnet id
 resource "ibm_is_share_mount_target" "example2" {
-  access_protocol = "nfs4"
   share = ibm_is_share.example.id
   virtual_network_interface {
     subnet = ibm_is_subnet.example.id
@@ -87,7 +84,6 @@ resource "ibm_is_subnet_reserved_ip" "example" {
   name = "my-example-resip"
 }
 resource "ibm_is_share_mount_target" "example" {
-  access_protocol = "nfs4"
   share = ibm_is_share.example.id
   virtual_network_interface {
     primary_ip {
@@ -111,7 +107,6 @@ resource "ibm_is_virtual_network_interface" "example" {
   subnet = ibm_is_subnet.example.id
 }
 resource "ibm_is_share_mount_target" "mtarget1" {
-  access_protocol = "nfs4"
   share = ibm_is_share.share.id
   virtual_network_interface {
     id = ibm_is_virtual_network_interface.example.id
@@ -120,12 +115,29 @@ resource "ibm_is_share_mount_target" "mtarget1" {
   transit_encryption = "ipsec"
 }
 ```
+
+## Create mount target for a regional file share
+```
+resource "ibm_is_share_mount_target" "example" {
+  access_protocol = "nfs4"
+  share = ibm_is_share.share.id
+  virtual_network_interface {
+    id = ibm_is_virtual_network_interface.example.id
+  }
+  name = "my-example-mount-target"
+  transit_encryption = "stunnel"
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
 
 - `share` - (Required, String) The file share identifier.
-- `access_protocol` - (Required, String) The protocol to use to access the share for this share mount target. The specified value must be listed in the share's allowed_access_protocols. Available values are `nfs4`
+- `access_protocol` - (Required, String) The protocol to use to access the share for this share mount target. Available values are `nfs4`
+
+~> **Note**
+  `access_protocol` is part of the Beta and can be used only by the beta users.
 - `virtual_network_interface` (Optional, List) The virtual network interface for this share mount target. Required if the share's `access_control_mode` is `security_group`.
   - `name` - (Required, String) Name for this virtual network interface. The name must not be used by another virtual network interface in the VPC.
   Nested scheme for `virtual_network_interface`:
@@ -161,11 +173,12 @@ The following arguments are supported:
   ~> **Note**
   `virtual_network_interface` and `vpc` are mutually exclusive and one of them must be provided.
 - `name` - (Required, String) The user-defined name for this share target. Names must be unique within the share the share target resides in. If unspecified, the name will be a hyphenated list of randomly-selected words.
-- `transit_encryption` - (Optional, String) The transit encryption mode for this share target. Supported values are **none**, **ipsec** and **stunnel**
+- `transit_encryption` - (Optional, String) The transit encryption mode for this share target. Supported values for `dp2` zonal shares are **none**, **user_managed** and default is **none**. Supported values for `rfs` regional shares are **stunnel**, **none** and default is **stunnel**
 
   ~> **Note**
   If `transit_encryption` is not provided, the default transit encryption for the corresponding share profile will be used
-  
+  ~> **Note**
+  `transit_encryption` can only be provided to create mount target for a share with `access_control_mode` `security_group`. It is not supported with shares that has `access_control_mode` `vpc`
 ## Attribute Reference
 
 The following attributes are exported:

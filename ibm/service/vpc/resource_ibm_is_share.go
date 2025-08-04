@@ -61,14 +61,6 @@ func ResourceIbmIsShare() *schema.Resource {
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Description: "Allowed transit encryption modes",
 			},
-			"allowed_access_protocols": {
-				Type:          schema.TypeList,
-				Optional:      true,
-				Computed:      true,
-				Elem:          &schema.Schema{Type: schema.TypeString},
-				ConflictsWith: []string{"replica_share", "origin_share"},
-				Description:   "The access protocols to allow for this share",
-			},
 			"bandwidth": {
 				Type:        schema.TypeInt,
 				Optional:    true,
@@ -1089,16 +1081,7 @@ func resourceIbmIsShareCreate(context context.Context, d *schema.ResourceData, m
 			accessControlMode := accessControlModeIntf.(string)
 			sharePrototype.AccessControlMode = &accessControlMode
 		}
-		if allowedAccessProtocols, ok := d.GetOk("allowed_access_protocols"); ok {
-			allowedAccessProtocolsList := []string{}
-			for _, allowedAccessProtocolsIntf := range allowedAccessProtocols.([]interface{}) {
-				allowedAccessProtocolsList = append(allowedAccessProtocolsList, allowedAccessProtocolsIntf.(string))
-			}
-			sharePrototype.AllowedAccessProtocols = allowedAccessProtocolsList
-		} else {
-			allowedAccessProtocols := []string{"nfs4"}
-			sharePrototype.AllowedAccessProtocols = allowedAccessProtocols
-		}
+
 		if bandwidthIntf, bandwidthOk := d.GetOk("bandwidth"); bandwidthOk {
 			bandwidth := int64(bandwidthIntf.(int))
 			sharePrototype.Bandwidth = &bandwidth
@@ -1347,16 +1330,7 @@ func resourceIbmIsShareCreate(context context.Context, d *schema.ResourceData, m
 			accessControlMode := accessControlModeIntf.(string)
 			sharePrototypeBeta.AccessControlMode = &accessControlMode
 		}
-		if allowedAccessProtocols, ok := d.GetOk("allowed_access_protocols"); ok {
-			allowedAccessProtocolsList := []string{}
-			for _, allowedAccessProtocolsIntf := range allowedAccessProtocols.([]interface{}) {
-				allowedAccessProtocolsList = append(allowedAccessProtocolsList, allowedAccessProtocolsIntf.(string))
-			}
-			sharePrototypeBeta.AllowedAccessProtocols = allowedAccessProtocolsList
-		} else {
-			allowedAccessProtocols := []string{"nfs4"}
-			sharePrototypeBeta.AllowedAccessProtocols = allowedAccessProtocols
-		}
+
 		if bandwidthIntf, bandwidthOk := d.GetOk("bandwidth"); bandwidthOk {
 			bandwidth := int64(bandwidthIntf.(int))
 			sharePrototypeBeta.Bandwidth = &bandwidth
@@ -1707,11 +1681,7 @@ func resourceIbmIsShareRead(context context.Context, d *schema.ResourceData, met
 				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "set-access_control_mode").GetDiag()
 			}
 		}
-		if shareBeta.AllowedAccessProtocols != nil && len(shareBeta.AllowedAccessProtocols) > 0 {
-			if err = d.Set("allowed_access_protocols", *&shareBeta.AllowedAccessProtocols); err != nil {
-				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "set-allowed_access_protocols").GetDiag()
-			}
-		}
+
 		if err = d.Set("bandwidth", flex.IntValue(shareBeta.Bandwidth)); err != nil {
 			return diag.FromErr(fmt.Errorf("Error setting bandwidth: %s", err))
 		}
@@ -1830,6 +1800,36 @@ func resourceIbmIsShareRead(context context.Context, d *schema.ResourceData, met
 			err = fmt.Errorf("Error setting snapshot_size: %s", err)
 			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "set-snapshot_size").GetDiag()
 		}
+		latest_syncs := []map[string]interface{}{}
+		if shareBeta.LatestSync != nil {
+			latest_sync := make(map[string]interface{})
+			latest_sync["completed_at"] = flex.DateTimeToString(shareBeta.LatestSync.CompletedAt)
+			if shareBeta.LatestSync.DataTransferred != nil {
+				latest_sync["data_transferred"] = *shareBeta.LatestSync.DataTransferred
+			}
+			latest_sync["started_at"] = flex.DateTimeToString(shareBeta.LatestSync.CompletedAt)
+			latest_syncs = append(latest_syncs, latest_sync)
+		}
+		d.Set("latest_sync", latest_syncs)
+		latest_jobs := []map[string]interface{}{}
+		if shareBeta.LatestJob != nil {
+			latest_job := make(map[string]interface{})
+			latest_job["status"] = shareBeta.LatestJob.Status
+			status_reasons := []map[string]interface{}{}
+			for _, status_reason_item := range shareBeta.LatestJob.StatusReasons {
+				status_reason := make(map[string]interface{})
+				status_reason["code"] = status_reason_item.Code
+				status_reason["message"] = status_reason_item.Message
+				if status_reason_item.MoreInfo != nil {
+					status_reason["more_info"] = status_reason_item.MoreInfo
+				}
+				status_reasons = append(status_reasons, status_reason)
+			}
+			latest_job["status_reasons"] = status_reasons
+			latest_job["type"] = shareBeta.LatestJob.Type
+			latest_jobs = append(latest_jobs, latest_job)
+		}
+		d.Set("latest_job", latest_jobs)
 
 		d.Set("replication_role", shareBeta.ReplicationRole)
 		d.Set("replication_status", shareBeta.ReplicationStatus)
@@ -1885,11 +1885,7 @@ func resourceIbmIsShareRead(context context.Context, d *schema.ResourceData, met
 				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "set-access_control_mode").GetDiag()
 			}
 		}
-		if share.AllowedAccessProtocols != nil && len(share.AllowedAccessProtocols) > 0 {
-			if err = d.Set("allowed_access_protocols", *&share.AllowedAccessProtocols); err != nil {
-				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "set-allowed_access_protocols").GetDiag()
-			}
-		}
+
 		if err = d.Set("bandwidth", flex.IntValue(share.Bandwidth)); err != nil {
 			return diag.FromErr(fmt.Errorf("Error setting bandwidth: %s", err))
 		}
@@ -2535,6 +2531,8 @@ func shareUpdate(isBetaEnabled bool, vpcClient *vpcv1.VpcV1, vpcBetaClient *vpcb
 
 	updateShareOptions.SetID(shareId)
 	updateShareOptions.IfMatch = &eTag
+	updateShareOptionsBeta.SetID(shareId)
+	updateShareOptionsBeta.IfMatch = &eTag
 	sharePatchModel := &vpcv1.SharePatch{}
 	sharePatchModelBeta := &vpcbetav1.SharePatch{}
 	hasChange := false

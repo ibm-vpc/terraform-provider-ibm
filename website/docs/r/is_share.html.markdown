@@ -13,6 +13,22 @@ Provides a resource for Share. This allows Share to be created, updated and dele
 ~> **NOTE**
   New shares should be created with profile `dp2`. Old Tiered profiles will be deprecated soon.
 
+~> **NOTE**
+  `rfs` profile is currently in beta phase and needs special access to create regional file shares.
+  Regional file shares do not have replication and snapshot support during the beta phase.
+
+## Example Usage
+
+```terraform
+resource "ibm_is_share" "example" {
+  access_control_mode = "security_group"
+  name    = "my-share"
+  size    = 200
+  profile = "rfs"
+  bandwidth = 200
+}
+```
+
 ## Example Usage
 
 ```terraform
@@ -126,7 +142,6 @@ resource "ibm_is_share" "example-6" {
 
 The following arguments are supported:
 
-- `allowed_access_protocols` - (Optional, List) List of allowed access protocols for the share. Supported values are **nfs4** 
 - `access_control_mode` - (Optional, Boolean) The access control mode for the share. Supported values are **security_group** and **vpc**. Default value is **security_group**
 - `allowed_transit_encryption_modes` - (Optional, List of string) The transit encryption modes allowed for this share.
 - `access_tags`  - (Optional, List of Strings) The list of access management tags to attach to the share. **Note** For more information, about creating access tags, see [working with tags](https://cloud.ibm.com/docs/account?topic=account-tag).
@@ -138,6 +153,10 @@ The following arguments are supported:
   - `uid` - (Optional, Integer) The initial user identifier for the file share.
 - `iops` - (Optional, Integer) The maximum input/output operation performance bandwidth per second for the file share. For more information about the iops range for the given size, refer [File Storage for VPC profiles](https://cloud.ibm.com/docs/vpc?topic=vpc-file-storage-profiles&interface=ui)
 - `mount_targets` - (Optional, List) Share targets for the file share.
+  - `access_protocol` - (Required, String) The protocol to use to access the share for this share mount target. Available values are `nfs4`
+
+  ~> **Note**
+    `access_protocol` is part of the Beta and can be used only by the beta users.
   - `name` - (Required, string) The user-defined name for this share target. Names must be unique within the share the share target resides in.
   - `virtual_network_interface` (Optional, List) The virtual network interface for this share mount target. Required if the share's `access_control_mode` is `security_group`.
 
@@ -171,7 +190,7 @@ The following arguments are supported:
       Within `primary_ip`, `reserved_ip` is mutually exclusive to  `auto_delete`, `address` and `name`
 
   - `vpc` - (Optional, string) The VPC in which instances can mount the file share using this share target. Required if the share's `access_control_mode` is vpc.
-  - `transit_encryption` - (Optional, String) The transit encryption mode for this share target. Supported values are **none**, **user_managed**. Default is **none**
+  - `transit_encryption` - (Optional, String) The transit encryption mode for this share target. Supported values for `dp2` zonal shares are **none**, **user_managed** and default is **none**. Supported values for `rfs` regional shares are **stunnel**, **none** and default is **stunnel**
 
 ~> **Note**
   `transit_encryption` can only be provided to create mount target for a share with `access_control_mode` `security_group`. It is not supported with shares that has `access_control_mode` `vpc`
@@ -192,6 +211,10 @@ The following arguments are supported:
   - `access_tags`  - (Optional, List of Strings) The list of access management tags to attach to the share. **Note** For more information, about creating access tags, see [working with tags](https://cloud.ibm.com/docs/account?topic=account-tag).
   - `iops` - (Optional, Int)
   - `mount_targets` - (List) List of mount targets
+    - `access_protocol` - (Required, String) The protocol to use to access the share for this share mount target. Available values are `nfs4`
+
+    ~> **Note**
+      `access_protocol` is part of the Beta and can be used only by the beta users.
     - `name` - (Optional, String)
     - `virtual_network_interface` (Optional, List) The virtual network interface for this share mount target. Required if the share's `access_control_mode` is `security_group`.
       Nested scheme for `virtual_network_interface`:

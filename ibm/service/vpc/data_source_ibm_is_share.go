@@ -14,6 +14,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/IBM/go-sdk-core/v5/core"
+	"github.com/IBM/vpc-beta-go-sdk/vpcbetav1"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
 )
 
@@ -40,12 +41,6 @@ func DataSourceIbmIsShare() *schema.Resource {
 				Computed:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Description: "Allowed transit encryption modes",
-			},
-			"allowed_access_protocols": {
-				Type:        schema.TypeList,
-				Computed:    true,
-				Elem:        &schema.Schema{Type: schema.TypeString},
-				Description: "Allowed access protocols for this share",
 			},
 			"bandwidth": {
 				Type:        schema.TypeInt,
@@ -612,253 +607,499 @@ func dataSourceIbmIsShareRead(context context.Context, d *schema.ResourceData, m
 		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
 		return tfErr.GetDiag()
 	}
+	vpcBetaClient, err := meta.(conns.ClientSession).VpcV1BetaAPI()
+	if err != nil {
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("vpcBetaClient creation failed: %s", err.Error()), "ibm_is_share", "read")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
+	}
 
+	isBetaEnabled := false
+	if shareprofile, ok := d.GetOk("profile"); ok {
+		if shareprofile.(string) == "rfs" {
+			isBetaEnabled = true
+		}
+	}
 	shareName := d.Get("name").(string)
 	shareId := d.Get("share").(string)
-	var share *vpcv1.Share = nil
-	if shareId != "" {
-		getShareOptions := &vpcv1.GetShareOptions{}
 
-		getShareOptions.SetID(d.Get("share").(string))
+	if isBetaEnabled {
+		var share *vpcbetav1.Share = nil
+		if shareId != "" {
+			getShareOptions := &vpcbetav1.GetShareOptions{}
 
-		shareItem, response, err := vpcClient.GetShareWithContext(context, getShareOptions)
-		if err != nil {
-			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("GetShareWithContext failed: %s\n%s", err.Error(), response), "(Data) ibm_is_share", "read")
-			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
-			return tfErr.GetDiag()
-		}
-		share = shareItem
-	} else if shareName != "" {
-		listSharesOptions := &vpcv1.ListSharesOptions{}
+			getShareOptions.SetID(d.Get("share").(string))
 
-		if shareName != "" {
-			listSharesOptions.Name = &shareName
-		}
-		shareCollection, response, err := vpcClient.ListSharesWithContext(context, listSharesOptions)
-		if err != nil {
-			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("ListSharesWithContext failed: %s\n%s", err.Error(), response), "(Data) ibm_is_share", "read")
-			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
-			return tfErr.GetDiag()
-		}
-		for _, sharesItem := range shareCollection.Shares {
-			if *sharesItem.Name == shareName {
-				share = &sharesItem
-				break
+			shareItem, response, err := vpcBetaClient.GetShareWithContext(context, getShareOptions)
+			if err != nil {
+				tfErr := flex.TerraformErrorf(err, fmt.Sprintf("GetShareWithContext failed: %s\n%s", err.Error(), response), "(Data) ibm_is_share", "read")
+				log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+				return tfErr.GetDiag()
+			}
+			share = shareItem
+		} else if shareName != "" {
+			listSharesOptions := &vpcbetav1.ListSharesOptions{}
+
+			if shareName != "" {
+				listSharesOptions.Name = &shareName
+			}
+			shareCollection, response, err := vpcBetaClient.ListSharesWithContext(context, listSharesOptions)
+			if err != nil {
+				tfErr := flex.TerraformErrorf(err, fmt.Sprintf("ListSharesWithContext failed: %s\n%s", err.Error(), response), "(Data) ibm_is_share", "read")
+				log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+				return tfErr.GetDiag()
+			}
+			for _, sharesItem := range shareCollection.Shares {
+				if *sharesItem.Name == shareName {
+					share = &sharesItem
+					break
+				}
+			}
+			if share == nil {
+				return flex.TerraformErrorf(err, fmt.Sprintf("[ERROR] Share with provided name %s not found", shareName), "(Data) ibm_is_share", "read").GetDiag()
 			}
 		}
-		if share == nil {
-			return flex.TerraformErrorf(err, fmt.Sprintf("[ERROR] Share with provided name %s not found", shareName), "(Data) ibm_is_share", "read").GetDiag()
-		}
-	}
 
-	d.SetId(*share.ID)
-	if err = d.Set("created_at", share.CreatedAt.String()); err != nil {
-		err = fmt.Errorf("Error setting captured_at: %s", err)
-		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_share", "read", "set-captured_at").GetDiag()
-	}
-	if err = d.Set("crn", share.CRN); err != nil {
-		err = fmt.Errorf("Error setting crn: %s", err)
-		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_share", "read", "set-crn").GetDiag()
-	}
-	if err = d.Set("encryption", share.Encryption); err != nil {
-		err = fmt.Errorf("Error setting encryption: %s", err)
-		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_share", "read", "set-encryption").GetDiag()
-	}
+		d.SetId(*share.ID)
+		if err = d.Set("created_at", share.CreatedAt.String()); err != nil {
+			err = fmt.Errorf("Error setting captured_at: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_share", "read", "set-captured_at").GetDiag()
+		}
+		if err = d.Set("crn", share.CRN); err != nil {
+			err = fmt.Errorf("Error setting crn: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_share", "read", "set-crn").GetDiag()
+		}
+		if err = d.Set("encryption", share.Encryption); err != nil {
+			err = fmt.Errorf("Error setting encryption: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_share", "read", "set-encryption").GetDiag()
+		}
 
-	if share.EncryptionKey != nil {
-		err = d.Set("encryption_key", *share.EncryptionKey.CRN)
-		if err != nil {
-			err = fmt.Errorf("Error setting encryption_key: %s", err)
-			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_share", "read", "set-encryption_key").GetDiag()
+		if share.EncryptionKey != nil {
+			err = d.Set("encryption_key", *share.EncryptionKey.CRN)
+			if err != nil {
+				err = fmt.Errorf("Error setting encryption_key: %s", err)
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_share", "read", "set-encryption_key").GetDiag()
+			}
 		}
-	}
-	if err = d.Set("href", share.Href); err != nil {
-		err = fmt.Errorf("Error setting href: %s", err)
-		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_share", "read", "set-href").GetDiag()
-	}
-	if err = d.Set("iops", share.Iops); err != nil {
-		err = fmt.Errorf("Error setting iops: %s", err)
-		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_share", "read", "set-iops").GetDiag()
-	}
-	latest_syncs := []map[string]interface{}{}
-	if share.LatestSync != nil {
-		latest_sync := make(map[string]interface{})
-		latest_sync["completed_at"] = flex.DateTimeToString(share.LatestSync.CompletedAt)
-		if share.LatestSync.DataTransferred != nil {
-			latest_sync["data_transferred"] = *share.LatestSync.DataTransferred
+		if err = d.Set("href", share.Href); err != nil {
+			err = fmt.Errorf("Error setting href: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_share", "read", "set-href").GetDiag()
 		}
-		latest_sync["started_at"] = flex.DateTimeToString(share.LatestSync.CompletedAt)
-		latest_syncs = append(latest_syncs, latest_sync)
-	}
-	d.Set("latest_sync", latest_syncs)
-	if share.LatestJob != nil {
-		err = d.Set("latest_job", dataSourceShareFlattenLatestJob(*share.LatestJob))
-		if err != nil {
-			err = fmt.Errorf("Error setting latest_job: %s", err)
-			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_share", "read", "set-latest_job").GetDiag()
+		if err = d.Set("iops", share.Iops); err != nil {
+			err = fmt.Errorf("Error setting iops: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_share", "read", "set-iops").GetDiag()
 		}
-	}
+		latest_syncs := []map[string]interface{}{}
+		if share.LatestSync != nil {
+			latest_sync := make(map[string]interface{})
+			latest_sync["completed_at"] = flex.DateTimeToString(share.LatestSync.CompletedAt)
+			if share.LatestSync.DataTransferred != nil {
+				latest_sync["data_transferred"] = *share.LatestSync.DataTransferred
+			}
+			latest_sync["started_at"] = flex.DateTimeToString(share.LatestSync.CompletedAt)
+			latest_syncs = append(latest_syncs, latest_sync)
+		}
+		d.Set("latest_sync", latest_syncs)
+		if share.LatestJob != nil {
+			err = d.Set("latest_job", dataSourceShareFlattenLatestJobBeta(*share.LatestJob))
+			if err != nil {
+				err = fmt.Errorf("Error setting latest_job: %s", err)
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_share", "read", "set-latest_job").GetDiag()
+			}
+		}
 
-	if err = d.Set("lifecycle_state", share.LifecycleState); err != nil {
-		err = fmt.Errorf("Error setting lifecycle_state: %s", err)
-		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_share", "read", "set-lifecycle_state").GetDiag()
-	}
-	if err = d.Set("name", share.Name); err != nil {
-		err = fmt.Errorf("Error setting name: %s", err)
-		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_share", "read", "set-name").GetDiag()
-	}
-	if share.AccessControlMode != nil {
-		d.Set("access_control_mode", *share.AccessControlMode)
-	}
-	if !core.IsNil(share.AllowedTransitEncryptionModes) {
-		if err = d.Set("allowed_transit_encryption_modes", share.AllowedTransitEncryptionModes); err != nil {
-			err = fmt.Errorf("Error setting allowed_transit_encryption_modes: %s", err)
-			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "set-allowed_transit_encryption_modes").GetDiag()
+		if err = d.Set("lifecycle_state", share.LifecycleState); err != nil {
+			err = fmt.Errorf("Error setting lifecycle_state: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_share", "read", "set-lifecycle_state").GetDiag()
 		}
-	}
-	if !core.IsNil(share.AllowedAccessProtocols) {
-		if err = d.Set("allowed_access_protocols", share.AllowedAccessProtocols); err != nil {
-			err = fmt.Errorf("Error setting allowed_access_protocols: %s", err)
-			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "set-allowed_access_protocols").GetDiag()
+		if err = d.Set("name", share.Name); err != nil {
+			err = fmt.Errorf("Error setting name: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_share", "read", "set-name").GetDiag()
 		}
-	}
-	if err = d.Set("bandwidth", share.Bandwidth); err != nil {
-		err = fmt.Errorf("Error setting bandwidth: %s", err)
-		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "set-bandwidth").GetDiag()
-	}
-	if err = d.Set("accessor_binding_role", share.AccessorBindingRole); err != nil {
-		err = fmt.Errorf("Error setting accessor_binding_role: %s", err)
-		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "set-accessor_binding_role").GetDiag()
-	}
-	accessorBindings := []map[string]interface{}{}
-	for _, accessorBindingsItem := range share.AccessorBindings {
-		accessorBindingsItemMap := ResourceIBMIsShareShareAccessorBindingReferenceToMap(&accessorBindingsItem)
-		accessorBindings = append(accessorBindings, accessorBindingsItemMap)
-	}
-	if err = d.Set("accessor_bindings", accessorBindings); err != nil {
-		err = fmt.Errorf("Error setting accessor_bindings: %s", err)
-		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "set-accessor_bindings").GetDiag()
-	}
-	if !core.IsNil(share.OriginShare) {
-		originShareMap := ResourceIBMIsShareShareReferenceToMap(share.OriginShare)
-		if err = d.Set("origin_share", []map[string]interface{}{originShareMap}); err != nil {
-			err = fmt.Errorf("Error setting origin_share: %s", err)
-			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "set-origin_share").GetDiag()
+		if share.AccessControlMode != nil {
+			d.Set("access_control_mode", *share.AccessControlMode)
 		}
-	}
-	if share.Profile != nil {
-		err = d.Set("profile", *share.Profile.Name)
-		if err != nil {
-			err = fmt.Errorf("Error setting profile: %s", err)
-			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_share", "read", "set-profile").GetDiag()
+		if !core.IsNil(share.AllowedTransitEncryptionModes) {
+			if err = d.Set("allowed_transit_encryption_modes", share.AllowedTransitEncryptionModes); err != nil {
+				err = fmt.Errorf("Error setting allowed_transit_encryption_modes: %s", err)
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "set-allowed_transit_encryption_modes").GetDiag()
+			}
 		}
-	}
+		if err = d.Set("bandwidth", share.Bandwidth); err != nil {
+			err = fmt.Errorf("Error setting bandwidth: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "set-bandwidth").GetDiag()
+		}
+		if err = d.Set("accessor_binding_role", share.AccessorBindingRole); err != nil {
+			err = fmt.Errorf("Error setting accessor_binding_role: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "set-accessor_binding_role").GetDiag()
+		}
+		accessorBindings := []map[string]interface{}{}
+		for _, accessorBindingsItem := range share.AccessorBindings {
+			accessorBindingsItemMap := ResourceIBMIsShareShareAccessorBindingReferenceToMapBeta(&accessorBindingsItem)
+			accessorBindings = append(accessorBindings, accessorBindingsItemMap)
+		}
+		if err = d.Set("accessor_bindings", accessorBindings); err != nil {
+			err = fmt.Errorf("Error setting accessor_bindings: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "set-accessor_bindings").GetDiag()
+		}
+		if !core.IsNil(share.OriginShare) {
+			originShareMap := ResourceIBMIsShareShareReferenceToMapBeta(share.OriginShare)
+			if err = d.Set("origin_share", []map[string]interface{}{originShareMap}); err != nil {
+				err = fmt.Errorf("Error setting origin_share: %s", err)
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "set-origin_share").GetDiag()
+			}
+		}
+		if share.Profile != nil {
+			err = d.Set("profile", *share.Profile.Name)
+			if err != nil {
+				err = fmt.Errorf("Error setting profile: %s", err)
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_share", "read", "set-profile").GetDiag()
+			}
+		}
 
-	if share.ReplicaShare != nil {
-		err = d.Set("replica_share", dataSourceShareFlattenReplicaShare(*share.ReplicaShare))
-		if err != nil {
-			err = fmt.Errorf("Error setting replica_share: %s", err)
-			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_share", "read", "set-replica_share").GetDiag()
+		if share.ReplicaShare != nil {
+			err = d.Set("replica_share", dataSourceShareFlattenReplicaShareBeta(*share.ReplicaShare))
+			if err != nil {
+				err = fmt.Errorf("Error setting replica_share: %s", err)
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_share", "read", "set-replica_share").GetDiag()
+			}
 		}
-	}
-	if err = d.Set("replication_cron_spec", share.ReplicationCronSpec); err != nil {
-		err = fmt.Errorf("Error setting replication_cron_spec: %s", err)
-		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_share", "read", "set-replication_cron_spec").GetDiag()
-	}
-	if err = d.Set("replication_role", share.ReplicationRole); err != nil {
-		err = fmt.Errorf("Error setting replication_role: %s", err)
-		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_share", "read", "set-replication_role").GetDiag()
-	}
-	if err = d.Set("replication_status", share.ReplicationStatus); err != nil {
-		err = fmt.Errorf("Error setting replication_status: %s", err)
-		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_share", "read", "set-replication_status").GetDiag()
-	}
+		if err = d.Set("replication_cron_spec", share.ReplicationCronSpec); err != nil {
+			err = fmt.Errorf("Error setting replication_cron_spec: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_share", "read", "set-replication_cron_spec").GetDiag()
+		}
+		if err = d.Set("replication_role", share.ReplicationRole); err != nil {
+			err = fmt.Errorf("Error setting replication_role: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_share", "read", "set-replication_role").GetDiag()
+		}
+		if err = d.Set("replication_status", share.ReplicationStatus); err != nil {
+			err = fmt.Errorf("Error setting replication_status: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_share", "read", "set-replication_status").GetDiag()
+		}
 
-	if share.ReplicationStatusReasons != nil {
-		err = d.Set("replication_status_reasons", dataSourceShareFlattenReplicationStatusReasons(share.ReplicationStatusReasons))
-		if err != nil {
-			err = fmt.Errorf("Error setting replication_status_reasons: %s", err)
-			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_share", "read", "set-replication_status_reasons").GetDiag()
+		if share.ReplicationStatusReasons != nil {
+			err = d.Set("replication_status_reasons", dataSourceShareFlattenReplicationStatusReasonsBeta(share.ReplicationStatusReasons))
+			if err != nil {
+				err = fmt.Errorf("Error setting replication_status_reasons: %s", err)
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_share", "read", "set-replication_status_reasons").GetDiag()
+			}
 		}
-	}
 
-	if share.ResourceGroup != nil {
-		err = d.Set("resource_group", *share.ResourceGroup.ID)
-		if err != nil {
-			err = fmt.Errorf("Error setting resource_group: %s", err)
-			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_share", "read", "set-resource_group").GetDiag()
+		if share.ResourceGroup != nil {
+			err = d.Set("resource_group", *share.ResourceGroup.ID)
+			if err != nil {
+				err = fmt.Errorf("Error setting resource_group: %s", err)
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_share", "read", "set-resource_group").GetDiag()
+			}
 		}
-	}
-	if err = d.Set("resource_type", share.ResourceType); err != nil {
-		err = fmt.Errorf("Error setting resource_type: %s", err)
-		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_share", "read", "set-resource_type").GetDiag()
-	}
-	if err = d.Set("size", share.Size); err != nil {
-		err = fmt.Errorf("Error setting size: %s", err)
-		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_share", "read", "set-size").GetDiag()
-	}
-	if share.SourceShare != nil {
-		err = d.Set("source_share", dataSourceShareFlattenSourceShare(*share.SourceShare))
-		if err != nil {
-			err = fmt.Errorf("Error setting source_share: %s", err)
-			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_share", "read", "set-source_share").GetDiag()
+		if err = d.Set("resource_type", share.ResourceType); err != nil {
+			err = fmt.Errorf("Error setting resource_type: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_share", "read", "set-resource_type").GetDiag()
 		}
-	}
-	if share.MountTargets != nil {
-		err = d.Set("share_targets", dataSourceShareFlattenTargets(share.MountTargets))
-		if err != nil {
-			err = fmt.Errorf("Error setting share_targets: %s", err)
-			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_share", "read", "set-share_targets").GetDiag()
+		if err = d.Set("size", share.Size); err != nil {
+			err = fmt.Errorf("Error setting size: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_share", "read", "set-size").GetDiag()
 		}
-		err = d.Set("mount_targets", dataSourceShareFlattenTargets(share.MountTargets))
-		if err != nil {
-			err = fmt.Errorf("Error setting mount_targets: %s", err)
-			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_share", "read", "set-mount_targets").GetDiag()
+		if share.SourceShare != nil {
+			err = d.Set("source_share", dataSourceShareFlattenSourceShareBeta(*share.SourceShare))
+			if err != nil {
+				err = fmt.Errorf("Error setting source_share: %s", err)
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_share", "read", "set-source_share").GetDiag()
+			}
 		}
-	}
+		if share.MountTargets != nil {
+			err = d.Set("share_targets", dataSourceShareFlattenTargetsBeta(share.MountTargets))
+			if err != nil {
+				err = fmt.Errorf("Error setting share_targets: %s", err)
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_share", "read", "set-share_targets").GetDiag()
+			}
+			err = d.Set("mount_targets", dataSourceShareFlattenTargetsBeta(share.MountTargets))
+			if err != nil {
+				err = fmt.Errorf("Error setting mount_targets: %s", err)
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_share", "read", "set-mount_targets").GetDiag()
+			}
+		}
 
-	if share.Zone != nil {
-		err = d.Set("zone", *share.Zone.Name)
-		if err != nil {
-			err = fmt.Errorf("Error setting zone: %s", err)
-			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_share", "read", "set-zone").GetDiag()
+		if share.Zone != nil {
+			err = d.Set("zone", *share.Zone.Name)
+			if err != nil {
+				err = fmt.Errorf("Error setting zone: %s", err)
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_share", "read", "set-zone").GetDiag()
+			}
 		}
-	}
-	if err = d.Set("snapshot_count", flex.IntValue(share.SnapshotCount)); err != nil {
-		return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting snapshot_count: %s", err), "(Data) ibm_is_share", "read", "set-snapshot_count").GetDiag()
-	}
-
-	if err = d.Set("snapshot_size", flex.IntValue(share.SnapshotSize)); err != nil {
-		return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting snapshot_size: %s", err), "(Data) ibm_is_share", "read", "set-snapshot_size").GetDiag()
-	}
-	sourceSnapshot := []map[string]interface{}{}
-	if share.SourceSnapshot != nil {
-		modelMap, err := DataSourceIBMIsShareShareSourceSnapshotToMap(share.SourceSnapshot)
-		if err != nil {
-			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_share", "read", "source_snapshot-to-map").GetDiag()
+		if err = d.Set("snapshot_count", flex.IntValue(share.SnapshotCount)); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting snapshot_count: %s", err), "(Data) ibm_is_share", "read", "set-snapshot_count").GetDiag()
 		}
-		sourceSnapshot = append(sourceSnapshot, modelMap)
-	}
-	if err = d.Set("source_snapshot", sourceSnapshot); err != nil {
-		return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting source_snapshot: %s", err), "(Data) ibm_is_share", "read", "set-source_snapshot").GetDiag()
-	}
-	accesstags, err := flex.GetGlobalTagsUsingCRN(meta, *share.CRN, "", isAccessTagType)
-	if err != nil {
-		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting shares (%s) access tags: %s", d.Id(), err), "(Data) ibm_is_share", "read")
-		log.Printf(
-			"[ERROR] %s", tfErr.GetDebugMessage())
-	}
 
-	if share.UserTags != nil {
-		if err = d.Set(isFileShareTags, share.UserTags); err != nil {
-			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting shares (%s) user tags: %s", d.Id(), err), "(Data) ibm_is_share", "read")
+		if err = d.Set("snapshot_size", flex.IntValue(share.SnapshotSize)); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting snapshot_size: %s", err), "(Data) ibm_is_share", "read", "set-snapshot_size").GetDiag()
+		}
+		sourceSnapshot := []map[string]interface{}{}
+		if share.SourceSnapshot != nil {
+			modelMap, err := DataSourceIBMIsShareShareSourceSnapshotToMapBeta(share.SourceSnapshot)
+			if err != nil {
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_share", "read", "source_snapshot-to-map").GetDiag()
+			}
+			sourceSnapshot = append(sourceSnapshot, modelMap)
+		}
+		if err = d.Set("source_snapshot", sourceSnapshot); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting source_snapshot: %s", err), "(Data) ibm_is_share", "read", "set-source_snapshot").GetDiag()
+		}
+		accesstags, err := flex.GetGlobalTagsUsingCRN(meta, *share.CRN, "", isAccessTagType)
+		if err != nil {
+			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting shares (%s) access tags: %s", d.Id(), err), "(Data) ibm_is_share", "read")
 			log.Printf(
 				"[ERROR] %s", tfErr.GetDebugMessage())
 		}
+
+		if share.UserTags != nil {
+			if err = d.Set(isFileShareTags, share.UserTags); err != nil {
+				tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting shares (%s) user tags: %s", d.Id(), err), "(Data) ibm_is_share", "read")
+				log.Printf(
+					"[ERROR] %s", tfErr.GetDebugMessage())
+			}
+		}
+
+		d.Set(isFileShareAccessTags, accesstags)
+	} else {
+		var share *vpcv1.Share = nil
+		if shareId != "" {
+			getShareOptions := &vpcv1.GetShareOptions{}
+
+			getShareOptions.SetID(d.Get("share").(string))
+
+			shareItem, response, err := vpcClient.GetShareWithContext(context, getShareOptions)
+			if err != nil {
+				tfErr := flex.TerraformErrorf(err, fmt.Sprintf("GetShareWithContext failed: %s\n%s", err.Error(), response), "(Data) ibm_is_share", "read")
+				log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+				return tfErr.GetDiag()
+			}
+			share = shareItem
+		} else if shareName != "" {
+			listSharesOptions := &vpcv1.ListSharesOptions{}
+
+			if shareName != "" {
+				listSharesOptions.Name = &shareName
+			}
+			shareCollection, response, err := vpcClient.ListSharesWithContext(context, listSharesOptions)
+			if err != nil {
+				tfErr := flex.TerraformErrorf(err, fmt.Sprintf("ListSharesWithContext failed: %s\n%s", err.Error(), response), "(Data) ibm_is_share", "read")
+				log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+				return tfErr.GetDiag()
+			}
+			for _, sharesItem := range shareCollection.Shares {
+				if *sharesItem.Name == shareName {
+					share = &sharesItem
+					break
+				}
+			}
+			if share == nil {
+				return flex.TerraformErrorf(err, fmt.Sprintf("[ERROR] Share with provided name %s not found", shareName), "(Data) ibm_is_share", "read").GetDiag()
+			}
+		}
+
+		d.SetId(*share.ID)
+		if err = d.Set("created_at", share.CreatedAt.String()); err != nil {
+			err = fmt.Errorf("Error setting captured_at: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_share", "read", "set-captured_at").GetDiag()
+		}
+		if err = d.Set("crn", share.CRN); err != nil {
+			err = fmt.Errorf("Error setting crn: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_share", "read", "set-crn").GetDiag()
+		}
+		if err = d.Set("encryption", share.Encryption); err != nil {
+			err = fmt.Errorf("Error setting encryption: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_share", "read", "set-encryption").GetDiag()
+		}
+
+		if share.EncryptionKey != nil {
+			err = d.Set("encryption_key", *share.EncryptionKey.CRN)
+			if err != nil {
+				err = fmt.Errorf("Error setting encryption_key: %s", err)
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_share", "read", "set-encryption_key").GetDiag()
+			}
+		}
+		if err = d.Set("href", share.Href); err != nil {
+			err = fmt.Errorf("Error setting href: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_share", "read", "set-href").GetDiag()
+		}
+		if err = d.Set("iops", share.Iops); err != nil {
+			err = fmt.Errorf("Error setting iops: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_share", "read", "set-iops").GetDiag()
+		}
+		latest_syncs := []map[string]interface{}{}
+		if share.LatestSync != nil {
+			latest_sync := make(map[string]interface{})
+			latest_sync["completed_at"] = flex.DateTimeToString(share.LatestSync.CompletedAt)
+			if share.LatestSync.DataTransferred != nil {
+				latest_sync["data_transferred"] = *share.LatestSync.DataTransferred
+			}
+			latest_sync["started_at"] = flex.DateTimeToString(share.LatestSync.CompletedAt)
+			latest_syncs = append(latest_syncs, latest_sync)
+		}
+		d.Set("latest_sync", latest_syncs)
+		if share.LatestJob != nil {
+			err = d.Set("latest_job", dataSourceShareFlattenLatestJob(*share.LatestJob))
+			if err != nil {
+				err = fmt.Errorf("Error setting latest_job: %s", err)
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_share", "read", "set-latest_job").GetDiag()
+			}
+		}
+
+		if err = d.Set("lifecycle_state", share.LifecycleState); err != nil {
+			err = fmt.Errorf("Error setting lifecycle_state: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_share", "read", "set-lifecycle_state").GetDiag()
+		}
+		if err = d.Set("name", share.Name); err != nil {
+			err = fmt.Errorf("Error setting name: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_share", "read", "set-name").GetDiag()
+		}
+		if share.AccessControlMode != nil {
+			d.Set("access_control_mode", *share.AccessControlMode)
+		}
+		if !core.IsNil(share.AllowedTransitEncryptionModes) {
+			if err = d.Set("allowed_transit_encryption_modes", share.AllowedTransitEncryptionModes); err != nil {
+				err = fmt.Errorf("Error setting allowed_transit_encryption_modes: %s", err)
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "set-allowed_transit_encryption_modes").GetDiag()
+			}
+		}
+		if err = d.Set("bandwidth", share.Bandwidth); err != nil {
+			err = fmt.Errorf("Error setting bandwidth: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "set-bandwidth").GetDiag()
+		}
+		if err = d.Set("accessor_binding_role", share.AccessorBindingRole); err != nil {
+			err = fmt.Errorf("Error setting accessor_binding_role: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "set-accessor_binding_role").GetDiag()
+		}
+		accessorBindings := []map[string]interface{}{}
+		for _, accessorBindingsItem := range share.AccessorBindings {
+			accessorBindingsItemMap := ResourceIBMIsShareShareAccessorBindingReferenceToMap(&accessorBindingsItem)
+			accessorBindings = append(accessorBindings, accessorBindingsItemMap)
+		}
+		if err = d.Set("accessor_bindings", accessorBindings); err != nil {
+			err = fmt.Errorf("Error setting accessor_bindings: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "set-accessor_bindings").GetDiag()
+		}
+		if !core.IsNil(share.OriginShare) {
+			originShareMap := ResourceIBMIsShareShareReferenceToMap(share.OriginShare)
+			if err = d.Set("origin_share", []map[string]interface{}{originShareMap}); err != nil {
+				err = fmt.Errorf("Error setting origin_share: %s", err)
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "set-origin_share").GetDiag()
+			}
+		}
+		if share.Profile != nil {
+			err = d.Set("profile", *share.Profile.Name)
+			if err != nil {
+				err = fmt.Errorf("Error setting profile: %s", err)
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_share", "read", "set-profile").GetDiag()
+			}
+		}
+
+		if share.ReplicaShare != nil {
+			err = d.Set("replica_share", dataSourceShareFlattenReplicaShare(*share.ReplicaShare))
+			if err != nil {
+				err = fmt.Errorf("Error setting replica_share: %s", err)
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_share", "read", "set-replica_share").GetDiag()
+			}
+		}
+		if err = d.Set("replication_cron_spec", share.ReplicationCronSpec); err != nil {
+			err = fmt.Errorf("Error setting replication_cron_spec: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_share", "read", "set-replication_cron_spec").GetDiag()
+		}
+		if err = d.Set("replication_role", share.ReplicationRole); err != nil {
+			err = fmt.Errorf("Error setting replication_role: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_share", "read", "set-replication_role").GetDiag()
+		}
+		if err = d.Set("replication_status", share.ReplicationStatus); err != nil {
+			err = fmt.Errorf("Error setting replication_status: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_share", "read", "set-replication_status").GetDiag()
+		}
+
+		if share.ReplicationStatusReasons != nil {
+			err = d.Set("replication_status_reasons", dataSourceShareFlattenReplicationStatusReasons(share.ReplicationStatusReasons))
+			if err != nil {
+				err = fmt.Errorf("Error setting replication_status_reasons: %s", err)
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_share", "read", "set-replication_status_reasons").GetDiag()
+			}
+		}
+
+		if share.ResourceGroup != nil {
+			err = d.Set("resource_group", *share.ResourceGroup.ID)
+			if err != nil {
+				err = fmt.Errorf("Error setting resource_group: %s", err)
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_share", "read", "set-resource_group").GetDiag()
+			}
+		}
+		if err = d.Set("resource_type", share.ResourceType); err != nil {
+			err = fmt.Errorf("Error setting resource_type: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_share", "read", "set-resource_type").GetDiag()
+		}
+		if err = d.Set("size", share.Size); err != nil {
+			err = fmt.Errorf("Error setting size: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_share", "read", "set-size").GetDiag()
+		}
+		if share.SourceShare != nil {
+			err = d.Set("source_share", dataSourceShareFlattenSourceShare(*share.SourceShare))
+			if err != nil {
+				err = fmt.Errorf("Error setting source_share: %s", err)
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_share", "read", "set-source_share").GetDiag()
+			}
+		}
+		if share.MountTargets != nil {
+			err = d.Set("share_targets", dataSourceShareFlattenTargets(share.MountTargets))
+			if err != nil {
+				err = fmt.Errorf("Error setting share_targets: %s", err)
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_share", "read", "set-share_targets").GetDiag()
+			}
+			err = d.Set("mount_targets", dataSourceShareFlattenTargets(share.MountTargets))
+			if err != nil {
+				err = fmt.Errorf("Error setting mount_targets: %s", err)
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_share", "read", "set-mount_targets").GetDiag()
+			}
+		}
+
+		if share.Zone != nil {
+			err = d.Set("zone", *share.Zone.Name)
+			if err != nil {
+				err = fmt.Errorf("Error setting zone: %s", err)
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_share", "read", "set-zone").GetDiag()
+			}
+		}
+		if err = d.Set("snapshot_count", flex.IntValue(share.SnapshotCount)); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting snapshot_count: %s", err), "(Data) ibm_is_share", "read", "set-snapshot_count").GetDiag()
+		}
+
+		if err = d.Set("snapshot_size", flex.IntValue(share.SnapshotSize)); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting snapshot_size: %s", err), "(Data) ibm_is_share", "read", "set-snapshot_size").GetDiag()
+		}
+		sourceSnapshot := []map[string]interface{}{}
+		if share.SourceSnapshot != nil {
+			modelMap, err := DataSourceIBMIsShareShareSourceSnapshotToMap(share.SourceSnapshot)
+			if err != nil {
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_share", "read", "source_snapshot-to-map").GetDiag()
+			}
+			sourceSnapshot = append(sourceSnapshot, modelMap)
+		}
+		if err = d.Set("source_snapshot", sourceSnapshot); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting source_snapshot: %s", err), "(Data) ibm_is_share", "read", "set-source_snapshot").GetDiag()
+		}
+		accesstags, err := flex.GetGlobalTagsUsingCRN(meta, *share.CRN, "", isAccessTagType)
+		if err != nil {
+			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting shares (%s) access tags: %s", d.Id(), err), "(Data) ibm_is_share", "read")
+			log.Printf(
+				"[ERROR] %s", tfErr.GetDebugMessage())
+		}
+
+		if share.UserTags != nil {
+			if err = d.Set(isFileShareTags, share.UserTags); err != nil {
+				tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting shares (%s) user tags: %s", d.Id(), err), "(Data) ibm_is_share", "read")
+				log.Printf(
+					"[ERROR] %s", tfErr.GetDebugMessage())
+			}
+		}
+
+		d.Set(isFileShareAccessTags, accesstags)
 	}
-
-	d.Set(isFileShareAccessTags, accesstags)
-
 	return nil
 }
 
@@ -1114,6 +1355,262 @@ func DataSourceIBMIsShareShareSourceSnapshotShareSnapshotReferenceToMap(model *v
 	return modelMap, nil
 }
 func DataSourceIBMIsShareDeletedToMap(model *vpcv1.Deleted) (map[string]interface{}, error) {
+	modelMap := make(map[string]interface{})
+	modelMap["more_info"] = *model.MoreInfo
+	return modelMap, nil
+}
+func dataSourceShareFlattenLatestJobBeta(result vpcbetav1.ShareJob) (finalList []map[string]interface{}) {
+	finalList = []map[string]interface{}{}
+	finalMap := dataSourceShareLatestJobToMapBeta(result)
+	finalList = append(finalList, finalMap)
+
+	return finalList
+}
+
+func dataSourceShareLatestJobToMapBeta(latestJobItem vpcbetav1.ShareJob) (latestJobMap map[string]interface{}) {
+	latestJobMap = map[string]interface{}{}
+
+	if latestJobItem.Status != nil {
+		latestJobMap["status"] = latestJobItem.Status
+	}
+	if latestJobItem.StatusReasons != nil {
+		statusReasonsList := []map[string]interface{}{}
+		for _, statusReasonsItem := range latestJobItem.StatusReasons {
+			statusReasonsList = append(statusReasonsList, dataSourceShareLatestJobStatusReasonsToMapBeta(statusReasonsItem))
+		}
+		latestJobMap["status_reasons"] = statusReasonsList
+	}
+	if latestJobItem.Type != nil {
+		latestJobMap["type"] = latestJobItem.Type
+	}
+
+	return latestJobMap
+}
+
+func dataSourceShareLatestJobStatusReasonsToMapBeta(statusReasonsItem vpcbetav1.ShareJobStatusReason) (statusReasonsMap map[string]interface{}) {
+	statusReasonsMap = map[string]interface{}{}
+
+	if statusReasonsItem.Code != nil {
+		statusReasonsMap["code"] = statusReasonsItem.Code
+	}
+	if statusReasonsItem.Message != nil {
+		statusReasonsMap["message"] = statusReasonsItem.Message
+	}
+	if statusReasonsItem.MoreInfo != nil {
+		statusReasonsMap["more_info"] = statusReasonsItem.MoreInfo
+	}
+
+	return statusReasonsMap
+}
+
+func dataSourceShareFlattenReplicaShareBeta(result vpcbetav1.ShareReference) (finalList []map[string]interface{}) {
+	finalList = []map[string]interface{}{}
+	finalMap := dataSourceShareReplicaShareToMapBeta(result)
+	finalList = append(finalList, finalMap)
+
+	return finalList
+}
+
+func dataSourceShareReplicaShareToMapBeta(replicaShareItem vpcbetav1.ShareReference) (replicaShareMap map[string]interface{}) {
+	replicaShareMap = map[string]interface{}{}
+
+	if replicaShareItem.CRN != nil {
+		replicaShareMap["crn"] = replicaShareItem.CRN
+	}
+	if replicaShareItem.Deleted != nil {
+		deletedList := []map[string]interface{}{}
+		deletedMap := dataSourceShareReplicaShareDeletedToMapBeta(*replicaShareItem.Deleted)
+		deletedList = append(deletedList, deletedMap)
+		replicaShareMap["deleted"] = deletedList
+	}
+	if replicaShareItem.Href != nil {
+		replicaShareMap["href"] = replicaShareItem.Href
+	}
+	if replicaShareItem.ID != nil {
+		replicaShareMap["id"] = replicaShareItem.ID
+	}
+	if replicaShareItem.Name != nil {
+		replicaShareMap["name"] = replicaShareItem.Name
+	}
+	if replicaShareItem.ResourceType != nil {
+		replicaShareMap["resource_type"] = replicaShareItem.ResourceType
+	}
+
+	return replicaShareMap
+}
+
+func dataSourceShareReplicaShareDeletedToMapBeta(deletedItem vpcbetav1.Deleted) (deletedMap map[string]interface{}) {
+	deletedMap = map[string]interface{}{}
+
+	if deletedItem.MoreInfo != nil {
+		deletedMap["more_info"] = deletedItem.MoreInfo
+	}
+
+	return deletedMap
+}
+
+func dataSourceShareFlattenReplicationStatusReasonsBeta(result []vpcbetav1.ShareReplicationStatusReason) (replicationStatusReasons []map[string]interface{}) {
+	for _, replicationStatusReasonsItem := range result {
+		replicationStatusReasons = append(replicationStatusReasons, dataSourceShareReplicationStatusReasonsToMapBeta(replicationStatusReasonsItem))
+	}
+
+	return replicationStatusReasons
+}
+
+func dataSourceShareReplicationStatusReasonsToMapBeta(replicationStatusReasonsItem vpcbetav1.ShareReplicationStatusReason) (replicationStatusReasonsMap map[string]interface{}) {
+	replicationStatusReasonsMap = map[string]interface{}{}
+
+	if replicationStatusReasonsItem.Code != nil {
+		replicationStatusReasonsMap["code"] = replicationStatusReasonsItem.Code
+	}
+	if replicationStatusReasonsItem.Message != nil {
+		replicationStatusReasonsMap["message"] = replicationStatusReasonsItem.Message
+	}
+	if replicationStatusReasonsItem.MoreInfo != nil {
+		replicationStatusReasonsMap["more_info"] = replicationStatusReasonsItem.MoreInfo
+	}
+
+	return replicationStatusReasonsMap
+}
+
+func dataSourceShareFlattenSourceShareBeta(result vpcbetav1.ShareReference) (finalList []map[string]interface{}) {
+	finalList = []map[string]interface{}{}
+	finalMap := dataSourceShareSourceShareToMapBeta(result)
+	finalList = append(finalList, finalMap)
+
+	return finalList
+}
+
+func dataSourceShareSourceShareToMapBeta(sourceShareItem vpcbetav1.ShareReference) (sourceShareMap map[string]interface{}) {
+	sourceShareMap = map[string]interface{}{}
+
+	if sourceShareItem.CRN != nil {
+		sourceShareMap["crn"] = sourceShareItem.CRN
+	}
+	if sourceShareItem.Deleted != nil {
+		deletedList := []map[string]interface{}{}
+		deletedMap := dataSourceShareSourceShareDeletedToMapBeta(*sourceShareItem.Deleted)
+		deletedList = append(deletedList, deletedMap)
+		sourceShareMap["deleted"] = deletedList
+	}
+	if sourceShareItem.Href != nil {
+		sourceShareMap["href"] = sourceShareItem.Href
+	}
+	if sourceShareItem.ID != nil {
+		sourceShareMap["id"] = sourceShareItem.ID
+	}
+	if sourceShareItem.Name != nil {
+		sourceShareMap["name"] = sourceShareItem.Name
+	}
+	if sourceShareItem.ResourceType != nil {
+		sourceShareMap["resource_type"] = sourceShareItem.ResourceType
+	}
+
+	return sourceShareMap
+}
+
+func dataSourceShareSourceShareDeletedToMapBeta(deletedItem vpcbetav1.Deleted) (deletedMap map[string]interface{}) {
+	deletedMap = map[string]interface{}{}
+
+	if deletedItem.MoreInfo != nil {
+		deletedMap["more_info"] = deletedItem.MoreInfo
+	}
+
+	return deletedMap
+}
+func dataSourceShareFlattenTargetsBeta(result []vpcbetav1.ShareMountTargetReference) (targets []map[string]interface{}) {
+	for _, targetsItem := range result {
+		targets = append(targets, dataSourceShareTargetsToMapBeta(targetsItem))
+	}
+
+	return targets
+}
+
+func dataSourceShareTargetsToMapBeta(targetsItem vpcbetav1.ShareMountTargetReference) (targetsMap map[string]interface{}) {
+	targetsMap = map[string]interface{}{}
+
+	if targetsItem.Deleted != nil {
+		deletedList := []map[string]interface{}{}
+		deletedMap := dataSourceShareTargetsDeletedToMapBeta(*targetsItem.Deleted)
+		deletedList = append(deletedList, deletedMap)
+		targetsMap["deleted"] = deletedList
+	}
+	if targetsItem.Href != nil {
+		targetsMap["href"] = targetsItem.Href
+	}
+	if targetsItem.ID != nil {
+		targetsMap["id"] = targetsItem.ID
+	}
+	if targetsItem.Name != nil {
+		targetsMap["name"] = targetsItem.Name
+	}
+	if targetsItem.ResourceType != nil {
+		targetsMap["resource_type"] = targetsItem.ResourceType
+	}
+
+	return targetsMap
+}
+
+func dataSourceShareTargetsDeletedToMapBeta(deletedItem vpcbetav1.Deleted) (deletedMap map[string]interface{}) {
+	deletedMap = map[string]interface{}{}
+
+	if deletedItem.MoreInfo != nil {
+		deletedMap["more_info"] = deletedItem.MoreInfo
+	}
+
+	return deletedMap
+}
+
+func DataSourceIBMIsShareShareSourceSnapshotToMapBeta(model vpcbetav1.ShareSourceSnapshotIntf) (map[string]interface{}, error) {
+	if _, ok := model.(*vpcbetav1.ShareSourceSnapshotShareSnapshotReference); ok {
+		return DataSourceIBMIsShareShareSourceSnapshotShareSnapshotReferenceToMapBeta(model.(*vpcbetav1.ShareSourceSnapshotShareSnapshotReference))
+	} else if _, ok := model.(*vpcbetav1.ShareSourceSnapshot); ok {
+		modelMap := make(map[string]interface{})
+		model := model.(*vpcbetav1.ShareSourceSnapshot)
+		if model.CRN != nil {
+			modelMap["crn"] = *model.CRN
+		}
+		if model.Deleted != nil {
+			deletedMap, err := DataSourceIBMIsShareDeletedToMapBeta(model.Deleted)
+			if err != nil {
+				return modelMap, err
+			}
+			modelMap["deleted"] = []map[string]interface{}{deletedMap}
+		}
+		if model.Href != nil {
+			modelMap["href"] = *model.Href
+		}
+		if model.ID != nil {
+			modelMap["id"] = *model.ID
+		}
+		if model.Name != nil {
+			modelMap["name"] = *model.Name
+		}
+		if model.ResourceType != nil {
+			modelMap["resource_type"] = *model.ResourceType
+		}
+		return modelMap, nil
+	} else {
+		return nil, fmt.Errorf("Unrecognized vpcv1.ShareSourceSnapshotIntf subtype encountered")
+	}
+}
+func DataSourceIBMIsShareShareSourceSnapshotShareSnapshotReferenceToMapBeta(model *vpcbetav1.ShareSourceSnapshotShareSnapshotReference) (map[string]interface{}, error) {
+	modelMap := make(map[string]interface{})
+	modelMap["crn"] = *model.CRN
+	if model.Deleted != nil {
+		deletedMap, err := DataSourceIBMIsShareDeletedToMapBeta(model.Deleted)
+		if err != nil {
+			return modelMap, err
+		}
+		modelMap["deleted"] = []map[string]interface{}{deletedMap}
+	}
+	modelMap["href"] = *model.Href
+	modelMap["id"] = *model.ID
+	modelMap["name"] = *model.Name
+	modelMap["resource_type"] = *model.ResourceType
+	return modelMap, nil
+}
+func DataSourceIBMIsShareDeletedToMapBeta(model *vpcbetav1.Deleted) (map[string]interface{}, error) {
 	modelMap := make(map[string]interface{})
 	modelMap["more_info"] = *model.MoreInfo
 	return modelMap, nil

@@ -552,7 +552,6 @@ func testAccCheckIBMIsShareTargetTransitEncryptionConfigIpsec(vpcName, sname, vn
 	}
 	resource "ibm_is_share" "is_share" {
 		access_control_mode = "security_group"
-		allowed_access_protocols = ["nfs4]
 		zone = "us-south-1"
 		size = 200
 		name = "%s"
