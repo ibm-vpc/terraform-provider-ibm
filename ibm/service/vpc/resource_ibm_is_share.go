@@ -60,6 +60,20 @@ func ResourceIbmIsShare() *schema.Resource {
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Description: "Allowed transit encryption modes",
 			},
+			"allowed_access_protocols": {
+				Type:          schema.TypeList,
+				Optional:      true,
+				Computed:      true,
+				Elem:          &schema.Schema{Type: schema.TypeString},
+				ConflictsWith: []string{"replica_share", "origin_share"},
+				Description:   "The access protocols to allow for this share",
+			},
+			"bandwidth": {
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Computed:    true,
+				Description: "The initial group identifier for the file share.",
+			},
 			"encryption_key": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -983,7 +997,7 @@ func ResourceIbmIsShare() *schema.Resource {
 }
 
 func ResourceIbmIsShareValidator() *validate.ResourceValidator {
-	allowed_transit_encryption_modes := "none, user_managed"
+	allowed_transit_encryption_modes := "none, user_managed, ipsec, stunnel"
 	validateSchema := make([]validate.ValidateSchema, 1)
 	validateSchema = append(validateSchema,
 		validate.ValidateSchema{
@@ -1059,13 +1073,32 @@ func resourceIbmIsShareCreate(context context.Context, d *schema.ResourceData, m
 		accessControlMode := accessControlModeIntf.(string)
 		sharePrototype.AccessControlMode = &accessControlMode
 	}
+	if allowedAccessProtocols, ok := d.GetOk("allowed_access_protocols"); ok {
+		allowedAccessProtocolsList := []string{}
+		for _, allowedAccessProtocolsIntf := range allowedAccessProtocols.([]interface{}) {
+			allowedAccessProtocolsList = append(allowedAccessProtocolsList, allowedAccessProtocolsIntf.(string))
+		}
+		sharePrototype.AllowedAccessProtocols = allowedAccessProtocolsList
+	} else {
+		allowedAccessProtocols := []string{"nfs4"}
+		sharePrototype.AllowedAccessProtocols = allowedAccessProtocols
+	}
+	if bandwidthIntf, bandwidthOk := d.GetOk("bandwidth"); bandwidthOk {
+		bandwidth := int64(bandwidthIntf.(int))
+		sharePrototype.Bandwidth = &bandwidth
+	}
 	if allowedTransitEncryptionModesIntf, ok := d.GetOk("allowed_transit_encryption_modes"); ok {
 		allowedTransitEncryptionModes := []string{}
-		for _, allowedTransitEncryptionModesItem := range allowedTransitEncryptionModesIntf.([]interface{}) {
-			allowedTransitEncryptionModes = append(allowedTransitEncryptionModes, allowedTransitEncryptionModesItem.(string))
+		for _, allowedTransitEncryptionModesItemIntf := range allowedTransitEncryptionModesIntf.([]interface{}) {
+			allowedTransitEncryptionModesItem := allowedTransitEncryptionModesItemIntf.(string)
+			if allowedTransitEncryptionModesItem == "user_managed" {
+				allowedTransitEncryptionModesItem = "ipsec"
+			}
+			allowedTransitEncryptionModes = append(allowedTransitEncryptionModes, allowedTransitEncryptionModesItem)
 		}
 		sharePrototype.AllowedTransitEncryptionModes = allowedTransitEncryptionModes
 	}
+
 	if encryptionKeyIntf, ok := d.GetOk("encryption_key"); ok {
 		encryptionKey := encryptionKeyIntf.(string)
 		encryptionKeyIdentity := &vpcv1.EncryptionKeyIdentity{
@@ -1365,6 +1398,14 @@ func resourceIbmIsShareRead(context context.Context, d *schema.ResourceData, met
 		if err = d.Set("access_control_mode", *share.AccessControlMode); err != nil {
 			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "set-access_control_mode").GetDiag()
 		}
+	}
+	if share.AllowedAccessProtocols != nil && len(share.AllowedAccessProtocols) > 0 {
+		if err = d.Set("allowed_access_protocols", *&share.AllowedAccessProtocols); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_share", "read", "set-allowed_access_protocols").GetDiag()
+		}
+	}
+	if err = d.Set("bandwidth", flex.IntValue(share.Bandwidth)); err != nil {
+		return diag.FromErr(fmt.Errorf("Error setting bandwidth: %s", err))
 	}
 	if !core.IsNil(share.AllowedTransitEncryptionModes) {
 		if err = d.Set("allowed_transit_encryption_modes", share.AllowedTransitEncryptionModes); err != nil {
@@ -1965,6 +2006,7 @@ func shareUpdate(vpcClient *vpcv1.VpcV1, context context.Context, d *schema.Reso
 
 	hasChange := false
 	hasSizeChanged := false
+	hasBandwidthChanged := false
 	sharePatchModel := &vpcv1.SharePatch{}
 	shareNameSchema := ""
 	shareIopsSchema := ""
@@ -2007,8 +2049,12 @@ func shareUpdate(vpcClient *vpcv1.VpcV1, context context.Context, d *schema.Reso
 			sharePatchModel.Size = &size
 			hasChange = true
 		}
-	}
-	if shareType == "share" {
+		if d.HasChange("bandwidth") {
+			bandwidth := int64(d.Get("bandwidth").(int))
+			hasBandwidthChanged = true
+			sharePatchModel.Bandwidth = &bandwidth
+			hasChange = true
+		}
 		if d.HasChange("access_control_mode") {
 			accessControlMode := d.Get("access_control_mode").(string)
 			if accessControlMode != "" {
@@ -2082,7 +2128,7 @@ func shareUpdate(vpcClient *vpcv1.VpcV1, context context.Context, d *schema.Reso
 			return err
 		}
 		updateShareOptions.SetSharePatch(sharePatch)
-		if hasSizeChanged {
+		if hasSizeChanged || hasBandwidthChanged {
 			_, err = isWaitForShareAvailable(context, vpcClient, d.Id(), d, d.Timeout(schema.TimeoutCreate))
 			if err != nil {
 				return err
