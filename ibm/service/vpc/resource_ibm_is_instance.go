@@ -7451,7 +7451,7 @@ func instanceUpdate(context context.Context, d *schema.ResourceData, meta interf
 			if err != nil {
 				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_instance", "update", "parse-availability").GetDiag()
 			}
-			updnetoptions.Availability = availability
+			instanceCCMPatchModel.Availability = availability
 			restartNeeded = true
 		}
 		if _, ok := d.GetOkExists("enable_secure_boot"); ok && d.HasChange("enable_secure_boot") {
