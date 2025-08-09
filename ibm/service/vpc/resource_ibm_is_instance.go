@@ -7434,7 +7434,7 @@ func instanceUpdate(context context.Context, d *schema.ResourceData, meta interf
 
 	}
 
-	if (d.HasChange(isInstanceName) || d.HasChange("availability") || d.HasChange("confidential_compute_mode") || d.HasChange("enable_secure_boot")) && !d.IsNewResource() {
+	if (d.HasChange(isInstanceName) || d.HasChange("availability") || d.HasChange("availability_policy") || d.HasChange("confidential_compute_mode") || d.HasChange("enable_secure_boot")) && !d.IsNewResource() {
 		restartNeeded := false
 		serverstopped := false
 		name := d.Get(isInstanceName).(string)
@@ -7452,6 +7452,14 @@ func instanceUpdate(context context.Context, d *schema.ResourceData, meta interf
 				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_instance", "update", "parse-availability").GetDiag()
 			}
 			instanceCCMPatchModel.Availability = availability
+			restartNeeded = true
+		}
+		if d.HasChange("availability_policy") {
+			availabilityPolicy, err := ResourceIBMIsInstanceMapToInstanceAvailabilityPolicyPatch(d.Get("availability_policy.0").(map[string]interface{}))
+			if err != nil {
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_instance", "update", "parse-availability_policy").GetDiag()
+			}
+			instanceCCMPatchModel.AvailabilityPolicy = availabilityPolicy
 			restartNeeded = true
 		}
 		if _, ok := d.GetOkExists("enable_secure_boot"); ok && d.HasChange("enable_secure_boot") {
@@ -9582,6 +9590,16 @@ func ResourceIBMIsInstanceInstanceAvailabilityPolicyToMap(model *vpcv1.InstanceA
 
 func ResourceIBMIsInstanceMapToInstanceAvailabilityPolicyPrototype(modelMap map[string]interface{}) (*vpcv1.InstanceAvailabilityPolicyPrototype, error) {
 	model := &vpcv1.InstanceAvailabilityPolicyPrototype{}
+	if modelMap["preemption"] != nil && modelMap["preemption"].(string) != "" {
+		model.Preemption = core.StringPtr(modelMap["preemption"].(string))
+	}
+	return model, nil
+}
+func ResourceIBMIsInstanceMapToInstanceAvailabilityPolicyPatch(modelMap map[string]interface{}) (*vpcv1.InstanceAvailabilityPolicyPatch, error) {
+	model := &vpcv1.InstanceAvailabilityPolicyPatch{}
+	if modelMap["host_failure"] != nil && modelMap["host_failure"].(string) != "" {
+		model.HostFailure = core.StringPtr(modelMap["host_failure"].(string))
+	}
 	if modelMap["preemption"] != nil && modelMap["preemption"].(string) != "" {
 		model.Preemption = core.StringPtr(modelMap["preemption"].(string))
 	}
