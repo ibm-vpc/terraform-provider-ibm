@@ -505,7 +505,7 @@ func vpngwconCreate(context context.Context, d *schema.ResourceData, meta interf
 			log.Println("[INFO] inside local cidrs block")
 			localCidrs := flex.ExpandStringList((d.Get(isVPNGatewayConnectionLocalCIDRS).(*schema.Set)).List())
 			model := &vpcv1.VPNGatewayConnectionPolicyModeLocalPrototype{}
-			model.CIDRs = localCidrs
+			model.Cidrs = localCidrs
 			vpnGatewayConnectionPrototypeModel.Local = model
 		}
 		if peerOk, ok := d.GetOk("peer"); ok && len(peerOk.([]interface{})) > 0 {
@@ -518,7 +518,7 @@ func vpngwconCreate(context context.Context, d *schema.ResourceData, meta interf
 			model := &vpcv1.VPNGatewayConnectionPolicyModePeerPrototype{}
 			if ok {
 				peerCidrs := flex.ExpandStringList((d.Get(isVPNGatewayConnectionPeerCIDRS).(*schema.Set)).List())
-				model.CIDRs = peerCidrs
+				model.Cidrs = peerCidrs
 			}
 			if peerAddress != "" {
 				model.Address = &peerAddress
@@ -1151,7 +1151,7 @@ func resourceIBMIsVPNGatewayConnectionMapToVPNGatewayConnectionPolicyModeLocalPr
 	}
 	if modelMap["cidrs"] != nil && modelMap["cidrs"].(*schema.Set).Len() > 0 {
 		localCidrs := flex.ExpandStringList((modelMap["cidrs"].(*schema.Set)).List())
-		model.CIDRs = localCidrs
+		model.Cidrs = localCidrs
 	}
 	return model, nil
 }
@@ -1197,7 +1197,7 @@ func resourceIBMIsVPNGatewayConnectionMapToVPNGatewayConnectionPolicyModePeerPro
 	}
 	if modelMap["cidrs"] != nil && modelMap["cidrs"].(*schema.Set).Len() > 0 {
 		peerCidrs := flex.ExpandStringList((modelMap["cidrs"].(*schema.Set)).List())
-		model.CIDRs = peerCidrs
+		model.Cidrs = peerCidrs
 	}
 	return model, nil
 }
@@ -1859,8 +1859,8 @@ func setvpnGatewayConnectionIntfResource(context context.Context, d *schema.Reso
 					err = fmt.Errorf("Error setting peer_address: %s", err)
 					return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_vpn_gateway_connection", "read", "set-peer_address").GetDiag()
 				}
-				if len(peer.CIDRs) > 0 {
-					err = d.Set("peer_cidrs", peer.CIDRs)
+				if len(peer.Cidrs) > 0 {
+					err = d.Set("peer_cidrs", peer.Cidrs)
 					if err != nil {
 						err = fmt.Errorf("Error setting peer_cidrs: %s", err)
 						return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_vpn_gateway_connection", "read", "set-peer_cidrs").GetDiag()
@@ -1886,8 +1886,8 @@ func setvpnGatewayConnectionIntfResource(context context.Context, d *schema.Reso
 			// Deprecated
 			if vpnGatewayConnection.Local != nil {
 				local := vpnGatewayConnection.Local
-				if len(local.CIDRs) > 0 {
-					err = d.Set("local_cidrs", local.CIDRs)
+				if len(local.Cidrs) > 0 {
+					err = d.Set("local_cidrs", local.Cidrs)
 					if err != nil {
 						err = fmt.Errorf("Error setting local_cidrs: %s", err)
 						return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_vpn_gateway_connection", "read", "set-local_cidrs").GetDiag()

@@ -52,12 +52,12 @@ func dataSourceIBMIsVPNGatewayConnectionLocalCidrsRead(context context.Context, 
 		return tfErr.GetDiag()
 	}
 
-	listVPNGatewayConnectionsLocalCidrsOptions := &vpcv1.ListVPNGatewayConnectionsLocalCIDRsOptions{}
+	listVPNGatewayConnectionsLocalCidrsOptions := &vpcv1.ListVPNGatewayConnectionsLocalCidrsOptions{}
 
 	listVPNGatewayConnectionsLocalCidrsOptions.SetVPNGatewayID(d.Get("vpn_gateway").(string))
 	listVPNGatewayConnectionsLocalCidrsOptions.SetID(d.Get("vpn_gateway_connection").(string))
 
-	vpnGatewayConnectionCidRs, _, err := vpcClient.ListVPNGatewayConnectionsLocalCIDRsWithContext(context, listVPNGatewayConnectionsLocalCidrsOptions)
+	vpnGatewayConnectionCidRs, _, err := vpcClient.ListVPNGatewayConnectionsLocalCidrsWithContext(context, listVPNGatewayConnectionsLocalCidrsOptions)
 	if err != nil {
 		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("ListVPNGatewayConnectionsLocalCIDRsWithContext failed %s", err), "(Data) ibm_is_vpn_gateway_connection_local_cidrs", "read")
 		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
@@ -65,7 +65,7 @@ func dataSourceIBMIsVPNGatewayConnectionLocalCidrsRead(context context.Context, 
 	}
 	d.SetId(dataSourceIBMIsVPNGatewayConnectionLocalCidrsID(d))
 
-	if err = d.Set("cidrs", vpnGatewayConnectionCidRs.CIDRs); err != nil {
+	if err = d.Set("cidrs", vpnGatewayConnectionCidRs.Cidrs); err != nil {
 		return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting cidrs %s", err), "(Data) ibm_is_vpn_gateway_connection_local_cidrs", "read", "cidrs-set").GetDiag()
 	}
 
