@@ -269,13 +269,13 @@ func DataSourceIBMISVPNGateway() *schema.Resource {
 			},
 			isVPNGatewayLocalAsn: {
 				Type:        schema.TypeInt,
-				Optional:    true,
+				Computed:    true,
 				Description: "The local autonomous system number (ASN) for this VPN gateway and its connections.",
 			},
 
 			isVPNGatewayAdvertisedCidrs: {
 				Type:        schema.TypeList,
-				Optional:    true,
+				Computed:    true,
 				Description: "The additional CIDRs advertised through any enabled routing protocol (for example, BGP). The routing protocol will advertise routes with these CIDRs and VPC prefixes as route destinations.",
 				Elem: &schema.Schema{
 					Type: schema.TypeString,

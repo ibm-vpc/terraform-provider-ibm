@@ -200,6 +200,12 @@ func DataSourceIBMISVPNGatewayConnections() *schema.Resource {
 										Computed:    true,
 										Description: "The FQDN of the peer VPN gateway for this connection.",
 									},
+									"asn": &schema.Schema{
+										Type:        schema.TypeInt,
+										Optional:    true,
+										Computed:    true,
+										Description: "The peer autonomous system number (ASN) for this VPN gateway connection.",
+									},
 								},
 							},
 						},

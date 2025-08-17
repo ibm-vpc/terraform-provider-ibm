@@ -12,6 +12,7 @@ import (
 
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/validate"
+	"github.com/IBM/go-sdk-core/v5/core"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -687,9 +688,11 @@ func vpngwUpdate(d *schema.ResourceData, meta interface{}, id string, hasChanged
 	}
 
 	if d.HasChange(isVPNGatewayLocalAsn) {
-		localAsn := d.Get(isVPNGatewayLocalAsn).(int64)
-		vpnGatewayPatchModel.LocalAsn = &localAsn
-		hasChanged = true
+		if localAsnIntf, ok := d.GetOk(isVPNGatewayLocalAsn); ok {
+			localAsn := core.Int64Ptr(int64(localAsnIntf.(int)))
+			vpnGatewayPatchModel.LocalAsn = localAsn
+			hasChanged = true
+		}
 	}
 
 	if hasChanged {

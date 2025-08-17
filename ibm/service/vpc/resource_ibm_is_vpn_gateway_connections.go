@@ -920,6 +920,17 @@ func vpngwconUpdate(d *schema.ResourceData, meta interface{}, gID, gConnID strin
 
 	if d.HasChange("tunnel") {
 		log.Println("[INFO] inside tunnel block")
+		options := &vpcv1.GetVPNGatewayConnectionOptions{
+			VPNGatewayID: &gID,
+			ID:           &gConnID,
+		}
+		_, response, err := sess.GetVPNGatewayConnection(options)
+		if err != nil {
+			return fmt.Errorf("[ERROR] Error getting vpn conncetion: %s\n%s", err, response)
+		}
+		eTag := response.Headers.Get("ETag")
+		updateVpnGatewayConnectionOptions.IfMatch = &eTag
+
 		tunnelModels := []vpcv1.VPNGatewayConnectionTunnel{}
 		tunnelOk, _ := d.GetOk("tunnel")
 		for _, tunnelItem := range tunnelOk.([]interface{}) {
@@ -1329,8 +1340,9 @@ func resourceIBMIsVPNGatewayConnectionMapToVPNGatewayConnectionPeerPatch(modelMa
 	if modelMap["fqdn"] != nil && modelMap["fqdn"].(string) != "" {
 		model.Fqdn = core.StringPtr(modelMap["fqdn"].(string))
 	}
-	if modelMap["asn"] != nil && modelMap["asn"].(string) != "" {
-		model.Asn = core.Int64Ptr(modelMap["asn"].(int64))
+	if modelMap["asn"] != nil {
+		localAsn := core.Int64Ptr(int64(modelMap["asn"].(int)))
+		model.Asn = localAsn
 	}
 	return model, nil
 }
@@ -1768,7 +1780,7 @@ func setvpnGatewayConnectionIntfResource(d *schema.ResourceData, vpn_gateway_id 
 			}
 			if !core.IsNil(vpnGatewayConnection.DistributeTraffic) {
 				if err = d.Set("distribute_traffic", vpnGatewayConnection.DistributeTraffic); err != nil {
-					return fmt.Errorf("Error setting distribute_traffic: %s", err)
+					return fmt.Errorf("[ERROR] setting distribute_traffic: %s", err)
 				}
 			}
 			if vpnGatewayConnection.DeadPeerDetection != nil {

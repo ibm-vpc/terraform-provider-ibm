@@ -281,6 +281,12 @@ func DataSourceIBMISVPNGatewayConnection() *schema.Resource {
 								Type: schema.TypeString,
 							},
 						},
+						"asn": &schema.Schema{
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Computed:    true,
+							Description: "The peer autonomous system number (ASN) for this VPN gateway connection.",
+						},
 					},
 				},
 			},
