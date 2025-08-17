@@ -17,7 +17,7 @@ require (
 	github.com/IBM/continuous-delivery-go-sdk/v2 v2.0.3
 	github.com/IBM/event-notifications-go-admin-sdk v0.15.0
 	github.com/IBM/eventstreams-go-sdk v1.4.0
-	github.com/IBM/go-sdk-core/v5 v5.20.1
+	github.com/IBM/go-sdk-core/v5 v5.21.0
 	github.com/IBM/ibm-backup-recovery-sdk-go v1.0.3
 	github.com/IBM/ibm-cos-sdk-go v1.12.2
 	github.com/IBM/ibm-cos-sdk-go-config/v2 v2.3.0
