@@ -96,7 +96,7 @@ if [ "${TF_DEV}x" = "x" ]; then
         echo "--> ${OSARCH}"
 
         pushd $PLATFORM >/dev/null 2>&1
-        zip ../${ZIPNAME}.zip ./*
+        zip ../${OSARCH}.zip ./*
         popd >/dev/null 2>&1
     done
 fi
