@@ -192,6 +192,11 @@ You can access the following attribute references after your data source is crea
       - `default` - (String) The default VCPU architecture for an instance with this profile.
       - `type` - (String) The type for this profile field.
       - `value` - (String) The VCPU architecture for an instance with this profile.
+  - `vcpu_burst_limit` - (List) The permitted value for VCPU burst limit percentage for an instance with this profile.
+	    
+        Nested schema for **vcpu_burst_limit**:
+		- `type` - (String) The type for this profile field.
+		- `value` - (Integer) The value for this profile field.
   - `vcpu_count` - (List) Nested `vcpu_count` blocks have the following structure:
 
       Nested scheme for `vcpu_count`:
@@ -204,7 +209,19 @@ You can access the following attribute references after your data source is crea
       - `values` - (String) The permitted values for this profile field.
   - `vcpu_manufacturer` - (List) Nested `vcpu_manufacturer` blocks have the following structure:
 
-    Nested scheme for `vcpu_manufacturer`:
-    - `default` - (String) The default VCPU manufacturer for an instance with this profile.
-    - `type` - (String) The type for this profile field.
-    - `value` - (String) The VCPU manufacturer for an instance with this profile.
+        Nested scheme for `vcpu_manufacturer`:
+        - `default` - (String) The default VCPU manufacturer for an instance with this profile.
+        - `type` - (String) The type for this profile field.
+        - `value` - (String) The VCPU manufacturer for an instance with this profile.
+    - `vcpu_percentage` - (List) The permitted values for VCPU percentage for an instance with this profile.
+	    
+        Nested schema for **vcpu_percentage**:
+		- `default` - (Integer) The default value for this profile field.
+		- `type` - (String) The type for this profile field. 
+		- `values` - (List) The permitted values for this profile field.
+  - `vcpu_tenancy` - (List) The permitted values for VCPU tenancy for an instance with this profile.
+	    
+        Nested schema for **vcpu_tenancy**:
+		- `default` - (String) Indicates the tenancy of the VCPU cores for this virtual server instance.- `dedicated` - The VCPU time is only used by this virtual server instance.- `shared` - The VCPU time is shared across virtual server instances.The enumerated values for this property may[expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future. Allowable values are: `dedicated`, `shared`.
+		- `type` - (String) The type for this profile field.
+		- `values` - (List) The permitted values for this profile field. Allowable list items are: `dedicated`, `shared`. 
