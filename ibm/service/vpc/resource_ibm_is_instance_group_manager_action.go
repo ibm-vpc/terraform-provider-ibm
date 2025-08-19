@@ -9,6 +9,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/conns"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/validate"
 	"github.com/IBM/go-sdk-core/v5/core"
@@ -274,6 +275,10 @@ func resourceIBMISInstanceGroupManagerActionCreate(context context.Context, d *s
 
 	instanceGroupManagerActionOptions.InstanceGroupManagerActionPrototype = &instanceGroupManagerActionPrototype
 
+	isInsGrpKey := "Instance_Group_Key_" + instanceGroupID
+	conns.IbmMutexKV.Lock(isInsGrpKey)
+	defer conns.IbmMutexKV.Unlock(isInsGrpKey)
+
 	_, healthError := waitForHealthyInstanceGroup(instanceGroupID, meta, d.Timeout(schema.TimeoutCreate))
 	if healthError != nil {
 		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("waitForHealthyInstanceGroup failed: %s", err.Error()), "ibm_is_instance_group_manager_action", "create")
@@ -374,6 +379,10 @@ func resourceIBMISInstanceGroupManagerActionUpdate(context context.Context, d *s
 			return tfErr.GetDiag()
 		}
 		updateInstanceGroupManagerActionOptions.InstanceGroupManagerActionPatch = instanceGroupManagerActionPatch
+
+		isInsGrpKey := "Instance_Group_Key_" + instanceGroupID
+		conns.IbmMutexKV.Lock(isInsGrpKey)
+		defer conns.IbmMutexKV.Unlock(isInsGrpKey)
 
 		_, healthError := waitForHealthyInstanceGroup(instanceGroupID, meta, d.Timeout(schema.TimeoutUpdate))
 		if healthError != nil {
@@ -540,6 +549,10 @@ func resourceIBMISInstanceGroupManagerActionDelete(context context.Context, d *s
 	deleteInstanceGroupManagerActionOptions.InstanceGroupID = &instanceGroupID
 	deleteInstanceGroupManagerActionOptions.InstanceGroupManagerID = &instancegroupmanagerscheduledID
 	deleteInstanceGroupManagerActionOptions.ID = &instanceGroupManagerActionID
+
+	isInsGrpKey := "Instance_Group_Key_" + instanceGroupID
+	conns.IbmMutexKV.Lock(isInsGrpKey)
+	defer conns.IbmMutexKV.Unlock(isInsGrpKey)
 
 	_, healthError := waitForHealthyInstanceGroup(instanceGroupID, meta, d.Timeout(schema.TimeoutDelete))
 	if healthError != nil {
