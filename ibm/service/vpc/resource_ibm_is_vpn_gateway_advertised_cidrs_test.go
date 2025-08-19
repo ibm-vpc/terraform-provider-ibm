@@ -20,8 +20,8 @@ import (
 func TestAccIBMISVPNGatewayAdvertisedCidr_basic(t *testing.T) {
 	var advertisedCidr string
 
-	vpcname := fmt.Sprintf("tfsg-vpc-%d", acctest.RandIntRange(10, 100))
-	subnetname := fmt.Sprintf("tfsg-subnet-%d", acctest.RandIntRange(10, 100))
+	vpcname := fmt.Sprintf("tf-vpc-%d", acctest.RandIntRange(10, 100))
+	subnetname := fmt.Sprintf("tf-subnet-%d", acctest.RandIntRange(10, 100))
 	vpnname := fmt.Sprintf("tfvpngc-vpn-%d", acctest.RandIntRange(10, 100))
 
 	resource.Test(t, resource.TestCase{
@@ -32,9 +32,7 @@ func TestAccIBMISVPNGatewayAdvertisedCidr_basic(t *testing.T) {
 			{
 				Config: testAccCheckIBMISVPNGatewayAdvertisedCidrConfig(vpcname, subnetname, vpnname),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckIBMISVPNGatewayAdvertisedCidrExists("ibm_is_vpn_gateway_advertised_cidr.VPNGatewayAdvertisedCidr", &advertisedCidr),
-					// resource.TestCheckResourceAttrSet(
-					// 	"ibm_is_vpn_gateway_advertised_cidr.VPNGatewayAdvertisedCidr", "advertised_cidrs"),
+					testAccCheckIBMISVPNGatewayAdvertisedCidrExists("ibm_is_vpn_gateway_advertised_cidr.example", &advertisedCidr),
 				),
 			},
 		},
@@ -113,27 +111,30 @@ func testAccCheckIBMISVPNGatewayAdvertisedCidrExists(n string, advertisedCidr *s
 
 func testAccCheckIBMISVPNGatewayAdvertisedCidrConfig(vpcname, subnetname, vpnname string) string {
 	return fmt.Sprintf(`
-		resource "ibm_is_vpc" "testacc_vpc1" {
-		name = "%s"
-		}
-
-		resource "ibm_is_subnet" "testacc_subnet1" {
+	  resource "ibm_is_vpc" "example" {
+		 name = "%s"
+	  }
+	  resource "ibm_is_subnet" "example" {
 		name            = "%s"
-		vpc             = ibm_is_vpc.testacc_vpc1.id
+		vpc             = ibm_is_vpc.example.id
 		zone            = "%s"
 		ipv4_cidr_block = "%s"
-		}
-		resource "ibm_is_vpn_gateway" "testacc_VPNGateway1" {
+	  
+	  }
+	  resource "ibm_is_vpn_gateway" "example" {
 		name   = "%s"
-		subnet = ibm_is_subnet.testacc_subnet1.id
-		timeouts {
-			create = "18m"
-			delete = "18m"
-		}
-		}
-		resource "ibm_is_vpn_gateway_advertised_cidr" "VPNGatewayAdvertisedCidr" {
-		vpn_gateway = ibm_is_vpn_gateway.testacc_VPNGateway1.id
-		cidr        = "10.45.0.0/24"
-	}`, vpcname, subnetname, acc.ISZoneName, acc.ISCIDR, vpnname)
+		subnet = ibm_is_subnet.example.id
+		mode   = "route"
+		local_asn = 64520
+		lifecycle {
+			ignore_changes = [
+				advertised_cidrs
+			]
+  		}
+	  }
+	  resource "ibm_is_vpn_gateway_advertised_cidr" "example" {
+		vpn_gateway = ibm_is_vpn_gateway.example.id
+		cidr        = "10.45.0.0/25"
+	  }`, vpcname, subnetname, acc.ISZoneName, acc.ISCIDR, vpnname)
 
 }
