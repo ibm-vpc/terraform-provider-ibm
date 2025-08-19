@@ -30,7 +30,7 @@ You can specify the following arguments for this resource.
 - `cluster_network_id` - (Required, Forces new resource, String) The cluster network identifier.
 - `ip_version` - (Optional, String) The IP version for this cluster network subnet.The enumerated values for this property may[expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future. Allowable values are: `ipv4`.
 - `ipv4_cidr_block` - (Optional, String) The IPv4 range of this cluster network subnet, expressed in CIDR format.
-- `isolation_group` - (Optional, Integer) The isolation group for the cluster network subnet.The specified value must not exceed the cluster network's profile's       isolation_group_count.
+- `isolation_group` - (Optional, Integer) The isolation group for the cluster network subnet.The specified value must not exceed the cluster network's profile's isolation_group_count.
 - `name` - (Optional, String) The name for this cluster network subnet. The name is unique across all cluster network subnets in the cluster network.
 - `total_ipv4_address_count` - (Optional, Integer) The total number of IPv4 addresses in this cluster network subnet.Note: This is calculated as 2<sup>(32 - prefix length)
 </sup>. For example, the prefix length `/24` gives:<br> 2<sup>(32 - 24)</sup> = 2<sup>8</sup> = 256 addresses.
@@ -42,7 +42,7 @@ After your resource is created, you can read values from the listed arguments an
 
 - `id` - The unique identifier of the ClusterNetworkSubnet.
 - `available_ipv4_address_count` - (Integer) The number of IPv4 addresses in this cluster network subnet that are not in use, and have not been reserved by the user or the provider.
-- `isolation_group` - (Optional, Integer) The isolation group for the cluster network subnet.The specified value must not exceed the cluster network's profile's 
+- `isolation_group` - (Integer) The isolation group for the cluster network subnet.
 - `created_at` - (String) The date and time that the cluster network subnet was created.
 - `href` - (String) The URL for this cluster network subnet.
 - `cluster_network_subnet_id` - (String) The unique identifier for this cluster network subnet.

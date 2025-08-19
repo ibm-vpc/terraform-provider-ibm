@@ -78,7 +78,7 @@ func ResourceIBMIsClusterNetworkSubnet() *schema.Resource {
 			},
 			"isolation_group": &schema.Schema{
 				Type:        schema.TypeInt,
-				Computed:    true,
+				Optional:    true,
 				Description: "The isolation group for the cluster network subnet.The value will not be greater than the cluster network profile's isolation_group_count.",
 			},
 			"href": &schema.Schema{
