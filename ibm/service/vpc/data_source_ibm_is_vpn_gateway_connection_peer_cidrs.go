@@ -51,20 +51,20 @@ func dataSourceIBMIsVPNGatewayConnectionPeerCidrsRead(context context.Context, d
 		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
 		return tfErr.GetDiag()
 	}
-	listVPNGatewayConnectionsPeerCidrsOptions := &vpcv1.ListVPNGatewayConnectionsPeerCidrsOptions{}
+	listVPNGatewayConnectionsPeerCidrsOptions := &vpcv1.ListVPNGatewayConnectionsPeerCIDRsOptions{}
 
 	listVPNGatewayConnectionsPeerCidrsOptions.SetVPNGatewayID(d.Get("vpn_gateway").(string))
 	listVPNGatewayConnectionsPeerCidrsOptions.SetID(d.Get("vpn_gateway_connection").(string))
 
-	vpnGatewayConnectionCidRs, _, err := vpcClient.ListVPNGatewayConnectionsPeerCidrsWithContext(context, listVPNGatewayConnectionsPeerCidrsOptions)
+	vpnGatewayConnectionCidRs, _, err := vpcClient.ListVPNGatewayConnectionsPeerCIDRsWithContext(context, listVPNGatewayConnectionsPeerCidrsOptions)
 	if err != nil {
 		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("ListVPNGatewayConnectionsPeerCIDRsWithContext failed %s", err), "(Data) ibm_is_vpn_gateway_connection_peer_cidrs", "read")
 		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
 		return tfErr.GetDiag()
 	}
 	d.SetId(dataSourceIBMIsVPNGatewayConnectionPeerCidrsID(d))
-	d.Set("cidrs", vpnGatewayConnectionCidRs.Cidrs)
-	if err = d.Set("cidrs", vpnGatewayConnectionCidRs.Cidrs); err != nil {
+	d.Set("cidrs", vpnGatewayConnectionCidRs.CIDRs)
+	if err = d.Set("cidrs", vpnGatewayConnectionCidRs.CIDRs); err != nil {
 		return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting cidrs %s", err), "(Data) ibm_is_vpn_gateway_connection_peer_cidrs", "read", "cidrs-set").GetDiag()
 	}
 	return nil

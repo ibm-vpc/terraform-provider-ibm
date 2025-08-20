@@ -569,8 +569,8 @@ func getvpnGatewayConnectionIntfData(vpnGatewayConnectionIntf vpcv1.VPNGatewayCo
 			if vpnGatewayConnection.Peer != nil {
 				peer := vpnGatewayConnection.Peer.(*vpcv1.VPNGatewayConnectionPolicyModePeer)
 				gatewayconnection["peer_address"] = peer.Address
-				if len(peer.Cidrs) > 0 {
-					gatewayconnection["peer_cidrs"] = peer.Cidrs
+				if len(peer.CIDRs) > 0 {
+					gatewayconnection["peer_cidrs"] = peer.CIDRs
 				}
 			}
 			gatewayconnection["psk"] = vpnGatewayConnection.Psk
@@ -580,8 +580,8 @@ func getvpnGatewayConnectionIntfData(vpnGatewayConnectionIntf vpcv1.VPNGatewayCo
 			// Deprecated
 			if vpnGatewayConnection.Local != nil {
 				local := vpnGatewayConnection.Local
-				if len(local.Cidrs) > 0 {
-					gatewayconnection["local_cidrs"] = local.Cidrs
+				if len(local.CIDRs) > 0 {
+					gatewayconnection["local_cidrs"] = local.CIDRs
 				}
 			}
 

@@ -897,8 +897,8 @@ func setvpnGatewayConnectionIntfDatasourceData(d *schema.ResourceData, vpn_gatew
 				if err = d.Set("peer_address", peer.Address); err != nil {
 					return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting peer_address: %s", err), "(Data) ibm_is_vpn_gateway_connection", "read", "set-peer_address").GetDiag()
 				}
-				if len(peer.Cidrs) > 0 {
-					err = d.Set("peer_cidrs", peer.Cidrs)
+				if len(peer.CIDRs) > 0 {
+					err = d.Set("peer_cidrs", peer.CIDRs)
 					if err != nil {
 						return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting peer_cidrs: %s", err), "(Data) ibm_is_vpn_gateway_connection", "read", "set-peer_cidrs").GetDiag()
 					}
@@ -919,8 +919,8 @@ func setvpnGatewayConnectionIntfDatasourceData(d *schema.ResourceData, vpn_gatew
 			// Deprecated
 			if vpnGatewayConnection.Local != nil {
 				local := vpnGatewayConnection.Local
-				if len(local.Cidrs) > 0 {
-					err = d.Set("local_cidrs", local.Cidrs)
+				if len(local.CIDRs) > 0 {
+					err = d.Set("local_cidrs", local.CIDRs)
 					if err != nil {
 						return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting local_cidrs: %s", err), "(Data) ibm_is_vpn_gateway_connection", "read", "set-local_cidrs").GetDiag()
 					}
@@ -1099,7 +1099,7 @@ func dataSourceIBMIsVPNGatewayConnectionVPNGatewayConnectionPolicyModeLocalToMap
 		ikeIdentities = append(ikeIdentities, ikeIdentitiesItemMap)
 	}
 	modelMap["ike_identities"] = ikeIdentities
-	modelMap["cidrs"] = model.Cidrs
+	modelMap["cidrs"] = model.CIDRs
 	return modelMap, nil
 }
 
@@ -1197,8 +1197,8 @@ func dataSourceIBMIsVPNGatewayConnectionVPNGatewayConnectionPolicyModePeerToMap(
 		if model.Fqdn != nil {
 			modelMap["fqdn"] = model.Fqdn
 		}
-		if model.Cidrs != nil {
-			modelMap["cidrs"] = model.Cidrs
+		if model.CIDRs != nil {
+			modelMap["cidrs"] = model.CIDRs
 		}
 		return modelMap, nil
 	} else {
@@ -1226,8 +1226,8 @@ func dataSourceIBMIsVPNGatewayConnectionVPNGatewayConnectionPolicyModePeerVPNGat
 	modelMap["ike_identity"] = []map[string]interface{}{ikeIdentityMap}
 	modelMap["type"] = model.Type
 	modelMap["address"] = model.Address
-	if model.Cidrs != nil {
-		modelMap["cidrs"] = model.Cidrs
+	if model.CIDRs != nil {
+		modelMap["cidrs"] = model.CIDRs
 	}
 	return modelMap, nil
 }
@@ -1251,8 +1251,8 @@ func dataSourceIBMIsVPNGatewayConnectionVPNGatewayConnectionPolicyModePeerVPNGat
 	modelMap["ike_identity"] = []map[string]interface{}{ikeIdentityMap}
 	modelMap["type"] = model.Type
 	modelMap["fqdn"] = model.Fqdn
-	if model.Cidrs != nil {
-		modelMap["cidrs"] = model.Cidrs
+	if model.CIDRs != nil {
+		modelMap["cidrs"] = model.CIDRs
 	}
 	return modelMap, nil
 }
