@@ -2605,7 +2605,10 @@ func bareMetalServerGet(context context.Context, d *schema.ResourceData, meta in
 			metadataServiceMap[isBareMetalServerMetadataServiceProtocol] = *bms.MetadataService.Protocol
 		}
 		metadataServiceList = append(metadataServiceList, metadataServiceMap)
-		d.Set(isBareMetalServerMetadataService, metadataServiceList)
+		if err = d.Set(isBareMetalServerMetadataService, metadataServiceList); err != nil {
+			err = fmt.Errorf("Error setting metadata_service: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_bare_metal_server", "read", "set-metadata_service").GetDiag()
+		}
 	}
 
 	if !core.IsNil(bms.PrimaryNetworkAttachment) {
