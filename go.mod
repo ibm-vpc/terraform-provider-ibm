@@ -17,7 +17,7 @@ require (
 	github.com/IBM/continuous-delivery-go-sdk/v2 v2.0.6
 	github.com/IBM/event-notifications-go-admin-sdk v0.18.0
 	github.com/IBM/eventstreams-go-sdk v1.4.0
-	github.com/IBM/go-sdk-core/v5 v5.20.1
+	github.com/IBM/go-sdk-core/v5 v5.21.0
 	github.com/IBM/ibm-backup-recovery-sdk-go v1.0.3
 	github.com/IBM/ibm-cos-sdk-go v1.12.2
 	github.com/IBM/ibm-cos-sdk-go-config/v2 v2.3.0
@@ -230,6 +230,8 @@ replace github.com/softlayer/softlayer-go v1.0.3 => github.com/IBM-Cloud/softlay
 
 // add sdk changes.
 replace github.com/portworx/sched-ops v0.0.0-20200831185134-3e8010dc7056 => github.com/portworx/sched-ops v0.20.4-openstorage-rc3 // required by rook v1.7
+
+replace github.com/IBM/vpc-go-sdk v0.70.1 => ./common/github.com/IBM/vpc-go-sdk
 
 replace github.com/hashicorp/consul/api v1.1.0 => github.com/hashicorp/consul/api v1.30.0
 
