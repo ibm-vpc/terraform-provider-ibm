@@ -691,7 +691,7 @@ func ResourceIBMIsShareSnapshotShareSnapshotStatusReasonToMap(model *vpcv1.Share
 	return modelMap, nil
 }
 
-func ResourceIBMIsShareSnapshotZoneReferenceToMap(model *vpcv1.ZoneReference) (map[string]interface{}, error) {
+func ResourceIBMIsShareSnapshotZoneReferenceToMap(model *vpcv1.ShareSnapshotZone) (map[string]interface{}, error) {
 	modelMap := make(map[string]interface{})
 	modelMap["href"] = *model.Href
 	modelMap["name"] = *model.Name
