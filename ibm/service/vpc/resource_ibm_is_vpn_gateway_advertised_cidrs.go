@@ -27,7 +27,6 @@ func ResourceIBMISVPNGatewayAdvertisedCidr() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceIBMISVPNGatewayAdvertisedCidrCreate,
 		ReadContext:   resourceIBMISVPNGatewayAdvertisedCidrRead,
-		UpdateContext: resourceIBMISVPNGatewayAdvertisedCidrCreate,
 		DeleteContext: resourceIBMISVPNGatewayAdvertisedCidrDelete,
 
 		Importer: &schema.ResourceImporter{},
