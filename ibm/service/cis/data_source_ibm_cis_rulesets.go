@@ -33,6 +33,12 @@ const (
 	CISRulesetsRuleActionParametersResponseContent     = "content"
 	CISRulesetsRuleActionParametersResponseContentType = "content_type"
 	CISRulesetsRuleActionParametersResponseStatusCode  = "status_code"
+	CISRulesetsRuleRateLimit                           = "rate_limit"
+	CISRulesetsRuleRateLimitCharacteristics            = "characteristics"
+	CISRulesetsRuleRateLimitCountingExpression         = "counting_expression"
+	CISRulesetsRuleRateLimitMitigationTimeout          = "mitigation_timeout"
+	CISRulesetsRuleRateLimitPeriod                     = "period"
+	CISRulesetsRuleRateLimitRequestsPerPeriod          = "requests_per_period"
 	CISRulesetsRuleExpression                          = "expression"
 	CISRulesetsRuleRef                                 = "ref"
 	CISRulesetsRuleLogging                             = "logging"
@@ -56,6 +62,9 @@ const (
 	CISRulesetsRulePositionBefore                      = "before"
 	CISRulesetsRulePositionIndex                       = "index"
 	CISRulesetRuleId                                   = "rule_id"
+	CISRulesetOverridesScoreThreshold                  = "score_threshold"
+	CISRulesetsRulePhases                              = "phases"
+	CISRulesetsRuleProducts                            = "products"
 )
 
 var CISResponseObject = &schema.Resource{
@@ -170,6 +179,11 @@ var CISResponseObject = &schema.Resource{
 															Computed:    true,
 															Description: "Action to perform",
 														},
+														CISRulesetOverridesScoreThreshold: {
+															Type:        schema.TypeInt,
+															Computed:    true,
+															Description: "Score Threshold",
+														},
 														// CISRulesetOverridesSensitivityLevel: {
 														// 	Type:        schema.TypeString,
 														// 	Computed:    true,
@@ -213,7 +227,19 @@ var CISResponseObject = &schema.Resource{
 								CISRuleset: {
 									Type:        schema.TypeString,
 									Computed:    true,
-									Description: "Ruleset ID of the ruleset to apply action to.",
+									Description: "Ruleset of the rule",
+								},
+								CISRulesetsRulePhases: {
+									Type:        schema.TypeList,
+									Computed:    true,
+									Description: "Phases of the rule",
+									Elem:        &schema.Schema{Type: schema.TypeString},
+								},
+								CISRulesetsRuleProducts: {
+									Type:        schema.TypeList,
+									Computed:    true,
+									Description: "Products of the rule",
+									Elem:        &schema.Schema{Type: schema.TypeString},
 								},
 								CISRulesetList: {
 									Type:        schema.TypeList,
@@ -483,7 +509,7 @@ func flattenCISRulesets(rulesetObj rulesetsv1.RulesetDetails) interface{} {
 		ruleDetails[CISRulesetsRuleActionDescription] = ruleDetailsObj.Description
 
 		// Not Applicable for now
-		ruleDetails[CISRulesetsRuleLogging] = ruleDetailsObj.Logging
+		//ruleDetails[CISRulesetsRuleLogging] = ruleDetailsObj.Logging
 
 		flattenedActionParameter := flattenCISRulesetsRuleActionParameters(ruleDetailsObj.ActionParameters)
 
@@ -520,18 +546,39 @@ func flattenCISRulesetsRuleActionParameters(rulesetsRuleActionParameterObj *rule
 	if _, ok := actionParametersOutput["rulesets"]; ok {
 		resultOutput[CISRulesetList] = rulesetsRuleActionParameterObj.Rulesets
 	}
-	if val, ok := actionParametersOutput["response"]; ok {
-		response := map[string]interface{}{}
-
-		res, _ := json.Marshal(val)
-		json.Unmarshal(res, &response)
-
-		resultOutput[CISRulesetsRuleActionParametersResponse] = response
+	if val, ok := actionParametersOutput["phases"]; ok {
+		resultOutput[CISRulesetsRulePhases] = val.([]interface{})
 	}
-
+	if val, ok := actionParametersOutput["products"]; ok {
+		resultOutput[CISRulesetsRuleProducts] = val.([]interface{})
+	}
+	if _, ok := actionParametersOutput["response"]; ok {
+		flattenCISRulesetsRuleActionParameterResponse := flattenCISRulesetsRuleActionParameterResponse(rulesetsRuleActionParameterObj.Response)
+		resultOutput[CISRulesetsRuleActionParametersResponse] = []map[string]interface{}{flattenCISRulesetsRuleActionParameterResponse}
+	}
 	if _, ok := actionParametersOutput["overrides"]; ok {
 		flattenCISRulesetsRuleActionParameterOverrides := flattenCISRulesetsRuleActionParameterOverrides(rulesetsRuleActionParameterObj.Overrides)
 		resultOutput[CISRulesetOverrides] = []map[string]interface{}{flattenCISRulesetsRuleActionParameterOverrides}
+	}
+
+	return resultOutput
+}
+
+func flattenCISRulesetsRuleActionParameterResponse(rulesetsRuleActionParameterResponseObj *rulesetsv1.ActionParametersResponse) map[string]interface{} {
+	actionParameterResponseOutput := map[string]interface{}{}
+	resultOutput := map[string]interface{}{}
+
+	res, _ := json.Marshal(rulesetsRuleActionParameterResponseObj)
+	json.Unmarshal(res, &actionParameterResponseOutput)
+
+	if val, ok := actionParameterResponseOutput["content"]; ok {
+		resultOutput[CISRulesetsRuleActionParametersResponseContent] = val.(string)
+	}
+	if val, ok := actionParameterResponseOutput["content_type"]; ok {
+		resultOutput[CISRulesetsRuleActionParametersResponseContentType] = val.(string)
+	}
+	if val, ok := actionParameterResponseOutput["status_code"]; ok {
+		resultOutput[CISRulesetsRuleActionParametersResponseStatusCode] = val.(float64)
 	}
 
 	return resultOutput
@@ -572,6 +619,7 @@ func flattenCISRulesetsRuleActionParameterOverrides(rulesetsRuleActionParameterO
 			overrideRulesObj[CISRulesetRuleId] = obj.ID
 			overrideRulesObj[CISRulesetOverridesEnabled] = obj.Enabled
 			overrideRulesObj[CISRulesetOverridesAction] = obj.Action
+			overrideRulesObj[CISRulesetOverridesScoreThreshold] = obj.ScoreThreshold
 
 			overrideRulesList = append(overrideRulesList, overrideRulesObj)
 		}

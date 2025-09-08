@@ -5,13 +5,15 @@ package power
 
 import (
 	"context"
-
-	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"fmt"
+	"log"
 
 	"github.com/IBM-Cloud/power-go-client/clients/instance"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/conns"
+	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func DataSourceIBMPIHost() *schema.Resource {
@@ -22,20 +24,18 @@ func DataSourceIBMPIHost() *schema.Resource {
 			// Arguments
 			Arg_CloudInstanceID: {
 				Description:  "The GUID of the service instance associated with an account.",
-				ForceNew:     true,
 				Required:     true,
 				Type:         schema.TypeString,
 				ValidateFunc: validation.NoZeroValues,
 			},
 			Arg_HostID: {
 				Description:  "Host ID.",
-				ForceNew:     true,
 				Required:     true,
 				Type:         schema.TypeString,
 				ValidateFunc: validation.NoZeroValues,
 			},
 
-			//Attribute
+			// Attributes
 			Attr_Capacity: {
 				Computed: true,
 				Elem: &schema.Resource{
@@ -84,6 +84,11 @@ func DataSourceIBMPIHost() *schema.Resource {
 				},
 				Type: schema.TypeList,
 			},
+			Attr_CRN: {
+				Computed:    true,
+				Description: "The CRN of this resource.",
+				Type:        schema.TypeString,
+			},
 			Attr_DisplayName: {
 				Computed:    true,
 				Description: "Name of the host (chosen by the user).",
@@ -114,14 +119,23 @@ func DataSourceIBMPIHost() *schema.Resource {
 				Description: "System type.",
 				Type:        schema.TypeString,
 			},
+			Attr_UserTags: {
+				Computed:    true,
+				Description: "List of user tags attached to the resource.",
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
+				Type:        schema.TypeSet,
+			},
 		},
 	}
 }
 
-func dataSourceIBMPIHostRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataSourceIBMPIHostRead(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	sess, err := meta.(conns.ClientSession).IBMPISession()
 	if err != nil {
-		return diag.FromErr(err)
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("IBMPISession failed: %s", err.Error()), "(Data) ibm_pi_host", "read")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	cloudInstanceID := d.Get(Arg_CloudInstanceID).(string)
@@ -129,12 +143,22 @@ func dataSourceIBMPIHostRead(ctx context.Context, d *schema.ResourceData, meta i
 	client := instance.NewIBMPIHostGroupsClient(ctx, sess, cloudInstanceID)
 	host, err := client.GetHost(hostID)
 	if err != nil {
-		return diag.FromErr(err)
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("GetHost failed: %s", err.Error()), "(Data) ibm_pi_host", "read")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	d.SetId(host.ID)
 	if host.Capacity != nil {
 		d.Set(Attr_Capacity, hostCapacityToMap(host.Capacity))
+	}
+	if host.Crn != "" {
+		d.Set(Attr_CRN, host.Crn)
+		tags, err := flex.GetGlobalTagsUsingCRN(meta, string(host.Crn), "", UserTagType)
+		if err != nil {
+			log.Printf("Error on get of pi host (%s) user_tags: %s", hostID, err)
+		}
+		d.Set(Attr_UserTags, tags)
 	}
 	if host.DisplayName != "" {
 		d.Set(Attr_DisplayName, host.DisplayName)

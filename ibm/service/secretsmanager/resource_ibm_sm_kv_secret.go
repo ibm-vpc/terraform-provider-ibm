@@ -103,6 +103,11 @@ func ResourceIbmSmKvSecret() *schema.Resource {
 				Computed:    true,
 				Description: "The number of locks of the secret.",
 			},
+			"retrieved_at": &schema.Schema{
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The date when the data of the secret was last retrieved. The date format follows RFC 3339. Epoch date if there is no record of secret data retrieval.",
+			},
 			"state": &schema.Schema{
 				Type:        schema.TypeInt,
 				Computed:    true,
@@ -133,7 +138,7 @@ func ResourceIbmSmKvSecret() *schema.Resource {
 }
 
 func resourceIbmSmKvSecretCreate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	secretsManagerClient, err := meta.(conns.ClientSession).SecretsManagerV2()
+	secretsManagerClient, endpointsFile, err := getSecretsManagerSession(meta.(conns.ClientSession))
 	if err != nil {
 		tfErr := flex.TerraformErrorf(err, "", KvSecretResourceName, "create")
 		return tfErr.GetDiag()
@@ -141,7 +146,7 @@ func resourceIbmSmKvSecretCreate(context context.Context, d *schema.ResourceData
 
 	region := getRegion(secretsManagerClient, d)
 	instanceId := d.Get("instance_id").(string)
-	secretsManagerClient = getClientWithInstanceEndpoint(secretsManagerClient, instanceId, region, getEndpointType(secretsManagerClient, d))
+	secretsManagerClient = getClientWithInstanceEndpoint(secretsManagerClient, instanceId, region, getEndpointType(secretsManagerClient, d), endpointsFile)
 
 	createSecretOptions := &secretsmanagerv2.CreateSecretOptions{}
 
@@ -207,7 +212,7 @@ func waitForIbmSmKvSecretCreate(secretsManagerClient *secretsmanagerv2.SecretsMa
 }
 
 func resourceIbmSmKvSecretRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	secretsManagerClient, err := meta.(conns.ClientSession).SecretsManagerV2()
+	secretsManagerClient, endpointsFile, err := getSecretsManagerSession(meta.(conns.ClientSession))
 	if err != nil {
 		tfErr := flex.TerraformErrorf(err, "", KvSecretResourceName, "read")
 		return tfErr.GetDiag()
@@ -221,7 +226,7 @@ func resourceIbmSmKvSecretRead(context context.Context, d *schema.ResourceData, 
 	region := id[0]
 	instanceId := id[1]
 	secretId := id[2]
-	secretsManagerClient = getClientWithInstanceEndpoint(secretsManagerClient, instanceId, region, getEndpointType(secretsManagerClient, d))
+	secretsManagerClient = getClientWithInstanceEndpoint(secretsManagerClient, instanceId, region, getEndpointType(secretsManagerClient, d), endpointsFile)
 
 	getSecretOptions := &secretsmanagerv2.GetSecretOptions{}
 
@@ -296,6 +301,10 @@ func resourceIbmSmKvSecretRead(context context.Context, d *schema.ResourceData, 
 		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting updated_at"), KvSecretResourceName, "read")
 		return tfErr.GetDiag()
 	}
+	if err = d.Set("retrieved_at", DateTimeToRFC3339(secret.RetrievedAt)); err != nil {
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting retrieved_at"), KvSecretResourceName, "read")
+		return tfErr.GetDiag()
+	}
 	if err = d.Set("versions_total", flex.IntValue(secret.VersionsTotal)); err != nil {
 		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting versions_total"), KvSecretResourceName, "read")
 		return tfErr.GetDiag()
@@ -341,7 +350,7 @@ func resourceIbmSmKvSecretRead(context context.Context, d *schema.ResourceData, 
 }
 
 func resourceIbmSmKvSecretUpdate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	secretsManagerClient, err := meta.(conns.ClientSession).SecretsManagerV2()
+	secretsManagerClient, endpointsFile, err := getSecretsManagerSession(meta.(conns.ClientSession))
 	if err != nil {
 		tfErr := flex.TerraformErrorf(err, "", KvSecretResourceName, "update")
 		return tfErr.GetDiag()
@@ -351,7 +360,7 @@ func resourceIbmSmKvSecretUpdate(context context.Context, d *schema.ResourceData
 	region := id[0]
 	instanceId := id[1]
 	secretId := id[2]
-	secretsManagerClient = getClientWithInstanceEndpoint(secretsManagerClient, instanceId, region, getEndpointType(secretsManagerClient, d))
+	secretsManagerClient = getClientWithInstanceEndpoint(secretsManagerClient, instanceId, region, getEndpointType(secretsManagerClient, d), endpointsFile)
 
 	updateSecretMetadataOptions := &secretsmanagerv2.UpdateSecretMetadataOptions{}
 
@@ -445,7 +454,7 @@ func resourceIbmSmKvSecretUpdate(context context.Context, d *schema.ResourceData
 }
 
 func resourceIbmSmKvSecretDelete(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	secretsManagerClient, err := meta.(conns.ClientSession).SecretsManagerV2()
+	secretsManagerClient, endpointsFile, err := getSecretsManagerSession(meta.(conns.ClientSession))
 	if err != nil {
 		tfErr := flex.TerraformErrorf(err, "", KvSecretResourceName, "delete")
 		return tfErr.GetDiag()
@@ -455,7 +464,7 @@ func resourceIbmSmKvSecretDelete(context context.Context, d *schema.ResourceData
 	region := id[0]
 	instanceId := id[1]
 	secretId := id[2]
-	secretsManagerClient = getClientWithInstanceEndpoint(secretsManagerClient, instanceId, region, getEndpointType(secretsManagerClient, d))
+	secretsManagerClient = getClientWithInstanceEndpoint(secretsManagerClient, instanceId, region, getEndpointType(secretsManagerClient, d), endpointsFile)
 
 	deleteSecretOptions := &secretsmanagerv2.DeleteSecretOptions{}
 
