@@ -148,7 +148,7 @@ func dataSourceIBMIsVPNGatewayServiceConnectionsRead(ctx context.Context, d *sch
 	}
 
 	start := ""
-	allrecs := []vpcv1.VPNServiceConnection{}
+	allrecs := []vpcv1.VPNGatewayServiceConnection{}
 	for {
 		listvpnGWServiceConnectionsOptions := sess.NewListVPNGatewayServiceConnectionsOptions(vpnGateway)
 		listvpnGWServiceConnectionsOptions.VPNGatewayID = &vpnGateway
@@ -173,7 +173,7 @@ func dataSourceIBMIsVPNGatewayServiceConnectionsRead(ctx context.Context, d *sch
 		connection := map[string]interface{}{}
 		connection[isVPNGatewayServiceConnectionCreatedAt] = serviceConnection.CreatedAt.String()
 		connection[isVPNGatewayServiceConnectionId] = *serviceConnection.ID
-		connection[isVPNGatewayServiceConnectionCreator] = resourceVPNGatewayServiceConnectionFlattenCreator(*serviceConnection.Creator)
+		connection[isVPNGatewayServiceConnectionCreator] = resourceVPNGatewayServiceConnectionFlattenCreator(serviceConnection.Creator)
 		connection[isVPNGatewayServiceConnectionLifecycleReasons] = resourceVPNGatewayServiceConnectionFlattenLifecycleReasons(serviceConnection.LifecycleReasons)
 		connection[isVPNGatewayServiceConnectionLifecycleState] = *serviceConnection.LifecycleState
 		connection[isVPNGatewayServiceConnectionStatus] = *serviceConnection.Status
@@ -192,7 +192,7 @@ func dataSourceIBMVPNGatewayServiceConnectionsID(d *schema.ResourceData) string 
 	return time.Now().UTC().String()
 }
 
-func resourceVPNGatewayServiceConnectionFlattenLifecycleReasons(lifecycleReasons []vpcv1.VPNServiceConnectionLifecycleReason) (lifecycleReasonsList []map[string]interface{}) {
+func resourceVPNGatewayServiceConnectionFlattenLifecycleReasons(lifecycleReasons []vpcv1.VPNGatewayServiceConnectionLifecycleReason) (lifecycleReasonsList []map[string]interface{}) {
 	lifecycleReasonsList = make([]map[string]interface{}, 0)
 	for _, lr := range lifecycleReasons {
 		currentLR := map[string]interface{}{}
@@ -208,7 +208,7 @@ func resourceVPNGatewayServiceConnectionFlattenLifecycleReasons(lifecycleReasons
 	return lifecycleReasonsList
 }
 
-func resourceVPNGatewayServiceConnectionFlattenStateReasons(healthReasons []vpcv1.VPNServiceConnectionStatusReason) (statusReasonsList []map[string]interface{}) {
+func resourceVPNGatewayServiceConnectionFlattenStateReasons(healthReasons []vpcv1.VPNGatewayServiceConnectionStatusReason) (statusReasonsList []map[string]interface{}) {
 	statusReasonsList = make([]map[string]interface{}, 0)
 	for _, lr := range healthReasons {
 		currentLR := map[string]interface{}{}
@@ -224,15 +224,16 @@ func resourceVPNGatewayServiceConnectionFlattenStateReasons(healthReasons []vpcv
 	return statusReasonsList
 }
 
-func resourceVPNGatewayServiceConnectionFlattenCreator(model vpcv1.VPNServiceConnectionCreator) (modelMap map[string]interface{}) {
-	if model.CRN != nil {
-		modelMap["crn"] = *model.CRN
+func resourceVPNGatewayServiceConnectionFlattenCreator(model vpcv1.VPNGatewayServiceConnectionCreatorIntf) (modelMap map[string]interface{}) {
+	connectionCreatorItem := model.(*vpcv1.VPNGatewayServiceConnectionCreator)
+	if connectionCreatorItem.CRN != nil {
+		modelMap["crn"] = *connectionCreatorItem.CRN
 	}
-	if model.ID != nil {
-		modelMap["id"] = *model.ID
+	if connectionCreatorItem.ID != nil {
+		modelMap["id"] = *connectionCreatorItem.ID
 	}
-	if model.ResourceType != nil {
-		modelMap["resource_type"] = *model.ResourceType
+	if connectionCreatorItem.ResourceType != nil {
+		modelMap["resource_type"] = *connectionCreatorItem.ResourceType
 	}
 	return
 }

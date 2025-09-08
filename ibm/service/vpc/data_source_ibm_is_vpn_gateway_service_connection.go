@@ -144,7 +144,7 @@ func dataSourceIBMIsVPNGatewayServiceConnectionRead(context context.Context, d *
 	vpn_gateway_name := d.Get("vpn_gateway_name").(string)
 	vpn_gateway_service_connection := d.Get("vpn_gateway_service_connection").(string)
 
-	var vpnGatewayServiceConn vpcv1.VPNServiceConnection
+	var vpnGatewayServiceConn vpcv1.VPNGatewayServiceConnection
 
 	if vpn_gateway_name != "" {
 		listvpnGWOptions := vpcClient.NewListVPNGatewaysOptions()
@@ -203,7 +203,7 @@ func dataSourceIBMIsVPNGatewayServiceConnectionRead(context context.Context, d *
 		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
 		return diag.FromErr(tfErr)
 	}
-	if err := d.Set("creator", resourceVPNGatewayServiceConnectionFlattenCreator(*vpnGatewayServiceConn.Creator)); err != nil {
+	if err := d.Set("creator", resourceVPNGatewayServiceConnectionFlattenCreator(vpnGatewayServiceConn.Creator)); err != nil {
 		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting creator: %s", err), "(Data) ibm_is_vpn_gateway_service_connection", "read")
 		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
 		return diag.FromErr(tfErr)

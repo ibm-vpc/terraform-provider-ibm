@@ -648,14 +648,14 @@ func vpngwconCreate(context context.Context, d *schema.ResourceData, meta interf
 			log.Println("[INFO] inside local block")
 			LocalModel, err := resourceIBMIsVPNGatewayConnectionMapToVPNGatewayConnectionDynamicRouteModeLocalPrototype(localOk.([]interface{})[0].(map[string]interface{}))
 			if err != nil {
-				return err
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_vpn_gateway_connection", "create", "parse-local").GetDiag()
 			}
 			vpnGatewayConnectionPrototypeModel.Local = LocalModel
 		}
 		if peerOk, ok := d.GetOk("peer"); ok && len(peerOk.([]interface{})) > 0 {
 			PeerModel, err := resourceIBMIsVPNGatewayConnectionMapToVPNGatewayConnectionDynamicRouteModePeerPrototype(peerOk.([]interface{})[0].(map[string]interface{}))
 			if err != nil {
-				return err
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_vpn_gateway_connection", "create", "parse-peer").GetDiag()
 			}
 			vpnGatewayConnectionPrototypeModel.Peer = PeerModel
 		} else if peerAddress != "" {
@@ -705,9 +705,11 @@ func vpngwconCreate(context context.Context, d *schema.ResourceData, meta interf
 			VPNGatewayConnectionPrototype: vpnGatewayConnectionPrototypeModel,
 		}
 
-		vpnGatewayConnectionIntf, response, err := sess.CreateVPNGatewayConnection(options)
+		vpnGatewayConnectionIntf, _, err := sess.CreateVPNGatewayConnectionWithContext(context, options)
 		if err != nil {
-			return fmt.Errorf("[DEBUG] Create VPN Gateway Connection err %s\n%s", err, response)
+			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("CreateVPNGatewayConnectionWithContext failed: %s", err.Error()), "ibm_is_vpn_gateway_connection", "create")
+			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+			return tfErr.GetDiag()
 		}
 		if _, ok := vpnGatewayConnectionIntf.(*vpcv1.VPNGatewayConnection); ok {
 			vpnGatewayConnection := vpnGatewayConnectionIntf.(*vpcv1.VPNGatewayConnection)
@@ -730,7 +732,7 @@ func vpngwconCreate(context context.Context, d *schema.ResourceData, meta interf
 			d.SetId(fmt.Sprintf("%s/%s", gatewayID, *vpnGatewayConnection.ID))
 			log.Printf("[INFO] VPNGatewayConnection : %s/%s", gatewayID, *vpnGatewayConnection.ID)
 		} else {
-			return (fmt.Errorf("Unrecognized vpcv1.vpnGatewayConnectionIntf subtype encountered"))
+			return flex.DiscriminatedTerraformErrorf(nil, fmt.Sprintf("Unrecognized vpcv1.VPNGatewayConnectionIntf subtype encountered"), "ibm_is_vpn_gateway_connection", "create", "unrecognized-subtype-of-VPNGatewayConnection").GetDiag()
 		}
 	} else {
 
@@ -949,9 +951,11 @@ func vpngwconUpdate(context context.Context, d *schema.ResourceData, meta interf
 			VPNGatewayID: &gID,
 			ID:           &gConnID,
 		}
-		_, response, err := sess.GetVPNGatewayConnection(options)
+		_, response, err := sess.GetVPNGatewayConnectionWithContext(context, options)
 		if err != nil {
-			return fmt.Errorf("[ERROR] Error getting vpn conncetion: %s\n%s", err, response)
+			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("GetVPNGatewayConnectionWithContext failed: %s", err.Error()), "ibm_is_vpn_gateway_connection", "get")
+			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+			return tfErr.GetDiag()
 		}
 		eTag := response.Headers.Get("ETag")
 		updateVpnGatewayConnectionOptions.IfMatch = &eTag
@@ -2034,96 +2038,132 @@ func setvpnGatewayConnectionIntfResource(context context.Context, d *schema.Reso
 			vpnGatewayConnection := vpnGatewayConnectionIntf.(*vpcv1.VPNGatewayConnectionRouteModeVPNGatewayConnectionDynamicRouteMode)
 			d.SetId(fmt.Sprintf("%s/%s", vpn_gateway_id, *vpnGatewayConnection.ID))
 			if err = d.Set("admin_state_up", vpnGatewayConnection.AdminStateUp); err != nil {
-				return fmt.Errorf("[ERROR] Error setting admin_state_up: %s", err)
+				err = fmt.Errorf("Error setting admin_state_up: %s", err)
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_vpn_gateway_connection", "read", "set-admin_state_up").GetDiag()
 			}
 			if err = d.Set("authentication_mode", vpnGatewayConnection.AuthenticationMode); err != nil {
-				return fmt.Errorf("[ERROR] Error setting authentication_mode: %s", err)
+				err = fmt.Errorf("Error setting authentication_mode: %s", err)
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_vpn_gateway_connection", "read", "set-authentication_mode").GetDiag()
 			}
 			if err = d.Set("created_at", flex.DateTimeToString(vpnGatewayConnection.CreatedAt)); err != nil {
-				return fmt.Errorf("[ERROR] Error setting created_at: %s", err)
+				err = fmt.Errorf("Error setting created_at: %s", err)
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_vpn_gateway_connection", "read", "set-created_at").GetDiag()
 			}
 			if !core.IsNil(vpnGatewayConnection.DistributeTraffic) {
 				if err = d.Set("distribute_traffic", vpnGatewayConnection.DistributeTraffic); err != nil {
-					return fmt.Errorf("[ERROR] setting distribute_traffic: %s", err)
+					err = fmt.Errorf("Error setting distribute_traffic: %s", err)
+					return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_vpn_gateway_connection", "read", "set-distribute_traffic").GetDiag()
 				}
 			}
 			if vpnGatewayConnection.DeadPeerDetection != nil {
-				d.Set(isVPNGatewayConnectionDeadPeerDetectionAction, vpnGatewayConnection.DeadPeerDetection.Action)
-				d.Set(isVPNGatewayConnectionDeadPeerDetectionInterval, vpnGatewayConnection.DeadPeerDetection.Interval)
-				d.Set(isVPNGatewayConnectionDeadPeerDetectionTimeout, vpnGatewayConnection.DeadPeerDetection.Timeout)
+				if err = d.Set(isVPNGatewayConnectionDeadPeerDetectionAction, vpnGatewayConnection.DeadPeerDetection.Action); err != nil {
+					err = fmt.Errorf("Error setting action: %s", err)
+					return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_vpn_gateway_connection", "read", "set-action").GetDiag()
+				}
+
+				if err = d.Set(isVPNGatewayConnectionDeadPeerDetectionInterval, vpnGatewayConnection.DeadPeerDetection.Interval); err != nil {
+					err = fmt.Errorf("Error setting interval: %s", err)
+					return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_vpn_gateway_connection", "read", "set-interval").GetDiag()
+				}
+
+				if err = d.Set(isVPNGatewayConnectionDeadPeerDetectionTimeout, vpnGatewayConnection.DeadPeerDetection.Timeout); err != nil {
+					err = fmt.Errorf("Error setting timeout: %s", err)
+					return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_vpn_gateway_connection", "read", "set-timeout").GetDiag()
+				}
 			}
 			if err = d.Set("href", vpnGatewayConnection.Href); err != nil {
-				return fmt.Errorf("[ERROR] Error setting href: %s", err)
+				err = fmt.Errorf("Error setting href: %s", err)
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_vpn_gateway_connection", "read", "set-href").GetDiag()
 			}
 
 			if vpnGatewayConnection.IkePolicy != nil {
-				d.Set("ike_policy", vpnGatewayConnection.IkePolicy.ID)
+				if err = d.Set("ike_policy", vpnGatewayConnection.IkePolicy.ID); err != nil {
+					err = fmt.Errorf("Error setting ike_policy: %s", err)
+					return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_vpn_gateway_connection", "read", "set-ike_policy").GetDiag()
+				}
 			}
 
 			if vpnGatewayConnection.IpsecPolicy != nil {
-				d.Set("ipsec_policy", vpnGatewayConnection.IpsecPolicy.ID)
+				if err = d.Set("ipsec_policy", vpnGatewayConnection.IpsecPolicy.ID); err != nil {
+					err = fmt.Errorf("Error setting ipsec_policy: %s", err)
+					return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_vpn_gateway_connection", "read", "set-ipsec_policy").GetDiag()
+				}
 			}
 			if err = d.Set("mode", vpnGatewayConnection.Mode); err != nil {
-				return fmt.Errorf("[ERROR] Error setting mode: %s", err)
+				err = fmt.Errorf("Error setting mode: %s", err)
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_vpn_gateway_connection", "read", "set-mode").GetDiag()
 			}
 			if err = d.Set("name", vpnGatewayConnection.Name); err != nil {
-				return fmt.Errorf("[ERROR] Error setting name: %s", err)
+				err = fmt.Errorf("Error setting name: %s", err)
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_vpn_gateway_connection", "read", "set-name").GetDiag()
 			}
 
 			// breaking changes
 			if err = d.Set("establish_mode", vpnGatewayConnection.EstablishMode); err != nil {
-				return fmt.Errorf("[ERROR] Error setting establish_mode: %s", err)
+				err = fmt.Errorf("Error setting establish_mode: %s", err)
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_vpn_gateway_connection", "read", "set-establish_mode").GetDiag()
 			}
 			local := []map[string]interface{}{}
 			if vpnGatewayConnection.Local != nil {
 				modelMap, err := dataSourceIBMIsVPNGatewayConnectionVPNGatewayConnectionDynamicRouteModeLocalToMap(vpnGatewayConnection.Local)
 				if err != nil {
-					return err
+					return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_vpn_gateway_connection", "read", "local-to-map").GetDiag()
+
 				}
 				local = append(local, modelMap)
 			}
 			if err = d.Set("local", local); err != nil {
-				return fmt.Errorf("[ERROR] Error setting local %s", err)
+				err = fmt.Errorf("Error setting status_reasons: %s", err)
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_vpn_gateway_connection", "read", "set-local").GetDiag()
 			}
 
 			peer := []map[string]interface{}{}
 			if vpnGatewayConnection.Peer != nil {
 				modelMap, err := dataSourceIBMIsVPNGatewayConnectionVPNGatewayConnectionDynamicRouteModePeerToMap(vpnGatewayConnection.Peer)
 				if err != nil {
-					return err
+					return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_vpn_gateway_connection", "read", "peer-to-map").GetDiag()
+
 				}
 				peer = append(peer, modelMap)
 			}
 			if err = d.Set("peer", peer); err != nil {
-				return fmt.Errorf("[ERROR] Error setting peer %s", err)
+				err = fmt.Errorf("Error setting peer: %s", err)
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_vpn_gateway_connection", "read", "set-peer").GetDiag()
 			}
 			// Deprecated
 			if vpnGatewayConnection.Peer != nil {
 				peer := vpnGatewayConnection.Peer.(*vpcv1.VPNGatewayConnectionDynamicRouteModePeer)
 				if err = d.Set("peer_address", peer.Address); err != nil {
-					return fmt.Errorf("[ERROR] Error setting peer_address: %s", err)
+					err = fmt.Errorf("Error setting peer_address: %s", err)
+					return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_vpn_gateway_connection", "read", "set-peer_address").GetDiag()
 				}
 			}
 			if err = d.Set("preshared_key", vpnGatewayConnection.Psk); err != nil {
-				return fmt.Errorf("[ERROR] Error setting psk: %s", err)
+				err = fmt.Errorf("Error setting psk: %s", err)
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_vpn_gateway_connection", "read", "set-psk").GetDiag()
 			}
 			if err = d.Set("resource_type", vpnGatewayConnection.ResourceType); err != nil {
-				return fmt.Errorf("[ERROR] Error setting resource_type: %s", err)
+				err = fmt.Errorf("Error setting resource_type: %s", err)
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_vpn_gateway_connection", "read", "set-resource_type").GetDiag()
 			}
 			if err = d.Set("status", vpnGatewayConnection.Status); err != nil {
-				return fmt.Errorf("[ERROR] Error setting status: %s", err)
+				err = fmt.Errorf("Error setting status: %s", err)
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_vpn_gateway_connection", "read", "set-status").GetDiag()
 			}
 			if err := d.Set("status_reasons", resourceVPNGatewayConnectionFlattenLifecycleReasons(vpnGatewayConnection.StatusReasons)); err != nil {
-				return fmt.Errorf("[ERROR] Error setting status_reasons: %s", err)
+				err = fmt.Errorf("Error setting status_reasons: %s", err)
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_vpn_gateway_connection", "read", "set-status_reasons").GetDiag()
 			}
 			if err = d.Set("routing_protocol", vpnGatewayConnection.RoutingProtocol); err != nil {
-				return fmt.Errorf("[ERROR] Error setting routing_protocol: %s", err)
+				err = fmt.Errorf("Error setting routing_protocol: %s", err)
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_vpn_gateway_connection", "read", "set-routing_protocol").GetDiag()
 			}
 
 			if vpnGatewayConnection.Tunnels != nil {
 				err = d.Set("tunnels", resourceVPNGatewayConnectionsFlattenDynamicTunnels(vpnGatewayConnection.Tunnels))
 				if err != nil {
-					return fmt.Errorf("[ERROR] Error setting tunnels %s", err)
+					err = fmt.Errorf("Error setting tunnels: %s", err)
+					return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_vpn_gateway_connection", "read", "set-tunnels").GetDiag()
 				}
 			} else {
 				d.Set("tunnels", []map[string]interface{}{})

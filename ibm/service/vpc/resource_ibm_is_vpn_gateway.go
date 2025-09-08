@@ -658,10 +658,16 @@ func vpngwGet(context context.Context, d *schema.ResourceData, meta interface{},
 		}
 	}
 	if vpnGateway.AdvertisedCIDRs != nil {
-		d.Set(isVPNGatewayAdvertisedCidrs, vpnGateway.AdvertisedCIDRs)
+		if err = d.Set(isVPNGatewayAdvertisedCidrs, vpnGateway.AdvertisedCIDRs); err != nil {
+			err = fmt.Errorf("Error setting advertised_cidrs: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_vpn_gateway", "read", "set-advertised_cidrs").GetDiag()
+		}
 	}
 	if vpnGateway.LocalAsn != nil {
-		d.Set(isVPNGatewayLocalAsn, *vpnGateway.LocalAsn)
+		if err = d.Set(isVPNGatewayLocalAsn, *vpnGateway.LocalAsn); err != nil {
+			err = fmt.Errorf("Error setting local_asn: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_vpn_gateway", "read", "set-local_asn").GetDiag()
+		}
 	}
 	if err = d.Set(isVPNGatewayMode, *vpnGateway.Mode); err != nil {
 		err = fmt.Errorf("Error setting mode: %s", err)
@@ -704,8 +710,7 @@ func resourceIBMISVPNGatewayUpdate(context context.Context, d *schema.ResourceDa
 	id := d.Id()
 	hasChanged := false
 
-
-	err := vpngwUpdate(d, meta, id, hasChanged)
+	err := vpngwUpdate(context, d, meta, id, hasChanged)
 	if err != nil {
 		return err
 	}
