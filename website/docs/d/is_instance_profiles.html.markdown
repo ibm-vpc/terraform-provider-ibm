@@ -205,6 +205,5 @@ You can access the following attribute references after your data source is crea
   - `vcpu_manufacturer` - (List) Nested `vcpu_manufacturer` blocks have the following structure:
 
     Nested scheme for `vcpu_manufacturer`:
-    - `default` - (String) The default VCPU manufacturer for an instance with this profile.
     - `type` - (String) The type for this profile field.
     - `value` - (String) The VCPU manufacturer for an instance with this profile.
