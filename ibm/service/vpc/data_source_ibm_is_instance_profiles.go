@@ -1034,7 +1034,7 @@ func instanceProfilesList(context context.Context, d *schema.ResourceData, meta 
 			l[isInstanceDisks] = dataSourceInstanceProfileFlattenDisks(profile.Disks)
 		}
 
-		vcpuBurstLimitMap, err := DataSourceIBMIsInstanceProfilesInstanceProfileVcpuBurstLimitToMap(profile.VcpuBurstLimit)
+		vcpuBurstLimitMap, err := DataSourceIBMIsInstanceProfilesInstanceProfileVcpuBurstLimitToMap(profile.VcpuBurstLimit.(*vpcv1.InstanceProfileVcpuBurstLimit))
 		if err != nil {
 			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting vcpu_percentage: %s", err), "(Data) ibm_is_instance_profiles", "read", "set-vcpu_percentage").GetDiag()
 		}

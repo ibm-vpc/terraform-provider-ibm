@@ -1062,7 +1062,7 @@ func instanceProfileGet(context context.Context, d *schema.ResourceData, meta in
 	}
 	if profile.VcpuBurstLimit != nil {
 		vcpuBurstLimit := []map[string]interface{}{}
-		vcpuBurstLimitMap, err := DataSourceIBMIsInstanceProfileInstanceProfileVcpuBurstLimitToMap(profile.VcpuBurstLimit)
+		vcpuBurstLimitMap, err := DataSourceIBMIsInstanceProfileInstanceProfileVcpuBurstLimitToMap(profile.VcpuBurstLimit.(*vpcv1.InstanceProfileVcpuBurstLimit))
 		if err != nil {
 			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_instance_profile", "read", "vcpu_burst_limit-to-map").GetDiag()
 		}
