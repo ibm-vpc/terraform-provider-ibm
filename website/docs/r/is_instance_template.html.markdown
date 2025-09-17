@@ -497,6 +497,10 @@ Review the argument references that you can specify for your resource.
     - `id` - The unique identifier for this reservation
 - `resource_group` - (Optional, Forces new resource, String) The resource group ID.
 - `total_volume_bandwidth` - (Optional, int) The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes
+- `vcpu` - (Optional, List)  The virtual server instance VCPU configuration.
+  Nested schema for **vcpu**:
+	- `percentage` - (Optional, Integer) The percentage of VCPU clock cycles allocated to the instance.The virtual server instance `vcpu.percentage` must be `100` when:- The virtual server instance `placement_target` is a dedicated host or dedicated  host group.- The virtual server instance `reservation_affinity.policy` is not `disabled`.If unspecified, the default for `vcpu_percentage` from the profile will be used.
+	- `tenancy` - (Optional, String) The tenancy of the VCPU cores for this virtual server instance:- `dedicated` - The VCPU time is only used by this virtual server instance.- `shared` - The VCPU time is shared across virtual server instances.The virtual server instance `tenancy` must be `dedicated` when:- The virtual server instance `placement_target` is a dedicated host or dedicated  host group.- The virtual server instance `reservation_affinity.policy` is not `disabled`.If unspecified, the default for `vcpu_tenancy` from the profile will be used.The enumerated values for this property may[expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future. Allowable values are: `dedicated`, `shared`.
 - `volume_attachments` - (Optional, Force new resource, List) A nested block describes the storage volume configuration for the template. 
 
   Nested scheme for `volume_attachments`:
