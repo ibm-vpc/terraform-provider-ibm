@@ -2073,7 +2073,7 @@ func DataSourceIBMIsInstanceTemplatesInstanceVcpuPrototypeToMap(model *vpcv1.Ins
 		modelMap["percentage"] = flex.IntValue(model.Percentage)
 	}
 	if model.Tenancy != nil {
-		modelMap["tenancy"] = *model.Tenancy
+		modelMap["tenancy"] = model.Tenancy
 	}
 	return modelMap, nil
 }

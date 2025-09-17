@@ -1919,7 +1919,7 @@ func dataSourceInstancesCollectionHealthReasonsToMap(statusReasonsItem vpcv1.Ins
 
 func DataSourceIBMIsInstancesInstanceVcpuToMap(model *vpcv1.InstanceVcpu) (map[string]interface{}, error) {
 	modelMap := make(map[string]interface{})
-	modelMap["architecture"] = *model.Architecture
+	modelMap["architecture"] = model.Architecture
 	if model.Burst != nil {
 		burstMap, err := DataSourceIBMIsInstancesInstanceVcpuBurstToMap(model.Burst)
 		if err != nil {
@@ -1928,9 +1928,9 @@ func DataSourceIBMIsInstancesInstanceVcpuToMap(model *vpcv1.InstanceVcpu) (map[s
 		modelMap["burst"] = []map[string]interface{}{burstMap}
 	}
 	modelMap["count"] = flex.IntValue(model.Count)
-	modelMap["manufacturer"] = *model.Manufacturer
+	modelMap["manufacturer"] = model.Manufacturer
 	modelMap["percentage"] = flex.IntValue(model.Percentage)
-	modelMap["tenancy"] = *model.Tenancy
+	modelMap["tenancy"] = model.Tenancy
 	return modelMap, nil
 }
 

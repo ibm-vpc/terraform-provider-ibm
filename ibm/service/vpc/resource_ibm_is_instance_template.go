@@ -1310,6 +1310,7 @@ func ResourceIBMISInstanceTemplate() *schema.Resource {
 				Type:     schema.TypeList,
 				MaxItems: 1,
 				Optional: true,
+				ForceNew: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"percentage": &schema.Schema{

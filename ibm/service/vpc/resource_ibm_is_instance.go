@@ -730,6 +730,7 @@ func ResourceIBMISInstance() *schema.Resource {
 				Type:        schema.TypeList,
 				MaxItems:    1,
 				Optional:    true,
+				Computed:    true,
 				Description: "The virtual server instance VCPU configuration.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -763,12 +764,14 @@ func ResourceIBMISInstance() *schema.Resource {
 						},
 						"percentage": &schema.Schema{
 							Type:        schema.TypeInt,
-							Required:    true,
+							Optional:    true,
+							Computed:    true,
 							Description: "The percentage of VCPU time allocated to the virtual server instance.The virtual server instance `vcpu.percentage` will be `100` when:- The virtual server instance `placement_target` is a dedicated host or dedicated  host group.- The virtual server instance `reservation_affinity.policy` is `disabled`.",
 						},
 						"tenancy": &schema.Schema{
 							Type:        schema.TypeString,
-							Required:    true,
+							Optional:    true,
+							Computed:    true,
 							Description: "Indicates the tenancy of the VCPU cores for this virtual server instance.- `dedicated` - The VCPU time is only used by this virtual server instance.- `shared` - The VCPU time is shared across virtual server instances.The enumerated values for this property may[expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.",
 						},
 					},
@@ -5483,18 +5486,6 @@ func instanceGet(context context.Context, d *schema.ResourceData, meta interface
 			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_instance", "read", "set-profile").GetDiag()
 		}
 	}
-	cpuList := make([]map[string]interface{}, 0)
-	if instance.Vcpu != nil {
-		currentCPU := map[string]interface{}{}
-		currentCPU[isInstanceCPUArch] = *instance.Vcpu.Architecture
-		currentCPU[isInstanceCPUCount] = *instance.Vcpu.Count
-		currentCPU[isInstanceCPUManufacturer] = instance.Vcpu.Manufacturer
-		cpuList = append(cpuList, currentCPU)
-	}
-	if err = d.Set(isInstanceCPU, cpuList); err != nil {
-		err = fmt.Errorf("Error setting vcpu: %s", err)
-		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_instance", "read", "set-vcpu").GetDiag()
-	}
 	if instance.Bandwidth != nil {
 		if err = d.Set("bandwidth", flex.IntValue(instance.Bandwidth)); err != nil {
 			err = fmt.Errorf("Error setting bandwidth: %s", err)
@@ -7417,6 +7408,7 @@ func instanceUpdate(context context.Context, d *schema.ResourceData, meta interf
 		instanceCCMPatchModel := &vpcv1.InstancePatch{}
 		if d.HasChange("vcpu") {
 			vcpu, err := ResourceIBMIsInstanceMapToInstanceVcpuPatch(d.Get("vcpu.0").(map[string]interface{}))
+			restartNeeded = true
 			if err != nil {
 				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_instance", "update", "parse-vcpu").GetDiag()
 			}
@@ -9558,7 +9550,7 @@ func ResourceIBMIsInstanceMapToInstanceVcpuPatch(modelMap map[string]interface{}
 }
 func ResourceIBMIsInstanceMapToInstanceVcpuPrototype(modelMap map[string]interface{}) (*vpcv1.InstanceVcpuPrototype, error) {
 	model := &vpcv1.InstanceVcpuPrototype{}
-	if modelMap["percentage"] != nil {
+	if modelMap["percentage"] != nil && modelMap["percentage"].(int) != 0 {
 		model.Percentage = core.Int64Ptr(int64(modelMap["percentage"].(int)))
 	}
 	if modelMap["tenancy"] != nil && modelMap["tenancy"].(string) != "" {
