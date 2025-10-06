@@ -79,6 +79,7 @@ func ResourceIBMIsClusterNetworkSubnet() *schema.Resource {
 			"isolation_group": &schema.Schema{
 				Type:        schema.TypeInt,
 				Optional:    true,
+				Computed:    true,
 				Description: "The isolation group for the cluster network subnet.The value will not be greater than the cluster network profile's isolation_group_count.",
 			},
 			"href": &schema.Schema{
@@ -414,7 +415,7 @@ func ResourceIBMIsClusterNetworkSubnetMapToClusterNetworkSubnetPrototype(modelMa
 		model.Name = core.StringPtr(modelMap["name"].(string))
 	}
 	if modelMap["isolation_group"] != nil && modelMap["isolation_group"].(string) != "" {
-		model.Name = core.StringPtr(modelMap["isolation_group"].(string))
+		model.IsolationGroup = core.Int64Ptr(int64(modelMap["isolation_group"].(int)))
 	}
 	if modelMap["total_ipv4_address_count"] != nil {
 		model.TotalIpv4AddressCount = core.Int64Ptr(int64(modelMap["total_ipv4_address_count"].(int)))

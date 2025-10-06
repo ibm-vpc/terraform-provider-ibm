@@ -1321,17 +1321,17 @@ func dataSourceInstanceProfileFlattenClusterNetworkAttachmentIsolationPolicy(res
 	return finalList
 }
 
-func dataSourceInstanceProfileClusterNetworkAttachmentIsolationPolicyToMap(vcpuArchitectureItem vpcv1.InstanceProfileClusterNetworkAttachmentIsolationPolicy) (vcpuArchitectureMap map[string]interface{}) {
-	vcpuArchitectureMap = map[string]interface{}{}
+func dataSourceInstanceProfileClusterNetworkAttachmentIsolationPolicyToMap(clusterNetworkAttachmentCountPolicy vpcv1.InstanceProfileClusterNetworkAttachmentIsolationPolicy) (clusterNetworkAttachmentCountPolicyMap map[string]interface{}) {
+	clusterNetworkAttachmentCountPolicyMap = map[string]interface{}{}
 
-	if vcpuArchitectureItem.Type != nil {
-		vcpuArchitectureMap["type"] = vcpuArchitectureItem.Type
+	if clusterNetworkAttachmentCountPolicy.Type != nil {
+		clusterNetworkAttachmentCountPolicyMap["type"] = clusterNetworkAttachmentCountPolicy.Type
 	}
-	if vcpuArchitectureItem.Value != nil {
-		vcpuArchitectureMap["value"] = vcpuArchitectureItem.Value
+	if clusterNetworkAttachmentCountPolicy.Value != nil {
+		clusterNetworkAttachmentCountPolicyMap["value"] = clusterNetworkAttachmentCountPolicy.Value
 	}
 
-	return vcpuArchitectureMap
+	return clusterNetworkAttachmentCountPolicyMap
 }
 
 /* Changes for the AMD Support VCPU Manufacturer */

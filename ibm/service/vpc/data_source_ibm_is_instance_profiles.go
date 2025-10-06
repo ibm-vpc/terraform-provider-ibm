@@ -875,7 +875,7 @@ func instanceProfilesList(context context.Context, d *schema.ResourceData, meta 
 			clusterNetworkAttachmentIsolationPolicy := profile.ClusterNetworkAttachmentIsolationPolicy.(*vpcv1.InstanceProfileClusterNetworkAttachmentIsolationPolicy)
 			clusterNetworkAttachmentIsolationPolicyMap := dataSourceInstanceProfileClusterNetworkAttachmentIsolationPolicyToMap(*clusterNetworkAttachmentIsolationPolicy)
 			clusterNetworkAttachmentIsolationPolicyList = append(clusterNetworkAttachmentIsolationPolicyList, clusterNetworkAttachmentIsolationPolicyMap)
-			l["vcpu_architecture"] = clusterNetworkAttachmentIsolationPolicyList
+			l["cluster_network_attachment_isolation_policy"] = clusterNetworkAttachmentIsolationPolicyList
 		}
 
 		if profile.GpuCount != nil {

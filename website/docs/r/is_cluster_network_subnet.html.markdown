@@ -32,8 +32,8 @@ You can specify the following arguments for this resource.
 - `ipv4_cidr_block` - (Optional, String) The IPv4 range of this cluster network subnet, expressed in CIDR format.
 - `isolation_group` - (Optional, Integer) The isolation group for the cluster network subnet.The specified value must not exceed the cluster network's profile's isolation_group_count.
 - `name` - (Optional, String) The name for this cluster network subnet. The name is unique across all cluster network subnets in the cluster network.
-- `total_ipv4_address_count` - (Optional, Integer) The total number of IPv4 addresses in this cluster network subnet.Note: This is calculated as 2<sup>(32 - prefix length)
-</sup>. For example, the prefix length `/24` gives:<br> 2<sup>(32 - 24)</sup> = 2<sup>8</sup> = 256 addresses.
+- `total_ipv4_address_count` - (Optional, Integer) The total number of IPv4 addresses in this cluster network subnet.
+ Note: This is calculated as 2 <sup>(32 - prefix length)</sup>. For example, the prefix length `/24` gives:<br> 2<sup>(32 - 24)</sup> = 2<sup>8</sup> = 256 addresses.
 
 
 ## Attribute Reference

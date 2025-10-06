@@ -21,13 +21,14 @@ func TestAccIBMIsClusterNetworkSubnetBasic(t *testing.T) {
 	var conf vpcv1.ClusterNetworkSubnet
 	vpcname := fmt.Sprintf("tf-vpc-%d", acctest.RandIntRange(10, 100))
 	totalipv4addresscount := int64(64)
+	isolationGroup := int64(64)
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { acc.TestAccPreCheck(t) },
 		Providers:    acc.TestAccProviders,
 		CheckDestroy: testAccCheckIBMIsClusterNetworkSubnetDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccCheckIBMIsClusterNetworkSubnetConfigBasic(vpcname, totalipv4addresscount),
+				Config: testAccCheckIBMIsClusterNetworkSubnetConfigBasic(vpcname, totalipv4addresscount, isolationGroup),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					testAccCheckIBMIsClusterNetworkSubnetExists("ibm_is_cluster_network_subnet.is_cluster_network_subnet_instance", conf),
 					resource.TestCheckResourceAttr("ibm_is_vpc.is_vpc", "name", vpcname),
@@ -142,7 +143,7 @@ func TestAccIBMIsClusterNetworkSubnetBasicAllArgs(t *testing.T) {
 	})
 }
 
-func testAccCheckIBMIsClusterNetworkSubnetConfigBasic(vpcname string, totalipv4addresscount int64) string {
+func testAccCheckIBMIsClusterNetworkSubnetConfigBasic(vpcname string, totalipv4addresscount int64, isolationGroup int64) string {
 	return fmt.Sprintf(`
 		resource "ibm_is_vpc" "is_vpc" {
   			name = "%s"
@@ -159,7 +160,7 @@ func testAccCheckIBMIsClusterNetworkSubnetConfigBasic(vpcname string, totalipv4a
 			total_ipv4_address_count = %d
 			isolation_group = %d
 		}
-	`, vpcname, acc.ISClusterNetworkProfileName, acc.ISZoneName, totalipv4addresscount)
+	`, vpcname, acc.ISClusterNetworkProfileName, acc.ISZoneName, totalipv4addresscount, isolationGroup)
 }
 
 func testAccCheckIBMIsClusterNetworkSubnetConfig(vpcname, subnetname1, subnetname2 string, totalIpv4AddressCount int64) string {

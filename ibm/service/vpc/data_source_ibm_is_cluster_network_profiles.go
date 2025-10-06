@@ -111,7 +111,7 @@ func DataSourceIBMIsClusterNetworkProfiles() *schema.Resource {
 							},
 						},
 						"isolation_group_count": &schema.Schema{
-							Type:        schema.TypeInt,
+							Type:        schema.TypeList,
 							Computed:    true,
 							Description: "The number of isolation groups supported by this cluster network profile.",
 							Elem: &schema.Resource{
@@ -243,7 +243,7 @@ func DataSourceIBMIsClusterNetworkProfilesClusterNetworkProfileToMap(model *vpcv
 		if err != nil {
 			return modelMap, err
 		}
-		modelMap["subnet_routing_supported"] = []map[string]interface{}{isolationGC}
+		modelMap["isolation_group_count"] = []map[string]interface{}{isolationGC}
 	}
 
 	zones := []map[string]interface{}{}
