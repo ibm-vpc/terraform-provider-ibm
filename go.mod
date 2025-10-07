@@ -17,7 +17,7 @@ require (
 	github.com/IBM/continuous-delivery-go-sdk/v2 v2.0.3
 	github.com/IBM/event-notifications-go-admin-sdk v0.15.0
 	github.com/IBM/eventstreams-go-sdk v1.4.0
-	github.com/IBM/go-sdk-core/v5 v5.20.1
+	github.com/IBM/go-sdk-core/v5 v5.21.0
 	github.com/IBM/ibm-backup-recovery-sdk-go v1.0.3
 	github.com/IBM/ibm-cos-sdk-go v1.12.2
 	github.com/IBM/ibm-cos-sdk-go-config/v2 v2.3.0
@@ -38,7 +38,7 @@ require (
 	github.com/IBM/secrets-manager-go-sdk/v2 v2.0.11
 	github.com/IBM/vmware-go-sdk v0.1.5
 	github.com/IBM/vpc-beta-go-sdk v0.8.0
-	github.com/IBM/vpc-go-sdk v0.70.1
+	github.com/IBM/vpc-go-sdk v0.74.0
 	github.com/ScaleFT/sshkeys v0.0.0-20200327173127-6142f742bca5
 	github.com/akamai/AkamaiOPEN-edgegrid-golang v1.2.2
 	github.com/akamai/AkamaiOPEN-edgegrid-golang/v5 v5.0.0
@@ -243,6 +243,3 @@ exclude (
 	k8s.io/client-go v11.0.1-0.20190409021438-1a26190bd76a+incompatible
 	k8s.io/client-go v12.0.0+incompatible
 )
-
-replace github.com/IBM/vpc-go-sdk v0.70.1 => ./common/github.com/IBM/vpc-go-sdk
-
