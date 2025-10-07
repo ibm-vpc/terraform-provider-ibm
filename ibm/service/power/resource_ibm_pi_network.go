@@ -37,9 +37,9 @@ func ResourceIBMPINetwork() *schema.Resource {
 		Importer:      &schema.ResourceImporter{},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(60 * time.Minute),
-			Update: schema.DefaultTimeout(60 * time.Minute),
-			Delete: schema.DefaultTimeout(60 * time.Minute),
+			Create: schema.DefaultTimeout(15 * time.Minute),
+			Update: schema.DefaultTimeout(10 * time.Minute),
+			Delete: schema.DefaultTimeout(10 * time.Minute),
 		},
 		CustomizeDiff: customdiff.Sequence(
 			func(_ context.Context, diff *schema.ResourceDiff, v interface{}) error {
@@ -752,7 +752,7 @@ func networkMapToNetworkCreatePeer(networkCreatePeerMap map[string]interface{}) 
 	ncp := &models.NetworkCreatePeer{}
 	if networkCreatePeerMap[Attr_ID].(string) != "" {
 		id := networkCreatePeerMap[Attr_ID].(string)
-		ncp.ID = &id
+		ncp.ID = id
 	}
 	if networkCreatePeerMap[Attr_NetworkAddressTranslation] != nil && len(networkCreatePeerMap[Attr_NetworkAddressTranslation].([]interface{})) > 0 {
 		networkAddressTranslationModel := natMapToNetworkAddressTranslation(networkCreatePeerMap[Attr_NetworkAddressTranslation].([]interface{})[0].(map[string]interface{}))
