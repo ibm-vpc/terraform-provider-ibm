@@ -944,8 +944,11 @@ func instanceProfileGet(d *schema.ResourceData, meta interface{}, name string) e
 		}
 	}
 	if profile.NetworkBandwidthMode != nil {
-		err = d.Set("network_bandwidth_mode", dataSourceInstanceProfileFlattenTotalVolumeBandwidth(*profile.TotalVolumeBandwidth.(*vpcv1.InstanceProfileVolumeBandwidth)))
+		bandwidthList, err := dataSourceInstanceProfileFlattenNetworkBandwidthMode(*profile.NetworkBandwidthMode.(*vpcv1.InstanceProfileNetworkBandwidthMode))
 		if err != nil {
+			return err
+		}
+		if err = d.Set("network_bandwidth_mode", bandwidthList); err != nil {
 			return err
 		}
 	}
