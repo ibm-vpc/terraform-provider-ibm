@@ -910,7 +910,7 @@ func instanceProfilesList(context context.Context, d *schema.ResourceData, meta 
 		if profile.NetworkBandwidthMode != nil {
 			l["network_bandwidth_mode"], err = dataSourceInstanceProfileFlattenNetworkBandwidthMode(*profile.NetworkBandwidthMode.(*vpcv1.InstanceProfileNetworkBandwidthMode))
 			if err != nil {
-				return err
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_instance_profiles", "read", "network_bandwidth_mode").GetDiag()
 			}
 		}
 

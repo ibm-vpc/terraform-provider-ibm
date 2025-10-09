@@ -162,7 +162,8 @@ In addition to the argument reference list, you can access the following attribu
   Nested schema for `network_bandwidth_mode`:
   - `default` - (string) The maximum number of network attachments supported by an instance using this profile.
   - `type` - (string) The minimum number of network attachments supported by an instance using this profile.
-  - `values` - (String) The type for this profile field, Ex: range or dependent.
+  - `values` - (String) The supported network bandwidth modes for an instance with this profile.
+  - `value` - (String) The value for this profile field.
 
 - `network_interface_count` - (List)
 

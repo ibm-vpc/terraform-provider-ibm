@@ -72,6 +72,8 @@ require (
 	sigs.k8s.io/controller-runtime v0.19.3
 )
 
+require github.ibm.com/ibmcloud/vpc-go-sdk v0.0.4 // indirect
+
 require (
 	github.com/Logicalis/asn1 v0.0.0-20190312173541-d60463189a56 // indirect
 	github.com/PromonLogicalis/asn1 v0.0.0-20190312173541-d60463189a56 // indirect
@@ -229,7 +231,7 @@ replace github.com/softlayer/softlayer-go v1.0.3 => github.com/IBM-Cloud/softlay
 // add sdk changes.
 replace github.com/portworx/sched-ops v0.0.0-20200831185134-3e8010dc7056 => github.com/portworx/sched-ops v0.20.4-openstorage-rc3 // required by rook v1.7
 
-replace github.com/IBM/vpc-go-sdk v0.67.1 => ./common/github.com/IBM/vpc-go-sdk
+replace github.com/IBM/vpc-go-sdk v0.74.1 => ./common/github.com/IBM/vpc-go-sdk
 
 replace github.com/hashicorp/consul/api v1.1.0 => github.com/hashicorp/consul/api v1.30.0
 

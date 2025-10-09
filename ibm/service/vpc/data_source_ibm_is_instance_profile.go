@@ -964,10 +964,10 @@ func instanceProfileGet(context context.Context, d *schema.ResourceData, meta in
 	if profile.NetworkBandwidthMode != nil {
 		bandwidthList, err := dataSourceInstanceProfileFlattenNetworkBandwidthMode(*profile.NetworkBandwidthMode.(*vpcv1.InstanceProfileNetworkBandwidthMode))
 		if err != nil {
-			return err
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting network_bandwidth_mode: %s", err), "(Data) ibm_is_instance_profile", "read", "set-network_bandwidth_mode").GetDiag()
 		}
 		if err = d.Set("network_bandwidth_mode", bandwidthList); err != nil {
-			return err
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting network_bandwidth_mode: %s", err), "(Data) ibm_is_instance_profile", "read", "set-network_bandwidth_mode").GetDiag()
 		}
 	}
 	if profile.Disks != nil {
