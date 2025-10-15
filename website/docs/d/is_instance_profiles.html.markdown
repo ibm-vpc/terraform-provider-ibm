@@ -213,9 +213,16 @@ You can access the following attribute references after your data source is crea
         - `default` - (String) The default VCPU manufacturer for an instance with this profile.
         - `type` - (String) The type for this profile field.
         - `value` - (String) The VCPU manufacturer for an instance with this profile.
-    - `vcpu_percentage` - (List) The permitted values for VCPU percentage for an instance with this profile.
-	    
-        Nested schema for **vcpu_percentage**:
-		- `default` - (Integer) The default value for this profile field.
-		- `type` - (String) The type for this profile field. 
-		- `values` - (List) The permitted values for this profile field.
+  - `vcpu_percentage` - (List) The permitted values for VCPU percentage for an instance with this profile.
+      
+      Nested schema for **vcpu_percentage**:
+      - `default` - (Integer) The default value for this profile field.
+      - `type` - (String) The type for this profile field. 
+      - `values` - (List) The permitted values for this profile field.
+
+  - `volume_bandwidth_qos_modes` - (List) Nested `volume_bandwidth_qos_modes` blocks have the following structure:
+
+      Nested scheme for `volume_bandwidth_qos_modes`:
+      - `default` - (String) The default volume bandwidth QoS mode for this profile.
+      - `type` - (String) The type for this profile field.
+      - `values` - (String) The permitted volume bandwidth QoS modes for an instance using this profile. 

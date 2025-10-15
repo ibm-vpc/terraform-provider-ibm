@@ -278,5 +278,6 @@ You can access the following attribute references after your data source is crea
 	
 	Nested schema for **vcpu**:
 	- `percentage` - (Integer) The percentage of VCPU clock cycles allocated to the instance.The virtual server instance `vcpu.percentage` must be `100` when:- The virtual server instance `placement_target` is a dedicated host or dedicated  host group.- The virtual server instance `reservation_affinity.policy` is not `disabled`.If unspecified, the default for `vcpu_percentage` from the profile will be used.
+- `volume_bandwidth_qos_mode` - (String) The volume bandwidth QoS mode to use for this virtual server instance.
 - `vpc` - (String) The VPC ID that the instance templates needs to be created.
 - `zone` - (String) The name of the zone.

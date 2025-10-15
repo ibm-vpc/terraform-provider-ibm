@@ -217,3 +217,9 @@ In addition to the argument reference list, you can access the following attribu
 	- `default` - (Integer) The default value for this profile field.
 	- `type` - (String) The type for this profile field. Allowable values are: `enum`.
 	- `values` - (List) The permitted values for this profile field.
+- `volume_bandwidth_qos_modes` - (List) Nested `volume_bandwidth_qos_modes` blocks have the following structure:
+
+  Nested scheme for `volume_bandwidth_qos_modes`:
+  - `default` - (String) The default volume bandwidth QoS mode for this profile.
+  - `type` - (String) The type for this profile field.
+  - `values` - (String) The permitted volume bandwidth QoS modes for an instance using this profile.
