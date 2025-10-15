@@ -828,33 +828,6 @@ func DataSourceIBMISInstanceProfile() *schema.Resource {
 					},
 				},
 			},
-			"vcpu_tenancy": &schema.Schema{
-				Type:        schema.TypeList,
-				Computed:    true,
-				Description: "The permitted values for VCPU tenancy for an instance with this profile.",
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"default": &schema.Schema{
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: "Indicates the tenancy of the VCPU cores for this virtual server instance.- `dedicated` - The VCPU time is only used by this virtual server instance.- `shared` - The VCPU time is shared across virtual server instances.The enumerated values for this property may[expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.",
-						},
-						"type": &schema.Schema{
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: "The type for this profile field.",
-						},
-						"values": &schema.Schema{
-							Type:        schema.TypeList,
-							Computed:    true,
-							Description: "The permitted values for this profile field.",
-							Elem: &schema.Schema{
-								Type: schema.TypeString,
-							},
-						},
-					},
-				},
-			},
 		},
 	}
 }
@@ -1080,17 +1053,6 @@ func instanceProfileGet(context context.Context, d *schema.ResourceData, meta in
 		vcpuPercentage = append(vcpuPercentage, vcpuPercentageMap)
 		if err = d.Set("vcpu_percentage", vcpuPercentage); err != nil {
 			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting vcpu_percentage: %s", err), "(Data) ibm_is_instance_profile", "read", "set-vcpu_percentage").GetDiag()
-		}
-	}
-	if profile.VcpuTenancy != nil {
-		vcpuTenancy := []map[string]interface{}{}
-		vcpuTenancyMap, err := DataSourceIBMIsInstanceProfileInstanceProfileVcpuTenancyToMap(profile.VcpuTenancy)
-		if err != nil {
-			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_instance_profile", "read", "vcpu_tenancy-to-map").GetDiag()
-		}
-		vcpuTenancy = append(vcpuTenancy, vcpuTenancyMap)
-		if err = d.Set("vcpu_tenancy", vcpuTenancy); err != nil {
-			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting vcpu_tenancy: %s", err), "(Data) ibm_is_instance_profile", "read", "set-vcpu_tenancy").GetDiag()
 		}
 	}
 	if profile.VcpuCount != nil {
@@ -1713,13 +1675,6 @@ func DataSourceIBMIsInstanceProfileInstanceProfileVcpuBurstLimitToMap(model *vpc
 func DataSourceIBMIsInstanceProfileInstanceProfileVcpuPercentageToMap(model *vpcv1.InstanceProfileVcpuPercentage) (map[string]interface{}, error) {
 	modelMap := make(map[string]interface{})
 	modelMap["default"] = flex.IntValue(model.Default)
-	modelMap["type"] = *model.Type
-	modelMap["values"] = model.Values
-	return modelMap, nil
-}
-func DataSourceIBMIsInstanceProfileInstanceProfileVcpuTenancyToMap(model *vpcv1.InstanceProfileVcpuTenancy) (map[string]interface{}, error) {
-	modelMap := make(map[string]interface{})
-	modelMap["default"] = *model.Default
 	modelMap["type"] = *model.Type
 	modelMap["values"] = model.Values
 	return modelMap, nil

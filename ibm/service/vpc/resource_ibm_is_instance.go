@@ -768,12 +768,6 @@ func ResourceIBMISInstance() *schema.Resource {
 							Computed:    true,
 							Description: "The percentage of VCPU time allocated to the virtual server instance.The virtual server instance `vcpu.percentage` will be `100` when:- The virtual server instance `placement_target` is a dedicated host or dedicated  host group.- The virtual server instance `reservation_affinity.policy` is `disabled`.",
 						},
-						"tenancy": &schema.Schema{
-							Type:        schema.TypeString,
-							Optional:    true,
-							Computed:    true,
-							Description: "Indicates the tenancy of the VCPU cores for this virtual server instance.- `dedicated` - The VCPU time is only used by this virtual server instance.- `shared` - The VCPU time is shared across virtual server instances.The enumerated values for this property may[expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.",
-						},
 					},
 				},
 			},
@@ -9533,7 +9527,6 @@ func ResourceIBMIsInstanceInstanceVcpuToMap(model *vpcv1.InstanceVcpu) (map[stri
 	modelMap["count"] = flex.IntValue(model.Count)
 	modelMap["manufacturer"] = *model.Manufacturer
 	modelMap["percentage"] = flex.IntValue(model.Percentage)
-	modelMap["tenancy"] = *model.Tenancy
 	return modelMap, nil
 }
 
@@ -9545,16 +9538,12 @@ func ResourceIBMIsInstanceInstanceVcpuBurstToMap(model *vpcv1.InstanceVcpuBurst)
 func ResourceIBMIsInstanceMapToInstanceVcpuPatch(modelMap map[string]interface{}) (*vpcv1.InstanceVcpuPatch, error) {
 	model := &vpcv1.InstanceVcpuPatch{}
 	model.Percentage = core.Int64Ptr(int64(modelMap["percentage"].(int)))
-	model.Tenancy = core.StringPtr(modelMap["tenancy"].(string))
 	return model, nil
 }
 func ResourceIBMIsInstanceMapToInstanceVcpuPrototype(modelMap map[string]interface{}) (*vpcv1.InstanceVcpuPrototype, error) {
 	model := &vpcv1.InstanceVcpuPrototype{}
 	if modelMap["percentage"] != nil && modelMap["percentage"].(int) != 0 {
 		model.Percentage = core.Int64Ptr(int64(modelMap["percentage"].(int)))
-	}
-	if modelMap["tenancy"] != nil && modelMap["tenancy"].(string) != "" {
-		model.Tenancy = core.StringPtr(modelMap["tenancy"].(string))
 	}
 	return model, nil
 }

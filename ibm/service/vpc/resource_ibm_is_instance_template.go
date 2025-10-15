@@ -1318,11 +1318,6 @@ func ResourceIBMISInstanceTemplate() *schema.Resource {
 							Optional:    true,
 							Description: "The percentage of VCPU clock cycles allocated to the instance.The virtual server instance `vcpu.percentage` must be `100` when:- The virtual server instance `placement_target` is a dedicated host or dedicated  host group.- The virtual server instance `reservation_affinity.policy` is not `disabled`.If unspecified, the default for `vcpu_percentage` from the profile will be used.",
 						},
-						"tenancy": &schema.Schema{
-							Type:        schema.TypeString,
-							Optional:    true,
-							Description: "The tenancy of the VCPU cores for this virtual server instance:- `dedicated` - The VCPU time is only used by this virtual server instance.- `shared` - The VCPU time is shared across virtual server instances.The virtual server instance `tenancy` must be `dedicated` when:- The virtual server instance `placement_target` is a dedicated host or dedicated  host group.- The virtual server instance `reservation_affinity.policy` is not `disabled`.If unspecified, the default for `vcpu_tenancy` from the profile will be used.The enumerated values for this property may[expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.",
-						},
 					},
 				},
 			},
@@ -4826,18 +4821,12 @@ func ResourceIBMIsInstanceTemplateMapToInstanceVcpuPrototype(modelMap map[string
 	if modelMap["percentage"] != nil {
 		model.Percentage = core.Int64Ptr(int64(modelMap["percentage"].(int)))
 	}
-	if modelMap["tenancy"] != nil && modelMap["tenancy"].(string) != "" {
-		model.Tenancy = core.StringPtr(modelMap["tenancy"].(string))
-	}
 	return model, nil
 }
 func ResourceIBMIsInstanceTemplateInstanceVcpuPrototypeToMap(model *vpcv1.InstanceVcpuPrototype) (map[string]interface{}, error) {
 	modelMap := make(map[string]interface{})
 	if model.Percentage != nil {
 		modelMap["percentage"] = flex.IntValue(model.Percentage)
-	}
-	if model.Tenancy != nil {
-		modelMap["tenancy"] = *model.Tenancy
 	}
 	return modelMap, nil
 }

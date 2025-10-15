@@ -103,11 +103,6 @@ func DataSourceIBMISInstance() *schema.Resource {
 							Computed:    true,
 							Description: "The percentage of VCPU time allocated to the virtual server instance.The virtual server instance `vcpu.percentage` will be `100` when:- The virtual server instance `placement_target` is a dedicated host or dedicated  host group.- The virtual server instance `reservation_affinity.policy` is `disabled`.",
 						},
-						"tenancy": &schema.Schema{
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: "Indicates the tenancy of the VCPU cores for this virtual server instance.- `dedicated` - The VCPU time is only used by this virtual server instance.- `shared` - The VCPU time is shared across virtual server instances.The enumerated values for this property may[expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.",
-						},
 					},
 				},
 			},
@@ -2208,7 +2203,6 @@ func DataSourceIBMIsInstanceInstanceVcpuToMap(model *vpcv1.InstanceVcpu) (map[st
 	modelMap["count"] = flex.IntValue(model.Count)
 	modelMap["manufacturer"] = model.Manufacturer
 	modelMap["percentage"] = flex.IntValue(model.Percentage)
-	modelMap["tenancy"] = model.Tenancy
 	return modelMap, nil
 }
 

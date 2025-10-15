@@ -219,9 +219,3 @@ You can access the following attribute references after your data source is crea
 		- `default` - (Integer) The default value for this profile field.
 		- `type` - (String) The type for this profile field. 
 		- `values` - (List) The permitted values for this profile field.
-  - `vcpu_tenancy` - (List) The permitted values for VCPU tenancy for an instance with this profile.
-	    
-        Nested schema for **vcpu_tenancy**:
-		- `default` - (String) Indicates the tenancy of the VCPU cores for this virtual server instance.- `dedicated` - The VCPU time is only used by this virtual server instance.- `shared` - The VCPU time is shared across virtual server instances.The enumerated values for this property may[expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future. Allowable values are: `dedicated`, `shared`.
-		- `type` - (String) The type for this profile field.
-		- `values` - (List) The permitted values for this profile field. Allowable list items are: `dedicated`, `shared`. 

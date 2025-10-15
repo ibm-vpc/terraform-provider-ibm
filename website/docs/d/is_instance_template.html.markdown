@@ -278,6 +278,5 @@ You can access the following attribute references after your data source is crea
 	
 	Nested schema for **vcpu**:
 	- `percentage` - (Integer) The percentage of VCPU clock cycles allocated to the instance.The virtual server instance `vcpu.percentage` must be `100` when:- The virtual server instance `placement_target` is a dedicated host or dedicated  host group.- The virtual server instance `reservation_affinity.policy` is not `disabled`.If unspecified, the default for `vcpu_percentage` from the profile will be used.
-	- `tenancy` - (String) The tenancy of the VCPU cores for this virtual server instance:- `dedicated` - The VCPU time is only used by this virtual server instance.- `shared` - The VCPU time is shared across virtual server instances.The virtual server instance `tenancy` must be `dedicated` when:- The virtual server instance `placement_target` is a dedicated host or dedicated  host group.- The virtual server instance `reservation_affinity.policy` is not `disabled`.If unspecified, the default for `vcpu_tenancy` from the profile will be used.The enumerated values for this property may[expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future. Allowable values are: `dedicated`, `shared`. 
 - `vpc` - (String) The VPC ID that the instance templates needs to be created.
 - `zone` - (String) The name of the zone.
