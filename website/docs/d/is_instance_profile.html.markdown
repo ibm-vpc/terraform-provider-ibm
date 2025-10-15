@@ -142,6 +142,12 @@ In addition to the argument reference list, you can access the following attribu
 - `href` - (String) The URL for this virtual server instance profile.
 - `memory` - (List) Nested `memory` blocks have the following structure:
 
+- `cluster_network_attachment_isolation_policy` - (List) 
+
+  Nested scheme for `cluster_network_attachment_isolation_policy`:
+      - `type` - (String) The type for this profile field.
+      - `value` - (String) The policy the system will use to assign the isolation groups to cluster network attachments.
+
   Nested scheme for `memory`:
   - `default` - (String) The default value for this profile field.
   - `max` - (String) The maximum value for this profile field.

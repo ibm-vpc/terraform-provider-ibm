@@ -61,6 +61,12 @@ You can access the following attribute references after your data source is crea
       - `type` - (String) The type for this profile field.
       - `values` - (List) The permitted values for this profile field.
 
+  - `cluster_network_attachment_isolation_policy` - (List) 
+
+      Nested schema for **cluster_network_attachment_isolation_policy**:
+      - `type` - (String) The type for this profile field.
+      - `value` - (String) The policy the system will use to assign the isolation groups to cluster network attachments.
+
   - `confidential_compute_modes` - (List) 
 
       Nested schema for **confidential_compute_modes**:

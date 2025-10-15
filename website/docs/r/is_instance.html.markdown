@@ -660,7 +660,7 @@ Review the argument references that you can specify for your resource.
     `offering_crn` conflicts with `version_crn`, both are mutually exclusive. `catalog_offering` and `image` id are mutually exclusive.
     `snapshot` conflicts with `image` id and `instance_template`
 
-- `cluster_network_attachments` - (Optional, List) The cluster network attachments for this virtual server instance.The cluster network attachments are ordered for consistent instance configuration. [About cluster networks](https://cloud.ibm.com/docs/vpc?topic=vpc-about-cluster-network)
+- `cluster_network_attachments` - (Optional, List) The cluster network attachments to create for this virtual server instance. A cluster network attachment represents a device that is connected to a cluster network. The number of network attachments must match one of the values from the instance profile's cluster_network_attachment_count before the instance can be started.Each cluster network attachment's calculated isolation_group must match the isolation_group on the cluster network attachment's subnet, as determined by the cluster_network_attachment_isolation_policy in the instance profile.
 
   Nested schema for **cluster_network_attachments**:
 	- `name` - (Required, String) The name for this instance cluster network attachment. The name is unique across all network attachments for the instance. (`name` is a apply once attribute, changing it will not be detected by terraform)

@@ -15,11 +15,12 @@ import (
 )
 
 const (
-	isInstanceProfileName         = "name"
-	isInstanceProfileFamily       = "family"
-	isInstanceProfileArchitecture = "architecture"
-	isInstanceVCPUArchitecture    = "vcpu_architecture"
-	isInstanceVCPUManufacturer    = "vcpu_manufacturer"
+	isInstanceProfileName                     = "name"
+	isInstanceProfileFamily                   = "family"
+	isInstanceProfileArchitecture             = "architecture"
+	isInstanceVCPUArchitecture                = "vcpu_architecture"
+	isInstanceVCPUManufacturer                = "vcpu_manufacturer"
+	isClusterNetworkAttachmentIsolationPolicy = "cluster_network_attachment_isolation_policy"
 )
 
 func DataSourceIBMISInstanceProfile() *schema.Resource {
@@ -121,6 +122,24 @@ func DataSourceIBMISInstanceProfile() *schema.Resource {
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
+						},
+					},
+				},
+			},
+			isClusterNetworkAttachmentIsolationPolicy: {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"type": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The type for this profile field.",
+						},
+						"value": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The policy the system will use to assign the isolation groups to cluster network attachments for an instance with this profile.",
 						},
 					},
 				},
@@ -1012,6 +1031,13 @@ func instanceProfileGet(context context.Context, d *schema.ResourceData, meta in
 		}
 	}
 
+	if profile.ClusterNetworkAttachmentIsolationPolicy != nil {
+		err = d.Set(isClusterNetworkAttachmentIsolationPolicy, dataSourceInstanceProfileFlattenClusterNetworkAttachmentIsolationPolicy(*profile.ClusterNetworkAttachmentIsolationPolicy.(*vpcv1.InstanceProfileClusterNetworkAttachmentIsolationPolicy)))
+		if err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting cluster_network_attachment_isolation_policy: %s", err), "(Data) ibm_is_instance_profile", "read", "set-cluster_network_attachment_isolation_policy").GetDiag()
+		}
+	}
+
 	if profile.VcpuCount != nil {
 		err = d.Set("vcpu_count", dataSourceInstanceProfileFlattenVcpuCount(*profile.VcpuCount.(*vpcv1.InstanceProfileVcpu)))
 		if err != nil {
@@ -1304,7 +1330,6 @@ func dataSourceInstanceProfileFlattenVcpuArchitecture(result vpcv1.InstanceProfi
 	finalList = []map[string]interface{}{}
 	finalMap := dataSourceInstanceProfileVcpuArchitectureToMap(result)
 	finalList = append(finalList, finalMap)
-
 	return finalList
 }
 
@@ -1319,6 +1344,26 @@ func dataSourceInstanceProfileVcpuArchitectureToMap(vcpuArchitectureItem vpcv1.I
 	}
 
 	return vcpuArchitectureMap
+}
+
+func dataSourceInstanceProfileFlattenClusterNetworkAttachmentIsolationPolicy(result vpcv1.InstanceProfileClusterNetworkAttachmentIsolationPolicy) (finalList []map[string]interface{}) {
+	finalList = []map[string]interface{}{}
+	finalMap := dataSourceInstanceProfileClusterNetworkAttachmentIsolationPolicyToMap(result)
+	finalList = append(finalList, finalMap)
+	return finalList
+}
+
+func dataSourceInstanceProfileClusterNetworkAttachmentIsolationPolicyToMap(clusterNetworkAttachmentCountPolicy vpcv1.InstanceProfileClusterNetworkAttachmentIsolationPolicy) (clusterNetworkAttachmentCountPolicyMap map[string]interface{}) {
+	clusterNetworkAttachmentCountPolicyMap = map[string]interface{}{}
+
+	if clusterNetworkAttachmentCountPolicy.Type != nil {
+		clusterNetworkAttachmentCountPolicyMap["type"] = clusterNetworkAttachmentCountPolicy.Type
+	}
+	if clusterNetworkAttachmentCountPolicy.Value != nil {
+		clusterNetworkAttachmentCountPolicyMap["value"] = clusterNetworkAttachmentCountPolicy.Value
+	}
+
+	return clusterNetworkAttachmentCountPolicyMap
 }
 
 /* Changes for the AMD Support VCPU Manufacturer */
