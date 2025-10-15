@@ -780,6 +780,55 @@ func DataSourceIBMISInstanceProfile() *schema.Resource {
 					},
 				},
 			},
+
+			// shared core changes
+
+			"vcpu_burst_limit": &schema.Schema{
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "The permitted value for VCPU burst limit percentage for an instance with this profile.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"type": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The type for this profile field.",
+						},
+						"value": &schema.Schema{
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: "The value for this profile field.",
+						},
+					},
+				},
+			},
+			"vcpu_percentage": &schema.Schema{
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "The permitted values for VCPU percentage for an instance with this profile.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"default": &schema.Schema{
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: "The default value for this profile field.",
+						},
+						"type": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The type for this profile field.",
+						},
+						"values": &schema.Schema{
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "The permitted values for this profile field.",
+							Elem: &schema.Schema{
+								Type: schema.TypeInt,
+							},
+						},
+					},
+				},
+			},
 			"volume_bandwidth_qos_modes": &schema.Schema{
 				Type:     schema.TypeList,
 				Computed: true,
