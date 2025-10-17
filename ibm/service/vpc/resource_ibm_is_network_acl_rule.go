@@ -372,6 +372,9 @@ func nwaclRuleCreate(d *schema.ResourceData, meta interface{}, nwACLID string) e
 	sourceminport := int64(-1)
 	sourcemaxport := int64(-1)
 	protocol := "icmp_tcp_udp"
+	if action == "deny" {
+		protocol = "any"
+	}
 	if protocol, ok := d.GetOk(isNetworkACLRuleProtocol); ok {
 		protocol = protocol.(string)
 	}

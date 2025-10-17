@@ -661,9 +661,15 @@ func parseIBMISSecurityGroupRuleDictionary(d *schema.ResourceData, tag string, s
 	}
 
 	parsed.protocol = "icmp_tcp_udp"
-	if protocol, ok := d.GetOk(isSecurityGroupRuleProtocol); ok {
-		parsed.protocol = protocol.(string)
+	if v, ok := d.GetOk(isSecurityGroupRuleProtocol); ok {
+		protocol := v.(string)
+		if protocol == "all" {
+			parsed.protocol = "icmp_tcp_udp"
+		} else {
+			parsed.protocol = protocol
+		}
 	}
+
 	sgTemplate.Protocol = &parsed.protocol
 	if icmpInterface, ok := d.GetOk("icmp"); ok {
 		if icmpInterface.([]interface{})[0] != nil {

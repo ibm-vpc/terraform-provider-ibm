@@ -889,7 +889,11 @@ func createInlineRules(nwaclC *vpcv1.VpcV1, nwaclid string, rules []interface{})
 		sourcemaxport := int64(-1)
 		protocol := rulex[isNetworkACLRuleProtocol].(string)
 		if protocol == "" {
-			protocol = "icmp_tcp_udp"
+			if action == "allow" {
+				protocol = "icmp_tcp_udp"
+			} else if action == "deny" {
+				protocol = "any"
+			}
 		}
 
 		ruleTemplate := &vpcv1.NetworkACLRulePrototype{

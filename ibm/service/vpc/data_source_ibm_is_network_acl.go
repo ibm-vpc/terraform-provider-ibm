@@ -567,7 +567,10 @@ func setCommonSecurityRuleFields(r map[string]interface{}, id, href, protocol, n
 	r[isNetworkACLRuleHref] = *href
 	r[isNetworkACLRuleProtocol] = *protocol
 	if before != nil {
-		r[isNwACLRuleBefore] = *before.ID
+		beforeList := []map[string]interface{}{}
+		beforeMap := dataSourceNetworkACLRulesBeforeToMap(*before)
+		beforeList = append(beforeList, beforeMap)
+		r[isNwACLRuleBefore] = beforeList
 	}
 	r[isNetworkACLRuleName] = *name
 	r[isNetworkACLRuleAction] = *action
