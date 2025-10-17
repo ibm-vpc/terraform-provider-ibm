@@ -459,11 +459,15 @@ func dataSourceIBMIsVPNGatewayRead(context context.Context, d *schema.ResourceDa
 	if err = d.Set("mode", vpnGateway.Mode); err != nil {
 		return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting mode: %s", err), "(Data) ibm_is_vpn_gateway", "read", "set-mode").GetDiag()
 	}
-	if err = d.Set("advertised_cidrs", vpnGateway.AdvertisedCIDRs); err != nil {
-		return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting advertised_cidrs: %s", err), "(Data) ibm_is_vpn_gateway", "read", "set-advertised_cidrs").GetDiag()
+	if vpnGateway.AdvertisedCIDRs != nil {
+		if err = d.Set("advertised_cidrs", vpnGateway.AdvertisedCIDRs); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting advertised_cidrs: %s", err), "(Data) ibm_is_vpn_gateway", "read", "set-advertised_cidrs").GetDiag()
+		}
 	}
-	if err = d.Set("local_asn", vpnGateway.LocalAsn); err != nil {
-		return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting local_asn: %s", err), "(Data) ibm_is_vpn_gateway", "read", "set-local_asn").GetDiag()
+	if vpnGateway.LocalAsn != nil {
+		if err = d.Set("local_asn", vpnGateway.LocalAsn); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting local_asn: %s", err), "(Data) ibm_is_vpn_gateway", "read", "set-local_asn").GetDiag()
+		}
 	}
 	if vpnGateway.VPC != nil {
 		err = d.Set("vpc", dataSourceVPNGatewayFlattenVPC(vpnGateway.VPC))

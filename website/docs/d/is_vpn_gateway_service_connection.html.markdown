@@ -29,7 +29,7 @@ Review the argument reference that you can specify for your data source.
 
 - `vpn_gateway` - (Optional, String) The VPN gateway identifier.
 - `vpn_gateway_name` - (Optional, String) The VPN gateway name.
-- `vpn_gateway_connection` - (Optional, String) The VPN gateway connection identifier.
+- `vpn_gateway_connection` - (Required, String) The VPN gateway connection identifier.
 
   ~> **Note** Provide either one of `vpn_gateway`, `vpn_gateway_name` to identifiy vpn gateway.
 

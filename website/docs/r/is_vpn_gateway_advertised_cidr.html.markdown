@@ -50,7 +50,7 @@ resource "ibm_is_vpn_gateway" "example" {
   mode   = "route"
 }
 
-resource "ibm_is_vpn_gateway_advertised_cidr" "VPNGatewayAdvertisedCidr" {
+resource "ibm_is_vpn_gateway_advertised_cidr" "example" {
   vpn_gateway = ibm_is_vpn_gateway.example.id
   cidr        = "10.45.0.0/24"
 }
