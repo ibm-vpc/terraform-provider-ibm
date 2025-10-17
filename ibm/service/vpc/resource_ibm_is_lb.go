@@ -360,7 +360,7 @@ func ResourceIBMISLBValidator() *validate.ResourceValidator {
 
 	validateSchema := make([]validate.ValidateSchema, 0)
 	lbtype := "public, private, private_path"
-	isLBProfileAllowedValues := "network-fixed, network-private-path"
+	isLBProfileAllowedValues := "network-fixed, network-private-path, dynamic"
 
 	validateSchema = append(validateSchema,
 		validate.ValidateSchema{
