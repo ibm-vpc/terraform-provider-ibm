@@ -38,11 +38,13 @@ func ResourceIBMISVPNGatewayAdvertisedCidr() *schema.Resource {
 			isVPNGatewayAdvertisedCidrVPNGateway: {
 				Type:        schema.TypeString,
 				Required:    true,
+				ForceNew:    true,
 				Description: "The VPN gateway identifier",
 			},
 			isVPNGatewayAdvertisedCidr: {
 				Type:        schema.TypeString,
 				Required:    true,
+				ForceNew:    true,
 				Description: "The IP address range in CIDR block notation.",
 			},
 		},

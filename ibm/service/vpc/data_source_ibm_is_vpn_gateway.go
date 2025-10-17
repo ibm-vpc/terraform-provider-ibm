@@ -460,10 +460,10 @@ func dataSourceIBMIsVPNGatewayRead(context context.Context, d *schema.ResourceDa
 		return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting mode: %s", err), "(Data) ibm_is_vpn_gateway", "read", "set-mode").GetDiag()
 	}
 	if err = d.Set("advertised_cidrs", vpnGateway.AdvertisedCIDRs); err != nil {
-		return diag.FromErr(fmt.Errorf("Error setting advertised cidrs: %s", err))
+		return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting advertised_cidrs: %s", err), "(Data) ibm_is_vpn_gateway", "read", "set-advertised_cidrs").GetDiag()
 	}
 	if err = d.Set("local_asn", vpnGateway.LocalAsn); err != nil {
-		return diag.FromErr(fmt.Errorf("Error setting local asn: %s", err))
+		return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting local_asn: %s", err), "(Data) ibm_is_vpn_gateway", "read", "set-local_asn").GetDiag()
 	}
 	if vpnGateway.VPC != nil {
 		err = d.Set("vpc", dataSourceVPNGatewayFlattenVPC(vpnGateway.VPC))

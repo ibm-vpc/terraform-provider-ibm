@@ -302,8 +302,12 @@ func dataSourceIBMVPNGatewaysRead(context context.Context, d *schema.ResourceDat
 		gateway[isVPNGatewayLifecycleState] = *data.LifecycleState
 		gateway[isVPNGatewayLifecycleReasons] = resourceVPNGatewayFlattenLifecycleReasons(data.LifecycleReasons)
 		gateway[isVPNGatewayMode] = *data.Mode
-		gateway[isVPNGatewayLocalAsn] = *data.LocalAsn
-		gateway[isVPNGatewayAdvertisedCidrs] = data.AdvertisedCIDRs
+		if data.LocalAsn != nil {
+			gateway[isVPNGatewayLocalAsn] = *data.LocalAsn
+		}
+		if data.AdvertisedCIDRs != nil {
+			gateway[isVPNGatewayAdvertisedCidrs] = data.AdvertisedCIDRs
+		}
 		gateway[isVPNGatewayResourceGroup] = *data.ResourceGroup.ID
 		gateway[isVPNGatewaySubnet] = *data.Subnet.ID
 		gateway[isVPNGatewayCrn] = *data.CRN

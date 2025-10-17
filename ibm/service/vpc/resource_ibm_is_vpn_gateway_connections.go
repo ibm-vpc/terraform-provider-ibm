@@ -341,7 +341,6 @@ func ResourceIBMISVPNGatewayConnection() *schema.Resource {
 				MinItems: 2,
 				MaxItems: 2,
 				Optional: true,
-				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"neighbor_ip": {
