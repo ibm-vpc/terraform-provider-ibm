@@ -15,11 +15,11 @@ Provides a read-only data source for VPN gateway service Connection. You can the
 ```hcl
 data "ibm_is_vpn_gateway_service_connection" "example" {
   vpn_gateway = ibm_is_vpn_gateway.example.id
-  vpn_gateway_connection = ibm_is_vpn_gateway_connection.example.gateway_connection
+  vpn_gateway_service_connection = "3066f374-97f7-4138-b59d-20a8414f49a8"
 }
 data "ibm_is_vpn_gateway_service_connection" "example-1" {
   vpn_gateway_name = ibm_is_vpn_gateway.example.name
-  vpn_gateway_connection = ibm_is_vpn_gateway_connection.example.gateway_connection
+  vpn_gateway_service_connection = "3066f374-97f7-4138-b59d-20a8414f49a8"
 }
 ```
 
@@ -29,7 +29,7 @@ Review the argument reference that you can specify for your data source.
 
 - `vpn_gateway` - (Optional, String) The VPN gateway identifier.
 - `vpn_gateway_name` - (Optional, String) The VPN gateway name.
-- `vpn_gateway_connection` - (Required, String) The VPN gateway connection identifier.
+- `vpn_gateway_service_connection` - (Required, String) The VPN gateway service connection identifier.
 
   ~> **Note** Provide either one of `vpn_gateway`, `vpn_gateway_name` to identifiy vpn gateway.
 

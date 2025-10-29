@@ -186,7 +186,7 @@ Review the argument references that you can specify for your resource.
 - `tunnel` - (Optional, List) 
   Nested schema for **tunnel**:
   - `neighbor_ip` - (Required, String) 	The IP address of the neighbor on the virtual tunnel interface.
-	- `tunnel_interface_ip` - (Required, String) he IP address of the virtual tunnel interface.
+  - `tunnel_interface_ip` - (Required, String) The IP address of the virtual tunnel interface.
 - `vpn_gateway` - (Required, Forces new resource, String) The unique identifier of the VPN gateway.
 
 ## Attribute reference

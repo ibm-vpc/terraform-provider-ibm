@@ -128,7 +128,6 @@ In addition to all argument references listed, you can access the following attr
 
 - `tunnels` - (List) The VPN tunnel configuration for this VPN gateway connection (in static route mode).
   Nested scheme for **tunnels**:
-    - `address` - (String) 
 	- `neighbor_ip` - (String) The IP address of the neighbor on the virtual tunnel interface.
 	- `protocol_state` -  (String) BGP routing protocol state.
 	- `public_ip_address` - (String) The IP address of the VPN gateway member in which the tunnel resides. This property may add support for IPv6 addresses in the future. When processing a value in this property, verify that the address is in an expected format. If it is not, log an error. Optionally halt processing and surface the error, or bypass the resource on which the unexpected IP address format was encountered.

@@ -76,7 +76,6 @@ In addition to all argument reference list, you can access the following attribu
 - `tunnels` - (List) The VPN tunnel configuration for the VPN gateway connection (in static route mode).
 
   Nested scheme for `tunnels`:
-  	- `address` - (String) 
 	- `neighbor_ip` - (String) The IP address of the neighbor on the virtual tunnel interface.
 	- `protocol_state` -  (String) BGP routing protocol state.
 	- `status` - (String) The status of the VPN tunnel.
