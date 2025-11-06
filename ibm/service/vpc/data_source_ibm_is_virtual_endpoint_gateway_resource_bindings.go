@@ -21,9 +21,9 @@ import (
 	"github.com/IBM/vpc-go-sdk/vpcv1"
 )
 
-func DataSourceIBMIsEndpointGatewayResourceBindings() *schema.Resource {
+func DataSourceIBMIsVirtualEndpointGatewayResourceBindings() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceIBMIsEndpointGatewayResourceBindingsRead,
+		ReadContext: dataSourceIBMIsVirtualEndpointGatewayResourceBindingsRead,
 
 		Schema: map[string]*schema.Schema{
 			"endpoint_gateway_id": &schema.Schema{
@@ -121,10 +121,10 @@ func DataSourceIBMIsEndpointGatewayResourceBindings() *schema.Resource {
 	}
 }
 
-func dataSourceIBMIsEndpointGatewayResourceBindingsRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataSourceIBMIsVirtualEndpointGatewayResourceBindingsRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	vpcClient, err := meta.(conns.ClientSession).VpcV1API()
 	if err != nil {
-		tfErr := flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_endpoint_gateway_resource_bindings", "read", "initialize-client")
+		tfErr := flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_virtual_endpoint_gateway_resource_bindings", "read", "initialize-client")
 		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
 		return tfErr.GetDiag()
 	}
@@ -136,49 +136,49 @@ func dataSourceIBMIsEndpointGatewayResourceBindingsRead(context context.Context,
 	var pager *vpcv1.EndpointGatewayResourceBindingsPager
 	pager, err = vpcClient.NewEndpointGatewayResourceBindingsPager(listEndpointGatewayResourceBindingsOptions)
 	if err != nil {
-		tfErr := flex.TerraformErrorf(err, err.Error(), "(Data) ibm_is_endpoint_gateway_resource_bindings", "read")
+		tfErr := flex.TerraformErrorf(err, err.Error(), "(Data) ibm_is_virtual_endpoint_gateway_resource_bindings", "read")
 		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
 		return tfErr.GetDiag()
 	}
 
 	allItems, err := pager.GetAll()
 	if err != nil {
-		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("EndpointGatewayResourceBindingsPager.GetAll() failed %s", err), "(Data) ibm_is_endpoint_gateway_resource_bindings", "read")
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("EndpointGatewayResourceBindingsPager.GetAll() failed %s", err), "(Data) ibm_is_virtual_endpoint_gateway_resource_bindings", "read")
 		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
 		return tfErr.GetDiag()
 	}
 
-	d.SetId(dataSourceIBMIsEndpointGatewayResourceBindingsID(d))
+	d.SetId(dataSourceIBMIsVirtualEndpointGatewayResourceBindingsID(d))
 
 	mapSlice := []map[string]interface{}{}
 	for _, modelItem := range allItems {
-		modelMap, err := DataSourceIBMIsEndpointGatewayResourceBindingsEndpointGatewayResourceBindingToMap(&modelItem) // #nosec G601
+		modelMap, err := DataSourceIBMIsVirtualEndpointGatewayResourceBindingsEndpointGatewayResourceBindingToMap(&modelItem) // #nosec G601
 		if err != nil {
-			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_endpoint_gateway_resource_bindings", "read", "EndpointGateways-to-map").GetDiag()
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_virtual_endpoint_gateway_resource_bindings", "read", "EndpointGateways-to-map").GetDiag()
 		}
 		mapSlice = append(mapSlice, modelMap)
 	}
 
 	if err = d.Set("resource_bindings", mapSlice); err != nil {
-		return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting resource_bindings %s", err), "(Data) ibm_is_endpoint_gateway_resource_bindings", "read", "resource_bindings-set").GetDiag()
+		return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting resource_bindings %s", err), "(Data) ibm_is_virtual_endpoint_gateway_resource_bindings", "read", "resource_bindings-set").GetDiag()
 	}
 
 	return nil
 }
 
-// dataSourceIBMIsEndpointGatewayResourceBindingsID returns a reasonable ID for the list.
-func dataSourceIBMIsEndpointGatewayResourceBindingsID(d *schema.ResourceData) string {
+// dataSourceIBMIsVirtualEndpointGatewayResourceBindingsID returns a reasonable ID for the list.
+func dataSourceIBMIsVirtualEndpointGatewayResourceBindingsID(d *schema.ResourceData) string {
 	return time.Now().UTC().String()
 }
 
-func DataSourceIBMIsEndpointGatewayResourceBindingsEndpointGatewayResourceBindingToMap(model *vpcv1.EndpointGatewayResourceBinding) (map[string]interface{}, error) {
+func DataSourceIBMIsVirtualEndpointGatewayResourceBindingsEndpointGatewayResourceBindingToMap(model *vpcv1.EndpointGatewayResourceBinding) (map[string]interface{}, error) {
 	modelMap := make(map[string]interface{})
 	modelMap["created_at"] = model.CreatedAt.String()
 	modelMap["href"] = *model.Href
 	modelMap["id"] = *model.ID
 	lifecycleReasons := []map[string]interface{}{}
 	for _, lifecycleReasonsItem := range model.LifecycleReasons {
-		lifecycleReasonsItemMap, err := DataSourceIBMIsEndpointGatewayResourceBindingsEndpointGatewayResourceBindingLifecycleReasonToMap(&lifecycleReasonsItem) // #nosec G601
+		lifecycleReasonsItemMap, err := DataSourceIBMIsVirtualEndpointGatewayResourceBindingsEndpointGatewayResourceBindingLifecycleReasonToMap(&lifecycleReasonsItem) // #nosec G601
 		if err != nil {
 			return modelMap, err
 		}
@@ -189,7 +189,7 @@ func DataSourceIBMIsEndpointGatewayResourceBindingsEndpointGatewayResourceBindin
 	modelMap["name"] = *model.Name
 	modelMap["resource_type"] = *model.ResourceType
 	modelMap["service_endpoint"] = *model.ServiceEndpoint
-	targetMap, err := DataSourceIBMIsEndpointGatewayResourceBindingsEndpointGatewayResourceBindingTargetToMap(model.Target)
+	targetMap, err := DataSourceIBMIsVirtualEndpointGatewayResourceBindingsEndpointGatewayResourceBindingTargetToMap(model.Target)
 	if err != nil {
 		return modelMap, err
 	}
@@ -198,7 +198,7 @@ func DataSourceIBMIsEndpointGatewayResourceBindingsEndpointGatewayResourceBindin
 	return modelMap, nil
 }
 
-func DataSourceIBMIsEndpointGatewayResourceBindingsEndpointGatewayResourceBindingLifecycleReasonToMap(model *vpcv1.EndpointGatewayResourceBindingLifecycleReason) (map[string]interface{}, error) {
+func DataSourceIBMIsVirtualEndpointGatewayResourceBindingsEndpointGatewayResourceBindingLifecycleReasonToMap(model *vpcv1.EndpointGatewayResourceBindingLifecycleReason) (map[string]interface{}, error) {
 	modelMap := make(map[string]interface{})
 	modelMap["code"] = *model.Code
 	modelMap["message"] = *model.Message
@@ -208,9 +208,9 @@ func DataSourceIBMIsEndpointGatewayResourceBindingsEndpointGatewayResourceBindin
 	return modelMap, nil
 }
 
-func DataSourceIBMIsEndpointGatewayResourceBindingsEndpointGatewayResourceBindingTargetToMap(model vpcv1.EndpointGatewayResourceBindingTargetIntf) (map[string]interface{}, error) {
+func DataSourceIBMIsVirtualEndpointGatewayResourceBindingsEndpointGatewayResourceBindingTargetToMap(model vpcv1.EndpointGatewayResourceBindingTargetIntf) (map[string]interface{}, error) {
 	if _, ok := model.(*vpcv1.EndpointGatewayResourceBindingTargetCRN); ok {
-		return DataSourceIBMIsEndpointGatewayResourceBindingsEndpointGatewayResourceBindingTargetCRNToMap(model.(*vpcv1.EndpointGatewayResourceBindingTargetCRN))
+		return DataSourceIBMIsVirtualEndpointGatewayResourceBindingsEndpointGatewayResourceBindingTargetCRNToMap(model.(*vpcv1.EndpointGatewayResourceBindingTargetCRN))
 	} else if _, ok := model.(*vpcv1.EndpointGatewayResourceBindingTarget); ok {
 		modelMap := make(map[string]interface{})
 		model := model.(*vpcv1.EndpointGatewayResourceBindingTarget)
@@ -223,7 +223,7 @@ func DataSourceIBMIsEndpointGatewayResourceBindingsEndpointGatewayResourceBindin
 	}
 }
 
-func DataSourceIBMIsEndpointGatewayResourceBindingsEndpointGatewayResourceBindingTargetCRNToMap(model *vpcv1.EndpointGatewayResourceBindingTargetCRN) (map[string]interface{}, error) {
+func DataSourceIBMIsVirtualEndpointGatewayResourceBindingsEndpointGatewayResourceBindingTargetCRNToMap(model *vpcv1.EndpointGatewayResourceBindingTargetCRN) (map[string]interface{}, error) {
 	modelMap := make(map[string]interface{})
 	modelMap["crn"] = *model.CRN
 	return modelMap, nil

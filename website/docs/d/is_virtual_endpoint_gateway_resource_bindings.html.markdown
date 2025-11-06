@@ -1,20 +1,20 @@
 ---
 layout: "ibm"
-page_title: "IBM : ibm_is_endpoint_gateway_resource_bindings"
+page_title: "IBM : ibm_is_virtual_endpoint_gateway_resource_bindings"
 description: |-
   Get information about EndpointGatewayResourceBindingCollection
 subcategory: "Virtual Private Cloud API"
 ---
 
-# ibm_is_endpoint_gateway_resource_bindings
+# ibm_is_virtual_endpoint_gateway_resource_bindings
 
 Provides a read-only data source to retrieve information about an EndpointGatewayResourceBindingCollection. You can then reference the fields of the data source in other resources within the same configuration by using interpolation syntax.
 
 ## Example Usage
 
 ```hcl
-data "ibm_is_endpoint_gateway_resource_bindings" "is_endpoint_gateway_resource_bindings" {
-	endpoint_gateway_id = ibm_is_endpoint_gateway_resource_binding.is_endpoint_gateway_resource_binding_instance.endpoint_gateway_id
+data "ibm_is_virtual_endpoint_gateway_resource_bindings" "is_virtual_endpoint_gateway_resource_bindings" {
+	endpoint_gateway_id = ibm_is_virtual_endpoint_gateway_resource_binding.is_virtual_endpoint_gateway_resource_binding_instance.endpoint_gateway_id
 }
 ```
 

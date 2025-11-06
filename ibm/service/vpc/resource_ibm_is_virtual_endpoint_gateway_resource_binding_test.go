@@ -20,27 +20,27 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestAccIBMIsEndpointGatewayResourceBindingBasic(t *testing.T) {
+func TestAccIBMIsVirtualEndpointGatewayResourceBindingBasic(t *testing.T) {
 	var conf vpcv1.EndpointGatewayResourceBinding
 	endpointGatewayID := fmt.Sprintf("tf_endpoint_gateway_id_%d", acctest.RandIntRange(10, 100))
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { acc.TestAccPreCheck(t) },
 		Providers:    acc.TestAccProviders,
-		CheckDestroy: testAccCheckIBMIsEndpointGatewayResourceBindingDestroy,
+		CheckDestroy: testAccCheckIBMIsVirtualEndpointGatewayResourceBindingDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccCheckIBMIsEndpointGatewayResourceBindingConfigBasic(endpointGatewayID),
+				Config: testAccCheckIBMIsVirtualEndpointGatewayResourceBindingConfigBasic(endpointGatewayID),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					testAccCheckIBMIsEndpointGatewayResourceBindingExists("ibm_is_endpoint_gateway_resource_binding.is_endpoint_gateway_resource_binding_instance", conf),
-					resource.TestCheckResourceAttr("ibm_is_endpoint_gateway_resource_binding.is_endpoint_gateway_resource_binding_instance", "endpoint_gateway_id", endpointGatewayID),
+					testAccCheckIBMIsVirtualEndpointGatewayResourceBindingExists("ibm_is_virtual_endpoint_gateway_resource_binding.is_virtual_endpoint_gateway_resource_binding_instance", conf),
+					resource.TestCheckResourceAttr("ibm_is_virtual_endpoint_gateway_resource_binding.is_virtual_endpoint_gateway_resource_binding_instance", "endpoint_gateway_id", endpointGatewayID),
 				),
 			},
 		},
 	})
 }
 
-func TestAccIBMIsEndpointGatewayResourceBindingAllArgs(t *testing.T) {
+func TestAccIBMIsVirtualEndpointGatewayResourceBindingAllArgs(t *testing.T) {
 	var conf vpcv1.EndpointGatewayResourceBinding
 	endpointGatewayID := fmt.Sprintf("tf_endpoint_gateway_id_%d", acctest.RandIntRange(10, 100))
 	name := fmt.Sprintf("tf_name_%d", acctest.RandIntRange(10, 100))
@@ -49,25 +49,25 @@ func TestAccIBMIsEndpointGatewayResourceBindingAllArgs(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { acc.TestAccPreCheck(t) },
 		Providers:    acc.TestAccProviders,
-		CheckDestroy: testAccCheckIBMIsEndpointGatewayResourceBindingDestroy,
+		CheckDestroy: testAccCheckIBMIsVirtualEndpointGatewayResourceBindingDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccCheckIBMIsEndpointGatewayResourceBindingConfig(endpointGatewayID, name),
+				Config: testAccCheckIBMIsVirtualEndpointGatewayResourceBindingConfig(endpointGatewayID, name),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					testAccCheckIBMIsEndpointGatewayResourceBindingExists("ibm_is_endpoint_gateway_resource_binding.is_endpoint_gateway_resource_binding_instance", conf),
-					resource.TestCheckResourceAttr("ibm_is_endpoint_gateway_resource_binding.is_endpoint_gateway_resource_binding_instance", "endpoint_gateway_id", endpointGatewayID),
-					resource.TestCheckResourceAttr("ibm_is_endpoint_gateway_resource_binding.is_endpoint_gateway_resource_binding_instance", "name", name),
+					testAccCheckIBMIsVirtualEndpointGatewayResourceBindingExists("ibm_is_virtual_endpoint_gateway_resource_binding.is_virtual_endpoint_gateway_resource_binding_instance", conf),
+					resource.TestCheckResourceAttr("ibm_is_virtual_endpoint_gateway_resource_binding.is_virtual_endpoint_gateway_resource_binding_instance", "endpoint_gateway_id", endpointGatewayID),
+					resource.TestCheckResourceAttr("ibm_is_virtual_endpoint_gateway_resource_binding.is_virtual_endpoint_gateway_resource_binding_instance", "name", name),
 				),
 			},
 			resource.TestStep{
-				Config: testAccCheckIBMIsEndpointGatewayResourceBindingConfig(endpointGatewayID, nameUpdate),
+				Config: testAccCheckIBMIsVirtualEndpointGatewayResourceBindingConfig(endpointGatewayID, nameUpdate),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("ibm_is_endpoint_gateway_resource_binding.is_endpoint_gateway_resource_binding_instance", "endpoint_gateway_id", endpointGatewayID),
-					resource.TestCheckResourceAttr("ibm_is_endpoint_gateway_resource_binding.is_endpoint_gateway_resource_binding_instance", "name", nameUpdate),
+					resource.TestCheckResourceAttr("ibm_is_virtual_endpoint_gateway_resource_binding.is_virtual_endpoint_gateway_resource_binding_instance", "endpoint_gateway_id", endpointGatewayID),
+					resource.TestCheckResourceAttr("ibm_is_virtual_endpoint_gateway_resource_binding.is_virtual_endpoint_gateway_resource_binding_instance", "name", nameUpdate),
 				),
 			},
 			resource.TestStep{
-				ResourceName:      "ibm_is_endpoint_gateway_resource_binding.is_endpoint_gateway_resource_binding_instance",
+				ResourceName:      "ibm_is_virtual_endpoint_gateway_resource_binding.is_virtual_endpoint_gateway_resource_binding_instance",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -75,9 +75,9 @@ func TestAccIBMIsEndpointGatewayResourceBindingAllArgs(t *testing.T) {
 	})
 }
 
-func testAccCheckIBMIsEndpointGatewayResourceBindingConfigBasic(endpointGatewayID string) string {
+func testAccCheckIBMIsVirtualEndpointGatewayResourceBindingConfigBasic(endpointGatewayID string) string {
 	return fmt.Sprintf(`
-		resource "ibm_is_endpoint_gateway_resource_binding" "is_endpoint_gateway_resource_binding_instance" {
+		resource "ibm_is_virtual_endpoint_gateway_resource_binding" "is_virtual_endpoint_gateway_resource_binding_instance" {
 			endpoint_gateway_id = "%s"
 			target {
 				crn = "crn:v1:bluemix:public:cloud-object-storage:global:a/aa2432b1fa4d4ace891e9b80fc104e34:1a0ec336-f391-4091-a6fb-5e084a4c56f4:bucket:bucket-27200-lwx4cfvcue"
@@ -86,10 +86,10 @@ func testAccCheckIBMIsEndpointGatewayResourceBindingConfigBasic(endpointGatewayI
 	`, endpointGatewayID)
 }
 
-func testAccCheckIBMIsEndpointGatewayResourceBindingConfig(endpointGatewayID string, name string) string {
+func testAccCheckIBMIsVirtualEndpointGatewayResourceBindingConfig(endpointGatewayID string, name string) string {
 	return fmt.Sprintf(`
 
-		resource "ibm_is_endpoint_gateway_resource_binding" "is_endpoint_gateway_resource_binding_instance" {
+		resource "ibm_is_virtual_endpoint_gateway_resource_binding" "is_virtual_endpoint_gateway_resource_binding_instance" {
 			endpoint_gateway_id = "%s"
 			name = "%s"
 			target {
@@ -99,7 +99,7 @@ func testAccCheckIBMIsEndpointGatewayResourceBindingConfig(endpointGatewayID str
 	`, endpointGatewayID, name)
 }
 
-func testAccCheckIBMIsEndpointGatewayResourceBindingExists(n string, obj vpcv1.EndpointGatewayResourceBinding) resource.TestCheckFunc {
+func testAccCheckIBMIsVirtualEndpointGatewayResourceBindingExists(n string, obj vpcv1.EndpointGatewayResourceBinding) resource.TestCheckFunc {
 
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
@@ -132,13 +132,13 @@ func testAccCheckIBMIsEndpointGatewayResourceBindingExists(n string, obj vpcv1.E
 	}
 }
 
-func testAccCheckIBMIsEndpointGatewayResourceBindingDestroy(s *terraform.State) error {
+func testAccCheckIBMIsVirtualEndpointGatewayResourceBindingDestroy(s *terraform.State) error {
 	vpcClient, err := acc.TestAccProvider.Meta().(conns.ClientSession).VpcV1API()
 	if err != nil {
 		return err
 	}
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "ibm_is_endpoint_gateway_resource_binding" {
+		if rs.Type != "ibm_is_virtual_endpoint_gateway_resource_binding" {
 			continue
 		}
 
@@ -165,7 +165,7 @@ func testAccCheckIBMIsEndpointGatewayResourceBindingDestroy(s *terraform.State) 
 	return nil
 }
 
-func TestResourceIBMIsEndpointGatewayResourceBindingEndpointGatewayResourceBindingTargetToMap(t *testing.T) {
+func TestResourceIBMIsVirtualEndpointGatewayResourceBindingEndpointGatewayResourceBindingTargetToMap(t *testing.T) {
 	checkResult := func(result map[string]interface{}) {
 		model := make(map[string]interface{})
 		model["crn"] = "crn:v1:bluemix:public:cloud-object-storage:global:a/aa2432b1fa4d4ace891e9b80fc104e34:1a0ec336-f391-4091-a6fb-5e084a4c56f4:bucket:bucket-27200-lwx4cfvcue"
@@ -176,12 +176,12 @@ func TestResourceIBMIsEndpointGatewayResourceBindingEndpointGatewayResourceBindi
 	model := new(vpcv1.EndpointGatewayResourceBindingTarget)
 	model.CRN = core.StringPtr("crn:v1:bluemix:public:cloud-object-storage:global:a/aa2432b1fa4d4ace891e9b80fc104e34:1a0ec336-f391-4091-a6fb-5e084a4c56f4:bucket:bucket-27200-lwx4cfvcue")
 
-	result, err := vpc.ResourceIBMIsEndpointGatewayResourceBindingEndpointGatewayResourceBindingTargetToMap(model)
+	result, err := vpc.ResourceIBMIsVirtualEndpointGatewayResourceBindingEndpointGatewayResourceBindingTargetToMap(model)
 	assert.Nil(t, err)
 	checkResult(result)
 }
 
-func TestResourceIBMIsEndpointGatewayResourceBindingEndpointGatewayResourceBindingTargetCRNToMap(t *testing.T) {
+func TestResourceIBMIsVirtualEndpointGatewayResourceBindingEndpointGatewayResourceBindingTargetCRNToMap(t *testing.T) {
 	checkResult := func(result map[string]interface{}) {
 		model := make(map[string]interface{})
 		model["crn"] = "crn:v1:bluemix:public:cloud-object-storage:global:a/aa2432b1fa4d4ace891e9b80fc104e34:1a0ec336-f391-4091-a6fb-5e084a4c56f4:bucket:bucket-27200-lwx4cfvcue"
@@ -192,12 +192,12 @@ func TestResourceIBMIsEndpointGatewayResourceBindingEndpointGatewayResourceBindi
 	model := new(vpcv1.EndpointGatewayResourceBindingTargetCRN)
 	model.CRN = core.StringPtr("crn:v1:bluemix:public:cloud-object-storage:global:a/aa2432b1fa4d4ace891e9b80fc104e34:1a0ec336-f391-4091-a6fb-5e084a4c56f4:bucket:bucket-27200-lwx4cfvcue")
 
-	result, err := vpc.ResourceIBMIsEndpointGatewayResourceBindingEndpointGatewayResourceBindingTargetCRNToMap(model)
+	result, err := vpc.ResourceIBMIsVirtualEndpointGatewayResourceBindingEndpointGatewayResourceBindingTargetCRNToMap(model)
 	assert.Nil(t, err)
 	checkResult(result)
 }
 
-func TestResourceIBMIsEndpointGatewayResourceBindingEndpointGatewayResourceBindingLifecycleReasonToMap(t *testing.T) {
+func TestResourceIBMIsVirtualEndpointGatewayResourceBindingEndpointGatewayResourceBindingLifecycleReasonToMap(t *testing.T) {
 	checkResult := func(result map[string]interface{}) {
 		model := make(map[string]interface{})
 		model["code"] = "resource_suspended_by_provider"
@@ -212,12 +212,12 @@ func TestResourceIBMIsEndpointGatewayResourceBindingEndpointGatewayResourceBindi
 	model.Message = core.StringPtr("The resource has been suspended. Contact IBM support with the CRN for next steps.")
 	model.MoreInfo = core.StringPtr("https://cloud.ibm.com/apidocs/vpc#resource-suspension")
 
-	result, err := vpc.ResourceIBMIsEndpointGatewayResourceBindingEndpointGatewayResourceBindingLifecycleReasonToMap(model)
+	result, err := vpc.ResourceIBMIsVirtualEndpointGatewayResourceBindingEndpointGatewayResourceBindingLifecycleReasonToMap(model)
 	assert.Nil(t, err)
 	checkResult(result)
 }
 
-func TestResourceIBMIsEndpointGatewayResourceBindingMapToEndpointGatewayResourceBindingTargetPrototype(t *testing.T) {
+func TestResourceIBMIsVirtualEndpointGatewayResourceBindingMapToEndpointGatewayResourceBindingTargetPrototype(t *testing.T) {
 	checkResult := func(result vpcv1.EndpointGatewayResourceBindingTargetPrototypeIntf) {
 		model := new(vpcv1.EndpointGatewayResourceBindingTargetPrototype)
 		model.CRN = core.StringPtr("crn:v1:bluemix:public:cloud-object-storage:global:a/aa2432b1fa4d4ace891e9b80fc104e34:1a0ec336-f391-4091-a6fb-5e084a4c56f4:bucket:bucket-27200-lwx4cfvcue")
@@ -228,12 +228,12 @@ func TestResourceIBMIsEndpointGatewayResourceBindingMapToEndpointGatewayResource
 	model := make(map[string]interface{})
 	model["crn"] = "crn:v1:bluemix:public:cloud-object-storage:global:a/aa2432b1fa4d4ace891e9b80fc104e34:1a0ec336-f391-4091-a6fb-5e084a4c56f4:bucket:bucket-27200-lwx4cfvcue"
 
-	result, err := vpc.ResourceIBMIsEndpointGatewayResourceBindingMapToEndpointGatewayResourceBindingTargetPrototype(model)
+	result, err := vpc.ResourceIBMIsVirtualEndpointGatewayResourceBindingMapToEndpointGatewayResourceBindingTargetPrototype(model)
 	assert.Nil(t, err)
 	checkResult(result)
 }
 
-func TestResourceIBMIsEndpointGatewayResourceBindingMapToEndpointGatewayResourceBindingTargetPrototypeEndpointGatewayResourceBindingTargetByCRN(t *testing.T) {
+func TestResourceIBMIsVirtualEndpointGatewayResourceBindingMapToEndpointGatewayResourceBindingTargetPrototypeEndpointGatewayResourceBindingTargetByCRN(t *testing.T) {
 	checkResult := func(result *vpcv1.EndpointGatewayResourceBindingTargetPrototypeEndpointGatewayResourceBindingTargetByCRN) {
 		model := new(vpcv1.EndpointGatewayResourceBindingTargetPrototypeEndpointGatewayResourceBindingTargetByCRN)
 		model.CRN = core.StringPtr("crn:v1:bluemix:public:cloud-object-storage:global:a/aa2432b1fa4d4ace891e9b80fc104e34:1a0ec336-f391-4091-a6fb-5e084a4c56f4:bucket:bucket-27200-lwx4cfvcue")
@@ -244,7 +244,7 @@ func TestResourceIBMIsEndpointGatewayResourceBindingMapToEndpointGatewayResource
 	model := make(map[string]interface{})
 	model["crn"] = "crn:v1:bluemix:public:cloud-object-storage:global:a/aa2432b1fa4d4ace891e9b80fc104e34:1a0ec336-f391-4091-a6fb-5e084a4c56f4:bucket:bucket-27200-lwx4cfvcue"
 
-	result, err := vpc.ResourceIBMIsEndpointGatewayResourceBindingMapToEndpointGatewayResourceBindingTargetPrototypeEndpointGatewayResourceBindingTargetByCRN(model)
+	result, err := vpc.ResourceIBMIsVirtualEndpointGatewayResourceBindingMapToEndpointGatewayResourceBindingTargetPrototypeEndpointGatewayResourceBindingTargetByCRN(model)
 	assert.Nil(t, err)
 	checkResult(result)
 }
