@@ -66,9 +66,58 @@ func ResourceIBMISNetworkACLRule() *schema.Resource {
 				Type:          schema.TypeString,
 				Optional:      true,
 				Computed:      true,
+				ForceNew:      true,
 				ConflictsWith: []string{isNetworkACLRuleTCP, isNetworkACLRuleUDP, isNetworkACLRuleICMP},
 				Description:   "The name of the network protocol",
 				ValidateFunc:  validate.InvokeValidator("ibm_is_network_acl_rule", isNetworkACLRuleProtocol),
+			},
+			isNetworkACLRuleICMPCode: {
+				Type:          schema.TypeInt,
+				Optional:      true,
+				Computed:      true,
+				ValidateFunc:  validate.InvokeValidator("ibm_is_network_acl_rule", isNetworkACLRuleICMPCode),
+				ConflictsWith: []string{isNetworkACLRuleICMP, isNetworkACLRulePortMax, isNetworkACLRulePortMin, isNetworkACLRuleSourcePortMax, isNetworkACLRuleSourcePortMin},
+				Description:   "The ICMP traffic code to allow. Valid values from 0 to 255.",
+			},
+			isNetworkACLRuleICMPType: {
+				Type:          schema.TypeInt,
+				Optional:      true,
+				Computed:      true,
+				ValidateFunc:  validate.InvokeValidator("ibm_is_network_acl_rule", isNetworkACLRuleICMPType),
+				ConflictsWith: []string{isNetworkACLRuleICMP, isNetworkACLRulePortMax, isNetworkACLRulePortMin, isNetworkACLRuleSourcePortMax, isNetworkACLRuleSourcePortMin},
+				Description:   "The ICMP traffic type to allow. Valid values from 0 to 254.",
+			},
+			isNetworkACLRulePortMax: {
+				Type:          schema.TypeInt,
+				Optional:      true,
+				Computed:      true,
+				ValidateFunc:  validate.InvokeValidator("ibm_is_network_acl_rule", isNetworkACLRulePortMax),
+				ConflictsWith: []string{isNetworkACLRuleTCP, isNetworkACLRuleUDP, isNetworkACLRuleICMPType, isNetworkACLRuleICMPCode},
+				Description:   "The highest port in the range of ports to be matched",
+			},
+			isNetworkACLRulePortMin: {
+				Type:          schema.TypeInt,
+				Optional:      true,
+				Computed:      true,
+				ValidateFunc:  validate.InvokeValidator("ibm_is_network_acl_rule", isNetworkACLRulePortMin),
+				ConflictsWith: []string{isNetworkACLRuleTCP, isNetworkACLRuleUDP, isNetworkACLRuleICMPType, isNetworkACLRuleICMPCode},
+				Description:   "The lowest port in the range of ports to be matched",
+			},
+			isNetworkACLRuleSourcePortMax: {
+				Type:          schema.TypeInt,
+				Optional:      true,
+				Computed:      true,
+				ValidateFunc:  validate.InvokeValidator("ibm_is_network_acl_rule", isNetworkACLRuleSourcePortMax),
+				ConflictsWith: []string{isNetworkACLRuleTCP, isNetworkACLRuleUDP, isNetworkACLRuleICMPType, isNetworkACLRuleICMPCode},
+				Description:   "The highest port in the range of ports to be matched",
+			},
+			isNetworkACLRuleSourcePortMin: {
+				Type:          schema.TypeInt,
+				Optional:      true,
+				Computed:      true,
+				ValidateFunc:  validate.InvokeValidator("ibm_is_network_acl_rule", isNetworkACLRuleSourcePortMin),
+				ConflictsWith: []string{isNetworkACLRuleTCP, isNetworkACLRuleUDP, isNetworkACLRuleICMPType, isNetworkACLRuleICMPCode},
+				Description:   "The lowest port in the range of ports to be matched",
 			},
 			isNetworkACLRuleHref: {
 				Type:        schema.TypeString,
@@ -122,6 +171,8 @@ func ResourceIBMISNetworkACLRule() *schema.Resource {
 				Optional:      true,
 				ConflictsWith: []string{isNetworkACLRuleTCP, isNetworkACLRuleUDP, isNetworkACLRuleProtocol},
 				ForceNew:      true,
+				Computed:      true,
+				Deprecated:    "icmp is deprecated, use 'protocol', 'code', and 'type' instead.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						isNetworkACLRuleICMPCode: {
@@ -147,6 +198,8 @@ func ResourceIBMISNetworkACLRule() *schema.Resource {
 				Optional:      true,
 				ConflictsWith: []string{isNetworkACLRuleICMP, isNetworkACLRuleUDP, isNetworkACLRuleProtocol},
 				ForceNew:      true,
+				Computed:      true,
+				Deprecated:    "tcp is deprecated, use 'protocol', 'port_min', 'port_max', 'source_port_min', and 'source_port_max' instead.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						isNetworkACLRulePortMax: {
@@ -188,6 +241,8 @@ func ResourceIBMISNetworkACLRule() *schema.Resource {
 				Optional:      true,
 				ConflictsWith: []string{isNetworkACLRuleICMP, isNetworkACLRuleTCP, isNetworkACLRuleProtocol},
 				ForceNew:      true,
+				Computed:      true,
+				Deprecated:    "udp is deprecated, use 'protocol', 'port_min', 'port_max', 'source_port_min', and 'source_port_max' instead.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						isNetworkACLRulePortMax: {
@@ -229,7 +284,7 @@ func ResourceIBMISNetworkACLRuleValidator() *validate.ResourceValidator {
 
 	validateSchema := make([]validate.ValidateSchema, 0)
 	direction := "inbound, outbound"
-	protocol := "ah, any, esp, gre, icmp_tcp_udp, ip_in_ip, l2tp, number_0, number_10, number_100, number_101, number_102, number_103, number_104, number_105, number_106, number_107, number_108, number_109, number_11, number_110, number_111, number_113, number_114, number_116, number_117, number_118, number_119, number_12, number_120, number_121, number_122, number_123, number_124, number_125, number_126, number_127, number_128, number_129, number_13, number_130, number_131, number_133, number_134, number_135, number_136, number_137, number_138, number_139, number_14, number_140, number_141, number_142, number_143, number_144, number_145, number_146, number_147, number_148, number_149, number_15, number_150, number_151, number_152, number_153, number_154, number_155, number_156, number_157, number_158, number_159, number_16, number_160, number_161, number_162, number_163, number_164, number_165, number_166, number_167, number_168, number_169, number_170, number_171, number_172, number_173, number_174, number_175, number_176, number_177, number_178, number_179, number_18, number_180, number_181, number_182, number_183, number_184, number_185, number_186, number_187, number_188, number_189, number_19, number_190, number_191, number_192, number_193, number_194, number_195, number_196, number_197, number_198, number_199, number_2, number_20, number_200, number_201, number_202, number_203, number_204, number_205, number_206, number_207, number_208, number_209, number_21, number_210, number_211, number_212, number_213, number_214, number_215, number_216, number_217, number_218, number_219, number_22, number_220, number_221, number_222, number_223, number_224, number_225, number_226, number_227, number_228, number_229, number_23, number_230, number_231, number_232, number_233, number_234, number_235, number_236, number_237, number_238, number_239, number_24, number_240, number_241, number_242, number_243, number_244, number_245, number_246, number_247, number_248, number_249, number_25, number_250, number_251, number_252, number_253, number_254, number_255, number_26, number_27, number_28, number_29, number_3, number_30, number_31, number_32, number_33, number_34, number_35, number_36, number_37, number_38, number_39, number_40, number_41, number_42, number_43, number_44, number_45, number_48, number_49, number_5, number_52, number_53, number_54, number_55, number_56, number_57, number_58, number_59, number_60, number_61, number_62, number_63, number_64, number_65, number_66, number_67, number_68, number_69, number_7, number_70, number_71, number_72, number_73, number_74, number_75, number_76, number_77, number_78, number_79, number_8, number_80, number_81, number_82, number_83, number_84, number_85, number_86, number_87, number_88, number_89, number_9, number_90, number_91, number_92, number_93, number_94, number_95, number_96, number_97, number_98, number_99, rsvp, sctp, vrrp"
+	protocol := "tcp, udp, icmp, ah, any, esp, gre, icmp_tcp_udp, ip_in_ip, l2tp, number_0, number_10, number_100, number_101, number_102, number_103, number_104, number_105, number_106, number_107, number_108, number_109, number_11, number_110, number_111, number_113, number_114, number_116, number_117, number_118, number_119, number_12, number_120, number_121, number_122, number_123, number_124, number_125, number_126, number_127, number_128, number_129, number_13, number_130, number_131, number_133, number_134, number_135, number_136, number_137, number_138, number_139, number_14, number_140, number_141, number_142, number_143, number_144, number_145, number_146, number_147, number_148, number_149, number_15, number_150, number_151, number_152, number_153, number_154, number_155, number_156, number_157, number_158, number_159, number_16, number_160, number_161, number_162, number_163, number_164, number_165, number_166, number_167, number_168, number_169, number_170, number_171, number_172, number_173, number_174, number_175, number_176, number_177, number_178, number_179, number_18, number_180, number_181, number_182, number_183, number_184, number_185, number_186, number_187, number_188, number_189, number_19, number_190, number_191, number_192, number_193, number_194, number_195, number_196, number_197, number_198, number_199, number_2, number_20, number_200, number_201, number_202, number_203, number_204, number_205, number_206, number_207, number_208, number_209, number_21, number_210, number_211, number_212, number_213, number_214, number_215, number_216, number_217, number_218, number_219, number_22, number_220, number_221, number_222, number_223, number_224, number_225, number_226, number_227, number_228, number_229, number_23, number_230, number_231, number_232, number_233, number_234, number_235, number_236, number_237, number_238, number_239, number_24, number_240, number_241, number_242, number_243, number_244, number_245, number_246, number_247, number_248, number_249, number_25, number_250, number_251, number_252, number_253, number_254, number_255, number_26, number_27, number_28, number_29, number_3, number_30, number_31, number_32, number_33, number_34, number_35, number_36, number_37, number_38, number_39, number_40, number_41, number_42, number_43, number_44, number_45, number_48, number_49, number_5, number_52, number_53, number_54, number_55, number_56, number_57, number_58, number_59, number_60, number_61, number_62, number_63, number_64, number_65, number_66, number_67, number_68, number_69, number_7, number_70, number_71, number_72, number_73, number_74, number_75, number_76, number_77, number_78, number_79, number_8, number_80, number_81, number_82, number_83, number_84, number_85, number_86, number_87, number_88, number_89, number_9, number_90, number_91, number_92, number_93, number_94, number_95, number_96, number_97, number_98, number_99, rsvp, sctp, vrrp"
 	action := "allow, deny"
 
 	validateSchema = append(validateSchema,
@@ -375,8 +430,8 @@ func nwaclRuleCreate(d *schema.ResourceData, meta interface{}, nwACLID string) e
 	if action == "deny" {
 		protocol = "any"
 	}
-	if protocol, ok := d.GetOk(isNetworkACLRuleProtocol); ok {
-		protocol = protocol.(string)
+	if protocolVal, ok := d.GetOk(isNetworkACLRuleProtocol); ok {
+		protocol = protocolVal.(string)
 	}
 
 	ruleTemplate := &vpcv1.NetworkACLRulePrototype{
@@ -394,7 +449,41 @@ func nwaclRuleCreate(d *schema.ResourceData, meta interface{}, nwACLID string) e
 		}
 	}
 
-	if len(icmp) > 0 {
+	if protocol != "icmp" {
+		if _, ok := d.GetOk("type"); ok {
+			return fmt.Errorf("attribute 'type' conflicts with protocol %s; 'type' is only valid for icmp protocol", protocol)
+		}
+		if _, ok := d.GetOk("code"); ok {
+			return fmt.Errorf("attribute 'code' conflicts with protocol %q; 'code' is only valid for icmp protocol", protocol)
+		}
+	}
+
+	if protocol != "tcp" && protocol != "udp" {
+		if _, ok := d.GetOk("port_min"); ok {
+			return fmt.Errorf("attribute 'port_min' conflicts with protocol %s; ports apply only to tcp/udp protocol", protocol)
+		}
+		if _, ok := d.GetOk("port_max"); ok {
+			return fmt.Errorf("attribute 'port_max' conflicts with protocol %s; ports apply only to tcp/udp protocol", protocol)
+		}
+		if _, ok := d.GetOk("source_port_max"); ok {
+			return fmt.Errorf("attribute 'source_port_max' conflicts with protocol %s; ports apply only to tcp/udp protocol", protocol)
+		}
+		if _, ok := d.GetOk("source_port_min"); ok {
+			return fmt.Errorf("attribute 'source_port_min' conflicts with protocol %s; ports apply only to tcp/udp protocol", protocol)
+		}
+	}
+
+	if protocol == "icmp" {
+		ruleTemplate.Protocol = &protocol
+		if val, ok := d.GetOk("type"); ok {
+			icmptype = int64(val.(int))
+			ruleTemplate.Type = &icmptype
+		}
+		if val, ok := d.GetOk("code"); ok {
+			icmpcode = int64(val.(int))
+			ruleTemplate.Code = &icmpcode
+		}
+	} else if len(icmp) > 0 {
 		protocol = "icmp"
 		ruleTemplate.Protocol = &protocol
 		if !isNil(icmp[0]) {
@@ -407,6 +496,43 @@ func nwaclRuleCreate(d *schema.ResourceData, meta interface{}, nwACLID string) e
 				icmpcode = int64(val.(int))
 				ruleTemplate.Code = &icmpcode
 			}
+		}
+	}
+
+	if protocol == "tcp" {
+		ruleTemplate.Protocol = &protocol
+		if val, ok := d.GetOk(isNetworkACLRulePortMin); ok {
+			minport = int64(val.(int))
+			ruleTemplate.DestinationPortMin = &minport
+		}
+		if val, ok := d.GetOk(isNetworkACLRulePortMax); ok {
+			maxport = int64(val.(int))
+			ruleTemplate.DestinationPortMax = &maxport
+		}
+		if val, ok := d.GetOk(isNetworkACLRuleSourcePortMin); ok {
+			sourceminport = int64(val.(int))
+			ruleTemplate.SourcePortMin = &sourceminport
+		}
+		if val, ok := d.GetOk(isNetworkACLRuleSourcePortMax); ok {
+			sourcemaxport = int64(val.(int))
+			ruleTemplate.SourcePortMax = &sourcemaxport
+		}
+		// Adding to default values
+		if minport == -1 {
+			minPort := int64(1)
+			ruleTemplate.DestinationPortMin = &minPort
+		}
+		if maxport == -1 {
+			maxport := int64(65535)
+			ruleTemplate.DestinationPortMax = &maxport
+		}
+		if sourceminport == -1 {
+			sourceminport := int64(1)
+			ruleTemplate.SourcePortMin = &sourceminport
+		}
+		if sourcemaxport == -1 {
+			sourcemaxport := int64(65535)
+			ruleTemplate.SourcePortMax = &sourcemaxport
 		}
 	} else if len(tcp) > 0 {
 		protocol = "tcp"
@@ -428,6 +554,44 @@ func nwaclRuleCreate(d *schema.ResourceData, meta interface{}, nwACLID string) e
 			sourcemaxport = int64(val.(int))
 			ruleTemplate.SourcePortMax = &sourcemaxport
 		}
+	}
+
+	if protocol == "udp" {
+		ruleTemplate.Protocol = &protocol
+		if val, ok := d.GetOk(isNetworkACLRulePortMin); ok {
+			minport = int64(val.(int))
+			ruleTemplate.DestinationPortMin = &minport
+		}
+		if val, ok := d.GetOk(isNetworkACLRulePortMax); ok {
+			maxport = int64(val.(int))
+			ruleTemplate.DestinationPortMax = &maxport
+		}
+		if val, ok := d.GetOk(isNetworkACLRuleSourcePortMin); ok {
+			sourceminport = int64(val.(int))
+			ruleTemplate.SourcePortMin = &sourceminport
+		}
+		if val, ok := d.GetOk(isNetworkACLRuleSourcePortMax); ok {
+			sourcemaxport = int64(val.(int))
+			ruleTemplate.SourcePortMax = &sourcemaxport
+		}
+		// Adding to default values
+		if minport == -1 {
+			minPort := int64(1)
+			ruleTemplate.DestinationPortMin = &minPort
+		}
+		if maxport == -1 {
+			maxport := int64(65535)
+			ruleTemplate.DestinationPortMax = &maxport
+		}
+		if sourceminport == -1 {
+			sourceminport := int64(1)
+			ruleTemplate.SourcePortMin = &sourceminport
+		}
+		if sourcemaxport == -1 {
+			sourcemaxport := int64(65535)
+			ruleTemplate.SourcePortMax = &sourcemaxport
+		}
+
 	} else if len(udp) > 0 {
 		protocol = "udp"
 		ruleTemplate.Protocol = &protocol
@@ -448,10 +612,9 @@ func nwaclRuleCreate(d *schema.ResourceData, meta interface{}, nwACLID string) e
 			sourcemaxport = int64(val.(int))
 			ruleTemplate.SourcePortMax = &sourcemaxport
 		}
-	} else {
-		ruleTemplate.Protocol = &protocol
 	}
 
+	ruleTemplate.Protocol = &protocol
 	createNetworkAclRuleOptions := &vpcv1.CreateNetworkACLRuleOptions{
 		NetworkACLID:            &nwACLID,
 		NetworkACLRulePrototype: ruleTemplate,
@@ -502,7 +665,7 @@ func nwaclRuleGet(d *schema.ResourceData, meta interface{}, nwACLID string, nwac
 	switch rule := nwaclRule.(type) {
 	case *vpcv1.NetworkACLRuleNetworkACLRuleProtocolIcmp:
 		{
-			setNetworkAclRuleCommonFields(d, nwACLID, rule.ID, rule.Href, rule.Protocol, rule.Name, rule.Action, rule.IPVersion, rule.Source, rule.Direction, rule.Direction, rule.Before)
+			setNetworkAclRuleCommonFields(d, nwACLID, rule.ID, rule.Href, rule.Protocol, rule.Name, rule.Action, rule.IPVersion, rule.Source, rule.Destination, rule.Direction, rule.Before)
 			d.Set(isNetworkACLRuleTCP, make([]map[string]int, 0, 0))
 			d.Set(isNetworkACLRuleUDP, make([]map[string]int, 0, 0))
 			icmp := make([]map[string]int, 1, 1)
@@ -511,12 +674,14 @@ func nwaclRuleGet(d *schema.ResourceData, meta interface{}, nwACLID string, nwac
 					isNetworkACLRuleICMPCode: int(*rule.Code),
 					isNetworkACLRuleICMPType: int(*rule.Type),
 				}
+				d.Set(isNetworkACLRuleICMPCode, int(*rule.Code))
+				d.Set(isNetworkACLRuleICMPType, int(*rule.Type))
 			}
 			d.Set(isNetworkACLRuleICMP, icmp)
 		}
 	case *vpcv1.NetworkACLRuleNetworkACLRuleProtocolTcpudp:
 		{
-			setNetworkAclRuleCommonFields(d, nwACLID, rule.ID, rule.Href, rule.Protocol, rule.Name, rule.Action, rule.IPVersion, rule.Source, rule.Direction, rule.Direction, rule.Before)
+			setNetworkAclRuleCommonFields(d, nwACLID, rule.ID, rule.Href, rule.Protocol, rule.Name, rule.Action, rule.IPVersion, rule.Source, rule.Destination, rule.Direction, rule.Before)
 			if *rule.Protocol == "tcp" {
 				d.Set(isNetworkACLRuleICMP, make([]map[string]int, 0, 0))
 				d.Set(isNetworkACLRuleUDP, make([]map[string]int, 0, 0))
@@ -528,6 +693,10 @@ func nwaclRuleGet(d *schema.ResourceData, meta interface{}, nwACLID string, nwac
 				tcp[0][isNetworkACLRulePortMax] = checkNetworkACLNil(rule.DestinationPortMax)
 				tcp[0][isNetworkACLRulePortMin] = checkNetworkACLNil(rule.DestinationPortMin)
 				d.Set(isNetworkACLRuleTCP, tcp)
+				d.Set(isNetworkACLRuleSourcePortMax, rule.SourcePortMax)
+				d.Set(isNetworkACLRuleSourcePortMin, rule.SourcePortMin)
+				d.Set(isNetworkACLRulePortMax, rule.DestinationPortMax)
+				d.Set(isNetworkACLRulePortMin, rule.DestinationPortMin)
 			} else if *rule.Protocol == "udp" {
 				d.Set(isNetworkACLRuleICMP, make([]map[string]int, 0, 0))
 				d.Set(isNetworkACLRuleTCP, make([]map[string]int, 0, 0))
@@ -539,25 +708,29 @@ func nwaclRuleGet(d *schema.ResourceData, meta interface{}, nwACLID string, nwac
 				udp[0][isNetworkACLRulePortMax] = checkNetworkACLNil(rule.DestinationPortMax)
 				udp[0][isNetworkACLRulePortMin] = checkNetworkACLNil(rule.DestinationPortMin)
 				d.Set(isNetworkACLRuleUDP, udp)
+				d.Set(isNetworkACLRuleSourcePortMax, rule.SourcePortMax)
+				d.Set(isNetworkACLRuleSourcePortMin, rule.SourcePortMin)
+				d.Set(isNetworkACLRulePortMax, rule.DestinationPortMax)
+				d.Set(isNetworkACLRulePortMin, rule.DestinationPortMin)
 			}
 		}
 	case *vpcv1.NetworkACLRuleNetworkACLRuleProtocolAny:
 		{
-			setNetworkAclRuleCommonFields(d, nwACLID, rule.ID, rule.Href, rule.Protocol, rule.Name, rule.Action, rule.IPVersion, rule.Source, rule.Direction, rule.Direction, rule.Before)
+			setNetworkAclRuleCommonFields(d, nwACLID, rule.ID, rule.Href, rule.Protocol, rule.Name, rule.Action, rule.IPVersion, rule.Source, rule.Destination, rule.Direction, rule.Before)
 			d.Set(isNetworkACLRuleICMP, make([]map[string]int, 0, 0))
 			d.Set(isNetworkACLRuleTCP, make([]map[string]int, 0, 0))
 			d.Set(isNetworkACLRuleUDP, make([]map[string]int, 0, 0))
 		}
 	case *vpcv1.NetworkACLRuleNetworkACLRuleProtocolIndividual:
 		{
-			setNetworkAclRuleCommonFields(d, nwACLID, rule.ID, rule.Href, rule.Protocol, rule.Name, rule.Action, rule.IPVersion, rule.Source, rule.Direction, rule.Direction, rule.Before)
+			setNetworkAclRuleCommonFields(d, nwACLID, rule.ID, rule.Href, rule.Protocol, rule.Name, rule.Action, rule.IPVersion, rule.Source, rule.Destination, rule.Direction, rule.Before)
 			d.Set(isNetworkACLRuleICMP, make([]map[string]int, 0, 0))
 			d.Set(isNetworkACLRuleTCP, make([]map[string]int, 0, 0))
 			d.Set(isNetworkACLRuleUDP, make([]map[string]int, 0, 0))
 		}
 	case *vpcv1.NetworkACLRuleNetworkACLRuleProtocolIcmptcpudp:
 		{
-			setNetworkAclRuleCommonFields(d, nwACLID, rule.ID, rule.Href, rule.Protocol, rule.Name, rule.Action, rule.IPVersion, rule.Source, rule.Direction, rule.Direction, rule.Before)
+			setNetworkAclRuleCommonFields(d, nwACLID, rule.ID, rule.Href, rule.Protocol, rule.Name, rule.Action, rule.IPVersion, rule.Source, rule.Destination, rule.Direction, rule.Before)
 			d.Set(isNetworkACLRuleICMP, make([]map[string]int, 0, 0))
 			d.Set(isNetworkACLRuleTCP, make([]map[string]int, 0, 0))
 			d.Set(isNetworkACLRuleUDP, make([]map[string]int, 0, 0))

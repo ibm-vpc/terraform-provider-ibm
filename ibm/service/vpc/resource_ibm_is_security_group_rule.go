@@ -4,6 +4,7 @@
 package vpc
 
 import (
+	"context"
 	"fmt"
 	"reflect"
 	"strings"
@@ -36,12 +37,13 @@ const (
 func ResourceIBMISSecurityGroupRule() *schema.Resource {
 
 	return &schema.Resource{
-		Create:   resourceIBMISSecurityGroupRuleCreate,
-		Read:     resourceIBMISSecurityGroupRuleRead,
-		Update:   resourceIBMISSecurityGroupRuleUpdate,
-		Delete:   resourceIBMISSecurityGroupRuleDelete,
-		Exists:   resourceIBMISSecurityGroupRuleExists,
-		Importer: &schema.ResourceImporter{},
+		Create:        resourceIBMISSecurityGroupRuleCreate,
+		Read:          resourceIBMISSecurityGroupRuleRead,
+		Update:        resourceIBMISSecurityGroupRuleUpdate,
+		Delete:        resourceIBMISSecurityGroupRuleDelete,
+		Exists:        resourceIBMISSecurityGroupRuleExists,
+		CustomizeDiff: customizeSecurityGroupRuleDiff,
+		Importer:      &schema.ResourceImporter{},
 
 		Schema: map[string]*schema.Schema{
 
@@ -93,8 +95,10 @@ func ResourceIBMISSecurityGroupRule() *schema.Resource {
 				Optional:      true,
 				ForceNew:      true,
 				MinItems:      1,
+				Computed:      true,
 				ConflictsWith: []string{isSecurityGroupRuleProtocolTCP, isSecurityGroupRuleProtocolUDP, isSecurityGroupRuleProtocol},
 				Description:   "protocol=icmp",
+				Deprecated:    "icmp is deprecated, use 'protocol', 'code', and 'type' instead.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						isSecurityGroupRuleType: {
@@ -119,7 +123,9 @@ func ResourceIBMISSecurityGroupRule() *schema.Resource {
 				Optional:      true,
 				MinItems:      1,
 				ForceNew:      true,
+				Computed:      true,
 				Description:   "protocol=tcp",
+				Deprecated:    "tcp is deprecated, use 'protocol', 'code', and 'type' instead.",
 				ConflictsWith: []string{isSecurityGroupRuleProtocolUDP, isSecurityGroupRuleProtocolICMP, isSecurityGroupRuleProtocol},
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -147,7 +153,9 @@ func ResourceIBMISSecurityGroupRule() *schema.Resource {
 				Optional:      true,
 				ForceNew:      true,
 				MinItems:      1,
+				Computed:      true,
 				Description:   "protocol=udp",
+				Deprecated:    "udp is deprecated, use 'protocol', 'port_min', and 'port_max' instead.",
 				ConflictsWith: []string{isSecurityGroupRuleProtocolTCP, isSecurityGroupRuleProtocolICMP, isSecurityGroupRuleProtocol},
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -177,19 +185,87 @@ func ResourceIBMISSecurityGroupRule() *schema.Resource {
 			isSecurityGroupRuleProtocol: {
 				Type:          schema.TypeString,
 				Computed:      true,
+				ForceNew:      true,
 				Optional:      true,
 				Description:   "The name of the network protocol",
 				ConflictsWith: []string{isSecurityGroupRuleProtocolTCP, isSecurityGroupRuleProtocolICMP, isSecurityGroupRuleProtocolUDP},
 				ValidateFunc:  validate.InvokeValidator("ibm_is_security_group_rule", isSecurityGroupRuleProtocol),
 			},
+			isSecurityGroupRuleType: {
+				Type:          schema.TypeInt,
+				Optional:      true,
+				Computed:      true,
+				ConflictsWith: []string{isSecurityGroupRuleProtocolICMP, isSecurityGroupRulePortMin, isSecurityGroupRulePortMax},
+				ValidateFunc:  validate.InvokeValidator("ibm_is_security_group_rule", isSecurityGroupRuleType),
+			},
+			isSecurityGroupRuleCode: {
+				Type:          schema.TypeInt,
+				Optional:      true,
+				Computed:      true,
+				ConflictsWith: []string{isSecurityGroupRuleProtocolICMP, isSecurityGroupRulePortMin, isSecurityGroupRulePortMax},
+				ValidateFunc:  validate.InvokeValidator("ibm_is_security_group_rule", isSecurityGroupRuleCode),
+			},
+			isSecurityGroupRulePortMin: {
+				Type:          schema.TypeInt,
+				Optional:      true,
+				Computed:      true,
+				ConflictsWith: []string{isSecurityGroupRuleProtocolTCP, isSecurityGroupRuleProtocolUDP, isSecurityGroupRuleType, isSecurityGroupRuleCode},
+				ValidateFunc:  validate.InvokeValidator("ibm_is_security_group_rule", isSecurityGroupRulePortMin),
+			},
+			isSecurityGroupRulePortMax: {
+				Type:          schema.TypeInt,
+				Optional:      true,
+				Computed:      true,
+				ConflictsWith: []string{isSecurityGroupRuleProtocolTCP, isSecurityGroupRuleProtocolUDP, isSecurityGroupRuleType, isSecurityGroupRuleCode},
+				ValidateFunc:  validate.InvokeValidator("ibm_is_security_group_rule", isSecurityGroupRulePortMax),
+			},
 		},
 	}
+}
+
+func customizeSecurityGroupRuleDiff(ctx context.Context, d *schema.ResourceDiff, meta interface{}) error {
+	raw := d.GetRawConfig()
+	// Skip diff logic if old-style icmp block exists
+	if !raw.GetAttr("icmp").IsNull() && raw.GetAttr("icmp").LengthInt() > 0 {
+		// User using old design => don't enforce diff on code/type
+		return nil
+	}
+
+	// Detect code removal or addition
+	if raw.GetAttr("code").IsNull() {
+		// removed from config
+		oldVal, _ := d.GetChange("code")
+		if oldVal != nil {
+			d.SetNew("code", nil)
+		}
+	} else {
+		newVal := raw.GetAttr("code")
+		if newVal.IsKnown() && !newVal.IsNull() {
+			intVal, _ := newVal.AsBigFloat().Int64()
+			d.SetNew("code", intVal)
+		}
+	}
+
+	// Detect type removal or addition
+	if raw.GetAttr("type").IsNull() {
+		oldVal, _ := d.GetChange("type")
+		if oldVal != nil {
+			d.SetNew("type", nil)
+		}
+	} else {
+		newVal := raw.GetAttr("type")
+		if newVal.IsKnown() && !newVal.IsNull() {
+			intVal, _ := newVal.AsBigFloat().Int64()
+			d.SetNew("type", intVal)
+		}
+	}
+	return nil
 }
 
 func ResourceIBMISSecurityGroupRuleValidator() *validate.ResourceValidator {
 	validateSchema := make([]validate.ValidateSchema, 0)
 	direction := "inbound, outbound"
-	protocol := "ah, any, esp, gre, icmp_tcp_udp, ip_in_ip, l2tp, number_0, number_10, number_100, number_101, number_102, number_103, number_104, number_105, number_106, number_107, number_108, number_109, number_11, number_110, number_111, number_113, number_114, number_116, number_117, number_118, number_119, number_12, number_120, number_121, number_122, number_123, number_124, number_125, number_126, number_127, number_128, number_129, number_13, number_130, number_131, number_133, number_134, number_135, number_136, number_137, number_138, number_139, number_14, number_140, number_141, number_142, number_143, number_144, number_145, number_146, number_147, number_148, number_149, number_15, number_150, number_151, number_152, number_153, number_154, number_155, number_156, number_157, number_158, number_159, number_16, number_160, number_161, number_162, number_163, number_164, number_165, number_166, number_167, number_168, number_169, number_170, number_171, number_172, number_173, number_174, number_175, number_176, number_177, number_178, number_179, number_18, number_180, number_181, number_182, number_183, number_184, number_185, number_186, number_187, number_188, number_189, number_19, number_190, number_191, number_192, number_193, number_194, number_195, number_196, number_197, number_198, number_199, number_2, number_20, number_200, number_201, number_202, number_203, number_204, number_205, number_206, number_207, number_208, number_209, number_21, number_210, number_211, number_212, number_213, number_214, number_215, number_216, number_217, number_218, number_219, number_22, number_220, number_221, number_222, number_223, number_224, number_225, number_226, number_227, number_228, number_229, number_23, number_230, number_231, number_232, number_233, number_234, number_235, number_236, number_237, number_238, number_239, number_24, number_240, number_241, number_242, number_243, number_244, number_245, number_246, number_247, number_248, number_249, number_25, number_250, number_251, number_252, number_253, number_254, number_255, number_26, number_27, number_28, number_29, number_3, number_30, number_31, number_32, number_33, number_34, number_35, number_36, number_37, number_38, number_39, number_40, number_41, number_42, number_43, number_44, number_45, number_48, number_49, number_5, number_52, number_53, number_54, number_55, number_56, number_57, number_58, number_59, number_60, number_61, number_62, number_63, number_64, number_65, number_66, number_67, number_68, number_69, number_7, number_70, number_71, number_72, number_73, number_74, number_75, number_76, number_77, number_78, number_79, number_8, number_80, number_81, number_82, number_83, number_84, number_85, number_86, number_87, number_88, number_89, number_9, number_90, number_91, number_92, number_93, number_94, number_95, number_96, number_97, number_98, number_99, rsvp, sctp, vrrp"
+	protocol := "tcp, udp, icmp, ah, any, esp, gre, icmp_tcp_udp, ip_in_ip, l2tp, number_0, number_10, number_100, number_101, number_102, number_103, number_104, number_105, number_106, number_107, number_108, number_109, number_11, number_110, number_111, number_113, number_114, number_116, number_117, number_118, number_119, number_12, number_120, number_121, number_122, number_123, number_124, number_125, number_126, number_127, number_128, number_129, number_13, number_130, number_131, number_133, number_134, number_135, number_136, number_137, number_138, number_139, number_14, number_140, number_141, number_142, number_143, number_144, number_145, number_146, number_147, number_148, number_149, number_15, number_150, number_151, number_152, number_153, number_154, number_155, number_156, number_157, number_158, number_159, number_16, number_160, number_161, number_162, number_163, number_164, number_165, number_166, number_167, number_168, number_169, number_170, number_171, number_172, number_173, number_174, number_175, number_176, number_177, number_178, number_179, number_18, number_180, number_181, number_182, number_183, number_184, number_185, number_186, number_187, number_188, number_189, number_19, number_190, number_191, number_192, number_193, number_194, number_195, number_196, number_197, number_198, number_199, number_2, number_20, number_200, number_201, number_202, number_203, number_204, number_205, number_206, number_207, number_208, number_209, number_21, number_210, number_211, number_212, number_213, number_214, number_215, number_216, number_217, number_218, number_219, number_22, number_220, number_221, number_222, number_223, number_224, number_225, number_226, number_227, number_228, number_229, number_23, number_230, number_231, number_232, number_233, number_234, number_235, number_236, number_237, number_238, number_239, number_24, number_240, number_241, number_242, number_243, number_244, number_245, number_246, number_247, number_248, number_249, number_25, number_250, number_251, number_252, number_253, number_254, number_255, number_26, number_27, number_28, number_29, number_3, number_30, number_31, number_32, number_33, number_34, number_35, number_36, number_37, number_38, number_39, number_40, number_41, number_42, number_43, number_44, number_45, number_48, number_49, number_5, number_52, number_53, number_54, number_55, number_56, number_57, number_58, number_59, number_60, number_61, number_62, number_63, number_64, number_65, number_66, number_67, number_68, number_69, number_7, number_70, number_71, number_72, number_73, number_74, number_75, number_76, number_77, number_78, number_79, number_8, number_80, number_81, number_82, number_83, number_84, number_85, number_86, number_87, number_88, number_89, number_9, number_90, number_91, number_92, number_93, number_94, number_95, number_96, number_97, number_98, number_99, rsvp, sctp, vrrp"
 	ip_version := "ipv4"
 
 	validateSchema = append(validateSchema,
@@ -346,9 +422,15 @@ func resourceIBMISSecurityGroupRuleRead(d *schema.ResourceData, meta interface{}
 			icmpProtocol := map[string]interface{}{}
 			if rule.Type != nil {
 				icmpProtocol["type"] = *rule.Type
+				d.Set(isSecurityGroupRuleType, *rule.Type)
+			} else {
+				d.Set(isSecurityGroupRuleType, nil)
 			}
 			if rule.Code != nil {
 				icmpProtocol["code"] = *rule.Code
+				d.Set(isSecurityGroupRuleCode, *rule.Code)
+			} else {
+				d.Set(isSecurityGroupRuleCode, nil)
 			}
 			d.Set(isSecurityGroupRuleProtocolICMP, []map[string]interface{}{icmpProtocol})
 		}
@@ -362,9 +444,11 @@ func resourceIBMISSecurityGroupRuleRead(d *schema.ResourceData, meta interface{}
 			tcpProtocol := map[string]interface{}{}
 			if rule.PortMin != nil {
 				tcpProtocol["port_min"] = *rule.PortMin
+				d.Set(isSecurityGroupRulePortMin, *rule.PortMin)
 			}
 			if rule.PortMax != nil {
 				tcpProtocol["port_max"] = *rule.PortMax
+				d.Set(isSecurityGroupRulePortMax, *rule.PortMax)
 			}
 			if *rule.Protocol == isSecurityGroupRuleProtocolTCP {
 				d.Set(isSecurityGroupRuleProtocolTCP, []map[string]interface{}{tcpProtocol})
@@ -661,70 +745,135 @@ func parseIBMISSecurityGroupRuleDictionary(d *schema.ResourceData, tag string, s
 	}
 
 	parsed.protocol = "icmp_tcp_udp"
-	if v, ok := d.GetOk(isSecurityGroupRuleProtocol); ok {
-		protocol := v.(string)
-		if protocol == "all" {
-			parsed.protocol = "icmp_tcp_udp"
-		} else {
-			parsed.protocol = protocol
-		}
+	if protocol, ok := d.GetOk(isSecurityGroupRuleProtocol); ok {
+		parsed.protocol = protocol.(string)
 	}
-
 	sgTemplate.Protocol = &parsed.protocol
-	if icmpInterface, ok := d.GetOk("icmp"); ok {
-		if icmpInterface.([]interface{})[0] != nil {
-			haveType := false
-			if value, ok := d.GetOk("icmp.0.type"); ok {
-				parsed.icmpType = int64(value.(int))
-				haveType = true
-				sgTemplate.Type = &parsed.icmpType
-				securityGroupRulePatchModel.Type = &parsed.icmpType
-			}
-			if value, ok := d.GetOk("icmp.0.code"); ok {
-				if !haveType {
-					return nil, nil, nil, fmt.Errorf("icmp code requires icmp type")
-				}
-				parsed.icmpCode = int64(value.(int))
-				sgTemplate.Code = &parsed.icmpCode
-				securityGroupRulePatchModel.Code = &parsed.icmpCode
-			}
-		}
-		parsed.protocol = "icmp"
-		sgTemplate.Protocol = &parsed.protocol
-	}
-	for _, prot := range []string{"tcp", "udp"} {
-		if tcpInterface, ok := d.GetOk(prot); ok {
-			if tcpInterface.([]interface{})[0] != nil {
-				haveMin := false
-				haveMax := false
-				ports := tcpInterface.([]interface{})[0].(map[string]interface{})
-				if value, ok := ports["port_min"]; ok {
-					parsed.portMin = int64(value.(int))
-					haveMin = true
-				}
-				if value, ok := ports["port_max"]; ok {
-					parsed.portMax = int64(value.(int))
-					haveMax = true
-				}
 
-				// If only min or max is set, ensure that both min and max are set to the same value
-				if haveMin && !haveMax {
-					parsed.portMax = parsed.portMin
+	if parsed.protocol != "icmp" {
+		if _, ok := d.GetOk("type"); ok {
+			return nil, nil, nil, fmt.Errorf("attribute 'type' conflicts with protocol %s; 'type' is only valid for icmp protocol", parsed.protocol)
+		}
+		if _, ok := d.GetOk("code"); ok {
+			return nil, nil, nil, fmt.Errorf("attribute 'code' conflicts with protocol %q; 'code' is only valid for icmp protocol", parsed.protocol)
+		}
+	}
+
+	if parsed.protocol != "tcp" && parsed.protocol != "udp" {
+		if _, ok := d.GetOk("port_min"); ok {
+			return nil, nil, nil, fmt.Errorf("attribute 'port_min' conflicts with protocol %s; ports apply only to tcp/udp protocol", parsed.protocol)
+		}
+		if _, ok := d.GetOk("port_max"); ok {
+			return nil, nil, nil, fmt.Errorf("attribute 'port_max' conflicts with protocol %s; ports apply only to tcp/udp protocol", parsed.protocol)
+		}
+	}
+
+	if parsed.protocol == "icmp" {
+		haveType := false
+		if value, ok := d.GetOk("type"); ok {
+			parsed.icmpType = int64(value.(int))
+			haveType = true
+			sgTemplate.Type = &parsed.icmpType
+			securityGroupRulePatchModel.Type = &parsed.icmpType
+		}
+		if value, ok := d.GetOk("code"); ok {
+			if !haveType {
+				return nil, nil, nil, fmt.Errorf("icmp code requires icmp type")
+			}
+			parsed.icmpCode = int64(value.(int))
+			sgTemplate.Code = &parsed.icmpCode
+			securityGroupRulePatchModel.Code = &parsed.icmpCode
+		}
+	} else {
+		if icmpInterface, ok := d.GetOk("icmp"); ok {
+			if icmpInterface.([]interface{})[0] != nil {
+				haveType := false
+				if value, ok := d.GetOk("icmp.0.type"); ok {
+					parsed.icmpType = int64(value.(int))
+					haveType = true
+					sgTemplate.Type = &parsed.icmpType
+					securityGroupRulePatchModel.Type = &parsed.icmpType
 				}
-				if haveMax && !haveMin {
-					parsed.portMin = parsed.portMax
+				if value, ok := d.GetOk("icmp.0.code"); ok {
+					if !haveType {
+						return nil, nil, nil, fmt.Errorf("icmp code requires icmp type")
+					}
+					parsed.icmpCode = int64(value.(int))
+					sgTemplate.Code = &parsed.icmpCode
+					securityGroupRulePatchModel.Code = &parsed.icmpCode
 				}
 			}
+			parsed.protocol = "icmp"
+			sgTemplate.Protocol = &parsed.protocol
+		}
+	}
+
+	for _, prot := range []string{"tcp", "udp"} {
+		if parsed.protocol == prot {
+			haveMin := false
+			haveMax := false
+			if value, ok := d.GetOk("port_min"); ok {
+				parsed.portMin = int64(value.(int))
+				haveMin = true
+			}
+			if value, ok := d.GetOk("port_max"); ok {
+				parsed.portMax = int64(value.(int))
+				haveMax = true
+			}
+
+			// If only min or max is set, ensure that both min and max are set to the same value
+			if haveMin && !haveMax {
+				parsed.portMax = parsed.portMin
+			}
+			if haveMax && !haveMin {
+				parsed.portMin = parsed.portMax
+			}
+			// Adding to default values
+			if parsed.portMin == -1 && parsed.portMax == -1 {
+				parsed.portMin = 1
+				parsed.portMax = 65535
+			}
+
 			parsed.protocol = prot
 			sgTemplate.Protocol = &parsed.protocol
-			if tcpInterface.([]interface{})[0] == nil {
-				parsed.portMax = 65535
-				parsed.portMin = 1
-			}
 			sgTemplate.PortMax = &parsed.portMax
 			sgTemplate.PortMin = &parsed.portMin
 			securityGroupRulePatchModel.PortMax = &parsed.portMax
 			securityGroupRulePatchModel.PortMin = &parsed.portMin
+		} else {
+			if tcpInterface, ok := d.GetOk(prot); ok {
+				if tcpInterface.([]interface{})[0] != nil {
+					haveMin := false
+					haveMax := false
+					ports := tcpInterface.([]interface{})[0].(map[string]interface{})
+					if value, ok := ports["port_min"]; ok {
+						parsed.portMin = int64(value.(int))
+						haveMin = true
+					}
+					if value, ok := ports["port_max"]; ok {
+						parsed.portMax = int64(value.(int))
+						haveMax = true
+					}
+
+					// If only min or max is set, ensure that both min and max are set to the same value
+					if haveMin && !haveMax {
+						parsed.portMax = parsed.portMin
+					}
+					if haveMax && !haveMin {
+						parsed.portMin = parsed.portMax
+					}
+				}
+				parsed.protocol = prot
+				sgTemplate.Protocol = &parsed.protocol
+				if tcpInterface.([]interface{})[0] == nil {
+					parsed.portMax = 65535
+					parsed.portMin = 1
+				}
+				sgTemplate.PortMax = &parsed.portMax
+				sgTemplate.PortMin = &parsed.portMin
+				securityGroupRulePatchModel.PortMax = &parsed.portMax
+				securityGroupRulePatchModel.PortMin = &parsed.portMin
+			}
 		}
 	}
 
