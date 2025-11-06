@@ -15,7 +15,7 @@ Provides a read-only data source to retrieve information about an EndpointGatewa
 ```hcl
 data "ibm_is_virtual_endpoint_gateway_resource_binding" "is_virtual_endpoint_gateway_resource_binding" {
 	endpoint_gateway_id = ibm_is_virtual_endpoint_gateway_resource_binding.is_virtual_endpoint_gateway_resource_binding_instance.endpoint_gateway_id
-	is_virtual_endpoint_gateway_resource_binding_id = ibm_is_virtual_endpoint_gateway_resource_binding.is_virtual_endpoint_gateway_resource_binding_instance.is_virtual_endpoint_gateway_resource_binding_id
+	endpoint_gateway_resource_binding_id = ibm_is_virtual_endpoint_gateway_resource_binding.is_virtual_endpoint_gateway_resource_binding_instance.endpoint_gateway_resource_binding_id
 }
 ```
 
@@ -25,7 +25,7 @@ You can specify the following arguments for this data source.
 
 * `endpoint_gateway_id` - (Required, Forces new resource, String) The endpoint gateway identifier.
   * Constraints: The maximum length is `64` characters. The minimum length is `1` character. The value must match regular expression `/^[-0-9a-z_]+$/`.
-* `is_virtual_endpoint_gateway_resource_binding_id` - (Required, Forces new resource, String) The resource binding identifier.
+* `endpoint_gateway_resource_binding_id` - (Required, Forces new resource, String) The resource binding identifier.
   * Constraints: The maximum length is `64` characters. The minimum length is `1` character. The value must match regular expression `/^[-0-9a-z_]+$/`.
 
 ## Attribute Reference

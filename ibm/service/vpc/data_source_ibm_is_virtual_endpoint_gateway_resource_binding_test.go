@@ -33,7 +33,7 @@ func TestAccIBMIsVirtualEndpointGatewayResourceBindingDataSourceBasic(t *testing
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet("data.ibm_is_virtual_endpoint_gateway_resource_binding.is_virtual_endpoint_gateway_resource_binding_instance", "id"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_virtual_endpoint_gateway_resource_binding.is_virtual_endpoint_gateway_resource_binding_instance", "endpoint_gateway_id"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_virtual_endpoint_gateway_resource_binding.is_virtual_endpoint_gateway_resource_binding_instance", "is_virtual_endpoint_gateway_resource_binding_id"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_virtual_endpoint_gateway_resource_binding.is_virtual_endpoint_gateway_resource_binding_instance", "endpoint_gateway_resource_binding_id"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_virtual_endpoint_gateway_resource_binding.is_virtual_endpoint_gateway_resource_binding_instance", "created_at"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_virtual_endpoint_gateway_resource_binding.is_virtual_endpoint_gateway_resource_binding_instance", "href"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_virtual_endpoint_gateway_resource_binding.is_virtual_endpoint_gateway_resource_binding_instance", "lifecycle_reasons.#"),
@@ -62,7 +62,7 @@ func TestAccIBMIsVirtualEndpointGatewayResourceBindingDataSourceAllArgs(t *testi
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet("data.ibm_is_virtual_endpoint_gateway_resource_binding.is_virtual_endpoint_gateway_resource_binding_instance", "id"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_virtual_endpoint_gateway_resource_binding.is_virtual_endpoint_gateway_resource_binding_instance", "endpoint_gateway_id"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_virtual_endpoint_gateway_resource_binding.is_virtual_endpoint_gateway_resource_binding_instance", "is_virtual_endpoint_gateway_resource_binding_id"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_virtual_endpoint_gateway_resource_binding.is_virtual_endpoint_gateway_resource_binding_instance", "endpoint_gateway_resource_binding_id"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_virtual_endpoint_gateway_resource_binding.is_virtual_endpoint_gateway_resource_binding_instance", "created_at"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_virtual_endpoint_gateway_resource_binding.is_virtual_endpoint_gateway_resource_binding_instance", "href"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_virtual_endpoint_gateway_resource_binding.is_virtual_endpoint_gateway_resource_binding_instance", "lifecycle_reasons.#"),
@@ -92,7 +92,7 @@ func testAccCheckIBMIsVirtualEndpointGatewayResourceBindingDataSourceConfigBasic
 
 		data "ibm_is_virtual_endpoint_gateway_resource_binding" "is_virtual_endpoint_gateway_resource_binding_instance" {
 			endpoint_gateway_id = ibm_is_virtual_endpoint_gateway_resource_binding.is_virtual_endpoint_gateway_resource_binding_instance.endpoint_gateway_id
-			is_virtual_endpoint_gateway_resource_binding_id = ibm_is_virtual_endpoint_gateway_resource_binding.is_virtual_endpoint_gateway_resource_binding_instance.is_virtual_endpoint_gateway_resource_binding_id
+			endpoint_gateway_resource_binding_id = ibm_is_virtual_endpoint_gateway_resource_binding.is_virtual_endpoint_gateway_resource_binding_instance.endpoint_gateway_resource_binding_id
 		}
 	`, endpointGatewayResourceBindingEndpointGatewayID)
 }
@@ -109,7 +109,7 @@ func testAccCheckIBMIsVirtualEndpointGatewayResourceBindingDataSourceConfig(endp
 
 		data "ibm_is_virtual_endpoint_gateway_resource_binding" "is_virtual_endpoint_gateway_resource_binding_instance" {
 			endpoint_gateway_id = ibm_is_virtual_endpoint_gateway_resource_binding.is_virtual_endpoint_gateway_resource_binding_instance.endpoint_gateway_id
-			is_virtual_endpoint_gateway_resource_binding_id = ibm_is_virtual_endpoint_gateway_resource_binding.is_virtual_endpoint_gateway_resource_binding_instance.is_virtual_endpoint_gateway_resource_binding_id
+			endpoint_gateway_resource_binding_id = ibm_is_virtual_endpoint_gateway_resource_binding.is_virtual_endpoint_gateway_resource_binding_instance.endpoint_gateway_resource_binding_id
 		}
 	`, endpointGatewayResourceBindingEndpointGatewayID, endpointGatewayResourceBindingName)
 }

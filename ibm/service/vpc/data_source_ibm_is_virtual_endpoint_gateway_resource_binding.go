@@ -30,7 +30,7 @@ func DataSourceIBMIsVirtualEndpointGatewayResourceBinding() *schema.Resource {
 				Required:    true,
 				Description: "The endpoint gateway identifier.",
 			},
-			"is_virtual_endpoint_gateway_resource_binding_id": &schema.Schema{
+			"endpoint_gateway_resource_binding_id": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "The resource binding identifier.",
@@ -122,7 +122,7 @@ func dataSourceIBMIsVirtualEndpointGatewayResourceBindingRead(context context.Co
 	getEndpointGatewayResourceBindingOptions := &vpcv1.GetEndpointGatewayResourceBindingOptions{}
 
 	getEndpointGatewayResourceBindingOptions.SetEndpointGatewayID(d.Get("endpoint_gateway_id").(string))
-	getEndpointGatewayResourceBindingOptions.SetID(d.Get("is_virtual_endpoint_gateway_resource_binding_id").(string))
+	getEndpointGatewayResourceBindingOptions.SetID(d.Get("endpoint_gateway_resource_binding_id").(string))
 
 	endpointGatewayResourceBinding, _, err := vpcClient.GetEndpointGatewayResourceBindingWithContext(context, getEndpointGatewayResourceBindingOptions)
 	if err != nil {

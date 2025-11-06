@@ -43,7 +43,7 @@ After your resource is created, you can read values from the listed arguments an
 * `created_at` - (String) The date and time that the resource binding was created.
 * `href` - (String) The URL for this endpoint gateway resource binding.
   * Constraints: The maximum length is `8000` characters. The minimum length is `10` characters. The value must match regular expression `/^http(s)?:\/\/([^\/?#]*)([^?#]*)(\\?([^#]*))?(#(.*))?$/`.
-* `is_virtual_endpoint_gateway_resource_binding_id` - (String) The unique identifier for this endpoint gateway resource binding.
+* `endpoint_gateway_resource_binding_id` - (String) The unique identifier for this endpoint gateway resource binding.
   * Constraints: The maximum length is `64` characters. The minimum length is `1` character. The value must match regular expression `/^[-0-9a-z_]+$/`.
 * `lifecycle_reasons` - (List) The reasons for the current `lifecycle_state` (if any).
   * Constraints: The minimum length is `0` items.
@@ -66,15 +66,15 @@ Nested schema for **lifecycle_reasons**:
 ## Import
 
 You can import the `ibm_is_virtual_endpoint_gateway_resource_binding` resource by using `id`.
-The `id` property can be formed from `endpoint_gateway_id`, and `is_virtual_endpoint_gateway_resource_binding_id` in the following format:
+The `id` property can be formed from `endpoint_gateway_id`, and `endpoint_gateway_resource_binding_id` in the following format:
 
 <pre>
-&lt;endpoint_gateway_id&gt;/&lt;is_virtual_endpoint_gateway_resource_binding_id&gt;
+&lt;endpoint_gateway_id&gt;/&lt;endpoint_gateway_resource_binding_id&gt;
 </pre>
 * `endpoint_gateway_id`: A string. The endpoint gateway identifier.
-* `is_virtual_endpoint_gateway_resource_binding_id`: A string in the format `r006-a7ba95b6-a254-47e4-b129-10593df8a373`. The unique identifier for this endpoint gateway resource binding.
+* `endpoint_gateway_resource_binding_id`: A string in the format `r006-a7ba95b6-a254-47e4-b129-10593df8a373`. The unique identifier for this endpoint gateway resource binding.
 
 # Syntax
 <pre>
-$ terraform import ibm_is_virtual_endpoint_gateway_resource_binding.is_virtual_endpoint_gateway_resource_binding &lt;endpoint_gateway_id&gt;/&lt;is_virtual_endpoint_gateway_resource_binding_id&gt;
+$ terraform import ibm_is_virtual_endpoint_gateway_resource_binding.is_virtual_endpoint_gateway_resource_binding &lt;endpoint_gateway_id&gt;/&lt;endpoint_gateway_resource_binding_id&gt;
 </pre>

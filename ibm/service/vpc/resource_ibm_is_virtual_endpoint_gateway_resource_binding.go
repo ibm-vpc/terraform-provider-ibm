@@ -114,7 +114,7 @@ func ResourceIBMIsVirtualEndpointGatewayResourceBinding() *schema.Resource {
 				Computed:    true,
 				Description: "The type of resource binding:- `weak`: The binding is not dependent on the existence of the target resource.The enumerated values for this property may[expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.",
 			},
-			"is_virtual_endpoint_gateway_resource_binding_id": &schema.Schema{
+			"endpoint_gateway_resource_binding_id": &schema.Schema{
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "The unique identifier for this endpoint gateway resource binding.",
@@ -261,9 +261,9 @@ func resourceIBMIsVirtualEndpointGatewayResourceBindingRead(context context.Cont
 		err = fmt.Errorf("Error setting type: %s", err)
 		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_virtual_endpoint_gateway_resource_binding", "read", "set-type").GetDiag()
 	}
-	if err = d.Set("is_virtual_endpoint_gateway_resource_binding_id", endpointGatewayResourceBinding.ID); err != nil {
-		err = fmt.Errorf("Error setting is_virtual_endpoint_gateway_resource_binding_id: %s", err)
-		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_virtual_endpoint_gateway_resource_binding", "read", "set-is_virtual_endpoint_gateway_resource_binding_id").GetDiag()
+	if err = d.Set("endpoint_gateway_resource_binding_id", endpointGatewayResourceBinding.ID); err != nil {
+		err = fmt.Errorf("Error setting endpoint_gateway_resource_binding_id: %s", err)
+		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_virtual_endpoint_gateway_resource_binding", "read", "set-endpoint_gateway_resource_binding_id").GetDiag()
 	}
 
 	return nil
