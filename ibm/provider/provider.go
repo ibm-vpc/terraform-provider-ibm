@@ -2161,6 +2161,7 @@ func Validator() validate.ValidatorDict {
 				"ibm_schematics_policy":                              schematics.ResourceIbmSchematicsPolicyValidator(),
 				"ibm_resource_instance":                              resourcecontroller.ResourceIBMResourceInstanceValidator(),
 				"ibm_resource_key":                                   resourcecontroller.ResourceIBMResourceKeyValidator(),
+				"ibm_is_virtual_endpoint_gateway_resource_binding":   vpc.ResourceIBMIsVirtualEndpointGatewayResourceBindingValidator(),
 				"ibm_is_virtual_endpoint_gateway":                    vpc.ResourceIBMISEndpointGatewayValidator(),
 				"ibm_resource_tag":                                   globaltagging.ResourceIBMResourceTagValidator(),
 				"ibm_iam_access_tag":                                 globaltagging.ResourceIBMIamAccessTagValidator(),
