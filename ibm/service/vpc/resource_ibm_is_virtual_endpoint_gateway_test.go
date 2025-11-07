@@ -564,3 +564,157 @@ func TestAccIBMISVirtualEndpointGateway_ServiceEndpoints(t *testing.T) {
 		},
 	})
 }
+
+// dns resolution binding mode tests
+func TestAccIBMISVirtualEndpointGateway_DnsResolutionBindingMode(t *testing.T) {
+	var endpointGateway string
+	vpcName := fmt.Sprintf("tf-vpe-vpc-%d", acctest.RandIntRange(10, 100))
+	enableHub := false
+	gatewayName := fmt.Sprintf("tf-vpe-gateway-%d", acctest.RandIntRange(10, 100))
+	resourceName := "ibm_is_virtual_endpoint_gateway.vpe_gateway"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { acc.TestAccPreCheck(t) },
+		Providers: acc.TestAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckIBMISVirtualEndpointGatewayConfigDnsResolutionBindingMode(vpcName, gatewayName, enableHub, "primary"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckisVirtualEndpointGatewayExists(resourceName, &endpointGateway),
+					resource.TestCheckResourceAttr(resourceName, "name", gatewayName),
+					resource.TestCheckResourceAttr(resourceName, "dns_resolution_binding_mode", "primary"),
+					// Verify deprecated field behavior when dns_resolution_binding_mode is "primary"
+					resource.TestCheckResourceAttr(resourceName, "allow_dns_resolution_binding", "true"),
+				),
+			},
+			{
+				Config: testAccCheckIBMISVirtualEndpointGatewayConfigDnsResolutionBindingMode(vpcName, gatewayName, enableHub, "disabled"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckisVirtualEndpointGatewayExists(resourceName, &endpointGateway),
+					resource.TestCheckResourceAttr(resourceName, "name", gatewayName),
+					resource.TestCheckResourceAttr(resourceName, "dns_resolution_binding_mode", "disabled"),
+					// Verify deprecated field behavior when dns_resolution_binding_mode is "disabled"
+					resource.TestCheckResourceAttr(resourceName, "allow_dns_resolution_binding", "false"),
+				),
+			},
+			{
+				Config: testAccCheckIBMISVirtualEndpointGatewayConfigDnsResolutionBindingMode(vpcName, gatewayName, enableHub, "per_resource_binding"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckisVirtualEndpointGatewayExists(resourceName, &endpointGateway),
+					resource.TestCheckResourceAttr(resourceName, "name", gatewayName),
+					resource.TestCheckResourceAttr(resourceName, "dns_resolution_binding_mode", "per_resource_binding"),
+					// Verify deprecated field behavior when dns_resolution_binding_mode is "per_resource_binding"
+					resource.TestCheckResourceAttr(resourceName, "allow_dns_resolution_binding", "true"),
+				),
+			},
+			// Test backward compatibility with deprecated field
+			{
+				Config: testAccCheckIBMISVirtualEndpointGatewayConfigBackwardCompatibility(vpcName, gatewayName, enableHub, true),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckisVirtualEndpointGatewayExists(resourceName, &endpointGateway),
+					resource.TestCheckResourceAttr(resourceName, "name", gatewayName),
+					resource.TestCheckResourceAttr(resourceName, "allow_dns_resolution_binding", "true"),
+					// When allow_dns_resolution_binding is true, dns_resolution_binding_mode should be "primary"
+					resource.TestCheckResourceAttr(resourceName, "dns_resolution_binding_mode", "primary"),
+				),
+			},
+			{
+				Config: testAccCheckIBMISVirtualEndpointGatewayConfigBackwardCompatibility(vpcName, gatewayName, enableHub, false),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckisVirtualEndpointGatewayExists(resourceName, &endpointGateway),
+					resource.TestCheckResourceAttr(resourceName, "name", gatewayName),
+					resource.TestCheckResourceAttr(resourceName, "allow_dns_resolution_binding", "false"),
+					// When allow_dns_resolution_binding is false, dns_resolution_binding_mode should be "disabled"
+					resource.TestCheckResourceAttr(resourceName, "dns_resolution_binding_mode", "disabled"),
+				),
+			},
+		},
+	})
+}
+
+func testAccCheckIBMISVirtualEndpointGatewayConfigDnsResolutionBindingMode(vpcName, gatewayName string, enableHub bool, dnsResolutionBindingMode string) string {
+	return fmt.Sprintf(`
+	resource "ibm_is_vpc" "testacc_vpc" {
+		name = "%s"
+		dns {
+			enable_hub = %t
+		}
+	}
+	
+	resource "ibm_is_virtual_endpoint_gateway" "vpe_gateway" {
+		name = "%s"
+		vpc  = ibm_is_vpc.testacc_vpc.id
+
+		target {
+			name          = "ibm-ntp-server"
+			resource_type = "provider_infrastructure_service"
+		}
+		
+		dns_resolution_binding_mode = "%s"
+	}`, vpcName, enableHub, gatewayName, dnsResolutionBindingMode)
+}
+
+func testAccCheckIBMISVirtualEndpointGatewayConfigBackwardCompatibility(vpcName, gatewayName string, enableHub, allowDnsResolutionBinding bool) string {
+	return fmt.Sprintf(`
+	resource "ibm_is_vpc" "testacc_vpc" {
+		name = "%s"
+		dns {
+			enable_hub = %t
+		}
+	}
+	
+	resource "ibm_is_virtual_endpoint_gateway" "vpe_gateway" {
+		name = "%s"
+		vpc  = ibm_is_vpc.testacc_vpc.id
+
+		target {
+			name          = "ibm-ntp-server"
+			resource_type = "provider_infrastructure_service"
+		}
+		
+		allow_dns_resolution_binding = %t
+	}`, vpcName, enableHub, gatewayName, allowDnsResolutionBinding)
+}
+
+// Test for the specific configuration
+func TestAccIBMISVirtualEndpointGateway_BasicConfig(t *testing.T) {
+	var endpointGateway string
+	vpcName := fmt.Sprintf("tf-vpe-vpc-%d", acctest.RandIntRange(10, 100))
+	gatewayName := fmt.Sprintf("tf-vpe-ntp-%d", acctest.RandIntRange(10, 100))
+	resourceName := "ibm_is_virtual_endpoint_gateway.vpe_ntp"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { acc.TestAccPreCheck(t) },
+		Providers: acc.TestAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckIBMISVirtualEndpointGatewayBasicConfig(vpcName, gatewayName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckisVirtualEndpointGatewayExists(resourceName, &endpointGateway),
+					resource.TestCheckResourceAttr(resourceName, "name", gatewayName),
+					resource.TestCheckResourceAttr(resourceName, "dns_resolution_binding_mode", "disabled"),
+					resource.TestCheckResourceAttr(resourceName, "allow_dns_resolution_binding", "false"),
+				),
+			},
+		},
+	})
+}
+
+func testAccCheckIBMISVirtualEndpointGatewayBasicConfig(vpcName, gatewayName string) string {
+	return fmt.Sprintf(`
+	resource "ibm_is_vpc" "testacc_vpc" {
+		name = "%s"
+	}
+	
+	resource "ibm_is_virtual_endpoint_gateway" "vpe_ntp" {
+		name = "%s"
+		vpc  = ibm_is_vpc.testacc_vpc.id
+
+		target {
+			resource_type = "provider_infrastructure_service"
+			name          = "ibm-ntp-server"
+		}
+		
+		dns_resolution_binding_mode = "disabled"
+	}`, vpcName, gatewayName)
+}
