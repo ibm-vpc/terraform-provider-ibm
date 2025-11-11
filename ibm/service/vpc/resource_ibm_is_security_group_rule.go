@@ -37,13 +37,13 @@ const (
 func ResourceIBMISSecurityGroupRule() *schema.Resource {
 
 	return &schema.Resource{
-		Create:        resourceIBMISSecurityGroupRuleCreate,
-		Read:          resourceIBMISSecurityGroupRuleRead,
-		Update:        resourceIBMISSecurityGroupRuleUpdate,
-		Delete:        resourceIBMISSecurityGroupRuleDelete,
-		Exists:        resourceIBMISSecurityGroupRuleExists,
-		CustomizeDiff: customizeSecurityGroupRuleDiff,
-		Importer:      &schema.ResourceImporter{},
+		Create: resourceIBMISSecurityGroupRuleCreate,
+		Read:   resourceIBMISSecurityGroupRuleRead,
+		Update: resourceIBMISSecurityGroupRuleUpdate,
+		Delete: resourceIBMISSecurityGroupRuleDelete,
+		Exists: resourceIBMISSecurityGroupRuleExists,
+		// CustomizeDiff: customizeSecurityGroupRuleDiff,
+		Importer: &schema.ResourceImporter{},
 
 		Schema: map[string]*schema.Schema{
 
@@ -95,7 +95,6 @@ func ResourceIBMISSecurityGroupRule() *schema.Resource {
 				Optional:      true,
 				ForceNew:      true,
 				MinItems:      1,
-				Computed:      true,
 				ConflictsWith: []string{isSecurityGroupRuleProtocolTCP, isSecurityGroupRuleProtocolUDP, isSecurityGroupRuleProtocol},
 				Description:   "protocol=icmp",
 				Deprecated:    "icmp is deprecated, use 'protocol', 'code', and 'type' instead.",
@@ -126,7 +125,7 @@ func ResourceIBMISSecurityGroupRule() *schema.Resource {
 				Computed:      true,
 				Description:   "protocol=tcp",
 				Deprecated:    "tcp is deprecated, use 'protocol', 'code', and 'type' instead.",
-				ConflictsWith: []string{isSecurityGroupRuleProtocolUDP, isSecurityGroupRuleProtocolICMP, isSecurityGroupRuleProtocol},
+				ConflictsWith: []string{isSecurityGroupRuleProtocolUDP, isSecurityGroupRuleProtocolICMP, isSecurityGroupRuleProtocol, isSecurityGroupRuleType, isSecurityGroupRuleCode},
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						isSecurityGroupRulePortMin: {
@@ -195,6 +194,7 @@ func ResourceIBMISSecurityGroupRule() *schema.Resource {
 				Type:          schema.TypeInt,
 				Optional:      true,
 				Computed:      true,
+				Default:       nil,
 				ConflictsWith: []string{isSecurityGroupRuleProtocolICMP, isSecurityGroupRulePortMin, isSecurityGroupRulePortMax},
 				ValidateFunc:  validate.InvokeValidator("ibm_is_security_group_rule", isSecurityGroupRuleType),
 			},
@@ -202,6 +202,7 @@ func ResourceIBMISSecurityGroupRule() *schema.Resource {
 				Type:          schema.TypeInt,
 				Optional:      true,
 				Computed:      true,
+				Default:       nil,
 				ConflictsWith: []string{isSecurityGroupRuleProtocolICMP, isSecurityGroupRulePortMin, isSecurityGroupRulePortMax},
 				ValidateFunc:  validate.InvokeValidator("ibm_is_security_group_rule", isSecurityGroupRuleCode),
 			},
@@ -415,24 +416,37 @@ func resourceIBMISSecurityGroupRuleRead(d *schema.ResourceData, meta interface{}
 		return fmt.Errorf("[ERROR] Error Getting Security Group : %s\n%s", err, response)
 	}
 	d.Set(flex.RelatedCRN, *sg.CRN)
+
 	switch rule := sgrule.(type) {
 	case *vpcv1.SecurityGroupRuleSecurityGroupRuleProtocolIcmp:
 		{
 			setCommonFields(d, rule.ID, rule.Direction, rule.IPVersion, rule.Protocol, secgrpID, rule.Remote, rule.Local)
-			icmpProtocol := map[string]interface{}{}
-			if rule.Type != nil {
-				icmpProtocol["type"] = *rule.Type
-				d.Set(isSecurityGroupRuleType, *rule.Type)
+			icmpList := d.Get("icmp").([]interface{})
+			if len(icmpList) > 0 {
+				// Old format
+				icmpProtocol := map[string]interface{}{}
+				if rule.Type != nil {
+					icmpProtocol["type"] = *rule.Type
+				}
+				if rule.Code != nil {
+					icmpProtocol["code"] = *rule.Code
+				}
+				d.Set(isSecurityGroupRuleProtocolICMP, []map[string]interface{}{icmpProtocol})
 			} else {
-				d.Set(isSecurityGroupRuleType, nil)
+				// New format
+				if rule.Type != nil {
+					d.Set(isSecurityGroupRuleType, *rule.Type)
+				} else {
+					// Explicitly clear value to null
+					d.Set(isSecurityGroupRuleType, nil)
+				}
+
+				if rule.Code != nil {
+					d.Set(isSecurityGroupRuleCode, *rule.Code)
+				} else {
+					d.Set(isSecurityGroupRuleCode, nil)
+				}
 			}
-			if rule.Code != nil {
-				icmpProtocol["code"] = *rule.Code
-				d.Set(isSecurityGroupRuleCode, *rule.Code)
-			} else {
-				d.Set(isSecurityGroupRuleCode, nil)
-			}
-			d.Set(isSecurityGroupRuleProtocolICMP, []map[string]interface{}{icmpProtocol})
 		}
 	case *vpcv1.SecurityGroupRuleProtocolAny:
 		{
@@ -768,43 +782,45 @@ func parseIBMISSecurityGroupRuleDictionary(d *schema.ResourceData, tag string, s
 		}
 	}
 
-	if parsed.protocol == "icmp" {
-		haveType := false
-		if value, ok := d.GetOk("type"); ok {
-			parsed.icmpType = int64(value.(int))
-			haveType = true
-			sgTemplate.Type = &parsed.icmpType
-			securityGroupRulePatchModel.Type = &parsed.icmpType
-		}
-		if value, ok := d.GetOk("code"); ok {
-			if !haveType {
-				return nil, nil, nil, fmt.Errorf("icmp code requires icmp type")
+	if icmpInterface, ok := d.GetOk("icmp"); ok {
+		if icmpInterface.([]interface{})[0] != nil {
+			haveType := false
+			if value, ok := d.GetOk("icmp.0.type"); ok {
+				parsed.icmpType = int64(value.(int))
+				haveType = true
+				sgTemplate.Type = &parsed.icmpType
+				securityGroupRulePatchModel.Type = &parsed.icmpType
 			}
-			parsed.icmpCode = int64(value.(int))
-			sgTemplate.Code = &parsed.icmpCode
-			securityGroupRulePatchModel.Code = &parsed.icmpCode
+			if value, ok := d.GetOk("icmp.0.code"); ok {
+				if !haveType {
+					return nil, nil, nil, fmt.Errorf("icmp code requires icmp type")
+				}
+				parsed.icmpCode = int64(value.(int))
+				sgTemplate.Code = &parsed.icmpCode
+				securityGroupRulePatchModel.Code = &parsed.icmpCode
+			}
 		}
+		parsed.protocol = "icmp"
+		sgTemplate.Protocol = &parsed.protocol
 	} else {
-		if icmpInterface, ok := d.GetOk("icmp"); ok {
-			if icmpInterface.([]interface{})[0] != nil {
-				haveType := false
-				if value, ok := d.GetOk("icmp.0.type"); ok {
-					parsed.icmpType = int64(value.(int))
-					haveType = true
-					sgTemplate.Type = &parsed.icmpType
-					securityGroupRulePatchModel.Type = &parsed.icmpType
-				}
-				if value, ok := d.GetOk("icmp.0.code"); ok {
-					if !haveType {
-						return nil, nil, nil, fmt.Errorf("icmp code requires icmp type")
-					}
-					parsed.icmpCode = int64(value.(int))
-					sgTemplate.Code = &parsed.icmpCode
-					securityGroupRulePatchModel.Code = &parsed.icmpCode
-				}
+		if parsed.protocol == "icmp" {
+			haveType := false
+			if value, ok := d.GetOk("type"); ok {
+				parsed.icmpType = int64(value.(int))
+				haveType = true
+				sgTemplate.Type = &parsed.icmpType
+				fmt.Println("Inside the patch object1")
+				securityGroupRulePatchModel.Type = &parsed.icmpType
 			}
-			parsed.protocol = "icmp"
-			sgTemplate.Protocol = &parsed.protocol
+			if value, ok := d.GetOk("code"); ok {
+				if !haveType {
+					return nil, nil, nil, fmt.Errorf("icmp code requires icmp type")
+				}
+				parsed.icmpCode = int64(value.(int))
+				sgTemplate.Code = &parsed.icmpCode
+				securityGroupRulePatchModel.Code = &parsed.icmpCode
+				fmt.Println("Inside the patch object2")
+			}
 		}
 	}
 
@@ -881,7 +897,7 @@ func parseIBMISSecurityGroupRuleDictionary(d *schema.ResourceData, tag string, s
 	if err != nil {
 		return nil, nil, nil, fmt.Errorf("[ERROR] Error calling asPatch for SecurityGroupRulePatch: %s", err)
 	}
-	if _, ok := d.GetOk("icmp"); ok {
+	if _, ok := d.GetOk("icmp"); ok || d.Get("protocol") == "icmp" {
 
 		if parsed.icmpType == -1 {
 			securityGroupRulePatch["type"] = nil
