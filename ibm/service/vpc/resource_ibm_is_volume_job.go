@@ -3,7 +3,7 @@
 
 /*
  * IBM OpenAPI Terraform Generator Version: 3.107.1-41b0fbd0-20250825-080732
-*/
+ */
 
 package vpc
 
@@ -19,49 +19,49 @@ import (
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/validate"
 	"github.com/IBM/go-sdk-core/v5/core"
-	"github.ibm.com/ibmcloud/vpc-go-sdk/vpcv1"
+	"github.com/IBM/vpc-go-sdk/vpcv1"
 )
 
 func ResourceIBMIsVolumeJob() *schema.Resource {
 	return &schema.Resource{
-		CreateContext:   resourceIBMIsVolumeJobCreate,
-		ReadContext:     resourceIBMIsVolumeJobRead,
-		UpdateContext:   resourceIBMIsVolumeJobUpdate,
-		DeleteContext:   resourceIBMIsVolumeJobDelete,
-		Importer: &schema.ResourceImporter{},
+		CreateContext: resourceIBMIsVolumeJobCreate,
+		ReadContext:   resourceIBMIsVolumeJobRead,
+		UpdateContext: resourceIBMIsVolumeJobUpdate,
+		DeleteContext: resourceIBMIsVolumeJobDelete,
+		Importer:      &schema.ResourceImporter{},
 
 		Schema: map[string]*schema.Schema{
 			"volume_id": &schema.Schema{
-				Type:        schema.TypeString,
-				Required:    true,
-				ForceNew:    true,
+				Type:         schema.TypeString,
+				Required:     true,
+				ForceNew:     true,
 				ValidateFunc: validate.InvokeValidator("ibm_is_volume_job", "volume_id"),
-				Description: "The volume identifier.",
+				Description:  "The volume identifier.",
 			},
 			"start": &schema.Schema{
-				Type:        schema.TypeString,
-				Optional:    true,
+				Type:         schema.TypeString,
+				Optional:     true,
 				ValidateFunc: validate.InvokeValidator("ibm_is_volume_job", "start"),
-				Description: "A server-provided token determining what resource to start the page on.",
+				Description:  "A server-provided token determining what resource to start the page on.",
 			},
 			"limit": &schema.Schema{
-				Type:        schema.TypeInt,
-				Optional:    true,
-				Default:     50,
+				Type:         schema.TypeInt,
+				Optional:     true,
+				Default:      50,
 				ValidateFunc: validate.InvokeValidator("ibm_is_volume_job", "limit"),
-				Description: "The number of resources to return on a page.",
+				Description:  "The number of resources to return on a page.",
 			},
 			"job_type": &schema.Schema{
-				Type:        schema.TypeString,
-				Required:    true,
+				Type:         schema.TypeString,
+				Required:     true,
 				ValidateFunc: validate.InvokeValidator("ibm_is_volume_job", "job_type"),
-				Description: "The type of volume job.The enumerated values for this property may[expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.",
+				Description:  "The type of volume job.The enumerated values for this property may[expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.",
 			},
 			"name": &schema.Schema{
-				Type:        schema.TypeString,
-				Optional:    true,
+				Type:         schema.TypeString,
+				Optional:     true,
 				ValidateFunc: validate.InvokeValidator("ibm_is_volume_job", "name"),
-				Description: "The name for this volume job. The name must not be used by another volume job for this volume.",
+				Description:  "The name for this volume job. The name must not be used by another volume job for this volume.",
 			},
 			"parameters": &schema.Schema{
 				Type:        schema.TypeList,
@@ -233,7 +233,7 @@ func ResourceIBMIsVolumeJobValidator() *validate.ResourceValidator {
 }
 
 func resourceIBMIsVolumeJobCreate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	vpcClient, err := meta.(conns.ClientSession).VpcV1()
+	vpcClient, err := meta.(conns.ClientSession).VpcV1API()
 	if err != nil {
 		tfErr := flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_volume_job", "create", "initialize-client")
 		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
@@ -277,7 +277,7 @@ func resourceIBMIsVolumeJobCreate(context context.Context, d *schema.ResourceDat
 }
 
 func resourceIBMIsVolumeJobRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	vpcClient, err := meta.(conns.ClientSession).VpcV1()
+	vpcClient, err := meta.(conns.ClientSession).VpcV1API()
 	if err != nil {
 		tfErr := flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_volume_job", "read", "initialize-client")
 		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
@@ -385,7 +385,7 @@ func resourceIBMIsVolumeJobRead(context context.Context, d *schema.ResourceData,
 }
 
 func resourceIBMIsVolumeJobUpdate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	vpcClient, err := meta.(conns.ClientSession).VpcV1()
+	vpcClient, err := meta.(conns.ClientSession).VpcV1API()
 	if err != nil {
 		tfErr := flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_volume_job", "update", "initialize-client")
 		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
@@ -406,7 +406,7 @@ func resourceIBMIsVolumeJobUpdate(context context.Context, d *schema.ResourceDat
 
 	patchVals := &vpcv1.VolumeJobPatch{}
 	if d.HasChange("volume_id") {
-		errMsg := fmt.Sprintf("Cannot update resource property \"%s\" with the ForceNew annotation." +
+		errMsg := fmt.Sprintf("Cannot update resource property \"%s\" with the ForceNew annotation."+
 			" The resource must be re-created to update this property.", "volume_id")
 		return flex.DiscriminatedTerraformErrorf(nil, errMsg, "ibm_is_volume_job", "update", "volume_id-forces-new").GetDiag()
 	}
@@ -434,7 +434,7 @@ func resourceIBMIsVolumeJobUpdate(context context.Context, d *schema.ResourceDat
 }
 
 func resourceIBMIsVolumeJobDelete(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	vpcClient, err := meta.(conns.ClientSession).VpcV1()
+	vpcClient, err := meta.(conns.ClientSession).VpcV1API()
 	if err != nil {
 		tfErr := flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_volume_job", "delete", "initialize-client")
 		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())

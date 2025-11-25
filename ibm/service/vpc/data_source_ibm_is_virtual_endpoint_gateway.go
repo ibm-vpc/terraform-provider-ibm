@@ -209,7 +209,7 @@ func dataSourceIBMISEndpointGatewayRead(
 	result := allrecs[0]
 	d.SetId(*result.ID)
 	d.Set(isVirtualEndpointGatewayName, result.Name)
-	d.Set(isVirtualEndpointGatewayAllowDnsResolutionBinding, result.AllowDnsResolutionBinding)
+	// d.Set(isVirtualEndpointGatewayAllowDnsResolutionBinding, result.AllowDnsResolutionBinding)
 	d.Set(isVirtualEndpointGatewayCRN, result.CRN)
 	d.Set(isVirtualEndpointGatewayHealthState, result.HealthState)
 	d.Set(isVirtualEndpointGatewayCreatedAt, result.CreatedAt.String())

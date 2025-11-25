@@ -232,7 +232,7 @@ replace github.com/hashicorp/vault => github.com/hashicorp/vault v1.18.2
 
 replace github.com/hashicorp/vault/api/auth/approle => github.com/hashicorp/vault/api/auth/approle v0.8.0
 
-replace github.com/IBM/vpc-go-sdk v0.74.1 => ./common/github.com/IBM/vpc-go-sdk
+replace github.com/IBM/vpc-go-sdk v0.75.0 => ./common/github.com/IBM/vpc-go-sdk
 
 
 exclude (
