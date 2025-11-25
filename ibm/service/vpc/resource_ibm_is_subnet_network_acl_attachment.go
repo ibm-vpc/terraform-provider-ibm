@@ -292,6 +292,7 @@ func resourceIBMISSubnetNetworkACLAttachmentRead(context context.Context, d *sch
 					rule[isNetworkACLRuleAction] = *rulex.Action
 					rule[isNetworkACLRuleIPVersion] = *rulex.IPVersion
 					rule[isNetworkACLRuleSource] = *rulex.Source
+					rule[isNetworkACLRuleProtocol] = *rulex.Protocol
 					rule[isNetworkACLRuleDestination] = *rulex.Destination
 					rule[isNetworkACLRuleDirection] = *rulex.Direction
 					rule[isNetworkACLRuleTCP] = make([]map[string]int, 0, 0)
@@ -313,6 +314,7 @@ func resourceIBMISSubnetNetworkACLAttachmentRead(context context.Context, d *sch
 					rule[isNetworkACLRuleAction] = *rulex.Action
 					rule[isNetworkACLRuleIPVersion] = *rulex.IPVersion
 					rule[isNetworkACLRuleSource] = *rulex.Source
+					rule[isNetworkACLRuleProtocol] = *rulex.Protocol
 					rule[isNetworkACLRuleDestination] = *rulex.Destination
 					rule[isNetworkACLRuleDirection] = *rulex.Direction
 					if *rulex.Protocol == "tcp" {
@@ -339,13 +341,44 @@ func resourceIBMISSubnetNetworkACLAttachmentRead(context context.Context, d *sch
 						rule[isNetworkACLRuleUDP] = udp
 					}
 				}
-			case "*vpcv1.NetworkACLRuleItemNetworkACLRuleProtocolAll":
+			case "*vpcv1.NetworkACLRuleItemNetworkACLRuleProtocolAny":
 				{
-					rulex := rulex.(*vpcv1.NetworkACLRuleItemNetworkACLRuleProtocolAll)
+					rulex := rulex.(*vpcv1.NetworkACLRuleItemNetworkACLRuleProtocolAny)
 					rule[isNetworkACLRuleID] = *rulex.ID
 					rule[isNetworkACLRuleName] = *rulex.Name
 					rule[isNetworkACLRuleAction] = *rulex.Action
 					rule[isNetworkACLRuleIPVersion] = *rulex.IPVersion
+					rule[isNetworkACLRuleSource] = *rulex.Source
+					rule[isNetworkACLRuleProtocol] = *rulex.Protocol
+					rule[isNetworkACLRuleDestination] = *rulex.Destination
+					rule[isNetworkACLRuleDirection] = *rulex.Direction
+					rule[isNetworkACLRuleICMP] = make([]map[string]int, 0, 0)
+					rule[isNetworkACLRuleTCP] = make([]map[string]int, 0, 0)
+					rule[isNetworkACLRuleUDP] = make([]map[string]int, 0, 0)
+				}
+			case "*vpcv1.NetworkACLRuleItemNetworkACLRuleProtocolIndividual":
+				{
+					rulex := rulex.(*vpcv1.NetworkACLRuleItemNetworkACLRuleProtocolIndividual)
+					rule[isNetworkACLRuleID] = *rulex.ID
+					rule[isNetworkACLRuleName] = *rulex.Name
+					rule[isNetworkACLRuleAction] = *rulex.Action
+					rule[isNetworkACLRuleIPVersion] = *rulex.IPVersion
+					rule[isNetworkACLRuleSource] = *rulex.Source
+					rule[isNetworkACLRuleProtocol] = *rulex.Protocol
+					rule[isNetworkACLRuleDestination] = *rulex.Destination
+					rule[isNetworkACLRuleDirection] = *rulex.Direction
+					rule[isNetworkACLRuleICMP] = make([]map[string]int, 0, 0)
+					rule[isNetworkACLRuleTCP] = make([]map[string]int, 0, 0)
+					rule[isNetworkACLRuleUDP] = make([]map[string]int, 0, 0)
+				}
+			case "*vpcv1.NetworkACLRuleItemNetworkACLRuleProtocolIcmptcpudp":
+				{
+					rulex := rulex.(*vpcv1.NetworkACLRuleItemNetworkACLRuleProtocolIcmptcpudp)
+					rule[isNetworkACLRuleID] = *rulex.ID
+					rule[isNetworkACLRuleName] = *rulex.Name
+					rule[isNetworkACLRuleAction] = *rulex.Action
+					rule[isNetworkACLRuleIPVersion] = *rulex.IPVersion
+					rule[isNetworkACLRuleProtocol] = *rulex.Protocol
 					rule[isNetworkACLRuleSource] = *rulex.Source
 					rule[isNetworkACLRuleDestination] = *rulex.Destination
 					rule[isNetworkACLRuleDirection] = *rulex.Direction
