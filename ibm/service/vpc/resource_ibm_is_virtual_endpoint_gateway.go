@@ -380,10 +380,10 @@ func resourceIBMisVirtualEndpointGatewayCreate(context context.Context, d *schem
 
 	}
 	// dns resolution binding change
-	if allowDnsResolutionBindingOk, ok := d.GetOkExists(isVirtualEndpointGatewayAllowDnsResolutionBinding); ok {
-		allowDnsResolutionBinding := allowDnsResolutionBindingOk.(bool)
-		opt.AllowDnsResolutionBinding = &allowDnsResolutionBinding
-	}
+	// if allowDnsResolutionBindingOk, ok := d.GetOkExists(isVirtualEndpointGatewayAllowDnsResolutionBinding); ok {
+	// 	allowDnsResolutionBinding := allowDnsResolutionBindingOk.(bool)
+	// 	opt.AllowDnsResolutionBinding = &allowDnsResolutionBinding
+	// }
 	endpointGateway, response, err := sess.CreateEndpointGateway(opt)
 	if err != nil {
 		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("[ERROR] Create Endpoint Gateway failed %s\n%s", err, response), "ibm_is_virtual_endpoint_gateway", "create")
@@ -456,10 +456,10 @@ func resourceIBMisVirtualEndpointGatewayUpdate(context context.Context, d *schem
 		name := d.Get(isVirtualEndpointGatewayName).(string)
 		endpointGatewayPatchModel.Name = core.StringPtr(name)
 	}
-	if d.HasChange(isVirtualEndpointGatewayAllowDnsResolutionBinding) {
-		allowDnsResolutionBinding := d.Get(isVirtualEndpointGatewayAllowDnsResolutionBinding).(bool)
-		endpointGatewayPatchModel.AllowDnsResolutionBinding = &allowDnsResolutionBinding
-	}
+	// if d.HasChange(isVirtualEndpointGatewayAllowDnsResolutionBinding) {
+	// 	allowDnsResolutionBinding := d.Get(isVirtualEndpointGatewayAllowDnsResolutionBinding).(bool)
+	// 	endpointGatewayPatchModel.AllowDnsResolutionBinding = &allowDnsResolutionBinding
+	// }
 	endpointGatewayPatchModelAsPatch, _ := endpointGatewayPatchModel.AsPatch()
 	opt := sess.NewUpdateEndpointGatewayOptions(d.Id(), endpointGatewayPatchModelAsPatch)
 	_, response, err := sess.UpdateEndpointGateway(opt)
@@ -574,7 +574,7 @@ func resourceIBMisVirtualEndpointGatewayRead(context context.Context, d *schema.
 	if err := d.Set(isVirtualEndpointGatewayLifecycleReasons, resourceEGWFlattenLifecycleReasons(endpointGateway.LifecycleReasons)); err != nil {
 		return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("[ERROR] Error setting lifecycle_reasons: %s", err), "ibm_is_virtual_endpoint_gateway", "read", "set-lifecycle-reasons").GetDiag()
 	}
-	d.Set(isVirtualEndpointGatewayAllowDnsResolutionBinding, endpointGateway.AllowDnsResolutionBinding)
+	// d.Set(isVirtualEndpointGatewayAllowDnsResolutionBinding, endpointGateway.AllowDnsResolutionBinding)
 	d.Set(isVirtualEndpointGatewayResourceType, endpointGateway.ResourceType)
 	d.Set(isVirtualEndpointGatewayCRN, endpointGateway.CRN)
 	d.Set(isVirtualEndpointGatewayIPs, flattenIPs(endpointGateway.Ips))

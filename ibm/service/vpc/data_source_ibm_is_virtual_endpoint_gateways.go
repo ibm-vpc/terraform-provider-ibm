@@ -248,7 +248,7 @@ func dataSourceIBMISEndpointGatewaysRead(context context.Context, d *schema.Reso
 		endpointGatewayOutput[isVirtualEndpointGatewayResourceGroupID] = *endpointGateway.ResourceGroup.ID
 		endpointGatewayOutput[isVirtualEndpointGatewayCRN] = *endpointGateway.CRN
 		endpointGatewayOutput[isVirtualEndpointGatewayVpcID] = *endpointGateway.VPC.ID
-		endpointGatewayOutput[isVirtualEndpointGatewayAllowDnsResolutionBinding] = endpointGateway.AllowDnsResolutionBinding
+		// endpointGatewayOutput[isVirtualEndpointGatewayAllowDnsResolutionBinding] = endpointGateway.AllowDnsResolutionBinding
 		endpointGatewayOutput[isVirtualEndpointGatewayTarget] =
 			flattenEndpointGatewayTarget(endpointGateway.Target.(*vpcv1.EndpointGatewayTarget))
 		if endpointGateway.SecurityGroups != nil {
