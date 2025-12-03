@@ -9,7 +9,7 @@ description: |-
 
 # ibm_is_network_acl_rule
 
-Provides a network ACL rule resource with `icmp`, `tcp`, `udp`, `any`, `icmp_tcp_udp`, `ah`, `esp`, `gre`, `ip_in_ip`, `l2tp`, `rsvp`, `sctp`, `vrrp`. For other protocols, value of number_<N>, where <N> is the protocol number in decimal from 0 to 255 (e.g., number_99).
+Provides a network ACL rule resource with `icmp`, `tcp`, `udp`, `any`, `icmp_tcp_udp`, `ah`, `gre`, `ip_in_ip`, `l2tp`, `rsvp`, `sctp`, `vrrp`. For other protocols, value of number_<N>, where <N> is the protocol number in decimal from 0 to 255 (e.g., number_99).
 (Note: A selection of well-known protocols uses their standard names (e.g., tcp for protocol 6). For these, the corresponding number_<N> value must not be used (e.g., number_6 is invalid — use tcp instead). Each protocol has exactly one valid identifier, either a named protocol or a number_<N> ). 
 This allows Network ACL rule to create, update, and delete an existing network ACL. For more information, about managing IBM Cloud Network ACL , see [about network acl](https://cloud.ibm.com/docs/vpc?topic=vpc-using-acls).
 
