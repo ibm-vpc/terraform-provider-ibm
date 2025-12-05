@@ -5,7 +5,6 @@ package power
 
 import (
 	"context"
-	"fmt"
 	"log"
 
 	"github.com/IBM-Cloud/power-go-client/clients/instance"
@@ -29,20 +28,11 @@ func DataSourceIBMPIPVMSnapshot() *schema.Resource {
 				Type:         schema.TypeString,
 				ValidateFunc: validation.NoZeroValues,
 			},
-			Arg_InstanceID: {
-				AtLeastOneOf:  []string{Arg_InstanceID, Arg_InstanceName},
-				ConflictsWith: []string{Arg_InstanceName},
-				Description:   "The ID of the PVM instance.",
-				Optional:      true,
-				Type:          schema.TypeString,
-			},
 			Arg_InstanceName: {
-				AtLeastOneOf:  []string{Arg_InstanceID, Arg_InstanceName},
-				ConflictsWith: []string{Arg_InstanceID},
-				Deprecated:    "The pi_instance_name field is deprecated. Please use pi_instance_id instead",
-				Description:   "The name of the PVM instance.",
-				Optional:      true,
-				Type:          schema.TypeString,
+				Description:  "The unique identifier or name of the instance.",
+				Required:     true,
+				Type:         schema.TypeString,
+				ValidateFunc: validation.NoZeroValues,
 			},
 
 			// Attributes
@@ -115,29 +105,19 @@ func DataSourceIBMPIPVMSnapshot() *schema.Resource {
 	}
 }
 
-func dataSourceIBMPISnapshotRead(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
+func dataSourceIBMPISnapshotRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	sess, err := meta.(conns.ClientSession).IBMPISession()
 	if err != nil {
-		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("IBMPISession failed: %s", err.Error()), "(Data) ibm_pi_pvm_snapshot", "read")
-		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
-		return tfErr.GetDiag()
+		return diag.FromErr(err)
 	}
 
 	cloudInstanceID := d.Get(Arg_CloudInstanceID).(string)
-	var instanceID string
-	if v, ok := d.GetOk(Arg_InstanceID); ok {
-		instanceID = v.(string)
-	} else if v, ok := d.GetOk(Arg_InstanceName); ok {
-		instanceID = v.(string)
-	}
-
+	powerinstancename := d.Get(Arg_InstanceName).(string)
 	snapshot := instance.NewIBMPIInstanceClient(ctx, sess, cloudInstanceID)
-	snapshotData, err := snapshot.GetSnapShotVM(instanceID)
+	snapshotData, err := snapshot.GetSnapShotVM(powerinstancename)
 
 	if err != nil {
-		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("GetSnapShotVM failed: %s", err.Error()), "(Data) ibm_pi_pvm_snapshot", "read")
-		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
-		return tfErr.GetDiag()
+		return diag.FromErr(err)
 	}
 
 	var clientgenU, _ = uuid.GenerateUUID()
@@ -147,11 +127,11 @@ func dataSourceIBMPISnapshotRead(ctx context.Context, d *schema.ResourceData, me
 	return nil
 }
 
-func flattenPVMSnapshotInstances(list []*models.Snapshot, meta any) []map[string]any {
+func flattenPVMSnapshotInstances(list []*models.Snapshot, meta interface{}) []map[string]interface{} {
 	log.Printf("Calling the flattenPVMSnapshotInstances call with list %d", len(list))
-	result := make([]map[string]any, 0, len(list))
+	result := make([]map[string]interface{}, 0, len(list))
 	for _, i := range list {
-		l := map[string]any{
+		l := map[string]interface{}{
 			Attr_Action:          i.Action,
 			Attr_CreationDate:    i.CreationDate.String(),
 			Attr_Description:     i.Description,
