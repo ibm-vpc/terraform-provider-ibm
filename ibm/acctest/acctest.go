@@ -143,6 +143,13 @@ var (
 	trustedMachineType              string
 )
 
+// For VPC Endpoint Gateway
+var (
+	IsResourceBindingCRN        string
+	IsEndpointGatewayTargetCRN  string
+	IsEndpointGatewayTargetType string
+)
+
 // MQ on Cloud
 var (
 	MqcloudConfigEndpoint                       string
@@ -164,6 +171,11 @@ var (
 	LogsInstanceRegion                  string
 	LogsEventNotificationInstanceId     string
 	LogsEventNotificationInstanceRegion string
+)
+
+// Reclamation
+var (
+	ReclamationId string
 )
 
 // Secrets Manager
@@ -237,6 +249,7 @@ var (
 	Pi_image_bucket_region            string
 	Pi_image_bucket_secret_key        string
 	Pi_image_id                       string
+	Pi_instance_id                    string
 	Pi_instance_name                  string
 	Pi_key_name                       string
 	Pi_network_address_group_id       string
@@ -247,10 +260,10 @@ var (
 	Pi_network_security_group_id      string
 	Pi_network_security_group_rule_id string
 	Pi_peer_interface_id              string
-	Pi_placement_group_name           string
+	Pi_placement_group_id             string
 	Pi_remote_id                      string
 	Pi_remote_type                    string
-	Pi_replication_volume_name        string
+	Pi_replication_volume_id          string
 	Pi_resource_group_id              string
 	Pi_route_filter_id                string
 	Pi_route_id                       string
@@ -259,6 +272,7 @@ var (
 	Pi_shared_processor_pool_id       string
 	Pi_snapshot_id                    string
 	Pi_spp_placement_group_id         string
+	Pi_ssh_key_id                     string
 	Pi_storage_connection             string
 	Pi_target_storage_tier            string
 	Pi_virtual_serial_number          string
@@ -387,6 +401,10 @@ var (
 	COSApiKey    string
 )
 
+var (
+	DRApiKey string
+)
+
 // For Code Engine
 var (
 	CeResourceGroupID   string
@@ -407,6 +425,7 @@ var (
 
 // for IAM Identity
 var IamIdentityAssignmentTargetAccountId string
+var IamIdentityEnterpriseAccountId string
 
 // Projects
 var ProjectsConfigApiKey string
@@ -465,7 +484,13 @@ func init() {
 		os.Setenv("IBMCLOUD_BLUEMIX_GO_TRACE", "true")
 	}
 
+	ReclamationId = os.Getenv("IBM_RECLAMATION_ID")
+	if ReclamationId == "" {
+		fmt.Println("[WARN] Set the environment variable IBM_RECLAMATION_ID for testing reclamation, reclamation_delete tests will fail if this is not set")
+	}
+
 	IamIdentityAssignmentTargetAccountId = os.Getenv("IAM_IDENTITY_ASSIGNMENT_TARGET_ACCOUNT")
+	IamIdentityEnterpriseAccountId = os.Getenv("IAM_IDENTITY_ENTERPRISE_ACCOUNT")
 
 	ProjectsConfigApiKey = os.Getenv("IBM_PROJECTS_CONFIG_APIKEY")
 	if ProjectsConfigApiKey == "" {
@@ -803,6 +828,19 @@ func init() {
 	if RegionName == "" {
 		RegionName = "us-south"
 		fmt.Println("[INFO] Set the environment variable SL_REGION for testing ibm_is_region datasource else it is set to default value 'us-south'")
+	}
+
+	IsResourceBindingCRN = os.Getenv("IBM_IS_RESOURCE_BINDING_CRN")
+	if IsResourceBindingCRN == "" {
+		fmt.Println("[WARN] Set the environment variable IBM_IS_RESOURCE_BINDING_CRN for testing IBM VPC Endpoint gateway resources, the tests will fail if this is not set")
+	}
+	IsEndpointGatewayTargetCRN = os.Getenv("IBM_IS_ENDPOINT_BINDING_TARGET_CRN")
+	if IsEndpointGatewayTargetCRN == "" {
+		fmt.Println("[WARN] Set the environment variable IBM_IS_ENDPOINT_BINDING_TARGET_CRN for testing IBM VPC Endpoint gateway resources, the tests will fail if this is not set")
+	}
+	IsEndpointGatewayTargetType = os.Getenv("IBM_IS_ENDPOINT_BINDING_TARGET_TYPE")
+	if IsEndpointGatewayTargetType == "" {
+		fmt.Println("[WARN] Set the environment variable IBM_IS_ENDPOINT_BINDING_TARGET_TYPE for testing IBM VPC Endpoint gateway resources, the tests will fail if this is not set")
 	}
 
 	ISZoneName = os.Getenv("SL_ZONE")
@@ -1195,7 +1233,13 @@ func init() {
 	Pi_key_name = os.Getenv("PI_KEY_NAME")
 	if Pi_key_name == "" {
 		Pi_key_name = "terraform-test-power"
-		fmt.Println("[INFO] Set the environment variable PI_KEY_NAME for testing ibm_pi_key_name resource else it is set to default value 'terraform-test-power'")
+		fmt.Println("[INFO] Set the environment variable PI_KEY_NAME for testing ibm_pi_key resource else it is set to default value 'terraform-test-power'")
+	}
+
+	Pi_ssh_key_id = os.Getenv("PI_SSH_KEY_ID")
+	if Pi_ssh_key_id == "" {
+		Pi_ssh_key_id = "terraform-test-power"
+		fmt.Println("[INFO] Set the environment variable PI_SSH_KEY_ID for testing ibm_pi_key resource else it is set to default value 'terraform-test-power'")
 	}
 
 	Pi_network_name = os.Getenv("PI_NETWORK_NAME")
@@ -1267,10 +1311,10 @@ func init() {
 		fmt.Println("[INFO] Set the environment variable PI_VOLUME_ID for testing ibm_pi_volume_flash_copy_mappings resource else it is set to default value 'terraform-test-power'")
 	}
 
-	Pi_replication_volume_name = os.Getenv("PI_REPLICATION_VOLUME_NAME")
-	if Pi_replication_volume_name == "" {
-		Pi_replication_volume_name = "terraform-test-power"
-		fmt.Println("[INFO] Set the environment variable PI_REPLICATION_VOLUME_NAME for testing ibm_pi_volume resource else it is set to default value 'terraform-test-power'")
+	Pi_replication_volume_id = os.Getenv("PI_REPLICATION_VOLUME_ID")
+	if Pi_replication_volume_id == "" {
+		Pi_replication_volume_id = "terraform-test-power"
+		fmt.Println("[INFO] Set the environment variable PI_REPLICATION_VOLUME_ID for testing ibm_pi_volume resource else it is set to default value 'terraform-test-power'")
 	}
 
 	Pi_volume_onboarding_source_crn = os.Getenv("PI_VOLUME_ONBARDING_SOURCE_CRN")
@@ -1315,10 +1359,16 @@ func init() {
 		fmt.Println("[INFO] Set the environment variable PI_SNAPSHOT_ID for testing ibm_pi_instance_snapshot data source else it is set to default value '1ea33118-4c43-4356-bfce-904d0658de82'")
 	}
 
-	Pi_instance_name = os.Getenv("PI_PVM_INSTANCE_NAME")
+	Pi_instance_id = os.Getenv("PI_INSTANCE_ID")
+	if Pi_instance_id == "" {
+		Pi_instance_id = "terraform-test-power"
+		fmt.Println("[INFO] Set the environment variable PI_INSTANCE_ID for testing ibm_pi_instance resource else it is set to default value 'terraform-test-power'")
+	}
+
+	Pi_instance_name = os.Getenv("PI_INSTANCE_NAME")
 	if Pi_instance_name == "" {
 		Pi_instance_name = "terraform-test-power"
-		fmt.Println("[INFO] Set the environment variable PI_PVM_INSTANCE_ID for testing Pi_instance_name resource else it is set to default value 'terraform-test-power'")
+		fmt.Println("[INFO] Set the environment variable PI_INSTANCE_NAME for testing ibm_pi_instance resource else it is set to default value 'terraform-test-power'")
 	}
 
 	Pi_dhcp_id = os.Getenv("PI_DHCP_ID")
@@ -1339,10 +1389,10 @@ func init() {
 		fmt.Println("[INFO] Set the environment variable PI_SAP_PROFILE_ID for testing ibm_pi_sap_profile resource else it is set to default value 'terraform-test-power'")
 	}
 
-	Pi_placement_group_name = os.Getenv("PI_PLACEMENT_GROUP_NAME")
-	if Pi_placement_group_name == "" {
-		Pi_placement_group_name = "tf-pi-placement-group"
-		fmt.Println("[WARN] Set the environment variable PI_PLACEMENT_GROUP_NAME for testing ibm_pi_placement_group resource else it is set to default value 'tf-pi-placement-group'")
+	Pi_placement_group_id = os.Getenv("PI_PLACEMENT_GROUP_ID")
+	if Pi_placement_group_id == "" {
+		Pi_placement_group_id = "tf-pi-placement-group"
+		fmt.Println("[WARN] Set the environment variable PI_PLACEMENT_GROUP_ID for testing ibm_pi_placement_group resource else it is set to default value 'tf-pi-placement-group'")
 	}
 
 	Pi_remote_id = os.Getenv("PI_REMOTE_ID")
@@ -1946,6 +1996,12 @@ func init() {
 		fmt.Println("[WARN] Set the environment variable IES_API_KEY for testing Event streams targets, the tests will fail if this is not set")
 	}
 
+	DRApiKey = os.Getenv("DR_API_KEY")
+	if DRApiKey == "" {
+		DRApiKey = "xxxxxxxxxxxx" // pragma: allowlist secret
+		fmt.Println("[WARN] Set the environment variable IES_API_KEY for testing Event streams targets, the tests will fail if this is not set")
+	}
+
 	EnterpriseCRN = os.Getenv("ENTERPRISE_CRN")
 	if EnterpriseCRN == "" {
 		fmt.Println("[WARN] Set the environment variable ENTERPRISE_CRN for testing enterprise backup policy, the tests will fail if this is not set")
@@ -2258,9 +2314,13 @@ func TestAccPreCheckEnterprise(t *testing.T) {
 	}
 }
 
-func TestAccPreCheckAssignmentTargetAccount(t *testing.T) {
+func TestAccPreCheckIamIdentityEnterpriseTemplates(t *testing.T) {
+	TestAccPreCheck(t)
 	if v := os.Getenv("IAM_IDENTITY_ASSIGNMENT_TARGET_ACCOUNT"); v == "" {
 		t.Fatal("IAM_IDENTITY_ASSIGNMENT_TARGET_ACCOUNT must be set for IAM identity assignment tests")
+	}
+	if v := os.Getenv("IAM_IDENTITY_ENTERPRISE_ACCOUNT"); v == "" {
+		t.Fatal("IAM_IDENTITY_ENTERPRISE_ACCOUNT must be set for IAM identity assignment tests")
 	}
 }
 

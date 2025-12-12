@@ -135,6 +135,7 @@ import (
 	"github.com/IBM/platform-services-go-sdk/partnercentersellv1"
 	scc "github.com/IBM/scc-go-sdk/v5/securityandcompliancecenterapiv3"
 	"github.com/IBM/secrets-manager-go-sdk/v2/secretsmanagerv2"
+	"github.ibm.com/DRAutomation/dra-go-sdk/drautomationservicev1"
 )
 
 // RetryAPIDelay - retry api delay
@@ -256,6 +257,7 @@ type ClientSession interface {
 	ResourceControllerAPIV2() (controllerv2.ResourceControllerAPIV2, error)
 	BackupRecoveryV1() (*backuprecoveryv1.BackupRecoveryV1, error)
 	BackupRecoveryV1Connector() (*backuprecoveryv1.BackupRecoveryV1Connector, error)
+	BackupRecoveryManagerV1() (*backuprecoveryv1.BackupRecoveryManagementSreApiV1, error)
 	IBMCloudLogsRoutingV0() (*ibmcloudlogsroutingv0.IBMCloudLogsRoutingV0, error)
 	SoftLayerSession() *slsession.Session
 	IBMPISession() (*ibmpisession.IBMPISession, error)
@@ -335,6 +337,7 @@ type ClientSession interface {
 	VmwareV1() (*vmwarev1.VmwareV1, error)
 	LogsV0() (*logsv0.LogsV0, error)
 	SdsaasV1() (*sdsaasv1.SdsaasV1, error)
+	DrAutomationServiceV1() (*drautomationservicev1.DrAutomationServiceV1, error)
 }
 
 type clientSession struct {
@@ -594,6 +597,9 @@ type clientSession struct {
 	backupRecoveryConnectorClient    *backuprecoveryv1.BackupRecoveryV1Connector
 	backupRecoveryConnectorClientErr error
 
+	backupRecoveryManagerClient    *backuprecoveryv1.BackupRecoveryManagementSreApiV1
+	backupRecoveryManagerClientErr error
+
 	secretsManagerClient    *secretsmanagerv2.SecretsManagerV2
 	secretsManagerClientErr error
 
@@ -709,6 +715,10 @@ type clientSession struct {
 	// Global Catalog Management Option
 	globalCatalogClient    *globalcatalogv1.GlobalCatalogV1
 	globalCatalogClientErr error
+
+	// DR Automation
+	drAutomationServiceClient    *drautomationservicev1.DrAutomationServiceV1
+	drAutomationServiceClientErr error
 }
 
 // Usage Reports
@@ -1052,6 +1062,11 @@ func (sess clientSession) CisSSLClientSession() (*cissslv1.SslCertificateApiV1, 
 	return sess.cisSSLClient.Clone(), nil
 }
 
+// DrAutomation Service
+func (session clientSession) DrAutomationServiceV1() (*drautomationservicev1.DrAutomationServiceV1, error) {
+	return session.drAutomationServiceClient, session.drAutomationServiceClientErr
+}
+
 // CIS WAF Packages
 func (sess clientSession) CisWAFPackageClientSession() (*ciswafpackagev1.WafRulePackagesApiV1, error) {
 	if sess.cisWAFPackageErr != nil {
@@ -1197,6 +1212,10 @@ func (session clientSession) BackupRecoveryV1() (*backuprecoveryv1.BackupRecover
 
 func (session clientSession) BackupRecoveryV1Connector() (*backuprecoveryv1.BackupRecoveryV1Connector, error) {
 	return session.backupRecoveryConnectorClient, session.backupRecoveryConnectorClientErr
+}
+
+func (session clientSession) BackupRecoveryManagerV1() (*backuprecoveryv1.BackupRecoveryManagementSreApiV1, error) {
+	return session.backupRecoveryManagerClient, session.backupRecoveryManagerClientErr
 }
 
 // IBM Cloud Secrets Manager V2 Basic API
@@ -1357,7 +1376,7 @@ func (sess clientSession) GlobalCatalogV1API() (*globalcatalogv1.GlobalCatalogV1
 
 // ClientSession configures and returns a fully initialized ClientSession
 func (c *Config) ClientSession() (interface{}, error) {
-	sess, err := newSession(c)
+	sess, fileMap, err := newSession(c)
 	if err != nil {
 		return nil, err
 	}
@@ -1397,6 +1416,8 @@ func (c *Config) ClientSession() (interface{}, error) {
 		session.resourceControllerErr = errEmptyBluemixCredentials
 		session.backupRecoveryClientErr = errEmptyBluemixCredentials
 		session.backupRecoveryConnectorClientErr = errEmptyBluemixCredentials
+		session.backupRecoveryManagerClientErr = errEmptyBluemixCredentials
+		session.backupRecoveryManagerClientErr = errEmptyBluemixCredentials
 		session.catalogManagementClientErr = errEmptyBluemixCredentials
 		session.partnerCenterSellClientErr = errEmptyBluemixCredentials
 		session.ibmpiConfigErr = errEmptyBluemixCredentials
@@ -1488,22 +1509,7 @@ func (c *Config) ClientSession() (interface{}, error) {
 	session.functionClient, session.functionConfigErr = FunctionClient(sess.BluemixSession.Config)
 
 	BluemixRegion = sess.BluemixSession.Config.Region
-	var fileMap map[string]interface{}
-	if f := EnvFallBack([]string{"IBMCLOUD_ENDPOINTS_FILE_PATH", "IC_ENDPOINTS_FILE_PATH"}, c.EndpointsFile); f != "" {
-		jsonFile, err := os.Open(f)
-		if err != nil {
-			log.Fatalf("Unable to open Endpoints File %s", err)
-		}
-		defer jsonFile.Close()
-		bytes, err := ioutil.ReadAll(jsonFile)
-		if err != nil {
-			log.Fatalf("Unable to read Endpoints File %s", err)
-		}
-		err = json.Unmarshal([]byte(bytes), &fileMap)
-		if err != nil {
-			log.Fatalf("Unable to unmarshal Endpoints File %s", err)
-		}
-	}
+
 	accv1API, err := accountv1.New(sess.BluemixSession)
 	if err != nil {
 		session.accountV1ConfigErr = fmt.Errorf("[ERROR] Error occured while configuring Bluemix Accountv1 Service: %q", err)
@@ -1664,21 +1670,21 @@ func (c *Config) ClientSession() (interface{}, error) {
 	}
 
 	// Construct the service options.
-	var backupRecoveryURL string
+	var backupRecoveryURL string = "https://default.backup-recovery.cloud.ibm.com/v2"
 	var backupRecoveryConnectorURL string
+	var backupRecoveryManagerURL string = "https://manager.backup-recovery.cloud.ibm.com/v2"
 
 	if fileMap != nil && c.Visibility != "public-and-private" {
 		backupRecoveryURL = fileFallBack(fileMap, c.Visibility, "IBMCLOUD_BACKUP_RECOVERY_ENDPOINT", c.Region, backupRecoveryURL)
 		backupRecoveryConnectorURL = fileFallBack(fileMap, c.Visibility, "IBMCLOUD_BACKUP_RECOVERY_CONNECTOR_ENDPOINT", c.Region, backupRecoveryConnectorURL)
+		backupRecoveryManagerURL = fileFallBack(fileMap, c.Visibility, "IBMCLOUD_BACKUP_RECOVERY_MANAGER_ENDPOINT", c.Region, backupRecoveryConnectorURL)
 	}
 
 	backupRecoveryClientOptions := &backuprecoveryv1.BackupRecoveryV1Options{
 		Authenticator: authenticator,
 		URL:           EnvFallBack([]string{"IBMCLOUD_BACKUP_RECOVERY_ENDPOINT"}, backupRecoveryURL),
 	}
-	if backupRecoveryClientOptions.URL == "" {
-		session.backupRecoveryClientErr = fmt.Errorf("IBMCLOUD_BACKUP_RECOVERY_ENDPOINT not set in env or endpoints file")
-	}
+
 	// Construct the service client.
 	session.backupRecoveryClient, err = backuprecoveryv1.NewBackupRecoveryV1(backupRecoveryClientOptions)
 	if err != nil {
@@ -1712,6 +1718,27 @@ func (c *Config) ClientSession() (interface{}, error) {
 		session.backupRecoveryConnectorClient.Service.EnableRetries(c.RetryCount, c.RetryDelay)
 		// Add custom header for analytics
 		session.backupRecoveryConnectorClient.SetDefaultHeaders(gohttp.Header{
+			"X-Original-User-Agent": {fmt.Sprintf("terraform-provider-ibm/%s", version.Version)},
+		})
+	}
+
+	var backupRecoveryManagerClientAuthenticator core.Authenticator
+	backupRecoveryManagerClientAuthenticator = &core.NoAuthAuthenticator{}
+
+	backupRecoveryManagerClientOptions := &backuprecoveryv1.BackupRecoveryManagementSreApiV1Options{
+		Authenticator: backupRecoveryManagerClientAuthenticator,
+		URL:           EnvFallBack([]string{"IBMCLOUD_BACKUP_RECOVERY_MANAGER_ENDPOINT"}, backupRecoveryManagerURL),
+	}
+	// Construct the service client.
+	session.backupRecoveryManagerClient, err = backuprecoveryv1.NewBackupRecoveryManagementSreApiV1(backupRecoveryManagerClientOptions)
+	if err != nil {
+		session.backupRecoveryManagerClientErr = fmt.Errorf("Error occurred while configuring IBM Backup recovery API service: %q", err)
+	}
+	if session.backupRecoveryManagerClient != nil && session.backupRecoveryManagerClient.Service != nil {
+		// Enable retries for API calls
+		session.backupRecoveryManagerClient.Service.EnableRetries(c.RetryCount, c.RetryDelay)
+		// Add custom header for analytics
+		session.backupRecoveryManagerClient.SetDefaultHeaders(gohttp.Header{
 			"X-Original-User-Agent": {fmt.Sprintf("terraform-provider-ibm/%s", version.Version)},
 		})
 	}
@@ -2314,7 +2341,7 @@ func (c *Config) ClientSession() (interface{}, error) {
 	}
 	globalSearchAPIV2, err := searchv2.NewGlobalSearchV2(globalSearchV2Options)
 	if err != nil {
-		session.globalTaggingConfigErrV1 = fmt.Errorf("[ERROR] Error occured while configuring Global Search: %q", err)
+		session.globalSearchConfigErrV2 = fmt.Errorf("[ERROR] Error occured while configuring Global Search: %q", err)
 	}
 	if globalSearchAPIV2 != nil && globalSearchAPIV2.Service != nil {
 		session.globalSearchServiceAPIV2 = *globalSearchAPIV2
@@ -3427,6 +3454,27 @@ func (c *Config) ClientSession() (interface{}, error) {
 	}
 	session.resourceControllerAPI = resourceControllerClient
 
+	// Construct an instance of the 'DrAutomation Service' service.
+	if session.drAutomationServiceClientErr == nil {
+		// Construct the service options.
+		drAutomationServiceClientOptions := &drautomationservicev1.DrAutomationServiceV1Options{
+			Authenticator: authenticator,
+		}
+
+		// Construct the service client.
+		session.drAutomationServiceClient, err = drautomationservicev1.NewDrAutomationServiceV1(drAutomationServiceClientOptions)
+		if err == nil {
+			// Enable retries for API calls
+			session.drAutomationServiceClient.Service.EnableRetries(c.RetryCount, c.RetryDelay)
+			// Add custom header for analytics
+			session.drAutomationServiceClient.SetDefaultHeaders(gohttp.Header{
+				"X-Original-User-Agent": {fmt.Sprintf("terraform-provider-ibm/%s", version.Version)},
+			})
+		} else {
+			session.drAutomationServiceClientErr = fmt.Errorf("error occurred while constructing 'DrAutomation Service' service client: %q", err)
+		}
+	}
+
 	// SECRETS MANAGER Service V2
 	// Construct an "options" struct for creating the service client.
 	var smBaseUrl string
@@ -3756,7 +3804,7 @@ func CreateVersionDate() *string {
 	return &version
 }
 
-func newSession(c *Config) (*Session, error) {
+func newSession(c *Config) (*Session, map[string]interface{}, error) {
 	ibmSession := &Session{}
 
 	softlayerSession := &slsession.Session{
@@ -3784,7 +3832,34 @@ func newSession(c *Config) (*Session, error) {
 
 	var authenticator core.Authenticator
 	var err error
+	var fileMap map[string]interface{}
+	if f := EnvFallBack([]string{"IBMCLOUD_ENDPOINTS_FILE_PATH", "IC_ENDPOINTS_FILE_PATH"}, c.EndpointsFile); f != "" {
+		jsonFile, err := os.Open(f)
+		if err != nil {
+			log.Fatalf("Unable to open Endpoints File %s", err)
+		}
+		defer jsonFile.Close()
+		bytes, err := ioutil.ReadAll(jsonFile)
+		if err != nil {
+			log.Fatalf("Unable to read Endpoints File %s", err)
+		}
+		err = json.Unmarshal([]byte(bytes), &fileMap)
+		if err != nil {
+			log.Fatalf("Unable to unmarshal Endpoints File %s", err)
+		}
+	}
 	iamURL := EnvFallBack([]string{"IBMCLOUD_IAM_API_ENDPOINT"}, IAMURL)
+
+	if c.Visibility == "private" || c.Visibility == "public-and-private" {
+		if c.Region == "us-south" || c.Region == "us-east" {
+			iamURL = ContructEndpoint(fmt.Sprintf("private.%s.iam", c.Region), cloudEndpoint)
+		} else {
+			iamURL = ContructEndpoint("private.iam", cloudEndpoint)
+		}
+	}
+	if fileMap != nil && c.Visibility != "public-and-private" {
+		iamURL = fileFallBack(fileMap, c.Visibility, "IBMCLOUD_IAM_API_ENDPOINT", c.Region, iamURL)
+	}
 	if (c.BluemixAPIKey != "") && (c.IAMTrustedProfileID != "" || c.IAMTrustedProfileName != "") {
 		if c.IAMTrustedProfileID != "" {
 			log.Println("Configuring Session with Trusted Profile ID")
@@ -3859,11 +3934,11 @@ func newSession(c *Config) (*Session, error) {
 	}
 	sess, err = bxsession.New(bmxConfig)
 	if err != nil {
-		return nil, err
+		return nil, fileMap, err
 	}
 	ibmSession.BluemixSession = sess
 
-	return ibmSession, nil
+	return ibmSession, fileMap, err
 }
 
 /*func authenticateAPIKey(sess *bxsession.Session) error {
