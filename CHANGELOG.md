@@ -1,3 +1,10 @@
+# 1.83.4 (December 21, 2025)
+
+## Bug Fixes
+
+### VPC Infrastructure
+* Fix: default switch for Security group rules and network acl rules
+
 # 1.83.3 (October 9, 2025)
 
 ## Bug Fixes
