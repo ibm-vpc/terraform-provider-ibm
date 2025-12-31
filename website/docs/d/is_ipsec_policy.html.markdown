@@ -80,4 +80,8 @@ In addition to all argument references listed, you can access the following attr
 	- `name` - (String) The user-defined name for this resource group.
 - `resource_type` - (String) The resource type.
 - `transform_protocol` - (String) The transform protocol used. Only `esp` is supported.
+- `cipher_mode` - (String) The cipher mode used. Possible values are `singular` or `suite`.
+- `authentication_algorithms` - (List) The authentication algorithms in order of preference. Only applicable when `cipher_mode` is `suite`.
+- `encryption_algorithms` - (List) The encryption algorithms in order of preference. Only applicable when `cipher_mode` is `suite`.
+- `pfs_groups` - (List) The Diffie-Hellman groups in order of preference. Only applicable when `cipher_mode` is `suite`.
 
