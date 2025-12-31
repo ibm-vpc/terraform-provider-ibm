@@ -48,3 +48,4 @@ vendor/
 !deletecrd.sh
 !updatecrd.sh
 !updateodf.sh
+/extras
