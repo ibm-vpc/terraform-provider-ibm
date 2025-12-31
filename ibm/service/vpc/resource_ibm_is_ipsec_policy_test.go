@@ -37,6 +37,7 @@ func TestAccIBMISIPSecPolicy_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceKey, "key_lifetime", "3600"), // Testing default value
 					resource.TestCheckResourceAttrSet(resourceKey, "encapsulation_mode"),
 					resource.TestCheckResourceAttrSet(resourceKey, "transform_protocol"),
+					resource.TestCheckResourceAttrSet(resourceKey, "cipher_mode"),
 				),
 			},
 			{
@@ -137,11 +138,19 @@ func testAccCheckIBMISIpSecPolicyExists(n, policy string) resource.TestCheckFunc
 		getipsecpoptions := &vpcv1.GetIpsecPolicyOptions{
 			ID: &rs.Primary.ID,
 		}
-		ipSecPolicy, _, err := sess.GetIpsecPolicy(getipsecpoptions)
+		ipSecPolicyIntf, _, err := sess.GetIpsecPolicy(getipsecpoptions)
 		if err != nil {
 			return err
 		}
-		policy = *ipSecPolicy.ID
+		// Extract ID from interface
+		switch ipSecPolicy := ipSecPolicyIntf.(type) {
+		case *vpcv1.IPsecPolicySingularCipherMode:
+			policy = *ipSecPolicy.ID
+		case *vpcv1.IPsecPolicySuiteCipherMode:
+			policy = *ipSecPolicy.ID
+		case *vpcv1.IPsecPolicy:
+			policy = *ipSecPolicy.ID
+		}
 
 		return nil
 	}

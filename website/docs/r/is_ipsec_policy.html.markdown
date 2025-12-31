@@ -52,10 +52,14 @@ Review the argument references that you can specify for your resource.
 ## Attribute reference
 In addition to all argument reference list, you can access the following attribute reference after your resource is created.
 
+- `authentication_algorithms` - (List) The authentication algorithms for the IPsec policy (in suite cipher mode).
+- `cipher_mode` - (String) The cipher mode for the IPsec policy. Possible values are `singular` and `suite`.
 - `encapsulation_mode` - (String) The encapsulation mode that was set for your IPSec policy. Only `tunnel` is supported.
+- `encryption_algorithms` - (List) The encryption algorithms for the IPsec policy (in suite cipher mode).
 - `id` - (String) The unique identifier of the IPSec policy that you created.
+- `pfs_groups` - (List) The Perfect Forward Secrecy groups for the IPsec policy (in suite cipher mode).
 - `transform_protocol` - (String) The transform protocol that is used in your IPSec policy. Only the `esp` protocol is supported that uses the triple DES (3DES) encryption algorithm to encrypt your data.
-- `vpn_connections`- (List) A collection of VPN connections that use the IPSec policy. 
+- `vpn_connections`- (List) A collection of VPN connections that use the IPSec policy.
 
   Nested scheme for `vpn_connections`:
   - `href` - (String) The VPN connection's canonical URL.

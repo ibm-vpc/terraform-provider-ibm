@@ -25,8 +25,10 @@ In addition to all argument references listed, you can access the following attr
 - `ike_policies` - (List) Collection of IKE policies.
 
   	Nested scheme for **ike_policies**:
-	- `authentication_algorithm` - (String) The authentication algorithm.
-	- `connections` - (List) The VPN gateway connections that use this IKE policy.
+ - `authentication_algorithm` - (String) The authentication algorithm.
+ - `authentication_algorithms` - (List) The authentication algorithms to use for IKE Negotiation.The order of the algorithms in this array indicates their priority for negotiation, with each algorithm having priority over the one after it. Constraints: Allowable list items are: `sha256`, `sha384`, `sha512`. The maximum length is `3` items. The minimum length is `1` item.
+ - `cipher_mode` - (String) The IKE policy cipher mode:- `singular`: A mode where `authentication_algorithm`, `dh_group` and`encryption_algorithm` each have one value.- `suite`: A mode where `authentication_algorithms`, `dh_groups` and`encryption_algorithms` each have an ordered array of values. Constraints: Allowable values are: `singular`, `suite`.
+ - `connections` - (List) The VPN gateway connections that use this IKE policy.
 
 	  	Nested scheme for **connections**:
 		- `deleted` - (List) If present, this property indicates the referenced resource has been deleted and providessome supplementary information.
@@ -39,7 +41,9 @@ In addition to all argument references listed, you can access the following attr
 		- `resource_type` - (String) The resource type.
 	- `created_at` - (String) The date and time that this IKE policy was created.
 	- `dh_group` - (Integer) The Diffie-Hellman group.
+	- `dh_groups` - (List) The Diffie-Hellman groups to use for IKE negotiation.The order of the Diffie-Hellman groups in this array indicates their priority for negotiation, with each Diffie-Hellman group having priority over the one after it. Constraints: Allowable list items are: `14`, `15`, `16`, `17`, `18`, `19`, `20`, `21`, `22`, `23`, `24`, `31`. The maximum length is `12` items. The minimum length is `1` item.
 	- `encryption_algorithm` - (String) The encryption algorithm.
+	- `encryption_algorithms` - (List) The encryption algorithms to use for IKE Negotiation.The order of the algorithms in this array indicates their priority for negotiation, with each algorithm having priority over the one after it. Constraints: Allowable list items are: `aes128`, `aes192`, `aes256`. The maximum length is `3` items. The minimum length is `1` item.
 	- `href` - (String) The IKE policy's canonical URL.
 	- `id` - (String) The unique identifier for this IKE policy.
 	- `ike_version` - (Integer) The IKE protocol version.

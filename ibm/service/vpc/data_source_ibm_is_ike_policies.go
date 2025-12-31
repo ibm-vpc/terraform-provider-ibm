@@ -14,6 +14,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
+	"github.com/IBM/go-sdk-core/v5/core"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
 )
 
@@ -32,6 +33,19 @@ func DataSourceIBMIsIkePolicies() *schema.Resource {
 							Type:        schema.TypeString,
 							Computed:    true,
 							Description: "The authentication algorithm.",
+						},
+						"authentication_algorithms": &schema.Schema{
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "The authentication algorithms to use for IKE Negotiation.The order of the algorithms in this array indicates their priority for negotiation, with each algorithm having priority over the one after it.",
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
+						"cipher_mode": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The IKE policy cipher mode:- `singular`: A mode where `authentication_algorithm`, `dh_group` and`encryption_algorithm` each have one value.- `suite`: A mode where `authentication_algorithms`, `dh_groups` and`encryption_algorithms` each have an ordered array of values.",
 						},
 						"connections": {
 							Type:        schema.TypeList,
@@ -86,10 +100,26 @@ func DataSourceIBMIsIkePolicies() *schema.Resource {
 							Computed:    true,
 							Description: "The Diffie-Hellman group.",
 						},
+						"dh_groups": &schema.Schema{
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "The Diffie-Hellman groups to use for IKE negotiation.The order of the Diffie-Hellman groups in this array indicates their priority for negotiation, with each Diffie-Hellman group having priority over the one after it.",
+							Elem: &schema.Schema{
+								Type: schema.TypeInt,
+							},
+						},
 						"encryption_algorithm": {
 							Type:        schema.TypeString,
 							Computed:    true,
 							Description: "The encryption algorithm.",
+						},
+						"encryption_algorithms": &schema.Schema{
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "The encryption algorithms to use for IKE Negotiation.The order of the algorithms in this array indicates their priority for negotiation, with each algorithm having priority over the one after it.",
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
 						},
 						"href": {
 							Type:        schema.TypeString,
@@ -166,7 +196,7 @@ func dataSourceIBMIsIkePoliciesRead(context context.Context, d *schema.ResourceD
 	}
 
 	start := ""
-	allrecs := []vpcv1.IkePolicy{}
+	allrecs := []vpcv1.IkePolicyIntf{}
 	for {
 		listIkePoliciesOptions := &vpcv1.ListIkePoliciesOptions{}
 		if start != "" {
@@ -200,62 +230,209 @@ func dataSourceIBMIsIkePoliciesID(d *schema.ResourceData) string {
 	return time.Now().UTC().String()
 }
 
-func dataSourceIkePolicyCollectionFlattenIkePolicies(result []vpcv1.IkePolicy) (ikePolicies []map[string]interface{}) {
-	for _, ikePoliciesItem := range result {
-		ikePolicies = append(ikePolicies, dataSourceIkePolicyCollectionIkePoliciesToMap(ikePoliciesItem))
+func dataSourceIkePolicyCollectionFlattenIkePolicies(result []vpcv1.IkePolicyIntf) (ikePolicies []map[string]interface{}) {
+	for _, ikePoliciesItemIntf := range result {
+		ikePolicies = append(ikePolicies, dataSourceIkePolicyCollectionIkePoliciesToMap(ikePoliciesItemIntf))
 	}
 
 	return ikePolicies
 }
 
-func dataSourceIkePolicyCollectionIkePoliciesToMap(ikePoliciesItem vpcv1.IkePolicy) (ikePoliciesMap map[string]interface{}) {
+func dataSourceIkePolicyCollectionIkePoliciesToMap(ikePoliciesItemIntf vpcv1.IkePolicyIntf) (ikePoliciesMap map[string]interface{}) {
 	ikePoliciesMap = map[string]interface{}{}
 
-	if ikePoliciesItem.AuthenticationAlgorithm != nil {
-		ikePoliciesMap["authentication_algorithm"] = ikePoliciesItem.AuthenticationAlgorithm
-	}
-	if ikePoliciesItem.Connections != nil {
-		connectionsList := []map[string]interface{}{}
-		for _, connectionsItem := range ikePoliciesItem.Connections {
-			connectionsList = append(connectionsList, dataSourceIkePolicyCollectionIkePoliciesConnectionsToMap(connectionsItem))
+	switch ikePoliciesItem := ikePoliciesItemIntf.(type) {
+	case *vpcv1.IkePolicySingularCipherMode:
+		if ikePoliciesItem.CipherMode != nil {
+			ikePoliciesMap["cipher_mode"] = ikePoliciesItem.CipherMode
 		}
-		ikePoliciesMap["connections"] = connectionsList
-	}
-	if ikePoliciesItem.CreatedAt != nil {
-		ikePoliciesMap["created_at"] = ikePoliciesItem.CreatedAt.String()
-	}
-	if ikePoliciesItem.DhGroup != nil {
-		ikePoliciesMap["dh_group"] = ikePoliciesItem.DhGroup
-	}
-	if ikePoliciesItem.EncryptionAlgorithm != nil {
-		ikePoliciesMap["encryption_algorithm"] = ikePoliciesItem.EncryptionAlgorithm
-	}
-	if ikePoliciesItem.Href != nil {
-		ikePoliciesMap["href"] = ikePoliciesItem.Href
-	}
-	if ikePoliciesItem.ID != nil {
-		ikePoliciesMap["id"] = ikePoliciesItem.ID
-	}
-	if ikePoliciesItem.IkeVersion != nil {
-		ikePoliciesMap["ike_version"] = ikePoliciesItem.IkeVersion
-	}
-	if ikePoliciesItem.KeyLifetime != nil {
-		ikePoliciesMap["key_lifetime"] = ikePoliciesItem.KeyLifetime
-	}
-	if ikePoliciesItem.Name != nil {
-		ikePoliciesMap["name"] = ikePoliciesItem.Name
-	}
-	if ikePoliciesItem.NegotiationMode != nil {
-		ikePoliciesMap["negotiation_mode"] = ikePoliciesItem.NegotiationMode
-	}
-	if ikePoliciesItem.ResourceGroup != nil {
-		resourceGroupList := []map[string]interface{}{}
-		resourceGroupMap := dataSourceIkePolicyCollectionIkePoliciesResourceGroupToMap(*ikePoliciesItem.ResourceGroup)
-		resourceGroupList = append(resourceGroupList, resourceGroupMap)
-		ikePoliciesMap["resource_group"] = resourceGroupList
-	}
-	if ikePoliciesItem.ResourceType != nil {
-		ikePoliciesMap["resource_type"] = ikePoliciesItem.ResourceType
+		if ikePoliciesItem.AuthenticationAlgorithm != nil {
+			ikePoliciesMap["authentication_algorithm"] = ikePoliciesItem.AuthenticationAlgorithm
+		}
+		if ikePoliciesItem.Connections != nil {
+			connectionsList := []map[string]interface{}{}
+			for _, connectionsItem := range ikePoliciesItem.Connections {
+				connectionsList = append(connectionsList, dataSourceIkePolicyCollectionIkePoliciesConnectionsToMap(connectionsItem))
+			}
+			ikePoliciesMap["connections"] = connectionsList
+		}
+		if ikePoliciesItem.CreatedAt != nil {
+			ikePoliciesMap["created_at"] = ikePoliciesItem.CreatedAt.String()
+		}
+		if ikePoliciesItem.DhGroup != nil {
+			ikePoliciesMap["dh_group"] = ikePoliciesItem.DhGroup
+		}
+		if ikePoliciesItem.EncryptionAlgorithm != nil {
+			ikePoliciesMap["encryption_algorithm"] = ikePoliciesItem.EncryptionAlgorithm
+		}
+		if ikePoliciesItem.Href != nil {
+			ikePoliciesMap["href"] = ikePoliciesItem.Href
+		}
+		if ikePoliciesItem.ID != nil {
+			ikePoliciesMap["id"] = ikePoliciesItem.ID
+		}
+		if ikePoliciesItem.IkeVersion != nil {
+			ikePoliciesMap["ike_version"] = ikePoliciesItem.IkeVersion
+		}
+		if ikePoliciesItem.KeyLifetime != nil {
+			ikePoliciesMap["key_lifetime"] = ikePoliciesItem.KeyLifetime
+		}
+		if ikePoliciesItem.Name != nil {
+			ikePoliciesMap["name"] = ikePoliciesItem.Name
+		}
+		if ikePoliciesItem.NegotiationMode != nil {
+			ikePoliciesMap["negotiation_mode"] = ikePoliciesItem.NegotiationMode
+		}
+		if ikePoliciesItem.ResourceGroup != nil {
+			resourceGroupList := []map[string]interface{}{}
+			resourceGroupMap := dataSourceIkePolicyCollectionIkePoliciesResourceGroupToMap(*ikePoliciesItem.ResourceGroup)
+			resourceGroupList = append(resourceGroupList, resourceGroupMap)
+			ikePoliciesMap["resource_group"] = resourceGroupList
+		}
+		if ikePoliciesItem.ResourceType != nil {
+			ikePoliciesMap["resource_type"] = ikePoliciesItem.ResourceType
+		}
+
+	case *vpcv1.IkePolicySuiteCipherMode:
+		if ikePoliciesItem.CipherMode != nil {
+			ikePoliciesMap["cipher_mode"] = ikePoliciesItem.CipherMode
+		}
+		if ikePoliciesItem.Connections != nil {
+			connectionsList := []map[string]interface{}{}
+			for _, connectionsItem := range ikePoliciesItem.Connections {
+				connectionsList = append(connectionsList, dataSourceIkePolicyCollectionIkePoliciesConnectionsToMap(connectionsItem))
+			}
+			ikePoliciesMap["connections"] = connectionsList
+		}
+		if ikePoliciesItem.CreatedAt != nil {
+			ikePoliciesMap["created_at"] = ikePoliciesItem.CreatedAt.String()
+		}
+		if ikePoliciesItem.Href != nil {
+			ikePoliciesMap["href"] = ikePoliciesItem.Href
+		}
+		if ikePoliciesItem.ID != nil {
+			ikePoliciesMap["id"] = ikePoliciesItem.ID
+		}
+		if ikePoliciesItem.IkeVersion != nil {
+			ikePoliciesMap["ike_version"] = ikePoliciesItem.IkeVersion
+		}
+		if ikePoliciesItem.KeyLifetime != nil {
+			ikePoliciesMap["key_lifetime"] = ikePoliciesItem.KeyLifetime
+		}
+		if ikePoliciesItem.Name != nil {
+			ikePoliciesMap["name"] = ikePoliciesItem.Name
+		}
+		if ikePoliciesItem.NegotiationMode != nil {
+			ikePoliciesMap["negotiation_mode"] = ikePoliciesItem.NegotiationMode
+		}
+		if ikePoliciesItem.ResourceGroup != nil {
+			resourceGroupList := []map[string]interface{}{}
+			resourceGroupMap := dataSourceIkePolicyCollectionIkePoliciesResourceGroupToMap(*ikePoliciesItem.ResourceGroup)
+			resourceGroupList = append(resourceGroupList, resourceGroupMap)
+			ikePoliciesMap["resource_group"] = resourceGroupList
+		}
+		if ikePoliciesItem.ResourceType != nil {
+			ikePoliciesMap["resource_type"] = ikePoliciesItem.ResourceType
+		}
+
+		if !core.IsNil(ikePoliciesItem.AuthenticationAlgorithms) {
+			authenticationAlgorithms := []interface{}{}
+			for _, authenticationAlgorithmsItem := range ikePoliciesItem.AuthenticationAlgorithms {
+				authenticationAlgorithms = append(authenticationAlgorithms, authenticationAlgorithmsItem)
+			}
+			ikePoliciesMap["authentication_algorithms"] = authenticationAlgorithms
+		}
+
+		if !core.IsNil(ikePoliciesItem.DhGroups) {
+			dhGroups := []interface{}{}
+			for _, dhGroupsItem := range ikePoliciesItem.DhGroups {
+				dhGroups = append(dhGroups, int64(dhGroupsItem))
+			}
+			ikePoliciesMap["dh_groups"] = dhGroups
+		}
+
+		if !core.IsNil(ikePoliciesItem.EncryptionAlgorithms) {
+			encryptionAlgorithms := []interface{}{}
+			for _, encryptionAlgorithmsItem := range ikePoliciesItem.EncryptionAlgorithms {
+				encryptionAlgorithms = append(encryptionAlgorithms, encryptionAlgorithmsItem)
+			}
+			ikePoliciesMap["encryption_algorithms"] = encryptionAlgorithms
+		}
+
+	case *vpcv1.IkePolicy:
+		if ikePoliciesItem.CipherMode != nil {
+			ikePoliciesMap["cipher_mode"] = ikePoliciesItem.CipherMode
+		}
+		if ikePoliciesItem.AuthenticationAlgorithm != nil {
+			ikePoliciesMap["authentication_algorithm"] = ikePoliciesItem.AuthenticationAlgorithm
+		}
+		if ikePoliciesItem.Connections != nil {
+			connectionsList := []map[string]interface{}{}
+			for _, connectionsItem := range ikePoliciesItem.Connections {
+				connectionsList = append(connectionsList, dataSourceIkePolicyCollectionIkePoliciesConnectionsToMap(connectionsItem))
+			}
+			ikePoliciesMap["connections"] = connectionsList
+		}
+		if ikePoliciesItem.CreatedAt != nil {
+			ikePoliciesMap["created_at"] = ikePoliciesItem.CreatedAt.String()
+		}
+		if ikePoliciesItem.DhGroup != nil {
+			ikePoliciesMap["dh_group"] = ikePoliciesItem.DhGroup
+		}
+		if ikePoliciesItem.EncryptionAlgorithm != nil {
+			ikePoliciesMap["encryption_algorithm"] = ikePoliciesItem.EncryptionAlgorithm
+		}
+		if ikePoliciesItem.Href != nil {
+			ikePoliciesMap["href"] = ikePoliciesItem.Href
+		}
+		if ikePoliciesItem.ID != nil {
+			ikePoliciesMap["id"] = ikePoliciesItem.ID
+		}
+		if ikePoliciesItem.IkeVersion != nil {
+			ikePoliciesMap["ike_version"] = ikePoliciesItem.IkeVersion
+		}
+		if ikePoliciesItem.KeyLifetime != nil {
+			ikePoliciesMap["key_lifetime"] = ikePoliciesItem.KeyLifetime
+		}
+		if ikePoliciesItem.Name != nil {
+			ikePoliciesMap["name"] = ikePoliciesItem.Name
+		}
+		if ikePoliciesItem.NegotiationMode != nil {
+			ikePoliciesMap["negotiation_mode"] = ikePoliciesItem.NegotiationMode
+		}
+		if ikePoliciesItem.ResourceGroup != nil {
+			resourceGroupList := []map[string]interface{}{}
+			resourceGroupMap := dataSourceIkePolicyCollectionIkePoliciesResourceGroupToMap(*ikePoliciesItem.ResourceGroup)
+			resourceGroupList = append(resourceGroupList, resourceGroupMap)
+			ikePoliciesMap["resource_group"] = resourceGroupList
+		}
+		if ikePoliciesItem.ResourceType != nil {
+			ikePoliciesMap["resource_type"] = ikePoliciesItem.ResourceType
+		}
+
+		if !core.IsNil(ikePoliciesItem.AuthenticationAlgorithms) {
+			authenticationAlgorithms := []interface{}{}
+			for _, authenticationAlgorithmsItem := range ikePoliciesItem.AuthenticationAlgorithms {
+				authenticationAlgorithms = append(authenticationAlgorithms, authenticationAlgorithmsItem)
+			}
+			ikePoliciesMap["authentication_algorithms"] = authenticationAlgorithms
+		}
+
+		if !core.IsNil(ikePoliciesItem.DhGroups) {
+			dhGroups := []interface{}{}
+			for _, dhGroupsItem := range ikePoliciesItem.DhGroups {
+				dhGroups = append(dhGroups, int64(dhGroupsItem))
+			}
+			ikePoliciesMap["dh_groups"] = dhGroups
+		}
+
+		if !core.IsNil(ikePoliciesItem.EncryptionAlgorithms) {
+			encryptionAlgorithms := []interface{}{}
+			for _, encryptionAlgorithmsItem := range ikePoliciesItem.EncryptionAlgorithms {
+				encryptionAlgorithms = append(encryptionAlgorithms, encryptionAlgorithmsItem)
+			}
+			ikePoliciesMap["encryption_algorithms"] = encryptionAlgorithms
+		}
 	}
 
 	return ikePoliciesMap
