@@ -9,6 +9,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/conns"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/validate"
 	"github.com/IBM/go-sdk-core/v5/core"
@@ -262,6 +263,10 @@ func resourceIBMISInstanceGroupManagerCreate(context context.Context, d *schema.
 			InstanceGroupManagerPrototype: &instanceGroupManagerPrototype,
 		}
 
+		isInsGrpKey := "Instance_Group_Key_" + instanceGroupID
+		conns.IbmMutexKV.Lock(isInsGrpKey)
+		defer conns.IbmMutexKV.Unlock(isInsGrpKey)
+
 		_, healthError := waitForHealthyInstanceGroup(instanceGroupID, meta, d.Timeout(schema.TimeoutCreate))
 		if healthError != nil {
 			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("waitForHealthyInstanceGroup failed: %s", err.Error()), "ibm_is_instance_group_manager", "create")
@@ -352,6 +357,10 @@ func resourceIBMISInstanceGroupManagerUpdate(context context.Context, d *schema.
 			return tfErr.GetDiag()
 		}
 		updateInstanceGroupManagerOptions.InstanceGroupManagerPatch = instanceGroupManagerPatch
+
+		isInsGrpKey := "Instance_Group_Key_" + instanceGroupID
+		conns.IbmMutexKV.Lock(isInsGrpKey)
+		defer conns.IbmMutexKV.Unlock(isInsGrpKey)
 
 		_, healthError := waitForHealthyInstanceGroup(instanceGroupID, meta, d.Timeout(schema.TimeoutUpdate))
 		if healthError != nil {
@@ -528,6 +537,10 @@ func resourceIBMISInstanceGroupManagerDelete(context context.Context, d *schema.
 		ID:              &instanceGroupManagerID,
 		InstanceGroupID: &instanceGroupID,
 	}
+
+	isInsGrpKey := "Instance_Group_Key_" + instanceGroupID
+	conns.IbmMutexKV.Lock(isInsGrpKey)
+	defer conns.IbmMutexKV.Unlock(isInsGrpKey)
 
 	_, healthError := waitForHealthyInstanceGroup(instanceGroupID, meta, d.Timeout(schema.TimeoutDelete))
 	if healthError != nil {
