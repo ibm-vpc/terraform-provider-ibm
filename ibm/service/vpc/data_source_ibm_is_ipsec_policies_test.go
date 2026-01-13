@@ -39,6 +39,7 @@ func TestAccIBMIsIpsecPoliciesDataSourceBasic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(dataSourceName, "ipsec_policies.0.href"),
 					resource.TestCheckResourceAttrSet(dataSourceName, "ipsec_policies.0.created_at"),
 					resource.TestCheckResourceAttrSet(dataSourceName, "ipsec_policies.0.resource_type"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "ipsec_policies.0.cipher_mode"),
 
 					// Verify connections array exists (may be empty)
 					resource.TestCheckResourceAttrSet(dataSourceName, "ipsec_policies.0.connections.#"),

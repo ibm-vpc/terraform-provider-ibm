@@ -14,6 +14,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
+	"github.com/IBM/go-sdk-core/v5/core"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
 )
 
@@ -150,6 +151,35 @@ func DataSourceIBMIsIpsecPolicies() *schema.Resource {
 							Computed:    true,
 							Description: "The transform protocol used. Only `esp` is supported.",
 						},
+						"cipher_mode": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The cipher mode used.",
+						},
+						"authentication_algorithms": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "The authentication algorithms.",
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
+						"encryption_algorithms": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "The encryption algorithms.",
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
+						"pfs_groups": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "The Diffie-Hellman groups.",
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
 					},
 				},
 			},
@@ -166,7 +196,7 @@ func dataSourceIBMIsIpsecPoliciesRead(context context.Context, d *schema.Resourc
 	}
 
 	start := ""
-	allrecs := []vpcv1.IPsecPolicy{}
+	allrecs := []vpcv1.IPsecPolicyIntf{}
 	for {
 		listIpsecPoliciesOptions := &vpcv1.ListIpsecPoliciesOptions{}
 		if start != "" {
@@ -200,7 +230,7 @@ func dataSourceIBMIsIpsecPoliciesID(d *schema.ResourceData) string {
 	return time.Now().UTC().String()
 }
 
-func dataSourceIPsecPolicyCollectionFlattenIpsecPolicies(result []vpcv1.IPsecPolicy) (ipsecPolicies []map[string]interface{}) {
+func dataSourceIPsecPolicyCollectionFlattenIpsecPolicies(result []vpcv1.IPsecPolicyIntf) (ipsecPolicies []map[string]interface{}) {
 	for _, ipsecPoliciesItem := range result {
 		ipsecPolicies = append(ipsecPolicies, dataSourceIPsecPolicyCollectionIpsecPoliciesToMap(ipsecPoliciesItem))
 	}
@@ -208,54 +238,157 @@ func dataSourceIPsecPolicyCollectionFlattenIpsecPolicies(result []vpcv1.IPsecPol
 	return ipsecPolicies
 }
 
-func dataSourceIPsecPolicyCollectionIpsecPoliciesToMap(ipsecPoliciesItem vpcv1.IPsecPolicy) (ipsecPoliciesMap map[string]interface{}) {
+func dataSourceIPsecPolicyCollectionIpsecPoliciesToMap(ipsecPoliciesItem vpcv1.IPsecPolicyIntf) (ipsecPoliciesMap map[string]interface{}) {
 	ipsecPoliciesMap = map[string]interface{}{}
 
-	if ipsecPoliciesItem.AuthenticationAlgorithm != nil {
-		ipsecPoliciesMap["authentication_algorithm"] = ipsecPoliciesItem.AuthenticationAlgorithm
-	}
-	if ipsecPoliciesItem.Connections != nil {
-		connectionsList := []map[string]interface{}{}
-		for _, connectionsItem := range ipsecPoliciesItem.Connections {
-			connectionsList = append(connectionsList, dataSourceIPsecPolicyCollectionIpsecPoliciesConnectionsToMap(connectionsItem))
+	switch policy := ipsecPoliciesItem.(type) {
+	case *vpcv1.IPsecPolicySingularCipherMode:
+		if policy.AuthenticationAlgorithm != nil {
+			ipsecPoliciesMap["authentication_algorithm"] = policy.AuthenticationAlgorithm
 		}
-		ipsecPoliciesMap["connections"] = connectionsList
-	}
-	if ipsecPoliciesItem.CreatedAt != nil {
-		ipsecPoliciesMap["created_at"] = ipsecPoliciesItem.CreatedAt.String()
-	}
-	if ipsecPoliciesItem.EncapsulationMode != nil {
-		ipsecPoliciesMap["encapsulation_mode"] = ipsecPoliciesItem.EncapsulationMode
-	}
-	if ipsecPoliciesItem.EncryptionAlgorithm != nil {
-		ipsecPoliciesMap["encryption_algorithm"] = ipsecPoliciesItem.EncryptionAlgorithm
-	}
-	if ipsecPoliciesItem.Href != nil {
-		ipsecPoliciesMap["href"] = ipsecPoliciesItem.Href
-	}
-	if ipsecPoliciesItem.ID != nil {
-		ipsecPoliciesMap["id"] = ipsecPoliciesItem.ID
-	}
-	if ipsecPoliciesItem.KeyLifetime != nil {
-		ipsecPoliciesMap["key_lifetime"] = ipsecPoliciesItem.KeyLifetime
-	}
-	if ipsecPoliciesItem.Name != nil {
-		ipsecPoliciesMap["name"] = ipsecPoliciesItem.Name
-	}
-	if ipsecPoliciesItem.Pfs != nil {
-		ipsecPoliciesMap["pfs"] = ipsecPoliciesItem.Pfs
-	}
-	if ipsecPoliciesItem.ResourceGroup != nil {
-		resourceGroupList := []map[string]interface{}{}
-		resourceGroupMap := dataSourceIPsecPolicyCollectionIpsecPoliciesResourceGroupToMap(*ipsecPoliciesItem.ResourceGroup)
-		resourceGroupList = append(resourceGroupList, resourceGroupMap)
-		ipsecPoliciesMap["resource_group"] = resourceGroupList
-	}
-	if ipsecPoliciesItem.ResourceType != nil {
-		ipsecPoliciesMap["resource_type"] = ipsecPoliciesItem.ResourceType
-	}
-	if ipsecPoliciesItem.TransformProtocol != nil {
-		ipsecPoliciesMap["transform_protocol"] = ipsecPoliciesItem.TransformProtocol
+		if policy.EncryptionAlgorithm != nil {
+			ipsecPoliciesMap["encryption_algorithm"] = policy.EncryptionAlgorithm
+		}
+		if policy.Pfs != nil {
+			ipsecPoliciesMap["pfs"] = policy.Pfs
+		}
+		if policy.Connections != nil {
+			connectionsList := []map[string]interface{}{}
+			for _, connectionsItem := range policy.Connections {
+				connectionsList = append(connectionsList, dataSourceIPsecPolicyCollectionIpsecPoliciesConnectionsToMap(connectionsItem))
+			}
+			ipsecPoliciesMap["connections"] = connectionsList
+		}
+		if policy.CreatedAt != nil {
+			ipsecPoliciesMap["created_at"] = policy.CreatedAt.String()
+		}
+		if policy.EncapsulationMode != nil {
+			ipsecPoliciesMap["encapsulation_mode"] = policy.EncapsulationMode
+		}
+		if policy.Href != nil {
+			ipsecPoliciesMap["href"] = policy.Href
+		}
+		if policy.ID != nil {
+			ipsecPoliciesMap["id"] = policy.ID
+		}
+		if policy.KeyLifetime != nil {
+			ipsecPoliciesMap["key_lifetime"] = policy.KeyLifetime
+		}
+		if policy.Name != nil {
+			ipsecPoliciesMap["name"] = policy.Name
+		}
+		if policy.ResourceGroup != nil {
+			resourceGroupList := []map[string]interface{}{}
+			resourceGroupMap := dataSourceIPsecPolicyCollectionIpsecPoliciesResourceGroupToMap(*policy.ResourceGroup)
+			resourceGroupList = append(resourceGroupList, resourceGroupMap)
+			ipsecPoliciesMap["resource_group"] = resourceGroupList
+		}
+		if policy.ResourceType != nil {
+			ipsecPoliciesMap["resource_type"] = policy.ResourceType
+		}
+		if policy.TransformProtocol != nil {
+			ipsecPoliciesMap["transform_protocol"] = policy.TransformProtocol
+		}
+		if policy.CipherMode != nil {
+			ipsecPoliciesMap["cipher_mode"] = policy.CipherMode
+		}
+	case *vpcv1.IPsecPolicySuiteCipherMode:
+		if !core.IsNil(policy.AuthenticationAlgorithms) {
+			ipsecPoliciesMap["authentication_algorithms"] = policy.AuthenticationAlgorithms
+		}
+		if !core.IsNil(policy.EncryptionAlgorithms) {
+			ipsecPoliciesMap["encryption_algorithms"] = policy.EncryptionAlgorithms
+		}
+		if !core.IsNil(policy.PfsGroups) {
+			ipsecPoliciesMap["pfs_groups"] = policy.PfsGroups
+		}
+		if policy.Connections != nil {
+			connectionsList := []map[string]interface{}{}
+			for _, connectionsItem := range policy.Connections {
+				connectionsList = append(connectionsList, dataSourceIPsecPolicyCollectionIpsecPoliciesConnectionsToMap(connectionsItem))
+			}
+			ipsecPoliciesMap["connections"] = connectionsList
+		}
+		if policy.CreatedAt != nil {
+			ipsecPoliciesMap["created_at"] = policy.CreatedAt.String()
+		}
+		if policy.EncapsulationMode != nil {
+			ipsecPoliciesMap["encapsulation_mode"] = policy.EncapsulationMode
+		}
+		if policy.Href != nil {
+			ipsecPoliciesMap["href"] = policy.Href
+		}
+		if policy.ID != nil {
+			ipsecPoliciesMap["id"] = policy.ID
+		}
+		if policy.KeyLifetime != nil {
+			ipsecPoliciesMap["key_lifetime"] = policy.KeyLifetime
+		}
+		if policy.Name != nil {
+			ipsecPoliciesMap["name"] = policy.Name
+		}
+		if policy.ResourceGroup != nil {
+			resourceGroupList := []map[string]interface{}{}
+			resourceGroupMap := dataSourceIPsecPolicyCollectionIpsecPoliciesResourceGroupToMap(*policy.ResourceGroup)
+			resourceGroupList = append(resourceGroupList, resourceGroupMap)
+			ipsecPoliciesMap["resource_group"] = resourceGroupList
+		}
+		if policy.ResourceType != nil {
+			ipsecPoliciesMap["resource_type"] = policy.ResourceType
+		}
+		if policy.TransformProtocol != nil {
+			ipsecPoliciesMap["transform_protocol"] = policy.TransformProtocol
+		}
+		if policy.CipherMode != nil {
+			ipsecPoliciesMap["cipher_mode"] = policy.CipherMode
+		}
+	case *vpcv1.IPsecPolicy:
+		if policy.AuthenticationAlgorithm != nil {
+			ipsecPoliciesMap["authentication_algorithm"] = policy.AuthenticationAlgorithm
+		}
+		if policy.EncryptionAlgorithm != nil {
+			ipsecPoliciesMap["encryption_algorithm"] = policy.EncryptionAlgorithm
+		}
+		if policy.Pfs != nil {
+			ipsecPoliciesMap["pfs"] = policy.Pfs
+		}
+		if policy.Connections != nil {
+			connectionsList := []map[string]interface{}{}
+			for _, connectionsItem := range policy.Connections {
+				connectionsList = append(connectionsList, dataSourceIPsecPolicyCollectionIpsecPoliciesConnectionsToMap(connectionsItem))
+			}
+			ipsecPoliciesMap["connections"] = connectionsList
+		}
+		if policy.CreatedAt != nil {
+			ipsecPoliciesMap["created_at"] = policy.CreatedAt.String()
+		}
+		if policy.EncapsulationMode != nil {
+			ipsecPoliciesMap["encapsulation_mode"] = policy.EncapsulationMode
+		}
+		if policy.Href != nil {
+			ipsecPoliciesMap["href"] = policy.Href
+		}
+		if policy.ID != nil {
+			ipsecPoliciesMap["id"] = policy.ID
+		}
+		if policy.KeyLifetime != nil {
+			ipsecPoliciesMap["key_lifetime"] = policy.KeyLifetime
+		}
+		if policy.Name != nil {
+			ipsecPoliciesMap["name"] = policy.Name
+		}
+		if policy.ResourceGroup != nil {
+			resourceGroupList := []map[string]interface{}{}
+			resourceGroupMap := dataSourceIPsecPolicyCollectionIpsecPoliciesResourceGroupToMap(*policy.ResourceGroup)
+			resourceGroupList = append(resourceGroupList, resourceGroupMap)
+			ipsecPoliciesMap["resource_group"] = resourceGroupList
+		}
+		if policy.ResourceType != nil {
+			ipsecPoliciesMap["resource_type"] = policy.ResourceType
+		}
+		if policy.TransformProtocol != nil {
+			ipsecPoliciesMap["transform_protocol"] = policy.TransformProtocol
+		}
 	}
 
 	return ipsecPoliciesMap
