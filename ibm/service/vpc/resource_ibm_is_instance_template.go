@@ -358,7 +358,13 @@ func ResourceIBMISInstanceTemplate() *schema.Resource {
 				ValidateFunc: validate.InvokeValidator("ibm_is_instance_template", isInstanceTotalVolumeBandwidth),
 				Description:  "The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes",
 			},
-
+			isInstanceVolumeBandwidthQoSMode: {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: validate.InvokeValidator("ibm_is_instance_template", isInstanceVolumeBandwidthQoSMode),
+				Description:  "The volume bandwidth QoS mode for this virtual server instance.",
+			},
 			isInstanceTemplateKeys: {
 				Type:             schema.TypeSet,
 				Required:         true,
@@ -1338,6 +1344,22 @@ func ResourceIBMISInstanceTemplate() *schema.Resource {
 				Description: "Instance template resource group",
 			},
 
+			"vcpu": &schema.Schema{
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Optional: true,
+				ForceNew: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"percentage": &schema.Schema{
+							Type:        schema.TypeInt,
+							Optional:    true,
+							ForceNew:    true,
+							Description: "The percentage of VCPU clock cycles allocated to the instance.The virtual server instance `vcpu.percentage` must be `100` when:- The virtual server instance `placement_target` is a dedicated host or dedicated  host group.- The virtual server instance `reservation_affinity.policy` is not `disabled`.If unspecified, the default for `vcpu_percentage` from the profile will be used.",
+						},
+					},
+				},
+			},
 			isInstanceTemplatePlacementTarget: {
 				Type:        schema.TypeList,
 				Computed:    true,
@@ -1443,6 +1465,16 @@ func ResourceIBMISInstanceTemplateValidator() *validate.ResourceValidator {
 			Regexp:                     `^[A-Za-z0-9:_ .-]+$`,
 			MinValueLength:             1,
 			MaxValueLength:             128})
+	validateSchema = append(validateSchema, validate.ValidateSchema{
+		Identifier:                 isInstanceVolumeBandwidthQoSMode,
+		ValidateFunctionIdentifier: validate.ValidateAllowedStringValue,
+		Type:                       validate.TypeString,
+		Optional:                   true,
+		AllowedValues:              "pooled, weighted",
+		Regexp:                     `^[a-z][a-z0-9]*(_[a-z0-9]+)*$`,
+		MinValueLength:             1,
+		MaxValueLength:             128,
+	})
 	ibmISInstanceTemplateValidator := validate.ResourceValidator{ResourceName: "ibm_is_instance_template", Schema: validateSchema}
 	return &ibmISInstanceTemplateValidator
 }
@@ -1557,6 +1589,16 @@ func instanceTemplateCreateBySourceSnapshot(context context.Context, d *schema.R
 		}
 		instanceproto.AvailabilityPolicy = AvailabilityPolicyModel
 	}
+
+	// shared core
+	if vcpuOk, ok := d.GetOk("vcpu"); ok && len(vcpuOk.([]interface{})) > 0 {
+		VcpuModel, err := ResourceIBMIsInstanceTemplateMapToInstanceVcpuPrototype(vcpuOk.([]interface{})[0].(map[string]interface{}))
+		if err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_instance_template", "create", "parse-vcpu").GetDiag()
+		}
+		instanceproto.Vcpu = VcpuModel
+	}
+
 	// cluster changes
 	if clusterNetworkAttachmentOk, ok := d.GetOk("cluster_network_attachments"); ok {
 		clusterNetworkAttachmentList := clusterNetworkAttachmentOk.([]interface{})
@@ -1692,6 +1734,11 @@ func instanceTemplateCreateBySourceSnapshot(context context.Context, d *schema.R
 	if totalVolBandwidthIntf, ok := d.GetOk(isInstanceTotalVolumeBandwidth); ok {
 		totalVolBandwidthStr := int64(totalVolBandwidthIntf.(int))
 		instanceproto.TotalVolumeBandwidth = &totalVolBandwidthStr
+	}
+
+	if volumeBandwidthQoSModeIntf, ok := d.GetOk(isInstanceVolumeBandwidthQoSMode); ok {
+		volumeBandwidthQoSModeStr := volumeBandwidthQoSModeIntf.(string)
+		instanceproto.VolumeBandwidthQosMode = &volumeBandwidthQoSModeStr
 	}
 
 	// BOOT VOLUME ATTACHMENT for instance template
@@ -2123,6 +2170,13 @@ func instanceTemplateCreateByCatalogOffering(context context.Context, d *schema.
 			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_instance_template", "create", "parse-availability_policy").GetDiag()
 		}
 		instanceproto.AvailabilityPolicy = AvailabilityPolicyModel
+	// shared core
+	if vcpuOk, ok := d.GetOk("vcpu"); ok && len(vcpuOk.([]interface{})) > 0 {
+		VcpuModel, err := ResourceIBMIsInstanceTemplateMapToInstanceVcpuPrototype(vcpuOk.([]interface{})[0].(map[string]interface{}))
+		if err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_instance_template", "create", "parse-vcpu").GetDiag()
+		}
+		instanceproto.Vcpu = VcpuModel
 	}
 	// cluster changes
 	if clusterNetworkAttachmentOk, ok := d.GetOk("cluster_network_attachments"); ok {
@@ -2266,6 +2320,11 @@ func instanceTemplateCreateByCatalogOffering(context context.Context, d *schema.
 	if totalVolBandwidthIntf, ok := d.GetOk(isInstanceTotalVolumeBandwidth); ok {
 		totalVolBandwidthStr := int64(totalVolBandwidthIntf.(int))
 		instanceproto.TotalVolumeBandwidth = &totalVolBandwidthStr
+	}
+
+	if volumeBandwidthQoSModeIntf, ok := d.GetOk(isInstanceVolumeBandwidthQoSMode); ok {
+		volumeBandwidthQoSModeStr := volumeBandwidthQoSModeIntf.(string)
+		instanceproto.VolumeBandwidthQosMode = &volumeBandwidthQoSModeStr
 	}
 
 	// BOOT VOLUME ATTACHMENT for instance template
@@ -2699,6 +2758,14 @@ func instanceTemplateCreate(context context.Context, d *schema.ResourceData, met
 		}
 		instanceproto.AvailabilityPolicy = AvailabilityPolicyModel
 	}
+	// shared core
+	if vcpuOk, ok := d.GetOk("vcpu"); ok && len(vcpuOk.([]interface{})) > 0 {
+		VcpuModel, err := ResourceIBMIsInstanceTemplateMapToInstanceVcpuPrototype(vcpuOk.([]interface{})[0].(map[string]interface{}))
+		if err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_instance_template", "create", "parse-vcpu").GetDiag()
+		}
+		instanceproto.Vcpu = VcpuModel
+	}
 	// cluster changes
 	if clusterNetworkAttachmentOk, ok := d.GetOk("cluster_network_attachments"); ok {
 		clusterNetworkAttachmentList := clusterNetworkAttachmentOk.([]interface{})
@@ -2833,6 +2900,11 @@ func instanceTemplateCreate(context context.Context, d *schema.ResourceData, met
 	if totalVolBandwidthIntf, ok := d.GetOk(isInstanceTotalVolumeBandwidth); ok {
 		totalVolBandwidthStr := int64(totalVolBandwidthIntf.(int))
 		instanceproto.TotalVolumeBandwidth = &totalVolBandwidthStr
+	}
+
+	if volumeBandwidthQoSModeIntf, ok := d.GetOk(isInstanceVolumeBandwidthQoSMode); ok {
+		volumeBandwidthQoSModeStr := volumeBandwidthQoSModeIntf.(string)
+		instanceproto.VolumeBandwidthQosMode = &volumeBandwidthQoSModeStr
 	}
 
 	// BOOT VOLUME ATTACHMENT for instance template
@@ -3261,6 +3333,17 @@ func instanceTemplateGet(context context.Context, d *schema.ResourceData, meta i
 				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_instance_template", "read", "set-availability_policy").GetDiag()
 			}
 		}
+				// shared core
+		if !core.IsNil(instanceTemplate.Vcpu) {
+			vcpuMap, err := ResourceIBMIsInstanceTemplateInstanceVcpuPrototypeToMap(instanceTemplate.Vcpu)
+			if err != nil {
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_instance_template", "read", "vcpu-to-map").GetDiag()
+			}
+			if err = d.Set("vcpu", []map[string]interface{}{vcpuMap}); err != nil {
+				err = fmt.Errorf("Error setting vcpu: %s", err)
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_instance_template", "read", "set-vcpu").GetDiag()
+			}
+		}
 		if !core.IsNil(instanceTemplate.Name) {
 			if err = d.Set("name", instanceTemplate.Name); err != nil {
 				err = fmt.Errorf("Error setting name: %s", err)
@@ -3395,6 +3478,12 @@ func instanceTemplateGet(context context.Context, d *schema.ResourceData, meta i
 			if err = d.Set(isInstanceTotalVolumeBandwidth, int(*instanceTemplate.TotalVolumeBandwidth)); err != nil {
 				err = fmt.Errorf("Error setting total_volume_bandwidth: %s", err)
 				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_instance_template", "read", "set-total_volume_bandwidth").GetDiag()
+			}
+		}
+		if instanceTemplate.VolumeBandwidthQosMode != nil {
+			if err = d.Set(isInstanceVolumeBandwidthQoSMode, string(*instanceTemplate.VolumeBandwidthQosMode)); err != nil {
+				err = fmt.Errorf("Error setting volume_bandwidth_qos_mode: %s", err)
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_instance_template", "read", "set-volume_bandwidth_qos_mode").GetDiag()
 			}
 		}
 		if instanceTemplate.MetadataService != nil {
@@ -3730,6 +3819,17 @@ func instanceTemplateGet(context context.Context, d *schema.ResourceData, meta i
 			if err = d.Set("availability_policy", []map[string]interface{}{availabilityPolicyMap}); err != nil {
 				err = fmt.Errorf("Error setting availability_policy: %s", err)
 				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_instance_template", "read", "set-availability_policy").GetDiag()
+		}
+		}
+		// shared core
+		if !core.IsNil(instanceTemplate.Vcpu) {
+			vcpuMap, err := ResourceIBMIsInstanceTemplateInstanceVcpuPrototypeToMap(instanceTemplate.Vcpu)
+			if err != nil {
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_instance_template", "read", "vcpu-to-map").GetDiag()
+			}
+			if err = d.Set("vcpu", []map[string]interface{}{vcpuMap}); err != nil {
+				err = fmt.Errorf("Error setting vcpu: %s", err)
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_instance_template", "read", "set-vcpu").GetDiag()
 			}
 		}
 		if !core.IsNil(instanceTemplate.Name) {
@@ -3867,6 +3967,12 @@ func instanceTemplateGet(context context.Context, d *schema.ResourceData, meta i
 			if err = d.Set(isInstanceTotalVolumeBandwidth, int(*instanceTemplate.TotalVolumeBandwidth)); err != nil {
 				err = fmt.Errorf("Error setting total_volume_bandwidth: %s", err)
 				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_instance_template", "read", "set-total_volume_bandwidth").GetDiag()
+			}
+		}
+		if instanceTemplate.VolumeBandwidthQosMode != nil {
+			if err = d.Set(isInstanceVolumeBandwidthQoSMode, string(*instanceTemplate.VolumeBandwidthQosMode)); err != nil {
+				err = fmt.Errorf("Error setting volume_bandwidth_qos_mode: %s", err)
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_instance_template", "read", "set-volume_bandwidth_qos_mode").GetDiag()
 			}
 		}
 		if instanceTemplate.MetadataService != nil {
@@ -4907,4 +5013,18 @@ func ResourceIBMIsInstanceTemplateMapToInstanceAvailabilityPolicyPrototype(model
 		model.Preemption = core.StringPtr(modelMap["preemption"].(string))
 	}
 	return model, nil
+}
+func ResourceIBMIsInstanceTemplateMapToInstanceVcpuPrototype(modelMap map[string]interface{}) (*vpcv1.InstanceVcpuPrototype, error) {
+	model := &vpcv1.InstanceVcpuPrototype{}
+	if modelMap["percentage"] != nil {
+		model.Percentage = core.Int64Ptr(int64(modelMap["percentage"].(int)))
+	}
+	return model, nil
+}
+func ResourceIBMIsInstanceTemplateInstanceVcpuPrototypeToMap(model *vpcv1.InstanceVcpuPrototype) (map[string]interface{}, error) {
+	modelMap := make(map[string]interface{})
+	if model.Percentage != nil {
+		modelMap["percentage"] = flex.IntValue(model.Percentage)
+	}
+	return modelMap, nil
 }

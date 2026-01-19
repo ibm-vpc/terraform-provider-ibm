@@ -640,6 +640,7 @@ Review the argument references that you can specify for your resource.
   - `bandwidth` - (Optional, Integer) The maximum bandwidth (in megabits per second) for the volume. For this property to be specified, the volume storage_generation must be 2.
   - `encryption` - (Optional, String) The type of encryption to use for the boot volume.
   - `name` - (Optional, String) The name of the boot volume.
+  - `profile` - (Optional, String) The name of the profile for this boot volume(not applicable for creating VSI with `volume_id`).
   - `size` - (Optional, Integer) The size of the boot volume.(The capacity of the volume in gigabytes. This defaults to minimum capacity of the image and maximum to `250`.)
 
     ~> **NOTE:**
@@ -933,6 +934,15 @@ Review the argument references that you can specify for your resource.
 - `tags` (Optional, Array of Strings) A list of tags that you want to add to your instance. Tags can help you find your instance more easily later.
 - `total_volume_bandwidth` - (Optional, Integer) The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes
 - `user_data` - (Optional, String) User data to transfer to the instance. For more information, about `user_data`, see [about user data](https://cloud.ibm.com/docs/vpc?topic=vpc-user-data).
+- `vcpu` - (Optional, List) The virtual server instance VCPU configuration.
+  Nested schema for **vcpu**:
+	- `architecture` - (Computed, String) The VCPU architecture.The enumerated values for this property may[expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future. Allowable values are: `amd64`, `s390x`.
+	- `burst` - (Optional, List)
+	  Nested schema for **burst**:
+		- `limit` - (Computed, Integer) The maximum percentage the virtual server instance will exceed its allocated share of VCPU time.The maximum value for this property may[expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future. Allowable values are: `200`. The maximum value is `800`. The minimum value is `100`.
+	- `count` - (Computed, Integer) The number of VCPUs assigned.
+	- `manufacturer` - (Computed, String) The VCPU manufacturer.The enumerated values for this property may[expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future. Allowable values are: `amd`, `ibm`, `intel`.
+	- `percentage` - (Required, Integer) The percentage of VCPU time allocated to the virtual server instance.The virtual server instance `vcpu.percentage` will be `100` when:- The virtual server instance `placement_target` is a dedicated host or dedicated  host group.- The virtual server instance `reservation_affinity.policy` is `disabled`.
 - `volumes`  (Optional, List) A comma separated list of volume IDs to attach to the instance. Mutually exclusive with `volume_prototypes`.
 - `volume_prototypes`- (List of Strings) A list of data volumes to attach to the instance. Mutually exclusive with `volumes`.
 
@@ -962,6 +972,7 @@ Review the argument references that you can specify for your resource.
       **&#x2022;** `gpu.memory` - (integer) The overall amount of GPU memory in GiB (gibibytes). </br>
       **&#x2022;** `gpu.model` - (string) The GPU model. </br>
       **&#x2022;** `enable_secure_boot` - (boolean) Indicates whether secure boot is enabled. </br>
+- `volume_bandwidth_qos_mode` - (Optional, String) The volume bandwidth QoS mode to use for this virtual server instance. The specified value must be listed in the instance profile's volume_bandwidth_qos_modes. If unspecified, the default volume bandwidth QoS mode from the profile will be used.
 - `vpc` - (Required, Forces new resource, String) The ID of the VPC where you want to create the instance. When using `instance_template`, `vpc` is not required.
 - `zone` - (Required, Forces new resource, String) The name of the VPC zone where you want to create the instance. When using `instance_template`, `zone` is not required.
 
@@ -1153,10 +1164,19 @@ In addition to all argument reference list, you can access the following attribu
 
 
 ## Import
-The `ibm_is_instance` resource can be imported by using the instance ID.
 
-**Example**
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import the `ibm_is_instance` resource by using `id`.
+The `id` property can be formed from `instance ID`. For example:
 
+```terraform
+import {
+  to = ibm_is_instance.example
+  id = "<instance_id>"
+}
 ```
-$ terraform import ibm_is_instance.example a1aaa111-1111-111a-1a11-a11a1a11a11a
+
+Using `terraform import`. For example:
+
+```console
+% terraform import ibm_is_instance.example <instance_id>
 ```

@@ -33,6 +33,12 @@ const (
 	CISRulesetsRuleActionParametersResponseContent     = "content"
 	CISRulesetsRuleActionParametersResponseContentType = "content_type"
 	CISRulesetsRuleActionParametersResponseStatusCode  = "status_code"
+	CISRulesetsRuleRateLimit                           = "rate_limit"
+	CISRulesetsRuleRateLimitCharacteristics            = "characteristics"
+	CISRulesetsRuleRateLimitCountingExpression         = "counting_expression"
+	CISRulesetsRuleRateLimitMitigationTimeout          = "mitigation_timeout"
+	CISRulesetsRuleRateLimitPeriod                     = "period"
+	CISRulesetsRuleRateLimitRequestsPerPeriod          = "requests_per_period"
 	CISRulesetsRuleExpression                          = "expression"
 	CISRulesetsRuleRef                                 = "ref"
 	CISRulesetsRuleLogging                             = "logging"
@@ -59,6 +65,7 @@ const (
 	CISRulesetOverridesScoreThreshold                  = "score_threshold"
 	CISRulesetsRulePhases                              = "phases"
 	CISRulesetsRuleProducts                            = "products"
+	CISRulesToSkip                                     = "rules_to_skip"
 )
 
 var CISResponseObject = &schema.Resource{
@@ -261,6 +268,28 @@ var CISResponseObject = &schema.Resource{
 												Type:        schema.TypeInt,
 												Computed:    true,
 												Description: "Action parameters response status code of the Rulesets Rule",
+											},
+										},
+									},
+								},
+								CISRulesToSkip: {
+									Type:        schema.TypeList,
+									Computed:    true,
+									Description: "A list of ruleset mappings, where each element is a map of ruleset_id and its associated rule_ids",
+									Elem: &schema.Resource{
+										Schema: map[string]*schema.Schema{
+											"ruleset_id": {
+												Type:        schema.TypeString,
+												Computed:    true,
+												Description: "The ruleset identifier",
+											},
+											"rule_ids": {
+												Type:        schema.TypeList,
+												Computed:    true,
+												Description: "A list of rule IDs to be skipped",
+												Elem: &schema.Schema{
+													Type: schema.TypeString,
+												},
 											},
 										},
 									},
@@ -489,32 +518,34 @@ func flattenCISRulesets(rulesetObj rulesetsv1.RulesetDetails) interface{} {
 	rulesetOutput[CISRulesetsVersion] = *rulesetObj.Version
 	rulesetOutput[CISRulesetsId] = *&rulesetObj.ID
 
-	ruleDetailsList := make([]map[string]interface{}, 0)
-	for _, ruleDetailsObj := range rulesetObj.Rules {
-		ruleDetails := map[string]interface{}{}
-		ruleDetails[CISRulesetsRuleId] = ruleDetailsObj.ID
-		ruleDetails[CISRulesetsRuleVersion] = ruleDetailsObj.Version
-		ruleDetails[CISRulesetsRuleAction] = ruleDetailsObj.Action
-		ruleDetails[CISRulesetsRuleExpression] = ruleDetailsObj.Expression
-		ruleDetails[CISRulesetsRuleRef] = ruleDetailsObj.Ref
-		ruleDetails[CISRulesetsRuleLastUpdatedAt] = ruleDetailsObj.LastUpdated
-		ruleDetails[CISRulesetsRuleActionCategories] = ruleDetailsObj.Categories
-		ruleDetails[CISRulesetsRuleActionEnabled] = ruleDetailsObj.Enabled
-		ruleDetails[CISRulesetsRuleActionDescription] = ruleDetailsObj.Description
+	if rulesetObj.Rules != nil {
+		ruleDetailsList := make([]map[string]interface{}, 0)
+		for _, ruleDetailsObj := range rulesetObj.Rules {
+			ruleDetails := map[string]interface{}{}
+			ruleDetails[CISRulesetsRuleId] = ruleDetailsObj.ID
+			ruleDetails[CISRulesetsRuleVersion] = ruleDetailsObj.Version
+			ruleDetails[CISRulesetsRuleAction] = ruleDetailsObj.Action
+			ruleDetails[CISRulesetsRuleExpression] = ruleDetailsObj.Expression
+			ruleDetails[CISRulesetsRuleRef] = ruleDetailsObj.Ref
+			ruleDetails[CISRulesetsRuleLastUpdatedAt] = ruleDetailsObj.LastUpdated
+			ruleDetails[CISRulesetsRuleActionCategories] = ruleDetailsObj.Categories
+			ruleDetails[CISRulesetsRuleActionEnabled] = ruleDetailsObj.Enabled
+			ruleDetails[CISRulesetsRuleActionDescription] = ruleDetailsObj.Description
 
-		// Not Applicable for now
-		//ruleDetails[CISRulesetsRuleLogging] = ruleDetailsObj.Logging
+			// Not Applicable for now
+			//ruleDetails[CISRulesetsRuleLogging] = ruleDetailsObj.Logging
 
-		flattenedActionParameter := flattenCISRulesetsRuleActionParameters(ruleDetailsObj.ActionParameters)
+			if ruleDetailsObj.ActionParameters != nil {
+				flattenedActionParameter := flattenCISRulesetsRuleActionParameters(ruleDetailsObj.ActionParameters)
+				if len(flattenedActionParameter) != 0 {
+					ruleDetails[CISRulesetsRuleActionParameters] = []map[string]interface{}{flattenedActionParameter}
+				}
+			}
 
-		if len(flattenedActionParameter) != 0 {
-			ruleDetails[CISRulesetsRuleActionParameters] = []map[string]interface{}{flattenedActionParameter}
+			ruleDetailsList = append(ruleDetailsList, ruleDetails)
 		}
-
-		ruleDetailsList = append(ruleDetailsList, ruleDetails)
+		rulesetOutput[CISRulesetsRules] = ruleDetailsList
 	}
-
-	rulesetOutput[CISRulesetsRules] = ruleDetailsList
 
 	finalrulesetObj = append(finalrulesetObj, rulesetOutput)
 
@@ -522,6 +553,7 @@ func flattenCISRulesets(rulesetObj rulesetsv1.RulesetDetails) interface{} {
 }
 
 func flattenCISRulesetsRuleActionParameters(rulesetsRuleActionParameterObj *rulesetsv1.ActionParameters) map[string]interface{} {
+
 	actionParametersOutput := map[string]interface{}{}
 	resultOutput := map[string]interface{}{}
 
@@ -553,6 +585,21 @@ func flattenCISRulesetsRuleActionParameters(rulesetsRuleActionParameterObj *rule
 	if _, ok := actionParametersOutput["overrides"]; ok {
 		flattenCISRulesetsRuleActionParameterOverrides := flattenCISRulesetsRuleActionParameterOverrides(rulesetsRuleActionParameterObj.Overrides)
 		resultOutput[CISRulesetOverrides] = []map[string]interface{}{flattenCISRulesetsRuleActionParameterOverrides}
+	}
+
+	if _, ok := actionParametersOutput["rules"]; ok {
+		rulesToSkip := rulesetsRuleActionParameterObj.Rules
+		if len(rulesToSkip) > 0 {
+			flattenedRulesToSkip := make([]map[string]interface{}, 0, len(rulesToSkip))
+			for rulesetID, ruleIDs := range rulesToSkip {
+				entry := map[string]interface{}{
+					"ruleset_id": rulesetID,
+					"rule_ids":   ruleIDs,
+				}
+				flattenedRulesToSkip = append(flattenedRulesToSkip, entry)
+			}
+			resultOutput[CISRulesToSkip] = flattenedRulesToSkip
+		}
 	}
 
 	return resultOutput

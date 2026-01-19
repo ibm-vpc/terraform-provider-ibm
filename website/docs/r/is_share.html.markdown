@@ -11,7 +11,7 @@ subcategory: "VPC infrastructure"
 Provides a resource for Share. This allows Share to be created, updated and deleted. For more information, about share replication, see [Share replication](https://cloud.ibm.com/docs/vpc?topic=vpc-file-storage-replication).
 
 ~> **NOTE**
-  New shares should be created with profile `dp2`. Old Tiered profiles will be deprecated soon.
+  Regional file share `rfs` profile is available for accounts that have been granted special approval to preview the feature.
 
 ## Example Usage
 
@@ -101,7 +101,7 @@ resource "ibm_is_share" "example-4" {
 ## Example share (Create accessor share for an origin share)
 ```terraform
 resource "ibm_is_share" "example-4" {
-  allowed_transit_encryption_modes = ["user_managed", "none"]
+  allowed_transit_encryption_modes = ["ipsec", "none"]
   access_control_mode = "security_group"
   name    = "my-share"
   size    = 200
@@ -121,14 +121,26 @@ resource "ibm_is_share" "example-6" {
   name                  = "my-replica1"
 }
 ```
+## Example share (Create a regional file share)
+```terraform
+resource "ibm_is_share" "example-4" {
+  allowed_transit_encryption_modes = ["stunnel", "none"]
+  access_control_mode = "security_group"
+  bandwidth = 210
+  name    = "my-share"
+  size    = 200
+  profile = "rfs"
+}
 
 ## Argument Reference
 
 The following arguments are supported:
 
+- `allowed_access_protocols` - (Optional, List) List of allowed access protocols for the share. Supported values are **nfs4** 
 - `access_control_mode` - (Optional, Boolean) The access control mode for the share. Supported values are **security_group** and **vpc**. Default value is **security_group**
 - `allowed_transit_encryption_modes` - (Optional, List of string) The transit encryption modes allowed for this share.
 - `access_tags`  - (Optional, List of Strings) The list of access management tags to attach to the share. **Note** For more information, about creating access tags, see [working with tags](https://cloud.ibm.com/docs/account?topic=account-tag).
+- `bandwidth` - (Optional, Integer) The bandwidth for the file share
 - `encryption_key` - (Optional, String) The CRN of the [Key Protect Root Key](https://cloud.ibm.com/docs/key-protect?topic=key-protect-getting-started-tutorial) or [Hyper Protect Crypto Service Root Key](https://cloud.ibm.com/docs/hs-crypto?topic=hs-crypto-get-started) for this resource.
 - `initial_owner` - (Optional, List) The initial owner for the file share.
 
@@ -379,16 +391,18 @@ Nested `latest_sync` blocks have the following structure:
 
 ## Import
 
-The `ibm_is_share` can be imported using ID.
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import the `ibm_is_share` resource by using `id`.
+The `id` property can be formed using the share id. For example:
 
-**Syntax**
-
+```terraform
+import {
+  to = ibm_is_share.example
+  id = "<id>"
+}
 ```
-$ terraform import ibm_is_share.example <id>
-```
 
-**Example**
+Using `terraform import`. For example:
 
-```
-$ terraform import ibm_is_share.example d7bec597-4726-451f-8a63-e62e6f19c32c
+```console
+% terraform import ibm_is_share.example <id>
 ```

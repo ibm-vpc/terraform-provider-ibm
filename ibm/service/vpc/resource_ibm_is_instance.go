@@ -130,6 +130,7 @@ const (
 	isInstanceMetadataServiceEnabled1     = "enabled"
 	isInstanceMetadataServiceProtocol     = "protocol"
 	isInstanceMetadataServiceRespHopLimit = "response_hop_limit"
+	isInstanceVolumeBandwidthQoSMode      = "volume_bandwidth_qos_mode"
 )
 
 func ResourceIBMISInstance() *schema.Resource {
@@ -510,6 +511,14 @@ func ResourceIBMISInstance() *schema.Resource {
 				Description:  "The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes",
 			},
 
+			isInstanceVolumeBandwidthQoSMode: &schema.Schema{
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: validate.InvokeValidator("ibm_is_instance", isInstanceVolumeBandwidthQoSMode),
+				Description:  "The volume bandwidth QoS mode for this virtual server instance.",
+			},
+
 			isInstanceBandwidth: {
 				Type:        schema.TypeInt,
 				Computed:    true,
@@ -751,6 +760,52 @@ func ResourceIBMISInstance() *schema.Resource {
 							Type:     schema.TypeString,
 							Required: true,
 							ForceNew: true,
+						},
+					},
+				},
+			},
+
+			"vcpu": &schema.Schema{
+				Type:        schema.TypeList,
+				MaxItems:    1,
+				Optional:    true,
+				Computed:    true,
+				Description: "The virtual server instance VCPU configuration.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"architecture": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The VCPU architecture.The enumerated values for this property may[expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.",
+						},
+						"burst": &schema.Schema{
+							Type:     schema.TypeList,
+							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"limit": &schema.Schema{
+										Type:        schema.TypeInt,
+										Computed:    true,
+										Description: "The maximum percentage the virtual server instance will exceed its allocated share of VCPU time.The maximum value for this property may[expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.",
+									},
+								},
+							},
+						},
+						"count": &schema.Schema{
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: "The number of VCPUs assigned.",
+						},
+						"manufacturer": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The VCPU manufacturer.The enumerated values for this property may[expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.",
+						},
+						"percentage": &schema.Schema{
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Computed:    true,
+							Description: "The percentage of VCPU time allocated to the virtual server instance.The virtual server instance `vcpu.percentage` will be `100` when:- The virtual server instance `placement_target` is a dedicated host or dedicated  host group.- The virtual server instance `reservation_affinity.policy` is `disabled`.",
 						},
 					},
 				},
@@ -1738,28 +1793,6 @@ func ResourceIBMISInstance() *schema.Resource {
 				Description: "Instance resource group",
 			},
 
-			isInstanceCPU: {
-				Type:     schema.TypeList,
-				Computed: true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						isInstanceCPUArch: {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						isInstanceCPUCount: {
-							Type:     schema.TypeInt,
-							Computed: true,
-						},
-						isInstanceCPUManufacturer: {
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: "The VCPU manufacturer",
-						},
-					},
-				},
-			},
-
 			isInstanceGpu: {
 				Type:        schema.TypeList,
 				Computed:    true,
@@ -2281,6 +2314,17 @@ func ResourceIBMISInstanceValidator() *validate.ResourceValidator {
 			MinValueLength:             1,
 			MaxValueLength:             128})
 
+	validateSchema = append(validateSchema, validate.ValidateSchema{
+		Identifier:                 isInstanceVolumeBandwidthQoSMode,
+		ValidateFunctionIdentifier: validate.ValidateAllowedStringValue,
+		Type:                       validate.TypeString,
+		Optional:                   true,
+		AllowedValues:              "pooled, weighted",
+		Regexp:                     `^[a-z][a-z0-9]*(_[a-z0-9]+)*$`,
+		MinValueLength:             1,
+		MaxValueLength:             128,
+	})
+
 	ibmISInstanceValidator := validate.ResourceValidator{ResourceName: "ibm_is_instance", Schema: validateSchema}
 	return &ibmISInstanceValidator
 }
@@ -2314,6 +2358,14 @@ func instanceCreateByImage(context context.Context, d *schema.ResourceData, meta
 			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_instance", "create", "parse-availability").GetDiag()
 		}
 		instanceproto.Availability = AvailabilityModel
+	}
+	// shared core
+	if vcpuOk, ok := d.GetOk("vcpu"); ok && len(vcpuOk.([]interface{})) > 0 {
+		VcpuModel, err := ResourceIBMIsInstanceMapToInstanceVcpuPrototype(vcpuOk.([]interface{})[0].(map[string]interface{}))
+		if err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_instance", "create", "parse-vcpu").GetDiag()
+		}
+		instanceproto.Vcpu = VcpuModel
 	}
 	// cluster changes
 	if clusterNetworkAttachmentOk, ok := d.GetOk("cluster_network_attachments"); ok {
@@ -2456,6 +2508,10 @@ func instanceCreateByImage(context context.Context, d *schema.ResourceData, meta
 	if totalVolBandwidthIntf, ok := d.GetOk(isInstanceTotalVolumeBandwidth); ok {
 		totalVolBandwidthStr := int64(totalVolBandwidthIntf.(int))
 		instanceproto.TotalVolumeBandwidth = &totalVolBandwidthStr
+	}
+	if volumeBandwidthQoSModeIntf, ok := d.GetOk(isInstanceVolumeBandwidthQoSMode); ok {
+		volumeBandwidthQoSModeStr := volumeBandwidthQoSModeIntf.(string)
+		instanceproto.VolumeBandwidthQosMode = &volumeBandwidthQoSModeStr
 	}
 	if dHostIdInf, ok := d.GetOk(isPlacementTargetDedicatedHost); ok {
 		dHostIdStr := dHostIdInf.(string)
@@ -2904,6 +2960,14 @@ func instanceCreateByCatalogOffering(context context.Context, d *schema.Resource
 		}
 		instanceproto.AvailabilityPolicy = AvailabilityPolicyModel
 	}
+	// shared core
+	if vcpuOk, ok := d.GetOk("vcpu"); ok && len(vcpuOk.([]interface{})) > 0 {
+		VcpuModel, err := ResourceIBMIsInstanceMapToInstanceVcpuPrototype(vcpuOk.([]interface{})[0].(map[string]interface{}))
+		if err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_instance", "create", "parse-vcpu").GetDiag()
+		}
+		instanceproto.Vcpu = VcpuModel
+	}
 	// cluster changes
 	if clusterNetworkAttachmentOk, ok := d.GetOk("cluster_network_attachments"); ok {
 		clusterNetworkAttachmentList := clusterNetworkAttachmentOk.([]interface{})
@@ -3078,6 +3142,10 @@ func instanceCreateByCatalogOffering(context context.Context, d *schema.Resource
 		totalVolBandwidthStr := int64(totalVolBandwidthIntf.(int))
 		instanceproto.TotalVolumeBandwidth = &totalVolBandwidthStr
 	}
+	if volumeBandwidthQoSModeIntf, ok := d.GetOk(isInstanceVolumeBandwidthQoSMode); ok {
+		volumeBandwidthQoSModeStr := volumeBandwidthQoSModeIntf.(string)
+		instanceproto.VolumeBandwidthQosMode = &volumeBandwidthQoSModeStr
+	}
 	if dHostIdInf, ok := d.GetOk(isPlacementTargetDedicatedHost); ok {
 		dHostIdStr := dHostIdInf.(string)
 		dHostPlaementTarget := &vpcv1.InstancePlacementTargetPrototypeDedicatedHostIdentity{
@@ -3134,6 +3202,11 @@ func instanceCreateByCatalogOffering(context context.Context, d *schema.Resource
 		}
 
 		volprof := "general-purpose"
+		// profile changes
+		bootvolProfileOk, ok := bootvol["profile"]
+		if ok && bootvolProfileOk.(string) != "" {
+			volprof = bootvolProfileOk.(string)
+		}
 		volTemplate.Profile = &vpcv1.VolumeProfileIdentity{
 			Name: &volprof,
 		}
@@ -3492,6 +3565,14 @@ func instanceCreateByTemplate(context context.Context, d *schema.ResourceData, m
 		}
 		instanceproto.Availability = AvailabilityModel
 	}
+	// shared core
+	if vcpuOk, ok := d.GetOk("vcpu"); ok && len(vcpuOk.([]interface{})) > 0 {
+		VcpuModel, err := ResourceIBMIsInstanceMapToInstanceVcpuPrototype(vcpuOk.([]interface{})[0].(map[string]interface{}))
+		if err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_instance", "create", "parse-vcpu").GetDiag()
+		}
+		instanceproto.Vcpu = VcpuModel
+	}
 	// cluster changes
 	if clusterNetworkAttachmentOk, ok := d.GetOk("cluster_network_attachments"); ok {
 		clusterNetworkAttachmentList := clusterNetworkAttachmentOk.([]interface{})
@@ -3632,7 +3713,10 @@ func instanceCreateByTemplate(context context.Context, d *schema.ResourceData, m
 		totalVolBandwidthStr := int64(totalVolBandwidthIntf.(int))
 		instanceproto.TotalVolumeBandwidth = &totalVolBandwidthStr
 	}
-
+	if volumeBandwidthQoSModeIntf, ok := d.GetOk(isInstanceVolumeBandwidthQoSMode); ok {
+		volumeBandwidthQoSModeStr := volumeBandwidthQoSModeIntf.(string)
+		instanceproto.VolumeBandwidthQosMode = &volumeBandwidthQoSModeStr
+	}
 	if vpcID != "" {
 		instanceproto.VPC = &vpcv1.VPCIdentity{
 			ID: &vpcID,
@@ -3705,7 +3789,11 @@ func instanceCreateByTemplate(context context.Context, d *schema.ResourceData, m
 		}
 
 		volprof := "general-purpose"
-
+		// profile changes
+		bootvolProfileOk, ok := bootvol["profile"]
+		if ok && bootvolProfileOk.(string) != "" {
+			volprof = bootvolProfileOk.(string)
+		}
 		volTemplate.Profile = &vpcv1.VolumeProfileIdentity{
 			Name: &volprof,
 		}
@@ -4086,6 +4174,14 @@ func instanceCreateBySnapshot(context context.Context, d *schema.ResourceData, m
 		}
 		instanceproto.Availability = AvailabilityModel
 	}
+	// shared core
+	if vcpuOk, ok := d.GetOk("vcpu"); ok && len(vcpuOk.([]interface{})) > 0 {
+		VcpuModel, err := ResourceIBMIsInstanceMapToInstanceVcpuPrototype(vcpuOk.([]interface{})[0].(map[string]interface{}))
+		if err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_instance", "create", "parse-vcpu").GetDiag()
+		}
+		instanceproto.Vcpu = VcpuModel
+	}
 	// cluster changes
 	if clusterNetworkAttachmentOk, ok := d.GetOk("cluster_network_attachments"); ok {
 		clusterNetworkAttachmentList := clusterNetworkAttachmentOk.([]interface{})
@@ -4274,6 +4370,11 @@ func instanceCreateBySnapshot(context context.Context, d *schema.ResourceData, m
 			}
 		}
 		volprof := "general-purpose"
+		// profile changes
+		bootvolProfileOk, ok := bootvol["profile"]
+		if ok && bootvolProfileOk.(string) != "" {
+			volprof = bootvolProfileOk.(string)
+		}
 		volTemplate.Profile = &vpcv1.VolumeProfileIdentity{
 			Name: &volprof,
 		}
@@ -4346,6 +4447,10 @@ func instanceCreateBySnapshot(context context.Context, d *schema.ResourceData, m
 	if totalVolBandwidthIntf, ok := d.GetOk(isInstanceTotalVolumeBandwidth); ok {
 		totalVolBandwidthStr := int64(totalVolBandwidthIntf.(int))
 		instanceproto.TotalVolumeBandwidth = &totalVolBandwidthStr
+	}
+	if volumeBandwidthQoSModeIntf, ok := d.GetOk(isInstanceVolumeBandwidthQoSMode); ok {
+		volumeBandwidthQoSModeStr := volumeBandwidthQoSModeIntf.(string)
+		instanceproto.VolumeBandwidthQosMode = &volumeBandwidthQoSModeStr
 	}
 
 	if networkattachmentsintf, ok := d.GetOk("network_attachments"); ok {
@@ -4684,6 +4789,14 @@ func instanceCreateByVolume(context context.Context, d *schema.ResourceData, met
 		}
 		instanceproto.AvailabilityPolicy = AvailabilityPolicyModel
 	}
+	// shared core
+	if vcpuOk, ok := d.GetOk("vcpu"); ok && len(vcpuOk.([]interface{})) > 0 {
+		VcpuModel, err := ResourceIBMIsInstanceMapToInstanceVcpuPrototype(vcpuOk.([]interface{})[0].(map[string]interface{}))
+		if err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_instance", "create", "parse-vcpu").GetDiag()
+		}
+		instanceproto.Vcpu = VcpuModel
+	}
 	// cluster changes
 	if clusterNetworkAttachmentOk, ok := d.GetOk("cluster_network_attachments"); ok {
 		clusterNetworkAttachmentList := clusterNetworkAttachmentOk.([]interface{})
@@ -4884,6 +4997,10 @@ func instanceCreateByVolume(context context.Context, d *schema.ResourceData, met
 	if totalVolBandwidthIntf, ok := d.GetOk(isInstanceTotalVolumeBandwidth); ok {
 		totalVolBandwidthStr := int64(totalVolBandwidthIntf.(int))
 		instanceproto.TotalVolumeBandwidth = &totalVolBandwidthStr
+	}
+	if volumeBandwidthQoSModeIntf, ok := d.GetOk(isInstanceVolumeBandwidthQoSMode); ok {
+		volumeBandwidthQoSModeStr := volumeBandwidthQoSModeIntf.(string)
+		instanceproto.VolumeBandwidthQosMode = &volumeBandwidthQoSModeStr
 	}
 	if networkattachmentsintf, ok := d.GetOk("network_attachments"); ok {
 		networkAttachments := []vpcv1.InstanceNetworkAttachmentPrototype{}
@@ -5405,6 +5522,17 @@ func instanceGet(context context.Context, d *schema.ResourceData, meta interface
 			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_instance", "read", "set-availability_policy").GetDiag()
 		}
 	}
+	// shared core
+	if !core.IsNil(instance.Vcpu) {
+		vcpuMap, err := ResourceIBMIsInstanceInstanceVcpuToMap(instance.Vcpu)
+		if err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_instance", "read", "vcpu-to-map").GetDiag()
+		}
+		if err = d.Set("vcpu", []map[string]interface{}{vcpuMap}); err != nil {
+			err = fmt.Errorf("Error setting vcpu: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_instance", "read", "set-vcpu").GetDiag()
+		}
+	}
 	// cluster changes
 	if !core.IsNil(instance.ClusterNetworkAttachments) {
 		clusterNetworkAttachments := []map[string]interface{}{}
@@ -5510,18 +5638,6 @@ func instanceGet(context context.Context, d *schema.ResourceData, meta interface
 			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_instance", "read", "set-profile").GetDiag()
 		}
 	}
-	cpuList := make([]map[string]interface{}, 0)
-	if instance.Vcpu != nil {
-		currentCPU := map[string]interface{}{}
-		currentCPU[isInstanceCPUArch] = *instance.Vcpu.Architecture
-		currentCPU[isInstanceCPUCount] = *instance.Vcpu.Count
-		currentCPU[isInstanceCPUManufacturer] = instance.Vcpu.Manufacturer
-		cpuList = append(cpuList, currentCPU)
-	}
-	if err = d.Set(isInstanceCPU, cpuList); err != nil {
-		err = fmt.Errorf("Error setting vcpu: %s", err)
-		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_instance", "read", "set-vcpu").GetDiag()
-	}
 	if instance.Bandwidth != nil {
 		if err = d.Set("bandwidth", flex.IntValue(instance.Bandwidth)); err != nil {
 			err = fmt.Errorf("Error setting bandwidth: %s", err)
@@ -5540,6 +5656,12 @@ func instanceGet(context context.Context, d *schema.ResourceData, meta interface
 		if err = d.Set("total_volume_bandwidth", flex.IntValue(instance.TotalVolumeBandwidth)); err != nil {
 			err = fmt.Errorf("Error setting total_volume_bandwidth: %s", err)
 			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_instance", "read", "set-total_volume_bandwidth").GetDiag()
+		}
+	}
+	if instance.VolumeBandwidthQosMode != nil {
+		if err = d.Set(isInstanceVolumeBandwidthQoSMode, string(*instance.VolumeBandwidthQosMode)); err != nil {
+			err = fmt.Errorf("Error setting volume_bandwidth_qos_mode: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_instance", "read", "set-volume_bandwidth_qos_mode").GetDiag()
 		}
 	}
 
@@ -7434,7 +7556,7 @@ func instanceUpdate(context context.Context, d *schema.ResourceData, meta interf
 
 	}
 
-	if (d.HasChange(isInstanceName) || d.HasChange("availability") || d.HasChange("availability_policy") || d.HasChange("confidential_compute_mode") || d.HasChange("enable_secure_boot")) && !d.IsNewResource() {
+	if (d.HasChange(isInstanceName) || d.HasChange("vcpu") || d.HasChange("availability") || d.HasChange("availability_policy") || d.HasChange("confidential_compute_mode") || d.HasChange("enable_secure_boot") || d.HasChange(isInstanceVolumeBandwidthQoSMode)) && !d.IsNewResource() {
 		restartNeeded := false
 		serverstopped := false
 		name := d.Get(isInstanceName).(string)
@@ -7442,6 +7564,14 @@ func instanceUpdate(context context.Context, d *schema.ResourceData, meta interf
 			ID: &id,
 		}
 		instanceCCMPatchModel := &vpcv1.InstancePatch{}
+		if d.HasChange("vcpu") {
+			vcpu, err := ResourceIBMIsInstanceMapToInstanceVcpuPatch(d.Get("vcpu.0").(map[string]interface{}))
+			restartNeeded = true
+			if err != nil {
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_instance", "update", "parse-vcpu").GetDiag()
+			}
+			instanceCCMPatchModel.Vcpu = vcpu
+		}
 		if d.HasChange("confidential_compute_mode") {
 			instanceCCMPatchModel.ConfidentialComputeMode = core.StringPtr(d.Get("confidential_compute_mode").(string))
 			restartNeeded = true
@@ -7464,6 +7594,12 @@ func instanceUpdate(context context.Context, d *schema.ResourceData, meta interf
 		}
 		if _, ok := d.GetOkExists("enable_secure_boot"); ok && d.HasChange("enable_secure_boot") {
 			instanceCCMPatchModel.EnableSecureBoot = core.BoolPtr(d.Get("enable_secure_boot").(bool))
+			restartNeeded = true
+		}
+
+		if _, ok := d.GetOkExists(isInstanceVolumeBandwidthQoSMode); ok && d.HasChange(isInstanceVolumeBandwidthQoSMode) {
+			instanceCCMPatchModel.VolumeBandwidthQosMode = core.StringPtr(d.Get(isInstanceVolumeBandwidthQoSMode).(string))
+			restartNeeded = true
 		}
 		if d.HasChange("name") {
 			instanceCCMPatchModel.Name = &name
@@ -9602,6 +9738,38 @@ func ResourceIBMIsInstanceMapToInstanceAvailabilityPolicyPatch(modelMap map[stri
 	}
 	if modelMap["preemption"] != nil && modelMap["preemption"].(string) != "" {
 		model.Preemption = core.StringPtr(modelMap["preemption"].(string))
+	}
+}
+func ResourceIBMIsInstanceInstanceVcpuToMap(model *vpcv1.InstanceVcpu) (map[string]interface{}, error) {
+	modelMap := make(map[string]interface{})
+	modelMap["architecture"] = *model.Architecture
+	if model.Burst != nil {
+		burstMap, err := ResourceIBMIsInstanceInstanceVcpuBurstToMap(model.Burst)
+		if err != nil {
+			return modelMap, err
+		}
+		modelMap["burst"] = []map[string]interface{}{burstMap}
+	}
+	modelMap["count"] = flex.IntValue(model.Count)
+	modelMap["manufacturer"] = *model.Manufacturer
+	modelMap["percentage"] = flex.IntValue(model.Percentage)
+	return modelMap, nil
+}
+
+func ResourceIBMIsInstanceInstanceVcpuBurstToMap(model *vpcv1.InstanceVcpuBurst) (map[string]interface{}, error) {
+	modelMap := make(map[string]interface{})
+	modelMap["limit"] = flex.IntValue(model.Limit)
+	return modelMap, nil
+}
+func ResourceIBMIsInstanceMapToInstanceVcpuPatch(modelMap map[string]interface{}) (*vpcv1.InstanceVcpuPatch, error) {
+	model := &vpcv1.InstanceVcpuPatch{}
+	model.Percentage = core.Int64Ptr(int64(modelMap["percentage"].(int)))
+	return model, nil
+}
+func ResourceIBMIsInstanceMapToInstanceVcpuPrototype(modelMap map[string]interface{}) (*vpcv1.InstanceVcpuPrototype, error) {
+	model := &vpcv1.InstanceVcpuPrototype{}
+	if modelMap["percentage"] != nil && modelMap["percentage"].(int) != 0 {
+		model.Percentage = core.Int64Ptr(int64(modelMap["percentage"].(int)))
 	}
 	return model, nil
 }

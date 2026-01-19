@@ -311,6 +311,11 @@ func DataSourceIBMISInstanceTemplates() *schema.Resource {
 							Computed:    true,
 							Description: "The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes",
 						},
+						isInstanceVolumeBandwidthQoSMode: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The volume bandwidth QoS mode for this virtual server instance.",
+						},
 						isInstanceDefaultTrustedProfileAutoLink: {
 							Type:        schema.TypeBool,
 							Computed:    true,
@@ -950,6 +955,20 @@ func DataSourceIBMISInstanceTemplates() *schema.Resource {
 								},
 							},
 						},
+						// shared core changes
+						"vcpu": &schema.Schema{
+							Type:     schema.TypeList,
+							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"percentage": &schema.Schema{
+										Type:        schema.TypeInt,
+										Computed:    true,
+										Description: "The percentage of VCPU clock cycles allocated to the instance.The virtual server instance `vcpu.percentage` must be `100` when:- The virtual server instance `placement_target` is a dedicated host or dedicated  host group.- The virtual server instance `reservation_affinity.policy` is not `disabled`.If unspecified, the default for `vcpu_percentage` from the profile will be used.",
+									},
+								},
+							},
+						},
 						isInstanceTemplateUserData: {
 							Type:     schema.TypeString,
 							Computed: true,
@@ -1225,6 +1244,10 @@ func dataSourceIBMISInstanceTemplatesRead(context context.Context, d *schema.Res
 					template[isInstanceTotalVolumeBandwidth] = int(*instance.TotalVolumeBandwidth)
 				}
 
+				if instance.VolumeBandwidthQosMode != nil {
+					template[isInstanceVolumeBandwidthQoSMode] = *instance.VolumeBandwidthQosMode
+				}
+
 				// vni
 
 				networkAttachments := []map[string]interface{}{}
@@ -1365,6 +1388,14 @@ func dataSourceIBMISInstanceTemplatesRead(context context.Context, d *schema.Res
 					zoneInf := instance.Zone
 					zone := zoneInf.(*vpcv1.ZoneIdentity)
 					template[isInstanceTemplateZone] = zone.Name
+				}
+				// shared core changes
+				if instance.Vcpu != nil {
+					vcpuMap, err := DataSourceIBMIsInstanceTemplatesInstanceVcpuPrototypeToMap(instance.Vcpu)
+					if err != nil {
+						return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting vcpu: %s", err), "(Data) ibm_is_instance_templates", "read", "set-vcpu").GetDiag()
+					}
+					template["vcpu"] = []map[string]interface{}{vcpuMap}
 				}
 
 				interfacesList := make([]map[string]interface{}, 0)
@@ -1590,6 +1621,10 @@ func dataSourceIBMISInstanceTemplatesRead(context context.Context, d *schema.Res
 					template[isInstanceTotalVolumeBandwidth] = int(*instance.TotalVolumeBandwidth)
 				}
 
+				if instance.VolumeBandwidthQosMode != nil {
+					template[isInstanceVolumeBandwidthQoSMode] = *instance.VolumeBandwidthQosMode
+				}
+
 				// vni
 
 				networkAttachments := []map[string]interface{}{}
@@ -1724,6 +1759,15 @@ func dataSourceIBMISInstanceTemplatesRead(context context.Context, d *schema.Res
 					zoneInf := instance.Zone
 					zone := zoneInf.(*vpcv1.ZoneIdentity)
 					template[isInstanceTemplateZone] = zone.Name
+				}
+
+				// shared core changes
+				if instance.Vcpu != nil {
+					vcpuMap, err := DataSourceIBMIsInstanceTemplatesInstanceVcpuPrototypeToMap(instance.Vcpu)
+					if err != nil {
+						return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting vcpu: %s", err), "(Data) ibm_is_instance_templates", "read", "set-vcpu").GetDiag()
+					}
+					template["vcpu"] = []map[string]interface{}{vcpuMap}
 				}
 
 				interfacesList := make([]map[string]interface{}, 0)
@@ -2108,6 +2152,12 @@ func DataSourceIBMIsInstanceTemplatesInstanceAvailabilityPolicyPrototypeToMap(mo
 	}
 	if model.Preemption != nil {
 		modelMap["preemption"] = *model.Preemption
+	}
+}
+func DataSourceIBMIsInstanceTemplatesInstanceVcpuPrototypeToMap(model *vpcv1.InstanceVcpuPrototype) (map[string]interface{}, error) {
+	modelMap := make(map[string]interface{})
+	if model.Percentage != nil {
+		modelMap["percentage"] = flex.IntValue(model.Percentage)
 	}
 	return modelMap, nil
 }

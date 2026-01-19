@@ -47,6 +47,10 @@ func DataSourceIBMTransitGateway() *schema.Resource {
 				Type:     schema.TypeBool,
 				Computed: true,
 			},
+			tgGreEnhancedRoutePropagation: {
+				Type:     schema.TypeBool,
+				Computed: true,
+			},
 			tgStatus: {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -119,6 +123,10 @@ func DataSourceIBMTransitGateway() *schema.Resource {
 							Computed: true,
 						},
 						tgZone: {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						tgCidr: {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
@@ -253,6 +261,7 @@ func dataSourceIBMTransitGatewayRead(d *schema.ResourceData, meta interface{}) e
 				d.Set(tgUpdatedAt, tgw.UpdatedAt.String())
 			}
 			d.Set(tgGlobal, tgw.Global)
+			d.Set(tgGreEnhancedRoutePropagation, tgw.GreEnhancedRoutePropagation)
 			d.Set(tgStatus, tgw.Status)
 
 			if tgw.ResourceGroup != nil {
@@ -353,6 +362,9 @@ func dataSourceIBMTransitGatewayConnectionsRead(d *schema.ResourceData, meta int
 				if instance.Zone != nil {
 					tgConn[tgZone] = *instance.Zone.Name
 				}
+				if instance.Cidr != nil {
+					tgConn[tgCidr] = *instance.Cidr
+				}
 				if instance.Mtu != nil {
 					tgConn[tgMtu] = *instance.Mtu
 				}
@@ -412,6 +424,7 @@ func dataSourceIBMTransitGatewayConnectionsRead(d *schema.ResourceData, meta int
 					tgConn[tgrGREtunnels] = rGREtunnels
 				}
 			}
+
 			connections = append(connections, tgConn)
 		}
 		startSub = flex.GetNext(listTGConnections.Next)

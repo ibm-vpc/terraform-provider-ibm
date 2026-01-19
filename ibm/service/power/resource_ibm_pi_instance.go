@@ -236,6 +236,12 @@ func ResourceIBMPIInstance() *schema.Resource {
 				Optional:    true,
 				Type:        schema.TypeString,
 			},
+			Arg_PreferredProcessorCompatibilityMode: {
+				Computed:    true,
+				Description: "Preferred processor compatibility mode.",
+				Optional:    true,
+				Type:        schema.TypeString,
+			},
 			Arg_ProcType: {
 				Computed:      true,
 				ConflictsWith: []string{Arg_SAPProfileID},
@@ -333,7 +339,7 @@ func ResourceIBMPIInstance() *schema.Resource {
 			},
 			Arg_SysType: {
 				Computed:    true,
-				Description: "The type of system on which to create the VM (e880/e980/e1080/e1150/e1180/s922/s1022/s1122).",
+				Description: "The type of system on which to create the VM (e980/e1080/e1150/e1180/s922/s1022/s1122).",
 				ForceNew:    true,
 				Optional:    true,
 				Type:        schema.TypeString,
@@ -401,7 +407,25 @@ func ResourceIBMPIInstance() *schema.Resource {
 				Set:              schema.HashString,
 				Type:             schema.TypeSet,
 			},
-
+			Arg_VPMEMVolumes: {
+				Description: "List of one or more vPMEM volumes to attach to the instance.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						Attr_Name: {
+							Description: "Volume base name.",
+							Required:    true,
+							Type:        schema.TypeString,
+						},
+						Attr_Size: {
+							Description: "Volume size (GB).",
+							Required:    true,
+							Type:        schema.TypeInt,
+						},
+					},
+				},
+				Optional: true,
+				Type:     schema.TypeList,
+			},
 			// Attributes
 			Attr_CRN: {
 				Computed:    true,
@@ -411,6 +435,11 @@ func ResourceIBMPIInstance() *schema.Resource {
 			Attr_DedicatedHostID: {
 				Computed:    true,
 				Description: "The dedicated host ID where the shared processor pool resides.",
+				Type:        schema.TypeString,
+			},
+			Attr_EffectiveProcessorCompatibilityMode: {
+				Computed:    true,
+				Description: "Effective processor compatibility mode.",
 				Type:        schema.TypeString,
 			},
 			Attr_Fault: {
@@ -495,6 +524,7 @@ func ResourceIBMPIInstance() *schema.Resource {
 				Description: "PI instance status",
 				Type:        schema.TypeString,
 			},
+			Attr_VPMEMVolumes: vpmemVolumeSchema(),
 		},
 	}
 }
@@ -711,6 +741,16 @@ func resourceIBMPIInstanceRead(ctx context.Context, d *schema.ResourceData, meta
 	} else {
 		d.Set(Arg_VirtualSerialNumber, nil)
 	}
+	d.Set(Arg_PreferredProcessorCompatibilityMode, powervmdata.PreferredProcessorCompatibilityMode)
+	d.Set(Attr_EffectiveProcessorCompatibilityMode, powervmdata.EffectiveProcessorCompatibilityMode)
+	vpmemVolumes := []map[string]any{}
+	if len(powervmdata.VpmemVolumes) > 0 {
+		for _, volume := range powervmdata.VpmemVolumes {
+			vpmemVol := dataSourceIBMPIVPMEMVolumeToMap(volume, meta)
+			vpmemVolumes = append(vpmemVolumes, vpmemVol)
+		}
+	}
+	d.Set(Attr_VPMEMVolumes, vpmemVolumes)
 
 	return nil
 }
@@ -746,7 +786,7 @@ func resourceIBMPIInstanceUpdate(ctx context.Context, d *schema.ResourceData, me
 	}
 	cores_enabled := checkCloudInstanceCapability(cloudInstance, CUSTOM_VIRTUAL_CORES)
 
-	if d.HasChanges(Arg_InstanceName, Arg_VirtualOpticalDevice) {
+	if d.HasChanges(Arg_InstanceName, Arg_VirtualOpticalDevice, Arg_PreferredProcessorCompatibilityMode) {
 		if d.HasChange(Arg_InstanceName) && d.HasChange(Arg_VirtualOpticalDevice) {
 			oldVOD, _ := d.GetChange(Arg_VirtualOpticalDevice)
 			d.Set(Arg_VirtualOpticalDevice, oldVOD)
@@ -763,6 +803,9 @@ func resourceIBMPIInstanceUpdate(ctx context.Context, d *schema.ResourceData, me
 			} else {
 				body.CloudInitialization.VirtualOpticalDevice = Detach
 			}
+		}
+		if d.HasChange(Arg_PreferredProcessorCompatibilityMode) {
+			body.PreferredProcessorCompatibilityMode = d.Get(Arg_PreferredProcessorCompatibilityMode).(string)
 		}
 		_, err = client.Update(instanceID, body)
 		if err != nil {
@@ -1605,6 +1648,19 @@ func expandPVMNetworks(networks []interface{}) []*models.PVMInstanceAddNetwork {
 	}
 	return pvmNetworks
 }
+func expandPVMVPMEMVolumes(vpmemVolumes []any) []*models.VPMemVolumeCreate {
+	pvmVpmemVolumes := make([]*models.VPMemVolumeCreate, 0, len(vpmemVolumes))
+	for _, v := range vpmemVolumes {
+		vpmemVolume := v.(map[string]any)
+		volSize := int64(vpmemVolume[Attr_Size].(int))
+		pvmVpmemVolume := &models.VPMemVolumeCreate{
+			Name: flex.PtrToString(vpmemVolume[Attr_Name].(string)),
+			Size: &volSize,
+		}
+		pvmVpmemVolumes = append(pvmVpmemVolumes, pvmVpmemVolume)
+	}
+	return pvmVpmemVolumes
+}
 
 func checkCloudInstanceCapability(cloudInstance *models.CloudInstance, custom_capability string) bool {
 	log.Printf("Checking for the following capability %s", custom_capability)
@@ -1735,6 +1791,12 @@ func createSAPInstance(d *schema.ResourceData, sapClient *instance.IBMPISAPInsta
 	}
 	if tags, ok := d.GetOk(Arg_UserTags); ok {
 		body.UserTags = flex.FlattenSet(tags.(*schema.Set))
+	}
+	if ppcm, ok := d.GetOk(Arg_PreferredProcessorCompatibilityMode); ok {
+		body.PreferredProcessorCompatibilityMode = ppcm.(string)
+	}
+	if vpmemVolumes, ok := d.GetOk(Arg_VPMEMVolumes); ok {
+		body.VpmemVolumes = expandPVMVPMEMVolumes(vpmemVolumes.([]any))
 	}
 	pvmList, err := sapClient.Create(body)
 	if err != nil {
@@ -1953,7 +2015,13 @@ func createPVMInstance(d *schema.ResourceData, client *instance.IBMPIInstanceCli
 		vsnCreateModel := vsnSetToCreateModel(vsnListType)
 		body.VirtualSerialNumber = vsnCreateModel
 	}
+	if ppcm, ok := d.GetOk(Arg_PreferredProcessorCompatibilityMode); ok {
+		body.PreferredProcessorCompatibilityMode = ppcm.(string)
+	}
 
+	if vpmemVolumes, ok := d.GetOk(Arg_VPMEMVolumes); ok {
+		body.VpmemVolumes = expandPVMVPMEMVolumes(vpmemVolumes.([]any))
+	}
 	pvmList, err := client.Create(body)
 
 	if err != nil {

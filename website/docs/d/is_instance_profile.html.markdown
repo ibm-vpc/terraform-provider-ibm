@@ -196,6 +196,11 @@ In addition to the argument reference list, you can access the following attribu
   - `default` - (String) The default VCPU architecture for an instance with this profile.
   - `type` - (String) The type for this profile field.
   - `value` - (String) The VCPU architecture for an instance with this profile.
+- `vcpu_burst_limit` - (List) The permitted value for VCPU burst limit percentage for an instance with this profile.
+  
+  Nested schema for **vcpu_burst_limit**:
+	- `type` - (String) The type for this profile field. Allowable values are: `fixed`. 
+	- `value` - (Integer) The value for this profile field.
 - `vcpu_count` - (List) Nested `vcpu_count` blocks have the following structure:
 
   Nested scheme for `vcpu_count`:
@@ -212,3 +217,15 @@ In addition to the argument reference list, you can access the following attribu
   - `default` - (String) The default VCPU manufacturer for an instance with this profile.
   - `type` - (String) The type for this profile field.
   - `value` - (String) The VCPU manufacturer for an instance with this profile.
+- `vcpu_percentage` - (List) The permitted values for VCPU percentage for an instance with this profile.
+  
+  Nested schema for **vcpu_percentage**:
+	- `default` - (Integer) The default value for this profile field.
+	- `type` - (String) The type for this profile field. Allowable values are: `enum`.
+	- `values` - (List) The permitted values for this profile field.
+- `volume_bandwidth_qos_modes` - (List) Nested `volume_bandwidth_qos_modes` blocks have the following structure:
+
+  Nested scheme for `volume_bandwidth_qos_modes`:
+  - `default` - (String) The default volume bandwidth QoS mode for this profile.
+  - `type` - (String) The type for this profile field.
+  - `values` - (String) The permitted volume bandwidth QoS modes for an instance using this profile.

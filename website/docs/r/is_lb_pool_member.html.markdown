@@ -60,6 +60,31 @@ resource "ibm_is_lb_pool_member" "example" {
 }
 ```
 
+
+### Sample to create a application load balancer as member target for private path network load balancer.
+
+```terraform
+resource "ibm_is_lb_pool_member" "example" {
+  lb        = ibm_is_lb.example.id
+  pool      = element(split("/", ibm_is_lb_pool.example.id), 1)
+  port      = 8080
+  weight    = 60
+  target_id = ibm_is_lb.example.id
+}
+```
+
+### Sample to create a reserved ip as a member target for network load balancer.
+
+```terraform
+  resource "ibm_is_lb_pool_member" "example" {
+    lb        = ibm_is_lb.example.id
+    pool      = element(split("/", ibm_is_lb_pool.example.id), 1)
+    port      = 8080
+    weight    = 20
+    target_id = ibm_is_subnet_reserved_ip.example.id
+	}
+```
+
 ## Timeouts
 The `ibm_is_lb_pool_member` resource provides the following [Timeouts](https://www.terraform.io/docs/language/resources/syntax.html) configuration options:
 
@@ -71,11 +96,11 @@ The `ibm_is_lb_pool_member` resource provides the following [Timeouts](https://w
 ## Argument reference
 Review the argument references that you can specify for your resource. 
 
- - `lb` - (Required, Forces new resource, String) The load balancer unique identifier.
+- `lb` - (Required, Forces new resource, String) The load balancer unique identifier.
 - `pool` - (Required, Forces new resource, String) The load balancer pool unique identifier.
 - `port`- (Required, Integer) The port number of the application running in the server member.
-- `target_address` - (Required, String) The IP address of the pool member.
-- `target_id` - (Required, String) The unique identifier for the virtual server instance or application load balancer pool member. Required for network load balancer.
+- `target_address` - (Required, String) The IP address of the pool member.(Mutually exclusive with `target_id`)
+- `target_id` - (Required, String) The unique identifier for the virtual server instance or application load balancer pool member or subnet reserved ip. Required for network load balancer. (Mutually exclusive with `target_address`)
 
 - `weight` - (Optional, Integer) Weight of the server member. This option takes effect only when the load-balancing algorithm of its belonging pool is `weighted_round_robin`, Minimum allowed weight is `0` and Maximum allowed weight is `100`. Default: 50, Weight of the server member. Applicable only if the pool algorithm is weighted_round_robin.
 
@@ -88,16 +113,19 @@ In addition to all argument reference list, you can access the following attribu
 - `health` - (String) The health of the server member in the pool.
 
 ## Import
-The `ibm_is_lb_pool_member` resource can be imported by using the load balancer ID, pool ID, pool member ID.
 
-**Syntax**
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import the `ibm_is_lb_pool_member` resource by using `id`.
+The `id` property can be formed from `load balancer ID`, `pool ID`, and `pool member ID`. For example:
 
+```terraform
+import {
+  to = ibm_is_lb_pool_member.example
+  id = "<loadbalancer_ID>/<pool_ID>/<pool_member_ID>"
+}
 ```
-$ terraform import ibm_is_lb_pool_member.example <loadbalancer_ID>/<pool_ID>/<pool_member_ID>
-```
 
-**Example**
+Using `terraform import`. For example:
 
-```
-$ terraform import ibm_is_lb_pool_member.example d7bec597-4726-451f-8a63-e62e6f19c32c/cea6651a-bc0a-4438-9f8a-a0770bbf3ebb/gfe6651a-bc0a-5538-8h8a-b0770bbf32cc
+```console
+% terraform import ibm_is_lb_pool_member.example <loadbalancer_ID>/<pool_ID>/<pool_member_ID>
 ```

@@ -1047,31 +1047,55 @@ func DataSourceIBMISInstances() *schema.Resource {
 							Description: "The total bandwidth (in megabits per second) shared across the instance's network interfaces and storage volumes",
 						},
 
+						isInstanceVolumeBandwidthQoSMode: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The volume bandwidth QoS mode for this virtual server instance.",
+						},
+
 						isInstanceTotalNetworkBandwidth: {
 							Type:        schema.TypeInt,
 							Computed:    true,
 							Description: "The amount of bandwidth (in megabits per second) allocated exclusively to instance network interfaces.",
 						},
-						"vcpu": {
+						"vcpu": &schema.Schema{
 							Type:        schema.TypeList,
 							Computed:    true,
-							Description: "Instance vcpu",
+							Description: "The virtual server instance VCPU configuration.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
-									"architecture": {
+									"architecture": &schema.Schema{
 										Type:        schema.TypeString,
 										Computed:    true,
-										Description: "Instance vcpu architecture",
+										Description: "The VCPU architecture.The enumerated values for this property may[expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.",
 									},
-									"count": {
+									"burst": &schema.Schema{
+										Type:     schema.TypeList,
+										Computed: true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"limit": &schema.Schema{
+													Type:        schema.TypeInt,
+													Computed:    true,
+													Description: "The maximum percentage the virtual server instance will exceed its allocated share of VCPU time.The maximum value for this property may[expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.",
+												},
+											},
+										},
+									},
+									"count": &schema.Schema{
 										Type:        schema.TypeInt,
 										Computed:    true,
-										Description: "Instance vcpu count",
+										Description: "The number of VCPUs assigned.",
 									},
-									"manufacturer": {
+									"manufacturer": &schema.Schema{
 										Type:        schema.TypeString,
 										Computed:    true,
-										Description: "Instance vcpu manufacturer",
+										Description: "The VCPU manufacturer.The enumerated values for this property may[expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.",
+									},
+									"percentage": &schema.Schema{
+										Type:        schema.TypeInt,
+										Computed:    true,
+										Description: "The percentage of VCPU time allocated to the virtual server instance.The virtual server instance `vcpu.percentage` will be `100` when:- The virtual server instance `placement_target` is a dedicated host or dedicated  host group.- The virtual server instance `reservation_affinity.policy` is `disabled`.",
 									},
 								},
 							},
@@ -1549,6 +1573,9 @@ func instancesList(context context.Context, d *schema.ResourceData, meta interfa
 		if instance.Bandwidth != nil {
 			l[isInstanceBandwidth] = int(*instance.Bandwidth)
 		}
+		if instance.VolumeBandwidthQosMode != nil {
+			l[isInstanceVolumeBandwidthQoSMode] = string(*instance.VolumeBandwidthQosMode)
+		}
 
 		if instance.TotalNetworkBandwidth != nil {
 			l[isInstanceTotalNetworkBandwidth] = int(*instance.TotalNetworkBandwidth)
@@ -1786,16 +1813,11 @@ func instancesList(context context.Context, d *schema.ResourceData, meta interfa
 
 		l["profile"] = *instance.Profile.Name
 
-		cpuList := make([]map[string]interface{}, 0)
-		if instance.Vcpu != nil {
-			currentCPU := map[string]interface{}{}
-			currentCPU["architecture"] = *instance.Vcpu.Architecture
-			currentCPU["count"] = *instance.Vcpu.Count
-			currentCPU["manufacturer"] = *instance.Vcpu.Manufacturer
-			cpuList = append(cpuList, currentCPU)
+		vcpuMap, err := DataSourceIBMIsInstancesInstanceVcpuToMap(instance.Vcpu)
+		if err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting instances %s", err), "(Data) ibm_is_instances", "read", "set-vcpu").GetDiag()
 		}
-		l["vcpu"] = cpuList
-
+		l["vcpu"] = []map[string]interface{}{vcpuMap}
 		gpuList := make([]map[string]interface{}, 0)
 		if instance.Gpu != nil {
 			currentGpu := map[string]interface{}{}
@@ -1952,5 +1974,26 @@ func DataSourceIBMIsInstancesInstanceAvailabilityPolicyToMap(model *vpcv1.Instan
 	modelMap := make(map[string]interface{})
 	modelMap["host_failure"] = *model.HostFailure
 	modelMap["preemption"] = *model.Preemption
+}
+
+func DataSourceIBMIsInstancesInstanceVcpuToMap(model *vpcv1.InstanceVcpu) (map[string]interface{}, error) {
+	modelMap := make(map[string]interface{})
+	modelMap["architecture"] = model.Architecture
+	if model.Burst != nil {
+		burstMap, err := DataSourceIBMIsInstancesInstanceVcpuBurstToMap(model.Burst)
+		if err != nil {
+			return modelMap, err
+		}
+		modelMap["burst"] = []map[string]interface{}{burstMap}
+	}
+	modelMap["count"] = flex.IntValue(model.Count)
+	modelMap["manufacturer"] = model.Manufacturer
+	modelMap["percentage"] = flex.IntValue(model.Percentage)
+	return modelMap, nil
+}
+
+func DataSourceIBMIsInstancesInstanceVcpuBurstToMap(model *vpcv1.InstanceVcpuBurst) (map[string]interface{}, error) {
+	modelMap := make(map[string]interface{})
+	modelMap["limit"] = flex.IntValue(model.Limit)
 	return modelMap, nil
 }
