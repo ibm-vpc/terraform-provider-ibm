@@ -51,9 +51,13 @@ Review the argument references that you can specify for your resource.
 ## Attribute reference
 In addition to all argument reference list, you can access the following attribute reference after your resource is created.
 
-- `href`-  (String) The canonical URL that was assigned to your IKE policy. 
+- `href`-  (String) The canonical URL that was assigned to your IKE policy.
 - `id` - (String) The unique identifier of the IKE policy that you created.
-- `negotiation_mode` - (String) The IKE negotiation mode that was set for your IKE policy. Only `main` is supported. 
+- `negotiation_mode` - (String) The IKE negotiation mode that was set for your IKE policy. Only `main` is supported.
+- `cipher_mode` - (String) The cipher mode used. Possible values are `singular` or `suite`.
+- `authentication_algorithms` - (List) The authentication algorithms in order of preference. Only applicable when `cipher_mode` is `suite`.
+- `encryption_algorithms` - (List) The encryption algorithms in order of preference. Only applicable when `cipher_mode` is `suite`.
+- `dh_groups` - (List) The Diffie-Hellman groups in order of preference. Only applicable when `cipher_mode` is `suite`.
 - `vpn_connections`- List - A collection of VPN connections that use the IKE policy.
 
   Nested scheme for `vpn_connections`:

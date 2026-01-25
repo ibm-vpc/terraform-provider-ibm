@@ -17,19 +17,23 @@ import (
 )
 
 const (
-	isIKEName              = "name"
-	isIKEAuthenticationAlg = "authentication_algorithm"
-	isIKEEncryptionAlg     = "encryption_algorithm"
-	isIKEDhGroup           = "dh_group"
-	isIKEVERSION           = "ike_version"
-	isIKEKeyLifeTime       = "key_lifetime"
-	isIKEResourceGroup     = "resource_group"
-	isIKENegotiationMode   = "negotiation_mode"
-	isIKEVPNConnections    = "vpn_connections"
-	isIKEVPNConnectionName = "name"
-	isIKEVPNConnectionId   = "id"
-	isIKEVPNConnectionHref = "href"
-	isIKEHref              = "href"
+	isIKEName               = "name"
+	isIKEAuthenticationAlg  = "authentication_algorithm"
+	isIKEEncryptionAlg      = "encryption_algorithm"
+	isIKEDhGroup            = "dh_group"
+	isIKEVERSION            = "ike_version"
+	isIKEKeyLifeTime        = "key_lifetime"
+	isIKEResourceGroup      = "resource_group"
+	isIKENegotiationMode    = "negotiation_mode"
+	isIKEVPNConnections     = "vpn_connections"
+	isIKEVPNConnectionName  = "name"
+	isIKEVPNConnectionId    = "id"
+	isIKEVPNConnectionHref  = "href"
+	isIKEHref               = "href"
+	isIKECipherMode         = "cipher_mode"
+	isIKEAuthenticationAlgs = "authentication_algorithms"
+	isIKEEncryptionAlgs     = "encryption_algorithms"
+	isIKEDhGroups           = "dh_groups"
 )
 
 func ResourceIBMISIKEPolicy() *schema.Resource {
@@ -125,6 +129,35 @@ func ResourceIBMISIKEPolicy() *schema.Resource {
 					},
 				},
 			},
+			isIKECipherMode: {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The cipher mode used",
+			},
+			isIKEAuthenticationAlgs: {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "The authentication algorithms",
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
+			isIKEEncryptionAlgs: {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "The encryption algorithms",
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
+			isIKEDhGroups: {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "The Diffie-Hellman groups",
+				Elem: &schema.Schema{
+					Type: schema.TypeInt,
+				},
+			},
 			flex.ResourceControllerURL: {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -216,7 +249,8 @@ func ikepCreate(context context.Context, d *schema.ResourceData, meta interface{
 		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
 		return tfErr.GetDiag()
 	}
-	options := &vpcv1.CreateIkePolicyOptions{
+
+	ikePolicyPrototype := &vpcv1.IkePolicyPrototype{
 		AuthenticationAlgorithm: &authenticationAlg,
 		EncryptionAlgorithm:     &encryptionAlg,
 		DhGroup:                 &dhGroup,
@@ -225,31 +259,48 @@ func ikepCreate(context context.Context, d *schema.ResourceData, meta interface{
 
 	if keylt, ok := d.GetOk(isIKEKeyLifeTime); ok {
 		keyLifetime := int64(keylt.(int))
-		options.KeyLifetime = &keyLifetime
+		ikePolicyPrototype.KeyLifetime = &keyLifetime
 	} else {
 		keyLifetime := int64(28800)
-		options.KeyLifetime = &keyLifetime
+		ikePolicyPrototype.KeyLifetime = &keyLifetime
 	}
 
 	if ikev, ok := d.GetOk(isIKEVERSION); ok {
 		ikeVersion := int64(ikev.(int))
-		options.IkeVersion = &ikeVersion
+		ikePolicyPrototype.IkeVersion = &ikeVersion
 	}
 
 	if rgrp, ok := d.GetOk(isIKEResourceGroup); ok {
 		rg := rgrp.(string)
-		options.ResourceGroup = &vpcv1.ResourceGroupIdentity{
+		ikePolicyPrototype.ResourceGroup = &vpcv1.ResourceGroupIdentity{
 			ID: &rg,
 		}
 	}
-	ike, _, err := sess.CreateIkePolicyWithContext(context, options)
+
+	options := &vpcv1.CreateIkePolicyOptions{
+		IkePolicyPrototype: ikePolicyPrototype,
+	}
+
+	ikeIntf, _, err := sess.CreateIkePolicyWithContext(context, options)
 	if err != nil {
 		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("CreateIkePolicyWithContext failed: %s", err.Error()), "ibm_is_ike_policy", "create")
 		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
 		return tfErr.GetDiag()
 	}
-	d.SetId(*ike.ID)
-	log.Printf("[INFO] ike policy : %s", *ike.ID)
+
+	// Extract ID from the interface
+	var policyID string
+	switch ike := ikeIntf.(type) {
+	case *vpcv1.IkePolicySingularCipherMode:
+		policyID = *ike.ID
+	case *vpcv1.IkePolicySuiteCipherMode:
+		policyID = *ike.ID
+	case *vpcv1.IkePolicy:
+		policyID = *ike.ID
+	}
+
+	d.SetId(policyID)
+	log.Printf("[INFO] ike policy : %s", policyID)
 	return nil
 }
 
@@ -269,7 +320,7 @@ func ikepGet(context context.Context, d *schema.ResourceData, meta interface{}, 
 	getikepoptions := &vpcv1.GetIkePolicyOptions{
 		ID: &id,
 	}
-	ikePolicy, response, err := sess.GetIkePolicyWithContext(context, getikepoptions)
+	ikePolicyIntf, response, err := sess.GetIkePolicyWithContext(context, getikepoptions)
 	if err != nil {
 		if response != nil && response.StatusCode == 404 {
 			d.SetId("")
@@ -280,67 +331,216 @@ func ikepGet(context context.Context, d *schema.ResourceData, meta interface{}, 
 		return tfErr.GetDiag()
 	}
 
-	if err = d.Set("authentication_algorithm", ikePolicy.AuthenticationAlgorithm); err != nil {
-		err = fmt.Errorf("Error setting authentication_algorithm: %s", err)
-		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_ike_policy", "read", "set-authentication_algorithm").GetDiag()
-	}
-	if err = d.Set("encryption_algorithm", ikePolicy.EncryptionAlgorithm); err != nil {
-		err = fmt.Errorf("Error setting encryption_algorithm: %s", err)
-		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_ike_policy", "read", "set-encryption_algorithm").GetDiag()
-	}
-	if ikePolicy.ResourceGroup != nil {
-		d.Set(isIKEResourceGroup, *ikePolicy.ResourceGroup.ID)
-		d.Set(flex.ResourceGroupName, *ikePolicy.ResourceGroup.Name)
-	} else {
-		d.Set(isIKEResourceGroup, nil)
-	}
-	if !core.IsNil(ikePolicy.KeyLifetime) {
-		if err = d.Set("key_lifetime", flex.IntValue(ikePolicy.KeyLifetime)); err != nil {
-			err = fmt.Errorf("Error setting key_lifetime: %s", err)
-			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_ike_policy", "read", "set-key_lifetime").GetDiag()
+	switch ikePolicy := ikePolicyIntf.(type) {
+	case *vpcv1.IkePolicySingularCipherMode:
+		if err = d.Set("authentication_algorithm", ikePolicy.AuthenticationAlgorithm); err != nil {
+			err = fmt.Errorf("Error setting authentication_algorithm: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_ike_policy", "read", "set-authentication_algorithm").GetDiag()
 		}
-	}
-	if err = d.Set("href", ikePolicy.Href); err != nil {
-		err = fmt.Errorf("Error setting href: %s", err)
-		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_ike_policy", "read", "set-href").GetDiag()
-	}
-	if err = d.Set("negotiation_mode", ikePolicy.NegotiationMode); err != nil {
-		err = fmt.Errorf("Error setting negotiation_mode: %s", err)
-		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_ike_policy", "read", "set-negotiation_mode").GetDiag()
-	}
-	if err = d.Set("ike_version", flex.IntValue(ikePolicy.IkeVersion)); err != nil {
-		err = fmt.Errorf("Error setting ike_version: %s", err)
-		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_ike_policy", "read", "set-ike_version").GetDiag()
-	}
-	if err = d.Set("dh_group", flex.IntValue(ikePolicy.DhGroup)); err != nil {
-		err = fmt.Errorf("Error setting dh_group: %s", err)
-		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_ike_policy", "read", "set-dh_group").GetDiag()
-	}
-	connList := make([]map[string]interface{}, 0)
-	if ikePolicy.Connections != nil && len(ikePolicy.Connections) > 0 {
-		for _, connection := range ikePolicy.Connections {
-			conn := map[string]interface{}{}
-			conn[isIKEVPNConnectionName] = *connection.Name
-			conn[isIKEVPNConnectionId] = *connection.ID
-			conn[isIKEVPNConnectionHref] = *connection.Href
-			connList = append(connList, conn)
+		if err = d.Set("encryption_algorithm", ikePolicy.EncryptionAlgorithm); err != nil {
+			err = fmt.Errorf("Error setting encryption_algorithm: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_ike_policy", "read", "set-encryption_algorithm").GetDiag()
 		}
-	}
-	d.Set(isIKEVPNConnections, connList)
-	controller, err := flex.GetBaseController(meta)
-	if err != nil {
-		err = fmt.Errorf("Error featching Base Controller URL: %s", err)
-		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_ike_policy", "read", "set-resource_controller_url").GetDiag()
-	}
-	d.Set(flex.ResourceControllerURL, controller+"/vpc-ext/network/ikepolicies")
-	if !core.IsNil(ikePolicy.Name) {
-		if err = d.Set("name", ikePolicy.Name); err != nil {
-			err = fmt.Errorf("Error setting name: %s", err)
-			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_ike_policy", "read", "set-name").GetDiag()
+		if err = d.Set("dh_group", flex.IntValue(ikePolicy.DhGroup)); err != nil {
+			err = fmt.Errorf("Error setting dh_group: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_ike_policy", "read", "set-dh_group").GetDiag()
 		}
-		if err = d.Set(flex.ResourceName, ikePolicy.Name); err != nil {
-			err = fmt.Errorf("Error setting resource_name: %s", err)
-			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_ike_policy", "read", "set-resource_name").GetDiag()
+		if ikePolicy.CipherMode != nil {
+			if err = d.Set(isIKECipherMode, ikePolicy.CipherMode); err != nil {
+				err = fmt.Errorf("Error setting cipher_mode: %s", err)
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_ike_policy", "read", "set-cipher_mode").GetDiag()
+			}
+		}
+		if ikePolicy.ResourceGroup != nil {
+			d.Set(isIKEResourceGroup, *ikePolicy.ResourceGroup.ID)
+			d.Set(flex.ResourceGroupName, *ikePolicy.ResourceGroup.Name)
+		} else {
+			d.Set(isIKEResourceGroup, nil)
+		}
+		if !core.IsNil(ikePolicy.KeyLifetime) {
+			if err = d.Set("key_lifetime", flex.IntValue(ikePolicy.KeyLifetime)); err != nil {
+				err = fmt.Errorf("Error setting key_lifetime: %s", err)
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_ike_policy", "read", "set-key_lifetime").GetDiag()
+			}
+		}
+		if err = d.Set("href", ikePolicy.Href); err != nil {
+			err = fmt.Errorf("Error setting href: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_ike_policy", "read", "set-href").GetDiag()
+		}
+		if err = d.Set("negotiation_mode", ikePolicy.NegotiationMode); err != nil {
+			err = fmt.Errorf("Error setting negotiation_mode: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_ike_policy", "read", "set-negotiation_mode").GetDiag()
+		}
+		if err = d.Set("ike_version", flex.IntValue(ikePolicy.IkeVersion)); err != nil {
+			err = fmt.Errorf("Error setting ike_version: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_ike_policy", "read", "set-ike_version").GetDiag()
+		}
+		connList := make([]map[string]interface{}, 0)
+		if ikePolicy.Connections != nil && len(ikePolicy.Connections) > 0 {
+			for _, connection := range ikePolicy.Connections {
+				conn := map[string]interface{}{}
+				conn[isIKEVPNConnectionName] = *connection.Name
+				conn[isIKEVPNConnectionId] = *connection.ID
+				conn[isIKEVPNConnectionHref] = *connection.Href
+				connList = append(connList, conn)
+			}
+		}
+		d.Set(isIKEVPNConnections, connList)
+		controller, err := flex.GetBaseController(meta)
+		if err != nil {
+			err = fmt.Errorf("Error featching Base Controller URL: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_ike_policy", "read", "set-resource_controller_url").GetDiag()
+		}
+		d.Set(flex.ResourceControllerURL, controller+"/vpc-ext/network/ikepolicies")
+		if !core.IsNil(ikePolicy.Name) {
+			if err = d.Set("name", ikePolicy.Name); err != nil {
+				err = fmt.Errorf("Error setting name: %s", err)
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_ike_policy", "read", "set-name").GetDiag()
+			}
+			if err = d.Set(flex.ResourceName, ikePolicy.Name); err != nil {
+				err = fmt.Errorf("Error setting resource_name: %s", err)
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_ike_policy", "read", "set-resource_name").GetDiag()
+			}
+		}
+	case *vpcv1.IkePolicySuiteCipherMode:
+		if !core.IsNil(ikePolicy.AuthenticationAlgorithms) {
+			if err = d.Set(isIKEAuthenticationAlgs, ikePolicy.AuthenticationAlgorithms); err != nil {
+				err = fmt.Errorf("Error setting authentication_algorithms: %s", err)
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_ike_policy", "read", "set-authentication_algorithms").GetDiag()
+			}
+		}
+		if !core.IsNil(ikePolicy.EncryptionAlgorithms) {
+			if err = d.Set(isIKEEncryptionAlgs, ikePolicy.EncryptionAlgorithms); err != nil {
+				err = fmt.Errorf("Error setting encryption_algorithms: %s", err)
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_ike_policy", "read", "set-encryption_algorithms").GetDiag()
+			}
+		}
+		if !core.IsNil(ikePolicy.DhGroups) {
+			if err = d.Set(isIKEDhGroups, ikePolicy.DhGroups); err != nil {
+				err = fmt.Errorf("Error setting dh_groups: %s", err)
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_ike_policy", "read", "set-dh_groups").GetDiag()
+			}
+		}
+		if ikePolicy.CipherMode != nil {
+			if err = d.Set(isIKECipherMode, ikePolicy.CipherMode); err != nil {
+				err = fmt.Errorf("Error setting cipher_mode: %s", err)
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_ike_policy", "read", "set-cipher_mode").GetDiag()
+			}
+		}
+		if ikePolicy.ResourceGroup != nil {
+			d.Set(isIKEResourceGroup, *ikePolicy.ResourceGroup.ID)
+			d.Set(flex.ResourceGroupName, *ikePolicy.ResourceGroup.Name)
+		} else {
+			d.Set(isIKEResourceGroup, nil)
+		}
+		if !core.IsNil(ikePolicy.KeyLifetime) {
+			if err = d.Set("key_lifetime", flex.IntValue(ikePolicy.KeyLifetime)); err != nil {
+				err = fmt.Errorf("Error setting key_lifetime: %s", err)
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_ike_policy", "read", "set-key_lifetime").GetDiag()
+			}
+		}
+		if err = d.Set("href", ikePolicy.Href); err != nil {
+			err = fmt.Errorf("Error setting href: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_ike_policy", "read", "set-href").GetDiag()
+		}
+		if err = d.Set("negotiation_mode", ikePolicy.NegotiationMode); err != nil {
+			err = fmt.Errorf("Error setting negotiation_mode: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_ike_policy", "read", "set-negotiation_mode").GetDiag()
+		}
+		if err = d.Set("ike_version", flex.IntValue(ikePolicy.IkeVersion)); err != nil {
+			err = fmt.Errorf("Error setting ike_version: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_ike_policy", "read", "set-ike_version").GetDiag()
+		}
+		connList := make([]map[string]interface{}, 0)
+		if ikePolicy.Connections != nil && len(ikePolicy.Connections) > 0 {
+			for _, connection := range ikePolicy.Connections {
+				conn := map[string]interface{}{}
+				conn[isIKEVPNConnectionName] = *connection.Name
+				conn[isIKEVPNConnectionId] = *connection.ID
+				conn[isIKEVPNConnectionHref] = *connection.Href
+				connList = append(connList, conn)
+			}
+		}
+		d.Set(isIKEVPNConnections, connList)
+		controller, err := flex.GetBaseController(meta)
+		if err != nil {
+			err = fmt.Errorf("Error featching Base Controller URL: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_ike_policy", "read", "set-resource_controller_url").GetDiag()
+		}
+		d.Set(flex.ResourceControllerURL, controller+"/vpc-ext/network/ikepolicies")
+		if !core.IsNil(ikePolicy.Name) {
+			if err = d.Set("name", ikePolicy.Name); err != nil {
+				err = fmt.Errorf("Error setting name: %s", err)
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_ike_policy", "read", "set-name").GetDiag()
+			}
+			if err = d.Set(flex.ResourceName, ikePolicy.Name); err != nil {
+				err = fmt.Errorf("Error setting resource_name: %s", err)
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_ike_policy", "read", "set-resource_name").GetDiag()
+			}
+		}
+	case *vpcv1.IkePolicy:
+		if err = d.Set("authentication_algorithm", ikePolicy.AuthenticationAlgorithm); err != nil {
+			err = fmt.Errorf("Error setting authentication_algorithm: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_ike_policy", "read", "set-authentication_algorithm").GetDiag()
+		}
+		if err = d.Set("encryption_algorithm", ikePolicy.EncryptionAlgorithm); err != nil {
+			err = fmt.Errorf("Error setting encryption_algorithm: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_ike_policy", "read", "set-encryption_algorithm").GetDiag()
+		}
+		if err = d.Set("dh_group", flex.IntValue(ikePolicy.DhGroup)); err != nil {
+			err = fmt.Errorf("Error setting dh_group: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_ike_policy", "read", "set-dh_group").GetDiag()
+		}
+		if ikePolicy.ResourceGroup != nil {
+			d.Set(isIKEResourceGroup, *ikePolicy.ResourceGroup.ID)
+			d.Set(flex.ResourceGroupName, *ikePolicy.ResourceGroup.Name)
+		} else {
+			d.Set(isIKEResourceGroup, nil)
+		}
+		if !core.IsNil(ikePolicy.KeyLifetime) {
+			if err = d.Set("key_lifetime", flex.IntValue(ikePolicy.KeyLifetime)); err != nil {
+				err = fmt.Errorf("Error setting key_lifetime: %s", err)
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_ike_policy", "read", "set-key_lifetime").GetDiag()
+			}
+		}
+		if err = d.Set("href", ikePolicy.Href); err != nil {
+			err = fmt.Errorf("Error setting href: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_ike_policy", "read", "set-href").GetDiag()
+		}
+		if err = d.Set("negotiation_mode", ikePolicy.NegotiationMode); err != nil {
+			err = fmt.Errorf("Error setting negotiation_mode: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_ike_policy", "read", "set-negotiation_mode").GetDiag()
+		}
+		if err = d.Set("ike_version", flex.IntValue(ikePolicy.IkeVersion)); err != nil {
+			err = fmt.Errorf("Error setting ike_version: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_ike_policy", "read", "set-ike_version").GetDiag()
+		}
+		connList := make([]map[string]interface{}, 0)
+		if ikePolicy.Connections != nil && len(ikePolicy.Connections) > 0 {
+			for _, connection := range ikePolicy.Connections {
+				conn := map[string]interface{}{}
+				conn[isIKEVPNConnectionName] = *connection.Name
+				conn[isIKEVPNConnectionId] = *connection.ID
+				conn[isIKEVPNConnectionHref] = *connection.Href
+				connList = append(connList, conn)
+			}
+		}
+		d.Set(isIKEVPNConnections, connList)
+		controller, err := flex.GetBaseController(meta)
+		if err != nil {
+			err = fmt.Errorf("Error featching Base Controller URL: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_ike_policy", "read", "set-resource_controller_url").GetDiag()
+		}
+		d.Set(flex.ResourceControllerURL, controller+"/vpc-ext/network/ikepolicies")
+		if !core.IsNil(ikePolicy.Name) {
+			if err = d.Set("name", ikePolicy.Name); err != nil {
+				err = fmt.Errorf("Error setting name: %s", err)
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_ike_policy", "read", "set-name").GetDiag()
+			}
+			if err = d.Set(flex.ResourceName, ikePolicy.Name); err != nil {
+				err = fmt.Errorf("Error setting resource_name: %s", err)
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_ike_policy", "read", "set-resource_name").GetDiag()
+			}
 		}
 	}
 	return nil

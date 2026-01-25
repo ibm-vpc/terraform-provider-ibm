@@ -41,6 +41,7 @@ func TestAccIBMIsIpsecPolicyDataSourceBasic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(dataSourceNameKey, "transform_protocol"),
 					resource.TestCheckResourceAttrSet(dataSourceNameKey, "resource_group.#"),
 					resource.TestCheckResourceAttrSet(dataSourceNameKey, "resource_type"),
+					resource.TestCheckResourceAttrSet(dataSourceNameKey, "cipher_mode"),
 
 					// Check specific values for computed fields
 					resource.TestCheckResourceAttr(dataSourceNameKey, "encapsulation_mode", "tunnel"),

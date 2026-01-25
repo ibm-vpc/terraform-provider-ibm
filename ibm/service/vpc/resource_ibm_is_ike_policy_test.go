@@ -38,6 +38,7 @@ func TestAccIBMISIKEPolicy_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceKey, "key_lifetime", "28800"), // Default value
 					resource.TestCheckResourceAttrSet(resourceKey, "negotiation_mode"),
 					resource.TestCheckResourceAttrSet(resourceKey, "href"),
+					resource.TestCheckResourceAttrSet(resourceKey, "cipher_mode"),
 				),
 			},
 			{
@@ -274,11 +275,19 @@ func testAccCheckIBMISIKEPolicyExists(n, policy string) resource.TestCheckFunc {
 		getikepoptions := &vpcv1.GetIkePolicyOptions{
 			ID: &rs.Primary.ID,
 		}
-		ikePolicy, _, err := sess.GetIkePolicy(getikepoptions)
+		ikePolicyIntf, _, err := sess.GetIkePolicy(getikepoptions)
 		if err != nil {
 			return err
 		}
-		policy = *ikePolicy.ID
+		// Extract ID from interface
+		switch ikePolicy := ikePolicyIntf.(type) {
+		case *vpcv1.IkePolicySingularCipherMode:
+			policy = *ikePolicy.ID
+		case *vpcv1.IkePolicySuiteCipherMode:
+			policy = *ikePolicy.ID
+		case *vpcv1.IkePolicy:
+			policy = *ikePolicy.ID
+		}
 		return nil
 	}
 }

@@ -13,6 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
+	"github.com/IBM/go-sdk-core/v5/core"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
 )
 
@@ -37,6 +38,14 @@ func DataSourceIBMIsIkePolicy() *schema.Resource {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "The authentication algorithm.",
+			},
+			"authentication_algorithms": &schema.Schema{
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "The authentication algorithms to use for IKE Negotiation.The order of the algorithms in this array indicates their priority for negotiation, with each algorithm having priority over the one after it.",
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
 			},
 			"connections": {
 				Type:        schema.TypeList,
@@ -91,10 +100,26 @@ func DataSourceIBMIsIkePolicy() *schema.Resource {
 				Computed:    true,
 				Description: "The Diffie-Hellman group.",
 			},
+			"dh_groups": &schema.Schema{
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "The Diffie-Hellman groups to use for IKE negotiation.The order of the Diffie-Hellman groups in this array indicates their priority for negotiation, with each Diffie-Hellman group having priority over the one after it.",
+				Elem: &schema.Schema{
+					Type: schema.TypeInt,
+				},
+			},
 			"encryption_algorithm": {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "The encryption algorithm.",
+			},
+			"encryption_algorithms": &schema.Schema{
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "The encryption algorithms to use for IKE Negotiation.The order of the algorithms in this array indicates their priority for negotiation, with each algorithm having priority over the one after it.",
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
 			},
 			"href": {
 				Type:        schema.TypeString,
@@ -159,10 +184,10 @@ func dataSourceIBMIsIkePolicyRead(context context.Context, d *schema.ResourceDat
 
 	name := d.Get("name").(string)
 	identifier := d.Get("ike_policy").(string)
-	var ikePolicy *vpcv1.IkePolicy
+	var ikePolicyIntf vpcv1.IkePolicyIntf
 	if name != "" {
 		start := ""
-		allrecs := []vpcv1.IkePolicy{}
+		allrecs := []vpcv1.IkePolicyIntf{}
 		for {
 			listIkePoliciesyOptions := &vpcv1.ListIkePoliciesOptions{}
 			if start != "" {
@@ -181,13 +206,36 @@ func dataSourceIBMIsIkePolicyRead(context context.Context, d *schema.ResourceDat
 			}
 		}
 		ike_policy_found := false
+
 		for _, ikePolicyItem := range allrecs {
-			if *ikePolicyItem.Name == name {
-				ikePolicy = &ikePolicyItem
-				ike_policy_found = true
+			switch policy := ikePolicyItem.(type) {
+			case *vpcv1.IkePolicySingularCipherMode:
+				if *policy.Name == name {
+					ikePolicyIntf = policy
+					ike_policy_found = true
+					break
+				}
+
+			case *vpcv1.IkePolicySuiteCipherMode:
+				if *policy.Name == name {
+					ikePolicyIntf = policy
+					ike_policy_found = true
+					break
+				}
+
+			case *vpcv1.IkePolicy:
+				if *policy.Name == name {
+					ikePolicyIntf = policy
+					ike_policy_found = true
+					break
+				}
+			}
+
+			if ike_policy_found {
 				break
 			}
 		}
+
 		if !ike_policy_found {
 			err = fmt.Errorf("No ike policy found with given name %s", name)
 			tfErr := flex.TerraformErrorf(err, err.Error(), "(Data) ibm_is_ike_policy", "read")
@@ -206,53 +254,211 @@ func dataSourceIBMIsIkePolicyRead(context context.Context, d *schema.ResourceDat
 			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
 			return tfErr.GetDiag()
 		}
-		ikePolicy = ikePolicy1
+		ikePolicyIntf = ikePolicy1
 	}
 
-	d.SetId(*ikePolicy.ID)
-	if err = d.Set("authentication_algorithm", ikePolicy.AuthenticationAlgorithm); err != nil {
-		return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting authentication_algorithm: %s", err), "(Data) ibm_is_ike_policy", "read", "set-authentication_algorithm").GetDiag()
-	}
-	if ikePolicy.Connections != nil {
-		err = d.Set("connections", dataSourceIkePolicyFlattenConnections(ikePolicy.Connections))
-		if err != nil {
-			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_ike_policy", "read", "connections-to-map").GetDiag()
+	switch ikePolicy := ikePolicyIntf.(type) {
+	case *vpcv1.IkePolicySingularCipherMode:
+		d.SetId(*ikePolicy.ID)
+		if err = d.Set("cipher_mode", ikePolicy.CipherMode); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting cipher_mode: %s", err), "(Data) ibm_is_ike_policy", "read", "set-cipher_mode").GetDiag()
 		}
-	}
-	if err = d.Set("created_at", flex.DateTimeToString(ikePolicy.CreatedAt)); err != nil {
-		return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting created_at: %s", err), "(Data) ibm_is_ike_policy", "read", "set-created_at").GetDiag()
-	}
-	if err = d.Set("dh_group", flex.IntValue(ikePolicy.DhGroup)); err != nil {
-		return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting dh_group: %s", err), "(Data) ibm_is_ike_policy", "read", "set-dh_group").GetDiag()
-	}
-	if err = d.Set("encryption_algorithm", ikePolicy.EncryptionAlgorithm); err != nil {
-		return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting encryption_algorithm: %s", err), "(Data) ibm_is_ike_policy", "read", "set-encryption_algorithm").GetDiag()
-	}
-	if err = d.Set("href", ikePolicy.Href); err != nil {
-		return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting href: %s", err), "(Data) ibm_is_ike_policy", "read", "set-href").GetDiag()
-	}
-	if err = d.Set("ike_version", flex.IntValue(ikePolicy.IkeVersion)); err != nil {
-		return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting ike_version: %s", err), "(Data) ibm_is_ike_policy", "read", "set-ike_version").GetDiag()
-	}
-	if err = d.Set("key_lifetime", flex.IntValue(ikePolicy.KeyLifetime)); err != nil {
-		return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting key_lifetime: %s", err), "(Data) ibm_is_ike_policy", "read", "set-key_lifetime").GetDiag()
-	}
-
-	if err = d.Set("name", ikePolicy.Name); err != nil {
-		return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting name: %s", err), "(Data) ibm_is_ike_policy", "read", "set-name").GetDiag()
-	}
-	if err = d.Set("negotiation_mode", ikePolicy.NegotiationMode); err != nil {
-		return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting negotiation_mode: %s", err), "(Data) ibm_is_ike_policy", "read", "set-negotiation_mode").GetDiag()
-	}
-
-	if ikePolicy.ResourceGroup != nil {
-		err = d.Set("resource_group", dataSourceIkePolicyFlattenResourceGroup(*ikePolicy.ResourceGroup))
-		if err != nil {
-			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting resource_group: %s", err), "(Data) ibm_is_ike_policy", "read", "set-resource_group").GetDiag()
+		if err = d.Set("authentication_algorithm", ikePolicy.AuthenticationAlgorithm); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting authentication_algorithm: %s", err), "(Data) ibm_is_ike_policy", "read", "set-authentication_algorithm").GetDiag()
 		}
-	}
-	if err = d.Set("resource_type", ikePolicy.ResourceType); err != nil {
-		return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting resource_type: %s", err), "(Data) ibm_is_ike_policy", "read", "set-resource_type").GetDiag()
+		if ikePolicy.Connections != nil {
+			err = d.Set("connections", dataSourceIkePolicyFlattenConnections(ikePolicy.Connections))
+			if err != nil {
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_ike_policy", "read", "connections-to-map").GetDiag()
+			}
+		}
+
+		if err = d.Set("created_at", flex.DateTimeToString(ikePolicy.CreatedAt)); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting created_at: %s", err), "(Data) ibm_is_ike_policy", "read", "set-created_at").GetDiag()
+		}
+		if err = d.Set("dh_group", flex.IntValue(ikePolicy.DhGroup)); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting dh_group: %s", err), "(Data) ibm_is_ike_policy", "read", "set-dh_group").GetDiag()
+		}
+		if err = d.Set("encryption_algorithm", ikePolicy.EncryptionAlgorithm); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting encryption_algorithm: %s", err), "(Data) ibm_is_ike_policy", "read", "set-encryption_algorithm").GetDiag()
+		}
+		if err = d.Set("href", ikePolicy.Href); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting href: %s", err), "(Data) ibm_is_ike_policy", "read", "set-href").GetDiag()
+		}
+		if err = d.Set("ike_version", flex.IntValue(ikePolicy.IkeVersion)); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting ike_version: %s", err), "(Data) ibm_is_ike_policy", "read", "set-ike_version").GetDiag()
+		}
+		if err = d.Set("key_lifetime", flex.IntValue(ikePolicy.KeyLifetime)); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting key_lifetime: %s", err), "(Data) ibm_is_ike_policy", "read", "set-key_lifetime").GetDiag()
+		}
+
+		if err = d.Set("name", ikePolicy.Name); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting name: %s", err), "(Data) ibm_is_ike_policy", "read", "set-name").GetDiag()
+		}
+		if err = d.Set("negotiation_mode", ikePolicy.NegotiationMode); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting negotiation_mode: %s", err), "(Data) ibm_is_ike_policy", "read", "set-negotiation_mode").GetDiag()
+		}
+
+		if ikePolicy.ResourceGroup != nil {
+			err = d.Set("resource_group", dataSourceIkePolicyFlattenResourceGroup(*ikePolicy.ResourceGroup))
+			if err != nil {
+				return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting resource_group: %s", err), "(Data) ibm_is_ike_policy", "read", "set-resource_group").GetDiag()
+			}
+		}
+		if err = d.Set("resource_type", ikePolicy.ResourceType); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting resource_type: %s", err), "(Data) ibm_is_ike_policy", "read", "set-resource_type").GetDiag()
+		}
+
+	case *vpcv1.IkePolicySuiteCipherMode:
+		d.SetId(*ikePolicy.ID)
+		if err = d.Set("cipher_mode", ikePolicy.CipherMode); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting cipher_mode: %s", err), "(Data) ibm_is_ike_policy", "read", "set-cipher_mode").GetDiag()
+		}
+		if ikePolicy.Connections != nil {
+			err = d.Set("connections", dataSourceIkePolicyFlattenConnections(ikePolicy.Connections))
+			if err != nil {
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_ike_policy", "read", "connections-to-map").GetDiag()
+			}
+		}
+		if err = d.Set("created_at", flex.DateTimeToString(ikePolicy.CreatedAt)); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting created_at: %s", err), "(Data) ibm_is_ike_policy", "read", "set-created_at").GetDiag()
+		}
+		if err = d.Set("href", ikePolicy.Href); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting href: %s", err), "(Data) ibm_is_ike_policy", "read", "set-href").GetDiag()
+		}
+		if err = d.Set("ike_version", flex.IntValue(ikePolicy.IkeVersion)); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting ike_version: %s", err), "(Data) ibm_is_ike_policy", "read", "set-ike_version").GetDiag()
+		}
+		if err = d.Set("key_lifetime", flex.IntValue(ikePolicy.KeyLifetime)); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting key_lifetime: %s", err), "(Data) ibm_is_ike_policy", "read", "set-key_lifetime").GetDiag()
+		}
+
+		if err = d.Set("name", ikePolicy.Name); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting name: %s", err), "(Data) ibm_is_ike_policy", "read", "set-name").GetDiag()
+		}
+		if err = d.Set("negotiation_mode", ikePolicy.NegotiationMode); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting negotiation_mode: %s", err), "(Data) ibm_is_ike_policy", "read", "set-negotiation_mode").GetDiag()
+		}
+
+		if ikePolicy.ResourceGroup != nil {
+			err = d.Set("resource_group", dataSourceIkePolicyFlattenResourceGroup(*ikePolicy.ResourceGroup))
+			if err != nil {
+				return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting resource_group: %s", err), "(Data) ibm_is_ike_policy", "read", "set-resource_group").GetDiag()
+			}
+		}
+		if err = d.Set("resource_type", ikePolicy.ResourceType); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting resource_type: %s", err), "(Data) ibm_is_ike_policy", "read", "set-resource_type").GetDiag()
+		}
+
+		if !core.IsNil(ikePolicy.AuthenticationAlgorithms) {
+			authenticationAlgorithms := []interface{}{}
+			for _, authenticationAlgorithmsItem := range ikePolicy.AuthenticationAlgorithms {
+				authenticationAlgorithms = append(authenticationAlgorithms, authenticationAlgorithmsItem)
+			}
+			if err = d.Set("authentication_algorithms", authenticationAlgorithms); err != nil {
+				return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting authentication_algorithms: %s", err), "(Data) ibm_is_ike_policy", "read", "set-authentication_algorithms").GetDiag()
+			}
+		}
+
+		if !core.IsNil(ikePolicy.DhGroups) {
+			dhGroups := []interface{}{}
+			for _, dhGroupsItem := range ikePolicy.DhGroups {
+				dhGroups = append(dhGroups, int64(dhGroupsItem))
+			}
+			if err = d.Set("dh_groups", dhGroups); err != nil {
+				return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting dh_groups: %s", err), "(Data) ibm_is_ike_policy", "read", "set-dh_groups").GetDiag()
+			}
+		}
+
+		if !core.IsNil(ikePolicy.EncryptionAlgorithms) {
+			encryptionAlgorithms := []interface{}{}
+			for _, encryptionAlgorithmsItem := range ikePolicy.EncryptionAlgorithms {
+				encryptionAlgorithms = append(encryptionAlgorithms, encryptionAlgorithmsItem)
+			}
+			if err = d.Set("encryption_algorithms", encryptionAlgorithms); err != nil {
+				return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting encryption_algorithms: %s", err), "(Data) ibm_is_ike_policy", "read", "set-encryption_algorithms").GetDiag()
+			}
+		}
+
+	case *vpcv1.IkePolicy:
+		d.SetId(*ikePolicy.ID)
+		if err = d.Set("cipher_mode", ikePolicy.CipherMode); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting cipher_mode: %s", err), "(Data) ibm_is_ike_policy", "read", "set-cipher_mode").GetDiag()
+		}
+		if err = d.Set("authentication_algorithm", ikePolicy.AuthenticationAlgorithm); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting authentication_algorithm: %s", err), "(Data) ibm_is_ike_policy", "read", "set-authentication_algorithm").GetDiag()
+		}
+		if ikePolicy.Connections != nil {
+			err = d.Set("connections", dataSourceIkePolicyFlattenConnections(ikePolicy.Connections))
+			if err != nil {
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_ike_policy", "read", "connections-to-map").GetDiag()
+			}
+		}
+		if err = d.Set("created_at", flex.DateTimeToString(ikePolicy.CreatedAt)); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting created_at: %s", err), "(Data) ibm_is_ike_policy", "read", "set-created_at").GetDiag()
+		}
+		if err = d.Set("dh_group", flex.IntValue(ikePolicy.DhGroup)); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting dh_group: %s", err), "(Data) ibm_is_ike_policy", "read", "set-dh_group").GetDiag()
+		}
+		if err = d.Set("encryption_algorithm", ikePolicy.EncryptionAlgorithm); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting encryption_algorithm: %s", err), "(Data) ibm_is_ike_policy", "read", "set-encryption_algorithm").GetDiag()
+		}
+		if err = d.Set("href", ikePolicy.Href); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting href: %s", err), "(Data) ibm_is_ike_policy", "read", "set-href").GetDiag()
+		}
+		if err = d.Set("ike_version", flex.IntValue(ikePolicy.IkeVersion)); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting ike_version: %s", err), "(Data) ibm_is_ike_policy", "read", "set-ike_version").GetDiag()
+		}
+		if err = d.Set("key_lifetime", flex.IntValue(ikePolicy.KeyLifetime)); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting key_lifetime: %s", err), "(Data) ibm_is_ike_policy", "read", "set-key_lifetime").GetDiag()
+		}
+
+		if err = d.Set("name", ikePolicy.Name); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting name: %s", err), "(Data) ibm_is_ike_policy", "read", "set-name").GetDiag()
+		}
+		if err = d.Set("negotiation_mode", ikePolicy.NegotiationMode); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting negotiation_mode: %s", err), "(Data) ibm_is_ike_policy", "read", "set-negotiation_mode").GetDiag()
+		}
+
+		if ikePolicy.ResourceGroup != nil {
+			err = d.Set("resource_group", dataSourceIkePolicyFlattenResourceGroup(*ikePolicy.ResourceGroup))
+			if err != nil {
+				return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting resource_group: %s", err), "(Data) ibm_is_ike_policy", "read", "set-resource_group").GetDiag()
+			}
+		}
+		if err = d.Set("resource_type", ikePolicy.ResourceType); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting resource_type: %s", err), "(Data) ibm_is_ike_policy", "read", "set-resource_type").GetDiag()
+		}
+
+		if !core.IsNil(ikePolicy.AuthenticationAlgorithms) {
+			authenticationAlgorithms := []interface{}{}
+			for _, authenticationAlgorithmsItem := range ikePolicy.AuthenticationAlgorithms {
+				authenticationAlgorithms = append(authenticationAlgorithms, authenticationAlgorithmsItem)
+			}
+			if err = d.Set("authentication_algorithms", authenticationAlgorithms); err != nil {
+				return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting authentication_algorithms: %s", err), "(Data) ibm_is_ike_policy", "read", "set-authentication_algorithms").GetDiag()
+			}
+		}
+
+		if !core.IsNil(ikePolicy.DhGroups) {
+			dhGroups := []interface{}{}
+			for _, dhGroupsItem := range ikePolicy.DhGroups {
+				dhGroups = append(dhGroups, int64(dhGroupsItem))
+			}
+			if err = d.Set("dh_groups", dhGroups); err != nil {
+				return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting dh_groups: %s", err), "(Data) ibm_is_ike_policy", "read", "set-dh_groups").GetDiag()
+			}
+		}
+
+		if !core.IsNil(ikePolicy.EncryptionAlgorithms) {
+			encryptionAlgorithms := []interface{}{}
+			for _, encryptionAlgorithmsItem := range ikePolicy.EncryptionAlgorithms {
+				encryptionAlgorithms = append(encryptionAlgorithms, encryptionAlgorithmsItem)
+			}
+			if err = d.Set("encryption_algorithms", encryptionAlgorithms); err != nil {
+				return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting encryption_algorithms: %s", err), "(Data) ibm_is_ike_policy", "read", "set-encryption_algorithms").GetDiag()
+			}
+		}
 	}
 
 	return nil
