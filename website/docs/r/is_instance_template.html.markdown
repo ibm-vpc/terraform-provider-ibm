@@ -289,7 +289,14 @@ resource "ibm_is_instance_template" "instancetemplate1" {
 ```
 
 ## Argument reference
-Review the argument references that you can specify for your resource. 
+Review the argument references that you can specify for your resource.
+- `availability` - (Optional, List) The availability for this virtual server instance.
+  Nested schema for **availability**:
+	- `class` - (Required, String) The availability class for the virtual server instance.- `spot`: The virtual server instance may be preempted.- `standard`: The virtual server instance will not be preempted.See [virtual server instance availability class](https://cloud.ibm.com/docs/vpc?topic=__TBD__) for details.The enumerated values for this property may[expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future. Allowable values are: `spot`, `standard`.
+- `availability_policy` - (Optional, List) The availability policy for this virtual server instance.
+  Nested schema for **availability_policy**:
+	- `host_failure` - (Required, String) The action to perform if the compute host experiences a failure:- `restart`: Restart the virtual server instance- `stop`: Leave the virtual server instance stoppedSee [handling host failures](https://cloud.ibm.com/docs/vpc?topic=vpc-host-failure-recovery-policies) for details.The enumerated values for this property may[expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future. Allowable values are: `restart`, `stop`.
+	- `preemption` - (Required, String) The action to perform if the virtual server instance is preempted:- `delete`: Delete the virtual server instance- `stop`: Leave the virtual server instance stoppedSee [virtual server instance preemption](https://cloud.ibm.com/docs/vpc?topic=__TBD__) for details.The enumerated values for this property may[expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future. Allowable values are: `delete`, `stop`.
 - `availability_policy_host_failure` - (Optional, String) The availability policy to use for this virtual server instance. The action to perform if the compute host experiences a failure. Supported values are `restart` and `stop`.
 
 - `boot_volume` - (Optional, List) A nested block describes the boot volume configuration for the template.
