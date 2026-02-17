@@ -176,7 +176,6 @@ func ResourceIBMISNetworkACLRule() *schema.Resource {
 				MaxItems:      1,
 				Optional:      true,
 				ConflictsWith: []string{isNetworkACLRuleTCP, isNetworkACLRuleUDP, isNetworkACLRuleProtocol},
-				ForceNew:      true,
 				Deprecated:    "icmp is deprecated, use 'protocol', 'code', and 'type' instead.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -202,7 +201,6 @@ func ResourceIBMISNetworkACLRule() *schema.Resource {
 				MaxItems:      1,
 				Optional:      true,
 				ConflictsWith: []string{isNetworkACLRuleICMP, isNetworkACLRuleUDP, isNetworkACLRuleProtocol},
-				ForceNew:      true,
 				Deprecated:    "tcp is deprecated, use 'protocol', 'port_min', 'port_max', 'source_port_min', and 'source_port_max' instead.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -244,7 +242,6 @@ func ResourceIBMISNetworkACLRule() *schema.Resource {
 				MaxItems:      1,
 				Optional:      true,
 				ConflictsWith: []string{isNetworkACLRuleICMP, isNetworkACLRuleTCP, isNetworkACLRuleProtocol},
-				ForceNew:      true,
 				Deprecated:    "udp is deprecated, use 'protocol', 'port_min', 'port_max', 'source_port_min', and 'source_port_max' instead.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
