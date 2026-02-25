@@ -212,6 +212,7 @@ func ResourceIBMISVPNGatewayConnection() *schema.Resource {
 			isVPNGatewayConnectionPreSharedKey: {
 				Type:        schema.TypeString,
 				Required:    true,
+				Sensitive:   true,
 				Description: "vpn gateway",
 			},
 
