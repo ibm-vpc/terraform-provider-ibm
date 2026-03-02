@@ -31,13 +31,11 @@ data "ibm_is_images" "ds_images" {
   visibility = "public"
 }
 
-```terraform
 data "ibm_is_image" "example" {
   remote_account_id = "provider"
 }
 ```
 
-```
 ## Argument reference
 
 Review the argument references that you can specify for your data source. 
@@ -138,6 +136,9 @@ You can access the following attribute references after your data source is crea
            - `id` – (Computed, String) The unique identifier for this account.  
            - `resource_type` – (Computed, String) The resource type.
 
-
+  - `zones` - (List) The zones in which this image is available for use.If the image has a status of `available` or `deprecated`, this will include all zones in the region.If the image has a status of `partially_available`, this will include one or more zones in the region. If the image has a status of `failed`, `obsolete`, `pending`, or `unusable`, this will be empty.
+      Nested schema for **zones**:
+      - `href` - (String) The URL for this zone.
+      - `name` - (String) The globally unique name for this zone.
 
 
