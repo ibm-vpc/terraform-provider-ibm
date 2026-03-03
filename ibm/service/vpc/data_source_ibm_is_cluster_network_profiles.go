@@ -78,15 +78,18 @@ func DataSourceIBMIsClusterNetworkProfiles() *schema.Resource {
 							Description: "The services providing address configuration for the cluster network profile. Possible values: dhcp, is, is_metadata.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
-									"values": &schema.Schema{
-										Type:        schema.TypeList,
-										Computed:    true,
-										Description: "The permitted values for this profile field",
-									},
 									"type": &schema.Schema{
 										Type:        schema.TypeString,
 										Computed:    true,
 										Description: "The type for this profile field",
+									},
+									"values": {
+										Type:        schema.TypeList,
+										Computed:    true,
+										Description: "The permitted values for this profile field",
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
 									},
 								},
 							},
