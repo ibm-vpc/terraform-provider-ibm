@@ -1653,14 +1653,15 @@ func ResourceIBMISInstance() *schema.Resource {
 			},
 
 			isInstanceImage: {
-				Type:          schema.TypeString,
-				ForceNew:      true,
-				Computed:      true,
-				Optional:      true,
-				ConflictsWith: []string{"boot_volume.0.snapshot", "boot_volume.0.snapshot_crn", "catalog_offering.0.offering_crn", "catalog_offering.0.version_crn", "boot_volume.0.volume_id"},
-				AtLeastOneOf:  []string{isInstanceImage, isInstanceSourceTemplate, "boot_volume.0.snapshot", "boot_volume.0.snapshot_crn", "catalog_offering.0.offering_crn", "catalog_offering.0.version_crn", "boot_volume.0.volume_id"},
-				RequiredWith:  []string{isInstanceZone, isInstanceVPC, isInstanceProfile},
-				Description:   "image id",
+				Type:             schema.TypeString,
+				ForceNew:         true,
+				Computed:         true,
+				Optional:         true,
+				DiffSuppressFunc: suppressBootVolumeReinitializeDiff,
+				ConflictsWith:    []string{"boot_volume.0.snapshot", "boot_volume.0.snapshot_crn", "catalog_offering.0.offering_crn", "catalog_offering.0.version_crn", "boot_volume.0.volume_id"},
+				AtLeastOneOf:     []string{isInstanceImage, isInstanceSourceTemplate, "boot_volume.0.snapshot", "boot_volume.0.snapshot_crn", "catalog_offering.0.offering_crn", "catalog_offering.0.version_crn", "boot_volume.0.volume_id"},
+				RequiredWith:     []string{isInstanceZone, isInstanceVPC, isInstanceProfile},
+				Description:      "image id",
 			},
 
 			isInstanceBootVolume: {
@@ -1670,15 +1671,22 @@ func ResourceIBMISInstance() *schema.Resource {
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"reinitialize": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Default:     false,
+							Description: "Set to true to support initialization",
+						},
 						isInstanceBootVolumeId: {
-							Type:          schema.TypeString,
-							Optional:      true,
-							ForceNew:      true,
-							Computed:      true,
-							RequiredWith:  []string{isInstanceZone, isInstanceProfile, isInstanceVPC},
-							AtLeastOneOf:  []string{isInstanceImage, isInstanceSourceTemplate, "boot_volume.0.volume_id", "boot_volume.0.snapshot", "boot_volume.0.snapshot_crn", "catalog_offering.0.offering_crn", "catalog_offering.0.version_crn"},
-							ConflictsWith: []string{isInstanceImage, isInstanceSourceTemplate, "boot_volume.0.snapshot", "boot_volume.0.snapshot_crn", "boot_volume.0.name", "boot_volume.0.encryption", "catalog_offering.0.offering_crn", "catalog_offering.0.version_crn"},
-							Description:   "The unique identifier for this volume",
+							Type:             schema.TypeString,
+							Optional:         true,
+							ForceNew:         true,
+							Computed:         true,
+							DiffSuppressFunc: suppressBootVolumeReinitializeDiff,
+							RequiredWith:     []string{isInstanceZone, isInstanceProfile, isInstanceVPC},
+							AtLeastOneOf:     []string{isInstanceImage, isInstanceSourceTemplate, "boot_volume.0.volume_id", "boot_volume.0.snapshot", "boot_volume.0.snapshot_crn", "catalog_offering.0.offering_crn", "catalog_offering.0.version_crn"},
+							ConflictsWith:    []string{isInstanceImage, isInstanceSourceTemplate, "boot_volume.0.snapshot", "boot_volume.0.snapshot_crn", "boot_volume.0.name", "boot_volume.0.encryption", "catalog_offering.0.offering_crn", "catalog_offering.0.version_crn"},
+							Description:      "The unique identifier for this volume",
 						},
 						"allowed_use": &schema.Schema{
 							Type:        schema.TypeList,
@@ -1732,22 +1740,24 @@ func ResourceIBMISInstance() *schema.Resource {
 						},
 
 						isInstanceVolumeSnapshot: {
-							Type:          schema.TypeString,
-							RequiredWith:  []string{isInstanceZone, isInstanceProfile, isInstanceVPC},
-							AtLeastOneOf:  []string{isInstanceImage, isInstanceSourceTemplate, "boot_volume.0.snapshot", "boot_volume.0.snapshot_crn", "catalog_offering.0.offering_crn", "catalog_offering.0.version_crn", "boot_volume.0.volume_id"},
-							ConflictsWith: []string{isInstanceImage, isInstanceSourceTemplate, "catalog_offering.0.offering_crn", "catalog_offering.0.version_crn", "boot_volume.0.volume_id", "boot_volume.0.snapshot_crn"},
-							Optional:      true,
-							ForceNew:      true,
-							Computed:      true,
+							Type:             schema.TypeString,
+							RequiredWith:     []string{isInstanceZone, isInstanceProfile, isInstanceVPC},
+							AtLeastOneOf:     []string{isInstanceImage, isInstanceSourceTemplate, "boot_volume.0.snapshot", "boot_volume.0.snapshot_crn", "catalog_offering.0.offering_crn", "catalog_offering.0.version_crn", "boot_volume.0.volume_id"},
+							ConflictsWith:    []string{isInstanceImage, isInstanceSourceTemplate, "catalog_offering.0.offering_crn", "catalog_offering.0.version_crn", "boot_volume.0.volume_id", "boot_volume.0.snapshot_crn"},
+							Optional:         true,
+							DiffSuppressFunc: suppressBootVolumeReinitializeDiff,
+							ForceNew:         true,
+							Computed:         true,
 						},
 						isInstanceVolumeSnapshotCrn: {
-							Type:          schema.TypeString,
-							RequiredWith:  []string{isInstanceZone, isInstanceProfile, isInstanceVPC},
-							AtLeastOneOf:  []string{isInstanceImage, isInstanceSourceTemplate, "boot_volume.0.snapshot", "boot_volume.0.snapshot_crn", "catalog_offering.0.offering_crn", "catalog_offering.0.version_crn", "boot_volume.0.volume_id"},
-							ConflictsWith: []string{isInstanceImage, isInstanceSourceTemplate, "catalog_offering.0.offering_crn", "catalog_offering.0.version_crn", "boot_volume.0.volume_id", "boot_volume.0.snapshot"},
-							Optional:      true,
-							ForceNew:      true,
-							Computed:      true,
+							Type:             schema.TypeString,
+							RequiredWith:     []string{isInstanceZone, isInstanceProfile, isInstanceVPC},
+							AtLeastOneOf:     []string{isInstanceImage, isInstanceSourceTemplate, "boot_volume.0.snapshot", "boot_volume.0.snapshot_crn", "catalog_offering.0.offering_crn", "catalog_offering.0.version_crn", "boot_volume.0.volume_id"},
+							ConflictsWith:    []string{isInstanceImage, isInstanceSourceTemplate, "catalog_offering.0.offering_crn", "catalog_offering.0.version_crn", "boot_volume.0.volume_id", "boot_volume.0.snapshot"},
+							DiffSuppressFunc: suppressBootVolumeReinitializeDiff,
+							Optional:         true,
+							ForceNew:         true,
+							Computed:         true,
 						},
 						isInstanceBootEncryption: {
 							Type:             schema.TypeString,
@@ -9823,4 +9833,15 @@ func ResourceIBMIsInstanceMapToInstanceVcpuPrototype(modelMap map[string]interfa
 		model.Percentage = core.Int64Ptr(int64(modelMap["percentage"].(int)))
 	}
 	return model, nil
+}
+
+// suppressBootVolumeReinitializeDiff suppresses diff for attributes when boot_volume.0.reinitialize is true
+// This is used to prevent Terraform from detecting changes in boot volume attributes
+// when the instance is being reinitialized, as those changes are expected and intentional
+func suppressBootVolumeReinitializeDiff(k, old, new string, d *schema.ResourceData) bool {
+	// Check if boot_volume.0.reinitialize exists and is set to true
+	if v, ok := d.GetOk("boot_volume.0.reinitialize"); ok && v.(bool) {
+		return true
+	}
+	return false
 }
