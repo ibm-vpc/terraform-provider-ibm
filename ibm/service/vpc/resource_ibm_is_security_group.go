@@ -688,6 +688,10 @@ func resourceIBMISSecurityGroupDelete(context context.Context, d *schema.Resourc
 								log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
 								return tfErr.GetDiag()
 							}
+							_, err := isWaitForSecurityGroupTargetDeleteRetry(sess, deleteSecurityGroupTargetBindingOptions, d.Timeout(schema.TimeoutDelete))
+							if err != nil {
+								return err
+							}
 						}
 					} else {
 						tfErr := flex.TerraformErrorf(err, fmt.Sprintf("DeleteSecurityGroupTargetBindingWithContext failed: %s", err.Error()), "ibm_is_security_group", "delete")
@@ -722,6 +726,10 @@ func resourceIBMISSecurityGroupDelete(context context.Context, d *schema.Resourc
 					tfErr := flex.TerraformErrorf(err, fmt.Sprintf("isWaitForSecurityGroupDeleteRetry failed: %s", err.Error()), "ibm_is_security_group", "delete")
 					log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
 					return tfErr.GetDiag()
+				}
+				_, err := isWaitForSecurityGroupDeleteRetry(sess, deleteSecurityGroupOptions, d.Timeout(schema.TimeoutDelete))
+				if err != nil {
+					return err
 				}
 			}
 		} else {
