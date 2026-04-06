@@ -142,12 +142,6 @@ resource "ibm_is_lb_pool" "route_mode_example" {
 For route mode network load balancers supporting asymmetric routing, use the `weighted_forwarding` algorithm to distribute traffic based on member weights:
 
 ```terraform
-resource "ibm_is_lb" "route_mode_nlb" {
-  name       = "route-mode-nlb"
-  subnets    = [ibm_is_subnet.example.id]
-  profile    = "network-fixed"
-  route_mode = true
-}
 
 resource "ibm_is_lb_pool" "weighted_forwarding_example" {
   name           = "weighted-forwarding-pool"
@@ -160,21 +154,6 @@ resource "ibm_is_lb_pool" "weighted_forwarding_example" {
   health_type    = "tcp"
 }
 
-resource "ibm_is_lb_pool_member" "member1" {
-  pool   = ibm_is_lb_pool.weighted_forwarding_example.pool_id
-  lb     = ibm_is_lb.route_mode_nlb.id
-  port   = 80
-  target_address = "192.168.3.4"
-  weight = 70
-}
-
-resource "ibm_is_lb_pool_member" "member2" {
-  pool   = ibm_is_lb_pool.weighted_forwarding_example.pool_id
-  lb     = ibm_is_lb.route_mode_nlb.id
-  port   = 80
-  target_address = "192.168.3.5"
-  weight = 30
-}
 ```
 
 ### Load balancer pool with failsafe policy

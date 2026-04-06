@@ -18,6 +18,7 @@ func TestAccIBMIsLbPoolsDataSourceBasic(t *testing.T) {
 	name := fmt.Sprintf("tfcreate%d", acctest.RandIntRange(10, 100))
 	poolName := fmt.Sprintf("tflbpoolc%d", acctest.RandIntRange(10, 100))
 	alg1 := "round_robin"
+	alg2 := "weighted_forwarding"
 	protocol1 := "http"
 	delay1 := "45"
 	retries1 := "5"
@@ -30,6 +31,13 @@ func TestAccIBMIsLbPoolsDataSourceBasic(t *testing.T) {
 		Steps: []resource.TestStep{
 			resource.TestStep{
 				Config: testAccCheckIBMIsLbPoolsDataSourceConfigBasic(vpcname, subnetname, acc.ISZoneName, acc.ISCIDR, name, poolName, alg1, protocol1, delay1, retries1, timeout1, healthType1),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet("data.ibm_is_lb_pools.is_lb_pools", "lb"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_lb_pools.is_lb_pools", "pools.#"),
+				),
+			},
+			{
+				Config: testAccCheckIBMIsLbPoolsDataSourceConfigBasic(vpcname, subnetname, acc.ISZoneName, acc.ISCIDR, name, poolName, alg2, protocol1, delay1, retries1, timeout1, healthType1),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet("data.ibm_is_lb_pools.is_lb_pools", "lb"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_lb_pools.is_lb_pools", "pools.#"),

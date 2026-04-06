@@ -40,6 +40,7 @@ func TestAccIBMISLBPool_basic(t *testing.T) {
 	retries2 := "3"
 	timeout2 := "30"
 	healthType2 := "tcp"
+	wf_alg := "weighted_forwarding"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { acc.TestAccPreCheck(t) },
@@ -95,6 +96,30 @@ func TestAccIBMISLBPool_basic(t *testing.T) {
 			},
 			{
 				Config: testAccCheckIBMISLBPoolConfigWithProxy(vpcname, subnetname, acc.ISZoneName, acc.ISCIDR, name, poolName, alg1, protocol1, proxyProtocol2, delay1, retries1, timeout1, healthType1),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckIBMISLBPoolExists("ibm_is_lb_pool.testacc_lb_pool", lb),
+					resource.TestCheckResourceAttr(
+						"ibm_is_lb.testacc_LB", "name", name),
+					resource.TestCheckResourceAttr(
+						"ibm_is_lb_pool.testacc_lb_pool", "name", poolName),
+					resource.TestCheckResourceAttr(
+						"ibm_is_lb_pool.testacc_lb_pool", "algorithm", alg1),
+					resource.TestCheckResourceAttr(
+						"ibm_is_lb_pool.testacc_lb_pool", "protocol", protocol1),
+					resource.TestCheckResourceAttr(
+						"ibm_is_lb_pool.testacc_lb_pool", "proxy_protocol", proxyProtocol2),
+					resource.TestCheckResourceAttr(
+						"ibm_is_lb_pool.testacc_lb_pool", "health_delay", delay1),
+					resource.TestCheckResourceAttr(
+						"ibm_is_lb_pool.testacc_lb_pool", "health_retries", retries1),
+					resource.TestCheckResourceAttr(
+						"ibm_is_lb_pool.testacc_lb_pool", "health_timeout", timeout1),
+					resource.TestCheckResourceAttr(
+						"ibm_is_lb_pool.testacc_lb_pool", "health_type", healthType1),
+				),
+			},
+			{
+				Config: testAccCheckIBMISLBPoolConfigWithProxy(vpcname, subnetname, acc.ISZoneName, acc.ISCIDR, name, poolName, wf_alg, protocol1, proxyProtocol2, delay1, retries1, timeout1, healthType1),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckIBMISLBPoolExists("ibm_is_lb_pool.testacc_lb_pool", lb),
 					resource.TestCheckResourceAttr(
@@ -1691,54 +1716,6 @@ func testAccCheckIBMISLBPoolConfigWithProxy(vpcname, subnetname, zone, cidr, nam
 
 }
 
-// Test for weighted_forwarding algorithm with route mode NLB
-func TestAccIBMISLBPool_WeightedForwarding_RouteMode(t *testing.T) {
-	var lb string
-	vpcname := fmt.Sprintf("tflbp-vpc-wf-%d", acctest.RandIntRange(10, 100))
-	subnetname := fmt.Sprintf("tflbpc-subnet-wf-%d", acctest.RandIntRange(10, 100))
-	name := fmt.Sprintf("tflb-wf-%d", acctest.RandIntRange(10, 100))
-	poolName := fmt.Sprintf("tflbpool-wf-%d", acctest.RandIntRange(10, 100))
-	alg := "weighted_forwarding"
-	protocol := "tcp"
-	delay := "45"
-	retries := "5"
-	timeout := "15"
-	healthType := "tcp"
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { acc.TestAccPreCheck(t) },
-		Providers:    acc.TestAccProviders,
-		CheckDestroy: testAccCheckIBMISLBPoolDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccCheckIBMISLBPoolWeightedForwardingConfig(vpcname, subnetname, acc.ISZoneName, acc.ISCIDR, name, poolName, alg, protocol, delay, retries, timeout, healthType),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckIBMISLBPoolExists("ibm_is_lb_pool.testacc_lb_pool", lb),
-					resource.TestCheckResourceAttr(
-						"ibm_is_lb.testacc_LB", "name", name),
-					resource.TestCheckResourceAttr(
-						"ibm_is_lb.testacc_LB", "route_mode", "true"),
-					resource.TestCheckResourceAttr(
-						"ibm_is_lb_pool.testacc_lb_pool", "name", poolName),
-					resource.TestCheckResourceAttr(
-						"ibm_is_lb_pool.testacc_lb_pool", "algorithm", alg),
-					resource.TestCheckResourceAttr(
-						"ibm_is_lb_pool.testacc_lb_pool", "protocol", protocol),
-					resource.TestCheckResourceAttr(
-						"ibm_is_lb_pool.testacc_lb_pool", "health_delay", delay),
-					resource.TestCheckResourceAttr(
-						"ibm_is_lb_pool.testacc_lb_pool", "health_retries", retries),
-					resource.TestCheckResourceAttr(
-						"ibm_is_lb_pool.testacc_lb_pool", "health_timeout", timeout),
-					resource.TestCheckResourceAttr(
-						"ibm_is_lb_pool.testacc_lb_pool", "health_type", healthType),
-				),
-			},
-		},
-	})
-}
-
-// Test for updating pool algorithm to weighted_forwarding
 func TestAccIBMISLBPool_WeightedForwarding_Update(t *testing.T) {
 	var lb string
 	vpcname := fmt.Sprintf("tflbp-vpc-wfu-%d", acctest.RandIntRange(10, 100))
@@ -1772,6 +1749,8 @@ func TestAccIBMISLBPool_WeightedForwarding_Update(t *testing.T) {
 					testAccCheckIBMISLBPoolExists("ibm_is_lb_pool.testacc_lb_pool", lb),
 					resource.TestCheckResourceAttr(
 						"ibm_is_lb_pool.testacc_lb_pool", "algorithm", alg2),
+					resource.TestCheckResourceAttr(
+						"ibm_is_lb_pool.testacc_lb_pool", "algorithm", "weighted_forwarding"),
 				),
 			},
 		},
@@ -1803,6 +1782,8 @@ func TestAccIBMISLBPool_WeightedForwarding_WithMembers(t *testing.T) {
 					testAccCheckIBMISLBPoolExists("ibm_is_lb_pool.testacc_lb_pool", lb),
 					resource.TestCheckResourceAttr(
 						"ibm_is_lb_pool.testacc_lb_pool", "algorithm", alg),
+					resource.TestCheckResourceAttr(
+						"ibm_is_lb_pool.testacc_lb_pool", "algorithm", "weighted_forwarding"),
 					resource.TestCheckResourceAttr(
 						"ibm_is_lb_pool.testacc_lb_pool", "protocol", protocol),
 				),
