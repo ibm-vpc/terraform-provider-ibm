@@ -363,6 +363,60 @@ func TestAccIBMISLBListenerHttpRedirectNew_basic(t *testing.T) {
 	})
 }
 
+func TestAccIBMISLBListener_ClientAuth(t *testing.T) {
+	var lb string
+	vpcname := fmt.Sprintf("tflblis-vpc-%d", acctest.RandIntRange(10, 100))
+	subnetname := fmt.Sprintf("tflblis-subnet-%d", acctest.RandIntRange(10, 100))
+	lbname := fmt.Sprintf("tflblis%d", acctest.RandIntRange(10, 100))
+
+	protocol := "https"
+	port := "9090"
+
+	// Example CRNs - replace with actual values from your test environment
+	certCRN := "crn:v1:bluemix:public:secrets-manager:us-south:a/aa2432b1fa4d4ace891e9b80fc104e34:36fa422d-080d-4d83-8d2d-86851b4001df:secret:2e786aab-42fa-63ed-14f8-d66d552f4dd5"
+	caCRN := "crn:v1:bluemix:public:secrets-manager:us-south:a/aa2432b1fa4d4ace891e9b80fc104e34:36fa422d-080d-4d83-8d2d-86851b4001df:secret:3f897bbc-53gb-74fe-25g9-e77e663g5ee6"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { acc.TestAccPreCheck(t) },
+		Providers:    acc.TestAccProviders,
+		CheckDestroy: testAccCheckIBMISLBListenerDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckIBMISLBListenerClientAuthConfig(vpcname, subnetname, acc.ISZoneName, acc.ISCIDR, lbname, port, protocol, certCRN, caCRN),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckIBMISLBListenerExists("ibm_is_lb_listener.testacc_lb_listener_mtls", lb),
+					resource.TestCheckResourceAttr("ibm_is_lb.testacc_LB", "name", lbname),
+					resource.TestCheckResourceAttr("ibm_is_lb_listener.testacc_lb_listener_mtls", "port", port),
+					resource.TestCheckResourceAttr("ibm_is_lb_listener.testacc_lb_listener_mtls", "protocol", protocol),
+					resource.TestCheckResourceAttr("ibm_is_lb_listener.testacc_lb_listener_mtls", "certificate_instance", certCRN),
+					resource.TestCheckResourceAttrSet("ibm_is_lb_listener.testacc_lb_listener_mtls", "client_authentication.#"),
+					resource.TestCheckResourceAttr("ibm_is_lb_listener.testacc_lb_listener_mtls", "client_authentication.0.certificate_authority", caCRN),
+				),
+			},
+			{
+				Config: testAccCheckIBMISLBListenerClientAuthConfigUpdate(vpcname, subnetname, acc.ISZoneName, acc.ISCIDR, lbname, port, protocol, certCRN, caCRN),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckIBMISLBListenerExists("ibm_is_lb_listener.testacc_lb_listener_mtls", lb),
+					resource.TestCheckResourceAttr("ibm_is_lb_listener.testacc_lb_listener_mtls", "port", port),
+					resource.TestCheckResourceAttr("ibm_is_lb_listener.testacc_lb_listener_mtls", "protocol", protocol),
+					resource.TestCheckResourceAttrSet("ibm_is_lb_listener.testacc_lb_listener_mtls", "client_authentication.#"),
+					resource.TestCheckResourceAttr("ibm_is_lb_listener.testacc_lb_listener_mtls", "client_authentication.0.certificate_authority", caCRN),
+					resource.TestCheckResourceAttrSet("ibm_is_lb_listener.testacc_lb_listener_mtls", "client_authentication.0.certificate_revocation_list"),
+				),
+			},
+			{
+				Config: testAccCheckIBMISLBListenerClientAuthConfigRemove(vpcname, subnetname, acc.ISZoneName, acc.ISCIDR, lbname, port, protocol, certCRN),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckIBMISLBListenerExists("ibm_is_lb_listener.testacc_lb_listener_mtls", lb),
+					resource.TestCheckResourceAttr("ibm_is_lb_listener.testacc_lb_listener_mtls", "port", port),
+					resource.TestCheckResourceAttr("ibm_is_lb_listener.testacc_lb_listener_mtls", "protocol", protocol),
+					resource.TestCheckNoResourceAttr("ibm_is_lb_listener.testacc_lb_listener_mtls", "client_authentication.#"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckIBMISLBListenerDestroy(s *terraform.State) error {
 
 	sess, _ := acc.TestAccProvider.Meta().(conns.ClientSession).VpcV1API()
@@ -821,4 +875,95 @@ func testAccCheckIBMISLBListenerConfigUpdate(vpcname, subnetname, zone, cidr, lb
 		accept_proxy_protocol = false
 }`, vpcname, subnetname, zone, cidr, lbname, port, protocol, connLimit)
 
+}
+
+func testAccCheckIBMISLBListenerClientAuthConfig(vpcname, subnetname, zone, cidr, lbname, port, protocol, certCRN, caCRN string) string {
+	return fmt.Sprintf(`
+	resource "ibm_is_vpc" "testacc_vpc" {
+		name = "%s"
+	}
+
+	resource "ibm_is_subnet" "testacc_subnet" {
+		name = "%s"
+		vpc = ibm_is_vpc.testacc_vpc.id
+		zone = "%s"
+		ipv4_cidr_block = "%s"
+	}
+
+	resource "ibm_is_lb" "testacc_LB" {
+		name = "%s"
+		subnets = [ibm_is_subnet.testacc_subnet.id]
+	}
+
+	resource "ibm_is_lb_listener" "testacc_lb_listener_mtls" {
+		lb = ibm_is_lb.testacc_LB.id
+		port = %s
+		protocol = "%s"
+		certificate_instance = "%s"
+		client_authentication {
+			certificate_authority = "%s"
+		}
+	}
+	`, vpcname, subnetname, zone, cidr, lbname, port, protocol, certCRN, caCRN)
+}
+
+func testAccCheckIBMISLBListenerClientAuthConfigUpdate(vpcname, subnetname, zone, cidr, lbname, port, protocol, certCRN, caCRN string) string {
+	// Example CRL - replace with actual value
+	crl := "-----BEGIN X509 CRL-----\nMIICvTCBpgIBATANBgkqhkiG9w0BAQsFADBMMQswCQYDVQQGEwJVUzEOMAwGA1UE\nCAwFZGVsYXMxDDAKBgNVBAoMA0lCTTENMAsGA1UECwwEcm9vdDEQMA4GA1UEAwwH\ncm9vdC1jYRcNMjUwOTA4MDUwMjQwWhcNMjUxMDA4MDUwMjQwWjAVMBMCAhAAFw0y\nNTA5MDgwNTAxNTlaoA8wDTALBgNVHRQEBAICEAAwDQYJKoZIhvcNAQELBQADggIB\nACeEcj7ompUepc5qTvTrNA5PoK5bN71gNI7Rbhq/Bxf1YPMp2iU3qMSj7YpVP7aw\nGNrxFoIZcQ4X7PYyHMfDk6Z83PSTVMnSOVk09fZW49tyVTWmzBVLz3R1bPasnWTZ\n0hRIv9j9n7Lemin+0ubIR/2zmsfBs1JFAFEbbRcgwg+qotsfZNLkX6bjHDpsRQzE\nmXUEu4/AqAsWPbFzG2uMKZ9pKOK+Nn3bt/NEK+AFlnSmgjEqzQ+0zhsrCExIReJV\nc2oiLBkLG6rBwxlGDog+PqwjP+1wGNIL1J3c2lMW1IGMNcts/aDBO5LtPVIY1LsQ\nFoeaTfm3U3GKC/pTczoDk/pKN756f8O05nTWUHgktcNsPvgqDKnpvEkI3VPf9Y4a\nfMOzKgVTgY1dSgjzHO8+4ZfcVGpBePsjOe0/RCUwkgtgOyGtcmBPTMJa0elJzjaM\njD9myqIXkB359sqbuEmcrjgo5uUUvubFYpmT/W0YxOi/py/bDK+7uUs38nUElNkZ\n+YFRpNWjLF9JtAghX5MhA5BwhTTuATvWYuDdK769ifi9qcYvE4u+VNxYfOpPY6sv\nx4FnkZ9+A7s2hk11d+DEq29Efa0xak8rO1LzT5hCSFT0P3KfZEZMpbuXpzVGiZoM\ng5cWHgYcNnzhUatKodvzZizAOVGRR7UFg42O4ylhxDVe\n-----END X509 CRL-----\n"
+
+	return fmt.Sprintf(`
+	resource "ibm_is_vpc" "testacc_vpc" {
+		name = "%s"
+	}
+
+	resource "ibm_is_subnet" "testacc_subnet" {
+		name = "%s"
+		vpc = ibm_is_vpc.testacc_vpc.id
+		zone = "%s"
+		ipv4_cidr_block = "%s"
+	}
+
+	resource "ibm_is_lb" "testacc_LB" {
+		name = "%s"
+		subnets = [ibm_is_subnet.testacc_subnet.id]
+	}
+
+	resource "ibm_is_lb_listener" "testacc_lb_listener_mtls" {
+		lb = ibm_is_lb.testacc_LB.id
+		port = %s
+		protocol = "%s"
+		certificate_instance = "%s"
+		client_authentication {
+			certificate_authority = "%s"
+			certificate_revocation_list = "%s"
+		}
+	}
+	`, vpcname, subnetname, zone, cidr, lbname, port, protocol, certCRN, caCRN, crl)
+}
+
+func testAccCheckIBMISLBListenerClientAuthConfigRemove(vpcname, subnetname, zone, cidr, lbname, port, protocol, certCRN string) string {
+	return fmt.Sprintf(`
+	resource "ibm_is_vpc" "testacc_vpc" {
+		name = "%s"
+	}
+
+	resource "ibm_is_subnet" "testacc_subnet" {
+		name = "%s"
+		vpc = ibm_is_vpc.testacc_vpc.id
+		zone = "%s"
+		ipv4_cidr_block = "%s"
+	}
+
+	resource "ibm_is_lb" "testacc_LB" {
+		name = "%s"
+		subnets = [ibm_is_subnet.testacc_subnet.id]
+	}
+
+	resource "ibm_is_lb_listener" "testacc_lb_listener_mtls" {
+		lb = ibm_is_lb.testacc_LB.id
+		port = %s
+		protocol = "%s"
+		certificate_instance = "%s"
+	}
+	`, vpcname, subnetname, zone, cidr, lbname, port, protocol, certCRN)
 }
