@@ -18,6 +18,7 @@ func TestAccIBMIsLbPoolDataSourceBasic(t *testing.T) {
 	name := fmt.Sprintf("tfcreate%d", acctest.RandIntRange(10, 100))
 	poolName := fmt.Sprintf("tflbpoolc%d", acctest.RandIntRange(10, 100))
 	alg1 := "round_robin"
+	alg2 := "weighted_forwarding"
 	protocol1 := "http"
 	delay1 := "45"
 	retries1 := "5"
@@ -35,6 +36,23 @@ func TestAccIBMIsLbPoolDataSourceBasic(t *testing.T) {
 					resource.TestCheckResourceAttrSet("data.ibm_is_lb_pool.is_lb_pool", "lb"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_lb_pool.is_lb_pool", "identifier"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_lb_pool.is_lb_pool", "algorithm"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_lb_pool.is_lb_pool", "created_at"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_lb_pool.is_lb_pool", "health_monitor.#"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_lb_pool.is_lb_pool", "href"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_lb_pool.is_lb_pool", "name"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_lb_pool.is_lb_pool", "protocol"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_lb_pool.is_lb_pool", "provisioning_status"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_lb_pool.is_lb_pool", "proxy_protocol"),
+				),
+			},
+			{
+				Config: testAccCheckIBMIsLbPoolDataSourceConfigBasic(vpcname, subnetname, acc.ISZoneName, acc.ISCIDR, name, poolName, alg2, protocol1, delay1, retries1, timeout1, healthType1),
+				Check: resource.ComposeTestCheckFunc(
+					// resource.TestCheckResourceAttrSet("data.ibm_is_lb_pool.is_lb_pool", "id"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_lb_pool.is_lb_pool", "lb"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_lb_pool.is_lb_pool", "identifier"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_lb_pool.is_lb_pool", "algorithm"),
+					resource.TestCheckResourceAttr("data.ibm_is_lb_pool.is_lb_pool", "algorithm", "weighted_forwarding"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_lb_pool.is_lb_pool", "created_at"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_lb_pool.is_lb_pool", "health_monitor.#"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_lb_pool.is_lb_pool", "href"),
