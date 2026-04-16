@@ -18,7 +18,7 @@ import (
 )
 
 const (
-	isBareMetalServerCapacities = "capacities"
+	isBareMetalServerCapacitiesList = "capacities"
 )
 
 func DataSourceIBMIsBareMetalServerCapacities() *schema.Resource {
@@ -36,7 +36,7 @@ func DataSourceIBMIsBareMetalServerCapacities() *schema.Resource {
 				Optional:    true,
 				Description: "The name of a zone",
 			},
-			isBareMetalServerCapacities: {
+			isBareMetalServerCapacitiesList: {
 				Type:        schema.TypeList,
 				Computed:    true,
 				Description: "List of capacities for each profile. The results will include all profile capacities unless a zone or profile filter are specified.",
@@ -88,8 +88,13 @@ func dataSourceIBMISBareMetalServerCapacitiesRead(context context.Context, d *sc
 		}
 
 		bmCapacities, _, err := sess.ListBareMetalServerCapacitiesWithContext(context, options)
-		if err != nil || bmCapacities == nil || bmCapacities.Capacities == nil {
+		if err != nil {
 			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("ListBareMetalServerCapacitiesWithContext failed: %s", err.Error()), "(Data) ibm_is_bare_metal_server_capacities", "read")
+			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+			return tfErr.GetDiag()
+		}
+		if bmCapacities == nil {
+			tfErr := flex.TerraformErrorf(nil, "ListBareMetalServerCapacitiesWithContext returned nil response", "(Data) ibm_is_bare_metal_server_capacities", "read")
 			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
 			return tfErr.GetDiag()
 		}
@@ -148,7 +153,7 @@ func dataSourceIBMISBareMetalServerCapacitiesRead(context context.Context, d *sc
 	}
 
 	d.SetId(dataSourceIBMISBMSCapacitiesID(d))
-	if err = d.Set(isBareMetalServerCapacities, capacitiesInfo); err != nil {
+	if err = d.Set(isBareMetalServerCapacitiesList, capacitiesInfo); err != nil {
 		return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting capacities: %s", err), "(Data) ibm_is_bare_metal_server_capacities", "read", "set-capacities").GetDiag()
 	}
 
