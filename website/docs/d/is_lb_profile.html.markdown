@@ -68,9 +68,6 @@ You can access the following attribute references after your data source is crea
   - `values` - (List) The resource types that pool members of load balancers with this profile can target.    
 - `udp_supported` - (Bool) The UDP support for a load balancer with this profile.
 - `udp_supported_type` - (String) The UDP support type for a load balancer with this profile, one of [fixed, dependent]
-- `asymmetric_routing_supported` - (List) The asymmetric routing support for a load balancer with this profile.
-
-  Nested schema for `asymmetric_routing_supported`:
-  - `type` - (String) The type for this profile field.
-  - `value` - (Bool) The asymmetric routing support for this profile.
+- `asymmetric_routing_supported` - (Bool) The asymmetric routing support for a load balancer with this profile.
+- `asymmetric_routing_supported_type` - (String) The asymmetric routing support type for a load balancer with this profile, one of [fixed, dependent].
 

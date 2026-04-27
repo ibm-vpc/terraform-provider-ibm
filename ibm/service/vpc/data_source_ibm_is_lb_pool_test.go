@@ -48,7 +48,6 @@ func TestAccIBMIsLbPoolDataSourceBasic(t *testing.T) {
 			{
 				Config: testAccCheckIBMIsLbPoolDataSourceConfigBasic(vpcname, subnetname, acc.ISZoneName, acc.ISCIDR, name, poolName, alg2, protocol1, delay1, retries1, timeout1, healthType1),
 				Check: resource.ComposeTestCheckFunc(
-					// resource.TestCheckResourceAttrSet("data.ibm_is_lb_pool.is_lb_pool", "id"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_lb_pool.is_lb_pool", "lb"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_lb_pool.is_lb_pool", "identifier"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_lb_pool.is_lb_pool", "algorithm"),

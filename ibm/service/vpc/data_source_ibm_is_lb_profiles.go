@@ -228,23 +228,14 @@ func DataSourceIBMISLbProfiles() *schema.Resource {
 							},
 						},
 						"asymmetric_routing_supported": {
-							Type:        schema.TypeList,
+							Type:        schema.TypeBool,
 							Computed:    true,
 							Description: "The asymmetric routing support for a load balancer with this profile",
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"type": {
-										Type:        schema.TypeString,
-										Computed:    true,
-										Description: "The type for this profile field",
-									},
-									"value": {
-										Type:        schema.TypeBool,
-										Computed:    true,
-										Description: "The asymmetric routing support for this profile",
-									},
-								},
-							},
+						},
+						"asymmetric_routing_supported_type": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The asymmetric routing support type for a load balancer with this profile",
 						},
 					},
 				},
@@ -366,39 +357,31 @@ func dataSourceIBMISLbProfilesRead(context context.Context, d *schema.ResourceDa
 
 		if profileCollector.AsymmetricRoutingSupported != nil {
 			asymmetricRoutingSupport := profileCollector.AsymmetricRoutingSupported
-			asymmetricRoutingSupportMap := map[string]interface{}{}
-			asymmetricRoutingSupportList := []map[string]interface{}{}
 			switch reflect.TypeOf(asymmetricRoutingSupport).String() {
 			case "*vpcv1.LoadBalancerProfileAsymmetricRoutingSupportedFixed":
 				{
 					ars := asymmetricRoutingSupport.(*vpcv1.LoadBalancerProfileAsymmetricRoutingSupportedFixed)
-					if ars.Type != nil {
-						asymmetricRoutingSupportMap["type"] = *ars.Type
-					}
-					if ars.Value != nil {
-						asymmetricRoutingSupportMap["value"] = *ars.Value
-					}
+					l["asymmetric_routing_supported"] = ars.Value
+					l["asymmetric_routing_supported_type"] = ars.Type
 				}
 			case "*vpcv1.LoadBalancerProfileAsymmetricRoutingSupportedDependent":
 				{
 					ars := asymmetricRoutingSupport.(*vpcv1.LoadBalancerProfileAsymmetricRoutingSupportedDependent)
 					if ars.Type != nil {
-						asymmetricRoutingSupportMap["type"] = *ars.Type
+						l["asymmetric_routing_supported_type"] = *ars.Type
 					}
 				}
 			case "*vpcv1.LoadBalancerProfileAsymmetricRoutingSupported":
 				{
 					ars := asymmetricRoutingSupport.(*vpcv1.LoadBalancerProfileAsymmetricRoutingSupported)
 					if ars.Type != nil {
-						asymmetricRoutingSupportMap["type"] = *ars.Type
+						l["asymmetric_routing_supported_type"] = *ars.Type
 					}
 					if ars.Value != nil {
-						asymmetricRoutingSupportMap["value"] = *ars.Value
+						l["asymmetric_routing_supported"] = *ars.Value
 					}
 				}
 			}
-			asymmetricRoutingSupportList = append(asymmetricRoutingSupportList, asymmetricRoutingSupportMap)
-			l["asymmetric_routing_supported"] = asymmetricRoutingSupportList
 		}
 
 		if profileCollector.AccessModes != nil {
