@@ -53,12 +53,14 @@ require (
 	github.com/golang-jwt/jwt/v5 v5.2.2
 	github.com/google/go-cmp v0.7.0
 	github.com/google/uuid v1.6.0
+	github.com/hashicorp/go-cty v1.5.0
 	github.com/hashicorp/go-uuid v1.0.3
 	github.com/hashicorp/go-version v1.8.0
 	github.com/hashicorp/terraform-plugin-framework v1.19.0
 	github.com/hashicorp/terraform-plugin-go v0.31.0
 	github.com/hashicorp/terraform-plugin-mux v0.23.0
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.40.0
+	github.com/hashicorp/terraform-plugin-testing v1.15.0
 	github.com/jinzhu/copier v0.3.2
 	github.com/minsikl/netscaler-nitro-go v0.0.0-20170827154432-5b14ce3643e3
 	github.com/mitchellh/go-homedir v1.1.0
@@ -129,7 +131,6 @@ require (
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-checkpoint v0.5.0 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
-	github.com/hashicorp/go-cty v1.5.0 // indirect
 	github.com/hashicorp/go-hclog v1.6.3 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/hashicorp/go-plugin v1.7.0 // indirect
@@ -145,7 +146,6 @@ require (
 	github.com/hashicorp/terraform-exec v0.25.0 // indirect
 	github.com/hashicorp/terraform-json v0.27.2 // indirect
 	github.com/hashicorp/terraform-plugin-log v0.10.0 // indirect
-	github.com/hashicorp/terraform-plugin-testing v1.15.0 // indirect
 	github.com/hashicorp/terraform-registry-address v0.4.0 // indirect
 	github.com/hashicorp/terraform-svchost v0.1.1 // indirect
 	github.com/hashicorp/vault/api v1.16.0 // indirect
@@ -242,7 +242,7 @@ replace github.com/hashicorp/vault => github.com/hashicorp/vault v1.18.2
 
 replace github.com/hashicorp/vault/api/auth/approle => github.com/hashicorp/vault/api/auth/approle v0.8.0
 
-replace github.com/IBM/vpc-go-sdk v0.75.0 => ./common/github.com/IBM/vpc-go-sdk
+replace github.com/IBM/vpc-go-sdk v0.83.2 => ./common/github.com/IBM/vpc-go-sdk
 
 exclude (
 	github.com/kubernetes-incubator/external-storage v0.0.0-00010101000000-000000000000
