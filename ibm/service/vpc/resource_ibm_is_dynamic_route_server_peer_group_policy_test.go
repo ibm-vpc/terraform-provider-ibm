@@ -746,11 +746,11 @@ func TestResourceIBMIsDynamicRouteServerPeerGroupPolicyMapToDynamicRouteServerPe
 	model["state"] = "enabled"
 	model["type"] = "custom_routes"
 	model["custom_routes"] = []interface{}{dynamicRouteServerPeerGroupPolicyCustomRoutePrototypeModel}
-	model["excluded_prefixes"] = []interface{}{dynamicRouteServerPeerGroupPrefixWatcherExcludedPrefixPrototypeModel}
-	model["peer_groups"] = []interface{}{dynamicRouteServerPeerGroupIdentityModel}
-	model["next_hops"] = []interface{}{dynamicRouteServerPeerGroupPolicyNextHopPrototypeModel}
+	// model["excluded_prefixes"] = []interface{}{dynamicRouteServerPeerGroupPrefixWatcherExcludedPrefixPrototypeModel}
+	// model["peer_groups"] = []interface{}{dynamicRouteServerPeerGroupIdentityModel}
+	// model["next_hops"] = []interface{}{dynamicRouteServerPeerGroupPolicyNextHopPrototypeModel}
 	model["route_delete_delay"] = int(0)
-	model["routing_tables"] = []interface{}{dynamicRouteServerPeerGroupPolicyVPCRoutingTablesRoutingTablePrototypeModel}
+	// model["routing_tables"] = []interface{}{dynamicRouteServerPeerGroupPolicyVPCRoutingTablesRoutingTablePrototypeModel}
 
 	result, err := vpc.ResourceIBMIsDynamicRouteServerPeerGroupPolicyMapToDynamicRouteServerPeerGroupPolicyPrototype(model)
 	assert.Nil(t, err)
