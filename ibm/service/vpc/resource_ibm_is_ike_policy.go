@@ -55,6 +55,12 @@ func ResourceIBMISIKEPolicy() *schema.Resource {
 				ValidateFunc: validate.InvokeValidator("ibm_is_ike_policy", isIKEAuthenticationAlg),
 				Description:  "Authentication algorithm type",
 			},
+			"authentication_algorithms": &schema.Schema{
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "The authentication algorithms to use for IKE Negotiation.The order of the algorithms in this array indicates their priority for negotiation, with each algorithm having priority over the one after it.",
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
 
 			isIKEEncryptionAlg: {
 				Type:         schema.TypeString,
@@ -62,12 +68,23 @@ func ResourceIBMISIKEPolicy() *schema.Resource {
 				ValidateFunc: validate.InvokeValidator("ibm_is_ike_policy", isIKEEncryptionAlg),
 				Description:  "Encryption alogorithm type",
 			},
-
+			"encryption_algorithms": &schema.Schema{
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "The encryption algorithms to use for IKE Negotiation.The order of the algorithms in this array indicates their priority for negotiation, with each algorithm having priority over the one after it.",
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
 			isIKEDhGroup: {
 				Type:         schema.TypeInt,
 				Required:     true,
 				ValidateFunc: validate.InvokeValidator("ibm_is_ike_policy", isIKEDhGroup),
 				Description:  "IKE DH group",
+			},
+			"dh_groups": &schema.Schema{
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "The Diffie-Hellman groups to use for IKE negotiation.The order of the Diffie-Hellman groups in this array indicates their priority for negotiation, with each Diffie-Hellman group having priority over the one after it.",
+				Elem:        &schema.Schema{Type: schema.TypeInt},
 			},
 
 			isIKEResourceGroup: {
@@ -198,18 +215,15 @@ func resourceIBMISIKEPolicyCreate(context context.Context, d *schema.ResourceDat
 
 	log.Printf("[DEBUG] IKE Policy create")
 	name := d.Get(isIKEName).(string)
-	authenticationAlg := d.Get(isIKEAuthenticationAlg).(string)
-	encryptionAlg := d.Get(isIKEEncryptionAlg).(string)
-	dhGroup := int64(d.Get(isIKEDhGroup).(int))
 
-	diag := ikepCreate(context, d, meta, authenticationAlg, encryptionAlg, name, dhGroup)
+	diag := ikepCreate(context, d, meta, name)
 	if diag != nil {
 		return diag
 	}
 	return resourceIBMISIKEPolicyRead(context, d, meta)
 }
 
-func ikepCreate(context context.Context, d *schema.ResourceData, meta interface{}, authenticationAlg, encryptionAlg, name string, dhGroup int64) diag.Diagnostics {
+func ikepCreate(context context.Context, d *schema.ResourceData, meta interface{}, name string) diag.Diagnostics {
 	sess, err := vpcClient(meta)
 	if err != nil {
 		tfErr := flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_ike_policy", "create", "initialize-client")
@@ -217,10 +231,46 @@ func ikepCreate(context context.Context, d *schema.ResourceData, meta interface{
 		return tfErr.GetDiag()
 	}
 	options := &vpcv1.CreateIkePolicyOptions{
-		AuthenticationAlgorithm: &authenticationAlg,
-		EncryptionAlgorithm:     &encryptionAlg,
-		DhGroup:                 &dhGroup,
-		Name:                    &name,
+		// AuthenticationAlgorithm: &authenticationAlg,
+		// EncryptionAlgorithm:     &encryptionAlg,
+		// DhGroup:                 &dhGroup,
+		Name: &name,
+	}
+	// 	authenticationAlg := d.Get(isIKEAuthenticationAlg).(string)
+	// encryptionAlg := d.Get(isIKEEncryptionAlg).(string)
+	// dhGroup := int64(d.Get(isIKEDhGroup).(int))
+	if _, ok := d.GetOk("authentication_algorithm"); ok {
+		options.SetAuthenticationAlgorithm(d.Get("authentication_algorithm").(string))
+	}
+	if _, ok := d.GetOk("authentication_algorithms"); ok {
+		var authenticationAlgorithms []string
+		for _, v := range d.Get("authentication_algorithms").([]interface{}) {
+			authenticationAlgorithmsItem := v.(string)
+			authenticationAlgorithms = append(authenticationAlgorithms, authenticationAlgorithmsItem)
+		}
+		options.SetAuthenticationAlgorithms(authenticationAlgorithms)
+	}
+	if _, ok := d.GetOk("dh_group"); ok {
+		options.SetDhGroup(int64(d.Get("dh_group").(int)))
+	}
+	if _, ok := d.GetOk("dh_groups"); ok {
+		var dhGroups []int64
+		for _, v := range d.Get("dh_groups").([]interface{}) {
+			dhGroupsItem := int64(v.(int))
+			dhGroups = append(dhGroups, dhGroupsItem)
+		}
+		options.SetDhGroups(dhGroups)
+	}
+	if _, ok := d.GetOk("encryption_algorithm"); ok {
+		options.SetEncryptionAlgorithm(d.Get("encryption_algorithm").(string))
+	}
+	if _, ok := d.GetOk("encryption_algorithms"); ok {
+		var encryptionAlgorithms []string
+		for _, v := range d.Get("encryption_algorithms").([]interface{}) {
+			encryptionAlgorithmsItem := v.(string)
+			encryptionAlgorithms = append(encryptionAlgorithms, encryptionAlgorithmsItem)
+		}
+		options.SetEncryptionAlgorithms(encryptionAlgorithms)
 	}
 
 	if keylt, ok := d.GetOk(isIKEKeyLifeTime); ok {
@@ -284,9 +334,21 @@ func ikepGet(context context.Context, d *schema.ResourceData, meta interface{}, 
 		err = fmt.Errorf("Error setting authentication_algorithm: %s", err)
 		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_ike_policy", "read", "set-authentication_algorithm").GetDiag()
 	}
+	if !core.IsNil(ikePolicy.AuthenticationAlgorithms) {
+		if err = d.Set("authentication_algorithms", ikePolicy.AuthenticationAlgorithms); err != nil {
+			err = fmt.Errorf("Error setting authentication_algorithms: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_ike_policy", "read", "set-authentication_algorithms").GetDiag()
+		}
+	}
 	if err = d.Set("encryption_algorithm", ikePolicy.EncryptionAlgorithm); err != nil {
 		err = fmt.Errorf("Error setting encryption_algorithm: %s", err)
 		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_ike_policy", "read", "set-encryption_algorithm").GetDiag()
+	}
+	if !core.IsNil(ikePolicy.EncryptionAlgorithms) {
+		if err = d.Set("encryption_algorithms", ikePolicy.EncryptionAlgorithms); err != nil {
+			err = fmt.Errorf("Error setting encryption_algorithms: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_ike_policy", "read", "set-encryption_algorithms").GetDiag()
+		}
 	}
 	if ikePolicy.ResourceGroup != nil {
 		d.Set(isIKEResourceGroup, *ikePolicy.ResourceGroup.ID)
@@ -315,6 +377,16 @@ func ikepGet(context context.Context, d *schema.ResourceData, meta interface{}, 
 	if err = d.Set("dh_group", flex.IntValue(ikePolicy.DhGroup)); err != nil {
 		err = fmt.Errorf("Error setting dh_group: %s", err)
 		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_ike_policy", "read", "set-dh_group").GetDiag()
+	}
+	if !core.IsNil(ikePolicy.DhGroups) {
+		dhGroups := []interface{}{}
+		for _, dhGroupsItem := range ikePolicy.DhGroups {
+			dhGroups = append(dhGroups, int64(dhGroupsItem))
+		}
+		if err = d.Set("dh_groups", dhGroups); err != nil {
+			err = fmt.Errorf("Error setting dh_groups: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_ike_policy", "read", "set-dh_groups").GetDiag()
+		}
 	}
 	connList := make([]map[string]interface{}, 0)
 	if ikePolicy.Connections != nil && len(ikePolicy.Connections) > 0 {
