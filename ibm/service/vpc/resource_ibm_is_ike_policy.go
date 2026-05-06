@@ -51,7 +51,9 @@ func ResourceIBMISIKEPolicy() *schema.Resource {
 
 			isIKEAuthenticationAlg: {
 				Type:         schema.TypeString,
-				Required:     true,
+				Optional:     true,
+				Computed:     true,
+				Deprecated:   "`authentication_algorithm` is deprecated in favor of `authentication_algorithms`. The existing `authentication_algorithm` field will continue to function without any behavior changes to maintain backward compatibility. No migration is required for existing configurations, for newer use `authentication_algorithms`. Use `authentication_algorithms` to configure multiple authentication algorithms. This enhancement adds support for multi-algorithm authentication while preserving compatibility with earlier single-algorithm configurations.",
 				ValidateFunc: validate.InvokeValidator("ibm_is_ike_policy", isIKEAuthenticationAlg),
 				Description:  "Authentication algorithm type",
 			},
@@ -65,7 +67,9 @@ func ResourceIBMISIKEPolicy() *schema.Resource {
 
 			isIKEEncryptionAlg: {
 				Type:         schema.TypeString,
-				Required:     true,
+				Optional:     true,
+				Computed:     true,
+				Deprecated:   "`encryption_algorithm` is deprecated in favor of `encryption_algorithms`. The existing `encryption_algorithm` field will continue to function without any behavior changes to maintain backward compatibility. No migration is required for existing configurations, for newer use `encryption_algorithms`. Use `encryption_algorithms` to configure multiple encryption algorithms. This enhancement adds support for multi-algorithm encryption while preserving compatibility with earlier single-algorithm configurations.",
 				ValidateFunc: validate.InvokeValidator("ibm_is_ike_policy", isIKEEncryptionAlg),
 				Description:  "Encryption alogorithm type",
 			},
@@ -78,7 +82,9 @@ func ResourceIBMISIKEPolicy() *schema.Resource {
 			},
 			isIKEDhGroup: {
 				Type:         schema.TypeInt,
-				Required:     true,
+				Optional:     true,
+				Computed:     true,
+				Deprecated:   "`dh_group` is deprecated in favor of `dh_groups`. The existing `dh_group` field will continue to function without any behavior changes to maintain backward compatibility. No migration is required for existing configurations, for newer use `dh_groups`. Use `dh_groups` to configure multiple Diffie-Hellman groups. This enhancement adds support for multi-group DH configurations while preserving compatibility with earlier single-group configurations.",
 				ValidateFunc: validate.InvokeValidator("ibm_is_ike_policy", isIKEDhGroup),
 				Description:  "IKE DH group",
 			},

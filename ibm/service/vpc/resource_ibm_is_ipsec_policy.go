@@ -58,9 +58,11 @@ func ResourceIBMISIPSecPolicy() *schema.Resource {
 
 			isIpSecAuthenticationAlg: {
 				Type:         schema.TypeString,
-				Required:     true,
+				Optional:     true,
+				Computed:     true,
 				ValidateFunc: validate.InvokeValidator("ibm_is_ipsec_policy", isIpSecAuthenticationAlg),
 				Description:  "Authentication alorothm",
+				Deprecated:   "`authentication_algorithm` is deprecated in favor of `authentication_algorithms`. The existing `authentication_algorithm` field will continue to function without any behavior changes to maintain backward compatibility. No migration is required for existing configurations, for newer use `authentication_algorithms`. Use `authentication_algorithms` to configure multiple authentication algorithms. This enhancement adds support for multi-algorithm authentication while preserving compatibility with earlier single-algorithm configurations.",
 			},
 			"authentication_algorithms": &schema.Schema{
 				Type:        schema.TypeList,
@@ -72,7 +74,9 @@ func ResourceIBMISIPSecPolicy() *schema.Resource {
 
 			isIpSecEncryptionAlg: {
 				Type:         schema.TypeString,
-				Required:     true,
+				Optional:     true,
+				Computed:     true,
+				Deprecated:   "`encryption_algorithm` is deprecated in favor of `encryption_algorithms`. The existing `encryption_algorithm` field will continue to function without any behavior changes to maintain backward compatibility. No migration is required for existing configurations, for newer use `encryption_algorithms`. Use `encryption_algorithms` to configure multiple encryption algorithms. This enhancement adds support for multi-algorithm encryption while preserving compatibility with earlier single-algorithm configurations.",
 				ValidateFunc: validate.InvokeValidator("ibm_is_ipsec_policy", isIpSecEncryptionAlg),
 				Description:  "Encryption algorithm",
 			},
@@ -87,7 +91,9 @@ func ResourceIBMISIPSecPolicy() *schema.Resource {
 
 			isIpSecPFS: {
 				Type:         schema.TypeString,
-				Required:     true,
+				Optional:     true,
+				Computed:     true,
+				Deprecated:   "`pfs` is deprecated in favor of `pfs_groups`. The existing `pfs` field will continue to function without any behavior changes to maintain backward compatibility. No migration is required for existing configurations, for newer use `pfs_groups`. Use `pfs_groups` to configure multiple Perfect Forward Secrecy (PFS) groups. This enhancement adds support for multi-group PFS configurations while preserving compatibility with earlier single-group configurations.",
 				ValidateFunc: validate.InvokeValidator("ibm_is_ipsec_policy", isIpSecPFS),
 				Description:  "PFS info",
 			},
