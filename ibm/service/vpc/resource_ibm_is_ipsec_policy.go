@@ -490,23 +490,23 @@ func ipsecpUpdate(context context.Context, d *schema.ResourceData, meta interfac
 			ipsecPolicyPatchModel.Name = &name
 		}
 
-		if isIpSecAuthenticationAlgsChangeFlag || isIpSecEncryptionAlgsChangeFlag || isIpSecPFSGroupsChangeFlag {
-			getIpsecPolicyOptions := &vpcv1.GetIpsecPolicyOptions{
-				ID: core.StringPtr(d.Id()),
-			}
-			_, etagResponse, etagErr := sess.GetIpsecPolicyWithContext(context, getIpsecPolicyOptions)
-			if etagErr != nil {
-				if etagResponse != nil && etagResponse.StatusCode == 404 {
-					d.SetId("")
-					return nil
-				}
-				tfErr := flex.TerraformErrorf(err, fmt.Sprintf("GetIpsecPolicyWithContext failed: %s", etagErr.Error()), "ibm_is_ipsec_policy", "update")
-				log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
-				return tfErr.GetDiag()
-			}
-			eTag := etagResponse.Headers.Get("ETag")
-			options.IfMatch = &eTag
-		}
+		// if isIpSecAuthenticationAlgsChangeFlag || isIpSecEncryptionAlgsChangeFlag || isIpSecPFSGroupsChangeFlag {
+		// 	getIpsecPolicyOptions := &vpcv1.GetIpsecPolicyOptions{
+		// 		ID: core.StringPtr(d.Id()),
+		// 	}
+		// 	_, etagResponse, etagErr := sess.GetIpsecPolicyWithContext(context, getIpsecPolicyOptions)
+		// 	if etagErr != nil {
+		// 		if etagResponse != nil && etagResponse.StatusCode == 404 {
+		// 			d.SetId("")
+		// 			return nil
+		// 		}
+		// 		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("GetIpsecPolicyWithContext failed: %s", etagErr.Error()), "ibm_is_ipsec_policy", "update")
+		// 		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		// 		return tfErr.GetDiag()
+		// 	}
+		// 	eTag := etagResponse.Headers.Get("ETag")
+		// 	options.IfMatch = &eTag
+		// }
 
 		ipsecPolicyPatch, err := ipsecPolicyPatchModel.AsPatch()
 		if err != nil {

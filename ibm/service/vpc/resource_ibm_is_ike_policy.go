@@ -504,23 +504,33 @@ func ikepUpdate(context context.Context, d *schema.ResourceData, meta interface{
 			return tfErr.GetDiag()
 		}
 
-		if encryptionAlgsChangeFlag || dhGroupsChangeFlag || authenticationAlgsChangeFlag {
-			getIkePolicyOptions := &vpcv1.GetIkePolicyOptions{
-				ID: core.StringPtr(d.Id()),
-			}
-			_, etagResponse, etagErr := sess.GetIkePolicyWithContext(context, getIkePolicyOptions)
-			if etagErr != nil {
-				if etagResponse != nil && etagResponse.StatusCode == 404 {
-					d.SetId("")
-					return nil
-				}
-				tfErr := flex.TerraformErrorf(err, fmt.Sprintf("GetIkePolicyWithContext failed: %s", etagErr.Error()), "ibm_is_ike_policy", "update")
-				log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
-				return tfErr.GetDiag()
-			}
-			eTag := etagResponse.Headers.Get("ETag")
-			options.IfMatch = &eTag
+		if !encryptionAlgsChangeFlag {
+			ikePolicyPatch["encryption_algorithms"] = nil
 		}
+		if !dhGroupsChangeFlag {
+			ikePolicyPatch["dh_groups"] = nil
+		}
+		if !authenticationAlgsChangeFlag {
+			ikePolicyPatch["authentication_algorithms"] = nil
+		}
+
+		// if encryptionAlgsChangeFlag || dhGroupsChangeFlag || authenticationAlgsChangeFlag {
+		// 	getIkePolicyOptions := &vpcv1.GetIkePolicyOptions{
+		// 		ID: core.StringPtr(d.Id()),
+		// 	}
+		// 	_, etagResponse, etagErr := sess.GetIkePolicyWithContext(context, getIkePolicyOptions)
+		// 	if etagErr != nil {
+		// 		if etagResponse != nil && etagResponse.StatusCode == 404 {
+		// 			d.SetId("")
+		// 			return nil
+		// 		}
+		// 		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("GetIkePolicyWithContext failed: %s", etagErr.Error()), "ibm_is_ike_policy", "update")
+		// 		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		// 		return tfErr.GetDiag()
+		// 	}
+		// 	eTag := etagResponse.Headers.Get("ETag")
+		// 	options.IfMatch = &eTag
+		// }
 
 		options.IkePolicyPatch = ikePolicyPatch
 
@@ -618,8 +628,8 @@ func interfaceSliceToInt64Slice(values []interface{}) []int64 {
 	result := make([]int64, 0, len(values))
 
 	for _, v := range values {
-		if s, ok := v.(int64); ok {
-			result = append(result, s)
+		if s, ok := v.(int); ok {
+			result = append(result, int64(s))
 		}
 	}
 
