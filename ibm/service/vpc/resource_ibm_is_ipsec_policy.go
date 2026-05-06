@@ -447,20 +447,67 @@ func ipsecpUpdate(context context.Context, d *schema.ResourceData, meta interfac
 	options := &vpcv1.UpdateIpsecPolicyOptions{
 		ID: &id,
 	}
-	if d.HasChange(isIpSecName) || d.HasChange(isIpSecAuthenticationAlg) || d.HasChange(isIpSecEncryptionAlg) || d.HasChange(isIpSecPFS) || d.HasChange(isIpSecKeyLifeTime) {
-		name := d.Get(isIpSecName).(string)
-		authenticationAlg := d.Get(isIpSecAuthenticationAlg).(string)
-		encryptionAlg := d.Get(isIpSecEncryptionAlg).(string)
-		pfs := d.Get(isIpSecPFS).(string)
-		keyLifetime := int64(d.Get(isIpSecKeyLifeTime).(int))
 
-		ipsecPolicyPatchModel := &vpcv1.IPsecPolicyPatch{
-			Name:                    &name,
-			AuthenticationAlgorithm: &authenticationAlg,
-			EncryptionAlgorithm:     &encryptionAlg,
-			Pfs:                     &pfs,
-			KeyLifetime:             &keyLifetime,
+	isIpsecNameChangeFlag := d.HasChange(isIpSecName)
+	isIpSecAuthenticationAlgChangeFlag := d.HasChange(isIpSecAuthenticationAlg)
+	isIpSecAuthenticationAlgsChangeFlag := d.HasChange("authentication_algorithms")
+	isIpSecEncryptionAlgChangeFlag := d.HasChange(isIpSecEncryptionAlg)
+	isIpSecEncryptionAlgsChangeFlag := d.HasChange("encryption_algorithms")
+	isIpSecPFSChangeFlag := d.HasChange(isIpSecPFS)
+	isIpSecPFSGroupsChangeFlag := d.HasChange("pfs_groups")
+	isIpSecKeyLifeTimeChangeFlag := d.HasChange(isIpSecKeyLifeTime)
+
+	if isIpsecNameChangeFlag || isIpSecAuthenticationAlgChangeFlag || isIpSecAuthenticationAlgsChangeFlag || isIpSecEncryptionAlgChangeFlag || isIpSecEncryptionAlgsChangeFlag || isIpSecPFSChangeFlag || isIpSecPFSGroupsChangeFlag || isIpSecKeyLifeTimeChangeFlag {
+		ipsecPolicyPatchModel := &vpcv1.IPsecPolicyPatch{}
+		if isIpSecAuthenticationAlgChangeFlag {
+			authenticationAlg := d.Get(isIpSecAuthenticationAlg).(string)
+			ipsecPolicyPatchModel.AuthenticationAlgorithm = &authenticationAlg
+
 		}
+		if isIpSecEncryptionAlgChangeFlag {
+			encryptionAlg := d.Get(isIpSecEncryptionAlg).(string)
+			ipsecPolicyPatchModel.EncryptionAlgorithm = &encryptionAlg
+		}
+		if isIpSecPFSChangeFlag {
+			pfs := d.Get(isIpSecPFS).(string)
+			ipsecPolicyPatchModel.Pfs = &pfs
+		}
+		if isIpSecKeyLifeTimeChangeFlag {
+			keyLifetime := int64(d.Get(isIpSecKeyLifeTime).(int))
+			ipsecPolicyPatchModel.KeyLifetime = &keyLifetime
+		}
+		if isIpSecAuthenticationAlgsChangeFlag {
+			ipsecPolicyPatchModel.AuthenticationAlgorithms = interfaceSliceToStringSlice(d.Get("authentication_algorithms").([]interface{}))
+		}
+		if isIpSecEncryptionAlgsChangeFlag {
+			ipsecPolicyPatchModel.EncryptionAlgorithms = interfaceSliceToStringSlice(d.Get("encryption_algorithms").([]interface{}))
+		}
+		if isIpSecPFSGroupsChangeFlag {
+			ipsecPolicyPatchModel.PfsGroups = interfaceSliceToStringSlice(d.Get("pfs_groups").([]interface{}))
+		}
+		if isIpsecNameChangeFlag {
+			name := d.Get(isIpSecName).(string)
+			ipsecPolicyPatchModel.Name = &name
+		}
+
+		if isIpSecAuthenticationAlgsChangeFlag || isIpSecEncryptionAlgsChangeFlag || isIpSecPFSGroupsChangeFlag {
+			getIpsecPolicyOptions := &vpcv1.GetIpsecPolicyOptions{
+				ID: core.StringPtr(d.Id()),
+			}
+			_, etagResponse, etagErr := sess.GetIpsecPolicyWithContext(context, getIpsecPolicyOptions)
+			if etagErr != nil {
+				if etagResponse != nil && etagResponse.StatusCode == 404 {
+					d.SetId("")
+					return nil
+				}
+				tfErr := flex.TerraformErrorf(err, fmt.Sprintf("GetIpsecPolicyWithContext failed: %s", etagErr.Error()), "ibm_is_ipsec_policy", "update")
+				log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+				return tfErr.GetDiag()
+			}
+			eTag := etagResponse.Headers.Get("ETag")
+			options.IfMatch = &eTag
+		}
+
 		ipsecPolicyPatch, err := ipsecPolicyPatchModel.AsPatch()
 		if err != nil {
 			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error calling asPatch for IPsecPolicyPatch: %s", err.Error()), "ibm_is_ipsec_policy", "update")

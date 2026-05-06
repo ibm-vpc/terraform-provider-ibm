@@ -447,27 +447,81 @@ func ikepUpdate(context context.Context, d *schema.ResourceData, meta interface{
 	options := &vpcv1.UpdateIkePolicyOptions{
 		ID: &id,
 	}
-	if d.HasChange(isIKEName) || d.HasChange(isIKEAuthenticationAlg) || d.HasChange(isIKEEncryptionAlg) || d.HasChange(isIKEDhGroup) || d.HasChange(isIKEVERSION) || d.HasChange(isIKEKeyLifeTime) {
-		name := d.Get(isIKEName).(string)
-		authenticationAlg := d.Get(isIKEAuthenticationAlg).(string)
-		encryptionAlg := d.Get(isIKEEncryptionAlg).(string)
-		keyLifetime := int64(d.Get(isIKEKeyLifeTime).(int))
-		dhGroup := int64(d.Get(isIKEDhGroup).(int))
-		ikeVersion := int64(d.Get(isIKEVERSION).(int))
+
+	nameChangeFlag := d.HasChange(isIKEName)
+	authenticationAlgChangeFlag := d.HasChange(isIKEAuthenticationAlg)
+	authenticationAlgsChangeFlag := d.HasChange("authentication_algorithms")
+	encryptionAlgChangeFlag := d.HasChange(isIKEEncryptionAlg)
+	encryptionAlgsChangeFlag := d.HasChange("encryption_algorithms")
+	keyLifetimeChangeFlag := d.HasChange(isIKEKeyLifeTime)
+	dhGroupChangeFlag := d.HasChange(isIKEDhGroup)
+	dhGroupsChangeFlag := d.HasChange("dh_groups")
+	ikeVersionChangeFlag := d.HasChange(isIKEVERSION)
+
+	if nameChangeFlag || authenticationAlgChangeFlag || authenticationAlgsChangeFlag || encryptionAlgChangeFlag || encryptionAlgsChangeFlag || dhGroupChangeFlag || dhGroupsChangeFlag || ikeVersionChangeFlag || keyLifetimeChangeFlag {
 
 		ikePolicyPatchModel := &vpcv1.IkePolicyPatch{}
-		ikePolicyPatchModel.Name = &name
-		ikePolicyPatchModel.AuthenticationAlgorithm = &authenticationAlg
-		ikePolicyPatchModel.EncryptionAlgorithm = &encryptionAlg
-		ikePolicyPatchModel.KeyLifetime = &keyLifetime
-		ikePolicyPatchModel.DhGroup = &dhGroup
-		ikePolicyPatchModel.IkeVersion = &ikeVersion
+		if nameChangeFlag {
+			name := d.Get(isIKEName).(string)
+			ikePolicyPatchModel.Name = &name
+		}
+		if authenticationAlgChangeFlag {
+			authenticationAlg := d.Get(isIKEAuthenticationAlg).(string)
+			ikePolicyPatchModel.AuthenticationAlgorithm = &authenticationAlg
+		}
+		if authenticationAlgsChangeFlag {
+			authenticationAlgs := d.Get("authentication_algorithms").([]interface{})
+			ikePolicyPatchModel.AuthenticationAlgorithms = interfaceSliceToStringSlice(authenticationAlgs)
+		}
+		if encryptionAlgChangeFlag {
+			encryptionAlg := d.Get(isIKEEncryptionAlg).(string)
+			ikePolicyPatchModel.EncryptionAlgorithm = &encryptionAlg
+		}
+		if encryptionAlgsChangeFlag {
+			encryptionAlgs := d.Get("encryption_algorithms").([]interface{})
+			ikePolicyPatchModel.EncryptionAlgorithms = interfaceSliceToStringSlice(encryptionAlgs)
+		}
+		if keyLifetimeChangeFlag {
+			keyLifetime := int64(d.Get(isIKEKeyLifeTime).(int))
+			ikePolicyPatchModel.KeyLifetime = &keyLifetime
+		}
+		if dhGroupChangeFlag {
+			dhGroup := int64(d.Get(isIKEDhGroup).(int))
+			ikePolicyPatchModel.DhGroup = &dhGroup
+		}
+		if dhGroupsChangeFlag {
+			dhGroups := d.Get("dh_groups").([]interface{})
+			ikePolicyPatchModel.DhGroups = interfaceSliceToInt64Slice(dhGroups)
+		}
+		if ikeVersionChangeFlag {
+			ikeVersion := int64(d.Get(isIKEVERSION).(int))
+			ikePolicyPatchModel.IkeVersion = &ikeVersion
+		}
 		ikePolicyPatch, err := ikePolicyPatchModel.AsPatch()
 		if err != nil {
 			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error calling asPatch for IkePolicyPatch: %s", err.Error()), "ibm_is_ike_policy", "update")
 			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
 			return tfErr.GetDiag()
 		}
+
+		if encryptionAlgsChangeFlag || dhGroupsChangeFlag || authenticationAlgsChangeFlag {
+			getIkePolicyOptions := &vpcv1.GetIkePolicyOptions{
+				ID: core.StringPtr(d.Id()),
+			}
+			_, etagResponse, etagErr := sess.GetIkePolicyWithContext(context, getIkePolicyOptions)
+			if etagErr != nil {
+				if etagResponse != nil && etagResponse.StatusCode == 404 {
+					d.SetId("")
+					return nil
+				}
+				tfErr := flex.TerraformErrorf(err, fmt.Sprintf("GetIkePolicyWithContext failed: %s", etagErr.Error()), "ibm_is_ike_policy", "update")
+				log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+				return tfErr.GetDiag()
+			}
+			eTag := etagResponse.Headers.Get("ETag")
+			options.IfMatch = &eTag
+		}
+
 		options.IkePolicyPatch = ikePolicyPatch
 
 		_, _, err = sess.UpdateIkePolicyWithContext(context, options)
@@ -547,4 +601,27 @@ func ikepExists(d *schema.ResourceData, meta interface{}, id string) (bool, erro
 	}
 
 	return true, nil
+}
+
+func interfaceSliceToStringSlice(values []interface{}) []string {
+	result := make([]string, 0, len(values))
+
+	for _, v := range values {
+		if s, ok := v.(string); ok {
+			result = append(result, s)
+		}
+	}
+
+	return result
+}
+func interfaceSliceToInt64Slice(values []interface{}) []int64 {
+	result := make([]int64, 0, len(values))
+
+	for _, v := range values {
+		if s, ok := v.(int64); ok {
+			result = append(result, s)
+		}
+	}
+
+	return result
 }
