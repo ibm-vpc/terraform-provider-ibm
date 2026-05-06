@@ -65,6 +65,7 @@ func ResourceIBMISIPSecPolicy() *schema.Resource {
 			"authentication_algorithms": &schema.Schema{
 				Type:        schema.TypeList,
 				Optional:    true,
+				Computed:    true,
 				Description: "The authentication algorithms to use for IPsec Negotiation.The order of the algorithms in this array indicates their priority for negotiation, with each algorithm having priority over the one after it.",
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
@@ -79,6 +80,7 @@ func ResourceIBMISIPSecPolicy() *schema.Resource {
 			"encryption_algorithms": &schema.Schema{
 				Type:        schema.TypeList,
 				Optional:    true,
+				Computed:    true,
 				Description: "The encryption algorithms to use for IKE Negotiation.The order of the algorithms in this array indicates their priority for negotiation, with each algorithm having priority over the one after it.",
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
@@ -93,6 +95,7 @@ func ResourceIBMISIPSecPolicy() *schema.Resource {
 			"pfs_groups": &schema.Schema{
 				Type:        schema.TypeList,
 				Optional:    true,
+				Computed:    true,
 				Description: "The Perfect Forward Secrecy groups to use for IPsec negotiation.The order of the Perfect Forward Secrecy groups in this array indicates their priority for negotiation, with each Perfect Forward Secrecy group having priority over the one after it.",
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},

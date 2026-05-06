@@ -58,6 +58,7 @@ func ResourceIBMISIKEPolicy() *schema.Resource {
 			"authentication_algorithms": &schema.Schema{
 				Type:        schema.TypeList,
 				Optional:    true,
+				Computed:    true,
 				Description: "The authentication algorithms to use for IKE Negotiation.The order of the algorithms in this array indicates their priority for negotiation, with each algorithm having priority over the one after it.",
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
@@ -71,6 +72,7 @@ func ResourceIBMISIKEPolicy() *schema.Resource {
 			"encryption_algorithms": &schema.Schema{
 				Type:        schema.TypeList,
 				Optional:    true,
+				Computed:    true,
 				Description: "The encryption algorithms to use for IKE Negotiation.The order of the algorithms in this array indicates their priority for negotiation, with each algorithm having priority over the one after it.",
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
@@ -83,6 +85,7 @@ func ResourceIBMISIKEPolicy() *schema.Resource {
 			"dh_groups": &schema.Schema{
 				Type:        schema.TypeList,
 				Optional:    true,
+				Computed:    true,
 				Description: "The Diffie-Hellman groups to use for IKE negotiation.The order of the Diffie-Hellman groups in this array indicates their priority for negotiation, with each Diffie-Hellman group having priority over the one after it.",
 				Elem:        &schema.Schema{Type: schema.TypeInt},
 			},
