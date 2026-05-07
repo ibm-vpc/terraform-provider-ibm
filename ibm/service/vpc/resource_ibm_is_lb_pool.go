@@ -233,6 +233,76 @@ func ResourceIBMISLBPool() *schema.Resource {
 				Description:  "PROXY protocol setting for this pool",
 			},
 
+			"health_monitor": &schema.Schema{
+				Type:        schema.TypeList,
+				MinItems:    1,
+				MaxItems:    1,
+				Required:    true,
+				Description: "The health monitor of this pool.If this pool has a member targeting a load balancer then:- If the targeted load balancer has multiple subnets, this health monitor is used to  direct traffic to the available subnets.- The health checks spawned by this health monitor is handled as any other traffic  (that is, subject to the configuration of listeners and pools on the target load  balancer).- This health monitor does not affect how pool member health is determined within the  target load balancer.For more information, see [Private Path network load balancer frequently askedquestions](https://cloud.ibm.com/docs/vpc?topic=vpc-nlb-faqs#ppnlb-faqs).",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"request": &schema.Schema{
+							Type:     schema.TypeList,
+							MaxItems: 1,
+							Optional: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"body": &schema.Schema{
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: "The HTTP request body used for health checks.If absent, the health checks will ignore the request body.",
+									},
+									"headers": &schema.Schema{
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: "The HTTP request headers used for health checks.If absent, the health checks will ignore the request headers.",
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"field": &schema.Schema{
+													Type:        schema.TypeString,
+													Optional:    true,
+													Description: "The field of an HTTP request header used for health checks.",
+												},
+												"value": &schema.Schema{
+													Type:        schema.TypeString,
+													Optional:    true,
+													Description: "The value of an HTTP request header used for health checks.",
+												},
+											},
+										},
+									},
+									"method": &schema.Schema{
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: "The HTTP request method used for health checks.",
+									},
+								},
+							},
+						},
+						"response": &schema.Schema{
+							Type:     schema.TypeList,
+							MaxItems: 1,
+							Optional: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"body_regex": &schema.Schema{
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: "The PCRE-flavor regular expression that HTTP response bodies must match for successful health checks.If absent, health checks will ignore any response body.",
+									},
+									"codes": &schema.Schema{
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: "The HTTP response codes expected for successful health checks.",
+										Elem:        &schema.Schema{Type: schema.TypeString},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+
 			isLBPool: {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -374,6 +444,10 @@ func lbPoolCreate(context context.Context, d *schema.ResourceData, meta interfac
 		Timeout:    &healthTimeOut,
 		Type:       &healthType,
 	}
+	healthMonitorRequestModel, healthMonitorResponseModel, err := ResourceIBMIsLbPoolMapToLoadBalancerPoolHealthMonitorPrototype(d.Get("health_monitor.0").(map[string]interface{}))
+	if err != nil {
+		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_lb_pool", "create", "parse-health_monitor").GetDiag()
+	}
 	options := &vpcv1.CreateLoadBalancerPoolOptions{
 		LoadBalancerID: &lbID,
 		Algorithm:      &algorithm,
@@ -382,6 +456,12 @@ func lbPoolCreate(context context.Context, d *schema.ResourceData, meta interfac
 	}
 	if healthMonitorURL != "" {
 		healthMonitor.URLPath = &healthMonitorURL
+	}
+	if healthMonitorRequestModel != nil {
+		healthMonitor.Request = healthMonitorRequestModel
+	}
+	if healthMonitorResponseModel != nil {
+		healthMonitor.Response = healthMonitorResponseModel
 	}
 	if healthMonitorPort > int64(0) {
 		healthMonitor.Port = &healthMonitorPort
@@ -524,6 +604,14 @@ func lbPoolGet(context context.Context, d *schema.ResourceData, meta interface{}
 				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_lb_pool", "read", "set-health_monitor_port").GetDiag()
 			}
 		}
+	}
+	healthMonitorMap, err := ResourceIBMIsLbPoolLoadBalancerPoolHealthMonitorToMap(loadBalancerPool.HealthMonitor)
+	if err != nil {
+		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_lb_pool", "read", "health_monitor-to-map").GetDiag()
+	}
+	if err = d.Set("health_monitor", []map[string]interface{}{healthMonitorMap}); err != nil {
+		err = fmt.Errorf("Error setting health_monitor: %s", err)
+		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_lb_pool", "read", "set-health_monitor").GetDiag()
 	}
 	if !core.IsNil(loadBalancerPool.FailsafePolicy) {
 		failsafePolicyMap, err := resourceIBMIsLbPoolLoadBalancerPoolFailsafePolicyToMap(loadBalancerPool.FailsafePolicy)
@@ -676,7 +764,7 @@ func lbPoolUpdate(context context.Context, d *schema.ResourceData, meta interfac
 	}
 
 	if d.HasChange(isLBPoolHealthDelay) || d.HasChange(isLBPoolHealthRetries) ||
-		d.HasChange(isLBPoolHealthTimeout) || d.HasChange(isLBPoolHealthType) || d.HasChange(isLBPoolHealthMonitorURL) || d.HasChange(isLBPoolHealthMonitorPort) || d.HasChange("failsafe_policy") {
+		d.HasChange(isLBPoolHealthTimeout) || d.HasChange(isLBPoolHealthType) || d.HasChange(isLBPoolHealthMonitorURL) || d.HasChange(isLBPoolHealthMonitorPort) || d.HasChange("failsafe_policy") || d.HasChange("health_monitor") {
 
 		delay := int64(d.Get(isLBPoolHealthDelay).(int))
 		maxretries := int64(d.Get(isLBPoolHealthRetries).(int))
@@ -696,6 +784,49 @@ func lbPoolUpdate(context context.Context, d *schema.ResourceData, meta interfac
 		} else {
 			lBPoolHealthMonitorPortRemoved = true
 		}
+
+		hm := d.Get("health_monitor.0").(map[string]interface{})
+
+		if d.HasChange("health_monitor.0.request") {
+			if hm["request"] != nil && len(hm["request"].([]interface{})) > 0 {
+				requestModel, err :=
+					ResourceIBMIsLbPoolMapToLoadBalancerPoolHealthMonitorTypeHttphttpsRequestPatch(
+						hm["request"].([]interface{})[0].(map[string]interface{}),
+					)
+				if err != nil {
+					return flex.DiscriminatedTerraformErrorf(
+						err,
+						err.Error(),
+						"ibm_is_lb_pool",
+						"update",
+						"parse-health_monitor-request",
+					).GetDiag()
+				}
+
+				healthMonitorTemplate.Request = requestModel
+			}
+		}
+
+		if d.HasChange("health_monitor.0.response") {
+			if hm["response"] != nil && len(hm["response"].([]interface{})) > 0 {
+				responseModel, err :=
+					ResourceIBMIsLbPoolMapToLoadBalancerPoolHealthMonitorTypeHttphttpsResponsePatch(
+						hm["response"].([]interface{})[0].(map[string]interface{}),
+					)
+				if err != nil {
+					return flex.DiscriminatedTerraformErrorf(
+						err,
+						err.Error(),
+						"ibm_is_lb_pool",
+						"update",
+						"parse-health_monitor-response",
+					).GetDiag()
+				}
+
+				healthMonitorTemplate.Response = responseModel
+			}
+		}
+
 		loadBalancerPoolPatchModel.HealthMonitor = healthMonitorTemplate
 		hasChanged = true
 	}
@@ -1070,4 +1201,298 @@ func suppressNullTarget(k, old, new string, d *schema.ResourceData) bool {
 	}
 
 	return false
+}
+
+func ResourceIBMIsLbPoolMapToLoadBalancerPoolHealthMonitorPrototype(
+	modelMap map[string]interface{},
+) (
+	vpcv1.LoadBalancerPoolHealthMonitorTypeHttphttpsRequestPrototypeIntf,
+	vpcv1.LoadBalancerPoolHealthMonitorTypeHttphttpsResponsePrototypeIntf,
+	error,
+) {
+	var (
+		requestModel  vpcv1.LoadBalancerPoolHealthMonitorTypeHttphttpsRequestPrototypeIntf
+		responseModel vpcv1.LoadBalancerPoolHealthMonitorTypeHttphttpsResponsePrototypeIntf
+		err           error
+	)
+
+	if modelMap["request"] != nil && len(modelMap["request"].([]interface{})) > 0 {
+		requestModel, err =
+			ResourceIBMIsLbPoolMapToLoadBalancerPoolHealthMonitorTypeHttphttpsRequestPrototype(
+				modelMap["request"].([]interface{})[0].(map[string]interface{}),
+			)
+		if err != nil {
+			return requestModel, responseModel, err
+		}
+	}
+
+	if modelMap["response"] != nil && len(modelMap["response"].([]interface{})) > 0 {
+		responseModel, err =
+			ResourceIBMIsLbPoolMapToLoadBalancerPoolHealthMonitorTypeHttphttpsResponsePrototype(
+				modelMap["response"].([]interface{})[0].(map[string]interface{}),
+			)
+		if err != nil {
+			return requestModel, responseModel, err
+		}
+	}
+
+	return requestModel, responseModel, nil
+}
+
+func ResourceIBMIsLbPoolMapToLoadBalancerPoolHealthMonitorTypeHttphttpsRequestPrototype(modelMap map[string]interface{}) (vpcv1.LoadBalancerPoolHealthMonitorTypeHttphttpsRequestPrototypeIntf, error) {
+	model := &vpcv1.LoadBalancerPoolHealthMonitorTypeHttphttpsRequestPrototype{}
+	if modelMap["headers"] != nil {
+		headers := []vpcv1.LoadBalancerPoolHealthMonitorTypeHttphttpsRequestHeaderPrototype{}
+		for _, headersItem := range modelMap["headers"].([]interface{}) {
+			headersItemModel, err := ResourceIBMIsLbPoolMapToLoadBalancerPoolHealthMonitorTypeHttphttpsRequestHeaderPrototype(headersItem.(map[string]interface{}))
+			if err != nil {
+				return model, err
+			}
+			headers = append(headers, *headersItemModel)
+		}
+		model.HeadersVar = headers
+	}
+	if modelMap["method"] != nil && modelMap["method"].(string) != "" {
+		model.Method = core.StringPtr(modelMap["method"].(string))
+	}
+	if modelMap["body"] != nil && modelMap["body"].(string) != "" {
+		model.Body = core.StringPtr(modelMap["body"].(string))
+	}
+	return model, nil
+}
+
+func ResourceIBMIsLbPoolMapToLoadBalancerPoolHealthMonitorTypeHttphttpsRequestHeaderPrototype(modelMap map[string]interface{}) (*vpcv1.LoadBalancerPoolHealthMonitorTypeHttphttpsRequestHeaderPrototype, error) {
+	model := &vpcv1.LoadBalancerPoolHealthMonitorTypeHttphttpsRequestHeaderPrototype{}
+	if modelMap["field"] != nil && modelMap["field"].(string) != "" {
+		model.Field = core.StringPtr(modelMap["field"].(string))
+	}
+	if modelMap["value"] != nil && modelMap["value"].(string) != "" {
+		model.Value = core.StringPtr(modelMap["value"].(string))
+	}
+	return model, nil
+}
+
+func ResourceIBMIsLbPoolMapToLoadBalancerPoolHealthMonitorTypeHttphttpsRequestPrototypeLoadBalancerPoolHealthMonitorTypeHttphttpsRequestGetPrototype(modelMap map[string]interface{}) (*vpcv1.LoadBalancerPoolHealthMonitorTypeHttphttpsRequestPrototypeLoadBalancerPoolHealthMonitorTypeHttphttpsRequestGetPrototype, error) {
+	model := &vpcv1.LoadBalancerPoolHealthMonitorTypeHttphttpsRequestPrototypeLoadBalancerPoolHealthMonitorTypeHttphttpsRequestGetPrototype{}
+	if modelMap["headers"] != nil {
+		headers := []vpcv1.LoadBalancerPoolHealthMonitorTypeHttphttpsRequestHeaderPrototype{}
+		for _, headersItem := range modelMap["headers"].([]interface{}) {
+			headersItemModel, err := ResourceIBMIsLbPoolMapToLoadBalancerPoolHealthMonitorTypeHttphttpsRequestHeaderPrototype(headersItem.(map[string]interface{}))
+			if err != nil {
+				return model, err
+			}
+			headers = append(headers, *headersItemModel)
+		}
+		model.HeadersVar = headers
+	}
+	model.Method = core.StringPtr(modelMap["method"].(string))
+	return model, nil
+}
+
+func ResourceIBMIsLbPoolMapToLoadBalancerPoolHealthMonitorTypeHttphttpsRequestPrototypeLoadBalancerPoolHealthMonitorTypeHttphttpsRequestPostPrototype(modelMap map[string]interface{}) (*vpcv1.LoadBalancerPoolHealthMonitorTypeHttphttpsRequestPrototypeLoadBalancerPoolHealthMonitorTypeHttphttpsRequestPostPrototype, error) {
+	model := &vpcv1.LoadBalancerPoolHealthMonitorTypeHttphttpsRequestPrototypeLoadBalancerPoolHealthMonitorTypeHttphttpsRequestPostPrototype{}
+	if modelMap["body"] != nil && modelMap["body"].(string) != "" {
+		model.Body = core.StringPtr(modelMap["body"].(string))
+	}
+	if modelMap["headers"] != nil {
+		headers := []vpcv1.LoadBalancerPoolHealthMonitorTypeHttphttpsRequestHeaderPrototype{}
+		for _, headersItem := range modelMap["headers"].([]interface{}) {
+			headersItemModel, err := ResourceIBMIsLbPoolMapToLoadBalancerPoolHealthMonitorTypeHttphttpsRequestHeaderPrototype(headersItem.(map[string]interface{}))
+			if err != nil {
+				return model, err
+			}
+			headers = append(headers, *headersItemModel)
+		}
+		model.HeadersVar = headers
+	}
+	model.Method = core.StringPtr(modelMap["method"].(string))
+	return model, nil
+}
+
+func ResourceIBMIsLbPoolMapToLoadBalancerPoolHealthMonitorTypeHttphttpsResponsePrototype(modelMap map[string]interface{}) (vpcv1.LoadBalancerPoolHealthMonitorTypeHttphttpsResponsePrototypeIntf, error) {
+	model := &vpcv1.LoadBalancerPoolHealthMonitorTypeHttphttpsResponsePrototype{}
+	if modelMap["body_regex"] != nil && modelMap["body_regex"].(string) != "" {
+		model.BodyRegex = core.StringPtr(modelMap["body_regex"].(string))
+	}
+	if modelMap["codes"] != nil {
+		codes := []string{}
+		for _, codesItem := range modelMap["codes"].([]interface{}) {
+			codes = append(codes, codesItem.(string))
+		}
+		model.Codes = codes
+	}
+	return model, nil
+}
+
+func ResourceIBMIsLbPoolMapToLoadBalancerPoolHealthMonitorTypeHttphttpsResponsePrototypeLoadBalancerPoolHealthMonitorTypeHttphttpsResponseBodyPrototype(modelMap map[string]interface{}) (*vpcv1.LoadBalancerPoolHealthMonitorTypeHttphttpsResponsePrototypeLoadBalancerPoolHealthMonitorTypeHttphttpsResponseBodyPrototype, error) {
+	model := &vpcv1.LoadBalancerPoolHealthMonitorTypeHttphttpsResponsePrototypeLoadBalancerPoolHealthMonitorTypeHttphttpsResponseBodyPrototype{}
+	model.BodyRegex = core.StringPtr(modelMap["body_regex"].(string))
+	return model, nil
+}
+
+func ResourceIBMIsLbPoolMapToLoadBalancerPoolHealthMonitorTypeHttphttpsResponsePrototypeLoadBalancerPoolHealthMonitorTypeHttphttpsResponseCodesPrototype(modelMap map[string]interface{}) (*vpcv1.LoadBalancerPoolHealthMonitorTypeHttphttpsResponsePrototypeLoadBalancerPoolHealthMonitorTypeHttphttpsResponseCodesPrototype, error) {
+	model := &vpcv1.LoadBalancerPoolHealthMonitorTypeHttphttpsResponsePrototypeLoadBalancerPoolHealthMonitorTypeHttphttpsResponseCodesPrototype{}
+	if modelMap["codes"] != nil {
+		codes := []string{}
+		for _, codesItem := range modelMap["codes"].([]interface{}) {
+			codes = append(codes, codesItem.(string))
+		}
+		model.Codes = codes
+	}
+	return model, nil
+}
+
+func ResourceIBMIsLbPoolLoadBalancerPoolHealthMonitorToMap(model vpcv1.LoadBalancerPoolHealthMonitorIntf) (map[string]interface{}, error) {
+	if _, ok := model.(*vpcv1.LoadBalancerPoolHealthMonitorTypeHttphttps); ok {
+		return ResourceIBMIsLbPoolLoadBalancerPoolHealthMonitorTypeHttphttpsToMap(model.(*vpcv1.LoadBalancerPoolHealthMonitorTypeHttphttps))
+	} else if _, ok := model.(*vpcv1.LoadBalancerPoolHealthMonitorTypeTCP); ok {
+		return ResourceIBMIsLbPoolLoadBalancerPoolHealthMonitorTypeTCPToMap(model.(*vpcv1.LoadBalancerPoolHealthMonitorTypeTCP))
+	} else if _, ok := model.(*vpcv1.LoadBalancerPoolHealthMonitor); ok {
+		modelMap := make(map[string]interface{})
+		model := model.(*vpcv1.LoadBalancerPoolHealthMonitor)
+
+		if model.Request != nil {
+			requestMap, err := ResourceIBMIsLbPoolLoadBalancerPoolHealthMonitorTypeHttphttpsRequestToMap(model.Request)
+			if err != nil {
+				return modelMap, err
+			}
+			modelMap["request"] = []map[string]interface{}{requestMap}
+		}
+		if model.Response != nil {
+			responseMap, err := ResourceIBMIsLbPoolLoadBalancerPoolHealthMonitorTypeHttphttpsResponseToMap(model.Response)
+			if err != nil {
+				return modelMap, err
+			}
+			modelMap["response"] = []map[string]interface{}{responseMap}
+		}
+
+		return modelMap, nil
+	} else {
+		return nil, fmt.Errorf("Unrecognized vpcv1.LoadBalancerPoolHealthMonitorIntf subtype encountered")
+	}
+}
+
+func ResourceIBMIsLbPoolLoadBalancerPoolHealthMonitorTypeHttphttpsRequestToMap(model *vpcv1.LoadBalancerPoolHealthMonitorTypeHttphttpsRequest) (map[string]interface{}, error) {
+	modelMap := make(map[string]interface{})
+	if model.Body != nil {
+		modelMap["body"] = *model.Body
+	}
+	if model.HeadersVar != nil {
+		headers := []map[string]interface{}{}
+		for _, headersItem := range model.HeadersVar {
+			headersItemMap, err := ResourceIBMIsLbPoolLoadBalancerPoolHealthMonitorTypeHttphttpsRequestHeaderToMap(&headersItem) // #nosec G601
+			if err != nil {
+				return modelMap, err
+			}
+			headers = append(headers, headersItemMap)
+		}
+		modelMap["headers"] = headers
+	}
+	modelMap["method"] = *model.Method
+	return modelMap, nil
+}
+
+func ResourceIBMIsLbPoolLoadBalancerPoolHealthMonitorTypeHttphttpsRequestHeaderToMap(model *vpcv1.LoadBalancerPoolHealthMonitorTypeHttphttpsRequestHeader) (map[string]interface{}, error) {
+	modelMap := make(map[string]interface{})
+	if model.Field != nil {
+		modelMap["field"] = *model.Field
+	}
+	if model.Value != nil {
+		modelMap["value"] = *model.Value
+	}
+	return modelMap, nil
+}
+
+func ResourceIBMIsLbPoolLoadBalancerPoolHealthMonitorTypeHttphttpsResponseToMap(model vpcv1.LoadBalancerPoolHealthMonitorTypeHttphttpsResponseIntf) (map[string]interface{}, error) {
+	if _, ok := model.(*vpcv1.LoadBalancerPoolHealthMonitorTypeHttphttpsResponseBody); ok {
+		return ResourceIBMIsLbPoolLoadBalancerPoolHealthMonitorTypeHttphttpsResponseBodyToMap(model.(*vpcv1.LoadBalancerPoolHealthMonitorTypeHttphttpsResponseBody))
+	} else if _, ok := model.(*vpcv1.LoadBalancerPoolHealthMonitorTypeHttphttpsResponseCodes); ok {
+		return ResourceIBMIsLbPoolLoadBalancerPoolHealthMonitorTypeHttphttpsResponseCodesToMap(model.(*vpcv1.LoadBalancerPoolHealthMonitorTypeHttphttpsResponseCodes))
+	} else if _, ok := model.(*vpcv1.LoadBalancerPoolHealthMonitorTypeHttphttpsResponse); ok {
+		modelMap := make(map[string]interface{})
+		model := model.(*vpcv1.LoadBalancerPoolHealthMonitorTypeHttphttpsResponse)
+		if model.BodyRegex != nil {
+			modelMap["body_regex"] = *model.BodyRegex
+		}
+		if model.Codes != nil {
+			modelMap["codes"] = model.Codes
+		}
+		return modelMap, nil
+	} else {
+		return nil, fmt.Errorf("Unrecognized vpcv1.LoadBalancerPoolHealthMonitorTypeHttphttpsResponseIntf subtype encountered")
+	}
+}
+
+func ResourceIBMIsLbPoolLoadBalancerPoolHealthMonitorTypeHttphttpsResponseBodyToMap(model *vpcv1.LoadBalancerPoolHealthMonitorTypeHttphttpsResponseBody) (map[string]interface{}, error) {
+	modelMap := make(map[string]interface{})
+	if model.BodyRegex != nil {
+		modelMap["body_regex"] = *model.BodyRegex
+	}
+	return modelMap, nil
+}
+
+func ResourceIBMIsLbPoolLoadBalancerPoolHealthMonitorTypeHttphttpsResponseCodesToMap(model *vpcv1.LoadBalancerPoolHealthMonitorTypeHttphttpsResponseCodes) (map[string]interface{}, error) {
+	modelMap := make(map[string]interface{})
+	modelMap["codes"] = model.Codes
+	return modelMap, nil
+}
+
+func ResourceIBMIsLbPoolLoadBalancerPoolHealthMonitorTypeHttphttpsToMap(model *vpcv1.LoadBalancerPoolHealthMonitorTypeHttphttps) (map[string]interface{}, error) {
+	modelMap := make(map[string]interface{})
+	if model.Request != nil {
+		requestMap, err := ResourceIBMIsLbPoolLoadBalancerPoolHealthMonitorTypeHttphttpsRequestToMap(model.Request)
+		if err != nil {
+			return modelMap, err
+		}
+		modelMap["request"] = []map[string]interface{}{requestMap}
+	}
+	if model.Response != nil {
+		responseMap, err := ResourceIBMIsLbPoolLoadBalancerPoolHealthMonitorTypeHttphttpsResponseToMap(model.Response)
+		if err != nil {
+			return modelMap, err
+		}
+		modelMap["response"] = []map[string]interface{}{responseMap}
+	}
+	return modelMap, nil
+}
+
+func ResourceIBMIsLbPoolLoadBalancerPoolHealthMonitorTypeTCPToMap(model *vpcv1.LoadBalancerPoolHealthMonitorTypeTCP) (map[string]interface{}, error) {
+	modelMap := make(map[string]interface{})
+
+	return modelMap, nil
+}
+
+func ResourceIBMIsLbPoolMapToLoadBalancerPoolHealthMonitorTypeHttphttpsRequestPatch(modelMap map[string]interface{}) (*vpcv1.LoadBalancerPoolHealthMonitorTypeHttphttpsRequestPatch, error) {
+	model := &vpcv1.LoadBalancerPoolHealthMonitorTypeHttphttpsRequestPatch{}
+	if modelMap["body"] != nil && modelMap["body"].(string) != "" {
+		model.Body = core.StringPtr(modelMap["body"].(string))
+	}
+	if modelMap["headers"] != nil {
+		headers := []vpcv1.LoadBalancerPoolHealthMonitorTypeHttphttpsRequestHeaderPrototype{}
+		for _, headersItem := range modelMap["headers"].([]interface{}) {
+			headersItemModel, err := ResourceIBMIsLbPoolMapToLoadBalancerPoolHealthMonitorTypeHttphttpsRequestHeaderPrototype(headersItem.(map[string]interface{}))
+			if err != nil {
+				return model, err
+			}
+			headers = append(headers, *headersItemModel)
+		}
+		model.HeadersVar = headers
+	}
+	model.Method = core.StringPtr(modelMap["method"].(string))
+	return model, nil
+}
+
+func ResourceIBMIsLbPoolMapToLoadBalancerPoolHealthMonitorTypeHttphttpsResponsePatch(modelMap map[string]interface{}) (*vpcv1.LoadBalancerPoolHealthMonitorTypeHttphttpsResponsePatch, error) {
+	model := &vpcv1.LoadBalancerPoolHealthMonitorTypeHttphttpsResponsePatch{}
+	if modelMap["body_regex"] != nil && modelMap["body_regex"].(string) != "" {
+		model.BodyRegex = core.StringPtr(modelMap["body_regex"].(string))
+	}
+	if modelMap["codes"] != nil {
+		codes := []string{}
+		for _, codesItem := range modelMap["codes"].([]interface{}) {
+			codes = append(codes, codesItem.(string))
+		}
+		model.Codes = codes
+	}
+	return model, nil
 }
