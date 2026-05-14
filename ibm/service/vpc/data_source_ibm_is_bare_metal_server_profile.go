@@ -690,12 +690,12 @@ func dataSourceIBMISBMSProfileRead(context context.Context, d *schema.ResourceDa
 		}
 	}
 	zones := []map[string]interface{}{}
-	for _, zonesItem := range bareMetalServerProfile.Zones {
-		zonesItemMap, err := dataSourceIBMIsBareMetalServerProfileZoneReferenceToMap(&zonesItem)
+	for _, zoneItem := range bareMetalServerProfile.Zones {
+		zoneItemMap, err := dataSourceIBMIsBareMetalServerProfileZoneReferenceToMap(zoneItem)
 		if err != nil {
 			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_bare_metal_server_profile", "read", "zones-to-map").GetDiag()
 		}
-		zones = append(zones, zonesItemMap)
+		zones = append(zones, zoneItemMap)
 	}
 	if err = d.Set("zones", zones); err != nil {
 		return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting zones: %s", err), "(Data)  ibm_is_bare_metal_server_profile", "read", "set-zones").GetDiag()
@@ -821,9 +821,9 @@ func dataSourceIBMIsBareMetalServerProfileBareMetalServerProfileNetworkAttachmen
 	return modelMap, nil
 }
 
-func dataSourceIBMIsBareMetalServerProfileZoneReferenceToMap(model *vpcv1.ZoneReference) (map[string]interface{}, error) {
+func dataSourceIBMIsBareMetalServerProfileZoneReferenceToMap(model vpcv1.ZoneReference) (map[string]interface{}, error) {
 	modelMap := make(map[string]interface{})
-	modelMap["href"] = *model.Href
-	modelMap["name"] = *model.Name
+	modelMap["href"] = model.Href
+	modelMap["name"] = model.Name
 	return modelMap, nil
 }

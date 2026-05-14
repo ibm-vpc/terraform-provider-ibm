@@ -328,6 +328,25 @@ func DataSourceIBMIsBareMetalServerProfiles() *schema.Resource {
 								},
 							},
 						},
+						isBareMetalServerProfileZones: {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "Zones in this region that support this bare metal server profile",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"href": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The URL for this zone",
+									},
+									"name": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The globally unique name for this zone",
+									},
+								},
+							},
+						},
 						isBareMetalServerProfileDisks: {
 							Type:        schema.TypeList,
 							Computed:    true,
@@ -395,25 +414,6 @@ func DataSourceIBMIsBareMetalServerProfiles() *schema.Resource {
 													Description: "The supported disk interfaces used for attaching the disk",
 													Elem:        &schema.Schema{Type: schema.TypeString},
 													Set:         flex.ResourceIBMVPCHash,
-												},
-											},
-										},
-									},
-									isBareMetalServerProfileZones: {
-										Type:        schema.TypeList,
-										Computed:    true,
-										Description: "The zones in this region that have bare metal servers that match this profile.",
-										Elem: &schema.Resource{
-											Schema: map[string]*schema.Schema{
-												"href": &schema.Schema{
-													Type:        schema.TypeString,
-													Computed:    true,
-													Description: "The URL for this zone.",
-												},
-												"name": &schema.Schema{
-													Type:        schema.TypeString,
-													Computed:    true,
-													Description: "The globally unique name for this zone.",
 												},
 											},
 										},
@@ -604,9 +604,14 @@ func dataSourceIBMIsBareMetalServerProfilesRead(context context.Context, d *sche
 			l[isBareMetalServerProfileOS] = list
 		}
 		zones := []map[string]interface{}{}
-		for _, zonesItem := range profile.Zones {
-			zonesItemMap := dataSourceIBMIsBareMetalServerProfilesZoneReferenceToMap(&zonesItem)
-			zones = append(zones, zonesItemMap)
+		if profile.Zones != nil {
+			for _, zoneItem := range profile.Zones {
+				zoneItemMap, err := dataSourceIBMIsBareMetalServerProfileZoneReferenceToMap(zoneItem)
+				if err != nil {
+					return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_bare_metal_server_profiles", "read", "zones-to-map").GetDiag()
+				}
+				zones = append(zones, zoneItemMap)
+			}
 		}
 		l["zones"] = zones
 		if profile.Disks != nil {
@@ -658,10 +663,4 @@ func dataSourceIBMIsBareMetalServerProfilesRead(context context.Context, d *sche
 // dataSourceIBMIsBMSProfilesID returns a reasonable ID for a BMS Profile list.
 func dataSourceIBMIsBMSProfilesID(d *schema.ResourceData) string {
 	return time.Now().UTC().String()
-}
-func dataSourceIBMIsBareMetalServerProfilesZoneReferenceToMap(model *vpcv1.ZoneReference) map[string]interface{} {
-	modelMap := make(map[string]interface{})
-	modelMap["href"] = *model.Href
-	modelMap["name"] = *model.Name
-	return modelMap
 }

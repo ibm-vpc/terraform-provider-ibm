@@ -23,8 +23,13 @@ func TestAccIBMISBareMetalServerCapacitiesDataSource_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet(resName, "id"),
 					resource.TestCheckResourceAttrSet(resName, "capacities.#"),
-					resource.TestCheckResourceAttrSet(resName, "capacities.0.name"),
-					resource.TestCheckResourceAttrSet(resName, "capacities.0.zones.#"),
+					resource.TestCheckResourceAttrSet(resName, "capacities.0.profile.#"),
+					resource.TestCheckResourceAttrSet(resName, "capacities.0.profile.0.name"),
+					resource.TestCheckResourceAttrSet(resName, "capacities.0.profile.0.href"),
+					resource.TestCheckResourceAttrSet(resName, "capacities.0.profile.0.resource_type"),
+					resource.TestCheckResourceAttrSet(resName, "capacities.0.zone.#"),
+					resource.TestCheckResourceAttrSet(resName, "capacities.0.zone.0.name"),
+					resource.TestCheckResourceAttrSet(resName, "capacities.0.zone.0.href"),
 				),
 			},
 		},
@@ -42,9 +47,13 @@ func TestAccIBMISBareMetalServerCapacitiesDataSource_FilterByProfile(t *testing.
 				Config: testAccCheckIBMISBareMetalServerCapacitiesDataSourceProfileFilterConfig(),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet(resName, "id"),
+					resource.TestCheckResourceAttrSet(resName, "profile"),
 					resource.TestCheckResourceAttrSet(resName, "capacities.#"),
-					resource.TestCheckResourceAttrSet(resName, "capacities.0.name"),
-					resource.TestCheckResourceAttrSet(resName, "capacities.0.zones.#"),
+					resource.TestCheckResourceAttrSet(resName, "capacities.0.profile.#"),
+					resource.TestCheckResourceAttrSet(resName, "capacities.0.profile.0.name"),
+					resource.TestCheckResourceAttrSet(resName, "capacities.0.profile.0.href"),
+					resource.TestCheckResourceAttrSet(resName, "capacities.0.zone.#"),
+					resource.TestCheckResourceAttrSet(resName, "capacities.0.zone.0.name"),
 				),
 			},
 		},
@@ -62,9 +71,13 @@ func TestAccIBMISBareMetalServerCapacitiesDataSource_FilterByZone(t *testing.T) 
 				Config: testAccCheckIBMISBareMetalServerCapacitiesDataSourceZoneFilterConfig(),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet(resName, "id"),
+					resource.TestCheckResourceAttrSet(resName, "zone"),
 					resource.TestCheckResourceAttrSet(resName, "capacities.#"),
-					resource.TestCheckResourceAttrSet(resName, "capacities.0.name"),
-					resource.TestCheckResourceAttrSet(resName, "capacities.0.zones.#"),
+					resource.TestCheckResourceAttrSet(resName, "capacities.0.profile.#"),
+					resource.TestCheckResourceAttrSet(resName, "capacities.0.profile.0.name"),
+					resource.TestCheckResourceAttrSet(resName, "capacities.0.zone.#"),
+					resource.TestCheckResourceAttrSet(resName, "capacities.0.zone.0.name"),
+					resource.TestCheckResourceAttrSet(resName, "capacities.0.zone.0.href"),
 				),
 			},
 		},
@@ -82,9 +95,16 @@ func TestAccIBMISBareMetalServerCapacitiesDataSource_FilterByBoth(t *testing.T) 
 				Config: testAccCheckIBMISBareMetalServerCapacitiesDataSourceBothFiltersConfig(),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet(resName, "id"),
+					resource.TestCheckResourceAttrSet(resName, "profile"),
+					resource.TestCheckResourceAttrSet(resName, "zone"),
 					resource.TestCheckResourceAttrSet(resName, "capacities.#"),
-					resource.TestCheckResourceAttrSet(resName, "capacities.0.name"),
-					resource.TestCheckResourceAttrSet(resName, "capacities.0.zones.#"),
+					resource.TestCheckResourceAttrSet(resName, "capacities.0.profile.#"),
+					resource.TestCheckResourceAttrSet(resName, "capacities.0.profile.0.name"),
+					resource.TestCheckResourceAttrSet(resName, "capacities.0.profile.0.href"),
+					resource.TestCheckResourceAttrSet(resName, "capacities.0.profile.0.resource_type"),
+					resource.TestCheckResourceAttrSet(resName, "capacities.0.zone.#"),
+					resource.TestCheckResourceAttrSet(resName, "capacities.0.zone.0.name"),
+					resource.TestCheckResourceAttrSet(resName, "capacities.0.zone.0.href"),
 				),
 			},
 		},
@@ -100,11 +120,11 @@ func testAccCheckIBMISBareMetalServerCapacitiesDataSourceConfig() string {
 
 func testAccCheckIBMISBareMetalServerCapacitiesDataSourceProfileFilterConfig() string {
 	return fmt.Sprintf(`
-		data "ibm_is_bare_metal_server_profiles" "test_profiles" {
+		data "ibm_is_bare_metal_server_capacities" "all_capacities" {
 		}
 
 		data "ibm_is_bare_metal_server_capacities" "test1" {
-			profile = data.ibm_is_bare_metal_server_profiles.test_profiles.profiles.0.name
+			profile = data.ibm_is_bare_metal_server_capacities.all_capacities.capacities.0.profile.0.name
 		}
 	`)
 }
@@ -123,16 +143,12 @@ func testAccCheckIBMISBareMetalServerCapacitiesDataSourceZoneFilterConfig() stri
 
 func testAccCheckIBMISBareMetalServerCapacitiesDataSourceBothFiltersConfig() string {
 	return fmt.Sprintf(`
-		data "ibm_is_bare_metal_server_profiles" "test_profiles" {
-		}
-
-		data "ibm_is_zones" "test_zones" {
-			region = "us-south"
+		data "ibm_is_bare_metal_server_capacities" "all_capacities" {
 		}
 
 		data "ibm_is_bare_metal_server_capacities" "test1" {
-			profile = data.ibm_is_bare_metal_server_profiles.test_profiles.profiles.0.name
-			zone    = data.ibm_is_zones.test_zones.zones.0
+			profile = data.ibm_is_bare_metal_server_capacities.all_capacities.capacities.0.profile.0.name
+			zone    = data.ibm_is_bare_metal_server_capacities.all_capacities.capacities.0.zone.0.name
 		}
 	`)
 }

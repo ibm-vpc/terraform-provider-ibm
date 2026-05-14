@@ -46,20 +46,11 @@ data "ibm_is_bare_metal_server_capacities" "ds_bmscapacities_specific" {
   zone    = "us-south-1"
 }
 
-# Use the output to check if a profile is available in a specific zone
-output "profile_available_zones" {
-  value = data.ibm_is_bare_metal_server_capacities.ds_bmscapacities_by_profile.capacities[0].zones
-}
-
-# Check if capacity exists for a specific profile
-locals {
-  has_capacity = length(data.ibm_is_bare_metal_server_capacities.ds_bmscapacities_specific.capacities) > 0
-}
 ```
 
 ## Argument Reference
 
-Review the argument references that you can specify for your data source.
+You can specify the following arguments for this data source.
 
 - `profile` - (Optional, String) The name of a bare metal server profile. Filters the collection to resources with a profile.name property matching the specified name.
 - `zone` - (Optional, String) The name of a zone. Filters the collection to resources with a zone.name property matching the specified name.
@@ -69,8 +60,18 @@ Review the argument references that you can specify for your data source.
 Review the attribute references that you can access after you retrieve your data source.
 
 - `id` - (String) The unique identifier of the bare metal server capacities data source.
-- `capacities` - (List) List of capacities for each profile. The results will include all profile capacities unless a zone or profile filter are specified. The API returns individual profile+zone pairs which are aggregated client-side by profile name.
+- `capacities` - (List) A page of available bare metal server capacities. Each element represents a zone that has available bare metal servers with a profile.
 
-  Nested scheme for an element of `capacities`:
-  - `name` - (String) The name of the bare metal server profile.
-  - `zones` - (List) List of zones in the region that have capacity for the profile. This list represents availability zones where the profile can be provisioned.
+  Nested schema for **capacities**:
+  - `profile` - (List) The profile available in the zone.
+    
+    Nested schema for **profile**:
+    - `href` - (String) The URL for this bare metal server profile.
+    - `name` - (String) The name for this bare metal server profile.
+    - `resource_type` - (String) The resource type. Value: `bare_metal_server_profile`.
+  
+  - `zone` - (List) The zone where one or more bare metal servers of the profile are available.
+    
+    Nested schema for **zone**:
+    - `href` - (String) The URL for this zone.
+    - `name` - (String) The globally unique name for this zone.

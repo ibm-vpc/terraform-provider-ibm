@@ -7,7 +7,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"sort"
 	"time"
 
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/conns"
@@ -39,20 +38,50 @@ func DataSourceIBMIsBareMetalServerCapacities() *schema.Resource {
 			isBareMetalServerCapacitiesList: {
 				Type:        schema.TypeList,
 				Computed:    true,
-				Description: "List of capacities for each profile. The results will include all profile capacities unless a zone or profile filter are specified.",
+				Description: "A page of available bare metal server capacities",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"name": {
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: "The name of the profile",
-						},
-						"zones": {
+						"profile": {
 							Type:        schema.TypeList,
 							Computed:    true,
-							Description: "List of zones in the region that have capacity for the profile",
-							Elem: &schema.Schema{
-								Type: schema.TypeString,
+							Description: "The profile available in the zone",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"href": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The URL for this bare metal server profile",
+									},
+									"name": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The name for this bare metal server profile",
+									},
+									"resource_type": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The resource type",
+									},
+								},
+							},
+						},
+						"zone": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "The zone where one or more bare metal servers of the profile are available",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"href": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The URL for this zone",
+									},
+									"name": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The globally unique name for this zone",
+									},
+								},
 							},
 						},
 					},
@@ -63,9 +92,6 @@ func DataSourceIBMIsBareMetalServerCapacities() *schema.Resource {
 }
 
 func dataSourceIBMISBareMetalServerCapacitiesRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	profile := d.Get("profile").(string)
-	zone := d.Get("zone").(string)
-
 	sess, err := meta.(conns.ClientSession).VpcV1API()
 	if err != nil {
 		tfErr := flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_bare_metal_server_capacities", "read", "initialize-client")
@@ -77,14 +103,16 @@ func dataSourceIBMISBareMetalServerCapacitiesRead(context context.Context, d *sc
 
 	for {
 		options := &vpcv1.ListBareMetalServerCapacitiesOptions{}
-		if profile != "" {
-			options.ProfileName = &profile
-		}
-		if zone != "" {
-			options.ZoneName = &zone
-		}
 		if start != "" {
 			options.Start = &start
+		}
+		if profileFilterOk, ok := d.GetOk("profile"); ok {
+			profileFilter := profileFilterOk.(string)
+			options.ProfileName = &profileFilter
+		}
+		if zoneFilterOk, ok := d.GetOk("zone"); ok {
+			zoneFilter := zoneFilterOk.(string)
+			options.ZoneName = &zoneFilter
 		}
 
 		bmCapacities, _, err := sess.ListBareMetalServerCapacitiesWithContext(context, options)
@@ -107,49 +135,45 @@ func dataSourceIBMISBareMetalServerCapacitiesRead(context context.Context, d *sc
 		}
 	}
 
-	capacities := allCapacities
+	capacitiesInfo := make([]map[string]interface{}, 0)
 
-	profileZones := make(map[string]map[string]bool)
+	for _, capacity := range allCapacities {
+		capacityMap := make(map[string]interface{})
 
-	for _, cap := range capacities {
-		var profileName, zoneName string
-		if cap.Profile != nil && cap.Profile.Name != nil {
-			profileName = *cap.Profile.Name
+		if capacity.Profile != nil {
+			profileList := make([]map[string]interface{}, 1)
+			profileMap := make(map[string]interface{})
+
+			if capacity.Profile.Href != nil {
+				profileMap["href"] = *capacity.Profile.Href
+			}
+			if capacity.Profile.Name != nil {
+				profileMap["name"] = *capacity.Profile.Name
+			}
+			if capacity.Profile.ResourceType != nil {
+				profileMap["resource_type"] = *capacity.Profile.ResourceType
+			}
+
+			profileList[0] = profileMap
+			capacityMap["profile"] = profileList
 		}
-		if cap.Zone != nil && cap.Zone.Name != nil {
-			zoneName = *cap.Zone.Name
+
+		if capacity.Zone != nil {
+			zoneList := make([]map[string]interface{}, 1)
+			zoneMap := make(map[string]interface{})
+
+			if capacity.Zone.Href != nil {
+				zoneMap["href"] = *capacity.Zone.Href
+			}
+			if capacity.Zone.Name != nil {
+				zoneMap["name"] = *capacity.Zone.Name
+			}
+
+			zoneList[0] = zoneMap
+			capacityMap["zone"] = zoneList
 		}
 
-		if profileName == "" || zoneName == "" {
-			continue
-		}
-
-		if _, exists := profileZones[profileName]; !exists {
-			profileZones[profileName] = make(map[string]bool)
-		}
-		profileZones[profileName][zoneName] = true
-	}
-
-	capacitiesInfo := make([]map[string]interface{}, 0, len(profileZones))
-
-	profileNames := make([]string, 0, len(profileZones))
-	for pName := range profileZones {
-		profileNames = append(profileNames, pName)
-	}
-	sort.Strings(profileNames)
-
-	for _, pName := range profileNames {
-		zones := profileZones[pName]
-		zoneList := make([]string, 0, len(zones))
-		for z := range zones {
-			zoneList = append(zoneList, z)
-		}
-		sort.Strings(zoneList)
-
-		capacitiesInfo = append(capacitiesInfo, map[string]interface{}{
-			"name":  pName,
-			"zones": zoneList,
-		})
+		capacitiesInfo = append(capacitiesInfo, capacityMap)
 	}
 
 	d.SetId(dataSourceIBMISBMSCapacitiesID(d))
