@@ -823,7 +823,11 @@ func dataSourceIBMIsBareMetalServerProfileBareMetalServerProfileNetworkAttachmen
 
 func dataSourceIBMIsBareMetalServerProfileZoneReferenceToMap(model vpcv1.ZoneReference) (map[string]interface{}, error) {
 	modelMap := make(map[string]interface{})
-	modelMap["href"] = model.Href
-	modelMap["name"] = model.Name
+	if model.Href != nil {
+		modelMap["href"] = model.Href
+	}
+	if model.Name != nil {
+		modelMap["name"] = model.Name
+	}
 	return modelMap, nil
 }

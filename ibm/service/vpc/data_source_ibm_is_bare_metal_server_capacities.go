@@ -98,6 +98,16 @@ func dataSourceIBMISBareMetalServerCapacitiesRead(context context.Context, d *sc
 		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
 		return tfErr.GetDiag()
 	}
+
+	profileFilter := ""
+	if profileFilterOk, ok := d.GetOk("profile"); ok {
+		profileFilter = profileFilterOk.(string)
+	}
+	zoneFilter := ""
+	if zoneFilterOk, ok := d.GetOk("zone"); ok {
+		zoneFilter = zoneFilterOk.(string)
+	}
+
 	start := ""
 	allCapacities := []vpcv1.BareMetalServerCapacity{}
 
@@ -106,12 +116,10 @@ func dataSourceIBMISBareMetalServerCapacitiesRead(context context.Context, d *sc
 		if start != "" {
 			options.Start = &start
 		}
-		if profileFilterOk, ok := d.GetOk("profile"); ok {
-			profileFilter := profileFilterOk.(string)
+		if profileFilter != "" {
 			options.ProfileName = &profileFilter
 		}
-		if zoneFilterOk, ok := d.GetOk("zone"); ok {
-			zoneFilter := zoneFilterOk.(string)
+		if zoneFilter != "" {
 			options.ZoneName = &zoneFilter
 		}
 
