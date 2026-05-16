@@ -57,7 +57,6 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCKVmnMOlHKcZK8tpt3MP1lqOLAcqcJzhsvJcjscgVE
 func testAccCheckIBMIsSnapshotConsistencyGroupsDataSourceConfigBasic(vpcname, subnetname, sshname, publicKey, name, snapname, scgname, deleteSnapshotsOnDelete string) string {
 	return testAccCheckIBMIsSnapshotConsistencyGroupConfig(vpcname, subnetname, sshname, publicKey, name, scgname, snapname, deleteSnapshotsOnDelete) + fmt.Sprintf(`
 	data "ibm_is_snapshot_consistency_groups" "is_snapshot_consistency_groups" {
-		backup_policy_job = ibm_is_snapshot_consistency_group.is_snapshot_consistency_group.backup_policy_job[0].id
 	}
 `)
 }
