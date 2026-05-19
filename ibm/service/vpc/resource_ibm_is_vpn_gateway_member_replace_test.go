@@ -259,3 +259,191 @@ func testAccCheckIBMISVPNGatewayMemberReplaceConfigWithHref(vpcname, oldSubnetna
 		}
 	  }`, vpcname, oldSubnetname, acc.ISZoneName, newSubnetname, acc.ISZoneName, vpnname)
 }
+
+func TestAccIBMISVPNGatewayMemberReplace_regional(t *testing.T) {
+	var vpnGatewayMember *vpcv1.VPNGatewayMemberIndividual
+
+	vpcname := fmt.Sprintf("tf-vpc-%d", acctest.RandIntRange(10, 100))
+	subnet1name := fmt.Sprintf("tf-subnet1-%d", acctest.RandIntRange(10, 100))
+	subnet2name := fmt.Sprintf("tf-subnet2-%d", acctest.RandIntRange(10, 100))
+	subnet3name := fmt.Sprintf("tf-subnet3-%d", acctest.RandIntRange(10, 100))
+	vpnname := fmt.Sprintf("tf-vpngw-regional-%d", acctest.RandIntRange(10, 100))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { acc.TestAccPreCheck(t) },
+		Providers:    acc.TestAccProviders,
+		CheckDestroy: testAccCheckIBMISVPNGatewayMemberReplaceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckIBMISVPNGatewayMemberReplaceRegionalConfig(vpcname, subnet1name, subnet2name, subnet3name, vpnname),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckIBMISVPNGatewayMemberReplaceExists("ibm_is_vpn_gateway_member_replace.example", &vpnGatewayMember),
+					resource.TestCheckResourceAttrSet("ibm_is_vpn_gateway_member_replace.example", "vpn_gateway_id"),
+					resource.TestCheckResourceAttrSet("ibm_is_vpn_gateway_member_replace.example", "vpn_gateway_member_id"),
+					resource.TestCheckResourceAttrSet("ibm_is_vpn_gateway_member_replace.example", "subnet.0.id"),
+					resource.TestCheckResourceAttrSet("ibm_is_vpn_gateway_member_replace.example", "private_ip.0.address"),
+					resource.TestCheckResourceAttrSet("ibm_is_vpn_gateway_member_replace.example", "public_ip.0.address"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccIBMISVPNGatewayMemberReplace_regional_multiple(t *testing.T) {
+	var vpnGatewayMember1 *vpcv1.VPNGatewayMemberIndividual
+	var vpnGatewayMember2 *vpcv1.VPNGatewayMemberIndividual
+
+	vpcname := fmt.Sprintf("tf-vpc-%d", acctest.RandIntRange(10, 100))
+	subnet1name := fmt.Sprintf("tf-subnet1-%d", acctest.RandIntRange(10, 100))
+	subnet2name := fmt.Sprintf("tf-subnet2-%d", acctest.RandIntRange(10, 100))
+	subnet3name := fmt.Sprintf("tf-subnet3-%d", acctest.RandIntRange(10, 100))
+	subnet4name := fmt.Sprintf("tf-subnet4-%d", acctest.RandIntRange(10, 100))
+	vpnname := fmt.Sprintf("tf-vpngw-regional-multi-%d", acctest.RandIntRange(10, 100))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { acc.TestAccPreCheck(t) },
+		Providers:    acc.TestAccProviders,
+		CheckDestroy: testAccCheckIBMISVPNGatewayMemberReplaceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckIBMISVPNGatewayMemberReplaceRegionalMultipleConfig(vpcname, subnet1name, subnet2name, subnet3name, subnet4name, vpnname),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckIBMISVPNGatewayMemberReplaceExists("ibm_is_vpn_gateway_member_replace.member1", &vpnGatewayMember1),
+					testAccCheckIBMISVPNGatewayMemberReplaceExists("ibm_is_vpn_gateway_member_replace.member2", &vpnGatewayMember2),
+					resource.TestCheckResourceAttrSet("ibm_is_vpn_gateway_member_replace.member1", "vpn_gateway_id"),
+					resource.TestCheckResourceAttrSet("ibm_is_vpn_gateway_member_replace.member1", "vpn_gateway_member_id"),
+					resource.TestCheckResourceAttrSet("ibm_is_vpn_gateway_member_replace.member2", "vpn_gateway_id"),
+					resource.TestCheckResourceAttrSet("ibm_is_vpn_gateway_member_replace.member2", "vpn_gateway_member_id"),
+				),
+			},
+		},
+	})
+}
+
+func testAccCheckIBMISVPNGatewayMemberReplaceRegionalConfig(vpcname, subnet1name, subnet2name, subnet3name, vpnname string) string {
+	return fmt.Sprintf(`
+	  resource "ibm_is_vpc" "example" {
+		name = "%s"
+	  }
+	  
+	  resource "ibm_is_subnet" "subnet1" {
+		name            = "%s"
+		vpc             = ibm_is_vpc.example.id
+		zone            = "%s"
+		ipv4_cidr_block = "10.240.50.0/24"
+	  }
+	  
+	  resource "ibm_is_subnet" "subnet2" {
+		name            = "%s"
+		vpc             = ibm_is_vpc.example.id
+		zone            = "%s"
+		ipv4_cidr_block = "10.240.51.0/24"
+	  }
+	  
+	  resource "ibm_is_subnet" "subnet3" {
+		name            = "%s"
+		vpc             = ibm_is_vpc.example.id
+		zone            = "%s"
+		ipv4_cidr_block = "10.240.52.0/24"
+	  }
+	  
+	  resource "ibm_is_vpn_gateway" "example" {
+		name   = "%s"
+		availability_mode = "regional"
+		mode   = "route"
+		members {
+			private_ip {
+				subnet {
+					id = ibm_is_subnet.subnet1.id
+				}
+			}
+		}
+		members {
+			private_ip {
+				subnet {
+					id = ibm_is_subnet.subnet2.id
+				}
+			}
+		}
+	  }
+	  
+	  resource "ibm_is_vpn_gateway_member_replace" "example" {
+		vpn_gateway_id        = ibm_is_vpn_gateway.example.id
+		vpn_gateway_member_id = ibm_is_vpn_gateway.example.members[0].id
+		subnet {
+		  id = ibm_is_subnet.subnet3.id
+		}
+	  }`, vpcname, subnet1name, acc.ISZoneName, subnet2name, acc.ISZoneName2, subnet3name, acc.ISZoneName, vpnname)
+}
+
+func testAccCheckIBMISVPNGatewayMemberReplaceRegionalMultipleConfig(vpcname, subnet1name, subnet2name, subnet3name, subnet4name, vpnname string) string {
+	return fmt.Sprintf(`
+	  resource "ibm_is_vpc" "example" {
+		name = "%s"
+	  }
+	  
+	  resource "ibm_is_subnet" "subnet1" {
+		name            = "%s"
+		vpc             = ibm_is_vpc.example.id
+		zone            = "%s"
+		ipv4_cidr_block = "10.240.60.0/24"
+	  }
+	  
+	  resource "ibm_is_subnet" "subnet2" {
+		name            = "%s"
+		vpc             = ibm_is_vpc.example.id
+		zone            = "%s"
+		ipv4_cidr_block = "10.240.61.0/24"
+	  }
+	  
+	  resource "ibm_is_subnet" "subnet3" {
+		name            = "%s"
+		vpc             = ibm_is_vpc.example.id
+		zone            = "%s"
+		ipv4_cidr_block = "10.240.62.0/24"
+	  }
+	  
+	  resource "ibm_is_subnet" "subnet4" {
+		name            = "%s"
+		vpc             = ibm_is_vpc.example.id
+		zone            = "%s"
+		ipv4_cidr_block = "10.240.63.0/24"
+	  }
+	  
+	  resource "ibm_is_vpn_gateway" "example" {
+		name   = "%s"
+		availability_mode = "regional"
+		mode   = "route"
+		members {
+			private_ip {
+				subnet {
+					id = ibm_is_subnet.subnet1.id
+				}
+			}
+		}
+		members {
+			private_ip {
+				subnet {
+					id = ibm_is_subnet.subnet2.id
+				}
+			}
+		}
+	  }
+	  
+	  resource "ibm_is_vpn_gateway_member_replace" "member1" {
+		vpn_gateway_id        = ibm_is_vpn_gateway.example.id
+		vpn_gateway_member_id = ibm_is_vpn_gateway.example.members[0].id
+		subnet {
+		  id = ibm_is_subnet.subnet3.id
+		}
+	  }
+	  
+	  resource "ibm_is_vpn_gateway_member_replace" "member2" {
+		depends_on = [ibm_is_vpn_gateway_member_replace.member1]
+		vpn_gateway_id        = ibm_is_vpn_gateway.example.id
+		vpn_gateway_member_id = ibm_is_vpn_gateway.example.members[1].id
+		subnet {
+		  id = ibm_is_subnet.subnet4.id
+		}
+	  }`, vpcname, subnet1name, acc.ISZoneName, subnet2name, acc.ISZoneName2, subnet3name, acc.ISZoneName, subnet4name, acc.ISZoneName2, vpnname)
+}

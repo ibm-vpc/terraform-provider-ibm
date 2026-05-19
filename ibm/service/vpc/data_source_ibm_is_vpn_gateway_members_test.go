@@ -12,6 +12,7 @@ import (
 	"testing"
 
 	acc "github.com/IBM-Cloud/terraform-provider-ibm/ibm/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/stretchr/testify/assert"
 
@@ -21,18 +22,28 @@ import (
 )
 
 func TestAccIBMIsVPNGatewayMembersDataSourceBasic(t *testing.T) {
+	vpcname := fmt.Sprintf("tfvpnuat-vpc-%d", acctest.RandIntRange(10, 100))
+	subnet1name := fmt.Sprintf("tfvpnuat-subnet1-%d", acctest.RandIntRange(10, 100))
+	subnet2name := fmt.Sprintf("tfvpnuat-subnet2-%d", acctest.RandIntRange(10, 100))
+	vpngwname := fmt.Sprintf("tfvpnuat-vpngw-%d", acctest.RandIntRange(10, 100))
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { acc.TestAccPreCheck(t) },
 		Providers: acc.TestAccProviders,
 		Steps: []resource.TestStep{
-			resource.TestStep{
-				Config: testAccCheckIBMIsVPNGatewayMembersDataSourceConfigBasic(),
+			{
+				Config: testAccCheckIBMIsVPNGatewayMembersDataSourceConfigBasic(vpcname, subnet1name, subnet2name, vpngwname),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet("data.ibm_is_vpn_gateway_members.is_vpn_gateway_members_instance", "id"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_vpn_gateway_members.is_vpn_gateway_members_instance", "vpn_gateway_id"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_vpn_gateway_members.is_vpn_gateway_members_instance", "first.#"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_vpn_gateway_members.is_vpn_gateway_members_instance", "limit"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_vpn_gateway_members.is_vpn_gateway_members_instance", "members.#"),
+					resource.TestCheckResourceAttr("data.ibm_is_vpn_gateway_members.is_vpn_gateway_members_instance", "members.#", "2"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_vpn_gateway_members.is_vpn_gateway_members_instance", "members.0.id"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_vpn_gateway_members.is_vpn_gateway_members_instance", "members.0.health_state"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_vpn_gateway_members.is_vpn_gateway_members_instance", "members.0.lifecycle_state"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_vpn_gateway_members.is_vpn_gateway_members_instance", "members.0.private_ip.#"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_vpn_gateway_members.is_vpn_gateway_members_instance", "members.0.public_ip.#"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_vpn_gateway_members.is_vpn_gateway_members_instance", "members.0.role"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_vpn_gateway_members.is_vpn_gateway_members_instance", "members.1.id"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_vpn_gateway_members.is_vpn_gateway_members_instance", "total_count"),
 				),
 			},
@@ -40,12 +51,50 @@ func TestAccIBMIsVPNGatewayMembersDataSourceBasic(t *testing.T) {
 	})
 }
 
-func testAccCheckIBMIsVPNGatewayMembersDataSourceConfigBasic() string {
+func testAccCheckIBMIsVPNGatewayMembersDataSourceConfigBasic(vpc, subnet1, subnet2, vpngwname string) string {
 	return fmt.Sprintf(`
-		data "ibm_is_vpn_gateway_members" "is_vpn_gateway_members_instance" {
-			vpn_gateway_id = "vpn_gateway_id"
+		resource "ibm_is_vpc" "example" {
+			name = "%s"
 		}
-	`)
+		
+		resource "ibm_is_subnet" "example1" {
+			name = "%s"
+			vpc = ibm_is_vpc.example.id
+			zone = "%s"
+			ipv4_cidr_block = "10.240.40.0/24"
+		}
+		
+		resource "ibm_is_subnet" "example2" {
+			name = "%s"
+			vpc = ibm_is_vpc.example.id
+			zone = "%s"
+			ipv4_cidr_block = "10.240.41.0/24"
+		}
+		
+		resource "ibm_is_vpn_gateway" "example" {
+			name = "%s"
+			availability_mode = "regional"
+			mode = "route"
+			members {
+				private_ip {
+					subnet {
+						id = ibm_is_subnet.example1.id
+					}
+				}
+			}
+			members {
+				private_ip {
+					subnet {
+						id = ibm_is_subnet.example2.id
+					}
+				}
+			}
+		}
+		
+		data "ibm_is_vpn_gateway_members" "is_vpn_gateway_members_instance" {
+			vpn_gateway_id = ibm_is_vpn_gateway.example.id
+		}
+	`, vpc, subnet1, acc.ISZoneName, subnet2, acc.ISZoneName2, vpngwname)
 }
 
 func TestDataSourceIBMIsVPNGatewayMembersPageLinkToMap(t *testing.T) {

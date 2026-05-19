@@ -12,6 +12,7 @@ import (
 	"testing"
 
 	acc "github.com/IBM-Cloud/terraform-provider-ibm/ibm/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/stretchr/testify/assert"
 
@@ -21,22 +22,27 @@ import (
 )
 
 func TestAccIBMIsVPNGatewayMemberDataSourceBasic(t *testing.T) {
+	vpcname := fmt.Sprintf("tfvpnuat-vpc-%d", acctest.RandIntRange(10, 100))
+	subnet1name := fmt.Sprintf("tfvpnuat-subnet1-%d", acctest.RandIntRange(10, 100))
+	subnet2name := fmt.Sprintf("tfvpnuat-subnet2-%d", acctest.RandIntRange(10, 100))
+	vpngwname := fmt.Sprintf("tfvpnuat-vpngw-%d", acctest.RandIntRange(10, 100))
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { acc.TestAccPreCheck(t) },
 		Providers: acc.TestAccProviders,
 		Steps: []resource.TestStep{
-			resource.TestStep{
-				Config: testAccCheckIBMIsVPNGatewayMemberDataSourceConfigBasic(),
+			{
+				Config: testAccCheckIBMIsVPNGatewayMemberDataSourceConfigBasic(vpcname, subnet1name, subnet2name, vpngwname),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet("data.ibm_is_vpn_gateway_member.is_vpn_gateway_member_instance", "id"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_vpn_gateway_member.is_vpn_gateway_member_instance", "vpn_gateway_id"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_vpn_gateway_member.is_vpn_gateway_member_instance", "vpn_gateway_member_id"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_vpn_gateway_member.is_vpn_gateway_member_instance", "health_reasons.#"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_vpn_gateway_member.is_vpn_gateway_member_instance", "health_state"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_vpn_gateway_member.is_vpn_gateway_member_instance", "lifecycle_reasons.#"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_vpn_gateway_member.is_vpn_gateway_member_instance", "lifecycle_state"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_vpn_gateway_member.is_vpn_gateway_member_instance", "private_ip.#"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_vpn_gateway_member.is_vpn_gateway_member_instance", "private_ip.0.address"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_vpn_gateway_member.is_vpn_gateway_member_instance", "public_ip.#"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_vpn_gateway_member.is_vpn_gateway_member_instance", "public_ip.0.address"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_vpn_gateway_member.is_vpn_gateway_member_instance", "role"),
 				),
 			},
@@ -44,13 +50,51 @@ func TestAccIBMIsVPNGatewayMemberDataSourceBasic(t *testing.T) {
 	})
 }
 
-func testAccCheckIBMIsVPNGatewayMemberDataSourceConfigBasic() string {
+func testAccCheckIBMIsVPNGatewayMemberDataSourceConfigBasic(vpc, subnet1, subnet2, vpngwname string) string {
 	return fmt.Sprintf(`
-		data "ibm_is_vpn_gateway_member" "is_vpn_gateway_member_instance" {
-			vpn_gateway_id = "vpn_gateway_id"
-			id = "id"
+		resource "ibm_is_vpc" "example" {
+			name = "%s"
 		}
-	`)
+		
+		resource "ibm_is_subnet" "example1" {
+			name = "%s"
+			vpc = ibm_is_vpc.example.id
+			zone = "%s"
+			ipv4_cidr_block = "10.240.30.0/24"
+		}
+		
+		resource "ibm_is_subnet" "example2" {
+			name = "%s"
+			vpc = ibm_is_vpc.example.id
+			zone = "%s"
+			ipv4_cidr_block = "10.240.31.0/24"
+		}
+		
+		resource "ibm_is_vpn_gateway" "example" {
+			name = "%s"
+			availability_mode = "regional"
+			mode = "route"
+			members {
+				private_ip {
+					subnet {
+						id = ibm_is_subnet.example1.id
+					}
+				}
+			}
+			members {
+				private_ip {
+					subnet {
+						id = ibm_is_subnet.example2.id
+					}
+				}
+			}
+		}
+		
+		data "ibm_is_vpn_gateway_member" "is_vpn_gateway_member_instance" {
+			vpn_gateway_id = ibm_is_vpn_gateway.example.id
+			vpn_gateway_member_id = ibm_is_vpn_gateway.example.members[0].id
+		}
+	`, vpc, subnet1, acc.ISZoneName, subnet2, acc.ISZoneName2, vpngwname)
 }
 
 func TestDataSourceIBMIsVPNGatewayMemberVPNGatewayMemberHealthReasonToMap(t *testing.T) {
