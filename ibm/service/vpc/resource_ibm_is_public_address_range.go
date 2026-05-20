@@ -284,26 +284,29 @@ func resourceIBMPublicAddressRangeCreate(context context.Context, d *schema.Reso
 	}
 
 	createPublicAddressRangeOptions := &vpcv1.CreatePublicAddressRangeOptions{}
+	publicAddressRangePrototype := &vpcv1.PublicAddressRangePrototype{}
 
-	createPublicAddressRangeOptions.SetIpv4AddressCount(int64(d.Get("ipv4_address_count").(int)))
+	publicAddressRangePrototype.Ipv4AddressCount = core.Int64Ptr(int64(d.Get("ipv4_address_count").(int)))
 	if _, ok := d.GetOk("name"); ok {
-		createPublicAddressRangeOptions.SetName(d.Get("name").(string))
+		publicAddressRangePrototype.Name = core.StringPtr(d.Get("name").(string))
 	}
 	if _, ok := d.GetOk("resource_group"); ok {
 		resourceGroupModel, err := ResourceIBMPublicAddressRangeMapToResourceGroupIdentity(d.Get("resource_group.0").(map[string]interface{}))
 		if err != nil {
 			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_public_address_range", "create", "parse-resource_group").GetDiag()
 		}
-		createPublicAddressRangeOptions.SetResourceGroup(resourceGroupModel)
+		publicAddressRangePrototype.ResourceGroup = resourceGroupModel
 	}
 	if _, ok := d.GetOk("target"); ok {
 		targetModel, err := ResourceIBMPublicAddressRangeMapToPublicAddressRangeTargetPrototype(d.Get("target.0").(map[string]interface{}))
 		if err != nil {
 			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_public_address_range", "create", "parse-target").GetDiag()
 		}
-		createPublicAddressRangeOptions.SetTarget(targetModel)
+		publicAddressRangePrototype.Target = targetModel
 	}
 
+	createPublicAddressRangeOptions.PublicAddressRangePrototype = publicAddressRangePrototype
+	createPublicAddressRangeOptions.SetPublicAddressRangePrototype(publicAddressRangePrototype)
 	publicAddressRange, _, err := vpcClient.CreatePublicAddressRangeWithContext(context, createPublicAddressRangeOptions)
 	if err != nil {
 		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("CreatePublicAddressRangeWithContext failed: %s", err.Error()), "ibm_public_address_range", "create")
