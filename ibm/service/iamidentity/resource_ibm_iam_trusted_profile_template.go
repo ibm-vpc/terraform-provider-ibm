@@ -28,6 +28,7 @@ func ResourceIBMTrustedProfileTemplate() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"account_id": {
 				Type:        schema.TypeString,
+				Optional:    true,
 				Computed:    true,
 				Description: "ID of the account where the template resides.",
 			},
@@ -191,46 +192,6 @@ func ResourceIBMTrustedProfileTemplate() *schema.Resource {
 				Optional:    true,
 				Description: "Committed flag determines if the template is ready for assignment.",
 			},
-			"history": {
-				Type:        schema.TypeList,
-				Computed:    true,
-				Description: "History of the trusted profile template.",
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"timestamp": {
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: "Timestamp when the action was triggered.",
-						},
-						"iam_id": {
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: "IAM ID of the identity which triggered the action.",
-						},
-						"iam_id_account": {
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: "Account of the identity which triggered the action.",
-						},
-						"action": {
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: "Action of the history entry.",
-						},
-						"params": {
-							Type:        schema.TypeList,
-							Computed:    true,
-							Description: "Params of the history entry.",
-							Elem:        &schema.Schema{Type: schema.TypeString},
-						},
-						"message": {
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: "Message which summarizes the executed action.",
-						},
-					},
-				},
-			},
 			"entity_tag": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -277,6 +238,13 @@ func resourceIBMTrustedProfileTemplateCreate(context context.Context, d *schema.
 
 	createProfileTemplateOptions := &iamidentityv1.CreateProfileTemplateOptions{}
 
+	if _, ok := d.GetOk("account_id"); ok {
+		createProfileTemplateOptions.SetAccountID(d.Get("account_id").(string))
+	} else {
+		userDetails, _ := meta.(conns.ClientSession).BluemixUserDetails()
+		accountID := userDetails.UserAccount
+		createProfileTemplateOptions.SetAccountID(accountID)
+	}
 	if _, ok := d.GetOk("name"); ok {
 		createProfileTemplateOptions.SetName(d.Get("name").(string))
 	}
@@ -302,10 +270,6 @@ func resourceIBMTrustedProfileTemplateCreate(context context.Context, d *schema.
 		}
 		createProfileTemplateOptions.SetPolicyTemplateReferences(policyTemplateReferences)
 	}
-
-	userDetails, err := meta.(conns.ClientSession).BluemixUserDetails()
-	accountID := userDetails.UserAccount
-	createProfileTemplateOptions.SetAccountID(accountID)
 
 	trustedProfileTemplateResponse, response, err := iamIdentityClient.CreateProfileTemplateWithContext(context, createProfileTemplateOptions)
 	if err != nil {
@@ -333,7 +297,13 @@ func resourceIBMTrustedProfileTemplateCreateVersion(context context.Context, d *
 	}
 
 	createProfileTemplateVersionOptions := &iamidentityv1.CreateProfileTemplateVersionOptions{}
-
+	if _, ok := d.GetOk("account_id"); ok {
+		createProfileTemplateVersionOptions.SetAccountID(d.Get("account_id").(string))
+	} else {
+		userDetails, _ := meta.(conns.ClientSession).BluemixUserDetails()
+		accountID := userDetails.UserAccount
+		createProfileTemplateVersionOptions.SetAccountID(accountID)
+	}
 	id, _, err := parseResourceId(d.Get("template_id").(string))
 	if err != nil {
 		log.Printf("[DEBUG] resourceIBMAccountSettingsTemplateRead failed %s", err)
@@ -367,10 +337,6 @@ func resourceIBMTrustedProfileTemplateCreateVersion(context context.Context, d *
 		}
 		createProfileTemplateVersionOptions.SetPolicyTemplateReferences(policyTemplateReferences)
 	}
-
-	userDetails, err := meta.(conns.ClientSession).BluemixUserDetails()
-	accountID := userDetails.UserAccount
-	createProfileTemplateVersionOptions.SetAccountID(accountID)
 
 	trustedProfileTemplateVersionResponse, response, err := iamIdentityClient.CreateProfileTemplateVersionWithContext(context, createProfileTemplateVersionOptions)
 	if err != nil {
@@ -468,20 +434,6 @@ func resourceIBMTrustedProfileTemplateRead(context context.Context, d *schema.Re
 			return diag.FromErr(fmt.Errorf("error setting committed: %s", err))
 		}
 	}
-	var history []map[string]interface{}
-	if !core.IsNil(trustedProfileTemplateResponse.History) {
-		for _, historyItem := range trustedProfileTemplateResponse.History {
-			historyItemMap, err := resourceIBMTrustedProfileTemplateEntityHistoryRecordToMap(&historyItem)
-			if err != nil {
-				return diag.FromErr(err)
-			}
-			history = append(history, historyItemMap)
-		}
-	}
-	if err = d.Set("history", history); err != nil {
-		return diag.FromErr(fmt.Errorf("error setting history: %s", err))
-	}
-
 	if !core.IsNil(trustedProfileTemplateResponse.EntityTag) {
 		if err = d.Set("entity_tag", trustedProfileTemplateResponse.EntityTag); err != nil {
 			return diag.FromErr(fmt.Errorf("error setting entity_tag: %s", err))
@@ -805,16 +757,5 @@ func resourceIBMTrustedProfileTemplatePolicyTemplateReferenceToMap(model *iamide
 	modelMap := make(map[string]interface{})
 	modelMap["id"] = model.ID
 	modelMap["version"] = model.Version
-	return modelMap, nil
-}
-
-func resourceIBMTrustedProfileTemplateEntityHistoryRecordToMap(model *iamidentityv1.EnityHistoryRecord) (map[string]interface{}, error) {
-	modelMap := make(map[string]interface{})
-	modelMap["timestamp"] = model.Timestamp
-	modelMap["iam_id"] = model.IamID
-	modelMap["iam_id_account"] = model.IamIDAccount
-	modelMap["action"] = model.Action
-	modelMap["params"] = model.Params
-	modelMap["message"] = model.Message
 	return modelMap, nil
 }

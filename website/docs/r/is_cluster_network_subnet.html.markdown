@@ -28,7 +28,7 @@ resource "ibm_is_cluster_network_subnet" "is_cluster_network_subnet_instance" {
 You can specify the following arguments for this resource.
 
 - `cluster_network_id` - (Required, Forces new resource, String) The cluster network identifier.
-- `ip_version` - (Optional, String) The IP version for this cluster network subnet.The enumerated values for this property may[expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future. Allowable values are: `ipv4`.
+- `ip_version` - (Optional, String) The IP version for this cluster network subnet.The enumerated values for this property may [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future. Allowable values are: `ipv4`.
 - `ipv4_cidr_block` - (Optional, String) The IPv4 range of this cluster network subnet, expressed in CIDR format.
 - `isolation_group` - (Optional, Integer) The isolation group for the cluster network subnet.The specified value must not exceed the cluster network's profile's isolation_group_count.
 - `name` - (Optional, String) The name for this cluster network subnet. The name is unique across all cluster network subnets in the cluster network.
@@ -49,7 +49,7 @@ After your resource is created, you can read values from the listed arguments an
 - `lifecycle_reasons` - (List) The reasons for the current `lifecycle_state` (if any).
     
     Nested schema for **lifecycle_reasons**:
-      - `code` - (String) A reason code for this lifecycle state:- `internal_error`: internal error (contact IBM support)- `resource_suspended_by_provider`: The resource has been suspended (contact IBM  support)The enumerated values for this property may[expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.
+      - `code` - (String) A reason code for this lifecycle state:- `internal_error`: internal error (contact IBM support)- `resource_suspended_by_provider`: The resource has been suspended (contact IBM  support)The enumerated values for this property may [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.
         * Constraints: Allowable values are: `internal_error`, `resource_suspended_by_provider`.
     - `message` - (String) An explanation of the reason for this lifecycle state.
     - `more_info` - (String) Link to documentation about the reason for this lifecycle state.
@@ -63,16 +63,18 @@ After your resource is created, you can read values from the listed arguments an
 
 ## Import
 
-You can import the `ibm_is_cluster_network_subnet` resource by using `id`.
-The `id` property can be formed from `cluster_network_id`, and `cluster_network_subnet_id` in the following format:
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import the `ibm_is_cluster_network_subnet` resource by using `id`.
+The `id` property can be formed from `cluster_network_id`, and `cluster_network_subnet_id`. For example:
 
-<pre>
-&lt;cluster_network_id&gt;/&lt;cluster_network_subnet_id&gt;
-</pre>
-- `cluster_network_id`: A string. The cluster network identifier.
-- `cluster_network_subnet_id`: A string in the format `0717-7931845c-65c4-4b0a-80cd-7d9c1a6d7930`. The unique identifier for this cluster network subnet.
+```terraform
+import {
+  to = ibm_is_cluster_network_subnet.is_cluster_network_subnet
+  id = "<cluster_network_id>/<cluster_network_subnet_id>"
+}
+```
 
-# Syntax
-<pre>
-$ terraform import ibm_is_cluster_network_subnet.is_cluster_network_subnet &lt;cluster_network_id&gt;/&lt;cluster_network_subnet_id&gt;
-</pre>
+Using `terraform import`. For example:
+
+```console
+% terraform import ibm_is_cluster_network_subnet.is_cluster_network_subnet <cluster_network_id>/<cluster_network_subnet_id>
+```

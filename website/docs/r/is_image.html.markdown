@@ -147,6 +147,7 @@ A system-provided image is not allowed to be deprecated.
 
   ~> **NOTE**
       either `href` or `source_volume` is required
+- `minimum_acceptable_status` - (Optional, String) Specifies the minimum lifecycle status that an image must reach before Terraform considers the resource creation successful and proceeds. This allows users to control when the `ibm_is_image` resource should complete its provisioning cycle. For example, if set to "partially_available", Terraform will wait until the image reaches the "available" status before marking the resource as successfully created.
 - `name` - (Required, String) The descriptive name used to identify an image.
 - `obsolete` - (Optional, Bool) This flag obsoletes an image, resulting in its status becoming obsolete and obsolescence_at being set to the current date and time. The image must:
 
@@ -203,13 +204,25 @@ In addition to all argument reference list, you can access the following attribu
   **&#x2022;**  `ipxe`: user_data will be interpreted as a single URL to an iPXE script or as the text of an iPXE script.</br>
   
 - `visibility` - (String) The access scope of an image such as `private` or `public`.
-
+- `zones` - (List) The zones in which this image is available for use.If the image has a status of `available` or `deprecated`, this will include all zones in the region.If the image has a status of `partially_available`, this will include one or more zones in the region. If the image has a status of `failed`, `obsolete`, `pending`, or `unusable`, this will be empty.
+    Nested schema for **zones**:
+    - `href` - (String) The URL for this zone.
+    - `name` - (String) The globally unique name for this zone.
 
 ## Import
-The `ibm_is_image` resource can be imported by using image ID.
 
-**Example**
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import the `ibm_is_image` resource by using `id`.
+The `id` property can be formed from `image ID`. For example:
 
+```terraform
+import {
+  to = ibm_is_image.example
+  id = "<image_id>"
+}
 ```
-$ terraform import ibm_is_image.example d7bec597-4726-451f-8a63-e62e6f121c32c
+
+Using `terraform import`. For example:
+
+```console
+% terraform import ibm_is_image.example <image_id>
 ```

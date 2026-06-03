@@ -29,6 +29,7 @@ const (
 	isTransitGatewayConnectionDeleted   = "detached"
 	isTransitGatewayConnectionPending   = "pending"
 	isTransitGatewayConnectionAttached  = "attached"
+	isTransitGatewayConnectionFailed    = "failed"
 	tgRequestStatus                     = "request_status"
 	tgConnectionId                      = "connection_id"
 	tgBaseConnectionId                  = "base_connection_id"
@@ -45,6 +46,7 @@ const (
 	tgGreTunnelId                       = "tunnel_id"
 	tgGreTunnelStatus                   = "status"
 	tgconTunnelName                     = "name"
+	tgCidr                              = "cidr"
 )
 
 func ResourceIBMTransitGatewayConnection() *schema.Resource {
@@ -82,7 +84,7 @@ func ResourceIBMTransitGatewayConnection() *schema.Resource {
 				Required:     true,
 				ForceNew:     true,
 				ValidateFunc: validate.InvokeValidator("ibm_tg_connection", tgNetworkType),
-				Description:  "Defines what type of network is connected via this connection. Allowable values (classic,directlink,vpc,gre_tunnel,unbound_gre_tunnel,power_virtual_server,redundant_gre)",
+				Description:  "Defines what type of network is connected via this connection. Allowable values (classic,directlink,vpc,gre_tunnel,unbound_gre_tunnel,power_virtual_server,redundant_gre,vpn_gateway)",
 			},
 			tgName: {
 				Type:         schema.TypeString,
@@ -152,7 +154,13 @@ func ResourceIBMTransitGatewayConnection() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				ForceNew:    true,
-				Description: "Location of GRE tunnel. This field only applies to network type 'gre_tunnel' and 'unbound_gre_tunnel' connections.",
+				Description: "Location of connection. This field only applies to network type 'gre_tunnel' and 'unbound_gre_tunnel' connections and optional for network type 'vpn_gateway' connections",
+			},
+			tgCidr: {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "The network_type 'vpn_gateway' connections use 'cidr' to specify the CIDR to use for the VPN GRE tunnels",
 			},
 			tgCreatedAt: {
 				Type:        schema.TypeString,
@@ -275,7 +283,7 @@ func ResourceIBMTransitGatewayConnection() *schema.Resource {
 func ResourceIBMTransitGatewayConnectionValidator() *validate.ResourceValidator {
 
 	validateSchema := make([]validate.ValidateSchema, 0)
-	networkType := "classic, directlink, vpc, gre_tunnel, unbound_gre_tunnel, power_virtual_server,redundant_gre"
+	networkType := "classic, directlink, vpc, gre_tunnel, unbound_gre_tunnel, power_virtual_server, redundant_gre, vpn_gateway"
 	validateSchema = append(validateSchema,
 		validate.ValidateSchema{
 			Identifier:                 tgNetworkType,
@@ -357,6 +365,10 @@ func resourceIBMTransitGatewayConnectionCreate(d *schema.ResourceData, meta inte
 		zoneIdentity.Name = &zoneName
 		createTransitGatewayConnectionOptions.SetZone(zoneIdentity)
 	}
+	if _, ok := d.GetOk(tgCidr); ok {
+		cidr := d.Get(tgCidr).(string)
+		createTransitGatewayConnectionOptions.SetCidr(cidr)
+	}
 
 	if _, ok := d.GetOk(tgDefaultPrefixFilter); ok {
 		if "redundant_gre" == networkType {
@@ -421,11 +433,45 @@ func resourceIBMTransitGatewayConnectionCreate(d *schema.ResourceData, meta inte
 		d.Set(tgNetworkAccountID, *tgConnections.NetworkAccountID)
 		return resourceIBMTransitGatewayConnectionRead(d, meta)
 	}
+
+	// Wait for connection to become available
 	_, err = isWaitForTransitGatewayConnectionAvailable(client, d.Id(), d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
+		log.Printf("[DEBUG] Wait failed, verifying resource existence")
+
+		parts, errParts := flex.IdParts(d.Id())
+		if errParts != nil {
+			return errParts
+		}
+
+		gatewayId := parts[0]
+		ID := parts[1]
+
+		getOpts := &transitgatewayapisv1.GetTransitGatewayConnectionOptions{}
+		getOpts.SetTransitGatewayID(gatewayId)
+		getOpts.SetID(ID)
+
+		conn, _, getErr := client.GetTransitGatewayConnection(getOpts)
+
+		if getErr == nil && conn != nil && conn.ID != nil && conn.Status != nil {
+			status := *conn.Status
+
+			log.Printf("[DEBUG] Timeout recovery: TGW connection (%s) status = %s", d.Id(), status)
+
+			if status == isTransitGatewayConnectionAttached || status == isTransitGatewayConnectionPending {
+				log.Printf("[DEBUG] Timeout recovery: adopting TGW connection (%s) in state %s", d.Id(), status)
+				return resourceIBMTransitGatewayConnectionRead(d, meta)
+			}
+
+			if status == isTransitGatewayConnectionFailed {
+				return flex.FmtErrorf("[ERROR] Transit Gateway connection is in failed state")
+			}
+		}
+
 		return err
 	}
+
 	return resourceIBMTransitGatewayConnectionRead(d, meta)
 }
 func isWaitForTransitGatewayConnectionAvailable(client *transitgatewayapisv1.TransitGatewayApisV1, id string, timeout time.Duration) (interface{}, error) {
@@ -459,8 +505,16 @@ func isTransitGatewayConnectionRefreshFunc(client *transitgatewayapisv1.TransitG
 		if err != nil {
 			return nil, "", flex.FmtErrorf("[ERROR] Error Getting Transit Gateway Connection (%s): %s\n%s", ID, err, response)
 		}
-		if *tgConnection.Status == "attached" || *tgConnection.Status == "failed" {
+		if tgConnection == nil || tgConnection.Status == nil {
+			return tgConnection, isTransitGatewayConnectionPending, nil
+		}
+
+		if *tgConnection.Status == isTransitGatewayConnectionAttached {
 			return tgConnection, isTransitGatewayConnectionAttached, nil
+		}
+
+		if *tgConnection.Status == isTransitGatewayConnectionFailed {
+			return nil, "", flex.FmtErrorf("[ERROR] Transit Gateway connection is in failed state")
 		}
 
 		return tgConnection, isTransitGatewayConnectionPending, nil
@@ -521,6 +575,14 @@ func resourceIBMTransitGatewayConnectionRead(d *schema.ResourceData, meta interf
 		d.Set(tgDefaultPrefixFilter, *instance.PrefixFiltersDefault)
 	}
 
+	if instance.Zone != nil {
+		d.Set(tgZone, *instance.Zone)
+	}
+
+	if instance.Cidr != nil {
+		d.Set(tgCidr, *instance.Cidr)
+	}
+
 	d.Set(tgConnectionId, *instance.ID)
 	d.Set(tgGatewayId, gatewayId)
 	getTransitGatewayOptions := &transitgatewayapisv1.GetTransitGatewayOptions{
@@ -552,7 +614,7 @@ func resourceIBMTransitGatewayConnectionRead(d *schema.ResourceData, meta interf
 		if rGREtunnel.RemoteTunnelIp != nil {
 			tunnel[tgRemoteTunnelIp] = *rGREtunnel.RemoteTunnelIp
 		}
-		if rGREtunnel.Mtu != nil {
+		if rGREtunnel.Mtu != nil && *instance.NetworkType != "vpn_gateway" {
 			tunnel[tgMtu] = *rGREtunnel.Mtu
 		}
 		if rGREtunnel.RemoteBgpAsn != nil {

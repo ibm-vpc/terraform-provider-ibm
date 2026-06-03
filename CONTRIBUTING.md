@@ -66,6 +66,48 @@ Thank you for contributing! Here you will find the information on what to includ
  * For PRs that follow the guidelines, we expect to review and merge very quickly.
  * PRs that do not follow the guidelines is annotated with what they are missing. A community or core team member may be able to swing around and help finish up the work, but these PRs generally hang out much longer until completed and merged.
 
+---
+
+# **Provider-wide Best Practices (Mandatory for all PRs)**  
+
+### Schema Rules
+- **Required** fields must be supplied by the user; if changing them requires recreation, mark as **ForceNew**.
+- **Optional** fields must not be sent when unset; avoid sending empty strings.
+- **Computed** fields are assigned only in `Read`, never in Create/Update.
+- **Optional + Computed** fields are used when APIs provide defaults or canonicalized values.
+- **Sensitive** must be applied to passwords, tokens, and secret fields.
+- **ForceNew** must be used for:  
+  - identity fields (instance, region, zone, VPC, subnet, binding IDs)  
+  - create-only parameters (clone-from, image IDs, snapshot IDs)  
+  - structural choices (mode, type, topology, binding)
+
+### CRUD Lifecycle Guidance
+- **Create:** Only send meaningful values. Always return to `Read` afterwards.
+- **Read:** Canonicalize; normalize sets/lists; clear ID on 404.
+- **Update:** Only update attributes supported by API. Never simulate recreate inside Update.
+- **Delete:** Treat 404 as success. Always clear ID.
+
+### Diff & Normalization
+- Avoid `DiffSuppressFunc` unless equivalence is provably correct.
+- Normalize unordered results in **Read** using sorted lists/sets.
+- Don’t ignore user changes unless API truly ignores them.
+
+### Validation
+- Always use validators for string length, patterns, enums.
+- Fail early when invalid input is easier for user to correct.
+
+### Acceptance Tests
+- Include idempotency checks: second apply should produce **0 changes**.
+- Always include a `CheckDestroy`.
+- Never rely solely on state; verify against API responses.
+- Randomize resource names to avoid collisions.
+
+### Documentation
+- Every schema change must update docs in the same PR.
+- New resources require a complete doc page + examples.
+
+---
+
 ### Checklists for contribution
 
 There are different kinds of contribution, each of which has its own standards for a speedy review. The following sections describe the guidelines for each type of the contribution.
@@ -76,9 +118,15 @@ Working on an existing resources is a great way to start as a Terraform contribu
 
  - [ ] __Acceptance test coverage of new behavior__: Existing resources each have a set of [acceptance tests][acctests] covering their functionality. These tests  exercises all the behavior of the resource. Whether you are adding something or fixing a bug, the idea is to have an acceptance test that fails if your code are removed. Sometimes it is sufficient to **enhance** an existing test by adding an assertion or tweaking the configuration that are used, but often a new test is better to add. You can copy or paste an existing test and follow the conventions you see there, modifying the test to exercise the behavior of your code.
 
- - [ ] __Documentation updates__: If your code makes any changes that need to be documented, you should include those documentation updates in the same PR. 
+ - [ ] __Documentation updates__: If your code makes any changes that need to be documented, you should include those documentation updates in the same PR.
    
  - [ ] __Well-formed Code__: Do your best to follow an existing conventions you see in the codebase, and ensure your code is formatted with **go fmt**. (The Travis CI build fails if **go fmt** has not been run on incoming code.) The PR reviewers can help out on this front, and may provide comments with suggestions on how to improve the code.
+
+ - [ ] __Run go mod tidy__: If you update dependencies in `go.mod`, you **must** run `go mod tidy` to ensure `go.sum` is properly updated with correct checksums. The CI build will fail if `go.mod` or `go.sum` are not tidy.
+
+ - [ ] __Run go vet__: Before submitting your PR, run `go vet ./...` to catch common Go programming errors. The CI build will fail if `go vet` reports any issues.
+
+ - [ ] __Run go fmt__: Before submitting your PR, run `go fmt ./...` to ensure all code is properly formatted. The CI build will fail if any files are not formatted correctly.
 
 #### New resource
 
@@ -88,6 +136,9 @@ Implementing a new resource is a good way to learn more about how Terraform inte
  - [ ] __Acceptance tests__: New resources should include acceptance tests covering their behavior. See [Writing Acceptance Tests](#writing-acceptance-tests) below for a detailed guide on how to approach these.
  - [ ] __Documentation__: Each resource gets a page in the Terraform documentation. The [Terraform website](https://registry.terraform.io/providers/IBM-Cloud/ibm/latest/docs) source is in this repository and includes instructions for getting a local copy of the site up and running if you would like to preview your changes. For a resource, you will want to add a new file in the appropriate place and add a link to the sidebar for that page.
  - [ ] __Well-formed Code__: Do your best to follow an existing conventions you see in the codebase, and ensure your code is formatted with **go fmt**. (The Travis CI build fail if **go fmt** has not been run on incoming code.) The PR reviewers help out on this front, and may provide comments with suggestions on how to improve the code.
+ - [ ] __Run go mod tidy__: If you add new dependencies in `go.mod`, you **must** run `go mod tidy` to ensure `go.sum` is properly updated with correct checksums. The CI build will fail if `go.mod` or `go.sum` are not tidy.
+ - [ ] __Run go vet__: Before submitting your PR, run `go vet ./...` to catch common Go programming errors. The CI build will fail if `go vet` reports any issues.
+ - [ ] __Run go fmt__: Before submitting your PR, run `go fmt ./...` to ensure all code is properly formatted. The CI build will fail if any files are not formatted correctly.
 
 ### Writing acceptance tests
 
@@ -278,6 +329,7 @@ The `IBM Cloud Provider for Terraform` release can be mainly classified in to th
 - Dev release
 
 ### Production release
+
 Typically, the production release of the `IBM Cloud Provider for Terraform` will be made, once in a month. The release can be major or minor based on the PR's commited. The production release is targetted from branch **release**. Once the release is published, users can download the binary from [Terraform registry](https://registry.terraform.io/providers/IBM-Cloud/ibm/latest).
 
 #### How to use this provider
@@ -306,6 +358,7 @@ Typically, the pre-production releases of the `IBM Cloud Provider for Terraform`
 ~> **Note** A pre-release version is a version number that contains a suffix introduced by a dash, such as **1.38.0-pre**. A pre-release version can be selected only by an exact version constraint (the = operator or no operator). Pre-release versions do not match inexact operators such as `>=`, `~>`, etc.
 
 #### How to use this provider
+
 To install Terraform 0.13 or higher version provider, copy and paste this code into your Terraform configuration. Then, run `terraform init`.
 
 ```terraform
@@ -325,7 +378,7 @@ provider "ibm" {
 
 ### Dev release
 
-The individual developers or the IBM Cloud Service team can make their own `dev` releases, from their respective Git repository (forked from https://github.com/IBM-Cloud/terraform-provider-ibm).  
+The individual developers or the IBM Cloud Service team can make their own `dev` releases, from their respective Git repository (forked from [https://github.com/IBM-Cloud/terraform-provider-ibm](https://github.com/IBM-Cloud/terraform-provider-ibm)).
 
 Note: You can use the existing GitHub actions to run the release workflows, in your forked repository. You can prepare a `dev` release by adding a new version tag in your repository.
 
@@ -347,6 +400,7 @@ Note: You can use the existing GitHub actions to run the release workflows, in y
   - On Windows, the file must be named **terraform.rc** and placed in the relevant user's %APPDATA% directory. 
   - On all other systems, the file must be named **.terraformrc** (note the leading period) and placed directly in the home directory of the relevant user.
 - Add below content to CLI configuration file
+
   ```terraform
   provider_installation {
     filesystem_mirror {
@@ -358,3 +412,4 @@ Note: You can use the existing GitHub actions to run the release workflows, in y
     }
   } 
   ```
+

@@ -144,9 +144,9 @@ output "primary_ipv4_address" {
 
 The following example shows how you can create a virtual server instance using reserved ip as the primary ip reference of the network interface
 
-// Example to provision instance using reserved ip
 
 ```terraform
+// Example to provision instance using reserved ip
 resource "ibm_is_subnet_reserved_ip" "example" {
   subnet    = ibm_is_subnet.example.id
   name      = "example-reserved-ip1"
@@ -181,8 +181,41 @@ resource "ibm_is_instance" "example1" {
   zone = "us-south-1"
   keys = [ibm_is_ssh_key.example.id]
 }
-
 ```
+
+### Sample for creating a spot instance
+
+The following example shows how to create a spot virtual server instance with preemption policy:
+
+```terraform
+resource "ibm_is_instance" "example_spot" {
+  name    = "example-spot-instance"
+  image   = ibm_is_image.example.id
+  profile = "nxf-2x1"
+  # Configure as spot instance
+  availability {
+    class = "spot"
+  }
+  # Configure preemption behavior (only valid for spot instances)
+  availability_policy {
+    preemption   = "stop"  # or "delete"
+    host_failure = "restart"
+  }
+  primary_network_interface {
+    subnet = ibm_is_subnet.example.id
+  }
+  vpc  = ibm_is_vpc.example.id
+  zone = "us-south-1"
+  keys = [ibm_is_ssh_key.example.id]
+}
+```
+
+**Note:** 
+- Spot instances may be preempted when IBM Cloud needs the capacity
+- The `preemption` policy determines what happens when preempted: `stop` leaves the instance stopped, `delete` removes it entirely
+- Spot instances cannot use dedicated hosts or dedicated host groups
+- Spot instances require special account approval - contact IBM Support if interested
+
 
 ### Sample for creating an instance in a VPC with reservation
 
@@ -258,10 +291,14 @@ resource "ibm_is_security_group_rule" "example2" {
   group     = ibm_is_security_group.example.id
   direction = "inbound"
   remote    = "127.0.0.1"
-  icmp {
-    code = 20
-    type = 30
-  }
+  # Deprecated block: replaced with 'protocol', 'code', and 'type' arguments
+  # icmp {
+  #   code = 20
+  #   type = 30
+  # }
+  protocol  = "icmp"
+  code      = 20
+  type      = 30
   depends_on = [ibm_is_security_group_rule.example1]
 
 }
@@ -270,10 +307,14 @@ resource "ibm_is_security_group_rule" "example3" {
   group     = ibm_is_security_group.example.id
   direction = "inbound"
   remote    = "127.0.0.1"
-  udp {
-    port_min = 805
-    port_max = 807
-  }
+  # Deprecated block: replaced with 'protocol', 'port_min', and 'port_max' arguments
+  # udp {
+  #   port_min = 805
+  #   port_max = 807
+  # }
+  protocol  = "udp"
+  port_min = 805
+  port_max = 807
   depends_on = [ibm_is_security_group_rule.example2]
 }
 
@@ -281,10 +322,14 @@ resource "ibm_is_security_group_rule" "example3" {
   group     = ibm_is_security_group.example.id
   direction = "outbound"
   remote    = "127.0.0.1"
-  tcp {
-    port_min = 8080
-    port_max = 8080
-  }
+  # Deprecated block: replaced with 'protocol', 'port_min', and 'port_max' arguments
+  # tcp {
+  #  port_min = 8080
+  #  port_max = 8080
+  # }
+  protocol  = "tcp"
+  port_min = 8080
+  port_max = 8080
   depends_on = [ibm_is_security_group_rule.example2]
 }
 
@@ -607,7 +652,16 @@ Review the argument references that you can specify for your resource.
   ~> **Note** 
     `action` allows to start, stop and reboot the instance and it is not recommended to manage the instance from terraform and other clients (UI/CLI) simultaneously, as it would cause unknown behaviour. `start` action can be performed only when the instance is in `stopped` state. `stop` and `reboot` actions can be performed only when the instance is in `running` state. It is also recommended to remove the `action` configuration from terraform once it is applied succesfully, to avoid instability in the terraform configuration later.
 - `auto_delete_volume`- (Optional, Bool) If set to **true**, automatically deletes the volumes that are attached to an instance. **Note** Setting this argument can bring some inconsistency in the volume resource, as the volumes is destroyed along with instances.
-- `availability_policy_host_failure` - (Optional, String) The availability policy to use for this virtual server instance. The action to perform if the compute host experiences a failure. Supported values are `restart` and `stop`.
+- `availability` - (Optional, List) The availability for this virtual server instance. **Note:** Spot instances are available only to accounts that have been granted special approval. Contact IBM Support if you are interested in using spot instances.
+  Nested schema for **availability**:
+	- `class` - (Optional, String) The availability class for the virtual server instance.- `spot`: The virtual server instance may be preempted.- `standard`: The virtual server instance will not be preempted.See [virtual server instance availability class](https://cloud.ibm.com/docs/vpc?topic=vpc-spot-instances-virtual-servers) for details.The enumerated values for this property may [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future. Allowable values are: `spot`, `standard`. **Note:** To change the availability class, the instance status must be stopping or stopped.
+- `availability_policy` - (Optional, List) The availability policy for this virtual server instance.
+  Nested schema for **availability_policy**:
+	- `host_failure` - (Optional, String) The action to perform if the compute host experiences a failure:- `restart`: Restart the virtual server instance- `stop`: Leave the virtual server instance stopped. See [handling host failures](https://cloud.ibm.com/docs/vpc?topic=vpc-host-failure-recovery-policies) for details.The enumerated values for this property may [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future. Allowable values are: `restart`, `stop`.
+	- `preemption` - (Optional, String) The action to perform if the virtual server instance is preempted:- `delete`: Delete the virtual server instance- `stop`: Leave the virtual server instance stopped. See [virtual server instance preemption](https://cloud.ibm.com/docs/vpc?topic=vpc-spot-instances-virtual-servers#spot-instances-preemption) for details.The enumerated values for this property may [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future. Allowable values are: `delete`, `stop`.
+
+	-> **Note:** The `preemption` property is only applicable when availability class is set to `spot`. Setting preemption on a standard instance will result in an error.
+- `availability_policy_host_failure` - (Deprecated, Optional, String) The availability policy to use for this virtual server instance. The action to perform if the compute host experiences a failure. Supported values are `restart` and `stop`. Use availability_policy.0.host_failure instead. Existing configurations can continue using this attribute, switching attributes with the same value will not trigger replacement.
 - `boot_volume`  (Optional, List) A list of boot volumes for an instance.
 
   Nested scheme for `boot_volume`:
@@ -633,6 +687,7 @@ Review the argument references that you can specify for your resource.
   - `bandwidth` - (Optional, Integer) The maximum bandwidth (in megabits per second) for the volume. For this property to be specified, the volume storage_generation must be 2.
   - `encryption` - (Optional, String) The type of encryption to use for the boot volume.
   - `name` - (Optional, String) The name of the boot volume.
+  - `profile` - (Optional, String) The name of the profile for this boot volume(not applicable for creating VSI with `volume_id`).
   - `size` - (Optional, Integer) The size of the boot volume.(The capacity of the volume in gigabytes. This defaults to minimum capacity of the image and maximum to `250`.)
 
     ~> **NOTE:**
@@ -905,8 +960,12 @@ Review the argument references that you can specify for your resource.
 
   **NOTE:**
   When the `profile` is changed, the VSI is restarted. The new profile must:
-    1. Have matching instance disk support. Any disks associated with the current profile will be deleted, and any disks associated with the requested profile will be created.        
+    1. Have matching instance disk support. Any disks associated with the current profile will be deleted, and any disks associated with the requested profile will be created.
     2. Be compatible with any placement_target(`dedicated_host`, `dedicated_host_group`, `placement_group`) constraints. For example, if the instance is placed on a dedicated host, the requested profile family must be the same as the dedicated host family.
+    3. Have the same `vcpu.architecture` (e.g., amd64 or s390x).
+    4. Support the current number of network attachments or network interfaces.
+    5. Have the `volume_bandwidth_qos_mode` listed in its `volume_bandwidth_qos_modes`.
+    6. **When downsizing to a profile with lower bandwidth capacity, you must also adjust `total_volume_bandwidth` to fit within the new profile's limits.** The instance's storage bandwidth must be at least 500 Mbps less than the target profile's total bandwidth. Both `profile` and `total_volume_bandwidth` can be updated in the same Terraform apply operation.
 
 - `reservation_affinity` - (Optional, List) The reservation affinity for the instance
   Nested scheme for `reservation_affinity`:
@@ -926,6 +985,15 @@ Review the argument references that you can specify for your resource.
 - `tags` (Optional, Array of Strings) A list of tags that you want to add to your instance. Tags can help you find your instance more easily later.
 - `total_volume_bandwidth` - (Optional, Integer) The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes
 - `user_data` - (Optional, String) User data to transfer to the instance. For more information, about `user_data`, see [about user data](https://cloud.ibm.com/docs/vpc?topic=vpc-user-data).
+- `vcpu` - (Optional, List) The virtual server instance VCPU configuration.
+  Nested schema for **vcpu**:
+	- `architecture` - (Computed, String) The VCPU architecture.The enumerated values for this property may [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future. Allowable values are: `amd64`, `s390x`.
+	- `burst` - (Optional, List)
+	  Nested schema for **burst**:
+		- `limit` - (Computed, Integer) The maximum percentage the virtual server instance will exceed its allocated share of VCPU time.The maximum value for this property may [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future. Allowable values are: `200`. The maximum value is `800`. The minimum value is `100`.
+	- `count` - (Computed, Integer) The number of VCPUs assigned.
+	- `manufacturer` - (Computed, String) The VCPU manufacturer.The enumerated values for this property may [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future. Allowable values are: `amd`, `ibm`, `intel`.
+	- `percentage` - (Required, Integer) The percentage of VCPU time allocated to the virtual server instance.The virtual server instance `vcpu.percentage` will be `100` when:- The virtual server instance `placement_target` is a dedicated host or dedicated  host group.- The virtual server instance `reservation_affinity.policy` is `disabled`.
 - `volumes`  (Optional, List) A comma separated list of volume IDs to attach to the instance. Mutually exclusive with `volume_prototypes`.
 - `volume_prototypes`- (List of Strings) A list of data volumes to attach to the instance. Mutually exclusive with `volumes`.
 
@@ -1147,10 +1215,19 @@ In addition to all argument reference list, you can access the following attribu
 
 
 ## Import
-The `ibm_is_instance` resource can be imported by using the instance ID.
 
-**Example**
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import the `ibm_is_instance` resource by using `id`.
+The `id` property can be formed from `instance ID`. For example:
 
+```terraform
+import {
+  to = ibm_is_instance.example
+  id = "<instance_id>"
+}
 ```
-$ terraform import ibm_is_instance.example a1aaa111-1111-111a-1a11-a11a1a11a11a
+
+Using `terraform import`. For example:
+
+```console
+% terraform import ibm_is_instance.example <instance_id>
 ```

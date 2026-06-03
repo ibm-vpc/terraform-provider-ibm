@@ -29,7 +29,7 @@ You can specify the following arguments for this data source.
 After your data source is created, you can read values from the following attributes.
 
 - `id` - The unique identifier of the ClusterNetworkProfile.(same as `name`)
-- `family` - (String) The product family this cluster network profile belongs to.The enumerated values for this property may[expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.
+- `family` - (String) The product family this cluster network profile belongs to.The enumerated values for this property may [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.
 - `href` - (String) The URL for this cluster network profile.
 - `address_configuration_services`- (List) The services that provide address configuration information for a cluster network with this profile.
 	Nested schema for **address_configuration_services**:

@@ -83,14 +83,14 @@ Review the argument references that you can specify for your resource.
 - `pi_ibmi_css` - (Optional, Boolean) IBM i Cloud Storage Solution.
 - `pi_ibmi_pha` - (Optional, Boolean) IBM i Power High Availability.
 - `pi_ibmi_rds_users` - (Optional, Integer) IBM i Rational Dev Studio Number of User Licenses.
-- `pi_image_id` - (Required, String) The ID of the image that you want to use for your Power Systems Virtual Server instance. The image determines the operating system that is installed in your instance. To list available images, run the `ibmcloud pi images` command.
+- `pi_image_id` - (Required, String) The ID of the image that you want to use for your Power Systems Virtual Server instance. The image determines the operating system that is installed in your instance. To list available images, run the `ibmcloud pi image list` command.
   - **Note**:
         - Only images belonging to your project can be used image for deploying a Power Systems Virtual Server instance. To import an images to your project, see [ibm_pi_image](https://registry.terraform.io/providers/IBM-Cloud/ibm/latest/docs/resources/pi_image).
         - If using `pi_deployment_type = VMNoStorage` then use the following images for the respective OS you intend to create the instance: `AIX-EMPTY`, `IBMI-EMPTY`, `SLES-EMPTY`, `RHEL-EMPTY`.
 - `pi_instance_name` - (Required, String) The name of the Power Systems Virtual Server instance.
 - `pi_key_pair_name` - (Optional, String) The name of the SSH key that you want to use to access your Power Systems Virtual Server instance. The SSH key must be uploaded to IBM Cloud.
-- `pi_license_repository_capacity` - (Optional, Integer) The VTL license repository capacity TB value. Only use with VTL instances. `pi_memory >= 16 + (2 * pi_license_repository_capacity)`.
-- `pi_memory` - (Optional, Float) The amount of memory that you want to assign to your instance in GB.
+- `pi_license_repository_capacity` - (Optional, Integer) The VTL license repository capacity TiB value. Only use with VTL instances. `pi_memory >= 16 + (2 * pi_license_repository_capacity)`.
+- `pi_memory` - (Optional, Float) The amount of memory that you want to assign to your instance in GiB.
   - Required when not creating SAP instances. Conflicts with `pi_sap_profile_id`.
 - `pi_network` - (Required, List of Map) List of one or more networks to attach to the instance.
 
@@ -133,6 +133,10 @@ Review the argument references that you can specify for your resource.
 
       ~> **Note** When set to "auto-assign", changes to `serial` outside of terraform will not be detected. In addition, if a new generated virtual serial number is needed, the old serial must be removed before a new one is generated.
 - `pi_volume_ids` - (Optional, List of String) The list of volume IDs that you want to attach to the instance during creation.
+- `pi_vpmem_volumes` - (Optional, List of Map) List of one or more vPMEM volumes to attach to the instance.
+  The `pi_vpmem_volumes` block supports:
+  - `name` - (Required, String) Volume base name.
+  - `size` - (Required, Integer) Volume size (GB).
 
 ## Attribute Reference
 
@@ -174,6 +178,20 @@ In addition to all argument reference list, you can access the following attribu
 - `progress` - (Float) - Specifies the overall progress of the instance deployment process in percentage.
 - `shared_processor_pool_id` - (String)  The ID of the shared processor pool for the instance.
 - `status` - (String) The status of the instance.
+- `vpmem_volumes` - (List) List of vPMEM volumes.
+   Nested schema for `vpmem_volumes`:
+  - `creation_date` - (String) The date and time when the volume was created.
+  - `crn` - (String) The CRN for this resource.
+  - `error_code` - (String) Error code for the vPMEM volume.
+  - `href` - (String) Link to vPMEM volume resource.
+  - `name` - (String) Volume Name.
+  - `pvm_instance_id` - (String) PVM Instance ID which the volume is attached to.
+  - `reason` - (String) Reason for error.
+  - `size` - (Float) Volume Size (GB).
+  - `status` - (String) Status of the volume.
+  - `updated_date` - (String) The date and time when the volume was updated.
+  - `user_tags` - (List) List of user tags.
+  - `volume_id` - (String) Volume ID.
 
 ## Import
 

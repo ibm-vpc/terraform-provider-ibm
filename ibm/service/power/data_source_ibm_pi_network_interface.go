@@ -66,6 +66,11 @@ func DataSourceIBMPINetworkInterface() *schema.Resource {
 				},
 				Type: schema.TypeList,
 			},
+			Attr_ExternalIP: {
+				Computed:    true,
+				Description: "The external ip address for pub-vlan networks.",
+				Type:        schema.TypeString,
+			},
 			Attr_IPAddress: {
 				Computed:    true,
 				Description: "The ip address of this Network Interface.",
@@ -114,10 +119,12 @@ func DataSourceIBMPINetworkInterface() *schema.Resource {
 	}
 }
 
-func dataSourceIBMPINetworkInterfaceRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataSourceIBMPINetworkInterfaceRead(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	sess, err := meta.(conns.ClientSession).IBMPISession()
 	if err != nil {
-		return diag.FromErr(err)
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("IBMPISession failed: %s", err.Error()), "(Data) ibm_pi_network_interface", "read")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	cloudInstanceID := d.Get(Arg_CloudInstanceID).(string)
@@ -126,10 +133,13 @@ func dataSourceIBMPINetworkInterfaceRead(ctx context.Context, d *schema.Resource
 	networkC := instance.NewIBMPINetworkClient(ctx, sess, cloudInstanceID)
 	networkInterface, err := networkC.GetNetworkInterface(networkID, networkInterfaceID)
 	if err != nil {
-		return diag.FromErr(err)
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("GetNetworkInterface failed: %s", err.Error()), "(Data) ibm_pi_network_interfaces", "read")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
 	}
 
 	d.SetId(fmt.Sprintf("%s/%s", networkID, *networkInterface.ID))
+	d.Set(Attr_ExternalIP, networkInterface.ExternalIP)
 	d.Set(Attr_IPAddress, networkInterface.IPAddress)
 	d.Set(Attr_MacAddress, networkInterface.MacAddress)
 	d.Set(Attr_Name, networkInterface.Name)
@@ -137,7 +147,7 @@ func dataSourceIBMPINetworkInterfaceRead(ctx context.Context, d *schema.Resource
 	d.Set(Attr_NetworkSecurityGroupID, networkInterface.NetworkSecurityGroupID)
 	d.Set(Attr_NetworkSecurityGroupIDs, networkInterface.NetworkSecurityGroupIDs)
 	if networkInterface.Instance != nil {
-		instance := []map[string]interface{}{}
+		instance := []map[string]any{}
 		instanceMap := pvmInstanceToMap(networkInterface.Instance)
 		instance = append(instance, instanceMap)
 		d.Set(Attr_Instance, instance)
@@ -155,8 +165,8 @@ func dataSourceIBMPINetworkInterfaceRead(ctx context.Context, d *schema.Resource
 	return nil
 }
 
-func pvmInstanceToMap(pvm *models.NetworkInterfaceInstance) map[string]interface{} {
-	instanceMap := make(map[string]interface{})
+func pvmInstanceToMap(pvm *models.NetworkInterfaceInstance) map[string]any {
+	instanceMap := make(map[string]any)
 	if pvm.Href != "" {
 		instanceMap[Attr_Href] = pvm.Href
 	}

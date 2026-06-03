@@ -13,6 +13,11 @@ import (
 	"testing"
 
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/provider"
+	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/provider_framework"
+	"github.com/hashicorp/terraform-plugin-framework/providerserver"
+	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
+	"github.com/hashicorp/terraform-plugin-mux/tf5to6server"
+	"github.com/hashicorp/terraform-plugin-mux/tf6muxserver"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	terraformsdk "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
@@ -67,6 +72,7 @@ var (
 	FloatingIpID                    string
 	HpcsInstanceID                  string
 	HpcsInstanceName                string
+	IAMAccessGroupId                string
 	IAMAccountId                    string
 	IAMServiceId                    string
 	IAMTrustedProfileID             string
@@ -143,6 +149,13 @@ var (
 	trustedMachineType              string
 )
 
+// For VPC Endpoint Gateway
+var (
+	IsResourceBindingCRN        string
+	IsEndpointGatewayTargetCRN  string
+	IsEndpointGatewayTargetType string
+)
+
 // MQ on Cloud
 var (
 	MqcloudConfigEndpoint                       string
@@ -164,6 +177,11 @@ var (
 	LogsInstanceRegion                  string
 	LogsEventNotificationInstanceId     string
 	LogsEventNotificationInstanceRegion string
+)
+
+// Reclamation
+var (
+	ReclamationId string
 )
 
 // Secrets Manager
@@ -237,6 +255,7 @@ var (
 	Pi_image_bucket_region            string
 	Pi_image_bucket_secret_key        string
 	Pi_image_id                       string
+	Pi_instance_id                    string
 	Pi_instance_name                  string
 	Pi_key_name                       string
 	Pi_network_address_group_id       string
@@ -247,18 +266,21 @@ var (
 	Pi_network_security_group_id      string
 	Pi_network_security_group_rule_id string
 	Pi_peer_interface_id              string
-	Pi_placement_group_name           string
+	Pi_placement_group_id             string
 	Pi_remote_id                      string
 	Pi_remote_type                    string
-	Pi_replication_volume_name        string
+	Pi_replication_volume_id          string
 	Pi_resource_group_id              string
 	Pi_route_filter_id                string
 	Pi_route_id                       string
 	Pi_sap_image                      string
 	Pi_sap_profile_id                 string
+	Pi_secondary_workspace_id_1       string
+	Pi_secondary_workspace_id_2       string
 	Pi_shared_processor_pool_id       string
 	Pi_snapshot_id                    string
 	Pi_spp_placement_group_id         string
+	Pi_ssh_key_id                     string
 	Pi_storage_connection             string
 	Pi_target_storage_tier            string
 	Pi_virtual_serial_number          string
@@ -387,17 +409,24 @@ var (
 	COSApiKey    string
 )
 
+var (
+	DRApiKey string
+)
+
 // For Code Engine
 var (
-	CeResourceGroupID   string
-	CeProjectId         string
-	CeServiceInstanceID string
-	CeResourceKeyID     string
-	CeDomainMappingName string
-	CeTLSCert           string
-	CeTLSKey            string
-	CeTLSKeyFilePath    string
-	CeTLSCertFilePath   string
+	CeResourceGroupID              string
+	CeProjectId                    string
+	CeServiceInstanceID            string
+	CeResourceKeyID                string
+	CeDomainMappingName            string
+	CeTLSCertFilePath              string
+	CeTLSKeyFilePath               string
+	CeCosAccessKeyID               string
+	CeCosSecretAccessKey           string
+	CeCosBucketName                string
+	CeCosBucketLocation            string
+	CePrivatePathServiceGatewayCrn string
 )
 
 // Satellite tests
@@ -407,6 +436,7 @@ var (
 
 // for IAM Identity
 var IamIdentityAssignmentTargetAccountId string
+var IamIdentityEnterpriseAccountId string
 
 // Projects
 var ProjectsConfigApiKey string
@@ -459,13 +489,25 @@ var (
 	ISClusterNetworkSubnetPrefixesCidr string
 )
 
+// For Platform Notifications
+var (
+	NotificationDistributionListAccountId     string
+	NotificationDistributionListDestinationId string
+)
+
 func init() {
 	testlogger := os.Getenv("TF_LOG")
 	if testlogger != "" {
 		os.Setenv("IBMCLOUD_BLUEMIX_GO_TRACE", "true")
 	}
 
+	ReclamationId = os.Getenv("IBM_RECLAMATION_ID")
+	if ReclamationId == "" {
+		fmt.Println("[WARN] Set the environment variable IBM_RECLAMATION_ID for testing reclamation, reclamation_delete tests will fail if this is not set")
+	}
+
 	IamIdentityAssignmentTargetAccountId = os.Getenv("IAM_IDENTITY_ASSIGNMENT_TARGET_ACCOUNT")
+	IamIdentityEnterpriseAccountId = os.Getenv("IAM_IDENTITY_ENTERPRISE_ACCOUNT")
 
 	ProjectsConfigApiKey = os.Getenv("IBM_PROJECTS_CONFIG_APIKEY")
 	if ProjectsConfigApiKey == "" {
@@ -503,6 +545,11 @@ func init() {
 	IAMUser = os.Getenv("IBM_IAMUSER")
 	if IAMUser == "" {
 		fmt.Println("[WARN] Set the environment variable IBM_IAMUSER for testing ibm_iam_user_policy resource Some tests for that resource will fail if this is not set correctly")
+	}
+
+	IAMAccessGroupId = os.Getenv("IBM_IAM_ACCESS_GROUP_ID")
+	if IAMAccessGroupId == "" {
+		fmt.Println("[WARN] Set the environment variable IBM_IAM_ACCESS_GROUP_ID for testing ibm_iam_user_invite resource Some tests for that resource will fail if this is not set correctly")
 	}
 
 	IAMAccountId = os.Getenv("IBM_IAMACCOUNTID")
@@ -803,6 +850,19 @@ func init() {
 	if RegionName == "" {
 		RegionName = "us-south"
 		fmt.Println("[INFO] Set the environment variable SL_REGION for testing ibm_is_region datasource else it is set to default value 'us-south'")
+	}
+
+	IsResourceBindingCRN = os.Getenv("IBM_IS_RESOURCE_BINDING_CRN")
+	if IsResourceBindingCRN == "" {
+		fmt.Println("[WARN] Set the environment variable IBM_IS_RESOURCE_BINDING_CRN for testing IBM VPC Endpoint gateway resources, the tests will fail if this is not set")
+	}
+	IsEndpointGatewayTargetCRN = os.Getenv("IBM_IS_ENDPOINT_BINDING_TARGET_CRN")
+	if IsEndpointGatewayTargetCRN == "" {
+		fmt.Println("[WARN] Set the environment variable IBM_IS_ENDPOINT_BINDING_TARGET_CRN for testing IBM VPC Endpoint gateway resources, the tests will fail if this is not set")
+	}
+	IsEndpointGatewayTargetType = os.Getenv("IBM_IS_ENDPOINT_BINDING_TARGET_TYPE")
+	if IsEndpointGatewayTargetType == "" {
+		fmt.Println("[WARN] Set the environment variable IBM_IS_ENDPOINT_BINDING_TARGET_TYPE for testing IBM VPC Endpoint gateway resources, the tests will fail if this is not set")
 	}
 
 	ISZoneName = os.Getenv("SL_ZONE")
@@ -1147,6 +1207,17 @@ func init() {
 		IcdDbTaskId = "crn:v1:bluemix:public:databases-for-redis:au-syd:a/40ddc34a953a8c02f10987b59085b60e:367b0a22-05bb-41e3-a1ed-ded1ff0889e5:task:882013a6-2751-4df7-a77a-98d258638704"
 		fmt.Println("[INFO] Set the environment variable ICD_DB_TASK_ID for testing ibm_cloud_databases else it is set to default value 'crn:v1:bluemix:public:databases-for-redis:au-syd:a/40ddc34a953a8c02f10987b59085b60e:367b0a22-05bb-41e3-a1ed-ded1ff0889e5:task:882013a6-2751-4df7-a77a-98d258638704'")
 	}
+
+	NotificationDistributionListAccountId = os.Getenv("NOTIFICATION_DIST_ACCOUNT_ID")
+	if NotificationDistributionListAccountId == "" {
+		fmt.Println("[WARN] Set the environment variable NOTIFICATION_DIST_ACCOUNT_ID for testing ibm_notification_distribution_list resource else tests will fail if this is not set correctly")
+	}
+
+	NotificationDistributionListDestinationId = os.Getenv("NOTIFICATION_DIST_DESTINATION_ID")
+	if NotificationDistributionListDestinationId == "" {
+		fmt.Println("[WARN] Set the environment variable NOTIFICATION_DIST_DESTINATION_ID for testing ibm_notification_distribution_list resource else tests will fail if this is not set correctly")
+	}
+
 	// Added for Power Colo Testing
 	Pi_image = os.Getenv("PI_IMAGE")
 	if Pi_image == "" {
@@ -1195,7 +1266,13 @@ func init() {
 	Pi_key_name = os.Getenv("PI_KEY_NAME")
 	if Pi_key_name == "" {
 		Pi_key_name = "terraform-test-power"
-		fmt.Println("[INFO] Set the environment variable PI_KEY_NAME for testing ibm_pi_key_name resource else it is set to default value 'terraform-test-power'")
+		fmt.Println("[INFO] Set the environment variable PI_KEY_NAME for testing ibm_pi_key resource else it is set to default value 'terraform-test-power'")
+	}
+
+	Pi_ssh_key_id = os.Getenv("PI_SSH_KEY_ID")
+	if Pi_ssh_key_id == "" {
+		Pi_ssh_key_id = "terraform-test-power"
+		fmt.Println("[INFO] Set the environment variable PI_SSH_KEY_ID for testing ibm_pi_key resource else it is set to default value 'terraform-test-power'")
 	}
 
 	Pi_network_name = os.Getenv("PI_NETWORK_NAME")
@@ -1267,10 +1344,10 @@ func init() {
 		fmt.Println("[INFO] Set the environment variable PI_VOLUME_ID for testing ibm_pi_volume_flash_copy_mappings resource else it is set to default value 'terraform-test-power'")
 	}
 
-	Pi_replication_volume_name = os.Getenv("PI_REPLICATION_VOLUME_NAME")
-	if Pi_replication_volume_name == "" {
-		Pi_replication_volume_name = "terraform-test-power"
-		fmt.Println("[INFO] Set the environment variable PI_REPLICATION_VOLUME_NAME for testing ibm_pi_volume resource else it is set to default value 'terraform-test-power'")
+	Pi_replication_volume_id = os.Getenv("PI_REPLICATION_VOLUME_ID")
+	if Pi_replication_volume_id == "" {
+		Pi_replication_volume_id = "terraform-test-power"
+		fmt.Println("[INFO] Set the environment variable PI_REPLICATION_VOLUME_ID for testing ibm_pi_volume resource else it is set to default value 'terraform-test-power'")
 	}
 
 	Pi_volume_onboarding_source_crn = os.Getenv("PI_VOLUME_ONBARDING_SOURCE_CRN")
@@ -1315,10 +1392,16 @@ func init() {
 		fmt.Println("[INFO] Set the environment variable PI_SNAPSHOT_ID for testing ibm_pi_instance_snapshot data source else it is set to default value '1ea33118-4c43-4356-bfce-904d0658de82'")
 	}
 
-	Pi_instance_name = os.Getenv("PI_PVM_INSTANCE_NAME")
+	Pi_instance_id = os.Getenv("PI_INSTANCE_ID")
+	if Pi_instance_id == "" {
+		Pi_instance_id = "terraform-test-power"
+		fmt.Println("[INFO] Set the environment variable PI_INSTANCE_ID for testing ibm_pi_instance resource else it is set to default value 'terraform-test-power'")
+	}
+
+	Pi_instance_name = os.Getenv("PI_INSTANCE_NAME")
 	if Pi_instance_name == "" {
 		Pi_instance_name = "terraform-test-power"
-		fmt.Println("[INFO] Set the environment variable PI_PVM_INSTANCE_ID for testing Pi_instance_name resource else it is set to default value 'terraform-test-power'")
+		fmt.Println("[INFO] Set the environment variable PI_INSTANCE_NAME for testing ibm_pi_instance resource else it is set to default value 'terraform-test-power'")
 	}
 
 	Pi_dhcp_id = os.Getenv("PI_DHCP_ID")
@@ -1339,10 +1422,10 @@ func init() {
 		fmt.Println("[INFO] Set the environment variable PI_SAP_PROFILE_ID for testing ibm_pi_sap_profile resource else it is set to default value 'terraform-test-power'")
 	}
 
-	Pi_placement_group_name = os.Getenv("PI_PLACEMENT_GROUP_NAME")
-	if Pi_placement_group_name == "" {
-		Pi_placement_group_name = "tf-pi-placement-group"
-		fmt.Println("[WARN] Set the environment variable PI_PLACEMENT_GROUP_NAME for testing ibm_pi_placement_group resource else it is set to default value 'tf-pi-placement-group'")
+	Pi_placement_group_id = os.Getenv("PI_PLACEMENT_GROUP_ID")
+	if Pi_placement_group_id == "" {
+		Pi_placement_group_id = "tf-pi-placement-group"
+		fmt.Println("[WARN] Set the environment variable PI_PLACEMENT_GROUP_ID for testing ibm_pi_placement_group resource else it is set to default value 'tf-pi-placement-group'")
 	}
 
 	Pi_remote_id = os.Getenv("PI_REMOTE_ID")
@@ -1443,6 +1526,16 @@ func init() {
 	if Pi_host_group_id == "" {
 		Pi_host_group_id = ""
 		fmt.Println("[WARN] Set the environment variable PI_HOST_GROUP_ID for testing ibm_pi_host resource else it is set to default value ''")
+	}
+	Pi_secondary_workspace_id_1 = os.Getenv("PI_SECONDARY_WORKSPACE_ID_1")
+	if Pi_secondary_workspace_id_1 == "" {
+		Pi_secondary_workspace_id_1 = ""
+		fmt.Println("[WARN] Set the environment variable PI_SECONDARY_WORKSPACE_ID_1 for testing ibm_pi_host_group update else it is set to default value ''")
+	}
+	Pi_secondary_workspace_id_2 = os.Getenv("PI_SECONDARY_WORKSPACE_ID_2")
+	if Pi_secondary_workspace_id_2 == "" {
+		Pi_secondary_workspace_id_2 = ""
+		fmt.Println("[WARN] Set the environment variable PI_SECONDARY_WORKSPACE_ID_2 for testing ibm_pi_host_group update else it is set to default value ''")
 	}
 	Pi_host_id = os.Getenv("PI_HOST_ID")
 	if Pi_host_id == "" {
@@ -1946,6 +2039,12 @@ func init() {
 		fmt.Println("[WARN] Set the environment variable IES_API_KEY for testing Event streams targets, the tests will fail if this is not set")
 	}
 
+	DRApiKey = os.Getenv("DR_API_KEY")
+	if DRApiKey == "" {
+		DRApiKey = "xxxxxxxxxxxx" // pragma: allowlist secret
+		fmt.Println("[WARN] Set the environment variable IES_API_KEY for testing Event streams targets, the tests will fail if this is not set")
+	}
+
 	EnterpriseCRN = os.Getenv("ENTERPRISE_CRN")
 	if EnterpriseCRN == "" {
 		fmt.Println("[WARN] Set the environment variable ENTERPRISE_CRN for testing enterprise backup policy, the tests will fail if this is not set")
@@ -1981,28 +2080,44 @@ func init() {
 		fmt.Println("[WARN] Set the environment variable IBM_CODE_ENGINE_DOMAIN_MAPPING_NAME with the name of a domain mapping")
 	}
 
-	CeTLSCert = os.Getenv("IBM_CODE_ENGINE_TLS_CERT")
-	if CeTLSCert == "" {
-		CeTLSCert = ""
-		fmt.Println("[WARN] Set the environment variable IBM_CODE_ENGINE_TLS_CERT with the TLS certificate in base64 format")
+	CeCosBucketLocation = os.Getenv("IBM_CODE_ENGINE_COS_BUCKET_LOCATION")
+	if CeCosBucketLocation == "" {
+		CeCosBucketLocation = ""
+		fmt.Println("[WARN] Set the environment variable IBM_CODE_ENGINE_COS_BUCKET_LOCATION with the location of a COS bucket")
 	}
 
-	CeTLSKey = os.Getenv("IBM_CODE_ENGINE_TLS_KEY")
-	if CeTLSKey == "" {
-		CeTLSKey = ""
-		fmt.Println("[WARN] Set the environment variable IBM_CODE_ENGINE_TLS_KEY with a TLS key in base64 format")
-	}
-
-	CeTLSKeyFilePath = os.Getenv("IBM_CODE_ENGINE_TLS_CERT_KEY_PATH")
-	if CeTLSKeyFilePath == "" {
-		CeTLSKeyFilePath = ""
-		fmt.Println("[WARN] Set the environment variable IBM_CODE_ENGINE_TLS_CERT_KEY_PATH to point to CERT KEY file path")
-	}
-
-	CeTLSCertFilePath = os.Getenv("IBM_CODE_ENGINE_TLS_CERT_PATH")
+	CeTLSCertFilePath = os.Getenv("IBM_CODE_ENGINE_TLS_CERT_FILE_PATH")
 	if CeTLSCertFilePath == "" {
 		CeTLSCertFilePath = ""
-		fmt.Println("[WARN] Set the environment variable IBM_CODE_ENGINE_TLS_CERT_PATH to point to CERT file path")
+		fmt.Println("[WARN] Set the environment variable IBM_CODE_ENGINE_TLS_CERT_FILE_PATH to the path of the .crt file containing the signed TLS certificate")
+	}
+
+	CeCosAccessKeyID = os.Getenv("IBM_CODE_ENGINE_COS_ACCESS_KEY_ID")
+	if CeCosAccessKeyID == "" {
+		CeCosAccessKeyID = ""
+		fmt.Println("[WARN] Set the environment variable IBM_CODE_ENGINE_COS_ACCESS_KEY_ID with the access key ID of a COS instance")
+	}
+
+	CeCosSecretAccessKey = os.Getenv("IBM_CODE_ENGINE_COS_SECRET_ACCESS_KEY")
+	if CeCosSecretAccessKey == "" {
+		CeCosSecretAccessKey = ""
+		fmt.Println("[WARN] Set the environment variable IBM_CODE_ENGINE_COS_SECRET_ACCESS_KEY with the secret access key of a COS instance")
+	}
+
+	CeCosBucketName = os.Getenv("IBM_CODE_ENGINE_COS_BUCKET_NAME")
+	if CeCosBucketName == "" {
+		CeCosBucketName = ""
+		fmt.Println("[WARN] Set the environment variable IBM_CODE_ENGINE_COS_BUCKET_NAME with the name of a COS bucket")
+	}
+
+	CeTLSKeyFilePath = os.Getenv("IBM_CODE_ENGINE_TLS_KEY_FILE_PATH")
+	if CeTLSKeyFilePath == "" {
+		CeTLSKeyFilePath = ""
+		fmt.Println("[WARN] Set the environment variable IBM_CODE_ENGINE_TLS_KEY_FILE_PATH to the path of the .key file containing the TLS private key")
+	}
+
+	if CePrivatePathServiceGatewayCrn = os.Getenv("IBM_CODE_ENGINE_PRIVATE_PATH_SERVICE_GATEWAY_CRN"); CePrivatePathServiceGatewayCrn == "" {
+		fmt.Println("[WARN] Set the environment variable IBM_CODE_ENGINE_PRIVATE_PATH_SERVICE_GATEWAY_CRN to the Private Path Service Gateway CRN to be used in tests")
 	}
 
 	SatelliteSSHPubKey = os.Getenv("IBM_SATELLITE_SSH_PUB_KEY")
@@ -2203,10 +2318,52 @@ func init() {
 	}
 }
 
+// TestAccProviders is used for testing SDKv2 resources and data sources.
+// For testing Framework-only features like Actions, use TestAccProtoV6ProviderFactories.
 var (
 	TestAccProviders map[string]*schema.Provider
 	TestAccProvider  *schema.Provider
 )
+
+// TestAccProtoV6ProviderFactories returns provider factories for testing
+// that include both SDKv2 (upgraded to protocol v6) and Framework providers.
+// This is required for testing Framework-only features like Actions.
+// The mux setup mirrors the production configuration in main.go.
+func TestAccProtoV6ProviderFactories() map[string]func() (tfprotov6.ProviderServer, error) {
+	return map[string]func() (tfprotov6.ProviderServer, error){
+		"ibm": func() (tfprotov6.ProviderServer, error) {
+			ctx := context.Background()
+
+			// Upgrade SDKv2 provider to protocol v6
+			upgradedSdkProvider, err := tf5to6server.UpgradeServer(
+				ctx,
+				provider.Provider().GRPCProvider,
+			)
+			if err != nil {
+				return nil, err
+			}
+
+			// Create framework provider server
+			// New() returns a factory function, so we call it to get the provider
+			frameworkProviderServer := providerserver.NewProtocol6(
+				provider_framework.New("test")(),
+			)
+
+			// Create mux server combining both providers
+			providers := []func() tfprotov6.ProviderServer{
+				func() tfprotov6.ProviderServer { return upgradedSdkProvider },
+				frameworkProviderServer,
+			}
+
+			muxServer, err := tf6muxserver.NewMuxServer(ctx, providers...)
+			if err != nil {
+				return nil, err
+			}
+
+			return muxServer.ProviderServer(), nil
+		},
+	}
+}
 
 // testAccProviderConfigure ensures Provider is only configured once
 //
@@ -2258,9 +2415,13 @@ func TestAccPreCheckEnterprise(t *testing.T) {
 	}
 }
 
-func TestAccPreCheckAssignmentTargetAccount(t *testing.T) {
+func TestAccPreCheckIamIdentityEnterpriseTemplates(t *testing.T) {
+	TestAccPreCheck(t)
 	if v := os.Getenv("IAM_IDENTITY_ASSIGNMENT_TARGET_ACCOUNT"); v == "" {
 		t.Fatal("IAM_IDENTITY_ASSIGNMENT_TARGET_ACCOUNT must be set for IAM identity assignment tests")
+	}
+	if v := os.Getenv("IAM_IDENTITY_ENTERPRISE_ACCOUNT"); v == "" {
+		t.Fatal("IAM_IDENTITY_ENTERPRISE_ACCOUNT must be set for IAM identity assignment tests")
 	}
 }
 
@@ -2396,11 +2557,26 @@ func TestAccPreCheckCodeEngine(t *testing.T) {
 	if CeDomainMappingName == "" {
 		t.Fatal("IBM_CODE_ENGINE_DOMAIN_MAPPING_NAME must be set for acceptance tests")
 	}
-	if CeTLSKeyFilePath == "" {
-		t.Fatal("IBM_CODE_ENGINE_TLS_CERT_KEY_PATH must be set for acceptance tests")
-	}
 	if CeTLSCertFilePath == "" {
-		t.Fatal("IBM_CODE_ENGINE_TLS_CERT_PATH must be set for acceptance tests")
+		t.Fatal("IBM_CODE_ENGINE_TLS_CERT_FILE_PATH must be set for acceptance tests")
+	}
+	if CeTLSKeyFilePath == "" {
+		t.Fatal("IBM_CODE_ENGINE_TLS_KEY_FILE_PATH must be set for acceptance tests")
+	}
+	if CeCosAccessKeyID == "" {
+		t.Fatal("IBM_CODE_ENGINE_COS_ACCESS_KEY_ID must be set for acceptance tests")
+	}
+	if CeCosSecretAccessKey == "" {
+		t.Fatal("IBM_CODE_ENGINE_COS_SECRET_ACCESS_KEY must be set for acceptance tests")
+	}
+	if CeCosBucketName == "" {
+		t.Fatal("IBM_CODE_ENGINE_COS_BUCKET_NAME must be set for acceptance tests")
+	}
+	if CeCosBucketLocation == "" {
+		t.Fatal("IBM_CODE_ENGINE_COS_BUCKET_LOCATION must be set for acceptance tests")
+	}
+	if CePrivatePathServiceGatewayCrn == "" {
+		t.Fatal("CePrivatePathServiceGatewayCrn must be set for acceptance tests")
 	}
 }
 

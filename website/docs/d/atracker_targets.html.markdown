@@ -3,7 +3,7 @@ layout: "ibm"
 page_title: "IBM : ibm_atracker_targets"
 description: |-
   Get information about atracker_targets
-subcategory: "Activity Tracker Event Routing"
+subcategory: "Activity Tracker API Version 2"
 ---
 
 # ibm_atracker_targets
@@ -12,9 +12,9 @@ Provides a read-only data source to retrieve information about atracker_targets.
 
 ## Example Usage
 
-```terraform
+```hcl
 data "ibm_atracker_targets" "atracker_targets" {
-	name = "a-cos-target-us-south"
+	name = ibm_atracker_target.atracker_target_instance.name
 }
 ```
 
@@ -35,6 +35,10 @@ After your data source is created, you can read values from the following attrib
 Nested schema for **targets**:
 	* `api_version` - (Integer) The API version of the target.
 	  * Constraints: The maximum value is `2`. The minimum value is `2`.
+	* `appconfig_endpoint` - (List) Property values for the IBM Cloud App Configuration endpoint in responses.
+	Nested schema for **appconfig_endpoint**:
+		* `target_crn` - (String) The CRN of the IBM Cloud App Configuration instance.
+		  * Constraints: The maximum length is `1000` characters. The minimum length is `3` characters. The value must match regular expression `/^[a-zA-Z0-9 -._:\/]+$/`.
 	* `cloudlogs_endpoint` - (List) Property values for the IBM Cloud Logs endpoint in responses.
 	Nested schema for **cloudlogs_endpoint**:
 		* `target_crn` - (String) The CRN of the IBM Cloud Logs instance.
@@ -62,14 +66,17 @@ Nested schema for **targets**:
 		* `topic` - (String) The messsage hub topic defined in the Event Streams instance.
 		  * Constraints: The maximum length is `1000` characters. The minimum length is `3` characters. The value must match regular expression `/^[a-zA-Z0-9 -._:\/]+$/`.
 	* `id` - (String) The uuid of the target resource.
+	* `managed_by` - (String) Identifies who manages the target.
+	  * Constraints: Allowable values are: `enterprise`, `account`.
 	* `message` - (String) An optional message containing information about the target.
 	* `name` - (String) The name of the target resource.
 	* `region` - (String) Included this optional field if you used it to create a target in a different region other than the one you are connected.
 	* `target_type` - (String) The type of the target.
-	  * Constraints: Allowable values are: `cloud_object_storage`, `event_streams`, `cloud_logs`.
+	  * Constraints: Allowable values are: `cloud_object_storage`, `event_streams`, `cloud_logs`, `app_config`.
 	* `updated_at` - (String) The timestamp of the target last updated time.
 	* `write_status` - (List) The status of the write attempt to the target with the provided endpoint parameters.
 	Nested schema for **write_status**:
 		* `last_failure` - (String) The timestamp of the failure.
 		* `reason_for_last_failure` - (String) Detailed description of the cause of the failure.
 		* `status` - (String) The status such as failed or success.
+

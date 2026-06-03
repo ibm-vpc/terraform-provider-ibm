@@ -53,6 +53,11 @@ func DataSourceIbmBackupRecoveryDataSourceConnections() *schema.Resource {
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"connection_env_type": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "Specifies the environment type of the connection.",
+						},
 						"connection_id": &schema.Schema{
 							Type:        schema.TypeString,
 							Computed:    true,
@@ -99,6 +104,17 @@ func dataSourceIbmBackupRecoveryDataSourceConnectionsRead(context context.Contex
 		tfErr := flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_backup_recovery_data_source_connections", "read", "initialize-client")
 		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
 		return tfErr.GetDiag()
+	}
+	endpointType := d.Get("endpoint_type").(string)
+	instanceId, region, serviceName := getInstanceIdAndRegion(d)
+	if instanceId != "" && region != "" {
+		bmxsession, err := meta.(conns.ClientSession).BluemixSession()
+		if err != nil {
+			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("unable to get clientSession"), "ibm_backup_recovery", "create")
+			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+			return tfErr.GetDiag()
+		}
+		backupRecoveryClient = getClientWithInstanceEndpoint(backupRecoveryClient, bmxsession, instanceId, region, endpointType, serviceName)
 	}
 
 	getDataSourceConnectionsOptions := &backuprecoveryv1.GetDataSourceConnectionsOptions{}
@@ -154,6 +170,9 @@ func dataSourceIbmBackupRecoveryDataSourceConnectionsID(d *schema.ResourceData) 
 
 func DataSourceIbmBackupRecoveryDataSourceConnectionsDataSourceConnectionToMap(model *backuprecoveryv1.DataSourceConnection) (map[string]interface{}, error) {
 	modelMap := make(map[string]interface{})
+	if model.ConnectionEnvType != nil {
+		modelMap["connection_env_type"] = *model.ConnectionEnvType
+	}
 	if model.ConnectionID != nil {
 		modelMap["connection_id"] = *model.ConnectionID
 	}

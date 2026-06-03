@@ -215,7 +215,7 @@ After your resource is created, you can read values from the listed arguments an
 - `instance_cluster_network_attachment_id` - (String) The unique identifier for this instance cluster network attachment.
 - `lifecycle_reasons` - (List) The reasons for the current `lifecycle_state` (if any).
 	Nested schema for **lifecycle_reasons**:
-	- `code` - (String) A reason code for this lifecycle state:- `internal_error`: internal error (contact IBM support)- `resource_suspended_by_provider`: The resource has been suspended (contact IBM  support)The enumerated values for this property may[expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.
+	- `code` - (String) A reason code for this lifecycle state:- `internal_error`: internal error (contact IBM support)- `resource_suspended_by_provider`: The resource has been suspended (contact IBM  support)The enumerated values for this property may [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.
 	- `message` - (String) An explanation of the reason for this lifecycle state.
 	- `more_info` - (String) Link to documentation about the reason for this lifecycle state.
 - `lifecycle_state` - (String) The lifecycle state of the instance cluster network attachment. Allowable values are: `deleting`, `failed`, `pending`, `stable`, `suspended`, `updating`, `waiting`.
@@ -225,16 +225,18 @@ After your resource is created, you can read values from the listed arguments an
 
 ## Import
 
-You can import the `ibm_is_instance_cluster_network_attachment` resource by using `id`.
-The `id` property can be formed from `instance_id`, and `instance_cluster_network_attachment_id` in the following format:
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import the `ibm_is_instance_cluster_network_attachment` resource by using `id`.
+The `id` property can be formed from `instance_id`, and `instance_cluster_network_attachment_id`. For example:
 
-<pre>
-&lt;instance_id&gt;/&lt;instance_cluster_network_attachment_id&gt;
-</pre>
-- `instance_id`: A string. The virtual server instance identifier.
-- `instance_cluster_network_attachment_id`: A string in the format `0717-fb880975-db45-4459-8548-64e3995ac213`. The unique identifier for this instance cluster network attachment.
+```terraform
+import {
+  to = ibm_is_instance_cluster_network_attachment.is_instance_cluster_network_attachment
+  id = "<instance_id>/<instance_cluster_network_attachment_id>"
+}
+```
 
-# Syntax
-<pre>
-$ terraform import ibm_is_instance_cluster_network_attachment.is_instance_cluster_network_attachment &lt;instance_id&gt;/&lt;instance_cluster_network_attachment_id&gt;
-</pre>
+Using `terraform import`. For example:
+
+```console
+% terraform import ibm_is_instance_cluster_network_attachment.is_instance_cluster_network_attachment <instance_id>/<instance_cluster_network_attachment_id>
+```

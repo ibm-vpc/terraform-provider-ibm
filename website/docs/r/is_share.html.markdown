@@ -129,7 +129,7 @@ resource "ibm_is_share" "example-4" {
   bandwidth = 210
   name    = "my-share"
   size    = 200
-  profile = "  profile = "rfs"
+  profile = "rfs"
 }
 
 ## Argument Reference
@@ -245,7 +245,7 @@ The following arguments are supported:
 - `size` - (Required, Integer) The size of the file share rounded up to the next gigabyte.
 - `source_share` - (Optional, String) The ID of the source file share for this replica file share. The specified file share must not already have a replica, and must not be a replica.
 - `source_share_crn` - (Optional, String) The CRN of the source file share. 
-- `source_snapshot` - (List) The snapshot from which this share was cloned.This property will be present when the share was created from a snapshot.The resources supported by this property may[expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in thefuture.
+- `source_snapshot` - (List) The snapshot from which this share was cloned.This property will be present when the share was created from a snapshot.The resources supported by this property may [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in thefuture.
   Nested schema for **source_snapshot**:
 	- `crn` - (Optional, String) The CRN for this share snapshot.
 	- `id` - (Optional, String) The unique identifier for this share snapshot.
@@ -374,7 +374,7 @@ Nested `latest_sync` blocks have the following structure:
   - `code` - A snake case string succinctly identifying the status reason.
   - `message` - An explanation of the status reason.
   - `more_info` - Link to documentation about this status reason.
-- `source_snapshot` - (List) The snapshot from which this share was cloned.This property will be present when the share was created from a snapshot.The resources supported by this property may[expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in thefuture.
+- `source_snapshot` - (List) The snapshot from which this share was cloned.This property will be present when the share was created from a snapshot.The resources supported by this property may [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in thefuture.
   Nested schema for **source_snapshot**:
 	- `crn` - (String) The CRN for this share snapshot.
 	- `deleted` - ( List) If present, this property indicates the referenced resource has been deleted, and providessome supplementary information.
@@ -391,16 +391,18 @@ Nested `latest_sync` blocks have the following structure:
 
 ## Import
 
-The `ibm_is_share` can be imported using ID.
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import the `ibm_is_share` resource by using `id`.
+The `id` property can be formed using the share id. For example:
 
-**Syntax**
-
+```terraform
+import {
+  to = ibm_is_share.example
+  id = "<id>"
+}
 ```
-$ terraform import ibm_is_share.example <id>
-```
 
-**Example**
+Using `terraform import`. For example:
 
-```
-$ terraform import ibm_is_share.example d7bec597-4726-451f-8a63-e62e6f19c32c
+```console
+% terraform import ibm_is_share.example <id>
 ```

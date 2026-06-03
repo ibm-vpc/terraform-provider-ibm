@@ -22,8 +22,13 @@ resource "ibm_backup_recovery_data_source_connection" "backup_recovery_data_sour
 
 You can specify the following arguments for this resource.
 
+* `connection_env_type` - (Optional, String) Specifies the environment type of the connection.
+  * Constraints: Allowable values are: `kRoksVpc`, `kRoksClassic`, `kIksVpc`, `kIksClassic`.
 * `connection_name` - (Required, String) Specifies the name of the connection. For a given tenant, different connections can't have the same name. However, two (or more) different tenants can each have a connection with the same name.
 * `x_ibm_tenant_id` - (Optional, String) Id of the tenant accessing the cluster.
+* `endpoint_type` - (Optional, String) Backup Recovery Endpoint type. By default set to "public".
+* `instance_id` - (Optional, String) Backup Recovery instance ID. If provided here along with region, the provider constructs the endpoint URL using them, which overrides any value set through environment variables or the `endpoints.json` file.
+* `region` - (Optional, String) Backup Recovery region. If provided here along with instance_id, the provider constructs the endpoint URL using them, which overrides any value set through environment variables or the `endpoints.json` file.  
 
 ## Attribute Reference
 

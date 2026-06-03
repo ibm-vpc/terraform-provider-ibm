@@ -46,13 +46,18 @@ Review the argument references that you can specify for your data source.
 
 In addition to all argument reference list, you can access the following attribute references after your data source is created.
 
+- `asaps` - (Integer) Accelerated SAP Application Performance Standard.
 - `certified` - (Boolean) Has certification been performed on profile.
 - `cores` - (Integer) Amount of cores.
 - `default_system` - (String) System to use if not provided.
 - `full_system_profile` - (Boolean) Requires full system for deployment.
-- `memory` - (Integer) Amount of memory (in GB).
+- `memory` - (Integer) Amount of memory (in GiB).
 - `saps` - (Integer) SAP application performance standard.
 - `supported_systems` - (List) List of supported systems.
 - `type` - (String) Type of profile.
+- `vpmem_volume` - (Map) vpmem volume.
+  Nested scheme for `vpmem_volume`:
+  - `max_percent` - (Integer) Maximum percent of memory to be assigned for carved out vPMEM volume.
+  - `min_percent` - (Integer) Minimum percent of memory to be assigned for carved out vPMEM volume.
 - `workload_type` - (List) List of workload types.
   
