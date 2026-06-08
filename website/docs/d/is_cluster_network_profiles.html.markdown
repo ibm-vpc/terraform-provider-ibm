@@ -30,6 +30,21 @@ After your data source is created, you can read values from the following attrib
 	- `href` - (String) The URL for this cluster network profile.
 	- `name` - (String) The globally unique name for this cluster network profile.
 	- `resource_type` - (String) The resource type.
+	- `address_configuration_services`- (List) The services that provide address configuration information for a cluster network with this profile.
+	Nested schema for **address_configuration_services**:
+		- `type` - (String) The type for this profile field
+		- `values` - (String) A service providing cluster network attachment address configuration:
+							dhcp: The DHCP service may be used.
+							is: The API for VPC Infrastructure Services (is) may be used.
+							is_metadata: The API for the VPC Instance Metadata Service may be used.
+	- `isolation_group_count`- (List) The number of isolation groups in a cluster network using this profile.
+	Nested schema for **address_configuration_services**:
+		- `type` - (String) The type for this profile field
+		- `value` - (Integer) The value for this profile field
+	- `subnet_routing_supported`- (List) Indicates whether cluster networks with this profile support routing traffic between cluster network subnets in the same isolation group.
+	Nested schema for **address_configuration_services**:
+		- `type` - (String) The type for this profile field
+		- `value` - (Boolean) The value for this profile field
 	- `supported_instance_profiles` - (List) The instance profiles that support this cluster network profile.
 	Nested schema for **supported_instance_profiles**:
 		- `href` - (String) The URL for this virtual server instance profile.
