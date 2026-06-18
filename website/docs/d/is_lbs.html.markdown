@@ -87,17 +87,30 @@ Review the attribute references that you can access after you retrieve your data
 		- `family` - (String) The product family this load balancer profile belongs to.
 		- `href` - (String) The URL for this load balancer profile.
 		- `name` - (String) The name for this load balancer profile.
-	- `private_ip` - (List) The primary IP address to bind to the network interface. This can be specified using an existing reserved IP, or a prototype object for a new reserved IP.
+	- `private_ip` - (List) The private IP addresses assigned to this load balancer as reserved IP references. Will be empty if `is_public` is `true`.
 
 		Nested scheme for `private_ip`:
-		- `address` - (String) The IP address. If the address has not yet been selected, the value will be 0.0.0.0. This property may add support for IPv6 addresses in the future. When processing a value in this property, verify that the address is in an expected format. If it is not, log an error. Optionally halt processing and surface the error, or bypass the resource on which the unexpected IP address format was encountered.
-		- `href`- (String) The URL for this reserved IP
-		- `name`- (String) The user-defined or system-provided name for this reserved IP
-		- `reserved_ip`- (String) The unique identifier for this reserved IP
-		- `resource_type`- (String) The resource type.	  
-	- `private_ips` - (String) The private IP addresses assigned to this load balancer. Same as `private_ip.[].address`
-	- `provisioning_status` - (String) The provisioning status of this load balancer. Possible values are: **active**, **create_pending**, **delete_pending**, **failed**, **maintenance_pending**, **update_pending**-
-	- `public_ips` - (String) The public IP addresses assigned to this load balancer.
+		- `address` - (String) The IP address. If the address has not yet been selected, the value will be `0.0.0.0`. This property may expand to support IPv6 addresses in the future.
+		- `href` - (String) The URL for this reserved IP.
+		- `name` - (String) The name for this reserved IP. The name is unique across all reserved IPs in a subnet.
+		- `reserved_ip` - (String) The unique identifier for this reserved IP.
+		- `resource_type` - (String) The resource type. Always `subnet_reserved_ip`.
+	- `address_mode` - (String) The address mode for this load balancer. One of `static` (IPs remain unchanged throughout the life of the load balancer, horizontal scaling disabled) or `dynamic` (IPs may change during maintenance).
+	- `private_ips` - (List of String) The private IP addresses assigned to this load balancer. Same as `private_ip.[].address`. Will be empty if `is_public` is `true`.
+	- `provisioning_status` - (String) The provisioning status of this load balancer. Possible values are: **active**, **create_pending**, **delete_pending**, **failed**, **maintenance_pending**, **update_pending**, **migrate_pending**.
+	- `public_ips` - (List of String) The public IP addresses assigned to this load balancer. Will be empty if `is_public` is `false`.
+	- `public_ip_detail` - (List) The public IP address details assigned to this load balancer. Each entry is either a floating IP reference or a plain IP address.
+
+		Nested scheme for `public_ip_detail`:
+		- `address` - (String) The globally unique IP address. This property may expand to support IPv6 addresses in the future.
+		- `crn` - (String) The CRN for this floating IP. Present only when the public IP is a floating IP.
+		- `deleted` - (List) If present, this property indicates the referenced resource has been deleted and provides some supplementary information.
+
+			Nested scheme for `deleted`:
+			- `more_info` - (String) Link to documentation about deleted resources.
+		- `href` - (String) The URL for this floating IP. Present only when the public IP is a floating IP.
+		- `id` - (String) The unique identifier for this floating IP. Present only when the public IP is a floating IP.
+		- `name` - (String) The name for this floating IP. The name is unique across all floating IPs in the region. Present only when the public IP is a floating IP.
 	- `resource_group` - (String) The resource group id, where the load balancer is created.
 	- `route_mode` - (Bool) Indicates whether route mode is enabled for this load balancer.
 	- `source_ip_session_persistence_supported` - (Boolean) Indicates whether this load balancer supports source IP session persistence.

@@ -58,6 +58,29 @@ func TestAccIBMISLBDatasource_failsafe_policy(t *testing.T) {
 		},
 	})
 }
+func TestAccIBMISLBDatasource_address_mode(t *testing.T) {
+	name := fmt.Sprintf("tflb-name-%d", acctest.RandIntRange(10, 100))
+	vpcname := fmt.Sprintf("tflb-vpc-%d", acctest.RandIntRange(10, 100))
+	subnetname := fmt.Sprintf("tflb-subnet-name-%d", acctest.RandIntRange(10, 100))
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { acc.TestAccPreCheck(t) },
+		Providers: acc.TestAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckIBMISLBAddressModeConfig(vpcname, subnetname, acc.ISZoneName, acc.ISCIDR, name),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"data.ibm_is_lb.ds_lb", "name", name),
+					resource.TestCheckResourceAttrSet("data.ibm_is_lb.ds_lb", "address_mode"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_lb.ds_lb", "public_ips.#"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_lb.ds_lb", "public_ip_detail.#"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_lb.ds_lb", "private_ips.#"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccIBMISLBDatasource_ReservedIp(t *testing.T) {
 	name := fmt.Sprintf("tflb-name-%d", acctest.RandIntRange(10, 100))
 	vpcname := fmt.Sprintf("tflb-vpc-%d", acctest.RandIntRange(10, 100))
