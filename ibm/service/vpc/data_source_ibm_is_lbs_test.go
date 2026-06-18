@@ -66,7 +66,7 @@ func TestAccIBMISLBSDatasource_address_mode(t *testing.T) {
 					testAccCheckIBMISLBExists("ibm_is_lb.testacc_lb", lb),
 					resource.TestCheckResourceAttrSet("data.ibm_is_lbs.test_lbs", "load_balancers.0.address_mode"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_lbs.test_lbs", "load_balancers.0.public_ips.#"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_lbs.test_lbs", "load_balancers.0.public_ip_detail.#"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_lbs.test_lbs", "load_balancers.0.public_ip.#"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_lbs.test_lbs", "load_balancers.0.private_ips.#"),
 				),
 			},

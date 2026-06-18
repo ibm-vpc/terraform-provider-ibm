@@ -106,9 +106,9 @@ func TestAccIBMISLB_address_mode(t *testing.T) {
 					resource.TestCheckResourceAttrSet(
 						"ibm_is_lb.testacc_LB", "public_ips.#"),
 					resource.TestCheckResourceAttrSet(
-						"ibm_is_lb.testacc_LB", "public_ip_detail.#"),
+						"ibm_is_lb.testacc_LB", "public_ip.#"),
 					resource.TestCheckResourceAttrSet(
-						"ibm_is_lb.testacc_LB", "public_ip_detail.0.address"),
+						"ibm_is_lb.testacc_LB", "public_ip.0.address"),
 					resource.TestCheckResourceAttrSet(
 						"ibm_is_lb.testacc_LB", "private_ips.#"),
 				),

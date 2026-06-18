@@ -77,7 +77,7 @@ func TestAccIBMISLBDatasource_address_mode(t *testing.T) {
 						"data.ibm_is_lb.ds_lb", "name", name),
 					resource.TestCheckResourceAttrSet("data.ibm_is_lb.ds_lb", "address_mode"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_lb.ds_lb", "public_ips.#"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_lb.ds_lb", "public_ip_detail.#"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_lb.ds_lb", "public_ip.#"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_lb.ds_lb", "private_ips.#"),
 				),
 			},

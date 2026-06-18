@@ -99,9 +99,9 @@ Review the attribute references that you can access after you retrieve your data
 	- `private_ips` - (List of String) The private IP addresses assigned to this load balancer. Same as `private_ip.[].address`. Will be empty if `is_public` is `true`.
 	- `provisioning_status` - (String) The provisioning status of this load balancer. Possible values are: **active**, **create_pending**, **delete_pending**, **failed**, **maintenance_pending**, **update_pending**, **migrate_pending**.
 	- `public_ips` - (List of String) The public IP addresses assigned to this load balancer. Will be empty if `is_public` is `false`.
-	- `public_ip_detail` - (List) The public IP address details assigned to this load balancer. Each entry is either a floating IP reference or a plain IP address.
+	- `public_ip` - (List) The public IP address details assigned to this load balancer. Each entry is either a floating IP reference or a plain IP address.
 
-		Nested scheme for `public_ip_detail`:
+		Nested scheme for `public_ip`:
 		- `address` - (String) The globally unique IP address. This property may expand to support IPv6 addresses in the future.
 		- `crn` - (String) The CRN for this floating IP. Present only when the public IP is a floating IP.
 		- `deleted` - (List) If present, this property indicates the referenced resource has been deleted and provides some supplementary information.

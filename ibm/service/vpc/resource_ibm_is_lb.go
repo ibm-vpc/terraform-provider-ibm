@@ -844,8 +844,8 @@ func lbGet(context context.Context, d *schema.ResourceData, meta interface{}, id
 		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_lb", "read", "set-public_ips").GetDiag()
 	}
 	if err = d.Set(isLBPublicIPDetail, publicIpDetailList); err != nil {
-		err = fmt.Errorf("Error setting public_ip_detail: %s", err)
-		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_lb", "read", "set-public_ip_detail").GetDiag()
+		err = fmt.Errorf("Error setting public_ip: %s", err)
+		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_lb", "read", "set-public_ip").GetDiag()
 	}
 	privateIpList := make([]string, 0)
 	privateIpDetailList := make([]map[string]interface{}, 0)

@@ -119,9 +119,9 @@ In addition to all argument reference list, you can access the following attribu
 	- `type` - (String) The session persistence type.
 - `address_mode` - (String) The address mode for this load balancer. One of `static` (IPs remain unchanged throughout the life of the load balancer, horizontal scaling disabled) or `dynamic` (IPs may change during maintenance).
 - `public_ips` - (List) The public IP addresses assigned to this load balancer. Will be empty if `is_public` is `false`.
-- `public_ip_detail` - (List) The public IP address details assigned to this load balancer. Each entry is either a floating IP reference or a plain IP address.
+- `public_ip` - (List) The public IP address details assigned to this load balancer. Each entry is either a floating IP reference or a plain IP address.
 
-	Nested scheme for `public_ip_detail`:
+	Nested scheme for `public_ip`:
 	- `address` - (String) The globally unique IP address. This property may expand to support IPv6 addresses in the future.
 	- `crn` - (String) The CRN for this floating IP. Present only when the public IP is a floating IP.
 	- `deleted` - (List) If present, this property indicates the referenced resource has been deleted and provides some supplementary information.
