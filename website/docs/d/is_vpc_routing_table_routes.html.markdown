@@ -75,6 +75,16 @@ In addition to all argument reference list, you can access the following attribu
 	- `advertise` - (Boolean) Indicates whether this route will be advertised to the ingress sources specified by the `advertise_routes_to` routing table property.
 	- `destination` - (String) The destination of the route.
 	- `next_hop` - (String) The next hop address of the route.
+	- `next_hop_details` - (List) If `action` is `deliver`, the next hop that packets will be delivered to.  Forother `action` values, its `address` will be `0.0.0.0`. This is to list the details of the nexthop information.
+		Nested scheme for `next_hop`:
+		- `address` - (String) The IP address.This property may add support for IPv6 addresses in the future. When processing a value in this property, verify that the address is in an expected format. If it is not, log an error. Optionally halt processing and surface the error, or bypass the resource on which the unexpected IP address format was encountered.
+		- `deleted` - (List) If present, this property indicates the referenced resource has been deleted, and providessome supplementary information.
+			Nested scheme for `deleted`:
+			- `more_info` - (String) Link to documentation about deleted resources.
+		- `href` - (String) The VPN connection's canonical URL.
+		- `id` - (String) The unique identifier for this VPN gateway connection.
+		- `name` - (String) The name for this VPN gateway connection. The name is unique across all connections for the VPN gateway.
+		- `resource_type` - (String) The resource type.
 	- `origin` - (String) The origin of this route:- `service`: route was directly created by a service - `user`: route was directly created by a userThe enumerated values for this property are expected to expand in the future. When processing this property, check for and log unknown values. Optionally halt processing and surface the error, or bypass the route on which the unexpected property value was encountered.
   		- Constraints: Allowable values are: `learned`, `service`, `user`.
 	- `priority` - (Integer) The route's priority. Smaller values have higher priority. If a routing table contains routes with the same destination, the route with the highest priority (smallest value) is selected. For Example (2), supports values from 0 to 4. Default is 2.
