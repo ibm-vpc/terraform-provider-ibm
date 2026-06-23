@@ -994,7 +994,7 @@ func nwaclUpdate(context context.Context, d *schema.ResourceData, meta interface
 			if ruleId == "" {
 				// New rule — create using the same prototype builder as createInlineRules.
 				log.Printf("[DEBUG] Network ACL rule at index %d has no id, creating", i)
-				if err := createSingleNwaclRule(d, sess, id, ruleRaw.(map[string]interface{}), i, ""); err != nil {
+				if _, err := createSingleNwaclRule(d, sess, id, ruleRaw.(map[string]interface{}), i, ""); err != nil {
 					tfErr := flex.TerraformErrorf(err, fmt.Sprintf("createSingleNwaclRule failed: %s", err.Error()), "ibm_is_network_acl", "update")
 					log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
 					return tfErr.GetDiag()
@@ -1041,7 +1041,17 @@ func nwaclUpdate(context context.Context, d *schema.ResourceData, meta interface
 
 				// Protocol changes require delete + recreate (API does not allow patching protocol).
 				if d.HasChange(ruleProtocolKey) {
-					log.Printf("[DEBUG] Protocol changed for rule %s — delete and recreate", ruleId)
+					log.Printf("[DEBUG] Protocol changed for rule %s — delete and recreate at same position", ruleId)
+
+					// Determine the ID of the next rule in the current state order so we
+					// can pass it as `before` to the create call, keeping the API linked-list
+					// order intact after the recreate.
+					beforeId := ""
+					if i+1 < len(rules) {
+						nextRuleIdKey := fmt.Sprintf("rules.%d.id", i+1)
+						beforeId = d.Get(nextRuleIdKey).(string)
+					}
+
 					deleteOpts := &vpcv1.DeleteNetworkACLRuleOptions{
 						NetworkACLID: &id,
 						ID:           &ruleId,
@@ -1051,10 +1061,27 @@ func nwaclUpdate(context context.Context, d *schema.ResourceData, meta interface
 						log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
 						return tfErr.GetDiag()
 					}
-					if err := createSingleNwaclRule(d, sess, id, ruleRaw.(map[string]interface{}), i, ""); err != nil {
+
+					// Recreate immediately before the next rule to preserve API order.
+					newRuleId, err := createSingleNwaclRule(d, sess, id, ruleRaw.(map[string]interface{}), i, beforeId)
+					if err != nil {
 						tfErr := flex.TerraformErrorf(err, fmt.Sprintf("createSingleNwaclRule (protocol change) failed: %s", err.Error()), "ibm_is_network_acl", "update")
 						log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
 						return tfErr.GetDiag()
+					}
+
+					// Write the new rule ID back at the same index in state.
+					updatedRules := d.Get(isNetworkACLRules).([]interface{})
+					if i < len(updatedRules) {
+						updatedRule := make(map[string]interface{})
+						for k, v := range updatedRules[i].(map[string]interface{}) {
+							updatedRule[k] = v
+						}
+						updatedRule[isNetworkACLRuleID] = newRuleId
+						updatedRules[i] = updatedRule
+						if setErr := d.Set(isNetworkACLRules, updatedRules); setErr != nil {
+							log.Printf("[WARN] Failed to update rule ID in state after protocol change recreate: %s", setErr)
+						}
 					}
 					continue
 				}
@@ -1386,7 +1413,7 @@ func validateInlineRules(d *schema.ResourceData, rules []interface{}) error {
 
 func createInlineRules(d *schema.ResourceData, nwaclC *vpcv1.VpcV1, nwaclid string, rules []interface{}) error {
 	for i, r := range rules {
-		if err := createSingleNwaclRule(d, nwaclC, nwaclid, r.(map[string]interface{}), i, ""); err != nil {
+		if _, err := createSingleNwaclRule(d, nwaclC, nwaclid, r.(map[string]interface{}), i, ""); err != nil {
 			return err
 		}
 	}
@@ -1397,7 +1424,7 @@ func isNil(i interface{}) bool {
 	return i == nil || reflect.ValueOf(i).IsNil()
 }
 
-func createSingleNwaclRule(d *schema.ResourceData, nwaclC *vpcv1.VpcV1, nwaclid string, rulex map[string]interface{}, i int, before string) error {
+func createSingleNwaclRule(d *schema.ResourceData, nwaclC *vpcv1.VpcV1, nwaclid string, rulex map[string]interface{}, i int, before string) (string, error) {
 	name := rulex[isNetworkACLRuleName].(string)
 	source := rulex[isNetworkACLRuleSource].(string)
 	destination := rulex[isNetworkACLRuleDestination].(string)
@@ -1607,9 +1634,26 @@ func createSingleNwaclRule(d *schema.ResourceData, nwaclC *vpcv1.VpcV1, nwaclid 
 		NetworkACLID:            &nwaclid,
 		NetworkACLRulePrototype: ruleTemplate,
 	}
-	_, response, err := nwaclC.CreateNetworkACLRule(createNetworkAclRuleOptions)
+	rule, response, err := nwaclC.CreateNetworkACLRule(createNetworkAclRuleOptions)
 	if err != nil {
-		return fmt.Errorf("[ERROR] Error Creating network ACL rule : %s\n%s", err, response)
+		return "", fmt.Errorf("[ERROR] Error Creating network ACL rule : %s\n%s", err, response)
 	}
-	return nil
+	newID := ""
+	if rule != nil {
+		switch r := rule.(type) {
+		case *vpcv1.NetworkACLRuleNetworkACLRuleProtocolIcmp:
+			newID = *r.ID
+		case *vpcv1.NetworkACLRuleNetworkACLRuleProtocolTcpudp:
+			newID = *r.ID
+		case *vpcv1.NetworkACLRuleNetworkACLRuleProtocolAny:
+			newID = *r.ID
+		case *vpcv1.NetworkACLRuleNetworkACLRuleProtocolIndividual:
+			newID = *r.ID
+		case *vpcv1.NetworkACLRuleNetworkACLRuleProtocolIcmptcpudp:
+			newID = *r.ID
+		case *vpcv1.NetworkACLRule:
+			newID = *r.ID
+		}
+	}
+	return newID, nil
 }
