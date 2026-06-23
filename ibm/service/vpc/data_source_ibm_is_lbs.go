@@ -146,7 +146,11 @@ func DataSourceIBMISLBS() *schema.Resource {
 							Computed:    true,
 							Description: "Load Balancer route mode",
 						},
-
+						isLBAddressMode: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The address mode of this load balancer",
+						},
 						isLBType: {
 							Type:        schema.TypeString,
 							Computed:    true,
@@ -171,7 +175,54 @@ func DataSourceIBMISLBS() *schema.Resource {
 							Elem:        &schema.Schema{Type: schema.TypeString},
 							Description: "Load Balancer Public IPs",
 						},
-
+						isLBPublicIPDetail: {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "The public IP addresses assigned to this load balancer.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"address": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The globally unique IP address.",
+									},
+									"href": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The URL for this floating IP",
+									},
+									"name": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The name for this floating IP. The name is unique across all floating IPs in the region.",
+									},
+									"id": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The unique identifier for this floating IP.",
+									},
+									"crn": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The CRN for this floating IP.",
+									},
+									"deleted": {
+										Type:        schema.TypeList,
+										Computed:    true,
+										Description: "If present, this property indicates the referenced resource has been deleted and provides some supplementary information.",
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"more_info": {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "A link to documentation about deleted resources.",
+												},
+											},
+										},
+									},
+								},
+							},
+						},
 						isLBPrivateIPs: {
 							Type:        schema.TypeList,
 							Computed:    true,
@@ -416,6 +467,9 @@ func getLbs(context context.Context, d *schema.ResourceData, meta interface{}) d
 		if lb.UDPSupported != nil {
 			lbInfo[isLBUdpSupported] = *lb.UDPSupported
 		}
+		if lb.AddressMode != nil {
+			lbInfo[isLBAddressMode] = *lb.AddressMode
+		}
 		lbInfo[CRN] = *lb.CRN
 		lbInfo[ProvisioningStatus] = *lb.ProvisioningStatus
 
@@ -430,16 +484,55 @@ func getLbs(context context.Context, d *schema.ResourceData, meta interface{}) d
 		lbInfo[isLBStatus] = *lb.ProvisioningStatus
 		lbInfo[isLBOperatingStatus] = *lb.OperatingStatus
 		publicIpList := make([]string, 0)
+		publicIpDetailList := make([]map[string]interface{}, 0)
 		if lb.PublicIps != nil {
 			for _, ip := range lb.PublicIps {
-				if ip.Address != nil {
-					pubip := *ip.Address
-					publicIpList = append(publicIpList, pubip)
+				var address *string
+				currentPubIp := map[string]interface{}{}
+
+				switch ipType := ip.(type) {
+				case *vpcv1.LoadBalancerPublicIPIP:
+					if ipType.Address != nil {
+						address = ipType.Address
+						currentPubIp["address"] = *ipType.Address
+					}
+				case *vpcv1.LoadBalancerPublicIPFloatingIPReference:
+					if ipType.Address != nil {
+						address = ipType.Address
+						currentPubIp["address"] = *ipType.Address
+					}
+					if ipType.CRN != nil {
+						currentPubIp["crn"] = *ipType.CRN
+					}
+					if ipType.Href != nil {
+						currentPubIp["href"] = *ipType.Href
+					}
+					if ipType.ID != nil {
+						currentPubIp["id"] = *ipType.ID
+					}
+					if ipType.Name != nil {
+						currentPubIp["name"] = *ipType.Name
+					}
+					if ipType.Deleted != nil {
+						deletedMap := map[string]interface{}{}
+						if ipType.Deleted.MoreInfo != nil {
+							deletedMap["more_info"] = *ipType.Deleted.MoreInfo
+						}
+						currentPubIp["deleted"] = []map[string]interface{}{deletedMap}
+					}
+				}
+
+				if address != nil {
+					publicIpList = append(publicIpList, *address)
+				}
+				if len(currentPubIp) > 0 {
+					publicIpDetailList = append(publicIpDetailList, currentPubIp)
 				}
 			}
 		}
 
 		lbInfo[isLBPublicIPs] = publicIpList
+		lbInfo[isLBPublicIPDetail] = publicIpDetailList
 		privateIpList := make([]string, 0)
 		privateIpDetailList := make([]map[string]interface{}, 0)
 		if lb.PrivateIps != nil {

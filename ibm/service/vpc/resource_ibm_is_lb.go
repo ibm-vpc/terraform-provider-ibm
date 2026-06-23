@@ -49,6 +49,8 @@ const (
 	isLBLogging                      = "logging"
 	isLBSecurityGroups               = "security_groups"
 	isLBSecurityGroupsSupported      = "security_group_supported"
+	isLBAddressMode                  = "address_mode"
+	isLBPublicIPDetail               = "public_ip"
 
 	isAttachedLoadBalancerPoolMembers = "attached_load_balancer_pool_members"
 	isLBAccessTags                    = "access_tags"
@@ -199,15 +201,66 @@ func ResourceIBMISLB() *schema.Resource {
 			},
 
 			isLBPublicIPs: {
-				Type:     schema.TypeList,
-				Computed: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Type:        schema.TypeList,
+				Optional:    true,
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Description: "The public IP addresses or floating IP IDs to assign to this load balancer. Only applicable when address_mode is 'static'.",
 			},
-
+			isLBPublicIPDetail: {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "The public IP addresses assigned to this load balancer.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"address": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The globally unique IP address.",
+						},
+						"href": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The URL for this floating IP",
+						},
+						"name": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The name for this floating IP. The name is unique across all floating IPs in the region.",
+						},
+						"id": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The unique identifier for this floating IP.",
+						},
+						"crn": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The CRN for this floating IP.",
+						},
+						"deleted": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "If present, this property indicates the referenced resource has been deleted and provides some supplementary information.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"more_info": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "A link to documentation about deleted resources.",
+									},
+								},
+							},
+						},
+					},
+				},
+			},
 			isLBPrivateIPs: {
-				Type:     schema.TypeList,
-				Computed: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Type:        schema.TypeList,
+				Optional:    true,
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Description: "The private IP addresses or reserved IP IDs to assign to this load balancer. Only applicable when address_mode is 'static'.",
 			},
 			isLBPrivateIPDetail: {
 				Type:        schema.TypeList,
@@ -252,6 +305,13 @@ func ResourceIBMISLB() *schema.Resource {
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Set:         schema.HashString,
 				Description: "Load Balancer subnets list",
+			},
+			isLBAddressMode: {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: validate.InvokeValidator("ibm_is_lb", isLBAddressMode),
+				Description:  "The address mode to use for this load balancer. Supported values are `static` and `dynamic`.",
 			},
 
 			isLBSecurityGroups: {
@@ -404,6 +464,13 @@ func ResourceIBMISLBValidator() *validate.ResourceValidator {
 			Regexp:                     `^([A-Za-z0-9_.-]|[A-Za-z0-9_.-][A-Za-z0-9_ .-]*[A-Za-z0-9_.-]):([A-Za-z0-9_.-]|[A-Za-z0-9_.-][A-Za-z0-9_ .-]*[A-Za-z0-9_.-])$`,
 			MinValueLength:             1,
 			MaxValueLength:             128})
+	validateSchema = append(validateSchema,
+		validate.ValidateSchema{
+			Identifier:                 isLBAddressMode,
+			ValidateFunctionIdentifier: validate.ValidateAllowedStringValue,
+			Type:                       validate.TypeString,
+			Optional:                   true,
+			AllowedValues:              "static, dynamic"})
 
 	ibmISLBResourceValidator := validate.ResourceValidator{ResourceName: "ibm_is_lb", Schema: validateSchema}
 	return &ibmISLBResourceValidator
@@ -514,6 +581,42 @@ func lbCreate(context context.Context, d *schema.ResourceData, meta interface{},
 	if rg != "" {
 		options.ResourceGroup = &vpcv1.ResourceGroupIdentity{
 			ID: &rg,
+		}
+	}
+
+	// Handle address_mode
+	if addressMode, ok := d.GetOk(isLBAddressMode); ok {
+		addressModeStr := addressMode.(string)
+		options.AddressMode = &addressModeStr
+	}
+
+	// Handle public_ips
+	if publicIpsIntf, ok := d.GetOk(isLBPublicIPs); ok {
+		publicIpsList := publicIpsIntf.([]interface{})
+		if len(publicIpsList) > 0 {
+			publicIps := make([]vpcv1.FloatingIPIdentityLoadBalancerContextIntf, len(publicIpsList))
+			for i, ipIntf := range publicIpsList {
+				ipStr := ipIntf.(string)
+				publicIps[i] = &vpcv1.FloatingIPIdentityLoadBalancerContext{
+					ID: &ipStr,
+				}
+			}
+			options.PublicIps = publicIps
+		}
+	}
+
+	// Handle private_ips
+	if privateIpsIntf, ok := d.GetOk(isLBPrivateIPs); ok {
+		privateIpsList := privateIpsIntf.([]interface{})
+		if len(privateIpsList) > 0 {
+			privateIps := make([]vpcv1.ReservedIPIdentityIntf, len(privateIpsList))
+			for i, ipIntf := range privateIpsList {
+				ipStr := ipIntf.(string)
+				privateIps[i] = &vpcv1.ReservedIPIdentityByID{
+					ID: &ipStr,
+				}
+			}
+			options.PrivateIps = privateIps
 		}
 	}
 
@@ -666,6 +769,12 @@ func lbGet(context context.Context, d *schema.ResourceData, meta interface{}, id
 			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_lb", "read", "set-route_mode").GetDiag()
 		}
 	}
+	if loadBalancer.AddressMode != nil {
+		if err = d.Set(isLBAddressMode, *loadBalancer.AddressMode); err != nil {
+			err = fmt.Errorf("Error setting address_mode: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_lb", "read", "set-address_mode").GetDiag()
+		}
+	}
 	if err = d.Set("failsafe_policy_actions", loadBalancer.FailsafePolicyActions); err != nil {
 		err = fmt.Errorf("Error setting failsafe_policy_actions: %s", err)
 		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_lb", "read", "set-failsafe_policy_actions").GetDiag()
@@ -683,17 +792,60 @@ func lbGet(context context.Context, d *schema.ResourceData, meta interface{}, id
 		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_lb", "read", "set-operating_status").GetDiag()
 	}
 	publicIpList := make([]string, 0)
+	publicIpDetailList := make([]map[string]interface{}, 0)
 	if loadBalancer.PublicIps != nil {
 		for _, ip := range loadBalancer.PublicIps {
-			if ip.Address != nil {
-				pubip := *ip.Address
-				publicIpList = append(publicIpList, pubip)
+			var address *string
+			currentPubIp := map[string]interface{}{}
+
+			switch ipType := ip.(type) {
+			case *vpcv1.LoadBalancerPublicIPIP:
+				if ipType.Address != nil {
+					address = ipType.Address
+					currentPubIp["address"] = *ipType.Address
+				}
+			case *vpcv1.LoadBalancerPublicIPFloatingIPReference:
+				if ipType.Address != nil {
+					address = ipType.Address
+					currentPubIp["address"] = *ipType.Address
+				}
+				if ipType.CRN != nil {
+					currentPubIp["crn"] = *ipType.CRN
+				}
+				if ipType.Href != nil {
+					currentPubIp["href"] = *ipType.Href
+				}
+				if ipType.ID != nil {
+					currentPubIp["id"] = *ipType.ID
+				}
+				if ipType.Name != nil {
+					currentPubIp["name"] = *ipType.Name
+				}
+				if ipType.Deleted != nil {
+					deletedMap := map[string]interface{}{}
+					if ipType.Deleted.MoreInfo != nil {
+						deletedMap["more_info"] = *ipType.Deleted.MoreInfo
+					}
+					currentPubIp["deleted"] = []map[string]interface{}{deletedMap}
+				}
+
+			}
+
+			if address != nil {
+				publicIpList = append(publicIpList, *address)
+			}
+			if len(currentPubIp) > 0 {
+				publicIpDetailList = append(publicIpDetailList, currentPubIp)
 			}
 		}
 	}
 	if err = d.Set(isLBPublicIPs, publicIpList); err != nil {
 		err = fmt.Errorf("Error setting public_ips: %s", err)
 		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_lb", "read", "set-public_ips").GetDiag()
+	}
+	if err = d.Set(isLBPublicIPDetail, publicIpDetailList); err != nil {
+		err = fmt.Errorf("Error setting public_ip: %s", err)
+		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_lb", "read", "set-public_ip").GetDiag()
 	}
 	privateIpList := make([]string, 0)
 	privateIpDetailList := make([]map[string]interface{}, 0)
@@ -962,23 +1114,63 @@ func lbUpdate(context context.Context, d *schema.ResourceData, meta interface{},
 		}
 	}
 
-	if d.HasChange(isLBSubnets) {
+	if d.HasChange(isLBAddressMode) || d.HasChange(isLBPublicIPs) || d.HasChange(isLBPrivateIPs) || d.HasChange(isLBSubnets) {
 		updateLoadBalancerOptions := &vpcv1.UpdateLoadBalancerOptions{
 			ID: &id,
 		}
 		updateLoadBalancerOptions.SetIfMatch(d.Get("version").(string))
 		loadBalancerPatchModel := &vpcv1.LoadBalancerPatch{}
-		subnets := d.Get(isLBSubnets).(*schema.Set)
-		if subnets.Len() != 0 {
-			subnetobjs := make([]vpcv1.SubnetIdentityIntf, subnets.Len())
-			for i, subnet := range subnets.List() {
-				subnetstr := subnet.(string)
-				subnetobjs[i] = &vpcv1.SubnetIdentity{
-					ID: &subnetstr,
+		if d.HasChange(isLBSubnets) {
+			subnets := d.Get(isLBSubnets).(*schema.Set)
+			if subnets.Len() != 0 {
+				subnetobjs := make([]vpcv1.SubnetIdentityIntf, subnets.Len())
+				for i, subnet := range subnets.List() {
+					subnetstr := subnet.(string)
+					subnetobjs[i] = &vpcv1.SubnetIdentity{
+						ID: &subnetstr,
+					}
 				}
+				loadBalancerPatchModel.Subnets = subnetobjs
 			}
-			loadBalancerPatchModel.Subnets = subnetobjs
 		}
+
+		if d.HasChange(isLBAddressMode) {
+			addressMode := d.Get(isLBAddressMode).(string)
+			loadBalancerPatchModel.AddressMode = &addressMode
+		}
+
+		if d.HasChange(isLBPublicIPs) {
+			publicIpsIntf := d.Get(isLBPublicIPs).([]interface{})
+			if len(publicIpsIntf) > 0 {
+				publicIps := make([]vpcv1.FloatingIPIdentityLoadBalancerContextIntf, len(publicIpsIntf))
+				for i, ipIntf := range publicIpsIntf {
+					ipStr := ipIntf.(string)
+					publicIps[i] = &vpcv1.FloatingIPIdentityLoadBalancerContext{
+						ID: &ipStr,
+					}
+				}
+				loadBalancerPatchModel.PublicIps = publicIps
+			} else {
+				loadBalancerPatchModel.PublicIps = []vpcv1.FloatingIPIdentityLoadBalancerContextIntf{}
+			}
+		}
+
+		if d.HasChange(isLBPrivateIPs) {
+			privateIpsIntf := d.Get(isLBPrivateIPs).([]interface{})
+			if len(privateIpsIntf) > 0 {
+				privateIps := make([]vpcv1.ReservedIPIdentityIntf, len(privateIpsIntf))
+				for i, ipIntf := range privateIpsIntf {
+					ipStr := ipIntf.(string)
+					privateIps[i] = &vpcv1.ReservedIPIdentityByID{
+						ID: &ipStr,
+					}
+				}
+				loadBalancerPatchModel.PrivateIps = privateIps
+			} else {
+				loadBalancerPatchModel.PrivateIps = []vpcv1.ReservedIPIdentityIntf{}
+			}
+		}
+
 		loadBalancerPatch, err := loadBalancerPatchModel.AsPatch()
 		if err != nil {
 			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("loadBalancerPatchModel.AsPatch() failed: %s", err.Error()), "ibm_is_lb", "update")

@@ -46,6 +46,34 @@ func TestAccIBMISLBSDatasource_basic(t *testing.T) {
 	})
 
 }
+func TestAccIBMISLBSDatasource_address_mode(t *testing.T) {
+	name := fmt.Sprintf("tflb-name-%d", acctest.RandIntRange(10, 100))
+	vpcname := fmt.Sprintf("tflb-vpc-%d", acctest.RandIntRange(10, 100))
+	subnetname := fmt.Sprintf("tflb-subnet-name-%d", acctest.RandIntRange(10, 100))
+	floatingipname := fmt.Sprintf("tflb-fip-%d", acctest.RandIntRange(10, 100))
+	floatingipname2 := fmt.Sprintf("tflb-fip2-%d", acctest.RandIntRange(10, 100))
+	reservedipname := fmt.Sprintf("tflb-rip-%d", acctest.RandIntRange(10, 100))
+	reservedipname2 := fmt.Sprintf("tflb-rip2-%d", acctest.RandIntRange(10, 100))
+	var lb string
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { acc.TestAccPreCheck(t) },
+		Providers: acc.TestAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckIBMISLBAddressModeConfig(vpcname, subnetname, acc.ISZoneName, acc.ISCIDR, name, floatingipname, floatingipname2, reservedipname, reservedipname2),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckIBMISLBExists("ibm_is_lb.testacc_lb", lb),
+					resource.TestCheckResourceAttrSet("data.ibm_is_lbs.test_lbs", "load_balancers.0.address_mode"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_lbs.test_lbs", "load_balancers.0.public_ips.#"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_lbs.test_lbs", "load_balancers.0.public_ip.#"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_lbs.test_lbs", "load_balancers.0.private_ips.#"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccIBMISLBSDatasource_ReservedIp(t *testing.T) {
 	name := fmt.Sprintf("tflb-name-%d", acctest.RandIntRange(10, 100))
 	vpcname := fmt.Sprintf("tflb-vpc-%d", acctest.RandIntRange(10, 100))
