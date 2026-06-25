@@ -945,7 +945,6 @@ func nwaclUpdate(context context.Context, d *schema.ResourceData, meta interface
 		otsIntf := ots.([]interface{})
 		ntsIntf := nts.([]interface{})
 		if len(otsIntf) != len(ntsIntf) {
-			fmt.Printf("rules added / removed")
 			//Delete all existing rules
 			err = clearRules(sess, id)
 			if err != nil {
@@ -953,7 +952,7 @@ func nwaclUpdate(context context.Context, d *schema.ResourceData, meta interface
 				log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
 				return tfErr.GetDiag()
 			}
-			
+
 			for i, r := range rules {
 				if _, err := createSingleNwaclRuleForUpdate(d, sess, id, r.(map[string]interface{}), i, ""); err != nil {
 					tfErr := flex.TerraformErrorf(err, fmt.Sprintf("createSingleNwaclRuleForUpdate failed: %s", err.Error()), "ibm_is_network_acl", "update")
@@ -964,7 +963,6 @@ func nwaclUpdate(context context.Context, d *schema.ResourceData, meta interface
 			return nil
 		}
 
-		rules = d.Get(isNetworkACLRules).([]interface{})
 		err := validateInlineRules(d, rules)
 		if err != nil {
 			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("validateInlineRules failed: %s", err.Error()), "ibm_is_network_acl", "update")
@@ -973,15 +971,11 @@ func nwaclUpdate(context context.Context, d *schema.ResourceData, meta interface
 		}
 
 		//  Walk the desired list by index.
-		// ruleId == "" → new rule, create it.
-		// ruleId != "" → existing rule, patch only changed fields.
 		for i, ruleRaw := range rules {
 			ruleIdKey := fmt.Sprintf("rules.%d.id", i)
 			ruleId := d.Get(ruleIdKey).(string)
 
 			// Existing rule — patch only the fields that changed.
-			log.Printf("[DEBUG] Network ACL rule id (%s) at index %d, checking for changes", ruleId, i)
-
 			rulePatch := &vpcv1.NetworkACLRulePatch{}
 			hasRulePatch := false
 
@@ -1019,9 +1013,8 @@ func nwaclUpdate(context context.Context, d *schema.ResourceData, meta interface
 			}
 
 			// Protocol changes require delete + recreate (API does not allow patching protocol).
+			// Protocol changed for rule will delete and recreate at same position
 			if d.HasChange(ruleProtocolKey) {
-				log.Printf("[DEBUG] Protocol changed for rule %s — delete and recreate at same position", ruleId)
-
 				// Determine the ID of the next rule in the current state order so we
 				// can pass it as `before` to the create call, keeping the API linked-list
 				// order intact after the recreate.
@@ -1764,7 +1757,6 @@ func createSingleNwaclRuleForUpdate(d *schema.ResourceData, nwaclC *vpcv1.VpcV1,
 	if action == "deny" && protocol == "icmp_tcp_udp" {
 		protocol = "any"
 	}
-	log.Printf("[DEBUG] createSingleNwaclRule rule[%d] from RawConfig: icmp=%t, tcp=%t, udp=%t, protocol=%s", i, hasIcmpBlock, hasTcpBlock, hasUdpBlock, protocol)
 
 	ruleTemplate := &vpcv1.NetworkACLRulePrototype{
 		Action:      &action,
