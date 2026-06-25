@@ -953,12 +953,13 @@ func nwaclUpdate(context context.Context, d *schema.ResourceData, meta interface
 				log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
 				return tfErr.GetDiag()
 			}
-			//Create the rules as per the def
-			err = createInlineRules(d, sess, id, rules)
-			if err != nil {
-				tfErr := flex.TerraformErrorf(err, fmt.Sprintf("createInlineRules failed: %s", err.Error()), "ibm_is_network_acl", "update")
-				log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
-				return tfErr.GetDiag()
+			
+			for i, r := range rules {
+				if _, err := createSingleNwaclRuleForUpdate(d, sess, id, r.(map[string]interface{}), i, ""); err != nil {
+					tfErr := flex.TerraformErrorf(err, fmt.Sprintf("createSingleNwaclRuleForUpdate failed: %s", err.Error()), "ibm_is_network_acl", "update")
+					log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+					return tfErr.GetDiag()
+				}
 			}
 			return nil
 		}
@@ -1041,7 +1042,7 @@ func nwaclUpdate(context context.Context, d *schema.ResourceData, meta interface
 				}
 
 				// Recreate immediately before the next rule to preserve API order.
-				newRuleId, err := createSingleNwaclRule(d, sess, id, ruleRaw.(map[string]interface{}), i, beforeId)
+				newRuleId, err := createSingleNwaclRuleForUpdate(d, sess, id, ruleRaw.(map[string]interface{}), i, beforeId)
 				if err != nil {
 					tfErr := flex.TerraformErrorf(err, fmt.Sprintf("createSingleNwaclRule (protocol change) failed: %s", err.Error()), "ibm_is_network_acl", "update")
 					log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
@@ -1389,9 +1390,223 @@ func validateInlineRules(d *schema.ResourceData, rules []interface{}) error {
 }
 
 func createInlineRules(d *schema.ResourceData, nwaclC *vpcv1.VpcV1, nwaclid string, rules []interface{}) error {
-	for i, r := range rules {
-		if _, err := createSingleNwaclRule(d, nwaclC, nwaclid, r.(map[string]interface{}), i, ""); err != nil {
-			return err
+	before := ""
+
+	for i := 0; i <= len(rules)-1; i++ {
+		rulex := rules[i].(map[string]interface{})
+
+		name := rulex[isNetworkACLRuleName].(string)
+		source := rulex[isNetworkACLRuleSource].(string)
+		destination := rulex[isNetworkACLRuleDestination].(string)
+		action := rulex[isNetworkACLRuleAction].(string)
+		direction := rulex[isNetworkACLRuleDirection].(string)
+		icmp := rulex[isNetworkACLRuleICMP].([]interface{})
+		tcp := rulex[isNetworkACLRuleTCP].([]interface{})
+		udp := rulex[isNetworkACLRuleUDP].([]interface{})
+		icmptype := int64(-1)
+		icmpcode := int64(-1)
+		minport := int64(-1)
+		maxport := int64(-1)
+		sourceminport := int64(-1)
+		sourcemaxport := int64(-1)
+		protocol := "icmp_tcp_udp"
+		if action == "deny" {
+			protocol = "any"
+		}
+		if protocolVal, ok := rulex[isNetworkACLRuleProtocol]; ok {
+			if str, ok := protocolVal.(string); ok && str != "" {
+				protocol = str
+			}
+		}
+		ruleTemplate := &vpcv1.NetworkACLRulePrototype{
+			Action:      &action,
+			Destination: &destination,
+			Direction:   &direction,
+			Source:      &source,
+			Name:        &name,
+		}
+
+		if before != "" {
+			ruleTemplate.Before = &vpcv1.NetworkACLRuleBeforePrototype{
+				ID: &before,
+			}
+		}
+
+		// Detect if user is using new-style top-level fields vs deprecated blocks
+		// by checking which set of fields has actually changed
+		useTopLevelPorts := false
+		if protocol == "tcp" || protocol == "udp" {
+			portMinPath := fmt.Sprintf("rules.%d.port_min", i)
+			portMaxPath := fmt.Sprintf("rules.%d.port_max", i)
+			srcPortMinPath := fmt.Sprintf("rules.%d.source_port_min", i)
+			srcPortMaxPath := fmt.Sprintf("rules.%d.source_port_max", i)
+			if d.HasChange(portMinPath) || d.HasChange(portMaxPath) ||
+				d.HasChange(srcPortMinPath) || d.HasChange(srcPortMaxPath) {
+				useTopLevelPorts = true
+			}
+		}
+		useTopLevelIcmp := false
+		if protocol == "icmp" {
+			icmpTypePath := fmt.Sprintf("rules.%d.type", i)
+			icmpCodePath := fmt.Sprintf("rules.%d.code", i)
+			if d.HasChange(icmpTypePath) || d.HasChange(icmpCodePath) {
+				useTopLevelIcmp = true
+			}
+		}
+
+		if len(icmp) > 0 && !useTopLevelIcmp {
+			protocol = "icmp"
+			ruleTemplate.Protocol = &protocol
+			if !isNil(icmp[0]) {
+				icmpTypePath := fmt.Sprintf("rules.%d.icmp.0.%s", i, isNetworkACLRuleICMPType)
+				icmpCodePath := fmt.Sprintf("rules.%d.icmp.0.%s", i, isNetworkACLRuleICMPCode)
+				if val, ok := d.GetOkExists(icmpTypePath); ok {
+					icmptype = int64(val.(int))
+					ruleTemplate.Type = &icmptype
+				}
+				if val, ok := d.GetOkExists(icmpCodePath); ok {
+					icmpcode = int64(val.(int))
+					ruleTemplate.Code = &icmpcode
+				}
+				if ruleTemplate.Type != nil && ruleTemplate.Code == nil {
+					v := int64(0)
+					ruleTemplate.Code = &v
+				}
+				if ruleTemplate.Code != nil && ruleTemplate.Type == nil {
+					v := int64(0)
+					ruleTemplate.Type = &v
+				}
+			}
+		} else if protocol == "icmp" {
+			icmpType := fmt.Sprintf("rules.%d.type", i)
+			icmpCode := fmt.Sprintf("rules.%d.code", i)
+			ruleTemplate.Protocol = &protocol
+			if val, ok := d.GetOkExists(icmpType); ok {
+				icmptype = int64(val.(int))
+				ruleTemplate.Type = &icmptype
+			}
+			if val, ok := d.GetOkExists(icmpCode); ok {
+				icmpcode = int64(val.(int))
+				ruleTemplate.Code = &icmpcode
+			}
+		}
+
+		if len(tcp) > 0 && !useTopLevelPorts {
+			protocol = "tcp"
+			ruleTemplate.Protocol = &protocol
+			if !isNil(tcp[0]) {
+				tcpval := tcp[0].(map[string]interface{})
+				if val, ok := tcpval[isNetworkACLRulePortMin]; ok {
+					minport = int64(val.(int))
+					ruleTemplate.DestinationPortMin = &minport
+				}
+				if val, ok := tcpval[isNetworkACLRulePortMax]; ok {
+					maxport = int64(val.(int))
+					ruleTemplate.DestinationPortMax = &maxport
+				}
+				if val, ok := tcpval[isNetworkACLRuleSourcePortMin]; ok {
+					sourceminport = int64(val.(int))
+					ruleTemplate.SourcePortMin = &sourceminport
+				}
+				if val, ok := tcpval[isNetworkACLRuleSourcePortMax]; ok {
+					sourcemaxport = int64(val.(int))
+					ruleTemplate.SourcePortMax = &sourcemaxport
+				}
+			}
+		} else if protocol == "tcp" {
+			ruleTemplate.Protocol = &protocol
+			if val, ok := rulex[isNetworkACLRulePortMin]; ok {
+				minport = int64(val.(int))
+				ruleTemplate.DestinationPortMin = &minport
+			}
+			if val, ok := rulex[isNetworkACLRulePortMax]; ok {
+				maxport = int64(val.(int))
+				ruleTemplate.DestinationPortMax = &maxport
+			}
+			if val, ok := rulex[isNetworkACLRuleSourcePortMin]; ok {
+				sourceminport = int64(val.(int))
+				ruleTemplate.SourcePortMin = &sourceminport
+			}
+			if val, ok := rulex[isNetworkACLRuleSourcePortMax]; ok {
+				sourcemaxport = int64(val.(int))
+				ruleTemplate.SourcePortMax = &sourcemaxport
+			}
+			if minport == 0 {
+				ruleTemplate.DestinationPortMin = nil
+			}
+			if maxport == 0 {
+				ruleTemplate.DestinationPortMax = nil
+			}
+			if sourceminport == 0 {
+				ruleTemplate.SourcePortMin = nil
+			}
+			if sourcemaxport == 0 {
+				ruleTemplate.SourcePortMax = nil
+			}
+		}
+
+		if len(udp) > 0 && !useTopLevelPorts {
+			protocol = "udp"
+			ruleTemplate.Protocol = &protocol
+			if !isNil(udp[0]) {
+				udpval := udp[0].(map[string]interface{})
+				if val, ok := udpval[isNetworkACLRulePortMin]; ok {
+					minport = int64(val.(int))
+					ruleTemplate.DestinationPortMin = &minport
+				}
+				if val, ok := udpval[isNetworkACLRulePortMax]; ok {
+					maxport = int64(val.(int))
+					ruleTemplate.DestinationPortMax = &maxport
+				}
+				if val, ok := udpval[isNetworkACLRuleSourcePortMin]; ok {
+					sourceminport = int64(val.(int))
+					ruleTemplate.SourcePortMin = &sourceminport
+				}
+				if val, ok := udpval[isNetworkACLRuleSourcePortMax]; ok {
+					sourcemaxport = int64(val.(int))
+					ruleTemplate.SourcePortMax = &sourcemaxport
+				}
+			}
+		} else if protocol == "udp" {
+			ruleTemplate.Protocol = &protocol
+			if val, ok := rulex[isNetworkACLRulePortMin]; ok {
+				minport = int64(val.(int))
+				ruleTemplate.DestinationPortMin = &minport
+			}
+			if val, ok := rulex[isNetworkACLRulePortMax]; ok {
+				maxport = int64(val.(int))
+				ruleTemplate.DestinationPortMax = &maxport
+			}
+			if val, ok := rulex[isNetworkACLRuleSourcePortMin]; ok {
+				sourceminport = int64(val.(int))
+				ruleTemplate.SourcePortMin = &sourceminport
+			}
+			if val, ok := rulex[isNetworkACLRuleSourcePortMax]; ok {
+				sourcemaxport = int64(val.(int))
+				ruleTemplate.SourcePortMax = &sourcemaxport
+			}
+			if minport == 0 {
+				ruleTemplate.DestinationPortMin = nil
+			}
+			if maxport == 0 {
+				ruleTemplate.DestinationPortMax = nil
+			}
+			if sourceminport == 0 {
+				ruleTemplate.SourcePortMin = nil
+			}
+			if sourcemaxport == 0 {
+				ruleTemplate.SourcePortMax = nil
+			}
+		}
+		ruleTemplate.Protocol = &protocol
+
+		createNetworkAclRuleOptions := &vpcv1.CreateNetworkACLRuleOptions{
+			NetworkACLID:            &nwaclid,
+			NetworkACLRulePrototype: ruleTemplate,
+		}
+		_, response, err := nwaclC.CreateNetworkACLRule(createNetworkAclRuleOptions)
+		if err != nil {
+			return fmt.Errorf("[ERROR] Error Creating network ACL rule : %s\n%s", err, response)
 		}
 	}
 	return nil
@@ -1401,37 +1616,156 @@ func isNil(i interface{}) bool {
 	return i == nil || reflect.ValueOf(i).IsNil()
 }
 
-func createSingleNwaclRule(d *schema.ResourceData, nwaclC *vpcv1.VpcV1, nwaclid string, rulex map[string]interface{}, i int, before string) (string, error) {
+func createSingleNwaclRuleForUpdate(d *schema.ResourceData, nwaclC *vpcv1.VpcV1, nwaclid string, rulex map[string]interface{}, i int, before string) (string, error) {
 	name := rulex[isNetworkACLRuleName].(string)
 	source := rulex[isNetworkACLRuleSource].(string)
 	destination := rulex[isNetworkACLRuleDestination].(string)
 	action := rulex[isNetworkACLRuleAction].(string)
 	direction := rulex[isNetworkACLRuleDirection].(string)
-	icmp := rulex[isNetworkACLRuleICMP].([]interface{})
-	tcp := rulex[isNetworkACLRuleTCP].([]interface{})
-	udp := rulex[isNetworkACLRuleUDP].([]interface{})
-	icmptype := int64(-1)
-	icmpcode := int64(-1)
-	minport := int64(-1)
-	maxport := int64(-1)
-	sourceminport := int64(-1)
-	sourcemaxport := int64(-1)
+
+	// Use GetRawConfig exclusively for all field values — never read from the
+	// merged state map (rulex/d.Get) for protocol or port/icmp fields, as
+	// Computed fields bleed old state values through on update.
+	hasIcmpBlock, hasTcpBlock, hasUdpBlock := false, false, false
 	protocol := "icmp_tcp_udp"
 	if action == "deny" {
 		protocol = "any"
 	}
-	if protocolVal, ok := rulex[isNetworkACLRuleProtocol]; ok {
-		if str, ok := protocolVal.(string); ok && str != "" {
-			protocol = str
+
+	// rawIcmpType/rawIcmpCode: nil means not set in config.
+	var rawIcmpType, rawIcmpCode *int64
+	var rawPortMin, rawPortMax, rawSrcPortMin, rawSrcPortMax *int64
+
+	rawConfig := d.GetRawConfig()
+	rulesAttr := rawConfig.GetAttr("rules")
+	if !rulesAttr.IsNull() && rulesAttr.LengthInt() > i {
+		ruleVal := rulesAttr.Index(cty.NumberIntVal(int64(i)))
+		if !ruleVal.IsNull() {
+			// Protocol
+			protocolAttr := ruleVal.GetAttr("protocol")
+			if !protocolAttr.IsNull() && protocolAttr.IsKnown() {
+				if p := protocolAttr.AsString(); p != "" {
+					protocol = p
+				}
+			}
+
+			// Deprecated blocks
+			icmpAttr := ruleVal.GetAttr("icmp")
+			tcpAttr := ruleVal.GetAttr("tcp")
+			udpAttr := ruleVal.GetAttr("udp")
+			hasIcmpBlock = !icmpAttr.IsNull() && icmpAttr.LengthInt() > 0
+			hasTcpBlock = !tcpAttr.IsNull() && tcpAttr.LengthInt() > 0
+			hasUdpBlock = !udpAttr.IsNull() && udpAttr.LengthInt() > 0
+
+			// icmp block fields
+			if hasIcmpBlock {
+				elem := icmpAttr.Index(cty.NumberIntVal(0))
+				if !elem.IsNull() {
+					if t := elem.GetAttr("type"); !t.IsNull() && t.IsKnown() {
+						v, _ := t.AsBigFloat().Int64()
+						rawIcmpType = &v
+					}
+					if c := elem.GetAttr("code"); !c.IsNull() && c.IsKnown() {
+						v, _ := c.AsBigFloat().Int64()
+						rawIcmpCode = &v
+					}
+				}
+			}
+
+			// top-level icmp fields (new style: protocol="icmp" + type/code flat)
+			if !hasIcmpBlock {
+				if t := ruleVal.GetAttr("type"); !t.IsNull() && t.IsKnown() {
+					v, _ := t.AsBigFloat().Int64()
+					rawIcmpType = &v
+				}
+				if c := ruleVal.GetAttr("code"); !c.IsNull() && c.IsKnown() {
+					v, _ := c.AsBigFloat().Int64()
+					rawIcmpCode = &v
+				}
+			}
+
+			// tcp block fields
+			if hasTcpBlock {
+				elem := tcpAttr.Index(cty.NumberIntVal(0))
+				if !elem.IsNull() {
+					if v := elem.GetAttr("port_min"); !v.IsNull() && v.IsKnown() {
+						n, _ := v.AsBigFloat().Int64()
+						rawPortMin = &n
+					}
+					if v := elem.GetAttr("port_max"); !v.IsNull() && v.IsKnown() {
+						n, _ := v.AsBigFloat().Int64()
+						rawPortMax = &n
+					}
+					if v := elem.GetAttr("source_port_min"); !v.IsNull() && v.IsKnown() {
+						n, _ := v.AsBigFloat().Int64()
+						rawSrcPortMin = &n
+					}
+					if v := elem.GetAttr("source_port_max"); !v.IsNull() && v.IsKnown() {
+						n, _ := v.AsBigFloat().Int64()
+						rawSrcPortMax = &n
+					}
+				}
+			}
+
+			// udp block fields
+			if hasUdpBlock {
+				elem := udpAttr.Index(cty.NumberIntVal(0))
+				if !elem.IsNull() {
+					if v := elem.GetAttr("port_min"); !v.IsNull() && v.IsKnown() {
+						n, _ := v.AsBigFloat().Int64()
+						rawPortMin = &n
+					}
+					if v := elem.GetAttr("port_max"); !v.IsNull() && v.IsKnown() {
+						n, _ := v.AsBigFloat().Int64()
+						rawPortMax = &n
+					}
+					if v := elem.GetAttr("source_port_min"); !v.IsNull() && v.IsKnown() {
+						n, _ := v.AsBigFloat().Int64()
+						rawSrcPortMin = &n
+					}
+					if v := elem.GetAttr("source_port_max"); !v.IsNull() && v.IsKnown() {
+						n, _ := v.AsBigFloat().Int64()
+						rawSrcPortMax = &n
+					}
+				}
+			}
+
+			// top-level port fields (new style: protocol="tcp"/"udp" + flat ports)
+			if !hasTcpBlock && !hasUdpBlock {
+				if v := ruleVal.GetAttr("port_min"); !v.IsNull() && v.IsKnown() {
+					n, _ := v.AsBigFloat().Int64()
+					rawPortMin = &n
+				}
+				if v := ruleVal.GetAttr("port_max"); !v.IsNull() && v.IsKnown() {
+					n, _ := v.AsBigFloat().Int64()
+					rawPortMax = &n
+				}
+				if v := ruleVal.GetAttr("source_port_min"); !v.IsNull() && v.IsKnown() {
+					n, _ := v.AsBigFloat().Int64()
+					rawSrcPortMin = &n
+				}
+				if v := ruleVal.GetAttr("source_port_max"); !v.IsNull() && v.IsKnown() {
+					n, _ := v.AsBigFloat().Int64()
+					rawSrcPortMax = &n
+				}
+			}
 		}
 	}
-	// The protocol field is Computed — d.Get can bleed the old state value
-	// ("icmp_tcp_udp") through when the user changed action to "deny" without
-	// explicitly writing protocol in their config.  "icmp_tcp_udp" is never
-	// valid with action "deny"; enforce the action-based constraint.
+
+	// Deprecated blocks override whatever the flat protocol attribute says.
+	if hasIcmpBlock {
+		protocol = "icmp"
+	} else if hasTcpBlock {
+		protocol = "tcp"
+	} else if hasUdpBlock {
+		protocol = "udp"
+	}
+	// action=deny with no explicit protocol means "any"
 	if action == "deny" && protocol == "icmp_tcp_udp" {
 		protocol = "any"
 	}
+	log.Printf("[DEBUG] createSingleNwaclRule rule[%d] from RawConfig: icmp=%t, tcp=%t, udp=%t, protocol=%s", i, hasIcmpBlock, hasTcpBlock, hasUdpBlock, protocol)
+
 	ruleTemplate := &vpcv1.NetworkACLRulePrototype{
 		Action:      &action,
 		Destination: &destination,
@@ -1446,173 +1780,27 @@ func createSingleNwaclRule(d *schema.ResourceData, nwaclC *vpcv1.VpcV1, nwaclid 
 		}
 	}
 
-	// Detect if user is using new-style top-level fields vs deprecated blocks
-	// by checking which set of fields has actually changed
-	useTopLevelPorts := false
-	if protocol == "tcp" || protocol == "udp" {
-		portMinPath := fmt.Sprintf("rules.%d.port_min", i)
-		portMaxPath := fmt.Sprintf("rules.%d.port_max", i)
-		srcPortMinPath := fmt.Sprintf("rules.%d.source_port_min", i)
-		srcPortMaxPath := fmt.Sprintf("rules.%d.source_port_max", i)
-		if d.HasChange(portMinPath) || d.HasChange(portMaxPath) ||
-			d.HasChange(srcPortMinPath) || d.HasChange(srcPortMaxPath) {
-			useTopLevelPorts = true
-		}
-	}
-	useTopLevelIcmp := false
-	if protocol == "icmp" {
-		icmpTypePath := fmt.Sprintf("rules.%d.type", i)
-		icmpCodePath := fmt.Sprintf("rules.%d.code", i)
-		if d.HasChange(icmpTypePath) || d.HasChange(icmpCodePath) {
-			useTopLevelIcmp = true
-		}
-	}
-
-	if len(icmp) > 0 && !useTopLevelIcmp {
-		protocol = "icmp"
-		ruleTemplate.Protocol = &protocol
-		if !isNil(icmp[0]) {
-			icmpTypePath := fmt.Sprintf("rules.%d.icmp.0.%s", i, isNetworkACLRuleICMPType)
-			icmpCodePath := fmt.Sprintf("rules.%d.icmp.0.%s", i, isNetworkACLRuleICMPCode)
-			if val, ok := d.GetOkExists(icmpTypePath); ok {
-				icmptype = int64(val.(int))
-				ruleTemplate.Type = &icmptype
-			}
-			if val, ok := d.GetOkExists(icmpCodePath); ok {
-				icmpcode = int64(val.(int))
-				ruleTemplate.Code = &icmpcode
-			}
-			if ruleTemplate.Type != nil && ruleTemplate.Code == nil {
-				v := int64(0)
-				ruleTemplate.Code = &v
-			}
-			if ruleTemplate.Code != nil && ruleTemplate.Type == nil {
-				v := int64(0)
-				ruleTemplate.Type = &v
-			}
-		}
-	} else if protocol == "icmp" {
-		icmpType := fmt.Sprintf("rules.%d.type", i)
-		icmpCode := fmt.Sprintf("rules.%d.code", i)
-		ruleTemplate.Protocol = &protocol
-		if val, ok := d.GetOkExists(icmpType); ok {
-			icmptype = int64(val.(int))
-			ruleTemplate.Type = &icmptype
-		}
-		if val, ok := d.GetOkExists(icmpCode); ok {
-			icmpcode = int64(val.(int))
-			ruleTemplate.Code = &icmpcode
-		}
-	}
-
-	if len(tcp) > 0 && !useTopLevelPorts {
-		protocol = "tcp"
-		ruleTemplate.Protocol = &protocol
-		if !isNil(tcp[0]) {
-			tcpval := tcp[0].(map[string]interface{})
-			if val, ok := tcpval[isNetworkACLRulePortMin]; ok {
-				minport = int64(val.(int))
-				ruleTemplate.DestinationPortMin = &minport
-			}
-			if val, ok := tcpval[isNetworkACLRulePortMax]; ok {
-				maxport = int64(val.(int))
-				ruleTemplate.DestinationPortMax = &maxport
-			}
-			if val, ok := tcpval[isNetworkACLRuleSourcePortMin]; ok {
-				sourceminport = int64(val.(int))
-				ruleTemplate.SourcePortMin = &sourceminport
-			}
-			if val, ok := tcpval[isNetworkACLRuleSourcePortMax]; ok {
-				sourcemaxport = int64(val.(int))
-				ruleTemplate.SourcePortMax = &sourcemaxport
-			}
-		}
-	} else if protocol == "tcp" {
-		ruleTemplate.Protocol = &protocol
-		if val, ok := rulex[isNetworkACLRulePortMin]; ok {
-			minport = int64(val.(int))
-			ruleTemplate.DestinationPortMin = &minport
-		}
-		if val, ok := rulex[isNetworkACLRulePortMax]; ok {
-			maxport = int64(val.(int))
-			ruleTemplate.DestinationPortMax = &maxport
-		}
-		if val, ok := rulex[isNetworkACLRuleSourcePortMin]; ok {
-			sourceminport = int64(val.(int))
-			ruleTemplate.SourcePortMin = &sourceminport
-		}
-		if val, ok := rulex[isNetworkACLRuleSourcePortMax]; ok {
-			sourcemaxport = int64(val.(int))
-			ruleTemplate.SourcePortMax = &sourcemaxport
-		}
-		if minport == 0 {
-			ruleTemplate.DestinationPortMin = nil
-		}
-		if maxport == 0 {
-			ruleTemplate.DestinationPortMax = nil
-		}
-		if sourceminport == 0 {
-			ruleTemplate.SourcePortMin = nil
-		}
-		if sourcemaxport == 0 {
-			ruleTemplate.SourcePortMax = nil
-		}
-	}
-
-	if len(udp) > 0 && !useTopLevelPorts {
-		protocol = "udp"
-		ruleTemplate.Protocol = &protocol
-		if !isNil(udp[0]) {
-			udpval := udp[0].(map[string]interface{})
-			if val, ok := udpval[isNetworkACLRulePortMin]; ok {
-				minport = int64(val.(int))
-				ruleTemplate.DestinationPortMin = &minport
-			}
-			if val, ok := udpval[isNetworkACLRulePortMax]; ok {
-				maxport = int64(val.(int))
-				ruleTemplate.DestinationPortMax = &maxport
-			}
-			if val, ok := udpval[isNetworkACLRuleSourcePortMin]; ok {
-				sourceminport = int64(val.(int))
-				ruleTemplate.SourcePortMin = &sourceminport
-			}
-			if val, ok := udpval[isNetworkACLRuleSourcePortMax]; ok {
-				sourcemaxport = int64(val.(int))
-				ruleTemplate.SourcePortMax = &sourcemaxport
-			}
-		}
-	} else if protocol == "udp" {
-		ruleTemplate.Protocol = &protocol
-		if val, ok := rulex[isNetworkACLRulePortMin]; ok {
-			minport = int64(val.(int))
-			ruleTemplate.DestinationPortMin = &minport
-		}
-		if val, ok := rulex[isNetworkACLRulePortMax]; ok {
-			maxport = int64(val.(int))
-			ruleTemplate.DestinationPortMax = &maxport
-		}
-		if val, ok := rulex[isNetworkACLRuleSourcePortMin]; ok {
-			sourceminport = int64(val.(int))
-			ruleTemplate.SourcePortMin = &sourceminport
-		}
-		if val, ok := rulex[isNetworkACLRuleSourcePortMax]; ok {
-			sourcemaxport = int64(val.(int))
-			ruleTemplate.SourcePortMax = &sourcemaxport
-		}
-		if minport == 0 {
-			ruleTemplate.DestinationPortMin = nil
-		}
-		if maxport == 0 {
-			ruleTemplate.DestinationPortMax = nil
-		}
-		if sourceminport == 0 {
-			ruleTemplate.SourcePortMin = nil
-		}
-		if sourcemaxport == 0 {
-			ruleTemplate.SourcePortMax = nil
-		}
-	}
 	ruleTemplate.Protocol = &protocol
+
+	switch protocol {
+	case "icmp":
+		ruleTemplate.Type = rawIcmpType
+		ruleTemplate.Code = rawIcmpCode
+		// if one is set, the other must default to 0
+		if ruleTemplate.Type != nil && ruleTemplate.Code == nil {
+			v := int64(0)
+			ruleTemplate.Code = &v
+		}
+		if ruleTemplate.Code != nil && ruleTemplate.Type == nil {
+			v := int64(0)
+			ruleTemplate.Type = &v
+		}
+	case "tcp", "udp":
+		ruleTemplate.DestinationPortMin = rawPortMin
+		ruleTemplate.DestinationPortMax = rawPortMax
+		ruleTemplate.SourcePortMin = rawSrcPortMin
+		ruleTemplate.SourcePortMax = rawSrcPortMax
+	}
 
 	createNetworkAclRuleOptions := &vpcv1.CreateNetworkACLRuleOptions{
 		NetworkACLID:            &nwaclid,
