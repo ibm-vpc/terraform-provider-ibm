@@ -943,7 +943,37 @@ func nwaclUpdate(context context.Context, d *schema.ResourceData, meta interface
 		ots, nts := d.GetChange(isNetworkACLRules)
 		otsIntf := ots.([]interface{})
 		ntsIntf := nts.([]interface{})
-		isRecreationNeeded := len(otsIntf) != len(ntsIntf)
+		oldNames := make([]string, len(otsIntf))
+		newNames := make([]string, len(ntsIntf))
+		oldNameSet := make(map[string]bool, len(otsIntf))
+		for i, r := range otsIntf {
+			n, _ := r.(map[string]interface{})[isNetworkACLRuleName].(string)
+			oldNames[i] = n
+			oldNameSet[n] = true
+		}
+		for i, r := range ntsIntf {
+			n, _ := r.(map[string]interface{})[isNetworkACLRuleName].(string)
+			newNames[i] = n
+		}
+
+		isRecreationNeeded := func() bool {
+			if len(oldNames) != len(newNames) {
+				return true // add or remove
+			}
+			// Check if any new name already existed in the old set.
+			// If every new name is brand-new (not in old set) it's all renames — patch.
+			// If some new names exist in the old set but at different positions — reorder.
+			for i, nn := range newNames {
+				if oldNames[i] == nn {
+					continue
+				}
+				if oldNameSet[nn] {
+					return true
+				}
+			}
+			return false
+		}()
+
 		if isRecreationNeeded {
 			err := validateInlineRulesForUpdate(d, ntsIntf)
 			if err != nil {
