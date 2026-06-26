@@ -945,7 +945,7 @@ func nwaclUpdate(context context.Context, d *schema.ResourceData, meta interface
 		ntsIntf := nts.([]interface{})
 		isRecreationNeeded := len(otsIntf) != len(ntsIntf)
 		if isRecreationNeeded {
-			err := validateInlineRules(d, ntsIntf)
+			err := validateInlineRulesForUpdate(d, ntsIntf)
 			if err != nil {
 				tfErr := flex.TerraformErrorf(err, fmt.Sprintf("validateInlineRules failed: %s", err.Error()), "ibm_is_network_acl", "update")
 				log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
@@ -967,7 +967,7 @@ func nwaclUpdate(context context.Context, d *schema.ResourceData, meta interface
 				}
 			}
 		} else {
-			err := validateInlineRules(d, ntsIntf)
+			err := validateInlineRulesForUpdate(d, ntsIntf)
 			if err != nil {
 				tfErr := flex.TerraformErrorf(err, fmt.Sprintf("validateInlineRules failed: %s", err.Error()), "ibm_is_network_acl", "update")
 				log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
@@ -1421,6 +1421,97 @@ func validateInlineRules(d *schema.ResourceData, rules []interface{}) error {
 			}
 		}
 
+	}
+	return nil
+}
+
+func validateInlineRulesForUpdate(d *schema.ResourceData, rules []interface{}) error {
+	// Read everything from GetRawConfig so state-merged values don't cause
+	// false positives on update. On create GetRawConfig is fully populated;
+	// on update it is also fully populated (only destroy returns null).
+	rawConfig := d.GetRawConfig()
+	var rawRulesAttr cty.Value
+	if rawConfig.IsKnown() && !rawConfig.IsNull() {
+		rawRulesAttr = rawConfig.GetAttr("rules")
+	} else {
+		rawRulesAttr = cty.NullVal(cty.DynamicPseudoType)
+	}
+
+	for i, rule := range rules {
+		rulex := rule.(map[string]interface{})
+		action := rulex[isNetworkACLRuleAction].(string)
+		if (action != "allow") && (action != "deny") {
+			return fmt.Errorf("[ERROR] Invalid action. valid values are allow|deny")
+		}
+
+		hasIcmpBlock, hasTcpBlock, hasUdpBlock := false, false, false
+		protocol := ""
+		hasIcmpType, hasIcmpCode := false, false
+		hasPortMin, hasPortMax, hasSrcPortMin, hasSrcPortMax := false, false, false, false
+
+		if !rawRulesAttr.IsNull() && rawRulesAttr.IsKnown() && rawRulesAttr.LengthInt() > i {
+			ruleVal := rawRulesAttr.Index(cty.NumberIntVal(int64(i)))
+			if !ruleVal.IsNull() {
+				icmpAttr := ruleVal.GetAttr("icmp")
+				tcpAttr := ruleVal.GetAttr("tcp")
+				udpAttr := ruleVal.GetAttr("udp")
+				hasIcmpBlock = !icmpAttr.IsNull() && icmpAttr.LengthInt() > 0
+				hasTcpBlock = !tcpAttr.IsNull() && tcpAttr.LengthInt() > 0
+				hasUdpBlock = !udpAttr.IsNull() && udpAttr.LengthInt() > 0
+
+				if p := ruleVal.GetAttr("protocol"); !p.IsNull() && p.IsKnown() {
+					protocol = p.AsString()
+				}
+				if v := ruleVal.GetAttr("type"); !v.IsNull() && v.IsKnown() {
+					hasIcmpType = true
+				}
+				if v := ruleVal.GetAttr("code"); !v.IsNull() && v.IsKnown() {
+					hasIcmpCode = true
+				}
+				if v := ruleVal.GetAttr("port_min"); !v.IsNull() && v.IsKnown() {
+					hasPortMin = true
+				}
+				if v := ruleVal.GetAttr("port_max"); !v.IsNull() && v.IsKnown() {
+					hasPortMax = true
+				}
+				if v := ruleVal.GetAttr("source_port_min"); !v.IsNull() && v.IsKnown() {
+					hasSrcPortMin = true
+				}
+				if v := ruleVal.GetAttr("source_port_max"); !v.IsNull() && v.IsKnown() {
+					hasSrcPortMax = true
+				}
+			}
+		}
+
+		log.Printf("[DEBUG] validateInlineRules rule[%d] from RawConfig: icmp=%t, tcp=%t, udp=%t, protocol=%q", i, hasIcmpBlock, hasTcpBlock, hasUdpBlock, protocol)
+
+		if (hasIcmpBlock && hasTcpBlock) || (hasIcmpBlock && hasUdpBlock) || (hasTcpBlock && hasUdpBlock) {
+			return fmt.Errorf("Only one of icmp|tcp|udp can be defined per rule")
+		}
+
+		if protocol != "icmp" && protocol != "" {
+			if hasIcmpType {
+				return fmt.Errorf("attribute 'type' conflicts with protocol %q; 'type' is only valid for icmp protocol", protocol)
+			}
+			if hasIcmpCode {
+				return fmt.Errorf("attribute 'code' conflicts with protocol %q; 'code' is only valid for icmp protocol", protocol)
+			}
+		}
+
+		if protocol != "tcp" && protocol != "udp" && protocol != "" {
+			if hasPortMin {
+				return fmt.Errorf("attribute 'port_min' conflicts with protocol %s; ports apply only to tcp/udp protocol", protocol)
+			}
+			if hasPortMax {
+				return fmt.Errorf("attribute 'port_max' conflicts with protocol %s; ports apply only to tcp/udp protocol", protocol)
+			}
+			if hasSrcPortMin {
+				return fmt.Errorf("attribute 'source_port_min' conflicts with protocol %s; ports apply only to tcp/udp protocol", protocol)
+			}
+			if hasSrcPortMax {
+				return fmt.Errorf("attribute 'source_port_max' conflicts with protocol %s; ports apply only to tcp/udp protocol", protocol)
+			}
+		}
 	}
 	return nil
 }
