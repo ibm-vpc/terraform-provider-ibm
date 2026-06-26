@@ -1152,6 +1152,19 @@ In addition to all argument reference list, you can access the following attribu
       - `name`- (String) The user-defined or system-provided name for this reserved IP
       - `reserved_ip`- (String) The unique identifier for this reserved IP.
   - `primary_ipv4_address` - (String, Deprecated) The primary IPv4 address. Same as `primary_ip.[0].address`
+- `rescue_volume_attachment` - (List) The rescue volume attachment for this virtual server instance. If present, the instance is in rescue mode.
+
+  Nested scheme for `rescue_volume_attachment`:
+  - `href` - (String) The URL for this volume attachment.
+  - `id` - (String) The unique identifier for this volume attachment.
+  - `name` - (String) The name for this volume attachment.
+  - `volume` - (List) The attached rescue volume.
+  
+    Nested scheme for `volume`:
+    - `crn` - (String) The CRN for this volume.
+    - `href` - (String) The URL for this volume.
+    - `id` - (String) The unique identifier for this volume.
+    - `name` - (String) The name for this volume.
       ```terraform
       // primary_ipv4_address deprecation 
       output "primary_ipv4_address" {

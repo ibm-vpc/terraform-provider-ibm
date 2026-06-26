@@ -553,6 +553,7 @@ func Provider() *schema.Provider {
 			"ibm_is_instance_network_interfaces":  vpc.DataSourceIBMIsInstanceNetworkInterfaces(),
 			"ibm_is_instance_disk":                vpc.DataSourceIbmIsInstanceDisk(),
 			"ibm_is_instance_disks":               vpc.DataSourceIbmIsInstanceDisks(),
+			"ibm_is_instance_rescue":              vpc.DataSourceIBMISInstanceRescue(),
 
 			// reserved ips
 			"ibm_is_instance_network_interface_reserved_ip":  vpc.DataSourceIBMISInstanceNICReservedIP(),
@@ -1416,6 +1417,7 @@ func Provider() *schema.Provider {
 			"ibm_is_instance_network_interface":                  vpc.ResourceIBMIsInstanceNetworkInterface(),
 			"ibm_is_instance_network_interface_floating_ip":      vpc.ResourceIBMIsInstanceNetworkInterfaceFloatingIp(),
 			"ibm_is_instance_disk_management":                    vpc.ResourceIBMISInstanceDiskManagement(),
+			"ibm_is_instance_rescue":                             vpc.ResourceIBMISInstanceRescue(),
 			"ibm_is_instance_group":                              vpc.ResourceIBMISInstanceGroup(),
 			"ibm_is_instance_group_membership":                   vpc.ResourceIBMISInstanceGroupMembership(),
 			"ibm_is_instance_group_manager":                      vpc.ResourceIBMISInstanceGroupManager(),
@@ -2196,6 +2198,7 @@ func Validator() validate.ValidatorDict {
 				"ibm_is_instance_network_attachment":                 vpc.ResourceIBMIsInstanceNetworkAttachmentValidator(),
 				"ibm_is_instance_network_interface":                  vpc.ResourceIBMIsInstanceNetworkInterfaceValidator(),
 				"ibm_is_instance_disk_management":                    vpc.ResourceIBMISInstanceDiskManagementValidator(),
+				"ibm_is_instance_rescue":                             vpc.ResourceIBMISInstanceRescueValidator(),
 				"ibm_is_instance_volume_attachment":                  vpc.ResourceIBMISInstanceVolumeAttachmentValidator(),
 				"ibm_is_ipsec_policy":                                vpc.ResourceIBMISIPSECValidator(),
 				"ibm_is_lb_listener_policy_rule":                     vpc.ResourceIBMISLBListenerPolicyRuleValidator(),
