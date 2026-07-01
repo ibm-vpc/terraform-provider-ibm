@@ -194,19 +194,61 @@ After your resource is created, you can read values from the listed arguments an
 
 * `id` - The unique identifier of the instance rescue configuration (same as `instance_id`).
 
+* `image` - (List) The image used for rescuing the instance.
+
+  Nested schema for **image**:
+  * `crn` - (String) The CRN for this image.
+  * `deleted` - (List) If present, this property indicates the referenced resource has been deleted, and provides some supplementary information.
+    
+    Nested schema for **deleted**:
+    * `more_info` - (String) Link to documentation about deleted resources.
+  * `href` - (String) The URL for this image.
+  * `id` - (String) The unique identifier for this image.
+  * `name` - (String) The name for this image. The name is unique across all images in the region.
+  * `remote` - (List) If present, this property indicates that the resource associated with this reference is remote and therefore may not be directly retrievable.
+    
+    Nested schema for **remote**:
+    * `account` - (List) If present, this property indicates that the referenced resource is remote to this account, and identifies the owning account.
+      
+      Nested schema for **account**:
+      * `id` - (String) The unique identifier for this account.
+      * `resource_type` - (String) The resource type.
+    * `region` - (List) If present, this property indicates that the referenced resource is remote to this region, and identifies the native region.
+      
+      Nested schema for **region**:
+      * `href` - (String) The URL for this region.
+      * `name` - (String) The globally unique name for this region.
+  * `resource_type` - (String) The resource type.
+
+* `keys` - (List) The public SSH keys used at initialization for the rescue volume.
+
+  Nested schema for **keys**:
+  * `crn` - (String) The CRN for this key.
+  * `deleted` - (List) If present, this property indicates the referenced resource has been deleted, and provides some supplementary information.
+    
+    Nested schema for **deleted**:
+    * `more_info` - (String) Link to documentation about deleted resources.
+  * `fingerprint` - (String) The fingerprint for this key.
+  * `href` - (String) The URL for this key.
+  * `id` - (String) The unique identifier for this key.
+  * `name` - (String) The name for this key. The name is unique across all keys in the region.
+
 * `password` - (List) The administrator password for rescue mode access.
 
   Nested schema for **password**:
   * `encrypted_password` - (String) The administrator password at rescue, encrypted using `encryption_key`, and returned base64-encoded.
-    * Constraints: The maximum length is `172` characters. The minimum length is `4` characters. The value must match regular expression `/^(?:[A-Za-z0-9+\/]{4})*(?:[A-Za-z0-9+\/]{2}==|[A-Za-z0-9+\/]{3}=|[A-Za-z0-9+\/]{4})$/`.
   * `encryption_key` - (List) The public SSH key used to encrypt the administrator password.
   
     Nested schema for **encryption_key**:
     * `crn` - (String) The CRN for this key.
+    * `deleted` - (List) If present, this property indicates the referenced resource has been deleted, and provides some supplementary information.
+      
+      Nested schema for **deleted**:
+      * `more_info` - (String) Link to documentation about deleted resources.
     * `fingerprint` - (String) The fingerprint for this key.
     * `href` - (String) The URL for this key.
     * `id` - (String) The unique identifier for this key.
-    * `name` - (String) The name for this key.
+    * `name` - (String) The name for this key. The name is unique across all keys in the region.
 
 * `rescue_volume_attachment` - (List) The rescue volume attachment details.
 

@@ -114,29 +114,29 @@ After your data source is created, you can read values from the following attrib
 * `rescue_volume_attachment` - (List) The rescue volume attachment for this instance.
 
   Nested schema for **rescue_volume_attachment**:
-  * `deleted` - (List) If present, this property indicates the referenced resource has been deleted.
+  * `deleted` - (List) If present, this property indicates the referenced resource has been deleted, and provides some supplementary information.
   
     Nested schema for **deleted**:
-    * `more_info` - (String) A link to documentation about deleted resources.
+    * `more_info` - (String) Link to documentation about deleted resources.
   
-  * `device` - (List) The configuration for the volume as a device in the instance operating system.
+  * `device` - (List) The configuration for the volume as a device in the instance operating system. This property may be absent if the volume attachment's status is not attached.
   
     Nested schema for **device**:
     * `id` - (String) A unique identifier for the device which is exposed to the instance operating system.
   
   * `href` - (String) The URL for this volume attachment.
   * `id` - (String) The unique identifier for this volume attachment.
-  * `name` - (String) The name for this volume attachment.
-  * `volume` - (List) The attached volume.
+  * `name` - (String) The name for this volume attachment. The name is unique across all volume attachments on the instance.
+  * `volume` - (List) The attached rescue volume. This property will be absent if the volume has not yet been provisioned.
   
     Nested schema for **volume**:
     * `crn` - (String) The CRN for this volume.
-    * `deleted` - (List) If present, this property indicates the referenced resource has been deleted.
+    * `deleted` - (List) If present, this property indicates the referenced resource has been deleted, and provides some supplementary information.
     
       Nested schema for **deleted**:
-      * `more_info` - (String) A link to documentation about deleted resources.
+      * `more_info` - (String) Link to documentation about deleted resources.
     
     * `href` - (String) The URL for this volume.
     * `id` - (String) The unique identifier for this volume.
-    * `name` - (String) The name for this volume.
+    * `name` - (String) The name for this volume. The name is unique across all volumes in the region.
     * `resource_type` - (String) The resource type.

@@ -98,7 +98,7 @@ func DataSourceIBMISInstanceRescue() *schema.Resource {
 									"region": &schema.Schema{
 										Type:        schema.TypeList,
 										Computed:    true,
-										Description: "If present, this property indicates that the referenced resource is remote to thisregion, and identifies the native region.",
+										Description: "If present, this property indicates that the referenced resource is remote to this region, and identifies the native region.",
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"href": &schema.Schema{
