@@ -393,7 +393,7 @@ func resourceIBMISInstanceRescueCreate(context context.Context, d *schema.Resour
 
 	instanceID := d.Get("instance_id").(string)
 
-	// Check if instance exists and is stopped
+	// Check if instance exists
 	getInstanceOptions := vpcClient.NewGetInstanceOptions(instanceID)
 	instance, _, err := vpcClient.GetInstanceWithContext(context, getInstanceOptions)
 	if err != nil {
@@ -402,12 +402,32 @@ func resourceIBMISInstanceRescueCreate(context context.Context, d *schema.Resour
 		return tfErr.GetDiag()
 	}
 
-	// Ensure instance is stopped before rescue
+	// Stop instance if it's not already stopped
 	if *instance.Status != "stopped" {
-		err = fmt.Errorf("[ERROR] Instance must be stopped before rescue. Current status: %s", *instance.Status)
-		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_instance_rescue", "create")
-		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
-		return tfErr.GetDiag()
+		log.Printf("[INFO] Instance %s is in status '%s'. Stopping instance before rescue operation.", instanceID, *instance.Status)
+
+		actionType := "stop"
+		createInstanceActionOptions := &vpcv1.CreateInstanceActionOptions{
+			InstanceID: &instanceID,
+			Type:       &actionType,
+		}
+
+		_, response, err := vpcClient.CreateInstanceActionWithContext(context, createInstanceActionOptions)
+		if err != nil {
+			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("CreateInstanceActionWithContext (stop) failed: %s\n%s", err.Error(), response), "ibm_is_instance_rescue", "create")
+			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+			return tfErr.GetDiag()
+		}
+
+		// Wait for instance to stop
+		log.Printf("[INFO] Waiting for instance %s to stop...", instanceID)
+		_, err = isWaitForInstanceActionStop(vpcClient, d.Timeout(schema.TimeoutCreate), instanceID, d)
+		if err != nil {
+			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("isWaitForInstanceActionStop failed: %s", err.Error()), "ibm_is_instance_rescue", "create")
+			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+			return tfErr.GetDiag()
+		}
+		log.Printf("[INFO] Instance %s successfully stopped", instanceID)
 	}
 
 	bodyModelMap := map[string]interface{}{}
@@ -441,13 +461,24 @@ func resourceIBMISInstanceRescueCreate(context context.Context, d *schema.Resour
 		return tfErr.GetDiag()
 	}
 
+	// Wait for instance to start (API automatically starts the instance after rescue is created)
+	log.Printf("[INFO] Waiting for instance %s to start after rescue creation...", instanceID)
+	_, err = isWaitForInstanceActionStart(vpcClient, d.Timeout(schema.TimeoutCreate), instanceID, d)
+	if err != nil {
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("isWaitForInstanceActionStart failed: %s", err.Error()), "ibm_is_instance_rescue", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
+	}
+
 	// Wait for instance to enter rescue mode
+	log.Printf("[INFO] Waiting for instance %s to enter rescue mode...", instanceID)
 	_, err = isWaitForInstanceRescueMode(vpcClient, d.Timeout(schema.TimeoutCreate), instanceID, d)
 	if err != nil {
 		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("isWaitForInstanceRescueMode failed: %s", err.Error()), "ibm_is_instance_rescue", "create")
 		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
 		return tfErr.GetDiag()
 	}
+	log.Printf("[INFO] Instance %s successfully entered rescue mode and is running", instanceID)
 
 	d.SetId(instanceID)
 
@@ -557,7 +588,7 @@ func resourceIBMISInstanceRescueDelete(context context.Context, d *schema.Resour
 
 	instanceID := d.Id()
 
-	// Verify instance is in rescue mode before attempting delete
+	// Verify instance exists and get current status
 	getInstanceOptions := vpcClient.NewGetInstanceOptions(instanceID)
 	instance, _, err := vpcClient.GetInstanceWithContext(context, getInstanceOptions)
 	if err != nil {
@@ -571,6 +602,34 @@ func resourceIBMISInstanceRescueDelete(context context.Context, d *schema.Resour
 		log.Printf("[WARN] Instance %s is not in rescue mode (current state: %s), skipping rescue delete", instanceID, *instance.LifecycleState)
 		d.SetId("")
 		return nil
+	}
+
+	// Stop instance if it's not already stopped (required by DELETE API)
+	if *instance.Status != "stopped" {
+		log.Printf("[INFO] Instance %s is in status '%s'. Stopping instance before exiting rescue mode.", instanceID, *instance.Status)
+
+		actionType := "stop"
+		createInstanceActionOptions := &vpcv1.CreateInstanceActionOptions{
+			InstanceID: &instanceID,
+			Type:       &actionType,
+		}
+
+		_, response, err := vpcClient.CreateInstanceActionWithContext(context, createInstanceActionOptions)
+		if err != nil {
+			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("CreateInstanceActionWithContext (stop) failed: %s\n%s", err.Error(), response), "ibm_is_instance_rescue", "delete")
+			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+			return tfErr.GetDiag()
+		}
+
+		// Wait for instance to stop
+		log.Printf("[INFO] Waiting for instance %s to stop...", instanceID)
+		_, err = isWaitForInstanceActionStop(vpcClient, d.Timeout(schema.TimeoutDelete), instanceID, d)
+		if err != nil {
+			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("isWaitForInstanceActionStop failed: %s", err.Error()), "ibm_is_instance_rescue", "delete")
+			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+			return tfErr.GetDiag()
+		}
+		log.Printf("[INFO] Instance %s successfully stopped", instanceID)
 	}
 
 	deleteInstanceRescueOptions := &vpcv1.DeleteInstanceRescueOptions{}
