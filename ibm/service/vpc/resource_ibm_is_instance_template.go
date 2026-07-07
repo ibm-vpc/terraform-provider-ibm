@@ -1762,6 +1762,11 @@ func instanceTemplateCreateBySourceSnapshot(context context.Context, d *schema.R
 		instanceproto.VolumeBandwidthQosMode = &volumeBandwidthQoSModeStr
 	}
 
+	if threadsPerCoreIntf, ok := d.GetOk(isInstanceTemplateThreadsPerCore); ok {
+		threadsPerCore := int64(threadsPerCoreIntf.(int))
+		instanceproto.ThreadsPerCore = &threadsPerCore
+	}
+
 	// BOOT VOLUME ATTACHMENT for instance template
 	if boot, ok := d.GetOk(isInstanceTemplateBootVolume); ok {
 		bootvol := boot.([]interface{})[0].(map[string]interface{})
