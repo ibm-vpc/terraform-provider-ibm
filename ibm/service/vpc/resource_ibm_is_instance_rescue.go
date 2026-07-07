@@ -37,11 +37,11 @@ func ResourceIBMISInstanceRescue() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"instance_id": &schema.Schema{
+			"instance": &schema.Schema{
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
-				ValidateFunc: validate.InvokeValidator("ibm_is_instance_rescue", "instance_id"),
+				ValidateFunc: validate.InvokeValidator("ibm_is_instance_rescue", "instance"),
 				Description:  "The virtual server instance identifier.",
 			},
 			"image": &schema.Schema{
@@ -369,7 +369,7 @@ func ResourceIBMISInstanceRescueValidator() *validate.ResourceValidator {
 	validateSchema := make([]validate.ValidateSchema, 0)
 	validateSchema = append(validateSchema,
 		validate.ValidateSchema{
-			Identifier:                 "instance_id",
+			Identifier:                 "instance",
 			ValidateFunctionIdentifier: validate.ValidateRegexpLen,
 			Type:                       validate.TypeString,
 			Required:                   true,
@@ -391,7 +391,7 @@ func resourceIBMISInstanceRescueCreate(context context.Context, d *schema.Resour
 		return tfErr.GetDiag()
 	}
 
-	instanceID := d.Get("instance_id").(string)
+	instanceID := d.Get("instance").(string)
 
 	// Check if instance exists
 	getInstanceOptions := vpcClient.NewGetInstanceOptions(instanceID)
@@ -751,11 +751,13 @@ func ResourceIBMISInstanceRescueMapToInstanceRescueVolumeAttachmentPrototype(mod
 	if modelMap["name"] != nil && modelMap["name"].(string) != "" {
 		model.Name = core.StringPtr(modelMap["name"].(string))
 	}
-	VolumeModel, err := ResourceIBMISInstanceRescueMapToVolumePrototypeInstanceByImageContext(modelMap["volume"].([]interface{})[0].(map[string]interface{}))
-	if err != nil {
-		return model, err
+	if modelMap["volume"] != nil && len(modelMap["volume"].([]interface{})) > 0 {
+		VolumeModel, err := ResourceIBMISInstanceRescueMapToVolumePrototypeInstanceByImageContext(modelMap["volume"].([]interface{})[0].(map[string]interface{}))
+		if err != nil {
+			return model, err
+		}
+		model.Volume = VolumeModel
 	}
-	model.Volume = VolumeModel
 	return model, nil
 }
 
@@ -876,7 +878,7 @@ func ResourceIBMISInstanceRescueMapToResourceGroupIdentityByID(modelMap map[stri
 
 func ResourceIBMISInstanceRescueMapToInstanceRescuePrototype(modelMap map[string]interface{}) (vpcv1.InstanceRescuePrototypeIntf, error) {
 	model := &vpcv1.InstanceRescuePrototype{}
-	if modelMap["keys"] != nil {
+	if modelMap["keys"] != nil && len(modelMap["keys"].([]interface{})) > 0 {
 		keys := []vpcv1.KeyIdentityIntf{}
 		for _, keysItem := range modelMap["keys"].([]interface{}) {
 			keysItemModel, err := ResourceIBMISInstanceRescueMapToKeyIdentity(keysItem.(map[string]interface{}))
@@ -904,35 +906,6 @@ func ResourceIBMISInstanceRescueMapToInstanceRescuePrototype(modelMap map[string
 		}
 		model.RescueVolumeAttachment = RescueVolumeAttachmentModel
 	}
-	return model, nil
-}
-
-func ResourceIBMISInstanceRescueMapToInstanceRescuePrototypeInstanceRescueByImage(modelMap map[string]interface{}) (*vpcv1.InstanceRescuePrototypeInstanceRescueByImage, error) {
-	model := &vpcv1.InstanceRescuePrototypeInstanceRescueByImage{}
-	if modelMap["keys"] != nil {
-		keys := []vpcv1.KeyIdentityIntf{}
-		for _, keysItem := range modelMap["keys"].([]interface{}) {
-			keysItemModel, err := ResourceIBMISInstanceRescueMapToKeyIdentity(keysItem.(map[string]interface{}))
-			if err != nil {
-				return model, err
-			}
-			keys = append(keys, keysItemModel)
-		}
-		model.Keys = keys
-	}
-	if modelMap["user_data"] != nil && modelMap["user_data"].(string) != "" {
-		model.UserData = core.StringPtr(modelMap["user_data"].(string))
-	}
-	ImageModel, err := ResourceIBMISInstanceRescueMapToImageIdentity(modelMap["image"].([]interface{})[0].(map[string]interface{}))
-	if err != nil {
-		return model, err
-	}
-	model.Image = ImageModel
-	RescueVolumeAttachmentModel, err := ResourceIBMISInstanceRescueMapToInstanceRescueVolumeAttachmentPrototype(modelMap["rescue_volume_attachment"].([]interface{})[0].(map[string]interface{}))
-	if err != nil {
-		return model, err
-	}
-	model.RescueVolumeAttachment = RescueVolumeAttachmentModel
 	return model, nil
 }
 
@@ -1134,7 +1107,7 @@ func isWaitForInstanceExitRescue(client *vpcv1.VpcV1, timeout time.Duration, ins
 	log.Printf("[INFO] Waiting for instance (%s) to exit rescue mode", instanceID)
 
 	stateConf := &resource.StateChangeConf{
-		Pending: []string{"rescue", "updating"},
+		Pending: []string{"waiting", "updating"},
 		Target:  []string{"stable"},
 		Refresh: func() (interface{}, string, error) {
 			getOptions := &vpcv1.GetInstanceOptions{
@@ -1147,7 +1120,14 @@ func isWaitForInstanceExitRescue(client *vpcv1.VpcV1, timeout time.Duration, ins
 			if instance.LifecycleState == nil {
 				return instance, "", fmt.Errorf("instance lifecycle_state is nil")
 			}
-			log.Printf("[DEBUG] Instance (%s) lifecycle_state: %s", instanceID, *instance.LifecycleState)
+
+			// Check if rescue_volume_attachment exists - if it does, instance is still in rescue mode
+			if instance.RescueVolumeAttachment != nil {
+				log.Printf("[DEBUG] Instance (%s) still has rescue_volume_attachment, lifecycle_state: %s", instanceID, *instance.LifecycleState)
+				return instance, "waiting", nil
+			}
+
+			log.Printf("[DEBUG] Instance (%s) exited rescue mode, lifecycle_state: %s", instanceID, *instance.LifecycleState)
 			return instance, *instance.LifecycleState, nil
 		},
 		Timeout:    timeout,

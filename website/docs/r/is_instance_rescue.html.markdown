@@ -37,15 +37,9 @@ Instance rescue mode allows you to troubleshoot and recover a virtual server ins
 ### Basic Instance Rescue
 
 ```terraform
-# Stop the instance first
-resource "ibm_is_instance_action" "stop_instance" {
-  instance = ibm_is_instance.example.id
-  action   = "stop"
-}
-
 # Configure rescue mode
 resource "ibm_is_instance_rescue" "example" {
-  instance_id = ibm_is_instance.example.id
+  instance = ibm_is_instance.example.id
   
   image {
     id = "r006-72b27b5c-f4b0-48bb-b954-5becc7c1dcb8"
@@ -63,8 +57,6 @@ resource "ibm_is_instance_rescue" "example" {
       profile = "general-purpose"
     }
   }
-  
-  depends_on = [ibm_is_instance_action.stop_instance]
 }
 
 # Start the instance in rescue mode
@@ -80,7 +72,7 @@ resource "ibm_is_instance_action" "start_rescue" {
 
 ```terraform
 resource "ibm_is_instance_rescue" "example" {
-  instance_id = ibm_is_instance.example.id
+  instance = ibm_is_instance.example.id
   
   image {
     id = "r006-72b27b5c-f4b0-48bb-b954-5becc7c1dcb8"
@@ -115,7 +107,7 @@ resource "ibm_is_instance_rescue" "example" {
 
 ```terraform
 resource "ibm_is_instance_rescue" "example" {
-  instance_id = ibm_is_instance.example.id
+  instance = ibm_is_instance.example.id
   
   image {
     id = data.ibm_is_image.rescue_image.id
@@ -145,7 +137,7 @@ resource "ibm_is_instance_rescue" "example" {
 
 You can specify the following arguments for this resource.
 
-* `instance_id` - (Required, Forces new resource, String) The virtual server instance identifier.
+* `instance` - (Required, Forces new resource, String) The virtual server instance identifier.
   * Constraints: The maximum length is `64` characters. The minimum length is `1` character. The value must match regular expression `/^[-0-9a-z_]+$/`.
 
 * `image` - (Required, Forces new resource, List) The image to use for rescuing the instance.
@@ -192,7 +184,7 @@ You can specify the following arguments for this resource.
 
 After your resource is created, you can read values from the listed arguments and the following attributes.
 
-* `id` - The unique identifier of the instance rescue configuration (same as `instance_id`).
+* `id` - The unique identifier of the instance rescue configuration (same as `instance`).
 
 * `image` - (List) The image used for rescuing the instance.
 
@@ -262,7 +254,7 @@ After your resource is created, you can read values from the listed arguments an
 
 ## Import
 
-You can import the `ibm_is_instance_rescue` resource by using `instance_id`.
+You can import the `ibm_is_instance_rescue` resource by using `instance`.
 
 **Syntax**
 
