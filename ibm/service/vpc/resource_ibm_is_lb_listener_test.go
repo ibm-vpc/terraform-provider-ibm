@@ -373,8 +373,8 @@ func TestAccIBMISLBListener_ClientAuth(t *testing.T) {
 	port := "443"
 
 	// Example CRNs - replace with actual values from your test environment
-	certCRN := "crn:v1:staging:public:secrets-manager:eu-gb:a/2d1bace7b46e4815a81e52c6ffeba5cf:2ca77a00-d2c6-41a2-93e4-6bfa23400b17:secret:3e4c3e45-27e9-ecec-22b2-fb17b92b6c77"
-	caCRN := "crn:v1:staging:public:secrets-manager:eu-gb:a/2d1bace7b46e4815a81e52c6ffeba5cf:2ca77a00-d2c6-41a2-93e4-6bfa23400b17:secret:385baca2-2d9b-6c82-f49b-1907be7feefd"
+	certCRN := "crn:v1:bluemix:public:secrets-manager:us-south:a/7f75c7b025e54bc5635f754b2f888665:152af435-37ac-4b3e-83c3-828805bfc8e0:secret:0ed079f8-5b93-66e9-86c6-ba79157036d6"
+	caCRN := "crn:v1:bluemix:public:secrets-manager:us-south:a/7f75c7b025e54bc5635f754b2f888665:152af435-37ac-4b3e-83c3-828805bfc8e0:secret:78b29d17-a610-9349-a220-32a50f3cd9e6"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { acc.TestAccPreCheck(t) },
