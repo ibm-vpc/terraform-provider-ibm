@@ -364,7 +364,33 @@ In addition to all argument reference list, you can access the following attribu
     - `id` - (String) The unique identifier for this reservation.
     - `name` - (string) The name for this reservation. The name is unique across all reservations in the region.
     - `resource_type` - (string) The resource type.
-- `resource_controller_url` - (String) The URL of the IBM Cloud dashboard that you can use to see details for your instance.  
+- `rescue_volume_attachment` - (List) The rescue volume attachment for this virtual server instance. If present, the instance is in rescue mode.
+
+  Nested scheme for `rescue_volume_attachment`:
+  - `deleted` - (List) If present, this property indicates the referenced resource has been deleted, and provides some supplementary information.
+    
+    Nested schema for `deleted`:
+    - `more_info` - (String) Link to documentation about deleted resources.
+  - `device` - (List) The configuration for the volume as a device in the instance operating system. This property may be absent if the volume attachment's status is not attached.
+    
+    Nested schema for `device`:
+    - `id` - (String) A unique identifier for the device which is exposed to the instance operating system.
+  - `href` - (String) The URL for this volume attachment.
+  - `id` - (String) The unique identifier for this volume attachment.
+  - `name` - (String) The name for this volume attachment. The name is unique across all volume attachments on the instance.
+  - `volume` - (List) The attached rescue volume. This property will be absent if the volume has not yet been provisioned.
+  
+    Nested scheme for `volume`:
+    - `crn` - (String) The CRN for this volume.
+    - `deleted` - (List) If present, this property indicates the referenced resource has been deleted, and provides some supplementary information.
+      
+      Nested schema for `deleted`:
+      - `more_info` - (String) Link to documentation about deleted resources.
+    - `href` - (String) The URL for this volume.
+    - `id` - (String) The unique identifier for this volume.
+    - `name` - (String) The name for this volume. The name is unique across all volumes in the region.
+    - `resource_type` - (String) The resource type.
+- `resource_controller_url` - (String) The URL of the IBM Cloud dashboard that you can use to see details for your instance.
 - `resource_group` - (String) The resource group id, where the instance was created.
 - `status` - (String) The status of the instance.
 - `status_reasons` - (List) Array of reasons for the current status. 

@@ -1157,6 +1157,39 @@ In addition to all argument reference list, you can access the following attribu
       - `name`- (String) The user-defined or system-provided name for this reserved IP
       - `reserved_ip`- (String) The unique identifier for this reserved IP.
   - `primary_ipv4_address` - (String, Deprecated) The primary IPv4 address. Same as `primary_ip.[0].address`
+- `rescue_volume_attachment` - (List) The rescue volume attachment for this virtual server instance. If present, the instance is in rescue mode.
+
+  Nested scheme for `rescue_volume_attachment`:
+  - `deleted` - (List) If present, this property indicates the referenced resource has been deleted, and provides some supplementary information.
+    
+    Nested schema for `deleted`:
+    - `more_info` - (String) Link to documentation about deleted resources.
+  - `device` - (List) The configuration for the volume as a device in the instance operating system. This property may be absent if the volume attachment's status is not attached.
+    
+    Nested schema for `device`:
+    - `id` - (String) A unique identifier for the device which is exposed to the instance operating system.
+  - `href` - (String) The URL for this volume attachment.
+  - `id` - (String) The unique identifier for this volume attachment.
+  - `name` - (String) The name for this volume attachment. The name is unique across all volume attachments on the instance.
+  - `volume` - (List) The attached rescue volume. This property will be absent if the volume has not yet been provisioned.
+  
+    Nested scheme for `volume`:
+    - `crn` - (String) The CRN for this volume.
+    - `deleted` - (List) If present, this property indicates the referenced resource has been deleted, and provides some supplementary information.
+      
+      Nested schema for `deleted`:
+      - `more_info` - (String) Link to documentation about deleted resources.
+    - `href` - (String) The URL for this volume.
+    - `id` - (String) The unique identifier for this volume.
+    - `name` - (String) The name for this volume. The name is unique across all volumes in the region.
+    - `resource_type` - (String) The resource type.
+      ```terraform
+      // primary_ipv4_address deprecation 
+      output "primary_ipv4_address" {
+        # value = ibm_is_instance.example.primary_network_interface.0.primary_ipv4_address // will be deprecated in future
+        value = ibm_is_instance.example.primary_network_interface.0.primary_ip.0.address // use this instead 
+      }
+- `reservation`- (List) The reservation used by this virtual server instance. 
 
     ```terraform
     // primary_ipv4_address deprecation

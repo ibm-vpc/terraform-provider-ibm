@@ -368,6 +368,59 @@ func DataSourceIBMISInstance() *schema.Resource {
 					},
 				},
 			},
+			isInstanceRescueVolumeAttachment: {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "The rescue volume attachment for this virtual server instance. If present, the instance is in rescue mode.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"id": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The unique identifier for this volume attachment.",
+						},
+						"href": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The URL for this volume attachment.",
+						},
+						"name": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The name for this volume attachment.",
+						},
+						"volume": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "The attached volume.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"id": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The unique identifier for this volume.",
+									},
+									"name": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The name for this volume.",
+									},
+									"crn": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The CRN for this volume.",
+									},
+									"href": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The URL for this volume.",
+									},
+								},
+							},
+						},
+					},
+				},
+			},
 
 			isInstanceTags: {
 				Type:        schema.TypeSet,
@@ -1828,6 +1881,53 @@ func instanceGetByName(context context.Context, d *schema.ResourceData, meta int
 	if instance.LifecycleReasons != nil {
 		if err = d.Set(isInstanceLifecycleReasons, dataSourceInstanceFlattenLifecycleReasons(instance.LifecycleReasons)); err != nil {
 			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting lifecycle_reasons: %s", err), "(Data) ibm_is_instance", "read", "set-lifecycle_reasons").GetDiag()
+		}
+	}
+
+	// Set rescue_volume_attachment if present
+	if instance.RescueVolumeAttachment != nil {
+		rescueVolAttList := make([]map[string]interface{}, 0)
+		rescueVolAtt := map[string]interface{}{}
+
+		if instance.RescueVolumeAttachment.ID != nil {
+			rescueVolAtt["id"] = *instance.RescueVolumeAttachment.ID
+		}
+		if instance.RescueVolumeAttachment.Href != nil {
+			rescueVolAtt["href"] = *instance.RescueVolumeAttachment.Href
+		}
+		if instance.RescueVolumeAttachment.Name != nil {
+			rescueVolAtt["name"] = *instance.RescueVolumeAttachment.Name
+		}
+
+		if instance.RescueVolumeAttachment.Volume != nil {
+			volumeList := make([]map[string]interface{}, 0)
+			volumeMap := map[string]interface{}{}
+
+			if instance.RescueVolumeAttachment.Volume.ID != nil {
+				volumeMap["id"] = *instance.RescueVolumeAttachment.Volume.ID
+			}
+			if instance.RescueVolumeAttachment.Volume.Name != nil {
+				volumeMap["name"] = *instance.RescueVolumeAttachment.Volume.Name
+			}
+			if instance.RescueVolumeAttachment.Volume.CRN != nil {
+				volumeMap["crn"] = *instance.RescueVolumeAttachment.Volume.CRN
+			}
+			if instance.RescueVolumeAttachment.Volume.Href != nil {
+				volumeMap["href"] = *instance.RescueVolumeAttachment.Volume.Href
+			}
+
+			volumeList = append(volumeList, volumeMap)
+			rescueVolAtt["volume"] = volumeList
+		}
+
+		rescueVolAttList = append(rescueVolAttList, rescueVolAtt)
+		if err = d.Set(isInstanceRescueVolumeAttachment, rescueVolAttList); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting rescue_volume_attachment: %s", err), "(Data) ibm_is_instance", "read", "set-rescue_volume_attachment").GetDiag()
+		}
+	} else {
+		// Clear the field if no rescue volume attachment
+		if err = d.Set(isInstanceRescueVolumeAttachment, nil); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error clearing rescue_volume_attachment: %s", err), "(Data) ibm_is_instance", "read", "clear-rescue_volume_attachment").GetDiag()
 		}
 	}
 
