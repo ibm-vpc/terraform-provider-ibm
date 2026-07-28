@@ -108,7 +108,10 @@ func getQuotaClientInstanceEntity(d *schema.ResourceData, meta interface{}) (*ad
 	if err != nil {
 		return nil, "", "", err
 	}
-	adminURL := instance.Extensions["kafka_http_url"].(string)
+	adminURL, err := getAdminURL(instance.Extensions)
+	if err != nil {
+		return nil, "", "", err
+	}
 	adminrestClient.SetServiceURL(adminURL)
 	return adminrestClient, instanceCRN, d.Get("entity").(string), nil
 }

@@ -357,7 +357,10 @@ func getInstanceURL(d *schema.ResourceData, meta interface{}) (string, string, e
 		return "", "", err
 	}
 
-	adminURL := instance.Extensions["kafka_http_url"].(string)
+	adminURL, err := getAdminURL(instance.Extensions)
+	if err != nil {
+		return "", "", err
+	}
 	planID := *instance.ResourcePlanID
 	valid := strings.Contains(planID, "enterprise")
 	if !valid {
@@ -365,7 +368,7 @@ func getInstanceURL(d *schema.ResourceData, meta interface{}) (string, string, e
 			planID)
 	}
 	d.Set("kafka_http_url", adminURL)
-	log.Printf("[INFO]getInstanceURL kafka_http_url is set to %s", adminURL)
+	log.Printf("[INFO]getInstanceURL admin URL resolved to %s", adminURL)
 	return adminURL, instanceCRN, nil
 }
 
@@ -388,6 +391,24 @@ func getInstanceDetails(crn string, meta interface{}) (*resourcecontrollerv2.Res
 	}
 
 	return instance, nil
+}
+
+// getAdminURL extracts the REST admin endpoint from an instance's Extensions map.
+// Classic and Enterprise instances expose it under "kafka_http_url"; Enterprise Gen2
+// instances expose it under "dataservices.connection.rest_url" instead.
+// It returns an error when neither key is present.
+func getAdminURL(extensions map[string]interface{}) (string, error) {
+	if v, ok := extensions["kafka_http_url"]; ok {
+		if url, ok := v.(string); ok && url != "" {
+			return url, nil
+		}
+	}
+	if v, ok := extensions["dataservices.connection.rest_url"]; ok {
+		if url, ok := v.(string); ok && url != "" {
+			return url, nil
+		}
+	}
+	return "", fmt.Errorf("instance extensions contain neither 'kafka_http_url' nor 'dataservices.connection.rest_url'")
 }
 
 func getUniqueSchemaID(instanceCRN string, schemaID string) string {

@@ -96,7 +96,10 @@ func getMirroringConfigInstanceURL(d *schema.ResourceData, meta interface{}) (st
 	if err != nil {
 		return "", "", err
 	}
-	adminURL := instance.Extensions["kafka_http_url"].(string)
+	adminURL, err := getAdminURL(instance.Extensions)
+	if err != nil {
+		return "", "", err
+	}
 	planID := *instance.ResourcePlanID
 	valid := strings.Contains(planID, "enterprise")
 	if !valid {

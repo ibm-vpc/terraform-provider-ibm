@@ -6,6 +6,7 @@ package eventstreams_test
 import (
 	"fmt"
 	"log"
+	"os"
 	"reflect"
 	"strconv"
 	"strings"
@@ -187,6 +188,61 @@ func TestAccIBMEventStreamsEnterprise(t *testing.T) {
 			},
 		},
 	})
+}
+
+// TestAccIBMEventStreamsEnterpriseGen2Topic provisions an Enterprise Gen2 Event
+// Streams instance and creates a topic on it. Enterprise Gen2 exposes the admin
+// REST endpoint via "dataservices.connection.rest_url" rather than
+// "kafka_http_url"; this test verifies the provider can resolve that endpoint
+// without panicking.
+//
+// Requires the env var ES_GEN2_INSTANCE_NAME to name an existing Enterprise Gen2
+// instance in the target account, or falls back to the constant below.
+//
+// Run against a real account with:
+//
+//	go test -timeout 60m -run TestAccIBMEventStreamsEnterpriseGen2Topic ./ibm/service/eventstreams/...
+func TestAccIBMEventStreamsEnterpriseGen2Topic(t *testing.T) {
+	const gen2Key = "ES_GEN2_INSTANCE_NAME"
+	instanceName := os.Getenv(gen2Key)
+	if len(instanceName) == 0 {
+		instanceName = "ES Enterprise Gen2 Test"
+	}
+	topicName := fmt.Sprintf("es_gen2_topic_%d", acctest.RandInt())
+	partitions := 3
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { acc.TestAccPreCheck(t) },
+		Providers: acc.TestAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckIBMEventStreamsTopicGen2Config(instanceName, topicName, partitions),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					testAccCheckIBMEventStreamsTopicExists("ibm_event_streams_topic.es_gen2_topic", topicName),
+					resource.TestCheckResourceAttrSet("ibm_event_streams_topic.es_gen2_topic", "id"),
+					resource.TestCheckResourceAttr("ibm_event_streams_topic.es_gen2_topic", "name", topicName),
+					resource.TestCheckResourceAttr("ibm_event_streams_topic.es_gen2_topic", "partitions", strconv.Itoa(partitions)),
+				),
+			},
+		},
+	})
+}
+
+func testAccCheckIBMEventStreamsTopicGen2Config(instanceName, topicName string, partitions int) string {
+	return fmt.Sprintf(`
+	data "ibm_resource_group" "group" {
+	  is_default = true
+	}
+
+	data "ibm_resource_instance" "es_gen2_instance" {
+	  resource_group_id = data.ibm_resource_group.group.id
+	  name              = "%s"
+	}
+
+	resource "ibm_event_streams_topic" "es_gen2_topic" {
+	  resource_instance_id = data.ibm_resource_instance.es_gen2_instance.id
+	  name                 = "%s"
+	  partitions           = %d
+	}`, instanceName, topicName, partitions)
 }
 
 func testAccCheckIBMEventStreamsTopicWithoutConfig(instanceName, serviceName, planID, location,

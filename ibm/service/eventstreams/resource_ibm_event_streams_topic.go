@@ -281,10 +281,18 @@ func createSaramaAdminClient(d *schema.ResourceData, meta interface{}) (sarama.C
 	if err != nil {
 		return nil, "", err
 	}
-	adminURL := instance.Extensions["kafka_http_url"].(string)
+	adminURL, err := getAdminURL(instance.Extensions)
+	if err != nil {
+		return nil, "", err
+	}
 	d.Set("kafka_http_url", adminURL)
-	log.Printf("[INFO] createSaramaAdminClient kafka_http_url is set to %s", adminURL)
-	brokerAddress := flex.ExpandStringList(instance.Extensions["kafka_brokers_sasl"].([]interface{}))
+	log.Printf("[INFO] createSaramaAdminClient admin URL resolved to %s", adminURL)
+	var brokerAddress []string
+	if raw, ok := instance.Extensions["kafka_brokers_sasl"]; ok {
+		if brokers, ok := raw.([]interface{}); ok {
+			brokerAddress = flex.ExpandStringList(brokers)
+		}
+	}
 	slices.Sort(brokerAddress)
 	d.Set("kafka_brokers_sasl", brokerAddress)
 	log.Printf("[INFO] createSaramaAdminClient kafka_brokers_sasl is set to %s", brokerAddress)
